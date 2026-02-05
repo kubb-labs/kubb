@@ -1,5 +1,168 @@
 # @kubb/plugin-faker
 
+## 4.20.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.20.3
+  - @kubb/oas@4.20.3
+  - @kubb/plugin-oas@4.20.3
+  - @kubb/plugin-ts@4.20.3
+
+## 4.20.2
+
+### Patch Changes
+
+- Updated dependencies [[`6006dc3`](https://github.com/kubb-labs/kubb/commit/6006dc335d62dd9c1254bd31ecc90a5ccb70a116)]:
+  - @kubb/core@4.20.2
+  - @kubb/oas@4.20.2
+  - @kubb/plugin-oas@4.20.2
+  - @kubb/plugin-ts@4.20.2
+
+## 4.20.1
+
+### Patch Changes
+
+- Updated dependencies [[`5c50613`](https://github.com/kubb-labs/kubb/commit/5c50613504f05d1f5484dea4969182ecc7961cfb)]:
+  - @kubb/core@4.20.1
+  - @kubb/plugin-oas@4.20.1
+  - @kubb/oas@4.20.1
+  - @kubb/plugin-ts@4.20.1
+
+## 4.20.0
+
+### Patch Changes
+
+- [#2387](https://github.com/kubb-labs/kubb/pull/2387) [`d3acf9e`](https://github.com/kubb-labs/kubb/commit/d3acf9eb2b018595fadcc06380ef8419d8bbea8f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update fabric
+
+- Updated dependencies [[`d3acf9e`](https://github.com/kubb-labs/kubb/commit/d3acf9eb2b018595fadcc06380ef8419d8bbea8f)]:
+  - @kubb/plugin-oas@4.20.0
+  - @kubb/plugin-ts@4.20.0
+  - @kubb/core@4.20.0
+  - @kubb/oas@4.20.0
+
+## 4.19.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.19.2
+  - @kubb/oas@4.19.2
+  - @kubb/plugin-oas@4.19.2
+  - @kubb/plugin-ts@4.19.2
+
+## 4.19.1
+
+### Patch Changes
+
+- [#2381](https://github.com/kubb-labs/kubb/pull/2381) [`996f3b2`](https://github.com/kubb-labs/kubb/commit/996f3b26d8c2167c3e77b734275c204e6c1b159c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Enhanced `collisionDetection` to prevent nested enum name collisions across different schemas
+
+  When `collisionDetection: true` is enabled, Kubb now prevents duplicate enum names that occur when multiple schemas define identical inline enums in nested properties.
+
+  **New behavior:**
+  - Tracks root schema name throughout parsing chain
+  - Includes root schema name in enum naming for nested properties
+  - Only applies when `collisionDetection: true` (backward compatible)
+
+  **Example:**
+
+  ```yaml
+  components:
+    schemas:
+      NotificationTypeA:
+        properties:
+          params:
+            properties:
+              channel:
+                type: string
+                enum: [public, collaborators]
+
+      NotificationTypeB:
+        properties:
+          params:
+            properties:
+              channel:
+                type: string
+                enum: [public, collaborators]
+  ```
+
+  **Before** (without this fix):
+
+  ```typescript
+  // Both files export the same enum name - collision!
+  export const paramsChannelEnum = { ... }
+  ```
+
+  **After** (with `collisionDetection: true`):
+
+  ```typescript
+  // NotificationTypeA.ts
+  export const notificationTypeAParamsChannelEnum = { ... }
+
+  // NotificationTypeB.ts
+  export const notificationTypeBParamsChannelEnum = { ... }
+  ```
+
+  **Deprecated:**
+  - Marked `usedEnumNames` as deprecated - will be removed in v5 when `collisionDetection` defaults to `true`
+  - The rootName-based approach eliminates the need for numeric suffix fallbacks
+
+  **Migration:**
+  Enable `collisionDetection: true` in your configuration to benefit from this enhancement and prepare for v5:
+
+  ```typescript
+  pluginOas({
+    collisionDetection: true, // Recommended - prevents all collision types
+  });
+  ```
+
+- Updated dependencies [[`996f3b2`](https://github.com/kubb-labs/kubb/commit/996f3b26d8c2167c3e77b734275c204e6c1b159c)]:
+  - @kubb/plugin-oas@4.19.1
+  - @kubb/plugin-ts@4.19.1
+  - @kubb/core@4.19.1
+  - @kubb/oas@4.19.1
+
+## 4.19.0
+
+### Patch Changes
+
+- Updated dependencies [[`f5f2dc1`](https://github.com/kubb-labs/kubb/commit/f5f2dc162556c9c1c05d97e29cb28cf79830885a)]:
+  - @kubb/oas@4.19.0
+  - @kubb/plugin-oas@4.19.0
+  - @kubb/plugin-ts@4.19.0
+  - @kubb/core@4.19.0
+
+## 4.18.5
+
+### Patch Changes
+
+- Updated dependencies [[`ea23bb4`](https://github.com/kubb-labs/kubb/commit/ea23bb4a2f5a121dd1192b05f0f4cf4207093dc5)]:
+  - @kubb/plugin-oas@4.18.5
+  - @kubb/oas@4.18.5
+  - @kubb/plugin-ts@4.18.5
+  - @kubb/core@4.18.5
+
+## 4.18.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.18.4
+  - @kubb/oas@4.18.4
+  - @kubb/plugin-oas@4.18.4
+  - @kubb/plugin-ts@4.18.4
+
+## 4.18.3
+
+### Patch Changes
+
+- Updated dependencies [[`5bff082`](https://github.com/kubb-labs/kubb/commit/5bff08211fb72476a6b8ffc703430ae4c6603ba5)]:
+  - @kubb/plugin-ts@4.18.3
+  - @kubb/core@4.18.3
+  - @kubb/oas@4.18.3
+  - @kubb/plugin-oas@4.18.3
+
 ## 4.18.2
 
 ### Patch Changes
@@ -777,7 +940,7 @@
 
 ### Patch Changes
 
-- [#1953](https://github.com/kubb-labs/kubb/pull/1953) [`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - update peerdeps @kubb/react
+- [#1953](https://github.com/kubb-labs/kubb/pull/1953) [`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - update PeerDependencies @kubb/react
 
 - Updated dependencies [[`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92)]:
   - @kubb/plugin-oas@4.3.1
@@ -3936,7 +4099,7 @@
 
 ### Patch Changes
 
-- [#676](https://github.com/kubb-labs/kubb/pull/676) [`d729470`](https://github.com/kubb-labs/kubb/commit/d729470b74121eef6776649654921ce61b35da51) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - feat: use of Query and Mutation omponent for swagger-faker
+- [#676](https://github.com/kubb-labs/kubb/pull/676) [`d729470`](https://github.com/kubb-labs/kubb/commit/d729470b74121eef6776649654921ce61b35da51) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - feat: use of Query and Mutation component for swagger-faker
 
 - [#676](https://github.com/kubb-labs/kubb/pull/676) [`d729470`](https://github.com/kubb-labs/kubb/commit/d729470b74121eef6776649654921ce61b35da51) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - mapper and transformers.schema to override default fakerParser
 

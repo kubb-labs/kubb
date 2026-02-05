@@ -1,5 +1,5 @@
 import { File } from '@kubb/react-fabric'
-import type { KubbNode } from '@kubb/react-fabric/types'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 
 type HandlersProps = {
   /**
@@ -10,7 +10,7 @@ type HandlersProps = {
   handlers: string[]
 }
 
-export function Handlers({ name, handlers }: HandlersProps): KubbNode {
+export function Handlers({ name, handlers }: HandlersProps): FabricReactNode {
   return (
     <File.Source name={name} isIndexable isExportable>
       {`export const ${name} = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const`}

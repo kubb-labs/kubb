@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod'
+import * as z from 'zod'
 
 export const addressSchema = z.object({
   street: z.optional(z.string()),

@@ -1,4 +1,4 @@
-How to pass your params. Here you can switch between object-style parameters and inline parameters.
+Defines how parameters are passed to generated functions. Switch between object-style parameters and inline parameters.
 
 |           |                        |
 |----------:|:-----------------------|
@@ -10,8 +10,8 @@ How to pass your params. Here you can switch between object-style parameters and
 > [!TIP]
 > When `paramsType` is set to `'object'`, `pathParams` will also be set to `'object'`.
 
-- `'object'` will return the params and pathParams as an object.
-- `'inline'` will return the params as comma separated params.
+- `'object'` returns params and pathParams as an object.
+- `'inline'` returns params as comma-separated params.
 
 ::: code-group
 ```typescript ['object']

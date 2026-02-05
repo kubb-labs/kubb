@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename)
 
 describe('write', () => {
   const mocksPath = path.resolve(__dirname, '../../mocks')
-  const filePath = path.resolve(mocksPath, './hellowWorld.js')
+  const filePath = path.resolve(mocksPath, './helloWorld.js')
 
   test('if write is creating a file in the mocks folder', async () => {
     const text = `export const hallo = 'world'`

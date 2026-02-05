@@ -1,5 +1,6 @@
 ---
-title: Svelte-Query PetStore
+title: TanStack Svelte Query Example with Kubb
+description: Generate TanStack Query stores for Svelte with Kubb. Type-safe data fetching for Svelte.
 aside: false
 ---
 

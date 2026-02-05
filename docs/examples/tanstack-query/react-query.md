@@ -1,5 +1,6 @@
 ---
-title: React-Query PetStore
+title: TanStack React Query Example with Kubb
+description: Generate TanStack Query hooks for React with Kubb. useQuery and useMutation examples.
 aside: false
 ---
 

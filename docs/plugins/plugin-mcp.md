@@ -1,15 +1,16 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-mcp
+title: Kubb MCP Plugin - Model Context Protocol Server
+description: Generate Model Context Protocol servers from OpenAPI specs with @kubb/plugin-mcp for AI assistant integration.
 outline: deep
 ---
 
 # @kubb/plugin-mcp
 
-[MCP](https://modelcontextprotocol.io/introduction) brings AI-driven enhancements to your OpenAPI schema, this means that a tool like Claude or ChatGPT could interact with your api through the use of MCP.
+Generate [Model Context Protocol](https://modelcontextprotocol.io/introduction) servers that enable AI models to interact with your API.
 
-This opens the doors to call API endpoints through the use of text of speak, MCP turns simple prompts into meaningful data based on your generated APIs.
+This plugin creates an MCP server that tools like Claude or ChatGPT can use to call your API endpoints through text or voice commands.
 
 ```mermaid
 graph TD
@@ -20,7 +21,7 @@ graph TD
 ```
 
 > [!TIP]
-> We provided a page in how you could set up Claude, see [Setup Claude with Kubb](/knowledge-base/claude).
+> See [Setup Claude with Kubb](/guide/claude) for configuration instructions.
 
 ## Installation
 
@@ -51,7 +52,7 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that will contain the generated code.
+Path to the output folder or file that contains the generated code.
 
 > [!TIP]
 > if `output.path` is a file, `group` cannot be used.
@@ -64,7 +65,7 @@ Path to the output folder or file that will contain the generated code.
 
 #### output.barrelType
 
-Define what needs to be exported, here you can also disable the export of barrel files.
+Specify what to export and optionally disable barrel file generation.
 
 > [!TIP]
 > Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
@@ -78,7 +79,7 @@ Define what needs to be exported, here you can also disable the export of barrel
 <!--@include: ./core/barrelTypes.md-->
 
 #### output.banner
-Add a banner text in the beginning of every file.
+Add a banner comment at the top of every generated file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
@@ -86,7 +87,7 @@ Add a banner text in the beginning of every file.
 | Required: | `false`                               |
 
 #### output.footer
-Add a footer text at the end of every file.
+Add a footer comment at the end of every generated file.
 
 |           |                                       |
 |----------:|:--------------------------------------|
@@ -103,7 +104,7 @@ Add a footer text at the end of every file.
 <!--@include: ./core/group.md-->
 
 #### group.type
-Define a type where to group the files on.
+Specify the property to group files by.
 
 |           |         |
 |----------:|:--------|
@@ -204,7 +205,7 @@ export default defineConfig({
   ],
 })
 ```
-## Links
+## See Also
 
 - [MCP](https://modelcontextprotocol.io/)
 - [Claude](https://claude.ai)

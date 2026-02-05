@@ -12,7 +12,7 @@ export type Options = {
   output?: Output<Oas>
   /**
    * Define which contentType should be used.
-   * By default, the first JSON valid mediaType will be used
+   * By default, the first JSON valid mediaType is used
    */
   contentType?: contentType
   /**
@@ -32,36 +32,40 @@ export type Options = {
    */
   override?: Array<Override<ResolvedOptions>>
   /**
-   * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
+   * Choose to use date or datetime as JavaScript Date instead of string.
+   * - 'string' represents dates as string values.
+   * - 'date' represents dates as JavaScript Date objects.
    * @default 'string'
    */
   dateType?: 'string' | 'date'
   /**
-   * Which parser should be used when dateType is set to 'string'.
-   * - Schema with format 'date' will use ISO date format (YYYY-MM-DD)
-   *   - `'dayjs'` will use `dayjs(faker.date.anytime()).format("YYYY-MM-DD")`.
-   *   - `undefined` will use `faker.date.anytime().toString()`
-   * - Schema with format 'time' will use ISO time format (HH:mm:ss[.SSSSSS])
-   *   - `'dayjs'` will use `dayjs(faker.date.anytime()).format("HH:mm:ss")`.
-   *   - `undefined` will use `faker.date.anytime().toString()`
-   * * @default 'faker'
+   * Which parser should be used when dateType is set to string.
+   * - 'faker' uses faker's built-in date formatting methods.
+   * - 'dayjs' uses dayjs for date formatting with custom patterns.
+   * - 'moment' uses moment for date formatting with custom patterns.
+   * @default 'faker'
    */
   dateParser?: 'faker' | 'dayjs' | 'moment' | (string & {})
   /**
-   * Which type to use when the Swagger/OpenAPI file is not providing more information
+   * Which type to use when the Swagger/OpenAPI file is not providing more information.
+   * - 'any' allows any value.
+   * - 'unknown' requires type narrowing before use.
+   * - 'void' represents no value.
    * @default 'any'
    */
   unknownType?: 'any' | 'unknown' | 'void'
   /**
-   * Which type to use for empty schema values
+   * Which type to use for empty schema values.
+   * - 'any' allows any value.
+   * - 'unknown' requires type narrowing before use.
+   * - 'void' represents no value.
    * @default `unknownType`
    */
   emptySchemaType?: 'any' | 'unknown' | 'void'
   /**
    * Choose which generator to use when using Regexp.
-   *
-   * `'faker'` will use `faker.helpers.fromRegExp(new RegExp(/test/))`
-   * `'randexp'` will use `new RandExp(/test/).gen()`
+   * - 'faker' uses faker.helpers.fromRegExp for generating values from regex patterns.
+   * - 'randexp' uses RandExp library for generating values from regex patterns.
    * @default 'faker'
    */
   regexGenerator?: 'faker' | 'randexp'
@@ -77,7 +81,7 @@ export type Options = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
     /**
-     * Receive schema and baseName(propertName) and return FakerMeta array
+     * Receive schema and baseName(propertyName) and return FakerMeta array
      * TODO TODO add docs
      * @beta
      */

@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: unplugin-kubb
+title: Kubb Unplugin Integration - Vite, Webpack, Rollup
+description: Integrate Kubb with Vite, Webpack, Rollup, and esbuild using unplugin. Automate OpenAPI code generation in your build process.
 outline: deep
 ---
 
@@ -182,6 +183,6 @@ export default defineConfig({
 :::
 
 
-## Links
+## See Also
 
 - [Vite](https://vitejs.dev/)

@@ -1,16 +1,22 @@
 {
   "name": "@kubb/plugin-svelte-query",
-  "version": "4.18.2",
+  "version": "4.20.3",
   "description": "Svelte Query hooks generator plugin for Kubb, creating type-safe API client hooks from OpenAPI specifications for Svelte applications.",
   "keywords": [
     "svelte-query",
     "svelte",
+    "svelte5",
     "tanstack-query",
+    "stores",
     "hooks",
+    "data-fetching",
     "api-client",
+    "sdk-generator",
     "typescript",
+    "type-safe",
     "openapi",
     "swagger",
+    "oas",
     "code-generator",
     "codegen",
     "plugins",
@@ -88,7 +94,7 @@
     "remeda": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.11.8"
+    "@kubb/react-fabric": "0.12.9"
   },
   "engines": {
     "node": ">=20"

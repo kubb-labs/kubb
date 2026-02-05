@@ -2,7 +2,7 @@ import transformers from '@kubb/core/transformers'
 import type { SchemaObject } from '@kubb/oas'
 import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Const, File, Type } from '@kubb/react-fabric'
-import type { KubbNode } from '@kubb/react-fabric/types'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 import * as parserZod from '../parser.ts'
 import type { PluginZod } from '../types.ts'
 
@@ -36,7 +36,7 @@ export function Zod({
   version,
   emptySchemaType,
   mini = false,
-}: Props): KubbNode {
+}: Props): FabricReactNode {
   const hasTuple = !!SchemaGenerator.find(tree, schemaKeywords.tuple)
 
   const schemas = parserZod.sort(tree).filter((item) => {

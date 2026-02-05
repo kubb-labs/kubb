@@ -1,5 +1,6 @@
 ---
-title: Client PetStore
+title: Kubb Client Example - API Client Generation
+description: Generate type-safe API clients with Kubb. Example showing Axios and Fetch client code generation.
 aside: false
 ---
 
@@ -19,9 +20,9 @@ aside: false
 
 ## Static Class Client Example
 
-You can now generate clients with static methods:
+Generate clients with static methods:
 
-```typescript
+```typescript title="src/example.ts"
 import { Pet } from './gen/clients/Pet'
 
 // Get a pet by ID

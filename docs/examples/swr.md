@@ -1,5 +1,6 @@
 ---
-title: SWR-query PetStore
+title: Kubb SWR Example - SWR Hooks
+description: Generate SWR hooks with Kubb. Example for stale-while-revalidate data fetching in React.
 aside: false
 ---
 

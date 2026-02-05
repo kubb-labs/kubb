@@ -31,6 +31,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     UNSTABLE_NAMING,
   } = options
 
+  // @deprecated Will be removed in v5 when collisionDetection defaults to true
   const usedEnumNames = {}
 
   return {

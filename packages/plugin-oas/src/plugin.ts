@@ -23,6 +23,7 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
     contentType,
     oasClass,
     discriminator = 'strict',
+    collisionDetection = false,
   } = options
 
   const getOas = async ({ validate, config, events }: { validate: boolean; config: Config; events: AsyncEventEmitter<KubbEvents> }): Promise<Oas> => {
@@ -32,11 +33,12 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
     oas.setOptions({
       contentType,
       discriminator,
+      collisionDetection,
     })
 
     try {
       if (validate) {
-        await oas.valdiate()
+        await oas.validate()
       }
     } catch (er) {
       const caughtError = er as Error

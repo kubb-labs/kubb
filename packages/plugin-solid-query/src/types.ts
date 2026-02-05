@@ -30,10 +30,10 @@ type Query = {
    */
   methods: Array<HttpMethod>
   /**
-   * Path to the useQuery that will be used to do the useQuery functionality.
-   * It will be used as `import { useQuery } from '${importPath}'`.
-   * It allows both relative and absolute path.
-   * the path will be applied as is, so relative path should be based on the file being generated.
+   * Path to the useQuery hook for useQuery functionality.
+   * Used as `import { useQuery } from '${importPath}'`.
+   * Accepts relative and absolute paths.
+   * Path is used as-is; relative paths are based on the generated file location.
    * @default '@tanstack/svelte-query'
    */
   importPath?: string
@@ -46,10 +46,10 @@ type Mutation = {
    */
   methods: Array<HttpMethod>
   /**
-   * Path to the useQuery that will be used to do the useQuery functionality.
-   * It will be used as `import { useQuery } from '${importPath}'`.
-   * It allows both relative and absolute path.
-   * the path will be applied as is, so relative path should be based on the file being generated.
+   * Path to the useQuery hook for useQuery functionality.
+   * Used as `import { useQuery } from '${importPath}'`.
+   * Accepts relative and absolute paths.
+   * Path is used as-is; relative paths are based on the generated file location.
    * @default '@tanstack/solid-query'
    */
   importPath?: string
@@ -63,7 +63,7 @@ export type Options = {
   output?: Output<Oas>
   /**
    * Define which contentType should be used.
-   * By default, the first JSON valid mediaType will be used
+   * By default, the first JSON valid mediaType is used
    */
   contentType?: contentType
   /**
@@ -85,35 +85,35 @@ export type Options = {
   override?: Array<Override<ResolvedOptions>>
   /**
    * How to style your params, by default no casing is applied
-   * - 'camelcase' will use camelcase for the params names
+   * - 'camelcase' uses camelcase for the params names
    */
   paramsCasing?: 'camelcase'
   /**
    * How to pass your params
-   * - 'object' will return the params and pathParams as an object.
-   * - 'inline' will return the params as comma separated params.
+   * - 'object' returns the params and pathParams as an object.
+   * - 'inline' returns the params as comma separated params.
    * @default 'inline'
    */
   paramsType?: 'object' | 'inline'
   /**
    * How to pass your pathParams.
-   * - 'object' will return the pathParams as an object.
-   * - 'inline' will return the pathParams as comma separated params.
+   * - 'object' returns the pathParams as an object.
+   * - 'inline': returns the pathParams as comma separated params.
    * @default 'inline'
    */
   pathParamsType?: PluginClient['options']['pathParamsType']
   queryKey?: QueryKey
   /**
-   * Override some useQuery behaviours.
+   * Override some useQuery behaviors.
    */
   query?: Partial<Query> | false
   /**
    * Which parser should be used before returning the data to `@tanstack/query`.
-   * `'zod'` will use `@kubb/plugin-zod` to parse the data.
+   * `'zod'` uses `@kubb/plugin-zod` to parse the data.
    */
   mutationKey?: MutationKey
   /**
-   * Override some useMutation behaviours.
+   * Override some useMutation behaviors.
    */
   mutation?: Partial<Mutation> | false
   parser?: PluginClient['options']['parser']

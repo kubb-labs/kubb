@@ -1,7 +1,8 @@
 ---
 layout: doc
 
-title: Migrating to Kubb v3
+title: Kubb Migration Guide - Upgrade to Latest Version
+description: Migrate to the latest Kubb version. Breaking changes, upgrade steps, and migration guides for major version updates.
 outline: deep
 ---
 
@@ -30,7 +31,7 @@ See the plugin-client documentation for details and usage notes.
 > [!TIP]
 > Generators are a replacements of `templates`
 
-See [Generators](/knowledge-base/generators).
+See [Generators](/guide/generators).
 
 ### kubb.config.ts
 2 extra options have been added to the output:
@@ -138,7 +139,7 @@ We will discontinue support for (MSW](https://mswjs.io/) v1 in favour of using v
 ### Output
 - `output.banner`: Add some code in the beginning of every file
 - `output.footer`: Add some code in the end of every file
-- `output.exportType`: Behaviour stayed the same, we renamed the option to `output.barrelType` and simplified the values.
+- `output.exportType`: Behavior stayed the same, we renamed the option to `output.barrelType` and simplified the values.
 ```typescript [kubb.config.ts]
 import { defineConfig } from "@kubb/core"
 import { pluginOas } from "@kubb/plugin-oas"
@@ -334,7 +335,7 @@ We used `openapi-format` before to already filter out some Operations or Paths b
 - `experimentalFilter`
 - `experimentalSort`
 
-See [Filter And Sort](/knowledge-base/filter-and-sort).
+See [Filter And Sort](/guide/filter-and-sort).
 
 ### @kubb/plugin-client
 - `client.importPath` becomes `importPath`

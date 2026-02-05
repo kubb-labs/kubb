@@ -1,5 +1,6 @@
 ---
-title: Faker PetStore
+title: Kubb Faker Example - Mock Data Generation
+description: Generate Faker.js mock data with Kubb. Example showing test data generation from OpenAPI schemas.
 aside: false
 ---
 

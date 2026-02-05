@@ -21,6 +21,56 @@
   </h4>
 </div>
 
+## Commands
+
+### `kubb init`
+
+Initialize a new Kubb project with an interactive setup wizard.
+
+```bash
+npx kubb init
+```
+
+This command will:
+1. Detect or create a `package.json` if it doesn't exist
+2. Prompt you for your OpenAPI specification path
+3. Ask for the output directory for generated files
+4. Let you select which Kubb plugins to use
+5. Install the selected packages using your package manager (npm, pnpm, yarn, or bun)
+6. Generate a `kubb.config.ts` file with your chosen configuration
+
+### `kubb generate`
+
+Generate files based on your `kubb.config.ts` configuration.
+
+```bash
+npx kubb generate
+```
+
+Options:
+- `-c, --config <path>` - Path to the Kubb config file
+- `-l, --logLevel <level>` - Set log level (silent, info, verbose, debug)
+- `-w, --watch` - Watch mode based on the input file
+- `-d, --debug` - Enable debug mode
+- `-v, --verbose` - Enable verbose mode
+- `-s, --silent` - Enable silent mode
+
+### `kubb validate`
+
+Validate a Swagger/OpenAPI file.
+
+```bash
+npx kubb validate <path-to-openapi>
+```
+
+### `kubb mcp`
+
+Start the MCP server to enable the MCP client to interact with the LLM.
+
+```bash
+npx kubb mcp
+```
+
 ## Supporting Kubb
 
 Kubb uses an MIT-licensed open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:

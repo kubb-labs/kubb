@@ -1,10 +1,16 @@
-import { z } from 'zod'
+import * as z from 'zod'
 import type { ToZod } from '../.kubb/ToZod.ts'
 import type { Order } from '../models/ts/Order.ts'
 
 export const orderSchema = z.object({
   id: z.optional(z.number().int().min(3).max(100)),
   petId: z.optional(z.number().int()),
+  params: z.optional(
+    z.object({
+      status: z.enum(['placed', 'approved', 'delivered']).describe('Order Status'),
+      type: z.string(),
+    }),
+  ),
   quantity: z.optional(z.number().int()),
   orderType: z.optional(z.enum(['foo', 'bar'])),
   type: z.optional(z.string().describe('Order Status')),

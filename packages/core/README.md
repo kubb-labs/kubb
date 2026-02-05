@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://kubb.dev" target="_blank" rel="noopener noreferrer">
+  <a href="https://kubb.dev/kubb" target="_blank" rel="noopener noreferrer">
     <img width="180" src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo">
   </a>
 
@@ -13,7 +13,7 @@
 <h4>
 <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main/examples/typescript" target="_blank">View Demo</a>
 <span> · </span>
-<a href="https://kubb.dev/" target="_blank">Documentation</a>
+<a href="https://kubb.dev/kubb" target="_blank">Documentation</a>
 <span> · </span>
 <a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Report Bug</a>
 <span> · </span>
@@ -22,6 +22,28 @@
 </div>
 
 <br />
+
+## Quick Start
+
+Get started with Kubb in seconds:
+
+```bash
+npx kubb init
+```
+
+The interactive setup will:
+- Create a `package.json` (if needed)
+- Guide you through plugin selection
+- Install packages automatically
+- Generate `kubb.config.ts`
+
+Then generate your code:
+
+```bash
+npx kubb generate
+```
+
+See the [documentation](https://kubb.dev) for detailed usage and advanced features.
 
 ## Features
 - Works with Node.js 20+.

@@ -1,5 +1,141 @@
 # @kubb/oas
 
+## 4.20.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.20.3
+
+## 4.20.2
+
+### Patch Changes
+
+- Updated dependencies [[`6006dc3`](https://github.com/kubb-labs/kubb/commit/6006dc335d62dd9c1254bd31ecc90a5ccb70a116)]:
+  - @kubb/core@4.20.2
+
+## 4.20.1
+
+### Patch Changes
+
+- Updated dependencies [[`5c50613`](https://github.com/kubb-labs/kubb/commit/5c50613504f05d1f5484dea4969182ecc7961cfb)]:
+  - @kubb/core@4.20.1
+
+## 4.20.0
+
+### Patch Changes
+
+- [#2387](https://github.com/kubb-labs/kubb/pull/2387) [`d3acf9e`](https://github.com/kubb-labs/kubb/commit/d3acf9eb2b018595fadcc06380ef8419d8bbea8f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update fabric
+
+- Updated dependencies [[`d3acf9e`](https://github.com/kubb-labs/kubb/commit/d3acf9eb2b018595fadcc06380ef8419d8bbea8f)]:
+  - @kubb/core@4.20.0
+
+## 4.19.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.19.2
+
+## 4.19.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.19.1
+
+## 4.19.0
+
+### Minor Changes
+
+- [#2378](https://github.com/kubb-labs/kubb/pull/2378) [`f5f2dc1`](https://github.com/kubb-labs/kubb/commit/f5f2dc162556c9c1c05d97e29cb28cf79830885a) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add `collisionDetection` option to intelligently handle schema name collisions
+
+  Added a new opt-in `collisionDetection` option that prevents duplicate files and naming conflicts when OpenAPI specs contain schemas with the same name (case-insensitive) across different components.
+
+  **Features:**
+  - **Cross-component collisions**: Automatically adds semantic suffixes (`Schema`, `Response`, `Request`) when schemas from different components share names
+  - **Same-component collisions**: Adds numeric suffixes (2, 3, ...) for case-insensitive duplicates within the same component
+  - **Smart detection**: Skips requestBodies/responses that only contain `$ref` (not inline schemas) to avoid unnecessary collisions
+  - **Non-breaking**: Disabled by default, preserving existing behavior for all users
+
+  **Usage:**
+
+  ```typescript
+  // kubb.config.ts
+  export default defineConfig({
+    plugins: [
+      pluginOas({
+        collisionDetection: true, // Enable collision detection
+      }),
+    ],
+  });
+  ```
+
+  **Example - Cross-component collision:**
+
+  ```yaml
+  components:
+    schemas:
+      Order: { ... }
+    requestBodies:
+      Order:
+        content:
+          application/json:
+            schema: { type: object, ... } # Inline schema
+  ```
+
+  **Before** (with collisions disabled):
+  - May generate: `Order.ts` (duplicate), `OrderSchema.ts`, `OrderRequest.ts`
+  - Potential import errors and duplicate files
+
+  **After** (with `collisionDetection: true`):
+  - Generates: `OrderSchema.ts`, `OrderRequest.ts`
+  - Types: `OrderSchema`, `OrderRequest`
+  - Operation imports correctly reference `OrderSchema`
+
+  **Example - Same-component collision:**
+
+  ```yaml
+  components:
+    schemas:
+      Variant: { ... }
+      variant: { ... } # Different casing
+  ```
+
+  **After** (with `collisionDetection: true`):
+  - Generates: `Variant.ts`, `Variant2.ts`
+  - Preserves original spec order for deterministic behavior
+
+  This change stores the option in the Oas instance (`oas.options.collisionDetection`), making it accessible throughout the generation pipeline without passing it through multiple layers.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.19.0
+
+## 4.18.5
+
+### Patch Changes
+
+- [#2362](https://github.com/kubb-labs/kubb/pull/2362) [`ea23bb4`](https://github.com/kubb-labs/kubb/commit/ea23bb4a2f5a121dd1192b05f0f4cf4207093dc5) Thanks [@ATholin](https://github.com/ATholin)! - Improves zod handling of nullable schemas in OpenAPI 3.1 by recognizing type: null variants that previously only worked in some cases.
+
+- Updated dependencies []:
+  - @kubb/core@4.18.5
+
+## 4.18.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.18.4
+
+## 4.18.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.18.3
+
 ## 4.18.2
 
 ### Patch Changes

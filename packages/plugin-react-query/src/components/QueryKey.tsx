@@ -3,7 +3,7 @@ import { getDefaultValue, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams, Type } from '@kubb/react-fabric'
-import type { KubbNode } from '@kubb/react-fabric/types'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginReactQuery, Transformer } from '../types'
 
 type Props = {
@@ -59,7 +59,7 @@ const getTransformer: Transformer = ({ operation, schemas, casing }) => {
   return keys
 }
 
-export function QueryKey({ name, typeSchemas, paramsCasing, pathParamsType, operation, typeName, transformer = getTransformer }: Props): KubbNode {
+export function QueryKey({ name, typeSchemas, paramsCasing, pathParamsType, operation, typeName, transformer = getTransformer }: Props): FabricReactNode {
   const params = getParams({ pathParamsType, typeSchemas, paramsCasing })
   const keys = transformer({
     operation,

@@ -1,5 +1,77 @@
 # @kubb/mcp
 
+## 4.20.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.20.3
+
+## 4.20.2
+
+### Patch Changes
+
+- Updated dependencies [[`6006dc3`](https://github.com/kubb-labs/kubb/commit/6006dc335d62dd9c1254bd31ecc90a5ccb70a116)]:
+  - @kubb/core@4.20.2
+
+## 4.20.1
+
+### Patch Changes
+
+- Updated dependencies [[`5c50613`](https://github.com/kubb-labs/kubb/commit/5c50613504f05d1f5484dea4969182ecc7961cfb)]:
+  - @kubb/core@4.20.1
+
+## 4.20.0
+
+### Patch Changes
+
+- [#2387](https://github.com/kubb-labs/kubb/pull/2387) [`d3acf9e`](https://github.com/kubb-labs/kubb/commit/d3acf9eb2b018595fadcc06380ef8419d8bbea8f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update fabric
+
+- Updated dependencies [[`d3acf9e`](https://github.com/kubb-labs/kubb/commit/d3acf9eb2b018595fadcc06380ef8419d8bbea8f)]:
+  - @kubb/core@4.20.0
+
+## 4.19.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.19.2
+
+## 4.19.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.19.1
+
+## 4.19.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.19.0
+
+## 4.18.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.18.5
+
+## 4.18.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.18.4
+
+## 4.18.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.18.3
+
 ## 4.18.2
 
 ### Patch Changes
@@ -1097,7 +1169,7 @@
 
 ### Patch Changes
 
-- [#1953](https://github.com/kubb-labs/kubb/pull/1953) [`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - update peerdeps @kubb/react
+- [#1953](https://github.com/kubb-labs/kubb/pull/1953) [`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - update PeerDependencies @kubb/react
 
 - Updated dependencies [[`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92)]:
   - @kubb/plugin-react-query@4.3.1

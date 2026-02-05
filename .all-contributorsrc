@@ -1,6 +1,6 @@
 {
   "files": [
-    "README.md"
+    "packages/core/README.md"
   ],
   "imageSize": 100,
   "commit": false,
@@ -425,6 +425,24 @@
       "name": "Eric Pierlot",
       "avatar_url": "https://avatars.githubusercontent.com/u/124898024?v=4",
       "profile": "https://github.com/EricPierlotIdmog",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ATholin",
+      "name": "Alexander Sjöcrona Tholin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/33940473?v=4",
+      "profile": "http://atholin.se",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "hyoban",
+      "name": "Stephen Zhou",
+      "avatar_url": "https://avatars.githubusercontent.com/u/38493346?v=4",
+      "profile": "http://hyoban.cc",
       "contributions": [
         "code"
       ]

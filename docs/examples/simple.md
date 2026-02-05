@@ -1,5 +1,6 @@
 ---
-title: Simple PetStore
+title: Simple Kubb Example - Basic Setup
+description: Simple Kubb example showing basic OpenAPI code generation. Quick start template for TypeScript type generation.
 aside: false
 ---
 

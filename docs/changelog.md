@@ -1,14 +1,364 @@
 ---
-title: Changelog
+title: Kubb Changelog - Release Notes & Updates
+description: Kubb changelog with release notes, bug fixes, new features, and breaking changes for all versions.
 outline: deep
 ---
 
 # Changelog
 
+## 4.20.3
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+
+**Fixed zod import to use namespace import for better compatibility**
+
+Changed from `import z from 'zod'` to `import * as z from 'zod'` to improve compatibility with different module systems and bundlers.
+
+---
+
+## 4.20.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/cli`](/helpers/cli/), [`@kubb/core`](/core/)
+
+**Fixed offline support - version check no longer blocks code generation**
+
+---
+
+## 4.20.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/core`](/core/), [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Preserve line breaks in JSDoc descriptions**
+
+Line breaks (`\r\n`, `\n`) in OpenAPI schema descriptions are now properly preserved in generated JSDoc comments. Previously, multi-line descriptions were being collapsed into single lines without whitespace separation.
+
+**Before:**
+```typescript
+/**
+ * @description Creates a pet in the store.This is an arbitrary description with lots of formatting from the real world.- We like to make lists
+ */
+```
+
+**After:**
+```typescript
+/**
+ * @description Creates a pet in the store.
+ * This is an arbitrary description with lots of formatting from the real world.
+ * - We like to make lists
+ */
+```
+
+This restores the v3.18.3 behavior and ensures multi-line documentation is properly formatted in generated code.
+
+---
+
+## 4.20.0
+
+### ✨ Features
+
+#### [`@kubb/cli`](/helpers/cli/)
+
+**New `init` command for interactive project setup**
+
+The CLI now includes a new `kubb init` command that provides an interactive setup wizard to quickly scaffold a Kubb project.
+
+```bash
+npx kubb init
+```
+
+Features:
+- **Interactive prompts** - Guides you through essential configuration options
+- **Package manager detection** - Automatically detects `npm`, `pnpm`, `yarn`, or `bun`
+- **Plugin selection** - Multi-select from all 13 available Kubb plugins
+- **Automatic installation** - Installs selected packages with the detected package manager
+- **Config generation** - Creates `kubb.config.ts` with sensible defaults for selected plugins
+- **File protection** - Asks before overwriting existing configuration
+- **Task-based progress** - Clear visual feedback during installation and setup
+
+The command guides you through:
+1. Creating a `package.json` (if needed)
+2. Selecting your OpenAPI specification path
+3. Choosing an output directory for generated files
+4. Selecting which plugins to install
+5. Installing packages automatically
+6. Generating a configured `kubb.config.ts`
+
+This is now the **recommended way** to start a new Kubb project!
+
+See the [CLI documentation](/helpers/cli#kubb-init) for more details.
+
+---
+
+## 4.19.2
+
+### 📦 Dependencies
+
+Update Fabric packages.
+
+---
+
+## 4.19.1
+
+### ✨ Features
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Enhanced `collisionDetection` to prevent nested enum name collisions**
+
+The `collisionDetection` option now prevents duplicate enum names when multiple schemas define identical inline enums in nested properties.
+
+When enabled, Kubb tracks the root schema name throughout the parsing chain and includes it in enum naming for nested properties, ensuring unique enum names across different schemas.
+
+::: code-group
+
+```yaml [OpenAPI Spec]
+components:
+  schemas:
+    NotificationTypeA:
+      properties:
+        params:
+          type: object
+          properties:
+            channel:
+              type: string
+              enum:
+                - public
+                - collaborators
+
+    NotificationTypeB:
+      properties:
+        params:
+          type: object
+          properties:
+            channel:
+              type: string
+              enum:
+                - public
+                - collaborators
+```
+
+```typescript [Without collisionDetection (default)]
+// ❌ Both files export the same enum - collision!
+// NotificationTypeA.ts
+export const paramsChannelEnum = {
+  public: "public",
+  collaborators: "collaborators"
+} as const
+
+// NotificationTypeB.ts
+export const paramsChannelEnum = {  // Duplicate!
+  public: "public",
+  collaborators: "collaborators"
+} as const
+```
+
+```typescript [With collisionDetection: true]
+// ✅ Unique enum names - no collision
+// NotificationTypeA.ts
+export const notificationTypeAParamsChannelEnum = {
+  public: "public",
+  collaborators: "collaborators"
+} as const
+
+// NotificationTypeB.ts
+export const notificationTypeBParamsChannelEnum = {
+  public: "public",
+  collaborators: "collaborators"
+} as const
+```
+
+:::
+
+**How to enable:**
+
+```typescript
+// kubb.config.ts
+export default defineConfig({
+  plugins: [
+    pluginOas({
+      collisionDetection: true,  // Recommended - prevents all collision types
+    }),
+  ],
+})
+```
+
+> [!TIP]
+> This enhancement is backward compatible and only activates when `collisionDetection: true`. It's recommended to enable this option to prepare for Kubb v5, where it will be the default.
+
+---
+
+## 4.19.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Added `collisionDetection` option to prevent schema name conflicts**
+
+New opt-in `collisionDetection` option intelligently handles name collisions when OpenAPI specs contain schemas with the same name (case-insensitive) across different components.
+
+```typescript
+// kubb.config.ts
+export default defineConfig({
+  plugins: [
+    pluginOas({
+      collisionDetection: true,  // Enable collision detection
+    }),
+  ],
+})
+```
+
+**How it works:**
+
+**Cross-component collisions** add semantic suffixes:
+
+::: code-group
+
+```yaml [OpenAPI Spec]
+components:
+  schemas:
+    Order:
+      type: object
+      properties:
+        id: { type: string }
+
+  requestBodies:
+    Order:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              items: { type: array }
+```
+
+```typescript [Generated with collisionDetection: true]
+// ✅ No conflicts - semantic suffixes added
+export type OrderSchema = { id: string }
+export type OrderRequest = { items: unknown[] }
+```
+
+```typescript [Generated with collisionDetection: false]
+// ❌ May cause duplicate files or overwrite issues
+export type Order = { id: string }
+export type Order = { items: unknown[] }  // Collision!
+```
+
+:::
+
+**Same-component collisions** add numeric suffixes:
+
+::: code-group
+
+```yaml [OpenAPI Spec]
+components:
+  schemas:
+    Variant: { type: string, enum: [A, B] }
+    variant: { type: string, enum: [X, Y] }
+```
+
+```typescript [Generated]
+// ✅ Deterministic numeric suffixes
+export type Variant = 'A' | 'B'
+export type Variant2 = 'X' | 'Y'
+```
+
+:::
+
+> [!NOTE]
+> This option is disabled by default to preserve backward compatibility. It will become the default in Kubb v5.
+
+---
+
+## 4.18.5
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+
+**Improved nullable schema handling in OpenAPI 3.1**
+
+Improved handling of nullable schemas in OpenAPI 3.1 by properly recognizing `type: null` variants. Previously, some nullable schema patterns were not correctly identified, causing incorrect Zod schema generation.
+
+> [!NOTE]
+> This fix implements the solution from [#2362](https://github.com/kubb-labs/kubb/pull/2362).
+
+---
+
+#### [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+
+**Fixed incorrect omit usage on z.union schemas**
+
+Fixed an issue where `.omit()` was being applied to `z.union()` schemas, which is not valid in Zod. The plugin now correctly avoids using omit on union types.
+
+> [!NOTE]
+> This fix implements the solution from [#2368](https://github.com/kubb-labs/kubb/pull/2368).
+
+---
+
+## 4.18.4
+
+### ✨ Features
+
+#### [`@kubb/cli`](/helpers/cli/)
+
+**Added Kubb mascot logo to CLI welcome message**
+
+The CLI now displays an improved welcome message featuring the Kubb mascot character with colorful gradients and a cleaner layout. This provides a more engaging and branded experience when using the Kubb CLI.
+
+---
+
+## 4.18.3
+
+### ✨ Features
+
+#### [`@kubb/cli`](/helpers/cli/)
+
+**Added Kubb mascot logo to CLI welcome message**
+
+The CLI now displays an improved welcome message featuring the Kubb mascot character with colorful gradients and a cleaner layout. This provides a more engaging and branded experience when using the Kubb CLI.
+
+---
 
 ## 4.18.2
 
 ### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Fixed missing export for `asPascalConst` enum type aliases**
+
+When using `enumType: 'asPascalConst'`, the generated type alias was not exported, preventing consuming code from importing the type. TypeScript allows values and types with identical names to coexist in separate namespaces, so both can be safely exported.
+
+::: code-group
+
+```typescript [Before]
+// Generated enum const
+export const PetType = {
+  Dog: 'dog',
+  Cat: 'cat',
+} as const
+type PetType = (typeof PetType)[keyof typeof PetType] // ❌ Not exported!
+```
+
+```typescript [After]
+// Generated enum const
+export const PetType = {
+  Dog: 'dog',
+  Cat: 'cat',
+} as const
+export type PetType = (typeof PetType)[keyof typeof PetType] // ✅ Now exported!
+```
+
+:::
+
+---
 
 #### [`@kubb/plugin-faker`](/plugins/plugin-faker/)
 
@@ -862,7 +1212,7 @@ All discriminator patterns from OpenAPI 3.0 and 3.1 specifications are now suppo
 
 **Documentation:**
 
-See [Discriminators](/knowledge-base/oas#discriminators) in the knowledge base for comprehensive examples and patterns.
+See [Discriminators](/guide/oas#discriminators) in the knowledge base for comprehensive examples and patterns.
 
 ## 4.12.10
 
@@ -1863,9 +2213,9 @@ Add Fabric support for improved code generation.
 
 ### 📦 Dependencies
 
-- **[`react`](/helpers/react/)** - Update peerdeps
+- **[`react`](/helpers/react/)** - Update PeerDependencies
 
-  Update peerdeps `@kubb/react`.
+  Update PeerDependencies `@kubb/react`.
 
 ## 4.3.0
 
@@ -2862,7 +3212,7 @@ pluginTs({
 ## 3.3.0
 
 - [`plugin-client`](/plugins/plugin-client): `client` to use `fetch` or `axios` as HTTP client
-- [`plugin-zod`](/plugins/plugin-zod): Use Regular expression literal instead of RegExp-contructor
+- [`plugin-zod`](/plugins/plugin-zod): Use Regular expression literal instead of RegExp-constructor
 - [`plugin-ts`](/plugins/plugin-ts): Switch between the use of type or interface when creating types
 
 ## 3.2.0

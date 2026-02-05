@@ -1,5 +1,6 @@
 ---
-title: Cypress PetStore
+title: Kubb Cypress Example - E2E Test Commands
+description: Generate Cypress commands with Kubb. Example for end-to-end API testing.
 aside: false
 ---
 

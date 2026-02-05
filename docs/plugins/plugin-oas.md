@@ -1,12 +1,14 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-oas
+title: Kubb OAS Plugin - OpenAPI Specification Parser
+description: Parse and validate OpenAPI specifications with @kubb/plugin-oas. Required foundation for all Kubb code generation plugins.
 outline: deep
 ---
 
 # @kubb/plugin-oas
 
+Parse and validate your OpenAPI schema with this core plugin.
 
 ## Installation
 ::: code-group
@@ -34,7 +36,8 @@ yarn add -D @kubb/plugin-oas
 Specify the export location for the files and define the behavior of the output.
 
 #### output.path
-Path to the output folder or file that will contain the generated code.
+
+Path to the output folder or file that contains the generated code.
 
 > [!TIP]
 > if `output.path` is a file, `group` cannot be used.
@@ -47,7 +50,7 @@ Path to the output folder or file that will contain the generated code.
 
 #### output.barrelType
 
-Define what needs to be exported, here you can also disable the export of barrel files.
+Specify what to export and optionally disable barrel file generation.
 
 > [!TIP]
 > Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
@@ -61,7 +64,7 @@ Define what needs to be exported, here you can also disable the export of barrel
 <!--@include: ./core/barrelTypes.md-->
 
 #### output.banner
-Add a banner text in the beginning of every file.
+Add a banner comment at the top of every generated file.
 
 |           |                                  |
 |----------:|:---------------------------------|
@@ -83,12 +86,15 @@ Add a footer text at the end of every file.
 <!--@include: ./core/group.md-->
 
 #### group.type
-Define a type where to group the files on.
+Specify the property to group files by. Required when `group` is defined.
 
 |           |         |
 |----------:|:--------|
 |     Type: | `'tag'` |
-| Required: | `true`  |
+| Required: | `true*` |
+
+> [!NOTE]
+> `Required: true*` means this is required only when the `group` option is used. The `group` option itself is optional.
 
 <!--@include: ./core/groupTypes.md-->
 
@@ -168,7 +174,7 @@ Kubb provides comprehensive support for OpenAPI discriminators in both **OpenAPI
 - Const and enum values
 - Mixed types and edge cases
 
-See [Discriminators](/knowledge-base/oas#discriminators) in the knowledge base for detailed examples and supported patterns.
+See [Discriminators](/guide/oas#discriminators) in the knowledge base for detailed examples and supported patterns.
 
 |           |                          |
 |----------:|:-------------------------|
@@ -286,11 +292,49 @@ export type Animal =
 
 :::
 
+### collisionDetection
+
+Resolve name collisions when schemas from different components share the same name (case-insensitive).
+
+When enabled, Kubb automatically detects and resolves collisions using intelligent suffixes:
+- **Cross-component collisions**: Adds semantic suffixes based on the component type (Schema/Response/Request)
+- **Same-component collisions**: Adds numeric suffixes (2, 3, ...) for case-insensitive duplicates
+- **Nested enum collisions**: Includes root schema name in enum names to prevent duplicates across schemas
+
+> [!NOTE]
+> This will be the default behavior in Kubb v5.
+
+|           |           |
+|----------:|:----------|
+|     Type: | `boolean` |
+| Required: | `false`   |
+|  Default: | `false`   |
+
+#### Examples
+
+**Cross-component collision:**
+
+If you have "Order" in both schemas and requestBodies:
+- With `collisionDetection: true`: Generates `OrderSchema.ts`, `OrderRequest.ts`
+- With `collisionDetection: false`: May generate duplicate `Order.ts` files
+
+**Same-component collision:**
+
+If you have "Variant" and "variant" in schemas:
+- With `collisionDetection: true`: Generates `Variant.ts`, `Variant2.ts`
+- With `collisionDetection: false`: May overwrite or create duplicates
+
+**Nested enum collision:**
+
+If you have "params.channel" enum in both "NotificationTypeA" and "NotificationTypeB":
+- With `collisionDetection: true`: Generates `notificationTypeAParamsChannelEnum`, `notificationTypeBParamsChannelEnum`
+- With `collisionDetection: false`: Generates duplicate `paramsChannelEnum` in both files
+
 ### contentType
 <!--@include: ./core/contentType.md-->
 
 ### oasClass <img src="../public/icons/experimental.svg"/>
-Override some behaviour of the Oas class instance, see `@kubb/oas`.
+Override some behavior of the Oas class instance, see `@kubb/oas`.
 
 |           |                                |
 |----------:|:-------------------------------|
@@ -301,7 +345,7 @@ Override some behaviour of the Oas class instance, see `@kubb/oas`.
 ### generators <img src="../public/icons/experimental.svg"/>
 Define some generators to create files based on the operation and/or schema. All plugin are using generators to create files based on the OperationGenerator and SchemaGenerators. An empty array will result in no schema's being generated, in v2 of Kubb we used `output: false`.
 
-See [Generators](/knowledge-base/generators) for more information on how to use generators.
+See [Generators](/guide/generators) for more information on how to use generators.
 
 ::: info
 
@@ -343,12 +387,13 @@ export default defineConfig({
       },
       serverIndex: 0,
       contentType: 'application/json',
+      collisionDetection: true, // Recommended - prevents name collisions
     }),
   ],
 })
 ```
 
-## Links
+## See Also
 
 - [Oas](https://github.com/readmeio/oas)
-- [OpenAPI Discriminators](/knowledge-base/oas#discriminators)
+- [OpenAPI Discriminators](/guide/oas#discriminators)

@@ -1,5 +1,6 @@
-Define which contentType should be used.
-By default, the first JSON valid mediaType will be used
+Define which content type to use.
+
+By default, Kubb uses the first JSON-valid media type.
 
 |           |                                       |
 |----------:|:--------------------------------------|

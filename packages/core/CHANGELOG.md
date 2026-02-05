@@ -1,5 +1,56 @@
 # @kubb/core
 
+## 4.20.3
+
+## 4.20.2
+
+### Patch Changes
+
+- [`6006dc3`](https://github.com/kubb-labs/kubb/commit/6006dc335d62dd9c1254bd31ecc90a5ccb70a116) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fixed version check to work offline by gracefully handling network errors. Added `isOnline()` and `executeIfOnline()` helpers in `@kubb/core/utils` to detect internet connectivity.
+
+## 4.20.1
+
+### Patch Changes
+
+- [#2402](https://github.com/kubb-labs/kubb/pull/2402) [`5c50613`](https://github.com/kubb-labs/kubb/commit/5c50613504f05d1f5484dea4969182ecc7961cfb) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix: Preserve line breaks in JSDoc descriptions from OpenAPI schemas
+
+  Line breaks (`\r\n`, `\n`) in OpenAPI schema descriptions were being stripped from generated JSDoc comments, collapsing multi-line documentation into single lines without whitespace separation. This fix preserves the line breaks so that multi-line descriptions are properly formatted in the generated code.
+
+  **Before:**
+
+  ```typescript
+  /**
+   * @description Creates a pet in the store.This is an arbitrary description...
+   */
+  ```
+
+  **After:**
+
+  ```typescript
+  /**
+   * @description Creates a pet in the store.
+   * This is an arbitrary description...
+   */
+  ```
+
+## 4.20.0
+
+### Patch Changes
+
+- [#2387](https://github.com/kubb-labs/kubb/pull/2387) [`d3acf9e`](https://github.com/kubb-labs/kubb/commit/d3acf9eb2b018595fadcc06380ef8419d8bbea8f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update fabric
+
+## 4.19.2
+
+## 4.19.1
+
+## 4.19.0
+
+## 4.18.5
+
+## 4.18.4
+
+## 4.18.3
+
 ## 4.18.2
 
 ## 4.18.1
@@ -311,7 +362,7 @@
 
 ### Patch Changes
 
-- [#1953](https://github.com/kubb-labs/kubb/pull/1953) [`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - update peerdeps @kubb/react
+- [#1953](https://github.com/kubb-labs/kubb/pull/1953) [`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - update PeerDependencies @kubb/react
 
 - Updated dependencies []:
   - @kubb/react@4.3.1

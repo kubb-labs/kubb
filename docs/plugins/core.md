@@ -1,12 +1,14 @@
 ---
 layout: doc
 
-title: \@kubb/core
+title: Kubb Core Plugin - Base Plugin Configuration
+description: Configure Kubb's core plugin options with transformers, generators, barrel files, and advanced code generation settings.
 outline: deep
 ---
 
 # @kubb/core
-The core contains the building blocks for all plugins.
+
+The core module provides the building blocks for all plugins.
 
 ## Installation
 
@@ -51,5 +53,5 @@ const { error, files, pluginManager } = await build({
 console.log(files)
 ```
 
-Start the build process based on a defined config(see [UserConfig](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/config.ts) type).
-This will trigger the different plugins and their created lifecycle methods.
+Start the build process using a defined config (see [UserConfig](https://github.com/kubb-labs/kubb/blob/main/packages/core/src/config.ts) type).
+This triggers the plugins and their lifecycle methods.

@@ -60,7 +60,7 @@ type UseOperationManagerResult = {
 }
 
 /**
- * `useOperationManager` will return some helper functions that can be used to get the operation file, get the operation name.
+ * `useOperationManager` returns helper functions to get the operation file and operation name.
  */
 export function useOperationManager<TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions>(
   generator: Omit<OperationGenerator<TPluginOptions>, 'build'>,

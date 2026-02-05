@@ -1,5 +1,106 @@
 # @kubb/cli
 
+## 4.20.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.20.3
+
+## 4.20.2
+
+### Patch Changes
+
+- [`6006dc3`](https://github.com/kubb-labs/kubb/commit/6006dc335d62dd9c1254bd31ecc90a5ccb70a116) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fixed version check to work offline by gracefully handling network errors. Added `isOnline()` and `executeIfOnline()` helpers in `@kubb/core/utils` to detect internet connectivity.
+
+- Updated dependencies [[`6006dc3`](https://github.com/kubb-labs/kubb/commit/6006dc335d62dd9c1254bd31ecc90a5ccb70a116)]:
+  - @kubb/core@4.20.2
+
+## 4.20.1
+
+### Patch Changes
+
+- Updated dependencies [[`5c50613`](https://github.com/kubb-labs/kubb/commit/5c50613504f05d1f5484dea4969182ecc7961cfb)]:
+  - @kubb/core@4.20.1
+
+## 4.20.0
+
+### Minor Changes
+
+- [#2396](https://github.com/kubb-labs/kubb/pull/2396) [`b5c4fd9`](https://github.com/kubb-labs/kubb/commit/b5c4fd94711b1657cdffe9a629229cd0f708a4b1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add new `init` command for interactive project setup
+
+  The CLI now includes a new `kubb init` command that provides an interactive setup wizard to quickly scaffold a Kubb project:
+  - **Interactive prompts**: Uses `@clack/prompts` for a beautiful CLI experience
+  - **Package manager detection**: Automatically detects `npm`, `pnpm`, `yarn`, or `bun`
+  - **Plugin selection**: Multi-select from all 13 available Kubb plugins
+  - **Automatic installation**: Installs selected packages with the detected package manager
+  - **Config generation**: Creates `kubb.config.ts` with sensible defaults
+  - **File protection**: Asks before overwriting existing configuration
+
+  Usage:
+
+  ```bash
+  npx kubb init
+  ```
+
+  The command will guide you through:
+  1. Creating a `package.json` (if needed)
+  2. Selecting your OpenAPI specification path
+  3. Choosing which plugins to install
+  4. Installing packages automatically
+  5. Generating `kubb.config.ts`
+
+  This is now the recommended way to start a new Kubb project!
+
+### Patch Changes
+
+- Updated dependencies [[`d3acf9e`](https://github.com/kubb-labs/kubb/commit/d3acf9eb2b018595fadcc06380ef8419d8bbea8f)]:
+  - @kubb/core@4.20.0
+
+## 4.19.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.19.2
+
+## 4.19.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.19.1
+
+## 4.19.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.19.0
+
+## 4.18.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.18.5
+
+## 4.18.4
+
+### Patch Changes
+
+- [`38dc28c`](https://github.com/kubb-labs/kubb/commit/38dc28cf7ca403d8ad1342bfecdd4d519cca7c7d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add CLI Kubb logo
+
+- Updated dependencies []:
+  - @kubb/core@4.18.4
+
+## 4.18.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.18.3
+
 ## 4.18.2
 
 ### Patch Changes

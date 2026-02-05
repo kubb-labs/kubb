@@ -6,7 +6,7 @@ import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 
 /**
  * GitHub Actions adapter for CI environments
- * Uses ::group:: and ::endgroup:: annotations for collapsible sections
+ * Uses Github group annotations for collapsible sections
  */
 export const githubActionsLogger = defineLogger({
   name: 'github-actions',

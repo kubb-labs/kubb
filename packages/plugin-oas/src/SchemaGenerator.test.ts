@@ -152,7 +152,7 @@ describe('SchemaGenerator core', async () => {
             args: {
               name: 'EventBase',
               $ref: '#/components/schemas/EventBase',
-              path: '/Users/stijnvanhullem/Git/external/kubb/examples/typescript/src/gen/models.ts',
+              path: './typescript/src/gen/models.ts',
               isImportable: true,
             },
           },

@@ -1,5 +1,6 @@
 ---
-title: MCP PetStore
+title: Kubb MCP Example - Model Context Protocol
+description: Generate MCP servers with Kubb. Example for AI assistant integration via Model Context Protocol.
 aside: false
 ---
 

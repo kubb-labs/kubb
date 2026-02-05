@@ -1,5 +1,6 @@
 ---
-title: MSW PetStore
+title: Kubb MSW Example - Mock Service Worker
+description: Generate MSW handlers with Kubb. Example showing API mocking for tests and development.
 aside: false
 ---
 

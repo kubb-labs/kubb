@@ -1,13 +1,14 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-zod
+title: Kubb Zod Plugin - Generate Zod Schemas
+description: Generate Zod validation schemas from OpenAPI specifications with @kubb/plugin-zod. Runtime type validation with Zod v4 support.
 outline: deep
 ---
 
 # @kubb/plugin-zod
 
-With the Zod plugin you can use [Zod](https://zod.dev/) to validate your schemas.
+Generate [Zod](https://zod.dev/) validation schemas from your OpenAPI schema.
 
 > [!TIP]
 > Support for Zod v4 when using Kubb `v3.8.1`, see [Zod 4 migration guide](https://v4.zod.dev/v4/changelog)
@@ -41,7 +42,7 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that will contain the generated code.
+Path to the output folder or file that contains the generated code.
 
 > [!TIP]
 > if `output.path` is a file, `group` cannot be used.
@@ -54,7 +55,7 @@ Path to the output folder or file that will contain the generated code.
 
 #### output.barrelType
 
-Define what needs to be exported, here you can also disable the export of barrel files.
+Specify what to export and optionally disable barrel file generation.
 
 > [!TIP]
 > Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
@@ -69,19 +70,19 @@ Define what needs to be exported, here you can also disable the export of barrel
 
 #### output.banner
 
-Add a banner text in the beginning of every file.
+Add a banner comment at the top of every generated file.
 
 |           |                                  |
-| --------: | :------------------------------- |
+|----------:|:--------------------------------|
 |     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                          |
 
 #### output.footer
 
-Add a footer text at the end of every file.
+Add a footer comment at the end of every generated file.
 
 |           |                                  |
-| --------: | :------------------------------- |
+|----------:|:--------------------------------|
 |     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                          |
 
@@ -98,12 +99,15 @@ Add a footer text at the end of every file.
 
 #### group.type
 
-Define a type where to group the files on.
+Specify the property to group files by. Required when `group` is defined.
 
 |           |         |
-| --------: | :------ |
+|----------:|:--------|
 |     Type: | `'tag'` |
-| Required: | `true`  |
+| Required: | `true*` |
+
+> [!NOTE]
+> `Required: true*` means this is required only when the `group` option is used. The `group` option itself is optional.
 
 <!--@include: ./core/groupTypes.md-->
 
@@ -130,7 +134,7 @@ Return the name of a group based on the group name, this will be used for the fi
 Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
 
 > [!IMPORTANT]
-> We rely on [`tozod`](https://github.com/colinhacks/tozod) from the creator of Zod to create a schema based on a type.
+> We rely on [`ToZod`](https://github.com/colinhacks/tozod) from the creator of Zod to create a schema based on a type.
 > Kubb contains its own version to those kind of conversions.
 
 |           |           |
@@ -152,7 +156,7 @@ Return Zod generated schema as type with z.infer.
 ### dateType
 
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.<br/>
-See [datetimes](https://zod.dev/?id=datetimes).
+See [DateTimes](https://zod.dev/?id=datetimes).
 
 |           |                                                                  |
 | --------: | :--------------------------------------------------------------- |
@@ -333,6 +337,10 @@ z.array(z.string()).min(1).max(10)
 
 :::
 
+### include
+
+<!--@include: ./core/include.md-->
+
 ### exclude
 
 <!--@include: ./core/exclude.md-->
@@ -436,6 +444,6 @@ export default defineConfig({
 });
 ```
 
-## Links
+## See Also
 
 - [Zod](https://zod.dev/)

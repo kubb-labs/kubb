@@ -7,7 +7,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
 import { listPetsHandler, listPetsQueryParams, createPetsHandler, createPetsMutationRequest, showPetByIdHandler, showPetByIdPathParams } from './showPetById'
 
 export const server = new McpServer({
-  name: 'Swagger Petstore',
+  name: 'Swagger PetStore',
   version: '3.0.0',
 })
 

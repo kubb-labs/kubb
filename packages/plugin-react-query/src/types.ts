@@ -32,10 +32,10 @@ type Query = {
    */
   methods: Array<HttpMethod>
   /**
-   * Path to the useQuery that will be used to do the useQuery functionality.
-   * It will be used as `import { useQuery } from '${importPath}'`.
-   * It allows both relative and absolute path.
-   * the path will be applied as is, so relative path should be based on the file being generated.
+   * Path to the useQuery hook for useQuery functionality.
+   * Used as `import { useQuery } from '${importPath}'`.
+   * Accepts relative and absolute paths.
+   * Path is used as-is; relative paths are based on the generated file location.
    * @default '@tanstack/react-query'
    */
   importPath?: string
@@ -48,10 +48,10 @@ type Mutation = {
    */
   methods: Array<HttpMethod>
   /**
-   * Path to the useQuery that will be used to do the useQuery functionality.
-   * It will be used as `import { useQuery } from '${importPath}'`.
-   * It allows both relative and absolute path.
-   * the path will be applied as is, so relative path should be based on the file being generated.
+   * Path to the useQuery hook for useQuery functionality.
+   * Used as `import { useQuery } from '${importPath}'`.
+   * Accepts relative and absolute paths.
+   * Path is used as-is; relative paths are based on the generated file location.
    * @default '@tanstack/react-query'
    */
   importPath?: string
@@ -64,17 +64,17 @@ export type Infinite = {
    */
   queryParam: string
   /**
-   * Which field of the data will be used, set it to undefined when no cursor is known.
+   * Which field of the data is used, set it to undefined when no cursor is known.
    * @deprecated Use `nextParam` and `previousParam` instead for more flexible pagination handling.
    */
   cursorParam?: string | undefined
   /**
-   * Which field of the data will be used to get the cursor for the next page.
+   * Which field of the data is used to get the cursor for the next page.
    * Supports dot notation (e.g. 'pagination.next.id') or array path (e.g. ['pagination', 'next', 'id']) to access nested fields.
    */
   nextParam?: string | string[] | undefined
   /**
-   * Which field of the data will be used to get the cursor for the previous page.
+   * Which field of the data is used to get the cursor for the previous page.
    * Supports dot notation (e.g. 'pagination.prev.id') or array path (e.g. ['pagination', 'prev', 'id']) to access nested fields.
    */
   previousParam?: string | string[] | undefined
@@ -87,14 +87,14 @@ export type Infinite = {
 
 type CustomOptions = {
   /**
-   * Path to the hook that will be used to customize the hook options.
-   * It will be used as `import ${customOptions.name} from '${customOptions.importPath}'`.
+   * Path to the hook that is used to customize the hook options.
+   * It used as `import ${customOptions.name} from '${customOptions.importPath}'`.
    * It allows both relative and absolute paths but be aware that we will not change the path.
    */
   importPath: string
   /**
-   * Name of the exported hook that will be used to customize the hook options.
-   * It will be used as `import ${customOptions.name} from '${customOptions.importPath}'`.
+   * Name of the exported hook that is used to customize the hook options.
+   * It used as `import ${customOptions.name} from '${customOptions.importPath}'`.
    * @default 'useCustomHookOptions'
    */
   name?: string
@@ -108,7 +108,7 @@ export type Options = {
   output?: Output<Oas>
   /**
    * Define which contentType should be used.
-   * By default, the first JSON valid mediaType will be used
+   * By default, the first JSON valid mediaType is used
    */
   contentType?: contentType
   /**
@@ -130,50 +130,50 @@ export type Options = {
   override?: Array<Override<ResolvedOptions>>
   /**
    * How to style your params, by default no casing is applied
-   * - 'camelcase' will use camelcase for the params names
+   * - 'camelcase' uses camelcase for the params names
    */
   paramsCasing?: 'camelcase'
   /**
-   * How to pass your params
-   * - 'object' will return the params and pathParams as an object.
-   * - 'inline' will return the params as comma separated params.
+   * How to pass your params.
+   * - 'object' returns the params and pathParams as an object.
+   * - 'inline' returns the params as comma separated params.
    * @default 'inline'
    */
   paramsType?: 'object' | 'inline'
   /**
    * How to pass your pathParams.
-   * - 'object' will return the pathParams as an object.
-   * - 'inline' will return the pathParams as comma separated params.
+   * - 'object' returns the pathParams as an object.
+   * - 'inline': returns the pathParams as comma separated params.
    * @default 'inline'
    */
   pathParamsType?: PluginClient['options']['pathParamsType']
 
   /**
-   * When set, an infiniteQuery hooks will be added.
+   * When set, an infiniteQuery hooks is added.
    */
   infinite?: Partial<Infinite> | false
   /**
-   * When set, a suspenseQuery hooks will be added.
+   * When set, a suspenseQuery hooks is added.
    */
   suspense?: Partial<Suspense> | false
   queryKey?: QueryKey
   /**
-   * Override some useQuery behaviours.
+   * Override some useQuery behaviors.
    */
   query?: Partial<Query> | false
   mutationKey?: MutationKey
   /**
-   * Override some useMutation behaviours.
+   * Override some useMutation behaviors.
    */
   mutation?: Partial<Mutation> | false
   /**
-   * When set, a custom hook will be used to customize the options of the generated hooks.
+   * When set, a custom hook is used to customize the options of the generated hooks.
    * It will also generate a `HookOptions` type that can be used to type the custom options of each hook for type-safety.
    */
   customOptions?: CustomOptions
   /**
    * Which parser should be used before returning the data to `@tanstack/query`.
-   * `'zod'` will use `@kubb/plugin-zod` to parse the data.
+   * `'zod'` uses `@kubb/plugin-zod` to parse the data.
    */
   parser?: PluginClient['options']['parser']
   transformers?: {

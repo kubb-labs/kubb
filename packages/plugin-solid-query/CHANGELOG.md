@@ -1,5 +1,127 @@
 # @kubb/plugin-solid-query
 
+## 4.20.3
+
+### Patch Changes
+
+- Updated dependencies [[`be8e4e6`](https://github.com/kubb-labs/kubb/commit/be8e4e68d57b161d592e646657dfddc52c2de133)]:
+  - @kubb/plugin-zod@4.20.3
+  - @kubb/plugin-client@4.20.3
+  - @kubb/core@4.20.3
+  - @kubb/oas@4.20.3
+  - @kubb/plugin-oas@4.20.3
+  - @kubb/plugin-ts@4.20.3
+
+## 4.20.2
+
+### Patch Changes
+
+- Updated dependencies [[`6006dc3`](https://github.com/kubb-labs/kubb/commit/6006dc335d62dd9c1254bd31ecc90a5ccb70a116)]:
+  - @kubb/core@4.20.2
+  - @kubb/oas@4.20.2
+  - @kubb/plugin-client@4.20.2
+  - @kubb/plugin-oas@4.20.2
+  - @kubb/plugin-ts@4.20.2
+  - @kubb/plugin-zod@4.20.2
+
+## 4.20.1
+
+### Patch Changes
+
+- Updated dependencies [[`5c50613`](https://github.com/kubb-labs/kubb/commit/5c50613504f05d1f5484dea4969182ecc7961cfb)]:
+  - @kubb/core@4.20.1
+  - @kubb/plugin-oas@4.20.1
+  - @kubb/oas@4.20.1
+  - @kubb/plugin-client@4.20.1
+  - @kubb/plugin-ts@4.20.1
+  - @kubb/plugin-zod@4.20.1
+
+## 4.20.0
+
+### Patch Changes
+
+- [#2387](https://github.com/kubb-labs/kubb/pull/2387) [`d3acf9e`](https://github.com/kubb-labs/kubb/commit/d3acf9eb2b018595fadcc06380ef8419d8bbea8f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update fabric
+
+- Updated dependencies [[`d3acf9e`](https://github.com/kubb-labs/kubb/commit/d3acf9eb2b018595fadcc06380ef8419d8bbea8f)]:
+  - @kubb/plugin-client@4.20.0
+  - @kubb/plugin-oas@4.20.0
+  - @kubb/plugin-zod@4.20.0
+  - @kubb/plugin-ts@4.20.0
+  - @kubb/core@4.20.0
+  - @kubb/oas@4.20.0
+
+## 4.19.2
+
+### Patch Changes
+
+- Updated dependencies [[`d91549b`](https://github.com/kubb-labs/kubb/commit/d91549b906e0c8e37e1e06795e13daeaa9562682)]:
+  - @kubb/plugin-zod@4.19.2
+  - @kubb/plugin-client@4.19.2
+  - @kubb/core@4.19.2
+  - @kubb/oas@4.19.2
+  - @kubb/plugin-oas@4.19.2
+  - @kubb/plugin-ts@4.19.2
+
+## 4.19.1
+
+### Patch Changes
+
+- Updated dependencies [[`996f3b2`](https://github.com/kubb-labs/kubb/commit/996f3b26d8c2167c3e77b734275c204e6c1b159c)]:
+  - @kubb/plugin-oas@4.19.1
+  - @kubb/plugin-ts@4.19.1
+  - @kubb/plugin-zod@4.19.1
+  - @kubb/plugin-client@4.19.1
+  - @kubb/core@4.19.1
+  - @kubb/oas@4.19.1
+
+## 4.19.0
+
+### Patch Changes
+
+- Updated dependencies [[`f5f2dc1`](https://github.com/kubb-labs/kubb/commit/f5f2dc162556c9c1c05d97e29cb28cf79830885a)]:
+  - @kubb/oas@4.19.0
+  - @kubb/plugin-oas@4.19.0
+  - @kubb/plugin-client@4.19.0
+  - @kubb/plugin-ts@4.19.0
+  - @kubb/plugin-zod@4.19.0
+  - @kubb/core@4.19.0
+
+## 4.18.5
+
+### Patch Changes
+
+- Updated dependencies [[`ea23bb4`](https://github.com/kubb-labs/kubb/commit/ea23bb4a2f5a121dd1192b05f0f4cf4207093dc5), [`77ec2fd`](https://github.com/kubb-labs/kubb/commit/77ec2fd6a2e9346667b70f31dc714ea1925fa68d)]:
+  - @kubb/plugin-oas@4.18.5
+  - @kubb/plugin-zod@4.18.5
+  - @kubb/oas@4.18.5
+  - @kubb/plugin-client@4.18.5
+  - @kubb/plugin-ts@4.18.5
+  - @kubb/core@4.18.5
+
+## 4.18.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.18.4
+  - @kubb/oas@4.18.4
+  - @kubb/plugin-client@4.18.4
+  - @kubb/plugin-oas@4.18.4
+  - @kubb/plugin-ts@4.18.4
+  - @kubb/plugin-zod@4.18.4
+
+## 4.18.3
+
+### Patch Changes
+
+- Updated dependencies [[`5bff082`](https://github.com/kubb-labs/kubb/commit/5bff08211fb72476a6b8ffc703430ae4c6603ba5)]:
+  - @kubb/plugin-ts@4.18.3
+  - @kubb/plugin-client@4.18.3
+  - @kubb/plugin-zod@4.18.3
+  - @kubb/core@4.18.3
+  - @kubb/oas@4.18.3
+  - @kubb/plugin-oas@4.18.3
+
 ## 4.18.2
 
 ### Patch Changes
@@ -966,7 +1088,7 @@
 
 ### Patch Changes
 
-- [#1953](https://github.com/kubb-labs/kubb/pull/1953) [`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - update peerdeps @kubb/react
+- [#1953](https://github.com/kubb-labs/kubb/pull/1953) [`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - update PeerDependencies @kubb/react
 
 - Updated dependencies [[`6b6f5b0`](https://github.com/kubb-labs/kubb/commit/6b6f5b0d20ddc7b42b2fd9daf8cb1483d2c3af92)]:
   - @kubb/plugin-client@4.3.1

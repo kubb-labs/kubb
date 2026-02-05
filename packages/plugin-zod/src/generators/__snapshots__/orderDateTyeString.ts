@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as z from 'zod'
 
 export const order = z.object({
   id: z.number().int().optional(),

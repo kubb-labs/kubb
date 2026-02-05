@@ -3,7 +3,7 @@ import { BaseGenerator, type FileMetaBase } from '@kubb/core'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { type AsyncEventEmitter, getUniqueName } from '@kubb/core/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import type { contentType, Oas, OpenAPIV3, SchemaObject } from '@kubb/oas'
+import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference } from '@kubb/oas'
 import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
@@ -12,7 +12,6 @@ import type { Generator } from './generators/types.ts'
 import { isKeyword, type Schema, type SchemaKeywordMapper, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
-import { getSchemas } from './utils/getSchemas.ts'
 import { buildSchema } from './utils.tsx'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
@@ -41,6 +40,11 @@ export type SchemaGeneratorOptions = {
   emptySchemaType: 'any' | 'unknown' | 'void'
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   enumSuffix?: string
+  /**
+   * @deprecated Will be removed in v5. Use `collisionDetection: true` instead to prevent enum name collisions.
+   * When `collisionDetection` is enabled, the rootName-based approach eliminates the need for numeric suffixes.
+   * @internal
+   */
   usedEnumNames?: Record<string, number>
   mapper?: Record<string, string>
   typed?: boolean
@@ -50,7 +54,7 @@ export type SchemaGeneratorOptions = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
     /**
-     * Receive schema and name(propertName) and return FakerMeta array
+     * Receive schema and name(propertyName) and return FakerMeta array
      * TODO TODO add docs
      * @beta
      */
@@ -64,6 +68,7 @@ type SchemaProps = {
   schema: SchemaObject | null
   name: string | null
   parentName: string | null
+  rootName?: string | null
 }
 
 export class SchemaGenerator<
@@ -74,12 +79,30 @@ export class SchemaGenerator<
   // Collect the types of all referenced schemas, so we can export them later
   refs: Refs = {}
 
-  // Keep track of already used type aliases
-  #usedAliasNames: Record<string, number> = {}
+  // Map from original component paths to resolved schema names (after collision resolution)
+  // e.g., { '#/components/schemas/Order': 'OrderSchema', '#/components/responses/Product': 'ProductResponse' }
+  #schemaNameMapping: Map<string, string> = new Map()
+
+  // Flag to track if nameMapping has been initialized
+  #nameMappingInitialized = false
 
   // Cache for parsed schemas to avoid redundant parsing
   // Using WeakMap for automatic garbage collection when schemas are no longer referenced
   #parseCache: Map<string, Schema[]> = new Map()
+
+  /**
+   * Ensure the name mapping is initialized (lazy initialization)
+   */
+  #ensureNameMapping() {
+    if (this.#nameMappingInitialized) {
+      return
+    }
+
+    const { oas, contentType, include } = this.context
+    const { nameMapping } = oas.getSchemas({ contentType, includes: include })
+    this.#schemaNameMapping = nameMapping
+    this.#nameMappingInitialized = true
+  }
 
   /**
    * Creates a type node from a given schema.
@@ -102,6 +125,7 @@ export class SchemaGenerator<
           schema: props.schema,
           name: props.name,
           parentName: props.parentName,
+          rootName: props.rootName,
         })
 
         const cached = this.#parseCache.get(cacheKey)
@@ -321,7 +345,7 @@ export class SchemaGenerator<
   /**
    * Recursively creates a type literal with the given props.
    */
-  #parseProperties(name: string | null, schemaObject: SchemaObject): Schema[] {
+  #parseProperties(name: string | null, schemaObject: SchemaObject, rootName?: string | null): Schema[] {
     const properties = schemaObject?.properties || {}
     const additionalProperties = schemaObject?.additionalProperties
     const required = schemaObject?.required
@@ -333,9 +357,9 @@ export class SchemaGenerator<
         const propertySchema = properties[propertyName] as SchemaObject
 
         const isRequired = Array.isArray(required) ? required?.includes(propertyName) : !!required
-        const nullable = propertySchema.nullable ?? propertySchema['x-nullable'] ?? false
+        const nullable = isNullable(propertySchema)
 
-        validationFunctions.push(...this.parse({ schema: propertySchema, name: propertyName, parentName: name }))
+        validationFunctions.push(...this.parse({ schema: propertySchema, name: propertyName, parentName: name, rootName: rootName || name }))
 
         validationFunctions.push({
           keyword: schemaKeywords.name,
@@ -359,7 +383,7 @@ export class SchemaGenerator<
       additionalPropertiesSchemas =
         additionalProperties === true || !Object.keys(additionalProperties).length
           ? [{ keyword: this.#getUnknownType(name) }]
-          : this.parse({ schema: additionalProperties as SchemaObject, name: null, parentName: name })
+          : this.parse({ schema: additionalProperties as SchemaObject, name: null, parentName: name, rootName: rootName || name })
     }
 
     let patternPropertiesSchemas: Record<string, Schema[]> = {}
@@ -369,7 +393,7 @@ export class SchemaGenerator<
         const schemas =
           patternSchema === true || !Object.keys(patternSchema as object).length
             ? [{ keyword: this.#getUnknownType(name) }]
-            : this.parse({ schema: patternSchema, name: null, parentName: name })
+            : this.parse({ schema: patternSchema, name: null, parentName: name, rootName: rootName || name })
 
         return {
           ...acc,
@@ -453,15 +477,21 @@ export class SchemaGenerator<
       ]
     }
 
-    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
+    // Ensure name mapping is initialized before resolving names
+    this.#ensureNameMapping()
+
+    const originalName = $ref.replace(/.+\//, '')
+    // Use the full $ref path to look up the collision-resolved name
+    const resolvedName = this.#schemaNameMapping.get($ref) || originalName
+
     const propertyName = this.context.pluginManager.resolveName({
-      name: originalName,
+      name: resolvedName,
       pluginKey: this.context.plugin.key,
       type: 'function',
     })
 
     const fileName = this.context.pluginManager.resolveName({
-      name: originalName,
+      name: resolvedName,
       pluginKey: this.context.plugin.key,
       type: 'file',
     })
@@ -473,7 +503,7 @@ export class SchemaGenerator<
 
     this.refs[$ref] = {
       propertyName,
-      originalName,
+      originalName: resolvedName,
       path: file.path,
     }
 
@@ -498,13 +528,13 @@ export class SchemaGenerator<
     }
 
     // If the discriminator property is an extension property (starts with x-),
-    // it's metadata and not an actual schema property, so we can't add constraints for it.
+    // its metadata and not an actual schema property, so we can't add constraints for it.
     // In this case, return the union as-is without adding discriminator constraints.
     if (discriminator.propertyName.startsWith('x-')) {
       return schema
     }
 
-    const objectPropertySchema = SchemaGenerator.find(this.parse({ schema: schemaObject, name: null, parentName: null }), schemaKeywords.object)
+    const objectPropertySchema = SchemaGenerator.find(this.parse({ schema: schemaObject, name: null, parentName: null, rootName: null }), schemaKeywords.object)
 
     return {
       ...schema,
@@ -605,7 +635,7 @@ export class SchemaGenerator<
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  #parseSchemaObject({ schema: _schemaObject, name, parentName }: SchemaProps): Schema[] {
+  #parseSchemaObject({ schema: _schemaObject, name, parentName, rootName }: SchemaProps): Schema[] {
     const normalizedSchema = this.context.oas.flattenSchema(_schemaObject)
 
     const { schemaObject, version } = this.#getParsedSchemaObject(normalizedSchema)
@@ -698,11 +728,6 @@ export class SchemaGenerator<
     if (schemaObject.type && Array.isArray(schemaObject.type)) {
       // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
       const items = schemaObject.type.filter((value) => value !== 'null') as Array<OpenAPIV3.NonArraySchemaObjectType>
-      const hasNull = (schemaObject.type as string[]).includes('null')
-
-      if (hasNull && !nullable) {
-        baseItems.push({ keyword: schemaKeywords.nullable })
-      }
 
       if (items.length > 1) {
         const parsedItems = [
@@ -715,6 +740,7 @@ export class SchemaGenerator<
                     schema: { ...schemaObject, type: item },
                     name,
                     parentName,
+                    rootName,
                   })[0],
               )
               .filter(Boolean)
@@ -768,8 +794,8 @@ export class SchemaGenerator<
         keyword: schemaKeywords.union,
         args: (schemaObject.oneOf || schemaObject.anyOf)!
           .map((item) => {
-            // first item, this will be ref
-            return item && this.parse({ schema: item as SchemaObject, name, parentName })[0]
+            // first item, this is ref
+            return item && this.parse({ schema: item as SchemaObject, name, parentName, rootName })[0]
           })
           .filter(Boolean),
       }
@@ -783,7 +809,7 @@ export class SchemaGenerator<
       }
 
       if (schemaWithoutOneOf.properties) {
-        const propertySchemas = this.parse({ schema: schemaWithoutOneOf, name, parentName })
+        const propertySchemas = this.parse({ schema: schemaWithoutOneOf, name, parentName, rootName })
 
         union.args = [
           ...union.args.map((arg) => {
@@ -813,7 +839,7 @@ export class SchemaGenerator<
               return []
             }
 
-            return item ? this.parse({ schema: item, name, parentName }) : []
+            return item ? this.parse({ schema: item, name, parentName, rootName }) : []
           })
           .filter(Boolean),
       }
@@ -853,7 +879,7 @@ export class SchemaGenerator<
         }
 
         for (const item of parsedItems) {
-          const parsed = this.parse({ schema: item, name, parentName })
+          const parsed = this.parse({ schema: item, name, parentName, rootName })
 
           if (Array.isArray(parsed)) {
             and.args = and.args ? and.args.concat(parsed) : parsed
@@ -862,7 +888,7 @@ export class SchemaGenerator<
       }
 
       if (schemaWithoutAllOf.properties) {
-        and.args = [...(and.args || []), ...this.parse({ schema: schemaWithoutAllOf, name, parentName })]
+        and.args = [...(and.args || []), ...this.parse({ schema: schemaWithoutAllOf, name, parentName, rootName })]
       }
 
       return SchemaGenerator.combineObjects([and, ...baseItems])
@@ -885,12 +911,22 @@ export class SchemaGenerator<
           items: normalizedItems,
         } as SchemaObject
 
-        return this.parse({ schema: normalizedSchema, name, parentName })
+        return this.parse({ schema: normalizedSchema, name, parentName, rootName })
       }
 
       // Removed verbose enum parsing debug log - too noisy for hundreds of enums
 
-      const enumName = getUniqueName(pascalCase([parentName, name, options.enumSuffix].join(' ')), this.options.usedEnumNames || {})
+      // Include rootName in enum naming to avoid collisions for nested enums with same path
+      // Only add rootName if it differs from parentName to avoid duplication
+      // This is controlled by the collisionDetection flag to maintain backward compatibility
+      const useCollisionDetection = this.context.oas.options.collisionDetection ?? false
+      const enumNameParts =
+        useCollisionDetection && rootName && rootName !== parentName ? [rootName, parentName, name, options.enumSuffix] : [parentName, name, options.enumSuffix]
+
+      // @deprecated usedEnumNames will be removed in v5 - collisionDetection with rootName-based naming eliminates the need for numeric suffixes
+      const enumName = useCollisionDetection
+        ? pascalCase(enumNameParts.join(' '))
+        : getUniqueName(pascalCase(enumNameParts.join(' ')), this.options.usedEnumNames || {})
       const typeName = this.context.pluginManager.resolveName({
         name: enumName,
         pluginKey: this.context.plugin.key,
@@ -1021,13 +1057,14 @@ export class SchemaGenerator<
             max,
             items: prefixItems
               .map((item) => {
-                return this.parse({ schema: item, name, parentName })[0]
+                return this.parse({ schema: item, name, parentName, rootName })[0]
               })
               .filter(Boolean),
             rest: this.parse({
               schema: items,
               name,
               parentName,
+              rootName,
             })[0],
           },
         },
@@ -1036,7 +1073,7 @@ export class SchemaGenerator<
     }
 
     if (version === '3.1' && 'const' in schemaObject) {
-      // const keyword takes precendence over the actual type.
+      // const keyword takes precedence over the actual type.
 
       if (schemaObject['const'] === null) {
         return [{ keyword: schemaKeywords.null }]
@@ -1173,7 +1210,7 @@ export class SchemaGenerator<
     if ('items' in schemaObject || schemaObject.type === ('array' as 'string')) {
       const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
       const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
-      const items = this.parse({ schema: 'items' in schemaObject ? (schemaObject.items as SchemaObject) : [], name, parentName })
+      const items = this.parse({ schema: 'items' in schemaObject ? (schemaObject.items as SchemaObject) : [], name, parentName, rootName })
       const unique = !!schemaObject.uniqueItems
 
       return [
@@ -1193,7 +1230,7 @@ export class SchemaGenerator<
     if (schemaObject.properties || schemaObject.additionalProperties || 'patternProperties' in schemaObject) {
       if (isDiscriminator(schemaObject)) {
         // override schema to set type to be based on discriminator mapping, use of enum to convert type string to type 'mapping1' | 'mapping2'
-        const schemaObjectOverriden = Object.keys(schemaObject.properties || {}).reduce((acc, propertyName) => {
+        const schemaObjectOverridden = Object.keys(schemaObject.properties || {}).reduce((acc, propertyName) => {
           if (acc.properties?.[propertyName] && propertyName === schemaObject.discriminator.propertyName) {
             return {
               ...acc,
@@ -1210,10 +1247,10 @@ export class SchemaGenerator<
           return acc
         }, schemaObject || {}) as SchemaObject
 
-        return [...this.#parseProperties(name, schemaObjectOverriden), ...baseItems]
+        return [...this.#parseProperties(name, schemaObjectOverridden, rootName), ...baseItems]
       }
 
-      return [...this.#parseProperties(name, schemaObject), ...baseItems]
+      return [...this.#parseProperties(name, schemaObject, rootName), ...baseItems]
     }
 
     if (schemaObject.type) {
@@ -1249,13 +1286,29 @@ export class SchemaGenerator<
 
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
-    const schemas = getSchemas({ oas, contentType, includes: include })
-    const schemaEntries = Object.entries(schemas)
 
-    this.context.events?.emit('debug', {
-      date: new Date(),
-      logs: [`Building ${schemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],
-    })
+    // Initialize the name mapping if not already done
+    if (!this.#nameMappingInitialized) {
+      const { schemas, nameMapping } = oas.getSchemas({ contentType, includes: include })
+      this.#schemaNameMapping = nameMapping
+      this.#nameMappingInitialized = true
+      const schemaEntries = Object.entries(schemas)
+
+      this.context.events?.emit('debug', {
+        date: new Date(),
+        logs: [`Building ${schemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],
+      })
+
+      // Continue with build using the schemas
+      return this.#doBuild(schemas, generators)
+    }
+    // If already initialized, just get the schemas (without mapping)
+    const { schemas } = oas.getSchemas({ contentType, includes: include })
+    return this.#doBuild(schemas, generators)
+  }
+
+  async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+    const schemaEntries = Object.entries(schemas)
 
     // Increased parallelism for better performance
     // - generatorLimit increased from 1 to 3 to allow parallel generator processing
@@ -1268,7 +1321,7 @@ export class SchemaGenerator<
         const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
           schemaLimit(async () => {
             const options = this.#getOptions(name)
-            const tree = this.parse({ schema: schemaObject, name, parentName: null })
+            const tree = this.parse({ schema: schemaObject, name, parentName: null, rootName: name })
 
             if (generator.type === 'react') {
               await buildSchema(

@@ -13,7 +13,7 @@ export type Options = {
   output?: Output<Oas>
   /**
    * Define which contentType should be used.
-   * By default, the first JSON valid mediaType will be used
+   * By default, the first JSON valid mediaType is used
    */
   contentType?: contentType
   client?: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle'>

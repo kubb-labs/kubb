@@ -1,13 +1,14 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-redoc
+title: Kubb ReDoc Plugin - Generate API Documentation
+description: Generate beautiful API documentation with ReDoc from OpenAPI specs using @kubb/plugin-redoc.
 outline: deep
 ---
 
 # @kubb/plugin-redoc
 
-With the Redoc plugin you can create beautiful documentation.
+Generate API documentation using [Redoc](https://redocly.com/).
 
 ## Installation
 
@@ -35,8 +36,9 @@ yarn add -D @kubb/plugin-redoc
 ### output
 #### output.path
 
-Output for the generated doc.
-For the generation we are using [https://redocly.com/](https://redocly.com/).
+The output location for the generated documentation.
+
+This plugin uses [Redocly](https://redocly.com/) for HTML generation.
 
 |           |                |
 |----------:|:---------------|
@@ -68,6 +70,6 @@ export default defineConfig({
 })
 ```
 
-## Links
+## See Also
 
 - [https://redocly.com/](https://redocly.com/)

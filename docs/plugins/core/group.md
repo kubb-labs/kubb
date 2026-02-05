@@ -1,8 +1,8 @@
-Grouping makes it possible to combine files in a folder based on specific `type`.
+Grouping combines files in a folder based on a specific `type`.
 
-Imagine you have the following setup:
+For example, with this configuration:
 
-```typescript
+```typescript [kubb.config.ts]
 group: {
   type: 'tag',
   name({ group }){
@@ -10,7 +10,8 @@ group: {
   }
 }
 ```
-That will create a structure like this:
+
+This generates the following structure:
 ```
 .
 ├── src/

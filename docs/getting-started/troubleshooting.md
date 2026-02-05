@@ -1,13 +1,21 @@
 ---
 layout: doc
 
-title: Troubleshooting
+title: Kubb Troubleshooting Guide - Fix Common Issues
+description: Solve common Kubb issues including installation errors, configuration problems, generation failures, and runtime errors. Debug mode guide included.
 outline: deep
 ---
 
-# Troubleshooting
+# Kubb Troubleshooting Guide
 
-This guide covers common issues you might encounter when using Kubb and how to resolve them.
+**Solve common Kubb issues quickly** with this comprehensive troubleshooting guide. Find solutions for installation problems, configuration errors, generation failures, and runtime issues.
+
+## How to Use This Guide
+
+1. **Identify your issue** - Find the category that matches your problem
+2. **Try the solution** - Follow the recommended fix
+3. **Enable debug mode** - If the issue persists, use debug mode for detailed logs
+4. **Get help** - Join Discord or create a GitHub issue if you're still stuck
 
 ## Installation Issues
 
@@ -66,11 +74,11 @@ yarn install
 
 **Solution**: Ensure your config file exists in the project root with one of these names:
 - `kubb.config.ts` - TypeScript (recommended)
-- `kubb.config.js` - JavaScript (requires `"type": "module"` in package.json)
+- `kubb.config.js` - JavaScript (requires `"type": "module"` in `package.json`)
 - `kubb.config.mjs` - ESM JavaScript
 - `kubb.config.cjs` - CommonJS JavaScript
 
-You can also specify a custom config path:
+Specify a custom config path:
 
 ```shell
 kubb generate --config ./configs/kubb.config.ts
@@ -192,7 +200,7 @@ pluginTs({
 
 **Error**: `JavaScript heap out of memory`
 
-**Solution**: Increase Node.js memory limit (4096 = 4GB, adjust based on available system memory):
+**Solution**: Increase Node.js memory limit. Adjust the value based on available system memory (4096 = 4GB):
 
 ```shell
 NODE_OPTIONS="--max-old-space-size=4096" kubb generate
@@ -247,7 +255,7 @@ Enable debug mode to get detailed logs:
 kubb generate --debug
 ```
 
-This creates log files in the `.kubb` directory (e.g., `.kubb/kubb-{name}-{timestamp}.log`). The CLI will display the exact location of each debug log file after generation completes.
+This creates log files in the `.kubb` directory (e.g., `.kubb/kubb-{name}-{timestamp}.log`). The CLI displays the exact location of each debug log file after generation completes.
 
 ## Getting Help
 
@@ -285,4 +293,4 @@ Yes, you can use:
 2. **Transformers**: Modify names and paths
 3. **Override**: Override generation for specific operations/schemas
 
-See [Generators](/knowledge-base/generators/) for more details.
+See [Generators](/guide/generators/) for more details.

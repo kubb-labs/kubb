@@ -12,32 +12,32 @@ export type Options = {
   output?: Output<Oas>
   /**
    * Define which contentType should be used.
-   * By default, the first JSON valid mediaType will be used
+   * By default, the first JSON valid mediaType is used
    */
   contentType?: contentType
   /**
-   * ReturnType that will be used when calling cy.request.
-   * - 'data' will return ResponseConfig[data].
-   * - 'full' will return ResponseConfig.
+   * Return type when calling cy.request.
+   * - 'data' returns ResponseConfig[data].
+   * - 'full' returns ResponseConfig.
    * @default 'data'
    */
   dataReturnType?: 'data' | 'full'
   /**
    * How to style your params, by default no casing is applied
-   * - 'camelcase' will use camelcase for the params names
+   * - 'camelcase' uses camelcase for the params names
    */
   paramsCasing?: 'camelcase'
   /**
-   * How to pass your params
-   * - 'object' will return the params and pathParams as an object.
-   * - 'inline' will return the params as comma separated params.
+   * How to pass your params.
+   * - 'object' returns the params and pathParams as an object.
+   * - 'inline' returns the params as comma separated params.
    * @default 'inline'
    */
   paramsType?: 'object' | 'inline'
   /**
    * How to pass your pathParams.
-   * - 'object' will return the pathParams as an object.
-   * - 'inline' will return the pathParams as comma separated params.
+   * - 'object' returns the pathParams as an object.
+   * - 'inline' returns the pathParams as comma separated params.
    * @default 'inline'
    */
   pathParamsType?: 'object' | 'inline'

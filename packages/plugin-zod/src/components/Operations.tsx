@@ -2,14 +2,14 @@ import transformers from '@kubb/core/transformers'
 import type { HttpMethod, Operation } from '@kubb/oas'
 import type { SchemaNames } from '@kubb/plugin-oas/hooks'
 import { Const, File, Type } from '@kubb/react-fabric'
-import type { KubbNode } from '@kubb/react-fabric/types'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 
 type Props = {
   name: string
   operations: Array<{ operation: Operation; data: SchemaNames }>
 }
 
-export function Operations({ name, operations }: Props): KubbNode {
+export function Operations({ name, operations }: Props): FabricReactNode {
   const operationsJSON = operations.reduce(
     (prev, acc) => {
       prev[`"${acc.operation.getOperationId()}"`] = acc.data

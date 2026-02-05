@@ -2,9 +2,9 @@ import { useMode, usePluginManager } from '@kubb/core/hooks'
 import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
+import { getBanner, getFooter, getImports } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { File, Fragment } from '@kubb/react-fabric'
+import { File } from '@kubb/react-fabric'
 import { Faker } from '../components'
 import type { PluginFaker } from '../types'
 
@@ -40,7 +40,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
 
     const mapOperationSchema = ({ name, schema, description, ...options }: OperationSchemaType) => {
       const tree = schemaGenerator.parse({ schema, name, parentName: null })
-      const imports = schemaManager.getImports(tree)
+      const imports = getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
 
       const faker = {
@@ -63,7 +63,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       )
 
       return (
-        <Fragment>
+        <>
           {canOverride && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
           {imports.map((imp) => (
             <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} />
@@ -79,7 +79,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
             seed={seed}
             canOverride={canOverride}
           />
-        </Fragment>
+        </>
       )
     }
 
@@ -99,7 +99,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     )
   },
   Schema({ schema, plugin }) {
-    const { getName, getFile, getImports } = useSchemaManager()
+    const { getName, getFile } = useSchemaManager()
     const {
       options: { output, dateParser, regexGenerator, seed, mapper },
     } = plugin

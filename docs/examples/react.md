@@ -1,5 +1,6 @@
 ---
-title: React
+title: Kubb React Example - React Query Hooks
+description: Generate React Query hooks from OpenAPI with Kubb. Complete example for React applications.
 aside: false
 ---
 

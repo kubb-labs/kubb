@@ -1,5 +1,6 @@
 ---
-title: Generators
+title: Kubb Custom Generator Example
+description: Create custom generators in Kubb. Example showing how to extend code generation with custom logic.
 aside: false
 ---
 

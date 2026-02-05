@@ -1,15 +1,16 @@
 ---
 layout: doc
 
-title: \@kubb/plugin-client
+title: Kubb Client Plugin - Generate API Clients
+description: Generate type-safe HTTP clients with Axios, Fetch, or custom implementations using @kubb/plugin-client for OpenAPI endpoints.
 outline: deep
 ---
 
 # @kubb/plugin-client
 
-The Client plugin enables you to generate API controllers, simplifying the process of handling API requests and improving integration between frontend and backend services.
+Generate API client code for handling API requests.
 
-By default, we are using [Axios](https://axios-http.com/docs/intro) but you can also add your own client, see [Use of Fetch](/knowledge-base/fetch).
+By default, this plugin uses [Axios](https://axios-http.com/docs/intro), but you can add your own client. See [Use of Fetch](/guide/fetch) for an example.
 
 ## Installation
 
@@ -38,26 +39,26 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that will contain the generated code.
+Path to the output folder or file that contains the generated code.
 
 > [!TIP]
 > if `output.path` is a file, `group` cannot be used.
 
 |           |             |
-| --------: | :---------- |
+|----------:|:----------|
 |     Type: | `string`    |
 | Required: | `true`      |
 |  Default: | `'clients'` |
 
 #### output.barrelType
 
-Define what needs to be exported, here you can also disable the export of barrel files.
+Specify what to export and optionally disable barrel file generation.
 
 > [!TIP]
 > Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
 
 |           |                                            |
-| --------: | :----------------------------------------- |
+|----------:|:------------------------------------------|
 |     Type: | `'all' \| 'named' \| 'propagate' \| false` |
 | Required: | `false`                                    |
 |  Default: | `'named'`                                  |
@@ -65,18 +66,18 @@ Define what needs to be exported, here you can also disable the export of barrel
 <!--@include: ./core/barrelTypes.md-->
 
 #### output.banner
-Add a banner text in the beginning of every file.
+Add a banner comment at the top of every generated file.
 
 |           |                                  |
-| --------: | :------------------------------- |
+|----------:|:--------------------------------|
 |     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                          |
 
 #### output.footer
-Add a footer text at the end of every file.
+Add a footer comment at the end of every generated file.
 
 |           |                                  |
-| --------: | :------------------------------- |
+|----------:|:--------------------------------|
 |     Type: | `string \| (oas: Oas) => string` |
 | Required: | `false`                          |
 
@@ -90,10 +91,10 @@ Add a footer text at the end of every file.
 <!--@include: ./core/group.md-->
 
 #### group.type
-Define a type where to group the files on.
+Specify the property to group files by.
 
 |           |         |
-| --------: | :------ |
+|----------:|:--------|
 |     Type: | `'tag'` |
 | Required: | `true`  |
 
@@ -249,6 +250,6 @@ export default defineConfig({
 })
 ```
 
-## Links
+## See Also
 
 - [Axios](https://axios-http.com/docs/intro)

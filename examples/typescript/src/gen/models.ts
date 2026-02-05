@@ -3,6 +3,12 @@
  * Do not edit manually.
  */
 
+export enum ParamsStatusEnum {
+  placed = 'placed',
+  approved = 'approved',
+  delivered = 'delivered',
+}
+
 export enum OrderHttpStatusEnum {
   OrderHttpStatusEnum_200 = 200,
   OrderHttpStatusEnum_400 = 400,
@@ -18,6 +24,20 @@ export interface Order {
    * @type integer | undefined, int64
    */
   petId?: number
+  /**
+   * @type object | undefined
+   */
+  params?: {
+    /**
+     * @description Order Status
+     * @type string
+     */
+    status: ParamsStatusEnum
+    /**
+     * @type string
+     */
+    type: string
+  }
   /**
    * @type integer | undefined, int32
    */
@@ -64,11 +84,31 @@ export interface Address {
   zip?: string
 }
 
+export enum ParamsStatusEnum2 {
+  placed = 'placed',
+  approved = 'approved',
+  delivered = 'delivered',
+}
+
 export interface Customer {
   /**
    * @type integer | undefined, int64
    */
   id?: number
+  /**
+   * @type object | undefined
+   */
+  params?: {
+    /**
+     * @description Order Status
+     * @type string
+     */
+    status: ParamsStatusEnum2
+    /**
+     * @type string
+     */
+    type: string
+  }
   /**
    * @type string | undefined
    */
