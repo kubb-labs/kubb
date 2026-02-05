@@ -121,7 +121,12 @@ export class OperationGenerator<
     const queryParamsSchema = this.context.oas.getParametersSchema(operation, 'query')
     const headerParamsSchema = this.context.oas.getParametersSchema(operation, 'header')
     const requestSchema = this.context.oas.getRequestSchema(operation)
-    const statusCodes = operation.getResponseStatusCodes().map((statusCode) => {
+    const allResponseCodes = operation.getResponseStatusCodes()
+    
+    // Track which codes are explicit 2xx to determine if default should be treated as success
+    const has2xxCodes = allResponseCodes.some((code) => code !== 'default' && code.startsWith('2'))
+    
+    const statusCodes = allResponseCodes.map((statusCode) => {
       const name = statusCode === 'default' ? 'error' : statusCode
       const schema = this.context.oas.getResponseSchema(operation, statusCode)
       const keys = resolveKeys(schema)
@@ -140,8 +145,16 @@ export class OperationGenerator<
       }
     })
 
-    const successful = statusCodes.filter((item) => item.statusCode?.toString().startsWith('2'))
-    const errors = statusCodes.filter((item) => item.statusCode?.toString().startsWith('4') || item.statusCode?.toString().startsWith('5'))
+    // Separate responses by their status code category
+    const with2xxCode = statusCodes.filter((item) => item.statusCode?.toString().startsWith('2'))
+    const with4xxOr5xxCode = statusCodes.filter(
+      (item) => item.statusCode?.toString().startsWith('4') || item.statusCode?.toString().startsWith('5'),
+    )
+    const withoutNumericCode = statusCodes.filter((item) => !item.statusCode)
+
+    // When no explicit 2xx responses exist, treat default (which has undefined statusCode) as successful
+    const successful = has2xxCodes ? with2xxCode : [...with2xxCode, ...withoutNumericCode]
+    const errors = with4xxOr5xxCode
 
     return {
       pathParams: pathParamsSchema
