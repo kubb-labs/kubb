@@ -1,5 +1,17 @@
 # @kubb/plugin-zod
 
+## 4.20.3
+
+### Patch Changes
+
+- [#2419](https://github.com/kubb-labs/kubb/pull/2419) [`be8e4e6`](https://github.com/kubb-labs/kubb/commit/be8e4e68d57b161d592e646657dfddc52c2de133) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix zod import to use namespace import (`import * as z from 'zod'`) for better compatibility with different module systems and bundlers.
+
+- Updated dependencies []:
+  - @kubb/core@4.20.3
+  - @kubb/oas@4.20.3
+  - @kubb/plugin-oas@4.20.3
+  - @kubb/plugin-ts@4.20.3
+
 ## 4.20.2
 
 ### Patch Changes
