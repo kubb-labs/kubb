@@ -6,6 +6,18 @@ outline: deep
 
 # Changelog
 
+## 4.20.3
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+
+**Fixed zod import to use namespace import for better compatibility**
+
+Changed from `import z from 'zod'` to `import * as z from 'zod'` to improve compatibility with different module systems and bundlers.
+
+---
+
 ## 4.20.2
 
 ### 🐛 Bug Fixes

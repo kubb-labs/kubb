@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod'
+import * as z from 'zod'
 
 export const apiResponseSchema = z.object({
   code: z.optional(z.number().int()),

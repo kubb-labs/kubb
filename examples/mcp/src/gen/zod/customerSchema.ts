@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod'
+import * as z from 'zod'
 import { addressSchema } from './addressSchema.js'
 
 export const customerSchema = z.object({
