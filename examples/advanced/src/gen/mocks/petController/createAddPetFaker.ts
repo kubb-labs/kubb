@@ -4,13 +4,6 @@ import { createAddPetRequestFaker } from '../createAddPetRequestFaker.ts'
 import { createPetFaker } from '../createPetFaker.ts'
 
 /**
- * @description Successful operation
- */
-export function createAddPet200Faker() {
-  return createPetFaker()
-}
-
-/**
  * @description Pet not found
  */
 export function createAddPet405Faker(data?: Partial<AddPet405>): AddPet405 {
@@ -21,12 +14,19 @@ export function createAddPet405Faker(data?: Partial<AddPet405>): AddPet405 {
 }
 
 /**
+ * @description Successful operation
+ */
+export function createAddPetErrorFaker() {
+  return createPetFaker()
+}
+
+/**
  * @description Create a new pet in the store
  */
 export function createAddPetMutationRequestFaker() {
   return createAddPetRequestFaker()
 }
 
-export function createAddPetMutationResponseFaker(data?: Partial<AddPetMutationResponse>): AddPetMutationResponse {
-  return data || faker.helpers.arrayElement<any>([createAddPet200Faker()])
+export function createAddPetMutationResponseFaker(_data?: Partial<AddPetMutationResponse>): AddPetMutationResponse {
+  return undefined
 }
