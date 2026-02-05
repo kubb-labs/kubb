@@ -41,6 +41,8 @@ const baseConfig = {
   output: {
     path: './gen',
     clean: true,
+    lint: 'auto',
+    format: 'aut',
   },
   plugins: [
     pluginTs({
@@ -159,7 +161,7 @@ export default defineConfig(() => {
         path,
       },
       hooks: {
-        done: [strict ? 'npm run typecheck -- --strict' : 'npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
+        done: [strict ? 'npm run typecheck -- --strict' : 'npm run typecheck'],
       },
     }
   })

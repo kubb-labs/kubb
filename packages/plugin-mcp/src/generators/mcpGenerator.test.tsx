@@ -70,6 +70,7 @@ describe('mcpGenerator operation', async () => {
       output: {
         path: '.',
       },
+      paramsCasing: undefined,
       client: {
         client: 'axios',
         baseURL: '',

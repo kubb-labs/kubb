@@ -22,6 +22,7 @@ export default defineConfig({
     }),
     pluginTs({
       output: { path: 'models' },
+      paramsCasing: 'camelcase',
     }),
     pluginSvelteQuery({
       client: {
@@ -30,6 +31,7 @@ export default defineConfig({
       output: {
         path: './hooks',
       },
+      paramsCasing: 'camelcase',
       override: [
         {
           type: 'operationId',
@@ -50,7 +52,6 @@ export default defineConfig({
           type: 'operationId',
           pattern: 'updatePetWithForm',
           options: {
-            paramsCasing: 'camelcase',
             query: {
               importPath: '@tanstack/svelte-query',
               key: (key) => key,

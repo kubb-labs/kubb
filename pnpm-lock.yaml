@@ -7,23 +7,23 @@ settings:
 catalogs:
   default:
     '@kubb/fabric-core':
-      specifier: 0.12.7
-      version: 0.12.7
+      specifier: 0.12.10
+      version: 0.12.10
     '@kubb/react-fabric':
-      specifier: 0.12.7
-      version: 0.12.7
+      specifier: 0.12.10
+      version: 0.12.10
     '@size-limit/file':
       specifier: ^11.2.0
       version: 11.2.0
     '@types/node':
-      specifier: ^20.19.31
-      version: 20.19.31
+      specifier: ^20.19.32
+      version: 20.19.32
     p-limit:
       specifier: ^7.3.0
       version: 7.3.0
     remeda:
-      specifier: ^2.33.4
-      version: 2.33.4
+      specifier: ^2.33.5
+      version: 2.33.5
     size-limit:
       specifier: ^11.2.0
       version: 11.2.0
@@ -46,13 +46,13 @@ importers:
         version: 0.5.2(encoding@0.1.13)
       '@changesets/cli':
         specifier: ^2.29.8
-        version: 2.29.8(@types/node@20.19.31)
+        version: 2.29.8(@types/node@20.19.32)
       '@kubb/fabric-core':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
       '@manypkg/cli':
         specifier: ^0.25.1
         version: 0.25.1
@@ -61,7 +61,7 @@ importers:
         version: 11.2.0(size-limit@11.2.0)
       '@types/node':
         specifier: 'catalog:'
-        version: 20.19.31
+        version: 20.19.32
       '@vitest/coverage-v8':
         specifier: ^4.0.18
         version: 4.0.18(vitest@4.0.18)
@@ -88,7 +88,7 @@ importers:
         version: 19.9.2
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@20.19.31)(typescript@5.9.3)
+        version: 10.9.2(@types/node@20.19.32)(typescript@5.9.3)
       tsdown:
         specifier: 'catalog:'
         version: 0.19.0(oxc-resolver@11.16.0)(typescript@5.9.3)
@@ -100,10 +100,10 @@ importers:
         version: 5.9.3
       vite-tsconfig-paths:
         specifier: ^6.0.5
-        version: 6.0.5(typescript@5.9.3)(vite@7.3.1(@types/node@20.19.31)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))
+        version: 6.0.5(typescript@5.9.3)(vite@7.3.1(@types/node@20.19.32)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))
       vitest:
         specifier: ^4.0.18
-        version: 4.0.18(@types/node@20.19.31)(@vitest/ui@4.0.18)(jiti@2.6.1)(less@4.4.2)(msw@2.12.8(@types/node@20.19.31)(typescript@5.9.3))(terser@5.44.1)(yaml@2.8.2)
+        version: 4.0.18(@types/node@20.19.32)(@vitest/ui@4.0.18)(jiti@2.6.1)(less@4.4.2)(msw@2.12.8(@types/node@20.19.32)(typescript@5.9.3))(terser@5.44.1)(yaml@2.8.2)
 
   examples/advanced:
     dependencies:
@@ -150,8 +150,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@kubb/react-fabric':
-        specifier: 0.12.7
-        version: 0.12.7
+        specifier: 0.12.10
+        version: 0.12.10
       '@modelcontextprotocol/sdk':
         specifier: 1.21.1
         version: 1.21.1
@@ -171,8 +171,8 @@ importers:
         specifier: ^5.92.9
         version: 5.92.9(vue@3.5.27(typescript@5.9.3))
       '@types/react':
-        specifier: ^19.2.11
-        version: 19.2.11
+        specifier: ^19.2.13
+        version: 19.2.13
       axios:
         specifier: ^1.13.4
         version: 1.13.4
@@ -223,15 +223,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.12.7
-        version: 0.12.7
+        specifier: 0.12.10
+        version: 0.12.10
       axios:
         specifier: ^1.13.4
         version: 1.13.4
     devDependencies:
       '@types/react':
-        specifier: ^19.2.11
-        version: 19.2.11
+        specifier: ^19.2.13
+        version: 19.2.13
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -291,8 +291,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.12.7
-        version: 0.12.7
+        specifier: 0.12.10
+        version: 0.12.10
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19
@@ -347,15 +347,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.12.7
-        version: 0.12.7
+        specifier: 0.12.10
+        version: 0.12.10
       axios:
         specifier: ^1.13.4
         version: 1.13.4
     devDependencies:
       '@types/react':
-        specifier: ^19.2.11
-        version: 19.2.11
+        specifier: ^19.2.13
+        version: 19.2.13
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -461,8 +461,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: 0.12.7
-        version: 0.12.7
+        specifier: 0.12.10
+        version: 0.12.10
       '@tanstack/react-query':
         specifier: ^5.90.20
         version: 5.90.20(react@19.2.4)
@@ -483,11 +483,11 @@ importers:
         version: link:../../packages/unplugin-kubb
     devDependencies:
       '@types/react':
-        specifier: ^19.2.11
-        version: 19.2.11
+        specifier: ^19.2.13
+        version: 19.2.13
       '@types/react-dom':
         specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.11)
+        version: 19.2.3(@types/react@19.2.13)
       '@vitejs/plugin-react':
         specifier: ^4.7.0
         version: 4.7.0(vite@7.3.1(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))
@@ -797,8 +797,8 @@ importers:
         specifier: ^3.0.5
         version: 3.0.5
       semver:
-        specifier: ^7.7.3
-        version: 7.7.3
+        specifier: ^7.7.4
+        version: 7.7.4
       string-argv:
         specifier: ^0.3.2
         version: 0.3.2
@@ -823,7 +823,7 @@ importers:
     dependencies:
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
       camelcase:
         specifier: ^8.0.0
         version: 8.0.0
@@ -847,10 +847,10 @@ importers:
         version: 7.3.0
       remeda:
         specifier: 'catalog:'
-        version: 2.33.4
+        version: 2.33.5
       semver:
-        specifier: ^7.7.3
-        version: 7.7.3
+        specifier: ^7.7.4
+        version: 7.7.4
     devDependencies:
       '@types/fs-extra':
         specifier: ^11.0.4
@@ -875,10 +875,10 @@ importers:
         version: link:../core
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
       '@modelcontextprotocol/sdk':
-        specifier: ^1.25.3
-        version: 1.25.3(hono@4.11.4)(zod@4.3.6)
+        specifier: ^1.26.0
+        version: 1.26.0(zod@4.3.6)
       jiti:
         specifier: ^2.6.1
         version: 2.6.1
@@ -901,14 +901,14 @@ importers:
         specifier: ^28.9.0
         version: 28.9.0
       oas-normalize:
-        specifier: ^15.7.0
-        version: 15.7.0(encoding@0.1.13)
+        specifier: ^15.7.1
+        version: 15.7.1(encoding@0.1.13)
       openapi-types:
         specifier: ^12.1.3
         version: 12.1.3
       remeda:
         specifier: 'catalog:'
-        version: 2.33.4
+        version: 2.33.5
       swagger2openapi:
         specifier: ^7.0.8
         version: 7.0.8(encoding@0.1.13)
@@ -939,7 +939,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
     devDependencies:
       axios:
         specifier: ^1.13.4
@@ -961,7 +961,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
 
   packages/plugin-faker:
     dependencies:
@@ -979,7 +979,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
 
   packages/plugin-mcp:
     dependencies:
@@ -1003,7 +1003,7 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
 
   packages/plugin-msw:
     dependencies:
@@ -1024,7 +1024,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
 
   packages/plugin-oas:
     dependencies:
@@ -1036,13 +1036,13 @@ importers:
         version: link:../oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
       p-limit:
         specifier: 'catalog:'
         version: 7.3.0
       remeda:
         specifier: 'catalog:'
-        version: 2.33.4
+        version: 2.33.5
 
   packages/plugin-react-query:
     dependencies:
@@ -1066,10 +1066,10 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
       remeda:
         specifier: 'catalog:'
-        version: 2.33.4
+        version: 2.33.5
 
   packages/plugin-redoc:
     dependencies:
@@ -1084,7 +1084,7 @@ importers:
         version: link:../plugin-oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
@@ -1111,10 +1111,10 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
       remeda:
         specifier: 'catalog:'
-        version: 2.33.4
+        version: 2.33.5
 
   packages/plugin-svelte-query:
     dependencies:
@@ -1138,10 +1138,10 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
       remeda:
         specifier: 'catalog:'
-        version: 2.33.4
+        version: 2.33.5
 
   packages/plugin-swr:
     dependencies:
@@ -1165,10 +1165,10 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
       remeda:
         specifier: 'catalog:'
-        version: 2.33.4
+        version: 2.33.5
 
   packages/plugin-ts:
     dependencies:
@@ -1177,7 +1177,7 @@ importers:
         version: link:../core
       '@kubb/fabric-core':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1186,13 +1186,13 @@ importers:
         version: link:../plugin-oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
       natural-orderby:
         specifier: ^5.0.0
         version: 5.0.0
       remeda:
         specifier: 'catalog:'
-        version: 2.33.4
+        version: 2.33.5
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -1219,10 +1219,10 @@ importers:
         version: link:../plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
       remeda:
         specifier: 'catalog:'
-        version: 2.33.4
+        version: 2.33.5
 
   packages/plugin-zod:
     dependencies:
@@ -1240,7 +1240,7 @@ importers:
         version: link:../plugin-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
     devDependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.4.0
@@ -1320,7 +1320,7 @@ importers:
         version: link:../../packages/plugin-zod
       '@kubb/react-fabric':
         specifier: 'catalog:'
-        version: 0.12.7
+        version: 0.12.10
       '@tanstack/react-query':
         specifier: ^5.90.20
         version: 5.90.20(react@18.3.1)
@@ -2115,12 +2115,12 @@ packages:
     peerDependencies:
       jsep: ^0.4.0||^1.0.0
 
-  '@kubb/fabric-core@0.12.7':
-    resolution: {integrity: sha512-lVLJKXiKoaQUGUIfJS+h/xPIZCZOuAMVuT87CrH4QpXWVAdQRb1fAf1cZtJBS98y1IzRUeMS3uZJlBRmKc1fNg==}
+  '@kubb/fabric-core@0.12.10':
+    resolution: {integrity: sha512-DdeqH9TswOee1xjwzdyANhvb1qBNGLrV3zfFE+squ1KsltJbiCBrpz0/3aJBRIHFUfu9UJYIpvB7N9mYw9F//Q==}
     engines: {node: '>=20'}
 
-  '@kubb/react-fabric@0.12.7':
-    resolution: {integrity: sha512-odWDlTzGeFL5onxIdTN7LYaN+q3ckFrQQ+zXT9TAnkXEieDBSRFev5uR0hWQRnd+fJLPC1GgQH/xhT5zwGLa6w==}
+  '@kubb/react-fabric@0.12.10':
+    resolution: {integrity: sha512-BvAUcJtOZF51bDivCqXCWlXj7tycQUy0ow6Ch8PxVq98mbhiv2lNkCI2NxIJJEhp+NRuvTf5rGqnEW6WrrIlpQ==}
     engines: {node: '>=20'}
 
   '@manypkg/cli@0.25.1':
@@ -2164,8 +2164,8 @@ packages:
       '@cfworker/json-schema':
         optional: true
 
-  '@modelcontextprotocol/sdk@1.25.3':
-    resolution: {integrity: sha512-vsAMBMERybvYgKbg/l4L1rhS7VXV1c0CtyJg72vwxONVX0l4ZfKVAnZEWTQixJGTzKnELjQ59e4NbdFDALRiAQ==}
+  '@modelcontextprotocol/sdk@1.26.0':
+    resolution: {integrity: sha512-Y5RmPncpiDtTXDbLKswIJzTqu2hyBKxTNsgKqKclDbhIgg1wgtf1fRuvxgTnRfcnxtvvgbIEcqUOzZrJ6iSReg==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
@@ -2981,8 +2981,8 @@ packages:
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
 
-  '@types/node@20.19.31':
-    resolution: {integrity: sha512-5jsi0wpncvTD33Sh1UCgacK37FFwDn+EG7wCmEvs62fCvBL+n8/76cAYDok21NF6+jaVWIqKwCZyX7Vbu8eB3A==}
+  '@types/node@20.19.32':
+    resolution: {integrity: sha512-Ez8QE4DMfhjjTsES9K2dwfV258qBui7qxUsoaixZDiTzbde4U12e1pXGNu/ECsUIOi5/zoCxAQxIhQnaUQ2VvA==}
 
   '@types/node@24.10.1':
     resolution: {integrity: sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ==}
@@ -2998,8 +2998,8 @@ packages:
     peerDependencies:
       '@types/react': ^19.2.0
 
-  '@types/react@19.2.11':
-    resolution: {integrity: sha512-tORuanb01iEzWvMGVGv2ZDhYZVeRMrw453DCSAIn/5yvcSVnMoUMTyf33nQJLahYEnv9xqrTNbgz4qY5EfSh0g==}
+  '@types/react@19.2.13':
+    resolution: {integrity: sha512-KkiJeU6VbYbUOp5ITMIc7kBfqlYkKA5KhEHVrGMmUUMt7NeaZg65ojdPk+FtNrBAOXNVM5QM72jnADjM+XVRAQ==}
 
   '@types/seedrandom@3.0.8':
     resolution: {integrity: sha512-TY1eezMU2zH2ozQoAFAQFOPpvP15g+ZgSfTZt31AUUH/Rxtnz3H+A/Sv1Snw2/amp//omibc+AEkTaA8KUeOLQ==}
@@ -3384,6 +3384,10 @@ packages:
 
   body-parser@2.2.0:
     resolution: {integrity: sha512-02qvAaxv8tp7fBa/mw1ga98OGm+eCbqzJOKoRt70sLmfEEi+jyBYVTDGfCL/k06/4EMk/z01gCe7HoCH/f2LTg==}
+    engines: {node: '>=18'}
+
+  body-parser@2.2.2:
+    resolution: {integrity: sha512-oP5VkATKlNwcgvxi0vM0p/D3n2C3EReYVX+DNYs5TjZFn/oQt2j+4sVJtSMr18pdRr8wjTcBl6LoV+FUwzPmNA==}
     engines: {node: '>=18'}
 
   brace-expansion@1.1.12:
@@ -4059,12 +4063,22 @@ packages:
     peerDependencies:
       express: '>= 4.11'
 
+  express-rate-limit@8.2.1:
+    resolution: {integrity: sha512-PCZEIEIxqwhzw4KF0n7QF4QqruVTcF73O5kFKUnGOyjbCCgizBBiFaYpd/fnBLUMPw/BWw9OsiN7GgrNYr7j6g==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      express: '>= 4.11'
+
   express@4.21.2:
     resolution: {integrity: sha512-28HqgMZAmih1Czt9ny7qr6ek2qddF4FclbMzwhCREB6OFfH+rXAnuNCwo1/wFvrtbgsQDb4kSbX9de9lFbrXnA==}
     engines: {node: '>= 0.10.0'}
 
   express@5.1.0:
     resolution: {integrity: sha512-DT9ck5YIRU+8GYzzU5kT3eHGA5iL+1Zd0EutOmTE9Dtk+Tvuzd23VBU+ec7HPNSTxXYO55gPV/hq4pSBJDjFpA==}
+    engines: {node: '>= 18'}
+
+  express@5.2.1:
+    resolution: {integrity: sha512-hIS4idWWai69NezIdRt2xFVofaF4j+6INOpJlVOLDO8zXGpUVEVzIYk12UUi2JzjEzWL3IOAxcTubgz9Po0yXw==}
     engines: {node: '>= 18'}
 
   exsolve@1.0.8:
@@ -4440,6 +4454,10 @@ packages:
   inquirer@8.2.7:
     resolution: {integrity: sha512-UjOaSel/iddGZJ5xP/Eixh6dY1XghiBw4XK13rCCIJcJfyhhoul/7KhLLUGtebEj6GDYM6Vnx/mVsjx2L/mFIA==}
     engines: {node: '>=12.0.0'}
+
+  ip-address@10.0.1:
+    resolution: {integrity: sha512-NWv9YLW4PoW2B7xtzaS3NCot75m6nK7Icdv0o3lfMceJVRfSoQwqD4wEH5rLwoKJwUiZ/rfpiVBhnaF0FK4HoA==}
+    engines: {node: '>= 12'}
 
   ipaddr.js@1.9.1:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
@@ -5000,8 +5018,8 @@ packages:
   oas-linter@3.2.2:
     resolution: {integrity: sha512-KEGjPDVoU5K6swgo9hJVA/qYGlwfbFx+Kg2QB/kd7rzV5N8N5Mg6PlsoCMohVnQmo+pzJap/F610qTodKzecGQ==}
 
-  oas-normalize@15.7.0:
-    resolution: {integrity: sha512-heFV/yRsDO+51JCKdO4zneNbHOhuED3QKZ0XKQH4815GhyDqVUFZCI+j8uObAGdGQgxsW52JR0P5zeo2sP9PUQ==}
+  oas-normalize@15.7.1:
+    resolution: {integrity: sha512-U2LuDL9/gtqGtF2qUyZBYx+xBadbZ5x1aqIla7NyCoWp6Ts+lL0K0sunybgnTOXMvfFpz9xfYq9pa3jCyHiCiQ==}
     engines: {node: '>=20'}
 
   oas-resolver@2.5.6:
@@ -5087,10 +5105,6 @@ packages:
   p-limit@6.2.0:
     resolution: {integrity: sha512-kuUqqHNUqoIWp/c467RI4X6mmyuojY5jGutNU0wVTmEOOfcuwLqyMVoAi9MKi2Ak+5i9+nhmrK4ufZE8069kHA==}
     engines: {node: '>=18'}
-
-  p-limit@7.2.0:
-    resolution: {integrity: sha512-ATHLtwoTNDloHRFFxFJdHnG6n2WUeFjaR8XQMFdKIv0xkXjrER8/iG9iu265jOM95zXHAfv9oTkqhrfbIzosrQ==}
-    engines: {node: '>=20'}
 
   p-limit@7.3.0:
     resolution: {integrity: sha512-7cIXg/Z0M5WZRblrsOla88S4wAK+zOQQWeBYfV3qJuJXMr+LnbYjaadrFaS0JILfEDPVqHyKnZ1Z/1d6J9VVUw==}
@@ -5305,6 +5319,10 @@ packages:
     resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
     engines: {node: '>=0.6'}
 
+  qs@6.14.1:
+    resolution: {integrity: sha512-4EK3+xJl8Ts67nLYNwqw/dsFVnCf+qR7RgXSK9jEEm9unao3njwMDdmsdvoKBKHzxd7tCYz5e5M+SnMjdtXGQQ==}
+    engines: {node: '>=0.6'}
+
   quansync@0.2.11:
     resolution: {integrity: sha512-AifT7QEbW9Nri4tAwR5M/uzpBuqfZf+zwaEM/QkzEjj7NBuFD2rBuy0K3dE+8wltbezDV7JMA0WfnCPYRSYbXA==}
 
@@ -5391,8 +5409,8 @@ packages:
     resolution: {integrity: sha512-+crtS5QjFRqFCoQmvGduwYWEBng99ZvmFvF+cUJkGYF1L1BfU8C6Zp9T7f5vPAwyLkUExpvK+ANVZmGU49qi4Q==}
     engines: {node: '>=12'}
 
-  remeda@2.33.4:
-    resolution: {integrity: sha512-ygHswjlc/opg2VrtiYvUOPLjxjtdKvjGz1/plDhkG66hjNjFr1xmfrs2ClNFo/E6TyUFiwYNh53bKV26oBoMGQ==}
+  remeda@2.33.5:
+    resolution: {integrity: sha512-FqmpPA9i9T5EGcqgyHf9kHjefnyCZM1M3kSdZjPk1j2StGNoJyoYp0807RYcjNkQ1UpsEQa5qzgsjLY4vYtT8g==}
 
   remove-accents@0.5.0:
     resolution: {integrity: sha512-8g3/Otx1eJaVD12e31UbJj1YzdtVvzH85HV7t+9MJYk/u3XmkOUJ5Ys9wQrf9PCPK8+xn4ymzqYCiZl6QWKn+A==}
@@ -5538,6 +5556,11 @@ packages:
 
   semver@7.7.3:
     resolution: {integrity: sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q==}
+    engines: {node: '>=10'}
+    hasBin: true
+
+  semver@7.7.4:
+    resolution: {integrity: sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -6406,6 +6429,11 @@ packages:
     peerDependencies:
       zod: ^3.25 || ^4
 
+  zod-to-json-schema@3.25.1:
+    resolution: {integrity: sha512-pM/SU9d3YAggzi6MtR4h7ruuQlqKtad8e9S0fmxcMi+ueAK5Korys/aWcV9LIIHTVbj01NdzxcnXSN+O74ZIVA==}
+    peerDependencies:
+      zod: ^3.25 || ^4
+
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
@@ -6602,7 +6630,7 @@ snapshots:
       outdent: 0.5.0
       prettier: 2.8.8
       resolve-from: 5.0.0
-      semver: 7.7.3
+      semver: 7.7.4
 
   '@changesets/assemble-release-plan@6.0.9':
     dependencies:
@@ -6611,7 +6639,7 @@ snapshots:
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@manypkg/get-packages': 1.1.3
-      semver: 7.7.3
+      semver: 7.7.4
 
   '@changesets/changelog-git@0.2.1':
     dependencies:
@@ -6625,7 +6653,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@changesets/cli@2.29.8(@types/node@20.19.31)':
+  '@changesets/cli@2.29.8(@types/node@20.19.32)':
     dependencies:
       '@changesets/apply-release-plan': 7.0.14
       '@changesets/assemble-release-plan': 6.0.9
@@ -6641,7 +6669,7 @@ snapshots:
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@changesets/write': 0.4.0
-      '@inquirer/external-editor': 1.0.3(@types/node@20.19.31)
+      '@inquirer/external-editor': 1.0.3(@types/node@20.19.32)
       '@manypkg/get-packages': 1.1.3
       ansi-colors: 4.1.3
       ci-info: 3.9.0
@@ -6652,7 +6680,7 @@ snapshots:
       package-manager-detector: 0.2.11
       picocolors: 1.1.1
       resolve-from: 5.0.0
-      semver: 7.7.3
+      semver: 7.7.4
       spawndamnit: 3.0.1
       term-size: 2.2.1
     transitivePeerDependencies:
@@ -6677,7 +6705,7 @@ snapshots:
       '@changesets/types': 6.1.0
       '@manypkg/get-packages': 1.1.3
       picocolors: 1.1.1
-      semver: 7.7.3
+      semver: 7.7.4
 
   '@changesets/get-github-info@0.7.0(encoding@0.1.13)':
     dependencies:
@@ -7121,12 +7149,12 @@ snapshots:
 
   '@inquirer/ansi@1.0.2': {}
 
-  '@inquirer/confirm@5.1.21(@types/node@20.19.31)':
+  '@inquirer/confirm@5.1.21(@types/node@20.19.32)':
     dependencies:
-      '@inquirer/core': 10.3.2(@types/node@20.19.31)
-      '@inquirer/type': 3.0.10(@types/node@20.19.31)
+      '@inquirer/core': 10.3.2(@types/node@20.19.32)
+      '@inquirer/type': 3.0.10(@types/node@20.19.32)
     optionalDependencies:
-      '@types/node': 20.19.31
+      '@types/node': 20.19.32
     optional: true
 
   '@inquirer/confirm@5.1.21(@types/node@24.10.1)':
@@ -7136,18 +7164,18 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.10.1
 
-  '@inquirer/core@10.3.2(@types/node@20.19.31)':
+  '@inquirer/core@10.3.2(@types/node@20.19.32)':
     dependencies:
       '@inquirer/ansi': 1.0.2
       '@inquirer/figures': 1.0.15
-      '@inquirer/type': 3.0.10(@types/node@20.19.31)
+      '@inquirer/type': 3.0.10(@types/node@20.19.32)
       cli-width: 4.1.0
       mute-stream: 2.0.0
       signal-exit: 4.1.0
       wrap-ansi: 6.2.0
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
-      '@types/node': 20.19.31
+      '@types/node': 20.19.32
     optional: true
 
   '@inquirer/core@10.3.2(@types/node@24.10.1)':
@@ -7163,12 +7191,12 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.10.1
 
-  '@inquirer/external-editor@1.0.3(@types/node@20.19.31)':
+  '@inquirer/external-editor@1.0.3(@types/node@20.19.32)':
     dependencies:
       chardet: 2.1.1
       iconv-lite: 0.7.0
     optionalDependencies:
-      '@types/node': 20.19.31
+      '@types/node': 20.19.32
 
   '@inquirer/external-editor@1.0.3(@types/node@24.10.1)':
     dependencies:
@@ -7179,9 +7207,9 @@ snapshots:
 
   '@inquirer/figures@1.0.15': {}
 
-  '@inquirer/type@3.0.10(@types/node@20.19.31)':
+  '@inquirer/type@3.0.10(@types/node@20.19.32)':
     optionalDependencies:
-      '@types/node': 20.19.31
+      '@types/node': 20.19.32
     optional: true
 
   '@inquirer/type@3.0.10(@types/node@24.10.1)':
@@ -7231,14 +7259,14 @@ snapshots:
     dependencies:
       jsep: 1.4.0
 
-  '@kubb/fabric-core@0.12.7':
+  '@kubb/fabric-core@0.12.10':
     dependencies:
       '@clack/prompts': 1.0.0
       fs-extra: 11.3.3
       natural-orderby: 5.0.0
-      p-limit: 7.2.0
+      p-limit: 7.3.0
       picocolors: 1.1.1
-      remeda: 2.33.4
+      remeda: 2.33.5
       serve-handler: 6.1.6
       signal-exit: 4.1.0
       typescript: 5.9.3
@@ -7247,13 +7275,13 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@kubb/react-fabric@0.12.7':
+  '@kubb/react-fabric@0.12.10':
     dependencies:
-      '@kubb/fabric-core': 0.12.7
+      '@kubb/fabric-core': 0.12.10
       execa: 9.6.1
       natural-orderby: 5.0.0
       react-devtools-core: 6.1.5
-      remeda: 2.33.4
+      remeda: 2.33.5
       signal-exit: 4.1.0
       ws: 8.18.0
     transitivePeerDependencies:
@@ -7270,7 +7298,7 @@ snapshots:
       parse-github-url: 1.0.3
       picocolors: 1.1.1
       sembear: 0.7.0
-      semver: 7.7.3
+      semver: 7.7.4
       tinyexec: 1.0.2
       validate-npm-package-name: 6.0.2
 
@@ -7341,7 +7369,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@modelcontextprotocol/sdk@1.25.3(hono@4.11.4)(zod@4.3.6)':
+  '@modelcontextprotocol/sdk@1.26.0(zod@4.3.6)':
     dependencies:
       '@hono/node-server': 1.19.9(hono@4.11.4)
       ajv: 8.17.1
@@ -7351,16 +7379,16 @@ snapshots:
       cross-spawn: 7.0.6
       eventsource: 3.0.7
       eventsource-parser: 3.0.6
-      express: 5.1.0
-      express-rate-limit: 7.5.1(express@5.1.0)
+      express: 5.2.1
+      express-rate-limit: 8.2.1(express@5.2.1)
+      hono: 4.11.4
       jose: 6.1.3
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.0
       raw-body: 3.0.1
       zod: 4.3.6
-      zod-to-json-schema: 3.25.0(zod@4.3.6)
+      zod-to-json-schema: 3.25.1(zod@4.3.6)
     transitivePeerDependencies:
-      - hono
       - supports-color
 
   '@mswjs/cookies@0.2.2':
@@ -7434,7 +7462,7 @@ snapshots:
       pkg-types: 2.3.0
       rc9: 2.1.2
       scule: 1.3.0
-      semver: 7.7.3
+      semver: 7.7.4
       tinyglobby: 0.2.15
       ufo: 1.6.3
       unctx: 2.5.0
@@ -8036,7 +8064,7 @@ snapshots:
 
   '@types/node@12.20.55': {}
 
-  '@types/node@20.19.31':
+  '@types/node@20.19.32':
     dependencies:
       undici-types: 6.21.0
 
@@ -8048,11 +8076,11 @@ snapshots:
 
   '@types/range-parser@1.2.7': {}
 
-  '@types/react-dom@19.2.3(@types/react@19.2.11)':
+  '@types/react-dom@19.2.3(@types/react@19.2.13)':
     dependencies:
-      '@types/react': 19.2.11
+      '@types/react': 19.2.13
 
-  '@types/react@19.2.11':
+  '@types/react@19.2.13':
     dependencies:
       csstype: 3.2.3
 
@@ -8127,7 +8155,7 @@ snapshots:
       obug: 2.1.1
       std-env: 3.10.0
       tinyrainbow: 3.0.3
-      vitest: 4.0.18(@types/node@20.19.31)(@vitest/ui@4.0.18)(jiti@2.6.1)(less@4.4.2)(msw@2.12.8(@types/node@20.19.31)(typescript@5.9.3))(terser@5.44.1)(yaml@2.8.2)
+      vitest: 4.0.18(@types/node@20.19.32)(@vitest/ui@4.0.18)(jiti@2.6.1)(less@4.4.2)(msw@2.12.8(@types/node@20.19.32)(typescript@5.9.3))(terser@5.44.1)(yaml@2.8.2)
 
   '@vitest/expect@4.0.18':
     dependencies:
@@ -8138,14 +8166,14 @@ snapshots:
       chai: 6.2.1
       tinyrainbow: 3.0.3
 
-  '@vitest/mocker@4.0.18(msw@2.12.8(@types/node@20.19.31)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.31)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))':
+  '@vitest/mocker@4.0.18(msw@2.12.8(@types/node@20.19.32)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.32)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))':
     dependencies:
       '@vitest/spy': 4.0.18
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      msw: 2.12.8(@types/node@20.19.31)(typescript@5.9.3)
-      vite: 7.3.1(@types/node@20.19.31)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2)
+      msw: 2.12.8(@types/node@20.19.32)(typescript@5.9.3)
+      vite: 7.3.1(@types/node@20.19.32)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2)
 
   '@vitest/pretty-format@4.0.18':
     dependencies:
@@ -8173,7 +8201,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vitest: 4.0.18(@types/node@20.19.31)(@vitest/ui@4.0.18)(jiti@2.6.1)(less@4.4.2)(msw@2.12.8(@types/node@20.19.31)(typescript@5.9.3))(terser@5.44.1)(yaml@2.8.2)
+      vitest: 4.0.18(@types/node@20.19.32)(@vitest/ui@4.0.18)(jiti@2.6.1)(less@4.4.2)(msw@2.12.8(@types/node@20.19.32)(typescript@5.9.3))(terser@5.44.1)(yaml@2.8.2)
 
   '@vitest/utils@4.0.18':
     dependencies:
@@ -8517,6 +8545,20 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  body-parser@2.2.2:
+    dependencies:
+      bytes: 3.1.2
+      content-type: 1.0.5
+      debug: 4.4.3(supports-color@8.1.1)
+      http-errors: 2.0.1
+      iconv-lite: 0.7.0
+      on-finished: 2.4.1
+      qs: 6.14.1
+      raw-body: 3.0.1
+      type-is: 2.0.1
+    transitivePeerDependencies:
+      - supports-color
+
   brace-expansion@1.1.12:
     dependencies:
       balanced-match: 1.0.2
@@ -8545,7 +8587,7 @@ snapshots:
 
   bun-types@1.3.8:
     dependencies:
-      '@types/node': 20.19.31
+      '@types/node': 20.19.32
 
   bytes-iec@3.1.1: {}
 
@@ -8898,7 +8940,7 @@ snapshots:
       cspell-lib: 9.6.4
       fast-json-stable-stringify: 2.1.0
       flatted: 3.3.3
-      semver: 7.7.3
+      semver: 7.7.4
       tinyglobby: 0.2.15
 
   css-tree@2.3.1:
@@ -8947,7 +8989,7 @@ snapshots:
       process: 0.11.10
       proxy-from-env: 1.0.0
       request-progress: 3.0.0
-      semver: 7.7.3
+      semver: 7.7.4
       supports-color: 8.1.1
       tmp: 0.2.5
       tree-kill: 1.2.2
@@ -9342,6 +9384,11 @@ snapshots:
     dependencies:
       express: 5.1.0
 
+  express-rate-limit@8.2.1(express@5.2.1):
+    dependencies:
+      express: 5.2.1
+      ip-address: 10.0.1
+
   express@4.21.2:
     dependencies:
       accepts: 1.3.8
@@ -9387,6 +9434,39 @@ snapshots:
       cookie: 0.7.2
       cookie-signature: 1.2.2
       debug: 4.4.3(supports-color@8.1.1)
+      encodeurl: 2.0.0
+      escape-html: 1.0.3
+      etag: 1.8.1
+      finalhandler: 2.1.0
+      fresh: 2.0.0
+      http-errors: 2.0.1
+      merge-descriptors: 2.0.0
+      mime-types: 3.0.2
+      on-finished: 2.4.1
+      once: 1.4.0
+      parseurl: 1.3.3
+      proxy-addr: 2.0.7
+      qs: 6.14.0
+      range-parser: 1.2.1
+      router: 2.2.0
+      send: 1.2.0
+      serve-static: 2.2.0
+      statuses: 2.0.2
+      type-is: 2.0.1
+      vary: 1.1.2
+    transitivePeerDependencies:
+      - supports-color
+
+  express@5.2.1:
+    dependencies:
+      accepts: 2.0.0
+      body-parser: 2.2.2
+      content-disposition: 1.0.1
+      content-type: 1.0.5
+      cookie: 0.7.2
+      cookie-signature: 1.2.2
+      debug: 4.4.3(supports-color@8.1.1)
+      depd: 2.0.0
       encodeurl: 2.0.0
       escape-html: 1.0.3
       etag: 1.8.1
@@ -9798,6 +9878,8 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
+  ip-address@10.0.1: {}
+
   ipaddr.js@1.9.1: {}
 
   is-arguments@1.2.0:
@@ -10101,7 +10183,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.7.3
+      semver: 7.7.4
 
   make-error@1.3.6: {}
 
@@ -10220,9 +10302,9 @@ snapshots:
       - encoding
       - supports-color
 
-  msw@2.12.8(@types/node@20.19.31)(typescript@5.9.3):
+  msw@2.12.8(@types/node@20.19.32)(typescript@5.9.3):
     dependencies:
-      '@inquirer/confirm': 5.1.21(@types/node@20.19.31)
+      '@inquirer/confirm': 5.1.21(@types/node@20.19.32)
       '@mswjs/interceptors': 0.41.0
       '@open-draft/deferred-promise': 2.2.0
       '@types/statuses': 2.0.6
@@ -10371,7 +10453,7 @@ snapshots:
       should: 13.2.3
       yaml: 1.10.2
 
-  oas-normalize@15.7.0(encoding@0.1.13):
+  oas-normalize@15.7.1(encoding@0.1.13):
     dependencies:
       '@readme/openapi-parser': 5.5.0(openapi-types@12.1.3)
       '@readme/postman-to-openapi': 4.1.0
@@ -10508,10 +10590,6 @@ snapshots:
     dependencies:
       yocto-queue: 1.2.2
 
-  p-limit@7.2.0:
-    dependencies:
-      yocto-queue: 1.2.2
-
   p-limit@7.3.0:
     dependencies:
       yocto-queue: 1.2.2
@@ -10539,7 +10617,7 @@ snapshots:
       ky: 1.14.0
       registry-auth-token: 5.1.0
       registry-url: 6.0.1
-      semver: 7.7.3
+      semver: 7.7.4
 
   package-manager-detector@0.2.11:
     dependencies:
@@ -10687,6 +10765,10 @@ snapshots:
     dependencies:
       side-channel: 1.1.0
 
+  qs@6.14.1:
+    dependencies:
+      side-channel: 1.1.0
+
   quansync@0.2.11: {}
 
   quansync@1.0.0: {}
@@ -10779,7 +10861,7 @@ snapshots:
     dependencies:
       rc: 1.2.8
 
-  remeda@2.33.4: {}
+  remeda@2.33.5: {}
 
   remove-accents@0.5.0: {}
 
@@ -10984,7 +11066,7 @@ snapshots:
 
   sembear@0.7.0:
     dependencies:
-      semver: 7.7.3
+      semver: 7.7.4
 
   semver@5.7.2:
     optional: true
@@ -10992,6 +11074,8 @@ snapshots:
   semver@6.3.1: {}
 
   semver@7.7.3: {}
+
+  semver@7.7.4: {}
 
   send@0.19.0:
     dependencies:
@@ -11409,14 +11493,14 @@ snapshots:
 
   ts-algebra@1.2.2: {}
 
-  ts-node@10.9.2(@types/node@20.19.31)(typescript@5.9.3):
+  ts-node@10.9.2(@types/node@20.19.32)(typescript@5.9.3):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.12
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 20.19.31
+      '@types/node': 20.19.32
       acorn: 8.15.0
       acorn-walk: 8.3.4
       arg: 4.1.3
@@ -11443,7 +11527,7 @@ snapshots:
       picomatch: 4.0.3
       rolldown: 1.0.0-beta.59
       rolldown-plugin-dts: 0.20.0(oxc-resolver@11.16.0)(rolldown@1.0.0-beta.59)(typescript@5.9.3)
-      semver: 7.7.3
+      semver: 7.7.4
       tinyexec: 1.0.2
       tinyglobby: 0.2.15
       tree-kill: 1.2.2
@@ -11646,17 +11730,17 @@ snapshots:
       core-util-is: 1.0.2
       extsprintf: 1.3.0
 
-  vite-tsconfig-paths@6.0.5(typescript@5.9.3)(vite@7.3.1(@types/node@20.19.31)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2)):
+  vite-tsconfig-paths@6.0.5(typescript@5.9.3)(vite@7.3.1(@types/node@20.19.32)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2)):
     dependencies:
       debug: 4.4.3(supports-color@8.1.1)
       globrex: 0.1.2
       tsconfck: 3.1.6(typescript@5.9.3)
-      vite: 7.3.1(@types/node@20.19.31)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2)
+      vite: 7.3.1(@types/node@20.19.32)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@7.3.1(@types/node@20.19.31)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2):
+  vite@7.3.1(@types/node@20.19.32)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2):
     dependencies:
       esbuild: 0.27.0
       fdir: 6.5.0(picomatch@4.0.3)
@@ -11665,7 +11749,7 @@ snapshots:
       rollup: 4.55.1
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 20.19.31
+      '@types/node': 20.19.32
       fsevents: 2.3.3
       jiti: 2.6.1
       less: 4.4.2
@@ -11688,10 +11772,10 @@ snapshots:
       terser: 5.44.1
       yaml: 2.8.2
 
-  vitest@4.0.18(@types/node@20.19.31)(@vitest/ui@4.0.18)(jiti@2.6.1)(less@4.4.2)(msw@2.12.8(@types/node@20.19.31)(typescript@5.9.3))(terser@5.44.1)(yaml@2.8.2):
+  vitest@4.0.18(@types/node@20.19.32)(@vitest/ui@4.0.18)(jiti@2.6.1)(less@4.4.2)(msw@2.12.8(@types/node@20.19.32)(typescript@5.9.3))(terser@5.44.1)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.18
-      '@vitest/mocker': 4.0.18(msw@2.12.8(@types/node@20.19.31)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.31)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))
+      '@vitest/mocker': 4.0.18(msw@2.12.8(@types/node@20.19.32)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.32)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))
       '@vitest/pretty-format': 4.0.18
       '@vitest/runner': 4.0.18
       '@vitest/snapshot': 4.0.18
@@ -11708,10 +11792,10 @@ snapshots:
       tinyexec: 1.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vite: 7.3.1(@types/node@20.19.31)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2)
+      vite: 7.3.1(@types/node@20.19.32)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/node': 20.19.31
+      '@types/node': 20.19.32
       '@vitest/ui': 4.0.18(vitest@4.0.18)
     transitivePeerDependencies:
       - jiti
@@ -11886,7 +11970,7 @@ snapshots:
     dependencies:
       zod: 3.25.76
 
-  zod-to-json-schema@3.25.0(zod@4.3.6):
+  zod-to-json-schema@3.25.1(zod@4.3.6):
     dependencies:
       zod: 4.3.6
 

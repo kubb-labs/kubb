@@ -1,13 +1,17 @@
 {
   "name": "@kubb/plugin-ts",
-  "version": "4.20.2",
+  "version": "4.20.5",
   "description": "TypeScript code generation plugin for Kubb, transforming OpenAPI schemas into TypeScript interfaces, types, and utility functions.",
   "keywords": [
     "typescript",
     "types",
+    "type-generation",
     "interfaces",
+    "type-definitions",
+    "type-safe",
     "openapi",
     "swagger",
+    "oas",
     "code-generator",
     "codegen",
     "plugins",
@@ -85,7 +89,7 @@
     "typescript": "5.9.3"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.12.7",
+    "@kubb/react-fabric": "0.12.10",
     "typescript": ">=5.9.0"
   },
   "engines": {

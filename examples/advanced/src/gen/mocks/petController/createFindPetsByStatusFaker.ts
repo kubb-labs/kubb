@@ -4,7 +4,7 @@ import { createPetFaker } from '../createPetFaker.ts'
 
 export function createFindPetsByStatusPathParamsFaker(data?: Partial<FindPetsByStatusPathParams>): FindPetsByStatusPathParams {
   return {
-    ...{ step_id: faker.string.alpha() },
+    ...{ stepId: faker.string.alpha() },
     ...(data || {}),
   }
 }

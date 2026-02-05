@@ -4,13 +4,13 @@ packages:
   - tests/**
 
 catalog:
-  "@types/node": ^20.19.31
-  "@kubb/fabric-core": 0.12.7
-  "@kubb/react-fabric": 0.12.7
+  "@types/node": ^20.19.32
+  "@kubb/fabric-core": 0.12.10
+  "@kubb/react-fabric": 0.12.10
   "@size-limit/file": ^11.2.0
   "size-limit": ^11.2.0
   p-limit: ^7.3.0
-  remeda: ^2.33.4
-  # cannot upgrade to 0.20.1 because of breaking changes with react-fabric types
+  remeda: ^2.33.5
+  # cannot upgrade to 0.20.3 because of breaking changes with react-fabric types
   tsdown: ^0.19.0
   typescript: ^5.9.3

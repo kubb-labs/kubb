@@ -31,7 +31,7 @@ export type FindPetsByTagsHeaderParams = {
    * @description Header parameters
    * @type string
    */
-  'X-EXAMPLE': FindPetsByTagsHeaderParamsXEXAMPLEEnumKey
+  xEXAMPLE: FindPetsByTagsHeaderParamsXEXAMPLEEnumKey
 }
 
 /**

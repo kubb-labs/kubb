@@ -1,15 +1,8 @@
-import { z } from 'zod'
+import * as z from 'zod'
 import type { ToZod } from '../../.kubb/ToZod.ts'
-import type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/petController/AddPet.ts'
+import type { AddPet405, AddPetError, AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/petController/AddPet.ts'
 import { addPetRequestSchema } from '../addPetRequestSchema.ts'
 import { petSchema } from '../petSchema.ts'
-
-/**
- * @description Successful operation
- */
-export const addPet200Schema = z.lazy(() => petSchema).schema.omit({ name: true }) as unknown as ToZod<AddPet200>
-
-export type AddPet200Schema = AddPet200
 
 /**
  * @description Pet not found
@@ -22,12 +15,19 @@ export const addPet405Schema = z.object({
 export type AddPet405Schema = AddPet405
 
 /**
+ * @description Successful operation
+ */
+export const addPetErrorSchema = z.lazy(() => petSchema).schema.omit({ name: true }) as unknown as ToZod<AddPetError>
+
+export type AddPetErrorSchema = AddPetError
+
+/**
  * @description Create a new pet in the store
  */
 export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema) as unknown as ToZod<AddPetMutationRequest>
 
 export type AddPetMutationRequestSchema = AddPetMutationRequest
 
-export const addPetMutationResponseSchema = z.lazy(() => addPet200Schema) as unknown as ToZod<AddPetMutationResponse>
+export const addPetMutationResponseSchema = z.any() as unknown as ToZod<AddPetMutationResponse>
 
 export type AddPetMutationResponseSchema = AddPetMutationResponse

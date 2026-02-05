@@ -1,5 +1,34 @@
 # @kubb/plugin-redoc
 
+## 4.20.5
+
+### Patch Changes
+
+- [#2427](https://github.com/kubb-labs/kubb/pull/2427) [`f2bab83`](https://github.com/kubb-labs/kubb/commit/f2bab8381871b7c73e3b1bcdd29ddc5fd24fe2e6) Thanks [@icholy](https://github.com/icholy)! - Externalize @kubb/core in tsdown configs to prevent duplicate type declarations across packages, fixing TypeScript type incompatibility errors when using custom generators with pluginClient.
+
+- Updated dependencies [[`f2bab83`](https://github.com/kubb-labs/kubb/commit/f2bab8381871b7c73e3b1bcdd29ddc5fd24fe2e6)]:
+  - @kubb/oas@4.20.5
+  - @kubb/plugin-oas@4.20.5
+  - @kubb/core@4.20.5
+
+## 4.20.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.20.4
+  - @kubb/oas@4.20.4
+  - @kubb/plugin-oas@4.20.4
+
+## 4.20.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.20.3
+  - @kubb/oas@4.20.3
+  - @kubb/plugin-oas@4.20.3
+
 ## 4.20.2
 
 ### Patch Changes

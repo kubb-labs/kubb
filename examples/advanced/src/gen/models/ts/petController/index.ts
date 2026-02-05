@@ -1,5 +1,5 @@
 export type { AddFiles200, AddFiles405, AddFilesMutation, AddFilesMutationRequest, AddFilesMutationResponse } from './AddFiles.ts'
-export type { AddPet200, AddPet405, AddPetMutation, AddPetMutationRequest, AddPetMutationResponse } from './AddPet.ts'
+export type { AddPet405, AddPetError, AddPetMutation, AddPetMutationRequest, AddPetMutationResponse } from './AddPet.ts'
 export type { DeletePet400, DeletePetHeaderParams, DeletePetMutation, DeletePetMutationResponse, DeletePetPathParams } from './DeletePet.ts'
 export type {
   FindPetsByStatus200,

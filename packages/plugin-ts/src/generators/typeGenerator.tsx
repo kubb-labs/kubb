@@ -7,7 +7,7 @@ import { isKeyword, type OperationSchemas, type OperationSchema as OperationSche
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useResolve } from '@kubb/plugin-oas/hooks'
 import type { OperationResolution } from '@kubb/plugin-oas/resolvers'
-import { getBanner, getFooter, getImports } from '@kubb/plugin-oas/utils'
+import { applyParamsCasing, getBanner, getFooter, getImports, isParameterSchema } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
 import ts from 'typescript'
 import { Type } from '../components'
@@ -276,7 +276,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   Operation({ operation, generator, plugin }) {
     const {
       options,
-      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType },
+      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing },
     } = plugin
 
     const mode = useMode()
@@ -307,7 +307,11 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       .filter(Boolean)
 
     const mapOperationSchema = ({ name, schema, description, keysToOmit }: OperationSchemaType) => {
-      const tree = schemaGenerator.parse({ schema, name, parentName: null })
+      // Apply paramsCasing transformation to pathParams, queryParams, and headerParams (not response)
+      const shouldTransform = paramsCasing && isParameterSchema(name)
+      const transformedSchema = shouldTransform ? applyParamsCasing(schema, paramsCasing) : schema
+
+      const tree = schemaGenerator.parse({ schema: transformedSchema, name, parentName: null })
 
       const resolution = useResolve<PluginTs>({
         schema: {
@@ -319,7 +323,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       if (!resolution) {
         return null
       }
-
       const imports = getImports(tree)
 
       let typedName = resolution.outputs.type.name
@@ -340,7 +343,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
             typedName={typedName}
             description={description}
             tree={tree}
-            schema={schema}
+            schema={transformedSchema}
             mapper={mapper}
             enumType={enumType}
             enumKeyCasing={enumKeyCasing}

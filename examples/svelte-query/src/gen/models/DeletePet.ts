@@ -19,14 +19,14 @@ export type DeletePetPathParams = {
    * @description Pet id to delete
    * @type integer, int64
    */
-  pet_id: number
+  petId: number
 }
 
 export type DeletePetHeaderParams = {
   /**
    * @type string | undefined
    */
-  api_key?: string
+  apiKey?: string
 }
 
 /**

@@ -1,5 +1,43 @@
 # @kubb/plugin-svelte-query
 
+## 4.20.5
+
+### Patch Changes
+
+- [#2427](https://github.com/kubb-labs/kubb/pull/2427) [`f2bab83`](https://github.com/kubb-labs/kubb/commit/f2bab8381871b7c73e3b1bcdd29ddc5fd24fe2e6) Thanks [@icholy](https://github.com/icholy)! - Externalize @kubb/core in tsdown configs to prevent duplicate type declarations across packages, fixing TypeScript type incompatibility errors when using custom generators with pluginClient.
+
+- Updated dependencies [[`f2bab83`](https://github.com/kubb-labs/kubb/commit/f2bab8381871b7c73e3b1bcdd29ddc5fd24fe2e6)]:
+  - @kubb/oas@4.20.5
+  - @kubb/plugin-client@4.20.5
+  - @kubb/plugin-oas@4.20.5
+  - @kubb/plugin-ts@4.20.5
+  - @kubb/plugin-zod@4.20.5
+  - @kubb/core@4.20.5
+
+## 4.20.4
+
+### Patch Changes
+
+- Updated dependencies [[`fb12978`](https://github.com/kubb-labs/kubb/commit/fb12978c20634f3f849e62fbcae409000a6f90de)]:
+  - @kubb/plugin-ts@4.20.4
+  - @kubb/plugin-client@4.20.4
+  - @kubb/plugin-zod@4.20.4
+  - @kubb/core@4.20.4
+  - @kubb/oas@4.20.4
+  - @kubb/plugin-oas@4.20.4
+
+## 4.20.3
+
+### Patch Changes
+
+- Updated dependencies [[`be8e4e6`](https://github.com/kubb-labs/kubb/commit/be8e4e68d57b161d592e646657dfddc52c2de133)]:
+  - @kubb/plugin-zod@4.20.3
+  - @kubb/plugin-client@4.20.3
+  - @kubb/core@4.20.3
+  - @kubb/oas@4.20.3
+  - @kubb/plugin-oas@4.20.3
+  - @kubb/plugin-ts@4.20.3
+
 ## 4.20.2
 
 ### Patch Changes

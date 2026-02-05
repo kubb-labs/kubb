@@ -1,5 +1,5 @@
 export { addFilesHandler, addFilesHandlerResponse200, addFilesHandlerResponse405 } from './addFilesHandler.ts'
-export { addPetHandler, addPetHandlerResponse200, addPetHandlerResponse405 } from './addPetHandler.ts'
+export { addPetHandler, addPetHandlerResponse405 } from './addPetHandler.ts'
 export { deletePetHandler, deletePetHandlerResponse400 } from './deletePetHandler.ts'
 export { findPetsByStatusHandler, findPetsByStatusHandlerResponse200, findPetsByStatusHandlerResponse400 } from './findPetsByStatusHandler.ts'
 export { findPetsByTagsHandler, findPetsByTagsHandlerResponse200, findPetsByTagsHandlerResponse400 } from './findPetsByTagsHandler.ts'

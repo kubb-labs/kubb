@@ -43,6 +43,7 @@ describe('operationsGenerator operations', async () => {
         path: '.',
       },
       group: undefined,
+      paramsCasing: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginMcp>

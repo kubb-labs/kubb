@@ -1,13 +1,18 @@
 {
   "name": "@kubb/mcp",
-  "version": "4.20.2",
-  "description": "Generator MCP",
+  "version": "4.20.5",
+  "description": "Model Context Protocol (MCP) server for Kubb, enabling AI assistants to generate code from OpenAPI specifications.",
   "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "llm",
+    "code-generation",
+    "openapi",
+    "swagger",
     "typescript",
-    "plugins",
-    "kubb",
     "codegen",
-    "MCP"
+    "kubb"
   ],
   "repository": {
     "type": "git",
@@ -61,12 +66,12 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/react-fabric": "catalog:",
-    "@modelcontextprotocol/sdk": "^1.25.3",
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "jiti": "^2.6.1",
     "zod": "^4.3.6"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.12.7"
+    "@kubb/react-fabric": "0.12.10"
   },
   "engines": {
     "node": ">=20"

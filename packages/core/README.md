@@ -134,6 +134,11 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/JoaoBrlt"><img src="https://avatars.githubusercontent.com/u/11065509?v=4?s=100" width="100px;" alt="João Brilhante"/><br /><sub><b>João Brilhante</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=JoaoBrlt" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/kamilzki"><img src="https://avatars.githubusercontent.com/u/27976736?v=4?s=100" width="100px;" alt="Kamil Sieradzki"/><br /><sub><b>Kamil Sieradzki</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=kamilzki" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/EricPierlotIdmog"><img src="https://avatars.githubusercontent.com/u/124898024?v=4?s=100" width="100px;" alt="Eric Pierlot"/><br /><sub><b>Eric Pierlot</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=EricPierlotIdmog" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://atholin.se"><img src="https://avatars.githubusercontent.com/u/33940473?v=4?s=100" width="100px;" alt="Alexander Sjöcrona Tholin"/><br /><sub><b>Alexander Sjöcrona Tholin</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=ATholin" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://hyoban.cc"><img src="https://avatars.githubusercontent.com/u/38493346?v=4?s=100" width="100px;" alt="Stephen Zhou"/><br /><sub><b>Stephen Zhou</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=hyoban" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://choly.ca"><img src="https://avatars.githubusercontent.com/u/943597?v=4?s=100" width="100px;" alt="Ilia Choly"/><br /><sub><b>Ilia Choly</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=icholy" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
@@ -164,7 +169,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
 <!-- Badges -->
 
 [npm-version-src]: https://img.shields.io/npm/v/@kubb/core?flat&colorA=18181B&colorB=f58517
-[npm-version-href]: https://npmjs.com/package/@kubb/core
+[npm-version-href]: https://npmx.dev/package/@kubb/core
 [npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/core?flat&colorA=18181B&colorB=f58517
 [npm-downloads-href]: https://npmjs.com/package/@kubb/core
 [license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517

@@ -10,6 +10,7 @@ export default defineConfig({
   sourcemap: true,
   shims: true,
   exports: true,
+  external: ['@kubb/core'],
   noExternal: [/whatwg-url/],
   fixedExtension: false,
   outputOptions: {

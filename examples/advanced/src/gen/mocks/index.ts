@@ -19,8 +19,8 @@ export {
   createAddFilesMutationResponseFaker,
 } from './petController/createAddFilesFaker.ts'
 export {
-  createAddPet200Faker,
   createAddPet405Faker,
+  createAddPetErrorFaker,
   createAddPetMutationRequestFaker,
   createAddPetMutationResponseFaker,
 } from './petController/createAddPetFaker.ts'
