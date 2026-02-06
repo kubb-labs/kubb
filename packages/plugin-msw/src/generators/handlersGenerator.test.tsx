@@ -71,6 +71,6 @@ describe('handlersGenerator operations', async () => {
       },
     )
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })

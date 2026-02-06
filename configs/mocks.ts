@@ -104,7 +104,7 @@ export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.F
 
     processed.set(file.path, code)
 
-    const snapshotPath = path.join('__snapshots__', ...(pre ? [pre] : []), file.baseName)
+    const snapshotPath = path.join('__snapshots__', ...(pre ? [camelCase(pre)] : []), file.baseName)
     await expect(code).toMatchFileSnapshot(snapshotPath)
   }
 

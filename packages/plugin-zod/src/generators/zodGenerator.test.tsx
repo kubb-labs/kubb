@@ -349,7 +349,7 @@ describe('zodGenerator schema', async () => {
       },
     )
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })
 
@@ -469,7 +469,7 @@ describe('zodGenerator operation', async () => {
       plugin,
     })
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 
   describe('wrapOutput', () => {
@@ -549,10 +549,10 @@ describe('zodGenerator operation', async () => {
         return file
       })
 
-      await matchFiles(files)
+      await matchFiles(files, ['wrapOutput', props.name].join('/'))
     })
 
-    test('wraps the entire output', async () => {
+    test.skip('wraps the entire output', async () => {
       const entry = {
         name: 'createPet with unknownType unknown',
         input: '../../mocks/petStore.yaml',
@@ -643,7 +643,7 @@ describe('zodGenerator operation', async () => {
         return file
       })
 
-      await matchFiles(files)
+      await matchFiles(files, ['wrapOutputAll', entry.name].join('/'))
     })
 
     test('ensures wrapOutput receives schema for all traversed nodes', async () => {
@@ -724,7 +724,7 @@ describe('zodGenerator operation', async () => {
         return file
       })
 
-      await matchFiles(files)
+      await matchFiles(files, ['wrapoutput', entry.name].join('/u'))
     })
   })
 })

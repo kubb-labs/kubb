@@ -170,7 +170,7 @@ describe('fakerGenerator schema', async () => {
       },
     )
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })
 
@@ -276,6 +276,6 @@ describe('fakerGenerator operation', async () => {
       plugin,
     })
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })

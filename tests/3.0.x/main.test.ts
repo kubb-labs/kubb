@@ -40,6 +40,32 @@ const configs: Array<{ name: string; config: UserConfig }> = [
     },
   },
   {
+    name: 'simple-v5',
+    config: {
+      root: __dirname,
+      input: {
+        path: '../../schemas/3.0.x/petStore.yaml',
+      },
+      output: {
+        path: './gen',
+        barrelType: false,
+      },
+      plugins: [
+        pluginOas({
+          validate: false,
+          generators: [],
+        }),
+        pluginTs({
+          output: {
+            path: './types',
+            barrelType: false,
+          },
+          UNSTABLE_NAMING: true,
+        }),
+      ],
+    },
+  },
+  {
     name: 'petStore',
     config: {
       root: __dirname,

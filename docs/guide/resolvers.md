@@ -6,9 +6,10 @@ description: Learn how to use resolvers to customize naming conventions and file
 outline: deep
 ---
 
-# Resolvers <Badge type="tip" text="Available in v4.16+" />
+# Resolvers <Badge type="tip" text="Available in v4.22+" />
 
-Resolvers provide a powerful way to customize how Kubb generates names and organizes files. They replace the legacy `transformers.name` approach with a more flexible and type-safe system.
+Resolvers provide a powerful way to customize how Kubb generates names and organizes files.
+They replace the legacy `transformers.name` approach with a more flexible and type-safe system.
 
 ## What are Resolvers?
 
@@ -23,11 +24,11 @@ Each plugin can have one or more resolvers that are executed in order. The first
 
 Here's a simple custom resolver for the TypeScript plugin:
 
-```typescript
-// kubb.config.ts
+```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pascalCase } from '@kubb/core/transformers'
+import { createResolver } from '@kubb/plugin-oas/resolvers'
 
 export default defineConfig({
   input: {
@@ -39,12 +40,40 @@ export default defineConfig({
   plugins: [
     pluginTs({
       resolvers: [
-        {
+        createResolver({
           name: 'my-resolver',
           operation: ({ operation, config }) => {
             const operationId = operation.getOperationId()
             const name = pascalCase(operationId)
-            
+
+            const file = {
+              baseName: `${name}.ts`,
+              path: `${config.root}/${config.output.path}/types/${name}.ts`,
+              imports: [],
+              exports: [],
+              sources: [],
+              meta: {},
+            }
+
+            return {
+              file,
+              outputs: {
+                default: { name, file },
+                query: { name: `${name}Query`, file },
+                mutation: { name: `${name}Mutation`, file },
+                pathParams: { name: `${name}PathParams`, file },
+                queryParams: { name: `${name}QueryParams`, file },
+                headerParams: { name: `${name}HeaderParams`, file },
+                request: { name: `${name}Request`, file },
+                response: { name: `${name}Response`, file },
+                responses: { name: `${name}Responses`, file },
+                responseData: { name: `${name}ResponseData`, file },
+              }
+            }
+          },
+          schema: ({ schema, config }) => {
+            const name = pascalCase(schema.name)
+
             const file = {
               baseName: `${name}.ts`,
               path: `${config.root}/${config.output.path}/types/${name}.ts`,
@@ -59,19 +88,28 @@ export default defineConfig({
               outputs: {
                 default: { name, file },
                 type: { name, file },
-                pathParams: { name: `${name}PathParams`, file },
-                queryParams: { name: `${name}QueryParams`, file },
-                request: { name: `${name}Request`, file },
-                response: { name: `${name}Response`, file },
-                // ... other required outputs
+                enum: { name: `${name}Key`, file },
               }
             }
           },
-          schema: () => null // Use default for schemas
-        }
+        })
       ]
     })
   ]
+})
+```
+
+## Creating Resolvers
+
+Use the `createResolver` utility from `@kubb/plugin-oas/resolvers` to create a resolver. Both `operation` and `schema` handlers are optional — omitted handlers default to returning `null`.
+
+```typescript
+import { createResolver } from '@kubb/plugin-oas/resolvers'
+
+createResolver({
+  name: 'my-resolver',
+  operation: ({ operation, config }) => { /* ... */ },
+  schema: ({ schema, config }) => { /* ... */ },
 })
 ```
 
@@ -84,16 +122,16 @@ A resolver has two main parts:
 Handles resolution for OpenAPI operations (endpoints):
 
 ```typescript
-{
+createResolver({
   name: 'my-resolver',
   operation: ({ operation, config }) => {
-    // Return Resolution or null
+    // Return OperationResolution or null
     return {
       file: { baseName, path, imports, exports, sources, meta },
-      outputs: { /* named outputs */ }
+      outputs: { default: { name, file }, /* other named outputs */ }
     }
   }
-}
+})
 ```
 
 ### 2. Schema Handler
@@ -101,16 +139,16 @@ Handles resolution for OpenAPI operations (endpoints):
 Handles resolution for OpenAPI schemas (component schemas like `Pet`, `User`, etc.):
 
 ```typescript
-{
+createResolver({
   name: 'my-resolver',
   schema: ({ schema, config }) => {
-    // Return Resolution or null
+    // Return SchemaResolution or null
     return {
       file: { baseName, path, imports, exports, sources, meta },
-      outputs: { /* named outputs */ }
+      outputs: { default: { name, file }, /* other named outputs */ }
     }
   }
-}
+})
 ```
 
 ## Conditional Resolution
@@ -118,7 +156,7 @@ Handles resolution for OpenAPI schemas (component schemas like `Pet`, `User`, et
 Return `null` to fall through to the next resolver:
 
 ```typescript
-{
+createResolver({
   name: 'admin-only',
   operation: ({ operation }) => {
     // Only handle admin endpoints
@@ -132,7 +170,7 @@ Return `null` to fall through to the next resolver:
       outputs: { /* ... */ }
     }
   }
-}
+})
 ```
 
 ## Using the Default Resolver
@@ -141,12 +179,13 @@ You can use `createTsResolver` to get the default behavior and modify it:
 
 ```typescript
 import { pluginTs, createTsResolver } from '@kubb/plugin-ts'
+import { createResolver } from '@kubb/plugin-oas/resolvers'
 
 export default defineConfig({
   plugins: [
     pluginTs({
       resolvers: [
-        {
+        createResolver({
           name: 'custom-suffix',
           operation: ({ operation, config }) => {
             // Get default resolution
@@ -167,25 +206,32 @@ export default defineConfig({
               }
             }
           },
-          schema: () => null
-        }
+        })
       ]
     })
   ]
 })
 ```
 
+### `createTsResolver` Options
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `outputPath` | `string` | `'types'` | Output subdirectory for generated types |
+| `group` | `Group` | — | Group configuration for organizing files by tag or path |
+| `transformName` | `(name: string, type?) => string` | — | Custom name transformer (**deprecated**, use a custom resolver instead) |
+
 ## Common Use Cases
 
 ### Add Prefix/Suffix to All Types
 
 ```typescript
-{
+createResolver({
   name: 'interface-prefix',
   operation: ({ operation, config }) => {
     const defaultResolver = createTsResolver({ outputPath: 'types' })
     const defaults = defaultResolver.operation({ operation, config })
-    
+
     if (!defaults) return null
 
     // Add "I" prefix to all outputs
@@ -200,48 +246,18 @@ export default defineConfig({
       }, {})
     }
   }
-}
-```
-
-### Organize by Tag
-
-```typescript
-{
-  name: 'group-by-tag',
-  operation: ({ operation, config }) => {
-    const tags = operation.getTags()
-    const tag = tags[0]?.name || 'default'
-    const operationId = operation.getOperationId()
-    const name = pascalCase(operationId)
-    
-    const file = {
-      baseName: `${name}.ts`,
-      path: `${config.root}/${config.output.path}/types/${tag}/${name}.ts`,
-      imports: [],
-      exports: [],
-      sources: [],
-      meta: {},
-    }
-
-    return {
-      file,
-      outputs: {
-        // ... outputs
-      }
-    }
-  }
-}
+})
 ```
 
 ### Custom Naming Convention
 
 ```typescript
-{
+createResolver({
   name: 'snake-case-types',
   operation: ({ operation, config }) => {
     const operationId = operation.getOperationId()
     const name = snakeCase(operationId) // use snake_case instead of PascalCase
-    
+
     const file = {
       baseName: `${name}.ts`,
       path: `${config.root}/${config.output.path}/types/${name}.ts`,
@@ -254,64 +270,52 @@ export default defineConfig({
     return {
       file,
       outputs: {
-        type: { name, file },
+        default: { name, file },
+        query: { name: `${name}_query`, file },
+        mutation: { name: `${name}_mutation`, file },
         pathParams: { name: `${name}_path_params`, file },
         queryParams: { name: `${name}_query_params`, file },
+        headerParams: { name: `${name}_header_params`, file },
         request: { name: `${name}_request`, file },
         response: { name: `${name}_response`, file },
-        // ... other outputs
+        responses: { name: `${name}_responses`, file },
+        responseData: { name: `${name}_response_data`, file },
       }
     }
   }
-}
+})
 ```
 
 ## Output Keys by Plugin
 
-Each plugin defines its own set of output keys:
+Each plugin defines its output keys as an **object** with separate `operation` and `schema` string unions. TypeScript enforces that **every key** is present in the returned `outputs` map (plus the required `default` key).
 
 ### @kubb/plugin-ts
 
 ```typescript
-type ResolverOutputKeys =
-  | 'default'
-  | 'type'
-  | 'query'
-  | 'mutation'
-  | 'enum'
-  | 'pathParams'
-  | 'queryParams'
-  | 'headerParams'
-  | 'request'
-  | 'response'
-  | 'responses'
-  | 'responseData'
+type PluginTsOutputKeys = {
+  operation:
+    | 'query'
+    | 'mutation'
+    | 'pathParams'
+    | 'queryParams'
+    | 'headerParams'
+    | 'request'
+    | 'response'
+    | 'responses'
+    | 'responseData'
+    | HttpStatus // dynamic status code keys like '200', '404', 'default', etc.
+  schema:
+    | 'type'
+    | 'enum'
+}
 ```
+
+The `operation` handler must return outputs matching the `operation` keys, and the `schema` handler must return outputs matching the `schema` keys. The `default` key is always required in both.
+
+The operation resolver can also include **HTTP status code outputs** (e.g. `'200'`, `'404'`, `'default'`). The default `createTsResolver` automatically generates these from `operation.getResponseStatusCodes()`.
 
 More plugins will support resolvers in future releases.
-
-## Type Safety
-
-Resolvers are fully type-safe. TypeScript will autocomplete available output keys and ensure you provide all required outputs:
-
-```typescript
-pluginTs({
-  resolvers: [
-    {
-      name: 'my-resolver',
-      operation: ({ operation, config }) => {
-        return {
-          file: { /* ... */ },
-          outputs: {
-            type: { name: 'MyType', file },
-            // TypeScript will error if you forget required outputs
-          }
-        }
-      }
-    }
-  ]
-})
-```
 
 ## Multiple Resolvers
 
@@ -321,21 +325,21 @@ You can provide multiple resolvers. They are executed in order, and the first on
 pluginTs({
   resolvers: [
     // Custom resolver for admin endpoints
-    {
+    createResolver({
       name: 'admin',
       operation: ({ operation }) => {
         if (!operation.path.startsWith('/admin')) return null
         // ... custom logic
       }
-    },
+    }),
     // Custom resolver for public endpoints
-    {
+    createResolver({
       name: 'public',
       operation: ({ operation }) => {
         if (operation.path.startsWith('/admin')) return null
         // ... custom logic
       }
-    }
+    }),
     // Default resolver is automatically added last
   ]
 })
@@ -365,12 +369,12 @@ pluginTs({
 ```typescript
 pluginTs({
   resolvers: [
-    {
+    createResolver({
       name: 'interface-prefix',
       operation: ({ operation, config }) => {
         const defaultResolver = createTsResolver({ outputPath: 'types' })
         const defaults = defaultResolver.operation({ operation, config })
-        
+
         if (!defaults) return null
 
         return {
@@ -384,7 +388,7 @@ pluginTs({
       schema: ({ schema, config }) => {
         const defaultResolver = createTsResolver({ outputPath: 'types' })
         const defaults = defaultResolver.schema({ schema, config })
-        
+
         if (!defaults) return null
 
         return {
@@ -398,25 +402,31 @@ pluginTs({
           }
         }
       }
-    }
+    })
   ]
 })
 ```
 
-## Best Practices
+## `useResolve` Hook
 
-1. **Return null for pass-through**: If your resolver doesn't handle a case, return `null` to let the next resolver handle it.
+For plugin authors building generators, the `useResolve` hook resolves names and files within React-fabric components:
 
-2. **Use the default resolver**: Start with the default resolver and modify only what you need.
+```typescript
+import { useResolve } from '@kubb/plugin-oas/hooks'
 
-3. **Keep resolvers focused**: Create separate resolvers for different concerns (admin endpoints, public endpoints, etc.).
+// Resolve for the current plugin's operation
+const resolution = useResolve({ operation })
 
-4. **Test your resolvers**: Generate code and verify the output matches your expectations.
+// Resolve for a different plugin by name
+const tsResolution = useResolve({ operation }, '@kubb/plugin-ts')
 
-5. **Use TypeScript**: Leverage type safety to ensure all output keys are provided.
+// Resolve for a schema
+const schemaResolution = useResolve({ schema: { name: 'Pet', value: schemaObject } })
+```
+
+The hook automatically injects the `config` into the resolver context and iterates through the plugin's resolvers until one returns a non-null result.
 
 ## See Also
 
 - [Architecture: Resolver Architecture](/architecture/resolver-architecture)
-- [Architecture: Resolver Expansion Plan](/architecture/resolver-expansion-plan)
 - [Plugin: @kubb/plugin-ts](/plugins/plugin-ts)

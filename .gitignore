@@ -58,3 +58,4 @@ hello
 packages/ui/static/**
 .nx
 packages/core/mocks/helloWorld.js
+mcp.json
