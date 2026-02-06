@@ -76,7 +76,7 @@ export async function startStreamServer({ port, host, configPath, config, input,
             barrelType: config.output.barrelType,
           },
           plugins: config.plugins?.map((plugin) => ({
-            name: plugin.name,
+            name: `@kubb/${plugin.name}`,
             options: serializePluginOptions(plugin.options),
           })),
         },
