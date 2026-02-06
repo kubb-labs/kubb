@@ -16,7 +16,7 @@ This enables live progress tracking, event streaming, and integration with exter
 The stream server exposes three HTTP endpoints:
 
 - **`GET /health`** - Health check and version info
-- **`GET /api/connect`** - Configuration metadata and OpenAPI spec
+- **`GET /api/info`** - Configuration metadata and OpenAPI spec
 - **`POST /api/stream`** - SSE stream for code generation events
 
 ## Starting the Server
@@ -61,7 +61,7 @@ When started, the server displays connection information:
 ✔ Stream server started on http://localhost:3000
 
 ℹ Config: kubb.config.ts
-ℹ Connect: http://localhost:3000/api/connect
+ℹ Connect: http://localhost:3000/api/info
 ℹ Stream: http://localhost:3000/api/stream
 ℹ Health: http://localhost:3000/health
 
@@ -132,7 +132,7 @@ Returns configuration metadata and the OpenAPI specification content.
 **Example:**
 
 ```shell
-curl http://localhost:3000/api/connect
+curl http://localhost:3000/api/info
 ```
 
 ### POST /api/stream
