@@ -1,7 +1,7 @@
 import type { ServerResponse } from 'node:http'
 import { relative } from 'node:path'
+import type { StreamEvents, StreamEventType } from '@kubb/core'
 import { defineLogger, LogLevel } from '@kubb/core'
-import type { StreamEvents, StreamEventType } from '../StreamEvents.ts'
 
 type StreamLoggerState = {
   res: ServerResponse

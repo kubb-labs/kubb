@@ -4,7 +4,7 @@ import { createServer } from 'node:http'
 import path from 'node:path'
 import process from 'node:process'
 import * as clack from '@clack/prompts'
-import type { Config, KubbEvents } from '@kubb/core'
+import type { Config, ConnectResponse, HealthResponse, KubbEvents, StreamEvents, StreamEventType } from '@kubb/core'
 import { LogLevel } from '@kubb/core'
 import { AsyncEventEmitter, serializePluginOptions } from '@kubb/core/utils'
 import pc from 'picocolors'
@@ -12,7 +12,6 @@ import { version } from '../../package.json'
 import type { Args } from '../commands/generate.ts'
 import { createStreamLogger } from '../loggers/streamLogger.ts'
 import { generate } from '../runners/generate.ts'
-import type { ConnectResponse, HealthResponse, StreamEvents, StreamEventType } from '../StreamEvents.ts'
 
 type StartStreamServerOptions = {
   port: number
