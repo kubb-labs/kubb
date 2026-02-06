@@ -892,8 +892,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@redocly/openapi-core':
-        specifier: ^2.15.1
-        version: 2.15.1
+        specifier: ^2.15.2
+        version: 2.15.2
       jsonpointer:
         specifier: ^5.0.1
         version: 5.0.1
@@ -2383,8 +2383,8 @@ packages:
   '@redocly/config@0.41.4':
     resolution: {integrity: sha512-LaRKXpHyK5GxmgG2n2e8xp2NyUa8qZls3WMAVg5hKO4b2d7X5uU5F2jvH6JUTVdRW/VfStQqan5DQ1uQz7MVzg==}
 
-  '@redocly/openapi-core@2.15.1':
-    resolution: {integrity: sha512-6OKY+ZgAnU2B1OoPQHXXWCXwNQQUn+8N7WfGMrpRZxorQsB9EcQs0rYofO4mquFzvmIgU2owf8cLaD771pv3BQ==}
+  '@redocly/openapi-core@2.15.2':
+    resolution: {integrity: sha512-SGaucW1OQzK411+uB5bE9cxmJJ1Rr3UHQGl6mnsYTETCTKU1LJ1oIhBtqGep5Cg+JO5Jm865hIVhgf+sZ32Thw==}
     engines: {node: '>=22.12.0 || >=20.19.0 <21.0.0', npm: '>=10'}
 
   '@rolldown/binding-android-arm64@1.0.0-beta.59':
@@ -7621,7 +7621,7 @@ snapshots:
     dependencies:
       json-schema-to-ts: 2.7.2
 
-  '@redocly/openapi-core@2.15.1':
+  '@redocly/openapi-core@2.15.2':
     dependencies:
       '@redocly/ajv': 8.17.2
       '@redocly/config': 0.41.4

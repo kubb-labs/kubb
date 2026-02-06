@@ -114,7 +114,7 @@ export class SchemaGenerator<
 
     // Only cache when schema is a simple object (not null/undefined)
     // and doesn't have transformers that could affect the result
-    const shouldCache = props.schema && typeof props.schema === 'object' && !options.transformers?.schema
+    let shouldCache = props.schema && typeof props.schema === 'object' && !options.transformers?.schema
     let cacheKey = ''
 
     if (shouldCache) {
@@ -134,7 +134,7 @@ export class SchemaGenerator<
         }
       } catch {
         // If JSON.stringify fails (circular refs), skip caching
-        shouldCache && (shouldCache as any as boolean)
+        shouldCache = false
       }
     }
 

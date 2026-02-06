@@ -111,7 +111,7 @@ export type Options = {
   /**
    * Override some useMutation behaviors.
    */
-  mutation?: Mutation | false
+  mutation?: Partial<Mutation> | false
   /**
    * Which parser should be used before returning the data to `@tanstack/query`.
    * `'zod'` uses `@kubb/plugin-zod` to parse the data.
