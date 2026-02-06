@@ -13,6 +13,7 @@ import { setupLogger } from '../loggers/utils.ts'
 import { generate } from '../runners/generate.ts'
 import { getConfigs } from '../utils/getConfigs.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
+import { startStreamServer } from '../utils/streamServer.ts'
 import { startWatcher } from '../utils/watcher.ts'
 
 const args = {
@@ -51,6 +52,21 @@ const args = {
     description: 'Override logLevel to silent',
     alias: 's',
     default: false,
+  },
+  stream: {
+    type: 'boolean',
+    description: 'Start HTTP server with SSE streaming',
+    default: false,
+  },
+  port: {
+    type: 'string',
+    description: 'Port for stream server (requires --stream). If not specified, an available port is automatically selected.',
+    alias: 'p',
+  },
+  host: {
+    type: 'string',
+    description: 'Host for stream server (requires --stream)',
+    default: 'localhost',
   },
   help: {
     type: 'boolean',
@@ -103,18 +119,35 @@ const command = defineCommand({
     })
 
     try {
-      await events.emit('lifecycle:start', version)
+      const result = await getCosmiConfig('kubb', args.config)
+      const configs = await getConfigs(result, args)
+
+      // Start stream server if --stream flag is provided
+      if (args.stream) {
+        const port = args.port ? Number.parseInt(args.port, 10) : 0
+        const host = args.host
+
+        await startStreamServer({
+          port,
+          host,
+          configPath: result.filepath,
+          config: configs[0]!,
+          input,
+          args,
+        })
+
+        // Server is running, don't exit
+        return
+      }
 
       await events.emit('config:start')
 
-      const result = await getCosmiConfig('kubb', args.config)
-
       await events.emit('info', 'Config loaded', path.relative(process.cwd(), result.filepath))
-
-      const configs = await getConfigs(result, args)
 
       await events.emit('success', 'Config loaded successfully', path.relative(process.cwd(), result.filepath))
       await events.emit('config:end', configs)
+
+      await events.emit('lifecycle:start', version)
 
       const promises = configs.map((config) => {
         return async () => {

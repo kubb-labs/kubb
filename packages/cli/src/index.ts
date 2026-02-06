@@ -40,3 +40,5 @@ const main = defineCommand({
 export async function run(_argv?: string[]): Promise<void> {
   await runMain(main)
 }
+
+export type { ConnectResponse, HealthResponse, StreamEvent, StreamEvents, StreamEventType } from './StreamEvents.ts'
