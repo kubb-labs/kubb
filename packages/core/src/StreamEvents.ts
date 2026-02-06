@@ -46,7 +46,7 @@ export type HealthResponse = {
   configPath: string
 }
 
-/** GET /api/connect */
+/** GET /api/info */
 export type ConnectResponse = {
   version: string
   configPath: string

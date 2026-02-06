@@ -45,7 +45,7 @@ export async function startStreamServer({ port, host, configPath, config, input,
     }
 
     // Connect endpoint - returns config metadata and OpenAPI spec
-    if (req.url === '/api/connect' && req.method === 'GET') {
+    if (req.url === '/api/info' && req.method === 'GET') {
       res.writeHead(200, { 'Content-Type': 'application/json' })
 
       // Read OpenAPI spec if available
@@ -103,7 +103,7 @@ export async function startStreamServer({ port, host, configPath, config, input,
     const serverUrl = `http://${host}:${actualPort}`
     clack.log.success(pc.green(`Stream server started on ${pc.bold(serverUrl)}`))
     clack.log.info(pc.dim(`Config: ${path.relative(process.cwd(), configPath)}`))
-    clack.log.info(pc.dim(`Connect: ${serverUrl}/api/connect`))
+    clack.log.info(pc.dim(`Connect: ${serverUrl}/api/info`))
     clack.log.info(pc.dim(`Stream: ${serverUrl}/api/stream`))
     clack.log.info(pc.dim(`Health: ${serverUrl}/health`))
     clack.log.step(pc.yellow('Waiting for requests... (Press Ctrl+C to stop)'))
