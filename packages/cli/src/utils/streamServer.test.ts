@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import type { IncomingMessage, Server, ServerResponse } from 'node:http'
 import { request } from 'node:http'
+import type { Config } from '@kubb/core'
 import { defineConfig } from '@kubb/core'
 import { AsyncEventEmitter } from '@kubb/core/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -51,7 +52,7 @@ describe('streamServer', () => {
         input: { path: './openapi.yaml' },
         output: { path: './src/gen' },
         plugins: [],
-      })
+      }) as unknown as Config
 
       // Start server but don't await (it runs indefinitely)
       const serverPromise = startStreamServer({
@@ -112,7 +113,7 @@ describe('streamServer', () => {
           barrelType: 'all',
         },
         plugins: [],
-      })
+      }) as unknown as Config
 
       await startStreamServer({
         port,
@@ -176,7 +177,7 @@ describe('streamServer', () => {
         input: { path: './openapi.yaml' },
         output: { path: './src/gen' },
         plugins: [],
-      })
+      }) as unknown as Config
 
       // Mock stream logger
       const mockStreamLogger = {
@@ -271,7 +272,7 @@ describe('streamServer', () => {
         input: { path: './openapi.yaml' },
         output: { path: './src/gen' },
         plugins: [],
-      })
+      }) as unknown as Config
 
       await startStreamServer({
         port,
@@ -317,7 +318,7 @@ describe('streamServer', () => {
         input: { path: './openapi.yaml' },
         output: { path: './src/gen' },
         plugins: [],
-      })
+      }) as unknown as Config
 
       await startStreamServer({
         port,
@@ -358,7 +359,7 @@ describe('streamServer', () => {
         input: { path: './openapi.yaml' },
         output: { path: './src/gen' },
         plugins: [],
-      })
+      }) as unknown as Config
 
       const mockStreamLogger = {
         install: vi.fn().mockResolvedValue(undefined),
