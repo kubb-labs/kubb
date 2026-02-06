@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-redoc",
-  "version": "4.20.5",
+  "version": "4.21.0",
   "description": "Redoc documentation generator plugin for Kubb, creating beautiful, interactive API documentation from OpenAPI specifications.",
   "keywords": [
     "redoc",
