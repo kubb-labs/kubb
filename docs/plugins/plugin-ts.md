@@ -169,13 +169,13 @@ const enum PetType {
 ```
 
 ```typescript ['literal']
-type PetType = "dog" | "cat";
+type PetType = 'dog' | 'cat';
 ```
 
 ```typescript ['inlineLiteral']
 // Enum values are inlined directly into the type
 export interface Pet {
-  status?: "available" | "pending" | "sold";
+  status?: 'available' | 'pending' | 'sold';
 }
 ```
 
@@ -412,7 +412,7 @@ type FindPetsByStatusQueryParams = {
 };
 
 type FindPetsByStatusHeaderParams = {
-  "X-Custom-Header"?: string;
+  'X-Custom-Header'?: string;
 };
 ```
 
@@ -601,7 +601,7 @@ export default defineConfig({
         type: 'tag',
         name: ({ group }) => `${group}Controller`
       },
-      enumType: "asConst",
+      enumType: 'asConst',
       enumSuffix: 'Enum',
       dateType: 'date',
       unknownType: 'unknown',

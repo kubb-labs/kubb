@@ -22,7 +22,7 @@ aside: false
 
 Generate clients with static methods:
 
-```typescript title="src/example.ts"
+```typescript title='src/example.ts'
 import { Pet } from './gen/clients/Pet'
 
 // Get a pet by ID

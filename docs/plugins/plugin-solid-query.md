@@ -193,8 +193,8 @@ export default defineConfig({
 
 For a GET operation with tags `["user"]` and path parameter `username`, this generates:
 ```typescript
-export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams["username"] }) =>
-  ["user", username] as const
+export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] }) =>
+  ['user', username] as const
 ```
 
 **Using the default transformer**
@@ -221,7 +221,7 @@ export default defineConfig({
 This prepends a version to the default queryKey:
 ```typescript
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) =>
-  ["v5", { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+  ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 ```
 
 **Using operation ID**
@@ -433,7 +433,7 @@ export default defineConfig({
       },
       query: {
         methods: [ 'get' ],
-        importPath: "@tanstack/solid-query"
+        importPath: '@tanstack/solid-query'
       },
     }),
   ],

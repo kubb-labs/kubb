@@ -141,9 +141,9 @@ We will discontinue support for (MSW](https://mswjs.io/) v1 in favour of using v
 - `output.footer`: Add some code in the end of every file
 - `output.exportType`: Behavior stayed the same, we renamed the option to `output.barrelType` and simplified the values.
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core"
-import { pluginOas } from "@kubb/plugin-oas"
-import { pluginTs } from "@kubb/plugin-ts"
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 import { pluginClient } from '@kubb/plugin-client'
 
 export default defineConfig({
@@ -179,9 +179,9 @@ export default defineConfig({
 ```
 - `output.extName`: Rather than defining this in every plugin, we chose to move it to [`output.extension`](/getting-started/configure#output-extension).
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core"
-import { pluginOas } from "@kubb/plugin-oas"
-import { pluginTs } from "@kubb/plugin-ts"
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 import { pluginClient } from '@kubb/plugin-client'
 
 export default defineConfig({
@@ -209,9 +209,9 @@ export default defineConfig({
 - `output.exportAs`: This property was only usable for `@kubb/plugin-client` where we aimed to consolidate the functionality into one single controller. In v3, using `group` will already create the controller file.
 ::: code-group
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core"
-import { pluginOas } from "@kubb/plugin-oas"
-import { pluginTs } from "@kubb/plugin-ts"
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 import { pluginClient } from '@kubb/plugin-client'
 
 export default defineConfig({
@@ -253,9 +253,9 @@ export function petService() {
 ### Group
 - `group.output`: Removed in favour of using `group.name`, the output will automatically be created based on the `root`, `output.path` and `output.path` of the selected plugin.
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core"
-import { pluginOas } from "@kubb/plugin-oas"
-import { pluginTs } from "@kubb/plugin-ts"
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 import { pluginClient } from '@kubb/plugin-client'
 
 export default defineConfig({
@@ -281,9 +281,9 @@ export default defineConfig({
 - `group.exportAs`: This property was only usable for `@kubb/plugin-client` where we aimed to consolidate the functionality into one single controller. In v3, using `group` will already create the controller file.
 ::: code-group
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core"
-import { pluginOas } from "@kubb/plugin-oas"
-import { pluginTs } from "@kubb/plugin-ts"
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 import { pluginClient } from '@kubb/plugin-client'
 
 export default defineConfig({

@@ -372,7 +372,7 @@ Customize the names based on the type that is provided by the plugin.
 | Required: | `false`                                        |
 
 ```typescript
-type ResolveType = "file" | "function" | "type" | "const";
+type ResolveType = 'file' | 'function' | 'type' | 'const';
 ```
 
 #### transformers.schema
@@ -413,30 +413,30 @@ wrapOutput: ({ output, schema }) => {
 ## Example
 
 ```typescript twoslash
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginZod } from "@kubb/plugin-zod";
+import { defineConfig } from '@kubb/core';
+import { pluginOas } from '@kubb/plugin-oas';
+import { pluginTs } from '@kubb/plugin-ts';
+import { pluginZod } from '@kubb/plugin-zod';
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   plugins: [
     pluginOas(),
     pluginTs(),
     pluginZod({
       output: {
-        path: "./zod",
+        path: './zod',
       },
-      group: { type: "tag", name: ({ group }) => `${group}Schemas` },
+      group: { type: 'tag', name: ({ group }) => `${group}Schemas` },
       typed: true,
-      dateType: "stringOffset",
-      unknownType: "unknown",
-      importPath: "zod",
+      dateType: 'stringOffset',
+      unknownType: 'unknown',
+      importPath: 'zod',
       wrapOutput: ({ output, schema }) =>
         `${output}.openapi({ description: 'This is a custom extension' })`,
     }),

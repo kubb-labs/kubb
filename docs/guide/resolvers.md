@@ -234,7 +234,7 @@ createResolver({
 
     if (!defaults) return null
 
-    // Add "I" prefix to all outputs
+    // Add 'I' prefix to all outputs
     return {
       ...defaults,
       outputs: Object.entries(defaults.outputs).reduce((acc, [key, value]) => {

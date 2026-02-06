@@ -220,8 +220,8 @@ export const clientOperationGenerator = createGenerator<PluginClient>({
 
 Use of the generator:
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core"
-import { pluginOas } from "@kubb/plugin-oas"
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
 
 export default defineConfig({
   root: '.',
@@ -287,8 +287,8 @@ export const clientOperationGenerator = createReactGenerator({
 
 Use of the generator:
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core"
-import { pluginOas } from "@kubb/plugin-oas"
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
 
 export default defineConfig({
   root: '.',

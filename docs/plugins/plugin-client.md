@@ -242,7 +242,7 @@ export default defineConfig({
           pattern: 'store',
         },
       ],
-      pathParamsType: "object",
+      pathParamsType: 'object',
       dataReturnType: 'full',
       client: 'axios'
     }),
