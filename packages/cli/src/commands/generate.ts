@@ -124,6 +124,10 @@ const command = defineCommand({
 
       // Start stream server if --stream flag is provided
       if (args.stream) {
+        if (configs.length > 1) {
+          clack.log.warn(pc.yellow('Stream mode only supports a single configuration. Only the first config will be used.'))
+        }
+
         const port = args.port ? Number.parseInt(args.port, 10) : 0
         const host = args.host
 
