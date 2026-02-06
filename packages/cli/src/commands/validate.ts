@@ -40,6 +40,7 @@ const command = defineCommand({
         mod = await jiti.import('@kubb/oas', { default: true })
       } catch (_e) {
         console.error(`Import of '@kubb/oas' is required to do validation`)
+        process.exit(1)
       }
 
       const { parse } = mod

@@ -36,24 +36,20 @@ const writer = switcher(
       return data
     },
     bun: async (path: string, data: string, { sanity }: Options) => {
-      try {
-        await Bun.write(resolve(path), data)
+      await Bun.write(resolve(path), data)
 
-        if (sanity) {
-          const file = Bun.file(resolve(path))
-          const savedData = await file.text()
+      if (sanity) {
+        const file = Bun.file(resolve(path))
+        const savedData = await file.text()
 
-          if (savedData?.toString() !== data?.toString()) {
-            throw new Error(`Sanity check failed for ${path}\n\nData[${path.length}]:\n${path}\n\nSaved[${savedData.length}]:\n${savedData}\n`)
-          }
-
-          return savedData
+        if (savedData?.toString() !== data?.toString()) {
+          throw new Error(`Sanity check failed for ${path}\n\nData[${data.length}]:\n${data}\n\nSaved[${savedData.length}]:\n${savedData}\n`)
         }
 
-        return data
-      } catch (error) {
-        console.error(error)
+        return savedData
       }
+
+      return data
     },
   },
   'node',

@@ -38,7 +38,8 @@ export class PackageManager {
   }
 
   normalizeDirectory(directory: string): string {
-    if (!this.#SLASHES.has(directory[directory.length - 1]!)) {
+    const lastChar = directory[directory.length - 1]
+    if (lastChar && !this.#SLASHES.has(lastChar)) {
       return `${directory}/`
     }
 
@@ -160,7 +161,7 @@ export class PackageManager {
     const semVer = coerce(packageVersion)
 
     if (!semVer) {
-      throw new Error(`${packageVersion} is not valid`)
+      return false
     }
 
     return satisfies(semVer, version)
@@ -172,7 +173,7 @@ export class PackageManager {
       return false
     }
 
-    if (version === 'next' && packageVersion === version) {
+    if (packageVersion === version) {
       return true
     }
 
