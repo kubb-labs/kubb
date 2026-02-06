@@ -410,6 +410,7 @@
     "/tutorials": "default",
     "/playground": "default",
     "/ecosystem": "default",
+    "/architecture": "default",
     "/guide": "guide"
   }
 }

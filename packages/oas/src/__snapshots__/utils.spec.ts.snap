@@ -1,0 +1,46 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`utils > merge of 2 oas documents 1`] = `
+{
+  "components": {
+    "schemas": {
+      "Point": {
+        "properties": {
+          "x": {
+            "type": "number",
+          },
+          "y": {
+            "type": "number",
+          },
+        },
+        "required": [
+          "x",
+          "y",
+        ],
+        "type": "object",
+      },
+      "Square": {
+        "properties": {
+          "size": {
+            "type": "number",
+          },
+          "topLeft": {
+            "$ref": "#/components/schemas/Point",
+          },
+        },
+        "required": [
+          "topLeft",
+          "size",
+        ],
+        "type": "object",
+      },
+    },
+  },
+  "info": {
+    "title": "Shapes",
+    "version": "1.0.0",
+  },
+  "openapi": "3.0.0",
+  "paths": {},
+}
+`;
