@@ -54,7 +54,7 @@
     }
   ],
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && size-limit",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --fix --unsafe .",
