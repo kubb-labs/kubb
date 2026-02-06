@@ -28,6 +28,8 @@ describe('read', () => {
 
     expect(file).toBeDefined()
     expect(file).toBe(text)
+
+    await clean(filePath)
   })
 
   test('readSync reads file synchronously', async () => {
@@ -39,6 +41,8 @@ describe('read', () => {
 
     expect(file).toBeDefined()
     expect(file).toBe(text)
+
+    await clean(filePath)
   })
 
   test('getRelativePath returns correct path for Linux and macOS', async () => {
