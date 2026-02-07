@@ -1,5 +1,16 @@
 # @kubb/plugin-ts
 
+## 4.21.1
+
+### Patch Changes
+
+- [#2444](https://github.com/kubb-labs/kubb/pull/2444) [`9592063`](https://github.com/kubb-labs/kubb/commit/9592063f91bf9d3604b508774fb7d8f7a09e47f8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Upgrade fabric
+
+- Updated dependencies []:
+  - @kubb/core@4.21.1
+  - @kubb/oas@4.21.1
+  - @kubb/plugin-oas@4.21.1
+
 ## 4.21.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/mcp",
-  "version": "4.21.0",
+  "version": "4.21.1",
   "description": "Model Context Protocol (MCP) server for Kubb, enabling AI assistants to generate code from OpenAPI specifications.",
   "keywords": [
     "mcp",
@@ -71,7 +71,7 @@
     "zod": "^4.3.6"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.12.10"
+    "@kubb/react-fabric": "0.12.11"
   },
   "engines": {
     "node": ">=20"

@@ -375,6 +375,11 @@
               "activeMatch": "^/guide/debugging/?$"
             },
             {
+              "text": "Stream Server",
+              "link": "/guide/stream-server",
+              "activeMatch": "^/guide/stream-server/?$"
+            },
+            {
               "text": "Generators",
               "link": "/guide/generators",
               "activeMatch": "^/guide/generators/?$"

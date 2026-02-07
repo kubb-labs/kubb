@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-swr",
-  "version": "4.21.0",
+  "version": "4.21.1",
   "description": "SWR hooks generator plugin for Kubb, creating type-safe data fetching hooks from OpenAPI specifications for React and Next.js applications.",
   "keywords": [
     "swr",
@@ -96,7 +96,7 @@
     "remeda": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.12.10"
+    "@kubb/react-fabric": "0.12.11"
   },
   "engines": {
     "node": ">=20"

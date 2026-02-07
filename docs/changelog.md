@@ -6,6 +6,14 @@ outline: deep
 
 # Changelog
 
+## 4.21.1
+
+### 📦 Dependencies
+
+Upgrade `fabric`.
+
+---
+
 ## 4.21.0
 
 ### ✨ New Features
