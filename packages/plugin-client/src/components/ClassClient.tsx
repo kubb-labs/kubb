@@ -216,9 +216,9 @@ export function ClassClient({
   )
 
   const classCode = `export class ${name} {
-  #client: typeof fetch
+  #client: Client
 
-  constructor(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+  constructor(config: Partial<RequestConfig> & { client?: Client } = {}) {
     this.#client = config.client || fetch
   }
 
