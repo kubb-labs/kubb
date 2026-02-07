@@ -24,8 +24,8 @@ export function listPets200(data?: Partial<ListPets200>): ListPets200 {
 /**
  * @description unexpected error
  */
-export function listPetsError() {
-  return error()
+export function listPetsError(data?: Partial<ListPetsError>): ListPetsError {
+  return error(data)
 }
 
 export function listPetsQueryResponse(data?: Partial<ListPetsQueryResponse>): ListPetsQueryResponse {
