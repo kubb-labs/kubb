@@ -54,22 +54,25 @@ export class BarrelManager {
             barrelFile.exports = []
           }
 
-          // true when we have a subdirectory that also contains barrel files
-          const isSubExport = !!treeNode.parent?.data.path?.split?.('/')?.length
-
-          if (isSubExport) {
-            barrelFile.exports.push({
-              name: [source.name],
-              path: getRelativePath(treeNode.parent?.data.path, item.data.path),
-              isTypeOnly: source.isTypeOnly,
-            })
+          // Check if the item is in a subdirectory that will have its own barrel file
+          const itemParent = item.parent
+          const hasSubdirectoryBarrel = itemParent && itemParent !== treeNode.parent && itemParent.children && itemParent.children.length > 0
+          
+          // Determine the path to export from
+          let exportPath: string
+          if (hasSubdirectoryBarrel && itemParent.data.path) {
+            // Export from the subdirectory's index.ts instead of the individual file
+            exportPath = getRelativePath(treeNode.parent?.data.path, join(itemParent.data.path, 'index.ts'))
           } else {
-            barrelFile.exports.push({
-              name: [source.name],
-              path: `./${item.data.file.baseName}`,
-              isTypeOnly: source.isTypeOnly,
-            })
+            // Export directly from the file
+            exportPath = getRelativePath(treeNode.parent?.data.path, item.data.path)
           }
+
+          barrelFile.exports.push({
+            name: [source.name],
+            path: exportPath,
+            isTypeOnly: source.isTypeOnly,
+          })
 
           barrelFile.sources.push({
             name: source.name,
