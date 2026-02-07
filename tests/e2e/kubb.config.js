@@ -42,24 +42,13 @@ const baseConfig = {
     path: './gen',
     clean: true,
     lint: 'auto',
-    format: 'aut',
+    format: 'auto',
   },
   plugins: [
-    pluginTs({
-      output: {
-        path: './types.ts',
-      },
-    }),
     pluginOas({
       generators: [],
       validate: false,
       docs: false,
-    }),
-    pluginOas({
-      output: {
-        path: 'schemas2',
-      },
-      validate: false,
     }),
     pluginTs({
       output: {
@@ -76,9 +65,6 @@ const baseConfig = {
         path: './clients/hooks',
       },
       group: { type: 'tag' },
-      mutation: {
-        methods: ['post', 'put', 'delete'],
-      },
     }),
     pluginSwr({
       output: {
