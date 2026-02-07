@@ -212,7 +212,7 @@ export function StaticClassClient({
     }),
   )
 
-  const classCode = `export class ${name} {\n  static #client: typeof fetch = fetch\n\n${methods.join('\n\n')}\n}`
+  const classCode = `export class ${name} {\n  static #client: Client = fetch\n\n${methods.join('\n\n')}\n}`
 
   return (
     <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
