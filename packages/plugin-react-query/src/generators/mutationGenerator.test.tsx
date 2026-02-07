@@ -134,7 +134,7 @@ describe('mutationGenerator operation', async () => {
     }
     const plugin = { options } as Plugin<PluginReactQuery>
     const fabric = createReactFabric()
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -157,7 +157,7 @@ describe('mutationGenerator operation', async () => {
       plugin,
     })
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 
   test('mutation disabled with mutation: false', async () => {
@@ -190,7 +190,7 @@ describe('mutationGenerator operation', async () => {
     }
     const plugin = { options } as Plugin<PluginReactQuery>
     const fabric = createReactFabric()
-    const mockedPluginManager = createMockedPluginManager('mutationDisabled')
+    const mockedPluginManager = createMockedPluginManager({ name: 'mutationDisabled' })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,

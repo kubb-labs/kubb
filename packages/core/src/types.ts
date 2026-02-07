@@ -170,6 +170,11 @@ export type PluginFactoryOptions<
    * When calling `resolvePath` you can specify better types.
    */
   TResolvePathOptions extends object = object,
+  /**
+   * Output keys for resolver system
+   * Must be an object with 'operation' and 'schema' keys for different output keys per context
+   */
+  TOutputKeys extends { operation: string; schema: string } = { operation: string; schema: string },
 > = {
   name: TName
   /**
@@ -180,6 +185,7 @@ export type PluginFactoryOptions<
   resolvedOptions: TResolvedOptions
   context: TContext
   resolvePathOptions: TResolvePathOptions
+  outputKeys: TOutputKeys
 }
 
 export type PluginKey<TName> = [name: TName, identifier?: string | number]
@@ -237,6 +243,12 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    * Options set for a specific plugin(see kubb.config.js), passthrough of options.
    */
   options: TOptions['resolvedOptions']
+  /**
+   * Custom resolvers for name/path resolution.
+   * Resolvers are executed in order; first matching resolver wins.
+   * @see `@kubb/plugin-oas` for resolver types and utilities.
+   */
+  resolvers?: Array<unknown>
 
   install: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**

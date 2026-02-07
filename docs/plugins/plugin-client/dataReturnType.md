@@ -14,7 +14,7 @@ Return type used when calling the client.
 ```typescript ['data']
 export async function getPetById<TData>(
   petId: GetPetByIdPathParams,
-): Promise<ResponseConfig<TData>["data"]> {
+): Promise<ResponseConfig<TData>['data']> {
   ...
 }
 ```

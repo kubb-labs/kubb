@@ -1,7 +1,8 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { contentType, Oas } from '@kubb/oas'
+import type { contentType, HttpStatus, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
+import type { Resolver } from '@kubb/plugin-oas/resolvers'
 import type ts from 'typescript'
 
 export type Options = {
@@ -135,6 +136,12 @@ export type Options = {
    * Unstable naming for v5
    */
   UNSTABLE_NAMING?: true
+  /**
+   * Custom resolvers for name/path resolution.
+   * Resolvers are executed in order; first matching resolver wins.
+   * Custom resolvers have higher priority than the default resolver.
+   */
+  resolvers?: Array<Resolver<PluginTs>>
 }
 
 type ResolvedOptions = {
@@ -155,4 +162,13 @@ type ResolvedOptions = {
   paramsCasing: Options['paramsCasing']
 }
 
-export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions>
+/**
+ * Complete output keys configuration for the TypeScript plugin
+ * Defines separate output keys for operations and schemas
+ */
+export type PluginTsOutputKeys = {
+  operation: 'query' | 'mutation' | 'pathParams' | 'queryParams' | 'headerParams' | 'request' | 'response' | 'responses' | 'responseData' | HttpStatus
+  schema: 'type' | 'enum'
+}
+
+export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, PluginTsOutputKeys>

@@ -32,7 +32,7 @@ export type UpdatePetMutationRequestType = PetType
 
 export type UpdatePetMutationResponseType = UpdatePet200Type
 
-export type UpdatePetTypeMutation = {
+export type UpdatePetMutationType = {
   Response: UpdatePet200Type
   Request: UpdatePetMutationRequestType
   Errors: UpdatePet400Type | UpdatePet404Type | UpdatePet405Type

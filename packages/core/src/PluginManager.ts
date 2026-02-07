@@ -126,7 +126,9 @@ export class PluginManager {
   get plugins(): Array<Plugin> {
     return this.#getSortedPlugins()
   }
-
+  /**
+   * @deprecated
+   */
   getFile<TOptions = object>({ name, mode, extname, pluginKey, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {
     const baseName = `${name}${extname}` as const
     const path = this.resolvePath({ baseName, mode, pluginKey, options })
@@ -146,7 +148,9 @@ export class PluginManager {
       exports: [],
     }
   }
-
+  /**
+   * @deprecated
+   */
   resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): KubbFile.Path => {
     const root = path.resolve(this.config.root, this.config.output.path)
     const defaultPath = path.resolve(root, params.baseName)
@@ -168,7 +172,10 @@ export class PluginManager {
 
     return firstResult?.result || defaultPath
   }
-  //TODO refactor by using the order of plugins and the cache of the fileManager instead of guessing and recreating the name/path
+
+  /**
+   * @deprecated
+   */
   resolveName = (params: ResolveNameParams): string => {
     if (params.pluginKey) {
       const names = this.hookForPluginSync({
@@ -185,7 +192,7 @@ export class PluginManager {
     const name = this.hookFirstSync({
       hookName: 'resolveName',
       parameters: [trim(params.name), params.type],
-    }).result
+    })?.result
 
     return transformReservedWord(name)
   }
@@ -440,6 +447,9 @@ export class PluginManager {
       })
   }
 
+  /**
+   * @deprecated use getPlugin
+   */
   getPluginByKey(pluginKey: Plugin['key']): Plugin | undefined {
     const plugins = [...this.#plugins]
     const [searchPluginName] = pluginKey
@@ -448,6 +458,14 @@ export class PluginManager {
       const [name] = item.key
 
       return name === searchPluginName
+    })
+  }
+
+  getPlugin(pluginName: Plugin['name']): Plugin | undefined {
+    const plugins = [...this.#plugins]
+
+    return plugins.find((item) => {
+      return item.name === pluginName
     })
   }
 

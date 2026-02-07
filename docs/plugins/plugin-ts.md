@@ -11,7 +11,6 @@ outline: deep
 Generate TypeScript types from your OpenAPI schema.
 
 ## Installation
-
 ::: code-group
 
 ```shell [bun]
@@ -46,7 +45,7 @@ Path to the output folder or file that contains the generated code.
 > if `output.path` is a file, `group` cannot be used.
 
 |           |           |
-| --------: | :-------- |
+|----------:|:----------|
 |     Type: | `string`  |
 | Required: | `true`    |
 |  Default: | `'types'` |
@@ -58,11 +57,11 @@ Specify what to export and optionally disable barrel file generation.
 > [!TIP]
 > Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
 
-|           |                                            |
-| --------: | :----------------------------------------- |
+|           |                                 |
+|----------:|:--------------------------------|
 |     Type: | `'all' \| 'named' \| 'propagate' \| false` |
-| Required: | `false`                                    |
-|  Default: | `'named'`                                  |
+| Required: | `false`                         |
+|  Default: | `'named'`                       |
 
 <!--@include: ./core/barrelTypes.md-->
 
@@ -143,40 +142,40 @@ Choose to use `enum` or `as const` for enums.
 
 ```typescript ['enum']
 enum PetType {
-  Dog = "dog",
-  Cat = "cat",
+  Dog = 'dog',
+  Cat = 'cat',
 }
 ```
 
 ```typescript ['asConst']
 const petType = {
-  Dog: "dog",
-  Cat: "cat",
-} as const;
+  Dog: 'dog',
+  Cat: 'cat',
+} as const
 ```
 
 ```typescript ['asPascalConst']
 const PetType = {
-  Dog: "dog",
-  Cat: "cat",
-} as const;
+  Dog: 'dog',
+  Cat: 'cat',
+} as const
 ```
 
 ```typescript ['constEnum']
 const enum PetType {
-  Dog = "dog",
-  Cat = "cat",
+  Dog = 'dog',
+  Cat = 'cat',
 }
 ```
 
 ```typescript ['literal']
-type PetType = "dog" | "cat";
+type PetType = 'dog' | 'cat';
 ```
 
 ```typescript ['inlineLiteral']
 // Enum values are inlined directly into the type
 export interface Pet {
-  status?: "available" | "pending" | "sold";
+  status?: 'available' | 'pending' | 'sold';
 }
 ```
 
@@ -413,7 +412,7 @@ type FindPetsByStatusQueryParams = {
 };
 
 type FindPetsByStatusHeaderParams = {
-  "X-Custom-Header"?: string;
+  'X-Custom-Header'?: string;
 };
 ```
 
@@ -436,85 +435,184 @@ type FindPetsByStatusHeaderParams = {
 :::
 
 ### include
-
 <!--@include: ./core/include.md-->
 
 ### exclude
-
 <!--@include: ./core/exclude.md-->
 
-### override
 
+### override
 <!--@include: ./core/override.md-->
 
-### generators <img src="../public/icons/experimental.svg"/>
 
+### generators <img src="../public/icons/experimental.svg"/>
 <!--@include: ./core/generators.md-->
 
 |           |                              |
-| --------: | :--------------------------- |
+|----------:|:-----------------------------|
 |     Type: | `Array<Generator<PluginTs>>` |
 | Required: | `false`                      |
 
-### transformers
 
+### transformers
 <!--@include: ./core/transformers.md-->
 
 #### transformers.name
-
 Customize the names based on the type that is provided by the plugin.
 
-|           |                                                |
-| --------: | :--------------------------------------------- |
+> [!NOTE]
+> For more advanced customization, consider using [resolvers](#resolvers) instead.
+
+|           |                                                                               |
+|----------:|:------------------------------------------------------------------------------|
 |     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                        |
+| Required: | `false`                                                                       |
+
 
 ```typescript
-type ResolveType = "file" | "function" | "type" | "const";
+type ResolveType = 'file' | 'function' | 'type' | 'const'
+```
+
+### resolvers <Badge type="tip" text="New in v4.16+" />
+
+Custom resolvers for name and path resolution. Resolvers provide full control over how names and file paths are generated.
+
+|           |                                 |
+|----------:|:--------------------------------|
+|     Type: | `Array<Resolver<PluginTs>>`     |
+| Required: | `false`                         |
+
+::: tip
+See the [Resolvers Guide](/guide/resolvers) for detailed documentation and examples.
+:::
+
+#### Basic Example
+
+```typescript
+import { defineConfig } from '@kubb/core'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pascalCase } from '@kubb/core/transformers'
+
+export default defineConfig({
+  plugins: [
+    pluginTs({
+      resolvers: [
+        {
+          name: 'custom-naming',
+          operation: ({ operation, config }) => {
+            const operationId = operation.getOperationId()
+            const name = pascalCase(operationId)
+
+            const file = {
+              baseName: `${name}.ts`,
+              path: `${config.root}/${config.output.path}/types/${name}.ts`,
+              imports: [],
+              exports: [],
+              sources: [],
+              meta: {},
+            }
+
+            return {
+              file,
+              outputs: {
+                default: { name, file },
+                type: { name, file },
+                pathParams: { name: `${name}PathParams`, file },
+                queryParams: { name: `${name}QueryParams`, file },
+                request: { name: `${name}Request`, file },
+                response: { name: `${name}Response`, file },
+                // ... other outputs
+              }
+            }
+          },
+          schema: () => null // Use default for schemas
+        }
+      ]
+    })
+  ]
+})
+```
+
+#### Using the Default Resolver
+
+```typescript
+import { pluginTs, createTsResolver } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  plugins: [
+    pluginTs({
+      resolvers: [
+        {
+          name: 'custom-suffix',
+          operation: ({ operation, config }) => {
+            // Get default resolution
+            const defaultResolver = createTsResolver({ outputPath: 'types' })
+            const defaults = defaultResolver.operation({ operation, config })
+
+            if (!defaults) return null
+
+            // Modify only specific outputs
+            return {
+              ...defaults,
+              outputs: {
+                ...defaults.outputs,
+                response: {
+                  ...defaults.outputs.response,
+                  name: `${defaults.outputs.response.name}DTO`
+                }
+              }
+            }
+          },
+          schema: () => null
+        }
+      ]
+    })
+  ]
+})
 ```
 
 ## Example
 
 ```typescript twoslash
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   plugins: [
     pluginOas(),
     pluginTs({
       output: {
-        path: "./types",
+        path: './types',
       },
       exclude: [
         {
-          type: "tag",
-          pattern: "store",
+          type: 'tag',
+          pattern: 'store',
         },
       ],
       group: {
-        type: "tag",
-        name: ({ group }) => `${group}Controller`,
+        type: 'tag',
+        name: ({ group }) => `${group}Controller`
       },
-      enumType: "asConst",
-      enumSuffix: "Enum",
-      dateType: "date",
-      unknownType: "unknown",
-      optionalType: "questionTokenAndUndefined",
-      paramsCasing: "camelcase", // Transform param names to camelCase
+      enumType: 'asConst',
+      enumSuffix: 'Enum',
+      dateType: 'date',
+      unknownType: 'unknown',
+      optionalType: 'questionTokenAndUndefined',
     }),
   ],
-});
+})
 ```
 
 ## See Also
 
+- [Resolvers Guide](/guide/resolvers) - Learn how to customize naming and file organization
 - [TypeScript](https://www.typescriptlang.org/)
 - [TypeScript Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API)

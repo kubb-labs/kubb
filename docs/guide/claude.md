@@ -145,7 +145,7 @@ This example focuses on the `src/mcp` folder, which contains files for creating 
 The `addPetHandler` function sends a POST request to the Swagger PetStore API to add a new pet. It takes pet data as input, handles the response, and returns it as a JSON-formatted message for [MCP](https://modelcontextprotocol.io) to use in conversations.
 
 ```typescript [src/mcp/addPet.ts]
-import client from "@kubb/plugin-clients/client/axios"
+import client from '@kubb/plugin-clients/client/axios'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 

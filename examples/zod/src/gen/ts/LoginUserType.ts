@@ -28,7 +28,7 @@ export type LoginUser400Type = any
 
 export type LoginUserQueryResponseType = LoginUser200Type
 
-export type LoginUserTypeQuery = {
+export type LoginUserQueryType = {
   Response: LoginUser200Type
   QueryParams: LoginUserQueryParamsType
   Errors: LoginUser400Type

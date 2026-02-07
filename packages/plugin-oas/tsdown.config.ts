@@ -7,6 +7,7 @@ export default defineConfig({
     utils: 'src/utils/index.ts',
     generators: 'src/generators/index.ts',
     hooks: 'src/hooks/index.ts',
+    resolvers: 'src/resolvers/index.ts',
   },
   dts: true,
   format: ['esm', 'cjs'],

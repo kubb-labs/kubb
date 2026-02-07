@@ -92,7 +92,7 @@ Display name for this configuration in CLI output. Useful when running multiple 
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
-  name: 'petStore', // Shows "Generating petStore..." in CLI
+  name: 'petStore', // Shows 'Generating petStore...' in CLI
   input: { path: './petStore.yaml' },
   output: { path: './src/gen' },
 })

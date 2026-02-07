@@ -2,7 +2,9 @@ import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
+import { mergeResolvers } from '@kubb/plugin-oas/resolvers'
 import { typeGenerator } from './generators'
+import { createTsResolver } from './resolver.ts'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
@@ -29,10 +31,18 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     generators = [typeGenerator].filter(Boolean),
     contentType,
     UNSTABLE_NAMING,
+    resolvers,
   } = options
 
   // @deprecated Will be removed in v5 when collisionDetection defaults to true
   const usedEnumNames = {}
+
+  // Create default resolver with plugin options
+  const defaultResolver = createTsResolver({
+    outputPath: output.path,
+    group,
+    transformName: transformers?.name,
+  })
 
   return {
     name: pluginTsName,
@@ -54,6 +64,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       paramsCasing,
       usedEnumNames,
     },
+    resolvers: mergeResolvers(resolvers, [defaultResolver]),
     pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)

@@ -2,6 +2,8 @@ import type { PluginFactoryOptions } from '@kubb/core'
 import { createGenerator as _createGenerator } from './generators/createGenerator.ts'
 import { createReactGenerator as _createReactGenerator } from './generators/createReactGenerator.ts'
 import type { Generator as _Generator } from './generators/types.ts'
+import { createResolver as _createResolver, mergeResolvers as _mergeResolvers } from './resolvers/createResolver.ts'
+import type { Resolver as _Resolver } from './resolvers/types.ts'
 
 export type { CreateParserConfig, KeywordHandler } from './createParser.ts'
 export { createParser, findSchemaKeyword } from './createParser.ts'
@@ -41,3 +43,18 @@ export const createReactGenerator = _createReactGenerator
  * @deprecated use `import { Generator } from '@kubb/plugin-oas/generators'`
  */
 export type Generator<TOptions extends PluginFactoryOptions> = _Generator<TOptions>
+
+/**
+ * @deprecated use `import { createResolver } from '@kubb/plugin-oas/resolvers'`
+ */
+export const createResolver = _createResolver
+
+/**
+ * @deprecated use `import { mergeResolvers } from '@kubb/plugin-oas/resolvers'`
+ */
+export const mergeResolvers = _mergeResolvers
+
+/**
+ * @deprecated use `import { Resolver } from '@kubb/plugin-oas/resolvers'`
+ */
+export type Resolver<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = _Resolver<TOptions>

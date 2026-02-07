@@ -25,7 +25,7 @@ export type DeletePet400Type = any
 
 export type DeletePetMutationResponseType = any
 
-export type DeletePetTypeMutation = {
+export type DeletePetMutationType = {
   Response: any
   PathParams: DeletePetPathParamsType
   HeaderParams: DeletePetHeaderParamsType

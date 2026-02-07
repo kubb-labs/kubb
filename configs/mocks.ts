@@ -29,11 +29,11 @@ export async function format(source?: string): Promise<string> {
   }
 }
 
-export const createMockedPluginManager = (name?: string) =>
+export const createMockedPluginManager = (options: { name?: string; plugin?: Plugin<any>; config?: PluginManager['config'] } = {}) =>
   ({
     resolveName: (result) => {
       if (result.type === 'file') {
-        return camelCase(name || result.name)
+        return camelCase(options?.name || result.name)
       }
 
       if (result.type === 'type') {
@@ -46,7 +46,7 @@ export const createMockedPluginManager = (name?: string) =>
 
       return camelCase(result.name)
     },
-    config: {
+    config: options?.config ?? {
       root: '.',
       output: {
         path: './path',
@@ -54,7 +54,7 @@ export const createMockedPluginManager = (name?: string) =>
     },
     resolvePath: ({ baseName }) => baseName,
     getPluginByKey: (_pluginKey: Plugin['key']) => {
-      return undefined
+      return options?.plugin
     },
     getFile: ({ name, extname, pluginKey }) => {
       const baseName = `${name}${extname}`
@@ -65,9 +65,21 @@ export const createMockedPluginManager = (name?: string) =>
         meta: { pluginKey },
       }
     },
+    getPlugin(pluginName: Plugin['name']): Plugin | undefined {
+      if (options?.plugin && options.plugin.name === pluginName) {
+        return options.plugin
+      }
+      return (
+        options.plugin ||
+        ({
+          name: pluginName,
+          resolvers: [],
+        } as unknown as Plugin)
+      )
+    },
   }) as PluginManager
 
-export const mockedPluginManager = createMockedPluginManager('')
+export const mockedPluginManager = createMockedPluginManager()
 
 export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.File> | undefined, pre?: string) {
   if (!files?.length) return
@@ -92,7 +104,7 @@ export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.F
 
     processed.set(file.path, code)
 
-    const snapshotPath = path.join('__snapshots__', ...(pre ? [pre] : []), file.path)
+    const snapshotPath = path.join('__snapshots__', ...(pre ? [camelCase(pre)] : []), file.baseName)
     await expect(code).toMatchFileSnapshot(snapshotPath)
   }
 

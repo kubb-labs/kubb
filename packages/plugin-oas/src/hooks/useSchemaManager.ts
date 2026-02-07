@@ -12,12 +12,21 @@ type FileMeta = FileMetaBase & {
 }
 
 type UseSchemaManagerResult = {
+  /**
+   * @deprecated
+   */
   getName: (name: string, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
+  /**
+   * @deprecated
+   */
   getFile: (
     name: string,
     params?: {
       pluginKey?: Plugin['key']
       mode?: KubbFile.Mode
+      /**
+       * @deprecated
+       */
       extname?: KubbFile.Extname
       group?: {
         tag?: string

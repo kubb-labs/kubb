@@ -60,7 +60,7 @@ export type CreatePetsMutationRequestType = {
 
 export type CreatePetsMutationResponseType = CreatePets201Type
 
-export type CreatePetsTypeMutation = {
+export type CreatePetsMutationType = {
   Response: CreatePets201Type
   Request: CreatePetsMutationRequestType
   PathParams: CreatePetsPathParamsType
