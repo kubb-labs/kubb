@@ -1,5 +1,135 @@
 # @kubb/plugin-faker
 
+## 4.21.2
+
+### Patch Changes
+
+- Updated dependencies [[`99097c8`](https://github.com/kubb-labs/kubb/commit/99097c8d8401d2135dece43877223029137cf6a6)]:
+  - @kubb/plugin-ts@4.21.2
+  - @kubb/core@4.21.2
+  - @kubb/oas@4.21.2
+  - @kubb/plugin-oas@4.21.2
+
+## 4.21.1
+
+### Patch Changes
+
+- Updated dependencies [[`9592063`](https://github.com/kubb-labs/kubb/commit/9592063f91bf9d3604b508774fb7d8f7a09e47f8)]:
+  - @kubb/plugin-ts@4.21.1
+  - @kubb/core@4.21.1
+  - @kubb/oas@4.21.1
+  - @kubb/plugin-oas@4.21.1
+
+## 4.21.0
+
+### Minor Changes
+
+- [#2323](https://github.com/kubb-labs/kubb/pull/2323) [`f1dd5bf`](https://github.com/kubb-labs/kubb/commit/f1dd5bf3aebb73ba4c13ee48aea24284a62b2bd3) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Add `paramsCasing` support to transform parameter names to camelCase across all generated code.
+
+  **New Feature: Parameter Casing**
+
+  You can now transform API parameter names (path, query, and header parameters) to developer-friendly camelCase while maintaining full compatibility with your OpenAPI specification.
+
+  **What's Changed:**
+  - Added `paramsCasing: 'camelcase'` option to transform parameter names
+  - Supported in: `@kubb/plugin-ts`, `@kubb/plugin-client`, all query plugins (`react-query`, `swr`, `solid-query`, `svelte-query`, `vue-query`), `@kubb/plugin-faker`, and `@kubb/plugin-mcp`
+  - Client plugins automatically map camelCase names back to original API parameter names in HTTP requests
+  - Only affects pathParams, queryParams, and headerParams (request/response bodies remain unchanged)
+
+  **Usage:**
+
+  ```typescript
+  import { defineConfig } from "@kubb/core";
+  import { pluginTs } from "@kubb/plugin-ts";
+  import { pluginClient } from "@kubb/plugin-client";
+
+  export default defineConfig({
+    plugins: [
+      pluginTs({
+        paramsCasing: "camelcase", // Transform types
+      }),
+      pluginClient({
+        paramsCasing: "camelcase", // Transform client code
+      }),
+    ],
+  });
+  ```
+
+  **Example:**
+
+  ```typescript
+  // Before (original API naming)
+  export async function findPet(pet_id: string) { ... }
+
+  // After (with paramsCasing: 'camelcase')
+  export async function findPet(petId: string) {
+    const pet_id = petId // Automatically mapped
+    ...
+  }
+  ```
+
+  See the [Parameter Casing guide](/guide/parameter-casing) for detailed documentation.
+
+### Patch Changes
+
+- Updated dependencies [[`f1dd5bf`](https://github.com/kubb-labs/kubb/commit/f1dd5bf3aebb73ba4c13ee48aea24284a62b2bd3)]:
+  - @kubb/plugin-ts@4.21.0
+  - @kubb/plugin-oas@4.21.0
+  - @kubb/core@4.21.0
+  - @kubb/oas@4.21.0
+
+## 4.20.5
+
+### Patch Changes
+
+- [#2427](https://github.com/kubb-labs/kubb/pull/2427) [`f2bab83`](https://github.com/kubb-labs/kubb/commit/f2bab8381871b7c73e3b1bcdd29ddc5fd24fe2e6) Thanks [@icholy](https://github.com/icholy)! - Externalize @kubb/core in tsdown configs to prevent duplicate type declarations across packages, fixing TypeScript type incompatibility errors when using custom generators with pluginClient.
+
+- Updated dependencies [[`f2bab83`](https://github.com/kubb-labs/kubb/commit/f2bab8381871b7c73e3b1bcdd29ddc5fd24fe2e6)]:
+  - @kubb/oas@4.20.5
+  - @kubb/plugin-oas@4.20.5
+  - @kubb/plugin-ts@4.20.5
+  - @kubb/core@4.20.5
+
+## 4.20.4
+
+### Patch Changes
+
+- Updated dependencies [[`fb12978`](https://github.com/kubb-labs/kubb/commit/fb12978c20634f3f849e62fbcae409000a6f90de)]:
+  - @kubb/plugin-ts@4.20.4
+  - @kubb/core@4.20.4
+  - @kubb/oas@4.20.4
+  - @kubb/plugin-oas@4.20.4
+
+## 4.20.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.20.3
+  - @kubb/oas@4.20.3
+  - @kubb/plugin-oas@4.20.3
+  - @kubb/plugin-ts@4.20.3
+
+## 4.20.2
+
+### Patch Changes
+
+- Updated dependencies [[`6006dc3`](https://github.com/kubb-labs/kubb/commit/6006dc335d62dd9c1254bd31ecc90a5ccb70a116)]:
+  - @kubb/core@4.20.2
+  - @kubb/oas@4.20.2
+  - @kubb/plugin-oas@4.20.2
+  - @kubb/plugin-ts@4.20.2
+
+## 4.20.1
+
+### Patch Changes
+
+- Updated dependencies [[`5c50613`](https://github.com/kubb-labs/kubb/commit/5c50613504f05d1f5484dea4969182ecc7961cfb)]:
+  - @kubb/core@4.20.1
+  - @kubb/plugin-oas@4.20.1
+  - @kubb/oas@4.20.1
+  - @kubb/plugin-ts@4.20.1
+
 ## 4.20.0
 
 ### Patch Changes

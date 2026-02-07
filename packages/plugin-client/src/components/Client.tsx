@@ -2,7 +2,7 @@ import { URLPath } from '@kubb/core/utils'
 
 import { getDefaultValue, isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getComments, getPathParams } from '@kubb/plugin-oas/utils'
+import { getComments, getParamsMapping, getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
@@ -41,7 +41,10 @@ type GetParamsProps = {
 
 function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable }: GetParamsProps) {
   if (paramsType === 'object') {
-    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
+    const pathParams = getPathParams(typeSchemas.pathParams, {
+      typed: true,
+      casing: paramsCasing,
+    })
 
     const children = {
       ...pathParams,
@@ -89,7 +92,10 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+          children: getPathParams(typeSchemas.pathParams, {
+            typed: true,
+            casing: paramsCasing,
+          }),
           default: getDefaultValue(typeSchemas.pathParams?.schema),
         }
       : undefined,
@@ -140,24 +146,38 @@ export function Client({
   children,
   isConfigurable = true,
 }: Props): FabricReactNode {
-  const path = new URLPath(operation.path, { casing: paramsCasing })
+  const path = new URLPath(operation.path)
   const contentType = operation.getContentType()
   const isFormData = contentType === 'multipart/form-data'
+
+  // Generate parameter mappings when paramsCasing is used
+  // Apply to pathParams, queryParams and headerParams
+  const pathParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
+  const queryParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.queryParams, { casing: paramsCasing }) : undefined
+  const headerParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.headerParams, { casing: paramsCasing }) : undefined
+
   const headers = [
     contentType !== 'application/json' && contentType !== 'multipart/form-data' ? `'Content-Type': '${contentType}'` : undefined,
-    typeSchemas.headerParams?.name ? '...headers' : undefined,
+    typeSchemas.headerParams?.name ? (headerParamsMapping ? '...mappedHeaders' : '...headers') : undefined,
   ].filter(Boolean)
 
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   const generics = [typeSchemas.response.name, TError, typeSchemas.request?.name || 'unknown'].filter(Boolean)
-  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable })
+  const params = getParams({
+    paramsType,
+    paramsCasing,
+    pathParamsType,
+    typeSchemas,
+    isConfigurable,
+  })
   const urlParams = Url.getParams({
     paramsType,
     paramsCasing,
     pathParamsType,
     typeSchemas,
   })
+
   const clientParams = FunctionParams.factory({
     config: {
       mode: 'object',
@@ -174,7 +194,7 @@ export function Client({
                 value: `\`${baseURL}\``,
               }
             : undefined,
-        params: typeSchemas.queryParams?.name ? {} : undefined,
+        params: typeSchemas.queryParams?.name ? (queryParamsMapping ? { value: 'mappedParams' } : {}) : undefined,
         data: typeSchemas.request?.name
           ? {
               value: isFormData ? 'formData as FormData' : 'requestData',
@@ -223,6 +243,34 @@ export function Client({
           {isConfigurable ? 'const { client: request = fetch, ...requestConfig } = config' : ''}
           <br />
           <br />
+          {pathParamsMapping &&
+            Object.entries(pathParamsMapping)
+              .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
+              .join('\n')}
+          {pathParamsMapping && (
+            <>
+              <br />
+              <br />
+            </>
+          )}
+          {queryParamsMapping && typeSchemas.queryParams?.name && (
+            <>
+              {`const mappedParams = params ? { ${Object.entries(queryParamsMapping)
+                .map(([originalName, camelCaseName]) => `"${originalName}": params.${camelCaseName}`)
+                .join(', ')} } : undefined`}
+              <br />
+              <br />
+            </>
+          )}
+          {headerParamsMapping && typeSchemas.headerParams?.name && (
+            <>
+              {`const mappedHeaders = headers ? { ${Object.entries(headerParamsMapping)
+                .map(([originalName, camelCaseName]) => `"${originalName}": headers.${camelCaseName}`)
+                .join(', ')} } : undefined`}
+              <br />
+              <br />
+            </>
+          )}
           {parser === 'zod' && zodSchemas?.request?.name
             ? `const requestData = ${zodSchemas.request.name}.parse(data)`
             : typeSchemas?.request?.name && 'const requestData = data'}

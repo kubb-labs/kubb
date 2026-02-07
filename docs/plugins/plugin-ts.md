@@ -11,6 +11,7 @@ outline: deep
 Generate TypeScript types from your OpenAPI schema.
 
 ## Installation
+
 ::: code-group
 
 ```shell [bun]
@@ -28,11 +29,13 @@ npm install --save-dev @kubb/plugin-ts
 ```shell [yarn]
 yarn add -D @kubb/plugin-ts
 ```
+
 :::
 
 ## Options
 
 ### output
+
 Specify the export location for the files and define the behavior of the output.
 
 #### output.path
@@ -43,7 +46,7 @@ Path to the output folder or file that contains the generated code.
 > if `output.path` is a file, `group` cannot be used.
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `string`  |
 | Required: | `true`    |
 |  Default: | `'types'` |
@@ -55,44 +58,50 @@ Specify what to export and optionally disable barrel file generation.
 > [!TIP]
 > Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
 
-|           |                                 |
-|----------:|:--------------------------------|
+|           |                                            |
+| --------: | :----------------------------------------- |
 |     Type: | `'all' \| 'named' \| 'propagate' \| false` |
-| Required: | `false`                         |
-|  Default: | `'named'`                       |
+| Required: | `false`                                    |
+|  Default: | `'named'`                                  |
 
 <!--@include: ./core/barrelTypes.md-->
 
 #### output.banner
+
 Add a banner comment at the top of every generated file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
+|           |                                  |
+| --------: | :------------------------------- |
 |     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                               |
+| Required: | `false`                          |
 
 #### output.footer
+
 Add a footer text at the end of every file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
+|           |                                  |
+| --------: | :------------------------------- |
 |     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                               |
+| Required: | `false`                          |
 
 #### output.override
+
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
+
 <!--@include: ./core/contentType.md-->
 
 ### group
+
 <!--@include: ./core/group.md-->
 
 #### group.type
+
 Specify the property to group files by. Required when `group` is defined.
 
 |           |         |
-|----------:|:--------|
+| --------: | :------ |
 |     Type: | `'tag'` |
 | Required: | `true*` |
 
@@ -106,23 +115,24 @@ Specify the property to group files by. Required when `group` is defined.
 Return the name of a group based on the group name, this will be used for the file and name generation.
 
 |           |                                     |
-|----------:|:------------------------------------|
+| --------: | :---------------------------------- |
 |     Type: | `(context: GroupContext) => string` |
 | Required: | `false`                             |
-|  Default: | `(ctx) => '${ctx.group}Controller'`  |
+|  Default: | `(ctx) => '${ctx.group}Controller'` |
 
 ### enumType
 
 Choose to use `enum` or `as const` for enums.
 
 |           |                                                                                         |
-|----------:|:----------------------------------------------------------------------------------------|
+| --------: | :-------------------------------------------------------------------------------------- |
 |     Type: | `'enum' \| 'asConst' \| 'asPascalConst' \| 'constEnum' \| 'literal' \| 'inlineLiteral'` |
 | Required: | `false`                                                                                 |
-|  Default: | `'asConst'`                                                                                  |
+|  Default: | `'asConst'`                                                                             |
 
 > [!TIP]
 > The difference between `asConst` and `asPascalConst` is the casing of the constant variable name:
+>
 > - `asConst`: generates a camelCase constant name (e.g., `petType`)
 > - `asPascalConst`: generates a PascalCase constant name (e.g., `PetType`)
 
@@ -133,49 +143,51 @@ Choose to use `enum` or `as const` for enums.
 
 ```typescript ['enum']
 enum PetType {
-  Dog = 'dog',
-  Cat = 'cat',
+  Dog = "dog",
+  Cat = "cat",
 }
 ```
 
 ```typescript ['asConst']
 const petType = {
-  Dog: 'dog',
-  Cat: 'cat',
-} as const
+  Dog: "dog",
+  Cat: "cat",
+} as const;
 ```
 
 ```typescript ['asPascalConst']
 const PetType = {
-  Dog: 'dog',
-  Cat: 'cat',
-} as const
+  Dog: "dog",
+  Cat: "cat",
+} as const;
 ```
 
 ```typescript ['constEnum']
 const enum PetType {
-  Dog = 'dog',
-  Cat = 'cat',
+  Dog = "dog",
+  Cat = "cat",
 }
 ```
 
 ```typescript ['literal']
-type PetType = 'dog' | 'cat'
+type PetType = "dog" | "cat";
 ```
 
 ```typescript ['inlineLiteral']
 // Enum values are inlined directly into the type
 export interface Pet {
-  status?: "available" | "pending" | "sold"
+  status?: "available" | "pending" | "sold";
 }
 ```
+
 :::
 
 ### enumSuffix
+
 Set a suffix for the generated enums.
 
 |           |          |
-|----------:|:---------|
+| --------: | :------- |
 |     Type: | `string` |
 | Required: | `false`  |
 |  Default: | `'enum'` |
@@ -184,11 +196,11 @@ Set a suffix for the generated enums.
 
 Choose the casing for enum key names.
 
-|           |                                                      |
-|----------:|:-----------------------------------------------------|
+|           |                                                                                |
+| --------: | :----------------------------------------------------------------------------- |
 |     Type: | `'screamingSnakeCase' \| 'snakeCase' \| 'pascalCase' \| 'camelCase' \| 'none'` |
-| Required: | `false`                                              |
-|  Default: | `'none'`                                             |
+| Required: | `false`                                                                        |
+|  Default: | `'none'`                                                                       |
 
 - `'screamingSnakeCase'`: `ENUM_VALUE`
 - `'snakeCase'`: `enum_value`
@@ -197,10 +209,11 @@ Choose the casing for enum key names.
 - `'none'`: Uses the enum value as-is
 
 ### dateType
+
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
 |           |                      |
-|----------:|:---------------------|
+| --------: | :------------------- |
 |     Type: | `'string' \| 'date'` |
 | Required: | `false`              |
 |  Default: | `'string'`           |
@@ -209,15 +222,16 @@ Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
 ```typescript ['string']
 type Pet = {
-  date: string
-}
+  date: string;
+};
 ```
 
 ```typescript ['date']
 type Pet = {
-  date: Date
-}
+  date: Date;
+};
 ```
+
 :::
 
 ### syntaxType
@@ -226,7 +240,7 @@ Switch between type or interface for creating TypeScript types.
 See [Type vs Interface: Which Should You Use](https://www.totaltypescript.com/type-vs-interface-which-should-you-use).
 
 |           |                         |
-|----------:|:------------------------|
+| --------: | :---------------------- |
 |     Type: | `'type' \| 'interface'` |
 | Required: | `false`                 |
 |  Default: | `'type'`                |
@@ -235,46 +249,48 @@ See [Type vs Interface: Which Should You Use](https://www.totaltypescript.com/ty
 
 ```typescript ['type']
 type Pet = {
-  name: string
-}
+  name: string;
+};
 ```
 
 ```typescript ['interface']
 interface Pet {
-  name: string
+  name: string;
 }
 ```
+
 :::
 
 ### unknownType
 
 Which type to use when the Swagger/OpenAPI file is not providing more information.
 
-|           |                               |
-|----------:|:------------------------------|
+|           |                                |
+| --------: | :----------------------------- |
 |     Type: | `'any' \| 'unknown' \| 'void'` |
-| Required: | `false`                       |
-|  Default: | `'any'`                       |
+| Required: | `false`                        |
+|  Default: | `'any'`                        |
 
 ::: code-group
 
 ```typescript ['any']
 type Pet = {
-  name: any
-}
+  name: any;
+};
 ```
 
 ```typescript ['unknown']
 type Pet = {
-  name: unknown
-}
+  name: unknown;
+};
 ```
 
 ```typescript ['void']
 type Pet = {
-  name: void
-}
+  name: void;
+};
 ```
+
 :::
 
 ### emptySchemaType
@@ -282,7 +298,7 @@ type Pet = {
 Which type to use for empty schema values.
 
 |           |                                |
-|----------:|:-------------------------------|
+| --------: | :----------------------------- |
 |     Type: | `'any' \| 'unknown' \| 'void'` |
 | Required: | `false`                        |
 |  Default: | `unknownType`                  |
@@ -291,176 +307,211 @@ Which type to use for empty schema values.
 
 ```typescript ['any']
 type Pet = {
-  name: any
-}
+  name: any;
+};
 ```
 
 ```typescript ['unknown']
 type Pet = {
-  name: unknown
-}
+  name: unknown;
+};
 ```
 
 ```typescript ['void']
 type Pet = {
-  name: void
-}
+  name: void;
+};
 ```
+
 :::
 
 ### optionalType
+
 Choose what to use as mode for an optional value.
 
 |           |                                                                 |
-|----------:|:----------------------------------------------------------------|
+| --------: | :-------------------------------------------------------------- |
 |     Type: | `'questionToken' \| 'undefined' \| 'questionTokenAndUndefined'` |
 | Required: | `false`                                                         |
-|  Default: | `'questionToken'`                                                            |
+|  Default: | `'questionToken'`                                               |
 
 ::: code-group
+
 ```typescript ['questionToken']
 type Pet = {
-  type?: string
-}
+  type?: string;
+};
 ```
 
 ```typescript ['undefined']
 type Pet = {
-  type: string | undefined
-}
+  type: string | undefined;
+};
 ```
 
 ```typescript ['questionTokenAndUndefined']
 type Pet = {
-  type?: string | undefined
-}
+  type?: string | undefined;
+};
 ```
+
 :::
 
 ### arrayType
 
 Choose between `Array<Type>` or `Type[]` syntax for array types.
 
-|           |                         |
-|----------:|:------------------------|
-|     Type: | `'array' \| 'generic'`  |
-| Required: | `false`                 |
-|  Default: | `'array'`               |
+|           |                        |
+| --------: | :--------------------- |
+|     Type: | `'array' \| 'generic'` |
+| Required: | `false`                |
+|  Default: | `'array'`              |
 
 ::: code-group
 
 ```typescript ['array']
 type Pet = {
-  tags: string[]
-}
+  tags: string[];
+};
 ```
 
 ```typescript ['generic']
 type Pet = {
-  tags: Array<string>
-}
+  tags: Array<string>;
+};
 ```
+
 :::
 
-### mapper
+### paramsCasing
 
-Map specific schema properties to custom TypeScript property signatures. Use the [TypeScript AST viewer](https://ts-ast-viewer.com) to generate the factory code.
+Transform parameter names to a specific casing format for path, query, and header parameters.
 
-|           |                                        |
-|----------:|:---------------------------------------|
-|     Type: | `Record<string, ts.PropertySignature>` |
-| Required: | `false`                                |
+> [!IMPORTANT]
+> When enabled, this option transforms property names in `PathParams`, `QueryParams`, and `HeaderParams` types to the specified casing. Response and request body types are **not** affected.
+>
+> All plugins that reference parameters (like `@kubb/plugin-client`, `@kubb/plugin-react-query`, `@kubb/plugin-swr`, `@kubb/plugin-faker`, `@kubb/plugin-mcp`) should use the same `paramsCasing` setting to ensure type compatibility.
 
-> [!TIP]
-> Use [ts-ast-viewer.com](https://ts-ast-viewer.com) to generate factory code for custom property signatures.
+|           |              |
+| --------: | :----------- |
+|     Type: | `'camelcase'` |
+| Required: | `false`      |
+|  Default: | `undefined`  |
 
-### UNSTABLE_NAMING
+::: code-group
 
-Enable unstable naming conventions for v5 compatibility (beta feature).
+```typescript [Original API]
+// OpenAPI spec has: step_id, X-Custom-Header, bool_param
 
-|           |          |
-|----------:|:---------|
-|     Type: | `boolean` |
-| Required: | `false`  |
+// Without paramsCasing
+type FindPetsByStatusPathParams = {
+  step_id: string;
+};
 
-::: warning
-This is an unstable/experimental feature that may change in future versions.
+type FindPetsByStatusQueryParams = {
+  bool_param?: boolean;
+};
+
+type FindPetsByStatusHeaderParams = {
+  "X-Custom-Header"?: string;
+};
+```
+
+```typescript [With paramsCasing: 'camelcase']
+// Properties are transformed to camelCase
+
+type FindPetsByStatusPathParams = {
+  stepId: string;  // ✓ camelCase
+};
+
+type FindPetsByStatusQueryParams = {
+  boolParam?: boolean;  // ✓ camelCase
+};
+
+type FindPetsByStatusHeaderParams = {
+  xCustomHeader?: string;  // ✓ camelCase
+};
+```
+
 :::
 
 ### include
+
 <!--@include: ./core/include.md-->
 
 ### exclude
+
 <!--@include: ./core/exclude.md-->
 
-
 ### override
+
 <!--@include: ./core/override.md-->
 
-
 ### generators <img src="../public/icons/experimental.svg"/>
+
 <!--@include: ./core/generators.md-->
 
 |           |                              |
-|----------:|:-----------------------------|
+| --------: | :--------------------------- |
 |     Type: | `Array<Generator<PluginTs>>` |
 | Required: | `false`                      |
 
-
 ### transformers
+
 <!--@include: ./core/transformers.md-->
 
 #### transformers.name
+
 Customize the names based on the type that is provided by the plugin.
 
-|           |                                                                               |
-|----------:|:------------------------------------------------------------------------------|
+|           |                                                |
+| --------: | :--------------------------------------------- |
 |     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                                                       |
-
+| Required: | `false`                                        |
 
 ```typescript
-type ResolveType = 'file' | 'function' | 'type' | 'const'
+type ResolveType = "file" | "function" | "type" | "const";
 ```
 
 ## Example
 
 ```typescript twoslash
-import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
-import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from "@kubb/core";
+import { pluginOas } from "@kubb/plugin-oas";
+import { pluginTs } from "@kubb/plugin-ts";
 
 export default defineConfig({
   input: {
-    path: './petStore.yaml',
+    path: "./petStore.yaml",
   },
   output: {
-    path: './src/gen',
+    path: "./src/gen",
   },
   plugins: [
     pluginOas(),
     pluginTs({
       output: {
-        path: './types',
+        path: "./types",
       },
       exclude: [
         {
-          type: 'tag',
-          pattern: 'store',
+          type: "tag",
+          pattern: "store",
         },
       ],
       group: {
-        type: 'tag',
-        name: ({ group }) => `${group}Controller`
+        type: "tag",
+        name: ({ group }) => `${group}Controller`,
       },
       enumType: "asConst",
-      enumSuffix: 'Enum',
-      dateType: 'date',
-      unknownType: 'unknown',
-      optionalType: 'questionTokenAndUndefined',
+      enumSuffix: "Enum",
+      dateType: "date",
+      unknownType: "unknown",
+      optionalType: "questionTokenAndUndefined",
+      paramsCasing: "camelcase", // Transform param names to camelCase
     }),
   ],
-})
+});
 ```
 
 ## See Also

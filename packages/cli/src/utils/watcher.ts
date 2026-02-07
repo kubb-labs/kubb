@@ -9,11 +9,11 @@ export async function startWatcher(path: string[], cb: (path: string[]) => Promi
     ignorePermissionErrors: true,
     ignored,
   })
-  watcher.on('all', (type, file) => {
+  watcher.on('all', async (type, file) => {
     console.log(pc.yellow(pc.bold(`Change detected: ${type} ${file}`)))
 
     try {
-      cb(path)
+      await cb(path)
     } catch (_e) {
       console.log(pc.red('Watcher failed'))
     }

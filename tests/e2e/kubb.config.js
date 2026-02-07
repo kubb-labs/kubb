@@ -14,7 +14,7 @@ const schemas = [
   // { name: 'test', path: './schemas/test.json' },
   { name: 'train-travel', path: './schemas/train-travel.yaml' },
   { name: 'discriminator', path: './schemas/discriminator.yaml' },
-  { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },
+  //  { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },
   // { name: 'atlassian.com', path: 'https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json', strict: false },
   { name: 'optionalParameters', path: './schemas/optionalParameters.json' },
   { name: 'allOf', path: './schemas/allOf.json' },
@@ -41,23 +41,14 @@ const baseConfig = {
   output: {
     path: './gen',
     clean: true,
+    lint: 'auto',
+    format: 'auto',
   },
   plugins: [
-    pluginTs({
-      output: {
-        path: './types.ts',
-      },
-    }),
     pluginOas({
       generators: [],
       validate: false,
       docs: false,
-    }),
-    pluginOas({
-      output: {
-        path: 'schemas2',
-      },
-      validate: false,
     }),
     pluginTs({
       output: {
@@ -74,9 +65,6 @@ const baseConfig = {
         path: './clients/hooks',
       },
       group: { type: 'tag' },
-      mutation: {
-        methods: ['post', 'put', 'delete'],
-      },
     }),
     pluginSwr({
       output: {
@@ -159,7 +147,7 @@ export default defineConfig(() => {
         path,
       },
       hooks: {
-        done: [strict ? 'npm run typecheck -- --strict' : 'npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
+        done: [strict ? 'npm run typecheck -- --strict' : 'npm run typecheck'],
       },
     }
   })

@@ -118,8 +118,8 @@ export {
   createAddFilesMutationResponseFaker,
 } from './mocks/petController/createAddFilesFaker.ts'
 export {
-  createAddPet200Faker,
   createAddPet405Faker,
+  createAddPetErrorFaker,
   createAddPetMutationRequestFaker,
   createAddPetMutationResponseFaker,
 } from './mocks/petController/createAddPetFaker.ts'
@@ -235,7 +235,7 @@ export type { Pet, PetStatusEnumKey } from './models/ts/Pet.ts'
 export { petStatusEnum } from './models/ts/Pet.ts'
 export type { PetNotFound } from './models/ts/PetNotFound.ts'
 export type { AddFiles200, AddFiles405, AddFilesMutation, AddFilesMutationRequest, AddFilesMutationResponse } from './models/ts/petController/AddFiles.ts'
-export type { AddPet200, AddPet405, AddPetMutation, AddPetMutationRequest, AddPetMutationResponse } from './models/ts/petController/AddPet.ts'
+export type { AddPet405, AddPetError, AddPetMutation, AddPetMutationRequest, AddPetMutationResponse } from './models/ts/petController/AddPet.ts'
 export type {
   DeletePet400,
   DeletePetHeaderParams,
@@ -373,7 +373,7 @@ export type {
 } from './models/ts/userController/UpdateUser.ts'
 export { handlers } from './msw/handlers.ts'
 export { addFilesHandler, addFilesHandlerResponse200, addFilesHandlerResponse405 } from './msw/petController/addFilesHandler.ts'
-export { addPetHandler, addPetHandlerResponse200, addPetHandlerResponse405 } from './msw/petController/addPetHandler.ts'
+export { addPetHandler, addPetHandlerResponse405 } from './msw/petController/addPetHandler.ts'
 export { deletePetHandler, deletePetHandlerResponse400 } from './msw/petController/deletePetHandler.ts'
 export { findPetsByStatusHandler, findPetsByStatusHandlerResponse200, findPetsByStatusHandlerResponse400 } from './msw/petController/findPetsByStatusHandler.ts'
 export { findPetsByTagsHandler, findPetsByTagsHandlerResponse200, findPetsByTagsHandlerResponse400 } from './msw/petController/findPetsByTagsHandler.ts'
@@ -428,8 +428,8 @@ export type { OrderSchema } from './zod/orderSchema.ts'
 export { orderSchema } from './zod/orderSchema.ts'
 export type { AddFiles200Schema, AddFiles405Schema, AddFilesMutationRequestSchema, AddFilesMutationResponseSchema } from './zod/petController/addFilesSchema.ts'
 export { addFiles200Schema, addFiles405Schema, addFilesMutationRequestSchema, addFilesMutationResponseSchema } from './zod/petController/addFilesSchema.ts'
-export type { AddPet200Schema, AddPet405Schema, AddPetMutationRequestSchema, AddPetMutationResponseSchema } from './zod/petController/addPetSchema.ts'
-export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './zod/petController/addPetSchema.ts'
+export type { AddPet405Schema, AddPetErrorSchema, AddPetMutationRequestSchema, AddPetMutationResponseSchema } from './zod/petController/addPetSchema.ts'
+export { addPet405Schema, addPetErrorSchema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './zod/petController/addPetSchema.ts'
 export type {
   DeletePet400Schema,
   DeletePetHeaderParamsSchema,

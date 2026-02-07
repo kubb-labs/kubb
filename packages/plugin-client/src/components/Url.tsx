@@ -2,7 +2,7 @@ import { URLPath } from '@kubb/core/utils'
 
 import { getDefaultValue, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getPathParams } from '@kubb/plugin-oas/utils'
+import { getParamsMapping, getPathParams } from '@kubb/plugin-oas/utils'
 import { Const, File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
@@ -32,7 +32,10 @@ type GetParamsProps = {
 
 function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
   if (paramsType === 'object') {
-    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
+    const pathParams = getPathParams(typeSchemas.pathParams, {
+      typed: true,
+      casing: paramsCasing,
+    })
 
     return FunctionParams.factory({
       data: {
@@ -48,7 +51,10 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: Ge
     pathParams: typeSchemas.pathParams?.name
       ? {
           mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+          children: getPathParams(typeSchemas.pathParams, {
+            typed: true,
+            casing: paramsCasing,
+          }),
           default: getDefaultValue(typeSchemas.pathParams?.schema),
         }
       : undefined,
@@ -66,12 +72,25 @@ export function Url({
   pathParamsType,
   operation,
 }: Props): FabricReactNode {
-  const path = new URLPath(operation.path, { casing: paramsCasing })
-  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
+  const path = new URLPath(operation.path)
+  const params = getParams({
+    paramsType,
+    paramsCasing,
+    pathParamsType,
+    typeSchemas,
+  })
+
+  // Generate pathParams mapping when paramsCasing is used
+  const pathParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
 
   return (
     <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
       <Function name={name} export={isExportable} params={params.toConstructor()}>
+        {pathParamsMapping &&
+          Object.entries(pathParamsMapping)
+            .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
+            .join('\n')}
+        {pathParamsMapping && <br />}
         <Const name={'res'}>{`{ method: '${operation.method.toUpperCase()}', url: ${path.toTemplateString({ prefix: baseURL })} as const }`}</Const>
         <br />
         return res

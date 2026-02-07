@@ -350,6 +350,11 @@
               "activeMatch": "^/guide/base-url/?$"
             },
             {
+              "text": "Parameter Casing",
+              "link": "/guide/parameter-casing",
+              "activeMatch": "^/guide/parameter-casing/?$"
+            },
+            {
               "text": "Filter and sort",
               "link": "/guide/filter-and-sort",
               "activeMatch": "^/guide/filter-and-sort/?$"
@@ -368,6 +373,11 @@
               "text": "Debugging Kubb",
               "link": "/guide/debugging",
               "activeMatch": "^/guide/debugging/?$"
+            },
+            {
+              "text": "Stream Server",
+              "link": "/guide/stream-server",
+              "activeMatch": "^/guide/stream-server/?$"
             },
             {
               "text": "Generators",

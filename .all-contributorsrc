@@ -446,6 +446,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "icholy",
+      "name": "Ilia Choly",
+      "avatar_url": "https://avatars.githubusercontent.com/u/943597?v=4",
+      "profile": "https://choly.ca",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

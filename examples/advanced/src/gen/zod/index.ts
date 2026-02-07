@@ -20,8 +20,8 @@ export type { OrderSchema } from './orderSchema.ts'
 export { orderSchema } from './orderSchema.ts'
 export type { AddFiles200Schema, AddFiles405Schema, AddFilesMutationRequestSchema, AddFilesMutationResponseSchema } from './petController/addFilesSchema.ts'
 export { addFiles200Schema, addFiles405Schema, addFilesMutationRequestSchema, addFilesMutationResponseSchema } from './petController/addFilesSchema.ts'
-export type { AddPet200Schema, AddPet405Schema, AddPetMutationRequestSchema, AddPetMutationResponseSchema } from './petController/addPetSchema.ts'
-export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './petController/addPetSchema.ts'
+export type { AddPet405Schema, AddPetErrorSchema, AddPetMutationRequestSchema, AddPetMutationResponseSchema } from './petController/addPetSchema.ts'
+export { addPet405Schema, addPetErrorSchema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './petController/addPetSchema.ts'
 export type {
   DeletePet400Schema,
   DeletePetHeaderParamsSchema,

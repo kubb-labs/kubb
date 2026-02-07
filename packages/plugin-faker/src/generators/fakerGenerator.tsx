@@ -2,7 +2,7 @@ import { useMode, usePluginManager } from '@kubb/core/hooks'
 import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
+import { applyParamsCasing, getBanner, getFooter, getImports, isParameterSchema } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File } from '@kubb/react-fabric'
 import { Faker } from '../components'
@@ -39,8 +39,12 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       .filter(Boolean)
 
     const mapOperationSchema = ({ name, schema, description, ...options }: OperationSchemaType) => {
-      const tree = schemaGenerator.parse({ schema, name, parentName: null })
-      const imports = schemaManager.getImports(tree)
+      // Apply paramsCasing transformation if enabled and this is a parameter schema
+      const shouldTransform = isParameterSchema(name) && plugin.options.paramsCasing
+      const transformedSchema = shouldTransform ? applyParamsCasing(schema, plugin.options.paramsCasing) : schema
+
+      const tree = schemaGenerator.parse({ schema: transformedSchema, name, parentName: null })
+      const imports = getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
 
       const faker = {
@@ -99,7 +103,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     )
   },
   Schema({ schema, plugin }) {
-    const { getName, getFile, getImports } = useSchemaManager()
+    const { getName, getFile } = useSchemaManager()
     const {
       options: { output, dateParser, regexGenerator, seed, mapper },
     } = plugin

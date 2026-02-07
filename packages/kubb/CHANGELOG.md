@@ -1,5 +1,69 @@
 # kubb
 
+## 3.0.204
+
+### Patch Changes
+
+- Updated dependencies [[`99097c8`](https://github.com/kubb-labs/kubb/commit/99097c8d8401d2135dece43877223029137cf6a6)]:
+  - @kubb/core@4.21.2
+  - @kubb/cli@4.21.2
+
+## 3.0.203
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@4.21.1
+  - @kubb/core@4.21.1
+
+## 3.0.202
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@4.21.0
+  - @kubb/core@4.21.0
+
+## 3.0.201
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@4.20.5
+  - @kubb/core@4.20.5
+
+## 3.0.200
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@4.20.4
+  - @kubb/core@4.20.4
+
+## 3.0.199
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@4.20.3
+  - @kubb/core@4.20.3
+
+## 3.0.198
+
+### Patch Changes
+
+- Updated dependencies [[`6006dc3`](https://github.com/kubb-labs/kubb/commit/6006dc335d62dd9c1254bd31ecc90a5ccb70a116)]:
+  - @kubb/cli@4.20.2
+  - @kubb/core@4.20.2
+
+## 3.0.197
+
+### Patch Changes
+
+- Updated dependencies [[`5c50613`](https://github.com/kubb-labs/kubb/commit/5c50613504f05d1f5484dea4969182ecc7961cfb)]:
+  - @kubb/core@4.20.1
+  - @kubb/cli@4.20.1
+
 ## 3.0.196
 
 ### Patch Changes

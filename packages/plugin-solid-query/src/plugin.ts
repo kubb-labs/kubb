@@ -47,6 +47,7 @@ export const pluginSolidQuery = definePlugin<PluginSolidQuery>((options) => {
         dataReturnType: client?.dataReturnType ?? 'data',
         pathParamsType,
         importPath: clientImportPath,
+        paramsCasing,
       },
       queryKey,
       query:

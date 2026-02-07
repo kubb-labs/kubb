@@ -26,17 +26,20 @@ type BuildOutput = {
   pluginManager: PluginManager
   pluginTimings: Map<string, number>
   error?: Error
+  sources: Map<KubbFile.Path, string>
 }
 
 type SetupResult = {
   events: AsyncEventEmitter<KubbEvents>
   fabric: Fabric
   pluginManager: PluginManager
+  sources: Map<KubbFile.Path, string>
 }
 
 export async function setup(options: BuildOptions): Promise<SetupResult> {
   const { config: userConfig, events = new AsyncEventEmitter<KubbEvents>() } = options
 
+  const sources: Map<KubbFile.Path, string> = new Map<KubbFile.Path, string>()
   const diagnosticInfo = getDiagnosticInfo()
 
   if (Array.isArray(userConfig.input)) {
@@ -129,6 +132,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
     if (source) {
       await write(file.path, source, { sanity: false })
+      sources.set(file.path, source)
     }
   })
 
@@ -159,11 +163,12 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     events,
     fabric,
     pluginManager,
+    sources,
   }
 }
 
 export async function build(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { fabric, files, pluginManager, failedPlugins, pluginTimings, error } = await safeBuild(options, overrides)
+  const { fabric, files, pluginManager, failedPlugins, pluginTimings, error, sources } = await safeBuild(options, overrides)
 
   if (error) {
     throw error
@@ -182,11 +187,12 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
     pluginManager,
     pluginTimings,
     error: undefined,
+    sources,
   }
 }
 
 export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { fabric, pluginManager, events } = overrides ? overrides : await setup(options)
+  const { fabric, pluginManager, events, sources } = overrides ? overrides : await setup(options)
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   // in ms
@@ -327,6 +333,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       files,
       pluginManager,
       pluginTimings,
+      sources,
     }
   } catch (error) {
     return {
@@ -336,6 +343,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       pluginManager,
       pluginTimings,
       error: error as Error,
+      sources,
     }
   }
 }

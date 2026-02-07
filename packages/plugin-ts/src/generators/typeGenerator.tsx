@@ -6,7 +6,7 @@ import type { Operation } from '@kubb/oas'
 import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
+import { applyParamsCasing, getBanner, getFooter, getImports, isParameterSchema } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
 import ts from 'typescript'
 import { Type } from '../components'
@@ -314,7 +314,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   Operation({ operation, generator, plugin }) {
     const {
       options,
-      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType },
+      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing },
     } = plugin
 
     const mode = useMode()
@@ -343,8 +343,12 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       .filter(Boolean)
 
     const mapOperationSchema = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType) => {
-      const tree = schemaGenerator.parse({ schema, name, parentName: null })
-      const imports = schemaManager.getImports(tree)
+      // Apply paramsCasing transformation to pathParams, queryParams, and headerParams (not response)
+      const shouldTransform = paramsCasing && isParameterSchema(name)
+      const transformedSchema = shouldTransform ? applyParamsCasing(schema, paramsCasing) : schema
+
+      const tree = schemaGenerator.parse({ schema: transformedSchema, name, parentName: null })
+      const imports = getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
 
       const type = {
@@ -364,7 +368,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
             typedName={type.typedName}
             description={description}
             tree={tree}
-            schema={schema}
+            schema={transformedSchema}
             mapper={mapper}
             enumType={enumType}
             enumKeyCasing={enumKeyCasing}
@@ -418,13 +422,13 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const oas = useOas()
     const pluginManager = usePluginManager()
 
-    const { getName, getImports, getFile } = useSchemaManager()
+    const { getName, getFile } = useSchemaManager()
     const imports = getImports(schema.tree)
     const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
 
     let typedName = getName(schema.name, { type: 'type' })
 
-    if (enumType === 'asConst' && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
+    if (['asConst', 'asPascalConst'].includes(enumType) && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
       typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
     }
 

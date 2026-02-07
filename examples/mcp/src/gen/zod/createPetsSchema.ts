@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod'
+import * as z from 'zod'
 import { petNotFoundSchema } from './petNotFoundSchema.js'
 
 export const createPetsPathParamsSchema = z.object({

@@ -165,7 +165,7 @@ paths:
               $ref: "#/components/schemas/Pet"
         required: true
       responses:
-        "200":
+        "default":
           description: Successful operation
           content:
             application/json:

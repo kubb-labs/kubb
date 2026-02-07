@@ -1,16 +1,21 @@
 {
   "name": "@kubb/plugin-mcp",
-  "version": "4.20.0",
-  "description": "Generator mcp",
+  "version": "4.21.2",
+  "description": "Model Context Protocol (MCP) plugin for Kubb, generating MCP-compatible tools and schemas from OpenAPI specifications for AI assistants.",
   "keywords": [
-    "typescript",
-    "plugins",
-    "kubb",
-    "codegen",
     "mcp",
+    "model-context-protocol",
     "ai",
+    "llm",
     "claude",
-    "openapi"
+    "ai-tools",
+    "openapi",
+    "swagger",
+    "typescript",
+    "code-generator",
+    "codegen",
+    "plugins",
+    "kubb"
   ],
   "repository": {
     "type": "git",

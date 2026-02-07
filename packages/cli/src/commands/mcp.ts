@@ -34,6 +34,7 @@ const command = defineCommand({
       mod = await jiti.import('@kubb/mcp', { default: true })
     } catch (_e) {
       console.error(`Import of '@kubb/mcp' is required to start the MCP server`)
+      process.exit(1)
     }
 
     const { run } = mod

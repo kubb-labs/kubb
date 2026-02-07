@@ -24,6 +24,7 @@ export const pluginFaker = definePlugin<PluginFaker>((options) => {
     dateParser = 'faker',
     generators = [fakerGenerator].filter(Boolean),
     regexGenerator = 'faker',
+    paramsCasing,
     contentType,
   } = options
 
@@ -43,6 +44,7 @@ export const pluginFaker = definePlugin<PluginFaker>((options) => {
       mapper,
       override,
       regexGenerator,
+      paramsCasing,
       group,
       usedEnumNames,
     },

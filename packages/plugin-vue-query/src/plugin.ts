@@ -48,6 +48,7 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
         dataReturnType: client?.dataReturnType ?? 'data',
         pathParamsType,
         importPath: clientImportPath,
+        paramsCasing,
       },
       infinite: infinite
         ? {

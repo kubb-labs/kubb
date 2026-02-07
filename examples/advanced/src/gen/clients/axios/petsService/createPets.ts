@@ -29,15 +29,19 @@ export async function createPets(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
+  const mappedParams = params ? { bool_param: params.boolParam } : undefined
+
+  const mappedHeaders = headers ? { 'X-EXAMPLE': headers.xEXAMPLE } : undefined
+
   const requestData = createPetsMutationRequestSchema.parse(data)
 
   const res = await request<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
     method: 'POST',
     url: getCreatePetsUrl({ uuid }).url.toString(),
-    params,
+    params: mappedParams,
     data: requestData,
     ...requestConfig,
-    headers: { ...headers, ...requestConfig.headers },
+    headers: { ...mappedHeaders, ...requestConfig.headers },
   })
   return { ...res, data: createPetsMutationResponseSchema.parse(res.data) }
 }

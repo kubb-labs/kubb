@@ -1,5 +1,61 @@
 # @kubb/mcp
 
+## 4.21.2
+
+### Patch Changes
+
+- Updated dependencies [[`99097c8`](https://github.com/kubb-labs/kubb/commit/99097c8d8401d2135dece43877223029137cf6a6)]:
+  - @kubb/core@4.21.2
+
+## 4.21.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.21.1
+
+## 4.21.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.21.0
+
+## 4.20.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.20.5
+
+## 4.20.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.20.4
+
+## 4.20.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.20.3
+
+## 4.20.2
+
+### Patch Changes
+
+- Updated dependencies [[`6006dc3`](https://github.com/kubb-labs/kubb/commit/6006dc335d62dd9c1254bd31ecc90a5ccb70a116)]:
+  - @kubb/core@4.20.2
+
+## 4.20.1
+
+### Patch Changes
+
+- Updated dependencies [[`5c50613`](https://github.com/kubb-labs/kubb/commit/5c50613504f05d1f5484dea4969182ecc7961cfb)]:
+  - @kubb/core@4.20.1
+
 ## 4.20.0
 
 ### Patch Changes

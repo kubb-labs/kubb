@@ -1,4 +1,3 @@
-import transformers from '@kubb/core/transformers'
 import { URLPath } from '@kubb/core/utils'
 
 import type { Operation } from '@kubb/oas'
@@ -11,6 +10,10 @@ export function getComments(operation: Operation): string[] {
     operation.isDeprecated() && '@deprecated',
   ]
     .filter(Boolean)
-    .map((text) => transformers.trim(text))
+    .flatMap((text) => {
+      // Split by newlines to preserve line breaks in JSDoc
+      // Trim each line individually to remove leading/trailing whitespace
+      return text.split(/\r?\n/).map((line) => line.trim())
+    })
     .filter(Boolean)
 }
