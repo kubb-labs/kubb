@@ -81,7 +81,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     await events.emit('generation:start', options.config as Config)
 
-    const { error, failedPlugins, pluginTimings, files } = await safeBuild({
+    const { error, failedPlugins, pluginTimings, files, sources } = await safeBuild({
       config: {
         root: process.cwd(),
         ...userConfig,
@@ -108,7 +108,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       })
     }
 
-    await events.emit('generation:end', options.config as Config)
+    await events.emit('generation:end', options.config as Config, files, sources)
     await events.emit('generation:summary', options.config as Config, {
       failedPlugins,
       filesCreated: files.length,

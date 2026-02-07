@@ -123,6 +123,9 @@ OPTIONS
                          -v, --verbose  Override logLevel to verbose (shows plugin timings)
                          -s, --silent   Override logLevel to silent (shows plugin timings)
                          -d, --debug    Override logLevel to debug (shows all details)
+                         --stream       Start HTTP server with SSE streaming
+                         -p, --port     Port for stream server (requires --stream)
+                         --host         Host for stream server (requires --stream)
                           -h, --help    Show help
 ```
 
@@ -199,6 +202,36 @@ See the [Debugging Guide](/guide/debugging) for more details on using debug mode
 Watch mode based on the input file.
 ```shell [node]
 kubb --watch
+```
+
+#### --stream
+
+Start HTTP server with SSE (Server-Sent Events) streaming for real-time code generation.
+
+This mode launches an HTTP server that provides:
+- Real-time progress updates via Server-Sent Events
+- RESTful API endpoints for configuration and health checks
+
+```shell [node]
+kubb --stream
+```
+
+See the [Stream Server Guide](/guide/stream-server) for complete documentation.
+
+#### --port (-p)
+
+Specify the port for the stream server (requires `--stream`). If not provided, an available port is automatically selected.
+
+```shell [node]
+kubb --stream --port 3000
+```
+
+#### --host
+
+Specify the host for the stream server (requires `--stream`). Default: `localhost`
+
+```shell [node]
+kubb --stream --host 0.0.0.0 --port 3000
 ```
 
 #### --version (-v)

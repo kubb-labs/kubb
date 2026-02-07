@@ -83,7 +83,7 @@ export interface KubbEvents {
   /**
    * Emitted when code generation phase completes.
    */
-  'generation:end': [Config: Config]
+  'generation:end': [Config: Config, files: Array<KubbFile.ResolvedFile>, sources: Map<KubbFile.Path, string>]
 
   /**
    * Emitted with a summary of the generation results.

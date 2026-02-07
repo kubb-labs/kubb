@@ -44,7 +44,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
 
   await events.emit('info', config.name ? `Setup generation ${pc.bold(config.name)}` : 'Setup generation', inputPath)
 
-  const { fabric, pluginManager } = await setup({
+  const { sources, fabric, pluginManager } = await setup({
     config,
     events,
   })
@@ -56,7 +56,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
       config,
       events,
     },
-    { pluginManager, fabric, events },
+    { pluginManager, fabric, events, sources },
   )
 
   await events.emit('info', 'Load summary')
@@ -77,7 +77,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
       events.emit('error', err)
     })
 
-    await events.emit('generation:end', config)
+    await events.emit('generation:end', config, files, sources)
 
     await events.emit('generation:summary', config, {
       failedPlugins,
@@ -91,7 +91,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
   }
 
   await events.emit('success', 'Generation successfully', inputPath)
-  await events.emit('generation:end', config)
+  await events.emit('generation:end', config, files, sources)
 
   // formatting
   if (config.output.format) {
