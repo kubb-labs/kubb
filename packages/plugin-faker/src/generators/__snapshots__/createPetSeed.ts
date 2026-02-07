@@ -15,9 +15,9 @@ export function createPets201() {
 /**
  * @description unexpected error
  */
-export function createPetsError() {
+export function createPetsError(data?: Partial<CreatePetsError>): CreatePetsError {
   faker.seed([222])
-  return error()
+  return error(data)
 }
 
 export function createPetsMutationRequest(data?: Partial<CreatePetsMutationRequest>): CreatePetsMutationRequest {

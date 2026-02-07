@@ -14,19 +14,19 @@ export function updatePetPathParams(data?: Partial<UpdatePetPathParams>): Update
 /**
  * @description Pet updated
  */
-export function updatePet200() {
-  return pet()
+export function updatePet200(data?: Partial<UpdatePet200>): UpdatePet200 {
+  return pet(data)
 }
 
 /**
  * @description unexpected error
  */
-export function updatePetError() {
-  return error()
+export function updatePetError(data?: Partial<UpdatePetError>): UpdatePetError {
+  return error(data)
 }
 
-export function updatePetMutationRequest() {
-  return pet()
+export function updatePetMutationRequest(data?: Partial<UpdatePetMutationRequest>): UpdatePetMutationRequest {
+  return pet(data)
 }
 
 export function updatePetMutationResponse(data?: Partial<UpdatePetMutationResponse>): UpdatePetMutationResponse {

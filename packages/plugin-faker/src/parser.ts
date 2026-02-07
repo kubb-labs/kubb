@@ -283,7 +283,7 @@ export const parse = createParser<string, ParserOptions>({
       )
     },
     ref(tree, options) {
-      const { current } = tree
+      const { current, parent } = tree
 
       if (!current.args?.name) {
         throw new Error(`Name not defined for keyword ${current.keyword}`)
@@ -300,7 +300,11 @@ export const parse = createParser<string, ParserOptions>({
         return 'undefined as any'
       }
 
-      if (options.canOverride) {
+      // Check if the parent is an object or and keyword - in these cases, we don't want to pass data
+      // because it would incorrectly forward the parent's data to a nested ref
+      const isNestedInObjectOrAnd = parent && (isKeyword(parent, schemaKeywords.object) || isKeyword(parent, schemaKeywords.and))
+
+      if (options.canOverride && !isNestedInObjectOrAnd) {
         return `${current.args.name}(data)`
       }
 
