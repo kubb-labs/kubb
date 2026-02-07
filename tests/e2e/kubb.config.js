@@ -14,7 +14,7 @@ const schemas = [
   // { name: 'test', path: './schemas/test.json' },
   { name: 'train-travel', path: './schemas/train-travel.yaml' },
   { name: 'discriminator', path: './schemas/discriminator.yaml' },
-//  { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },
+  //  { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },
   // { name: 'atlassian.com', path: 'https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json', strict: false },
   { name: 'optionalParameters', path: './schemas/optionalParameters.json' },
   { name: 'allOf', path: './schemas/allOf.json' },
