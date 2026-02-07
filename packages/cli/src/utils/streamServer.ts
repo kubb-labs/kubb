@@ -36,7 +36,7 @@ export async function startStreamServer({ port, host, configPath, config, input,
     }
 
     // Health check endpoint
-    if (req.url === '/health' && req.method === 'GET') {
+    if (req.url === '/api/health' && req.method === 'GET') {
       res.writeHead(200, { 'Content-Type': 'application/json' })
       const body: HealthResponse = { status: 'ok', version, configPath: path.relative(process.cwd(), configPath) }
       res.end(JSON.stringify(body))
@@ -105,7 +105,7 @@ export async function startStreamServer({ port, host, configPath, config, input,
     clack.log.info(pc.dim(`Config: ${path.relative(process.cwd(), configPath)}`))
     clack.log.info(pc.dim(`Connect: ${serverUrl}/api/info`))
     clack.log.info(pc.dim(`Stream: ${serverUrl}/api/stream`))
-    clack.log.info(pc.dim(`Health: ${serverUrl}/health`))
+    clack.log.info(pc.dim(`Health: ${serverUrl}/api/health`))
     clack.log.step(pc.yellow('Waiting for requests... (Press Ctrl+C to stop)'))
   })
 

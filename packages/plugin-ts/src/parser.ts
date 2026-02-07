@@ -215,7 +215,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
       }
 
       // Adding suffix to enum (see https://github.com/kubb-labs/kubb/issues/1873)
-      return typeKeywordMapper.enum(options.enumType === 'asConst' ? `${current.args.typeName}Key` : current.args.typeName)
+      return typeKeywordMapper.enum(['asConst', 'asPascalConst'].includes(options.enumType) ? `${current.args.typeName}Key` : current.args.typeName)
     },
     ref(tree, _options) {
       const { current } = tree

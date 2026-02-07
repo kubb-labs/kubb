@@ -64,7 +64,7 @@ export function Type({
       .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
 
   // Add a "Key" suffix to avoid collisions where necessary
-  if (enumType === 'asConst' && enumSchemas.length > 0) {
+  if (['asConst', 'asPascalConst'].includes(enumType) && enumSchemas.length > 0) {
     const isDirectEnum = schema.type === 'array' && schema.items !== undefined
     const isEnumOnly = 'enum' in schema && schema.enum
 
@@ -136,7 +136,7 @@ export function Type({
 
   const enums = [...new Set(enumSchemas)].map((enumSchema) => {
     const name = enumType === 'asPascalConst' ? transformers.pascalCase(enumSchema.args.name) : transformers.camelCase(enumSchema.args.name)
-    const typeName = enumType === 'asConst' ? `${enumSchema.args.typeName}Key` : enumSchema.args.typeName
+    const typeName = ['asConst', 'asPascalConst'].includes(enumType) ? `${enumSchema.args.typeName}Key` : enumSchema.args.typeName
 
     const [nameNode, typeNode] = factory.createEnumDeclaration({
       name,

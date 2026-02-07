@@ -6,6 +6,16 @@ outline: deep
 
 # Changelog
 
+## 4.21.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/cli`](/helpers/cli/), [`@kubb/core`](/core/)
+
+Correct use of /api/health stream api
+
+---
+
 ## 4.21.1
 
 ### 📦 Dependencies

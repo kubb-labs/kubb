@@ -39,7 +39,7 @@ export type StreamEvent<T extends StreamEventType = StreamEventType> = {
  * API response types for the Kubb stream server endpoints.
  */
 
-/** GET /health */
+/** GET /api/health */
 export type HealthResponse = {
   status: 'ok'
   version: string
