@@ -14,15 +14,15 @@ export function showPetByIdPathParams(data?: Partial<ShowPetByIdPathParams>): Sh
 /**
  * @description Expected response to a valid request
  */
-export function showPetById200() {
-  return pet()
+export function showPetById200(data?: Partial<ShowPetById200>): ShowPetById200 {
+  return pet(data)
 }
 
 /**
  * @description unexpected error
  */
-export function showPetByIdError() {
-  return error()
+export function showPetByIdError(data?: Partial<ShowPetByIdError>): ShowPetByIdError {
+  return error(data)
 }
 
 export function showPetByIdQueryResponse(data?: Partial<ShowPetByIdQueryResponse>): ShowPetByIdQueryResponse {

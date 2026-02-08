@@ -14,8 +14,8 @@ export function createPets201() {
 /**
  * @description unexpected error
  */
-export function createPetsError() {
-  return error()
+export function createPetsError(data?: Partial<CreatePetsError>): CreatePetsError {
+  return error(data)
 }
 
 export function createPetsMutationRequest(data?: Partial<CreatePetsMutationRequest>): CreatePetsMutationRequest {
