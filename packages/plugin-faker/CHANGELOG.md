@@ -1,5 +1,17 @@
 # @kubb/plugin-faker
 
+## 4.21.3
+
+### Patch Changes
+
+- [#2394](https://github.com/kubb-labs/kubb/pull/2394) [`277d698`](https://github.com/kubb-labs/kubb/commit/277d6984c8230a6f33411674f34797479592e5dd) Thanks [@Ericlm](https://github.com/Ericlm)! - Top functions are now able to pass data down to functions called downstream.
+
+- Updated dependencies []:
+  - @kubb/core@4.21.3
+  - @kubb/oas@4.21.3
+  - @kubb/plugin-oas@4.21.3
+  - @kubb/plugin-ts@4.21.3
+
 ## 4.21.2
 
 ### Patch Changes
