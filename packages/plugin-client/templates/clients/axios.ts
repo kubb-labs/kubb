@@ -31,9 +31,7 @@ export type ResponseConfig<TData = unknown> = {
 
 export type ResponseErrorConfig<TError = unknown> = AxiosError<TError>
 
-export type Client = <TData, TError = unknown, TVariables = unknown>(
-  config: RequestConfig<TVariables>,
-) => Promise<ResponseConfig<TData>>
+export type Client = <TData, _TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>) => Promise<ResponseConfig<TData>>
 
 let _config: Partial<RequestConfig> = {
   baseURL: typeof AXIOS_BASE !== 'undefined' ? AXIOS_BASE : undefined,
