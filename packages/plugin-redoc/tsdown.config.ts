@@ -10,7 +10,7 @@ export default defineConfig({
   sourcemap: true,
   shims: true,
   exports: true,
-  external: ['@kubb/core'],
+  external: [/^@kubb\//],
   fixedExtension: false,
   outputOptions: {
     keepNames: true,
