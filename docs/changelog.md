@@ -6,6 +6,55 @@ outline: deep
 
 # Changelog
 
+## 4.22.0
+
+### ✨ New Features
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Add `Client` type alias to axios and fetch client templates**
+
+Added a `Client` type alias that provides better TypeScript support when working with generated client code. This makes it easier to reference the client type in your application code.
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/oas`](/packages/oas/)
+
+**Replace dynamic import with static import for @redocly/openapi-core**
+
+Since @redocly/openapi-core is a declared dependency, using a static import is more appropriate for better performance and IDE support.
+
+#### [`@kubb/plugin-faker`](/plugins/plugin-faker/)
+
+**Top functions can now pass data down to functions called downstream**
+
+Improved the data flow in faker generators, allowing top-level functions to pass context and data to nested function calls for more flexible mock data generation.
+
+### 📦 Dependencies
+
+**Externalize all @kubb/\* packages in tsdown configs**
+
+Fixed TypeScript type incompatibility errors by externalizing all @kubb/\* packages in tsdown configurations. This prevents duplicate type declarations across packages caused by inlined #private class fields.
+
+**Affected packages:**
+- `@kubb/oas`
+- `@kubb/plugin-client`
+- `@kubb/plugin-cypress`
+- `@kubb/plugin-faker`
+- `@kubb/plugin-mcp`
+- `@kubb/plugin-msw`
+- `@kubb/plugin-oas`
+- `@kubb/plugin-react-query`
+- `@kubb/plugin-redoc`
+- `@kubb/plugin-solid-query`
+- `@kubb/plugin-svelte-query`
+- `@kubb/plugin-swr`
+- `@kubb/plugin-ts`
+- `@kubb/plugin-vue-query`
+- `@kubb/plugin-zod`
+
+---
+
 ## 4.21.3
 
 ### 🐛 Bug Fixes
