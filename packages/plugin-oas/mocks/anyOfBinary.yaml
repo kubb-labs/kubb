@@ -12,6 +12,6 @@ components:
           anyOf:
             - type: string
               format: binary
-            - type: 'null'
+            - type: null
       required:
         - file

@@ -1253,6 +1253,11 @@ export class SchemaGenerator<
       return [...this.#parseProperties(name, schemaObject, rootName), ...baseItems]
     }
 
+    // Handle explicit null type (where type property has null value, not string 'null')
+    if ('type' in schemaObject && schemaObject.type === null) {
+      return [{ keyword: schemaKeywords.null }, ...baseItems]
+    }
+
     if (schemaObject.type) {
       const type = (
         Array.isArray(schemaObject.type) ? schemaObject.type.filter((item) => item !== 'null')[0] : schemaObject.type
