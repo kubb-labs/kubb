@@ -102,6 +102,16 @@ describe('SchemaGenerator core', async () => {
         unknownType: 'unknown',
       },
     },
+    {
+      name: 'OptionalFile',
+      input: '../mocks/anyOfBinary.yaml',
+      path: 'OptionalFile',
+      options: {
+        dateType: 'date',
+        transformers: {},
+        unknownType: 'unknown',
+      },
+    },
     // Add discriminator test cases
   ] as const satisfies Array<{
     input: string

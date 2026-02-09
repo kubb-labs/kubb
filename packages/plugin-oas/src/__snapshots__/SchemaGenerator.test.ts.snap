@@ -166,6 +166,50 @@ exports[`SchemaGenerator core > 'FullAddress' 1`] = `
 ]
 `;
 
+exports[`SchemaGenerator core > 'OptionalFile' 1`] = `
+[
+  {
+    "args": {
+      "additionalProperties": [],
+      "properties": {
+        "file": [
+          {
+            "args": [
+              {
+                "keyword": "blob",
+              },
+              {
+                "keyword": "null",
+              },
+            ],
+            "keyword": "union",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": undefined,
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "file",
+            "keyword": "name",
+          },
+        ],
+      },
+    },
+    "keyword": "object",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "object",
+    },
+    "keyword": "schema",
+  },
+]
+`;
+
 exports[`SchemaGenerator core > 'Owner' 1`] = `
 [
   {

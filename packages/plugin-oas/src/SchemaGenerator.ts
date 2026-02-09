@@ -1122,7 +1122,7 @@ export class SchemaGenerator<
 
       switch (schemaObject.format) {
         case 'binary':
-          baseItems.push({ keyword: schemaKeywords.blob })
+          baseItems.unshift({ keyword: schemaKeywords.blob })
           return baseItems
         case 'date-time':
           if (options.dateType) {
