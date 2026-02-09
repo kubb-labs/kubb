@@ -1,4 +1,4 @@
-import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
 import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../../models/ts/petController/DeletePet.ts'
 import { deletePetMutationResponseSchema } from '../../../zod/petController/deletePetSchema.ts'
@@ -15,7 +15,7 @@ export function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId']
  */
 export async function deletePet(
   { petId, headers }: { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 

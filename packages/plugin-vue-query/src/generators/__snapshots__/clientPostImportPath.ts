@@ -4,7 +4,7 @@
  */
 import fetch from 'axios'
 import type { MutationObserverOptions, QueryClient } from '@tanstack/vue-query'
-import type { RequestConfig, ResponseErrorConfig } from 'axios'
+import type { Client, RequestConfig, ResponseErrorConfig } from 'axios'
 import type { MaybeRefOrGetter } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
 
@@ -20,7 +20,7 @@ export async function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],
   data?: UpdatePetWithFormMutationRequest,
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 

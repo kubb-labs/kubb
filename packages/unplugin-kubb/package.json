@@ -101,8 +101,8 @@
 	},
 	"devDependencies": {
 		"@kubb/core": "workspace:*",
-		"@nuxt/kit": "^4.3.0",
-		"@nuxt/schema": "^4.3.0",
+		"@nuxt/kit": "^4.3.1",
+		"@nuxt/schema": "^4.3.1",
 		"esbuild": "*",
 		"rimraf": "^6.1.2",
 		"rollup": "^4.57.1",

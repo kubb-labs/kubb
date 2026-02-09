@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { DeleteOrder400Type, DeleteOrder404Type, DeleteOrderMutationResponseType, DeleteOrderPathParamsType } from './ts/DeleteOrderType.ts'
 import type { GetInventoryQueryResponseType } from './ts/GetInventoryType.ts'
@@ -26,7 +26,7 @@ function getGetInventoryUrl() {
  * @summary Returns pet inventories by status
  * {@link /store/inventory}
  */
-export async function getInventory(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function getInventory(config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetInventoryQueryResponseType, ResponseErrorConfig<Error>, unknown>({
@@ -50,7 +50,7 @@ function getPlaceOrderUrl() {
 export async function placeOrder(
   data?: PlaceOrderMutationRequestType,
   config: Partial<RequestConfig<PlaceOrderMutationRequestType>> & {
-    client?: typeof fetch
+    client?: Client
   } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -79,7 +79,7 @@ function getPlaceOrderPatchUrl() {
 export async function placeOrderPatch(
   data?: PlaceOrderPatchMutationRequestType,
   config: Partial<RequestConfig<PlaceOrderPatchMutationRequestType>> & {
-    client?: typeof fetch
+    client?: Client
   } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -105,10 +105,7 @@ function getGetOrderByIdUrl({ orderId }: { orderId: GetOrderByIdPathParamsType['
  * @summary Find purchase order by ID
  * {@link /store/order/:orderId}
  */
-export async function getOrderById(
-  { orderId }: { orderId: GetOrderByIdPathParamsType['orderId'] },
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
-) {
+export async function getOrderById({ orderId }: { orderId: GetOrderByIdPathParamsType['orderId'] }, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetOrderByIdQueryResponseType, ResponseErrorConfig<GetOrderById400Type | GetOrderById404Type>, unknown>({
@@ -129,10 +126,7 @@ function getDeleteOrderUrl({ orderId }: { orderId: DeleteOrderPathParamsType['or
  * @summary Delete purchase order by ID
  * {@link /store/order/:orderId}
  */
-export async function deleteOrder(
-  { orderId }: { orderId: DeleteOrderPathParamsType['orderId'] },
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
-) {
+export async function deleteOrder({ orderId }: { orderId: DeleteOrderPathParamsType['orderId'] }, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<DeleteOrderMutationResponseType, ResponseErrorConfig<DeleteOrder400Type | DeleteOrder404Type>, unknown>({

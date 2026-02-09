@@ -6,7 +6,7 @@
 import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
-import type { RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
 import type { GetInventoryQueryResponse } from '../../models/GetInventory.ts'
 
@@ -19,7 +19,7 @@ export type GetInventorySuspenseQueryKey = ReturnType<typeof getInventorySuspens
  * @summary Returns pet inventories by status
  * {@link /store/inventory}
  */
-export async function getInventorySuspenseHook(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function getInventorySuspenseHook(config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/store/inventory', ...requestConfig })

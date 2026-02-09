@@ -36,14 +36,14 @@ export const mcpGenerator = createReactGenerator<PluginMcp>({
         {options.client.importPath ? (
           <>
             <File.Import name={'fetch'} path={options.client.importPath} />
-            <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
+            <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
             {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
           </>
         ) : (
           <>
             <File.Import name={['fetch']} root={mcp.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
             <File.Import
-              name={['RequestConfig', 'ResponseErrorConfig']}
+              name={['Client', 'RequestConfig', 'ResponseErrorConfig']}
               root={mcp.file.path}
               path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
               isTypeOnly

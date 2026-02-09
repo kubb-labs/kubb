@@ -5,7 +5,7 @@
 
 import type { QueryClient, UseMutationOptions } from '@tanstack/solid-query'
 import { useMutation } from '@tanstack/solid-query'
-import type { RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
 import { fetch } from '../.kubb/fetch.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser.ts'
 
@@ -21,7 +21,7 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
 export async function createUser(
   data?: CreateUserMutationRequest,
   config: Partial<RequestConfig<CreateUserMutationRequest>> & {
-    client?: typeof fetch
+    client?: Client
   } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
