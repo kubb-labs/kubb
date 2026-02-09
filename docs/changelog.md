@@ -6,6 +6,16 @@ outline: deep
 
 # Changelog
 
+## Unreleased
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+Fix optional file body parameter generation with anyOf containing binary and null. Previously, schemas with `anyOf: [{type: "string", format: "binary"}, {type: null}]` would incorrectly generate only `null` or `Blob | unknown` instead of the expected `Blob | null`.
+
+---
+
 ## 4.21.3
 
 ### 🐛 Bug Fixes
