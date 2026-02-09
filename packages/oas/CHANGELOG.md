@@ -1,5 +1,16 @@
 # @kubb/oas
 
+## 4.21.3
+
+### Patch Changes
+
+- [#2450](https://github.com/kubb-labs/kubb/pull/2450) [`5e475f2`](https://github.com/kubb-labs/kubb/commit/5e475f222fdfcebf74a7c82c5adf84cf970dcb8c) Thanks [@icholy](https://github.com/icholy)! - Externalize all @kubb/\* packages in tsdown configs to prevent duplicate type declarations across packages, fixing TypeScript type incompatibility errors caused by inlined #private class fields.
+
+- [#2454](https://github.com/kubb-labs/kubb/pull/2454) [`4486916`](https://github.com/kubb-labs/kubb/commit/4486916b59257c0ca41a440b0d09f6f7742c1b5e) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Replace dynamic import with static import for @redocly/openapi-core
+
+- Updated dependencies []:
+  - @kubb/core@4.21.3
+
 ## 4.21.2
 
 ### Patch Changes

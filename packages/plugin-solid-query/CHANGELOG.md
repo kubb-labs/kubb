@@ -1,5 +1,19 @@
 # @kubb/plugin-solid-query
 
+## 4.21.3
+
+### Patch Changes
+
+- [#2450](https://github.com/kubb-labs/kubb/pull/2450) [`5e475f2`](https://github.com/kubb-labs/kubb/commit/5e475f222fdfcebf74a7c82c5adf84cf970dcb8c) Thanks [@icholy](https://github.com/icholy)! - Externalize all @kubb/\* packages in tsdown configs to prevent duplicate type declarations across packages, fixing TypeScript type incompatibility errors caused by inlined #private class fields.
+
+- Updated dependencies [[`5e475f2`](https://github.com/kubb-labs/kubb/commit/5e475f222fdfcebf74a7c82c5adf84cf970dcb8c), [`4486916`](https://github.com/kubb-labs/kubb/commit/4486916b59257c0ca41a440b0d09f6f7742c1b5e)]:
+  - @kubb/oas@4.21.3
+  - @kubb/plugin-client@4.21.3
+  - @kubb/plugin-oas@4.21.3
+  - @kubb/plugin-ts@4.21.3
+  - @kubb/plugin-zod@4.21.3
+  - @kubb/core@4.21.3
+
 ## 4.21.2
 
 ### Patch Changes
