@@ -2,6 +2,7 @@ import path from 'node:path'
 import type { Config } from '@kubb/core'
 import { pascalCase } from '@kubb/core/transformers'
 import { URLPath } from '@kubb/core/utils'
+import { bundle, loadConfig } from '@redocly/openapi-core'
 import yaml from '@stoplight/yaml'
 import type { ParameterObject, SchemaObject } from 'oas/types'
 import { isRef, isSchema } from 'oas/types'
@@ -164,8 +165,6 @@ export async function parse(
   pathOrApi: string | Document,
   { oasClass = Oas, canBundle = true, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
 ): Promise<Oas> {
-  const { loadConfig, bundle } = await import('@redocly/openapi-core')
-
   if (typeof pathOrApi === 'string' && canBundle) {
     // resolve external refs
     const config = await loadConfig()
