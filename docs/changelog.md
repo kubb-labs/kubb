@@ -6,6 +6,16 @@ outline: deep
 
 # Changelog
 
+## 4.21.3
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/oas`](/packages/oas/)
+
+Replace dynamic import with static import for @redocly/openapi-core. Since the package is a declared dependency, using a static import is more appropriate for better performance and IDE support.
+
+---
+
 ## 4.21.2
 
 ### 🐛 Bug Fixes

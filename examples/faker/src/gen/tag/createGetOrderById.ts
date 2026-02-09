@@ -4,7 +4,7 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById.ts'
+import type { GetOrderById200, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById.ts'
 import { createOrder } from './createOrder.ts'
 
 export function createGetOrderByIdPathParams(data?: Partial<GetOrderByIdPathParams>): GetOrderByIdPathParams {
@@ -17,8 +17,8 @@ export function createGetOrderByIdPathParams(data?: Partial<GetOrderByIdPathPara
 /**
  * @description successful operation
  */
-export function createGetOrderById200() {
-  return createOrder()
+export function createGetOrderById200(data?: Partial<GetOrderById200>): GetOrderById200 {
+  return createOrder(data)
 }
 
 /**
