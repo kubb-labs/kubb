@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker'
-import type { UpdatePet202, UpdatePetMutationResponse } from '../../models/ts/petController/UpdatePet.ts'
+import type { UpdatePet200, UpdatePet202, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../models/ts/petController/UpdatePet.ts'
 import { createPetFaker } from '../createPetFaker.ts'
 
 /**
  * @description Successful operation
  */
-export function createUpdatePet200Faker() {
-  return createPetFaker()
+export function createUpdatePet200Faker(data?: Partial<UpdatePet200>): UpdatePet200 {
+  return createPetFaker(data)
 }
 
 /**
@@ -43,8 +43,8 @@ export function createUpdatePet405Faker() {
 /**
  * @description Update an existent pet in the store
  */
-export function createUpdatePetMutationRequestFaker() {
-  return createPetFaker()
+export function createUpdatePetMutationRequestFaker(data?: Partial<UpdatePetMutationRequest>): UpdatePetMutationRequest {
+  return createPetFaker(data)
 }
 
 export function createUpdatePetMutationResponseFaker(data?: Partial<UpdatePetMutationResponse>): UpdatePetMutationResponse {

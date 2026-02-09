@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker'
 import type {
+  CreatePetsError,
   CreatePetsHeaderParams,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
@@ -39,8 +40,8 @@ export function createCreatePets201Faker() {
 /**
  * @description unexpected error
  */
-export function createCreatePetsErrorFaker() {
-  return createPetNotFoundFaker()
+export function createCreatePetsErrorFaker(data?: Partial<CreatePetsError>): CreatePetsError {
+  return createPetNotFoundFaker(data)
 }
 
 export function createCreatePetsMutationRequestFaker(data?: Partial<CreatePetsMutationRequest>): CreatePetsMutationRequest {

@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker'
 import type {
+  CreateUsersWithListInput200,
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../models/ts/userController/CreateUsersWithListInput.ts'
@@ -8,8 +9,8 @@ import { createUserFaker } from '../createUserFaker.ts'
 /**
  * @description Successful operation
  */
-export function createCreateUsersWithListInput200Faker() {
-  return createUserFaker()
+export function createCreateUsersWithListInput200Faker(data?: Partial<CreateUsersWithListInput200>): CreateUsersWithListInput200 {
+  return createUserFaker(data)
 }
 
 /**

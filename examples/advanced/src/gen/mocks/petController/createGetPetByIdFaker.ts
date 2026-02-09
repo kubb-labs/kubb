@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import type { GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById.ts'
+import type { GetPetById200, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById.ts'
 import { createPetFaker } from '../createPetFaker.ts'
 
 export function createGetPetByIdPathParamsFaker(data?: Partial<GetPetByIdPathParams>): GetPetByIdPathParams {
@@ -12,8 +12,8 @@ export function createGetPetByIdPathParamsFaker(data?: Partial<GetPetByIdPathPar
 /**
  * @description successful operation
  */
-export function createGetPetById200Faker() {
-  return createPetFaker()
+export function createGetPetById200Faker(data?: Partial<GetPetById200>): GetPetById200 {
+  return createPetFaker(data)
 }
 
 /**
