@@ -4,14 +4,14 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { PlaceOrderMutationResponse } from '../models/PlaceOrder.ts'
+import type { PlaceOrder200, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../models/PlaceOrder.ts'
 import { createOrder } from './createOrder.ts'
 
 /**
  * @description successful operation
  */
-export function createPlaceOrder200() {
-  return createOrder()
+export function createPlaceOrder200(data?: Partial<PlaceOrder200>): PlaceOrder200 {
+  return createOrder(data)
 }
 
 /**
@@ -21,8 +21,8 @@ export function createPlaceOrder405() {
   return undefined
 }
 
-export function createPlaceOrderMutationRequest() {
-  return createOrder()
+export function createPlaceOrderMutationRequest(data?: Partial<PlaceOrderMutationRequest>): PlaceOrderMutationRequest {
+  return createOrder(data)
 }
 
 export function createPlaceOrderMutationResponse(data?: Partial<PlaceOrderMutationResponse>): PlaceOrderMutationResponse {

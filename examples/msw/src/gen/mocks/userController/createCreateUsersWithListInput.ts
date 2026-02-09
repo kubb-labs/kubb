@@ -4,15 +4,19 @@
  */
 
 import { faker } from '@faker-js/faker'
-import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../../models/CreateUsersWithListInput.ts'
+import type {
+  CreateUsersWithListInput200,
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
+} from '../../models/CreateUsersWithListInput.ts'
 import { createUser } from '../createUser.ts'
 
 /**
  * @description Successful operation
  */
-export function createCreateUsersWithListInput200() {
+export function createCreateUsersWithListInput200(data?: Partial<CreateUsersWithListInput200>): CreateUsersWithListInput200 {
   faker.seed([220])
-  return createUser()
+  return createUser(data)
 }
 
 /**
