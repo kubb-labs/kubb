@@ -39,6 +39,8 @@ export const setConfig = (config: Partial<RequestConfig>) => {
 
 export type ResponseErrorConfig<TError = unknown> = TError
 
+export type Client = <TResponseData, _TError = unknown, TRequestData = unknown>(config: RequestConfig<TRequestData>) => Promise<ResponseConfig<TResponseData>>
+
 export const client = async <TResponseData, _TError = unknown, RequestData = unknown>(
   paramsConfig: RequestConfig<RequestData>,
 ): Promise<ResponseConfig<TResponseData>> => {

@@ -80,8 +80,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
       config: isConfigurable
         ? {
             type: typeSchemas.request?.name
-              ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
-              : 'Partial<RequestConfig> & { client?: typeof fetch }',
+              ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: Client }`
+              : 'Partial<RequestConfig> & { client?: Client }',
             default: '{}',
           }
         : undefined,
@@ -120,8 +120,8 @@ function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isCo
     config: isConfigurable
       ? {
           type: typeSchemas.request?.name
-            ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: typeof fetch }`
-            : 'Partial<RequestConfig> & { client?: typeof fetch }',
+            ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: Client }`
+            : 'Partial<RequestConfig> & { client?: Client }',
           default: '{}',
         }
       : undefined,
