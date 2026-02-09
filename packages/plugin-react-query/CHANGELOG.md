@@ -1,5 +1,19 @@
 # @kubb/plugin-react-query
 
+## 4.22.0
+
+### Patch Changes
+
+- [#2450](https://github.com/kubb-labs/kubb/pull/2450) [`5e475f2`](https://github.com/kubb-labs/kubb/commit/5e475f222fdfcebf74a7c82c5adf84cf970dcb8c) Thanks [@icholy](https://github.com/icholy)! - Externalize all @kubb/\* packages in tsdown configs to prevent duplicate type declarations across packages, fixing TypeScript type incompatibility errors caused by inlined #private class fields.
+
+- Updated dependencies [[`68640ed`](https://github.com/kubb-labs/kubb/commit/68640ed75f1501887f913181bd268f3ea22a3fd4), [`5e475f2`](https://github.com/kubb-labs/kubb/commit/5e475f222fdfcebf74a7c82c5adf84cf970dcb8c), [`4486916`](https://github.com/kubb-labs/kubb/commit/4486916b59257c0ca41a440b0d09f6f7742c1b5e)]:
+  - @kubb/plugin-client@4.22.0
+  - @kubb/oas@4.22.0
+  - @kubb/plugin-oas@4.22.0
+  - @kubb/plugin-ts@4.22.0
+  - @kubb/plugin-zod@4.22.0
+  - @kubb/core@4.22.0
+
 ## 4.21.2
 
 ### Patch Changes

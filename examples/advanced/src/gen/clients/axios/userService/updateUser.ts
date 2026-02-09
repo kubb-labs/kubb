@@ -1,4 +1,4 @@
-import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
 import { updateUserMutationRequestSchema, updateUserMutationResponseSchema } from '../../../zod/userController/updateUserSchema.ts'
@@ -15,7 +15,7 @@ export function getUpdateUserUrl({ username }: { username: UpdateUserPathParams[
  */
 export async function updateUser(
   { username, data }: { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest },
-  config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 

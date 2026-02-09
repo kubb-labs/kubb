@@ -40,7 +40,7 @@ export const clientStaticGenerator = createReactGenerator<PluginClient>({
         {options.importPath ? (
           <>
             <File.Import name={'fetch'} path={options.importPath} />
-            <File.Import name={['RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
+            <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
           </>
         ) : (
           <>

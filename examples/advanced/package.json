@@ -48,14 +48,14 @@
     "@tanstack/svelte-query": "^5.90.2",
     "@tanstack/vue-query": "^5.92.9",
     "@types/react": "^19.2.13",
-    "axios": "^1.13.4",
+    "axios": "^1.13.5",
     "cypress": "~14.3.3",
     "msw": "^2.12.9",
     "react": "^19.2.4",
     "solid-js": "^1.9.11",
     "svelte": "^4.2.20",
     "swr": "^2.4.0",
-    "vue": "^3.5.27",
+    "vue": "^3.5.28",
     "zod": "^3.25.76"
   },
   "devDependencies": {

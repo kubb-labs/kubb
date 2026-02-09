@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 import useSWRMutation from 'swr/mutation'
-import type { RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
+import type { Client, RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import { fetch } from './test/.kubb/fetch'
 
@@ -18,7 +18,7 @@ export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMu
 export async function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 

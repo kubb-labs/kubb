@@ -12,7 +12,7 @@ export default defineConfig({
   sourcemap: true,
   shims: true,
   exports: true,
-  external: ['@kubb/core', '@types/react'],
+  external: [/^@kubb\//, '@types/react'],
   fixedExtension: false,
   outputOptions: {
     keepNames: true,

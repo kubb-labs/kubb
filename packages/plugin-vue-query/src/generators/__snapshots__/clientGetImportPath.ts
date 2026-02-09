@@ -4,7 +4,7 @@
  */
 import fetch from 'axios'
 import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from '@tanstack/react-query'
-import type { RequestConfig, ResponseErrorConfig } from 'axios'
+import type { Client, RequestConfig, ResponseErrorConfig } from 'axios'
 import type { MaybeRefOrGetter } from 'vue'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 import { toValue } from 'vue'
@@ -22,7 +22,7 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export async function findPetsByTags(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 

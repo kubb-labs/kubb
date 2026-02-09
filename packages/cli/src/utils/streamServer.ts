@@ -4,7 +4,7 @@ import { createServer } from 'node:http'
 import path from 'node:path'
 import process from 'node:process'
 import * as clack from '@clack/prompts'
-import type { Config, ConnectResponse, HealthResponse, KubbEvents, StreamEvents, StreamEventType } from '@kubb/core'
+import type { Config, ConnectResponse, HealthResponse, KubbEvents, StreamEvent, StreamEvents, StreamEventType } from '@kubb/core'
 import { LogLevel } from '@kubb/core'
 import { AsyncEventEmitter, serializePluginOptions } from '@kubb/core/utils'
 import pc from 'picocolors'
@@ -133,7 +133,10 @@ async function handleGenerate(res: ServerResponse, config: Config, input: string
 
   // Helper to send SSE events
   function send<T extends StreamEventType>(type: T, ...data: StreamEvents[T]) {
-    res.write(`data: ${JSON.stringify({ type, data })}\n\n`)
+    //todo add date here: timestamp: number
+    const streamEvent: StreamEvent = { type, data }
+
+    res.write(`data: ${JSON.stringify(streamEvent)}\n\n`)
   }
 
   // Install stream logger

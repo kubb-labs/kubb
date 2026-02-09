@@ -15,7 +15,7 @@ export default defineConfig({
   shims: true,
   exports: true,
   noExternal: [/p-limit/],
-  external: ['@kubb/core', '@types/react'],
+  external: [/^@kubb\//, '@types/react'],
   fixedExtension: false,
   outputOptions: {
     keepNames: true,

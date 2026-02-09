@@ -1,4 +1,4 @@
-import type { RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 import { createUserMutationRequestSchema, createUserMutationResponseSchema } from '../../../zod/userController/createUserSchema.ts'
@@ -15,7 +15,7 @@ export function getCreateUserUrl() {
  */
 export async function createUser(
   { data }: { data?: CreateUserMutationRequest } = {},
-  config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 import useSWR from 'swr'
-import type { RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
+import type { Client, RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
 import { fetch } from './test/.kubb/fetch'
 
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
@@ -15,7 +15,7 @@ export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export async function findPetsByTags({ params }: { params?: FindPetsByTagsQueryParams } = {}, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export async function findPetsByTags({ params }: { params?: FindPetsByTagsQueryParams } = {}, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({

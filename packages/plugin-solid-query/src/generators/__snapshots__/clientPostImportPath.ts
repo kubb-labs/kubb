@@ -4,7 +4,7 @@
  */
 import fetch from 'axios'
 import type { UseMutationOptions, QueryClient } from '@tanstack/solid-query'
-import type { RequestConfig, ResponseErrorConfig } from 'axios'
+import type { Client, RequestConfig, ResponseErrorConfig } from 'axios'
 import { useMutation } from '@tanstack/solid-query'
 
 export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
@@ -19,7 +19,7 @@ export async function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],
   data?: UpdatePetWithFormMutationRequest,
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
