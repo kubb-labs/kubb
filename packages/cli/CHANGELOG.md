@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 4.22.1
+
+### Patch Changes
+
+- [`d5ea891`](https://github.com/kubb-labs/kubb/commit/d5ea8915e5f8c099d3fcd7d5dd8fca1a86644438) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - add `npx kubb server`
+
+- Updated dependencies []:
+  - @kubb/core@4.22.1
+
 ## 4.22.0
 
 ### Patch Changes
