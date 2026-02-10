@@ -55,7 +55,7 @@ export function useUploadFile<TContext>(
       },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

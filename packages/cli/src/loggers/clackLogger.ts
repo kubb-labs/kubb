@@ -156,7 +156,7 @@ export const clackLogger = defineLogger({
           clack.log.message(getMessage(pc.dim(frame.trim())))
         }
 
-        if (caused && caused.stack) {
+        if (caused?.stack) {
           clack.log.message(pc.dim(`└─ caused by ${caused.message}`))
 
           const frames = caused.stack.split('\n').slice(1, 4)

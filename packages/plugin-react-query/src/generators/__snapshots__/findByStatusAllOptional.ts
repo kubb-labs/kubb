@@ -30,7 +30,7 @@ export async function findPetsByStatus({ params }: { params?: FindPetsByStatusQu
 
 export function findPetsByStatusQueryOptions(
   { params }: { params?: FindPetsByStatusQueryParams } = {},
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = findPetsByStatusQueryKey(params)
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
@@ -57,7 +57,7 @@ export function useFindPetsByStatus<
     query?: Partial<QueryObserverOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}

@@ -48,7 +48,7 @@ export function usePlaceOrderPatch<TContext>(
       UseMutationOptions<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, { data?: PlaceOrderPatchMutationRequest }, TContext>
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

@@ -43,7 +43,7 @@ export async function updatePetWithFormSuspenseHook(
 export function updatePetWithFormSuspenseQueryOptionsHook(
   pet_id: UpdatePetWithFormPathParams['pet_id'],
   params?: UpdatePetWithFormQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = updatePetWithFormSuspenseQueryKey(pet_id, params)
   return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
@@ -67,7 +67,7 @@ export function useUpdatePetWithFormSuspenseHook<TData = UpdatePetWithFormMutati
     query?: Partial<UseSuspenseQueryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, TData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}

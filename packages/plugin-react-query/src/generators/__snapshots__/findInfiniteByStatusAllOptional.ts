@@ -34,7 +34,7 @@ export async function findPetsByStatusInfinite(
 
 export function findPetsByStatusInfiniteQueryOptions(
   { params }: { params?: FindPetsByStatusQueryParams } = {},
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = findPetsByStatusInfiniteQueryKey(params)
   return infiniteQueryOptions<
@@ -75,7 +75,7 @@ export function useFindPetsByStatusInfinite<
   { params }: { params?: FindPetsByStatusQueryParams } = {},
   options: {
     query?: Partial<InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>> & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}

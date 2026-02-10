@@ -40,7 +40,7 @@ export async function updatePetHook(
 
 export function updatePetMutationOptionsHook<TContext = unknown>(
   config: Partial<RequestConfig<UpdatePetMutationRequest>> & {
-    client?: typeof fetch
+    client?: Client
   } = {},
 ) {
   const mutationKey = updatePetMutationKey()
@@ -71,7 +71,7 @@ export function useUpdatePetHook<TContext>(
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<UpdatePetMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

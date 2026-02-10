@@ -55,7 +55,7 @@ export function usePlaceOrderPatch(
       PlaceOrderPatchMutationArg
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
     shouldFetch?: boolean
   } = {},

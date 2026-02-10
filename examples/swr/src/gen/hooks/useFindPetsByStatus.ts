@@ -29,7 +29,7 @@ export async function findPetsByStatus(params?: FindPetsByStatusQueryParams, con
   return res.data
 }
 
-export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParams, config: Partial<RequestConfig> & { client?: Client } = {}) {
   return {
     fetcher: async () => {
       return findPetsByStatus(params, config)
@@ -46,7 +46,7 @@ export function useFindPetsByStatus(
   params?: FindPetsByStatusQueryParams,
   options: {
     query?: Parameters<typeof useSWR<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>>>[2]
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
     shouldFetch?: boolean
     immutable?: boolean
   } = {},

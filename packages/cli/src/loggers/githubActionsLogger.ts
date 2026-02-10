@@ -126,7 +126,7 @@ export const githubActionsLogger = defineLogger({
           console.log(getMessage(pc.dim(frame.trim())))
         }
 
-        if (caused && caused.stack) {
+        if (caused?.stack) {
           console.log(pc.dim(`└─ caused by ${caused.message}`))
 
           const frames = caused.stack.split('\n').slice(1, 4)

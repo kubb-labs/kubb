@@ -36,7 +36,7 @@ export async function updatePetWithForm(
 }
 
 export function updatePetWithFormMutationOptions<TContext = unknown>(
-  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: Client } = {},
 ) {
   const mutationKey = updatePetWithFormMutationKey()
   return mutationOptions<
@@ -64,7 +64,7 @@ export function useUpdatePetWithForm<TContext>(
       { petId: UpdatePetWithFormPathParams['petId']; data?: UpdatePetWithFormMutationRequest; params?: UpdatePetWithFormQueryParams },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

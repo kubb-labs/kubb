@@ -24,7 +24,7 @@ export async function getInventoryHook(config: Partial<RequestConfig> & { client
   return res.data
 }
 
-export function getInventoryQueryOptionsHook(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function getInventoryQueryOptionsHook(config: Partial<RequestConfig> & { client?: Client } = {}) {
   const queryKey = getInventoryQueryKey()
   return queryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryResponse, typeof queryKey>({
     queryKey,

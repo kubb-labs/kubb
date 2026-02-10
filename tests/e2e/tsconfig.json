@@ -6,6 +6,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "strictNullChecks": true,
+    "noUnusedLocals": false,
     "jsx": "react-jsx",
     "outDir": "dist",
     "experimentalDecorators": true,

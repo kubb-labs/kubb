@@ -50,7 +50,7 @@ export function useCreateUser(
       throwOnError?: boolean
     }
     client?: Partial<RequestConfig<CreateUserMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
     shouldFetch?: boolean
   } = {},

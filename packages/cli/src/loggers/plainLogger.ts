@@ -72,7 +72,7 @@ export const plainLogger = defineLogger({
           console.log(getMessage(frame.trim()))
         }
 
-        if (caused && caused.stack) {
+        if (caused?.stack) {
           console.log(`└─ caused by ${caused.message}`)
 
           const frames = caused.stack.split('\n').slice(1, 4)

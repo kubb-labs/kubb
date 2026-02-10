@@ -26,7 +26,7 @@ export async function getInventorySuspenseHook(config: Partial<RequestConfig> & 
   return res.data
 }
 
-export function getInventorySuspenseQueryOptionsHook(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function getInventorySuspenseQueryOptionsHook(config: Partial<RequestConfig> & { client?: Client } = {}) {
   const queryKey = getInventorySuspenseQueryKey()
   return queryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryResponse, typeof queryKey>({
     queryKey,
@@ -45,7 +45,7 @@ export function getInventorySuspenseQueryOptionsHook(config: Partial<RequestConf
 export function useGetInventorySuspenseHook<TData = GetInventoryQueryResponse, TQueryKey extends QueryKey = GetInventorySuspenseQueryKey>(
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, TData, TQueryKey>> & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}

@@ -51,7 +51,7 @@ export function useUpdatePetWithForm<TContext>(
       { petId: MaybeRefOrGetter<UpdatePetWithFormPathParams['petId']>; params?: MaybeRefOrGetter<UpdatePetWithFormQueryParams> },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

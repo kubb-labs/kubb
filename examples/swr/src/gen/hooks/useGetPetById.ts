@@ -28,7 +28,7 @@ export async function getPetById(petId: GetPetByIdPathParams['petId'], config: P
   return res.data
 }
 
-export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], config: Partial<RequestConfig> & { client?: Client } = {}) {
   return {
     fetcher: async () => {
       return getPetById(petId, config)
@@ -45,7 +45,7 @@ export function useGetPetById(
   petId: GetPetByIdPathParams['petId'],
   options: {
     query?: Parameters<typeof useSWR<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>>>[2]
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
     shouldFetch?: boolean
     immutable?: boolean
   } = {},

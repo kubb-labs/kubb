@@ -50,7 +50,7 @@ export function useAddPet(
       throwOnError?: boolean
     }
     client?: Partial<RequestConfig<AddPetMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
     shouldFetch?: boolean
   } = {},

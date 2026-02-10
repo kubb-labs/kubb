@@ -34,7 +34,7 @@ export async function getOrderById({ orderId }: { orderId: GetOrderByIdPathParam
 
 export function getOrderByIdQueryOptions(
   { orderId }: { orderId: MaybeRefOrGetter<GetOrderByIdPathParams['orderId']> },
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = getOrderByIdQueryKey({ orderId })
   return queryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, GetOrderByIdQueryResponse, typeof queryKey>({
@@ -58,7 +58,7 @@ export function useGetOrderById<TData = GetOrderByIdQueryResponse, TQueryData = 
     query?: Partial<UseQueryOptions<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}

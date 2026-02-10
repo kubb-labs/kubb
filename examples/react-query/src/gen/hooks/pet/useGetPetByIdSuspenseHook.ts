@@ -36,7 +36,7 @@ export async function getPetByIdSuspenseHook(
 
 export function getPetByIdSuspenseQueryOptionsHook(
   { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] },
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = getPetByIdSuspenseQueryKey({ pet_id })
   return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
@@ -60,7 +60,7 @@ export function useGetPetByIdSuspenseHook<TData = GetPetByIdQueryResponse, TQuer
     query?: Partial<UseSuspenseQueryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}

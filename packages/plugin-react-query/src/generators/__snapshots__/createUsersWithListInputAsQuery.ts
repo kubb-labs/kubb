@@ -36,7 +36,7 @@ export async function createUsersWithListInput(
 
 export function createUsersWithListInputQueryOptions(
   data?: CreateUsersWithListInputMutationRequest,
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: Client } = {},
 ) {
   const queryKey = createUsersWithListInputQueryKey(data)
   return queryOptions<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationResponse, typeof queryKey>({
@@ -63,7 +63,7 @@ export function useCreateUsersWithListInput<
     query?: Partial<QueryObserverOptions<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
