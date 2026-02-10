@@ -139,7 +139,7 @@ export const clackLogger = defineLogger({
     })
 
     context.on('error', (error) => {
-      const caused = error.cause as Error
+      const caused = error.cause as Error | undefined
 
       const text = [pc.red('✗'), error.message].join(' ')
 
@@ -156,7 +156,7 @@ export const clackLogger = defineLogger({
           clack.log.message(getMessage(pc.dim(frame.trim())))
         }
 
-        if (caused?.stack) {
+        if (caused && caused.stack) {
           clack.log.message(pc.dim(`└─ caused by ${caused.message}`))
 
           const frames = caused.stack.split('\n').slice(1, 4)
@@ -464,16 +464,26 @@ Run \`npm install -g @kubb/cli\` to update`,
 
         await context.emit('hook:end', { command, args, id, success: true, error: null })
       } catch (err) {
-        const error = new Error('Hook execute failed')
-        error.cause = err
+        const error = err as ExecaError
+        const stderr = typeof error.stderr === 'string' ? error.stderr : String(error.stderr)
+        const stdout = typeof error.stdout === 'string' ? error.stdout : String(error.stdout)
 
         await context.emit('debug', {
           date: new Date(),
-          logs: [(err as any).stdout],
+          logs: [stdout, stderr].filter(Boolean),
         })
 
-        await context.emit('hook:end', { command, args, id, success: true, error })
-        await context.emit('error', error)
+        if (stderr) {
+          logger.error(stderr)
+        }
+        if (stdout) {
+          logger.message(stdout)
+        }
+
+        const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
+
+        await context.emit('hook:end', { command, args, id, success: false, error: errorMessage })
+        await context.emit('error', errorMessage)
       }
     })
 

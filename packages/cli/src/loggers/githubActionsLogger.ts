@@ -111,7 +111,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('error', (error) => {
-      const caused = error.cause as Error
+      const caused = error.cause as Error | undefined
 
       if (logLevel <= LogLevel.silent) {
         return
@@ -126,7 +126,7 @@ export const githubActionsLogger = defineLogger({
           console.log(getMessage(pc.dim(frame.trim())))
         }
 
-        if (caused?.stack) {
+        if (caused && caused.stack) {
           console.log(pc.dim(`└─ caused by ${caused.message}`))
 
           const frames = caused.stack.split('\n').slice(1, 4)

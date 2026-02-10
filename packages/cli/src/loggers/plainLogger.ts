@@ -59,7 +59,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('error', (error) => {
-      const caused = error.cause as Error
+      const caused = error.cause as Error | undefined
 
       const text = getMessage(['✗', error.message].join(' '))
 
@@ -72,7 +72,7 @@ export const plainLogger = defineLogger({
           console.log(getMessage(frame.trim()))
         }
 
-        if (caused?.stack) {
+        if (caused && caused.stack) {
           console.log(`└─ caused by ${caused.message}`)
 
           const frames = caused.stack.split('\n').slice(1, 4)
