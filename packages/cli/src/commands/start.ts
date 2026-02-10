@@ -1,11 +1,14 @@
 import * as process from 'node:process'
 import * as clack from '@clack/prompts'
-import type { ArgsDef, ParsedArgs } from 'citty'
+import { LogLevel, type ServerEvents, startServer } from '@kubb/core'
+import { AsyncEventEmitter } from '@kubb/core/utils'
+import type { ArgsDef } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import pc from 'picocolors'
+import { version } from '../../package.json'
+import { generate } from '../runners/generate.ts'
 import { getConfigs } from '../utils/getConfigs.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
-import { startStreamServer } from '../utils/streamServer.ts'
 import type { Args as GenerateArgs } from './generate.ts'
 
 const args = {
@@ -41,12 +44,12 @@ const args = {
   },
   port: {
     type: 'string',
-    description: 'Port for stream server. If not specified, an available port is automatically selected.',
+    description: 'Port for the server. If not specified, an available port is automatically selected.',
     alias: 'p',
   },
   host: {
     type: 'string',
-    description: 'Host for stream server',
+    description: 'Host for the server',
     default: 'localhost',
   },
   help: {
@@ -56,8 +59,6 @@ const args = {
     default: false,
   },
 } as const satisfies ArgsDef
-
-export type Args = ParsedArgs<typeof args>
 
 const command = defineCommand({
   meta: {
@@ -97,14 +98,43 @@ const command = defineCommand({
 
       const port = args.port ? Number.parseInt(args.port, 10) : 0
       const host = args.host
+      const config = configs[0]!
+      const logLevel = LogLevel[args.logLevel as keyof typeof LogLevel] || 3
 
-      await startStreamServer({
+      const events = new AsyncEventEmitter<ServerEvents>()
+
+      events.on('server:start', (serverUrl: string, configPath: string) => {
+        clack.log.success(pc.green(`Stream server started on ${pc.bold(serverUrl)}`))
+        clack.log.info(pc.dim(`Config: ${configPath}`))
+        clack.log.info(pc.dim(`Connect: ${serverUrl}/api/info`))
+        clack.log.info(pc.dim(`Generate: ${serverUrl}/api/generate`))
+        clack.log.info(pc.dim(`Health: ${serverUrl}/api/health`))
+        clack.log.step(pc.yellow('Waiting for requests... (Press Ctrl+C to stop)'))
+      })
+
+      events.on('server:shutdown', () => {
+        clack.log.info('Shutting down stream server...')
+      })
+
+      events.on('server:stopped', () => {
+        clack.log.success('Server stopped')
+      })
+
+      await startServer({
         port,
         host,
         configPath: result.filepath,
-        config: configs[0]!,
-        input,
-        args: generateArgs,
+        config,
+        version,
+        events,
+        onGenerate: async () => {
+          await generate({
+            input,
+            config,
+            logLevel,
+            events,
+          })
+        },
       })
 
       // Server is running, don't exit
