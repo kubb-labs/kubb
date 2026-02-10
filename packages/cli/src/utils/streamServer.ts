@@ -86,8 +86,8 @@ export async function startStreamServer({ port, host, configPath, config, input,
       return
     }
 
-    // Stream endpoint
-    if (req.url === '/api/stream' && req.method === 'POST') {
+    // Generate endpoint
+    if (req.url === '/api/generate' && req.method === 'POST') {
       await handleGenerate(res, config, input, args)
       return
     }
@@ -104,7 +104,7 @@ export async function startStreamServer({ port, host, configPath, config, input,
     clack.log.success(pc.green(`Stream server started on ${pc.bold(serverUrl)}`))
     clack.log.info(pc.dim(`Config: ${path.relative(process.cwd(), configPath)}`))
     clack.log.info(pc.dim(`Connect: ${serverUrl}/api/info`))
-    clack.log.info(pc.dim(`Stream: ${serverUrl}/api/stream`))
+    clack.log.info(pc.dim(`Generate: ${serverUrl}/api/generate`))
     clack.log.info(pc.dim(`Health: ${serverUrl}/api/health`))
     clack.log.step(pc.yellow('Waiting for requests... (Press Ctrl+C to stop)'))
   })

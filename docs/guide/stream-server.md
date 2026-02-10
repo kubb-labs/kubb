@@ -17,32 +17,24 @@ The stream server exposes three HTTP endpoints:
 
 - **`GET /api/health`** - Health check and version info
 - **`GET /api/info`** - Configuration metadata and OpenAPI spec
-- **`POST /api/stream`** - SSE stream for code generation events
+- **`POST /api/generate`** - SSE stream for code generation events
 
 ## Starting the Server
 
-Use the `--stream` flag with the `kubb generate` command:
+Use the `kubb start` command:
 
 ```shell
-npx kubb generate --stream
+npx kubb start
 ```
 
 ### Options
-
-#### --stream
-
-Start the HTTP server with SSE streaming.
-
-```shell
-npx kubb generate --stream
-```
 
 #### --port (-p)
 
 Specify the port for the stream server. If not specified, an available port is automatically selected.
 
 ```shell
-npx kubb generate --stream --port 3000
+npx kubb start --port 3000
 ```
 
 #### --host
@@ -50,7 +42,7 @@ npx kubb generate --stream --port 3000
 Specify the host for the stream server (default: `localhost`).
 
 ```shell
-npx kubb generate --stream --host 0.0.0.0 --port 3000
+npx kubb start --host 0.0.0.0 --port 3000
 ```
 
 ### Server Output
@@ -62,11 +54,15 @@ When started, the server displays connection information:
 
 ℹ Config: kubb.config.ts
 ℹ Connect: http://localhost:3000/api/info
-ℹ Stream: http://localhost:3000/api/stream
+ℹ Generate: http://localhost:3000/api/generate
 ℹ Health: http://localhost:3000/api/health
 
 ◆ Waiting for requests... (Press Ctrl+C to stop)
 ```
+
+> [!TIP]
+> The stream server API is documented in an OpenAPI specification located at `packages/cli/openapi.yaml`.
+> You can use this spec to generate clients or understand the API structure.
 
 ## API Endpoints
 
@@ -135,7 +131,7 @@ Returns configuration metadata and the OpenAPI specification content.
 curl http://localhost:3000/api/info
 ```
 
-### POST /api/stream
+### POST /api/generate
 
 Starts code generation and streams events via Server-Sent Events (SSE).
 
@@ -158,7 +154,7 @@ data: {"type":"<event-type>","data":[...]}\n\n
 **Example:**
 
 ```shell
-curl -X POST http://localhost:3000/api/stream
+curl -X POST http://localhost:3000/api/generate
 ```
 
 ## Configuration Limitations
@@ -177,10 +173,10 @@ If you need multiple configurations, run separate stream server instances with d
 
 ```shell
 # Terminal 1
-npx kubb generate --config kubb.config1.ts --stream --port 3001
+npx kubb start --config kubb.config1.ts --port 3001
 
 # Terminal 2
-npx kubb generate --config kubb.config2.ts --stream --port 3002
+npx kubb start --config kubb.config2.ts --port 3002
 ```
 
 ## Debugging
@@ -188,7 +184,7 @@ npx kubb generate --config kubb.config2.ts --stream --port 3002
 Use the `--debug` flag to see detailed logs:
 
 ```shell
-npx kubb generate --stream --debug
+npx kubb start --debug
 ```
 
 This will show:

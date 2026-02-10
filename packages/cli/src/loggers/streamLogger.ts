@@ -1,6 +1,6 @@
 import type { ServerResponse } from 'node:http'
 import { relative } from 'node:path'
-import type { StreamEvents, StreamEventType } from '@kubb/core'
+import type { StreamEvent, StreamEvents, StreamEventType } from '@kubb/core'
 import { defineLogger, LogLevel } from '@kubb/core'
 
 type StreamLoggerState = {
@@ -20,8 +20,10 @@ export function createStreamLogger(res: ServerResponse) {
 
       // Helper to send SSE events
       function send<T extends StreamEventType>(type: T, ...data: StreamEvents[T]) {
+        const streamEvent: StreamEvent = { type, data }
+
         if (!state.res.destroyed) {
-          state.res.write(`data: ${JSON.stringify({ type, data })}\n\n`)
+          state.res.write(`data: ${JSON.stringify(streamEvent)}\n\n`)
         }
       }
 

@@ -6,6 +6,16 @@ outline: deep
 
 # Changelog
 
+## 4.22.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/cli`](/helpers/cli/), [`@kubb/core`](/core/)
+
+Add `npx kubb server`
+
+---
+
 ## 4.22.0
 
 ### ✨ New Features
