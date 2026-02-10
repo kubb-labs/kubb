@@ -1,6 +1,6 @@
 import { type Config, defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
-import { execa } from 'execa'
+import { type ExecaError, execa } from 'execa'
 import pc from 'picocolors'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 
@@ -363,7 +363,9 @@ export const githubActionsLogger = defineLogger({
           logs: [result.stdout],
         })
 
-        console.log(result.stdout)
+        if (logLevel > LogLevel.silent) {
+          console.log(result.stdout)
+        }
 
         await context.emit('hook:end', {
           command,
@@ -373,22 +375,33 @@ export const githubActionsLogger = defineLogger({
           error: null,
         })
       } catch (err) {
-        const error = new Error('Hook execute failed')
-        error.cause = err
+        const error = err as ExecaError
+        const stderr = typeof error.stderr === 'string' ? error.stderr : String(error.stderr)
+        const stdout = typeof error.stdout === 'string' ? error.stdout : String(error.stdout)
 
         await context.emit('debug', {
           date: new Date(),
-          logs: [(err as any).stdout],
+          logs: [stdout, stderr].filter(Boolean),
         })
+
+        // Display stderr/stdout in GitHub Actions format
+        if (stderr) {
+          console.error(`::error::${stderr}`)
+        }
+        if (stdout) {
+          console.log(stdout)
+        }
+
+        const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
 
         await context.emit('hook:end', {
           command,
           args,
           id,
           success: false,
-          error,
+          error: errorMessage,
         })
-        await context.emit('error', error)
+        await context.emit('error', errorMessage)
       }
     })
 
