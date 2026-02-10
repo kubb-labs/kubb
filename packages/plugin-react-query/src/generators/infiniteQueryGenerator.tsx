@@ -105,7 +105,11 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
         {options.client.importPath ? (
           <>
             <File.Import name={'fetch'} path={options.client.importPath} />
-            <File.Import name={[!shouldUseClientPlugin && 'Client', 'RequestConfig', 'ResponseErrorConfig'].filter(Boolean)} path={options.client.importPath} isTypeOnly />
+            <File.Import
+              name={[!shouldUseClientPlugin && 'Client', 'RequestConfig', 'ResponseErrorConfig'].filter(Boolean)}
+              path={options.client.importPath}
+              isTypeOnly
+            />
             {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
           </>
         ) : (
