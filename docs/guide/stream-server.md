@@ -61,7 +61,7 @@ When started, the server displays connection information:
 ```
 
 > [!TIP]
-> The stream server API is documented in an OpenAPI specification located at `packages/cli/openapi.yaml`.
+> The stream server API is documented in an OpenAPI specification located at `packages/core/schemas/openapi/server.yaml`.
 > You can use this spec to generate clients or understand the API structure.
 
 ## API Endpoints
