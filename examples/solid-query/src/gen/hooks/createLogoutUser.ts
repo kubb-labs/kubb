@@ -23,7 +23,7 @@ export async function logoutUser(config: Partial<RequestConfig> & { client?: Cli
   return res.data
 }
 
-export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client?: Client } = {}) {
   const queryKey = logoutUserQueryKey()
   return queryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,

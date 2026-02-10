@@ -40,7 +40,7 @@ export async function createUserHook(
 
 export function createUserMutationOptionsHook<TContext = unknown>(
   config: Partial<RequestConfig<CreateUserMutationRequest>> & {
-    client?: typeof fetch
+    client?: Client
   } = {},
 ) {
   const mutationKey = createUserMutationKey()
@@ -63,7 +63,7 @@ export function useCreateUserHook<TContext>(
       client?: QueryClient
     }
     client?: Partial<RequestConfig<CreateUserMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

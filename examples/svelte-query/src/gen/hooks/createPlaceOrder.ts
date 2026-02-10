@@ -59,7 +59,7 @@ export function createPlaceOrder<TContext>(
       client?: QueryClient
     }
     client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

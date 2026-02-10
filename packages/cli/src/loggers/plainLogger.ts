@@ -59,7 +59,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('error', (error) => {
-      const caused = error.cause as Error
+      const caused = error.cause as Error | undefined
 
       const text = getMessage(['✗', error.message].join(' '))
 

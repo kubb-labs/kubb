@@ -62,7 +62,7 @@ export function useUploadFile<TContext>(
       >
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<UploadFileMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

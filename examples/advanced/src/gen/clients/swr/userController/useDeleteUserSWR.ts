@@ -1,7 +1,6 @@
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser.ts'
 import { deleteUser } from '../../axios/userService/deleteUser.ts'
 
@@ -23,7 +22,7 @@ export function useDeleteUserSWR(
       DeleteUserMutationKeySWR | null,
       never
     > & { throwOnError?: boolean }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
     shouldFetch?: boolean
   } = {},
 ) {

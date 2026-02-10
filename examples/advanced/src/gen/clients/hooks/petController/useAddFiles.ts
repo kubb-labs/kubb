@@ -1,7 +1,6 @@
 import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
-import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../../models/ts/petController/AddFiles.ts'
 import { addFiles } from '../../axios/petService/addFiles.ts'
 
@@ -9,7 +8,7 @@ export const addFilesMutationKey = () => [{ url: '/pet/files' }] as const
 
 export type AddFilesMutationKey = ReturnType<typeof addFilesMutationKey>
 
-export function addFilesMutationOptions<TContext = unknown>(config: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: typeof fetch } = {}) {
+export function addFilesMutationOptions<TContext = unknown>(config: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: Client } = {}) {
   const mutationKey = addFilesMutationKey()
   return mutationOptions<ResponseConfig<AddFilesMutationResponse>, ResponseErrorConfig<AddFiles405>, { data: AddFilesMutationRequest }, TContext>({
     mutationKey,
@@ -29,7 +28,7 @@ export function useAddFiles<TContext>(
     mutation?: UseMutationOptions<ResponseConfig<AddFilesMutationResponse>, ResponseErrorConfig<AddFiles405>, { data: AddFilesMutationRequest }, TContext> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

@@ -71,7 +71,7 @@ export function createUploadFile<TContext>(
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<UploadFileMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

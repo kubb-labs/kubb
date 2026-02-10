@@ -59,7 +59,7 @@ export function createCreateUser<TContext>(
       client?: QueryClient
     }
     client?: Partial<RequestConfig<CreateUserMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

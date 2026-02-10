@@ -1,7 +1,6 @@
 import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
-import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
@@ -14,7 +13,7 @@ export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId:search' }
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
 
-export function updatePetWithFormMutationOptions<TContext = unknown>(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function updatePetWithFormMutationOptions<TContext = unknown>(config: Partial<RequestConfig> & { client?: Client } = {}) {
   const mutationKey = updatePetWithFormMutationKey()
   return mutationOptions<
     ResponseConfig<UpdatePetWithFormMutationResponse>,
@@ -41,7 +40,7 @@ export function useUpdatePetWithForm<TContext>(
       { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

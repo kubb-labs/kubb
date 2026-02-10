@@ -111,7 +111,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('error', (error) => {
-      const caused = error.cause as Error
+      const caused = error.cause as Error | undefined
 
       if (logLevel <= LogLevel.silent) {
         return

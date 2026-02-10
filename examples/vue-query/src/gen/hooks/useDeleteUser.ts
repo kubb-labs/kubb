@@ -43,7 +43,7 @@ export function useDeleteUser<TContext>(
       { username: MaybeRefOrGetter<DeleteUserPathParams['username']> },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

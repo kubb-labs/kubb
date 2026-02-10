@@ -38,7 +38,7 @@ export async function findPetsByTagsSuspenseInfinite(
 export function findPetsByTagsSuspenseInfiniteQueryOptions(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = findPetsByTagsSuspenseInfiniteQueryKey(params)
   return infiniteQueryOptions<
@@ -80,7 +80,7 @@ export function useFindPetsByTagsSuspenseInfinite<
   params?: FindPetsByTagsQueryParams,
   options: {
     query?: Partial<UseSuspenseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>> & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
