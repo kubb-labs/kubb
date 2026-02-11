@@ -1,5 +1,13 @@
 # kubb
 
+## 3.0.207
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@4.22.2
+  - @kubb/core@4.22.2
+
 ## 3.0.206
 
 ### Patch Changes
