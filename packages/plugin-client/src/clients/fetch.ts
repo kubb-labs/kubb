@@ -37,6 +37,19 @@ export const setConfig = (config: Partial<RequestConfig>) => {
   return getConfig()
 }
 
+export const mergeConfig = <T extends RequestConfig>(...configs: Array<Partial<T>>): Partial<T> => {
+  return configs.reduce<Partial<T>>((merged, config) => {
+    return {
+      ...merged,
+      ...config,
+      headers: {
+        ...(Array.isArray(merged.headers) ? Object.fromEntries(merged.headers) : merged.headers),
+        ...(Array.isArray(config.headers) ? Object.fromEntries(config.headers) : config.headers),
+      },
+    }
+  }, {})
+}
+
 export type ResponseErrorConfig<TError = unknown> = TError
 
 export type Client = <TResponseData, _TError = unknown, TRequestData = unknown>(config: RequestConfig<TRequestData>) => Promise<ResponseConfig<TResponseData>>
@@ -46,15 +59,7 @@ export const client = async <TResponseData, _TError = unknown, RequestData = unk
 ): Promise<ResponseConfig<TResponseData>> => {
   const normalizedParams = new URLSearchParams()
 
-  const globalConfig = getConfig()
-  const config = {
-    ...globalConfig,
-    ...paramsConfig,
-    headers: {
-      ...(Array.isArray(globalConfig.headers) ? Object.fromEntries(globalConfig.headers) : globalConfig.headers),
-      ...(Array.isArray(paramsConfig.headers) ? Object.fromEntries(paramsConfig.headers) : paramsConfig.headers),
-    },
-  }
+  const config = mergeConfig(getConfig(), paramsConfig)
 
   Object.entries(config.params || {}).forEach(([key, value]) => {
     if (value !== undefined) {

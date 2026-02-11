@@ -45,23 +45,25 @@ export const setConfig = (config: RequestConfig) => {
   return getConfig()
 }
 
+export const mergeConfig = <T extends RequestConfig>(...configs: Array<Partial<T>>): Partial<T> => {
+  return configs.reduce<Partial<T>>((merged, config) => {
+    return {
+      ...merged,
+      ...config,
+      headers: {
+        ...merged.headers,
+        ...config.headers,
+      },
+    }
+  }, {})
+}
+
 export const axiosInstance = axios.create(getConfig())
 
 export const fetch = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
-  const globalConfig = getConfig()
-
-  return axiosInstance
-    .request<TData, ResponseConfig<TData>>({
-      ...globalConfig,
-      ...config,
-      headers: {
-        ...globalConfig.headers,
-        ...config.headers,
-      },
-    })
-    .catch((e: AxiosError<TError>) => {
-      throw e
-    })
+  return axiosInstance.request<TData, ResponseConfig<TData>>(mergeConfig(getConfig(), config)).catch((e: AxiosError<TError>) => {
+    throw e
+  })
 }
 
 fetch.getConfig = getConfig
