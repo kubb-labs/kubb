@@ -66,7 +66,7 @@ export function createUpdateUser<TContext>(
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<UpdateUserMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

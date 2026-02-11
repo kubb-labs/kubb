@@ -31,10 +31,7 @@ export async function getPetByIdHook({ pet_id }: { pet_id: GetPetByIdPathParams[
   return res.data
 }
 
-export function getPetByIdQueryOptionsHook(
-  { pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] },
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
-) {
+export function getPetByIdQueryOptionsHook({ pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] }, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const queryKey = getPetByIdQueryKey({ pet_id })
   return queryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, GetPetByIdQueryResponse, typeof queryKey>({
     enabled: !!pet_id,
@@ -57,7 +54,7 @@ export function useGetPetByIdHook<TData = GetPetByIdQueryResponse, TQueryData = 
     query?: Partial<QueryObserverOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}

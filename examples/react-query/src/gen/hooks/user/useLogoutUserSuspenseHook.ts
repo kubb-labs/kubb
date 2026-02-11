@@ -25,7 +25,7 @@ export async function logoutUserSuspenseHook(config: Partial<RequestConfig> & { 
   return res.data
 }
 
-export function logoutUserSuspenseQueryOptionsHook(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function logoutUserSuspenseQueryOptionsHook(config: Partial<RequestConfig> & { client?: Client } = {}) {
   const queryKey = logoutUserSuspenseQueryKey()
   return queryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
@@ -43,7 +43,7 @@ export function logoutUserSuspenseQueryOptionsHook(config: Partial<RequestConfig
 export function useLogoutUserSuspenseHook<TData = LogoutUserQueryResponse, TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey>(
   options: {
     query?: Partial<UseSuspenseQueryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, TData, TQueryKey>> & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}

@@ -345,6 +345,22 @@ describe('Code Generation', () => {
       ),
     ).toMatchSnapshot()
 
+    // Test asPascalConst with Key suffix in typeName (real-world scenario from Type.tsx)
+    expect(
+      await formatTS(
+        createEnumDeclaration({
+          type: 'asPascalConst',
+          name: 'GetPetsQueryParamsStatusEnum',
+          typeName: 'GetPetsQueryParamsStatusEnumKey',
+          enums: [
+            ['available', 'available'],
+            ['pending', 'pending'],
+            ['sold', 'sold'],
+          ],
+        }),
+      ),
+    ).toMatchSnapshot()
+
     expect(
       await formatTS(
         createEnumDeclaration({

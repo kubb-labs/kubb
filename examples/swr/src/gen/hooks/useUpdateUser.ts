@@ -54,7 +54,7 @@ export function useUpdateUser(
       throwOnError?: boolean
     }
     client?: Partial<RequestConfig<UpdateUserMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
     shouldFetch?: boolean
   } = {},

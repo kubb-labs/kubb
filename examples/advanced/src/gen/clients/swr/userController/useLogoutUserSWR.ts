@@ -1,6 +1,5 @@
 import useSWR from 'swr'
-import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
 import { logoutUser } from '../../axios/userService/logoutUser.ts'
 
@@ -8,7 +7,7 @@ export const logoutUserQueryKeySWR = () => [{ url: '/user/logout' }] as const
 
 export type LogoutUserQueryKeySWR = ReturnType<typeof logoutUserQueryKeySWR>
 
-export function logoutUserQueryOptionsSWR(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function logoutUserQueryOptionsSWR(config: Partial<RequestConfig> & { client?: Client } = {}) {
   return {
     fetcher: async () => {
       return logoutUser(config)
@@ -23,7 +22,7 @@ export function logoutUserQueryOptionsSWR(config: Partial<RequestConfig> & { cli
 export function useLogoutUserSWR(
   options: {
     query?: Parameters<typeof useSWR<ResponseConfig<LogoutUserQueryResponse>, ResponseErrorConfig<Error>>>[2]
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
     shouldFetch?: boolean
     immutable?: boolean
   } = {},

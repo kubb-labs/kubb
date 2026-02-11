@@ -46,7 +46,7 @@ export function useDeleteUser(
       DeleteUserMutationKey | null,
       DeleteUserMutationArg
     > & { throwOnError?: boolean }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
     shouldFetch?: boolean
   } = {},
 ) {

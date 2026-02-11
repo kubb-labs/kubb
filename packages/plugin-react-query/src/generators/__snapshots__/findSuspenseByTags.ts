@@ -36,7 +36,7 @@ export async function findPetsByTagsSuspense(
 export function findPetsByTagsSuspenseQueryOptions(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = findPetsByTagsSuspenseQueryKey(params)
   return queryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey>({
@@ -58,7 +58,7 @@ export function useFindPetsByTagsSuspense<TData = FindPetsByTagsQueryResponse, T
   params?: FindPetsByTagsQueryParams,
   options: {
     query?: Partial<UseSuspenseQueryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryKey>> & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}

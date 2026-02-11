@@ -62,7 +62,7 @@ export function createUpdatePet<TContext>(
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<UpdatePetMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

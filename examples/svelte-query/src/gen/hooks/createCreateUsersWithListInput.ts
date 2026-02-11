@@ -62,7 +62,7 @@ export function createCreateUsersWithListInput<TContext>(
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

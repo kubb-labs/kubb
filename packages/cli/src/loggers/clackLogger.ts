@@ -3,7 +3,7 @@ import process from 'node:process'
 import * as clack from '@clack/prompts'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
-import { execa } from 'execa'
+import { type ExecaError, execa } from 'execa'
 import pc from 'picocolors'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 import { getIntro } from '../utils/getIntro.ts'
@@ -139,7 +139,7 @@ export const clackLogger = defineLogger({
     })
 
     context.on('error', (error) => {
-      const caused = error.cause as Error
+      const caused = error.cause as Error | undefined
 
       const text = [pc.red('✗'), error.message].join(' ')
 
@@ -411,22 +411,32 @@ Run \`npm install -g @kubb/cli\` to update`,
             error: null,
           })
         } catch (err) {
-          const error = new Error('Hook execute failed')
-          error.cause = err
+          const error = err as ExecaError
+          const stderr = typeof error.stderr === 'string' ? error.stderr : String(error.stderr)
+          const stdout = typeof error.stdout === 'string' ? error.stdout : String(error.stdout)
 
           await context.emit('debug', {
             date: new Date(),
-            logs: [(err as any).stdout],
+            logs: [stdout, stderr].filter(Boolean),
           })
+
+          if (stderr) {
+            console.error(stderr)
+          }
+          if (stdout) {
+            console.log(stdout)
+          }
+
+          const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
 
           await context.emit('hook:end', {
             command,
             args,
             id,
             success: false,
-            error,
+            error: errorMessage,
           })
-          await context.emit('error', error)
+          await context.emit('error', errorMessage)
         }
 
         return
@@ -454,16 +464,26 @@ Run \`npm install -g @kubb/cli\` to update`,
 
         await context.emit('hook:end', { command, args, id, success: true, error: null })
       } catch (err) {
-        const error = new Error('Hook execute failed')
-        error.cause = err
+        const error = err as ExecaError
+        const stderr = typeof error.stderr === 'string' ? error.stderr : String(error.stderr)
+        const stdout = typeof error.stdout === 'string' ? error.stdout : String(error.stdout)
 
         await context.emit('debug', {
           date: new Date(),
-          logs: [(err as any).stdout],
+          logs: [stdout, stderr].filter(Boolean),
         })
 
-        await context.emit('hook:end', { command, args, id, success: true, error })
-        await context.emit('error', error)
+        if (stderr) {
+          logger.error(stderr)
+        }
+        if (stdout) {
+          logger.message(stdout)
+        }
+
+        const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
+
+        await context.emit('hook:end', { command, args, id, success: false, error: errorMessage })
+        await context.emit('error', errorMessage)
       }
     })
 

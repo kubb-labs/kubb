@@ -275,7 +275,7 @@ jobs:
           fi
 
       - name: Create Pull Request with generated files
-        if: steps.check_changes.outputs.changed == 'true'
+        if: steps.check_changes.outputs.changed == 'true' && github.repository_owner == 'kubb-labs'
         uses: peter-evans/create-pull-request@v7
         with:
           base: ${{ github.head_ref || github.ref_name }}

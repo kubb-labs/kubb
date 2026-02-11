@@ -1,7 +1,6 @@
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet.ts'
 import { addPet } from '../../axios/petService/addPet.ts'
 
@@ -22,7 +21,7 @@ export function useAddPetSWR(
       AddPetMutationKeySWR | null,
       AddPetMutationRequest
     > & { throwOnError?: boolean }
-    client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: Client }
     shouldFetch?: boolean
   } = {},
 ) {

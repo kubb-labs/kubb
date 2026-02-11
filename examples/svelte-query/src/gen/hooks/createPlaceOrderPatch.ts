@@ -62,7 +62,7 @@ export function createPlaceOrderPatch<TContext>(
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

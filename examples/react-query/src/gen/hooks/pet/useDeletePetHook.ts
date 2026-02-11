@@ -35,7 +35,7 @@ export async function deletePetHook(
   return res.data
 }
 
-export function deletePetMutationOptionsHook<TContext = unknown>(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function deletePetMutationOptionsHook<TContext = unknown>(config: Partial<RequestConfig> & { client?: Client } = {}) {
   const mutationKey = deletePetMutationKey()
   return mutationOptions<
     DeletePetMutationResponse,
@@ -66,7 +66,7 @@ export function useDeletePetHook<TContext>(
       },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

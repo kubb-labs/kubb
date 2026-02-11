@@ -46,7 +46,7 @@ export async function uploadFileHook(
 
 export function uploadFileMutationOptionsHook<TContext = unknown>(
   config: Partial<RequestConfig<UploadFileMutationRequest>> & {
-    client?: typeof fetch
+    client?: Client
   } = {},
 ) {
   const mutationKey = uploadFileMutationKey()
@@ -84,7 +84,7 @@ export function useUploadFileHook<TContext>(
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<UploadFileMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

@@ -46,7 +46,7 @@ export function usePlaceOrder<TContext>(
       { data?: MaybeRefOrGetter<PlaceOrderMutationRequest> },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

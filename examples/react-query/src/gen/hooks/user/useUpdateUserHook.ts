@@ -41,7 +41,7 @@ export async function updateUserHook(
 
 export function updateUserMutationOptionsHook<TContext = unknown>(
   config: Partial<RequestConfig<UpdateUserMutationRequest>> & {
-    client?: typeof fetch
+    client?: Client
   } = {},
 ) {
   const mutationKey = updateUserMutationKey()
@@ -78,7 +78,7 @@ export function useUpdateUserHook<TContext>(
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<UpdateUserMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

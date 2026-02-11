@@ -59,7 +59,7 @@ export function useUploadFile(
       throwOnError?: boolean
     }
     client?: Partial<RequestConfig<UploadFileMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
     shouldFetch?: boolean
   } = {},

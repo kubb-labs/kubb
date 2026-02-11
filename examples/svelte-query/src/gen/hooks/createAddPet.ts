@@ -59,7 +59,7 @@ export function createAddPet<TContext>(
       client?: QueryClient
     }
     client?: Partial<RequestConfig<AddPetMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

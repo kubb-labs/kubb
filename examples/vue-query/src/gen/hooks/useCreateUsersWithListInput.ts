@@ -49,7 +49,7 @@ export function useCreateUsersWithListInput<TContext>(
       { data?: MaybeRefOrGetter<CreateUsersWithListInputMutationRequest> },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

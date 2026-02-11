@@ -30,7 +30,7 @@ export async function deleteOrderHook({ orderId }: { orderId: DeleteOrderPathPar
   return res.data
 }
 
-export function deleteOrderMutationOptionsHook<TContext = unknown>(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function deleteOrderMutationOptionsHook<TContext = unknown>(config: Partial<RequestConfig> & { client?: Client } = {}) {
   const mutationKey = deleteOrderMutationKey()
   return mutationOptions<
     DeleteOrderMutationResponse,
@@ -58,7 +58,7 @@ export function useDeleteOrderHook<TContext>(
       { orderId: DeleteOrderPathParams['orderId'] },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

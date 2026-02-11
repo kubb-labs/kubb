@@ -39,7 +39,7 @@ export async function findPetsByTags(
 export function findPetsByTagsQueryOptions(
   headers: MaybeRefOrGetter<FindPetsByTagsQueryParams>,
   params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>,
-  config: Partial<RequestConfig> & { client?: typeof fetch } = {},
+  config: Partial<RequestConfig> & { client?: Client } = {},
 ) {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions<
@@ -72,7 +72,7 @@ export function useFindPetsByTags<
     query?: Partial<UseQueryOptions<ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>, TData, TQueryData, TQueryKey>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
