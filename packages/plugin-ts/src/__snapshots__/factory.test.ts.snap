@@ -70,16 +70,26 @@ export type Hello = (typeof hello)[keyof typeof hello]
 `;
 
 exports[`Code Generation > should create enum declaration 4`] = `
-"export const Hello = {
+"export const hello = {
   hello: 'world',
   end: 2050,
   survive: true,
 } as const
-export type Hello = (typeof Hello)[keyof typeof Hello]
+export type Hello = (typeof hello)[keyof typeof hello]
 "
 `;
 
 exports[`Code Generation > should create enum declaration 5`] = `
+"export const GetPetsQueryParamsStatusEnum = {
+  available: 'available',
+  pending: 'pending',
+  sold: 'sold',
+} as const
+export type GetPetsQueryParamsStatusEnumKey = (typeof GetPetsQueryParamsStatusEnum)[keyof typeof GetPetsQueryParamsStatusEnum]
+"
+`;
+
+exports[`Code Generation > should create enum declaration 6`] = `
 "export const enum Hello {
   hello = 'world',
   end = 2050,
@@ -88,12 +98,12 @@ exports[`Code Generation > should create enum declaration 5`] = `
 "
 `;
 
-exports[`Code Generation > should create enum declaration 6`] = `
+exports[`Code Generation > should create enum declaration 7`] = `
 "export type Hello = 'world' | 2050 | true
 "
 `;
 
-exports[`Code Generation > should create enum declaration 7`] = `
+exports[`Code Generation > should create enum declaration 8`] = `
 "export enum Hello {
   Hello_1 = 'world',
   Hello_2 = 2050,
