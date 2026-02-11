@@ -1,5 +1,34 @@
 # @kubb/plugin-ts
 
+## 4.22.2
+
+### Patch Changes
+
+- [#2467](https://github.com/kubb-labs/kubb/pull/2467) [`b8630dc`](https://github.com/kubb-labs/kubb/commit/b8630dcb3fa43665305ca8b782a43307325dfe34) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix `enumType: "asPascalConst"` const naming to prevent broken barrel exports
+
+  When using `enumType: "asPascalConst"`, the generated const now uses the base name without the `Key` suffix, while the type alias correctly uses the name with the `Key` suffix.
+
+  **Before:**
+
+  ```typescript
+  export const GetPetsQueryParamsStatusEnumKey = { ... } // ❌ Wrong
+  export type GetPetsQueryParamsStatusEnumKey = ...      // Correct
+  ```
+
+  **After:**
+
+  ```typescript
+  export const GetPetsQueryParamsStatusEnum = { ... }    // ✅ Correct
+  export type GetPetsQueryParamsStatusEnumKey = ...      // ✅ Correct
+  ```
+
+  This fix ensures barrel exports work correctly by exporting the const with the proper name.
+
+- Updated dependencies []:
+  - @kubb/core@4.22.2
+  - @kubb/oas@4.22.2
+  - @kubb/plugin-oas@4.22.2
+
 ## 4.22.1
 
 ### Patch Changes
