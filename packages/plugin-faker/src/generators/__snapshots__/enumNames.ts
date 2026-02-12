@@ -4,6 +4,6 @@
  */
 import { faker } from '@faker-js/faker'
 
-export function enumNamesType() {
-  return faker.helpers.arrayElement<EnumNamesType>([0, 1])
+export function enumNamesType(data?: Partial<EnumNamesType>): EnumNamesType {
+  return data || faker.helpers.arrayElement<EnumNamesType>([0, 1])
 }

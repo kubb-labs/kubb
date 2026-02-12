@@ -7,6 +7,6 @@ import { faker } from '@faker-js/faker'
 /**
  * @description Pet adoption error codes
  */
-export function petAdoptionError() {
-  return faker.helpers.arrayElement<PetAdoptionError>(['pet_not_found', 'already_adopted', 'age_restriction'])
+export function petAdoptionError(data?: Partial<PetAdoptionError>): PetAdoptionError {
+  return data || faker.helpers.arrayElement<PetAdoptionError>(['pet_not_found', 'already_adopted', 'age_restriction'])
 }
