@@ -237,7 +237,7 @@ jobs:
     name: Update generated examples
     timeout-minutes: 20
     runs-on: ubuntu-latest
-    if: github.actor != 'github-actions[bot]'
+    if: github.actor != 'github-actions[bot]' && github.repository_owner == 'kubb-labs'
     needs: build
     permissions:
       contents: write
@@ -275,7 +275,7 @@ jobs:
           fi
 
       - name: Create Pull Request with generated files
-        if: steps.check_changes.outputs.changed == 'true' && github.repository_owner == 'kubb-labs'
+        if: steps.check_changes.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           base: ${{ github.head_ref || github.ref_name }}
