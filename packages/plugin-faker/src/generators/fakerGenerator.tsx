@@ -64,6 +64,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
           keyword === schemaKeywords.object ||
           keyword === schemaKeywords.union ||
           keyword === schemaKeywords.tuple ||
+          keyword === schemaKeywords.enum ||
           keyword === schemaKeywords.ref,
       )
 
@@ -130,6 +131,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         keyword === schemaKeywords.union ||
         keyword === schemaKeywords.tuple ||
         keyword === schemaKeywords.ref ||
+        keyword === schemaKeywords.enum ||
         keyword === schemaKeywords.string ||
         keyword === schemaKeywords.integer ||
         keyword === schemaKeywords.number,
