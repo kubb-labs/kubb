@@ -90,6 +90,18 @@ describe('fakerGenerator schema', async () => {
       options: {},
     },
     {
+      name: 'PetAdoptionError',
+      input: '../../mocks/enums.yaml',
+      path: 'PetAdoptionError',
+      options: {},
+    },
+    {
+      name: 'PetAdoption400',
+      input: '../../mocks/enums.yaml',
+      path: 'PetAdoption400',
+      options: {},
+    },
+    {
       name: 'Pets',
       path: 'Pets',
       input: '../../mocks/petStore.yaml',

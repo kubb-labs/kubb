@@ -6,6 +6,16 @@ outline: deep
 
 # Changelog
 
+## 4.22.3
+
+#### [`@kubb/plugin-faker`](/plugins/plugin-faker/)
+
+**Fix data forwarding with enum**
+
+Faker's functions was passing data downstream, but it was failing with enums. It resulted in functions trying to pass data to functions not accepting any param. This has been fixed and now aligned with other raw types as numbers or strings.
+
+---
+
 ## 4.22.2
 
 ### 🐛 Bug Fixes
