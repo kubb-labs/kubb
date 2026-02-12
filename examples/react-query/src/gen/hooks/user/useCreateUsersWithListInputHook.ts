@@ -40,7 +40,7 @@ export async function createUsersWithListInputHook(
 
 export function createUsersWithListInputMutationOptionsHook<TContext = unknown>(
   config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
-    client?: typeof fetch
+    client?: Client
   } = {},
 ) {
   const mutationKey = createUsersWithListInputMutationKey()
@@ -66,7 +66,7 @@ export function useCreateUsersWithListInputHook<TContext>(
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

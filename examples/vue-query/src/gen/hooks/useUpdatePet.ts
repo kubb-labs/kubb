@@ -46,7 +46,7 @@ export function useUpdatePet<TContext>(
       { data: MaybeRefOrGetter<UpdatePetMutationRequest> },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

@@ -53,7 +53,7 @@ export function useUpdatePet<TContext>(
       >
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<UpdatePetMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

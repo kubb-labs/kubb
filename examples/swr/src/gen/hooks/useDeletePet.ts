@@ -49,7 +49,7 @@ export function useDeletePet(
     mutation?: SWRMutationConfiguration<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, DeletePetMutationKey | null, DeletePetMutationArg> & {
       throwOnError?: boolean
     }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
     shouldFetch?: boolean
   } = {},
 ) {

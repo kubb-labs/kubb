@@ -537,7 +537,9 @@ export function createEnumDeclaration({
   }
 
   // used when using `as const` instead of an TypeScript enum.
-  const identifierName = type === 'asPascalConst' ? typeName : name
+  // name is already PascalCase for asPascalConst and camelCase for asConst (set in Type.tsx)
+  // typeName has the Key suffix for type alias, so we use name for the const identifier
+  const identifierName = name
 
   return [
     factory.createVariableStatement(

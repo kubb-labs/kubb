@@ -23,7 +23,7 @@ export async function logoutUser(config: Partial<RequestConfig> & { client?: Cli
   return res.data
 }
 
-export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client?: Client } = {}) {
   return {
     fetcher: async () => {
       return logoutUser(config)
@@ -38,7 +38,7 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client
 export function useLogoutUser(
   options: {
     query?: Parameters<typeof useSWR<LogoutUserQueryResponse, ResponseErrorConfig<Error>>>[2]
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
     shouldFetch?: boolean
     immutable?: boolean
   } = {},

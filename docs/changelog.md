@@ -6,6 +6,42 @@ outline: deep
 
 # Changelog
 
+## 4.22.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Fix `enumType: "asPascalConst"` const naming breaking barrel exports**
+
+When using `enumType: "asPascalConst"`, the generated const identifier incorrectly included the `Key` suffix, causing barrel exports to reference non-existent symbols. The const now uses the base name without the `Key` suffix, while the type alias correctly uses the name with the `Key` suffix.
+
+**Before:**
+```typescript
+export const GetPetsQueryParamsStatusEnumKey = { ... } as const // ❌ Wrong
+export type GetPetsQueryParamsStatusEnumKey = ...               // Correct
+```
+
+**After:**
+```typescript
+export const GetPetsQueryParamsStatusEnum = { ... } as const    // ✅ Correct
+export type GetPetsQueryParamsStatusEnumKey = ...               // ✅ Correct
+```
+
+This fix ensures barrel exports work correctly by exporting the const with the proper name.
+
+---
+
+## 4.22.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/cli`](/helpers/cli/), [`@kubb/core`](/core/)
+
+Add `npx kubb server`
+
+---
+
 ## 4.22.0
 
 ### ✨ New Features

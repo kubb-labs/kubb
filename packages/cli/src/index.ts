@@ -20,7 +20,7 @@ const main = defineCommand({
       process.exit(0)
     }
 
-    if (!['generate', 'validate', 'mcp', 'init'].includes(rawArgs[0] as string)) {
+    if (!['generate', 'validate', 'mcp', 'init', 'start'].includes(rawArgs[0] as string)) {
       // generate is not being used
       const generateCommand = await import('./commands/generate.ts').then((r) => r.default)
 
@@ -34,6 +34,7 @@ const main = defineCommand({
     validate: () => import('./commands/validate.ts').then((r) => r.default),
     mcp: () => import('./commands/mcp.ts').then((r) => r.default),
     init: () => import('./commands/init.ts').then((r) => r.default),
+    start: () => import('./commands/start.ts').then((r) => r.default),
   },
 })
 

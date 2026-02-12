@@ -53,7 +53,7 @@ export function useUpdatePet(
       UpdatePetMutationArg
     > & { throwOnError?: boolean }
     client?: Partial<RequestConfig<UpdatePetMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
     shouldFetch?: boolean
   } = {},

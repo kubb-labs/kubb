@@ -1,7 +1,7 @@
 import { relative } from 'node:path'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { formatMs } from '@kubb/core/utils'
-import { execa } from 'execa'
+import { type ExecaError, execa } from 'execa'
 import { getSummary } from '../utils/getSummary.ts'
 
 /**
@@ -59,7 +59,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('error', (error) => {
-      const caused = error.cause as Error
+      const caused = error.cause as Error | undefined
 
       const text = getMessage(['✗', error.message].join(' '))
 
@@ -233,7 +233,9 @@ export const plainLogger = defineLogger({
           logs: [result.stdout],
         })
 
-        console.log(result.stdout)
+        if (logLevel > LogLevel.silent) {
+          console.log(result.stdout)
+        }
 
         await context.emit('hook:end', {
           command,
@@ -243,22 +245,32 @@ export const plainLogger = defineLogger({
           error: null,
         })
       } catch (err) {
-        const error = new Error('Hook execute failed')
-        error.cause = err
+        const error = err as ExecaError
+        const stderr = typeof error.stderr === 'string' ? error.stderr : String(error.stderr)
+        const stdout = typeof error.stdout === 'string' ? error.stdout : String(error.stdout)
 
         await context.emit('debug', {
           date: new Date(),
-          logs: [(err as any).stdout],
+          logs: [stdout, stderr].filter(Boolean),
         })
+
+        if (stderr) {
+          console.error(stderr)
+        }
+        if (stdout) {
+          console.log(stdout)
+        }
+
+        const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
 
         await context.emit('hook:end', {
           command,
           args,
           id,
           success: false,
-          error,
+          error: errorMessage,
         })
-        await context.emit('error', error)
+        await context.emit('error', errorMessage)
       }
     })
 

@@ -46,7 +46,7 @@ export function useCreateUser<TContext>(
       { data?: MaybeRefOrGetter<CreateUserMutationRequest> },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

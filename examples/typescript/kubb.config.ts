@@ -37,7 +37,7 @@ export default defineConfig({
         path: 'modelsPascalConst.ts',
         barrelType: false,
       },
-      enumType: 'asConst',
+      enumType: 'asPascalConst',
     }),
     pluginTs({
       output: {

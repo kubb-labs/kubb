@@ -1,7 +1,6 @@
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../../models/ts/petController/AddFiles.ts'
 import { addFiles } from '../../axios/petService/addFiles.ts'
 
@@ -22,7 +21,7 @@ export function useAddFilesSWR(
       AddFilesMutationKeySWR | null,
       AddFilesMutationRequest
     > & { throwOnError?: boolean }
-    client?: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: Client }
     shouldFetch?: boolean
   } = {},
 ) {

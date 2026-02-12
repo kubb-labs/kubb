@@ -40,7 +40,7 @@ export async function placeOrderHook(
 
 export function placeOrderMutationOptionsHook<TContext = unknown>(
   config: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
-    client?: typeof fetch
+    client?: Client
   } = {},
 ) {
   const mutationKey = placeOrderMutationKey()
@@ -63,7 +63,7 @@ export function usePlaceOrderHook<TContext>(
       client?: QueryClient
     }
     client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
   } = {},
 ) {

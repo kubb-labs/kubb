@@ -30,7 +30,7 @@ export async function deleteUserHook({ username }: { username: DeleteUserPathPar
   return res.data
 }
 
-export function deleteUserMutationOptionsHook<TContext = unknown>(config: Partial<RequestConfig> & { client?: typeof fetch } = {}) {
+export function deleteUserMutationOptionsHook<TContext = unknown>(config: Partial<RequestConfig> & { client?: Client } = {}) {
   const mutationKey = deleteUserMutationKey()
   return mutationOptions<
     DeleteUserMutationResponse,
@@ -58,7 +58,7 @@ export function useDeleteUserHook<TContext>(
       { username: DeleteUserPathParams['username'] },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig> & { client?: typeof fetch }
+    client?: Partial<RequestConfig> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

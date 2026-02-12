@@ -1,7 +1,6 @@
 import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
-import type fetch from '../../../../axios-client.ts'
-import type { RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
   CreatePetsHeaderParams,
   CreatePetsMutationRequest,
@@ -15,7 +14,7 @@ export const createPetsMutationKey = () => [{ url: '/pets/:uuid' }] as const
 
 export type CreatePetsMutationKey = ReturnType<typeof createPetsMutationKey>
 
-export function createPetsMutationOptions<TContext = unknown>(config: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof fetch } = {}) {
+export function createPetsMutationOptions<TContext = unknown>(config: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: Client } = {}) {
   const mutationKey = createPetsMutationKey()
   return mutationOptions<
     ResponseConfig<CreatePetsMutationResponse>,
@@ -42,7 +41,7 @@ export function useCreatePets<TContext>(
       { uuid: CreatePetsPathParams['uuid']; data: CreatePetsMutationRequest; headers: CreatePetsHeaderParams; params?: CreatePetsQueryParams },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<CreatePetsMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

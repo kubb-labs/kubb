@@ -393,5 +393,3 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
 export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Omit<Logger<TOptions>, 'logLevel'>
 
 export type { KubbEvents } from './Kubb.ts'
-
-export type { ConnectResponse, HealthResponse, StreamEvent, StreamEvents, StreamEventType } from './StreamEvents.ts'

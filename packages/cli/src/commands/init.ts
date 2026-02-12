@@ -307,7 +307,9 @@ const command = defineCommand({
           '\n' +
           pc.cyan(`  1. Make sure your OpenAPI spec is at: ${inputPath}`) +
           '\n' +
-          pc.cyan('  2. Run: npx kubb generate') +
+          pc.cyan('  2. Generate code with: npx kubb generate') +
+          '\n' +
+          pc.cyan('     Or start a stream server with: npx kubb start') +
           '\n' +
           pc.cyan(`  3. Find generated files in: ${outputPath}`) +
           '\n\n' +

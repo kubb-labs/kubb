@@ -46,6 +46,7 @@ COMMANDS
   init        Initialize a new Kubb project with interactive setup
   generate    [input] Generate files based on a 'kubb.config.ts' file
   validate    Validate a Swagger/OpenAPI file
+  start       [input] Start HTTP server with SSE streaming based on a 'kubb.config.ts' file
   mcp         Start the server to enable the MCP client to interact with the LLM.
 
 Use kubb <command> --help for more information about a command.
@@ -99,7 +100,8 @@ The interactive wizard will guide you through the setup process:
 
 Next steps:
   1. Make sure your OpenAPI spec is at: ./openapi.yaml
-  2. Run: npx kubb generate
+  2. Generate code with: npx kubb generate
+     Or start a stream server with: npx kubb start
   3. Find generated files in: ./src/gen
 ```
 
@@ -123,9 +125,6 @@ OPTIONS
                          -v, --verbose  Override logLevel to verbose (shows plugin timings)
                          -s, --silent   Override logLevel to silent (shows plugin timings)
                          -d, --debug    Override logLevel to debug (shows all details)
-                         --stream       Start HTTP server with SSE streaming
-                         -p, --port     Port for stream server (requires --stream)
-                         --host         Host for stream server (requires --stream)
                           -h, --help    Show help
 ```
 
@@ -204,36 +203,6 @@ Watch mode based on the input file.
 kubb --watch
 ```
 
-#### --stream
-
-Start HTTP server with SSE (Server-Sent Events) streaming for real-time code generation.
-
-This mode launches an HTTP server that provides:
-- Real-time progress updates via Server-Sent Events
-- RESTful API endpoints for configuration and health checks
-
-```shell [node]
-kubb --stream
-```
-
-See the [Stream Server Guide](/guide/stream-server) for complete documentation.
-
-#### --port (-p)
-
-Specify the port for the stream server (requires `--stream`). If not provided, an available port is automatically selected.
-
-```shell [node]
-kubb --stream --port 3000
-```
-
-#### --host
-
-Specify the host for the stream server (requires `--stream`). Default: `localhost`
-
-```shell [node]
-kubb --stream --host 0.0.0.0 --port 3000
-```
-
 #### --version (-v)
 
 Output the version number.
@@ -248,6 +217,75 @@ Display the help.
 ```shell [node]
 kubb --help
 ```
+
+## `kubb start`
+
+Start an HTTP server with SSE (Server-Sent Events) streaming for real-time code generation based on a `kubb.config.ts` file.
+
+This command launches an HTTP server that provides:
+- Real-time progress updates via Server-Sent Events
+- RESTful API endpoints for configuration and health checks
+
+```mdx
+USAGE kubb start [OPTIONS]
+
+OPTIONS
+
+                        -c, --config    Path to the Kubb config
+  -l, --logLevel=<silent|info|verbose|debug>    Log level control
+                         -v, --verbose  Override logLevel to verbose
+                         -s, --silent   Override logLevel to silent
+                         -d, --debug    Override logLevel to debug
+                         -p, --port     Port for stream server
+                         --host         Host for stream server
+                          -h, --help    Show help
+```
+
+Path of the input file (overrides the one in `kubb.config.js`)
+
+```shell [node]
+kubb start petStore.yaml
+```
+
+### Options
+
+#### --config (-c)
+
+Path to the Kubb config.
+
+```shell [node]
+kubb start --config kubb.config.ts
+```
+
+#### --log-level (-l)
+
+Control logging verbosity:
+- `silent`: suppresses all log messages
+- `info`: logs warnings, errors, and informational messages (default)
+- `verbose`: adds plugin timing breakdown
+- `debug`: shows detailed execution traces
+
+```shell [node]
+kubb start --log-level debug
+```
+
+#### --port (-p)
+
+Specify the port for the stream server. If not provided, an available port is automatically selected.
+
+```shell [node]
+kubb start --port 3000
+```
+
+#### --host
+
+Specify the host for the stream server. Default: `localhost`
+
+```shell [node]
+kubb start --host 0.0.0.0 --port 3000
+```
+
+See the [Stream Server Guide](/guide/stream-server) for complete documentation.
 
 ## `kubb validate`
 

@@ -50,7 +50,7 @@ export function useUpdateUser<TContext>(
       { username: MaybeRefOrGetter<UpdateUserPathParams['username']>; data?: MaybeRefOrGetter<UpdateUserMutationRequest> },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: typeof fetch }
+    client?: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

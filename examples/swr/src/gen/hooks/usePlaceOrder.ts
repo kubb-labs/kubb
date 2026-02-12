@@ -50,7 +50,7 @@ export function usePlaceOrder(
       throwOnError?: boolean
     }
     client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
-      client?: typeof fetch
+      client?: Client
     }
     shouldFetch?: boolean
   } = {},
