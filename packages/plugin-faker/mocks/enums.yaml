@@ -14,6 +14,19 @@ definitions:
     x-enumNames:
       - Pending
       - Received
+
+  PetAdoptionError:
+    type: string
+    description: Pet adoption error codes
+    enum:
+      - pet_not_found
+      - already_adopted
+      - age_restriction
+  
+  PetAdoption400:
+    description: Bad Request
+    $ref: '#/definitions/PetAdoptionError'
+
 swagger: "2.0"
 info:
   title: test
@@ -37,3 +50,13 @@ paths:
           description: Success
           schema:
             $ref: '#/definitions/enumNames.Type'
+  
+  /adopt-pet:
+    post:
+      consumes:
+        - application/json
+      responses:
+        400:
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/PetAdoption400'
