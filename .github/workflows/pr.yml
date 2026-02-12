@@ -237,7 +237,7 @@ jobs:
     name: Update generated examples
     timeout-minutes: 20
     runs-on: ubuntu-latest
-    if: github.actor != 'github-actions[bot]' && github.event.pull_request.head.repo.full_name == github.repository
+    if: github.actor != 'github-actions[bot]'
     needs: build
     permissions:
       contents: write
@@ -275,7 +275,7 @@ jobs:
           fi
 
       - name: Create Pull Request with generated files
-        if: steps.check_changes.outputs.changed == 'true'
+        if: github.event.pull_request.head.repo.full_name == github.repository
         uses: peter-evans/create-pull-request@v7
         with:
           base: ${{ github.head_ref || github.ref_name }}
