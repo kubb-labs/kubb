@@ -68,7 +68,6 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
       //todo remove type?
       schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
     }
-    const typeSchemas = withRequiredRequestBodySchema(type.schemas)
 
     const zod = {
       file: getFile(operation, { pluginKey: [pluginZodName] }),
@@ -78,6 +77,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
     const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
     // Class-based clients are not compatible with query hooks, so we generate inline clients
     const shouldUseClientPlugin = hasClientPlugin && options.client.clientType !== 'class'
+    const typeSchemas = shouldUseClientPlugin ? type.schemas : withRequiredRequestBodySchema(type.schemas)
     const client = {
       name: shouldUseClientPlugin
         ? getName(operation, {
