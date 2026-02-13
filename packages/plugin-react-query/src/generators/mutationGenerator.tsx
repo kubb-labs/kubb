@@ -2,6 +2,7 @@ import path from 'node:path'
 import { usePluginManager } from '@kubb/core/hooks'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
+import type { OperationSchemas } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -12,6 +13,29 @@ import { difference } from 'remeda'
 import { Mutation, MutationKey } from '../components'
 import { MutationOptions } from '../components/MutationOptions.tsx'
 import type { PluginReactQuery } from '../types'
+
+function withRequiredRequestBodySchema(typeSchemas: OperationSchemas): OperationSchemas {
+  const requestBody = typeSchemas.request?.operation?.schema?.requestBody
+
+  if (!typeSchemas.request || !requestBody || '$ref' in requestBody || requestBody.required !== true) {
+    return typeSchemas
+  }
+
+  if (Array.isArray(typeSchemas.request.schema.required) && typeSchemas.request.schema.required.length > 0) {
+    return typeSchemas
+  }
+
+  return {
+    ...typeSchemas,
+    request: {
+      ...typeSchemas.request,
+      schema: {
+        ...typeSchemas.request.schema,
+        required: ['__kubb_required_request_body__'],
+      },
+    },
+  }
+}
 
 export const mutationGenerator = createReactGenerator<PluginReactQuery>({
   name: 'react-query',
@@ -44,6 +68,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
       //todo remove type?
       schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
     }
+    const typeSchemas = withRequiredRequestBodySchema(type.schemas)
 
     const zod = {
       file: getFile(operation, { pluginKey: [pluginZodName] }),
@@ -121,12 +146,12 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
         {options.customOptions && <File.Import name={[options.customOptions.name]} path={options.customOptions.importPath} />}
         <File.Import
           name={[
-            type.schemas.request?.name,
-            type.schemas.response.name,
-            type.schemas.pathParams?.name,
-            type.schemas.queryParams?.name,
-            type.schemas.headerParams?.name,
-            ...(type.schemas.statusCodes?.map((item) => item.name) || []),
+            typeSchemas.request?.name,
+            typeSchemas.response.name,
+            typeSchemas.pathParams?.name,
+            typeSchemas.queryParams?.name,
+            typeSchemas.headerParams?.name,
+            ...(typeSchemas.statusCodes?.map((item) => item.name) || []),
           ].filter(Boolean)}
           root={mutation.file.path}
           path={type.file.path}
@@ -138,7 +163,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
           typeName={mutationKey.typeName}
           operation={operation}
           pathParamsType={options.pathParamsType}
-          typeSchemas={type.schemas}
+          typeSchemas={typeSchemas}
           paramsCasing={options.paramsCasing}
           transformer={options.mutationKey}
         />
@@ -148,7 +173,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
             name={client.name}
             baseURL={options.client.baseURL}
             operation={operation}
-            typeSchemas={type.schemas}
+            typeSchemas={typeSchemas}
             zodSchemas={zod.schemas}
             dataReturnType={options.client.dataReturnType || 'data'}
             paramsCasing={options.client?.paramsCasing || options.paramsCasing}
@@ -163,7 +188,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
           name={mutationOptions.name}
           clientName={client.name}
           mutationKeyName={mutationKey.name}
-          typeSchemas={type.schemas}
+          typeSchemas={typeSchemas}
           paramsCasing={options.paramsCasing}
           paramsType={options.paramsType}
           pathParamsType={options.pathParamsType}
@@ -177,7 +202,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
               name={mutation.name}
               mutationOptionsName={mutationOptions.name}
               typeName={mutation.typeName}
-              typeSchemas={type.schemas}
+              typeSchemas={typeSchemas}
               operation={operation}
               dataReturnType={options.client.dataReturnType || 'data'}
               paramsCasing={options.paramsCasing}
