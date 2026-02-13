@@ -1,0 +1,19 @@
+openapi: "3.1.0"
+info:
+  title: Binary AnyOf Test
+  version: v1
+paths: {}
+components:
+  schemas:
+    BodyTest:
+      type: object
+      required:
+        - file
+      properties:
+        file:
+          anyOf:
+            - type: string
+              format: binary
+            - type: "null"
+          title: File
+      title: Body_test
