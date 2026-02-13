@@ -30,6 +30,12 @@ type GetParamsProps = {
   typeSchemas: OperationSchemas
 }
 
+function isRequestBodyRequired(typeSchemas: OperationSchemas) {
+  const requestBody = typeSchemas.request?.operation?.schema?.requestBody
+
+  return !!requestBody && !('$ref' in requestBody) && requestBody.required === true
+}
+
 function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
@@ -39,7 +45,7 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
-          optional: isOptional(typeSchemas.request?.schema),
+          optional: isOptional(typeSchemas.request?.schema) && !isRequestBodyRequired(typeSchemas),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
@@ -100,7 +106,7 @@ export function Mutation({
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
-          optional: isOptional(typeSchemas.request?.schema),
+          optional: isOptional(typeSchemas.request?.schema) && !isRequestBodyRequired(typeSchemas),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
