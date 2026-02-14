@@ -1,5 +1,17 @@
 # @kubb/plugin-faker
 
+## 4.22.3
+
+### Patch Changes
+
+- [#2472](https://github.com/kubb-labs/kubb/pull/2472) [`ee575ff`](https://github.com/kubb-labs/kubb/commit/ee575ff4a76ef530f12251637651f1906244e75d) Thanks [@Ericlm](https://github.com/Ericlm)! - Fix wrong data forwarding in enum cases
+
+- Updated dependencies []:
+  - @kubb/core@4.22.3
+  - @kubb/oas@4.22.3
+  - @kubb/plugin-oas@4.22.3
+  - @kubb/plugin-ts@4.22.3
+
 ## 4.22.2
 
 ### Patch Changes
