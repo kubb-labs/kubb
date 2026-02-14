@@ -74,6 +74,9 @@ function buildClientParams({
     config: {
       mode: 'object',
       children: {
+        requestConfig: {
+          mode: 'inlineSpread',
+        },
         method: {
           value: JSON.stringify(operation.method.toUpperCase()),
         },
@@ -91,9 +94,6 @@ function buildClientParams({
               value: isFormData ? 'formData as FormData' : 'requestData',
             }
           : undefined,
-        requestConfig: {
-          mode: 'inlineSpread',
-        },
         headers: headers.length
           ? {
               value: `{ ${headers.join(', ')}, ...requestConfig.headers }`,
@@ -173,7 +173,7 @@ function generateMethod({
   const returnStatement = buildReturnStatement({ dataReturnType, parser, zodSchemas })
 
   const methodBody = [
-    'const { client: request = this.#client, ...requestConfig } = config',
+    'const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)',
     '',
     requestDataLine,
     formDataLine,
@@ -216,10 +216,10 @@ export function ClassClient({
   )
 
   const classCode = `export class ${name} {
-  #client: Client
+  #config: Partial<RequestConfig> & { client?: Client }
 
   constructor(config: Partial<RequestConfig> & { client?: Client } = {}) {
-    this.#client = config.client || fetch
+    this.#config = config
   }
 
 ${methods.join('\n\n')}
