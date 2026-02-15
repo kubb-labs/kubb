@@ -5,7 +5,7 @@
  */
 
 import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
-import fetch from '@kubb/plugin-client/clients/fetch'
+import fetch, { mergeConfig } from '@kubb/plugin-client/clients/fetch'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.js'
 import type {
   CreateUsersWithListInputMutationRequest,
@@ -23,10 +23,10 @@ import type { LogoutUserQueryResponse } from '../../../models/ts/userController/
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.js'
 
 export class User {
-  #client: Client
+  #config: Partial<RequestConfig> & { client?: Client }
 
   constructor(config: Partial<RequestConfig> & { client?: Client } = {}) {
-    this.#client = config.client || fetch
+    this.#config = config
   }
 
   /**
@@ -40,13 +40,13 @@ export class User {
       client?: Client
     } = {},
   ) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data
     const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
+      ...requestConfig,
       method: 'POST',
       url: '/user',
       data: requestData,
-      ...requestConfig,
     })
     return res.data
   }
@@ -62,13 +62,13 @@ export class User {
       client?: Client
     } = {},
   ) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data
     const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
+      ...requestConfig,
       method: 'POST',
       url: '/user/createWithList',
       data: requestData,
-      ...requestConfig,
     })
     return res.data
   }
@@ -78,12 +78,12 @@ export class User {
    * {@link /user/login}
    */
   async loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: Client } = {}) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({
+      ...requestConfig,
       method: 'GET',
       url: '/user/login',
       params,
-      ...requestConfig,
     })
     return res.data
   }
@@ -93,8 +93,8 @@ export class User {
    * {@link /user/logout}
    */
   async logoutUser(config: Partial<RequestConfig> & { client?: Client } = {}) {
-    const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: '/user/logout', ...requestConfig })
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
+    const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ ...requestConfig, method: 'GET', url: '/user/logout' })
     return res.data
   }
 
@@ -103,11 +103,11 @@ export class User {
    * {@link /user/:username}
    */
   async getUserByName({ username }: { username: GetUserByNamePathParams['username'] }, config: Partial<RequestConfig> & { client?: Client } = {}) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const res = await request<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
+      ...requestConfig,
       method: 'GET',
       url: `/user/${username}`,
-      ...requestConfig,
     })
     return res.data
   }
@@ -124,13 +124,13 @@ export class User {
       client?: Client
     } = {},
   ) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data
     const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
+      ...requestConfig,
       method: 'PUT',
       url: `/user/${username}`,
       data: requestData,
-      ...requestConfig,
     })
     return res.data
   }
@@ -141,11 +141,11 @@ export class User {
    * {@link /user/:username}
    */
   async deleteUser({ username }: { username: DeleteUserPathParams['username'] }, config: Partial<RequestConfig> & { client?: Client } = {}) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const res = await request<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
+      ...requestConfig,
       method: 'DELETE',
       url: `/user/${username}`,
-      ...requestConfig,
     })
     return res.data
   }
