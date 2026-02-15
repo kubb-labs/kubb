@@ -1,5 +1,20 @@
 # @kubb/plugin-client
 
+## 4.23.0
+
+### Minor Changes
+
+- [#2463](https://github.com/kubb-labs/kubb/pull/2463) [`d4f746b`](https://github.com/kubb-labs/kubb/commit/d4f746b33334e6d8379d45ccc09658c8d210e5cc) Thanks [@icholy](https://github.com/icholy)! - Export `mergeConfig` from fetch and axios clients. Fix class-style API clients silently discarding constructor configs.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.23.0
+  - @kubb/oas@4.23.0
+  - @kubb/plugin-oas@4.23.0
+  - @kubb/plugin-ts@4.23.0
+  - @kubb/plugin-zod@4.23.0
+
 ## 4.22.3
 
 ### Patch Changes
