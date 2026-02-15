@@ -6,6 +6,26 @@ outline: deep
 
 # Changelog
 
+## 4.23.0
+
+### ✨ New Features
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Export `mergeConfig` from fetch and axios clients**
+
+Added `mergeConfig` export to both fetch and axios client templates, providing a utility function to merge client configurations programmatically.
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Fix class-style API clients silently discarding constructor configs**
+
+Class-style API clients were not properly applying constructor configurations. This has been fixed to ensure that configurations passed to the constructor are correctly applied to all client instances.
+
+---
+
 ## 4.22.3
 
 #### [`@kubb/plugin-faker`](/plugins/plugin-faker/)
