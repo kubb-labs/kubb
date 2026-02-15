@@ -11,14 +11,14 @@ export default eventHandler(async (event) => {
   const id = Number(event.context.params?.id)
   const body = await readBody(event)
   
-  const updateData: Record<string, any> = {
+  const userUpdate: Record<string, any> = {
     ...body,
     updatedAt: new Date(),
   }
   
   const [user] = await db
     .update(schema.users)
-    .set(updateData)
+    .set(userUpdate)
     .where(eq(schema.users.id, id))
     .returning()
   

@@ -41,14 +41,14 @@ export async function createUser(data: { name: string; email: string }) {
 
 // Example: Update user
 export async function updateUser(id: number, data: { name?: string; email?: string }) {
-  const updateData: Record<string, any> = {
+  const userUpdate: Record<string, any> = {
     ...data,
     updatedAt: new Date(),
   }
   
   const [user] = await db
     .update(schema.users)
-    .set(updateData)
+    .set(userUpdate)
     .where(eq(schema.users.id, id))
     .returning()
   
