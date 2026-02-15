@@ -1,0 +1,23 @@
+{
+  "name": "nuxt-drizzle-example",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "drizzle-orm": "^0.38.3",
+    "nuxt": "^4.3.1"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.1",
+    "dotenv": "^16.4.7"
+  }
+}
