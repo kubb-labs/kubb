@@ -1,0 +1,74 @@
+{
+  "name": "@kubb/agent",
+  "version": "4.23.0",
+  "description": "Agent server for Kubb, enabling HTTP-based access to code generation capabilities.",
+  "keywords": [
+    "agent",
+    "server",
+    "http",
+    "kubb",
+    "code-generation",
+    "openapi",
+    "swagger",
+    "typescript",
+    "codegen"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/agent"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
+  "bin": {
+    "kubb-agent": "bin/kubb-agent.cjs"
+  },
+  "files": [
+    "src",
+    "dist",
+    "bin",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
+  "scripts": {
+    "build": "nitro build && tsdown",
+    "clean": "npx rimraf ./dist .output",
+    "dev": "npx nitro dev",
+    "prepare": "npx nitro prepare",
+    "lint": "bun biome lint .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
+    "release": "pnpm publish --no-git-check",
+    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
+    "start": "tsdown --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/core": "workspace:*",
+    "@kubb/fabric-core": "catalog:",
+    "h3": "^2.0.1-rc.14",
+    "nitropack": "^2.13.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "vite": "^7.3.1"
+  }
+}

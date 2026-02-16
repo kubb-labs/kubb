@@ -1,0 +1,7 @@
+{
+  "extends": "./.nitro/types/tsconfig.json",
+  "compilerOptions": {
+    "types": ["bun-types", "../../reset.d.ts"],
+    "allowImportingTsExtensions": true
+  }
+}

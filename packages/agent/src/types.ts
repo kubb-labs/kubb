@@ -1,5 +1,5 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
-import type { Config, KubbEvents } from '../types.ts'
+import type { Config, KubbEvents } from '@kubb/core'
 
 /**
  * Typed SSE events sent by the Kubb server.
