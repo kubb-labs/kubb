@@ -57,8 +57,7 @@ export async function startServer({ port, host, configPath, config, events, onGe
     const __filename = fileURLToPath(import.meta.url)
     const __dirname = path.dirname(__filename)
     const agentRoot = path.resolve(__dirname, '..')
-    const outputDir = path.join(agentRoot, '.output')
-    const serverDir = path.join(outputDir, 'server')
+    const serverDir = path.join(agentRoot, '.output', 'server')
 
     let listener: any
     try {

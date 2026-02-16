@@ -27,11 +27,22 @@
       "require": "./dist/index.cjs",
       "import": "./dist/index.js"
     },
+    "./types": {
+      "require": "./dist/types.cjs",
+      "import": "./dist/types.js"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.cts",
+  "typesVersions": {
+    "*": {
+      "types": [
+        "./dist/types.d.ts"
+      ]
+    }
+  },
   "bin": {
     "kubb-agent": "bin/kubb-agent.cjs"
   },
@@ -39,6 +50,7 @@
     "src",
     "dist",
     "bin",
+    ".output/server",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],

@@ -4,7 +4,7 @@ import process from 'node:process'
 import { serializePluginOptions } from '@kubb/core/utils'
 import { defineEventHandler, HTTPError } from 'h3'
 
-import type { InfoResponse } from '../../../src/types.ts'
+import type { InfoResponse } from '../../utils/types.ts'
 
 export default defineEventHandler(async (event): Promise<InfoResponse> => {
   const context = globalThis.__KUBB_AGENT_CONTEXT__ as any
