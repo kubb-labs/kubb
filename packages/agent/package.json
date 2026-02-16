@@ -27,43 +27,27 @@
       "require": "./dist/index.cjs",
       "import": "./dist/index.js"
     },
-    "./types": {
-      "require": "./dist/types.cjs",
-      "import": "./dist/types.js"
-    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.cts",
-  "typesVersions": {
-    "*": {
-      "types": [
-        "./dist/types.d.ts"
-      ]
-    }
-  },
-  "bin": {
-    "kubb-agent": "bin/kubb-agent.cjs"
-  },
   "files": [
     "src",
     "dist",
-    "bin",
-    ".output/server",
+    ".output",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
   "scripts": {
     "build": "nitro build && tsdown",
     "clean": "npx rimraf ./dist .output",
-    "dev": "npx nitro dev",
     "prepare": "npx nitro prepare",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsdown --watch",
+    "start": "npx nitro dev",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -73,14 +57,14 @@
     "h3": "^2.0.1-rc.14",
     "nitropack": "^2.13.1"
   },
+  "devDependencies": {
+    "vite": "^7.3.1"
+  },
   "engines": {
     "node": ">=20"
   },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  },
-  "devDependencies": {
-    "vite": "^7.3.1"
   }
 }

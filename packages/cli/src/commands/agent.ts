@@ -1,20 +1,45 @@
+import { createServer } from 'node:http'
+import path from 'node:path'
 import * as process from 'node:process'
+
 import * as clack from '@clack/prompts'
-import { run } from '@kubb/agent'
+import type { Config, ServerEvents } from '@kubb/core'
 import { LogLevel } from '@kubb/core'
-import { AsyncEventEmitter } from '@kubb/core/utils'
+import type { AsyncEventEmitter } from '@kubb/core/utils'
+import { AsyncEventEmitter as AsyncEventEmitterClass } from '@kubb/core/utils'
 import type { ArgsDef } from 'citty'
 import { defineCommand, showUsage } from 'citty'
-import { createJiti } from 'jiti'
 import pc from 'picocolors'
+import { version } from '../../package.json'
 import { generate } from '../runners/generate.ts'
 import { getConfigs } from '../utils/getConfigs.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import type { Args as GenerateArgs } from './generate.ts'
 
-const jiti = createJiti(import.meta.url, {
-  sourceMaps: true,
-})
+declare global {
+  namespace NodeJS {
+    interface Global {
+      __KUBB_AGENT_CONTEXT__: {
+        config: Config
+        configPath: string
+        version: string
+        events: AsyncEventEmitter<ServerEvents>
+        onGenerate: () => Promise<void>
+      }
+    }
+  }
+}
+
+// Make globalThis accessible with proper typing
+declare const globalThis: {
+  __KUBB_AGENT_CONTEXT__?: {
+    config: Config
+    configPath: string
+    version: string
+    events: AsyncEventEmitter<ServerEvents>
+    onGenerate: () => Promise<void>
+  }
+} & typeof global
 
 const args = {
   config: {
@@ -65,6 +90,52 @@ const args = {
   },
 } as const satisfies ArgsDef
 
+async function startServer(
+  port: number,
+  host: string,
+  configPath: string,
+  config: Config,
+  events: AsyncEventEmitter<ServerEvents>,
+  onGenerate: () => Promise<void>,
+): Promise<void> {
+  try {
+    // Set up agent context via global before importing Nitro
+    // This will be accessed by the routes
+    globalThis.__KUBB_AGENT_CONTEXT__ = {
+      config,
+      configPath,
+      version,
+      events,
+      onGenerate,
+    }
+
+    let listener: any
+    try {
+      const mod = await import('@kubb/agent')
+      listener = await mod.getListener()
+    } catch (error) {
+      console.error('Failed to load pre-built Nitro server.')
+      console.error('Please ensure @kubb/agent is built by running: pnpm install')
+      throw error
+    }
+
+    // Create HTTP server with the Nitro listener
+    const server = createServer(listener)
+
+    // Start listening
+    server.listen(port, host, () => {
+      const address = server.address()
+      const actualPort = typeof address === 'object' && address ? address.port : port
+      const serverUrl = `http://${host}:${actualPort}`
+
+      events.emit('server:start', serverUrl, path.relative(process.cwd(), configPath))
+    })
+  } catch (error) {
+    console.error('Failed to start agent server:', error)
+    process.exit(1)
+  }
+}
+
 const command = defineCommand({
   meta: {
     name: 'agent',
@@ -92,14 +163,6 @@ const command = defineCommand({
     }
 
     try {
-      let mod: any
-      // try {
-      //   mod = await jiti.import('@kubb/agent', { default: true })
-      // } catch (_e) {
-      //   clack.log.error(pc.red(`Import of '@kubb/agent' is required to start the Agent server`))
-      //   process.exit(1)
-      // }
-
       const result = await getCosmiConfig('kubb', args.config)
       // Create args compatible with getConfigs/startServer (needs watch property)
       const generateArgs = { ...args, watch: false } as unknown as GenerateArgs
@@ -114,7 +177,7 @@ const command = defineCommand({
       const config = configs[0]!
       const logLevel = LogLevel[args.logLevel as keyof typeof LogLevel] || 3
 
-      const events = new AsyncEventEmitter()
+      const events = new AsyncEventEmitterClass<ServerEvents>()
 
       events.on('server:start', (serverUrl: string, configPath: string) => {
         clack.log.success(pc.green(`Agent server started on ${pc.bold(serverUrl)}`))
@@ -133,22 +196,13 @@ const command = defineCommand({
         clack.log.success('Agent server stopped')
       })
 
-      // const { run } = mod
-
-      await run({
-        port,
-        host,
-        configPath: result.filepath,
-        config,
-        events,
-        onGenerate: async () => {
-          await generate({
-            input,
-            config,
-            logLevel,
-            events,
-          })
-        },
+      await startServer(port, host, result.filepath, config, events, async () => {
+        await generate({
+          input,
+          config,
+          logLevel,
+          events,
+        })
       })
 
       // Server is running, don't exit

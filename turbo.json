@@ -5,8 +5,8 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", "*.d.ts", "*.d.cts"],
-      "inputs": ["src/**/*.ts", "src/**/*.tsx", "tsdown.config.ts", "package.json", "tsconfig.json"]
+      "outputs": ["dist/**", "*.d.ts", "*.d.cts", ".output/**"],
+      "inputs": ["src/**/*.ts", "server/**/*.ts", "src/**/*.tsx", "tsdown.config.ts", "package.json", "tsconfig.json"]
     },
     "clean": {
       "dependsOn": ["^clean"],
