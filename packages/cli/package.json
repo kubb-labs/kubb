@@ -65,7 +65,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@clack/prompts": "^1.0.0",
+    "@clack/prompts": "^1.0.1",
     "@kubb/core": "workspace:*",
     "chokidar": "^4.0.3",
     "citty": "^0.1.6",
@@ -80,6 +80,7 @@
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
+    "@kubb/agent": "workspace:*",
     "@kubb/mcp": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@types/seedrandom": "^3.0.8",
