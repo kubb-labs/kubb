@@ -42,12 +42,12 @@
   "scripts": {
     "build": "nitro build && tsdown",
     "clean": "npx rimraf ./dist .output",
-    "prepare": "npx nitro prepare",
+    "prepare": "nitro prepare",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "npx nitro dev",
+    "start": "nitro dev",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
