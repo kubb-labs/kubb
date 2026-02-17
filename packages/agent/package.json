@@ -40,7 +40,7 @@
     "!/**/__tests__/**"
   ],
   "scripts": {
-    "build": "nitro build && tsdown",
+    "build": "nitro build",
     "clean": "npx rimraf ./dist .output",
     "prepare": "nitro prepare",
     "lint": "bun biome lint .",

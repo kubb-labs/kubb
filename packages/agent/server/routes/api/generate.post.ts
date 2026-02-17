@@ -1,6 +1,5 @@
+import type { SseEvent, SseEvents, SseEventType } from '@kubb/core'
 import { defineEventHandler, HTTPError } from 'h3'
-
-import type { SseEvent, SseEvents, SseEventType } from '../../utils/types.ts'
 
 export default defineEventHandler(async (event) => {
   const context = globalThis.__KUBB_AGENT_CONTEXT__ as any

@@ -1,8 +1,7 @@
 import path from 'node:path'
 import process from 'node:process'
+import type { HealthResponse } from '@kubb/core'
 import { defineEventHandler, HTTPError } from 'h3'
-
-import type { HealthResponse } from '../../utils/types.ts'
 
 export default defineEventHandler(async (event): Promise<HealthResponse> => {
   const context = globalThis.__KUBB_AGENT_CONTEXT__ as any
