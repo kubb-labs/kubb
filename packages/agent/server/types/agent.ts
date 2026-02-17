@@ -15,10 +15,30 @@ export type LogMessage = {
   message: string
 }
 
-export type InfoMessage = {
-  type: 'info'
+export type ConnectedMessage = {
+  type: 'connected'
   id: string
   payload: InfoResponse
+}
+
+export type ErrorMessage = {
+  type: 'error'
+  message: string
+}
+
+export type PingMessage = {
+  type: 'ping'
+}
+
+export type StatusMessage = {
+  type: 'status'
+  message: string
+  connectedAgents: number
+  agents: Array<{
+    id: string
+    name: string
+    connectedAt: string
+  }>
 }
 
 export type ProgressMessage = {
@@ -42,7 +62,7 @@ export type AgentConnectResponse = {
   expiresAt: string
 }
 
-export type AgentMessage = CommandMessage | LogMessage | ProgressMessage | ResultMessage | InfoMessage
+export type AgentMessage = CommandMessage | LogMessage | ProgressMessage | ResultMessage | ConnectedMessage | ErrorMessage | StatusMessage | PingMessage
 
 // Helper type guards
 export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
@@ -61,6 +81,14 @@ export function isResultMessage(msg: AgentMessage): msg is ResultMessage {
   return msg.type === 'result'
 }
 
-export function isInfoMessage(msg: AgentMessage): msg is InfoMessage {
-  return msg.type === 'info'
+export function isConnectedMessage(msg: AgentMessage): msg is ConnectedMessage {
+  return msg.type === 'connected'
+}
+
+export function isErrorMessage(msg: AgentMessage): msg is ErrorMessage {
+  return msg.type === 'error'
+}
+
+export function isStatusMessage(msg: AgentMessage): msg is StatusMessage {
+  return msg.type === 'status'
 }

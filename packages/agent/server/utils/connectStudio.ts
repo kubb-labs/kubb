@@ -4,8 +4,9 @@ import process from 'node:process'
 import type { Config, InfoResponse, KubbEvents, LogLevel } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import { serializePluginOptions } from '@kubb/core/utils'
+import { generate } from '~/utils/generate.ts'
 import { version } from '~~/package.json'
-import type { AgentConnectResponse, InfoMessage } from '../types/agent.ts'
+import type { AgentConnectResponse, AgentMessage, ConnectedMessage, PingMessage } from '../types/agent.ts'
 import { useKubbAgentContext } from './useKubbAgentContext.ts'
 
 const WEBSOCKET_READY = 1
@@ -24,7 +25,7 @@ type ConnectStudioProps = {
   token: string
 }
 
-export async function connectStudio({ config, studioUrl, token }: ConnectStudioProps): Promise<WebSocket | null> {
+export async function connectStudio({ config, studioUrl, token, events, logLevel }: ConnectStudioProps): Promise<WebSocket | null> {
   try {
     const connectUrl = `${studioUrl}/api/agent/connect`
 
@@ -75,52 +76,95 @@ export async function connectStudio({ config, studioUrl, token }: ConnectStudioP
       },
     }
 
-    function sendInfoMessage(ws: WebSocket) {
+    function sendConnectedMessage(ws: WebSocket) {
       try {
-        const infoMessage: InfoMessage = {
-          type: 'info',
+        const message: ConnectedMessage = {
+          type: 'connected',
           id: generateId(),
           payload: infoResponse,
         }
 
-        ws.send(JSON.stringify(infoMessage))
+        ws.send(JSON.stringify(message))
 
-        console.log(`Sent info message to Kubb Studio ${JSON.stringify(infoMessage, null, 2)}`)
+        console.log('Sent connected message to Kubb Studio')
       } catch (error) {
         console.warn('Failed to send info message to studio:', error)
       }
     }
 
-    return new Promise((resolve) => {
-      const ws = new WebSocket(data.wsUrl, wsOptions)
+    function sendPingMessage(ws: WebSocket) {
+      try {
+        const message: PingMessage = {
+          type: 'ping',
+        }
 
-      const onOpen = () => {
-        console.log(`Connected to Kubb Studio on ${data.wsUrl}`)
+        ws.send(JSON.stringify(message))
 
-        sendInfoMessage(ws)
-
-        ws.removeEventListener('open', onOpen)
-        ws.removeEventListener('error', onError)
-        resolve(ws)
+        console.log('Sent ping message')
+      } catch (error) {
+        console.warn('Failed to send info message to studio:', error)
       }
+    }
 
-      const onError = (error: Event) => {
-        console.warn('Failed to connect to Kubb Studio:', error)
-        ws.removeEventListener('open', onOpen)
-        ws.removeEventListener('error', onError)
-        resolve(null)
-      }
+    async function createWebsocker() {
+      return new Promise<WebSocket>((resolve) => {
+        const ws = new WebSocket(data.wsUrl, wsOptions)
 
-      ws.addEventListener('open', onOpen)
-      ws.addEventListener('error', onError)
+        const onOpen = () => {
+          console.log(`Connected to Kubb Studio on ${data.wsUrl}`)
 
-      // Timeout after 5 seconds
-      setTimeout(() => {
-        if (ws.readyState === WEBSOCKET_CONNECTING) {
-          ws.close()
+          ws.removeEventListener('open', onOpen)
+          ws.removeEventListener('error', onError)
+          resolve(ws)
+        }
+
+        const onError = (error: Event) => {
+          console.warn('Failed to connect to Kubb Studio:', error)
+          ws.removeEventListener('open', onOpen)
+          ws.removeEventListener('error', onError)
           resolve(null)
         }
-      }, 5000)
+
+        ws.addEventListener('open', onOpen)
+        ws.addEventListener('error', onError)
+
+        // Timeout after 5 seconds
+        setTimeout(() => {
+          if (ws.readyState === WEBSOCKET_CONNECTING) {
+            ws.close()
+            resolve(null)
+          }
+        }, 5000)
+      })
+    }
+
+    const ws = await createWebsocker()
+    sendConnectedMessage(ws)
+
+    setInterval(() => {
+      sendPingMessage(ws)
+    }, 30000)
+
+    ws.addEventListener('message', async (event) => {
+      const data = JSON.parse(event.data) as AgentMessage
+
+      switch (data.type) {
+        case 'command':
+          if (data.command === 'generate') {
+            console.log('Generated command')
+            await generate({
+              config,
+              events,
+              logLevel,
+            })
+            console.log('Generated command success')
+            // Handle generate command if needed
+          }
+          break
+
+        default:
+          console.warn('Unknown message type from Kubb Studio:', data)
+      }
     })
   } catch (error) {
     console.warn('Error connecting to Kubb Studio:', error)
