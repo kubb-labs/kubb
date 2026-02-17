@@ -6,6 +6,7 @@ export type KubbAgentContext = {
   config: Config
   events: AsyncEventEmitter<KubbEvents>
   onGenerate: () => Promise<void>
+  ws?: any
 }
 
 export const contextStorage = new AsyncLocalStorage<KubbAgentContext>()

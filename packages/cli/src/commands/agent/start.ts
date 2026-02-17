@@ -27,8 +27,9 @@ const args = {
 
 async function startServer(port: number, host: string, configPath: string): Promise<void> {
   try {
-    // Get the agent package directory
-    const agentDir = path.dirname(require.resolve('@kubb/agent/package.json'))
+    // Resolve the @kubb/agent package path using import.meta.resolve
+    const agentPkg = await import.meta.resolve('@kubb/agent')
+    const agentDir = path.dirname(agentPkg)
     const serverPath = path.join(agentDir, '.output', 'server', 'index.mjs')
 
     // Set environment variables

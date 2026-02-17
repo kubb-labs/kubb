@@ -19,7 +19,7 @@ export async function generate({ config: userConfig, events, logLevel }: Generat
 
   const config: Config = {
     ...userConfig,
-    root: userConfig.root || process.cwd(),
+    root: process.env.KUBB_ROOT || userConfig.root || process.cwd(),
     output: {
       write: true,
       barrelType: 'named',
