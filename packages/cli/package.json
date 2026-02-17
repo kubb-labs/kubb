@@ -80,8 +80,8 @@
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
-    "@kubb/agent": "workspace:*",
     "@kubb/mcp": "workspace:*",
+    "@kubb/agent": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.7.1",
