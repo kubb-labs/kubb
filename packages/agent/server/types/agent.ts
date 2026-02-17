@@ -6,13 +6,6 @@ export type CommandMessage = {
   type: 'command'
   id: string
   command: 'generate'
-  payload: Record<string, unknown>
-}
-
-export type LogMessage = {
-  type: 'log'
-  id: string
-  message: string
 }
 
 export type ConnectedMessage = {
@@ -41,17 +34,14 @@ export type StatusMessage = {
   }>
 }
 
-export type ProgressMessage = {
-  type: 'progress'
+/**
+ * SSE events
+ */
+export type DataMessage = {
+  type: 'data'
   id: string
-  value: number
-}
-
-export type ResultMessage = {
-  type: 'result'
-  id: string
-  success: boolean
-  error?: string
+  event: string
+  payload: string
 }
 
 export type AgentConnectResponse = {
@@ -62,23 +52,15 @@ export type AgentConnectResponse = {
   expiresAt: string
 }
 
-export type AgentMessage = CommandMessage | LogMessage | ProgressMessage | ResultMessage | ConnectedMessage | ErrorMessage | StatusMessage | PingMessage
+export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ErrorMessage | StatusMessage | PingMessage
 
 // Helper type guards
 export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
   return msg.type === 'command'
 }
 
-export function isLogMessage(msg: AgentMessage): msg is LogMessage {
-  return msg.type === 'log'
-}
-
-export function isProgressMessage(msg: AgentMessage): msg is ProgressMessage {
-  return msg.type === 'progress'
-}
-
-export function isResultMessage(msg: AgentMessage): msg is ResultMessage {
-  return msg.type === 'result'
+export function isDataMessage(msg: AgentMessage): msg is DataMessage {
+  return msg.type === 'data'
 }
 
 export function isConnectedMessage(msg: AgentMessage): msg is ConnectedMessage {

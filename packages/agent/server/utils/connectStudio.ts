@@ -1,12 +1,12 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import type { Config, InfoResponse, KubbEvents, LogLevel } from '@kubb/core'
+import type { Config, InfoResponse, KubbEvents, LogLevel, SseEvent } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import { serializePluginOptions } from '@kubb/core/utils'
 import { generate } from '~/utils/generate.ts'
 import { version } from '~~/package.json'
-import type { AgentConnectResponse, AgentMessage, ConnectedMessage, PingMessage } from '../types/agent.ts'
+import type { AgentConnectResponse, AgentMessage, ConnectedMessage, DataMessage, PingMessage } from '../types/agent.ts'
 import { useKubbAgentContext } from './useKubbAgentContext.ts'
 
 const WEBSOCKET_READY = 1
@@ -145,12 +145,15 @@ export async function connectStudio({ config, studioUrl, token, events, logLevel
       sendPingMessage(ws)
     }, 30000)
 
-    ws.addEventListener('message', async (event) => {
-      const data = JSON.parse(event.data) as AgentMessage
+    // Setup event stream to send data over WebSocket
+    setupEventStream(ws, events)
 
-      switch (data.type) {
+    ws.addEventListener('message', async (event) => {
+      const msgData = JSON.parse(event.data) as AgentMessage
+
+      switch (msgData.type) {
         case 'command':
-          if (data.command === 'generate') {
+          if ((msgData as any).command === 'generate') {
             console.log('Generated command')
             await generate({
               config,
@@ -163,13 +166,149 @@ export async function connectStudio({ config, studioUrl, token, events, logLevel
           break
 
         default:
-          console.warn('Unknown message type from Kubb Studio:', data)
+          console.warn('Unknown message type from Kubb Studio:', msgData)
       }
     })
+
+    return ws
   } catch (error) {
     console.warn('Error connecting to Kubb Studio:', error)
     return null
   }
+}
+
+function setupEventStream(ws: WebSocket, events: AsyncEventEmitter<KubbEvents>): void {
+  const messageId = generateId()
+
+  // Helper to send SSE-like events to WebSocket as DataMessages
+  function sendDataMessage(sseEvent: SseEvent) {
+    if (ws.readyState !== WEBSOCKET_READY) {
+      return
+    }
+
+    const dataMessage: DataMessage = {
+      type: 'data',
+      id: messageId,
+      event: sseEvent.type,
+      payload: JSON.stringify(sseEvent),
+    }
+
+    try {
+      ws.send(JSON.stringify(dataMessage))
+    } catch (error) {
+      console.warn('Failed to send data message to studio:', error)
+    }
+  }
+
+  // Forward events to WebSocket stream similar to generate.post.ts
+  events.on('plugin:start', (plugin: any) => {
+    sendDataMessage({
+      type: 'plugin:start',
+      data: [plugin],
+      timestamp: Date.now(),
+    })
+  })
+
+  events.on('plugin:end', (plugin: any, meta: any) => {
+    sendDataMessage({
+      type: 'plugin:end',
+      data: [plugin, meta],
+      timestamp: Date.now(),
+    })
+  })
+
+  events.on('files:processing:start', (files: any) => {
+    sendDataMessage({
+      type: 'files:processing:start',
+      data: [{ total: files.length }],
+      timestamp: Date.now(),
+    })
+  })
+
+  events.on('file:processing:update', (meta: any) => {
+    sendDataMessage({
+      type: 'file:processing:update',
+      data: [
+        {
+          file: meta.file.path,
+          processed: meta.processed,
+          total: meta.total,
+          percentage: meta.percentage,
+        },
+      ],
+      timestamp: Date.now(),
+    })
+  })
+
+  events.on('files:processing:end', (files: any) => {
+    sendDataMessage({
+      type: 'files:processing:end',
+      data: [{ total: files.length }],
+      timestamp: Date.now(),
+    })
+  })
+
+  events.on('info', (message: any, info: any) => {
+    sendDataMessage({
+      type: 'info',
+      data: [message, info],
+      timestamp: Date.now(),
+    })
+  })
+
+  events.on('success', (message: any, info: any) => {
+    sendDataMessage({
+      type: 'success',
+      data: [message, info],
+      timestamp: Date.now(),
+    })
+  })
+
+  events.on('warn', (message: any, info: any) => {
+    sendDataMessage({
+      type: 'warn',
+      data: [message, info],
+      timestamp: Date.now(),
+    })
+  })
+
+  events.on('generation:start', (config: any) => {
+    sendDataMessage({
+      type: 'generation:start',
+      data: [
+        {
+          name: config.name,
+          plugins: config.plugins?.length || 0,
+        },
+      ],
+      timestamp: Date.now(),
+    })
+  })
+
+  events.on('generation:end', (config: any, files: any, sources: any) => {
+    const sourcesRecord: Record<string, string> = {}
+    sources.forEach((value: any, key: any) => {
+      sourcesRecord[key] = value
+    })
+    sendDataMessage({
+      type: 'generation:end',
+      data: [config, files, sourcesRecord],
+      timestamp: Date.now(),
+    })
+  })
+
+  events.on('error', (error: Error) => {
+    sendDataMessage({
+      type: 'error',
+      data: [
+        {
+          message: error.message,
+          stack: error.stack,
+        },
+      ],
+      timestamp: Date.now(),
+    })
+  })
 }
 
 export function sendMessage(message: Record<string, unknown>): void {
