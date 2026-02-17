@@ -46,7 +46,7 @@ COMMANDS
   init        Initialize a new Kubb project with interactive setup
   generate    [input] Generate files based on a 'kubb.config.ts' file
   validate    Validate a Swagger/OpenAPI file
-  start       [input] Start HTTP server with SSE streaming based on a 'kubb.config.ts' file
+  agent       Manage the Agent server
   mcp         Start the server to enable the MCP client to interact with the LLM.
 
 Use kubb <command> --help for more information about a command.
@@ -286,6 +286,90 @@ kubb start --host 0.0.0.0 --port 3000
 ```
 
 See the [Stream Server Guide](/guide/stream-server) for complete documentation.
+
+## `kubb agent`
+
+Start and manage the Kubb Agent Server — an HTTP server for code generation.
+
+The Agent Server provides a production-ready HTTP API for triggering code generation with real-time progress updates via Server-Sent Events (SSE).
+
+> [!NOTE]
+> The agent server is included with `@kubb/cli` as a dependency.
+
+```mdx
+USAGE kubb agent [COMMAND] [OPTIONS]
+
+COMMANDS
+  start    Start the Agent server
+
+Use kubb agent <command> --help for more information about a command.
+```
+
+### `kubb agent start`
+
+Start the Agent server with your Kubb configuration.
+
+```mdx
+USAGE kubb agent start [OPTIONS]
+
+OPTIONS
+
+                        -c, --config    Path to the Kubb config (default: kubb.config.ts)
+                         -p, --port     Port for the server (default: 3000)
+                         --host         Host for the server (default: localhost)
+                          -h, --help    Show help
+```
+
+#### Basic Usage
+
+```shell [node]
+kubb agent start
+```
+
+With custom config path:
+
+```shell [node]
+kubb agent start --config ./my-config.ts
+```
+
+With custom host and port:
+
+```shell [node]
+kubb agent start --host 0.0.0.0 --port 8080
+```
+
+#### Features
+
+- ✅ Automatic config loading from environment variable (`KUBB_CONFIG`)
+- ✅ RESTful API endpoints for health checks and info
+- ✅ Real-time SSE streaming for code generation
+- ✅ Formatter and linter auto-detection
+- ✅ Post-generation hook execution
+
+#### API Endpoints
+
+Once the server is running, you can interact with it via HTTP:
+
+##### `GET /api/health`
+Check server health status.
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+##### `GET /api/info`
+Get server and configuration information.
+
+```bash
+curl http://localhost:3000/api/info
+```
+
+##### `POST /api/generate`
+Trigger code generation with real-time SSE streaming.
+
+```bash
+curl -N -X POST http://localhost:3000/api/generate
+```
 
 ## `kubb validate`
 

@@ -12,13 +12,31 @@ Kubb Agent Server — HTTP server for code generation powered by Node.js.
 
 ## Installation
 
+The agent server is installed as part of `@kubb/cli`:
+
 ```bash
-pnpm add -D @kubb/agent
+pnpm add -D @kubb/cli
 ```
 
 ## Usage
 
-Start the agent server with your Kubb configuration:
+### Via CLI (Recommended)
+
+Start the agent server using the Kubb CLI:
+
+```bash
+kubb agent start --config kubb.config.ts
+```
+
+With custom options:
+
+```bash
+kubb agent start --config kubb.config.ts --host 0.0.0.0 --port 8080
+```
+
+### Manual Server Start
+
+If you need to start the server directly:
 
 ```bash
 KUBB_CONFIG=./kubb.config.ts node packages/agent/.output/server/index.mjs
@@ -38,73 +56,6 @@ The server will be available at `http://localhost:3000` by default.
 - `PORT` - Server port (default: `3000`)
 - `HOST` - Server host (default: `localhost`)
 
-## API Endpoints
-
-### `GET /`
-Get server information and available endpoints.
-
-```bash
-curl http://localhost:3000/
-```
-
-Response:
-```json
-{
-  "name": "Kubb Agent Server",
-  "version": "4.23.0",
-  "endpoints": {
-    "health": "/api/health",
-    "info": "/api/info"
-  }
-}
-```
-
-### `GET /api/health`
-Check server health status.
-
-```bash
-curl http://localhost:3000/api/health
-```
-
-Response:
-```json
-{
-  "status": "ok",
-  "message": "Kubb Agent Server is running"
-}
-```
-
-### `GET /api/info`
-Get server information.
-
-```bash
-curl http://localhost:3000/api/info
-```
-
-Response:
-```json
-{
-  "name": "Kubb Agent Server",
-  "version": "4.23.0"
-}
-```
-
-### `POST /api/generate`
-Trigger code generation with Server-Sent Events (SSE) streaming.
-
-```bash
-curl -N http://localhost:3000/api/generate
-```
-
-This endpoint streams generation events back to the client using SSE. The server uses the configuration specified in the `KUBB_CONFIG` environment variable to generate code. Events include:
-- `generation:start` - Generation started
-- `plugin:start`/`plugin:end` - Plugin lifecycle events  
-- `info`, `success`, `warn`, `error` - Status messages
-- `format:start`/`format:end` - Formatting lifecycle
-- `lint:start`/`lint:end` - Linting lifecycle
-- `hooks:start`/`hooks:end` - Post-generation hooks
-- `generation:end` - Generation complete
-- `generation:summary` - Summary with statistics
 
 ## Quick Start Example
 
@@ -142,38 +93,6 @@ curl -N http://localhost:3000/api/generate
 ```
 
 You'll receive a stream of events as the code generation progresses.
-
-## Development
-
-Watch mode:
-
-```bash
-pnpm start
-```
-
-Build:
-
-```bash
-pnpm build
-```
-
-Test:
-
-```bash
-pnpm test
-```
-
-Type checking:
-
-```bash
-pnpm typecheck
-```
-
-Linting:
-
-```bash
-pnpm lint
-```
 
 ## License
 
