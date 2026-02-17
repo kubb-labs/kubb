@@ -1,26 +1,22 @@
 {
-  "name": "@kubb/cli",
+  "name": "@kubb/agent",
   "version": "4.23.0",
-  "description": "Command-line interface for Kubb, enabling easy generation of TypeScript, React-Query, Zod, and other code from OpenAPI specifications.",
+  "description": "Agent server for Kubb, enabling HTTP-based access to code generation capabilities.",
   "keywords": [
-    "cli",
-    "command-line",
-    "command-line-tool",
-    "terminal",
-    "typescript",
+    "agent",
+    "server",
+    "http",
+    "kubb",
+    "code-generation",
     "openapi",
     "swagger",
-    "oas",
-    "code-generator",
-    "codegen",
-    "sdk-generator",
-    "plugins",
-    "kubb"
+    "typescript",
+    "codegen"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/cli"
+    "directory": "packages/agent"
   },
   "license": "MIT",
   "author": "stijnvanhulle",
@@ -36,61 +32,38 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.cts",
-  "bin": {
-    "kubb": "bin/kubb.cjs"
-  },
   "files": [
-    "src",
-    "dist",
-    "bin",
+    ".output",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
   "scripts": {
-    "build": "tsdown && size-limit",
-    "clean": "npx rimraf ./dist",
+    "build": "nitro build",
+    "clean": "npx rimraf ./dist .output",
+    "prepare": "nitro prepare",
     "lint": "bun biome lint .",
+    "start": "node .output/server/index.mjs",
     "lint:fix": "bun biome lint --fix --unsafe .",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsdown --watch",
+    "dev": "nitro dev",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@clack/prompts": "^1.0.1",
     "@kubb/core": "workspace:*",
-    "chokidar": "^4.0.3",
-    "citty": "^0.1.6",
-    "cosmiconfig": "^9.0.0",
+    "@kubb/fabric-core": "catalog:",
     "execa": "^9.6.1",
-    "gradient-string": "^3.0.0",
     "jiti": "^2.6.1",
-    "latest-version": "^9.0.0",
-    "picocolors": "^1.1.1",
-    "seedrandom": "^3.0.5",
-    "semver": "^7.7.4",
+    "nitropack": "^2.13.1",
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
-    "@kubb/agent": "workspace:*",
-    "@kubb/mcp": "workspace:*",
-    "@kubb/oas": "workspace:*",
-    "@types/seedrandom": "^3.0.8",
-    "@types/semver": "^7.7.1",
-    "source-map-support": "^0.5.21"
+    "vite": "^7.3.1"
   },
   "engines": {
     "node": ">=20"
   },
-  "preferGlobal": true,
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"

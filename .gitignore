@@ -58,3 +58,7 @@ hello
 packages/ui/static/**
 .nx
 packages/core/mocks/helloWorld.js
+
+## Nitro
+.output
+.nitro

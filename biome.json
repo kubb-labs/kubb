@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.14/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.1/schema.json",
   "assist": {
     "enabled": true,
     "actions": {
@@ -24,7 +24,9 @@
       "!**/.github",
       "!**/.codesandbox",
       "!**/.devcontainer",
-      "!.nx"
+      "!.nx",
+      "!**/.output",
+      "!**/.nitro"
     ]
   },
   "formatter": {
@@ -48,6 +50,9 @@
         "noBannedTypes": "off",
         "useArrowFunction": "off",
         "useLiteralKeys": "off"
+      },
+      "a11y": {
+        "useHtmlLang": "off"
       },
       "style": {
         "noNonNullAssertion": "off",

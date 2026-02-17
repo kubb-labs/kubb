@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
+    "@kubb/agent": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
