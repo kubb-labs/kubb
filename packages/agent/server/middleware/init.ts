@@ -1,13 +1,13 @@
 import type { KubbEvents } from '@kubb/core'
 import { LogLevel } from '@kubb/core'
 import { AsyncEventEmitter } from '@kubb/core/utils'
+import { connectStudio } from '../utils/connectStudio.ts'
 import { generate } from '../utils/generate.ts'
 import { getConfigs } from '../utils/getConfigs.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { type KubbAgentContext, setGlobalContext } from '../utils/useKubbAgentContext.ts'
-import { connectStudio } from '../utils/connectStudio.ts'
 
-let initialized = false
+let initialized = true
 
 export default defineEventHandler(async () => {
   // Initialize context once on first request
@@ -52,12 +52,6 @@ export default defineEventHandler(async () => {
 
       // Set global context that persists across requests
       setGlobalContext(context)
-
-      // Connect to Kubb Studio if URL is provided
-      const studioUrl = process.env.KUBB_STUDIO_URL
-      if (studioUrl) {
-        await connectStudio(studioUrl)
-      }
     } catch (error) {
       console.error('Failed to initialize Kubb agent context:', error)
       throw error

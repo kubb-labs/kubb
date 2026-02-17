@@ -1,6 +1,6 @@
 // WebSocket message types for agent communication
 
-import type { InfoResponse } from "@kubb/core";
+import type { InfoResponse } from '@kubb/core'
 
 export type CommandMessage = {
   type: 'command'
@@ -32,6 +32,14 @@ export type ResultMessage = {
   id: string
   success: boolean
   error?: string
+}
+
+export type AgentConnectResponse = {
+  sessionId: string
+  userId: string
+  agentId: string
+  wsUrl: string
+  expiresAt: string
 }
 
 export type AgentMessage = CommandMessage | LogMessage | ProgressMessage | ResultMessage | InfoMessage

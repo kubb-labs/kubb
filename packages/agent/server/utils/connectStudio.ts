@@ -1,15 +1,12 @@
-import type { InfoResponse } from '@kubb/core'
-import ws from 'ws'
-import type { InfoMessage } from '../types/agent.ts'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import process from 'node:process'
+import type { Config, InfoResponse, KubbEvents, LogLevel } from '@kubb/core'
+import type { AsyncEventEmitter } from '@kubb/core/utils'
+import { serializePluginOptions } from '@kubb/core/utils'
+import { version } from '~~/package.json'
+import type { AgentConnectResponse, InfoMessage } from '../types/agent.ts'
 import { useKubbAgentContext } from './useKubbAgentContext.ts'
-
-type WebSocketLike = {
-  send(data: string): void
-  addEventListener(event: string, callback: (event: Event) => void): void
-  removeEventListener(event: string, callback: (event: Event) => void): void
-  close(): void
-  readyState: number
-}
 
 const WEBSOCKET_READY = 1
 const WEBSOCKET_CONNECTING = 0
@@ -18,21 +15,25 @@ function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 }
 
-export async function connectStudio(studioUrl: string): Promise<WebSocketLike | null> {
+type ConnectStudioProps = {
+  configPath: string
+  config: Config
+  events: AsyncEventEmitter<KubbEvents>
+  logLevel: (typeof LogLevel)[keyof typeof LogLevel]
+  studioUrl: string
+  token: string
+}
+
+export async function connectStudio({ config, studioUrl, token }: ConnectStudioProps): Promise<WebSocket | null> {
   try {
-    if (!studioUrl) {
-      console.warn('KUBB_STUDIO_URL not set, skipping studio connection')
-      return null
-    }
+    const connectUrl = `${studioUrl}/api/agent/connect`
 
-    const token = process.env.KUBB_AGENT_TOKEN
-    if (!token) {
-      console.warn('KUBB_AGENT_TOKEN not set, cannot authenticate with studio')
-      return null
-    }
-
-    // Convert http(s) to ws(s)
-    const wsUrl = studioUrl.replace(/^http/, 'ws').replace(/\/$/, '') + '/api/agent/connect'
+    const data = await $fetch<AgentConnectResponse>(connectUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
 
     const wsOptions = {
       headers: {
@@ -40,56 +41,63 @@ export async function connectStudio(studioUrl: string): Promise<WebSocketLike | 
       },
     }
 
-    console.log(wsOptions, wsUrl)
+    // Read OpenAPI spec if available
+    let specContent: string | undefined
+    if (config && 'path' in config.input) {
+      const specPath = path.resolve(process.cwd(), config.root, config.input.path)
+      try {
+        specContent = readFileSync(specPath, 'utf-8')
+      } catch {
+        // Spec file not found or unreadable
+      }
+    }
+
+    const infoResponse: InfoResponse = {
+      version,
+      configPath: process.env.KUBB_CONFIG || '',
+      spec: specContent,
+      config: {
+        name: config.name,
+        root: config.root,
+        input: {
+          path: 'path' in config.input ? config.input.path : undefined,
+        },
+        output: {
+          path: config.output.path,
+          write: config.output.write,
+          extension: config.output.extension,
+          barrelType: config.output.barrelType,
+        },
+        plugins: config.plugins?.map((plugin: any) => ({
+          name: `@kubb/${plugin.name}`,
+          options: serializePluginOptions(plugin.options),
+        })),
+      },
+    }
+
+    function sendInfoMessage(ws: WebSocket) {
+      try {
+        const infoMessage: InfoMessage = {
+          type: 'info',
+          id: generateId(),
+          payload: infoResponse,
+        }
+
+        ws.send(JSON.stringify(infoMessage))
+
+        console.log(`Sent info message to Kubb Studio ${JSON.stringify(infoMessage, null, 2)}`)
+      } catch (error) {
+        console.warn('Failed to send info message to studio:', error)
+      }
+    }
 
     return new Promise((resolve) => {
-      const ws = new WebSocket(wsUrl, wsOptions) as WebSocketLike
+      const ws = new WebSocket(data.wsUrl, wsOptions)
 
       const onOpen = () => {
-        console.log('Connected to Kubb Studio')
+        console.log(`Connected to Kubb Studio on ${data.wsUrl}`)
 
-        // Send initial info message
-        try {
-          const context = useKubbAgentContext()
-          const infoPayload: InfoResponse = {
-            version: context.config.root || 'unknown',
-            configPath: process.env.KUBB_CONFIG || '',
-            config: {
-              name: context.config.name,
-              root: context.config.root || '',
-              input: {
-                path:
-                  typeof context.config.input === 'object' && !Array.isArray(context.config.input) && 'path' in context.config.input
-                    ? (context.config.input as { path?: string }).path
-                    : undefined,
-              },
-              output: {
-                path: context.config.output?.path || '',
-                write: context.config.output?.write,
-                extension: (context.config.output as any)?.extension,
-                barrelType: (context.config.output as any)?.barrelType,
-              },
-            },
-          }
-
-          const infoMessage: InfoMessage = {
-            type: 'info',
-            id: generateId(),
-            payload: infoPayload,
-          }
-
-          ws.send(JSON.stringify(infoMessage))
-        } catch (error) {
-          console.warn('Failed to send info message to studio:', error)
-        }
-
-        // Store WebSocket in context
-        try {
-          const context = useKubbAgentContext()
-          context.ws = ws
-        } catch (error) {
-          console.warn('Failed to store WebSocket in context:', error)
-        }
+        sendInfoMessage(ws)
 
         ws.removeEventListener('open', onOpen)
         ws.removeEventListener('error', onError)
