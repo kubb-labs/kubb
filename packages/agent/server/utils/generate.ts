@@ -17,16 +17,9 @@ type GenerateProps = {
 export async function generate({ config: userConfig, events, logLevel }: GenerateProps): Promise<void> {
   const hrStart = process.hrtime()
 
-  // Determine root from KUBB_CONFIG environment variable
-  let root = userConfig.root || process.cwd()
-  const configPath = process.env.KUBB_CONFIG
-  if (configPath) {
-    root = path.dirname(path.resolve(configPath))
-  }
-
   const config: Config = {
     ...userConfig,
-    root,
+    root: userConfig.root || process.cwd(),
     output: {
       write: true,
       barrelType: 'named',
