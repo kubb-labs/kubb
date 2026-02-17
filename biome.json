@@ -51,6 +51,9 @@
         "useArrowFunction": "off",
         "useLiteralKeys": "off"
       },
+      "a11y": {
+        "useHtmlLang": "off"
+      },
       "style": {
         "noNonNullAssertion": "off",
         "noParameterAssign": "off",

@@ -28,7 +28,7 @@ export async function getCosmiConfig(configPath: string): Promise<CosmiconfigRes
   try {
     // Resolve relative paths to absolute
     const absolutePath = path.isAbsolute(configPath) ? configPath : path.resolve(process.cwd(), configPath)
-    
+
     const mod = await tsLoader(absolutePath)
     return {
       filepath: absolutePath,

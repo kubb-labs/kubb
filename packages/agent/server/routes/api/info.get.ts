@@ -3,7 +3,6 @@ import path from 'node:path'
 import process from 'node:process'
 import type { InfoResponse } from '@kubb/core'
 import { serializePluginOptions } from '@kubb/core/utils'
-import { defineEventHandler } from 'h3'
 import { useKubbAgentContext } from '~/utils/useKubbAgentContext.ts'
 import { version } from '~~/package.json'
 

@@ -1,7 +1,6 @@
 import type { KubbEvents } from '@kubb/core'
 import { LogLevel } from '@kubb/core'
 import { AsyncEventEmitter } from '@kubb/core/utils'
-import { defineEventHandler } from 'h3'
 import { generate } from '../utils/generate.ts'
 import { getConfigs } from '../utils/getConfigs.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'

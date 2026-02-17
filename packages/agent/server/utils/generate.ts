@@ -17,9 +17,16 @@ type GenerateProps = {
 export async function generate({ config: userConfig, events, logLevel }: GenerateProps): Promise<void> {
   const hrStart = process.hrtime()
 
+  // Determine root from KUBB_CONFIG environment variable
+  let root = userConfig.root || process.cwd()
+  const configPath = process.env.KUBB_CONFIG
+  if (configPath) {
+    root = path.dirname(path.resolve(configPath))
+  }
+
   const config: Config = {
     ...userConfig,
-    root: userConfig.root || process.cwd(),
+    root,
     output: {
       write: true,
       barrelType: 'named',
@@ -160,7 +167,7 @@ export async function generate({ config: userConfig, events, logLevel }: Generat
               throw error
             }
 
-            await events.emit('success', `Linted with eslint successfully`)
+            await events.emit('success', 'Linted with eslint successfully')
           })
         } catch (caughtError) {
           const error = new Error('Eslint not found')
@@ -183,7 +190,7 @@ export async function generate({ config: userConfig, events, logLevel }: Generat
               throw error
             }
 
-            await events.emit('success', `Linted with biome successfully`)
+            await events.emit('success', 'Linted with biome successfully')
           })
         } catch (caughtError) {
           const error = new Error('Biome not found')
@@ -206,7 +213,7 @@ export async function generate({ config: userConfig, events, logLevel }: Generat
               throw error
             }
 
-            await events.emit('success', `Linted with oxlint successfully`)
+            await events.emit('success', 'Linted with oxlint successfully')
           })
         } catch (caughtError) {
           const error = new Error('Oxlint not found')

@@ -1,13 +1,14 @@
 import type { SseEvent, SseEvents, SseEventType } from '@kubb/core'
-import { defineEventHandler } from 'h3'
 import { useKubbAgentContext } from '~/utils/useKubbAgentContext.ts'
 
 export default defineEventHandler(async (event) => {
   const { events, onGenerate } = useKubbAgentContext()
 
-  event.res.headers.set('Content-Type', 'text/event-stream')
-  event.res.headers.set('Cache-Control', 'no-cache')
-  event.res.headers.set('Connection', 'keep-alive')
+  setHeaders(event, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+  })
 
   // Create a ReadableStream to stream SSE events
   const stream = new ReadableStream<string>({
