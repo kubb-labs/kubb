@@ -4,11 +4,11 @@ import process from 'node:process'
 import type { InfoResponse } from '@kubb/core'
 import { serializePluginOptions } from '@kubb/core/utils'
 import { defineEventHandler } from 'h3'
-import { useKubbAgentContext } from '../../utils/useKubbAgentContext.ts'
+import { useKubbAgentContext } from '~/utils/useKubbAgentContext.ts'
+import { version } from '~~/package.json'
 
 export default defineEventHandler(async (): Promise<InfoResponse> => {
-  const context = useKubbAgentContext()
-  const { config } = context
+  const { config } = useKubbAgentContext()
 
   // Read OpenAPI spec if available
   let specContent: string | undefined
@@ -22,8 +22,8 @@ export default defineEventHandler(async (): Promise<InfoResponse> => {
   }
 
   return {
-    version: '4.23.0',
-    configPath: process.cwd(),
+    version,
+    configPath: process.env.KUBB_CONFIG || '',
     spec: specContent,
     config: {
       name: config.name,

@@ -1,15 +1,15 @@
-import process from 'node:process'
-import { type KubbEvents, LogLevel } from '@kubb/core'
+import type { KubbEvents } from '@kubb/core'
+import { LogLevel } from '@kubb/core'
 import { AsyncEventEmitter } from '@kubb/core/utils'
 import { defineEventHandler } from 'h3'
-import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
-import { getConfigs } from '../utils/getConfigs.ts'
 import { generate } from '../utils/generate.ts'
-import { contextStorage, setGlobalContext, type KubbAgentContext } from '../utils/useKubbAgentContext.ts'
+import { getConfigs } from '../utils/getConfigs.ts'
+import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
+import { type KubbAgentContext, setGlobalContext } from '../utils/useKubbAgentContext.ts'
 
 let initialized = false
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   // Initialize context once on first request
   if (!initialized) {
     initialized = true
@@ -52,12 +52,8 @@ export default defineEventHandler(async (event) => {
 
       // Set global context that persists across requests
       setGlobalContext(context)
-
-      // Also set in AsyncLocalStorage for this request
-      return contextStorage.run(context, () => {
-        // Context is set
-      })
     } catch (error) {
+      console.error('Failed to initialize Kubb agent context:', error)
       throw error
     }
   }
