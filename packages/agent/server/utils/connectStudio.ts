@@ -7,7 +7,6 @@ import { serializePluginOptions } from '@kubb/core/utils'
 import { generate } from '~/utils/generate.ts'
 import { version } from '~~/package.json'
 import type { AgentConnectResponse, AgentMessage, ConnectedMessage, DataMessage, PingMessage } from '../types/agent.ts'
-import { useKubbAgentContext } from './useKubbAgentContext.ts'
 
 const WEBSOCKET_READY = 1
 const WEBSOCKET_CONNECTING = 0
@@ -149,11 +148,11 @@ export async function connectStudio({ config, studioUrl, token, events, logLevel
     setupEventStream(ws, events)
 
     ws.addEventListener('message', async (event) => {
-      const msgData = JSON.parse(event.data) as AgentMessage
+      const data = JSON.parse(event.data) as AgentMessage
 
-      switch (msgData.type) {
+      switch (data.type) {
         case 'command':
-          if ((msgData as any).command === 'generate') {
+          if (data.command === 'generate') {
             console.log('Generated command')
             await generate({
               config,
@@ -166,7 +165,7 @@ export async function connectStudio({ config, studioUrl, token, events, logLevel
           break
 
         default:
-          console.warn('Unknown message type from Kubb Studio:', msgData)
+          console.warn('Unknown message type from Kubb Studio:', data)
       }
     })
 
@@ -309,15 +308,4 @@ function setupEventStream(ws: WebSocket, events: AsyncEventEmitter<KubbEvents>):
       timestamp: Date.now(),
     })
   })
-}
-
-export function sendMessage(message: Record<string, unknown>): void {
-  try {
-    const context = useKubbAgentContext()
-    if (context.ws && context.ws.readyState === WEBSOCKET_READY) {
-      context.ws.send(JSON.stringify(message))
-    }
-  } catch (error) {
-    console.warn('Failed to send message to studio:', error)
-  }
 }
