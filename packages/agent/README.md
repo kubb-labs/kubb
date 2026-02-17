@@ -18,16 +18,23 @@ pnpm add -D @kubb/agent
 
 ## Usage
 
-Start the agent server:
+Start the agent server with your Kubb configuration:
 
 ```bash
-kubb agent start
+KUBB_CONFIG=./kubb.config.ts node packages/agent/.output/server/index.mjs
+```
+
+Or if using the built package:
+
+```bash
+KUBB_CONFIG=./kubb.config.ts node node_modules/@kubb/agent/.output/server/index.mjs
 ```
 
 The server will be available at `http://localhost:8080` by default.
 
 ### Environment Variables
 
+- `KUBB_CONFIG` - **Required**. Path to your Kubb configuration file (e.g., `./kubb.config.ts` or `./kubb.config.js`). Supports TypeScript and JavaScript files.
 - `PORT` - Server port (default: `8080`)
 - `HOST` - Server host (default: `localhost`)
 
@@ -81,6 +88,60 @@ Response:
   "version": "4.23.0"
 }
 ```
+
+### `POST /api/generate`
+Trigger code generation with Server-Sent Events (SSE) streaming.
+
+```bash
+curl -N http://localhost:8080/api/generate
+```
+
+This endpoint streams generation events back to the client using SSE. The server uses the configuration specified in the `KUBB_CONFIG` environment variable to generate code. Events include:
+- `generation:start` - Generation started
+- `plugin:start`/`plugin:end` - Plugin lifecycle events  
+- `info`, `success`, `warn`, `error` - Status messages
+- `format:start`/`format:end` - Formatting lifecycle
+- `lint:start`/`lint:end` - Linting lifecycle
+- `hooks:start`/`hooks:end` - Post-generation hooks
+- `generation:end` - Generation complete
+- `generation:summary` - Summary with statistics
+
+## Quick Start Example
+
+### 1. Create a Kubb configuration file (`kubb.config.ts`):
+
+```typescript
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  input: {
+    path: './openapi.json',
+  },
+  output: {
+    path: './src/generated',
+  },
+  plugins: [
+    pluginOas(),
+    pluginTs(),
+  ],
+})
+```
+
+### 2. Start the agent server:
+
+```bash
+KUBB_CONFIG=./kubb.config.ts node packages/agent/.output/server/index.mjs
+```
+
+### 3. Trigger generation:
+
+```bash
+curl -N http://localhost:8080/api/generate
+```
+
+You'll receive a stream of events as the code generation progresses.
 
 ## Development
 

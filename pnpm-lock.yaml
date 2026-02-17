@@ -772,12 +772,21 @@ importers:
       '@kubb/fabric-core':
         specifier: 'catalog:'
         version: 0.12.11
+      execa:
+        specifier: ^9.6.1
+        version: 9.6.1
       h3:
         specifier: ^2.0.1-rc.14
         version: 2.0.1-rc.14
+      jiti:
+        specifier: ^2.6.1
+        version: 2.6.1
       nitropack:
         specifier: ^2.13.1
         version: 2.13.1(encoding@0.1.13)(rolldown@1.0.0-rc.1)
+      string-argv:
+        specifier: ^0.3.2
+        version: 0.3.2
     devDependencies:
       vite:
         specifier: ^7.3.1

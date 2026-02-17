@@ -1,10 +1,16 @@
 import type { SseEvent, SseEvents, SseEventType } from '@kubb/core'
 import { defineEventHandler, HTTPError } from 'h3'
+import { type KubbAgentContext, useKubbAgentContext } from '~/utils/useKubbAgentContext.ts'
 
 export default defineEventHandler(async (event) => {
-  const context = globalThis.__KUBB_AGENT_CONTEXT__ as any
-  if (!context) {
-    throw new HTTPError({ statusCode: 500, statusMessage: 'Server context not initialized' })
+  let context: KubbAgentContext
+  try {
+    context = useKubbAgentContext()
+  } catch (error) {
+    throw new HTTPError({
+      statusCode: 500,
+      statusMessage: error instanceof Error ? error.message : 'Server context not initialized',
+    })
   }
 
   // Only accept POST requests
