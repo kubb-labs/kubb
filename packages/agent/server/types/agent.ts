@@ -23,6 +23,10 @@ export type PingMessage = {
   type: 'ping'
 }
 
+export type PongMessage = {
+  type: 'ping'
+}
+
 export type StatusMessage = {
   type: 'status'
   message: string
@@ -52,7 +56,7 @@ export type AgentConnectResponse = {
   expiresAt: string
 }
 
-export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ErrorMessage | StatusMessage | PingMessage
+export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ErrorMessage | StatusMessage | PingMessage | PongMessage
 
 // Helper type guards
 export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
