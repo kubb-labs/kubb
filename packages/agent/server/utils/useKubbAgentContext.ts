@@ -10,10 +10,24 @@ export type KubbAgentContext = {
 
 export const contextStorage = new AsyncLocalStorage<KubbAgentContext>()
 
+// Global storage for context that persists across requests
+let globalContext: KubbAgentContext | null = null
+
+export function setGlobalContext(context: KubbAgentContext) {
+  globalContext = context
+}
+
 export function useKubbAgentContext(): KubbAgentContext {
-  const context = contextStorage.getStore()
-  if (!context) {
-    throw new Error('Kubb agent context not initialized. Make sure KUBB_CONFIG environment variable is set.')
+  // First try AsyncLocalStorage (for request-scoped access)
+  const localContext = contextStorage.getStore()
+  if (localContext) {
+    return localContext
   }
-  return context
+
+  // Fall back to global context
+  if (globalContext) {
+    return globalContext
+  }
+
+  throw new Error('Kubb agent context not initialized. Make sure KUBB_CONFIG environment variable is set.')
 }

@@ -3,17 +3,12 @@ import path from 'node:path'
 import process from 'node:process'
 import type { InfoResponse } from '@kubb/core'
 import { serializePluginOptions } from '@kubb/core/utils'
-import { defineEventHandler, HTTPError } from 'h3'
+import { defineEventHandler } from 'h3'
+import { useKubbAgentContext } from '../../utils/useKubbAgentContext.ts'
 
-export default defineEventHandler(async (event): Promise<InfoResponse> => {
-  const context = globalThis.__KUBB_AGENT_CONTEXT__ as any
-  if (!context) {
-    throw new HTTPError({ statusCode: 500, statusMessage: 'Server context not initialized' })
-  }
-
-  event.res.headers.set('Content-Type', 'application/json')
-
-  const { config, configPath, version } = context
+export default defineEventHandler(async (): Promise<InfoResponse> => {
+  const context = useKubbAgentContext()
+  const { config } = context
 
   // Read OpenAPI spec if available
   let specContent: string | undefined
@@ -27,8 +22,8 @@ export default defineEventHandler(async (event): Promise<InfoResponse> => {
   }
 
   return {
-    version,
-    configPath: path.relative(process.cwd(), configPath),
+    version: '4.23.0',
+    configPath: process.cwd(),
     spec: specContent,
     config: {
       name: config.name,

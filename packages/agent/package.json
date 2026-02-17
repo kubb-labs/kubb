@@ -48,6 +48,7 @@
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
     "start": "nitro dev",
+    "start:test": "KUBB_CONFIG=/Users/stijnvanhulle/GitHub/kubb/examples/react-query/kubb.config.ts pnpm start",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },

@@ -30,12 +30,12 @@ Or if using the built package:
 KUBB_CONFIG=./kubb.config.ts node node_modules/@kubb/agent/.output/server/index.mjs
 ```
 
-The server will be available at `http://localhost:8080` by default.
+The server will be available at `http://localhost:3000` by default.
 
 ### Environment Variables
 
-- `KUBB_CONFIG` - **Required**. Path to your Kubb configuration file (e.g., `./kubb.config.ts` or `./kubb.config.js`). Supports TypeScript and JavaScript files.
-- `PORT` - Server port (default: `8080`)
+- `KUBB_CONFIG` - **Required**. Path to your Kubb configuration file (e.g., `./kubb.config.ts` or `./kubb.config.js`). Supports both TypeScript and JavaScript files. Can be relative or absolute.
+- `PORT` - Server port (default: `3000`)
 - `HOST` - Server host (default: `localhost`)
 
 ## API Endpoints
@@ -44,7 +44,7 @@ The server will be available at `http://localhost:8080` by default.
 Get server information and available endpoints.
 
 ```bash
-curl http://localhost:8080/
+curl http://localhost:3000/
 ```
 
 Response:
@@ -63,7 +63,7 @@ Response:
 Check server health status.
 
 ```bash
-curl http://localhost:8080/api/health
+curl http://localhost:3000/api/health
 ```
 
 Response:
@@ -78,7 +78,7 @@ Response:
 Get server information.
 
 ```bash
-curl http://localhost:8080/api/info
+curl http://localhost:3000/api/info
 ```
 
 Response:
@@ -93,7 +93,7 @@ Response:
 Trigger code generation with Server-Sent Events (SSE) streaming.
 
 ```bash
-curl -N http://localhost:8080/api/generate
+curl -N http://localhost:3000/api/generate
 ```
 
 This endpoint streams generation events back to the client using SSE. The server uses the configuration specified in the `KUBB_CONFIG` environment variable to generate code. Events include:
@@ -138,7 +138,7 @@ KUBB_CONFIG=./kubb.config.ts node packages/agent/.output/server/index.mjs
 ### 3. Trigger generation:
 
 ```bash
-curl -N http://localhost:8080/api/generate
+curl -N http://localhost:3000/api/generate
 ```
 
 You'll receive a stream of events as the code generation progresses.

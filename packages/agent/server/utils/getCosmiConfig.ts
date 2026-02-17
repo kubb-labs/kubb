@@ -1,3 +1,5 @@
+import path from 'node:path'
+import process from 'node:process'
 import type { defineConfig, UserConfig } from '@kubb/core'
 import { createJiti } from 'jiti'
 
@@ -24,9 +26,12 @@ const tsLoader = async (configFile: string) => {
 
 export async function getCosmiConfig(configPath: string): Promise<CosmiconfigResult> {
   try {
-    const mod = await tsLoader(configPath)
+    // Resolve relative paths to absolute
+    const absolutePath = path.isAbsolute(configPath) ? configPath : path.resolve(process.cwd(), configPath)
+    
+    const mod = await tsLoader(absolutePath)
     return {
-      filepath: configPath,
+      filepath: absolutePath,
       config: mod,
     }
   } catch (error) {
