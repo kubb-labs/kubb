@@ -26,7 +26,8 @@
       "!**/.devcontainer",
       "!.nx",
       "!**/.output",
-      "!**/.nitro"
+      "!**/.nitro",
+      "!.html"
     ]
   },
   "formatter": {
