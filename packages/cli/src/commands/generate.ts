@@ -1,8 +1,8 @@
 import path from 'node:path'
 import * as process from 'node:process'
 import * as clack from '@clack/prompts'
-import { isInputPath, type KubbEvents, LogLevel, PromiseManager } from '@kubb/core'
-import { AsyncEventEmitter, executeIfOnline } from '@kubb/core/utils'
+import { type CLIOptions, isInputPath, type KubbEvents, LogLevel, PromiseManager } from '@kubb/core'
+import { AsyncEventEmitter, executeIfOnline, getConfigs } from '@kubb/core/utils'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import getLatestVersion from 'latest-version'
@@ -11,7 +11,6 @@ import { lt } from 'semver'
 import { version } from '../../package.json'
 import { setupLogger } from '../loggers/utils.ts'
 import { generate } from '../runners/generate.ts'
-import { getConfigs } from '../utils/getConfigs.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { startWatcher } from '../utils/watcher.ts'
 
@@ -104,7 +103,7 @@ const command = defineCommand({
 
     try {
       const result = await getCosmiConfig('kubb', args.config)
-      const configs = await getConfigs(result, args)
+      const configs = await getConfigs(result.config, args as CLIOptions)
 
       await events.emit('config:start')
 

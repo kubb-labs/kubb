@@ -1,4 +1,4 @@
-import type { UserConfig } from '@kubb/core'
+import type { UserConfig } from '../types.ts'
 
 function isJSONPlugins(plugins: UserConfig['plugins']) {
   return !!(plugins as any)?.some((plugin: any) => {

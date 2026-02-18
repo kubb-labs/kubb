@@ -2,11 +2,10 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import type { KubbEvents } from '@kubb/core'
-import { AsyncEventEmitter, serializePluginOptions } from '@kubb/core/utils'
+import { AsyncEventEmitter, getConfigs, serializePluginOptions } from '@kubb/core/utils'
 import { execa } from 'execa'
 import { type AgentMessage, isCommandMessage } from '~/types/agent.ts'
 import { connect, disconnect } from '~/utils/api.ts'
-import { getConfigs } from '~/utils/getConfigs.ts'
 import { getCosmiConfig } from '~/utils/getCosmiConfig.ts'
 import { logger } from '~/utils/logger.ts'
 import { deleteCachedSession, getCachedSession } from '~/utils/sessionManager.ts'
@@ -38,7 +37,7 @@ export default defineNitroPlugin(async (nitro) => {
 
   // Load config
   const result = await getCosmiConfig(configPath)
-  const configs = await getConfigs(result)
+  const configs = await getConfigs(result.config, {})
 
   if (configs.length === 0) {
     throw new Error('No configs found')

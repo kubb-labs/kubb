@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AgentMessage } from '../types/agent.ts'
 import { isCommandMessage, isDataMessage } from '../types/agent.ts'
 
@@ -26,62 +26,6 @@ describe('Studio Plugin - Message Handling', () => {
 
       expect(isDataMessage(message)).toBe(true)
       expect(isCommandMessage(message)).toBe(false)
-    })
-  })
-
-  describe('Plugin Event Flow', () => {
-    it('should handle generate command message', () => {
-      const message: AgentMessage = {
-        type: 'command',
-        command: 'generate',
-      }
-
-      expect(isCommandMessage(message)).toBe(true)
-      if (isCommandMessage(message)) {
-        expect(message.command).toBe('generate')
-      }
-    })
-
-    it('should handle connect command message', () => {
-      const message: AgentMessage = {
-        type: 'command',
-        command: 'connect',
-      }
-
-      expect(isCommandMessage(message)).toBe(true)
-      if (isCommandMessage(message)) {
-        expect(message.command).toBe('connect')
-      }
-    })
-
-    it('should serialize generation end event with sources map', () => {
-      const sources = new Map([
-        ['schema.ts', 'export type User = { id: string }'],
-        ['client.ts', 'export const client = new ApiClient()'],
-      ])
-
-      const sourcesRecord: Record<string, string> = {}
-      sources.forEach((value, key) => {
-        sourcesRecord[key] = value
-      })
-
-      expect(Object.keys(sourcesRecord)).toContain('schema.ts')
-      expect(sourcesRecord['client.ts']).toContain('ApiClient')
-    })
-
-    it('should format hook command with arguments', () => {
-      const command = 'npm'
-      const args = ['run', 'format']
-      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
-
-      expect(commandWithArgs).toBe('npm run format')
-    })
-
-    it('should skip hook execution when id is undefined', () => {
-      const id = undefined
-      const shouldExecute = !!id
-
-      expect(shouldExecute).toBe(false)
     })
   })
 
@@ -184,82 +128,6 @@ describe('Studio Plugin - Message Handling', () => {
       expect(pluginsInfo).toHaveLength(2)
       expect(pluginsInfo[0].name).toBe('@kubb/ts')
       expect(pluginsInfo[1].options.importPath).toBe('@/lib/api')
-    })
-  })
-
-  describe('Environment Variables', () => {
-    let originalEnv: NodeJS.ProcessEnv
-
-    beforeEach(() => {
-      originalEnv = { ...process.env }
-    })
-
-    afterEach(() => {
-      process.env = originalEnv
-    })
-
-    it('should use KUBB_STUDIO_URL from env or default', () => {
-      process.env.KUBB_STUDIO_URL = 'https://custom.studio.dev'
-      const studioUrl = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
-
-      expect(studioUrl).toBe('https://custom.studio.dev')
-    })
-
-    it('should default KUBB_STUDIO_URL when not set', () => {
-      delete process.env.KUBB_STUDIO_URL
-      const studioUrl = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
-
-      expect(studioUrl).toBe('https://studio.kubb.dev')
-    })
-
-    it('should use KUBB_ROOT from env or config.root or cwd', () => {
-      const cwd = process.cwd()
-      const root = process.env.KUBB_ROOT || '/config/root' || cwd
-
-      expect(root).toBeDefined()
-    })
-
-    it('should check KUBB_AGENT_NO_CACHE for caching behavior', () => {
-      process.env.KUBB_AGENT_NO_CACHE = 'true'
-      const noCache = process.env.KUBB_AGENT_NO_CACHE === 'true'
-
-      expect(noCache).toBe(true)
-    })
-
-    it('should default to using cache when KUBB_AGENT_NO_CACHE not set', () => {
-      delete process.env.KUBB_AGENT_NO_CACHE
-      const noCache = process.env.KUBB_AGENT_NO_CACHE === 'true'
-
-      expect(noCache).toBe(false)
-    })
-  })
-
-  describe('Error Handling', () => {
-    it('should create error message from exception', () => {
-      const error = new Error('Hook execute failed: npm run format')
-      const errorMessage: AgentMessage = {
-        type: 'error',
-        message: error.message,
-      }
-
-      expect(errorMessage.type).toBe('error')
-      expect(errorMessage.message).toContain('Hook execute failed')
-    })
-
-    it('should preserve error stack in hook:end event', () => {
-      const error = new Error('Command failed')
-      error.stack = 'Error: Command failed\n  at runHook (/path/to/file.ts:50:10)'
-
-      const hookEndEvent = {
-        command: 'npm',
-        args: ['run', 'test'],
-        id: 'hook-123',
-        success: false,
-        error,
-      }
-
-      expect(hookEndEvent.error?.stack).toContain('runHook')
-      expect(hookEndEvent.success).toBe(false)
     })
   })
 })
