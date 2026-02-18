@@ -42,7 +42,7 @@ export async function getCosmiConfig(configPath: string): Promise<CosmiconfigRes
       filepath: absolutePath,
       config: mod,
     }
-  } catch (error) {
+  } catch (error: any) {
     throw new Error('Config failed loading', { cause: error })
   }
 }

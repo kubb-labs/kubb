@@ -7,7 +7,6 @@ import pc from 'picocolors'
 import { executeHooks } from './executeHooks.ts'
 
 type GenerateProps = {
-  root: string
   config: Config
   events: AsyncEventEmitter<KubbEvents>
 }
@@ -21,21 +20,7 @@ type GenerateProps = {
  * followed by any user-defined `hooks.done` commands.
  *
  */
-export async function generate({ root, config: userConfig, events }: GenerateProps): Promise<void> {
-  const config: Config = {
-    ...userConfig,
-    root,
-    output: {
-      write: true,
-      barrelType: 'named',
-      extension: {
-        '.ts': '.ts',
-      },
-      format: 'prettier',
-      ...userConfig.output,
-    },
-  }
-
+export async function generate({ config, events }: GenerateProps): Promise<void> {
   await events.emit('generation:start', config)
 
   await events.emit('info', config.name ? `Setup generation ${config.name}` : 'Setup generation')

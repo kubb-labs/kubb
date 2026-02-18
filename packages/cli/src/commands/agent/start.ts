@@ -9,6 +9,20 @@ import { config as loadEnv } from 'dotenv'
 import { execa } from 'execa'
 import pc from 'picocolors'
 
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      PORT: string
+      KUBB_ROOT: string
+      KUBB_STUDIO_URL: string
+      KUBB_AGENT_TOKEN: string
+      KUBB_CONFIG: string
+      KUBB_AGENT_NO_CACHE: string
+      KUBB_RETRY_TIMEOUT: string
+    }
+  }
+}
+
 const args = {
   config: {
     type: 'string',
@@ -60,6 +74,7 @@ async function startServer({ port, host, configPath, noCache }: StartServerProps
     const KUBB_AGENT_NO_CACHE = noCache ? 'true' : 'false'
     const KUBB_STUDIO_URL = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
     const KUBB_AGENT_TOKEN = process.env.KUBB_AGENT_TOKEN
+    const KUBB_RETRY_TIMEOUT = process.env.KUBB_RETRY_TIMEOUT || '30000'
 
     // Set environment variables
     const env = {
@@ -68,6 +83,7 @@ async function startServer({ port, host, configPath, noCache }: StartServerProps
       PORT,
       HOST,
       KUBB_STUDIO_URL,
+      KUBB_RETRY_TIMEOUT,
       KUBB_AGENT_NO_CACHE,
       KUBB_AGENT_TOKEN,
     }

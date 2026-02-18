@@ -2,15 +2,30 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import type { KubbEvents } from '@kubb/core'
-import { AsyncEventEmitter, getConfigs, serializePluginOptions } from '@kubb/core/utils'
+import { AsyncEventEmitter, formatMs, getConfigs, serializePluginOptions } from '@kubb/core/utils'
 import { execa } from 'execa'
 import { type AgentMessage, isCommandMessage } from '~/types/agent.ts'
-import { connect, disconnect } from '~/utils/api.ts'
+import { createAgentSession, disconnect } from '~/utils/api.ts'
+import { generate } from '~/utils/generate.ts'
 import { getCosmiConfig } from '~/utils/getCosmiConfig.ts'
 import { logger } from '~/utils/logger.ts'
 import { deleteCachedSession, getCachedSession } from '~/utils/sessionManager.ts'
 import { createWebsocket, sendAgentMessage, setupEventsStream } from '~/utils/ws.ts'
 import { version } from '~~/package.json'
+
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      PORT: string
+      KUBB_ROOT: string
+      KUBB_STUDIO_URL: string
+      KUBB_AGENT_TOKEN: string
+      KUBB_CONFIG: string
+      KUBB_AGENT_NO_CACHE: string
+      KUBB_RETRY_TIMEOUT: string
+    }
+  }
+}
 
 /**
  * Nitro plugin that connects the agent to Kubb Studio on server startup.
@@ -29,6 +44,7 @@ export default defineNitroPlugin(async (nitro) => {
   const token = process.env.KUBB_AGENT_TOKEN
   const configPath = process.env.KUBB_CONFIG || 'kubb.config.ts'
   const noCache = process.env.KUBB_AGENT_NO_CACHE === 'true'
+  const retryInterval = process.env.KUBB_RETRY_TIMEOUT ? Number.parseInt(process.env.KUBB_RETRY_TIMEOUT) : 30000
 
   if (!configPath) {
     throw new Error('KUBB_CONFIG environment variable not set')
@@ -86,6 +102,7 @@ export default defineNitroPlugin(async (nitro) => {
         error: null,
       })
     } catch (_err) {
+      console.log(_err, id, commandWithArgs)
       const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
 
       await events.emit('hook:end', {
@@ -99,100 +116,138 @@ export default defineNitroPlugin(async (nitro) => {
     }
   })
 
-  // start connection to studio
-  const { sessionToken, wsUrl } = await connect({ noCache, token, studioUrl })
+  async function reconnectToStudio() {
+    logger.info(`Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`)
 
-  const onError = () => {
-    const cachedSession = !noCache ? getCachedSession(token) : null
-
-    // If connection fails and we used cached session, invalidate it
-    if (cachedSession) {
-      logger.warn('Invalidating cached session', 'due to connection error')
-      deleteCachedSession(token)
-    }
+    setTimeout(async () => {
+      await connectToStudio()
+    }, retryInterval)
   }
 
-  const onClose = async () => {
-    logger.info('Disconnecting from Studio ...')
+  async function connectToStudio() {
+    try {
+      // start connection to studio
+      const { sessionToken, wsUrl } = await createAgentSession({ noCache, token, studioUrl })
+      const ws = createWebsocket(wsUrl, wsOptions)
 
-    if (sessionToken) {
-      await disconnect({
-        sessionToken,
-        studioUrl,
-        token,
-      })
-    }
-  }
+      const onError = async () => {
+        cleanup()
 
-  const ws = await createWebsocket(wsUrl, wsOptions)
+        logger.error(`Failed to connect to Kubb Studio on "${wsUrl}"`)
 
-  ws.addEventListener('close', onClose)
-  ws.addEventListener('error', onError)
+        const cachedSession = !noCache ? getCachedSession(token) : null
 
-  nitro.hooks.hook('close', onClose)
-
-  setInterval(() => {
-    sendAgentMessage(ws, {
-      type: 'ping',
-    })
-  }, 30000)
-
-  setupEventsStream(ws, events)
-
-  ws.addEventListener('message', async (message) => {
-    const data = JSON.parse(message.data) as AgentMessage
-
-    if (isCommandMessage(data)) {
-      if (data.command === 'generate') {
-        await generate({
-          root,
-          config,
-          events,
-        })
-        logger.success('Generated command success')
+        // If connection fails and we used cached session, invalidate it
+        if (cachedSession) {
+          deleteCachedSession(token)
+          await reconnectToStudio()
+        }
       }
 
-      if (data.command === 'connect') {
-        // Read OpenAPI spec if available
-        let specContent: string | undefined
-        if (config && 'path' in config.input) {
-          const specPath = path.resolve(process.cwd(), config.root, config.input.path)
-          try {
-            specContent = readFileSync(specPath, 'utf-8')
-          } catch {
-            // Spec file not found or unreadable
+      const onOpen = () => {
+        logger.success(`Connected to Kubb Studio on "${wsUrl}"`)
+      }
+
+      const onClose = async () => {
+        cleanup()
+
+        logger.info('Disconnecting from Studio ...')
+
+        if (sessionToken) {
+          await disconnect({
+            sessionToken,
+            studioUrl,
+            token,
+          }).catch(async () => {
+            deleteCachedSession(token)
+            await reconnectToStudio()
+          })
+        }
+      }
+
+      const cleanup = () => {
+        ws.removeEventListener('open', onOpen)
+        ws.removeEventListener('close', onClose)
+        ws.removeEventListener('error', onError)
+      }
+
+      ws.addEventListener('open', onOpen)
+      ws.addEventListener('close', onClose)
+      ws.addEventListener('error', onError)
+
+      nitro.hooks.hook('close', onClose)
+
+      setInterval(() => {
+        sendAgentMessage(ws, {
+          type: 'ping',
+        })
+      }, 30000)
+
+      setupEventsStream(ws, events)
+
+      ws.addEventListener('message', async (message) => {
+        const data = JSON.parse(message.data) as AgentMessage
+
+        if (isCommandMessage(data)) {
+          if (data.command === 'generate') {
+            await generate({
+              config: {
+                ...config,
+                root,
+              },
+              events,
+            })
+            logger.success('Generated command success')
           }
+
+          if (data.command === 'connect') {
+            // Read OpenAPI spec if available
+            let specContent: string | undefined
+            if (config && 'path' in config.input) {
+              const specPath = path.resolve(process.cwd(), config.root, config.input.path)
+              try {
+                specContent = readFileSync(specPath, 'utf-8')
+              } catch {
+                // Spec file not found or unreadable
+              }
+            }
+
+            sendAgentMessage(ws, {
+              type: 'connected',
+              payload: {
+                version,
+                configPath: process.env.KUBB_CONFIG || '',
+                spec: specContent,
+                config: {
+                  name: config.name,
+                  root: config.root,
+                  input: {
+                    path: 'path' in config.input ? config.input.path : undefined,
+                  },
+                  output: {
+                    path: config.output.path,
+                    write: config.output.write,
+                    extension: config.output.extension,
+                    barrelType: config.output.barrelType,
+                  },
+                  plugins: config.plugins?.map((plugin: any) => ({
+                    name: `@kubb/${plugin.name}`,
+                    options: serializePluginOptions(plugin.options),
+                  })),
+                },
+              },
+            })
+          }
+          return
         }
 
-        sendAgentMessage(ws, {
-          type: 'connected',
-          payload: {
-            version,
-            configPath: process.env.KUBB_CONFIG || '',
-            spec: specContent,
-            config: {
-              name: config.name,
-              root: config.root,
-              input: {
-                path: 'path' in config.input ? config.input.path : undefined,
-              },
-              output: {
-                path: config.output.path,
-                write: config.output.write,
-                extension: config.output.extension,
-                barrelType: config.output.barrelType,
-              },
-              plugins: config.plugins?.map((plugin: any) => ({
-                name: `@kubb/${plugin.name}`,
-                options: serializePluginOptions(plugin.options),
-              })),
-            },
-          },
-        })
-      }
-      return
+        logger.warn(`Unknown message type from Kubb Studio: ${message.data}`)
+      })
+    } catch (error: any) {
+      deleteCachedSession(token)
+      await reconnectToStudio()
     }
+  }
 
-    logger.warn('Unknown message type from Kubb Studio')
-  })
+  await connectToStudio()
 })

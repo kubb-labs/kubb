@@ -11,51 +11,17 @@ const WEBSOCKET_CONNECTING = 0
  * Rejects on error or resolves with `null` when the connection cannot be established within 5 seconds.
  *
  */
-export async function createWebsocket(url: string, options: Record<string, any>): Promise<WebSocket> {
-  return new Promise<WebSocket>((resolve, reject) => {
-    const ws = new WebSocket(url, options)
+export function createWebsocket(url: string, options: Record<string, any>): WebSocket {
+  const ws = new WebSocket(url, options)
 
-    const cleanup = () => {
-      ws.removeEventListener('open', onOpen)
-      ws.removeEventListener('close', onClose)
-      ws.removeEventListener('error', onError)
-      resolve(null)
+  // Timeout after 5 seconds
+  setTimeout(() => {
+    if (ws.readyState === WEBSOCKET_CONNECTING) {
+      ws.close(3008, 'Connection timeout')
     }
+  }, 5000)
 
-    const onOpen = () => {
-      logger.success(`Connected to Kubb Studio on "${url}"`)
-
-      ws.removeEventListener('open', onOpen)
-      ws.removeEventListener('error', onError)
-
-      resolve(ws)
-    }
-
-    const onError = (error: Event) => {
-      logger.error('Failed to connect to Kubb Studio')
-      cleanup()
-
-      reject(error)
-    }
-
-    const onClose = () => {
-      logger.warn('Connection to Kubb Studio closed')
-
-      cleanup()
-    }
-
-    ws.addEventListener('open', onOpen)
-    ws.addEventListener('close', onClose)
-    ws.addEventListener('error', onError)
-
-    // Timeout after 5 seconds
-    setTimeout(() => {
-      if (ws.readyState === WEBSOCKET_CONNECTING) {
-        ws.close()
-        resolve(null)
-      }
-    }, 5000)
-  })
+  return ws
 }
 
 /**
@@ -68,8 +34,8 @@ export function sendAgentMessage(ws: WebSocket, message: AgentMessage): void {
     }
 
     ws.send(JSON.stringify(message))
-  } catch (_error: any) {
-    logger.error('Failed to send message to Kubb Studio')
+  } catch (error: any) {
+    throw new Error('Failed to send message to Kubb Studio', { cause: error })
   }
 }
 
