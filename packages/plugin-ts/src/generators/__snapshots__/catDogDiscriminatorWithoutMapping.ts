@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * CatDogWithoutMapping
+ */
 export type catDogWithoutMapping =
   | (cat & {
       type: 'Cat'

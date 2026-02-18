@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * PetDict
+ */
 export type petDict = {
   /**
    * @type object

@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * CatDog
+ */
 export type catDog =
   | (cat & {
       type: 'Cat'
