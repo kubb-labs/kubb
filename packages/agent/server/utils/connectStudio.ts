@@ -7,6 +7,7 @@ import { serializePluginOptions } from '@kubb/core/utils'
 import { generate } from '~/utils/generate.ts'
 import { version } from '~~/package.json'
 import type { AgentConnectResponse, AgentMessage, ConnectedMessage, DataMessage, PingMessage } from '../types/agent.ts'
+import { cacheSession, deleteCachedSession, getCachedSession } from './sessionManager.ts'
 
 const WEBSOCKET_READY = 1
 const WEBSOCKET_CONNECTING = 0
@@ -26,14 +27,39 @@ type ConnectStudioProps = {
 
 export async function connectStudio({ config, studioUrl, token, events, logLevel }: ConnectStudioProps): Promise<WebSocket | null> {
   try {
-    const connectUrl = `${studioUrl}/api/agent/connect`
+    let data: AgentConnectResponse | null = null
+    const noCache = process.env.KUBB_AGENT_NO_CACHE === 'true'
 
-    const data = await $fetch<AgentConnectResponse>(connectUrl, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    // Try to use cached session first (unless --no-cache is set)
+    const cachedSession = !noCache ? getCachedSession(token) : null
+    if (cachedSession) {
+      console.log('Using cached agent session')
+      data = cachedSession
+    } else {
+      // Fetch new session from Studio
+      const connectUrl = `${studioUrl}/api/agent/connect`
+
+      try {
+        data = await $fetch<AgentConnectResponse>(connectUrl, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        // Cache the session for reuse (unless --no-cache is set)
+        if (data && !noCache) {
+          cacheSession(token, data)
+        }
+      } catch (error) {
+        console.warn('Failed to get agent session from Studio:', error)
+        return null
+      }
+    }
+
+    if (!data) {
+      return null
+    }
 
     const wsOptions = {
       headers: {
@@ -75,6 +101,22 @@ export async function connectStudio({ config, studioUrl, token, events, logLevel
       },
     }
 
+    // Disconnect on process termination
+    async function disconnectOnExit() {
+      try {
+        const disconnectUrl = `${studioUrl}/api/agent/session/${data.sessionToken}/disconnect`
+        await $fetch(disconnectUrl, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        console.log('Sent disconnect notification to Studio on exit')
+      } catch (error) {
+        console.warn('Failed to notify Studio of disconnection on exit:', error)
+      }
+    }
+
     function sendConnectedMessage(ws: WebSocket) {
       try {
         const message: ConnectedMessage = {
@@ -105,9 +147,16 @@ export async function connectStudio({ config, studioUrl, token, events, logLevel
       }
     }
 
-    async function createWebsocker() {
+    async function createWebsocket() {
       return new Promise<WebSocket>((resolve) => {
         const ws = new WebSocket(data.wsUrl, wsOptions)
+
+        const cleanup = () => {
+          ws.removeEventListener('open', onOpen)
+          ws.removeEventListener('close', onClose)
+          ws.removeEventListener('error', onError)
+          resolve(null)
+        }
 
         const onOpen = () => {
           console.log(`Connected to Kubb Studio on ${data.wsUrl}`)
@@ -119,12 +168,24 @@ export async function connectStudio({ config, studioUrl, token, events, logLevel
 
         const onError = (error: Event) => {
           console.warn('Failed to connect to Kubb Studio:', error)
-          ws.removeEventListener('open', onOpen)
-          ws.removeEventListener('error', onError)
-          resolve(null)
+          // If connection fails and we used cached session, invalidate it
+          if (cachedSession) {
+            console.warn('Invalidating cached session due to connection error')
+            deleteCachedSession(token)
+          }
+          cleanup()
+        }
+
+        const onClose = async () => {
+          console.warn('Connection to Kubb Studio closed')
+
+          await disconnectOnExit()
+
+          cleanup()
         }
 
         ws.addEventListener('open', onOpen)
+        ws.addEventListener('close', onClose)
         ws.addEventListener('error', onError)
 
         // Timeout after 5 seconds
@@ -137,7 +198,12 @@ export async function connectStudio({ config, studioUrl, token, events, logLevel
       })
     }
 
-    const ws = await createWebsocker()
+    // Handle SIGTERM and SIGINT
+    process.on('SIGTERM', disconnectOnExit)
+    process.on('SIGINT', disconnectOnExit)
+    process.on('exit', disconnectOnExit)
+
+    const ws = await createWebsocket()
     sendConnectedMessage(ws)
 
     setInterval(() => {

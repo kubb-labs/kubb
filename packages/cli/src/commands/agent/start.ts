@@ -23,9 +23,14 @@ const args = {
     description: 'Host for the server',
     default: 'localhost',
   },
+  'no-cache': {
+    type: 'boolean',
+    description: 'Disable session caching',
+    default: false,
+  },
 } as const satisfies ArgsDef
 
-async function startServer(port: number, host: string, configPath: string): Promise<void> {
+async function startServer(port: number, host: string, configPath: string, noCache: boolean): Promise<void> {
   try {
     // Resolve the @kubb/agent package path using import.meta.resolve
     const agentPkg = await import.meta.resolve('@kubb/agent')
@@ -38,12 +43,16 @@ async function startServer(port: number, host: string, configPath: string): Prom
       KUBB_CONFIG: configPath,
       PORT: port === 0 ? '3000' : String(port),
       HOST: host,
+      ...(noCache && { KUBB_AGENT_NO_CACHE: 'true' }),
     }
 
     clack.log.step(pc.cyan('Starting agent server...'))
     clack.log.info(pc.dim(`Config: ${path.relative(process.cwd(), configPath)}`))
     clack.log.info(pc.dim(`Host: ${host}`))
     clack.log.info(pc.dim(`Port: ${port === 0 ? '3000 (auto)' : port}`))
+    if (noCache) {
+      clack.log.info(pc.dim('Session caching: disabled'))
+    }
 
     // Use execa to spawn the server process
     await execa('node', [serverPath], {
@@ -73,8 +82,9 @@ const command = defineCommand({
 
       const port = args.port ? Number.parseInt(args.port, 10) : 0
       const host = args.host
+      const noCache = args['no-cache']
 
-      await startServer(port, host, configPath)
+      await startServer(port, host, configPath, noCache)
     } catch (error) {
       clack.log.error(pc.red('Failed to start agent server'))
       console.error(error)

@@ -1,6 +1,6 @@
 # @kubb/agent
 
-Kubb Agent Server — HTTP server for code generation powered by Node.js.
+Kubb Agent Server — HTTP/HTTPS server for code generation powered by Node.js.
 
 ## Features
 
@@ -8,6 +8,7 @@ Kubb Agent Server — HTTP server for code generation powered by Node.js.
 - 📡 RESTful API endpoints for code generation
 - 🔧 Easy integration with Kubb configuration
 - 📊 Health and info endpoints
+- 🔗 WebSocket integration with Kubb Studio
 - ⚡ Production-ready
 
 ## Installation
@@ -48,14 +49,49 @@ Or if using the built package:
 KUBB_CONFIG=./kubb.config.ts node node_modules/@kubb/agent/.output/server/index.mjs
 ```
 
-The server will be available at `http://localhost:3000` by default.
+The server will be available at `http://localhost:4000`.
 
 ### Environment Variables
 
 - `KUBB_CONFIG` - **Required**. Path to your Kubb configuration file (e.g., `./kubb.config.ts` or `./kubb.config.js`). Supports both TypeScript and JavaScript files. Can be relative or absolute.
-- `PORT` - Server port (default: `3000`)
+- `PORT` - Server port (default: `4000`)
 - `HOST` - Server host (default: `localhost`)
+- `KUBB_STUDIO_URL` - Studio connection URL (e.g., `http://localhost:3000`)
+- `KUBB_AGENT_TOKEN` - Authentication token for Studio connection
 
+## Quick Start
+
+1. **Update `.env`:**
+```env
+KUBB_STUDIO_URL=http://localhost:3000
+KUBB_AGENT_TOKEN=your-token-here
+```
+
+2. **Run the agent:**
+```bash
+pnpm dev
+```
+
+3. **Access at:**
+```
+http://localhost:4000
+```
+
+
+## WebSocket Studio Integration
+
+The agent automatically connects to Kubb Studio on startup:
+
+```env
+KUBB_STUDIO_URL=http://localhost:3000
+KUBB_AGENT_TOKEN=authentication-token
+```
+
+The connection:
+- Sends agent information on connect
+- Streams generation events in real-time
+- Receives generate commands from Studio
+- Uses WebSocket for bidirectional communication
 
 ## Quick Start Example
 
@@ -83,13 +119,13 @@ export default defineConfig({
 ### 2. Start the agent server:
 
 ```bash
-KUBB_CONFIG=./kubb.config.ts node packages/agent/.output/server/index.mjs
+KUBB_CONFIG=./kubb.config.ts pnpm dev
 ```
 
 ### 3. Trigger generation:
 
 ```bash
-curl -N http://localhost:3000/api/generate
+curl -N http://localhost:4000/api/generate
 ```
 
 You'll receive a stream of events as the code generation progresses.
