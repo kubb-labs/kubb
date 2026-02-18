@@ -5,7 +5,7 @@ import type { InfoResponse, SseEvent } from '@kubb/core'
 export type CommandMessage = {
   type: 'command'
   id: string
-  command: 'generate'
+  command: 'generate' | 'connect'
 }
 
 export type ConnectedMessage = {

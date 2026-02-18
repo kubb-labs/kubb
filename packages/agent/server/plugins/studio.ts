@@ -84,7 +84,6 @@ export default defineNitroPlugin(async (nitro) => {
   }, 30000)
 
   setupEventsStream(ws, events)
-  sendConnectedMessage(ws, { config })
 
   //listen
   ws.addEventListener('message', async (message) => {
@@ -93,14 +92,16 @@ export default defineNitroPlugin(async (nitro) => {
     switch (data.type) {
       case 'command':
         if (data.command === 'generate') {
-          console.log('Generated command')
           await generate({
             config,
             events,
             logLevel,
           })
           console.log('Generated command success')
-          // Handle generate command if needed
+        }
+
+        if (data.command === 'connect') {
+          sendConnectedMessage(ws, { config })
         }
         break
 
