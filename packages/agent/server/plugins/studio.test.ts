@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { AgentMessage } from '../types/agent.ts'
 import { isCommandMessage, isDataMessage } from '../types/agent.ts'
 
