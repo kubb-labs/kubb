@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * FooNumber
+ */
 export type fooNumber = (fooBase & {
   $type: 'type-number'
 }) & {

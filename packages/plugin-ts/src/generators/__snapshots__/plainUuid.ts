@@ -3,4 +3,7 @@
  * Do not edit manually.
  */
 
+/**
+ * UUID
+ */
 export type plainUuid = string

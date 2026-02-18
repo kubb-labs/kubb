@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * StringValueConst
+ */
 export type stringValueConst = {
   /**
    * @type string

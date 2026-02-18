@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * MixedValueTypeConst
+ */
 export type mixedValueTypeConst = {
   /**
    * @type number

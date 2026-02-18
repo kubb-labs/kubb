@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * Body_upload_file_api_assets_post
+ */
 export type bodyUploadFileApiAssetsPost = {
   /**
    * @type string, binary
