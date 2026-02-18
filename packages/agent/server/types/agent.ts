@@ -49,11 +49,10 @@ export type DataMessage = {
 }
 
 export type AgentConnectResponse = {
-  sessionId: string
-  userId: string
-  agentId: string
   wsUrl: string
   expiresAt: string
+  revokedAt: string
+  sessionToken: string
 }
 
 export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ErrorMessage | StatusMessage | PingMessage | PongMessage
