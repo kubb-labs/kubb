@@ -1,3 +1,6 @@
+/**
+ * Cat
+ */
 export type Cat = {
   /**
    * @minLength 1

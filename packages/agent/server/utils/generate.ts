@@ -12,6 +12,15 @@ type GenerateProps = {
   events: AsyncEventEmitter<KubbEvents>
 }
 
+/**
+ * Run a full Kubb code-generation cycle for the given config.
+ *
+ * Emits lifecycle events on the provided `events` emitter so callers (e.g. the WebSocket stream)
+ * can forward progress to connected clients.
+ * After a successful build, auto-formatting and linting are applied when configured,
+ * followed by any user-defined `hooks.done` commands.
+ *
+ */
 export async function generate({ root, config: userConfig, events }: GenerateProps): Promise<void> {
   const config: Config = {
     ...userConfig,

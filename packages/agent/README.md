@@ -1,10 +1,10 @@
 # @kubb/agent
 
-Kubb Agent Server — HTTP server for code generation powered by Node.js with WebSocket integration for real-time Studio communication.
+Kubb Agent Server — HTTP server for code generation powered by [Nitro](https://nitro.build) with WebSocket integration for real-time Studio communication.
 
 ## Features
 
-- 🚀 Fast HTTP server built with Node.js
+- 🚀 Fast HTTP server built with [Nitro](https://nitro.build)
 - 📡 RESTful API endpoints for code generation
 - 🔧 Easy integration with Kubb configuration
 - 📊 Health and info endpoints

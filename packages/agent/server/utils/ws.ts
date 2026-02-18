@@ -6,6 +6,11 @@ import { logger } from './logger.ts'
 const WEBSOCKET_READY = 1
 const WEBSOCKET_CONNECTING = 0
 
+/**
+ * Open a WebSocket connection to the given URL and resolve once the connection is established.
+ * Rejects on error or resolves with `null` when the connection cannot be established within 5 seconds.
+ *
+ */
 export async function createWebsocket(url: string, options: Record<string, any>): Promise<WebSocket> {
   return new Promise<WebSocket>((resolve, reject) => {
     const ws = new WebSocket(url, options)

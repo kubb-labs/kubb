@@ -8,6 +8,11 @@ type ConnectProps = {
   noCache?: boolean
 }
 
+/**
+ * Connect the agent to Kubb Studio by obtaining a WebSocket session.
+ * Attempts to reuse a cached session before making a network request.
+ *
+ */
 export async function connect({ token, studioUrl, noCache }: ConnectProps): Promise<AgentConnectResponse> {
   try {
     let data: AgentConnectResponse | null = null
@@ -56,7 +61,11 @@ type DisconnectProps = {
   sessionToken: string
 }
 
-// Disconnect on process termination
+/**
+ * Notify Kubb Studio that this agent is disconnecting.
+ * Called on process termination or server close.
+ *
+ */
 export async function disconnect({ sessionToken, token, studioUrl }: DisconnectProps): Promise<void> {
   try {
     const disconnectUrl = `${studioUrl}/api/agent/session/${sessionToken}/disconnect`

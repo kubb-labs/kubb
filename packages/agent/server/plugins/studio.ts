@@ -12,6 +12,17 @@ import { deleteCachedSession, getCachedSession } from '~/utils/sessionManager.ts
 import { createWebsocket, sendAgentMessage, setupEventsStream } from '~/utils/ws.ts'
 import { version } from '~~/package.json'
 
+/**
+ * Nitro plugin that connects the agent to Kubb Studio on server startup.
+ *
+ * When `KUBB_AGENT_TOKEN` and `KUBB_STUDIO_URL` are set, it:
+ * 1. Loads the Kubb config referenced by `KUBB_CONFIG`.
+ * 2. Obtains a WebSocket session from Studio (using the session cache when available).
+ * 3. Opens a persistent WebSocket and registers handlers for `generate` and `connect` commands.
+ * 4. Forwards Kubb generation lifecycle events to Studio in real time.
+ * 5. Sends a ping every 30 seconds to keep the connection alive.
+ * 6. Gracefully disconnects when the Nitro server closes.
+ */
 export default defineNitroPlugin(async (nitro) => {
   // Connect to Kubb Studio if URL is provided
   const studioUrl = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
