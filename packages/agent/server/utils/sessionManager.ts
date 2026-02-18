@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs'
-import path from 'node:path'
 import os from 'node:os'
+import path from 'node:path'
 import type { AgentConnectResponse } from '../types/agent.ts'
 
 const CONFIG_DIR = path.join(os.homedir(), '.kubb')
@@ -21,7 +21,7 @@ export function loadAgentConfig(): AgentConfig {
   try {
     const content = readFileSync(CONFIG_FILE, 'utf-8')
     return JSON.parse(content)
-  } catch (error) {
+  } catch (_error) {
     // File doesn't exist or is invalid JSON
     return { sessions: {} }
   }
