@@ -1,4 +1,5 @@
 import type { AgentConnectResponse } from '~/types/agent.ts'
+import { cacheSession, getCachedSession } from './sessionManager.ts'
 
 type ConnectProps = {
   studioUrl: string
@@ -17,7 +18,7 @@ export async function connect({ token, studioUrl, noCache }: ConnectProps): Prom
       data = cachedSession
     } else {
       // Fetch new session from Studio
-      const connectUrl = `${studioUrl}/api/agent/connect`
+      const connectUrl = `${studioUrl}/api/agent/session/create`
 
       try {
         data = await $fetch<AgentConnectResponse>(connectUrl, {
@@ -32,7 +33,7 @@ export async function connect({ token, studioUrl, noCache }: ConnectProps): Prom
           cacheSession(token, data)
         }
       } catch (error) {
-        throw new Error('Failed to get agent session from Kubb Studio', error)
+        throw new Error('Failed to get agent session from Kubb Studio', error as any)
       }
     }
 

@@ -14,7 +14,7 @@ export function generateId(): string {
 }
 
 export async function createWebsocket(url: string, options: Record<string, any>) {
-  return new Promise<WebSocket>((resolve) => {
+  return new Promise<WebSocket>((resolve, reject) => {
     const ws = new WebSocket(url, options)
 
     const cleanup = () => {
@@ -29,12 +29,15 @@ export async function createWebsocket(url: string, options: Record<string, any>)
 
       ws.removeEventListener('open', onOpen)
       ws.removeEventListener('error', onError)
+
       resolve(ws)
     }
 
     const onError = (error: Event) => {
       console.warn('Failed to connect to Kubb Studio:', error)
       cleanup()
+
+      reject(error)
     }
 
     const onClose = () => {
