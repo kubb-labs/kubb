@@ -53,7 +53,6 @@ export async function generate({ config: userConfig, events, logLevel }: Generat
   await events.emit('info', 'Load summary')
 
   // Handle build failures (either from failed plugins or general errors)
-
   const hasFailures = failedPlugins.size > 0 || error
   if (hasFailures) {
     // Collect all errors from failed plugins and general error

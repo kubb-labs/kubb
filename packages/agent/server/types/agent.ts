@@ -1,6 +1,6 @@
 // WebSocket message types for agent communication
 
-import type { InfoResponse, SseEventType } from '@kubb/core'
+import type { InfoResponse, SseEvent } from '@kubb/core'
 
 export type CommandMessage = {
   type: 'command'
@@ -44,11 +44,7 @@ export type StatusMessage = {
 export type DataMessage = {
   type: 'data'
   id: string
-  event: SseEventType
-  /**
-   * this will be SseEvent
-   */
-  payload: string
+  event: SseEvent
 }
 
 export type AgentConnectResponse = {

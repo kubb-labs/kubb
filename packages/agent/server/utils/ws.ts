@@ -60,7 +60,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
   const messageId = generateId()
 
   // Helper to send SSE-like events to WebSocket as DataMessages
-  function sendDataMessage(sseEvent: SseEvent) {
+  function sendDataMessage(event: SseEvent) {
     if (ws.readyState !== WEBSOCKET_READY) {
       return
     }
@@ -68,8 +68,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     const dataMessage: DataMessage = {
       type: 'data',
       id: messageId,
-      event: sseEvent.type,
-      payload: JSON.stringify(sseEvent),
+      event,
     }
 
     try {
