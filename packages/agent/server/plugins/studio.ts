@@ -87,8 +87,8 @@ export default defineNitroPlugin(async (nitro) => {
   sendConnectedMessage(ws, { config })
 
   //listen
-  ws.addEventListener('message', async (event) => {
-    const data = JSON.parse(event.data) as AgentMessage
+  ws.addEventListener('message', async (message) => {
+    const data = JSON.parse(message.data) as AgentMessage
 
     switch (data.type) {
       case 'command':
