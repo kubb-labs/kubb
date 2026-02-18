@@ -80,7 +80,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
   }
 
   // Forward events to WebSocket stream similar to generate.post.ts
-  events.on('plugin:start', (plugin: any) => {
+  events.on('plugin:start', (plugin) => {
     sendDataMessage({
       type: 'plugin:start',
       data: [plugin],
@@ -88,7 +88,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('plugin:end', (plugin: any, meta: any) => {
+  events.on('plugin:end', (plugin, meta) => {
     sendDataMessage({
       type: 'plugin:end',
       data: [plugin, meta],
@@ -96,7 +96,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('files:processing:start', (files: any) => {
+  events.on('files:processing:start', (files) => {
     sendDataMessage({
       type: 'files:processing:start',
       data: [{ total: files.length }],
@@ -104,7 +104,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('file:processing:update', (meta: any) => {
+  events.on('file:processing:update', (meta) => {
     sendDataMessage({
       type: 'file:processing:update',
       data: [
@@ -119,7 +119,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('files:processing:end', (files: any) => {
+  events.on('files:processing:end', (files) => {
     sendDataMessage({
       type: 'files:processing:end',
       data: [{ total: files.length }],
@@ -127,7 +127,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('info', (message: any, info: any) => {
+  events.on('info', (message, info) => {
     sendDataMessage({
       type: 'info',
       data: [message, info],
@@ -135,7 +135,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('success', (message: any, info: any) => {
+  events.on('success', (message, info) => {
     sendDataMessage({
       type: 'success',
       data: [message, info],
@@ -143,7 +143,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('warn', (message: any, info: any) => {
+  events.on('warn', (message, info) => {
     sendDataMessage({
       type: 'warn',
       data: [message, info],
@@ -151,7 +151,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('generation:start', (config: any) => {
+  events.on('generation:start', (config) => {
     sendDataMessage({
       type: 'generation:start',
       data: [
@@ -164,9 +164,9 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('generation:end', (config: any, files: any, sources: any) => {
+  events.on('generation:end', (config, files, sources) => {
     const sourcesRecord: Record<string, string> = {}
-    sources.forEach((value: any, key: any) => {
+    sources.forEach((value, key) => {
       sourcesRecord[key] = value
     })
     sendDataMessage({
@@ -176,7 +176,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     })
   })
 
-  events.on('error', (error: Error) => {
+  events.on('error', (error) => {
     sendDataMessage({
       type: 'error',
       data: [
