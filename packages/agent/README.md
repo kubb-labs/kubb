@@ -1,6 +1,6 @@
 # @kubb/agent
 
-Kubb Agent Server — HTTP/HTTPS server for code generation powered by Node.js.
+Kubb Agent Server — HTTP server for code generation powered by Node.js with WebSocket integration for real-time Studio communication.
 
 ## Features
 
@@ -8,7 +8,8 @@ Kubb Agent Server — HTTP/HTTPS server for code generation powered by Node.js.
 - 📡 RESTful API endpoints for code generation
 - 🔧 Easy integration with Kubb configuration
 - 📊 Health and info endpoints
-- 🔗 WebSocket integration with Kubb Studio
+- 🔗 Bidirectional WebSocket with Kubb Studio
+- 💾 Automatic session caching for faster reconnects
 - ⚡ Production-ready
 
 ## Installation
@@ -32,7 +33,7 @@ kubb agent start --config kubb.config.ts
 With custom options:
 
 ```bash
-kubb agent start --config kubb.config.ts --host 0.0.0.0 --port 8080
+kubb agent start --config kubb.config.ts --host 0.0.0.0 --port 8080 --no-cache
 ```
 
 ### Manual Server Start
@@ -58,42 +59,118 @@ The server will be available at `http://localhost:4000`.
 - `HOST` - Server host (default: `localhost`)
 - `KUBB_STUDIO_URL` - Studio connection URL (e.g., `http://localhost:3000`)
 - `KUBB_AGENT_TOKEN` - Authentication token for Studio connection
+- `KUBB_AGENT_NO_CACHE` - Disable session caching (set to `true` to skip cache)
+
+### CLI Flags
+
+- `--config, -c` - Path to Kubb configuration file
+- `--port, -p`   - Server port
+- `--host`       - Server host (default: `localhost`)
+- `--no-cache`   - Disable session caching for this run
+
+### Automatic .env Loading
+
+The agent automatically loads environment variables from:
+1. `.env` - Base environment variables
+2. `.env.local` - Local overrides (for secrets/local config)
+
+Files are optional and loaded in order, with `.env.local` taking precedence.
 
 ## Quick Start
 
-1. **Update `.env`:**
+1. **Create `.env` file:**
 ```env
-KUBB_STUDIO_URL=http://localhost:3000
-KUBB_AGENT_TOKEN=your-token-here
+PORT=4000
+KUBB_ROOT=/Users/stijnvanhulle/GitHub/kubb/examples/react-query/
+KUBB_CONFIG=/Users/stijnvanhulle/GitHub/kubb/examples/react-query/kubb.config.ts
+KUBB_AGENT_TOKEN=
+KUBB_AGENT_NO_CACHE=true
+KUBB_STUDIO_URL=https://studio.kubb,dev
 ```
 
 2. **Run the agent:**
 ```bash
-pnpm dev
+npx kubb agent start
 ```
 
-3. **Access at:**
+3. **Agent is now available at:**
 ```
 http://localhost:4000
 ```
-
 
 ## WebSocket Studio Integration
 
 The agent automatically connects to Kubb Studio on startup:
 
-```env
-KUBB_STUDIO_URL=http://localhost:3000
-KUBB_AGENT_TOKEN=authentication-token
+### Connection Features
+
+- **Automatic reconnection**: Caches session tokens to speed up reconnects
+- **Real-time events**: Streams generation progress and events
+- **Command handling**: Receives `generate` and `connect` commands from Studio
+- **Graceful shutdown**: Notifies Studio when disconnecting
+- **Session management**: 24-hour session expiration with auto-refresh
+
+### Session Caching
+
+Sessions are cached in `~/.kubb/config.json` for faster reconnects:
+- Tokens are hashed (non-reversible) for security
+- Sessions auto-expire after 24 hours
+- Use `--no-cache` flag to disable caching
+- Invalid sessions are automatically cleaned up
+
+## WebSocket API
+
+### Messages Sent by Agent
+
+**Connected**
+```json
+{
+  "type": "connected",
+  "id": "unique-id",
+  "payload": {
+    "version": "4.24.0",
+    "config": { /* full kubb config */ },
+    "spec": "/* OpenAPI spec */"
+  }
+}
 ```
 
-The connection:
-- Sends agent information on connect
-- Streams generation events in real-time
-- Receives generate commands from Studio
-- Uses WebSocket for bidirectional communication
+**Data Events (during generation)**
+```json
+{
+  "type": "data",
+  "id": "message-id",
+  "event": "plugin:start",
+  "payload": "{...}"
+}
+```
 
-## Quick Start Example
+**Ping (every 30 seconds)**
+```json
+{
+  "type": "ping"
+}
+```
+
+### Messages Received from Studio
+
+**Generate Command**
+```json
+{
+  "type": "command",
+  "command": "generate"
+}
+```
+
+**Connect Command (resend info)**
+```json
+{
+  "type": "command",
+  "command": "connect"
+}
+```
+
+## Configuration Example
 
 ### 1. Create a Kubb configuration file (`kubb.config.ts`):
 
@@ -119,13 +196,19 @@ export default defineConfig({
 ### 2. Start the agent server:
 
 ```bash
-KUBB_CONFIG=./kubb.config.ts pnpm dev
+npx kubb agent start
 ```
 
-### 3. Trigger generation:
+Or with custom port:
 
 ```bash
-curl -N http://localhost:4000/api/generate
+npx kubb agent start --port 5000
+```
+
+Or disable session caching:
+
+```bash
+npx kubb agent start --no-cache
 ```
 
 You'll receive a stream of events as the code generation progresses.

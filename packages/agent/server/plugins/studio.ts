@@ -5,7 +5,9 @@ import type { AgentMessage } from '~/types/agent.ts'
 import { connect, disconnect } from '~/utils/api.ts'
 import { getConfigs } from '~/utils/getConfigs.ts'
 import { getCosmiConfig } from '~/utils/getCosmiConfig.ts'
+import { logger } from '~/utils/logger.ts'
 import { createWebsocket, sendConnectedMessage, sendPingMessage, setupEventsStream } from '~/utils/ws.ts'
+import { getCachedSession, deleteCachedSession } from '~/utils/sessionManager.ts'
 
 export default defineNitroPlugin(async (nitro) => {
   // Connect to Kubb Studio if URL is provided
@@ -19,13 +21,13 @@ export default defineNitroPlugin(async (nitro) => {
   }
 
   if (!token) {
-    console.warn('KUBB_AGENT_TOKEN not set, cannot authenticate with studio')
+    logger.warn('KUBB_AGENT_TOKEN not set', 'cannot authenticate with studio')
 
     return null
   }
 
   if (!studioUrl) {
-    console.warn('KUBB_STUDIO_URL not set, skipping studio connection')
+    logger.warn('KUBB_STUDIO_URL not set', 'skipping studio connection')
 
     return null
   }
@@ -56,13 +58,13 @@ export default defineNitroPlugin(async (nitro) => {
 
     // If connection fails and we used cached session, invalidate it
     if (cachedSession) {
-      console.warn('Invalidating cached session due to connection error')
+      logger.warn('Invalidating cached session', 'due to connection error')
       deleteCachedSession(token)
     }
   }
 
   const onClose = async () => {
-    console.log('Disconnecting from Studio...')
+    logger.info('Disconnecting from Studio...')
 
     if (sessionToken) {
       await disconnect({
@@ -99,7 +101,7 @@ export default defineNitroPlugin(async (nitro) => {
             events,
             logLevel,
           })
-          console.log('Generated command success')
+          logger.success('Generated command success')
         }
 
         if (data.command === 'connect') {
@@ -108,7 +110,7 @@ export default defineNitroPlugin(async (nitro) => {
         break
 
       default:
-        console.warn('Unknown message type from Kubb Studio:', data)
+        logger.warn('Unknown message type from Kubb Studio')
     }
   })
 })

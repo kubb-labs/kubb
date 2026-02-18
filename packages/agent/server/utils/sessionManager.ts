@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import type { AgentConnectResponse } from '../types/agent.ts'
+import { logger } from './logger.ts'
 
 const CONFIG_DIR = path.join(os.homedir(), '.kubb')
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json')
@@ -45,7 +46,7 @@ export function saveAgentConfig(config: AgentConfig): void {
       return
     }
   } catch (error) {
-    console.warn('Failed to save agent config:', error)
+    logger.warn('Failed to save agent config')
   }
 }
 
@@ -85,7 +86,7 @@ export function getCachedSession(agentToken: string): AgentSession | null {
 
     return session
   } catch (error) {
-    console.warn('Failed to get cached session:', error)
+    logger.warn('Failed to get cached session')
     return null
   }
 }
@@ -108,9 +109,9 @@ export function cacheSession(agentToken: string, session: AgentConnectResponse):
     }
 
     saveAgentConfig(config)
-    console.log('Cached agent session')
+    logger.success('Cached agent session')
   } catch (error) {
-    console.warn('Failed to cache session:', error)
+    logger.warn('Failed to cache session')
   }
 }
 
@@ -127,7 +128,7 @@ export function deleteCachedSession(agentToken: string): void {
       saveAgentConfig(config)
     }
   } catch (error) {
-    console.warn('Failed to delete cached session:', error)
+    logger.warn('Failed to delete cached session')
   }
 }
 

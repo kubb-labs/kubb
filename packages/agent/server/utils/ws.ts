@@ -4,6 +4,7 @@ import type { Config, InfoResponse, KubbEvents, SseEvent } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import { serializePluginOptions } from '@kubb/core/utils'
 import type { ConnectedMessage, DataMessage, PingMessage } from '~/types/agent.ts'
+import { logger } from './logger.ts'
 import { version } from '~~/package.json'
 
 const WEBSOCKET_READY = 1
@@ -25,7 +26,7 @@ export async function createWebsocket(url: string, options: Record<string, any>)
     }
 
     const onOpen = () => {
-      console.log(`Connected to Kubb Studio on ${url}`)
+      logger.success('Connected to Kubb Studio', url)
 
       ws.removeEventListener('open', onOpen)
       ws.removeEventListener('error', onError)
@@ -34,14 +35,14 @@ export async function createWebsocket(url: string, options: Record<string, any>)
     }
 
     const onError = (error: Event) => {
-      console.warn('Failed to connect to Kubb Studio:', error)
+      logger.error('Failed to connect to Kubb Studio')
       cleanup()
 
       reject(error)
     }
 
     const onClose = () => {
-      console.warn('Connection to Kubb Studio closed')
+      logger.warn('Connection to Kubb Studio closed')
       cleanup()
     }
 
@@ -77,7 +78,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
     try {
       ws.send(JSON.stringify(dataMessage))
     } catch (error) {
-      console.warn('Failed to send data message to studio:', error)
+      logger.warn('Failed to send data message to studio')
     }
   }
 
@@ -204,9 +205,9 @@ export function sendPingMessage(ws: WebSocket) {
       } as PingMessage),
     )
 
-    console.log('Sent ping message')
+    logger.message('Sent ping message')
   } catch (error) {
-    console.warn('Failed to send info message to studio:', error)
+    logger.warn('Failed to send ping message to studio')
   }
 }
 
@@ -258,8 +259,8 @@ export function sendConnectedMessage(ws: WebSocket, { config }: { config: Config
       } as ConnectedMessage),
     )
 
-    console.log('Sent connected message to Kubb Studio')
+    logger.success('Sent connected message to Kubb Studio')
   } catch (error) {
-    console.warn('Failed to send info message to studio:', error)
+    logger.warn('Failed to send connected message to studio')
   }
 }

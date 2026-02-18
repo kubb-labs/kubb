@@ -1,5 +1,6 @@
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { cacheSession, getCachedSession } from './sessionManager.ts'
+import { logger } from './logger.ts'
 
 type ConnectProps = {
   studioUrl: string
@@ -14,7 +15,7 @@ export async function connect({ token, studioUrl, noCache }: ConnectProps): Prom
     // Try to use cached session first (unless --no-cache is set)
     const cachedSession = !noCache ? getCachedSession(token) : null
     if (cachedSession) {
-      console.log('Using cached agent session')
+      logger.success('Using cached agent session')
       data = cachedSession
     } else {
       // Fetch new session from Studio
@@ -43,7 +44,7 @@ export async function connect({ token, studioUrl, noCache }: ConnectProps): Prom
 
     return data
   } catch (error) {
-    console.warn('Failed to connect:', error)
+    logger.error('Failed to connect')
 
     throw error
   }
@@ -65,8 +66,8 @@ export async function disconnect({ sessionToken, token, studioUrl }: DisconnectP
         Authorization: `Bearer ${token}`,
       },
     })
-    console.log('Sent disconnect notification to Studio on exit')
+    logger.success('Sent disconnect notification to Studio on exit')
   } catch (error) {
-    console.warn('Failed to notify Studio of disconnection on exit:', error)
+    logger.warn('Failed to notify Studio of disconnection on exit')
   }
 }

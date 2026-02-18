@@ -289,9 +289,9 @@ See the [Stream Server Guide](/guide/stream-server) for complete documentation.
 
 ## `kubb agent`
 
-Start and manage the Kubb Agent Server — an HTTP server for code generation.
+Start and manage the Kubb Agent Server — a production-ready HTTP server for code generation with WebSocket integration for real-time Studio communication.
 
-The Agent Server provides a production-ready HTTP API for triggering code generation with real-time progress updates via Server-Sent Events (SSE).
+The Agent Server provides WebSocket integration** with Kubb Studio for bidirectional communication.
 
 > [!NOTE]
 > The agent server is included with `@kubb/cli` as a dependency.
@@ -317,6 +317,7 @@ OPTIONS
                         -c, --config    Path to the Kubb config (default: kubb.config.ts)
                          -p, --port     Port for the server (default: 3000)
                          --host         Host for the server (default: localhost)
+                         --no-cache     Disable session caching
                           -h, --help    Show help
 ```
 
@@ -338,13 +339,34 @@ With custom host and port:
 kubb agent start --host 0.0.0.0 --port 8080
 ```
 
+Disable session caching:
+
+```shell [node]
+kubb agent start --no-cache
+```
+
+#### Environment Setup
+
+The agent automatically loads environment variables from:
+1. `.env` - Base environment variables
+2. `.env.local` - Local overrides (for secrets/local config)
+
+Create a `.env` file in your project:
+
+```env
+PORT=4000
+KUBB_ROOT=./
+KUBB_CONFIG=./kubb.config.ts
+KUBB_AGENT_TOKEN=your_agent_token
+KUBB_AGENT_NO_CACHE=true
+KUBB_STUDIO_URL=https://studio.kubb,dev
+```
+
 #### Features
 
 - ✅ Automatic config loading from environment variable (`KUBB_CONFIG`)
-- ✅ RESTful API endpoints for health checks and info
-- ✅ Real-time SSE streaming for code generation
-- ✅ Formatter and linter auto-detection
-- ✅ Post-generation hook execution
+- ✅ Bidirectional WebSocket communication with Kubb Studio
+- ✅ Use of Kubb generate behind the scenes
 
 #### API Endpoints
 
@@ -354,21 +376,21 @@ Once the server is running, you can interact with it via HTTP:
 Check server health status.
 
 ```bash
-curl http://localhost:3000/api/health
+curl http://localhost:4000/api/health
 ```
 
 ##### `GET /api/info`
 Get server and configuration information.
 
 ```bash
-curl http://localhost:3000/api/info
+curl http://localhost:4000/api/info
 ```
 
 ##### `POST /api/generate`
 Trigger code generation with real-time SSE streaming.
 
 ```bash
-curl -N -X POST http://localhost:3000/api/generate
+curl -N -X POST http://localhost:4000/api/generate
 ```
 
 ## `kubb validate`
