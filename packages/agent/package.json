@@ -51,9 +51,9 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@clack/prompts": "^0.7.0",
     "@kubb/core": "workspace:*",
     "@kubb/fabric-core": "catalog:",
-    "@clack/prompts": "^0.7.0",
     "execa": "^9.6.1",
     "jiti": "^2.6.1",
     "nitropack": "^2.13.1",

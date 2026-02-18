@@ -1,6 +1,6 @@
 import type { AgentConnectResponse } from '~/types/agent.ts'
-import { cacheSession, getCachedSession } from './sessionManager.ts'
 import { logger } from './logger.ts'
+import { cacheSession, getCachedSession } from './sessionManager.ts'
 
 type ConnectProps = {
   studioUrl: string
@@ -67,7 +67,7 @@ export async function disconnect({ sessionToken, token, studioUrl }: DisconnectP
       },
     })
     logger.success('Sent disconnect notification to Studio on exit')
-  } catch (error) {
+  } catch (_error) {
     logger.warn('Failed to notify Studio of disconnection on exit')
   }
 }

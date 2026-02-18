@@ -2,10 +2,9 @@ import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { type Config, type KubbEvents, safeBuild, setup } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
-import { detectFormatter } from './detectFormatter.ts'
-import { detectLinter } from './detectLinter.ts'
+import { detectFormatter, detectLinter, formatters, linters } from '@kubb/core/utils'
+import pc from 'picocolors'
 import { executeHooks } from './executeHooks.ts'
-import { formatters } from './formatters.ts'
 
 type GenerateProps = {
   root: string
@@ -126,82 +125,30 @@ export async function generate({ root, config: userConfig, events }: GeneratePro
         await events.emit('warn', 'No linter found (biome, oxlint, or eslint). Skipping linting.')
       } else {
         linter = detectedLinter
-        await events.emit('info', `Auto-detected linter: ${linter}`)
+        await events.emit('info', `Auto-detected linter: ${pc.dim(linter)}`)
       }
     }
 
     // Only proceed with linting if we have a valid linter
-    if (linter && linter !== 'auto') {
-      await events.emit('info', `Linting with ${linter}`)
+    if (linter && linter !== 'auto' && linter in linters) {
+      const linterConfig = linters[linter as keyof typeof linters]
+      const outputPath = path.resolve(config.root, config.output.path)
 
-      if (linter === 'eslint') {
-        try {
-          const hookId = createHash('sha256').update([config.name, linter].filter(Boolean).join('-')).digest('hex')
-          await events.emit('hook:start', {
-            id: hookId,
-            command: 'eslint',
-            args: [path.resolve(config.root, config.output.path), '--fix'],
-          })
+      try {
+        const hookId = createHash('sha256').update([config.name, linter].filter(Boolean).join('-')).digest('hex')
+        await events.emit('hook:start', {
+          id: hookId,
+          command: linterConfig.command,
+          args: linterConfig.args(outputPath),
+        })
 
-          await events.onOnce('hook:end', async ({ success, error }) => {
-            if (!success) {
-              throw error
-            }
-
-            await events.emit('success', 'Linted with eslint successfully')
-          })
-        } catch (caughtError) {
-          const error = new Error('Eslint not found')
-          error.cause = caughtError
-          await events.emit('error', error)
-        }
-      }
-
-      if (linter === 'biome') {
-        try {
-          const hookId = createHash('sha256').update([config.name, linter].filter(Boolean).join('-')).digest('hex')
-          await events.emit('hook:start', {
-            id: hookId,
-            command: 'biome',
-            args: ['lint', '--fix', path.resolve(config.root, config.output.path)],
-          })
-
-          await events.onOnce('hook:end', async ({ success, error }) => {
-            if (!success) {
-              throw error
-            }
-
-            await events.emit('success', 'Linted with biome successfully')
-          })
-        } catch (caughtError) {
-          const error = new Error('Biome not found')
-          error.cause = caughtError
-          await events.emit('error', error)
-        }
-      }
-
-      if (linter === 'oxlint') {
-        try {
-          const hookId = createHash('sha256').update([config.name, linter].filter(Boolean).join('-')).digest('hex')
-          await events.emit('hook:start', {
-            id: hookId,
-            command: 'oxlint',
-            args: ['--fix', path.resolve(config.root, config.output.path)],
-          })
-
-          await events.onOnce('hook:end', async ({ success, error }) => {
-            if (!success) {
-              throw error
-            }
-
-            await events.emit('success', 'Linted with oxlint successfully')
-          })
-        } catch (caughtError) {
-          const error = new Error('Oxlint not found')
-          error.cause = caughtError
-
-          await events.emit('error', error)
-        }
+        await events.onOnce('hook:end', async ({ success, error }) => {
+          if (!success) throw error
+        })
+      } catch (caughtError) {
+        const error = new Error(linterConfig.errorMessage)
+        error.cause = caughtError
+        await events.emit('error', error)
       }
     }
 

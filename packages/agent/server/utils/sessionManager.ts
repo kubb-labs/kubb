@@ -45,7 +45,7 @@ export function saveAgentConfig(config: AgentConfig): void {
       // Directory might not exist, try to create it
       return
     }
-  } catch (error) {
+  } catch (_error) {
     logger.warn('Failed to save agent config')
   }
 }
@@ -85,7 +85,7 @@ export function getCachedSession(agentToken: string): AgentSession | null {
     }
 
     return session
-  } catch (error) {
+  } catch (_error) {
     logger.warn('Failed to get cached session')
     return null
   }
@@ -110,7 +110,7 @@ export function cacheSession(agentToken: string, session: AgentConnectResponse):
 
     saveAgentConfig(config)
     logger.success('Cached agent session')
-  } catch (error) {
+  } catch (_error) {
     logger.warn('Failed to cache session')
   }
 }
@@ -127,7 +127,7 @@ export function deleteCachedSession(agentToken: string): void {
       delete config.sessions[sessionKey]
       saveAgentConfig(config)
     }
-  } catch (error) {
+  } catch (_error) {
     logger.warn('Failed to delete cached session')
   }
 }

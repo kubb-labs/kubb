@@ -63,7 +63,7 @@ export function sendAgentMessage(ws: WebSocket, message: AgentMessage): void {
     }
 
     ws.send(JSON.stringify(message))
-  } catch (error: any) {
+  } catch (_error: any) {
     logger.error('Failed to send message to Kubb Studio')
   }
 }
