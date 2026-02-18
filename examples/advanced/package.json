@@ -20,6 +20,7 @@
     "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
     "generate:bun": "kubb generate --bun",
     "generate:js": "kubb generate --config .kubbrc.js",
+    "agent": "kubb agent start",
     "generate:json": "kubb generate --config kubb.json",
     "generate:ts": "kubb generate --config configs/kubb.config.ts",
     "test": "vitest",

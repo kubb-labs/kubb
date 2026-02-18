@@ -9,17 +9,18 @@ import { executeHooks } from './executeHooks.ts'
 import { formatters } from './formatters.ts'
 
 type GenerateProps = {
+  root: string
   config: Config
   events: AsyncEventEmitter<KubbEvents>
   logLevel: number
 }
 
-export async function generate({ config: userConfig, events, logLevel }: GenerateProps): Promise<void> {
+export async function generate({ root, config: userConfig, events, logLevel }: GenerateProps): Promise<void> {
   const hrStart = process.hrtime()
 
   const config: Config = {
     ...userConfig,
-    root: process.env.KUBB_ROOT || userConfig.root || process.cwd(),
+    root,
     output: {
       write: true,
       barrelType: 'named',

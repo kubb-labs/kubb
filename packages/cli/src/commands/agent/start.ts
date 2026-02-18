@@ -1,9 +1,11 @@
 import path from 'node:path'
 import * as process from 'node:process'
+import { fileURLToPath } from 'node:url'
 
 import * as clack from '@clack/prompts'
 import type { ArgsDef } from 'citty'
 import { defineCommand } from 'citty'
+import { config as loadEnv } from 'dotenv'
 import { execa } from 'execa'
 import pc from 'picocolors'
 
@@ -30,26 +32,50 @@ const args = {
   },
 } as const satisfies ArgsDef
 
-async function startServer(port: number, host: string, configPath: string, noCache: boolean): Promise<void> {
+type StartServerProps = {
+  port: number
+  host: string
+  configPath: string
+  noCache: boolean
+}
+
+async function startServer({ port, host, configPath, noCache }: StartServerProps): Promise<void> {
   try {
-    // Resolve the @kubb/agent package path using import.meta.resolve
-    const agentPkg = await import.meta.resolve('@kubb/agent')
-    const agentDir = path.dirname(agentPkg)
+    // Load .env files into process.env (supports .env, .env.local, .env.*.local)
+    loadEnv() // .env
+
+    // Resolve the @kubb/agent package path
+    const agentPkgUrl = import.meta.resolve('@kubb/agent/package.json')
+    const agentPkgPath = fileURLToPath(agentPkgUrl)
+    const agentDir = path.dirname(agentPkgPath)
     const serverPath = path.join(agentDir, '.output', 'server', 'index.mjs')
+
+    // nitro env
+    const PORT = process.env.PORT || (port === 0 ? '3000' : String(port))
+    const HOST = process.env.HOST || host || '0.0.0.0'
+
+    // kubb env
+    const KUBB_ROOT = process.env.KUBB_ROOT
+    const KUBB_CONFIG = process.env.KUBB_CONFIG || configPath || 'kubb.config.ts'
+    const KUBB_AGENT_NO_CACHE = noCache ? 'true' : 'false'
+    const KUBB_STUDIO_URL = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
+    const KUBB_AGENT_TOKEN = process.env.KUBB_AGENT_TOKEN
 
     // Set environment variables
     const env = {
-      ...process.env,
-      KUBB_CONFIG: configPath,
-      PORT: port === 0 ? '3000' : String(port),
-      HOST: host,
-      ...(noCache && { KUBB_AGENT_NO_CACHE: 'true' }),
+      KUBB_ROOT,
+      KUBB_CONFIG,
+      PORT,
+      HOST,
+      KUBB_STUDIO_URL,
+      KUBB_AGENT_NO_CACHE,
+      KUBB_AGENT_TOKEN,
     }
 
     clack.log.step(pc.cyan('Starting agent server...'))
-    clack.log.info(pc.dim(`Config: ${path.relative(process.cwd(), configPath)}`))
-    clack.log.info(pc.dim(`Host: ${host}`))
-    clack.log.info(pc.dim(`Port: ${port === 0 ? '3000 (auto)' : port}`))
+    clack.log.info(pc.dim(`Config: ${KUBB_CONFIG}`))
+    clack.log.info(pc.dim(`Host: ${HOST}`))
+    clack.log.info(pc.dim(`Port: ${PORT}`))
     if (noCache) {
       clack.log.info(pc.dim('Session caching: disabled'))
     }
@@ -76,15 +102,12 @@ const command = defineCommand({
     const { args } = commandContext
 
     try {
-      // Resolve config path
-      let configPath = args.config || 'kubb.config.ts'
-      configPath = path.resolve(process.cwd(), configPath)
-
+      const configPath = path.resolve(process.cwd(), args.config || 'kubb.config.ts')
       const port = args.port ? Number.parseInt(args.port, 10) : 0
       const host = args.host
       const noCache = args['no-cache']
 
-      await startServer(port, host, configPath, noCache)
+      await startServer({ port, host, configPath, noCache })
     } catch (error) {
       clack.log.error(pc.red('Failed to start agent server'))
       console.error(error)

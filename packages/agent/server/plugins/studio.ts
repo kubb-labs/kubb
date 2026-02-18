@@ -9,9 +9,9 @@ import { createWebsocket, sendConnectedMessage, sendPingMessage, setupEventsStre
 
 export default defineNitroPlugin(async (nitro) => {
   // Connect to Kubb Studio if URL is provided
-  const studioUrl = process.env.KUBB_STUDIO_URL
+  const studioUrl = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
   const token = process.env.KUBB_AGENT_TOKEN
-  const configPath = process.env.KUBB_CONFIG
+  const configPath = process.env.KUBB_CONFIG || 'kubb.config.ts'
   const noCache = process.env.KUBB_AGENT_NO_CACHE === 'true'
 
   if (!configPath) {
@@ -47,6 +47,7 @@ export default defineNitroPlugin(async (nitro) => {
       Authorization: `Bearer ${token}`,
     },
   }
+  const root = process.env.KUBB_ROOT || config.root || process.cwd()
 
   const { sessionToken, wsUrl } = await connect({ noCache, token, studioUrl })
 
@@ -93,6 +94,7 @@ export default defineNitroPlugin(async (nitro) => {
       case 'command':
         if (data.command === 'generate') {
           await generate({
+            root,
             config,
             events,
             logLevel,
