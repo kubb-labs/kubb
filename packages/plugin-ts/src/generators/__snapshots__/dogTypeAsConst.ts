@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * Dog
+ */
 export type dog = {
   /**
    * @type string, uuid

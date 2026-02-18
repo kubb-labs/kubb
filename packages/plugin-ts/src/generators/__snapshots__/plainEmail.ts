@@ -3,4 +3,7 @@
  * Do not edit manually.
  */
 
+/**
+ * Email
+ */
 export type plainEmail = string

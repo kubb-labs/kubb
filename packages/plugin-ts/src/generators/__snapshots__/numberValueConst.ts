@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * NumberValueConst
+ */
 export type numberValueConst = {
   /**
    * @type number

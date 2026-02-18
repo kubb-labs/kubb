@@ -1,5 +1,13 @@
 # @kubb/swagger
 
+## 4.24.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.24.1
+  - @kubb/oas@4.24.1
+
 ## 4.24.0
 
 ### Patch Changes

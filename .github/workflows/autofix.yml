@@ -17,7 +17,7 @@ jobs:
   autofix:
     name: Lint and format
     runs-on: ubuntu-latest
-    if: github.actor != 'github-actions[bot]'
+    if: github.actor != 'github-actions[bot]' && github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Check out code
         uses: actions/checkout@v6

@@ -123,6 +123,7 @@ export function Type({
         : type,
       syntax: useTypeGeneration ? 'type' : 'interface',
       comments: [
+        schema.title ? `${transformers.jsStringEscape(schema.title)}` : undefined,
         description ? `@description ${transformers.jsStringEscape(description)}` : undefined,
         schema.deprecated ? '@deprecated' : undefined,
         schema.minLength ? `@minLength ${schema.minLength}` : undefined,

@@ -6,6 +6,18 @@ outline: deep
 
 # Changelog
 
+## 4.24.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Add title property as the main comment**
+
+The `title` property of the schema is now interpreted as the "main comment" of type definitions.
+
+---
+
 ## 4.23.0
 
 ### ✨ New Features
