@@ -1,5 +1,16 @@
 # @kubb/plugin-ts
 
+## 4.24.1
+
+### Patch Changes
+
+- [#2486](https://github.com/kubb-labs/kubb/pull/2486) [`d260f9a`](https://github.com/kubb-labs/kubb/commit/d260f9a1f8a24ad2f1999fbdb918bb47cca078d0) Thanks [@Ericlm](https://github.com/Ericlm)! - Make the `title` property of the schema the main comment in generated types.
+
+- Updated dependencies []:
+  - @kubb/core@4.24.1
+  - @kubb/oas@4.24.1
+  - @kubb/plugin-oas@4.24.1
+
 ## 4.24.0
 
 ### Patch Changes
