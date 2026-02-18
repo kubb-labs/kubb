@@ -1,20 +1,12 @@
-import { readFileSync } from 'node:fs'
-import path from 'node:path'
-import type { Config, InfoResponse, KubbEvents, SseEvent } from '@kubb/core'
+import type { KubbEvents, SseEvent } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
-import { serializePluginOptions } from '@kubb/core/utils'
-import type { ConnectedMessage, DataMessage, PingMessage } from '~/types/agent.ts'
+import type { AgentMessage } from '~/types/agent.ts'
 import { logger } from './logger.ts'
-import { version } from '~~/package.json'
 
 const WEBSOCKET_READY = 1
 const WEBSOCKET_CONNECTING = 0
 
-export function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-}
-
-export async function createWebsocket(url: string, options: Record<string, any>) {
+export async function createWebsocket(url: string, options: Record<string, any>): Promise<WebSocket> {
   return new Promise<WebSocket>((resolve, reject) => {
     const ws = new WebSocket(url, options)
 
@@ -26,7 +18,7 @@ export async function createWebsocket(url: string, options: Record<string, any>)
     }
 
     const onOpen = () => {
-      logger.success('Connected to Kubb Studio', url)
+      logger.success(`Connected to Kubb Studio on "${url}"`)
 
       ws.removeEventListener('open', onOpen)
       ws.removeEventListener('error', onError)
@@ -43,6 +35,7 @@ export async function createWebsocket(url: string, options: Record<string, any>)
 
     const onClose = () => {
       logger.warn('Connection to Kubb Studio closed')
+
       cleanup()
     }
 
@@ -60,29 +53,32 @@ export async function createWebsocket(url: string, options: Record<string, any>)
   })
 }
 
-export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbEvents>): void {
-  const messageId = generateId()
-
-  // Helper to send SSE-like events to WebSocket as DataMessages
-  function sendDataMessage(event: SseEvent) {
+/**
+ * Send a message to Kubb Studio via WebSocket
+ */
+export function sendAgentMessage(ws: WebSocket, message: AgentMessage): void {
+  try {
     if (ws.readyState !== WEBSOCKET_READY) {
       return
     }
 
-    const dataMessage: DataMessage = {
-      type: 'data',
-      id: messageId,
-      event,
-    }
+    ws.send(JSON.stringify(message))
+  } catch (error: any) {
+    logger.error('Failed to send message to Kubb Studio')
+  }
+}
 
-    try {
-      ws.send(JSON.stringify(dataMessage))
-    } catch (error) {
-      logger.warn('Failed to send data message to studio')
-    }
+/**
+ * Set up event listeners on the KubbEvents emitter to forward events to Kubb Studio via WebSocket
+ */
+export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbEvents>): void {
+  function sendDataMessage(event: SseEvent) {
+    sendAgentMessage(ws, {
+      type: 'data',
+      event,
+    })
   }
 
-  // Forward events to WebSocket stream similar to generate.post.ts
   events.on('plugin:start', (plugin) => {
     sendDataMessage({
       type: 'plugin:start',
@@ -169,6 +165,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
 
   events.on('generation:end', (config, files, sources) => {
     const sourcesRecord: Record<string, string> = {}
+
     sources.forEach((value, key) => {
       sourcesRecord[key] = value
     })
@@ -191,76 +188,4 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
       timestamp: Date.now(),
     })
   })
-}
-
-export function sendPingMessage(ws: WebSocket) {
-  try {
-    if (ws.readyState !== WEBSOCKET_READY) {
-      return
-    }
-
-    ws.send(
-      JSON.stringify({
-        type: 'ping',
-      } as PingMessage),
-    )
-
-    logger.message('Sent ping message')
-  } catch (error) {
-    logger.warn('Failed to send ping message to studio')
-  }
-}
-
-export function sendConnectedMessage(ws: WebSocket, { config }: { config: Config }) {
-  try {
-    if (ws.readyState !== WEBSOCKET_READY) {
-      return
-    }
-
-    // Read OpenAPI spec if available
-    let specContent: string | undefined
-    if (config && 'path' in config.input) {
-      const specPath = path.resolve(process.cwd(), config.root, config.input.path)
-      try {
-        specContent = readFileSync(specPath, 'utf-8')
-      } catch {
-        // Spec file not found or unreadable
-      }
-    }
-
-    const infoResponse: InfoResponse = {
-      version,
-      configPath: process.env.KUBB_CONFIG || '',
-      spec: specContent,
-      config: {
-        name: config.name,
-        root: config.root,
-        input: {
-          path: 'path' in config.input ? config.input.path : undefined,
-        },
-        output: {
-          path: config.output.path,
-          write: config.output.write,
-          extension: config.output.extension,
-          barrelType: config.output.barrelType,
-        },
-        plugins: config.plugins?.map((plugin: any) => ({
-          name: `@kubb/${plugin.name}`,
-          options: serializePluginOptions(plugin.options),
-        })),
-      },
-    }
-
-    ws.send(
-      JSON.stringify({
-        type: 'connected',
-        id: generateId(),
-        payload: infoResponse,
-      } as ConnectedMessage),
-    )
-
-    logger.success('Sent connected message to Kubb Studio')
-  } catch (error) {
-    logger.warn('Failed to send connected message to studio')
-  }
 }

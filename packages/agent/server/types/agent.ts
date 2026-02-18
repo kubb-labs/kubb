@@ -4,13 +4,11 @@ import type { InfoResponse, SseEvent } from '@kubb/core'
 
 export type CommandMessage = {
   type: 'command'
-  id: string
   command: 'generate' | 'connect'
 }
 
 export type ConnectedMessage = {
   type: 'connected'
-  id: string
   payload: InfoResponse
 }
 
@@ -32,18 +30,13 @@ export type StatusMessage = {
   message: string
   connectedAgents: number
   agents: Array<{
-    id: string
     name: string
     connectedAt: string
   }>
 }
 
-/**
- * SSE events
- */
 export type DataMessage = {
   type: 'data'
-  id: string
   event: SseEvent
 }
 

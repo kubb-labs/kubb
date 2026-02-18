@@ -1,7 +1,6 @@
 import { createHash } from 'node:crypto'
 import path from 'node:path'
-import process from 'node:process'
-import { type Config, type KubbEvents, LogLevel, safeBuild, setup } from '@kubb/core'
+import { type Config, type KubbEvents, safeBuild, setup } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import { detectFormatter } from './detectFormatter.ts'
 import { detectLinter } from './detectLinter.ts'
@@ -12,12 +11,9 @@ type GenerateProps = {
   root: string
   config: Config
   events: AsyncEventEmitter<KubbEvents>
-  logLevel: number
 }
 
-export async function generate({ root, config: userConfig, events, logLevel }: GenerateProps): Promise<void> {
-  const hrStart = process.hrtime()
-
+export async function generate({ root, config: userConfig, events }: GenerateProps): Promise<void> {
   const config: Config = {
     ...userConfig,
     root,
@@ -43,7 +39,7 @@ export async function generate({ root, config: userConfig, events, logLevel }: G
 
   await events.emit('info', config.name ? `Build generation ${config.name}` : 'Build generation')
 
-  const { files, failedPlugins, pluginTimings, error } = await safeBuild(
+  const { files, failedPlugins, error } = await safeBuild(
     {
       config,
       events,
@@ -69,14 +65,6 @@ export async function generate({ root, config: userConfig, events, logLevel }: G
     })
 
     await events.emit('generation:end', config, files, sources)
-
-    await events.emit('generation:summary', config, {
-      failedPlugins,
-      filesCreated: files.length,
-      status: failedPlugins.size > 0 || error ? 'failed' : 'success',
-      hrStart,
-      pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
-    })
 
     throw new Error('Generation failed')
   }
@@ -226,12 +214,4 @@ export async function generate({ root, config: userConfig, events, logLevel }: G
 
     await events.emit('hooks:end')
   }
-
-  await events.emit('generation:summary', config, {
-    failedPlugins,
-    filesCreated: files.length,
-    status: failedPlugins.size > 0 || error ? 'failed' : 'success',
-    hrStart,
-    pluginTimings,
-  })
 }
