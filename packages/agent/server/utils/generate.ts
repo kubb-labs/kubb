@@ -82,7 +82,8 @@ export async function generate({ config, events }: GenerateProps): Promise<void>
 
     if (formatter && formatter !== 'auto' && formatter in formatters) {
       const formatterConfig = formatters[formatter as keyof typeof formatters]
-      const outputPath = path.resolve(config.root, config.output.path)
+      // Use absolute path for output directory
+      const outputPath = path.isAbsolute(config.output.path) ? config.output.path : path.resolve(process.cwd(), config.root, config.output.path)
 
       try {
         const hookId = createHash('sha256').update([config.name, formatter].filter(Boolean).join('-')).digest('hex')
@@ -126,7 +127,8 @@ export async function generate({ config, events }: GenerateProps): Promise<void>
     // Only proceed with linting if we have a valid linter
     if (linter && linter !== 'auto' && linter in linters) {
       const linterConfig = linters[linter as keyof typeof linters]
-      const outputPath = path.resolve(config.root, config.output.path)
+      // Use absolute path for output directory
+      const outputPath = path.isAbsolute(config.output.path) ? config.output.path : path.resolve(process.cwd(), config.root, config.output.path)
 
       try {
         const hookId = createHash('sha256').update([config.name, linter].filter(Boolean).join('-')).digest('hex')

@@ -1,7 +1,6 @@
 import type { KubbEvents, SseEvent } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import type { AgentMessage } from '~/types/agent.ts'
-import { logger } from './logger.ts'
 
 const WEBSOCKET_READY = 1
 const WEBSOCKET_CONNECTING = 0

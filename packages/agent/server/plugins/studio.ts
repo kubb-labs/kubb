@@ -44,7 +44,7 @@ export default defineNitroPlugin(async (nitro) => {
   const token = process.env.KUBB_AGENT_TOKEN
   const configPath = process.env.KUBB_CONFIG || 'kubb.config.ts'
   const noCache = process.env.KUBB_AGENT_NO_CACHE === 'true'
-  const retryInterval = process.env.KUBB_RETRY_TIMEOUT ? Number.parseInt(process.env.KUBB_RETRY_TIMEOUT) : 30000
+  const retryInterval = process.env.KUBB_RETRY_TIMEOUT ? Number.parseInt(process.env.KUBB_RETRY_TIMEOUT, 10) : 30000
 
   if (!configPath) {
     throw new Error('KUBB_CONFIG environment variable not set')
@@ -89,10 +89,13 @@ export default defineNitroPlugin(async (nitro) => {
     }
 
     try {
-      await execa(command, args, {
+      const result = await execa(command, args, {
+        cwd: root,
         detached: true,
         stripFinalNewline: true,
       })
+
+      console.log(result.stdout)
 
       await events.emit('hook:end', {
         command,
@@ -102,7 +105,6 @@ export default defineNitroPlugin(async (nitro) => {
         error: null,
       })
     } catch (_err) {
-      console.log(_err, id, commandWithArgs)
       const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
 
       await events.emit('hook:end', {
@@ -243,7 +245,7 @@ export default defineNitroPlugin(async (nitro) => {
 
         logger.warn(`Unknown message type from Kubb Studio: ${message.data}`)
       })
-    } catch (error: any) {
+    } catch (_error: any) {
       deleteCachedSession(token)
       await reconnectToStudio()
     }
