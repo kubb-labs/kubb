@@ -192,6 +192,10 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
 
 export function sendPingMessage(ws: WebSocket) {
   try {
+    if (ws.readyState !== WEBSOCKET_READY) {
+      return
+    }
+
     ws.send(
       JSON.stringify({
         type: 'ping',
@@ -206,6 +210,10 @@ export function sendPingMessage(ws: WebSocket) {
 
 export function sendConnectedMessage(ws: WebSocket, { config }: { config: Config }) {
   try {
+    if (ws.readyState !== WEBSOCKET_READY) {
+      return
+    }
+
     // Read OpenAPI spec if available
     let specContent: string | undefined
     if (config && 'path' in config.input) {

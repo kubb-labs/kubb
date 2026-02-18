@@ -76,9 +76,6 @@ export default defineNitroPlugin(async (nitro) => {
 
   ws.addEventListener('close', onClose)
   ws.addEventListener('error', onError)
-  ws.addEventListener('open', () => {
-    sendConnectedMessage(ws, { config })
-  })
 
   nitro.hooks.hook('close', onClose)
 
@@ -87,6 +84,7 @@ export default defineNitroPlugin(async (nitro) => {
   }, 30000)
 
   setupEventsStream(ws, events)
+  sendConnectedMessage(ws, { config })
 
   //listen
   ws.addEventListener('message', async (event) => {
