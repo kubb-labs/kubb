@@ -18,10 +18,10 @@ export async function createAgentSession({ token, studioUrl, noCache }: ConnectP
   const cachedSession = !noCache ? getCachedSession(token) : null
   if (cachedSession) {
     logger.success('Using cached agent session')
-    
+
     return cachedSession
   }
-  
+
   // Fetch new session from Studio
   const connectUrl = `${studioUrl}/api/agent/session/create`
 
@@ -38,10 +38,10 @@ export async function createAgentSession({ token, studioUrl, noCache }: ConnectP
       cacheSession(token, data)
     }
 
-    if(!data) {
+    if (!data) {
       throw new Error('No data available for agent session')
     }
-    
+
     return data
   } catch (error: any) {
     throw new Error('Failed to get agent session from Kubb Studio', { cause: error })
