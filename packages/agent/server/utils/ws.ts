@@ -1,5 +1,6 @@
 import type { KubbEvents } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
+import WebSocket from 'ws'
 import type { AgentMessage, DataMessagePayload } from '~/types/agent.ts'
 
 const WEBSOCKET_READY = 1
