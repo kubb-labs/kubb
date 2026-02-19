@@ -129,7 +129,11 @@ export default defineNitroPlugin(async (nitro) => {
   async function connectToStudio() {
     try {
       // start connection to studio
-      const { sessionToken, wsUrl } = await createAgentSession({ noCache, token, studioUrl })
+      const { sessionToken, wsUrl } = await createAgentSession({
+        noCache,
+        token,
+        studioUrl,
+      })
       const ws = createWebsocket(wsUrl, wsOptions)
 
       const onError = async () => {
@@ -188,7 +192,7 @@ export default defineNitroPlugin(async (nitro) => {
       setupEventsStream(ws, events)
 
       ws.addEventListener('message', async (message) => {
-        const data = JSON.parse(message.data) as AgentMessage
+        const data = JSON.parse(message.data as string) as AgentMessage
 
         if (isCommandMessage(data)) {
           if (data.command === 'generate') {
@@ -245,8 +249,10 @@ export default defineNitroPlugin(async (nitro) => {
 
         logger.warn(`Unknown message type from Kubb Studio: ${message.data}`)
       })
-    } catch (_error: any) {
+    } catch (error: any) {
       deleteCachedSession(token)
+
+      logger.error(`Something went wrong ${error}`)
       await reconnectToStudio()
     }
   }
