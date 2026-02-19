@@ -64,6 +64,7 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
+  bigint: () => 'z.bigint()',
   interface: (value?: string, strict?: boolean) => {
     if (strict) {
       return `z.strictInterface({
@@ -872,6 +873,9 @@ export const parse = createParser<string, ParserOptions>({
         exclusiveMaximumSchema?.args,
         options.mini,
       )
+    },
+    bigint(_tree, _options) {
+      return zodKeywordMapper.bigint()
     },
     datetime(tree, options) {
       const { current } = tree

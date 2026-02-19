@@ -1110,7 +1110,12 @@ export class SchemaGenerator<
      * see also https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.7
      */
     if (schemaObject.format) {
-      if (schemaObject.type === 'integer' && (schemaObject.format === 'int32' || schemaObject.format === 'int64')) {
+      if (schemaObject.type === 'integer' && schemaObject.format === 'int64') {
+        baseItems.unshift({ keyword: schemaKeywords.bigint })
+        return baseItems
+      }
+
+      if (schemaObject.type === 'integer' && schemaObject.format === 'int32') {
         baseItems.unshift({ keyword: schemaKeywords.integer })
         return baseItems
       }
