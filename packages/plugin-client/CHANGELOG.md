@@ -1,5 +1,18 @@
 # @kubb/plugin-client
 
+## 4.26.0
+
+### Patch Changes
+
+- [#2488](https://github.com/kubb-labs/kubb/pull/2488) [`0f8235c`](https://github.com/kubb-labs/kubb/commit/0f8235cf1dfbcdd436172752c9f94ff953732f3f) Thanks [@icholy](https://github.com/icholy)! - Fix class client generators using default import for fetch in bundled mode when the bundled templates only have a named export.
+
+- Updated dependencies [[`af65cde`](https://github.com/kubb-labs/kubb/commit/af65cde624a74e68bfb5dede871e8d9324499114)]:
+  - @kubb/plugin-zod@4.26.0
+  - @kubb/core@4.26.0
+  - @kubb/oas@4.26.0
+  - @kubb/plugin-oas@4.26.0
+  - @kubb/plugin-ts@4.26.0
+
 ## 4.25.2
 
 ### Patch Changes
