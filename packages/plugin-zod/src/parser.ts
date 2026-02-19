@@ -192,7 +192,21 @@ const zodKeywordMapper = {
 
     return 'z.date()'
   },
-  uuid: (coercion?: boolean, version: '3' | '4' = '3', guidType: 'uuid' | 'guid' = 'uuid', min?: number, max?: number, mini?: boolean) => {
+  uuid: ({
+    coercion,
+    version = '3',
+    guidType = 'uuid',
+    min,
+    max,
+    mini,
+  }: {
+    coercion?: boolean
+    version?: '3' | '4'
+    guidType?: 'uuid' | 'guid'
+    min?: number
+    max?: number
+    mini?: boolean
+  } = {}) => {
     const zodGuidType = version === '4' && guidType === 'guid' ? 'guid' : 'uuid'
 
     if (mini) {
@@ -799,7 +813,14 @@ export const parse = createParser<string, ParserOptions>({
       const minSchema = findSchemaKeyword(siblings, 'min')
       const maxSchema = findSchemaKeyword(siblings, 'max')
 
-      return zodKeywordMapper.uuid(shouldCoerce(options.coercion, 'strings'), options.version, options.guidType, minSchema?.args, maxSchema?.args, options.mini)
+      return zodKeywordMapper.uuid({
+        coercion: shouldCoerce(options.coercion, 'strings'),
+        version: options.version,
+        guidType: options.guidType,
+        min: minSchema?.args,
+        max: maxSchema?.args,
+        mini: options.mini,
+      })
     },
     email(tree, options) {
       const { siblings } = tree
