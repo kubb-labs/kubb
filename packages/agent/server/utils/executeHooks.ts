@@ -8,6 +8,12 @@ type ExecutingHooksProps = {
   events: AsyncEventEmitter<KubbEvents>
 }
 
+/**
+ * Execute the `hooks.done` commands defined in the Kubb config sequentially.
+ * Each command is emitted as a `hook:start` event; the plugin layer is responsible
+ * for actually spawning the process and emitting `hook:end`.
+ *
+ */
 export async function executeHooks({ hooks, events }: ExecutingHooksProps): Promise<void> {
   const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done].filter(Boolean)
 

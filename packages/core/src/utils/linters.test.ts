@@ -1,6 +1,6 @@
 import { execaCommand } from 'execa'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { detectLinter } from './detectLinter.ts'
+import { detectLinter } from './linters.ts'
 
 // Mock execa
 vi.mock('execa', () => ({

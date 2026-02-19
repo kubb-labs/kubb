@@ -3,6 +3,7 @@ export default defineNitroConfig({
   debug: false,
   serveStatic: false,
   compatibilityDate: '2026-02-17',
+  ignore: ['**/*.test.ts', '**/*.spec.ts'],
   routeRules: {
     '/**': {
       cors: false,

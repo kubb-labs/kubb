@@ -1,11 +1,13 @@
-import process from 'node:process'
-import type { HealthResponse } from '@kubb/core'
 import { version } from '~~/package.json'
 
-export default defineEventHandler(async (): Promise<HealthResponse> => {
+/**
+ * `GET /api/health`
+ *
+ * Returns the current health status of the agent server, including its version
+ */
+export default defineEventHandler(() => {
   return {
     status: 'ok',
     version,
-    configPath: process.env.KUBB_CONFIG || '',
   }
 })

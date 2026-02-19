@@ -9,6 +9,10 @@ export type CosmiconfigResult = {
   config: ReturnType<typeof defineConfig> | UserConfig
 }
 
+/**
+ * Load a TypeScript or JavaScript Kubb config file using jiti for on-the-fly transpilation.
+ * Supports JSX via `@kubb/react-fabric` and resolves the default export.
+ */
 const tsLoader = async (configFile: string) => {
   const jiti = createJiti(configFile, {
     jsx: {
@@ -24,6 +28,10 @@ const tsLoader = async (configFile: string) => {
   return mod as any
 }
 
+/**
+ * Load a Kubb config file from the given path, resolving relative paths against `process.cwd()`.
+ * Supports both `.ts` and `.js` config files.
+ */
 export async function getCosmiConfig(configPath: string): Promise<CosmiconfigResult> {
   try {
     // Resolve relative paths to absolute
@@ -34,7 +42,7 @@ export async function getCosmiConfig(configPath: string): Promise<CosmiconfigRes
       filepath: absolutePath,
       config: mod,
     }
-  } catch (error) {
+  } catch (error: any) {
     throw new Error('Config failed loading', { cause: error })
   }
 }

@@ -781,10 +781,16 @@ importers:
       nitropack:
         specifier: ^2.13.1
         version: 2.13.1(encoding@0.1.13)(rolldown@1.0.0-rc.1)
+      picocolors:
+        specifier: ^1.1.1
+        version: 1.1.1
       string-argv:
         specifier: ^0.3.2
         version: 0.3.2
     devDependencies:
+      msw:
+        specifier: ^2.6.10
+        version: 2.12.10(@types/node@24.10.1)(typescript@5.9.3)
       vite:
         specifier: ^7.3.1
         version: 7.3.1(@types/node@24.10.1)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2)
@@ -806,6 +812,9 @@ importers:
       cosmiconfig:
         specifier: ^9.0.0
         version: 9.0.0(typescript@5.9.3)
+      dotenv:
+        specifier: ^17.3.1
+        version: 17.3.1
       execa:
         specifier: ^9.6.1
         version: 9.6.1
@@ -858,6 +867,9 @@ importers:
       camelcase:
         specifier: ^8.0.0
         version: 8.0.0
+      execa:
+        specifier: ^9.6.1
+        version: 9.6.1
       find-up:
         specifier: ^7.0.0
         version: 7.0.0
@@ -4413,6 +4425,10 @@ packages:
 
   dotenv@17.2.3:
     resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
+    engines: {node: '>=12'}
+
+  dotenv@17.3.1:
+    resolution: {integrity: sha512-IO8C/dzEb6O3F9/twg6ZLXz164a2fhTnEWb95H23Dm4OuN+92NmEAlTrupP9VW6Jm3sO26tQlqyvyi4CsnY9GA==}
     engines: {node: '>=12'}
 
   dotenv@8.6.0:
@@ -10584,6 +10600,8 @@ snapshots:
       type-fest: 5.2.0
 
   dotenv@17.2.3: {}
+
+  dotenv@17.3.1: {}
 
   dotenv@8.6.0: {}
 

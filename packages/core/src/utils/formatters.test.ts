@@ -1,6 +1,6 @@
 import { execaCommand } from 'execa'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { detectFormatter } from './detectFormatter.ts'
+import { detectFormatter } from './formatters.ts'
 
 // Mock execa
 vi.mock('execa', () => ({

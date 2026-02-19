@@ -99,6 +99,7 @@
   "dependencies": {
     "@kubb/react-fabric": "catalog:",
     "camelcase": "^8.0.0",
+    "execa": "^9.6.1",
     "find-up": "^7.0.0",
     "fs-extra": "^11.3.3",
     "jiti": "^2.6.1",

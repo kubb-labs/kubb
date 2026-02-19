@@ -56,9 +56,11 @@
     "execa": "^9.6.1",
     "jiti": "^2.6.1",
     "nitropack": "^2.13.1",
+    "picocolors": "^1.1.1",
     "string-argv": "^0.3.2"
   },
   "devDependencies": {
+    "msw": "^2.6.10",
     "vite": "^7.3.1"
   },
   "engines": {

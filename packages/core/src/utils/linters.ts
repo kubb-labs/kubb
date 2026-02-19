@@ -1,6 +1,24 @@
 import { execaCommand } from 'execa'
 
-type Linter = 'biome' | 'oxlint' | 'eslint'
+export const linters = {
+  eslint: {
+    command: 'eslint',
+    args: (outputPath: string) => [outputPath, '--fix'],
+    errorMessage: 'Eslint not found',
+  },
+  biome: {
+    command: 'biome',
+    args: (outputPath: string) => ['lint', '--fix', outputPath],
+    errorMessage: 'Biome not found',
+  },
+  oxlint: {
+    command: 'oxlint',
+    args: (outputPath: string) => ['--fix', outputPath],
+    errorMessage: 'Oxlint not found',
+  },
+} as const
+
+type Linter = keyof typeof linters
 
 async function isLinterAvailable(linter: Linter): Promise<boolean> {
   try {
