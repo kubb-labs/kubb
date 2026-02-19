@@ -1,0 +1,5 @@
+# Exclude everything by default
+*
+
+# Only include agent's .output
+!packages/agent/.output/
