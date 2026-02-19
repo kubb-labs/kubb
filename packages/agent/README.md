@@ -41,12 +41,6 @@ kubb agent start --config kubb.config.ts --host 0.0.0.0 --port 8080 --no-cache
 If you need to start the server directly:
 
 ```bash
-KUBB_CONFIG=./kubb.config.ts node packages/agent/.output/server/index.mjs
-```
-
-Or if using the built package:
-
-```bash
 KUBB_CONFIG=./kubb.config.ts node node_modules/@kubb/agent/.output/server/index.mjs
 ```
 
@@ -60,13 +54,6 @@ The server will be available at `http://localhost:4000`.
 - `KUBB_STUDIO_URL` - Studio connection URL (e.g., `http://localhost:3000`)
 - `KUBB_AGENT_TOKEN` - Authentication token for Studio connection
 - `KUBB_AGENT_NO_CACHE` - Disable session caching (set to `true` to skip cache)
-
-### CLI Flags
-
-- `--config, -c` - Path to Kubb configuration file
-- `--port, -p`   - Server port
-- `--host`       - Server host (default: `localhost`)
-- `--no-cache`   - Disable session caching for this run
 
 ### Automatic .env Loading
 
@@ -197,18 +184,6 @@ export default defineConfig({
 
 ```bash
 npx kubb agent start
-```
-
-Or with custom port:
-
-```bash
-npx kubb agent start --port 5000
-```
-
-Or disable session caching:
-
-```bash
-npx kubb agent start --no-cache
 ```
 
 You'll receive a stream of events as the code generation progresses.
