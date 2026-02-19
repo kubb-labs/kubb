@@ -1,6 +1,6 @@
 {
   "name": "kubb",
-  "version": "3.0.212",
+  "version": "3.0.213",
   "description": "Transform OpenAPI specifications into TypeScript, React-Query, Zod, Faker.js, MSW and more with a plugin-based code generation tool.",
   "keywords": [
     "typescript",
@@ -56,8 +56,10 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/agent": "workspace:*",
     "@kubb/cli": "workspace:*",
-    "@kubb/core": "workspace:*"
+    "@kubb/core": "workspace:*",
+    "@kubb/mcp": "workspace:*"
   },
   "devDependencies": {},
   "engines": {

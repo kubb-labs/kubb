@@ -1,5 +1,17 @@
 # kubb
 
+## 3.0.213
+
+### Patch Changes
+
+- [`8a295d7`](https://github.com/kubb-labs/kubb/commit/8a295d7481e386f3689d8e0d698f91c0282907a3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct use of jiti (dynamic import of babel cannot be used in nitro)
+
+- Updated dependencies [[`8a295d7`](https://github.com/kubb-labs/kubb/commit/8a295d7481e386f3689d8e0d698f91c0282907a3)]:
+  - @kubb/agent@4.25.1
+  - @kubb/cli@4.25.1
+  - @kubb/core@4.25.1
+  - @kubb/mcp@4.25.1
+
 ## 3.0.212
 
 ### Patch Changes
