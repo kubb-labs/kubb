@@ -34,6 +34,8 @@ import type {
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
+  GetOrganizationByIdQueryResponse,
+  GetOrganizationByIdPathParams,
 } from './findByTags'
 import { buildFormData } from './test/.kubb/config'
 import { fetch, mergeConfig } from './test/.kubb/fetch'
@@ -176,6 +178,24 @@ export class Pet {
       url: `/pet/${petId}/uploadImage`,
       params,
       data: formData as FormData,
+    })
+    return res.data
+  }
+
+  /**
+   * @description Retrieves an organization by ID.
+   * @summary Get organization by ID
+   * {@link /organizations/:organization-id}
+   */
+  static async getOrganizationById(
+    organizationId: GetOrganizationByIdPathParams['organization-id'],
+    config: Partial<RequestConfig> & { client?: Client } = {},
+  ) {
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
+    const res = await request<GetOrganizationByIdQueryResponse, ResponseErrorConfig<Error>, unknown>({
+      ...requestConfig,
+      method: 'GET',
+      url: `/organizations/${organizationId}`,
     })
     return res.data
   }

@@ -2,7 +2,7 @@ import { URLPath } from '@kubb/core/utils'
 
 import { getDefaultValue, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getParamsMapping, getPathParams } from '@kubb/plugin-oas/utils'
+import { getPathParams } from '@kubb/plugin-oas/utils'
 import { Const, File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
@@ -80,17 +80,9 @@ export function Url({
     typeSchemas,
   })
 
-  // Generate pathParams mapping when paramsCasing is used
-  const pathParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
-
   return (
     <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
       <Function name={name} export={isExportable} params={params.toConstructor()}>
-        {pathParamsMapping &&
-          Object.entries(pathParamsMapping)
-            .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
-            .join('\n')}
-        {pathParamsMapping && <br />}
         <Const name={'res'}>{`{ method: '${operation.method.toUpperCase()}', url: ${path.toTemplateString({ prefix: baseURL })} as const }`}</Const>
         <br />
         return res
