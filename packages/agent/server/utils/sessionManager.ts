@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -133,10 +134,9 @@ export function deleteCachedSession(agentToken: string): void {
 }
 
 /**
- * Hash agent token for use as session key
- * This prevents storing raw tokens in the config file
+ * Hash an agent token using SHA-512
+ * Tokens are hashed before storage for security - raw tokens are never persisted
  */
 function hashAgentToken(token: string): string {
-  // Use a simple hash - in production you might want to use crypto
-  return Buffer.from(token).toString('base64').substring(0, 16)
+  return createHash('sha512').update(token).digest('hex')
 }
