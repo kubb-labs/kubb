@@ -455,6 +455,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "skoropadas",
+      "name": "Alex Skoropad",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20700969?v=4",
+      "profile": "https://github.com/skoropadas",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
