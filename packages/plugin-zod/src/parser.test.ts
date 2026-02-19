@@ -152,6 +152,36 @@ describe('zod parse', () => {
       )
       expect(text).toBe('z.string().uuid()')
     })
+
+    test('uuid with guidType=guid and version=4 should use z.guid()', () => {
+      const schema = { keyword: schemaKeywords.uuid, args: undefined }
+      const text = parserZod.parse(
+        {
+          name: 'test',
+          schema: {},
+          parent: undefined,
+          current: schema,
+          siblings: [schema],
+        },
+        { version: '4', guidType: 'guid' },
+      )
+      expect(text).toBe('z.guid()')
+    })
+
+    test('uuid with guidType=guid and version=3 should fallback to z.string().uuid()', () => {
+      const schema = { keyword: schemaKeywords.uuid, args: undefined }
+      const text = parserZod.parse(
+        {
+          name: 'test',
+          schema: {},
+          parent: undefined,
+          current: schema,
+          siblings: [schema],
+        },
+        { version: '3', guidType: 'guid' },
+      )
+      expect(text).toBe('z.string().uuid()')
+    })
   })
 
   describe('mini mode', () => {
@@ -284,6 +314,21 @@ describe('zod parse', () => {
         { version: '4', mini: true },
       )
       expect(text).toBe('z.uuid()')
+    })
+
+    test('uuid with guidType=guid should use z.guid()', () => {
+      const schema = { keyword: schemaKeywords.uuid, args: undefined }
+      const text = parserZod.parse(
+        {
+          name: 'test',
+          schema: {},
+          parent: undefined,
+          current: schema,
+          siblings: [schema],
+        },
+        { version: '4', mini: true, guidType: 'guid' },
+      )
+      expect(text).toBe('z.guid()')
     })
 
     test('matches should use z.string().check(z.regex())', () => {
