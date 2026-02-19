@@ -37,7 +37,7 @@ export type KubbEvents = {
   'lifecycle:end': []
 }
 
-type KubbEvent = keyof KubbEvents
+export type KubbEvent = keyof KubbEvents
 
 /**
  * Command message sent from Studio to Agent
