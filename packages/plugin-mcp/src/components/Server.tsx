@@ -125,7 +125,7 @@ server.tool(${JSON.stringify(tool.name)}, ${JSON.stringify(tool.description)}, a
         .filter(Boolean)}
 
       {`
-async function startServer() {
+export async function startServer() {
   try {
     const transport = new StdioServerTransport()
     await server.connect(transport)
@@ -135,8 +135,6 @@ async function startServer() {
     process.exit(1)
   }
 }
-
-startServer()
 `}
     </File.Source>
   )
