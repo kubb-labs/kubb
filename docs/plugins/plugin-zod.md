@@ -293,6 +293,31 @@ Which version of Zod should be used.
 | Required: | `false`      |
 |  Default: | `'3'`        |
 
+### guidType
+
+Which validator to use for OpenAPI `format: uuid`.
+
+|           |                   |
+| --------: | :---------------- |
+|     Type: | `'uuid' \| 'guid'` |
+| Required: | `false`           |
+|  Default: | `'uuid'`          |
+
+> [!NOTE]
+> `guid` is only used with `version: '4'`. With `version: '3'`, Kubb falls back to `uuid`.
+
+::: code-group
+
+```typescript ['uuid' (default)]
+z.uuid()
+```
+
+```typescript ['guid' + version: '4']
+z.guid()
+```
+
+:::
+
 ### mini <Badge type="tip" text="beta" /> <span class="new">new in 4.8.0</span>
 
 Use Zod Mini's functional API for better tree-shaking support.

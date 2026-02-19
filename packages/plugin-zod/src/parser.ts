@@ -192,16 +192,21 @@ const zodKeywordMapper = {
 
     return 'z.date()'
   },
-  uuid: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number, mini?: boolean) => {
+  uuid: (coercion?: boolean, version: '3' | '4' = '3', guidType: 'uuid' | 'guid' = 'uuid', min?: number, max?: number, mini?: boolean) => {
+    const zodGuidType = version === '4' && guidType === 'guid' ? 'guid' : 'uuid'
+
     if (mini) {
       const checks = buildLengthChecks(min, max)
       if (checks.length > 0) {
-        return `z.uuid().check(${checks.join(', ')})`
+        return `z.${zodGuidType}().check(${checks.join(', ')})`
       }
-      return 'z.uuid()'
+      return `z.${zodGuidType}()`
     }
+
+    const zodV4UuidSchema = `z.${zodGuidType}()`
+
     return [
-      coercion ? (version === '4' ? 'z.uuid()' : 'z.coerce.string().uuid()') : version === '4' ? 'z.uuid()' : 'z.string().uuid()',
+      coercion ? (version === '4' ? zodV4UuidSchema : 'z.coerce.string().uuid()') : version === '4' ? zodV4UuidSchema : 'z.string().uuid()',
       min !== undefined ? `.min(${min})` : undefined,
       max !== undefined ? `.max(${max})` : undefined,
     ]
@@ -484,6 +489,7 @@ type ParserOptions = {
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
   version: '3' | '4'
+  guidType?: 'uuid' | 'guid'
   skipLazyForRefs?: boolean
   mini?: boolean
 }
@@ -793,7 +799,7 @@ export const parse = createParser<string, ParserOptions>({
       const minSchema = findSchemaKeyword(siblings, 'min')
       const maxSchema = findSchemaKeyword(siblings, 'max')
 
-      return zodKeywordMapper.uuid(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
+      return zodKeywordMapper.uuid(shouldCoerce(options.coercion, 'strings'), options.version, options.guidType, minSchema?.args, maxSchema?.args, options.mini)
     },
     email(tree, options) {
       const { siblings } = tree
