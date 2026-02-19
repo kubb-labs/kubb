@@ -6,6 +6,28 @@ outline: deep
 
 # Changelog
 
+## 4.25.0
+
+### ✨ New Features
+
+#### [`@kubb/agent`](/helpers/cli/)
+
+**WebSocket integration for Kubb Studio connectivity**
+
+The Kubb Agent now supports bidirectional WebSocket communication with Kubb Studio. When `KUBB_STUDIO_URL` and `KUBB_AGENT_TOKEN` environment variables are configured, the agent automatically establishes a secure WebSocket connection on startup.
+
+Key features:
+- **Real-time event streaming**: Generation progress and lifecycle events are streamed live to Studio
+- **Command handling**: Receives and executes `generate` and `connect` commands from Studio
+- **Session management**: Automatic session caching with 24-hour expiration for faster reconnects
+- **Automatic reconnection**: Persistent connection with configurable retry intervals and keep-alive pings
+- **Secure authentication**: SHA-512 token hashing for session storage
+- **Graceful shutdown**: Proper disconnect notifications when the agent stops
+
+See the [Agent documentation](/helpers/cli/#agent-server) for setup instructions and environment variable configuration.
+
+---
+
 ## 4.24.1
 
 ### 🐛 Bug Fixes
