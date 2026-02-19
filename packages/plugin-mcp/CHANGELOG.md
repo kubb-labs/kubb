@@ -1,5 +1,29 @@
 # @kubb/plugin-mcp
 
+## 4.25.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.25.2
+  - @kubb/oas@4.25.2
+  - @kubb/plugin-client@4.25.2
+  - @kubb/plugin-oas@4.25.2
+  - @kubb/plugin-ts@4.25.2
+  - @kubb/plugin-zod@4.25.2
+
+## 4.25.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.25.1
+  - @kubb/oas@4.25.1
+  - @kubb/plugin-client@4.25.1
+  - @kubb/plugin-oas@4.25.1
+  - @kubb/plugin-ts@4.25.1
+  - @kubb/plugin-zod@4.25.1
+
 ## 4.25.0
 
 ### Patch Changes

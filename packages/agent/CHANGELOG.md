@@ -1,5 +1,23 @@
 # @kubb/agent
 
+## 4.25.2
+
+### Patch Changes
+
+- [`bc04350`](https://github.com/kubb-labs/kubb/commit/bc04350926cf552f959a12b48acc90bda825a425) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of ws to support node 20
+
+- Updated dependencies []:
+  - @kubb/core@4.25.2
+
+## 4.25.1
+
+### Patch Changes
+
+- [`8a295d7`](https://github.com/kubb-labs/kubb/commit/8a295d7481e386f3689d8e0d698f91c0282907a3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct use of jiti (dynamic import of babel cannot be used in nitro)
+
+- Updated dependencies []:
+  - @kubb/core@4.25.1
+
 ## 4.25.0
 
 ### Minor Changes
