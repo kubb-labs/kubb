@@ -4,6 +4,32 @@ import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
 
+/**
+ * Use either a preset `client` type OR a custom `importPath`, not both.
+ * `importPath` will override the default `client` preset when both are provided.
+ * These options are mutually exclusive.
+ */
+export type ClientImportPath =
+  | {
+      /**
+       * Which client should be used to do the HTTP calls.
+       * - 'axios' uses axios client for HTTP requests.
+       * - 'fetch' uses native fetch API for HTTP requests.
+       * @default 'axios'
+       */
+      client?: 'axios' | 'fetch'
+      importPath?: never
+    }
+  | {
+      client?: never
+      /**
+       * Client import path for API calls.
+       * Used as `import client from '${importPath}'`.
+       * Accepts relative and absolute paths; path changes are not performed.
+       */
+      importPath: string
+    }
+
 export type Options = {
   /**
    * Specify the export location for the files and define the behavior of the output
@@ -45,12 +71,6 @@ export type Options = {
    */
   urlType?: 'export' | false
   /**
-   * Client import path for API calls.
-   * Used as `import client from '${client.importPath}'`.
-   * Accepts relative and absolute paths; path changes are not performed.
-   */
-  importPath?: string
-  /**
    * Allows you to set a custom base url for all generated calls.
    */
   baseURL?: string
@@ -89,13 +109,6 @@ export type Options = {
    */
   parser?: 'client' | 'zod'
   /**
-   * Which client should be used to do the HTTP calls.
-   * - 'axios' uses axios client for HTTP requests.
-   * - 'fetch' uses native fetch API for HTTP requests.
-   * @default 'axios'
-   */
-  client?: 'axios' | 'fetch'
-  /**
    * How to generate the client code.
    * - 'function' generates standalone functions for each operation.
    * - 'class' generates a class with methods for each operation.
@@ -120,7 +133,7 @@ export type Options = {
    * Define some generators next to the client generators
    */
   generators?: Array<Generator<PluginClient>>
-}
+} & ClientImportPath
 
 type ResolvedOptions = {
   output: Output<Oas>
