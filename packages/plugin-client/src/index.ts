@@ -1,2 +1,2 @@
 export { pluginClient, pluginClientName } from './plugin.ts'
-export type { PluginClient } from './types.ts'
+export type { ClientImportPath, PluginClient } from './types.ts'

@@ -1,6 +1,6 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { contentType, HttpMethod, Oas, Operation } from '@kubb/oas'
-import type { PluginClient } from '@kubb/plugin-client'
+import type { ClientImportPath, PluginClient } from '@kubb/plugin-client'
 import type { Exclude, Include, OperationSchemas, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
 
@@ -88,7 +88,7 @@ export type Options = {
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
-  client?: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle' | 'paramsCasing'>
+  client?: ClientImportPath & Pick<PluginClient['options'], 'clientType' | 'dataReturnType' | 'baseURL' | 'bundle' | 'paramsCasing'>
   queryKey?: QueryKey
   query?: Query | false
   mutationKey?: MutationKey
@@ -131,7 +131,7 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output<Oas>
-  client: NonNullable<PluginSwr['options']['client']>
+  client: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle' | 'paramsCasing'>
   parser: Required<NonNullable<Options['parser']>>
   queryKey: QueryKey | undefined
   query: NonNullable<Required<Query>> | false

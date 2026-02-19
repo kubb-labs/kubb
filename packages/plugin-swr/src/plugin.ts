@@ -41,7 +41,8 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
     options: {
       output,
       client: {
-        ...options.client,
+        bundle: client?.bundle,
+        baseURL: client?.baseURL,
         client: clientName,
         clientType: client?.clientType ?? 'function',
         importPath: clientImportPath,
