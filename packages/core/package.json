@@ -114,7 +114,7 @@
     "@types/semver": "^7.7.1"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.12.10"
+    "@kubb/react-fabric": "0.12.11"
   },
   "engines": {
     "node": ">=20"
