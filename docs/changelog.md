@@ -6,6 +6,35 @@ outline: deep
 
 # Changelog
 
+## 4.26.0
+
+### ✨ New Features
+
+#### [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+
+**New `guidType` option for UUID/GUID generation**
+
+Added a new `guidType` option to control how OpenAPI `format: uuid` fields are generated in Zod schemas.
+
+- `guidType` accepts `'uuid'` (default) and `'guid'`
+- `'guid'` is only applied when using Zod `version: '4'` (v3 falls back to UUID generation)
+
+#### [`@kubb/plugin-mcp`](/plugins/plugin-mcp/)
+
+**Export `startServer` function**
+
+The `startServer` function is now exported from `@kubb/plugin-mcp`, allowing users to implement their own server logic and support additional transports instead of relying on auto-invocation.
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Fix default import for fetch in bundled mode**
+
+Fixed class client generators incorrectly using a default import for fetch in bundled mode when the bundled templates only have a named export.
+
+---
+
 ## 4.25.0
 
 ### ✨ New Features
