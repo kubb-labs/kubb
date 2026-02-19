@@ -7,7 +7,8 @@ import type { Generator } from '@kubb/plugin-oas/generators'
 /**
  * Use either a preset `client` type OR a custom `importPath`, not both.
  * `importPath` will override the default `client` preset when both are provided.
- * These options are mutually exclusive.
+ * These options are mutually exclusive. `bundle` and `importPath` are also
+ * mutually exclusive since `bundle` only has effect when `importPath` is not set.
  */
 export type ClientImportPath =
   | {
@@ -28,6 +29,11 @@ export type ClientImportPath =
        * Accepts relative and absolute paths; path changes are not performed.
        */
       importPath: string
+      /**
+       * `bundle` has no effect when `importPath` is set.
+       * Use either `bundle` (with `client`) or `importPath`, not both.
+       */
+      bundle?: never
     }
 
 export type Options = {
