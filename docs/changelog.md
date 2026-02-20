@@ -6,6 +6,21 @@ outline: deep
 
 # Changelog
 
+## 4.27.0
+
+### ✨ New Features
+
+#### [`@kubb/cli`](/helpers/cli/)
+
+**Add `--allow-write` and `--allow-all` flags to `kubb agent start`**
+
+Two new CLI flags (and corresponding environment variables) have been added to `kubb agent start`:
+
+- `--allow-write` / `KUBB_ALLOW_WRITE=true` – opt-in to writing generated files to the filesystem. When not set, the kubb config runs with `output.write: false` and the Studio config patch is not persisted.
+- `--allow-all` / `KUBB_ALLOW_ALL=true` – grant all permissions; implies `--allow-write`.
+
+---
+
 ## 4.26.1
 
 ### 🐛 Bug Fixes
