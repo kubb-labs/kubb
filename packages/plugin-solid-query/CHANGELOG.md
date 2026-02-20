@@ -1,5 +1,17 @@
 # @kubb/plugin-solid-query
 
+## 4.26.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.26.1
+  - @kubb/oas@4.26.1
+  - @kubb/plugin-client@4.26.1
+  - @kubb/plugin-oas@4.26.1
+  - @kubb/plugin-ts@4.26.1
+  - @kubb/plugin-zod@4.26.1
+
 ## 4.26.0
 
 ### Patch Changes

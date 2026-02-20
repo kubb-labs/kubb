@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 4.26.1
+
+### Patch Changes
+
+- [#2532](https://github.com/kubb-labs/kubb/pull/2532) [`1c6405d`](https://github.com/kubb-labs/kubb/commit/1c6405d016a101488f4a97638ae4069b532de373) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update chokidar in @kubb/cli to fulfill provenance requirements in pnpm
+
+- Updated dependencies []:
+  - @kubb/core@4.26.1
+
 ## 4.26.0
 
 ### Patch Changes
