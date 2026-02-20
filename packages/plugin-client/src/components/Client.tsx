@@ -151,8 +151,7 @@ export function Client({
   const isFormData = contentType === 'multipart/form-data'
 
   // Generate parameter mappings when paramsCasing is used
-  // Apply to pathParams, queryParams and headerParams
-  const pathParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
+  // Apply to queryParams and headerParams
   const queryParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.queryParams, { casing: paramsCasing }) : undefined
   const headerParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.headerParams, { casing: paramsCasing }) : undefined
 
@@ -243,16 +242,6 @@ export function Client({
           {isConfigurable ? 'const { client: request = fetch, ...requestConfig } = config' : ''}
           <br />
           <br />
-          {pathParamsMapping &&
-            Object.entries(pathParamsMapping)
-              .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
-              .join('\n')}
-          {pathParamsMapping && (
-            <>
-              <br />
-              <br />
-            </>
-          )}
           {queryParamsMapping && typeSchemas.queryParams?.name && (
             <>
               {`const mappedParams = params ? { ${Object.entries(queryParamsMapping)

@@ -634,6 +634,32 @@ paths:
           description: Invalid username supplied
         '404':
           description: User not found
+  /organizations/{organization-id}:
+    get:
+      summary: Get organization by ID
+      tags:
+        - pet
+      operationId: getOrganizationById
+      description: Retrieves an organization by ID.
+      parameters:
+        - name: organization-id
+          in: path
+          description: Unique identifier for the organization
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
 components:
   schemas:
     Order:

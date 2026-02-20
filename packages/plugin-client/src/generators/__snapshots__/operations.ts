@@ -84,4 +84,8 @@ export const operations = {
     path: '/user/:username',
     method: 'delete',
   },
+  getOrganizationById: {
+    path: '/organizations/:organization-id',
+    method: 'get',
+  },
 }

@@ -147,6 +147,28 @@ describe('clientGenerator operation', async () => {
         pathParamsType: 'inline',
       },
     },
+    {
+      name: 'getOrganizationByIdDashedParam',
+      input: '../../mocks/petStore.yaml',
+      path: '/organizations/{organization-id}',
+      method: 'get',
+      options: {
+        paramsCasing: 'camelcase',
+        paramsType: 'object',
+        pathParamsType: 'object',
+      },
+    },
+    {
+      name: 'getOrganizationByIdDashedParamInline',
+      input: '../../mocks/petStore.yaml',
+      path: '/organizations/{organization-id}',
+      method: 'get',
+      options: {
+        paramsCasing: 'camelcase',
+        paramsType: 'inline',
+        pathParamsType: 'inline',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string
