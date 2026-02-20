@@ -68,18 +68,20 @@ export default defineNitroPlugin(async (nitro) => {
     return null
   }
 
-  // Load config
   const resolvedConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(root, configPath)
-  const result = await getCosmiConfig(resolvedConfigPath)
-  const configs = await getConfigs(result.config, {})
+  const events = new AsyncEventEmitter<KubbEvents>()
 
-  if (configs.length === 0) {
-    throw new Error('No configs found')
+  async function loadConfig() {
+    const result = await getCosmiConfig(resolvedConfigPath)
+    const configs = await getConfigs(result.config, {})
+
+    if (configs.length === 0) {
+      throw new Error('No configs found')
+    }
+
+    return configs[0]
   }
 
-  // Use first config
-  const config = configs[0]
-  const events = new AsyncEventEmitter<KubbEvents>()
   const wsOptions = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -203,6 +205,8 @@ export default defineNitroPlugin(async (nitro) => {
 
           if (isCommandMessage(data)) {
             if (data.command === 'generate') {
+              const config = await loadConfig()
+
               // Read the temporal studio config; message payload takes priority
               const studioConfig = readStudioConfig(resolvedConfigPath)
               const patch = data.payload ?? studioConfig
@@ -232,6 +236,8 @@ export default defineNitroPlugin(async (nitro) => {
             }
 
             if (data.command === 'connect') {
+              const config = await loadConfig()
+
               sendAgentMessage(ws, {
                 type: 'connected',
                 payload: {

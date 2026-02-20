@@ -2,11 +2,22 @@ ARG NODE_VERSION=20
 
 # https://github.com/GoogleContainerTools/distroless/blob/main/nodejs/README.md
 FROM gcr.io/distroless/nodejs${NODE_VERSION}
-WORKDIR /app
+WORKDIR /kubb/agent
 
-ARG PORT=3000
-ENV NITRO_HOST=0.0.0.0
-ENV NITRO_PORT=${PORT}
+# Environment defaults
+ENV NODE_ENV=production \
+    PORT=3000 \
+    HOST=0.0.0.0 \
+    NITRO_HOST=0.0.0.0 \
+    NITRO_PORT=3000 \
+    KUBB_ROOT=/kubb/agent \
+    KUBB_CONFIG=kubb.config.ts \
+    KUBB_AGENT_NO_CACHE=false \
+    KUBB_ALLOW_WRITE=false \
+    KUBB_ALLOW_ALL=false \
+    KUBB_STUDIO_URL=https://studio.kubb.dev \
+    KUBB_RETRY_TIMEOUT=30000
+
 EXPOSE ${PORT}
 
 # Copy only the pre-built output
