@@ -48,17 +48,11 @@ describe('Studio Plugin - Message Handling', () => {
         payload: {
           version: '4.24.0',
           configPath: 'kubb.config.ts',
-          spec: 'openapi: 3.0.0',
+          permissions: {
+            allowAll: true,
+            allowWrite: true,
+          },
           config: {
-            name: 'api',
-            root: './src',
-            input: { path: 'spec.yaml' },
-            output: {
-              path: './dist',
-              write: true,
-              extension: { '.ts': '.ts' },
-              barrelType: 'star',
-            },
             plugins: [{ name: '@kubb/plugin-ts', options: {} }],
           },
         },

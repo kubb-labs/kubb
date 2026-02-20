@@ -1,6 +1,6 @@
 import path from 'node:path'
 import process from 'node:process'
-import type { Config, KubbEvents } from '@kubb/core'
+import type { KubbEvents } from '@kubb/core'
 import { AsyncEventEmitter, formatMs, getConfigs, serializePluginOptions } from '@kubb/core/utils'
 import { execa } from 'execa'
 import { type AgentMessage, isCommandMessage } from '~/types/agent.ts'
@@ -218,7 +218,7 @@ export default defineNitroPlugin(async (nitro) => {
                   root,
                   output: {
                     ...config.output,
-                    write: allowWrite ? config.output?.write : false,
+                    write: allowWrite,
                   },
                 },
                 events,

@@ -1,8 +1,9 @@
 // external packages
 import type { Operation as OASOperation } from 'oas/operation'
+import type * as OasTypes from 'oas/types'
 import type { OpenAPIV3 } from 'openapi-types'
 
-export type * as OasTypes from 'oas/types'
+export type { OasTypes }
 
 import type {
   DiscriminatorObject as OASDiscriminatorObject,
