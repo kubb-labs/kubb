@@ -21,7 +21,7 @@ export function readStudioConfig(configPath: string): JSONKubbConfig | null {
 
 /**
  * Writes a {@link JSONKubbConfig} patch to the temporal studio config file.
- * Only JSON-stringifiable values are supported.
+ * Only JSON-string values are supported.
  */
 export function writeStudioConfig(configPath: string, config: JSONKubbConfig): void {
   const studioConfigPath = path.join(path.dirname(configPath), 'kubb.config.studio.json')
