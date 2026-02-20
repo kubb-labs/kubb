@@ -772,6 +772,45 @@ importers:
       '@kubb/fabric-core':
         specifier: 'catalog:'
         version: 0.12.11
+      '@kubb/plugin-client':
+        specifier: workspace:*
+        version: link:../plugin-client
+      '@kubb/plugin-cypress':
+        specifier: workspace:*
+        version: link:../plugin-cypress
+      '@kubb/plugin-faker':
+        specifier: workspace:*
+        version: link:../plugin-faker
+      '@kubb/plugin-msw':
+        specifier: workspace:*
+        version: link:../plugin-msw
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
+      '@kubb/plugin-react-query':
+        specifier: workspace:*
+        version: link:../plugin-react-query
+      '@kubb/plugin-redoc':
+        specifier: workspace:*
+        version: link:../plugin-redoc
+      '@kubb/plugin-solid-query':
+        specifier: workspace:*
+        version: link:../plugin-solid-query
+      '@kubb/plugin-svelte-query':
+        specifier: workspace:*
+        version: link:../plugin-svelte-query
+      '@kubb/plugin-swr':
+        specifier: workspace:*
+        version: link:../plugin-swr
+      '@kubb/plugin-ts':
+        specifier: workspace:*
+        version: link:../plugin-ts
+      '@kubb/plugin-vue-query':
+        specifier: workspace:*
+        version: link:../plugin-vue-query
+      '@kubb/plugin-zod':
+        specifier: workspace:*
+        version: link:../plugin-zod
       execa:
         specifier: ^9.6.1
         version: 9.6.1

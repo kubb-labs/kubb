@@ -2,7 +2,7 @@
  * WebSocket message types for agent communication protocol
  *
  * Messages flow bidirectionally between Studio backend and CLI agents:
- * - Studio → Agent: CommandMessage (generate, connect)
+ * - Studio → Agent: CommandMessage (generate, connect), UpdateConfigMessage
  * - Agent → Studio: ConnectedMessage, DataMessage, PingMessage
  * - Studio → Agent: PongMessage
  * - Bidirectional: ErrorMessage, StatusMessage
@@ -10,6 +10,13 @@
 
 import type { Config } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
+
+export type JSONKubbConfig = {
+  plugins?: Array<{
+    name: string
+    options: unknown
+  }>
+}
 
 /**
  * Typed events sent by the Kubb agent.
@@ -43,32 +50,15 @@ export type KubbEvent = keyof KubbEvents
  * Command message sent from Studio to Agent
  * Triggers actions like code generation or connection establishment
  */
-export type CommandMessage = {
-  type: 'command'
-  command: 'generate' | 'connect'
-}
+export type CommandMessage =
+  | { type: 'command'; command: 'generate'; payload?: JSONKubbConfig }
+  | { type: 'command'; command: 'connect' }
+  | { type: 'command'; command: 'update_config'; payload: JSONKubbConfig }
 
 type ConnectMessagePayload = {
   version: string
   configPath: string
-  spec?: string
-  config: {
-    name?: string
-    root: string
-    input: {
-      path?: string
-    }
-    output: {
-      path: string
-      write?: boolean
-      extension?: Record<string, string>
-      barrelType?: string | false
-    }
-    plugins?: Array<{
-      name: string
-      options: unknown
-    }>
-  }
+  config: JSONKubbConfig
 }
 
 /**

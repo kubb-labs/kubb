@@ -69,7 +69,7 @@ async function startServer({ port, host, configPath, noCache }: StartServerProps
     const HOST = process.env.HOST || host || '0.0.0.0'
 
     // kubb env
-    const KUBB_ROOT = process.env.KUBB_ROOT
+    const KUBB_ROOT = process.env.KUBB_ROOT || process.cwd()
     const KUBB_CONFIG = process.env.KUBB_CONFIG || configPath || 'kubb.config.ts'
     const KUBB_AGENT_NO_CACHE = noCache ? 'true' : 'false'
     const KUBB_STUDIO_URL = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
