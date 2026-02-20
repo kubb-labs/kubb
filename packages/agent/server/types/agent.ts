@@ -52,12 +52,23 @@ export type KubbEvent = keyof KubbEvents
  */
 export type CommandMessage =
   | { type: 'command'; command: 'generate'; payload?: JSONKubbConfig }
-  | { type: 'command'; command: 'connect' }
+  | {
+      type: 'command'
+      command: 'connect'
+      permissions: {
+        allowAll: boolean
+        allowWrite: boolean
+      }
+    }
 
 type ConnectMessagePayload = {
   version: string
   configPath: string
   config: JSONKubbConfig
+  permissions: {
+    allowAll: boolean
+    allowWrite: boolean
+  }
 }
 
 /**

@@ -237,6 +237,10 @@ export default defineNitroPlugin(async (nitro) => {
                 payload: {
                   version,
                   configPath,
+                  permissions: {
+                    allowAll,
+                    allowWrite,
+                  },
                   config: {
                     plugins: config.plugins?.map((plugin: any) => ({
                       name: `@kubb/${plugin.name}`,
