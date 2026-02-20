@@ -53,7 +53,6 @@ export type KubbEvent = keyof KubbEvents
 export type CommandMessage =
   | { type: 'command'; command: 'generate'; payload?: JSONKubbConfig }
   | { type: 'command'; command: 'connect' }
-  | { type: 'command'; command: 'update_config'; payload: JSONKubbConfig }
 
 type ConnectMessagePayload = {
   version: string

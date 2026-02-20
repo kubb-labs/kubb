@@ -24,6 +24,8 @@ declare global {
       KUBB_CONFIG: string
       KUBB_AGENT_NO_CACHE: string
       KUBB_RETRY_TIMEOUT: string
+      KUBB_ALLOW_WRITE: string
+      KUBB_ALLOW_ALL: string
     }
   }
 }
@@ -47,6 +49,8 @@ export default defineNitroPlugin(async (nitro) => {
   const noCache = process.env.KUBB_AGENT_NO_CACHE === 'true'
   const retryInterval = process.env.KUBB_RETRY_TIMEOUT ? Number.parseInt(process.env.KUBB_RETRY_TIMEOUT, 10) : 30000
   const root = process.env.KUBB_ROOT || process.cwd()
+  const allowAll = process.env.KUBB_ALLOW_ALL === 'true'
+  const allowWrite = allowAll || process.env.KUBB_ALLOW_WRITE === 'true'
 
   if (!configPath) {
     throw new Error('KUBB_CONFIG environment variable not set')
@@ -207,19 +211,22 @@ export default defineNitroPlugin(async (nitro) => {
               // Apply patch fields directly onto the already-resolved Config.
               // When the patch includes plugins, dynamically import and instantiate
               // them; otherwise keep the original plugin instances.
-              const generateConfig = patch
-                ? ({
-                    ...config,
-                    plugins: resolvedPlugins,
-                    root,
-                  } as Config)
-                : {
-                    ...config,
-                    root,
-                  }
+              await generate({
+                config: {
+                  ...config,
+                  plugins: patch ? resolvedPlugins : config.plugins,
+                  root,
+                  output: {
+                    ...config.output,
+                    write: allowWrite ? config.output?.write : false,
+                  },
+                },
+                events,
+              })
 
-              await generate({ config: generateConfig, events })
-              writeStudioConfig(resolvedConfigPath, data.payload)
+              if (allowWrite) {
+                writeStudioConfig(resolvedConfigPath, data.payload)
+              }
 
               logger.success('Generated command success')
             }
@@ -238,11 +245,6 @@ export default defineNitroPlugin(async (nitro) => {
                   },
                 },
               })
-            }
-
-            if (data.command === 'update_config') {
-              writeStudioConfig(resolvedConfigPath, data.payload)
-              logger.success('Studio config updated')
             }
 
             return

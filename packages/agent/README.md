@@ -54,6 +54,8 @@ The server will be available at `http://localhost:4000`.
 - `KUBB_STUDIO_URL` - Studio connection URL (e.g., `http://localhost:3000`)
 - `KUBB_AGENT_TOKEN` - Authentication token for Studio connection
 - `KUBB_AGENT_NO_CACHE` - Disable session caching (set to `true` to skip cache)
+- `KUBB_ALLOW_WRITE` - Allow writing generated files to the filesystem (set to `true` to enable). When `false` (default), no files are written and the config patch is not persisted.
+- `KUBB_ALLOW_ALL` - Grant all permissions including filesystem writes. Implies `KUBB_ALLOW_WRITE=true`.
 
 ### Automatic .env Loading
 

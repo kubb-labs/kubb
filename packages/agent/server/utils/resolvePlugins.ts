@@ -1,4 +1,4 @@
-import type { UserPlugin } from '@kubb/core'
+import type { Plugin, UserPlugin } from '@kubb/core'
 import type { JSONKubbConfig } from '~/types/agent.ts'
 
 /**
@@ -23,7 +23,7 @@ export function getFactoryName(packageName: string): string {
  * // is resolved by importing `@kubb/plugin-react-query` and calling
  * // `pluginReactQuery({ output: { path: './hooks' } })`
  */
-export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugins']>): Promise<Array<UserPlugin>> {
+export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugins']>): Promise<Array<Plugin>> {
   return Promise.all(
     plugins.map(async ({ name, options }) => {
       const mod = await import(name)
@@ -34,7 +34,7 @@ export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugin
         throw new Error(`Plugin factory "${factoryName}" not found in package "${name}"`)
       }
 
-      return factory(options ?? {}) as UserPlugin
+      return factory(options ?? {}) as Plugin
     }),
   )
 }

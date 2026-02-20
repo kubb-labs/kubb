@@ -317,6 +317,8 @@ OPTIONS
                          -p, --port     Port for the server (default: 3000)
                          --host         Host for the server (default: localhost)
                          --no-cache     Disable session caching
+                         --allow-write  Allow writing generated files to the filesystem
+                         --allow-all    Grant all permissions (implies --allow-write)
                           -h, --help    Show help
 ```
 
@@ -344,6 +346,18 @@ Disable session caching:
 kubb agent start --no-cache
 ```
 
+Allow filesystem writes:
+
+```shell [node]
+kubb agent start --allow-write
+```
+
+Grant all permissions (implies `--allow-write`):
+
+```shell [node]
+kubb agent start --allow-all
+```
+
 #### Environment Setup
 
 The agent automatically loads environment variables from:
@@ -359,6 +373,8 @@ KUBB_CONFIG=./kubb.config.ts
 KUBB_AGENT_TOKEN=your_agent_token # this token should be created in the Kubb Studio interface, without you cannot interact
 KUBB_AGENT_NO_CACHE=true
 KUBB_STUDIO_URL=https://studio.kubb,dev
+KUBB_ALLOW_WRITE=true
+KUBB_ALLOW_ALL=false
 ```
 
 #### Features
