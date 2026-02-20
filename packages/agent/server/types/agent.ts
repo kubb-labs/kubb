@@ -2,21 +2,73 @@
  * WebSocket message types for agent communication protocol
  *
  * Messages flow bidirectionally between Studio backend and CLI agents:
- * - Studio → Agent: CommandMessage (generate, connect)
+ * - Studio → Agent: CommandMessage (generate, connect), UpdateConfigMessage
  * - Agent → Studio: ConnectedMessage, DataMessage, PingMessage
  * - Studio → Agent: PongMessage
  * - Bidirectional: ErrorMessage, StatusMessage
  */
 
-import type { InfoResponse, SseEvent } from '@kubb/core'
+import type { Config } from '@kubb/core'
+import type { KubbFile } from '@kubb/fabric-core/types'
+
+export type JSONKubbConfig = {
+  plugins?: Array<{
+    name: string
+    options: unknown
+  }>
+}
+
+/**
+ * Typed events sent by the Kubb agent.
+ * Follows the same tuple structure as {@link KubbEvents}.
+ */
+export type KubbEvents = {
+  'plugin:start': [plugin: { name: string }]
+  'plugin:end': [plugin: { name: string }, meta: { duration: number; success: boolean }]
+  'files:processing:start': [meta: { total: number }]
+  'file:processing:update': [
+    meta: {
+      file: string
+      processed: number
+      total: number
+      percentage: number
+    },
+  ]
+  'files:processing:end': [meta: { total: number }]
+  info: [message: string, info?: string]
+  success: [message: string, info?: string]
+  warn: [message: string, info?: string]
+  error: [error: { message: string; stack?: string }]
+  'generation:start': [config: { name?: string; plugins: number }]
+  'generation:end': [Config: Config, files: Array<KubbFile.ResolvedFile>, sources: Record<KubbFile.Path, string>]
+  'lifecycle:end': []
+}
+
+export type KubbEvent = keyof KubbEvents
 
 /**
  * Command message sent from Studio to Agent
  * Triggers actions like code generation or connection establishment
  */
-export type CommandMessage = {
-  type: 'command'
-  command: 'generate' | 'connect'
+export type CommandMessage =
+  | { type: 'command'; command: 'generate'; payload?: JSONKubbConfig }
+  | {
+      type: 'command'
+      command: 'connect'
+      permissions: {
+        allowAll: boolean
+        allowWrite: boolean
+      }
+    }
+
+type ConnectMessagePayload = {
+  version: string
+  configPath: string
+  config: JSONKubbConfig
+  permissions: {
+    allowAll: boolean
+    allowWrite: boolean
+  }
 }
 
 /**
@@ -25,7 +77,7 @@ export type CommandMessage = {
  */
 export type ConnectedMessage = {
   type: 'connected'
-  payload: InfoResponse
+  payload: ConnectMessagePayload
 }
 
 /**
@@ -63,13 +115,19 @@ export type StatusMessage = {
   }>
 }
 
+export type DataMessagePayload<T extends KubbEvent = KubbEvent> = {
+  type: T
+  data: KubbEvents[T]
+  timestamp: number
+}
+
 /**
  * Data message containing code generation events
  * Wraps Kubb SSE events for real-time generation progress
  */
-export type DataMessage = {
+export type DataMessage<T extends KubbEvent = KubbEvent> = {
   type: 'data'
-  event: SseEvent
+  payload: DataMessagePayload<T>
 }
 
 /** Response returned by the Studio `/api/agent/session/create` endpoint. */
@@ -87,8 +145,16 @@ export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
   return msg.type === 'command'
 }
 
-export function isDataMessage(msg: AgentMessage): msg is DataMessage {
-  return msg.type === 'data'
+/**
+ * Type guard to narrow SseEvent to a specific event type
+ * @example
+ * if (isDataMessage(msg, 'plugin:start')) {
+ *   // msg.event.data is now typed as [plugin: { name: string }]
+ *   const pluginName = msg.event.data[0].name
+ * }
+ */
+export function isDataMessage<T extends KubbEvent>(msg: AgentMessage, type?: T): msg is DataMessage<T> {
+  return msg.type === 'data' && (type ? msg.payload.type === type : true)
 }
 
 export function isConnectedMessage(msg: AgentMessage): msg is ConnectedMessage {

@@ -14,39 +14,38 @@ type ConnectProps = {
  *
  */
 export async function createAgentSession({ token, studioUrl, noCache }: ConnectProps): Promise<AgentConnectResponse> {
-  let data: AgentConnectResponse | null = null
-
   // Try to use cached session first (unless --no-cache is set)
   const cachedSession = !noCache ? getCachedSession(token) : null
   if (cachedSession) {
     logger.success('Using cached agent session')
-    data = cachedSession
-  } else {
-    // Fetch new session from Studio
-    const connectUrl = `${studioUrl}/api/agent/session/create`
 
-    try {
-      data = await $fetch<AgentConnectResponse>(connectUrl, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    return cachedSession
+  }
 
-      // Cache the session for reuse (unless --no-cache is set)
-      if (data && !noCache) {
-        cacheSession(token, data)
-      }
-    } catch (error: any) {
-      throw new Error('Failed to get agent session from Kubb Studio', { cause: error })
+  // Fetch new session from Studio
+  const connectUrl = `${studioUrl}/api/agent/session/create`
+
+  try {
+    const data = await $fetch<AgentConnectResponse>(connectUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    // Cache the session for reuse (unless --no-cache is set)
+    if (data && !noCache) {
+      cacheSession(token, data)
     }
-  }
 
-  if (!data) {
-    throw new Error('No data available for agent session')
-  }
+    if (!data) {
+      throw new Error('No data available for agent session')
+    }
 
-  return data
+    return data
+  } catch (error: any) {
+    throw new Error('Failed to get agent session from Kubb Studio', { cause: error })
+  }
 }
 
 type DisconnectProps = {

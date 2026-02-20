@@ -14,7 +14,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
   Operation({ config, operation, generator, plugin }) {
     const {
       options,
-      options: { coercion: globalCoercion, inferred, typed, mapper, wrapOutput, version, mini },
+      options: { coercion: globalCoercion, inferred, typed, mapper, wrapOutput, version, guidType, mini },
     } = plugin
 
     const mode = useMode()
@@ -118,6 +118,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
             keysToOmit={keysToOmit}
             wrapOutput={wrapOutput}
             version={plugin.options.version}
+            guidType={guidType}
             emptySchemaType={plugin.options.emptySchemaType}
             mini={mini}
           />
@@ -143,7 +144,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
   Schema({ config, schema, plugin }) {
     const { getName, getFile } = useSchemaManager()
     const {
-      options: { output, emptySchemaType, coercion, inferred, typed, mapper, importPath, wrapOutput, version, mini },
+      options: { output, emptySchemaType, coercion, inferred, typed, mapper, importPath, wrapOutput, version, guidType, mini },
     } = plugin
     const pluginManager = usePluginManager()
     const oas = useOas()
@@ -191,6 +192,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
           coercion={coercion}
           wrapOutput={wrapOutput}
           version={version}
+          guidType={guidType}
           emptySchemaType={emptySchemaType}
           mini={mini}
         />

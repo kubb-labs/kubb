@@ -61,7 +61,8 @@ export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
     options: {
       output,
       client: {
-        ...options.client,
+        bundle: client?.bundle,
+        baseURL: client?.baseURL,
         client: clientName,
         clientType: client?.clientType ?? 'function',
         dataReturnType: client?.dataReturnType ?? 'data',

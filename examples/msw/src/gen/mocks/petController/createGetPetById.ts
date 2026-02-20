@@ -10,7 +10,7 @@ import { createPet } from '../createPet.ts'
 export function createGetPetByIdPathParams(data?: Partial<GetPetByIdPathParams>): GetPetByIdPathParams {
   faker.seed([220])
   return {
-    ...{ petId: faker.number.int() },
+    ...{ petId: faker.number.bigInt() },
     ...(data || {}),
   }
 }

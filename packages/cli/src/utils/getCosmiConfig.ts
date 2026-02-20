@@ -9,7 +9,7 @@ export type CosmiconfigResult = {
 }
 
 const tsLoader = async (configFile: string) => {
-  const jiti = createJiti(configFile, {
+  const jiti = createJiti(import.meta.url, {
     jsx: {
       runtime: 'automatic',
       importSource: '@kubb/react-fabric',

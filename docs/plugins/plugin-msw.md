@@ -97,7 +97,7 @@ Create `handlers.ts` file with all handlers grouped by methods.
 <!--@include: ./core/contentType.md-->
 
 ### baseURL
-<!--@include: ../plugin-client/baseURL.md-->
+<!--@include: ./plugin-client/baseURL.md-->
 
 ### group
 <!--@include: ./core/group.md-->

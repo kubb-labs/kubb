@@ -17,7 +17,7 @@ describe('Studio Plugin - Message Handling', () => {
     it('should identify data messages correctly', () => {
       const message: AgentMessage = {
         type: 'data',
-        event: {
+        payload: {
           type: 'info',
           data: ['message'],
           timestamp: Date.now(),
@@ -26,6 +26,9 @@ describe('Studio Plugin - Message Handling', () => {
 
       expect(isDataMessage(message)).toBe(true)
       expect(isCommandMessage(message)).toBe(false)
+
+      const event = isDataMessage(message, 'info') ? message : undefined
+      expect(event.payload.type).toEqual('info')
     })
   })
 
@@ -45,12 +48,11 @@ describe('Studio Plugin - Message Handling', () => {
         payload: {
           version: '4.24.0',
           configPath: 'kubb.config.ts',
-          spec: 'openapi: 3.0.0',
+          permissions: {
+            allowAll: true,
+            allowWrite: true,
+          },
           config: {
-            name: 'api',
-            root: './src',
-            input: { path: 'spec.yaml' },
-            output: { path: './dist', write: true, extension: { '.ts': '.ts' }, barrelType: 'star' },
             plugins: [{ name: '@kubb/plugin-ts', options: {} }],
           },
         },
@@ -64,7 +66,7 @@ describe('Studio Plugin - Message Handling', () => {
     it('should serialize data message with event', () => {
       const message: AgentMessage = {
         type: 'data',
-        event: {
+        payload: {
           type: 'plugin:start',
           data: [{ name: 'test-plugin' }],
           timestamp: 1234567890,
@@ -83,7 +85,12 @@ describe('Studio Plugin - Message Handling', () => {
         name: 'test',
         root: './src',
         input: { path: 'spec.yaml' },
-        output: { path: './dist', write: true, extension: '.ts', barrelType: 'star' },
+        output: {
+          path: './dist',
+          write: true,
+          extension: '.ts',
+          barrelType: 'star',
+        },
         plugins: [],
       }
 
@@ -100,7 +107,12 @@ describe('Studio Plugin - Message Handling', () => {
         input: {
           /* no path */
         },
-        output: { path: './dist', write: true, extension: '.ts', barrelType: 'star' },
+        output: {
+          path: './dist',
+          write: true,
+          extension: '.ts',
+          barrelType: 'star',
+        },
         plugins: [],
       }
 

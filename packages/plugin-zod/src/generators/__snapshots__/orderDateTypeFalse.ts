@@ -5,8 +5,8 @@
 import * as z from 'zod'
 
 export const order = z.object({
-  id: z.optional(z.number().int()),
-  petId: z.optional(z.number().int()),
+  id: z.optional(z.bigint()),
+  petId: z.optional(z.bigint()),
   quantity: z.optional(z.number().int()),
   shipDate: z.optional(z.string()),
   status: z.optional(z.enum(['placed', 'approved', 'delivered']).describe('Order Status')),

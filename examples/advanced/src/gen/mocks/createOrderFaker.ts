@@ -4,8 +4,8 @@ import type { Order } from '../models/ts/Order.ts'
 export function createOrderFaker(data?: Partial<Order>): Order {
   return {
     ...{
-      id: faker.number.int({ min: 3, max: 100 }),
-      petId: faker.number.int(),
+      id: faker.number.bigInt(),
+      petId: faker.number.bigInt(),
       params: { status: faker.helpers.arrayElement<any>(['working', 'idle']), type: faker.string.alpha() },
       quantity: faker.number.int(),
       orderType: faker.helpers.arrayElement<NonNullable<Order>['orderType']>(['foo', 'bar']),

@@ -1,7 +1,7 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 
 import type { contentType, Oas } from '@kubb/oas'
-import type { PluginClient } from '@kubb/plugin-client'
+import type { ClientImportPath, PluginClient } from '@kubb/plugin-client'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
 
@@ -16,7 +16,7 @@ export type Options = {
    * By default, the first JSON valid mediaType is used
    */
   contentType?: contentType
-  client?: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle' | 'paramsCasing'>
+  client?: ClientImportPath & Pick<PluginClient['options'], 'clientType' | 'dataReturnType' | 'baseURL' | 'bundle' | 'paramsCasing'>
   /**
    * Transform parameter names to a specific casing format.
    * When set to 'camelcase', parameter names in path, query, and header params will be transformed to camelCase.
@@ -55,7 +55,7 @@ export type Options = {
 type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
-  client: NonNullable<PluginMcp['options']['client']>
+  client: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle' | 'paramsCasing'>
   paramsCasing: Options['paramsCasing']
 }
 

@@ -1,5 +1,72 @@
 # @kubb/plugin-zod
 
+## 4.27.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.27.0
+  - @kubb/oas@4.27.0
+  - @kubb/plugin-oas@4.27.0
+  - @kubb/plugin-ts@4.27.0
+
+## 4.26.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.26.1
+  - @kubb/oas@4.26.1
+  - @kubb/plugin-oas@4.26.1
+  - @kubb/plugin-ts@4.26.1
+
+## 4.26.0
+
+### Minor Changes
+
+- [#2509](https://github.com/kubb-labs/kubb/pull/2509) [`af65cde`](https://github.com/kubb-labs/kubb/commit/af65cde624a74e68bfb5dede871e8d9324499114) Thanks [@skoropadas](https://github.com/skoropadas)! - Add a new `guidType` option to control how OpenAPI `format: uuid` is generated in Zod schemas.
+  - `guidType` accepts `'uuid'` and `'guid'`
+  - default is `'uuid'`
+  - `'guid'` is only applied when `version: '4'` (v3 falls back to UUID generation)
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.26.0
+  - @kubb/oas@4.26.0
+  - @kubb/plugin-oas@4.26.0
+  - @kubb/plugin-ts@4.26.0
+
+## 4.25.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.25.2
+  - @kubb/oas@4.25.2
+  - @kubb/plugin-oas@4.25.2
+  - @kubb/plugin-ts@4.25.2
+
+## 4.25.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.25.1
+  - @kubb/oas@4.25.1
+  - @kubb/plugin-oas@4.25.1
+  - @kubb/plugin-ts@4.25.1
+
+## 4.25.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.25.0
+  - @kubb/oas@4.25.0
+  - @kubb/plugin-oas@4.25.0
+  - @kubb/plugin-ts@4.25.0
+
 ## 4.24.1
 
 ### Patch Changes

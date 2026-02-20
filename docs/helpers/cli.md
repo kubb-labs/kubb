@@ -289,12 +289,11 @@ See the [Stream Server Guide](/guide/stream-server) for complete documentation.
 
 ## `kubb agent`
 
-Start and manage the Kubb Agent Server — a production-ready HTTP server for code generation with WebSocket integration for real-time Studio communication.
+Start and manage the Kubb Agent Server, a HTTP server for code generation with WebSocket integration for real-time Studio communication.
 
-The Agent Server provides WebSocket integration** with Kubb Studio for bidirectional communication.
 
-> [!NOTE]
-> The agent server is included with `@kubb/cli` as a dependency.
+> [!IMPORTANT]
+> `@kubb/agent` should be installed to use this command.
 
 ```mdx
 USAGE kubb agent [COMMAND] [OPTIONS]
@@ -318,6 +317,8 @@ OPTIONS
                          -p, --port     Port for the server (default: 3000)
                          --host         Host for the server (default: localhost)
                          --no-cache     Disable session caching
+                         --allow-write  Allow writing generated files to the filesystem
+                         --allow-all    Grant all permissions (implies --allow-write)
                           -h, --help    Show help
 ```
 
@@ -345,6 +346,18 @@ Disable session caching:
 kubb agent start --no-cache
 ```
 
+Allow filesystem writes:
+
+```shell [node]
+kubb agent start --allow-write
+```
+
+Grant all permissions (implies `--allow-write`):
+
+```shell [node]
+kubb agent start --allow-all
+```
+
 #### Environment Setup
 
 The agent automatically loads environment variables from:
@@ -357,9 +370,11 @@ Create a `.env` file in your project:
 PORT=4000
 KUBB_ROOT=./
 KUBB_CONFIG=./kubb.config.ts
-KUBB_AGENT_TOKEN=your_agent_token
+KUBB_AGENT_TOKEN=your_agent_token # this token should be created in the Kubb Studio interface, without you cannot interact
 KUBB_AGENT_NO_CACHE=true
 KUBB_STUDIO_URL=https://studio.kubb,dev
+KUBB_ALLOW_WRITE=true
+KUBB_ALLOW_ALL=false
 ```
 
 #### Features
@@ -377,20 +392,6 @@ Check server health status.
 
 ```bash
 curl http://localhost:4000/api/health
-```
-
-##### `GET /api/info`
-Get server and configuration information.
-
-```bash
-curl http://localhost:4000/api/info
-```
-
-##### `POST /api/generate`
-Trigger code generation with real-time SSE streaming.
-
-```bash
-curl -N -X POST http://localhost:4000/api/generate
 ```
 
 ## `kubb validate`

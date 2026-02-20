@@ -258,7 +258,7 @@ const command = defineCommand({
       }
 
       // Install packages
-      const packagesToInstall = ['@kubb/core', ...selectedPlugins.map((p) => p.packageName)]
+      const packagesToInstall = ['@kubb/core', '@kubb/cli', '@kubb/agent', ...selectedPlugins.map((p) => p.packageName)]
 
       const spinner = clack.spinner()
       spinner.start(`Installing ${packagesToInstall.length} packages with ${packageManager.name}`)

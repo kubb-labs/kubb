@@ -50,6 +50,7 @@ describe('operationsGenerator operations', async () => {
       group: undefined,
       wrapOutput: undefined,
       version: '4',
+      guidType: 'uuid',
       emptySchemaType: 'unknown',
       mini: false,
       ...props.options,
