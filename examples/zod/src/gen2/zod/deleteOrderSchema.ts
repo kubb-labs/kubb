@@ -6,7 +6,7 @@
 import * as z from 'zod/mini'
 
 export const deleteOrderPathParamsSchema = z.object({
-  orderId: z.int(),
+  orderId: z.coerce.bigint(),
 })
 
 /**

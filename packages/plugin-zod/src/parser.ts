@@ -244,9 +244,10 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  default: (value?: string | number | boolean | object, innerSchema?: string, mini?: boolean) => {
+  default: (value?: string | number | boolean | object, innerSchema?: string, mini?: boolean, isBigInt?: boolean) => {
     if (mini && innerSchema) {
-      const defaultValue = typeof value === 'object' ? '{}' : (value ?? '')
+      // Wrap numeric values in BigInt() for bigint types in mini mode
+      const defaultValue = isBigInt && typeof value === 'number' ? `BigInt(${value})` : typeof value === 'object' ? '{}' : (value ?? '')
       return `z._default(${innerSchema}, ${defaultValue})`
     }
 
@@ -260,6 +261,11 @@ const zodKeywordMapper = {
 
     if (typeof value === 'string' && !value) {
       return `.default('')`
+    }
+
+    // Wrap numeric values in BigInt() for bigint types
+    if (isBigInt && typeof value === 'number') {
+      return `.default(BigInt(${value}))`
     }
 
     return `.default(${value ?? ''})`
@@ -426,6 +432,7 @@ type MiniModifiers = {
   hasNullable?: boolean
   hasNullish?: boolean
   defaultValue?: string | number | true | object
+  isBigInt?: boolean
 }
 
 /**
@@ -442,12 +449,14 @@ export const miniModifierKeywords = [schemaKeywords.optional, schemaKeywords.nul
  */
 export function extractMiniModifiers(schemas: Schema[]): MiniModifiers {
   const defaultSchema = schemas.find((item) => isKeyword(item, schemaKeywords.default)) as { keyword: string; args: unknown } | undefined
+  const isBigInt = schemas.some((item) => isKeyword(item, schemaKeywords.bigint))
 
   return {
     hasOptional: schemas.some((item) => isKeyword(item, schemaKeywords.optional)),
     hasNullable: schemas.some((item) => isKeyword(item, schemaKeywords.nullable)),
     hasNullish: schemas.some((item) => isKeyword(item, schemaKeywords.nullish)),
     defaultValue: defaultSchema?.args as string | number | true | object | undefined,
+    isBigInt,
   }
 }
 
@@ -470,7 +479,7 @@ export function wrapWithMiniModifiers(output: string, modifiers: MiniModifiers):
 
   // Apply default first (innermost wrapper)
   if (modifiers.defaultValue !== undefined) {
-    result = zodKeywordMapper.default(modifiers.defaultValue, result, true)!
+    result = zodKeywordMapper.default(modifiers.defaultValue, result, true, modifiers.isBigInt)!
   }
 
   // Apply nullish, nullable, or optional (outer wrappers for optionality)
@@ -780,14 +789,18 @@ export const parse = createParser<string, ParserOptions>({
       return undefined
     },
     default(tree, options) {
-      const { current } = tree
+      const { current, siblings } = tree
 
       // In mini mode, default is handled by wrapWithMiniModifiers
       if (options.mini) {
         return undefined
       }
+
+      // Check if this is a bigint type by looking at siblings
+      const isBigInt = siblings.some((it) => isKeyword(it, schemaKeywords.bigint))
+
       if (current.args !== undefined) {
-        return zodKeywordMapper.default(current.args)
+        return zodKeywordMapper.default(current.args, undefined, undefined, isBigInt)
       }
       // When args is undefined, call the mapper without arguments
       return zodKeywordMapper.default()

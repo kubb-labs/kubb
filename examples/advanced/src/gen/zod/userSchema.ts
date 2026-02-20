@@ -4,7 +4,7 @@ import type { User } from '../models/ts/User.ts'
 import { tagTagSchema } from './tag/tagSchema.ts'
 
 export const userSchema = z.object({
-  id: z.optional(z.number().int()),
+  id: z.optional(z.bigint()),
   username: z.optional(z.string()),
   uuid: z.optional(z.string().uuid()),
   tag: z.optional(z.lazy(() => tagTagSchema).describe('The active tag')),

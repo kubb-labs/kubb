@@ -8,7 +8,7 @@ import type {
 } from '../../models/ts/petController/UpdatePetWithForm.ts'
 
 export const updatePetWithFormPathParamsSchema = z.object({
-  petId: z.coerce.number().int().describe('ID of pet that needs to be updated'),
+  petId: z.coerce.bigint().describe('ID of pet that needs to be updated'),
 }) as unknown as ToZod<UpdatePetWithFormPathParams>
 
 export type UpdatePetWithFormPathParamsSchema = UpdatePetWithFormPathParams

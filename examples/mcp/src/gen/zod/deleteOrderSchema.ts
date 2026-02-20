@@ -6,7 +6,7 @@
 import * as z from 'zod'
 
 export const deleteOrderPathParamsSchema = z.object({
-  orderId: z.coerce.number().int().describe('ID of the order that needs to be deleted'),
+  orderId: z.coerce.bigint().describe('ID of the order that needs to be deleted'),
 })
 
 /**

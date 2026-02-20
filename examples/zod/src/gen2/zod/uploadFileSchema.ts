@@ -7,7 +7,7 @@ import * as z from 'zod/mini'
 import { apiResponseSchema } from './apiResponseSchema.ts'
 
 export const uploadFilePathParamsSchema = z.object({
-  petId: z.int(),
+  petId: z.coerce.bigint(),
 })
 
 export const uploadFileQueryParamsSchema = z.optional(

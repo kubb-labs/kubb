@@ -9,7 +9,7 @@ export type UpdatePetWithFormPathParams = {
    * @description ID of pet that needs to be updated
    * @type integer, int64
    */
-  pet_id: number
+  pet_id: bigint
 }
 
 export type UpdatePetWithFormQueryParams = {

@@ -11,7 +11,7 @@ export function createCustomer(data?: Partial<Customer>): Customer {
   faker.seed([220])
   return {
     ...{
-      id: faker.number.int(),
+      id: faker.number.bigInt(),
       username: faker.string.alpha(),
       address: faker.helpers.multiple(() => createAddress()),
     },

@@ -9,7 +9,7 @@ import type { User } from '../models/User.ts'
 export function createUser(data?: Partial<User>): User {
   return {
     ...{
-      id: faker.number.int(),
+      id: faker.number.bigInt(),
       username: faker.string.alpha(),
       firstName: faker.string.alpha(),
       lastName: faker.string.alpha(),
