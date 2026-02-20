@@ -27,7 +27,7 @@
       "!.nx",
       "!**/.output",
       "!**/.nitro",
-      "!.html"
+      "!**/*.html"
     ]
   },
   "formatter": {
