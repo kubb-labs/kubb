@@ -1,5 +1,31 @@
 # @kubb/agent
 
+## 4.27.0
+
+### Minor Changes
+
+- [#2536](https://github.com/kubb-labs/kubb/pull/2536) [`bd0feb0`](https://github.com/kubb-labs/kubb/commit/bd0feb0872255852f324e30f046e29a74ccf99b1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add `--allow-write` and `--allow-all` CLI flags (and corresponding `KUBB_ALLOW_WRITE` / `KUBB_ALLOW_ALL` env variables) to `kubb agent start`.
+  - `--allow-write` / `KUBB_ALLOW_WRITE=true` – opt-in to writing generated files to the filesystem. When not set, the kubb config runs with `output.write: false` and the Studio config patch is not persisted.
+  - `--allow-all` / `KUBB_ALLOW_ALL=true` – grant all permissions; implies `--allow-write`.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.27.0
+  - @kubb/plugin-client@4.27.0
+  - @kubb/plugin-cypress@4.27.0
+  - @kubb/plugin-faker@4.27.0
+  - @kubb/plugin-msw@4.27.0
+  - @kubb/plugin-oas@4.27.0
+  - @kubb/plugin-react-query@4.27.0
+  - @kubb/plugin-redoc@4.27.0
+  - @kubb/plugin-solid-query@4.27.0
+  - @kubb/plugin-svelte-query@4.27.0
+  - @kubb/plugin-swr@4.27.0
+  - @kubb/plugin-ts@4.27.0
+  - @kubb/plugin-vue-query@4.27.0
+  - @kubb/plugin-zod@4.27.0
+
 ## 4.26.1
 
 ### Patch Changes
