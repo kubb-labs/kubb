@@ -51,11 +51,8 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build agent
-        working-directory: packages/agent
+      - name: Build
         run: pnpm run build
-        env:
-          NITRO_PRESET: node-server
 
       - name: Log in to GitHub Container Registry
         if: github.event_name != 'pull_request'
