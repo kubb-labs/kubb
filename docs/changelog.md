@@ -6,6 +6,18 @@ outline: deep
 
 # Changelog
 
+## 4.26.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/cli`](/helpers/cli/)
+
+**Update chokidar to fulfill provenance requirements in pnpm**
+
+Updated chokidar dependency in `@kubb/cli` to fulfill provenance requirements in pnpm.
+
+---
+
 ## 4.26.0
 
 ### ✨ New Features
