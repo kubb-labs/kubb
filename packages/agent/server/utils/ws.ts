@@ -1,6 +1,7 @@
-import type { KubbEvents, SseEvent } from '@kubb/core'
+import type { KubbEvents } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
-import type { AgentMessage } from '~/types/agent.ts'
+import WebSocket from 'ws'
+import type { AgentMessage, DataMessagePayload } from '~/types/agent.ts'
 
 const WEBSOCKET_READY = 1
 const WEBSOCKET_CONNECTING = 0
@@ -42,10 +43,10 @@ export function sendAgentMessage(ws: WebSocket, message: AgentMessage): void {
  * Set up event listeners on the KubbEvents emitter to forward events to Kubb Studio via WebSocket
  */
 export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbEvents>): void {
-  function sendDataMessage(event: SseEvent) {
+  function sendDataMessage(payload: DataMessagePayload) {
     sendAgentMessage(ws, {
       type: 'data',
-      event,
+      payload,
     })
   }
 

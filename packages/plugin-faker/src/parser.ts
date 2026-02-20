@@ -37,6 +37,7 @@ const fakerKeywordMapper = {
 
     return 'faker.number.int()'
   },
+  bigint: () => 'faker.number.bigInt()',
   string: (min?: number, max?: number) => {
     if (max !== undefined && min !== undefined) {
       return `faker.string.alpha({ length: { min: ${min}, max: ${max} } })`
@@ -425,6 +426,9 @@ export const parse = createParser<string, ParserOptions>({
       }
 
       return fakerKeywordMapper.integer()
+    },
+    bigint(_tree, _options) {
+      return fakerKeywordMapper.bigint()
     },
     datetime() {
       return fakerKeywordMapper.datetime()

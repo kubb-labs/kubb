@@ -1,5 +1,65 @@
 # kubb
 
+## 3.0.217
+
+### Patch Changes
+
+- Updated dependencies [[`bd0feb0`](https://github.com/kubb-labs/kubb/commit/bd0feb0872255852f324e30f046e29a74ccf99b1)]:
+  - @kubb/agent@4.27.0
+  - @kubb/cli@4.27.0
+  - @kubb/core@4.27.0
+  - @kubb/mcp@4.27.0
+
+## 3.0.216
+
+### Patch Changes
+
+- Updated dependencies [[`1c6405d`](https://github.com/kubb-labs/kubb/commit/1c6405d016a101488f4a97638ae4069b532de373)]:
+  - @kubb/cli@4.26.1
+  - @kubb/agent@4.26.1
+  - @kubb/core@4.26.1
+  - @kubb/mcp@4.26.1
+
+## 3.0.215
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@4.26.0
+  - @kubb/cli@4.26.0
+  - @kubb/core@4.26.0
+  - @kubb/mcp@4.26.0
+
+## 3.0.214
+
+### Patch Changes
+
+- Updated dependencies [[`bc04350`](https://github.com/kubb-labs/kubb/commit/bc04350926cf552f959a12b48acc90bda825a425)]:
+  - @kubb/agent@4.25.2
+  - @kubb/cli@4.25.2
+  - @kubb/core@4.25.2
+  - @kubb/mcp@4.25.2
+
+## 3.0.213
+
+### Patch Changes
+
+- [`8a295d7`](https://github.com/kubb-labs/kubb/commit/8a295d7481e386f3689d8e0d698f91c0282907a3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct use of jiti (dynamic import of babel cannot be used in nitro)
+
+- Updated dependencies [[`8a295d7`](https://github.com/kubb-labs/kubb/commit/8a295d7481e386f3689d8e0d698f91c0282907a3)]:
+  - @kubb/agent@4.25.1
+  - @kubb/cli@4.25.1
+  - @kubb/core@4.25.1
+  - @kubb/mcp@4.25.1
+
+## 3.0.212
+
+### Patch Changes
+
+- Updated dependencies [[`3b8136a`](https://github.com/kubb-labs/kubb/commit/3b8136aa713a336ff5bc5c2d1b105ba4299eec2b)]:
+  - @kubb/cli@4.25.0
+  - @kubb/core@4.25.0
+
 ## 3.0.211
 
 ### Patch Changes

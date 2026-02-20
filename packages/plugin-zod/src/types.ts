@@ -113,6 +113,13 @@ export type Options = {
    */
   version?: '3' | '4'
   /**
+   * Which Zod GUID validator to use for OpenAPI `format: uuid`.
+   * - 'uuid' uses UUID validation.
+   * - 'guid' uses GUID validation (Zod v4 only).
+   * @default 'uuid'
+   */
+  guidType?: 'uuid' | 'guid'
+  /**
    * Use Zod Mini's functional API for better tree-shaking support.
    * When enabled, generates functional syntax (e.g., `z.optional(z.string())`) instead of chainable methods (e.g., `z.string().optional()`).
    * Requires Zod v4 or later. When `mini: true`, `version` is set to '4' and `importPath` will default to 'zod/mini'.
@@ -149,6 +156,7 @@ type ResolvedOptions = {
   operations: NonNullable<Options['operations']>
   wrapOutput: Options['wrapOutput']
   version: NonNullable<Options['version']>
+  guidType: NonNullable<Options['guidType']>
   mini: NonNullable<Options['mini']>
 }
 

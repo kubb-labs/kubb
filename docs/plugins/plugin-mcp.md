@@ -179,13 +179,13 @@ export async function findPetsByStatusHandler({
 ### client
 
 #### client.importPath
-<!--@include: ../plugin-client/importPath.md-->
+<!--@include: ./plugin-client/importPath.md-->
 
 #### client.dataReturnType
-<!--@include: ../plugin-client/dataReturnType.md-->
+<!--@include: ./plugin-client/dataReturnType.md-->
 
 #### client.baseURL
-<!--@include: ../plugin-client/baseURL.md-->
+<!--@include: ./plugin-client/baseURL.md-->
 
 
 ### include

@@ -9,8 +9,8 @@ import type { Order } from '../models/Order.ts'
 export function createOrder(data?: Partial<Order>): Order {
   return {
     ...{
-      id: faker.number.int(),
-      petId: faker.number.int(),
+      id: faker.number.bigInt(),
+      petId: faker.number.bigInt(),
       quantity: faker.number.int(),
       shipDateTime: faker.date.anytime().toISOString(),
       shipDate: faker.date.anytime().toISOString().substring(0, 10),

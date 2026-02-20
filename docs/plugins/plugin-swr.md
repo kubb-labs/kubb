@@ -113,13 +113,13 @@ Return the name of a group based on the group name, this will be used for the fi
 ### client
 
 #### client.importPath
-<!--@include: ../plugin-client/importPath.md-->
+<!--@include: ./plugin-client/importPath.md-->
 
 #### client.dataReturnType
-<!--@include: ../plugin-client/dataReturnType.md-->
+<!--@include: ./plugin-client/dataReturnType.md-->
 
 #### client.baseURL
-<!--@include: ../plugin-client/baseURL.md-->
+<!--@include: ./plugin-client/baseURL.md-->
 
 #### client.clientType
 
@@ -136,19 +136,19 @@ This plugin is only compatible with `clientType: 'function'` (the default). If `
 :::
 
 #### client.bundle
-<!--@include: ../plugin-client/bundle.md-->
+<!--@include: ./plugin-client/bundle.md-->
 
 ### paramsType
-<!--@include: ../plugin-client/paramsType.md-->
+<!--@include: ./plugin-client/paramsType.md-->
 
 ### paramsCasing
-<!--@include: ../plugin-client/paramsCasing.md-->
+<!--@include: ./plugin-client/paramsCasing.md-->
 
 ### pathParamsType
-<!--@include: ../plugin-client/pathParamsType.md-->
+<!--@include: ./plugin-client/pathParamsType.md-->
 
 ### parser
-<!--@include: ../plugin-client/parser.md-->
+<!--@include: ./plugin-client/parser.md-->
 
 #### queryKey
 

@@ -64,6 +64,7 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
+  bigint: (coercion?: boolean) => (coercion ? 'z.coerce.bigint()' : 'z.bigint()'),
   interface: (value?: string, strict?: boolean) => {
     if (strict) {
       return `z.strictInterface({
@@ -192,16 +193,35 @@ const zodKeywordMapper = {
 
     return 'z.date()'
   },
-  uuid: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number, mini?: boolean) => {
+  uuid: ({
+    coercion,
+    version = '3',
+    guidType = 'uuid',
+    min,
+    max,
+    mini,
+  }: {
+    coercion?: boolean
+    version?: '3' | '4'
+    guidType?: 'uuid' | 'guid'
+    min?: number
+    max?: number
+    mini?: boolean
+  } = {}) => {
+    const zodGuidType = version === '4' && guidType === 'guid' ? 'guid' : 'uuid'
+
     if (mini) {
       const checks = buildLengthChecks(min, max)
       if (checks.length > 0) {
-        return `z.uuid().check(${checks.join(', ')})`
+        return `z.${zodGuidType}().check(${checks.join(', ')})`
       }
-      return 'z.uuid()'
+      return `z.${zodGuidType}()`
     }
+
+    const zodV4UuidSchema = `z.${zodGuidType}()`
+
     return [
-      coercion ? (version === '4' ? 'z.uuid()' : 'z.coerce.string().uuid()') : version === '4' ? 'z.uuid()' : 'z.string().uuid()',
+      coercion ? (version === '4' ? zodV4UuidSchema : 'z.coerce.string().uuid()') : version === '4' ? zodV4UuidSchema : 'z.string().uuid()',
       min !== undefined ? `.min(${min})` : undefined,
       max !== undefined ? `.max(${max})` : undefined,
     ]
@@ -224,9 +244,10 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  default: (value?: string | number | boolean | object, innerSchema?: string, mini?: boolean) => {
+  default: (value?: string | number | boolean | object, innerSchema?: string, mini?: boolean, isBigInt?: boolean) => {
     if (mini && innerSchema) {
-      const defaultValue = typeof value === 'object' ? '{}' : (value ?? '')
+      // Wrap numeric values in BigInt() for bigint types in mini mode
+      const defaultValue = isBigInt && typeof value === 'number' ? `BigInt(${value})` : typeof value === 'object' ? '{}' : (value ?? '')
       return `z._default(${innerSchema}, ${defaultValue})`
     }
 
@@ -240,6 +261,11 @@ const zodKeywordMapper = {
 
     if (typeof value === 'string' && !value) {
       return `.default('')`
+    }
+
+    // Wrap numeric values in BigInt() for bigint types
+    if (isBigInt && typeof value === 'number') {
+      return `.default(BigInt(${value}))`
     }
 
     return `.default(${value ?? ''})`
@@ -406,6 +432,7 @@ type MiniModifiers = {
   hasNullable?: boolean
   hasNullish?: boolean
   defaultValue?: string | number | true | object
+  isBigInt?: boolean
 }
 
 /**
@@ -422,12 +449,14 @@ export const miniModifierKeywords = [schemaKeywords.optional, schemaKeywords.nul
  */
 export function extractMiniModifiers(schemas: Schema[]): MiniModifiers {
   const defaultSchema = schemas.find((item) => isKeyword(item, schemaKeywords.default)) as { keyword: string; args: unknown } | undefined
+  const isBigInt = schemas.some((item) => isKeyword(item, schemaKeywords.bigint))
 
   return {
     hasOptional: schemas.some((item) => isKeyword(item, schemaKeywords.optional)),
     hasNullable: schemas.some((item) => isKeyword(item, schemaKeywords.nullable)),
     hasNullish: schemas.some((item) => isKeyword(item, schemaKeywords.nullish)),
     defaultValue: defaultSchema?.args as string | number | true | object | undefined,
+    isBigInt,
   }
 }
 
@@ -450,7 +479,7 @@ export function wrapWithMiniModifiers(output: string, modifiers: MiniModifiers):
 
   // Apply default first (innermost wrapper)
   if (modifiers.defaultValue !== undefined) {
-    result = zodKeywordMapper.default(modifiers.defaultValue, result, true)!
+    result = zodKeywordMapper.default(modifiers.defaultValue, result, true, modifiers.isBigInt)!
   }
 
   // Apply nullish, nullable, or optional (outer wrappers for optionality)
@@ -484,6 +513,7 @@ type ParserOptions = {
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
   version: '3' | '4'
+  guidType?: 'uuid' | 'guid'
   skipLazyForRefs?: boolean
   mini?: boolean
 }
@@ -759,14 +789,18 @@ export const parse = createParser<string, ParserOptions>({
       return undefined
     },
     default(tree, options) {
-      const { current } = tree
+      const { current, siblings } = tree
 
       // In mini mode, default is handled by wrapWithMiniModifiers
       if (options.mini) {
         return undefined
       }
+
+      // Check if this is a bigint type by looking at siblings
+      const isBigInt = siblings.some((it) => isKeyword(it, schemaKeywords.bigint))
+
       if (current.args !== undefined) {
-        return zodKeywordMapper.default(current.args)
+        return zodKeywordMapper.default(current.args, undefined, undefined, isBigInt)
       }
       // When args is undefined, call the mapper without arguments
       return zodKeywordMapper.default()
@@ -793,7 +827,14 @@ export const parse = createParser<string, ParserOptions>({
       const minSchema = findSchemaKeyword(siblings, 'min')
       const maxSchema = findSchemaKeyword(siblings, 'max')
 
-      return zodKeywordMapper.uuid(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
+      return zodKeywordMapper.uuid({
+        coercion: shouldCoerce(options.coercion, 'strings'),
+        version: options.version,
+        guidType: options.guidType,
+        min: minSchema?.args,
+        max: maxSchema?.args,
+        mini: options.mini,
+      })
     },
     email(tree, options) {
       const { siblings } = tree
@@ -845,6 +886,9 @@ export const parse = createParser<string, ParserOptions>({
         exclusiveMaximumSchema?.args,
         options.mini,
       )
+    },
+    bigint(_tree, options) {
+      return zodKeywordMapper.bigint(shouldCoerce(options.coercion, 'numbers'))
     },
     datetime(tree, options) {
       const { current } = tree

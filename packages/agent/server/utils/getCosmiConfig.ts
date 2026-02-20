@@ -14,7 +14,7 @@ export type CosmiconfigResult = {
  * Supports JSX via `@kubb/react-fabric` and resolves the default export.
  */
 const tsLoader = async (configFile: string) => {
-  const jiti = createJiti(configFile, {
+  const jiti = createJiti(import.meta.url, {
     jsx: {
       runtime: 'automatic',
       importSource: '@kubb/react-fabric',

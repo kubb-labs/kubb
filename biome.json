@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.1/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.3/schema.json",
   "assist": {
     "enabled": true,
     "actions": {
@@ -27,7 +27,7 @@
       "!.nx",
       "!**/.output",
       "!**/.nitro",
-      "!.html"
+      "!**/*.html"
     ]
   },
   "formatter": {

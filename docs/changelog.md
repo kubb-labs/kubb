@@ -6,6 +6,84 @@ outline: deep
 
 # Changelog
 
+## 4.27.0
+
+### ✨ New Features
+
+#### [`@kubb/cli`](/helpers/cli/)
+
+**Add `--allow-write` and `--allow-all` flags to `kubb agent start`**
+
+Two new CLI flags (and corresponding environment variables) have been added to `kubb agent start`:
+
+- `--allow-write` / `KUBB_ALLOW_WRITE=true` – opt-in to writing generated files to the filesystem. When not set, the kubb config runs with `output.write: false` and the Studio config patch is not persisted.
+- `--allow-all` / `KUBB_ALLOW_ALL=true` – grant all permissions; implies `--allow-write`.
+
+---
+
+## 4.26.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/cli`](/helpers/cli/)
+
+**Update chokidar to fulfill provenance requirements in pnpm**
+
+Updated chokidar dependency in `@kubb/cli` to fulfill provenance requirements in pnpm.
+
+---
+
+## 4.26.0
+
+### ✨ New Features
+
+#### [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+
+**New `guidType` option for UUID/GUID generation**
+
+Added a new `guidType` option to control how OpenAPI `format: uuid` fields are generated in Zod schemas.
+
+- `guidType` accepts `'uuid'` (default) and `'guid'`
+- `'guid'` is only applied when using Zod `version: '4'` (v3 falls back to UUID generation)
+
+#### [`@kubb/plugin-mcp`](/plugins/plugin-mcp/)
+
+**Export `startServer` function**
+
+The `startServer` function is now exported from `@kubb/plugin-mcp`, allowing users to implement their own server logic and support additional transports instead of relying on auto-invocation.
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Fix default import for fetch in bundled mode**
+
+Fixed class client generators incorrectly using a default import for fetch in bundled mode when the bundled templates only have a named export.
+
+---
+
+## 4.25.0
+
+### ✨ New Features
+
+#### [`@kubb/agent`](/helpers/cli/)
+
+**WebSocket integration for Kubb Studio connectivity**
+
+The Kubb Agent now supports bidirectional WebSocket communication with Kubb Studio. When `KUBB_STUDIO_URL` and `KUBB_AGENT_TOKEN` environment variables are configured, the agent automatically establishes a secure WebSocket connection on startup.
+
+Key features:
+- **Real-time event streaming**: Generation progress and lifecycle events are streamed live to Studio
+- **Command handling**: Receives and executes `generate` and `connect` commands from Studio
+- **Session management**: Automatic session caching with 24-hour expiration for faster reconnects
+- **Automatic reconnection**: Persistent connection with configurable retry intervals and keep-alive pings
+- **Secure authentication**: SHA-512 token hashing for session storage
+- **Graceful shutdown**: Proper disconnect notifications when the agent stops
+
+See the [Agent documentation](/helpers/cli/#agent-server) for setup instructions and environment variable configuration.
+
+---
+
 ## 4.24.1
 
 ### 🐛 Bug Fixes

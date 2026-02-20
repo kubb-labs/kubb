@@ -22,7 +22,7 @@ export type UpdatePet200Schema = UpdatePet200
  * @description accepted operation
  */
 export const updatePet202Schema = z.object({
-  id: z.optional(z.number().int()),
+  id: z.optional(z.bigint()),
 }) as unknown as ToZod<UpdatePet202>
 
 export type UpdatePet202Schema = UpdatePet202

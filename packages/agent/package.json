@@ -1,6 +1,6 @@
 {
   "name": "@kubb/agent",
-  "version": "4.24.1",
+  "version": "4.27.0",
   "description": "Agent server for Kubb, enabling HTTP-based access to code generation capabilities.",
   "keywords": [
     "agent",
@@ -39,7 +39,6 @@
   ],
   "scripts": {
     "build": "nitro build",
-    "build:docker": "docker build --build-arg NODE_VERSION=20 -t kubb-agent:local -f Dockerfile ../..",
     "clean": "npx rimraf ./dist .output",
     "prepare": "nitro prepare",
     "lint": "bun biome lint .",
@@ -54,14 +53,29 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/fabric-core": "catalog:",
+    "@kubb/plugin-client": "workspace:*",
+    "@kubb/plugin-cypress": "workspace:*",
+    "@kubb/plugin-faker": "workspace:*",
+    "@kubb/plugin-msw": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
+    "@kubb/plugin-react-query": "workspace:*",
+    "@kubb/plugin-redoc": "workspace:*",
+    "@kubb/plugin-solid-query": "workspace:*",
+    "@kubb/plugin-svelte-query": "workspace:*",
+    "@kubb/plugin-swr": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*",
+    "@kubb/plugin-vue-query": "workspace:*",
+    "@kubb/plugin-zod": "workspace:*",
     "execa": "^9.6.1",
-    "jiti": "^2.6.1",
+    "jiti": "2.5.1",
     "nitropack": "^2.13.1",
     "picocolors": "^1.1.1",
-    "string-argv": "^0.3.2"
+    "string-argv": "^0.3.2",
+    "ws": "^8.19.0"
   },
   "devDependencies": {
-    "msw": "^2.6.10",
+    "@types/ws": "^8.18.1",
+    "msw": "^2.12.10",
     "vite": "^7.3.1"
   },
   "engines": {

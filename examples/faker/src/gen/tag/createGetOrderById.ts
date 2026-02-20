@@ -9,7 +9,7 @@ import { createOrder } from './createOrder.ts'
 
 export function createGetOrderByIdPathParams(data?: Partial<GetOrderByIdPathParams>): GetOrderByIdPathParams {
   return {
-    ...{ orderId: faker.number.int() },
+    ...{ orderId: faker.number.bigInt() },
     ...(data || {}),
   }
 }

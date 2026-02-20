@@ -6,7 +6,7 @@
 import * as z from 'zod'
 
 export const updatePetWithFormPathParamsSchema = z.object({
-  petId: z.coerce.number().int().describe('ID of pet that needs to be updated'),
+  petId: z.coerce.bigint().describe('ID of pet that needs to be updated'),
 })
 
 export const updatePetWithFormQueryParamsSchema = z

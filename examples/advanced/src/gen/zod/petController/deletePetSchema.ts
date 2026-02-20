@@ -3,7 +3,7 @@ import type { ToZod } from '../../.kubb/ToZod.ts'
 import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../models/ts/petController/DeletePet.ts'
 
 export const deletePetPathParamsSchema = z.object({
-  petId: z.coerce.number().int().describe('Pet id to delete'),
+  petId: z.coerce.bigint().describe('Pet id to delete'),
 }) as unknown as ToZod<DeletePetPathParams>
 
 export type DeletePetPathParamsSchema = DeletePetPathParams

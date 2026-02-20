@@ -157,7 +157,7 @@ server.tool('deleteUser', 'This can only be done by the logged in user.', { user
   return deleteUserHandler({ username })
 })
 
-async function startServer() {
+export async function startServer() {
   try {
     const transport = new StdioServerTransport()
     await server.connect(transport)
@@ -166,5 +166,3 @@ async function startServer() {
     process.exit(1)
   }
 }
-
-startServer()

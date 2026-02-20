@@ -14,7 +14,7 @@ export function createUpdatePet200Faker(data?: Partial<UpdatePet200>): UpdatePet
  */
 export function createUpdatePet202Faker(data?: Partial<UpdatePet202>): UpdatePet202 {
   return {
-    ...{ id: faker.number.int() },
+    ...{ id: faker.number.bigInt() },
     ...(data || {}),
   }
 }

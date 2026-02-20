@@ -72,6 +72,7 @@ export type SchemaKeywordMapper = {
   default: { keyword: 'default'; args: string | number | boolean }
   string: { keyword: 'string' }
   integer: { keyword: 'integer' }
+  bigint: { keyword: 'bigint' }
   number: { keyword: 'number' }
   max: { keyword: 'max'; args: number }
   min: { keyword: 'min'; args: number }
@@ -100,6 +101,7 @@ export const schemaKeywords = {
   unknown: 'unknown',
   number: 'number',
   integer: 'integer',
+  bigint: 'bigint',
   string: 'string',
   boolean: 'boolean',
   undefined: 'undefined',

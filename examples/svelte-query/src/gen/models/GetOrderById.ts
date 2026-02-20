@@ -21,7 +21,7 @@ export type GetOrderByIdPathParams = {
    * @description ID of order that needs to be fetched
    * @type integer, int64
    */
-  orderId: number
+  orderId: bigint
 }
 
 /**

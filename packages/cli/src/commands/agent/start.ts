@@ -19,6 +19,8 @@ declare global {
       KUBB_CONFIG: string
       KUBB_AGENT_NO_CACHE: string
       KUBB_RETRY_TIMEOUT: string
+      KUBB_ALLOW_WRITE: string
+      KUBB_ALLOW_ALL: string
     }
   }
 }
@@ -44,6 +46,16 @@ const args = {
     description: 'Disable session caching',
     default: false,
   },
+  'allow-write': {
+    type: 'boolean',
+    description: 'Allow writing generated files to the filesystem. When not set, no files are written and the config patch is not persisted.',
+    default: false,
+  },
+  'allow-all': {
+    type: 'boolean',
+    description: 'Grant all permissions (implies --allow-write).',
+    default: false,
+  },
 } as const satisfies ArgsDef
 
 type StartServerProps = {
@@ -51,9 +63,11 @@ type StartServerProps = {
   host: string
   configPath: string
   noCache: boolean
+  allowWrite: boolean
+  allowAll: boolean
 }
 
-async function startServer({ port, host, configPath, noCache }: StartServerProps): Promise<void> {
+async function startServer({ port, host, configPath, noCache, allowWrite, allowAll }: StartServerProps): Promise<void> {
   try {
     // Load .env files into process.env (supports .env, .env.local, .env.*.local)
     loadEnv() // .env
@@ -69,9 +83,11 @@ async function startServer({ port, host, configPath, noCache }: StartServerProps
     const HOST = process.env.HOST || host || '0.0.0.0'
 
     // kubb env
-    const KUBB_ROOT = process.env.KUBB_ROOT
+    const KUBB_ROOT = process.env.KUBB_ROOT || process.cwd()
     const KUBB_CONFIG = process.env.KUBB_CONFIG || configPath || 'kubb.config.ts'
     const KUBB_AGENT_NO_CACHE = noCache ? 'true' : 'false'
+    const KUBB_ALLOW_WRITE = allowAll || allowWrite ? 'true' : (process.env.KUBB_ALLOW_WRITE ?? 'false')
+    const KUBB_ALLOW_ALL = allowAll ? 'true' : (process.env.KUBB_ALLOW_ALL ?? 'false')
     const KUBB_STUDIO_URL = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
     const KUBB_AGENT_TOKEN = process.env.KUBB_AGENT_TOKEN
     const KUBB_RETRY_TIMEOUT = process.env.KUBB_RETRY_TIMEOUT || '30000'
@@ -86,6 +102,8 @@ async function startServer({ port, host, configPath, noCache }: StartServerProps
       KUBB_RETRY_TIMEOUT,
       KUBB_AGENT_NO_CACHE,
       KUBB_AGENT_TOKEN,
+      KUBB_ALLOW_WRITE,
+      KUBB_ALLOW_ALL,
     }
 
     clack.log.step(pc.cyan('Starting agent server...'))
@@ -94,6 +112,9 @@ async function startServer({ port, host, configPath, noCache }: StartServerProps
     clack.log.info(pc.dim(`Port: ${PORT}`))
     if (noCache) {
       clack.log.info(pc.dim('Session caching: disabled'))
+    }
+    if (!allowWrite && !allowAll) {
+      clack.log.warn(pc.yellow('Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
     }
 
     // Use execa to spawn the server process
@@ -122,8 +143,10 @@ const command = defineCommand({
       const port = args.port ? Number.parseInt(args.port, 10) : 0
       const host = args.host
       const noCache = args['no-cache']
+      const allowWrite = args['allow-write']
+      const allowAll = args['allow-all']
 
-      await startServer({ port, host, configPath, noCache })
+      await startServer({ port, host, configPath, noCache, allowWrite, allowAll })
     } catch (error) {
       clack.log.error(pc.red('Failed to start agent server'))
       console.error(error)
