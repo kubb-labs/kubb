@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import type { KubbEvents } from '@kubb/core'
@@ -9,7 +8,9 @@ import { createAgentSession, disconnect } from '~/utils/api.ts'
 import { generate } from '~/utils/generate.ts'
 import { getCosmiConfig } from '~/utils/getCosmiConfig.ts'
 import { logger } from '~/utils/logger.ts'
+import { resolvePlugins } from '~/utils/resolvePlugins.ts'
 import { deleteCachedSession, getCachedSession } from '~/utils/sessionManager.ts'
+import { readStudioConfig, writeStudioConfig } from '~/utils/studioConfig.ts'
 import { createWebsocket, sendAgentMessage, setupEventsStream } from '~/utils/ws.ts'
 import { version } from '~~/package.json'
 
@@ -23,6 +24,8 @@ declare global {
       KUBB_CONFIG: string
       KUBB_AGENT_NO_CACHE: string
       KUBB_RETRY_TIMEOUT: string
+      KUBB_ALLOW_WRITE: string
+      KUBB_ALLOW_ALL: string
     }
   }
 }
@@ -45,6 +48,9 @@ export default defineNitroPlugin(async (nitro) => {
   const configPath = process.env.KUBB_CONFIG || 'kubb.config.ts'
   const noCache = process.env.KUBB_AGENT_NO_CACHE === 'true'
   const retryInterval = process.env.KUBB_RETRY_TIMEOUT ? Number.parseInt(process.env.KUBB_RETRY_TIMEOUT, 10) : 30000
+  const root = process.env.KUBB_ROOT || process.cwd()
+  const allowAll = process.env.KUBB_ALLOW_ALL === 'true'
+  const allowWrite = allowAll || process.env.KUBB_ALLOW_WRITE === 'true'
 
   if (!configPath) {
     throw new Error('KUBB_CONFIG environment variable not set')
@@ -63,7 +69,8 @@ export default defineNitroPlugin(async (nitro) => {
   }
 
   // Load config
-  const result = await getCosmiConfig(configPath)
+  const resolvedConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(root, configPath)
+  const result = await getCosmiConfig(resolvedConfigPath)
   const configs = await getConfigs(result.config, {})
 
   if (configs.length === 0) {
@@ -78,7 +85,6 @@ export default defineNitroPlugin(async (nitro) => {
       Authorization: `Bearer ${token}`,
     },
   }
-  const root = process.env.KUBB_ROOT || config.root || process.cwd()
 
   events.on('hook:start', async ({ id, command, args }) => {
     const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
@@ -192,62 +198,66 @@ export default defineNitroPlugin(async (nitro) => {
       setupEventsStream(ws, events)
 
       ws.addEventListener('message', async (message) => {
-        const data = JSON.parse(message.data as string) as AgentMessage
+        try {
+          const data = JSON.parse(message.data as string) as AgentMessage
 
-        if (isCommandMessage(data)) {
-          if (data.command === 'generate') {
-            await generate({
-              config: {
-                ...config,
-                root,
-              },
-              events,
-            })
-            logger.success('Generated command success')
-          }
+          if (isCommandMessage(data)) {
+            if (data.command === 'generate') {
+              // Read the temporal studio config; message payload takes priority
+              const studioConfig = readStudioConfig(resolvedConfigPath)
+              const patch = data.payload ?? studioConfig
+              const resolvedPlugins = await resolvePlugins(patch.plugins)
 
-          if (data.command === 'connect') {
-            // Read OpenAPI spec if available
-            let specContent: string | undefined
-            if (config && 'path' in config.input) {
-              const specPath = path.resolve(process.cwd(), config.root, config.input.path)
-              try {
-                specContent = readFileSync(specPath, 'utf-8')
-              } catch {
-                // Spec file not found or unreadable
+              // Apply patch fields directly onto the already-resolved Config.
+              // When the patch includes plugins, dynamically import and instantiate
+              // them; otherwise keep the original plugin instances.
+              await generate({
+                config: {
+                  ...config,
+                  plugins: patch ? resolvedPlugins : config.plugins,
+                  root,
+                  output: {
+                    ...config.output,
+                    write: allowWrite,
+                  },
+                },
+                events,
+              })
+
+              if (allowWrite) {
+                writeStudioConfig(resolvedConfigPath, data.payload)
               }
+
+              logger.success('Generated command success')
             }
 
-            sendAgentMessage(ws, {
-              type: 'connected',
-              payload: {
-                version,
-                configPath: process.env.KUBB_CONFIG || '',
-                spec: specContent,
-                config: {
-                  name: config.name,
-                  root: config.root,
-                  input: {
-                    path: 'path' in config.input ? config.input.path : undefined,
+            if (data.command === 'connect') {
+              sendAgentMessage(ws, {
+                type: 'connected',
+                payload: {
+                  version,
+                  configPath,
+                  permissions: {
+                    allowAll,
+                    allowWrite,
                   },
-                  output: {
-                    path: config.output.path,
-                    write: config.output.write,
-                    extension: config.output.extension,
-                    barrelType: config.output.barrelType,
+                  config: {
+                    plugins: config.plugins?.map((plugin: any) => ({
+                      name: `@kubb/${plugin.name}`,
+                      options: serializePluginOptions(plugin.options),
+                    })),
                   },
-                  plugins: config.plugins?.map((plugin: any) => ({
-                    name: `@kubb/${plugin.name}`,
-                    options: serializePluginOptions(plugin.options),
-                  })),
                 },
-              },
-            })
-          }
-          return
-        }
+              })
+            }
 
-        logger.warn(`Unknown message type from Kubb Studio: ${message.data}`)
+            return
+          }
+
+          logger.warn(`Unknown message type from Kubb Studio: ${message.data}`)
+        } catch (error: any) {
+          logger.error(`[unhandledRejection] ${error?.message ?? error}`)
+        }
       })
     } catch (error: any) {
       deleteCachedSession(token)
