@@ -62,7 +62,7 @@
   },
   "devDependencies": {
     "@types/ws": "^8.18.1",
-    "msw": "^2.6.10",
+    "msw": "^2.12.10",
     "vite": "^7.3.1"
   },
   "engines": {

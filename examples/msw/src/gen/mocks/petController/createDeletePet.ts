@@ -9,7 +9,7 @@ import type { DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathPar
 export function createDeletePetPathParams(data?: Partial<DeletePetPathParams>): DeletePetPathParams {
   faker.seed([220])
   return {
-    ...{ petId: faker.number.int() },
+    ...{ petId: faker.number.bigInt() },
     ...(data || {}),
   }
 }

@@ -5,7 +5,7 @@
 import * as z from 'zod'
 
 export const pet = z.object({
-  id: z.number().int(),
+  id: z.bigint(),
   name: z.string().email(),
   date: z.optional(z.date()),
   uuid: z.optional(z.string().uuid()),

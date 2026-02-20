@@ -10,7 +10,7 @@ export type pet = {
   /**
    * @type integer, int64
    */
-  id: number
+  id: bigint
   /**
    * @type string
    */

@@ -3,8 +3,8 @@ import type { ToZod } from '../.kubb/ToZod.ts'
 import type { Order } from '../models/ts/Order.ts'
 
 export const orderSchema = z.object({
-  id: z.optional(z.number().int().min(3).max(100)),
-  petId: z.optional(z.number().int()),
+  id: z.optional(z.bigint()),
+  petId: z.optional(z.bigint()),
   params: z.optional(
     z.object({
       status: z.enum(['placed', 'approved', 'delivered']).describe('Order Status'),

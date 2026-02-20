@@ -7,7 +7,7 @@ import { faker } from '@faker-js/faker'
 export function pet(data?: Partial<Pet>): Pet {
   return {
     ...{
-      id: faker.number.int(),
+      id: faker.number.bigInt(),
       name: faker.string.alpha(),
       tag: faker.string.alpha(),
       code: faker.helpers.fromRegExp('\b[1-9]\b'),

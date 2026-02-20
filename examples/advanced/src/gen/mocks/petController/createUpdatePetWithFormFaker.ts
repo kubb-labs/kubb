@@ -7,7 +7,7 @@ import type {
 
 export function createUpdatePetWithFormPathParamsFaker(data?: Partial<UpdatePetWithFormPathParams>): UpdatePetWithFormPathParams {
   return {
-    ...{ petId: faker.number.int() },
+    ...{ petId: faker.number.bigInt() },
     ...(data || {}),
   }
 }

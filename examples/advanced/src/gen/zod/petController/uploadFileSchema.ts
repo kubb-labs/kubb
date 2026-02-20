@@ -10,7 +10,7 @@ import type {
 import { apiResponseSchema } from '../apiResponseSchema.ts'
 
 export const uploadFilePathParamsSchema = z.object({
-  petId: z.coerce.number().int().describe('ID of pet to update'),
+  petId: z.coerce.bigint().describe('ID of pet to update'),
 }) as unknown as ToZod<UploadFilePathParams>
 
 export type UploadFilePathParamsSchema = UploadFilePathParams

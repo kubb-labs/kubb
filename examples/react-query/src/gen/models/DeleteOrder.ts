@@ -9,7 +9,7 @@ export type DeleteOrderPathParams = {
    * @description ID of the order that needs to be deleted
    * @type integer, int64
    */
-  orderId: number
+  orderId: bigint
 }
 
 /**

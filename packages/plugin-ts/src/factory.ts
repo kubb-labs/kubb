@@ -624,6 +624,7 @@ export const keywordTypeNodes = {
   void: factory.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword),
   number: factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
   integer: factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
+  bigint: factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword),
   object: factory.createKeywordTypeNode(ts.SyntaxKind.ObjectKeyword),
   string: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
   boolean: factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword),
