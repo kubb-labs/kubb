@@ -1,5 +1,15 @@
 # kubb
 
+## 3.0.216
+
+### Patch Changes
+
+- Updated dependencies [[`1c6405d`](https://github.com/kubb-labs/kubb/commit/1c6405d016a101488f4a97638ae4069b532de373)]:
+  - @kubb/cli@4.26.1
+  - @kubb/agent@4.26.1
+  - @kubb/core@4.26.1
+  - @kubb/mcp@4.26.1
+
 ## 3.0.215
 
 ### Patch Changes
