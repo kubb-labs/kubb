@@ -1,0 +1,73 @@
+services:
+  studio:
+    image: kubblabs/kubb-studio:latest
+    container_name: kubb-studio
+    platform: linux/amd64
+    ports:
+      - "3002:3000"
+    env_file:
+      - .env
+    environment:
+      PORT: 3000
+      NODE_ENV: development
+      BETTER_AUTH_URL: http://kubb-agent:3000
+      POLAR_SERVER: sandbox
+      DATABASE_URL: postgresql://studio:studio_dev_password@postgres:5432/studio
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  agent:
+    image: kubblabs/kubb-agent:latest
+    container_name: kubb-agent
+    ports:
+      - "3001:3000"
+    env_file:
+      - .env
+    environment:
+      PORT: 3000
+      NODE_ENV: development
+      KUBB_ROOT: ./examples/react-query
+      KUBB_CONFIG: ./kubb.config.ts
+      KUBB_AGENT_NO_CACHE: "false"
+      KUBB_ALLOW_WRITE: "false"
+      KUBB_ALLOW_ALL: "false"
+      KUBB_STUDIO_URL: http://kubb-studio:3000
+      KUBB_RETRY_TIMEOUT: "30000"
+    depends_on:
+      studio:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: studio-postgres
+    environment:
+      POSTGRES_DB: studio
+      POSTGRES_USER: studio
+      POSTGRES_PASSWORD: studio_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U studio"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
