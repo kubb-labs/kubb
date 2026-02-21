@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/kubb-labs/kubb/main/assets/logo.png" alt="Kubb logo" width="200" />
+</p>
+
 # @kubb/agent
 
 Kubb Agent Server — HTTP server for code generation powered by [Nitro](https://nitro.build) with WebSocket integration for real-time Studio communication.
@@ -44,37 +48,43 @@ If you need to start the server directly:
 KUBB_CONFIG=./kubb.config.ts node node_modules/@kubb/agent/.output/server/index.mjs
 ```
 
-The server will be available at `http://localhost:4000`.
+The server will be available at `http://localhost:3000`.
+
+### Docker
+
+```bash
+docker run --env-file .env -v ./kubb.config.ts:/app/kubb.config.ts kubblabs/kubb-agent
+```
 
 ### Environment Variables
 
-- `KUBB_CONFIG` - **Required**. Path to your Kubb configuration file (e.g., `./kubb.config.ts` or `./kubb.config.js`). Supports both TypeScript and JavaScript files. Can be relative or absolute.
-- `PORT` - Server port (default: `4000`)
-- `HOST` - Server host (default: `localhost`)
-- `KUBB_STUDIO_URL` - Studio connection URL (e.g., `http://localhost:3000`)
-- `KUBB_AGENT_TOKEN` - Authentication token for Studio connection
-- `KUBB_AGENT_NO_CACHE` - Disable session caching (set to `true` to skip cache)
-- `KUBB_ALLOW_WRITE` - Allow writing generated files to the filesystem (set to `true` to enable). When `false` (default), no files are written and the config patch is not persisted.
-- `KUBB_ALLOW_ALL` - Grant all permissions including filesystem writes. Implies `KUBB_ALLOW_WRITE=true`.
+| Variable | Default | Description |
+|---|---|---|
+| `KUBB_CONFIG` | `kubb.config.ts` | Path to your Kubb config file. Relative paths are resolved against `KUBB_ROOT`. |
+| `KUBB_ROOT` | `/app` (Docker) / `cwd` | Root directory for resolving relative paths. |
+| `PORT` | `3000` | Server port. |
+| `HOST` | `0.0.0.0` | Server host. |
+| `KUBB_STUDIO_URL` | `https://studio.kubb.dev` | Kubb Studio WebSocket URL. |
+| `KUBB_AGENT_TOKEN` | _(empty)_ | Authentication token for Studio. Required to connect. |
+| `KUBB_AGENT_NO_CACHE` | `false` | Set to `true` to disable session caching. |
+| `KUBB_ALLOW_WRITE` | `false` | Set to `true` to allow writing generated files to disk. |
+| `KUBB_ALLOW_ALL` | `false` | Set to `true` to grant all permissions (implies `KUBB_ALLOW_WRITE=true`). |
+| `KUBB_RETRY_TIMEOUT` | `30000` | Milliseconds to wait before retrying a failed Studio connection. |
 
 ### Automatic .env Loading
 
-The agent automatically loads environment variables from:
-1. `.env` - Base environment variables
-2. `.env.local` - Local overrides (for secrets/local config)
-
-Files are optional and loaded in order, with `.env.local` taking precedence.
+The agent automatically loads a `.env` file from the current working directory into `process.env` on startup. Variables already set in the environment take precedence.
 
 ## Quick Start
 
 1. **Create `.env` file:**
 ```env
-PORT=4000
-KUBB_ROOT=/Users/stijnvanhulle/GitHub/kubb/examples/react-query/
-KUBB_CONFIG=/Users/stijnvanhulle/GitHub/kubb/examples/react-query/kubb.config.ts
-KUBB_AGENT_TOKEN=
-KUBB_AGENT_NO_CACHE=true
-KUBB_STUDIO_URL=https://studio.kubb,dev
+PORT=3000
+KUBB_ROOT=/path/to/your/project
+KUBB_CONFIG=/path/to/your/project/kubb.config.ts
+KUBB_AGENT_TOKEN=your-token-here
+KUBB_AGENT_NO_CACHE=false
+KUBB_STUDIO_URL=https://studio.kubb.dev
 ```
 
 2. **Run the agent:**
@@ -84,12 +94,12 @@ npx kubb agent start
 
 3. **Agent is now available at:**
 ```
-http://localhost:4000
+http://localhost:3000
 ```
 
 ## WebSocket Studio Integration
 
-The agent automatically connects to Kubb Studio on startup:
+The agent connects to Kubb Studio on startup when `KUBB_AGENT_TOKEN` is set.
 
 ### Connection Features
 
@@ -111,51 +121,66 @@ Sessions are cached in `~/.kubb/config.json` for faster reconnects:
 
 ### Messages Sent by Agent
 
-**Connected**
+**Connected** — sent in response to a `connect` command
 ```json
 {
   "type": "connected",
-  "id": "unique-id",
   "payload": {
-    "version": "4.24.0",
-    "config": { /* full kubb config */ },
-    "spec": "/* OpenAPI spec */"
+    "version": "x.x.x",
+    "configPath": "/app/kubb.config.ts",
+    "permissions": {
+      "allowAll": false,
+      "allowWrite": false
+    },
+    "config": {
+      "plugins": [
+        { "name": "@kubb/plugin-ts", "options": {} }
+      ]
+    }
   }
 }
 ```
 
-**Data Events (during generation)**
+**Data Events** — streamed during code generation
 ```json
 {
   "type": "data",
-  "id": "message-id",
-  "event": "plugin:start",
-  "payload": "{...}"
+  "payload": {
+    "type": "plugin:start",
+    "data": [{ "name": "plugin-ts" }],
+    "timestamp": 1708000000000
+  }
 }
 ```
 
-**Ping (every 30 seconds)**
+Available `payload.type` values: `plugin:start`, `plugin:end`, `files:processing:start`, `file:processing:update`, `files:processing:end`, `generation:start`, `generation:end`, `info`, `success`, `warn`, `error`.
+
+**Ping** — sent every 30 seconds to keep the connection alive
 ```json
-{
-  "type": "ping"
-}
+{ "type": "ping" }
 ```
 
 ### Messages Received from Studio
 
-**Generate Command**
+**Generate Command** — triggers code generation
 ```json
 {
   "type": "command",
-  "command": "generate"
+  "command": "generate",
+  "payload": { "plugins": [] }
 }
 ```
+`payload` is optional. When omitted, the agent uses the config loaded from disk.
 
-**Connect Command (resend info)**
+**Connect Command** — requests agent info
 ```json
 {
   "type": "command",
-  "command": "connect"
+  "command": "connect",
+  "permissions": {
+    "allowAll": false,
+    "allowWrite": false
+  }
 }
 ```
 

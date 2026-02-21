@@ -372,7 +372,7 @@ KUBB_ROOT=./
 KUBB_CONFIG=./kubb.config.ts
 KUBB_AGENT_TOKEN=your_agent_token # this token should be created in the Kubb Studio interface, without you cannot interact
 KUBB_AGENT_NO_CACHE=true
-KUBB_STUDIO_URL=https://studio.kubb,dev
+KUBB_STUDIO_URL=https://studio.kubb.dev
 KUBB_ALLOW_WRITE=true
 KUBB_ALLOW_ALL=false
 ```
