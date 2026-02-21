@@ -10,7 +10,6 @@ services:
     environment:
       PORT: 3000
       NODE_ENV: development
-      BETTER_AUTH_URL: http://kubb-agent:3000
       POLAR_SERVER: sandbox
       DATABASE_URL: postgresql://studio:studio_dev_password@postgres:5432/studio
     depends_on:
