@@ -45,7 +45,7 @@ kubb agent start --config kubb.config.ts --host 0.0.0.0 --port 8080 --no-cache
 If you need to start the server directly:
 
 ```bash
-KUBB_CONFIG=./kubb.config.ts node node_modules/@kubb/agent/.output/server/index.mjs
+KUBB_AGENT_CONFIG=./kubb.config.ts node node_modules/@kubb/agent/.output/server/index.mjs
 ```
 
 The server will be available at `http://localhost:3000`.
@@ -75,8 +75,8 @@ services:
       - .env
     environment:
       PORT: 3000
-      KUBB_ROOT: /kubb/agent
-      KUBB_CONFIG: kubb.config.ts
+      KUBB_AGENT_ROOT: /kubb/agent
+      KUBB_AGENT_CONFIG: kubb.config.ts
       KUBB_STUDIO_URL: http://kubb-studio:3000
     volumes:
       - ./kubb.config.ts:/kubb/agent/kubb.config.ts
@@ -100,16 +100,16 @@ docker compose up
 
 | Variable | Default | Description |
 |---|---|---|
-| `KUBB_CONFIG` | `kubb.config.ts` | Path to your Kubb config file. Relative paths are resolved against `KUBB_ROOT`. |
-| `KUBB_ROOT` | `/kubb/agent` (Docker) / `cwd` | Root directory for resolving relative paths. |
+| `KUBB_AGENT_CONFIG` | `kubb.config.ts` | Path to your Kubb config file. Relative paths are resolved against `KUBB_AGENT_ROOT`. |
+| `KUBB_AGENT_ROOT` | `/kubb/agent` (Docker) / `cwd` | Root directory for resolving relative paths. |
 | `PORT` | `3000` | Server port. |
 | `HOST` | `0.0.0.0` | Server host. |
 | `KUBB_STUDIO_URL` | `https://studio.kubb.dev` | Kubb Studio WebSocket URL. |
 | `KUBB_AGENT_TOKEN` | _(empty)_ | Authentication token for Studio. Required to connect. |
 | `KUBB_AGENT_NO_CACHE` | `false` | Set to `true` to disable session caching. |
-| `KUBB_ALLOW_WRITE` | `false` | Set to `true` to allow writing generated files to disk. |
-| `KUBB_ALLOW_ALL` | `false` | Set to `true` to grant all permissions (implies `KUBB_ALLOW_WRITE=true`). |
-| `KUBB_RETRY_TIMEOUT` | `30000` | Milliseconds to wait before retrying a failed Studio connection. |
+| `KUBB_AGENT_ALLOW_WRITE` | `false` | Set to `true` to allow writing generated files to disk. |
+| `KUBB_AGENT_ALLOW_ALL` | `false` | Set to `true` to grant all permissions (implies `KUBB_AGENT_ALLOW_WRITE=true`). |
+| `KUBB_AGENT_RETRY_TIMEOUT` | `30000` | Milliseconds to wait before retrying a failed Studio connection. |
 
 ### Automatic .env Loading
 
@@ -120,8 +120,8 @@ The agent automatically loads a `.env` file from the current working directory i
 1. **Create `.env` file:**
 ```env
 PORT=3000
-KUBB_ROOT=/path/to/your/project
-KUBB_CONFIG=/path/to/your/project/kubb.config.ts
+KUBB_AGENT_ROOT=/path/to/your/project
+KUBB_AGENT_CONFIG=/path/to/your/project/kubb.config.ts
 KUBB_AGENT_TOKEN=your-token-here
 KUBB_AGENT_NO_CACHE=false
 KUBB_STUDIO_URL=https://studio.kubb.dev

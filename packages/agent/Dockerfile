@@ -8,13 +8,13 @@ WORKDIR /kubb/agent
 ENV NODE_ENV=production \
     PORT=3000 \
     HOST=0.0.0.0 \
-    KUBB_ROOT=/kubb/agent \
-    KUBB_CONFIG=kubb.config.ts \
+    KUBB_AGENT_ROOT=/kubb/agent \
+    KUBB_AGENT_CONFIG=kubb.config.ts \
     KUBB_AGENT_NO_CACHE=false \
-    KUBB_ALLOW_WRITE=false \
-    KUBB_ALLOW_ALL=false \
+    KUBB_AGENT_ALLOW_WRITE=false \
+    KUBB_AGENT_ALLOW_ALL=false \
     KUBB_STUDIO_URL=https://studio.kubb.dev \
-    KUBB_RETRY_TIMEOUT=30000
+    KUBB_AGENT_RETRY_TIMEOUT=30000
 
 EXPOSE ${PORT}
 

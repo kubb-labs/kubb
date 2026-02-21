@@ -18,14 +18,16 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       PORT: string
-      KUBB_ROOT: string
-      KUBB_STUDIO_URL: string
+      KUBB_AGENT_ROOT: string
       KUBB_AGENT_TOKEN: string
-      KUBB_CONFIG: string
+      KUBB_AGENT_CONFIG: string
       KUBB_AGENT_NO_CACHE: string
-      KUBB_RETRY_TIMEOUT: string
-      KUBB_ALLOW_WRITE: string
-      KUBB_ALLOW_ALL: string
+      KUBB_AGENT_RETRY_TIMEOUT: string
+      KUBB_AGENT_ALLOW_WRITE: string
+      KUBB_AGENT_ALLOW_ALL: string
+
+      KUBB_STUDIO_LICENSE: string
+      KUBB_STUDIO_URL: string
     }
   }
 }
@@ -34,7 +36,7 @@ declare global {
  * Nitro plugin that connects the agent to Kubb Studio on server startup.
  *
  * When `KUBB_AGENT_TOKEN` and `KUBB_STUDIO_URL` are set, it:
- * 1. Loads the Kubb config referenced by `KUBB_CONFIG`.
+ * 1. Loads the Kubb config referenced by `KUBB_AGENT_CONFIG`.
  * 2. Obtains a WebSocket session from Studio (using the session cache when available).
  * 3. Opens a persistent WebSocket and registers handlers for `generate` and `connect` commands.
  * 4. Forwards Kubb generation lifecycle events to Studio in real time.
@@ -45,15 +47,15 @@ export default defineNitroPlugin(async (nitro) => {
   // Connect to Kubb Studio if URL is provided
   const studioUrl = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
   const token = process.env.KUBB_AGENT_TOKEN
-  const configPath = process.env.KUBB_CONFIG || 'kubb.config.ts'
+  const configPath = process.env.KUBB_AGENT_CONFIG || 'kubb.config.ts'
   const noCache = process.env.KUBB_AGENT_NO_CACHE === 'true'
-  const retryInterval = process.env.KUBB_RETRY_TIMEOUT ? Number.parseInt(process.env.KUBB_RETRY_TIMEOUT, 10) : 30000
-  const root = process.env.KUBB_ROOT || process.cwd()
-  const allowAll = process.env.KUBB_ALLOW_ALL === 'true'
-  const allowWrite = allowAll || process.env.KUBB_ALLOW_WRITE === 'true'
+  const retryInterval = process.env.KUBB_AGENT_RETRY_TIMEOUT ? Number.parseInt(process.env.KUBB_AGENT_RETRY_TIMEOUT, 10) : 30000
+  const root = process.env.KUBB_AGENT_ROOT || process.cwd()
+  const allowAll = process.env.KUBB_AGENT_ALLOW_ALL === 'true'
+  const allowWrite = allowAll || process.env.KUBB_AGENT_ALLOW_WRITE === 'true'
 
   if (!configPath) {
-    throw new Error('KUBB_CONFIG environment variable not set')
+    throw new Error('KUBB_AGENT_CONFIG environment variable not set')
   }
 
   if (!token) {

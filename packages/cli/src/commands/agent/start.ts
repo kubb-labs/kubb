@@ -13,14 +13,16 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       PORT: string
-      KUBB_ROOT: string
-      KUBB_STUDIO_URL: string
+      KUBB_AGENT_ROOT: string
       KUBB_AGENT_TOKEN: string
-      KUBB_CONFIG: string
+      KUBB_AGENT_CONFIG: string
       KUBB_AGENT_NO_CACHE: string
-      KUBB_RETRY_TIMEOUT: string
-      KUBB_ALLOW_WRITE: string
-      KUBB_ALLOW_ALL: string
+      KUBB_AGENT_RETRY_TIMEOUT: string
+      KUBB_AGENT_ALLOW_WRITE: string
+      KUBB_AGENT_ALLOW_ALL: string
+
+      KUBB_STUDIO_LICENSE: string
+      KUBB_STUDIO_URL: string
     }
   }
 }
@@ -83,31 +85,31 @@ async function startServer({ port, host, configPath, noCache, allowWrite, allowA
     const HOST = process.env.HOST || host || '0.0.0.0'
 
     // kubb env
-    const KUBB_ROOT = process.env.KUBB_ROOT || process.cwd()
-    const KUBB_CONFIG = process.env.KUBB_CONFIG || configPath || 'kubb.config.ts'
+    const KUBB_AGENT_ROOT = process.env.KUBB_AGENT_ROOT || process.cwd()
+    const KUBB_AGENT_CONFIG = process.env.KUBB_AGENT_CONFIG || configPath || 'kubb.config.ts'
     const KUBB_AGENT_NO_CACHE = noCache ? 'true' : 'false'
-    const KUBB_ALLOW_WRITE = allowAll || allowWrite ? 'true' : (process.env.KUBB_ALLOW_WRITE ?? 'false')
-    const KUBB_ALLOW_ALL = allowAll ? 'true' : (process.env.KUBB_ALLOW_ALL ?? 'false')
+    const KUBB_AGENT_ALLOW_WRITE = allowAll || allowWrite ? 'true' : (process.env.KUBB_AGENT_ALLOW_WRITE ?? 'false')
+    const KUBB_AGENT_ALLOW_ALL = allowAll ? 'true' : (process.env.KUBB_AGENT_ALLOW_ALL ?? 'false')
     const KUBB_STUDIO_URL = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
     const KUBB_AGENT_TOKEN = process.env.KUBB_AGENT_TOKEN
-    const KUBB_RETRY_TIMEOUT = process.env.KUBB_RETRY_TIMEOUT || '30000'
+    const KUBB_AGENT_RETRY_TIMEOUT = process.env.KUBB_AGENT_RETRY_TIMEOUT || '30000'
 
     // Set environment variables
     const env = {
-      KUBB_ROOT,
-      KUBB_CONFIG,
+      KUBB_AGENT_ROOT,
+      KUBB_AGENT_CONFIG,
       PORT,
       HOST,
       KUBB_STUDIO_URL,
-      KUBB_RETRY_TIMEOUT,
+      KUBB_AGENT_RETRY_TIMEOUT,
       KUBB_AGENT_NO_CACHE,
       KUBB_AGENT_TOKEN,
-      KUBB_ALLOW_WRITE,
-      KUBB_ALLOW_ALL,
+      KUBB_AGENT_ALLOW_WRITE,
+      KUBB_AGENT_ALLOW_ALL,
     }
 
     clack.log.step(pc.cyan('Starting agent server...'))
-    clack.log.info(pc.dim(`Config: ${KUBB_CONFIG}`))
+    clack.log.info(pc.dim(`Config: ${KUBB_AGENT_CONFIG}`))
     clack.log.info(pc.dim(`Host: ${HOST}`))
     clack.log.info(pc.dim(`Port: ${PORT}`))
     if (noCache) {

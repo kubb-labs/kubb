@@ -9,7 +9,6 @@ services:
       - .env
     environment:
       PORT: 3000
-      NODE_ENV: development
       POLAR_SERVER: sandbox
       DATABASE_URL: postgresql://studio:studio_dev_password@postgres:5432/studio
     depends_on:
@@ -32,14 +31,13 @@ services:
       - .env
     environment:
       PORT: 3000
-      NODE_ENV: development
-      KUBB_ROOT: ./examples/react-query
-      KUBB_CONFIG: ./kubb.config.ts
+      KUBB_AGENT_ROOT: ./examples/react-query
+      KUBB_AGENT_CONFIG: ./kubb.config.ts
       KUBB_AGENT_NO_CACHE: "false"
-      KUBB_ALLOW_WRITE: "false"
-      KUBB_ALLOW_ALL: "false"
+      KUBB_AGENT_ALLOW_WRITE: "false"
+      KUBB_AGENT_ALLOW_ALL: "false"
+      KUBB_AGENT_RETRY_TIMEOUT: "30000"
       KUBB_STUDIO_URL: http://kubb-studio:3000
-      KUBB_RETRY_TIMEOUT: "30000"
     depends_on:
       studio:
         condition: service_healthy
