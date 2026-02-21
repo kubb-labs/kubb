@@ -52,8 +52,48 @@ The server will be available at `http://localhost:3000`.
 
 ### Docker
 
+Run the agent standalone, mounting your config file into the container:
+
 ```bash
-docker run --env-file .env -v ./kubb.config.ts:/app/kubb.config.ts kubblabs/kubb-agent
+docker run --env-file .env \
+  -p 3000:3000 \
+  -v ./kubb.config.ts:/kubb/agent/kubb.config.ts \
+  kubblabs/kubb-agent
+```
+
+### Docker Compose
+
+To run the full stack (Studio + Agent + Postgres), use the provided `docker-compose.yml`:
+
+```yaml
+services:
+  agent:
+    image: kubblabs/kubb-agent:latest
+    ports:
+      - "3001:3000"
+    env_file:
+      - .env
+    environment:
+      PORT: 3000
+      KUBB_ROOT: /kubb/agent
+      KUBB_CONFIG: kubb.config.ts
+      KUBB_STUDIO_URL: http://kubb-studio:3000
+    volumes:
+      - ./kubb.config.ts:/kubb/agent/kubb.config.ts
+    depends_on:
+      studio:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+```
+
+```bash
+docker compose up
 ```
 
 ### Environment Variables
@@ -61,7 +101,7 @@ docker run --env-file .env -v ./kubb.config.ts:/app/kubb.config.ts kubblabs/kubb
 | Variable | Default | Description |
 |---|---|---|
 | `KUBB_CONFIG` | `kubb.config.ts` | Path to your Kubb config file. Relative paths are resolved against `KUBB_ROOT`. |
-| `KUBB_ROOT` | `/app` (Docker) / `cwd` | Root directory for resolving relative paths. |
+| `KUBB_ROOT` | `/kubb/agent` (Docker) / `cwd` | Root directory for resolving relative paths. |
 | `PORT` | `3000` | Server port. |
 | `HOST` | `0.0.0.0` | Server host. |
 | `KUBB_STUDIO_URL` | `https://studio.kubb.dev` | Kubb Studio WebSocket URL. |
