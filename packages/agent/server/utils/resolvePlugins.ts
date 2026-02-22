@@ -18,20 +18,20 @@ import type { JSONKubbConfig } from '~/types/agent.ts'
 type PluginFactory = (options: unknown) => Plugin
 
 const pluginRegistry: Record<string, PluginFactory> = {
-  '@kubb/plugin-client': pluginClient as PluginFactory,
-  '@kubb/plugin-cypress': pluginCypress as PluginFactory,
-  '@kubb/plugin-faker': pluginFaker as PluginFactory,
-  '@kubb/plugin-mcp': pluginMcp as PluginFactory,
-  '@kubb/plugin-msw': pluginMsw as PluginFactory,
-  '@kubb/plugin-oas': pluginOas as PluginFactory,
-  '@kubb/plugin-react-query': pluginReactQuery as PluginFactory,
-  '@kubb/plugin-redoc': pluginRedoc as PluginFactory,
-  '@kubb/plugin-solid-query': pluginSolidQuery as PluginFactory,
-  '@kubb/plugin-svelte-query': pluginSvelteQuery as PluginFactory,
-  '@kubb/plugin-swr': pluginSwr as PluginFactory,
-  '@kubb/plugin-ts': pluginTs as PluginFactory,
-  '@kubb/plugin-vue-query': pluginVueQuery as PluginFactory,
-  '@kubb/plugin-zod': pluginZod as PluginFactory,
+  '@kubb/plugin-client': pluginClient as unknown as PluginFactory,
+  '@kubb/plugin-cypress': pluginCypress as unknown as PluginFactory,
+  '@kubb/plugin-faker': pluginFaker as unknown as PluginFactory,
+  '@kubb/plugin-mcp': pluginMcp as unknown as PluginFactory,
+  '@kubb/plugin-msw': pluginMsw as unknown as PluginFactory,
+  '@kubb/plugin-oas': pluginOas as unknown as PluginFactory,
+  '@kubb/plugin-react-query': pluginReactQuery as unknown as PluginFactory,
+  '@kubb/plugin-redoc': pluginRedoc as unknown as PluginFactory,
+  '@kubb/plugin-solid-query': pluginSolidQuery as unknown as PluginFactory,
+  '@kubb/plugin-svelte-query': pluginSvelteQuery as unknown as PluginFactory,
+  '@kubb/plugin-swr': pluginSwr as unknown as PluginFactory,
+  '@kubb/plugin-ts': pluginTs as unknown as PluginFactory,
+  '@kubb/plugin-vue-query': pluginVueQuery as unknown as PluginFactory,
+  '@kubb/plugin-zod': pluginZod as unknown as PluginFactory,
 }
 
 /**
