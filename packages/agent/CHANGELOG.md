@@ -1,5 +1,28 @@
 # @kubb/agent
 
+## 4.27.2
+
+### Patch Changes
+
+- [#2545](https://github.com/kubb-labs/kubb/pull/2545) [`1e9e020`](https://github.com/kubb-labs/kubb/commit/1e9e020b96d9e1c1bb36b71e7ba31184164848e4) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Replace dynamic `await import()` calls in `resolvePlugins` with static imports for all supported kubb plugins.
+
+- Updated dependencies []:
+  - @kubb/core@4.27.2
+  - @kubb/plugin-client@4.27.2
+  - @kubb/plugin-cypress@4.27.2
+  - @kubb/plugin-faker@4.27.2
+  - @kubb/plugin-mcp@4.27.2
+  - @kubb/plugin-msw@4.27.2
+  - @kubb/plugin-oas@4.27.2
+  - @kubb/plugin-react-query@4.27.2
+  - @kubb/plugin-redoc@4.27.2
+  - @kubb/plugin-solid-query@4.27.2
+  - @kubb/plugin-svelte-query@4.27.2
+  - @kubb/plugin-swr@4.27.2
+  - @kubb/plugin-ts@4.27.2
+  - @kubb/plugin-vue-query@4.27.2
+  - @kubb/plugin-zod@4.27.2
+
 ## 4.27.1
 
 ### Patch Changes
