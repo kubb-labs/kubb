@@ -18,9 +18,6 @@ export default defineNitroConfig({
       },
     },
   },
-  externals: {
-    inline: ['@redocly/openapi-core'],
-  },
   hooks: {
     compiled(nitro) {
       // Fix: Nitro's file tracer (@vercel/nft) only copies files reachable
