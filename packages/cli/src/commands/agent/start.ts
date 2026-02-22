@@ -97,7 +97,7 @@ async function startServer({ port, host, configPath, noCache, allowWrite, allowA
     if (noCache) {
       clack.log.info(pc.dim('Session caching: disabled'))
     }
-    if (!allowWrite && !allowAll) {
+    if (!KUBB_AGENT_ALLOW_WRITE && !KUBB_AGENT_ALLOW_ALL) {
       clack.log.warn(pc.yellow('Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
     }
 
