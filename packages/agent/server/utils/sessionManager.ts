@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import type { AgentConnectResponse } from '../types/agent.ts'
@@ -34,18 +34,8 @@ export function loadAgentConfig(): AgentConfig {
  */
 export function saveAgentConfig(config: AgentConfig): void {
   try {
-    // Ensure directory exists
-    if (!CONFIG_DIR) {
-      return
-    }
-
-    // Create directory if it doesn't exist
-    try {
-      writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf-8')
-    } catch {
-      // Directory might not exist, try to create it
-      return
-    }
+    mkdirSync(CONFIG_DIR, { recursive: true })
+    writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf-8')
   } catch (_error) {
     logger.warn('Failed to save agent config')
   }

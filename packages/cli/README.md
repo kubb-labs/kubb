@@ -31,11 +31,22 @@ Initialize a new Kubb project with an interactive setup wizard.
 npx kubb init
 ```
 
+Use the `-y` / `--yes` flag to skip all prompts and accept the defaults:
+
+```bash
+npx kubb init -y
+```
+
+Defaults when using `-y`:
+- Input path: `./openapi.yaml`
+- Output path: `./src/gen`
+- Plugins: OpenAPI Parser + TypeScript
+
 This command will:
 1. Detect or create a `package.json` if it doesn't exist
-2. Prompt you for your OpenAPI specification path
-3. Ask for the output directory for generated files
-4. Let you select which Kubb plugins to use
+2. Prompt you for your OpenAPI specification path (default: `./openapi.yaml`)
+3. Ask for the output directory for generated files (default: `./src/gen`)
+4. Let you select which Kubb plugins to use (default: OpenAPI Parser + TypeScript)
 5. Install the selected packages using your package manager (npm, pnpm, yarn, or bun)
 6. Generate a `kubb.config.ts` file with your chosen configuration
 
