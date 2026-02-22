@@ -1,3 +1,9 @@
+export type CallToolResult = {
+  content: Array<{ type: string; text?: string; [key: string]: unknown }>
+  isError?: boolean
+  _meta?: Record<string, unknown>
+}
+
 export const NotifyTypes = {
   INFO: 'INFO',
   SUCCESS: 'SUCCESS',
