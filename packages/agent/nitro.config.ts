@@ -18,18 +18,14 @@ export default defineNitroConfig({
       },
     },
   },
-  // ajv and ajv-formats are inlined into the bundle to avoid pnpm resolving
-  // ajv-formats' peer dep to @redocly/ajv (which lacks dist/ajv.js).
   externals: {
-    inline: [/ajv/],
+    inline: ['@redocly/openapi-core'],
   },
   hooks: {
     compiled(nitro) {
       // Fix: Nitro's file tracer (@vercel/nft) only copies files reachable
-      // via static imports. Packages that use dynamic resolution at runtime
-      // (e.g. @kubb plugins loading templates via jiti, ajv-formats peer dep
-      // on ajv resolved to @redocly/ajv by pnpm) end up with incomplete
-      // file sets in the output. Replace them with the full packages.
+      // via static imports. @kubb/* packages use dynamic resolution at runtime
+      // (jiti-loaded templates, JSX components) so they need to be copied in full.
       const serverNodeModules = resolve(nitro.options.output.serverDir, 'node_modules')
       const rootNodeModules = resolve(nitro.options.rootDir, 'node_modules')
 
