@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 4.27.1
+
+### Patch Changes
+
+- [`605d6c2`](https://github.com/kubb-labs/kubb/commit/605d6c2ebe9e1040e0662b57765cffc6b7e3d6ad) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add -y flag for `npx kubb init`
+
+- Updated dependencies []:
+  - @kubb/core@4.27.1
+
 ## 4.27.0
 
 ### Minor Changes
