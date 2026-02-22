@@ -1,5 +1,15 @@
 # @kubb/plugin-zod
 
+## 4.27.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.27.2
+  - @kubb/oas@4.27.2
+  - @kubb/plugin-oas@4.27.2
+  - @kubb/plugin-ts@4.27.2
+
 ## 4.27.1
 
 ### Patch Changes
