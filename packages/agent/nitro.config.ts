@@ -18,6 +18,11 @@ export default defineNitroConfig({
       },
     },
   },
+  // ajv and ajv-formats are inlined into the bundle to avoid pnpm resolving
+  // ajv-formats' peer dep to @redocly/ajv (which lacks dist/ajv.js).
+  externals: {
+    inline: [/ajv/],
+  },
   hooks: {
     compiled(nitro) {
       // Fix: Nitro's file tracer (@vercel/nft) only copies files reachable
@@ -44,9 +49,6 @@ export default defineNitroConfig({
           copyFullPackage(`@kubb/${pkg}`)
         }
       }
-
-      // Copy ajv (incomplete due to pnpm @redocly/ajv peer resolution)
-      copyFullPackage('ajv')
     },
   },
 })
