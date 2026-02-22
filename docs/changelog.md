@@ -6,6 +6,18 @@ outline: deep
 
 # Changelog
 
+## 4.27.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/agent`](/helpers/agent/)
+
+**Replace dynamic imports with static imports in `resolvePlugins`**
+
+Replaced dynamic `await import()` calls in `resolvePlugins` with static imports for all supported kubb plugins to improve reliability and bundler compatibility.
+
+---
+
 ## 4.27.0
 
 ### ✨ New Features
