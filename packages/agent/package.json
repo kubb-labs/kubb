@@ -64,6 +64,7 @@
     "@kubb/plugin-svelte-query": "workspace:*",
     "@kubb/plugin-swr": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
+    "@kubb/plugin-mcp": "workspace:*",
     "@kubb/plugin-vue-query": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "execa": "^9.6.1",

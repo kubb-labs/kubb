@@ -22,4 +22,6 @@ EXPOSE ${PORT}
 # Expects the build to have been done before docker build (e.g., in CI)
 COPY --link packages/agent/.output ./.output
 
+RUN npx kubb init -y
+
 CMD [ ".output/server/index.mjs" ]
