@@ -1,40 +1,56 @@
-import type { Plugin, UserPlugin } from '@kubb/core'
+import { pluginClient } from '@kubb/plugin-client'
+import { pluginCypress } from '@kubb/plugin-cypress'
+import { pluginFaker } from '@kubb/plugin-faker'
+import { pluginMcp } from '@kubb/plugin-mcp'
+import { pluginMsw } from '@kubb/plugin-msw'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
+import { pluginRedoc } from '@kubb/plugin-redoc'
+import { pluginSolidQuery } from '@kubb/plugin-solid-query'
+import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
+import { pluginSwr } from '@kubb/plugin-swr'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginVueQuery } from '@kubb/plugin-vue-query'
+import { pluginZod } from '@kubb/plugin-zod'
+import type { Plugin } from '@kubb/core'
 import type { JSONKubbConfig } from '~/types/agent.ts'
 
-/**
- * Derives the exported factory function name from a plugin package name.
- * e.g. `@kubb/plugin-react-query` → `pluginReactQuery`
- */
-export function getFactoryName(packageName: string): string {
-  const match = packageName.match(/\/plugin-(.+)$/)
-  if (!match) {
-    return packageName
-  }
-  return `plugin-${match[1]}`.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
+type PluginFactory = (options: unknown) => Plugin
+
+const pluginRegistry: Record<string, PluginFactory> = {
+  '@kubb/plugin-client': pluginClient as PluginFactory,
+  '@kubb/plugin-cypress': pluginCypress as PluginFactory,
+  '@kubb/plugin-faker': pluginFaker as PluginFactory,
+  '@kubb/plugin-mcp': pluginMcp as PluginFactory,
+  '@kubb/plugin-msw': pluginMsw as PluginFactory,
+  '@kubb/plugin-oas': pluginOas as PluginFactory,
+  '@kubb/plugin-react-query': pluginReactQuery as PluginFactory,
+  '@kubb/plugin-redoc': pluginRedoc as PluginFactory,
+  '@kubb/plugin-solid-query': pluginSolidQuery as PluginFactory,
+  '@kubb/plugin-svelte-query': pluginSvelteQuery as PluginFactory,
+  '@kubb/plugin-swr': pluginSwr as PluginFactory,
+  '@kubb/plugin-ts': pluginTs as PluginFactory,
+  '@kubb/plugin-vue-query': pluginVueQuery as PluginFactory,
+  '@kubb/plugin-zod': pluginZod as PluginFactory,
 }
 
 /**
- * Dynamically imports each plugin package and calls its factory function with
- * the provided options, returning an array of resolved {@link UserPlugin} instances.
+ * Resolves each plugin entry by looking up the factory in the static plugin
+ * registry and calling it with the provided options.
  *
  * @example
  * // JSONKubbConfig plugin entry
  * { name: '@kubb/plugin-react-query', options: { output: { path: './hooks' } } }
- * // is resolved by importing `@kubb/plugin-react-query` and calling
- * // `pluginReactQuery({ output: { path: './hooks' } })`
+ * // is resolved by calling `pluginReactQuery({ output: { path: './hooks' } })`
  */
-export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugins']>): Promise<Array<Plugin>> {
-  return Promise.all(
-    plugins.map(async ({ name, options }) => {
-      const mod = await import(name)
-      const factoryName = getFactoryName(name)
-      const factory = mod[factoryName]
+export function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugins']>): Array<Plugin> {
+  return plugins.map(({ name, options }) => {
+    const factory = pluginRegistry[name]
 
-      if (typeof factory !== 'function') {
-        throw new Error(`Plugin factory "${factoryName}" not found in package "${name}"`)
-      }
+    if (typeof factory !== 'function') {
+      throw new Error(`Plugin "${name}" is not supported. Supported plugins: ${Object.keys(pluginRegistry).join(', ')}`)
+    }
 
-      return factory(options ?? {}) as Plugin
-    }),
-  )
+    return factory(options ?? {})
+  })
 }

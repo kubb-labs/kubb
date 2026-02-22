@@ -195,15 +195,15 @@ export default defineNitroPlugin(async (nitro) => {
               // Read the temporal studio config; message payload takes priority
               const studioConfig = readStudioConfig(resolvedConfigPath)
               const patch = data.payload ?? studioConfig
-              const resolvedPlugins = await resolvePlugins(patch.plugins)
+              const resolvedPlugins = patch?.plugins ? resolvePlugins(patch.plugins) : undefined
 
               // Apply patch fields directly onto the already-resolved Config.
-              // When the patch includes plugins, dynamically import and instantiate
+              // When the patch includes plugins, resolve and instantiate
               // them; otherwise keep the original plugin instances.
               await generate({
                 config: {
                   ...config,
-                  plugins: patch ? resolvedPlugins : config.plugins,
+                  plugins: resolvedPlugins ?? config.plugins,
                   root,
                   output: {
                     ...config.output,

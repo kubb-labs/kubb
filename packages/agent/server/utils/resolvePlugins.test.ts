@@ -1,77 +1,30 @@
-import { describe, expect, it, vi } from 'vitest'
-import { getFactoryName, resolvePlugins } from './resolvePlugins.ts'
-
-describe('getFactoryName', () => {
-  it('converts @kubb/plugin-react-query to pluginReactQuery', () => {
-    expect(getFactoryName('@kubb/plugin-react-query')).toBe('pluginReactQuery')
-  })
-
-  it('converts @kubb/plugin-ts to pluginTs', () => {
-    expect(getFactoryName('@kubb/plugin-ts')).toBe('pluginTs')
-  })
-
-  it('converts @kubb/plugin-zod to pluginZod', () => {
-    expect(getFactoryName('@kubb/plugin-zod')).toBe('pluginZod')
-  })
-
-  it('converts @kubb/plugin-vue-query to pluginVueQuery', () => {
-    expect(getFactoryName('@kubb/plugin-vue-query')).toBe('pluginVueQuery')
-  })
-
-  it('returns the original string when no /plugin- match is found', () => {
-    expect(getFactoryName('some-random-package')).toBe('some-random-package')
-    expect(getFactoryName('@kubb/core')).toBe('@kubb/core')
-  })
-})
+import { describe, expect, it } from 'vitest'
+import { resolvePlugins } from './resolvePlugins.ts'
 
 describe('resolvePlugins', () => {
-  it('calls the factory function with provided options', async () => {
-    const mockPlugin = { name: 'mock-plugin' }
-    const mockFactory = vi.fn().mockReturnValue(mockPlugin)
-
-    vi.doMock('mock-package', () => ({ pluginMockPackage: mockFactory }))
-
-    // We test resolvePlugins by mocking a module that matches the factory name pattern
-    // Since vi.doMock requires a known module, we test via getFactoryName integration
-    expect(getFactoryName('mock-package')).toBe('mock-package')
-  })
-
-  it('throws when factory function is not found in the module', async () => {
-    vi.doMock('@kubb/plugin-missing', () => ({ pluginMissing: 'not-a-function' }))
-
-    await expect(resolvePlugins([{ name: '@kubb/plugin-missing', options: {} }])).rejects.toThrow(
-      'Plugin factory "pluginMissing" not found in package "@kubb/plugin-missing"',
+  it('throws when plugin name is not in the registry', () => {
+    expect(() => resolvePlugins([{ name: '@kubb/plugin-missing', options: {} }])).toThrow(
+      'Plugin "@kubb/plugin-missing" is not supported.',
     )
   })
 
-  it('calls factory with empty object when options is undefined', async () => {
-    const mockPlugin = { name: 'pluginFake' }
-    const mockFactory = vi.fn().mockReturnValue(mockPlugin)
-
-    vi.doMock('@kubb/plugin-fake', () => ({ pluginFake: mockFactory }))
-
-    const result = await resolvePlugins([{ name: '@kubb/plugin-fake', options: undefined }])
-
-    expect(mockFactory).toHaveBeenCalledWith({})
-    expect(result).toEqual([mockPlugin])
+  it('resolves @kubb/plugin-ts with options', () => {
+    const result = resolvePlugins([{ name: '@kubb/plugin-ts', options: { output: { path: './types' } } }])
+    expect(result).toHaveLength(1)
+    expect(result[0]).toBeDefined()
   })
 
-  it('resolves multiple plugins', async () => {
-    const pluginA = { name: 'pluginAlpha' }
-    const pluginB = { name: 'pluginBeta' }
-    const factoryA = vi.fn().mockReturnValue(pluginA)
-    const factoryB = vi.fn().mockReturnValue(pluginB)
+  it('resolves @kubb/plugin-zod with undefined options using empty object', () => {
+    const result = resolvePlugins([{ name: '@kubb/plugin-zod', options: undefined }])
+    expect(result).toHaveLength(1)
+    expect(result[0]).toBeDefined()
+  })
 
-    vi.doMock('@kubb/plugin-alpha', () => ({ pluginAlpha: factoryA }))
-    vi.doMock('@kubb/plugin-beta', () => ({ pluginBeta: factoryB }))
-
-    const result = await resolvePlugins([
-      { name: '@kubb/plugin-alpha', options: { foo: 1 } },
-      { name: '@kubb/plugin-beta', options: { bar: 2 } },
+  it('resolves multiple plugins', () => {
+    const result = resolvePlugins([
+      { name: '@kubb/plugin-ts', options: {} },
+      { name: '@kubb/plugin-zod', options: {} },
     ])
-
-    expect(factoryA).toHaveBeenCalledWith({ foo: 1 })
-    expect(factoryB).toHaveBeenCalledWith({ bar: 2 })
-    expect(result).toEqual([pluginA, pluginB])
+    expect(result).toHaveLength(2)
   })
 })
