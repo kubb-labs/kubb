@@ -3,9 +3,7 @@ import { resolvePlugins } from './resolvePlugins.ts'
 
 describe('resolvePlugins', () => {
   it('throws when plugin name is not in the registry', () => {
-    expect(() => resolvePlugins([{ name: '@kubb/plugin-missing', options: {} }])).toThrow(
-      'Plugin "@kubb/plugin-missing" is not supported.',
-    )
+    expect(() => resolvePlugins([{ name: '@kubb/plugin-missing', options: {} }])).toThrow('Plugin "@kubb/plugin-missing" is not supported.')
   })
 
   it('resolves @kubb/plugin-ts with options', () => {

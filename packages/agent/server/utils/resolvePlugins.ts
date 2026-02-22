@@ -1,3 +1,4 @@
+import type { Plugin } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginCypress } from '@kubb/plugin-cypress'
 import { pluginFaker } from '@kubb/plugin-faker'
@@ -12,7 +13,6 @@ import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginVueQuery } from '@kubb/plugin-vue-query'
 import { pluginZod } from '@kubb/plugin-zod'
-import type { Plugin } from '@kubb/core'
 import type { JSONKubbConfig } from '~/types/agent.ts'
 
 type PluginFactory = (options: unknown) => Plugin
