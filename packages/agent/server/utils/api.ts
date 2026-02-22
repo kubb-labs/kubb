@@ -44,6 +44,8 @@ export async function createAgentSession({ token, studioUrl, noCache }: ConnectP
       throw new Error('No data available for agent session')
     }
 
+    logger.success('Agent session created')
+
     return data
   } catch (error: any) {
     throw new Error('Failed to get agent session from Kubb Studio', { cause: error })
@@ -61,9 +63,10 @@ type RegisterProps = {
  */
 export async function registerAgent({ token, studioUrl }: RegisterProps): Promise<void> {
   const machineId = getMachineId()
+  const registerUrl = `${studioUrl}/api/agent/register`
 
   try {
-    await $fetch(`${studioUrl}/api/agent/register`, {
+    await $fetch(registerUrl, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -72,7 +75,7 @@ export async function registerAgent({ token, studioUrl }: RegisterProps): Promis
     })
     logger.success('Agent registered with Studio')
   } catch (error: any) {
-    throw new Error('Failed to register agent with Studio', { cause: error })
+    logger.warn('Failed to register agent with Studio', error?.cause?.message ?? error?.message)
   }
 }
 

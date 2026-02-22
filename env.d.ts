@@ -1,6 +1,7 @@
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
+      NODE_ENV: 'development' | 'production' | 'test'
       /**
        * HTTP port the agent server listens on.
        * @default "3000"
