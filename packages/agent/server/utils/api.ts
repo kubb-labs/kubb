@@ -1,7 +1,7 @@
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { logger } from './logger.ts'
 import { getMachineId } from './machineId.ts'
-import { cacheSession, getCachedSession } from './sessionManager.ts'
+import { cacheSession, getCachedSession } from './cacheManager.ts'
 
 type ConnectProps = {
   studioUrl: string
