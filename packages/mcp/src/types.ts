@@ -1,5 +1,5 @@
 export type CallToolResult = {
-  content: Array<{ type: string; text?: string; [key: string]: unknown }>
+  content: Array<{ type: 'text'; text: string }>
   isError?: boolean
   _meta?: Record<string, unknown>
 }
