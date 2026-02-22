@@ -13,6 +13,7 @@ Kubb Agent Server — HTTP server for code generation powered by [Nitro](https:/
 - 🔧 Easy integration with Kubb configuration
 - 📊 Health and info endpoints
 - 🔗 Bidirectional WebSocket with Kubb Studio
+- 🖥️ Machine binding — token locked to the registered machine via stable `machineId`
 - 💾 Automatic session caching for faster reconnects
 - ⚡ Production-ready
 
@@ -140,6 +141,14 @@ http://localhost:3000
 ## WebSocket Studio Integration
 
 The agent connects to Kubb Studio on startup when `KUBB_AGENT_TOKEN` is set.
+
+### Startup Sequence
+
+On startup the agent performs these steps before opening a WebSocket:
+
+1. **Register** — calls `POST /api/agent/register` with a stable `machineId` derived from the machine's network interfaces and hostname (SHA-256). This binds the token to the machine. If registration fails the agent throws and does not continue.
+2. **Create session** — calls `POST /api/agent/session/create` (includes `machineId` for verification) and receives a WebSocket URL.
+3. **Connect** — opens a WebSocket to the returned URL (appends `?machineId=` for server-side verification).
 
 ### Connection Features
 

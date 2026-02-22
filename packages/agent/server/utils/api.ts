@@ -1,5 +1,6 @@
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { logger } from './logger.ts'
+import { getMachineId } from './machineId.ts'
 import { cacheSession, getCachedSession } from './sessionManager.ts'
 
 type ConnectProps = {
@@ -31,6 +32,7 @@ export async function createAgentSession({ token, studioUrl, noCache }: ConnectP
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      body: { machineId: getMachineId() },
     })
 
     // Cache the session for reuse (unless --no-cache is set)
@@ -45,6 +47,32 @@ export async function createAgentSession({ token, studioUrl, noCache }: ConnectP
     return data
   } catch (error: any) {
     throw new Error('Failed to get agent session from Kubb Studio', { cause: error })
+  }
+}
+
+type RegisterProps = {
+  studioUrl: string
+  token: string
+}
+
+/**
+ * Register this agent with Kubb Studio by sending the machine ID.
+ * Called once on agent startup before creating a WebSocket session.
+ */
+export async function registerAgent({ token, studioUrl }: RegisterProps): Promise<void> {
+  const machineId = getMachineId()
+
+  try {
+    await $fetch(`${studioUrl}/api/agent/register`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: { machineId },
+    })
+    logger.success('Agent registered with Studio')
+  } catch (error: any) {
+    throw new Error('Failed to register agent with Studio', { cause: error })
   }
 }
 

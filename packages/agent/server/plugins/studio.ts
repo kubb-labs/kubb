@@ -4,7 +4,7 @@ import type { KubbEvents } from '@kubb/core'
 import { AsyncEventEmitter, formatMs, getConfigs, serializePluginOptions } from '@kubb/core/utils'
 import { execa } from 'execa'
 import { type AgentMessage, isCommandMessage } from '~/types/agent.ts'
-import { createAgentSession, disconnect } from '~/utils/api.ts'
+import { createAgentSession, disconnect, registerAgent } from '~/utils/api.ts'
 import { generate } from '~/utils/generate.ts'
 import { getCosmiConfig } from '~/utils/getCosmiConfig.ts'
 import { logger } from '~/utils/logger.ts'
@@ -144,6 +144,7 @@ export default defineNitroPlugin(async (nitro) => {
         token,
         studioUrl,
       })
+
       const ws = createWebsocket(wsUrl, wsOptions)
 
       const onError = async () => {
@@ -275,5 +276,6 @@ export default defineNitroPlugin(async (nitro) => {
     }
   }
 
+  await registerAgent({ token, studioUrl })
   await connectToStudio()
 })

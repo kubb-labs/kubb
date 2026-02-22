@@ -17,10 +17,10 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
-      interval: 30s
-      timeout: 5s
-      start_period: 10s
-      retries: 3
+      interval: 15s
+      timeout: 10s
+      start_period: 60s
+      retries: 5
 
   agent:
     image: kubblabs/kubb-agent:latest
@@ -38,16 +38,13 @@ services:
       KUBB_AGENT_ALLOW_ALL: "false"
       KUBB_AGENT_RETRY_TIMEOUT: "30000"
       KUBB_STUDIO_URL: http://kubb-studio:3000
-    depends_on:
-      studio:
-        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
-      interval: 30s
-      timeout: 5s
-      start_period: 10s
-      retries: 3
+      interval: 15s
+      timeout: 10s
+      start_period: 60s
+      retries: 5
 
   postgres:
     image: postgres:17-alpine
@@ -64,6 +61,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U studio"]
       interval: 10s
       timeout: 5s
+      start_period: 20s
       retries: 5
 
 volumes:
