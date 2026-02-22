@@ -1,3 +1,6 @@
+import { cpSync, existsSync, readdirSync, rmSync } from 'node:fs'
+import { resolve } from 'node:path'
+
 export default defineNitroConfig({
   srcDir: 'server',
   debug: false,
@@ -13,6 +16,37 @@ export default defineNitroConfig({
         'Access-Control-Allow-Headers': '*',
         'Access-Control-Expose-Headers': '*',
       },
+    },
+  },
+  hooks: {
+    compiled(nitro) {
+      // Fix: Nitro's file tracer (@vercel/nft) only copies files reachable
+      // via static imports. Packages that use dynamic resolution at runtime
+      // (e.g. @kubb plugins loading templates via jiti, ajv-formats peer dep
+      // on ajv resolved to @redocly/ajv by pnpm) end up with incomplete
+      // file sets in the output. Replace them with the full packages.
+      const serverNodeModules = resolve(nitro.options.output.serverDir, 'node_modules')
+      const rootNodeModules = resolve(nitro.options.rootDir, 'node_modules')
+
+      function copyFullPackage(pkgPath: string) {
+        const dest = resolve(serverNodeModules, pkgPath)
+        const src = resolve(rootNodeModules, pkgPath)
+        if (existsSync(dest) && existsSync(src)) {
+          rmSync(dest, { recursive: true, force: true })
+          cpSync(src, dest, { recursive: true, dereference: true })
+        }
+      }
+
+      // Copy all @kubb/* packages that were externalized
+      const kubbDir = resolve(serverNodeModules, '@kubb')
+      if (existsSync(kubbDir)) {
+        for (const pkg of readdirSync(kubbDir)) {
+          copyFullPackage(`@kubb/${pkg}`)
+        }
+      }
+
+      // Copy ajv (incomplete due to pnpm @redocly/ajv peer resolution)
+      copyFullPackage('ajv')
     },
   },
 })
