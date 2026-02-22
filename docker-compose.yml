@@ -33,7 +33,7 @@ services:
       - .env
     environment:
       PORT: 3000
-      KUBB_AGENT_ROOT: ./examples/react-query
+      KUBB_AGENT_ROOT: /kubb/agent/data
       KUBB_AGENT_CONFIG: ./kubb.config.ts
       KUBB_AGENT_NO_CACHE: "false"
       KUBB_AGENT_ALLOW_WRITE: "false"
@@ -41,6 +41,8 @@ services:
       KUBB_AGENT_RETRY_TIMEOUT: "30000"
       KUBB_STUDIO_URL: http://kubb-studio:3000
     restart: unless-stopped
+    volumes:
+      - ./examples/react-query:/kubb/agent/data
     depends_on:
       studio:
         condition: service_healthy
