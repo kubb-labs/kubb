@@ -27,6 +27,6 @@ EXPOSE ${PORT}
 # Copy only the pre-built output
 # Expects the build to have been done before docker build (e.g., in CI)
 COPY --link packages/agent/.output ./.output
-COPY --from=init /kubb/agent ./
+COPY --from=init /kubb/agent /kubb/agent
 
 CMD [ ".output/server/index.mjs" ]
