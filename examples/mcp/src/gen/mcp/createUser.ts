@@ -1,4 +1,3 @@
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/ts/CreateUser.js'
@@ -8,7 +7,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../m
  * @summary Create user
  * {@link /user}
  */
-export async function createUserHandler({ data }: { data?: CreateUserMutationRequest } = {}): Promise<Promise<CallToolResult>> {
+export async function createUserHandler({ data }: { data?: CreateUserMutationRequest } = {}) {
   const requestData = data
 
   const res = await fetch<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({

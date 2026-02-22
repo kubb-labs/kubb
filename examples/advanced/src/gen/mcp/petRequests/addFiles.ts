@@ -1,6 +1,5 @@
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { buildFormData } from '../../.kubb/config.ts'
 import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../models/ts/petController/AddFiles.ts'
 
@@ -9,7 +8,7 @@ import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } f
  * @summary Place an file for a pet
  * {@link /pet/files}
  */
-export async function addFilesHandler({ data }: { data: AddFilesMutationRequest }): Promise<Promise<CallToolResult>> {
+export async function addFilesHandler({ data }: { data: AddFilesMutationRequest }) {
   const requestData = data
   const formData = buildFormData(requestData)
   const res = await fetch<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationRequest>({

@@ -1,5 +1,4 @@
 import type { ResponseErrorConfig } from './test/.kubb/fetch'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { fetch } from './test/.kubb/fetch'
 
 /**
@@ -12,7 +11,7 @@ export async function showPetByIdHandler({
 }: {
   petId: ShowPetByIdPathParams['petId']
   testId: ShowPetByIdPathParams['testId']
-}): Promise<Promise<CallToolResult>> {
+}) {
   const res = await fetch<ShowPetByIdQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/pets/${petId}` })
   return {
     content: [

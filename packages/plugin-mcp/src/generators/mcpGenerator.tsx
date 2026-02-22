@@ -54,7 +54,6 @@ export const mcpGenerator = createReactGenerator<PluginMcp>({
           </>
         )}
         <File.Import name={['buildFormData']} root={mcp.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
-        <File.Import name={['CallToolResult']} path={'@modelcontextprotocol/sdk/types'} isTypeOnly />
         <File.Import
           name={[
             type.schemas.request?.name,
@@ -72,7 +71,6 @@ export const mcpGenerator = createReactGenerator<PluginMcp>({
         <Client
           name={mcp.name}
           isConfigurable={false}
-          returnType={'Promise<CallToolResult>'}
           baseURL={options.client.baseURL}
           operation={operation}
           typeSchemas={type.schemas}

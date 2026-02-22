@@ -1,4 +1,3 @@
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/ts/CreateUsersWithListInput.js'
@@ -8,7 +7,7 @@ import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputM
  * @summary Creates list of users with given input array
  * {@link /user/createWithList}
  */
-export async function createUsersWithListInputHandler({ data }: { data?: CreateUsersWithListInputMutationRequest } = {}): Promise<Promise<CallToolResult>> {
+export async function createUsersWithListInputHandler({ data }: { data?: CreateUsersWithListInputMutationRequest } = {}) {
   const requestData = data
 
   const res = await fetch<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({

@@ -1,4 +1,3 @@
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
 import type { FindPetsByTags400, FindPetsByTagsHeaderParams, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/ts/FindPetsByTags.js'
@@ -14,7 +13,7 @@ export async function findPetsByTagsHandler({
 }: {
   headers: FindPetsByTagsHeaderParams
   params?: FindPetsByTagsQueryParams
-}): Promise<Promise<CallToolResult>> {
+}) {
   const res = await fetch<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({
     method: 'GET',
     url: '/pet/findByTags',

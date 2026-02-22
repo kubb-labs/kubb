@@ -1,4 +1,3 @@
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
 import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../models/ts/DeleteUser.js'
@@ -8,7 +7,7 @@ import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUs
  * @summary Delete user
  * {@link /user/:username}
  */
-export async function deleteUserHandler({ username }: { username: DeleteUserPathParams['username'] }): Promise<Promise<CallToolResult>> {
+export async function deleteUserHandler({ username }: { username: DeleteUserPathParams['username'] }) {
   const res = await fetch<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
     method: 'DELETE',
     url: `/user/${username}`,

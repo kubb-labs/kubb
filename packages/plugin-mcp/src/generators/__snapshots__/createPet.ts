@@ -1,5 +1,4 @@
 import type { ResponseErrorConfig } from './test/.kubb/fetch'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { fetch } from './test/.kubb/fetch'
 
 /**
@@ -9,7 +8,7 @@ import { fetch } from './test/.kubb/fetch'
  * @summary Create a pet
  * {@link /pets}
  */
-export async function createPetsHandler({ data }: { data: CreatePetsMutationRequest }): Promise<Promise<CallToolResult>> {
+export async function createPetsHandler({ data }: { data: CreatePetsMutationRequest }) {
   const requestData = data
 
   const res = await fetch<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({

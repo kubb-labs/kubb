@@ -1,4 +1,3 @@
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
 import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/ts/GetUserByName.js'
@@ -7,7 +6,7 @@ import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUs
  * @summary Get user by user name
  * {@link /user/:username}
  */
-export async function getUserByNameHandler({ username }: { username: GetUserByNamePathParams['username'] }): Promise<Promise<CallToolResult>> {
+export async function getUserByNameHandler({ username }: { username: GetUserByNamePathParams['username'] }) {
   const res = await fetch<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
     method: 'GET',
     url: `/user/${username}`,
