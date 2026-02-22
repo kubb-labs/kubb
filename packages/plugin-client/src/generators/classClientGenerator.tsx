@@ -11,6 +11,7 @@ import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File } from '@kubb/react-fabric'
 import { ClassClient } from '../components/ClassClient'
+import { WrapperClient } from '../components/WrapperClient'
 import type { PluginClient } from '../types'
 
 type OperationData = {
@@ -152,7 +153,7 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
       return { zodImportsByFile, zodFilesByPath }
     }
 
-    return controllers.map(({ name, file, operations: ops }) => {
+    const files = controllers.map(({ name, file, operations: ops }) => {
       const { typeImportsByFile, typeFilesByPath } = collectTypeImports(ops)
       const { zodImportsByFile, zodFilesByPath } =
         options.parser === 'zod'
@@ -229,5 +230,43 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
         </File>
       )
     })
+
+    if (options.wrapper) {
+      const wrapperFile = pluginManager.getFile({
+        name: options.wrapper.className,
+        extname: '.ts',
+        pluginKey,
+      })
+
+      files.push(
+        <File
+          key={wrapperFile.path}
+          baseName={wrapperFile.baseName}
+          path={wrapperFile.path}
+          meta={wrapperFile.meta}
+          banner={getBanner({ oas, output: options.output, config: pluginManager.config })}
+          footer={getFooter({ oas, output: options.output })}
+        >
+          {options.importPath ? (
+            <File.Import name={['Client', 'RequestConfig']} path={options.importPath} isTypeOnly />
+          ) : (
+            <File.Import
+              name={['Client', 'RequestConfig']}
+              root={wrapperFile.path}
+              path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
+              isTypeOnly
+            />
+          )}
+
+          {controllers.map(({ name, file }) => (
+            <File.Import key={name} name={[name]} root={wrapperFile.path} path={file.path} />
+          ))}
+
+          <WrapperClient name={options.wrapper.className} classNames={controllers.map(({ name }) => name)} />
+        </File>,
+      )
+    }
+
+    return files
   },
 })

@@ -175,6 +175,7 @@ describe('clientGenerator operation', async () => {
       },
       group: undefined,
       urlType: 'export',
+      wrapper: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>
