@@ -12,13 +12,7 @@ import type {
  * @summary Finds Pets by tags
  * {@link /pet/findByTags}
  */
-export async function findPetsByTagsHandler({
-  headers,
-  params,
-}: {
-  headers: FindPetsByTagsHeaderParams
-  params?: FindPetsByTagsQueryParams
-}) {
+export async function findPetsByTagsHandler({ headers, params }: { headers: FindPetsByTagsHeaderParams; params?: FindPetsByTagsQueryParams }) {
   const mappedHeaders = headers ? { 'X-EXAMPLE': headers.xEXAMPLE } : undefined
 
   const res = await fetch<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({

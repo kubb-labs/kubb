@@ -7,13 +7,7 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * @summary Update user
  * {@link /user/:username}
  */
-export async function updateUserHandler({
-  username,
-  data,
-}: {
-  username: UpdateUserPathParams['username']
-  data?: UpdateUserMutationRequest
-}) {
+export async function updateUserHandler({ username, data }: { username: UpdateUserPathParams['username']; data?: UpdateUserMutationRequest }) {
   const requestData = data
 
   const res = await fetch<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({

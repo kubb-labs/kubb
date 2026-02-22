@@ -11,13 +11,7 @@ import type {
  * @summary Updates a pet in the store with form data
  * {@link /pet/:petId}
  */
-export async function updatePetWithFormHandler({
-  petId,
-  params,
-}: {
-  petId: UpdatePetWithFormPathParams['petId']
-  params?: UpdatePetWithFormQueryParams
-}) {
+export async function updatePetWithFormHandler({ petId, params }: { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams }) {
   const res = await fetch<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, unknown>({
     method: 'POST',
     url: `/pet/${petId}`,

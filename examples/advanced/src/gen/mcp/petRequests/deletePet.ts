@@ -7,13 +7,7 @@ import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, De
  * @summary Deletes a pet
  * {@link /pet/:petId:search}
  */
-export async function deletePetHandler({
-  petId,
-  headers,
-}: {
-  petId: DeletePetPathParams['petId']
-  headers?: DeletePetHeaderParams
-}) {
+export async function deletePetHandler({ petId, headers }: { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }) {
   const mappedHeaders = headers ? { api_key: headers.apiKey } : undefined
 
   const res = await fetch<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
