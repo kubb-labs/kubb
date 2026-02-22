@@ -3,6 +3,7 @@ ARG NODE_VERSION=20
 # Init stage: scaffold a default kubb.config.ts using a shell-capable image
 FROM node:${NODE_VERSION}-alpine AS init
 WORKDIR /kubb/agent
+RUN npm i -g kubb@latest
 RUN npx kubb init -y
 
 # https://github.com/GoogleContainerTools/distroless/blob/main/nodejs/README.md
