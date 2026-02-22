@@ -1,6 +1,5 @@
 import path from 'node:path'
 import process from 'node:process'
-import type { KubbEvents } from '@kubb/core'
 import { AsyncEventEmitter, formatMs, getConfigs, serializePluginOptions } from '@kubb/core/utils'
 import { execa } from 'execa'
 import { type AgentMessage, isCommandMessage } from '~/types/agent.ts'
@@ -13,24 +12,6 @@ import { deleteCachedSession, getCachedSession } from '~/utils/sessionManager.ts
 import { readStudioConfig, writeStudioConfig } from '~/utils/studioConfig.ts'
 import { createWebsocket, sendAgentMessage, setupEventsStream } from '~/utils/ws.ts'
 import { version } from '~~/package.json'
-
-declare global {
-  namespace NodeJS {
-    interface ProcessEnv {
-      PORT: string
-      KUBB_AGENT_ROOT: string
-      KUBB_AGENT_TOKEN: string
-      KUBB_AGENT_CONFIG: string
-      KUBB_AGENT_NO_CACHE: string
-      KUBB_AGENT_RETRY_TIMEOUT: string
-      KUBB_AGENT_ALLOW_WRITE: string
-      KUBB_AGENT_ALLOW_ALL: string
-
-      KUBB_STUDIO_LICENSE: string
-      KUBB_STUDIO_URL: string
-    }
-  }
-}
 
 /**
  * Nitro plugin that connects the agent to Kubb Studio on server startup.

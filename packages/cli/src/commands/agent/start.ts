@@ -9,24 +9,6 @@ import { config as loadEnv } from 'dotenv'
 import { execa } from 'execa'
 import pc from 'picocolors'
 
-declare global {
-  namespace NodeJS {
-    interface ProcessEnv {
-      PORT: string
-      KUBB_AGENT_ROOT: string
-      KUBB_AGENT_TOKEN: string
-      KUBB_AGENT_CONFIG: string
-      KUBB_AGENT_NO_CACHE: string
-      KUBB_AGENT_RETRY_TIMEOUT: string
-      KUBB_AGENT_ALLOW_WRITE: string
-      KUBB_AGENT_ALLOW_ALL: string
-
-      KUBB_STUDIO_LICENSE: string
-      KUBB_STUDIO_URL: string
-    }
-  }
-}
-
 const args = {
   config: {
     type: 'string',

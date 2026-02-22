@@ -11,6 +11,7 @@ services:
       PORT: 3000
       POLAR_SERVER: sandbox
       DATABASE_URL: postgresql://studio:studio_dev_password@postgres:5432/studio
+      KUBB_STUDIO_URL: http://localhost:3002
     depends_on:
       postgres:
         condition: service_healthy
@@ -39,6 +40,9 @@ services:
       KUBB_AGENT_RETRY_TIMEOUT: "30000"
       KUBB_STUDIO_URL: http://kubb-studio:3000
     restart: unless-stopped
+    depends_on:
+      studio:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
       interval: 15s
