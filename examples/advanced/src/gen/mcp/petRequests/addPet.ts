@@ -1,6 +1,5 @@
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/petController/AddPet.ts'
 
 /**
@@ -8,7 +7,7 @@ import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '.
  * @summary Add a new pet to the store
  * {@link /pet}
  */
-export async function addPetHandler({ data }: { data: AddPetMutationRequest }): Promise<Promise<CallToolResult>> {
+export async function addPetHandler({ data }: { data: AddPetMutationRequest }) {
   const requestData = data
 
   const res = await fetch<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({

@@ -1,4 +1,3 @@
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/ts/UpdateUser.js'
@@ -14,7 +13,7 @@ export async function updateUserHandler({
 }: {
   username: UpdateUserPathParams['username']
   data?: UpdateUserMutationRequest
-}): Promise<Promise<CallToolResult>> {
+}) {
   const requestData = data
 
   const res = await fetch<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({

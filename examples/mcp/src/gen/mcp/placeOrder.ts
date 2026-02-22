@@ -1,4 +1,3 @@
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
 import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../models/ts/PlaceOrder.js'
@@ -8,7 +7,7 @@ import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationRespon
  * @summary Place an order for a pet
  * {@link /store/order}
  */
-export async function placeOrderHandler({ data }: { data?: PlaceOrderMutationRequest } = {}): Promise<Promise<CallToolResult>> {
+export async function placeOrderHandler({ data }: { data?: PlaceOrderMutationRequest } = {}) {
   const requestData = data
 
   const res = await fetch<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({

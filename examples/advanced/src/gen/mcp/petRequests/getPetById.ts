@@ -1,6 +1,5 @@
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById.ts'
 
 /**
@@ -8,7 +7,7 @@ import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQuer
  * @summary Find pet by ID
  * {@link /pet/:petId:search}
  */
-export async function getPetByIdHandler({ petId }: { petId: GetPetByIdPathParams['petId'] }): Promise<Promise<CallToolResult>> {
+export async function getPetByIdHandler({ petId }: { petId: GetPetByIdPathParams['petId'] }) {
   const res = await fetch<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, unknown>({
     method: 'GET',
     url: `/pet/${petId}:search`,

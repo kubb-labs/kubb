@@ -1,6 +1,5 @@
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type {
   FindPetsByTags400,
   FindPetsByTagsHeaderParams,
@@ -19,7 +18,7 @@ export async function findPetsByTagsHandler({
 }: {
   headers: FindPetsByTagsHeaderParams
   params?: FindPetsByTagsQueryParams
-}): Promise<Promise<CallToolResult>> {
+}) {
   const mappedHeaders = headers ? { 'X-EXAMPLE': headers.xEXAMPLE } : undefined
 
   const res = await fetch<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, unknown>({

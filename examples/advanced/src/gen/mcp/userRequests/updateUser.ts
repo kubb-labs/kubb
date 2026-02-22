@@ -1,6 +1,5 @@
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../models/ts/userController/UpdateUser.ts'
 
 /**
@@ -14,7 +13,7 @@ export async function updateUserHandler({
 }: {
   username: UpdateUserPathParams['username']
   data?: UpdateUserMutationRequest
-}): Promise<Promise<CallToolResult>> {
+}) {
   const requestData = data
 
   const res = await fetch<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({

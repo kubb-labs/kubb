@@ -1,6 +1,5 @@
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../models/ts/petController/DeletePet.ts'
 
 /**
@@ -14,7 +13,7 @@ export async function deletePetHandler({
 }: {
   petId: DeletePetPathParams['petId']
   headers?: DeletePetHeaderParams
-}): Promise<Promise<CallToolResult>> {
+}) {
   const mappedHeaders = headers ? { api_key: headers.apiKey } : undefined
 
   const res = await fetch<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({

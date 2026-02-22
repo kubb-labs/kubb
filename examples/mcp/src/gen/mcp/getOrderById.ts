@@ -1,4 +1,3 @@
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
 import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/ts/GetOrderById.js'
@@ -8,7 +7,7 @@ import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrder
  * @summary Find purchase order by ID
  * {@link /store/order/:orderId}
  */
-export async function getOrderByIdHandler({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }): Promise<Promise<CallToolResult>> {
+export async function getOrderByIdHandler({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }) {
   const res = await fetch<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
     method: 'GET',
     url: `/store/order/${orderId}`,

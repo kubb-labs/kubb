@@ -1,4 +1,3 @@
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
 import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../models/ts/DeletePet.js'
@@ -14,7 +13,7 @@ export async function deletePetHandler({
 }: {
   petId: DeletePetPathParams['petId']
   headers?: DeletePetHeaderParams
-}): Promise<Promise<CallToolResult>> {
+}) {
   const res = await fetch<DeletePetMutationResponse, ResponseErrorConfig<DeletePet400>, unknown>({
     method: 'DELETE',
     url: `/pet/${petId}`,

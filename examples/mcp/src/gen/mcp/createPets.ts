@@ -1,4 +1,3 @@
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
 import type {
@@ -23,7 +22,7 @@ export async function createPetsHandler({
   data: CreatePetsMutationRequest
   headers: CreatePetsHeaderParams
   params?: CreatePetsQueryParams
-}): Promise<Promise<CallToolResult>> {
+}) {
   const requestData = data
 
   const res = await fetch<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({

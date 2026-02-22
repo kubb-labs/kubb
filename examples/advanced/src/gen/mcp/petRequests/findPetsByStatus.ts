@@ -1,6 +1,5 @@
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { FindPetsByStatus400, FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../../models/ts/petController/FindPetsByStatus.ts'
 
 /**
@@ -8,7 +7,7 @@ import type { FindPetsByStatus400, FindPetsByStatusPathParams, FindPetsByStatusQ
  * @summary Finds Pets by status
  * {@link /pet/findByStatus/:step_id}
  */
-export async function findPetsByStatusHandler({ stepId }: { stepId: FindPetsByStatusPathParams['stepId'] }): Promise<Promise<CallToolResult>> {
+export async function findPetsByStatusHandler({ stepId }: { stepId: FindPetsByStatusPathParams['stepId'] }) {
   const step_id = stepId
 
   const res = await fetch<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, unknown>({

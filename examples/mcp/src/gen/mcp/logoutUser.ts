@@ -1,4 +1,3 @@
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
 import fetch from '../../client.js'
 import type { LogoutUserQueryResponse } from '../models/ts/LogoutUser.js'
@@ -7,7 +6,7 @@ import type { LogoutUserQueryResponse } from '../models/ts/LogoutUser.js'
  * @summary Logs out current logged in user session
  * {@link /user/logout}
  */
-export async function logoutUserHandler(): Promise<Promise<CallToolResult>> {
+export async function logoutUserHandler() {
   const res = await fetch<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
     url: '/user/logout',

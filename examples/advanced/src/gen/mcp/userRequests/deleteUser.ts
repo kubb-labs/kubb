@@ -1,6 +1,5 @@
 import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../models/ts/userController/DeleteUser.ts'
 
 /**
@@ -8,7 +7,7 @@ import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUs
  * @summary Delete user
  * {@link /user/:username}
  */
-export async function deleteUserHandler({ username }: { username: DeleteUserPathParams['username'] }): Promise<Promise<CallToolResult>> {
+export async function deleteUserHandler({ username }: { username: DeleteUserPathParams['username'] }) {
   const res = await fetch<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
     method: 'DELETE',
     url: `/user/${username}`,
