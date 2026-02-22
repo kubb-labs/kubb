@@ -5,7 +5,7 @@ export default defineNitroConfig({
   srcDir: 'server',
   debug: false,
   serveStatic: false,
-  compatibilityDate: '2026-02-17',
+  compatibilityDate: '2026-02-22',
   ignore: ['**/*.test.ts', '**/*.spec.ts'],
   routeRules: {
     '/**': {
@@ -31,16 +31,16 @@ export default defineNitroConfig({
       function copyFullPackage(pkgPath: string) {
         const dest = resolve(serverNodeModules, pkgPath)
         const src = resolve(rootNodeModules, pkgPath)
-        if (existsSync(dest) && existsSync(src)) {
+        if (existsSync(src)) {
           rmSync(dest, { recursive: true, force: true })
           cpSync(src, dest, { recursive: true, dereference: true })
         }
       }
 
-      // Copy all @kubb/* packages that were externalized
-      const kubbDir = resolve(serverNodeModules, '@kubb')
-      if (existsSync(kubbDir)) {
-        for (const pkg of readdirSync(kubbDir)) {
+      // Copy all @kubb/* packages from source (not just those already in output)
+      const kubbSrcDir = resolve(rootNodeModules, '@kubb')
+      if (existsSync(kubbSrcDir)) {
+        for (const pkg of readdirSync(kubbSrcDir)) {
           copyFullPackage(`@kubb/${pkg}`)
         }
       }
