@@ -2,7 +2,6 @@ import path from 'node:path'
 import type { Config } from '@kubb/core'
 import { pascalCase } from '@kubb/core/transformers'
 import { URLPath } from '@kubb/core/utils'
-import { bundle, loadConfig } from '@redocly/openapi-core'
 import yaml from '@stoplight/yaml'
 import type { ParameterObject, SchemaObject } from 'oas/types'
 import { isRef, isSchema } from 'oas/types'
@@ -166,11 +165,9 @@ export async function parse(
   { oasClass = Oas, canBundle = true, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
 ): Promise<Oas> {
   if (typeof pathOrApi === 'string' && canBundle) {
-    // resolve external refs
-    const config = await loadConfig()
-    const bundleResults = await bundle({ ref: pathOrApi, config, base: pathOrApi })
-
-    return parse(bundleResults.bundle.parsed as string, { oasClass, canBundle, enablePaths })
+    // resolve external refs using oas-normalize (already a dependency)
+    const bundled = await new OASNormalize(pathOrApi, { enablePaths, colorizeErrors: true }).bundle()
+    return parse(bundled as Document, { oasClass, canBundle: false, enablePaths })
   }
 
   const oasNormalize = new OASNormalize(pathOrApi, {
