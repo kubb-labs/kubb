@@ -110,15 +110,15 @@ export function Server({ name, serverName, serverVersion, paramsCasing, operatio
 
           if (zod.schemas.request?.name || zod.schemas.headerParams?.name || zod.schemas.queryParams?.name || zod.schemas.pathParams?.name) {
             return `
-server.tool(${JSON.stringify(tool.name)}, ${JSON.stringify(tool.description)}, ${paramsClient.toObjectValue()}, async (${paramsClient.toObject()}) => {
-  return ${mcp.name}(${paramsClient.toObject()})
+server.tool(${JSON.stringify(tool.name)}, ${JSON.stringify(tool.description)}, ${paramsClient.toObjectValue()}, async (${paramsClient.toObject()}, request) => {
+  return ${mcp.name}(${paramsClient.toObject()}, request)
 })
           `
           }
 
           return `
-server.tool(${JSON.stringify(tool.name)}, ${JSON.stringify(tool.description)}, async () => {
-  return ${mcp.name}(${paramsClient.toObject()})
+server.tool(${JSON.stringify(tool.name)}, ${JSON.stringify(tool.description)}, async (_, request) => {
+  return ${mcp.name}(request)
 })
           `
         })

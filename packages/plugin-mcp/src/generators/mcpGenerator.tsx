@@ -82,6 +82,7 @@ export const mcpGenerator = createReactGenerator<PluginMcp>({
           paramsCasing={options.client?.paramsCasing || options.paramsCasing}
           pathParamsType={'object'}
           parser={'client'}
+          requestParam={'request'}
         >
           {options.client.dataReturnType === 'data' &&
             `return {

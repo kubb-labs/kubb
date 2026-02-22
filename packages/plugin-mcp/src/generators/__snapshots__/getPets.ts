@@ -7,8 +7,8 @@ import { fetch } from './test/.kubb/fetch'
  * @summary List all pets
  * {@link /pets}
  */
-export async function listPetsHandler({ params }: { params?: ListPetsQueryParams } = {}): Promise<Promise<CallToolResult>> {
-  const res = await fetch<ListPetsQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/pets`, params })
+export async function listPetsHandler({ params }: { params?: ListPetsQueryParams } = {}, request?: unknown): Promise<Promise<CallToolResult>> {
+  const res = await fetch<ListPetsQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/pets`, params }, request)
   return {
     content: [
       {

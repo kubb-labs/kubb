@@ -9,14 +9,13 @@ import { fetch } from './test/.kubb/fetch'
  * @summary Create a pet
  * {@link /pets}
  */
-export async function createPetsHandler({ data }: { data: CreatePetsMutationRequest }): Promise<Promise<CallToolResult>> {
+export async function createPetsHandler({ data }: { data: CreatePetsMutationRequest }, request?: unknown): Promise<Promise<CallToolResult>> {
   const requestData = data
 
-  const res = await fetch<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>({
-    method: 'POST',
-    url: `/pets`,
-    data: requestData,
-  })
+  const res = await fetch<CreatePetsMutationResponse, ResponseErrorConfig<Error>, CreatePetsMutationRequest>(
+    { method: 'POST', url: `/pets`, data: requestData },
+    request,
+  )
   return {
     content: [
       {

@@ -11,16 +11,16 @@ export const server = new McpServer({
   version: '3.0.0',
 })
 
-server.tool('listPets', 'Returns all `pets` from the system \\n that the user has access to', { params: listPetsQueryParams }, async ({ params }) => {
-  return listPetsHandler({ params })
+server.tool('listPets', 'Returns all `pets` from the system \\n that the user has access to', { params: listPetsQueryParams }, async ({ params }, request) => {
+  return listPetsHandler({ params }, request)
 })
 
 server.tool(
   'createPets',
   'Creates a pet in the store.\nThis is an arbitrary description with lots of `strange` but likely formatting from the real world.\n- We like to make lists - And we need to escape: some, type, of `things`\n',
   { data: createPetsMutationRequest },
-  async ({ data }) => {
-    return createPetsHandler({ data })
+  async ({ data }, request) => {
+    return createPetsHandler({ data }, request)
   },
 )
 
@@ -28,8 +28,8 @@ server.tool(
   'showPetById',
   'Make a GET request to /pets/{petId}',
   { petId: showPetByIdPathParams.shape['petId'], testId: showPetByIdPathParams.shape['testId'] },
-  async ({ petId, testId }) => {
-    return showPetByIdHandler({ petId, testId })
+  async ({ petId, testId }, request) => {
+    return showPetByIdHandler({ petId, testId }, request)
   },
 )
 

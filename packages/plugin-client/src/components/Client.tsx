@@ -18,6 +18,12 @@ type Props = {
   isIndexable?: boolean
   isConfigurable?: boolean
   returnType?: string
+  /**
+   * When set, adds an extra parameter with this name (typed as `unknown`) to the generated function
+   * and passes it as the second argument to the `fetch` call.
+   * Useful for passing MCP request context or similar extras through to the client.
+   */
+  requestParam?: string
 
   baseURL: string | undefined
   dataReturnType: PluginClient['resolvedOptions']['dataReturnType']
@@ -145,6 +151,7 @@ export function Client({
   urlName,
   children,
   isConfigurable = true,
+  requestParam,
 }: Props): FabricReactNode {
   const path = new URLPath(operation.path)
   const contentType = operation.getContentType()
@@ -234,7 +241,7 @@ export function Client({
           name={name}
           async
           export={isExportable}
-          params={params.toConstructor()}
+          params={requestParam ? [params.toConstructor(), `${requestParam}?: unknown`].filter(Boolean).join(', ') : params.toConstructor()}
           JSDoc={{
             comments: getComments(operation),
           }}
@@ -279,7 +286,7 @@ export function Client({
           <br />
           {isConfigurable
             ? `const res = await request<${generics.join(', ')}>(${clientParams.toCall()})`
-            : `const res = await fetch<${generics.join(', ')}>(${clientParams.toCall()})`}
+            : `const res = await fetch<${generics.join(', ')}>(${clientParams.toCall()}${requestParam ? `, ${requestParam}` : ''})`}
           <br />
           {childrenElement}
         </Function>
