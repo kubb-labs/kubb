@@ -11,7 +11,7 @@ services:
       PORT: 3000
       POLAR_SERVER: sandbox
       DATABASE_URL: postgresql://studio:studio_dev_password@postgres:5432/studio
-      KUBB_STUDIO_URL: http://localhost:3002
+      KUBB_STUDIO_URL: http://kubb-studio:3000
     depends_on:
       postgres:
         condition: service_healthy
