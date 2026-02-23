@@ -92,6 +92,10 @@ components:
     // The $ref pointer must be preserved (not inlined) so SchemaGenerator can emit a named type reference
     const petSchema = (oas.api as any).components?.schemas?.Pet
     expect(petSchema).toBeDefined()
+    expect(petSchema.type).toBe('object')
+    expect(petSchema.required).toEqual(['id', 'name'])
+    expect(petSchema.properties.id).toEqual({ type: 'integer', format: 'int64' })
+    expect(petSchema.properties.name).toEqual({ type: 'string' })
     expect(petSchema.properties.category.$ref).toBe('./category.yaml#/components/schemas/Category')
   })
 
@@ -104,6 +108,11 @@ components:
     // The external HTTP $ref must be preserved (not inlined) so SchemaGenerator can emit a named type reference
     const petSchema = (oas.api as any).components?.schemas?.Pet
     expect(petSchema).toBeDefined()
+    expect(petSchema.type).toBe('object')
+    expect(petSchema.required).toEqual(['id', 'name'])
+    expect(petSchema.properties.id).toEqual({ type: 'integer', format: 'int64' })
+    expect(petSchema.properties.name).toEqual({ type: 'string' })
+    expect(petSchema.properties.tag).toEqual({ type: 'string' })
     expect(petSchema.properties.category.$ref).toBe('https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/Category')
   })
 })
