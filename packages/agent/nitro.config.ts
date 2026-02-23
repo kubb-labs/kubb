@@ -8,6 +8,16 @@ export default defineNitroConfig({
     './node_modules', // Local modules
     '../../node_modules', // Root modules (in a monorepo)
   ],
+  rollupConfig: {
+    output: {
+      // Polyfill CJS globals for bundled dependencies that reference __filename/__dirname
+      // in the ESM output (.mjs). These are not defined in ES module scope by default.
+      banner: `import urlNode from 'node:url'
+import pathNode from 'node:path'
+const __filename = urlNode.fileURLToPath(import.meta.url)
+const __dirname = pathNode.dirname(__filename)`,
+    },
+  },
   routeRules: {
     '/**': {
       cors: false,
