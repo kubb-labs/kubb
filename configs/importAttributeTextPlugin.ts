@@ -4,9 +4,9 @@ import path from 'node:path'
 /**
  * Rolldown/tsdown plugin that uses import attributes to replace import with text with the real source
  */
-export function inlineTemplateSource() {
+export function importAttributeTextPlugin() {
   return {
-    name: 'inline-template-source',
+    name: 'import-attribute-text-plugin',
     transform(code: string, id: string) {
       if (!id.endsWith('.source.ts')) {
         return
@@ -23,7 +23,7 @@ export function inlineTemplateSource() {
       try {
         content = readFileSync(templatePath, 'utf-8')
       } catch (err) {
-        throw new Error(`[inline-template-source] Could not read template file: ${templatePath}`, { cause: err })
+        throw new Error(`[import-attribute-text-plugin] Could not read template file: ${templatePath}`, { cause: err })
       }
 
       return `export const source = ${JSON.stringify(content)}`

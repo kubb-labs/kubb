@@ -1,5 +1,5 @@
 import { defineConfig } from 'tsdown'
-import { inlineTemplateSource } from '../../configs/inlineTemplateSource.ts'
+import { importAttributeTextPlugin } from '../../configs/importAttributeTextPlugin.ts'
 
 export default defineConfig({
   entry: {
@@ -12,7 +12,7 @@ export default defineConfig({
     'templates/clients/axios.source': 'src/templates/clients/axios.source.ts',
     'templates/clients/fetch.source': 'src/templates/clients/fetch.source.ts',
   },
-  plugins: [inlineTemplateSource()],
+  plugins: [importAttributeTextPlugin()],
   dts: true,
   format: ['esm', 'cjs'],
   platform: 'node',
