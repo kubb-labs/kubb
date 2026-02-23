@@ -18,7 +18,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
       interval: 15s
       timeout: 10s
       start_period: 60s
@@ -35,7 +35,7 @@ services:
       PORT: 3000
       KUBB_AGENT_ROOT: /kubb/agent/data
       KUBB_AGENT_CONFIG: ./kubb.config.ts
-      KUBB_AGENT_NO_CACHE: "false"
+      KUBB_AGENT_NO_CACHE: "true"
       KUBB_AGENT_ALLOW_WRITE: "false"
       KUBB_AGENT_ALLOW_ALL: "false"
       KUBB_AGENT_RETRY_TIMEOUT: "30000"
@@ -47,7 +47,7 @@ services:
       studio:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
       interval: 15s
       timeout: 10s
       start_period: 60s
