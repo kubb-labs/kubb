@@ -115,6 +115,34 @@ components:
     expect(petSchema.properties.tag).toEqual({ type: 'string' })
     expect(petSchema.properties.category.$ref).toBe('https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/Category')
   })
+
+  test('dereference a spec with an external file $ref keeps the external ref intact', async () => {
+    const specPath = path.resolve(__dirname, '../mocks/petStoreExternalFileRef.yaml')
+    const oas = await parse(specPath)
+
+    // dereference() resolves only internal refs (external: false); external file refs must stay as $ref pointers
+    await expect(oas.dereference()).resolves.not.toThrow()
+
+    const petSchema = (oas.api as any).components?.schemas?.Pet
+    expect(petSchema).toBeDefined()
+    expect(petSchema.type).toBe('object')
+    // External file $ref must still be a $ref string after dereference (not inlined)
+    expect(petSchema.properties.category.$ref).toBe('./category.yaml#/components/schemas/Category')
+  })
+
+  test('dereference a spec with an external URL $ref keeps the external ref intact', async () => {
+    const specPath = path.resolve(__dirname, '../../plugin-ts/mocks/petStore.yaml')
+    const oas = await parse(specPath)
+
+    // dereference() resolves only internal refs (external: false); external URL refs must stay as $ref pointers
+    await expect(oas.dereference()).resolves.not.toThrow()
+
+    const petSchema = (oas.api as any).components?.schemas?.Pet
+    expect(petSchema).toBeDefined()
+    expect(petSchema.type).toBe('object')
+    // External URL $ref must still be a $ref string after dereference (not inlined)
+    expect(petSchema.properties.category.$ref).toBe('https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/Category')
+  })
 })
 
 describe('parseFromConfig', () => {
