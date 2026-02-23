@@ -69,7 +69,6 @@
     "@kubb/plugin-zod": "workspace:*",
     "execa": "^9.6.1",
     "jiti": "2.5.1",
-    "nitropack": "^2.13.1",
     "picocolors": "^1.1.1",
     "string-argv": "^0.3.2",
     "ws": "^8.19.0"
@@ -77,6 +76,7 @@
   "devDependencies": {
     "@types/ws": "^8.18.1",
     "msw": "^2.12.10",
+    "nitropack": "^2.13.1",
     "vite": "^7.3.1"
   },
   "engines": {
