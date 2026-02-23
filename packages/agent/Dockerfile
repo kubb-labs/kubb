@@ -28,6 +28,8 @@ ENV NODE_ENV=production \
 EXPOSE ${PORT}
 
 COPY --link packages/agent/.output ./.output
-COPY --from=installer /tmp ./.output/server
+COPY --from=installer /tmp /kubb/deps
+
+ENV NODE_PATH=/kubb/deps/node_modules
 
 CMD [ ".output/server/index.mjs" ]
