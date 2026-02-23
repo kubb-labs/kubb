@@ -3,9 +3,9 @@ import { definePlugin, type Group, getBarrelFiles, getMode, PackageManager } fro
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { source as toZodSource } from './templates/ToZod.source.ts'
 import { operationsGenerator } from './generators'
 import { zodGenerator } from './generators/zodGenerator.tsx'
+import { source as toZodSource } from './templates/ToZod.source.ts'
 import type { PluginZod } from './types.ts'
 
 export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
