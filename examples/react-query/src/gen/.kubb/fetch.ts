@@ -1,4 +1,4 @@
-import type { AxiosError, AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios'
+import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import axios from 'axios'
 
 declare const AXIOS_BASE: string
@@ -35,7 +35,7 @@ export type Client = <TData, _TError = unknown, TVariables = unknown>(config: Re
 
 let _config: Partial<RequestConfig> = {
   baseURL: typeof AXIOS_BASE !== 'undefined' ? AXIOS_BASE : undefined,
-  headers: typeof AXIOS_HEADERS !== 'undefined' ? (JSON.parse(AXIOS_HEADERS) as AxiosHeaders) : undefined,
+  headers: typeof AXIOS_HEADERS !== 'undefined' ? JSON.parse(AXIOS_HEADERS) : undefined,
 }
 
 export const getConfig = () => _config
