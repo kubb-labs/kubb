@@ -5,7 +5,7 @@ import path from 'node:path'
  * Rolldown/tsdown plugin that inlines template file content at build time.
  *
  * Any `*.source.ts` entry file that contains:
- *   `import(/* sourceIncluded: true *\/ '...')`
+ *   `import content from '...' with { type: 'text' }`
  * has its content replaced during the build with:
  *   `export const source = "<inlined file content>"`
  *
@@ -19,7 +19,7 @@ export function inlineTemplateSource() {
         return
       }
 
-      const match = code.match(/import\(\/\* sourceIncluded: true \*\/\s*['"]([^'"]+)['"]\)/)
+      const match = code.match(/import\s+\w+\s+from\s+['"]([^'"]+)['"]\s+with\s+\{\s*type:\s*['"]text['"]\s*\}/)
       if (!match) {
         return
       }

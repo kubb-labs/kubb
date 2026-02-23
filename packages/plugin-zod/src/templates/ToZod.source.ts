@@ -1,1 +1,3 @@
-export const source: string = import(/* sourceIncluded: true */ '../../templates/ToZod.ts') as unknown as string
+import content from '../../templates/ToZod.ts' with { type: 'text' }
+
+export const source = content as string
