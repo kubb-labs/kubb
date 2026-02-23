@@ -6,6 +6,18 @@ outline: deep
 
 # Changelog
 
+## 4.27.3
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/oas`](/helpers/oas/)
+
+**Remove redocly and use @apidevtools/json-schema-ref-parser for OpenAPI bundling**
+
+Replaced `@redocly/openapi-core` with `@apidevtools/json-schema-ref-parser` to resolve `MissingPointerError` issues with `$ref` pointers (e.g., `#/definitions/enumNames.Type`). External file refs and URL refs are now properly resolved during OpenAPI parsing.
+
+---
+
 ## 4.27.2
 
 ### 🐛 Bug Fixes

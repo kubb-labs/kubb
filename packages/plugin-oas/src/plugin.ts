@@ -130,7 +130,15 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
         return
       }
 
-      await oas.dereference()
+      await oas.dereference().catch((err: unknown) => {
+        // Some specs have invalid internal $ref pointers (e.g. `#/definitions/...` in OpenAPI 3.x docs)
+        // that cause dereference to fail. Log the issue and continue — the SchemaGenerator resolves
+        // refs on-the-fly via dereferenceWithRef(), so schema generation still works.
+        this.events.emit('debug', {
+          date: new Date(),
+          logs: [`Unable to fully dereference schema: ${(err as Error).message}`],
+        })
+      })
 
       const schemaGenerator = new SchemaGenerator(
         {
