@@ -23,9 +23,9 @@ export function inlineTemplateSource() {
         return
       }
 
-      const templatePath = path.resolve(path.dirname(id), match[1])
+      const templatePath = path.resolve(path.dirname(id), match[1]!)
 
-      let content: string | undefined
+      let content: string
       try {
         content = readFileSync(templatePath, 'utf-8')
       } catch (err) {
