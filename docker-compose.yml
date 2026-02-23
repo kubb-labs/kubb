@@ -1,3 +1,10 @@
+x-healthcheck-node: &healthcheck-node
+  test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
+  interval: 15s
+  timeout: 10s
+  start_period: 60s
+  retries: 5
+
 services:
   studio:
     image: kubblabs/kubb-studio:latest
@@ -17,12 +24,7 @@ services:
       postgres:
         condition: service_healthy
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
-      interval: 15s
-      timeout: 10s
-      start_period: 60s
-      retries: 5
+    healthcheck: *healthcheck-node
 
   agent:
     image: kubblabs/kubb-agent:latest
@@ -40,18 +42,13 @@ services:
       KUBB_AGENT_ALLOW_ALL: "false"
       KUBB_AGENT_RETRY_TIMEOUT: "30000"
       KUBB_STUDIO_URL: http://kubb-studio:3000
-    restart: unless-stopped
     volumes:
       - ./examples/react-query:/kubb/agent/data
     depends_on:
       studio:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
-      interval: 15s
-      timeout: 10s
-      start_period: 60s
-      retries: 5
+        condition: service_started
+    restart: unless-stopped
+    healthcheck: *healthcheck-node
 
   postgres:
     image: postgres:17-alpine
