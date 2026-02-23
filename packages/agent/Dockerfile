@@ -22,7 +22,7 @@ EXPOSE ${PORT}
 # Expects the build to have been done before docker build (e.g., in CI)
 COPY --link packages/agent/.output ./.output
 
-RUN cd /kubb/agent/.output/server && npm install @kubb/core @kubb/cli @kubb/oas @kubb/plugin-client @kubb/plugin-cypress @kubb/plugin-faker \
+RUN cd .output/server && npm install @kubb/core @kubb/cli @kubb/oas @kubb/plugin-client @kubb/plugin-cypress @kubb/plugin-faker \
                          @kubb/plugin-mcp @kubb/plugin-msw @kubb/plugin-oas @kubb/plugin-react-query @kubb/plugin-redoc \
                          @kubb/plugin-solid-query @kubb/plugin-svelte-query @kubb/plugin-swr @kubb/plugin-ts @kubb/plugin-vue-query \
                          @kubb/plugin-zod kubb unplugin-kubb
