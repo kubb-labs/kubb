@@ -65,6 +65,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "@readme/openapi-parser": "^5.5.0",
     "jsonpointer": "^5.0.1",
     "oas": "^28.9.0",
     "oas-normalize": "^15.7.1",

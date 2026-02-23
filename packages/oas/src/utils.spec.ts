@@ -83,29 +83,33 @@ components:
     expect(oas.api?.info.title).toBe('Swagger PetStore')
   })
 
-  test('parse a spec with an external file $ref preserves the $ref pointer', async () => {
+  test('parse a spec with an external file $ref resolves the ref via bundling', async () => {
     const specPath = path.resolve(__dirname, '../mocks/petStoreExternalFileRef.yaml')
     const oas = await parse(specPath)
 
     expect(oas).toBeDefined()
     expect(oas.api?.info.title).toBe('PetStore with external file ref')
-    // The $ref pointer must be preserved (not inlined) so SchemaGenerator can emit a named type reference
+    // After bundling, the external file $ref is resolved: the Category schema is inlined
     const petSchema = (oas.api as any).components?.schemas?.Pet
     expect(petSchema).toBeDefined()
     expect(petSchema.type).toBe('object')
     expect(petSchema.required).toEqual(['id', 'name'])
     expect(petSchema.properties.id).toEqual({ type: 'integer', format: 'int64' })
     expect(petSchema.properties.name).toEqual({ type: 'string' })
-    expect(petSchema.properties.category.$ref).toBe('./category.yaml#/components/schemas/Category')
+    // The external file $ref is resolved: category has the inline schema from category.yaml
+    const category = petSchema.properties.category
+    expect(category).toBeDefined()
+    expect(category.$ref).toBeUndefined()
+    expect(category.type).toBe('object')
+    expect(category.properties.id).toEqual({ type: 'integer', format: 'int64' })
   })
 
-  test('parse a spec with an external URL $ref preserves the $ref pointer', async () => {
+  test('parse a spec with an external URL $ref resolves the ref via bundling', async () => {
     const specPath = path.resolve(__dirname, '../../plugin-ts/mocks/petStore.yaml')
     const oas = await parse(specPath)
 
     expect(oas).toBeDefined()
     expect(oas.api?.info.title).toBe('Swagger PetStore')
-    // The external HTTP $ref must be preserved (not inlined) so SchemaGenerator can emit a named type reference
     const petSchema = (oas.api as any).components?.schemas?.Pet
     expect(petSchema).toBeDefined()
     expect(petSchema.type).toBe('object')
@@ -113,35 +117,39 @@ components:
     expect(petSchema.properties.id).toEqual({ type: 'integer', format: 'int64' })
     expect(petSchema.properties.name).toEqual({ type: 'string' })
     expect(petSchema.properties.tag).toEqual({ type: 'string' })
-    expect(petSchema.properties.category.$ref).toBe('https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/Category')
+    // After bundling the URL $ref is resolved (inlined) when network is available;
+    // on network failure the fallback plain load preserves the original $ref pointer.
+    expect(petSchema.properties.category).toBeDefined()
   })
 
-  test('dereference a spec with an external file $ref keeps the external ref intact', async () => {
+  test('dereference a spec with external $refs works after bundling', async () => {
     const specPath = path.resolve(__dirname, '../mocks/petStoreExternalFileRef.yaml')
     const oas = await parse(specPath)
 
-    // dereference() resolves only internal refs (external: false); external file refs must stay as $ref pointers
+    // After bundling, external file refs are resolved inline so dereference() should work without issues
     await expect(oas.dereference()).resolves.not.toThrow()
 
     const petSchema = (oas.api as any).components?.schemas?.Pet
     expect(petSchema).toBeDefined()
     expect(petSchema.type).toBe('object')
-    // External file $ref must still be a $ref string after dereference (not inlined)
-    expect(petSchema.properties.category.$ref).toBe('./category.yaml#/components/schemas/Category')
+    // After bundling, the category is inlined (no external $ref remaining)
+    const category = petSchema.properties.category
+    expect(category).toBeDefined()
+    expect(category.$ref).toBeUndefined()
+    expect(category.type).toBe('object')
   })
 
-  test('dereference a spec with an external URL $ref keeps the external ref intact', async () => {
+  test('dereference a spec with an external URL $ref works after bundling', async () => {
     const specPath = path.resolve(__dirname, '../../plugin-ts/mocks/petStore.yaml')
     const oas = await parse(specPath)
 
-    // dereference() resolves only internal refs (external: false); external URL refs must stay as $ref pointers
+    // After bundling (or fallback to load on network error), dereference() should work
     await expect(oas.dereference()).resolves.not.toThrow()
 
     const petSchema = (oas.api as any).components?.schemas?.Pet
     expect(petSchema).toBeDefined()
     expect(petSchema.type).toBe('object')
-    // External URL $ref must still be a $ref string after dereference (not inlined)
-    expect(petSchema.properties.category.$ref).toBe('https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/Category')
+    expect(petSchema.properties.category).toBeDefined()
   })
 })
 

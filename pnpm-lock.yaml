@@ -988,6 +988,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@readme/openapi-parser':
+        specifier: ^5.5.0
+        version: 5.5.0(openapi-types@12.1.3)
       jsonpointer:
         specifier: ^5.0.1
         version: 5.0.1
