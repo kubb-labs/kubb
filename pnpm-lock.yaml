@@ -820,9 +820,6 @@ importers:
       jiti:
         specifier: 2.5.1
         version: 2.5.1
-      nitropack:
-        specifier: ^2.13.1
-        version: 2.13.1(encoding@0.1.13)(rolldown@1.0.0-rc.1)
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
@@ -839,6 +836,9 @@ importers:
       msw:
         specifier: ^2.12.10
         version: 2.12.10(@types/node@24.10.1)(typescript@5.9.3)
+      nitropack:
+        specifier: ^2.13.1
+        version: 2.13.1(encoding@0.1.13)(rolldown@1.0.0-rc.1)
       vite:
         specifier: ^7.3.1
         version: 7.3.1(@types/node@24.10.1)(jiti@2.5.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2)
