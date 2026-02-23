@@ -1,5 +1,16 @@
 # @kubb/oas
 
+## 4.27.3
+
+### Patch Changes
+
+- [#2563](https://github.com/kubb-labs/kubb/pull/2563) [`669b07e`](https://github.com/kubb-labs/kubb/commit/669b07ed66f0dded0e028a3dfe1c5e669c53e53a) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - fix: remove redocly and use @apidevtools/json-schema-ref-parser for OpenAPI bundling and dereferencing
+
+  Replaced `@redocly/openapi-core` with `@apidevtools/json-schema-ref-parser` to resolve `MissingPointerError` issues with `$ref` pointers. External file refs and URL refs are now properly resolved.
+
+- Updated dependencies []:
+  - @kubb/core@4.27.3
+
 ## 4.27.2
 
 ### Patch Changes
