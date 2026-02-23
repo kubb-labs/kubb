@@ -41,8 +41,7 @@
         "id": { "type": "integer", "format": "int64", "example": 1 },
         "name": { "type": "string", "example": "Dogs" }
       },
-      "xml": { "name": "category" },
-      "x-readme-ref-name": "Category"
+      "xml": { "name": "category" }
     },
     "photoUrls": {
       "type": "array",
