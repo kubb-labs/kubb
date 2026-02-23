@@ -1,7 +1,9 @@
 import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
-import { resolveModuleSource } from '@kubb/core/utils'
+import { source as axiosClientSource } from './templates/clients/axios.source.ts'
+import { source as fetchClientSource } from './templates/clients/fetch.source.ts'
+import { source as configSource } from './templates/config.source.ts'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { classClientGenerator, operationsGenerator } from './generators'
@@ -120,9 +122,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
           sources: [
             {
               name: 'fetch',
-              value: resolveModuleSource(
-                this.plugin.options.client === 'fetch' ? '@kubb/plugin-client/templates/clients/fetch' : '@kubb/plugin-client/templates/clients/axios',
-              ).source,
+              value: this.plugin.options.client === 'fetch' ? fetchClientSource : axiosClientSource,
               isExportable: true,
               isIndexable: true,
             },
@@ -138,7 +138,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
         sources: [
           {
             name: 'config',
-            value: resolveModuleSource('@kubb/plugin-client/templates/config').source,
+            value: configSource,
             isExportable: false,
             isIndexable: false,
           },

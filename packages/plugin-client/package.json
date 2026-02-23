@@ -50,6 +50,18 @@
       "import": "./dist/clients/fetch.js",
       "require": "./dist/clients/fetch.cjs"
     },
+    "./templates/config.source": {
+      "import": "./dist/templates/config.source.js",
+      "require": "./dist/templates/config.source.cjs"
+    },
+    "./templates/clients/axios.source": {
+      "import": "./dist/templates/clients/axios.source.js",
+      "require": "./dist/templates/clients/axios.source.cjs"
+    },
+    "./templates/clients/fetch.source": {
+      "import": "./dist/templates/clients/fetch.source.js",
+      "require": "./dist/templates/clients/fetch.source.cjs"
+    },
     "./templates/*": "./templates/*",
     "./package.json": "./package.json"
   },
@@ -69,6 +81,15 @@
       ],
       "clients/fetch": [
         "./dist/clients/fetch.d.ts"
+      ],
+      "templates/config.source": [
+        "./dist/templates/config.source.d.ts"
+      ],
+      "templates/clients/axios.source": [
+        "./dist/templates/clients/axios.source.d.ts"
+      ],
+      "templates/clients/fetch.source": [
+        "./dist/templates/clients/fetch.source.d.ts"
       ]
     }
   },

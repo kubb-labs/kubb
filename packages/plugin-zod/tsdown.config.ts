@@ -5,6 +5,7 @@ export default defineConfig({
     index: 'src/index.ts',
     components: 'src/components/index.ts',
     generators: 'src/generators/index.ts',
+    'templates/ToZod.source': 'src/templates/ToZod.source.ts',
   },
   dts: true,
   format: ['esm', 'cjs'],

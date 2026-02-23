@@ -41,6 +41,10 @@
       "import": "./dist/generators.js",
       "require": "./dist/generators.cjs"
     },
+    "./templates/ToZod.source": {
+      "import": "./dist/templates/ToZod.source.js",
+      "require": "./dist/templates/ToZod.source.cjs"
+    },
     "./templates/*": "./templates/*",
     "./package.json": "./package.json"
   },
@@ -54,6 +58,9 @@
       ],
       "generators": [
         "./dist/generators.d.ts"
+      ],
+      "templates/ToZod.source": [
+        "./dist/templates/ToZod.source.d.ts"
       ]
     }
   },

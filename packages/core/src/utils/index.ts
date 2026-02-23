@@ -16,7 +16,6 @@ export {
   isPromiseRejectedResult,
 } from './promise.ts'
 export { renderTemplate } from './renderTemplate.ts'
-export { resolveModuleSource } from './resolveModuleSource.ts'
 export { serializePluginOptions } from './serializePluginOptions.ts'
 export { timeout } from './timeout.ts'
 export type { URLObject } from './URLPath.ts'
