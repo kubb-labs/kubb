@@ -52,20 +52,8 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build workspace packages
-        run: pnpm --filter "@kubb/*" --filter "!@kubb/agent" run build
-
-      - name: Deploy agent
-        run: pnpm --filter @kubb/agent deploy --legacy /tmp/kubb-agent
-
-      - name: Build agent
-        run: |
-          cd /tmp/kubb-agent
-          pnpm install
-          pnpm run build
-
-      - name: Copy output
-        run: cp -r /tmp/kubb-agent/.output packages/agent/.output
+      - name: Build
+        run: pnpm run build
 
       - name: Log in to GitHub Container Registry
         if: github.event_name != 'pull_request'

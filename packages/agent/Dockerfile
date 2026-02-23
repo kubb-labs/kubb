@@ -1,9 +1,5 @@
 ARG NODE_VERSION=20
 
-# Init stage: scaffold a default kubb.config.ts using a shell-capable image
-FROM node:${NODE_VERSION}-alpine AS init
-WORKDIR /kubb/agent
-
 # https://github.com/GoogleContainerTools/distroless/blob/main/nodejs/README.md
 FROM gcr.io/distroless/nodejs${NODE_VERSION}
 WORKDIR /kubb/agent
@@ -25,6 +21,10 @@ EXPOSE ${PORT}
 # Copy only the pre-built output
 # Expects the build to have been done before docker build (e.g., in CI)
 COPY --link packages/agent/.output ./.output
-COPY --from=init /kubb/agent /kubb/agent
+
+RUN cd /kubb/agent/.output/server && RUN npm install @kubb/core @kubb/cli @kubb/oas @kubb/plugin-client @kubb/plugin-cypress @kubb/plugin-faker \
+                         @kubb/plugin-mcp @kubb/plugin-msw @kubb/plugin-oas @kubb/plugin-react-query @kubb/plugin-redoc \
+                         @kubb/plugin-solid-query @kubb/plugin-svelte-query @kubb/plugin-swr @kubb/plugin-ts @kubb/plugin-vue-query \
+                         @kubb/plugin-zod kubb unplugin-kubb
 
 CMD [ ".output/server/index.mjs" ]
