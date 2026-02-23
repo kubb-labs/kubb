@@ -7,6 +7,16 @@ export default defineNitroConfig({
   serveStatic: false,
   compatibilityDate: '2026-02-22',
   ignore: ['**/*.test.ts', '**/*.spec.ts'],
+  rollupConfig: {
+    output: {
+      // Polyfill CJS globals for bundled dependencies that reference __filename/__dirname
+      // in the ESM output (.mjs). These are not defined in ES module scope by default.
+      banner: `import { fileURLToPath } from 'node:url'
+import { dirname } from 'node:path'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)`,
+    },
+  },
   routeRules: {
     '/**': {
       cors: false,
