@@ -19,5 +19,17 @@ export type pet = {
    * @type string | undefined
    */
   tag?: string
-  category?: category
+  /**
+   * @type object | undefined
+   */
+  category?: {
+    /**
+     * @type integer | undefined, int64
+     */
+    id?: bigint
+    /**
+     * @type string | undefined
+     */
+    name?: string
+  }
 }

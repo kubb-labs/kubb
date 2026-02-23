@@ -6,6 +6,7 @@ import yaml from '@stoplight/yaml'
 import type { ParameterObject, SchemaObject } from 'oas/types'
 import { isRef, isSchema } from 'oas/types'
 import OASNormalize from 'oas-normalize'
+import { bundle } from '@readme/openapi-parser'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { isPlainObject, mergeDeep } from 'remeda'
 import swagger2openapi from 'swagger2openapi'
@@ -164,6 +165,21 @@ export async function parse(
   pathOrApi: string | Document,
   { oasClass = Oas, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
 ): Promise<Oas> {
+  // Only attempt to bundle when pathOrApi is a file path or URL (not inline YAML/JSON strings).
+  // Inline content (YAML strings with newlines, JSON strings starting with '{') is handled by plain load.
+  const isPathOrUrl = typeof pathOrApi === 'string' && !pathOrApi.match(/\n/) && !pathOrApi.match(/^\s*\{/)
+  if (isPathOrUrl && enablePaths) {
+    // Bundle the spec using the string path directly so that relative external $refs
+    // (file and URL) are resolved with the correct base path context.
+    try {
+      const bundled = await bundle(pathOrApi)
+      return parse(bundled as Document, { oasClass, enablePaths })
+    } catch (e) {
+      // If bundling fails (e.g. unresolvable refs or network error), fall through to plain load
+      console.warn(`[kubb] Failed to bundle external $refs in "${pathOrApi}": ${(e as Error).message}. Falling back to plain load.`)
+    }
+  }
+
   const oasNormalize = new OASNormalize(pathOrApi, {
     enablePaths,
     colorizeErrors: true,
