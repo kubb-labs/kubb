@@ -1,5 +1,19 @@
 # @kubb/plugin-zod
 
+## 4.27.4
+
+### Patch Changes
+
+- [#2567](https://github.com/kubb-labs/kubb/pull/2567) [`3690d37`](https://github.com/kubb-labs/kubb/commit/3690d3778cb8e2c48841bf13b73c82c165242ef4) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - refactor: replace resolveModuleSource with static imports and build-time template inlining
+
+  Removed `resolveModuleSource` from `@kubb/core/utils`. Template file contents for `@kubb/plugin-client` (config, axios, fetch) and `@kubb/plugin-zod` (ToZod) are now inlined as string constants at build time via the `importAttributeTextPlugin` rolldown/tsdown plugin, using `import ... with { type: 'text' }` import attributes as the build-time marker. This eliminates all runtime filesystem reads for template sources.
+
+- Updated dependencies [[`3690d37`](https://github.com/kubb-labs/kubb/commit/3690d3778cb8e2c48841bf13b73c82c165242ef4)]:
+  - @kubb/core@4.27.4
+  - @kubb/oas@4.27.4
+  - @kubb/plugin-oas@4.27.4
+  - @kubb/plugin-ts@4.27.4
+
 ## 4.27.3
 
 ### Patch Changes

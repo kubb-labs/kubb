@@ -1,5 +1,17 @@
 # @kubb/plugin-mcp
 
+## 4.27.4
+
+### Patch Changes
+
+- Updated dependencies [[`3690d37`](https://github.com/kubb-labs/kubb/commit/3690d3778cb8e2c48841bf13b73c82c165242ef4)]:
+  - @kubb/core@4.27.4
+  - @kubb/plugin-client@4.27.4
+  - @kubb/plugin-zod@4.27.4
+  - @kubb/oas@4.27.4
+  - @kubb/plugin-oas@4.27.4
+  - @kubb/plugin-ts@4.27.4
+
 ## 4.27.3
 
 ### Patch Changes
