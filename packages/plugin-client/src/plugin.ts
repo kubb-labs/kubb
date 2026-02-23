@@ -1,15 +1,15 @@
 import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase } from '@kubb/core/transformers'
-import { source as axiosClientSource } from './templates/clients/axios.source.ts'
-import { source as fetchClientSource } from './templates/clients/fetch.source.ts'
-import { source as configSource } from './templates/config.source.ts'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { classClientGenerator, operationsGenerator } from './generators'
 import { clientGenerator } from './generators/clientGenerator.tsx'
 import { groupedClientGenerator } from './generators/groupedClientGenerator.tsx'
 import { staticClassClientGenerator } from './generators/staticClassClientGenerator.tsx'
+import { source as axiosClientSource } from './templates/clients/axios.source.ts'
+import { source as fetchClientSource } from './templates/clients/fetch.source.ts'
+import { source as configSource } from './templates/config.source.ts'
 import type { PluginClient } from './types.ts'
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']

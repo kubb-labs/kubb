@@ -1,4 +1,5 @@
 import { defineConfig } from 'tsdown'
+import { inlineTemplateSource } from '../../configs/inlineTemplateSource.ts'
 
 export default defineConfig({
   entry: {
@@ -7,6 +8,7 @@ export default defineConfig({
     generators: 'src/generators/index.ts',
     'templates/ToZod.source': 'src/templates/ToZod.source.ts',
   },
+  plugins: [inlineTemplateSource()],
   dts: true,
   format: ['esm', 'cjs'],
   platform: 'node',
