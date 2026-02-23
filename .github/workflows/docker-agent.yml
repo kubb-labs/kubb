@@ -56,7 +56,7 @@ jobs:
         run: pnpm --filter "@kubb/*" --filter "!@kubb/agent" run build
 
       - name: Deploy agent
-        run: pnpm --filter @kubb/agent deploy /tmp/kubb-agent
+        run: pnpm --filter @kubb/agent deploy --legacy /tmp/kubb-agent
 
       - name: Build agent
         run: |
