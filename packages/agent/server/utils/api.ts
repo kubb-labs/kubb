@@ -76,8 +76,6 @@ export async function registerAgent({ token, studioUrl }: RegisterProps): Promis
     logger.success('Agent registered with Studio')
   } catch (error: any) {
     logger.warn('Failed to register agent with Studio', error?.cause?.message ?? error?.message)
-
-    throw new Error('Failed to register agent with Studio', { cause: error })
   }
 }
 
