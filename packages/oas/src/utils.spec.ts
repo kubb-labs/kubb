@@ -82,6 +82,30 @@ components:
     )
     expect(oas.api?.info.title).toBe('Swagger PetStore')
   })
+
+  test('parse a spec with an external file $ref preserves the $ref pointer', async () => {
+    const specPath = path.resolve(__dirname, '../mocks/petStoreExternalFileRef.yaml')
+    const oas = await parse(specPath)
+
+    expect(oas).toBeDefined()
+    expect(oas.api?.info.title).toBe('PetStore with external file ref')
+    // The $ref pointer must be preserved (not inlined) so SchemaGenerator can emit a named type reference
+    const petSchema = (oas.api as any).components?.schemas?.Pet
+    expect(petSchema).toBeDefined()
+    expect(petSchema.properties.category.$ref).toBe('./category.yaml#/components/schemas/Category')
+  })
+
+  test('parse a spec with an external URL $ref preserves the $ref pointer', async () => {
+    const specPath = path.resolve(__dirname, '../../plugin-ts/mocks/petStore.yaml')
+    const oas = await parse(specPath)
+
+    expect(oas).toBeDefined()
+    expect(oas.api?.info.title).toBe('Swagger PetStore')
+    // The external HTTP $ref must be preserved (not inlined) so SchemaGenerator can emit a named type reference
+    const petSchema = (oas.api as any).components?.schemas?.Pet
+    expect(petSchema).toBeDefined()
+    expect(petSchema.properties.category.$ref).toBe('https://petstore3.swagger.io/api/v3/openapi.json#/components/schemas/Category')
+  })
 })
 
 describe('parseFromConfig', () => {
