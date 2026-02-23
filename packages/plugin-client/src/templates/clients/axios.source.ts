@@ -1,3 +1,1 @@
-import { readFileSync } from 'node:fs'
-
-export const source = readFileSync(new URL('../../../templates/clients/axios.ts', import.meta.url), 'utf-8')
+export const source: string = import(/* sourceIncluded: true */ '../../../templates/clients/axios.ts') as unknown as string

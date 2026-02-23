@@ -2,9 +2,10 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
 /**
- * Rolldown/tsdown plugin that inline template file content at build time.
+ * Rolldown/tsdown plugin that inlines template file content at build time.
  *
- * Any `*.source.ts` entry file that contains a `readFileSync(new URL('...', import.meta.url))` call
+ * Any `*.source.ts` entry file that contains:
+ *   `import(/* sourceIncluded: true *\/ '...')`
  * has its content replaced during the build with:
  *   `export const source = "<inlined file content>"`
  *
@@ -18,7 +19,7 @@ export function inlineTemplateSource() {
         return
       }
 
-      const match = code.match(/new URL\(['"]([^'"`,)]+)['"],\s*import\.meta\.url\)/)
+      const match = code.match(/import\(\/\* sourceIncluded: true \*\/\s*['"]([^'"]+)['"]\)/)
       if (!match) {
         return
       }

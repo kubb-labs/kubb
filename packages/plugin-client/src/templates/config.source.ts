@@ -1,3 +1,1 @@
-import { readFileSync } from 'node:fs'
-
-export const source = readFileSync(new URL('../../templates/config.ts', import.meta.url), 'utf-8')
+export const source: string = import(/* sourceIncluded: true */ '../../templates/config.ts') as unknown as string
