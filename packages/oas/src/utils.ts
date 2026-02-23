@@ -162,14 +162,8 @@ export function getDefaultValue(schema?: SchemaObject): string | undefined {
 
 export async function parse(
   pathOrApi: string | Document,
-  { oasClass = Oas, canBundle = true, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
+  { oasClass = Oas, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
 ): Promise<Oas> {
-  if (typeof pathOrApi === 'string' && canBundle) {
-    // resolve external refs using oas-normalize (already a dependency)
-    const bundled = await new OASNormalize(pathOrApi, { enablePaths, colorizeErrors: true }).bundle()
-    return parse(bundled as Document, { oasClass, canBundle: false, enablePaths })
-  }
-
   const oasNormalize = new OASNormalize(pathOrApi, {
     enablePaths,
     colorizeErrors: true,
@@ -188,7 +182,7 @@ export async function parse(
 }
 
 export async function merge(pathOrApi: Array<string | Document>, { oasClass = Oas }: { oasClass?: typeof Oas } = {}): Promise<Oas> {
-  const instances = await Promise.all(pathOrApi.map((p) => parse(p, { oasClass, enablePaths: false, canBundle: false })))
+  const instances = await Promise.all(pathOrApi.map((p) => parse(p, { oasClass, enablePaths: false })))
 
   if (instances.length === 0) {
     throw new Error('No OAS instances provided for merging.')
