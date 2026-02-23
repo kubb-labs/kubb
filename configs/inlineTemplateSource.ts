@@ -2,14 +2,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
 /**
- * Rolldown/tsdown plugin that inlines template file content at build time.
- *
- * Any `*.source.ts` entry file that contains:
- *   `import content from '...' with { type: 'text' }`
- * has its content replaced during the build with:
- *   `export const source = "<inlined file content>"`
- *
- * This avoids a runtime filesystem read — the string is baked directly into `dist/`.
+ * Rolldown/tsdown plugin that uses import attributes to replace import with text with the real source
  */
 export function inlineTemplateSource() {
   return {
