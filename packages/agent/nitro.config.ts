@@ -1,12 +1,9 @@
-import os from 'node:os'
-import path from 'node:path'
-
 export default defineNitroConfig({
   srcDir: 'server',
   storage: {
     kubb: {
       driver: 'fs',
-      base: path.join(os.homedir(), '.kubb', 'kv'),
+      base: './.kubb/cache',
     },
   },
   debug: false,

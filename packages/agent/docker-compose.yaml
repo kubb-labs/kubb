@@ -9,6 +9,8 @@ services:
   agent:
     image: kubblabs/kubb-agent:latest
     container_name: kubb-agent
+    env_file:
+      - .env
     environment:
       PORT: 80
       KUBB_AGENT_ROOT: /kubb/agent/data
@@ -19,7 +21,7 @@ services:
       KUBB_AGENT_RETRY_TIMEOUT: "30000"
       KUBB_STUDIO_URL: https://studio.kubb.dev
     volumes:
-      - agent_kv:/root/.kubb/kv
+      - agent_kv:/kubb/agent/.kubb/cache
     restart: unless-stopped
     healthcheck: *healthcheck-node
 
