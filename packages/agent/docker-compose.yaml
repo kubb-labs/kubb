@@ -9,8 +9,6 @@ services:
   agent:
     image: kubblabs/kubb-agent:latest
     container_name: kubb-agent
-    ports:
-      - "80:80"
     environment:
       PORT: 80
       KUBB_AGENT_ROOT: /kubb/agent/data
