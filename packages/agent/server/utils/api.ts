@@ -16,8 +16,9 @@ type ConnectProps = {
  *
  */
 export async function createAgentSession({ token, studioUrl, noCache }: ConnectProps): Promise<AgentConnectResponse> {
+  const storage = useStorage<AgentSession>('kubb')
+
   if (!noCache) {
-    const storage = useStorage<AgentSession>('kubb')
     const sessionKey = getSessionKey(token)
     const stored = await storage.getItem(sessionKey)
 
@@ -52,7 +53,7 @@ export async function createAgentSession({ token, studioUrl, noCache }: ConnectP
     // Cache the session for reuse (unless --no-cache is set)
     if (!noCache) {
       const sessionKey = getSessionKey(token)
-      await useStorage<AgentSession>('kubb').setItem(sessionKey, {
+      await storage.setItem(sessionKey, {
         ...data,
         storedAt: new Date().toISOString(),
       })

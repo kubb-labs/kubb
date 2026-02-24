@@ -123,7 +123,7 @@ export default defineNitroPlugin(async (nitro) => {
   async function connectToStudio() {
     try {
       // start connection to studio
-      const { sessionToken, wsUrl } = await createAgentSession({
+      const { sessionToken, wsUrl, isSandbox } = await createAgentSession({
         noCache,
         token,
         studioUrl,
@@ -202,6 +202,10 @@ export default defineNitroPlugin(async (nitro) => {
               const patch = data.payload ?? studioConfig
               const resolvedPlugins = patch?.plugins ? resolvePlugins(patch.plugins) : undefined
 
+              if (allowWrite && isSandbox) {
+                logger.warn('Agent is running in a sandbox environment, write will be disabled')
+              }
+
               // Apply patch fields directly onto the already-resolved Config.
               // When the patch includes plugins, resolve and instantiate
               // them; otherwise keep the original plugin instances.
@@ -212,7 +216,7 @@ export default defineNitroPlugin(async (nitro) => {
                   root,
                   output: {
                     ...config.output,
-                    write: allowWrite,
+                    write: isSandbox ? false : allowWrite,
                   },
                 },
                 events,

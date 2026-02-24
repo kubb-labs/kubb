@@ -136,6 +136,7 @@ export type AgentConnectResponse = {
   expiresAt: string
   revokedAt: string
   sessionToken: string
+  isSandbox: boolean
 }
 
 export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ErrorMessage | StatusMessage | PingMessage | PongMessage
