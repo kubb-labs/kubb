@@ -44,6 +44,42 @@ exports[`SchemaGenerator core > 'BinaryAnyOf' 1`] = `
 ]
 `;
 
+exports[`SchemaGenerator core > 'ContentMediaTypeBlob' 1`] = `
+[
+  {
+    "args": {
+      "additionalProperties": [],
+      "properties": {
+        "file": [
+          {
+            "keyword": "blob",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "string",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "file",
+            "keyword": "name",
+          },
+        ],
+      },
+    },
+    "keyword": "object",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "object",
+    },
+    "keyword": "schema",
+  },
+]
+`;
+
 exports[`SchemaGenerator core > 'EmptyAnyOf' 1`] = `
 [
   {

@@ -112,6 +112,16 @@ describe('SchemaGenerator core', async () => {
         unknownType: 'unknown',
       },
     },
+    {
+      name: 'ContentMediaTypeBlob',
+      input: '../mocks/binaryFormat.yaml',
+      path: 'BodyTest',
+      options: {
+        dateType: 'date',
+        transformers: {},
+        unknownType: 'unknown',
+      },
+    },
     // Add discriminator test cases
   ] as const satisfies Array<{
     input: string

@@ -513,6 +513,14 @@ describe('typeGenerator schema', async () => {
         optionalType: 'questionToken',
       },
     },
+    // https://github.com/kubb-labs/kubb/issues/2561
+    // Format with contentMediaType should be a Blob
+    {
+      name: 'BodyTest',
+      input: '../../mocks/binaryFile.yaml',
+      path: 'BodyTest',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string

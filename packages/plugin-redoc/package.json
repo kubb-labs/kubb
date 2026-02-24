@@ -1,82 +1,82 @@
 {
-	"name": "@kubb/plugin-redoc",
-	"version": "4.28.0",
-	"description": "Redoc documentation generator plugin for Kubb, creating beautiful, interactive API documentation from OpenAPI specifications.",
-	"keywords": [
-		"redoc",
-		"documentation",
-		"api-docs",
-		"openapi",
-		"swagger",
-		"interactive-docs",
-		"typescript",
-		"code-generator",
-		"codegen",
-		"plugins",
-		"kubb"
-	],
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/kubb-labs/kubb.git",
-		"directory": "packages/plugin-redoc"
-	},
-	"license": "MIT",
-	"author": "stijnvanhulle",
-	"sideEffects": false,
-	"type": "module",
-	"exports": {
-		".": {
-			"require": "./dist/index.cjs",
-			"import": "./dist/index.js"
-		},
-		"./package.json": "./package.json"
-	},
-	"main": "./dist/index.cjs",
-	"module": "./dist/index.js",
-	"types": "./dist/index.d.cts",
-	"typesVersions": {
-		"*": {}
-	},
-	"files": [
-		"src",
-		"dist",
-		"static",
-		"!/**/**.test.**",
-		"!/**/__tests__/**"
-	],
-	"size-limit": [
-		{
-			"path": "./dist/*.js",
-			"limit": "510 KiB",
-			"gzip": true
-		}
-	],
-	"scripts": {
-		"build": "tsdown && size-limit",
-		"clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
-		"lint": "bun biome lint .",
-		"lint:fix": "bun biome lint --fix --unsafe .",
-		"release": "pnpm publish --no-git-check",
-		"release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-		"start": "tsdown --watch",
-		"test": "vitest --passWithNoTests",
-		"typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
-	},
-	"dependencies": {
-		"@kubb/core": "workspace:*",
-		"@kubb/oas": "workspace:*",
-		"@kubb/plugin-oas": "workspace:*",
-		"@kubb/react-fabric": "catalog:",
-		"handlebars": "^4.7.8"
-	},
-	"peerDependencies": {
-		"@kubb/react-fabric": "0.12.11"
-	},
-	"engines": {
-		"node": ">=20"
-	},
-	"publishConfig": {
-		"access": "public",
-		"registry": "https://registry.npmjs.org/"
-	}
+  "name": "@kubb/plugin-redoc",
+  "version": "4.28.1",
+  "description": "Redoc documentation generator plugin for Kubb, creating beautiful, interactive API documentation from OpenAPI specifications.",
+  "keywords": [
+    "redoc",
+    "documentation",
+    "api-docs",
+    "openapi",
+    "swagger",
+    "interactive-docs",
+    "typescript",
+    "code-generator",
+    "codegen",
+    "plugins",
+    "kubb"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/plugin-redoc"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
+  "typesVersions": {
+    "*": {}
+  },
+  "files": [
+    "src",
+    "dist",
+    "static",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
+  "scripts": {
+    "build": "tsdown && size-limit",
+    "clean": "npx rimraf ./dist",
+    "lint": "bun biome lint .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
+    "release": "pnpm publish --no-git-check",
+    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
+    "start": "tsdown --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/core": "workspace:*",
+    "@kubb/oas": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
+    "@kubb/react-fabric": "catalog:",
+    "handlebars": "^4.7.8"
+  },
+  "peerDependencies": {
+    "@kubb/react-fabric": "0.12.11"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }

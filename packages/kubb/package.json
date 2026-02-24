@@ -1,80 +1,80 @@
 {
-	"name": "kubb",
-	"version": "3.0.222",
-	"description": "Transform OpenAPI specifications into TypeScript, React-Query, Zod, Faker.js, MSW and more with a plugin-based code generation tool.",
-	"keywords": [
-		"typescript",
-		"openapi",
-		"swagger",
-		"oas",
-		"code-generator",
-		"codegen",
-		"sdk-generator",
-		"api-client",
-		"plugins",
-		"plugin-system",
-		"react-query",
-		"tanstack-query",
-		"zod",
-		"msw",
-		"faker",
-		"type-safe",
-		"cli",
-		"kubb"
-	],
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/kubb-labs/kubb.git",
-		"directory": "packages/kubb"
-	},
-	"license": "MIT",
-	"author": "stijnvanhulle",
-	"sideEffects": false,
-	"type": "module",
-	"main": "./dist/index.cjs",
-	"module": "./dist/index.js",
-	"types": "./dist/index.d.cts",
-	"bin": {
-		"kubb": "bin/kubb.js"
-	},
-	"files": [
-		"src",
-		"dist",
-		"bin",
-		"!/**/**.test.**",
-		"!/**/__tests__/**"
-	],
-	"scripts": {
-		"build": "tsdown",
-		"clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
-		"lint": "bun biome lint .",
-		"lint:fix": "bun biome lint --fix --unsafe .",
-		"release": "pnpm publish --no-git-check",
-		"release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-		"start": "tsdown --watch",
-		"test": "vitest --passWithNoTests",
-		"typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
-	},
-	"dependencies": {
-		"@kubb/agent": "workspace:*",
-		"@kubb/cli": "workspace:*",
-		"@kubb/core": "workspace:*",
-		"@kubb/mcp": "workspace:*"
-	},
-	"devDependencies": {},
-	"engines": {
-		"node": ">=20"
-	},
-	"preferGlobal": true,
-	"publishConfig": {
-		"access": "public",
-		"registry": "https://registry.npmjs.org/"
-	},
-	"exports": {
-		".": {
-			"require": "./dist/index.cjs",
-			"import": "./dist/index.js"
-		},
-		"./package.json": "./package.json"
-	}
+  "name": "kubb",
+  "version": "3.0.223",
+  "description": "Transform OpenAPI specifications into TypeScript, React-Query, Zod, Faker.js, MSW and more with a plugin-based code generation tool.",
+  "keywords": [
+    "typescript",
+    "openapi",
+    "swagger",
+    "oas",
+    "code-generator",
+    "codegen",
+    "sdk-generator",
+    "api-client",
+    "plugins",
+    "plugin-system",
+    "react-query",
+    "tanstack-query",
+    "zod",
+    "msw",
+    "faker",
+    "type-safe",
+    "cli",
+    "kubb"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/kubb"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
+  "bin": {
+    "kubb": "bin/kubb.js"
+  },
+  "files": [
+    "src",
+    "dist",
+    "bin",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "clean": "npx rimraf ./dist",
+    "lint": "bun biome lint .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
+    "release": "pnpm publish --no-git-check",
+    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
+    "start": "tsdown --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/agent": "workspace:*",
+    "@kubb/cli": "workspace:*",
+    "@kubb/core": "workspace:*",
+    "@kubb/mcp": "workspace:*"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=20"
+  },
+  "preferGlobal": true,
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  }
 }
