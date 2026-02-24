@@ -38,7 +38,7 @@ describe('OperationGenerator core', async () => {
     expect(og.getSchemas(oas.operation('/pets', 'get')).queryParams).toBeDefined()
   })
 
-  test('enforces request requiredness for oneOf requestBody schemas', async () => {
+  test('enforces required requestBody for oneOf schemas', async () => {
     const oasWithRequiredBody = await parse({
       openapi: '3.0.3',
       info: {
