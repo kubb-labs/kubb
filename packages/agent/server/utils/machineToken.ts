@@ -5,7 +5,7 @@ import os from 'node:os'
  * Generate a stable machine ID derived from network interface MAC addresses and hostname.
  * The result is a SHA-256 hex digest that uniquely identifies the machine.
  *
- * In Docker / containerised environments MAC addresses and hostnames are ephemeral —
+ * In Docker environments MAC addresses and hostnames are ephemeral —
  * they change on every container recreation, which would trigger a new Polar license
  * activation on each restart and exhaust the allowed activation slots.
  * Set KUBB_STUDIO_MACHINE_NAME to a fixed value (e.g. a UUID) to guarantee a stable identity
