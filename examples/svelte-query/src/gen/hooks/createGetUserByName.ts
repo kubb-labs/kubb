@@ -45,7 +45,9 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return getUserByName(username, config)
     },
   })

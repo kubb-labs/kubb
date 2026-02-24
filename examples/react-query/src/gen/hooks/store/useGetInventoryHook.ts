@@ -29,7 +29,9 @@ export function getInventoryQueryOptionsHook(config: Partial<RequestConfig> & { 
   return queryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return getInventoryHook(config)
     },
   })

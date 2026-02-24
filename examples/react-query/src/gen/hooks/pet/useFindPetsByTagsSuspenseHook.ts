@@ -42,7 +42,9 @@ export function findPetsByTagsSuspenseQueryOptionsHook(params?: FindPetsByTagsQu
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return findPetsByTagsSuspenseHook(params, config)
     },
   })
