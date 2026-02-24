@@ -51,7 +51,9 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTagsQueryParams, c
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return findPetsByTags(params, config)
     },
   })

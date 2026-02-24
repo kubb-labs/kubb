@@ -43,7 +43,9 @@ export function getOrderByIdSuspenseQueryOptionsHook(
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return getOrderByIdSuspenseHook({ orderId }, config)
     },
   })

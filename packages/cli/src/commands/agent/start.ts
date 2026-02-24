@@ -72,22 +72,22 @@ async function startServer({ port, host, configPath, noCache, allowWrite, allowA
     const KUBB_AGENT_NO_CACHE = noCache ? 'true' : 'false'
     const KUBB_AGENT_ALLOW_WRITE = allowAll || allowWrite ? 'true' : (process.env.KUBB_AGENT_ALLOW_WRITE ?? 'false')
     const KUBB_AGENT_ALLOW_ALL = allowAll ? 'true' : (process.env.KUBB_AGENT_ALLOW_ALL ?? 'false')
-    const KUBB_STUDIO_URL = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
     const KUBB_AGENT_TOKEN = process.env.KUBB_AGENT_TOKEN
     const KUBB_AGENT_RETRY_TIMEOUT = process.env.KUBB_AGENT_RETRY_TIMEOUT || '30000'
+    const KUBB_STUDIO_URL = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
 
     // Set environment variables
     const env = {
-      KUBB_AGENT_ROOT,
-      KUBB_AGENT_CONFIG,
       PORT,
       HOST,
-      KUBB_STUDIO_URL,
-      KUBB_AGENT_RETRY_TIMEOUT,
+      KUBB_AGENT_ROOT,
+      KUBB_AGENT_CONFIG,
       KUBB_AGENT_NO_CACHE,
-      KUBB_AGENT_TOKEN,
       KUBB_AGENT_ALLOW_WRITE,
       KUBB_AGENT_ALLOW_ALL,
+      KUBB_AGENT_TOKEN,
+      KUBB_AGENT_RETRY_TIMEOUT,
+      KUBB_STUDIO_URL,
     }
 
     clack.log.step(pc.cyan('Starting agent server...'))

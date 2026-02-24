@@ -40,7 +40,9 @@ export function getOrderByIdQueryOptionsHook(
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return getOrderByIdHook({ orderId }, config)
     },
   })

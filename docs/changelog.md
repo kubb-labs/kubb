@@ -6,7 +6,7 @@ outline: deep
 
 # Changelog
 
-## 4.27.5
+## 4.28.1
 
 ### 🐛 Bug Fixes
 
@@ -15,6 +15,30 @@ outline: deep
 **Properties with `application/octet-stream` interpreted as `Blob`**
 
 Schemas with `contentMediaType: application/octet-stream` are interpreted as `Blob`.
+
+---
+
+
+## 4.28.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Add `integerType` option to control int64 TypeScript type**
+
+Adds an `integerType` option that controls how OpenAPI `integer` fields with `format: int64` are mapped to TypeScript types.
+
+- `'bigint'` (default) — uses the TypeScript `bigint` type, accurate for values exceeding `Number.MAX_SAFE_INTEGER`.
+- `'number'` — uses the TypeScript `number` type, matching the runtime behavior of `JSON.parse()`.
+
+```typescript
+pluginTs({
+  integerType: 'number', // 'number' | 'bigint', default: 'bigint'
+})
+```
+
+---
 
 ## 4.27.4
 

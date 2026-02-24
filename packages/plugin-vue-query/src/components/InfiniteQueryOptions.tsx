@@ -227,7 +227,9 @@ export function InfiniteQueryOptions({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal, pageParam }) => {
-          config.signal = signal
+          if (!config.signal) {
+            config.signal = signal
+          }
           ${infiniteOverrideParams}
           return ${clientName}(${clientParams.toCall({
             transformName(name) {

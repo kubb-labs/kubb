@@ -23,12 +23,12 @@ export function generateSecureToken(id = generateToken()): string {
  * In Docker environments MAC addresses and hostnames are ephemeral —
  * they change on every container recreation, which would trigger a new Polar license
  * activation on each restart and exhaust the allowed activation slots.
- * Set process.env.KUBB_STUDIO_SECRET to a fixed value (e.g. a UUID) to guarantee a stable identity
+ * Set process.env.KUBB_AGENT_SECRET to a fixed value (e.g. a UUID) to guarantee a stable identity
  * across container restarts.
  */
 export function generateMachineToken(): string {
-  if (process.env.KUBB_STUDIO_SECRET) {
-    return generateSecureToken(process.env.KUBB_STUDIO_SECRET)
+  if (process.env.KUBB_AGENT_SECRET) {
+    return generateSecureToken(process.env.KUBB_AGENT_SECRET)
   }
 
   const interfaces = os.networkInterfaces()
