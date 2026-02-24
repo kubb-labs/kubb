@@ -1,99 +1,98 @@
 {
-  "name": "@kubb/cli",
-  "version": "4.28.0",
-  "description": "Command-line interface for Kubb, enabling easy generation of TypeScript, React-Query, Zod, and other code from OpenAPI specifications.",
-  "keywords": [
-    "cli",
-    "command-line",
-    "command-line-tool",
-    "terminal",
-    "typescript",
-    "openapi",
-    "swagger",
-    "oas",
-    "code-generator",
-    "codegen",
-    "sdk-generator",
-    "plugins",
-    "kubb"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/cli"
-  },
-  "license": "MIT",
-  "author": "stijnvanhulle",
-  "sideEffects": false,
-  "type": "module",
-  "exports": {
-    ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.cts",
-  "bin": {
-    "kubb": "bin/kubb.cjs"
-  },
-  "files": [
-    "src",
-    "dist",
-    "bin",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
-  "scripts": {
-    "build": "tsdown && size-limit",
-    "clean": "npx rimraf ./dist",
-    "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint --fix --unsafe .",
-    "release": "pnpm publish --no-git-check",
-    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsdown --watch",
-    "test": "vitest --passWithNoTests",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
-  },
-  "dependencies": {
-    "@clack/prompts": "^1.0.1",
-    "@kubb/core": "workspace:*",
-    "chokidar": "^5.0.0",
-    "citty": "^0.1.6",
-    "cosmiconfig": "^9.0.0",
-    "dotenv": "^17.3.1",
-    "execa": "^9.6.1",
-    "gradient-string": "^3.0.0",
-    "jiti": "2.5.1",
-    "latest-version": "^9.0.0",
-    "picocolors": "^1.1.1",
-    "seedrandom": "^3.0.5",
-    "semver": "^7.7.4",
-    "string-argv": "^0.3.2"
-  },
-  "devDependencies": {
-    "@kubb/agent": "workspace:*",
-    "@kubb/mcp": "workspace:*",
-    "@kubb/oas": "workspace:*",
-    "@types/seedrandom": "^3.0.8",
-    "@types/semver": "^7.7.1",
-    "source-map-support": "^0.5.21"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "preferGlobal": true,
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  }
+	"name": "@kubb/cli",
+	"version": "4.28.0",
+	"description": "Command-line interface for Kubb, enabling easy generation of TypeScript, React-Query, Zod, and other code from OpenAPI specifications.",
+	"keywords": [
+		"cli",
+		"command-line",
+		"command-line-tool",
+		"terminal",
+		"typescript",
+		"openapi",
+		"swagger",
+		"oas",
+		"code-generator",
+		"codegen",
+		"sdk-generator",
+		"plugins",
+		"kubb"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/kubb-labs/kubb.git",
+		"directory": "packages/cli"
+	},
+	"license": "MIT",
+	"author": "stijnvanhulle",
+	"sideEffects": false,
+	"type": "module",
+	"exports": {
+		".": {
+			"require": "./dist/index.cjs",
+			"import": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.cts",
+	"bin": {
+		"kubb": "bin/kubb.cjs"
+	},
+	"files": [
+		"src",
+		"dist",
+		"bin",
+		"!/**/**.test.**",
+		"!/**/__tests__/**"
+	],
+	"size-limit": [
+		{
+			"path": "./dist/*.js",
+			"limit": "510 KiB",
+			"gzip": true
+		}
+	],
+	"scripts": {
+		"build": "tsdown && size-limit",
+		"clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
+		"lint": "bun biome lint .",
+		"lint:fix": "bun biome lint --fix --unsafe .",
+		"release": "pnpm publish --no-git-check",
+		"release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
+		"start": "tsdown --watch",
+		"test": "vitest --passWithNoTests",
+		"typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@clack/prompts": "^1.0.1",
+		"@kubb/core": "workspace:*",
+		"chokidar": "^5.0.0",
+		"citty": "^0.1.6",
+		"cosmiconfig": "^9.0.0",
+		"gradient-string": "^3.0.0",
+		"jiti": "2.5.1",
+		"latest-version": "^9.0.0",
+		"picocolors": "^1.1.1",
+		"seedrandom": "^3.0.5",
+		"semver": "^7.7.4",
+		"string-argv": "^0.3.2",
+		"tinyexec": "^1.0.2"
+	},
+	"devDependencies": {
+		"@kubb/agent": "workspace:*",
+		"@kubb/mcp": "workspace:*",
+		"@kubb/oas": "workspace:*",
+		"@types/seedrandom": "^3.0.8",
+		"@types/semver": "^7.7.1",
+		"source-map-support": "^0.5.21"
+	},
+	"engines": {
+		"node": ">=20"
+	},
+	"preferGlobal": true,
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	}
 }

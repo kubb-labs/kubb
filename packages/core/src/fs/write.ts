@@ -1,6 +1,5 @@
-import { resolve } from 'node:path'
-
-import fs from 'fs-extra'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { dirname, resolve } from 'node:path'
 import { switcher } from 'js-runtime'
 
 type Options = { sanity?: boolean }
@@ -9,7 +8,7 @@ const writer = switcher(
   {
     node: async (path: string, data: string, { sanity }: Options) => {
       try {
-        const oldContent = await fs.readFile(resolve(path), {
+        const oldContent = await readFile(resolve(path), {
           encoding: 'utf-8',
         })
         if (oldContent?.toString() === data?.toString()) {
@@ -19,10 +18,11 @@ const writer = switcher(
         /* empty */
       }
 
-      await fs.outputFile(resolve(path), data, { encoding: 'utf-8' })
+      await mkdir(dirname(resolve(path)), { recursive: true })
+      await writeFile(resolve(path), data, { encoding: 'utf-8' })
 
       if (sanity) {
-        const savedData = await fs.readFile(resolve(path), {
+        const savedData = await readFile(resolve(path), {
           encoding: 'utf-8',
         })
 

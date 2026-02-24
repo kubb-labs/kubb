@@ -3,8 +3,8 @@ import process from 'node:process'
 import * as clack from '@clack/prompts'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
-import { type ExecaError, execa } from 'execa'
 import pc from 'picocolors'
+import { type NonZeroExitError, x } from 'tinyexec'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 import { getIntro } from '../utils/getIntro.ts'
 import { getSummary } from '../utils/getSummary.ts'
@@ -393,14 +393,14 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       if (logLevel <= LogLevel.silent) {
         try {
-          const result = await execa(command, args, {
-            detached: true,
-            stripFinalNewline: true,
+          const result = await x(command, [...(args ?? [])], {
+            nodeOptions: { detached: true },
+            throwOnError: true,
           })
 
           await context.emit('debug', {
             date: new Date(),
-            logs: [result.stdout],
+            logs: [result.stdout.trimEnd()],
           })
 
           await context.emit('hook:end', {
@@ -411,9 +411,9 @@ Run \`npm install -g @kubb/cli\` to update`,
             error: null,
           })
         } catch (err) {
-          const error = err as ExecaError
-          const stderr = typeof error.stderr === 'string' ? error.stderr : String(error.stderr)
-          const stdout = typeof error.stdout === 'string' ? error.stdout : String(error.stdout)
+          const error = err as NonZeroExitError
+          const stderr = error.output?.stderr ?? ''
+          const stdout = error.output?.stdout ?? ''
 
           await context.emit('debug', {
             date: new Date(),
@@ -451,22 +451,27 @@ Run \`npm install -g @kubb/cli\` to update`,
       const writable = new ClackWritable(logger)
 
       try {
-        const result = await execa(command, args, {
-          detached: true,
-          stdout: ['pipe', writable],
-          stripFinalNewline: true,
+        const proc = x(command, [...(args ?? [])], {
+          nodeOptions: { detached: true },
+          throwOnError: true,
         })
+
+        for await (const line of proc) {
+          writable.write(line)
+        }
+
+        const result = await proc
 
         await context.emit('debug', {
           date: new Date(),
-          logs: [result.stdout],
+          logs: [result.stdout.trimEnd()],
         })
 
         await context.emit('hook:end', { command, args, id, success: true, error: null })
       } catch (err) {
-        const error = err as ExecaError
-        const stderr = typeof error.stderr === 'string' ? error.stderr : String(error.stderr)
-        const stdout = typeof error.stdout === 'string' ? error.stdout : String(error.stdout)
+        const error = err as NonZeroExitError
+        const stderr = error.output?.stderr ?? ''
+        const stdout = error.output?.stdout ?? ''
 
         await context.emit('debug', {
           date: new Date(),

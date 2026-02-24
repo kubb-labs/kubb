@@ -2,7 +2,7 @@ import path from 'node:path'
 import process from 'node:process'
 import type { KubbEvents } from '@kubb/core'
 import { AsyncEventEmitter, formatMs, getConfigs, serializePluginOptions } from '@kubb/core/utils'
-import { execa } from 'execa'
+import { x } from 'tinyexec'
 import { type AgentMessage, isCommandMessage, isPongMessage } from '~/types/agent.ts'
 import { createAgentSession, disconnect, registerAgent } from '~/utils/api.ts'
 import { generate } from '~/utils/generate.ts'
@@ -83,13 +83,12 @@ export default defineNitroPlugin(async (nitro) => {
     }
 
     try {
-      const result = await execa(command, args, {
-        cwd: root,
-        detached: true,
-        stripFinalNewline: true,
+      const result = await x(command, [...(args ?? [])], {
+        nodeOptions: { cwd: root, detached: true },
+        throwOnError: true,
       })
 
-      console.log(result.stdout)
+      console.log(result.stdout.trimEnd())
 
       await events.emit('hook:end', {
         command,

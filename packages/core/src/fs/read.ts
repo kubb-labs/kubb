@@ -1,10 +1,11 @@
-import fs from 'fs-extra'
+import { readFileSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import { switcher } from 'js-runtime'
 
 const reader = switcher(
   {
     node: async (path: string) => {
-      return fs.readFile(path, { encoding: 'utf8' })
+      return readFile(path, { encoding: 'utf8' })
     },
     bun: async (path: string) => {
       const file = Bun.file(path)
@@ -18,7 +19,7 @@ const reader = switcher(
 const syncReader = switcher(
   {
     node: (path: string) => {
-      return fs.readFileSync(path, { encoding: 'utf8' })
+      return readFileSync(path, { encoding: 'utf8' })
     },
     bun: () => {
       throw new Error('Bun cannot read sync')

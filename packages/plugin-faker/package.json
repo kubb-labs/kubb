@@ -1,99 +1,99 @@
 {
-  "name": "@kubb/plugin-faker",
-  "version": "4.28.0",
-  "description": "Faker.js data generator plugin for Kubb, creating realistic mock data from OpenAPI specifications for development and testing.",
-  "keywords": [
-    "faker",
-    "faker.js",
-    "fakerjs",
-    "mock-data",
-    "mocks",
-    "data-generation",
-    "fixtures",
-    "testing",
-    "development",
-    "typescript",
-    "openapi",
-    "swagger",
-    "oas",
-    "code-generator",
-    "codegen",
-    "plugins",
-    "kubb"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/plugin-faker"
-  },
-  "license": "MIT",
-  "author": "stijnvanhulle",
-  "sideEffects": false,
-  "type": "module",
-  "exports": {
-    ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
-    },
-    "./components": {
-      "require": "./dist/components.cjs",
-      "import": "./dist/components.js"
-    },
-    "./generators": {
-      "require": "./dist/generators.cjs",
-      "import": "./dist/generators.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.cts",
-  "typesVersions": {
-    "*": {
-      "components": [
-        "./dist/components.d.ts"
-      ],
-      "generators": [
-        "./dist/generators.d.ts"
-      ]
-    }
-  },
-  "files": [
-    "src",
-    "dist",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
-  "scripts": {
-    "build": "tsdown && size-limit",
-    "clean": "npx rimraf ./dist",
-    "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint --fix --unsafe .",
-    "release": "pnpm publish --no-git-check",
-    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsdown --watch",
-    "test": "vitest --passWithNoTests",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
-  },
-  "dependencies": {
-    "@kubb/core": "workspace:*",
-    "@kubb/oas": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
-    "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react-fabric": "catalog:"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  }
+	"name": "@kubb/plugin-faker",
+	"version": "4.28.0",
+	"description": "Faker.js data generator plugin for Kubb, creating realistic mock data from OpenAPI specifications for development and testing.",
+	"keywords": [
+		"faker",
+		"faker.js",
+		"fakerjs",
+		"mock-data",
+		"mocks",
+		"data-generation",
+		"fixtures",
+		"testing",
+		"development",
+		"typescript",
+		"openapi",
+		"swagger",
+		"oas",
+		"code-generator",
+		"codegen",
+		"plugins",
+		"kubb"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/kubb-labs/kubb.git",
+		"directory": "packages/plugin-faker"
+	},
+	"license": "MIT",
+	"author": "stijnvanhulle",
+	"sideEffects": false,
+	"type": "module",
+	"exports": {
+		".": {
+			"require": "./dist/index.cjs",
+			"import": "./dist/index.js"
+		},
+		"./components": {
+			"require": "./dist/components.cjs",
+			"import": "./dist/components.js"
+		},
+		"./generators": {
+			"require": "./dist/generators.cjs",
+			"import": "./dist/generators.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.cts",
+	"typesVersions": {
+		"*": {
+			"components": [
+				"./dist/components.d.ts"
+			],
+			"generators": [
+				"./dist/generators.d.ts"
+			]
+		}
+	},
+	"files": [
+		"src",
+		"dist",
+		"!/**/**.test.**",
+		"!/**/__tests__/**"
+	],
+	"size-limit": [
+		{
+			"path": "./dist/*.js",
+			"limit": "510 KiB",
+			"gzip": true
+		}
+	],
+	"scripts": {
+		"build": "tsdown && size-limit",
+		"clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
+		"lint": "bun biome lint .",
+		"lint:fix": "bun biome lint --fix --unsafe .",
+		"release": "pnpm publish --no-git-check",
+		"release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
+		"start": "tsdown --watch",
+		"test": "vitest --passWithNoTests",
+		"typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@kubb/core": "workspace:*",
+		"@kubb/oas": "workspace:*",
+		"@kubb/plugin-oas": "workspace:*",
+		"@kubb/plugin-ts": "workspace:*",
+		"@kubb/react-fabric": "catalog:"
+	},
+	"engines": {
+		"node": ">=20"
+	},
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	}
 }

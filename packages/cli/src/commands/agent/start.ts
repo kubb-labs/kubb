@@ -5,9 +5,8 @@ import { fileURLToPath } from 'node:url'
 import * as clack from '@clack/prompts'
 import type { ArgsDef } from 'citty'
 import { defineCommand } from 'citty'
-import { config as loadEnv } from 'dotenv'
-import { execa } from 'execa'
 import pc from 'picocolors'
+import { x } from 'tinyexec'
 
 const args = {
   config: {
@@ -53,8 +52,12 @@ type StartServerProps = {
 
 async function startServer({ port, host, configPath, noCache, allowWrite, allowAll }: StartServerProps): Promise<void> {
   try {
-    // Load .env files into process.env (supports .env, .env.local, .env.*.local)
-    loadEnv() // .env
+    // Load .env file into process.env using Node.js built-in (v20.12.0+)
+    try {
+      process.loadEnvFile()
+    } catch {
+      // .env file may not exist; ignore
+    }
 
     // Resolve the @kubb/agent package path
     const agentPkgUrl = import.meta.resolve('@kubb/agent/package.json')
@@ -102,10 +105,12 @@ async function startServer({ port, host, configPath, noCache, allowWrite, allowA
     }
 
     // Use execa to spawn the server process
-    await execa('node', [serverPath], {
-      env,
-      stdio: 'inherit',
-      cwd: process.cwd(),
+    await x('node', [serverPath], {
+      nodeOptions: {
+        env: { ...process.env, ...env },
+        stdio: 'inherit',
+        cwd: process.cwd(),
+      },
     })
   } catch (error) {
     console.error('Failed to start agent server:', error)

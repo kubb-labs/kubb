@@ -1,112 +1,112 @@
 {
-  "name": "@kubb/plugin-oas",
-  "version": "4.28.0",
-  "description": "OpenAPI Specification (OAS) plugin for Kubb, providing core functionality for parsing and processing OpenAPI/Swagger schemas for code generation.",
-  "keywords": [
-    "openapi",
-    "swagger",
-    "oas",
-    "openapi-v3",
-    "api-specification",
-    "schema-processing",
-    "schema-parser",
-    "rest-api",
-    "typescript",
-    "code-generator",
-    "codegen",
-    "plugins",
-    "kubb"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/plugin-oas"
-  },
-  "license": "MIT",
-  "author": "stijnvanhulle",
-  "sideEffects": false,
-  "type": "module",
-  "exports": {
-    ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
-    },
-    "./generators": {
-      "require": "./dist/generators.cjs",
-      "import": "./dist/generators.js"
-    },
-    "./hooks": {
-      "require": "./dist/hooks.cjs",
-      "import": "./dist/hooks.js"
-    },
-    "./mocks": {
-      "require": "./dist/mocks.cjs",
-      "import": "./dist/mocks.js"
-    },
-    "./utils": {
-      "require": "./dist/utils.cjs",
-      "import": "./dist/utils.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.cts",
-  "typesVersions": {
-    "*": {
-      "utils": [
-        "./dist/utils.d.ts"
-      ],
-      "hooks": [
-        "./dist/hooks.d.ts"
-      ],
-      "mocks": [
-        "./dist/mocks.d.ts"
-      ],
-      "generators": [
-        "./dist/generators.d.ts"
-      ]
-    }
-  },
-  "files": [
-    "src",
-    "dist",
-    "!/**/**.test.**",
-    "!/**/__tests__/**"
-  ],
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
-  "scripts": {
-    "build": "tsdown && size-limit",
-    "clean": "npx rimraf ./dist",
-    "lint": "bun biome lint .",
-    "lint:fix": "bun biome lint --fix --unsafe .",
-    "release": "pnpm publish --no-git-check",
-    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-    "start": "tsdown --watch",
-    "test": "vitest --passWithNoTests",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
-  },
-  "dependencies": {
-    "@kubb/core": "workspace:*",
-    "@kubb/oas": "workspace:*",
-    "@kubb/react-fabric": "catalog:",
-    "p-limit": "catalog:",
-    "remeda": "catalog:"
-  },
-  "peerDependencies": {
-    "@kubb/react-fabric": "0.12.11"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  }
+	"name": "@kubb/plugin-oas",
+	"version": "4.28.0",
+	"description": "OpenAPI Specification (OAS) plugin for Kubb, providing core functionality for parsing and processing OpenAPI/Swagger schemas for code generation.",
+	"keywords": [
+		"openapi",
+		"swagger",
+		"oas",
+		"openapi-v3",
+		"api-specification",
+		"schema-processing",
+		"schema-parser",
+		"rest-api",
+		"typescript",
+		"code-generator",
+		"codegen",
+		"plugins",
+		"kubb"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/kubb-labs/kubb.git",
+		"directory": "packages/plugin-oas"
+	},
+	"license": "MIT",
+	"author": "stijnvanhulle",
+	"sideEffects": false,
+	"type": "module",
+	"exports": {
+		".": {
+			"require": "./dist/index.cjs",
+			"import": "./dist/index.js"
+		},
+		"./generators": {
+			"require": "./dist/generators.cjs",
+			"import": "./dist/generators.js"
+		},
+		"./hooks": {
+			"require": "./dist/hooks.cjs",
+			"import": "./dist/hooks.js"
+		},
+		"./mocks": {
+			"require": "./dist/mocks.cjs",
+			"import": "./dist/mocks.js"
+		},
+		"./utils": {
+			"require": "./dist/utils.cjs",
+			"import": "./dist/utils.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.cts",
+	"typesVersions": {
+		"*": {
+			"utils": [
+				"./dist/utils.d.ts"
+			],
+			"hooks": [
+				"./dist/hooks.d.ts"
+			],
+			"mocks": [
+				"./dist/mocks.d.ts"
+			],
+			"generators": [
+				"./dist/generators.d.ts"
+			]
+		}
+	},
+	"files": [
+		"src",
+		"dist",
+		"!/**/**.test.**",
+		"!/**/__tests__/**"
+	],
+	"size-limit": [
+		{
+			"path": "./dist/*.js",
+			"limit": "510 KiB",
+			"gzip": true
+		}
+	],
+	"scripts": {
+		"build": "tsdown && size-limit",
+		"clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
+		"lint": "bun biome lint .",
+		"lint:fix": "bun biome lint --fix --unsafe .",
+		"release": "pnpm publish --no-git-check",
+		"release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
+		"start": "tsdown --watch",
+		"test": "vitest --passWithNoTests",
+		"typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+	},
+	"dependencies": {
+		"@kubb/core": "workspace:*",
+		"@kubb/oas": "workspace:*",
+		"@kubb/react-fabric": "catalog:",
+		"p-limit": "catalog:",
+		"remeda": "catalog:"
+	},
+	"peerDependencies": {
+		"@kubb/react-fabric": "0.12.11"
+	},
+	"engines": {
+		"node": ">=20"
+	},
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	}
 }

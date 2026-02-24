@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { execa } from 'execa'
+import { x } from 'tinyexec'
 
 export type PackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun'
 
@@ -73,15 +73,15 @@ export async function initPackageJson(cwd: string, packageManager: PackageManage
     bun: ['init', '-y'],
   }
 
-  await execa(packageManager.name, commands[packageManager.name], {
-    cwd,
-    stdio: 'inherit',
+  await x(packageManager.name, commands[packageManager.name], {
+    nodeOptions: { cwd, stdio: 'inherit' },
+    throwOnError: true,
   })
 }
 
 export async function installPackages(packages: string[], packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
-  await execa(packageManager.name, [...packageManager.installCommand, ...packages], {
-    cwd,
-    stdio: 'inherit',
+  await x(packageManager.name, [...packageManager.installCommand, ...packages], {
+    nodeOptions: { cwd, stdio: 'inherit' },
+    throwOnError: true,
   })
 }

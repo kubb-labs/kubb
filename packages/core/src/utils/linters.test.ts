@@ -1,10 +1,10 @@
-import { execaCommand } from 'execa'
+import { x } from 'tinyexec'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { detectLinter } from './linters.ts'
 
-// Mock execa
-vi.mock('execa', () => ({
-  execaCommand: vi.fn(),
+// Mock tinyexec
+vi.mock('tinyexec', () => ({
+  x: vi.fn(),
 }))
 
 describe('detectLinter', () => {
@@ -13,9 +13,9 @@ describe('detectLinter', () => {
   })
 
   it('should detect biome when available', async () => {
-    vi.mocked(execaCommand).mockImplementation((command: string) => {
-      if (command === 'biome --version') {
-        return {} as ReturnType<typeof execaCommand>
+    vi.mocked(x).mockImplementation((command: string) => {
+      if (command === 'biome') {
+        return {} as ReturnType<typeof x>
       }
       throw new Error('Command not found')
     })
@@ -25,9 +25,9 @@ describe('detectLinter', () => {
   })
 
   it('should detect oxlint when biome is not available', async () => {
-    vi.mocked(execaCommand).mockImplementation((command: string) => {
-      if (command === 'oxlint --version') {
-        return {} as ReturnType<typeof execaCommand>
+    vi.mocked(x).mockImplementation((command: string) => {
+      if (command === 'oxlint') {
+        return {} as ReturnType<typeof x>
       }
       throw new Error('Command not found')
     })
@@ -37,9 +37,9 @@ describe('detectLinter', () => {
   })
 
   it('should detect eslint when biome and oxlint are not available', async () => {
-    vi.mocked(execaCommand).mockImplementation((command: string) => {
-      if (command === 'eslint --version') {
-        return {} as ReturnType<typeof execaCommand>
+    vi.mocked(x).mockImplementation((command: string) => {
+      if (command === 'eslint') {
+        return {} as ReturnType<typeof x>
       }
       throw new Error('Command not found')
     })
@@ -49,7 +49,7 @@ describe('detectLinter', () => {
   })
 
   it('should return undefined when no linter is available', async () => {
-    vi.mocked(execaCommand).mockImplementation(() => {
+    vi.mocked(x).mockImplementation(() => {
       throw new Error('Command not found')
     })
 
@@ -59,12 +59,12 @@ describe('detectLinter', () => {
 
   it('should prioritize biome over other linters', async () => {
     // All linters are available
-    vi.mocked(execaCommand).mockImplementation((_command: string) => {
-      return {} as ReturnType<typeof execaCommand>
+    vi.mocked(x).mockImplementation((_command: string) => {
+      return {} as ReturnType<typeof x>
     })
 
     const result = await detectLinter()
     expect(result).toBe('biome')
-    expect(execaCommand).toHaveBeenCalledWith('biome --version', { stdio: 'ignore' })
+    expect(x).toHaveBeenCalledWith('biome', ['--version'], { nodeOptions: { stdio: 'ignore' } })
   })
 })

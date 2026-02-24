@@ -1,10 +1,14 @@
-import fs from 'fs-extra'
+import fs from 'node:fs'
+import { access } from 'node:fs/promises'
 import { switcher } from 'js-runtime'
 
 const reader = switcher(
   {
     node: async (path: string) => {
-      return fs.pathExists(path)
+      return access(path).then(
+        () => true,
+        () => false,
+      )
     },
     bun: async (path: string) => {
       const file = Bun.file(path)
@@ -18,7 +22,7 @@ const reader = switcher(
 const syncReader = switcher(
   {
     node: (path: string) => {
-      return fs.pathExistsSync(path)
+      return fs.existsSync(path)
     },
     bun: () => {
       throw new Error('Bun cannot read sync')
