@@ -1,5 +1,27 @@
 # @kubb/swagger
 
+## 4.28.0
+
+### Minor Changes
+
+- [`d34236f`](https://github.com/kubb-labs/kubb/commit/d34236fae3f46f6f0a79b7792898421f5f5a4d9d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - feat(plugin-ts): add `integerType` option to control int64 TypeScript type
+
+  Adds an `integerType` option to `plugin-ts` (and the underlying `SchemaGeneratorOptions`) that controls how OpenAPI `integer` fields with `format: int64` are mapped to TypeScript types.
+  - `'bigint'` (default, existing behavior) — uses the TypeScript `bigint` type, accurate for values exceeding `Number.MAX_SAFE_INTEGER`.
+  - `'number'` — uses the TypeScript `number` type, matching the runtime behavior of `JSON.parse()`.
+
+  ```typescript
+  pluginTs({
+    integerType: "number", // 'number' | 'bigint', default: 'bigint'
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.28.0
+  - @kubb/oas@4.28.0
+
 ## 4.27.4
 
 ### Patch Changes
