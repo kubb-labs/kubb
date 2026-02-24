@@ -30,7 +30,9 @@ export function loginUserQueryOptionsHook(params?: LoginUserQueryParams, config:
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return loginUserHook(params, config)
     },
   })

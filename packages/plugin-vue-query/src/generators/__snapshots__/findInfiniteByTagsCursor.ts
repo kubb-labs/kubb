@@ -45,7 +45,9 @@ export function findPetsByTagsInfiniteQueryOptions(
   return infiniteQueryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey, number>({
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
 
       if (!params) {
         params = {}

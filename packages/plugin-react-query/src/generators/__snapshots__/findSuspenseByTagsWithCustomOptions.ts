@@ -43,7 +43,9 @@ export function findPetsByTagsSuspenseQueryOptions(
   return queryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return findPetsByTagsSuspense(headers, params, config)
     },
   })

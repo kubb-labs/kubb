@@ -109,7 +109,9 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParam
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return findPetsByStatus(params, config)
     },
   })
@@ -177,7 +179,9 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTagsQueryParams, c
   return queryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return findPetsByTags(params, config)
     },
   })
@@ -245,7 +249,9 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], con
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return getPetById(petId, config)
     },
   })
@@ -304,7 +310,9 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> & { clie
   return queryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return getInventory(config)
     },
   })
@@ -365,7 +373,9 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return getOrderById(orderId, config)
     },
   })
@@ -423,7 +433,9 @@ export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Par
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return loginUser(params, config)
     },
   })
@@ -478,7 +490,9 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client
   return queryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return logoutUser(config)
     },
   })
@@ -537,7 +551,9 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return getUserByName(username, config)
     },
   })
@@ -605,7 +621,9 @@ export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatusQu
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return findPetsByStatusSuspense(params, config)
     },
   })
@@ -669,7 +687,9 @@ export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTagsQueryP
   return queryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return findPetsByTagsSuspense(params, config)
     },
   })
@@ -731,7 +751,9 @@ export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petI
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return getPetByIdSuspense(petId, config)
     },
   })
@@ -790,7 +812,9 @@ export function getInventorySuspenseQueryOptions(config: Partial<RequestConfig> 
   return queryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return getInventorySuspense(config)
     },
   })
@@ -852,7 +876,9 @@ export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return getOrderByIdSuspense(orderId, config)
     },
   })
@@ -910,7 +936,9 @@ export function loginUserSuspenseQueryOptions(params?: LoginUserQueryParams, con
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return loginUserSuspense(params, config)
     },
   })
@@ -965,7 +993,9 @@ export function logoutUserSuspenseQueryOptions(config: Partial<RequestConfig> & 
   return queryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return logoutUserSuspense(config)
     },
   })
@@ -1025,7 +1055,9 @@ export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathPar
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return getUserByNameSuspense(username, config)
     },
   })
