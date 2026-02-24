@@ -3,7 +3,7 @@ import path from 'node:path'
 import { type Config, type KubbEvents, safeBuild, setup } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import { detectFormatter, detectLinter, formatters, linters } from '@kubb/core/utils'
-import pc from 'picocolors'
+import { styleText } from 'node:util'
 import { executeHooks } from './executeHooks.ts'
 
 type GenerateProps = {
@@ -120,7 +120,7 @@ export async function generate({ config, events }: GenerateProps): Promise<void>
         await events.emit('warn', 'No linter found (biome, oxlint, or eslint). Skipping linting.')
       } else {
         linter = detectedLinter
-        await events.emit('info', `Auto-detected linter: ${pc.dim(linter)}`)
+        await events.emit('info', `Auto-detected linter: ${styleText('dim', linter)}`)
       }
     }
 
