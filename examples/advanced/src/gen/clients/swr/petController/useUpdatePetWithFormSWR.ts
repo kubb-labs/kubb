@@ -1,13 +1,12 @@
-import fetch from '../../../../axios-client.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
-import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
+  UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import { updatePetWithForm } from '../../axios/petService/updatePetWithForm.ts'
 
 export const updatePetWithFormMutationKeySWR = () => [{ url: '/pet/:petId:search' }] as const

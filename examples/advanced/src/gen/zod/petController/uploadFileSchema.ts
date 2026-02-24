@@ -1,4 +1,5 @@
 import * as z from 'zod'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import type {
   UploadFile200,
   UploadFileMutationRequest,
@@ -6,7 +7,6 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../models/ts/petController/UploadFile.ts'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import { apiResponseSchema } from '../apiResponseSchema.ts'
 
 export const uploadFilePathParamsSchema = z.object({

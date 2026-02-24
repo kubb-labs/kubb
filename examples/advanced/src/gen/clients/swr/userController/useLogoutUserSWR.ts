@@ -1,6 +1,5 @@
-import fetch from '../../../../axios-client.ts'
 import useSWR from 'swr'
-import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
 import { logoutUser } from '../../axios/userService/logoutUser.ts'
 

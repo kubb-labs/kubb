@@ -1,6 +1,6 @@
 import * as z from 'zod'
-import type { Pet } from '../models/ts/Pet.ts'
 import type { ToZod } from '../.kubb/ToZod.ts'
+import type { Pet } from '../models/ts/Pet.ts'
 import { categorySchema } from './categorySchema.ts'
 import { tagTagSchema } from './tag/tagSchema.ts'
 

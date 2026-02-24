@@ -1,8 +1,7 @@
-import fetch from '../../../../axios-client.ts'
-import useSWRMutation from 'swr/mutation'
-import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
+import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 import { createUser } from '../../axios/userService/createUser.ts'
 
 export const createUserMutationKeySWR = () => [{ url: '/user' }] as const
