@@ -5,9 +5,7 @@ import { type CLIOptions, isInputPath, type KubbEvents, LogLevel, PromiseManager
 import { AsyncEventEmitter, executeIfOnline, getConfigs } from '@kubb/core/utils'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
-import getLatestVersion from 'latest-version'
-import pc from 'picocolors'
-import { lt } from 'semver'
+import { styleText } from 'node:util'
 import { version } from '../../package.json'
 import { setupLogger } from '../loggers/utils.ts'
 import { generate } from '../runners/generate.ts'
@@ -94,10 +92,16 @@ const command = defineCommand({
     await setupLogger(events, { logLevel })
 
     await executeIfOnline(async () => {
-      const latestVersion = await getLatestVersion('@kubb/cli')
+      try {
+        const res = await fetch('https://registry.npmjs.org/@kubb/cli/latest')
+        const data = (await res.json()) as { version: string }
+        const latestVersion = data.version
 
-      if (lt(version, latestVersion)) {
-        await events.emit('version:new', version, latestVersion)
+        if (latestVersion && version < latestVersion) {
+          await events.emit('version:new', version, latestVersion)
+        }
+      } catch {
+        // Ignore network errors for version check
       }
     })
 
@@ -125,7 +129,7 @@ const command = defineCommand({
                 events,
               })
 
-              clack.log.step(pc.yellow(`Watching for changes in ${paths.join(' and ')}`))
+              clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
             })
 
             return
