@@ -240,7 +240,9 @@ export function SuspenseInfiniteQueryOptions({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal, pageParam }) => {
-          config.signal = signal
+          if (!config.signal) {
+            config.signal = signal
+          }
           ${infiniteOverrideParams}
           return ${clientName}(${clientParams.toCall()})
        },
@@ -261,7 +263,9 @@ export function SuspenseInfiniteQueryOptions({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal }) => {
-          config.signal = signal
+          if (!config.signal) {
+            config.signal = signal
+          }
           return ${clientName}(${clientParams.toCall()})
        },
        ${queryOptions.join(',\n')}
