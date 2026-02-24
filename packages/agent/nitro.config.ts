@@ -1,5 +1,14 @@
+import os from 'node:os'
+import path from 'node:path'
+
 export default defineNitroConfig({
   srcDir: 'server',
+  storage: {
+    kubb: {
+      driver: 'fs',
+      base: path.join(os.homedir(), '.kubb', 'kv'),
+    },
+  },
   debug: false,
   serveStatic: false,
   compatibilityDate: '2026-02-22',

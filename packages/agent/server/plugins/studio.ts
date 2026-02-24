@@ -5,9 +5,10 @@ import { AsyncEventEmitter, formatMs, getConfigs, serializePluginOptions } from 
 import { execa } from 'execa'
 import { type AgentMessage, isCommandMessage } from '~/types/agent.ts'
 import { createAgentSession, disconnect, registerAgent } from '~/utils/api.ts'
-import { deleteCachedSession, getCachedSession } from '~/utils/cacheManager.ts'
 import { generate } from '~/utils/generate.ts'
 import { getCosmiConfig } from '~/utils/getCosmiConfig.ts'
+import { getSessionKey } from '~/utils/getSessionKey.ts'
+import { type AgentSession, isSessionValid } from '~/utils/isSessionValid.ts'
 import { logger } from '~/utils/logger.ts'
 import { resolvePlugins } from '~/utils/resolvePlugins.ts'
 import { readStudioConfig, writeStudioConfig } from '~/utils/studioConfig.ts'
@@ -54,6 +55,7 @@ export default defineNitroPlugin(async (nitro) => {
 
   const resolvedConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(root, configPath)
   const events = new AsyncEventEmitter<KubbEvents>()
+  const storage = useStorage<AgentSession>('kubb')
 
   async function loadConfig() {
     const result = await getCosmiConfig(resolvedConfigPath)
@@ -134,12 +136,15 @@ export default defineNitroPlugin(async (nitro) => {
 
         logger.error(`Failed to connect to Kubb Studio on "${wsUrl}"`)
 
-        const cachedSession = !noCache ? getCachedSession(token) : null
+        if (!noCache) {
+          const sessionKey = getSessionKey(token)
+          const stored = await storage.getItem(sessionKey)
 
-        // If connection fails and we used cached session, invalidate it
-        if (cachedSession) {
-          deleteCachedSession(token)
-          await reconnectToStudio()
+          // If connection fails and we used a cached session, invalidate it and retry
+          if (stored && isSessionValid(stored)) {
+            await storage.removeItem(sessionKey)
+            await reconnectToStudio()
+          }
         }
       }
 
@@ -158,7 +163,7 @@ export default defineNitroPlugin(async (nitro) => {
             studioUrl,
             token,
           }).catch(async () => {
-            deleteCachedSession(token)
+            await storage.removeItem(getSessionKey(token))
             await reconnectToStudio()
           })
         }
@@ -251,7 +256,7 @@ export default defineNitroPlugin(async (nitro) => {
         }
       })
     } catch (error: any) {
-      deleteCachedSession(token)
+      await storage.removeItem(getSessionKey(token))
 
       logger.error(`Something went wrong ${error}`)
       await reconnectToStudio()

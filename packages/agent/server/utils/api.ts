@@ -1,5 +1,6 @@
 import type { AgentConnectResponse } from '~/types/agent.ts'
-import { cacheSession, getCachedSession } from './cacheManager.ts'
+import { getSessionKey } from '~/utils/getSessionKey.ts'
+import { type AgentSession, isSessionValid } from '~/utils/isSessionValid.ts'
 import { logger } from './logger.ts'
 import { getMachineToken } from './machineToken.ts'
 
@@ -15,12 +16,20 @@ type ConnectProps = {
  *
  */
 export async function createAgentSession({ token, studioUrl, noCache }: ConnectProps): Promise<AgentConnectResponse> {
-  // Try to use cached session first (unless --no-cache is set)
-  const cachedSession = !noCache ? getCachedSession(token) : null
-  if (cachedSession) {
-    logger.success('Using cached agent session')
+  if (!noCache) {
+    const storage = useStorage<AgentSession>('kubb')
+    const sessionKey = getSessionKey(token)
+    const stored = await storage.getItem(sessionKey)
 
-    return cachedSession
+    if (stored && isSessionValid(stored)) {
+      logger.success('Using cached agent session')
+      return stored
+    }
+
+    if (stored) {
+      // Session expired — remove it before fetching a new one
+      await storage.removeItem(sessionKey)
+    }
   }
 
   // Fetch new session from Studio
@@ -35,13 +44,18 @@ export async function createAgentSession({ token, studioUrl, noCache }: ConnectP
       body: { machineToken: getMachineToken() },
     })
 
-    // Cache the session for reuse (unless --no-cache is set)
-    if (data && !noCache) {
-      cacheSession(token, data)
-    }
-
     if (!data) {
       throw new Error('No data available for agent session')
+    }
+
+    // Cache the session for reuse (unless --no-cache is set)
+    if (!noCache) {
+      const sessionKey = getSessionKey(token)
+      await useStorage<AgentSession>('kubb').setItem(sessionKey, {
+        ...data,
+        storedAt: new Date().toISOString(),
+      })
+      logger.success('Cached agent session')
     }
 
     logger.success('Agent session created')
