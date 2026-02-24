@@ -94,7 +94,8 @@
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react-fabric": "catalog:"
+    "@kubb/react-fabric": "catalog:",
+    "remeda": "catalog:"
   },
   "devDependencies": {
     "@asteasolutions/zod-to-openapi": "^8.4.1",

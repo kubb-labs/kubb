@@ -1,9 +1,9 @@
 import { relative } from 'node:path'
 import process from 'node:process'
+import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
-import { styleText } from 'node:util'
 import { type NonZeroExitError, x } from 'tinyexec'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 import { getIntro } from '../utils/getIntro.ts'
@@ -133,7 +133,9 @@ export const clackLogger = defineLogger({
         return
       }
 
-      const text = getMessage([styleText('yellow', '⚠'), message, logLevel >= LogLevel.info && info ? styleText('dim', info) : undefined].filter(Boolean).join(' '))
+      const text = getMessage(
+        [styleText('yellow', '⚠'), message, logLevel >= LogLevel.info && info ? styleText('dim', info) : undefined].filter(Boolean).join(' '),
+      )
 
       clack.log.warn(text)
     })
@@ -265,7 +267,9 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       const durationStr = formatMsWithColor(duration)
       const text = getMessage(
-        success ? `${styleText('bold', plugin.name)} completed in ${durationStr}` : `${styleText('bold', plugin.name)} failed in ${styleText('red', formatMs(duration))}`,
+        success
+          ? `${styleText('bold', plugin.name)} completed in ${durationStr}`
+          : `${styleText('bold', plugin.name)} failed in ${styleText('red', formatMs(duration))}`,
       )
 
       active.progressBar.stop(text)

@@ -1,6 +1,6 @@
 import * as z from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
 import type { GetPetById200, GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById.ts'
+import type { ToZod } from '../../.kubb/ToZod.ts'
 import { petSchema } from '../petSchema.ts'
 
 export const getPetByIdPathParamsSchema = z.object({

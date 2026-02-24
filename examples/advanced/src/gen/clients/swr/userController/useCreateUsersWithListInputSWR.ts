@@ -1,10 +1,11 @@
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import fetch from '../../../../axios-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import { createUsersWithListInput } from '../../axios/userService/createUsersWithListInput.ts'
 
 export const createUsersWithListInputMutationKeySWR = () => [{ url: '/user/createWithList' }] as const

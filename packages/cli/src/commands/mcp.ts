@@ -1,7 +1,7 @@
+import { styleText } from 'node:util'
 import type { ArgsDef } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import { createJiti } from 'jiti'
-import { styleText } from 'node:util'
 
 const jiti = createJiti(import.meta.url, {
   sourceMaps: true,

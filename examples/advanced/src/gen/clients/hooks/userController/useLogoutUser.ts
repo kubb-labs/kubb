@@ -1,7 +1,8 @@
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
-import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
+import fetch from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
+import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import { logoutUser } from '../../axios/userService/logoutUser.ts'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const

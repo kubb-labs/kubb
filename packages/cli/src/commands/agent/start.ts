@@ -1,12 +1,11 @@
+import { spawn } from 'node:child_process'
 import path from 'node:path'
 import * as process from 'node:process'
 import { fileURLToPath } from 'node:url'
-
+import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { ArgsDef } from 'citty'
 import { defineCommand } from 'citty'
-import { styleText } from 'node:util'
-import { x } from 'tinyexec'
 
 const args = {
   config: {
@@ -104,13 +103,10 @@ async function startServer({ port, host, configPath, noCache, allowWrite, allowA
       clack.log.warn(styleText('yellow', 'Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
     }
 
-    // Use execa to spawn the server process
-    await x('node', [serverPath], {
-      nodeOptions: {
-        env: { ...process.env, ...env },
-        stdio: 'inherit',
-        cwd: process.cwd(),
-      },
+    spawn('node', [serverPath], {
+      env: { ...process.env, ...env },
+      stdio: 'inherit',
+      cwd: process.cwd(),
     })
   } catch (error) {
     console.error('Failed to start agent server:', error)

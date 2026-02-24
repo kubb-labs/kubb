@@ -101,13 +101,14 @@
     "jiti": "2.5.1",
     "p-limit": "catalog:",
     "remeda": "catalog:",
-    "semver": "^7.7.4"
+    "semver": "^7.7.4",
+    "tinyexec": "catalog:"
   },
   "devDependencies": {
     "@types/semver": "^7.7.1"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.12.11"
+    "@kubb/react-fabric": "0.13.0"
   },
   "engines": {
     "node": ">=20"

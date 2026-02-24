@@ -1,10 +1,11 @@
+import fetch from '../../../../axios-client.ts'
 import useSWR from 'swr'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type {
+  GetUserByNameQueryResponse,
+  GetUserByNamePathParams,
   GetUserByName400,
   GetUserByName404,
-  GetUserByNamePathParams,
-  GetUserByNameQueryResponse,
 } from '../../../models/ts/userController/GetUserByName.ts'
 import { getUserByName } from '../../axios/userService/getUserByName.ts'
 

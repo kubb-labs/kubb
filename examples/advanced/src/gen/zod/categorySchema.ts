@@ -1,6 +1,6 @@
 import * as z from 'zod'
-import type { ToZod } from '../.kubb/ToZod.ts'
 import type { Category } from '../models/ts/Category.ts'
+import type { ToZod } from '../.kubb/ToZod.ts'
 
 export const categorySchema = z.object({
   id: z.optional(z.bigint()),

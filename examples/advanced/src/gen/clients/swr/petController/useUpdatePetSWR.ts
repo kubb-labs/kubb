@@ -1,13 +1,14 @@
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import fetch from '../../../../axios-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type {
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
   UpdatePet400,
   UpdatePet404,
   UpdatePet405,
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
 } from '../../../models/ts/petController/UpdatePet.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import { updatePet } from '../../axios/petService/updatePet.ts'
 
 export const updatePetMutationKeySWR = () => [{ url: '/pet' }] as const

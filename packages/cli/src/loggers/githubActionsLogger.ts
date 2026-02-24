@@ -1,6 +1,6 @@
+import { styleText } from 'node:util'
 import { type Config, defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
-import { styleText } from 'node:util'
 import { type NonZeroExitError, x } from 'tinyexec'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 
@@ -211,7 +211,9 @@ export const githubActionsLogger = defineLogger({
 
       const durationStr = formatMsWithColor(duration)
       const text = getMessage(
-        success ? `${styleText('bold', plugin.name)} completed in ${durationStr}` : `${styleText('bold', plugin.name)} failed in ${styleText('red', formatMs(duration))}`,
+        success
+          ? `${styleText('bold', plugin.name)} completed in ${durationStr}`
+          : `${styleText('bold', plugin.name)} failed in ${styleText('red', formatMs(duration))}`,
       )
 
       console.log(text)
@@ -274,7 +276,9 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('generation:end', (config) => {
-      const text = getMessage(config.name ? `${styleText('blue', '✓')} Generation completed for ${styleText('dim', config.name)}` : `${styleText('blue', '✓')} Generation completed`)
+      const text = getMessage(
+        config.name ? `${styleText('blue', '✓')} Generation completed for ${styleText('dim', config.name)}` : `${styleText('blue', '✓')} Generation completed`,
+      )
 
       console.log(text)
     })

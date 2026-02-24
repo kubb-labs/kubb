@@ -1,9 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { defineCommand } from 'citty'
-import { styleText } from 'node:util'
 import { version } from '../../package.json'
 import { detectPackageManager, hasPackageJson, initPackageJson, installPackages, type PackageManagerInfo } from '../utils/packageManager.ts'
 

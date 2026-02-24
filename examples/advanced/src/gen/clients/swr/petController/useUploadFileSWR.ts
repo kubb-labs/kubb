@@ -1,12 +1,13 @@
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import fetch from '../../../../axios-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import { uploadFile } from '../../axios/petService/uploadFile.ts'
 
 export const uploadFileMutationKeySWR = () => [{ url: '/pet/:petId/uploadImage' }] as const

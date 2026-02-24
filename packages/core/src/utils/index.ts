@@ -18,6 +18,7 @@ export {
 export { renderTemplate } from './renderTemplate.ts'
 export { serializePluginOptions } from './serializePluginOptions.ts'
 export { timeout } from './timeout.ts'
+export { tokenize } from './tokenize.ts'
 export type { URLObject } from './URLPath.ts'
 export { URLPath } from './URLPath.ts'
 export { getUniqueName, setUniqueName } from './uniqueName.ts'

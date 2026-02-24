@@ -1,7 +1,7 @@
 import type { WritableOptions } from 'node:stream'
 import { Writable } from 'node:stream'
-import type * as clack from '@clack/prompts'
 import { styleText } from 'node:util'
+import type * as clack from '@clack/prompts'
 
 export class ClackWritable extends Writable {
   taskLog: ReturnType<typeof clack.taskLog>

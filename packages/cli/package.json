@@ -70,7 +70,8 @@
     "chokidar": "^5.0.0",
     "citty": "^0.1.6",
     "cosmiconfig": "^9.0.0",
-    "jiti": "2.5.1"
+    "jiti": "2.5.1",
+    "tinyexec": "catalog:"
   },
   "devDependencies": {
     "@kubb/agent": "workspace:*",

@@ -64,9 +64,9 @@ export class FunctionParams {
   static #orderItems(items: Array<FunctionParamsAST | FunctionParamsAST[]>) {
     return sortBy(
       items.filter(Boolean),
-      [item => Array.isArray(item), 'desc'],                                                          // arrays (rest params) first
-      [item => !Array.isArray(item) && (item as FunctionParamsAST).default !== undefined, 'asc'],    // no-default before has-default
-      [item => Array.isArray(item) || ((item as FunctionParamsAST).required ?? true), 'desc'],       // required before optional
+      [(item) => Array.isArray(item), 'desc'], // arrays (rest params) first
+      [(item) => !Array.isArray(item) && (item as FunctionParamsAST).default !== undefined, 'asc'], // no-default before has-default
+      [(item) => Array.isArray(item) || ((item as FunctionParamsAST).required ?? true), 'desc'], // required before optional
     )
   }
 

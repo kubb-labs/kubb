@@ -1,5 +1,3 @@
-import _camelcase from 'camelcase'
-
 type Options = {
   /**
    * When set it will replace all `.` with `/`.
@@ -9,13 +7,33 @@ type Options = {
   suffix?: string
 }
 
+function toCamelOrPascal(text: string, pascal: boolean): string {
+  const normalized = text
+    .trim()
+    .replace(/([a-z\d])([A-Z])/g, '$1 $2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    .replace(/(\d)([a-z])/g, '$1 $2')
+
+  const words = normalized.split(/[\s\-_./\\:]+/).filter(Boolean)
+
+  return words
+    .map((word, i) => {
+      const allUpper = word.length > 1 && word === word.toUpperCase()
+      if (allUpper) return word
+      if (i === 0 && !pascal) return word[0]!.toLowerCase() + word.slice(1)
+      return word[0]!.toUpperCase() + word.slice(1)
+    })
+    .join('')
+    .replace(/[^a-zA-Z0-9]/g, '')
+}
+
 export function camelCase(text: string, { isFile, prefix = '', suffix = '' }: Options = {}): string {
   if (isFile) {
     const splitArray = text.split('.')
     return splitArray.map((item, i) => (i === splitArray.length - 1 ? camelCase(item, { prefix, suffix }) : camelCase(item))).join('/')
   }
 
-  return _camelcase(`${prefix} ${text} ${suffix}`, { pascalCase: false, preserveConsecutiveUppercase: true }).replace(/[^a-zA-Z0-9]/g, '')
+  return toCamelOrPascal(`${prefix} ${text} ${suffix}`, false)
 }
 
 export function pascalCase(text: string, { isFile, prefix = '', suffix = '' }: Options = {}): string {
@@ -24,7 +42,7 @@ export function pascalCase(text: string, { isFile, prefix = '', suffix = '' }: O
     return splitArray.map((item, i) => (i === splitArray.length - 1 ? pascalCase(item, { prefix, suffix }) : camelCase(item))).join('/')
   }
 
-  return _camelcase(`${prefix} ${text} ${suffix}`, { pascalCase: true, preserveConsecutiveUppercase: true }).replace(/[^a-zA-Z0-9]/g, '')
+  return toCamelOrPascal(`${prefix} ${text} ${suffix}`, true)
 }
 
 export function snakeCase(text: string, { prefix = '', suffix = '' }: Omit<Options, 'isFile'> = {}): string {

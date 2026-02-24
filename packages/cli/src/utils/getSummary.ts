@@ -1,7 +1,7 @@
 import path from 'node:path'
+import { styleText } from 'node:util'
 import type { Config, Plugin } from '@kubb/core'
 import { formatHrtime } from '@kubb/core/utils'
-import { styleText } from 'node:util'
 import { randomCliColor } from './randomColor.ts'
 
 type SummaryProps = {

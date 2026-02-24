@@ -1,6 +1,6 @@
+import { spawn } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
-import { x } from 'tinyexec'
 
 export type PackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun'
 
@@ -73,15 +73,9 @@ export async function initPackageJson(cwd: string, packageManager: PackageManage
     bun: ['init', '-y'],
   }
 
-  await x(packageManager.name, commands[packageManager.name], {
-    nodeOptions: { cwd, stdio: 'inherit' },
-    throwOnError: true,
-  })
+  spawn(packageManager.name, commands[packageManager.name], { stdio: 'inherit', cwd })
 }
 
 export async function installPackages(packages: string[], packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
-  await x(packageManager.name, [...packageManager.installCommand, ...packages], {
-    nodeOptions: { cwd, stdio: 'inherit' },
-    throwOnError: true,
-  })
+  spawn(packageManager.name, [...packageManager.installCommand, ...packages], { stdio: 'inherit', cwd })
 }

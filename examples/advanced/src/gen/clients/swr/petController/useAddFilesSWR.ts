@@ -1,7 +1,8 @@
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import fetch from '../../../../axios-client.ts'
 import useSWRMutation from 'swr/mutation'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../../models/ts/petController/AddFiles.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { AddFilesMutationRequest, AddFilesMutationResponse, AddFiles405 } from '../../../models/ts/petController/AddFiles.ts'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import { addFiles } from '../../axios/petService/addFiles.ts'
 
 export const addFilesMutationKeySWR = () => [{ url: '/pet/files' }] as const

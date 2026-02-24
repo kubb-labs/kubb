@@ -1,6 +1,7 @@
+import fetch from '../../../../axios-client.ts'
 import useSWR from 'swr'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { FindPetsByStatus400, FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusPathParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
 import { findPetsByStatus } from '../../axios/petService/findPetsByStatus.ts'
 
 export const findPetsByStatusQueryKeySWR = ({ stepId }: { stepId: FindPetsByStatusPathParams['stepId'] }) =>

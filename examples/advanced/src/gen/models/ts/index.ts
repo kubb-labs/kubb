@@ -1,19 +1,17 @@
 export type { AddPetRequest, AddPetRequestStatusEnumKey } from './AddPetRequest.ts'
-export { addPetRequestStatusEnum } from './AddPetRequest.ts'
 export type { Address } from './Address.ts'
 export type { Animal } from './Animal.ts'
 export type { ApiResponse } from './ApiResponse.ts'
 export type { Cat } from './Cat.ts'
 export type { Category } from './Category.ts'
 export type { Customer, CustomerParamsStatusEnumKey } from './Customer.ts'
-export { customerParamsStatusEnum } from './Customer.ts'
 export type { Dog } from './Dog.ts'
 export type { Image } from './Image.ts'
 export type { Order, OrderHttpStatusEnumKey, OrderOrderTypeEnumKey, OrderParamsStatusEnumKey, OrderStatusEnumKey } from './Order.ts'
-export { orderHttpStatusEnum, orderOrderTypeEnum, orderParamsStatusEnum, orderStatusEnum } from './Order.ts'
 export type { Pet, PetStatusEnumKey } from './Pet.ts'
-export { petStatusEnum } from './Pet.ts'
 export type { PetNotFound } from './PetNotFound.ts'
+export type { User } from './User.ts'
+export type { UserArray } from './UserArray.ts'
 export type { AddFiles200, AddFiles405, AddFilesMutation, AddFilesMutationRequest, AddFilesMutationResponse } from './petController/AddFiles.ts'
 export type { AddPet405, AddPetError, AddPetMutation, AddPetMutationRequest, AddPetMutationResponse } from './petController/AddPet.ts'
 export type { DeletePet400, DeletePetHeaderParams, DeletePetMutation, DeletePetMutationResponse, DeletePetPathParams } from './petController/DeletePet.ts'
@@ -33,7 +31,6 @@ export type {
   FindPetsByTagsQueryParams,
   FindPetsByTagsQueryResponse,
 } from './petController/FindPetsByTags.ts'
-export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './petController/FindPetsByTags.ts'
 export type { GetPetById200, GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQuery, GetPetByIdQueryResponse } from './petController/GetPetById.ts'
 export type {
   UpdatePet200,
@@ -72,7 +69,6 @@ export type {
   CreatePetsQueryParams,
   CreatePetsQueryParamsBoolParamEnumKey,
 } from './petsController/CreatePets.ts'
-export { createPetsHeaderParamsXEXAMPLEEnum, createPetsQueryParamsBoolParamEnum } from './petsController/CreatePets.ts'
 export type { DeleteOrder400, DeleteOrder404, DeleteOrderMutation, DeleteOrderMutationResponse, DeleteOrderPathParams } from './storeController/DeleteOrder.ts'
 export type { GetInventory200, GetInventoryQuery, GetInventoryQueryResponse } from './storeController/GetInventory.ts'
 export type {
@@ -92,8 +88,6 @@ export type {
   PlaceOrderPatchMutationResponse,
 } from './storeController/PlaceOrderPatch.ts'
 export type { TagTag } from './tag/Tag.ts'
-export type { User } from './User.ts'
-export type { UserArray } from './UserArray.ts'
 export type { CreateUserError, CreateUserMutation, CreateUserMutationRequest, CreateUserMutationResponse } from './userController/CreateUser.ts'
 export type {
   CreateUsersWithListInput200,
@@ -120,3 +114,13 @@ export type {
   UpdateUserMutationResponse,
   UpdateUserPathParams,
 } from './userController/UpdateUser.ts'
+export { addPetRequestStatusEnum } from './AddPetRequest.ts'
+export { customerParamsStatusEnum } from './Customer.ts'
+export { orderHttpStatusEnum } from './Order.ts'
+export { orderOrderTypeEnum } from './Order.ts'
+export { orderParamsStatusEnum } from './Order.ts'
+export { orderStatusEnum } from './Order.ts'
+export { petStatusEnum } from './Pet.ts'
+export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './petController/FindPetsByTags.ts'
+export { createPetsHeaderParamsXEXAMPLEEnum } from './petsController/CreatePets.ts'
+export { createPetsQueryParamsBoolParamEnum } from './petsController/CreatePets.ts'

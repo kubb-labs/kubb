@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
+import { styleText } from 'node:util'
 import { type Config, type KubbEvents, LogLevel, safeBuild, setup } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import { detectFormatter, detectLinter, formatters, linters } from '@kubb/core/utils'
-import { styleText } from 'node:util'
 import { executeHooks } from '../utils/executeHooks.ts'
 
 type GenerateProps = {
@@ -172,7 +172,9 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
 
           await events.emit(
             'success',
-            [`Linting with ${styleText('dim', linter)}`, logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined, 'successfully'].filter(Boolean).join(' '),
+            [`Linting with ${styleText('dim', linter)}`, logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined, 'successfully']
+              .filter(Boolean)
+              .join(' '),
           )
         })
       } catch (caughtError) {

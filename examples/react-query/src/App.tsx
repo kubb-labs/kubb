@@ -48,7 +48,7 @@ function Pets() {
       },
     },
   )
-  const { data: pagedPets } = useFindPetsByTagsInfiniteHook(
+  const { data: _pagedPets } = useFindPetsByTagsInfiniteHook(
     {},
     {
       query: {

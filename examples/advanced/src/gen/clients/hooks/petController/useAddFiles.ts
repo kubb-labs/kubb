@@ -1,8 +1,9 @@
-import type { QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
-import { mutationOptions, useMutation } from '@tanstack/react-query'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../../models/ts/petController/AddFiles.ts'
+import fetch from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { AddFilesMutationRequest, AddFilesMutationResponse, AddFiles405 } from '../../../models/ts/petController/AddFiles.ts'
+import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tanstack/react-query'
 import { addFiles } from '../../axios/petService/addFiles.ts'
+import { mutationOptions, useMutation } from '@tanstack/react-query'
 
 export const addFilesMutationKey = () => [{ url: '/pet/files' }] as const
 
