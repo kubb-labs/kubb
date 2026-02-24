@@ -1,6 +1,6 @@
 import * as z from 'zod'
-import type { TagTag } from '../../models/ts/tag/Tag.ts'
 import type { ToZod } from '../../.kubb/ToZod.ts'
+import type { TagTag } from '../../models/ts/tag/Tag.ts'
 
 export const tagTagSchema = z.object({
   id: z.optional(z.bigint().default(BigInt(1))),

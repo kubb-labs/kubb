@@ -1,6 +1,6 @@
 import * as z from 'zod'
-import type { Order } from '../models/ts/Order.ts'
 import type { ToZod } from '../.kubb/ToZod.ts'
+import type { Order } from '../models/ts/Order.ts'
 
 export const orderSchema = z.object({
   id: z.optional(z.bigint()),
