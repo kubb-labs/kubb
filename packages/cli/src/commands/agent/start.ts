@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import * as clack from '@clack/prompts'
 import type { ArgsDef } from 'citty'
 import { defineCommand } from 'citty'
-import pc from 'picocolors'
+import { styleText } from 'node:util'
 import { x } from 'tinyexec'
 
 const args = {
@@ -93,15 +93,15 @@ async function startServer({ port, host, configPath, noCache, allowWrite, allowA
       KUBB_STUDIO_URL,
     }
 
-    clack.log.step(pc.cyan('Starting agent server...'))
-    clack.log.info(pc.dim(`Config: ${KUBB_AGENT_CONFIG}`))
-    clack.log.info(pc.dim(`Host: ${HOST}`))
-    clack.log.info(pc.dim(`Port: ${PORT}`))
+    clack.log.step(styleText('cyan', 'Starting agent server...'))
+    clack.log.info(styleText('dim', `Config: ${KUBB_AGENT_CONFIG}`))
+    clack.log.info(styleText('dim', `Host: ${HOST}`))
+    clack.log.info(styleText('dim', `Port: ${PORT}`))
     if (noCache) {
-      clack.log.info(pc.dim('Session caching: disabled'))
+      clack.log.info(styleText('dim', 'Session caching: disabled'))
     }
     if (!KUBB_AGENT_ALLOW_WRITE && !KUBB_AGENT_ALLOW_ALL) {
-      clack.log.warn(pc.yellow('Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
+      clack.log.warn(styleText('yellow', 'Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
     }
 
     // Use execa to spawn the server process
@@ -137,7 +137,7 @@ const command = defineCommand({
 
       await startServer({ port, host, configPath, noCache, allowWrite, allowAll })
     } catch (error) {
-      clack.log.error(pc.red('Failed to start agent server'))
+      clack.log.error(styleText('red', 'Failed to start agent server'))
       console.error(error)
       process.exit(1)
     }
