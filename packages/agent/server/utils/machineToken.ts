@@ -8,12 +8,12 @@ import os from 'node:os'
  * In Docker environments MAC addresses and hostnames are ephemeral —
  * they change on every container recreation, which would trigger a new Polar license
  * activation on each restart and exhaust the allowed activation slots.
- * Set KUBB_STUDIO_MACHINE_NAME to a fixed value (e.g. a UUID) to guarantee a stable identity
+ * Set KUBB_STUDIO_MACHINE_SECRET to a fixed value (e.g. a UUID) to guarantee a stable identity
  * across container restarts.
  */
 export function getMachineToken(): string {
-  if (process.env.KUBB_STUDIO_MACHINE_NAME) {
-    return crypto.createHash('sha256').update(process.env.KUBB_STUDIO_MACHINE_NAME).digest('hex')
+  if (process.env.KUBB_STUDIO_MACHINE_SECRET) {
+    return process.env.KUBB_STUDIO_MACHINE_SECRET
   }
 
   const interfaces = os.networkInterfaces()

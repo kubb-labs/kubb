@@ -13,8 +13,6 @@ services:
       - .env
     environment:
       PORT: 80
-      KUBB_AGENT_ROOT: /kubb/agent/data
-      KUBB_AGENT_CONFIG: ./kubb.config.ts
       KUBB_AGENT_NO_CACHE: "false"
       KUBB_AGENT_ALLOW_WRITE: "false"
       KUBB_AGENT_ALLOW_ALL: "false"

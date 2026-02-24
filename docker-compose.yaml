@@ -19,7 +19,7 @@ services:
       DATABASE_URL: postgresql://studio:studio_dev_password@postgres:5432/studio
       KUBB_STUDIO_URL: http://kubb-studio:3000
       BETTER_AUTH_URL: http://localhost:3002
-      KUBB_MACHINE_ID: KUBB_SERVER_TEST
+      KUBB_MACHINE_SECRET: KUBB_SERVER_TEST
     depends_on:
       postgres:
         condition: service_healthy
@@ -35,8 +35,6 @@ services:
       - .env
     environment:
       PORT: 3000
-      KUBB_AGENT_ROOT: /kubb/agent/data
-      KUBB_AGENT_CONFIG: ./kubb.config.ts
       KUBB_AGENT_NO_CACHE: "true"
       KUBB_AGENT_ALLOW_WRITE: "false"
       KUBB_AGENT_ALLOW_ALL: "false"

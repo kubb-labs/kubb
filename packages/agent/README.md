@@ -99,19 +99,19 @@ docker compose up
 
 ### Environment Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `KUBB_AGENT_CONFIG` | `kubb.config.ts` | Path to your Kubb config file. Relative paths are resolved against `KUBB_AGENT_ROOT`. |
-| `KUBB_AGENT_ROOT` | `/kubb/agent` (Docker) / `cwd` | Root directory for resolving relative paths. |
-| `PORT` | `3000` | Server port. |
-| `HOST` | `0.0.0.0` | Server host. |
-| `KUBB_STUDIO_URL` | `https://studio.kubb.dev` | Kubb Studio WebSocket URL. |
-| `KUBB_AGENT_TOKEN` | _(empty)_ | Authentication token for Studio. Required to connect. |
-| `KUBB_AGENT_NO_CACHE` | `false` | Set to `true` to disable session caching. |
-| `KUBB_AGENT_ALLOW_WRITE` | `false` | Set to `true` to allow writing generated files to disk. |
-| `KUBB_AGENT_ALLOW_ALL` | `false` | Set to `true` to grant all permissions (implies `KUBB_AGENT_ALLOW_WRITE=true`). |
-| `KUBB_AGENT_RETRY_TIMEOUT` | `30000` | Milliseconds to wait before retrying a failed Studio connection. |
-| `KUBB_STUDIO_MACHINE_NAME` | _(empty)_ | Fixed machine name for stable identity across container restarts (e.g. Docker). When set, the `machineToken` is derived from this value instead of network interfaces and hostname. |
+| Variable                     | Default | Description |
+|------------------------------|---|---|
+| `KUBB_AGENT_CONFIG`          | `kubb.config.ts` | Path to your Kubb config file. Relative paths are resolved against `KUBB_AGENT_ROOT`. |
+| `KUBB_AGENT_ROOT`            | `/kubb/agent` (Docker) / `cwd` | Root directory for resolving relative paths. |
+| `PORT`                       | `3000` | Server port. |
+| `HOST`                       | `0.0.0.0` | Server host. |
+| `KUBB_STUDIO_URL`            | `https://studio.kubb.dev` | Kubb Studio WebSocket URL. |
+| `KUBB_AGENT_TOKEN`           | _(empty)_ | Authentication token for Studio. Required to connect. |
+| `KUBB_AGENT_NO_CACHE`        | `false` | Set to `true` to disable session caching. |
+| `KUBB_AGENT_ALLOW_WRITE`     | `false` | Set to `true` to allow writing generated files to disk. |
+| `KUBB_AGENT_ALLOW_ALL`       | `false` | Set to `true` to grant all permissions (implies `KUBB_AGENT_ALLOW_WRITE=true`). |
+| `KUBB_AGENT_RETRY_TIMEOUT`   | `30000` | Milliseconds to wait before retrying a failed Studio connection. |
+| `KUBB_STUDIO_MACHINE_SECRET` | _(empty)_ | Fixed machine name for stable identity across container restarts (e.g. Docker). When set, the `machineToken` is derived from this value instead of network interfaces and hostname. |
 
 ### Automatic .env Loading
 
