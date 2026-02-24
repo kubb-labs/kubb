@@ -8,6 +8,7 @@ import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import type { Generator } from './generators/types.ts'
 import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
+import { withRequiredRequestBodySchema } from './utils/requestBody.ts'
 import { buildOperation, buildOperations } from './utils.tsx'
 
 export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
@@ -143,6 +144,22 @@ export class OperationGenerator<
     const successful = statusCodes.filter((item) => item.statusCode?.toString().startsWith('2'))
     const errors = statusCodes.filter((item) => item.statusCode?.toString().startsWith('4') || item.statusCode?.toString().startsWith('5'))
 
+    const request = withRequiredRequestBodySchema(
+      requestSchema
+        ? {
+            name: this.context.UNSTABLE_NAMING
+              ? resolveName(transformers.pascalCase(`${operationId} RequestData`))
+              : resolveName(transformers.pascalCase(`${operationId} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`)),
+            description: (operation.schema.requestBody as OasTypes.RequestBodyObject)?.description,
+            operation,
+            operationName,
+            schema: requestSchema,
+            keys: resolveKeys(requestSchema),
+            keysToOmit: resolveKeys(requestSchema)?.filter((key) => (requestSchema.properties?.[key] as OasTypes.SchemaObject)?.readOnly),
+          }
+        : undefined,
+    )
+
     return {
       pathParams: pathParamsSchema
         ? {
@@ -171,19 +188,7 @@ export class OperationGenerator<
             keys: resolveKeys(headerParamsSchema),
           }
         : undefined,
-      request: requestSchema
-        ? {
-            name: this.context.UNSTABLE_NAMING
-              ? resolveName(transformers.pascalCase(`${operationId} RequestData`))
-              : resolveName(transformers.pascalCase(`${operationId} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`)),
-            description: (operation.schema.requestBody as OasTypes.RequestBodyObject)?.description,
-            operation,
-            operationName,
-            schema: requestSchema,
-            keys: resolveKeys(requestSchema),
-            keysToOmit: resolveKeys(requestSchema)?.filter((key) => (requestSchema.properties?.[key] as OasTypes.SchemaObject)?.readOnly),
-          }
-        : undefined,
+      request,
       response: {
         name: this.context.UNSTABLE_NAMING
           ? resolveName(transformers.pascalCase(`${operationId} ResponseData`))
