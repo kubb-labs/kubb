@@ -1,6 +1,3 @@
-import { orderBy } from 'natural-orderby'
-import { merge } from 'remeda'
-
 import { camelCase, pascalCase, screamingSnakeCase, snakeCase } from './casing.ts'
 import { combineCodes } from './combineCodes.ts'
 import { createJSDocBlockText } from './createJSDocBlockText.ts'
@@ -13,8 +10,6 @@ import { toRegExpString } from './toRegExp.ts'
 import { isValidVarName, transformReservedWord } from './transformReservedWord.ts'
 import { trim, trimQuotes } from './trim.ts'
 
-export { orderBy } from 'natural-orderby'
-export { merge } from 'remeda'
 export { camelCase, pascalCase, screamingSnakeCase, snakeCase } from './casing.ts'
 export { combineCodes } from './combineCodes.ts'
 export { createJSDocBlockText } from './createJSDocBlockText.ts'
@@ -44,8 +39,6 @@ export default {
   JSDoc: {
     createJSDocBlockText,
   },
-  orderBy,
-  merge,
   camelCase,
   pascalCase,
   snakeCase,

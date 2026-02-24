@@ -1,5 +1,4 @@
-import { orderBy } from 'natural-orderby'
-
+import { sortBy } from 'remeda'
 import { camelCase } from '../transformers/casing.ts'
 
 type FunctionParamsASTWithoutType = {
@@ -63,23 +62,11 @@ export class FunctionParams {
     return this
   }
   static #orderItems(items: Array<FunctionParamsAST | FunctionParamsAST[]>) {
-    return orderBy(
+    return sortBy(
       items.filter(Boolean),
-      [
-        (v) => {
-          if (Array.isArray(v)) {
-            return undefined
-          }
-          return !v.default
-        },
-        (v) => {
-          if (Array.isArray(v)) {
-            return undefined
-          }
-          return v.required ?? true
-        },
-      ],
-      ['desc', 'desc'],
+      [item => Array.isArray(item), 'desc'],                                                          // arrays (rest params) first
+      [item => !Array.isArray(item) && (item as FunctionParamsAST).default !== undefined, 'asc'],    // no-default before has-default
+      [item => Array.isArray(item) || ((item as FunctionParamsAST).required ?? true), 'desc'],       // required before optional
     )
   }
 

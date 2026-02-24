@@ -1,6 +1,5 @@
 import transformers from '@kubb/core/transformers'
-import { orderBy } from 'natural-orderby'
-import { isNumber } from 'remeda'
+import { isNumber, sortBy } from 'remeda'
 import ts from 'typescript'
 
 const { SyntaxKind, factory } = ts
@@ -347,7 +346,7 @@ export function createImportDeclaration({
   }
 
   // Sort the imports alphabetically for consistent output across platforms
-  const sortedName = orderBy(name, [(item) => (typeof item === 'object' ? item.propertyName : item)])
+  const sortedName = sortBy(name, [(item) => (typeof item === 'object' ? item.propertyName : item), 'asc'])
 
   return factory.createImportDeclaration(
     undefined,
@@ -402,7 +401,7 @@ export function createExportDeclaration({
   }
 
   // Sort the exports alphabetically for consistent output across platforms
-  const sortedName = orderBy(name, [(propertyName) => (typeof propertyName === 'string' ? propertyName : propertyName.text)])
+  const sortedName = sortBy(name, [(propertyName) => (typeof propertyName === 'string' ? propertyName : propertyName.text), 'asc'])
 
   return factory.createExportDeclaration(
     undefined,

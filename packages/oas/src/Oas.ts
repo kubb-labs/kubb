@@ -1,6 +1,6 @@
-import jsonpointer from 'jsonpointer'
 import BaseOas from 'oas'
 import { matchesMimeType } from 'oas/utils'
+import jsonpointer from 'jsonpointer'
 import type { contentType, DiscriminatorObject, Document, MediaTypeObject, Operation, ReferenceObject, ResponseObject, SchemaObject } from './types.ts'
 import {
   extractSchemaFromContent,
@@ -13,7 +13,6 @@ import {
   sortSchemas,
   validate,
 } from './utils.ts'
-
 type OasOptions = {
   contentType?: contentType
   discriminator?: 'strict' | 'inherit'
@@ -67,7 +66,7 @@ export class Oas extends BaseOas {
     if (!current) {
       throw new Error(`Could not find a definition for ${origRef}.`)
     }
-    return current
+    return current as T
   }
 
   getKey($ref: string) {
