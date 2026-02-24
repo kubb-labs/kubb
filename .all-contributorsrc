@@ -464,6 +464,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "jay-babu",
+      "name": "Jay Patel",
+      "avatar_url": "https://avatars.githubusercontent.com/u/36803168?v=4",
+      "profile": "https://pateljay.io",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
