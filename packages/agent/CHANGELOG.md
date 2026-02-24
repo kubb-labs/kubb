@@ -1,5 +1,26 @@
 # @kubb/agent
 
+## 4.28.0
+
+### Patch Changes
+
+- Updated dependencies [[`ff5ead8`](https://github.com/kubb-labs/kubb/commit/ff5ead845548b7e695f4f77528113a1b1964c819), [`d34236f`](https://github.com/kubb-labs/kubb/commit/d34236fae3f46f6f0a79b7792898421f5f5a4d9d)]:
+  - @kubb/plugin-svelte-query@4.28.0
+  - @kubb/plugin-react-query@4.28.0
+  - @kubb/plugin-solid-query@4.28.0
+  - @kubb/plugin-vue-query@4.28.0
+  - @kubb/plugin-oas@4.28.0
+  - @kubb/plugin-ts@4.28.0
+  - @kubb/plugin-client@4.28.0
+  - @kubb/plugin-cypress@4.28.0
+  - @kubb/plugin-faker@4.28.0
+  - @kubb/plugin-mcp@4.28.0
+  - @kubb/plugin-msw@4.28.0
+  - @kubb/plugin-redoc@4.28.0
+  - @kubb/plugin-swr@4.28.0
+  - @kubb/plugin-zod@4.28.0
+  - @kubb/core@4.28.0
+
 ## 4.27.4
 
 ### Patch Changes
