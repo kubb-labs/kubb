@@ -229,6 +229,8 @@ Available `payload.type` values: `plugin:start`, `plugin:end`, `files:processing
 ```
 `payload` is optional. When omitted, the agent falls back to `kubb.config.studio.json` (a temporal config file next to `kubb.config.ts`), and then to the config loaded from disk.
 
+The `payload` may also include an `input` field containing a raw OpenAPI / Swagger spec (YAML or JSON string). **This field is only honoured in sandbox mode** — outside of sandbox it is silently ignored for security reasons. See [Sandbox Mode](#sandbox-mode) below.
+
 **Connect Command** — requests agent info
 ```json
 {
@@ -257,6 +259,39 @@ Available `payload.type` values: `plugin:start`, `plugin:end`, `files:processing
   ]
 }
 ```
+
+## Sandbox Mode
+
+When Kubb Studio provisions a session for the **Sandbox Agent** (the shared agent hosted by Studio itself), it sets `isSandbox: true` in the session response. In sandbox mode the agent behaves differently from a user-owned agent:
+
+| Behaviour | Normal agent | Sandbox agent |
+|---|---|---|
+| Write generated files to disk | ✅ (when `KUBB_AGENT_ALLOW_WRITE=true`) | ❌ Never |
+| Read `input.path` from disk | ✅ | ✅ (falls back when no inline input supplied) |
+| Accept inline `input` in generate payload | ❌ Ignored | ✅ |
+
+### Why no filesystem writes?
+
+The sandbox agent runs in a shared, docker environment inside Kubb Studio. Allowing arbitrary disk writes would create security and isolation problems. Instead, `output.write` is always set to `false`, and the generated files are returned to Studio via the WebSocket `generation:end` event where the UI renders them.
+
+### Inline `input` in sandbox mode
+
+Because the sandbox agent cannot read arbitrary files from disk, callers must supply the OpenAPI / Swagger spec content inline via the `input` field in the generate command payload:
+
+```json
+{
+  "type": "command",
+  "command": "generate",
+  "payload": {
+    "input": "openapi: 3.0.0\ninfo:\n  title: Pet Store\n  version: 1.0.0\n...",
+    "plugins": [
+      { "name": "@kubb/plugin-ts", "options": {} }
+    ]
+  }
+}
+```
+
+The `input` value is treated as `InputData` (i.e. `{ data: "<content>" }`) and overrides the `input` from the loaded config for that generation cycle.  **Outside of sandbox mode this field is ignored.**
 
 ## Configuration Example
 

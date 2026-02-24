@@ -16,6 +16,11 @@ export type JSONKubbConfig = {
     name: string
     options: unknown
   }>
+  /**
+   * Raw OpenAPI / Swagger spec content (YAML or JSON string).
+   * Only possible to set when agent type is 'sandbox'
+   */
+  input?: string
 }
 
 /**
@@ -61,7 +66,7 @@ export type CommandMessage =
       }
     }
 
-type ConnectMessagePayload = {
+export type ConnectMessagePayload = {
   version: string
   configPath: string
   config: JSONKubbConfig
@@ -164,6 +169,14 @@ export function isConnectedMessage(msg: AgentMessage): msg is ConnectedMessage {
 
 export function isErrorMessage(msg: AgentMessage): msg is ErrorMessage {
   return msg.type === 'error'
+}
+
+export function isPingMessage(msg: AgentMessage): msg is PingMessage {
+  return msg.type === 'ping'
+}
+
+export function isPongMessage(msg: AgentMessage): msg is PongMessage {
+  return msg.type === 'pong'
 }
 
 export function isStatusMessage(msg: AgentMessage): msg is StatusMessage {

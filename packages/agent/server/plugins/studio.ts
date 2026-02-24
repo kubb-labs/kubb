@@ -3,7 +3,7 @@ import process from 'node:process'
 import type { KubbEvents } from '@kubb/core'
 import { AsyncEventEmitter, formatMs, getConfigs, serializePluginOptions } from '@kubb/core/utils'
 import { execa } from 'execa'
-import { type AgentMessage, isCommandMessage } from '~/types/agent.ts'
+import { type AgentMessage, isCommandMessage, isPongMessage } from '~/types/agent.ts'
 import { createAgentSession, disconnect, registerAgent } from '~/utils/api.ts'
 import { generate } from '~/utils/generate.ts'
 import { getCosmiConfig } from '~/utils/getCosmiConfig.ts'
@@ -193,6 +193,12 @@ export default defineNitroPlugin(async (nitro) => {
         try {
           const data = JSON.parse(message.data as string) as AgentMessage
 
+          if (isPongMessage(data)) {
+            logger.info('Received pong from Studio')
+
+            return
+          }
+
           if (isCommandMessage(data)) {
             if (data.command === 'generate') {
               const config = await loadConfig()
@@ -206,12 +212,23 @@ export default defineNitroPlugin(async (nitro) => {
                 logger.warn('Agent is running in a sandbox environment, write will be disabled')
               }
 
+              if (patch?.input && !isSandbox) {
+                logger.warn('Input override via payload is only supported in sandbox mode and will be ignored')
+              }
+
+              // In sandbox mode the caller may supply raw OpenAPI / Swagger spec
+              // content inline (YAML or JSON string) via `payload.input`.
+              // Outside of sandbox mode the input is always taken from the config
+              // file on disk — ignoring any payload-supplied input for security.
+              const inputOverride = isSandbox ? { data: patch.input ?? '' } : undefined
+
               // Apply patch fields directly onto the already-resolved Config.
               // When the patch includes plugins, resolve and instantiate
               // them; otherwise keep the original plugin instances.
               await generate({
                 config: {
                   ...config,
+                  input: inputOverride ?? config.input,
                   plugins: resolvedPlugins ?? config.plugins,
                   root,
                   output: {
@@ -238,8 +255,8 @@ export default defineNitroPlugin(async (nitro) => {
                   version,
                   configPath,
                   permissions: {
-                    allowAll,
-                    allowWrite,
+                    allowAll: isSandbox ? false : allowWrite,
+                    allowWrite: isSandbox ? false : allowWrite,
                   },
                   config: {
                     plugins: config.plugins?.map((plugin: any) => ({
