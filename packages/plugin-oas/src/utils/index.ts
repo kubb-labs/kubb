@@ -10,10 +10,10 @@ export {
 export { getSchemaFactory } from './getSchemaFactory.ts'
 export { getSchemas } from './getSchemas.ts'
 export {
-  isRequestBodyRequired,
-  withRequiredRequestBodySchema,
-} from './requestBody.ts'
-export {
   applyParamsCasing,
   isParameterSchema,
 } from './paramsCasing.ts'
+export {
+  isRequestBodyRequired,
+  withRequiredRequestBodySchema,
+} from './requestBody.ts'

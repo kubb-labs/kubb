@@ -36,6 +36,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
 
 export type SchemaGeneratorOptions = {
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
+  integerType?: 'number' | 'bigint'
   unknownType: 'any' | 'unknown' | 'void'
   emptySchemaType: 'any' | 'unknown' | 'void'
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
@@ -1111,7 +1112,7 @@ export class SchemaGenerator<
      */
     if (schemaObject.format) {
       if (schemaObject.type === 'integer' && schemaObject.format === 'int64') {
-        baseItems.unshift({ keyword: schemaKeywords.bigint })
+        baseItems.unshift({ keyword: options.integerType === 'number' ? schemaKeywords.integer : schemaKeywords.bigint })
         return baseItems
       }
 

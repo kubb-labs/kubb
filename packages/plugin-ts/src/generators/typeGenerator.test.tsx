@@ -26,6 +26,15 @@ describe('typeGenerator schema', async () => {
       },
     },
     {
+      name: 'PetIntegerTypeNumber',
+      input: '../../mocks/petStore.yaml',
+      path: 'Pet',
+      options: {
+        optionalType: 'questionToken',
+        integerType: 'number',
+      },
+    },
+    {
       name: 'PetDict',
       input: '../../mocks/petStore.yaml',
       path: 'PetDict',
@@ -526,6 +535,7 @@ describe('typeGenerator schema', async () => {
       enumKeyCasing: 'none',
       enumSuffix: 'enum',
       dateType: 'string',
+      integerType: 'bigint',
       transformers: {},
       unknownType: 'any',
       optionalType: 'questionToken',
@@ -682,6 +692,7 @@ describe('typeGenerator operation', async () => {
       enumKeyCasing: 'none',
       enumSuffix: '',
       dateType: 'string',
+      integerType: 'bigint',
       optionalType: 'questionToken',
       arrayType: 'array',
       transformers: {},

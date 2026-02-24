@@ -234,6 +234,40 @@ type Pet = {
 
 :::
 
+### integerType
+
+Choose to use `number` or `bigint` for fields with `int64` format.
+
+`'bigint'` is accurate for values exceeding `Number.MAX_SAFE_INTEGER`, but note that `JSON.parse()` returns plain `number` at runtime — so `'number'` may be a better fit for most projects.
+
+|           |                          |
+| --------: | :----------------------- |
+|     Type: | `'number' \| 'bigint'`   |
+| Required: | `false`                  |
+|  Default: | `'bigint'`               |
+
+::: code-group
+
+```typescript ['bigint']
+type Pet = {
+  /**
+   * @type integer, int64
+   */
+  id: bigint
+};
+```
+
+```typescript ['number']
+type Pet = {
+  /**
+   * @type integer, int64
+   */
+  id: number
+};
+```
+
+:::
+
 ### syntaxType
 
 Switch between type or interface for creating TypeScript types.

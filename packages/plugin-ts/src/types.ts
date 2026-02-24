@@ -73,6 +73,13 @@ export type Options = {
    */
   dateType?: 'string' | 'date'
   /**
+   * Choose to use `number` or `bigint` for integer fields with `int64` format.
+   * - 'number' uses the TypeScript `number` type (matches JSON.parse() runtime behavior).
+   * - 'bigint' uses the TypeScript `bigint` type (accurate for values exceeding Number.MAX_SAFE_INTEGER).
+   * @default 'bigint'
+   */
+  integerType?: 'number' | 'bigint'
+  /**
    * Which type to use when the Swagger/OpenAPI file is not providing more information.
    * - 'any' allows any value.
    * - 'unknown' requires type narrowing before use.
@@ -145,6 +152,7 @@ type ResolvedOptions = {
   enumKeyCasing: NonNullable<Options['enumKeyCasing']>
   enumSuffix: NonNullable<Options['enumSuffix']>
   dateType: NonNullable<Options['dateType']>
+  integerType: NonNullable<Options['integerType']>
   unknownType: NonNullable<Options['unknownType']>
   emptySchemaType: NonNullable<Options['emptySchemaType']>
   optionalType: NonNullable<Options['optionalType']>
