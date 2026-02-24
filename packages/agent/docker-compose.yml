@@ -1,0 +1,29 @@
+x-healthcheck-node: &healthcheck-node
+  test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
+  interval: 15s
+  timeout: 10s
+  start_period: 60s
+  retries: 5
+
+services:
+  agent:
+    image: kubblabs/kubb-agent:latest
+    container_name: kubb-agent
+    ports:
+      - "80:80"
+    environment:
+      PORT: 80
+      KUBB_AGENT_ROOT: /kubb/agent/data
+      KUBB_AGENT_CONFIG: ./kubb.config.ts
+      KUBB_AGENT_NO_CACHE: "true"
+      KUBB_AGENT_ALLOW_WRITE: "false"
+      KUBB_AGENT_ALLOW_ALL: "false"
+      KUBB_AGENT_RETRY_TIMEOUT: "30000"
+      KUBB_STUDIO_URL: https://studio.kubb.dev
+    volumes:
+      - agent_data:/kubb/agent/data
+    restart: unless-stopped
+    healthcheck: *healthcheck-node
+
+volumes:
+  agent_data:
