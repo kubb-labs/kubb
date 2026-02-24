@@ -57,12 +57,6 @@ declare global {
       KUBB_AGENT_ALLOW_ALL: string
 
       /**
-       * Kubb Studio license key. Must be set to a valid key in production.
-       * @default "KUBB_STUDIO-00000000-0000-0000-0000-000000000000" (development placeholder)
-       */
-      KUBB_STUDIO_LICENSE: string
-
-      /**
        * URL of the Kubb Studio instance the agent connects to.
        * Used as the base for WebSocket session URLs.
        * @default "https://studio.kubb.dev"
@@ -79,7 +73,7 @@ declare global {
        * When omitted, the ID is derived from network interface MACs + hostname.
        * @example "550e8400-e29b-41d4-a716-446655440000"
        */
-      KUBB_STUDIO_SECRET: string | undefined
+      KUBB_AGENT_SECRET: string | undefined
     }
   }
 }
