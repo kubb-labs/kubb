@@ -1109,7 +1109,7 @@ export class SchemaGenerator<
      *
      * see also https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.7
      */
-    // Handle OpenAPI 3.1 contentMediaType for binary data (e.g. FastAPI >= 0.129.1)
+    // Handle OpenAPI 3.1 contentMediaType for binary data
     if (schemaObject.type === 'string' && (schemaObject as any).contentMediaType === 'application/octet-stream') {
       baseItems.unshift({ keyword: schemaKeywords.blob })
       return baseItems
