@@ -6,7 +6,7 @@
 import * as z from 'zod/mini'
 
 export const updatePetWithFormPathParamsSchema = z.object({
-  petId: z.int(),
+  petId: z.coerce.bigint(),
 })
 
 export const updatePetWithFormQueryParamsSchema = z.optional(

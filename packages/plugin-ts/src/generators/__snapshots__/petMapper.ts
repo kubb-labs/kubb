@@ -3,11 +3,14 @@
  * Do not edit manually.
  */
 
+/**
+ * Pet
+ */
 export type pet = {
   /**
    * @type integer, int64
    */
-  id: number
+  id: bigint
   /**
    * @type string
    */

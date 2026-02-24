@@ -24,10 +24,10 @@ import type {
   DeleteUser400,
   DeleteUser404,
 } from './findByTags'
-import { fetch } from './test/.kubb/fetch'
+import { fetch, mergeConfig } from './test/.kubb/fetch'
 
 export class User {
-  static #client: Client = fetch
+  static #config: Partial<RequestConfig> & { client?: Client } = {}
 
   /**
    * @description This can only be done by the logged in user.
@@ -35,13 +35,13 @@ export class User {
    * {@link /user}
    */
   static async createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: Client } = {}) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data
     const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
+      ...requestConfig,
       method: 'POST',
       url: `/user`,
       data: requestData,
-      ...requestConfig,
     })
     return res.data
   }
@@ -55,13 +55,13 @@ export class User {
     data?: CreateUsersWithListInputMutationRequest,
     config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: Client } = {},
   ) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data
     const res = await request<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationRequest>({
+      ...requestConfig,
       method: 'POST',
       url: `/user/createWithList`,
       data: requestData,
-      ...requestConfig,
     })
     return res.data
   }
@@ -71,12 +71,12 @@ export class User {
    * {@link /user/login}
    */
   static async loginUser(params?: LoginUserQueryParams, config: Partial<RequestConfig> & { client?: Client } = {}) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const res = await request<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, unknown>({
+      ...requestConfig,
       method: 'GET',
       url: `/user/login`,
       params,
-      ...requestConfig,
     })
     return res.data
   }
@@ -86,8 +86,8 @@ export class User {
    * {@link /user/logout}
    */
   static async logoutUser(config: Partial<RequestConfig> & { client?: Client } = {}) {
-    const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/user/logout`, ...requestConfig })
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
+    const res = await request<LogoutUserQueryResponse, ResponseErrorConfig<Error>, unknown>({ ...requestConfig, method: 'GET', url: `/user/logout` })
     return res.data
   }
 
@@ -96,11 +96,11 @@ export class User {
    * {@link /user/:username}
    */
   static async getUserByName(username: GetUserByNamePathParams['username'], config: Partial<RequestConfig> & { client?: Client } = {}) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const res = await request<GetUserByNameQueryResponse, ResponseErrorConfig<GetUserByName400 | GetUserByName404>, unknown>({
+      ...requestConfig,
       method: 'GET',
       url: `/user/${username}`,
-      ...requestConfig,
     })
     return res.data
   }
@@ -115,13 +115,13 @@ export class User {
     data?: UpdateUserMutationRequest,
     config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: Client } = {},
   ) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data
     const res = await request<UpdateUserMutationResponse, ResponseErrorConfig<Error>, UpdateUserMutationRequest>({
+      ...requestConfig,
       method: 'PUT',
       url: `/user/${username}`,
       data: requestData,
-      ...requestConfig,
     })
     return res.data
   }
@@ -132,11 +132,11 @@ export class User {
    * {@link /user/:username}
    */
   static async deleteUser(username: DeleteUserPathParams['username'], config: Partial<RequestConfig> & { client?: Client } = {}) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const res = await request<DeleteUserMutationResponse, ResponseErrorConfig<DeleteUser400 | DeleteUser404>, unknown>({
+      ...requestConfig,
       method: 'DELETE',
       url: `/user/${username}`,
-      ...requestConfig,
     })
     return res.data
   }

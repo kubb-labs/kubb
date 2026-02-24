@@ -7,7 +7,7 @@ import * as z from 'zod/mini'
 import { petSchema } from './petSchema.ts'
 
 export const getPetByIdPathParamsSchema = z.object({
-  petId: z.int(),
+  petId: z.coerce.bigint(),
 })
 
 /**

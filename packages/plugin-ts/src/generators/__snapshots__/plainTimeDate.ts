@@ -3,4 +3,7 @@
  * Do not edit manually.
  */
 
+/**
+ * Time
+ */
 export type plainTime = Date

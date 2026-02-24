@@ -3,11 +3,14 @@
  * Do not edit manually.
  */
 
+/**
+ * Pet
+ */
 export type pet = {
   /**
    * @type integer, int64
    */
-  id: number
+  id: bigint
   /**
    * @type string
    */
@@ -19,5 +22,16 @@ export type pet = {
   /**
    * @type object | undefined
    */
-  category?: category | undefined
+  category?:
+    | {
+        /**
+         * @type integer | undefined, int64
+         */
+        id?: bigint | undefined
+        /**
+         * @type string | undefined
+         */
+        name?: string | undefined
+      }
+    | undefined
 }

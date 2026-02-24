@@ -5,6 +5,9 @@
 
 export type FooBasetypeEnum = 'type-string' | 'type-number'
 
+/**
+ * FooBase
+ */
 export type fooBase = {
   /**
    * @type string

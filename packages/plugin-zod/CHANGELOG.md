@@ -1,5 +1,146 @@
 # @kubb/plugin-zod
 
+## 4.27.4
+
+### Patch Changes
+
+- [#2567](https://github.com/kubb-labs/kubb/pull/2567) [`3690d37`](https://github.com/kubb-labs/kubb/commit/3690d3778cb8e2c48841bf13b73c82c165242ef4) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - refactor: replace resolveModuleSource with static imports and build-time template inlining
+
+  Removed `resolveModuleSource` from `@kubb/core/utils`. Template file contents for `@kubb/plugin-client` (config, axios, fetch) and `@kubb/plugin-zod` (ToZod) are now inlined as string constants at build time via the `importAttributeTextPlugin` rolldown/tsdown plugin, using `import ... with { type: 'text' }` import attributes as the build-time marker. This eliminates all runtime filesystem reads for template sources.
+
+- Updated dependencies [[`3690d37`](https://github.com/kubb-labs/kubb/commit/3690d3778cb8e2c48841bf13b73c82c165242ef4)]:
+  - @kubb/core@4.27.4
+  - @kubb/oas@4.27.4
+  - @kubb/plugin-oas@4.27.4
+  - @kubb/plugin-ts@4.27.4
+
+## 4.27.3
+
+### Patch Changes
+
+- Updated dependencies [[`669b07e`](https://github.com/kubb-labs/kubb/commit/669b07ed66f0dded0e028a3dfe1c5e669c53e53a)]:
+  - @kubb/oas@4.27.3
+  - @kubb/plugin-oas@4.27.3
+  - @kubb/plugin-ts@4.27.3
+  - @kubb/core@4.27.3
+
+## 4.27.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.27.2
+  - @kubb/oas@4.27.2
+  - @kubb/plugin-oas@4.27.2
+  - @kubb/plugin-ts@4.27.2
+
+## 4.27.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.27.1
+  - @kubb/oas@4.27.1
+  - @kubb/plugin-oas@4.27.1
+  - @kubb/plugin-ts@4.27.1
+
+## 4.27.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.27.0
+  - @kubb/oas@4.27.0
+  - @kubb/plugin-oas@4.27.0
+  - @kubb/plugin-ts@4.27.0
+
+## 4.26.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.26.1
+  - @kubb/oas@4.26.1
+  - @kubb/plugin-oas@4.26.1
+  - @kubb/plugin-ts@4.26.1
+
+## 4.26.0
+
+### Minor Changes
+
+- [#2509](https://github.com/kubb-labs/kubb/pull/2509) [`af65cde`](https://github.com/kubb-labs/kubb/commit/af65cde624a74e68bfb5dede871e8d9324499114) Thanks [@skoropadas](https://github.com/skoropadas)! - Add a new `guidType` option to control how OpenAPI `format: uuid` is generated in Zod schemas.
+  - `guidType` accepts `'uuid'` and `'guid'`
+  - default is `'uuid'`
+  - `'guid'` is only applied when `version: '4'` (v3 falls back to UUID generation)
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.26.0
+  - @kubb/oas@4.26.0
+  - @kubb/plugin-oas@4.26.0
+  - @kubb/plugin-ts@4.26.0
+
+## 4.25.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.25.2
+  - @kubb/oas@4.25.2
+  - @kubb/plugin-oas@4.25.2
+  - @kubb/plugin-ts@4.25.2
+
+## 4.25.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.25.1
+  - @kubb/oas@4.25.1
+  - @kubb/plugin-oas@4.25.1
+  - @kubb/plugin-ts@4.25.1
+
+## 4.25.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.25.0
+  - @kubb/oas@4.25.0
+  - @kubb/plugin-oas@4.25.0
+  - @kubb/plugin-ts@4.25.0
+
+## 4.24.1
+
+### Patch Changes
+
+- Updated dependencies [[`d260f9a`](https://github.com/kubb-labs/kubb/commit/d260f9a1f8a24ad2f1999fbdb918bb47cca078d0)]:
+  - @kubb/plugin-ts@4.24.1
+  - @kubb/core@4.24.1
+  - @kubb/oas@4.24.1
+  - @kubb/plugin-oas@4.24.1
+
+## 4.24.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.24.0
+  - @kubb/oas@4.24.0
+  - @kubb/plugin-oas@4.24.0
+  - @kubb/plugin-ts@4.24.0
+
+## 4.23.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.23.0
+  - @kubb/oas@4.23.0
+  - @kubb/plugin-oas@4.23.0
+  - @kubb/plugin-ts@4.23.0
+
 ## 4.22.3
 
 ### Patch Changes

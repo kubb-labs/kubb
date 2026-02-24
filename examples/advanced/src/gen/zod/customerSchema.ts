@@ -4,7 +4,7 @@ import type { Customer } from '../models/ts/Customer.ts'
 import { addressSchema } from './addressSchema.ts'
 
 export const customerSchema = z.object({
-  id: z.optional(z.number().int()),
+  id: z.optional(z.bigint()),
   username: z.optional(z.string()),
   params: z.optional(
     z.object({

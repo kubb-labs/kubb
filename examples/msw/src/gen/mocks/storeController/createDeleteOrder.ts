@@ -9,7 +9,7 @@ import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../m
 export function createDeleteOrderPathParams(data?: Partial<DeleteOrderPathParams>): DeleteOrderPathParams {
   faker.seed([220])
   return {
-    ...{ orderId: faker.number.int() },
+    ...{ orderId: faker.number.bigInt() },
     ...(data || {}),
   }
 }

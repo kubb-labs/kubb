@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * ValueSpecification
+ */
 export type advanced =
   | (enumerationValueSpecificationDto & {
       /**

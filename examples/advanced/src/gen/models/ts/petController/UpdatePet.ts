@@ -12,7 +12,7 @@ export type UpdatePet202 = {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: bigint
 }
 
 /**

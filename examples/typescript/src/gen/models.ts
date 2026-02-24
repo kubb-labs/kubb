@@ -19,11 +19,11 @@ export interface Order {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: bigint
   /**
    * @type integer | undefined, int64
    */
-  petId?: number
+  petId?: bigint
   /**
    * @type object | undefined
    */
@@ -94,7 +94,7 @@ export interface Customer {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: bigint
   /**
    * @type object | undefined
    */
@@ -141,7 +141,7 @@ export interface Category {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: bigint
   /**
    * @type string | undefined
    */
@@ -152,7 +152,7 @@ export interface User {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: bigint
   /**
    * @type string | undefined
    */
@@ -188,7 +188,7 @@ export interface Tag {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: bigint
   /**
    * @type string | undefined
    */
@@ -230,7 +230,7 @@ export type Pet =
       /**
        * @type integer | undefined, int64
        */
-      id?: number
+      id?: bigint
       /**
        * @type string
        */
@@ -242,7 +242,16 @@ export type Pet =
       /**
        * @type object | undefined
        */
-      category?: Category
+      category?: {
+        /**
+         * @type integer | undefined, int64
+         */
+        id?: bigint
+        /**
+         * @type string | undefined
+         */
+        name?: string
+      }
       /**
        * @type array
        */
@@ -261,7 +270,7 @@ export type Pet =
       /**
        * @type integer | undefined, int64
        */
-      id?: number
+      id?: bigint
       /**
        * @type string
        */
@@ -273,7 +282,16 @@ export type Pet =
       /**
        * @type object | undefined
        */
-      category?: Category
+      category?: {
+        /**
+         * @type integer | undefined, int64
+         */
+        id?: bigint
+        /**
+         * @type string | undefined
+         */
+        name?: string
+      }
       /**
        * @type array
        */
@@ -311,7 +329,7 @@ export interface AddPetRequest {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: bigint
   /**
    * @type string
    */
@@ -502,7 +520,7 @@ export interface GetPetByIdPathParams {
    * @description ID of pet to return
    * @type integer, int64
    */
-  petId: number
+  petId: bigint
 }
 
 /**
@@ -533,7 +551,7 @@ export interface UpdatePetWithFormPathParams {
    * @description ID of pet that needs to be updated
    * @type integer, int64
    */
-  petId: number
+  petId: bigint
 }
 
 export interface UpdatePetWithFormQueryParams {
@@ -568,7 +586,7 @@ export interface DeletePetPathParams {
    * @description Pet id to delete
    * @type integer, int64
    */
-  petId: number
+  petId: bigint
 }
 
 export interface DeletePetHeaderParams {
@@ -608,7 +626,7 @@ export interface UploadFilePathParams {
    * @description ID of pet to update
    * @type integer, int64
    */
-  petId: number
+  petId: bigint
 }
 
 export interface UploadFileQueryParams {
@@ -698,7 +716,7 @@ export interface GetOrderByIdPathParams {
    * @description ID of order that needs to be fetched
    * @type integer, int64
    */
-  orderId: number
+  orderId: bigint
 }
 
 /**
@@ -729,7 +747,7 @@ export interface DeleteOrderPathParams {
    * @description ID of the order that needs to be deleted
    * @type integer, int64
    */
-  orderId: number
+  orderId: bigint
 }
 
 /**

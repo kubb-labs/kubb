@@ -1,4 +1,4 @@
-import type { AxiosError, AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios'
+import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import axios from 'axios'
 
 declare const AXIOS_BASE: string
@@ -36,7 +36,7 @@ export type Client = <TResponseData, _TError = unknown, TRequestData = unknown>(
 
 let _config: Partial<RequestConfig> = {
   baseURL: typeof AXIOS_BASE !== 'undefined' ? AXIOS_BASE : undefined,
-  headers: typeof AXIOS_HEADERS !== 'undefined' ? (JSON.parse(AXIOS_HEADERS) as AxiosHeaders) : undefined,
+  headers: typeof AXIOS_HEADERS !== 'undefined' ? JSON.parse(AXIOS_HEADERS) : undefined,
 }
 
 export const getConfig = () => _config
@@ -46,25 +46,27 @@ export const setConfig = (config: RequestConfig) => {
   return getConfig()
 }
 
+export const mergeConfig = <T extends RequestConfig>(...configs: Array<Partial<T>>): Partial<T> => {
+  return configs.reduce<Partial<T>>((merged, config) => {
+    return {
+      ...merged,
+      ...config,
+      headers: {
+        ...merged.headers,
+        ...config.headers,
+      },
+    }
+  }, {})
+}
+
 export const axiosInstance = axios.create(getConfig())
 
 export const client = async <TResponseData, TError = unknown, TRequestData = unknown>(
   config: RequestConfig<TRequestData>,
 ): Promise<ResponseConfig<TResponseData>> => {
-  const globalConfig = getConfig()
-
-  return axiosInstance
-    .request<TResponseData, ResponseConfig<TResponseData>>({
-      ...globalConfig,
-      ...config,
-      headers: {
-        ...globalConfig.headers,
-        ...config.headers,
-      },
-    })
-    .catch((e: AxiosError<TError>) => {
-      throw e
-    })
+  return axiosInstance.request<TResponseData, ResponseConfig<TResponseData>>(mergeConfig(getConfig(), config)).catch((e: AxiosError<TError>) => {
+    throw e
+  })
 }
 
 client.getConfig = getConfig

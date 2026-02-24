@@ -4,7 +4,7 @@ import { createApiResponseFaker } from '../createApiResponseFaker.ts'
 
 export function createUploadFilePathParamsFaker(data?: Partial<UploadFilePathParams>): UploadFilePathParams {
   return {
-    ...{ petId: faker.number.int() },
+    ...{ petId: faker.number.bigInt() },
     ...(data || {}),
   }
 }

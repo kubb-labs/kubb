@@ -7,7 +7,7 @@ import * as z from 'zod/mini'
 import { orderSchema } from './orderSchema.ts'
 
 export const getOrderByIdPathParamsSchema = z.object({
-  orderId: z.int(),
+  orderId: z.coerce.bigint(),
 })
 
 /**

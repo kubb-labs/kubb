@@ -3,4 +3,7 @@
  * Do not edit manually.
  */
 
+/**
+ * File
+ */
 export type plainFile = Blob

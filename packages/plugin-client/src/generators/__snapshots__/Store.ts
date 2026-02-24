@@ -20,13 +20,13 @@ import type {
   DeleteOrder400,
   DeleteOrder404,
 } from './findByTags'
-import { fetch } from './test/.kubb/fetch'
+import { fetch, mergeConfig } from './test/.kubb/fetch'
 
 export class Store {
-  #client: Client
+  #config: Partial<RequestConfig> & { client?: Client }
 
   constructor(config: Partial<RequestConfig> & { client?: Client } = {}) {
-    this.#client = config.client || fetch
+    this.#config = config
   }
 
   /**
@@ -35,8 +35,8 @@ export class Store {
    * {@link /store/inventory}
    */
   async getInventory(config: Partial<RequestConfig> & { client?: Client } = {}) {
-    const { client: request = this.#client, ...requestConfig } = config
-    const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/store/inventory`, ...requestConfig })
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
+    const res = await request<GetInventoryQueryResponse, ResponseErrorConfig<Error>, unknown>({ ...requestConfig, method: 'GET', url: `/store/inventory` })
     return res.data
   }
 
@@ -46,13 +46,13 @@ export class Store {
    * {@link /store/order}
    */
   async placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: Client } = {}) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data
     const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
+      ...requestConfig,
       method: 'POST',
       url: `/store/order`,
       data: requestData,
-      ...requestConfig,
     })
     return res.data
   }
@@ -63,13 +63,13 @@ export class Store {
    * {@link /store/order}
    */
   async placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: Client } = {}) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data
     const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({
+      ...requestConfig,
       method: 'PATCH',
       url: `/store/order`,
       data: requestData,
-      ...requestConfig,
     })
     return res.data
   }
@@ -80,11 +80,11 @@ export class Store {
    * {@link /store/order/:orderId}
    */
   async getOrderById(orderId: GetOrderByIdPathParams['orderId'], config: Partial<RequestConfig> & { client?: Client } = {}) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const res = await request<GetOrderByIdQueryResponse, ResponseErrorConfig<GetOrderById400 | GetOrderById404>, unknown>({
+      ...requestConfig,
       method: 'GET',
       url: `/store/order/${orderId}`,
-      ...requestConfig,
     })
     return res.data
   }
@@ -95,11 +95,11 @@ export class Store {
    * {@link /store/order/:orderId}
    */
   async deleteOrder(orderId: DeleteOrderPathParams['orderId'], config: Partial<RequestConfig> & { client?: Client } = {}) {
-    const { client: request = this.#client, ...requestConfig } = config
+    const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const res = await request<DeleteOrderMutationResponse, ResponseErrorConfig<DeleteOrder400 | DeleteOrder404>, unknown>({
+      ...requestConfig,
       method: 'DELETE',
       url: `/store/order/${orderId}`,
-      ...requestConfig,
     })
     return res.data
   }

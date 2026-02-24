@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises'
+import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { type KubbEvents, safeBuild, type UserConfig } from '@kubb/core'
@@ -192,13 +193,14 @@ const configs: Array<{ name: string; config: UserConfig }> = [
 
 describe(`Main OpenAPI ${version}`, () => {
   test.each(configs)('config testing with config as $name', async ({ name, config }) => {
-    const output = path.join(__dirname, 'gen', name)
+    const tmpDir = path.join(os.tmpdir(), `kubb-test-${name}-${Date.now()}`)
+    const output = path.join(tmpDir, name)
     const { files, failedPlugins, error } = await safeBuild({
       config: {
         ...config,
         output: {
           ...config.output,
-          path: `./gen/${name}`,
+          path: output,
         },
       },
       events: new AsyncEventEmitter<KubbEvents>(),
@@ -215,6 +217,6 @@ describe(`Main OpenAPI ${version}`, () => {
       }),
     )
 
-    await fs.rm(output, { recursive: true, force: true })
+    await fs.rm(tmpDir, { recursive: true, force: true })
   })
 })

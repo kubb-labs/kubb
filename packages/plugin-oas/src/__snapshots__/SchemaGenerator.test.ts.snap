@@ -1,5 +1,49 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`SchemaGenerator core > 'BinaryAnyOf' 1`] = `
+[
+  {
+    "args": {
+      "additionalProperties": [],
+      "properties": {
+        "file": [
+          {
+            "args": [
+              {
+                "keyword": "blob",
+              },
+              {
+                "keyword": "null",
+              },
+            ],
+            "keyword": "union",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": undefined,
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "file",
+            "keyword": "name",
+          },
+        ],
+      },
+    },
+    "keyword": "object",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "object",
+    },
+    "keyword": "schema",
+  },
+]
+`;
+
 exports[`SchemaGenerator core > 'EmptyAnyOf' 1`] = `
 [
   {
@@ -295,7 +339,7 @@ exports[`SchemaGenerator core > 'Pet' 1`] = `
         ],
         "id": [
           {
-            "keyword": "integer",
+            "keyword": "bigint",
           },
           {
             "args": {

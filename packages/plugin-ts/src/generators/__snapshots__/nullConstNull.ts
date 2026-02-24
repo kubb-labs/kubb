@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * NullConst
+ */
 export type nullConst = {
   withoutValue: null
 }

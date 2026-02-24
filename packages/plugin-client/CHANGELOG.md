@@ -1,5 +1,160 @@
 # @kubb/plugin-client
 
+## 4.27.4
+
+### Patch Changes
+
+- [#2567](https://github.com/kubb-labs/kubb/pull/2567) [`3690d37`](https://github.com/kubb-labs/kubb/commit/3690d3778cb8e2c48841bf13b73c82c165242ef4) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - refactor: replace resolveModuleSource with static imports and build-time template inlining
+
+  Removed `resolveModuleSource` from `@kubb/core/utils`. Template file contents for `@kubb/plugin-client` (config, axios, fetch) and `@kubb/plugin-zod` (ToZod) are now inlined as string constants at build time via the `importAttributeTextPlugin` rolldown/tsdown plugin, using `import ... with { type: 'text' }` import attributes as the build-time marker. This eliminates all runtime filesystem reads for template sources.
+
+- Updated dependencies [[`3690d37`](https://github.com/kubb-labs/kubb/commit/3690d3778cb8e2c48841bf13b73c82c165242ef4)]:
+  - @kubb/core@4.27.4
+  - @kubb/plugin-zod@4.27.4
+  - @kubb/oas@4.27.4
+  - @kubb/plugin-oas@4.27.4
+  - @kubb/plugin-ts@4.27.4
+
+## 4.27.3
+
+### Patch Changes
+
+- [#2557](https://github.com/kubb-labs/kubb/pull/2557) [`2213d3a`](https://github.com/kubb-labs/kubb/commit/2213d3ab14894c96e1f69780ea480b5e3457bf6b) Thanks [@icholy](https://github.com/icholy)! - Remove AxiosHeaders import and type assertion to fix TS2749 under `module: "nodenext"`.
+
+- Updated dependencies [[`669b07e`](https://github.com/kubb-labs/kubb/commit/669b07ed66f0dded0e028a3dfe1c5e669c53e53a)]:
+  - @kubb/oas@4.27.3
+  - @kubb/plugin-oas@4.27.3
+  - @kubb/plugin-ts@4.27.3
+  - @kubb/plugin-zod@4.27.3
+  - @kubb/core@4.27.3
+
+## 4.27.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.27.2
+  - @kubb/oas@4.27.2
+  - @kubb/plugin-oas@4.27.2
+  - @kubb/plugin-ts@4.27.2
+  - @kubb/plugin-zod@4.27.2
+
+## 4.27.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.27.1
+  - @kubb/oas@4.27.1
+  - @kubb/plugin-oas@4.27.1
+  - @kubb/plugin-ts@4.27.1
+  - @kubb/plugin-zod@4.27.1
+
+## 4.27.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.27.0
+  - @kubb/oas@4.27.0
+  - @kubb/plugin-oas@4.27.0
+  - @kubb/plugin-ts@4.27.0
+  - @kubb/plugin-zod@4.27.0
+
+## 4.26.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.26.1
+  - @kubb/oas@4.26.1
+  - @kubb/plugin-oas@4.26.1
+  - @kubb/plugin-ts@4.26.1
+  - @kubb/plugin-zod@4.26.1
+
+## 4.26.0
+
+### Patch Changes
+
+- [#2488](https://github.com/kubb-labs/kubb/pull/2488) [`0f8235c`](https://github.com/kubb-labs/kubb/commit/0f8235cf1dfbcdd436172752c9f94ff953732f3f) Thanks [@icholy](https://github.com/icholy)! - Fix class client generators using default import for fetch in bundled mode when the bundled templates only have a named export.
+
+- Updated dependencies [[`af65cde`](https://github.com/kubb-labs/kubb/commit/af65cde624a74e68bfb5dede871e8d9324499114)]:
+  - @kubb/plugin-zod@4.26.0
+  - @kubb/core@4.26.0
+  - @kubb/oas@4.26.0
+  - @kubb/plugin-oas@4.26.0
+  - @kubb/plugin-ts@4.26.0
+
+## 4.25.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.25.2
+  - @kubb/oas@4.25.2
+  - @kubb/plugin-oas@4.25.2
+  - @kubb/plugin-ts@4.25.2
+  - @kubb/plugin-zod@4.25.2
+
+## 4.25.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.25.1
+  - @kubb/oas@4.25.1
+  - @kubb/plugin-oas@4.25.1
+  - @kubb/plugin-ts@4.25.1
+  - @kubb/plugin-zod@4.25.1
+
+## 4.25.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.25.0
+  - @kubb/oas@4.25.0
+  - @kubb/plugin-oas@4.25.0
+  - @kubb/plugin-ts@4.25.0
+  - @kubb/plugin-zod@4.25.0
+
+## 4.24.1
+
+### Patch Changes
+
+- Updated dependencies [[`d260f9a`](https://github.com/kubb-labs/kubb/commit/d260f9a1f8a24ad2f1999fbdb918bb47cca078d0)]:
+  - @kubb/plugin-ts@4.24.1
+  - @kubb/plugin-zod@4.24.1
+  - @kubb/core@4.24.1
+  - @kubb/oas@4.24.1
+  - @kubb/plugin-oas@4.24.1
+
+## 4.24.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.24.0
+  - @kubb/oas@4.24.0
+  - @kubb/plugin-oas@4.24.0
+  - @kubb/plugin-ts@4.24.0
+  - @kubb/plugin-zod@4.24.0
+
+## 4.23.0
+
+### Minor Changes
+
+- [#2463](https://github.com/kubb-labs/kubb/pull/2463) [`d4f746b`](https://github.com/kubb-labs/kubb/commit/d4f746b33334e6d8379d45ccc09658c8d210e5cc) Thanks [@icholy](https://github.com/icholy)! - Export `mergeConfig` from fetch and axios clients. Fix class-style API clients silently discarding constructor configs.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.23.0
+  - @kubb/oas@4.23.0
+  - @kubb/plugin-oas@4.23.0
+  - @kubb/plugin-ts@4.23.0
+  - @kubb/plugin-zod@4.23.0
+
 ## 4.22.3
 
 ### Patch Changes

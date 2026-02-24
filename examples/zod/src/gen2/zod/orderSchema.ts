@@ -6,8 +6,8 @@
 import * as z from 'zod/mini'
 
 export const orderSchema = z.object({
-  id: z.optional(z.int()),
-  petId: z.optional(z.int()),
+  id: z.optional(z.bigint()),
+  petId: z.optional(z.bigint()),
   quantity: z.optional(z.int()),
   shipDate: z.optional(z.string()),
   status: z.optional(z.enum(['placed', 'approved', 'delivered'])),

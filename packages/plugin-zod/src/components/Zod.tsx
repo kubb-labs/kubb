@@ -18,6 +18,7 @@ type Props = {
   keysToOmit?: string[]
   wrapOutput?: PluginZod['resolvedOptions']['wrapOutput']
   version: '3' | '4'
+  guidType: PluginZod['resolvedOptions']['guidType']
   emptySchemaType: PluginZod['resolvedOptions']['emptySchemaType']
   mini?: boolean
 }
@@ -34,6 +35,7 @@ export function Zod({
   description,
   wrapOutput,
   version,
+  guidType,
   emptySchemaType,
   mini = false,
 }: Props): FabricReactNode {
@@ -54,7 +56,7 @@ export function Zod({
     .map((schemaKeyword, index) => {
       const siblings = baseSchemas.filter((_, i) => i !== index)
 
-      return parserZod.parse({ schema, parent: undefined, current: schemaKeyword, siblings, name }, { mapper, coercion, wrapOutput, version, mini })
+      return parserZod.parse({ schema, parent: undefined, current: schemaKeyword, siblings, name }, { mapper, coercion, wrapOutput, version, guidType, mini })
     })
     .filter(Boolean)
     .join('')
@@ -92,7 +94,7 @@ export function Zod({
       },
       siblings: [],
     },
-    { mapper, coercion, wrapOutput, version, mini },
+    { mapper, coercion, wrapOutput, version, guidType, mini },
   )
 
   let baseSchemaOutput =

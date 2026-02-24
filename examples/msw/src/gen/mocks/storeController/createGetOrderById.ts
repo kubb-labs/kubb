@@ -10,7 +10,7 @@ import { createOrder } from '../createOrder.ts'
 export function createGetOrderByIdPathParams(data?: Partial<GetOrderByIdPathParams>): GetOrderByIdPathParams {
   faker.seed([220])
   return {
-    ...{ orderId: faker.number.int() },
+    ...{ orderId: faker.number.bigInt() },
     ...(data || {}),
   }
 }

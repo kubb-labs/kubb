@@ -111,7 +111,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   }
 
   const fabric = createFabric()
-  fabric.use(fsPlugin, { dryRun: !definedConfig.output.write })
+  fabric.use(fsPlugin)
   fabric.use(typescriptParser)
 
   fabric.context.on('files:processing:start', (files) => {
@@ -131,7 +131,10 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     })
 
     if (source) {
-      await write(file.path, source, { sanity: false })
+      if (definedConfig.output.write) {
+        await write(file.path, source, { sanity: false })
+      }
+
       sources.set(file.path, source)
     }
   })

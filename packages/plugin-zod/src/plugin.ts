@@ -1,11 +1,11 @@
 import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode, PackageManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
-import { resolveModuleSource } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { operationsGenerator } from './generators'
 import { zodGenerator } from './generators/zodGenerator.tsx'
+import { source as toZodSource } from './templates/ToZod.source.ts'
 import type { PluginZod } from './types.ts'
 
 export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
@@ -26,6 +26,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
     operations = false,
     mini = false,
     version = mini ? '4' : new PackageManager().isValidSync('zod', '>=4') ? '4' : '3',
+    guidType = 'uuid',
     importPath = mini ? 'zod/mini' : version === '4' ? 'zod/v4' : 'zod',
     coercion = false,
     inferred = false,
@@ -57,6 +58,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
       group,
       wrapOutput,
       version,
+      guidType,
       mini,
       usedEnumNames,
     },
@@ -124,7 +126,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
           sources: [
             {
               name: 'ToZod',
-              value: resolveModuleSource('@kubb/plugin-zod/templates/ToZod').source,
+              value: toZodSource,
             },
           ],
           imports: [],

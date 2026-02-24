@@ -46,7 +46,7 @@ COMMANDS
   init        Initialize a new Kubb project with interactive setup
   generate    [input] Generate files based on a 'kubb.config.ts' file
   validate    Validate a Swagger/OpenAPI file
-  start       [input] Start HTTP server with SSE streaming based on a 'kubb.config.ts' file
+  agent       Manage the Agent server
   mcp         Start the server to enable the MCP client to interact with the LLM.
 
 Use kubb <command> --help for more information about a command.
@@ -286,6 +286,113 @@ kubb start --host 0.0.0.0 --port 3000
 ```
 
 See the [Stream Server Guide](/guide/stream-server) for complete documentation.
+
+## `kubb agent`
+
+Start and manage the Kubb Agent Server, a HTTP server for code generation with WebSocket integration for real-time Studio communication.
+
+
+> [!IMPORTANT]
+> `@kubb/agent` should be installed to use this command.
+
+```mdx
+USAGE kubb agent [COMMAND] [OPTIONS]
+
+COMMANDS
+  start    Start the Agent server
+
+Use kubb agent <command> --help for more information about a command.
+```
+
+### `kubb agent start`
+
+Start the Agent server with your Kubb configuration.
+
+```mdx
+USAGE kubb agent start [OPTIONS]
+
+OPTIONS
+
+                        -c, --config    Path to the Kubb config (default: kubb.config.ts)
+                         -p, --port     Port for the server (default: 3000)
+                         --host         Host for the server (default: localhost)
+                         --no-cache     Disable session caching
+                         --allow-write  Allow writing generated files to the filesystem
+                         --allow-all    Grant all permissions (implies --allow-write)
+                          -h, --help    Show help
+```
+
+#### Basic Usage
+
+```shell [node]
+kubb agent start
+```
+
+With custom config path:
+
+```shell [node]
+kubb agent start --config ./my-config.ts
+```
+
+With custom host and port:
+
+```shell [node]
+kubb agent start --host 0.0.0.0 --port 8080
+```
+
+Disable session caching:
+
+```shell [node]
+kubb agent start --no-cache
+```
+
+Allow filesystem writes:
+
+```shell [node]
+kubb agent start --allow-write
+```
+
+Grant all permissions (implies `--allow-write`):
+
+```shell [node]
+kubb agent start --allow-all
+```
+
+#### Environment Setup
+
+The agent automatically loads environment variables from:
+1. `.env` - Base environment variables
+2. `.env.local` - Local overrides (for secrets/local config)
+
+Create a `.env` file in your project:
+
+```env
+PORT=4000
+KUBB_ROOT=./
+KUBB_CONFIG=./kubb.config.ts
+KUBB_AGENT_TOKEN=your_agent_token # this token should be created in the Kubb Studio interface, without you cannot interact
+KUBB_AGENT_NO_CACHE=true
+KUBB_STUDIO_URL=https://studio.kubb.dev
+KUBB_ALLOW_WRITE=true
+KUBB_ALLOW_ALL=false
+```
+
+#### Features
+
+- ✅ Automatic config loading from environment variable (`KUBB_CONFIG`)
+- ✅ Bidirectional WebSocket communication with Kubb Studio
+- ✅ Use of Kubb generate behind the scenes
+
+#### API Endpoints
+
+Once the server is running, you can interact with it via HTTP:
+
+##### `GET /api/health`
+Check server health status.
+
+```bash
+curl http://localhost:4000/api/health
+```
 
 ## `kubb validate`
 

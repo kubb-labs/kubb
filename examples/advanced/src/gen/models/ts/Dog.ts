@@ -1,5 +1,8 @@
 import type { Image } from './Image.ts'
 
+/**
+ * Dog
+ */
 export type Dog = {
   /**
    * @minLength 1

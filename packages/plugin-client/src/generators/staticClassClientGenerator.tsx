@@ -172,11 +172,13 @@ export const staticClassClientGenerator = createReactGenerator<PluginClient>({
           {options.importPath ? (
             <>
               <File.Import name={'fetch'} path={options.importPath} />
+              <File.Import name={['mergeConfig']} path={options.importPath} />
               <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
             </>
           ) : (
             <>
               <File.Import name={['fetch']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
+              <File.Import name={['mergeConfig']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
               <File.Import
                 name={['Client', 'RequestConfig', 'ResponseErrorConfig']}
                 root={file.path}

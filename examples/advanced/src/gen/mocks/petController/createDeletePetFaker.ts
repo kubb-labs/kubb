@@ -3,7 +3,7 @@ import type { DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathPar
 
 export function createDeletePetPathParamsFaker(data?: Partial<DeletePetPathParams>): DeletePetPathParams {
   return {
-    ...{ petId: faker.number.int() },
+    ...{ petId: faker.number.bigInt() },
     ...(data || {}),
   }
 }

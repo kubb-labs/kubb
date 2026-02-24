@@ -5,15 +5,17 @@ export { executeIfOnline, isOnline } from './checkOnlineStatus.ts'
 export type { FunctionParamsAST } from './FunctionParams.ts'
 export { FunctionParams } from './FunctionParams.ts'
 export { formatHrtime, formatMs, getElapsedMs } from './formatHrtime.ts'
+export { detectFormatter, formatters } from './formatters.ts'
 export { getBarrelFiles } from './getBarrelFiles.ts'
+export { getConfigs } from './getConfigs.ts'
 export { getNestedAccessor } from './getNestedAccessor.ts'
+export { detectLinter, linters } from './linters.ts'
 export {
   isPromise,
   isPromiseFulfilledResult,
   isPromiseRejectedResult,
 } from './promise.ts'
 export { renderTemplate } from './renderTemplate.ts'
-export { resolveModuleSource } from './resolveModuleSource.ts'
 export { serializePluginOptions } from './serializePluginOptions.ts'
 export { timeout } from './timeout.ts'
 export type { URLObject } from './URLPath.ts'

@@ -32,6 +32,15 @@ describe('zodGenerator schema', async () => {
       },
     },
     {
+      name: 'Pet-v4-guid',
+      path: 'Pet',
+      input: '../../mocks/petStore.yaml',
+      options: {
+        version: '4',
+        guidType: 'guid',
+      },
+    },
+    {
       name: 'Pets',
       path: 'Pets',
       input: '../../mocks/petStore.yaml',
@@ -310,6 +319,7 @@ describe('zodGenerator schema', async () => {
       group: undefined,
       wrapOutput: undefined,
       version: '3',
+      guidType: 'uuid',
       emptySchemaType: 'unknown',
       mini: false,
       ...props.options,
@@ -442,6 +452,7 @@ describe('zodGenerator operation', async () => {
       group: undefined,
       wrapOutput: undefined,
       version: '3',
+      guidType: 'uuid',
       emptySchemaType: 'unknown',
       mini: false,
       ...props.options,
@@ -493,6 +504,7 @@ describe('zodGenerator operation', async () => {
         },
         group: undefined,
         version: '3',
+        guidType: 'uuid',
         emptySchemaType: 'unknown',
         wrapOutput: ({ output, schema }) => {
           const metadata: ZodOpenAPIMetadata = {}
@@ -587,6 +599,7 @@ describe('zodGenerator operation', async () => {
         },
         group: undefined,
         version: '3',
+        guidType: 'uuid',
         emptySchemaType: 'unknown',
         wrapOutput: ({ output, schema }) => {
           const metadata: ZodOpenAPIMetadata = {}
@@ -681,6 +694,7 @@ describe('zodGenerator operation', async () => {
         },
         group: undefined,
         version: '3',
+        guidType: 'uuid',
         emptySchemaType: 'unknown',
         wrapOutput: ({ output, schema }) => {
           if (schema) {

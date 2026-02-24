@@ -165,13 +165,26 @@ ${pluginConfigs}
 `
 }
 
+const DEFAULT_INPUT_PATH = './openapi.yaml'
+const DEFAULT_OUTPUT_PATH = './src/gen'
+const DEFAULT_PLUGINS = ['plugin-oas', 'plugin-ts']
+
 const command = defineCommand({
   meta: {
     name: 'init',
     description: 'Initialize a new Kubb project with interactive setup',
   },
-  async run() {
+  args: {
+    yes: {
+      type: 'boolean',
+      alias: 'y',
+      description: 'Skip prompts and use default options',
+      default: false,
+    },
+  },
+  async run({ args }) {
     const cwd = process.cwd()
+    const yes = args.yes
 
     clack.intro(pc.bgCyan(pc.black(' Kubb Init ')))
 
@@ -179,14 +192,16 @@ const command = defineCommand({
       // Check/create package.json
       let packageManager: PackageManagerInfo
       if (!hasPackageJson(cwd)) {
-        const shouldInit = await clack.confirm({
-          message: 'No package.json found. Would you like to create one?',
-          initialValue: true,
-        })
+        if (!yes) {
+          const shouldInit = await clack.confirm({
+            message: 'No package.json found. Would you like to create one?',
+            initialValue: true,
+          })
 
-        if (clack.isCancel(shouldInit) || !shouldInit) {
-          clack.cancel('Operation cancelled.')
-          process.exit(0)
+          if (clack.isCancel(shouldInit) || !shouldInit) {
+            clack.cancel('Operation cancelled.')
+            process.exit(0)
+          }
         }
 
         // Detect package manager before initializing
@@ -204,53 +219,73 @@ const command = defineCommand({
       }
 
       // Prompt for OpenAPI spec path
-      const inputPath = await clack.text({
-        message: 'Where is your OpenAPI specification located?',
-        placeholder: './openapi.yaml',
-        defaultValue: './openapi.yaml',
-        validate: (value) => {
-          if (!value) return 'Input path is required'
-        },
-      })
+      let inputPath: string
+      if (yes) {
+        inputPath = DEFAULT_INPUT_PATH
+        clack.log.info(`Using input path: ${pc.cyan(inputPath)}`)
+      } else {
+        const inputPathResult = await clack.text({
+          message: 'Where is your OpenAPI specification located?',
+          placeholder: DEFAULT_INPUT_PATH,
+          defaultValue: DEFAULT_INPUT_PATH,
+          validate: (value) => {
+            if (!value) return 'Input path is required'
+          },
+        })
 
-      if (clack.isCancel(inputPath)) {
-        clack.cancel('Operation cancelled.')
-        process.exit(0)
+        if (clack.isCancel(inputPathResult)) {
+          clack.cancel('Operation cancelled.')
+          process.exit(0)
+        }
+        inputPath = inputPathResult as string
       }
 
       // Prompt for output directory
-      const outputPath = await clack.text({
-        message: 'Where should the generated files be output?',
-        placeholder: './src/gen',
-        defaultValue: './src/gen',
-        validate: (value) => {
-          if (!value) return 'Output path is required'
-        },
-      })
+      let outputPath: string
+      if (yes) {
+        outputPath = DEFAULT_OUTPUT_PATH
+        clack.log.info(`Using output path: ${pc.cyan(outputPath)}`)
+      } else {
+        const outputPathResult = await clack.text({
+          message: 'Where should the generated files be output?',
+          placeholder: DEFAULT_OUTPUT_PATH,
+          defaultValue: DEFAULT_OUTPUT_PATH,
+          validate: (value) => {
+            if (!value) return 'Output path is required'
+          },
+        })
 
-      if (clack.isCancel(outputPath)) {
-        clack.cancel('Operation cancelled.')
-        process.exit(0)
+        if (clack.isCancel(outputPathResult)) {
+          clack.cancel('Operation cancelled.')
+          process.exit(0)
+        }
+        outputPath = outputPathResult as string
       }
 
       // Plugin selection
-      const selectedPluginValues = await clack.multiselect({
-        message: 'Select plugins to use:',
-        options: plugins.map((plugin) => ({
-          value: plugin.value,
-          label: plugin.label,
-          hint: plugin.hint,
-        })),
-        initialValues: ['plugin-oas', 'plugin-ts'],
-        required: true,
-      })
+      let selectedPlugins: PluginOption[]
+      if (yes) {
+        selectedPlugins = plugins.filter((plugin) => DEFAULT_PLUGINS.includes(plugin.value))
+        clack.log.info(`Using plugins: ${pc.cyan(selectedPlugins.map((p) => p.label).join(', '))}`)
+      } else {
+        const selectedPluginValues = await clack.multiselect({
+          message: 'Select plugins to use:',
+          options: plugins.map((plugin) => ({
+            value: plugin.value,
+            label: plugin.label,
+            hint: plugin.hint,
+          })),
+          initialValues: DEFAULT_PLUGINS,
+          required: true,
+        })
 
-      if (clack.isCancel(selectedPluginValues)) {
-        clack.cancel('Operation cancelled.')
-        process.exit(0)
+        if (clack.isCancel(selectedPluginValues)) {
+          clack.cancel('Operation cancelled.')
+          process.exit(0)
+        }
+
+        selectedPlugins = plugins.filter((plugin) => (selectedPluginValues as string[]).includes(plugin.value))
       }
-
-      const selectedPlugins = plugins.filter((plugin) => (selectedPluginValues as string[]).includes(plugin.value))
 
       // Ensure plugin-oas is always included
       if (!selectedPlugins.find((p) => p.value === 'plugin-oas')) {
@@ -258,7 +293,7 @@ const command = defineCommand({
       }
 
       // Install packages
-      const packagesToInstall = ['@kubb/core', ...selectedPlugins.map((p) => p.packageName)]
+      const packagesToInstall = ['@kubb/core', '@kubb/cli', '@kubb/agent', ...selectedPlugins.map((p) => p.packageName)]
 
       const spinner = clack.spinner()
       spinner.start(`Installing ${packagesToInstall.length} packages with ${packageManager.name}`)
@@ -275,21 +310,23 @@ const command = defineCommand({
       const configSpinner = clack.spinner()
       configSpinner.start('Creating kubb.config.ts')
 
-      const configContent = generateConfigFile(selectedPlugins, inputPath as string, outputPath as string)
+      const configContent = generateConfigFile(selectedPlugins, inputPath, outputPath)
       const configPath = path.join(cwd, 'kubb.config.ts')
 
       // Check if config already exists
       if (fs.existsSync(configPath)) {
         configSpinner.stop('kubb.config.ts already exists')
 
-        const shouldOverwrite = await clack.confirm({
-          message: 'kubb.config.ts already exists. Overwrite?',
-          initialValue: false,
-        })
+        if (!yes) {
+          const shouldOverwrite = await clack.confirm({
+            message: 'kubb.config.ts already exists. Overwrite?',
+            initialValue: false,
+          })
 
-        if (clack.isCancel(shouldOverwrite) || !shouldOverwrite) {
-          clack.cancel('Keeping existing configuration. Packages have been installed.')
-          process.exit(0)
+          if (clack.isCancel(shouldOverwrite) || !shouldOverwrite) {
+            clack.cancel('Keeping existing configuration. Packages have been installed.')
+            process.exit(0)
+          }
         }
 
         configSpinner.start('Overwriting kubb.config.ts')

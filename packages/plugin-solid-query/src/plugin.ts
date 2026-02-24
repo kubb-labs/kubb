@@ -1,8 +1,10 @@
 import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
-import { resolveModuleSource } from '@kubb/core/utils'
 import { pluginClientName } from '@kubb/plugin-client'
+import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
+import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
+import { source as configSource } from '@kubb/plugin-client/templates/config.source'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -41,7 +43,8 @@ export const pluginSolidQuery = definePlugin<PluginSolidQuery>((options) => {
     options: {
       output,
       client: {
-        ...options.client,
+        bundle: client?.bundle,
+        baseURL: client?.baseURL,
         client: clientName,
         clientType: client?.clientType ?? 'function',
         dataReturnType: client?.dataReturnType ?? 'data',
@@ -146,9 +149,7 @@ export const pluginSolidQuery = definePlugin<PluginSolidQuery>((options) => {
           sources: [
             {
               name: 'fetch',
-              value: resolveModuleSource(
-                this.plugin.options.client.client === 'fetch' ? '@kubb/plugin-client/templates/clients/fetch' : '@kubb/plugin-client/templates/clients/axios',
-              ).source,
+              value: this.plugin.options.client.client === 'fetch' ? fetchClientSource : axiosClientSource,
               isExportable: true,
               isIndexable: true,
             },
@@ -165,7 +166,7 @@ export const pluginSolidQuery = definePlugin<PluginSolidQuery>((options) => {
           sources: [
             {
               name: 'config',
-              value: resolveModuleSource('@kubb/plugin-client/templates/config').source,
+              value: configSource,
               isExportable: false,
               isIndexable: false,
             },

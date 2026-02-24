@@ -1,0 +1,72 @@
+x-healthcheck-node: &healthcheck-node
+  test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
+  interval: 15s
+  timeout: 10s
+  start_period: 60s
+  retries: 5
+
+services:
+  studio:
+    image: kubblabs/kubb-studio:latest
+    container_name: kubb-studio
+    platform: linux/amd64
+    ports:
+      - "3002:3000"
+    env_file:
+      - .env
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://studio:studio_dev_password@postgres:5432/studio
+      KUBB_STUDIO_URL: http://kubb-studio:3000
+      BETTER_AUTH_URL: http://localhost:3002
+      KUBB_MACHINE_ID: KUBB_SERVER_TEST
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck: *healthcheck-node
+
+  agent:
+    image: kubblabs/kubb-agent:latest
+    container_name: kubb-agent
+    ports:
+      - "3001:3000"
+    env_file:
+      - .env
+    environment:
+      PORT: 3000
+      KUBB_AGENT_ROOT: /kubb/agent/data
+      KUBB_AGENT_CONFIG: ./kubb.config.ts
+      KUBB_AGENT_NO_CACHE: "true"
+      KUBB_AGENT_ALLOW_WRITE: "false"
+      KUBB_AGENT_ALLOW_ALL: "false"
+      KUBB_AGENT_RETRY_TIMEOUT: "30000"
+      KUBB_STUDIO_URL: http://kubb-studio:3000
+    volumes:
+      - ./examples/react-query:/kubb/agent/data
+    depends_on:
+      studio:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck: *healthcheck-node
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: studio-postgres
+    environment:
+      POSTGRES_DB: studio
+      POSTGRES_USER: studio
+      POSTGRES_PASSWORD: studio_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U studio"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
+
+volumes:
+  postgres_data:
