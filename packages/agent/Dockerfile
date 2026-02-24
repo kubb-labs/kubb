@@ -29,7 +29,7 @@ EXPOSE ${PORT}
 
 COPY --link packages/agent/.output ./.output
 COPY --from=installer /tmp /kubb/deps
-COPY --link pacakges/agent/data /kubb/agent/data
+COPY --link packages/agent/data /kubb/agent/data
 
 ENV NODE_PATH=/kubb/deps/node_modules
 
