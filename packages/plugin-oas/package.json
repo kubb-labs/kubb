@@ -28,24 +28,24 @@
   "type": "module",
   "exports": {
     ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./generators": {
-      "require": "./dist/generators.cjs",
-      "import": "./dist/generators.js"
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs"
     },
     "./hooks": {
-      "require": "./dist/hooks.cjs",
-      "import": "./dist/hooks.js"
+      "import": "./dist/hooks.js",
+      "require": "./dist/hooks.cjs"
     },
     "./mocks": {
-      "require": "./dist/mocks.cjs",
-      "import": "./dist/mocks.js"
+      "import": "./dist/mocks.js",
+      "require": "./dist/mocks.cjs"
     },
     "./utils": {
-      "require": "./dist/utils.cjs",
-      "import": "./dist/utils.js"
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs"
     },
     "./package.json": "./package.json"
   },

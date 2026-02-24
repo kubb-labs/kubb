@@ -35,16 +35,16 @@
   "type": "module",
   "exports": {
     ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./components": {
-      "require": "./dist/components.cjs",
-      "import": "./dist/components.js"
+      "import": "./dist/components.js",
+      "require": "./dist/components.cjs"
     },
     "./generators": {
-      "require": "./dist/generators.cjs",
-      "import": "./dist/generators.js"
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs"
     },
     "./package.json": "./package.json"
   },

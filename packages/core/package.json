@@ -28,24 +28,24 @@
   "type": "module",
   "exports": {
     ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./fs": {
-      "require": "./dist/fs.cjs",
-      "import": "./dist/fs.js"
+      "import": "./dist/fs.js",
+      "require": "./dist/fs.cjs"
     },
     "./hooks": {
-      "require": "./dist/hooks.cjs",
-      "import": "./dist/hooks.js"
+      "import": "./dist/hooks.js",
+      "require": "./dist/hooks.cjs"
     },
     "./transformers": {
-      "require": "./dist/transformers.cjs",
-      "import": "./dist/transformers.js"
+      "import": "./dist/transformers.js",
+      "require": "./dist/transformers.cjs"
     },
     "./utils": {
-      "require": "./dist/utils.cjs",
-      "import": "./dist/utils.js"
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs"
     },
     "./package.json": "./package.json"
   },

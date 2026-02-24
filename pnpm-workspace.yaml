@@ -13,5 +13,5 @@ catalog:
   p-limit: ^7.3.0
   remeda: ^2.33.6
   # cannot upgrade to 0.20.3 because of breaking changes with react-fabric types
-  tsdown: ^0.19.0
+  tsdown: ^0.20.3
   typescript: ^5.9.3

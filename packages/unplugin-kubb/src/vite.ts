@@ -1,5 +1,5 @@
 import { createVitePlugin } from 'unplugin'
 
-import { unpluginFactory } from './index.ts'
+import { unpluginFactory } from './unpluginFactory.ts'
 
 export default createVitePlugin(unpluginFactory)

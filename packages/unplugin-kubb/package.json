@@ -31,40 +31,52 @@
 	"type": "module",
 	"exports": {
 		".": {
-			"require": "./dist/index.cjs",
-			"import": "./dist/index.js"
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
 		},
 		"./astro": {
-			"require": "./dist/astro.cjs",
-			"import": "./dist/astro.js"
+			"import": "./dist/astro.js",
+			"require": "./dist/astro.cjs"
 		},
 		"./esbuild": {
-			"require": "./dist/esbuild.cjs",
-			"import": "./dist/esbuild.js"
+			"import": "./dist/esbuild.js",
+			"require": "./dist/esbuild.cjs"
+		},
+		"./farm": {
+			"import": "./dist/farm.js",
+			"require": "./dist/farm.cjs"
 		},
 		"./nuxt": {
-			"require": "./dist/nuxt.cjs",
-			"import": "./dist/nuxt.js"
+			"import": "./dist/nuxt.js",
+			"require": "./dist/nuxt.cjs"
+		},
+		"./rolldown": {
+			"import": "./dist/rolldown.js",
+			"require": "./dist/rolldown.cjs"
 		},
 		"./rollup": {
-			"require": "./dist/rollup.cjs",
-			"import": "./dist/rollup.js"
+			"import": "./dist/rollup.js",
+			"require": "./dist/rollup.cjs"
 		},
 		"./rspack": {
-			"require": "./dist/rspack.cjs",
-			"import": "./dist/rspack.js"
+			"import": "./dist/rspack.js",
+			"require": "./dist/rspack.cjs"
 		},
 		"./types": {
-			"require": "./dist/types.cjs",
-			"import": "./dist/types.js"
+			"import": "./dist/types.js",
+			"require": "./dist/types.cjs"
+		},
+		"./unpluginFactory": {
+			"import": "./dist/unpluginFactory.js",
+			"require": "./dist/unpluginFactory.cjs"
 		},
 		"./vite": {
-			"require": "./dist/vite.cjs",
-			"import": "./dist/vite.js"
+			"import": "./dist/vite.js",
+			"require": "./dist/vite.cjs"
 		},
 		"./webpack": {
-			"require": "./dist/webpack.cjs",
-			"import": "./dist/webpack.js"
+			"import": "./dist/webpack.js",
+			"require": "./dist/webpack.cjs"
 		},
 		"./package.json": "./package.json"
 	},
@@ -97,7 +109,7 @@
 		"typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
 	},
 	"dependencies": {
-		"unplugin": "^2.3.11"
+		"unplugin": "^3.0.0"
 	},
 	"devDependencies": {
 		"@kubb/core": "workspace:*",
@@ -109,15 +121,20 @@
 		"webpack": "^5.105.2"
 	},
 	"peerDependencies": {
+		"@farmfe/core": ">=1",
 		"@kubb/core": "^4.0.0",
-		"@nuxt/kit": "^3",
-		"@nuxt/schema": "^3",
+		"@nuxt/kit": "^3 || ^4",
+		"@nuxt/schema": "^3 || ^4",
 		"esbuild": "*",
-		"rollup": "^3",
+		"rolldown": ">=1",
+		"rollup": "^3 || ^4",
 		"vite": ">=3",
 		"webpack": "^5"
 	},
 	"peerDependenciesMeta": {
+		"@farmfe/core": {
+			"optional": true
+		},
 		"@nuxt/kit": {
 			"optional": true
 		},
@@ -125,6 +142,9 @@
 			"optional": true
 		},
 		"esbuild": {
+			"optional": true
+		},
+		"rolldown": {
 			"optional": true
 		},
 		"rollup": {
