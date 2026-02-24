@@ -1,7 +1,7 @@
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { cacheSession, getCachedSession } from './cacheManager.ts'
 import { logger } from './logger.ts'
-import { getMachineId } from './machineId.ts'
+import { getMachineToken } from './machineToken.ts'
 
 type ConnectProps = {
   studioUrl: string
@@ -32,7 +32,7 @@ export async function createAgentSession({ token, studioUrl, noCache }: ConnectP
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: { machineId: getMachineId() },
+      body: { machineToken: getMachineToken() },
     })
 
     // Cache the session for reuse (unless --no-cache is set)
@@ -62,7 +62,7 @@ type RegisterProps = {
  * Called once on agent startup before creating a WebSocket session.
  */
 export async function registerAgent({ token, studioUrl }: RegisterProps): Promise<void> {
-  const machineId = getMachineId()
+  const machineToken = getMachineToken()
   const registerUrl = `${studioUrl}/api/agent/register`
 
   try {
@@ -71,7 +71,7 @@ export async function registerAgent({ token, studioUrl }: RegisterProps): Promis
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: { machineId },
+      body: { machineToken },
     })
     logger.success('Agent registered with Studio')
   } catch (error: any) {

@@ -72,14 +72,14 @@ declare global {
 
       /**
        * Fixed machine identifier used for Polar license key activation.
-       * In Docker / containerised environments MAC addresses and hostnames are
+       * In Docker environments MAC addresses and hostnames are
        * ephemeral and change on every container recreation, which would trigger a
        * new activation on each restart and exhaust the allowed Polar activation slots.
        * Set this to a stable value (e.g. a UUID) to ensure a consistent identity.
        * When omitted, the ID is derived from network interface MACs + hostname.
        * @example "550e8400-e29b-41d4-a716-446655440000"
        */
-      KUBB_MACHINE_ID: string | undefined
+      KUBB_STUDIO_MACHINE_NAME: string | undefined
     }
   }
 }
