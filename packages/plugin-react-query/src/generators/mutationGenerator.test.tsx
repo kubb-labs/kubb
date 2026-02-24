@@ -92,12 +92,28 @@ describe('mutationGenerator operation', async () => {
       method: 'post',
       options: {},
     },
+    {
+      name: 'requiredOneOfRequestBody',
+      input: '../../mocks/requiredOneOfRequestBody.yaml',
+      path: '/orders',
+      method: 'post',
+      options: {},
+    },
+    {
+      name: 'requiredOneOfRequestBodyWithClientPlugin',
+      input: '../../mocks/requiredOneOfRequestBody.yaml',
+      path: '/orders',
+      method: 'post',
+      options: {},
+      mockClientPlugin: true,
+    },
   ] as const satisfies Array<{
     input: string
     name: string
     path: string
     method: HttpMethod
     options: Partial<PluginReactQuery['resolvedOptions']>
+    mockClientPlugin?: boolean
   }>
 
   test.each(testData)('$name', async (props) => {
@@ -135,6 +151,17 @@ describe('mutationGenerator operation', async () => {
     const plugin = { options } as Plugin<PluginReactQuery>
     const fabric = createReactFabric()
     const mockedPluginManager = createMockedPluginManager(props.name)
+
+    if ('mockClientPlugin' in props && props.mockClientPlugin) {
+      mockedPluginManager.getPluginByKey = (pluginKey) => {
+        if (Array.isArray(pluginKey) && pluginKey.includes('plugin-client')) {
+          return { key: 'plugin-client' } as any
+        }
+
+        return undefined
+      }
+    }
+
     const generator = new OperationGenerator(options, {
       fabric,
       oas,

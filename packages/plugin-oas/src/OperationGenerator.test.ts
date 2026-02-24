@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Plugin, PluginManager } from '@kubb/core'
-import { parseFromConfig } from '@kubb/oas'
+import { parse, parseFromConfig } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, test } from 'vitest'
 import { OperationGenerator } from './OperationGenerator.ts'
@@ -36,6 +36,79 @@ describe('OperationGenerator core', async () => {
 
     expect(og.getSchemas(oas.operation('/pets', 'get')).pathParams).toBeUndefined()
     expect(og.getSchemas(oas.operation('/pets', 'get')).queryParams).toBeDefined()
+  })
+
+  test('enforces request requiredness for oneOf requestBody schemas', async () => {
+    const oasWithRequiredBody = await parse({
+      openapi: '3.0.3',
+      info: {
+        title: 'test',
+        version: '1.0.0',
+      },
+      paths: {
+        '/orders': {
+          post: {
+            operationId: 'createOrder',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    oneOf: [
+                      {
+                        type: 'object',
+                        required: ['manual'],
+                        properties: {
+                          manual: { type: 'string' },
+                        },
+                      },
+                      {
+                        type: 'object',
+                        required: ['automated'],
+                        properties: {
+                          automated: { type: 'string' },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'ok',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const fabric = createReactFabric()
+    const og = new OperationGenerator(
+      {},
+      {
+        fabric,
+        oas: oasWithRequiredBody,
+        contentType: undefined,
+        pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as Plugin,
+        exclude: [],
+        include: undefined,
+        override: undefined,
+        mode: 'split',
+      },
+    )
+
+    const schemas = og.getSchemas(oasWithRequiredBody.operation('/orders', 'post'))
+    expect(schemas.request?.schema.required).toStrictEqual(['__kubb_required_request_body__'])
   })
 })
 

@@ -147,6 +147,13 @@ describe('clientGenerator operation', async () => {
         pathParamsType: 'inline',
       },
     },
+    {
+      name: 'requiredOneOfRequestBody',
+      input: '../../mocks/requiredOneOfRequestBody.yaml',
+      path: '/orders',
+      method: 'post',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string

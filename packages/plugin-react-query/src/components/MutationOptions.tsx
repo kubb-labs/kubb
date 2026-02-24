@@ -22,12 +22,6 @@ type GetParamsProps = {
   typeSchemas: OperationSchemas
 }
 
-function isRequestBodyRequired(typeSchemas: OperationSchemas) {
-  const requestBody = typeSchemas.request?.operation?.schema?.requestBody
-
-  return !!requestBody && !('$ref' in requestBody) && requestBody.required === true
-}
-
 function getParams({ typeSchemas }: GetParamsProps) {
   return FunctionParams.factory({
     config: {
@@ -71,7 +65,7 @@ export function MutationOptions({
     data: typeSchemas.request?.name
       ? {
           type: typeSchemas.request?.name,
-          optional: isOptional(typeSchemas.request?.schema) && !isRequestBodyRequired(typeSchemas),
+          optional: isOptional(typeSchemas.request?.schema),
         }
       : undefined,
     params: typeSchemas.queryParams?.name
