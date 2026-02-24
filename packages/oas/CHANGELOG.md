@@ -1,5 +1,14 @@
 # @kubb/oas
 
+## 4.28.1
+
+### Patch Changes
+
+- [#2575](https://github.com/kubb-labs/kubb/pull/2575) [`e9ddbf0`](https://github.com/kubb-labs/kubb/commit/e9ddbf05d3c29ac293a0402e7678c6c02beef3f8) Thanks [@Ericlm](https://github.com/Ericlm)! - Transform fields with application/octet-stream to Blob.
+
+- Updated dependencies []:
+  - @kubb/core@4.28.1
+
 ## 4.28.0
 
 ### Patch Changes
