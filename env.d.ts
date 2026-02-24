@@ -79,7 +79,7 @@ declare global {
        * When omitted, the ID is derived from network interface MACs + hostname.
        * @example "550e8400-e29b-41d4-a716-446655440000"
        */
-      KUBB_MACHINE_ID: string | undefined
+      KUBB_STUDIO_MACHINE_NAME: string | undefined
     }
   }
 }
