@@ -1,5 +1,5 @@
 import { formatMs } from '@kubb/core/utils'
-import pc from 'picocolors'
+import { styleText } from 'node:util'
 
 /**
  * Formats milliseconds with color based on duration thresholds:
@@ -11,12 +11,12 @@ export function formatMsWithColor(ms: number): string {
   const formatted = formatMs(ms)
 
   if (ms <= 500) {
-    return pc.green(formatted)
+    return styleText('green', formatted)
   }
 
   if (ms <= 1000) {
-    return pc.yellow(formatted)
+    return styleText('yellow', formatted)
   }
 
-  return pc.red(formatted)
+  return styleText('red', formatted)
 }

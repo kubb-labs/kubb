@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { Config, Plugin } from '@kubb/core'
 import { formatHrtime } from '@kubb/core/utils'
-import pc from 'picocolors'
+import { styleText } from 'node:util'
 import { randomCliColor } from './randomColor.ts'
 
 type SummaryProps = {
@@ -22,11 +22,11 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
   const meta = {
     plugins:
       status === 'success'
-        ? `${pc.green(`${successCount} successful`)}, ${pluginsCount} total`
-        : `${pc.green(`${successCount} successful`)}, ${pc.red(`${failedPlugins.size} failed`)}, ${pluginsCount} total`,
+        ? `${styleText('green', `${successCount} successful`)}, ${pluginsCount} total`
+        : `${styleText('green', `${successCount} successful`)}, ${styleText('red', `${failedPlugins.size} failed`)}, ${pluginsCount} total`,
     pluginsFailed: status === 'failed' ? [...failedPlugins]?.map(({ plugin }) => randomCliColor(plugin.name))?.join(', ') : undefined,
     filesCreated: filesCreated,
-    time: pc.green(duration),
+    time: styleText('green', duration),
     output: path.isAbsolute(config.root) ? path.resolve(config.root, config.output.path) : config.root,
   } as const
 
@@ -60,9 +60,9 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
       sortedTimings.forEach(([name, time]) => {
         const timeStr = time >= 1000 ? `${(time / 1000).toFixed(2)}s` : `${Math.round(time)}ms`
         const barLength = Math.min(Math.ceil(time / TIME_SCALE_DIVISOR), MAX_BAR_LENGTH)
-        const bar = pc.dim('█'.repeat(barLength))
+        const bar = styleText('dim', '█'.repeat(barLength))
 
-        summaryLines.push(`${pc.dim('•')} ${name.padEnd(maxLength + 1)}${bar} ${timeStr}`)
+        summaryLines.push(`${styleText('dim', '•')} ${name.padEnd(maxLength + 1)}${bar} ${timeStr}`)
       })
     }
   }

@@ -1,7 +1,7 @@
 import type { ArgsDef } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import { createJiti } from 'jiti'
-import pc from 'picocolors'
+import { styleText } from 'node:util'
 
 const jiti = createJiti(import.meta.url, {
   sourceMaps: true,
@@ -40,7 +40,7 @@ const command = defineCommand({
     const { run } = mod
     try {
       console.log('⏳ Starting MCP server...')
-      console.warn(pc.yellow('This feature is still under development — use with caution'))
+      console.warn(styleText('yellow', 'This feature is still under development — use with caution'))
       await run()
     } catch (error) {
       console.error((error as Error)?.message)

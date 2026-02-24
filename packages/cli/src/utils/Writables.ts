@@ -1,7 +1,7 @@
 import type { WritableOptions } from 'node:stream'
 import { Writable } from 'node:stream'
 import type * as clack from '@clack/prompts'
-import pc from 'picocolors'
+import { styleText } from 'node:util'
 
 export class ClackWritable extends Writable {
   taskLog: ReturnType<typeof clack.taskLog>
@@ -11,7 +11,7 @@ export class ClackWritable extends Writable {
     this.taskLog = taskLog
   }
   _write(chunk: any, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
-    this.taskLog.message(`${pc.dim(chunk?.toString())}`)
+    this.taskLog.message(`${styleText('dim', chunk?.toString())}`)
     callback()
   }
 }
