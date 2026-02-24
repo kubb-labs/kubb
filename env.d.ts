@@ -72,7 +72,7 @@ declare global {
 
       /**
        * Fixed machine identifier used for Polar license key activation.
-       * In Docker / containerised environments MAC addresses and hostnames are
+       * In Docker environments MAC addresses and hostnames are
        * ephemeral and change on every container recreation, which would trigger a
        * new activation on each restart and exhaust the allowed Polar activation slots.
        * Set this to a stable value (e.g. a UUID) to ensure a consistent identity.
