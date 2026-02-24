@@ -13,7 +13,7 @@ Kubb Agent Server — HTTP server for code generation powered by [Nitro](https:/
 - 🔧 Easy integration with Kubb configuration
 - 📊 Health and info endpoints
 - 🔗 Bidirectional WebSocket with Kubb Studio
-- 🖥️ Machine binding — token locked to the registered machine via stable `machineId`
+- 🖥️ Machine binding — token locked to the registered machine via stable `machineToken`
 - 💾 Automatic session caching for faster reconnects
 - ⚡ Production-ready
 
@@ -111,6 +111,7 @@ docker compose up
 | `KUBB_AGENT_ALLOW_WRITE` | `false` | Set to `true` to allow writing generated files to disk. |
 | `KUBB_AGENT_ALLOW_ALL` | `false` | Set to `true` to grant all permissions (implies `KUBB_AGENT_ALLOW_WRITE=true`). |
 | `KUBB_AGENT_RETRY_TIMEOUT` | `30000` | Milliseconds to wait before retrying a failed Studio connection. |
+| `KUBB_STUDIO_MACHINE_NAME` | _(empty)_ | Fixed machine name for stable identity across container restarts (e.g. Docker). When set, the `machineToken` is derived from this value instead of network interfaces and hostname. |
 
 ### Automatic .env Loading
 
@@ -146,9 +147,9 @@ The agent connects to Kubb Studio on startup when `KUBB_AGENT_TOKEN` is set.
 
 On startup the agent performs these steps before opening a WebSocket:
 
-1. **Register** — calls `POST /api/agent/register` with a stable `machineId` derived from the machine's network interfaces and hostname (SHA-256). This binds the token to the machine. If registration fails the agent throws and does not continue.
-2. **Create session** — calls `POST /api/agent/session/create` (includes `machineId` for verification) and receives a WebSocket URL.
-3. **Connect** — opens a WebSocket to the returned URL (appends `?machineId=` for server-side verification).
+1. **Register** — calls `POST /api/agent/register` with a stable `machineToken` derived from the machine's network interfaces and hostname (SHA-256). This binds the token to the machine. Registration failure is non-fatal — a warning is logged and the agent continues.
+2. **Create session** — calls `POST /api/agent/session/create` (includes `machineToken` for verification) and receives a WebSocket URL.
+3. **Connect** — opens a WebSocket to the returned URL using the `Authorization` header for authentication.
 
 ### Connection Features
 
@@ -219,7 +220,7 @@ Available `payload.type` values: `plugin:start`, `plugin:end`, `files:processing
   "payload": { "plugins": [] }
 }
 ```
-`payload` is optional. When omitted, the agent uses the config loaded from disk.
+`payload` is optional. When omitted, the agent falls back to `kubb.config.studio.json` (a temporal config file next to `kubb.config.ts`), and then to the config loaded from disk.
 
 **Connect Command** — requests agent info
 ```json
@@ -230,6 +231,23 @@ Available `payload.type` values: `plugin:start`, `plugin:end`, `files:processing
     "allowAll": false,
     "allowWrite": false
   }
+}
+```
+
+**Pong** — sent by Studio in response to an agent ping
+```json
+{ "type": "pong" }
+```
+
+**Status** — sent by Studio with information about connected agents
+```json
+{
+  "type": "status",
+  "message": "...",
+  "connectedAgents": 1,
+  "agents": [
+    { "name": "...", "connectedAt": "..." }
+  ]
 }
 ```
 
@@ -263,7 +281,3 @@ npx kubb agent start
 ```
 
 You'll receive a stream of events as the code generation progresses.
-
-## License
-
-MIT
