@@ -6,6 +6,16 @@ outline: deep
 
 # Changelog
 
+## 4.27.5
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/oas`](/helpers/oas/)
+
+**Properties with `application/octet-stream` interpreted as `Blob`**
+
+Schemas with `contentMediaType: application/octet-stream` are interpreted as `Blob`.
+
 ## 4.27.4
 
 ### 🔄 Refactors
