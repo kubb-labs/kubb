@@ -53,49 +53,56 @@ The server will be available at `http://localhost:3000`.
 
 ### Docker
 
-Run the agent standalone, mounting your config file into the container:
+Run the agent standalone:
 
 ```bash
 docker run --env-file .env \
   -p 3000:3000 \
-  -v ./kubb.config.ts:/kubb/agent/kubb.config.ts \
+  kubblabs/kubb-agent
+```
+
+A default `kubb.config.ts` is baked into the image at `/kubb/agent/data/kubb.config.ts`. To use your own config, bind-mount it over the default:
+
+```bash
+docker run --env-file .env \
+  -p 3000:3000 \
+  -v ./kubb.config.ts:/kubb/agent/data/kubb.config.ts \
   kubblabs/kubb-agent
 ```
 
 ### Docker Compose
 
-To run the full stack (Studio + Agent + Postgres), use the provided `docker-compose.yml`:
+Use the provided `docker-compose.yaml` in `packages/agent`:
 
 ```yaml
 services:
   agent:
     image: kubblabs/kubb-agent:latest
-    ports:
-      - "3001:3000"
-    env_file:
-      - .env
+    container_name: kubb-agent
     environment:
-      PORT: 3000
-      KUBB_AGENT_ROOT: /kubb/agent
-      KUBB_AGENT_CONFIG: kubb.config.ts
-      KUBB_STUDIO_URL: http://kubb-studio:3000
+      PORT: 80
+      KUBB_AGENT_ROOT: /kubb/agent/data
+      KUBB_AGENT_CONFIG: ./kubb.config.ts
+      KUBB_STUDIO_URL: https://studio.kubb.dev
     volumes:
-      - ./kubb.config.ts:/kubb/agent/kubb.config.ts
-    depends_on:
-      studio:
-        condition: service_healthy
+      - agent_kv:/kubb/agent/.kubb/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
-      interval: 30s
-      timeout: 5s
-      start_period: 10s
-      retries: 3
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 10s
+      start_period: 60s
+      retries: 5
+
+volumes:
+  agent_kv:
 ```
 
 ```bash
 docker compose up
 ```
+
+The `agent_kv` named volume persists the KV store (session cache, machine token) across container restarts and upgrades.
 
 ### Environment Variables
 
@@ -111,7 +118,7 @@ docker compose up
 | `KUBB_AGENT_ALLOW_WRITE`     | `false` | Set to `true` to allow writing generated files to disk. |
 | `KUBB_AGENT_ALLOW_ALL`       | `false` | Set to `true` to grant all permissions (implies `KUBB_AGENT_ALLOW_WRITE=true`). |
 | `KUBB_AGENT_RETRY_TIMEOUT`   | `30000` | Milliseconds to wait before retrying a failed Studio connection. |
-| `KUBB_STUDIO_MACHINE_SECRET` | _(empty)_ | Fixed machine name for stable identity across container restarts (e.g. Docker). When set, the `machineToken` is derived from this value instead of network interfaces and hostname. |
+| `KUBB_STUDIO_SECRET` | _(empty)_ | Fixed machine name for stable identity across container restarts (e.g. Docker). When set, the `machineToken` is derived from this value instead of network interfaces and hostname. |
 
 ### Automatic .env Loading
 
@@ -161,7 +168,7 @@ On startup the agent performs these steps before opening a WebSocket:
 
 ### Session Caching
 
-Sessions are cached in `~/.kubb/config.json` for faster reconnects:
+Sessions are cached in `./.kubb/data` (relative to the working directory, or `agent_kv` volume in Docker) for faster reconnects:
 - Tokens are hashed (non-reversible) for security
 - Sessions auto-expire after 24 hours
 - Use `--no-cache` flag to disable caching

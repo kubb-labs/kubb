@@ -1,8 +1,8 @@
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { getSessionKey } from '~/utils/getSessionKey.ts'
 import { type AgentSession, isSessionValid } from '~/utils/isSessionValid.ts'
+import { generateMachineToken } from '~/utils/token.ts'
 import { logger } from './logger.ts'
-import { getMachineToken } from './machineToken.ts'
 
 type ConnectProps = {
   studioUrl: string
@@ -36,12 +36,13 @@ export async function createAgentSession({ token, studioUrl, noCache }: ConnectP
   const connectUrl = `${studioUrl}/api/agent/session/create`
 
   try {
+    const machineToken = generateMachineToken()
     const data = await $fetch<AgentConnectResponse>(connectUrl, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: { machineToken: getMachineToken() },
+      body: { machineToken },
     })
 
     if (!data) {
@@ -76,7 +77,7 @@ type RegisterProps = {
  * Called once on agent startup before creating a WebSocket session.
  */
 export async function registerAgent({ token, studioUrl }: RegisterProps): Promise<void> {
-  const machineToken = getMachineToken()
+  const machineToken = generateMachineToken()
   const registerUrl = `${studioUrl}/api/agent/register`
 
   try {

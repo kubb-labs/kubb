@@ -19,7 +19,7 @@ services:
       DATABASE_URL: postgresql://studio:studio_dev_password@postgres:5432/studio
       KUBB_STUDIO_URL: http://kubb-studio:3000
       BETTER_AUTH_URL: http://localhost:3002
-      KUBB_MACHINE_SECRET: KUBB_SERVER_TEST
+      KUBB_STUDIO_SECRET: KUBB_SERVER_TEST
     depends_on:
       postgres:
         condition: service_healthy
