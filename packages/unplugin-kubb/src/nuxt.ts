@@ -9,8 +9,8 @@ export interface ModuleOptions extends Options {}
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'nuxt-unplugin-starter',
-    configKey: 'unpluginStarter',
+    name: 'nuxt-unplugin-kubb',
+    configKey: 'unpluginKubb',
   },
   defaults: undefined,
   setup(options, _nuxt) {

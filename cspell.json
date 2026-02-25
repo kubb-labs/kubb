@@ -55,6 +55,7 @@
     "x-enumNames",
     "x-enum-varnames",
     "Vitest",
+    "tinyexec",
     "igmsuy",
     "randexp",
     "redocly",

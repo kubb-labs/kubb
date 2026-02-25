@@ -1,13 +1,11 @@
+import { spawn } from 'node:child_process'
 import path from 'node:path'
 import * as process from 'node:process'
 import { fileURLToPath } from 'node:url'
-
+import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { ArgsDef } from 'citty'
 import { defineCommand } from 'citty'
-import { config as loadEnv } from 'dotenv'
-import { execa } from 'execa'
-import pc from 'picocolors'
 
 const args = {
   config: {
@@ -53,8 +51,12 @@ type StartServerProps = {
 
 async function startServer({ port, host, configPath, noCache, allowWrite, allowAll }: StartServerProps): Promise<void> {
   try {
-    // Load .env files into process.env (supports .env, .env.local, .env.*.local)
-    loadEnv() // .env
+    // Load .env file into process.env using Node.js built-in (v20.12.0+)
+    try {
+      process.loadEnvFile()
+    } catch {
+      // .env file may not exist; ignore
+    }
 
     // Resolve the @kubb/agent package path
     const agentPkgUrl = import.meta.resolve('@kubb/agent/package.json')
@@ -90,20 +92,19 @@ async function startServer({ port, host, configPath, noCache, allowWrite, allowA
       KUBB_STUDIO_URL,
     }
 
-    clack.log.step(pc.cyan('Starting agent server...'))
-    clack.log.info(pc.dim(`Config: ${KUBB_AGENT_CONFIG}`))
-    clack.log.info(pc.dim(`Host: ${HOST}`))
-    clack.log.info(pc.dim(`Port: ${PORT}`))
+    clack.log.step(styleText('cyan', 'Starting agent server...'))
+    clack.log.info(styleText('dim', `Config: ${KUBB_AGENT_CONFIG}`))
+    clack.log.info(styleText('dim', `Host: ${HOST}`))
+    clack.log.info(styleText('dim', `Port: ${PORT}`))
     if (noCache) {
-      clack.log.info(pc.dim('Session caching: disabled'))
+      clack.log.info(styleText('dim', 'Session caching: disabled'))
     }
     if (!KUBB_AGENT_ALLOW_WRITE && !KUBB_AGENT_ALLOW_ALL) {
-      clack.log.warn(pc.yellow('Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
+      clack.log.warn(styleText('yellow', 'Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
     }
 
-    // Use execa to spawn the server process
-    await execa('node', [serverPath], {
-      env,
+    spawn('node', [serverPath], {
+      env: { ...process.env, ...env },
       stdio: 'inherit',
       cwd: process.cwd(),
     })
@@ -132,7 +133,7 @@ const command = defineCommand({
 
       await startServer({ port, host, configPath, noCache, allowWrite, allowAll })
     } catch (error) {
-      clack.log.error(pc.red('Failed to start agent server'))
+      clack.log.error(styleText('red', 'Failed to start agent server'))
       console.error(error)
       process.exit(1)
     }

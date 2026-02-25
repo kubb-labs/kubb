@@ -1,5 +1,5 @@
-import fs from 'fs-extra'
+import { rm } from 'node:fs/promises'
 
 export async function clean(path: string): Promise<void> {
-  return fs.remove(path)
+  return rm(path, { recursive: true, force: true })
 }

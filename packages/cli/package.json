@@ -19,7 +19,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubb-labs/kubb.git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/cli"
   },
   "license": "MIT",
@@ -28,14 +28,12 @@
   "type": "module",
   "exports": {
     ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.cts",
+  "types": "./dist/index.d.ts",
   "bin": {
     "kubb": "bin/kubb.cjs"
   },
@@ -70,22 +68,13 @@
     "chokidar": "^5.0.0",
     "citty": "^0.1.6",
     "cosmiconfig": "^9.0.0",
-    "dotenv": "^17.3.1",
-    "execa": "^9.6.1",
-    "gradient-string": "^3.0.0",
     "jiti": "2.5.1",
-    "latest-version": "^9.0.0",
-    "picocolors": "^1.1.1",
-    "seedrandom": "^3.0.5",
-    "semver": "^7.7.4",
-    "string-argv": "^0.3.2"
+    "tinyexec": "catalog:"
   },
   "devDependencies": {
     "@kubb/agent": "workspace:*",
     "@kubb/mcp": "workspace:*",
     "@kubb/oas": "workspace:*",
-    "@types/seedrandom": "^3.0.8",
-    "@types/semver": "^7.7.1",
     "source-map-support": "^0.5.21"
   },
   "engines": {
@@ -95,5 +84,7 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js"
 }

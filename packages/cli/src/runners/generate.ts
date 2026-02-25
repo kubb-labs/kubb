@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
+import { styleText } from 'node:util'
 import { type Config, type KubbEvents, LogLevel, safeBuild, setup } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import { detectFormatter, detectLinter, formatters, linters } from '@kubb/core/utils'
-import pc from 'picocolors'
 import { executeHooks } from '../utils/executeHooks.ts'
 
 type GenerateProps = {
@@ -40,14 +40,14 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
 
   await events.emit('generation:start', config)
 
-  await events.emit('info', config.name ? `Setup generation ${pc.bold(config.name)}` : 'Setup generation', inputPath)
+  await events.emit('info', config.name ? `Setup generation ${styleText('bold', config.name)}` : 'Setup generation', inputPath)
 
   const { sources, fabric, pluginManager } = await setup({
     config,
     events,
   })
 
-  await events.emit('info', config.name ? `Build generation ${pc.bold(config.name)}` : 'Build generation', inputPath)
+  await events.emit('info', config.name ? `Build generation ${styleText('bold', config.name)}` : 'Build generation', inputPath)
 
   const { files, failedPlugins, pluginTimings, error } = await safeBuild(
     {
@@ -102,7 +102,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
         await events.emit('warn', 'No formatter found (biome, prettier, or oxfmt). Skipping formatting.')
       } else {
         formatter = detectedFormatter
-        await events.emit('info', `Auto-detected formatter: ${pc.dim(formatter)}`)
+        await events.emit('info', `Auto-detected formatter: ${styleText('dim', formatter)}`)
       }
     }
 
@@ -123,7 +123,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
 
           await events.emit(
             'success',
-            [`Formatting with ${pc.dim(formatter)}`, logLevel >= LogLevel.info ? `on ${pc.dim(outputPath)}` : undefined, 'successfully']
+            [`Formatting with ${styleText('dim', formatter)}`, logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined, 'successfully']
               .filter(Boolean)
               .join(' '),
           )
@@ -150,7 +150,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
         await events.emit('warn', 'No linter found (biome, oxlint, or eslint). Skipping linting.')
       } else {
         linter = detectedLinter
-        await events.emit('info', `Auto-detected linter: ${pc.dim(linter)}`)
+        await events.emit('info', `Auto-detected linter: ${styleText('dim', linter)}`)
       }
     }
 
@@ -172,7 +172,9 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
 
           await events.emit(
             'success',
-            [`Linting with ${pc.dim(linter)}`, logLevel >= LogLevel.info ? `on ${pc.dim(outputPath)}` : undefined, 'successfully'].filter(Boolean).join(' '),
+            [`Linting with ${styleText('dim', linter)}`, logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined, 'successfully']
+              .filter(Boolean)
+              .join(' '),
           )
         })
       } catch (caughtError) {

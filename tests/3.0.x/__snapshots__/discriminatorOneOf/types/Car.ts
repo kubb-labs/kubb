@@ -3,8 +3,8 @@
 * Do not edit manually.
 */
 
-import type { Sedan } from "./Sedan.ts";
 import type { SUV } from "./SUV.ts";
+import type { Sedan } from "./Sedan.ts";
 
 export type Car = ((Sedan & {
     type: "Sedan";

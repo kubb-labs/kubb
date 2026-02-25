@@ -1,9 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { defineCommand } from 'citty'
-import pc from 'picocolors'
 import { version } from '../../package.json'
 import { detectPackageManager, hasPackageJson, initPackageJson, installPackages, type PackageManagerInfo } from '../utils/packageManager.ts'
 
@@ -186,7 +186,7 @@ const command = defineCommand({
     const cwd = process.cwd()
     const yes = args.yes
 
-    clack.intro(pc.bgCyan(pc.black(' Kubb Init ')))
+    clack.intro(styleText('bgCyan', styleText('black', ' Kubb Init ')))
 
     try {
       // Check/create package.json
@@ -215,14 +215,14 @@ const command = defineCommand({
         spinner.stop(`Created package.json with ${packageManager.name}`)
       } else {
         packageManager = detectPackageManager(cwd)
-        clack.log.info(`Detected package manager: ${pc.cyan(packageManager.name)}`)
+        clack.log.info(`Detected package manager: ${styleText('cyan', packageManager.name)}`)
       }
 
       // Prompt for OpenAPI spec path
       let inputPath: string
       if (yes) {
         inputPath = DEFAULT_INPUT_PATH
-        clack.log.info(`Using input path: ${pc.cyan(inputPath)}`)
+        clack.log.info(`Using input path: ${styleText('cyan', inputPath)}`)
       } else {
         const inputPathResult = await clack.text({
           message: 'Where is your OpenAPI specification located?',
@@ -244,7 +244,7 @@ const command = defineCommand({
       let outputPath: string
       if (yes) {
         outputPath = DEFAULT_OUTPUT_PATH
-        clack.log.info(`Using output path: ${pc.cyan(outputPath)}`)
+        clack.log.info(`Using output path: ${styleText('cyan', outputPath)}`)
       } else {
         const outputPathResult = await clack.text({
           message: 'Where should the generated files be output?',
@@ -266,7 +266,7 @@ const command = defineCommand({
       let selectedPlugins: PluginOption[]
       if (yes) {
         selectedPlugins = plugins.filter((plugin) => DEFAULT_PLUGINS.includes(plugin.value))
-        clack.log.info(`Using plugins: ${pc.cyan(selectedPlugins.map((p) => p.label).join(', '))}`)
+        clack.log.info(`Using plugins: ${styleText('cyan', selectedPlugins.map((p) => p.label).join(', '))}`)
       } else {
         const selectedPluginValues = await clack.multiselect({
           message: 'Select plugins to use:',
@@ -338,22 +338,22 @@ const command = defineCommand({
 
       // Success message
       clack.outro(
-        pc.green('✓ All set!') +
+        styleText('green', '✓ All set!') +
           '\n\n' +
-          pc.dim('Next steps:') +
+          styleText('dim', 'Next steps:') +
           '\n' +
-          pc.cyan(`  1. Make sure your OpenAPI spec is at: ${inputPath}`) +
+          styleText('cyan', `  1. Make sure your OpenAPI spec is at: ${inputPath}`) +
           '\n' +
-          pc.cyan('  2. Generate code with: npx kubb generate') +
+          styleText('cyan', '  2. Generate code with: npx kubb generate') +
           '\n' +
-          pc.cyan('     Or start a stream server with: npx kubb start') +
+          styleText('cyan', '     Or start a stream server with: npx kubb start') +
           '\n' +
-          pc.cyan(`  3. Find generated files in: ${outputPath}`) +
+          styleText('cyan', `  3. Find generated files in: ${outputPath}`) +
           '\n\n' +
-          pc.dim(`Using ${packageManager.name} • Kubb v${version}`),
+          styleText('dim', `Using ${packageManager.name} • Kubb v${version}`),
       )
     } catch (error) {
-      clack.log.error(pc.red('An error occurred during initialization'))
+      clack.log.error(styleText('red', 'An error occurred during initialization'))
       if (error instanceof Error) {
         clack.log.error(error.message)
       }

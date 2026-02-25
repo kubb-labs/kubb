@@ -24,16 +24,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubb-labs/kubb.git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/kubb"
   },
   "license": "MIT",
   "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.cts",
+  "types": "./dist/index.d.ts",
   "bin": {
     "kubb": "bin/kubb.js"
   },
@@ -72,9 +70,11 @@
   },
   "exports": {
     ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./package.json": "./package.json"
-  }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js"
 }

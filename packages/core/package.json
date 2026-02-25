@@ -19,7 +19,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubb-labs/kubb.git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/core"
   },
   "license": "MIT",
@@ -28,30 +28,28 @@
   "type": "module",
   "exports": {
     ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./fs": {
-      "require": "./dist/fs.cjs",
-      "import": "./dist/fs.js"
+      "import": "./dist/fs.js",
+      "require": "./dist/fs.cjs"
     },
     "./hooks": {
-      "require": "./dist/hooks.cjs",
-      "import": "./dist/hooks.js"
+      "import": "./dist/hooks.js",
+      "require": "./dist/hooks.cjs"
     },
     "./transformers": {
-      "require": "./dist/transformers.cjs",
-      "import": "./dist/transformers.js"
+      "import": "./dist/transformers.js",
+      "require": "./dist/transformers.cjs"
     },
     "./utils": {
-      "require": "./dist/utils.cjs",
-      "import": "./dist/utils.js"
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs"
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.cts",
+  "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
       "utils": [
@@ -98,23 +96,18 @@
   },
   "dependencies": {
     "@kubb/react-fabric": "catalog:",
-    "camelcase": "^8.0.0",
-    "execa": "^9.6.1",
-    "find-up": "^7.0.0",
-    "fs-extra": "^11.3.3",
+    "empathic": "^2.0.0",
     "jiti": "2.5.1",
-    "js-runtime": "^0.0.8",
-    "natural-orderby": "^5.0.0",
-    "p-limit": "catalog:",
     "remeda": "catalog:",
-    "semver": "^7.7.4"
+    "semver": "^7.7.4",
+    "tinyexec": "catalog:"
   },
   "devDependencies": {
-    "@types/fs-extra": "^11.0.4",
-    "@types/semver": "^7.7.1"
+    "@types/semver": "^7.7.1",
+    "p-limit": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.12.11"
+    "@kubb/react-fabric": "0.13.0"
   },
   "engines": {
     "node": ">=20"
@@ -122,5 +115,7 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js"
 }

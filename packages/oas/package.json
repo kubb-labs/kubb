@@ -19,7 +19,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubb-labs/kubb.git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/oas"
   },
   "license": "MIT",
@@ -28,14 +28,12 @@
   "type": "module",
   "exports": {
     ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.cts",
+  "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {}
   },
@@ -83,5 +81,7 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js"
 }

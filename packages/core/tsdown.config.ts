@@ -15,8 +15,13 @@ export default defineConfig({
   shims: true,
   exports: true,
   external: [/@kubb\/fabric-core/],
-  noExternal: [/p-limit/, /find-up/, /camelcase/],
+  noExternal: [/p-limit/],
+  inlineOnly: false,
   fixedExtension: false,
+  outExtensions({ format }) {
+    if (format === 'cjs') return { dts: '.d.ts' }
+    return {}
+  },
   outputOptions: {
     keepNames: true,
   },

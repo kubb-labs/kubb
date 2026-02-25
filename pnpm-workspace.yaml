@@ -5,12 +5,13 @@ packages:
 
 catalog:
   "@types/node": ^20.19.33
-  "@kubb/fabric-core": 0.12.11
-  "@kubb/react-fabric": 0.12.11
+  "@kubb/fabric-core": 0.13.1
+  "@kubb/react-fabric": 0.13.1
   "@size-limit/file": ^11.2.0
   "size-limit": ^11.2.0
+  "tinyexec": "^1.0.2"
   p-limit: ^7.3.0
   remeda: ^2.33.6
   # cannot upgrade to 0.20.3 because of breaking changes with react-fabric types
-  tsdown: ^0.19.0
+  tsdown: ^0.20.3
   typescript: ^5.9.3

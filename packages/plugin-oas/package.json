@@ -19,7 +19,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubb-labs/kubb.git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/plugin-oas"
   },
   "license": "MIT",
@@ -28,30 +28,28 @@
   "type": "module",
   "exports": {
     ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./generators": {
-      "require": "./dist/generators.cjs",
-      "import": "./dist/generators.js"
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs"
     },
     "./hooks": {
-      "require": "./dist/hooks.cjs",
-      "import": "./dist/hooks.js"
+      "import": "./dist/hooks.js",
+      "require": "./dist/hooks.cjs"
     },
     "./mocks": {
-      "require": "./dist/mocks.cjs",
-      "import": "./dist/mocks.js"
+      "import": "./dist/mocks.js",
+      "require": "./dist/mocks.cjs"
     },
     "./utils": {
-      "require": "./dist/utils.cjs",
-      "import": "./dist/utils.js"
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs"
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.cts",
+  "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
       "utils": [
@@ -96,11 +94,10 @@
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/react-fabric": "catalog:",
-    "p-limit": "catalog:",
     "remeda": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.12.11"
+    "@kubb/react-fabric": "0.13.0"
   },
   "engines": {
     "node": ">=20"
@@ -108,5 +105,10 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "devDependencies": {
+    "p-limit": "catalog:"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js"
 }

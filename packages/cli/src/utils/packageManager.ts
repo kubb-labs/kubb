@@ -1,6 +1,6 @@
+import { spawn } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
-import { execa } from 'execa'
 
 export type PackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun'
 
@@ -73,15 +73,9 @@ export async function initPackageJson(cwd: string, packageManager: PackageManage
     bun: ['init', '-y'],
   }
 
-  await execa(packageManager.name, commands[packageManager.name], {
-    cwd,
-    stdio: 'inherit',
-  })
+  spawn(packageManager.name, commands[packageManager.name], { stdio: 'inherit', cwd })
 }
 
 export async function installPackages(packages: string[], packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
-  await execa(packageManager.name, [...packageManager.installCommand, ...packages], {
-    cwd,
-    stdio: 'inherit',
-  })
+  spawn(packageManager.name, [...packageManager.installCommand, ...packages], { stdio: 'inherit', cwd })
 }

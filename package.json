@@ -1,84 +1,83 @@
 {
-	"name": "@kubb/root",
-	"version": "0.0.0",
-	"private": true,
-	"description": "Kubb's monorepo",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/kubb-labs/kubb.git"
-	},
-	"license": "MIT",
-	"author": "stijnvanhulle",
-	"type": "module",
-	"workspaces": {
-		"packages": [
-			"packages/*",
-			"examples/*",
-			"tests/*"
-		]
-	},
-	"scripts": {
-		"build": "turbo run build --filter=./packages/*",
-		"build:examples": "turbo run build --filter=./examples/*",
-		"test:bench": "vitest bench --config ./configs/vitest.bench.config.ts",
-		"changeset": "changeset",
-		"clean": "turbo run clean",
-		"format": "biome format --write ./ && biome check --fix --unsafe",
-		"generate": "turbo run generate --filter=./examples/* --continue --concurrency=5",
-		"postgenerate": "pnpm run lint:fix && pnpm run format",
-		"graph": "npx nx graph ",
-		"lint": "biome lint ./packages",
-		"lint:fix": "biome lint --write --unsafe ./packages && manypkg fix",
-		"lint:spell": "cspell \"**/*.{ts,md}\" --config ./cspell.json --no-progress",
-		"release": "changeset publish",
-		"release:canary": "changeset publish --no-git-tag",
-		"start": "turbo run start --filter=./packages/*",
-		"test": "vitest run --config ./configs/vitest.config.ts --coverage",
-		"test:watch": "vitest --config ./configs/vitest.config.ts",
-		"typecheck": "turbo run typecheck --continue --filter='./packages/*'",
-		"typecheck:examples": "turbo run typecheck --continue --filter='./examples/*'",
-		"upgrade": "npx taze -r -w --exclude pnpm",
-		"version": "changeset version",
-		"version:canary": "changeset version --snapshot canary"
-	},
-	"manypkg": {
-		"ignoredRules": [
-			"EXTERNAL_MISMATCH"
-		]
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^2.4.4",
-		"@changesets/changelog-github": "^0.5.2",
-		"@changesets/cli": "^2.29.8",
-		"@kubb/fabric-core": "catalog:",
-		"@kubb/react-fabric": "catalog:",
-		"@manypkg/cli": "^0.25.1",
-		"@size-limit/file": "catalog:",
-		"@types/node": "catalog:",
-		"@vitest/coverage-v8": "^4.0.18",
-		"@vitest/ui": "^4.0.18",
-		"bun-types": "^1.3.9",
-		"cspell": "^9.7.0",
-		"prettier": "^3.8.1",
-		"rimraf": "^6.1.3",
-		"size-limit": "catalog:",
-		"taze": "^19.9.2",
-		"ts-node": "^10.9.2",
-		"tsdown": "catalog:",
-		"turbo": "^2.8.10",
-		"typescript": "catalog:",
-		"vite-tsconfig-paths": "^6.1.1",
-		"vitest": "^4.0.18"
-	},
-	"packageManager": "pnpm@10.30.1",
-	"engines": {
-		"node": ">=20",
-		"pnpm": ">=10.0.0"
-	},
-	"pnpm": {
-		"onlyBuiltDependencies": [
-			"esbuild"
-		]
-	},
-	"namespace": "@kubb"
+  "name": "@kubb/root",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Kubb's monorepo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubb-labs/kubb.git"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "type": "module",
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "examples/*",
+      "tests/*"
+    ]
+  },
+  "scripts": {
+    "build": "turbo run build --filter=./packages/*",
+    "build:examples": "turbo run build --filter=./examples/*",
+    "test:bench": "vitest bench --config ./configs/vitest.bench.config.ts",
+    "changeset": "changeset",
+    "clean": "turbo run clean",
+    "format": "biome format --write ./ && biome check --fix --unsafe",
+    "generate": "turbo run generate --filter=./examples/* --continue --concurrency=5",
+    "postgenerate": "pnpm run lint:fix && pnpm run format",
+    "graph": "npx nx graph ",
+    "lint": "biome lint ./packages",
+    "lint:fix": "biome lint --write --unsafe ./packages && manypkg fix",
+    "lint:spell": "cspell \"**/*.{ts,md}\" --config ./cspell.json --no-progress",
+    "release": "changeset publish",
+    "release:canary": "changeset publish --no-git-tag",
+    "start": "turbo run start --filter=./packages/*",
+    "test": "vitest run --config ./configs/vitest.config.ts --coverage",
+    "test:watch": "vitest --config ./configs/vitest.config.ts",
+    "typecheck": "turbo run typecheck --continue --filter='./packages/*'",
+    "typecheck:examples": "turbo run typecheck --continue --filter='./examples/*'",
+    "upgrade": "npx taze -r -w --exclude pnpm",
+    "version": "changeset version",
+    "version:canary": "changeset version --snapshot canary"
+  },
+  "manypkg": {
+    "ignoredRules": [
+      "EXTERNAL_MISMATCH"
+    ]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4",
+    "@changesets/changelog-github": "^0.5.2",
+    "@changesets/cli": "^2.29.8",
+    "@kubb/fabric-core": "catalog:",
+    "@kubb/react-fabric": "catalog:",
+    "@manypkg/cli": "^0.25.1",
+    "@size-limit/file": "catalog:",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/ui": "^4.0.18",
+    "bun-types": "^1.3.9",
+    "cspell": "^9.7.0",
+    "prettier": "^3.8.1",
+    "size-limit": "catalog:",
+    "taze": "^19.9.2",
+    "ts-node": "^10.9.2",
+    "tsdown": "catalog:",
+    "turbo": "^2.8.10",
+    "typescript": "catalog:",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.0.18"
+  },
+  "packageManager": "pnpm@10.30.1",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "namespace": "@kubb"
 }

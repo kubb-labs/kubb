@@ -4,8 +4,8 @@
 */
 
 import type { ElectricCar } from "./ElectricCar.ts";
-import type { Sedan } from "./Sedan.ts";
 import type { SUV } from "./SUV.ts";
+import type { Sedan } from "./Sedan.ts";
 
 export type VehicleChoice = ((Sedan & {
     type: "Sedan";

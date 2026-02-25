@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubb-labs/kubb.git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/agent"
   },
   "license": "MIT",
@@ -60,10 +60,8 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-vue-query": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "execa": "^9.6.1",
     "jiti": "2.5.1",
-    "picocolors": "^1.1.1",
-    "string-argv": "^0.3.2",
+    "tinyexec": "catalog:",
     "ws": "^8.19.0"
   },
   "devDependencies": {

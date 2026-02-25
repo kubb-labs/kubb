@@ -1,36 +1,16 @@
-import fs from 'fs-extra'
-import { switcher } from 'js-runtime'
-
-const reader = switcher(
-  {
-    node: async (path: string) => {
-      return fs.pathExists(path)
-    },
-    bun: async (path: string) => {
-      const file = Bun.file(path)
-
-      return file.exists()
-    },
-  },
-  'node',
-)
-
-const syncReader = switcher(
-  {
-    node: (path: string) => {
-      return fs.pathExistsSync(path)
-    },
-    bun: () => {
-      throw new Error('Bun cannot read sync')
-    },
-  },
-  'node',
-)
+import fs from 'node:fs'
+import { access } from 'node:fs/promises'
 
 export async function exists(path: string): Promise<boolean> {
-  return reader(path)
+  if (typeof Bun !== 'undefined') {
+    return Bun.file(path).exists()
+  }
+  return access(path).then(
+    () => true,
+    () => false,
+  )
 }
 
 export function existsSync(path: string): boolean {
-  return syncReader(path)
+  return fs.existsSync(path)
 }
