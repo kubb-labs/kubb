@@ -11,6 +11,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('SchemaGenerator core', async () => {
+  const fabric = createReactFabric()
   const testData = [
     {
       name: 'Pet',
@@ -140,7 +141,6 @@ describe('SchemaGenerator core', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<any>
-    const fabric = createReactFabric()
 
     const generator = new SchemaGenerator(options, {
       fabric,
@@ -343,7 +343,6 @@ describe('SchemaGenerator core', async () => {
       unknownType: 'unknown',
     }
     const plugin = { options } as Plugin<any>
-    const fabric = createReactFabric()
 
     const generator = new SchemaGenerator(options, {
       fabric,
