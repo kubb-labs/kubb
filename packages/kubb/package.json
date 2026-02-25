@@ -40,7 +40,8 @@
     "dist",
     "bin",
     "!/**/**.test.**",
-    "!/**/__tests__/**"
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
   ],
   "scripts": {
     "build": "tsdown",

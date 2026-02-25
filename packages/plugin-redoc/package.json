@@ -40,7 +40,8 @@
     "dist",
     "static",
     "!/**/**.test.**",
-    "!/**/__tests__/**"
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
   ],
   "size-limit": [
     {
