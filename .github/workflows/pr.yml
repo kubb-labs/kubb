@@ -37,6 +37,7 @@ jobs:
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
@@ -60,6 +61,7 @@ jobs:
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
@@ -89,6 +91,7 @@ jobs:
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
@@ -121,6 +124,7 @@ jobs:
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
@@ -149,6 +153,7 @@ jobs:
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
       - name: Spell Check
@@ -179,6 +184,7 @@ jobs:
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
@@ -205,6 +211,7 @@ jobs:
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
@@ -254,6 +261,7 @@ jobs:
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
