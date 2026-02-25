@@ -25,6 +25,7 @@ export default defineNitroPlugin(async (nitro) => {
   const configPath = process.env.KUBB_AGENT_CONFIG || 'kubb.config.ts'
   const noCache = process.env.KUBB_AGENT_NO_CACHE === 'true'
   const retryInterval = process.env.KUBB_AGENT_RETRY_TIMEOUT ? Number.parseInt(process.env.KUBB_AGENT_RETRY_TIMEOUT, 10) : 30000
+  const heartbeatInterval = process.env.KUBB_AGENT_HEARTBEAT_INTERVAL ? Number.parseInt(process.env.KUBB_AGENT_HEARTBEAT_INTERVAL, 10) : 30_000
   const root = process.env.KUBB_AGENT_ROOT || process.cwd()
   const allowAll = process.env.KUBB_AGENT_ALLOW_ALL === 'true'
   const allowWrite = allowAll || process.env.KUBB_AGENT_ALLOW_WRITE === 'true'
@@ -47,6 +48,6 @@ export default defineNitroPlugin(async (nitro) => {
   const sessionKey = getSessionKey(token)
 
   await registerAgent({ token, studioUrl })
-  await connectToStudio({ token, studioUrl, configPath, resolvedConfigPath, noCache, allowWrite, root, retryInterval, events, storage, sessionKey, nitro })
+  await connectToStudio({ token, studioUrl, configPath, resolvedConfigPath, noCache, allowWrite, root, retryInterval, heartbeatInterval, events, storage, sessionKey, nitro })
 })
 

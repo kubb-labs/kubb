@@ -25,6 +25,7 @@ export type ConnectToStudioOptions = {
   allowWrite: boolean
   root: string
   retryInterval: number
+  heartbeatInterval?: number
   events: AsyncEventEmitter<KubbEvents>
   storage: Storage<AgentSession>
   sessionKey: string
@@ -36,7 +37,7 @@ export type ConnectToStudioOptions = {
  * Automatically reconnects after `retryInterval` ms on close or error.
  */
 export async function connectToStudio(options: ConnectToStudioOptions): Promise<void> {
-  const { token, studioUrl, configPath, resolvedConfigPath, noCache, allowWrite, root, retryInterval, events, storage, sessionKey, nitro } = options
+  const { token, studioUrl, configPath, resolvedConfigPath, noCache, allowWrite, root, retryInterval, heartbeatInterval = 30_000, events, storage, sessionKey, nitro } = options
 
   async function reconnect() {
     logger.info(`Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`)
@@ -100,7 +101,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     nitro.hooks.hook('close', onClose)
 
-    setInterval(() => sendAgentMessage(ws, { type: 'ping' }), 30000)
+    setInterval(() => sendAgentMessage(ws, { type: 'ping' }), heartbeatInterval)
 
     setupEventsStream(ws, events)
 

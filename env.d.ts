@@ -74,6 +74,11 @@ declare global {
        * @example "550e8400-e29b-41d4-a716-446655440000"
        */
       KUBB_AGENT_SECRET: string | undefined
+      /**
+       * Interval in milliseconds for sending heartbeat pings to Kubb Studio to keep the WebSocket connection alive.
+       * @default "30000"
+       */
+      KUBB_AGENT_HEARTBEAT_INTERVAL: string
     }
   }
 }
