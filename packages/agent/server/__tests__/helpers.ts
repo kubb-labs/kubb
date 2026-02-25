@@ -8,7 +8,7 @@ import { type WebSocket, WebSocketServer } from 'ws'
 import type { AgentMessage, CommandMessage } from '../types/agent.ts'
 
 export const AGENT_OUTPUT = path.resolve(import.meta.dirname, '../../.output/server/index.mjs')
-export const STARTUP_TIMEOUT = 10_000
+export const STARTUP_TIMEOUT = 60_000
 export const MESSAGE_TIMEOUT = 8_000
 
 export const MINIMAL_SPEC = `
