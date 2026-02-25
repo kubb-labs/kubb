@@ -21,46 +21,43 @@ export async function createAgentSession({ token, studioUrl, noCache, storage }:
   const machineToken = generateMachineToken()
   const sessionKey = getSessionKey(token)
   const connectUrl = `${studioUrl}/api/agent/session/create`
+  const canCache = !noCache
 
-  if (noCache) {
-    // Fetch new session from Studio
-    try {
-      const data = await $fetch<AgentConnectResponse>(connectUrl, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: { machineToken },
-      })
+  if (canCache) {
+    const stored = await storage.getItem(sessionKey)
 
-      if (!data) {
-        throw new Error('No data available for agent session')
-      }
+    if (stored && isSessionValid(stored)) {
+      logger.success('Using cached agent session')
 
-      // Cache the session for reuse (unless --no-cache is set)
-      await storage.setItem(sessionKey, {
-        ...data,
-        storedAt: new Date().toISOString(),
-      })
-      logger.success('Cached agent session')
-      logger.success('Agent session created')
+      return stored
+    }
 
-      return data
-    } catch (error: any) {
-      throw new Error('Failed to get agent session from Kubb Studio', { cause: error })
+    if (stored) {
+      await storage.removeItem(sessionKey)
     }
   }
 
-  const stored = await storage.getItem(sessionKey)
+  try {
+    const data = await $fetch<AgentConnectResponse>(connectUrl, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: { machineToken },
+    })
 
-  if (stored && !isSessionValid(stored)) {
-    await storage.removeItem(sessionKey)
-    await createAgentSession({ token, studioUrl, storage, noCache })
+    if (!data) {
+      throw new Error('No data available for agent session')
+    }
+
+    if (canCache) {
+      await storage.setItem(sessionKey, { ...data, storedAt: new Date().toISOString() })
+    }
+
+    logger.success('Agent session created')
+
+    return data
+  } catch (error: any) {
+    throw new Error('Failed to get agent session from Kubb Studio', { cause: error })
   }
-
-  logger.success('Using cached agent session')
-
-  return stored
 }
 
 type RegisterProps = {
