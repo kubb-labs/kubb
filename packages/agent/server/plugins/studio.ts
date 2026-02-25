@@ -1,19 +1,12 @@
 import path from 'node:path'
 import process from 'node:process'
+import { AsyncEventEmitter } from '@kubb/core/utils'
 import type { KubbEvents } from '@kubb/core'
-import { AsyncEventEmitter, formatMs, getConfigs, serializePluginOptions } from '@kubb/core/utils'
-import { x } from 'tinyexec'
-import { type AgentMessage, isCommandMessage, isPongMessage } from '~/types/agent.ts'
-import { createAgentSession, disconnect, registerAgent } from '~/utils/api.ts'
-import { generate } from '~/utils/generate.ts'
-import { getCosmiConfig } from '~/utils/getCosmiConfig.ts'
+import { registerAgent } from '~/utils/api.ts'
+import { connectToStudio } from '~/utils/connectStudio.ts'
 import { getSessionKey } from '~/utils/getSessionKey.ts'
-import { type AgentSession, isSessionValid } from '~/utils/isSessionValid.ts'
+import type { AgentSession } from '~/utils/isSessionValid.ts'
 import { logger } from '~/utils/logger.ts'
-import { resolvePlugins } from '~/utils/resolvePlugins.ts'
-import { readStudioConfig, writeStudioConfig } from '~/utils/studioConfig.ts'
-import { createWebsocket, sendAgentMessage, setupEventsStream } from '~/utils/ws.ts'
-import { version } from '~~/package.json'
 
 /**
  * Nitro plugin that connects the agent to Kubb Studio on server startup.
@@ -27,7 +20,6 @@ import { version } from '~~/package.json'
  * 6. Gracefully disconnects when the Nitro server closes.
  */
 export default defineNitroPlugin(async (nitro) => {
-  // Connect to Kubb Studio if URL is provided
   const studioUrl = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
   const token = process.env.KUBB_AGENT_TOKEN
   const configPath = process.env.KUBB_AGENT_CONFIG || 'kubb.config.ts'
@@ -36,10 +28,6 @@ export default defineNitroPlugin(async (nitro) => {
   const root = process.env.KUBB_AGENT_ROOT || process.cwd()
   const allowAll = process.env.KUBB_AGENT_ALLOW_ALL === 'true'
   const allowWrite = allowAll || process.env.KUBB_AGENT_ALLOW_WRITE === 'true'
-
-  if (!configPath) {
-    throw new Error('KUBB_AGENT_CONFIG environment variable not set')
-  }
 
   if (!token) {
     logger.warn('KUBB_AGENT_TOKEN not set', 'cannot authenticate with studio')
@@ -56,238 +44,9 @@ export default defineNitroPlugin(async (nitro) => {
   const resolvedConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(root, configPath)
   const events = new AsyncEventEmitter<KubbEvents>()
   const storage = useStorage<AgentSession>('kubb')
-
-  async function loadConfig() {
-    const result = await getCosmiConfig(resolvedConfigPath)
-    const configs = await getConfigs(result.config, {})
-
-    if (configs.length === 0) {
-      throw new Error('No configs found')
-    }
-
-    return configs[0]
-  }
-
-  const wsOptions = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-
-  async function reconnectToStudio() {
-    logger.info(`Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`)
-
-    setTimeout(async () => {
-      await connectToStudio()
-    }, retryInterval)
-  }
-
-  async function connectToStudio() {
-    try {
-      // remove to avoid duplicate listeners in case of reconnects
-      events.removeAll()
-
-      events.on('hook:start', async ({ id, command, args }) => {
-        const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
-
-        // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
-        if (!id) {
-          return
-        }
-
-        try {
-          const result = await x(command, [...(args ?? [])], {
-            nodeOptions: { cwd: root, detached: true },
-            throwOnError: true,
-          })
-
-          console.log(result.stdout.trimEnd())
-
-          await events.emit('hook:end', {
-            command,
-            args,
-            id,
-            success: true,
-            error: null,
-          })
-        } catch (_err) {
-          const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
-
-          await events.emit('hook:end', {
-            command,
-            args,
-            id,
-            success: false,
-            error: errorMessage,
-          })
-          await events.emit('error', errorMessage)
-        }
-      })
-
-      // start connection to studio
-      const { sessionToken, wsUrl, isSandbox } = await createAgentSession({
-        noCache,
-        token,
-        studioUrl,
-      })
-
-      const ws = createWebsocket(wsUrl, wsOptions)
-
-      const onError = async () => {
-        cleanup()
-
-        logger.error(`Failed to connect to Kubb Studio on "${wsUrl}"`)
-
-        if (!noCache) {
-          const sessionKey = getSessionKey(token)
-          const stored = await storage.getItem(sessionKey)
-
-          // If connection fails and we used a cached session, invalidate it and retry
-          if (stored && isSessionValid(stored)) {
-            await storage.removeItem(sessionKey)
-            await reconnectToStudio()
-          }
-        }
-      }
-
-      const onOpen = () => {
-        logger.success(`Connected to Kubb Studio on "${wsUrl}"`)
-      }
-
-      const onClose = async () => {
-        cleanup()
-
-        logger.info('Disconnecting from Studio ...')
-
-        if (sessionToken) {
-          await disconnect({
-            sessionToken,
-            studioUrl,
-            token,
-          }).catch(async () => {
-            // Ignore disconnect errors since we're already handling a closed connection
-          })
-
-          await storage.removeItem(getSessionKey(token))
-          await reconnectToStudio()
-        }
-      }
-
-      const cleanup = () => {
-        ws.removeEventListener('open', onOpen)
-        ws.removeEventListener('close', onClose)
-        ws.removeEventListener('error', onError)
-      }
-
-      ws.addEventListener('open', onOpen)
-      ws.addEventListener('close', onClose)
-      ws.addEventListener('error', onError)
-
-      nitro.hooks.hook('close', onClose)
-
-      setInterval(() => {
-        sendAgentMessage(ws, {
-          type: 'ping',
-        })
-      }, 30000)
-
-      setupEventsStream(ws, events)
-
-      ws.addEventListener('message', async (message) => {
-        try {
-          const data = JSON.parse(message.data as string) as AgentMessage
-
-          if (isPongMessage(data)) {
-            logger.info('Received pong from Studio')
-
-            return
-          }
-
-          if (isCommandMessage(data)) {
-            if (data.command === 'generate') {
-              const config = await loadConfig()
-
-              // Read the temporal studio config; message payload takes priority
-              const studioConfig = readStudioConfig(resolvedConfigPath)
-              const patch = data.payload ?? studioConfig
-              const resolvedPlugins = patch?.plugins ? resolvePlugins(patch.plugins) : undefined
-
-              if (allowWrite && isSandbox) {
-                logger.warn('Agent is running in a sandbox environment, write will be disabled')
-              }
-
-              if (patch?.input && !isSandbox) {
-                logger.warn('Input override via payload is only supported in sandbox mode and will be ignored')
-              }
-
-              // In sandbox mode the caller may supply raw OpenAPI / Swagger spec
-              // content inline (YAML or JSON string) via `payload.input`.
-              // Outside of sandbox mode the input is always taken from the config
-              // file on disk — ignoring any payload-supplied input for security.
-              const inputOverride = isSandbox ? { data: patch.input ?? '' } : undefined
-
-              // Apply patch fields directly onto the already-resolved Config.
-              // When the patch includes plugins, resolve and instantiate
-              // them; otherwise keep the original plugin instances.
-              await generate({
-                config: {
-                  ...config,
-                  input: inputOverride ?? config.input,
-                  plugins: resolvedPlugins ?? config.plugins,
-                  root,
-                  output: {
-                    ...config.output,
-                    write: isSandbox ? false : allowWrite,
-                  },
-                },
-                events,
-              })
-
-              if (allowWrite) {
-                writeStudioConfig(resolvedConfigPath, data.payload)
-              }
-
-              logger.success('Generated command success')
-            }
-
-            if (data.command === 'connect') {
-              const config = await loadConfig()
-
-              sendAgentMessage(ws, {
-                type: 'connected',
-                payload: {
-                  version,
-                  configPath,
-                  permissions: {
-                    allowAll: isSandbox ? false : allowWrite,
-                    allowWrite: isSandbox ? false : allowWrite,
-                  },
-                  config: {
-                    plugins: config.plugins?.map((plugin: any) => ({
-                      name: `@kubb/${plugin.name}`,
-                      options: serializePluginOptions(plugin.options),
-                    })),
-                  },
-                },
-              })
-            }
-
-            return
-          }
-
-          logger.warn(`Unknown message type from Kubb Studio: ${message.data}`)
-        } catch (error: any) {
-          logger.error(`[unhandledRejection] ${error?.message ?? error}`)
-        }
-      })
-    } catch (error: any) {
-      await storage.removeItem(getSessionKey(token))
-
-      logger.error(`Something went wrong ${error}`)
-      await reconnectToStudio()
-    }
-  }
+  const sessionKey = getSessionKey(token)
 
   await registerAgent({ token, studioUrl })
-  await connectToStudio()
+  await connectToStudio({ token, studioUrl, configPath, resolvedConfigPath, noCache, allowWrite, root, retryInterval, events, storage, sessionKey, nitro })
 })
+
