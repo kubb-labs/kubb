@@ -51,6 +51,7 @@ docs/.vitepress/graphs/**
 !__snapshots__
 kubb-files.json
 kubb.log
+.kubb
 hello
 .log
 */mocks/hellowWorld.js

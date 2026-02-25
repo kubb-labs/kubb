@@ -144,7 +144,7 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'pong' }) })
 
-    expect(logger.info).toHaveBeenCalledWith('Received pong from Studio')
+    expect(logger.info).toHaveBeenCalledWith('Received "pong" from Studio')
   })
 
   it('logs a warning for unknown message types', async () => {
@@ -320,6 +320,7 @@ describe('connectToStudio', () => {
 
   it('calls disconnect and removes the session when the WebSocket closes', async () => {
     vi.useFakeTimers()
+    ;(storage.getItem as ReturnType<typeof vi.fn>).mockResolvedValue(makeSession())
 
     await connectToStudio(options)
 
@@ -331,6 +332,7 @@ describe('connectToStudio', () => {
 
   it('closes the WebSocket without reconnecting when a disconnect message with reason "revoked" is received', async () => {
     vi.useFakeTimers()
+    ;(storage.getItem as ReturnType<typeof vi.fn>).mockResolvedValue(makeSession())
 
     await connectToStudio(options)
 
@@ -347,6 +349,7 @@ describe('connectToStudio', () => {
 
   it('cleans up and reconnects when a disconnect message with reason "expired" is received', async () => {
     vi.useFakeTimers()
+    ;(storage.getItem as ReturnType<typeof vi.fn>).mockResolvedValue(makeSession())
 
     await connectToStudio(options)
 
@@ -362,6 +365,7 @@ describe('connectToStudio', () => {
 
   it('removes the cached session and reconnects on WS error', async () => {
     vi.useFakeTimers()
+    ;(storage.getItem as ReturnType<typeof vi.fn>).mockResolvedValue(makeSession())
 
     await connectToStudio(options)
 
@@ -370,14 +374,15 @@ describe('connectToStudio', () => {
     expect(storage.removeItem).toHaveBeenCalledWith('kubb:session-key')
   })
 
-  it('removes the cached session and reconnects on WS error even when noCache is true', async () => {
+  it('does not remove the cached session on WS error when noCache is true', async () => {
     vi.useFakeTimers()
+    ;(storage.getItem as ReturnType<typeof vi.fn>).mockResolvedValue(makeSession())
 
     await connectToStudio({ ...options, noCache: true })
 
     await mockWs.trigger('error')
 
     expect(logger.error).toHaveBeenCalled()
-    expect(storage.removeItem).toHaveBeenCalledWith('kubb:session-key')
+    expect(storage.removeItem).not.toHaveBeenCalled()
   })
 })
