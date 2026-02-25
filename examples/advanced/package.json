@@ -35,7 +35,7 @@
     "@kubb/plugin-redoc": "workspace:*",
     "@kubb/plugin-swr": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
-    "@kubb/react-fabric": "0.13.0",
+    "@kubb/react-fabric": "0.13.2",
     "@modelcontextprotocol/sdk": "1.21.1",
     "@tanstack/query-core": "^5.90.20",
     "@tanstack/react-query": "^5.90.21",

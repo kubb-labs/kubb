@@ -6,6 +6,12 @@ settings:
 
 catalogs:
   default:
+    '@kubb/fabric-core':
+      specifier: 0.13.2
+      version: 0.13.2
+    '@kubb/react-fabric':
+      specifier: 0.13.2
+      version: 0.13.2
     '@size-limit/file':
       specifier: ^11.2.0
       version: 11.2.0
@@ -31,10 +37,6 @@ catalogs:
       specifier: ^5.9.3
       version: 5.9.3
 
-overrides:
-  '@kubb/fabric-core': file:/tmp/fabric-packs/kubb-fabric-core-0.13.2.tgz
-  '@kubb/react-fabric': file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-
 importers:
 
   .:
@@ -49,11 +51,11 @@ importers:
         specifier: ^2.29.8
         version: 2.29.8(@types/node@20.19.33)
       '@kubb/fabric-core':
-        specifier: file:/tmp/fabric-packs/kubb-fabric-core-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-fabric-core-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       '@manypkg/cli':
         specifier: ^0.25.1
         version: 0.25.1
@@ -136,8 +138,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 0.13.2
+        version: 0.13.2
       '@modelcontextprotocol/sdk':
         specifier: 1.21.1
         version: 1.21.1
@@ -224,8 +226,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 0.13.2
+        version: 0.13.2
       axios:
         specifier: ^1.13.5
         version: 1.13.5
@@ -292,8 +294,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 0.13.2
+        version: 0.13.2
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19
@@ -348,8 +350,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 0.13.2
+        version: 0.13.2
       axios:
         specifier: ^1.13.5
         version: 1.13.5
@@ -462,8 +464,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-ts
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 0.13.2
+        version: 0.13.2
       '@tanstack/react-query':
         specifier: ^5.90.21
         version: 5.90.21(react@19.2.4)
@@ -768,8 +770,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@kubb/fabric-core':
-        specifier: file:/tmp/fabric-packs/kubb-fabric-core-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-fabric-core-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../plugin-client
@@ -875,8 +877,8 @@ importers:
   packages/core:
     dependencies:
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       empathic:
         specifier: ^2.0.0
         version: 2.0.0
@@ -921,8 +923,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       '@modelcontextprotocol/sdk':
         specifier: ^1.27.1
         version: 1.27.1(zod@4.3.6)
@@ -985,8 +987,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-zod
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
     devDependencies:
       axios:
         specifier: ^1.13.5
@@ -1007,8 +1009,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-ts
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
 
   packages/plugin-faker:
     dependencies:
@@ -1025,8 +1027,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-ts
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
 
   packages/plugin-mcp:
     dependencies:
@@ -1049,8 +1051,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-zod
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
 
   packages/plugin-msw:
     dependencies:
@@ -1070,8 +1072,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-ts
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
 
   packages/plugin-oas:
     dependencies:
@@ -1082,8 +1084,8 @@ importers:
         specifier: workspace:*
         version: link:../oas
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       remeda:
         specifier: 'catalog:'
         version: 2.33.6
@@ -1113,8 +1115,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-zod
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       remeda:
         specifier: 'catalog:'
         version: 2.33.6
@@ -1131,8 +1133,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-oas
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
@@ -1158,8 +1160,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-zod
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       remeda:
         specifier: 'catalog:'
         version: 2.33.6
@@ -1185,8 +1187,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-zod
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       remeda:
         specifier: 'catalog:'
         version: 2.33.6
@@ -1212,8 +1214,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-zod
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       remeda:
         specifier: 'catalog:'
         version: 2.33.6
@@ -1224,8 +1226,8 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@kubb/fabric-core':
-        specifier: file:/tmp/fabric-packs/kubb-fabric-core-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-fabric-core-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1233,8 +1235,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-oas
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       remeda:
         specifier: 'catalog:'
         version: 2.33.6
@@ -1263,8 +1265,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-zod
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       remeda:
         specifier: 'catalog:'
         version: 2.33.6
@@ -1284,8 +1286,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-ts
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       remeda:
         specifier: 'catalog:'
         version: 2.33.6
@@ -1370,8 +1372,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@kubb/react-fabric':
-        specifier: file:/tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
-        version: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz
+        specifier: 'catalog:'
+        version: 0.13.2
       '@tanstack/react-query':
         specifier: ^5.90.21
         version: 5.90.21(react@18.3.1)
@@ -2281,14 +2283,12 @@ packages:
     resolution: {integrity: sha512-x/iUDjcS90W69PryLDIMgFyV21YLTnG9zOpPXS7Bkt2b8AsY3zZsIpOLBkYr9fBcF3HbkKaER5hOBZLfpLgYNw==}
     engines: {node: '>= 14.0.0'}
 
-  '@kubb/fabric-core@file:../../../../tmp/fabric-packs/kubb-fabric-core-0.13.2.tgz':
-    resolution: {integrity: sha512-SvdIGtOYz0BVun2UNlntAJXppfx9hM0+bG+keSLj3Z6eini00ZMGRcztrhnIhoph2dNLlxEIGZWjb5LnvSZKHQ==, tarball: file:../../../../tmp/fabric-packs/kubb-fabric-core-0.13.2.tgz}
-    version: 0.13.2
+  '@kubb/fabric-core@0.13.2':
+    resolution: {integrity: sha512-xVWC8ayxXQCnX9DPcDBVgbC3iC3A1cM19Ayakh37Lvjv9e0zxSIlkelxa6rPlZH2+Je6q3efdzN/+8tF5ZEN2Q==}
     engines: {node: '>=20'}
 
-  '@kubb/react-fabric@file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz':
-    resolution: {integrity: sha512-nk7r3s7cSiGZhvtEgYqdGuGA3g0kF+tx1jr77BO36fORsMs9xu/Zelernd8Hmdgda3Od3MfCo4x/DVaYHDbEqg==, tarball: file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz}
-    version: 0.13.2
+  '@kubb/react-fabric@0.13.2':
+    resolution: {integrity: sha512-MP7wvjQ3tYphEmQWHomPFE7Y+BJJ3I4A8/wkyif9Ik0ylNLRC7UXfDK756Gnz7tH+vSntc1NLz3ePrPsK+8fxg==}
     engines: {node: '>=20'}
 
   '@manypkg/cli@0.25.1':
@@ -8385,16 +8385,16 @@ snapshots:
     dependencies:
       vary: 1.1.2
 
-  '@kubb/fabric-core@file:../../../../tmp/fabric-packs/kubb-fabric-core-0.13.2.tgz':
+  '@kubb/fabric-core@0.13.2':
     dependencies:
       '@clack/prompts': 1.0.1
       p-limit: 7.3.0
       remeda: 2.33.6
       typescript: 5.9.3
 
-  '@kubb/react-fabric@file:../../../../tmp/fabric-packs/kubb-react-fabric-0.13.2.tgz':
+  '@kubb/react-fabric@0.13.2':
     dependencies:
-      '@kubb/fabric-core': file:../../../../tmp/fabric-packs/kubb-fabric-core-0.13.2.tgz
+      '@kubb/fabric-core': 0.13.2
       react-devtools-core: 6.1.5
       remeda: 2.33.6
       ws: 8.18.0
