@@ -1,10 +1,9 @@
 import type { KubbEvents } from '@kubb/core'
-import type { AsyncEventEmitter } from '@kubb/core/utils'
-import { formatMs, serializePluginOptions } from '@kubb/core/utils'
+import { AsyncEventEmitter, formatMs, serializePluginOptions } from '@kubb/core/utils'
 import type { NitroApp } from 'nitropack/types'
 import type { Storage } from 'unstorage'
 import { version } from '~~/package.json'
-import { type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage } from '../types/agent.ts'
+import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage } from '../types/agent.ts'
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
 import type { AgentSession } from './isSessionValid.ts'
@@ -26,7 +25,8 @@ export type ConnectToStudioOptions = {
   root: string
   retryInterval: number
   heartbeatInterval?: number
-  events: AsyncEventEmitter<KubbEvents>
+  /** Pre-created session to use instead of calling createAgentSession. Only used on the first connect, not on reconnects. */
+  initialSession?: AgentConnectResponse
   storage: Storage<AgentSession>
   sessionKey: string
   nitro: NitroApp
@@ -48,11 +48,15 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     root,
     retryInterval,
     heartbeatInterval = 30_000,
-    events,
+    initialSession,
     storage,
     sessionKey,
     nitro,
   } = options
+
+  // Each connection gets its own isolated event emitter so generation events
+  // from one session do not bleed into another session's WebSocket stream.
+  const events = new AsyncEventEmitter<KubbEvents>()
 
   async function removeSession() {
     const agentSession = await storage.getItem(sessionKey)
@@ -71,15 +75,14 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     await removeSession()
 
-    setTimeout(() => connectToStudio(options), retryInterval)
+    // On reconnect, don't reuse the initial session — always create a fresh one
+    setTimeout(() => connectToStudio({ ...options, initialSession: undefined }), retryInterval)
   }
 
   try {
-    // Remove all listeners to avoid duplicates on reconnect
-
     setupHookListener(events, root)
 
-    const { sessionToken, wsUrl, isSandbox } = await createAgentSession({ noCache, token, studioUrl, storage })
+    const { sessionToken, wsUrl, isSandbox } = initialSession ?? (await createAgentSession({ noCache, token, studioUrl, storage }))
     const ws = createWebsocket(wsUrl, { headers: { Authorization: `Bearer ${token}` } })
 
     // Effective permissions: always disabled in sandbox mode
@@ -134,6 +137,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     ws.addEventListener('error', onError)
     nitro.hooks.hook('close', async () => {
       await cleanup()
+      await disconnect({ sessionToken, studioUrl, token }).catch(() => {
+        // Ignore disconnect errors since we're already handling a closed connection
+      })
     })
 
     setInterval(() => sendAgentMessage(ws, { type: 'ping' }), heartbeatInterval)

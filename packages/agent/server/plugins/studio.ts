@@ -1,8 +1,6 @@
 import path from 'node:path'
 import process from 'node:process'
-import type { KubbEvents } from '@kubb/core'
-import { AsyncEventEmitter } from '@kubb/core/utils'
-import { registerAgent } from '~/utils/api.ts'
+import { createAgentSession, registerAgent } from '~/utils/api.ts'
 import { connectToStudio } from '~/utils/connectStudio.ts'
 import { getSessionKey } from '~/utils/getSessionKey.ts'
 import type { AgentSession } from '~/utils/isSessionValid.ts'
@@ -18,6 +16,9 @@ import { logger } from '~/utils/logger.ts'
  * 4. Forwards Kubb generation lifecycle events to Studio in real time.
  * 5. Sends a ping every 30 seconds to keep the connection alive.
  * 6. Gracefully disconnects when the Nitro server closes.
+ *
+ * In sandbox mode the agent creates a pool of sessions (`KUBB_AGENT_POOL_SIZE`, default 5)
+ * so each Studio user gets their own isolated WebSocket session.
  */
 export default defineNitroPlugin(async (nitro) => {
   const studioUrl = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
@@ -29,6 +30,7 @@ export default defineNitroPlugin(async (nitro) => {
   const root = process.env.KUBB_AGENT_ROOT || process.cwd()
   const allowAll = process.env.KUBB_AGENT_ALLOW_ALL === 'true'
   const allowWrite = allowAll || process.env.KUBB_AGENT_ALLOW_WRITE === 'true'
+  const poolSize = process.env.KUBB_AGENT_POOL_SIZE ? Number.parseInt(process.env.KUBB_AGENT_POOL_SIZE, 10) : 5
 
   if (!token) {
     logger.warn('KUBB_AGENT_TOKEN not set', 'cannot authenticate with studio')
@@ -43,28 +45,58 @@ export default defineNitroPlugin(async (nitro) => {
   }
 
   const resolvedConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(root, configPath)
-  const events = new AsyncEventEmitter<KubbEvents>()
   const storage = useStorage<AgentSession>('kubb')
   const sessionKey = getSessionKey(token)
 
   try {
     await registerAgent({ token, studioUrl })
-    await connectToStudio({
+
+    // Probe the first session to detect sandbox mode
+    const firstSession = await createAgentSession({ noCache, token, studioUrl, storage })
+
+    const baseOptions = {
       token,
       studioUrl,
       configPath,
       resolvedConfigPath,
-      noCache,
+      noCache: firstSession.isSandbox ? true : noCache,
       allowAll,
       allowWrite,
       root,
       retryInterval,
       heartbeatInterval,
-      events,
       storage,
       sessionKey,
       nitro,
-    })
+    }
+
+    if (firstSession.isSandbox) {
+      // In sandbox mode each Studio user gets their own isolated session.
+      // The first session is already created; create the remaining pool slots in parallel.
+      logger.info(`[sandbox] Starting session pool of ${poolSize} connections`)
+
+      const remainingSessions = await Promise.all(
+        Array.from({ length: poolSize - 1 }, () =>
+          createAgentSession({ noCache: true, token, studioUrl, storage }).catch((err) => {
+            logger.warn('[sandbox] Failed to pre-create pool session:', err?.message)
+            return null
+          }),
+        ),
+      )
+
+      const allSessions = [firstSession, ...remainingSessions.filter(Boolean)]
+
+      await Promise.all(
+        allSessions.map((session, index) => {
+          logger.info(`[sandbox] Connecting session ${index + 1}/${allSessions.length}`)
+          return connectToStudio({ ...baseOptions, initialSession: session ?? undefined })
+        }),
+      )
+
+      return
+    }
+
+    await connectToStudio({ ...baseOptions, initialSession: firstSession })
   } catch (error: any) {
     logger.error('Failed to connect to Kubb Studio\n', (error as Error)?.message)
   }

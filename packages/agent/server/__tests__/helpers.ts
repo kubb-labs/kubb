@@ -43,15 +43,12 @@ export type MockStudio = {
 
 export function createMockStudio({ isSandbox = false } = {}): Promise<MockStudio> {
   return new Promise((resolve) => {
-    let _agentWs: WebSocket | null = null
     const _messages: AgentMessage[] = []
     const _messageListeners: Array<(msg: AgentMessage) => void> = []
     let _connectionResolve: (() => void) | null = null
     const _connectionPromise = new Promise<void>((res) => {
       _connectionResolve = res
     })
-
-    const SESSION_TOKEN = 'e2e-session-token'
 
     const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
       let _body = ''
@@ -69,11 +66,13 @@ export function createMockStudio({ isSandbox = false } = {}): Promise<MockStudio
 
         if (req.method === 'POST' && req.url === '/api/agent/session/create') {
           const port = (httpServer.address() as { port: number }).port
+          // Use a unique token per request so pool connections get independent sessions
+          const token = `e2e-session-${Date.now()}-${Math.random().toString(36).slice(2)}`
           res.writeHead(200)
           res.end(
             JSON.stringify({
-              sessionToken: SESSION_TOKEN,
-              wsUrl: `ws://127.0.0.1:${port}/api/ws/session/${SESSION_TOKEN}`,
+              sessionToken: token,
+              wsUrl: `ws://127.0.0.1:${port}/api/ws/session/${token}`,
               expiresAt: new Date(Date.now() + 3_600_000).toISOString(),
               revokedAt: null,
               isSandbox,
@@ -94,9 +93,11 @@ export function createMockStudio({ isSandbox = false } = {}): Promise<MockStudio
     })
 
     const wss = new WebSocketServer({ server: httpServer })
+    const agentSockets = new Set<WebSocket>()
 
     wss.on('connection', (ws) => {
-      _agentWs = ws
+      agentSockets.add(ws)
+      ws.on('close', () => agentSockets.delete(ws))
       ws.on('message', (raw) => {
         try {
           const msg = JSON.parse(raw.toString()) as AgentMessage
@@ -114,7 +115,8 @@ export function createMockStudio({ isSandbox = false } = {}): Promise<MockStudio
 
       resolve({
         port,
-        agentWs: () => _agentWs,
+        // Return the first (oldest) connected socket for backwards compatibility
+        agentWs: () => agentSockets.values().next().value ?? null,
         waitForConnection: () => _connectionPromise,
         waitForMessage(predicate) {
           return new Promise<AgentMessage>((res, rej) => {
@@ -132,8 +134,12 @@ export function createMockStudio({ isSandbox = false } = {}): Promise<MockStudio
             })
           })
         },
+        // Broadcast to all connected agent sockets
         send(msg) {
-          _agentWs?.send(JSON.stringify(msg))
+          const payload = JSON.stringify(msg)
+          for (const ws of agentSockets) {
+            ws.send(payload)
+          }
         },
         clearMessages() {
           _messages.length = 0
@@ -156,6 +162,7 @@ export type AgentOptions = {
   allowAll?: boolean
   retryTimeout?: number
   heartbeatInterval?: number
+  poolSize?: number
 }
 
 export function spawnAgent({
@@ -165,6 +172,7 @@ export function spawnAgent({
   allowAll = false,
   retryTimeout = 2000,
   heartbeatInterval = 200,
+  poolSize = 1,
 }: AgentOptions): ChildProcess {
   return spawn('node', [AGENT_OUTPUT], {
     env: {
@@ -179,6 +187,7 @@ export function spawnAgent({
       KUBB_AGENT_RETRY_TIMEOUT: String(retryTimeout),
       KUBB_AGENT_HEARTBEAT_INTERVAL: String(heartbeatInterval),
       KUBB_AGENT_NO_CACHE: 'true',
+      KUBB_AGENT_POOL_SIZE: String(poolSize),
     },
     stdio: 'pipe',
   })

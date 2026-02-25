@@ -171,3 +171,6 @@ describe('studio plugin – e2e (sandbox agent)', () => {
     expect(existsSync(path.join(context.tmpDir, 'kubb.config.studio.json'))).toBe(false)
   })
 })
+
+// Test that multiple agents can connect to the same Studio instance without interfering with each other
+describe.todo('studio plugin – e2e (multiple agents)')
