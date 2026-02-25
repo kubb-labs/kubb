@@ -43,15 +43,14 @@ export function findPetsByTagsSuspenseInfiniteQueryOptionsHook(params?: FindPets
   >({
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-
       params = {
         ...(params ?? {}),
         ['pageSize']: pageParam as unknown as FindPetsByTagsQueryParams['pageSize'],
       } as FindPetsByTagsQueryParams
-      return findPetsByTagsSuspenseInfiniteHook(params, config)
+      return findPetsByTagsSuspenseInfiniteHook(params, {
+        ...config,
+        signal: config.signal ?? signal,
+      })
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1),

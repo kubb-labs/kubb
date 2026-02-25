@@ -40,10 +40,7 @@ export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Par
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return loginUser(params, config)
+      return loginUser(params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
