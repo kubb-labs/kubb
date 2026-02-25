@@ -218,6 +218,20 @@ jobs:
       - name: Publish preview packages
         run: pnpx pkg-pr-new publish --pnpm --owner=stijnvanhulle --repo=https://github.com/kubb-labs/kubb.git './packages/*' --template './examples/*'
 
+  changeset:
+    name: Changeset
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Assert changeset is defined
+        uses: changesets/assert-changeset@v1
+
   dependency-diff:
     name: Dependency Diff
     timeout-minutes: 10
