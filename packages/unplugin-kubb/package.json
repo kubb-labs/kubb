@@ -123,7 +123,7 @@
     "webpack": "^5.105.2"
   },
   "peerDependencies": {
-    "@farmfe/core": ">=1",
+    "@farmfe/core": "^1.7.0",
     "@kubb/core": "^4.0.0",
     "@nuxt/kit": "^3 || ^4",
     "@nuxt/schema": "^3 || ^4",
