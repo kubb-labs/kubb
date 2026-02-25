@@ -37,10 +37,6 @@ vi.mock('./logger.ts', () => ({
   logger: { info: vi.fn(), success: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }))
 
-vi.mock('./isSessionValid.ts', () => ({
-  isSessionValid: vi.fn().mockReturnValue(false),
-}))
-
 vi.mock('./ws.ts', () => ({
   createWebsocket: vi.fn(),
   sendAgentMessage: vi.fn(),
@@ -51,7 +47,6 @@ vi.mock('~~/package.json', () => ({ default: { version: '1.0.0' }, version: '1.0
 
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
-import { isSessionValid } from './isSessionValid.ts'
 import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
 import { resolvePlugins } from './resolvePlugins.ts'
@@ -125,7 +120,7 @@ describe('connectToStudio', () => {
   it('creates an agent session with the provided credentials', async () => {
     await connectToStudio(options)
 
-    expect(createAgentSession).toHaveBeenCalledWith({ noCache: false, token: 'my-token', studioUrl: 'https://studio.kubb.dev' })
+    expect(createAgentSession).toHaveBeenCalledWith({ noCache: false, token: 'my-token', studioUrl: 'https://studio.kubb.dev', storage })
   })
 
   it('creates a WebSocket with the session wsUrl and Bearer auth header', async () => {
@@ -136,14 +131,10 @@ describe('connectToStudio', () => {
     })
   })
 
-  it('removes the cached session and logs an error when createAgentSession throws', async () => {
+  it('throws when createAgentSession rejects', async () => {
     vi.mocked(createAgentSession).mockRejectedValueOnce(new Error('Network error'))
-    vi.useFakeTimers()
 
-    await connectToStudio(options)
-
-    expect(storage.removeItem).toHaveBeenCalledWith('kubb:session-key')
-    expect(logger.error).toHaveBeenCalled()
+    await expect(connectToStudio(options)).rejects.toThrow('Network error')
   })
 
   // WebSocket messages
@@ -350,9 +341,11 @@ describe('connectToStudio', () => {
     expect(mockWs.closed).toBe(true)
     // disconnect API must NOT be called — server already knows about the closure
     expect(disconnect).not.toHaveBeenCalled()
+    // revoked sessions must NOT trigger a reconnect
+    expect(logger.info).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
   })
 
-  it('closes the WebSocket without reconnecting when a disconnect message with reason "expired" is received', async () => {
+  it('cleans up and reconnects when a disconnect message with reason "expired" is received', async () => {
     vi.useFakeTimers()
 
     await connectToStudio(options)
@@ -363,12 +356,12 @@ describe('connectToStudio', () => {
     expect(storage.removeItem).toHaveBeenCalledWith('kubb:session-key')
     expect(mockWs.closed).toBe(true)
     expect(disconnect).not.toHaveBeenCalled()
+    // expired sessions trigger a reconnect (unlike revoked)
+    expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
   })
 
-  it('invalidates the cached session on WS error when the stored session is still valid', async () => {
+  it('removes the cached session and reconnects on WS error', async () => {
     vi.useFakeTimers()
-    vi.mocked(isSessionValid).mockReturnValue(true)
-    ;(storage.getItem as ReturnType<typeof vi.fn>).mockResolvedValue(makeSession())
 
     await connectToStudio(options)
 
@@ -377,7 +370,7 @@ describe('connectToStudio', () => {
     expect(storage.removeItem).toHaveBeenCalledWith('kubb:session-key')
   })
 
-  it('logs the error but skips cache invalidation when noCache is true', async () => {
+  it('removes the cached session and reconnects on WS error even when noCache is true', async () => {
     vi.useFakeTimers()
 
     await connectToStudio({ ...options, noCache: true })
@@ -385,6 +378,6 @@ describe('connectToStudio', () => {
     await mockWs.trigger('error')
 
     expect(logger.error).toHaveBeenCalled()
-    expect(storage.removeItem).not.toHaveBeenCalled()
+    expect(storage.removeItem).toHaveBeenCalledWith('kubb:session-key')
   })
 })

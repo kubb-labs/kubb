@@ -47,21 +47,25 @@ export default defineNitroPlugin(async (nitro) => {
   const storage = useStorage<AgentSession>('kubb')
   const sessionKey = getSessionKey(token)
 
-  await registerAgent({ token, studioUrl })
-  await connectToStudio({
-    token,
-    studioUrl,
-    configPath,
-    resolvedConfigPath,
-    noCache,
-    allowAll,
-    allowWrite,
-    root,
-    retryInterval,
-    heartbeatInterval,
-    events,
-    storage,
-    sessionKey,
-    nitro,
-  })
+  try {
+    await registerAgent({ token, studioUrl })
+    await connectToStudio({
+      token,
+      studioUrl,
+      configPath,
+      resolvedConfigPath,
+      noCache,
+      allowAll,
+      allowWrite,
+      root,
+      retryInterval,
+      heartbeatInterval,
+      events,
+      storage,
+      sessionKey,
+      nitro,
+    })
+  } catch (error: any) {
+    logger.error('Failed to connect to Kubb Studio\n', (error as Error).message)
+  }
 })

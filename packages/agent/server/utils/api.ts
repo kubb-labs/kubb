@@ -1,3 +1,4 @@
+import type { Storage } from 'unstorage'
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { getSessionKey } from '~/utils/getSessionKey.ts'
 import { type AgentSession, isSessionValid } from '~/utils/isSessionValid.ts'
@@ -7,6 +8,7 @@ import { logger } from './logger.ts'
 type ConnectProps = {
   studioUrl: string
   token: string
+  storage: Storage<AgentSession>
   noCache?: boolean
 }
 
@@ -15,57 +17,50 @@ type ConnectProps = {
  * Attempts to reuse a cached session before making a network request.
  *
  */
-export async function createAgentSession({ token, studioUrl, noCache }: ConnectProps): Promise<AgentConnectResponse> {
-  const storage = useStorage<AgentSession>('kubb')
-
-  if (!noCache) {
-    const sessionKey = getSessionKey(token)
-    const stored = await storage.getItem(sessionKey)
-
-    if (stored && isSessionValid(stored)) {
-      logger.success('Using cached agent session')
-      return stored
-    }
-
-    if (stored) {
-      // Session expired — remove it before fetching a new one
-      await storage.removeItem(sessionKey)
-    }
-  }
-
-  // Fetch new session from Studio
+export async function createAgentSession({ token, studioUrl, noCache, storage }: ConnectProps): Promise<AgentConnectResponse> {
+  const machineToken = generateMachineToken()
+  const sessionKey = getSessionKey(token)
   const connectUrl = `${studioUrl}/api/agent/session/create`
 
-  try {
-    const machineToken = generateMachineToken()
-    const data = await $fetch<AgentConnectResponse>(connectUrl, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: { machineToken },
-    })
+  if (noCache) {
+    // Fetch new session from Studio
+    try {
+      const data = await $fetch<AgentConnectResponse>(connectUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: { machineToken },
+      })
 
-    if (!data) {
-      throw new Error('No data available for agent session')
-    }
+      if (!data) {
+        throw new Error('No data available for agent session')
+      }
 
-    // Cache the session for reuse (unless --no-cache is set)
-    if (!noCache) {
-      const sessionKey = getSessionKey(token)
+      // Cache the session for reuse (unless --no-cache is set)
       await storage.setItem(sessionKey, {
         ...data,
         storedAt: new Date().toISOString(),
       })
       logger.success('Cached agent session')
+      logger.success('Agent session created')
+
+      return data
+    } catch (error: any) {
+      throw new Error('Failed to get agent session from Kubb Studio', { cause: error })
     }
-
-    logger.success('Agent session created')
-
-    return data
-  } catch (error: any) {
-    throw new Error('Failed to get agent session from Kubb Studio', { cause: error })
   }
+
+  const stored = await storage.getItem(sessionKey)
+
+  if (stored && !isSessionValid(stored)) {
+    await storage.removeItem(sessionKey)
+    await createAgentSession({ token, studioUrl, storage, noCache })
+  }
+
+  logger.success('Using cached agent session')
+
+  return stored
 }
 
 type RegisterProps = {
@@ -107,8 +102,9 @@ type DisconnectProps = {
  *
  */
 export async function disconnect({ sessionToken, token, studioUrl }: DisconnectProps): Promise<void> {
+  const disconnectUrl = `${studioUrl}/api/agent/session/${sessionToken}/disconnect`
+
   try {
-    const disconnectUrl = `${studioUrl}/api/agent/session/${sessionToken}/disconnect`
     await $fetch(disconnectUrl, {
       method: 'POST',
       headers: {

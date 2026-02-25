@@ -8,7 +8,6 @@ import { type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
 import type { AgentSession } from './isSessionValid.ts'
-import { isSessionValid } from './isSessionValid.ts'
 import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
 import { resolvePlugins } from './resolvePlugins.ts'
@@ -63,10 +62,10 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
   try {
     // Remove all listeners to avoid duplicates on reconnect
-    events.removeAll()
+
     setupHookListener(events, root)
 
-    const { sessionToken, wsUrl, isSandbox } = await createAgentSession({ noCache, token, studioUrl })
+    const { sessionToken, wsUrl, isSandbox } = await createAgentSession({ noCache, token, studioUrl, storage })
     const ws = createWebsocket(wsUrl, { headers: { Authorization: `Bearer ${token}` } })
 
     // Effective permissions: always disabled in sandbox mode
@@ -76,10 +75,16 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     // Tracks whether the studio server explicitly disconnected us (no reconnect needed)
     let serverDisconnected = false
 
-    const cleanup = () => {
-      ws.removeEventListener('open', onOpen)
-      ws.removeEventListener('close', onClose)
-      ws.removeEventListener('error', onError)
+    async function cleanup(reason = 'cleanup') {
+      try {
+        events.removeAll()
+        await storage.removeItem(sessionKey)
+
+        ws.close(1000, reason)
+        ws.removeEventListener('open', onOpen)
+        ws.removeEventListener('close', onClose)
+        ws.removeEventListener('error', onError)
+      } catch (_error: any) {}
     }
 
     const onOpen = () => {
@@ -87,42 +92,35 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     }
 
     const onClose = async () => {
-      cleanup()
-
       if (serverDisconnected) {
         return
       }
 
+      // first cleanup the event listeners and then connect again
+      await cleanup()
+
       logger.info('Disconnecting from Studio ...')
+
+      serverDisconnected = true
 
       await disconnect({ sessionToken, studioUrl, token }).catch(() => {
         // Ignore disconnect errors since we're already handling a closed connection
       })
 
-      await storage.removeItem(sessionKey)
       await reconnect()
     }
 
     const onError = async () => {
-      cleanup()
-
       logger.error(`Failed to connect to Kubb Studio on "${wsUrl}"`)
 
-      if (!noCache) {
-        const stored = await storage.getItem(sessionKey)
-
-        // If connection fails and we used a cached session, invalidate it and retry
-        if (stored && isSessionValid(stored)) {
-          await storage.removeItem(sessionKey)
-          await reconnect()
-        }
-      }
+      // first cleanup the event listeners and then connect again
+      await cleanup()
+      await reconnect()
     }
 
     ws.addEventListener('open', onOpen)
     ws.addEventListener('close', onClose)
     ws.addEventListener('error', onError)
-
     nitro.hooks.hook('close', onClose)
 
     setInterval(() => sendAgentMessage(ws, { type: 'ping' }), heartbeatInterval)
@@ -140,11 +138,21 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         }
 
         if (isDisconnectMessage(data)) {
-          serverDisconnected = true
-          logger.warn(`Session ${data.reason} by Studio — disconnecting without reconnect`)
+          logger.warn(`Session ${data.reason} by Studio`)
 
-          await storage.removeItem(sessionKey)
-          ws.close(1000, `session_${data.reason}`)
+          if (data.reason === 'revoked') {
+            await cleanup(`session_${data.reason}`)
+
+            return
+          }
+
+          if (data.reason === 'expired') {
+            // first cleanup the event listeners and then connect again
+            await cleanup()
+            await reconnect()
+
+            return
+          }
 
           return
         }
@@ -217,9 +225,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       }
     })
   } catch (error: any) {
-    await storage.removeItem(sessionKey)
-
-    logger.error(`Something went wrong ${error}`)
-    await reconnect()
+    throw new Error(`[unhandledRejection] ${error?.message ?? error}`, { cause: error })
   }
 }
