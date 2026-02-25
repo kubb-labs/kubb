@@ -30,9 +30,7 @@
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.cts",
+  "types": "./dist/index.d.ts",
   "bin": {
     "kubb-mcp": "bin/kubb-mcp.cjs"
   },
@@ -79,5 +77,7 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js"
 }

@@ -34,14 +34,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./components": {
-      "import": "./dist/components.js",
-      "require": "./dist/components.cjs"
-    },
-    "./generators": {
-      "import": "./dist/generators.js",
-      "require": "./dist/generators.cjs"
-    },
     "./clients/axios": {
       "import": "./dist/clients/axios.js",
       "require": "./dist/clients/axios.cjs"
@@ -50,9 +42,13 @@
       "import": "./dist/clients/fetch.js",
       "require": "./dist/clients/fetch.cjs"
     },
-    "./templates/config.source": {
-      "import": "./dist/templates/config.source.js",
-      "require": "./dist/templates/config.source.cjs"
+    "./components": {
+      "import": "./dist/components.js",
+      "require": "./dist/components.cjs"
+    },
+    "./generators": {
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs"
     },
     "./templates/clients/axios.source": {
       "import": "./dist/templates/clients/axios.source.js",
@@ -62,11 +58,12 @@
       "import": "./dist/templates/clients/fetch.source.js",
       "require": "./dist/templates/clients/fetch.source.cjs"
     },
-    "./templates/*": "./templates/*",
+    "./templates/config.source": {
+      "import": "./dist/templates/config.source.js",
+      "require": "./dist/templates/config.source.cjs"
+    },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
@@ -146,5 +143,7 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js"
 }

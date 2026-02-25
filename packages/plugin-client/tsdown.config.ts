@@ -18,9 +18,13 @@ export default defineConfig({
   platform: 'node',
   sourcemap: true,
   shims: true,
-  exports: false,
+  exports: true,
   external: [/^@kubb\//],
   fixedExtension: false,
+  outExtensions({ format }) {
+    if (format === 'cjs') return { dts: '.d.ts' }
+    return {}
+  },
   outputOptions: {
     keepNames: true,
   },
