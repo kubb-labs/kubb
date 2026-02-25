@@ -6,7 +6,7 @@ import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
-import { describe, test } from 'vitest'
+import { beforeEach, describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginClient } from '../types.ts'
 import { clientGenerator } from './clientGenerator.tsx'
@@ -15,6 +15,12 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('clientGenerator operation', async () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
   const testData = [
     {
       name: 'findByTags',
@@ -185,7 +191,6 @@ describe('clientGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>
-    const fabric = createReactFabric()
     const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,

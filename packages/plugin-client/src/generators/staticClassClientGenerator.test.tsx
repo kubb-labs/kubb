@@ -4,7 +4,7 @@ import type { Plugin } from '@kubb/core'
 import { parse } from '@kubb/oas'
 import { OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
-import { describe, test } from 'vitest'
+import { beforeEach, describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginClient } from '../types.ts'
 import { staticClassClientGenerator } from './staticClassClientGenerator.tsx'
@@ -13,6 +13,12 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('staticClassClientGenerator operations', async () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
   const testData = [
     {
       name: 'findByTags',
@@ -55,7 +61,6 @@ describe('staticClassClientGenerator operations', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>
-    const fabric = createReactFabric()
     const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,

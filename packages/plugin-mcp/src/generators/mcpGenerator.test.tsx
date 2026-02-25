@@ -6,7 +6,7 @@ import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
-import { describe, test } from 'vitest'
+import { beforeEach, describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginMcp } from '../types.ts'
 import { mcpGenerator } from './mcpGenerator.tsx'
@@ -15,6 +15,12 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('mcpGenerator operation', async () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
   const testData = [
     {
       name: 'showPetById',
@@ -80,7 +86,6 @@ describe('mcpGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginMcp>
-    const fabric = createReactFabric()
 
     const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {

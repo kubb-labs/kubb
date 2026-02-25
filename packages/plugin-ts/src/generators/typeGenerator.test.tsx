@@ -7,7 +7,7 @@ import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
 import ts, { factory } from 'typescript'
-import { describe, test } from 'vitest'
+import { beforeEach, describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
@@ -16,6 +16,12 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('typeGenerator schema', async () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
   const testData = [
     {
       name: 'PetQuestionToken',
@@ -560,7 +566,6 @@ describe('typeGenerator schema', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
-    const fabric = createReactFabric()
 
     const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new SchemaGenerator(options, {
@@ -601,6 +606,12 @@ describe('typeGenerator schema', async () => {
 })
 
 describe('typeGenerator operation', async () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
   const testData = [
     {
       name: 'showPetById',
@@ -717,7 +728,6 @@ describe('typeGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
-    const fabric = createReactFabric()
     const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,

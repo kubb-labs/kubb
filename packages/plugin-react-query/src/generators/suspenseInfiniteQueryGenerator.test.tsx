@@ -5,7 +5,7 @@ import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
-import { describe, test } from 'vitest'
+import { beforeEach, describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginReactQuery } from '../types.ts'
@@ -15,6 +15,12 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('suspenseInfiniteQueryGenerator operation', async () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
   const testData = [
     {
       name: 'findSuspenseInfiniteByTags',
@@ -115,7 +121,6 @@ describe('suspenseInfiniteQueryGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginReactQuery>
-    const fabric = createReactFabric()
 
     const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
