@@ -6,6 +6,26 @@ outline: deep
 
 # Changelog
 
+## 4.29.0
+
+### ✨ Features
+
+#### [`@kubb/core`](/helpers/core/), [`@kubb/plugin-client`](/plugins/plugin-client/), [`@kubb/plugin-ts`](/plugins/plugin-ts/), [`@kubb/plugin-zod`](/plugins/plugin-zod/), and more
+
+**Use of less packages and/or tiny libraries**
+
+Reduced the number of dependencies across all packages by replacing heavier libraries with smaller, purpose-built alternatives. This results in a total bundle size reduction of **-6.7 MB**.
+
+### 💥 Breaking Changes
+
+#### [`unplugin-kubb`](/builders/unplugin/)
+
+**Upgrade to Unplugin v3**
+
+`unplugin-kubb` has been updated to use [unplugin v3](https://github.com/unjs/unplugin), which introduces breaking changes to the plugin API. Please refer to the [unplugin v3 migration guide](https://github.com/unjs/unplugin) if you are using `unplugin-kubb` directly.
+
+---
+
 ## 4.28.1
 
 ### 🐛 Bug Fixes
