@@ -229,8 +229,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Assert changeset is defined
-        uses: changesets/assert-changeset@v1
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@main
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check changeset
+        run: pnpm changeset status --since=origin/main
 
   dependency-diff:
     name: Dependency Diff
