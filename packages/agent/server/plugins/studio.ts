@@ -89,7 +89,7 @@ export default defineNitroPlugin(async (nitro) => {
       await Promise.all(
         allSessions.map((session, index) => {
           logger.info(`[sandbox] Connecting session ${index + 1}/${allSessions.length}`)
-          return connectToStudio({ ...baseOptions, initialSession: session ?? undefined })
+          return connectToStudio({ ...baseOptions, initialSession: session })
         }),
       )
 

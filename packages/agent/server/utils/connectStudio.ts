@@ -91,9 +91,13 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     // Tracks whether the studio server explicitly disconnected us (no reconnect needed)
     let serverDisconnected = false
+    let heartbeatTimer: ReturnType<typeof setInterval> | undefined
 
     async function cleanup(reason = 'cleanup') {
       try {
+        clearInterval(heartbeatTimer)
+        heartbeatTimer = undefined
+
         events.removeAll()
 
         ws.close(1000, reason)
@@ -142,7 +146,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       })
     })
 
-    setInterval(() => sendAgentMessage(ws, { type: 'ping' }), heartbeatInterval)
+    heartbeatTimer = setInterval(() => sendAgentMessage(ws, { type: 'ping' }), heartbeatInterval)
 
     setupEventsStream(ws, events)
 
