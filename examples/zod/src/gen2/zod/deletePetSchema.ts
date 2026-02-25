@@ -6,7 +6,7 @@
 import * as z from 'zod/mini'
 
 export const deletePetPathParamsSchema = z.object({
-  petId: z.coerce.bigint(),
+  petId: z.int(),
 })
 
 export const deletePetHeaderParamsSchema = z.optional(

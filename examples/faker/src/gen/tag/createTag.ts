@@ -8,7 +8,7 @@ import type { Tag } from '../models/Tag.ts'
 
 export function createTag(data?: Partial<Tag>): Tag {
   return {
-    ...{ id: faker.number.bigInt(), name: faker.string.alpha() },
+    ...{ id: faker.number.int(), name: faker.string.alpha() },
     ...(data || {}),
   }
 }

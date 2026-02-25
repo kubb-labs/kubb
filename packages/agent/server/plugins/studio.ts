@@ -165,9 +165,11 @@ export default defineNitroPlugin(async (nitro) => {
             studioUrl,
             token,
           }).catch(async () => {
-            await storage.removeItem(getSessionKey(token))
-            await reconnectToStudio()
+            // Ignore disconnect errors since we're already handling a closed connection
           })
+
+          await storage.removeItem(getSessionKey(token))
+          await reconnectToStudio()
         }
       }
 

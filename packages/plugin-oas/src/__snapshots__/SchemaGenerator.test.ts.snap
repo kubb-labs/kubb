@@ -375,7 +375,7 @@ exports[`SchemaGenerator core > 'Pet' 1`] = `
         ],
         "id": [
           {
-            "keyword": "bigint",
+            "keyword": "integer",
           },
           {
             "args": {

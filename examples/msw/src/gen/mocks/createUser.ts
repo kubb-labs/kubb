@@ -10,7 +10,7 @@ export function createUser(data?: Partial<User>): User {
   faker.seed([220])
   return {
     ...{
-      id: faker.number.bigInt(),
+      id: faker.number.int(),
       username: faker.string.alpha(),
       firstName: faker.string.alpha(),
       lastName: faker.string.alpha(),

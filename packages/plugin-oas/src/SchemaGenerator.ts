@@ -1118,7 +1118,7 @@ export class SchemaGenerator<
 
     if (schemaObject.format) {
       if (schemaObject.type === 'integer' && schemaObject.format === 'int64') {
-        baseItems.unshift({ keyword: options.integerType === 'number' ? schemaKeywords.integer : schemaKeywords.bigint })
+        baseItems.unshift({ keyword: options.integerType === 'bigint' ? schemaKeywords.bigint : schemaKeywords.integer })
         return baseItems
       }
 

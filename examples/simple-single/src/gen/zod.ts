@@ -6,8 +6,8 @@
 import * as z from 'zod'
 
 export const orderSchema = z.object({
-  id: z.optional(z.bigint()),
-  petId: z.optional(z.bigint()),
+  id: z.optional(z.number().int()),
+  petId: z.optional(z.number().int()),
   quantity: z.optional(z.number().int()),
   shipDate: z.optional(z.string().datetime()),
   status: z.optional(z.enum(['placed', 'approved', 'delivered']).describe('Order Status')),
@@ -23,13 +23,13 @@ export const addressSchema = z.object({
 })
 
 export const customerSchema = z.object({
-  id: z.optional(z.bigint()),
+  id: z.optional(z.number().int()),
   username: z.optional(z.string()),
   address: z.optional(z.array(z.lazy(() => addressSchema))),
 })
 
 export const categorySchema = z.object({
-  id: z.optional(z.bigint()),
+  id: z.optional(z.number().int()),
   name: z.optional(z.string()),
 })
 
@@ -41,7 +41,7 @@ export const userSchema = z
   .lazy(() => personSchema)
   .and(
     z.object({
-      id: z.optional(z.bigint()),
+      id: z.optional(z.number().int()),
       username: z.optional(z.string()),
       firstName: z.optional(z.string()),
       lastName: z.optional(z.string()),
@@ -53,12 +53,12 @@ export const userSchema = z
   )
 
 export const tagSchema = z.object({
-  id: z.optional(z.bigint()),
+  id: z.optional(z.number().int()),
   name: z.optional(z.string()),
 })
 
 export const petSchema = z.object({
-  id: z.optional(z.bigint()),
+  id: z.optional(z.number().int()),
   name: z.string(),
   category: z.optional(z.lazy(() => categorySchema)),
   photoUrls: z.array(z.string()),
@@ -67,7 +67,7 @@ export const petSchema = z.object({
 })
 
 export const addPetRequestSchema = z.object({
-  id: z.optional(z.bigint()),
+  id: z.optional(z.number().int()),
   name: z.string(),
   category: z.optional(z.lazy(() => categorySchema)),
   photoUrls: z.array(z.string()),
@@ -172,7 +172,7 @@ export const findPetsByTags400Schema = z.any()
 export const findPetsByTagsQueryResponseSchema = z.lazy(() => findPetsByTags200Schema)
 
 export const getPetByIdPathParamsSchema = z.object({
-  petId: z.coerce.bigint().describe('ID of pet to return'),
+  petId: z.coerce.number().int().describe('ID of pet to return'),
 })
 
 /**
@@ -193,7 +193,7 @@ export const getPetById404Schema = z.any()
 export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema)
 
 export const updatePetWithFormPathParamsSchema = z.object({
-  petId: z.coerce.bigint().describe('ID of pet that needs to be updated'),
+  petId: z.coerce.number().int().describe('ID of pet that needs to be updated'),
 })
 
 export const updatePetWithFormQueryParamsSchema = z
@@ -211,7 +211,7 @@ export const updatePetWithForm405Schema = z.any()
 export const updatePetWithFormMutationResponseSchema = z.any()
 
 export const deletePetPathParamsSchema = z.object({
-  petId: z.coerce.bigint().describe('Pet id to delete'),
+  petId: z.coerce.number().int().describe('Pet id to delete'),
 })
 
 export const deletePetHeaderParamsSchema = z
@@ -228,7 +228,7 @@ export const deletePet400Schema = z.any()
 export const deletePetMutationResponseSchema = z.any()
 
 export const uploadFilePathParamsSchema = z.object({
-  petId: z.coerce.bigint().describe('ID of pet to update'),
+  petId: z.coerce.number().int().describe('ID of pet to update'),
 })
 
 export const uploadFileQueryParamsSchema = z
@@ -282,7 +282,7 @@ export const placeOrderPatchMutationRequestSchema = z.lazy(() => orderSchema)
 export const placeOrderPatchMutationResponseSchema = z.lazy(() => placeOrderPatch200Schema)
 
 export const getOrderByIdPathParamsSchema = z.object({
-  orderId: z.coerce.bigint().describe('ID of order that needs to be fetched'),
+  orderId: z.coerce.number().int().describe('ID of order that needs to be fetched'),
 })
 
 /**
@@ -303,7 +303,7 @@ export const getOrderById404Schema = z.any()
 export const getOrderByIdQueryResponseSchema = z.lazy(() => getOrderById200Schema)
 
 export const deleteOrderPathParamsSchema = z.object({
-  orderId: z.coerce.bigint().describe('ID of the order that needs to be deleted'),
+  orderId: z.coerce.number().int().describe('ID of the order that needs to be deleted'),
 })
 
 /**

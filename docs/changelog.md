@@ -6,6 +6,16 @@ outline: deep
 
 # Changelog
 
+## 4.29.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+Correct use of default (non-breaking change), this will change in v5
+
+---
+
 ## 4.29.0
 
 ### ✨ Features

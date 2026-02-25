@@ -18,7 +18,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     enumKeyCasing = 'none',
     enumSuffix = 'enum',
     dateType = 'string',
-    integerType = 'bigint',
+    integerType = 'number',
     unknownType = 'any',
     optionalType = 'questionToken',
     arrayType = 'array',

@@ -52,6 +52,7 @@ describe('operationsGenerator operations', async () => {
       version: '4',
       guidType: 'uuid',
       emptySchemaType: 'unknown',
+      integerType: 'number',
       mini: false,
       ...props.options,
     }

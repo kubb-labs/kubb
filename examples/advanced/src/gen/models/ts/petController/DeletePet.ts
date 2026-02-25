@@ -3,7 +3,7 @@ export type DeletePetPathParams = {
    * @description Pet id to delete
    * @type integer, int64
    */
-  petId: bigint
+  petId: number
 }
 
 export type DeletePetHeaderParams = {

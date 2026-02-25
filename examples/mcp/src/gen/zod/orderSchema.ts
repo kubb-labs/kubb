@@ -6,8 +6,8 @@
 import * as z from 'zod'
 
 export const orderSchema = z.object({
-  id: z.optional(z.bigint()),
-  petId: z.optional(z.bigint()),
+  id: z.optional(z.number().int().min(3).max(100)),
+  petId: z.optional(z.number().int()),
   quantity: z.optional(z.number().int()),
   orderType: z.optional(z.enum(['foo', 'bar'])),
   type: z.optional(z.string().describe('Order Status')),

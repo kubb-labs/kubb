@@ -8,7 +8,7 @@ import { categorySchema } from './categorySchema.ts'
 import { tagSchema } from './tagSchema.ts'
 
 export const addPetRequestSchema = z.object({
-  id: z.optional(z.bigint()),
+  id: z.optional(z.int()),
   name: z.string(),
   get category() {
     return z.optional(categorySchema)

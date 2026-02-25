@@ -6,7 +6,7 @@
 import * as z from 'zod/mini'
 
 export const userSchema = z.object({
-  id: z.optional(z.bigint()),
+  id: z.optional(z.int()),
   username: z.optional(z.string()),
   firstName: z.optional(z.string()),
   lastName: z.optional(z.string()),

@@ -11,7 +11,7 @@ import { createTag } from './createTag.ts'
 export function createPet(data?: Partial<Pet>): Pet {
   return {
     ...{
-      id: faker.number.bigInt(),
+      id: faker.number.int(),
       name: faker.commerce.productName(),
       category: createCategory(),
       photoUrls: faker.helpers.multiple(() => faker.string.alpha()),

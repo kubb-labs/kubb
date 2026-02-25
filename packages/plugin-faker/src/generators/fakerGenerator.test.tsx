@@ -137,6 +137,7 @@ describe('fakerGenerator schema', async () => {
       override: [],
       transformers: {},
       unknownType: 'unknown',
+      integerType: 'number',
       mapper: {},
       output: {
         path: '.',
@@ -259,6 +260,7 @@ describe('fakerGenerator operation', async () => {
       seed: undefined,
       regexGenerator: 'faker',
       override: [],
+      integerType: 'number',
       transformers: {},
       unknownType: 'unknown',
       mapper: {},

@@ -39,6 +39,14 @@ export type Options = {
    */
   dateType?: 'string' | 'date'
   /**
+   * Choose to use `number` or `bigint` for integer fields with `int64` format.
+   * - 'number' uses the JavaScript `number` type (matches JSON.parse() runtime behavior).
+   * - 'bigint' uses the JavaScript `bigint` type (accurate for values exceeding Number.MAX_SAFE_INTEGER).
+   * @note in v5 of Kubb 'bigint' will become the default to better align with OpenAPI's int64 specification.
+   * @default 'number'
+   */
+  integerType?: 'number' | 'bigint'
+  /**
    * Which parser should be used when dateType is set to string.
    * - 'faker' uses faker's built-in date formatting methods.
    * - 'dayjs' uses dayjs for date formatting with custom patterns.
@@ -105,6 +113,7 @@ type ResolvedOptions = {
   group: Options['group']
   override: NonNullable<Options['override']>
   dateType: NonNullable<Options['dateType']>
+  integerType: NonNullable<Options['integerType']>
   dateParser: NonNullable<Options['dateParser']>
   unknownType: NonNullable<Options['unknownType']>
   emptySchemaType: NonNullable<Options['emptySchemaType']>

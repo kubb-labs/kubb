@@ -7,7 +7,7 @@ import { z } from '../../zod.ts'
 import { orderSchema } from './orderSchema.gen.ts'
 
 export const getOrderByIdPathParamsSchema = z.object({
-  orderId: z.coerce.bigint().describe('ID of order that needs to be fetched'),
+  orderId: z.coerce.number().int().describe('ID of order that needs to be fetched'),
 })
 
 export type GetOrderByIdPathParamsSchema = z.infer<typeof getOrderByIdPathParamsSchema>

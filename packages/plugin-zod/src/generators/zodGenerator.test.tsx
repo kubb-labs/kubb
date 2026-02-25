@@ -308,6 +308,7 @@ describe('zodGenerator schema', async () => {
       inferred: false,
       typed: false,
       unknownType: 'any',
+      integerType: 'number',
       mapper: {},
       importPath: 'zod',
       coercion: false,
@@ -444,6 +445,7 @@ describe('zodGenerator operation', async () => {
       mapper: {},
       importPath: 'zod',
       coercion: false,
+      integerType: 'number',
       operations: false,
       override: [],
       output: {
@@ -506,6 +508,7 @@ describe('zodGenerator operation', async () => {
         version: '3',
         guidType: 'uuid',
         emptySchemaType: 'unknown',
+        integerType: 'number',
         wrapOutput: ({ output, schema }) => {
           const metadata: ZodOpenAPIMetadata = {}
 
@@ -593,6 +596,7 @@ describe('zodGenerator operation', async () => {
         importPath: '@hono/zod-openapi',
         coercion: false,
         operations: false,
+        integerType: 'number',
         override: [],
         output: {
           path: '.',
@@ -685,6 +689,7 @@ describe('zodGenerator operation', async () => {
         typed: false,
         inferred: false,
         mapper: {},
+        integerType: 'number',
         importPath: 'zod',
         coercion: false,
         operations: false,

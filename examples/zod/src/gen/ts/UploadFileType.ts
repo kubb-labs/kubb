@@ -10,7 +10,7 @@ export type UploadFilePathParamsType = {
    * @description ID of pet to update
    * @type integer, int64
    */
-  petId: bigint
+  petId: number
 }
 
 export type UploadFileQueryParamsType = {

@@ -134,6 +134,8 @@ describe('build', () => {
       expect(fabric.files).toBeDefined()
       expect(pluginManager).toBeDefined()
       expect(fabric.files.length).toBe(1)
+
+      pluginManager.events.removeAll()
     }
   })
 

@@ -10,7 +10,7 @@ import { createApiResponse } from '../createApiResponse.ts'
 export function createUploadFilePathParams(data?: Partial<UploadFilePathParams>): UploadFilePathParams {
   faker.seed([220])
   return {
-    ...{ petId: faker.number.bigInt() },
+    ...{ petId: faker.number.int() },
     ...(data || {}),
   }
 }

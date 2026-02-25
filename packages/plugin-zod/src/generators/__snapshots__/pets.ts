@@ -7,7 +7,7 @@ import { ToZod } from './test/.kubb/ToZod'
 
 export const pets = z.array(
   z.object({
-    id: z.bigint(),
+    id: z.number().int(),
     name: z.string(),
     tag: z.optional(z.string()),
   }),

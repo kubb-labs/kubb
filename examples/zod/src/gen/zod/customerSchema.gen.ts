@@ -7,7 +7,7 @@ import { z } from '../../zod.ts'
 import { addressSchema } from './addressSchema.gen.ts'
 
 export const customerSchema = z.object({
-  id: z.optional(z.bigint()),
+  id: z.optional(z.int()),
   username: z.optional(z.string()),
   get address() {
     return z.array(addressSchema).optional()

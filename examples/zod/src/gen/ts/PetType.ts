@@ -18,7 +18,7 @@ export type PetType = {
   /**
    * @type integer | undefined, int64
    */
-  id?: bigint
+  id?: number
   /**
    * @type array | undefined
    */

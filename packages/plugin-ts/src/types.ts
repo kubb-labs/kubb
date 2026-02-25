@@ -76,7 +76,8 @@ export type Options = {
    * Choose to use `number` or `bigint` for integer fields with `int64` format.
    * - 'number' uses the TypeScript `number` type (matches JSON.parse() runtime behavior).
    * - 'bigint' uses the TypeScript `bigint` type (accurate for values exceeding Number.MAX_SAFE_INTEGER).
-   * @default 'bigint'
+   * @note in v5 of Kubb 'bigint' will become the default to better align with OpenAPI's int64 specification.
+   * @default 'number'
    */
   integerType?: 'number' | 'bigint'
   /**

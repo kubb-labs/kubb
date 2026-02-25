@@ -12,7 +12,7 @@ export function createAddPetRequest(data?: Partial<AddPetRequest>): AddPetReques
   faker.seed([220])
   return {
     ...{
-      id: faker.number.bigInt(),
+      id: faker.number.int(),
       name: faker.string.alpha(),
       category: createCategory(),
       photoUrls: faker.helpers.multiple(() => faker.string.alpha()),

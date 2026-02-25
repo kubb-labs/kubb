@@ -3,7 +3,7 @@ import type { ToZod } from '../../.kubb/ToZod.ts'
 import type { TagTag } from '../../models/ts/tag/Tag.ts'
 
 export const tagTagSchema = z.object({
-  id: z.optional(z.bigint().default(BigInt(1))),
+  id: z.optional(z.number().int().min(5).max(7).default(1)),
   name: z.optional(z.string()),
 }) as unknown as ToZod<TagTag>
 
