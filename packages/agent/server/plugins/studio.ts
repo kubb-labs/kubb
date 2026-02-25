@@ -74,43 +74,6 @@ export default defineNitroPlugin(async (nitro) => {
     },
   }
 
-  events.on('hook:start', async ({ id, command, args }) => {
-    const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
-
-    // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
-    if (!id) {
-      return
-    }
-
-    try {
-      const result = await x(command, [...(args ?? [])], {
-        nodeOptions: { cwd: root, detached: true },
-        throwOnError: true,
-      })
-
-      console.log(result.stdout.trimEnd())
-
-      await events.emit('hook:end', {
-        command,
-        args,
-        id,
-        success: true,
-        error: null,
-      })
-    } catch (_err) {
-      const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
-
-      await events.emit('hook:end', {
-        command,
-        args,
-        id,
-        success: false,
-        error: errorMessage,
-      })
-      await events.emit('error', errorMessage)
-    }
-  })
-
   async function reconnectToStudio() {
     logger.info(`Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`)
 
@@ -121,6 +84,46 @@ export default defineNitroPlugin(async (nitro) => {
 
   async function connectToStudio() {
     try {
+      // remove to avoid duplicate listeners in case of reconnects
+      events.removeAll()
+
+      events.on('hook:start', async ({ id, command, args }) => {
+        const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+
+        // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
+        if (!id) {
+          return
+        }
+
+        try {
+          const result = await x(command, [...(args ?? [])], {
+            nodeOptions: { cwd: root, detached: true },
+            throwOnError: true,
+          })
+
+          console.log(result.stdout.trimEnd())
+
+          await events.emit('hook:end', {
+            command,
+            args,
+            id,
+            success: true,
+            error: null,
+          })
+        } catch (_err) {
+          const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
+
+          await events.emit('hook:end', {
+            command,
+            args,
+            id,
+            success: false,
+            error: errorMessage,
+          })
+          await events.emit('error', errorMessage)
+        }
+      })
+
       // start connection to studio
       const { sessionToken, wsUrl, isSandbox } = await createAgentSession({
         noCache,

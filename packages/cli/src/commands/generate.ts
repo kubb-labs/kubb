@@ -122,6 +122,9 @@ const command = defineCommand({
         return async () => {
           if (isInputPath(config) && args.watch) {
             await startWatcher([input || config.input.path], async (paths) => {
+              // remove to avoid duplicate listeners after each change
+              events.removeAll()
+
               await generate({
                 input,
                 config,
