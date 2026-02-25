@@ -2,6 +2,7 @@ import type { Storage } from 'unstorage'
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { getSessionKey } from '~/utils/getSessionKey.ts'
 import { type AgentSession, isSessionValid } from '~/utils/isSessionValid.ts'
+import { maskedString } from '~/utils/maskedString.ts'
 import { generateMachineToken } from '~/utils/token.ts'
 import { logger } from './logger.ts'
 
@@ -42,7 +43,7 @@ export async function createAgentSession({ token, studioUrl, noCache, storage }:
   }
 
   try {
-    logger.info('Creating agent session with Studio...')
+    logger.info(`Creating agent session (${maskedString(sessionKey)}) with Studio...`)
 
     const data = await $fetch<AgentConnectResponse>(connectUrl, {
       method: 'POST',
@@ -91,7 +92,7 @@ export async function registerAgent({ token, studioUrl }: RegisterProps): Promis
       },
       body: { machineToken },
     })
-    logger.success('Agent registered with Studio')
+    logger.success(`Agent registered with Studio with token ${maskedString(token)}`)
   } catch (error: any) {
     logger.error('Failed to register agent with Studio', error?.cause?.message ?? error?.message)
   }
