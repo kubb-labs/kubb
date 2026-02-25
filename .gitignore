@@ -58,6 +58,7 @@ hello
 packages/ui/static/**
 .nx
 packages/core/mocks/helloWorld.js
+packages/core/src/gen/mocks/excluded.ts
 
 ## Nitro
 .output
