@@ -108,6 +108,15 @@ export type PongMessage = {
 }
 
 /**
+ * Disconnect message sent from Studio to Agent when the session is expired or revoked.
+ * The agent should close the connection without reconnecting.
+ */
+export type DisconnectMessage = {
+  type: 'disconnect'
+  reason: 'expired' | 'revoked'
+}
+
+/**
  * Status message with connected agents information
  */
 export type StatusMessage = {
@@ -144,7 +153,7 @@ export type AgentConnectResponse = {
   isSandbox: boolean
 }
 
-export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ErrorMessage | StatusMessage | PingMessage | PongMessage
+export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ErrorMessage | StatusMessage | PingMessage | PongMessage | DisconnectMessage
 
 // Helper type guards
 export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
@@ -181,4 +190,8 @@ export function isPongMessage(msg: AgentMessage): msg is PongMessage {
 
 export function isStatusMessage(msg: AgentMessage): msg is StatusMessage {
   return msg.type === 'status'
+}
+
+export function isDisconnectMessage(msg: AgentMessage): msg is DisconnectMessage {
+  return msg.type === 'disconnect'
 }

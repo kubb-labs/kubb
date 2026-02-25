@@ -339,6 +339,33 @@ describe('connectToStudio', () => {
     expect(storage.removeItem).toHaveBeenCalledWith('kubb:session-key')
   })
 
+  it('closes the WebSocket without reconnecting when a disconnect message with reason "revoked" is received', async () => {
+    vi.useFakeTimers()
+
+    await connectToStudio(options)
+
+    await mockWs.trigger('message', { data: JSON.stringify({ type: 'disconnect', reason: 'revoked' }) })
+
+    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('revoked'))
+    expect(storage.removeItem).toHaveBeenCalledWith('kubb:session-key')
+    expect(mockWs.closed).toBe(true)
+    // disconnect API must NOT be called — server already knows about the closure
+    expect(disconnect).not.toHaveBeenCalled()
+  })
+
+  it('closes the WebSocket without reconnecting when a disconnect message with reason "expired" is received', async () => {
+    vi.useFakeTimers()
+
+    await connectToStudio(options)
+
+    await mockWs.trigger('message', { data: JSON.stringify({ type: 'disconnect', reason: 'expired' }) })
+
+    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('expired'))
+    expect(storage.removeItem).toHaveBeenCalledWith('kubb:session-key')
+    expect(mockWs.closed).toBe(true)
+    expect(disconnect).not.toHaveBeenCalled()
+  })
+
   it('invalidates the cached session on WS error when the stored session is still valid', async () => {
     vi.useFakeTimers()
     vi.mocked(isSessionValid).mockReturnValue(true)

@@ -4,11 +4,11 @@ import { formatMs, serializePluginOptions } from '@kubb/core/utils'
 import type { NitroApp } from 'nitropack/types'
 import type { Storage } from 'unstorage'
 import { version } from '~~/package.json'
-import { type AgentMessage, isCommandMessage, isPongMessage } from '../types/agent.ts'
+import { type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage } from '../types/agent.ts'
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
-import { isSessionValid } from './isSessionValid.ts'
 import type { AgentSession } from './isSessionValid.ts'
+import { isSessionValid } from './isSessionValid.ts'
 import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
 import { resolvePlugins } from './resolvePlugins.ts'
@@ -38,7 +38,22 @@ export type ConnectToStudioOptions = {
  * Automatically reconnects after `retryInterval` ms on close or error.
  */
 export async function connectToStudio(options: ConnectToStudioOptions): Promise<void> {
-  const { token, studioUrl, configPath, resolvedConfigPath, noCache, allowAll, allowWrite, root, retryInterval, heartbeatInterval = 30_000, events, storage, sessionKey, nitro } = options
+  const {
+    token,
+    studioUrl,
+    configPath,
+    resolvedConfigPath,
+    noCache,
+    allowAll,
+    allowWrite,
+    root,
+    retryInterval,
+    heartbeatInterval = 30_000,
+    events,
+    storage,
+    sessionKey,
+    nitro,
+  } = options
 
   async function reconnect() {
     logger.info(`Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`)
@@ -58,6 +73,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     const effectiveAllowAll = isSandbox ? false : allowAll
     const effectiveWrite = isSandbox ? false : allowWrite
 
+    // Tracks whether the studio server explicitly disconnected us (no reconnect needed)
+    let serverDisconnected = false
+
     const cleanup = () => {
       ws.removeEventListener('open', onOpen)
       ws.removeEventListener('close', onClose)
@@ -70,6 +88,10 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     const onClose = async () => {
       cleanup()
+
+      if (serverDisconnected) {
+        return
+      }
 
       logger.info('Disconnecting from Studio ...')
 
@@ -113,6 +135,16 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
         if (isPongMessage(data)) {
           logger.info('Received pong from Studio')
+
+          return
+        }
+
+        if (isDisconnectMessage(data)) {
+          serverDisconnected = true
+          logger.warn(`Session ${data.reason} by Studio — disconnecting without reconnect`)
+
+          await storage.removeItem(sessionKey)
+          ws.close(1000, `session_${data.reason}`)
 
           return
         }

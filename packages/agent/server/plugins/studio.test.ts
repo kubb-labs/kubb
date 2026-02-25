@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { AgentMessage } from '../types/agent.ts'
-import { isCommandMessage, isDataMessage } from '../types/agent.ts'
+import { isCommandMessage, isDataMessage, isDisconnectMessage } from '../types/agent.ts'
 
 describe('Studio Plugin - Message Handling', () => {
   describe('Message Type Guards', () => {
@@ -30,6 +30,23 @@ describe('Studio Plugin - Message Handling', () => {
       const event = isDataMessage(message, 'info') ? message : undefined
       expect(event.payload.type).toEqual('info')
     })
+
+    it('should identify disconnect message with reason "expired"', () => {
+      const message: AgentMessage = { type: 'disconnect', reason: 'expired' }
+
+      expect(isDisconnectMessage(message)).toBe(true)
+      expect(isCommandMessage(message)).toBe(false)
+      expect(isDataMessage(message)).toBe(false)
+    })
+
+    it('should identify disconnect message with reason "revoked"', () => {
+      const message: AgentMessage = { type: 'disconnect', reason: 'revoked' }
+
+      expect(isDisconnectMessage(message)).toBe(true)
+      if (isDisconnectMessage(message)) {
+        expect(message.reason).toBe('revoked')
+      }
+    })
   })
 
   describe('WebSocket Message Serialization', () => {
@@ -40,6 +57,14 @@ describe('Studio Plugin - Message Handling', () => {
 
       const serialized = JSON.stringify(message)
       expect(serialized).toContain('"type":"ping"')
+    })
+
+    it('should serialize disconnect message with reason', () => {
+      const expired: AgentMessage = { type: 'disconnect', reason: 'expired' }
+      const revoked: AgentMessage = { type: 'disconnect', reason: 'revoked' }
+
+      expect(JSON.parse(JSON.stringify(expired))).toEqual({ type: 'disconnect', reason: 'expired' })
+      expect(JSON.parse(JSON.stringify(revoked))).toEqual({ type: 'disconnect', reason: 'revoked' })
     })
 
     it('should serialize connected message with info response', () => {

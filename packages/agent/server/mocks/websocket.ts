@@ -8,6 +8,9 @@ export class MockWebSocket {
   /** Simulates the OPEN ready state so sendAgentMessage does not bail early. */
   public readyState = 1
 
+  /** Tracks whether close() has been called */
+  public closed = false
+
   addEventListener(event: string, cb: (...args: any[]) => any): void {
     if (!this.listeners.has(event)) this.listeners.set(event, [])
     this.listeners.get(event)!.push(cb)
@@ -19,6 +22,11 @@ export class MockWebSocket {
       const idx = list.indexOf(cb)
       if (idx >= 0) list.splice(idx, 1)
     }
+  }
+
+  /** Simulate the WebSocket being closed from the client side. */
+  close(_code?: number, _reason?: string): void {
+    this.closed = true
   }
 
   /** Trigger all listeners for an event and await their completion in order. */
