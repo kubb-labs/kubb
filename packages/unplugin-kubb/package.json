@@ -1,169 +1,169 @@
 {
-	"name": "unplugin-kubb",
-	"version": "4.0.2",
-	"description": "Universal build plugin for Kubb, integrating OpenAPI code generation into Vite, Webpack, Rollup, esbuild, Rspack, Nuxt, and Astro build processes.",
-	"keywords": [
-		"unplugin",
-		"vite",
-		"webpack",
-		"rollup",
-		"esbuild",
-		"rspack",
-		"nuxt",
-		"astro",
-		"build-tool",
-		"bundler",
-		"transform",
-		"openapi",
-		"swagger",
-		"code-generator",
-		"typescript",
-		"kubb"
-	],
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/kubb-labs/kubb.git",
-		"directory": "packages/unplugin"
-	},
-	"license": "MIT",
-	"author": "stijnvanhulle",
-	"sideEffects": false,
-	"type": "module",
-	"exports": {
-		".": {
-			"import": "./dist/index.js",
-			"require": "./dist/index.cjs"
-		},
-		"./astro": {
-			"import": "./dist/astro.js",
-			"require": "./dist/astro.cjs"
-		},
-		"./esbuild": {
-			"import": "./dist/esbuild.js",
-			"require": "./dist/esbuild.cjs"
-		},
-		"./farm": {
-			"import": "./dist/farm.js",
-			"require": "./dist/farm.cjs"
-		},
-		"./nuxt": {
-			"import": "./dist/nuxt.js",
-			"require": "./dist/nuxt.cjs"
-		},
-		"./rolldown": {
-			"import": "./dist/rolldown.js",
-			"require": "./dist/rolldown.cjs"
-		},
-		"./rollup": {
-			"import": "./dist/rollup.js",
-			"require": "./dist/rollup.cjs"
-		},
-		"./rspack": {
-			"import": "./dist/rspack.js",
-			"require": "./dist/rspack.cjs"
-		},
-		"./types": {
-			"import": "./dist/types.js",
-			"require": "./dist/types.cjs"
-		},
-		"./unpluginFactory": {
-			"import": "./dist/unpluginFactory.js",
-			"require": "./dist/unpluginFactory.cjs"
-		},
-		"./vite": {
-			"import": "./dist/vite.js",
-			"require": "./dist/vite.cjs"
-		},
-		"./webpack": {
-			"import": "./dist/webpack.js",
-			"require": "./dist/webpack.cjs"
-		},
-		"./package.json": "./package.json"
-	},
-	"main": "./dist/index.cjs",
-	"module": "./dist/index.js",
-	"types": "./dist/index.d.cts",
-	"typesVersions": {
-		"*": {
-			"*": [
-				"./dist/*",
-				"./*"
-			]
-		}
-	},
-	"files": [
-		"src",
-		"dist",
-		"!/**/**.test.**",
-		"!/**/__tests__/**"
-	],
-	"scripts": {
-		"build": "tsdown",
-		"clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
-		"lint": "bun biome lint .",
-		"lint:fix": "bun biome lint --fix --unsafe .",
-		"release": "pnpm publish --no-git-check",
-		"release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
-		"start": "tsdown --watch",
-		"test": "vitest --passWithNoTests",
-		"typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
-	},
-	"dependencies": {
-		"unplugin": "^3.0.0"
-	},
-	"devDependencies": {
+  "name": "unplugin-kubb",
+  "version": "4.0.2",
+  "description": "Universal build plugin for Kubb, integrating OpenAPI code generation into Vite, Webpack, Rollup, esbuild, Rspack, Nuxt, and Astro build processes.",
+  "keywords": [
+    "unplugin",
+    "vite",
+    "webpack",
+    "rollup",
+    "esbuild",
+    "rspack",
+    "nuxt",
+    "astro",
+    "build-tool",
+    "bundler",
+    "transform",
+    "openapi",
+    "swagger",
+    "code-generator",
+    "typescript",
+    "kubb"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/unplugin"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./astro": {
+      "import": "./dist/astro.js",
+      "require": "./dist/astro.cjs"
+    },
+    "./esbuild": {
+      "import": "./dist/esbuild.js",
+      "require": "./dist/esbuild.cjs"
+    },
+    "./farm": {
+      "import": "./dist/farm.js",
+      "require": "./dist/farm.cjs"
+    },
+    "./nuxt": {
+      "import": "./dist/nuxt.js",
+      "require": "./dist/nuxt.cjs"
+    },
+    "./rolldown": {
+      "import": "./dist/rolldown.js",
+      "require": "./dist/rolldown.cjs"
+    },
+    "./rollup": {
+      "import": "./dist/rollup.js",
+      "require": "./dist/rollup.cjs"
+    },
+    "./rspack": {
+      "import": "./dist/rspack.js",
+      "require": "./dist/rspack.cjs"
+    },
+    "./types": {
+      "import": "./dist/types.js",
+      "require": "./dist/types.cjs"
+    },
+    "./unpluginFactory": {
+      "import": "./dist/unpluginFactory.js",
+      "require": "./dist/unpluginFactory.cjs"
+    },
+    "./vite": {
+      "import": "./dist/vite.js",
+      "require": "./dist/vite.cjs"
+    },
+    "./webpack": {
+      "import": "./dist/webpack.js",
+      "require": "./dist/webpack.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*",
+        "./*"
+      ]
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
+    "lint": "bun biome lint .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
+    "release": "pnpm publish --no-git-check",
+    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
+    "start": "tsdown --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "unplugin": "^3.0.0"
+  },
+  "devDependencies": {
     "@farmfe/core": "^1.7.11",
-		"@kubb/core": "workspace:*",
-		"@nuxt/kit": "^4.3.1",
-		"@nuxt/schema": "^4.3.1",
-		"esbuild": "*",
-		"rollup": "^4.59.0",
-		"vite": "^7.3.1",
+    "@kubb/core": "workspace:*",
+    "@nuxt/kit": "^4.3.1",
+    "@nuxt/schema": "^4.3.1",
+    "esbuild": "*",
     "rolldown": "~1.0.0-rc.5",
-		"webpack": "^5.105.2"
-	},
-	"peerDependencies": {
-		"@farmfe/core": ">=1",
-		"@kubb/core": "^4.0.0",
-		"@nuxt/kit": "^3 || ^4",
-		"@nuxt/schema": "^3 || ^4",
-		"esbuild": "*",
-		"rolldown": ">=1",
-		"rollup": "^3 || ^4",
-		"vite": ">=3",
-		"webpack": "^5"
-	},
-	"peerDependenciesMeta": {
-		"@farmfe/core": {
-			"optional": true
-		},
-		"@nuxt/kit": {
-			"optional": true
-		},
-		"@nuxt/schema": {
-			"optional": true
-		},
-		"esbuild": {
-			"optional": true
-		},
-		"rolldown": {
-			"optional": true
-		},
-		"rollup": {
-			"optional": true
-		},
-		"vite": {
-			"optional": true
-		},
-		"webpack": {
-			"optional": true
-		}
-	},
-	"engines": {
-		"node": ">=20"
-	},
-	"publishConfig": {
-		"access": "public",
-		"registry": "https://registry.npmjs.org/"
-	}
+    "rollup": "^4.59.0",
+    "vite": "^7.3.1",
+    "webpack": "^5.105.2"
+  },
+  "peerDependencies": {
+    "@farmfe/core": ">=1",
+    "@kubb/core": "^4.0.0",
+    "@nuxt/kit": "^3 || ^4",
+    "@nuxt/schema": "^3 || ^4",
+    "esbuild": "*",
+    "rolldown": ">=1",
+    "rollup": "^3 || ^4",
+    "vite": ">=3",
+    "webpack": "^5"
+  },
+  "peerDependenciesMeta": {
+    "@farmfe/core": {
+      "optional": true
+    },
+    "@nuxt/kit": {
+      "optional": true
+    },
+    "@nuxt/schema": {
+      "optional": true
+    },
+    "esbuild": {
+      "optional": true
+    },
+    "rolldown": {
+      "optional": true
+    },
+    "rollup": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    },
+    "webpack": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }

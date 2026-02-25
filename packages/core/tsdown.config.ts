@@ -15,7 +15,8 @@ export default defineConfig({
   shims: true,
   exports: true,
   external: [/@kubb\/fabric-core/],
-  noExternal: [/p-limit/, /find-up/, /camelcase/],
+  noExternal: [/p-limit/],
+  inlineOnly: false,
   fixedExtension: false,
   outputOptions: {
     keepNames: true,

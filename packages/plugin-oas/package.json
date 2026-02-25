@@ -19,7 +19,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubb-labs/kubb.git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/plugin-oas"
   },
   "license": "MIT",
@@ -96,7 +96,6 @@
     "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
     "@kubb/react-fabric": "catalog:",
-    "p-limit": "catalog:",
     "remeda": "catalog:"
   },
   "peerDependencies": {
@@ -108,5 +107,8 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "p-limit": "catalog:"
   }
 }

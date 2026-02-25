@@ -10,7 +10,6 @@ export default defineConfig({
   sourcemap: true,
   shims: true,
   exports: true,
-  noExternal: [/p-limit/, /find-up/, /natural-orderby/, /camelcase/],
   fixedExtension: false,
   outputOptions: {
     keepNames: true,

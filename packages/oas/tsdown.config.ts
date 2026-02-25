@@ -11,7 +11,6 @@ export default defineConfig({
   shims: true,
   exports: true,
   external: [/^@kubb\//],
-  noExternal: [/whatwg-url/],
   fixedExtension: false,
   outputOptions: {
     keepNames: true,
