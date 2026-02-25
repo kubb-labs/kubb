@@ -1,5 +1,16 @@
 # @kubb/plugin-ts
 
+## 4.29.1
+
+### Patch Changes
+
+- [`d6fc5ad`](https://github.com/kubb-labs/kubb/commit/d6fc5ad851195330367ebecbc08e19ec1658ca40) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Correct use of default (non-breaking change)
+
+- Updated dependencies []:
+  - @kubb/core@4.29.1
+  - @kubb/oas@4.29.1
+  - @kubb/plugin-oas@4.29.1
+
 ## 4.29.0
 
 ### Minor Changes
