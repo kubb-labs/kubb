@@ -2,10 +2,10 @@ import type { KubbEvents } from '@kubb/core'
 import { AsyncEventEmitter } from '@kubb/core/utils'
 import type { Storage } from 'unstorage'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { MockWebSocket } from '../mocks/websocket.ts'
 import type { ConnectToStudioOptions } from './connectStudio.ts'
 import { connectToStudio } from './connectStudio.ts'
 import type { AgentSession } from './isSessionValid.ts'
-import { MockWebSocket } from '../mocks/websocket.ts'
 
 vi.mock('./api.ts', () => ({
   createAgentSession: vi.fn(),
@@ -77,7 +77,6 @@ const makeConfig = (overrides = {}) => ({
   plugins: [],
   ...overrides,
 })
-
 
 describe('connectToStudio', () => {
   let events: AsyncEventEmitter<KubbEvents>

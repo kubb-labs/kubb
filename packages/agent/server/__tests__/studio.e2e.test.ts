@@ -59,15 +59,11 @@ describe('studio plugin – e2e (read-only agent)', () => {
     it('emits generation lifecycle events over WebSocket', { timeout: 60_000 }, async () => {
       context.studio.send({ type: 'command', command: 'generate' })
 
-      const start = await context.studio.waitForMessage(
-        (m): m is DataMessage<'generation:start'> => isDataMessage(m, 'generation:start'),
-      )
+      const start = await context.studio.waitForMessage((m): m is DataMessage<'generation:start'> => isDataMessage(m, 'generation:start'))
 
       expect(start.payload.type).toBe('generation:start')
 
-      const end = await context.studio.waitForMessage(
-        (m): m is DataMessage<'generation:end'> => isDataMessage(m, 'generation:end'),
-      )
+      const end = await context.studio.waitForMessage((m): m is DataMessage<'generation:end'> => isDataMessage(m, 'generation:end'))
 
       expect(end.payload.type).toBe('generation:end')
     })

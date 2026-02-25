@@ -1,7 +1,7 @@
 import path from 'node:path'
 import process from 'node:process'
-import { AsyncEventEmitter } from '@kubb/core/utils'
 import type { KubbEvents } from '@kubb/core'
+import { AsyncEventEmitter } from '@kubb/core/utils'
 import { registerAgent } from '~/utils/api.ts'
 import { connectToStudio } from '~/utils/connectStudio.ts'
 import { getSessionKey } from '~/utils/getSessionKey.ts'
@@ -48,6 +48,20 @@ export default defineNitroPlugin(async (nitro) => {
   const sessionKey = getSessionKey(token)
 
   await registerAgent({ token, studioUrl })
-  await connectToStudio({ token, studioUrl, configPath, resolvedConfigPath, noCache, allowAll, allowWrite, root, retryInterval, heartbeatInterval, events, storage, sessionKey, nitro })
+  await connectToStudio({
+    token,
+    studioUrl,
+    configPath,
+    resolvedConfigPath,
+    noCache,
+    allowAll,
+    allowWrite,
+    root,
+    retryInterval,
+    heartbeatInterval,
+    events,
+    storage,
+    sessionKey,
+    nitro,
+  })
 })
-

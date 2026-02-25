@@ -54,9 +54,9 @@ export function createMockStudio({ isSandbox = false } = {}): Promise<MockStudio
     const SESSION_TOKEN = 'e2e-session-token'
 
     const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
-      let body = ''
+      let _body = ''
       req.on('data', (chunk) => {
-        body += chunk
+        _body += chunk
       })
       req.on('end', () => {
         res.setHeader('Content-Type', 'application/json')

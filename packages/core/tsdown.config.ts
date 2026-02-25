@@ -14,7 +14,7 @@ export default defineConfig({
   sourcemap: true,
   shims: true,
   exports: true,
-  external: [/@kubb\/fabric-core/],
+  external: [/^@kubb\//],
   noExternal: [/p-limit/],
   inlineOnly: false,
   fixedExtension: false,

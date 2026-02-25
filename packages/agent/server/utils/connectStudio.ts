@@ -171,6 +171,10 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               logger.warn('Input override via payload is only supported in sandbox mode and will be ignored')
             }
 
+            if (effectiveWrite && data.payload) {
+              writeStudioConfig(resolvedConfigPath, data.payload)
+            }
+
             await generate({
               config: {
                 ...config,
@@ -181,10 +185,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               },
               events,
             })
-
-            if (effectiveWrite && data.payload) {
-              writeStudioConfig(resolvedConfigPath, data.payload)
-            }
 
             logger.success('Generated command success')
           }

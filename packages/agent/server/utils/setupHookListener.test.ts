@@ -39,9 +39,7 @@ describe('setupHookListener', () => {
 
     await events.emit('hook:start', { id: 'test-id', command: 'echo', args: ['hello'] })
 
-    expect(hookEndSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'test-id', command: 'echo', args: ['hello'], success: true, error: null }),
-    )
+    expect(hookEndSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 'test-id', command: 'echo', args: ['hello'], success: true, error: null }))
   })
 
   it('emits hook:end with failure and emits error when command throws', async () => {
@@ -56,9 +54,7 @@ describe('setupHookListener', () => {
 
     await events.emit('hook:start', { id: 'fail-id', command: 'nonexistent', args: [] })
 
-    expect(hookEndSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'fail-id', success: false, error: expect.any(Error) }),
-    )
+    expect(hookEndSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 'fail-id', success: false, error: expect.any(Error) }))
     expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ message: 'Hook execute failed: nonexistent' }))
   })
 
@@ -72,9 +68,7 @@ describe('setupHookListener', () => {
 
     await events.emit('hook:start', { id: 'id-1', command: 'npm', args: ['run', 'build'] })
 
-    expect(errorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Hook execute failed: npm run build' }),
-    )
+    expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ message: 'Hook execute failed: npm run build' }))
   })
 
   it('passes the root as cwd to tinyexec', async () => {
@@ -84,11 +78,7 @@ describe('setupHookListener', () => {
 
     await events.emit('hook:start', { id: 'id-2', command: 'npm', args: ['run', 'lint'] })
 
-    expect(x).toHaveBeenCalledWith(
-      'npm',
-      ['run', 'lint'],
-      expect.objectContaining({ nodeOptions: expect.objectContaining({ cwd: '/my/project/root' }) }),
-    )
+    expect(x).toHaveBeenCalledWith('npm', ['run', 'lint'], expect.objectContaining({ nodeOptions: expect.objectContaining({ cwd: '/my/project/root' }) }))
   })
 
   it('logs stdout from the executed command', async () => {
