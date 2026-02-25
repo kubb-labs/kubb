@@ -66,6 +66,6 @@ export default defineNitroPlugin(async (nitro) => {
       nitro,
     })
   } catch (error: any) {
-    logger.error('Failed to connect to Kubb Studio\n', (error as Error).message)
+    logger.error('Failed to connect to Kubb Studio\n', (error as Error)?.message)
   }
 })
