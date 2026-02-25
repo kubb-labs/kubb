@@ -24,20 +24,26 @@ export async function createAgentSession({ token, studioUrl, noCache, storage }:
   const canCache = !noCache
 
   if (canCache) {
-    const stored = await storage.getItem(sessionKey)
+    const agentSession = await storage.getItem(sessionKey)
 
-    if (stored && isSessionValid(stored)) {
+    if (agentSession && isSessionValid(agentSession)) {
       logger.success('Using cached agent session')
 
-      return stored
+      return agentSession
     }
 
-    if (stored) {
+    if (agentSession) {
+      logger.info('Removing expired agent session from cache...')
+
       await storage.removeItem(sessionKey)
+
+      logger.success('Removed expired agent session from cache')
     }
   }
 
   try {
+    logger.info('Creating agent session with Studio...')
+
     const data = await $fetch<AgentConnectResponse>(connectUrl, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
@@ -50,9 +56,11 @@ export async function createAgentSession({ token, studioUrl, noCache, storage }:
 
     if (canCache) {
       await storage.setItem(sessionKey, { ...data, storedAt: new Date().toISOString() })
+
+      logger.success('Saved agent session to cache')
     }
 
-    logger.success('Agent session created')
+    logger.info('Created agent session with Studio')
 
     return data
   } catch (error: any) {
@@ -74,6 +82,8 @@ export async function registerAgent({ token, studioUrl }: RegisterProps): Promis
   const registerUrl = `${studioUrl}/api/agent/register`
 
   try {
+    logger.info('Registering agent with Studio...')
+
     await $fetch(registerUrl, {
       method: 'POST',
       headers: {
@@ -83,7 +93,7 @@ export async function registerAgent({ token, studioUrl }: RegisterProps): Promis
     })
     logger.success('Agent registered with Studio')
   } catch (error: any) {
-    logger.warn('Failed to register agent with Studio', error?.cause?.message ?? error?.message)
+    logger.error('Failed to register agent with Studio', error?.cause?.message ?? error?.message)
   }
 }
 
@@ -102,13 +112,15 @@ export async function disconnect({ sessionToken, token, studioUrl }: DisconnectP
   const disconnectUrl = `${studioUrl}/api/agent/session/${sessionToken}/disconnect`
 
   try {
+    logger.info('Disconnecting from Studio...')
+
     await $fetch(disconnectUrl, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-    logger.success('Sent disconnect notification to Studio on exit')
+    logger.success('Disconnected from Studio')
   } catch (error: any) {
     throw new Error('Failed to notify Studio of disconnection on exit', { cause: error })
   }

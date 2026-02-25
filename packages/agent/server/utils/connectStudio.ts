@@ -54,8 +54,22 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     nitro,
   } = options
 
+  async function removeSession() {
+    const agentSession = await storage.getItem(sessionKey)
+
+    if (!noCache && agentSession) {
+      logger.info('Removing expired agent session from cache...')
+
+      await storage.removeItem(sessionKey)
+
+      logger.success('Removed expired agent session from cache')
+    }
+  }
+
   async function reconnect() {
     logger.info(`Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`)
+
+    await removeSession()
 
     setTimeout(() => connectToStudio(options), retryInterval)
   }
@@ -78,7 +92,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     async function cleanup(reason = 'cleanup') {
       try {
         events.removeAll()
-        await storage.removeItem(sessionKey)
 
         ws.close(1000, reason)
         ws.removeEventListener('open', onOpen)
@@ -96,12 +109,10 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         return
       }
 
+      serverDisconnected = true
+
       // first cleanup the event listeners and then connect again
       await cleanup()
-
-      logger.info('Disconnecting from Studio ...')
-
-      serverDisconnected = true
 
       await disconnect({ sessionToken, studioUrl, token }).catch(() => {
         // Ignore disconnect errors since we're already handling a closed connection
@@ -121,7 +132,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     ws.addEventListener('open', onOpen)
     ws.addEventListener('close', onClose)
     ws.addEventListener('error', onError)
-    nitro.hooks.hook('close', onClose)
+    nitro.hooks.hook('close', async () => {
+      await cleanup()
+    })
 
     setInterval(() => sendAgentMessage(ws, { type: 'ping' }), heartbeatInterval)
 
@@ -131,18 +144,19 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       try {
         const data = JSON.parse(message.data as string) as AgentMessage
 
-        if (isPongMessage(data)) {
-          logger.info('Received pong from Studio')
+        logger.info(`Received "${data.type}" from Studio`)
 
+        if (isPongMessage(data)) {
           return
         }
 
         if (isDisconnectMessage(data)) {
-          logger.warn(`Session ${data.reason} by Studio`)
+          logger.warn(`Agent session disconnected by Studio with reason: ${data.reason}`)
 
           if (data.reason === 'revoked') {
             await cleanup(`session_${data.reason}`)
 
+            await removeSession()
             return
           }
 
@@ -194,7 +208,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               events,
             })
 
-            logger.success('Generated command success')
+            logger.success(`Completed "${message.type}" from Studio`)
+
+            return
           }
 
           if (data.command === 'connect') {
@@ -214,9 +230,11 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 },
               },
             })
-          }
 
-          return
+            logger.success(`Completed "${message.type}" from Studio`)
+
+            return
+          }
         }
 
         logger.warn(`Unknown message type from Kubb Studio: ${message.data}`)
