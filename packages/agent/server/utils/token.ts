@@ -10,8 +10,8 @@ export function hashToken(input: string): string {
 }
 
 export function generateMachineToken(): string {
-  if (process.env.KUBB_STUDIO_SECRET) {
-    return hashToken(process.env.KUBB_STUDIO_SECRET)
+  if (process.env.KUBB_AGENT_SECRET) {
+    return hashToken(process.env.KUBB_AGENT_SECRET)
   }
 
   const interfaces = os.networkInterfaces()
