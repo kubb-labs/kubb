@@ -22,6 +22,7 @@ export type ConnectToStudioOptions = {
   configPath: string
   resolvedConfigPath: string
   noCache: boolean
+  allowAll: boolean
   allowWrite: boolean
   root: string
   retryInterval: number
@@ -37,7 +38,7 @@ export type ConnectToStudioOptions = {
  * Automatically reconnects after `retryInterval` ms on close or error.
  */
 export async function connectToStudio(options: ConnectToStudioOptions): Promise<void> {
-  const { token, studioUrl, configPath, resolvedConfigPath, noCache, allowWrite, root, retryInterval, heartbeatInterval = 30_000, events, storage, sessionKey, nitro } = options
+  const { token, studioUrl, configPath, resolvedConfigPath, noCache, allowAll, allowWrite, root, retryInterval, heartbeatInterval = 30_000, events, storage, sessionKey, nitro } = options
 
   async function reconnect() {
     logger.info(`Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`)
@@ -53,7 +54,8 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     const { sessionToken, wsUrl, isSandbox } = await createAgentSession({ noCache, token, studioUrl })
     const ws = createWebsocket(wsUrl, { headers: { Authorization: `Bearer ${token}` } })
 
-    // Effective write permission: always disabled in sandbox mode
+    // Effective permissions: always disabled in sandbox mode
+    const effectiveAllowAll = isSandbox ? false : allowAll
     const effectiveWrite = isSandbox ? false : allowWrite
 
     const cleanup = () => {
@@ -163,7 +165,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               payload: {
                 version,
                 configPath,
-                permissions: { allowAll: effectiveWrite, allowWrite: effectiveWrite },
+                permissions: { allowAll: effectiveAllowAll, allowWrite: effectiveWrite },
                 config: {
                   plugins: config.plugins?.map((plugin: any) => ({
                     name: `@kubb/${plugin.name}`,

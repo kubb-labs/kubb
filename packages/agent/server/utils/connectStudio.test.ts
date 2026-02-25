@@ -105,6 +105,7 @@ describe('connectToStudio', () => {
       configPath: 'kubb.config.ts',
       resolvedConfigPath: '/project/kubb.config.ts',
       noCache: false,
+      allowAll: false,
       allowWrite: false,
       root: '/project',
       retryInterval: 100,
@@ -276,8 +277,23 @@ describe('connectToStudio', () => {
     )
   })
 
-  it('reflects effectiveWrite in permissions on connect command', async () => {
-    await connectToStudio({ ...options, allowWrite: true })
+  it('reflects allowWrite and allowAll separately in permissions on connect command', async () => {
+    await connectToStudio({ ...options, allowWrite: true, allowAll: false })
+
+    await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'connect' }) })
+
+    expect(sendAgentMessage).toHaveBeenCalledWith(
+      mockWs,
+      expect.objectContaining({
+        payload: expect.objectContaining({
+          permissions: { allowAll: false, allowWrite: true },
+        }),
+      }),
+    )
+  })
+
+  it('reflects allowAll=true in permissions when allowAll is set', async () => {
+    await connectToStudio({ ...options, allowWrite: true, allowAll: true })
 
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'connect' }) })
 

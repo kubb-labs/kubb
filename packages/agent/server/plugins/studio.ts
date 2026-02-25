@@ -48,6 +48,6 @@ export default defineNitroPlugin(async (nitro) => {
   const sessionKey = getSessionKey(token)
 
   await registerAgent({ token, studioUrl })
-  await connectToStudio({ token, studioUrl, configPath, resolvedConfigPath, noCache, allowWrite, root, retryInterval, heartbeatInterval, events, storage, sessionKey, nitro })
+  await connectToStudio({ token, studioUrl, configPath, resolvedConfigPath, noCache, allowAll, allowWrite, root, retryInterval, heartbeatInterval, events, storage, sessionKey, nitro })
 })
 
