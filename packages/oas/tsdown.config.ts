@@ -11,6 +11,7 @@ export default defineConfig({
   shims: true,
   exports: true,
   external: [/^@kubb\//],
+  inlineOnly: false,
   fixedExtension: false,
   outExtensions({ format }) {
     if (format === 'cjs') return { dts: '.d.ts' }
