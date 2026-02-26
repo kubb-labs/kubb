@@ -11,14 +11,13 @@ type ConnectProps = {
   token: string
   storage: Storage<AgentSession>
   noCache?: boolean
-  poolSize?: number
 }
 
 /**
  * Obtain an agent session token from Kubb Studio via HTTP.
  * Attempts to reuse a valid cached session before making a network request.
  */
-export async function createAgentSession({ token, studioUrl, noCache, storage, poolSize }: ConnectProps): Promise<AgentConnectResponse> {
+export async function createAgentSession({ token, studioUrl, noCache, storage }: ConnectProps): Promise<AgentConnectResponse> {
   const machineToken = generateMachineToken()
   const sessionKey = getSessionKey(token)
   const connectUrl = `${studioUrl}/api/agent/session/create`
@@ -48,7 +47,7 @@ export async function createAgentSession({ token, studioUrl, noCache, storage, p
     const data = await $fetch<AgentConnectResponse>(connectUrl, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
-      body: { machineToken, poolSize },
+      body: { machineToken },
     })
 
     if (!data) {
@@ -72,13 +71,14 @@ export async function createAgentSession({ token, studioUrl, noCache, storage, p
 type RegisterProps = {
   studioUrl: string
   token: string
+  poolSize?: number
 }
 
 /**
  * Register this agent with Kubb Studio by sending the machine ID.
  * Called once on agent startup before creating a WebSocket session.
  */
-export async function registerAgent({ token, studioUrl }: RegisterProps): Promise<void> {
+export async function registerAgent({ token, studioUrl, poolSize }: RegisterProps): Promise<void> {
   const machineToken = generateMachineToken()
   const registerUrl = `${studioUrl}/api/agent/register`
 
@@ -90,7 +90,7 @@ export async function registerAgent({ token, studioUrl }: RegisterProps): Promis
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: { machineToken },
+      body: { machineToken, poolSize },
     })
     logger.success(`Agent registered with Studio with token ${maskedString(token)}`)
   } catch (error: any) {

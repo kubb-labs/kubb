@@ -49,7 +49,7 @@ export default defineNitroPlugin(async (nitro) => {
   const sessionKey = getSessionKey(token)
 
   try {
-    await registerAgent({ token, studioUrl })
+    await registerAgent({ token, studioUrl, poolSize })
 
     const baseOptions = {
       token,
@@ -71,7 +71,7 @@ export default defineNitroPlugin(async (nitro) => {
 
     const sessions = []
     for (const _ of Array.from({ length: poolSize })) {
-      const session = await createAgentSession({ noCache, token, studioUrl, storage, poolSize }).catch((err) => {
+      const session = await createAgentSession({ noCache, token, studioUrl, storage }).catch((err) => {
         logger.warn('Failed to pre-create pool session:', err?.message)
         return null
       })
