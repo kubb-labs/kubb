@@ -46,6 +46,10 @@ export default defineNitroPlugin(async (nitro) => {
     return null
   }
 
+  if (!process.env.KUBB_AGENT_SECRET) {
+    logger.warn('KUBB_AGENT_SECRET not set', 'secret should be set')
+  }
+
   const resolvedConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(root, configPath)
   const storage = useStorage<AgentSession>('kubb')
   const sessionKey = getSessionKey(token)
