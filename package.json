@@ -57,7 +57,7 @@
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "^4.0.18",
     "@vitest/ui": "^4.0.18",
-    "bun-types": "^1.3.9",
+    "bun-types": "^1.3.10",
     "cspell": "^9.7.0",
     "prettier": "^3.8.1",
     "size-limit": "catalog:",

@@ -115,7 +115,13 @@ describe('connectToStudio', () => {
   it('creates an agent session with the provided credentials', async () => {
     await connectToStudio(options)
 
-    expect(createAgentSession).toHaveBeenCalledWith({ noCache: false, token: 'my-token', studioUrl: 'https://studio.kubb.dev', storage })
+    expect(createAgentSession).toHaveBeenCalledWith({
+      noCache: false,
+      token: 'my-token',
+      studioUrl: 'https://studio.kubb.dev',
+      storage,
+      cacheKey: 'kubb:session-key',
+    })
   })
 
   it('creates a WebSocket with the session wsUrl and Bearer auth header', async () => {
@@ -139,7 +145,7 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'pong' }) })
 
-    expect(logger.info).toHaveBeenCalledWith('Received "pong" from Studio')
+    expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('Received "pong" from Studio'))
   })
 
   it('logs a warning for unknown message types', async () => {
