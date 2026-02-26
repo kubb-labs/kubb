@@ -70,23 +70,25 @@ export default defineNitroPlugin(async (nitro) => {
 
     logger.info(`Starting session pool of ${poolSize} connection(s)`)
 
-    const sessions: Array<{ session: AgentConnectResponse | null; cacheKey: string }> = []
+    const sessions = new Map<string, AgentConnectResponse | null>()
     for (const index of Array.from({ length: poolSize }, (_, i) => i)) {
       const cacheKey = `${sessionKey}-${index}`
       const session = await createAgentSession({ noCache, token, studioUrl, storage, cacheKey }).catch((err) => {
         logger.warn('Failed to pre-create pool session:', err?.message)
         return null
       })
-      sessions.push({ session, cacheKey })
+      sessions.set(cacheKey, session)
     }
 
-    for (const [index, { session, cacheKey }] of sessions.entries()) {
+    let index = 0
+    for (const [cacheKey, session] of sessions) {
+      index++
       if (!session) {
         continue
       }
-      logger.info(`Connecting session ${index + 1}/${sessions.length}`)
+      logger.info(`Connecting session ${index}/${sessions.size}`)
       await connectToStudio({ ...baseOptions, initialSession: session, sessionKey: cacheKey }).catch((err: any) => {
-        logger.warn(`Session ${index + 1} failed to connect:`, err?.message)
+        logger.warn(`Session ${index} failed to connect:`, err?.message)
       })
     }
   } catch (error: any) {
