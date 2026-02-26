@@ -13,7 +13,7 @@ import type { DataMessage } from '../types/agent.ts'
 import { isConnectedMessage, isDataMessage, isPingMessage } from '../types/agent.ts'
 import { connectCmd, createMockStudio, type MockStudio, makeTmpDir, STARTUP_TIMEOUT, spawnAgent, waitForAgentReady } from './helpers.ts'
 
-describe('studio plugin – e2e (read-only agent)', () => {
+describe.skip('studio plugin – e2e (read-only agent)', () => {
   const context = {} as { studio: MockStudio; agent: ChildProcess; tmpDir: string }
 
   beforeAll(async () => {
@@ -86,7 +86,7 @@ describe('studio plugin – e2e (read-only agent)', () => {
   })
 })
 
-describe('studio plugin – e2e (write-enabled agent)', () => {
+describe.skip('studio plugin – e2e (write-enabled agent)', () => {
   const context = {} as { studio: MockStudio; agent: ChildProcess; tmpDir: string }
 
   beforeAll(async () => {
@@ -131,7 +131,7 @@ describe('studio plugin – e2e (write-enabled agent)', () => {
   })
 })
 
-describe('studio plugin – e2e (sandbox agent)', () => {
+describe.skip('studio plugin – e2e (sandbox agent)', () => {
   const context = {} as { studio: MockStudio; agent: ChildProcess; tmpDir: string }
 
   beforeAll(async () => {

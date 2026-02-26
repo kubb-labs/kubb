@@ -3,9 +3,10 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
+import { detectPackageManager, type PackageManagerInfo } from '@kubb/core'
 import { defineCommand } from 'citty'
 import { version } from '../../package.json'
-import { detectPackageManager, hasPackageJson, initPackageJson, installPackages, type PackageManagerInfo } from '../utils/packageManager.ts'
+import { hasPackageJson, initPackageJson, installPackages } from '../utils/packageManager.ts'
 
 type PluginOption = {
   value: string
