@@ -11,6 +11,7 @@ type ConnectProps = {
   token: string
   storage: Storage<AgentSession>
   noCache?: boolean
+  poolSize?: number
 }
 
 /**
@@ -18,7 +19,7 @@ type ConnectProps = {
  * Attempts to reuse a cached session before making a network request.
  *
  */
-export async function createAgentSession({ token, studioUrl, noCache, storage }: ConnectProps): Promise<AgentConnectResponse> {
+export async function createAgentSession({ token, studioUrl, noCache, storage, poolSize }: ConnectProps): Promise<AgentConnectResponse> {
   const machineToken = generateMachineToken()
   const sessionKey = getSessionKey(token)
   const connectUrl = `${studioUrl}/api/agent/session/create`
@@ -48,7 +49,7 @@ export async function createAgentSession({ token, studioUrl, noCache, storage }:
     const data = await $fetch<AgentConnectResponse>(connectUrl, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
-      body: { machineToken },
+      body: { machineToken, poolSize },
     })
 
     if (!data) {
