@@ -72,23 +72,23 @@ export default defineNitroPlugin(async (nitro) => {
 
     logger.info(`Starting session pool of ${poolSize} connection(s)`)
 
-    const remainingSessions = await Promise.all(
-      Array.from({ length: poolSize - 1 }, () =>
-        createAgentSession({ noCache: true, token, studioUrl, storage, poolSize }).catch((err) => {
-          logger.warn('Failed to pre-create pool session:', err?.message)
-          return null
-        }),
-      ),
-    )
+    const remainingSessions: (typeof firstSession | null)[] = []
+    for (const _ of Array.from({ length: poolSize - 1 })) {
+      const session = await createAgentSession({ noCache: true, token, studioUrl, storage, poolSize }).catch((err) => {
+        logger.warn('Failed to pre-create pool session:', err?.message)
+        return null
+      })
+      remainingSessions.push(session)
+    }
 
     const allSessions = [firstSession, ...remainingSessions.filter(Boolean)]
 
-    await Promise.all(
-      allSessions.map((session, index) => {
-        logger.info(`Connecting session ${index + 1}/${allSessions.length}`)
-        return connectToStudio({ ...baseOptions, initialSession: session })
-      }),
-    )
+    for (const [index, session] of allSessions.entries()) {
+      logger.info(`Connecting session ${index + 1}/${allSessions.length}`)
+      await connectToStudio({ ...baseOptions, initialSession: session }).catch((err: any) => {
+        logger.warn(`Session ${index + 1} failed to connect:`, err?.message)
+      })
+    }
   } catch (error: any) {
     logger.error('Failed to connect to Kubb Studio\n', (error as Error)?.message)
   }
