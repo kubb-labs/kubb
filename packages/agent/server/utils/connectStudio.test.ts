@@ -145,7 +145,7 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'pong' }) })
 
-    expect(logger.info).toHaveBeenCalledWith('Received "pong" from Studio')
+    expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('Received "pong" from Studio'))
   })
 
   it('logs a warning for unknown message types', async () => {

@@ -6,6 +6,7 @@ import { connectToStudio } from '~/utils/connectStudio.ts'
 import { getSessionKey } from '~/utils/getSessionKey.ts'
 import type { AgentSession } from '~/utils/isSessionValid.ts'
 import { logger } from '~/utils/logger.ts'
+import { maskedString } from '~/utils/maskedString.ts'
 
 /**
  * Nitro plugin that connects the agent to Kubb Studio on server startup.
@@ -48,6 +49,7 @@ export default defineNitroPlugin(async (nitro) => {
   const resolvedConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(root, configPath)
   const storage = useStorage<AgentSession>('kubb')
   const sessionKey = getSessionKey(token)
+  const maskedSessionKey = maskedString(sessionKey)
 
   try {
     await registerAgent({ token, studioUrl, poolSize })
@@ -68,13 +70,14 @@ export default defineNitroPlugin(async (nitro) => {
       nitro,
     }
 
-    logger.info(`Starting session pool of ${poolSize} connection(s)`)
+    logger.info(`[${maskedSessionKey}] Starting session pool of ${poolSize} connection(s)`)
 
     const sessions = new Map<string, AgentConnectResponse | null>()
     for (const index of Array.from({ length: poolSize }, (_, i) => i)) {
       const cacheKey = `${sessionKey}-${index}`
+      const maskedSessionKey = maskedString(cacheKey)
       const session = await createAgentSession({ noCache, token, studioUrl, storage, cacheKey }).catch((err) => {
-        logger.warn('Failed to pre-create pool session:', err?.message)
+        logger.warn(`[${maskedSessionKey}] Failed to pre-create pool session:`, err?.message)
         return null
       })
       sessions.set(cacheKey, session)
@@ -86,9 +89,10 @@ export default defineNitroPlugin(async (nitro) => {
       if (!session) {
         continue
       }
-      logger.info(`Connecting session ${index}/${sessions.size}`)
+      const maskedSessionKey = maskedString(cacheKey)
+      logger.info(`[${maskedSessionKey}] Connecting session ${index}/${sessions.size}`)
       await connectToStudio({ ...baseOptions, initialSession: session, sessionKey: cacheKey }).catch((err: any) => {
-        logger.warn(`Session ${index} failed to connect:`, err?.message)
+        logger.warn(`[${maskedSessionKey}] Session ${index} failed to connect:`, err?.message)
       })
     }
   } catch (error: any) {
