@@ -89,7 +89,14 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
           />
         )}
         {parser === 'data' && (
-          <Mock name={mock.name} typeName={type.schemas.response.name} fakerName={faker.schemas.response.name} requestTypeName={type.schemas.request?.name} operation={operation} baseURL={baseURL} />
+          <Mock
+            name={mock.name}
+            typeName={type.schemas.response.name}
+            fakerName={faker.schemas.response.name}
+            requestTypeName={type.schemas.request?.name}
+            operation={operation}
+            baseURL={baseURL}
+          />
         )}
       </File>
     )
