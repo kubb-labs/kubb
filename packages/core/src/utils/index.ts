@@ -15,6 +15,8 @@ export {
   isPromiseFulfilledResult,
   isPromiseRejectedResult,
 } from './promise.ts'
+export { detectPackageManager } from './packageManager.ts'
+export type { PackageManagerInfo, PackageManagerName } from './packageManager.ts'
 export { renderTemplate } from './renderTemplate.ts'
 export { serializePluginOptions } from './serializePluginOptions.ts'
 export { timeout } from './timeout.ts'
