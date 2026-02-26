@@ -118,7 +118,6 @@ The `agent_kv` named volume persists the KV store (session cache, machine token)
 | `KUBB_AGENT_ALLOW_WRITE`     | `false` | Set to `true` to allow writing generated files to disk. |
 | `KUBB_AGENT_ALLOW_ALL`       | `false` | Set to `true` to grant all permissions (implies `KUBB_AGENT_ALLOW_WRITE=true`). |
 | `KUBB_AGENT_RETRY_TIMEOUT`   | `30000` | Milliseconds to wait before retrying a failed Studio connection. |
-| `KUBB_STUDIO_SECRET` | _(empty)_ | Fixed machine name for stable identity across container restarts (e.g. Docker). When set, the `machineToken` is derived from this value instead of network interfaces and hostname. |
 
 ### Automatic .env Loading
 

@@ -1,5 +1,3 @@
-import type { KubbEvents } from '@kubb/core'
-import { AsyncEventEmitter } from '@kubb/core/utils'
 import type { Storage } from 'unstorage'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MockWebSocket } from '../mocks/websocket.ts'
@@ -74,13 +72,11 @@ const makeConfig = (overrides = {}) => ({
 })
 
 describe('connectToStudio', () => {
-  let events: AsyncEventEmitter<KubbEvents>
   let mockWs: MockWebSocket
   let storage: Storage<AgentSession>
   let options: ConnectToStudioOptions
 
   beforeEach(() => {
-    events = new AsyncEventEmitter<KubbEvents>()
     mockWs = new MockWebSocket()
 
     vi.mocked(createWebsocket).mockReturnValue(mockWs as any)
@@ -103,7 +99,6 @@ describe('connectToStudio', () => {
       allowWrite: false,
       root: '/project',
       retryInterval: 100,
-      events,
       storage,
       sessionKey: 'kubb:session-key',
       nitro: { hooks: { hook: vi.fn() } } as any,

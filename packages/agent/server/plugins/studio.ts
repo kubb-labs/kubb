@@ -1,8 +1,6 @@
 import path from 'node:path'
 import process from 'node:process'
-import type { KubbEvents } from '@kubb/core'
-import { AsyncEventEmitter } from '@kubb/core/utils'
-import { registerAgent } from '~/utils/api.ts'
+import { createAgentSession, registerAgent } from '~/utils/api.ts'
 import { connectToStudio } from '~/utils/connectStudio.ts'
 import { getSessionKey } from '~/utils/getSessionKey.ts'
 import type { AgentSession } from '~/utils/isSessionValid.ts'
@@ -18,6 +16,9 @@ import { logger } from '~/utils/logger.ts'
  * 4. Forwards Kubb generation lifecycle events to Studio in real time.
  * 5. Sends a ping every 30 seconds to keep the connection alive.
  * 6. Gracefully disconnects when the Nitro server closes.
+ *
+ * The agent creates a pool of sessions (`KUBB_AGENT_POOL_SIZE`, default 1)
+ * so each Studio user gets their own isolated WebSocket session.
  */
 export default defineNitroPlugin(async (nitro) => {
   const studioUrl = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
@@ -29,6 +30,7 @@ export default defineNitroPlugin(async (nitro) => {
   const root = process.env.KUBB_AGENT_ROOT || process.cwd()
   const allowAll = process.env.KUBB_AGENT_ALLOW_ALL === 'true'
   const allowWrite = allowAll || process.env.KUBB_AGENT_ALLOW_WRITE === 'true'
+  const poolSize = process.env.KUBB_AGENT_POOL_SIZE ? Number.parseInt(process.env.KUBB_AGENT_POOL_SIZE, 10) : 1
 
   if (!token) {
     logger.warn('KUBB_AGENT_TOKEN not set', 'cannot authenticate with studio')
@@ -43,13 +45,13 @@ export default defineNitroPlugin(async (nitro) => {
   }
 
   const resolvedConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(root, configPath)
-  const events = new AsyncEventEmitter<KubbEvents>()
   const storage = useStorage<AgentSession>('kubb')
   const sessionKey = getSessionKey(token)
 
   try {
-    await registerAgent({ token, studioUrl })
-    await connectToStudio({
+    await registerAgent({ token, studioUrl, poolSize })
+
+    const baseOptions = {
       token,
       studioUrl,
       configPath,
@@ -60,11 +62,31 @@ export default defineNitroPlugin(async (nitro) => {
       root,
       retryInterval,
       heartbeatInterval,
-      events,
       storage,
       sessionKey,
       nitro,
-    })
+    }
+
+    logger.info(`Starting session pool of ${poolSize} connection(s)`)
+
+    const sessions = []
+    for (const _ of Array.from({ length: poolSize })) {
+      const session = await createAgentSession({ noCache, token, studioUrl, storage }).catch((err) => {
+        logger.warn('Failed to pre-create pool session:', err?.message)
+        return null
+      })
+      sessions.push(session)
+    }
+
+    for (const [index, session] of sessions.entries()) {
+      if (!session) {
+        continue
+      }
+      logger.info(`Connecting session ${index + 1}/${sessions.length}`)
+      await connectToStudio({ ...baseOptions, initialSession: session }).catch((err: any) => {
+        logger.warn(`Session ${index + 1} failed to connect:`, err?.message)
+      })
+    }
   } catch (error: any) {
     logger.error('Failed to connect to Kubb Studio\n', (error as Error)?.message)
   }
