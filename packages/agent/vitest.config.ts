@@ -6,5 +6,6 @@ export default defineConfig({
     environment: 'node',
     testTimeout: 10000,
     globals: true,
+    globalSetup: './vitest.globalSetup.ts',
   },
 })
