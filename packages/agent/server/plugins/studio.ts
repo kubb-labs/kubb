@@ -51,9 +51,6 @@ export default defineNitroPlugin(async (nitro) => {
   try {
     await registerAgent({ token, studioUrl })
 
-    // Probe the first session to detect sandbox mode
-    const firstSession = await createAgentSession({ noCache, token, studioUrl, storage, poolSize })
-
     const baseOptions = {
       token,
       studioUrl,
@@ -72,19 +69,20 @@ export default defineNitroPlugin(async (nitro) => {
 
     logger.info(`Starting session pool of ${poolSize} connection(s)`)
 
-    const remainingSessions: (typeof firstSession | null)[] = []
-    for (const _ of Array.from({ length: poolSize - 1 })) {
-      const session = await createAgentSession({ noCache: true, token, studioUrl, storage, poolSize }).catch((err) => {
+    const sessions = []
+    for (const _ of Array.from({ length: poolSize })) {
+      const session = await createAgentSession({ noCache, token, studioUrl, storage, poolSize }).catch((err) => {
         logger.warn('Failed to pre-create pool session:', err?.message)
         return null
       })
-      remainingSessions.push(session)
+      sessions.push(session)
     }
 
-    const allSessions = [firstSession, ...remainingSessions.filter(Boolean)]
-
-    for (const [index, session] of allSessions.entries()) {
-      logger.info(`Connecting session ${index + 1}/${allSessions.length}`)
+    for (const [index, session] of sessions.entries()) {
+      if (!session) {
+        continue
+      }
+      logger.info(`Connecting session ${index + 1}/${sessions.length}`)
       await connectToStudio({ ...baseOptions, initialSession: session }).catch((err: any) => {
         logger.warn(`Session ${index + 1} failed to connect:`, err?.message)
       })
