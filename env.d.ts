@@ -73,7 +73,7 @@ declare global {
        * When omitted, the ID is derived from network interface MACs + hostname.
        * @example "550e8400-e29b-41d4-a716-446655440000"
        */
-      KUBB_AGENT_SECRET: string | undefined
+      KUBB_AGENT_SECRET: string
       /**
        * Interval in milliseconds for sending heartbeat pings to Kubb Studio to keep the WebSocket connection alive.
        * @default "30000"
