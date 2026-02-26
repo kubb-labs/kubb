@@ -95,6 +95,9 @@ jobs:
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
+      - name: Build agent
+        run: pnpm turbo run build --filter=@kubb/agent
+
       - name: Test
         run: pnpm run test
 
