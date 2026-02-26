@@ -14,9 +14,8 @@ type ConnectProps = {
 }
 
 /**
- * Connect the agent to Kubb Studio by obtaining a WebSocket session.
- * Attempts to reuse a cached session before making a network request.
- *
+ * Obtain an agent session token from Kubb Studio via HTTP.
+ * Attempts to reuse a valid cached session before making a network request.
  */
 export async function createAgentSession({ token, studioUrl, noCache, storage }: ConnectProps): Promise<AgentConnectResponse> {
   const machineToken = generateMachineToken()
@@ -72,13 +71,14 @@ export async function createAgentSession({ token, studioUrl, noCache, storage }:
 type RegisterProps = {
   studioUrl: string
   token: string
+  poolSize?: number
 }
 
 /**
  * Register this agent with Kubb Studio by sending the machine ID.
  * Called once on agent startup before creating a WebSocket session.
  */
-export async function registerAgent({ token, studioUrl }: RegisterProps): Promise<void> {
+export async function registerAgent({ token, studioUrl, poolSize }: RegisterProps): Promise<void> {
   const machineToken = generateMachineToken()
   const registerUrl = `${studioUrl}/api/agent/register`
 
@@ -90,7 +90,7 @@ export async function registerAgent({ token, studioUrl }: RegisterProps): Promis
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: { machineToken },
+      body: { machineToken, poolSize },
     })
     logger.success(`Agent registered with Studio with token ${maskedString(token)}`)
   } catch (error: any) {
@@ -107,7 +107,6 @@ type DisconnectProps = {
 /**
  * Notify Kubb Studio that this agent is disconnecting.
  * Called on process termination or server close.
- *
  */
 export async function disconnect({ sessionToken, token, studioUrl }: DisconnectProps): Promise<void> {
   const disconnectUrl = `${studioUrl}/api/agent/session/${sessionToken}/disconnect`

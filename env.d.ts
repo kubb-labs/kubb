@@ -81,10 +81,10 @@ declare global {
       KUBB_AGENT_HEARTBEAT_INTERVAL: string | undefined
 
       /**
-       * In sandbox mode, the number of isolated sessions to create for Studio users.
+       * The number of isolated sessions to create for Studio users.
        * Each session corresponds to a WebSocket connection and an agent instance with its own permissions and file system access.
        * This allows multiple users to connect to the same agent server without interfering with each other's sessions.
-       * @default "5"
+       * @default "1"
        */
       KUBB_AGENT_POOL_SIZE: string | undefined
     }
