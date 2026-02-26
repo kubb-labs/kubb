@@ -115,7 +115,7 @@ describe('connectToStudio', () => {
   it('creates an agent session with the provided credentials', async () => {
     await connectToStudio(options)
 
-    expect(createAgentSession).toHaveBeenCalledWith({ noCache: false, token: 'my-token', studioUrl: 'https://studio.kubb.dev', storage })
+    expect(createAgentSession).toHaveBeenCalledWith({ noCache: false, token: 'my-token', studioUrl: 'https://studio.kubb.dev', storage, cacheKey: 'kubb:session-key' })
   })
 
   it('creates a WebSocket with the session wsUrl and Bearer auth header', async () => {

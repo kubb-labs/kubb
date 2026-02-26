@@ -1,5 +1,6 @@
 import path from 'node:path'
 import process from 'node:process'
+import type { AgentConnectResponse } from '~/types/agent.ts'
 import { createAgentSession, registerAgent } from '~/utils/api.ts'
 import { connectToStudio } from '~/utils/connectStudio.ts'
 import { getSessionKey } from '~/utils/getSessionKey.ts'
@@ -69,21 +70,22 @@ export default defineNitroPlugin(async (nitro) => {
 
     logger.info(`Starting session pool of ${poolSize} connection(s)`)
 
-    const sessions = []
-    for (const _ of Array.from({ length: poolSize })) {
-      const session = await createAgentSession({ noCache, token, studioUrl, storage }).catch((err) => {
+    const sessions: Array<{ session: AgentConnectResponse | null; cacheKey: string }> = []
+    for (let index = 0; index < poolSize; index++) {
+      const cacheKey = `${sessionKey}-${index}`
+      const session = await createAgentSession({ noCache, token, studioUrl, storage, cacheKey }).catch((err) => {
         logger.warn('Failed to pre-create pool session:', err?.message)
         return null
       })
-      sessions.push(session)
+      sessions.push({ session, cacheKey })
     }
 
-    for (const [index, session] of sessions.entries()) {
+    for (const [index, { session, cacheKey }] of sessions.entries()) {
       if (!session) {
         continue
       }
       logger.info(`Connecting session ${index + 1}/${sessions.length}`)
-      await connectToStudio({ ...baseOptions, initialSession: session }).catch((err: any) => {
+      await connectToStudio({ ...baseOptions, initialSession: session, sessionKey: cacheKey }).catch((err: any) => {
         logger.warn(`Session ${index + 1} failed to connect:`, err?.message)
       })
     }

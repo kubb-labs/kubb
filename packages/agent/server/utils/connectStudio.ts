@@ -82,7 +82,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   try {
     setupHookListener(events, root)
 
-    const { sessionToken, wsUrl, isSandbox } = initialSession ?? (await createAgentSession({ noCache, token, studioUrl, storage }))
+    const { sessionToken, wsUrl, isSandbox } = initialSession ?? (await createAgentSession({ noCache, token, studioUrl, storage, cacheKey: sessionKey }))
     const ws = createWebsocket(wsUrl, { headers: { Authorization: `Bearer ${token}` } })
 
     // Effective permissions: always disabled in sandbox mode

@@ -11,15 +11,17 @@ type ConnectProps = {
   token: string
   storage: Storage<AgentSession>
   noCache?: boolean
+  /** Optional override for the storage cache key. When provided, replaces the default key derived from the token. */
+  cacheKey?: string
 }
 
 /**
  * Obtain an agent session token from Kubb Studio via HTTP.
  * Attempts to reuse a valid cached session before making a network request.
  */
-export async function createAgentSession({ token, studioUrl, noCache, storage }: ConnectProps): Promise<AgentConnectResponse> {
+export async function createAgentSession({ token, studioUrl, noCache, storage, cacheKey }: ConnectProps): Promise<AgentConnectResponse> {
   const machineToken = generateMachineToken()
-  const sessionKey = getSessionKey(token)
+  const sessionKey = cacheKey ?? getSessionKey(token)
   const connectUrl = `${studioUrl}/api/agent/session/create`
   const canCache = !noCache
 
