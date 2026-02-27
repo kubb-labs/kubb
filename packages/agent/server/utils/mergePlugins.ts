@@ -5,63 +5,29 @@ import { resolvePlugins } from './resolvePlugins.ts'
 
 /**
  * Merges studio plugin options with disk config plugins.
- *
- * Strategy:
- * - If studio plugins provided, they override/extend their counterparts from disk config
- * - Disk config plugins without studio overrides are preserved
- * - Plugin options are deeply merged, with studio options taking priority
- * - If only studio plugins (no disk), they are resolved and returned
- *
- * @param diskPlugins - Plugins loaded from kubb.config.ts (disk)
- * @param studioPlugins - Plugin entries from studio payload (can be undefined)
- * @returns Merged/resolved plugin array, or undefined if no plugins at all
+ * Studio options take priority; disk plugins without a studio counterpart are kept as-is.
+ * Studio plugins not present on disk are appended.
  */
 export function mergePlugins(diskPlugins: Array<Plugin> | undefined, studioPlugins: JSONKubbConfig['plugins'] | undefined): Array<Plugin> | undefined {
-  // No disk plugins and no studio plugins = undefined
-  if (!diskPlugins && !studioPlugins) {
-    return undefined
-  }
+  if (!diskPlugins && !studioPlugins) return undefined
+  if (!studioPlugins) return diskPlugins
 
-  // Only disk plugins = use them as-is
-  if (!studioPlugins) {
-    return diskPlugins
-  }
+  // Resolve studio JSON entries into Plugin objects so names are consistent (e.g. 'plugin-oas')
+  const resolvedStudio = resolvePlugins(studioPlugins)
 
-  // Only studio plugins, no disk = resolve and return them
-  if (!diskPlugins) {
-    return resolvePlugins(studioPlugins)
-  }
+  if (!diskPlugins) return resolvedStudio
 
-  // Both exist — merge them
-  // Create a map of studio plugins by name for quick lookup
-  const studioMap = new Map(studioPlugins.map((p) => [p.name, p]))
+  const studioByName = new Map(resolvedStudio.map((p) => [p.name, p]))
+  const diskNames = new Set(diskPlugins.map((p) => p.name))
 
-  // Start with disk plugins and override with studio versions where they exist
-  const merged: Array<Plugin> = diskPlugins.map((diskPlugin) => {
-    const studioPlugin = studioMap.get(diskPlugin.name)
+  const mergedDisk = diskPlugins.map((diskPlugin) => {
+    const studioPlugin = studioByName.get(diskPlugin.name)
+    if (!studioPlugin) return diskPlugin
 
-    if (!studioPlugin) {
-      // No studio override for this disk plugin — keep it as-is
-      return diskPlugin
-    }
-
-    // Merge options: studio options override disk options using remeda
-    const mergedOptions = mergeDeep(diskPlugin.options, studioPlugin.options)
-
-    // Return a new plugin with merged options
-    return {
-      ...diskPlugin,
-      options: mergedOptions,
-    } as Plugin
+    return { ...diskPlugin, options: mergeDeep(diskPlugin.options, studioPlugin.options) } as Plugin
   })
 
-  // Resolve any studio plugins that weren't in disk config and add them
-  const diskPluginNames = new Set(diskPlugins.map((p) => p.name))
-  const newStudioPlugins = studioPlugins.filter((p) => !diskPluginNames.has(p.name))
+  const studioOnly = resolvedStudio.filter((p) => !diskNames.has(p.name))
 
-  if (newStudioPlugins.length > 0) {
-    merged.push(...resolvePlugins(newStudioPlugins))
-  }
-
-  return merged
+  return [...mergedDisk, ...studioOnly]
 }

@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import type { AgentConnectResponse, JSONKubbConfig } from '~/types/agent.ts'
-import { logger } from '~/utils/logger.ts'
+import { logger } from '../utils/logger.ts'
 import { maskedString } from './maskedString.ts'
 
 type Config = { config: JSONKubbConfig; storedAt: string }
