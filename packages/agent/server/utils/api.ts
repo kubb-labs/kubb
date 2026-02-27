@@ -104,16 +104,16 @@ export async function registerAgent({ token, studioUrl, poolSize }: RegisterProp
 type DisconnectProps = {
   studioUrl: string
   token: string
-  sessionToken: string
+  sessionId: string
 }
 
 /**
  * Notify Kubb Studio that this agent is disconnecting.
  * Called on process termination or server close.
  */
-export async function disconnect({ sessionToken, token, studioUrl }: DisconnectProps): Promise<void> {
-  const disconnectUrl = `${studioUrl}/api/agent/session/${sessionToken}/disconnect`
-  const maskedSessionKey = maskedString(sessionToken)
+export async function disconnect({ sessionId, token, studioUrl }: DisconnectProps): Promise<void> {
+  const disconnectUrl = `${studioUrl}/api/agent/session/${sessionId}/disconnect`
+  const maskedSessionKey = maskedString(sessionId)
 
   try {
     logger.info(`[${maskedSessionKey}] Disconnecting from Studio...`)

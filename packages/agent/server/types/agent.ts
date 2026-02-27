@@ -149,7 +149,7 @@ export type AgentConnectResponse = {
   wsUrl: string
   expiresAt: string
   revokedAt: string
-  sessionToken: string
+  sessionId: string
   isSandbox: boolean
 }
 

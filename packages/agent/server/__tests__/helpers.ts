@@ -71,7 +71,7 @@ export function createMockStudio({ isSandbox = false } = {}): Promise<MockStudio
           res.writeHead(200)
           res.end(
             JSON.stringify({
-              sessionToken: token,
+              sessionId: token,
               wsUrl: `ws://127.0.0.1:${port}/api/ws/session/${token}`,
               expiresAt: new Date(Date.now() + 3_600_000).toISOString(),
               revokedAt: null,
