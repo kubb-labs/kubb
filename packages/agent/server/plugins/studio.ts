@@ -52,7 +52,7 @@ export default defineNitroPlugin(async (nitro) => {
   const resolvedConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(root, configPath)
   const storage = useStorage<AgentSession>('kubb')
   const sessionKey = getSessionKey(token)
-  const maskedSessionKey = maskedString(sessionKey)
+  const maskedSessionKey = maskedString(sessionKey.replace('sessions:', ''))
 
   try {
     await registerAgent({ token, studioUrl, poolSize })
@@ -92,7 +92,8 @@ export default defineNitroPlugin(async (nitro) => {
       if (!session) {
         continue
       }
-      const maskedSessionKey = maskedString(cacheKey)
+      const maskedSessionKey = maskedString(session.sessionId)
+
       logger.info(`[${maskedSessionKey}] Connecting session ${index}/${sessions.size}`)
       await connectToStudio({ ...baseOptions, initialSession: session, sessionKey: cacheKey }).catch((err: any) => {
         logger.warn(`[${maskedSessionKey}] Session ${index} failed to connect:`, err?.message)

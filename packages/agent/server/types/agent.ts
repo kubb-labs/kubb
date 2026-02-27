@@ -148,7 +148,7 @@ export type DataMessage<T extends KubbEvent = KubbEvent> = {
 export type AgentConnectResponse = {
   wsUrl: string
   expiresAt: string
-  revokedAt: string
+  revokedAt: string | null
   sessionId: string
   isSandbox: boolean
 }

@@ -54,7 +54,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
   const events = new AsyncEventEmitter<KubbEvents>()
-  const maskedSessionKey = maskedString(sessionKey)
+  const maskedSessionKey = maskedString(sessionKey.replace('sessions:', ''))
 
   async function removeSession() {
     if (!noCache) {

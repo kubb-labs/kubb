@@ -67,11 +67,13 @@ export async function cacheSession({ sessionKey, session }: { sessionKey: string
  */
 export async function removeCachedSession(sessionKey: string): Promise<void> {
   const storage = getStorage()
-  logger.info(`[${maskedString(sessionKey)}] Removing expired agent session from cache...`)
+  const maskedSessionKey = maskedString(sessionKey.replace('sessions:', ''))
+
+  logger.info(`[${maskedSessionKey}] Removing expired agent session from cache...`)
 
   await storage.removeItem(sessionKey)
 
-  logger.success(`[${maskedString(sessionKey)}] Removed expired agent session from cache`)
+  logger.success(`[${maskedSessionKey}] Removed expired agent session from cache`)
 }
 
 /**

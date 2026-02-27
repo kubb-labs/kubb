@@ -5,5 +5,5 @@ export function hashToken(input: string): string {
 }
 
 export function generateMachineToken(): string {
-  return hashToken(process.env.KUBB_AGENT_SECRET)
+  return hashToken(process.env.KUBB_AGENT_SECRET ?? '')
 }

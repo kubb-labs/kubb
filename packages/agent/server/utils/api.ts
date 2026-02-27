@@ -19,7 +19,7 @@ type ConnectProps = {
 export async function createAgentSession({ token, studioUrl, noCache, cacheKey }: ConnectProps): Promise<AgentConnectResponse> {
   const machineToken = generateMachineToken()
   const sessionKey = cacheKey ?? getSessionKey(token)
-  const maskedSessionKey = maskedString(sessionKey)
+  const maskedSessionKey = maskedString(sessionKey.replace('sessions:', ''))
   const connectUrl = `${studioUrl}/api/agent/session/create`
   const canCache = !noCache
 
