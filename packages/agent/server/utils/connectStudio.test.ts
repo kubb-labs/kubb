@@ -1,9 +1,7 @@
-import type { Storage } from 'unstorage'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MockWebSocket } from '../mocks/websocket.ts'
 import type { ConnectToStudioOptions } from './connectStudio.ts'
 import { connectToStudio } from './connectStudio.ts'
-import type { AgentSession } from './isSessionValid.ts'
 
 vi.mock('./api.ts', () => ({
   createAgentSession: vi.fn(),
@@ -26,9 +24,11 @@ vi.mock('./resolvePlugins.ts', () => ({
   resolvePlugins: vi.fn().mockReturnValue([]),
 }))
 
-vi.mock('./studioConfig.ts', () => ({
-  readStudioConfig: vi.fn().mockReturnValue(null),
-  writeStudioConfig: vi.fn(),
+vi.mock('./agentCache.ts', () => ({
+  cacheSession: vi.fn().mockResolvedValue(undefined),
+  getCachedSession: vi.fn().mockResolvedValue(null),
+  removeCachedSession: vi.fn().mockResolvedValue(undefined),
+  saveStudioConfigToStorage: vi.fn().mockResolvedValue(undefined),
 }))
 
 vi.mock('./logger.ts', () => ({
@@ -43,23 +43,24 @@ vi.mock('./ws.ts', () => ({
 
 vi.mock('~~/package.json', () => ({ default: { version: '1.0.0' }, version: '1.0.0' }))
 
+import { removeCachedSession, saveStudioConfigToStorage } from './agentCache.ts'
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
 import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
 import { resolvePlugins } from './resolvePlugins.ts'
-import { writeStudioConfig } from './studioConfig.ts'
 import { createWebsocket, sendAgentMessage } from './ws.ts'
 
 // Shared test helpers
 
 const makeSession = (overrides: Partial<AgentSession> = {}): AgentSession => ({
-  sessionToken: 'session-abc',
+  sessionId: 'session-abc',
   wsUrl: 'ws://localhost:3000/ws/session-abc',
   isSandbox: false,
   expiresAt: new Date(Date.now() + 3_600_000).toISOString(),
   revokedAt: null as any,
   storedAt: new Date().toISOString(),
+  configs: [],
   ...overrides,
 })
 
@@ -73,7 +74,6 @@ const makeConfig = (overrides = {}) => ({
 
 describe('connectToStudio', () => {
   let mockWs: MockWebSocket
-  let storage: Storage<AgentSession>
   let options: ConnectToStudioOptions
 
   beforeEach(() => {
@@ -82,12 +82,6 @@ describe('connectToStudio', () => {
     vi.mocked(createWebsocket).mockReturnValue(mockWs as any)
     vi.mocked(createAgentSession).mockResolvedValue(makeSession())
     vi.mocked(loadConfig).mockResolvedValue(makeConfig() as any)
-
-    storage = {
-      getItem: vi.fn().mockResolvedValue(null),
-      setItem: vi.fn().mockResolvedValue(undefined),
-      removeItem: vi.fn().mockResolvedValue(undefined),
-    } as any
 
     options = {
       token: 'my-token',
@@ -99,7 +93,6 @@ describe('connectToStudio', () => {
       allowWrite: false,
       root: '/project',
       retryInterval: 100,
-      storage,
       sessionKey: 'kubb:session-key',
       nitro: { hooks: { hook: vi.fn() } } as any,
     }
@@ -119,7 +112,6 @@ describe('connectToStudio', () => {
       noCache: false,
       token: 'my-token',
       studioUrl: 'https://studio.kubb.dev',
-      storage,
       cacheKey: 'kubb:session-key',
     })
   })
@@ -224,14 +216,14 @@ describe('connectToStudio', () => {
     )
   })
 
-  it('persists the payload to studioConfig when allowWrite is true and payload is provided', async () => {
+  it('persists the payload to storage when allowWrite is true and payload is provided', async () => {
     const payload = { plugins: [] }
 
     await connectToStudio({ ...options, allowWrite: true })
 
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'generate', payload }) })
 
-    expect(writeStudioConfig).toHaveBeenCalledWith('/project/kubb.config.ts', payload)
+    expect(saveStudioConfigToStorage).toHaveBeenCalledWith({ sessionKey: 'kubb:session-key', config: payload })
   })
 
   it('does not persist studioConfig when there is no payload', async () => {
@@ -239,7 +231,7 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'generate' }) })
 
-    expect(writeStudioConfig).not.toHaveBeenCalled()
+    expect(saveStudioConfigToStorage).not.toHaveBeenCalled()
   })
 
   it('does not persist studioConfig when allowWrite is false', async () => {
@@ -249,7 +241,7 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'generate', payload }) })
 
-    expect(writeStudioConfig).not.toHaveBeenCalled()
+    expect(saveStudioConfigToStorage).not.toHaveBeenCalled()
   })
 
   // connect command
@@ -321,26 +313,24 @@ describe('connectToStudio', () => {
 
   it('calls disconnect and removes the session when the WebSocket closes', async () => {
     vi.useFakeTimers()
-    ;(storage.getItem as ReturnType<typeof vi.fn>).mockResolvedValue(makeSession())
 
     await connectToStudio(options)
 
     await mockWs.trigger('close')
 
-    expect(disconnect).toHaveBeenCalledWith({ sessionToken: 'session-abc', studioUrl: 'https://studio.kubb.dev', token: 'my-token' })
-    expect(storage.removeItem).toHaveBeenCalledWith('kubb:session-key')
+    expect(disconnect).toHaveBeenCalledWith({ sessionId: 'session-abc', studioUrl: 'https://studio.kubb.dev', token: 'my-token' })
+    expect(removeCachedSession).toHaveBeenCalledWith('kubb:session-key')
   })
 
   it('closes the WebSocket without reconnecting when a disconnect message with reason "revoked" is received', async () => {
     vi.useFakeTimers()
-    ;(storage.getItem as ReturnType<typeof vi.fn>).mockResolvedValue(makeSession())
 
     await connectToStudio(options)
 
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'disconnect', reason: 'revoked' }) })
 
     expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('revoked'))
-    expect(storage.removeItem).toHaveBeenCalledWith('kubb:session-key')
+    expect(removeCachedSession).toHaveBeenCalledWith('kubb:session-key')
     expect(mockWs.closed).toBe(true)
     // disconnect API must NOT be called — server already knows about the closure
     expect(disconnect).not.toHaveBeenCalled()
@@ -350,14 +340,13 @@ describe('connectToStudio', () => {
 
   it('cleans up and reconnects when a disconnect message with reason "expired" is received', async () => {
     vi.useFakeTimers()
-    ;(storage.getItem as ReturnType<typeof vi.fn>).mockResolvedValue(makeSession())
 
     await connectToStudio(options)
 
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'disconnect', reason: 'expired' }) })
 
     expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('expired'))
-    expect(storage.removeItem).toHaveBeenCalledWith('kubb:session-key')
+    expect(removeCachedSession).toHaveBeenCalledWith('kubb:session-key')
     expect(mockWs.closed).toBe(true)
     expect(disconnect).not.toHaveBeenCalled()
     // expired sessions trigger a reconnect (unlike revoked)
@@ -366,24 +355,22 @@ describe('connectToStudio', () => {
 
   it('removes the cached session and reconnects on WS error', async () => {
     vi.useFakeTimers()
-    ;(storage.getItem as ReturnType<typeof vi.fn>).mockResolvedValue(makeSession())
 
     await connectToStudio(options)
 
     await mockWs.trigger('error')
 
-    expect(storage.removeItem).toHaveBeenCalledWith('kubb:session-key')
+    expect(removeCachedSession).toHaveBeenCalledWith('kubb:session-key')
   })
 
   it('does not remove the cached session on WS error when noCache is true', async () => {
     vi.useFakeTimers()
-    ;(storage.getItem as ReturnType<typeof vi.fn>).mockResolvedValue(makeSession())
 
     await connectToStudio({ ...options, noCache: true })
 
     await mockWs.trigger('error')
 
     expect(logger.error).toHaveBeenCalled()
-    expect(storage.removeItem).not.toHaveBeenCalled()
+    expect(removeCachedSession).not.toHaveBeenCalled()
   })
 })

@@ -1,10 +1,9 @@
 import path from 'node:path'
 import process from 'node:process'
 import type { AgentConnectResponse } from '~/types/agent.ts'
+import { getSessionKey } from '~/utils/agentCache.ts'
 import { createAgentSession, registerAgent } from '~/utils/api.ts'
 import { connectToStudio } from '~/utils/connectStudio.ts'
-import { getSessionKey } from '~/utils/getSessionKey.ts'
-import type { AgentSession } from '~/utils/isSessionValid.ts'
 import { logger } from '~/utils/logger.ts'
 import { maskedString } from '~/utils/maskedString.ts'
 
@@ -80,7 +79,7 @@ export default defineNitroPlugin(async (nitro) => {
     for (const index of Array.from({ length: poolSize }, (_, i) => i)) {
       const cacheKey = `${sessionKey}-${index}`
       const maskedSessionKey = maskedString(cacheKey)
-      const session = await createAgentSession({ noCache, token, studioUrl, storage, cacheKey }).catch((err) => {
+      const session = await createAgentSession({ noCache, token, studioUrl, cacheKey }).catch((err) => {
         logger.warn(`[${maskedSessionKey}] Failed to pre-create pool session:`, err?.message)
         return null
       })

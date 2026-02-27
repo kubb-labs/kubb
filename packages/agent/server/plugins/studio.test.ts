@@ -8,6 +8,7 @@ describe('Studio Plugin - Message Handling', () => {
       const message: AgentMessage = {
         type: 'command',
         command: 'generate',
+        payload: {},
       }
 
       expect(isCommandMessage(message)).toBe(true)

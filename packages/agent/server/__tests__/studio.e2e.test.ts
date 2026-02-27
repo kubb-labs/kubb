@@ -57,7 +57,7 @@ describe.skip('studio plugin – e2e (read-only agent)', () => {
 
   describe('generate command', () => {
     it('emits generation lifecycle events over WebSocket', { timeout: 60_000 }, async () => {
-      context.studio.send({ type: 'command', command: 'generate' })
+      context.studio.send({ type: 'command', command: 'generate', payload: {} })
 
       const start = await context.studio.waitForMessage((m): m is DataMessage<'generation:start'> => isDataMessage(m, 'generation:start'))
 
@@ -69,7 +69,7 @@ describe.skip('studio plugin – e2e (read-only agent)', () => {
     })
 
     it('does not write studioConfig when there is no payload', { timeout: 60_000 }, async () => {
-      context.studio.send({ type: 'command', command: 'generate' })
+      context.studio.send({ type: 'command', command: 'generate', payload: {} })
 
       await context.studio.waitForMessage((m) => isDataMessage(m, 'generation:end'))
 

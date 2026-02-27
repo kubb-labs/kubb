@@ -56,7 +56,7 @@ export type KubbEvent = keyof KubbEvents
  * Triggers actions like code generation or connection establishment
  */
 export type CommandMessage =
-  | { type: 'command'; command: 'generate'; payload?: JSONKubbConfig }
+  | { type: 'command'; command: 'generate'; payload: JSONKubbConfig }
   | {
       type: 'command'
       command: 'connect'
