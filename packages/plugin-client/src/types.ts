@@ -129,6 +129,15 @@ export type Options = {
    * In version 5 of Kubb this is by default true
    */
   bundle?: boolean
+  /**
+   * Generate a wrapper class that composes all tag-based client classes into a single entry point.
+   */
+  wrapper?: {
+    /**
+     * Name of the wrapper class.
+     */
+    className: string
+  }
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -155,6 +164,7 @@ type ResolvedOptions = {
   pathParamsType: NonNullable<Options['pathParamsType']>
   paramsType: NonNullable<Options['paramsType']>
   paramsCasing: Options['paramsCasing']
+  wrapper: Options['wrapper']
 }
 
 export type PluginClient = PluginFactoryOptions<'plugin-client', Options, ResolvedOptions, never, ResolvePathOptions>
