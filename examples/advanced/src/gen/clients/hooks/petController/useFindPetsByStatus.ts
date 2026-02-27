@@ -23,10 +23,7 @@ export function findPetsByStatusQueryOptions(
     enabled: !!stepId,
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return findPetsByStatus({ stepId }, config)
+      return findPetsByStatus({ stepId: stepId }, { ...config, signal: config.signal ?? signal })
     },
   })
 }

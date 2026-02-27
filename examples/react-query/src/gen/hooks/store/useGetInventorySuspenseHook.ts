@@ -31,10 +31,10 @@ export function getInventorySuspenseQueryOptionsHook(config: Partial<RequestConf
   return queryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return getInventorySuspenseHook(config)
+      return getInventorySuspenseHook({
+        ...config,
+        signal: config.signal ?? signal,
+      })
     },
   })
 }

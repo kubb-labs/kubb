@@ -38,10 +38,7 @@ export function findPetsByTagsQueryOptions(params?: MaybeRefOrGetter<FindPetsByT
   return queryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return findPetsByTags(toValue(params), toValue(config))
+      return findPetsByTags(toValue(params), { ...config, signal: config.signal ?? signal })
     },
   })
 }

@@ -31,10 +31,7 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> & { clie
   return queryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return getInventory(toValue(config))
+      return getInventory({ ...config, signal: config.signal ?? signal })
     },
   })
 }

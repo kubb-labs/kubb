@@ -28,10 +28,7 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client
   return queryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return logoutUser(config)
+      return logoutUser({ ...config, signal: config.signal ?? signal })
     },
   })
 }

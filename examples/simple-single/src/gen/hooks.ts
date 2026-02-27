@@ -109,10 +109,7 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParam
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return findPetsByStatus(params, config)
+      return findPetsByStatus(params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -179,10 +176,7 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTagsQueryParams, c
   return queryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return findPetsByTags(params, config)
+      return findPetsByTags(params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -249,10 +243,7 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], con
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return getPetById(petId, config)
+      return getPetById(petId, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -310,10 +301,7 @@ export function getInventoryQueryOptions(config: Partial<RequestConfig> & { clie
   return queryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return getInventory(config)
+      return getInventory({ ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -373,10 +361,7 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return getOrderById(orderId, config)
+      return getOrderById(orderId, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -433,10 +418,7 @@ export function loginUserQueryOptions(params?: LoginUserQueryParams, config: Par
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return loginUser(params, config)
+      return loginUser(params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -490,10 +472,7 @@ export function logoutUserQueryOptions(config: Partial<RequestConfig> & { client
   return queryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return logoutUser(config)
+      return logoutUser({ ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -551,10 +530,7 @@ export function getUserByNameQueryOptions(username: GetUserByNamePathParams['use
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return getUserByName(username, config)
+      return getUserByName(username, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -621,10 +597,7 @@ export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatusQu
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return findPetsByStatusSuspense(params, config)
+      return findPetsByStatusSuspense(params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -687,10 +660,7 @@ export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTagsQueryP
   return queryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return findPetsByTagsSuspense(params, config)
+      return findPetsByTagsSuspense(params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -751,10 +721,7 @@ export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petI
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return getPetByIdSuspense(petId, config)
+      return getPetByIdSuspense(petId, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -812,10 +779,7 @@ export function getInventorySuspenseQueryOptions(config: Partial<RequestConfig> 
   return queryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return getInventorySuspense(config)
+      return getInventorySuspense({ ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -876,10 +840,7 @@ export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return getOrderByIdSuspense(orderId, config)
+      return getOrderByIdSuspense(orderId, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -936,10 +897,7 @@ export function loginUserSuspenseQueryOptions(params?: LoginUserQueryParams, con
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return loginUserSuspense(params, config)
+      return loginUserSuspense(params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -993,10 +951,7 @@ export function logoutUserSuspenseQueryOptions(config: Partial<RequestConfig> & 
   return queryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return logoutUserSuspense(config)
+      return logoutUserSuspense({ ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -1055,10 +1010,7 @@ export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathPar
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return getUserByNameSuspense(username, config)
+      return getUserByNameSuspense(username, { ...config, signal: config.signal ?? signal })
     },
   })
 }
