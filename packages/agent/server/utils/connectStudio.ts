@@ -213,7 +213,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               events,
             })
 
-            logger.success(`[${maskedSessionKey}] Completed "${message.type}" from Studio`)
+            logger.success(`[${maskedSessionKey}] Completed "${data.type}" from Studio`)
 
             return
           }
@@ -236,7 +236,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               },
             })
 
-            logger.success(`[${maskedSessionKey}] Completed "${message.type}" from Studio`)
+            logger.success(`[${maskedSessionKey}] Completed "${data.type}" from Studio`)
 
             return
           }
