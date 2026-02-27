@@ -817,6 +817,9 @@ importers:
       jiti:
         specifier: 2.5.1
         version: 2.5.1
+      remeda:
+        specifier: 'catalog:'
+        version: 2.33.6
       tinyexec:
         specifier: 'catalog:'
         version: 1.0.2

@@ -9,7 +9,7 @@ import { generate } from './generate.ts'
 import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
 import { maskedString } from './maskedString.ts'
-import { resolvePlugins } from './resolvePlugins.ts'
+import { mergePlugins } from './mergePlugins.ts'
 import { setupHookListener } from './setupHookListener.ts'
 import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
 
@@ -180,7 +180,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
             // Message payload takes priority over previously saved studio config
             const patch = data.payload
-            const resolvedPlugins = patch?.plugins ? resolvePlugins(patch.plugins) : undefined
+            const plugins = mergePlugins(config.plugins, patch?.plugins)
 
             // In sandbox mode the caller may supply raw OpenAPI / Swagger spec
             // content inline (YAML or JSON string) via `payload.input`.
@@ -196,7 +196,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               logger.warn(`[${maskedSessionKey}] Input override via payload is only supported in sandbox mode and will be ignored`)
             }
 
-            if (data.payload) {
+            if (data.payload && effectiveWrite) {
               await saveStudioConfigToStorage({ sessionKey, config: data.payload }).catch((err) => {
                 logger.warn(`[${maskedSessionKey}] Failed to save studio config: ${err?.message}`)
               })
@@ -208,7 +208,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 root,
                 input: inputOverride ?? config.input,
                 output: { ...config.output, write: effectiveWrite },
-                plugins: resolvedPlugins ?? config.plugins,
+                plugins,
               },
               events,
             })
@@ -228,7 +228,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 configPath,
                 permissions: { allowAll: effectiveAllowAll, allowWrite: effectiveWrite },
                 config: {
-                  plugins: config.plugins?.map((plugin: any) => ({
+                  plugins: config.plugins?.map((plugin) => ({
                     name: `@kubb/${plugin.name}`,
                     options: serializePluginOptions(plugin.options),
                   })),

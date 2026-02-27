@@ -62,6 +62,7 @@
     "@kubb/plugin-vue-query": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "jiti": "2.5.1",
+    "remeda": "catalog:",
     "tinyexec": "catalog:",
     "unstorage": "^1.17.4",
     "ws": "^8.19.0"

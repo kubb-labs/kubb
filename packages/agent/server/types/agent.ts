@@ -14,7 +14,7 @@ import type { KubbFile } from '@kubb/fabric-core/types'
 export type JSONKubbConfig = {
   plugins?: Array<{
     name: string
-    options: unknown
+    options: object
   }>
   /**
    * Raw OpenAPI / Swagger spec content (YAML or JSON string).
