@@ -64,7 +64,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
         <File.Import name={['http']} path="msw" />
         <File.Import name={['ResponseResolver']} isTypeOnly path="msw" />
         <File.Import
-          name={Array.from(new Set([type.schemas.response.name, ...types.map((t) => t[1])]))}
+          name={Array.from(new Set([type.schemas.response.name, type.schemas.request?.name, ...types.map((t) => t[1])].filter(Boolean) as string[]))}
           path={type.file.path}
           root={mock.file.path}
           isTypeOnly
@@ -83,12 +83,20 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
             name={mock.name}
             typeName={type.schemas.response.name}
             fakerName={faker.schemas.response.name}
+            requestTypeName={type.schemas.request?.name}
             operation={operation}
             baseURL={baseURL}
           />
         )}
         {parser === 'data' && (
-          <Mock name={mock.name} typeName={type.schemas.response.name} fakerName={faker.schemas.response.name} operation={operation} baseURL={baseURL} />
+          <Mock
+            name={mock.name}
+            typeName={type.schemas.response.name}
+            fakerName={faker.schemas.response.name}
+            requestTypeName={type.schemas.request?.name}
+            operation={operation}
+            baseURL={baseURL}
+          />
         )}
       </File>
     )

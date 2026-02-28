@@ -11,11 +11,12 @@ type Props = {
   name: string
   typeName: string
   fakerName: string
+  requestTypeName: string | undefined
   baseURL: string | undefined
   operation: Operation
 }
 
-export function MockWithFaker({ baseURL = '', name, fakerName, typeName, operation }: Props): FabricReactNode {
+export function MockWithFaker({ baseURL = '', name, fakerName, typeName, requestTypeName, operation }: Props): FabricReactNode {
   const method = operation.method
   const successStatusCodes = operation.getResponseStatusCodes().filter((code) => code.startsWith('2'))
   const statusCode = successStatusCodes.length > 0 ? Number(successStatusCodes[0]) : 200
@@ -26,10 +27,14 @@ export function MockWithFaker({ baseURL = '', name, fakerName, typeName, operati
 
   const headers = [contentType ? `'Content-Type': '${contentType}'` : undefined].filter(Boolean)
 
+  const infoType = requestTypeName
+    ? `Parameters<Parameters<typeof http.${method}<Record<string, string>, ${requestTypeName}>>[1]>[0]`
+    : `Parameters<Parameters<typeof http.${method}>[1]>[0]`
+
   const params = FunctionParams.factory({
     data: {
       type: `${typeName} | ((
-        info: Parameters<Parameters<typeof http.${method}>[1]>[0],
+        info: ${infoType},
       ) => Response | Promise<Response>)`,
       optional: true,
     },

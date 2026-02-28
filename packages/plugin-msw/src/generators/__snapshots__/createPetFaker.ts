@@ -10,7 +10,11 @@ export function createPetsResponse201(data?: CreatePetsMutationResponse) {
   })
 }
 
-export function createPets(data?: CreatePetsMutationResponse | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Response | Promise<Response>)) {
+export function createPets(
+  data?:
+    | CreatePetsMutationResponse
+    | ((info: Parameters<Parameters<typeof http.post<Record<string, string>, CreatePetsMutationRequest>>[1]>[0]) => Response | Promise<Response>),
+) {
   return http.post('/pets', function handler(info) {
     if (typeof data === 'function') return data(info)
 

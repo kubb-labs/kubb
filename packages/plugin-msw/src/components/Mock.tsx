@@ -10,11 +10,12 @@ type Props = {
   name: string
   typeName: string
   fakerName: string
+  requestTypeName: string | undefined
   baseURL: string | undefined
   operation: Operation
 }
 
-export function Mock({ baseURL = '', name, typeName, operation }: Props): FabricReactNode {
+export function Mock({ baseURL = '', name, typeName, requestTypeName, operation }: Props): FabricReactNode {
   const method = operation.method
   const successStatusCodes = operation.getResponseStatusCodes().filter((code) => code.startsWith('2'))
   const statusCode = successStatusCodes.length > 0 ? Number(successStatusCodes[0]) : 200
@@ -30,10 +31,14 @@ export function Mock({ baseURL = '', name, typeName, operation }: Props): Fabric
   // If no response schema, uses any type but function to avoid overriding callback
   const dataType = hasResponseSchema ? typeName : 'string | number | boolean | null | object'
 
+  const infoType = requestTypeName
+    ? `Parameters<Parameters<typeof http.${method}<Record<string, string>, ${requestTypeName}>>[1]>[0]`
+    : `Parameters<Parameters<typeof http.${method}>[1]>[0]`
+
   const params = FunctionParams.factory({
     data: {
       type: `${dataType} | ((
-        info: Parameters<Parameters<typeof http.${method}>[1]>[0],
+        info: ${infoType},
       ) => Response | Promise<Response>)`,
       optional: true,
     },
