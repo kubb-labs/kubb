@@ -28,6 +28,8 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Build
         run: pnpm run build
@@ -55,6 +57,8 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
@@ -85,6 +89,8 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
@@ -121,6 +127,8 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
@@ -150,6 +158,8 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
@@ -181,6 +191,8 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
@@ -208,6 +220,8 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
@@ -258,6 +272,8 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
@@ -317,6 +333,8 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Build
         run: pnpm run build
