@@ -148,7 +148,18 @@ export function buildTelemetryEvent(options: {
     kubbVersion: options.kubbVersion,
     nodeVersion: process.versions.node.split('.')[0] ?? 'unknown',
     platform: os.platform(),
-    ci: !!(process.env['CI'] || process.env['GITHUB_ACTIONS']),
+    ci: !!(
+      process.env['CI'] || // Generic (GitHub Actions, GitLab CI, CircleCI, Travis CI, etc.)
+      process.env['GITHUB_ACTIONS'] || // GitHub Actions
+      process.env['GITLAB_CI'] || // GitLab CI
+      process.env['BITBUCKET_BUILD_NUMBER'] || // Bitbucket Pipelines
+      process.env['JENKINS_URL'] || // Jenkins
+      process.env['CIRCLECI'] || // CircleCI
+      process.env['TRAVIS'] || // Travis CI
+      process.env['TEAMCITY_VERSION'] || // TeamCity
+      process.env['BUILDKITE'] || // Buildkite
+      process.env['TF_BUILD'] // Azure Pipelines
+    ),
     plugins: options.plugins,
     duration,
     filesCreated: options.filesCreated,

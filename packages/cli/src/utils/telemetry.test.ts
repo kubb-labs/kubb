@@ -88,6 +88,30 @@ describe('buildTelemetryEvent', () => {
     expect(event.ci).toBe(true)
     delete process.env['CI']
   })
+
+  it.each([
+    ['GITHUB_ACTIONS', 'true'],
+    ['GITLAB_CI', 'true'],
+    ['BITBUCKET_BUILD_NUMBER', '42'],
+    ['JENKINS_URL', 'http://jenkins.example.com'],
+    ['CIRCLECI', 'true'],
+    ['TRAVIS', 'true'],
+    ['TEAMCITY_VERSION', '2023.1'],
+    ['BUILDKITE', 'true'],
+    ['TF_BUILD', 'True'],
+  ])('should detect CI via %s', (key, value) => {
+    process.env[key] = value
+    const event = buildTelemetryEvent({
+      command: 'generate',
+      kubbVersion: '4.0.0',
+      plugins: [],
+      hrStart: process.hrtime(),
+      filesCreated: 0,
+      status: 'success',
+    })
+    expect(event.ci).toBe(true)
+    delete process.env[key]
+  })
 })
 
 describe('buildOtlpPayload', () => {

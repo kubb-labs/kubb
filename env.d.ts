@@ -18,6 +18,26 @@ declare global {
        */
       KUBB_DISABLE_TELEMETRY: string | undefined
 
+      // CI environment detection variables
+      /** Set by GitHub Actions */
+      GITHUB_ACTIONS: string | undefined
+      /** Set by GitLab CI */
+      GITLAB_CI: string | undefined
+      /** Set by Bitbucket Pipelines */
+      BITBUCKET_BUILD_NUMBER: string | undefined
+      /** Set by Jenkins */
+      JENKINS_URL: string | undefined
+      /** Set by CircleCI */
+      CIRCLECI: string | undefined
+      /** Set by Travis CI */
+      TRAVIS: string | undefined
+      /** Set by TeamCity */
+      TEAMCITY_VERSION: string | undefined
+      /** Set by Buildkite */
+      BUILDKITE: string | undefined
+      /** Set by Azure Pipelines */
+      TF_BUILD: string | undefined
+
       /**
        * HTTP port the agent server listens on.
        * @default "3000"
