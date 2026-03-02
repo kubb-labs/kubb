@@ -87,6 +87,14 @@ declare global {
        * @default "1"
        */
       KUBB_AGENT_POOL_SIZE: string | undefined
+
+      /**
+       * URL to call every 5 minutes to signal the agent is still alive.
+       * Intended for use with uptime-monitoring services such as Healthchecks.io, BetterUptime, or UptimeRobot.
+       * Leave unset to disable the heartbeat.
+       * @example "https://hc-ping.com/your-uuid-here"
+       */
+      KUBB_AGENT_HEARTBEAT_URL: string | undefined
     }
   }
 }
