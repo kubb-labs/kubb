@@ -23,6 +23,25 @@ export type TelemetryEvent = {
 }
 
 /**
+ * Detect whether the current process is running inside a CI environment by
+ * checking the well-known environment variables set by all major CI systems.
+ */
+export function isCi(): boolean {
+  return !!(
+    process.env['CI'] || // Generic (GitHub Actions, GitLab CI, CircleCI, Travis CI, etc.)
+    process.env['GITHUB_ACTIONS'] || // GitHub Actions
+    process.env['GITLAB_CI'] || // GitLab CI
+    process.env['BITBUCKET_BUILD_NUMBER'] || // Bitbucket Pipelines
+    process.env['JENKINS_URL'] || // Jenkins
+    process.env['CIRCLECI'] || // CircleCI
+    process.env['TRAVIS'] || // Travis CI
+    process.env['TEAMCITY_VERSION'] || // TeamCity
+    process.env['BUILDKITE'] || // Buildkite
+    process.env['TF_BUILD'] // Azure Pipelines
+  )
+}
+
+/**
  * Check if telemetry is disabled via DO_NOT_TRACK or KUBB_DISABLE_TELEMETRY.
  * Respects the standard DO_NOT_TRACK convention used across development tools.
  */
@@ -148,18 +167,7 @@ export function buildTelemetryEvent(options: {
     kubbVersion: options.kubbVersion,
     nodeVersion: process.versions.node.split('.')[0] ?? 'unknown',
     platform: os.platform(),
-    ci: !!(
-      process.env['CI'] || // Generic (GitHub Actions, GitLab CI, CircleCI, Travis CI, etc.)
-      process.env['GITHUB_ACTIONS'] || // GitHub Actions
-      process.env['GITLAB_CI'] || // GitLab CI
-      process.env['BITBUCKET_BUILD_NUMBER'] || // Bitbucket Pipelines
-      process.env['JENKINS_URL'] || // Jenkins
-      process.env['CIRCLECI'] || // CircleCI
-      process.env['TRAVIS'] || // Travis CI
-      process.env['TEAMCITY_VERSION'] || // TeamCity
-      process.env['BUILDKITE'] || // Buildkite
-      process.env['TF_BUILD'] // Azure Pipelines
-    ),
+    ci: isCi(),
     plugins: options.plugins,
     duration,
     filesCreated: options.filesCreated,

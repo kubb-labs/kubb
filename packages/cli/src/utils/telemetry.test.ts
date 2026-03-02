@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { type TelemetryPlugin, buildOtlpPayload, buildTelemetryEvent, isTelemetryDisabled, sendTelemetry } from './telemetry.ts'
+import { type TelemetryPlugin, buildOtlpPayload, buildTelemetryEvent, isCi, isTelemetryDisabled, sendTelemetry } from './telemetry.ts'
 
 vi.mock('@kubb/core/utils', () => ({
   executeIfOnline: vi.fn(async (fn: () => Promise<unknown>) => fn()),
@@ -75,7 +75,7 @@ describe('buildTelemetryEvent', () => {
     expect(typeof event.ci).toBe('boolean')
   })
 
-  it('should detect CI environment', () => {
+  it('should detect CI environment via generic CI var', () => {
     process.env['CI'] = 'true'
     const event = buildTelemetryEvent({
       command: 'generate',
@@ -99,7 +99,7 @@ describe('buildTelemetryEvent', () => {
     ['TEAMCITY_VERSION', '2023.1'],
     ['BUILDKITE', 'true'],
     ['TF_BUILD', 'True'],
-  ])('should detect CI via %s', (key, value) => {
+  ])('should delegate CI detection to isCi() for %s', (key, value) => {
     process.env[key] = value
     const event = buildTelemetryEvent({
       command: 'generate',
@@ -110,6 +110,36 @@ describe('buildTelemetryEvent', () => {
       status: 'success',
     })
     expect(event.ci).toBe(true)
+    delete process.env[key]
+  })
+})
+
+describe('isCi', () => {
+  it('should return false when no CI env vars are set', () => {
+    const ciVars = ['CI', 'GITHUB_ACTIONS', 'GITLAB_CI', 'BITBUCKET_BUILD_NUMBER', 'JENKINS_URL', 'CIRCLECI', 'TRAVIS', 'TEAMCITY_VERSION', 'BUILDKITE', 'TF_BUILD']
+    for (const key of ciVars) delete process.env[key]
+    expect(isCi()).toBe(false)
+  })
+
+  it('should return true for generic CI var', () => {
+    process.env['CI'] = 'true'
+    expect(isCi()).toBe(true)
+    delete process.env['CI']
+  })
+
+  it.each([
+    ['GITHUB_ACTIONS', 'true'],
+    ['GITLAB_CI', 'true'],
+    ['BITBUCKET_BUILD_NUMBER', '42'],
+    ['JENKINS_URL', 'http://jenkins.example.com'],
+    ['CIRCLECI', 'true'],
+    ['TRAVIS', 'true'],
+    ['TEAMCITY_VERSION', '2023.1'],
+    ['BUILDKITE', 'true'],
+    ['TF_BUILD', 'True'],
+  ])('should return true when %s is set', (key, value) => {
+    process.env[key] = value
+    expect(isCi()).toBe(true)
     delete process.env[key]
   })
 })
