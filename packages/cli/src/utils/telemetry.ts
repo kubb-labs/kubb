@@ -1,6 +1,6 @@
+import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
-import { randomBytes } from 'node:crypto'
 import { executeIfOnline } from '@kubb/core/utils'
 
 const OTLP_ENDPOINT = 'https://otlp.kubb.dev/v1/traces'
@@ -28,16 +28,18 @@ export type TelemetryEvent = {
  */
 export function isCi(): boolean {
   return !!(
-    process.env['CI'] || // Generic (GitHub Actions, GitLab CI, CircleCI, Travis CI, etc.)
-    process.env['GITHUB_ACTIONS'] || // GitHub Actions
-    process.env['GITLAB_CI'] || // GitLab CI
-    process.env['BITBUCKET_BUILD_NUMBER'] || // Bitbucket Pipelines
-    process.env['JENKINS_URL'] || // Jenkins
-    process.env['CIRCLECI'] || // CircleCI
-    process.env['TRAVIS'] || // Travis CI
-    process.env['TEAMCITY_VERSION'] || // TeamCity
-    process.env['BUILDKITE'] || // Buildkite
-    process.env['TF_BUILD'] // Azure Pipelines
+    (
+      process.env['CI'] || // Generic (GitHub Actions, GitLab CI, CircleCI, Travis CI, etc.)
+      process.env['GITHUB_ACTIONS'] || // GitHub Actions
+      process.env['GITLAB_CI'] || // GitLab CI
+      process.env['BITBUCKET_BUILD_NUMBER'] || // Bitbucket Pipelines
+      process.env['JENKINS_URL'] || // Jenkins
+      process.env['CIRCLECI'] || // CircleCI
+      process.env['TRAVIS'] || // Travis CI
+      process.env['TEAMCITY_VERSION'] || // TeamCity
+      process.env['BUILDKITE'] || // Buildkite
+      process.env['TF_BUILD']
+    ) // Azure Pipelines
   )
 }
 
