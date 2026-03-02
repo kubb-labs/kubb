@@ -4,13 +4,18 @@ import { executeIfOnline } from '@kubb/core/utils'
 
 const TELEMETRY_ENDPOINT = 'https://telemetry.kubb.dev/api/v1/record'
 
+export type TelemetryPlugin = {
+  name: string
+  options: Record<string, unknown>
+}
+
 export type TelemetryEvent = {
   command: string
   kubbVersion: string
   nodeVersion: string
   platform: string
   ci: boolean
-  plugins: string[]
+  plugins: TelemetryPlugin[]
   duration: number
   filesCreated: number
   status: 'success' | 'failed'
@@ -57,12 +62,12 @@ export async function sendTelemetry(event: TelemetryEvent): Promise<void> {
 
 /**
  * Build an anonymous telemetry payload from a completed generation run.
- * No file paths, OpenAPI specs, plugin options, or secrets are included.
+ * No file paths, OpenAPI specs, or secrets are included.
  */
 export function buildTelemetryEvent(options: {
   command: string
   kubbVersion: string
-  plugins: string[]
+  plugins: TelemetryPlugin[]
   hrStart: [number, number]
   filesCreated: number
   status: 'success' | 'failed'

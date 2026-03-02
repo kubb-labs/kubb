@@ -24,7 +24,7 @@ The following anonymous data is sent after each `kubb generate` run:
 | `nodeVersion` | Node.js major version | `"20"` |
 | `platform` | Operating system | `"linux"`, `"darwin"`, `"win32"` |
 | `ci` | Whether running in CI | `true` |
-| `plugins` | Names of the plugins used (no options) | `["@kubb/plugin-ts", "@kubb/plugin-client"]` |
+| `plugins` | Plugin names **and their options** | `[{ "name": "@kubb/plugin-ts", "options": { "output": { "path": "types" } } }]` |
 | `duration` | Total generation time in milliseconds | `1432` |
 | `filesCreated` | Number of files generated | `47` |
 | `status` | Whether generation succeeded or failed | `"success"` |
@@ -35,7 +35,6 @@ We take privacy seriously. The following data is **never** sent:
 
 - OpenAPI specification contents
 - File paths or directory structures
-- Plugin options or configuration values
 - Secrets, API keys, or tokens
 - Source code or generated code
 - IP addresses or user identifiers

@@ -91,7 +91,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
       buildTelemetryEvent({
         command: 'generate',
         kubbVersion: version,
-        plugins: pluginManager.plugins.map((p) => p.name),
+        plugins: pluginManager.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
         hrStart,
         filesCreated: files.length,
         status: 'failed',
@@ -220,7 +220,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
   const telemetryEvent = buildTelemetryEvent({
     command: 'generate',
     kubbVersion: version,
-    plugins: pluginManager.plugins.map((p) => p.name),
+    plugins: pluginManager.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
     hrStart,
     filesCreated: files.length,
     status: generationStatus,

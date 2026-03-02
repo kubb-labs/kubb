@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { buildTelemetryEvent, isTelemetryDisabled, sendTelemetry } from './telemetry.ts'
+import { type TelemetryPlugin, buildTelemetryEvent, isTelemetryDisabled, sendTelemetry } from './telemetry.ts'
 
 vi.mock('@kubb/core/utils', () => ({
   executeIfOnline: vi.fn(async (fn: () => Promise<unknown>) => fn()),
@@ -50,10 +50,14 @@ describe('isTelemetryDisabled', () => {
 describe('buildTelemetryEvent', () => {
   it('should build a telemetry event with safe anonymous data only', () => {
     const hrStart = process.hrtime()
+    const plugins: TelemetryPlugin[] = [
+      { name: 'plugin-ts', options: { output: { path: 'types' } } },
+      { name: 'plugin-client', options: { output: { path: 'clients' } } },
+    ]
     const event = buildTelemetryEvent({
       command: 'generate',
       kubbVersion: '4.0.0',
-      plugins: ['plugin-ts', 'plugin-client'],
+      plugins,
       hrStart,
       filesCreated: 10,
       status: 'success',
@@ -61,7 +65,7 @@ describe('buildTelemetryEvent', () => {
 
     expect(event.command).toBe('generate')
     expect(event.kubbVersion).toBe('4.0.0')
-    expect(event.plugins).toEqual(['plugin-ts', 'plugin-client'])
+    expect(event.plugins).toEqual(plugins)
     expect(event.filesCreated).toBe(10)
     expect(event.status).toBe('success')
     expect(typeof event.duration).toBe('number')
@@ -102,7 +106,7 @@ describe('sendTelemetry', () => {
       nodeVersion: '20',
       platform: 'linux',
       ci: false,
-      plugins: ['plugin-ts'],
+      plugins: [{ name: 'plugin-ts', options: {} }],
       duration: 1000,
       filesCreated: 5,
       status: 'success',
@@ -120,7 +124,7 @@ describe('sendTelemetry', () => {
       nodeVersion: '20',
       platform: 'linux',
       ci: false,
-      plugins: ['plugin-ts'],
+      plugins: [{ name: 'plugin-ts', options: { output: { path: 'types' } } }],
       duration: 1000,
       filesCreated: 5,
       status: 'success',
@@ -133,7 +137,7 @@ describe('sendTelemetry', () => {
     const body = JSON.parse(init?.body as string)
     expect(body.command).toBe('generate')
     expect(body.kubbVersion).toBe('4.0.0')
-    expect(body.plugins).toEqual(['plugin-ts'])
+    expect(body.plugins).toEqual([{ name: 'plugin-ts', options: { output: { path: 'types' } } }])
   })
 
   it('should fail silently when fetch throws', async () => {
