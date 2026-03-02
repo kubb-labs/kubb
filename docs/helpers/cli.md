@@ -462,3 +462,19 @@ npx kubb mcp
 This starts an MCP server that communicates via stdio (standard input/output). MCP clients like [Claude Desktop](https://claude.ai/download) and [Cursor](https://cursor.sh) can connect to this server.
 
 For more information about configuring MCP for Kubb, see [using Kubb MCP](./mcp.md).
+
+## Telemetry
+
+The Kubb CLI collects **anonymous usage data** after each `kubb generate` run to help improve the tool. No OpenAPI specs, file paths, plugin options, or secrets are ever collected.
+
+Disable telemetry at any time:
+
+```shell
+# Standard cross-tool opt-out (https://consoledonottrack.com)
+DO_NOT_TRACK=1 kubb generate
+
+# Kubb-specific opt-out
+KUBB_DISABLE_TELEMETRY=1 kubb generate
+```
+
+See the [Telemetry documentation](/getting-started/telemetry) for full details on what data is collected and how to opt out permanently.
