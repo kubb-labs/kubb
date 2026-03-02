@@ -86,7 +86,7 @@ The data is aggregated and anonymised — individual runs cannot be linked to a 
 
 ## Data Transmission
 
-Telemetry events are sent as a single HTTP `POST` request to `https://telemetry.kubb.dev/api/v1/record` at the end of each generation run. The request:
+Telemetry events are formatted as [OpenTelemetry OTLP](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/) traces and sent via a single HTTP `POST` request to `https://otlp.kubb.dev/v1/traces` at the end of each generation run. The request:
 
 - Only fires when an internet connection is available (detected automatically)
 - Has a 5-second timeout and fails silently if the endpoint is unreachable

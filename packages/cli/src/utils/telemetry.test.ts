@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { type TelemetryPlugin, buildTelemetryEvent, isTelemetryDisabled, sendTelemetry } from './telemetry.ts'
+import { type TelemetryPlugin, buildOtlpPayload, buildTelemetryEvent, isTelemetryDisabled, sendTelemetry } from './telemetry.ts'
 
 vi.mock('@kubb/core/utils', () => ({
   executeIfOnline: vi.fn(async (fn: () => Promise<unknown>) => fn()),
@@ -90,6 +90,57 @@ describe('buildTelemetryEvent', () => {
   })
 })
 
+describe('buildOtlpPayload', () => {
+  it('should build a valid OTLP trace payload', () => {
+    const event: ReturnType<typeof buildTelemetryEvent> = {
+      command: 'generate',
+      kubbVersion: '4.0.0',
+      nodeVersion: '20',
+      platform: 'linux',
+      ci: false,
+      plugins: [{ name: 'plugin-ts', options: { output: { path: 'types' } } }],
+      duration: 1000,
+      filesCreated: 5,
+      status: 'success',
+    }
+
+    const payload = buildOtlpPayload(event) as any
+    expect(payload).toHaveProperty('resourceSpans')
+    const [resourceSpan] = payload.resourceSpans
+    expect(resourceSpan.resource.attributes).toContainEqual({ key: 'service.name', value: { stringValue: 'kubb-cli' } })
+    const [scopeSpan] = resourceSpan.scopeSpans
+    const [span] = scopeSpan.spans
+    expect(span.name).toBe('generate')
+    expect(span.status.code).toBe(1)
+    expect(typeof span.traceId).toBe('string')
+    expect(span.traceId).toHaveLength(32)
+    expect(typeof span.spanId).toBe('string')
+    expect(span.spanId).toHaveLength(16)
+    expect(typeof span.startTimeUnixNano).toBe('string')
+    expect(typeof span.endTimeUnixNano).toBe('string')
+    const attr = span.attributes.find((a: any) => a.key === 'kubb.status')
+    expect(attr?.value.stringValue).toBe('success')
+  })
+
+  it('should set status code 2 for failed status', () => {
+    const event: ReturnType<typeof buildTelemetryEvent> = {
+      command: 'generate',
+      kubbVersion: '4.0.0',
+      nodeVersion: '20',
+      platform: 'linux',
+      ci: false,
+      plugins: [],
+      duration: 500,
+      filesCreated: 0,
+      status: 'failed',
+    }
+
+    const payload = buildOtlpPayload(event) as any
+    const span = payload.resourceSpans[0].scopeSpans[0].spans[0]
+    expect(span.status.code).toBe(2)
+  })
+})
+
 describe('sendTelemetry', () => {
   beforeEach(() => {
     delete process.env['DO_NOT_TRACK']
@@ -132,12 +183,13 @@ describe('sendTelemetry', () => {
 
     expect(fetchSpy).toHaveBeenCalledOnce()
     const [url, init] = fetchSpy.mock.calls[0]!
-    expect(url).toBe('https://telemetry.kubb.dev/api/v1/record')
+    expect(url).toBe('https://otlp.kubb.dev/v1/traces')
     expect(init?.method).toBe('POST')
     const body = JSON.parse(init?.body as string)
-    expect(body.command).toBe('generate')
-    expect(body.kubbVersion).toBe('4.0.0')
-    expect(body.plugins).toEqual([{ name: 'plugin-ts', options: { output: { path: 'types' } } }])
+    expect(body).toHaveProperty('resourceSpans')
+    const span = body.resourceSpans[0].scopeSpans[0].spans[0]
+    expect(span.name).toBe('generate')
+    expect(span.status.code).toBe(1)
   })
 
   it('should fail silently when fetch throws', async () => {

@@ -1,8 +1,9 @@
 import os from 'node:os'
 import process from 'node:process'
+import { randomBytes } from 'node:crypto'
 import { executeIfOnline } from '@kubb/core/utils'
 
-const TELEMETRY_ENDPOINT = 'https://telemetry.kubb.dev/api/v1/record'
+const OTLP_ENDPOINT = 'https://otlp.kubb.dev/v1/traces'
 
 export type TelemetryPlugin = {
   name: string
@@ -35,7 +36,74 @@ export function isTelemetryDisabled(): boolean {
 }
 
 /**
- * Send an anonymous telemetry event to the Kubb telemetry endpoint.
+ * Convert a TelemetryEvent into an OTLP-compatible JSON trace payload.
+ * See https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/
+ */
+export function buildOtlpPayload(event: TelemetryEvent): unknown {
+  const traceId = randomBytes(16).toString('hex')
+  const spanId = randomBytes(8).toString('hex')
+  const endTimeNs = BigInt(Date.now()) * 1_000_000n
+  const startTimeNs = endTimeNs - BigInt(event.duration) * 1_000_000n
+
+  const attributes = [
+    { key: 'kubb.command', value: { stringValue: event.command } },
+    { key: 'kubb.version', value: { stringValue: event.kubbVersion } },
+    { key: 'kubb.node_version', value: { stringValue: event.nodeVersion } },
+    { key: 'kubb.platform', value: { stringValue: event.platform } },
+    { key: 'kubb.ci', value: { boolValue: event.ci } },
+    { key: 'kubb.files_created', value: { intValue: event.filesCreated } },
+    { key: 'kubb.status', value: { stringValue: event.status } },
+    {
+      key: 'kubb.plugins',
+      value: {
+        arrayValue: {
+          values: event.plugins.map((p) => ({
+            kvlistValue: {
+              values: [
+                { key: 'name', value: { stringValue: p.name } },
+                { key: 'options', value: { stringValue: JSON.stringify(p.options) } },
+              ],
+            },
+          })),
+        },
+      },
+    },
+  ]
+
+  return {
+    resourceSpans: [
+      {
+        resource: {
+          attributes: [
+            { key: 'service.name', value: { stringValue: 'kubb-cli' } },
+            { key: 'service.version', value: { stringValue: event.kubbVersion } },
+            { key: 'telemetry.sdk.language', value: { stringValue: 'nodejs' } },
+          ],
+        },
+        scopeSpans: [
+          {
+            scope: { name: 'kubb-cli', version: event.kubbVersion },
+            spans: [
+              {
+                traceId,
+                spanId,
+                name: event.command,
+                kind: 1,
+                startTimeUnixNano: String(startTimeNs),
+                endTimeUnixNano: String(endTimeNs),
+                attributes,
+                status: { code: event.status === 'success' ? 1 : 2 },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  }
+}
+
+/**
+ * Send an anonymous telemetry event to the Kubb OTLP endpoint.
  * Respects DO_NOT_TRACK and KUBB_DISABLE_TELEMETRY environment variables.
  * Fails silently to never interrupt the generation process.
  */
@@ -46,12 +114,12 @@ export async function sendTelemetry(event: TelemetryEvent): Promise<void> {
 
   await executeIfOnline(async () => {
     try {
-      await fetch(TELEMETRY_ENDPOINT, {
+      await fetch(OTLP_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(event),
+        body: JSON.stringify(buildOtlpPayload(event)),
         signal: AbortSignal.timeout(5_000),
       })
     } catch {
