@@ -5,7 +5,9 @@ import { styleText } from 'node:util'
 import { type Config, type KubbEvents, LogLevel, safeBuild, setup } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import { detectFormatter, detectLinter, formatters, linters } from '@kubb/core/utils'
+import { version } from '../../package.json'
 import { executeHooks } from '../utils/executeHooks.ts'
+import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 
 type GenerateProps = {
   input?: string
@@ -80,10 +82,21 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
     await events.emit('generation:summary', config, {
       failedPlugins,
       filesCreated: files.length,
-      status: failedPlugins.size > 0 || error ? 'failed' : 'success',
+      status: 'failed',
       hrStart,
       pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
     })
+
+    await sendTelemetry(
+      buildTelemetryEvent({
+        command: 'generate',
+        kubbVersion: version,
+        plugins: pluginManager.plugins.map((p) => p.name),
+        hrStart,
+        filesCreated: files.length,
+        status: 'failed',
+      }),
+    )
 
     process.exit(1)
   }
@@ -194,11 +207,24 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
     await events.emit('hooks:end')
   }
 
+  const generationStatus = failedPlugins.size > 0 || error ? 'failed' : 'success'
+
   await events.emit('generation:summary', config, {
     failedPlugins,
     filesCreated: files.length,
-    status: failedPlugins.size > 0 || error ? 'failed' : 'success',
+    status: generationStatus,
     hrStart,
     pluginTimings,
   })
+
+  const telemetryEvent = buildTelemetryEvent({
+    command: 'generate',
+    kubbVersion: version,
+    plugins: pluginManager.plugins.map((p) => p.name),
+    hrStart,
+    filesCreated: files.length,
+    status: generationStatus,
+  })
+
+  await sendTelemetry(telemetryEvent)
 }
