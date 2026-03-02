@@ -97,30 +97,6 @@ type DisconnectProps = {
   sessionId: string
 }
 
-type HeartbeatProps = {
-  studioUrl: string
-  token: string
-}
-
-/**
- * Send a heartbeat to Kubb Studio to indicate the agent is still alive.
- * Called periodically via `KUBB_AGENT_HTTP_HEARTBEAT_INTERVAL`.
- */
-export async function heartbeat({ token, studioUrl }: HeartbeatProps): Promise<void> {
-  const heartbeatUrl = `${studioUrl}/api/agent/heartbeat`
-
-  try {
-    await $fetch(heartbeatUrl, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-  } catch (error: any) {
-    logger.warn('Failed to send heartbeat to Studio', error?.message)
-  }
-}
-
 /**
  * Notify Kubb Studio that this agent is disconnecting.
  * Called on process termination or server close.
