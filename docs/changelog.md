@@ -10,12 +10,31 @@ outline: deep
 
 ### 🐛 Bug Fixes
 
+
 #### [`@kubb/plugin-client`](/plugins/plugin-client/)
 
 **Don't mutate `config.signal`, use it only if available**
 
-The `signal` property from `config` is no longer mutated. Instead, it is only used when already present, preventing unintended side-effects in request configurations.
+The generated `queryFn` no longer mutates the `config` object to assign `signal`. Instead, it spreads `config` and uses `config.signal` if already set, falling back to the signal provided by the query framework.
 
+::: code-group
+
+```typescript [Before]
+queryFn: async ({ signal }) => {
+  if (!config.signal) {
+    config.signal = signal
+  }
+  return findPetsByStatus({ stepId }, config)
+},
+```
+
+```typescript [After]
+queryFn: async ({ signal }) => {
+  return findPetsByStatus({ stepId }, { ...config, signal: config.signal ?? signal })
+},
+```
+
+:::
 ---
 
 ## 4.31.0
