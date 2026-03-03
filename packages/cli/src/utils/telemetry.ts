@@ -237,6 +237,8 @@ export async function sendTelemetry(event: TelemetryEvent): Promise<void> {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Kubb-Telemetry-Version': '1',
+          'Kubb-Telemetry-Source': 'kubb-cli',
         },
         body: JSON.stringify(buildOtlpPayload(event)),
         signal: AbortSignal.timeout(5_000),

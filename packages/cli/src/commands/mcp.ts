@@ -45,7 +45,7 @@ const command = defineCommand({
     try {
       console.log('⏳ Starting MCP server...')
       console.warn(styleText('yellow', 'This feature is still under development — use with caution'))
-      await run()
+      run()
       await sendTelemetry(buildTelemetryEvent({ command: 'mcp', kubbVersion: version, hrStart, status: 'success' }))
     } catch (error) {
       await sendTelemetry(buildTelemetryEvent({ command: 'mcp', kubbVersion: version, hrStart, status: 'failed' }))

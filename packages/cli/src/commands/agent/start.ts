@@ -134,7 +134,7 @@ const command = defineCommand({
       const allowWrite = args['allow-write']
       const allowAll = args['allow-all']
 
-      await startServer({ port, host, configPath, noCache, allowWrite, allowAll })
+      startServer({ port, host, configPath, noCache, allowWrite, allowAll })
       await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'success' }))
     } catch (error) {
       await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'failed' }))
