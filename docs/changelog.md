@@ -11,6 +11,16 @@ outline: deep
 ### 🐛 Bug Fixes
 
 
+#### [`@kubb/oas`](/plugins/plugin-oas/)
+
+**Restore separate schema generation for multi-file OpenAPI specs**
+
+When a main OpenAPI spec referenced external files (e.g. `api-definitions.yml#/components/requestBodies/...`), the bundler was inlining all external schemas rather than lifting them into `#/components/schemas/`. This caused `getSchemas()` to return nothing, so plugins like `plugin-zod` generated all schemas inline—no separate `parcelSchema.ts`, no `contactDetailsTypeSchema.ts`, etc.
+
+A pre-bundling step now merges external file `components/` sections into the main document before bundling, ensuring all named component schemas are preserved and separate schema files are generated as expected.
+
+---
+
 #### [`@kubb/plugin-client`](/plugins/plugin-client/)
 
 **Don't mutate `config.signal`, use it only if available**
