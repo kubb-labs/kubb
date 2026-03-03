@@ -1,0 +1,21 @@
+openapi: 3.0.3
+info:
+  title: Multi-File API
+  version: v1.0
+paths:
+  /v1/returns/type-a:
+    post:
+      operationId: createReturnTypeA
+      requestBody:
+        $ref: "multiFileDefinitions.yml#/components/requestBodies/RequestABody"
+      responses:
+        "200":
+          $ref: "multiFileDefinitions.yml#/components/responses/createReturnResponse"
+  /v1/returns/type-b:
+    post:
+      operationId: createReturnTypeB
+      requestBody:
+        $ref: "multiFileDefinitions.yml#/components/requestBodies/RequestBBody"
+      responses:
+        "200":
+          $ref: "multiFileDefinitions.yml#/components/responses/createReturnResponse"

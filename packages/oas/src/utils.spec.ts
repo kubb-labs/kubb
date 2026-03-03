@@ -89,19 +89,22 @@ components:
 
     expect(oas).toBeDefined()
     expect(oas.api?.info.title).toBe('PetStore with external file ref')
-    // After bundling, the external file $ref is resolved: the Category schema is inlined
+    // After bundling with external component merging, the Category schema is lifted to #/components/schemas/Category
     const petSchema = (oas.api as any).components?.schemas?.Pet
     expect(petSchema).toBeDefined()
     expect(petSchema.type).toBe('object')
     expect(petSchema.required).toEqual(['id', 'name'])
     expect(petSchema.properties.id).toEqual({ type: 'integer', format: 'int64' })
     expect(petSchema.properties.name).toEqual({ type: 'string' })
-    // The external file $ref is resolved: category has the inline schema from category.yaml
+    // The external schema is now referenced via an internal $ref, not inlined
     const category = petSchema.properties.category
     expect(category).toBeDefined()
-    expect(category.$ref).toBeUndefined()
-    expect(category.type).toBe('object')
-    expect(category.properties.id).toEqual({ type: 'integer', format: 'int64' })
+    expect(category.$ref).toBe('#/components/schemas/Category')
+    // The Category schema is available in the components section
+    const categorySchema = (oas.api as any).components?.schemas?.Category
+    expect(categorySchema).toBeDefined()
+    expect(categorySchema.type).toBe('object')
+    expect(categorySchema.properties.id).toEqual({ type: 'integer', format: 'int64' })
   })
 
   test('parse a spec with an external URL $ref resolves the ref via bundling', async () => {
@@ -150,6 +153,57 @@ components:
     expect(petSchema).toBeDefined()
     expect(petSchema.type).toBe('object')
     expect(petSchema.properties.category).toBeDefined()
+  })
+})
+
+describe('mergeExternalFileComponents', () => {
+  test('merges external component schemas so they appear in the bundled #/components/schemas', async () => {
+    const specPath = path.resolve(__dirname, '../mocks/multiFileApi.yaml')
+    const oas = await parse(specPath)
+
+    // All schemas from the external file should be available in #/components/schemas
+    const schemas = (oas.api as any).components?.schemas
+    expect(schemas).toBeDefined()
+    expect(schemas.Parcel).toBeDefined()
+    expect(schemas.ContactDetailsType).toBeDefined()
+    expect(schemas.TypeARequest).toBeDefined()
+    expect(schemas.TypeBRequest).toBeDefined()
+    expect(schemas.Result).toBeDefined()
+  })
+
+  test('shared external response schema is referenced via #/components, not inlined per operation', async () => {
+    const specPath = path.resolve(__dirname, '../mocks/multiFileApi.yaml')
+    const oas = await parse(specPath)
+
+    // The Result schema should be referenced via $ref, not inlined
+    const resultSchema = (oas.api as any).components?.schemas?.Result
+    expect(resultSchema).toBeDefined()
+    expect(resultSchema.type).toBe('object')
+
+    // Parcel is a nested schema that should remain separate
+    const parcelSchema = (oas.api as any).components?.schemas?.Parcel
+    expect(parcelSchema).toBeDefined()
+    expect(parcelSchema.type).toBe('object')
+    expect(parcelSchema.properties.parcelNo).toEqual({ type: 'string' })
+    expect(parcelSchema.properties.trackingNumber).toEqual({ type: 'string' })
+
+    // Result.parcels items should reference Parcel via $ref
+    const parcelsItems = resultSchema.properties?.parcels?.items
+    expect(parcelsItems).toBeDefined()
+    expect(parcelsItems.$ref).toBe('#/components/schemas/Parcel')
+  })
+
+  test('getSchemas returns all external component schemas for separate file generation', async () => {
+    const specPath = path.resolve(__dirname, '../mocks/multiFileApi.yaml')
+    const oas = await parse(specPath)
+    const { schemas } = oas.getSchemas()
+
+    // All schemas from the external definitions file should be available
+    expect(Object.keys(schemas)).toContain('Parcel')
+    expect(Object.keys(schemas)).toContain('ContactDetailsType')
+    expect(Object.keys(schemas)).toContain('TypeARequest')
+    expect(Object.keys(schemas)).toContain('TypeBRequest')
+    expect(Object.keys(schemas)).toContain('Result')
   })
 })
 
