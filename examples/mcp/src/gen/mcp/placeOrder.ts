@@ -24,5 +24,6 @@ export async function placeOrderHandler({ data }: { data?: PlaceOrderMutationReq
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

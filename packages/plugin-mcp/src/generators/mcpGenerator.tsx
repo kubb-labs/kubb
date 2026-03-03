@@ -90,7 +90,8 @@ export const mcpGenerator = createReactGenerator<PluginMcp>({
                 type: 'text',
                 text: JSON.stringify(res.data)
               }
-            ]
+            ],
+            structuredContent: { data: res.data }
            }`}
           {options.client.dataReturnType === 'full' &&
             `return {
@@ -99,7 +100,8 @@ export const mcpGenerator = createReactGenerator<PluginMcp>({
                 type: 'text',
                 text: JSON.stringify(res)
               }
-            ]
+            ],
+            structuredContent: { data: res.data }
            }`}
         </Client>
       </File>

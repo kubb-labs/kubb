@@ -24,5 +24,6 @@ export async function createPetsHandler({ data }: { data: CreatePetsMutationRequ
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

@@ -41,5 +41,6 @@ export async function createPetsHandler({
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

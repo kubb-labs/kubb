@@ -32,5 +32,6 @@ export async function updatePetWithFormHandler({
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

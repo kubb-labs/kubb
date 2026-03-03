@@ -21,5 +21,6 @@ export async function showPetByIdHandler({
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

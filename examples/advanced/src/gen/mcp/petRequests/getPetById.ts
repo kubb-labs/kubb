@@ -21,5 +21,6 @@ export async function getPetByIdHandler({ petId }: { petId: GetPetByIdPathParams
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

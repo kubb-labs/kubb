@@ -27,5 +27,6 @@ export async function createUsersWithListInputHandler({ data }: { data?: CreateU
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

@@ -38,5 +38,6 @@ export async function uploadFileHandler({
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

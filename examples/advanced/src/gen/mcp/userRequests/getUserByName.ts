@@ -20,5 +20,6 @@ export async function getUserByNameHandler({ username }: { username: GetUserByNa
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }
