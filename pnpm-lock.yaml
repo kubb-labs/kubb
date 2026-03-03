@@ -817,6 +817,9 @@ importers:
       '@logtail/node':
         specifier: ^0.5.6
         version: 0.5.6
+      consola:
+        specifier: ^3.4.2
+        version: 3.4.2
       jiti:
         specifier: 2.5.1
         version: 2.5.1

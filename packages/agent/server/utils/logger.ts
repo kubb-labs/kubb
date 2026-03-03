@@ -35,14 +35,14 @@ function toBetterStackContext(ctx?: LogContext): Record<string, unknown> | undef
   return Object.keys(filtered).length ? (filtered as Record<string, unknown>) : undefined
 }
 
-function sendToBetterStack(level: LogLevel, tag: string, message: string, ctx?: LogContext) {
+function sendToBetterStack(level: LogLevel, tag: string, message?: string, ctx?: LogContext) {
   const client = getLogtail()
   if (!client) {
     return
   }
 
   try {
-    const fullMessage = `[${tag}] ${message}`
+    const fullMessage = message !== undefined ? `[${tag}] ${message}` : tag
     const context = toBetterStackContext(ctx)
     if (level === 'error') {
       client.error(fullMessage, context).then(() => client.flush())
@@ -56,8 +56,9 @@ function sendToBetterStack(level: LogLevel, tag: string, message: string, ctx?: 
   }
 }
 
-function log(level: LogLevel, tag: string, message: string, ctx?: LogContext) {
-  consola[level](`[${tag}] ${message}`)
+function log(level: LogLevel, tag: string, message?: string, ctx?: LogContext) {
+  const displayMessage = message !== undefined ? `[${tag}] ${message}` : tag
+  consola[level](displayMessage)
 
   if (ctx) {
     const filtered = Object.fromEntries(Object.entries(ctx).filter(([, v]) => v !== undefined && v !== null))
@@ -72,8 +73,8 @@ function log(level: LogLevel, tag: string, message: string, ctx?: LogContext) {
 }
 
 export const logger = {
-  info: (tag: string, message: string, ctx?: LogContext) => log('info', tag, message, ctx),
-  success: (tag: string, message: string, ctx?: LogContext) => log('success', tag, message, ctx),
-  warn: (tag: string, message: string, ctx?: LogContext) => log('warn', tag, message, ctx),
-  error: (tag: string, message: string, ctx?: LogContext) => log('error', tag, message, ctx),
+  info: (tag: string, message?: string, ctx?: LogContext) => log('info', tag, message, ctx),
+  success: (tag: string, message?: string, ctx?: LogContext) => log('success', tag, message, ctx),
+  warn: (tag: string, message?: string, ctx?: LogContext) => log('warn', tag, message, ctx),
+  error: (tag: string, message?: string, ctx?: LogContext) => log('error', tag, message, ctx),
 }
