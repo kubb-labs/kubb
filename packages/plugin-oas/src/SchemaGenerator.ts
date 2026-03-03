@@ -478,6 +478,21 @@ export class SchemaGenerator<
       ]
     }
 
+    // Handle non-component internal refs (e.g., #/paths/... created by the bundler when deduplicating
+    // external schemas referenced multiple times). These path-based refs produce misleading names
+    // from their last path segment (e.g., "#/.../schema/items" → "items" → "itemsSchema").
+    // Resolve them inline instead of registering them as named schema references.
+    if ($ref.startsWith('#') && !$ref.startsWith('#/components/')) {
+      try {
+        const inlineSchema = this.context.oas.get<SchemaObject>($ref)
+        if (inlineSchema && !isReference(inlineSchema)) {
+          return this.parse({ schema: inlineSchema, name, parentName: null, rootName: null })
+        }
+      } catch {
+        // If lookup fails, fall through to standard processing
+      }
+    }
+
     // Ensure name mapping is initialized before resolving names
     this.#ensureNameMapping()
 
