@@ -30,6 +30,41 @@ import type { RequestConfig, ResponseErrorConfig } from '${client.importPath}'
 // ... rest of generated file
 ```
 
+> [!IMPORTANT]
+> When using `importPath` with query plugins such as `@kubb/plugin-react-query`, `@kubb/plugin-vue-query`, `@kubb/plugin-svelte-query`, `@kubb/plugin-solid-query`, or `@kubb/plugin-swr`, the generated hooks also import `type Client` from the custom module:
+> ```typescript
+> import type { Client, RequestConfig, ResponseErrorConfig } from '@/lib/client'
+> ```
+> Your custom client module **must** export these three types. If any of them is missing, TypeScript will report an unresolvable import error.
+>
+> ```typescript [client.ts]
+> export type RequestConfig<TData = unknown> = {
+>   url?: string
+>   method: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE'
+>   params?: object
+>   data?: TData | FormData
+>   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
+>   signal?: AbortSignal
+>   headers?: HeadersInit
+> }
+>
+> export type ResponseConfig<TData = unknown> = {
+>   data: TData
+>   status: number
+>   statusText: string
+> }
+>
+> export type ResponseErrorConfig<TError = unknown> = TError
+>
+> // The Client type alias is required when using query plugins
+> export type Client = <TData, _TError = unknown, TVariables = unknown>(
+>   config: RequestConfig<TVariables>
+> ) => Promise<ResponseConfig<TData>>
+>
+> export const client: Client = async (config) => { /* ... */ }
+> export default client
+> ```
+
 **Example configuration with custom client:**
 ```typescript
 import { defineConfig } from '@kubb/core'
