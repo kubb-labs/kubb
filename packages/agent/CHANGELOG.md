@@ -1,5 +1,26 @@
 # @kubb/agent
 
+## 4.31.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/plugin-client@4.31.2
+  - @kubb/plugin-cypress@4.31.2
+  - @kubb/plugin-faker@4.31.2
+  - @kubb/plugin-mcp@4.31.2
+  - @kubb/plugin-msw@4.31.2
+  - @kubb/plugin-oas@4.31.2
+  - @kubb/plugin-react-query@4.31.2
+  - @kubb/plugin-redoc@4.31.2
+  - @kubb/plugin-solid-query@4.31.2
+  - @kubb/plugin-svelte-query@4.31.2
+  - @kubb/plugin-swr@4.31.2
+  - @kubb/plugin-ts@4.31.2
+  - @kubb/plugin-vue-query@4.31.2
+  - @kubb/plugin-zod@4.31.2
+  - @kubb/core@4.31.2
+
 ## 4.31.1
 
 ### Patch Changes
