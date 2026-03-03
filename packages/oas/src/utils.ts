@@ -215,7 +215,7 @@ function replaceExternalRefsInPlace(obj: unknown, externalFile: string): void {
  *
  * Returns the merged document, or `null` if no external file components were found.
  */
-export function mergeExternalFileComponents(mainFilePath: string): Record<string, unknown> | null {
+export function mergeExternalFileComponents(mainFilePath: string): Document | null {
   let mainContent: string
   try {
     mainContent = fs.readFileSync(mainFilePath, 'utf-8')
@@ -251,7 +251,7 @@ export function mergeExternalFileComponents(mainFilePath: string): Record<string
 
     for (const [componentType, components] of Object.entries(externalDoc.components as Record<string, unknown>)) {
       if (!components || typeof components !== 'object') continue
-      // Main document wins on name conflicts (existing entries take precedence)
+      // Spread external entries first, then main doc entries last so main document wins on name conflicts
       mainDoc.components[componentType] = {
         ...(components as Record<string, unknown>),
         ...((mainDoc.components[componentType] as Record<string, unknown>) ?? {}),
@@ -267,7 +267,7 @@ export function mergeExternalFileComponents(mainFilePath: string): Record<string
     replaceExternalRefsInPlace(mainDoc, externalFile)
   }
 
-  return mainDoc
+  return mainDoc as unknown as Document
 }
 
 export async function parse(
