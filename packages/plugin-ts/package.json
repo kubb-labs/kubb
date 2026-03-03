@@ -87,7 +87,7 @@
     "typescript": "5.9.3"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.13.2",
+    "@kubb/react-fabric": "0.13.3",
     "typescript": ">=5.9.0"
   },
   "engines": {
