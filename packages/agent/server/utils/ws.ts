@@ -42,11 +42,11 @@ export function sendAgentMessage(ws: WebSocket, message: AgentMessage): void {
 /**
  * Set up event listeners on the KubbEvents emitter to forward events to Kubb Studio via WebSocket
  */
-export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbEvents>): void {
+export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbEvents>, getSource?: () => 'generate' | 'publish' | undefined): void {
   function sendDataMessage(payload: DataMessagePayload) {
     sendAgentMessage(ws, {
       type: 'data',
-      payload,
+      payload: { ...payload, source: getSource?.() },
     })
   }
 

@@ -2,7 +2,7 @@ import type { KubbEvents } from '@kubb/core'
 import { AsyncEventEmitter, formatMs, serializePluginOptions } from '@kubb/core/utils'
 import type { NitroApp } from 'nitropack/types'
 import { version } from '~~/package.json'
-import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage } from '../types/agent.ts'
+import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage, isPublishCommandMessage } from '../types/agent.ts'
 import { removeCachedSession, saveStudioConfigToStorage } from './agentCache.ts'
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
@@ -10,6 +10,7 @@ import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
 import { maskedString } from './maskedString.ts'
 import { mergePlugins } from './mergePlugins.ts'
+import { publish } from './publish.ts'
 import { setupHookListener } from './setupHookListener.ts'
 import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
 
@@ -54,6 +55,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
   const events = new AsyncEventEmitter<KubbEvents>()
+  let currentSource: 'generate' | 'publish' | undefined
   const maskedSessionKey = maskedString(sessionKey.replace('sessions:', ''))
 
   async function removeSession() {
@@ -141,7 +143,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     heartbeatTimer = setInterval(() => sendAgentMessage(ws, { type: 'ping' }), heartbeatInterval)
 
-    setupEventsStream(ws, events)
+    setupEventsStream(ws, events, () => currentSource)
 
     ws.addEventListener('message', async (message) => {
       try {
@@ -176,6 +178,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
         if (isCommandMessage(data)) {
           if (data.command === 'generate') {
+            currentSource = 'generate'
             const config = await loadConfig(resolvedConfigPath)
 
             // Message payload takes priority over previously saved studio config
@@ -214,6 +217,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             })
 
             logger.success(`[${maskedSessionKey}] Completed "${data.type}" from Studio`)
+            currentSource = undefined
 
             return
           }
@@ -237,6 +241,26 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             })
 
             logger.success(`[${maskedSessionKey}] Completed "${data.type}" from Studio`)
+
+            return
+          }
+
+          if (isPublishCommandMessage(data)) {
+            currentSource = 'publish'
+            const config = await loadConfig(resolvedConfigPath)
+
+            // Command priority: WS payload → env var → default
+            const resolvedCommand = data.payload.command ?? process.env.KUBB_AGENT_PUBLISH_COMMAND ?? 'npm publish'
+
+            await publish({
+              command: resolvedCommand,
+              outputPath: config.output.path,
+              root,
+              events,
+            })
+
+            logger.success(`[${maskedSessionKey}] Completed "${data.command}" from Studio`)
+            currentSource = undefined
 
             return
           }

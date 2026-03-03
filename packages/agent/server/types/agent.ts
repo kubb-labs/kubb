@@ -52,6 +52,20 @@ export type KubbEvents = {
 export type KubbEvent = keyof KubbEvents
 
 /**
+ * Payload for the publish command, sent from Studio to the Agent.
+ * The agent uses the command field to run the publish shell command.
+ * If command is omitted, the agent falls back to the KUBB_AGENT_PUBLISH_COMMAND
+ * env var and then to 'npm publish'.
+ */
+export type PublishCommandPayload = {
+  publisher: 'npm'
+  /** Optional shell command override, e.g. 'npm publish --access public' */
+  command?: string
+  /** Arbitrary metadata stored in Studio (name, version, scope, …) */
+  meta?: Record<string, unknown>
+}
+
+/**
  * Command message sent from Studio to Agent
  * Triggers actions like code generation or connection establishment
  */
@@ -65,6 +79,7 @@ export type CommandMessage =
         allowWrite: boolean
       }
     }
+  | { type: 'command'; command: 'publish'; payload: PublishCommandPayload }
 
 export type ConnectMessagePayload = {
   version: string
@@ -133,6 +148,7 @@ export type DataMessagePayload<T extends KubbEvent = KubbEvent> = {
   type: T
   data: KubbEvents[T]
   timestamp: number
+  source?: 'generate' | 'publish'
 }
 
 /**
@@ -194,4 +210,8 @@ export function isStatusMessage(msg: AgentMessage): msg is StatusMessage {
 
 export function isDisconnectMessage(msg: AgentMessage): msg is DisconnectMessage {
   return msg.type === 'disconnect'
+}
+
+export function isPublishCommandMessage(msg: AgentMessage): msg is CommandMessage & { command: 'publish' } {
+  return msg.type === 'command' && (msg as CommandMessage & { command: string }).command === 'publish'
 }
