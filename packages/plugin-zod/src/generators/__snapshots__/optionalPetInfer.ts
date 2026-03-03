@@ -5,7 +5,7 @@
 import * as z from 'zod'
 
 export const optionalPet = z.object({
-  id: z.optional(z.bigint()),
+  id: z.optional(z.number().int()),
   name: z.optional(z.string()),
   tag: z.optional(z.string()),
 })

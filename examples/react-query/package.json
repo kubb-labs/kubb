@@ -27,10 +27,10 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-react-query": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react-fabric": "0.12.11",
+    "@kubb/react-fabric": "0.13.2",
     "@tanstack/react-query": "^5.90.21",
     "@tanstack/react-query-devtools": "^5.91.3",
-    "axios": "^1.13.5",
+    "axios": "^1.13.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "unplugin-kubb": "workspace:*"

@@ -42,8 +42,10 @@ export function findPetsByTagsSuspenseQueryOptionsHook(params?: FindPetsByTagsQu
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
-      return findPetsByTagsSuspenseHook(params, config)
+      return findPetsByTagsSuspenseHook(params, {
+        ...config,
+        signal: config.signal ?? signal,
+      })
     },
   })
 }

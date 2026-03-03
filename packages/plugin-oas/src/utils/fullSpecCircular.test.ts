@@ -36,6 +36,7 @@ const createMockedPluginManager = () =>
   }) as unknown as PluginManager
 
 describe('Full Spec Circular Discriminator References', () => {
+  const fabric = createReactFabric()
   it('should handle full PaymentAccountDetailsResponse spec without circular refs', async () => {
     const spec: OasTypes.OASDocument = {
       openapi: '3.0.1',
@@ -147,7 +148,6 @@ describe('Full Spec Circular Discriminator References', () => {
       transformers: {},
     }
     const plugin = { options } as Plugin<any>
-    const fabric = createReactFabric()
     const mockedPluginManager = createMockedPluginManager()
 
     const generator = new SchemaGenerator(options, {

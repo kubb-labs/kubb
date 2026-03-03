@@ -1,4 +1,4 @@
-import { execaCommand } from 'execa'
+import { x } from 'tinyexec'
 
 export const formatters = {
   prettier: {
@@ -33,7 +33,7 @@ type Formatter = keyof typeof formatters
 async function isFormatterAvailable(formatter: Formatter): Promise<boolean> {
   try {
     // Try to get the version of the formatter to check if it's installed
-    await execaCommand(`${formatter} --version`, { stdio: 'ignore' })
+    await x(formatter, ['--version'], { nodeOptions: { stdio: 'ignore' } })
     return true
   } catch {
     return false

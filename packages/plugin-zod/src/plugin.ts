@@ -1,11 +1,11 @@
 import path from 'node:path'
 import { definePlugin, type Group, getBarrelFiles, getMode, PackageManager } from '@kubb/core'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
-import { resolveModuleSource } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { operationsGenerator } from './generators'
 import { zodGenerator } from './generators/zodGenerator.tsx'
+import { source as toZodSource } from './templates/ToZod.source.ts'
 import type { PluginZod } from './types.ts'
 
 export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
@@ -21,6 +21,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
     dateType = 'string',
     unknownType = 'any',
     emptySchemaType = unknownType,
+    integerType = 'number',
     typed = false,
     mapper = {},
     operations = false,
@@ -50,6 +51,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
       dateType,
       unknownType,
       emptySchemaType,
+      integerType,
       mapper,
       importPath,
       coercion,
@@ -126,7 +128,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
           sources: [
             {
               name: 'ToZod',
-              value: resolveModuleSource('@kubb/plugin-zod/templates/ToZod').source,
+              value: toZodSource,
             },
           ],
           imports: [],

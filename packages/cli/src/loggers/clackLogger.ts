@@ -1,10 +1,10 @@
 import { relative } from 'node:path'
 import process from 'node:process'
+import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
-import { type ExecaError, execa } from 'execa'
-import pc from 'picocolors'
+import { type NonZeroExitError, x } from 'tinyexec'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 import { getIntro } from '../utils/getIntro.ts'
 import { getSummary } from '../utils/getSummary.ts'
@@ -60,18 +60,18 @@ export const clackLogger = defineLogger({
       if (state.totalPlugins > 0) {
         const pluginStr =
           state.failedPlugins > 0
-            ? `Plugins ${pc.green(state.completedPlugins.toString())}/${state.totalPlugins} ${pc.red(`(${state.failedPlugins} failed)`)}`
-            : `Plugins ${pc.green(state.completedPlugins.toString())}/${state.totalPlugins}`
+            ? `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins} ${styleText('red', `(${state.failedPlugins} failed)`)}`
+            : `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins}`
         parts.push(pluginStr)
       }
 
       if (state.totalFiles > 0) {
-        parts.push(`Files ${pc.green(state.processedFiles.toString())}/${state.totalFiles}`)
+        parts.push(`Files ${styleText('green', state.processedFiles.toString())}/${state.totalFiles}`)
       }
 
       if (parts.length > 0) {
-        parts.push(`${pc.green(duration)} elapsed`)
-        clack.log.step(getMessage(parts.join(pc.dim(' | '))))
+        parts.push(`${styleText('green', duration)} elapsed`)
+        clack.log.step(getMessage(parts.join(styleText('dim', ' | '))))
       }
     }
 
@@ -84,7 +84,7 @@ export const clackLogger = defineLogger({
           second: '2-digit',
         })
 
-        return [pc.dim(`[${timestamp}]`), message].join(' ')
+        return [styleText('dim', `[${timestamp}]`), message].join(' ')
       }
 
       return message
@@ -105,7 +105,7 @@ export const clackLogger = defineLogger({
         return
       }
 
-      const text = getMessage([pc.blue('ℹ'), message, pc.dim(info)].join(' '))
+      const text = getMessage([styleText('blue', 'ℹ'), message, styleText('dim', info)].join(' '))
 
       if (state.isSpinning) {
         state.spinner.message(text)
@@ -119,7 +119,7 @@ export const clackLogger = defineLogger({
         return
       }
 
-      const text = getMessage([pc.blue('✓'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' '))
+      const text = getMessage([styleText('blue', '✓'), message, logLevel >= LogLevel.info ? styleText('dim', info) : undefined].filter(Boolean).join(' '))
 
       if (state.isSpinning) {
         stopSpinner(text)
@@ -133,7 +133,9 @@ export const clackLogger = defineLogger({
         return
       }
 
-      const text = getMessage([pc.yellow('⚠'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' '))
+      const text = getMessage(
+        [styleText('yellow', '⚠'), message, logLevel >= LogLevel.info && info ? styleText('dim', info) : undefined].filter(Boolean).join(' '),
+      )
 
       clack.log.warn(text)
     })
@@ -141,7 +143,7 @@ export const clackLogger = defineLogger({
     context.on('error', (error) => {
       const caused = error.cause as Error | undefined
 
-      const text = [pc.red('✗'), error.message].join(' ')
+      const text = [styleText('red', '✗'), error.message].join(' ')
 
       if (state.isSpinning) {
         stopSpinner(getMessage(text))
@@ -153,15 +155,15 @@ export const clackLogger = defineLogger({
       if (logLevel >= LogLevel.debug && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
-          clack.log.message(getMessage(pc.dim(frame.trim())))
+          clack.log.message(getMessage(styleText('dim', frame.trim())))
         }
 
         if (caused?.stack) {
-          clack.log.message(pc.dim(`└─ caused by ${caused.message}`))
+          clack.log.message(styleText('dim', `└─ caused by ${caused.message}`))
 
           const frames = caused.stack.split('\n').slice(1, 4)
           for (const frame of frames) {
-            clack.log.message(getMessage(`    ${pc.dim(frame.trim())}`))
+            clack.log.message(getMessage(`    ${styleText('dim', frame.trim())}`))
           }
         }
       }
@@ -178,7 +180,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         'Update available for `Kubb`',
         {
           width: 'auto',
-          formatBorder: pc.yellow,
+          formatBorder: (s: string) => styleText('yellow', s),
           rounded: true,
           withGuide: false,
           contentAlign: 'center',
@@ -218,7 +220,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       // Initialize progress tracking
       state.totalPlugins = config.plugins?.length || 0
 
-      const text = getMessage(['Generation started', config.name ? `for ${pc.dim(config.name)}` : undefined].filter(Boolean).join(' '))
+      const text = getMessage(['Generation started', config.name ? `for ${styleText('dim', config.name)}` : undefined].filter(Boolean).join(' '))
 
       clack.intro(text)
       reset()
@@ -236,7 +238,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         max: 100,
         size: 30,
       })
-      const text = getMessage(`Generating ${pc.bold(plugin.name)}`)
+      const text = getMessage(`Generating ${styleText('bold', plugin.name)}`)
       progressBar.start(text)
 
       const interval = setInterval(() => {
@@ -265,7 +267,9 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       const durationStr = formatMsWithColor(duration)
       const text = getMessage(
-        success ? `${pc.bold(plugin.name)} completed in ${durationStr}` : `${pc.bold(plugin.name)} failed in ${pc.red(formatMs(duration))}`,
+        success
+          ? `${styleText('bold', plugin.name)} completed in ${durationStr}`
+          : `${styleText('bold', plugin.name)} failed in ${styleText('red', formatMs(duration))}`,
       )
 
       active.progressBar.stop(text)
@@ -337,7 +341,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('generation:end', (config) => {
-      const text = getMessage(config.name ? `Generation completed for ${pc.dim(config.name)}` : 'Generation completed')
+      const text = getMessage(config.name ? `Generation completed for ${styleText('dim', config.name)}` : 'Generation completed')
 
       clack.outro(text)
     })
@@ -384,7 +388,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
     context.on('hook:start', async ({ id, command, args }) => {
       const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
-      const text = getMessage(`Hook ${pc.dim(commandWithArgs)} started`)
+      const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} started`)
 
       // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
       if (!id) {
@@ -393,14 +397,14 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       if (logLevel <= LogLevel.silent) {
         try {
-          const result = await execa(command, args, {
-            detached: true,
-            stripFinalNewline: true,
+          const result = await x(command, [...(args ?? [])], {
+            nodeOptions: { detached: true },
+            throwOnError: true,
           })
 
           await context.emit('debug', {
             date: new Date(),
-            logs: [result.stdout],
+            logs: [result.stdout.trimEnd()],
           })
 
           await context.emit('hook:end', {
@@ -411,9 +415,9 @@ Run \`npm install -g @kubb/cli\` to update`,
             error: null,
           })
         } catch (err) {
-          const error = err as ExecaError
-          const stderr = typeof error.stderr === 'string' ? error.stderr : String(error.stderr)
-          const stdout = typeof error.stdout === 'string' ? error.stdout : String(error.stdout)
+          const error = err as NonZeroExitError
+          const stderr = error.output?.stderr ?? ''
+          const stdout = error.output?.stdout ?? ''
 
           await context.emit('debug', {
             date: new Date(),
@@ -445,28 +449,33 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.intro(text)
 
       const logger = clack.taskLog({
-        title: getMessage(['Executing hook', logLevel >= LogLevel.info ? pc.dim(commandWithArgs) : undefined].filter(Boolean).join(' ')),
+        title: getMessage(['Executing hook', logLevel >= LogLevel.info ? styleText('dim', commandWithArgs) : undefined].filter(Boolean).join(' ')),
       })
 
       const writable = new ClackWritable(logger)
 
       try {
-        const result = await execa(command, args, {
-          detached: true,
-          stdout: ['pipe', writable],
-          stripFinalNewline: true,
+        const proc = x(command, [...(args ?? [])], {
+          nodeOptions: { detached: true },
+          throwOnError: true,
         })
+
+        for await (const line of proc) {
+          writable.write(line)
+        }
+
+        const result = await proc
 
         await context.emit('debug', {
           date: new Date(),
-          logs: [result.stdout],
+          logs: [result.stdout.trimEnd()],
         })
 
         await context.emit('hook:end', { command, args, id, success: true, error: null })
       } catch (err) {
-        const error = err as ExecaError
-        const stderr = typeof error.stderr === 'string' ? error.stderr : String(error.stderr)
-        const stdout = typeof error.stdout === 'string' ? error.stdout : String(error.stdout)
+        const error = err as NonZeroExitError
+        const stderr = error.output?.stderr ?? ''
+        const stdout = error.output?.stdout ?? ''
 
         await context.emit('debug', {
           date: new Date(),
@@ -493,7 +502,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
 
       const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
-      const text = getMessage(`Hook ${pc.dim(commandWithArgs)} successfully executed`)
+      const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} successfully executed`)
 
       clack.outro(text)
     })
@@ -515,7 +524,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       if (status === 'success') {
         clack.box(summary.join('\n'), getMessage(title), {
           width: 'auto',
-          formatBorder: pc.green,
+          formatBorder: (s: string) => styleText('green', s),
           rounded: true,
           withGuide: false,
           contentAlign: 'left',
@@ -527,7 +536,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       clack.box(summary.join('\n'), getMessage(title), {
         width: 'auto',
-        formatBorder: pc.red,
+        formatBorder: (s: string) => styleText('red', s),
         rounded: true,
         withGuide: false,
         contentAlign: 'left',

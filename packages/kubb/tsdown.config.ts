@@ -11,6 +11,10 @@ export default defineConfig({
   shims: true,
   exports: true,
   fixedExtension: false,
+  outExtensions({ format }) {
+    if (format === 'cjs') return { dts: '.d.ts' }
+    return {}
+  },
   outputOptions: {
     keepNames: true,
   },

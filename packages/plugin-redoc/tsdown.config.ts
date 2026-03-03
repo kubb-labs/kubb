@@ -12,6 +12,10 @@ export default defineConfig({
   exports: true,
   external: [/^@kubb\//],
   fixedExtension: false,
+  outExtensions({ format }) {
+    if (format === 'cjs') return { dts: '.d.ts' }
+    return {}
+  },
   outputOptions: {
     keepNames: true,
   },

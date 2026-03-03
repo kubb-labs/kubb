@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-vue-query",
-  "version": "4.27.2",
+  "version": "4.31.0",
   "description": "Vue Query hooks generator plugin for Kubb, creating type-safe API client hooks from OpenAPI specifications for Vue.js applications.",
   "keywords": [
     "vue-query",
@@ -25,7 +25,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubb-labs/kubb.git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/plugin-vue-query"
   },
   "license": "MIT",
@@ -34,22 +34,20 @@
   "type": "module",
   "exports": {
     ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./components": {
-      "require": "./dist/components.cjs",
-      "import": "./dist/components.js"
+      "import": "./dist/components.js",
+      "require": "./dist/components.cjs"
     },
     "./generators": {
-      "require": "./dist/generators.cjs",
-      "import": "./dist/generators.js"
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs"
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.cts",
+  "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
       "components": [
@@ -64,7 +62,8 @@
     "src",
     "dist",
     "!/**/**.test.**",
-    "!/**/__tests__/**"
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
   ],
   "size-limit": [
     {
@@ -95,7 +94,7 @@
     "remeda": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.12.11"
+    "@kubb/react-fabric": "0.13.2"
   },
   "engines": {
     "node": ">=20"
@@ -103,5 +102,7 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js"
 }

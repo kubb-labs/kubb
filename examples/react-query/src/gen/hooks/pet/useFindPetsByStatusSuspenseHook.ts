@@ -37,8 +37,10 @@ export function findPetsByStatusSuspenseQueryOptionsHook(params?: FindPetsByStat
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
-      return findPetsByStatusSuspenseHook(params, config)
+      return findPetsByStatusSuspenseHook(params, {
+        ...config,
+        signal: config.signal ?? signal,
+      })
     },
   })
 }

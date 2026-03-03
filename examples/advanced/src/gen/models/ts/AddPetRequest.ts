@@ -13,7 +13,7 @@ export type AddPetRequest = {
   /**
    * @type integer | undefined, int64
    */
-  id?: bigint
+  id?: number
   /**
    * @type string
    */

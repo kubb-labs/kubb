@@ -1,5 +1,105 @@
 # @kubb/plugin-client
 
+## 4.31.0
+
+### Patch Changes
+
+- Updated dependencies [[`43626b4`](https://github.com/kubb-labs/kubb/commit/43626b4a7d5e8420bc441b90de06a804a5c9efe1)]:
+  - @kubb/plugin-oas@4.31.0
+  - @kubb/plugin-ts@4.31.0
+  - @kubb/plugin-zod@4.31.0
+  - @kubb/core@4.31.0
+  - @kubb/oas@4.31.0
+
+## 4.30.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.30.0
+  - @kubb/oas@4.30.0
+  - @kubb/plugin-oas@4.30.0
+  - @kubb/plugin-ts@4.30.0
+  - @kubb/plugin-zod@4.30.0
+
+## 4.29.1
+
+### Patch Changes
+
+- Updated dependencies [[`d6fc5ad`](https://github.com/kubb-labs/kubb/commit/d6fc5ad851195330367ebecbc08e19ec1658ca40)]:
+  - @kubb/plugin-ts@4.29.1
+  - @kubb/plugin-zod@4.29.1
+  - @kubb/core@4.29.1
+  - @kubb/oas@4.29.1
+  - @kubb/plugin-oas@4.29.1
+
+## 4.29.0
+
+### Minor Changes
+
+- [#2577](https://github.com/kubb-labs/kubb/pull/2577) [`bb6f915`](https://github.com/kubb-labs/kubb/commit/bb6f915e0c0d59a417b0891b8bcf7bbfe9db502e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of less packages and/or tiny libraries
+
+### Patch Changes
+
+- [#2577](https://github.com/kubb-labs/kubb/pull/2577) [`9529af1`](https://github.com/kubb-labs/kubb/commit/9529af145dca72991fe7d2a529c717cce0993ea3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Total size change: -6.7 MB
+
+- Updated dependencies [[`bb6f915`](https://github.com/kubb-labs/kubb/commit/bb6f915e0c0d59a417b0891b8bcf7bbfe9db502e), [`9529af1`](https://github.com/kubb-labs/kubb/commit/9529af145dca72991fe7d2a529c717cce0993ea3)]:
+  - @kubb/plugin-oas@4.29.0
+  - @kubb/plugin-ts@4.29.0
+  - @kubb/core@4.29.0
+  - @kubb/oas@4.29.0
+  - @kubb/plugin-zod@4.29.0
+
+## 4.28.1
+
+### Patch Changes
+
+- Updated dependencies [[`e9ddbf0`](https://github.com/kubb-labs/kubb/commit/e9ddbf05d3c29ac293a0402e7678c6c02beef3f8)]:
+  - @kubb/oas@4.28.1
+  - @kubb/plugin-oas@4.28.1
+  - @kubb/plugin-ts@4.28.1
+  - @kubb/plugin-zod@4.28.1
+  - @kubb/core@4.28.1
+
+## 4.28.0
+
+### Patch Changes
+
+- Updated dependencies [[`d34236f`](https://github.com/kubb-labs/kubb/commit/d34236fae3f46f6f0a79b7792898421f5f5a4d9d)]:
+  - @kubb/plugin-oas@4.28.0
+  - @kubb/plugin-ts@4.28.0
+  - @kubb/plugin-zod@4.28.0
+  - @kubb/core@4.28.0
+  - @kubb/oas@4.28.0
+
+## 4.27.4
+
+### Patch Changes
+
+- [#2567](https://github.com/kubb-labs/kubb/pull/2567) [`3690d37`](https://github.com/kubb-labs/kubb/commit/3690d3778cb8e2c48841bf13b73c82c165242ef4) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - refactor: replace resolveModuleSource with static imports and build-time template inlining
+
+  Removed `resolveModuleSource` from `@kubb/core/utils`. Template file contents for `@kubb/plugin-client` (config, axios, fetch) and `@kubb/plugin-zod` (ToZod) are now inlined as string constants at build time via the `importAttributeTextPlugin` rolldown/tsdown plugin, using `import ... with { type: 'text' }` import attributes as the build-time marker. This eliminates all runtime filesystem reads for template sources.
+
+- Updated dependencies [[`3690d37`](https://github.com/kubb-labs/kubb/commit/3690d3778cb8e2c48841bf13b73c82c165242ef4)]:
+  - @kubb/core@4.27.4
+  - @kubb/plugin-zod@4.27.4
+  - @kubb/oas@4.27.4
+  - @kubb/plugin-oas@4.27.4
+  - @kubb/plugin-ts@4.27.4
+
+## 4.27.3
+
+### Patch Changes
+
+- [#2557](https://github.com/kubb-labs/kubb/pull/2557) [`2213d3a`](https://github.com/kubb-labs/kubb/commit/2213d3ab14894c96e1f69780ea480b5e3457bf6b) Thanks [@icholy](https://github.com/icholy)! - Remove AxiosHeaders import and type assertion to fix TS2749 under `module: "nodenext"`.
+
+- Updated dependencies [[`669b07e`](https://github.com/kubb-labs/kubb/commit/669b07ed66f0dded0e028a3dfe1c5e669c53e53a)]:
+  - @kubb/oas@4.27.3
+  - @kubb/plugin-oas@4.27.3
+  - @kubb/plugin-ts@4.27.3
+  - @kubb/plugin-zod@4.27.3
+  - @kubb/core@4.27.3
+
 ## 4.27.2
 
 ### Patch Changes

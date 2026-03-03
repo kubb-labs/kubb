@@ -8,7 +8,7 @@ const queryClient = new QueryClient()
 function Pets() {
   const [status, setStatus] = useState<FindPetsByStatusQueryParamsStatusEnumKey>('available')
   const { data: pets, queryKey } = useFindPetsByStatusHook({ status }, { query: { enabled: true } })
-  const { data } = useUpdatePetWithFormHook(BigInt(2))
+  const { data } = useUpdatePetWithFormHook(2)
   const { queryKey: _queryKey, initialData } = findPetsByStatusQueryOptionsHook()
   const statuses: FindPetsByStatusQueryParamsStatusEnumKey[] = ['available', 'pending']
 
@@ -48,7 +48,7 @@ function Pets() {
       },
     },
   )
-  const { data: pagedPets } = useFindPetsByTagsInfiniteHook(
+  const { data: _pagedPets } = useFindPetsByTagsInfiniteHook(
     {},
     {
       query: {

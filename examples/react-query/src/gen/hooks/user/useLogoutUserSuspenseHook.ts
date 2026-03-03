@@ -30,8 +30,10 @@ export function logoutUserSuspenseQueryOptionsHook(config: Partial<RequestConfig
   return queryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
-      return logoutUserSuspenseHook(config)
+      return logoutUserSuspenseHook({
+        ...config,
+        signal: config.signal ?? signal,
+      })
     },
   })
 }

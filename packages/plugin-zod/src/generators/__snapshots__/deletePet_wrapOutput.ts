@@ -5,7 +5,7 @@
 import { z } from '@hono/zod-openapi'
 
 export const deletePetPathParams = z.object({
-  petId: z.coerce.bigint().describe('Pet id to delete'),
+  petId: z.coerce.number().int().describe('Pet id to delete'),
 })
 
 export const deletePetHeaderParams = z

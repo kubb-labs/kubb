@@ -1,13 +1,13 @@
+import { spawn } from 'node:child_process'
 import path from 'node:path'
 import * as process from 'node:process'
 import { fileURLToPath } from 'node:url'
-
+import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { ArgsDef } from 'citty'
 import { defineCommand } from 'citty'
-import { config as loadEnv } from 'dotenv'
-import { execa } from 'execa'
-import pc from 'picocolors'
+import { version } from '../../../package.json'
+import { buildTelemetryEvent, sendTelemetry } from '../../utils/telemetry.ts'
 
 const args = {
   config: {
@@ -53,8 +53,12 @@ type StartServerProps = {
 
 async function startServer({ port, host, configPath, noCache, allowWrite, allowAll }: StartServerProps): Promise<void> {
   try {
-    // Load .env files into process.env (supports .env, .env.local, .env.*.local)
-    loadEnv() // .env
+    // Load .env file into process.env using Node.js built-in (v20.12.0+)
+    try {
+      process.loadEnvFile()
+    } catch {
+      // .env file may not exist; ignore
+    }
 
     // Resolve the @kubb/agent package path
     const agentPkgUrl = import.meta.resolve('@kubb/agent/package.json')
@@ -72,38 +76,37 @@ async function startServer({ port, host, configPath, noCache, allowWrite, allowA
     const KUBB_AGENT_NO_CACHE = noCache ? 'true' : 'false'
     const KUBB_AGENT_ALLOW_WRITE = allowAll || allowWrite ? 'true' : (process.env.KUBB_AGENT_ALLOW_WRITE ?? 'false')
     const KUBB_AGENT_ALLOW_ALL = allowAll ? 'true' : (process.env.KUBB_AGENT_ALLOW_ALL ?? 'false')
-    const KUBB_STUDIO_URL = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
     const KUBB_AGENT_TOKEN = process.env.KUBB_AGENT_TOKEN
     const KUBB_AGENT_RETRY_TIMEOUT = process.env.KUBB_AGENT_RETRY_TIMEOUT || '30000'
+    const KUBB_STUDIO_URL = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
 
     // Set environment variables
     const env = {
-      KUBB_AGENT_ROOT,
-      KUBB_AGENT_CONFIG,
       PORT,
       HOST,
-      KUBB_STUDIO_URL,
-      KUBB_AGENT_RETRY_TIMEOUT,
+      KUBB_AGENT_ROOT,
+      KUBB_AGENT_CONFIG,
       KUBB_AGENT_NO_CACHE,
-      KUBB_AGENT_TOKEN,
       KUBB_AGENT_ALLOW_WRITE,
       KUBB_AGENT_ALLOW_ALL,
+      KUBB_AGENT_TOKEN,
+      KUBB_AGENT_RETRY_TIMEOUT,
+      KUBB_STUDIO_URL,
     }
 
-    clack.log.step(pc.cyan('Starting agent server...'))
-    clack.log.info(pc.dim(`Config: ${KUBB_AGENT_CONFIG}`))
-    clack.log.info(pc.dim(`Host: ${HOST}`))
-    clack.log.info(pc.dim(`Port: ${PORT}`))
+    clack.log.step(styleText('cyan', 'Starting agent server...'))
+    clack.log.info(styleText('dim', `Config: ${KUBB_AGENT_CONFIG}`))
+    clack.log.info(styleText('dim', `Host: ${HOST}`))
+    clack.log.info(styleText('dim', `Port: ${PORT}`))
     if (noCache) {
-      clack.log.info(pc.dim('Session caching: disabled'))
+      clack.log.info(styleText('dim', 'Session caching: disabled'))
     }
-    if (!allowWrite && !allowAll) {
-      clack.log.warn(pc.yellow('Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
+    if (!KUBB_AGENT_ALLOW_WRITE && !KUBB_AGENT_ALLOW_ALL) {
+      clack.log.warn(styleText('yellow', 'Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
     }
 
-    // Use execa to spawn the server process
-    await execa('node', [serverPath], {
-      env,
+    spawn('node', [serverPath], {
+      env: { ...process.env, ...env },
       stdio: 'inherit',
       cwd: process.cwd(),
     })
@@ -121,6 +124,7 @@ const command = defineCommand({
   args,
   async run(commandContext) {
     const { args } = commandContext
+    const hrStart = process.hrtime()
 
     try {
       const configPath = path.resolve(process.cwd(), args.config || 'kubb.config.ts')
@@ -130,9 +134,11 @@ const command = defineCommand({
       const allowWrite = args['allow-write']
       const allowAll = args['allow-all']
 
-      await startServer({ port, host, configPath, noCache, allowWrite, allowAll })
+      startServer({ port, host, configPath, noCache, allowWrite, allowAll })
+      await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'success' }))
     } catch (error) {
-      clack.log.error(pc.red('Failed to start agent server'))
+      await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'failed' }))
+      clack.log.error(styleText('red', 'Failed to start agent server'))
       console.error(error)
       process.exit(1)
     }

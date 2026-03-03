@@ -49,7 +49,9 @@ export function findPetsByTagsInfiniteQueryOptions(
   >({
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
 
       params = {
         ...(params ?? {}),

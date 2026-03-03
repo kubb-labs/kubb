@@ -44,6 +44,42 @@ exports[`SchemaGenerator core > 'BinaryAnyOf' 1`] = `
 ]
 `;
 
+exports[`SchemaGenerator core > 'ContentMediaTypeBlob' 1`] = `
+[
+  {
+    "args": {
+      "additionalProperties": [],
+      "properties": {
+        "file": [
+          {
+            "keyword": "blob",
+          },
+          {
+            "args": {
+              "format": undefined,
+              "type": "string",
+            },
+            "keyword": "schema",
+          },
+          {
+            "args": "file",
+            "keyword": "name",
+          },
+        ],
+      },
+    },
+    "keyword": "object",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "object",
+    },
+    "keyword": "schema",
+  },
+]
+`;
+
 exports[`SchemaGenerator core > 'EmptyAnyOf' 1`] = `
 [
   {
@@ -339,7 +375,7 @@ exports[`SchemaGenerator core > 'Pet' 1`] = `
         ],
         "id": [
           {
-            "keyword": "bigint",
+            "keyword": "integer",
           },
           {
             "args": {
@@ -829,6 +865,81 @@ exports[`SchemaGenerator core > combineObjects 1`] = `
   },
   {
     "args": {},
+    "keyword": "schema",
+  },
+]
+`;
+
+exports[`SchemaGenerator core > non-component internal $ref (e.g. #/paths/...) should be resolved inline, not named "itemsSchema" 1`] = `
+[
+  {
+    "args": {
+      "items": [
+        {
+          "args": {
+            "additionalProperties": [],
+            "properties": {
+              "id": [
+                {
+                  "keyword": "integer",
+                },
+                {
+                  "args": {
+                    "format": undefined,
+                    "type": "integer",
+                  },
+                  "keyword": "schema",
+                },
+                {
+                  "args": "id",
+                  "keyword": "name",
+                },
+                {
+                  "keyword": "optional",
+                },
+              ],
+              "title": [
+                {
+                  "keyword": "string",
+                },
+                {
+                  "args": {
+                    "format": undefined,
+                    "type": "string",
+                  },
+                  "keyword": "schema",
+                },
+                {
+                  "args": "title",
+                  "keyword": "name",
+                },
+                {
+                  "keyword": "optional",
+                },
+              ],
+            },
+          },
+          "keyword": "object",
+        },
+        {
+          "args": {
+            "format": undefined,
+            "type": "object",
+          },
+          "keyword": "schema",
+        },
+      ],
+      "max": undefined,
+      "min": undefined,
+      "unique": false,
+    },
+    "keyword": "array",
+  },
+  {
+    "args": {
+      "format": undefined,
+      "type": "array",
+    },
     "keyword": "schema",
   },
 ]

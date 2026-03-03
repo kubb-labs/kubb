@@ -14,8 +14,13 @@ import type { KubbFile } from '@kubb/fabric-core/types'
 export type JSONKubbConfig = {
   plugins?: Array<{
     name: string
-    options: unknown
+    options: object
   }>
+  /**
+   * Raw OpenAPI / Swagger spec content (YAML or JSON string).
+   * Only possible to set when agent type is 'sandbox'
+   */
+  input?: string
 }
 
 /**
@@ -51,7 +56,7 @@ export type KubbEvent = keyof KubbEvents
  * Triggers actions like code generation or connection establishment
  */
 export type CommandMessage =
-  | { type: 'command'; command: 'generate'; payload?: JSONKubbConfig }
+  | { type: 'command'; command: 'generate'; payload: JSONKubbConfig }
   | {
       type: 'command'
       command: 'connect'
@@ -61,7 +66,7 @@ export type CommandMessage =
       }
     }
 
-type ConnectMessagePayload = {
+export type ConnectMessagePayload = {
   version: string
   configPath: string
   config: JSONKubbConfig
@@ -103,6 +108,15 @@ export type PongMessage = {
 }
 
 /**
+ * Disconnect message sent from Studio to Agent when the session is expired or revoked.
+ * The agent should close the connection without reconnecting.
+ */
+export type DisconnectMessage = {
+  type: 'disconnect'
+  reason: 'expired' | 'revoked'
+}
+
+/**
  * Status message with connected agents information
  */
 export type StatusMessage = {
@@ -134,11 +148,12 @@ export type DataMessage<T extends KubbEvent = KubbEvent> = {
 export type AgentConnectResponse = {
   wsUrl: string
   expiresAt: string
-  revokedAt: string
-  sessionToken: string
+  revokedAt: string | null
+  sessionId: string
+  isSandbox: boolean
 }
 
-export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ErrorMessage | StatusMessage | PingMessage | PongMessage
+export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ErrorMessage | StatusMessage | PingMessage | PongMessage | DisconnectMessage
 
 // Helper type guards
 export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
@@ -165,6 +180,18 @@ export function isErrorMessage(msg: AgentMessage): msg is ErrorMessage {
   return msg.type === 'error'
 }
 
+export function isPingMessage(msg: AgentMessage): msg is PingMessage {
+  return msg.type === 'ping'
+}
+
+export function isPongMessage(msg: AgentMessage): msg is PongMessage {
+  return msg.type === 'pong'
+}
+
 export function isStatusMessage(msg: AgentMessage): msg is StatusMessage {
   return msg.type === 'status'
+}
+
+export function isDisconnectMessage(msg: AgentMessage): msg is DisconnectMessage {
+  return msg.type === 'disconnect'
 }

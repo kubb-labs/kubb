@@ -11,8 +11,12 @@ export default defineConfig({
   shims: true,
   exports: true,
   external: [/^@kubb\//],
-  noExternal: [/whatwg-url/],
+  inlineOnly: false,
   fixedExtension: false,
+  outExtensions({ format }) {
+    if (format === 'cjs') return { dts: '.d.ts' }
+    return {}
+  },
   outputOptions: {
     keepNames: true,
   },

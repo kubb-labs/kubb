@@ -6,8 +6,8 @@
 import { z } from '../../zod.ts'
 
 export const orderSchema = z.object({
-  id: z.optional(z.bigint()),
-  petId: z.optional(z.bigint()),
+  id: z.optional(z.int()),
+  petId: z.optional(z.int()),
   quantity: z.optional(z.int()),
   shipDate: z.optional(z.iso.datetime()),
   status: z.optional(z.enum(['placed', 'approved', 'delivered']).describe('Order Status')),

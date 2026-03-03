@@ -31,8 +31,7 @@ export function loginUserQueryOptions(params?: MaybeRefOrGetter<LoginUserQueryPa
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
-      return loginUser(toValue(params), toValue(config))
+      return loginUser(toValue(params), { ...config, signal: config.signal ?? signal })
     },
   })
 }

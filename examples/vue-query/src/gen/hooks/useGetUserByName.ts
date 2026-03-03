@@ -43,8 +43,7 @@ export function getUserByNameQueryOptions(
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
-      return getUserByName(toValue({ username: toValue(username) }), toValue(config))
+      return getUserByName(toValue({ username: toValue(username) }), { ...config, signal: config.signal ?? signal })
     },
   })
 }

@@ -1,7 +1,7 @@
+import { styleText } from 'node:util'
 import { type Config, defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
-import { type ExecaError, execa } from 'execa'
-import pc from 'picocolors'
+import { type NonZeroExitError, x } from 'tinyexec'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 
 /**
@@ -42,18 +42,18 @@ export const githubActionsLogger = defineLogger({
       if (state.totalPlugins > 0) {
         const pluginStr =
           state.failedPlugins > 0
-            ? `Plugins ${pc.green(state.completedPlugins.toString())}/${state.totalPlugins} ${pc.red(`(${state.failedPlugins} failed)`)}`
-            : `Plugins ${pc.green(state.completedPlugins.toString())}/${state.totalPlugins}`
+            ? `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins} ${styleText('red', `(${state.failedPlugins} failed)`)}`
+            : `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins}`
         parts.push(pluginStr)
       }
 
       if (state.totalFiles > 0) {
-        parts.push(`Files ${pc.green(state.processedFiles.toString())}/${state.totalFiles}`)
+        parts.push(`Files ${styleText('green', state.processedFiles.toString())}/${state.totalFiles}`)
       }
 
       if (parts.length > 0) {
-        parts.push(`${pc.green(duration)} elapsed`)
-        console.log(getMessage(parts.join(pc.dim(' | '))))
+        parts.push(`${styleText('green', duration)} elapsed`)
+        console.log(getMessage(parts.join(styleText('dim', ' | '))))
       }
     }
 
@@ -66,7 +66,7 @@ export const githubActionsLogger = defineLogger({
           second: '2-digit',
         })
 
-        return [pc.dim(`[${timestamp}]`), message].join(' ')
+        return [styleText('dim', `[${timestamp}]`), message].join(' ')
       }
 
       return message
@@ -85,7 +85,7 @@ export const githubActionsLogger = defineLogger({
         return
       }
 
-      const text = getMessage([pc.blue('ℹ'), message, pc.dim(info)].join(' '))
+      const text = getMessage([styleText('blue', 'ℹ'), message, styleText('dim', info)].join(' '))
 
       console.log(text)
     })
@@ -95,7 +95,7 @@ export const githubActionsLogger = defineLogger({
         return
       }
 
-      const text = getMessage([pc.blue('✓'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' '))
+      const text = getMessage([styleText('blue', '✓'), message, logLevel >= LogLevel.info ? styleText('dim', info) : undefined].filter(Boolean).join(' '))
 
       console.log(text)
     })
@@ -105,7 +105,7 @@ export const githubActionsLogger = defineLogger({
         return
       }
 
-      const text = getMessage([pc.yellow('⚠'), message, logLevel >= LogLevel.info ? pc.dim(info) : undefined].filter(Boolean).join(' '))
+      const text = getMessage([styleText('yellow', '⚠'), message, logLevel >= LogLevel.info ? styleText('dim', info) : undefined].filter(Boolean).join(' '))
 
       console.warn(`::warning::${text}`)
     })
@@ -123,22 +123,22 @@ export const githubActionsLogger = defineLogger({
       if (logLevel >= LogLevel.debug && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
-          console.log(getMessage(pc.dim(frame.trim())))
+          console.log(getMessage(styleText('dim', frame.trim())))
         }
 
         if (caused?.stack) {
-          console.log(pc.dim(`└─ caused by ${caused.message}`))
+          console.log(styleText('dim', `└─ caused by ${caused.message}`))
 
           const frames = caused.stack.split('\n').slice(1, 4)
           for (const frame of frames) {
-            console.log(getMessage(`    ${pc.dim(frame.trim())}`))
+            console.log(getMessage(`    ${styleText('dim', frame.trim())}`))
           }
         }
       }
     })
 
     context.on('lifecycle:start', (version) => {
-      console.log(pc.yellow(`Kubb ${version} 🧩`))
+      console.log(styleText('yellow', `Kubb ${version} 🧩`))
       reset()
     })
 
@@ -172,7 +172,7 @@ export const githubActionsLogger = defineLogger({
       // Initialize progress tracking
       state.totalPlugins = config.plugins?.length || 0
 
-      const text = config.name ? `Generation for ${pc.bold(config.name)}` : 'Generation'
+      const text = config.name ? `Generation for ${styleText('bold', config.name)}` : 'Generation'
 
       if (state.currentConfigs.length > 1) {
         openGroup(text)
@@ -189,7 +189,7 @@ export const githubActionsLogger = defineLogger({
       if (logLevel <= LogLevel.silent) {
         return
       }
-      const text = getMessage(`Generating ${pc.bold(plugin.name)}`)
+      const text = getMessage(`Generating ${styleText('bold', plugin.name)}`)
 
       if (state.currentConfigs.length === 1) {
         openGroup(`Plugin: ${plugin.name}`)
@@ -211,7 +211,9 @@ export const githubActionsLogger = defineLogger({
 
       const durationStr = formatMsWithColor(duration)
       const text = getMessage(
-        success ? `${pc.bold(plugin.name)} completed in ${durationStr}` : `${pc.bold(plugin.name)} failed in ${pc.red(formatMs(duration))}`,
+        success
+          ? `${styleText('bold', plugin.name)} completed in ${durationStr}`
+          : `${styleText('bold', plugin.name)} failed in ${styleText('red', formatMs(duration))}`,
       )
 
       console.log(text)
@@ -274,7 +276,9 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('generation:end', (config) => {
-      const text = getMessage(config.name ? `${pc.blue('✓')} Generation completed for ${pc.dim(config.name)}` : `${pc.blue('✓')} Generation completed`)
+      const text = getMessage(
+        config.name ? `${styleText('blue', '✓')} Generation completed for ${styleText('dim', config.name)}` : `${styleText('blue', '✓')} Generation completed`,
+      )
 
       console.log(text)
     })
@@ -337,7 +341,7 @@ export const githubActionsLogger = defineLogger({
 
     context.on('hook:start', async ({ id, command, args }) => {
       const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
-      const text = getMessage(`Hook ${pc.dim(commandWithArgs)} started`)
+      const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} started`)
 
       if (logLevel > LogLevel.silent) {
         if (state.currentConfigs.length === 1) {
@@ -353,18 +357,18 @@ export const githubActionsLogger = defineLogger({
       }
 
       try {
-        const result = await execa(command, args, {
-          detached: true,
-          stripFinalNewline: true,
+        const result = await x(command, [...(args ?? [])], {
+          nodeOptions: { detached: true },
+          throwOnError: true,
         })
 
         await context.emit('debug', {
           date: new Date(),
-          logs: [result.stdout],
+          logs: [result.stdout.trimEnd()],
         })
 
         if (logLevel > LogLevel.silent) {
-          console.log(result.stdout)
+          console.log(result.stdout.trimEnd())
         }
 
         await context.emit('hook:end', {
@@ -375,9 +379,9 @@ export const githubActionsLogger = defineLogger({
           error: null,
         })
       } catch (err) {
-        const error = err as ExecaError
-        const stderr = typeof error.stderr === 'string' ? error.stderr : String(error.stderr)
-        const stdout = typeof error.stdout === 'string' ? error.stdout : String(error.stdout)
+        const error = err as NonZeroExitError
+        const stderr = error.output?.stderr ?? ''
+        const stdout = error.output?.stdout ?? ''
 
         await context.emit('debug', {
           date: new Date(),
@@ -411,7 +415,7 @@ export const githubActionsLogger = defineLogger({
       }
 
       const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
-      const text = getMessage(`Hook ${pc.dim(commandWithArgs)} completed`)
+      const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} completed`)
 
       console.log(text)
 
@@ -431,12 +435,12 @@ export const githubActionsLogger = defineLogger({
 
       console.log(
         status === 'success'
-          ? `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ${pluginsCount} total, ${pc.green(duration)}`
-          : `Kubb Summary: ${pc.blue('✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total, ${pc.green(duration)}`,
+          ? `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ${pluginsCount} total, ${styleText('green', duration)}`
+          : `Kubb Summary: ${styleText('blue', '✓')} ${`${successCount} successful`}, ✗ ${`${failedPlugins.size} failed`}, ${pluginsCount} total, ${styleText('green', duration)}`,
       )
 
       if (state.currentConfigs.length > 1) {
-        closeGroup(config.name ? `Generation for ${pc.bold(config.name)}` : 'Generation')
+        closeGroup(config.name ? `Generation for ${styleText('bold', config.name)}` : 'Generation')
       }
     })
   },

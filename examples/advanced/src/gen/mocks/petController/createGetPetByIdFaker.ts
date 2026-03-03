@@ -4,7 +4,7 @@ import { createPetFaker } from '../createPetFaker.ts'
 
 export function createGetPetByIdPathParamsFaker(data?: Partial<GetPetByIdPathParams>): GetPetByIdPathParams {
   return {
-    ...{ petId: faker.number.bigInt() },
+    ...{ petId: faker.number.int() },
     ...(data || {}),
   }
 }

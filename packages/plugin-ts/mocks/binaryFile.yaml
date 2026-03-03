@@ -1,0 +1,15 @@
+openapi: 3.1.0
+info:
+  title: test
+  version: v1
+components:
+  schemas:
+    BodyTest:
+      type: object
+      required:
+        - file
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File

@@ -6,7 +6,7 @@ import { createTagTagFaker } from './tag/createTagFaker.ts'
 export function createAddPetRequestFaker(data?: Partial<AddPetRequest>): AddPetRequest {
   return {
     ...{
-      id: faker.number.bigInt(),
+      id: faker.number.int(),
       name: faker.string.alpha(),
       category: createCategoryFaker(),
       photoUrls: faker.helpers.multiple(() => faker.string.alpha()),

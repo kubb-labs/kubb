@@ -2,7 +2,7 @@ import path from 'node:path'
 import type { Config } from '@kubb/core'
 import { pascalCase } from '@kubb/core/transformers'
 import { URLPath } from '@kubb/core/utils'
-import { bundle, loadConfig } from '@redocly/openapi-core'
+import { bundle } from '@readme/openapi-parser'
 import yaml from '@stoplight/yaml'
 import type { ParameterObject, SchemaObject } from 'oas/types'
 import { isRef, isSchema } from 'oas/types'
@@ -163,14 +163,21 @@ export function getDefaultValue(schema?: SchemaObject): string | undefined {
 
 export async function parse(
   pathOrApi: string | Document,
-  { oasClass = Oas, canBundle = true, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
+  { oasClass = Oas, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
 ): Promise<Oas> {
-  if (typeof pathOrApi === 'string' && canBundle) {
-    // resolve external refs
-    const config = await loadConfig()
-    const bundleResults = await bundle({ ref: pathOrApi, config, base: pathOrApi })
-
-    return parse(bundleResults.bundle.parsed as string, { oasClass, canBundle, enablePaths })
+  // Only attempt to bundle when pathOrApi is a file path or URL (not inline YAML/JSON strings).
+  // Inline content (YAML strings with newlines, JSON strings starting with '{') is handled by plain load.
+  const isPathOrUrl = typeof pathOrApi === 'string' && !pathOrApi.match(/\n/) && !pathOrApi.match(/^\s*\{/)
+  if (isPathOrUrl && enablePaths) {
+    // Bundle the spec using the string path directly so that relative external $refs
+    // (file and URL) are resolved with the correct base path context.
+    try {
+      const bundled = await bundle(pathOrApi)
+      return parse(bundled as Document, { oasClass, enablePaths })
+    } catch (e) {
+      // If bundling fails (e.g. unresolvable refs or network error), fall through to plain load
+      console.warn(`[kubb] Failed to bundle external $refs in "${pathOrApi}": ${(e as Error).message}. Falling back to plain load.`)
+    }
   }
 
   const oasNormalize = new OASNormalize(pathOrApi, {
@@ -191,7 +198,7 @@ export async function parse(
 }
 
 export async function merge(pathOrApi: Array<string | Document>, { oasClass = Oas }: { oasClass?: typeof Oas } = {}): Promise<Oas> {
-  const instances = await Promise.all(pathOrApi.map((p) => parse(p, { oasClass, enablePaths: false, canBundle: false })))
+  const instances = await Promise.all(pathOrApi.map((p) => parse(p, { oasClass, enablePaths: false })))
 
   if (instances.length === 0) {
     throw new Error('No OAS instances provided for merging.')

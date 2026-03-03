@@ -5,7 +5,7 @@ import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
-import { describe, expect, test } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginReactQuery } from '../types.ts'
@@ -15,6 +15,12 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('mutationGenerator operation', async () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
   const testData = [
     {
       name: 'getAsMutation',
@@ -92,12 +98,28 @@ describe('mutationGenerator operation', async () => {
       method: 'post',
       options: {},
     },
+    {
+      name: 'requiredOneOfRequestBody',
+      input: '../../mocks/requiredOneOfRequestBody.yaml',
+      path: '/orders',
+      method: 'post',
+      options: {},
+    },
+    {
+      name: 'requiredOneOfRequestBodyWithClientPlugin',
+      input: '../../mocks/requiredOneOfRequestBody.yaml',
+      path: '/orders',
+      method: 'post',
+      options: {},
+      mockClientPlugin: true,
+    },
   ] as const satisfies Array<{
     input: string
     name: string
     path: string
     method: HttpMethod
     options: Partial<PluginReactQuery['resolvedOptions']>
+    mockClientPlugin?: boolean
   }>
 
   test.each(testData)('$name', async (props) => {
@@ -133,8 +155,18 @@ describe('mutationGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginReactQuery>
-    const fabric = createReactFabric()
     const mockedPluginManager = createMockedPluginManager(props.name)
+
+    if ('mockClientPlugin' in props && props.mockClientPlugin) {
+      mockedPluginManager.getPluginByKey = (pluginKey) => {
+        if (Array.isArray(pluginKey) && pluginKey.includes('plugin-client')) {
+          return { key: 'plugin-client' } as any
+        }
+
+        return undefined
+      }
+    }
+
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -189,7 +221,6 @@ describe('mutationGenerator operation', async () => {
       group: undefined,
     }
     const plugin = { options } as Plugin<PluginReactQuery>
-    const fabric = createReactFabric()
     const mockedPluginManager = createMockedPluginManager('mutationDisabled')
     const generator = new OperationGenerator(options, {
       fabric,

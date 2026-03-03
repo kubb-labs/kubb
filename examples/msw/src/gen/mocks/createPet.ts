@@ -12,7 +12,7 @@ export function createPet(data?: Partial<Pet>): Pet {
   faker.seed([220])
   return {
     ...{
-      id: faker.number.bigInt(),
+      id: faker.number.int(),
       name: faker.string.alpha(),
       category: createCategory(),
       photoUrls: faker.helpers.multiple(() => faker.string.alpha()),

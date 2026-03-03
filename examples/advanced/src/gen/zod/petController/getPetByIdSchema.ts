@@ -4,7 +4,7 @@ import type { GetPetById200, GetPetById400, GetPetById404, GetPetByIdPathParams,
 import { petSchema } from '../petSchema.ts'
 
 export const getPetByIdPathParamsSchema = z.object({
-  petId: z.coerce.bigint().describe('ID of pet to return'),
+  petId: z.coerce.number().int().describe('ID of pet to return'),
 }) as unknown as ToZod<GetPetByIdPathParams>
 
 export type GetPetByIdPathParamsSchema = GetPetByIdPathParams

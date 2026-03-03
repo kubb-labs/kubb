@@ -1,6 +1,6 @@
+import { mkdir, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import fs from 'fs-extra'
 import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
 import { exists, existsSync } from './exists.ts'
 
@@ -9,12 +9,12 @@ const testFile = path.join(testDir, 'test.txt')
 
 describe('exists', () => {
   beforeAll(async () => {
-    await fs.ensureDir(testDir)
-    await fs.writeFile(testFile, 'test content')
+    await mkdir(testDir, { recursive: true })
+    await writeFile(testFile, 'test content')
   })
 
   afterAll(async () => {
-    await fs.remove(testDir)
+    await rm(testDir, { recursive: true, force: true })
   })
 
   it('should return true for existing file', async () => {

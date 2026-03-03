@@ -1,5 +1,97 @@
 # @kubb/swagger
 
+## 4.31.0
+
+### Patch Changes
+
+- [#2613](https://github.com/kubb-labs/kubb/pull/2613) [`43626b4`](https://github.com/kubb-labs/kubb/commit/43626b4a7d5e8420bc441b90de06a804a5c9efe1) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix schema from external `$ref` file being incorrectly named "itemsSchema" when its first occurrence is as array items.
+
+  When `bundle()` deduplicates an external schema that is referenced in multiple places, it creates internal `$ref` pointers like `#/paths/~1proposals/get/.../schema/items`. The last path segment `items` was incorrectly used as the schema name (producing "itemsSchema" after the plugin suffix). These non-component internal refs are now resolved inline instead.
+
+- Updated dependencies []:
+  - @kubb/core@4.31.0
+  - @kubb/oas@4.31.0
+
+## 4.30.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.30.0
+  - @kubb/oas@4.30.0
+
+## 4.29.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.29.1
+  - @kubb/oas@4.29.1
+
+## 4.29.0
+
+### Minor Changes
+
+- [#2577](https://github.com/kubb-labs/kubb/pull/2577) [`bb6f915`](https://github.com/kubb-labs/kubb/commit/bb6f915e0c0d59a417b0891b8bcf7bbfe9db502e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of less packages and/or tiny libraries
+
+### Patch Changes
+
+- [#2577](https://github.com/kubb-labs/kubb/pull/2577) [`9529af1`](https://github.com/kubb-labs/kubb/commit/9529af145dca72991fe7d2a529c717cce0993ea3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Total size change: -6.7 MB
+
+- Updated dependencies [[`bb6f915`](https://github.com/kubb-labs/kubb/commit/bb6f915e0c0d59a417b0891b8bcf7bbfe9db502e), [`9529af1`](https://github.com/kubb-labs/kubb/commit/9529af145dca72991fe7d2a529c717cce0993ea3)]:
+  - @kubb/core@4.29.0
+  - @kubb/oas@4.29.0
+
+## 4.28.1
+
+### Patch Changes
+
+- Updated dependencies [[`e9ddbf0`](https://github.com/kubb-labs/kubb/commit/e9ddbf05d3c29ac293a0402e7678c6c02beef3f8)]:
+  - @kubb/oas@4.28.1
+  - @kubb/core@4.28.1
+
+## 4.28.0
+
+### Minor Changes
+
+- [`d34236f`](https://github.com/kubb-labs/kubb/commit/d34236fae3f46f6f0a79b7792898421f5f5a4d9d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - feat(plugin-ts): add `integerType` option to control int64 TypeScript type
+
+  Adds an `integerType` option to `plugin-ts` (and the underlying `SchemaGeneratorOptions`) that controls how OpenAPI `integer` fields with `format: int64` are mapped to TypeScript types.
+  - `'bigint'` (default, existing behavior) — uses the TypeScript `bigint` type, accurate for values exceeding `Number.MAX_SAFE_INTEGER`.
+  - `'number'` — uses the TypeScript `number` type, matching the runtime behavior of `JSON.parse()`.
+
+  ```typescript
+  pluginTs({
+    integerType: "number", // 'number' | 'bigint', default: 'bigint'
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.28.0
+  - @kubb/oas@4.28.0
+
+## 4.27.4
+
+### Patch Changes
+
+- Updated dependencies [[`3690d37`](https://github.com/kubb-labs/kubb/commit/3690d3778cb8e2c48841bf13b73c82c165242ef4)]:
+  - @kubb/core@4.27.4
+  - @kubb/oas@4.27.4
+
+## 4.27.3
+
+### Patch Changes
+
+- [#2563](https://github.com/kubb-labs/kubb/pull/2563) [`669b07e`](https://github.com/kubb-labs/kubb/commit/669b07ed66f0dded0e028a3dfe1c5e669c53e53a) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - fix: remove redocly and use @apidevtools/json-schema-ref-parser for OpenAPI bundling and dereferencing
+
+  Replaced `@redocly/openapi-core` with `@apidevtools/json-schema-ref-parser` to resolve `MissingPointerError` issues with `$ref` pointers. External file refs and URL refs are now properly resolved.
+
+- Updated dependencies [[`669b07e`](https://github.com/kubb-labs/kubb/commit/669b07ed66f0dded0e028a3dfe1c5e669c53e53a)]:
+  - @kubb/oas@4.27.3
+  - @kubb/core@4.27.3
+
 ## 4.27.2
 
 ### Patch Changes

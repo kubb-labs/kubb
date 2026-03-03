@@ -6,7 +6,7 @@ import { faker } from '@faker-js/faker'
 
 export function updatePetPathParams(data?: Partial<UpdatePetPathParams>): UpdatePetPathParams {
   return {
-    ...{ petId: faker.number.bigInt() },
+    ...{ petId: faker.number.int() },
     ...(data || {}),
   }
 }

@@ -2,7 +2,7 @@ import mod from 'node:module'
 import os from 'node:os'
 import { pathToFileURL } from 'node:url'
 
-import { findUp, findUpSync } from 'find-up'
+import * as pkg from 'empathic/package'
 import { coerce, satisfies } from 'semver'
 
 import { read, readSync } from './fs/index.ts'
@@ -75,7 +75,7 @@ export class PackageManager {
   }
 
   async getPackageJSON(): Promise<PackageJSON | undefined> {
-    const pkgPath = await findUp(['package.json'], {
+    const pkgPath = pkg.up({
       cwd: this.#cwd,
     })
     if (!pkgPath) {
@@ -88,7 +88,7 @@ export class PackageManager {
   }
 
   getPackageJSONSync(): PackageJSON | undefined {
-    const pkgPath = findUpSync(['package.json'], {
+    const pkgPath = pkg.up({
       cwd: this.#cwd,
     })
     if (!pkgPath) {

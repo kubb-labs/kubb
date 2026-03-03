@@ -1,5 +1,67 @@
 # @kubb/mcp
 
+## 4.31.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.0
+
+## 4.30.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.30.0
+
+## 4.29.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.29.1
+
+## 4.29.0
+
+### Minor Changes
+
+- [#2577](https://github.com/kubb-labs/kubb/pull/2577) [`bb6f915`](https://github.com/kubb-labs/kubb/commit/bb6f915e0c0d59a417b0891b8bcf7bbfe9db502e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use of less packages and/or tiny libraries
+
+### Patch Changes
+
+- [#2577](https://github.com/kubb-labs/kubb/pull/2577) [`9529af1`](https://github.com/kubb-labs/kubb/commit/9529af145dca72991fe7d2a529c717cce0993ea3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Total size change: -6.7 MB
+
+- Updated dependencies [[`bb6f915`](https://github.com/kubb-labs/kubb/commit/bb6f915e0c0d59a417b0891b8bcf7bbfe9db502e), [`9529af1`](https://github.com/kubb-labs/kubb/commit/9529af145dca72991fe7d2a529c717cce0993ea3)]:
+  - @kubb/core@4.29.0
+
+## 4.28.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.28.1
+
+## 4.28.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.28.0
+
+## 4.27.4
+
+### Patch Changes
+
+- Updated dependencies [[`3690d37`](https://github.com/kubb-labs/kubb/commit/3690d3778cb8e2c48841bf13b73c82c165242ef4)]:
+  - @kubb/core@4.27.4
+
+## 4.27.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.27.3
+
 ## 4.27.2
 
 ### Patch Changes

@@ -10,7 +10,7 @@ export type GetPetByIdPathParams = {
      * @description ID of pet to return
      * @type integer, int64
     */
-    petId: bigint;
+    petId: number;
 };
 
 /**

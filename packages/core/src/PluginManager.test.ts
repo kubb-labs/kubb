@@ -90,6 +90,7 @@ describe('PluginManager', () => {
 
   afterEach(() => {
     pluginBMocks.resolvePath.mockReset()
+    pluginManager.events.removeAll()
   })
 
   test('if pluginManager can be created', () => {

@@ -55,6 +55,7 @@
     "x-enumNames",
     "x-enum-varnames",
     "Vitest",
+    "tinyexec",
     "igmsuy",
     "randexp",
     "redocly",
@@ -77,6 +78,10 @@
     "Oxfmt",
     "whatwg",
     "Github",
-    "endgroup"
+    "endgroup",
+    "nitropack",
+    "cosmi",
+    "Healthchecks",
+    "kvlist"
   ]
 }

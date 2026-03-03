@@ -1,7 +1,7 @@
 import { relative } from 'node:path'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { formatMs } from '@kubb/core/utils'
-import { type ExecaError, execa } from 'execa'
+import { type NonZeroExitError, x } from 'tinyexec'
 import { getSummary } from '../utils/getSummary.ts'
 
 /**
@@ -223,18 +223,18 @@ export const plainLogger = defineLogger({
       }
 
       try {
-        const result = await execa(command, args, {
-          detached: true,
-          stripFinalNewline: true,
+        const result = await x(command, [...(args ?? [])], {
+          nodeOptions: { detached: true },
+          throwOnError: true,
         })
 
         await context.emit('debug', {
           date: new Date(),
-          logs: [result.stdout],
+          logs: [result.stdout.trimEnd()],
         })
 
         if (logLevel > LogLevel.silent) {
-          console.log(result.stdout)
+          console.log(result.stdout.trimEnd())
         }
 
         await context.emit('hook:end', {
@@ -245,9 +245,9 @@ export const plainLogger = defineLogger({
           error: null,
         })
       } catch (err) {
-        const error = err as ExecaError
-        const stderr = typeof error.stderr === 'string' ? error.stderr : String(error.stderr)
-        const stdout = typeof error.stdout === 'string' ? error.stdout : String(error.stdout)
+        const error = err as NonZeroExitError
+        const stderr = error.output?.stderr ?? ''
+        const stdout = error.output?.stdout ?? ''
 
         await context.emit('debug', {
           date: new Date(),

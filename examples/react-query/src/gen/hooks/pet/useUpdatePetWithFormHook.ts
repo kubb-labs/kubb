@@ -50,8 +50,10 @@ export function updatePetWithFormQueryOptionsHook(
     enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
-      return updatePetWithFormHook(pet_id, params, config)
+      return updatePetWithFormHook(pet_id, params, {
+        ...config,
+        signal: config.signal ?? signal,
+      })
     },
   })
 }

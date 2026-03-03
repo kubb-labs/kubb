@@ -1,11 +1,14 @@
 ARG NODE_VERSION=20
 
-# Init stage: scaffold a default kubb.config.ts using a shell-capable image
-FROM node:${NODE_VERSION}-alpine AS init
-WORKDIR /kubb/agent
-RUN npm i -g kubb@latest
-RUN npx kubb init -y
+# Stage 1: install kubb peer dependencies using a shell-capable image
+FROM node:${NODE_VERSION}-alpine AS installer
+WORKDIR /tmp
+RUN npm install @kubb/core @kubb/cli @kubb/oas @kubb/plugin-client @kubb/plugin-cypress @kubb/plugin-faker \
+                         @kubb/plugin-mcp @kubb/plugin-msw @kubb/plugin-oas @kubb/plugin-react-query @kubb/plugin-redoc \
+                         @kubb/plugin-solid-query @kubb/plugin-svelte-query @kubb/plugin-swr @kubb/plugin-ts @kubb/plugin-vue-query \
+                         @kubb/plugin-zod kubb unplugin-kubb
 
+# Stage 2: distroless runtime (no shell required)
 # https://github.com/GoogleContainerTools/distroless/blob/main/nodejs/README.md
 FROM gcr.io/distroless/nodejs${NODE_VERSION}
 WORKDIR /kubb/agent
@@ -20,13 +23,16 @@ ENV NODE_ENV=production \
     KUBB_AGENT_ALLOW_WRITE=false \
     KUBB_AGENT_ALLOW_ALL=false \
     KUBB_STUDIO_URL=https://studio.kubb.dev \
-    KUBB_AGENT_RETRY_TIMEOUT=30000
+    KUBB_AGENT_RETRY_TIMEOUT=30000 \
+    KUBB_AGENT_HEARTBEAT_INTERVAL=30000 \
+    KUBB_AGENT_POOL_SIZE=1
 
 EXPOSE ${PORT}
 
-# Copy only the pre-built output
-# Expects the build to have been done before docker build (e.g., in CI)
-COPY --link packages/agent/.output ./.output
-COPY --from=init /kubb/agent /kubb/agent
+COPY --link .output ./.output
+COPY --from=installer /tmp /kubb/deps
+COPY --link data /kubb/agent/data
+
+ENV NODE_PATH=/kubb/deps/node_modules
 
 CMD [ ".output/server/index.mjs" ]

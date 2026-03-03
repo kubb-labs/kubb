@@ -19,8 +19,7 @@ export function getPetByIdQueryOptions({ petId }: { petId: GetPetByIdPathParams[
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
-      return getPetById({ petId }, config)
+      return getPetById({ petId: petId }, { ...config, signal: config.signal ?? signal })
     },
   })
 }

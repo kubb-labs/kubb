@@ -151,7 +151,3 @@ export default defineConfig({
 })
 ```
 
-## License
-
-MIT
-

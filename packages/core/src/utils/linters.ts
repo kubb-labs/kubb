@@ -1,4 +1,4 @@
-import { execaCommand } from 'execa'
+import { x } from 'tinyexec'
 
 export const linters = {
   eslint: {
@@ -22,7 +22,7 @@ type Linter = keyof typeof linters
 
 async function isLinterAvailable(linter: Linter): Promise<boolean> {
   try {
-    await execaCommand(`${linter} --version`, { stdio: 'ignore' })
+    await x(linter, ['--version'], { nodeOptions: { stdio: 'ignore' } })
     return true
   } catch {
     return false

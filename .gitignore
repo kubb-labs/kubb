@@ -51,13 +51,15 @@ docs/.vitepress/graphs/**
 !__snapshots__
 kubb-files.json
 kubb.log
+.kubb
 hello
 .log
 */mocks/hellowWorld.js
 #docs/api/**
 packages/ui/static/**
 .nx
-packages/core/mocks/helloWorld.js
+**/mocks/helloWorld.js
+**/src/gen/mocks/excluded.ts
 
 ## Nitro
 .output

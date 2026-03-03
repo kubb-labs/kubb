@@ -1,18 +1,11 @@
 import path from 'node:path'
 import process from 'node:process'
-import type { KubbEvents } from '@kubb/core'
-import { AsyncEventEmitter, formatMs, getConfigs, serializePluginOptions } from '@kubb/core/utils'
-import { execa } from 'execa'
-import { type AgentMessage, isCommandMessage } from '~/types/agent.ts'
-import { createAgentSession, disconnect, registerAgent } from '~/utils/api.ts'
-import { generate } from '~/utils/generate.ts'
-import { getCosmiConfig } from '~/utils/getCosmiConfig.ts'
+import type { AgentConnectResponse } from '~/types/agent.ts'
+import { getSessionKey } from '~/utils/agentCache.ts'
+import { createAgentSession, registerAgent } from '~/utils/api.ts'
+import { connectToStudio } from '~/utils/connectStudio.ts'
 import { logger } from '~/utils/logger.ts'
-import { resolvePlugins } from '~/utils/resolvePlugins.ts'
-import { deleteCachedSession, getCachedSession } from '~/utils/sessionManager.ts'
-import { readStudioConfig, writeStudioConfig } from '~/utils/studioConfig.ts'
-import { createWebsocket, sendAgentMessage, setupEventsStream } from '~/utils/ws.ts'
-import { version } from '~~/package.json'
+import { maskedString } from '~/utils/maskedString.ts'
 
 /**
  * Nitro plugin that connects the agent to Kubb Studio on server startup.
@@ -24,21 +17,21 @@ import { version } from '~~/package.json'
  * 4. Forwards Kubb generation lifecycle events to Studio in real time.
  * 5. Sends a ping every 30 seconds to keep the connection alive.
  * 6. Gracefully disconnects when the Nitro server closes.
+ *
+ * The agent creates a pool of sessions (`KUBB_AGENT_POOL_SIZE`, default 1)
+ * so each Studio user gets their own isolated WebSocket session.
  */
 export default defineNitroPlugin(async (nitro) => {
-  // Connect to Kubb Studio if URL is provided
   const studioUrl = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
   const token = process.env.KUBB_AGENT_TOKEN
   const configPath = process.env.KUBB_AGENT_CONFIG || 'kubb.config.ts'
   const noCache = process.env.KUBB_AGENT_NO_CACHE === 'true'
   const retryInterval = process.env.KUBB_AGENT_RETRY_TIMEOUT ? Number.parseInt(process.env.KUBB_AGENT_RETRY_TIMEOUT, 10) : 30000
+  const heartbeatInterval = process.env.KUBB_AGENT_HEARTBEAT_INTERVAL ? Number.parseInt(process.env.KUBB_AGENT_HEARTBEAT_INTERVAL, 10) : 30_000
   const root = process.env.KUBB_AGENT_ROOT || process.cwd()
   const allowAll = process.env.KUBB_AGENT_ALLOW_ALL === 'true'
   const allowWrite = allowAll || process.env.KUBB_AGENT_ALLOW_WRITE === 'true'
-
-  if (!configPath) {
-    throw new Error('KUBB_AGENT_CONFIG environment variable not set')
-  }
+  const poolSize = process.env.KUBB_AGENT_POOL_SIZE ? Number.parseInt(process.env.KUBB_AGENT_POOL_SIZE, 10) : 1
 
   if (!token) {
     logger.warn('KUBB_AGENT_TOKEN not set', 'cannot authenticate with studio')
@@ -52,212 +45,61 @@ export default defineNitroPlugin(async (nitro) => {
     return null
   }
 
+  if (!process.env.KUBB_AGENT_SECRET) {
+    logger.warn('KUBB_AGENT_SECRET not set', 'secret should be set')
+  }
+
   const resolvedConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(root, configPath)
-  const events = new AsyncEventEmitter<KubbEvents>()
+  const storage = useStorage<AgentSession>('kubb')
+  const sessionKey = getSessionKey(token)
+  const maskedSessionKey = maskedString(sessionKey.replace('sessions:', ''))
 
-  async function loadConfig() {
-    const result = await getCosmiConfig(resolvedConfigPath)
-    const configs = await getConfigs(result.config, {})
+  try {
+    await registerAgent({ token, studioUrl, poolSize })
 
-    if (configs.length === 0) {
-      throw new Error('No configs found')
+    const baseOptions = {
+      token,
+      studioUrl,
+      configPath,
+      resolvedConfigPath,
+      noCache,
+      allowAll,
+      allowWrite,
+      root,
+      retryInterval,
+      heartbeatInterval,
+      storage,
+      sessionKey,
+      nitro,
     }
 
-    return configs[0]
-  }
+    logger.info(`[${maskedSessionKey}] Starting session pool of ${poolSize} connection(s)`)
 
-  const wsOptions = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-
-  events.on('hook:start', async ({ id, command, args }) => {
-    const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
-
-    // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
-    if (!id) {
-      return
+    const sessions = new Map<string, AgentConnectResponse | null>()
+    for (const index of Array.from({ length: poolSize }, (_, i) => i)) {
+      const cacheKey = `${sessionKey}-${index}`
+      const maskedSessionKey = maskedString(cacheKey)
+      const session = await createAgentSession({ noCache, token, studioUrl, cacheKey }).catch((err) => {
+        logger.warn(`[${maskedSessionKey}] Failed to pre-create pool session:`, err?.message)
+        return null
+      })
+      sessions.set(cacheKey, session)
     }
 
-    try {
-      const result = await execa(command, args, {
-        cwd: root,
-        detached: true,
-        stripFinalNewline: true,
-      })
+    let index = 0
+    for (const [cacheKey, session] of sessions) {
+      index++
+      if (!session) {
+        continue
+      }
+      const maskedSessionKey = maskedString(session.sessionId)
 
-      console.log(result.stdout)
-
-      await events.emit('hook:end', {
-        command,
-        args,
-        id,
-        success: true,
-        error: null,
+      logger.info(`[${maskedSessionKey}] Connecting session ${index}/${sessions.size}`)
+      await connectToStudio({ ...baseOptions, initialSession: session, sessionKey: cacheKey }).catch((err: any) => {
+        logger.warn(`[${maskedSessionKey}] Session ${index} failed to connect:`, err?.message)
       })
-    } catch (_err) {
-      const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
-
-      await events.emit('hook:end', {
-        command,
-        args,
-        id,
-        success: false,
-        error: errorMessage,
-      })
-      await events.emit('error', errorMessage)
     }
-  })
-
-  async function reconnectToStudio() {
-    logger.info(`Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`)
-
-    setTimeout(async () => {
-      await connectToStudio()
-    }, retryInterval)
+  } catch (error: any) {
+    logger.error('Failed to connect to Kubb Studio\n', (error as Error)?.message)
   }
-
-  async function connectToStudio() {
-    try {
-      // start connection to studio
-      const { sessionToken, wsUrl } = await createAgentSession({
-        noCache,
-        token,
-        studioUrl,
-      })
-
-      const ws = createWebsocket(wsUrl, wsOptions)
-
-      const onError = async () => {
-        cleanup()
-
-        logger.error(`Failed to connect to Kubb Studio on "${wsUrl}"`)
-
-        const cachedSession = !noCache ? getCachedSession(token) : null
-
-        // If connection fails and we used cached session, invalidate it
-        if (cachedSession) {
-          deleteCachedSession(token)
-          await reconnectToStudio()
-        }
-      }
-
-      const onOpen = () => {
-        logger.success(`Connected to Kubb Studio on "${wsUrl}"`)
-      }
-
-      const onClose = async () => {
-        cleanup()
-
-        logger.info('Disconnecting from Studio ...')
-
-        if (sessionToken) {
-          await disconnect({
-            sessionToken,
-            studioUrl,
-            token,
-          }).catch(async () => {
-            deleteCachedSession(token)
-            await reconnectToStudio()
-          })
-        }
-      }
-
-      const cleanup = () => {
-        ws.removeEventListener('open', onOpen)
-        ws.removeEventListener('close', onClose)
-        ws.removeEventListener('error', onError)
-      }
-
-      ws.addEventListener('open', onOpen)
-      ws.addEventListener('close', onClose)
-      ws.addEventListener('error', onError)
-
-      nitro.hooks.hook('close', onClose)
-
-      setInterval(() => {
-        sendAgentMessage(ws, {
-          type: 'ping',
-        })
-      }, 30000)
-
-      setupEventsStream(ws, events)
-
-      ws.addEventListener('message', async (message) => {
-        try {
-          const data = JSON.parse(message.data as string) as AgentMessage
-
-          if (isCommandMessage(data)) {
-            if (data.command === 'generate') {
-              const config = await loadConfig()
-
-              // Read the temporal studio config; message payload takes priority
-              const studioConfig = readStudioConfig(resolvedConfigPath)
-              const patch = data.payload ?? studioConfig
-              const resolvedPlugins = patch?.plugins ? resolvePlugins(patch.plugins) : undefined
-
-              // Apply patch fields directly onto the already-resolved Config.
-              // When the patch includes plugins, resolve and instantiate
-              // them; otherwise keep the original plugin instances.
-              await generate({
-                config: {
-                  ...config,
-                  plugins: resolvedPlugins ?? config.plugins,
-                  root,
-                  output: {
-                    ...config.output,
-                    write: allowWrite,
-                  },
-                },
-                events,
-              })
-
-              if (allowWrite) {
-                writeStudioConfig(resolvedConfigPath, data.payload)
-              }
-
-              logger.success('Generated command success')
-            }
-
-            if (data.command === 'connect') {
-              const config = await loadConfig()
-
-              sendAgentMessage(ws, {
-                type: 'connected',
-                payload: {
-                  version,
-                  configPath,
-                  permissions: {
-                    allowAll,
-                    allowWrite,
-                  },
-                  config: {
-                    plugins: config.plugins?.map((plugin: any) => ({
-                      name: `@kubb/${plugin.name}`,
-                      options: serializePluginOptions(plugin.options),
-                    })),
-                  },
-                },
-              })
-            }
-
-            return
-          }
-
-          logger.warn(`Unknown message type from Kubb Studio: ${message.data}`)
-        } catch (error: any) {
-          logger.error(`[unhandledRejection] ${error?.message ?? error}`)
-        }
-      })
-    } catch (error: any) {
-      deleteCachedSession(token)
-
-      logger.error(`Something went wrong ${error}`)
-      await reconnectToStudio()
-    }
-  }
-
-  await registerAgent({ token, studioUrl })
-  await connectToStudio()
 })

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/oas",
-  "version": "4.27.2",
+  "version": "4.31.0",
   "description": "OpenAPI Specification (OAS) utilities and helpers for Kubb, providing parsing, normalization, and manipulation of OpenAPI/Swagger schemas.",
   "keywords": [
     "openapi",
@@ -19,7 +19,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubb-labs/kubb.git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/oas"
   },
   "license": "MIT",
@@ -28,14 +28,12 @@
   "type": "module",
   "exports": {
     ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.cts",
+  "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {}
   },
@@ -43,7 +41,8 @@
     "src",
     "dist",
     "!/**/**.test.**",
-    "!/**/__tests__/**"
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
   ],
   "size-limit": [
     {
@@ -65,7 +64,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@redocly/openapi-core": "^2.19.1",
+    "@readme/openapi-parser": "^5.5.0",
     "jsonpointer": "^5.0.1",
     "oas": "^28.9.0",
     "oas-normalize": "^15.7.1",
@@ -83,5 +82,7 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js"
 }

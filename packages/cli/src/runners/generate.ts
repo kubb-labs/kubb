@@ -1,11 +1,13 @@
 import { createHash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
+import { styleText } from 'node:util'
 import { type Config, type KubbEvents, LogLevel, safeBuild, setup } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import { detectFormatter, detectLinter, formatters, linters } from '@kubb/core/utils'
-import pc from 'picocolors'
+import { version } from '../../package.json'
 import { executeHooks } from '../utils/executeHooks.ts'
+import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 
 type GenerateProps = {
   input?: string
@@ -40,14 +42,14 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
 
   await events.emit('generation:start', config)
 
-  await events.emit('info', config.name ? `Setup generation ${pc.bold(config.name)}` : 'Setup generation', inputPath)
+  await events.emit('info', config.name ? `Setup generation ${styleText('bold', config.name)}` : 'Setup generation', inputPath)
 
   const { sources, fabric, pluginManager } = await setup({
     config,
     events,
   })
 
-  await events.emit('info', config.name ? `Build generation ${pc.bold(config.name)}` : 'Build generation', inputPath)
+  await events.emit('info', config.name ? `Build generation ${styleText('bold', config.name)}` : 'Build generation', inputPath)
 
   const { files, failedPlugins, pluginTimings, error } = await safeBuild(
     {
@@ -80,10 +82,21 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
     await events.emit('generation:summary', config, {
       failedPlugins,
       filesCreated: files.length,
-      status: failedPlugins.size > 0 || error ? 'failed' : 'success',
+      status: 'failed',
       hrStart,
       pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
     })
+
+    await sendTelemetry(
+      buildTelemetryEvent({
+        command: 'generate',
+        kubbVersion: version,
+        plugins: pluginManager.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
+        hrStart,
+        filesCreated: files.length,
+        status: 'failed',
+      }),
+    )
 
     process.exit(1)
   }
@@ -102,7 +115,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
         await events.emit('warn', 'No formatter found (biome, prettier, or oxfmt). Skipping formatting.')
       } else {
         formatter = detectedFormatter
-        await events.emit('info', `Auto-detected formatter: ${pc.dim(formatter)}`)
+        await events.emit('info', `Auto-detected formatter: ${styleText('dim', formatter)}`)
       }
     }
 
@@ -123,7 +136,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
 
           await events.emit(
             'success',
-            [`Formatting with ${pc.dim(formatter)}`, logLevel >= LogLevel.info ? `on ${pc.dim(outputPath)}` : undefined, 'successfully']
+            [`Formatting with ${styleText('dim', formatter)}`, logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined, 'successfully']
               .filter(Boolean)
               .join(' '),
           )
@@ -150,7 +163,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
         await events.emit('warn', 'No linter found (biome, oxlint, or eslint). Skipping linting.')
       } else {
         linter = detectedLinter
-        await events.emit('info', `Auto-detected linter: ${pc.dim(linter)}`)
+        await events.emit('info', `Auto-detected linter: ${styleText('dim', linter)}`)
       }
     }
 
@@ -172,7 +185,9 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
 
           await events.emit(
             'success',
-            [`Linting with ${pc.dim(linter)}`, logLevel >= LogLevel.info ? `on ${pc.dim(outputPath)}` : undefined, 'successfully'].filter(Boolean).join(' '),
+            [`Linting with ${styleText('dim', linter)}`, logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined, 'successfully']
+              .filter(Boolean)
+              .join(' '),
           )
         })
       } catch (caughtError) {
@@ -192,11 +207,24 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
     await events.emit('hooks:end')
   }
 
+  const generationStatus = failedPlugins.size > 0 || error ? 'failed' : 'success'
+
   await events.emit('generation:summary', config, {
     failedPlugins,
     filesCreated: files.length,
-    status: failedPlugins.size > 0 || error ? 'failed' : 'success',
+    status: generationStatus,
     hrStart,
     pluginTimings,
   })
+
+  const telemetryEvent = buildTelemetryEvent({
+    command: 'generate',
+    kubbVersion: version,
+    plugins: pluginManager.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
+    hrStart,
+    filesCreated: files.length,
+    status: generationStatus,
+  })
+
+  await sendTelemetry(telemetryEvent)
 }

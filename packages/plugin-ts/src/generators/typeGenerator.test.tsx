@@ -7,7 +7,7 @@ import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
 import ts, { factory } from 'typescript'
-import { describe, test } from 'vitest'
+import { beforeEach, describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
@@ -16,6 +16,12 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('typeGenerator schema', async () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
   const testData = [
     {
       name: 'PetQuestionToken',
@@ -23,6 +29,15 @@ describe('typeGenerator schema', async () => {
       path: 'Pet',
       options: {
         optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'PetIntegerTypeNumber',
+      input: '../../mocks/petStore.yaml',
+      path: 'Pet',
+      options: {
+        optionalType: 'questionToken',
+        integerType: 'number',
       },
     },
     {
@@ -504,6 +519,14 @@ describe('typeGenerator schema', async () => {
         optionalType: 'questionToken',
       },
     },
+    // https://github.com/kubb-labs/kubb/issues/2561
+    // Format with contentMediaType should be a Blob
+    {
+      name: 'BodyTest',
+      input: '../../mocks/binaryFile.yaml',
+      path: 'BodyTest',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -526,6 +549,7 @@ describe('typeGenerator schema', async () => {
       enumKeyCasing: 'none',
       enumSuffix: 'enum',
       dateType: 'string',
+      integerType: 'bigint',
       transformers: {},
       unknownType: 'any',
       optionalType: 'questionToken',
@@ -542,7 +566,6 @@ describe('typeGenerator schema', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
-    const fabric = createReactFabric()
 
     const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new SchemaGenerator(options, {
@@ -583,6 +606,12 @@ describe('typeGenerator schema', async () => {
 })
 
 describe('typeGenerator operation', async () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
   const testData = [
     {
       name: 'showPetById',
@@ -682,6 +711,7 @@ describe('typeGenerator operation', async () => {
       enumKeyCasing: 'none',
       enumSuffix: '',
       dateType: 'string',
+      integerType: 'bigint',
       optionalType: 'questionToken',
       arrayType: 'array',
       transformers: {},
@@ -698,7 +728,6 @@ describe('typeGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
-    const fabric = createReactFabric()
     const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,

@@ -1,0 +1,42 @@
+openapi: 3.0.3
+info:
+  title: Required oneOf requestBody
+  version: 1.0.0
+paths:
+  /orders:
+    post:
+      operationId: createOrder
+      parameters:
+        - in: header
+          name: X-Trace-Id
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required:
+                    - manual
+                  properties:
+                    manual:
+                      type: string
+                - type: object
+                  required:
+                    - automated
+                  properties:
+                    automated:
+                      type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string

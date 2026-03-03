@@ -6,6 +6,157 @@ outline: deep
 
 # Changelog
 
+## 4.31.0
+
+### ✨ Features
+
+#### [`@kubb/cli`](/helpers/cli/)
+
+**Add anonymous telemetry**
+
+Anonymous telemetry has been added to the Kubb CLI to track usage data (command, plugins, version, duration, platform, Node.js version, and file count). No OpenAPI specs, file paths, plugin options, or secrets are ever collected.
+
+Telemetry can be disabled at any time by setting:
+
+- `DO_NOT_TRACK=1` – standard opt-out flag recognised by many developer tools ([consoledonottrack.com](https://consoledonottrack.com))
+- `KUBB_DISABLE_TELEMETRY=1` – Kubb-specific opt-out flag
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Fix external `$ref` schema being incorrectly named "itemsSchema"**
+
+When `bundle()` deduplicates an external schema that is referenced in multiple places, it creates internal `$ref` pointers like `#/paths/~1proposals/get/.../schema/items`. The last path segment `items` was incorrectly used as the schema name (producing "itemsSchema" after the plugin suffix). These non-component internal refs are now resolved inline instead.
+
+---
+
+## 4.30.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-react-query`](/plugins/plugin-react-query/), [`@kubb/plugin-solid-query`](/plugins/plugin-solid-query/), [`@kubb/plugin-svelte-query`](/plugins/plugin-svelte-query/), [`@kubb/plugin-swr`](/plugins/plugin-swr/), [`@kubb/plugin-vue-query`](/plugins/plugin-vue-query/)
+
+**Remove unused fetch import when client plugin is active**
+
+When the client plugin is active, the unused `fetch` import is no longer generated in query/SWR hook files, resulting in cleaner output.
+
+### 📖 Documentation
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/), [`@kubb/plugin-react-query`](/plugins/plugin-react-query/), [`@kubb/plugin-solid-query`](/plugins/plugin-solid-query/), [`@kubb/plugin-svelte-query`](/plugins/plugin-svelte-query/), [`@kubb/plugin-swr`](/plugins/plugin-swr/), [`@kubb/plugin-vue-query`](/plugins/plugin-vue-query/)
+
+**Document required type exports for custom `importPath`**
+
+When using a custom `client.importPath` with query plugins (`plugin-react-query`, `plugin-vue-query`, `plugin-svelte-query`, `plugin-solid-query`, `plugin-swr`), the generated hooks import `type Client`, `type RequestConfig`, and `type ResponseErrorConfig` from that module. Previously this requirement was undocumented, causing unexpected TypeScript errors for users with custom clients that did not export the `Client` type.
+
+Your custom client module must now explicitly export all three types:
+
+```typescript [client.ts]
+export type RequestConfig<TData = unknown> = { /* type properties omitted for brevity */ }
+export type ResponseConfig<TData = unknown> = { /* type properties omitted for brevity */ }
+export type ResponseErrorConfig<TError = unknown> = TError
+
+// Required when using query plugins
+export type Client = <TData, _TError = unknown, TVariables = unknown>(
+  config: RequestConfig<TVariables>
+) => Promise<ResponseConfig<TData>>
+
+export const client: Client = async (config) => { /* ... */ }
+export default client
+```
+
+See the [`importPath` documentation](/plugins/plugin-client/#client-importpath) for the full type definitions and a complete example.
+
+---
+
+## 4.29.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+Correct use of default (non-breaking change), this will change in v5
+
+---
+
+## 4.29.0
+
+### ✨ Features
+
+#### [`@kubb/core`](/helpers/core/), [`@kubb/plugin-client`](/plugins/plugin-client/), [`@kubb/plugin-ts`](/plugins/plugin-ts/), [`@kubb/plugin-zod`](/plugins/plugin-zod/), and more
+
+**Use of less packages and/or tiny libraries**
+
+Reduced the number of dependencies across all packages by replacing heavier libraries with smaller, purpose-built alternatives. This results in a total bundle size reduction of **-6.7 MB**.
+
+### 💥 Breaking Changes
+
+#### [`unplugin-kubb`](/builders/unplugin/)
+
+**Upgrade to Unplugin v3**
+
+`unplugin-kubb` has been updated to use [unplugin v3](https://github.com/unjs/unplugin), which introduces breaking changes to the plugin API. Please refer to the [unplugin v3 migration guide](https://github.com/unjs/unplugin) if you are using `unplugin-kubb` directly.
+
+---
+
+## 4.28.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/oas`](/helpers/oas/)
+
+**Properties with `application/octet-stream` interpreted as `Blob`**
+
+Schemas with `contentMediaType: application/octet-stream` are interpreted as `Blob`.
+
+---
+
+
+## 4.28.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Add `integerType` option to control int64 TypeScript type**
+
+Adds an `integerType` option that controls how OpenAPI `integer` fields with `format: int64` are mapped to TypeScript types.
+
+- `'bigint'` (default) — uses the TypeScript `bigint` type, accurate for values exceeding `Number.MAX_SAFE_INTEGER`.
+- `'number'` — uses the TypeScript `number` type, matching the runtime behavior of `JSON.parse()`.
+
+```typescript
+pluginTs({
+  integerType: 'number', // 'number' | 'bigint', default: 'bigint'
+})
+```
+
+---
+
+## 4.27.4
+
+### 🔄 Refactors
+
+#### [`@kubb/core`](/helpers/core/), [`@kubb/plugin-client`](/plugins/plugin-client/), [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+
+**Replace `resolveModuleSource` with static imports and build-time template inlining**
+
+Removed `resolveModuleSource` from `@kubb/core/utils`. Template file contents for `@kubb/plugin-client` (config, axios, fetch) and `@kubb/plugin-zod` (ToZod) are now inlined as string constants at build time via the `importAttributeTextPlugin` rolldown/tsdown plugin, using `import ... with { type: 'text' }` import attributes as the build-time marker. This eliminates all runtime filesystem reads for template sources.
+
+---
+
+## 4.27.3
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/oas`](/helpers/oas/)
+
+**Remove redocly and use @apidevtools/json-schema-ref-parser for OpenAPI bundling**
+
+Replaced `@redocly/openapi-core` with `@apidevtools/json-schema-ref-parser` to resolve `MissingPointerError` issues with `$ref` pointers (e.g., `#/definitions/enumNames.Type`). External file refs and URL refs are now properly resolved during OpenAPI parsing.
+
+---
+
 ## 4.27.2
 
 ### 🐛 Bug Fixes

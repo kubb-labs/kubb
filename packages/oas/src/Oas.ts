@@ -67,7 +67,7 @@ export class Oas extends BaseOas {
     if (!current) {
       throw new Error(`Could not find a definition for ${origRef}.`)
     }
-    return current
+    return current as T
   }
 
   getKey($ref: string) {

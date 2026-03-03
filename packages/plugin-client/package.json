@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-client",
-  "version": "4.27.2",
+  "version": "4.31.0",
   "description": "API client generator plugin for Kubb, creating type-safe HTTP clients (Axios, Fetch) from OpenAPI specifications for making API requests.",
   "keywords": [
     "api-client",
@@ -22,7 +22,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubb-labs/kubb.git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/plugin-client"
   },
   "license": "MIT",
@@ -34,14 +34,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./components": {
-      "import": "./dist/components.js",
-      "require": "./dist/components.cjs"
-    },
-    "./generators": {
-      "import": "./dist/generators.js",
-      "require": "./dist/generators.cjs"
-    },
     "./clients/axios": {
       "import": "./dist/clients/axios.js",
       "require": "./dist/clients/axios.cjs"
@@ -50,11 +42,28 @@
       "import": "./dist/clients/fetch.js",
       "require": "./dist/clients/fetch.cjs"
     },
-    "./templates/*": "./templates/*",
+    "./components": {
+      "import": "./dist/components.js",
+      "require": "./dist/components.cjs"
+    },
+    "./generators": {
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs"
+    },
+    "./templates/clients/axios.source": {
+      "import": "./dist/templates/clients/axios.source.js",
+      "require": "./dist/templates/clients/axios.source.cjs"
+    },
+    "./templates/clients/fetch.source": {
+      "import": "./dist/templates/clients/fetch.source.js",
+      "require": "./dist/templates/clients/fetch.source.cjs"
+    },
+    "./templates/config.source": {
+      "import": "./dist/templates/config.source.js",
+      "require": "./dist/templates/config.source.cjs"
+    },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
@@ -69,6 +78,15 @@
       ],
       "clients/fetch": [
         "./dist/clients/fetch.d.ts"
+      ],
+      "templates/config.source": [
+        "./dist/templates/config.source.d.ts"
+      ],
+      "templates/clients/axios.source": [
+        "./dist/templates/clients/axios.source.d.ts"
+      ],
+      "templates/clients/fetch.source": [
+        "./dist/templates/clients/fetch.source.d.ts"
       ]
     }
   },
@@ -79,7 +97,8 @@
     "*.d.ts",
     "*.d.cts",
     "!/**/**.test.**",
-    "!/**/__tests__/**"
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
   ],
   "size-limit": [
     {
@@ -108,10 +127,10 @@
     "@kubb/react-fabric": "catalog:"
   },
   "devDependencies": {
-    "axios": "^1.13.5"
+    "axios": "^1.13.6"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.12.11",
+    "@kubb/react-fabric": "0.13.2",
     "axios": "^1.7.2"
   },
   "peerDependenciesMeta": {
@@ -125,5 +144,7 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js"
 }

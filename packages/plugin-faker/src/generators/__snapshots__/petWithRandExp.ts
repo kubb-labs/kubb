@@ -8,7 +8,7 @@ import { faker } from '@faker-js/faker'
 export function pet(data?: Partial<Pet>): Pet {
   return {
     ...{
-      id: faker.number.bigInt(),
+      id: faker.number.int(),
       name: faker.string.alpha(),
       tag: faker.string.alpha(),
       code: new RandExp('\\b[1-9]\\b').gen(),

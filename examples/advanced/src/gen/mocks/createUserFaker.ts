@@ -5,7 +5,7 @@ import { createTagTagFaker } from './tag/createTagFaker.ts'
 export function createUserFaker(data?: Partial<User>): User {
   return {
     ...{
-      id: faker.number.bigInt(),
+      id: faker.number.int(),
       username: faker.string.alpha(),
       uuid: faker.string.uuid(),
       tag: createTagTagFaker(),

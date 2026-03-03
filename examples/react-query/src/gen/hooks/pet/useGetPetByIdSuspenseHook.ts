@@ -43,8 +43,7 @@ export function getPetByIdSuspenseQueryOptionsHook(
     enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
-      return getPetByIdSuspenseHook({ pet_id }, config)
+      return getPetByIdSuspenseHook({ pet_id: pet_id }, { ...config, signal: config.signal ?? signal })
     },
   })
 }

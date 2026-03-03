@@ -1,50 +1,59 @@
 import type { AgentConnectResponse } from '~/types/agent.ts'
+import { cacheSession, getCachedSession, getSessionKey, removeCachedSession } from '~/utils/agentCache.ts'
+import { maskedString } from '~/utils/maskedString.ts'
+import { generateMachineToken } from '~/utils/token.ts'
 import { logger } from './logger.ts'
-import { getMachineId } from './machineId.ts'
-import { cacheSession, getCachedSession } from './sessionManager.ts'
 
 type ConnectProps = {
   studioUrl: string
   token: string
   noCache?: boolean
+  /** Optional override for the storage cache key. When provided, replaces the default key derived from the token. */
+  cacheKey?: string
 }
 
 /**
- * Connect the agent to Kubb Studio by obtaining a WebSocket session.
- * Attempts to reuse a cached session before making a network request.
- *
+ * Obtain an agent session token from Kubb Studio via HTTP.
+ * Attempts to reuse a valid cached session before making a network request.
  */
-export async function createAgentSession({ token, studioUrl, noCache }: ConnectProps): Promise<AgentConnectResponse> {
-  // Try to use cached session first (unless --no-cache is set)
-  const cachedSession = !noCache ? getCachedSession(token) : null
-  if (cachedSession) {
-    logger.success('Using cached agent session')
+export async function createAgentSession({ token, studioUrl, noCache, cacheKey }: ConnectProps): Promise<AgentConnectResponse> {
+  const machineToken = generateMachineToken()
+  const sessionKey = cacheKey ?? getSessionKey(token)
+  const maskedSessionKey = maskedString(sessionKey.replace('sessions:', ''))
+  const connectUrl = `${studioUrl}/api/agent/session/create`
+  const canCache = !noCache
 
-    return cachedSession
+  if (canCache) {
+    const cachedSession = await getCachedSession(sessionKey)
+
+    if (cachedSession) {
+      logger.success(`[${maskedSessionKey}] Using cached agent session`)
+      return cachedSession
+    }
+
+    // If there's an expired session, remove it
+    await removeCachedSession(sessionKey)
   }
 
-  // Fetch new session from Studio
-  const connectUrl = `${studioUrl}/api/agent/session/create`
-
   try {
+    logger.info(`[${maskedSessionKey}] Creating agent session with Studio...`)
+
     const data = await $fetch<AgentConnectResponse>(connectUrl, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: { machineId: getMachineId() },
+      headers: { Authorization: `Bearer ${token}` },
+      body: { machineToken },
     })
-
-    // Cache the session for reuse (unless --no-cache is set)
-    if (data && !noCache) {
-      cacheSession(token, data)
-    }
 
     if (!data) {
       throw new Error('No data available for agent session')
     }
 
-    logger.success('Agent session created')
+    if (canCache) {
+      await cacheSession({ sessionKey, session: { ...data, storedAt: new Date().toISOString(), configs: [] } })
+      logger.success(`[${maskedSessionKey}] Saved agent session to cache`)
+    }
+
+    logger.info(`[${maskedSessionKey}] Created agent session with Studio`)
 
     return data
   } catch (error: any) {
@@ -55,51 +64,57 @@ export async function createAgentSession({ token, studioUrl, noCache }: ConnectP
 type RegisterProps = {
   studioUrl: string
   token: string
+  poolSize?: number
 }
 
 /**
  * Register this agent with Kubb Studio by sending the machine ID.
  * Called once on agent startup before creating a WebSocket session.
  */
-export async function registerAgent({ token, studioUrl }: RegisterProps): Promise<void> {
-  const machineId = getMachineId()
+export async function registerAgent({ token, studioUrl, poolSize }: RegisterProps): Promise<void> {
+  const machineToken = generateMachineToken()
   const registerUrl = `${studioUrl}/api/agent/register`
 
   try {
+    logger.info('Registering agent with Studio...')
+
     await $fetch(registerUrl, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: { machineId },
+      body: { machineToken, poolSize },
     })
-    logger.success('Agent registered with Studio')
+    logger.success(`Agent registered with Studio with token ${maskedString(token)}`)
   } catch (error: any) {
-    logger.warn('Failed to register agent with Studio', error?.cause?.message ?? error?.message)
+    logger.error('Failed to register agent with Studio', error?.cause?.message ?? error?.message)
   }
 }
 
 type DisconnectProps = {
   studioUrl: string
   token: string
-  sessionToken: string
+  sessionId: string
 }
 
 /**
  * Notify Kubb Studio that this agent is disconnecting.
  * Called on process termination or server close.
- *
  */
-export async function disconnect({ sessionToken, token, studioUrl }: DisconnectProps): Promise<void> {
+export async function disconnect({ sessionId, token, studioUrl }: DisconnectProps): Promise<void> {
+  const disconnectUrl = `${studioUrl}/api/agent/session/${sessionId}/disconnect`
+  const maskedSessionKey = maskedString(sessionId)
+
   try {
-    const disconnectUrl = `${studioUrl}/api/agent/session/${sessionToken}/disconnect`
+    logger.info(`[${maskedSessionKey}] Disconnecting from Studio...`)
+
     await $fetch(disconnectUrl, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-    logger.success('Sent disconnect notification to Studio on exit')
+    logger.success(`[${maskedSessionKey}] Disconnected from Studio`)
   } catch (error: any) {
     throw new Error('Failed to notify Studio of disconnection on exit', { cause: error })
   }

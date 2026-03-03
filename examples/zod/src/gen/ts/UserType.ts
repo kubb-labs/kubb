@@ -7,7 +7,7 @@ export type UserType = {
   /**
    * @type integer | undefined, int64
    */
-  id?: bigint
+  id?: number
   /**
    * @type string | undefined
    */

@@ -5,7 +5,7 @@
 import fetch from '@kubb/plugin-client/clients/axios'
 import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from 'custom-query'
-import { queryOptions, createQuery } from 'custom-query'
+import { createQuery, queryOptions } from 'custom-query'
 
 export const updatePetWithFormQueryKey = (
   petId: UpdatePetWithFormPathParams['petId'],
@@ -50,7 +50,9 @@ export function updatePetWithFormQueryOptions(
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
+      if (!config.signal) {
+        config.signal = signal
+      }
       return updatePetWithForm(petId, data, params, config)
     },
   })

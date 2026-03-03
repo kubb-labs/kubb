@@ -7,7 +7,7 @@ import { parse } from '@kubb/oas'
 import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
-import { describe, test } from 'vitest'
+import { beforeEach, describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginZod } from '../types.ts'
 import { zodGenerator } from './zodGenerator.tsx'
@@ -16,6 +16,12 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('zodGenerator schema', async () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
   const testData = [
     {
       name: 'Pet',
@@ -308,6 +314,7 @@ describe('zodGenerator schema', async () => {
       inferred: false,
       typed: false,
       unknownType: 'any',
+      integerType: 'number',
       mapper: {},
       importPath: 'zod',
       coercion: false,
@@ -325,7 +332,6 @@ describe('zodGenerator schema', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
-    const fabric = createReactFabric()
     const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new SchemaGenerator(options, {
       fabric,
@@ -365,6 +371,12 @@ describe('zodGenerator schema', async () => {
 })
 
 describe('zodGenerator operation', async () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
   const testData = [
     {
       name: 'showPetById',
@@ -444,6 +456,7 @@ describe('zodGenerator operation', async () => {
       mapper: {},
       importPath: 'zod',
       coercion: false,
+      integerType: 'number',
       operations: false,
       override: [],
       output: {
@@ -458,7 +471,6 @@ describe('zodGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
-    const fabric = createReactFabric()
     const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,
@@ -485,6 +497,12 @@ describe('zodGenerator operation', async () => {
   })
 
   describe('wrapOutput', () => {
+    const fabric = createReactFabric()
+
+    beforeEach(() => {
+      fabric.context.fileManager.clear()
+    })
+
     test.each(testData)('$name', async (props) => {
       const oas = await parse(path.resolve(__dirname, props.input))
 
@@ -506,6 +524,7 @@ describe('zodGenerator operation', async () => {
         version: '3',
         guidType: 'uuid',
         emptySchemaType: 'unknown',
+        integerType: 'number',
         wrapOutput: ({ output, schema }) => {
           const metadata: ZodOpenAPIMetadata = {}
 
@@ -531,7 +550,6 @@ describe('zodGenerator operation', async () => {
         ...props.options,
       }
       const plugin = { options } as Plugin<PluginZod>
-      const fabric = createReactFabric()
       const mockedPluginManager = createMockedPluginManager(props.name)
       const generator = new OperationGenerator(options, {
         fabric,
@@ -593,6 +611,7 @@ describe('zodGenerator operation', async () => {
         importPath: '@hono/zod-openapi',
         coercion: false,
         operations: false,
+        integerType: 'number',
         override: [],
         output: {
           path: '.',
@@ -626,7 +645,6 @@ describe('zodGenerator operation', async () => {
         ...entry.options,
       }
       const plugin = { options } as Plugin<PluginZod>
-      const fabric = createReactFabric()
       const mockedPluginManager = createMockedPluginManager(entry.name)
       const generator = new OperationGenerator(options, {
         fabric,
@@ -685,6 +703,7 @@ describe('zodGenerator operation', async () => {
         typed: false,
         inferred: false,
         mapper: {},
+        integerType: 'number',
         importPath: 'zod',
         coercion: false,
         operations: false,
@@ -709,7 +728,6 @@ describe('zodGenerator operation', async () => {
         ...entry.options,
       }
       const plugin = { options } as Plugin<PluginZod>
-      const fabric = createReactFabric()
       const mockedPluginManager = createMockedPluginManager(entry.name)
       const generator = new OperationGenerator(options, {
         fabric,

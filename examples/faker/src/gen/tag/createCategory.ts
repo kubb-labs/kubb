@@ -8,7 +8,7 @@ import type { Category } from '../models/Category.ts'
 
 export function createCategory(data?: Partial<Category>): Category {
   return {
-    ...{ id: faker.number.bigInt(), name: faker.string.alpha() },
+    ...{ id: faker.number.int(), name: faker.string.alpha() },
     ...(data || {}),
   }
 }

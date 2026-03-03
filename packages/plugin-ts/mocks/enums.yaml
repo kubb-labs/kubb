@@ -93,7 +93,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/definitions/enumVarNames.Type'
+                $ref: '#/components/schemas/enumVarNames.Type'
   /names:
     get:
       responses:
@@ -102,4 +102,4 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/definitions/enumNames.Type'
+                $ref: '#/components/schemas/enumNames.Type'

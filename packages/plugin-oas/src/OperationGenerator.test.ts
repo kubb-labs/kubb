@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Plugin, PluginManager } from '@kubb/core'
-import { parseFromConfig } from '@kubb/oas'
+import { parse, parseFromConfig } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, test } from 'vitest'
 import { OperationGenerator } from './OperationGenerator.ts'
@@ -15,10 +15,9 @@ describe('OperationGenerator core', async () => {
     output: { path: 'test', clean: true },
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
   })
+  const fabric = createReactFabric()
 
   test('if pathParams return undefined when there are no params in path', async () => {
-    const fabric = createReactFabric()
-
     const og = new OperationGenerator(
       {},
       {
@@ -37,6 +36,78 @@ describe('OperationGenerator core', async () => {
     expect(og.getSchemas(oas.operation('/pets', 'get')).pathParams).toBeUndefined()
     expect(og.getSchemas(oas.operation('/pets', 'get')).queryParams).toBeDefined()
   })
+
+  test('enforces required requestBody for oneOf schemas', async () => {
+    const oasWithRequiredBody = await parse({
+      openapi: '3.0.3',
+      info: {
+        title: 'test',
+        version: '1.0.0',
+      },
+      paths: {
+        '/orders': {
+          post: {
+            operationId: 'createOrder',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    oneOf: [
+                      {
+                        type: 'object',
+                        required: ['manual'],
+                        properties: {
+                          manual: { type: 'string' },
+                        },
+                      },
+                      {
+                        type: 'object',
+                        required: ['automated'],
+                        properties: {
+                          automated: { type: 'string' },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'ok',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const og = new OperationGenerator(
+      {},
+      {
+        fabric,
+        oas: oasWithRequiredBody,
+        contentType: undefined,
+        pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as Plugin,
+        exclude: [],
+        include: undefined,
+        override: undefined,
+        mode: 'split',
+      },
+    )
+
+    const schemas = og.getSchemas(oasWithRequiredBody.operation('/orders', 'post'))
+    expect(schemas.request?.schema.required).toStrictEqual(['__kubb_required_request_body__'])
+  })
 })
 
 describe('OperationGenerator exclude', async () => {
@@ -45,9 +116,8 @@ describe('OperationGenerator exclude', async () => {
     output: { path: 'test', clean: true },
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
   })
+  const fabric = createReactFabric()
   test('if exclude is filtered out for tag', async () => {
-    const fabric = createReactFabric()
-
     const og = new OperationGenerator(
       {},
       {
@@ -74,8 +144,6 @@ describe('OperationGenerator exclude', async () => {
   })
 
   test('if exclude is filtered out for operationId', async () => {
-    const fabric = createReactFabric()
-
     const og = new OperationGenerator(
       {},
       {
@@ -102,8 +170,6 @@ describe('OperationGenerator exclude', async () => {
   })
 
   test('if exclude is filtered out for path', async () => {
-    const fabric = createReactFabric()
-
     const og = new OperationGenerator(
       {},
       {
@@ -130,8 +196,6 @@ describe('OperationGenerator exclude', async () => {
   })
 
   test('if exclude is filtered out for method', async () => {
-    const fabric = createReactFabric()
-
     const og = new OperationGenerator(
       {},
       {
@@ -158,8 +222,6 @@ describe('OperationGenerator exclude', async () => {
   })
 
   test('if exclude is filtered out for path and operationId', async () => {
-    const fabric = createReactFabric()
-
     const og = new OperationGenerator(
       {},
       {
@@ -196,10 +258,9 @@ describe('OperationGenerator include', async () => {
     output: { path: 'test', clean: true },
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
   })
+  const fabric = createReactFabric()
 
   test('if include is only selecting tag', async () => {
-    const fabric = createReactFabric()
-
     const og = new OperationGenerator(
       {},
       {
@@ -226,8 +287,6 @@ describe('OperationGenerator include', async () => {
   })
 
   test('if include is only selecting for operationId', async () => {
-    const fabric = createReactFabric()
-
     const og = new OperationGenerator(
       {},
       {
@@ -254,8 +313,6 @@ describe('OperationGenerator include', async () => {
   })
 
   test('if include is only selecting for path', async () => {
-    const fabric = createReactFabric()
-
     const og = new OperationGenerator(
       {},
       {
@@ -282,8 +339,6 @@ describe('OperationGenerator include', async () => {
   })
 
   test('if include is only selecting for method', async () => {
-    const fabric = createReactFabric()
-
     const og = new OperationGenerator(
       {},
       {
@@ -310,8 +365,6 @@ describe('OperationGenerator include', async () => {
   })
 
   test('if include is only selecting path and operationId', async () => {
-    const fabric = createReactFabric()
-
     const og = new OperationGenerator(
       {},
       {
@@ -348,10 +401,9 @@ describe('OperationGenerator include and exclude', async () => {
     output: { path: 'test', clean: true },
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
   })
+  const fabric = createReactFabric()
 
   test('if include is only selecting path and exclude is removing the GET calls', async () => {
-    const fabric = createReactFabric()
-
     const og = new OperationGenerator(
       {},
       {

@@ -36,6 +36,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
 
 export type SchemaGeneratorOptions = {
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
+  integerType?: 'number' | 'bigint'
   unknownType: 'any' | 'unknown' | 'void'
   emptySchemaType: 'any' | 'unknown' | 'void'
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
@@ -475,6 +476,21 @@ export class SchemaGenerator<
           args: { name: ref.propertyName, $ref, path: ref.path, isImportable: !!this.context.oas.get($ref) },
         },
       ]
+    }
+
+    // Handle non-component internal refs (e.g., #/paths/... created by the bundler when deduplicating
+    // external schemas referenced multiple times). These path-based refs produce misleading names
+    // from their last path segment (e.g., "#/.../schema/items" → "items" → "itemsSchema").
+    // Resolve them inline instead of registering them as named schema references.
+    if ($ref.startsWith('#') && !$ref.startsWith('#/components/')) {
+      try {
+        const inlineSchema = this.context.oas.get<SchemaObject>($ref)
+        if (inlineSchema && !isReference(inlineSchema)) {
+          return this.parse({ schema: inlineSchema, name, parentName: null, rootName: null })
+        }
+      } catch {
+        // If lookup fails, fall through to standard processing
+      }
     }
 
     // Ensure name mapping is initialized before resolving names
@@ -1109,9 +1125,15 @@ export class SchemaGenerator<
      *
      * see also https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.7
      */
+    // Handle OpenAPI 3.1 contentMediaType for binary data
+    if (schemaObject.type === 'string' && (schemaObject as any).contentMediaType === 'application/octet-stream') {
+      baseItems.unshift({ keyword: schemaKeywords.blob })
+      return baseItems
+    }
+
     if (schemaObject.format) {
       if (schemaObject.type === 'integer' && schemaObject.format === 'int64') {
-        baseItems.unshift({ keyword: schemaKeywords.bigint })
+        baseItems.unshift({ keyword: options.integerType === 'bigint' ? schemaKeywords.bigint : schemaKeywords.integer })
         return baseItems
       }
 

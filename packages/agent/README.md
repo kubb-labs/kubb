@@ -13,7 +13,7 @@ Kubb Agent Server — HTTP server for code generation powered by [Nitro](https:/
 - 🔧 Easy integration with Kubb configuration
 - 📊 Health and info endpoints
 - 🔗 Bidirectional WebSocket with Kubb Studio
-- 🖥️ Machine binding — token locked to the registered machine via stable `machineId`
+- 🖥️ Machine binding — token locked to the registered machine via stable `machineToken`
 - 💾 Automatic session caching for faster reconnects
 - ⚡ Production-ready
 
@@ -53,64 +53,72 @@ The server will be available at `http://localhost:3000`.
 
 ### Docker
 
-Run the agent standalone, mounting your config file into the container:
+Run the agent standalone:
 
 ```bash
 docker run --env-file .env \
   -p 3000:3000 \
-  -v ./kubb.config.ts:/kubb/agent/kubb.config.ts \
+  kubblabs/kubb-agent
+```
+
+A default `kubb.config.ts` is baked into the image at `/kubb/agent/data/kubb.config.ts`. To use your own config, bind-mount it over the default:
+
+```bash
+docker run --env-file .env \
+  -p 3000:3000 \
+  -v ./kubb.config.ts:/kubb/agent/data/kubb.config.ts \
   kubblabs/kubb-agent
 ```
 
 ### Docker Compose
 
-To run the full stack (Studio + Agent + Postgres), use the provided `docker-compose.yml`:
+Use the provided `docker-compose.yaml` in `packages/agent`:
 
 ```yaml
 services:
   agent:
     image: kubblabs/kubb-agent:latest
-    ports:
-      - "3001:3000"
-    env_file:
-      - .env
+    container_name: kubb-agent
     environment:
-      PORT: 3000
-      KUBB_AGENT_ROOT: /kubb/agent
-      KUBB_AGENT_CONFIG: kubb.config.ts
-      KUBB_STUDIO_URL: http://kubb-studio:3000
+      PORT: 80
+      KUBB_AGENT_ROOT: /kubb/agent/data
+      KUBB_AGENT_CONFIG: ./kubb.config.ts
+      KUBB_STUDIO_URL: https://studio.kubb.dev
     volumes:
-      - ./kubb.config.ts:/kubb/agent/kubb.config.ts
-    depends_on:
-      studio:
-        condition: service_healthy
+      - agent_kv:/kubb/agent/.kubb/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
-      interval: 30s
-      timeout: 5s
-      start_period: 10s
-      retries: 3
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 10s
+      start_period: 60s
+      retries: 5
+
+volumes:
+  agent_kv:
 ```
 
 ```bash
 docker compose up
 ```
 
+The `agent_kv` named volume persists the KV store (session cache, machine token) across container restarts and upgrades.
+
 ### Environment Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `KUBB_AGENT_CONFIG` | `kubb.config.ts` | Path to your Kubb config file. Relative paths are resolved against `KUBB_AGENT_ROOT`. |
-| `KUBB_AGENT_ROOT` | `/kubb/agent` (Docker) / `cwd` | Root directory for resolving relative paths. |
-| `PORT` | `3000` | Server port. |
-| `HOST` | `0.0.0.0` | Server host. |
-| `KUBB_STUDIO_URL` | `https://studio.kubb.dev` | Kubb Studio WebSocket URL. |
-| `KUBB_AGENT_TOKEN` | _(empty)_ | Authentication token for Studio. Required to connect. |
-| `KUBB_AGENT_NO_CACHE` | `false` | Set to `true` to disable session caching. |
-| `KUBB_AGENT_ALLOW_WRITE` | `false` | Set to `true` to allow writing generated files to disk. |
-| `KUBB_AGENT_ALLOW_ALL` | `false` | Set to `true` to grant all permissions (implies `KUBB_AGENT_ALLOW_WRITE=true`). |
-| `KUBB_AGENT_RETRY_TIMEOUT` | `30000` | Milliseconds to wait before retrying a failed Studio connection. |
+| Variable                     | Default | Description |
+|------------------------------|---|---|
+| `KUBB_AGENT_CONFIG`          | `kubb.config.ts` | Path to your Kubb config file. Relative paths are resolved against `KUBB_AGENT_ROOT`. |
+| `KUBB_AGENT_ROOT`            | `/kubb/agent` (Docker) / `cwd` | Root directory for resolving relative paths. |
+| `PORT`                       | `3000` | Server port. |
+| `HOST`                       | `0.0.0.0` | Server host. |
+| `KUBB_STUDIO_URL`            | `https://studio.kubb.dev` | Kubb Studio WebSocket URL. |
+| `KUBB_AGENT_TOKEN`           | _(empty)_ | Authentication token for Studio. Required to connect. |
+| `KUBB_AGENT_NO_CACHE`        | `false` | Set to `true` to disable session caching. |
+| `KUBB_AGENT_ALLOW_WRITE`     | `false` | Set to `true` to allow writing generated files to disk. |
+| `KUBB_AGENT_ALLOW_ALL`       | `false` | Set to `true` to grant all permissions (implies `KUBB_AGENT_ALLOW_WRITE=true`). |
+| `KUBB_AGENT_RETRY_TIMEOUT`             | `30000` | Milliseconds to wait before retrying a failed Studio connection. |
+| `KUBB_AGENT_HEARTBEAT_URL`             | _(empty)_ | URL to call every 5 minutes to signal the agent is alive (e.g. a Healthchecks.io ping URL). Leave empty to disable. |
 
 ### Automatic .env Loading
 
@@ -146,9 +154,9 @@ The agent connects to Kubb Studio on startup when `KUBB_AGENT_TOKEN` is set.
 
 On startup the agent performs these steps before opening a WebSocket:
 
-1. **Register** — calls `POST /api/agent/register` with a stable `machineId` derived from the machine's network interfaces and hostname (SHA-256). This binds the token to the machine. If registration fails the agent throws and does not continue.
-2. **Create session** — calls `POST /api/agent/session/create` (includes `machineId` for verification) and receives a WebSocket URL.
-3. **Connect** — opens a WebSocket to the returned URL (appends `?machineId=` for server-side verification).
+1. **Register** — calls `POST /api/agent/register` with a stable `machineToken` derived from the machine's network interfaces and hostname (SHA-256). This binds the token to the machine. Registration failure is non-fatal — a warning is logged and the agent continues.
+2. **Create session** — calls `POST /api/agent/session/create` (includes `machineToken` for verification) and receives a WebSocket URL.
+3. **Connect** — opens a WebSocket to the returned URL using the `Authorization` header for authentication.
 
 ### Connection Features
 
@@ -156,11 +164,11 @@ On startup the agent performs these steps before opening a WebSocket:
 - **Real-time events**: Streams generation progress and events
 - **Command handling**: Receives `generate` and `connect` commands from Studio
 - **Graceful shutdown**: Notifies Studio when disconnecting
-- **Session management**: 24-hour session expiration with auto-refresh
+- **Session management**: 24-hour session expiration with auto-refresh; Studio re-validates session validity on every incoming agent message and disconnects immediately if revoked or expired
 
 ### Session Caching
 
-Sessions are cached in `~/.kubb/config.json` for faster reconnects:
+Sessions are cached in `./.kubb/data` (relative to the working directory, or `agent_kv` volume in Docker) for faster reconnects:
 - Tokens are hashed (non-reversible) for security
 - Sessions auto-expire after 24 hours
 - Use `--no-cache` flag to disable caching
@@ -219,7 +227,9 @@ Available `payload.type` values: `plugin:start`, `plugin:end`, `files:processing
   "payload": { "plugins": [] }
 }
 ```
-`payload` is optional. When omitted, the agent uses the config loaded from disk.
+`payload` is optional. When omitted, the agent falls back to `kubb.config.studio.json` (a temporal config file next to `kubb.config.ts`), and then to the config loaded from disk.
+
+The `payload` may also include an `input` field containing a raw OpenAPI / Swagger spec (YAML or JSON string). **This field is only honoured in sandbox mode** — outside of sandbox it is silently ignored for security reasons. See [Sandbox Mode](#sandbox-mode) below.
 
 **Connect Command** — requests agent info
 ```json
@@ -232,6 +242,56 @@ Available `payload.type` values: `plugin:start`, `plugin:end`, `files:processing
   }
 }
 ```
+
+**Pong** — sent by Studio in response to an agent ping
+```json
+{ "type": "pong" }
+```
+
+**Status** — sent by Studio with information about connected agents
+```json
+{
+  "type": "status",
+  "message": "...",
+  "connectedAgents": 1,
+  "agents": [
+    { "name": "...", "connectedAt": "..." }
+  ]
+}
+```
+
+## Sandbox Mode
+
+When Kubb Studio provisions a session for the **Sandbox Agent** (the shared agent hosted by Studio itself), it sets `isSandbox: true` in the session response. In sandbox mode the agent behaves differently from a user-owned agent:
+
+| Behaviour | Normal agent | Sandbox agent |
+|---|---|---|
+| Write generated files to disk | ✅ (when `KUBB_AGENT_ALLOW_WRITE=true`) | ❌ Never |
+| Read `input.path` from disk | ✅ | ✅ (falls back when no inline input supplied) |
+| Accept inline `input` in generate payload | ❌ Ignored | ✅ |
+
+### Why no filesystem writes?
+
+The sandbox agent runs in a shared, docker environment inside Kubb Studio. Allowing arbitrary disk writes would create security and isolation problems. Instead, `output.write` is always set to `false`, and the generated files are returned to Studio via the WebSocket `generation:end` event where the UI renders them.
+
+### Inline `input` in sandbox mode
+
+Because the sandbox agent cannot read arbitrary files from disk, callers must supply the OpenAPI / Swagger spec content inline via the `input` field in the generate command payload:
+
+```json
+{
+  "type": "command",
+  "command": "generate",
+  "payload": {
+    "input": "openapi: 3.0.0\ninfo:\n  title: Pet Store\n  version: 1.0.0\n...",
+    "plugins": [
+      { "name": "@kubb/plugin-ts", "options": {} }
+    ]
+  }
+}
+```
+
+The `input` value is treated as `InputData` (i.e. `{ data: "<content>" }`) and overrides the `input` from the loaded config for that generation cycle.  **Outside of sandbox mode this field is ignored.**
 
 ## Configuration Example
 
@@ -263,7 +323,3 @@ npx kubb agent start
 ```
 
 You'll receive a stream of events as the code generation progresses.
-
-## License
-
-MIT

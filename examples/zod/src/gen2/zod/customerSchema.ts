@@ -7,7 +7,7 @@ import * as z from 'zod/mini'
 import { addressSchema } from './addressSchema.ts'
 
 export const customerSchema = z.object({
-  id: z.optional(z.bigint()),
+  id: z.optional(z.int()),
   username: z.optional(z.string()),
   get address() {
     return z.optional(z.array(addressSchema))

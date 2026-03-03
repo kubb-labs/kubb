@@ -13,7 +13,7 @@ export type Pet = {
   /**
    * @type integer | undefined, int64
    */
-  readonly id?: bigint
+  readonly id?: number
   /**
    * @type array | undefined
    */

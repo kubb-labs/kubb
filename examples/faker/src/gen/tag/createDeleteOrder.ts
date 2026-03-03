@@ -8,7 +8,7 @@ import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from '../mode
 
 export function createDeleteOrderPathParams(data?: Partial<DeleteOrderPathParams>): DeleteOrderPathParams {
   return {
-    ...{ orderId: faker.number.bigInt() },
+    ...{ orderId: faker.number.int() },
     ...(data || {}),
   }
 }

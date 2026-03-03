@@ -5,8 +5,6 @@ on:
   pull_request:
     paths-ignore:
       - "examples/**"
-    branches:
-      - main
 
 permissions:
   contents: read
@@ -15,6 +13,9 @@ permissions:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  KUBB_DISABLE_TELEMETRY: "1"
 
 jobs:
   build:
@@ -30,6 +31,8 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Build
         run: pnpm run build
@@ -39,6 +42,7 @@ jobs:
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
@@ -56,12 +60,15 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
@@ -85,14 +92,20 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
+
+      - name: Build agent
+        run: pnpm turbo run build --filter=@kubb/agent
 
       - name: Test
         run: pnpm run test
@@ -117,12 +130,15 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
@@ -145,12 +161,15 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
       - name: Spell Check
@@ -175,12 +194,15 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
@@ -201,12 +223,15 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
@@ -250,12 +275,15 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
         with:
           path: |
             packages/*/dist
+            packages/*/.output
             packages/*/node_modules/.cache
           key: build-${{ github.sha }}
 
@@ -308,6 +336,8 @@ jobs:
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
+        with:
+          node-version: '20'
 
       - name: Build
         run: pnpm run build
@@ -316,6 +346,7 @@ jobs:
         working-directory: ./tests/e2e
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
+          KUBB_DISABLE_TELEMETRY: "1"
         run: |
           pnpm run generate:petstore
 
@@ -323,5 +354,6 @@ jobs:
         working-directory: ./tests/e2e
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
+          KUBB_DISABLE_TELEMETRY: "1"
         run: |
           pnpm run generate --debug

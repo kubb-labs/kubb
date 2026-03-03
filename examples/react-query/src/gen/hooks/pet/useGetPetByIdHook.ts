@@ -37,8 +37,7 @@ export function getPetByIdQueryOptionsHook({ pet_id }: { pet_id: GetPetByIdPathP
     enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {
-      config.signal = signal
-      return getPetByIdHook({ pet_id }, config)
+      return getPetByIdHook({ pet_id: pet_id }, { ...config, signal: config.signal ?? signal })
     },
   })
 }
