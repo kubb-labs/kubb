@@ -169,22 +169,22 @@ describe('buildOtlpPayload', () => {
       status: 'success',
     }
 
-    const payload = buildOtlpPayload(event) as any
+    const payload = buildOtlpPayload(event)
     expect(payload).toHaveProperty('resourceSpans')
     const [resourceSpan] = payload.resourceSpans
-    expect(resourceSpan.resource.attributes).toContainEqual({ key: 'service.name', value: { stringValue: 'kubb-cli' } })
-    const [scopeSpan] = resourceSpan.scopeSpans
-    const [span] = scopeSpan.spans
-    expect(span.name).toBe('generate')
-    expect(span.status.code).toBe(1)
-    expect(typeof span.traceId).toBe('string')
-    expect(span.traceId).toHaveLength(32)
-    expect(typeof span.spanId).toBe('string')
-    expect(span.spanId).toHaveLength(16)
-    expect(typeof span.startTimeUnixNano).toBe('string')
-    expect(typeof span.endTimeUnixNano).toBe('string')
-    const attr = span.attributes.find((a: any) => a.key === 'kubb.status')
-    expect(attr?.value.stringValue).toBe('success')
+    expect(resourceSpan!.resource.attributes).toContainEqual({ key: 'service.name', value: { stringValue: 'kubb-cli' } })
+    const [scopeSpan] = resourceSpan!.scopeSpans
+    const [span] = scopeSpan!.spans
+    expect(span!.name).toBe('generate')
+    expect(span!.status?.code).toBe(1)
+    expect(typeof span!.traceId).toBe('string')
+    expect(span!.traceId).toHaveLength(32)
+    expect(typeof span!.spanId).toBe('string')
+    expect(span!.spanId).toHaveLength(16)
+    expect(typeof span!.startTimeUnixNano).toBe('string')
+    expect(typeof span!.endTimeUnixNano).toBe('string')
+    const attr = span!.attributes?.find((a) => a.key === 'kubb.status')
+    expect(attr?.value).toEqual({ stringValue: 'success' })
   })
 
   it('should set status code 2 for failed status', () => {
@@ -200,9 +200,9 @@ describe('buildOtlpPayload', () => {
       status: 'failed',
     }
 
-    const payload = buildOtlpPayload(event) as any
-    const span = payload.resourceSpans[0].scopeSpans[0].spans[0]
-    expect(span.status.code).toBe(2)
+    const payload = buildOtlpPayload(event)
+    const span = payload?.resourceSpans[0]?.scopeSpans[0]?.spans[0]
+    expect(span?.status?.code).toBe(2)
   })
 })
 
