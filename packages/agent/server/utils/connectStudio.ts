@@ -250,10 +250,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             const config = await loadConfig(resolvedConfigPath)
 
             // Command priority: WS payload → env var → default
-            const resolvedCommand =
-              data.payload.command ??
-              process.env.KUBB_AGENT_PUBLISH_COMMAND ??
-              'npm publish'
+            const resolvedCommand = data.payload.command ?? process.env.KUBB_AGENT_PUBLISH_COMMAND ?? 'npm publish'
 
             await publish({
               command: resolvedCommand,
