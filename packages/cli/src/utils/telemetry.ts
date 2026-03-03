@@ -179,7 +179,7 @@ export function buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceR
               kvlistValue: {
                 values: [
                   { key: 'name', value: { stringValue: p.name } },
-                  { key: 'options', value: { stringValue: JSON.stringify(p.options) } },
+                  { key: 'options', value: { stringValue: JSON.stringify({ ...p.options, usedEnumNames: undefined }) } },
                 ],
               },
             }),
