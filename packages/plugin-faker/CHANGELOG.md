@@ -1,5 +1,15 @@
 # @kubb/plugin-faker
 
+## 4.31.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.1
+  - @kubb/oas@4.31.1
+  - @kubb/plugin-oas@4.31.1
+  - @kubb/plugin-ts@4.31.1
+
 ## 4.31.0
 
 ### Patch Changes

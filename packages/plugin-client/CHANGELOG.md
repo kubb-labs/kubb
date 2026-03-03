@@ -1,5 +1,18 @@
 # @kubb/plugin-client
 
+## 4.31.1
+
+### Patch Changes
+
+- [`fa031c4`](https://github.com/kubb-labs/kubb/commit/fa031c4f8d0a259478848f251c771f5aa834610d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - don't mutate config.signal instead use it only if available
+
+- Updated dependencies []:
+  - @kubb/core@4.31.1
+  - @kubb/oas@4.31.1
+  - @kubb/plugin-oas@4.31.1
+  - @kubb/plugin-ts@4.31.1
+  - @kubb/plugin-zod@4.31.1
+
 ## 4.31.0
 
 ### Patch Changes
