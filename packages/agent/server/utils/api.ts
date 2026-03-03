@@ -1,7 +1,7 @@
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { cacheSession, getCachedSession, getSessionKey, removeCachedSession } from '~/utils/agentCache.ts'
 import { maskedString } from '~/utils/maskedString.ts'
-import { generateMachineToken } from '~/utils/token.ts'
+import { machineToken } from '~/utils/token.ts'
 import { logger } from './logger.ts'
 
 type ConnectProps = {
@@ -17,7 +17,6 @@ type ConnectProps = {
  * Attempts to reuse a valid cached session before making a network request.
  */
 export async function createAgentSession({ token, studioUrl, noCache, cacheKey }: ConnectProps): Promise<AgentConnectResponse> {
-  const machineToken = generateMachineToken()
   const sessionKey = cacheKey ?? getSessionKey(token)
   const maskedSessionKey = maskedString(sessionKey.replace('sessions:', ''))
   const connectUrl = `${studioUrl}/api/agent/session/create`
@@ -72,7 +71,6 @@ type RegisterProps = {
  * Called once on agent startup before creating a WebSocket session.
  */
 export async function registerAgent({ token, studioUrl, poolSize }: RegisterProps): Promise<void> {
-  const machineToken = generateMachineToken()
   const registerUrl = `${studioUrl}/api/agent/register`
 
   try {
