@@ -14,6 +14,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  KUBB_DISABLE_TELEMETRY: "1"
+
 jobs:
   build:
     name: Build
@@ -343,6 +346,7 @@ jobs:
         working-directory: ./tests/e2e
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
+          KUBB_DISABLE_TELEMETRY: "1"
         run: |
           pnpm run generate:petstore
 
@@ -350,5 +354,6 @@ jobs:
         working-directory: ./tests/e2e
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
+          KUBB_DISABLE_TELEMETRY: "1"
         run: |
           pnpm run generate --debug

@@ -1,5 +1,7 @@
+import { styleText } from 'node:util'
 import { defineCommand, runCommand, runMain } from 'citty'
 import { version } from '../package.json'
+import { isTelemetryDisabled } from './utils/telemetry.ts'
 
 const main = defineCommand({
   meta: {
@@ -18,6 +20,12 @@ const main = defineCommand({
     if (args.version) {
       console.log(version)
       process.exit(0)
+    }
+
+    if (!isTelemetryDisabled()) {
+      console.log(
+        `${styleText('yellow', 'Notice:')} Kubb collects anonymous telemetry data to help improve the tool. No personal data or file contents are collected. \nTo disable, set ${styleText('cyan', 'KUBB_DISABLE_TELEMETRY=1')}.\n`,
+      )
     }
 
     if (!['generate', 'validate', 'mcp', 'agent', 'init'].includes(rawArgs[0] as string)) {
