@@ -49,7 +49,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.5",
     "@changesets/changelog-github": "^0.5.2",
-    "@changesets/cli": "^2.29.8",
+    "@changesets/cli": "^2.30.0",
     "@kubb/fabric-core": "catalog:",
     "@kubb/react-fabric": "catalog:",
     "@manypkg/cli": "^0.25.1",

@@ -24,5 +24,6 @@ export async function updatePetHandler({ data }: { data: UpdatePetMutationReques
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

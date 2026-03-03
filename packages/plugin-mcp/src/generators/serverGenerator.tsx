@@ -26,6 +26,7 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
       return {
         tool: {
           name: operation.getOperationId() || operation.getSummary() || `${operation.method.toUpperCase()} ${operation.path}`,
+          title: operation.getSummary() || undefined,
           description: operation.getDescription() || `Make a ${operation.method.toUpperCase()} request to ${operation.path}`,
         },
         mcp: {
@@ -54,7 +55,13 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
         <File.Import key={mcp.name} name={[mcp.name]} root={file.path} path={mcp.file.path} />,
         <File.Import
           key={zod.name}
-          name={[zod.schemas.request?.name, zod.schemas.pathParams?.name, zod.schemas.queryParams?.name, zod.schemas.headerParams?.name].filter(Boolean)}
+          name={[
+            zod.schemas.request?.name,
+            zod.schemas.pathParams?.name,
+            zod.schemas.queryParams?.name,
+            zod.schemas.headerParams?.name,
+            zod.schemas.response?.name,
+          ].filter(Boolean)}
           root={file.path}
           path={zod.file.path}
         />,
@@ -71,6 +78,7 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
           footer={getFooter({ oas, output: options.output })}
         >
           <File.Import name={['McpServer']} path={'@modelcontextprotocol/sdk/server/mcp'} />
+          <File.Import name={['z']} path={'zod'} />
           <File.Import name={['StdioServerTransport']} path={'@modelcontextprotocol/sdk/server/stdio'} />
 
           {imports}

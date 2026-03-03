@@ -1,7 +1,8 @@
+import { camelCase, isValidVarName } from '@kubb/core/transformers'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import { isNullable, isReference } from '@kubb/oas'
+import type { SchemaObject } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getPathParams, isOptional } from '@kubb/plugin-oas/utils'
+import { isOptional } from '@kubb/plugin-oas/utils'
 import { Const, File, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 
@@ -13,6 +14,7 @@ type Props = {
   operations: Array<{
     tool: {
       name: string
+      title?: string
       description: string
     }
     mcp: {
@@ -35,40 +37,57 @@ type GetParamsProps = {
   paramsCasing?: 'camelcase'
 }
 
+function zodExprFromOasSchema(schema: SchemaObject): string {
+  const types = Array.isArray(schema.type) ? schema.type : [schema.type]
+  const baseType = types.find((t) => t && t !== 'null')
+  const isNullableType = types.includes('null')
+
+  let expr: string
+  switch (baseType) {
+    case 'integer':
+      expr = 'z.coerce.number()'
+      break
+    case 'number':
+      expr = 'z.number()'
+      break
+    case 'boolean':
+      expr = 'z.boolean()'
+      break
+    case 'array':
+      expr = 'z.array(z.unknown())'
+      break
+    default:
+      expr = 'z.string()'
+  }
+
+  if (isNullableType) {
+    expr = `${expr}.nullable()`
+  }
+
+  return expr
+}
+
 function getParams({ schemas, paramsCasing }: GetParamsProps) {
-  const pathParams = getPathParams(schemas.pathParams, {
-    typed: false,
-    casing: paramsCasing,
-  })
+  const pathParamProperties = schemas.pathParams?.schema?.properties ?? {}
+  const requiredFields = Array.isArray(schemas.pathParams?.schema?.required) ? schemas.pathParams.schema.required : []
+
+  const pathParamEntries = Object.entries(pathParamProperties).reduce<Record<string, { value: string; optional: boolean }>>(
+    (acc, [originalKey, propSchema]) => {
+      const key = paramsCasing === 'camelcase' || !isValidVarName(originalKey) ? camelCase(originalKey) : originalKey
+      acc[key] = {
+        value: zodExprFromOasSchema(propSchema as SchemaObject),
+        optional: !requiredFields.includes(originalKey),
+      }
+      return acc
+    },
+    {},
+  )
 
   return FunctionParams.factory({
     data: {
       mode: 'object',
       children: {
-        ...Object.entries(pathParams).reduce((acc, [key, param]) => {
-          if (param && schemas.pathParams?.name) {
-            let suffix = '.shape'
-
-            if (isNullable(schemas.pathParams.schema)) {
-              if (isReference(schemas.pathParams)) {
-                suffix = '.unwrap().schema.unwrap().shape'
-              } else {
-                suffix = '.unwrap().shape'
-              }
-            } else {
-              if (isReference(schemas.pathParams)) {
-                suffix = '.schema.shape'
-              }
-            }
-
-            param.value = `${schemas.pathParams?.name}${suffix}['${key}']`
-          }
-
-          return {
-            ...acc,
-            [key]: param,
-          }
-        }, {}),
+        ...pathParamEntries,
         data: schemas.request?.name
           ? {
               value: schemas.request?.name,
@@ -107,17 +126,31 @@ export function Server({ name, serverName, serverVersion, paramsCasing, operatio
       {operations
         .map(({ tool, mcp, zod }) => {
           const paramsClient = getParams({ schemas: zod.schemas, paramsCasing })
+          const outputSchema = zod.schemas.response?.name
+
+          const config = [
+            tool.title ? `title: ${JSON.stringify(tool.title)}` : null,
+            `description: ${JSON.stringify(tool.description)}`,
+            outputSchema ? `outputSchema: { data: ${outputSchema} }` : null,
+          ]
+            .filter(Boolean)
+            .join(',\n  ')
 
           if (zod.schemas.request?.name || zod.schemas.headerParams?.name || zod.schemas.queryParams?.name || zod.schemas.pathParams?.name) {
             return `
-server.tool(${JSON.stringify(tool.name)}, ${JSON.stringify(tool.description)}, ${paramsClient.toObjectValue()}, async (${paramsClient.toObject()}) => {
+server.registerTool(${JSON.stringify(tool.name)}, {
+  ${config},
+  inputSchema: ${paramsClient.toObjectValue()},
+}, async (${paramsClient.toObject()}) => {
   return ${mcp.name}(${paramsClient.toObject()})
 })
           `
           }
 
           return `
-server.tool(${JSON.stringify(tool.name)}, ${JSON.stringify(tool.description)}, async () => {
+server.registerTool(${JSON.stringify(tool.name)}, {
+  ${config},
+}, async () => {
   return ${mcp.name}(${paramsClient.toObject()})
 })
           `

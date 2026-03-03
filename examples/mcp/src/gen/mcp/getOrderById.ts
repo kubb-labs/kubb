@@ -21,5 +21,6 @@ export async function getOrderByIdHandler({ orderId }: { orderId: GetOrderByIdPa
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }
