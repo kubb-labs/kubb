@@ -436,7 +436,7 @@ describe('SchemaGenerator core', async () => {
       mode: 'split',
     })
 
-    const draftsSchema = ((oasDoc.paths as any)['/drafts'].get.responses['200'].content['application/json'].schema) as SchemaObject
+    const draftsSchema = (oasDoc.paths as any)['/drafts'].get.responses['200'].content['application/json'].schema as SchemaObject
 
     const tree = generator.parse({
       schema: draftsSchema,
