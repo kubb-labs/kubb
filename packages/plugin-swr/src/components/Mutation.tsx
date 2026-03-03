@@ -145,6 +145,7 @@ export function Mutation({
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
 
   const mutationKeyParams = MutationKey.getParams({
+    paramsCasing,
     pathParamsType,
     typeSchemas,
   })

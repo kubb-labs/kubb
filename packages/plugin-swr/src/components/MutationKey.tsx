@@ -1,6 +1,7 @@
 import { URLPath } from '@kubb/core/utils'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
+import { getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams, Type } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginSwr, Transformer } from '../types'
@@ -16,22 +17,30 @@ type Props = {
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginSwr['resolvedOptions']['paramsCasing']
   pathParamsType: PluginSwr['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({}: GetParamsProps) {
-  return FunctionParams.factory({})
+function getParams({ pathParamsType, paramsCasing, typeSchemas }: GetParamsProps) {
+  return FunctionParams.factory({
+    pathParams: typeSchemas.pathParams?.name
+      ? {
+          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+        }
+      : undefined,
+  })
 }
 
-const getTransformer: Transformer = ({ operation, casing }) => {
+const getTransformer: Transformer = ({ operation, schemas, casing }) => {
   const path = new URLPath(operation.path, { casing })
 
-  return [`{ url: '${path.toURLPath()}' }`]
+  return [path.toObject({ type: 'path', stringify: true }) as string]
 }
 
 export function MutationKey({ name, typeSchemas, paramsCasing, pathParamsType, operation, typeName, transformer = getTransformer }: Props): FabricReactNode {
-  const params = getParams({ pathParamsType, typeSchemas })
+  const params = getParams({ paramsCasing, pathParamsType, typeSchemas })
   const keys = transformer({ operation, schemas: typeSchemas, casing: paramsCasing })
 
   return (

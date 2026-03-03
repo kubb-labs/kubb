@@ -30,7 +30,7 @@ type GetParamsProps = {
   typeSchemas: OperationSchemas
 }
 
-function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps) {
+function getParams({ paramsCasing, pathParamsType, dataReturnType, typeSchemas }: GetParamsProps) {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
 
@@ -60,6 +60,12 @@ function getParams({ paramsCasing, dataReturnType, typeSchemas }: GetParamsProps
   const generics = [TData, TError, TRequest ? `{${TRequest}}` : 'void', 'TContext'].join(', ')
 
   return FunctionParams.factory({
+    pathParams: typeSchemas.pathParams?.name
+      ? {
+          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+        }
+      : undefined,
     options: {
       type: `
 {
@@ -84,6 +90,7 @@ export function Mutation({
   customOptions,
 }: Props): FabricReactNode {
   const mutationKeyParams = MutationKey.getParams({
+    paramsCasing,
     pathParamsType,
     typeSchemas,
   })
@@ -117,7 +124,7 @@ export function Mutation({
       : undefined,
   })
 
-  const mutationOptionsParams = MutationOptions.getParams({ typeSchemas })
+  const mutationOptionsParams = MutationOptions.getParams({ paramsCasing, pathParamsType, typeSchemas })
 
   const TRequest = mutationParams.toConstructor()
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`

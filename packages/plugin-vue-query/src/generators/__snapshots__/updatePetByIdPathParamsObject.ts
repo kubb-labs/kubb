@@ -8,7 +8,8 @@ import type { MaybeRefOrGetter } from 'vue'
 import { fetch } from './test/.kubb/fetch'
 import { useMutation } from '@tanstack/vue-query'
 
-export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
+export const updatePetWithFormMutationKey = ({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) =>
+  [{ url: '/pet/:petId', params: { petId: petId } }] as const
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
 
@@ -41,6 +42,7 @@ export async function updatePetWithForm(
  * {@link /pet/:petId}
  */
 export function useUpdatePetWithForm<TContext>(
+  { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
   options: {
     mutation?: MutationObserverOptions<
       UpdatePetWithFormMutationResponse,
@@ -57,7 +59,7 @@ export function useUpdatePetWithForm<TContext>(
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...mutationOptions } = mutation
-  const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey()
+  const mutationKey = mutationOptions?.mutationKey ?? updatePetWithFormMutationKey({ petId })
 
   return useMutation<
     UpdatePetWithFormMutationResponse,

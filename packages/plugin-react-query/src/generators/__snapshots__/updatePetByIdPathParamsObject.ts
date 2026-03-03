@@ -7,7 +7,8 @@ import type { UseMutationOptions, UseMutationResult, QueryClient } from '@tansta
 import { fetch } from './test/.kubb/fetch'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 
-export const updatePetWithFormMutationKey = () => [{ url: '/pet/:pet_id' }] as const
+export const updatePetWithFormMutationKey = ({ petId }: { petId: UpdatePetWithFormPathParams['petId'] }) =>
+  [{ url: '/pet/:pet_id', params: { pet_id: pet_id } }] as const
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
 
@@ -36,9 +37,10 @@ export async function updatePetWithForm(
 }
 
 export function updatePetWithFormMutationOptions<TContext = unknown>(
+  { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
   config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: Client } = {},
 ) {
-  const mutationKey = updatePetWithFormMutationKey()
+  const mutationKey = updatePetWithFormMutationKey({ petId })
   return mutationOptions<
     UpdatePetWithFormMutationResponse,
     ResponseErrorConfig<UpdatePetWithForm405>,
@@ -57,6 +59,7 @@ export function updatePetWithFormMutationOptions<TContext = unknown>(
  * {@link /pet/:pet_id}
  */
 export function useUpdatePetWithForm<TContext>(
+  { petId }: { petId: UpdatePetWithFormPathParams['petId'] },
   options: {
     mutation?: UseMutationOptions<
       UpdatePetWithFormMutationResponse,
@@ -69,9 +72,9 @@ export function useUpdatePetWithForm<TContext>(
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...mutationOptions } = mutation
-  const mutationKey = mutationOptions.mutationKey ?? updatePetWithFormMutationKey()
+  const mutationKey = mutationOptions.mutationKey ?? updatePetWithFormMutationKey({ petId })
 
-  const baseOptions = updatePetWithFormMutationOptions(config) as UseMutationOptions<
+  const baseOptions = updatePetWithFormMutationOptions({ petId }, config) as UseMutationOptions<
     UpdatePetWithFormMutationResponse,
     ResponseErrorConfig<UpdatePetWithForm405>,
     { petId: UpdatePetWithFormPathParams['petId']; data?: UpdatePetWithFormMutationRequest; params?: UpdatePetWithFormQueryParams },

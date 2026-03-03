@@ -19,11 +19,19 @@ type Props = {
 }
 
 type GetParamsProps = {
+  paramsCasing: PluginReactQuery['resolvedOptions']['paramsCasing']
+  pathParamsType: PluginReactQuery['resolvedOptions']['pathParamsType']
   typeSchemas: OperationSchemas
 }
 
-function getParams({ typeSchemas }: GetParamsProps) {
+function getParams({ paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
   return FunctionParams.factory({
+    pathParams: typeSchemas.pathParams?.name
+      ? {
+          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
+          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
+        }
+      : undefined,
     config: {
       type: typeSchemas.request?.name
         ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: Client }`
@@ -43,7 +51,7 @@ export function MutationOptions({
   pathParamsType,
   mutationKeyName,
 }: Props): FabricReactNode {
-  const params = getParams({ typeSchemas })
+  const params = getParams({ paramsCasing, pathParamsType, typeSchemas })
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'
 
@@ -56,6 +64,7 @@ export function MutationOptions({
   })
 
   const mutationKeyParams = MutationKey.getParams({
+    paramsCasing,
     pathParamsType,
     typeSchemas,
   })

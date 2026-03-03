@@ -7,7 +7,7 @@ import useSWRMutation from 'swr/mutation'
 import type { Client, RequestConfig, ResponseErrorConfig } from 'axios'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 
-export const updatePetWithFormMutationKey = () => [{ url: '/pet/:petId' }] as const
+export const updatePetWithFormMutationKey = (petId: UpdatePetWithFormPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 
 export type UpdatePetWithFormMutationKey = ReturnType<typeof updatePetWithFormMutationKey>
 
@@ -50,7 +50,7 @@ export function useUpdatePetWithForm(
   } = {},
 ) {
   const { mutation: mutationOptions, client: config = {}, shouldFetch = true } = options ?? {}
-  const mutationKey = updatePetWithFormMutationKey()
+  const mutationKey = updatePetWithFormMutationKey(petId)
 
   return useSWRMutation<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationKey | null>(
     shouldFetch ? mutationKey : null,

@@ -79,7 +79,12 @@ describe('mutationGenerator operation', async () => {
       input: '../../mocks/petStore.yaml',
       path: '/pet/{pet_id}',
       method: 'delete',
-      options: {},
+      options: {
+        mutation: {
+          methods: ['delete'],
+          importPath: '@tanstack/react-query',
+        },
+      },
     },
     {
       name: 'deletePetObject',
