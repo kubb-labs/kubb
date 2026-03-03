@@ -1,7 +1,5 @@
-import type { Storage } from 'unstorage'
 import type { AgentConnectResponse } from '~/types/agent.ts'
-import { getSessionKey } from '~/utils/getSessionKey.ts'
-import { type AgentSession, isSessionValid } from '~/utils/isSessionValid.ts'
+import { cacheSession, getCachedSession, getSessionKey, removeCachedSession } from '~/utils/agentCache.ts'
 import { maskedString } from '~/utils/maskedString.ts'
 import { generateMachineToken } from '~/utils/token.ts'
 import { logger } from './logger.ts'
@@ -9,7 +7,6 @@ import { logger } from './logger.ts'
 type ConnectProps = {
   studioUrl: string
   token: string
-  storage: Storage<AgentSession>
   noCache?: boolean
   /** Optional override for the storage cache key. When provided, replaces the default key derived from the token. */
   cacheKey?: string
@@ -19,32 +16,27 @@ type ConnectProps = {
  * Obtain an agent session token from Kubb Studio via HTTP.
  * Attempts to reuse a valid cached session before making a network request.
  */
-export async function createAgentSession({ token, studioUrl, noCache, storage, cacheKey }: ConnectProps): Promise<AgentConnectResponse> {
+export async function createAgentSession({ token, studioUrl, noCache, cacheKey }: ConnectProps): Promise<AgentConnectResponse> {
   const machineToken = generateMachineToken()
   const sessionKey = cacheKey ?? getSessionKey(token)
+  const maskedSessionKey = maskedString(sessionKey.replace('sessions:', ''))
   const connectUrl = `${studioUrl}/api/agent/session/create`
   const canCache = !noCache
 
   if (canCache) {
-    const agentSession = await storage.getItem(sessionKey)
+    const cachedSession = await getCachedSession(sessionKey)
 
-    if (agentSession && isSessionValid(agentSession)) {
-      logger.success('Using cached agent session')
-
-      return agentSession
+    if (cachedSession) {
+      logger.success(`[${maskedSessionKey}] Using cached agent session`)
+      return cachedSession
     }
 
-    if (agentSession) {
-      logger.info('Removing expired agent session from cache...')
-
-      await storage.removeItem(sessionKey)
-
-      logger.success('Removed expired agent session from cache')
-    }
+    // If there's an expired session, remove it
+    await removeCachedSession(sessionKey)
   }
 
   try {
-    logger.info(`Creating agent session (${maskedString(sessionKey)}) with Studio...`)
+    logger.info(`[${maskedSessionKey}] Creating agent session with Studio...`)
 
     const data = await $fetch<AgentConnectResponse>(connectUrl, {
       method: 'POST',
@@ -57,12 +49,11 @@ export async function createAgentSession({ token, studioUrl, noCache, storage, c
     }
 
     if (canCache) {
-      await storage.setItem(sessionKey, { ...data, storedAt: new Date().toISOString() })
-
-      logger.success('Saved agent session to cache')
+      await cacheSession({ sessionKey, session: { ...data, storedAt: new Date().toISOString(), configs: [] } })
+      logger.success(`[${maskedSessionKey}] Saved agent session to cache`)
     }
 
-    logger.info('Created agent session with Studio')
+    logger.info(`[${maskedSessionKey}] Created agent session with Studio`)
 
     return data
   } catch (error: any) {
@@ -103,18 +94,19 @@ export async function registerAgent({ token, studioUrl, poolSize }: RegisterProp
 type DisconnectProps = {
   studioUrl: string
   token: string
-  sessionToken: string
+  sessionId: string
 }
 
 /**
  * Notify Kubb Studio that this agent is disconnecting.
  * Called on process termination or server close.
  */
-export async function disconnect({ sessionToken, token, studioUrl }: DisconnectProps): Promise<void> {
-  const disconnectUrl = `${studioUrl}/api/agent/session/${sessionToken}/disconnect`
+export async function disconnect({ sessionId, token, studioUrl }: DisconnectProps): Promise<void> {
+  const disconnectUrl = `${studioUrl}/api/agent/session/${sessionId}/disconnect`
+  const maskedSessionKey = maskedString(sessionId)
 
   try {
-    logger.info('Disconnecting from Studio...')
+    logger.info(`[${maskedSessionKey}] Disconnecting from Studio...`)
 
     await $fetch(disconnectUrl, {
       method: 'POST',
@@ -122,7 +114,7 @@ export async function disconnect({ sessionToken, token, studioUrl }: DisconnectP
         Authorization: `Bearer ${token}`,
       },
     })
-    logger.success('Disconnected from Studio')
+    logger.success(`[${maskedSessionKey}] Disconnected from Studio`)
   } catch (error: any) {
     throw new Error('Failed to notify Studio of disconnection on exit', { cause: error })
   }

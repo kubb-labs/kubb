@@ -6,6 +6,69 @@ outline: deep
 
 # Changelog
 
+## 4.31.0
+
+### ✨ Features
+
+#### [`@kubb/cli`](/helpers/cli/)
+
+**Add anonymous telemetry**
+
+Anonymous telemetry has been added to the Kubb CLI to track usage data (command, plugins, version, duration, platform, Node.js version, and file count). No OpenAPI specs, file paths, plugin options, or secrets are ever collected.
+
+Telemetry can be disabled at any time by setting:
+
+- `DO_NOT_TRACK=1` – standard opt-out flag recognised by many developer tools ([consoledonottrack.com](https://consoledonottrack.com))
+- `KUBB_DISABLE_TELEMETRY=1` – Kubb-specific opt-out flag
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Fix external `$ref` schema being incorrectly named "itemsSchema"**
+
+When `bundle()` deduplicates an external schema that is referenced in multiple places, it creates internal `$ref` pointers like `#/paths/~1proposals/get/.../schema/items`. The last path segment `items` was incorrectly used as the schema name (producing "itemsSchema" after the plugin suffix). These non-component internal refs are now resolved inline instead.
+
+---
+
+## 4.30.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-react-query`](/plugins/plugin-react-query/), [`@kubb/plugin-solid-query`](/plugins/plugin-solid-query/), [`@kubb/plugin-svelte-query`](/plugins/plugin-svelte-query/), [`@kubb/plugin-swr`](/plugins/plugin-swr/), [`@kubb/plugin-vue-query`](/plugins/plugin-vue-query/)
+
+**Remove unused fetch import when client plugin is active**
+
+When the client plugin is active, the unused `fetch` import is no longer generated in query/SWR hook files, resulting in cleaner output.
+
+### 📖 Documentation
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/), [`@kubb/plugin-react-query`](/plugins/plugin-react-query/), [`@kubb/plugin-solid-query`](/plugins/plugin-solid-query/), [`@kubb/plugin-svelte-query`](/plugins/plugin-svelte-query/), [`@kubb/plugin-swr`](/plugins/plugin-swr/), [`@kubb/plugin-vue-query`](/plugins/plugin-vue-query/)
+
+**Document required type exports for custom `importPath`**
+
+When using a custom `client.importPath` with query plugins (`plugin-react-query`, `plugin-vue-query`, `plugin-svelte-query`, `plugin-solid-query`, `plugin-swr`), the generated hooks import `type Client`, `type RequestConfig`, and `type ResponseErrorConfig` from that module. Previously this requirement was undocumented, causing unexpected TypeScript errors for users with custom clients that did not export the `Client` type.
+
+Your custom client module must now explicitly export all three types:
+
+```typescript [client.ts]
+export type RequestConfig<TData = unknown> = { /* type properties omitted for brevity */ }
+export type ResponseConfig<TData = unknown> = { /* type properties omitted for brevity */ }
+export type ResponseErrorConfig<TError = unknown> = TError
+
+// Required when using query plugins
+export type Client = <TData, _TError = unknown, TVariables = unknown>(
+  config: RequestConfig<TVariables>
+) => Promise<ResponseConfig<TData>>
+
+export const client: Client = async (config) => { /* ... */ }
+export default client
+```
+
+See the [`importPath` documentation](/plugins/plugin-client/#client-importpath) for the full type definitions and a complete example.
+
+---
+
 ## 4.29.1
 
 ### 🐛 Bug Fixes

@@ -1,5 +1,33 @@
 # @kubb/plugin-solid-query
 
+## 4.31.0
+
+### Patch Changes
+
+- Updated dependencies [[`43626b4`](https://github.com/kubb-labs/kubb/commit/43626b4a7d5e8420bc441b90de06a804a5c9efe1)]:
+  - @kubb/plugin-oas@4.31.0
+  - @kubb/plugin-client@4.31.0
+  - @kubb/plugin-ts@4.31.0
+  - @kubb/plugin-zod@4.31.0
+  - @kubb/core@4.31.0
+  - @kubb/oas@4.31.0
+
+## 4.30.0
+
+### Minor Changes
+
+- [#2599](https://github.com/kubb-labs/kubb/pull/2599) [`22e1bc5`](https://github.com/kubb-labs/kubb/commit/22e1bc515b5179b41ca63c9b316bf6f041a2a818) Thanks [@EricPierlotIdmog](https://github.com/EricPierlotIdmog)! - Remove unused fetch import when client plugin is active
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.30.0
+  - @kubb/oas@4.30.0
+  - @kubb/plugin-client@4.30.0
+  - @kubb/plugin-oas@4.30.0
+  - @kubb/plugin-ts@4.30.0
+  - @kubb/plugin-zod@4.30.0
+
 ## 4.29.1
 
 ### Patch Changes

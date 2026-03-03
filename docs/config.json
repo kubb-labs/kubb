@@ -67,6 +67,11 @@
               "text": "Troubleshooting",
               "link": "/getting-started/troubleshooting",
               "activeMatch": "^/getting-started/troubleshooting/?$"
+            },
+            {
+              "text": "Telemetry",
+              "link": "/getting-started/telemetry",
+              "activeMatch": "^/getting-started/telemetry/?$"
             }
           ]
         },

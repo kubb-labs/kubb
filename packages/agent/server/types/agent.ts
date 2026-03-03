@@ -14,7 +14,7 @@ import type { KubbFile } from '@kubb/fabric-core/types'
 export type JSONKubbConfig = {
   plugins?: Array<{
     name: string
-    options: unknown
+    options: object
   }>
   /**
    * Raw OpenAPI / Swagger spec content (YAML or JSON string).
@@ -56,7 +56,7 @@ export type KubbEvent = keyof KubbEvents
  * Triggers actions like code generation or connection establishment
  */
 export type CommandMessage =
-  | { type: 'command'; command: 'generate'; payload?: JSONKubbConfig }
+  | { type: 'command'; command: 'generate'; payload: JSONKubbConfig }
   | {
       type: 'command'
       command: 'connect'
@@ -148,8 +148,8 @@ export type DataMessage<T extends KubbEvent = KubbEvent> = {
 export type AgentConnectResponse = {
   wsUrl: string
   expiresAt: string
-  revokedAt: string
-  sessionToken: string
+  revokedAt: string | null
+  sessionId: string
   isSandbox: boolean
 }
 

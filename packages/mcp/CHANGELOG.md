@@ -1,5 +1,19 @@
 # @kubb/mcp
 
+## 4.31.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.0
+
+## 4.30.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.30.0
+
 ## 4.29.1
 
 ### Patch Changes

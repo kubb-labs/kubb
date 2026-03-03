@@ -6,6 +6,7 @@ import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, test } from 'vitest'
 import { mockedPluginManager } from '#mocks'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from './SchemaGenerator.ts'
+import { schemaKeywords } from './SchemaMapper.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -361,6 +362,94 @@ describe('SchemaGenerator core', async () => {
       parentName: null,
     })
 
+    expect(tree).toMatchSnapshot()
+  })
+
+  test('non-component internal $ref (e.g. #/paths/...) should be resolved inline, not named "itemsSchema"', async () => {
+    // When `bundle()` deduplicates external schemas that are first encountered as array items,
+    // it creates $refs like "#/paths/~1proposals/get/.../schema/items". The last segment "items"
+    // must NOT be used as the schema name – it should be resolved inline instead.
+    const oasDoc: Record<string, unknown> = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/proposals': {
+          get: {
+            responses: {
+              '200': {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'integer' },
+                          title: { type: 'string' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '/drafts': {
+          get: {
+            responses: {
+              '200': {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'array',
+                      // $ref created by bundle() pointing to the items of the first occurrence
+                      items: { $ref: '#/paths/~1proposals/get/responses/200/content/application~1json/schema/items' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const oas = await parse(oasDoc as any)
+
+    const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
+      emptySchemaType: 'unknown',
+      dateType: 'date',
+      transformers: {},
+      unknownType: 'unknown',
+    }
+    const plugin = { options } as Plugin<any>
+
+    const generator = new SchemaGenerator(options, {
+      fabric,
+      oas,
+      include: undefined,
+      pluginManager: mockedPluginManager,
+      plugin,
+      contentType: undefined,
+      override: undefined,
+      mode: 'split',
+    })
+
+    const draftsSchema = (oasDoc.paths as any)['/drafts'].get.responses['200'].content['application/json'].schema as SchemaObject
+
+    const tree = generator.parse({
+      schema: draftsSchema,
+      name: 'ListDraftsResponse',
+      parentName: null,
+    })
+
+    // Must NOT contain a ref with name "items" or "itemsSchema" – those are wrong names from path segments
+    const refItems = SchemaGenerator.deepSearch(tree, schemaKeywords.ref)
+    const hasItemsRef = refItems.some((item) => item.args?.name === 'items' || item.args?.name === 'itemsSchema')
+    expect(hasItemsRef).toBe(false)
+
+    // The items should resolve to an inline object schema
     expect(tree).toMatchSnapshot()
   })
 })

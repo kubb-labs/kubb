@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "4.29.1",
+  "version": "4.31.0",
   "description": "Command-line interface for Kubb, enabling easy generation of TypeScript, React-Query, Zod, and other code from OpenAPI specifications.",
   "keywords": [
     "cli",
@@ -68,7 +68,7 @@
     "@kubb/core": "workspace:*",
     "chokidar": "^5.0.0",
     "citty": "^0.1.6",
-    "cosmiconfig": "^9.0.0",
+    "cosmiconfig": "^9.0.1",
     "jiti": "2.5.1",
     "tinyexec": "catalog:"
   },

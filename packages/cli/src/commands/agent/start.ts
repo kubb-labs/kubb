@@ -6,6 +6,8 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { ArgsDef } from 'citty'
 import { defineCommand } from 'citty'
+import { version } from '../../../package.json'
+import { buildTelemetryEvent, sendTelemetry } from '../../utils/telemetry.ts'
 
 const args = {
   config: {
@@ -122,6 +124,7 @@ const command = defineCommand({
   args,
   async run(commandContext) {
     const { args } = commandContext
+    const hrStart = process.hrtime()
 
     try {
       const configPath = path.resolve(process.cwd(), args.config || 'kubb.config.ts')
@@ -131,8 +134,10 @@ const command = defineCommand({
       const allowWrite = args['allow-write']
       const allowAll = args['allow-all']
 
-      await startServer({ port, host, configPath, noCache, allowWrite, allowAll })
+      startServer({ port, host, configPath, noCache, allowWrite, allowAll })
+      await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'success' }))
     } catch (error) {
+      await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'failed' }))
       clack.log.error(styleText('red', 'Failed to start agent server'))
       console.error(error)
       process.exit(1)
