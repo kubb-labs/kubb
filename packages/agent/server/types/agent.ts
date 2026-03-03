@@ -54,7 +54,7 @@ export type KubbEvent = keyof KubbEvents
 /**
  * Payload for the publish command, sent from Studio to the Agent.
  * The agent uses the command field to run the publish shell command.
- * If command is omit ted, the agent falls back to the KUBB_AGENT_PUBLISH_COMMAND
+ * If command is omitted, the agent falls back to the KUBB_AGENT_PUBLISH_COMMAND
  * env var and then to 'npm publish'.
  */
 export type PublishCommandPayload = {
