@@ -40,10 +40,7 @@ export function findPetsByTagsQueryOptions(
   return queryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return findPetsByTags({ headers, params }, config)
+      return findPetsByTags({ headers: headers, params: params }, { ...config, signal: config.signal ?? signal })
     },
   })
 }

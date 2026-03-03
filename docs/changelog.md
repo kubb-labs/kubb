@@ -6,6 +6,18 @@ outline: deep
 
 # Changelog
 
+## 4.31.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Don't mutate `config.signal`, use it only if available**
+
+The `signal` property from `config` is no longer mutated. Instead, it is only used when already present, preventing unintended side-effects in request configurations.
+
+---
+
 ## 4.31.0
 
 ### ✨ Features

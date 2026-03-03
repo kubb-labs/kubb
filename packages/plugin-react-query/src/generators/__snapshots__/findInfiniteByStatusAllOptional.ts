@@ -46,15 +46,11 @@ export function findPetsByStatusInfiniteQueryOptions(
   >({
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-
       params = {
         ...(params ?? {}),
         ['status']: pageParam as unknown as FindPetsByStatusQueryParams['status'],
       } as FindPetsByStatusQueryParams
-      return findPetsByStatusInfinite({ params }, config)
+      return findPetsByStatusInfinite({ params: params }, { ...config, signal: config.signal ?? signal })
     },
     initialPageParam: 'available',
     getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1),

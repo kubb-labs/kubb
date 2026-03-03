@@ -1,19 +1,29 @@
-import { defineConfig } from 'tsdown'
+import { defineConfig, type UserConfig } from 'tsdown'
 
-export default defineConfig({
-  entry: ['src/*.ts'],
-  dts: true,
-  format: ['esm', 'cjs'],
+const entry = ['src/*.ts']
+
+const shared: Partial<UserConfig> = {
   platform: 'node',
   sourcemap: true,
   shims: true,
   exports: true,
   fixedExtension: false,
-  outExtensions({ format }) {
-    if (format === 'cjs') return { dts: '.d.ts' }
-    return {}
-  },
   outputOptions: {
     keepNames: true,
   },
-})
+}
+
+export default defineConfig([
+  {
+    entry,
+    format: 'esm',
+    dts: true,
+    ...shared,
+  },
+  {
+    entry,
+    format: 'cjs',
+    dts: false,
+    ...shared,
+  },
+])

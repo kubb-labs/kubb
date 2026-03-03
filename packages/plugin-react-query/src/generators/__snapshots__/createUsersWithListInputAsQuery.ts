@@ -42,10 +42,7 @@ export function createUsersWithListInputQueryOptions(
   return queryOptions<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, CreateUsersWithListInputMutationResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return createUsersWithListInput(data, config)
+      return createUsersWithListInput(data, { ...config, signal: config.signal ?? signal })
     },
   })
 }

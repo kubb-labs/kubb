@@ -45,15 +45,11 @@ export function findPetsByTagsInfiniteQueryOptions(
   return infiniteQueryOptions<FindPetsByTagsQueryResponse, ResponseErrorConfig<FindPetsByTags400>, FindPetsByTagsQueryResponse, typeof queryKey, number>({
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-
       if (!params) {
         params = {}
       }
       params['pageSize'] = pageParam as unknown as FindPetsByTagsQueryParams['pageSize']
-      return findPetsByTagsInfinite(toValue(headers), toValue(params), toValue(config))
+      return findPetsByTagsInfinite(toValue(headers), toValue(params), { ...config, signal: config.signal ?? signal })
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1),
