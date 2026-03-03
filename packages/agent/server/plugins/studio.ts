@@ -31,6 +31,7 @@ export default defineNitroPlugin(async (nitro) => {
   const root = process.env.KUBB_AGENT_ROOT || process.cwd()
   const allowAll = process.env.KUBB_AGENT_ALLOW_ALL === 'true'
   const allowWrite = allowAll || process.env.KUBB_AGENT_ALLOW_WRITE === 'true'
+  const allowPublish = allowAll || process.env.KUBB_AGENT_ALLOW_PUBLISH === 'true'
   const poolSize = process.env.KUBB_AGENT_POOL_SIZE ? Number.parseInt(process.env.KUBB_AGENT_POOL_SIZE, 10) : 1
 
   if (!token) {
@@ -65,6 +66,7 @@ export default defineNitroPlugin(async (nitro) => {
       noCache,
       allowAll,
       allowWrite,
+      allowPublish,
       root,
       retryInterval,
       heartbeatInterval,

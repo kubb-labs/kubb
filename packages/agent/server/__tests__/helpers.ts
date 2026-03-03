@@ -28,7 +28,7 @@ export default {
 `.trim()
 
 /** A connect command using the agent's own permissions (agent ignores the permissions field). */
-export const connectCmd: CommandMessage = { type: 'command', command: 'connect', permissions: { allowAll: false, allowWrite: false } }
+export const connectCmd: CommandMessage = { type: 'command', command: 'connect', permissions: { allowAll: false, allowWrite: false, allowPublish: false } }
 
 export type MockStudio = {
   port: number
@@ -160,6 +160,7 @@ export type AgentOptions = {
   tmpDir: string
   allowWrite?: boolean
   allowAll?: boolean
+  allowPublish?: boolean
   retryTimeout?: number
   heartbeatInterval?: number
   poolSize?: number
@@ -170,6 +171,7 @@ export function spawnAgent({
   tmpDir,
   allowWrite = false,
   allowAll = false,
+  allowPublish = false,
   retryTimeout = 2000,
   heartbeatInterval = 200,
   poolSize = 1,
@@ -184,6 +186,7 @@ export function spawnAgent({
       KUBB_AGENT_ROOT: tmpDir,
       KUBB_AGENT_ALLOW_WRITE: String(allowWrite),
       KUBB_AGENT_ALLOW_ALL: String(allowAll),
+      KUBB_AGENT_ALLOW_PUBLISH: String(allowPublish),
       KUBB_AGENT_RETRY_TIMEOUT: String(retryTimeout),
       KUBB_AGENT_HEARTBEAT_INTERVAL: String(heartbeatInterval),
       KUBB_AGENT_NO_CACHE: 'true',

@@ -91,6 +91,7 @@ describe('connectToStudio', () => {
       noCache: false,
       allowAll: false,
       allowWrite: false,
+      allowPublish: false,
       root: '/project',
       retryInterval: 100,
       sessionKey: 'kubb:session-key',
@@ -269,7 +270,7 @@ describe('connectToStudio', () => {
       mockWs,
       expect.objectContaining({
         payload: expect.objectContaining({
-          permissions: { allowAll: false, allowWrite: true },
+          permissions: { allowAll: false, allowWrite: true, allowPublish: false },
         }),
       }),
     )
@@ -284,7 +285,7 @@ describe('connectToStudio', () => {
       mockWs,
       expect.objectContaining({
         payload: expect.objectContaining({
-          permissions: { allowAll: true, allowWrite: true },
+          permissions: { allowAll: true, allowWrite: true, allowPublish: false },
         }),
       }),
     )
@@ -303,7 +304,7 @@ describe('connectToStudio', () => {
       sandboxWs,
       expect.objectContaining({
         payload: expect.objectContaining({
-          permissions: { allowAll: false, allowWrite: false },
+          permissions: { allowAll: false, allowWrite: false, allowPublish: false },
         }),
       }),
     )

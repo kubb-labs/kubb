@@ -22,6 +22,7 @@ export type ConnectToStudioOptions = {
   noCache: boolean
   allowAll: boolean
   allowWrite: boolean
+  allowPublish: boolean
   root: string
   retryInterval: number
   heartbeatInterval?: number
@@ -44,6 +45,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     noCache,
     allowAll,
     allowWrite,
+    allowPublish,
     root,
     retryInterval,
     heartbeatInterval = 30_000,
@@ -83,6 +85,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     // Effective permissions: always disabled in sandbox mode
     const effectiveAllowAll = isSandbox ? false : allowAll
     const effectiveWrite = isSandbox ? false : allowWrite
+    const effectivePublish = isSandbox ? false : allowPublish
 
     // Tracks whether the studio server explicitly disconnected us (no reconnect needed)
     let serverDisconnected = false
@@ -230,7 +233,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               payload: {
                 version,
                 configPath,
-                permissions: { allowAll: effectiveAllowAll, allowWrite: effectiveWrite },
+                permissions: { allowAll: effectiveAllowAll, allowWrite: effectiveWrite, allowPublish: effectivePublish },
                 config: {
                   plugins: config.plugins?.map((plugin) => ({
                     name: `@kubb/${plugin.name}`,
@@ -246,6 +249,11 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
           }
 
           if (isPublishCommandMessage(data)) {
+            if (!effectivePublish) {
+              logger.warn(`[${maskedSessionKey}] Publish command rejected — KUBB_AGENT_ALLOW_PUBLISH is not enabled`)
+              return
+            }
+
             currentSource = 'publish'
             const config = await loadConfig(resolvedConfigPath)
 

@@ -105,6 +105,20 @@ declare global {
       KUBB_AGENT_ALLOW_ALL: string | undefined
 
       /**
+       * When `"true"`, allows the agent to run the publish command (e.g. `npm publish`).
+       * Implies the user has configured an `.npmrc` or equivalent credentials on the agent.
+       * @default "false"
+       */
+      KUBB_AGENT_ALLOW_PUBLISH: string | undefined
+
+      /**
+       * Default shell command used when a publish is triggered without an explicit command in the WebSocket payload.
+       * @default "npm publish"
+       * @example "npm publish --access public"
+       */
+      KUBB_AGENT_PUBLISH_COMMAND: string | undefined
+
+      /**
        * URL of the Kubb Studio instance the agent connects to.
        * Used as the base for WebSocket session URLs.
        * @default "https://studio.kubb.dev"

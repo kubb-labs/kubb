@@ -77,6 +77,7 @@ export type CommandMessage =
       permissions: {
         allowAll: boolean
         allowWrite: boolean
+        allowPublish: boolean
       }
     }
   | { type: 'command'; command: 'publish'; payload: PublishCommandPayload }
@@ -88,6 +89,7 @@ export type ConnectMessagePayload = {
   permissions: {
     allowAll: boolean
     allowWrite: boolean
+    allowPublish: boolean
   }
 }
 
