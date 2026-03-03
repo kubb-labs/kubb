@@ -1,5 +1,19 @@
 # @kubb/plugin-mcp
 
+## 4.31.3
+
+### Patch Changes
+
+- [`78925b7`](https://github.com/kubb-labs/kubb/commit/78925b7f302b35312995b7ec6fd119d696275e7a) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Use `registerTool` helper and include `structuredContent` in MCP handler responses
+
+- Updated dependencies []:
+  - @kubb/core@4.31.3
+  - @kubb/oas@4.31.3
+  - @kubb/plugin-client@4.31.3
+  - @kubb/plugin-oas@4.31.3
+  - @kubb/plugin-ts@4.31.3
+  - @kubb/plugin-zod@4.31.3
+
 ## 4.31.2
 
 ### Patch Changes
