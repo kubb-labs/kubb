@@ -2,15 +2,15 @@
  * Serialize plugin options for safe JSON transport.
  * Strips functions, symbols, and undefined values recursively.
  */
-export function serializePluginOptions(options: unknown): unknown {
+export function serializePluginOptions<TOptions extends object = object>(options: TOptions): TOptions {
   if (options === null || options === undefined) {
-    return {}
+    return {} as TOptions
   }
   if (typeof options !== 'object') {
     return options
   }
   if (Array.isArray(options)) {
-    return options.map(serializePluginOptions)
+    return options.map(serializePluginOptions) as TOptions
   }
 
   const serialized: Record<string, unknown> = {}
@@ -24,5 +24,6 @@ export function serializePluginOptions(options: unknown): unknown {
       serialized[key] = value
     }
   }
-  return serialized
+
+  return serialized as TOptions
 }

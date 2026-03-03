@@ -10,6 +10,8 @@ export { getBarrelFiles } from './getBarrelFiles.ts'
 export { getConfigs } from './getConfigs.ts'
 export { getNestedAccessor } from './getNestedAccessor.ts'
 export { detectLinter, linters } from './linters.ts'
+export type { PackageManagerInfo, PackageManagerName } from './packageManager.ts'
+export { detectPackageManager } from './packageManager.ts'
 export {
   isPromise,
   isPromiseFulfilledResult,

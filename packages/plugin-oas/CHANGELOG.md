@@ -1,5 +1,25 @@
 # @kubb/swagger
 
+## 4.31.0
+
+### Patch Changes
+
+- [#2613](https://github.com/kubb-labs/kubb/pull/2613) [`43626b4`](https://github.com/kubb-labs/kubb/commit/43626b4a7d5e8420bc441b90de06a804a5c9efe1) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix schema from external `$ref` file being incorrectly named "itemsSchema" when its first occurrence is as array items.
+
+  When `bundle()` deduplicates an external schema that is referenced in multiple places, it creates internal `$ref` pointers like `#/paths/~1proposals/get/.../schema/items`. The last path segment `items` was incorrectly used as the schema name (producing "itemsSchema" after the plugin suffix). These non-component internal refs are now resolved inline instead.
+
+- Updated dependencies []:
+  - @kubb/core@4.31.0
+  - @kubb/oas@4.31.0
+
+## 4.30.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.30.0
+  - @kubb/oas@4.30.0
+
 ## 4.29.1
 
 ### Patch Changes

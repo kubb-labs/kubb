@@ -1,18 +1,16 @@
 import type { KubbEvents } from '@kubb/core'
 import { AsyncEventEmitter, formatMs, serializePluginOptions } from '@kubb/core/utils'
 import type { NitroApp } from 'nitropack/types'
-import type { Storage } from 'unstorage'
 import { version } from '~~/package.json'
 import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage } from '../types/agent.ts'
+import { removeCachedSession, saveStudioConfigToStorage } from './agentCache.ts'
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
-import type { AgentSession } from './isSessionValid.ts'
 import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
 import { maskedString } from './maskedString.ts'
-import { resolvePlugins } from './resolvePlugins.ts'
+import { mergePlugins } from './mergePlugins.ts'
 import { setupHookListener } from './setupHookListener.ts'
-import { readStudioConfig, writeStudioConfig } from './studioConfig.ts'
 import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
 
 export type ConnectToStudioOptions = {
@@ -28,7 +26,6 @@ export type ConnectToStudioOptions = {
   heartbeatInterval?: number
   /** Pre-created session to use instead of calling createAgentSession. Only used on the first connect, not on reconnects. */
   initialSession?: AgentConnectResponse
-  storage: Storage<AgentSession>
   sessionKey: string
   nitro: NitroApp
 }
@@ -50,7 +47,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     retryInterval,
     heartbeatInterval = 30_000,
     initialSession,
-    storage,
     sessionKey,
     nitro,
   } = options
@@ -58,17 +54,11 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
   const events = new AsyncEventEmitter<KubbEvents>()
-  const maskedSessionKey = maskedString(sessionKey)
+  const maskedSessionKey = maskedString(sessionKey.replace('sessions:', ''))
 
   async function removeSession() {
-    const agentSession = await storage.getItem(sessionKey)
-
-    if (!noCache && agentSession) {
-      logger.info(`[${maskedSessionKey}] Removing expired agent session from cache...`)
-
-      await storage.removeItem(sessionKey)
-
-      logger.success(`[${maskedSessionKey}] Removed expired agent session from cache`)
+    if (!noCache) {
+      await removeCachedSession(sessionKey)
     }
   }
 
@@ -84,7 +74,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   try {
     setupHookListener(events, root)
 
-    const { sessionToken, wsUrl, isSandbox } = initialSession ?? (await createAgentSession({ noCache, token, studioUrl, storage, cacheKey: sessionKey }))
+    const { sessionId, wsUrl, isSandbox } = initialSession ?? (await createAgentSession({ noCache, token, studioUrl, cacheKey: sessionKey }))
     const ws = createWebsocket(wsUrl, { headers: { Authorization: `Bearer ${token}` } })
     const maskedWsUrl = maskedString(wsUrl)
 
@@ -124,7 +114,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       // first cleanup the event listeners and then connect again
       await cleanup()
 
-      await disconnect({ sessionToken, studioUrl, token }).catch(() => {
+      await disconnect({ sessionId, studioUrl, token }).catch(() => {
         // Ignore disconnect errors since we're already handling a closed connection
       })
 
@@ -144,7 +134,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     ws.addEventListener('error', onError)
     nitro.hooks.hook('close', async () => {
       await cleanup()
-      await disconnect({ sessionToken, studioUrl, token }).catch(() => {
+      await disconnect({ sessionId, studioUrl, token }).catch(() => {
         // Ignore disconnect errors since we're already handling a closed connection
       })
     })
@@ -188,9 +178,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
           if (data.command === 'generate') {
             const config = await loadConfig(resolvedConfigPath)
 
-            // Message payload takes priority over the persisted studio config
-            const patch = data.payload ?? readStudioConfig(resolvedConfigPath)
-            const resolvedPlugins = patch?.plugins ? resolvePlugins(patch.plugins) : undefined
+            // Message payload takes priority over previously saved studio config
+            const patch = data.payload
+            const plugins = mergePlugins(config.plugins, patch?.plugins)
 
             // In sandbox mode the caller may supply raw OpenAPI / Swagger spec
             // content inline (YAML or JSON string) via `payload.input`.
@@ -206,22 +196,24 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               logger.warn(`[${maskedSessionKey}] Input override via payload is only supported in sandbox mode and will be ignored`)
             }
 
-            if (effectiveWrite && data.payload) {
-              writeStudioConfig(resolvedConfigPath, data.payload)
+            if (data.payload && effectiveWrite) {
+              await saveStudioConfigToStorage({ sessionKey, config: data.payload }).catch((err) => {
+                logger.warn(`[${maskedSessionKey}] Failed to save studio config: ${err?.message}`)
+              })
             }
 
             await generate({
               config: {
                 ...config,
-                input: inputOverride ?? config.input,
-                plugins: resolvedPlugins ?? config.plugins,
                 root,
+                input: inputOverride ?? config.input,
                 output: { ...config.output, write: effectiveWrite },
+                plugins,
               },
               events,
             })
 
-            logger.success(`[${maskedSessionKey}] Completed "${message.type}" from Studio`)
+            logger.success(`[${maskedSessionKey}] Completed "${data.type}" from Studio`)
 
             return
           }
@@ -236,7 +228,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 configPath,
                 permissions: { allowAll: effectiveAllowAll, allowWrite: effectiveWrite },
                 config: {
-                  plugins: config.plugins?.map((plugin: any) => ({
+                  plugins: config.plugins?.map((plugin) => ({
                     name: `@kubb/${plugin.name}`,
                     options: serializePluginOptions(plugin.options),
                   })),
@@ -244,7 +236,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               },
             })
 
-            logger.success(`[${maskedSessionKey}] Completed "${message.type}" from Studio`)
+            logger.success(`[${maskedSessionKey}] Completed "${data.type}" from Studio`)
 
             return
           }

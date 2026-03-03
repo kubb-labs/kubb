@@ -117,7 +117,8 @@ The `agent_kv` named volume persists the KV store (session cache, machine token)
 | `KUBB_AGENT_NO_CACHE`        | `false` | Set to `true` to disable session caching. |
 | `KUBB_AGENT_ALLOW_WRITE`     | `false` | Set to `true` to allow writing generated files to disk. |
 | `KUBB_AGENT_ALLOW_ALL`       | `false` | Set to `true` to grant all permissions (implies `KUBB_AGENT_ALLOW_WRITE=true`). |
-| `KUBB_AGENT_RETRY_TIMEOUT`   | `30000` | Milliseconds to wait before retrying a failed Studio connection. |
+| `KUBB_AGENT_RETRY_TIMEOUT`             | `30000` | Milliseconds to wait before retrying a failed Studio connection. |
+| `KUBB_AGENT_HEARTBEAT_URL`             | _(empty)_ | URL to call every 5 minutes to signal the agent is alive (e.g. a Healthchecks.io ping URL). Leave empty to disable. |
 
 ### Automatic .env Loading
 
