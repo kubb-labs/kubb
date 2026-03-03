@@ -41,10 +41,10 @@ export function findPetsByTagsQueryOptionsHook(params?: FindPetsByTagsQueryParam
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return findPetsByTagsHook(params, config)
+      return findPetsByTagsHook(params, {
+        ...config,
+        signal: config.signal ?? signal,
+      })
     },
   })
 }

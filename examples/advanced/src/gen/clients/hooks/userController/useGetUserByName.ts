@@ -28,10 +28,7 @@ export function getUserByNameQueryOptions(
     enabled: !!username,
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return getUserByName({ username }, config)
+      return getUserByName({ username: username }, { ...config, signal: config.signal ?? signal })
     },
   })
 }

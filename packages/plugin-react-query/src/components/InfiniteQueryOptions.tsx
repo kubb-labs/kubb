@@ -240,12 +240,17 @@ export function InfiniteQueryOptions({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal, pageParam }) => {
-          if (!config.signal) {
-            config.signal = signal
-          }
           ${infiniteOverrideParams}
-          return ${clientName}(${clientParams.toCall()})
-       },
+          return ${clientName}(${clientParams.toCall({
+            transformName(name) {
+              if (name === 'config') {
+                return '{ ...config, signal: config.signal ?? signal }'
+              }
+
+              return name
+            },
+          })})
+        },
        ${queryOptions.join(',\n')}
       })
 `}
@@ -263,11 +268,16 @@ export function InfiniteQueryOptions({
        ${enabledText}
        queryKey,
        queryFn: async ({ signal }) => {
-          if (!config.signal) {
-            config.signal = signal
-          }
-          return ${clientName}(${clientParams.toCall()})
-       },
+          return ${clientName}(${clientParams.toCall({
+            transformName(name) {
+              if (name === 'config') {
+                return '{ ...config, signal: config.signal ?? signal }'
+              }
+
+              return name
+            },
+          })})
+        },
        ${queryOptions.join(',\n')}
       })
 `}

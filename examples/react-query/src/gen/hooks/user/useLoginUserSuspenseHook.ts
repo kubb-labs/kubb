@@ -30,10 +30,10 @@ export function loginUserSuspenseQueryOptionsHook(params?: LoginUserQueryParams,
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return loginUserSuspenseHook(params, config)
+      return loginUserSuspenseHook(params, {
+        ...config,
+        signal: config.signal ?? signal,
+      })
     },
   })
 }

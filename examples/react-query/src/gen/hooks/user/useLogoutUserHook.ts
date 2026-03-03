@@ -30,10 +30,7 @@ export function logoutUserQueryOptionsHook(config: Partial<RequestConfig> & { cl
   return queryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, LogoutUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return logoutUserHook(config)
+      return logoutUserHook({ ...config, signal: config.signal ?? signal })
     },
   })
 }

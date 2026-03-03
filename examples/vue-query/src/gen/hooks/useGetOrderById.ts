@@ -41,10 +41,7 @@ export function getOrderByIdQueryOptions(
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return getOrderById(toValue({ orderId: toValue(orderId) }), toValue(config))
+      return getOrderById(toValue({ orderId: toValue(orderId) }), { ...config, signal: config.signal ?? signal })
     },
   })
 }

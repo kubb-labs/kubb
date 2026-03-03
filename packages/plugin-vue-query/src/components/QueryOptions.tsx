@@ -163,13 +163,14 @@ export function QueryOptions({
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
       return queryOptions<${TData}, ${TError}, ${TData}, typeof queryKey>({
       ${enabledText}
-       queryKey,
-       queryFn: async ({ signal }) => {
-          if (!config.signal) {
-            config.signal = signal
-          }
+      queryKey,
+      queryFn: async ({ signal }) => {
           return ${clientName}(${clientParams.toCall({
             transformName(name) {
+              if (name === 'config') {
+                return '{ ...config, signal: config.signal ?? signal }'
+              }
+
               return `toValue(${name})`
             },
           })})
