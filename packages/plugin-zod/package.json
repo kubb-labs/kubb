@@ -96,7 +96,7 @@
     "remeda": "catalog:"
   },
   "devDependencies": {
-    "@asteasolutions/zod-to-openapi": "^8.4.1",
+    "@asteasolutions/zod-to-openapi": "^8.4.3",
     "zod": "^3.25.76"
   },
   "engines": {

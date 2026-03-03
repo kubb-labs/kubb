@@ -2,6 +2,8 @@ import process from 'node:process'
 import type { ArgsDef } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import { createJiti } from 'jiti'
+import { version } from '../../package.json'
+import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 
 const jiti = createJiti(import.meta.url, {
   sourceMaps: true,
@@ -44,12 +46,15 @@ const command = defineCommand({
       }
 
       const { parse } = mod
+      const hrStart = process.hrtime()
       try {
         const oas = await parse(args.input)
         await oas.validate()
 
+        await sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status: 'success' }))
         console.log('✅ Validation success')
       } catch (error) {
+        await sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status: 'failed' }))
         console.error('❌ Validation failed')
         console.log((error as Error)?.message)
         process.exit(1)

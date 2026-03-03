@@ -81,6 +81,7 @@
     "endgroup",
     "nitropack",
     "cosmi",
-    "Healthchecks"
+    "Healthchecks",
+    "kvlist"
   ]
 }
