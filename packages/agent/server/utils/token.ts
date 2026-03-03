@@ -1,9 +1,9 @@
-import { createHash } from 'node:crypto'
+import { createHash, randomBytes } from 'node:crypto'
 
-export function hashToken(input: string): string {
-  return createHash('sha256').update(input).digest('hex')
+export function generateToken(): string {
+  return randomBytes(32).toString('hex')
 }
 
 export function generateMachineToken(): string {
-  return hashToken(process.env.KUBB_AGENT_SECRET ?? '')
+  return process.env.KUBB_AGENT_SECRET ? process.env.KUBB_AGENT_SECRET : createHash('sha256').update(generateToken()).digest('hex')
 }
