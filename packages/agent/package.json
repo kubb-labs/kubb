@@ -18,7 +18,7 @@
     "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/agent"
   },
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "author": "stijnvanhulle",
   "sideEffects": false,
   "type": "module",

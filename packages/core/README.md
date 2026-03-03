@@ -57,7 +57,7 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 
 ## Supporting Kubb
 
-Kubb uses an MIT-licensed open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+Kubb is an open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
 
 - [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
 
@@ -156,6 +156,16 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+## License
+
+Most of this repository is licensed under the [MIT License](./licenses/LICENSE-MIT), Copyright © 2025 [Stijn Van Hulle](https://stijnvanhulle.be). Some components are licensed
+under AGPL-3.0-or-later.
+
+- **Most packages** — [MIT](./licenses/LICENSE-MIT)
+- **`@kubb/agent`** — [AGPL-3.0-or-later](./licenses/LICENSE-AGPL-3.0)
+
+See [LICENSE](./LICENSE) for details.
 
 ## Star History
 
