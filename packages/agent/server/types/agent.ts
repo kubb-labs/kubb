@@ -148,6 +148,7 @@ export type DataMessagePayload<T extends KubbEvent = KubbEvent> = {
   type: T
   data: KubbEvents[T]
   timestamp: number
+  source?: 'generate' | 'publish'
 }
 
 /**
