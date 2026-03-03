@@ -14,9 +14,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  KUBB_DISABLE_TELEMETRY: "1"
-
 jobs:
   build:
     name: Build
@@ -290,6 +287,8 @@ jobs:
       - name: Generate examples
         id: generate
         run: pnpm run generate
+        env:
+          KUBB_DISABLE_TELEMETRY: "1"
 
       - name: Check for changes
         id: check_changes
