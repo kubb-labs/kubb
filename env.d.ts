@@ -18,6 +18,18 @@ declare global {
        */
       KUBB_DISABLE_TELEMETRY: string | undefined
 
+      /**
+       * BetterStack Logtail source endpoint URL for shipping server logs to BetterStack.
+       * @example "https://otlp.kubb.dev"
+       */
+      OTEL_EXPORTER_OTLP_ENDPOINT: string | undefined
+
+      /**
+       * BetterStack Logtail source token for shipping server logs to BetterStack.
+       * @example "your-logtail-source-token-here"
+       */
+      OTLP_TOKEN: string | undefined
+
       // CI environment detection variables
       /** Set by GitHub Actions */
       GITHUB_ACTIONS: string | undefined

@@ -61,6 +61,7 @@
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-vue-query": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
+    "@logtail/node": "^0.5.6",
     "jiti": "2.5.1",
     "remeda": "catalog:",
     "tinyexec": "catalog:",
