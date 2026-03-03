@@ -16,6 +16,32 @@ outline: deep
 
 When the client plugin is active, the unused `fetch` import is no longer generated in query/SWR hook files, resulting in cleaner output.
 
+### 📖 Documentation
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/), [`@kubb/plugin-react-query`](/plugins/plugin-react-query/), [`@kubb/plugin-solid-query`](/plugins/plugin-solid-query/), [`@kubb/plugin-svelte-query`](/plugins/plugin-svelte-query/), [`@kubb/plugin-swr`](/plugins/plugin-swr/), [`@kubb/plugin-vue-query`](/plugins/plugin-vue-query/)
+
+**Document required type exports for custom `importPath`**
+
+When using a custom `client.importPath` with query plugins (`plugin-react-query`, `plugin-vue-query`, `plugin-svelte-query`, `plugin-solid-query`, `plugin-swr`), the generated hooks import `type Client`, `type RequestConfig`, and `type ResponseErrorConfig` from that module. Previously this requirement was undocumented, causing unexpected TypeScript errors for users with custom clients that did not export the `Client` type.
+
+Your custom client module must now explicitly export all three types:
+
+```typescript [client.ts]
+export type RequestConfig<TData = unknown> = { /* type properties omitted for brevity */ }
+export type ResponseConfig<TData = unknown> = { /* type properties omitted for brevity */ }
+export type ResponseErrorConfig<TError = unknown> = TError
+
+// Required when using query plugins
+export type Client = <TData, _TError = unknown, TVariables = unknown>(
+  config: RequestConfig<TVariables>
+) => Promise<ResponseConfig<TData>>
+
+export const client: Client = async (config) => { /* ... */ }
+export default client
+```
+
+See the [`importPath` documentation](/plugins/plugin-client/#client-importpath) for the full type definitions and a complete example.
+
 ---
 
 ## 4.29.1
