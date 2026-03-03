@@ -6,6 +6,18 @@ outline: deep
 
 # Changelog
 
+## 4.30.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-react-query`](/plugins/plugin-react-query/), [`@kubb/plugin-solid-query`](/plugins/plugin-solid-query/), [`@kubb/plugin-svelte-query`](/plugins/plugin-svelte-query/), [`@kubb/plugin-swr`](/plugins/plugin-swr/), [`@kubb/plugin-vue-query`](/plugins/plugin-vue-query/)
+
+**Remove unused fetch import when client plugin is active**
+
+When the client plugin is active, the unused `fetch` import is no longer generated in query/SWR hook files, resulting in cleaner output.
+
+---
+
 ## 4.29.1
 
 ### 🐛 Bug Fixes
