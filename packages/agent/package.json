@@ -32,7 +32,7 @@
     "!/**/__snapshots__/**"
   ],
   "scripts": {
-    "build": "nitro prepare && nitro build",
+    "build": "nitro build",
     "clean": "npx rimraf ./dist .output",
     "prepare": "nitro prepare",
     "lint": "bun biome lint .",
@@ -63,6 +63,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@logtail/node": "^0.5.6",
     "jiti": "2.5.1",
+    "consola": "^3.4.2",
     "remeda": "catalog:",
     "tinyexec": "catalog:",
     "unstorage": "^1.17.4",
