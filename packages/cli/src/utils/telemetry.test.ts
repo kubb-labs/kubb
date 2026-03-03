@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { type TelemetryPlugin, buildOtlpPayload, buildTelemetryEvent, isCi, isTelemetryDisabled, sendTelemetry } from './telemetry.ts'
+import { buildOtlpPayload, buildTelemetryEvent, isCi, isTelemetryDisabled, sendTelemetry, type TelemetryPlugin } from './telemetry.ts'
 
 vi.mock('@kubb/core/utils', () => ({
   executeIfOnline: vi.fn(async (fn: () => Promise<unknown>) => fn()),
@@ -116,7 +116,18 @@ describe('buildTelemetryEvent', () => {
 
 describe('isCi', () => {
   it('should return false when no CI env vars are set', () => {
-    const ciVars = ['CI', 'GITHUB_ACTIONS', 'GITLAB_CI', 'BITBUCKET_BUILD_NUMBER', 'JENKINS_URL', 'CIRCLECI', 'TRAVIS', 'TEAMCITY_VERSION', 'BUILDKITE', 'TF_BUILD']
+    const ciVars = [
+      'CI',
+      'GITHUB_ACTIONS',
+      'GITLAB_CI',
+      'BITBUCKET_BUILD_NUMBER',
+      'JENKINS_URL',
+      'CIRCLECI',
+      'TRAVIS',
+      'TEAMCITY_VERSION',
+      'BUILDKITE',
+      'TF_BUILD',
+    ]
     for (const key of ciVars) delete process.env[key]
     expect(isCi()).toBe(false)
   })
