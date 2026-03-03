@@ -223,7 +223,7 @@ export function mergeExternalFileComponents(mainFilePath: string): Document | nu
     return null
   }
 
-  const mainDoc = yaml.parse(mainContent)
+  const mainDoc = yaml.parse(mainContent) as Record<string, unknown> | null
   if (!mainDoc || typeof mainDoc !== 'object') return null
 
   const mainDir = path.dirname(mainFilePath)
@@ -244,17 +244,18 @@ export function mergeExternalFileComponents(mainFilePath: string): Document | nu
       continue
     }
 
-    const externalDoc = yaml.parse(externalContent)
+    const externalDoc = yaml.parse(externalContent) as Record<string, unknown> | null
     if (!externalDoc?.components || typeof externalDoc.components !== 'object') continue
 
-    mainDoc.components = (mainDoc.components as Record<string, unknown>) ?? {}
+    const mainComponents = (mainDoc.components as Record<string, unknown>) ?? {}
+    mainDoc.components = mainComponents
 
-    for (const [componentType, components] of Object.entries(externalDoc.components as Record<string, unknown>)) {
+    for (const [componentType, components] of Object.entries(externalDoc.components as Record<string, Record<string, unknown>>)) {
       if (!components || typeof components !== 'object') continue
       // Spread external entries first, then main doc entries last so main document wins on name conflicts
-      mainDoc.components[componentType] = {
+      mainComponents[componentType] = {
         ...(components as Record<string, unknown>),
-        ...((mainDoc.components[componentType] as Record<string, unknown>) ?? {}),
+        ...((mainComponents[componentType] as Record<string, unknown>) ?? {}),
       }
       hasMergedComponents = true
     }
