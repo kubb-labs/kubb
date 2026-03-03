@@ -3,7 +3,7 @@ import os from 'node:os'
 import process from 'node:process'
 import { executeIfOnline } from '@kubb/core/utils'
 
-const OTEL_EXPORTER_OTLP_ENDPOINT = 'https://otlp.kubb.dev'
+const OTLP_ENDPOINT = 'https://otlp.kubb.dev'
 
 // ---------------------------------------------------------------------------
 // OpenTelemetry OTLP JSON types
@@ -233,7 +233,7 @@ export async function sendTelemetry(event: TelemetryEvent): Promise<void> {
 
   await executeIfOnline(async () => {
     try {
-      await fetch(`${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/traces`, {
+      await fetch(`${OTLP_ENDPOINT}/v1/traces`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
