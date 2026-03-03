@@ -8,14 +8,6 @@ on:
       - beta
     paths:
       - 'packages/agent/**'
-      - 'packages/core/**'
-      - '.github/workflows/docker-agent.yml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'packages/agent/**'
-      - 'packages/core/**'
       - '.github/workflows/docker-agent.yml'
   release:
     types: [published]
