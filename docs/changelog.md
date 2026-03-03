@@ -6,6 +6,26 @@ outline: deep
 
 # Changelog
 
+## 4.31.3
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-mcp`](/plugins/plugin-mcp/)
+
+**Use `registerTool` helper and include `structuredContent` in MCP handler responses**
+
+MCP handlers now use the `registerTool` helper and return `structuredContent: { data: res.data }` alongside the existing `content` array, enabling richer structured output for MCP tool results.
+
+---
+
+## 4.31.2
+
+### 📦 Dependencies
+
+- Upgrade Fabric
+
+---
+
 ## 4.31.1
 
 ### 🐛 Bug Fixes
