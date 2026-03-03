@@ -6,6 +6,31 @@ outline: deep
 
 # Changelog
 
+## 4.31.0
+
+### ✨ Features
+
+#### [`@kubb/cli`](/helpers/cli/)
+
+**Add anonymous telemetry**
+
+Anonymous telemetry has been added to the Kubb CLI to track usage data (command, plugins, version, duration, platform, Node.js version, and file count). No OpenAPI specs, file paths, plugin options, or secrets are ever collected.
+
+Telemetry can be disabled at any time by setting:
+
+- `DO_NOT_TRACK=1` – standard opt-out flag recognised by many developer tools ([consoledonottrack.com](https://consoledonottrack.com))
+- `KUBB_DISABLE_TELEMETRY=1` – Kubb-specific opt-out flag
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Fix external `$ref` schema being incorrectly named "itemsSchema"**
+
+When `bundle()` deduplicates an external schema that is referenced in multiple places, it creates internal `$ref` pointers like `#/paths/~1proposals/get/.../schema/items`. The last path segment `items` was incorrectly used as the schema name (producing "itemsSchema" after the plugin suffix). These non-component internal refs are now resolved inline instead.
+
+---
+
 ## 4.30.0
 
 ### ✨ Features
