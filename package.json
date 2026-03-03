@@ -47,7 +47,7 @@
     ]
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.4",
+    "@biomejs/biome": "^2.4.5",
     "@changesets/changelog-github": "^0.5.2",
     "@changesets/cli": "^2.29.8",
     "@kubb/fabric-core": "catalog:",
@@ -61,10 +61,10 @@
     "cspell": "^9.7.0",
     "prettier": "^3.8.1",
     "size-limit": "catalog:",
-    "taze": "^19.9.2",
+    "taze": "^19.10.0",
     "ts-node": "^10.9.2",
     "tsdown": "catalog:",
-    "turbo": "^2.8.11",
+    "turbo": "^2.8.12",
     "typescript": "catalog:",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.0.18"

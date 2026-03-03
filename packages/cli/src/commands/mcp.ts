@@ -1,7 +1,10 @@
+import process from 'node:process'
 import { styleText } from 'node:util'
 import type { ArgsDef } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import { createJiti } from 'jiti'
+import { version } from '../../package.json'
+import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 
 const jiti = createJiti(import.meta.url, {
   sourceMaps: true,
@@ -38,11 +41,14 @@ const command = defineCommand({
     }
 
     const { run } = mod
+    const hrStart = process.hrtime()
     try {
       console.log('⏳ Starting MCP server...')
       console.warn(styleText('yellow', 'This feature is still under development — use with caution'))
       await run()
+      await sendTelemetry(buildTelemetryEvent({ command: 'mcp', kubbVersion: version, hrStart, status: 'success' }))
     } catch (error) {
+      await sendTelemetry(buildTelemetryEvent({ command: 'mcp', kubbVersion: version, hrStart, status: 'failed' }))
       console.error((error as Error)?.message)
     }
   },

@@ -15,19 +15,28 @@ The Kubb CLI collects **anonymous, non-identifiable usage data** to help improve
 
 ## What Is Collected?
 
-The following anonymous data is sent after each `kubb generate` run:
+The following anonymous data is sent after each CLI command:
 
 | Field | Description | Example |
 |---|---|---|
-| `command` | CLI command that was run | `"generate"` |
+| `command` | CLI command that was run | `"generate"`, `"validate"`, `"mcp"`, `"agent"` |
 | `kubbVersion` | Kubb CLI version | `"4.30.0"` |
 | `nodeVersion` | Node.js major version | `"20"` |
 | `platform` | Operating system | `"linux"`, `"darwin"`, `"win32"` |
 | `ci` | Whether running in CI | `true` |
-| `plugins` | Plugin names **and their options** | `[{ "name": "@kubb/plugin-ts", "options": { "output": { "path": "types" } } }]` |
-| `duration` | Total generation time in milliseconds | `1432` |
-| `filesCreated` | Number of files generated | `47` |
-| `status` | Whether generation succeeded or failed | `"success"` |
+| `plugins` | Plugin names **and their options** (only for `generate`) | `[{ "name": "@kubb/plugin-ts", "options": { "output": { "path": "types" } } }]` |
+| `duration` | Command execution time in milliseconds | `1432` |
+| `filesCreated` | Number of files generated (only for `generate`) | `47` |
+| `status` | Whether the command succeeded or failed | `"success"` |
+
+### Commands that send telemetry
+
+| Command | Description |
+|---|---|
+| `kubb generate` | Sent after code generation completes or fails |
+| `kubb validate` | Sent after OpenAPI validation completes or fails |
+| `kubb mcp` | Sent after the MCP server starts or fails to start |
+| `kubb agent start` | Sent after the agent server starts or fails to start |
 
 ## What Is **Not** Collected
 
@@ -86,7 +95,7 @@ The data is aggregated and anonymised — individual runs cannot be linked to a 
 
 ## Data Transmission
 
-Telemetry events are formatted as [OpenTelemetry OTLP](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/) traces and sent via a single HTTP `POST` request to `https://otlp.kubb.dev/v1/traces` at the end of each generation run. The request:
+Telemetry events are formatted as [OpenTelemetry OTLP](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/) traces and sent via a single HTTP `POST` request to `https://otlp.kubb.dev/v1/traces` at the end of each command. The request:
 
 - Only fires when an internet connection is available (detected automatically)
 - Has a 5-second timeout and fails silently if the endpoint is unreachable
