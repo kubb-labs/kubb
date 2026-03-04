@@ -86,7 +86,8 @@ export function getParamsMapping(
     return undefined
   }
 
-  const mapping: Record<string, string> = {}
+  const allEntries: Array<[string, string]> = []
+  let hasTransformation = false
 
   Object.entries(operationSchema.schema.properties).forEach(([originalName]) => {
     let transformedName = originalName
@@ -99,7 +100,24 @@ export function getParamsMapping(
       transformedName = camelCase(originalName)
     }
 
-    // Only add mapping if the names differ
+    allEntries.push([originalName, transformedName])
+
+    if (transformedName !== originalName) {
+      hasTransformation = true
+    }
+  })
+
+  // When using explicit casing and there are transformations, include ALL params so that
+  // mappedParams contains every parameter (not just the ones whose names changed).
+  // This prevents params with already-camelCase names (e.g. 'page', 'search') from being
+  // silently dropped when other params in the same schema do need transformation.
+  if (options.casing === 'camelcase' && hasTransformation) {
+    return Object.fromEntries(allEntries)
+  }
+
+  // For non-casing case or when no transformations are needed, only return changed entries
+  const mapping: Record<string, string> = {}
+  allEntries.forEach(([originalName, transformedName]) => {
     if (transformedName !== originalName) {
       mapping[originalName] = transformedName
     }
