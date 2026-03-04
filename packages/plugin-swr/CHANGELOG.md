@@ -1,5 +1,17 @@
 # @kubb/plugin-swr
 
+## 4.31.4
+
+### Patch Changes
+
+- Updated dependencies [[`0a873dd`](https://github.com/kubb-labs/kubb/commit/0a873dd1b37d42167288970aa8f819e8ad5a78a5)]:
+  - @kubb/plugin-oas@4.31.4
+  - @kubb/plugin-client@4.31.4
+  - @kubb/plugin-ts@4.31.4
+  - @kubb/plugin-zod@4.31.4
+  - @kubb/core@4.31.4
+  - @kubb/oas@4.31.4
+
 ## 4.31.3
 
 ### Patch Changes
