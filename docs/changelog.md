@@ -6,6 +6,37 @@ outline: deep
 
 # Changelog
 
+## 4.31.5
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Fix self-referential `z.lazy()` output for multi-file OpenAPI specs**
+
+When `@readme/openapi-parser` bundles multi-file specs, schemas in `components.schemas` could be represented as `$ref` objects. `SchemaGenerator#doBuild` now resolves those `$ref` entries before calling `parse()`, preventing output like `export const parcelSchema = z.lazy(() => parcelSchema)`.
+
+::: code-group
+
+```typescript [Before]
+// multi-file spec: parcel.yaml referenced from main spec
+// output was a self-referential lazy schema
+export const parcelSchema = z.lazy(() => parcelSchema)
+```
+
+```typescript [After]
+// multi-file spec: parcel.yaml referenced from main spec
+// $ref is resolved before parsing, producing the correct schema
+export const parcelSchema = z.object({
+  id: z.number(),
+  // ...
+})
+```
+
+:::
+
+---
+
 ## 4.31.4
 
 ### 🐛 Bug Fixes

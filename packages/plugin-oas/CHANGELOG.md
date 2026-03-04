@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 4.31.5
+
+### Patch Changes
+
+- [#2627](https://github.com/kubb-labs/kubb/pull/2627) [`b81718f`](https://github.com/kubb-labs/kubb/commit/b81718fa2410275227fe07345ffa41a4811e0459) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix self-referential `z.lazy()` output for multi-file OpenAPI specs. When `@readme/openapi-parser` bundles multi-file specs, schemas in `components.schemas` could be represented as `$ref` objects. `SchemaGenerator#doBuild` now resolves those `$ref` entries before calling `parse()`, preventing output like `export const parcelSchema = z.lazy(() => parcelSchema)`.
+
+- Updated dependencies []:
+  - @kubb/core@4.31.5
+  - @kubb/oas@4.31.5
+
 ## 4.31.4
 
 ### Patch Changes
