@@ -1348,13 +1348,25 @@ export class SchemaGenerator<
         const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
           schemaLimit(async () => {
             const options = this.#getOptions(name)
-            const tree = this.parse({ schema: schemaObject, name, parentName: null, rootName: name })
+
+            // Resolve schema if it's a $ref (can happen when the bundler deduplicates schemas
+            // referenced from multiple external files). Without this, a $ref schema would be
+            // parsed as a reference to itself, generating `z.lazy(() => schemaName)`.
+            let resolvedSchemaObject = schemaObject
+            if (isReference(schemaObject)) {
+              const resolved = this.context.oas.get<OasTypes.SchemaObject>(schemaObject.$ref)
+              if (resolved && !isReference(resolved)) {
+                resolvedSchemaObject = resolved
+              }
+            }
+
+            const tree = this.parse({ schema: resolvedSchemaObject, name, parentName: null, rootName: name })
 
             if (generator.type === 'react') {
               await buildSchema(
                 {
                   name,
-                  value: schemaObject,
+                  value: resolvedSchemaObject,
                   tree,
                 },
                 {
@@ -1380,7 +1392,7 @@ export class SchemaGenerator<
               generator: this,
               schema: {
                 name,
-                value: schemaObject,
+                value: resolvedSchemaObject,
                 tree,
               },
               plugin: {

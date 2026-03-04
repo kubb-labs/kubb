@@ -170,6 +170,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Build
+        run: pnpm run build
+
       - name: Publish preview packages
         run: pnpx pkg-pr-new publish --pnpm --owner=stijnvanhulle --repo=https://github.com/kubb-labs/kubb.git './packages/*' --template './examples/*'
 
