@@ -115,7 +115,7 @@ export function getParamsMapping(
     return Object.fromEntries(allEntries)
   }
 
-  // For non-casing case or when no transformations are needed, only return changed entries
+  // When casing is not specified or no transformations are needed, only return changed entries
   const mapping: Record<string, string> = {}
   allEntries.forEach(([originalName, transformedName]) => {
     if (transformedName !== originalName) {
