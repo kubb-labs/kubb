@@ -6,6 +6,39 @@ outline: deep
 
 # Changelog
 
+## 4.31.4
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Fix `paramsCasing: 'camelcase'` dropping unchanged params from `mappedParams`**
+
+When a parameter schema contained a mix of snake_case and already-camelCase params (e.g. `user_id` and `page`), only the params whose names actually changed were included in `mappedParams`. This caused already-camelCase params to be silently dropped and never sent to the API.
+
+Now, when `paramsCasing: 'camelcase'` is set and any transformation is needed, all params are included in the mapping so they are correctly forwarded to the API.
+
+::: code-group
+
+```typescript [Before]
+// Schema: { user_id, page } with paramsCasing: 'camelcase'
+// mappedParams only contained user_id -> userId
+// 'page' was missing and never sent to the API
+const { userId } = params
+// 'page' was silently dropped
+```
+
+```typescript [After]
+// Schema: { user_id, page } with paramsCasing: 'camelcase'
+// mappedParams contains both user_id -> userId AND page -> page
+const { userId, page } = params
+// Both params are correctly sent to the API
+```
+
+:::
+
+---
+
 ## 4.31.3
 
 ### 🐛 Bug Fixes
