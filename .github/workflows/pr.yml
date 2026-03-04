@@ -34,15 +34,6 @@ jobs:
       - name: Build
         run: pnpm run build
 
-      - name: Cache build artifacts
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            packages/*/dist
-            packages/*/.output
-            packages/*/node_modules/.cache
-          key: build-${{ github.sha }}
-
   typecheck:
     name: Typecheck
     timeout-minutes: 15
@@ -59,15 +50,6 @@ jobs:
         uses: kubb-labs/config/.github/setup@main
         with:
           node-version: '20'
-
-      - name: Restore build artifacts
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            packages/*/dist
-            packages/*/.output
-            packages/*/node_modules/.cache
-          key: build-${{ github.sha }}
 
       - name: Typecheck
         run: pnpm run typecheck
@@ -91,15 +73,6 @@ jobs:
         uses: kubb-labs/config/.github/setup@main
         with:
           node-version: '20'
-
-      - name: Restore build artifacts
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            packages/*/dist
-            packages/*/.output
-            packages/*/node_modules/.cache
-          key: build-${{ github.sha }}
 
       - name: Build agent
         run: pnpm turbo run build --filter=@kubb/agent
@@ -130,15 +103,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Restore build artifacts
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            packages/*/dist
-            packages/*/.output
-            packages/*/node_modules/.cache
-          key: build-${{ github.sha }}
-
       - name: Linting
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
@@ -161,14 +125,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Restore build artifacts
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            packages/*/dist
-            packages/*/.output
-            packages/*/node_modules/.cache
-          key: build-${{ github.sha }}
       - name: Spell Check
         uses: streetsidesoftware/cspell-action@v8
         with:
@@ -194,15 +150,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Restore build artifacts
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            packages/*/dist
-            packages/*/.output
-            packages/*/node_modules/.cache
-          key: build-${{ github.sha }}
-
       - name: Run Vitest benchmarks
         run: pnpm run test:bench
 
@@ -222,15 +169,6 @@ jobs:
         uses: kubb-labs/config/.github/setup@main
         with:
           node-version: '20'
-
-      - name: Restore build artifacts
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            packages/*/dist
-            packages/*/.output
-            packages/*/node_modules/.cache
-          key: build-${{ github.sha }}
 
       - name: Publish preview packages
         run: pnpx pkg-pr-new publish --pnpm --owner=stijnvanhulle --repo=https://github.com/kubb-labs/kubb.git './packages/*' --template './examples/*'
@@ -274,15 +212,6 @@ jobs:
         uses: kubb-labs/config/.github/setup@main
         with:
           node-version: '20'
-
-      - name: Restore build artifacts
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            packages/*/dist
-            packages/*/.output
-            packages/*/node_modules/.cache
-          key: build-${{ github.sha }}
 
       - name: Generate examples
         id: generate

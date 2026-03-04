@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 4.31.4
+
+### Patch Changes
+
+- [#2628](https://github.com/kubb-labs/kubb/pull/2628) [`0a873dd`](https://github.com/kubb-labs/kubb/commit/0a873dd1b37d42167288970aa8f819e8ad5a78a5) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix `paramsCasing: 'camelcase'` dropping unchanged params from `mappedParams`. When a schema has a mix of snake_case and already-camelCase params, all params are now included in the mapping so they are correctly sent to the API.
+
+- Updated dependencies []:
+  - @kubb/core@4.31.4
+  - @kubb/oas@4.31.4
+
 ## 4.31.3
 
 ### Patch Changes

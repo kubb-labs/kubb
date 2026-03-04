@@ -29,7 +29,7 @@ export async function createPets(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const mappedParams = params ? { bool_param: params.boolParam } : undefined
+  const mappedParams = params ? { bool_param: params.boolParam, offset: params.offset } : undefined
 
   const mappedHeaders = headers ? { 'X-EXAMPLE': headers.xEXAMPLE } : undefined
 
