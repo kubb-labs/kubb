@@ -184,8 +184,8 @@ See [LICENSE](./LICENSE) for details.
 [npm-version-href]: https://npmx.dev/package/@kubb/core
 [npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/core?flat&colorA=18181B&colorB=f58517
 [npm-downloads-href]: https://npmjs.com/package/@kubb/core
-[license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
-[license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
+[license-src]: https://img.shields.io/npm/l/%40kubb%2Fcore?flat&colorA=18181B&colorB=f58517
+[license-href]: https://github.com/kubb-labs/kubb/blob/main/licenses/LICENSE-MIT
 [build-src]: https://img.shields.io/github/actions/workflow/status/kubb-labs/kubb/ci.yaml?style=flat&colorA=18181B&colorB=f58517
 [build-href]: https://www.npmjs.com/package/@kubb/core
 [minified-src]: https://img.shields.io/bundlephobia/min/@kubb/core?style=flat&colorA=18181B&colorB=f58517
