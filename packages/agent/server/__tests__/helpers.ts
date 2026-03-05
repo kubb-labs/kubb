@@ -58,7 +58,7 @@ export function createMockStudio({ isSandbox = false } = {}): Promise<MockStudio
       req.on('end', () => {
         res.setHeader('Content-Type', 'application/json')
 
-        if (req.method === 'POST' && req.url === '/api/agent/register') {
+        if (req.method === 'POST' && req.url === '/api/agent/connect') {
           res.writeHead(200)
           res.end(JSON.stringify({ success: true }))
           return

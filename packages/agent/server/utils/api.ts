@@ -1,6 +1,7 @@
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { getMachineToken } from '~/utils/token.ts'
 import { logger } from './logger.ts'
+import { maskedString } from './maskedString.ts'
 
 type ConnectProps = {
   studioUrl: string
@@ -11,12 +12,12 @@ type ConnectProps = {
  * Obtain an agent session token from Kubb Studio via HTTP.
  */
 export async function createAgentSession({ token, studioUrl }: ConnectProps): Promise<AgentConnectResponse> {
-  const connectUrl = `${studioUrl}/api/agent/session/create`
+  const url = `${studioUrl}/api/agent/session/create`
 
   try {
     logger.info('Creating agent session with Studio...')
 
-    const data = await $fetch<AgentConnectResponse>(connectUrl, {
+    const data = await $fetch<AgentConnectResponse>(url, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: { machineToken: getMachineToken() },
@@ -45,12 +46,12 @@ type RegisterProps = {
  * Called once on agent startup before creating a WebSocket session.
  */
 export async function registerAgent({ token, studioUrl, poolSize }: RegisterProps): Promise<void> {
-  const registerUrl = `${studioUrl}/api/agent/register`
+  const url = `${studioUrl}/api/agent/connect`
 
   try {
     logger.info('Registering agent with Studio...')
 
-    await $fetch(registerUrl, {
+    await $fetch(url, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -74,13 +75,13 @@ type DisconnectProps = {
  * Called on process termination or server close.
  */
 export async function disconnect({ sessionId, token, studioUrl }: DisconnectProps): Promise<void> {
-  const disconnectUrl = `${studioUrl}/api/agent/session/${sessionId}/disconnect`
+  const url = `${studioUrl}/api/agent/session/${sessionId}/disconnect`
   const maskedSessionKey = maskedString(sessionId)
 
   try {
     logger.info(`[${maskedSessionKey}] Disconnecting from Studio...`)
 
-    await $fetch(disconnectUrl, {
+    await $fetch(url, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
