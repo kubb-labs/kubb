@@ -65,16 +65,16 @@ export function createItems(): Item[] {
 
 **Fix `ToZod` imported as a type import**
 
-`ToZod` was incorrectly emitted as `import type { ToZod }`, causing runtime errors in environments where `isolatedModules` or `verbatimModuleSyntax` strips type-only imports. It is now emitted as a regular value import.
+`ToZod` was incorrectly emitted as `import { ToZod }`, causing type errors.
 
 ::: code-group
 
 ```typescript [Before]
-import type { ToZod } from '@kubb/plugin-zod/zod'  // ❌ stripped at runtime
+import { ToZod } from '@kubb/plugin-zod/zod'  // ❌ stripped at runtime
 ```
 
 ```typescript [After]
-import { ToZod } from '@kubb/plugin-zod/zod'  // ✅
+import type { ToZod } from '@kubb/plugin-zod/zod'  // ✅
 ```
 
 :::
