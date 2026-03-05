@@ -1,41 +1,20 @@
 import type { AgentConnectResponse } from '~/types/agent.ts'
-import { cacheSession, getCachedSession, getSessionKey, removeCachedSession } from '~/utils/agentCache.ts'
-import { maskedString } from '~/utils/maskedString.ts'
 import { getMachineToken } from '~/utils/token.ts'
 import { logger } from './logger.ts'
 
 type ConnectProps = {
   studioUrl: string
   token: string
-  noCache?: boolean
-  /** Optional override for the storage cache key. When provided, replaces the default key derived from the token. */
-  cacheKey?: string
 }
 
 /**
  * Obtain an agent session token from Kubb Studio via HTTP.
- * Attempts to reuse a valid cached session before making a network request.
  */
-export async function createAgentSession({ token, studioUrl, noCache, cacheKey }: ConnectProps): Promise<AgentConnectResponse> {
-  const sessionKey = cacheKey ?? getSessionKey(token)
-  const maskedSessionKey = maskedString(sessionKey.replace('sessions:', ''))
+export async function createAgentSession({ token, studioUrl }: ConnectProps): Promise<AgentConnectResponse> {
   const connectUrl = `${studioUrl}/api/agent/session/create`
-  const canCache = !noCache
-
-  if (canCache) {
-    const cachedSession = await getCachedSession(sessionKey)
-
-    if (cachedSession) {
-      logger.success(`[${maskedSessionKey}] Using cached agent session`)
-      return cachedSession
-    }
-
-    // If there's an expired session, remove it
-    await removeCachedSession(sessionKey)
-  }
 
   try {
-    logger.info(`[${maskedSessionKey}] Creating agent session with Studio...`)
+    logger.info('Creating agent session with Studio...')
 
     const data = await $fetch<AgentConnectResponse>(connectUrl, {
       method: 'POST',
@@ -47,12 +26,7 @@ export async function createAgentSession({ token, studioUrl, noCache, cacheKey }
       throw new Error('No data available for agent session')
     }
 
-    if (canCache) {
-      await cacheSession({ sessionKey, session: { ...data, storedAt: new Date().toISOString(), configs: [] } })
-      logger.success(`[${maskedSessionKey}] Saved agent session to cache`)
-    }
-
-    logger.info(`[${maskedSessionKey}] Created agent session with Studio`)
+    logger.info('Created agent session with Studio')
 
     return data
   } catch (error: any) {
