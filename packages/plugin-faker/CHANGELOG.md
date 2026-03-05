@@ -1,5 +1,17 @@
 # @kubb/plugin-faker
 
+## 4.31.6
+
+### Patch Changes
+
+- [#2638](https://github.com/kubb-labs/kubb/pull/2638) [`aa720ed`](https://github.com/kubb-labs/kubb/commit/aa720ed09e674d071fe53c43244fa718e3ca2575) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - fix: named array type aliases (`$ref` to a schema with `type: array`) no longer wrapped in `Partial<>`, preventing TypeScript errors like `(Item | undefined)[] not assignable to Item[]`
+
+- Updated dependencies [[`4e151b7`](https://github.com/kubb-labs/kubb/commit/4e151b7182393d870d51fe5377610e05928ccf14)]:
+  - @kubb/plugin-ts@4.31.6
+  - @kubb/core@4.31.6
+  - @kubb/oas@4.31.6
+  - @kubb/plugin-oas@4.31.6
+
 ## 4.31.5
 
 ### Patch Changes

@@ -6,6 +6,81 @@ outline: deep
 
 # Changelog
 
+## 4.31.6
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Fix empty enum generating a broken barrel export**
+
+Two scenarios produce an enum with no runtime values:
+- `enum: [null]` — only `null` is valid; Kubb filters `null` out of the `as const` object, leaving an empty list.
+- `enum: []` — a placeholder empty enum in the spec.
+
+With `enumType: 'asConst'` or `'asPascalConst'`, `createEnumDeclaration` previously returned an empty `VariableStatement` even when there were no enum values. The barrel file emitted `export { myConst }` pointing to a `const` that was never written — breaking `tsc` and any bundler performing type-checking.
+
+When `enums.length === 0`, `createEnumDeclaration` now returns `[undefined, neverTypeAlias]`. The `undefined` nameNode is skipped by the `{nameNode && …}` guard in `Type.tsx`, so no const is registered and the barrel omits the value export. The generated type becomes `export type XKey = never`, which is semantically correct for an empty enum.
+
+::: code-group
+
+```typescript [Before]
+// enum: [null] with enumType: 'asConst'
+// barrel emitted a broken export pointing to a non-existent const
+export { myConst }        // ❌ myConst was never written
+export type MyConstKey = never
+```
+
+```typescript [After]
+// barrel omits the value export entirely
+export type MyConstKey = never  // ✅ self-contained, no dangling reference
+```
+
+:::
+
+#### [`@kubb/plugin-faker`](/plugins/plugin-faker/)
+
+**Fix named array type aliases incorrectly wrapped in `Partial<>`**
+
+`$ref` schemas that resolve to a type with `type: array` were being wrapped in `Partial<>`, producing TypeScript errors like `(Item | undefined)[] is not assignable to Item[]`. Named array type aliases are no longer wrapped in `Partial<>`.
+
+::: code-group
+
+```typescript [Before]
+// $ref → { type: 'array', items: { $ref: '#/components/schemas/Item' } }
+export function createItems(): Partial<Item>[] {
+  return [createItem()]  // ❌ (Item | undefined)[] not assignable to Item[]
+}
+```
+
+```typescript [After]
+export function createItems(): Item[] {
+  return [createItem()]  // ✅
+}
+```
+
+:::
+
+#### [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+
+**Fix `ToZod` imported as a type import**
+
+`ToZod` was incorrectly emitted as `import type { ToZod }`, causing runtime errors in environments where `isolatedModules` or `verbatimModuleSyntax` strips type-only imports. It is now emitted as a regular value import.
+
+::: code-group
+
+```typescript [Before]
+import type { ToZod } from '@kubb/plugin-zod/zod'  // ❌ stripped at runtime
+```
+
+```typescript [After]
+import { ToZod } from '@kubb/plugin-zod/zod'  // ✅
+```
+
+:::
+
+---
+
 ## 4.31.5
 
 ### 🐛 Bug Fixes
