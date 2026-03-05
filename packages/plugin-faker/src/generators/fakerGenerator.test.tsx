@@ -254,6 +254,13 @@ describe('fakerGenerator operation', async () => {
       method: 'delete',
       options: {},
     },
+    {
+      name: 'getPetsArray',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets-array',
+      method: 'get',
+      options: {},
+    },
   ] as const satisfies Array<{
     input: string
     name: string

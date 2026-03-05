@@ -435,6 +435,15 @@ export class SchemaGenerator<
       const dereferencedSchema = this.context.oas.dereferenceWithRef(schemaObject)
       // pass name to getRefAlias and use that to find in discriminator.mapping value
 
+      const isTypeArray = !!(dereferencedSchema && (dereferencedSchema as SchemaObject).type === 'array')
+      const refArgs = {
+        name: ref.propertyName,
+        $ref,
+        path: ref.path,
+        isImportable: !!this.context.oas.get($ref),
+        ...(isTypeArray ? { isTypeArray } : {}),
+      }
+
       if (dereferencedSchema && isDiscriminator(dereferencedSchema)) {
         const [key] = Object.entries(dereferencedSchema.discriminator.mapping || {}).find(([_key, value]) => value.replace(/.+\//, '') === name) || []
 
@@ -445,7 +454,7 @@ export class SchemaGenerator<
               args: [
                 {
                   keyword: schemaKeywords.ref,
-                  args: { name: ref.propertyName, $ref, path: ref.path, isImportable: !!this.context.oas.get($ref) },
+                  args: refArgs,
                 },
                 {
                   keyword: schemaKeywords.object,
@@ -473,7 +482,7 @@ export class SchemaGenerator<
       return [
         {
           keyword: schemaKeywords.ref,
-          args: { name: ref.propertyName, $ref, path: ref.path, isImportable: !!this.context.oas.get($ref) },
+          args: refArgs,
         },
       ]
     }

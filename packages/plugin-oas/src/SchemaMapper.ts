@@ -65,6 +65,11 @@ export type SchemaKeywordMapper = {
        * When false a reference is used inside the current file.
        */
       isImportable: boolean
+      /**
+       * When true the referenced schema is an array type (e.g. `type: array`).
+       * Used by generators to avoid incorrectly wrapping the parameter type in `Partial<>`.
+       */
+      isTypeArray?: boolean
     }
   }
   matches: { keyword: 'matches'; args?: string }
