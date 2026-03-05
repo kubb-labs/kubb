@@ -1,7 +1,7 @@
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { cacheSession, getCachedSession, getSessionKey, removeCachedSession } from '~/utils/agentCache.ts'
 import { maskedString } from '~/utils/maskedString.ts'
-import { machineToken } from '~/utils/token.ts'
+import { getMachineToken } from '~/utils/token.ts'
 import { logger } from './logger.ts'
 
 type ConnectProps = {
@@ -40,7 +40,7 @@ export async function createAgentSession({ token, studioUrl, noCache, cacheKey }
     const data = await $fetch<AgentConnectResponse>(connectUrl, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
-      body: { machineToken },
+      body: { machineToken: getMachineToken() },
     })
 
     if (!data) {
@@ -81,7 +81,7 @@ export async function registerAgent({ token, studioUrl, poolSize }: RegisterProp
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: { machineToken, poolSize },
+      body: { machineToken: getMachineToken(), poolSize },
     })
     logger.success(`Agent registered with Studio with token ${maskedString(token)}`)
   } catch (error: any) {

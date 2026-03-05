@@ -1,5 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import type { Schema } from '@kubb/plugin-oas'
+import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import * as parserFaker from '../parser.ts'
@@ -37,6 +38,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
   )
 
   const isArray = fakerText.startsWith('faker.helpers.arrayElements') || fakerText.startsWith('faker.helpers.multiple')
+  const isRefToArray = tree.some((s) => isKeyword(s, schemaKeywords.schema) && s.args.type === 'array')
   const isObject = fakerText.startsWith('{')
   const isTuple = fakerText.startsWith('faker.helpers.arrayElement')
 
@@ -71,6 +73,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
   let type = `Partial<${typeName}>`
 
   if (isArray) type = typeName
+  if (isRefToArray) type = typeName
   if (isSimpleString) type = name
   if (isSimpleInt || isSimpleFloat) type = 'number'
 
