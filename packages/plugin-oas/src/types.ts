@@ -51,6 +51,33 @@ export type Options = {
    */
   serverIndex?: number
   /**
+   * Override OpenAPI server variables when resolving the base URL.
+   *
+   * When `serverIndex` is set and the selected server URL contains `{variable}` placeholders
+   * (as defined in the OpenAPI `servers[].variables` object), these values will be substituted.
+   * Any variable not provided here falls back to its `default` value from the specification.
+   *
+   * @example
+   * Given an OpenAPI spec with:
+   * ```yaml
+   * servers:
+   *   - url: https://api.{env}.example.com
+   *     variables:
+   *       env:
+   *         default: dev
+   *         enum: [dev, staging, prod]
+   * ```
+   *
+   * ```ts
+   * pluginOas({
+   *   serverIndex: 0,
+   *   serverVariables: { env: 'prod' },
+   * })
+   * ```
+   * Results in baseURL: `https://api.prod.example.com`
+   */
+  serverVariables?: Record<string, string>
+  /**
    * Define which contentType should be used.
    * By default, uses the first valid JSON media type.
    */
