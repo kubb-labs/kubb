@@ -112,6 +112,16 @@ exports[`Code Generation > should create enum declaration 8`] = `
 "
 `;
 
+exports[`Code Generation > should create enum declaration 9`] = `
+"export type HelloKey = never
+"
+`;
+
+exports[`Code Generation > should create enum declaration 10`] = `
+"export type HelloKey = never
+"
+`;
+
 exports[`Code Generation > should create export declaration 1`] = `
 "export * from './hello.ts'
 "
