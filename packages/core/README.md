@@ -141,6 +141,7 @@ Kubb is an open source project with its ongoing development made possible entire
       <td align="center" valign="top" width="14.28%"><a href="https://choly.ca"><img src="https://avatars.githubusercontent.com/u/943597?v=4?s=100" width="100px;" alt="Ilia Choly"/><br /><sub><b>Ilia Choly</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=icholy" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/skoropadas"><img src="https://avatars.githubusercontent.com/u/20700969?v=4?s=100" width="100px;" alt="Alex Skoropad"/><br /><sub><b>Alex Skoropad</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=skoropadas" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://pateljay.io"><img src="https://avatars.githubusercontent.com/u/36803168?v=4?s=100" width="100px;" alt="Jay Patel"/><br /><sub><b>Jay Patel</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=jay-babu" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://hamzamihaidaniel.com"><img src="https://avatars.githubusercontent.com/u/12731515?v=4?s=100" width="100px;" alt="Hamza Mihai Daniel"/><br /><sub><b>Hamza Mihai Daniel</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=hamzamihaidanielx" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
