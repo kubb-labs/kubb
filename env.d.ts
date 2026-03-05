@@ -77,13 +77,6 @@ declare global {
       KUBB_AGENT_CONFIG: string | undefined
 
       /**
-       * When `"true"`, disables session caching in `~/.kubb/config.json` so
-       * each run starts fresh.
-       * @default "false"
-       */
-      KUBB_AGENT_NO_CACHE: string | undefined
-
-      /**
        * Milliseconds the agent waits before attempting to reconnect after an
        * unexpected WebSocket disconnect.
        * @default "30000"

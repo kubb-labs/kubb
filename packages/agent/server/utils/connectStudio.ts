@@ -119,6 +119,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
       // first cleanup the event listeners and then connect again
       await cleanup()
+      await disconnect({ sessionId, studioUrl, token }).catch(() => {
+        // Ignore disconnect errors since we're already handling a failed connection
+      })
       await reconnect()
     }
 

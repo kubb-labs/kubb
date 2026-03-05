@@ -46,12 +46,11 @@ type StartServerProps = {
   port: number
   host: string
   configPath: string
-  noCache: boolean
   allowWrite: boolean
   allowAll: boolean
 }
 
-async function startServer({ port, host, configPath, noCache, allowWrite, allowAll }: StartServerProps): Promise<void> {
+async function startServer({ port, host, configPath, allowWrite, allowAll }: StartServerProps): Promise<void> {
   try {
     // Load .env file into process.env using Node.js built-in (v20.12.0+)
     try {
@@ -73,7 +72,6 @@ async function startServer({ port, host, configPath, noCache, allowWrite, allowA
     // kubb env
     const KUBB_AGENT_ROOT = process.env.KUBB_AGENT_ROOT || process.cwd()
     const KUBB_AGENT_CONFIG = process.env.KUBB_AGENT_CONFIG || configPath || 'kubb.config.ts'
-    const KUBB_AGENT_NO_CACHE = noCache ? 'true' : 'false'
     const KUBB_AGENT_ALLOW_WRITE = allowAll || allowWrite ? 'true' : (process.env.KUBB_AGENT_ALLOW_WRITE ?? 'false')
     const KUBB_AGENT_ALLOW_ALL = allowAll ? 'true' : (process.env.KUBB_AGENT_ALLOW_ALL ?? 'false')
     const KUBB_AGENT_TOKEN = process.env.KUBB_AGENT_TOKEN
@@ -86,7 +84,6 @@ async function startServer({ port, host, configPath, noCache, allowWrite, allowA
       HOST,
       KUBB_AGENT_ROOT,
       KUBB_AGENT_CONFIG,
-      KUBB_AGENT_NO_CACHE,
       KUBB_AGENT_ALLOW_WRITE,
       KUBB_AGENT_ALLOW_ALL,
       KUBB_AGENT_TOKEN,
@@ -98,9 +95,6 @@ async function startServer({ port, host, configPath, noCache, allowWrite, allowA
     clack.log.info(styleText('dim', `Config: ${KUBB_AGENT_CONFIG}`))
     clack.log.info(styleText('dim', `Host: ${HOST}`))
     clack.log.info(styleText('dim', `Port: ${PORT}`))
-    if (noCache) {
-      clack.log.info(styleText('dim', 'Session caching: disabled'))
-    }
     if (!KUBB_AGENT_ALLOW_WRITE && !KUBB_AGENT_ALLOW_ALL) {
       clack.log.warn(styleText('yellow', 'Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
     }
@@ -130,11 +124,10 @@ const command = defineCommand({
       const configPath = path.resolve(process.cwd(), args.config || 'kubb.config.ts')
       const port = args.port ? Number.parseInt(args.port, 10) : 0
       const host = args.host
-      const noCache = args['no-cache']
       const allowWrite = args['allow-write']
       const allowAll = args['allow-all']
 
-      startServer({ port, host, configPath, noCache, allowWrite, allowAll })
+      startServer({ port, host, configPath, allowWrite, allowAll })
       await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'success' }))
     } catch (error) {
       await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'failed' }))

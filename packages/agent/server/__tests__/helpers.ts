@@ -189,7 +189,6 @@ export function spawnAgent({
       KUBB_AGENT_ALLOW_PUBLISH: String(allowPublish),
       KUBB_AGENT_RETRY_TIMEOUT: String(retryTimeout),
       KUBB_AGENT_HEARTBEAT_INTERVAL: String(heartbeatInterval),
-      KUBB_AGENT_NO_CACHE: 'true',
       KUBB_AGENT_POOL_SIZE: String(poolSize),
     },
     stdio: 'pipe',
