@@ -132,6 +132,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /pets-array:
+    get:
+      summary: List all pets using named array ref
+      operationId: getPetsArray
+      tags:
+        - pets
+      description: Response uses a $ref to a named array schema
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pets'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     Pet:
