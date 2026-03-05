@@ -1,5 +1,17 @@
 # @kubb/plugin-zod
 
+## 4.31.6
+
+### Patch Changes
+
+- [`edfa8fe`](https://github.com/kubb-labs/kubb/commit/edfa8fe016c0ea5bbc4535c68e4cfaeb3a29217b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ToZod import is not a type import
+
+- Updated dependencies [[`4e151b7`](https://github.com/kubb-labs/kubb/commit/4e151b7182393d870d51fe5377610e05928ccf14)]:
+  - @kubb/plugin-ts@4.31.6
+  - @kubb/core@4.31.6
+  - @kubb/oas@4.31.6
+  - @kubb/plugin-oas@4.31.6
+
 ## 4.31.5
 
 ### Patch Changes
