@@ -1,5 +1,14 @@
 # @kubb/plugin-redoc
 
+## 4.31.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.6
+  - @kubb/oas@4.31.6
+  - @kubb/plugin-oas@4.31.6
+
 ## 4.31.5
 
 ### Patch Changes
