@@ -38,7 +38,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
   )
 
   const isArray = fakerText.startsWith('faker.helpers.arrayElements') || fakerText.startsWith('faker.helpers.multiple')
-  const isRefToArray = tree.some((s) => isKeyword(s, schemaKeywords.ref) && s.args.isTypeArray)
+  const isRefToArray = tree.some((s) => isKeyword(s, schemaKeywords.schema) && s.args.type === 'array')
   const isObject = fakerText.startsWith('{')
   const isTuple = fakerText.startsWith('faker.helpers.arrayElement')
 
