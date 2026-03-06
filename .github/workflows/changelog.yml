@@ -41,11 +41,12 @@ jobs:
           git push origin "$BRANCH"
           gh pr create \
             --title "Update docs/changelog.md for v${VERSION}" \
-            --body "@copilot Please update \`docs/changelog.md\` for the \`v${VERSION}\` release.
+            --body "Automated changelog PR for v${VERSION}." \
+            --base main \
+            --head "$BRANCH"
+          PR_URL=$(gh pr view "$BRANCH" --json url -q '.url')
+          gh pr comment "$PR_URL" --body "@copilot Please update \`docs/changelog.md\` for the \`v${VERSION}\` release.
 
           - Add a new section at the top for \`v${VERSION}\`
           - Summarize the changes from the \`.changeset/\` files that were part of this release
-          - Follow the existing format and style already present in \`docs/changelog.md\`" \
-            --base main \
-            --head "$BRANCH" \
-            --reviewer copilot
+          - Follow the existing format and style already present in \`docs/changelog.md\`"
