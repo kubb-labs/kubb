@@ -162,6 +162,38 @@ const plugin = pluginOas({ serverIndex: 1 })
 ```
 :::
 
+### serverVariables
+
+Override OpenAPI server variables when resolving the base URL. When `serverIndex` is set and the selected server URL contains `{variable}` placeholders (as defined in the OpenAPI `servers[].variables` object), these values will be substituted. Any variable not provided falls back to its `default` value from the specification. If a variable has an `enum`, the provided value is validated at generation time.
+
+|           |                              |
+|----------:|:-----------------------------|
+|     Type: | `Record<string, string>`     |
+| Required: | `false`                      |
+
+::: code-group
+
+```yaml [OpenAPI]
+openapi: 3.0.3
+servers:
+  - url: https://api.{env}.example.com
+    variables:
+      env:
+        default: dev
+        enum: [dev, staging, prod]
+```
+
+```typescript [serverVariables]
+import { pluginOas } from '@kubb/plugin-oas'
+
+const plugin = pluginOas({
+  serverIndex: 0,
+  serverVariables: { env: 'prod' },
+})
+// Results in baseURL: https://api.prod.example.com
+```
+:::
+
 ### discriminator
 
 Defines how the discriminator value should be interpreted during processing.
