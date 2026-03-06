@@ -63,7 +63,7 @@ jobs:
                 model: "gpt-4o",
                 messages: [
                   {role: "system", content: "You are a release engineer for Kubb. Follow the changelog skill guidelines and match the exact format of the existing entries.\n\n## Skill Guidelines\n\($skill)\n\n## Existing Changelog Entries (match this format exactly)\n\($existing)"},
-                  {role: "user", content: "Generate a changelog entry for version v\($version). Use the same heading levels (##, ###, ####), emoji prefixes (✨ 🐛 🚀 📦), plugin link style, and VitePress ::: code-group blocks as the examples above. Output ONLY the markdown starting with ## \($version), nothing else.\n\nCommits:\n\($changes)"}
+                  {role: "user", content: "Generate a changelog entry for version v\($version). Use the same heading levels (##, ###, ####), emoji prefixes (✨ 🐛 🚀 📦), plugin link style, and VitePress ::: code-group blocks as the examples below. Do NOT include any Dependencies sections, chores or dependency update entries. Output ONLY the markdown starting with ## \($version), nothing else.\n\nCommits:\n\($changes)"}
                 ]
               }')" \
             | jq -r '.choices[0].message.content')
