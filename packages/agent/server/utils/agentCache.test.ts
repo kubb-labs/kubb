@@ -1,111 +1,83 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cacheSession, getCachedSession, getSessionKey, removeCachedSession, saveStudioConfigToStorage } from './agentCache.ts'
+import { getLatestStudioConfigFromStorage, saveStudioConfigToStorage } from './agentCache.ts'
 
 let mockStorage: any
 
 beforeEach(() => {
-  vi.useFakeTimers()
   mockStorage = {
     setItem: vi.fn().mockResolvedValue(undefined),
-    getItem: vi.fn(),
-    getKeys: vi.fn(),
-    removeItem: vi.fn(),
+    getItem: vi.fn().mockResolvedValue(null),
   }
   vi.stubGlobal('useStorage', () => mockStorage)
 })
 
 afterEach(() => {
-  vi.useRealTimers()
   vi.unstubAllGlobals()
 })
 
 describe('Agent cache', () => {
-  it('generates session key from token using SHA-512 hash', () => {
-    const token = 'my-secret-token'
-    const key = getSessionKey(token)
+  describe('saveStudioConfigToStorage', () => {
+    it('saves config under configs:{sessionId} key', async () => {
+      const config = { plugins: [{ name: '@kubb/plugin-ts', options: {} }] }
 
-    expect(key).toMatch(/^sessions:[a-f0-9]{128}$/)
-    // Same token should always produce same key
-    expect(getSessionKey(token)).toBe(key)
-    // Different token should produce different key
-    expect(getSessionKey('different-token')).not.toBe(key)
-  })
+      await saveStudioConfigToStorage({ sessionId: 'session-123', config })
 
-  it('caches a session', async () => {
-    const session = { sessionId: '123', wsUrl: 'ws://test', expiresAt: new Date(Date.now() + 3600000).toISOString() }
+      expect(mockStorage.setItem).toHaveBeenCalledWith(
+        'configs:session-123',
+        expect.arrayContaining([expect.objectContaining({ config, storedAt: expect.any(String) })]),
+      )
+    })
 
-    await cacheSession({ sessionKey: 'test-key', session: session as any })
+    it('appends to existing entries', async () => {
+      const first = { plugins: [] }
+      const second = { plugins: [{ name: '@kubb/plugin-ts', options: {} }] }
+      mockStorage.getItem.mockResolvedValueOnce([{ config: first, storedAt: '2025-01-01T00:00:00.000Z' }])
 
-    expect(mockStorage.setItem).toHaveBeenCalledWith('test-key', expect.objectContaining({ sessionId: '123', storedAt: expect.any(String), configs: [] }))
-  })
+      await saveStudioConfigToStorage({ sessionId: 'session-123', config: second })
 
-  it('retrieves a valid cached session', async () => {
-    const session = {
-      sessionId: '123',
-      wsUrl: 'ws://test',
-      expiresAt: new Date(Date.now() + 3600000).toISOString(),
-      storedAt: new Date().toISOString(),
-      configs: [],
-    }
-    mockStorage.getItem.mockResolvedValue(session)
-
-    const result = await getCachedSession('test-key')
-
-    expect(result).toEqual(session)
-  })
-
-  it('returns null for expired cached session', async () => {
-    const session = {
-      sessionId: '123',
-      wsUrl: 'ws://test',
-      expiresAt: new Date(Date.now() - 1000).toISOString(),
-      storedAt: new Date().toISOString(),
-      configs: [],
-    }
-    mockStorage.getItem.mockResolvedValue(session)
-
-    const result = await getCachedSession('test-key')
-
-    expect(result).toBeNull()
-  })
-
-  it('removes a cached session', async () => {
-    await removeCachedSession('test-key')
-
-    expect(mockStorage.removeItem).toHaveBeenCalledWith('test-key')
-  })
-
-  it('saves config to storage with timestamp', async () => {
-    const config = { plugins: [{ name: '@kubb/plugin-ts', options: {} }] }
-    const session = {
-      sessionId: '123',
-      wsUrl: 'ws://test',
-      expiresAt: new Date(Date.now() + 3600000).toISOString(),
-      storedAt: new Date().toISOString(),
-      configs: [],
-    }
-    mockStorage.getItem.mockResolvedValue(session)
-
-    await saveStudioConfigToStorage({ sessionKey: 'test-session', config })
-
-    expect(mockStorage.setItem).toHaveBeenCalledWith('test-session', {
-      ...session,
-      configs: expect.arrayContaining([expect.objectContaining({ config, storedAt: expect.any(String) })]),
+      const [, written] = mockStorage.setItem.mock.calls[0]
+      expect(written).toHaveLength(2)
+      expect(written[0].config).toEqual(first)
+      expect(written[1].config).toEqual(second)
     })
   })
 
-  it('returns empty array when no configs exist', async () => {
-    const session = {
-      sessionId: '123',
-      wsUrl: 'ws://test',
-      expiresAt: new Date(Date.now() + 3600000).toISOString(),
-      storedAt: new Date().toISOString(),
-      configs: [],
-    }
-    mockStorage.getItem.mockResolvedValue(session)
+  describe('getLatestStudioConfigFromStorage', () => {
+    it('returns null when no config is stored', async () => {
+      mockStorage.getItem.mockResolvedValueOnce(null)
 
-    const results = await getCachedSession('test-session')
+      const result = await getLatestStudioConfigFromStorage({ sessionId: 'session-123' })
 
-    expect(results?.configs).toEqual([])
+      expect(result).toBeNull()
+    })
+
+    it('returns null when the stored list is empty', async () => {
+      mockStorage.getItem.mockResolvedValueOnce([])
+
+      const result = await getLatestStudioConfigFromStorage({ sessionId: 'session-123' })
+
+      expect(result).toBeNull()
+    })
+
+    it('returns the most recently saved config', async () => {
+      const first = { plugins: [{ name: '@kubb/plugin-oas', options: {} }] }
+      const second = { plugins: [{ name: '@kubb/plugin-ts', options: {} }] }
+      mockStorage.getItem.mockResolvedValueOnce([
+        { config: first, storedAt: '2025-01-01T00:00:00.000Z' },
+        { config: second, storedAt: '2025-01-02T00:00:00.000Z' },
+      ])
+
+      const result = await getLatestStudioConfigFromStorage({ sessionId: 'session-123' })
+
+      expect(result).toEqual(second)
+    })
+
+    it('reads from the correct session-scoped key', async () => {
+      mockStorage.getItem.mockResolvedValueOnce(null)
+
+      await getLatestStudioConfigFromStorage({ sessionId: 'session-abc' })
+
+      expect(mockStorage.getItem).toHaveBeenCalledWith('configs:session-abc')
+    })
   })
 })

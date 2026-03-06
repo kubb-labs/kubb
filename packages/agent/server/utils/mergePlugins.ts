@@ -7,6 +7,9 @@ import { resolvePlugins } from './resolvePlugins.ts'
  * Merges studio plugin options with disk config plugins.
  * Studio options take priority; disk plugins without a studio counterpart are kept as-is.
  * Studio plugins not present on disk are appended.
+ *
+ * For plugins present in both configs, the plugin is re-instantiated with merged options
+ * so that all internal closures correctly reference the merged values.
  */
 export function mergePlugins(diskPlugins: Array<Plugin> | undefined, studioPlugins: JSONKubbConfig['plugins'] | undefined): Array<Plugin> | undefined {
   if (!diskPlugins && !studioPlugins) return undefined
@@ -17,14 +20,25 @@ export function mergePlugins(diskPlugins: Array<Plugin> | undefined, studioPlugi
 
   if (!diskPlugins) return resolvedStudio
 
-  const studioByName = new Map(resolvedStudio.map((p) => [p.name, p]))
+  // Map from resolved plugin name → original studio entry (needed to re-instantiate with merged options)
+  const studioEntryByResolvedName = new Map<string, NonNullable<JSONKubbConfig['plugins']>[0]>()
+  resolvedStudio.forEach((resolved, i) => {
+    const entry = studioPlugins[i]
+    if (entry) {
+      studioEntryByResolvedName.set(resolved.name, entry)
+    }
+  })
+
   const diskNames = new Set(diskPlugins.map((p) => p.name))
 
   const mergedDisk = diskPlugins.map((diskPlugin) => {
-    const studioPlugin = studioByName.get(diskPlugin.name)
-    if (!studioPlugin) return diskPlugin
+    const studioEntry = studioEntryByResolvedName.get(diskPlugin.name)
+    if (!studioEntry) return diskPlugin
 
-    return { ...diskPlugin, options: mergeDeep(diskPlugin.options, studioPlugin.options) } as Plugin
+    // Merge options (disk as base, studio overrides), then re-instantiate the plugin
+    // so that all internal closures reference the correctly merged options.
+    const mergedOptions = mergeDeep(diskPlugin.options as Record<string, unknown>, studioEntry.options as Record<string, unknown>)
+    return resolvePlugins([{ name: studioEntry.name, options: mergedOptions }])[0] ?? diskPlugin
   })
 
   const studioOnly = resolvedStudio.filter((p) => !diskNames.has(p.name))

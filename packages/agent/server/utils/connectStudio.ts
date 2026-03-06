@@ -3,7 +3,7 @@ import { AsyncEventEmitter, formatMs, serializePluginOptions } from '@kubb/core/
 import type { NitroApp } from 'nitropack/types'
 import { version } from '~~/package.json'
 import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage, isPublishCommandMessage } from '../types/agent.ts'
-import { removeCachedSession, saveStudioConfigToStorage } from './agentCache.ts'
+import { getLatestStudioConfigFromStorage, saveStudioConfigToStorage } from './agentCache.ts'
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
 import { loadConfig } from './loadConfig.ts'
@@ -19,7 +19,6 @@ export type ConnectToStudioOptions = {
   studioUrl: string
   configPath: string
   resolvedConfigPath: string
-  noCache: boolean
   allowAll: boolean
   allowWrite: boolean
   allowPublish: boolean
@@ -28,7 +27,6 @@ export type ConnectToStudioOptions = {
   heartbeatInterval?: number
   /** Pre-created session to use instead of calling createAgentSession. Only used on the first connect, not on reconnects. */
   initialSession?: AgentConnectResponse
-  sessionKey: string
   nitro: NitroApp
 }
 
@@ -42,7 +40,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     studioUrl,
     configPath,
     resolvedConfigPath,
-    noCache,
     allowAll,
     allowWrite,
     allowPublish,
@@ -50,7 +47,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     retryInterval,
     heartbeatInterval = 30_000,
     initialSession,
-    sessionKey,
     nitro,
   } = options
 
@@ -58,18 +54,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   // from one session do not bleed into another session's WebSocket stream.
   const events = new AsyncEventEmitter<KubbEvents>()
   let currentSource: 'generate' | 'publish' | undefined
-  const maskedSessionKey = maskedString(sessionKey.replace('sessions:', ''))
-
-  async function removeSession() {
-    if (!noCache) {
-      await removeCachedSession(sessionKey)
-    }
-  }
 
   async function reconnect() {
-    logger.info(`[${maskedSessionKey}] Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`)
-
-    await removeSession()
+    logger.info(`Retrying connection in ${formatMs(retryInterval)} to Kubb Studio ...`)
 
     // On reconnect, don't reuse the initial session — always create a fresh one
     setTimeout(() => connectToStudio({ ...options, initialSession: undefined }), retryInterval)
@@ -78,9 +65,10 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   try {
     setupHookListener(events, root)
 
-    const { sessionId, wsUrl, isSandbox } = initialSession ?? (await createAgentSession({ noCache, token, studioUrl, cacheKey: sessionKey }))
+    const { sessionId, wsUrl, isSandbox } = initialSession ?? (await createAgentSession({ token, studioUrl }))
     const ws = createWebsocket(wsUrl, { headers: { Authorization: `Bearer ${token}` } })
     const maskedWsUrl = maskedString(wsUrl)
+    const maskedSessionId = maskedString(sessionId)
 
     // Effective permissions: always disabled in sandbox mode
     const effectiveAllowAll = isSandbox ? false : allowAll
@@ -106,7 +94,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     }
 
     const onOpen = () => {
-      logger.success(`[${maskedSessionKey}] Connected to Kubb Studio on "${maskedWsUrl}"`)
+      logger.success(`[${maskedSessionId}] Connected to Kubb Studio on "${maskedWsUrl}"`)
     }
 
     const onClose = async () => {
@@ -127,10 +115,13 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     }
 
     const onError = async () => {
-      logger.error(`[${maskedSessionKey}] Failed to connect to Kubb Studio on "${maskedWsUrl}"`)
+      logger.error(`[${maskedSessionId}] Failed to connect to Kubb Studio on "${maskedWsUrl}"`)
 
       // first cleanup the event listeners and then connect again
       await cleanup()
+      await disconnect({ sessionId, studioUrl, token }).catch(() => {
+        // Ignore disconnect errors since we're already handling a failed connection
+      })
       await reconnect()
     }
 
@@ -152,19 +143,17 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       try {
         const data = JSON.parse(message.data as string) as AgentMessage
 
-        logger.info(`[${maskedSessionKey}] Received "${data.type}" from Studio`)
+        logger.info(`[${maskedSessionId}] Received "${data.type}" from Studio`)
 
         if (isPongMessage(data)) {
           return
         }
 
         if (isDisconnectMessage(data)) {
-          logger.warn(`[${maskedSessionKey}] Agent session disconnected by Studio with reason: ${data.reason}`)
+          logger.warn(`[${maskedSessionId}] Agent session disconnected by Studio with reason: ${data.reason}`)
 
           if (data.reason === 'revoked') {
             await cleanup(`session_${data.reason}`)
-
-            await removeSession()
             return
           }
 
@@ -185,7 +174,8 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             const config = await loadConfig(resolvedConfigPath)
 
             // Message payload takes priority over previously saved studio config
-            const patch = data.payload
+            const storedConfig = data.payload ? null : await getLatestStudioConfigFromStorage({ sessionId }).catch(() => null)
+            const patch = data.payload ?? storedConfig ?? undefined
             const plugins = mergePlugins(config.plugins, patch?.plugins)
 
             // In sandbox mode the caller may supply raw OpenAPI / Swagger spec
@@ -195,16 +185,16 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             const inputOverride = isSandbox ? { data: patch?.input ?? '' } : undefined
 
             if (allowWrite && isSandbox) {
-              logger.warn(`[${maskedSessionKey}] Agent is running in a sandbox environment, write will be disabled`)
+              logger.warn(`[${maskedSessionId}] Agent is running in a sandbox environment, write will be disabled`)
             }
 
             if (patch?.input && !isSandbox) {
-              logger.warn(`[${maskedSessionKey}] Input override via payload is only supported in sandbox mode and will be ignored`)
+              logger.warn(`[${maskedSessionId}] Input override via payload is only supported in sandbox mode and will be ignored`)
             }
 
             if (data.payload && effectiveWrite) {
-              await saveStudioConfigToStorage({ sessionKey, config: data.payload }).catch((err) => {
-                logger.warn(`[${maskedSessionKey}] Failed to save studio config: ${err?.message}`)
+              await saveStudioConfigToStorage({ sessionId, config: data.payload }).catch((err) => {
+                logger.warn(`[${maskedSessionId}] Failed to save studio config: ${err?.message}`)
               })
             }
 
@@ -219,7 +209,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               events,
             })
 
-            logger.success(`[${maskedSessionKey}] Completed "${data.type}" from Studio`)
+            logger.success(`[${maskedSessionId}] Completed "${data.type}" from Studio`)
             currentSource = undefined
 
             return
@@ -243,14 +233,14 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               },
             })
 
-            logger.success(`[${maskedSessionKey}] Completed "${data.type}" from Studio`)
+            logger.success(`[${maskedSessionId}] Completed "${data.type}" from Studio`)
 
             return
           }
 
           if (isPublishCommandMessage(data)) {
             if (!effectivePublish) {
-              logger.warn(`[${maskedSessionKey}] Publish command rejected — KUBB_AGENT_ALLOW_PUBLISH is not enabled`)
+              logger.warn(`[${maskedSessionId}] Publish command rejected — KUBB_AGENT_ALLOW_PUBLISH is not enabled`)
               return
             }
 
@@ -267,16 +257,16 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               events,
             })
 
-            logger.success(`[${maskedSessionKey}] Completed "${data.command}" from Studio`)
+            logger.success(`[${maskedSessionId}] Completed "${data.command}" from Studio`)
             currentSource = undefined
 
             return
           }
         }
 
-        logger.warn(`[${maskedSessionKey}] Unknown message type from Kubb Studio: ${message.data}`)
+        logger.warn(`[${maskedSessionId}] Unknown message type from Kubb Studio: ${message.data}`)
       } catch (error: any) {
-        logger.error(`[${maskedSessionKey}] [unhandledRejection] ${error?.message ?? error}`)
+        logger.error(`[${maskedSessionId}] [unhandledRejection] ${error?.message ?? error}`)
       }
     })
   } catch (error: any) {

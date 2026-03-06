@@ -19,7 +19,6 @@ ENV NODE_ENV=production \
     HOST=0.0.0.0 \
     KUBB_AGENT_ROOT=/kubb/agent/data \
     KUBB_AGENT_CONFIG=kubb.config.ts \
-    KUBB_AGENT_NO_CACHE=false \
     KUBB_AGENT_ALLOW_WRITE=false \
     KUBB_AGENT_ALLOW_ALL=false \
     KUBB_STUDIO_URL=https://studio.kubb.dev \
