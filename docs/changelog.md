@@ -6,6 +6,42 @@ outline: deep
 
 # Changelog
 
+## 4.32.3
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-react-query`](/plugins/plugin-react-query/), [`@kubb/plugin-vue-query`](/plugins/plugin-vue-query/), [`@kubb/plugin-svelte-query`](/plugins/plugin-svelte-query/), [`@kubb/plugin-solid-query`](/plugins/plugin-solid-query/)
+
+**Fix user-provided query options (e.g. `enabled`) not applied in generated hooks**
+
+Options passed via the `query` parameter to generated hooks (e.g. `{ query: { enabled: false } }`) were being silently ignored. The local destructured variable `queryOptions` was shadowing the imported `queryOptions` function from TanStack Query, which could cause the user-supplied override to be lost.
+
+The fix renames the local variable to `resolvedOptions` and ensures user options are spread before the explicit `queryKey` in the query call.
+
+::: code-group
+
+```typescript [Before]
+const { client: queryClient, ...queryOptions } = queryConfig  // shadows import!
+const query = useQuery({
+  ...getPetByIdQueryOptions(petId, config),
+  queryKey,
+  ...queryOptions,  // user options could be ignored
+} as unknown as QueryObserverOptions, queryClient)
+```
+
+```typescript [After]
+const { client: queryClient, ...resolvedOptions } = queryConfig  // no shadow
+const query = useQuery({
+  ...getPetByIdQueryOptions(petId, config),
+  ...resolvedOptions,  // user options always applied
+  queryKey,
+} as unknown as QueryObserverOptions, queryClient)
+```
+
+:::
+
+---
+
 ## 4.32.2
 
 ### 🐛 Bug Fixes
