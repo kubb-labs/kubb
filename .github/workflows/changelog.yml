@@ -36,10 +36,11 @@ jobs:
         run: |
           PREV_TAG=$(git tag --sort=-version:refname | grep -v "v${VERSION}" | head -1)
           CHANGES=$(git log "${PREV_TAG}..HEAD" \
-            --pretty=format:"%s%n%b" \
+            --pretty=format:"commit: %s%n%b" \
             --no-merges \
-            | grep -v "^$" \
-            | grep -vE "^(ci|chore|refactor|test|build|style)(\(.+\))?:")
+            --invert-grep \
+            --perl-regexp \
+            --grep="^(ci|chore|refactor|test|build|style)(\(.+\))?:")
 
           if [ -z "$CHANGES" ]; then
             echo "No relevant commits found since ${PREV_TAG}, skipping."
