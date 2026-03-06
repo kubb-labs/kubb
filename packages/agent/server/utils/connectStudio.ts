@@ -3,7 +3,7 @@ import { AsyncEventEmitter, formatMs, serializePluginOptions } from '@kubb/core/
 import type { NitroApp } from 'nitropack/types'
 import { version } from '~~/package.json'
 import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage, isPublishCommandMessage } from '../types/agent.ts'
-import { saveStudioConfigToStorage } from './agentCache.ts'
+import { getLatestStudioConfigFromStorage, saveStudioConfigToStorage } from './agentCache.ts'
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
 import { loadConfig } from './loadConfig.ts'
@@ -174,7 +174,8 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             const config = await loadConfig(resolvedConfigPath)
 
             // Message payload takes priority over previously saved studio config
-            const patch = data.payload
+            const storedConfig = data.payload ? null : await getLatestStudioConfigFromStorage({ sessionId }).catch(() => null)
+            const patch = data.payload ?? storedConfig ?? undefined
             const plugins = mergePlugins(config.plugins, patch?.plugins)
 
             // In sandbox mode the caller may supply raw OpenAPI / Swagger spec

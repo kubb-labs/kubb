@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { saveStudioConfigToStorage } from './agentCache.ts'
+import { getLatestStudioConfigFromStorage, saveStudioConfigToStorage } from './agentCache.ts'
 
 let mockStorage: any
 
@@ -39,6 +39,45 @@ describe('Agent cache', () => {
       expect(written).toHaveLength(2)
       expect(written[0].config).toEqual(first)
       expect(written[1].config).toEqual(second)
+    })
+  })
+
+  describe('getLatestStudioConfigFromStorage', () => {
+    it('returns null when no config is stored', async () => {
+      mockStorage.getItem.mockResolvedValueOnce(null)
+
+      const result = await getLatestStudioConfigFromStorage({ sessionId: 'session-123' })
+
+      expect(result).toBeNull()
+    })
+
+    it('returns null when the stored list is empty', async () => {
+      mockStorage.getItem.mockResolvedValueOnce([])
+
+      const result = await getLatestStudioConfigFromStorage({ sessionId: 'session-123' })
+
+      expect(result).toBeNull()
+    })
+
+    it('returns the most recently saved config', async () => {
+      const first = { plugins: [{ name: '@kubb/plugin-oas', options: {} }] }
+      const second = { plugins: [{ name: '@kubb/plugin-ts', options: {} }] }
+      mockStorage.getItem.mockResolvedValueOnce([
+        { config: first, storedAt: '2025-01-01T00:00:00.000Z' },
+        { config: second, storedAt: '2025-01-02T00:00:00.000Z' },
+      ])
+
+      const result = await getLatestStudioConfigFromStorage({ sessionId: 'session-123' })
+
+      expect(result).toEqual(second)
+    })
+
+    it('reads from the correct session-scoped key', async () => {
+      mockStorage.getItem.mockResolvedValueOnce(null)
+
+      await getLatestStudioConfigFromStorage({ sessionId: 'session-abc' })
+
+      expect(mockStorage.getItem).toHaveBeenCalledWith('configs:session-abc')
     })
   })
 })
