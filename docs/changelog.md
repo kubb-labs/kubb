@@ -10,6 +10,45 @@ outline: deep
 
 ### 🐛 Bug Fixes
 
+#### [`@kubb/core`](/packages/core/)
+
+**Remove "Smithery" dependency**
+
+The `Smithery` dependency has been removed to streamline the codebase and reduce unnecessary dependencies.
+
+---
+
+### 📦 Dependencies
+
+#### Updated dependencies across multiple plugins
+
+Updated dependencies for plugins to maintain compatibility with the latest version of `@kubb/core`.
+
+Updated plugins include:
+
+- [`@kubb/plugin-swr`](/plugins/plugin-swr/)
+- [`@kubb/plugin-client`](/plugins/plugin-client/)
+- [`@kubb/plugin-solid-query`](/plugins/plugin-solid-query/)
+- [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+- [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+- [`@kubb/plugin-svelte-query`](/plugins/plugin-svelte-query/)
+- [`@kubb/plugin-msw`](/plugins/plugin-msw/)
+- [`@kubb/plugin-react-query`](/plugins/plugin-react-query/)
+- [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+- [`@kubb/plugin-faker`](/plugins/plugin-faker/)
+- [`@kubb/plugin-vue-query`](/plugins/plugin-vue-query/)
+- [`@kubb/plugin-redoc`](/plugins/plugin-redoc/)
+- [`@kubb/plugin-mcp`](/plugins/plugin-mcp/)
+- [`@kubb/plugin-cypress`](/plugins/plugin-cypress/)
+- [`@kubb/cli`](/packages/cli/)
+
+Changes propagated in version `4.32.2` include the removal of the `Smithery` dependency to ensure future maintainability. All updated plugins are now dependent on this streamlined version of `@kubb/core`.
+
+
+## 4.32.2
+
+### 🐛 Bug Fixes
+
 #### [`@kubb/plugin-client`](/plugins/plugin-client/)
 
 **Fix invalid JavaScript variable names in path parameter const declarations**
