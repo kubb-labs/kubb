@@ -6,6 +6,35 @@ outline: deep
 
 # Changelog
 
+## 4.32.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Fix invalid JavaScript variable names in path parameter const declarations**
+
+Path parameters with dashes (e.g., `organization-id`) previously produced invalid JavaScript, such as `const organization-id = organizationId`. The URL template already converts these to camelCase, making the const declaration unnecessary. Parameters with invalid JavaScript identifiers are now filtered out to prevent errors.
+
+::: code-group
+
+```typescript [Before]
+// Invalid JavaScript output for path parameter
+const organization-id = organizationId  // ❌ SyntaxError: Unexpected token '-'
+```
+
+```typescript [After]
+// CamelCase is used directly for the path parameter
+const organizationId = '12345'  // ✅ Correct and valid
+```
+
+:::
+
+**Tests added**: New test cases verify that path parameters with dashes produce valid JavaScript.
+
+---
+
+
 ## 4.32.0
 
 ### ✨ Features
