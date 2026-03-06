@@ -4,14 +4,13 @@
  * Do not edit manually.
  */
 
-import fetch from '@kubb/plugin-client/clients/fetch'
-import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../../../models/ts/storeController/DeleteOrder.js'
-import type { GetInventoryQueryResponse } from '../../../models/ts/storeController/GetInventory.js'
-import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../../../models/ts/storeController/GetOrderById.js'
-import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../../../models/ts/storeController/PlaceOrder.js'
-import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../../../models/ts/storeController/PlaceOrderPatch.js'
 import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
-import { mergeConfig } from '@kubb/plugin-client/clients/fetch'
+import fetch, { mergeConfig } from '@kubb/plugin-client/clients/fetch'
+import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../../models/ts/storeController/DeleteOrder.js'
+import type { GetInventoryQueryResponse } from '../../../models/ts/storeController/GetInventory.js'
+import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../../models/ts/storeController/GetOrderById.js'
+import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../../../models/ts/storeController/PlaceOrder.js'
+import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../../../models/ts/storeController/PlaceOrderPatch.js'
 
 export class Store {
   #config: Partial<RequestConfig> & { client?: Client }

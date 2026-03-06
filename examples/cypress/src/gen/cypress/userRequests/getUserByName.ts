@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams } from '../../models/GetUserByName.ts'
+import type { GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/GetUserByName.ts'
 
 export function getUserByName(
   username: GetUserByNamePathParams['username'],

@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { Category } from '../models/Category.ts'
 import { faker } from '@faker-js/faker'
+import type { Category } from '../models/Category.ts'
 
 export function createCategory(data?: Partial<Category>): Category {
   faker.seed([220])

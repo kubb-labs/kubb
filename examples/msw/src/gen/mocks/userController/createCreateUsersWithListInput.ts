@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
+import { faker } from '@faker-js/faker'
 import type {
   CreateUsersWithListInput200,
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../models/CreateUsersWithListInput.ts'
 import { createUser } from '../createUser.ts'
-import { faker } from '@faker-js/faker'
 
 /**
  * @description Successful operation
