@@ -6,6 +6,34 @@ outline: deep
 
 # Changelog
 
+```markdown
+## 4.32.3
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Fix: Ensure correct configuration preference for `agent studio`**
+
+The configuration precedence in `agent studio` has been fixed to respect the studio configuration over disk-based configuration during the `generate` command execution. This prevents unexpected behaviors when dynamic configurations are used for generating operations.
+
+**Tests added**: The existing plugin tests have been updated to include scenarios where studio configurations take precedence in various setups.
+
+---
+
+### 📦 Dependencies
+
+#### [`@kubb/fabric-core`](/packages/fabric-core/) and [`@kubb/react-fabric`](/packages/react-fabric/)
+
+Updated to version `0.13.2`, providing enhancements and reliability improvements:
+- Fixed the `MaxListenersExceededWarning` issue by dynamically adjusting `process.maxListeners` within `onProcessExit()` callbacks.
+- Added `fabricChild.unmount()` method, allowing proper cleanup of listeners after runtime operations.
+
+**Improvements include**:
+- Relocation of `createReactFabric()` setups to a broader shared scope in test files, reducing resource overhead and preventing excessive event listener accumulation during tests.
+```
+
+
 ## 4.32.2
 
 ### 🐛 Bug Fixes
