@@ -11,7 +11,9 @@ const shared: Partial<UserConfig> = {
   sourcemap: true,
   shims: true,
   exports: true,
-  external: [/^@kubb\//, '@types/react'],
+  deps: {
+    neverBundle: [/^@kubb\//, '@types/react'],
+  },
   fixedExtension: false,
   outputOptions: {
     keepNames: true,

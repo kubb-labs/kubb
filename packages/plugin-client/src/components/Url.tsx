@@ -1,3 +1,4 @@
+import { isValidVarName } from '@kubb/core/transformers'
 import { URLPath } from '@kubb/core/utils'
 
 import { getDefaultValue, type Operation } from '@kubb/oas'
@@ -88,6 +89,7 @@ export function Url({
       <Function name={name} export={isExportable} params={params.toConstructor()}>
         {pathParamsMapping &&
           Object.entries(pathParamsMapping)
+            .filter(([originalName, camelCaseName]) => originalName !== camelCaseName && isValidVarName(originalName))
             .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
             .join('\n')}
         {pathParamsMapping && <br />}

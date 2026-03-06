@@ -80,6 +80,41 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
+  changelog:
+    name: Update Changelog
+    if: needs.release.outputs.published == 'true'
+    needs: [release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get version
+        id: version
+        uses: actions/github-script@v7
+        env:
+          PUBLISHED_PACKAGES: ${{ needs.release.outputs.published_packages }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-encoding: string
+          script: |
+            const publishedPackages = JSON.parse(process.env.PUBLISHED_PACKAGES || '[]');
+            const corePackage = publishedPackages.find(pkg => pkg.name === '@kubb/core');
+            return corePackage?.version || '';
+
+      - name: Create changelog issue for Copilot
+        if: steps.version.outputs.result != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const version = '${{ steps.version.outputs.result }}';
+            const { data: issue } = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Update docs/changelog.md for v${version}`,
+              body: 'Add changelog',
+              assignees: ['copilot']
+            });
+            console.log(`Created issue #${issue.number} assigned to Copilot`);
+
   notify:
     name: Send Discord Notification
     if: needs.release.outputs.published == 'true'
