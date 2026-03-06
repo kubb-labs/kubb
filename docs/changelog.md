@@ -6,6 +6,49 @@ outline: deep
 
 # Changelog
 
+## 4.32.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Added `serverVariables` option for resolving OpenAPI server URL template variables**
+
+When using `serverIndex` to select a server from the OpenAPI spec, URLs may contain template variables like `{env}` or `{region}`. The new `serverVariables` option lets you supply values for those variables at generation time. Variable values are validated against the `enum` list defined in the spec, and the spec-defined `default` is used as a fallback for any variable not explicitly provided.
+
+::: code-group
+
+```typescript [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+
+export default defineConfig({
+  plugins: [
+    pluginOas({
+      serverIndex: 0,
+      serverVariables: { env: 'prod' },
+    }),
+  ],
+})
+```
+
+```yaml [openapi.yaml]
+servers:
+  - url: https://api.{env}.example.com
+    variables:
+      env:
+        default: dev
+        enum: [dev, staging, prod]
+```
+
+```typescript [Generated output]
+// baseURL resolves to: https://api.prod.example.com
+```
+
+:::
+
+---
+
 ## 4.31.6
 
 ### 🐛 Bug Fixes

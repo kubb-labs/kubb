@@ -92,7 +92,10 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
             return undefined
           }
 
-          return resolveServerUrl(server as { url: string; variables?: Record<string, { default?: string | number; enum?: (string | number)[] }> }, serverVariables)
+          return resolveServerUrl(
+            server as { url: string; variables?: Record<string, { default?: string | number; enum?: (string | number)[] }> },
+            serverVariables,
+          )
         },
       }
     },
