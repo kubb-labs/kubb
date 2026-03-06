@@ -38,12 +38,12 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
           git commit --allow-empty -m "chore: placeholder for changelog v${VERSION}"
-          git push origin "$BRANCH"
+          git push origin "$BRANCH" --force
           gh pr create \
             --title "Update docs/changelog.md for v${VERSION}" \
             --body "Automated changelog PR for v${VERSION}." \
             --base main \
-            --head "$BRANCH"
+            --head "$BRANCH" || true
           PR_URL=$(gh pr view "$BRANCH" --json url -q '.url')
           gh pr comment "$PR_URL" --body "@copilot Please update \`docs/changelog.md\` for the \`v${VERSION}\` release.
 
