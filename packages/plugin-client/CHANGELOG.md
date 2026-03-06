@@ -1,5 +1,18 @@
 # @kubb/plugin-client
 
+## 4.32.1
+
+### Patch Changes
+
+- [#2652](https://github.com/kubb-labs/kubb/pull/2652) [`df6dba6`](https://github.com/kubb-labs/kubb/commit/df6dba6f16ba62fed751baebb6dec74baae6cae1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix path parameters with dashes (e.g., `organization-id`) generating invalid JavaScript like `const organization-id = organizationId`. Parameters with names that are not valid JS identifiers are now skipped in the const declaration since the URL template already uses the camelCased name directly.
+
+- Updated dependencies []:
+  - @kubb/core@4.32.1
+  - @kubb/oas@4.32.1
+  - @kubb/plugin-oas@4.32.1
+  - @kubb/plugin-ts@4.32.1
+  - @kubb/plugin-zod@4.32.1
+
 ## 4.32.0
 
 ### Patch Changes
