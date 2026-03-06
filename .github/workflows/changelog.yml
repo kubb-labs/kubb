@@ -24,8 +24,7 @@ jobs:
     steps:
       - name: Create issue for Copilot coding agent
         env:
-          # Requires a PAT with repo scope — GITHUB_TOKEN cannot trigger the coding agent
-          GH_TOKEN: ${{ secrets.COPILOT_PAT }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh issue create \
             --repo "${{ github.repository }}" \
