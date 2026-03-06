@@ -29,6 +29,9 @@ describe('classClientGenerator operations', async () => {
         group: {
           type: 'tag' as const,
         },
+        wrapper: {
+          className: 'PetStoreClient',
+        },
       } as Partial<PluginClient['resolvedOptions']>,
     },
   ] as const satisfies Array<{
@@ -58,6 +61,7 @@ describe('classClientGenerator operations', async () => {
       },
       group: undefined,
       urlType: 'export',
+      wrapper: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>

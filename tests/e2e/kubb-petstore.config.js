@@ -76,6 +76,19 @@ export default defineConfig(() => {
           },
         },
       }),
+      pluginClient({
+        output: {
+          path: './clients/axiosClass',
+          barrelType: false,
+        },
+        clientType: 'class',
+        group: {
+          type: 'tag',
+        },
+        wrapper: {
+          className: 'PetStoreClient',
+        },
+      }),
       pluginCypress({
         output: {
           path: './clients/cypress',
