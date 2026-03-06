@@ -1,3 +1,28 @@
+### Features
+- **agent:** Add `getMachineToken` helper utility to `token.ts` (#2641).
+- **agent:** Add `KUBB_AGENT_HEARTBEAT_URL` and HTTP heartbeat support (#2589, #2647).
+- **agent:** Add `KUBB_AGENT_POOL_SIZE` environment variable with default (#2589).
+- **cli:** Expand CI detection and enhance telemetry with OTLP format (#2584).
+- Support server variables for OAS plugin (#2639).
+- Add anonymous telemetry to Kubb CLI with `DO_NOT_TRACK` support.
+
+### Bug Fixes
+- **plugin-client:** Fix invalid JS variable names in path param const declarations (#2465).
+- **plugin-faker:** Prevent array type aliases from being wrapped in `Partial<>` (#2638).
+- **plugin-ts:** Correct barrel exports for empty enum schemas (#2637).
+- Fix SchemaGenerator issue with self-referential `z.lazy()` for `$ref` schemas (#2644).
+- Prevent shared cached sessions in studio plugin (#2589).
+- Upgrade `@kubb/fabric-core` and `@kubb/react-fabric`, fixing issues with `createReactFabric()` location (#2584).
+- Resolve TypeScript type-check errors in multi-file schema generation (#2584).
+- Improve type annotations and ensure correct type casting during bundling processes.
+
+### Internal
+- **ci:** Extract changelog job into reusable workflow (#2584).
+- **ci:** Trigger Copilot via PR reviewer instead of issue assignee.
+- Refactor `KUBB_DISABLE_TELEMETRY` internal handling.
+- Remove unused imports, improve logging, and cleanup configuration details.
+- Update and add E2E test cases for improved coverage.  
+
 ---
 title: Kubb Changelog - Release Notes & Updates
 description: Kubb changelog with release notes, bug fixes, new features, and breaking changes for all versions.
