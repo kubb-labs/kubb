@@ -1,3 +1,43 @@
+## 4.32.1
+
+### ✨ Features
+
+#### `plugin-oas`
+
+- Added functionality to support server variables, enabling dynamic adjustments based on server variable definitions in your OpenAPI specification. ([#2639](https://github.com/kubb-project/kubb/pull/2639))
+
+#### `agent`
+
+- Introduced `getMachineToken` utility for token management within `token.ts`. ([#2641](https://github.com/kubb-project/kubb/pull/2641))
+
+### 🐛 Bug Fixes
+
+#### `plugin-client`
+
+- Fixed an issue where invalid JavaScript variable names were being output while declaring path parameter constants, ensuring proper variable naming. ([8b51d4b3c](https://github.com/kubb-project/kubb/commit/8b51d4b3c))
+- Improved support for path parameters with dashes by adding new test cases. ([#2465](https://github.com/kubb-project/kubb/pull/2465))
+
+#### `plugin-ts`
+
+- Prevented barrel files from exporting non-existent runtime constants for empty enum schemas. ([#2637](https://github.com/kubb-project/kubb/pull/2637))
+
+#### `plugin-faker`
+
+- Resolved an issue where named array type aliases were unnecessarily wrapped in `Partial<>`. Named types are now generated correctly. ([#2638](https://github.com/kubb-project/kubb/pull/2638))
+
+#### `core`
+
+- Fixed an issue where the `ToZod` import was not properly marked as a type import, leading to potential conflicts. ([edfa8fe01](https://github.com/kubb-project/kubb/commit/edfa8fe01))
+- Addressed an issue where `agent studio` config was not taking priority over Kubb disk config during generation, ensuring expected behavior. ([#2647](https://github.com/kubb-project/kubb/pull/2647))
+
+### 🚀 Breaking Changes
+
+- Removed the `KUBB_AGENT_NO_CACHE` environment variable, requiring users to rely solely on the studio registration call for cache management. ([800312ee2](https://github.com/kubb-project/kubb/commit/800312ee2))
+
+### 📦 Dependencies
+
+- Updated dependencies and internal packages to ensure compatibility and improve developer experience. ([76d34955c](https://github.com/kubb-project/kubb/commit/76d34955c))
+
 ---
 title: Kubb Changelog - Release Notes & Updates
 description: Kubb changelog with release notes, bug fixes, new features, and breaking changes for all versions.
