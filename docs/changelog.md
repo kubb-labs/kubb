@@ -6,6 +6,77 @@ outline: deep
 
 # Changelog
 
+## 4.32.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Fix invalid JavaScript variable names in path parameter const declarations**
+
+Path parameters with dashes (e.g., `organization-id`) previously produced invalid JavaScript, such as `const organization-id = organizationId`. These invalid declarations have been removed as the URL template already converts these parameters to camelCase, ensuring valid and error-free code.
+
+::: code-group
+
+```typescript [Before]
+// Invalid JavaScript output for path parameter
+const organization-id = organizationId  // ❌ SyntaxError: Unexpected token '-'
+```
+
+```typescript [After]
+// CamelCase is used directly for the path parameter
+const organizationId = '12345'  // ✅ Correct and valid
+```
+
+:::
+
+**Tests updated**: Additional test cases verify path parameters with dashes produce valid JavaScript output.
+
+---
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Prevent barrel from exporting non-existent runtime consts for empty enum schemas**
+
+When enum schemas have no values (e.g., `enum: []` or `enum: [null]`), the plugin previously attempted to export runtime constants, resulting in broken compilation. This has been fixed by generating a `type Key = never` alias when the enum is empty.
+
+::: code-group
+
+```typescript [Before]
+// Incorrect runtime constant export for empty enum
+export const MyEnum = { } as const;  // ❌ Unused constant
+```
+
+```typescript [After]
+// Correctly generates "type" alias for empty enum
+export type MyEnumKey = never;  // ✅ No unused constant
+```
+
+:::
+
+**Docs updated**: Additional documentation for empty enum handling is available in the updated migration guide for `plugin-ts`.
+
+#### [`@kubb/plugin-faker`](/plugins/plugin-faker/)
+
+**Fix named array type aliases no longer wrapped in `Partial<>`**
+
+Named array type aliases are no longer erroneously wrapped with the `Partial<>` TypeScript utility type, ensuring the correct type generation. 
+
+---
+
+### 📦 Dependencies
+
+#### [`@kubb/fabric-core`](/packages/fabric-core/) and [`@kubb/react-fabric`](/packages/react-fabric/)
+
+Updated to version `0.13.2`, fixing the `MaxListenersExceededWarning` issue by dynamically adjusting `process.maxListeners` in `onProcessExit()`. The `Fabric` interface now exposes a new `unmount()` method to manage lifecycle events.
+
+**Fixes include**:
+- Moving the `createReactFabric()` function to a broader scope in tests to prevent excessive event listener accumulation.
+- Added `fabricChild.unmount()` calls within the generation process to clean up residual listeners.
+
+---
+
+
 ## 4.32.1
 
 ### 🐛 Bug Fixes
