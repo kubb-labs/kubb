@@ -1,5 +1,11 @@
 # @kubb/core
 
+## 4.32.2
+
+### Patch Changes
+
+- [`7346e64`](https://github.com/kubb-labs/kubb/commit/7346e645de64892abe4fcd06310639333dbd1f9f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove Smithery
+
 ## 4.32.1
 
 ## 4.32.0
