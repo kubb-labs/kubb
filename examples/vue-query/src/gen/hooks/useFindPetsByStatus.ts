@@ -65,13 +65,13 @@ export function useFindPetsByStatus<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = (queryOptions && 'queryKey' in queryOptions ? toValue(queryOptions.queryKey) : undefined) ?? findPetsByStatusQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = (resolvedOptions && 'queryKey' in resolvedOptions ? toValue(resolvedOptions.queryKey) : undefined) ?? findPetsByStatusQueryKey(params)
 
   const query = useQuery(
     {
       ...findPetsByStatusQueryOptions(params, config),
-      ...queryOptions,
+      ...resolvedOptions,
       queryKey,
     } as unknown as UseQueryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, TData, FindPetsByStatusQueryResponse, TQueryKey>,
     toValue(queryClient),

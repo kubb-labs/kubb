@@ -170,14 +170,14 @@ export function Query({
       >
         {`
        const { query: queryConfig = {}, client: config = {} } = options ?? {}
-       const { client: queryClient, ...queryOptions } = queryConfig
-       const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
+       const { client: queryClient, ...resolvedOptions } = queryConfig
+       const queryKey = resolvedOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
 
        const query = useQuery(() => ({
         ...${queryOptions},
         queryKey,
         initialData: null,
-        ...queryOptions as unknown as Omit<UseBaseQueryOptions, "queryKey">
+        ...resolvedOptions as unknown as Omit<UseBaseQueryOptions, "queryKey">
        }), queryClient? () => queryClient: undefined) as ${returnType}
 
        return query

@@ -61,8 +61,8 @@ export function useGetUserByNameSuspenseHook<TData = GetUserByNameQueryResponse,
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? getUserByNameSuspenseQueryKey({ username })
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? getUserByNameSuspenseQueryKey({ username })
   const customOptions = useCustomHookOptions({
     hookName: 'useGetUserByNameSuspenseHook',
     operationId: 'getUserByName',
@@ -72,8 +72,8 @@ export function useGetUserByNameSuspenseHook<TData = GetUserByNameQueryResponse,
     {
       ...getUserByNameSuspenseQueryOptionsHook({ username }, config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetUserByName400 | GetUserByName404>> & { queryKey: TQueryKey }

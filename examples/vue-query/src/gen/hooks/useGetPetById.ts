@@ -61,13 +61,13 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TQueryData = GetP
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = (queryOptions && 'queryKey' in queryOptions ? toValue(queryOptions.queryKey) : undefined) ?? getPetByIdQueryKey({ petId })
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = (resolvedOptions && 'queryKey' in resolvedOptions ? toValue(resolvedOptions.queryKey) : undefined) ?? getPetByIdQueryKey({ petId })
 
   const query = useQuery(
     {
       ...getPetByIdQueryOptions({ petId }, config),
-      ...queryOptions,
+      ...resolvedOptions,
       queryKey,
     } as unknown as UseQueryOptions<GetPetByIdQueryResponse, ResponseErrorConfig<GetPetById400 | GetPetById404>, TData, GetPetByIdQueryResponse, TQueryKey>,
     toValue(queryClient),

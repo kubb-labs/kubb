@@ -62,16 +62,16 @@ export function useFindPetsByTagsSuspense<TData = FindPetsByTagsQueryResponse, T
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
   const customOptions = useCustomHookOptions({ hookName: 'useFindPetsByTagsSuspense', operationId: 'findPetsByTags' })
 
   const query = useSuspenseQuery(
     {
       ...findPetsByTagsSuspenseQueryOptions(headers, params, config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }

@@ -66,13 +66,13 @@ export function useGetUserByName<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = (queryOptions && 'queryKey' in queryOptions ? toValue(queryOptions.queryKey) : undefined) ?? getUserByNameQueryKey({ username })
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = (resolvedOptions && 'queryKey' in resolvedOptions ? toValue(resolvedOptions.queryKey) : undefined) ?? getUserByNameQueryKey({ username })
 
   const query = useQuery(
     {
       ...getUserByNameQueryOptions({ username }, config),
-      ...queryOptions,
+      ...resolvedOptions,
       queryKey,
     } as unknown as UseQueryOptions<
       GetUserByNameQueryResponse,

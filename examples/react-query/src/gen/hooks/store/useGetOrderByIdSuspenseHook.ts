@@ -63,8 +63,8 @@ export function useGetOrderByIdSuspenseHook<TData = GetOrderByIdQueryResponse, T
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? getOrderByIdSuspenseQueryKey({ orderId })
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? getOrderByIdSuspenseQueryKey({ orderId })
   const customOptions = useCustomHookOptions({
     hookName: 'useGetOrderByIdSuspenseHook',
     operationId: 'getOrderById',
@@ -74,8 +74,8 @@ export function useGetOrderByIdSuspenseHook<TData = GetOrderByIdQueryResponse, T
     {
       ...getOrderByIdSuspenseQueryOptionsHook({ orderId }, config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetOrderById400 | GetOrderById404>> & { queryKey: TQueryKey }

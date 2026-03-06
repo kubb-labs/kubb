@@ -81,16 +81,16 @@ export function useFindPetsByTagsInfinite<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params)
   const customOptions = useCustomHookOptions({ hookName: 'useFindPetsByTagsInfinite', operationId: 'findPetsByTags' })
 
   const query = useInfiniteQuery(
     {
       ...findPetsByTagsInfiniteQueryOptions(headers, params, config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
     queryClient,
   ) as UseInfiniteQueryResult<TData, TError> & { queryKey: TQueryKey }

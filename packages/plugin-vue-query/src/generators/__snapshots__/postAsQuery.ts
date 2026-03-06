@@ -77,13 +77,14 @@ export function useUpdatePetWithForm<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = (queryOptions && 'queryKey' in queryOptions ? toValue(queryOptions.queryKey) : undefined) ?? updatePetWithFormQueryKey(petId, data, params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey =
+    (resolvedOptions && 'queryKey' in resolvedOptions ? toValue(resolvedOptions.queryKey) : undefined) ?? updatePetWithFormQueryKey(petId, data, params)
 
   const query = useQuery(
     {
       ...updatePetWithFormQueryOptions(petId, data, params, config),
-      ...queryOptions,
+      ...resolvedOptions,
       queryKey,
     } as unknown as UseQueryOptions<
       UpdatePetWithFormMutationResponse,

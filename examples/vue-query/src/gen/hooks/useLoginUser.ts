@@ -48,13 +48,13 @@ export function useLoginUser<TData = LoginUserQueryResponse, TQueryData = LoginU
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = (queryOptions && 'queryKey' in queryOptions ? toValue(queryOptions.queryKey) : undefined) ?? loginUserQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = (resolvedOptions && 'queryKey' in resolvedOptions ? toValue(resolvedOptions.queryKey) : undefined) ?? loginUserQueryKey(params)
 
   const query = useQuery(
     {
       ...loginUserQueryOptions(params, config),
-      ...queryOptions,
+      ...resolvedOptions,
       queryKey,
     } as unknown as UseQueryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, TData, LoginUserQueryResponse, TQueryKey>,
     toValue(queryClient),

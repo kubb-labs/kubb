@@ -77,13 +77,13 @@ export function useFindPetsByTagsInfinite<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = (queryOptions && 'queryKey' in queryOptions ? toValue(queryOptions.queryKey) : undefined) ?? findPetsByTagsInfiniteQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = (resolvedOptions && 'queryKey' in resolvedOptions ? toValue(resolvedOptions.queryKey) : undefined) ?? findPetsByTagsInfiniteQueryKey(params)
 
   const query = useInfiniteQuery(
     {
       ...findPetsByTagsInfiniteQueryOptions(headers, params, config),
-      ...queryOptions,
+      ...resolvedOptions,
       queryKey,
     } as unknown as UseInfiniteQueryOptions<
       FindPetsByTagsQueryResponse,

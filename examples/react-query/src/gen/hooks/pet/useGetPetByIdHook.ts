@@ -57,8 +57,8 @@ export function useGetPetByIdHook<TData = GetPetByIdQueryResponse, TQueryData = 
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey({ pet_id })
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? getPetByIdQueryKey({ pet_id })
   const customOptions = useCustomHookOptions({
     hookName: 'useGetPetByIdHook',
     operationId: 'get_pet_by_id',
@@ -68,8 +68,8 @@ export function useGetPetByIdHook<TData = GetPetByIdQueryResponse, TQueryData = 
     {
       ...getPetByIdQueryOptionsHook({ pet_id }, config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<GetPetById400 | GetPetById404>> & { queryKey: TQueryKey }

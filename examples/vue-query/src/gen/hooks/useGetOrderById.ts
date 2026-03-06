@@ -61,13 +61,13 @@ export function useGetOrderById<TData = GetOrderByIdQueryResponse, TQueryData = 
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = (queryOptions && 'queryKey' in queryOptions ? toValue(queryOptions.queryKey) : undefined) ?? getOrderByIdQueryKey({ orderId })
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = (resolvedOptions && 'queryKey' in resolvedOptions ? toValue(resolvedOptions.queryKey) : undefined) ?? getOrderByIdQueryKey({ orderId })
 
   const query = useQuery(
     {
       ...getOrderByIdQueryOptions({ orderId }, config),
-      ...queryOptions,
+      ...resolvedOptions,
       queryKey,
     } as unknown as UseQueryOptions<
       GetOrderByIdQueryResponse,

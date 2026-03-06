@@ -68,8 +68,8 @@ export function useFindPetsByTagsHook<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? findPetsByTagsQueryKey(params)
   const customOptions = useCustomHookOptions({
     hookName: 'useFindPetsByTagsHook',
     operationId: 'findPetsByTags',
@@ -79,8 +79,8 @@ export function useFindPetsByTagsHook<
     {
       ...findPetsByTagsQueryOptionsHook(params, config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & {

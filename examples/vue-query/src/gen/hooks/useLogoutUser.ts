@@ -46,13 +46,13 @@ export function useLogoutUser<TData = LogoutUserQueryResponse, TQueryData = Logo
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = (queryOptions && 'queryKey' in queryOptions ? toValue(queryOptions.queryKey) : undefined) ?? logoutUserQueryKey()
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = (resolvedOptions && 'queryKey' in resolvedOptions ? toValue(resolvedOptions.queryKey) : undefined) ?? logoutUserQueryKey()
 
   const query = useQuery(
     {
       ...logoutUserQueryOptions(config),
-      ...queryOptions,
+      ...resolvedOptions,
       queryKey,
     } as unknown as UseQueryOptions<LogoutUserQueryResponse, ResponseErrorConfig<Error>, TData, LogoutUserQueryResponse, TQueryKey>,
     toValue(queryClient),

@@ -50,8 +50,8 @@ export function useLoginUserSuspenseHook<TData = LoginUserQueryResponse, TQueryK
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? loginUserSuspenseQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? loginUserSuspenseQueryKey(params)
   const customOptions = useCustomHookOptions({
     hookName: 'useLoginUserSuspenseHook',
     operationId: 'loginUser',
@@ -61,8 +61,8 @@ export function useLoginUserSuspenseHook<TData = LoginUserQueryResponse, TQueryK
     {
       ...loginUserSuspenseQueryOptionsHook(params, config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<LoginUser400>> & {
