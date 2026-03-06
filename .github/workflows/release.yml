@@ -15,6 +15,7 @@ permissions:
   actions: write
   contents: write
   id-token: write
+  models: read
   packages: write
   pull-requests: write
   issues: write
