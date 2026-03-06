@@ -8,6 +8,44 @@ outline: deep
 
 ## 4.32.2
 
+### 📦 Dependencies
+
+#### [`@kubb/core`](/packages/core/)
+
+**Removed Smithery from the core package**
+
+The Smithery functionality has been deprecated and removed from `@kubb/core` to streamline the library. This change simplifies the core package, focusing on essential features.
+
+**Commit**: [`7346e64`](https://github.com/kubb-labs/kubb/commit/7346e645de64892abe4fcd06310639333dbd1f9f)
+
+---
+
+#### Various packages
+
+Updated dependencies across multiple plugins and packages to ensure compatibility with `@kubb/core@4.32.2` and other related updates:
+- [`@kubb/oas`](/packages/oas/)
+- [`@kubb/plugin-client`](/plugins/plugin-client/)
+- [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+- [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+- [`@kubb/plugin-faker`](/plugins/plugin-faker/)
+- [`@kubb/plugin-msw`](/plugins/plugin-msw/)
+- [`@kubb/plugin-cypress`](/plugins/plugin-cypress/)
+- [`@kubb/plugin-swr`](/plugins/plugin-swr/)
+- [`@kubb/plugin-solid-query`](/plugins/plugin-solid-query/)
+- [`@kubb/plugin-svelte-query`](/plugins/plugin-svelte-query/)
+- [`@kubb/plugin-react-query`](/plugins/plugin-react-query/)
+- [`@kubb/plugin-vue-query`](/plugins/plugin-vue-query/)
+- [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+- [`@kubb/plugin-redoc`](/plugins/plugin-redoc/)
+- [`@kubb/agent`](/packages/agent/)
+
+**Commit**: [`7346e64`](https://github.com/kubb-labs/kubb/commit/7346e645de64892abe4fcd06310639333dbd1f9f)
+
+---
+
+
+## 4.32.2
+
 ### 🐛 Bug Fixes
 
 #### [`@kubb/plugin-client`](/plugins/plugin-client/)
