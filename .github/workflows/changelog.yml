@@ -34,7 +34,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ inputs.version }}
         run: |
-          # Get commits between the previous tag and this release
           PREV_TAG=$(git tag --sort=-version:refname | grep -v "v${VERSION}" | head -1)
           CHANGES=$(git log "${PREV_TAG}..HEAD" --pretty=format:"- %s (%h)" --no-merges)
 
@@ -43,23 +42,24 @@ jobs:
             exit 0
           fi
 
-          # Generate changelog entry via GitHub Models API
+          SKILL=$(cat .skills/changelog/SKILL.md)
+
           NEW_ENTRY=$(curl -s https://models.inference.ai.azure.com/chat/completions \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
+              --arg skill "$SKILL" \
               --arg changes "$CHANGES" \
               --arg version "$VERSION" \
               '{
                 model: "gpt-4o",
                 messages: [
-                  {role: "system", content: "You are a release engineer writing a changelog for an open-source TypeScript library called Kubb. Given a list of git commits, produce a clean markdown changelog section for version v\($version). Group changes under ### Features, ### Bug Fixes, and ### Internal headings. Be concise. Output only the markdown text, no code fences."},
-                  {role: "user", content: $changes}
+                  {role: "system", content: "You are a release engineer for Kubb, an open-source TypeScript code-generation toolkit. Follow these guidelines exactly:\n\n\($skill)"},
+                  {role: "user", content: "Generate a changelog entry for version v\($version) based on these commits:\n\n\($changes)\n\nOutput only the markdown for this version section, starting with ## \($version). No code fences wrapping the output."}
                 ]
               }')" \
             | jq -r '.choices[0].message.content')
 
-          # Prepend to existing changelog
           echo -e "${NEW_ENTRY}\n" | cat - docs/changelog.md > /tmp/changelog.md
           mv /tmp/changelog.md docs/changelog.md
 
