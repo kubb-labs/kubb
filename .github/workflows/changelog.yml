@@ -43,19 +43,21 @@ jobs:
           fi
 
           SKILL=$(cat .skills/changelog/SKILL.md)
+          EXISTING=$(head -150 docs/changelog.md)
 
           NEW_ENTRY=$(curl -s https://models.inference.ai.azure.com/chat/completions \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
               --arg skill "$SKILL" \
+              --arg existing "$EXISTING" \
               --arg changes "$CHANGES" \
               --arg version "$VERSION" \
               '{
                 model: "gpt-4o",
                 messages: [
-                  {role: "system", content: "You are a release engineer for Kubb, an open-source TypeScript code-generation toolkit. Follow these guidelines exactly:\n\n\($skill)"},
-                  {role: "user", content: "Generate a changelog entry for version v\($version) based on these commits:\n\n\($changes)\n\nOutput only the markdown for this version section, starting with ## \($version). No code fences wrapping the output."}
+                  {role: "system", content: "You are a release engineer for Kubb. You must follow the changelog skill guidelines and match the exact format of the existing changelog.\n\n## Skill Guidelines\n\($skill)\n\n## Existing Changelog Format (match this exactly)\n\($existing)"},
+                  {role: "user", content: "Generate a changelog entry for version v\($version) based on these commits. Use the same heading levels, emoji prefixes, plugin link style, and VitePress code-group blocks as the existing changelog above. Skip internal/refactor/test/ci commits. Output only the markdown for this version section starting with ## \($version).\n\nCommits:\n\($changes)"}
                 ]
               }')" \
             | jq -r '.choices[0].message.content')
