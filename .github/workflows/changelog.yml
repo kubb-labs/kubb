@@ -43,9 +43,21 @@ jobs:
             exit 0
           fi
 
-          # Generate changelog entry via GitHub Models
-          NEW_ENTRY=$(echo "$CHANGES" | gh models run github/gpt-4o \
-            --system-prompt "You are a release engineer writing a changelog for an open-source TypeScript library called Kubb. Given a list of git commits, produce a clean markdown changelog section for version v${VERSION}. Group changes under '### Features', '### Bug Fixes', and '### Internal' headings. Be concise. Output only the markdown text, no code fences.")
+          # Generate changelog entry via GitHub Models API
+          NEW_ENTRY=$(curl -s https://models.inference.ai.azure.com/chat/completions \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg changes "$CHANGES" \
+              --arg version "$VERSION" \
+              '{
+                model: "gpt-4o",
+                messages: [
+                  {role: "system", content: "You are a release engineer writing a changelog for an open-source TypeScript library called Kubb. Given a list of git commits, produce a clean markdown changelog section for version v\($version). Group changes under ### Features, ### Bug Fixes, and ### Internal headings. Be concise. Output only the markdown text, no code fences."},
+                  {role: "user", content: $changes}
+                ]
+              }')" \
+            | jq -r '.choices[0].message.content')
 
           # Prepend to existing changelog
           echo -e "${NEW_ENTRY}\n" | cat - docs/changelog.md > /tmp/changelog.md
