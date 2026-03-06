@@ -1,5 +1,23 @@
 # @kubb/plugin-vue-query
 
+## 4.32.3
+
+### Patch Changes
+
+- [#2666](https://github.com/kubb-labs/kubb/pull/2666) [`86ab977`](https://github.com/kubb-labs/kubb/commit/86ab977e360cd9a98746ecc744682b772854cfc4) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix user-provided query options (e.g. `enabled`) not being applied in generated hooks.
+
+  The local destructured variable `queryOptions` in generated hook code was shadowing the imported `queryOptions` function from TanStack Query. This caused options like `enabled: false` passed at the call site to be silently ignored in certain environments.
+
+  The fix renames the local variable to `resolvedOptions` and ensures user options are spread before the explicit `queryKey` in the query call, so call-site overrides are always respected.
+
+- Updated dependencies []:
+  - @kubb/core@4.32.3
+  - @kubb/oas@4.32.3
+  - @kubb/plugin-client@4.32.3
+  - @kubb/plugin-oas@4.32.3
+  - @kubb/plugin-ts@4.32.3
+  - @kubb/plugin-zod@4.32.3
+
 ## 4.32.2
 
 ### Patch Changes
