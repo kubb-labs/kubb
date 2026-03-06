@@ -24,7 +24,7 @@ export async function createPetsHandler({
   headers: CreatePetsHeaderParams
   params?: CreatePetsQueryParams
 }): Promise<Promise<CallToolResult>> {
-  const mappedParams = params ? { bool_param: params.boolParam } : undefined
+  const mappedParams = params ? { bool_param: params.boolParam, offset: params.offset } : undefined
 
   const mappedHeaders = headers ? { 'X-EXAMPLE': headers.xEXAMPLE } : undefined
 
@@ -45,5 +45,6 @@ export async function createPetsHandler({
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

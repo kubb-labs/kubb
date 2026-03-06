@@ -1,5 +1,85 @@
 # @kubb/swagger
 
+## 4.32.2
+
+### Patch Changes
+
+- Updated dependencies [[`7346e64`](https://github.com/kubb-labs/kubb/commit/7346e645de64892abe4fcd06310639333dbd1f9f)]:
+  - @kubb/core@4.32.2
+  - @kubb/oas@4.32.2
+
+## 4.32.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.32.1
+  - @kubb/oas@4.32.1
+
+## 4.32.0
+
+### Minor Changes
+
+- [#2639](https://github.com/kubb-labs/kubb/pull/2639) [`95c4649`](https://github.com/kubb-labs/kubb/commit/95c4649eb01a0348424c779046d8312a6af09d51) Thanks [@hamzamihaidanielx](https://github.com/hamzamihaidanielx)! - Added `serverVariables` option to resolve OpenAPI server URL template variables when using `serverIndex`. Variables like `{env}` in server URLs are now substituted with user-provided values or their spec-defined defaults. Enum validation is enforced at generation time.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.32.0
+  - @kubb/oas@4.32.0
+
+## 4.31.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.6
+  - @kubb/oas@4.31.6
+
+## 4.31.5
+
+### Patch Changes
+
+- [#2627](https://github.com/kubb-labs/kubb/pull/2627) [`b81718f`](https://github.com/kubb-labs/kubb/commit/b81718fa2410275227fe07345ffa41a4811e0459) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix self-referential `z.lazy()` output for multi-file OpenAPI specs. When `@readme/openapi-parser` bundles multi-file specs, schemas in `components.schemas` could be represented as `$ref` objects. `SchemaGenerator#doBuild` now resolves those `$ref` entries before calling `parse()`, preventing output like `export const parcelSchema = z.lazy(() => parcelSchema)`.
+
+- Updated dependencies []:
+  - @kubb/core@4.31.5
+  - @kubb/oas@4.31.5
+
+## 4.31.4
+
+### Patch Changes
+
+- [#2628](https://github.com/kubb-labs/kubb/pull/2628) [`0a873dd`](https://github.com/kubb-labs/kubb/commit/0a873dd1b37d42167288970aa8f819e8ad5a78a5) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix `paramsCasing: 'camelcase'` dropping unchanged params from `mappedParams`. When a schema has a mix of snake_case and already-camelCase params, all params are now included in the mapping so they are correctly sent to the API.
+
+- Updated dependencies []:
+  - @kubb/core@4.31.4
+  - @kubb/oas@4.31.4
+
+## 4.31.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.3
+  - @kubb/oas@4.31.3
+
+## 4.31.2
+
+### Patch Changes
+
+- Updated dependencies [[`adadc15`](https://github.com/kubb-labs/kubb/commit/adadc1536f0fafdc15f095a8e42cc92977c2139a)]:
+  - @kubb/oas@4.31.2
+  - @kubb/core@4.31.2
+
+## 4.31.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.1
+  - @kubb/oas@4.31.1
+
 ## 4.31.0
 
 ### Patch Changes

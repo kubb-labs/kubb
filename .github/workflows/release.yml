@@ -15,6 +15,7 @@ permissions:
   actions: write
   contents: write
   id-token: write
+  models: read
   packages: write
   pull-requests: write
   issues: write
@@ -79,6 +80,36 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
+
+  get-version:
+    name: Get Published Version
+    if: needs.release.outputs.published == 'true'
+    needs: [release]
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.result }}
+    steps:
+      - name: Get version
+        id: version
+        uses: actions/github-script@v7
+        env:
+          PUBLISHED_PACKAGES: ${{ needs.release.outputs.published_packages }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-encoding: string
+          script: |
+            const publishedPackages = JSON.parse(process.env.PUBLISHED_PACKAGES || '[]');
+            const corePackage = publishedPackages.find(pkg => pkg.name === '@kubb/core');
+            return corePackage?.version || '';
+
+  changelog:
+    name: Update Changelog
+    if: needs.get-version.outputs.version != ''
+    needs: [get-version]
+    uses: ./.github/workflows/changelog.yml
+    with:
+      version: ${{ needs.get-version.outputs.version }}
+    secrets: inherit
 
   notify:
     name: Send Discord Notification

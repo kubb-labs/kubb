@@ -8,6 +8,7 @@ import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 import type { PluginOas } from './types.ts'
+import { resolveServerUrl } from './utils/resolveServerUrl.ts'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 
@@ -20,6 +21,7 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
     validate = true,
     generators = [jsonGenerator],
     serverIndex,
+    serverVariables,
     contentType,
     oasClass,
     discriminator = 'strict',
@@ -81,11 +83,19 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
         },
         async getBaseURL() {
           const oas = await getOas({ config, events, validate: false })
-          if (serverIndex !== undefined) {
-            return oas.api.servers?.at(serverIndex)?.url
+          if (serverIndex === undefined) {
+            return undefined
           }
 
-          return undefined
+          const server = oas.api.servers?.at(serverIndex)
+          if (!server?.url) {
+            return undefined
+          }
+
+          return resolveServerUrl(
+            server as { url: string; variables?: Record<string, { default?: string | number; enum?: (string | number)[] }> },
+            serverVariables,
+          )
         },
       }
     },

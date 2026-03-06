@@ -21,5 +21,6 @@ export async function deleteUserHandler({ username }: { username: DeleteUserPath
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

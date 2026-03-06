@@ -34,6 +34,16 @@ describe('mergePlugins', () => {
     expect(result?.[0].options).toMatchObject({ validate: false })
   })
 
+  it('returns a fresh plugin instance (not the disk reference) when merging matching plugins', () => {
+    const diskPlugin = makePlugin('plugin-oas', { validate: true })
+    const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-oas', options: { validate: false } }]
+
+    const result = mergePlugins([diskPlugin], studioPlugins)
+
+    // Must be a new instance so internal closures reference the merged options
+    expect(result?.[0]).not.toBe(diskPlugin)
+  })
+
   it('preserves disk plugins that have no studio counterpart', () => {
     const pluginTs = makePlugin('plugin-ts', { enumType: 'asConst' })
     const diskPlugins = [makePlugin('plugin-oas', { validate: true }), pluginTs]

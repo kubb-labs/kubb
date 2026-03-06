@@ -21,5 +21,6 @@ export async function loginUserHandler({ params }: { params?: LoginUserQueryPara
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

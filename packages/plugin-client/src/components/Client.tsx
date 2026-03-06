@@ -1,3 +1,4 @@
+import { isValidVarName } from '@kubb/core/transformers'
 import { URLPath } from '@kubb/core/utils'
 
 import { getDefaultValue, isOptional, type Operation } from '@kubb/oas'
@@ -245,6 +246,7 @@ export function Client({
           <br />
           {pathParamsMapping &&
             Object.entries(pathParamsMapping)
+              .filter(([originalName, camelCaseName]) => originalName !== camelCaseName && isValidVarName(originalName))
               .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
               .join('\n')}
           {pathParamsMapping && (

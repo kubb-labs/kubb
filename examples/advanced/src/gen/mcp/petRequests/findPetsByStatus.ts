@@ -23,5 +23,6 @@ export async function findPetsByStatusHandler({ stepId }: { stepId: FindPetsBySt
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

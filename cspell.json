@@ -82,6 +82,7 @@
     "nitropack",
     "cosmi",
     "Healthchecks",
-    "kvlist"
+    "kvlist",
+    "unstub"
   ]
 }

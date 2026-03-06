@@ -1,0 +1,88 @@
+name: Changelog
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to generate changelog for (e.g. 4.32.1)'
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      version:
+        description: 'Version to generate changelog for'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  models: read
+
+jobs:
+  changelog:
+    name: Update Changelog
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+
+      - name: Generate and prepend changelog entry
+        id: changelog
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          # Collect release bodies from all packages published at this version
+          CHANGES=""
+          while IFS= read -r tag; do
+            body=$(gh release view "$tag" --json body --jq '.body' 2>/dev/null || true)
+            [ -n "$body" ] && CHANGES="${CHANGES}### ${tag}"$'\n\n'"${body}"$'\n\n'
+          done < <(gh release list --limit 100 --json tagName | jq -r --arg v "@${VERSION}" '.[] | select(.tagName | endswith($v)) | .tagName')
+
+          if [ -z "$CHANGES" ]; then
+            echo "No release bodies found for version ${VERSION}, skipping."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+
+          SKILL=$(cat .skills/changelog/SKILL.md)
+          EXISTING=$(awk '/^## /{found++} found>=1{print} found>=3{exit}' docs/changelog.md)
+
+          NEW_ENTRY=$(curl -s https://models.inference.ai.azure.com/chat/completions \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg skill "$SKILL" \
+              --arg existing "$EXISTING" \
+              --arg changes "$CHANGES" \
+              --arg version "$VERSION" \
+              '{
+                model: "gpt-4o",
+                messages: [
+                  {role: "system", content: "You are a release engineer for Kubb. Follow the changelog skill guidelines and match the exact format of the existing entries.\n\n## Skill Guidelines\n\($skill)\n\n## Existing Changelog Entries (match this format exactly)\n\($existing)"},
+                  {role: "user", content: "Generate a changelog entry for version v\($version). Use the same heading levels (##, ###, ####), emoji prefixes (✨ 🐛 🚀 📦), plugin link style, and VitePress ::: code-group blocks as the examples below. Do NOT include any Dependencies sections, chores or dependency update entries. Output ONLY the markdown starting with ## \($version), nothing else.\n\nCommits:\n\($changes)"}
+                ]
+              }')" \
+            | jq -r '.choices[0].message.content')
+
+          # Insert the new entry after the "# Changelog" title line
+          awk -v entry="$NEW_ENTRY" '
+            /^# Changelog/ { print; print ""; print entry; print ""; next }
+            { print }
+          ' docs/changelog.md > /tmp/changelog.md
+          mv /tmp/changelog.md docs/changelog.md
+
+      - name: Open PR with updated changelog
+        if: steps.changelog.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ github.token }}
+          commit-message: "docs: update changelog for v${{ inputs.version }}"
+          title: "docs: update changelog for v${{ inputs.version }}"
+          body: "Changelog entry for `v${{ inputs.version }}` generated from `.changeset/` files via GitHub Models."
+          branch: "changelog/v${{ inputs.version }}"
+          base: main
+          delete-branch: true

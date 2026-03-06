@@ -6,6 +6,349 @@ outline: deep
 
 # Changelog
 
+## 4.32.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Fix invalid JavaScript variable names in path parameter const declarations**
+
+Path parameters with dashes (e.g., `organization-id`) previously produced invalid JavaScript, such as `const organization-id = organizationId`. These invalid declarations have been removed as the URL template already converts these parameters to camelCase, ensuring valid and error-free code.
+
+::: code-group
+
+```typescript [Before]
+// Invalid JavaScript output for path parameter
+const organization-id = organizationId  // ❌ SyntaxError: Unexpected token '-'
+```
+
+```typescript [After]
+// CamelCase is used directly for the path parameter
+const organizationId = '12345'  // ✅ Correct and valid
+```
+
+:::
+
+**Tests updated**: Additional test cases verify path parameters with dashes produce valid JavaScript output.
+
+---
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Prevent barrel from exporting non-existent runtime consts for empty enum schemas**
+
+When enum schemas have no values (e.g., `enum: []` or `enum: [null]`), the plugin previously attempted to export runtime constants, resulting in broken compilation. This has been fixed by generating a `type Key = never` alias when the enum is empty.
+
+::: code-group
+
+```typescript [Before]
+// Incorrect runtime constant export for empty enum
+export const MyEnum = { } as const;  // ❌ Unused constant
+```
+
+```typescript [After]
+// Correctly generates "type" alias for empty enum
+export type MyEnumKey = never;  // ✅ No unused constant
+```
+
+:::
+
+**Docs updated**: Additional documentation for empty enum handling is available in the updated migration guide for `plugin-ts`.
+
+#### [`@kubb/plugin-faker`](/plugins/plugin-faker/)
+
+**Fix named array type aliases no longer wrapped in `Partial<>`**
+
+Named array type aliases are no longer erroneously wrapped with the `Partial<>` TypeScript utility type, ensuring the correct type generation. 
+
+---
+
+### 📦 Dependencies
+
+#### [`@kubb/fabric-core`](/packages/fabric-core/) and [`@kubb/react-fabric`](/packages/react-fabric/)
+
+Updated to version `0.13.2`, fixing the `MaxListenersExceededWarning` issue by dynamically adjusting `process.maxListeners` in `onProcessExit()`. The `Fabric` interface now exposes a new `unmount()` method to manage lifecycle events.
+
+**Fixes include**:
+- Moving the `createReactFabric()` function to a broader scope in tests to prevent excessive event listener accumulation.
+- Added `fabricChild.unmount()` calls within the generation process to clean up residual listeners.
+
+---
+
+
+## 4.32.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Fix invalid JavaScript variable names in path parameter const declarations**
+
+Path parameters with dashes (e.g., `organization-id`) previously produced invalid JavaScript, such as `const organization-id = organizationId`. The URL template already converts these to camelCase, making the const declaration unnecessary. Parameters with invalid JavaScript identifiers are now filtered out to prevent errors.
+
+::: code-group
+
+```typescript [Before]
+// Invalid JavaScript output for path parameter
+const organization-id = organizationId  // ❌ SyntaxError: Unexpected token '-'
+```
+
+```typescript [After]
+// CamelCase is used directly for the path parameter
+const organizationId = '12345'  // ✅ Correct and valid
+```
+
+:::
+
+**Tests added**: New test cases verify that path parameters with dashes produce valid JavaScript.
+
+---
+
+
+## 4.32.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Added `serverVariables` option for resolving OpenAPI server URL template variables**
+
+When using `serverIndex` to select a server from the OpenAPI spec, URLs may contain template variables like `{env}` or `{region}`. The new `serverVariables` option lets you supply values for those variables at generation time. Variable values are validated against the `enum` list defined in the spec, and the spec-defined `default` is used as a fallback for any variable not explicitly provided.
+
+::: code-group
+
+```typescript [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+
+export default defineConfig({
+  plugins: [
+    pluginOas({
+      serverIndex: 0,
+      serverVariables: { env: 'prod' },
+    }),
+  ],
+})
+```
+
+```yaml [openapi.yaml]
+servers:
+  - url: https://api.{env}.example.com
+    variables:
+      env:
+        default: dev
+        enum: [dev, staging, prod]
+```
+
+```typescript [Generated output]
+// baseURL resolves to: https://api.prod.example.com
+```
+
+:::
+
+---
+
+## 4.31.6
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Fix empty enum generating a broken barrel export**
+
+Two scenarios produce an enum with no runtime values:
+- `enum: [null]` — only `null` is valid; Kubb filters `null` out of the `as const` object, leaving an empty list.
+- `enum: []` — a placeholder empty enum in the spec.
+
+With `enumType: 'asConst'` or `'asPascalConst'`, `createEnumDeclaration` previously returned an empty `VariableStatement` even when there were no enum values. The barrel file emitted `export { myConst }` pointing to a `const` that was never written — breaking `tsc` and any bundler performing type-checking.
+
+When `enums.length === 0`, `createEnumDeclaration` now returns `[undefined, neverTypeAlias]`. The `undefined` nameNode is skipped by the `{nameNode && …}` guard in `Type.tsx`, so no const is registered and the barrel omits the value export. The generated type becomes `export type XKey = never`, which is semantically correct for an empty enum.
+
+::: code-group
+
+```typescript [Before]
+// enum: [null] with enumType: 'asConst'
+// barrel emitted a broken export pointing to a non-existent const
+export { myConst }        // ❌ myConst was never written
+export type MyConstKey = never
+```
+
+```typescript [After]
+// barrel omits the value export entirely
+export type MyConstKey = never  // ✅ self-contained, no dangling reference
+```
+
+:::
+
+#### [`@kubb/plugin-faker`](/plugins/plugin-faker/)
+
+**Fix named array type aliases incorrectly wrapped in `Partial<>`**
+
+`$ref` schemas that resolve to a type with `type: array` were being wrapped in `Partial<>`, producing TypeScript errors like `(Item | undefined)[] is not assignable to Item[]`. Named array type aliases are no longer wrapped in `Partial<>`.
+
+::: code-group
+
+```typescript [Before]
+// $ref → { type: 'array', items: { $ref: '#/components/schemas/Item' } }
+export function createItems(): Partial<Item>[] {
+  return [createItem()]  // ❌ (Item | undefined)[] not assignable to Item[]
+}
+```
+
+```typescript [After]
+export function createItems(): Item[] {
+  return [createItem()]  // ✅
+}
+```
+
+:::
+
+#### [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+
+**Fix `ToZod` imported as a type import**
+
+`ToZod` was incorrectly emitted as `import { ToZod }`, causing type errors.
+
+::: code-group
+
+```typescript [Before]
+import { ToZod } from '@kubb/plugin-zod/zod'  // ❌ stripped at runtime
+```
+
+```typescript [After]
+import type { ToZod } from '@kubb/plugin-zod/zod'  // ✅
+```
+
+:::
+
+---
+
+## 4.31.5
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Fix self-referential `z.lazy()` output for multi-file OpenAPI specs**
+
+When `@readme/openapi-parser` bundles multi-file specs, schemas in `components.schemas` could be represented as `$ref` objects. `SchemaGenerator#doBuild` now resolves those `$ref` entries before calling `parse()`, preventing output like `export const parcelSchema = z.lazy(() => parcelSchema)`.
+
+::: code-group
+
+```typescript [Before]
+// multi-file spec: parcel.yaml referenced from main spec
+// output was a self-referential lazy schema
+export const parcelSchema = z.lazy(() => parcelSchema)
+```
+
+```typescript [After]
+// multi-file spec: parcel.yaml referenced from main spec
+// $ref is resolved before parsing, producing the correct schema
+export const parcelSchema = z.object({
+  id: z.number(),
+  // ...
+})
+```
+
+:::
+
+---
+
+## 4.31.4
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Fix `paramsCasing: 'camelcase'` dropping unchanged params from `mappedParams`**
+
+When a parameter schema contained a mix of snake_case and already-camelCase params (e.g. `user_id` and `page`), only the params whose names actually changed were included in `mappedParams`. This caused already-camelCase params to be silently dropped and never sent to the API.
+
+Now, when `paramsCasing: 'camelcase'` is set and any transformation is needed, all params are included in the mapping so they are correctly forwarded to the API.
+
+::: code-group
+
+```typescript [Before]
+// Schema: { user_id, page } with paramsCasing: 'camelcase'
+// mappedParams only contained user_id -> userId
+// 'page' was missing and never sent to the API
+const { userId } = params
+// 'page' was silently dropped
+```
+
+```typescript [After]
+// Schema: { user_id, page } with paramsCasing: 'camelcase'
+// mappedParams contains both user_id -> userId AND page -> page
+const { userId, page } = params
+// Both params are correctly sent to the API
+```
+
+:::
+
+---
+
+## 4.31.3
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-mcp`](/plugins/plugin-mcp/)
+
+**Use `registerTool` helper and include `structuredContent` in MCP handler responses**
+
+MCP handlers now use the `registerTool` helper and return `structuredContent: { data: res.data }` alongside the existing `content` array, enabling richer structured output for MCP tool results.
+
+---
+
+## 4.31.2
+
+### 📦 Dependencies
+
+- Upgrade Fabric
+
+---
+
+## 4.31.1
+
+### 🐛 Bug Fixes
+
+
+#### [`@kubb/oas`](/plugins/plugin-oas/)
+
+**Restore separate schema generation for multi-file OpenAPI specs**
+
+When a main OpenAPI spec referenced external files (e.g. `api-definitions.yml#/components/requestBodies/...`), the bundler was inlining all external schemas rather than lifting them into `#/components/schemas/`. This caused `getSchemas()` to return nothing, so plugins like `plugin-zod` generated all schemas inline—no separate `parcelSchema.ts`, no `contactDetailsTypeSchema.ts`, etc.
+
+A pre-bundling step now merges external file `components/` sections into the main document before bundling, ensuring all named component schemas are preserved and separate schema files are generated as expected.
+
+---
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Don't mutate `config.signal`, use it only if available**
+
+The generated `queryFn` no longer mutates the `config` object to assign `signal`. Instead, it spreads `config` and uses `config.signal` if already set, falling back to the signal provided by the query framework.
+
+::: code-group
+
+```typescript [Before]
+queryFn: async ({ signal }) => {
+  if (!config.signal) {
+    config.signal = signal
+  }
+  return findPetsByStatus({ stepId }, config)
+},
+```
+
+```typescript [After]
+queryFn: async ({ signal }) => {
+  return findPetsByStatus({ stepId }, { ...config, signal: config.signal ?? signal })
+},
+```
+
+:::
+---
+
 ## 4.31.0
 
 ### ✨ Features

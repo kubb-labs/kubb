@@ -160,6 +160,26 @@ describe('clientGenerator operation', async () => {
       method: 'post',
       options: {},
     },
+    {
+      name: 'dashedPathParams',
+      input: '../../mocks/dashedPathParams.yaml',
+      path: '/organizations/{organization-id}',
+      method: 'get',
+      options: {
+        paramsCasing: 'camelcase',
+        pathParamsType: 'object',
+      },
+    },
+    {
+      name: 'dashedPathParamsInline',
+      input: '../../mocks/dashedPathParams.yaml',
+      path: '/organizations/{organization-id}',
+      method: 'get',
+      options: {
+        paramsCasing: 'camelcase',
+        pathParamsType: 'inline',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

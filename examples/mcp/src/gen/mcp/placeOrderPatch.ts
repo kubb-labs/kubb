@@ -24,5 +24,6 @@ export async function placeOrderPatchHandler({ data }: { data?: PlaceOrderPatchM
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

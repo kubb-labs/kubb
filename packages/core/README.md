@@ -9,7 +9,6 @@
 [![Coverage][coverage-src]][coverage-href]
 [![License][license-src]][license-href]
 [![Sponsors][sponsors-src]][sponsors-href]
-[![smithery badge](https://smithery.ai/badge/@kubb-labs/kubb)](https://smithery.ai/server/@kubb-labs/kubb)
 <h4>
 <a href="https://codesandbox.io/s/github/kubb-labs/kubb/tree/main/examples/typescript" target="_blank">View Demo</a>
 <span> · </span>
@@ -57,7 +56,7 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 
 ## Supporting Kubb
 
-Kubb uses an MIT-licensed open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
+Kubb is an open source project with its ongoing development made possible entirely by the support of Sponsors. If you would like to become a sponsor, please consider:
 
 - [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
 
@@ -141,6 +140,7 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
       <td align="center" valign="top" width="14.28%"><a href="https://choly.ca"><img src="https://avatars.githubusercontent.com/u/943597?v=4?s=100" width="100px;" alt="Ilia Choly"/><br /><sub><b>Ilia Choly</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=icholy" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/skoropadas"><img src="https://avatars.githubusercontent.com/u/20700969?v=4?s=100" width="100px;" alt="Alex Skoropad"/><br /><sub><b>Alex Skoropad</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=skoropadas" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://pateljay.io"><img src="https://avatars.githubusercontent.com/u/36803168?v=4?s=100" width="100px;" alt="Jay Patel"/><br /><sub><b>Jay Patel</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=jay-babu" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://hamzamihaidaniel.com"><img src="https://avatars.githubusercontent.com/u/12731515?v=4?s=100" width="100px;" alt="Hamza Mihai Daniel"/><br /><sub><b>Hamza Mihai Daniel</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=hamzamihaidanielx" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
@@ -156,6 +156,16 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+## License
+
+Most of this repository is licensed under the [MIT License](./licenses/LICENSE-MIT), Copyright © 2025 [Stijn Van Hulle](https://stijnvanhulle.be). Some components are licensed
+under AGPL-3.0-or-later.
+
+- **Most packages** — [MIT](./licenses/LICENSE-MIT)
+- **`@kubb/agent`** — [AGPL-3.0-or-later](./licenses/LICENSE-AGPL-3.0)
+
+See [LICENSE](./LICENSE) for details.
 
 ## Star History
 
@@ -174,8 +184,8 @@ Kubb uses an MIT-licensed open source project with its ongoing development made 
 [npm-version-href]: https://npmx.dev/package/@kubb/core
 [npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/core?flat&colorA=18181B&colorB=f58517
 [npm-downloads-href]: https://npmjs.com/package/@kubb/core
-[license-src]: https://img.shields.io/github/license/kubb-labs/kubb.svg?flat&colorA=18181B&colorB=f58517
-[license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
+[license-src]: https://img.shields.io/npm/l/%40kubb%2Fcore?flat&colorA=18181B&colorB=f58517
+[license-href]: https://github.com/kubb-labs/kubb/blob/main/licenses/LICENSE-MIT
 [build-src]: https://img.shields.io/github/actions/workflow/status/kubb-labs/kubb/ci.yaml?style=flat&colorA=18181B&colorB=f58517
 [build-href]: https://www.npmjs.com/package/@kubb/core
 [minified-src]: https://img.shields.io/bundlephobia/min/@kubb/core?style=flat&colorA=18181B&colorB=f58517

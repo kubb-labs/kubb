@@ -540,6 +540,21 @@ export function createEnumDeclaration({
   // typeName has the Key suffix for type alias, so we use name for the const identifier
   const identifierName = name
 
+  // When there are no enum items (empty or all-null enum), don't generate a runtime const.
+  // Return undefined for nameNode so the barrel won't try to export a non-existent symbol.
+  // Use `never` as the type alias to keep references valid without creating a broken const.
+  if (enums.length === 0) {
+    return [
+      undefined,
+      factory.createTypeAliasDeclaration(
+        [factory.createToken(ts.SyntaxKind.ExportKeyword)],
+        factory.createIdentifier(typeName),
+        undefined,
+        factory.createKeywordTypeNode(ts.SyntaxKind.NeverKeyword),
+      ),
+    ]
+  }
+
   return [
     factory.createVariableStatement(
       [factory.createToken(ts.SyntaxKind.ExportKeyword)],

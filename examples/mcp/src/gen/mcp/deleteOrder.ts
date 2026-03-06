@@ -21,5 +21,6 @@ export async function deleteOrderHandler({ orderId }: { orderId: DeleteOrderPath
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

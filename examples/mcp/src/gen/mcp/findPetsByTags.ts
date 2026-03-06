@@ -29,5 +29,6 @@ export async function findPetsByTagsHandler({
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

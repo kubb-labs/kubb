@@ -50,10 +50,7 @@ export function updatePetWithFormQueryOptions(
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return updatePetWithForm(petId, data, params, config)
+      return updatePetWithForm(petId, data, params, { ...config, signal: config.signal ?? signal })
     },
   })
 }

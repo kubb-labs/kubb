@@ -519,6 +519,47 @@ describe('typeGenerator schema', async () => {
         optionalType: 'questionToken',
       },
     },
+    // https://github.com/kubb-labs/kubb/issues/2564
+    // Barrel file tries to export non-existing runtime consts when enum-like source is empty
+    {
+      name: 'EnumEmpty',
+      input: '../../mocks/enums.yaml',
+      path: 'enum.Empty',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    // https://github.com/kubb-labs/kubb/issues/2564
+    {
+      name: 'EnumNullOnly',
+      input: '../../mocks/enums.yaml',
+      path: 'enum.NullOnly',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    // https://github.com/kubb-labs/kubb/issues/2564
+    {
+      name: 'EnumObjectWithEmptyEnum',
+      input: '../../mocks/enums.yaml',
+      path: 'enum.ObjectWithEmptyEnum',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    // https://github.com/kubb-labs/kubb/issues/2564
+    {
+      name: 'EnumEmptyPascalConst',
+      input: '../../mocks/enums.yaml',
+      path: 'enum.Empty',
+      options: {
+        enumType: 'asPascalConst',
+        optionalType: 'questionToken',
+      },
+    },
     // https://github.com/kubb-labs/kubb/issues/2561
     // Format with contentMediaType should be a Blob
     {

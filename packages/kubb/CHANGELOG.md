@@ -1,5 +1,97 @@
 # kubb
 
+## 3.0.236
+
+### Patch Changes
+
+- [`7346e64`](https://github.com/kubb-labs/kubb/commit/7346e645de64892abe4fcd06310639333dbd1f9f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove Smithery
+
+- Updated dependencies [[`7346e64`](https://github.com/kubb-labs/kubb/commit/7346e645de64892abe4fcd06310639333dbd1f9f)]:
+  - @kubb/core@4.32.2
+  - @kubb/agent@4.32.2
+  - @kubb/cli@4.32.2
+  - @kubb/mcp@4.32.2
+
+## 3.0.235
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@4.32.1
+  - @kubb/cli@4.32.1
+  - @kubb/core@4.32.1
+  - @kubb/mcp@4.32.1
+
+## 3.0.234
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@4.32.0
+  - @kubb/cli@4.32.0
+  - @kubb/core@4.32.0
+  - @kubb/mcp@4.32.0
+
+## 3.0.233
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@4.31.6
+  - @kubb/cli@4.31.6
+  - @kubb/core@4.31.6
+  - @kubb/mcp@4.31.6
+
+## 3.0.232
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@4.31.5
+  - @kubb/cli@4.31.5
+  - @kubb/core@4.31.5
+  - @kubb/mcp@4.31.5
+
+## 3.0.231
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@4.31.4
+  - @kubb/cli@4.31.4
+  - @kubb/core@4.31.4
+  - @kubb/mcp@4.31.4
+
+## 3.0.230
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@4.31.3
+  - @kubb/cli@4.31.3
+  - @kubb/core@4.31.3
+  - @kubb/mcp@4.31.3
+
+## 3.0.229
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@4.31.2
+  - @kubb/agent@4.31.2
+  - @kubb/core@4.31.2
+  - @kubb/mcp@4.31.2
+
+## 3.0.228
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@4.31.1
+  - @kubb/cli@4.31.1
+  - @kubb/core@4.31.1
+  - @kubb/mcp@4.31.1
+
 ## 3.0.227
 
 ### Patch Changes

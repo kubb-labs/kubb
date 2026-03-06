@@ -77,13 +77,6 @@ declare global {
       KUBB_AGENT_CONFIG: string | undefined
 
       /**
-       * When `"true"`, disables session caching in `~/.kubb/config.json` so
-       * each run starts fresh.
-       * @default "false"
-       */
-      KUBB_AGENT_NO_CACHE: string | undefined
-
-      /**
        * Milliseconds the agent waits before attempting to reconnect after an
        * unexpected WebSocket disconnect.
        * @default "30000"
@@ -103,6 +96,20 @@ declare global {
        * @default "false"
        */
       KUBB_AGENT_ALLOW_ALL: string | undefined
+
+      /**
+       * When `"true"`, allows the agent to run the publish command (e.g. `npm publish`).
+       * Implies the user has configured an `.npmrc` or equivalent credentials on the agent.
+       * @default "false"
+       */
+      KUBB_AGENT_ALLOW_PUBLISH: string | undefined
+
+      /**
+       * Default shell command used when a publish is triggered without an explicit command in the WebSocket payload.
+       * @default "npm publish"
+       * @example "npm publish --access public"
+       */
+      KUBB_AGENT_PUBLISH_COMMAND: string | undefined
 
       /**
        * URL of the Kubb Studio instance the agent connects to.

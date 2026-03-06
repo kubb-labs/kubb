@@ -1,28 +1,41 @@
-import { defineConfig } from 'tsdown'
+import { defineConfig, type UserConfig } from 'tsdown'
 
-export default defineConfig({
-  entry: {
-    index: 'src/index.ts',
-    transformers: 'src/transformers/index.ts',
-    hooks: 'src/hooks/index.ts',
-    fs: 'src/fs/index.ts',
-    utils: 'src/utils/index.ts',
-  },
-  dts: true,
-  format: ['esm', 'cjs'],
+const entry = {
+  index: 'src/index.ts',
+  transformers: 'src/transformers/index.ts',
+  hooks: 'src/hooks/index.ts',
+  fs: 'src/fs/index.ts',
+  utils: 'src/utils/index.ts',
+}
+
+const shared: Partial<UserConfig> = {
   platform: 'node',
   sourcemap: true,
   shims: true,
   exports: true,
-  external: [/^@kubb\//],
-  noExternal: [/p-limit/],
-  inlineOnly: false,
-  fixedExtension: false,
-  outExtensions({ format }) {
-    if (format === 'cjs') return { dts: '.d.ts' }
-    return {}
+  deps: {
+    neverBundle: [/^@kubb\//],
+    alwaysBundle: [/p-limit/],
+    onlyAllowBundle: false,
   },
+  fixedExtension: false,
   outputOptions: {
     keepNames: true,
   },
-})
+}
+
+export default defineConfig([
+  {
+    // ESM: generate dts here only to avoid two competing type chunks
+    entry,
+    format: 'esm',
+    dts: true,
+    ...shared,
+  },
+  {
+    entry,
+    format: 'cjs',
+    dts: false,
+    ...shared,
+  },
+])

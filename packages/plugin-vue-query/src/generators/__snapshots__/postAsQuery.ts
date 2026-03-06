@@ -52,10 +52,7 @@ export function updatePetWithFormQueryOptions(
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return updatePetWithForm(toValue(petId), toValue(data), toValue(params), toValue(config))
+      return updatePetWithForm(toValue(petId), toValue(data), toValue(params), { ...config, signal: config.signal ?? signal })
     },
   })
 }

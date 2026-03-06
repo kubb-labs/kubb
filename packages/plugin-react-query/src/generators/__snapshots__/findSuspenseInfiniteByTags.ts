@@ -49,15 +49,11 @@ export function findPetsByTagsSuspenseInfiniteQueryOptions(
   >({
     queryKey,
     queryFn: async ({ signal, pageParam }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-
       params = {
         ...(params ?? {}),
         ['pageSize']: pageParam as unknown as FindPetsByTagsQueryParams['pageSize'],
       } as FindPetsByTagsQueryParams
-      return findPetsByTagsSuspenseInfinite(headers, params, config)
+      return findPetsByTagsSuspenseInfinite(headers, params, { ...config, signal: config.signal ?? signal })
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage) && lastPage.length === 0 ? undefined : lastPageParam + 1),

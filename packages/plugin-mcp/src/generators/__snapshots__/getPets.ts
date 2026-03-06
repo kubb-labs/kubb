@@ -16,5 +16,6 @@ export async function listPetsHandler({ params }: { params?: ListPetsQueryParams
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

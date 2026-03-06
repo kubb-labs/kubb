@@ -1,28 +1,40 @@
-import { defineConfig } from 'tsdown'
+import { defineConfig, type UserConfig } from 'tsdown'
 
-export default defineConfig({
-  entry: {
-    index: 'src/index.ts',
-    mocks: 'src/mocks/index.ts',
-    utils: 'src/utils/index.ts',
-    generators: 'src/generators/index.ts',
-    hooks: 'src/hooks/index.ts',
-  },
-  dts: true,
-  format: ['esm', 'cjs'],
+const entry = {
+  index: 'src/index.ts',
+  mocks: 'src/mocks/index.ts',
+  utils: 'src/utils/index.ts',
+  generators: 'src/generators/index.ts',
+  hooks: 'src/hooks/index.ts',
+}
+
+const shared: Partial<UserConfig> = {
   platform: 'node',
   sourcemap: true,
   shims: true,
   exports: true,
-  noExternal: [/p-limit/],
-  inlineOnly: false,
-  external: [/^@kubb\//, '@types/react'],
-  fixedExtension: false,
-  outExtensions({ format }) {
-    if (format === 'cjs') return { dts: '.d.ts' }
-    return {}
+  deps: {
+    alwaysBundle: [/p-limit/],
+    onlyAllowBundle: false,
+    neverBundle: [/^@kubb\//, '@types/react'],
   },
+  fixedExtension: false,
   outputOptions: {
     keepNames: true,
   },
-})
+}
+
+export default defineConfig([
+  {
+    entry,
+    format: 'esm',
+    dts: true,
+    ...shared,
+  },
+  {
+    entry,
+    format: 'cjs',
+    dts: false,
+    ...shared,
+  },
+])

@@ -20,5 +20,6 @@ export async function logoutUserHandler(): Promise<Promise<CallToolResult>> {
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

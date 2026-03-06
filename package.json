@@ -24,7 +24,7 @@
     "changeset": "changeset",
     "clean": "turbo run clean",
     "format": "biome format --write ./ && biome check --fix --unsafe",
-    "generate": "turbo run generate --filter=./examples/* --continue --concurrency=5",
+    "generate": "KUBB_DISABLE_TELEMETRY=1 turbo run generate --filter=./examples/* --continue --concurrency=5",
     "postgenerate": "pnpm run lint:fix && pnpm run format",
     "graph": "npx nx graph ",
     "lint": "biome lint ./packages",
@@ -47,9 +47,9 @@
     ]
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.5",
+    "@biomejs/biome": "^2.4.6",
     "@changesets/changelog-github": "^0.5.2",
-    "@changesets/cli": "^2.29.8",
+    "@changesets/cli": "^2.30.0",
     "@kubb/fabric-core": "catalog:",
     "@kubb/react-fabric": "catalog:",
     "@manypkg/cli": "^0.25.1",
@@ -64,7 +64,7 @@
     "taze": "^19.10.0",
     "ts-node": "^10.9.2",
     "tsdown": "catalog:",
-    "turbo": "^2.8.12",
+    "turbo": "^2.8.13",
     "typescript": "catalog:",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.0.18"

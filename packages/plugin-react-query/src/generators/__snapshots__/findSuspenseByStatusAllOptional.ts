@@ -40,10 +40,7 @@ export function findPetsByStatusSuspenseQueryOptions(
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      if (!config.signal) {
-        config.signal = signal
-      }
-      return findPetsByStatusSuspense({ params }, config)
+      return findPetsByStatusSuspense({ params: params }, { ...config, signal: config.signal ?? signal })
     },
   })
 }

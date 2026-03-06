@@ -405,6 +405,31 @@ describe('Code Generation', () => {
         }),
       ),
     ).toMatchSnapshot()
+
+    // https://github.com/kubb-labs/kubb/issues/2564
+    // Empty enum should not create a runtime const (undefined nameNode)
+    expect(
+      await formatTS(
+        createEnumDeclaration({
+          type: 'asConst',
+          name: 'hello',
+          typeName: 'HelloKey',
+          enums: [],
+        }),
+      ),
+    ).toMatchSnapshot()
+
+    // https://github.com/kubb-labs/kubb/issues/2564
+    expect(
+      await formatTS(
+        createEnumDeclaration({
+          type: 'asPascalConst',
+          name: 'Hello',
+          typeName: 'HelloKey',
+          enums: [],
+        }),
+      ),
+    ).toMatchSnapshot()
   })
 })
 

@@ -122,6 +122,31 @@ describe('getParamsMapping', () => {
     expect(getParamsMapping(schema, { casing: 'camelcase' })).toBeUndefined()
   })
 
+  test('should include all params when some need transformation and some are already camelCase', () => {
+    const schema = {
+      name: 'QueryParams',
+      schema: {
+        type: 'object',
+        properties: {
+          page: { type: 'integer' },
+          search: { type: 'string' },
+          responsible: { type: 'string' },
+          page_size: { type: 'integer' },
+          order_by: { type: 'string' },
+        },
+      },
+    } as unknown as OperationSchema
+    // page, search, responsible are already camelCase but must be included
+    // because page_size and order_by require transformation
+    expect(getParamsMapping(schema, { casing: 'camelcase' })).toStrictEqual({
+      page: 'page',
+      search: 'search',
+      responsible: 'responsible',
+      page_size: 'pageSize',
+      order_by: 'orderBy',
+    })
+  })
+
   test('should handle boolean parameter names correctly', () => {
     const schema = {
       name: 'QueryParams',

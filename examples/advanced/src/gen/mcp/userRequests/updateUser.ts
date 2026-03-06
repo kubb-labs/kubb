@@ -30,5 +30,6 @@ export async function updateUserHandler({
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

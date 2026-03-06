@@ -79,6 +79,19 @@ components:
         enum:
           - created_at
           - description
+    enum.Empty:
+      type: string
+      enum: []
+    enum.NullOnly:
+      type: string
+      enum:
+        - null
+    enum.ObjectWithEmptyEnum:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: []
 
 openapi: "3.1.0"
 info:

@@ -25,5 +25,6 @@ export async function addFilesHandler({ data }: { data: AddFilesMutationRequest 
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

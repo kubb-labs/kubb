@@ -35,7 +35,6 @@ services:
       - .env
     environment:
       PORT: 3000
-      KUBB_AGENT_NO_CACHE: "true"
       KUBB_AGENT_ALLOW_WRITE: "false"
       KUBB_AGENT_ALLOW_ALL: "false"
       KUBB_AGENT_RETRY_TIMEOUT: "30000"

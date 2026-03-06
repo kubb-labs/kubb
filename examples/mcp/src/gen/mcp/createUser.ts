@@ -24,5 +24,6 @@ export async function createUserHandler({ data }: { data?: CreateUserMutationReq
         text: JSON.stringify(res.data),
       },
     ],
+    structuredContent: { data: res.data },
   }
 }

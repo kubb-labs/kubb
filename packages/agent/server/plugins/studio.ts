@@ -1,7 +1,6 @@
 import path from 'node:path'
 import process from 'node:process'
 import type { AgentConnectResponse } from '~/types/agent.ts'
-import { getSessionKey } from '~/utils/agentCache.ts'
 import { createAgentSession, registerAgent } from '~/utils/api.ts'
 import { connectToStudio } from '~/utils/connectStudio.ts'
 import { logger } from '~/utils/logger.ts'
@@ -25,12 +24,12 @@ export default defineNitroPlugin(async (nitro) => {
   const studioUrl = process.env.KUBB_STUDIO_URL || 'https://studio.kubb.dev'
   const token = process.env.KUBB_AGENT_TOKEN
   const configPath = process.env.KUBB_AGENT_CONFIG || 'kubb.config.ts'
-  const noCache = process.env.KUBB_AGENT_NO_CACHE === 'true'
   const retryInterval = process.env.KUBB_AGENT_RETRY_TIMEOUT ? Number.parseInt(process.env.KUBB_AGENT_RETRY_TIMEOUT, 10) : 30000
   const heartbeatInterval = process.env.KUBB_AGENT_HEARTBEAT_INTERVAL ? Number.parseInt(process.env.KUBB_AGENT_HEARTBEAT_INTERVAL, 10) : 30_000
   const root = process.env.KUBB_AGENT_ROOT || process.cwd()
   const allowAll = process.env.KUBB_AGENT_ALLOW_ALL === 'true'
   const allowWrite = allowAll || process.env.KUBB_AGENT_ALLOW_WRITE === 'true'
+  const allowPublish = allowAll || process.env.KUBB_AGENT_ALLOW_PUBLISH === 'true'
   const poolSize = process.env.KUBB_AGENT_POOL_SIZE ? Number.parseInt(process.env.KUBB_AGENT_POOL_SIZE, 10) : 1
 
   if (!token) {
@@ -50,9 +49,7 @@ export default defineNitroPlugin(async (nitro) => {
   }
 
   const resolvedConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(root, configPath)
-  const storage = useStorage<AgentSession>('kubb')
-  const sessionKey = getSessionKey(token)
-  const maskedSessionKey = maskedString(sessionKey.replace('sessions:', ''))
+  const maskedToken = maskedString(token)
 
   try {
     await registerAgent({ token, studioUrl, poolSize })
@@ -62,41 +59,35 @@ export default defineNitroPlugin(async (nitro) => {
       studioUrl,
       configPath,
       resolvedConfigPath,
-      noCache,
       allowAll,
       allowWrite,
+      allowPublish,
       root,
       retryInterval,
       heartbeatInterval,
-      storage,
-      sessionKey,
       nitro,
     }
 
-    logger.info(`[${maskedSessionKey}] Starting session pool of ${poolSize} connection(s)`)
+    logger.info(`[${maskedToken}] Starting session pool of ${poolSize} connection(s)`)
 
-    const sessions = new Map<string, AgentConnectResponse | null>()
+    const sessions = new Map<number, AgentConnectResponse | null>()
     for (const index of Array.from({ length: poolSize }, (_, i) => i)) {
-      const cacheKey = `${sessionKey}-${index}`
-      const maskedSessionKey = maskedString(cacheKey)
-      const session = await createAgentSession({ noCache, token, studioUrl, cacheKey }).catch((err) => {
-        logger.warn(`[${maskedSessionKey}] Failed to pre-create pool session:`, err?.message)
+      const session = await createAgentSession({ token, studioUrl }).catch((err) => {
+        logger.warn(`[${maskedToken}] Failed to pre-create pool session ${index}:`, err?.message)
         return null
       })
-      sessions.set(cacheKey, session)
+      sessions.set(index, session)
     }
 
-    let index = 0
-    for (const [cacheKey, session] of sessions) {
-      index++
+    for (const [index, session] of sessions.entries()) {
       if (!session) {
         continue
       }
-      const maskedSessionKey = maskedString(session.sessionId)
+      const maskedSessionId = maskedString(session.sessionId)
 
-      logger.info(`[${maskedSessionKey}] Connecting session ${index}/${sessions.size}`)
-      await connectToStudio({ ...baseOptions, initialSession: session, sessionKey: cacheKey }).catch((err: any) => {
-        logger.warn(`[${maskedSessionKey}] Session ${index} failed to connect:`, err?.message)
+      logger.info(`[${maskedSessionId}] Connecting session ${index + 1}/${sessions.size}`)
+      await connectToStudio({ ...baseOptions, initialSession: session }).catch((err: any) => {
+        logger.warn(`[${maskedSessionId}] Session ${index + 1} failed to connect:`, err?.message)
       })
     }
   } catch (error: any) {

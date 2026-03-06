@@ -1,5 +1,74 @@
 # @kubb/oas
 
+## 4.32.2
+
+### Patch Changes
+
+- Updated dependencies [[`7346e64`](https://github.com/kubb-labs/kubb/commit/7346e645de64892abe4fcd06310639333dbd1f9f)]:
+  - @kubb/core@4.32.2
+
+## 4.32.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.32.1
+
+## 4.32.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.32.0
+
+## 4.31.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.6
+
+## 4.31.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.5
+
+## 4.31.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.4
+
+## 4.31.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.3
+
+## 4.31.2
+
+### Patch Changes
+
+- [#2620](https://github.com/kubb-labs/kubb/pull/2620) [`adadc15`](https://github.com/kubb-labs/kubb/commit/adadc1536f0fafdc15f095a8e42cc92977c2139a) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - fix: merge external file component schemas before bundling to restore separate schema generation
+
+  When a main OpenAPI spec references external files (e.g. `api-definitions.yml#/components/requestBodies/...`), the bundler was inlining all external schemas rather than lifting them into `#/components/schemas/`. This caused plugins like `plugin-zod` to generate all schemas inline—no separate `parcelSchema.ts`, no `contactDetailsTypeSchema.ts`, etc.
+
+  A pre-bundling step now scans the main spec for external local-file references, merges their `components/` sections into the main document, and replaces external file refs with internal refs before passing to the bundler. This ensures `getSchemas()` returns all component schemas and separate schema files are generated as expected.
+
+- Updated dependencies []:
+  - @kubb/core@4.31.2
+
+## 4.31.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.1
+
 ## 4.31.0
 
 ### Patch Changes

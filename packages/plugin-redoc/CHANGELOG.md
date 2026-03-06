@@ -1,5 +1,86 @@
 # @kubb/plugin-redoc
 
+## 4.32.2
+
+### Patch Changes
+
+- Updated dependencies [[`7346e64`](https://github.com/kubb-labs/kubb/commit/7346e645de64892abe4fcd06310639333dbd1f9f)]:
+  - @kubb/core@4.32.2
+  - @kubb/oas@4.32.2
+  - @kubb/plugin-oas@4.32.2
+
+## 4.32.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.32.1
+  - @kubb/oas@4.32.1
+  - @kubb/plugin-oas@4.32.1
+
+## 4.32.0
+
+### Patch Changes
+
+- Updated dependencies [[`95c4649`](https://github.com/kubb-labs/kubb/commit/95c4649eb01a0348424c779046d8312a6af09d51)]:
+  - @kubb/plugin-oas@4.32.0
+  - @kubb/core@4.32.0
+  - @kubb/oas@4.32.0
+
+## 4.31.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.6
+  - @kubb/oas@4.31.6
+  - @kubb/plugin-oas@4.31.6
+
+## 4.31.5
+
+### Patch Changes
+
+- Updated dependencies [[`b81718f`](https://github.com/kubb-labs/kubb/commit/b81718fa2410275227fe07345ffa41a4811e0459)]:
+  - @kubb/plugin-oas@4.31.5
+  - @kubb/core@4.31.5
+  - @kubb/oas@4.31.5
+
+## 4.31.4
+
+### Patch Changes
+
+- Updated dependencies [[`0a873dd`](https://github.com/kubb-labs/kubb/commit/0a873dd1b37d42167288970aa8f819e8ad5a78a5)]:
+  - @kubb/plugin-oas@4.31.4
+  - @kubb/core@4.31.4
+  - @kubb/oas@4.31.4
+
+## 4.31.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.3
+  - @kubb/oas@4.31.3
+  - @kubb/plugin-oas@4.31.3
+
+## 4.31.2
+
+### Patch Changes
+
+- Updated dependencies [[`adadc15`](https://github.com/kubb-labs/kubb/commit/adadc1536f0fafdc15f095a8e42cc92977c2139a)]:
+  - @kubb/oas@4.31.2
+  - @kubb/plugin-oas@4.31.2
+  - @kubb/core@4.31.2
+
+## 4.31.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.31.1
+  - @kubb/oas@4.31.1
+  - @kubb/plugin-oas@4.31.1
+
 ## 4.31.0
 
 ### Patch Changes
