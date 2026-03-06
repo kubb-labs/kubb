@@ -26,26 +26,25 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
       - name: Generate and prepend changelog entry
+        id: changelog
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ inputs.version }}
         run: |
-          PREV_TAG=$(git tag --sort=-version:refname | grep -v "v${VERSION}" | head -1)
-          CHANGES=$(git log "${PREV_TAG}..HEAD" \
-            --pretty=format:"commit: %s%n%b" \
-            --no-merges \
-            --invert-grep \
-            --perl-regexp \
-            --grep="^(ci|chore|refactor|test|build|style)(\(.+\))?:")
+          # Collect release bodies from all packages published at this version
+          CHANGES=$(gh release list --limit 100 --json tagName,body \
+            --jq --arg v "@${VERSION}" '.[] | select(.tagName | endswith($v)) | "### " + .tagName + "\n\n" + .body' \
+            2>/dev/null || true)
 
           if [ -z "$CHANGES" ]; then
-            echo "No relevant commits found since ${PREV_TAG}, skipping."
+            echo "No release bodies found for version ${VERSION}, skipping."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
 
           SKILL=$(cat .skills/changelog/SKILL.md)
           EXISTING=$(awk '/^## /{found++} found>=1{print} found>=3{exit}' docs/changelog.md)
@@ -75,6 +74,7 @@ jobs:
           mv /tmp/changelog.md docs/changelog.md
 
       - name: Open PR with updated changelog
+        if: steps.changelog.outputs.has_changes == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ github.token }}
