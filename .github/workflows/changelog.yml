@@ -15,38 +15,20 @@ on:
         type: string
 
 permissions:
-  contents: write
-  pull-requests: write
+  issues: write
 
 jobs:
   changelog:
     name: Update Changelog
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Create changelog PR for Copilot
+      - name: Create issue for Copilot coding agent
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ inputs.version }}
+          # Requires a PAT with repo scope — GITHUB_TOKEN cannot trigger the coding agent
+          GH_TOKEN: ${{ secrets.COPILOT_PAT }}
         run: |
-          BRANCH="changelog/v${VERSION}"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$BRANCH"
-          git commit --allow-empty -m "chore: placeholder for changelog v${VERSION}"
-          git push origin "$BRANCH" --force
-          gh pr create \
-            --title "Update docs/changelog.md for v${VERSION}" \
-            --body "Automated changelog PR for v${VERSION}." \
-            --base main \
-            --head "$BRANCH" || true
-          PR_URL=$(gh pr view "$BRANCH" --json url -q '.url')
-          gh pr comment "$PR_URL" --body "@copilot Please update \`docs/changelog.md\` for the \`v${VERSION}\` release.
-
-          - Add a new section at the top for \`v${VERSION}\`
-          - Summarize the changes from the \`.changeset/\` files that were part of this release
-          - Follow the existing format and style already present in \`docs/changelog.md\`"
+          gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "Update docs/changelog.md for v${{ inputs.version }}" \
+            --body "Update \`docs/changelog.md\` for the \`v${{ inputs.version }}\` release. Add a new section at the top, summarize the changes from the \`.changeset/\` files, and follow the existing format." \
+            --assignee copilot-swe-agent
