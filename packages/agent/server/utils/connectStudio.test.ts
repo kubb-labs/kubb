@@ -27,6 +27,7 @@ vi.mock('./resolvePlugins.ts', () => ({
 
 vi.mock('./agentCache.ts', () => ({
   saveStudioConfigToStorage: vi.fn().mockResolvedValue(undefined),
+  getLatestStudioConfigFromStorage: vi.fn().mockResolvedValue(null),
 }))
 
 vi.mock('./logger.ts', () => ({
@@ -41,7 +42,7 @@ vi.mock('./ws.ts', () => ({
 
 vi.mock('~~/package.json', () => ({ default: { version: '1.0.0' }, version: '1.0.0' }))
 
-import { saveStudioConfigToStorage } from './agentCache.ts'
+import { getLatestStudioConfigFromStorage, saveStudioConfigToStorage } from './agentCache.ts'
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
 import { loadConfig } from './loadConfig.ts'
@@ -235,6 +236,32 @@ describe('connectToStudio', () => {
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'generate', payload }) })
 
     expect(saveStudioConfigToStorage).not.toHaveBeenCalled()
+  })
+
+  it('falls back to stored studio config when generate command has no payload', async () => {
+    const storedConfig = { plugins: [{ name: '@kubb/plugin-ts', options: { enumType: 'asConst' } }] }
+    vi.mocked(getLatestStudioConfigFromStorage).mockResolvedValueOnce(storedConfig)
+
+    await connectToStudio(options)
+
+    await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'generate' }) })
+
+    expect(getLatestStudioConfigFromStorage).toHaveBeenCalledWith({ sessionId: 'session-abc' })
+    expect(resolvePlugins).toHaveBeenCalledWith(storedConfig.plugins)
+  })
+
+  it('uses the payload plugins over the stored studio config when both are present', async () => {
+    const storedConfig = { plugins: [{ name: '@kubb/plugin-ts', options: { enumType: 'asConst' } }] }
+    vi.mocked(getLatestStudioConfigFromStorage).mockResolvedValueOnce(storedConfig)
+
+    const payload = { plugins: [{ name: '@kubb/plugin-oas', options: {} }] }
+
+    await connectToStudio(options)
+
+    await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'generate', payload }) })
+
+    // resolvePlugins is called with the payload plugins (not the stored ones)
+    expect(resolvePlugins).toHaveBeenCalledWith(payload.plugins)
   })
 
   // connect command

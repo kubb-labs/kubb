@@ -16,3 +16,14 @@ export async function saveStudioConfigToStorage({ sessionId, config }: { session
   const existing = (await storage.getItem(key)) ?? []
   await storage.setItem(key, [...existing, { config, storedAt: new Date().toISOString() }])
 }
+
+/**
+ * Returns the most recently saved studio config for the given session, or null if none exists.
+ */
+export async function getLatestStudioConfigFromStorage({ sessionId }: { sessionId: string }): Promise<JSONKubbConfig | null> {
+  const storage = getStorage()
+  const key = `configs:${sessionId}`
+  const existing = await storage.getItem(key)
+  if (!existing?.length) return null
+  return existing[existing.length - 1].config
+}
