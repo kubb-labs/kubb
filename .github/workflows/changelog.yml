@@ -15,19 +15,65 @@ on:
         type: string
 
 permissions:
-  issues: write
+  contents: write
+  pull-requests: write
+  models: read  # Required to use the GitHub Models API with GITHUB_TOKEN
 
 jobs:
-  changelog:
-    name: Update Changelog
+  update-changelog:
     runs-on: ubuntu-latest
     steps:
-      - name: Create issue for Copilot coding agent
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install LLM CLI and GitHub Models Plugin
         run: |
-          gh issue create \
-            --repo "${{ github.repository }}" \
-            --title "Update docs/changelog.md for v${{ inputs.version }}" \
-            --body "Update \`docs/changelog.md\` for the \`v${{ inputs.version }}\` release. Add a new section at the top, summarize the changes from the \`.changeset/\` files, and follow the existing format." \
-            --assignee copilot-swe-agent
+          pip install llm llm-github-models
+
+      - name: Generate Changelog with AI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          # 1. Gather context from .changeset files
+          # Adjust the path if your changeset files are elsewhere
+          if [ -d ".changeset" ]; then
+            CHANGES=$(cat .changeset/*.md | grep -v "---")
+          else
+            echo "No changesets found. Exiting."
+            exit 1
+          fi
+
+          # 2. Use the LLM to format the new entry
+          # We pipe the changes into the 'llm' tool
+          echo "$CHANGES" | llm prompt \
+            -m github/gpt-4o \
+            -s "You are a release engineer. Create a markdown changelog entry for version v${VERSION}.
+                Group changes by 'Features', 'Bug Fixes', and 'Internal'.
+                Keep it concise. Do not include markdown code blocks in the output, just the text." \
+            > new_entry.md
+
+          # 3. Prepend the AI output to your existing changelog
+          if [ -f "docs/changelog.md" ]; then
+            cat new_entry.md docs/changelog.md > temp.md
+            mv temp.md docs/changelog.md
+          else
+            mv new_entry.md docs/changelog.md
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update changelog for v${{ inputs.version }}"
+          title: "Update Changelog v${{ inputs.version }}"
+          body: "This PR was automatically generated using GitHub Models (GPT-4o) and the .changeset files."
+          branch: "changelog/v${{ inputs.version }}"
+          base: main
