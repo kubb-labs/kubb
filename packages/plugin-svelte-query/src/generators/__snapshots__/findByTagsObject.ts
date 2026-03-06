@@ -64,14 +64,14 @@ export function createFindPetsByTags<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? findPetsByTagsQueryKey(params)
 
   const query = createQuery(
     {
       ...findPetsByTagsQueryOptions({ headers, params }, config),
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }

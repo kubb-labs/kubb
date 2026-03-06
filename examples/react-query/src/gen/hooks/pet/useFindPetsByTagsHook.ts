@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
-import { queryOptions, useQuery } from '@tanstack/react-query'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../.kubb/fetch.ts'
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../../models/FindPetsByTags.ts'
+import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
 import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
+import { queryOptions, useQuery } from '@tanstack/react-query'
 
 export const findPetsByTagsQueryKey = (params: FindPetsByTagsQueryParams = {}) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 
@@ -68,8 +68,8 @@ export function useFindPetsByTagsHook<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? findPetsByTagsQueryKey(params)
   const customOptions = useCustomHookOptions({
     hookName: 'useFindPetsByTagsHook',
     operationId: 'findPetsByTags',
@@ -79,8 +79,8 @@ export function useFindPetsByTagsHook<
     {
       ...findPetsByTagsQueryOptionsHook(params, config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & {

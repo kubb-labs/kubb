@@ -182,14 +182,14 @@ export function SuspenseQuery({
       >
         {`
        const { query: queryConfig = {}, client: config = {} } = options ?? {}
-       const { client: queryClient, ...queryOptions } = queryConfig
-       const queryKey = queryOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
+       const { client: queryClient, ...resolvedOptions } = queryConfig
+       const queryKey = resolvedOptions?.queryKey ?? ${queryKeyName}(${queryKeyParams.toCall()})
        ${customOptions ? `const customOptions = ${customOptions.name}({ hookName: '${name}', operationId: '${operation.getOperationId()}' })` : ''}
 
        const query = useSuspenseQuery({
         ...${queryOptions},${customOptions ? '\n...customOptions,' : ''}
+        ...resolvedOptions,
         queryKey,
-        ...queryOptions
        } as unknown as UseSuspenseQueryOptions, queryClient) as ${returnType}
 
        query.queryKey = queryKey as TQueryKey

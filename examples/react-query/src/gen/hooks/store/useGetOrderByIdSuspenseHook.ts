@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { Client, RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
+import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../../models/GetOrderById.ts'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../models/GetOrderById.ts'
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 export const getOrderByIdSuspenseQueryKey = ({ orderId }: { orderId: GetOrderByIdPathParams['orderId'] }) =>
   ['v5', { url: '/store/order/:orderId', params: { orderId: orderId } }] as const
@@ -63,8 +63,8 @@ export function useGetOrderByIdSuspenseHook<TData = GetOrderByIdQueryResponse, T
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? getOrderByIdSuspenseQueryKey({ orderId })
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? getOrderByIdSuspenseQueryKey({ orderId })
   const customOptions = useCustomHookOptions({
     hookName: 'useGetOrderByIdSuspenseHook',
     operationId: 'getOrderById',
@@ -74,8 +74,8 @@ export function useGetOrderByIdSuspenseHook<TData = GetOrderByIdQueryResponse, T
     {
       ...getOrderByIdSuspenseQueryOptionsHook({ orderId }, config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<GetOrderById400 | GetOrderById404>> & { queryKey: TQueryKey }

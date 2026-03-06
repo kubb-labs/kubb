@@ -14,11 +14,11 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryClient, QueryKey } from '@tanstack/svelte-query'
-import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { Client, RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById.ts'
+import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
 import { fetch } from '../.kubb/fetch.ts'
-import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById.ts'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 
@@ -73,14 +73,14 @@ export function createGetOrderById<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
 
   const query = createQuery(
     {
       ...getOrderByIdQueryOptions(orderId, config),
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<GetOrderById400 | GetOrderById404>> & { queryKey: TQueryKey }

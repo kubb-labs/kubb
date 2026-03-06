@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { InfiniteData, InfiniteQueryObserverOptions, QueryClient, QueryKey, UseInfiniteQueryResult } from '@tanstack/react-query'
-import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../.kubb/fetch.ts'
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../../models/FindPetsByTags.ts'
+import type { InfiniteData, QueryKey, QueryClient, InfiniteQueryObserverOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
+import { infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
 
 export const findPetsByTagsInfiniteQueryKey = (params: FindPetsByTagsQueryParams = {}) =>
   ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
@@ -77,8 +77,8 @@ export function useFindPetsByTagsInfiniteHook<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params)
   const customOptions = useCustomHookOptions({
     hookName: 'useFindPetsByTagsInfiniteHook',
     operationId: 'findPetsByTags',
@@ -88,8 +88,8 @@ export function useFindPetsByTagsInfiniteHook<
     {
       ...findPetsByTagsInfiniteQueryOptionsHook(params, config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as InfiniteQueryObserverOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
     queryClient,
   ) as UseInfiniteQueryResult<TData, TError> & { queryKey: TQueryKey }

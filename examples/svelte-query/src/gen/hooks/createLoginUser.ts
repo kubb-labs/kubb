@@ -14,11 +14,11 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryClient, QueryKey } from '@tanstack/svelte-query'
-import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { Client, RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser.ts'
+import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
 import { fetch } from '../.kubb/fetch.ts'
-import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser.ts'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 
@@ -57,14 +57,14 @@ export function createLoginUser<TData = LoginUserQueryResponse, TQueryData = Log
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? loginUserQueryKey(params)
 
   const query = createQuery(
     {
       ...loginUserQueryOptions(params, config),
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<LoginUser400>> & {

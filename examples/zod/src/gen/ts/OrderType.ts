@@ -4,19 +4,21 @@
  */
 
 export const orderStatusEnum = {
-  placed: 'placed',
-  approved: 'approved',
-  delivered: 'delivered',
-} as const
+  placed: "placed",
+  approved: "approved",
+  delivered: "delivered",
+} as const;
 
-export type OrderStatusEnumTypeKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
+export type OrderStatusEnumTypeKey =
+  (typeof orderStatusEnum)[keyof typeof orderStatusEnum];
 
 export const orderHttpStatusEnum = {
   ok: 200,
   not_found: 400,
-} as const
+} as const;
 
-export type OrderHttpStatusEnumTypeKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
+export type OrderHttpStatusEnumTypeKey =
+  (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum];
 
 export const orderValueEnum = {
   FIRST_VALUE: 0,
@@ -25,44 +27,45 @@ export const orderValueEnum = {
   ONE_MORE: 3,
   ALMOST_FINISHED: 3.5,
   DONE: 4,
-} as const
+} as const;
 
-export type OrderValueEnumTypeKey = (typeof orderValueEnum)[keyof typeof orderValueEnum]
+export type OrderValueEnumTypeKey =
+  (typeof orderValueEnum)[keyof typeof orderValueEnum];
 
 export type OrderType = {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: number;
   /**
    * @type integer | undefined, int64
    */
-  petId?: number
+  petId?: number;
   /**
    * @type integer | undefined, int32
    */
-  quantity?: number
+  quantity?: number;
   /**
    * @type string | undefined, date-time
    */
-  shipDate?: string
+  shipDate?: string;
   /**
    * @description Order Status
    * @type string | undefined
    */
-  status?: OrderStatusEnumTypeKey
+  status?: OrderStatusEnumTypeKey;
   /**
    * @description HTTP Status
    * @type number | undefined
    */
-  http_status?: OrderHttpStatusEnumTypeKey
+  http_status?: OrderHttpStatusEnumTypeKey;
   /**
    * @description Price
    * @type number | undefined
    */
-  value?: OrderValueEnumTypeKey
+  value?: OrderValueEnumTypeKey;
   /**
    * @type boolean | undefined
    */
-  complete?: boolean
-}
+  complete?: boolean;
+};

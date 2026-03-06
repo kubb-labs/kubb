@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { Client, RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
-import { fetch } from '../../.kubb/fetch.ts'
 import type { GetInventoryQueryResponse } from '../../models/GetInventory.ts'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
+import { fetch } from '../../.kubb/fetch.ts'
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 export const getInventorySuspenseQueryKey = () => ['v5', { url: '/store/inventory' }] as const
 
@@ -51,8 +51,8 @@ export function useGetInventorySuspenseHook<TData = GetInventoryQueryResponse, T
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? getInventorySuspenseQueryKey()
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? getInventorySuspenseQueryKey()
   const customOptions = useCustomHookOptions({
     hookName: 'useGetInventorySuspenseHook',
     operationId: 'getInventory',
@@ -62,8 +62,8 @@ export function useGetInventorySuspenseHook<TData = GetInventoryQueryResponse, T
     {
       ...getInventorySuspenseQueryOptionsHook(config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & {

@@ -14,16 +14,16 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryClient, QueryKey } from '@tanstack/svelte-query'
-import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { Client, RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
-import { fetch } from '../.kubb/fetch.ts'
 import type {
-  UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm.ts'
+import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
+import { fetch } from '../.kubb/fetch.ts'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
 
 export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
   [{ url: '/pet/:pet_id', params: { petId: petId } }, ...(params ? [params] : [])] as const
@@ -89,14 +89,14 @@ export function createUpdatePetWithForm<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? updatePetWithFormQueryKey(petId, params)
 
   const query = createQuery(
     {
       ...updatePetWithFormQueryOptions(petId, params, config),
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & {

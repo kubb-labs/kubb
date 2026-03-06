@@ -14,11 +14,11 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryClient, QueryKey } from '@tanstack/svelte-query'
-import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { Client, RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
-import { fetch } from '../.kubb/fetch.ts'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
+import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
+import { fetch } from '../.kubb/fetch.ts'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 
@@ -56,14 +56,14 @@ export function createLogoutUser<TData = LogoutUserQueryResponse, TQueryData = L
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? logoutUserQueryKey()
 
   const query = createQuery(
     {
       ...logoutUserQueryOptions(config),
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as CreateBaseQueryOptions,
     queryClient,
   ) as CreateQueryResult<TData, ResponseErrorConfig<Error>> & {

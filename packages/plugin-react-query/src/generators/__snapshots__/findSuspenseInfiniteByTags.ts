@@ -81,14 +81,14 @@ export function useFindPetsByTagsSuspenseInfinite<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseInfiniteQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? findPetsByTagsSuspenseInfiniteQueryKey(params)
 
   const query = useSuspenseInfiniteQuery(
     {
       ...findPetsByTagsSuspenseInfiniteQueryOptions(headers, params, config),
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as UseSuspenseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
     queryClient,
   ) as UseSuspenseInfiniteQueryResult<TData, TError> & { queryKey: TQueryKey }

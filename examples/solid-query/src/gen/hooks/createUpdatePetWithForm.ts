@@ -3,16 +3,16 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, QueryKey, UseBaseQueryOptions, UseQueryResult } from '@tanstack/solid-query'
-import { queryOptions, useQuery } from '@tanstack/solid-query'
 import type { Client, RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
-import { fetch } from '../.kubb/fetch.ts'
 import type {
-  UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm.ts'
+import type { QueryKey, QueryClient, UseBaseQueryOptions, UseQueryResult } from '@tanstack/solid-query'
+import { fetch } from '../.kubb/fetch.ts'
+import { queryOptions, useQuery } from '@tanstack/solid-query'
 
 export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) =>
   [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const
@@ -76,15 +76,15 @@ export function createUpdatePetWithForm<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? updatePetWithFormQueryKey(petId, params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? updatePetWithFormQueryKey(petId, params)
 
   const query = useQuery(
     () => ({
       ...(updatePetWithFormQueryOptions(petId, params, config) as unknown as UseBaseQueryOptions),
       queryKey,
       initialData: null,
-      ...(queryOptions as unknown as Omit<UseBaseQueryOptions, 'queryKey'>),
+      ...(resolvedOptions as unknown as Omit<UseBaseQueryOptions, 'queryKey'>),
     }),
     queryClient ? () => queryClient : undefined,
   ) as UseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & {

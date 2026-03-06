@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
-import { queryOptions, useQuery } from '@tanstack/react-query'
-import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { Client, RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../models/LoginUser.ts'
+import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../models/LoginUser.ts'
+import { queryOptions, useQuery } from '@tanstack/react-query'
 
 export const loginUserQueryKey = (params: LoginUserQueryParams = {}) => ['v5', { url: '/user/login' }, ...(params ? [params] : [])] as const
 
@@ -50,8 +50,8 @@ export function useLoginUserHook<TData = LoginUserQueryResponse, TQueryData = Lo
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? loginUserQueryKey(params)
   const customOptions = useCustomHookOptions({
     hookName: 'useLoginUserHook',
     operationId: 'loginUser',
@@ -61,8 +61,8 @@ export function useLoginUserHook<TData = LoginUserQueryResponse, TQueryData = Lo
     {
       ...loginUserQueryOptionsHook(params, config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<LoginUser400>> & {

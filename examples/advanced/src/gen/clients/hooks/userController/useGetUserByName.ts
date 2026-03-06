@@ -1,12 +1,12 @@
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
-import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
-import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../../../axios-client.ts'
+import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '../../../../tanstack-query-hook'
 import type {
+  GetUserByNameQueryResponse,
+  GetUserByNamePathParams,
   GetUserByName400,
   GetUserByName404,
-  GetUserByNamePathParams,
-  GetUserByNameQueryResponse,
 } from '../../../models/ts/userController/GetUserByName.ts'
+import { queryOptions, useQuery } from '../../../../tanstack-query-hook'
 import { getUserByName } from '../../axios/userService/getUserByName.ts'
 
 export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams['username'] }) =>
@@ -51,14 +51,14 @@ export function useGetUserByName<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey({ username })
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? getUserByNameQueryKey({ username })
 
   const query = useQuery(
     {
       ...getUserByNameQueryOptions({ username }, config),
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<GetUserByName400 | GetUserByName404>> & { queryKey: TQueryKey }

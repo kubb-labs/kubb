@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, QueryKey, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
-import { queryOptions, useQuery } from '@tanstack/react-query'
-import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import type { Client, RequestConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../models/GetPetById.ts'
+import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from '@tanstack/react-query'
+import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/GetPetById.ts'
+import { queryOptions, useQuery } from '@tanstack/react-query'
 
 export const getPetByIdQueryKey = ({ pet_id }: { pet_id: GetPetByIdPathParams['pet_id'] }) =>
   ['v5', { url: '/pet/:pet_id', params: { pet_id: pet_id } }] as const
@@ -57,8 +57,8 @@ export function useGetPetByIdHook<TData = GetPetByIdQueryResponse, TQueryData = 
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey({ pet_id })
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? getPetByIdQueryKey({ pet_id })
   const customOptions = useCustomHookOptions({
     hookName: 'useGetPetByIdHook',
     operationId: 'get_pet_by_id',
@@ -68,8 +68,8 @@ export function useGetPetByIdHook<TData = GetPetByIdQueryResponse, TQueryData = 
     {
       ...getPetByIdQueryOptionsHook({ pet_id }, config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as QueryObserverOptions,
     queryClient,
   ) as UseQueryResult<TData, ResponseErrorConfig<GetPetById400 | GetPetById404>> & { queryKey: TQueryKey }

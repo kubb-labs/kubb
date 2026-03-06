@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { QueryClient, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../.kubb/fetch.ts'
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../../models/FindPetsByTags.ts'
+import type { QueryKey, QueryClient, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
 export const findPetsByTagsSuspenseQueryKey = (params: FindPetsByTagsQueryParams = {}) =>
   ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
@@ -65,8 +65,8 @@ export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByT
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
   const customOptions = useCustomHookOptions({
     hookName: 'useFindPetsByTagsSuspenseHook',
     operationId: 'findPetsByTags',
@@ -76,8 +76,8 @@ export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByT
     {
       ...findPetsByTagsSuspenseQueryOptionsHook(params, config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
   ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & {

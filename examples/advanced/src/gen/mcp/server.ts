@@ -1,35 +1,3 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
-import { z } from 'zod'
-import { addFilesMutationRequestSchema, addFilesMutationResponseSchema } from '../zod/petController/addFilesSchema.ts'
-import { addPetMutationRequestSchema, addPetMutationResponseSchema } from '../zod/petController/addPetSchema.ts'
-import { deletePetHeaderParamsSchema, deletePetMutationResponseSchema } from '../zod/petController/deletePetSchema.ts'
-import { findPetsByStatusQueryResponseSchema } from '../zod/petController/findPetsByStatusSchema.ts'
-import {
-  findPetsByTagsHeaderParamsSchema,
-  findPetsByTagsQueryParamsSchema,
-  findPetsByTagsQueryResponseSchema,
-} from '../zod/petController/findPetsByTagsSchema.ts'
-import { getPetByIdQueryResponseSchema } from '../zod/petController/getPetByIdSchema.ts'
-import { updatePetMutationRequestSchema, updatePetMutationResponseSchema } from '../zod/petController/updatePetSchema.ts'
-import { updatePetWithFormMutationResponseSchema, updatePetWithFormQueryParamsSchema } from '../zod/petController/updatePetWithFormSchema.ts'
-import { uploadFileMutationRequestSchema, uploadFileMutationResponseSchema, uploadFileQueryParamsSchema } from '../zod/petController/uploadFileSchema.ts'
-import {
-  createPetsHeaderParamsSchema,
-  createPetsMutationRequestSchema,
-  createPetsMutationResponseSchema,
-  createPetsQueryParamsSchema,
-} from '../zod/petsController/createPetsSchema.ts'
-import { createUserMutationRequestSchema, createUserMutationResponseSchema } from '../zod/userController/createUserSchema.ts'
-import {
-  createUsersWithListInputMutationRequestSchema,
-  createUsersWithListInputMutationResponseSchema,
-} from '../zod/userController/createUsersWithListInputSchema.ts'
-import { deleteUserMutationResponseSchema } from '../zod/userController/deleteUserSchema.ts'
-import { getUserByNameQueryResponseSchema } from '../zod/userController/getUserByNameSchema.ts'
-import { loginUserQueryParamsSchema, loginUserQueryResponseSchema } from '../zod/userController/loginUserSchema.ts'
-import { logoutUserQueryResponseSchema } from '../zod/userController/logoutUserSchema.ts'
-import { updateUserMutationRequestSchema, updateUserMutationResponseSchema } from '../zod/userController/updateUserSchema.ts'
 import { addFilesHandler } from './petRequests/addFiles.ts'
 import { addPetHandler } from './petRequests/addPet.ts'
 import { deletePetHandler } from './petRequests/deletePet.ts'
@@ -47,6 +15,38 @@ import { getUserByNameHandler } from './userRequests/getUserByName.ts'
 import { loginUserHandler } from './userRequests/loginUser.ts'
 import { logoutUserHandler } from './userRequests/logoutUser.ts'
 import { updateUserHandler } from './userRequests/updateUser.ts'
+import { addFilesMutationRequestSchema, addFilesMutationResponseSchema } from '../zod/petController/addFilesSchema.ts'
+import { addPetMutationRequestSchema, addPetMutationResponseSchema } from '../zod/petController/addPetSchema.ts'
+import { deletePetHeaderParamsSchema, deletePetMutationResponseSchema } from '../zod/petController/deletePetSchema.ts'
+import { findPetsByStatusQueryResponseSchema } from '../zod/petController/findPetsByStatusSchema.ts'
+import {
+  findPetsByTagsQueryParamsSchema,
+  findPetsByTagsHeaderParamsSchema,
+  findPetsByTagsQueryResponseSchema,
+} from '../zod/petController/findPetsByTagsSchema.ts'
+import { getPetByIdQueryResponseSchema } from '../zod/petController/getPetByIdSchema.ts'
+import { updatePetMutationRequestSchema, updatePetMutationResponseSchema } from '../zod/petController/updatePetSchema.ts'
+import { updatePetWithFormQueryParamsSchema, updatePetWithFormMutationResponseSchema } from '../zod/petController/updatePetWithFormSchema.ts'
+import { uploadFileMutationRequestSchema, uploadFileQueryParamsSchema, uploadFileMutationResponseSchema } from '../zod/petController/uploadFileSchema.ts'
+import {
+  createPetsMutationRequestSchema,
+  createPetsQueryParamsSchema,
+  createPetsHeaderParamsSchema,
+  createPetsMutationResponseSchema,
+} from '../zod/petsController/createPetsSchema.ts'
+import { createUserMutationRequestSchema, createUserMutationResponseSchema } from '../zod/userController/createUserSchema.ts'
+import {
+  createUsersWithListInputMutationRequestSchema,
+  createUsersWithListInputMutationResponseSchema,
+} from '../zod/userController/createUsersWithListInputSchema.ts'
+import { deleteUserMutationResponseSchema } from '../zod/userController/deleteUserSchema.ts'
+import { getUserByNameQueryResponseSchema } from '../zod/userController/getUserByNameSchema.ts'
+import { loginUserQueryParamsSchema, loginUserQueryResponseSchema } from '../zod/userController/loginUserSchema.ts'
+import { logoutUserQueryResponseSchema } from '../zod/userController/logoutUserSchema.ts'
+import { updateUserMutationRequestSchema, updateUserMutationResponseSchema } from '../zod/userController/updateUserSchema.ts'
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
+import { z } from 'zod'
 
 export const server = new McpServer({
   name: 'Swagger PetStore - OpenAPI 3.0',

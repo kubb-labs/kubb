@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import type { InfiniteData, QueryClient, QueryKey, UseSuspenseInfiniteQueryOptions, UseSuspenseInfiniteQueryResult } from '@tanstack/react-query'
-import { infiniteQueryOptions, useSuspenseInfiniteQuery } from '@tanstack/react-query'
+import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from '../../.kubb/fetch.ts'
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../../models/FindPetsByTags.ts'
+import type { InfiniteData, QueryKey, QueryClient, UseSuspenseInfiniteQueryOptions, UseSuspenseInfiniteQueryResult } from '@tanstack/react-query'
 import { useCustomHookOptions } from '../../../useCustomHookOptions.ts'
-import type { Client, RequestConfig, ResponseConfig, ResponseErrorConfig } from '../../.kubb/fetch.ts'
 import { fetch } from '../../.kubb/fetch.ts'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
+import { infiniteQueryOptions, useSuspenseInfiniteQuery } from '@tanstack/react-query'
 
 export const findPetsByTagsSuspenseInfiniteQueryKey = (params: FindPetsByTagsQueryParams = {}) =>
   ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
@@ -77,8 +77,8 @@ export function useFindPetsByTagsSuspenseInfiniteHook<
   } = {},
 ) {
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
-  const { client: queryClient, ...queryOptions } = queryConfig
-  const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseInfiniteQueryKey(params)
+  const { client: queryClient, ...resolvedOptions } = queryConfig
+  const queryKey = resolvedOptions?.queryKey ?? findPetsByTagsSuspenseInfiniteQueryKey(params)
   const customOptions = useCustomHookOptions({
     hookName: 'useFindPetsByTagsSuspenseInfiniteHook',
     operationId: 'findPetsByTags',
@@ -88,8 +88,8 @@ export function useFindPetsByTagsSuspenseInfiniteHook<
     {
       ...findPetsByTagsSuspenseInfiniteQueryOptionsHook(params, config),
       ...customOptions,
+      ...resolvedOptions,
       queryKey,
-      ...queryOptions,
     } as unknown as UseSuspenseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryKey, TPageParam>,
     queryClient,
   ) as UseSuspenseInfiniteQueryResult<TData, TError> & { queryKey: TQueryKey }

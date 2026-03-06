@@ -1,6 +1,6 @@
 import * as z from 'zod'
-import type { ToZod } from '../.kubb/ToZod.ts'
 import type { ApiResponse } from '../models/ts/ApiResponse.ts'
+import type { ToZod } from '../.kubb/ToZod.ts'
 
 export const apiResponseSchema = z.object({
   code: z.optional(z.number().int()),
