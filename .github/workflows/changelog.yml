@@ -34,9 +34,11 @@ jobs:
           VERSION: ${{ inputs.version }}
         run: |
           # Collect release bodies from all packages published at this version
-          CHANGES=$(gh release list --limit 100 --json tagName,body \
-            --jq --arg v "@${VERSION}" '.[] | select(.tagName | endswith($v)) | "### " + .tagName + "\n\n" + .body' \
-            2>/dev/null || true)
+          CHANGES=""
+          while IFS= read -r tag; do
+            body=$(gh release view "$tag" --json body --jq '.body' 2>/dev/null || true)
+            [ -n "$body" ] && CHANGES="${CHANGES}### ${tag}"$'\n\n'"${body}"$'\n\n'
+          done < <(gh release list --limit 100 --json tagName | jq -r --arg v "@${VERSION}" '.[] | select(.tagName | endswith($v)) | .tagName')
 
           if [ -z "$CHANGES" ]; then
             echo "No release bodies found for version ${VERSION}, skipping."
