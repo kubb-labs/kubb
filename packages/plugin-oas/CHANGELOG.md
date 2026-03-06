@@ -1,5 +1,17 @@
 # @kubb/swagger
 
+## 4.32.0
+
+### Minor Changes
+
+- [#2639](https://github.com/kubb-labs/kubb/pull/2639) [`95c4649`](https://github.com/kubb-labs/kubb/commit/95c4649eb01a0348424c779046d8312a6af09d51) Thanks [@hamzamihaidanielx](https://github.com/hamzamihaidanielx)! - Added `serverVariables` option to resolve OpenAPI server URL template variables when using `serverIndex`. Variables like `{env}` in server URLs are now substituted with user-provided values or their spec-defined defaults. Enum validation is enforced at generation time.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.32.0
+  - @kubb/oas@4.32.0
+
 ## 4.31.6
 
 ### Patch Changes
