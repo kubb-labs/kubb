@@ -1,3 +1,111 @@
+## 4.32.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client/)
+
+**Fix: Skip invalid JS variable names in path param const declarations**
+
+Path parameters that include invalid JavaScript variable names (e.g., containing dashes or starting with numbers) are now properly skipped during const declaration generation, preventing syntax errors in the output.
+
+::: code-group
+
+```typescript [Before]
+// Path param 'user-id' produced invalid const declaration
+const user-id = 'value'; // ❌ Syntax error
+```
+
+```typescript [After]
+// Invalid path params are skipped
+// No const declaration for 'user-id'
+```
+
+:::
+
+---
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+**Fix: Agent studio config takes priority over disk config**
+
+The agent studio config now properly takes precedence over the Kubb disk configuration during generation. This ensures that studio-specific settings are correctly applied.
+
+---
+
+#### [`@kubb/plugin-faker`](/plugins/plugin-faker/)
+
+**Fix: Named array type aliases incorrectly wrapped in `Partial<>`**
+
+Named array type aliases generated from `$ref` schemas with `type: array` are no longer wrapped in `Partial<>`, fixing TypeScript type errors `(Item | undefined)[] is not assignable to Item[]`.
+
+::: code-group
+
+```typescript [Before]
+// $ref → { type: 'array', items: { $ref: '#/components/schemas/Item' } }
+export function createItems(): Partial<Item>[] {
+  return [createItem()]; // ❌ TypeScript error
+}
+```
+
+```typescript [After]
+export function createItems(): Item[] {
+  return [createItem()]; // ✅ Correct type
+}
+```
+
+:::
+
+---
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts/)
+
+**Fix: Prevent export of non-existent runtime consts for empty enums**
+
+When an enum schema is empty, the barrel file now omits runtime `const` exports completely to avoid `tsc` errors caused by invalid or missing references.
+
+::: code-group
+
+```typescript [Before]
+// Empty enum schema generated broken runtime const export
+export { myConst }; // ❌ myConst was never defined
+export type MyConstKey = never;
+```
+
+```typescript [After]
+// Runtime const export is omitted for empty enums
+export type MyConstKey = never; // ✅
+```
+
+:::
+
+---
+
+#### [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+
+**Fix: Import `ToZod` as a type import**
+
+Fixed incorrect usage of `ToZod` as a runtime import. The correct import style prevents type-stripping errors during compilation.
+
+::: code-group
+
+```typescript [Before]
+import { ToZod } from '@kubb/plugin-zod/zod'; // ❌ Incorrect import
+```
+
+```typescript [After]
+import type { ToZod } from '@kubb/plugin-zod/zod'; // ✅ Correct type import
+```
+
+:::
+
+### ✨ Features
+
+#### [`@kubb/agent`](/plugins/agent/)
+
+**Added helper utility `getMachineToken` in token.ts**
+
+A new helper function `getMachineToken` simplifies token extraction for machine-based authentication workflows. This feature is aimed at improving usability for automated processes using Kubb's agent interface.
+
 ---
 title: Kubb Changelog - Release Notes & Updates
 description: Kubb changelog with release notes, bug fixes, new features, and breaking changes for all versions.
