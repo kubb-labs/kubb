@@ -27,9 +27,7 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
     }
 
     if (variable.enum?.length && !variable.enum.some((e) => String(e) === value)) {
-      throw new Error(
-        `Invalid server variable value '${value}' for '${key}' when resolving ${server.url}. Valid values are: ${variable.enum.join(', ')}.`,
-      )
+      throw new Error(`Invalid server variable value '${value}' for '${key}' when resolving ${server.url}. Valid values are: ${variable.enum.join(', ')}.`)
     }
 
     url = url.replaceAll(`{${key}}`, value)

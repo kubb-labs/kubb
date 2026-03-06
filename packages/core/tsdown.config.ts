@@ -13,9 +13,11 @@ const shared: Partial<UserConfig> = {
   sourcemap: true,
   shims: true,
   exports: true,
-  external: [/^@kubb\//],
-  noExternal: [/p-limit/],
-  inlineOnly: false,
+  deps: {
+    neverBundle: [/^@kubb\//],
+    alwaysBundle: [/p-limit/],
+    onlyAllowBundle: false,
+  },
   fixedExtension: false,
   outputOptions: {
     keepNames: true,
