@@ -35,15 +35,19 @@ jobs:
           VERSION: ${{ inputs.version }}
         run: |
           PREV_TAG=$(git tag --sort=-version:refname | grep -v "v${VERSION}" | head -1)
-          CHANGES=$(git log "${PREV_TAG}..HEAD" --pretty=format:"- %s (%h)" --no-merges)
+          CHANGES=$(git log "${PREV_TAG}..HEAD" \
+            --pretty=format:"%s%n%b" \
+            --no-merges \
+            | grep -v "^$" \
+            | grep -vE "^(ci|chore|refactor|test|build|style)(\(.+\))?:")
 
           if [ -z "$CHANGES" ]; then
-            echo "No commits found since ${PREV_TAG}, skipping."
+            echo "No relevant commits found since ${PREV_TAG}, skipping."
             exit 0
           fi
 
           SKILL=$(cat .skills/changelog/SKILL.md)
-          EXISTING=$(head -150 docs/changelog.md)
+          EXISTING=$(awk '/^## /{found++} found>=1{print} found>=3{exit}' docs/changelog.md)
 
           NEW_ENTRY=$(curl -s https://models.inference.ai.azure.com/chat/completions \
             -H "Authorization: Bearer ${GH_TOKEN}" \
@@ -56,13 +60,17 @@ jobs:
               '{
                 model: "gpt-4o",
                 messages: [
-                  {role: "system", content: "You are a release engineer for Kubb. You must follow the changelog skill guidelines and match the exact format of the existing changelog.\n\n## Skill Guidelines\n\($skill)\n\n## Existing Changelog Format (match this exactly)\n\($existing)"},
-                  {role: "user", content: "Generate a changelog entry for version v\($version) based on these commits. Use the same heading levels, emoji prefixes, plugin link style, and VitePress code-group blocks as the existing changelog above. Skip internal/refactor/test/ci commits. Output only the markdown for this version section starting with ## \($version).\n\nCommits:\n\($changes)"}
+                  {role: "system", content: "You are a release engineer for Kubb. Follow the changelog skill guidelines and match the exact format of the existing entries.\n\n## Skill Guidelines\n\($skill)\n\n## Existing Changelog Entries (match this format exactly)\n\($existing)"},
+                  {role: "user", content: "Generate a changelog entry for version v\($version). Use the same heading levels (##, ###, ####), emoji prefixes (✨ 🐛 🚀 📦), plugin link style, and VitePress ::: code-group blocks as the examples above. Output ONLY the markdown starting with ## \($version), nothing else.\n\nCommits:\n\($changes)"}
                 ]
               }')" \
             | jq -r '.choices[0].message.content')
 
-          echo -e "${NEW_ENTRY}\n" | cat - docs/changelog.md > /tmp/changelog.md
+          # Insert the new entry after the "# Changelog" title line
+          awk -v entry="$NEW_ENTRY" '
+            /^# Changelog/ { print; print ""; print entry; print ""; next }
+            { print }
+          ' docs/changelog.md > /tmp/changelog.md
           mv /tmp/changelog.md docs/changelog.md
 
       - name: Open PR with updated changelog
