@@ -10,18 +10,15 @@ const args = {
   },
 } as const satisfies ArgsDef
 
-const command = defineCommand({
+export const command = defineCommand({
   args,
   subCommands: {
-    start: () => import('./agent/start.ts').then((m) => m.default),
+    start: () => import('./agent/start.ts').then((m) => m.command),
   },
-  async run(commandContext) {
-    const { args } = commandContext
-
+  async run({ args }) {
     if (args.help) {
       return showUsage(command)
     }
   },
 })
 
-export default command

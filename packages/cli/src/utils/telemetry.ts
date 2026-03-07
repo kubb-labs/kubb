@@ -2,9 +2,8 @@ import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
 import { executeIfOnline } from '@kubb/core/utils'
-import { isCIEnvironment } from '../loggers/envDetection.ts'
-
-const OTLP_ENDPOINT = 'https://otlp.kubb.dev'
+import { OTLP_ENDPOINT } from '../constants.ts'
+import { isCIEnvironment } from './envDetection.ts'
 
 // ---------------------------------------------------------------------------
 // OpenTelemetry OTLP JSON types

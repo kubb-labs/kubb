@@ -1,19 +1,6 @@
-import path from 'node:path'
-import * as process from 'node:process'
-import { styleText } from 'node:util'
-import * as clack from '@clack/prompts'
-import { type CLIOptions, isInputPath, type KubbEvents, LogLevel, PromiseManager } from '@kubb/core'
-import { AsyncEventEmitter, executeIfOnline, getConfigs } from '@kubb/core/utils'
 import type { ArgsDef, ParsedArgs } from 'citty'
 import { defineCommand, showUsage } from 'citty'
-import { version } from '../../package.json'
-import { setupLogger } from '../loggers/utils.ts'
-import { generate } from '../runners/generate.ts'
-import { toError } from '../utils/errors.ts'
-import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
-import { startWatcher } from '../utils/watcher.ts'
-
-const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest'
+import { runGenerateCommand } from '../runners/generate.ts'
 
 const args = {
   config: {
@@ -62,91 +49,27 @@ const args = {
 
 export type Args = ParsedArgs<typeof args>
 
-const command = defineCommand({
+export const command = defineCommand({
   meta: {
     name: 'generate',
     description: "[input] Generate files based on a 'kubb.config.ts' file",
   },
   args,
-  async run(commandContext) {
-    const { args } = commandContext
-    const input = args._[0]
-    const events = new AsyncEventEmitter<KubbEvents>()
-    const promiseManager = new PromiseManager()
-
+  async run({ args }) {
     if (args.help) {
       return showUsage(command)
     }
 
+    const { LogLevel } = await import('@kubb/core')
     const resolvedLogLevelName = args.debug ? 'debug' : args.verbose ? 'verbose' : args.silent ? 'silent' : args.logLevel
     const logLevel = LogLevel[resolvedLogLevelName as keyof typeof LogLevel] ?? LogLevel.info
 
-    await setupLogger(events, { logLevel })
-
-    await executeIfOnline(async () => {
-      try {
-      const res = await fetch(KUBB_NPM_PACKAGE_URL)
-        const data = (await res.json()) as { version: string }
-        const latestVersion = data.version
-
-        if (latestVersion && version < latestVersion) {
-          await events.emit('version:new', version, latestVersion)
-        }
-      } catch {
-        // Ignore network errors for version check
-      }
+    await runGenerateCommand({
+      input: args._[0],
+      configPath: args.config,
+      logLevel,
+      watch: args.watch,
     })
-
-    try {
-      const result = await getCosmiConfig('kubb', args.config)
-      const configs = await getConfigs(result.config, args as CLIOptions)
-
-      await events.emit('config:start')
-
-      await events.emit('info', 'Config loaded', path.relative(process.cwd(), result.filepath))
-
-      await events.emit('success', 'Config loaded successfully', path.relative(process.cwd(), result.filepath))
-      await events.emit('config:end', configs)
-
-      await events.emit('lifecycle:start', version)
-
-      const promises = configs.map((config) => {
-        return async () => {
-          if (isInputPath(config) && args.watch) {
-            await startWatcher([input || config.input.path], async (paths) => {
-              // remove to avoid duplicate listeners after each change
-              events.removeAll()
-
-              await generate({
-                input,
-                config,
-                logLevel,
-                events,
-              })
-
-              clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
-            })
-
-            return
-          }
-
-          await generate({
-            input,
-            config,
-            logLevel,
-            events,
-          })
-        }
-      })
-
-      await promiseManager.run('seq', promises)
-
-      await events.emit('lifecycle:end')
-    } catch (error) {
-      await events.emit('error', toError(error))
-      process.exit(1)
-    }
   },
 })
 
-export default command

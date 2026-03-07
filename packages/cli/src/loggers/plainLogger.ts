@@ -1,12 +1,11 @@
 import { relative } from 'node:path'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { formatMs } from '@kubb/core/utils'
+import { SUMMARY_SEPARATOR } from '../constants.ts'
 import { toCause } from '../utils/errors.ts'
 import { getSummary } from '../utils/getSummary.ts'
 import { runHook } from '../utils/runHook.ts'
 import { formatCommandWithArgs, formatMessage } from './utils.ts'
-
-const SUMMARY_SEPARATOR = '─'.repeat(27)
 
 /**
  * Plain console adapter for non-TTY environments

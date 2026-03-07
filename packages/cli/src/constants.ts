@@ -1,0 +1,98 @@
+// ─── URLs ─────────────────────────────────────────────────────────────────────
+
+/** NPM registry endpoint used to check for @kubb/cli updates. */
+export const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
+
+/** OpenTelemetry ingestion endpoint for anonymous usage telemetry. */
+export const OTLP_ENDPOINT = 'https://otlp.kubb.dev' as const
+
+// ─── Display ──────────────────────────────────────────────────────────────────
+
+/** Horizontal rule rendered above/below the plain-logger generation summary. */
+export const SUMMARY_SEPARATOR = '─'.repeat(27)
+
+/** Maximum number of █ characters in a plugin timing bar. */
+export const SUMMARY_MAX_BAR_LENGTH = 10 as const
+
+/** Divides elapsed milliseconds into bar-length units (1 block per 100 ms). */
+export const SUMMARY_TIME_SCALE_DIVISOR = 100 as const
+
+// ─── File system ──────────────────────────────────────────────────────────────
+
+/** Glob pattern for paths the file watcher ignores. */
+export const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
+
+// ─── CLI dispatcher ───────────────────────────────────────────────────────────
+
+/** All recognised top-level subcommands. Used to decide the default fallback. */
+export const KNOWN_SUBCOMMANDS = ['generate', 'validate', 'mcp', 'agent', 'init'] as const
+
+export type KnownSubcommand = (typeof KNOWN_SUBCOMMANDS)[number]
+
+// ─── Grouped defaults ─────────────────────────────────────────────────────────
+
+/** Default runtime values for the `agent start` command. */
+export const agentDefaults = {
+  port: '3000',
+  host: 'localhost',
+  configFile: 'kubb.config.ts',
+  retryTimeout: '30000',
+  studioUrl: 'https://studio.kubb.dev',
+  /** Relative path from the @kubb/agent package root to the server entry. */
+  serverEntryPath: '.output/server/index.mjs',
+} as const
+
+/** Default values used during interactive `init` scaffolding. */
+export const initDefaults = {
+  inputPath: './openapi.yaml',
+  outputPath: './src/gen',
+  plugins: ['plugin-oas', 'plugin-ts'],
+} as const
+
+// ─── Init scaffolding ─────────────────────────────────────────────────────────
+
+/**
+ * Maps each plugin value to the default config snippet inserted by `init`.
+ * The `satisfies` constraint ensures all values remain plain strings while
+ * `as const` keeps the object deeply immutable.
+ */
+export const pluginDefaultConfigs = {
+  'plugin-oas': 'pluginOas()',
+  'plugin-ts': `pluginTs({
+      output: { path: 'models' },
+    })`,
+  'plugin-client': `pluginClient({
+      output: { path: 'clients' },
+    })`,
+  'plugin-react-query': `pluginReactQuery({
+      output: { path: 'hooks' },
+    })`,
+  'plugin-solid-query': `pluginSolidQuery({
+      output: { path: 'hooks' },
+    })`,
+  'plugin-svelte-query': `pluginSvelteQuery({
+      output: { path: 'hooks' },
+    })`,
+  'plugin-vue-query': `pluginVueQuery({
+      output: { path: 'hooks' },
+    })`,
+  'plugin-swr': `pluginSwr({
+      output: { path: 'hooks' },
+    })`,
+  'plugin-zod': `pluginZod({
+      output: { path: 'zod' },
+    })`,
+  'plugin-faker': `pluginFaker({
+      output: { path: 'mocks' },
+    })`,
+  'plugin-msw': `pluginMsw({
+      output: { path: 'msw' },
+    })`,
+} as const satisfies Record<string, string>
+
+// ─── Colors ───────────────────────────────────────────────────────────────────
+
+/** Color palette used by randomColor() for deterministic plugin name colouring. */
+export const randomColors = ['black', 'red', 'green', 'yellow', 'blue', 'white', 'magenta', 'cyan', 'gray', 'blue'] as const
+
+export type RandomColor = (typeof randomColors)[number]

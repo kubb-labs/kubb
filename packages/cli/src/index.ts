@@ -1,6 +1,7 @@
 import { styleText } from 'node:util'
 import { defineCommand, runCommand, runMain } from 'citty'
 import { version } from '../package.json'
+import { KNOWN_SUBCOMMANDS, type KnownSubcommand } from './constants.ts'
 import { isTelemetryDisabled } from './utils/telemetry.ts'
 
 const main = defineCommand({
@@ -28,11 +29,9 @@ const main = defineCommand({
       )
     }
 
-    const knownSubcommands = ['generate', 'validate', 'mcp', 'agent', 'init'] as const
-
-    if (!knownSubcommands.includes(rawArgs[0] as (typeof knownSubcommands)[number])) {
+    if (!KNOWN_SUBCOMMANDS.includes(rawArgs[0] as KnownSubcommand)) {
       // No subcommand given — fall back to `generate` as the default command
-      const generateCommand = await import('./commands/generate.ts').then((r) => r.default)
+      const generateCommand = await import('./commands/generate.ts').then((m) => m.command)
 
       await runCommand(generateCommand, { rawArgs })
 
@@ -40,11 +39,11 @@ const main = defineCommand({
     }
   },
   subCommands: {
-    generate: () => import('./commands/generate.ts').then((r) => r.default),
-    validate: () => import('./commands/validate.ts').then((r) => r.default),
-    mcp: () => import('./commands/mcp.ts').then((r) => r.default),
-    agent: () => import('./commands/agent.ts').then((r) => r.default),
-    init: () => import('./commands/init.ts').then((r) => r.default),
+    generate: () => import('./commands/generate.ts').then((m) => m.command),
+    validate: () => import('./commands/validate.ts').then((m) => m.command),
+    mcp: () => import('./commands/mcp.ts').then((m) => m.command),
+    agent: () => import('./commands/agent.ts').then((m) => m.command),
+    init: () => import('./commands/init.ts').then((m) => m.command),
   },
 })
 

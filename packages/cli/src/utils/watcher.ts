@@ -1,6 +1,5 @@
 import { styleText } from 'node:util'
-
-const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**'
+import { WATCHER_IGNORED_PATHS } from '../constants.ts'
 
 export async function startWatcher(path: string[], cb: (path: string[]) => Promise<void>): Promise<void> {
   const { watch } = await import('chokidar')
