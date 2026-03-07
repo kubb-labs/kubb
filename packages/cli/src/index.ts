@@ -28,8 +28,10 @@ const main = defineCommand({
       )
     }
 
-    if (!['generate', 'validate', 'mcp', 'agent', 'init'].includes(rawArgs[0] as string)) {
-      // generate is not being used
+    const knownSubcommands = ['generate', 'validate', 'mcp', 'agent', 'init'] as const
+
+    if (!knownSubcommands.includes(rawArgs[0] as (typeof knownSubcommands)[number])) {
+      // No subcommand given — fall back to `generate` as the default command
       const generateCommand = await import('./commands/generate.ts').then((r) => r.default)
 
       await runCommand(generateCommand, { rawArgs })

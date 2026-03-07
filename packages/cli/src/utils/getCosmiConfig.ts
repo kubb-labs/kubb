@@ -8,18 +8,17 @@ export type CosmiconfigResult = {
   config: ReturnType<typeof defineConfig> | UserConfig
 }
 
+const jiti = createJiti(import.meta.url, {
+  jsx: {
+    runtime: 'automatic',
+    importSource: '@kubb/react-fabric',
+  },
+  sourceMaps: true,
+  interopDefault: true,
+})
+
 const tsLoader = async (configFile: string) => {
-  const jiti = createJiti(import.meta.url, {
-    jsx: {
-      runtime: 'automatic',
-      importSource: '@kubb/react-fabric',
-    },
-    sourceMaps: true,
-    interopDefault: true,
-  })
-
   const mod = await jiti.import(configFile, { default: true })
-
   return mod
 }
 

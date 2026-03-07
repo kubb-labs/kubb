@@ -6,17 +6,21 @@ export function isGitHubActions(): boolean {
 }
 
 /**
- * Check if running in any CI environment
+ * Check if running in any CI environment.
+ * Covers all major CI systems via their well-known environment variables.
  */
 export function isCIEnvironment(): boolean {
   return !!(
-    process.env.CI ||
-    process.env.GITHUB_ACTIONS ||
-    process.env.GITLAB_CI ||
-    process.env.CIRCLECI ||
-    process.env.TRAVIS ||
-    process.env.JENKINS_URL ||
-    process.env.BUILDKITE
+    process.env.CI || // Generic (GitHub Actions, GitLab CI, CircleCI, Travis CI, etc.)
+    process.env.GITHUB_ACTIONS || // GitHub Actions
+    process.env.GITLAB_CI || // GitLab CI
+    process.env.BITBUCKET_BUILD_NUMBER || // Bitbucket Pipelines
+    process.env.JENKINS_URL || // Jenkins
+    process.env.CIRCLECI || // CircleCI
+    process.env.TRAVIS || // Travis CI
+    process.env.TEAMCITY_VERSION || // TeamCity
+    process.env.BUILDKITE || // Buildkite
+    process.env.TF_BUILD // Azure Pipelines
   )
 }
 

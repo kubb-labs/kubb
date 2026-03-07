@@ -6,7 +6,7 @@ export function randomColor(text?: string): 'black' | 'red' | 'green' | 'yellow'
     return 'white'
   }
 
-  const defaultColors = ['black', 'red', 'green', 'yellow', 'blue', 'red', 'green', 'magenta', 'cyan', 'gray'] as const
+  const defaultColors = ['black', 'red', 'green', 'yellow', 'blue', 'white', 'magenta', 'cyan', 'gray', 'blue'] as const
   const index = createHash('sha256').update(text).digest().readUInt32BE(0) % defaultColors.length
 
   return defaultColors[index] ?? 'white'

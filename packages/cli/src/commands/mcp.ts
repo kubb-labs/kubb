@@ -2,13 +2,11 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import type { ArgsDef } from 'citty'
 import { defineCommand, showUsage } from 'citty'
-import { createJiti } from 'jiti'
+import type * as McpModule from '@kubb/mcp'
 import { version } from '../../package.json'
+import { getErrorMessage } from '../utils/errors.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
-
-const jiti = createJiti(import.meta.url, {
-  sourceMaps: true,
-})
+import { jiti } from '../utils/jiti.ts'
 
 const args = {
   help: {
@@ -32,9 +30,9 @@ const command = defineCommand({
       return showUsage(command)
     }
 
-    let mod: any
+    let mod: typeof McpModule
     try {
-      mod = await jiti.import('@kubb/mcp', { default: true })
+      mod = await jiti.import('@kubb/mcp', { default: true }) as typeof McpModule
     } catch (_e) {
       console.error(`Import of '@kubb/mcp' is required to start the MCP server`)
       process.exit(1)
@@ -49,7 +47,7 @@ const command = defineCommand({
       await sendTelemetry(buildTelemetryEvent({ command: 'mcp', kubbVersion: version, hrStart, status: 'success' }))
     } catch (error) {
       await sendTelemetry(buildTelemetryEvent({ command: 'mcp', kubbVersion: version, hrStart, status: 'failed' }))
-      console.error((error as Error)?.message)
+      console.error(getErrorMessage(error))
     }
   },
 })

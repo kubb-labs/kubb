@@ -1,8 +1,10 @@
 import { styleText } from 'node:util'
 import { type Config, defineLogger, LogLevel } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
-import { type NonZeroExitError, x } from 'tinyexec'
+import { toCause } from '../utils/errors.ts'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
+import { runHook } from '../utils/runHook.ts'
+import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
  * GitHub Actions adapter for CI environments
@@ -11,7 +13,7 @@ import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 export const githubActionsLogger = defineLogger({
   name: 'github-actions',
   install(context, options) {
-    const logLevel = options?.logLevel || LogLevel.info
+    const logLevel = options?.logLevel ?? LogLevel.info
     const state = {
       totalPlugins: 0,
       completedPlugins: 0,
@@ -29,6 +31,7 @@ export const githubActionsLogger = defineLogger({
       state.totalFiles = 0
       state.processedFiles = 0
       state.hrStart = process.hrtime()
+      state.currentConfigs = []
     }
 
     function showProgressStep() {
@@ -36,40 +39,14 @@ export const githubActionsLogger = defineLogger({
         return
       }
 
-      const parts: string[] = []
-      const duration = formatHrtime(state.hrStart)
-
-      if (state.totalPlugins > 0) {
-        const pluginStr =
-          state.failedPlugins > 0
-            ? `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins} ${styleText('red', `(${state.failedPlugins} failed)`)}`
-            : `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins}`
-        parts.push(pluginStr)
-      }
-
-      if (state.totalFiles > 0) {
-        parts.push(`Files ${styleText('green', state.processedFiles.toString())}/${state.totalFiles}`)
-      }
-
-      if (parts.length > 0) {
-        parts.push(`${styleText('green', duration)} elapsed`)
-        console.log(getMessage(parts.join(styleText('dim', ' | '))))
+      const line = buildProgressLine(state)
+      if (line) {
+        console.log(getMessage(line))
       }
     }
 
     function getMessage(message: string): string {
-      if (logLevel >= LogLevel.verbose) {
-        const timestamp = new Date().toLocaleTimeString('en-US', {
-          hour12: false,
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        })
-
-        return [styleText('dim', `[${timestamp}]`), message].join(' ')
-      }
-
-      return message
+      return formatMessage(message, logLevel)
     }
 
     function openGroup(name: string) {
@@ -111,7 +88,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('error', (error) => {
-      const caused = error.cause as Error | undefined
+      const caused = toCause(error)
 
       if (logLevel <= LogLevel.silent) {
         return
@@ -169,8 +146,10 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('generation:start', (config) => {
-      // Initialize progress tracking
-      state.totalPlugins = config.plugins?.length || 0
+      reset()
+
+      // Initialize progress tracking for this generation
+      state.totalPlugins = config.plugins?.length ?? 0
 
       const text = config.name ? `Generation for ${styleText('bold', config.name)}` : 'Generation'
 
@@ -181,8 +160,6 @@ export const githubActionsLogger = defineLogger({
       if (state.currentConfigs.length === 1) {
         console.log(getMessage(text))
       }
-
-      reset()
     })
 
     context.on('plugin:start', (plugin) => {
@@ -256,6 +233,9 @@ export const githubActionsLogger = defineLogger({
       if (state.currentConfigs.length === 1) {
         closeGroup('File Generation')
       }
+
+      // Show final progress step after files are written
+      showProgressStep()
     })
 
     context.on('file:processing:update', () => {
@@ -264,15 +244,6 @@ export const githubActionsLogger = defineLogger({
       }
 
       state.processedFiles++
-    })
-
-    context.on('files:processing:end', () => {
-      if (logLevel <= LogLevel.silent) {
-        return
-      }
-
-      // Show final progress step after files are written
-      showProgressStep()
     })
 
     context.on('generation:end', (config) => {
@@ -340,14 +311,13 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('hook:start', async ({ id, command, args }) => {
-      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const commandWithArgs = formatCommandWithArgs(command, args)
       const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} started`)
 
       if (logLevel > LogLevel.silent) {
         if (state.currentConfigs.length === 1) {
           openGroup(`Hook ${commandWithArgs}`)
         }
-
         console.log(text)
       }
 
@@ -356,57 +326,18 @@ export const githubActionsLogger = defineLogger({
         return
       }
 
-      try {
-        const result = await x(command, [...(args ?? [])], {
-          nodeOptions: { detached: true },
-          throwOnError: true,
-        })
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [result.stdout.trimEnd()],
-        })
-
-        if (logLevel > LogLevel.silent) {
-          console.log(result.stdout.trimEnd())
-        }
-
-        await context.emit('hook:end', {
-          command,
-          args,
-          id,
-          success: true,
-          error: null,
-        })
-      } catch (err) {
-        const error = err as NonZeroExitError
-        const stderr = error.output?.stderr ?? ''
-        const stdout = error.output?.stdout ?? ''
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [stdout, stderr].filter(Boolean),
-        })
-
-        // Display stderr/stdout in GitHub Actions format
-        if (stderr) {
-          console.error(`::error::${stderr}`)
-        }
-        if (stdout) {
-          console.log(stdout)
-        }
-
-        const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
-
-        await context.emit('hook:end', {
-          command,
-          args,
-          id,
-          success: false,
-          error: errorMessage,
-        })
-        await context.emit('error', errorMessage)
-      }
+      await runHook({
+        id,
+        command,
+        args,
+        commandWithArgs,
+        context,
+        sink: {
+          // GHA formats errors with the ::error:: annotation
+          onStdout: logLevel > LogLevel.silent ? (s) => console.log(s) : undefined,
+          onStderr: logLevel > LogLevel.silent ? (s) => console.error(`::error::${s}`) : undefined,
+        },
+      })
     })
 
     context.on('hook:end', ({ command, args }) => {
@@ -414,7 +345,7 @@ export const githubActionsLogger = defineLogger({
         return
       }
 
-      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const commandWithArgs = formatCommandWithArgs(command, args)
       const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} completed`)
 
       console.log(text)
@@ -425,7 +356,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('generation:summary', (config, { status, hrStart, failedPlugins }) => {
-      const pluginsCount = config.plugins?.length || 0
+      const pluginsCount = config.plugins?.length ?? 0
       const successCount = pluginsCount - failedPlugins.size
       const duration = formatHrtime(hrStart)
 
@@ -442,6 +373,10 @@ export const githubActionsLogger = defineLogger({
       if (state.currentConfigs.length > 1) {
         closeGroup(config.name ? `Generation for ${styleText('bold', config.name)}` : 'Generation')
       }
+    })
+
+    context.on('lifecycle:end', () => {
+      reset()
     })
   },
 })

@@ -7,6 +7,20 @@ export function hasPackageJson(cwd: string = process.cwd()): boolean {
   return fs.existsSync(path.join(cwd, 'package.json'))
 }
 
+function spawnAsync(cmd: string, args: string[], cwd: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(cmd, args, { stdio: 'inherit', cwd })
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve()
+      } else {
+        reject(new Error(`"${cmd} ${args.join(' ')}" exited with code ${code}`))
+      }
+    })
+    child.on('error', reject)
+  })
+}
+
 export async function initPackageJson(cwd: string, packageManager: PackageManagerInfo): Promise<void> {
   const commands: Record<PackageManagerName, string[]> = {
     npm: ['init', '-y'],
@@ -15,9 +29,9 @@ export async function initPackageJson(cwd: string, packageManager: PackageManage
     bun: ['init', '-y'],
   }
 
-  spawn(packageManager.name, commands[packageManager.name], { stdio: 'inherit', cwd })
+  await spawnAsync(packageManager.name, commands[packageManager.name], cwd)
 }
 
 export async function installPackages(packages: string[], packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
-  spawn(packageManager.name, [...packageManager.installCommand, ...packages], { stdio: 'inherit', cwd })
+  await spawnAsync(packageManager.name, [...packageManager.installCommand, ...packages], cwd)
 }

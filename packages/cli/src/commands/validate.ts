@@ -1,13 +1,11 @@
 import process from 'node:process'
 import type { ArgsDef } from 'citty'
 import { defineCommand, showUsage } from 'citty'
-import { createJiti } from 'jiti'
+import type * as OasModule from '@kubb/oas'
 import { version } from '../../package.json'
+import { getErrorMessage } from '../utils/errors.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
-
-const jiti = createJiti(import.meta.url, {
-  sourceMaps: true,
-})
+import { jiti } from '../utils/jiti.ts'
 
 const args = {
   input: {
@@ -36,29 +34,32 @@ const command = defineCommand({
       return showUsage(command)
     }
 
-    if (args.input) {
-      let mod: any
-      try {
-        mod = await jiti.import('@kubb/oas', { default: true })
-      } catch (_e) {
-        console.error(`Import of '@kubb/oas' is required to do validation`)
-        process.exit(1)
-      }
+    if (!args.input) {
+      console.error('Error: --input <path> is required')
+      return showUsage(command)
+    }
 
-      const { parse } = mod
-      const hrStart = process.hrtime()
-      try {
-        const oas = await parse(args.input)
-        await oas.validate()
+    let mod: typeof OasModule
+    try {
+      mod = await jiti.import('@kubb/oas', { default: true }) as typeof OasModule
+    } catch (_e) {
+      console.error(`Import of '@kubb/oas' is required to do validation`)
+      process.exit(1)
+    }
 
-        await sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status: 'success' }))
-        console.log('✅ Validation success')
-      } catch (error) {
-        await sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status: 'failed' }))
-        console.error('❌ Validation failed')
-        console.log((error as Error)?.message)
-        process.exit(1)
-      }
+    const { parse } = mod
+    const hrStart = process.hrtime()
+    try {
+      const oas = await parse(args.input)
+      await oas.validate()
+
+      await sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status: 'success' }))
+      console.log('✅ Validation success')
+    } catch (error) {
+      await sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status: 'failed' }))
+      console.error('❌ Validation failed')
+      console.log(getErrorMessage(error))
+      process.exit(1)
     }
   },
 })

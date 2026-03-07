@@ -5,28 +5,27 @@ import { styleText } from 'node:util'
  * Supports hex color codes without external dependencies like chalk
  */
 
+/** Parse a hex color string into RGB components, defaulting to 255 on invalid input. */
+function parseHex(color: string): { r: number; g: number; b: number } {
+  const c = color.replace('#', '')
+  const r = Number.parseInt(c.slice(0, 2), 16)
+  const g = Number.parseInt(c.slice(2, 4), 16)
+  const b = Number.parseInt(c.slice(4, 6), 16)
+  return {
+    r: Number.isNaN(r) ? 255 : r,
+    g: Number.isNaN(g) ? 255 : g,
+    b: Number.isNaN(b) ? 255 : b,
+  }
+}
+
 /**
  * Convert hex color to ANSI 24-bit true color escape sequence
  * @param color - Hex color code (with or without #), e.g., '#FF5500' or 'FF5500'
  * @returns Function that wraps text with the color
  */
 function hex(color: string): (text: string) => string {
-  const cleanHex = color.replace('#', '')
-  const r = Number.parseInt(cleanHex.slice(0, 2), 16)
-  const g = Number.parseInt(cleanHex.slice(2, 4), 16)
-  const b = Number.parseInt(cleanHex.slice(4, 6), 16)
-
-  // Default to white (255) if parsing fails (NaN)
-  const safeR = Number.isNaN(r) ? 255 : r
-  const safeG = Number.isNaN(g) ? 255 : g
-  const safeB = Number.isNaN(b) ? 255 : b
-
-  return (text: string) => `\x1b[38;2;${safeR};${safeG};${safeB}m${text}\x1b[0m`
-}
-
-function hexToRgb(color: string) {
-  const c = color.replace('#', '')
-  return { r: Number.parseInt(c.slice(0, 2), 16), g: Number.parseInt(c.slice(2, 4), 16), b: Number.parseInt(c.slice(4, 6), 16) }
+  const { r, g, b } = parseHex(color)
+  return (text: string) => `\x1b[38;2;${r};${g};${b}m${text}\x1b[0m`
 }
 
 function gradient(colors: string[]) {
@@ -37,8 +36,8 @@ function gradient(colors: string[]) {
         const t = chars.length <= 1 ? 0 : i / (chars.length - 1)
         const seg = Math.min(Math.floor(t * (colors.length - 1)), colors.length - 2)
         const lt = t * (colors.length - 1) - seg
-        const from = hexToRgb(colors[seg]!)
-        const to = hexToRgb(colors[seg + 1]!)
+        const from = parseHex(colors[seg]!)
+        const to = parseHex(colors[seg + 1]!)
         const r = Math.round(from.r + (to.r - from.r) * lt)
         const g = Math.round(from.g + (to.g - from.g) * lt)
         const b = Math.round(from.b + (to.b - from.b) * lt)

@@ -113,37 +113,48 @@ const plugins: PluginOption[] = [
   },
 ]
 
+/** Maps each plugin value to its default config snippet (indented 4 spaces). */
+const PLUGIN_DEFAULT_CONFIGS: Record<string, string> = {
+  'plugin-oas': 'pluginOas()',
+  'plugin-ts': `pluginTs({
+      output: { path: 'models' },
+    })`,
+  'plugin-client': `pluginClient({
+      output: { path: 'clients' },
+    })`,
+  'plugin-react-query': `pluginReactQuery({
+      output: { path: 'hooks' },
+    })`,
+  'plugin-solid-query': `pluginSolidQuery({
+      output: { path: 'hooks' },
+    })`,
+  'plugin-svelte-query': `pluginSvelteQuery({
+      output: { path: 'hooks' },
+    })`,
+  'plugin-vue-query': `pluginVueQuery({
+      output: { path: 'hooks' },
+    })`,
+  'plugin-swr': `pluginSwr({
+      output: { path: 'hooks' },
+    })`,
+  'plugin-zod': `pluginZod({
+      output: { path: 'zod' },
+    })`,
+  'plugin-faker': `pluginFaker({
+      output: { path: 'mocks' },
+    })`,
+  'plugin-msw': `pluginMsw({
+      output: { path: 'msw' },
+    })`,
+}
+
 function generateConfigFile(selectedPlugins: PluginOption[], inputPath: string, outputPath: string): string {
   const imports = selectedPlugins.map((plugin) => `import { ${plugin.importName} } from '${plugin.packageName}'`).join('\n')
 
   const pluginConfigs = selectedPlugins
     .map((plugin) => {
-      if (plugin.value === 'plugin-oas') {
-        return '    pluginOas(),'
-      }
-      if (plugin.value === 'plugin-ts') {
-        return `    pluginTs({\n      output: {\n        path: 'models',\n      },\n    }),`
-      }
-      if (plugin.value === 'plugin-client') {
-        return `    pluginClient({\n      output: {\n        path: 'clients',\n      },\n    }),`
-      }
-      if (plugin.value === 'plugin-react-query') {
-        return `    pluginReactQuery({\n      output: {\n        path: 'hooks',\n      },\n    }),`
-      }
-      if (plugin.value === 'plugin-zod') {
-        return `    pluginZod({\n      output: {\n        path: 'zod',\n      },\n    }),`
-      }
-      if (plugin.value === 'plugin-faker') {
-        return `    pluginFaker({\n      output: {\n        path: 'mocks',\n      },\n    }),`
-      }
-      if (plugin.value === 'plugin-msw') {
-        return `    pluginMsw({\n      output: {\n        path: 'msw',\n      },\n    }),`
-      }
-      if (plugin.value === 'plugin-swr') {
-        return `    pluginSwr({\n      output: {\n        path: 'hooks',\n      },\n    }),`
-      }
-      // Default config for other plugins
-      return `    ${plugin.importName}(),`
+      const config = PLUGIN_DEFAULT_CONFIGS[plugin.value] ?? `${plugin.importName}()`
+      return `    ${config},`
     })
     .join('\n')
 
@@ -169,6 +180,11 @@ ${pluginConfigs}
 const DEFAULT_INPUT_PATH = './openapi.yaml'
 const DEFAULT_OUTPUT_PATH = './src/gen'
 const DEFAULT_PLUGINS = ['plugin-oas', 'plugin-ts']
+
+function cancelAndExit(message = 'Operation cancelled.'): never {
+  clack.cancel(message)
+  process.exit(0)
+}
 
 const command = defineCommand({
   meta: {
@@ -200,8 +216,7 @@ const command = defineCommand({
           })
 
           if (clack.isCancel(shouldInit) || !shouldInit) {
-            clack.cancel('Operation cancelled.')
-            process.exit(0)
+            cancelAndExit()
           }
         }
 
@@ -235,8 +250,7 @@ const command = defineCommand({
         })
 
         if (clack.isCancel(inputPathResult)) {
-          clack.cancel('Operation cancelled.')
-          process.exit(0)
+          cancelAndExit()
         }
         inputPath = inputPathResult as string
       }
@@ -257,8 +271,7 @@ const command = defineCommand({
         })
 
         if (clack.isCancel(outputPathResult)) {
-          clack.cancel('Operation cancelled.')
-          process.exit(0)
+          cancelAndExit()
         }
         outputPath = outputPathResult as string
       }
@@ -281,8 +294,7 @@ const command = defineCommand({
         })
 
         if (clack.isCancel(selectedPluginValues)) {
-          clack.cancel('Operation cancelled.')
-          process.exit(0)
+          cancelAndExit()
         }
 
         selectedPlugins = plugins.filter((plugin) => (selectedPluginValues as string[]).includes(plugin.value))
@@ -325,8 +337,7 @@ const command = defineCommand({
           })
 
           if (clack.isCancel(shouldOverwrite) || !shouldOverwrite) {
-            clack.cancel('Keeping existing configuration. Packages have been installed.')
-            process.exit(0)
+            cancelAndExit('Keeping existing configuration. Packages have been installed.')
           }
         }
 

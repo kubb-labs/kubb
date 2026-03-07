@@ -9,8 +9,11 @@ import { defineCommand, showUsage } from 'citty'
 import { version } from '../../package.json'
 import { setupLogger } from '../loggers/utils.ts'
 import { generate } from '../runners/generate.ts'
+import { toError } from '../utils/errors.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { startWatcher } from '../utils/watcher.ts'
+
+const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest'
 
 const args = {
   config: {
@@ -75,25 +78,14 @@ const command = defineCommand({
       return showUsage(command)
     }
 
-    if (args.debug) {
-      args.logLevel = 'debug'
-    }
-
-    if (args.verbose) {
-      args.logLevel = 'verbose'
-    }
-
-    if (args.silent) {
-      args.logLevel = 'silent'
-    }
-
-    const logLevel = LogLevel[args.logLevel as keyof typeof LogLevel] || 3
+    const resolvedLogLevelName = args.debug ? 'debug' : args.verbose ? 'verbose' : args.silent ? 'silent' : args.logLevel
+    const logLevel = LogLevel[resolvedLogLevelName as keyof typeof LogLevel] ?? LogLevel.info
 
     await setupLogger(events, { logLevel })
 
     await executeIfOnline(async () => {
       try {
-        const res = await fetch('https://registry.npmjs.org/@kubb/cli/latest')
+      const res = await fetch(KUBB_NPM_PACKAGE_URL)
         const data = (await res.json()) as { version: string }
         const latestVersion = data.version
 
@@ -151,7 +143,7 @@ const command = defineCommand({
 
       await events.emit('lifecycle:end')
     } catch (error) {
-      await events.emit('error', error as Error)
+      await events.emit('error', toError(error))
       process.exit(1)
     }
   },
