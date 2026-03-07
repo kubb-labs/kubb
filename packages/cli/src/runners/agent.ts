@@ -47,12 +47,12 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
     const serverPath = path.join(agentDir, agentDefaults.serverEntryPath)
 
     // nitro env
-    const PORT = process.env.PORT || (port === 0 ? agentDefaults.port : String(port))
-    const HOST = process.env.HOST || host || '0.0.0.0'
+    const PORT = port === 0 ? process.env.PORT || agentDefaults.port : String(port)
+    const HOST = host || process.env.HOST || '0.0.0.0'
 
     // kubb env
     const KUBB_AGENT_ROOT = process.env.KUBB_AGENT_ROOT || process.cwd()
-    const KUBB_AGENT_CONFIG = process.env.KUBB_AGENT_CONFIG || configPath || agentDefaults.configFile
+    const KUBB_AGENT_CONFIG = configPath || process.env.KUBB_AGENT_CONFIG || agentDefaults.configFile
     const KUBB_AGENT_ALLOW_WRITE = allowAll || allowWrite ? 'true' : (process.env.KUBB_AGENT_ALLOW_WRITE ?? 'false')
     const KUBB_AGENT_ALLOW_ALL = allowAll ? 'true' : (process.env.KUBB_AGENT_ALLOW_ALL ?? 'false')
     const KUBB_AGENT_TOKEN = process.env.KUBB_AGENT_TOKEN
@@ -88,7 +88,6 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
     await spawnAsync('node', [serverPath], {
       env: { ...process.env, ...env },
       cwd: process.cwd(),
-      detached: true,
     })
 
     await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'success' }))
