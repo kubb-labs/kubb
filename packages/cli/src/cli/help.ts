@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
-import type { CommandDefinition, OptionSchema } from './types.ts'
 import { getCommandSchema } from './schema.ts'
+import type { CommandDefinition, OptionSchema } from './types.ts'
 
 /**
  * Print formatted help output for a command, derived entirely from its

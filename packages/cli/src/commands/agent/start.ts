@@ -1,7 +1,7 @@
 import path from 'node:path'
 import * as process from 'node:process'
-import { defineCommand } from '../../cli/index.ts'
 import { version } from '../../../package.json'
+import { defineCommand } from '../../cli/index.ts'
 import { agentDefaults } from '../../constants.ts'
 import { runAgentStart } from '../../runners/agent.ts'
 

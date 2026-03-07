@@ -52,7 +52,7 @@ export const command = defineCommand({
         ? 'verbose'
         : values['silent']
           ? 'silent'
-          : (values['logLevel'] as string | undefined) ?? 'info'
+          : ((values['logLevel'] as string | undefined) ?? 'info')
 
     const logLevel = LogLevel[logLevelName as keyof typeof LogLevel] ?? LogLevel.info
 
