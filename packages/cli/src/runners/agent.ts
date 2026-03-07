@@ -46,20 +46,20 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
     const agentDir = path.dirname(agentPkgPath)
     const serverPath = path.join(agentDir, agentDefaults.serverEntryPath)
 
-    // nitro env
-    const PORT = port === 0 ? process.env.PORT || agentDefaults.port : String(port)
-    const HOST = host || process.env.HOST || '0.0.0.0'
-
-    // kubb env
-    const KUBB_AGENT_ROOT = process.env.KUBB_AGENT_ROOT || process.cwd()
-    const KUBB_AGENT_CONFIG = configPath || process.env.KUBB_AGENT_CONFIG || agentDefaults.configFile
+    // CLI params take priority over process.env; process.env fills in what the CLI didn't specify;
+    // agentDefaults are the last resort. Build env as: defaults ← process.env ← CLI.
+    const PORT = port !== 0 ? String(port) : (process.env.PORT ?? agentDefaults.port)
+    const HOST = host !== agentDefaults.host ? host : (process.env.HOST ?? agentDefaults.host)
+    const KUBB_AGENT_ROOT = process.env.KUBB_AGENT_ROOT ?? process.cwd()
+    const KUBB_AGENT_CONFIG = configPath !== agentDefaults.configFile ? configPath : (process.env.KUBB_AGENT_CONFIG ?? agentDefaults.configFile)
     const KUBB_AGENT_ALLOW_WRITE = allowAll || allowWrite ? 'true' : (process.env.KUBB_AGENT_ALLOW_WRITE ?? 'false')
     const KUBB_AGENT_ALLOW_ALL = allowAll ? 'true' : (process.env.KUBB_AGENT_ALLOW_ALL ?? 'false')
     const KUBB_AGENT_TOKEN = process.env.KUBB_AGENT_TOKEN
-    const KUBB_AGENT_RETRY_TIMEOUT = process.env.KUBB_AGENT_RETRY_TIMEOUT || agentDefaults.retryTimeout
-    const KUBB_STUDIO_URL = process.env.KUBB_STUDIO_URL || agentDefaults.studioUrl
+    const KUBB_AGENT_RETRY_TIMEOUT = process.env.KUBB_AGENT_RETRY_TIMEOUT ?? agentDefaults.retryTimeout
+    const KUBB_STUDIO_URL = process.env.KUBB_STUDIO_URL ?? agentDefaults.studioUrl
 
     const env = {
+      ...process.env,
       PORT,
       HOST,
       KUBB_AGENT_ROOT,
@@ -86,8 +86,9 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
 
     // Spawns the server as a detached background process so the CLI can exit independently.
     await spawnAsync('node', [serverPath], {
-      env: { ...process.env, ...env },
+      env,
       cwd: process.cwd(),
+      detached: true,
     })
 
     await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'success' }))
