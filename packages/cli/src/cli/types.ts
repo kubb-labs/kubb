@@ -15,11 +15,13 @@ export type OptionType = OptionDefinition['type']
 
 type OptionTypeMap = { string: string; boolean: boolean }
 
-/** Infers typed values from an options record. Options with a `default` are always defined. */
+type IsRequired<O extends OptionDefinition> = O['default'] extends string | boolean ? true : O['required'] extends true ? true : false
+
+/** Infers typed values from an options record. Options with a `default` or `required: true` are always defined. */
 type InferValues<O extends Record<string, OptionDefinition>> = {
-  [K in keyof O as O[K]['default'] extends string | boolean ? K : never]: OptionTypeMap[O[K]['type']]
+  [K in keyof O as IsRequired<O[K]> extends true ? K : never]: OptionTypeMap[O[K]['type']]
 } & {
-  [K in keyof O as O[K]['default'] extends string | boolean ? never : K]?: OptionTypeMap[O[K]['type']]
+  [K in keyof O as IsRequired<O[K]> extends true ? never : K]?: OptionTypeMap[O[K]['type']]
 }
 
 export type ParsedArgs = {
