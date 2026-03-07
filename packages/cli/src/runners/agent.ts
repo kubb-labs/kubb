@@ -67,11 +67,11 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
     }
 
     // Spawn the server as a detached long-running child process (fire-and-forget by design).
-    // detached: true lets the child run in its own process group; stdio: 'ignore' closes
-    // the parent's stdio handles to the child; unref() allows the CLI to exit independently.
+    // detached: true lets the child run in its own process group; stdio: 'inherit' forwards
+    // the child's output to the terminal; unref() allows the CLI to exit independently.
     const child = spawn('node', [serverPath], {
       env: { ...process.env, ...env },
-      stdio: 'ignore',
+      stdio: 'inherit',
       cwd: process.cwd(),
       detached: true,
     })
