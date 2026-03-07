@@ -46,19 +46,16 @@ export async function dispatch(
   // Strip leading node / binary entries when full process.argv is passed
   const args = argv.length >= 2 && argv[0]?.includes('node') ? argv.slice(2) : argv
 
-  // ── Top-level --version / -v ────────────────────────────────────────────────
   if (args[0] === '--version' || args[0] === '-v') {
     console.log(version)
     process.exit(0)
   }
 
-  // ── Top-level --help / -h (no subcommand token) ─────────────────────────────
   if (args[0] === '--help' || args[0] === '-h') {
     printRootHelp(programName, version, defs)
     process.exit(0)
   }
 
-  // ── No arguments → fall through to default command ───────────────────────────
   if (args.length === 0) {
     const defaultDef = defs.find((d) => d.name === defaultCommandName)
     if (defaultDef?.run) {
@@ -69,7 +66,6 @@ export async function dispatch(
     return
   }
 
-  // ── Resolve the command to run ───────────────────────────────────────────────
   const [first, ...rest] = args
   const isKnownSubcommand = defs.some((d) => d.name === first)
 
@@ -94,7 +90,6 @@ export async function dispatch(
     process.exit(1)
   }
 
-  // ── Handle subcommands (one level deep, e.g. `agent start …`) ───────────────
   if (def.subCommands?.length) {
     const [subName, ...subRest] = commandArgv
     const subDef = def.subCommands.find((s) => s.name === subName)

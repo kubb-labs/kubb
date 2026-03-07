@@ -1,4 +1,5 @@
 import { defineCommand } from '../cli/index.ts'
+import { LogLevel } from '@kubb/core'
 import { runGenerateCommand } from '../runners/generate.ts'
 
 export const command = defineCommand({
@@ -44,8 +45,6 @@ export const command = defineCommand({
     },
   },
   async run({ values, positionals }) {
-    const { LogLevel } = await import('@kubb/core')
-
     const logLevelName = values['debug']
       ? 'debug'
       : values['verbose']
