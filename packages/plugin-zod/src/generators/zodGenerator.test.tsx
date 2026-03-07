@@ -374,6 +374,71 @@ describe('zodGenerator schema', async () => {
 
     await matchFiles(fabric.files)
   })
+
+  test('typed schemas add ToZod once as a type-only import', async () => {
+    const oas = await parse(path.resolve(__dirname, '../../mocks/petStore.yaml'))
+
+    const options: PluginZod['resolvedOptions'] = {
+      dateType: 'date',
+      transformers: {},
+      inferred: false,
+      typed: true,
+      unknownType: 'any',
+      integerType: 'number',
+      mapper: {},
+      importPath: 'zod',
+      coercion: false,
+      operations: false,
+      override: [],
+      output: {
+        path: '.',
+      },
+      group: undefined,
+      wrapOutput: undefined,
+      version: '3',
+      guidType: 'uuid',
+      emptySchemaType: 'unknown',
+      mini: false,
+    }
+    const plugin = { options } as Plugin<PluginZod>
+    const mockedPluginManager = createMockedPluginManager('Pets')
+    const generator = new SchemaGenerator(options, {
+      fabric,
+      oas,
+      pluginManager: mockedPluginManager,
+      plugin,
+      contentType: 'application/json',
+      include: undefined,
+      override: undefined,
+      mode: 'split',
+      output: './gen',
+    })
+
+    const { schemas } = getSchemas({ oas })
+    const schema = schemas.Pets as SchemaObject
+    const tree = generator.parse({ schema, name: 'Pets', parentName: null })
+
+    await buildSchema(
+      {
+        name: 'Pets',
+        tree,
+        value: schema,
+      },
+      {
+        config: { root: '.', output: { path: 'test' } } as Config,
+        fabric,
+        generator,
+        Component: zodGenerator.Schema,
+        plugin,
+      },
+    )
+
+    const file = fabric.files.at(0)
+    const toZodImports = file?.imports?.filter((item) => item.path.endsWith('.kubb/ToZod.ts'))
+
+    expect(toZodImports).toHaveLength(1)
+    expect(toZodImports?.[0]?.isTypeOnly).toBe(true)
+  })
 })
 
 describe('zodGenerator operation', async () => {
@@ -500,6 +565,61 @@ describe('zodGenerator operation', async () => {
     })
 
     await matchFiles(fabric.files)
+  })
+
+  test('typed operations add ToZod once per generated file', async () => {
+    const oas = await parse(path.resolve(__dirname, '../../mocks/petStore.yaml'))
+
+    const options: PluginZod['resolvedOptions'] = {
+      dateType: 'date',
+      transformers: {},
+      typed: true,
+      inferred: false,
+      unknownType: 'any',
+      mapper: {},
+      importPath: 'zod',
+      coercion: false,
+      integerType: 'number',
+      operations: false,
+      override: [],
+      output: {
+        path: '.',
+      },
+      group: undefined,
+      wrapOutput: undefined,
+      version: '3',
+      guidType: 'uuid',
+      emptySchemaType: 'unknown',
+      mini: false,
+    }
+    const plugin = { options } as Plugin<PluginZod>
+    const mockedPluginManager = createMockedPluginManager('createPets')
+    const generator = new OperationGenerator(options, {
+      fabric,
+      oas,
+      include: undefined,
+      pluginManager: mockedPluginManager,
+      plugin,
+      contentType: undefined,
+      override: undefined,
+      mode: 'split',
+      exclude: [],
+    })
+    const operation = oas.operation('/pets', 'post')
+
+    await buildOperation(operation, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      generator,
+      Component: zodGenerator.Operation,
+      plugin,
+    })
+
+    const file = fabric.files.at(0)
+    const toZodImports = file?.imports?.filter((item) => item.path.endsWith('.kubb/ToZod.ts'))
+
+    expect(toZodImports).toHaveLength(1)
+    expect(toZodImports?.[0]?.isTypeOnly).toBe(true)
   })
 
   describe('wrapOutput', () => {
