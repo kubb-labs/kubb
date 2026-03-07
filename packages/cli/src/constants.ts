@@ -24,7 +24,7 @@ export const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
 
 // ─── CLI dispatcher ───────────────────────────────────────────────────────────
 
-/** All recognised top-level subcommands. Used to decide the default fallback. */
+/** All recognized top-level subcommands. Used to decide the default fallback. */
 export const KNOWN_SUBCOMMANDS = ['generate', 'validate', 'mcp', 'agent', 'init'] as const
 
 export type KnownSubcommand = (typeof KNOWN_SUBCOMMANDS)[number]
@@ -92,5 +92,5 @@ export const pluginDefaultConfigs = {
 
 // ─── Colors ───────────────────────────────────────────────────────────────────
 
-/** Color palette used by randomCliColor() for deterministic plugin name colouring. */
+/** Color palette used by randomCliColor() for deterministic plugin name coloring. */
 export const randomColors = ['black', 'red', 'green', 'yellow', 'blue', 'white', 'magenta', 'cyan', 'gray', 'blue'] as const
