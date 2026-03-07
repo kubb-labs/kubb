@@ -31,7 +31,10 @@ export async function executeHooks({ hooks, events }: ExecutingHooksProps): Prom
           reject(error ?? new Error(`Hook failed: ${command}`))
           return
         }
-        events.emit('success', `${styleText('dim', command)} successfully executed`).then(resolve).catch(reject)
+        events
+          .emit('success', `${styleText('dim', command)} successfully executed`)
+          .then(resolve)
+          .catch(reject)
       }
       events.on('hook:end', handler)
     })
