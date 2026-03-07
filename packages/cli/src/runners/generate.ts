@@ -103,7 +103,7 @@ async function runToolPass({
   await onEnd()
 }
 
-export async function generate({ input, config: userConfig, events, logLevel }: GenerateProps): Promise<void> {
+async function generate({ input, config: userConfig, events, logLevel }: GenerateProps): Promise<void> {
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
   const hrStart = process.hrtime()
 
@@ -255,7 +255,7 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
   await sendTelemetry(telemetryEvent)
 }
 
-export type GenerateCommandOptions = {
+type GenerateCommandOptions = {
   input?: string
   configPath?: string
   logLevel: number

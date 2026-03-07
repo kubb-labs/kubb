@@ -1,4 +1,4 @@
-import type { ArgsDef, ParsedArgs } from 'citty'
+import type { ArgsDef } from 'citty'
 import { defineCommand, showUsage } from 'citty'
 import { runGenerateCommand } from '../runners/generate.ts'
 
@@ -46,8 +46,6 @@ const args = {
     default: false,
   },
 } as const satisfies ArgsDef
-
-export type Args = ParsedArgs<typeof args>
 
 export const command = defineCommand({
   meta: {

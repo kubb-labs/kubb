@@ -2,7 +2,7 @@ import type { defineConfig, UserConfig } from '@kubb/core'
 import { cosmiconfig } from 'cosmiconfig'
 import { createJiti } from 'jiti'
 
-export type CosmiconfigResult = {
+type CosmiconfigResult = {
   filepath: string
   isEmpty?: boolean
   config: ReturnType<typeof defineConfig> | UserConfig

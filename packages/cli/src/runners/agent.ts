@@ -7,7 +7,7 @@ import * as clack from '@clack/prompts'
 import { agentDefaults } from '../constants.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 
-export type AgentStartOptions = {
+type AgentStartOptions = {
   port: number
   host: string
   configPath: string

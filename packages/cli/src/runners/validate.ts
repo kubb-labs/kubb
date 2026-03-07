@@ -4,7 +4,7 @@ import { getErrorMessage } from '../utils/errors.ts'
 import { jiti } from '../utils/jiti.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 
-export type ValidateOptions = {
+type ValidateOptions = {
   input: string
   version: string
 }

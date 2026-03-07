@@ -71,7 +71,7 @@ export function formatCommandWithArgs(command: string, args?: readonly string[])
   return args?.length ? `${command} ${args.join(' ')}` : command
 }
 
-export function detectLogger(): LoggerType {
+function detectLogger(): LoggerType {
   if (isGitHubActions()) {
     return 'github-actions'
   }

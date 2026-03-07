@@ -95,7 +95,7 @@ type OtlpResourceSpans = {
 }
 
 /** Root payload sent to POST /v1/traces */
-export type OtlpExportTraceServiceRequest = {
+type OtlpExportTraceServiceRequest = {
   resourceSpans: OtlpResourceSpans[]
 }
 
@@ -106,7 +106,7 @@ export type TelemetryPlugin = {
   options: Record<string, unknown>
 }
 
-export type TelemetryEvent = {
+type TelemetryEvent = {
   command: string
   kubbVersion: string
   nodeVersion: string

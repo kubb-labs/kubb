@@ -92,7 +92,5 @@ export const pluginDefaultConfigs = {
 
 // ─── Colors ───────────────────────────────────────────────────────────────────
 
-/** Color palette used by randomColor() for deterministic plugin name colouring. */
+/** Color palette used by randomCliColor() for deterministic plugin name colouring. */
 export const randomColors = ['black', 'red', 'green', 'yellow', 'blue', 'white', 'magenta', 'cyan', 'gray', 'blue'] as const
-
-export type RandomColor = (typeof randomColors)[number]

@@ -7,7 +7,7 @@ import { detectPackageManager, type PackageManagerInfo } from '@kubb/core'
 import { initDefaults, pluginDefaultConfigs } from '../constants.ts'
 import { hasPackageJson, initPackageJson, installPackages } from '../utils/packageManager.ts'
 
-export type PluginOption = {
+type PluginOption = {
   value: string
   label: string
   hint?: string
@@ -16,7 +16,7 @@ export type PluginOption = {
   category: 'core' | 'typescript' | 'query' | 'validation' | 'testing' | 'mocking' | 'docs'
 }
 
-export const availablePlugins: PluginOption[] = [
+const availablePlugins: PluginOption[] = [
   {
     value: 'plugin-oas',
     label: 'OpenAPI Parser',
@@ -146,7 +146,7 @@ function cancelAndExit(message = 'Operation cancelled.'): never {
   process.exit(0)
 }
 
-export type InitOptions = {
+type InitOptions = {
   yes: boolean
   version: string
 }

@@ -3,7 +3,7 @@ import type { AsyncEventEmitter } from '@kubb/core/utils'
 import { NonZeroExitError, x } from 'tinyexec'
 import { toError } from './errors.ts'
 
-export type HookOutputSink = {
+type HookOutputSink = {
   /** Called for each streamed stdout line while the hook runs (optional). */
   onLine?: (line: string) => void
   /** Called on stderr after failure (optional). */
