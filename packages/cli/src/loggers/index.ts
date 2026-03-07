@@ -1,5 +1,0 @@
-export { clackLogger } from './clackLogger.ts'
-export { fileSystemLogger } from './fileSystemLogger.ts'
-export { githubActionsLogger } from './githubActionsLogger.ts'
-export { plainLogger } from './plainLogger.ts'
-export type { LoggerType } from './types.ts'

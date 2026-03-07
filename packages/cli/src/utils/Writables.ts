@@ -10,8 +10,8 @@ export class ClackWritable extends Writable {
 
     this.taskLog = taskLog
   }
-  _write(chunk: any, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
-    this.taskLog.message(`${styleText('dim', chunk?.toString())}`)
+  _write(chunk: Buffer, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
+    this.taskLog.message(`${styleText('dim', chunk.toString())}`)
     callback()
   }
 }

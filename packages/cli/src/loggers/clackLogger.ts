@@ -3,12 +3,14 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { defineLogger, LogLevel } from '@kubb/core'
-import { formatHrtime, formatMs } from '@kubb/core/utils'
-import { type NonZeroExitError, x } from 'tinyexec'
+import { formatMs } from '@kubb/core/utils'
+import { toCause } from '../utils/errors.ts'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 import { getIntro } from '../utils/getIntro.ts'
 import { getSummary } from '../utils/getSummary.ts'
+import { runHook } from '../utils/runHook.ts'
 import { ClackWritable } from '../utils/Writables.ts'
+import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
  * Clack adapter for local TTY environments
@@ -17,7 +19,7 @@ import { ClackWritable } from '../utils/Writables.ts'
 export const clackLogger = defineLogger({
   name: 'clack',
   install(context, options) {
-    const logLevel = options?.logLevel || LogLevel.info
+    const logLevel = options?.logLevel ?? LogLevel.info
     const state = {
       totalPlugins: 0,
       completedPlugins: 0,
@@ -54,40 +56,14 @@ export const clackLogger = defineLogger({
         return
       }
 
-      const parts: string[] = []
-      const duration = formatHrtime(state.hrStart)
-
-      if (state.totalPlugins > 0) {
-        const pluginStr =
-          state.failedPlugins > 0
-            ? `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins} ${styleText('red', `(${state.failedPlugins} failed)`)}`
-            : `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins}`
-        parts.push(pluginStr)
-      }
-
-      if (state.totalFiles > 0) {
-        parts.push(`Files ${styleText('green', state.processedFiles.toString())}/${state.totalFiles}`)
-      }
-
-      if (parts.length > 0) {
-        parts.push(`${styleText('green', duration)} elapsed`)
-        clack.log.step(getMessage(parts.join(styleText('dim', ' | '))))
+      const line = buildProgressLine(state)
+      if (line) {
+        clack.log.step(getMessage(line))
       }
     }
 
     function getMessage(message: string): string {
-      if (logLevel >= LogLevel.verbose) {
-        const timestamp = new Date().toLocaleTimeString('en-US', {
-          hour12: false,
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        })
-
-        return [styleText('dim', `[${timestamp}]`), message].join(' ')
-      }
-
-      return message
+      return formatMessage(message, logLevel)
     }
 
     function startSpinner(text?: string) {
@@ -141,7 +117,7 @@ export const clackLogger = defineLogger({
     })
 
     context.on('error', (error) => {
-      const caused = error.cause as Error | undefined
+      const caused = toCause(error)
 
       const text = [styleText('red', '✗'), error.message].join(' ')
 
@@ -217,13 +193,14 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('generation:start', (config) => {
-      // Initialize progress tracking
-      state.totalPlugins = config.plugins?.length || 0
+      reset()
+
+      // Initialize progress tracking for this generation
+      state.totalPlugins = config.plugins?.length ?? 0
 
       const text = getMessage(['Generation started', config.name ? `for ${styleText('dim', config.name)}` : undefined].filter(Boolean).join(' '))
 
       clack.intro(text)
-      reset()
     })
 
     context.on('plugin:start', (plugin) => {
@@ -387,7 +364,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('hook:start', async ({ id, command, args }) => {
-      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const commandWithArgs = formatCommandWithArgs(command, args)
       const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} started`)
 
       // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
@@ -396,53 +373,17 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
 
       if (logLevel <= LogLevel.silent) {
-        try {
-          const result = await x(command, [...(args ?? [])], {
-            nodeOptions: { detached: true },
-            throwOnError: true,
-          })
-
-          await context.emit('debug', {
-            date: new Date(),
-            logs: [result.stdout.trimEnd()],
-          })
-
-          await context.emit('hook:end', {
-            command,
-            args,
-            id,
-            success: true,
-            error: null,
-          })
-        } catch (err) {
-          const error = err as NonZeroExitError
-          const stderr = error.output?.stderr ?? ''
-          const stdout = error.output?.stdout ?? ''
-
-          await context.emit('debug', {
-            date: new Date(),
-            logs: [stdout, stderr].filter(Boolean),
-          })
-
-          if (stderr) {
-            console.error(stderr)
-          }
-          if (stdout) {
-            console.log(stdout)
-          }
-
-          const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
-
-          await context.emit('hook:end', {
-            command,
-            args,
-            id,
-            success: false,
-            error: errorMessage,
-          })
-          await context.emit('error', errorMessage)
-        }
-
+        await runHook({
+          id,
+          command,
+          args,
+          commandWithArgs,
+          context,
+          sink: {
+            onStderr: (s) => console.error(s),
+            onStdout: (s) => console.log(s),
+          },
+        })
         return
       }
 
@@ -454,46 +395,19 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       const writable = new ClackWritable(logger)
 
-      try {
-        const proc = x(command, [...(args ?? [])], {
-          nodeOptions: { detached: true },
-          throwOnError: true,
-        })
-
-        for await (const line of proc) {
-          writable.write(line)
-        }
-
-        const result = await proc
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [result.stdout.trimEnd()],
-        })
-
-        await context.emit('hook:end', { command, args, id, success: true, error: null })
-      } catch (err) {
-        const error = err as NonZeroExitError
-        const stderr = error.output?.stderr ?? ''
-        const stdout = error.output?.stdout ?? ''
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [stdout, stderr].filter(Boolean),
-        })
-
-        if (stderr) {
-          logger.error(stderr)
-        }
-        if (stdout) {
-          logger.message(stdout)
-        }
-
-        const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
-
-        await context.emit('hook:end', { command, args, id, success: false, error: errorMessage })
-        await context.emit('error', errorMessage)
-      }
+      await runHook({
+        id,
+        command,
+        args,
+        commandWithArgs,
+        context,
+        stream: true,
+        sink: {
+          onLine: (line) => writable.write(line),
+          onStderr: (s) => logger.error(s),
+          onStdout: (s) => logger.message(s),
+        },
+      })
     })
 
     context.on('hook:end', ({ command, args }) => {
@@ -501,7 +415,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const commandWithArgs = formatCommandWithArgs(command, args)
       const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} successfully executed`)
 
       clack.outro(text)
@@ -521,22 +435,10 @@ Run \`npm install -g @kubb/cli\` to update`,
       summary.unshift('\n')
       summary.push('\n')
 
-      if (status === 'success') {
-        clack.box(summary.join('\n'), getMessage(title), {
-          width: 'auto',
-          formatBorder: (s: string) => styleText('green', s),
-          rounded: true,
-          withGuide: false,
-          contentAlign: 'left',
-          titleAlign: 'center',
-        })
-
-        return
-      }
-
+      const borderColor = status === 'success' ? 'green' : 'red'
       clack.box(summary.join('\n'), getMessage(title), {
         width: 'auto',
-        formatBorder: (s: string) => styleText('red', s),
+        formatBorder: (s: string) => styleText(borderColor, s),
         rounded: true,
         withGuide: false,
         contentAlign: 'left',

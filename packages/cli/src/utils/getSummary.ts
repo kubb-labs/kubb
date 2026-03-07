@@ -2,6 +2,7 @@ import path from 'node:path'
 import { styleText } from 'node:util'
 import type { Config, Plugin } from '@kubb/core'
 import { formatHrtime } from '@kubb/core/utils'
+import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
 import { randomCliColor } from './randomColor.ts'
 
 type SummaryProps = {
@@ -16,7 +17,7 @@ type SummaryProps = {
 export function getSummary({ failedPlugins, filesCreated, status, hrStart, config, pluginTimings }: SummaryProps): string[] {
   const duration = formatHrtime(hrStart)
 
-  const pluginsCount = config.plugins?.length || 0
+  const pluginsCount = config.plugins?.length ?? 0
   const successCount = pluginsCount - failedPlugins.size
 
   const meta = {
@@ -24,8 +25,8 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
       status === 'success'
         ? `${styleText('green', `${successCount} successful`)}, ${pluginsCount} total`
         : `${styleText('green', `${successCount} successful`)}, ${styleText('red', `${failedPlugins.size} failed`)}, ${pluginsCount} total`,
-    pluginsFailed: status === 'failed' ? [...failedPlugins]?.map(({ plugin }) => randomCliColor(plugin.name))?.join(', ') : undefined,
-    filesCreated: filesCreated,
+    pluginsFailed: status === 'failed' ? [...failedPlugins].map(({ plugin }) => randomCliColor(plugin.name)).join(', ') : undefined,
+    filesCreated,
     time: styleText('green', duration),
     output: path.isAbsolute(config.root) ? path.resolve(config.root, config.output.path) : config.root,
   } as const
@@ -49,22 +50,17 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
   summaryLines.push(`${labels.generated.padEnd(maxLength + 2)} ${meta.filesCreated} files in ${meta.time}`)
 
   if (pluginTimings && pluginTimings.size > 0) {
-    const TIME_SCALE_DIVISOR = 100
-    const MAX_BAR_LENGTH = 10
-
     const sortedTimings = Array.from(pluginTimings.entries()).sort((a, b) => b[1] - a[1])
 
-    if (sortedTimings.length > 0) {
-      summaryLines.push(`${labels.pluginTimings}`)
+    summaryLines.push(`${labels.pluginTimings}`)
 
-      sortedTimings.forEach(([name, time]) => {
-        const timeStr = time >= 1000 ? `${(time / 1000).toFixed(2)}s` : `${Math.round(time)}ms`
-        const barLength = Math.min(Math.ceil(time / TIME_SCALE_DIVISOR), MAX_BAR_LENGTH)
-        const bar = styleText('dim', '█'.repeat(barLength))
+    sortedTimings.forEach(([name, time]) => {
+      const timeStr = time >= 1000 ? `${(time / 1000).toFixed(2)}s` : `${Math.round(time)}ms`
+      const barLength = Math.min(Math.ceil(time / SUMMARY_TIME_SCALE_DIVISOR), SUMMARY_MAX_BAR_LENGTH)
+      const bar = styleText('dim', '█'.repeat(barLength))
 
-        summaryLines.push(`${styleText('dim', '•')} ${name.padEnd(maxLength + 1)}${bar} ${timeStr}`)
-      })
-    }
+      summaryLines.push(`${styleText('dim', '•')} ${name.padEnd(maxLength + 1)}${bar} ${timeStr}`)
+    })
   }
 
   summaryLines.push(`${labels.output.padEnd(maxLength + 2)} ${meta.output}`)

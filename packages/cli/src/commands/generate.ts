@@ -1,160 +1,65 @@
-import path from 'node:path'
-import * as process from 'node:process'
-import { styleText } from 'node:util'
-import * as clack from '@clack/prompts'
-import { type CLIOptions, isInputPath, type KubbEvents, LogLevel, PromiseManager } from '@kubb/core'
-import { AsyncEventEmitter, executeIfOnline, getConfigs } from '@kubb/core/utils'
-import type { ArgsDef, ParsedArgs } from 'citty'
-import { defineCommand, showUsage } from 'citty'
-import { version } from '../../package.json'
-import { setupLogger } from '../loggers/utils.ts'
-import { generate } from '../runners/generate.ts'
-import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
-import { startWatcher } from '../utils/watcher.ts'
+import { LogLevel } from '@kubb/core'
+import { defineCommand } from '../cli/index.ts'
+import { runGenerateCommand } from '../runners/generate.ts'
 
-const args = {
-  config: {
-    type: 'string',
-    description: 'Path to the Kubb config',
-    alias: 'c',
+export const command = defineCommand({
+  name: 'generate',
+  description: "[input] Generate files based on a 'kubb.config.ts' file",
+  arguments: ['[input]'],
+  options: {
+    config: {
+      type: 'string',
+      description: 'Path to the Kubb config',
+      short: 'c',
+    },
+    logLevel: {
+      type: 'string',
+      description: 'Info, silent, verbose or debug',
+      short: 'l',
+      default: 'info',
+      hint: 'silent|info|verbose|debug',
+    },
+    watch: {
+      type: 'boolean',
+      description: 'Watch mode based on the input file',
+      short: 'w',
+      default: false,
+    },
+    debug: {
+      type: 'boolean',
+      description: 'Override logLevel to debug',
+      short: 'd',
+      default: false,
+    },
+    verbose: {
+      type: 'boolean',
+      description: 'Override logLevel to verbose',
+      short: 'v',
+      default: false,
+    },
+    silent: {
+      type: 'boolean',
+      description: 'Override logLevel to silent',
+      short: 's',
+      default: false,
+    },
   },
-  logLevel: {
-    type: 'string',
-    description: 'Info, silent, verbose or debug',
-    alias: 'l',
-    default: 'info',
-    valueHint: 'silent|info|verbose|debug',
-  },
-  watch: {
-    type: 'boolean',
-    description: 'Watch mode based on the input file',
-    alias: 'w',
-    default: false,
-  },
-  debug: {
-    type: 'boolean',
-    description: 'Override logLevel to debug',
-    alias: 'd',
-    default: false,
-  },
-  verbose: {
-    type: 'boolean',
-    description: 'Override logLevel to verbose',
-    alias: 'v',
-    default: false,
-  },
-  silent: {
-    type: 'boolean',
-    description: 'Override logLevel to silent',
-    alias: 's',
-    default: false,
-  },
-  help: {
-    type: 'boolean',
-    description: 'Show help',
-    alias: 'h',
-    default: false,
-  },
-} as const satisfies ArgsDef
+  async run({ values, positionals }) {
+    const logLevelName = values['debug']
+      ? 'debug'
+      : values['verbose']
+        ? 'verbose'
+        : values['silent']
+          ? 'silent'
+          : ((values['logLevel'] as string | undefined) ?? 'info')
 
-export type Args = ParsedArgs<typeof args>
+    const logLevel = LogLevel[logLevelName as keyof typeof LogLevel] ?? LogLevel.info
 
-const command = defineCommand({
-  meta: {
-    name: 'generate',
-    description: "[input] Generate files based on a 'kubb.config.ts' file",
-  },
-  args,
-  async run(commandContext) {
-    const { args } = commandContext
-    const input = args._[0]
-    const events = new AsyncEventEmitter<KubbEvents>()
-    const promiseManager = new PromiseManager()
-
-    if (args.help) {
-      return showUsage(command)
-    }
-
-    if (args.debug) {
-      args.logLevel = 'debug'
-    }
-
-    if (args.verbose) {
-      args.logLevel = 'verbose'
-    }
-
-    if (args.silent) {
-      args.logLevel = 'silent'
-    }
-
-    const logLevel = LogLevel[args.logLevel as keyof typeof LogLevel] || 3
-
-    await setupLogger(events, { logLevel })
-
-    await executeIfOnline(async () => {
-      try {
-        const res = await fetch('https://registry.npmjs.org/@kubb/cli/latest')
-        const data = (await res.json()) as { version: string }
-        const latestVersion = data.version
-
-        if (latestVersion && version < latestVersion) {
-          await events.emit('version:new', version, latestVersion)
-        }
-      } catch {
-        // Ignore network errors for version check
-      }
+    await runGenerateCommand({
+      input: positionals[0],
+      configPath: values['config'] as string | undefined,
+      logLevel,
+      watch: !!(values['watch'] as boolean | undefined),
     })
-
-    try {
-      const result = await getCosmiConfig('kubb', args.config)
-      const configs = await getConfigs(result.config, args as CLIOptions)
-
-      await events.emit('config:start')
-
-      await events.emit('info', 'Config loaded', path.relative(process.cwd(), result.filepath))
-
-      await events.emit('success', 'Config loaded successfully', path.relative(process.cwd(), result.filepath))
-      await events.emit('config:end', configs)
-
-      await events.emit('lifecycle:start', version)
-
-      const promises = configs.map((config) => {
-        return async () => {
-          if (isInputPath(config) && args.watch) {
-            await startWatcher([input || config.input.path], async (paths) => {
-              // remove to avoid duplicate listeners after each change
-              events.removeAll()
-
-              await generate({
-                input,
-                config,
-                logLevel,
-                events,
-              })
-
-              clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
-            })
-
-            return
-          }
-
-          await generate({
-            input,
-            config,
-            logLevel,
-            events,
-          })
-        }
-      })
-
-      await promiseManager.run('seq', promises)
-
-      await events.emit('lifecycle:end')
-    } catch (error) {
-      await events.emit('error', error as Error)
-      process.exit(1)
-    }
   },
 })
-
-export default command

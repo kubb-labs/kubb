@@ -2,12 +2,18 @@ import { createHash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { type Config, type KubbEvents, LogLevel, safeBuild, setup } from '@kubb/core'
+import * as clack from '@clack/prompts'
+import { type CLIOptions, type Config, isInputPath, type KubbEvents, LogLevel, PromiseManager, safeBuild, setup } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
-import { detectFormatter, detectLinter, formatters, linters } from '@kubb/core/utils'
+import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, getConfigs, linters } from '@kubb/core/utils'
 import { version } from '../../package.json'
+import { KUBB_NPM_PACKAGE_URL } from '../constants.ts'
+import { setupLogger } from '../loggers/utils.ts'
+import { toError } from '../utils/errors.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
+import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
+import { startWatcher } from '../utils/watcher.ts'
 
 type GenerateProps = {
   input?: string
@@ -16,7 +22,88 @@ type GenerateProps = {
   logLevel: number
 }
 
-export async function generate({ input, config: userConfig, events, logLevel }: GenerateProps): Promise<void> {
+type ToolMap = typeof formatters | typeof linters
+
+type RunToolPassOptions = {
+  toolValue: string
+  detect: () => Promise<string | undefined>
+  toolMap: ToolMap
+  /** Short noun used in "Auto-detected <toolLabel>:" message, e.g. "formatter" or "linter". */
+  toolLabel: string
+  /** Verb prefix for the success message, e.g. "Formatting" or "Linting". */
+  successPrefix: string
+  noToolMessage: string
+  configName: string | undefined
+  outputPath: string
+  logLevel: number
+  events: AsyncEventEmitter<KubbEvents>
+  onStart: () => Promise<void>
+  onEnd: () => Promise<void>
+}
+
+async function runToolPass({
+  toolValue,
+  detect,
+  toolMap,
+  toolLabel,
+  successPrefix,
+  noToolMessage,
+  configName,
+  outputPath,
+  logLevel,
+  events,
+  onStart,
+  onEnd,
+}: RunToolPassOptions) {
+  await onStart()
+
+  let resolvedTool = toolValue
+  if (resolvedTool === 'auto') {
+    const detected = await detect()
+    if (!detected) {
+      await events.emit('warn', noToolMessage)
+    } else {
+      resolvedTool = detected
+      await events.emit('info', `Auto-detected ${toolLabel}: ${styleText('dim', resolvedTool)}`)
+    }
+  }
+
+  if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in toolMap) {
+    const toolConfig = toolMap[resolvedTool as keyof ToolMap]
+
+    try {
+      const hookId = createHash('sha256').update([configName, resolvedTool].filter(Boolean).join('-')).digest('hex')
+      await events.emit('hook:start', {
+        id: hookId,
+        command: toolConfig.command,
+        args: toolConfig.args(outputPath),
+      })
+
+      await events.onOnce('hook:end', async ({ success, error }) => {
+        if (!success) throw error
+
+        await events.emit(
+          'success',
+          [
+            `${successPrefix} with ${styleText('dim', resolvedTool)}`,
+            logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined,
+            'successfully',
+          ]
+            .filter(Boolean)
+            .join(' '),
+        )
+      })
+    } catch (caughtError) {
+      const err = new Error(toolConfig.errorMessage)
+      err.cause = caughtError
+      await events.emit('error', err)
+    }
+  }
+
+  await onEnd()
+}
+
+async function generate({ input, config: userConfig, events, logLevel }: GenerateProps): Promise<void> {
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
   const hrStart = process.hrtime()
 
@@ -73,9 +160,9 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
         .map((it) => it.error),
     ].filter(Boolean)
 
-    allErrors.forEach((err) => {
-      events.emit('error', err)
-    })
+    for (const err of allErrors) {
+      await events.emit('error', err)
+    }
 
     await events.emit('generation:end', config, files, sources)
 
@@ -104,100 +191,40 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
   await events.emit('success', 'Generation successfully', inputPath)
   await events.emit('generation:end', config, files, sources)
 
-  // formatting
+  const outputPath = path.resolve(config.root, config.output.path)
+
   if (config.output.format) {
-    await events.emit('format:start')
-
-    let formatter = config.output.format
-    if (formatter === 'auto') {
-      const detectedFormatter = await detectFormatter()
-      if (!detectedFormatter) {
-        await events.emit('warn', 'No formatter found (biome, prettier, or oxfmt). Skipping formatting.')
-      } else {
-        formatter = detectedFormatter
-        await events.emit('info', `Auto-detected formatter: ${styleText('dim', formatter)}`)
-      }
-    }
-
-    if (formatter && formatter !== 'auto' && formatter in formatters) {
-      const formatterConfig = formatters[formatter as keyof typeof formatters]
-      const outputPath = path.resolve(config.root, config.output.path)
-
-      try {
-        const hookId = createHash('sha256').update([config.name, formatter].filter(Boolean).join('-')).digest('hex')
-        await events.emit('hook:start', {
-          id: hookId,
-          command: formatterConfig.command,
-          args: formatterConfig.args(outputPath),
-        })
-
-        await events.onOnce('hook:end', async ({ success, error }) => {
-          if (!success) throw error
-
-          await events.emit(
-            'success',
-            [`Formatting with ${styleText('dim', formatter)}`, logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined, 'successfully']
-              .filter(Boolean)
-              .join(' '),
-          )
-        })
-      } catch (caughtError) {
-        const error = new Error(formatterConfig.errorMessage)
-        error.cause = caughtError
-        await events.emit('error', error)
-      }
-    }
-
-    await events.emit('format:end')
+    await runToolPass({
+      toolValue: config.output.format,
+      detect: detectFormatter,
+      toolMap: formatters,
+      toolLabel: 'formatter',
+      successPrefix: 'Formatting',
+      noToolMessage: 'No formatter found (biome, prettier, or oxfmt). Skipping formatting.',
+      configName: config.name,
+      outputPath,
+      logLevel,
+      events,
+      onStart: () => events.emit('format:start'),
+      onEnd: () => events.emit('format:end'),
+    })
   }
 
-  // linting
   if (config.output.lint) {
-    await events.emit('lint:start')
-
-    // Detect linter if set to 'auto'
-    let linter = config.output.lint
-    if (linter === 'auto') {
-      const detectedLinter = await detectLinter()
-      if (!detectedLinter) {
-        await events.emit('warn', 'No linter found (biome, oxlint, or eslint). Skipping linting.')
-      } else {
-        linter = detectedLinter
-        await events.emit('info', `Auto-detected linter: ${styleText('dim', linter)}`)
-      }
-    }
-
-    // Only proceed with linting if we have a valid linter
-    if (linter && linter !== 'auto' && linter in linters) {
-      const linterConfig = linters[linter as keyof typeof linters]
-      const outputPath = path.resolve(config.root, config.output.path)
-
-      try {
-        const hookId = createHash('sha256').update([config.name, linter].filter(Boolean).join('-')).digest('hex')
-        await events.emit('hook:start', {
-          id: hookId,
-          command: linterConfig.command,
-          args: linterConfig.args(outputPath),
-        })
-
-        await events.onOnce('hook:end', async ({ success, error }) => {
-          if (!success) throw error
-
-          await events.emit(
-            'success',
-            [`Linting with ${styleText('dim', linter)}`, logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined, 'successfully']
-              .filter(Boolean)
-              .join(' '),
-          )
-        })
-      } catch (caughtError) {
-        const error = new Error(linterConfig.errorMessage)
-        error.cause = caughtError
-        await events.emit('error', error)
-      }
-    }
-
-    await events.emit('lint:end')
+    await runToolPass({
+      toolValue: config.output.lint,
+      detect: detectLinter,
+      toolMap: linters,
+      toolLabel: 'linter',
+      successPrefix: 'Linting',
+      noToolMessage: 'No linter found (biome, oxlint, or eslint). Skipping linting.',
+      configName: config.name,
+      outputPath,
+      logLevel,
+      events,
+      onStart: () => events.emit('lint:start'),
+      onEnd: () => events.emit('lint:end'),
+    })
   }
 
   if (config.hooks) {
@@ -207,12 +234,11 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
     await events.emit('hooks:end')
   }
 
-  const generationStatus = failedPlugins.size > 0 || error ? 'failed' : 'success'
-
+  // Only reached when there are no failures (process.exit(1) is called above otherwise)
   await events.emit('generation:summary', config, {
     failedPlugins,
     filesCreated: files.length,
-    status: generationStatus,
+    status: 'success',
     hrStart,
     pluginTimings,
   })
@@ -223,8 +249,74 @@ export async function generate({ input, config: userConfig, events, logLevel }: 
     plugins: pluginManager.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
     hrStart,
     filesCreated: files.length,
-    status: generationStatus,
+    status: 'success',
   })
 
   await sendTelemetry(telemetryEvent)
+}
+
+type GenerateCommandOptions = {
+  input?: string
+  configPath?: string
+  logLevel: number
+  watch: boolean
+}
+
+export async function runGenerateCommand({ input, configPath, logLevel, watch }: GenerateCommandOptions): Promise<void> {
+  const events = new AsyncEventEmitterClass<KubbEvents>()
+  const promiseManager = new PromiseManager()
+
+  await setupLogger(events, { logLevel })
+
+  await executeIfOnline(async () => {
+    try {
+      const res = await fetch(KUBB_NPM_PACKAGE_URL)
+      const data = (await res.json()) as { version: string }
+      const latestVersion = data.version
+
+      if (latestVersion && version < latestVersion) {
+        await events.emit('version:new', version, latestVersion)
+      }
+    } catch {
+      // Ignore network errors for version check
+    }
+  })
+
+  try {
+    const result = await getCosmiConfig('kubb', configPath)
+    const configs = await getConfigs(result.config, { input } as CLIOptions)
+
+    await events.emit('config:start')
+    await events.emit('info', 'Config loaded', path.relative(process.cwd(), result.filepath))
+    await events.emit('success', 'Config loaded successfully', path.relative(process.cwd(), result.filepath))
+    await events.emit('config:end', configs)
+
+    await events.emit('lifecycle:start', version)
+
+    const promises = configs.map((config) => {
+      return async () => {
+        if (isInputPath(config) && watch) {
+          await startWatcher([input || config.input.path], async (paths) => {
+            // remove to avoid duplicate listeners after each change
+            events.removeAll()
+
+            await generate({ input, config, logLevel, events })
+
+            clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
+          })
+
+          return
+        }
+
+        await generate({ input, config, logLevel, events })
+      }
+    })
+
+    await promiseManager.run('seq', promises)
+
+    await events.emit('lifecycle:end')
+  } catch (error) {
+    await events.emit('error', toError(error))
+    process.exit(1)
+  }
 }
