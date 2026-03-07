@@ -88,7 +88,6 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
     await spawnAsync('node', [serverPath], {
       env,
       cwd: process.cwd(),
-      detached: true,
     })
 
     await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'success' }))
