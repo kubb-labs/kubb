@@ -36,6 +36,26 @@ export function defineCommand(def: CommandDefinition): CommandDefinition {
   return def
 }
 
+export type RunOptions = {
+  programName: string
+  defaultCommandName: string
+  version: string
+}
+
+export type CLIAdapter = {
+  run(commands: CommandDefinition[], argv: string[], opts: RunOptions): Promise<void>
+  renderHelp(def: CommandDefinition, parentName?: string): void
+}
+
+/**
+ * Define a CLI adapter with full type inference.
+ * A thin identity wrapper — implement this to swap the underlying CLI engine
+ * (node:util parseArgs, citty, commander, …) without touching any command file.
+ */
+export function defineCLIAdapter(adapter: CLIAdapter): CLIAdapter {
+  return adapter
+}
+
 export type OptionSchema = {
   name: string
   flags: string

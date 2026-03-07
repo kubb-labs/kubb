@@ -1,8 +1,7 @@
 import { styleText } from 'node:util'
 import { version } from '../package.json'
-import { defineCommand, dispatch, getCommandSchema } from './cli/index.ts'
+import { createCLI } from './cli/index.ts'
 import { command as agentCommand } from './commands/agent.ts'
-
 import { command as generateCommand } from './commands/generate.ts'
 import { command as initCommand } from './commands/init.ts'
 import { command as mcpCommand } from './commands/mcp.ts'
@@ -11,6 +10,8 @@ import { isTelemetryDisabled } from './utils/telemetry.ts'
 
 const commands = [generateCommand, validateCommand, mcpCommand, agentCommand, initCommand]
 
+const cli = createCLI()
+
 export async function run(argv: string[] = process.argv): Promise<void> {
   if (!isTelemetryDisabled()) {
     console.log(
@@ -18,11 +19,9 @@ export async function run(argv: string[] = process.argv): Promise<void> {
     )
   }
 
-  await dispatch(commands, argv, {
+  await cli.run(commands, argv, {
     programName: 'kubb',
     defaultCommandName: 'generate',
     version,
   })
 }
-
-export { getCommandSchema, defineCommand, commands }
