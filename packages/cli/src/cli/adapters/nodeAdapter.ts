@@ -96,8 +96,11 @@ export const nodeAdapter = defineCLIAdapter({
 
     if (args.length === 0) {
       const defaultDef = defs.find((d) => d.name === defaultCommandName)
-      if (defaultDef?.run) await defaultDef.run({ values: {}, positionals: [] })
-      else printRootHelp(programName, version, defs)
+      if (defaultDef?.run) {
+        await runCommand(defaultDef, [], programName)
+      } else {
+        printRootHelp(programName, version, defs)
+      }
       return
     }
 
