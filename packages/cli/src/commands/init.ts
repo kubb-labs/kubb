@@ -6,14 +6,9 @@ export const command = defineCommand({
   name: 'init',
   description: 'Initialize a new Kubb project with interactive setup',
   options: {
-    yes: {
-      type: 'boolean',
-      description: 'Skip prompts and use default options',
-      short: 'y',
-      default: false,
-    },
+    yes: { type: 'boolean', description: 'Skip prompts and use default options', short: 'y', default: false },
   },
   async run({ values }) {
-    await runInit({ yes: !!(values['yes'] as boolean | undefined), version })
+    await runInit({ yes: values.yes, version })
   },
 })

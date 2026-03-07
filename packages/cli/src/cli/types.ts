@@ -1,21 +1,29 @@
-export type OptionType = 'string' | 'boolean'
-
-export type OptionDefinition = {
-  /** `'string'` or `'boolean'` — maps directly to `node:util parseArgs` option types. */
-  type: OptionType
+type BaseOption = {
   /** Single-character short alias, e.g. `'c'` for `--config`. */
   short?: string
   description: string
-  default?: string | boolean
-  /** Value placeholder shown in help, e.g. `'silent|info|verbose|debug'`. */
   hint?: string
   required?: boolean
   /** Allowed values for string options. Used in help output and AI/MCP tool schemas. */
   enum?: string[]
 }
 
+export type StringOption = BaseOption & { type: 'string'; default?: string }
+export type BooleanOption = BaseOption & { type: 'boolean'; default?: boolean }
+export type OptionDefinition = StringOption | BooleanOption
+export type OptionType = OptionDefinition['type']
+
+type OptionTypeMap = { string: string; boolean: boolean }
+
+/** Infers typed values from an options record. Options with a `default` are always defined. */
+export type InferValues<O extends Record<string, OptionDefinition>> = {
+  [K in keyof O as O[K]['default'] extends string | boolean ? K : never]: OptionTypeMap[O[K]['type']]
+} & {
+  [K in keyof O as O[K]['default'] extends string | boolean ? never : K]?: OptionTypeMap[O[K]['type']]
+}
+
 export type ParsedArgs = {
-  values: Record<string, string | boolean | string[] | undefined>
+  values: Record<string, string | boolean | undefined>
   positionals: string[]
 }
 
@@ -30,11 +38,23 @@ export type CommandDefinition = {
 }
 
 /**
- * Returns a `CommandDefinition` with type inference.
- * Use instead of an explicit `: CommandDefinition` annotation.
+ * Returns a `CommandDefinition` with typed `values` in `run()`.
+ * The callback receives `values` typed from the declared options — no casts needed.
  */
-export function defineCommand(def: CommandDefinition): CommandDefinition {
-  return def
+export function defineCommand<O extends Record<string, OptionDefinition>>(def: {
+  name: string
+  description: string
+  arguments?: string[]
+  options?: O
+  subCommands?: CommandDefinition[]
+  run?: (args: { values: InferValues<O>; positionals: string[] }) => Promise<void>
+}): CommandDefinition {
+  const { run, ...rest } = def
+  if (!run) return rest
+  return {
+    ...rest,
+    run: (args) => run({ values: args.values as InferValues<O>, positionals: args.positionals }),
+  }
 }
 
 export type RunOptions = {
@@ -48,10 +68,7 @@ export type CLIAdapter = {
   renderHelp(def: CommandDefinition, parentName?: string): void
 }
 
-/**
- * Returns a `CLIAdapter` with type inference.
- * Pass a different adapter to `createCLI` to swap the CLI engine.
- */
+/** Returns a `CLIAdapter` with type inference. Pass a different adapter to `createCLI` to swap the CLI engine. */
 export function defineCLIAdapter(adapter: CLIAdapter): CLIAdapter {
   return adapter
 }
@@ -73,4 +90,37 @@ export type CommandSchema = {
   arguments?: string[]
   options: OptionSchema[]
   subCommands: CommandSchema[]
+}
+
+/** Serializes `CommandDefinition[]` to a plain, JSON-serializable structure. */
+export function getCommandSchema(defs: CommandDefinition[]): CommandSchema[] {
+  return defs.map(serializeCommand)
+}
+
+function serializeCommand(def: CommandDefinition): CommandSchema {
+  return {
+    name: def.name,
+    description: def.description,
+    arguments: def.arguments,
+    options: serializeOptions(def.options ?? {}),
+    subCommands: def.subCommands ? def.subCommands.map(serializeCommand) : [],
+  }
+}
+
+function serializeOptions(options: Record<string, OptionDefinition>): OptionSchema[] {
+  return Object.entries(options).map(([name, opt]) => {
+    const shortPart = opt.short ? `-${opt.short}, ` : ''
+    const valuePart = opt.type === 'string' ? ` <${opt.hint ?? name}>` : ''
+    const flags = `${shortPart}--${name}${valuePart}`
+    return {
+      name,
+      flags,
+      type: opt.type,
+      description: opt.description,
+      ...(opt.default !== undefined ? { default: opt.default } : {}),
+      ...(opt.hint ? { hint: opt.hint } : {}),
+      ...(opt.enum ? { enum: opt.enum } : {}),
+      ...(opt.required ? { required: opt.required } : {}),
+    }
+  })
 }
