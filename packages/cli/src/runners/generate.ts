@@ -73,26 +73,41 @@ async function runToolPass({
 
     try {
       const hookId = createHash('sha256').update([configName, resolvedTool].filter(Boolean).join('-')).digest('hex')
+
+      // Wire up the hook:end listener BEFORE emitting hook:start to avoid the race condition
+      // where hook:end fires synchronously inside emit('hook:start') before the listener is registered.
+      const hookEndPromise = new Promise<void>((resolve, reject) => {
+        const handler = ({ id, success, error }: { id?: string; command: string; args?: readonly string[]; success: boolean; error: Error | null }) => {
+          if (id !== hookId) return
+          events.off('hook:end', handler)
+          if (!success) {
+            reject(error ?? new Error(`${toolConfig.errorMessage}`))
+            return
+          }
+          events
+            .emit(
+              'success',
+              [
+                `${successPrefix} with ${styleText('dim', resolvedTool)}`,
+                logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined,
+                'successfully',
+              ]
+                .filter(Boolean)
+                .join(' '),
+            )
+            .then(resolve)
+            .catch(reject)
+        }
+        events.on('hook:end', handler)
+      })
+
       await events.emit('hook:start', {
         id: hookId,
         command: toolConfig.command,
         args: toolConfig.args(outputPath),
       })
 
-      await events.onOnce('hook:end', async ({ success, error }) => {
-        if (!success) throw error
-
-        await events.emit(
-          'success',
-          [
-            `${successPrefix} with ${styleText('dim', resolvedTool)}`,
-            logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined,
-            'successfully',
-          ]
-            .filter(Boolean)
-            .join(' '),
-        )
-      })
+      await hookEndPromise
     } catch (caughtError) {
       const err = new Error(toolConfig.errorMessage)
       err.cause = caughtError
