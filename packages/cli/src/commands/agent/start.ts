@@ -8,7 +8,7 @@ export const command = defineCommand({
   description: 'Start the Agent server',
   options: {
     config: { type: 'string', description: 'Path to the Kubb config', short: 'c' },
-    port: { type: 'string', description: `Port for the server (default: ${agentDefaults.port})`, short: 'p', default: '0' },
+    port: { type: 'string', description: `Port for the server (default: ${agentDefaults.port})`, short: 'p' },
     host: { type: 'string', description: 'Host for the server', default: agentDefaults.host },
     'allow-write': {
       type: 'boolean',
@@ -21,7 +21,7 @@ export const command = defineCommand({
     const { runAgentStart } = await import('../../runners/agent.ts')
 
     await runAgentStart({
-      port: Number.parseInt(values.port, 10),
+      port: values.port !== undefined ? values.port : undefined,
       host: values.host,
       configPath: path.resolve(process.cwd(), values.config ?? agentDefaults.configFile),
       allowWrite: values['allow-write'],

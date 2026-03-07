@@ -9,7 +9,7 @@ import { spawnAsync } from '../utils/spawnAsync.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 
 type AgentStartOptions = {
-  port: number
+  port: string | undefined
   host: string
   configPath: string
   allowWrite: boolean
@@ -48,7 +48,7 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
 
     // CLI params take priority over process.env; process.env fills in what the CLI didn't specify;
     // agentDefaults are the last resort. Build env as: defaults ← process.env ← CLI.
-    const PORT = port !== 0 ? String(port) : (process.env.PORT ?? agentDefaults.port)
+    const PORT = port !== undefined ? port : (process.env.PORT ?? agentDefaults.port)
     const HOST = host !== agentDefaults.host ? host : (process.env.HOST ?? agentDefaults.host)
     const KUBB_AGENT_ROOT = process.env.KUBB_AGENT_ROOT ?? process.cwd()
     const KUBB_AGENT_CONFIG = configPath !== agentDefaults.configFile ? configPath : (process.env.KUBB_AGENT_CONFIG ?? agentDefaults.configFile)
