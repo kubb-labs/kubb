@@ -1,6 +1,5 @@
 import { version } from '../../package.json'
 import { defineCommand } from '../cli/index.ts'
-import { runInit } from '../runners/init.ts'
 
 export const command = defineCommand({
   name: 'init',
@@ -9,6 +8,8 @@ export const command = defineCommand({
     yes: { type: 'boolean', description: 'Skip prompts and use default options', short: 'y', default: false },
   },
   async run({ values }) {
+    const { runInit } = await import('../runners/init.ts')
+
     await runInit({ yes: values.yes, version })
   },
 })

@@ -1,6 +1,5 @@
 import { version } from '../../package.json'
 import { defineCommand } from '../cli/index.ts'
-import { runValidate } from '../runners/validate.ts'
 
 export const command = defineCommand({
   name: 'validate',
@@ -10,6 +9,8 @@ export const command = defineCommand({
   },
   async run({ values }) {
     if (!values.input) throw new Error('--input <path> is required')
+    const { runValidate } = await import('../runners/validate.ts')
+
     await runValidate({ input: values.input, version })
   },
 })

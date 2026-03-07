@@ -1,14 +1,7 @@
 import { styleText } from 'node:util'
 import { version } from '../package.json'
 import { createCLI } from './cli/index.ts'
-import { command as agentCommand } from './commands/agent.ts'
-import { command as generateCommand } from './commands/generate.ts'
-import { command as initCommand } from './commands/init.ts'
-import { command as mcpCommand } from './commands/mcp.ts'
-import { command as validateCommand } from './commands/validate.ts'
 import { isTelemetryDisabled } from './utils/telemetry.ts'
-
-const commands = [generateCommand, validateCommand, mcpCommand, agentCommand, initCommand]
 
 const cli = createCLI()
 
@@ -19,7 +12,16 @@ export async function run(argv: string[] = process.argv): Promise<void> {
     )
   }
 
-  await cli.run(commands, argv, {
+  const [{ command: generateCommand }, { command: validateCommand }, { command: mcpCommand }, { command: agentCommand }, { command: initCommand }] =
+    await Promise.all([
+      import('./commands/generate.ts'),
+      import('./commands/validate.ts'),
+      import('./commands/mcp.ts'),
+      import('./commands/agent.ts'),
+      import('./commands/init.ts'),
+    ])
+
+  await cli.run([generateCommand, validateCommand, mcpCommand, agentCommand, initCommand], argv, {
     programName: 'kubb',
     defaultCommandName: 'generate',
     version,

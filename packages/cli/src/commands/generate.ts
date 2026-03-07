@@ -1,6 +1,4 @@
-import { LogLevel } from '@kubb/core'
 import { defineCommand } from '../cli/index.ts'
-import { runGenerateCommand } from '../runners/generate.ts'
 
 export const command = defineCommand({
   name: 'generate',
@@ -22,12 +20,9 @@ export const command = defineCommand({
     silent: { type: 'boolean', description: 'Override logLevel to silent', short: 's', default: false },
   },
   async run({ values, positionals }) {
-    const logLevelName = values.debug ? 'debug' : values.verbose ? 'verbose' : values.silent ? 'silent' : values.logLevel
-    await runGenerateCommand({
-      input: positionals[0],
-      configPath: values.config,
-      logLevel: LogLevel[logLevelName as keyof typeof LogLevel] ?? LogLevel.info,
-      watch: values.watch,
-    })
+    const logLevel = values.debug ? 'debug' : values.verbose ? 'verbose' : values.silent ? 'silent' : values.logLevel
+    const { runGenerateCommand } = await import('../runners/generate.ts')
+
+    await runGenerateCommand({ input: positionals[0], configPath: values.config, logLevel, watch: values.watch })
   },
 })

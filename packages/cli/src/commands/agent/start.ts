@@ -2,7 +2,6 @@ import path from 'node:path'
 import { version } from '../../../package.json'
 import { defineCommand } from '../../cli/index.ts'
 import { agentDefaults } from '../../constants.ts'
-import { runAgentStart } from '../../runners/agent.ts'
 
 export const command = defineCommand({
   name: 'start',
@@ -20,6 +19,8 @@ export const command = defineCommand({
     'allow-all': { type: 'boolean', description: 'Grant all permissions (implies --allow-write).', default: false },
   },
   async run({ values }) {
+    const { runAgentStart } = await import('../../runners/agent.ts')
+
     await runAgentStart({
       port: values.port ? Number.parseInt(values.port, 10) : 0,
       host: values.host,

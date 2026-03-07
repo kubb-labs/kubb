@@ -258,11 +258,12 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
 type GenerateCommandOptions = {
   input?: string
   configPath?: string
-  logLevel: number
+  logLevel: string
   watch: boolean
 }
 
-export async function runGenerateCommand({ input, configPath, logLevel, watch }: GenerateCommandOptions): Promise<void> {
+export async function runGenerateCommand({ input, configPath, logLevel: logLevelKey, watch }: GenerateCommandOptions): Promise<void> {
+  const logLevel = LogLevel[logLevelKey as keyof typeof LogLevel] ?? LogLevel.info
   const events = new AsyncEventEmitterClass<KubbEvents>()
   const promiseManager = new PromiseManager()
 
