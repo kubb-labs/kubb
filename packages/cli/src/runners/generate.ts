@@ -41,7 +41,20 @@ type RunToolPassOptions = {
   onEnd: () => Promise<void>
 }
 
-async function runToolPass({ toolValue, detect, toolMap, toolLabel, successPrefix, noToolMessage, configName, outputPath, logLevel, events, onStart, onEnd }: RunToolPassOptions) {
+async function runToolPass({
+  toolValue,
+  detect,
+  toolMap,
+  toolLabel,
+  successPrefix,
+  noToolMessage,
+  configName,
+  outputPath,
+  logLevel,
+  events,
+  onStart,
+  onEnd,
+}: RunToolPassOptions) {
   await onStart()
 
   let resolvedTool = toolValue
@@ -71,7 +84,11 @@ async function runToolPass({ toolValue, detect, toolMap, toolLabel, successPrefi
 
         await events.emit(
           'success',
-          [`${successPrefix} with ${styleText('dim', resolvedTool)}`, logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined, 'successfully']
+          [
+            `${successPrefix} with ${styleText('dim', resolvedTool)}`,
+            logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined,
+            'successfully',
+          ]
             .filter(Boolean)
             .join(' '),
         )

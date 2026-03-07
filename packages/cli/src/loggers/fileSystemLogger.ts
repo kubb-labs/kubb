@@ -1,5 +1,5 @@
-import process from 'node:process'
 import { relative, resolve } from 'node:path'
+import process from 'node:process'
 import { defineLogger } from '@kubb/core'
 import { write } from '@kubb/core/fs'
 import { formatMs } from '@kubb/core/utils'

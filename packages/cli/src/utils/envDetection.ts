@@ -11,16 +11,18 @@ export function isGitHubActions(): boolean {
  */
 export function isCIEnvironment(): boolean {
   return !!(
-    process.env.CI || // Generic (GitHub Actions, GitLab CI, CircleCI, Travis CI, etc.)
-    process.env.GITHUB_ACTIONS || // GitHub Actions
-    process.env.GITLAB_CI || // GitLab CI
-    process.env.BITBUCKET_BUILD_NUMBER || // Bitbucket Pipelines
-    process.env.JENKINS_URL || // Jenkins
-    process.env.CIRCLECI || // CircleCI
-    process.env.TRAVIS || // Travis CI
-    process.env.TEAMCITY_VERSION || // TeamCity
-    process.env.BUILDKITE || // Buildkite
-    process.env.TF_BUILD // Azure Pipelines
+    (
+      process.env.CI || // Generic (GitHub Actions, GitLab CI, CircleCI, Travis CI, etc.)
+      process.env.GITHUB_ACTIONS || // GitHub Actions
+      process.env.GITLAB_CI || // GitLab CI
+      process.env.BITBUCKET_BUILD_NUMBER || // Bitbucket Pipelines
+      process.env.JENKINS_URL || // Jenkins
+      process.env.CIRCLECI || // CircleCI
+      process.env.TRAVIS || // Travis CI
+      process.env.TEAMCITY_VERSION || // TeamCity
+      process.env.BUILDKITE || // Buildkite
+      process.env.TF_BUILD
+    ) // Azure Pipelines
   )
 }
 
