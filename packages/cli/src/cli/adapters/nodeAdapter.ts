@@ -44,6 +44,15 @@ async function runCommand(def: CommandDefinition, argv: string[], parentName?: s
     process.exit(0)
   }
 
+  // Validate required options before running the command
+  for (const [name, opt] of Object.entries(def.options ?? {})) {
+    if (opt.required && parsed.values[name] === undefined) {
+      console.error(styleText('red', `Error: --${name} is required`))
+      renderHelp(def, parentName)
+      process.exit(1)
+    }
+  }
+
   if (!def.run) {
     renderHelp(def, parentName)
     process.exit(0)
