@@ -29,7 +29,7 @@ export async function runValidate({ input, version }: ValidateOptions): Promise<
   } catch (error) {
     await sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status: 'failed' }))
     console.error('❌ Validation failed')
-    console.log(getErrorMessage(error))
+    console.error(getErrorMessage(error))
     process.exit(1)
   }
 }
