@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CommandDefinition, RunOptions } from '../types.ts'
-import { nodeAdapter } from './node.ts'
+import { nodeAdapter } from './nodeAdapter.ts'
 
 vi.mock('node:util', async (importOriginal) => {
   const original = await importOriginal<typeof import('node:util')>()
