@@ -8,7 +8,14 @@ export const command = defineCommand({
   arguments: ['[input]'],
   options: {
     config: { type: 'string', description: 'Path to the Kubb config', short: 'c' },
-    logLevel: { type: 'string', description: 'Info, silent, verbose or debug', short: 'l', default: 'info', hint: 'silent|info|verbose|debug', enum: ['silent', 'info', 'verbose', 'debug'] },
+    logLevel: {
+      type: 'string',
+      description: 'Info, silent, verbose or debug',
+      short: 'l',
+      default: 'info',
+      hint: 'silent|info|verbose|debug',
+      enum: ['silent', 'info', 'verbose', 'debug'],
+    },
     watch: { type: 'boolean', description: 'Watch mode based on the input file', short: 'w', default: false },
     debug: { type: 'boolean', description: 'Override logLevel to debug', short: 'd', default: false },
     verbose: { type: 'boolean', description: 'Override logLevel to verbose', short: 'v', default: false },

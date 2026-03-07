@@ -12,7 +12,11 @@ export const command = defineCommand({
     port: { type: 'string', description: `Port for the server (default: ${agentDefaults.port})`, short: 'p' },
     host: { type: 'string', description: 'Host for the server', default: agentDefaults.host },
     'no-cache': { type: 'boolean', description: 'Disable session caching', default: false },
-    'allow-write': { type: 'boolean', description: 'Allow writing generated files to the filesystem. When not set, no files are written and the config patch is not persisted.', default: false },
+    'allow-write': {
+      type: 'boolean',
+      description: 'Allow writing generated files to the filesystem. When not set, no files are written and the config patch is not persisted.',
+      default: false,
+    },
     'allow-all': { type: 'boolean', description: 'Grant all permissions (implies --allow-write).', default: false },
   },
   async run({ values }) {
