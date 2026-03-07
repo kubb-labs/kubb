@@ -79,19 +79,26 @@ async function runToolPass({
         args: toolConfig.args(outputPath),
       })
 
-      await events.onOnce('hook:end', async ({ success, error }) => {
-        if (!success) throw error
+      await new Promise<void>((resolve, reject) => {
+        events.onOnce('hook:end', ({ success, error }) => {
+          if (!success) {
+            reject(error)
+            return
+          }
 
-        await events.emit(
-          'success',
-          [
-            `${successPrefix} with ${styleText('dim', resolvedTool)}`,
-            logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined,
-            'successfully',
-          ]
-            .filter(Boolean)
-            .join(' '),
-        )
+          events
+            .emit(
+              'success',
+              [
+                `${successPrefix} with ${styleText('dim', resolvedTool)}`,
+                logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined,
+                'successfully',
+              ]
+                .filter(Boolean)
+                .join(' '),
+            )
+            .then(resolve, reject)
+        })
       })
     } catch (caughtError) {
       const err = new Error(toolConfig.errorMessage)
