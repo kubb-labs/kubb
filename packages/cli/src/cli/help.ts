@@ -9,17 +9,14 @@ export function renderHelp(def: CommandDefinition, parentName?: string): void {
 
   const programName = parentName ? `${parentName} ${schema.name}` : schema.name
 
-  // Usage line
   const argsPart = schema.arguments?.length ? ` ${schema.arguments.join(' ')}` : ''
   const subCmdPart = schema.subCommands.length ? ' <command>' : ''
   console.log(`\n${styleText('bold', 'Usage:')} ${programName}${argsPart}${subCmdPart} [options]\n`)
 
-  // Description
   if (schema.description) {
     console.log(`  ${schema.description}\n`)
   }
 
-  // Subcommands
   if (schema.subCommands.length) {
     console.log(styleText('bold', 'Commands:'))
     for (const sub of schema.subCommands) {
@@ -28,10 +25,8 @@ export function renderHelp(def: CommandDefinition, parentName?: string): void {
     console.log()
   }
 
-  // Options
   const options: OptionSchema[] = [
     ...schema.options,
-    // always append --help
     { name: 'help', flags: '-h, --help', type: 'boolean' as const, description: 'Show help' },
   ]
 

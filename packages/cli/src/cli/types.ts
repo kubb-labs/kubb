@@ -16,7 +16,7 @@ export type OptionType = OptionDefinition['type']
 type OptionTypeMap = { string: string; boolean: boolean }
 
 /** Infers typed values from an options record. Options with a `default` are always defined. */
-export type InferValues<O extends Record<string, OptionDefinition>> = {
+type InferValues<O extends Record<string, OptionDefinition>> = {
   [K in keyof O as O[K]['default'] extends string | boolean ? K : never]: OptionTypeMap[O[K]['type']]
 } & {
   [K in keyof O as O[K]['default'] extends string | boolean ? never : K]?: OptionTypeMap[O[K]['type']]
@@ -90,37 +90,4 @@ export type CommandSchema = {
   arguments?: string[]
   options: OptionSchema[]
   subCommands: CommandSchema[]
-}
-
-/** Serializes `CommandDefinition[]` to a plain, JSON-serializable structure. */
-export function getCommandSchema(defs: CommandDefinition[]): CommandSchema[] {
-  return defs.map(serializeCommand)
-}
-
-function serializeCommand(def: CommandDefinition): CommandSchema {
-  return {
-    name: def.name,
-    description: def.description,
-    arguments: def.arguments,
-    options: serializeOptions(def.options ?? {}),
-    subCommands: def.subCommands ? def.subCommands.map(serializeCommand) : [],
-  }
-}
-
-function serializeOptions(options: Record<string, OptionDefinition>): OptionSchema[] {
-  return Object.entries(options).map(([name, opt]) => {
-    const shortPart = opt.short ? `-${opt.short}, ` : ''
-    const valuePart = opt.type === 'string' ? ` <${opt.hint ?? name}>` : ''
-    const flags = `${shortPart}--${name}${valuePart}`
-    return {
-      name,
-      flags,
-      type: opt.type,
-      description: opt.description,
-      ...(opt.default !== undefined ? { default: opt.default } : {}),
-      ...(opt.hint ? { hint: opt.hint } : {}),
-      ...(opt.enum ? { enum: opt.enum } : {}),
-      ...(opt.required ? { required: opt.required } : {}),
-    }
-  })
 }
