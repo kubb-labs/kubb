@@ -1,11 +1,8 @@
 import type { CommandDefinition, CommandSchema, OptionDefinition, OptionSchema } from './types.ts'
 
 /**
- * Serialize a list of `CommandDefinition` objects into a plain JSON-serializable
- * schema that can be:
- *  - embedded in LLM system prompts
- *  - used to auto-generate MCP tool definitions
- *  - exposed by the agent server to describe available CLI capabilities
+ * Serializes `CommandDefinition[]` to a plain, JSON-serializable structure.
+ * Use to expose CLI capabilities to AI agents or MCP tools.
  */
 export function getCommandSchema(defs: CommandDefinition[]): CommandSchema[] {
   return defs.map(serializeCommand)

@@ -2,10 +2,7 @@ import { styleText } from 'node:util'
 import { getCommandSchema } from './schema.ts'
 import type { CommandDefinition, OptionSchema } from './types.ts'
 
-/**
- * Print formatted help output for a command, derived entirely from its
- * `CommandDefinition` — no library-specific knowledge required.
- */
+/** Prints formatted help output for a command using its `CommandDefinition`. */
 export function renderHelp(def: CommandDefinition, parentName?: string): void {
   const [schema] = getCommandSchema([def])
   if (!schema) return

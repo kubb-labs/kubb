@@ -1,5 +1,5 @@
-import type { CLIAdapter, CommandDefinition, RunOptions } from './types.ts'
 import { nodeAdapter } from './adapters/node.ts'
+import type { CLIAdapter, CommandDefinition, RunOptions } from './types.ts'
 
 /**
  * Create a CLI runner bound to a specific adapter.

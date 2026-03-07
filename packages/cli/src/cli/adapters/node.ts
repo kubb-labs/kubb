@@ -73,10 +73,7 @@ function printRootHelp(programName: string, version: string, defs: CommandDefini
   console.log(`Run ${styleText('cyan', `${programName} <command> --help`)} for command-specific help.\n`)
 }
 
-/**
- * CLIAdapter implementation using Node's built-in `node:util parseArgs`.
- * Zero external dependencies.
- */
+/** CLI adapter using `node:util parseArgs`. No external dependencies. */
 export const nodeAdapter = defineCLIAdapter({
   renderHelp(def: CommandDefinition, parentName?: string): void {
     renderHelp(def, parentName)

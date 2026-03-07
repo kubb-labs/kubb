@@ -28,9 +28,8 @@ export type CommandDefinition = {
 }
 
 /**
- * Define a CLI command with full type inference.
- * A thin identity wrapper that provides TypeScript inference without requiring
- * an explicit `: CommandDefinition` annotation on every command export.
+ * Returns a `CommandDefinition` with type inference.
+ * Use instead of an explicit `: CommandDefinition` annotation.
  */
 export function defineCommand(def: CommandDefinition): CommandDefinition {
   return def
@@ -48,9 +47,8 @@ export type CLIAdapter = {
 }
 
 /**
- * Define a CLI adapter with full type inference.
- * A thin identity wrapper — implement this to swap the underlying CLI engine
- * (node:util parseArgs, citty, commander, …) without touching any command file.
+ * Returns a `CLIAdapter` with type inference.
+ * Pass a different adapter to `createCLI` to swap the CLI engine.
  */
 export function defineCLIAdapter(adapter: CLIAdapter): CLIAdapter {
   return adapter

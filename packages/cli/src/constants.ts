@@ -22,13 +22,6 @@ export const SUMMARY_TIME_SCALE_DIVISOR = 100 as const
 /** Glob pattern for paths the file watcher ignores. */
 export const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
 
-// ─── CLI dispatcher ───────────────────────────────────────────────────────────
-
-/** All recognized top-level subcommands. Used to decide the default fallback. */
-export const KNOWN_SUBCOMMANDS = ['generate', 'validate', 'mcp', 'agent', 'init'] as const
-
-export type KnownSubcommand = (typeof KNOWN_SUBCOMMANDS)[number]
-
 // ─── Grouped defaults ─────────────────────────────────────────────────────────
 
 /** Default runtime values for the `agent start` command. */
