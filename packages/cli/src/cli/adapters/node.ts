@@ -1,7 +1,7 @@
 import { parseArgs, styleText } from 'node:util'
 import { renderHelp } from '../help.ts'
-import { defineCLIAdapter } from '../types.ts'
 import type { CommandDefinition, OptionType, ParsedArgs, RunOptions } from '../types.ts'
+import { defineCLIAdapter } from '../types.ts'
 
 type ParseOption = { type: OptionType; short?: string; default?: string | boolean }
 type ParseOptions = Record<string, ParseOption>

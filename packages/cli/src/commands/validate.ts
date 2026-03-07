@@ -1,5 +1,5 @@
-import { defineCommand } from '../cli/index.ts'
 import { version } from '../../package.json'
+import { defineCommand } from '../cli/index.ts'
 import { runValidate } from '../runners/validate.ts'
 
 export const command = defineCommand({

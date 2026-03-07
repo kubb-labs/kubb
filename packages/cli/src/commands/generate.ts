@@ -1,5 +1,5 @@
-import { defineCommand } from '../cli/index.ts'
 import { LogLevel } from '@kubb/core'
+import { defineCommand } from '../cli/index.ts'
 import { runGenerateCommand } from '../runners/generate.ts'
 
 export const command = defineCommand({
