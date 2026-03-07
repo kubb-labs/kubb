@@ -1,5 +1,3 @@
-// ─── Option ───────────────────────────────────────────────────────────────────
-
 export type OptionType = 'string' | 'boolean'
 
 export type OptionDefinition = {
@@ -13,8 +11,6 @@ export type OptionDefinition = {
   hint?: string
   required?: boolean
 }
-
-// ─── Command ──────────────────────────────────────────────────────────────────
 
 export type ParsedArgs = {
   values: Record<string, string | boolean | string[] | undefined>
@@ -39,8 +35,6 @@ export type CommandDefinition = {
 export function defineCommand(def: CommandDefinition): CommandDefinition {
   return def
 }
-
-// ─── Schema (AI / MCP serialization) ─────────────────────────────────────────
 
 export type OptionSchema = {
   name: string
