@@ -1,11 +1,11 @@
 import process from 'node:process'
+import type * as OasModule from '@kubb/oas'
 import type { ArgsDef } from 'citty'
 import { defineCommand, showUsage } from 'citty'
-import type * as OasModule from '@kubb/oas'
 import { version } from '../../package.json'
 import { getErrorMessage } from '../utils/errors.ts'
-import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 import { jiti } from '../utils/jiti.ts'
+import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 
 const args = {
   input: {
@@ -41,7 +41,7 @@ const command = defineCommand({
 
     let mod: typeof OasModule
     try {
-      mod = await jiti.import('@kubb/oas', { default: true }) as typeof OasModule
+      mod = (await jiti.import('@kubb/oas', { default: true })) as typeof OasModule
     } catch (_e) {
       console.error(`Import of '@kubb/oas' is required to do validation`)
       process.exit(1)

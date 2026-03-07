@@ -85,7 +85,7 @@ const command = defineCommand({
 
     await executeIfOnline(async () => {
       try {
-      const res = await fetch(KUBB_NPM_PACKAGE_URL)
+        const res = await fetch(KUBB_NPM_PACKAGE_URL)
         const data = (await res.json()) as { version: string }
         const latestVersion = data.version
 

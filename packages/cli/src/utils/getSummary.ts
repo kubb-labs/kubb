@@ -57,9 +57,9 @@ export function getSummary({ failedPlugins, filesCreated, status, hrStart, confi
     summaryLines.push(`${labels.pluginTimings}`)
 
     sortedTimings.forEach(([name, time]) => {
-        const timeStr = time >= 1000 ? `${(time / 1000).toFixed(2)}s` : `${Math.round(time)}ms`
-        const barLength = Math.min(Math.ceil(time / TIME_SCALE_DIVISOR), MAX_BAR_LENGTH)
-        const bar = styleText('dim', '█'.repeat(barLength))
+      const timeStr = time >= 1000 ? `${(time / 1000).toFixed(2)}s` : `${Math.round(time)}ms`
+      const barLength = Math.min(Math.ceil(time / TIME_SCALE_DIVISOR), MAX_BAR_LENGTH)
+      const bar = styleText('dim', '█'.repeat(barLength))
 
       summaryLines.push(`${styleText('dim', '•')} ${name.padEnd(maxLength + 1)}${bar} ${timeStr}`)
     })
