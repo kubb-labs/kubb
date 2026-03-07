@@ -1,5 +1,17 @@
 # @kubb/plugin-zod
 
+## 4.32.4
+
+### Patch Changes
+
+- [#2672](https://github.com/kubb-labs/kubb/pull/2672) [`1f51e6e`](https://github.com/kubb-labs/kubb/commit/1f51e6e4cd8982653c4992929eae009cee1ec2db) Thanks [@rajp33](https://github.com/rajp33)! - Prevent `typed: true` Zod generation from emitting duplicate `ToZod` imports in generated files.
+
+- Updated dependencies []:
+  - @kubb/core@4.32.4
+  - @kubb/oas@4.32.4
+  - @kubb/plugin-oas@4.32.4
+  - @kubb/plugin-ts@4.32.4
+
 ## 4.32.3
 
 ### Patch Changes
