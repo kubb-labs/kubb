@@ -31,6 +31,7 @@ function serializeOptions(options: Record<string, OptionDefinition>): OptionSche
       description: opt.description,
       ...(opt.default !== undefined ? { default: opt.default } : {}),
       ...(opt.hint ? { hint: opt.hint } : {}),
+      ...(opt.enum ? { enum: opt.enum } : {}),
       ...(opt.required ? { required: opt.required } : {}),
     }
   })

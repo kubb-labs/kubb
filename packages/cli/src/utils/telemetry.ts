@@ -5,11 +5,9 @@ import { executeIfOnline } from '@kubb/core/utils'
 import { OTLP_ENDPOINT } from '../constants.ts'
 import { isCIEnvironment } from './envDetection.ts'
 
-// ---------------------------------------------------------------------------
 // OpenTelemetry OTLP JSON types
 // https://github.com/open-telemetry/opentelemetry-proto/blob/main/opentelemetry/proto/trace/v1/trace.proto
 // https://github.com/open-telemetry/opentelemetry-proto/blob/main/opentelemetry/proto/common/v1/common.proto
-// ---------------------------------------------------------------------------
 
 type OtlpStringValue = { stringValue: string }
 type OtlpBoolValue = { boolValue: boolean }
@@ -98,8 +96,6 @@ type OtlpResourceSpans = {
 type OtlpExportTraceServiceRequest = {
   resourceSpans: OtlpResourceSpans[]
 }
-
-// ---------------------------------------------------------------------------
 
 export type TelemetryPlugin = {
   name: string

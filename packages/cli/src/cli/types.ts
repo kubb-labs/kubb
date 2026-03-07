@@ -10,6 +10,8 @@ export type OptionDefinition = {
   /** Value placeholder shown in help, e.g. `'silent|info|verbose|debug'`. */
   hint?: string
   required?: boolean
+  /** Allowed values for string options. Used in help output and AI/MCP tool schemas. */
+  enum?: string[]
 }
 
 export type ParsedArgs = {
@@ -62,6 +64,7 @@ export type OptionSchema = {
   default?: string | boolean
   hint?: string
   required?: boolean
+  enum?: string[]
 }
 
 export type CommandSchema = {

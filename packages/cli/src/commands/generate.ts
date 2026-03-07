@@ -18,6 +18,7 @@ export const command = defineCommand({
       short: 'l',
       default: 'info',
       hint: 'silent|info|verbose|debug',
+      enum: ['silent', 'info', 'verbose', 'debug'],
     },
     watch: {
       type: 'boolean',

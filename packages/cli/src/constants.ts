@@ -1,12 +1,8 @@
-// ─── URLs ─────────────────────────────────────────────────────────────────────
-
 /** NPM registry endpoint used to check for @kubb/cli updates. */
 export const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
 
 /** OpenTelemetry ingestion endpoint for anonymous usage telemetry. */
 export const OTLP_ENDPOINT = 'https://otlp.kubb.dev' as const
-
-// ─── Display ──────────────────────────────────────────────────────────────────
 
 /** Horizontal rule rendered above/below the plain-logger generation summary. */
 export const SUMMARY_SEPARATOR = '─'.repeat(27)
@@ -17,12 +13,8 @@ export const SUMMARY_MAX_BAR_LENGTH = 10 as const
 /** Divides elapsed milliseconds into bar-length units (1 block per 100 ms). */
 export const SUMMARY_TIME_SCALE_DIVISOR = 100 as const
 
-// ─── File system ──────────────────────────────────────────────────────────────
-
 /** Glob pattern for paths the file watcher ignores. */
 export const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
-
-// ─── Grouped defaults ─────────────────────────────────────────────────────────
 
 /** Default runtime values for the `agent start` command. */
 export const agentDefaults = {
@@ -41,8 +33,6 @@ export const initDefaults = {
   outputPath: './src/gen',
   plugins: ['plugin-oas', 'plugin-ts'],
 } as const
-
-// ─── Init scaffolding ─────────────────────────────────────────────────────────
 
 /**
  * Maps each plugin value to the default config snippet inserted by `init`.
@@ -82,8 +72,6 @@ export const pluginDefaultConfigs = {
       output: { path: 'msw' },
     })`,
 } as const satisfies Record<string, string>
-
-// ─── Colors ───────────────────────────────────────────────────────────────────
 
 /** Color palette used by randomCliColor() for deterministic plugin name coloring. */
 export const randomColors = ['black', 'red', 'green', 'yellow', 'blue', 'white', 'magenta', 'cyan', 'gray', 'blue'] as const
