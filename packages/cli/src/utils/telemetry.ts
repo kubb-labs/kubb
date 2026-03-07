@@ -250,7 +250,7 @@ export function buildTelemetryEvent(options: {
   return {
     command: options.command,
     kubbVersion: options.kubbVersion,
-    nodeVersion: process.versions.node.split('.')[0] ?? 'unknown',
+    nodeVersion: process.versions.node.split('.')[0] as string,
     platform: os.platform(),
     ci: isCi(),
     plugins: options.plugins ?? [],

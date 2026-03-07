@@ -90,4 +90,10 @@ describe('renderHelp', () => {
     renderHelp(def)
     expect(output()).toContain('[input]')
   })
+
+  it('omits the description block when description is empty', () => {
+    renderHelp({ name: 'group', description: '' })
+    expect(output()).toContain('group')
+    expect(output()).toContain('--help')
+  })
 })

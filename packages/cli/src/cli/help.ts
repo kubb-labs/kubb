@@ -4,8 +4,7 @@ import type { CommandDefinition, OptionSchema } from './types.ts'
 
 /** Prints formatted help output for a command using its `CommandDefinition`. */
 export function renderHelp(def: CommandDefinition, parentName?: string): void {
-  const [schema] = getCommandSchema([def])
-  if (!schema) return
+  const schema = getCommandSchema([def])[0]!
 
   const programName = parentName ? `${parentName} ${schema.name}` : schema.name
 
@@ -27,13 +26,11 @@ export function renderHelp(def: CommandDefinition, parentName?: string): void {
 
   const options: OptionSchema[] = [...schema.options, { name: 'help', flags: '-h, --help', type: 'boolean' as const, description: 'Show help' }]
 
-  if (options.length) {
-    console.log(styleText('bold', 'Options:'))
-    for (const opt of options) {
-      const flags = styleText('cyan', opt.flags.padEnd(30))
-      const defaultPart = opt.default !== undefined ? styleText('dim', ` (default: ${opt.default})`) : ''
-      console.log(`  ${flags}${opt.description}${defaultPart}`)
-    }
-    console.log()
+  console.log(styleText('bold', 'Options:'))
+  for (const opt of options) {
+    const flags = styleText('cyan', opt.flags.padEnd(30))
+    const defaultPart = opt.default !== undefined ? styleText('dim', ` (default: ${opt.default})`) : ''
+    console.log(`  ${flags}${opt.description}${defaultPart}`)
   }
+  console.log()
 }
