@@ -150,7 +150,9 @@ describe('nodeAdapter', () => {
       const cmd: CommandDefinition = {
         name: 'generate',
         description: 'Generate',
-        run: async () => { throw thrown },
+        run: async () => {
+          throw thrown
+        },
       }
       await expect(nodeAdapter.run([cmd], ['generate'], opts)).rejects.toThrow('exit:1')
       expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining(contains))

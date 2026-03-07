@@ -25,13 +25,10 @@ describe('isCIEnvironment', () => {
     }
   })
 
-  it.each(['CI', 'GITHUB_ACTIONS', 'GITLAB_CI', 'CIRCLECI', 'TRAVIS'])(
-    'returns true when %s is set',
-    (envVar) => {
-      vi.stubEnv(envVar, 'true')
-      expect(isCIEnvironment()).toBe(true)
-    },
-  )
+  it.each(['CI', 'GITHUB_ACTIONS', 'GITLAB_CI', 'CIRCLECI', 'TRAVIS'])('returns true when %s is set', (envVar) => {
+    vi.stubEnv(envVar, 'true')
+    expect(isCIEnvironment()).toBe(true)
+  })
 
   it('returns false when no CI env vars are set', () => {
     expect(isCIEnvironment()).toBe(false)

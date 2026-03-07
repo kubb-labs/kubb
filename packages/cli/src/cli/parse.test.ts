@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { CLIAdapter, CommandDefinition, RunOptions } from './types.ts'
 import { createCLI } from './parse.ts'
+import type { CLIAdapter, CommandDefinition, RunOptions } from './types.ts'
 
 const opts: RunOptions = { programName: 'kubb', defaultCommandName: 'generate', version: '1.0.0' }
 

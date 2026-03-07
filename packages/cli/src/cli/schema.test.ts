@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { OptionDefinition } from './types.ts'
 import { getCommandSchema } from './schema.ts'
+import type { OptionDefinition } from './types.ts'
 
 function schemaOpt(option: OptionDefinition) {
   const [schema] = getCommandSchema([{ name: 'cmd', description: 'Cmd', options: { opt: option } }])
@@ -51,9 +51,7 @@ describe('getCommandSchema', () => {
       {
         name: 'agent',
         description: 'Agent',
-        subCommands: [
-          { name: 'start', description: 'Start agent', options: { port: { type: 'string', description: 'Port' } } },
-        ],
+        subCommands: [{ name: 'start', description: 'Start agent', options: { port: { type: 'string', description: 'Port' } } }],
       },
     ])
     const sub = schema?.subCommands[0]
