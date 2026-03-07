@@ -86,7 +86,7 @@ describe('nodeAdapter', () => {
       expect(runFn).toHaveBeenCalled()
     })
 
-    it('routes unrecognised first arg to default command', async () => {
+    it('routes unrecognized first arg to default command', async () => {
       const runFn = vi.fn().mockResolvedValue(undefined)
       await nodeAdapter.run([makeCmd('generate', runFn)], ['--config', 'kubb.config.ts'], opts)
       expect(runFn).toHaveBeenCalled()
@@ -110,9 +110,8 @@ describe('nodeAdapter', () => {
   describe('unknown top-level command', () => {
     it('prints error and exits 1 when no matching command found', async () => {
       const cmd = makeCmd('validate')
-      // 'unknowncmd' is not known, and defaultCommandName 'generate' is not in list
-      await expect(nodeAdapter.run([cmd], ['unknowncmd'], opts)).rejects.toThrow('exit:1')
-      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('unknowncmd'))
+      await expect(nodeAdapter.run([cmd], ['unknown-cmd'], opts)).rejects.toThrow('exit:1')
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('unknown-cmd'))
     })
   })
 
