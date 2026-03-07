@@ -1,10 +1,11 @@
-import { spawn } from 'node:child_process'
+import net from 'node:net'
 import path from 'node:path'
 import * as process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { agentDefaults } from '../constants.ts'
+import { spawnAsync } from '../utils/spawnAsync.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 
 type AgentStartOptions = {
@@ -14,6 +15,18 @@ type AgentStartOptions = {
   allowWrite: boolean
   allowAll: boolean
   version: string
+}
+
+function isPortAvailable(port: number, host: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const server = net.createServer()
+    server.once('error', () => resolve(false))
+    server.once('listening', () => {
+      server.close()
+      resolve(true)
+    })
+    server.listen(port, host)
+  })
 }
 
 export async function runAgentStart({ port, host, configPath, allowWrite, allowAll, version }: AgentStartOptions): Promise<void> {
@@ -66,10 +79,16 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
       clack.log.warn(styleText('yellow', 'Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
     }
 
-    spawn('node', [serverPath], {
+    if (!(await isPortAvailable(Number(PORT), HOST))) {
+      clack.log.error(styleText('red', `Port ${PORT} is already in use. Stop the existing process or choose a different port with --port.`))
+      process.exit(1)
+    }
+
+    // Spawns the server as a detached background process so the CLI can exit independently.
+    await spawnAsync('node', [serverPath], {
       env: { ...process.env, ...env },
-      stdio: 'inherit',
       cwd: process.cwd(),
+      detached: true,
     })
 
     await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'success' }))
