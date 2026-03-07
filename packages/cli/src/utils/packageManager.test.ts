@@ -60,7 +60,7 @@ describe('packageManager', () => {
     it('rejects when the process exits with non-zero code', async () => {
       vi.mocked(spawn).mockReturnValue(makeChildProcess(1) as ReturnType<typeof spawn>)
       const pm: PackageManagerInfo = { name: 'npm', lockFile: 'package-lock.json', installCommand: ['install'] }
-      await expect(initPackageJson('/tmp/project', pm)).rejects.toThrow('exited with code 1')
+      await expect(initPackageJson('/tmp/project', pm)).rejects.toThrow('"npm init -y" was terminated by signal undefined')
     })
 
     it('rejects when spawn emits an error', async () => {
@@ -88,7 +88,7 @@ describe('packageManager', () => {
     it('rejects when the process exits with non-zero code', async () => {
       vi.mocked(spawn).mockReturnValue(makeChildProcess(2) as ReturnType<typeof spawn>)
       const pm: PackageManagerInfo = { name: 'pnpm', lockFile: 'pnpm-lock.yaml', installCommand: ['add'] }
-      await expect(installPackages(['kubb'], pm)).rejects.toThrow('exited with code 2')
+      await expect(installPackages(['kubb'], pm)).rejects.toThrow('"pnpm add kubb" was terminated by signal undefined')
     })
   })
 })
