@@ -6,6 +6,36 @@ outline: deep
 
 # Changelog
 
+## 4.32.4
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-zod`](/plugins/plugin-zod)
+
+Prevents `typed: true` Zod generation from emitting duplicate `ToZod` imports in generated files. Previously, specifying `typed: true` could result in redundant `ToZod` imports, causing unnecessary clutter and potential conflicts in the generated code.
+
+#### Example:
+
+::: code-group
+
+```typescript [Before]
+import { z } from 'zod';
+import { ToZod } from 'kubb-plugin-zod';
+import { ToZod } from 'kubb-plugin-zod'; // Duplicate import
+
+const schema = z.object({...});
+```
+
+```typescript [After]
+import { z } from 'zod';
+import { ToZod } from 'kubb-plugin-zod';
+
+const schema = z.object({...});
+```
+
+:::
+
+
 ## 4.32.3
 
 ### 🐛 Bug Fixes
