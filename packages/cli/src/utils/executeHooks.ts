@@ -20,14 +20,23 @@ export async function executeHooks({ hooks, events }: ExecutingHooksProps): Prom
     }
 
     const hookId = createHash('sha256').update(command).digest('hex')
-    await events.emit('hook:start', { id: hookId, command: cmd, args })
 
-    await events.onOnce('hook:end', async ({ success, error }) => {
-      if (!success) {
-        throw error
+    // Wire up the hook:end listener BEFORE emitting hook:start to avoid the race condition
+    // where hook:end fires synchronously inside emit('hook:start') before the listener is registered.
+    const hookEndPromise = new Promise<void>((resolve, reject) => {
+      const handler = ({ id, success, error }: { id?: string; command: string; args?: readonly string[]; success: boolean; error: Error | null }) => {
+        if (id !== hookId) return
+        events.off('hook:end', handler)
+        if (!success) {
+          reject(error ?? new Error(`Hook failed: ${command}`))
+          return
+        }
+        events.emit('success', `${styleText('dim', command)} successfully executed`).then(resolve).catch(reject)
       }
-
-      await events.emit('success', `${styleText('dim', command)} successfully executed`)
+      events.on('hook:end', handler)
     })
+
+    await events.emit('hook:start', { id: hookId, command: cmd, args })
+    await hookEndPromise
   }
 }
