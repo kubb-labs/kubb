@@ -1,0 +1,5 @@
+export { dispatch } from './parse.ts'
+export { renderHelp } from './help.ts'
+export { getCommandSchema } from './schema.ts'
+export { defineCommand } from './types.ts'
+export type { CommandDefinition, CommandSchema, OptionDefinition, OptionSchema, ParsedArgs, OptionType } from './types.ts'

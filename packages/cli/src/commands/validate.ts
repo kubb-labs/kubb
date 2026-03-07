@@ -1,39 +1,25 @@
-import type { ArgsDef } from 'citty'
-import { defineCommand, showUsage } from 'citty'
+import { defineCommand, renderHelp } from '../cli/index.ts'
 import { version } from '../../package.json'
 import { runValidate } from '../runners/validate.ts'
 
-const args = {
-  input: {
-    type: 'string',
-    description: 'Path to Swagger/OpenAPI file',
-    alias: 'i',
-  },
-  help: {
-    type: 'boolean',
-    description: 'Show help',
-    alias: 'h',
-    default: false,
-  },
-} as const satisfies ArgsDef
-
 export const command = defineCommand({
-  meta: {
-    name: 'validate',
-    description: 'Validate a Swagger/OpenAPI file',
+  name: 'validate',
+  description: 'Validate a Swagger/OpenAPI file',
+  options: {
+    input: {
+      type: 'string',
+      description: 'Path to Swagger/OpenAPI file',
+      short: 'i',
+      required: true,
+    },
   },
-  args,
-  async run({ args }) {
-    if (args.help) {
-      return showUsage(command)
-    }
-
-    if (!args.input) {
+  async run({ values }) {
+    if (!values['input']) {
       console.error('Error: --input <path> is required')
-      return showUsage(command)
+      renderHelp(command)
+      process.exit(1)
     }
 
-    await runValidate({ input: args.input, version })
+    await runValidate({ input: values['input'] as string, version })
   },
 })
-

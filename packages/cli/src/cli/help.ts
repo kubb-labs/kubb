@@ -1,0 +1,50 @@
+import { styleText } from 'node:util'
+import type { CommandDefinition, OptionSchema } from './types.ts'
+import { getCommandSchema } from './schema.ts'
+
+/**
+ * Print formatted help output for a command, derived entirely from its
+ * `CommandDefinition` — no library-specific knowledge required.
+ */
+export function renderHelp(def: CommandDefinition, parentName?: string): void {
+  const [schema] = getCommandSchema([def])
+  if (!schema) return
+
+  const programName = parentName ? `${parentName} ${schema.name}` : schema.name
+
+  // Usage line
+  const argsPart = schema.arguments?.length ? ` ${schema.arguments.join(' ')}` : ''
+  const subCmdPart = schema.subCommands.length ? ' <command>' : ''
+  console.log(`\n${styleText('bold', 'Usage:')} ${programName}${argsPart}${subCmdPart} [options]\n`)
+
+  // Description
+  if (schema.description) {
+    console.log(`  ${schema.description}\n`)
+  }
+
+  // Subcommands
+  if (schema.subCommands.length) {
+    console.log(styleText('bold', 'Commands:'))
+    for (const sub of schema.subCommands) {
+      console.log(`  ${styleText('cyan', sub.name.padEnd(16))}${sub.description}`)
+    }
+    console.log()
+  }
+
+  // Options
+  const options: OptionSchema[] = [
+    ...schema.options,
+    // always append --help
+    { name: 'help', flags: '-h, --help', type: 'boolean' as const, description: 'Show help' },
+  ]
+
+  if (options.length) {
+    console.log(styleText('bold', 'Options:'))
+    for (const opt of options) {
+      const flags = styleText('cyan', opt.flags.padEnd(30))
+      const defaultPart = opt.default !== undefined ? styleText('dim', ` (default: ${opt.default})`) : ''
+      console.log(`  ${flags}${opt.description}${defaultPart}`)
+    }
+    console.log()
+  }
+}

@@ -1,29 +1,11 @@
-import type { ArgsDef } from 'citty'
-import { defineCommand, showUsage } from 'citty'
+import { defineCommand } from '../cli/index.ts'
 import { version } from '../../package.json'
 import { runMcp } from '../runners/mcp.ts'
 
-const args = {
-  help: {
-    type: 'boolean',
-    description: 'Show help',
-    alias: 'h',
-    default: false,
-  },
-} as const satisfies ArgsDef
-
 export const command = defineCommand({
-  meta: {
-    name: 'mcp',
-    description: 'Start the server to enable the MCP client to interact with the LLM.',
-  },
-  args,
-  async run({ args }) {
-    if (args.help) {
-      return showUsage(command)
-    }
-
+  name: 'mcp',
+  description: 'Start the server to enable the MCP client to interact with the LLM.',
+  async run() {
     await runMcp({ version })
   },
 })
-

@@ -860,9 +860,6 @@ importers:
       chokidar:
         specifier: ^5.0.0
         version: 5.0.0
-      citty:
-        specifier: ^0.1.6
-        version: 0.1.6
       cosmiconfig:
         specifier: ^9.0.1
         version: 9.0.1(typescript@5.9.3)
