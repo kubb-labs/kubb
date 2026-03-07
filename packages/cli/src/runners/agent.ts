@@ -66,12 +66,16 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
       clack.log.warn(styleText('yellow', 'Filesystem writes disabled. Use --allow-write or --allow-all to enable.'))
     }
 
-    // Spawn the server as a detached long-running child process (fire-and-forget by design)
-    spawn('node', [serverPath], {
+    // Spawn the server as a detached long-running child process (fire-and-forget by design).
+    // detached: true lets the child run in its own process group; stdio: 'ignore' closes
+    // the parent's stdio handles to the child; unref() allows the CLI to exit independently.
+    const child = spawn('node', [serverPath], {
       env: { ...process.env, ...env },
-      stdio: 'inherit',
+      stdio: 'ignore',
       cwd: process.cwd(),
+      detached: true,
     })
+    child.unref()
 
     await sendTelemetry(buildTelemetryEvent({ command: 'agent', kubbVersion: version, hrStart, status: 'success' }))
   } catch (error) {

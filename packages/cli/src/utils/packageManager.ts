@@ -10,9 +10,11 @@ export function hasPackageJson(cwd: string = process.cwd()): boolean {
 function spawnAsync(cmd: string, args: string[], cwd: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const child = spawn(cmd, args, { stdio: 'inherit', cwd })
-    child.on('close', (code) => {
+    child.on('close', (code, signal) => {
       if (code === 0) {
         resolve()
+      } else if (signal !== null) {
+        reject(new Error(`"${cmd} ${args.join(' ')}" was terminated by signal ${signal}`))
       } else {
         reject(new Error(`"${cmd} ${args.join(' ')}" exited with code ${code}`))
       }
