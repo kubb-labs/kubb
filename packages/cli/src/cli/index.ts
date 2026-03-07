@@ -1,4 +1,4 @@
-export { nodeAdapter } from './adapters/node.ts'
+export { nodeAdapter } from './adapters/nodeAdapter.ts'
 export { createCLI } from './parse.ts'
 export { getCommandSchema } from './schema.ts'
 export type {

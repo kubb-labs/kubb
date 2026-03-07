@@ -1,4 +1,4 @@
-import { nodeAdapter } from './adapters/node.ts'
+import { nodeAdapter } from './adapters/nodeAdapter.ts'
 import type { CLIAdapter, CommandDefinition, RunOptions } from './types.ts'
 
 /**
