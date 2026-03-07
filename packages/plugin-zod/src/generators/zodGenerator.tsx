@@ -39,6 +39,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     const operationSchemas = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response]
       .flat()
       .filter(Boolean)
+    const toZodPath = path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')
 
     const mapOperationSchema = ({ name, schema: schemaOriginal, description, keysToOmit: keysToOmitOriginal, ...options }: OperationSchemaType) => {
       let schemaObject = schemaOriginal
@@ -102,9 +103,6 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       return (
         <>
           {typed && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
-          {typed && version === '3' && (
-            <File.Import name={['ToZod']} isTypeOnly root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')} />
-          )}
           {imports.map((imp) => (
             <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} />
           ))}
@@ -139,6 +137,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
         footer={getFooter({ oas, output: plugin.options.output })}
       >
         <File.Import name={isZodImport ? 'z' : ['z']} path={plugin.options.importPath} isNameSpace={isZodImport} />
+        {typed && version === '3' && <File.Import name={['ToZod']} isTypeOnly root={file.path} path={toZodPath} />}
         {operationSchemas.map(mapOperationSchema)}
       </File>
     )
@@ -165,6 +164,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     }
 
     const isZodImport = importPath === 'zod' || importPath === 'zod/mini'
+    const toZodPath = path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')
 
     return (
       <File
@@ -176,9 +176,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       >
         <File.Import name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
         {typed && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
-        {typed && version === '3' && (
-          <File.Import name={['ToZod']} root={zod.file.path} path={path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')} />
-        )}
+        {typed && version === '3' && <File.Import name={['ToZod']} isTypeOnly root={zod.file.path} path={toZodPath} />}
         {imports.map((imp) => (
           <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={zod.file.path} path={imp.path} name={imp.name} />
         ))}

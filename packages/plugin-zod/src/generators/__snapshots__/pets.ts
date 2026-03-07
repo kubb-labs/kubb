@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 import * as z from 'zod'
-import { ToZod } from './test/.kubb/ToZod'
+import type { ToZod } from './test/.kubb/ToZod'
 
 export const pets = z.array(
   z.object({
