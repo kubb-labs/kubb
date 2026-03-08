@@ -74,7 +74,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
         )}
 
         {options.parser === 'zod' && (
-          <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter(Boolean)} root={client.file.path} path={zod.file.path} />
+          <File.Import name={[zod.schemas.response.name, zod.schemas.request?.name].filter((x): x is string => Boolean(x))} root={client.file.path} path={zod.file.path} />
         )}
         <File.Import
           name={[
@@ -84,7 +84,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
             type.schemas.queryParams?.name,
             type.schemas.headerParams?.name,
             ...(type.schemas.statusCodes?.map((item) => item.name) || []),
-          ].filter(Boolean)}
+          ].filter((x): x is string => Boolean(x))}
           root={client.file.path}
           path={type.file.path}
           isTypeOnly

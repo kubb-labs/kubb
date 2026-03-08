@@ -43,7 +43,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
     clientType === 'staticClass' ? staticClassClientGenerator : clientType === 'class' ? classClientGenerator : clientGenerator,
     group && clientType === 'function' ? groupedClientGenerator : undefined,
     operations ? operationsGenerator : undefined,
-  ].filter(Boolean)
+  ].filter((x): x is NonNullable<typeof x> => Boolean(x))
 
   const generators = options.generators ?? defaultGenerators
 

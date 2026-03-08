@@ -1,36 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import type { PackageManagerInfo, PackageManagerName } from '../constants.ts'
+import { packageManagers } from '../constants.ts'
 
-export type PackageManagerName = 'npm' | 'pnpm' | 'yarn' | 'bun'
-
-export interface PackageManagerInfo {
-  name: PackageManagerName
-  lockFile: string
-  installCommand: string[]
-}
-
-const packageManagers: Record<PackageManagerName, PackageManagerInfo> = {
-  pnpm: {
-    name: 'pnpm',
-    lockFile: 'pnpm-lock.yaml',
-    installCommand: ['add', '-D'],
-  },
-  yarn: {
-    name: 'yarn',
-    lockFile: 'yarn.lock',
-    installCommand: ['add', '-D'],
-  },
-  bun: {
-    name: 'bun',
-    lockFile: 'bun.lockb',
-    installCommand: ['add', '-d'],
-  },
-  npm: {
-    name: 'npm',
-    lockFile: 'package-lock.json',
-    installCommand: ['install', '--save-dev'],
-  },
-}
+export type { PackageManagerInfo, PackageManagerName }
 
 export function detectPackageManager(cwd: string = process.cwd()): PackageManagerInfo {
   const packageJsonPath = path.join(cwd, 'package.json')

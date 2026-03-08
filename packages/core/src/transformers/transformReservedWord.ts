@@ -68,8 +68,6 @@ const reservedWords = [
 
   'Array',
   'Date',
-  'eval',
-  'function',
   'hasOwnProperty',
   'Infinity',
   'isFinite',

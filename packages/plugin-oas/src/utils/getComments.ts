@@ -9,11 +9,9 @@ export function getComments(operation: Operation): string[] {
     operation.path && `{@link ${new URLPath(operation.path).URL}}`,
     operation.isDeprecated() && '@deprecated',
   ]
-    .filter(Boolean)
+    .filter((x): x is string => Boolean(x))
     .flatMap((text) => {
-      // Split by newlines to preserve line breaks in JSDoc
-      // Trim each line individually to remove leading/trailing whitespace
       return text.split(/\r?\n/).map((line) => line.trim())
     })
-    .filter(Boolean)
+    .filter((x): x is string => Boolean(x))
 }

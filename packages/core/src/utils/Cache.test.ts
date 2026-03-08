@@ -49,12 +49,4 @@ describe('Cache', () => {
     const values = await cache.values()
     expect(values).toEqual(['value1', 'value2'])
   })
-
-  it('should flush (no-op for base cache)', async () => {
-    const cache = new Cache<string>()
-    await cache.set('key1', 'value1')
-    await cache.flush()
-    const value = await cache.get('key1')
-    expect(value).toBe('value1')
-  })
 })

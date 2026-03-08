@@ -1,5 +1,5 @@
 import type { KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
-import { BaseGenerator, type FileMetaBase } from '@kubb/core'
+import type { FileMetaBase } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
@@ -33,76 +33,59 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
 export class OperationGenerator<
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends FileMetaBase = FileMetaBase,
-> extends BaseGenerator<TPluginOptions['resolvedOptions'], Context<TPluginOptions['resolvedOptions'], TPluginOptions>> {
+> {
+  #options: TPluginOptions['resolvedOptions']
+  #context: Context<TPluginOptions['resolvedOptions'], TPluginOptions>
+
+  constructor(options: TPluginOptions['resolvedOptions'], context: Context<TPluginOptions['resolvedOptions'], TPluginOptions>) {
+    this.#options = options
+    this.#context = context
+  }
+
+  get options(): TPluginOptions['resolvedOptions'] {
+    return this.#options
+  }
+
+  set options(options: TPluginOptions['resolvedOptions']) {
+    this.#options = { ...this.#options, ...options }
+  }
+
+  get context(): Context<TPluginOptions['resolvedOptions'], TPluginOptions> {
+    return this.#context
+  }
+  #matchesPattern(operation: Operation, method: HttpMethod, type: string, pattern: RegExp | string): boolean {
+    switch (type) {
+      case 'tag':
+        return operation.getTags().some((tag) => tag.name.match(pattern))
+      case 'operationId':
+        return !!operation.getOperationId({ friendlyCase: true }).match(pattern)
+      case 'path':
+        return !!operation.path.match(pattern)
+      case 'method':
+        return !!method.match(pattern)
+      case 'contentType':
+        return !!operation.getContentType().match(pattern)
+      default:
+        return false
+    }
+  }
+
   getOptions(operation: Operation, method: HttpMethod): Partial<TPluginOptions['resolvedOptions']> {
     const { override = [] } = this.context
-    const operationId = operation.getOperationId({ friendlyCase: true })
-    const contentType = operation.getContentType()
 
-    return (
-      override.find(({ pattern, type }) => {
-        switch (type) {
-          case 'tag':
-            return operation.getTags().some((tag) => tag.name.match(pattern))
-          case 'operationId':
-            return !!operationId.match(pattern)
-          case 'path':
-            return !!operation.path.match(pattern)
-          case 'method':
-            return !!method.match(pattern)
-          case 'contentType':
-            return !!contentType.match(pattern)
-          default:
-            return false
-        }
-      })?.options || {}
-    )
+    return override.find(({ pattern, type }) => this.#matchesPattern(operation, method, type, pattern))?.options || {}
   }
 
   #isExcluded(operation: Operation, method: HttpMethod): boolean {
     const { exclude = [] } = this.context
-    const operationId = operation.getOperationId({ friendlyCase: true })
-    const contentType = operation.getContentType()
 
-    return exclude.some(({ pattern, type }) => {
-      switch (type) {
-        case 'tag':
-          return operation.getTags().some((tag) => tag.name.match(pattern))
-        case 'operationId':
-          return !!operationId.match(pattern)
-        case 'path':
-          return !!operation.path.match(pattern)
-        case 'method':
-          return !!method.match(pattern)
-        case 'contentType':
-          return !!contentType.match(pattern)
-        default:
-          return false
-      }
-    })
+    return exclude.some(({ pattern, type }) => this.#matchesPattern(operation, method, type, pattern))
   }
 
   #isIncluded(operation: Operation, method: HttpMethod): boolean {
     const { include = [] } = this.context
-    const operationId = operation.getOperationId({ friendlyCase: true })
-    const contentType = operation.getContentType()
 
-    return include.some(({ pattern, type }) => {
-      switch (type) {
-        case 'tag':
-          return operation.getTags().some((tag) => tag.name.match(pattern))
-        case 'operationId':
-          return !!operationId.match(pattern)
-        case 'path':
-          return !!operation.path.match(pattern)
-        case 'method':
-          return !!method.match(pattern)
-        case 'contentType':
-          return !!contentType.match(pattern)
-        default:
-          return false
-      }
-    })
+    return include.some(({ pattern, type }) => this.#matchesPattern(operation, method, type, pattern))
   }
 
   getSchemas(
@@ -224,7 +207,7 @@ export class OperationGenerator<
 
           return operation ? { path, method: method as HttpMethod, operation } : null
         })
-        .filter(Boolean),
+        .filter((x): x is { path: string; method: HttpMethod; operation: Operation } => x !== null),
     )
   }
 

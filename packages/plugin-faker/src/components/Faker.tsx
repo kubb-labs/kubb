@@ -34,7 +34,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
           },
         ),
       )
-      .filter(Boolean),
+      .filter((x): x is string => Boolean(x)),
   )
 
   const isArray = fakerText.startsWith('faker.helpers.arrayElements') || fakerText.startsWith('faker.helpers.multiple')

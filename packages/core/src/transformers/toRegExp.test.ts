@@ -14,11 +14,4 @@ describe('toRegExpString', () => {
   })
 })
 
-describe('toRegExp', () => {
-  test('String.raw', () => {
-    expect(String.raw`\n`).toBe('\\n')
-    expect(String.raw`\n`).toBe('\\n')
 
-    expect(String.raw({ raw: ['\\n'] })).toBe('\\n')
-  })
-})

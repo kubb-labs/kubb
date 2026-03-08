@@ -85,7 +85,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
 
   const getSchemas: UseOperationManagerResult['getSchemas'] = (operation, params) => {
     if (!generator) {
-      throw new Error(`'generator' is not defined`)
+      throw new Error(`useOperationManager: 'generator' parameter is required but was not provided`)
     }
 
     return generator.getSchemas(operation, {
@@ -122,7 +122,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
 
   const groupSchemasByName: UseOperationManagerResult['groupSchemasByName'] = (operation, { pluginKey = plugin.key, type }) => {
     if (!generator) {
-      throw new Error(`'generator' is not defined`)
+      throw new Error(`useOperationManager: 'generator' parameter is required but was not provided`)
     }
 
     const schemas = generator.getSchemas(operation)

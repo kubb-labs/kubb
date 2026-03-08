@@ -2,13 +2,13 @@ import path from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
+import { CORE_PLUGIN_NAME } from './constants.ts'
 import { ValidationPluginError } from './errors.ts'
 import { isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
 import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { trim } from './transformers/trim.ts'
 import type {
   Config,
-  GetPluginFactoryOptions,
   KubbEvents,
   Plugin,
   PluginContext,
@@ -65,9 +65,9 @@ export class PluginManager {
   readonly config: Config
   readonly options: Options
 
-  readonly #plugins = new Set<Plugin<GetPluginFactoryOptions<any>>>()
+  readonly #plugins = new Set<Plugin>()
   readonly #usedPluginNames: Record<string, number> = {}
-  readonly #promiseManager: PromiseManager
+  readonly #promiseManager
 
   constructor(config: Config, options: Options) {
     this.config = config
@@ -80,15 +80,13 @@ export class PluginManager {
 
       this.#plugins.add(parsedPlugin)
     })
-
-    return this
   }
 
   get events() {
     return this.options.events
   }
 
-  getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, any> {
+  getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
     const plugins = [...this.#plugins]
     const baseContext = {
       fabric: this.options.fabric,
@@ -105,13 +103,11 @@ export class PluginManager {
       },
     } as unknown as PluginContext<TOptions>
 
-    const mergedExtras: Record<string, any> = {}
+    const mergedExtras: Record<string, unknown> = {}
     for (const p of plugins) {
       if (typeof p.inject === 'function') {
-        const injector = p.inject.bind(baseContext as any) as any
-
-        const result = injector(baseContext)
-        if (result && typeof result === 'object') {
+        const result = (p.inject as (this: PluginContext, context: PluginContext) => unknown).call(baseContext as unknown as PluginContext, baseContext as unknown as PluginContext)
+        if (result !== null && typeof result === 'object') {
           Object.assign(mergedExtras, result)
         }
       }
@@ -185,9 +181,9 @@ export class PluginManager {
     const name = this.hookFirstSync({
       hookName: 'resolveName',
       parameters: [trim(params.name), params.type],
-    }).result
+    })?.result
 
-    return transformReservedWord(name)
+    return transformReservedWord(name ?? params.name)
   }
 
   /**
@@ -252,7 +248,7 @@ export class PluginManager {
           plugin,
         })
       })
-      .filter(Boolean)
+      .filter((x): x is NonNullable<typeof x> => x !== null)
 
     return result
   }
@@ -270,7 +266,7 @@ export class PluginManager {
     skipped?: ReadonlySet<Plugin> | null
   }): Promise<SafeParseResult<H>> {
     const plugins = this.#getSortedPlugins(hookName).filter((plugin) => {
-      return skipped ? skipped.has(plugin) : true
+      return skipped ? !skipped.has(plugin) : true
     })
 
     this.events.emit('plugins:hook:progress:start', { hookName, plugins })
@@ -309,10 +305,10 @@ export class PluginManager {
     hookName: H
     parameters: PluginParameter<H>
     skipped?: ReadonlySet<Plugin> | null
-  }): SafeParseResult<H> {
-    let parseResult: SafeParseResult<H> = null as unknown as SafeParseResult<H>
+  }): SafeParseResult<H> | null {
+    let parseResult: SafeParseResult<H> | null = null
     const plugins = this.#getSortedPlugins(hookName).filter((plugin) => {
-      return skipped ? skipped.has(plugin) : true
+      return skipped ? !skipped.has(plugin) : true
     })
 
     for (const plugin of plugins) {
@@ -347,14 +343,18 @@ export class PluginManager {
     const plugins = this.#getSortedPlugins(hookName)
     this.events.emit('plugins:hook:progress:start', { hookName, plugins })
 
+    const pluginStartTimes = new Map<Plugin, number>()
+
     const promises = plugins.map((plugin) => {
-      return () =>
-        this.#execute({
+      return () => {
+        pluginStartTimes.set(plugin, performance.now())
+        return this.#execute({
           strategy: 'hookParallel',
           hookName,
           parameters,
           plugin,
         }) as Promise<TOutput>
+      }
     })
 
     const results = await this.#promiseManager.run('parallel', promises, {
@@ -366,11 +366,12 @@ export class PluginManager {
         const plugin = this.#getSortedPlugins(hookName)[index]
 
         if (plugin) {
+          const startTime = pluginStartTimes.get(plugin) ?? performance.now()
           this.events.emit('error', result.reason, {
             plugin,
             hookName,
             strategy: 'hookParallel',
-            duration: 0,
+            duration: Math.round(performance.now() - startTime),
             parameters,
           })
         }
@@ -473,7 +474,7 @@ export class PluginManager {
     if (!pluginByPluginName?.length) {
       // fallback on the core plugin when there is no match
 
-      const corePlugin = plugins.find((plugin) => plugin.name === 'core' && hookName in plugin)
+      const corePlugin = plugins.find((plugin) => plugin.name === CORE_PLUGIN_NAME && hookName in plugin)
       // Removed noisy debug logs for missing hooks - these are expected behavior, not errors
 
       return corePlugin ? [corePlugin] : []
@@ -488,6 +489,31 @@ export class PluginManager {
    * @param args Arguments passed to the plugin hook.
    * @param plugin The actual pluginObject to run.
    */
+  #emitProcessingEnd<H extends PluginLifecycleHooks>({
+    startTime,
+    output,
+    strategy,
+    hookName,
+    plugin,
+    parameters,
+  }: {
+    startTime: number
+    output: unknown
+    strategy: Strategy
+    hookName: H
+    plugin: PluginWithLifeCycle
+    parameters: unknown[] | undefined
+  }): void {
+    this.events.emit('plugins:hook:processing:end', {
+      duration: Math.round(performance.now() - startTime),
+      parameters,
+      output,
+      strategy,
+      hookName,
+      plugin,
+    })
+  }
+
   // Implementation signature
   #execute<H extends PluginLifecycleHooks>({
     strategy,
@@ -501,7 +527,6 @@ export class PluginManager {
     plugin: PluginWithLifeCycle
   }): Promise<ReturnType<ParseResult<H>> | null> | null {
     const hook = plugin[hookName]
-    let output: unknown
 
     if (!hook) {
       return null
@@ -518,36 +543,13 @@ export class PluginManager {
 
     const task = (async () => {
       try {
-        if (typeof hook === 'function') {
-          const context = this.getContext(plugin)
-          const result = await Promise.resolve((hook as Function).apply(context, parameters))
+        const output = typeof hook === 'function'
+          ? await Promise.resolve((hook as (...args: unknown[]) => unknown).apply(this.getContext(plugin), parameters ?? []))
+          : hook
 
-          output = result
+        this.#emitProcessingEnd({ startTime, output, strategy, hookName, plugin, parameters })
 
-          this.events.emit('plugins:hook:processing:end', {
-            duration: Math.round(performance.now() - startTime),
-            parameters,
-            output,
-            strategy,
-            hookName,
-            plugin,
-          })
-
-          return result
-        }
-
-        output = hook
-
-        this.events.emit('plugins:hook:processing:end', {
-          duration: Math.round(performance.now() - startTime),
-          parameters,
-          output,
-          strategy,
-          hookName,
-          plugin,
-        })
-
-        return hook
+        return output as ReturnType<ParseResult<H>>
       } catch (error) {
         this.events.emit('error', error as Error, {
           plugin,
@@ -568,7 +570,6 @@ export class PluginManager {
    * @param hookName Name of the plugin hook. Must be in `PluginHooks`.
    * @param args Arguments passed to the plugin hook.
    * @param plugin The actual plugin
-   * @param replaceContext When passed, the plugin context can be overridden.
    */
   #executeSync<H extends PluginLifecycleHooks>({
     strategy,
@@ -582,7 +583,6 @@ export class PluginManager {
     plugin: PluginWithLifeCycle
   }): ReturnType<ParseResult<H>> | null {
     const hook = plugin[hookName]
-    let output: unknown
 
     if (!hook) {
       return null
@@ -598,36 +598,13 @@ export class PluginManager {
     const startTime = performance.now()
 
     try {
-      if (typeof hook === 'function') {
-        const context = this.getContext(plugin)
-        const fn = (hook as Function).apply(context, parameters) as ReturnType<ParseResult<H>>
+      const output = typeof hook === 'function'
+        ? (hook as (...args: unknown[]) => unknown).apply(this.getContext(plugin), parameters) as ReturnType<ParseResult<H>>
+        : hook as ReturnType<ParseResult<H>>
 
-        output = fn
+      this.#emitProcessingEnd({ startTime, output, strategy, hookName, plugin, parameters })
 
-        this.events.emit('plugins:hook:processing:end', {
-          duration: Math.round(performance.now() - startTime),
-          parameters,
-          output,
-          strategy,
-          hookName,
-          plugin,
-        })
-
-        return fn
-      }
-
-      output = hook
-
-      this.events.emit('plugins:hook:processing:end', {
-        duration: Math.round(performance.now() - startTime),
-        parameters,
-        output,
-        strategy,
-        hookName,
-        plugin,
-      })
-
-      return hook
+      return output
     } catch (error) {
       this.events.emit('error', error as Error, {
         plugin,

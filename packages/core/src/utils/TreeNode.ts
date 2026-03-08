@@ -1,3 +1,4 @@
+import path from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { getMode } from '../PluginManager.ts'
 
@@ -20,7 +21,6 @@ export class TreeNode {
   constructor(data: BarrelData, parent?: TreeNode) {
     this.data = data
     this.parent = parent
-    return this
   }
 
   addChild(data: BarrelData): TreeNode {
@@ -49,12 +49,9 @@ export class TreeNode {
       return this.#cachedLeaves
     }
 
-    // if not a leaf, return all children's leaves recursively
     const leaves: TreeNode[] = []
-    if (this.children) {
-      for (let childIndex = 0, { length } = this.children; childIndex < length; childIndex++) {
-        leaves.push.apply(leaves, this.children[childIndex]!.leaves)
-      }
+    for (const child of this.children) {
+      leaves.push(...child.leaves)
     }
 
     this.#cachedLeaves = leaves
@@ -67,14 +64,10 @@ export class TreeNode {
       throw new TypeError('forEach() callback must be a function')
     }
 
-    // run this node through function
     callback(this)
 
-    // do the same for all children
-    if (this.children) {
-      for (let childIndex = 0, { length } = this.children; childIndex < length; childIndex++) {
-        this.children[childIndex]?.forEach(callback)
-      }
+    for (const child of this.children) {
+      child.forEach(callback)
     }
 
     return this
@@ -153,7 +146,7 @@ export class TreeNode {
   }
 }
 
-export type DirectoryTree = {
+type DirectoryTree = {
   name: string
   path: string
   file?: KubbFile.File
@@ -162,7 +155,7 @@ export type DirectoryTree = {
 
 const normalizePath = (p: string): string => p.replace(/\\/g, '/')
 
-export function buildDirectoryTree(files: Array<KubbFile.File>, rootFolder = ''): DirectoryTree | null {
+function buildDirectoryTree(files: Array<KubbFile.File>, rootFolder = ''): DirectoryTree | null {
   const normalizedRootFolder = normalizePath(rootFolder)
   const rootPrefix = normalizedRootFolder.endsWith('/') ? normalizedRootFolder : `${normalizedRootFolder}/`
 
@@ -182,17 +175,13 @@ export function buildDirectoryTree(files: Array<KubbFile.File>, rootFolder = '')
   }
 
   filteredFiles.forEach((file) => {
-    const path = file.path.slice(rootFolder.length)
-    const parts = path.split('/')
+    const relativePath = file.path.slice(rootFolder.length)
+    const parts = relativePath.split('/').filter(Boolean)
     let currentLevel: DirectoryTree[] = root.children
-    let currentPath = rootFolder
+    let currentPath = normalizePath(rootFolder)
 
     parts.forEach((part, index) => {
-      if (index !== 0) {
-        currentPath += `/${part}`
-      } else {
-        currentPath += `${part}`
-      }
+      currentPath = path.posix.join(currentPath, part)
 
       let existingNode = currentLevel.find((node) => node.name === part)
 

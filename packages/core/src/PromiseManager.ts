@@ -3,17 +3,15 @@ import { hookFirst, hookParallel, hookSeq } from './utils/executeStrategies.ts'
 
 type PromiseFunc<T = unknown, T2 = never> = () => T2 extends never ? Promise<T> : Promise<T> | T2
 
-type Options<TState = any> = {
+type Options<TState = unknown> = {
   nullCheck?: (state: TState) => boolean
 }
 
-export class PromiseManager<TState = any> {
+export class PromiseManager<TState = unknown> {
   #options: Options<TState> = {}
 
   constructor(options: Options<TState> = {}) {
     this.#options = options
-
-    return this
   }
 
   run<TInput extends Array<PromiseFunc<TValue, null>>, TValue, TStrategy extends Strategy, TOutput = StrategySwitch<TStrategy, TInput, TValue>>(
@@ -26,7 +24,7 @@ export class PromiseManager<TState = any> {
     }
 
     if (strategy === 'first') {
-      return hookFirst<TInput, TValue, TOutput>(promises, this.#options.nullCheck)
+      return hookFirst<TInput, TValue, TOutput>(promises, this.#options.nullCheck as ((state: unknown) => boolean) | undefined)
     }
 
     if (strategy === 'parallel') {

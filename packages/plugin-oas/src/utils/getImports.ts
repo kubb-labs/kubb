@@ -9,8 +9,10 @@ import { schemaKeywords } from '../SchemaMapper'
 export function getImports(tree: Array<Schema>): Array<KubbFile.Import> {
   const refs = SchemaGenerator.deepSearch(tree, schemaKeywords.ref)
 
+  if (!refs) return []
+
   return refs
-    ?.map((item) => {
+    .map((item) => {
       if (!item.args.path || !item.args.isImportable) {
         return undefined
       }
@@ -18,7 +20,7 @@ export function getImports(tree: Array<Schema>): Array<KubbFile.Import> {
       return {
         name: [item.args.name],
         path: item.args.path,
-      }
+      } satisfies KubbFile.Import
     })
-    .filter(Boolean)
+    .filter((x): x is NonNullable<typeof x> => x !== undefined)
 }

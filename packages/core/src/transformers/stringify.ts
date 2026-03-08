@@ -8,16 +8,16 @@ export function stringify(value: string | number | boolean | undefined): string 
   return JSON.stringify(trimQuotes(value.toString()))
 }
 
-export function stringifyObject(value: object): string {
+export function stringifyObject(value: Record<string, unknown>): string {
   const items = Object.entries(value)
-    .map(([key, value]) => {
-      if (typeof value === 'object') {
+    .map(([key, val]) => {
+      if (val !== null && typeof val === 'object') {
         return `${key}: {
-        ${stringifyObject(value)}
+        ${stringifyObject(val as Record<string, unknown>)}
       }`
       }
 
-      return `${key}: ${value}`
+      return `${key}: ${val}`
     })
     .filter(Boolean)
 

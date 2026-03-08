@@ -8,7 +8,7 @@ export function escape(text?: string): string {
  * @link https://github.com/joliss/js-string-escape/blob/master/index.js
  */
 
-export function jsStringEscape(input: any): string {
+export function jsStringEscape(input: unknown): string {
   return `${input}`.replace(/["'\\\n\r\u2028\u2029]/g, (character) => {
     switch (character) {
       case '"':

@@ -6,19 +6,13 @@ import { getRelativePath } from './fs/index.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { TreeNode } from './utils/TreeNode.ts'
 
-type BarrelManagerOptions = {}
-
 export class BarrelManager {
-  constructor(_options: BarrelManagerOptions = {}) {
-    return this
-  }
-
   getFiles({ files: generatedFiles, root }: { files: KubbFile.File[]; root?: string; meta?: FileMetaBase | undefined }): Array<KubbFile.File> {
     const cachedFiles = new Map<KubbFile.Path, KubbFile.File>()
 
     TreeNode.build(generatedFiles, root)?.forEach((treeNode) => {
       if (!treeNode || !treeNode.children || !treeNode.parent?.data.path) {
-        return undefined
+        return
       }
 
       const barrelFile: KubbFile.File = {
@@ -33,43 +27,28 @@ export class BarrelManager {
 
       leaves.forEach((item) => {
         if (!item.data.name) {
-          return undefined
+          return
         }
 
         const sources = item.data.file?.sources || []
 
         sources.forEach((source) => {
           if (!item.data.file?.path || !source.isIndexable || !source.name) {
-            return undefined
+            return
           }
           const alreadyContainInPreviousBarrelFile = previousBarrelFile?.sources.some(
             (item) => item.name === source.name && item.isTypeOnly === source.isTypeOnly,
           )
 
           if (alreadyContainInPreviousBarrelFile) {
-            return undefined
+            return
           }
 
-          if (!barrelFile.exports) {
-            barrelFile.exports = []
-          }
-
-          // true when we have a subdirectory that also contains barrel files
-          const isSubExport = !!treeNode.parent?.data.path?.split?.('/')?.length
-
-          if (isSubExport) {
-            barrelFile.exports.push({
-              name: [source.name],
-              path: getRelativePath(treeNode.parent?.data.path, item.data.path),
-              isTypeOnly: source.isTypeOnly,
-            })
-          } else {
-            barrelFile.exports.push({
-              name: [source.name],
-              path: `./${item.data.file.baseName}`,
-              isTypeOnly: source.isTypeOnly,
-            })
-          }
+          barrelFile.exports!.push({
+            name: [source.name],
+            path: getRelativePath(treeNode.parent?.data.path, item.data.path),
+            isTypeOnly: source.isTypeOnly,
+          })
 
           barrelFile.sources.push({
             name: source.name,

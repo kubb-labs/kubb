@@ -214,14 +214,14 @@ export const parse = createParser<string, ParserOptions>({
       }
 
       return fakerKeywordMapper.union(
-        current.args.map((it) => this.parse({ schema, parent: current, name, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
+        current.args.map((it) => this.parse({ schema, parent: current, name, current: it, siblings }, { ...options, canOverride: false })).filter((x): x is string => Boolean(x)),
       )
     },
     and(tree, options) {
       const { current, schema, siblings } = tree
 
       return fakerKeywordMapper.and(
-        current.args.map((it) => this.parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
+        current.args.map((it) => this.parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter((x): x is string => Boolean(x)),
       )
     },
     array(tree, options) {
@@ -244,7 +244,7 @@ export const parse = createParser<string, ParserOptions>({
               },
             ),
           )
-          .filter(Boolean),
+          .filter((x): x is string => Boolean(x)),
         current.args.min,
         current.args.max,
       )
@@ -348,7 +348,7 @@ export const parse = createParser<string, ParserOptions>({
                   },
                 ),
               )
-              .filter(Boolean),
+              .filter((x): x is string => Boolean(x)),
           )}`
         })
         .join(',')
@@ -360,7 +360,7 @@ export const parse = createParser<string, ParserOptions>({
 
       if (Array.isArray(current.args.items)) {
         return fakerKeywordMapper.tuple(
-          current.args.items.map((it) => this.parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
+          current.args.items.map((it) => this.parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter((x): x is string => Boolean(x)),
         )
       }
 

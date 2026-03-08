@@ -98,7 +98,6 @@
   "dependencies": {
     "@kubb/react-fabric": "catalog:",
     "empathic": "^2.0.0",
-    "jiti": "2.5.1",
     "remeda": "catalog:",
     "semver": "^7.7.4",
     "tinyexec": "catalog:"

@@ -14,6 +14,13 @@ import {
   validate,
 } from './utils.ts'
 
+/**
+ * Prefix used to create synthetic `$ref` values for anonymous (inline) discriminator schemas.
+ * The suffix is the schema index within the discriminator's `oneOf`/`anyOf` array.
+ * @example `#kubb-inline-0`
+ */
+export const KUBB_INLINE_REF_PREFIX = '#kubb-inline-'
+
 type OasOptions = {
   contentType?: contentType
   discriminator?: 'strict' | 'inherit'
@@ -197,7 +204,7 @@ export class Oas extends BaseOas {
           if (discriminatorValue) {
             // Create a synthetic ref for inline schemas using index
             // The value points to the inline schema itself via a special marker
-            existingMapping[discriminatorValue] = `#kubb-inline-${index}`
+            existingMapping[discriminatorValue] = `${KUBB_INLINE_REF_PREFIX}${index}`
           }
         }
       })

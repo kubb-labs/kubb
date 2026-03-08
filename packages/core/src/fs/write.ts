@@ -22,7 +22,7 @@ export async function write(path: string, data: string, options: Options = {}): 
 
   try {
     const oldContent = await readFile(resolved, { encoding: 'utf-8' })
-    if (oldContent?.toString() === data.trim()) {
+    if (oldContent === data.trim()) {
       return undefined
     }
   } catch (_err) {
@@ -35,7 +35,7 @@ export async function write(path: string, data: string, options: Options = {}): 
   if (options.sanity) {
     const savedData = await readFile(resolved, { encoding: 'utf-8' })
 
-    if (savedData?.toString() !== data.trim()) {
+    if (savedData !== data.trim()) {
       throw new Error(`Sanity check failed for ${path}\n\nData[${data.length}]:\n${data}\n\nSaved[${savedData.length}]:\n${savedData}\n`)
     }
 

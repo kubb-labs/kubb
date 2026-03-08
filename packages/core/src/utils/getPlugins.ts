@@ -1,16 +1,16 @@
-import type { UserConfig } from '../types.ts'
+import type { UnknownUserPlugin, UserConfig } from '../types.ts'
 
-function isJSONPlugins(plugins: UserConfig['plugins']) {
-  return !!(plugins as any)?.some((plugin: any) => {
-    return Array.isArray(plugin) && typeof plugin?.at(0) === 'string'
-  })
+type PluginsArray = Array<Omit<UnknownUserPlugin, 'inject'>>
+
+function isJSONPlugins(plugins: UserConfig['plugins']): boolean {
+  return Array.isArray(plugins) && plugins.some((plugin) => Array.isArray(plugin) && typeof (plugin as unknown[])[0] === 'string')
 }
 
-function isObjectPlugins(plugins: UserConfig['plugins']): plugins is any {
+function isObjectPlugins(plugins: UserConfig['plugins']): boolean {
   return plugins instanceof Object && !Array.isArray(plugins)
 }
 
-export function getPlugins(plugins: UserConfig['plugins']): Promise<UserConfig['plugins']> {
+export function getPlugins(plugins: UserConfig['plugins']): Promise<PluginsArray | undefined> {
   if (isObjectPlugins(plugins)) {
     throw new Error('Object plugins are not supported anymore, best to use http://kubb.dev/getting-started/configure#json')
   }

@@ -20,11 +20,13 @@ export function hookSeq<TInput extends Array<PromiseFunc<TValue, null>>, TValue,
         const calledFunc = func(state as TValue)
 
         if (calledFunc) {
-          return calledFunc.then(Array.prototype.concat.bind(state))
+          return calledFunc.then(Array.prototype.concat.bind(state) as (result: TValue) => TValue[])
         }
+
+        return state
       })
     },
-    Promise.resolve([] as unknown),
+    Promise.resolve([] as Array<TValue>),
   ) as TOutput
 }
 
@@ -35,7 +37,7 @@ type HookFirstOutput<TInput extends Array<PromiseFunc<TValue, null>>, TValue = u
  */
 export function hookFirst<TInput extends Array<PromiseFunc<TValue, null>>, TValue = unknown, TOutput = HookFirstOutput<TInput, TValue>>(
   promises: TInput,
-  nullCheck = (state: any) => state !== null,
+  nullCheck: (state: unknown) => boolean = (state) => state !== null,
 ): TOutput {
   let promise: Promise<unknown> = Promise.resolve(null) as Promise<unknown>
 

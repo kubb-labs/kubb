@@ -20,7 +20,7 @@ export function renderTemplate<TData extends Record<string, unknown> = Record<st
       return prev
         .replace(curr, () => {
           if (typeof value === 'boolean') {
-            return `${value.toString()}` || 'false'
+            return value.toString()
           }
 
           return (value as string) || ''
