@@ -2,7 +2,7 @@ import { relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { defineLogger, LogLevel } from '@kubb/core'
+import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
 import { formatMs } from '@kubb/core/utils'
 import { toCause } from '../utils/errors.ts'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
@@ -19,7 +19,7 @@ import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils
 export const clackLogger = defineLogger({
   name: 'clack',
   install(context, options) {
-    const logLevel = options?.logLevel ?? LogLevel.info
+    const logLevel = options?.logLevel ?? logLevelMap.info
     const state = {
       totalPlugins: 0,
       completedPlugins: 0,
@@ -52,7 +52,7 @@ export const clackLogger = defineLogger({
     }
 
     function showProgressStep() {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -77,7 +77,7 @@ export const clackLogger = defineLogger({
     }
 
     context.on('info', (message, info = '') => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -91,11 +91,11 @@ export const clackLogger = defineLogger({
     })
 
     context.on('success', (message, info = '') => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
-      const text = getMessage([styleText('blue', '✓'), message, logLevel >= LogLevel.info ? styleText('dim', info) : undefined].filter(Boolean).join(' '))
+      const text = getMessage([styleText('blue', '✓'), message, logLevel >= logLevelMap.info ? styleText('dim', info) : undefined].filter(Boolean).join(' '))
 
       if (state.isSpinning) {
         stopSpinner(text)
@@ -105,12 +105,12 @@ export const clackLogger = defineLogger({
     })
 
     context.on('warn', (message, info) => {
-      if (logLevel < LogLevel.warn) {
+      if (logLevel < logLevelMap.warn) {
         return
       }
 
       const text = getMessage(
-        [styleText('yellow', '⚠'), message, logLevel >= LogLevel.info && info ? styleText('dim', info) : undefined].filter(Boolean).join(' '),
+        [styleText('yellow', '⚠'), message, logLevel >= logLevelMap.info && info ? styleText('dim', info) : undefined].filter(Boolean).join(' '),
       )
 
       clack.log.warn(text)
@@ -128,7 +128,7 @@ export const clackLogger = defineLogger({
       }
 
       // Show stack trace in debug mode (first 3 frames)
-      if (logLevel >= LogLevel.debug && error.stack) {
+      if (logLevel >= logLevelMap.debug && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
           clack.log.message(getMessage(styleText('dim', frame.trim())))
@@ -146,7 +146,7 @@ export const clackLogger = defineLogger({
     })
 
     context.on('version:new', (version, latestVersion) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -172,7 +172,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('config:start', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -183,7 +183,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('config:end', (_configs) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -204,7 +204,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('plugin:start', (plugin) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -230,7 +230,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       const active = state.activeProgress.get(plugin.name)
 
-      if (!active || logLevel === LogLevel.silent) {
+      if (!active || logLevel === logLevelMap.silent) {
         return
       }
 
@@ -257,7 +257,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('files:processing:start', (files) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -279,7 +279,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('file:processing:update', ({ file, config }) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -297,7 +297,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       active.progressBar.advance(undefined, text)
     })
     context.on('files:processing:end', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -324,7 +324,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('format:start', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -334,7 +334,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('format:end', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -344,7 +344,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('lint:start', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -354,7 +354,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('lint:end', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -372,7 +372,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         await runHook({
           id,
           command,
@@ -390,7 +390,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.intro(text)
 
       const logger = clack.taskLog({
-        title: getMessage(['Executing hook', logLevel >= LogLevel.info ? styleText('dim', commandWithArgs) : undefined].filter(Boolean).join(' ')),
+        title: getMessage(['Executing hook', logLevel >= logLevelMap.info ? styleText('dim', commandWithArgs) : undefined].filter(Boolean).join(' ')),
       })
 
       const writable = new ClackWritable(logger)
@@ -411,7 +411,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     })
 
     context.on('hook:end', ({ command, args }) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -428,7 +428,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         config,
         status,
         hrStart,
-        pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
+        pluginTimings: logLevel >= logLevelMap.verbose ? pluginTimings : undefined,
       })
       const title = config.name || ''
 

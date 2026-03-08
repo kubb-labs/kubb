@@ -3,7 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { type CLIOptions, type Config, isInputPath, type KubbEvents, LogLevel, PromiseManager, safeBuild, setup } from '@kubb/core'
+import { type CLIOptions, type Config, isInputPath, type KubbEvents, logLevel as logLevelMap, PromiseManager, safeBuild, setup } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, getConfigs, linters } from '@kubb/core/utils'
 import { version } from '../../package.json'
@@ -89,7 +89,7 @@ async function runToolPass({
               'success',
               [
                 `${successPrefix} with ${styleText('dim', resolvedTool)}`,
-                logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined,
+                logLevel >= logLevelMap.info ? `on ${styleText('dim', outputPath)}` : undefined,
                 'successfully',
               ]
                 .filter(Boolean)
@@ -186,7 +186,7 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
       filesCreated: files.length,
       status: 'failed',
       hrStart,
-      pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
+      pluginTimings: logLevel >= logLevelMap.verbose ? pluginTimings : undefined,
     })
 
     await sendTelemetry(
@@ -278,7 +278,7 @@ type GenerateCommandOptions = {
 }
 
 export async function runGenerateCommand({ input, configPath, logLevel: logLevelKey, watch }: GenerateCommandOptions): Promise<void> {
-  const logLevel = LogLevel[logLevelKey as keyof typeof LogLevel] ?? LogLevel.info
+  const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const events = new AsyncEventEmitterClass<KubbEvents>()
   const promiseManager = new PromiseManager()
 

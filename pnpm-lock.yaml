@@ -891,9 +891,6 @@ importers:
       empathic:
         specifier: ^2.0.0
         version: 2.0.0
-      jiti:
-        specifier: 2.5.1
-        version: 2.5.1
       remeda:
         specifier: 'catalog:'
         version: 2.33.6

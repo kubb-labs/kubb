@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
 import type { Logger, LoggerContext, LoggerOptions } from '@kubb/core'
-import { LogLevel } from '@kubb/core'
+import { logLevel as logLevelMap } from '@kubb/core'
 import { formatHrtime } from '@kubb/core/utils'
 import { canUseTTY, isGitHubActions } from '../utils/envDetection.ts'
 import { clackLogger } from './clackLogger.ts'
@@ -14,7 +14,7 @@ import type { LoggerType } from './types.ts'
  * Shared across all logger adapters to avoid duplication.
  */
 export function formatMessage(message: string, logLevel: number): string {
-  if (logLevel >= LogLevel.verbose) {
+  if (logLevel >= logLevelMap.verbose) {
     const timestamp = new Date().toLocaleTimeString('en-US', {
       hour12: false,
       hour: '2-digit',
@@ -99,7 +99,7 @@ export async function setupLogger(context: LoggerContext, { logLevel }: LoggerOp
   // Install primary logger
   const cleanup = await logger.install(context, { logLevel })
 
-  if (logLevel >= LogLevel.debug) {
+  if (logLevel >= logLevelMap.debug) {
     await fileSystemLogger.install(context, { logLevel })
   }
 

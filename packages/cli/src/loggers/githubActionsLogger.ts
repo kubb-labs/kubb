@@ -1,5 +1,5 @@
 import { styleText } from 'node:util'
-import { type Config, defineLogger, LogLevel } from '@kubb/core'
+import { type Config, defineLogger, logLevel as logLevelMap } from '@kubb/core'
 import { formatHrtime, formatMs } from '@kubb/core/utils'
 import { toCause } from '../utils/errors.ts'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
@@ -13,7 +13,7 @@ import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils
 export const githubActionsLogger = defineLogger({
   name: 'github-actions',
   install(context, options) {
-    const logLevel = options?.logLevel ?? LogLevel.info
+    const logLevel = options?.logLevel ?? logLevelMap.info
     const state = {
       totalPlugins: 0,
       completedPlugins: 0,
@@ -35,7 +35,7 @@ export const githubActionsLogger = defineLogger({
     }
 
     function showProgressStep() {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -58,7 +58,7 @@ export const githubActionsLogger = defineLogger({
     }
 
     context.on('info', (message, info = '') => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -68,21 +68,21 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('success', (message, info = '') => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
-      const text = getMessage([styleText('blue', '✓'), message, logLevel >= LogLevel.info ? styleText('dim', info) : undefined].filter(Boolean).join(' '))
+      const text = getMessage([styleText('blue', '✓'), message, logLevel >= logLevelMap.info ? styleText('dim', info) : undefined].filter(Boolean).join(' '))
 
       console.log(text)
     })
 
     context.on('warn', (message, info = '') => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
-      const text = getMessage([styleText('yellow', '⚠'), message, logLevel >= LogLevel.info ? styleText('dim', info) : undefined].filter(Boolean).join(' '))
+      const text = getMessage([styleText('yellow', '⚠'), message, logLevel >= logLevelMap.info ? styleText('dim', info) : undefined].filter(Boolean).join(' '))
 
       console.warn(`::warning::${text}`)
     })
@@ -90,14 +90,14 @@ export const githubActionsLogger = defineLogger({
     context.on('error', (error) => {
       const caused = toCause(error)
 
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
       const message = error.message || String(error)
       console.error(`::error::${message}`)
 
       // Show stack trace in debug mode (first 3 frames)
-      if (logLevel >= LogLevel.debug && error.stack) {
+      if (logLevel >= logLevelMap.debug && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
           console.log(getMessage(styleText('dim', frame.trim())))
@@ -120,7 +120,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('config:start', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -134,7 +134,7 @@ export const githubActionsLogger = defineLogger({
     context.on('config:end', (configs) => {
       state.currentConfigs = configs
 
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -163,7 +163,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('plugin:start', (plugin) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
       const text = getMessage(`Generating ${styleText('bold', plugin.name)}`)
@@ -176,7 +176,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('plugin:end', (plugin, { duration, success }) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -207,7 +207,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('files:processing:start', (files) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -223,7 +223,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('files:processing:end', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
       const text = getMessage('Files written successfully')
@@ -239,7 +239,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('file:processing:update', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -255,7 +255,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('format:start', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -269,7 +269,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('format:end', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -283,7 +283,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('lint:start', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -297,7 +297,7 @@ export const githubActionsLogger = defineLogger({
     })
 
     context.on('lint:end', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -314,7 +314,7 @@ export const githubActionsLogger = defineLogger({
       const commandWithArgs = formatCommandWithArgs(command, args)
       const text = getMessage(`Hook ${styleText('dim', commandWithArgs)} started`)
 
-      if (logLevel > LogLevel.silent) {
+      if (logLevel > logLevelMap.silent) {
         if (state.currentConfigs.length === 1) {
           openGroup(`Hook ${commandWithArgs}`)
         }
@@ -334,14 +334,14 @@ export const githubActionsLogger = defineLogger({
         context,
         sink: {
           // GHA formats errors with the ::error:: annotation
-          onStdout: logLevel > LogLevel.silent ? (s) => console.log(s) : undefined,
-          onStderr: logLevel > LogLevel.silent ? (s) => console.error(`::error::${s}`) : undefined,
+          onStdout: logLevel > logLevelMap.silent ? (s) => console.log(s) : undefined,
+          onStderr: logLevel > logLevelMap.silent ? (s) => console.error(`::error::${s}`) : undefined,
         },
       })
     })
 
     context.on('hook:end', ({ command, args }) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
