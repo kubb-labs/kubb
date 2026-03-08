@@ -3,7 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { detectPackageManager, type PackageManagerInfo } from '@kubb/core/utils'
+import { detectPackageManager, type PackageManagerInfo } from '@kubb/core'
 import { initDefaults, pluginDefaultConfigs } from '../constants.ts'
 import { hasPackageJson, initPackageJson, installPackages } from '../utils/packageManager.ts'
 

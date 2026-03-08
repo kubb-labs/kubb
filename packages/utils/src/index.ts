@@ -1,3 +1,5 @@
+export { formatHrtime, formatMs, getElapsedMs } from './formatHrtime.ts'
+
 // fs
 export { clean } from './clean.ts'
 export { exists, existsSync } from './exists.ts'
@@ -23,3 +25,6 @@ export { trim, trimQuotes } from './trim.ts'
 export type { URLObject } from './URLPath.ts'
 export { URLPath } from './URLPath.ts'
 export { getUniqueName, setUniqueName } from './uniqueName.ts'
+export { spawnAsync } from './spawnAsync.ts'
+export { executeIfOnline, isOnline } from './checkOnlineStatus.ts'
+export { canUseTTY, isCIEnvironment, isGitHubActions } from './envDetection.ts'

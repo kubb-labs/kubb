@@ -4,7 +4,7 @@ import * as process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { spawnAsync } from '@kubb/core/utils'
+import { spawnAsync } from '@kubb/core'
 import { agentDefaults } from '../constants.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 

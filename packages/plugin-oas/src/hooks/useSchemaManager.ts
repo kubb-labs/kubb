@@ -1,6 +1,6 @@
 import type { Plugin, ResolveNameParams } from '@kubb/core'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
-import type { FileMetaBase } from '@kubb/core/utils'
+import type { FileMetaBase } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
 
 type FileMeta = FileMetaBase & {

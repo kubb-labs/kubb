@@ -1,8 +1,9 @@
-import { URLPath } from '@kubb/core/utils'
 import type { PluginClient } from '@kubb/plugin-client'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { File } from '@kubb/react-fabric'
+
+const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
 
 export const clientOperationReactGenerator = createReactGenerator<PluginClient>({
   name: 'client-operation',
@@ -20,7 +21,7 @@ export const clientOperationReactGenerator = createReactGenerator<PluginClient>(
           {`
           export const ${operation.getOperationId()} = {
             method: '${operation.method}',
-            url: '${new URLPath(operation.path).URL}'
+            url: '${toURL(operation.path)}'
           }
         `}
         </File.Source>

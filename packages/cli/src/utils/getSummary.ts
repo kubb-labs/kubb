@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { styleText } from 'node:util'
 import type { Config, Plugin } from '@kubb/core'
-import { formatHrtime } from '@kubb/core/utils'
+import { formatHrtime } from '@kubb/core'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
 import { randomCliColor } from './randomColor.ts'
 

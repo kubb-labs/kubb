@@ -1,5 +1,5 @@
 import type { KubbEvents } from '@kubb/core'
-import { formatMs, serializePluginOptions } from '@kubb/core/utils'
+import { formatMs, serializePluginOptions } from '@kubb/core'
 import { AsyncEventEmitter } from '@kubb/utils'
 import type { NitroApp } from 'nitropack/types'
 import { version } from '~~/package.json'

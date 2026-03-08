@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { buildOtlpPayload, buildTelemetryEvent, isCi, isTelemetryDisabled, sendTelemetry, type TelemetryPlugin } from './telemetry.ts'
 
-vi.mock('@kubb/core/utils', async (importActual) => ({
-  ...(await importActual<typeof import('@kubb/core/utils')>()),
+vi.mock('@kubb/core', async (importActual) => ({
+  ...(await importActual<typeof import('@kubb/core')>()),
   executeIfOnline: vi.fn(async (fn: () => Promise<unknown>) => fn()),
 }))
 

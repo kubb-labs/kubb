@@ -10,7 +10,7 @@ vi.mock('@kubb/core/utils', async (importOriginal) => ({
   getConfigs: vi.fn(),
 }))
 
-import { getConfigs } from '@kubb/core/utils'
+import { getConfigs } from '@kubb/core'
 import { getCosmiConfig } from './getCosmiConfig.ts'
 
 describe('loadConfig', () => {

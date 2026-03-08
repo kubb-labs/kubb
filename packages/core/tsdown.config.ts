@@ -3,7 +3,6 @@ import { defineConfig, type UserConfig } from 'tsdown'
 const entry = {
   index: 'src/index.ts',
   hooks: 'src/hooks/index.ts',
-  utils: 'src/utils/index.ts',
 }
 
 const shared: Partial<UserConfig> = {

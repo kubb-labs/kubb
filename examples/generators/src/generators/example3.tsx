@@ -1,6 +1,12 @@
-import transformers from '@kubb/core/transformers'
-import { URLPath } from '@kubb/core/utils'
 import type { PluginOas } from '@kubb/plugin-oas'
+
+const pascalCase = (str: string) =>
+  str
+    .split(/[\s_-]+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join('')
+
+const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { Const, File, Function } from '@kubb/react-fabric'
@@ -18,8 +24,8 @@ export const example3 = createReactGenerator<PluginOas>({
     return (
       <File baseName={client.file.baseName} path={client.file.path} meta={client.file.meta}>
         <File.Source>
-          <Function name={transformers.pascalCase(operation.getOperationId())} export>
-            <Const name={'href'}>"{new URLPath(operation.path).URL}"</Const>
+          <Function name={pascalCase(operation.getOperationId())} export>
+            <Const name={'href'}>"{toURL(operation.path)}"</Const>
             <br />
             <br />
             return

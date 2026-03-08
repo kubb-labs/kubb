@@ -1,6 +1,6 @@
 import { relative } from 'node:path'
 import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
-import { formatMs } from '@kubb/core/utils'
+import { formatMs } from '@kubb/core'
 import { SUMMARY_SEPARATOR } from '../constants.ts'
 import { toCause } from '../utils/errors.ts'
 import { getSummary } from '../utils/getSummary.ts'

@@ -35,21 +35,11 @@
       "import": "./dist/hooks.js",
       "require": "./dist/hooks.cjs"
     },
-    "./utils": {
-      "import": "./dist/utils.js",
-      "require": "./dist/utils.cjs"
-    },
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "utils": [
-        "./dist/utils.d.ts"
-      ],
-      "fs": [
-        "./dist/fs.d.ts"
-      ],
       "hooks": [
         "./dist/hooks.d.ts"
       ]
