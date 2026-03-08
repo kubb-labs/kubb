@@ -1,4 +1,5 @@
-import type { FileMetaBase, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { FileMetaBase } from '@kubb/core/utils'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, Operation as OperationType } from '@kubb/oas'

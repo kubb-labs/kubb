@@ -1,4 +1,4 @@
-import { camelCase, isValidVarName } from '../transformers'
+import { camelCase, isValidVarName } from './transformers/index.ts'
 
 export type URLObject = {
   url: string

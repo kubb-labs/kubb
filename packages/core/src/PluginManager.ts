@@ -5,8 +5,8 @@ import type { Fabric } from '@kubb/react-fabric'
 import { CORE_PLUGIN_NAME } from './constants.ts'
 import { ValidationPluginError } from './errors.ts'
 import { isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
-import { transformReservedWord } from './transformers/transformReservedWord.ts'
-import { trim } from './transformers/trim.ts'
+import { transformReservedWord } from './utils/transformers/transformReservedWord.ts'
+import { trim } from './utils/transformers/trim.ts'
 import type {
   Config,
   KubbEvents,

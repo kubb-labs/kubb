@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { agentDefaults } from '../constants.ts'
-import { spawnAsync } from '../utils/spawnAsync.ts'
+import { spawnAsync } from '@kubb/core/utils'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 
 type AgentStartOptions = {

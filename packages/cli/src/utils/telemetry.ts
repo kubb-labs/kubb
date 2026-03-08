@@ -3,7 +3,7 @@ import os from 'node:os'
 import process from 'node:process'
 import { executeIfOnline } from '@kubb/core/utils'
 import { OTLP_ENDPOINT } from '../constants.ts'
-import { isCIEnvironment } from './envDetection.ts'
+import { isCIEnvironment } from '@kubb/core/utils'
 
 // OpenTelemetry OTLP JSON types
 // https://github.com/open-telemetry/opentelemetry-proto/blob/main/opentelemetry/proto/trace/v1/trace.proto

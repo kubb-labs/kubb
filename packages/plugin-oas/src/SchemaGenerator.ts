@@ -1,4 +1,5 @@
-import type { FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
+import type { KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
+import type { FileMetaBase } from '@kubb/core/utils'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { type AsyncEventEmitter, getUniqueName } from '@kubb/core/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'

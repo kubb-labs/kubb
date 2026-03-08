@@ -1,4 +1,5 @@
-import type { FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
+import type { KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
+import type { FileMetaBase } from '@kubb/core/utils'
 import transformers from '@kubb/core/transformers'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'

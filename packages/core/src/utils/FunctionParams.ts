@@ -1,5 +1,5 @@
 import { sortBy } from 'remeda'
-import { camelCase } from '../transformers/casing.ts'
+import { camelCase } from './transformers/casing.ts'
 
 type FunctionParamsASTWithoutType = {
   name?: string
