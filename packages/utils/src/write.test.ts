@@ -1,15 +1,17 @@
+import { rm } from 'node:fs/promises'
+import os from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { describe, expect, it, test } from 'vitest'
+import { afterAll, describe, expect, it, test } from 'vitest'
 import { read } from './read.ts'
 import { write } from './write.ts'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const testDir = path.join(os.tmpdir(), 'kubb-test-write')
+const filePath = path.join(testDir, 'helloWorld.js')
 
 describe('write', () => {
-  const mocksPath = path.resolve(__dirname, '../../mocks')
-  const filePath = path.resolve(mocksPath, './helloWorld.js')
+  afterAll(async () => {
+    await rm(testDir, { recursive: true, force: true })
+  })
 
   test('if write is creating a file in the mocks folder', async () => {
     const text = `export const hallo = 'world'`

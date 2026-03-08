@@ -6,7 +6,7 @@ import * as pkg from 'empathic/package'
 import { coerce, satisfies } from 'semver'
 
 import { PATH_SEPARATORS } from './constants.ts'
-import { read, readSync } from './fs/index.ts'
+import { read, readSync } from '@kubb/utils'
 
 type PackageJSON = {
   dependencies?: Record<string, string>

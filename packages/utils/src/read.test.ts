@@ -1,22 +1,23 @@
+import { mkdir, rm } from 'node:fs/promises'
+import os from 'node:os'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { afterEach, describe, expect, test } from 'vitest'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { clean } from './clean.ts'
 import { read, readSync } from './read.ts'
-import { getRelativePath } from './utils.ts'
+import { getRelativePath } from './fsUtils.ts'
 import { write } from './write.ts'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const testDir = path.join(os.tmpdir(), 'kubb-test-read')
+const filePath = path.join(testDir, 'helloWorld.js')
+const folderPath = path.join(testDir, 'folder')
 
 describe('read', () => {
-  const mocksPath = path.resolve(__dirname, '../../mocks')
-  const filePath = path.resolve(mocksPath, './helloWorld.js')
-  const folderPath = path.resolve(mocksPath, './folder')
+  beforeAll(async () => {
+    await mkdir(testDir, { recursive: true })
+  })
 
-  afterEach(async () => {
-    await clean(filePath)
-    await clean(folderPath)
+  afterAll(async () => {
+    await rm(testDir, { recursive: true, force: true })
   })
 
   test('read filePath', async () => {
@@ -42,12 +43,11 @@ describe('read', () => {
   })
 
   test('getRelativePath returns correct path for Linux and macOS', async () => {
-    const testFile = path.resolve(folderPath, 'test.js')
+    const testFile = path.join(folderPath, 'test.js')
     await write(testFile, 'test')
 
-    expect(getRelativePath(mocksPath, testFile)).toBe('./folder/test.js')
-
-    expect(getRelativePath(folderPath, mocksPath)).toBe('./..')
+    expect(getRelativePath(testDir, testFile)).toBe('./folder/test.js')
+    expect(getRelativePath(folderPath, testDir)).toBe('./..')
 
     try {
       getRelativePath(null, null)
@@ -57,6 +57,7 @@ describe('read', () => {
 
     await clean(testFile)
   })
+
   test('getRelativePath returns correct path for Windows-style paths', () => {
     const winMocks = 'C:\\Users\\user\\project\\mocks'
     const winFolder = 'C:\\Users\\user\\project\\mocks\\folder'

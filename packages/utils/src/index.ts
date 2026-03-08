@@ -1,3 +1,10 @@
+// fs
+export { clean } from './clean.ts'
+export { exists, existsSync } from './exists.ts'
+export { read, readSync } from './read.ts'
+export { getRelativePath } from './fsUtils.ts'
+export { write } from './write.ts'
+
 // transformers
 
 // utils

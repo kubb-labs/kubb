@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/suspicious/useIterableCallbackReturn: not needed */
 import { join } from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import { getRelativePath } from './fs/index.ts'
+import { getRelativePath } from '@kubb/utils'
 
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { TreeNode } from './utils/TreeNode.ts'
