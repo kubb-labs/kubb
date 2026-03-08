@@ -20,14 +20,14 @@ export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: unknown[]
           return await listener(...eventArgs)
         } catch (err) {
           const causedError = err as Error
-          const serialisedArgs = (() => {
+          const serializedArgs = (() => {
             try {
               return JSON.stringify(eventArgs)
             } catch {
               return String(eventArgs)
             }
           })()
-          const error = new Error(`Error in async listener for "${eventName}" with eventArgs ${serialisedArgs}`, { cause: causedError })
+          const error = new Error(`Error in async listener for "${eventName}" with eventArgs ${serializedArgs}`, { cause: causedError })
 
           throw error
         }
