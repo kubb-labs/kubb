@@ -7,6 +7,7 @@ const pascalCase = (str: string) =>
     .join('')
 
 const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
+
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { Const, File, Function } from '@kubb/react-fabric'

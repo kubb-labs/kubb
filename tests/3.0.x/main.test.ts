@@ -3,10 +3,9 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { type KubbEvents, safeBuild, type UserConfig } from '@kubb/core'
-import { getRelativePath } from '@kubb/core/fs'
-import { AsyncEventEmitter } from '@kubb/core/utils'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
+import { AsyncEventEmitter, getRelativePath } from '@kubb/utils'
 import { describe, expect, test } from 'vitest'
 
 const __filename = fileURLToPath(import.meta.url)

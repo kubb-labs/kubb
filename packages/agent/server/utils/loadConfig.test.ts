@@ -5,7 +5,7 @@ vi.mock('./getCosmiConfig.ts', () => ({
   getCosmiConfig: vi.fn(),
 }))
 
-vi.mock('@kubb/core/utils', async (importOriginal) => ({
+vi.mock('@kubb/core', async (importOriginal) => ({
   ...(await importOriginal()),
   getConfigs: vi.fn(),
 }))
