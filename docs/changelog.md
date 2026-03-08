@@ -6,6 +6,15 @@ outline: deep
 
 # Changelog
 
+## 4.33.0
+
+### ✨ Features
+
+#### [`@kubb/cli`](/plugins/cli/)
+
+Replaced `citty` with a zero-dependency CLI layer built on `node:util`'s `parseArgs`. This new implementation makes command runners lazily importable, meaning the heavy runner logic is only loaded when a specific command is executed. Introduced `defineCommand` with typed option inference, a `nodeAdapter`, and a `createCLI` factory for creating custom CLI tools. ([#2675](https://github.com/kubb-labs/kubb/pull/2675) by [@stijnvanhulle](https://github.com/stijnvanhulle))
+
+
 ## 4.32.4
 
 ### 🐛 Bug Fixes
