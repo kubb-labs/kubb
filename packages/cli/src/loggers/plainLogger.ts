@@ -1,8 +1,11 @@
 import { relative } from 'node:path'
 import { defineLogger, LogLevel } from '@kubb/core'
 import { formatMs } from '@kubb/core/utils'
-import { type NonZeroExitError, x } from 'tinyexec'
+import { SUMMARY_SEPARATOR } from '../constants.ts'
+import { toCause } from '../utils/errors.ts'
 import { getSummary } from '../utils/getSummary.ts'
+import { runHook } from '../utils/runHook.ts'
+import { formatCommandWithArgs, formatMessage } from './utils.ts'
 
 /**
  * Plain console adapter for non-TTY environments
@@ -11,21 +14,10 @@ import { getSummary } from '../utils/getSummary.ts'
 export const plainLogger = defineLogger({
   name: 'plain',
   install(context, options) {
-    const logLevel = options?.logLevel || 3
+    const logLevel = options?.logLevel ?? LogLevel.info
 
     function getMessage(message: string): string {
-      if (logLevel >= LogLevel.verbose) {
-        const timestamp = new Date().toLocaleTimeString('en-US', {
-          hour12: false,
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        })
-
-        return [`[${timestamp}]`, message].join(' ')
-      }
-
-      return message
+      return formatMessage(message, logLevel)
     }
 
     context.on('info', (message, info) => {
@@ -59,7 +51,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('error', (error) => {
-      const caused = error.cause as Error | undefined
+      const caused = toCause(error)
 
       const text = getMessage(['✗', error.message].join(' '))
 
@@ -108,7 +100,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('generation:start', () => {
-      const text = getMessage('Configuration started')
+      const text = getMessage('Generation started')
 
       console.log(text)
     })
@@ -210,7 +202,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('hook:start', async ({ id, command, args }) => {
-      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const commandWithArgs = formatCommandWithArgs(command, args)
       const text = getMessage(`Hook ${commandWithArgs} started`)
 
       if (logLevel > LogLevel.silent) {
@@ -222,56 +214,17 @@ export const plainLogger = defineLogger({
         return
       }
 
-      try {
-        const result = await x(command, [...(args ?? [])], {
-          nodeOptions: { detached: true },
-          throwOnError: true,
-        })
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [result.stdout.trimEnd()],
-        })
-
-        if (logLevel > LogLevel.silent) {
-          console.log(result.stdout.trimEnd())
-        }
-
-        await context.emit('hook:end', {
-          command,
-          args,
-          id,
-          success: true,
-          error: null,
-        })
-      } catch (err) {
-        const error = err as NonZeroExitError
-        const stderr = error.output?.stderr ?? ''
-        const stdout = error.output?.stdout ?? ''
-
-        await context.emit('debug', {
-          date: new Date(),
-          logs: [stdout, stderr].filter(Boolean),
-        })
-
-        if (stderr) {
-          console.error(stderr)
-        }
-        if (stdout) {
-          console.log(stdout)
-        }
-
-        const errorMessage = new Error(`Hook execute failed: ${commandWithArgs}`)
-
-        await context.emit('hook:end', {
-          command,
-          args,
-          id,
-          success: false,
-          error: errorMessage,
-        })
-        await context.emit('error', errorMessage)
-      }
+      await runHook({
+        id,
+        command,
+        args,
+        commandWithArgs,
+        context,
+        sink: {
+          onStdout: logLevel > LogLevel.silent ? (s) => console.log(s) : undefined,
+          onStderr: logLevel > LogLevel.silent ? (s) => console.error(s) : undefined,
+        },
+      })
     })
 
     context.on('hook:end', ({ command, args }) => {
@@ -279,7 +232,7 @@ export const plainLogger = defineLogger({
         return
       }
 
-      const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+      const commandWithArgs = formatCommandWithArgs(command, args)
       const text = getMessage(`Hook ${commandWithArgs} completed`)
 
       console.log(text)
@@ -295,9 +248,9 @@ export const plainLogger = defineLogger({
         pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
       })
 
-      console.log('---------------------------')
+      console.log(SUMMARY_SEPARATOR)
       console.log(summary.join('\n'))
-      console.log('---------------------------')
+      console.log(SUMMARY_SEPARATOR)
     })
   },
 })

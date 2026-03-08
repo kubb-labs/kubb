@@ -1,4 +1,5 @@
 import { relative, resolve } from 'node:path'
+import process from 'node:process'
 import { defineLogger } from '@kubb/core'
 import { write } from '@kubb/core/fs'
 import { formatMs } from '@kubb/core/utils'
@@ -63,7 +64,6 @@ export const fileSystemLogger = defineLogger({
       state.cachedLogs.add({
         date: new Date(),
         logs: [`ℹ ${message} ${info}`],
-        fileName: undefined,
       })
     })
 
@@ -71,7 +71,6 @@ export const fileSystemLogger = defineLogger({
       state.cachedLogs.add({
         date: new Date(),
         logs: [`✓ ${message} ${info}`],
-        fileName: undefined,
       })
     })
 
@@ -79,7 +78,6 @@ export const fileSystemLogger = defineLogger({
       state.cachedLogs.add({
         date: new Date(),
         logs: [`⚠ ${message} ${info}`],
-        fileName: undefined,
       })
     })
 
@@ -87,7 +85,6 @@ export const fileSystemLogger = defineLogger({
       state.cachedLogs.add({
         date: new Date(),
         logs: [`✗ ${error.message}`, error.stack || 'unknown stack'],
-        fileName: undefined,
       })
     })
 
@@ -95,7 +92,6 @@ export const fileSystemLogger = defineLogger({
       state.cachedLogs.add({
         date: new Date(),
         logs: message.logs,
-        fileName: undefined,
       })
     })
 
@@ -103,7 +99,6 @@ export const fileSystemLogger = defineLogger({
       state.cachedLogs.add({
         date: new Date(),
         logs: [`Generating ${plugin.name}`],
-        fileName: undefined,
       })
     })
 
@@ -113,7 +108,6 @@ export const fileSystemLogger = defineLogger({
       state.cachedLogs.add({
         date: new Date(),
         logs: [success ? `${plugin.name} completed in ${durationStr}` : `${plugin.name} failed in ${durationStr}`],
-        fileName: undefined,
       })
     })
 
@@ -121,7 +115,6 @@ export const fileSystemLogger = defineLogger({
       state.cachedLogs.add({
         date: new Date(),
         logs: [`Start ${files.length} writing:`, ...files.map((file) => file.path)],
-        fileName: undefined,
       })
     })
 
@@ -132,10 +125,6 @@ export const fileSystemLogger = defineLogger({
         await context.emit('info', 'Debug files written to:', files.join(', '))
       }
       reset()
-    })
-
-    context.on('lifecycle:end', async () => {
-      // lifecycle:end handler can be used for cleanup if needed in the future
     })
 
     // Fallback: Write logs on process exit to handle crashes

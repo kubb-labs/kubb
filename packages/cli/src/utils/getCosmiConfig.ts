@@ -2,24 +2,23 @@ import type { defineConfig, UserConfig } from '@kubb/core'
 import { cosmiconfig } from 'cosmiconfig'
 import { createJiti } from 'jiti'
 
-export type CosmiconfigResult = {
+type CosmiconfigResult = {
   filepath: string
   isEmpty?: boolean
   config: ReturnType<typeof defineConfig> | UserConfig
 }
 
+const jiti = createJiti(import.meta.url, {
+  jsx: {
+    runtime: 'automatic',
+    importSource: '@kubb/react-fabric',
+  },
+  sourceMaps: true,
+  interopDefault: true,
+})
+
 const tsLoader = async (configFile: string) => {
-  const jiti = createJiti(import.meta.url, {
-    jsx: {
-      runtime: 'automatic',
-      importSource: '@kubb/react-fabric',
-    },
-    sourceMaps: true,
-    interopDefault: true,
-  })
-
   const mod = await jiti.import(configFile, { default: true })
-
   return mod
 }
 

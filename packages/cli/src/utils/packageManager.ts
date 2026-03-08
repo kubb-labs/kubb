@@ -1,7 +1,7 @@
-import { spawn } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import type { PackageManagerInfo, PackageManagerName } from '@kubb/core'
+import { spawnAsync } from './spawnAsync.ts'
 
 export function hasPackageJson(cwd: string = process.cwd()): boolean {
   return fs.existsSync(path.join(cwd, 'package.json'))
@@ -15,9 +15,9 @@ export async function initPackageJson(cwd: string, packageManager: PackageManage
     bun: ['init', '-y'],
   }
 
-  spawn(packageManager.name, commands[packageManager.name], { stdio: 'inherit', cwd })
+  await spawnAsync(packageManager.name, commands[packageManager.name], { cwd })
 }
 
 export async function installPackages(packages: string[], packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
-  spawn(packageManager.name, [...packageManager.installCommand, ...packages], { stdio: 'inherit', cwd })
+  await spawnAsync(packageManager.name, [...packageManager.installCommand, ...packages], { cwd })
 }

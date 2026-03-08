@@ -316,7 +316,6 @@ OPTIONS
                         -c, --config    Path to the Kubb config (default: kubb.config.ts)
                          -p, --port     Port for the server (default: 3000)
                          --host         Host for the server (default: localhost)
-                         --no-cache     Disable session caching
                          --allow-write  Allow writing generated files to the filesystem
                          --allow-all    Grant all permissions (implies --allow-write)
                           -h, --help    Show help
@@ -338,12 +337,6 @@ With custom host and port:
 
 ```shell [node]
 kubb agent start --host 0.0.0.0 --port 8080
-```
-
-Disable session caching:
-
-```shell [node]
-kubb agent start --no-cache
 ```
 
 Allow filesystem writes:

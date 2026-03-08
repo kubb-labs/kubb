@@ -2,14 +2,12 @@ import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
 import { executeIfOnline } from '@kubb/core/utils'
+import { OTLP_ENDPOINT } from '../constants.ts'
+import { isCIEnvironment } from './envDetection.ts'
 
-const OTLP_ENDPOINT = 'https://otlp.kubb.dev'
-
-// ---------------------------------------------------------------------------
 // OpenTelemetry OTLP JSON types
 // https://github.com/open-telemetry/opentelemetry-proto/blob/main/opentelemetry/proto/trace/v1/trace.proto
 // https://github.com/open-telemetry/opentelemetry-proto/blob/main/opentelemetry/proto/common/v1/common.proto
-// ---------------------------------------------------------------------------
 
 type OtlpStringValue = { stringValue: string }
 type OtlpBoolValue = { boolValue: boolean }
@@ -95,18 +93,16 @@ type OtlpResourceSpans = {
 }
 
 /** Root payload sent to POST /v1/traces */
-export type OtlpExportTraceServiceRequest = {
+type OtlpExportTraceServiceRequest = {
   resourceSpans: OtlpResourceSpans[]
 }
-
-// ---------------------------------------------------------------------------
 
 export type TelemetryPlugin = {
   name: string
   options: Record<string, unknown>
 }
 
-export type TelemetryEvent = {
+type TelemetryEvent = {
   command: string
   kubbVersion: string
   nodeVersion: string
@@ -119,24 +115,11 @@ export type TelemetryEvent = {
 }
 
 /**
- * Detect whether the current process is running inside a CI environment by
- * checking the well-known environment variables set by all major CI systems.
+ * Detect whether the current process is running inside a CI environment.
+ * Delegates to the canonical isCIEnvironment() from envDetection.
  */
 export function isCi(): boolean {
-  return !!(
-    (
-      process.env['CI'] || // Generic (GitHub Actions, GitLab CI, CircleCI, Travis CI, etc.)
-      process.env['GITHUB_ACTIONS'] || // GitHub Actions
-      process.env['GITLAB_CI'] || // GitLab CI
-      process.env['BITBUCKET_BUILD_NUMBER'] || // Bitbucket Pipelines
-      process.env['JENKINS_URL'] || // Jenkins
-      process.env['CIRCLECI'] || // CircleCI
-      process.env['TRAVIS'] || // Travis CI
-      process.env['TEAMCITY_VERSION'] || // TeamCity
-      process.env['BUILDKITE'] || // Buildkite
-      process.env['TF_BUILD']
-    ) // Azure Pipelines
-  )
+  return isCIEnvironment()
 }
 
 /**
@@ -267,7 +250,7 @@ export function buildTelemetryEvent(options: {
   return {
     command: options.command,
     kubbVersion: options.kubbVersion,
-    nodeVersion: process.versions.node.split('.')[0] ?? 'unknown',
+    nodeVersion: process.versions.node.split('.')[0] as string,
     platform: os.platform(),
     ci: isCi(),
     plugins: options.plugins ?? [],
