@@ -14,7 +14,7 @@ type SpawnOptions = {
 /**
  * Spawns `cmd args` and returns a promise.
  * - Foreground (default): inherits stdio and resolves when the process exits successfully.
- * - Detached: spawns in its own process group, unrefs the child, and resolves immediately.
+ * - Detached: spawns in its own process group, un-refs the child, and resolves immediately.
  */
 export function spawnAsync(cmd: string, args: string[], options: SpawnOptions = {}): Promise<void> {
   const { cwd = process.cwd(), env, detached = false } = options
