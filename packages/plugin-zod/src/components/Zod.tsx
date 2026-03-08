@@ -1,4 +1,4 @@
-import transformers from '@kubb/core/transformers'
+import { transformers } from '@kubb/core/utils'
 import type { SchemaObject } from '@kubb/oas'
 import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Const, File, Type } from '@kubb/react-fabric'

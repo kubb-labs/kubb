@@ -1,4 +1,4 @@
-import transformers from '@kubb/core/transformers'
+import { transformers } from '@kubb/core/utils'
 import type { HttpMethod, Operation } from '@kubb/oas'
 import type { SchemaNames } from '@kubb/plugin-oas/hooks'
 import { Const, File, Type } from '@kubb/react-fabric'

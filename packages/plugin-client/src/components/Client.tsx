@@ -1,5 +1,4 @@
-import { isValidVarName } from '@kubb/core/transformers'
-import { URLPath } from '@kubb/core/utils'
+import { isValidVarName, URLPath } from '@kubb/core/utils'
 
 import { getDefaultValue, isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'

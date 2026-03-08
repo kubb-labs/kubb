@@ -1,4 +1,4 @@
-import transformers from '@kubb/core/transformers'
+import { transformers } from '@kubb/core/utils'
 import type { Schema, SchemaMapper } from '@kubb/plugin-oas'
 import { createParser, findSchemaKeyword, isKeyword, SchemaGenerator, type SchemaKeywordMapper, schemaKeywords } from '@kubb/plugin-oas'
 import { sortBy } from 'remeda'

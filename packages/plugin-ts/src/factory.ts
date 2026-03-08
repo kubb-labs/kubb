@@ -1,4 +1,4 @@
-import transformers from '@kubb/core/transformers'
+import { transformers } from '@kubb/core/utils'
 import { isNumber, sortBy } from 'remeda'
 import ts from 'typescript'
 

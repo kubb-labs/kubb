@@ -1,4 +1,4 @@
-import transformers from '@kubb/core/transformers'
+import { transformers } from '@kubb/core/utils'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 import { createParser, findSchemaKeyword, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import type { Options } from './types.ts'

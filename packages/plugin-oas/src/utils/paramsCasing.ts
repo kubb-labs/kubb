@@ -1,4 +1,4 @@
-import transformers, { isValidVarName } from '@kubb/core/transformers'
+import { isValidVarName, transformers } from '@kubb/core/utils'
 import type { SchemaObject } from '@kubb/oas'
 
 /**

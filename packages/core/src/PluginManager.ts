@@ -5,8 +5,6 @@ import type { Fabric } from '@kubb/react-fabric'
 import { CORE_PLUGIN_NAME } from './constants.ts'
 import { ValidationPluginError } from './errors.ts'
 import { isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
-import { transformReservedWord } from './utils/transformers/transformReservedWord.ts'
-import { trim } from './utils/transformers/trim.ts'
 import type {
   Config,
   KubbEvents,
@@ -22,6 +20,8 @@ import type {
   UserPlugin,
 } from './types.ts'
 import type { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
+import { transformReservedWord } from './utils/transformers/transformReservedWord.ts'
+import { trim } from './utils/transformers/trim.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
 
 type RequiredPluginLifecycle = Required<PluginLifecycle>
