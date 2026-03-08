@@ -1,5 +1,17 @@
 # @kubb/cli
 
+## 4.33.0
+
+### Minor Changes
+
+- [#2675](https://github.com/kubb-labs/kubb/pull/2675) [`9d74bc0`](https://github.com/kubb-labs/kubb/commit/9d74bc0b654b7dce9c0242edae6a127ed4dbe051) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Replace `citty` with a zero-dependency CLI layer built on `node:util` `parseArgs`.
+  Command runners are lazily imported via `await import()` inside each command handler, so the heavy runner logic is only loaded when that command is actually executed. Adds `defineCommand` with typed option inference, a `nodeAdapter`, and `createCLI` factory.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.33.0
+
 ## 4.32.4
 
 ### Patch Changes
