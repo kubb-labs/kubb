@@ -115,7 +115,7 @@ describe('PluginManager', () => {
     const { result, plugin } = pluginManager.hookFirstSync({
       hookName: 'resolvePath',
       parameters: ['path.ts'],
-    })
+    })!
 
     expect(plugin.name).toBe('pluginA')
     expect(result).toBe('pluginA/gen')

@@ -1,5 +1,5 @@
 import { x } from 'tinyexec'
-import { linters } from '../constants.ts'
+import type { linters } from '../constants.ts'
 
 type Linter = keyof typeof linters
 

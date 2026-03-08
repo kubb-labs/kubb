@@ -1,5 +1,5 @@
 import { x } from 'tinyexec'
-import { formatters } from '../constants.ts'
+import type { formatters } from '../constants.ts'
 
 type Formatter = keyof typeof formatters
 

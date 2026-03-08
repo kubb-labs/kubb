@@ -1,4 +1,4 @@
-export { Oas, KUBB_INLINE_REF_PREFIX } from './Oas.ts'
+export { KUBB_INLINE_REF_PREFIX, Oas } from './Oas.ts'
 export * from './types.ts'
 export {
   getDefaultValue,

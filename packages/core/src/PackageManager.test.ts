@@ -38,7 +38,7 @@ describe('getPackageJSON', () => {
   test('it should find mocks/noop.js file with default cwd and ESM', async () => {
     packageManager.workspace = __dirname
 
-    const module = await packageManager.import(path.join(__dirname, '../mocks/noop.js'))
+    const module: any = await packageManager.import(path.join(__dirname, '../mocks/noop.js'))
 
     const fn = module?.noop ? module.noop : module
 
@@ -48,7 +48,7 @@ describe('getPackageJSON', () => {
   test('it should find mocks/noop.js file with default cwd and CJS', async () => {
     packageManager.workspace = __dirname
 
-    const module = await packageManager.import(path.join(__dirname, '../mocks/noop.cjs'))
+    const module: any = await packageManager.import(path.join(__dirname, '../mocks/noop.cjs'))
 
     const fn = module?.noop ? module.noop : module
 

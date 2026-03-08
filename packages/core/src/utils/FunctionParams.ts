@@ -38,7 +38,6 @@ export type FunctionParamsAST = FunctionParamsASTWithoutType | FunctionParamsAST
  */
 export class FunctionParams {
   #items: Array<FunctionParamsAST | FunctionParamsAST[]> = []
-  constructor() {}
 
   get items(): FunctionParamsAST[] {
     return this.#items.flat()
@@ -50,9 +49,11 @@ export class FunctionParams {
     }
 
     if (Array.isArray(item)) {
-      item.filter((x): x is FunctionParamsAST | FunctionParamsAST[] => x !== undefined).forEach((it) => {
-        this.#items.push(it)
-      })
+      item
+        .filter((x): x is FunctionParamsAST | FunctionParamsAST[] => x !== undefined)
+        .forEach((it) => {
+          this.#items.push(it)
+        })
       return this
     }
     this.#items.push(item)

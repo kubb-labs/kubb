@@ -89,4 +89,3 @@ export const packageManagers: Record<PackageManagerName, PackageManagerInfo> = {
     installCommand: ['install', '--save-dev'],
   },
 }
-

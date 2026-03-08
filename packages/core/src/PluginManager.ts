@@ -106,7 +106,10 @@ export class PluginManager {
     const mergedExtras: Record<string, unknown> = {}
     for (const p of plugins) {
       if (typeof p.inject === 'function') {
-        const result = (p.inject as (this: PluginContext, context: PluginContext) => unknown).call(baseContext as unknown as PluginContext, baseContext as unknown as PluginContext)
+        const result = (p.inject as (this: PluginContext, context: PluginContext) => unknown).call(
+          baseContext as unknown as PluginContext,
+          baseContext as unknown as PluginContext,
+        )
         if (result !== null && typeof result === 'object') {
           Object.assign(mergedExtras, result)
         }
@@ -543,9 +546,8 @@ export class PluginManager {
 
     const task = (async () => {
       try {
-        const output = typeof hook === 'function'
-          ? await Promise.resolve((hook as (...args: unknown[]) => unknown).apply(this.getContext(plugin), parameters ?? []))
-          : hook
+        const output =
+          typeof hook === 'function' ? await Promise.resolve((hook as (...args: unknown[]) => unknown).apply(this.getContext(plugin), parameters ?? [])) : hook
 
         this.#emitProcessingEnd({ startTime, output, strategy, hookName, plugin, parameters })
 
@@ -598,9 +600,10 @@ export class PluginManager {
     const startTime = performance.now()
 
     try {
-      const output = typeof hook === 'function'
-        ? (hook as (...args: unknown[]) => unknown).apply(this.getContext(plugin), parameters) as ReturnType<ParseResult<H>>
-        : hook as ReturnType<ParseResult<H>>
+      const output =
+        typeof hook === 'function'
+          ? ((hook as (...args: unknown[]) => unknown).apply(this.getContext(plugin), parameters) as ReturnType<ParseResult<H>>)
+          : (hook as ReturnType<ParseResult<H>>)
 
       this.#emitProcessingEnd({ startTime, output, strategy, hookName, plugin, parameters })
 

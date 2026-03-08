@@ -1,5 +1,4 @@
-import type { KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
-import type { FileMetaBase } from '@kubb/core'
+import type { FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import type { AsyncEventEmitter } from '@kubb/core/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
@@ -30,10 +29,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   UNSTABLE_NAMING?: true
 }
 
-export class OperationGenerator<
-  TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
-  TFileMeta extends FileMetaBase = FileMetaBase,
-> {
+export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions, TFileMeta extends FileMetaBase = FileMetaBase> {
   #options: TPluginOptions['resolvedOptions']
   #context: Context<TPluginOptions['resolvedOptions'], TPluginOptions>
 

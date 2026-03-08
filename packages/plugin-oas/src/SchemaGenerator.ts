@@ -1,5 +1,4 @@
-import type { KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type { FileMetaBase } from '@kubb/core'
+import type { FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import transformers, { pascalCase } from '@kubb/core/transformers'
 import { type AsyncEventEmitter, getUniqueName } from '@kubb/core/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
@@ -1362,7 +1361,7 @@ export class SchemaGenerator<
   async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const schemaEntries = Object.entries(schemas)
 
-        const generatorLimit = pLimit(GENERATOR_CONCURRENCY)
+    const generatorLimit = pLimit(GENERATOR_CONCURRENCY)
     const schemaLimit = pLimit(SCHEMA_CONCURRENCY)
 
     const writeTasks = generators.map((generator) =>

@@ -13,5 +13,3 @@ describe('toRegExpString', () => {
     expect(toRegExpString('^(AliceBlue|AntiqueWhite)$')).toBe(`new RegExp("^(AliceBlue|AntiqueWhite)$")`)
   })
 })
-
-

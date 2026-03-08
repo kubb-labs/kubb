@@ -10,10 +10,10 @@ import { BuildError } from './errors.ts'
 import { clean, exists, getRelativePath, write } from './fs/index.ts'
 import { PluginManager } from './PluginManager.ts'
 import type { Config, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
-import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import { formatMs, getElapsedMs } from './utils/formatHrtime.ts'
+import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { URLPath } from './utils/URLPath.ts'
 
 type BuildOptions = {
@@ -277,9 +277,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
       const existingBarrel = fabric.files.find((f) => f.path === rootPath)
       const existingExports = new Set(
-        existingBarrel?.exports
-          ?.flatMap((e) => (Array.isArray(e.name) ? e.name : [e.name]))
-          .filter((n): n is string => Boolean(n)) ?? [],
+        existingBarrel?.exports?.flatMap((e) => (Array.isArray(e.name) ? e.name : [e.name])).filter((n): n is string => Boolean(n)) ?? [],
       )
 
       const rootFile: KubbFile.File = {
