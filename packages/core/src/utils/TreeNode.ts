@@ -153,7 +153,7 @@ type DirectoryTree = {
   children: Array<DirectoryTree>
 }
 
-const normalizePath = (p: string): string => p.replace(/\\/g, '/')
+const normalizePath = (p: string): string => p.replaceAll('\\', '/')
 
 function buildDirectoryTree(files: Array<KubbFile.File>, rootFolder = ''): DirectoryTree | null {
   const normalizedRootFolder = normalizePath(rootFolder)

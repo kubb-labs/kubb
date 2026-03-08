@@ -95,38 +95,51 @@ export class URLPath {
    * @example /account/userID => `/account/${userId}`
    */
   toTemplateString({ prefix = '', replacer }: { prefix?: string; replacer?: (pathParam: string) => string } = {}): string {
-    const regex = /{(\w|-)*}/g
-    const found = this.path.match(regex)
-    let newPath = this.path.replaceAll('{', '${')
+    const path = this.path
+    let result = ''
+    let i = 0
 
-    if (found) {
-      newPath = found.reduce((prev, path) => {
-        const raw = path.replaceAll('{', '').replaceAll('}', '')
-        const param = this.#transformParam(raw)
-        return prev.replace(path, `\${${replacer ? replacer(param) : param}}`)
-      }, this.path)
+    while (i < path.length) {
+      const start = path.indexOf('{', i)
+      if (start === -1) {
+        result += path.slice(i)
+        break
+      }
+      result += path.slice(i, start)
+      const end = path.indexOf('}', start + 1)
+      if (end === -1) {
+        result += path.slice(start)
+        break
+      }
+      const raw = path.slice(start + 1, end)
+      const param = this.#transformParam(raw)
+      result += `\${${replacer ? replacer(param) : param}}`
+      i = end + 1
     }
 
-    return `\`${prefix}${newPath}\``
+    return `\`${prefix}${result}\``
   }
 
   getParams(replacer?: (pathParam: string) => string): Record<string, string> | undefined {
-    const regex = /{(\w|-)*}/g
-    const found = this.path.match(regex)
-
-    if (!found) {
-      return undefined
-    }
-
+    const path = this.path
     const params: Record<string, string> = {}
-    for (const item of found) {
-      const raw = item.replaceAll('{', '').replaceAll('}', '')
+    let hasParam = false
+    let i = 0
+
+    while (i < path.length) {
+      const start = path.indexOf('{', i)
+      if (start === -1) break
+      const end = path.indexOf('}', start + 1)
+      if (end === -1) break
+      const raw = path.slice(start + 1, end)
       const param = this.#transformParam(raw)
       const key = replacer ? replacer(param) : param
       params[key] = key
+      hasParam = true
+      i = end + 1
     }
 
-    return params
+    return hasParam ? params : undefined
   }
 
   /**

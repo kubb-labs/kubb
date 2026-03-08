@@ -28,7 +28,13 @@ type AddIndexesProps = {
 }
 
 function trimExtName(text: string): string {
-  return text.replace(/\.[^/.]+$/, '')
+  const dotIndex = text.lastIndexOf('.')
+  // Only strip when the dot is found and no path separator follows it
+  // (guards against stripping dots that are part of a directory name like /project.v2/gen)
+  if (dotIndex > 0 && !text.includes('/', dotIndex)) {
+    return text.slice(0, dotIndex)
+  }
+  return text
 }
 
 export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type, meta = {}, root, output }: AddIndexesProps): Promise<KubbFile.File[]> {

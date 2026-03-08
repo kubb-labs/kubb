@@ -1,6 +1,7 @@
 export { build, build as default, safeBuild, setup } from './build.ts'
 export { type CLIOptions, defineConfig, isInputPath } from './config.ts'
-export * from './constants.ts'
+export type { PackageManagerInfo, PackageManagerName } from './constants.ts'
+export { logLevel } from './constants.ts'
 export { defineLogger } from './defineLogger.ts'
 export { definePlugin } from './definePlugin.ts'
 export { PackageManager } from './PackageManager.ts'

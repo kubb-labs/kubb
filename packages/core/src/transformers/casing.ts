@@ -27,10 +27,15 @@ function toCamelOrPascal(text: string, pascal: boolean): string {
     .replace(/[^a-zA-Z0-9]/g, '')
 }
 
+function applyToFileParts(text: string, transformPart: (part: string, isLast: boolean) => string): string {
+  const parts = text.split('.')
+  const last = parts.length - 1
+  return parts.map((part, i) => transformPart(part, i === last)).join('/')
+}
+
 export function camelCase(text: string, { isFile, prefix = '', suffix = '' }: Options = {}): string {
   if (isFile) {
-    const splitArray = text.split('.')
-    return splitArray.map((item, i) => (i === splitArray.length - 1 ? camelCase(item, { prefix, suffix }) : camelCase(item))).join('/')
+    return applyToFileParts(text, (part, isLast) => camelCase(part, isLast ? { prefix, suffix } : {}))
   }
 
   return toCamelOrPascal(`${prefix} ${text} ${suffix}`, false)
@@ -38,8 +43,7 @@ export function camelCase(text: string, { isFile, prefix = '', suffix = '' }: Op
 
 export function pascalCase(text: string, { isFile, prefix = '', suffix = '' }: Options = {}): string {
   if (isFile) {
-    const splitArray = text.split('.')
-    return splitArray.map((item, i) => (i === splitArray.length - 1 ? pascalCase(item, { prefix, suffix }) : camelCase(item))).join('/')
+    return applyToFileParts(text, (part, isLast) => (isLast ? pascalCase(part, { prefix, suffix }) : camelCase(part)))
   }
 
   return toCamelOrPascal(`${prefix} ${text} ${suffix}`, true)
@@ -53,8 +57,9 @@ export function snakeCase(text: string, { prefix = '', suffix = '' }: Omit<Optio
     .replace(/[\s\-.]+/g, '_') // spaces, hyphens, dots to underscores
     .replace(/[^a-zA-Z0-9_]/g, '') // remove other special chars
     .toLowerCase()
-    .replace(/_+/g, '_') // collapse multiple underscores
-    .replace(/^_|_$/g, '') // trim underscores from start and end
+    .split('_')
+    .filter(Boolean) // collapses runs of underscores and trims leading/trailing ones
+    .join('_')
 }
 
 export function screamingSnakeCase(text: string, { prefix = '', suffix = '' }: Omit<Options, 'isFile'> = {}): string {
