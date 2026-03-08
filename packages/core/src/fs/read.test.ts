@@ -57,19 +57,16 @@ describe('read', () => {
 
     await clean(testFile)
   })
-  test('getRelativePath returns correct path for Windows', async () => {
-    const testFile = path.resolve(folderPath, 'test.js')
-    await write(testFile, 'test')
+  test('getRelativePath returns correct path for Windows-style paths', () => {
+    const winMocks = 'C:\\Users\\user\\project\\mocks'
+    const winFolder = 'C:\\Users\\user\\project\\mocks\\folder'
+    const winFile = 'C:\\Users\\user\\project\\mocks\\folder\\test.js'
 
-    expect(getRelativePath(mocksPath, testFile, 'windows')).toBe('./folder/test.js')
-    expect(getRelativePath(folderPath, mocksPath, 'windows')).toBe('./..')
+    expect(getRelativePath(winMocks, winFile)).toBe('./folder/test.js')
+    expect(getRelativePath(winFolder, winMocks)).toBe('./..')
+    expect(getRelativePath(winMocks, winFolder)).toBe('./folder')
 
-    try {
-      getRelativePath(null, null)
-    } catch (error) {
-      expect(error).toBeDefined()
-    }
-
-    await clean(testFile)
+    // Mixed separators
+    expect(getRelativePath('C:/Users/user/project/mocks', 'C:\\Users\\user\\project\\mocks\\folder\\test.js')).toBe('./folder/test.js')
   })
 })

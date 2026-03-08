@@ -1,30 +1,29 @@
-import { normalize, relative } from 'node:path'
+import { posix } from 'node:path'
 
-function slash(path: string) {
-  const isWindowsPath = /^\\\\\?\\/.test(path)
-  const normalizedPath = normalize(path)
-
-  if (isWindowsPath) {
-    return normalizedPath
+/**
+ * Converts all backslashes to forward slashes.
+ * Extended-length Windows paths (\\?\...) are left unchanged.
+ */
+function toSlash(p: string): string {
+  if (p.startsWith('\\\\?\\')) {
+    return p
   }
-
-  return normalizedPath.replaceAll(/\\/g, '/')
+  return p.replaceAll('\\', '/')
 }
 
-export function getRelativePath(rootDir?: string | null, filePath?: string | null, _platform: 'windows' | 'mac' | 'linux' = 'linux'): string {
+export function getRelativePath(rootDir?: string | null, filePath?: string | null): string {
   if (!rootDir || !filePath) {
     throw new Error(`Root and file should be filled in when retrieving the relativePath, ${rootDir || ''} ${filePath || ''}`)
   }
 
-  const relativePath = relative(rootDir, filePath)
+  // Normalise separators before computing the relative path so that this
+  // function produces consistent forward-slash output on every platform,
+  // including Windows where path.relative returns backslash-separated paths.
+  const relativePath = posix.relative(toSlash(rootDir), toSlash(filePath))
 
-  // On Windows, paths are separated with a "\"
-  // However, web browsers use "/" no matter the platform
-  const slashedPath = slash(relativePath)
-
-  if (slashedPath.startsWith('../')) {
-    return slashedPath
+  if (relativePath.startsWith('../')) {
+    return relativePath
   }
 
-  return `./${slashedPath}`
+  return `./${relativePath}`
 }
