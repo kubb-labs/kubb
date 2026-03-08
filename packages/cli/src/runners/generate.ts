@@ -3,10 +3,23 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { type CLIOptions, type Config, isInputPath, type KubbEvents, logLevel as logLevelMap, PromiseManager, safeBuild, setup } from '@kubb/core'
-import { detectFormatter, detectLinter, executeIfOnline, formatters, getConfigs, linters } from '@kubb/core'
+import {
+  type CLIOptions,
+  type Config,
+  detectFormatter,
+  detectLinter,
+  formatters,
+  getConfigs,
+  isInputPath,
+  type KubbEvents,
+  linters,
+  logLevel as logLevelMap,
+  PromiseManager,
+  safeBuild,
+  setup,
+} from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/utils'
-import { AsyncEventEmitter as AsyncEventEmitterClass } from '@kubb/utils'
+import { AsyncEventEmitter as AsyncEventEmitterClass, executeIfOnline } from '@kubb/utils'
 import { version } from '../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../constants.ts'
 import { setupLogger } from '../loggers/utils.ts'

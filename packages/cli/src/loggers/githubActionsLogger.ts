@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
 import { type Config, defineLogger, logLevel as logLevelMap } from '@kubb/core'
-import { formatHrtime, formatMs } from '@kubb/core'
+import { formatHrtime, formatMs } from '@kubb/utils'
 import { toCause } from '../utils/errors.ts'
 import { formatMsWithColor } from '../utils/formatMsWithColor.ts'
 import { runHook } from '../utils/runHook.ts'

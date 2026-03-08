@@ -1,5 +1,5 @@
 import { styleText } from 'node:util'
-import { formatMs } from '@kubb/core'
+import { formatMs } from '@kubb/utils'
 
 /**
  * Formats milliseconds with color based on duration thresholds:

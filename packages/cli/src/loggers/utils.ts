@@ -1,7 +1,7 @@
 import { styleText } from 'node:util'
 import type { Logger, LoggerContext, LoggerOptions } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
-import { canUseTTY, formatHrtime, isGitHubActions } from '@kubb/core'
+import { canUseTTY, formatHrtime, isGitHubActions } from '@kubb/utils'
 import { clackLogger } from './clackLogger.ts'
 import { fileSystemLogger } from './fileSystemLogger.ts'
 import { githubActionsLogger } from './githubActionsLogger.ts'

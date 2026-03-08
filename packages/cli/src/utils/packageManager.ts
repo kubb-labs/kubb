@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import type { PackageManagerInfo, PackageManagerName } from '@kubb/core'
-import { spawnAsync } from '@kubb/core'
+import { spawnAsync } from '@kubb/utils'
 
 export function hasPackageJson(cwd: string = process.cwd()): boolean {
   return fs.existsSync(path.join(cwd, 'package.json'))

@@ -1,5 +1,4 @@
-import type { KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
-import type { FileMetaBase } from '@kubb/core'
+import type { FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
 import type { Fabric } from '@kubb/react-fabric'

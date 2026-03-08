@@ -1,12 +1,10 @@
 import mod from 'node:module'
 import os from 'node:os'
 import { pathToFileURL } from 'node:url'
-
+import { read, readSync } from '@kubb/utils'
 import * as pkg from 'empathic/package'
 import { coerce, satisfies } from 'semver'
-
 import { PATH_SEPARATORS } from './constants.ts'
-import { read, readSync } from '@kubb/utils'
 
 type PackageJSON = {
   dependencies?: Record<string, string>

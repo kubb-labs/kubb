@@ -1,6 +1,5 @@
 import path from 'node:path'
-import { type Config, definePlugin, type Group, type KubbEvents } from '@kubb/core'
-import { getMode } from '@kubb/core'
+import { type Config, definePlugin, type Group, getMode, type KubbEvents } from '@kubb/core'
 import type { Oas } from '@kubb/oas'
 import { parseFromConfig } from '@kubb/oas'
 import type { AsyncEventEmitter } from '@kubb/utils'
