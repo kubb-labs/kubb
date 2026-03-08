@@ -1,4 +1,4 @@
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import { createFabric } from '@kubb/react-fabric'
@@ -259,6 +259,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
     if (config.output.barrelType) {
       const root = resolve(config.root)
       const rootPath = resolve(root, config.output.path, BARREL_FILENAME)
+      const rootDir = dirname(rootPath)
 
       await events.emit('debug', {
         date: new Date(),
@@ -274,10 +275,17 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         logs: [`Found ${barrelFiles.length} indexable files for barrel export`],
       })
 
+      const existingBarrel = fabric.files.find((f) => f.path === rootPath)
+      const existingExports = new Set(
+        existingBarrel?.exports
+          ?.flatMap((e) => (Array.isArray(e.name) ? e.name : [e.name]))
+          .filter((n): n is string => Boolean(n)) ?? [],
+      )
+
       const rootFile: KubbFile.File = {
         path: rootPath,
         baseName: BARREL_FILENAME,
-        exports: buildBarrelExports({ barrelFiles, rootPath, config, pluginManager }),
+        exports: buildBarrelExports({ barrelFiles, rootDir, existingExports, config, pluginManager }),
         sources: [],
         imports: [],
         meta: {},
@@ -318,12 +326,13 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
 type BuildBarrelExportsParams = {
   barrelFiles: KubbFile.ResolvedFile[]
-  rootPath: string
+  rootDir: string
+  existingExports: Set<string>
   config: Config
   pluginManager: PluginManager
 }
 
-function buildBarrelExports({ barrelFiles, rootPath, config, pluginManager }: BuildBarrelExportsParams): KubbFile.Export[] {
+function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, pluginManager }: BuildBarrelExportsParams): KubbFile.Export[] {
   const pluginKeyMap = new Map<string, Plugin>()
   for (const plugin of pluginManager.plugins) {
     pluginKeyMap.set(JSON.stringify(plugin.key), plugin)
@@ -345,10 +354,15 @@ function buildBarrelExports({ barrelFiles, rootPath, config, pluginManager }: Bu
         return []
       }
 
+      const exportName = config.output.barrelType === 'all' ? undefined : source.name ? [source.name] : undefined
+      if (exportName?.some((n) => existingExports.has(n))) {
+        return []
+      }
+
       return [
         {
-          name: config.output.barrelType === 'all' ? undefined : source.name ? [source.name] : undefined,
-          path: getRelativePath(rootPath, file.path),
+          name: exportName,
+          path: getRelativePath(rootDir, file.path),
           isTypeOnly: config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
         } satisfies KubbFile.Export,
       ]
