@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "target": "esnext",
+    "target": "ES2021",
     "module": "esnext",
     "moduleResolution": "node",
     "paths": {},
