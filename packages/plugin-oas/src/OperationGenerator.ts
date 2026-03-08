@@ -1,10 +1,10 @@
 import type { KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { FileMetaBase } from '@kubb/core/utils'
-import type { AsyncEventEmitter } from '@kubb/utils'
-import { pascalCase } from '@kubb/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
 import type { Fabric } from '@kubb/react-fabric'
+import type { AsyncEventEmitter } from '@kubb/utils'
+import { pascalCase } from '@kubb/utils'
 import pLimit from 'p-limit'
 import type { Generator } from './generators/types.ts'
 import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
@@ -108,9 +108,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
       const keys = resolveKeys(schema)
 
       return {
-        name: this.context.UNSTABLE_NAMING
-          ? resolveName(pascalCase(`${operationId} status ${name}`))
-          : resolveName(pascalCase(`${operationId} ${name}`)),
+        name: this.context.UNSTABLE_NAMING ? resolveName(pascalCase(`${operationId} status ${name}`)) : resolveName(pascalCase(`${operationId} ${name}`)),
         description: (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
         schema,
         operation,

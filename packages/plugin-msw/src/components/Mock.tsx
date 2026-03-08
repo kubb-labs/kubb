@@ -1,7 +1,7 @@
-import { URLPath } from '@kubb/utils'
 import type { OasTypes, Operation } from '@kubb/oas'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { URLPath } from '@kubb/utils'
 
 type Props = {
   /**

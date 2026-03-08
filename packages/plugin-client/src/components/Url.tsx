@@ -1,10 +1,9 @@
-import { isValidVarName, URLPath } from '@kubb/utils'
-
 import { getDefaultValue, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getParamsMapping, getPathParams } from '@kubb/plugin-oas/utils'
 import { Const, File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { isValidVarName, URLPath } from '@kubb/utils'
 import type { PluginClient } from '../types.ts'
 
 type Props = {

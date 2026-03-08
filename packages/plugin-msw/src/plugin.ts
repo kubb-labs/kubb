@@ -1,11 +1,10 @@
 import path from 'node:path'
 import { definePlugin, type Group } from '@kubb/core'
-import { camelCase } from '@kubb/utils'
 import { getBarrelFiles, getMode } from '@kubb/core/utils'
-
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
+import { camelCase } from '@kubb/utils'
 import { handlersGenerator, mswGenerator } from './generators'
 import type { PluginMsw } from './types.ts'
 

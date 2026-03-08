@@ -2,6 +2,8 @@ import path from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
+import type { AsyncEventEmitter } from '@kubb/utils'
+import { setUniqueName, transformReservedWord, trim } from '@kubb/utils'
 import { CORE_PLUGIN_NAME } from './constants.ts'
 import { ValidationPluginError } from './errors.ts'
 import { isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
@@ -19,10 +21,6 @@ import type {
   ResolvePathParams,
   UserPlugin,
 } from './types.ts'
-import type { AsyncEventEmitter } from '@kubb/utils'
-import { transformReservedWord } from '@kubb/utils'
-import { trim } from '@kubb/utils'
-import { setUniqueName } from '@kubb/utils'
 
 type RequiredPluginLifecycle = Required<PluginLifecycle>
 

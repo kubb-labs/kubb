@@ -1,6 +1,6 @@
 import type { KubbEvents } from '@kubb/core'
-import { AsyncEventEmitter } from '@kubb/utils'
 import { formatMs, serializePluginOptions } from '@kubb/core/utils'
+import { AsyncEventEmitter } from '@kubb/utils'
 import type { NitroApp } from 'nitropack/types'
 import { version } from '~~/package.json'
 import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage, isPublishCommandMessage } from '../types/agent.ts'

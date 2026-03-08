@@ -1,8 +1,8 @@
-import { URLPath } from '@kubb/utils'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { File, Function, FunctionParams, Type } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { URLPath } from '@kubb/utils'
 import type { PluginSwr, Transformer } from '../types'
 
 type Props = {

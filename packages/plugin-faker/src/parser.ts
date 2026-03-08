@@ -1,6 +1,6 @@
-import { stringify, toRegExpString } from '@kubb/utils'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 import { createParser, findSchemaKeyword, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
+import { stringify, toRegExpString } from '@kubb/utils'
 import type { Options } from './types.ts'
 
 const fakerKeywordMapper = {

@@ -1,8 +1,8 @@
-import { stringifyObject } from '@kubb/utils'
 import type { HttpMethod, Operation } from '@kubb/oas'
 import type { SchemaNames } from '@kubb/plugin-oas/hooks'
 import { Const, File, Type } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { stringifyObject } from '@kubb/utils'
 
 type Props = {
   name: string

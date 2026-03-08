@@ -1,8 +1,8 @@
 import path from 'node:path'
 import { definePlugin, type Group } from '@kubb/core'
-import { camelCase, pascalCase } from '@kubb/utils'
 import { getBarrelFiles, getMode } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
+import { camelCase, pascalCase } from '@kubb/utils'
 import { typeGenerator } from './generators'
 import type { PluginTs } from './types.ts'
 

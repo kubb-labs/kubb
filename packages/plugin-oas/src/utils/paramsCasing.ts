@@ -1,5 +1,5 @@
-import { camelCase, isValidVarName } from '@kubb/utils'
 import type { SchemaObject } from '@kubb/oas'
+import { camelCase, isValidVarName } from '@kubb/utils'
 
 /**
  * Apply casing transformation to schema properties
