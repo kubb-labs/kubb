@@ -1,5 +1,5 @@
 import type { KubbEvents } from '@kubb/core'
-import type { AsyncEventEmitter } from '@kubb/core/utils'
+import type { AsyncEventEmitter } from '@kubb/utils'
 import { x } from 'tinyexec'
 
 /**

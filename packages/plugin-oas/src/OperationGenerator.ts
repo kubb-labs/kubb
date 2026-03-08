@@ -1,6 +1,7 @@
 import type { KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
-import type { AsyncEventEmitter, FileMetaBase } from '@kubb/core/utils'
-import { transformers } from '@kubb/core/utils'
+import type { FileMetaBase } from '@kubb/core/utils'
+import type { AsyncEventEmitter } from '@kubb/utils'
+import { pascalCase } from '@kubb/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
 import type { Fabric } from '@kubb/react-fabric'
@@ -93,7 +94,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
     } = {},
   ): OperationSchemas {
     const operationId = operation.getOperationId({ friendlyCase: true })
-    const operationName = transformers.pascalCase(operationId)
+    const operationName = pascalCase(operationId)
 
     const resolveKeys = (schema?: SchemaObject) => (schema?.properties ? Object.keys(schema.properties) : undefined)
 
@@ -108,8 +109,8 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
 
       return {
         name: this.context.UNSTABLE_NAMING
-          ? resolveName(transformers.pascalCase(`${operationId} status ${name}`))
-          : resolveName(transformers.pascalCase(`${operationId} ${name}`)),
+          ? resolveName(pascalCase(`${operationId} status ${name}`))
+          : resolveName(pascalCase(`${operationId} ${name}`)),
         description: (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
         schema,
         operation,
@@ -127,8 +128,8 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
       requestSchema
         ? {
             name: this.context.UNSTABLE_NAMING
-              ? resolveName(transformers.pascalCase(`${operationId} RequestData`))
-              : resolveName(transformers.pascalCase(`${operationId} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`)),
+              ? resolveName(pascalCase(`${operationId} RequestData`))
+              : resolveName(pascalCase(`${operationId} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`)),
             description: (operation.schema.requestBody as OasTypes.RequestBodyObject)?.description,
             operation,
             operationName,
@@ -142,7 +143,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
     return {
       pathParams: pathParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operationId} PathParams`)),
+            name: resolveName(pascalCase(`${operationId} PathParams`)),
             operation,
             operationName,
             schema: pathParamsSchema,
@@ -151,7 +152,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
         : undefined,
       queryParams: queryParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operationId} QueryParams`)),
+            name: resolveName(pascalCase(`${operationId} QueryParams`)),
             operation,
             operationName,
             schema: queryParamsSchema,
@@ -160,7 +161,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
         : undefined,
       headerParams: headerParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operationId} HeaderParams`)),
+            name: resolveName(pascalCase(`${operationId} HeaderParams`)),
             operation,
             operationName,
             schema: headerParamsSchema,
@@ -170,8 +171,8 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
       request,
       response: {
         name: this.context.UNSTABLE_NAMING
-          ? resolveName(transformers.pascalCase(`${operationId} ResponseData`))
-          : resolveName(transformers.pascalCase(`${operationId} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`)),
+          ? resolveName(pascalCase(`${operationId} ResponseData`))
+          : resolveName(pascalCase(`${operationId} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`)),
         operation,
         operationName,
         schema: {

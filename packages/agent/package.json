@@ -70,6 +70,7 @@
     "ws": "^8.19.0"
   },
   "devDependencies": {
+    "@kubb/utils": "workspace:*",
     "@types/ws": "^8.18.1",
     "msw": "^2.12.10",
     "nitropack": "^2.13.1",

@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import type { Config } from '@kubb/core'
-import { pascalCase, URLPath } from '@kubb/core/utils'
+import { pascalCase, URLPath } from '@kubb/utils'
 import { bundle } from '@readme/openapi-parser'
 import yaml from '@stoplight/yaml'
 import type { ParameterObject, SchemaObject } from 'oas/types'

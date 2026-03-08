@@ -7,7 +7,7 @@ import { build, safeBuild } from './build.ts'
 import { defineConfig } from './config.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { KubbEvents, Plugin, UserConfig } from './types.ts'
-import { AsyncEventEmitter, isPromise } from './utils'
+import { AsyncEventEmitter, isPromise } from '@kubb/utils'
 
 describe('build', () => {
   const pluginMocks = {

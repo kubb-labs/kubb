@@ -113,6 +113,7 @@
   "devDependencies": {
     "@farmfe/core": "^1.7.11",
     "@kubb/core": "workspace:*",
+    "@kubb/utils": "workspace:*",
     "@nuxt/kit": "^4.3.1",
     "@nuxt/schema": "^4.3.1",
     "esbuild": "*",

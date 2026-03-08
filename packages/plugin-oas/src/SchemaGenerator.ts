@@ -1,6 +1,6 @@
 import type { KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { FileMetaBase } from '@kubb/core/utils'
-import { type AsyncEventEmitter, getUniqueName, pascalCase, transformers } from '@kubb/core/utils'
+import { type AsyncEventEmitter, getUniqueName, pascalCase, stringify } from '@kubb/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'
@@ -708,7 +708,7 @@ export class SchemaGenerator<
       if (typeof schemaObject.default === 'string') {
         baseItems.push({
           keyword: schemaKeywords.default,
-          args: transformers.stringify(schemaObject.default),
+          args: stringify(schemaObject.default),
         })
       } else if (typeof schemaObject.default === 'boolean') {
         baseItems.push({
@@ -990,7 +990,7 @@ export class SchemaGenerator<
                 typeName,
                 asConst: false,
                 items: [...new Set(schemaObject[extensionKey as keyof typeof schemaObject] as string[])].map((name: string | number, index) => ({
-                  name: transformers.stringify(name),
+                  name: stringify(name),
                   value: schemaObject.enum?.[index] as string | number,
                   format: isNumber(schemaObject.enum?.[index]) ? 'number' : 'string',
                 })),
@@ -1072,7 +1072,7 @@ export class SchemaGenerator<
             typeName,
             asConst: false,
             items: [...new Set(filteredValues)].map((value: string) => ({
-              name: transformers.stringify(value),
+              name: stringify(value),
               value,
               format: isNumber(value) ? 'number' : 'string',
             })),

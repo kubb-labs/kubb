@@ -10,11 +10,11 @@ import { BuildError } from './errors.ts'
 import { clean, exists, getRelativePath, write } from './fs/index.ts'
 import { PluginManager } from './PluginManager.ts'
 import type { Config, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
-import { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
+import { AsyncEventEmitter } from '@kubb/utils'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import { formatMs, getElapsedMs } from './utils/formatHrtime.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
-import { URLPath } from './utils/URLPath.ts'
+import { URLPath } from '@kubb/utils'
 
 type BuildOptions = {
   config: UserConfig

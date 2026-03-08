@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { definePlugin, type Group } from '@kubb/core'
-import { camelCase, getBarrelFiles, getMode, pascalCase } from '@kubb/core/utils'
+import { camelCase, pascalCase } from '@kubb/utils'
+import { getBarrelFiles, getMode } from '@kubb/core/utils'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'

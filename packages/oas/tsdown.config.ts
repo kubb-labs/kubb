@@ -10,7 +10,8 @@ const shared: Partial<UserConfig> = {
   shims: true,
   exports: true,
   deps: {
-    neverBundle: [/^@kubb\//],
+    neverBundle: [/^@kubb\/(?!utils)/],
+    alwaysBundle: [/@kubb\/utils/],
     onlyAllowBundle: false,
   },
   fixedExtension: false,

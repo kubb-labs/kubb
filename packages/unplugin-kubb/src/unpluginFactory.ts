@@ -1,6 +1,6 @@
 import process from 'node:process'
 import { type Config, type KubbEvents, safeBuild } from '@kubb/core'
-import { AsyncEventEmitter } from '@kubb/core/utils'
+import { AsyncEventEmitter } from '@kubb/utils'
 import type { UnpluginFactory } from 'unplugin'
 import { version as unpluginVersion } from '../package.json'
 import type { Options } from './types.ts'

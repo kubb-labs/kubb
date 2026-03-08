@@ -1,5 +1,5 @@
 import type { Plugin, PluginManager } from '@kubb/core'
-import { camelCase, pascalCase } from '@kubb/core/utils'
+import { camelCase, pascalCase } from '@kubb/utils'
 import type { OasTypes, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'

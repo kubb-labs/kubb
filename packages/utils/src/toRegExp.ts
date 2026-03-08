@@ -1,4 +1,4 @@
-import { trimQuotes } from './trim'
+import { trimQuotes } from './trim.ts'
 
 export function toRegExpString(text: string, func: string | null = 'RegExp'): string {
   const raw = trimQuotes(text)

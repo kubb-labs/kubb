@@ -1,4 +1,4 @@
-import { transformers } from '@kubb/core/utils'
+import { camelCase, pascalCase, screamingSnakeCase, snakeCase } from '@kubb/utils'
 import { isNumber, sortBy } from 'remeda'
 import ts from 'typescript'
 
@@ -424,16 +424,16 @@ function applyEnumKeyCasing(key: string, casing: 'screamingSnakeCase' | 'snakeCa
     return key
   }
   if (casing === 'screamingSnakeCase') {
-    return transformers.screamingSnakeCase(key)
+    return screamingSnakeCase(key)
   }
   if (casing === 'snakeCase') {
-    return transformers.snakeCase(key)
+    return snakeCase(key)
   }
   if (casing === 'pascalCase') {
-    return transformers.pascalCase(key)
+    return pascalCase(key)
   }
   if (casing === 'camelCase') {
-    return transformers.camelCase(key)
+    return camelCase(key)
   }
   return key
 }

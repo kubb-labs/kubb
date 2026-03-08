@@ -1,4 +1,4 @@
-import { isValidVarName, URLPath } from '@kubb/core/utils'
+import { isValidVarName, URLPath } from '@kubb/utils'
 
 import { getDefaultValue, isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'

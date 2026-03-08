@@ -1,4 +1,4 @@
-import { getNestedAccessor } from '@kubb/core/utils'
+import { getNestedAccessor } from '@kubb/utils'
 import { getDefaultValue, isOptional } from '@kubb/oas'
 import { Client } from '@kubb/plugin-client/components'
 import type { OperationSchemas } from '@kubb/plugin-oas'

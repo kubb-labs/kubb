@@ -1,4 +1,4 @@
-import { transformers } from '@kubb/core/utils'
+import { jsStringEscape } from '@kubb/utils'
 import type { SchemaObject } from '@kubb/oas'
 import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { Const, File, Type } from '@kubb/react-fabric'
@@ -117,7 +117,7 @@ export function Zod({
           export
           name={name}
           JSDoc={{
-            comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean),
+            comments: [description ? `@description ${jsStringEscape(description)}` : undefined].filter(Boolean),
           }}
         >
           {finalOutput}

@@ -3,7 +3,7 @@ import type { Fabric } from '@kubb/react-fabric'
 import type { logLevel } from './constants.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginManager } from './PluginManager.ts'
-import type { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
+import type { AsyncEventEmitter } from '@kubb/utils'
 import type { PossiblePromise } from './utils/types.ts'
 
 declare global {

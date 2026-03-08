@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { definePlugin, type Group } from '@kubb/core'
-import { camelCase, getBarrelFiles, getMode } from '@kubb/core/utils'
+import { camelCase } from '@kubb/utils'
+import { getBarrelFiles, getMode } from '@kubb/core/utils'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { classClientGenerator, operationsGenerator } from './generators'

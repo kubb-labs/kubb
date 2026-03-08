@@ -1,4 +1,4 @@
-import { trimQuotes } from './trim'
+import { trimQuotes } from './trim.ts'
 
 export function stringify(value: string | number | boolean | undefined): string {
   if (value === undefined || value === null) {

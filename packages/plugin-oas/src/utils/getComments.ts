@@ -1,4 +1,4 @@
-import { URLPath } from '@kubb/core/utils'
+import { URLPath } from '@kubb/utils'
 
 import type { Operation } from '@kubb/oas'
 

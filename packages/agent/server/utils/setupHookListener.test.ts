@@ -1,5 +1,5 @@
 import type { KubbEvents } from '@kubb/core'
-import { AsyncEventEmitter } from '@kubb/core/utils'
+import { AsyncEventEmitter } from '@kubb/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setupHookListener } from './setupHookListener.ts'
 

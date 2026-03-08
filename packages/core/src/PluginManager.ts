@@ -19,10 +19,10 @@ import type {
   ResolvePathParams,
   UserPlugin,
 } from './types.ts'
-import type { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
-import { transformReservedWord } from './utils/transformers/transformReservedWord.ts'
-import { trim } from './utils/transformers/trim.ts'
-import { setUniqueName } from './utils/uniqueName.ts'
+import type { AsyncEventEmitter } from '@kubb/utils'
+import { transformReservedWord } from '@kubb/utils'
+import { trim } from '@kubb/utils'
+import { setUniqueName } from '@kubb/utils'
 
 type RequiredPluginLifecycle = Required<PluginLifecycle>
 

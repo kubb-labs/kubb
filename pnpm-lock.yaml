@@ -836,6 +836,9 @@ importers:
         specifier: ^8.19.0
         version: 8.19.0
     devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@types/ws':
         specifier: ^8.18.1
         version: 8.18.1
@@ -879,6 +882,9 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
       source-map-support:
         specifier: ^0.5.21
         version: 0.5.21
@@ -901,6 +907,9 @@ importers:
         specifier: 'catalog:'
         version: 1.0.2
     devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@types/semver':
         specifier: ^7.7.1
         version: 7.7.1
@@ -940,6 +949,10 @@ importers:
       zod:
         specifier: ^4.3.6
         version: 4.3.6
+    devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
 
   packages/oas:
     dependencies:
@@ -968,6 +981,9 @@ importers:
         specifier: ^7.0.8
         version: 7.0.8(encoding@0.1.13)
     devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@stoplight/yaml':
         specifier: ^4.3.0
         version: 4.3.0
@@ -996,6 +1012,9 @@ importers:
         specifier: 'catalog:'
         version: 0.13.3
     devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
       axios:
         specifier: ^1.13.6
         version: 1.13.6
@@ -1017,6 +1036,10 @@ importers:
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.13.3
+    devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
 
   packages/plugin-faker:
     dependencies:
@@ -1035,6 +1058,10 @@ importers:
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.13.3
+    devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
 
   packages/plugin-mcp:
     dependencies:
@@ -1059,6 +1086,10 @@ importers:
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.13.3
+    devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
 
   packages/plugin-msw:
     dependencies:
@@ -1080,6 +1111,10 @@ importers:
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.13.3
+    devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
 
   packages/plugin-oas:
     dependencies:
@@ -1096,6 +1131,9 @@ importers:
         specifier: 'catalog:'
         version: 2.33.6
     devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
       p-limit:
         specifier: 'catalog:'
         version: 7.3.0
@@ -1126,6 +1164,10 @@ importers:
       remeda:
         specifier: 'catalog:'
         version: 2.33.6
+    devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
 
   packages/plugin-redoc:
     dependencies:
@@ -1171,6 +1213,10 @@ importers:
       remeda:
         specifier: 'catalog:'
         version: 2.33.6
+    devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
 
   packages/plugin-svelte-query:
     dependencies:
@@ -1198,6 +1244,10 @@ importers:
       remeda:
         specifier: 'catalog:'
         version: 2.33.6
+    devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
 
   packages/plugin-swr:
     dependencies:
@@ -1225,6 +1275,10 @@ importers:
       remeda:
         specifier: 'catalog:'
         version: 2.33.6
+    devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
 
   packages/plugin-ts:
     dependencies:
@@ -1249,6 +1303,10 @@ importers:
       typescript:
         specifier: 5.9.3
         version: 5.9.3
+    devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
 
   packages/plugin-vue-query:
     dependencies:
@@ -1276,6 +1334,10 @@ importers:
       remeda:
         specifier: 'catalog:'
         version: 2.33.6
+    devDependencies:
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
 
   packages/plugin-zod:
     dependencies:
@@ -1301,6 +1363,9 @@ importers:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.4.3
         version: 8.4.3(zod@3.25.76)
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -1317,6 +1382,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@nuxt/kit':
         specifier: ^4.3.1
         version: 4.3.1(magicast@0.5.2)
@@ -1338,6 +1406,12 @@ importers:
       webpack:
         specifier: ^5.105.4
         version: 5.105.4(esbuild@0.27.3)
+
+  packages/utils:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 20.19.37
 
   tests/e2e:
     dependencies:
@@ -9799,7 +9873,7 @@ snapshots:
 
   bun-types@1.3.10:
     dependencies:
-      '@types/node': 20.19.37
+      '@types/node': 24.10.1
 
   bundle-name@3.0.0:
     dependencies:

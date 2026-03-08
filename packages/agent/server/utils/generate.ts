@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { styleText } from 'node:util'
 import { type Config, type KubbEvents, safeBuild, setup } from '@kubb/core'
-import type { AsyncEventEmitter } from '@kubb/core/utils'
+import type { AsyncEventEmitter } from '@kubb/utils'
 import { detectFormatter, detectLinter, formatters, linters } from '@kubb/core/utils'
 import { executeHooks } from './executeHooks.ts'
 

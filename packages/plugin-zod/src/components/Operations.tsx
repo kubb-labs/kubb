@@ -1,4 +1,4 @@
-import { transformers } from '@kubb/core/utils'
+import { stringifyObject } from '@kubb/utils'
 import type { HttpMethod, Operation } from '@kubb/oas'
 import type { SchemaNames } from '@kubb/plugin-oas/hooks'
 import { Const, File, Type } from '@kubb/react-fabric'
@@ -57,12 +57,12 @@ export function Operations({ name, operations }: Props): FabricReactNode {
       </File.Source>
       <File.Source name={name} isExportable isIndexable>
         <Const export name={name} asConst>
-          {`{${transformers.stringifyObject(operationsJSON)}}`}
+          {`{${stringifyObject(operationsJSON)}}`}
         </Const>
       </File.Source>
       <File.Source name={'paths'} isExportable isIndexable>
         <Const export name={'paths'} asConst>
-          {`{${transformers.stringifyObject(pathsJSON)}}`}
+          {`{${stringifyObject(pathsJSON)}}`}
         </Const>
       </File.Source>
     </>

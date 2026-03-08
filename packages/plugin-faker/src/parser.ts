@@ -1,4 +1,4 @@
-import { transformers } from '@kubb/core/utils'
+import { stringify, toRegExpString } from '@kubb/utils'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 import { createParser, findSchemaKeyword, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import type { Options } from './types.ts'
@@ -141,7 +141,7 @@ const fakerKeywordMapper = {
   ref: () => 'ref',
   matches: (value = '', regexGenerator: 'faker' | 'randexp' = 'faker') => {
     if (regexGenerator === 'randexp') {
-      return `${transformers.toRegExpString(value, 'RandExp')}.gen()`
+      return `${toRegExpString(value, 'RandExp')}.gen()`
     }
     return `faker.helpers.fromRegExp("${value}")`
   },
@@ -268,7 +268,7 @@ export const parse = createParser<string, ParserOptions>({
             if (schema.format === 'boolean') {
               return schema.value
             }
-            return transformers.stringify(schema.value)
+            return stringify(schema.value)
           }),
         )
       }
@@ -281,7 +281,7 @@ export const parse = createParser<string, ParserOptions>({
           if (schema.format === 'boolean') {
             return schema.value
           }
-          return transformers.stringify(schema.value)
+          return stringify(schema.value)
         }),
         // TODO replace this with getEnumNameFromSchema
         name ? options.typeName : undefined,
@@ -378,7 +378,7 @@ export const parse = createParser<string, ParserOptions>({
       if (current.args.format === 'number' && current.args.name !== undefined) {
         return fakerKeywordMapper.const(current.args.name?.toString())
       }
-      return fakerKeywordMapper.const(transformers.stringify(current.args.value))
+      return fakerKeywordMapper.const(stringify(current.args.value))
     },
     matches(tree, options) {
       const { current } = tree

@@ -1,8 +1,7 @@
 import { EventEmitter as NodeEventEmitter } from 'node:events'
-import { DEFAULT_MAX_LISTENERS } from '../constants.ts'
 
 export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: unknown[] }> {
-  constructor(maxListener = DEFAULT_MAX_LISTENERS) {
+  constructor(maxListener = 10) {
     this.#emitter.setMaxListeners(maxListener)
   }
   #emitter = new NodeEventEmitter()

@@ -104,5 +104,8 @@
     "registry": "https://registry.npmjs.org/"
   },
   "main": "./dist/index.cjs",
-  "module": "./dist/index.js"
+  "module": "./dist/index.js",
+  "devDependencies": {
+    "@kubb/utils": "workspace:*"
+  }
 }

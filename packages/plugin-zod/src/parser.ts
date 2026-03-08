@@ -1,4 +1,4 @@
-import { transformers } from '@kubb/core/utils'
+import { stringify, toRegExpString } from '@kubb/utils'
 import type { Schema, SchemaMapper } from '@kubb/plugin-oas'
 import { createParser, findSchemaKeyword, isKeyword, SchemaGenerator, type SchemaKeywordMapper, schemaKeywords } from '@kubb/plugin-oas'
 import { sortBy } from 'remeda'
@@ -594,13 +594,13 @@ export const parse = createParser<string, ParserOptions>({
       return zodKeywordMapper.enum(
         current.args.items.map((schema) => {
           if (schema.format === 'boolean') {
-            return transformers.stringify(schema.value)
+            return stringify(schema.value)
           }
 
           if (schema.format === 'number') {
-            return transformers.stringify(schema.value)
+            return stringify(schema.value)
           }
-          return transformers.stringify(schema.value)
+          return stringify(schema.value)
         }),
       )
     },
@@ -763,7 +763,7 @@ export const parse = createParser<string, ParserOptions>({
       if (current.args.format === 'boolean' && current.args.value !== undefined) {
         return zodKeywordMapper.const(typeof current.args.value === 'boolean' ? current.args.value : undefined)
       }
-      return zodKeywordMapper.const(transformers.stringify(current.args.value))
+      return zodKeywordMapper.const(stringify(current.args.value))
     },
     matches(tree, options) {
       const { current, siblings } = tree
@@ -779,7 +779,7 @@ export const parse = createParser<string, ParserOptions>({
 
       if (current.args) {
         return zodKeywordMapper.matches(
-          transformers.toRegExpString(current.args, null),
+          toRegExpString(current.args, null),
           shouldCoerce(options.coercion, 'strings'),
           options.mini,
           minSchema?.args,
@@ -809,7 +809,7 @@ export const parse = createParser<string, ParserOptions>({
       const { current } = tree
 
       if (current.args) {
-        return zodKeywordMapper.describe(transformers.stringify(current.args.toString()), undefined, options.mini)
+        return zodKeywordMapper.describe(stringify(current.args.toString()), undefined, options.mini)
       }
       return undefined
     },
