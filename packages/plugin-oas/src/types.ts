@@ -30,7 +30,7 @@ export type ResolvePathOptions = {
 
 export type Options = {
   /**
-   * Validate your input(see kubb.config) based on '@readme/openapi-parser'.
+   * Validate your input(see kubb.config) based on '@apidevtools/swagger-parser'.
    * @default true
    */
   validate?: boolean

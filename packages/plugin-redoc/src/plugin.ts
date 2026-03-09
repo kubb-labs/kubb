@@ -22,11 +22,7 @@ export const pluginRedoc = definePlugin<PluginRedoc>((options) => {
     pre: [pluginOasName],
     async install() {
       const oas = await this.getOas()
-      await oas.dereference().catch((err: unknown) => {
-        // Some specs have invalid internal $ref pointers (e.g. `#/definitions/...` in OpenAPI 3.x docs)
-        // that cause dereference to fail. Continue with the un-dereferenced spec.
-        void err
-      })
+      await oas.dereference()
 
       const root = path.resolve(this.config.root, this.config.output.path)
       const pageHTML = await getPageHTML(oas.api)
