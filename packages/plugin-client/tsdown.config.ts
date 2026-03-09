@@ -19,8 +19,8 @@ const shared: Partial<UserConfig> = {
   shims: true,
   exports: true,
   deps: {
-    neverBundle: [/^@kubb\/(?!utils)/],
-    alwaysBundle: [/@kubb\/utils/],
+    neverBundle: [/^@kubb\//],
+    alwaysBundle: [/@internals/],
   },
   fixedExtension: false,
   outputOptions: {
