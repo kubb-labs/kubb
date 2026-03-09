@@ -6,6 +6,37 @@ outline: deep
 
 # Changelog
 
+## 4.33.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-oas`](/plugins/plugin-oas/), [`@kubb/plugin-zod`](/plugins/plugin-zod/)
+
+Fixed `$ref` schemas with a sibling `default` value not generating `.default()` in Zod output.
+
+When an OpenAPI query parameter uses a `$ref` alongside a `default` value (e.g. `{"$ref": "#/components/schemas/ProjectType", "default": "project"}`), the generated Zod schema now correctly includes the `.default()` modifier.
+
+::: code-group
+
+```typescript [Before]
+export const projectsGetQueryParamsSchema = z.object({
+  get type() {
+    return projectTypeSchema  // missing .default()
+  },
+})
+```
+
+```typescript [After]
+export const projectsGetQueryParamsSchema = z.object({
+  get type() {
+    return projectTypeSchema.default('project')
+  },
+})
+```
+
+:::
+
+
 ## 4.33.1
 
 ### 🚀 Breaking Changes
