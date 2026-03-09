@@ -494,6 +494,15 @@ describe('zodGenerator operation', async () => {
       options: {},
     },
     {
+      name: 'query-with-ref-default',
+      input: '../../mocks/queryWithRefDefault.yaml',
+      method: 'get',
+      path: '/projects',
+      options: {
+        version: '4',
+      },
+    },
+    {
       name: 'createItem-unionWithReadOnly',
       input: '../../mocks/unionWithReadOnly.yaml',
       method: 'post',

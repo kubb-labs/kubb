@@ -1,0 +1,26 @@
+openapi: 3.1.0
+info:
+  title: Test API
+  version: '1.0'
+paths:
+  /projects:
+    get:
+      tags:
+        - Projects
+      summary: List Projects
+      operationId: projects_get
+      parameters:
+        - name: type
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/ProjectType'
+            default: project
+components:
+  schemas:
+    ProjectType:
+      type: string
+      enum:
+        - project
+        - project_list
+      title: ProjectType
