@@ -1,5 +1,5 @@
-import { resolveServerUrl } from './resolveServerUrl.ts'
 import { describe, expect, it } from 'vitest'
+import { resolveServerUrl } from './resolveServerUrl.ts'
 
 describe('resolveServerUrl', () => {
   it('returns url as-is when no variables are defined', () => {
