@@ -7,7 +7,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import { fetch } from './test/.kubb/fetch'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const createUsersWithListInputQueryKey = (data: CreateUsersWithListInputMutationRequest = []) =>
+export const createUsersWithListInputQueryKey = (data?: CreateUsersWithListInputMutationRequest) =>
   [{ url: '/user/createWithList' }, ...(data ? [data] : [])] as const
 
 export type CreateUsersWithListInputQueryKey = ReturnType<typeof createUsersWithListInputQueryKey>

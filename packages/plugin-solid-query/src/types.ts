@@ -1,17 +1,11 @@
+import type { Transformer } from '@internals/tanstack-query'
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-
-import type { contentType, HttpMethod, Oas, Operation } from '@kubb/oas'
+import type { contentType, HttpMethod, Oas } from '@kubb/oas'
 import type { ClientImportPath, PluginClient } from '@kubb/plugin-client'
-import type { Exclude, Include, OperationSchemas, Override, ResolvePathOptions } from '@kubb/plugin-oas'
+import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
 
-type TransformerProps = {
-  operation: Operation
-  schemas: OperationSchemas
-  casing: 'camelcase' | undefined
-}
-
-export type Transformer = (props: TransformerProps) => unknown[]
+export type { Transformer } from '@internals/tanstack-query'
 
 /**
  * Customize the queryKey

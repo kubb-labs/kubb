@@ -1,0 +1,66 @@
+{
+  "name": "@internals/tanstack-query",
+  "version": "0.0.0",
+  "description": "Shared components and types for Kubb TanStack Query plugins (react-query, solid-query, svelte-query, vue-query, swr).",
+  "keywords": [
+    "kubb",
+    "internal",
+    "query",
+    "typescript",
+    "codegen"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
+    "directory": "internals/tanstack-query"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {}
+  },
+  "files": [
+    "src",
+    "dist",
+    "!/**/**.test.**",
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "clean": "npx rimraf ./dist",
+    "lint": "bun biome lint .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
+    "start": "tsdown --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@internals/utils": "workspace:*",
+    "@kubb/oas": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*"
+  },
+  "peerDependencies": {
+    "@kubb/react-fabric": "0.13.3"
+  },
+  "devDependencies": {
+    "@kubb/react-fabric": "catalog:",
+    "@types/node": "catalog:"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "engines": {
+    "node": ">=20"
+  }
+}

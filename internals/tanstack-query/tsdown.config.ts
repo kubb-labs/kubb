@@ -1,35 +1,25 @@
 import { defineConfig, type UserConfig } from 'tsdown'
 
-const entry = {
-  index: 'src/index.ts',
-  components: 'src/components/index.ts',
-  generators: 'src/generators/index.ts',
-}
-
 const shared: Partial<UserConfig> = {
   platform: 'node',
   sourcemap: true,
   shims: true,
   exports: true,
-  deps: {
-    neverBundle: [/^@kubb\//, '@types/react'],
-    // alwaysBundle: [/@internals/],
-  },
   fixedExtension: false,
-  outputOptions: {
-    keepNames: true,
+  deps: {
+    neverBundle: [/^react/, /^@kubb\//, /@internals/],
   },
 }
 
 export default defineConfig([
   {
-    entry,
+    entry: { index: 'src/index.ts' },
     format: 'esm',
     dts: true,
     ...shared,
   },
   {
-    entry,
+    entry: { index: 'src/index.ts' },
     format: 'cjs',
     dts: false,
     ...shared,

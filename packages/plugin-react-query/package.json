@@ -104,6 +104,7 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "devDependencies": {
+    "@internals/tanstack-query": "workspace:*",
     "@internals/utils": "workspace:*"
   }
 }
