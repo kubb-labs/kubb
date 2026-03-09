@@ -322,18 +322,24 @@ function PetsList() {
 
 **3. Customize Client Configuration**
 
-Set up your API client once, use everywhere:
+Where you import `client` from depends on your `pluginClient` configuration:
 
-```typescript [src/api/client.ts]
-import { client } from './gen/client'
+- **Default** (`bundle: false`): import from the package directly — no client file is generated in your output folder.
+- **`bundle: true`**: Kubb copies the client runtime into `.kubb/axios.ts` (or `.kubb/fetch.ts`), and generated files import from there.
+- **`importPath`**: generated files import from your custom path.
+
+::: code-group
+
+```typescript [src/api/client.ts (default)]
+import { client, axiosInstance } from '@kubb/plugin-client/clients/axios'
 
 // Configure base URL and auth
 client.setConfig({
   baseURL: import.meta.env.VITE_API_URL,
 })
 
-// Add interceptors
-client.instance.interceptors.request.use((config) => {
+// Add interceptors via axiosInstance
+axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
@@ -341,6 +347,29 @@ client.instance.interceptors.request.use((config) => {
   return config
 })
 ```
+
+```typescript [src/api/client.ts (bundle: true)]
+import { client, axiosInstance } from './.kubb/axios'
+
+// Configure base URL and auth
+client.setConfig({
+  baseURL: import.meta.env.VITE_API_URL,
+})
+
+// Add interceptors via axiosInstance
+axiosInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+```
+
+:::
+
+> [!TIP]
+> For full control — for example, to add authentication or swap the HTTP library — provide your own client via the `importPath` option in `pluginClient`. See [importPath](/plugins/plugin-client#importpath) for details.
 
 ### Debugging Generated Code
 
@@ -660,10 +689,10 @@ export default defineConfig({
 
 ### Handling Authentication
 
-Set up authentication in a central location:
+Set up authentication in a central location by importing from the client package:
 
 ```typescript [src/lib/api.ts]
-import { client } from './gen/client'
+import { client } from '@kubb/plugin-client/clients/axios'
 
 // Configure once, use everywhere
 export function setupAuth(token: string) {
@@ -675,6 +704,9 @@ export function setupAuth(token: string) {
   })
 }
 ```
+
+> [!TIP]
+> If you use `importPath` in `pluginClient` to provide a custom client, import from that path instead.
 
 ## Related Resources
 
