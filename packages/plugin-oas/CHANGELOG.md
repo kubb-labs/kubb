@@ -1,5 +1,24 @@
 # @kubb/swagger
 
+## 4.33.1
+
+### Patch Changes
+
+- [#2689](https://github.com/kubb-labs/kubb/pull/2689) [`856fa78`](https://github.com/kubb-labs/kubb/commit/856fa78e5cc281ef3cd1b66a38e2deeca69f1b6e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Extract node-native and pure-TypeScript utilities into `@internals/utils`.
+
+  The following utilities have been moved from `@kubb/core`, `@kubb/cli`, and `@kubb/plugin-oas` into the private `@internals/utils` package and are now bundled into each consumer at build time:
+  - **`@kubb/core`** → `@internals/utils`: `clean`, `exists`/`existsSync`, `read`/`readSync`, `write`, `getRelativePath` (fs utilities), `formatHrtime`/`formatMs`/`getElapsedMs`, `spawnAsync`, `executeIfOnline`/`isOnline`, `canUseTTY`/`isCIEnvironment`/`isGitHubActions`, `serializePluginOptions`
+  - **`@kubb/cli`** → `@internals/utils`: `randomCliColor`/`randomColors`, `formatMsWithColor`, `toError`/`getErrorMessage`/`toCause`
+  - **`@kubb/plugin-oas`** → `@kubb/oas`: `resolveServerUrl` (moved to `@kubb/oas` as it depends on OAS types)
+
+  The `@kubb/core/fs` and `@kubb/core/utils` subpath exports have been removed. All symbols previously accessible via these subpaths are now exported from the main `@kubb/core` entry point.
+
+  Consumers that imported from `@kubb/core/fs` or `@kubb/core/utils` should update their imports to use `@kubb/core` directly.
+
+- Updated dependencies [[`856fa78`](https://github.com/kubb-labs/kubb/commit/856fa78e5cc281ef3cd1b66a38e2deeca69f1b6e)]:
+  - @kubb/core@4.33.1
+  - @kubb/oas@4.33.1
+
 ## 4.33.0
 
 ### Patch Changes
