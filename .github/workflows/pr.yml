@@ -219,6 +219,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Build
+        run: pnpm run build
+
       - name: Generate examples
         id: generate
         run: pnpm run generate
