@@ -1,9 +1,5 @@
 // ─── Trim ─────────────────────────────────────────────────────────────────────
 
-export function trim(text: string): string {
-  return text.trim()
-}
-
 /**
  * Strips a single matching pair of `"..."`, `'...'`, or `` `...` `` from both ends.
  */

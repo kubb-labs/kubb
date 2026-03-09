@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { getNestedAccessor } from './object.ts'
+import { describe, expect, it, test } from 'vitest'
+import { getNestedAccessor, stringify } from './object.ts'
 
 describe('getNestedAccessor', () => {
   it('should convert dot notation to accessor expression', () => {
@@ -28,5 +28,15 @@ describe('getNestedAccessor', () => {
 
   it('should handle deeply nested paths', () => {
     expect(getNestedAccessor('data.meta.pagination.next.cursor', 'response')).toBe("response?.['data']?.['meta']?.['pagination']?.['next']?.['cursor']")
+  })
+})
+
+describe('stringify', () => {
+  test('return stringify text', () => {
+    expect('Hello World!').toMatchInlineSnapshot(`"Hello World!"`)
+    expect(stringify('Hello World!')).toMatchInlineSnapshot(`""Hello World!""`)
+    expect(stringify('"Hello World!"')).toMatchInlineSnapshot(`""Hello World!""`)
+    expect(stringify('`Hello World!`')).toMatchInlineSnapshot(`""Hello World!""`)
+    expect(stringify("'Hello World!'")).toMatchInlineSnapshot(`""Hello World!""`)
   })
 })

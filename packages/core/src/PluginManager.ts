@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { AsyncEventEmitter } from '@internals/utils'
-import { setUniqueName, transformReservedWord, trim } from '@internals/utils'
+import { setUniqueName, transformReservedWord } from '@internals/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import { CORE_PLUGIN_NAME } from './constants.ts'
@@ -171,7 +171,7 @@ export class PluginManager {
       const names = this.hookForPluginSync({
         pluginKey: params.pluginKey,
         hookName: 'resolveName',
-        parameters: [trim(params.name), params.type],
+        parameters: [params.name.trim(), params.type],
       })
 
       const uniqueNames = new Set(names)
@@ -181,7 +181,7 @@ export class PluginManager {
 
     const name = this.hookFirstSync({
       hookName: 'resolveName',
-      parameters: [trim(params.name), params.type],
+      parameters: [params.name.trim(), params.type],
     })?.result
 
     return transformReservedWord(name ?? params.name)

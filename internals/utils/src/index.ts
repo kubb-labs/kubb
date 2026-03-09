@@ -1,3 +1,11 @@
+// ─── Async / Promise ─────────────────────────────────────────────────────────
+export type { PossiblePromise } from './promise.ts'
+export { isPromise, isPromiseFulfilledResult, isPromiseRejectedResult } from './promise.ts'
+export { AsyncEventEmitter } from './asyncEventEmitter.ts'
+
+// ─── Cache ────────────────────────────────────────────────────────────────────
+export { Cache } from './cache.ts'
+
 // ─── Colors / ANSI ───────────────────────────────────────────────────────────
 export { formatMsWithColor, getIntro, randomCliColor, randomColors } from './colors.ts'
 
@@ -30,9 +38,8 @@ export { getNestedAccessor, serializePluginOptions, stringify, stringifyObject }
 export { detectPackageManager, packageManagers } from './packageManager.ts'
 export type { PackageManagerInfo, PackageManagerName } from './packageManager.ts'
 
-// ─── Promise ──────────────────────────────────────────────────────────────────
-export type { PossiblePromise } from './promise.ts'
-export { isPromise, isPromiseFulfilledResult, isPromiseRejectedResult } from './promise.ts'
+// ─── Process ──────────────────────────────────────────────────────────────────
+export { spawnAsync } from './spawnAsync.ts'
 
 // ─── RegExp ───────────────────────────────────────────────────────────────────
 export { toRegExpString } from './regexp.ts'
@@ -42,10 +49,10 @@ export { isValidVarName, transformReservedWord } from './reserved.ts'
 
 // ─── Shell ────────────────────────────────────────────────────────────────────
 export { tokenize } from './shell.ts'
-export { spawnAsync } from './spawnAsync.ts'
 
 // ─── String ───────────────────────────────────────────────────────────────────
-export { escape, jsStringEscape, maskString, trim, trimQuotes } from './string.ts'
+export { camelCase, pascalCase, screamingSnakeCase, snakeCase } from './casing.ts'
+export { escape, jsStringEscape, maskString, trimQuotes } from './string.ts'
 
 // ─── Time ─────────────────────────────────────────────────────────────────────
 export { formatHrtime, formatMs, getElapsedMs } from './time.ts'
@@ -54,12 +61,5 @@ export { formatHrtime, formatMs, getElapsedMs } from './time.ts'
 export { generateToken, hashToken } from './token.ts'
 
 // ─── URL ─────────────────────────────────────────────────────────────────────
-export type { URLObject } from './URLPath.ts'
-export { URLPath } from './URLPath.ts'
-
-// ─── Data structures ─────────────────────────────────────────────────────────
-export { AsyncEventEmitter } from './AsyncEventEmitter.ts'
-export { Cache } from './Cache.ts'
-
-// ─── String casing ────────────────────────────────────────────────────────────
-export { camelCase, pascalCase, screamingSnakeCase, snakeCase } from './casing.ts'
+export type { URLObject } from './urlPath.ts'
+export { URLPath } from './urlPath.ts'
