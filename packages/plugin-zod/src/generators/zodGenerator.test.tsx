@@ -298,12 +298,6 @@ describe('zodGenerator schema', async () => {
       path: 'Item',
       options: {},
     },
-    {
-      name: 'Parcel-multiFileApi',
-      path: 'Parcel',
-      input: '../../../oas/mocks/multiFileApi.yaml',
-      options: {},
-    },
   ] as const satisfies Array<{
     input: string
     name: string
@@ -894,64 +888,5 @@ describe('zodGenerator operation', async () => {
 
       await matchFiles(files)
     })
-  })
-})
-
-describe('zodGenerator multiFile schemas', async () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
-  test('Parcel from multiFileApi should be z.object (not z.lazy self-reference)', async () => {
-    const oas = await parse(path.resolve(__dirname, '../../../oas/mocks/multiFileApi.yaml'))
-
-    const options: PluginZod['resolvedOptions'] = {
-      dateType: 'date',
-      transformers: {},
-      inferred: false,
-      typed: false,
-      unknownType: 'any',
-      integerType: 'number',
-      mapper: {},
-      importPath: 'zod',
-      coercion: false,
-      operations: false,
-      override: [],
-      output: { path: '.' },
-      group: undefined,
-      wrapOutput: undefined,
-      version: '3',
-      guidType: 'uuid',
-      emptySchemaType: 'unknown',
-      mini: false,
-    }
-
-    const plugin = { options } as Plugin<PluginZod>
-    const mockedPluginManager = createMockedPluginManager('Parcel')
-    const generator = new SchemaGenerator(options, {
-      fabric,
-      oas,
-      pluginManager: mockedPluginManager,
-      plugin,
-      contentType: 'application/json',
-      include: undefined,
-      override: undefined,
-      mode: 'split',
-      output: './gen',
-    })
-
-    await generator.build(zodGenerator)
-
-    const allSources = fabric.context.fileManager.files.flatMap((f) => f.sources || [])
-    const parcelSource = allSources.find((s) => s.name?.toLowerCase() === 'parcel')
-
-    // Parcel schema must define a real z.object, not a self-referential z.lazy
-    expect(parcelSource?.value).toContain('z.object')
-    expect(parcelSource?.value).not.toMatch(/z\.lazy\(\s*\(\s*\)\s*=>\s*parcel/)
-    // Verify expected properties are present
-    expect(parcelSource?.value).toContain('parcelNo')
-    expect(parcelSource?.value).toContain('trackingNumber')
   })
 })

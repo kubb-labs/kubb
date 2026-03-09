@@ -1,8 +1,7 @@
-import fs from 'node:fs'
 import path from 'node:path'
 import { pascalCase, URLPath } from '@internals/utils'
 import type { Config } from '@kubb/core'
-import { bundle } from '@readme/openapi-parser'
+import { bundle, loadConfig } from '@redocly/openapi-core'
 import yaml from '@stoplight/yaml'
 import type { ParameterObject, SchemaObject } from 'oas/types'
 import { isRef, isSchema } from 'oas/types'
@@ -161,135 +160,16 @@ export function getDefaultValue(schema?: SchemaObject): string | undefined {
   return undefined
 }
 
-/**
- * Recursively collect all external local-file $ref prefixes (e.g. "api-definitions.yml")
- * from an object tree. URL refs (http/https) are ignored.
- */
-function collectExternalFilePaths(obj: unknown, files: Set<string>): void {
-  if (!obj || typeof obj !== 'object') return
-  if (Array.isArray(obj)) {
-    for (const item of obj) collectExternalFilePaths(item, files)
-    return
-  }
-  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
-    if (key === '$ref' && typeof value === 'string') {
-      const hashIdx = value.indexOf('#')
-      const filePart = hashIdx > 0 ? value.slice(0, hashIdx) : hashIdx === -1 ? value : ''
-      if (filePart && !filePart.startsWith('http://') && !filePart.startsWith('https://')) {
-        files.add(filePart)
-      }
-    } else {
-      collectExternalFilePaths(value, files)
-    }
-  }
-}
-
-/**
- * Replace all $refs that start with `externalFile#` with the corresponding
- * internal ref (i.e. just the fragment part, `#/...`).
- */
-function replaceExternalRefsInPlace(obj: unknown, externalFile: string): void {
-  if (!obj || typeof obj !== 'object') return
-  if (Array.isArray(obj)) {
-    for (const item of obj) replaceExternalRefsInPlace(item, externalFile)
-    return
-  }
-  const record = obj as Record<string, unknown>
-  for (const key of Object.keys(record)) {
-    const value = record[key]
-    if (key === '$ref' && typeof value === 'string' && value.startsWith(`${externalFile}#`)) {
-      record[key] = value.slice(externalFile.length)
-    } else if (value && typeof value === 'object') {
-      replaceExternalRefsInPlace(value, externalFile)
-    }
-  }
-}
-
-/**
- * Before bundling, scan the main spec file for external local-file references and merge
- * their `components` sections into the main document. This ensures that schemas defined
- * in external files (e.g. `api-definitions.yml#/components/schemas/Parcel`) end up in
- * `#/components/schemas/Parcel` of the bundled output, rather than being inlined as
- * anonymous path-based refs.
- *
- * Returns the merged document, or `null` if no external file components were found.
- */
-export function mergeExternalFileComponents(mainFilePath: string): Document | null {
-  let mainContent: string
-  try {
-    mainContent = fs.readFileSync(mainFilePath, 'utf-8')
-  } catch {
-    return null
-  }
-
-  const mainDoc = yaml.parse(mainContent) as Record<string, unknown> | null
-  if (!mainDoc || typeof mainDoc !== 'object') return null
-
-  const mainDir = path.dirname(mainFilePath)
-
-  const externalFiles = new Set<string>()
-  collectExternalFilePaths(mainDoc, externalFiles)
-
-  if (externalFiles.size === 0) return null
-
-  let hasMergedComponents = false
-
-  for (const externalFile of externalFiles) {
-    const externalFilePath = path.resolve(mainDir, externalFile)
-    let externalContent: string
-    try {
-      externalContent = fs.readFileSync(externalFilePath, 'utf-8')
-    } catch {
-      continue
-    }
-
-    const externalDoc = yaml.parse(externalContent) as Record<string, unknown> | null
-    if (!externalDoc?.components || typeof externalDoc.components !== 'object') continue
-
-    const mainComponents = (mainDoc.components as Record<string, unknown>) ?? {}
-    mainDoc.components = mainComponents
-
-    for (const [componentType, components] of Object.entries(externalDoc.components as Record<string, Record<string, unknown>>)) {
-      if (!components || typeof components !== 'object') continue
-      // Spread external entries first, then main doc entries last so main document wins on name conflicts
-      mainComponents[componentType] = {
-        ...(components as Record<string, unknown>),
-        ...((mainComponents[componentType] as Record<string, unknown>) ?? {}),
-      }
-      hasMergedComponents = true
-    }
-  }
-
-  if (!hasMergedComponents) return null
-
-  // Replace external file refs with their internal equivalents
-  for (const externalFile of externalFiles) {
-    replaceExternalRefsInPlace(mainDoc, externalFile)
-  }
-
-  return mainDoc as unknown as Document
-}
-
 export async function parse(
   pathOrApi: string | Document,
-  { oasClass = Oas, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
+  { oasClass = Oas, canBundle = true, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
 ): Promise<Oas> {
-  // Only attempt to bundle when pathOrApi is a file path or URL (not inline YAML/JSON strings).
-  // Inline content (YAML strings with newlines, JSON strings starting with '{') is handled by plain load.
-  const isPathOrUrl = typeof pathOrApi === 'string' && !pathOrApi.match(/\n/) && !pathOrApi.match(/^\s*\{/)
-  if (isPathOrUrl && enablePaths) {
-    // Bundle the spec using the string path directly so that relative external $refs
-    // (file and URL) are resolved with the correct base path context.
-    try {
-      // Pre-merge external file component schemas so they appear in #/components/schemas/
-      // of the bundled output rather than being inlined as anonymous path-based refs.
-      const mergedDoc = mergeExternalFileComponents(pathOrApi)
-      const bundled = await bundle((mergedDoc ?? pathOrApi) as Parameters<typeof bundle>[0])
-      return parse(bundled as Document, { oasClass, enablePaths })
-    } catch (e) {
-      // If bundling fails (e.g. unresolvable refs or network error), fall through to plain load
-      console.warn(`[kubb] Failed to bundle external $refs in "${pathOrApi}": ${(e as Error).message}. Falling back to plain load.`)
-    }
+  if (typeof pathOrApi === 'string' && canBundle) {
+    // resolve external refs
+    const config = await loadConfig()
+    const bundleResults = await bundle({ ref: pathOrApi, config, base: pathOrApi })
+
+    return parse(bundleResults.bundle.parsed as string, { oasClass, canBundle, enablePaths })
   }
 
   const oasNormalize = new OASNormalize(pathOrApi, {
@@ -310,7 +190,7 @@ export async function parse(
 }
 
 export async function merge(pathOrApi: Array<string | Document>, { oasClass = Oas }: { oasClass?: typeof Oas } = {}): Promise<Oas> {
-  const instances = await Promise.all(pathOrApi.map((p) => parse(p, { oasClass, enablePaths: false })))
+  const instances = await Promise.all(pathOrApi.map((p) => parse(p, { oasClass, enablePaths: false, canBundle: false })))
 
   if (instances.length === 0) {
     throw new Error('No OAS instances provided for merging.')

@@ -22,14 +22,5 @@ export type pet = {
   /**
    * @type object | undefined
    */
-  category?: {
-    /**
-     * @type integer | undefined, int64
-     */
-    id?: number
-    /**
-     * @type string | undefined
-     */
-    name?: string
-  }
+  category?: category
 }

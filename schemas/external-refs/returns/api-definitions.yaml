@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Multi-File Definitions
+  title: Shared API Definitions
   version: v1.0
 components:
   schemas:
@@ -23,16 +23,31 @@ components:
         - fullName
         - emailAddress
 
+    ProductDetails:
+      type: object
+      properties:
+        productCount:
+          type: number
+        itemIds:
+          type: array
+          items:
+            type: string
+      required:
+        - itemIds
+
     TypeARequest:
       type: object
       properties:
         actorId:
           type: string
         contactDetails:
-          $ref: "#/components/schemas/ContactDetailsType"
+          $ref: '#/components/schemas/ContactDetailsType'
+        productDetails:
+          $ref: '#/components/schemas/ProductDetails'
       required:
         - actorId
         - contactDetails
+        - productDetails
 
     TypeBRequest:
       type: object
@@ -42,7 +57,7 @@ components:
         ticketId:
           type: string
         contactDetails:
-          $ref: "#/components/schemas/ContactDetailsType"
+          $ref: '#/components/schemas/ContactDetailsType'
       required:
         - actorId
         - ticketId
@@ -61,7 +76,7 @@ components:
         parcels:
           type: array
           items:
-            $ref: "#/components/schemas/Parcel"
+            $ref: '#/components/schemas/Parcel'
       required:
         - returnId
         - state
@@ -72,14 +87,14 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/TypeARequest"
+            $ref: '#/components/schemas/TypeARequest'
 
     RequestBBody:
       required: true
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/TypeBRequest"
+            $ref: '#/components/schemas/TypeBRequest'
 
   responses:
     createReturnResponse:
@@ -87,4 +102,4 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Result"
+            $ref: '#/components/schemas/Result'
