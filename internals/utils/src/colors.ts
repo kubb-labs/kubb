@@ -30,27 +30,21 @@ function hex(color: string): (text: string) => string {
   return (text: string) => `\x1b[38;2;${r};${g};${b}m${text}\x1b[0m`
 }
 
-/**
- * Returns a function that renders text with a smooth linear gradient across the given hex color stops.
- * Each character is individually colorized by interpolating between adjacent stops.
- */
-function gradient(colorStops: string[]): (text: string) => string {
-  return (text: string) => {
-    const chars = [...text]
-    return chars
-      .map((char, i) => {
-        const t = chars.length <= 1 ? 0 : i / (chars.length - 1)
-        const seg = Math.min(Math.floor(t * (colorStops.length - 1)), colorStops.length - 2)
-        const lt = t * (colorStops.length - 1) - seg
-        const from = parseHex(colorStops[seg]!)
-        const to = parseHex(colorStops[seg + 1]!)
-        const r = Math.round(from.r + (to.r - from.r) * lt)
-        const g = Math.round(from.g + (to.g - from.g) * lt)
-        const b = Math.round(from.b + (to.b - from.b) * lt)
-        return `\x1b[38;2;${r};${g};${b}m${char}\x1b[0m`
-      })
-      .join('')
-  }
+function gradient(colorStops: string[], text: string): string {
+  const chars = [...text]
+  return chars
+    .map((char, i) => {
+      const t = chars.length <= 1 ? 0 : i / (chars.length - 1)
+      const seg = Math.min(Math.floor(t * (colorStops.length - 1)), colorStops.length - 2)
+      const lt = t * (colorStops.length - 1) - seg
+      const from = parseHex(colorStops[seg]!)
+      const to = parseHex(colorStops[seg + 1]!)
+      const r = Math.round(from.r + (to.r - from.r) * lt)
+      const g = Math.round(from.g + (to.g - from.g) * lt)
+      const b = Math.round(from.b + (to.b - from.b) * lt)
+      return `\x1b[38;2;${r};${g};${b}m${char}\x1b[0m`
+    })
+    .join('')
 }
 
 /** ANSI color functions for each part of the Kubb mascot illustration. */
@@ -89,7 +83,7 @@ export function getIntro({
   /** When `false` the eyes are shown as closed dashes instead of open blocks. */
   areEyesOpen: boolean
 }): string {
-  const kubbVersion = gradient(['#F58517', '#F5A217', '#F55A17'])(`KUBB v${version}`)
+  const kubbVersion = gradient(['#F58517', '#F5A217', '#F55A17'], `KUBB v${version}`)
 
   const eyeTop = areEyesOpen ? palette.eye('█▀█') : palette.eye('───')
   const eyeBottom = areEyesOpen ? palette.eye('▀▀▀') : palette.eye('───')

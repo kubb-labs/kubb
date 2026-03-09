@@ -1,5 +1,5 @@
-import fs from 'node:fs'
-import path from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 export type PackageManagerName = 'npm' | 'pnpm' | 'yarn' | 'bun'
 
@@ -47,10 +47,10 @@ type PackageJson = {
  * Falls back to npm when no signal is found.
  */
 export function detectPackageManager(cwd: string = process.cwd()): PackageManagerInfo {
-  const packageJsonPath = path.join(cwd, 'package.json')
-  if (fs.existsSync(packageJsonPath)) {
+  const packageJsonPath = join(cwd, 'package.json')
+  if (existsSync(packageJsonPath)) {
     try {
-      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8')) as PackageJson
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as PackageJson
       const pmField = packageJson.packageManager
       if (typeof pmField === 'string') {
         const name = pmField.split('@')[0]
@@ -64,7 +64,7 @@ export function detectPackageManager(cwd: string = process.cwd()): PackageManage
   }
 
   for (const pm of Object.values(packageManagers)) {
-    if (fs.existsSync(path.join(cwd, pm.lockFile))) {
+    if (existsSync(join(cwd, pm.lockFile))) {
       return pm
     }
   }

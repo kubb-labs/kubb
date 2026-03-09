@@ -1,13 +1,10 @@
-import dns from 'node:dns'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { executeIfOnline, isOnline } from './network.ts'
 
+const mockResolve = vi.hoisted(() => vi.fn())
+
 vi.mock('node:dns', () => ({
-  default: {
-    promises: {
-      resolve: vi.fn(),
-    },
-  },
+  promises: { resolve: mockResolve },
 }))
 
 describe('checkOnlineStatus', () => {
@@ -17,51 +14,46 @@ describe('checkOnlineStatus', () => {
 
   describe('isOnline', () => {
     it('should return true when DNS resolution succeeds on first domain', async () => {
-      vi.mocked(dns.promises.resolve).mockResolvedValue(['127.0.0.1'] as any)
+      mockResolve.mockResolvedValue(['127.0.0.1'])
 
       const result = await isOnline()
 
       expect(result).toBe(true)
-      expect(dns.promises.resolve).toHaveBeenCalledWith('dns.google.com')
+      expect(mockResolve).toHaveBeenCalledWith('dns.google.com')
     })
 
     it('should return true when first domain fails but second succeeds', async () => {
-      vi.mocked(dns.promises.resolve)
-        .mockRejectedValueOnce(new Error('Network error'))
-        .mockResolvedValueOnce(['127.0.0.1'] as any)
+      mockResolve.mockRejectedValueOnce(new Error('Network error')).mockResolvedValueOnce(['127.0.0.1'])
 
       const result = await isOnline()
 
       expect(result).toBe(true)
-      expect(dns.promises.resolve).toHaveBeenCalledWith('dns.google.com')
-      expect(dns.promises.resolve).toHaveBeenCalledWith('cloudflare.com')
+      expect(mockResolve).toHaveBeenCalledWith('dns.google.com')
+      expect(mockResolve).toHaveBeenCalledWith('cloudflare.com')
     })
 
     it('should return true when only last domain succeeds', async () => {
-      vi.mocked(dns.promises.resolve)
-        .mockRejectedValueOnce(new Error('Network error'))
-        .mockRejectedValueOnce(new Error('Network error'))
-        .mockResolvedValueOnce(['127.0.0.1'] as any)
+      mockResolve.mockRejectedValueOnce(new Error('Network error')).mockRejectedValueOnce(new Error('Network error')).mockResolvedValueOnce(['127.0.0.1'])
 
       const result = await isOnline()
 
       expect(result).toBe(true)
-      expect(dns.promises.resolve).toHaveBeenCalledTimes(3)
+      expect(mockResolve).toHaveBeenCalledTimes(3)
     })
 
     it('should return false when all DNS resolutions fail', async () => {
-      vi.mocked(dns.promises.resolve).mockRejectedValue(new Error('Network error'))
+      mockResolve.mockRejectedValue(new Error('Network error'))
 
       const result = await isOnline()
 
       expect(result).toBe(false)
-      expect(dns.promises.resolve).toHaveBeenCalledTimes(3)
+      expect(mockResolve).toHaveBeenCalledTimes(3)
     })
   })
 
   describe('executeIfOnline', () => {
     it('should execute function when online', async () => {
-      vi.mocked(dns.promises.resolve).mockResolvedValue(['127.0.0.1'] as any)
+      mockResolve.mockResolvedValue(['127.0.0.1'])
       const mockFn = vi.fn().mockResolvedValue('success')
 
       const result = await executeIfOnline(mockFn)
@@ -71,7 +63,7 @@ describe('checkOnlineStatus', () => {
     })
 
     it('should not execute function when offline', async () => {
-      vi.mocked(dns.promises.resolve).mockRejectedValue(new Error('Network error'))
+      mockResolve.mockRejectedValue(new Error('Network error'))
       const mockFn = vi.fn()
 
       const result = await executeIfOnline(mockFn)
@@ -81,7 +73,7 @@ describe('checkOnlineStatus', () => {
     })
 
     it('should return undefined if function throws when online', async () => {
-      vi.mocked(dns.promises.resolve).mockResolvedValue(['127.0.0.1'] as any)
+      mockResolve.mockResolvedValue(['127.0.0.1'])
       const mockFn = vi.fn().mockRejectedValue(new Error('Function error'))
 
       const result = await executeIfOnline(mockFn)

@@ -12,15 +12,15 @@ import { trimQuotes } from './string.ts'
 export function toRegExpString(text: string, func: string | null = 'RegExp'): string {
   const raw = trimQuotes(text)
 
-  const [, replacementTarget = '', matchedFlags] = raw.match(/^\^(\(\?([igmsuy]+)\))/i) ?? []
+  const match = raw.match(/^\^(\(\?([igmsuy]+)\))/i)
+  const replacementTarget = match?.[1] ?? ''
+  const matchedFlags = match?.[2]
   const cleaned = raw
     .replace(/^\\?\//, '')
     .replace(/\\?\/$/, '')
     .replace(replacementTarget, '')
 
-  const regex = new RegExp(cleaned, matchedFlags)
-  const source = regex.source
-  const flags = regex.flags
+  const { source, flags } = new RegExp(cleaned, matchedFlags)
 
   if (func === null) return `/${source}/${flags}`
 

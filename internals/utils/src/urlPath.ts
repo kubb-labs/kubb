@@ -79,17 +79,17 @@ export class URLPath {
     return this.getParams()
   }
 
-  /**
-   * Normalizes a raw `{param}` token: keeps it as-is when it is already a valid JS
-   * identifier, otherwise converts it to camelCase. Applies the configured `casing`
-   * option on top.
-   */
   #transformParam(raw: string): string {
-    let param = isValidVarName(raw) ? raw : camelCase(raw)
-    if (this.#options.casing === 'camelcase') {
-      param = camelCase(param)
+    const param = isValidVarName(raw) ? raw : camelCase(raw)
+    return this.#options.casing === 'camelcase' ? camelCase(param) : param
+  }
+
+  /** Iterates over every `{param}` token in `path`, calling `fn` with the raw token and transformed name. */
+  #eachParam(fn: (raw: string, param: string) => void): void {
+    for (const match of this.path.matchAll(/\{([^}]+)\}/g)) {
+      const raw = match[1]!
+      fn(raw, this.#transformParam(raw))
     }
-    return param
   }
 
   toObject({ type = 'path', replacer, stringify }: ObjectOptions = {}): URLObject | string {
@@ -121,27 +121,14 @@ export class URLPath {
    * new URLPath('/pet/{petId}').toTemplateString() // '`/pet/${petId}`'
    */
   toTemplateString({ prefix = '', replacer }: { prefix?: string; replacer?: (pathParam: string) => string } = {}): string {
-    const path = this.path
-    let result = ''
-    let i = 0
-
-    while (i < path.length) {
-      const start = path.indexOf('{', i)
-      if (start === -1) {
-        result += path.slice(i)
-        break
-      }
-      result += path.slice(i, start)
-      const end = path.indexOf('}', start + 1)
-      if (end === -1) {
-        result += path.slice(start)
-        break
-      }
-      const raw = path.slice(start + 1, end)
-      const param = this.#transformParam(raw)
-      result += `\${${replacer ? replacer(param) : param}}`
-      i = end + 1
-    }
+    const parts = this.path.split(/\{([^}]+)\}/)
+    const result = parts
+      .map((part, i) => {
+        if (i % 2 === 0) return part
+        const param = this.#transformParam(part)
+        return `\${${replacer ? replacer(param) : param}}`
+      })
+      .join('')
 
     return `\`${prefix}${result}\``
   }
@@ -152,25 +139,14 @@ export class URLPath {
    * Returns `undefined` when no path parameters are found.
    */
   getParams(replacer?: (pathParam: string) => string): Record<string, string> | undefined {
-    const path = this.path
     const params: Record<string, string> = {}
-    let hasParam = false
-    let i = 0
 
-    while (i < path.length) {
-      const start = path.indexOf('{', i)
-      if (start === -1) break
-      const end = path.indexOf('}', start + 1)
-      if (end === -1) break
-      const raw = path.slice(start + 1, end)
-      const param = this.#transformParam(raw)
+    this.#eachParam((_raw, param) => {
       const key = replacer ? replacer(param) : param
       params[key] = key
-      hasParam = true
-      i = end + 1
-    }
+    })
 
-    return hasParam ? params : undefined
+    return Object.keys(params).length > 0 ? params : undefined
   }
 
   /** Converts the OpenAPI path to Express-style colon syntax, e.g. `/pet/{petId}` → `/pet/:petId`. */
