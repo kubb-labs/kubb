@@ -1,5 +1,5 @@
 import type { InputPath, UserConfig } from './types.ts'
-import type { PossiblePromise } from './utils/types.ts'
+import type { PossiblePromise } from '@internals/utils'
 
 /**
  * CLI options derived from command-line flags.

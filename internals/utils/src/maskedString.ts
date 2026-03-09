@@ -1,7 +1,6 @@
 /**
  * Returns a masked version of a string, showing only the first and last few
- * characters. Useful for logging sensitive values (license keys, machine IDs)
- * without exposing the full value.
+ * characters. Useful for logging sensitive values without exposing the full value.
  *
  * @example
  * maskedString('KUBB_STUDIO-abc123-xyz789') // 'KUBB_STUDIO-…789'

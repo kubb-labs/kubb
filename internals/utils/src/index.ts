@@ -1,3 +1,12 @@
+// ansi
+export { getIntro } from './ansi.ts'
+
+// errors
+export { BuildError, ValidationPluginError } from './errors.ts'
+
+// test mocks
+export { MockWebSocket } from './MockWebSocket.ts'
+
 // fs
 export { clean } from './clean.ts'
 export { exists, existsSync } from './exists.ts'
@@ -19,11 +28,16 @@ export { getErrorMessage, toCause, toError } from './errorUtils.ts'
 export { escape, jsStringEscape } from './escape.ts'
 export { formatMsWithColor } from './formatMsWithColor.ts'
 export { getNestedAccessor } from './getNestedAccessor.ts'
+export { maskedString } from './maskedString.ts'
+export { detectPackageManager, packageManagers } from './packageManager.ts'
+export type { PackageManagerInfo, PackageManagerName } from './packageManager.ts'
+export type { PossiblePromise } from './promise.ts'
 export { isPromise, isPromiseFulfilledResult, isPromiseRejectedResult } from './promise.ts'
 export { randomCliColor, randomColors } from './randomColor.ts'
 export { serializePluginOptions } from './serializePluginOptions.ts'
 export { spawnAsync } from './spawnAsync.ts'
 export { stringify, stringifyObject } from './stringify.ts'
+export { generateToken, hashToken } from './token.ts'
 export { tokenize } from './tokenize.ts'
 export { toRegExpString } from './toRegExp.ts'
 export { isValidVarName, transformReservedWord } from './transformReservedWord.ts'

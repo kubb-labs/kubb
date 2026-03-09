@@ -1,12 +1,6 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
-
-export type PackageManagerName = 'npm' | 'pnpm' | 'yarn' | 'bun'
-
-export interface PackageManagerInfo {
-  name: PackageManagerName
-  lockFile: string
-  installCommand: ReadonlyArray<string>
-}
+export type { PackageManagerInfo, PackageManagerName } from '@internals/utils'
+export { packageManagers } from '@internals/utils'
 
 export const CORE_PLUGIN_NAME = 'core' as const
 
@@ -67,25 +61,3 @@ export const formatters = {
   },
 } as const
 
-export const packageManagers: Record<PackageManagerName, PackageManagerInfo> = {
-  pnpm: {
-    name: 'pnpm',
-    lockFile: 'pnpm-lock.yaml',
-    installCommand: ['add', '-D'],
-  },
-  yarn: {
-    name: 'yarn',
-    lockFile: 'yarn.lock',
-    installCommand: ['add', '-D'],
-  },
-  bun: {
-    name: 'bun',
-    lockFile: 'bun.lockb',
-    installCommand: ['add', '-d'],
-  },
-  npm: {
-    name: 'npm',
-    lockFile: 'package-lock.json',
-    installCommand: ['install', '--save-dev'],
-  },
-}

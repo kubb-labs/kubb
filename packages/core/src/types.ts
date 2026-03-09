@@ -1,10 +1,10 @@
 import type { AsyncEventEmitter } from '@internals/utils'
+import type { PossiblePromise } from '@internals/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import type { logLevel } from './constants.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginManager } from './PluginManager.ts'
-import type { PossiblePromise } from './utils/types.ts'
 
 declare global {
   namespace Kubb {
