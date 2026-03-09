@@ -7,7 +7,7 @@ const shared: Partial<UserConfig> = {
   exports: true,
   fixedExtension: false,
   deps: {
-    neverBundle: [/^react/, /^@kubb\//],
+    neverBundle: [/^react/, /^@kubb\//, /@internals/],
   },
 }
 
