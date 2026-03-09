@@ -1,14 +1,14 @@
 import path from 'node:path'
 import { pascalCase, URLPath } from '@internals/utils'
 import type { Config } from '@kubb/core'
-import { bundle, loadConfig } from '@redocly/openapi-core'
-import yaml from '@stoplight/yaml'
+import { bundle } from '@scalar/json-magic/bundle'
+import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
+import { parseJson, parseYaml, readFiles } from '@scalar/json-magic/bundle/plugins/node'
+import { validate as scalarValidate, upgrade } from '@scalar/openapi-parser'
 import type { ParameterObject, SchemaObject } from 'oas/types'
 import { isRef, isSchema } from 'oas/types'
-import OASNormalize from 'oas-normalize'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { isPlainObject, mergeDeep } from 'remeda'
-import swagger2openapi from 'swagger2openapi'
 import { Oas } from './Oas.ts'
 import type { contentType, Document } from './types.ts'
 
@@ -162,28 +162,27 @@ export function getDefaultValue(schema?: SchemaObject): string | undefined {
 
 export async function parse(
   pathOrApi: string | Document,
-  { oasClass = Oas, canBundle = true, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
+  {
+    oasClass = Oas,
+    canBundle: _canBundle = true,
+    enablePaths: _enablePaths = true,
+  }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
 ): Promise<Oas> {
-  if (typeof pathOrApi === 'string' && canBundle) {
-    // resolve external refs
-    const config = await loadConfig()
-    const bundleResults = await bundle({ ref: pathOrApi, config, base: pathOrApi })
+  let document: Document
 
-    return parse(bundleResults.bundle.parsed as string, { oasClass, canBundle, enablePaths })
+  if (typeof pathOrApi === 'string') {
+    const data = await bundle(pathOrApi, {
+      plugins: [readFiles(), fetchUrls(), parseYaml(), parseJson()],
+      treeShake: true,
+    })
+    document = data as Document
+  } else {
+    document = pathOrApi
   }
 
-  const oasNormalize = new OASNormalize(pathOrApi, {
-    enablePaths,
-    colorizeErrors: true,
-  })
-  const document = (await oasNormalize.load()) as Document
-
   if (isOpenApiV2Document(document)) {
-    const { openapi } = await swagger2openapi.convertObj(document, {
-      anchors: true,
-    })
-
-    return new oasClass(openapi as Document)
+    const { specification } = upgrade(document)
+    return parse(specification as unknown as string, { oasClass })
   }
 
   return new oasClass(document)
@@ -220,17 +219,12 @@ export function parseFromConfig(config: Config, oasClass: typeof Oas = Oas): Pro
   if ('data' in config.input) {
     if (typeof config.input.data === 'object') {
       const api: Document = structuredClone(config.input.data) as Document
+
       return parse(api, { oasClass })
     }
 
-    // data is a string - try YAML first, then fall back to passing to parse()
-    try {
-      const api: string = yaml.parse(config.input.data as string)
-      return parse(api, { oasClass })
-    } catch (_e) {
-      // YAML parse failed, let parse() handle it (supports JSON strings and more)
-      return parse(config.input.data as string, { oasClass })
-    }
+    // data is a string (YAML or JSON) — load() handles both formats
+    return parse(config.input.data as string, { oasClass })
   }
 
   if (Array.isArray(config.input)) {
@@ -283,31 +277,27 @@ export function flattenSchema(schema: SchemaObject | null): SchemaObject | null 
 }
 
 /**
- * Validate an OpenAPI document using oas-normalize.
+ * Validate an OpenAPI document using @scalar/openapi-parser.
  */
 export async function validate(document: Document) {
-  const oasNormalize = new OASNormalize(document, {
-    enablePaths: true,
-    colorizeErrors: true,
-  })
-
-  return oasNormalize.validate({
-    parser: {
-      validate: {
-        errors: {
-          colorize: true,
-        },
-      },
-    },
-  })
+  const { valid, errors } = await scalarValidate(document)
+  if (!valid) {
+    throw new Error(errors?.map((e) => e.message).join('\n'))
+  }
+  return { valid, errors }
 }
 
-type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies'
+type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies' | 'parameters' | 'x-ext'
 
 export type SchemaWithMetadata = {
   schema: SchemaObject
   source: SchemaSourceMode
   originalName: string
+  /**
+   * Optional override for the `$ref` path used in `nameMapping`.
+   * Required for `x-ext` entries where the ref is `#/x-ext/{hash}` rather than `#/components/{source}/{name}`.
+   */
+  refPath?: string
 }
 
 type GetSchemasResult = {
@@ -341,9 +331,8 @@ export function collectRefs(schema: unknown, refs = new Set<string>()): Set<stri
 
   return refs
 }
-
 /**
- * Sort schemas topologically so referenced schemas appear first.
+ * Sort schemas topologically so referenced schemas appear before the schemas that reference them.
  */
 export function sortSchemas(schemas: Record<string, SchemaObject>): Record<string, SchemaObject> {
   const deps = new Map<string, string[]>()
@@ -356,18 +345,11 @@ export function sortSchemas(schemas: Record<string, SchemaObject>): Record<strin
   const visited = new Set<string>()
 
   function visit(name: string, stack = new Set<string>()) {
-    if (visited.has(name)) {
-      return
-    }
-    if (stack.has(name)) {
-      return
-    } // circular refs, ignore
+    if (visited.has(name)) return
+    if (stack.has(name)) return // circular ref, skip
     stack.add(name)
-    const children = deps.get(name) || []
-    for (const child of children) {
-      if (deps.has(child)) {
-        visit(child, stack)
-      }
+    for (const child of deps.get(name) ?? []) {
+      if (deps.has(child)) visit(child, stack)
     }
     stack.delete(name)
     visited.add(name)
@@ -378,11 +360,11 @@ export function sortSchemas(schemas: Record<string, SchemaObject>): Record<strin
     visit(name)
   }
 
-  const sortedSchemas: Record<string, SchemaObject> = {}
+  const result: Record<string, SchemaObject> = {}
   for (const name of sorted) {
-    sortedSchemas[name] = schemas[name]!
+    result[name] = schemas[name]!
   }
-  return sortedSchemas
+  return result
 }
 
 /**
@@ -417,6 +399,27 @@ export function getSemanticSuffix(source: SchemaSourceMode): string {
       return 'Response'
     case 'requestBodies':
       return 'Request'
+    case 'parameters':
+      return 'Parameter'
+    case 'x-ext':
+      return 'Ext'
+  }
+}
+
+/**
+ * Derive a schema name from a URL or file path.
+ * Extracts the file basename without its extension.
+ * @example deriveNameFromUrl('https://example.com/schemas/users.yaml') // 'users'
+ * @example deriveNameFromUrl('/local/path/to/pet.json') // 'pet'
+ */
+export function deriveNameFromUrl(url: string): string {
+  try {
+    const urlObj = new URL(url)
+    const basename = urlObj.pathname.split('/').pop() || url
+    return basename.replace(/\.[^.]+$/, '')
+  } catch {
+    const basename = url.split(/[\\/]/).pop() || url
+    return basename.replace(/\.[^.]+$/, '')
   }
 }
 
@@ -432,8 +435,7 @@ export function legacyResolve(schemasWithMeta: SchemaWithMetadata[]): GetSchemas
   // Simply use original names without collision detection
   for (const item of schemasWithMeta) {
     schemas[item.originalName] = item.schema
-    // Map using full $ref path for consistency
-    const refPath = `#/components/${item.source}/${item.originalName}`
+    const refPath = item.refPath ?? `#/components/${item.source}/${item.originalName}`
     nameMapping.set(refPath, item.originalName)
   }
 
@@ -467,8 +469,7 @@ export function resolveCollisions(schemasWithMeta: SchemaWithMetadata[]): GetSch
       // No collision, use original name
       const item = items[0]!
       schemas[item.originalName] = item.schema
-      // Map using full $ref path: #/components/{source}/{originalName}
-      const refPath = `#/components/${item.source}/${item.originalName}`
+      const refPath = item.refPath ?? `#/components/${item.source}/${item.originalName}`
       nameMapping.set(refPath, item.originalName)
       continue
     }
@@ -483,8 +484,7 @@ export function resolveCollisions(schemasWithMeta: SchemaWithMetadata[]): GetSch
         const suffix = index === 0 ? '' : (index + 1).toString()
         const uniqueName = item.originalName + suffix
         schemas[uniqueName] = item.schema
-        // Map using full $ref path: #/components/{source}/{originalName}
-        const refPath = `#/components/${item.source}/${item.originalName}`
+        const refPath = item.refPath ?? `#/components/${item.source}/${item.originalName}`
         nameMapping.set(refPath, uniqueName)
       })
     } else {
@@ -494,8 +494,7 @@ export function resolveCollisions(schemasWithMeta: SchemaWithMetadata[]): GetSch
         const suffix = getSemanticSuffix(item.source)
         const uniqueName = item.originalName + suffix
         schemas[uniqueName] = item.schema
-        // Map using full $ref path: #/components/{source}/{originalName}
-        const refPath = `#/components/${item.source}/${item.originalName}`
+        const refPath = item.refPath ?? `#/components/${item.source}/${item.originalName}`
         nameMapping.set(refPath, uniqueName)
       })
     }

@@ -13,13 +13,6 @@ export {
 } from './useFindPetsByStatusSuspenseHook.ts'
 export type { FindPetsByTagsQueryKey } from './useFindPetsByTagsHook.ts'
 export { findPetsByTagsHook, findPetsByTagsQueryKey, findPetsByTagsQueryOptionsHook, useFindPetsByTagsHook } from './useFindPetsByTagsHook.ts'
-export type { FindPetsByTagsInfiniteQueryKey } from './useFindPetsByTagsInfiniteHook.ts'
-export {
-  findPetsByTagsInfiniteHook,
-  findPetsByTagsInfiniteQueryKey,
-  findPetsByTagsInfiniteQueryOptionsHook,
-  useFindPetsByTagsInfiniteHook,
-} from './useFindPetsByTagsInfiniteHook.ts'
 export type { FindPetsByTagsSuspenseQueryKey } from './useFindPetsByTagsSuspenseHook.ts'
 export {
   findPetsByTagsSuspenseHook,

@@ -102,6 +102,8 @@ export {
   logoutUserQueryResponseSchema,
 } from './logoutUserSchema.ts'
 export { orderSchema } from './orderSchema.ts'
+export { pageSchema } from './pageSchema.ts'
+export { pageSizeSchema } from './pageSizeSchema.ts'
 export { petNotFoundSchema } from './petNotFoundSchema.ts'
 export { petSchema } from './petSchema.ts'
 export { phoneNumberSchema } from './phoneNumberSchema.ts'

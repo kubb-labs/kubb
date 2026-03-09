@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * @description Bad Request
+ */
 export function petAdoption400(data?: Partial<PetAdoption400>): PetAdoption400 {
   return petAdoptionError(data)
 }

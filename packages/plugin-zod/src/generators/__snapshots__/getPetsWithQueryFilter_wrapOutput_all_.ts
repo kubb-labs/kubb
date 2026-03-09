@@ -28,29 +28,6 @@ export const showPetByIdPathParams = z
     ],
   })
 
-export const showPetByIdQueryParams = z
-  .object({
-    queryFilter: z.optional(
-      z
-        .string()
-        .optional()
-        .transform((val) => (val ? val.split(',') : undefined))
-        .pipe(z.array(z.enum(['DOGS', 'CATS', 'RABBITS'])).describe('A string array query parameter example')),
-    ),
-  })
-  .optional()
-  .openapi({
-    examples: [
-      {
-        type: 'object',
-        required: [],
-        properties: {
-          queryFilter: { description: 'A string array query parameter example', type: 'array', items: { type: 'string', enum: ['DOGS', 'CATS', 'RABBITS'] } },
-        },
-      },
-    ],
-  })
-
 /**
  * @description Expected response to a valid request
  */

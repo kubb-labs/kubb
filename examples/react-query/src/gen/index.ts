@@ -19,13 +19,6 @@ export {
 } from './hooks/pet/useFindPetsByStatusSuspenseHook.ts'
 export type { FindPetsByTagsQueryKey } from './hooks/pet/useFindPetsByTagsHook.ts'
 export { findPetsByTagsHook, findPetsByTagsQueryKey, findPetsByTagsQueryOptionsHook, useFindPetsByTagsHook } from './hooks/pet/useFindPetsByTagsHook.ts'
-export type { FindPetsByTagsInfiniteQueryKey } from './hooks/pet/useFindPetsByTagsInfiniteHook.ts'
-export {
-  findPetsByTagsInfiniteHook,
-  findPetsByTagsInfiniteQueryKey,
-  findPetsByTagsInfiniteQueryOptionsHook,
-  useFindPetsByTagsInfiniteHook,
-} from './hooks/pet/useFindPetsByTagsInfiniteHook.ts'
 export type { FindPetsByTagsSuspenseQueryKey } from './hooks/pet/useFindPetsByTagsSuspenseHook.ts'
 export {
   findPetsByTagsSuspenseHook,
@@ -249,6 +242,8 @@ export type {
   OrderStatusEnumKey,
 } from './models/Order.ts'
 export { orderHttpStatusEnum, orderStatusEnum } from './models/Order.ts'
+export type { Page } from './models/Page.ts'
+export type { PageSize } from './models/PageSize.ts'
 export type { Pet, PetStatusEnumKey } from './models/Pet.ts'
 export { petStatusEnum } from './models/Pet.ts'
 export type { PetNotFound } from './models/PetNotFound.ts'

@@ -1,8 +1,19 @@
 import jsonpointer from 'jsonpointer'
 import BaseOas from 'oas'
 import { matchesMimeType } from 'oas/utils'
-import type { contentType, DiscriminatorObject, Document, MediaTypeObject, Operation, ReferenceObject, ResponseObject, SchemaObject } from './types.ts'
+import type {
+  contentType,
+  DiscriminatorObject,
+  Document,
+  MediaTypeObject,
+  Operation,
+  ParameterObject,
+  ReferenceObject,
+  ResponseObject,
+  SchemaObject,
+} from './types.ts'
 import {
+  deriveNameFromUrl,
   extractSchemaFromContent,
   flattenSchema,
   isDiscriminator,
@@ -509,15 +520,21 @@ export class Oas extends BaseOas {
   }
 
   /**
-   * Get schemas from OpenAPI components (schemas, responses, requestBodies).
+   * Get schemas from OpenAPI components (schemas, responses, requestBodies, parameters) and bundled external references (x-ext).
    * Returns schemas in dependency order along with name mapping for collision resolution.
    */
-  getSchemas(options: { contentType?: contentType; includes?: Array<'schemas' | 'responses' | 'requestBodies'>; collisionDetection?: boolean } = {}): {
+  getSchemas(
+    options: {
+      contentType?: contentType
+      includes?: Array<'schemas' | 'responses' | 'requestBodies' | 'parameters' | 'x-ext'>
+      collisionDetection?: boolean
+    } = {},
+  ): {
     schemas: Record<string, SchemaObject>
     nameMapping: Map<string, string>
   } {
     const contentType = options.contentType ?? this.#options.contentType
-    const includes = options.includes ?? ['schemas', 'requestBodies', 'responses']
+    const includes = options.includes ?? ['schemas', 'requestBodies', 'responses', 'parameters', 'x-ext']
     const shouldResolveCollisions = options.collisionDetection ?? this.#options.collisionDetection ?? false
 
     const components = this.getDefinition().components
@@ -549,6 +566,45 @@ export class Oas extends BaseOas {
         const schema = extractSchemaFromContent(requestObject.content, contentType)
         if (schema) {
           schemasWithMeta.push({ schema, source: 'requestBodies', originalName: name })
+        }
+      }
+    }
+
+    if (includes.includes('parameters')) {
+      const parameters = components?.parameters || {}
+      for (const [name, parameter] of Object.entries(parameters)) {
+        const parameterObject = parameter as ParameterObject
+        const schema = parameterObject.schema as SchemaObject | undefined
+        // Skip parameters whose schema is a bare $ref — they point to an existing named schema
+        if (schema && !('$ref' in schema)) {
+          schemasWithMeta.push({ schema, source: 'parameters', originalName: name })
+        }
+      }
+    }
+
+    if (includes.includes('x-ext')) {
+      const definition = this.getDefinition() as Record<string, unknown>
+      const extSchemas = definition['x-ext'] as Record<string, SchemaObject> | undefined
+      const extUrls = definition['x-ext-urls'] as Record<string, string> | undefined
+
+      if (extSchemas) {
+        // Reverse the URL map: hash -> URL for name derivation
+        const hashToUrl = new Map<string, string>()
+        if (extUrls) {
+          for (const [url, hash] of Object.entries(extUrls)) {
+            hashToUrl.set(hash, url)
+          }
+        }
+
+        for (const [hash, schema] of Object.entries(extSchemas)) {
+          const url = hashToUrl.get(hash)
+          const name = url ? deriveNameFromUrl(url) : hash
+          schemasWithMeta.push({
+            schema,
+            source: 'x-ext',
+            originalName: name,
+            refPath: `#/x-ext/${hash}`,
+          })
         }
       }
     }

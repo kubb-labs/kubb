@@ -9,8 +9,6 @@ import { petSchema } from './petSchema.ts'
 export const findPetsByTagsQueryParamsSchema = z.optional(
   z.object({
     tags: z.optional(z.array(z.string())),
-    page: z.optional(z.string()),
-    pageSize: z.optional(z.string()),
   }),
 )
 

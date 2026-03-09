@@ -8,8 +8,6 @@ export type { FindPetsByStatusQueryKey } from './petController/useFindPetsByStat
 export { findPetsByStatusQueryKey, findPetsByStatusQueryOptions, useFindPetsByStatus } from './petController/useFindPetsByStatus.ts'
 export type { FindPetsByTagsQueryKey } from './petController/useFindPetsByTags.ts'
 export { findPetsByTagsQueryKey, findPetsByTagsQueryOptions, useFindPetsByTags } from './petController/useFindPetsByTags.ts'
-export type { FindPetsByTagsInfiniteQueryKey } from './petController/useFindPetsByTagsInfinite.ts'
-export { findPetsByTagsInfiniteQueryKey, findPetsByTagsInfiniteQueryOptions, useFindPetsByTagsInfinite } from './petController/useFindPetsByTagsInfinite.ts'
 export type { GetPetByIdQueryKey } from './petController/useGetPetById.ts'
 export { getPetByIdQueryKey, getPetByIdQueryOptions, useGetPetById } from './petController/useGetPetById.ts'
 export type { UpdatePetMutationKey } from './petController/useUpdatePet.ts'

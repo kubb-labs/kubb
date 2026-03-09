@@ -91,6 +91,8 @@ export type {
   Order,
   OrderHttpStatusEnumKey,
   OrderStatusEnumKey,
+  Page,
+  PageSize,
   Pet,
   PetNotFound,
   PetStatusEnumKey,

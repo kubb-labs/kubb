@@ -373,6 +373,12 @@ export type PetNotFound = {
 
 export type UserArray = User[]
 
+export type Page = string
+
+export type PageSize = string
+
+export type Fb6E376 = any
+
 /**
  * @description Successful operation
  */
@@ -479,16 +485,6 @@ export type FindPetsByTagsQueryParams = {
    * @type array | undefined
    */
   tags?: string[]
-  /**
-   * @description to request with required page number or pagination
-   * @type string | undefined
-   */
-  page?: string
-  /**
-   * @description to request with required page size
-   * @type string | undefined
-   */
-  pageSize?: string
 }
 
 /**

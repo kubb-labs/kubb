@@ -31,7 +31,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
    */
   plugin: Plugin<TPluginOptions>
   mode: KubbFile.Mode
-  include?: Array<'schemas' | 'responses' | 'requestBodies'>
+  include?: Array<'schemas' | 'responses' | 'requestBodies' | 'parameters' | 'x-ext'>
   override: Array<Override<TOptions>> | undefined
   contentType?: contentType
   output?: string
@@ -122,7 +122,9 @@ export class SchemaGenerator<
     }
 
     const { oas, contentType, include } = this.context
-    const { nameMapping } = oas.getSchemas({ contentType, includes: include })
+    // Always include x-ext so bundled external refs (#/x-ext/...) resolve to named imports
+    const includes = include ? ([...new Set([...include, 'x-ext'])] as Array<'schemas' | 'responses' | 'requestBodies' | 'x-ext'>) : undefined
+    const { nameMapping } = oas.getSchemas({ contentType, includes })
     this.#schemaNameMapping = nameMapping
     this.#nameMappingInitialized = true
   }
@@ -504,7 +506,9 @@ export class SchemaGenerator<
     // external schemas referenced multiple times). These path-based refs produce misleading names
     // from their last path segment (e.g., "#/.../schema/items" → "items" → "itemsSchema").
     // Resolve them inline instead of registering them as named schema references.
-    if ($ref.startsWith('#') && !$ref.startsWith('#/components/')) {
+    // Note: #/x-ext/... refs are NOT inlined here — they are bundled external schemas that
+    // should be emitted as separate named files, just like #/components/schemas/... refs.
+    if ($ref.startsWith('#') && !$ref.startsWith('#/components/') && !$ref.startsWith('#/x-ext/')) {
       try {
         const inlineSchema = this.context.oas.get<SchemaObject>($ref)
         if (inlineSchema && !isReference(inlineSchema)) {
@@ -1336,10 +1340,12 @@ export class SchemaGenerator<
 
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
+    // Always include x-ext so bundled external refs (#/x-ext/...) resolve to named imports
+    const includes = include ? ([...new Set([...include, 'x-ext'])] as Array<'schemas' | 'responses' | 'requestBodies' | 'x-ext'>) : undefined
 
     // Initialize the name mapping if not already done
     if (!this.#nameMappingInitialized) {
-      const { schemas, nameMapping } = oas.getSchemas({ contentType, includes: include })
+      const { schemas, nameMapping } = oas.getSchemas({ contentType, includes })
       this.#schemaNameMapping = nameMapping
       this.#nameMappingInitialized = true
       const schemaEntries = Object.entries(schemas)
@@ -1353,7 +1359,7 @@ export class SchemaGenerator<
       return this.#doBuild(schemas, generators)
     }
     // If already initialized, just get the schemas (without mapping)
-    const { schemas } = oas.getSchemas({ contentType, includes: include })
+    const { schemas } = oas.getSchemas({ contentType, includes })
     return this.#doBuild(schemas, generators)
   }
 

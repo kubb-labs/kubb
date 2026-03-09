@@ -102,6 +102,8 @@ export {
   logoutUserQueryResponseSchema,
 } from './zod/logoutUserSchema.ts'
 export { orderSchema } from './zod/orderSchema.ts'
+export { pageSchema } from './zod/pageSchema.ts'
+export { pageSizeSchema } from './zod/pageSizeSchema.ts'
 export { petNotFoundSchema } from './zod/petNotFoundSchema.ts'
 export { petSchema } from './zod/petSchema.ts'
 export { phoneNumberSchema } from './zod/phoneNumberSchema.ts'

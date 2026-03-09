@@ -88,6 +88,10 @@ export const petNotFoundSchema = z.object({
 
 export const userArraySchema = z.array(z.lazy(() => userSchema))
 
+export const pageSchema = z.string()
+
+export const pageSizeSchema = z.string()
+
 /**
  * @description Successful operation
  */
@@ -154,8 +158,6 @@ export const findPetsByStatusQueryResponseSchema = z.lazy(() => findPetsByStatus
 export const findPetsByTagsQueryParamsSchema = z
   .object({
     tags: z.optional(z.array(z.string()).describe('Tags to filter by')),
-    page: z.optional(z.string().describe('to request with required page number or pagination')),
-    pageSize: z.optional(z.string().describe('to request with required page size')),
   })
   .optional()
 

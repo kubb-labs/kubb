@@ -9,7 +9,7 @@ import { createPetFaker } from '../createPetFaker.ts'
 
 export function createFindPetsByTagsQueryParamsFaker(data?: Partial<FindPetsByTagsQueryParams>): FindPetsByTagsQueryParams {
   return {
-    ...{ tags: faker.helpers.multiple(() => faker.string.alpha()), page: faker.string.alpha(), pageSize: faker.number.float() },
+    ...{ tags: faker.helpers.multiple(() => faker.string.alpha()) },
     ...(data || {}),
   }
 }
