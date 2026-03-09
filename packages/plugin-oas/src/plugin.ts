@@ -3,12 +3,11 @@ import { type Config, definePlugin, type Group, getMode, type KubbEvents } from 
 import type { Oas } from '@kubb/oas'
 import { parseFromConfig } from '@kubb/oas'
 import type { AsyncEventEmitter } from '@kubb/utils'
-import { camelCase } from '@kubb/utils'
+import { camelCase, resolveServerUrl } from '@kubb/utils'
 import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 import type { PluginOas } from './types.ts'
-import { resolveServerUrl } from '@kubb/utils'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 

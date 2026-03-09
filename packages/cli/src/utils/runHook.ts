@@ -1,7 +1,7 @@
 import type { KubbEvents } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/utils'
-import { NonZeroExitError, x } from 'tinyexec'
 import { toError } from '@kubb/utils'
+import { NonZeroExitError, x } from 'tinyexec'
 
 type HookOutputSink = {
   /** Called for each streamed stdout line while the hook runs (optional). */

@@ -19,11 +19,10 @@ import {
   setup,
 } from '@kubb/core'
 import type { AsyncEventEmitter } from '@kubb/utils'
-import { AsyncEventEmitter as AsyncEventEmitterClass, executeIfOnline } from '@kubb/utils'
+import { AsyncEventEmitter as AsyncEventEmitterClass, executeIfOnline, toError } from '@kubb/utils'
 import { version } from '../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../constants.ts'
 import { setupLogger } from '../loggers/utils.ts'
-import { toError } from '@kubb/utils'
 import { executeHooks } from '../utils/executeHooks.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
