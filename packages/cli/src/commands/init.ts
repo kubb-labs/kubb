@@ -1,5 +1,5 @@
 import { version } from '../../package.json'
-import { defineCommand } from '../cli/index.ts'
+import { defineCommand } from '@internals/utils'
 
 export const command = defineCommand({
   name: 'init',

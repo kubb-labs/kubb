@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { defineCommand } from './types.ts'
+import { defineCommand } from './define.ts'
 
 describe('defineCommand', () => {
   it('returns a command without run for parent commands (e.g. agent with subCommands)', () => {
