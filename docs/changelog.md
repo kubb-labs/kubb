@@ -6,6 +6,39 @@ outline: deep
 
 # Changelog
 
+## 4.33.1
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/core`](/plugins/core/), [`@kubb/cli`](/plugins/cli/), [`@kubb/plugin-oas`](/plugins/plugin-oas/)
+
+Extracted node-native and pure-TypeScript utilities into the new private package `@internals/utils`. These utilities are now bundled into each consuming package at build time. Affected utilities include:
+
+- **`@kubb/core`**:
+  - FS utilities: `clean`, `exists`/`existsSync`, `read`/`readSync`, `write`, `getRelativePath`
+  - Time utils: `formatHrtime`, `formatMs`, `getElapsedMs`
+  - System-related: `canUseTTY`, `isCIEnvironment`, `isGitHubActions`, `serializePluginOptions`
+- **`@kubb/cli`**:
+  - CLI formatting and error utilities: `randomCliColor`, `randomColors`, `formatMsWithColor`, `toError`, `getErrorMessage`
+- **`@kubb/plugin-oas`**: `resolveServerUrl` (moved directly into `@kubb/oas` due to OAS-specific dependencies)
+
+The `@kubb/core/fs` and `@kubb/core/utils` subpath exports have been **removed**. Symbols previously accessible from these subpaths are now exported via the top-level entry point of `@kubb/core`.
+
+#### Migration:
+
+Update imports referencing `@kubb/core/fs` or `@kubb/core/utils` to use:
+
+```typescript
+import { clean, getRelativePath } from '@kubb/core';
+```
+
+### ✨ Features
+
+#### [`@kubb/cli`](/plugins/cli/)
+
+- Improved internal logic by bundling node-native utilities into a scoped internal package, reducing module redundancy and increasing maintainability. ([#2689](https://github.com/kubb-labs/kubb/pull/2689) by [@stijnvanhulle](https://github.com/stijnvanhulle))
+
+
 ## 4.33.0
 
 ### ✨ Features
