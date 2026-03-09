@@ -1,5 +1,5 @@
 import { styleText } from 'node:util'
-import { formatMs } from '@kubb/utils'
+import { formatMs } from './formatHrtime.ts'
 
 /**
  * Formats milliseconds with color based on duration thresholds:

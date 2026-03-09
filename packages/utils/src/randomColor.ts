@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { styleText } from 'node:util'
-import { randomColors } from '../constants.ts'
+
+export const randomColors = ['black', 'red', 'green', 'yellow', 'blue', 'white', 'magenta', 'cyan', 'gray', 'blue'] as const
 
 export function randomCliColor(text?: string): string {
   if (!text) {

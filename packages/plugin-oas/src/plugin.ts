@@ -8,7 +8,7 @@ import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 import type { PluginOas } from './types.ts'
-import { resolveServerUrl } from './utils/resolveServerUrl.ts'
+import { resolveServerUrl } from '@kubb/utils'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 

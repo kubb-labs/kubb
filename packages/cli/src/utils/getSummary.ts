@@ -3,7 +3,7 @@ import { styleText } from 'node:util'
 import type { Config, Plugin } from '@kubb/core'
 import { formatHrtime } from '@kubb/utils'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
-import { randomCliColor } from './randomColor.ts'
+import { randomCliColor } from '@kubb/utils'
 
 type SummaryProps = {
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
