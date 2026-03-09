@@ -49,7 +49,7 @@ type SpawnOptions = {
  * Spawns `cmd` with `args` and returns a promise that settles when the child process finishes.
  *
  * Foreground mode (default) inherits the parent's stdio and rejects on non-zero exit or signal.
- * Detached mode spawns the child in its own process group, unrefs it, and resolves immediately —
+ * Detached mode spawns the child in its own process group, unref's it, and resolves immediately —
  * the parent can exit without waiting for the child.
  */
 export function spawnAsync(cmd: string, args: string[], options: SpawnOptions = {}): Promise<void> {

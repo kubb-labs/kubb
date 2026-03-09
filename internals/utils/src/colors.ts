@@ -6,7 +6,7 @@ import { formatMs } from './time.ts'
 type RGB = { r: number; g: number; b: number }
 
 /**
- * Parses a CSS hex color string (`#rrggbb`) into its RGB channels.
+ * Parses a CSS hex color string (`#RRGGBB`) into its RGB channels.
  * Falls back to `255` for any channel that cannot be parsed.
  */
 function parseHex(color: string): RGB {

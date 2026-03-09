@@ -10,9 +10,9 @@ type Options = {
 /**
  * Shared implementation for camelCase and PascalCase conversion.
  * Splits on common word boundaries (spaces, hyphens, underscores, dots, slashes, colons)
- * and capitalises each word according to `pascal`.
+ * and capitalizes each word according to `pascal`.
  *
- * When `pascal` is `true` the first word is also capitalised (PascalCase), otherwise only subsequent words are.
+ * When `pascal` is `true` the first word is also capitalized (PascalCase), otherwise only subsequent words are.
  */
 function toCamelOrPascal(text: string, pascal: boolean): string {
   const normalized = text

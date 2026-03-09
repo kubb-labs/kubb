@@ -80,7 +80,7 @@ export class URLPath {
   }
 
   /**
-   * Normalises a raw `{param}` token: keeps it as-is when it is already a valid JS
+   * Normalizes a raw `{param}` token: keeps it as-is when it is already a valid JS
    * identifier, otherwise converts it to camelCase. Applies the configured `casing`
    * option on top.
    */
