@@ -11,9 +11,7 @@ type RGB = { r: number; g: number; b: number }
  */
 function parseHex(color: string): RGB {
   const int = Number.parseInt(color.replace('#', ''), 16)
-  return Number.isNaN(int)
-    ? { r: 255, g: 255, b: 255 }
-    : { r: (int >> 16) & 0xff, g: (int >> 8) & 0xff, b: int & 0xff }
+  return Number.isNaN(int) ? { r: 255, g: 255, b: 255 } : { r: (int >> 16) & 0xff, g: (int >> 8) & 0xff, b: int & 0xff }
 }
 
 /**

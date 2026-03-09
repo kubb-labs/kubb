@@ -59,5 +59,5 @@ export function serializePluginOptions<TOptions extends object>(options: TOption
 export function getNestedAccessor(param: string | string[], accessor: string): string | undefined {
   const parts = Array.isArray(param) ? param : param.split('.')
   if (parts.length === 0 || (parts.length === 1 && parts[0] === '')) return undefined
-  return `${accessor}?.['${parts.join("']?.['") + "']"}`
+  return `${accessor}?.['${`${parts.join("']?.['")}']`}`
 }
