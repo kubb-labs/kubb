@@ -1,47 +1,65 @@
-// ansi
-export { getIntro } from './ansi.ts'
+// ─── Colors / ANSI ───────────────────────────────────────────────────────────
+export { formatMsWithColor, getIntro, randomCliColor, randomColors } from './colors.ts'
 
-// errors
-export { BuildError, ValidationPluginError } from './errors.ts'
+// ─── Env ─────────────────────────────────────────────────────────────────────
+export { canUseTTY, isCIEnvironment, isGitHubActions } from './env.ts'
 
-// test mocks
-export { MockWebSocket } from './MockWebSocket.ts'
+// ─── Errors ───────────────────────────────────────────────────────────────────
+export { BuildError, getErrorMessage, toCause, toError, ValidationPluginError } from './errors.ts'
 
-// fs
+// ─── File system ──────────────────────────────────────────────────────────────
 export { clean } from './clean.ts'
 export { exists, existsSync } from './exists.ts'
-export { formatHrtime, formatMs, getElapsedMs } from './formatHrtime.ts'
-export { getRelativePath } from './fsUtils.ts'
+export { getRelativePath } from './fs.ts'
 export { read, readSync } from './read.ts'
 export { write } from './write.ts'
 
-// transformers
+// ─── JSDoc ────────────────────────────────────────────────────────────────────
+export { buildJSDoc } from './jsdoc.ts'
 
-// utils
-export { AsyncEventEmitter } from './AsyncEventEmitter.ts'
-export { buildJSDoc } from './buildJSDoc.ts'
-export { Cache } from './Cache.ts'
-export { camelCase, pascalCase, screamingSnakeCase, snakeCase } from './casing.ts'
-export { executeIfOnline, isOnline } from './checkOnlineStatus.ts'
-export { canUseTTY, isCIEnvironment, isGitHubActions } from './envDetection.ts'
-export { getErrorMessage, toCause, toError } from './errorUtils.ts'
-export { escape, jsStringEscape } from './escape.ts'
-export { formatMsWithColor } from './formatMsWithColor.ts'
-export { getNestedAccessor } from './getNestedAccessor.ts'
-export { maskedString } from './maskedString.ts'
+// ─── Names ────────────────────────────────────────────────────────────────────
+export { getUniqueName, setUniqueName } from './names.ts'
+
+// ─── Network ─────────────────────────────────────────────────────────────────
+export { executeIfOnline, isOnline } from './network.ts'
+
+// ─── Object ───────────────────────────────────────────────────────────────────
+export { getNestedAccessor, serializePluginOptions, stringify, stringifyObject } from './object.ts'
+
+// ─── Package manager ─────────────────────────────────────────────────────────
 export { detectPackageManager, packageManagers } from './packageManager.ts'
 export type { PackageManagerInfo, PackageManagerName } from './packageManager.ts'
+
+// ─── Promise ──────────────────────────────────────────────────────────────────
 export type { PossiblePromise } from './promise.ts'
 export { isPromise, isPromiseFulfilledResult, isPromiseRejectedResult } from './promise.ts'
-export { randomCliColor, randomColors } from './randomColor.ts'
-export { serializePluginOptions } from './serializePluginOptions.ts'
+
+// ─── RegExp ───────────────────────────────────────────────────────────────────
+export { toRegExpString } from './regexp.ts'
+
+// ─── Reserved words ───────────────────────────────────────────────────────────
+export { isValidVarName, transformReservedWord } from './reserved.ts'
+
+// ─── Shell ────────────────────────────────────────────────────────────────────
+export { tokenize } from './shell.ts'
 export { spawnAsync } from './spawnAsync.ts'
-export { stringify, stringifyObject } from './stringify.ts'
+
+// ─── String ───────────────────────────────────────────────────────────────────
+export { escape, jsStringEscape, maskString, trim, trimQuotes } from './string.ts'
+
+// ─── Time ─────────────────────────────────────────────────────────────────────
+export { formatHrtime, formatMs, getElapsedMs } from './time.ts'
+
+// ─── Token ────────────────────────────────────────────────────────────────────
 export { generateToken, hashToken } from './token.ts'
-export { tokenize } from './tokenize.ts'
-export { toRegExpString } from './toRegExp.ts'
-export { isValidVarName, transformReservedWord } from './transformReservedWord.ts'
-export { trim, trimQuotes } from './trim.ts'
+
+// ─── URL ─────────────────────────────────────────────────────────────────────
 export type { URLObject } from './URLPath.ts'
 export { URLPath } from './URLPath.ts'
-export { getUniqueName, setUniqueName } from './uniqueName.ts'
+
+// ─── Data structures ─────────────────────────────────────────────────────────
+export { AsyncEventEmitter } from './AsyncEventEmitter.ts'
+export { Cache } from './Cache.ts'
+
+// ─── String casing ────────────────────────────────────────────────────────────
+export { camelCase, pascalCase, screamingSnakeCase, snakeCase } from './casing.ts'

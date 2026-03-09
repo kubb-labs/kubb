@@ -4,7 +4,7 @@ import type { AgentConnectResponse } from '~/types/agent.ts'
 import { createAgentSession, registerAgent } from '~/utils/api.ts'
 import { connectToStudio } from '~/utils/connectStudio.ts'
 import { logger } from '~/utils/logger.ts'
-import { maskedString } from '@internals/utils'
+import { maskString } from '@internals/utils'
 
 /**
  * Nitro plugin that connects the agent to Kubb Studio on server startup.
@@ -49,7 +49,7 @@ export default defineNitroPlugin(async (nitro) => {
   }
 
   const resolvedConfigPath = path.isAbsolute(configPath) ? configPath : path.resolve(root, configPath)
-  const maskedToken = maskedString(token)
+  const maskedToken = maskString(token)
 
   try {
     await registerAgent({ token, studioUrl, poolSize })
@@ -83,7 +83,7 @@ export default defineNitroPlugin(async (nitro) => {
       if (!session) {
         continue
       }
-      const maskedSessionId = maskedString(session.sessionId)
+      const maskedSessionId = maskString(session.sessionId)
 
       logger.info(`[${maskedSessionId}] Connecting session ${index + 1}/${sessions.size}`)
       await connectToStudio({ ...baseOptions, initialSession: session }).catch((err: any) => {

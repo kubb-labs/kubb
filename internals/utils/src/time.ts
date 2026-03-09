@@ -26,7 +26,7 @@ export function formatMs(ms: number): string {
 }
 
 /**
- * Convenience helper to get and format elapsed time in one step.
+ * Convenience helper: formats the elapsed time since `hrStart` in one step.
  */
 export function formatHrtime(hrStart: [number, number]): string {
   return formatMs(getElapsedMs(hrStart))

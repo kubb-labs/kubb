@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getUniqueName, setUniqueName } from './uniqueName.ts'
+import { getUniqueName, setUniqueName } from './names.ts'
 
 describe('uniqueName', () => {
   describe('getUniqueName', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { trim, trimQuotes } from './trim.ts'
+import { trim, trimQuotes } from './string.ts'
 
 describe('trim', () => {
   test('should trim leading and trailing whitespace', () => {

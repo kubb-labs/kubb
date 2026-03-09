@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { transformReservedWord } from './transformReservedWord.ts'
+import { transformReservedWord } from './reserved.ts'
 
 describe('transformReservedWord', () => {
   test('template rendering', () => {

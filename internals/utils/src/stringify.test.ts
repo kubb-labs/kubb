@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { stringify } from './stringify.ts'
+import { stringify } from './object.ts'
 
 describe('stringify', () => {
   test('return stringify text', () => {

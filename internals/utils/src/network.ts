@@ -1,14 +1,14 @@
 import dns from 'node:dns'
 
 /**
- * Check if the system has internet connectivity
- * Uses DNS lookup to well-known stable domains as a lightweight connectivity test
+ * Returns `true` when the system has internet connectivity.
+ * Uses DNS resolution against well-known stable domains as a lightweight probe.
  */
 export async function isOnline(): Promise<boolean> {
   const testDomains = [
-    'dns.google.com', // Google Public DNS
-    'cloudflare.com', // Cloudflare
-    'one.one.one.one', // Cloudflare DNS
+    'dns.google.com',
+    'cloudflare.com',
+    'one.one.one.one',
   ]
 
   for (const domain of testDomains) {
@@ -24,13 +24,10 @@ export async function isOnline(): Promise<boolean> {
 }
 
 /**
- * Execute a function only if online, otherwise silently skip
+ * Executes `fn` only when the system is online. Returns `null` when offline or on error.
  */
 export async function executeIfOnline<T>(fn: () => Promise<T>): Promise<T | null> {
-  const online = await isOnline()
-  if (!online) {
-    return null
-  }
+  if (!(await isOnline())) return null
 
   try {
     return await fn()

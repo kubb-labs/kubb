@@ -1,6 +1,6 @@
 import dns from 'node:dns'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { executeIfOnline, isOnline } from './checkOnlineStatus.ts'
+import { executeIfOnline, isOnline } from './network.ts'
 
 vi.mock('node:dns', () => ({
   default: {

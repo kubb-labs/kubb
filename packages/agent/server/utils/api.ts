@@ -1,7 +1,7 @@
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { getMachineToken } from '~/utils/token.ts'
 import { logger } from './logger.ts'
-import { maskedString } from '@internals/utils'
+import { maskString } from '@internals/utils'
 
 type ConnectProps = {
   studioUrl: string
@@ -58,7 +58,7 @@ export async function registerAgent({ token, studioUrl, poolSize }: RegisterProp
       },
       body: { machineToken: getMachineToken(), poolSize },
     })
-    logger.success(`Agent registered with Studio with token ${maskedString(token)}`)
+    logger.success(`Agent registered with Studio with token ${maskString(token)}`)
   } catch (error: any) {
     logger.error('Failed to register agent with Studio', error?.cause?.message ?? error?.message)
   }
@@ -76,7 +76,7 @@ type DisconnectProps = {
  */
 export async function disconnect({ sessionId, token, studioUrl }: DisconnectProps): Promise<void> {
   const url = `${studioUrl}/api/agent/session/${sessionId}/disconnect`
-  const maskedSessionKey = maskedString(sessionId)
+  const maskedSessionKey = maskString(sessionId)
 
   try {
     logger.info(`[${maskedSessionKey}] Disconnecting from Studio...`)

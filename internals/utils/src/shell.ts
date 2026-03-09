@@ -1,8 +1,15 @@
-/** Shell-like tokenizer: splits a command string respecting single/double quotes. */
+/**
+ * Tokenizes a shell command string, respecting single and double quotes.
+ *
+ * @example
+ * tokenize('git commit -m "initial commit"')
+ * // → ['git', 'commit', '-m', 'initial commit']
+ */
 export function tokenize(command: string): string[] {
   const args: string[] = []
   let current = ''
   let quote = ''
+
   for (const ch of command) {
     if (quote) {
       if (ch === quote) quote = ''
@@ -18,6 +25,7 @@ export function tokenize(command: string): string[] {
       current += ch
     }
   }
+
   if (current) args.push(current)
   return args
 }

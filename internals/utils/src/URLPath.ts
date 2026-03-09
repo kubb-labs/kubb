@@ -1,5 +1,5 @@
 import { camelCase } from './casing.ts'
-import { isValidVarName } from './transformReservedWord.ts'
+import { isValidVarName } from './reserved.ts'
 
 export type URLObject = {
   url: string

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { canUseTTY, isCIEnvironment, isGitHubActions } from './envDetection.ts'
+import { canUseTTY, isCIEnvironment, isGitHubActions } from './env.ts'
 
 const originalIsTTY = process.stdout.isTTY
 

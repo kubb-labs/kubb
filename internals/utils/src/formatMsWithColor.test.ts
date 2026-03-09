@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
 import { describe, expect, it } from 'vitest'
-import { formatMsWithColor } from './formatMsWithColor.ts'
+import { formatMsWithColor } from './colors.ts'
 
 describe('formatMsWithColor', () => {
   it('should format with green color when duration <= 500ms', () => {

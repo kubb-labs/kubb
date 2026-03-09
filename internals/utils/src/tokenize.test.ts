@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { tokenize } from './tokenize.ts'
+import { tokenize } from './shell.ts'
 
 describe('tokenize', () => {
   test.each([

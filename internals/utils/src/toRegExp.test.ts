@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { toRegExpString } from './toRegExp.ts'
+import { toRegExpString } from './regexp.ts'
 
 describe('toRegExpString', () => {
   test('advanced regex', () => {

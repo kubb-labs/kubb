@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getNestedAccessor } from './getNestedAccessor.ts'
+import { getNestedAccessor } from './object.ts'
 
 describe('getNestedAccessor', () => {
   it('should convert dot notation to accessor expression', () => {
