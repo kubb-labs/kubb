@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { camelCase, pascalCase } from '@internals/utils'
 import { usePluginManager } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation } from '@kubb/oas'
@@ -9,7 +10,6 @@ import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File } from '@kubb/react-fabric'
-import { camelCase, pascalCase } from '@kubb/utils'
 import { StaticClassClient } from '../components/StaticClassClient'
 import type { PluginClient } from '../types'
 

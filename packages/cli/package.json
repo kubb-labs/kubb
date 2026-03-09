@@ -72,10 +72,10 @@
     "tinyexec": "catalog:"
   },
   "devDependencies": {
+    "@internals/utils": "workspace:*",
     "@kubb/agent": "workspace:*",
     "@kubb/mcp": "workspace:*",
     "@kubb/oas": "workspace:*",
-    "@kubb/utils": "workspace:*",
     "source-map-support": "^0.5.21"
   },
   "engines": {

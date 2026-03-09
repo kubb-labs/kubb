@@ -1,5 +1,6 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { AsyncEventEmitter } from '@internals/utils'
 import type { Config } from '@kubb/core'
 import { build } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
@@ -7,7 +8,6 @@ import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
-import { AsyncEventEmitter } from '@kubb/utils'
 import { bench, describe } from 'vitest'
 
 /**

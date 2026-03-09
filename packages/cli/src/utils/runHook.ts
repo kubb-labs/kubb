@@ -1,6 +1,6 @@
+import type { AsyncEventEmitter } from '@internals/utils'
+import { toError } from '@internals/utils'
 import type { KubbEvents } from '@kubb/core'
-import type { AsyncEventEmitter } from '@kubb/utils'
-import { toError } from '@kubb/utils'
 import { NonZeroExitError, x } from 'tinyexec'
 
 type HookOutputSink = {

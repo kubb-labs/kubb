@@ -1,6 +1,6 @@
 import { relative } from 'node:path'
+import { formatMs, toCause } from '@internals/utils'
 import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
-import { formatMs, toCause } from '@kubb/utils'
 import { SUMMARY_SEPARATOR } from '../constants.ts'
 import { getSummary } from '../utils/getSummary.ts'
 import { runHook } from '../utils/runHook.ts'

@@ -1,10 +1,10 @@
+import { camelCase } from '@internals/utils'
 import { usePluginManager } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File, Function } from '@kubb/react-fabric'
-import { camelCase } from '@kubb/utils'
 import type { PluginClient } from '../types'
 
 export const groupedClientGenerator = createReactGenerator<PluginClient>({

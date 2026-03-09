@@ -95,7 +95,7 @@
     "@kubb/react-fabric": "catalog:"
   },
   "devDependencies": {
-    "@kubb/utils": "workspace:*"
+    "@internals/utils": "workspace:*"
   },
   "engines": {
     "node": ">=20"

@@ -1,9 +1,9 @@
+import { URLPath } from '@internals/utils'
 import { type HttpMethod, isAllOptional, isOptional } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import { URLPath } from '@kubb/utils'
 import type { PluginCypress } from '../types.ts'
 
 type Props = {

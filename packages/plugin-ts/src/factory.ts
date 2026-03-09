@@ -1,4 +1,4 @@
-import { camelCase, pascalCase, screamingSnakeCase, snakeCase } from '@kubb/utils'
+import { camelCase, pascalCase, screamingSnakeCase, snakeCase } from '@internals/utils'
 import { isNumber, sortBy } from 'remeda'
 import ts from 'typescript'
 

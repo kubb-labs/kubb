@@ -1,6 +1,6 @@
+import { stringify, toRegExpString } from '@internals/utils'
 import type { Schema, SchemaMapper } from '@kubb/plugin-oas'
 import { createParser, findSchemaKeyword, isKeyword, SchemaGenerator, type SchemaKeywordMapper, schemaKeywords } from '@kubb/plugin-oas'
-import { stringify, toRegExpString } from '@kubb/utils'
 import { sortBy } from 'remeda'
 
 //TODO add zodKeywordMapper as function that returns 3 versions: v3, v4 and v4 mini, this can also be used to have the custom mapping(see object type)

@@ -1,4 +1,4 @@
-import { camelCase } from '@kubb/utils'
+import { camelCase } from '@internals/utils'
 import { sortBy } from 'remeda'
 
 type FunctionParamsASTWithoutType = {

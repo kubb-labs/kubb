@@ -1,7 +1,7 @@
 import { relative, resolve } from 'node:path'
 import process from 'node:process'
+import { formatMs, write } from '@internals/utils'
 import { defineLogger } from '@kubb/core'
-import { formatMs, write } from '@kubb/utils'
 
 type CachedEvent = {
   date: Date

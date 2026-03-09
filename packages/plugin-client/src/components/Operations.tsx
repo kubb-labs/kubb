@@ -1,7 +1,7 @@
+import { URLPath } from '@internals/utils'
 import type { HttpMethod, Operation } from '@kubb/oas'
 import { Const, File } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import { URLPath } from '@kubb/utils'
 
 type OperationsProps = {
   name: string

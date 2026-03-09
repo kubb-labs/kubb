@@ -1,8 +1,8 @@
+import { jsStringEscape } from '@internals/utils'
 import type { Schema } from '@kubb/plugin-oas'
 import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import { jsStringEscape } from '@kubb/utils'
 import * as parserFaker from '../parser.ts'
 import type { PluginFaker } from '../types.ts'
 

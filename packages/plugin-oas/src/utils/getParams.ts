@@ -1,7 +1,7 @@
+import { camelCase, isValidVarName } from '@internals/utils'
 import type { FunctionParamsAST } from '@kubb/core'
 import type { OasTypes } from '@kubb/oas'
 import type { Params } from '@kubb/react-fabric/types'
-import { camelCase, isValidVarName } from '@kubb/utils'
 import type { OperationSchema } from '../types.ts'
 /**
  *

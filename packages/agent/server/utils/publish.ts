@@ -1,7 +1,7 @@
 import path from 'node:path'
+import type { AsyncEventEmitter } from '@internals/utils'
+import { tokenize } from '@internals/utils'
 import type { KubbEvents } from '@kubb/core'
-import type { AsyncEventEmitter } from '@kubb/utils'
-import { tokenize } from '@kubb/utils'
 import { x } from 'tinyexec'
 
 type PublishProps = {

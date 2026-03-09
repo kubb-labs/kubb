@@ -1,6 +1,6 @@
 import process from 'node:process'
+import { getErrorMessage } from '@internals/utils'
 import type * as OasModule from '@kubb/oas'
-import { getErrorMessage } from '@kubb/utils'
 import { jiti } from '../utils/jiti.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 

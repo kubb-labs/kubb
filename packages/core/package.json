@@ -82,7 +82,7 @@
     "tinyexec": "catalog:"
   },
   "devDependencies": {
-    "@kubb/utils": "workspace:*",
+    "@internals/utils": "workspace:*",
     "@types/semver": "^7.7.1",
     "p-limit": "catalog:"
   },

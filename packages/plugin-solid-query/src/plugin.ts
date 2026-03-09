@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { camelCase, pascalCase } from '@internals/utils'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
@@ -7,7 +8,6 @@ import { source as configSource } from '@kubb/plugin-client/templates/config.sou
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { camelCase, pascalCase } from '@kubb/utils'
 import { MutationKey, QueryKey } from './components'
 import { mutationGenerator, queryGenerator } from './generators'
 import type { PluginSolidQuery } from './types.ts'

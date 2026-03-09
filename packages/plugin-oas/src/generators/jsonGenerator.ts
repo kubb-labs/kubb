@@ -1,4 +1,4 @@
-import { camelCase } from '@kubb/utils'
+import { camelCase } from '@internals/utils'
 import type { PluginOas } from '../types.ts'
 import { getBanner } from '../utils/getBanner.ts'
 import { getFooter } from '../utils/getFooter.ts'

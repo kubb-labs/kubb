@@ -108,7 +108,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "@kubb/utils": "workspace:*",
+    "@internals/utils": "workspace:*",
     "p-limit": "catalog:"
   },
   "main": "./dist/index.cjs",

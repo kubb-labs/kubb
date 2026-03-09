@@ -1,5 +1,5 @@
+import { AsyncEventEmitter } from '@internals/utils'
 import { createFabric } from '@kubb/react-fabric'
-import { AsyncEventEmitter } from '@kubb/utils'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { definePlugin } from './definePlugin.ts'
 import { PluginManager } from './PluginManager.ts'

@@ -1,9 +1,9 @@
+import { buildJSDoc, URLPath } from '@internals/utils'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments } from '@kubb/plugin-oas/utils'
 import { File, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import { buildJSDoc, URLPath } from '@kubb/utils'
 import type { PluginClient } from '../types.ts'
 
 import { Client } from './Client.tsx'

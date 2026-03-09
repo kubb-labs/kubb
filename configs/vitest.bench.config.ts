@@ -9,7 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 export default defineConfig({
   resolve: {
     alias: {
-      '@kubb/utils': path.resolve(__dirname, '../packages/utils/src/index.ts'),
+      '@internals/utils': path.resolve(__dirname, '../internals/utils/src/index.ts'),
     },
   },
   test: {

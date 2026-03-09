@@ -1,10 +1,10 @@
+import { camelCase, isValidVarName } from '@internals/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { SchemaObject } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { isOptional } from '@kubb/plugin-oas/utils'
 import { Const, File, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import { camelCase, isValidVarName } from '@kubb/utils'
 
 type Props = {
   name: string

@@ -5,7 +5,7 @@
     "types": ["bun-types"],
     "paths": {
       "#mocks": ["configs/mocks.ts"],
-      "@kubb/utils": ["packages/utils/src/index.ts"],
+      "@internals/utils": ["internals/utils/src/index.ts"],
       "@kubb/core/hooks": ["packages/core/src/hooks/index.ts"],
       "@kubb/core": ["packages/core/src/index.ts"],
       "@kubb/cypress": ["packages/cypress/src/index.ts"],
