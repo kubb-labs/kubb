@@ -1,6 +1,6 @@
 import path from 'node:path'
-import type { Config } from '@kubb/core'
 import { pascalCase, URLPath } from '@internals/utils'
+import type { Config } from '@kubb/core'
 import { bundle, loadConfig } from '@redocly/openapi-core'
 import yaml from '@stoplight/yaml'
 import type { ParameterObject, SchemaObject } from 'oas/types'

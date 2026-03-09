@@ -226,16 +226,7 @@ export type Pet =
       /**
        * @type object | undefined
        */
-      category?: {
-        /**
-         * @type integer | undefined, int64
-         */
-        id?: number
-        /**
-         * @type string | undefined
-         */
-        name?: string
-      }
+      category?: Category
       /**
        * @type array
        */
@@ -266,16 +257,7 @@ export type Pet =
       /**
        * @type object | undefined
        */
-      category?: {
-        /**
-         * @type integer | undefined, int64
-         */
-        id?: number
-        /**
-         * @type string | undefined
-         */
-        name?: string
-      }
+      category?: Category
       /**
        * @type array
        */
