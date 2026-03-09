@@ -1,12 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import { escape, jsStringEscape, maskString, trimQuotes } from './string.ts'
+import { jsStringEscape, maskString, trimQuotes } from './string.ts'
 
-describe('escape', () => {
-  test('return escape text', () => {
-    expect(escape()).toBe('')
-    expect(escape('`test')).toBe('\\`test')
-  })
-
+describe('jsStringEscape', () => {
   test('return jsStringEscape text', () => {
     expect(jsStringEscape('"Hello World!"')).toMatchInlineSnapshot(`"\\"Hello World!\\""`)
     expect(jsStringEscape("HTTP Status'")).toMatchInlineSnapshot(`"HTTP Status\\'"`)
@@ -18,14 +13,14 @@ describe('escape', () => {
     expect(jsStringEscape('')).toMatchInlineSnapshot(`""`)
   })
 
-  test('jsStringEscape handles line terminators', () => {
+  test('handles line terminators', () => {
     expect(jsStringEscape('line1\nline2')).toBe('line1\\nline2')
     expect(jsStringEscape('line1\rline2')).toBe('line1\\rline2')
     expect(jsStringEscape('line1\u2028line2')).toBe('line1\\u2028line2')
     expect(jsStringEscape('line1\u2029line2')).toBe('line1\\u2029line2')
   })
 
-  test('jsStringEscape handles backslash', () => {
+  test('handles backslash', () => {
     expect(jsStringEscape('path\\to\\file')).toBe('path\\\\to\\\\file')
   })
 })

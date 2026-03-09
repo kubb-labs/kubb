@@ -1,4 +1,3 @@
-import fs from 'node:fs'
 import { readFileSync } from 'node:fs'
 import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, posix, resolve } from 'node:path'
@@ -38,11 +37,6 @@ export async function exists(path: string): Promise<boolean> {
     () => true,
     () => false,
   )
-}
-
-/** Synchronous counterpart of `exists`. */
-export function existsSync(path: string): boolean {
-  return fs.existsSync(path)
 }
 
 /**

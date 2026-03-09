@@ -18,14 +18,6 @@ export function trimQuotes(text: string): string {
 }
 
 /**
- * Escapes backtick characters so the string can be safely embedded inside a template literal.
- * Returns an empty string when `text` is `undefined`.
- */
-export function escape(text?: string): string {
-  return text ? text.replaceAll('`', '\\`') : ''
-}
-
-/**
  * Escapes characters that are not allowed inside JS string literals.
  * Handles quotes, backslashes, and Unicode line terminators (U+2028 / U+2029).
  *

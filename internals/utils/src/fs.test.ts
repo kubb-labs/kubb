@@ -2,7 +2,7 @@ import { mkdir, rm } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
-import { clean, exists, existsSync, getRelativePath, read, readSync, write } from './fs.ts'
+import { clean, exists, getRelativePath, read, readSync, write } from './fs.ts'
 
 const existsTestDir = path.join(os.tmpdir(), 'kubb-test-exists')
 const existsTestFile = path.join(existsTestDir, 'test.txt')
@@ -29,13 +29,6 @@ describe('exists', () => {
     expect(await exists(existsTestDir)).toBe(true)
   })
 
-  test('existsSync returns true for existing file', () => {
-    expect(existsSync(existsTestFile)).toBe(true)
-  })
-
-  test('existsSync returns false for non-existing file', () => {
-    expect(existsSync(path.join(existsTestDir, 'nonexistent.txt'))).toBe(false)
-  })
 })
 
 const rwTestDir = path.join(os.tmpdir(), 'kubb-test-read-write')
