@@ -1,5 +1,3 @@
-// ─── Trim ─────────────────────────────────────────────────────────────────────
-
 /**
  * Strips a single matching pair of `"..."`, `'...'`, or `` `...` `` from both ends.
  */
@@ -13,8 +11,6 @@ export function trimQuotes(text: string): string {
   }
   return text
 }
-
-// ─── Escape ───────────────────────────────────────────────────────────────────
 
 /** Escapes backtick characters for safe use inside template literals. */
 export function escape(text?: string): string {
@@ -45,8 +41,6 @@ export function jsStringEscape(input: unknown): string {
     }
   })
 }
-
-// ─── Mask ─────────────────────────────────────────────────────────────────────
 
 /**
  * Returns a masked version of a string, showing only the first and last few characters.

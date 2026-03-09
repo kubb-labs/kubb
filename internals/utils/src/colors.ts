@@ -2,8 +2,6 @@ import { createHash } from 'node:crypto'
 import { styleText } from 'node:util'
 import { formatMs } from './time.ts'
 
-// ─── Hex / True-Color helpers ────────────────────────────────────────────────
-
 function parseHex(color: string): { r: number; g: number; b: number } {
   const c = color.replace('#', '')
   const r = Number.parseInt(c.slice(0, 2), 16)
@@ -40,8 +38,6 @@ function gradient(colorStops: string[]) {
   }
 }
 
-// ─── Kubb mascot palette ─────────────────────────────────────────────────────
-
 const palette = {
   lid: hex('#F55A17'),
   woodTop: hex('#F5A217'),
@@ -69,8 +65,6 @@ export function getIntro({ title, description, version, areEyesOpen }: { title: 
    ${palette.woodBase('▀▀▀▀▀▀▀▀▀▀▀▀▀')}
 `
 }
-
-// ─── Terminal color utilities ─────────────────────────────────────────────────
 
 export const randomColors = ['black', 'red', 'green', 'yellow', 'blue', 'white', 'magenta', 'cyan', 'gray'] as const
 

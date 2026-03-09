@@ -5,11 +5,7 @@ import dns from 'node:dns'
  * Uses DNS resolution against well-known stable domains as a lightweight probe.
  */
 export async function isOnline(): Promise<boolean> {
-  const testDomains = [
-    'dns.google.com',
-    'cloudflare.com',
-    'one.one.one.one',
-  ]
+  const testDomains = ['dns.google.com', 'cloudflare.com', 'one.one.one.one']
 
   for (const domain of testDomains) {
     try {

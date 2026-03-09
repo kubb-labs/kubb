@@ -1,6 +1,6 @@
 import process from 'node:process'
-import { logger } from '~/utils/logger.ts'
 import { maskString } from '@internals/utils'
+import { logger } from '~/utils/logger.ts'
 
 const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000
 

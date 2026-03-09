@@ -1,4 +1,6 @@
-import { posix } from 'node:path'
+import fs, { readFileSync } from 'node:fs'
+import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { dirname, posix, resolve } from 'node:path'
 
 /**
  * Converts all backslashes to forward slashes.
@@ -21,4 +23,77 @@ export function getRelativePath(rootDir?: string | null, filePath?: string | nul
   const relativePath = posix.relative(toSlash(rootDir), toSlash(filePath))
 
   return relativePath.startsWith('../') ? relativePath : `./${relativePath}`
+}
+
+export async function exists(path: string): Promise<boolean> {
+  if (typeof Bun !== 'undefined') {
+    return Bun.file(path).exists()
+  }
+  return access(path).then(
+    () => true,
+    () => false,
+  )
+}
+
+export function existsSync(path: string): boolean {
+  return fs.existsSync(path)
+}
+
+export async function read(path: string): Promise<string> {
+  if (typeof Bun !== 'undefined') {
+    return Bun.file(path).text()
+  }
+  return readFile(path, { encoding: 'utf8' })
+}
+
+export function readSync(path: string): string {
+  return readFileSync(path, { encoding: 'utf8' })
+}
+
+type WriteOptions = { sanity?: boolean }
+
+export async function write(path: string, data: string, options: WriteOptions = {}): Promise<string | undefined> {
+  if (data.trim() === '') {
+    return undefined
+  }
+
+  const resolved = resolve(path)
+
+  if (typeof Bun !== 'undefined') {
+    const file = Bun.file(resolved)
+    const oldContent = (await file.exists()) ? await file.text() : null
+    if (oldContent === data.trim()) {
+      return undefined
+    }
+    await Bun.write(resolved, data.trim())
+    return data.trim()
+  }
+
+  try {
+    const oldContent = await readFile(resolved, { encoding: 'utf-8' })
+    if (oldContent === data.trim()) {
+      return undefined
+    }
+  } catch (_err) {
+    /* file doesn't exist yet */
+  }
+
+  await mkdir(dirname(resolved), { recursive: true })
+  await writeFile(resolved, data.trim(), { encoding: 'utf-8' })
+
+  if (options.sanity) {
+    const savedData = await readFile(resolved, { encoding: 'utf-8' })
+
+    if (savedData !== data.trim()) {
+      throw new Error(`Sanity check failed for ${path}\n\nData[${data.length}]:\n${data}\n\nSaved[${savedData.length}]:\n${savedData}\n`)
+    }
+
+    return savedData
+  }
+
+  return data.trim()
+}
+
+export async function clean(path: string): Promise<void> {
+  return rm(path, { recursive: true, force: true })
 }

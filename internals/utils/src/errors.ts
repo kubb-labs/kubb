@@ -1,5 +1,3 @@
-// ─── Error classes ────────────────────────────────────────────────────────────
-
 export class ValidationPluginError extends Error {}
 
 export class BuildError extends Error {
@@ -11,8 +9,6 @@ export class BuildError extends Error {
     this.errors = options.errors
   }
 }
-
-// ─── Error utilities ──────────────────────────────────────────────────────────
 
 /**
  * Coerces an unknown thrown value to an `Error` instance.

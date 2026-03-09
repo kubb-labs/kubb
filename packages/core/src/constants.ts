@@ -1,4 +1,5 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
+
 export type { PackageManagerInfo, PackageManagerName } from '@internals/utils'
 export { packageManagers } from '@internals/utils'
 
@@ -60,4 +61,3 @@ export const formatters = {
     errorMessage: 'Oxfmt not found',
   },
 } as const
-

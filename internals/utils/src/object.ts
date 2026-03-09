@@ -1,7 +1,5 @@
 import { trimQuotes } from './string.ts'
 
-// ─── Stringify ────────────────────────────────────────────────────────────────
-
 export function stringify(value: string | number | boolean | undefined): string {
   if (value === undefined || value === null) return '""'
   return JSON.stringify(trimQuotes(value.toString()))
@@ -19,8 +17,6 @@ export function stringifyObject(value: Record<string, unknown>): string {
   return items.join(',\n')
 }
 
-// ─── Serialization ────────────────────────────────────────────────────────────
-
 /**
  * Serializes plugin options for safe JSON transport.
  * Strips functions, symbols, and `undefined` values recursively.
@@ -37,8 +33,6 @@ export function serializePluginOptions<TOptions extends object = object>(options
   }
   return serialized as TOptions
 }
-
-// ─── Nested accessor ─────────────────────────────────────────────────────────
 
 /**
  * Converts a dot-notation path or string array into an optional-chaining accessor expression.

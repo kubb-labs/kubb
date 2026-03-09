@@ -1,5 +1,4 @@
-import type { AsyncEventEmitter } from '@internals/utils'
-import type { PossiblePromise } from '@internals/utils'
+import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import type { logLevel } from './constants.ts'

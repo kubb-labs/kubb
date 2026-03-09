@@ -1,7 +1,7 @@
+import { maskString } from '@internals/utils'
 import type { AgentConnectResponse } from '~/types/agent.ts'
 import { getMachineToken } from '~/utils/token.ts'
 import { logger } from './logger.ts'
-import { maskString } from '@internals/utils'
 
 type ConnectProps = {
   studioUrl: string
