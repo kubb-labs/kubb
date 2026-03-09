@@ -1,6 +1,6 @@
 import path from 'node:path'
-import { version } from '../../../package.json'
 import { defineCommand } from '@internals/utils'
+import { version } from '../../../package.json'
 import { agentDefaults } from '../../constants.ts'
 
 export const command = defineCommand({

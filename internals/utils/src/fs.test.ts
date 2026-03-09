@@ -28,7 +28,6 @@ describe('exists', () => {
   it('should return true for existing directory', async () => {
     expect(await exists(existsTestDir)).toBe(true)
   })
-
 })
 
 const rwTestDir = path.join(os.tmpdir(), 'kubb-test-read-write')

@@ -1,5 +1,5 @@
-import { version } from '../../package.json'
 import { defineCommand } from '@internals/utils'
+import { version } from '../../package.json'
 
 export const command = defineCommand({
   name: 'mcp',

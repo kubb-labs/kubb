@@ -1,6 +1,6 @@
 import { parseArgs, styleText } from 'node:util'
-import { renderHelp } from '../help.ts'
 import { defineCLIAdapter } from '../define.ts'
+import { renderHelp } from '../help.ts'
 import type { CommandDefinition, OptionType, ParsedArgs, RunOptions } from '../types.ts'
 
 type ParseOption = { type: OptionType; short?: string; default?: string | boolean }
