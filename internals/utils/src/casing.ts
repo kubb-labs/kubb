@@ -41,8 +41,7 @@ function toCamelOrPascal(text: string, pascal: boolean): string {
  */
 function applyToFileParts(text: string, transformPart: (part: string, isLast: boolean) => string): string {
   const parts = text.split('.')
-  const last = parts.length - 1
-  return parts.map((part, i) => transformPart(part, i === last)).join('/')
+  return parts.map((part, i) => transformPart(part, i === parts.length - 1)).join('/')
 }
 
 /**

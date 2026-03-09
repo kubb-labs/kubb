@@ -10,15 +10,10 @@ type RGB = { r: number; g: number; b: number }
  * Falls back to `255` for any channel that cannot be parsed.
  */
 function parseHex(color: string): RGB {
-  const c = color.replace('#', '')
-  const r = Number.parseInt(c.slice(0, 2), 16)
-  const g = Number.parseInt(c.slice(2, 4), 16)
-  const b = Number.parseInt(c.slice(4, 6), 16)
-  return {
-    r: Number.isNaN(r) ? 255 : r,
-    g: Number.isNaN(g) ? 255 : g,
-    b: Number.isNaN(b) ? 255 : b,
-  }
+  const int = Number.parseInt(color.replace('#', ''), 16)
+  return Number.isNaN(int)
+    ? { r: 255, g: 255, b: 255 }
+    : { r: (int >> 16) & 0xff, g: (int >> 8) & 0xff, b: int & 0xff }
 }
 
 /**
@@ -31,7 +26,7 @@ function hex(color: string): (text: string) => string {
 }
 
 function gradient(colorStops: string[], text: string): string {
-  const chars = [...text]
+  const chars = text.split('')
   return chars
     .map((char, i) => {
       const t = chars.length <= 1 ? 0 : i / (chars.length - 1)

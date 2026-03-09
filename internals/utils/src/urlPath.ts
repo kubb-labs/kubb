@@ -151,6 +151,6 @@ export class URLPath {
 
   /** Converts the OpenAPI path to Express-style colon syntax, e.g. `/pet/{petId}` → `/pet/:petId`. */
   toURLPath(): string {
-    return this.path.replaceAll('{', ':').replaceAll('}', '')
+    return this.path.replace(/\{([^}]+)\}/g, ':$1')
   }
 }
