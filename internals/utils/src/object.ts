@@ -12,9 +12,6 @@ export function stringify(value: string | number | boolean | undefined): string 
   return JSON.stringify(trimQuotes(value.toString()))
 }
 
-/** A value that can be safely embedded in generated code output. */
-type StringifyableValue = string | number | boolean | null | undefined | { [key: string]: StringifyableValue }
-
 /**
  * Converts a plain object into a multiline key-value string suitable for embedding in generated code.
  * Nested objects are recursively stringified with indentation.
@@ -23,11 +20,11 @@ type StringifyableValue = string | number | boolean | null | undefined | { [key:
  * stringifyObject({ foo: 'bar', nested: { a: 1 } })
  * // 'foo: bar,\nnested: {\n        a: 1\n      }'
  */
-export function stringifyObject(value: Record<string, StringifyableValue>): string {
+export function stringifyObject(value: Record<string, unknown>): string {
   const items = Object.entries(value)
     .map(([key, val]) => {
       if (val !== null && typeof val === 'object') {
-        return `${key}: {\n        ${stringifyObject(val)}\n      }`
+        return `${key}: {\n        ${stringifyObject(val as Record<string, unknown>)}\n      }`
       }
       return `${key}: ${val}`
     })
@@ -39,7 +36,7 @@ export function stringifyObject(value: Record<string, StringifyableValue>): stri
  * Serializes plugin options for safe JSON transport.
  * Strips functions, symbols, and `undefined` values recursively.
  */
-export function serializePluginOptions<TOptions extends Record<string, unknown>>(options: TOptions): TOptions {
+export function serializePluginOptions<TOptions extends object>(options: TOptions): TOptions {
   if (options === null || options === undefined) return {} as TOptions
   if (typeof options !== 'object') return options
   if (Array.isArray(options)) return options.map(serializePluginOptions) as unknown as TOptions
@@ -47,7 +44,7 @@ export function serializePluginOptions<TOptions extends Record<string, unknown>>
   const serialized: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(options)) {
     if (typeof value === 'function' || typeof value === 'symbol' || value === undefined) continue
-    serialized[key] = value !== null && typeof value === 'object' ? serializePluginOptions(value as Record<string, unknown>) : value
+    serialized[key] = value !== null && typeof value === 'object' ? serializePluginOptions(value as object) : value
   }
   return serialized as TOptions
 }
