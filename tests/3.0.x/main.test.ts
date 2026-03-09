@@ -6,6 +6,7 @@ import { AsyncEventEmitter, getRelativePath } from '@internals/utils'
 import { type KubbEvents, safeBuild, type UserConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
 import { describe, expect, test } from 'vitest'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -178,6 +179,72 @@ const configs: Array<{ name: string; config: UserConfig }> = [
           validate: false,
           generators: [],
           collisionDetection: true,
+        }),
+        pluginTs({
+          output: {
+            path: './types',
+            barrelType: false,
+          },
+        }),
+      ],
+    },
+  },
+  {
+    /**
+     * Regression test for https://github.com/kubb-labs/kubb/issues/2619
+     *
+     * When a main spec delegates requestBodies and responses to an external file, all schemas
+     * defined in that external file (e.g. Parcel, Result) should get their own separate Zod
+     * schema files instead of being inlined or self-referencing (`z.lazy(() => parcelSchema)`).
+     */
+    name: 'issue2619',
+    config: {
+      root: __dirname,
+      input: {
+        path: '../../schemas/external-refs/returns/main.yaml',
+      },
+      output: {
+        path: './gen',
+        barrelType: false,
+      },
+      plugins: [
+        pluginOas({
+          validate: false,
+          generators: [],
+        }),
+        pluginZod({
+          output: {
+            path: './zod',
+            barrelType: false,
+          },
+        }),
+      ],
+    },
+  },
+  {
+    /**
+     * Regression test for https://github.com/kubb-labs/kubb/issues/2696
+     *
+     * When path operations use external path-item $refs (e.g. `$ref: './paths/me.yaml'`) and
+     * components.schemas also reference the same external schema files, pluginTs must NOT
+     * generate phantom imports like `import type { Me } from "./Me.ts"` (derived from the path
+     * segment) or `import type { Items }` (derived from the array keyword). It should correctly
+     * use `User` and `Employer` as derived from the actual schema file names.
+     */
+    name: 'issue2696',
+    config: {
+      root: __dirname,
+      input: {
+        path: '../../schemas/external-refs/phantom/main.yaml',
+      },
+      output: {
+        path: './gen',
+        barrelType: false,
+      },
+      plugins: [
+        pluginOas({
+          validate: false,
+          generators: [],
         }),
         pluginTs({
           output: {
