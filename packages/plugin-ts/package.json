@@ -62,7 +62,7 @@
   "size-limit": [
     {
       "path": "./dist/*.js",
-      "limit": "510 KiB",
+      "limit": "1600 KiB",
       "gzip": true
     }
   ],
@@ -87,8 +87,7 @@
     "typescript": "5.9.3"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.13.3",
-    "typescript": ">=5.9.0"
+    "@kubb/react-fabric": "0.13.3"
   },
   "engines": {
     "node": ">=20"
@@ -101,5 +100,12 @@
   "module": "./dist/index.js",
   "devDependencies": {
     "@internals/utils": "workspace:*"
+  },
+  "inlinedDependencies": {
+    "source-map": "0.6.1",
+    "buffer-from": "1.1.2",
+    "source-map-support": "0.5.21",
+    "typescript": "5.9.3",
+    "tsdown": "0.21.0"
   }
 }
