@@ -10,7 +10,7 @@ import type { Client, RequestConfig, ResponseErrorConfig } from '../../.kubb/fet
 import { fetch } from '../../.kubb/fetch.ts'
 import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus.ts'
 
-export const findPetsByStatusSuspenseQueryKey = (params: FindPetsByStatusQueryParams = {}) =>
+export const findPetsByStatusSuspenseQueryKey = (params?: FindPetsByStatusQueryParams) =>
   ['v5', { url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 
 export type FindPetsByStatusSuspenseQueryKey = ReturnType<typeof findPetsByStatusSuspenseQueryKey>
