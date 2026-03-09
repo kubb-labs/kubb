@@ -15,3 +15,5 @@ export {
   parseFromConfig,
   validate,
 } from './utils.ts'
+
+export { resolveServerUrl } from './resolveServerUrl.ts'

@@ -1,4 +1,4 @@
-import { resolveServerUrl } from '@kubb/oas'
+import { resolveServerUrl } from './resolveServerUrl.ts'
 import { describe, expect, it } from 'vitest'
 
 describe('resolveServerUrl', () => {
