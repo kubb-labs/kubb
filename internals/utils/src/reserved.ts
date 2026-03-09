@@ -91,7 +91,8 @@ const reservedWords = [
  * or starts with a digit.
  */
 export function transformReservedWord(word: string): string {
-  if (word && (reservedWords.includes(word) || (word[0]! >= '0' && word[0]! <= '9'))) {
+  const firstChar = word.charCodeAt(0)
+  if (word && (reservedWords.includes(word) || (firstChar >= 48 && firstChar <= 57))) {
     return `_${word}`
   }
   return word
@@ -102,7 +103,7 @@ export function transformReservedWord(word: string): string {
  */
 export function isValidVarName(name: string): boolean {
   try {
-    Function(`var ${name}`)
+    new Function(`var ${name}`)
   } catch {
     return false
   }

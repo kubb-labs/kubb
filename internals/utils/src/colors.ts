@@ -2,7 +2,14 @@ import { createHash } from 'node:crypto'
 import { styleText } from 'node:util'
 import { formatMs } from './time.ts'
 
-function parseHex(color: string): { r: number; g: number; b: number } {
+/** Parsed RGB channels from a hex color string. */
+type RGB = { r: number; g: number; b: number }
+
+/**
+ * Parses a CSS hex color string (`#rrggbb`) into its RGB channels.
+ * Falls back to `255` for any channel that cannot be parsed.
+ */
+function parseHex(color: string): RGB {
   const c = color.replace('#', '')
   const r = Number.parseInt(c.slice(0, 2), 16)
   const g = Number.parseInt(c.slice(2, 4), 16)
@@ -14,12 +21,20 @@ function parseHex(color: string): { r: number; g: number; b: number } {
   }
 }
 
+/**
+ * Returns a function that wraps a string in a 24-bit ANSI true-color escape sequence
+ * for the given hex color.
+ */
 function hex(color: string): (text: string) => string {
   const { r, g, b } = parseHex(color)
   return (text: string) => `\x1b[38;2;${r};${g};${b}m${text}\x1b[0m`
 }
 
-function gradient(colorStops: string[]) {
+/**
+ * Returns a function that renders text with a smooth linear gradient across the given hex color stops.
+ * Each character is individually colorized by interpolating between adjacent stops.
+ */
+function gradient(colorStops: string[]): (text: string) => string {
   return (text: string) => {
     const chars = [...text]
     return chars
@@ -38,20 +53,42 @@ function gradient(colorStops: string[]) {
   }
 }
 
+/** ANSI color functions for each part of the Kubb mascot illustration. */
 const palette = {
+  /** Top cap of the skittle. */
   lid: hex('#F55A17'),
+  /** Upper wood body. */
   woodTop: hex('#F5A217'),
+  /** Middle wood body. */
   woodMid: hex('#F58517'),
+  /** Base wood body. */
   woodBase: hex('#B45309'),
+  /** Eye whites. */
   eye: hex('#FFFFFF'),
+  /** Highlight accent. */
   highlight: hex('#adadc6'),
+  /** Cheek blush. */
   blush: hex('#FDA4AF'),
 }
 
 /**
  * Generates the Kubb mascot welcome banner.
  */
-export function getIntro({ title, description, version, areEyesOpen }: { title: string; description: string; version: string; areEyesOpen: boolean }): string {
+export function getIntro({
+  title,
+  description,
+  version,
+  areEyesOpen,
+}: {
+  /** Name of the active configuration or tool being started. */
+  title: string
+  /** Short subtitle shown next to the arrow prompt. */
+  description: string
+  /** Kubb version string rendered in the gradient header. */
+  version: string
+  /** When `false` the eyes are shown as closed dashes instead of open blocks. */
+  areEyesOpen: boolean
+}): string {
   const kubbVersion = gradient(['#F58517', '#F5A217', '#F55A17'])(`KUBB v${version}`)
 
   const eyeTop = areEyesOpen ? palette.eye('█▀█') : palette.eye('───')
@@ -66,6 +103,7 @@ export function getIntro({ title, description, version, areEyesOpen }: { title: 
 `
 }
 
+/** ANSI color names available for terminal output. */
 export const randomColors = ['black', 'red', 'green', 'yellow', 'blue', 'white', 'magenta', 'cyan', 'gray'] as const
 
 /**

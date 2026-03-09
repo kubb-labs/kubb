@@ -1,5 +1,10 @@
 /**
- * Strips a single matching pair of `"..."`, `'...'`, or `` `...` `` from both ends.
+ * Strips a single matching pair of `"..."`, `'...'`, or `` `...` `` from both ends of `text`.
+ * Returns the string unchanged when no balanced quote pair is found.
+ *
+ * @example
+ * trimQuotes('"hello"') // 'hello'
+ * trimQuotes('hello')   // 'hello'
  */
 export function trimQuotes(text: string): string {
   if (text.length >= 2) {
@@ -12,14 +17,19 @@ export function trimQuotes(text: string): string {
   return text
 }
 
-/** Escapes backtick characters for safe use inside template literals. */
+/**
+ * Escapes backtick characters so the string can be safely embedded inside a template literal.
+ * Returns an empty string when `text` is `undefined`.
+ */
 export function escape(text?: string): string {
   return text ? text.replaceAll('`', '\\`') : ''
 }
 
 /**
- * Escapes characters not allowed in JS string literals.
- * @link http://www.ecma-international.org/ecma-262/5.1/#sec-7.8.4
+ * Escapes characters that are not allowed inside JS string literals.
+ * Handles quotes, backslashes, and Unicode line terminators (U+2028 / U+2029).
+ *
+ * @see http://www.ecma-international.org/ecma-262/5.1/#sec-7.8.4
  */
 export function jsStringEscape(input: unknown): string {
   return `${input}`.replace(/["'\\\n\r\u2028\u2029]/g, (character) => {

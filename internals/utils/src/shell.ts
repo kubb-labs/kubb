@@ -33,7 +33,9 @@ export function tokenize(command: string): string[] {
 }
 
 type SpawnOptions = {
+  /** Working directory for the child process. Defaults to `process.cwd()`. */
   cwd?: string
+  /** Environment variables passed to the child process. Defaults to the parent's `process.env`. */
   env?: NodeJS.ProcessEnv
   /**
    * When `true`, spawns a detached background process and resolves immediately.
@@ -44,9 +46,11 @@ type SpawnOptions = {
 }
 
 /**
- * Spawns `cmd args` and returns a promise.
- * - Foreground (default): inherits stdio and resolves when the process exits successfully.
- * - Detached: spawns in its own process group, un-refs the child, and resolves immediately.
+ * Spawns `cmd` with `args` and returns a promise that settles when the child process finishes.
+ *
+ * Foreground mode (default) inherits the parent's stdio and rejects on non-zero exit or signal.
+ * Detached mode spawns the child in its own process group, unrefs it, and resolves immediately —
+ * the parent can exit without waiting for the child.
  */
 export function spawnAsync(cmd: string, args: string[], options: SpawnOptions = {}): Promise<void> {
   const { cwd = process.cwd(), env, detached = false } = options

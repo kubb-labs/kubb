@@ -1,6 +1,12 @@
 /**
- * Returns a unique name by appending an incrementing suffix when the name
- * has already been used. Mutates `data` as a usage counter.
+ * Returns a unique name by appending an incrementing numeric suffix when the name has already been used.
+ * Mutates `data` in-place as a usage counter so subsequent calls remain consistent.
+ *
+ * @example
+ * const seen: Record<string, number> = {}
+ * getUniqueName('Foo', seen) // 'Foo'
+ * getUniqueName('Foo', seen) // 'Foo2'
+ * getUniqueName('Foo', seen) // 'Foo3'
  */
 export function getUniqueName(originalName: string, data: Record<string, number>): string {
   let used = data[originalName] || 0
@@ -13,8 +19,8 @@ export function getUniqueName(originalName: string, data: Record<string, number>
 }
 
 /**
- * Registers `originalName` in `data` without modifying the name itself.
- * When the name is already registered, increments its counter and returns it unchanged.
+ * Registers `originalName` in `data` without altering the returned name.
+ * Use this when you need to track usage frequency but always emit the original identifier.
  */
 export function setUniqueName(originalName: string, data: Record<string, number>): string {
   let used = data[originalName] || 0

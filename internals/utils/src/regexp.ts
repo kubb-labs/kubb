@@ -1,14 +1,13 @@
 import { trimQuotes } from './string.ts'
 
 /**
- * Converts a string to a RegExp constructor expression or a RegExp literal string.
- *
- * @param text - The regex pattern, optionally wrapped in quotes or slashes.
- * @param func - Constructor name (`"RegExp"` by default). Pass `null` to return a literal (`/pattern/flags`).
+ * Converts a pattern string into a `new RegExp(...)` constructor call or a regex literal string.
+ * Inline flags expressed as `^(?im)` prefixes are extracted and applied to the resulting expression.
+ * Pass `null` as the second argument to emit a `/pattern/flags` literal instead.
  *
  * @example
- * toRegExpString('^(?im)foo')          // → 'new RegExp("foo", "im")'
- * toRegExpString('^(?im)foo', null)    // → '/foo/im'
+ * toRegExpString('^(?im)foo')       // → 'new RegExp("foo", "im")'
+ * toRegExpString('^(?im)foo', null) // → '/foo/im'
  */
 export function toRegExpString(text: string, func: string | null = 'RegExp'): string {
   const raw = trimQuotes(text)

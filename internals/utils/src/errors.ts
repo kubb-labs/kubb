@@ -1,5 +1,10 @@
+/** Thrown when a plugin's configuration or input fails validation. */
 export class ValidationPluginError extends Error {}
 
+/**
+ * Thrown when one or more errors occur during a Kubb build.
+ * Carries the full list of underlying errors on `errors`.
+ */
 export class BuildError extends Error {
   errors: Array<Error>
 

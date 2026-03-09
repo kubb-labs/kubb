@@ -1,4 +1,5 @@
-import fs, { readFileSync } from 'node:fs'
+import fs from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, posix, resolve } from 'node:path'
 
@@ -25,6 +26,10 @@ export function getRelativePath(rootDir?: string | null, filePath?: string | nul
   return relativePath.startsWith('../') ? relativePath : `./${relativePath}`
 }
 
+/**
+ * Resolves to `true` when the file or directory at `path` exists.
+ * Uses `Bun.file().exists()` when running under Bun, `fs.access` otherwise.
+ */
 export async function exists(path: string): Promise<boolean> {
   if (typeof Bun !== 'undefined') {
     return Bun.file(path).exists()
@@ -35,10 +40,15 @@ export async function exists(path: string): Promise<boolean> {
   )
 }
 
+/** Synchronous counterpart of `exists`. */
 export function existsSync(path: string): boolean {
   return fs.existsSync(path)
 }
 
+/**
+ * Reads the file at `path` as a UTF-8 string.
+ * Uses `Bun.file().text()` when running under Bun, `fs.readFile` otherwise.
+ */
 export async function read(path: string): Promise<string> {
   if (typeof Bun !== 'undefined') {
     return Bun.file(path).text()
@@ -46,12 +56,27 @@ export async function read(path: string): Promise<string> {
   return readFile(path, { encoding: 'utf8' })
 }
 
+/** Synchronous counterpart of `read`. */
 export function readSync(path: string): string {
   return readFileSync(path, { encoding: 'utf8' })
 }
 
-type WriteOptions = { sanity?: boolean }
+type WriteOptions = {
+  /**
+   * When `true`, re-reads the file immediately after writing and throws if the
+   * content does not match — useful for catching write failures on unreliable file systems.
+   */
+  sanity?: boolean
+}
 
+/**
+ * Writes `data` to `path`, trimming leading/trailing whitespace before saving.
+ * Skips the write and returns `undefined` when the trimmed content is empty or
+ * identical to what is already on disk.
+ * Creates any missing parent directories automatically.
+ * When `sanity` is `true`, re-reads the file after writing and throws if the
+ * content does not match — useful for catching write failures on unreliable file systems.
+ */
 export async function write(path: string, data: string, options: WriteOptions = {}): Promise<string | undefined> {
   if (data.trim() === '') {
     return undefined
@@ -94,6 +119,7 @@ export async function write(path: string, data: string, options: WriteOptions = 
   return data.trim()
 }
 
+/** Recursively removes `path`. Silently succeeds when `path` does not exist. */
 export async function clean(path: string): Promise<void> {
   return rm(path, { recursive: true, force: true })
 }

@@ -1,13 +1,14 @@
 import dns from 'node:dns'
 
+/** Well-known stable domains used as DNS probes to check internet connectivity. */
+const TEST_DOMAINS = ['dns.google.com', 'cloudflare.com', 'one.one.one.one'] as const
+
 /**
  * Returns `true` when the system has internet connectivity.
  * Uses DNS resolution against well-known stable domains as a lightweight probe.
  */
 export async function isOnline(): Promise<boolean> {
-  const testDomains = ['dns.google.com', 'cloudflare.com', 'one.one.one.one']
-
-  for (const domain of testDomains) {
+  for (const domain of TEST_DOMAINS) {
     try {
       await dns.promises.resolve(domain)
       return true

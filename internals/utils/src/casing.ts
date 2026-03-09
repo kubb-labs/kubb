@@ -1,12 +1,19 @@
 type Options = {
-  /**
-   * When set it will replace all `.` with `/`.
-   */
+  /** When `true`, dot-separated segments are split on `.` and joined with `/` after casing. */
   isFile?: boolean
+  /** Text prepended before casing is applied. */
   prefix?: string
+  /** Text appended before casing is applied. */
   suffix?: string
 }
 
+/**
+ * Shared implementation for camelCase and PascalCase conversion.
+ * Splits on common word boundaries (spaces, hyphens, underscores, dots, slashes, colons)
+ * and capitalises each word according to `pascal`.
+ *
+ * When `pascal` is `true` the first word is also capitalised (PascalCase), otherwise only subsequent words are.
+ */
 function toCamelOrPascal(text: string, pascal: boolean): string {
   const normalized = text
     .trim()
@@ -20,19 +27,32 @@ function toCamelOrPascal(text: string, pascal: boolean): string {
     .map((word, i) => {
       const allUpper = word.length > 1 && word === word.toUpperCase()
       if (allUpper) return word
-      if (i === 0 && !pascal) return word[0]!.toLowerCase() + word.slice(1)
-      return word[0]!.toUpperCase() + word.slice(1)
+      if (i === 0 && !pascal) return word.charAt(0).toLowerCase() + word.slice(1)
+      return word.charAt(0).toUpperCase() + word.slice(1)
     })
     .join('')
     .replace(/[^a-zA-Z0-9]/g, '')
 }
 
+/**
+ * Splits `text` on `.` and applies `transformPart` to each segment.
+ * The last segment receives `isLast = true`, all earlier segments receive `false`.
+ * Segments are joined with `/` to form a file path.
+ */
 function applyToFileParts(text: string, transformPart: (part: string, isLast: boolean) => string): string {
   const parts = text.split('.')
   const last = parts.length - 1
   return parts.map((part, i) => transformPart(part, i === last)).join('/')
 }
 
+/**
+ * Converts `text` to camelCase.
+ * When `isFile` is `true`, dot-separated segments are each cased independently and joined with `/`.
+ *
+ * @example
+ * camelCase('hello-world')                   // 'helloWorld'
+ * camelCase('pet.petId', { isFile: true })   // 'pet/petId'
+ */
 export function camelCase(text: string, { isFile, prefix = '', suffix = '' }: Options = {}): string {
   if (isFile) {
     return applyToFileParts(text, (part, isLast) => camelCase(part, isLast ? { prefix, suffix } : {}))
@@ -41,6 +61,14 @@ export function camelCase(text: string, { isFile, prefix = '', suffix = '' }: Op
   return toCamelOrPascal(`${prefix} ${text} ${suffix}`, false)
 }
 
+/**
+ * Converts `text` to PascalCase.
+ * When `isFile` is `true`, the last dot-separated segment is PascalCased and earlier segments are camelCased.
+ *
+ * @example
+ * pascalCase('hello-world')                  // 'HelloWorld'
+ * pascalCase('pet.petId', { isFile: true })  // 'pet/PetId'
+ */
 export function pascalCase(text: string, { isFile, prefix = '', suffix = '' }: Options = {}): string {
   if (isFile) {
     return applyToFileParts(text, (part, isLast) => (isLast ? pascalCase(part, { prefix, suffix }) : camelCase(part)))
@@ -49,19 +77,31 @@ export function pascalCase(text: string, { isFile, prefix = '', suffix = '' }: O
   return toCamelOrPascal(`${prefix} ${text} ${suffix}`, true)
 }
 
+/**
+ * Converts `text` to snake_case.
+ *
+ * @example
+ * snakeCase('helloWorld')  // 'hello_world'
+ * snakeCase('Hello-World') // 'hello_world'
+ */
 export function snakeCase(text: string, { prefix = '', suffix = '' }: Omit<Options, 'isFile'> = {}): string {
   const processed = `${prefix} ${text} ${suffix}`.trim()
-  // Convert to lowercase and replace non-alphanumeric characters with underscores
   return processed
-    .replace(/([a-z])([A-Z])/g, '$1_$2') // camelCase to snake_case
-    .replace(/[\s\-.]+/g, '_') // spaces, hyphens, dots to underscores
-    .replace(/[^a-zA-Z0-9_]/g, '') // remove other special chars
+    .replace(/([a-z])([A-Z])/g, '$1_$2')
+    .replace(/[\s\-.]+/g, '_')
+    .replace(/[^a-zA-Z0-9_]/g, '')
     .toLowerCase()
     .split('_')
-    .filter(Boolean) // collapses runs of underscores and trims leading/trailing ones
+    .filter(Boolean)
     .join('_')
 }
 
+/**
+ * Converts `text` to SCREAMING_SNAKE_CASE.
+ *
+ * @example
+ * screamingSnakeCase('helloWorld') // 'HELLO_WORLD'
+ */
 export function screamingSnakeCase(text: string, { prefix = '', suffix = '' }: Omit<Options, 'isFile'> = {}): string {
   return snakeCase(text, { prefix, suffix }).toUpperCase()
 }

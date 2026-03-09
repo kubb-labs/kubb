@@ -1,17 +1,15 @@
 /**
- * Builds a JSDoc comment block with configurable indentation.
- *
- * @param comments - Lines to include in the JSDoc block.
- * @returns A formatted JSDoc string, or `fallback` when there are no comments.
+ * Builds a JSDoc comment block from an array of lines.
+ * Returns `fallback` when `comments` is empty so callers always get a usable string.
  */
 export function buildJSDoc(
   comments: Array<string>,
   options: {
-    /** String to use for indenting each line. @default '   * ' */
+    /** String to use for indenting each line. Defaults to `'   * '`. */
     indent?: string
-    /** String appended after the closing tag. @default '\n  ' */
+    /** String appended after the closing tag. Defaults to `'\n  '`. */
     suffix?: string
-    /** Returned when `comments` is empty. @default '  ' */
+    /** Returned as-is when `comments` is empty. Defaults to `'  '`. */
     fallback?: string
   } = {},
 ): string {
