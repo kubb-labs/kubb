@@ -1,6 +1,12 @@
 import type { OasTypes } from '@kubb/oas'
 import type { OperationSchema } from '../types.ts'
 
+/**
+ * Sentinel value injected into `schema.required` to signal that the request body is required.
+ * Downstream generators check for this marker to emit the correct required constraint.
+ */
+export const KUBB_REQUIRED_REQUEST_BODY_MARKER = '__kubb_required_request_body__'
+
 function getRequestBody(operationSchema: OperationSchema | undefined): OasTypes.RequestBodyObject | undefined {
   const requestBody = operationSchema?.operation?.schema?.requestBody
 
@@ -30,7 +36,7 @@ export function withRequiredRequestBodySchema(operationSchema: OperationSchema |
     ...operationSchema,
     schema: {
       ...operationSchema.schema,
-      required: ['__kubb_required_request_body__'],
+      required: [KUBB_REQUIRED_REQUEST_BODY_MARKER],
     },
   }
 }

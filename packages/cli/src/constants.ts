@@ -74,4 +74,3 @@ export const pluginDefaultConfigs = {
 } as const satisfies Record<string, string>
 
 /** Color palette used by randomCliColor() for deterministic plugin name coloring. */
-export const randomColors = ['black', 'red', 'green', 'yellow', 'blue', 'white', 'magenta', 'cyan', 'gray', 'blue'] as const

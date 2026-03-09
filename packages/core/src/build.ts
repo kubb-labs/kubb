@@ -1,18 +1,17 @@
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
+import { AsyncEventEmitter, clean, exists, formatMs, getElapsedMs, getRelativePath, URLPath, write } from '@internals/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import { createFabric } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
 import { fsPlugin } from '@kubb/react-fabric/plugins'
 import { isInputPath } from './config.ts'
+import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION } from './constants.ts'
 import { BuildError } from './errors.ts'
-import { clean, exists, getRelativePath, write } from './fs/index.ts'
 import { PluginManager } from './PluginManager.ts'
 import type { Config, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
-import { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
-import { formatMs, getElapsedMs } from './utils/formatHrtime.ts'
-import { URLPath } from './utils/URLPath.ts'
+import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 
 type BuildOptions = {
   config: UserConfig
@@ -93,10 +92,8 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     output: {
       write: true,
       barrelType: 'named',
-      extension: {
-        '.ts': '.ts',
-      },
-      defaultBanner: 'simple',
+      extension: DEFAULT_EXTENSION,
+      defaultBanner: DEFAULT_BANNER,
       ...userConfig.output,
     },
     plugins: userConfig.plugins as Config['plugins'],
@@ -159,7 +156,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   const pluginManager = new PluginManager(definedConfig, {
     fabric,
     events,
-    concurrency: 15, // Increased from 5 to 15 for better parallel plugin execution
+    concurrency: DEFAULT_CONCURRENCY,
   })
 
   return {
@@ -258,7 +255,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
     if (config.output.barrelType) {
       const root = resolve(config.root)
-      const rootPath = resolve(root, config.output.path, 'index.ts')
+      const rootPath = resolve(root, config.output.path, BARREL_FILENAME)
+      const rootDir = dirname(rootPath)
 
       await events.emit('debug', {
         date: new Date(),
@@ -274,45 +272,15 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         logs: [`Found ${barrelFiles.length} indexable files for barrel export`],
       })
 
-      // Build a Map of plugin keys to plugins for efficient lookups
-      const pluginKeyMap = new Map<string, Plugin>()
-      for (const plugin of pluginManager.plugins) {
-        pluginKeyMap.set(JSON.stringify(plugin.key), plugin)
-      }
+      const existingBarrel = fabric.files.find((f) => f.path === rootPath)
+      const existingExports = new Set(
+        existingBarrel?.exports?.flatMap((e) => (Array.isArray(e.name) ? e.name : [e.name])).filter((n): n is string => Boolean(n)) ?? [],
+      )
 
       const rootFile: KubbFile.File = {
         path: rootPath,
-        baseName: 'index.ts',
-        exports: barrelFiles
-          .flatMap((file) => {
-            const containsOnlyTypes = file.sources?.every((source) => source.isTypeOnly)
-
-            return file.sources
-              ?.map((source) => {
-                if (!file.path || !source.isIndexable) {
-                  return undefined
-                }
-
-                // validate of the file is coming from plugin x, needs pluginKey on every file TODO update typing
-                const meta = file.meta as any
-                const plugin = meta?.pluginKey ? pluginKeyMap.get(JSON.stringify(meta.pluginKey)) : undefined
-                const pluginOptions = plugin?.options as {
-                  output?: Output<any>
-                }
-
-                if (!pluginOptions || pluginOptions?.output?.barrelType === false) {
-                  return undefined
-                }
-
-                return {
-                  name: config.output.barrelType === 'all' ? undefined : [source.name],
-                  path: getRelativePath(rootPath, file.path),
-                  isTypeOnly: config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
-                } as KubbFile.Export
-              })
-              .filter(Boolean)
-          })
-          .filter(Boolean),
+        baseName: BARREL_FILENAME,
+        exports: buildBarrelExports({ barrelFiles, rootDir, existingExports, config, pluginManager }),
         sources: [],
         imports: [],
         meta: {},
@@ -349,4 +317,50 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       sources,
     }
   }
+}
+
+type BuildBarrelExportsParams = {
+  barrelFiles: KubbFile.ResolvedFile[]
+  rootDir: string
+  existingExports: Set<string>
+  config: Config
+  pluginManager: PluginManager
+}
+
+function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, pluginManager }: BuildBarrelExportsParams): KubbFile.Export[] {
+  const pluginKeyMap = new Map<string, Plugin>()
+  for (const plugin of pluginManager.plugins) {
+    pluginKeyMap.set(JSON.stringify(plugin.key), plugin)
+  }
+
+  return barrelFiles.flatMap((file) => {
+    const containsOnlyTypes = file.sources?.every((source) => source.isTypeOnly)
+
+    return (file.sources ?? []).flatMap((source) => {
+      if (!file.path || !source.isIndexable) {
+        return []
+      }
+
+      const meta = file.meta as FileMetaBase | undefined
+      const plugin = meta?.pluginKey ? pluginKeyMap.get(JSON.stringify(meta.pluginKey)) : undefined
+      const pluginOptions = plugin?.options as { output?: Output<unknown> } | undefined
+
+      if (!pluginOptions || pluginOptions.output?.barrelType === false) {
+        return []
+      }
+
+      const exportName = config.output.barrelType === 'all' ? undefined : source.name ? [source.name] : undefined
+      if (exportName?.some((n) => existingExports.has(n))) {
+        return []
+      }
+
+      return [
+        {
+          name: exportName,
+          path: getRelativePath(rootDir, file.path),
+          isTypeOnly: config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
+        } satisfies KubbFile.Export,
+      ]
+    })
+  })
 }

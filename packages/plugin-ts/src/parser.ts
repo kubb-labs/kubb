@@ -1,4 +1,4 @@
-import transformers from '@kubb/core/transformers'
+import { jsStringEscape } from '@internals/utils'
 import type { SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 import { createParser, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import type ts from 'typescript'
@@ -316,7 +316,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
           return factory.appendJSDocToNode({
             node: propertyNode,
             comments: [
-              describeSchema ? `@description ${transformers.jsStringEscape(describeSchema.args)}` : undefined,
+              describeSchema ? `@description ${jsStringEscape(describeSchema.args)}` : undefined,
               deprecatedSchema ? '@deprecated' : undefined,
               minSchema ? `@minLength ${minSchema.args}` : undefined,
               maxSchema ? `@maxLength ${maxSchema.args}` : undefined,

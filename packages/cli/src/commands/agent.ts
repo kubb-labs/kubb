@@ -1,4 +1,4 @@
-import { defineCommand } from '../cli/index.ts'
+import { defineCommand } from '@internals/utils'
 import { command as startCommand } from './agent/start.ts'
 
 export const command = defineCommand({

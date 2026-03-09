@@ -127,6 +127,7 @@
     "@kubb/react-fabric": "catalog:"
   },
   "devDependencies": {
+    "@internals/utils": "workspace:*",
     "axios": "^1.13.6"
   },
   "peerDependencies": {

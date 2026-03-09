@@ -54,6 +54,7 @@ kubb.log
 .kubb
 hello
 .log
+.mcp.json
 */mocks/hellowWorld.js
 #docs/api/**
 packages/ui/static/**

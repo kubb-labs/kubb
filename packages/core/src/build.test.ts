@@ -1,10 +1,13 @@
+import { mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { AsyncEventEmitter, isPromise } from '@internals/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { build, safeBuild } from './build.ts'
 import { defineConfig } from './config.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { KubbEvents, Plugin, UserConfig } from './types.ts'
-import { AsyncEventEmitter, isPromise } from './utils'
 
 describe('build', () => {
   const pluginMocks = {
@@ -301,52 +304,59 @@ describe('build', () => {
   })
 
   it('should not include files with barrelType false in barrel', async () => {
-    const indexableFile: KubbFile.File = {
-      path: 'src/gen/mocks/excluded.ts',
-      baseName: 'excluded.ts',
-      sources: [
-        {
-          value: 'export const excluded = "excluded"',
-          isIndexable: true,
-          name: 'excluded',
-        },
-      ],
-      imports: [],
-      exports: [],
-      meta: { pluginKey: ['excludedPlugin'] },
-    }
+    const tmpDir = mkdtempSync(join(tmpdir(), 'kubb-test-excluded-'))
 
-    const excludedPlugin = definePlugin(() => {
-      return {
-        name: 'excludedPlugin',
-        options: { output: { barrelType: false } } as any,
-        context: undefined as never,
-        key: ['excludedPlugin'],
-        async install() {
-          await this.addFile(indexableFile)
-        },
+    try {
+      const indexableFile: KubbFile.File = {
+        path: join(tmpDir, 'mocks/excluded.ts'),
+        baseName: 'excluded.ts',
+        sources: [
+          {
+            value: 'export const excluded = "excluded"',
+            isIndexable: true,
+            name: 'excluded',
+          },
+        ],
+        imports: [],
+        exports: [],
+        meta: { pluginKey: ['excludedPlugin'] },
       }
-    })
 
-    const excludeConfig: UserConfig = {
-      ...config,
-      output: {
-        ...config.output,
-        barrelType: 'named' as const,
-        write: false,
-      },
-      plugins: [excludedPlugin({})] as Plugin[],
-    }
+      const excludedPlugin = definePlugin(() => {
+        return {
+          name: 'excludedPlugin',
+          options: { output: { barrelType: false } } as any,
+          context: undefined as never,
+          key: ['excludedPlugin'],
+          async install() {
+            await this.addFile(indexableFile)
+          },
+        }
+      })
 
-    const { fabric } = await build({
-      config: excludeConfig,
-      events: new AsyncEventEmitter<KubbEvents>(),
-    })
+      const excludeConfig: UserConfig = {
+        ...config,
+        output: {
+          ...config.output,
+          path: tmpDir,
+          barrelType: 'named' as const,
+          write: false,
+        },
+        plugins: [excludedPlugin({})] as Plugin[],
+      }
 
-    const barrelFile = fabric.files.find((f) => f.baseName === 'index.ts')
-    if (barrelFile) {
-      const hasExcludedExport = barrelFile.exports?.some((e) => e.name?.includes('excluded'))
-      expect(hasExcludedExport).toBeFalsy()
+      const { fabric } = await build({
+        config: excludeConfig,
+        events: new AsyncEventEmitter<KubbEvents>(),
+      })
+
+      const barrelFile = fabric.files.find((f) => f.baseName === 'index.ts')
+      if (barrelFile) {
+        const hasExcludedExport = barrelFile.exports?.some((e) => e.name?.includes('excluded'))
+        expect(hasExcludedExport).toBeFalsy()
+      }
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true })
     }
   })
 })

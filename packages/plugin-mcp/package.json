@@ -92,7 +92,9 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react-fabric": "catalog:"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@internals/utils": "workspace:*"
+  },
   "engines": {
     "node": ">=20"
   },

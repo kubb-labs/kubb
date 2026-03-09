@@ -1,0 +1,57 @@
+{
+  "name": "@internals/utils",
+  "version": "0.0.0",
+  "description": "Internal utility helpers shared across Kubb workspace packages.",
+  "keywords": [
+    "kubb",
+    "internal",
+    "utils",
+    "typescript",
+    "codegen"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
+    "directory": "internals/utils"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {}
+  },
+  "files": [
+    "src",
+    "dist",
+    "!/**/**.test.**",
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "clean": "npx rimraf ./dist",
+    "lint": "bun biome lint .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
+    "start": "tsdown --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "engines": {
+    "node": ">=20"
+  }
+}

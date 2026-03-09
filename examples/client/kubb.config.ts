@@ -1,11 +1,16 @@
 import { defineConfig } from '@kubb/core'
-import transformers from '@kubb/core/transformers'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { clientOperationGenerator } from './src/generators/clientOperationGenerator'
 import { clientOperationReactGenerator } from './src/generators/clientOperationReactGenerator'
 import { clientStaticGenerator } from './src/generators/clientStaticGenerator'
+
+const camelCase = (str: string) =>
+  str
+    .split(/[\s_-]+/)
+    .map((w, i) => (i === 0 ? w.charAt(0).toLowerCase() + w.slice(1) : w.charAt(0).toUpperCase() + w.slice(1)))
+    .join('')
 
 export default defineConfig(() => {
   return {
@@ -149,7 +154,7 @@ export default defineConfig(() => {
         transformers: {
           name(name, type) {
             if (type === 'function') {
-              return transformers.camelCase(`${name} controller`)
+              return camelCase(`${name} controller`)
             }
 
             return name

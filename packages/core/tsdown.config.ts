@@ -2,10 +2,7 @@ import { defineConfig, type UserConfig } from 'tsdown'
 
 const entry = {
   index: 'src/index.ts',
-  transformers: 'src/transformers/index.ts',
   hooks: 'src/hooks/index.ts',
-  fs: 'src/fs/index.ts',
-  utils: 'src/utils/index.ts',
 }
 
 const shared: Partial<UserConfig> = {
@@ -15,7 +12,7 @@ const shared: Partial<UserConfig> = {
   exports: true,
   deps: {
     neverBundle: [/^@kubb\//],
-    alwaysBundle: [/p-limit/],
+    alwaysBundle: [/p-limit/, /@internals/],
     onlyAllowBundle: false,
   },
   fixedExtension: false,

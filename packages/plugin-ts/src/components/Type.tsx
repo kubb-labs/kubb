@@ -1,4 +1,4 @@
-import transformers from '@kubb/core/transformers'
+import { camelCase, jsStringEscape, pascalCase, trimQuotes } from '@internals/utils'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { SchemaObject } from '@kubb/oas'
 import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
@@ -123,8 +123,8 @@ export function Type({
         : type,
       syntax: useTypeGeneration ? 'type' : 'interface',
       comments: [
-        schema.title ? `${transformers.jsStringEscape(schema.title)}` : undefined,
-        description ? `@description ${transformers.jsStringEscape(description)}` : undefined,
+        schema.title ? `${jsStringEscape(schema.title)}` : undefined,
+        description ? `@description ${jsStringEscape(description)}` : undefined,
         schema.deprecated ? '@deprecated' : undefined,
         schema.minLength ? `@minLength ${schema.minLength}` : undefined,
         schema.maxLength ? `@maxLength ${schema.maxLength}` : undefined,
@@ -136,14 +136,14 @@ export function Type({
   )
 
   const enums = [...new Set(enumSchemas)].map((enumSchema) => {
-    const name = enumType === 'asPascalConst' ? transformers.pascalCase(enumSchema.args.name) : transformers.camelCase(enumSchema.args.name)
+    const name = enumType === 'asPascalConst' ? pascalCase(enumSchema.args.name) : camelCase(enumSchema.args.name)
     const typeName = ['asConst', 'asPascalConst'].includes(enumType) ? `${enumSchema.args.typeName}Key` : enumSchema.args.typeName
 
     const [nameNode, typeNode] = factory.createEnumDeclaration({
       name,
       typeName,
       enums: enumSchema.args.items
-        .map((item) => (item.value === undefined ? undefined : [transformers.trimQuotes(item.name?.toString()), item.value]))
+        .map((item) => (item.value === undefined ? undefined : [trimQuotes(item.name?.toString()), item.value]))
         .filter(Boolean) as unknown as Array<[string, string]>,
       type: enumType,
       enumKeyCasing,

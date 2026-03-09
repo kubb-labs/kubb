@@ -1,4 +1,4 @@
-import { URLPath } from '@kubb/core/utils'
+import { URLPath } from '@internals/utils'
 import { isOptional, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'

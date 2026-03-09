@@ -1,9 +1,8 @@
 import path from 'node:path'
 import { styleText } from 'node:util'
+import { formatHrtime, randomCliColor } from '@internals/utils'
 import type { Config, Plugin } from '@kubb/core'
-import { formatHrtime } from '@kubb/core/utils'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
-import { randomCliColor } from './randomColor.ts'
 
 type SummaryProps = {
   failedPlugins: Set<{ plugin: Plugin; error: Error }>

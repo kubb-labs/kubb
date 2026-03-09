@@ -1,6 +1,4 @@
-import { isValidVarName } from '@kubb/core/transformers'
-import { URLPath } from '@kubb/core/utils'
-
+import { isValidVarName, URLPath } from '@internals/utils'
 import { getDefaultValue, type Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getParamsMapping, getPathParams } from '@kubb/plugin-oas/utils'

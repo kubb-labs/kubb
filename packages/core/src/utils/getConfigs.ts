@@ -1,32 +1,23 @@
 import type { CLIOptions, defineConfig } from '../config.ts'
 import type { Config, UserConfig } from '../types.ts'
 import { getPlugins } from './getPlugins.ts'
-import { isPromise } from './promise.ts'
 
 /**
  * Converting UserConfig to Config Array without a change in the object beside the JSON convert.
  */
 export async function getConfigs(config: ReturnType<typeof defineConfig> | UserConfig, args: CLIOptions): Promise<Array<Config>> {
-  let kubbUserConfig = Promise.resolve(config) as Promise<UserConfig | Array<UserConfig>>
+  const resolvedConfig: Promise<UserConfig | Array<UserConfig>> =
+    typeof config === 'function' ? Promise.resolve(config(args as CLIOptions)) : Promise.resolve(config)
 
-  // for ts or js files
-  if (typeof config === 'function') {
-    const possiblePromise = config(args as CLIOptions)
-    if (isPromise(possiblePromise)) {
-      kubbUserConfig = possiblePromise
-    }
-    kubbUserConfig = Promise.resolve(possiblePromise)
-  }
+  let userConfigs = await resolvedConfig
 
-  let JSONConfig = await kubbUserConfig
-
-  if (!Array.isArray(JSONConfig)) {
-    JSONConfig = [JSONConfig]
+  if (!Array.isArray(userConfigs)) {
+    userConfigs = [userConfigs]
   }
 
   const results: Array<Config> = []
 
-  for (const item of JSONConfig) {
+  for (const item of userConfigs) {
     const plugins = item.plugins ? await getPlugins(item.plugins) : undefined
 
     results.push({

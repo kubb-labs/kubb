@@ -6,8 +6,8 @@ import type { Options } from 'prettier'
 import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
 import { expect } from 'vitest'
+import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
 import type { Plugin, PluginManager } from '../packages/core/src'
-import { camelCase, pascalCase } from '../packages/core/src/transformers'
 
 const formatOptions: Options = {
   tabWidth: 2,

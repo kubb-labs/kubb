@@ -31,36 +31,15 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./fs": {
-      "import": "./dist/fs.js",
-      "require": "./dist/fs.cjs"
-    },
     "./hooks": {
       "import": "./dist/hooks.js",
       "require": "./dist/hooks.cjs"
-    },
-    "./transformers": {
-      "import": "./dist/transformers.js",
-      "require": "./dist/transformers.cjs"
-    },
-    "./utils": {
-      "import": "./dist/utils.js",
-      "require": "./dist/utils.cjs"
     },
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "utils": [
-        "./dist/utils.d.ts"
-      ],
-      "transformers": [
-        "./dist/transformers.d.ts"
-      ],
-      "fs": [
-        "./dist/fs.d.ts"
-      ],
       "hooks": [
         "./dist/hooks.d.ts"
       ]
@@ -98,12 +77,12 @@
   "dependencies": {
     "@kubb/react-fabric": "catalog:",
     "empathic": "^2.0.0",
-    "jiti": "2.5.1",
     "remeda": "catalog:",
     "semver": "^7.7.4",
     "tinyexec": "catalog:"
   },
   "devDependencies": {
+    "@internals/utils": "workspace:*",
     "@types/semver": "^7.7.1",
     "p-limit": "catalog:"
   },

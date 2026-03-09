@@ -1,5 +1,5 @@
+import { AsyncEventEmitter, formatMs, maskString, serializePluginOptions } from '@internals/utils'
 import type { KubbEvents } from '@kubb/core'
-import { AsyncEventEmitter, formatMs, serializePluginOptions } from '@kubb/core/utils'
 import type { NitroApp } from 'nitropack/types'
 import { version } from '~~/package.json'
 import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage, isPublishCommandMessage } from '../types/agent.ts'
@@ -8,7 +8,6 @@ import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
 import { loadConfig } from './loadConfig.ts'
 import { logger } from './logger.ts'
-import { maskedString } from './maskedString.ts'
 import { mergePlugins } from './mergePlugins.ts'
 import { publish } from './publish.ts'
 import { setupHookListener } from './setupHookListener.ts'
@@ -67,8 +66,8 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     const { sessionId, wsUrl, isSandbox } = initialSession ?? (await createAgentSession({ token, studioUrl }))
     const ws = createWebsocket(wsUrl, { headers: { Authorization: `Bearer ${token}` } })
-    const maskedWsUrl = maskedString(wsUrl)
-    const maskedSessionId = maskedString(sessionId)
+    const maskedWsUrl = maskString(wsUrl)
+    const maskedSessionId = maskString(sessionId)
 
     // Effective permissions: always disabled in sandbox mode
     const effectiveAllowAll = isSandbox ? false : allowAll

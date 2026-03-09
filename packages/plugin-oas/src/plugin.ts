@@ -1,14 +1,13 @@
 import path from 'node:path'
+import type { AsyncEventEmitter } from '@internals/utils'
+import { camelCase } from '@internals/utils'
 import { type Config, definePlugin, type Group, getMode, type KubbEvents } from '@kubb/core'
-import { camelCase } from '@kubb/core/transformers'
-import type { AsyncEventEmitter } from '@kubb/core/utils'
 import type { Oas } from '@kubb/oas'
-import { parseFromConfig } from '@kubb/oas'
+import { parseFromConfig, resolveServerUrl } from '@kubb/oas'
 import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 import type { PluginOas } from './types.ts'
-import { resolveServerUrl } from './utils/resolveServerUrl.ts'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 

@@ -1,6 +1,6 @@
 import path from 'node:path'
+import { camelCase } from '@internals/utils'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
-import { camelCase } from '@kubb/core/transformers'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { classClientGenerator, operationsGenerator } from './generators'
@@ -43,7 +43,7 @@ export const pluginClient = definePlugin<PluginClient>((options) => {
     clientType === 'staticClass' ? staticClassClientGenerator : clientType === 'class' ? classClientGenerator : clientGenerator,
     group && clientType === 'function' ? groupedClientGenerator : undefined,
     operations ? operationsGenerator : undefined,
-  ].filter(Boolean)
+  ].filter((x): x is NonNullable<typeof x> => Boolean(x))
 
   const generators = options.generators ?? defaultGenerators
 

@@ -1,4 +1,4 @@
-import transformers from '@kubb/core/transformers'
+import { jsStringEscape } from '@internals/utils'
 import type { Schema } from '@kubb/plugin-oas'
 import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
@@ -34,7 +34,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
           },
         ),
       )
-      .filter(Boolean),
+      .filter((x): x is string => Boolean(x)),
   )
 
   const isArray = fakerText.startsWith('faker.helpers.arrayElements') || fakerText.startsWith('faker.helpers.multiple')
@@ -94,7 +94,7 @@ export function Faker({ tree, description, name, typeName, seed, regexGenerator,
       <Function
         export
         name={name}
-        JSDoc={{ comments: [description ? `@description ${transformers.jsStringEscape(description)}` : undefined].filter(Boolean) }}
+        JSDoc={{ comments: [description ? `@description ${jsStringEscape(description)}` : undefined].filter(Boolean) }}
         params={canOverride ? params.toConstructor() : undefined}
         returnType={returnType}
       >

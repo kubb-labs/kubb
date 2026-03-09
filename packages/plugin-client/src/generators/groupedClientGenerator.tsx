@@ -1,5 +1,5 @@
+import { camelCase } from '@internals/utils'
 import { usePluginManager } from '@kubb/core/hooks'
-import { camelCase } from '@kubb/core/transformers'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'

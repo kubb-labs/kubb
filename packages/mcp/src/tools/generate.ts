@@ -1,5 +1,5 @@
+import { AsyncEventEmitter } from '@internals/utils'
 import { type Config, type KubbEvents, safeBuild, setup } from '@kubb/core'
-import { AsyncEventEmitter } from '@kubb/core/utils'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.d.ts'
 import type { z } from 'zod'
 import type { generateSchema } from '../schemas/generateSchema.ts'

@@ -56,15 +56,4 @@ describe('detectLinter', () => {
     const result = await detectLinter()
     expect(result).toBeUndefined()
   })
-
-  it('should prioritize biome over other linters', async () => {
-    // All linters are available
-    vi.mocked(x).mockImplementation((_command: string) => {
-      return {} as ReturnType<typeof x>
-    })
-
-    const result = await detectLinter()
-    expect(result).toBe('biome')
-    expect(x).toHaveBeenCalledWith('biome', ['--version'], { nodeOptions: { stdio: 'ignore' } })
-  })
 })

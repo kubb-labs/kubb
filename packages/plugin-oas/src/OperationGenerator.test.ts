@@ -5,6 +5,7 @@ import { parse, parseFromConfig } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, test } from 'vitest'
 import { OperationGenerator } from './OperationGenerator.ts'
+import { KUBB_REQUIRED_REQUEST_BODY_MARKER } from './utils/requestBody.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -106,7 +107,7 @@ describe('OperationGenerator core', async () => {
     )
 
     const schemas = og.getSchemas(oasWithRequiredBody.operation('/orders', 'post'))
-    expect(schemas.request?.schema.required).toStrictEqual(['__kubb_required_request_body__'])
+    expect(schemas.request?.schema.required).toStrictEqual([KUBB_REQUIRED_REQUEST_BODY_MARKER])
   })
 })
 

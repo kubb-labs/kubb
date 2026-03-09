@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
+import { createCLI } from '@internals/utils'
 import { version } from '../package.json'
-import { createCLI } from './cli/index.ts'
 import { isTelemetryDisabled } from './utils/telemetry.ts'
 
 const cli = createCLI()

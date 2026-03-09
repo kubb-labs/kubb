@@ -1,4 +1,4 @@
-import transformers from '@kubb/core/transformers'
+import { stringify, toRegExpString } from '@internals/utils'
 import type { Schema, SchemaKeywordMapper, SchemaMapper } from '@kubb/plugin-oas'
 import { createParser, findSchemaKeyword, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import type { Options } from './types.ts'
@@ -141,7 +141,7 @@ const fakerKeywordMapper = {
   ref: () => 'ref',
   matches: (value = '', regexGenerator: 'faker' | 'randexp' = 'faker') => {
     if (regexGenerator === 'randexp') {
-      return `${transformers.toRegExpString(value, 'RandExp')}.gen()`
+      return `${toRegExpString(value, 'RandExp')}.gen()`
     }
     return `faker.helpers.fromRegExp("${value}")`
   },
@@ -214,14 +214,18 @@ export const parse = createParser<string, ParserOptions>({
       }
 
       return fakerKeywordMapper.union(
-        current.args.map((it) => this.parse({ schema, parent: current, name, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
+        current.args
+          .map((it) => this.parse({ schema, parent: current, name, current: it, siblings }, { ...options, canOverride: false }))
+          .filter((x): x is string => Boolean(x)),
       )
     },
     and(tree, options) {
       const { current, schema, siblings } = tree
 
       return fakerKeywordMapper.and(
-        current.args.map((it) => this.parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
+        current.args
+          .map((it) => this.parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false }))
+          .filter((x): x is string => Boolean(x)),
       )
     },
     array(tree, options) {
@@ -244,7 +248,7 @@ export const parse = createParser<string, ParserOptions>({
               },
             ),
           )
-          .filter(Boolean),
+          .filter((x): x is string => Boolean(x)),
         current.args.min,
         current.args.max,
       )
@@ -264,7 +268,7 @@ export const parse = createParser<string, ParserOptions>({
             if (schema.format === 'boolean') {
               return schema.value
             }
-            return transformers.stringify(schema.value)
+            return stringify(schema.value)
           }),
         )
       }
@@ -277,7 +281,7 @@ export const parse = createParser<string, ParserOptions>({
           if (schema.format === 'boolean') {
             return schema.value
           }
-          return transformers.stringify(schema.value)
+          return stringify(schema.value)
         }),
         // TODO replace this with getEnumNameFromSchema
         name ? options.typeName : undefined,
@@ -348,7 +352,7 @@ export const parse = createParser<string, ParserOptions>({
                   },
                 ),
               )
-              .filter(Boolean),
+              .filter((x): x is string => Boolean(x)),
           )}`
         })
         .join(',')
@@ -360,7 +364,9 @@ export const parse = createParser<string, ParserOptions>({
 
       if (Array.isArray(current.args.items)) {
         return fakerKeywordMapper.tuple(
-          current.args.items.map((it) => this.parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false })).filter(Boolean),
+          current.args.items
+            .map((it) => this.parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false }))
+            .filter((x): x is string => Boolean(x)),
         )
       }
 
@@ -372,7 +378,7 @@ export const parse = createParser<string, ParserOptions>({
       if (current.args.format === 'number' && current.args.name !== undefined) {
         return fakerKeywordMapper.const(current.args.name?.toString())
       }
-      return fakerKeywordMapper.const(transformers.stringify(current.args.value))
+      return fakerKeywordMapper.const(stringify(current.args.value))
     },
     matches(tree, options) {
       const { current } = tree

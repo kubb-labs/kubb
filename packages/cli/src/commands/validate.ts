@@ -1,5 +1,5 @@
+import { defineCommand } from '@internals/utils'
 import { version } from '../../package.json'
-import { defineCommand } from '../cli/index.ts'
 
 export const command = defineCommand({
   name: 'validate',

@@ -1,4 +1,4 @@
-import { buildJSDoc, URLPath } from '@kubb/core/utils'
+import { buildJSDoc, URLPath } from '@internals/utils'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getComments } from '@kubb/plugin-oas/utils'

@@ -1,5 +1,4 @@
 import path from 'node:path'
-import { URLPath } from '@kubb/core/utils'
 import type { PluginClient } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
@@ -7,6 +6,8 @@ import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File } from '@kubb/react-fabric'
+
+const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
 
 export const clientStaticGenerator = createReactGenerator<PluginClient>({
   name: 'client',
@@ -85,7 +86,7 @@ export const clientStaticGenerator = createReactGenerator<PluginClient>({
         <File.Source>
           {`
         ${client.name}.method = "${operation.method}" as const;
-        ${client.name}.url = "${new URLPath(operation.path).URL}" as const;
+        ${client.name}.url = "${toURL(operation.path)}" as const;
         ${client.name}.operationId = "${client.name}" as const;
         ${client.name}.request = {} as ${type.schemas.request?.name || 'never'};
         ${client.name}.response = {} as ${type.schemas.response?.name || 'never'};

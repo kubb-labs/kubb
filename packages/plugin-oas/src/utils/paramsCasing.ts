@@ -1,4 +1,4 @@
-import transformers, { isValidVarName } from '@kubb/core/transformers'
+import { camelCase, isValidVarName } from '@internals/utils'
 import type { SchemaObject } from '@kubb/oas'
 
 /**
@@ -18,10 +18,10 @@ export function applyParamsCasing(schema: SchemaObject, casing: 'camelcase' | un
     let transformedName = originalName
 
     if (casing === 'camelcase') {
-      transformedName = transformers.camelCase(originalName)
+      transformedName = camelCase(originalName)
     } else if (!isValidVarName(originalName)) {
       // If not valid variable name, make it valid
-      transformedName = transformers.camelCase(originalName)
+      transformedName = camelCase(originalName)
     }
 
     transformedProperties[transformedName] = propertySchema
@@ -33,9 +33,9 @@ export function applyParamsCasing(schema: SchemaObject, casing: 'camelcase' | un
       let transformedName = originalName
 
       if (casing === 'camelcase') {
-        transformedName = transformers.camelCase(originalName)
+        transformedName = camelCase(originalName)
       } else if (!isValidVarName(originalName)) {
-        transformedName = transformers.camelCase(originalName)
+        transformedName = camelCase(originalName)
       }
 
       transformedRequired.push(transformedName)

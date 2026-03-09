@@ -1,22 +1,5 @@
 import { x } from 'tinyexec'
-
-export const formatters = {
-  prettier: {
-    command: 'prettier',
-    args: (outputPath: string) => ['--ignore-unknown', '--write', outputPath],
-    errorMessage: 'Prettier not found',
-  },
-  biome: {
-    command: 'biome',
-    args: (outputPath: string) => ['format', '--write', outputPath],
-    errorMessage: 'Biome not found',
-  },
-  oxfmt: {
-    command: 'oxfmt',
-    args: (outputPath: string) => [outputPath],
-    errorMessage: 'Oxfmt not found',
-  },
-} as const
+import type { formatters } from '../constants.ts'
 
 type Formatter = keyof typeof formatters
 
@@ -61,9 +44,9 @@ async function isFormatterAvailable(formatter: Formatter): Promise<boolean> {
  * ```
  */
 export async function detectFormatter(): Promise<Formatter | undefined> {
-  const formatters: Formatter[] = ['biome', 'oxfmt', 'prettier']
+  const formatterNames: Formatter[] = ['biome', 'oxfmt', 'prettier']
 
-  for (const formatter of formatters) {
+  for (const formatter of formatterNames) {
     if (await isFormatterAvailable(formatter)) {
       return formatter
     }

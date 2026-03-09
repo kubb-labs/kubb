@@ -1,6 +1,6 @@
+import { pascalCase } from '@internals/utils'
 import type { PluginManager } from '@kubb/core'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
-import transformers from '@kubb/core/transformers'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { Operation } from '@kubb/oas'
 import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
@@ -93,7 +93,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
           }
 
           return factory.createPropertySignature({
-            name: transformers.pascalCase(key),
+            name: pascalCase(key),
             type,
           })
         })

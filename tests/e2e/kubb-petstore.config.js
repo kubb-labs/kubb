@@ -1,5 +1,4 @@
 import { defineConfig } from '@kubb/core'
-import { camelCase } from '@kubb/core/transformers'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginCypress } from '@kubb/plugin-cypress'
 import { pluginFaker } from '@kubb/plugin-faker'
@@ -105,17 +104,6 @@ export default defineConfig(() => {
           barrelType: false,
         },
         group: { type: 'tag' },
-        transformers: {
-          name: (name, type) => {
-            if (type === 'file' || type === 'function') {
-              return camelCase(name, {
-                prefix: type ? 'createMock' : undefined,
-                isFile: type === 'file',
-              })
-            }
-            return name
-          },
-        },
       }),
       pluginMsw({
         output: {

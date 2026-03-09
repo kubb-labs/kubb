@@ -1,10 +1,8 @@
-import type { KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import { BaseGenerator, type FileMetaBase } from '@kubb/core'
-import transformers, { pascalCase } from '@kubb/core/transformers'
-import { type AsyncEventEmitter, getUniqueName } from '@kubb/core/utils'
+import { type AsyncEventEmitter, getUniqueName, pascalCase, stringify } from '@internals/utils'
+import type { FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
-import { isDiscriminator, isNullable, isReference } from '@kubb/oas'
+import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'
 import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
@@ -17,6 +15,11 @@ import { buildSchema } from './utils.tsx'
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
 export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
+
+/** Max concurrent generator tasks (across generators). */
+const GENERATOR_CONCURRENCY = 3
+/** Max concurrent schema parsing tasks (per generator). */
+const SCHEMA_CONCURRENCY = 30
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   fabric: Fabric
@@ -55,8 +58,8 @@ export type SchemaGeneratorOptions = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
     /**
-     * Receive schema and name(propertyName) and return FakerMeta array
-     * TODO TODO add docs
+     * Receive schema and name(propertyName) and return Schema array.
+     * Return `undefined` to fall through to default schema generation.
      * @beta
      */
     schema?: (schemaProps: SchemaProps, defaultSchemas: Schema[]) => Array<Schema> | undefined
@@ -76,7 +79,26 @@ export class SchemaGenerator<
   TOptions extends SchemaGeneratorOptions = SchemaGeneratorOptions,
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends FileMetaBase = FileMetaBase,
-> extends BaseGenerator<TOptions, Context<TOptions, TPluginOptions>> {
+> {
+  #options: TOptions
+  #context: Context<TOptions, TPluginOptions>
+
+  constructor(options: TOptions, context: Context<TOptions, TPluginOptions>) {
+    this.#options = options
+    this.#context = context
+  }
+
+  get options(): TOptions {
+    return this.#options
+  }
+
+  set options(options: TOptions) {
+    this.#options = { ...this.#options, ...options }
+  }
+
+  get context(): Context<TOptions, TPluginOptions> {
+    return this.#context
+  }
   // Collect the types of all referenced schemas, so we can export them later
   refs: Refs = {}
 
@@ -559,8 +581,8 @@ export class SchemaGenerator<
           let arg: Schema | undefined
 
           // Check if this is a synthetic ref for inline schemas (e.g., #kubb-inline-0)
-          if (value.startsWith('#kubb-inline-')) {
-            const index = Number.parseInt(value.replace('#kubb-inline-', ''), 10)
+          if (value.startsWith(KUBB_INLINE_REF_PREFIX)) {
+            const index = Number.parseInt(value.replace(KUBB_INLINE_REF_PREFIX, ''), 10)
             // Validate index is within bounds
             if (!Number.isNaN(index) && index >= 0 && index < schema.args.length) {
               arg = schema.args[index]
@@ -667,7 +689,7 @@ export class SchemaGenerator<
       {
         keyword: schemaKeywords.schema,
         args: {
-          type: schemaObject.type as any,
+          type: schemaObject.type as SchemaKeywordMapper['schema']['args']['type'],
           format: schemaObject.format,
         },
       },
@@ -685,7 +707,7 @@ export class SchemaGenerator<
       if (typeof schemaObject.default === 'string') {
         baseItems.push({
           keyword: schemaKeywords.default,
-          args: transformers.stringify(schemaObject.default),
+          args: stringify(schemaObject.default),
         })
       } else if (typeof schemaObject.default === 'boolean') {
         baseItems.push({
@@ -759,7 +781,7 @@ export class SchemaGenerator<
                     rootName,
                   })[0],
               )
-              .filter(Boolean)
+              .filter((x): x is Schema => Boolean(x))
               .map((item) => (isKeyword(item, schemaKeywords.object) ? { ...item, args: { ...item.args, strict: true } } : item)),
           },
         ]
@@ -794,11 +816,11 @@ export class SchemaGenerator<
         {
           keyword: schemaKeywords.schema,
           args: {
-            type: schemaObject.type as any,
+            type: schemaObject.type as SchemaKeywordMapper['schema']['args']['type'],
             format: schemaObject.format,
           },
         },
-      ].filter(Boolean)
+      ].filter((x): x is Schema => Boolean(x))
     }
 
     if (schemaObject.oneOf || schemaObject.anyOf) {
@@ -813,7 +835,7 @@ export class SchemaGenerator<
             // first item, this is ref
             return item && this.parse({ schema: item as SchemaObject, name, parentName, rootName })[0]
           })
-          .filter(Boolean),
+          .filter((x): x is Schema => Boolean(x)),
       }
 
       if (discriminator) {
@@ -967,7 +989,7 @@ export class SchemaGenerator<
                 typeName,
                 asConst: false,
                 items: [...new Set(schemaObject[extensionKey as keyof typeof schemaObject] as string[])].map((name: string | number, index) => ({
-                  name: transformers.stringify(name),
+                  name: stringify(name),
                   value: schemaObject.enum?.[index] as string | number,
                   format: isNumber(schemaObject.enum?.[index]) ? 'number' : 'string',
                 })),
@@ -1049,7 +1071,7 @@ export class SchemaGenerator<
             typeName,
             asConst: false,
             items: [...new Set(filteredValues)].map((value: string) => ({
-              name: transformers.stringify(value),
+              name: stringify(value),
               value,
               format: isNumber(value) ? 'number' : 'string',
             })),
@@ -1075,7 +1097,7 @@ export class SchemaGenerator<
               .map((item) => {
                 return this.parse({ schema: item, name, parentName, rootName })[0]
               })
-              .filter(Boolean),
+              .filter((x): x is Schema => Boolean(x)),
             rest: this.parse({
               schema: items,
               name,
@@ -1126,7 +1148,7 @@ export class SchemaGenerator<
      * see also https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.7
      */
     // Handle OpenAPI 3.1 contentMediaType for binary data
-    if (schemaObject.type === 'string' && (schemaObject as any).contentMediaType === 'application/octet-stream') {
+    if (schemaObject.type === 'string' && (schemaObject as SchemaObject & { contentMediaType?: string }).contentMediaType === 'application/octet-stream') {
       baseItems.unshift({ keyword: schemaKeywords.blob })
       return baseItems
     }
@@ -1257,22 +1279,23 @@ export class SchemaGenerator<
     if (schemaObject.properties || schemaObject.additionalProperties || 'patternProperties' in schemaObject) {
       if (isDiscriminator(schemaObject)) {
         // override schema to set type to be based on discriminator mapping, use of enum to convert type string to type 'mapping1' | 'mapping2'
-        const schemaObjectOverridden = Object.keys(schemaObject.properties || {}).reduce((acc, propertyName) => {
+        const schemaObjectOverridden = Object.keys(schemaObject.properties || {}).reduce<SchemaObject>((acc, propertyName) => {
           if (acc.properties?.[propertyName] && propertyName === schemaObject.discriminator.propertyName) {
+            const existingProperty = acc.properties[propertyName] as SchemaObject
             return {
               ...acc,
               properties: {
                 ...acc.properties,
                 [propertyName]: {
-                  ...((acc.properties[propertyName] as any) || {}),
+                  ...existingProperty,
                   enum: schemaObject.discriminator.mapping ? Object.keys(schemaObject.discriminator.mapping) : undefined,
                 },
               },
-            }
+            } as SchemaObject
           }
 
           return acc
-        }, schemaObject || {}) as SchemaObject
+        }, schemaObject as SchemaObject)
 
         return [...this.#parseProperties(name, schemaObjectOverridden, rootName), ...baseItems]
       }
@@ -1337,11 +1360,8 @@ export class SchemaGenerator<
   async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const schemaEntries = Object.entries(schemas)
 
-    // Increased parallelism for better performance
-    // - generatorLimit increased from 1 to 3 to allow parallel generator processing
-    // - schemaLimit increased from 10 to 30 to process more schemas concurrently
-    const generatorLimit = pLimit(3)
-    const schemaLimit = pLimit(30)
+    const generatorLimit = pLimit(GENERATOR_CONCURRENCY)
+    const schemaLimit = pLimit(SCHEMA_CONCURRENCY)
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {

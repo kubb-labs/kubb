@@ -1,4 +1,4 @@
-import { camelCase, isValidVarName } from '@kubb/core/transformers'
+import { camelCase, isValidVarName } from '@internals/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { SchemaObject } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'

@@ -1,11 +1,10 @@
 import mod from 'node:module'
 import os from 'node:os'
 import { pathToFileURL } from 'node:url'
-
+import { read, readSync } from '@internals/utils'
 import * as pkg from 'empathic/package'
 import { coerce, satisfies } from 'semver'
-
-import { read, readSync } from './fs/index.ts'
+import { PATH_SEPARATORS } from './constants.ts'
 
 type PackageJSON = {
   dependencies?: Record<string, string>
@@ -20,13 +19,11 @@ export class PackageManager {
   static #cache: Record<DependencyName, DependencyVersion> = {}
 
   #cwd?: string
-  #SLASHES = new Set(['/', '\\'])
+
   constructor(workspace?: string) {
     if (workspace) {
       this.#cwd = workspace
     }
-
-    return this
   }
 
   set workspace(workspace: string) {
@@ -39,7 +36,7 @@ export class PackageManager {
 
   normalizeDirectory(directory: string): string {
     const lastChar = directory[directory.length - 1]
-    if (lastChar && !this.#SLASHES.has(lastChar)) {
+    if (lastChar && !(PATH_SEPARATORS as readonly string[]).includes(lastChar)) {
       return `${directory}/`
     }
 
@@ -57,21 +54,16 @@ export class PackageManager {
     return location
   }
 
-  async import(path: string): Promise<any | undefined> {
-    try {
-      let location = this.getLocation(path)
+  async import(path: string): Promise<unknown> {
+    let location = this.getLocation(path)
 
-      if (os.platform() === 'win32') {
-        location = pathToFileURL(location).href
-      }
-
-      const module = await import(location)
-
-      return module?.default ?? module
-    } catch (error) {
-      console.error(error)
-      return undefined
+    if (os.platform() === 'win32') {
+      location = pathToFileURL(location).href
     }
+
+    const module = await import(location)
+
+    return module?.default ?? module
   }
 
   async getPackageJSON(): Promise<PackageJSON | undefined> {
@@ -106,8 +98,8 @@ export class PackageManager {
 
   #match(packageJSON: PackageJSON, dependency: DependencyName | RegExp): string | undefined {
     const dependencies = {
-      ...(packageJSON['dependencies'] || {}),
-      ...(packageJSON['devDependencies'] || {}),
+      ...(packageJSON.dependencies || {}),
+      ...(packageJSON.devDependencies || {}),
     }
 
     if (typeof dependency === 'string' && dependencies[dependency]) {

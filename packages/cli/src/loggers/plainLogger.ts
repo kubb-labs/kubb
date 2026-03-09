@@ -1,8 +1,7 @@
 import { relative } from 'node:path'
-import { defineLogger, LogLevel } from '@kubb/core'
-import { formatMs } from '@kubb/core/utils'
+import { formatMs, toCause } from '@internals/utils'
+import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_SEPARATOR } from '../constants.ts'
-import { toCause } from '../utils/errors.ts'
 import { getSummary } from '../utils/getSummary.ts'
 import { runHook } from '../utils/runHook.ts'
 import { formatCommandWithArgs, formatMessage } from './utils.ts'
@@ -14,14 +13,14 @@ import { formatCommandWithArgs, formatMessage } from './utils.ts'
 export const plainLogger = defineLogger({
   name: 'plain',
   install(context, options) {
-    const logLevel = options?.logLevel ?? LogLevel.info
+    const logLevel = options?.logLevel ?? logLevelMap.info
 
     function getMessage(message: string): string {
       return formatMessage(message, logLevel)
     }
 
     context.on('info', (message, info) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -31,21 +30,21 @@ export const plainLogger = defineLogger({
     })
 
     context.on('success', (message, info = '') => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
-      const text = getMessage(['✓', message, logLevel >= LogLevel.info ? info : undefined].filter(Boolean).join(' '))
+      const text = getMessage(['✓', message, logLevel >= logLevelMap.info ? info : undefined].filter(Boolean).join(' '))
 
       console.log(text)
     })
 
     context.on('warn', (message, info) => {
-      if (logLevel < LogLevel.warn) {
+      if (logLevel < logLevelMap.warn) {
         return
       }
 
-      const text = getMessage(['⚠', message, logLevel >= LogLevel.info ? info : undefined].filter(Boolean).join(' '))
+      const text = getMessage(['⚠', message, logLevel >= logLevelMap.info ? info : undefined].filter(Boolean).join(' '))
 
       console.log(text)
     })
@@ -58,7 +57,7 @@ export const plainLogger = defineLogger({
       console.log(text)
 
       // Show stack trace in debug mode (first 3 frames)
-      if (logLevel >= LogLevel.debug && error.stack) {
+      if (logLevel >= logLevelMap.debug && error.stack) {
         const frames = error.stack.split('\n').slice(1, 4)
         for (const frame of frames) {
           console.log(getMessage(frame.trim()))
@@ -80,7 +79,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('config:start', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -90,7 +89,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('config:end', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -106,7 +105,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('plugin:start', (plugin) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
       const text = getMessage(`Generating ${plugin.name}`)
@@ -115,7 +114,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('plugin:end', (plugin, { duration, success }) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -126,7 +125,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('files:processing:start', (files) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -136,7 +135,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('file:processing:update', ({ file, config }) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -146,7 +145,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('files:processing:end', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -162,7 +161,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('format:start', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -172,7 +171,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('format:end', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -182,7 +181,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('lint:start', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -192,7 +191,7 @@ export const plainLogger = defineLogger({
     })
 
     context.on('lint:end', () => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -205,7 +204,7 @@ export const plainLogger = defineLogger({
       const commandWithArgs = formatCommandWithArgs(command, args)
       const text = getMessage(`Hook ${commandWithArgs} started`)
 
-      if (logLevel > LogLevel.silent) {
+      if (logLevel > logLevelMap.silent) {
         console.log(text)
       }
 
@@ -221,14 +220,14 @@ export const plainLogger = defineLogger({
         commandWithArgs,
         context,
         sink: {
-          onStdout: logLevel > LogLevel.silent ? (s) => console.log(s) : undefined,
-          onStderr: logLevel > LogLevel.silent ? (s) => console.error(s) : undefined,
+          onStdout: logLevel > logLevelMap.silent ? (s) => console.log(s) : undefined,
+          onStderr: logLevel > logLevelMap.silent ? (s) => console.error(s) : undefined,
         },
       })
     })
 
     context.on('hook:end', ({ command, args }) => {
-      if (logLevel <= LogLevel.silent) {
+      if (logLevel <= logLevelMap.silent) {
         return
       }
 
@@ -245,7 +244,7 @@ export const plainLogger = defineLogger({
         config,
         status,
         hrStart,
-        pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
+        pluginTimings: logLevel >= logLevelMap.verbose ? pluginTimings : undefined,
       })
 
       console.log(SUMMARY_SEPARATOR)

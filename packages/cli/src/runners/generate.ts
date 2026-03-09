@@ -3,13 +3,26 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { type CLIOptions, type Config, isInputPath, type KubbEvents, LogLevel, PromiseManager, safeBuild, setup } from '@kubb/core'
-import type { AsyncEventEmitter } from '@kubb/core/utils'
-import { AsyncEventEmitter as AsyncEventEmitterClass, detectFormatter, detectLinter, executeIfOnline, formatters, getConfigs, linters } from '@kubb/core/utils'
+import type { AsyncEventEmitter } from '@internals/utils'
+import { AsyncEventEmitter as AsyncEventEmitterClass, executeIfOnline, toError } from '@internals/utils'
+import {
+  type CLIOptions,
+  type Config,
+  detectFormatter,
+  detectLinter,
+  formatters,
+  getConfigs,
+  isInputPath,
+  type KubbEvents,
+  linters,
+  logLevel as logLevelMap,
+  PromiseManager,
+  safeBuild,
+  setup,
+} from '@kubb/core'
 import { version } from '../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../constants.ts'
 import { setupLogger } from '../loggers/utils.ts'
-import { toError } from '../utils/errors.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
@@ -89,7 +102,7 @@ async function runToolPass({
               'success',
               [
                 `${successPrefix} with ${styleText('dim', resolvedTool)}`,
-                logLevel >= LogLevel.info ? `on ${styleText('dim', outputPath)}` : undefined,
+                logLevel >= logLevelMap.info ? `on ${styleText('dim', outputPath)}` : undefined,
                 'successfully',
               ]
                 .filter(Boolean)
@@ -186,7 +199,7 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
       filesCreated: files.length,
       status: 'failed',
       hrStart,
-      pluginTimings: logLevel >= LogLevel.verbose ? pluginTimings : undefined,
+      pluginTimings: logLevel >= logLevelMap.verbose ? pluginTimings : undefined,
     })
 
     await sendTelemetry(
@@ -278,7 +291,7 @@ type GenerateCommandOptions = {
 }
 
 export async function runGenerateCommand({ input, configPath, logLevel: logLevelKey, watch }: GenerateCommandOptions): Promise<void> {
-  const logLevel = LogLevel[logLevelKey as keyof typeof LogLevel] ?? LogLevel.info
+  const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const events = new AsyncEventEmitterClass<KubbEvents>()
   const promiseManager = new PromiseManager()
 

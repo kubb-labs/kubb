@@ -9,6 +9,10 @@ const shared: Partial<UserConfig> = {
   sourcemap: true,
   shims: true,
   exports: true,
+  deps: {
+    neverBundle: [/^@kubb\//],
+    alwaysBundle: [/@internals/],
+  },
   fixedExtension: false,
   outputOptions: {
     keepNames: true,

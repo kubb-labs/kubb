@@ -1,7 +1,7 @@
 import type { OasTypes } from '@kubb/oas'
 import { describe, expect, test } from 'vitest'
 import type { OperationSchema } from '../types.ts'
-import { isRequestBodyRequired, withRequiredRequestBodySchema } from './requestBody.ts'
+import { isRequestBodyRequired, KUBB_REQUIRED_REQUEST_BODY_MARKER, withRequiredRequestBodySchema } from './requestBody.ts'
 
 function createOperationSchema({
   requestBody,
@@ -80,7 +80,7 @@ describe('requestBody utils', () => {
     const result = withRequiredRequestBodySchema(operationSchema)
     expect(result).toMatchObject({
       schema: {
-        required: ['__kubb_required_request_body__'],
+        required: [KUBB_REQUIRED_REQUEST_BODY_MARKER],
       },
     })
   })

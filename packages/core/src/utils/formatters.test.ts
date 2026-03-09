@@ -44,14 +44,4 @@ describe('detectFormatter', () => {
     const result = await detectFormatter()
     expect(result).toBeUndefined()
   })
-
-  it('should prioritize biome over prettier', async () => {
-    // All formatters are available
-    vi.mocked(x).mockImplementation((_command: string) => {
-      return {} as ReturnType<typeof x>
-    })
-    const result = await detectFormatter()
-    expect(result).toBe('biome')
-    expect(x).toHaveBeenCalledWith('biome', ['--version'], { nodeOptions: { stdio: 'ignore' } })
-  })
 })

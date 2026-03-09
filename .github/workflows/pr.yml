@@ -51,6 +51,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Build
+        run: pnpm run build
+
       - name: Typecheck
         run: pnpm run typecheck
 
@@ -215,6 +218,9 @@ jobs:
         uses: kubb-labs/config/.github/setup@main
         with:
           node-version: '20'
+
+      - name: Build
+        run: pnpm run build
 
       - name: Generate examples
         id: generate

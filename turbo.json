@@ -37,7 +37,7 @@
       "outputLogs": "new-only"
     },
     "typecheck": {
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "inputs": ["src/**/*.ts", "src/**/*.tsx", "tsconfig.json"],
       "outputs": [],
       "cache": false
@@ -47,7 +47,7 @@
       "outputs": []
     },
     "generate": {
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "outputs": ["src/gen/**"],
       "inputs": ["kubb.config.ts", "package.json"],
       "cache": false

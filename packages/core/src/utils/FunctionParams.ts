@@ -1,5 +1,5 @@
+import { camelCase } from '@internals/utils'
 import { sortBy } from 'remeda'
-import { camelCase } from '../transformers/casing.ts'
 
 type FunctionParamsASTWithoutType = {
   name?: string
@@ -38,9 +38,6 @@ export type FunctionParamsAST = FunctionParamsASTWithoutType | FunctionParamsAST
  */
 export class FunctionParams {
   #items: Array<FunctionParamsAST | FunctionParamsAST[]> = []
-  constructor() {
-    return this
-  }
 
   get items(): FunctionParamsAST[] {
     return this.#items.flat()
@@ -52,9 +49,11 @@ export class FunctionParams {
     }
 
     if (Array.isArray(item)) {
-      item.filter(Boolean).forEach((it) => {
-        this.#items.push(it)
-      })
+      item
+        .filter((x): x is FunctionParamsAST | FunctionParamsAST[] => x !== undefined)
+        .forEach((it) => {
+          this.#items.push(it)
+        })
       return this
     }
     this.#items.push(item)
@@ -83,7 +82,7 @@ export class FunctionParams {
 
       return acc
     }
-    // TODO check whey we still need the camelcase here
+    // TODO check why we still need the camelcase here
     const parameterName = name.startsWith('{') ? name : camelCase(name)
 
     if (type) {

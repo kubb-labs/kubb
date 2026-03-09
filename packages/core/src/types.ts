@@ -1,9 +1,9 @@
+import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
+import type { logLevel } from './constants.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginManager } from './PluginManager.ts'
-import type { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
-import type { PossiblePromise } from './utils/types.ts'
 
 declare global {
   namespace Kubb {
@@ -165,7 +165,7 @@ export type PluginFactoryOptions<
   /**
    * Context that you want to expose to other plugins.
    */
-  TContext = any,
+  TContext = unknown,
   /**
    * When calling `resolvePath` you can specify better types.
    */
@@ -211,7 +211,7 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
 
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
 
-type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<any, any, any, any, any>>
+export type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<any, any, any, any, any>>
 
 export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
@@ -362,20 +362,11 @@ export type Group = {
   name?: (context: GroupContext) => string
 }
 
-export const LogLevel = {
-  silent: Number.NEGATIVE_INFINITY,
-  error: 0,
-  warn: 1,
-  info: 3,
-  verbose: 4,
-  debug: 5,
-} as const
-
 export type LoggerOptions = {
   /**
    * @default 3
    */
-  logLevel: (typeof LogLevel)[keyof typeof LogLevel]
+  logLevel: (typeof logLevel)[keyof typeof logLevel]
 }
 
 /**

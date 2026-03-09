@@ -1,7 +1,6 @@
-import type { KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
-import { BaseGenerator, type FileMetaBase } from '@kubb/core'
-import transformers from '@kubb/core/transformers'
-import type { AsyncEventEmitter } from '@kubb/core/utils'
+import type { AsyncEventEmitter } from '@internals/utils'
+import { pascalCase } from '@internals/utils'
+import type { FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
 import type { Fabric } from '@kubb/react-fabric'
@@ -30,79 +29,59 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   UNSTABLE_NAMING?: true
 }
 
-export class OperationGenerator<
-  TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
-  TFileMeta extends FileMetaBase = FileMetaBase,
-> extends BaseGenerator<TPluginOptions['resolvedOptions'], Context<TPluginOptions['resolvedOptions'], TPluginOptions>> {
+export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions, TFileMeta extends FileMetaBase = FileMetaBase> {
+  #options: TPluginOptions['resolvedOptions']
+  #context: Context<TPluginOptions['resolvedOptions'], TPluginOptions>
+
+  constructor(options: TPluginOptions['resolvedOptions'], context: Context<TPluginOptions['resolvedOptions'], TPluginOptions>) {
+    this.#options = options
+    this.#context = context
+  }
+
+  get options(): TPluginOptions['resolvedOptions'] {
+    return this.#options
+  }
+
+  set options(options: TPluginOptions['resolvedOptions']) {
+    this.#options = { ...this.#options, ...options }
+  }
+
+  get context(): Context<TPluginOptions['resolvedOptions'], TPluginOptions> {
+    return this.#context
+  }
+  #matchesPattern(operation: Operation, method: HttpMethod, type: string, pattern: RegExp | string): boolean {
+    switch (type) {
+      case 'tag':
+        return operation.getTags().some((tag) => tag.name.match(pattern))
+      case 'operationId':
+        return !!operation.getOperationId({ friendlyCase: true }).match(pattern)
+      case 'path':
+        return !!operation.path.match(pattern)
+      case 'method':
+        return !!method.match(pattern)
+      case 'contentType':
+        return !!operation.getContentType().match(pattern)
+      default:
+        return false
+    }
+  }
+
   getOptions(operation: Operation, method: HttpMethod): Partial<TPluginOptions['resolvedOptions']> {
     const { override = [] } = this.context
-    const operationId = operation.getOperationId({ friendlyCase: true })
-    const contentType = operation.getContentType()
 
-    return (
-      override.find(({ pattern, type }) => {
-        switch (type) {
-          case 'tag':
-            return operation.getTags().some((tag) => tag.name.match(pattern))
-          case 'operationId':
-            return !!operationId.match(pattern)
-          case 'path':
-            return !!operation.path.match(pattern)
-          case 'method':
-            return !!method.match(pattern)
-          case 'contentType':
-            return !!contentType.match(pattern)
-          default:
-            return false
-        }
-      })?.options || {}
-    )
+    return override.find(({ pattern, type }) => this.#matchesPattern(operation, method, type, pattern))?.options || {}
   }
 
   #isExcluded(operation: Operation, method: HttpMethod): boolean {
     const { exclude = [] } = this.context
-    const operationId = operation.getOperationId({ friendlyCase: true })
-    const contentType = operation.getContentType()
 
-    return exclude.some(({ pattern, type }) => {
-      switch (type) {
-        case 'tag':
-          return operation.getTags().some((tag) => tag.name.match(pattern))
-        case 'operationId':
-          return !!operationId.match(pattern)
-        case 'path':
-          return !!operation.path.match(pattern)
-        case 'method':
-          return !!method.match(pattern)
-        case 'contentType':
-          return !!contentType.match(pattern)
-        default:
-          return false
-      }
-    })
+    return exclude.some(({ pattern, type }) => this.#matchesPattern(operation, method, type, pattern))
   }
 
   #isIncluded(operation: Operation, method: HttpMethod): boolean {
     const { include = [] } = this.context
-    const operationId = operation.getOperationId({ friendlyCase: true })
-    const contentType = operation.getContentType()
 
-    return include.some(({ pattern, type }) => {
-      switch (type) {
-        case 'tag':
-          return operation.getTags().some((tag) => tag.name.match(pattern))
-        case 'operationId':
-          return !!operationId.match(pattern)
-        case 'path':
-          return !!operation.path.match(pattern)
-        case 'method':
-          return !!method.match(pattern)
-        case 'contentType':
-          return !!contentType.match(pattern)
-        default:
-          return false
-      }
-    })
+    return include.some(({ pattern, type }) => this.#matchesPattern(operation, method, type, pattern))
   }
 
   getSchemas(
@@ -114,7 +93,7 @@ export class OperationGenerator<
     } = {},
   ): OperationSchemas {
     const operationId = operation.getOperationId({ friendlyCase: true })
-    const operationName = transformers.pascalCase(operationId)
+    const operationName = pascalCase(operationId)
 
     const resolveKeys = (schema?: SchemaObject) => (schema?.properties ? Object.keys(schema.properties) : undefined)
 
@@ -128,9 +107,7 @@ export class OperationGenerator<
       const keys = resolveKeys(schema)
 
       return {
-        name: this.context.UNSTABLE_NAMING
-          ? resolveName(transformers.pascalCase(`${operationId} status ${name}`))
-          : resolveName(transformers.pascalCase(`${operationId} ${name}`)),
+        name: this.context.UNSTABLE_NAMING ? resolveName(pascalCase(`${operationId} status ${name}`)) : resolveName(pascalCase(`${operationId} ${name}`)),
         description: (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
         schema,
         operation,
@@ -148,8 +125,8 @@ export class OperationGenerator<
       requestSchema
         ? {
             name: this.context.UNSTABLE_NAMING
-              ? resolveName(transformers.pascalCase(`${operationId} RequestData`))
-              : resolveName(transformers.pascalCase(`${operationId} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`)),
+              ? resolveName(pascalCase(`${operationId} RequestData`))
+              : resolveName(pascalCase(`${operationId} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`)),
             description: (operation.schema.requestBody as OasTypes.RequestBodyObject)?.description,
             operation,
             operationName,
@@ -163,7 +140,7 @@ export class OperationGenerator<
     return {
       pathParams: pathParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operationId} PathParams`)),
+            name: resolveName(pascalCase(`${operationId} PathParams`)),
             operation,
             operationName,
             schema: pathParamsSchema,
@@ -172,7 +149,7 @@ export class OperationGenerator<
         : undefined,
       queryParams: queryParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operationId} QueryParams`)),
+            name: resolveName(pascalCase(`${operationId} QueryParams`)),
             operation,
             operationName,
             schema: queryParamsSchema,
@@ -181,7 +158,7 @@ export class OperationGenerator<
         : undefined,
       headerParams: headerParamsSchema
         ? {
-            name: resolveName(transformers.pascalCase(`${operationId} HeaderParams`)),
+            name: resolveName(pascalCase(`${operationId} HeaderParams`)),
             operation,
             operationName,
             schema: headerParamsSchema,
@@ -191,8 +168,8 @@ export class OperationGenerator<
       request,
       response: {
         name: this.context.UNSTABLE_NAMING
-          ? resolveName(transformers.pascalCase(`${operationId} ResponseData`))
-          : resolveName(transformers.pascalCase(`${operationId} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`)),
+          ? resolveName(pascalCase(`${operationId} ResponseData`))
+          : resolveName(pascalCase(`${operationId} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`)),
         operation,
         operationName,
         schema: {
@@ -224,7 +201,7 @@ export class OperationGenerator<
 
           return operation ? { path, method: method as HttpMethod, operation } : null
         })
-        .filter(Boolean),
+        .filter((x): x is { path: string; method: HttpMethod; operation: Operation } => x !== null),
     )
   }
 

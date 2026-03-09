@@ -1,6 +1,7 @@
-import { URLPath } from '@kubb/core/utils'
 import type { PluginOas } from '@kubb/plugin-oas'
 import { createGenerator } from '@kubb/plugin-oas/generators'
+
+const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
 
 export const example1 = createGenerator<PluginOas>({
   name: 'client-operation',
@@ -32,7 +33,7 @@ export const example1 = createGenerator<PluginOas>({
             value: `
           export const ${operation.getOperationId()} = {
             method: '${operation.method}',
-            url: '${new URLPath(operation.path).URL}'
+            url: '${toURL(operation.path)}'
           }
         `,
           },

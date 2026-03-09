@@ -1,4 +1,4 @@
-import { getConfigs } from '@kubb/core/utils'
+import { getConfigs } from '@kubb/core'
 import { getCosmiConfig } from './getCosmiConfig.ts'
 
 /**

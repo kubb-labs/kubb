@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { hookFirst, hookParallel, hookSeq } from './executeStrategies.ts'
-import { timeout } from './timeout.ts'
+
+const timeout = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
 describe('executeStrategies', () => {
   test('hookSeq', async () => {

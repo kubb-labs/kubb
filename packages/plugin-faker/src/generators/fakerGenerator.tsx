@@ -36,7 +36,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
 
     const operationSchemas = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response]
       .flat()
-      .filter(Boolean)
+      .filter((x): x is OperationSchemaType => Boolean(x))
 
     const mapOperationSchema = ({ name, schema, description, ...options }: OperationSchemaType) => {
       // Apply paramsCasing transformation if enabled and this is a parameter schema

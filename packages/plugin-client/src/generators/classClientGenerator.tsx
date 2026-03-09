@@ -1,6 +1,6 @@
 import path from 'node:path'
+import { camelCase, pascalCase } from '@internals/utils'
 import { usePluginManager } from '@kubb/core/hooks'
-import { camelCase, pascalCase } from '@kubb/core/transformers'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'

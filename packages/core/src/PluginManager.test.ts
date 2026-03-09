@@ -1,9 +1,9 @@
+import { AsyncEventEmitter } from '@internals/utils'
 import { createFabric } from '@kubb/react-fabric'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { definePlugin } from './definePlugin.ts'
 import { PluginManager } from './PluginManager.ts'
 import type { Config, KubbEvents, Plugin } from './types.ts'
-import { AsyncEventEmitter } from './utils/AsyncEventEmitter.ts'
 
 describe('PluginManager', () => {
   const pluginAMocks = {
@@ -115,7 +115,7 @@ describe('PluginManager', () => {
     const { result, plugin } = pluginManager.hookFirstSync({
       hookName: 'resolvePath',
       parameters: ['path.ts'],
-    })
+    })!
 
     expect(plugin.name).toBe('pluginA')
     expect(result).toBe('pluginA/gen')

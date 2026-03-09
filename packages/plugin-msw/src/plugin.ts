@@ -1,7 +1,6 @@
 import path from 'node:path'
+import { camelCase } from '@internals/utils'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
-import { camelCase } from '@kubb/core/transformers'
-
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'

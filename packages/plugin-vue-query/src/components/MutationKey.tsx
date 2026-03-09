@@ -1,4 +1,4 @@
-import { URLPath } from '@kubb/core/utils'
+import { URLPath } from '@internals/utils'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { File, Function, FunctionParams, Type } from '@kubb/react-fabric'

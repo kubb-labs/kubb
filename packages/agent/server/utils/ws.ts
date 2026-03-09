@@ -1,5 +1,5 @@
+import type { AsyncEventEmitter } from '@internals/utils'
 import type { KubbEvents } from '@kubb/core'
-import type { AsyncEventEmitter } from '@kubb/core/utils'
 import WebSocket from 'ws'
 import type { AgentMessage, DataMessagePayload } from '~/types/agent.ts'
 

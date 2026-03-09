@@ -1,5 +1,5 @@
+import { isPromise } from '@internals/utils'
 import type { CLIOptions, Config, UserConfig } from '@kubb/core'
-import { isPromise } from '@kubb/core/utils'
 
 export type ResolveUserConfigOptions = {
   configPath?: string

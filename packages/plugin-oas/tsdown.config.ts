@@ -14,7 +14,7 @@ const shared: Partial<UserConfig> = {
   shims: true,
   exports: true,
   deps: {
-    alwaysBundle: [/p-limit/],
+    alwaysBundle: [/p-limit/, /@internals/],
     onlyAllowBundle: false,
     neverBundle: [/^@kubb\//, '@types/react'],
   },
