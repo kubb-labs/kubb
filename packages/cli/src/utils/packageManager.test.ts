@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process'
 import { EventEmitter } from 'node:events'
 import fs from 'node:fs'
-import type { PackageManagerInfo } from '@kubb/core'
+import type { PackageManagerInfo } from '@internals/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { hasPackageJson, initPackageJson, installPackages } from './packageManager.ts'
 
