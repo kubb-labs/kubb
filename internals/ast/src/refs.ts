@@ -43,3 +43,16 @@ export function buildRefMap(root: RootNode): RefMap {
 export function resolveRef(refMap: RefMap, ref: string): SchemaNode | undefined {
   return refMap.get(ref)
 }
+
+/**
+ * Serialize a `RefMap` to a plain `Record` so it can be passed to
+ * `JSON.stringify`, logged, or spread into another object.
+ *
+ * @example
+ * ```ts
+ * console.log(JSON.stringify(refMapToObject(refMap), null, 2))
+ * ```
+ */
+export function refMapToObject(refMap: RefMap): Record<string, SchemaNode> {
+  return Object.fromEntries(refMap)
+}

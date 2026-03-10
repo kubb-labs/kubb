@@ -74,6 +74,7 @@
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
+    "@internals/ast": "workspace:*",
     "@stoplight/yaml": "^4.3.0",
     "@types/swagger2openapi": "^7.0.4"
   },

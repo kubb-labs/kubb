@@ -20,4 +20,4 @@ export { transform, walk } from './visitor.ts'
 
 // refs
 export type { RefMap } from './refs.ts'
-export { buildRefMap, resolveRef } from './refs.ts'
+export { buildRefMap, refMapToObject, resolveRef } from './refs.ts'

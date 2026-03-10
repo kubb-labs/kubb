@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from './factory.ts'
-import { buildRefMap, resolveRef } from './refs.ts'
+import { buildRefMap, refMapToObject, resolveRef } from './refs.ts'
 import type { RootNode } from './nodes/root.ts'
 
 /**
@@ -122,7 +122,7 @@ describe('buildRefMap snapshots', () => {
   const map = buildRefMap(buildFixture())
 
   it('full map (serialized to plain object)', () => {
-    expect(Object.fromEntries(map)).toMatchSnapshot()
+    expect(refMapToObject(map)).toMatchSnapshot()
   })
 
   it.each([

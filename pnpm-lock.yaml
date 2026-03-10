@@ -1012,6 +1012,9 @@ importers:
         specifier: ^7.0.8
         version: 7.0.8(encoding@0.1.13)
     devDependencies:
+      '@internals/ast':
+        specifier: workspace:*
+        version: link:../../internals/ast
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
@@ -1149,9 +1152,6 @@ importers:
 
   packages/plugin-oas:
     dependencies:
-      '@internals/ast':
-        specifier: workspace:*
-        version: link:../../internals/ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -1165,6 +1165,9 @@ importers:
         specifier: 'catalog:'
         version: 2.33.6
     devDependencies:
+      '@internals/ast':
+        specifier: workspace:*
+        version: link:../../internals/ast
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
