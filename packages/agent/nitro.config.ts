@@ -1,8 +1,44 @@
-import { cpSync } from 'node:fs'
+import { cpSync, existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { dirname, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 
 const _require = createRequire(import.meta.url)
+
+/**
+ * Locate the `ajv` package directory using multiple resolution strategies.
+ *
+ * Background: @redocly/openapi-core declares `"ajv": "npm:@redocly/ajv"`, so esbuild
+ * (via the `alias` option below) bundles @redocly/ajv instead of real ajv. Nitro's
+ * module tracer sees the alias and only copies `ajv/package.json` to the output — not
+ * the JS files. `ajv-formats` is kept as an external CJS module and calls
+ * `require('ajv')` at runtime, which hits that incomplete stub and fails.
+ *
+ * The `compiled` hook copies the full package over the stub. We try several resolution
+ * strategies because `import.meta.url` may point to a jiti-transpiled temp file in some
+ * build environments (e.g. CI), making the top-level `_require` unable to find `ajv`.
+ */
+function resolveAjvSrc(): string {
+  const strategies: Array<() => string> = [
+    // 1. Standard: resolve from the nitro.config.ts file location
+    () => dirname(_require.resolve('ajv/package.json')),
+    // 2. Resolve from the package directory (process.cwd() = packages/agent/ during nitro build)
+    () => dirname(createRequire(resolve(process.cwd(), 'package.json')).resolve('ajv/package.json')),
+    // 3. Resolve from the monorepo root (pnpm workspace hoists ajv there)
+    () => dirname(createRequire(resolve(process.cwd(), '../../package.json')).resolve('ajv/package.json')),
+  ]
+
+  for (const strategy of strategies) {
+    try {
+      const src = strategy()
+      // Validate that this is a real, complete ajv installation
+      if (existsSync(join(src, 'dist', 'ajv.js'))) {
+        return src
+      }
+    } catch {}
+  }
+
+  throw new Error('[kubb-agent] Could not locate a valid ajv package (with dist/ajv.js). Ensure ajv@^8 is installed.')
+}
 
 export default defineNitroConfig({
   srcDir: 'server',
@@ -21,9 +57,8 @@ export default defineNitroConfig({
     // filesystem and fails because the package is incomplete. Copy the full package
     // from the real `ajv` installation after the build to fix that.
     compiled(nitro) {
-      const ajvPkg = _require.resolve('ajv/package.json')
-      const src = dirname(ajvPkg)
       const dest = resolve(nitro.options.output.serverDir, 'node_modules/ajv')
+      const src = resolveAjvSrc()
       cpSync(src, dest, { recursive: true, force: true, dereference: true })
     },
   },
