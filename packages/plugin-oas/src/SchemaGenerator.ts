@@ -805,6 +805,7 @@ export class SchemaGenerator<
     if (isReference(schemaObject)) {
       return [
         ...this.#getRefAlias(schemaObject, name),
+        ...baseItems.filter((item) => item.keyword === schemaKeywords.default),
         schemaObject.description && {
           keyword: schemaKeywords.describe,
           args: schemaObject.description,

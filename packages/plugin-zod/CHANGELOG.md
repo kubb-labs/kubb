@@ -1,5 +1,19 @@
 # @kubb/plugin-zod
 
+## 4.33.2
+
+### Patch Changes
+
+- [#2700](https://github.com/kubb-labs/kubb/pull/2700) [`29f6d1b`](https://github.com/kubb-labs/kubb/commit/29f6d1b31e0bc922eb5b0ba8e5149241a3a37305) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix `$ref` schemas with sibling `default` values not generating `.default()` in Zod output.
+
+  When an OpenAPI query parameter uses a `$ref` with a sibling `default` value (e.g. `{"$ref": "#/components/schemas/ProjectType", "default": "project"}`), the generated Zod schema now correctly includes the `.default()` modifier.
+
+- Updated dependencies [[`29f6d1b`](https://github.com/kubb-labs/kubb/commit/29f6d1b31e0bc922eb5b0ba8e5149241a3a37305)]:
+  - @kubb/plugin-oas@4.33.2
+  - @kubb/plugin-ts@4.33.2
+  - @kubb/core@4.33.2
+  - @kubb/oas@4.33.2
+
 ## 4.33.1
 
 ### Patch Changes
