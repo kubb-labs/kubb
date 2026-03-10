@@ -363,10 +363,6 @@ export interface PetNotFound {
 
 export type UserArray = User[]
 
-export type Page = string
-
-export type PageSize = string
-
 /**
  * @description Successful operation
  */

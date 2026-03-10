@@ -1,9 +1,9 @@
 import path from 'node:path'
-import { parseFromConfig as unstableParseFromConfig } from '@internals/oas'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { camelCase } from '@internals/utils'
 import { type Config, definePlugin, type Group, getMode, type KubbEvents } from '@kubb/core'
-import { Oas, parseFromConfig, resolveServerUrl } from '@kubb/oas'
+import type { Oas } from '@kubb/oas'
+import { parseFromConfig, resolveServerUrl } from '@kubb/oas'
 import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
@@ -30,7 +30,7 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
 
   const getOas = async ({ validate, config, events }: { validate: boolean; config: Config; events: AsyncEventEmitter<KubbEvents> }): Promise<Oas> => {
     // needs to be in a different variable or the catch here will not work(return of a promise instead)
-    const oas = UNSTABLE_OAS ? await unstableParseFromConfig(config, oasClass ?? Oas) : await parseFromConfig(config, oasClass)
+    const oas = await parseFromConfig(config, oasClass, { UNSTABLE_OAS })
 
     oas.setOptions({
       contentType,

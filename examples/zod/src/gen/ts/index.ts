@@ -134,8 +134,6 @@ export type {
   OrderValueEnumTypeKey,
 } from './OrderType.ts'
 export { orderHttpStatusEnum, orderStatusEnum, orderValueEnum } from './OrderType.ts'
-export type { PageSizeType } from './PageSizeType.ts'
-export type { PageType } from './PageType.ts'
 export type { PetNotFoundType } from './PetNotFoundType.ts'
 export type { PetStatusEnumTypeKey, PetType } from './PetType.ts'
 export { petStatusEnum } from './PetType.ts'

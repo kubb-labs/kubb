@@ -1,33 +1,37 @@
+import { validate as scalarValidate } from '@scalar/openapi-parser'
 import jsonpointer from 'jsonpointer'
 import BaseOas from 'oas'
+import type { Operation } from 'oas/operation'
+import type { OASDocument, MediaTypeObject as OASMediaTypeObject, ResponseObject as OASResponseObject } from 'oas/types'
 import { matchesMimeType } from 'oas/utils'
-import type { contentType, DiscriminatorObject, Document, MediaTypeObject, Operation, ReferenceObject, ResponseObject, SchemaObject } from './types.ts'
+import type { OpenAPIV3 } from 'openapi-types'
 import {
+  collectExtRefs,
+  type contentType,
+  deriveNameFromExtRef,
   extractSchemaFromContent,
-  flattenSchema,
   isDiscriminator,
+  isPathItem,
   isReference,
   legacyResolve,
+  type ParameterObject,
   resolveCollisions,
+  type SchemaObject,
   type SchemaWithMetadata,
   sortSchemas,
-  validate,
 } from './utils.ts'
 
-/**
- * Prefix used to create synthetic `$ref` values for anonymous (inline) discriminator schemas.
- * The suffix is the schema index within the discriminator's `oneOf`/`anyOf` array.
- * @example `#kubb-inline-0`
- */
 export const KUBB_INLINE_REF_PREFIX = '#kubb-inline-'
+
+type Document = OASDocument
+type ResponseObject = OASResponseObject
+type MediaTypeObject = OASMediaTypeObject
+type DiscriminatorObject = OpenAPIV3.DiscriminatorObject
+type ReferenceObject = OpenAPIV3.ReferenceObject
 
 type OasOptions = {
   contentType?: contentType
   discriminator?: 'strict' | 'inherit'
-  /**
-   * Resolve name collisions when schemas from different components share the same name (case-insensitive).
-   * @default false
-   */
   collisionDetection?: boolean
 }
 
@@ -39,7 +43,6 @@ export class Oas extends BaseOas {
 
   constructor(document: Document) {
     super(document, undefined)
-
     this.document = document
   }
 
@@ -81,6 +84,7 @@ export class Oas extends BaseOas {
     const key = $ref.split('/').pop()
     return key === '' ? undefined : key
   }
+
   set($ref: string, value: unknown) {
     $ref = $ref.trim()
     if ($ref === '') {
@@ -88,7 +92,6 @@ export class Oas extends BaseOas {
     }
     if ($ref.startsWith('#')) {
       $ref = globalThis.decodeURIComponent($ref.substring(1))
-
       jsonpointer.set(this.api, $ref, value)
     }
   }
@@ -133,21 +136,11 @@ export class Oas extends BaseOas {
 
     const { mapping = {}, propertyName } = schema.discriminator
 
-    /**
-     * Helper to extract discriminator value from a schema.
-     * Checks in order:
-     * 1. Extension property matching propertyName (e.g., x-linode-ref-name)
-     * 2. Property with const value
-     * 3. Property with single enum value
-     * 4. Title as fallback
-     */
     const getDiscriminatorValue = (schema: SchemaObject | null): string | null => {
       if (!schema) {
         return null
       }
 
-      // Check extension properties first (e.g., x-linode-ref-name)
-      // Only check if propertyName starts with 'x-' to avoid conflicts with standard properties
       if (propertyName.startsWith('x-')) {
         const extensionValue = (schema as Record<string, unknown>)[propertyName]
         if (extensionValue && typeof extensionValue === 'string') {
@@ -155,29 +148,21 @@ export class Oas extends BaseOas {
         }
       }
 
-      // Check if property has const value
       const propertySchema = schema.properties?.[propertyName] as SchemaObject
       if (propertySchema && 'const' in propertySchema && propertySchema.const !== undefined) {
         return String(propertySchema.const)
       }
 
-      // Check if property has single enum value
       if (propertySchema && propertySchema.enum?.length === 1) {
         return String(propertySchema.enum[0])
       }
 
-      // Fallback to title if available
       return schema.title || null
     }
 
-    /**
-     * Process oneOf/anyOf items to build mapping.
-     * Handles both $ref and inline schemas.
-     */
     const processSchemas = (schemas: Array<SchemaObject>, existingMapping: Record<string, string>) => {
       schemas.forEach((schemaItem, index) => {
         if (isReference(schemaItem)) {
-          // Handle $ref case
           const key = this.getKey(schemaItem.$ref)
 
           try {
@@ -191,31 +176,25 @@ export class Oas extends BaseOas {
               existingMapping[key] = schemaItem.$ref
             }
           } catch (_error) {
-            // If we can't resolve the reference, skip it and use the key as fallback
             if (key && !Object.values(existingMapping).includes(schemaItem.$ref)) {
               existingMapping[key] = schemaItem.$ref
             }
           }
         } else {
-          // Handle inline schema case
           const inlineSchema = schemaItem as SchemaObject
           const discriminatorValue = getDiscriminatorValue(inlineSchema)
 
           if (discriminatorValue) {
-            // Create a synthetic ref for inline schemas using index
-            // The value points to the inline schema itself via a special marker
             existingMapping[discriminatorValue] = `${KUBB_INLINE_REF_PREFIX}${index}`
           }
         }
       })
     }
 
-    // Process oneOf schemas
     if (schema.oneOf) {
       processSchemas(schema.oneOf as Array<SchemaObject>, mapping)
     }
 
-    // Process anyOf schemas
     if (schema.anyOf) {
       processSchemas(schema.anyOf as Array<SchemaObject>, mapping)
     }
@@ -226,13 +205,12 @@ export class Oas extends BaseOas {
     }
   }
 
-  // TODO add better typing
   dereferenceWithRef<T = unknown>(schema?: T): T {
     if (isReference(schema)) {
       return {
         ...schema,
-        ...this.get(schema.$ref),
-        $ref: schema.$ref,
+        ...this.get((schema as ReferenceObject).$ref),
+        $ref: (schema as ReferenceObject).$ref,
       }
     }
 
@@ -269,7 +247,7 @@ export class Oas extends BaseOas {
       }
 
       if (isReference(schema)) {
-        visit(this.get(schema.$ref) as SchemaObject)
+        visit(this.get((schema as ReferenceObject).$ref) as SchemaObject)
         return
       }
 
@@ -318,9 +296,6 @@ export class Oas extends BaseOas {
     }
   }
 
-  /**
-   * Oas does not have a getResponseBody(contentType)
-   */
   #getResponseBodyFactory(responseBody: boolean | ResponseObject): (contentType?: string) => MediaTypeObject | false | [string, MediaTypeObject, ...string[]] {
     function hasResponseBody(res = responseBody): res is ResponseObject {
       return !!res
@@ -332,8 +307,6 @@ export class Oas extends BaseOas {
       }
 
       if (isReference(responseBody)) {
-        // If the request body is still a `$ref` pointer we should return false because this library
-        // assumes that you've run dereferencing beforehand.
         return false
       }
 
@@ -349,8 +322,6 @@ export class Oas extends BaseOas {
         return responseBody.content[contentType]!
       }
 
-      // Since no media type was supplied we need to find either the first JSON-like media type that
-      // we've got, or the first available of anything else if no JSON-like media types are present.
       let availableContentType: string | undefined
       const contentTypes = Object.keys(responseBody.content)
       contentTypes.forEach((mt: string) => {
@@ -379,7 +350,7 @@ export class Oas extends BaseOas {
     if (operation.schema.responses) {
       Object.keys(operation.schema.responses).forEach((key) => {
         const schema = operation.schema.responses![key]
-        const $ref = isReference(schema) ? schema.$ref : undefined
+        const $ref = isReference(schema) ? (schema as ReferenceObject).$ref : undefined
 
         if (schema && $ref) {
           operation.schema.responses![key] = this.get<any>($ref)
@@ -393,15 +364,12 @@ export class Oas extends BaseOas {
     const responseBody = getResponseBody(contentType)
 
     if (responseBody === false) {
-      // return empty object because response will always be defined(request does not need a body)
       return {}
     }
 
     const schema = Array.isArray(responseBody) ? responseBody[1].schema : responseBody.schema
 
     if (!schema) {
-      // return empty object because response will always be defined(request does not need a body)
-
       return {}
     }
 
@@ -451,8 +419,6 @@ export class Oas extends BaseOas {
             ? schema.required
             : [...(schema.required || []), pathParameters.required ? pathParameters.name : undefined].filter(Boolean)
 
-        // Handle explode=true with style=form for object with additionalProperties
-        // According to OpenAPI spec, when explode is true, object properties are flattened
         const getDefaultStyle = (location: string): string => {
           if (location === 'query') return 'form'
           if (location === 'path') return 'simple'
@@ -469,9 +435,6 @@ export class Oas extends BaseOas {
           property?.additionalProperties &&
           !property?.properties
         ) {
-          // When explode is true for an object with only additionalProperties,
-          // flatten it to the root level by merging additionalProperties with existing schema.
-          // This preserves other query parameters while allowing dynamic key-value pairs.
           return {
             ...schema,
             description: pathParameters.description || schema.description,
@@ -501,29 +464,66 @@ export class Oas extends BaseOas {
   }
 
   async validate() {
-    return validate(this.api)
+    const { valid, errors } = await scalarValidate(this.api as Document)
+    if (!valid) {
+      throw new Error(errors?.map((e) => e.message).join('\n'))
+    }
+    return { valid, errors }
   }
 
   flattenSchema(schema: SchemaObject | null): SchemaObject | null {
-    return flattenSchema(schema)
+    if (!schema?.allOf || schema.allOf.length === 0) {
+      return schema || null
+    }
+
+    const STRUCTURAL_KEYS = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'])
+
+    if (schema.allOf.some((item) => isReference(item))) {
+      return schema
+    }
+
+    const isPlainFragment = (item: SchemaObject) => !Object.keys(item).some((key) => STRUCTURAL_KEYS.has(key))
+
+    if (!schema.allOf.every((item) => isPlainFragment(item as SchemaObject))) {
+      return schema
+    }
+
+    const merged: SchemaObject = { ...schema }
+    delete merged.allOf
+
+    for (const fragment of schema.allOf as SchemaObject[]) {
+      for (const [key, value] of Object.entries(fragment)) {
+        if (merged[key as keyof typeof merged] === undefined) {
+          merged[key as keyof typeof merged] = value
+        }
+      }
+    }
+
+    return merged
   }
 
   /**
-   * Get schemas from OpenAPI components (schemas, responses, requestBodies).
+   * Get schemas from OpenAPI components (schemas, responses, requestBodies, parameters)
+   * and bundled external references (x-ext).
    * Returns schemas in dependency order along with name mapping for collision resolution.
    */
-  getSchemas(options: { contentType?: contentType; includes?: Array<'schemas' | 'responses' | 'requestBodies'>; collisionDetection?: boolean } = {}): {
+  getSchemas(
+    options: {
+      contentType?: contentType
+      includes?: Array<'schemas' | 'responses' | 'requestBodies' | 'parameters' | 'x-ext'>
+      collisionDetection?: boolean
+    } = {},
+  ): {
     schemas: Record<string, SchemaObject>
     nameMapping: Map<string, string>
   } {
     const contentType = options.contentType ?? this.#options.contentType
-    const includes = options.includes ?? ['schemas', 'requestBodies', 'responses']
+    const includes = options.includes ?? ['schemas', 'requestBodies', 'responses', 'parameters', 'x-ext']
     const shouldResolveCollisions = options.collisionDetection ?? this.#options.collisionDetection ?? false
 
     const components = this.getDefinition().components
     const schemasWithMeta: SchemaWithMetadata[] = []
 
-    // Collect schemas from components
     if (includes.includes('schemas')) {
       const componentSchemas = (components?.schemas as Record<string, SchemaObject>) || {}
       for (const [name, schema] of Object.entries(componentSchemas)) {
@@ -553,7 +553,62 @@ export class Oas extends BaseOas {
       }
     }
 
-    // Apply collision resolution only if enabled
+    if (includes.includes('parameters')) {
+      const parameters = components?.parameters || {}
+      for (const [name, parameter] of Object.entries(parameters)) {
+        const parameterObject = parameter as ParameterObject
+        const schema = parameterObject.schema as SchemaObject | undefined
+        // Skip parameters whose schema is a bare $ref — they point to an existing named schema
+        if (schema && !('$ref' in schema)) {
+          schemasWithMeta.push({ schema, source: 'parameters', originalName: name })
+        }
+      }
+    }
+
+    if (includes.includes('x-ext')) {
+      const definition = this.getDefinition() as Record<string, unknown>
+      const extUrls = definition['x-ext-urls'] as Record<string, string> | undefined
+
+      const hashToUrl = new Map<string, string>()
+      if (extUrls) {
+        for (const [hash, url] of Object.entries(extUrls)) {
+          hashToUrl.set(hash, url as string)
+        }
+      }
+
+      const extRefs = collectExtRefs(definition)
+      const seen = new Set<string>()
+
+      for (const ref of extRefs) {
+        if (seen.has(ref)) continue
+        seen.add(ref)
+
+        const hashMatch = ref.match(/^#\/x-ext\/([^/]+)/)
+        if (!hashMatch) continue
+        const hash = hashMatch[1]!
+        const url = hashToUrl.get(hash)
+
+        let schema: SchemaObject | null = null
+        try {
+          schema = this.get<SchemaObject>(ref)
+        } catch {
+          continue
+        }
+
+        if (!schema || isReference(schema)) continue
+
+        if (isPathItem(schema)) continue
+
+        const name = deriveNameFromExtRef(ref, url)
+        schemasWithMeta.push({
+          schema,
+          source: 'x-ext',
+          originalName: name,
+          refPath: ref,
+        })
+      }
+    }
+
     const { schemas, nameMapping } = shouldResolveCollisions ? resolveCollisions(schemasWithMeta) : legacyResolve(schemasWithMeta)
 
     return {

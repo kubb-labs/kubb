@@ -216,7 +216,12 @@ export async function merge(pathOrApi: Array<string | Document>, { oasClass = Oa
   return parse(merged, { oasClass })
 }
 
-export function parseFromConfig(config: Config, oasClass: typeof Oas = Oas): Promise<Oas> {
+export async function parseFromConfig(config: Config, oasClass: typeof Oas = Oas, { UNSTABLE_OAS = false }: { UNSTABLE_OAS?: boolean } = {}): Promise<Oas> {
+  if (UNSTABLE_OAS) {
+    const { Oas: UnstableOas, parseFromConfig: unstableParseFromConfig } = await import('@internals/oas')
+    return unstableParseFromConfig(config, ((oasClass as unknown) ?? UnstableOas) as typeof UnstableOas) as unknown as Promise<Oas>
+  }
+
   if ('data' in config.input) {
     if (typeof config.input.data === 'object') {
       const api: Document = structuredClone(config.input.data) as Document
@@ -302,17 +307,12 @@ export async function validate(document: Document) {
   })
 }
 
-type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies' | 'parameters' | 'x-ext'
+type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies'
 
 export type SchemaWithMetadata = {
   schema: SchemaObject
   source: SchemaSourceMode
   originalName: string
-  /**
-   * Optional override for the `$ref` path used in `nameMapping`.
-   * Required for `x-ext` entries where the ref is `#/x-ext/{hash}` rather than `#/components/{source}/{name}`.
-   */
-  refPath?: string
 }
 
 type GetSchemasResult = {
@@ -346,8 +346,9 @@ export function collectRefs(schema: unknown, refs = new Set<string>()): Set<stri
 
   return refs
 }
+
 /**
- * Sort schemas topologically so referenced schemas appear before the schemas that reference them.
+ * Sort schemas topologically so referenced schemas appear first.
  */
 export function sortSchemas(schemas: Record<string, SchemaObject>): Record<string, SchemaObject> {
   const deps = new Map<string, string[]>()
@@ -360,11 +361,18 @@ export function sortSchemas(schemas: Record<string, SchemaObject>): Record<strin
   const visited = new Set<string>()
 
   function visit(name: string, stack = new Set<string>()) {
-    if (visited.has(name)) return
-    if (stack.has(name)) return // circular ref, skip
+    if (visited.has(name)) {
+      return
+    }
+    if (stack.has(name)) {
+      return
+    } // circular refs, ignore
     stack.add(name)
-    for (const child of deps.get(name) ?? []) {
-      if (deps.has(child)) visit(child, stack)
+    const children = deps.get(name) || []
+    for (const child of children) {
+      if (deps.has(child)) {
+        visit(child, stack)
+      }
     }
     stack.delete(name)
     visited.add(name)
@@ -375,11 +383,11 @@ export function sortSchemas(schemas: Record<string, SchemaObject>): Record<strin
     visit(name)
   }
 
-  const result: Record<string, SchemaObject> = {}
+  const sortedSchemas: Record<string, SchemaObject> = {}
   for (const name of sorted) {
-    result[name] = schemas[name]!
+    sortedSchemas[name] = schemas[name]!
   }
-  return result
+  return sortedSchemas
 }
 
 /**
@@ -414,96 +422,7 @@ export function getSemanticSuffix(source: SchemaSourceMode): string {
       return 'Response'
     case 'requestBodies':
       return 'Request'
-    case 'parameters':
-      return 'Parameter'
-    case 'x-ext':
-      return 'Ext'
   }
-}
-
-/**
- * Derive a schema name from a URL or file path.
- * Extracts the file basename without its extension.
- * @example deriveNameFromUrl('https://example.com/schemas/users.yaml') // 'users'
- * @example deriveNameFromUrl('/local/path/to/pet.json') // 'pet'
- */
-export function deriveNameFromUrl(url: string): string {
-  try {
-    const urlObj = new URL(url)
-    const basename = urlObj.pathname.split('/').pop() || url
-    return basename.replace(/\.[^.]+$/, '')
-  } catch {
-    const basename = url.split(/[\\/]/).pop() || url
-    return basename.replace(/\.[^.]+$/, '')
-  }
-}
-
-const PATH_ITEM_VERBS = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
-
-/**
- * Returns true if the given object looks like an OpenAPI path item (has HTTP verb keys)
- * rather than a schema object.
- */
-export function isPathItem(obj: unknown): boolean {
-  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return false
-  return Object.keys(obj).some((key) => PATH_ITEM_VERBS.has(key))
-}
-
-/**
- * Collect all unique `#/x-ext/...` $ref paths from a document.
- * Returns a Set of full ref strings like `#/x-ext/{hash}` or `#/x-ext/{hash}/components/schemas/Foo`.
- */
-export function collectExtRefs(node: unknown, refs = new Set<string>()): Set<string> {
-  if (Array.isArray(node)) {
-    for (const item of node) {
-      collectExtRefs(item, refs)
-    }
-    return refs
-  }
-
-  if (node && typeof node === 'object') {
-    for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
-      if (key === 'x-ext' || key === 'x-ext-urls') {
-        continue
-      }
-      if (key === '$ref' && typeof value === 'string' && value.startsWith('#/x-ext/')) {
-        refs.add(value)
-      } else {
-        collectExtRefs(value, refs)
-      }
-    }
-  }
-
-  return refs
-}
-
-/**
- * Derive the best name for an external schema from its `$ref` path and the URL of its source file.
- *
- * - When the ref points to the root of the file (`#/x-ext/{hash}`), use the file basename.
- * - When the ref points to a named component (`#/x-ext/{hash}/components/schemas/User`), use the schema key (`User`).
- * - Otherwise fall back to the last path segment.
- *
- * @example deriveNameFromExtRef('#/x-ext/abc123', 'users.yaml')            // 'users'
- * @example deriveNameFromExtRef('#/x-ext/abc123/components/schemas/User', 'external.yaml') // 'User'
- */
-export function deriveNameFromExtRef(ref: string, url: string | undefined): string {
-  const segments = ref
-    .replace(/^#\/x-ext\/[^/]+/, '')
-    .split('/')
-    .filter(Boolean)
-
-  if (segments.length === 0) {
-    return url ? deriveNameFromUrl(url) : ref.split('/').pop() || ref
-  }
-
-  // Named component path: /components/{type}/{name} — use the schema key
-  if (segments.length >= 3 && segments[0] === 'components') {
-    return segments[segments.length - 1]!
-  }
-
-  // Single segment or other paths — use the last meaningful segment
-  return segments[segments.length - 1]!
 }
 
 /**
@@ -518,7 +437,8 @@ export function legacyResolve(schemasWithMeta: SchemaWithMetadata[]): GetSchemas
   // Simply use original names without collision detection
   for (const item of schemasWithMeta) {
     schemas[item.originalName] = item.schema
-    const refPath = item.refPath ?? `#/components/${item.source}/${item.originalName}`
+    // Map using full $ref path for consistency
+    const refPath = `#/components/${item.source}/${item.originalName}`
     nameMapping.set(refPath, item.originalName)
   }
 
@@ -552,7 +472,8 @@ export function resolveCollisions(schemasWithMeta: SchemaWithMetadata[]): GetSch
       // No collision, use original name
       const item = items[0]!
       schemas[item.originalName] = item.schema
-      const refPath = item.refPath ?? `#/components/${item.source}/${item.originalName}`
+      // Map using full $ref path: #/components/{source}/{originalName}
+      const refPath = `#/components/${item.source}/${item.originalName}`
       nameMapping.set(refPath, item.originalName)
       continue
     }
@@ -567,7 +488,8 @@ export function resolveCollisions(schemasWithMeta: SchemaWithMetadata[]): GetSch
         const suffix = index === 0 ? '' : (index + 1).toString()
         const uniqueName = item.originalName + suffix
         schemas[uniqueName] = item.schema
-        const refPath = item.refPath ?? `#/components/${item.source}/${item.originalName}`
+        // Map using full $ref path: #/components/{source}/{originalName}
+        const refPath = `#/components/${item.source}/${item.originalName}`
         nameMapping.set(refPath, uniqueName)
       })
     } else {
@@ -577,7 +499,8 @@ export function resolveCollisions(schemasWithMeta: SchemaWithMetadata[]): GetSch
         const suffix = getSemanticSuffix(item.source)
         const uniqueName = item.originalName + suffix
         schemas[uniqueName] = item.schema
-        const refPath = item.refPath ?? `#/components/${item.source}/${item.originalName}`
+        // Map using full $ref path: #/components/{source}/{originalName}
+        const refPath = `#/components/${item.source}/${item.originalName}`
         nameMapping.set(refPath, uniqueName)
       })
     }

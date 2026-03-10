@@ -10,7 +10,6 @@ import type {
   OASDocument,
   HttpMethods as OASHttpMethods,
   MediaTypeObject as OASMediaTypeObject,
-  ParameterObject as OASParameterObject,
   ResponseObject as OASResponseObject,
   SchemaObject as OASSchemaObject,
 } from 'oas/types'
@@ -46,7 +45,5 @@ export type DiscriminatorObject = OASDiscriminatorObject
 export type ReferenceObject = OpenAPIV3.ReferenceObject
 
 export type ResponseObject = OASResponseObject
-
-export type ParameterObject = OASParameterObject
 
 export type MediaTypeObject = OASMediaTypeObject

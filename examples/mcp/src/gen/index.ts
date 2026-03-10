@@ -154,8 +154,6 @@ export type {
   OrderStatusEnumKey,
 } from './models/ts/Order.js'
 export { orderHttpStatusEnum, orderOrderTypeEnum, orderStatusEnum } from './models/ts/Order.js'
-export type { Page } from './models/ts/Page.js'
-export type { PageSize } from './models/ts/PageSize.js'
 export type { Pet, PetStatusEnumKey } from './models/ts/Pet.js'
 export { petStatusEnum } from './models/ts/Pet.js'
 export type { PetNotFound } from './models/ts/PetNotFound.js'
@@ -304,8 +302,6 @@ export {
   logoutUserQueryResponseSchema,
 } from './zod/logoutUserSchema.js'
 export { orderSchema } from './zod/orderSchema.js'
-export { pageSchema } from './zod/pageSchema.js'
-export { pageSizeSchema } from './zod/pageSizeSchema.js'
 export { petNotFoundSchema } from './zod/petNotFoundSchema.js'
 export { petSchema } from './zod/petSchema.js'
 export {

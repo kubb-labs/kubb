@@ -13,8 +13,6 @@ export type {
   OrderStatusEnumKey,
 } from './Order.js'
 export { orderHttpStatusEnum, orderStatusEnum } from './Order.js'
-export type { Page } from './Page.js'
-export type { PageSize } from './PageSize.js'
 export type { Pet, PetStatusEnumKey } from './Pet.js'
 export { petStatusEnum } from './Pet.js'
 export type { PetNotFound } from './PetNotFound.js'

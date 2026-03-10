@@ -9,7 +9,7 @@ export type GetSchemasResult = {
   nameMapping: Map<string, string>
 }
 
-type Mode = 'schemas' | 'responses' | 'requestBodies' | 'parameters' | 'x-ext'
+type Mode = 'schemas' | 'responses' | 'requestBodies'
 
 type GetSchemasProps = {
   oas: Oas
@@ -32,12 +32,7 @@ type GetSchemasProps = {
  *
  * @deprecated Use oas.getSchemas() instead
  */
-export function getSchemas({
-  oas,
-  contentType,
-  includes = ['schemas', 'requestBodies', 'responses', 'parameters', 'x-ext'],
-  collisionDetection,
-}: GetSchemasProps): GetSchemasResult {
+export function getSchemas({ oas, contentType, includes = ['schemas', 'requestBodies', 'responses'], collisionDetection }: GetSchemasProps): GetSchemasResult {
   return oas.getSchemas({
     contentType,
     includes,

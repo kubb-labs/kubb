@@ -778,6 +778,9 @@ importers:
       '@scalar/openapi-parser':
         specifier: ^0.25.1
         version: 0.25.1
+      jsonpointer:
+        specifier: ^5.0.1
+        version: 5.0.1
       oas:
         specifier: ^28.9.0
         version: 28.9.0
@@ -1015,12 +1018,6 @@ importers:
       '@redocly/openapi-core':
         specifier: ^2.20.4
         version: 2.20.4
-      '@scalar/json-magic':
-        specifier: ^0.12.1
-        version: 0.12.1
-      '@scalar/openapi-parser':
-        specifier: ^0.25.1
-        version: 0.25.1
       '@stoplight/yaml':
         specifier: ^4.3.0
         version: 4.3.0

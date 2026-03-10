@@ -102,8 +102,6 @@ export {
   logoutUserQueryResponseSchema,
 } from './logoutUserSchema.js'
 export { orderSchema } from './orderSchema.js'
-export { pageSchema } from './pageSchema.js'
-export { pageSizeSchema } from './pageSizeSchema.js'
 export { petNotFoundSchema } from './petNotFoundSchema.js'
 export { petSchema } from './petSchema.js'
 export {

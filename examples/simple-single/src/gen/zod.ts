@@ -88,10 +88,6 @@ export const petNotFoundSchema = z.object({
 
 export const userArraySchema = z.array(z.lazy(() => userSchema))
 
-export const pageSchema = z.string()
-
-export const pageSizeSchema = z.string()
-
 /**
  * @description Successful operation
  */

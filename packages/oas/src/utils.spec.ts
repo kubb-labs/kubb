@@ -1,13 +1,11 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Config } from '@kubb/core'
+import yaml from '@stoplight/yaml'
 import { describe, expect, test } from 'vitest'
 import type { SchemaObject } from './types.ts'
 import {
-  collectExtRefs,
   collectRefs,
-  deriveNameFromExtRef,
-  deriveNameFromUrl,
   extractSchemaFromContent,
   getSemanticSuffix,
   legacyResolve,
@@ -133,52 +131,7 @@ components:
         example: 1234343434343
   `
 
-  const petStoreObject = {
-    openapi: '3.0.0',
-    info: { title: 'Swagger PetStore', version: '1.0.0' },
-    paths: {
-      '/users/{userId}': {
-        get: {
-          tags: ['Users'],
-          summary: 'Get public user details',
-          operationId: 'getUser',
-          parameters: [{ $ref: '#/components/parameters/userId' }],
-          responses: {
-            '200': {
-              description: 'Successful response',
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: { type: 'string', example: 'User details retrieved successfully' },
-                      user: {
-                        type: 'object',
-                        properties: {
-                          userId: { type: 'string', example: '1234343434343' },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    components: {
-      parameters: {
-        userId: {
-          name: 'userId',
-          in: 'path',
-          description: 'Executes the action in the context of the specified user.',
-          required: true,
-          schema: { type: 'string', example: '1234343434343' },
-        },
-      },
-    },
-  }
+  const petStoreObject = yaml.parse(yamlPetStoreString)
 
   test('check if oas and title is defined based on a Swagger(v3) file', async () => {
     const oas = await parse(petStoreV3)
@@ -318,7 +271,7 @@ components:
       expect(keys.indexOf('Child')).toBeLessThan(keys.indexOf('Parent'))
     })
 
-    test('should handle circular dependencies without throwing', () => {
+    test('should handle circular dependencies', () => {
       const schemas: Record<string, SchemaObject> = {
         A: {
           type: 'object',
@@ -334,6 +287,7 @@ components:
         },
       }
 
+      // Should not throw
       const sorted = sortSchemas(schemas)
       expect(Object.keys(sorted)).toHaveLength(2)
     })
@@ -406,107 +360,6 @@ components:
     test('should return correct suffix for requestBodies', () => {
       expect(getSemanticSuffix('requestBodies')).toBe('Request')
     })
-
-    test('should return correct suffix for parameters', () => {
-      expect(getSemanticSuffix('parameters')).toBe('Parameter')
-    })
-
-    test('should return correct suffix for x-ext', () => {
-      expect(getSemanticSuffix('x-ext')).toBe('Ext')
-    })
-  })
-
-  describe('deriveNameFromUrl', () => {
-    test('should derive name from a full URL', () => {
-      expect(deriveNameFromUrl('https://example.com/schemas/users.yaml')).toBe('users')
-    })
-
-    test('should derive name from a URL without extension', () => {
-      expect(deriveNameFromUrl('https://example.com/schemas/users')).toBe('users')
-    })
-
-    test('should derive name from a local file path', () => {
-      expect(deriveNameFromUrl('/local/path/to/pet.json')).toBe('pet')
-    })
-
-    test('should fall back to the raw string when no basename can be extracted', () => {
-      expect(deriveNameFromUrl('abc123')).toBe('abc123')
-    })
-  })
-
-  describe('deriveNameFromExtRef', () => {
-    test('should use file basename for root-level ref', () => {
-      expect(deriveNameFromExtRef('#/x-ext/abc123', 'https://example.com/schemas/users.yaml')).toBe('users')
-    })
-
-    test('should use schema key for component path ref', () => {
-      expect(deriveNameFromExtRef('#/x-ext/abc123/components/schemas/User', 'https://example.com/external.yaml')).toBe('User')
-    })
-
-    test('should use last segment for other nested paths', () => {
-      expect(deriveNameFromExtRef('#/x-ext/abc123/definitions/Address', undefined)).toBe('Address')
-    })
-
-    test('should fall back to hash when no url and root ref', () => {
-      expect(deriveNameFromExtRef('#/x-ext/deadbeef', undefined)).toBe('deadbeef')
-    })
-  })
-
-  describe('collectExtRefs', () => {
-    test('should collect x-ext refs from document paths', () => {
-      const doc = {
-        paths: {
-          '/users': {
-            get: {
-              responses: {
-                200: { content: { 'application/json': { schema: { $ref: '#/x-ext/abc123' } } } },
-              },
-            },
-          },
-        },
-      }
-      const refs = collectExtRefs(doc)
-      expect(refs).toEqual(new Set(['#/x-ext/abc123']))
-    })
-
-    test('should collect nested x-ext refs', () => {
-      const doc = {
-        paths: {
-          '/users': {
-            get: {
-              responses: {
-                200: { content: { 'application/json': { schema: { $ref: '#/x-ext/abc123/components/schemas/User' } } } },
-              },
-            },
-          },
-        },
-      }
-      const refs = collectExtRefs(doc)
-      expect(refs).toEqual(new Set(['#/x-ext/abc123/components/schemas/User']))
-    })
-
-    test('should skip x-ext and x-ext-urls keys to avoid false matches', () => {
-      const doc = {
-        'x-ext': { abc123: { type: 'object' } },
-        'x-ext-urls': { abc123: 'users.yaml' },
-        paths: {},
-      }
-      const refs = collectExtRefs(doc)
-      expect(refs.size).toBe(0)
-    })
-
-    test('should collect multiple distinct refs', () => {
-      const doc = {
-        components: {
-          schemas: {
-            A: { $ref: '#/x-ext/hash1' },
-            B: { $ref: '#/x-ext/hash2/components/schemas/Foo' },
-          },
-        },
-      }
-      const refs = collectExtRefs(doc)
-      expect(refs).toEqual(new Set(['#/x-ext/hash1', '#/x-ext/hash2/components/schemas/Foo']))
-    })
   })
 
   describe('legacyResolve', () => {
@@ -529,23 +382,6 @@ components:
       // Last one wins (overwrites)
       expect(Object.keys(result.schemas)).toEqual(['User'])
       expect(result.nameMapping.get('#/components/responses/User')).toBe('User')
-    })
-
-    test('should use refPath override for x-ext entries', () => {
-      const schemasWithMeta: SchemaWithMetadata[] = [
-        {
-          schema: { type: 'object', properties: { id: { type: 'string' } } },
-          source: 'x-ext',
-          originalName: 'users',
-          refPath: '#/x-ext/abc123',
-        },
-      ]
-
-      const result = legacyResolve(schemasWithMeta)
-
-      expect(result.schemas['users']).toBeDefined()
-      expect(result.nameMapping.get('#/x-ext/abc123')).toBe('users')
-      expect(result.nameMapping.has('#/components/x-ext/users')).toBe(false)
     })
   })
 
@@ -633,30 +469,6 @@ components:
       expect(Object.keys(result.schemas)).toEqual(['User', 'user2'])
       expect(result.schemas['User']).toBeDefined()
       expect(result.schemas['user2']).toBeDefined()
-    })
-
-    test('should use refPath override for x-ext entries and add Ext suffix on collision', () => {
-      const schemasWithMeta: SchemaWithMetadata[] = [
-        {
-          schema: { type: 'object', description: 'local' },
-          source: 'schemas',
-          originalName: 'users',
-        },
-        {
-          schema: { type: 'object', description: 'external' },
-          source: 'x-ext',
-          originalName: 'users',
-          refPath: '#/x-ext/abc123',
-        },
-      ]
-
-      const result = resolveCollisions(schemasWithMeta)
-
-      expect(result.schemas['usersSchema']).toBeDefined()
-      expect(result.schemas['usersExt']).toBeDefined()
-      expect(result.nameMapping.get('#/components/schemas/users')).toBe('usersSchema')
-      expect(result.nameMapping.get('#/x-ext/abc123')).toBe('usersExt')
-      expect(result.nameMapping.has('#/components/x-ext/users')).toBe(false)
     })
   })
 })
