@@ -11,7 +11,7 @@ import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 type AgentStartOptions = {
   port: string | undefined
   host: string
-  configPath: string
+  configPath: string | undefined
   allowWrite: boolean
   allowAll: boolean
   version: string
@@ -51,7 +51,7 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
     const PORT = port !== undefined ? port : (process.env.PORT ?? agentDefaults.port)
     const HOST = host !== agentDefaults.host ? host : (process.env.HOST ?? agentDefaults.host)
     const KUBB_AGENT_ROOT = process.env.KUBB_AGENT_ROOT ?? process.cwd()
-    const KUBB_AGENT_CONFIG = configPath !== agentDefaults.configFile ? configPath : (process.env.KUBB_AGENT_CONFIG ?? agentDefaults.configFile)
+    const KUBB_AGENT_CONFIG = path.resolve(process.cwd(), configPath || process.env.KUBB_AGENT_CONFIG || agentDefaults.configFile)
     const KUBB_AGENT_ALLOW_WRITE = allowAll || allowWrite ? 'true' : (process.env.KUBB_AGENT_ALLOW_WRITE ?? 'false')
     const KUBB_AGENT_ALLOW_ALL = allowAll ? 'true' : (process.env.KUBB_AGENT_ALLOW_ALL ?? 'false')
     const KUBB_AGENT_TOKEN = process.env.KUBB_AGENT_TOKEN
@@ -83,6 +83,8 @@ export async function runAgentStart({ port, host, configPath, allowWrite, allowA
       clack.log.error(styleText('red', `Port ${PORT} is already in use. Stop the existing process or choose a different port with --port.`))
       process.exit(1)
     }
+
+    console.log(env)
 
     // Spawns the server as a detached background process so the CLI can exit independently.
     await spawnAsync('node', [serverPath], {

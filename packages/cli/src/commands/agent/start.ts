@@ -1,4 +1,3 @@
-import path from 'node:path'
 import { defineCommand } from '@internals/utils'
 import { version } from '../../../package.json'
 import { agentDefaults } from '../../constants.ts'
@@ -23,7 +22,7 @@ export const command = defineCommand({
     await runAgentStart({
       port: values.port !== undefined ? values.port : undefined,
       host: values.host,
-      configPath: path.resolve(process.cwd(), values.config ?? agentDefaults.configFile),
+      configPath: values.config,
       allowWrite: values['allow-write'],
       allowAll: values['allow-all'],
       version,

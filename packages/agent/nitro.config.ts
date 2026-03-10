@@ -1,3 +1,9 @@
+import { cpSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { dirname, resolve } from 'node:path'
+
+const _require = createRequire(import.meta.url)
+
 export default defineNitroConfig({
   srcDir: 'server',
   alias: {
@@ -6,6 +12,20 @@ export default defineNitroConfig({
     // does not follow the alias in the lockfile/package.json metadata during bundling.
     // Explicitly mapping 'ajv' here ensures Nitro/esbuild finds the correct package.
     ajv: '@redocly/ajv',
+  },
+  hooks: {
+    // The `ajv` alias above replaces the entry-point import in the bundle, so Nitro's
+    // module tracer only traces sub-path imports (e.g. `ajv/dist/compile/codegen`)
+    // and never copies the full package. However, `ajv-formats` is kept as an external
+    // CJS module and does `require('ajv')` at runtime — which resolves via the
+    // filesystem and fails because the package is incomplete. Copy the full package
+    // from the real `ajv` installation after the build to fix that.
+    compiled(nitro) {
+      const ajvPkg = _require.resolve('ajv/package.json')
+      const src = dirname(ajvPkg)
+      const dest = resolve(nitro.options.output.serverDir, 'node_modules/ajv')
+      cpSync(src, dest, { recursive: true, force: true })
+    },
   },
   storage: {
     kubb: {
