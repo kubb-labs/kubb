@@ -367,8 +367,6 @@ export type Page = string
 
 export type PageSize = string
 
-export type Fb6E376 = any
-
 /**
  * @description Successful operation
  */

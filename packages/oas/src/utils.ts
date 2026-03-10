@@ -474,7 +474,10 @@ export function collectExtRefs(node: unknown, refs = new Set<string>()): Set<str
  * @example deriveNameFromExtRef('#/x-ext/abc123/components/schemas/User', 'external.yaml') // 'User'
  */
 export function deriveNameFromExtRef(ref: string, url: string | undefined): string {
-  const segments = ref.replace(/^#\/x-ext\/[^/]+/, '').split('/').filter(Boolean)
+  const segments = ref
+    .replace(/^#\/x-ext\/[^/]+/, '')
+    .split('/')
+    .filter(Boolean)
 
   if (segments.length === 0) {
     return url ? deriveNameFromUrl(url) : ref.split('/').pop() || ref

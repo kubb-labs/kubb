@@ -15,7 +15,6 @@ import type {
 import {
   collectExtRefs,
   deriveNameFromExtRef,
-  deriveNameFromUrl,
   extractSchemaFromContent,
   flattenSchema,
   isDiscriminator,

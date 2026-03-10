@@ -54,7 +54,6 @@ export type {
   DeleteUserPathParams,
 } from './ts/models/DeleteUser.ts'
 export type { Dog } from './ts/models/Dog.ts'
-export type { Fb6E376 } from './ts/models/Fb6E376.ts'
 export type {
   FindPetsByStatus200,
   FindPetsByStatus400,
