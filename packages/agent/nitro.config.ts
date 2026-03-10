@@ -18,15 +18,13 @@ export default defineNitroConfig({
     // module tracer only traces sub-path imports (e.g. `ajv/dist/compile/codegen`)
     // and never copies the full package. However, `ajv-formats` is kept as an external
     // CJS module and does `require('ajv')` at runtime — which resolves via the
-    // filesystem and fails because the package is incomplete.
-    // Copy `@redocly/ajv` (the aliased package that is always present as a transitive
-    // dep of `@redocly/openapi-core`) into the output as `ajv` so that `ajv-formats`
-    // can resolve it at runtime in any environment, including Docker.
+    // filesystem and fails because the package is incomplete. Copy the full package
+    // from the real `ajv` installation after the build to fix that.
     compiled(nitro) {
-      const ajvPkg = _require.resolve('@redocly/ajv/package.json')
+      const ajvPkg = _require.resolve('ajv/package.json')
       const src = dirname(ajvPkg)
       const dest = resolve(nitro.options.output.serverDir, 'node_modules/ajv')
-      cpSync(src, dest, { recursive: true, force: true })
+      cpSync(src, dest, { recursive: true, force: true, dereference: true })
     },
   },
   storage: {
