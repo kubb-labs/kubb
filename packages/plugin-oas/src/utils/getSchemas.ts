@@ -24,6 +24,19 @@ type GetSchemasProps = {
 }
 
 /**
+ * Normalize a raw OAS SchemaObject so that `minimum`/`maximum` are
+ * surfaced as `min`/`max` (consistent with Kubb's AST naming convention).
+ * The original `minimum`/`maximum` keys are removed to avoid ambiguity.
+ */
+function normalizeSchema({ minimum, maximum, ...rest }: OasTypes.SchemaObject): OasTypes.SchemaObject {
+  return {
+    ...rest,
+    ...(minimum !== undefined && { min: minimum }),
+    ...(maximum !== undefined && { max: maximum }),
+  }
+}
+
+/**
  * Collect schemas from OpenAPI components (schemas, responses, requestBodies)
  * and return them in dependency order along with name mapping for collision resolution.
  *
@@ -33,9 +46,16 @@ type GetSchemasProps = {
  * @deprecated Use oas.getSchemas() instead
  */
 export function getSchemas({ oas, contentType, includes = ['schemas', 'requestBodies', 'responses'], collisionDetection }: GetSchemasProps): GetSchemasResult {
-  return oas.getSchemas({
+  const { schemas, nameMapping } = oas.getSchemas({
     contentType,
     includes,
     collisionDetection,
   })
+
+  const normalizedSchemas: Record<string, OasTypes.SchemaObject> = {}
+  for (const [name, schema] of Object.entries(schemas)) {
+    normalizedSchemas[name] = normalizeSchema(schema)
+  }
+
+  return { schemas: normalizedSchemas, nameMapping }
 }

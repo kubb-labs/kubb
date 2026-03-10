@@ -695,11 +695,8 @@ export class SchemaGenerator<
         },
       },
     ]
-    const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
-    const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
-
-    const exclusiveMinimum = schemaObject.exclusiveMinimum
-    const exclusiveMaximum = schemaObject.exclusiveMaximum
+    const min = schemaObject.min ?? schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
+    const max = schemaObject.max ?? schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
 
     const nullable = isNullable(schemaObject)
     const defaultNullAndNullable = schemaObject.default === null && nullable
@@ -1086,8 +1083,8 @@ export class SchemaGenerator<
     if ('prefixItems' in schemaObject) {
       const prefixItems = schemaObject.prefixItems as SchemaObject[]
       const items = 'items' in schemaObject ? (schemaObject.items as SchemaObject[]) : []
-      const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
-      const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
+      const min = schemaObject.min ?? schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
+      const max = schemaObject.max ?? schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
 
       return [
         {
@@ -1259,8 +1256,8 @@ export class SchemaGenerator<
 
     // type based logic
     if ('items' in schemaObject || schemaObject.type === ('array' as 'string')) {
-      const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
-      const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
+      const min = schemaObject.min ?? schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
+      const max = schemaObject.max ?? schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
       const items = this.parse({ schema: 'items' in schemaObject ? (schemaObject.items as SchemaObject) : [], name, parentName, rootName })
       const unique = !!schemaObject.uniqueItems
 
@@ -1323,7 +1320,7 @@ export class SchemaGenerator<
     let inferredType: OpenAPIV3.NonArraySchemaObjectType | undefined
     if (schemaObject.minLength !== undefined || schemaObject.maxLength !== undefined || schemaObject.pattern !== undefined) {
       inferredType = 'string'
-    } else if (schemaObject.minimum !== undefined || schemaObject.maximum !== undefined) {
+    } else if (schemaObject.min !== undefined || schemaObject.max !== undefined || schemaObject.minimum !== undefined || schemaObject.maximum !== undefined) {
       inferredType = 'number'
     }
     // Note: minItems/maxItems don't infer type 'array' because arrays are handled

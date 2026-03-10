@@ -21,6 +21,10 @@ export type contentType = 'application/json' | (string & {})
 export type SchemaObject = OASSchemaObject & {
   'x-nullable'?: boolean
   $ref?: string
+  /** Normalized minimum — replaces `minimum` from raw OAS. Set by Kubb's schema normalisation layer. */
+  min?: number
+  /** Normalized maximum — replaces `maximum` from raw OAS. Set by Kubb's schema normalisation layer. */
+  max?: number
 }
 
 export const HttpMethods = {
