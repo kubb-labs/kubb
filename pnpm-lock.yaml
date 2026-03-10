@@ -764,6 +764,12 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
 
+  internals/ast:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 20.19.37
+
   internals/tanstack-query:
     dependencies:
       '@internals/utils':
