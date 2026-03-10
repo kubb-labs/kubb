@@ -1523,6 +1523,7 @@ exports[`[oas] filter > Filtering on operationId 1`] = `
         "description": "Pet not found"
       }
     }
-  }
+  },
+  "x-ext-urls": {}
 }"
 `;

@@ -3,12 +3,12 @@
 * Do not edit manually.
 */
 
-import type { _4E2Bce4 } from "./_4E2Bce4.ts";
+import type { User } from "./User.ts";
 
 /**
  * @description Current user
 */
-export type GetMe200 = _4E2Bce4;
+export type GetMe200 = User;
 
 export type GetMeQueryResponse = GetMe200;
 

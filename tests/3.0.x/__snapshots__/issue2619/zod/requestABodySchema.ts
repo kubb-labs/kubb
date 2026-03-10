@@ -3,5 +3,6 @@
 * Do not edit manually.
 */
 
+import * as z from "zod";
 
-export type _3C24C6F = any;
+export const requestABodySchema = z.any()

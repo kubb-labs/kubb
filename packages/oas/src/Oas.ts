@@ -13,10 +13,13 @@ import type {
   SchemaObject,
 } from './types.ts'
 import {
+  collectExtRefs,
+  deriveNameFromExtRef,
   deriveNameFromUrl,
   extractSchemaFromContent,
   flattenSchema,
   isDiscriminator,
+  isPathItem,
   isReference,
   legacyResolve,
   resolveCollisions,
@@ -584,28 +587,51 @@ export class Oas extends BaseOas {
 
     if (includes.includes('x-ext')) {
       const definition = this.getDefinition() as Record<string, unknown>
-      const extSchemas = definition['x-ext'] as Record<string, SchemaObject> | undefined
       const extUrls = definition['x-ext-urls'] as Record<string, string> | undefined
 
-      if (extSchemas) {
-        // Reverse the URL map: hash -> URL for name derivation
-        const hashToUrl = new Map<string, string>()
-        if (extUrls) {
-          for (const [url, hash] of Object.entries(extUrls)) {
-            hashToUrl.set(hash, url)
-          }
+      // Build hash → url map (bundler stores as { hash: url })
+      const hashToUrl = new Map<string, string>()
+      if (extUrls) {
+        for (const [hash, url] of Object.entries(extUrls)) {
+          hashToUrl.set(hash, url as string)
+        }
+      }
+
+      // Collect every distinct #/x-ext/... $ref used in the document.
+      // Each ref may point to the root of an external file (#/x-ext/{hash}) or
+      // to a specific named schema inside it (#/x-ext/{hash}/components/schemas/Foo).
+      const extRefs = collectExtRefs(definition)
+      const seen = new Set<string>()
+
+      for (const ref of extRefs) {
+        if (seen.has(ref)) continue
+        seen.add(ref)
+
+        // Extract hash from the ref path
+        const hashMatch = ref.match(/^#\/x-ext\/([^/]+)/)
+        if (!hashMatch) continue
+        const hash = hashMatch[1]!
+        const url = hashToUrl.get(hash)
+
+        let schema: SchemaObject | null = null
+        try {
+          schema = this.get<SchemaObject>(ref)
+        } catch {
+          continue
         }
 
-        for (const [hash, schema] of Object.entries(extSchemas)) {
-          const url = hashToUrl.get(hash)
-          const name = url ? deriveNameFromUrl(url) : hash
-          schemasWithMeta.push({
-            schema,
-            source: 'x-ext',
-            originalName: name,
-            refPath: `#/x-ext/${hash}`,
-          })
-        }
+        if (!schema || isReference(schema)) continue
+
+        // Skip path items — they have HTTP verb keys, not schema keywords
+        if (isPathItem(schema)) continue
+
+        const name = deriveNameFromExtRef(ref, url)
+        schemasWithMeta.push({
+          schema,
+          source: 'x-ext',
+          originalName: name,
+          refPath: ref,
+        })
       }
     }
 

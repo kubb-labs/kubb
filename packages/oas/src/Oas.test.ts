@@ -913,7 +913,7 @@ describe('[oas] getParametersSchema with explode and style form', () => {
 })
 
 describe('[oas] getSchemas x-ext', () => {
-  test('should collect schemas from x-ext when included', () => {
+  test('should collect schemas from x-ext when included (root-level ref)', () => {
     const document: Document = {
       openapi: '3.0.3',
       info: { title: 'Test', version: '1.0.0' },
@@ -944,7 +944,7 @@ describe('[oas] getSchemas x-ext', () => {
         },
       },
       'x-ext-urls': {
-        'https://example.com/schemas/users.yaml': 'abc123',
+        abc123: 'https://example.com/schemas/users.yaml',
       },
     } as unknown as Document
 
@@ -956,11 +956,76 @@ describe('[oas] getSchemas x-ext', () => {
     expect(nameMapping.get('#/x-ext/abc123')).toBe('users')
   })
 
-  test('should fall back to hash as name when no URL mapping exists', () => {
+  test('should collect schemas from x-ext when ref points to a nested schema path', () => {
     const document: Document = {
       openapi: '3.0.3',
       info: { title: 'Test', version: '1.0.0' },
-      paths: {},
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+            responses: {
+              200: {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/x-ext/abc123/components/schemas/User' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      'x-ext': {
+        abc123: {
+          components: {
+            schemas: {
+              User: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  name: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      },
+      'x-ext-urls': {
+        abc123: 'https://example.com/schemas/external.yaml',
+      },
+    } as unknown as Document
+
+    const oas = new Oas(document)
+    const { schemas, nameMapping } = oas.getSchemas({ includes: ['schemas', 'x-ext'] })
+
+    expect(schemas['User']).toBeDefined()
+    expect(schemas['User']?.type).toBe('object')
+    expect(nameMapping.get('#/x-ext/abc123/components/schemas/User')).toBe('User')
+  })
+
+  test('should fall back to hash as name when no URL mapping exists and ref points to root', () => {
+    const document: Document = {
+      openapi: '3.0.3',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/items': {
+          get: {
+            operationId: 'getItems',
+            responses: {
+              200: {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/x-ext/deadbeef' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       'x-ext': {
         deadbeef: {
           type: 'object',
@@ -980,7 +1045,23 @@ describe('[oas] getSchemas x-ext', () => {
     const document: Document = {
       openapi: '3.0.3',
       info: { title: 'Test', version: '1.0.0' },
-      paths: {},
+      paths: {
+        '/external': {
+          get: {
+            operationId: 'getExternal',
+            responses: {
+              200: {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/x-ext/abc123' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       components: {
         schemas: {
           users: { type: 'object', description: 'local' },
@@ -990,7 +1071,7 @@ describe('[oas] getSchemas x-ext', () => {
         abc123: { type: 'object', description: 'external' },
       },
       'x-ext-urls': {
-        'https://example.com/schemas/users.yaml': 'abc123',
+        abc123: 'https://example.com/schemas/users.yaml',
       },
     } as unknown as Document
 

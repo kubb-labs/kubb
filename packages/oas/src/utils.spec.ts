@@ -4,7 +4,9 @@ import type { Config } from '@kubb/core'
 import { describe, expect, test } from 'vitest'
 import type { SchemaObject } from './types.ts'
 import {
+  collectExtRefs,
   collectRefs,
+  deriveNameFromExtRef,
   deriveNameFromUrl,
   extractSchemaFromContent,
   getSemanticSuffix,
@@ -429,6 +431,81 @@ components:
 
     test('should fall back to the raw string when no basename can be extracted', () => {
       expect(deriveNameFromUrl('abc123')).toBe('abc123')
+    })
+  })
+
+  describe('deriveNameFromExtRef', () => {
+    test('should use file basename for root-level ref', () => {
+      expect(deriveNameFromExtRef('#/x-ext/abc123', 'https://example.com/schemas/users.yaml')).toBe('users')
+    })
+
+    test('should use schema key for component path ref', () => {
+      expect(deriveNameFromExtRef('#/x-ext/abc123/components/schemas/User', 'https://example.com/external.yaml')).toBe('User')
+    })
+
+    test('should use last segment for other nested paths', () => {
+      expect(deriveNameFromExtRef('#/x-ext/abc123/definitions/Address', undefined)).toBe('Address')
+    })
+
+    test('should fall back to hash when no url and root ref', () => {
+      expect(deriveNameFromExtRef('#/x-ext/deadbeef', undefined)).toBe('deadbeef')
+    })
+  })
+
+  describe('collectExtRefs', () => {
+    test('should collect x-ext refs from document paths', () => {
+      const doc = {
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                200: { content: { 'application/json': { schema: { $ref: '#/x-ext/abc123' } } } },
+              },
+            },
+          },
+        },
+      }
+      const refs = collectExtRefs(doc)
+      expect(refs).toEqual(new Set(['#/x-ext/abc123']))
+    })
+
+    test('should collect nested x-ext refs', () => {
+      const doc = {
+        paths: {
+          '/users': {
+            get: {
+              responses: {
+                200: { content: { 'application/json': { schema: { $ref: '#/x-ext/abc123/components/schemas/User' } } } },
+              },
+            },
+          },
+        },
+      }
+      const refs = collectExtRefs(doc)
+      expect(refs).toEqual(new Set(['#/x-ext/abc123/components/schemas/User']))
+    })
+
+    test('should skip x-ext and x-ext-urls keys to avoid false matches', () => {
+      const doc = {
+        'x-ext': { abc123: { type: 'object' } },
+        'x-ext-urls': { abc123: 'users.yaml' },
+        paths: {},
+      }
+      const refs = collectExtRefs(doc)
+      expect(refs.size).toBe(0)
+    })
+
+    test('should collect multiple distinct refs', () => {
+      const doc = {
+        components: {
+          schemas: {
+            A: { $ref: '#/x-ext/hash1' },
+            B: { $ref: '#/x-ext/hash2/components/schemas/Foo' },
+          },
+        },
+      }
+      const refs = collectExtRefs(doc)
+      expect(refs).toEqual(new Set(['#/x-ext/hash1', '#/x-ext/hash2/components/schemas/Foo']))
     })
   })
 

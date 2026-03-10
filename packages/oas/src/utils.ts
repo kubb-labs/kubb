@@ -174,6 +174,7 @@ export async function parse(
     const data = await bundle(pathOrApi, {
       plugins: [readFiles(), fetchUrls(), parseYaml(), parseJson()],
       treeShake: true,
+      urlMap: true,
     })
     document = data as Document
   } else {
@@ -421,6 +422,71 @@ export function deriveNameFromUrl(url: string): string {
     const basename = url.split(/[\\/]/).pop() || url
     return basename.replace(/\.[^.]+$/, '')
   }
+}
+
+const PATH_ITEM_VERBS = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
+
+/**
+ * Returns true if the given object looks like an OpenAPI path item (has HTTP verb keys)
+ * rather than a schema object.
+ */
+export function isPathItem(obj: unknown): boolean {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return false
+  return Object.keys(obj).some((key) => PATH_ITEM_VERBS.has(key))
+}
+
+/**
+ * Collect all unique `#/x-ext/...` $ref paths from a document.
+ * Returns a Set of full ref strings like `#/x-ext/{hash}` or `#/x-ext/{hash}/components/schemas/Foo`.
+ */
+export function collectExtRefs(node: unknown, refs = new Set<string>()): Set<string> {
+  if (Array.isArray(node)) {
+    for (const item of node) {
+      collectExtRefs(item, refs)
+    }
+    return refs
+  }
+
+  if (node && typeof node === 'object') {
+    for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+      if (key === 'x-ext' || key === 'x-ext-urls') {
+        continue
+      }
+      if (key === '$ref' && typeof value === 'string' && value.startsWith('#/x-ext/')) {
+        refs.add(value)
+      } else {
+        collectExtRefs(value, refs)
+      }
+    }
+  }
+
+  return refs
+}
+
+/**
+ * Derive the best name for an external schema from its `$ref` path and the URL of its source file.
+ *
+ * - When the ref points to the root of the file (`#/x-ext/{hash}`), use the file basename.
+ * - When the ref points to a named component (`#/x-ext/{hash}/components/schemas/User`), use the schema key (`User`).
+ * - Otherwise fall back to the last path segment.
+ *
+ * @example deriveNameFromExtRef('#/x-ext/abc123', 'users.yaml')            // 'users'
+ * @example deriveNameFromExtRef('#/x-ext/abc123/components/schemas/User', 'external.yaml') // 'User'
+ */
+export function deriveNameFromExtRef(ref: string, url: string | undefined): string {
+  const segments = ref.replace(/^#\/x-ext\/[^/]+/, '').split('/').filter(Boolean)
+
+  if (segments.length === 0) {
+    return url ? deriveNameFromUrl(url) : ref.split('/').pop() || ref
+  }
+
+  // Named component path: /components/{type}/{name} — use the schema key
+  if (segments.length >= 3 && segments[0] === 'components') {
+    return segments[segments.length - 1]!
+  }
+
+  // Single segment or other paths — use the last meaningful segment
+  return segments[segments.length - 1]!
 }
 
 /**
