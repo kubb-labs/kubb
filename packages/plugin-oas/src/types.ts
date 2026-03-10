@@ -30,6 +30,16 @@ export type ResolvePathOptions = {
 
 export type Options = {
   /**
+   * Enable the new experimental OAS parsing approach using `@scalar/openapi-parser` (via `@internals/oas`).
+   *
+   * When set to `true`, Kubb will use the new scalar-based parser instead of the default
+   * Redocly/oas-normalize pipeline from `@kubb/oas`.
+   *
+   * @default false
+   * @unstable This API is subject to change without notice.
+   */
+  UNSTABLE_OAS?: boolean
+  /**
    * Validate your input(see kubb.config) based on '@apidevtools/swagger-parser'.
    * @default true
    */

@@ -25,11 +25,12 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
     oasClass,
     discriminator = 'strict',
     collisionDetection = false,
+    UNSTABLE_OAS = false,
   } = options
 
   const getOas = async ({ validate, config, events }: { validate: boolean; config: Config; events: AsyncEventEmitter<KubbEvents> }): Promise<Oas> => {
     // needs to be in a different variable or the catch here will not work(return of a promise instead)
-    const oas = await parseFromConfig(config, oasClass)
+    const oas = await parseFromConfig(config, oasClass, { UNSTABLE_OAS })
 
     oas.setOptions({
       contentType,

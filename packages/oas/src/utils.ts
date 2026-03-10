@@ -216,7 +216,12 @@ export async function merge(pathOrApi: Array<string | Document>, { oasClass = Oa
   return parse(merged, { oasClass })
 }
 
-export function parseFromConfig(config: Config, oasClass: typeof Oas = Oas): Promise<Oas> {
+export async function parseFromConfig(config: Config, oasClass: typeof Oas = Oas, { UNSTABLE_OAS = false }: { UNSTABLE_OAS?: boolean } = {}): Promise<Oas> {
+  if (UNSTABLE_OAS) {
+    const { Oas: UnstableOas, parseFromConfig: unstableParseFromConfig } = await import('@internals/oas')
+    return unstableParseFromConfig(config, ((oasClass as unknown) ?? UnstableOas) as typeof UnstableOas) as unknown as Promise<Oas>
+  }
+
   if ('data' in config.input) {
     if (typeof config.input.data === 'object') {
       const api: Document = structuredClone(config.input.data) as Document

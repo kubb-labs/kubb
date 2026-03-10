@@ -3,6 +3,6 @@
 * Do not edit manually.
 */
 
-import type { Pet } from "./Pet.ts";
+import * as z from "zod";
 
-export type PetRequest = Pet;
+export const requestBBodySchema = z.any()
