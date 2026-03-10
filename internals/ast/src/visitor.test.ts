@@ -40,22 +40,22 @@ describe('walk', () => {
     }
 
     walk(root, {
-      visitRoot() {
+      root() {
         visited.root++
       },
-      visitOperation() {
+      operation() {
         visited.operation++
       },
-      visitSchema() {
+      schema() {
         visited.schema++
       },
-      visitProperty() {
+      property() {
         visited.property++
       },
-      visitParameter() {
+      parameter() {
         visited.parameter++
       },
-      visitResponse() {
+      response() {
         visited.response++
       },
     })
@@ -73,7 +73,7 @@ describe('walk', () => {
     const root = buildSampleTree()
     const ids: Array<string> = []
     walk(root, {
-      visitOperation(op) {
+      operation(op) {
         ids.push(op.operationId)
       },
     })
@@ -84,7 +84,7 @@ describe('walk', () => {
     const root = buildSampleTree()
     const original = JSON.stringify(root)
     walk(root, {
-      visitOperation(op) {
+      operation(op) {
         return { ...op, operationId: 'mutated' }
       },
     })
@@ -103,7 +103,7 @@ describe('transform', () => {
   it('replaces operations via visitor return value', () => {
     const root = buildSampleTree()
     const result = transform(root, {
-      visitOperation(op): OperationNode {
+      operation(op): OperationNode {
         return { ...op, operationId: `api_${op.operationId}` }
       },
     }) as RootNode
@@ -116,7 +116,7 @@ describe('transform', () => {
   it('replaces schemas via visitor return value', () => {
     const root = buildSampleTree()
     const result = transform(root, {
-      visitSchema(schema): SchemaNode {
+      schema(schema): SchemaNode {
         return { ...schema, description: 'transformed' }
       },
     }) as RootNode
@@ -127,7 +127,7 @@ describe('transform', () => {
   it('returns original node when visitor returns undefined', () => {
     const root = buildSampleTree()
     const unchanged = transform(root, {
-      visitOperation() {
+      operation() {
         return undefined
       },
     }) as RootNode
@@ -139,7 +139,7 @@ describe('transform', () => {
     const root = buildSampleTree()
     const types: Array<string> = []
     transform(root, {
-      visitSchema(schema): SchemaNode {
+      schema(schema): SchemaNode {
         types.push(schema.type)
         return schema
       },

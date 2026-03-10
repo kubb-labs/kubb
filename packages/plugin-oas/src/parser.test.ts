@@ -1,5 +1,6 @@
 import { parse } from '@kubb/oas'
 import { describe, expect, it } from 'vitest'
+import type { ArraySchemaNode, CompositeSchemaNode, EnumSchemaNode, ObjectSchemaNode, RefSchemaNode } from '@internals/ast'
 import { buildAst } from './parser.ts'
 
 async function buildMinimalOas() {
@@ -172,7 +173,7 @@ describe('buildAst', () => {
     it('converts object schema with properties', async () => {
       const oas = await buildMinimalOas()
       const root = buildAst(oas)
-      const pet = root.schemas.find((s) => s.name === 'Pet')
+      const pet = root.schemas.find((s) => s.name === 'Pet') as ObjectSchemaNode | undefined
       expect(pet?.type).toBe('object')
       expect(pet?.properties?.map((p) => p.name)).toEqual(expect.arrayContaining(['id', 'name', 'tag']))
     })
@@ -180,7 +181,7 @@ describe('buildAst', () => {
     it('marks required properties', async () => {
       const oas = await buildMinimalOas()
       const root = buildAst(oas)
-      const pet = root.schemas.find((s) => s.name === 'Pet')
+      const pet = root.schemas.find((s) => s.name === 'Pet') as ObjectSchemaNode | undefined
       const idProp = pet?.properties?.find((p) => p.name === 'id')
       const tagProp = pet?.properties?.find((p) => p.name === 'tag')
       expect(idProp?.required).toBe(true)
@@ -190,7 +191,7 @@ describe('buildAst', () => {
     it('converts array schema', async () => {
       const oas = await buildMinimalOas()
       const root = buildAst(oas)
-      const list = root.schemas.find((s) => s.name === 'PetList')
+      const list = root.schemas.find((s) => s.name === 'PetList') as ArraySchemaNode | undefined
       expect(list?.type).toBe('array')
       expect(list?.items).toHaveLength(1)
       expect(list?.items?.[0]?.type).toBe('ref')
@@ -199,7 +200,7 @@ describe('buildAst', () => {
     it('converts enum schema', async () => {
       const oas = await buildMinimalOas()
       const root = buildAst(oas)
-      const status = root.schemas.find((s) => s.name === 'Status')
+      const status = root.schemas.find((s) => s.name === 'Status') as EnumSchemaNode | undefined
       expect(status?.type).toBe('enum')
       expect(status?.enumValues).toEqual(['active', 'inactive', 'pending'])
     })
@@ -207,7 +208,7 @@ describe('buildAst', () => {
     it('converts oneOf to union', async () => {
       const oas = await buildMinimalOas()
       const root = buildAst(oas)
-      const petOrError = root.schemas.find((s) => s.name === 'PetOrError')
+      const petOrError = root.schemas.find((s) => s.name === 'PetOrError') as CompositeSchemaNode | undefined
       expect(petOrError?.type).toBe('union')
       expect(petOrError?.members).toHaveLength(2)
     })
@@ -215,7 +216,7 @@ describe('buildAst', () => {
     it('converts allOf to intersection', async () => {
       const oas = await buildMinimalOas()
       const root = buildAst(oas)
-      const fullPet = root.schemas.find((s) => s.name === 'FullPet')
+      const fullPet = root.schemas.find((s) => s.name === 'FullPet') as CompositeSchemaNode | undefined
       expect(fullPet?.type).toBe('intersection')
       expect(fullPet?.members).toHaveLength(2)
     })
@@ -234,7 +235,7 @@ describe('buildAst', () => {
     it('flattens single-member allOf for nullable $ref', async () => {
       const oas = await buildMinimalOas()
       const root = buildAst(oas)
-      const nullableRef = root.schemas.find((s) => s.name === 'NullableRef')
+      const nullableRef = root.schemas.find((s) => s.name === 'NullableRef') as RefSchemaNode | undefined
       // Should be flattened to a ref — not an intersection
       expect(nullableRef?.type).toBe('ref')
       expect(nullableRef?.ref).toBe('Pet')
@@ -244,9 +245,9 @@ describe('buildAst', () => {
     it('maps format date-time to datetime SchemaType', async () => {
       const oas = await buildMinimalOas()
       const root = buildAst(oas)
-      const fullPet = root.schemas.find((s) => s.name === 'FullPet')
+      const fullPet = root.schemas.find((s) => s.name === 'FullPet') as CompositeSchemaNode | undefined
       // second member is an inline object with createdAt (datetime) and email
-      const objectMember = fullPet?.members?.find((m) => m.type === 'object')
+      const objectMember = fullPet?.members?.find((m) => m.type === 'object') as ObjectSchemaNode | undefined
       const createdAt = objectMember?.properties?.find((p) => p.name === 'createdAt')
       expect(createdAt?.schema.type).toBe('datetime')
     })
@@ -254,8 +255,8 @@ describe('buildAst', () => {
     it('maps format email to email SchemaType', async () => {
       const oas = await buildMinimalOas()
       const root = buildAst(oas)
-      const fullPet = root.schemas.find((s) => s.name === 'FullPet')
-      const objectMember = fullPet?.members?.find((m) => m.type === 'object')
+      const fullPet = root.schemas.find((s) => s.name === 'FullPet') as CompositeSchemaNode | undefined
+      const objectMember = fullPet?.members?.find((m) => m.type === 'object') as ObjectSchemaNode | undefined
       const email = objectMember?.properties?.find((p) => p.name === 'email')
       expect(email?.schema.type).toBe('email')
     })

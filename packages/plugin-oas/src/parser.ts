@@ -104,17 +104,18 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
     // In OAS 3.0 siblings of $ref are technically ignored, but Kubb intentionally
     // preserves them so that annotations like `pattern`, `description`, and `nullable`
     // that authors place next to a $ref are reflected in generated JSDoc / type modifiers.
-    const siblingSchema = schema as unknown as SchemaObject
+    // Cast back to SchemaObject to access sibling properties alongside $ref.
+    const s = schema as unknown as SchemaObject & { $ref: string }
     return createSchema({
       type: 'ref',
       name,
-      ref: extractRefName((schema as unknown as { $ref: string }).$ref),
-      nullable: isNullable(siblingSchema) || undefined,
-      description: siblingSchema.description,
-      deprecated: siblingSchema.deprecated,
-      pattern: siblingSchema.pattern,
-      example: siblingSchema.example,
-      default: siblingSchema.default,
+      ref: extractRefName(s.$ref),
+      nullable: isNullable(s) || undefined,
+      description: s.description,
+      deprecated: s.deprecated,
+      pattern: s.pattern,
+      example: s.example,
+      default: s.default,
     })
   }
 
@@ -126,7 +127,7 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
     if (schema.allOf.length === 1 && !schema.properties) {
       const [memberSchema] = schema.allOf as SchemaObject[]
       const memberNode = convertSchema(memberSchema!)
-      const { kind: _kind, ...memberNodeProps } = memberNode
+      const { kind: _kind, ...memberNodeProps } = memberNode as Record<string, unknown>
       return createSchema({
         ...memberNodeProps,
         name,
@@ -138,8 +139,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
         writeOnly: schema.writeOnly ?? memberNode.writeOnly,
         default: schema.default ?? memberNode.default,
         example: schema.example ?? memberNode.example,
-        pattern: schema.pattern ?? memberNode.pattern,
-      })
+        pattern: schema.pattern ?? ('pattern' in memberNode ? (memberNode as { pattern?: string }).pattern : undefined),
+      } as unknown as Parameters<typeof createSchema>[0])
     }
 
     return createSchema({
@@ -268,8 +269,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       deprecated: schema.deprecated,
       readOnly: schema.readOnly,
       writeOnly: schema.writeOnly,
-      minLength: schema.minItems,
-      maxLength: schema.maxItems,
+      min: schema.minItems,
+      max: schema.maxItems,
       default: schema.default,
       example: schema.example,
     })
@@ -288,8 +289,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       writeOnly: schema.writeOnly,
       default: schema.default,
       example: schema.example,
-      minLength: schema.minLength,
-      maxLength: schema.maxLength,
+      min: schema.minLength,
+      max: schema.maxLength,
       pattern: schema.pattern,
     })
   }
@@ -307,8 +308,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       writeOnly: schema.writeOnly,
       default: schema.default,
       example: schema.example,
-      minimum: schema.minimum,
-      maximum: schema.maximum,
+      min: schema.minimum,
+      max: schema.maximum,
       exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
       exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
     })
@@ -327,8 +328,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       writeOnly: schema.writeOnly,
       default: schema.default,
       example: schema.example,
-      minimum: schema.minimum,
-      maximum: schema.maximum,
+      min: schema.minimum,
+      max: schema.maximum,
       exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
       exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
     })

@@ -5,4 +5,16 @@ export type { ParameterLocation, ParameterNode } from './parameter.ts'
 export type { PropertyNode } from './property.ts'
 export type { ResponseNode } from './response.ts'
 export type { RootNode } from './root.ts'
-export type { ComplexSchemaType, PrimitiveSchemaType, SchemaNode, SchemaType, SpecialSchemaType } from './schema.ts'
+export type {
+  ArraySchemaNode,
+  ComplexSchemaType,
+  CompositeSchemaNode,
+  EnumSchemaNode,
+  ObjectSchemaNode,
+  PrimitiveSchemaType,
+  RefSchemaNode,
+  ScalarSchemaNode,
+  SchemaNode,
+  SchemaType,
+  SpecialSchemaType,
+} from './schema.ts'

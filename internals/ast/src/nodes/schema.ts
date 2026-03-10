@@ -25,13 +25,13 @@ import type { BaseNode } from './base.ts'
 import type { PropertyNode } from './property.ts'
 
 /**
- * A spec-agnostic representation of a single schema definition.
+ * Fields shared by every schema variant.
  *
  * `SchemaNode` intentionally does **not** carry any OpenAPI / JSON Schema
  * specific fields. Parsers (e.g. `plugin-oas`) are responsible for
  * converting specification-specific constructs into this normalized form.
  */
-export interface SchemaNode extends BaseNode {
+interface SchemaNodeBase extends BaseNode {
   kind: 'Schema'
   /**
    * The canonical name of this schema when it is a named/reusable definition
@@ -39,8 +39,6 @@ export interface SchemaNode extends BaseNode {
    * inline anonymous schemas.
    */
   name?: string
-  /** The normalized type of this schema. */
-  type: SchemaType
   /** Human-readable title, taken from the source spec. */
   title?: string
   /** Human-readable description, taken from the source spec. */
@@ -64,38 +62,89 @@ export interface SchemaNode extends BaseNode {
   readOnly?: boolean
   /** Whether the schema is write-only. */
   writeOnly?: boolean
-  /**
-   * For `'ref'` types, the resolved reference identifier (e.g. the schema
-   * name or import path that another plugin should emit).
-   */
-  ref?: string
-  /**
-   * For `'object'` types, the ordered list of property definitions.
-   * For `'enum'` types this is empty — use `enumValues` instead.
-   */
-  properties?: Array<PropertyNode>
-  /**
-   * For `'array'` and `'tuple'` types, the schema(s) describing array
-   * items. A single-element array describes a homogeneous array; multiple
-   * elements describe a tuple.
-   */
-  items?: Array<SchemaNode>
-  /**
-   * For `'union'` and `'intersection'` types, the member schemas.
-   */
-  members?: Array<SchemaNode>
-  /** For `'enum'` types, the list of allowed literal values. */
-  enumValues?: Array<string | number | boolean | null>
-  /** Validation constraints. */
-  minLength?: number
-  maxLength?: number
-  minimum?: number
-  maximum?: number
-  exclusiveMinimum?: number
-  exclusiveMaximum?: number
-  pattern?: string
   /** A concrete default value for this schema. */
   default?: unknown
   /** An example value for this schema. */
   example?: unknown
 }
+
+/** Schema for `'object'` type — carries ordered property definitions. */
+export interface ObjectSchemaNode extends SchemaNodeBase {
+  type: 'object'
+  /** Ordered list of property definitions. */
+  properties?: Array<PropertyNode>
+}
+
+/**
+ * Schema for `'array'` and `'tuple'` types — carries item schemas.
+ * `min` / `max` represent the minimum / maximum number of items.
+ */
+export interface ArraySchemaNode extends SchemaNodeBase {
+  type: 'array' | 'tuple'
+  /** Schema(s) describing array items. Single-element = homogeneous; multiple = tuple. */
+  items?: Array<SchemaNode>
+  /** Minimum number of items (`minItems` in JSON Schema / OAS). */
+  min?: number
+  /** Maximum number of items (`maxItems` in JSON Schema / OAS). */
+  max?: number
+}
+
+/** Schema for `'union'` and `'intersection'` types — carries member schemas. */
+export interface CompositeSchemaNode extends SchemaNodeBase {
+  type: 'union' | 'intersection'
+  /** Member schemas for union / intersection. */
+  members?: Array<SchemaNode>
+}
+
+/** Schema for `'enum'` type — carries the list of allowed literal values. */
+export interface EnumSchemaNode extends SchemaNodeBase {
+  type: 'enum'
+  /** List of allowed literal values. */
+  enumValues?: Array<string | number | boolean | null>
+}
+
+/** Schema for `'ref'` type — carries the resolved reference identifier. */
+export interface RefSchemaNode extends SchemaNodeBase {
+  type: 'ref'
+  /** The resolved reference identifier (e.g. schema name or import path). */
+  ref?: string
+  /** Pattern constraint (preserved from `$ref` siblings in OAS 3.0). */
+  pattern?: string
+}
+
+/**
+ * Schema for primitive scalar types and well-known semantic types
+ * (everything that is not `object`, `array`, `tuple`, `union`, `intersection`, `enum`, or `ref`).
+ *
+ * `min` / `max` are interpreted according to `type`:
+ * - `'string'`: minimum / maximum character length (`minLength` / `maxLength`).
+ * - `'number'` / `'integer'`: minimum / maximum value (`minimum` / `maximum`).
+ * - Other scalars (e.g. `'date'`, `'uuid'`): not typically used.
+ */
+export interface ScalarSchemaNode extends SchemaNodeBase {
+  type: Exclude<SchemaType, 'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum' | 'ref'>
+  /**
+   * Minimum constraint.
+   * - `'string'`: minimum character length.
+   * - `'number'` / `'integer'`: minimum numeric value.
+   */
+  min?: number
+  /**
+   * Maximum constraint.
+   * - `'string'`: maximum character length.
+   * - `'number'` / `'integer'`: maximum numeric value.
+   */
+  max?: number
+  exclusiveMinimum?: number
+  exclusiveMaximum?: number
+  pattern?: string
+}
+
+/**
+ * A spec-agnostic representation of a single schema definition.
+ *
+ * `SchemaNode` is a discriminated union on `type`, allowing callers to narrow
+ * to the exact variant and access only the fields that are meaningful for that
+ * schema kind.
+ */
+export type SchemaNode = ObjectSchemaNode | ArraySchemaNode | CompositeSchemaNode | EnumSchemaNode | RefSchemaNode | ScalarSchemaNode
