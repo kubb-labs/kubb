@@ -8,7 +8,7 @@ export {
   getPathParams,
 } from './getParams.ts'
 export { getSchemaFactory } from './getSchemaFactory.ts'
-export { getSchemas, type GetSchemasResult, type NormalizedSchemaObject } from './getSchemas.ts'
+export { type GetSchemasResult, getSchemas, type NormalizedSchemaObject } from './getSchemas.ts'
 export {
   applyParamsCasing,
   isParameterSchema,

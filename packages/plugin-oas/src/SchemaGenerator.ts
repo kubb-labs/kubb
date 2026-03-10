@@ -1334,7 +1334,12 @@ export class SchemaGenerator<
     const _schemaWithBoundsForInfer = schemaObject as SchemaObjectWithBounds
     if (schemaObject.minLength !== undefined || schemaObject.maxLength !== undefined || schemaObject.pattern !== undefined) {
       inferredType = 'string'
-    } else if (_schemaWithBoundsForInfer.min !== undefined || _schemaWithBoundsForInfer.max !== undefined || schemaObject.minimum !== undefined || schemaObject.maximum !== undefined) {
+    } else if (
+      _schemaWithBoundsForInfer.min !== undefined ||
+      _schemaWithBoundsForInfer.max !== undefined ||
+      schemaObject.minimum !== undefined ||
+      schemaObject.maximum !== undefined
+    ) {
       inferredType = 'number'
     }
     // Note: minItems/maxItems don't infer type 'array' because arrays are handled
