@@ -3,7 +3,6 @@ export { getBanner } from './getBanner.ts'
 export { getComments } from './getComments.ts'
 export { getFooter } from './getFooter.ts'
 export { getImports } from './getImports.ts'
-export { getImportsFromSchemaNode } from './getImportsFromSchemaNode.ts'
 export {
   getParamsMapping,
   getPathParams,

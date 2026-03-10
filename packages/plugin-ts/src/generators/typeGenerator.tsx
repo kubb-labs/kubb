@@ -6,7 +6,7 @@ import type { Operation } from '@kubb/oas'
 import { convertSchema, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
-import { applyParamsCasing, getBanner, getFooter, getImports, getImportsFromSchemaNode, isParameterSchema } from '@kubb/plugin-oas/utils'
+import { applyParamsCasing, getBanner, getFooter, getImports, isParameterSchema } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
 import ts from 'typescript'
 import { Type } from '../components'
@@ -432,11 +432,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       return
     }
 
-    const imports = getImportsFromSchemaNode(schemaNode, {
-      getFile,
-      getName: (name) => getName(name, { type: 'type' }),
-      currentFilePath: schemaNode.name ? getFile(schemaNode.name)?.path : undefined,
-    })
+    const imports = getImports(schema.tree)
 
     const isEnumSchema = schemaNode.type === 'enum'
 
