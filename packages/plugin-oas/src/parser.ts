@@ -5,8 +5,10 @@ import type {
   ParameterLocation,
   ParameterNode,
   PropertyNode,
+  RefSchemaNode,
   ResponseNode,
   RootNode,
+  ScalarSchemaNode,
   SchemaNode,
   SpecialSchemaType,
   StatusCode,
@@ -14,6 +16,9 @@ import type {
 import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from '@internals/ast'
 import type { Oas, Operation, SchemaObject } from '@kubb/oas'
 import { isNullable, isReference } from '@kubb/oas'
+
+/** Distributive `Omit` that correctly distributes over union types. */
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
 
 /**
  * Converts an OpenAPI/Swagger spec (wrapped in a Kubb `Oas` instance) into
@@ -105,17 +110,17 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
     // preserves them so that annotations like `pattern`, `description`, and `nullable`
     // that authors place next to a $ref are reflected in generated JSDoc / type modifiers.
     // Cast back to SchemaObject to access sibling properties alongside $ref.
-    const s = schema as unknown as SchemaObject & { $ref: string }
+    const schemaObject = schema as unknown as SchemaObject & { $ref: string }
     return createSchema({
       type: 'ref',
       name,
-      ref: extractRefName(s.$ref),
-      nullable: isNullable(s) || undefined,
-      description: s.description,
-      deprecated: s.deprecated,
-      pattern: s.pattern,
-      example: s.example,
-      default: s.default,
+      ref: extractRefName(schemaObject.$ref),
+      nullable: isNullable(schemaObject) || undefined,
+      description: schemaObject.description,
+      deprecated: schemaObject.deprecated,
+      pattern: schemaObject.pattern,
+      example: schemaObject.example,
+      default: schemaObject.default,
     })
   }
 
@@ -127,7 +132,9 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
     if (schema.allOf.length === 1 && !schema.properties) {
       const [memberSchema] = schema.allOf as SchemaObject[]
       const memberNode = convertSchema(memberSchema!)
-      const { kind: _kind, ...memberNodeProps } = memberNode as Record<string, unknown>
+      const { kind: _kind, ...memberNodeProps } = memberNode
+      // `pattern` only exists on ref/scalar types; access it safely via a type guard
+      const memberPattern = 'pattern' in memberNode ? (memberNode as RefSchemaNode | ScalarSchemaNode).pattern : undefined
       return createSchema({
         ...memberNodeProps,
         name,
@@ -139,8 +146,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
         writeOnly: schema.writeOnly ?? memberNode.writeOnly,
         default: schema.default ?? memberNode.default,
         example: schema.example ?? memberNode.example,
-        pattern: schema.pattern ?? ('pattern' in memberNode ? (memberNode as { pattern?: string }).pattern : undefined),
-      } as unknown as Parameters<typeof createSchema>[0])
+        pattern: schema.pattern ?? memberPattern,
+      } as DistributiveOmit<SchemaNode, 'kind'>)
     }
 
     return createSchema({
