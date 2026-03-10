@@ -5,10 +5,8 @@ import type {
   ParameterLocation,
   ParameterNode,
   PropertyNode,
-  RefSchemaNode,
   ResponseNode,
   RootNode,
-  ScalarSchemaNode,
   SchemaNode,
   SpecialSchemaType,
   StatusCode,
@@ -133,8 +131,6 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       const [memberSchema] = schema.allOf as SchemaObject[]
       const memberNode = convertSchema(memberSchema!)
       const { kind: _kind, ...memberNodeProps } = memberNode
-      // `pattern` only exists on ref/scalar types; access it safely via a type guard
-      const memberPattern = 'pattern' in memberNode ? (memberNode as RefSchemaNode | ScalarSchemaNode).pattern : undefined
       return createSchema({
         ...memberNodeProps,
         name,
@@ -146,7 +142,7 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
         writeOnly: schema.writeOnly ?? memberNode.writeOnly,
         default: schema.default ?? memberNode.default,
         example: schema.example ?? memberNode.example,
-        pattern: schema.pattern ?? memberPattern,
+        pattern: schema.pattern ?? memberNode.pattern,
       } as DistributiveOmit<SchemaNode, 'kind'>)
     }
 

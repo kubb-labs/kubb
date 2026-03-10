@@ -62,6 +62,8 @@ interface SchemaNodeBase extends BaseNode {
   readOnly?: boolean
   /** Whether the schema is write-only. */
   writeOnly?: boolean
+  /** Regex pattern constraint (e.g. `pattern` from JSON Schema / OAS). */
+  pattern?: string
   /** A concrete default value for this schema. */
   default?: unknown
   /** An example value for this schema. */
@@ -108,8 +110,6 @@ export interface RefSchemaNode extends SchemaNodeBase {
   type: 'ref'
   /** The resolved reference identifier (e.g. schema name or import path). */
   ref?: string
-  /** Pattern constraint (preserved from `$ref` siblings in OAS 3.0). */
-  pattern?: string
 }
 
 /**
@@ -137,7 +137,6 @@ export interface ScalarSchemaNode extends SchemaNodeBase {
   max?: number
   exclusiveMinimum?: number
   exclusiveMaximum?: number
-  pattern?: string
 }
 
 /**
