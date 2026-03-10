@@ -313,8 +313,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       example: schema.example,
       min: schema.minimum,
       max: schema.maximum,
-      exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
-      exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
+      exclusiveMin: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
+      exclusiveMax: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
     })
   }
 
@@ -333,8 +333,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       example: schema.example,
       min: schema.minimum,
       max: schema.maximum,
-      exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
-      exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
+      exclusiveMin: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
+      exclusiveMax: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
     })
   }
 

@@ -135,8 +135,8 @@ export interface ScalarSchemaNode extends SchemaNodeBase {
    * - `'number'` / `'integer'`: maximum numeric value.
    */
   max?: number
-  exclusiveMinimum?: number
-  exclusiveMaximum?: number
+  exclusiveMin?: number
+  exclusiveMax?: number
 }
 
 /**
