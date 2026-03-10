@@ -413,6 +413,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       ],
       "name": "PetOrError",
       "nullable": undefined,
+      "properties": undefined,
       "type": "union",
     },
     {
@@ -485,6 +486,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       ],
       "name": "FullPet",
       "nullable": undefined,
+      "properties": undefined,
       "type": "intersection",
     },
   ],
@@ -721,6 +723,7 @@ exports[`buildAst snapshots > schema 'FullPet' ('allOf / intersection with forma
   ],
   "name": "FullPet",
   "nullable": undefined,
+  "properties": undefined,
   "type": "intersection",
 }
 `;
@@ -855,6 +858,7 @@ exports[`buildAst snapshots > schema 'PetOrError' ('oneOf / union') 1`] = `
   ],
   "name": "PetOrError",
   "nullable": undefined,
+  "properties": undefined,
   "type": "union",
 }
 `;

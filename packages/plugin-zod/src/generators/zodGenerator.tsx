@@ -3,7 +3,7 @@ import { useMode, usePluginManager } from '@kubb/core/hooks'
 import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter, getImports } from '@kubb/plugin-oas/utils'
+import { getBanner, getFooter, getImports, getImportsFromSchemaNode } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File } from '@kubb/react-fabric'
 import { Zod } from '../components'
@@ -39,6 +39,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     const operationSchemas = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response]
       .flat()
       .filter(Boolean)
+
     const toZodPath = path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')
 
     const mapOperationSchema = ({ name, schema: schemaOriginal, description, keysToOmit: keysToOmitOriginal, ...options }: OperationSchemaType) => {
@@ -150,7 +151,11 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     const pluginManager = usePluginManager()
     const oas = useOas()
 
-    const imports = getImports(schema.tree)
+    const imports = getImportsFromSchemaNode(schema.schemaNode, {
+      getFile,
+      getName: (name) => getName(name, { type: 'function' }),
+      currentFilePath: getFile(schema.name)?.path,
+    })
 
     const zod = {
       name: getName(schema.name, { type: 'function' }),

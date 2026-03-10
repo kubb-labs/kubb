@@ -116,6 +116,12 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       type: 'intersection',
       name,
       members: schema.allOf.map((s) => convertSchema(s as SchemaObject)),
+      // Preserve top-level properties so ref-scanning (getImportsFromSchemaNode) finds nested refs
+      properties: schema.properties
+        ? Object.entries(schema.properties).map(([propName, propSchema]) =>
+            createProperty({ name: propName, schema: convertSchema(propSchema as SchemaObject), required: false }),
+          )
+        : undefined,
       description: schema.description,
       deprecated: schema.deprecated,
       nullable: schema.nullable,
@@ -129,6 +135,12 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       type: 'union',
       name,
       members: unionMembers.map((s) => convertSchema(s as SchemaObject)),
+      // Preserve top-level properties so ref-scanning (getImportsFromSchemaNode) finds nested refs
+      properties: schema.properties
+        ? Object.entries(schema.properties).map(([propName, propSchema]) =>
+            createProperty({ name: propName, schema: convertSchema(propSchema as SchemaObject), required: false }),
+          )
+        : undefined,
       description: schema.description,
       deprecated: schema.deprecated,
       nullable: schema.nullable,

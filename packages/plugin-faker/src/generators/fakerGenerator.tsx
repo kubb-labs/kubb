@@ -2,7 +2,7 @@ import { useMode, usePluginManager } from '@kubb/core/hooks'
 import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
-import { applyParamsCasing, getBanner, getFooter, getImports, isParameterSchema } from '@kubb/plugin-oas/utils'
+import { applyParamsCasing, getBanner, getFooter, getImports, getImportsFromSchemaNode, isParameterSchema } from '@kubb/plugin-oas/utils'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File } from '@kubb/react-fabric'
 import { Faker } from '../components'
@@ -111,7 +111,11 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     } = plugin
     const pluginManager = usePluginManager()
     const oas = useOas()
-    const imports = getImports(schema.tree)
+    const imports = getImportsFromSchemaNode(schema.schemaNode, {
+      getFile,
+      getName: (name) => getName(name, { type: 'function' }),
+      currentFilePath: getFile(schema.name)?.path,
+    })
 
     const faker = {
       name: getName(schema.name, { type: 'function' }),
