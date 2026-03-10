@@ -13,7 +13,7 @@ import type {
 } from '@internals/ast'
 import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from '@internals/ast'
 import type { Oas, Operation, SchemaObject } from '@kubb/oas'
-import { isReference } from '@kubb/oas'
+import { isNullable, isReference } from '@kubb/oas'
 
 /**
  * Converts an OpenAPI/Swagger spec (wrapped in a Kubb `Oas` instance) into
@@ -95,23 +95,53 @@ function convertParameter(param: Record<string, unknown>): ParameterNode {
     in: param['in'] as ParameterLocation,
     schema,
     required: (param['required'] as boolean | undefined) ?? false,
-    description: param['description'] as string | undefined,
-    deprecated: param['deprecated'] as boolean | undefined,
   })
 }
 
 export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
   // $ref — the schema is a pointer to another definition
   if (isReference(schema)) {
+    // In OAS 3.0 siblings of $ref are technically ignored, but Kubb intentionally
+    // preserves them so that annotations like `pattern`, `description`, and `nullable`
+    // that authors place next to a $ref are reflected in generated JSDoc / type modifiers.
+    const siblingSchema = schema as unknown as SchemaObject
     return createSchema({
       type: 'ref',
       name,
       ref: extractRefName((schema as unknown as { $ref: string }).$ref),
+      nullable: isNullable(siblingSchema) || undefined,
+      description: siblingSchema.description,
+      deprecated: siblingSchema.deprecated,
+      pattern: siblingSchema.pattern,
+      example: siblingSchema.example,
+      default: siblingSchema.default,
     })
   }
 
   // Composition: allOf → intersection
   if (schema.allOf?.length) {
+    // Single-member allOf without direct properties: flatten to the member type and merge
+    // outer-schema metadata. This is the common OAS 3.0 pattern for annotating a $ref or
+    // a primitive with extra constraints (e.g. `allOf: [{ type: 'string', nullable: true }]`).
+    if (schema.allOf.length === 1 && !schema.properties) {
+      const [memberSchema] = schema.allOf as SchemaObject[]
+      const memberNode = convertSchema(memberSchema!)
+      const { kind: _kind, ...memberNodeProps } = memberNode
+      return createSchema({
+        ...memberNodeProps,
+        name,
+        title: schema.title ?? memberNode.title,
+        description: schema.description ?? memberNode.description,
+        deprecated: schema.deprecated ?? memberNode.deprecated,
+        nullable: isNullable(schema) || memberNode.nullable || undefined,
+        readOnly: schema.readOnly ?? memberNode.readOnly,
+        writeOnly: schema.writeOnly ?? memberNode.writeOnly,
+        default: schema.default ?? memberNode.default,
+        example: schema.example ?? memberNode.example,
+        pattern: schema.pattern ?? memberNode.pattern,
+      })
+    }
+
     return createSchema({
       type: 'intersection',
       name,
@@ -122,9 +152,14 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
             createProperty({ name: propName, schema: convertSchema(propSchema as SchemaObject), required: false }),
           )
         : undefined,
+      title: schema.title,
       description: schema.description,
       deprecated: schema.deprecated,
-      nullable: schema.nullable,
+      nullable: isNullable(schema) || undefined,
+      readOnly: schema.readOnly,
+      writeOnly: schema.writeOnly,
+      default: schema.default,
+      example: schema.example,
     })
   }
 
@@ -141,9 +176,14 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
             createProperty({ name: propName, schema: convertSchema(propSchema as SchemaObject), required: false }),
           )
         : undefined,
+      title: schema.title,
       description: schema.description,
       deprecated: schema.deprecated,
-      nullable: schema.nullable,
+      nullable: isNullable(schema) || undefined,
+      readOnly: schema.readOnly,
+      writeOnly: schema.writeOnly,
+      default: schema.default,
+      example: schema.example,
     })
   }
 
@@ -153,9 +193,14 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       type: 'enum',
       name,
       enumValues: schema.enum as Array<string | number | boolean | null>,
+      title: schema.title,
       description: schema.description,
       deprecated: schema.deprecated,
-      nullable: schema.nullable,
+      nullable: isNullable(schema) || undefined,
+      readOnly: schema.readOnly,
+      writeOnly: schema.writeOnly,
+      default: schema.default,
+      example: schema.example,
     })
   }
 
@@ -166,7 +211,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       return createSchema({
         type: specialType,
         name,
-        nullable: schema.nullable,
+        nullable: isNullable(schema) || undefined,
+        title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
         readOnly: schema.readOnly,
@@ -185,14 +231,17 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       ? Object.entries(schema.properties).map(([propName, propSchema]) => {
           const required = Array.isArray(schema.required) ? schema.required.includes(propName) : false
           const resolvedProp = propSchema as SchemaObject
+          const nullable = isNullable(resolvedProp)
+
           return createProperty({
             name: propName,
-            schema: convertSchema(resolvedProp),
+            schema: {
+              ...convertSchema(resolvedProp),
+              nullable: nullable || undefined,
+              optional: !required && !nullable ? true : undefined,
+              nullish: !required && nullable ? true : undefined,
+            },
             required,
-            description: resolvedProp.description,
-            readOnly: resolvedProp.readOnly,
-            writeOnly: resolvedProp.writeOnly,
-            deprecated: resolvedProp.deprecated,
           })
         })
       : []
@@ -201,7 +250,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       type: 'object',
       name,
       properties,
-      nullable: schema.nullable,
+      nullable: isNullable(schema) || undefined,
+      title: schema.title,
       description: schema.description,
       deprecated: schema.deprecated,
       readOnly: schema.readOnly,
@@ -219,9 +269,12 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       type: 'array',
       name,
       items,
-      nullable: schema.nullable,
+      nullable: isNullable(schema) || undefined,
+      title: schema.title,
       description: schema.description,
       deprecated: schema.deprecated,
+      readOnly: schema.readOnly,
+      writeOnly: schema.writeOnly,
       minLength: schema.minItems,
       maxLength: schema.maxItems,
       default: schema.default,
@@ -234,7 +287,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
     return createSchema({
       type: 'string',
       name,
-      nullable: schema.nullable,
+      nullable: isNullable(schema) || undefined,
+      title: schema.title,
       description: schema.description,
       deprecated: schema.deprecated,
       readOnly: schema.readOnly,
@@ -252,9 +306,12 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
     return createSchema({
       type: 'number',
       name,
-      nullable: schema.nullable,
+      nullable: isNullable(schema) || undefined,
+      title: schema.title,
       description: schema.description,
       deprecated: schema.deprecated,
+      readOnly: schema.readOnly,
+      writeOnly: schema.writeOnly,
       default: schema.default,
       example: schema.example,
       minimum: schema.minimum,
@@ -269,13 +326,18 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
     return createSchema({
       type: 'integer',
       name,
-      nullable: schema.nullable,
+      nullable: isNullable(schema) || undefined,
+      title: schema.title,
       description: schema.description,
       deprecated: schema.deprecated,
+      readOnly: schema.readOnly,
+      writeOnly: schema.writeOnly,
       default: schema.default,
       example: schema.example,
       minimum: schema.minimum,
       maximum: schema.maximum,
+      exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
+      exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
     })
   }
 
@@ -284,9 +346,12 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
     return createSchema({
       type: 'boolean',
       name,
-      nullable: schema.nullable,
+      nullable: isNullable(schema) || undefined,
+      title: schema.title,
       description: schema.description,
       deprecated: schema.deprecated,
+      readOnly: schema.readOnly,
+      writeOnly: schema.writeOnly,
       default: schema.default,
       example: schema.example,
     })
@@ -294,11 +359,18 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
 
   // Null
   if (type === 'null') {
-    return createSchema({ type: 'null', name })
+    return createSchema({
+      type: 'null',
+      name,
+      title: schema.title,
+      description: schema.description,
+      deprecated: schema.deprecated,
+      nullable: isNullable(schema) || undefined,
+    })
   }
 
   // Fallback
-  return createSchema({ type: 'any', name, description: schema.description })
+  return createSchema({ type: 'any', name, title: schema.title, description: schema.description })
 }
 
 const FORMAT_MAP: Record<string, SpecialSchemaType> = {

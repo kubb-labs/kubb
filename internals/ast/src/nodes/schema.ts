@@ -41,10 +41,23 @@ export interface SchemaNode extends BaseNode {
   name?: string
   /** The normalized type of this schema. */
   type: SchemaType
+  /** Human-readable title, taken from the source spec. */
+  title?: string
   /** Human-readable description, taken from the source spec. */
   description?: string
-  /** Whether the schema explicitly marks values as nullable. */
+  /** Whether the schema explicitly marks values as nullable (can be `null`). */
   nullable?: boolean
+  /**
+   * Whether this schema is optional in its context (property is absent from
+   * the parent object's `required` array and the value is NOT nullable).
+   */
+  optional?: boolean
+  /**
+   * Whether this schema is both optional and nullable — i.e. the property is
+   * absent from `required` **and** the value may be `null`
+   * (`optional + nullable` combined).
+   */
+  nullish?: boolean
   /** Whether the schema is marked as deprecated. */
   deprecated?: boolean
   /** Whether the schema is read-only. */

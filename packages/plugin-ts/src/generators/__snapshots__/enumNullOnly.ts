@@ -5,4 +5,4 @@
 
 export type EnumNullOnlyEnumKey = never
 
-export type enumNullOnly = EnumNullOnlyEnumKey | null
+export type enumNullOnly = EnumNullOnlyEnumKey

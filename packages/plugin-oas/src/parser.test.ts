@@ -139,6 +139,14 @@ async function buildMinimalOas() {
             },
           ],
         },
+        NullableString: {
+          example: 'some-value',
+          readOnly: true,
+          allOf: [{ type: 'string', nullable: true }],
+        },
+        NullableRef: {
+          allOf: [{ $ref: '#/components/schemas/Pet', nullable: true }],
+        },
       },
     },
   })
@@ -210,6 +218,27 @@ describe('buildAst', () => {
       const fullPet = root.schemas.find((s) => s.name === 'FullPet')
       expect(fullPet?.type).toBe('intersection')
       expect(fullPet?.members).toHaveLength(2)
+    })
+
+    it('flattens single-member allOf and propagates nullable', async () => {
+      const oas = await buildMinimalOas()
+      const root = buildAst(oas)
+      const nullableString = root.schemas.find((s) => s.name === 'NullableString')
+      // Should be flattened to 'string' — not an intersection
+      expect(nullableString?.type).toBe('string')
+      expect(nullableString?.nullable).toBe(true)
+      expect(nullableString?.readOnly).toBe(true)
+      expect(nullableString?.example).toBe('some-value')
+    })
+
+    it('flattens single-member allOf for nullable $ref', async () => {
+      const oas = await buildMinimalOas()
+      const root = buildAst(oas)
+      const nullableRef = root.schemas.find((s) => s.name === 'NullableRef')
+      // Should be flattened to a ref — not an intersection
+      expect(nullableRef?.type).toBe('ref')
+      expect(nullableRef?.ref).toBe('Pet')
+      expect(nullableRef?.nullable).toBe(true)
     })
 
     it('maps format date-time to datetime SchemaType', async () => {

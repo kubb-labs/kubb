@@ -10,4 +10,7 @@ export const enumItemsEnum = {
 
 export type EnumItemsEnumKey = (typeof enumItemsEnum)[keyof typeof enumItemsEnum]
 
+/**
+ * @minLength 1
+ */
 export type enumItems = EnumItemsEnumKey[]

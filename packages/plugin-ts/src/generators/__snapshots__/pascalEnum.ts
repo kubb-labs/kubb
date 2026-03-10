@@ -10,4 +10,4 @@ export const PASCALEnumsTypeEnum = {
 
 export type PASCALEnumsTypeEnumKey = (typeof PASCALEnumsTypeEnum)[keyof typeof PASCALEnumsTypeEnum]
 
-export type PASCALEnumsType = PASCALEnumsTypeEnumKey | null
+export type PASCALEnumsType = PASCALEnumsTypeEnumKey

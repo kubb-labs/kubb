@@ -3,7 +3,7 @@ import type { PluginManager } from '@kubb/core'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { Operation } from '@kubb/oas'
-import { type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator } from '@kubb/plugin-oas'
+import { convertSchema, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { applyParamsCasing, getBanner, getFooter, getImports, getImportsFromSchemaNode, isParameterSchema } from '@kubb/plugin-oas/utils'
@@ -351,6 +351,8 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       const imports = getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
 
+      const schemaNode = convertSchema(transformedSchema, name)
+
       const type = {
         name: schemaManager.getName(name, { type: 'type' }),
         typedName: schemaManager.getName(name, { type: 'type' }),
@@ -369,6 +371,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
             description={description}
             tree={tree}
             schema={transformedSchema}
+            schemaNode={schemaNode}
             mapper={mapper}
             enumType={enumType}
             enumKeyCasing={enumKeyCasing}
@@ -436,7 +439,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     })
 
     const isEnumSchema = schemaNode.type === 'enum'
-    const description = schemaNode.description
 
     let typedName = getName(schemaNode.name, { type: 'type' })
 
@@ -465,9 +467,9 @@ export const typeGenerator = createReactGenerator<PluginTs>({
         <Type
           name={type.name}
           typedName={type.typedName}
-          description={description}
           tree={schema.tree}
           schema={schema.value}
+          schemaNode={schemaNode}
           mapper={mapper}
           enumType={enumType}
           enumKeyCasing={enumKeyCasing}

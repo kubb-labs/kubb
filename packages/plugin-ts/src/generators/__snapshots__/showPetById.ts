@@ -17,7 +17,6 @@ export type ShowPetByIdPathParams = {
 }
 
 /**
- * Pet
  * @description Expected response to a valid request
  */
 export type ShowPetById200 = pet

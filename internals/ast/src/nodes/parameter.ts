@@ -21,8 +21,4 @@ export interface ParameterNode extends BaseNode {
   schema: SchemaNode
   /** Whether the parameter must be supplied by callers. */
   required: boolean
-  /** Human-readable description. */
-  description?: string
-  /** Whether this parameter is deprecated. */
-  deprecated?: boolean
 }

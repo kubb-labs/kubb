@@ -16,12 +16,4 @@ export interface PropertyNode extends BaseNode {
   schema: SchemaNode
   /** Whether this property must be present in the object. */
   required: boolean
-  /** Human-readable description. */
-  description?: string
-  /** Whether this property is read-only. */
-  readOnly?: boolean
-  /** Whether this property is write-only. */
-  writeOnly?: boolean
-  /** Whether this property is deprecated. */
-  deprecated?: boolean
 }
