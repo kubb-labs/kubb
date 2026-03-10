@@ -1,14 +1,14 @@
 import path from 'node:path'
 import { pascalCase, URLPath } from '@internals/utils'
 import type { Config } from '@kubb/core'
-import { bundle } from '@scalar/json-magic/bundle'
-import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
-import { parseJson, parseYaml, readFiles } from '@scalar/json-magic/bundle/plugins/node'
-import { validate as scalarValidate, upgrade } from '@scalar/openapi-parser'
+import { bundle, loadConfig } from '@redocly/openapi-core'
+import yaml from '@stoplight/yaml'
 import type { ParameterObject, SchemaObject } from 'oas/types'
 import { isRef, isSchema } from 'oas/types'
+import OASNormalize from 'oas-normalize'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { isPlainObject, mergeDeep } from 'remeda'
+import swagger2openapi from 'swagger2openapi'
 import { Oas } from './Oas.ts'
 import type { contentType, Document } from './types.ts'
 
@@ -162,28 +162,28 @@ export function getDefaultValue(schema?: SchemaObject): string | undefined {
 
 export async function parse(
   pathOrApi: string | Document,
-  {
-    oasClass = Oas,
-    canBundle: _canBundle = true,
-    enablePaths: _enablePaths = true,
-  }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
+  { oasClass = Oas, canBundle = true, enablePaths = true }: { oasClass?: typeof Oas; canBundle?: boolean; enablePaths?: boolean } = {},
 ): Promise<Oas> {
-  let document: Document
+  if (typeof pathOrApi === 'string' && canBundle) {
+    // resolve external refs
+    const config = await loadConfig()
+    const bundleResults = await bundle({ ref: pathOrApi, config, base: pathOrApi })
 
-  if (typeof pathOrApi === 'string') {
-    const data = await bundle(pathOrApi, {
-      plugins: [readFiles(), fetchUrls(), parseYaml(), parseJson()],
-      treeShake: true,
-      urlMap: true,
-    })
-    document = data as Document
-  } else {
-    document = pathOrApi
+    return parse(bundleResults.bundle.parsed as string, { oasClass, canBundle, enablePaths })
   }
 
+  const oasNormalize = new OASNormalize(pathOrApi, {
+    enablePaths,
+    colorizeErrors: true,
+  })
+  const document = (await oasNormalize.load()) as Document
+
   if (isOpenApiV2Document(document)) {
-    const { specification } = upgrade(document)
-    return parse(specification as unknown as string, { oasClass })
+    const { openapi } = await swagger2openapi.convertObj(document, {
+      anchors: true,
+    })
+
+    return new oasClass(openapi as Document)
   }
 
   return new oasClass(document)
@@ -220,12 +220,17 @@ export function parseFromConfig(config: Config, oasClass: typeof Oas = Oas): Pro
   if ('data' in config.input) {
     if (typeof config.input.data === 'object') {
       const api: Document = structuredClone(config.input.data) as Document
-
       return parse(api, { oasClass })
     }
 
-    // data is a string (YAML or JSON) — load() handles both formats
-    return parse(config.input.data as string, { oasClass })
+    // data is a string - try YAML first, then fall back to passing to parse()
+    try {
+      const api: string = yaml.parse(config.input.data as string)
+      return parse(api, { oasClass })
+    } catch (_e) {
+      // YAML parse failed, let parse() handle it (supports JSON strings and more)
+      return parse(config.input.data as string, { oasClass })
+    }
   }
 
   if (Array.isArray(config.input)) {
@@ -278,14 +283,23 @@ export function flattenSchema(schema: SchemaObject | null): SchemaObject | null 
 }
 
 /**
- * Validate an OpenAPI document using @scalar/openapi-parser.
+ * Validate an OpenAPI document using oas-normalize.
  */
 export async function validate(document: Document) {
-  const { valid, errors } = await scalarValidate(document)
-  if (!valid) {
-    throw new Error(errors?.map((e) => e.message).join('\n'))
-  }
-  return { valid, errors }
+  const oasNormalize = new OASNormalize(document, {
+    enablePaths: true,
+    colorizeErrors: true,
+  })
+
+  return oasNormalize.validate({
+    parser: {
+      validate: {
+        errors: {
+          colorize: true,
+        },
+      },
+    },
+  })
 }
 
 type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies' | 'parameters' | 'x-ext'

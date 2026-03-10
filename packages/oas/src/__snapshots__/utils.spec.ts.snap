@@ -42,6 +42,5 @@ exports[`utils > merge of 2 oas documents 1`] = `
   },
   "openapi": "3.0.0",
   "paths": {},
-  "x-ext-urls": {},
 }
 `;

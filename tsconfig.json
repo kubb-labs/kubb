@@ -5,6 +5,7 @@
     "types": ["bun-types"],
     "paths": {
       "#mocks": ["configs/mocks.ts"],
+      "@internals/oas": ["internals/oas/src/index.ts"],
       "@internals/utils": ["internals/utils/src/index.ts"],
       "@internals/tanstack-query": ["internals/tanstack-query/src/index.ts"],
       "@kubb/core/hooks": ["packages/core/src/hooks/index.ts"],
