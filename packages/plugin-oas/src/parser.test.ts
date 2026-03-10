@@ -1,6 +1,6 @@
+import type { ArraySchemaNode, CompositeSchemaNode, EnumSchemaNode, ObjectSchemaNode, RefSchemaNode } from '@internals/ast'
 import { parse } from '@kubb/oas'
 import { describe, expect, it } from 'vitest'
-import type { ArraySchemaNode, CompositeSchemaNode, EnumSchemaNode, ObjectSchemaNode, RefSchemaNode } from '@internals/ast'
 import { buildAst } from './parser.ts'
 
 async function buildMinimalOas() {
