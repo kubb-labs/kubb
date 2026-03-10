@@ -29,6 +29,12 @@ export type { FindPetsByStatusQueryKey } from './clients/hooks/petController/use
 export { findPetsByStatusQueryKey, findPetsByStatusQueryOptions, useFindPetsByStatus } from './clients/hooks/petController/useFindPetsByStatus.ts'
 export type { FindPetsByTagsQueryKey } from './clients/hooks/petController/useFindPetsByTags.ts'
 export { findPetsByTagsQueryKey, findPetsByTagsQueryOptions, useFindPetsByTags } from './clients/hooks/petController/useFindPetsByTags.ts'
+export type { FindPetsByTagsInfiniteQueryKey } from './clients/hooks/petController/useFindPetsByTagsInfinite.ts'
+export {
+  findPetsByTagsInfiniteQueryKey,
+  findPetsByTagsInfiniteQueryOptions,
+  useFindPetsByTagsInfinite,
+} from './clients/hooks/petController/useFindPetsByTagsInfinite.ts'
 export type { GetPetByIdQueryKey } from './clients/hooks/petController/useGetPetById.ts'
 export { getPetByIdQueryKey, getPetByIdQueryOptions, useGetPetById } from './clients/hooks/petController/useGetPetById.ts'
 export type { UpdatePetMutationKey } from './clients/hooks/petController/useUpdatePet.ts'

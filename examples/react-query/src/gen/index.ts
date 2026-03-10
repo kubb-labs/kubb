@@ -19,6 +19,13 @@ export {
 } from './hooks/pet/useFindPetsByStatusSuspenseHook.ts'
 export type { FindPetsByTagsQueryKey } from './hooks/pet/useFindPetsByTagsHook.ts'
 export { findPetsByTagsHook, findPetsByTagsQueryKey, findPetsByTagsQueryOptionsHook, useFindPetsByTagsHook } from './hooks/pet/useFindPetsByTagsHook.ts'
+export type { FindPetsByTagsInfiniteQueryKey } from './hooks/pet/useFindPetsByTagsInfiniteHook.ts'
+export {
+  findPetsByTagsInfiniteHook,
+  findPetsByTagsInfiniteQueryKey,
+  findPetsByTagsInfiniteQueryOptionsHook,
+  useFindPetsByTagsInfiniteHook,
+} from './hooks/pet/useFindPetsByTagsInfiniteHook.ts'
 export type { FindPetsByTagsSuspenseQueryKey } from './hooks/pet/useFindPetsByTagsSuspenseHook.ts'
 export {
   findPetsByTagsSuspenseHook,

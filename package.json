@@ -65,7 +65,7 @@
     "taze": "^19.10.0",
     "ts-node": "^10.9.2",
     "tsdown": "catalog:",
-    "turbo": "^2.8.14",
+    "turbo": "^2.8.15",
     "typescript": "catalog:",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.0.18"

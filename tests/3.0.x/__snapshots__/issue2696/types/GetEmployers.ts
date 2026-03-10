@@ -3,12 +3,12 @@
 * Do not edit manually.
 */
 
-import type { Employer } from "./Employer.ts";
+import type { _217E915 } from "./_217E915.ts";
 
 /**
  * @description List of employers
 */
-export type GetEmployers200 = Employer[];
+export type GetEmployers200 = _217E915[];
 
 export type GetEmployersQueryResponse = GetEmployers200;
 

@@ -11,6 +11,16 @@ export type FindPetsByTagsQueryParamsType = {
    * @type array | undefined
    */
   tags?: string[]
+  /**
+   * @description to request with required page number or pagination
+   * @type string | undefined
+   */
+  page?: string
+  /**
+   * @description to request with required page size
+   * @type string | undefined
+   */
+  pageSize?: string
 }
 
 export const findPetsByTagsHeaderParamsXEXAMPLEEnum = {

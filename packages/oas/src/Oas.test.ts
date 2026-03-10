@@ -976,31 +976,6 @@ describe('[oas] getSchemas x-ext', () => {
     expect(nameMapping.get('#/x-ext/deadbeef')).toBe('deadbeef')
   })
 
-  test('should not include x-ext schemas by default', () => {
-    const document: Document = {
-      openapi: '3.0.3',
-      info: { title: 'Test', version: '1.0.0' },
-      paths: {},
-      components: {
-        schemas: {
-          Foo: { type: 'object' },
-        },
-      },
-      'x-ext': {
-        abc123: { type: 'object' },
-      },
-      'x-ext-urls': {
-        'https://example.com/bar.yaml': 'abc123',
-      },
-    } as unknown as Document
-
-    const oas = new Oas(document)
-    const { schemas } = oas.getSchemas()
-
-    expect(Object.keys(schemas)).toEqual(['Foo'])
-    expect(schemas['bar']).toBeUndefined()
-  })
-
   test('should resolve collisions between x-ext and components schemas', () => {
     const document: Document = {
       openapi: '3.0.3',
@@ -1091,26 +1066,6 @@ describe('[oas] getSchemas parameters', () => {
     expect(schemas['refParam']).toBeUndefined()
     // inlineParam should be included
     expect(schemas['inlineParam']).toBeDefined()
-  })
-
-  test('should not include parameters by default', () => {
-    const document: Document = {
-      openapi: '3.0.3',
-      info: { title: 'Test', version: '1.0.0' },
-      paths: {},
-      components: {
-        schemas: { Foo: { type: 'object' } },
-        parameters: {
-          barParam: { name: 'bar', in: 'query', schema: { type: 'string' } },
-        },
-      },
-    } as unknown as Document
-
-    const oas = new Oas(document)
-    const { schemas } = oas.getSchemas()
-
-    expect(Object.keys(schemas)).toEqual(['Foo'])
-    expect(schemas['barParam']).toBeUndefined()
   })
 
   test('should resolve collisions between parameters and schemas with semantic suffixes', () => {

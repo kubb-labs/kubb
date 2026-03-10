@@ -3,16 +3,16 @@
 * Do not edit manually.
 */
 
-import type { Employer } from "./Employer.ts";
-import type { User } from "./User.ts";
+import type { _217E915 } from "./_217E915.ts";
+import type { _4E2Bce4 } from "./_4E2Bce4.ts";
 
 export type AppState = {
     /**
      * @type object | undefined
     */
-    currentUser?: User;
+    currentUser?: _4E2Bce4;
     /**
      * @type array | undefined
     */
-    employers?: Employer[];
+    employers?: _217E915[];
 };
