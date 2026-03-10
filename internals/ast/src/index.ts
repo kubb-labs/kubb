@@ -17,3 +17,7 @@ export { isOperationNode, isParameterNode, isPropertyNode, isResponseNode, isRoo
 // visitor
 export type { KubbVisitor } from './visitor.ts'
 export { transform, walk } from './visitor.ts'
+
+// refs
+export type { RefMap } from './refs.ts'
+export { buildRefMap, resolveRef } from './refs.ts'
