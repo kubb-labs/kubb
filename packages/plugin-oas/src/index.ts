@@ -25,6 +25,7 @@ export type {
 } from './SchemaMapper.ts'
 export { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 export type * from './types.ts'
+export { buildAst } from './parser.ts'
 export { buildOperation, buildOperations, buildSchema } from './utils.tsx'
 
 /**
