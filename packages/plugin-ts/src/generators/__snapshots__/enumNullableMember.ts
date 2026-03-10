@@ -10,4 +10,4 @@ export const enumNullableMemberEnum = {
 
 export type EnumNullableMemberEnumKey = (typeof enumNullableMemberEnum)[keyof typeof enumNullableMemberEnum]
 
-export type enumNullableMember = EnumNullableMemberEnumKey
+export type enumNullableMember = EnumNullableMemberEnumKey | null

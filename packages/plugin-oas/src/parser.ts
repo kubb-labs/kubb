@@ -189,14 +189,19 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
 
   // Enum
   if (schema.enum?.length) {
+    // `null` in enum values is the OAS 3.0 convention for a nullable enum.
+    // Detect it, set the nullable flag, and strip it from the actual enum values.
+    const nullInEnum = schema.enum.includes(null)
+    const filteredEnumValues = nullInEnum ? schema.enum.filter((v) => v !== null) : schema.enum
+
     return createSchema({
       type: 'enum',
       name,
-      enumValues: schema.enum as Array<string | number | boolean | null>,
+      enumValues: filteredEnumValues as Array<string | number | boolean | null>,
       title: schema.title,
       description: schema.description,
       deprecated: schema.deprecated,
-      nullable: isNullable(schema) || undefined,
+      nullable: isNullable(schema) || nullInEnum || undefined,
       readOnly: schema.readOnly,
       writeOnly: schema.writeOnly,
       default: schema.default,

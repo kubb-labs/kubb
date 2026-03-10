@@ -4,7 +4,7 @@ import type { RootNode } from './nodes/root.ts'
 import { buildRefMap, refMapToObject, resolveRef } from './refs.ts'
 
 /**
- * Minimal petstore-like fixture:
+ * Minimal petStore-like fixture:
  *
  * Schemas: Pet, NewPet, PetList, Error, PetOrError, FullPet
  * Operations: listPets, createPet, getPetById
