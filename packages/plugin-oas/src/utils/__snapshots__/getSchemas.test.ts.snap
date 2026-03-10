@@ -127,8 +127,8 @@ exports[`getSchemas > should return schemas from components.schemas 1`] = `
   },
   "PageSize": {
     "default": 20,
-    "max": 10,
-    "min": 1,
+    "maximum": 10,
+    "minimum": 1,
     "type": "integer",
   },
   "Person": {
