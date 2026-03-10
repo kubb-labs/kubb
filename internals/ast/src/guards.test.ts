@@ -1,13 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createOperation, createParameter, createResponse, createRoot, createSchema } from './factory.ts'
-import {
-  isOperationNode,
-  isParameterNode,
-  isPropertyNode,
-  isResponseNode,
-  isRootNode,
-  isSchemaNode,
-} from './guards.ts'
+import { isOperationNode, isParameterNode, isPropertyNode, isResponseNode, isRootNode, isSchemaNode } from './guards.ts'
 
 describe('isRootNode', () => {
   it('returns true for RootNode', () => {

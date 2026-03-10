@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from './factory.ts'
-import { buildRefMap, refMapToObject, resolveRef } from './refs.ts'
 import type { RootNode } from './nodes/root.ts'
+import { buildRefMap, refMapToObject, resolveRef } from './refs.ts'
 
 /**
  * Minimal petstore-like fixture:
@@ -125,12 +125,7 @@ describe('buildRefMap snapshots', () => {
     expect(refMapToObject(map)).toMatchSnapshot()
   })
 
-  it.each([
-    { ref: 'Pet' },
-    { ref: 'PetList' },
-    { ref: 'PetOrError' },
-    { ref: 'FullPet' },
-  ])('resolved schema $ref', ({ ref }) => {
+  it.each([{ ref: 'Pet' }, { ref: 'PetList' }, { ref: 'PetOrError' }, { ref: 'FullPet' }])('resolved schema $ref', ({ ref }) => {
     expect(resolveRef(map, ref)).toMatchSnapshot()
   })
 })

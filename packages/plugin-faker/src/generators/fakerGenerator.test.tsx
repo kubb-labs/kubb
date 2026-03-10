@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
+import { buildOperation, buildSchema, convertSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
@@ -179,6 +179,7 @@ describe('fakerGenerator schema', async () => {
         name,
         tree,
         value: schema,
+        schemaNode: convertSchema(schema, name),
       },
       {
         config: { root: '.', output: { path: 'test' } } as Config,

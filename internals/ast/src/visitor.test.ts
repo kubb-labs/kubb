@@ -20,13 +20,8 @@ function buildSampleTree(): RootNode {
     method: 'GET',
     path: '/pets/{petId}',
     tags: ['pets'],
-    parameters: [
-      createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true }),
-    ],
-    responses: [
-      createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', ref: 'Pet' }) }),
-      createResponse({ statusCode: '404' }),
-    ],
+    parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
+    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', ref: 'Pet' }) }), createResponse({ statusCode: '404' })],
   })
 
   return createRoot({ schemas: [petSchema], operations: [operation] })
@@ -45,12 +40,24 @@ describe('walk', () => {
     }
 
     walk(root, {
-      visitRoot() { visited.root++ },
-      visitOperation() { visited.operation++ },
-      visitSchema() { visited.schema++ },
-      visitProperty() { visited.property++ },
-      visitParameter() { visited.parameter++ },
-      visitResponse() { visited.response++ },
+      visitRoot() {
+        visited.root++
+      },
+      visitOperation() {
+        visited.operation++
+      },
+      visitSchema() {
+        visited.schema++
+      },
+      visitProperty() {
+        visited.property++
+      },
+      visitParameter() {
+        visited.parameter++
+      },
+      visitResponse() {
+        visited.response++
+      },
     })
 
     expect(visited.root).toBe(1)
@@ -66,7 +73,9 @@ describe('walk', () => {
     const root = buildSampleTree()
     const ids: Array<string> = []
     walk(root, {
-      visitOperation(op) { ids.push(op.operationId) },
+      visitOperation(op) {
+        ids.push(op.operationId)
+      },
     })
     expect(ids).toEqual(['getPetById'])
   })
@@ -74,7 +83,11 @@ describe('walk', () => {
   it('does not mutate the original tree', () => {
     const root = buildSampleTree()
     const original = JSON.stringify(root)
-    walk(root, { visitOperation(op) { return { ...op, operationId: 'mutated' } } })
+    walk(root, {
+      visitOperation(op) {
+        return { ...op, operationId: 'mutated' }
+      },
+    })
     expect(JSON.stringify(root)).toBe(original)
   })
 })
@@ -114,7 +127,9 @@ describe('transform', () => {
   it('returns original node when visitor returns undefined', () => {
     const root = buildSampleTree()
     const unchanged = transform(root, {
-      visitOperation() { return undefined },
+      visitOperation() {
+        return undefined
+      },
     }) as RootNode
 
     expect(unchanged.operations[0]?.operationId).toBe('getPetById')

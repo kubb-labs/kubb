@@ -6,7 +6,6 @@ import { AsyncEventEmitter, getRelativePath } from '@internals/utils'
 import { type KubbEvents, safeBuild, type UserConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
-import { pluginZod } from '@kubb/plugin-zod'
 import { describe, expect, test } from 'vitest'
 
 const __filename = fileURLToPath(import.meta.url)

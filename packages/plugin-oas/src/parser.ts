@@ -1,14 +1,3 @@
-import type { Operation, SchemaObject } from '@kubb/oas'
-import { isReference } from '@kubb/oas'
-import type { Oas } from '@kubb/oas'
-import {
-  createOperation,
-  createParameter,
-  createProperty,
-  createResponse,
-  createRoot,
-  createSchema,
-} from '@internals/ast'
 import type {
   HttpMethod,
   MediaType,
@@ -22,6 +11,9 @@ import type {
   SpecialSchemaType,
   StatusCode,
 } from '@internals/ast'
+import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from '@internals/ast'
+import type { Oas, Operation, SchemaObject } from '@kubb/oas'
+import { isReference } from '@kubb/oas'
 
 /**
  * Converts an OpenAPI/Swagger spec (wrapped in a Kubb `Oas` instance) into
@@ -36,9 +28,7 @@ import type {
 export function buildAst(oas: Oas): RootNode {
   const { schemas: schemaObjects } = oas.getSchemas()
 
-  const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) =>
-    convertSchema(schemaObject, name),
-  )
+  const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) => convertSchema(schemaObject, name))
 
   const paths = oas.getPaths()
 
@@ -52,12 +42,10 @@ export function buildAst(oas: Oas): RootNode {
 }
 
 function convertOperation(oas: Oas, operation: Operation): OperationNode {
-  const parameters: Array<ParameterNode> = operation
-    .getParameters()
-    .map((param) => {
-      const dereferenced = oas.dereferenceWithRef(param) as unknown as Record<string, unknown>
-      return convertParameter(dereferenced)
-    })
+  const parameters: Array<ParameterNode> = operation.getParameters().map((param) => {
+    const dereferenced = oas.dereferenceWithRef(param) as unknown as Record<string, unknown>
+    return convertParameter(dereferenced)
+  })
 
   const requestBodySchema = oas.getRequestSchema(operation)
   const requestBody = requestBodySchema ? convertSchema(requestBodySchema) : undefined
@@ -66,22 +54,16 @@ function convertOperation(oas: Oas, operation: Operation): OperationNode {
     const responseObj = operation.getResponseByStatusCode(statusCode)
     const responseSchema = oas.getResponseSchema(operation, statusCode)
 
-    const schema =
-      responseSchema && Object.keys(responseSchema).length > 0 ? convertSchema(responseSchema) : undefined
+    const schema = responseSchema && Object.keys(responseSchema).length > 0 ? convertSchema(responseSchema) : undefined
 
-    const description =
-      typeof responseObj === 'object' && responseObj !== null && !Array.isArray(responseObj)
-        ? responseObj.description
-        : undefined
+    const description = typeof responseObj === 'object' && responseObj !== null && !Array.isArray(responseObj) ? responseObj.description : undefined
 
     const rawContent =
       typeof responseObj === 'object' && responseObj !== null && !Array.isArray(responseObj)
         ? (responseObj as { content?: Record<string, unknown> }).content
         : undefined
 
-    const mediaType = rawContent
-      ? toMediaType(Object.keys(rawContent)[0] ?? '')
-      : toMediaType(operation.contentType)
+    const mediaType = rawContent ? toMediaType(Object.keys(rawContent)[0] ?? '') : toMediaType(operation.contentType)
 
     return createResponse({
       statusCode: statusCode as StatusCode,
@@ -106,10 +88,7 @@ function convertOperation(oas: Oas, operation: Operation): OperationNode {
 }
 
 function convertParameter(param: Record<string, unknown>): ParameterNode {
-  const schema =
-    param['schema'] && !isReference(param['schema'] as object)
-      ? convertSchema(param['schema'] as SchemaObject)
-      : createSchema({ type: 'any' })
+  const schema = param['schema'] && !isReference(param['schema'] as object) ? convertSchema(param['schema'] as SchemaObject) : createSchema({ type: 'any' })
 
   return createParameter({
     name: param['name'] as string,
@@ -121,7 +100,7 @@ function convertParameter(param: Record<string, unknown>): ParameterNode {
   })
 }
 
-function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
+export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
   // $ref — the schema is a pointer to another definition
   if (isReference(schema)) {
     return createSchema({

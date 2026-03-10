@@ -3,7 +3,7 @@ import type { PluginManager } from '@kubb/core'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { Operation } from '@kubb/oas'
-import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { applyParamsCasing, getBanner, getFooter, getImports, isParameterSchema } from '@kubb/plugin-oas/utils'
@@ -424,11 +424,14 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
     const { getName, getFile } = useSchemaManager()
     const imports = getImports(schema.tree)
-    const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
+
+    const isEnumSchema = schema.schemaNode.type === 'enum'
+
+    const description = schema.schemaNode.description ?? schema.value.description
 
     let typedName = getName(schema.name, { type: 'type' })
 
-    if (['asConst', 'asPascalConst'].includes(enumType) && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
+    if (['asConst', 'asPascalConst'].includes(enumType) && isEnumSchema) {
       typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
     }
 
@@ -453,7 +456,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
         <Type
           name={type.name}
           typedName={type.typedName}
-          description={schema.value.description}
+          description={description}
           tree={schema.tree}
           schema={schema.value}
           mapper={mapper}

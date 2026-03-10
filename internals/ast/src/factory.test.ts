@@ -1,12 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  createOperation,
-  createParameter,
-  createProperty,
-  createResponse,
-  createRoot,
-  createSchema,
-} from './factory.ts'
+import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from './factory.ts'
 
 describe('createRoot', () => {
   it('creates a RootNode with default empty arrays', () => {

@@ -125,10 +125,7 @@ async function buildMinimalOas() {
           enum: ['active', 'inactive', 'pending'],
         },
         PetOrError: {
-          oneOf: [
-            { $ref: '#/components/schemas/Pet' },
-            { $ref: '#/components/schemas/Error' },
-          ],
+          oneOf: [{ $ref: '#/components/schemas/Pet' }, { $ref: '#/components/schemas/Error' }],
         },
         FullPet: {
           allOf: [
@@ -331,21 +328,17 @@ describe('buildAst snapshots', async () => {
     expect(root).toMatchSnapshot()
   })
 
-  it.each([
-    { operationId: 'listPets' },
-    { operationId: 'createPet' },
-    { operationId: 'getPetById' },
-  ])('operation $operationId', ({ operationId }) => {
+  it.each([{ operationId: 'listPets' }, { operationId: 'createPet' }, { operationId: 'getPetById' }])('operation $operationId', ({ operationId }) => {
     const op = root.operations.find((o) => o.operationId === operationId)
     expect(op).toMatchSnapshot()
   })
 
   it.each([
-    { name: 'Pet',      label: 'object with required props' },
-    { name: 'PetList',  label: 'array of refs' },
-    { name: 'Status',   label: 'enum' },
+    { name: 'Pet', label: 'object with required props' },
+    { name: 'PetList', label: 'array of refs' },
+    { name: 'Status', label: 'enum' },
     { name: 'PetOrError', label: 'oneOf / union' },
-    { name: 'FullPet',  label: 'allOf / intersection with format fields' },
+    { name: 'FullPet', label: 'allOf / intersection with format fields' },
   ])('schema $name ($label)', ({ name }) => {
     const schema = root.schemas.find((s) => s.name === name)
     expect(schema).toMatchSnapshot()

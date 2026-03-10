@@ -1353,6 +1353,9 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
     devDependencies:
+      '@internals/ast':
+        specifier: workspace:*
+        version: link:../../internals/ast
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils

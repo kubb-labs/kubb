@@ -39,9 +39,7 @@ export function createOperation(
  * Creates a `SchemaNode`.
  * `type` is required; all other fields are optional.
  */
-export function createSchema(
-  props: Pick<SchemaNode, 'type'> & Partial<Omit<SchemaNode, 'kind' | 'type'>>,
-): SchemaNode {
+export function createSchema(props: Pick<SchemaNode, 'type'> & Partial<Omit<SchemaNode, 'kind' | 'type'>>): SchemaNode {
   return {
     ...props,
     kind: 'Schema',
@@ -52,9 +50,7 @@ export function createSchema(
  * Creates a `PropertyNode`.
  * `name` and `schema` are required; `required` defaults to `false`.
  */
-export function createProperty(
-  props: Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<PropertyNode, 'kind' | 'name' | 'schema'>>,
-): PropertyNode {
+export function createProperty(props: Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<PropertyNode, 'kind' | 'name' | 'schema'>>): PropertyNode {
   return {
     required: false,
     ...props,
@@ -80,9 +76,7 @@ export function createParameter(
  * Creates a `ResponseNode`.
  * `statusCode` is required; all other fields are optional.
  */
-export function createResponse(
-  props: Pick<ResponseNode, 'statusCode'> & Partial<Omit<ResponseNode, 'kind' | 'statusCode'>>,
-): ResponseNode {
+export function createResponse(props: Pick<ResponseNode, 'statusCode'> & Partial<Omit<ResponseNode, 'kind' | 'statusCode'>>): ResponseNode {
   return {
     ...props,
     kind: 'Response',
