@@ -417,6 +417,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const {
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
     } = plugin
+    const { schemaNode } = schema
     const mode = useMode()
 
     const oas = useOas()
@@ -425,20 +426,23 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const { getName, getFile } = useSchemaManager()
     const imports = getImports(schema.tree)
 
-    const isEnumSchema = schema.schemaNode.type === 'enum'
+    if (!schemaNode.name) {
+      return
+    }
 
-    const description = schema.schemaNode.description ?? schema.value.description
+    const isEnumSchema = schemaNode.type === 'enum'
+    const description = schemaNode.description
 
-    let typedName = getName(schema.name, { type: 'type' })
+    let typedName = getName(schemaNode.name, { type: 'type' })
 
     if (['asConst', 'asPascalConst'].includes(enumType) && isEnumSchema) {
       typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
     }
 
     const type = {
-      name: getName(schema.name, { type: 'function' }),
+      name: getName(schemaNode.name, { type: 'function' }),
       typedName,
-      file: getFile(schema.name),
+      file: getFile(schemaNode.name),
     }
 
     return (
@@ -451,7 +455,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       >
         {mode === 'split' &&
           imports.map((imp) => (
-            <File.Import key={[schema.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
+            <File.Import key={[schemaNode.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
           ))}
         <Type
           name={type.name}
