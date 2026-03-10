@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import type { Config } from '@kubb/core'
 import yaml from '@stoplight/yaml'
 import { describe, expect, test } from 'vitest'
-import type { SchemaObject } from './types.ts'
+import type { SchemaObject } from '@internals/openapi-types'
 import {
   collectRefs,
   extractSchemaFromContent,

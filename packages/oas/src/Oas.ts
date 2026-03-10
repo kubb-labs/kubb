@@ -1,7 +1,8 @@
 import jsonpointer from 'jsonpointer'
 import BaseOas from 'oas'
 import { matchesMimeType } from 'oas/utils'
-import type { contentType, DiscriminatorObject, Document, MediaTypeObject, Operation, ReferenceObject, ResponseObject, SchemaObject } from './types.ts'
+import type { Operation } from 'oas/operation'
+import type { OpenAPIV3_1, ContentType} from '@internals/openapi-types'
 import {
   extractSchemaFromContent,
   flattenSchema,
@@ -22,7 +23,7 @@ import {
 export const KUBB_INLINE_REF_PREFIX = '#kubb-inline-'
 
 type OasOptions = {
-  contentType?: contentType
+  contentType?: ContentType
   discriminator?: 'strict' | 'inherit'
   /**
    * Resolve name collisions when schemas from different components share the same name (case-insensitive).
@@ -31,14 +32,17 @@ type OasOptions = {
   collisionDetection?: boolean
 }
 
+/**
+ * We use OpenAPIV3_1 as base
+ */
 export class Oas extends BaseOas {
   #options: OasOptions = {
     discriminator: 'strict',
   }
-  document: Document
+  document: OpenAPIV3_1.Document
 
-  constructor(document: Document) {
-    super(document, undefined)
+  constructor(document: OpenAPIV3_1.Document) {
+    super(document as any, undefined)
 
     this.document = document
   }
@@ -93,13 +97,17 @@ export class Oas extends BaseOas {
     }
   }
 
-  #setDiscriminator(schema: SchemaObject & { discriminator: DiscriminatorObject }): void {
+  #setDiscriminator(schema: OpenAPIV3_1.BaseSchemaObject): void {
+    if(!schema.discriminator){
+      return
+    }
+
     const { mapping = {}, propertyName } = schema.discriminator
 
-    if (this.#options.discriminator === 'inherit') {
+    if (this.#options.discriminator === 'inherit' && propertyName) {
       Object.entries(mapping).forEach(([mappingKey, mappingValue]) => {
         if (mappingValue) {
-          const childSchema = this.get<any>(mappingValue)
+          const childSchema = this.get<OpenAPIV3_1.BaseSchemaObject>(mappingValue)
           if (!childSchema) {
             return
           }
@@ -108,12 +116,12 @@ export class Oas extends BaseOas {
             childSchema.properties = {}
           }
 
-          const property = childSchema.properties[propertyName] as SchemaObject
+          const property = childSchema.properties[propertyName]
 
           if (childSchema.properties) {
             childSchema.properties[propertyName] = {
-              ...((childSchema.properties ? childSchema.properties[propertyName] : {}) as SchemaObject),
-              enum: [...(property?.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
+              ...(((childSchema.properties ? childSchema.properties[propertyName] : {}) as object)),
+              enum: [...((property as any)?.enum?.filter((value: unknown) => value !== mappingKey) ?? []), mappingKey],
             }
 
             childSchema.required =
@@ -126,12 +134,14 @@ export class Oas extends BaseOas {
     }
   }
 
-  getDiscriminator(schema: SchemaObject | null): DiscriminatorObject | null {
-    if (!isDiscriminator(schema) || !schema) {
+  getDiscriminator(schema: OpenAPIV3_1.BaseSchemaObject): OpenAPIV3_1.SchemaObject | null {
+    if(!schema.discriminator){
       return null
     }
 
+
     const { mapping = {}, propertyName } = schema.discriminator
+
 
     /**
      * Helper to extract discriminator value from a schema.
@@ -141,14 +151,10 @@ export class Oas extends BaseOas {
      * 3. Property with single enum value
      * 4. Title as fallback
      */
-    const getDiscriminatorValue = (schema: SchemaObject | null): string | null => {
-      if (!schema) {
-        return null
-      }
-
+    const getDiscriminatorValue = (schema: OpenAPIV3_1.BaseSchemaObject): string | null => {
       // Check extension properties first (e.g., x-linode-ref-name)
       // Only check if propertyName starts with 'x-' to avoid conflicts with standard properties
-      if (propertyName.startsWith('x-')) {
+      if (propertyName?.startsWith('x-')) {
         const extensionValue = (schema as Record<string, unknown>)[propertyName]
         if (extensionValue && typeof extensionValue === 'string') {
           return extensionValue
@@ -156,7 +162,7 @@ export class Oas extends BaseOas {
       }
 
       // Check if property has const value
-      const propertySchema = schema.properties?.[propertyName] as SchemaObject
+      const propertySchema =propertyName?  schema.properties?.[propertyName] : undefined
       if (propertySchema && 'const' in propertySchema && propertySchema.const !== undefined) {
         return String(propertySchema.const)
       }
@@ -174,32 +180,32 @@ export class Oas extends BaseOas {
      * Process oneOf/anyOf items to build mapping.
      * Handles both $ref and inline schemas.
      */
-    const processSchemas = (schemas: Array<SchemaObject>, existingMapping: Record<string, string>) => {
+    const processSchemas = (schemas: NonNullable<OpenAPIV3_1.BaseSchemaObject['oneOf']>, existingMapping: Record<string, string>) => {
       schemas.forEach((schemaItem, index) => {
         if (isReference(schemaItem)) {
           // Handle $ref case
-          const key = this.getKey(schemaItem.$ref)
+          const $ref = schemaItem.$ref!
+          const key = this.getKey($ref)
 
           try {
-            const refSchema = this.get<SchemaObject>(schemaItem.$ref)
-            const discriminatorValue = getDiscriminatorValue(refSchema)
-            const canAdd = key && !Object.values(existingMapping).includes(schemaItem.$ref)
+            const refSchema = this.get<OpenAPIV3_1.BaseSchemaObject>($ref)
+            const discriminatorValue = getDiscriminatorValue(refSchema!)
+            const canAdd = key && !Object.values(existingMapping).includes($ref)
 
             if (canAdd && discriminatorValue) {
-              existingMapping[discriminatorValue] = schemaItem.$ref
+              existingMapping[discriminatorValue] = $ref
             } else if (canAdd) {
-              existingMapping[key] = schemaItem.$ref
+              existingMapping[key!] = $ref
             }
           } catch (_error) {
             // If we can't resolve the reference, skip it and use the key as fallback
-            if (key && !Object.values(existingMapping).includes(schemaItem.$ref)) {
-              existingMapping[key] = schemaItem.$ref
+            if (key && !Object.values(existingMapping).includes($ref)) {
+              existingMapping[key!] = $ref
             }
           }
         } else {
           // Handle inline schema case
-          const inlineSchema = schemaItem as SchemaObject
-          const discriminatorValue = getDiscriminatorValue(inlineSchema)
+          const discriminatorValue = getDiscriminatorValue(schemaItem as OpenAPIV3_1.BaseSchemaObject)
 
           if (discriminatorValue) {
             // Create a synthetic ref for inline schemas using index
@@ -212,12 +218,12 @@ export class Oas extends BaseOas {
 
     // Process oneOf schemas
     if (schema.oneOf) {
-      processSchemas(schema.oneOf as Array<SchemaObject>, mapping)
+      processSchemas(schema.oneOf, mapping)
     }
 
     // Process anyOf schemas
     if (schema.anyOf) {
-      processSchemas(schema.anyOf as Array<SchemaObject>, mapping)
+      processSchemas(schema.anyOf, mapping)
     }
 
     return {
@@ -259,21 +265,18 @@ export class Oas extends BaseOas {
       }
 
       if (typeof value === 'object') {
-        visit(value as SchemaObject)
+        visit(value as OpenAPIV3_1.BaseSchemaObject)
       }
     }
 
-    const visit = (schema?: SchemaObject | ReferenceObject | null) => {
-      if (!schema || typeof schema !== 'object') {
-        return
-      }
+    const visit = (schema: OpenAPIV3_1.BaseSchemaObject) => {
 
       if (isReference(schema)) {
-        visit(this.get(schema.$ref) as SchemaObject)
+        visit(this.get((schema as OpenAPIV3_1.ReferenceObject).$ref!)!)
         return
       }
 
-      const schemaObject = schema as SchemaObject
+      const schemaObject = schema as OpenAPIV3_1.BaseSchemaObject
 
       if (visited.has(schemaObject as object)) {
         return
@@ -314,15 +317,15 @@ export class Oas extends BaseOas {
     }
 
     for (const schema of Object.values(components.schemas)) {
-      visit(schema as SchemaObject)
+      visit(schema as OpenAPIV3_1.BaseSchemaObject)
     }
   }
 
   /**
    * Oas does not have a getResponseBody(contentType)
    */
-  #getResponseBodyFactory(responseBody: boolean | ResponseObject): (contentType?: string) => MediaTypeObject | false | [string, MediaTypeObject, ...string[]] {
-    function hasResponseBody(res = responseBody): res is ResponseObject {
+  #getResponseBodyFactory(responseBody: boolean | OpenAPIV3_1.ResponseObject): (contentType?: string) => OpenAPIV3_1.MediaTypeObject | false | [string, OpenAPIV3_1.MediaTypeObject, ...string[]] {
+    function hasResponseBody(res = responseBody): res is OpenAPIV3_1.ResponseObject {
       return !!res
     }
 
@@ -337,22 +340,24 @@ export class Oas extends BaseOas {
         return false
       }
 
-      if (!responseBody.content) {
+      const response = responseBody as OpenAPIV3_1.ResponseObject
+
+      if (!response.content) {
         return false
       }
 
       if (contentType) {
-        if (!(contentType in responseBody.content)) {
+        if (!(contentType in response.content)) {
           return false
         }
 
-        return responseBody.content[contentType]!
+        return response.content[contentType]! as OpenAPIV3_1.MediaTypeObject
       }
 
       // Since no media type was supplied we need to find either the first JSON-like media type that
       // we've got, or the first available of anything else if no JSON-like media types are present.
       let availableContentType: string | undefined
-      const contentTypes = Object.keys(responseBody.content)
+      const contentTypes = Object.keys(response.content)
       contentTypes.forEach((mt: string) => {
         if (!availableContentType && matchesMimeType.json(mt)) {
           availableContentType = mt
@@ -368,14 +373,14 @@ export class Oas extends BaseOas {
       }
 
       if (availableContentType) {
-        return [availableContentType, responseBody.content[availableContentType]!, ...(responseBody.description ? [responseBody.description] : [])]
+        return [availableContentType, response.content[availableContentType]! as OpenAPIV3_1.MediaTypeObject, ...(response.description ? [response.description] : [])]
       }
 
       return false
     }
   }
 
-  getResponseSchema(operation: Operation, statusCode: string | number): SchemaObject {
+  getResponseSchema(operation: Operation, statusCode: string | number): OpenAPIV3_1.BaseSchemaObject {
     if (operation.schema.responses) {
       Object.keys(operation.schema.responses).forEach((key) => {
         const schema = operation.schema.responses![key]
@@ -387,7 +392,7 @@ export class Oas extends BaseOas {
       })
     }
 
-    const getResponseBody = this.#getResponseBodyFactory(operation.getResponseByStatusCode(statusCode))
+    const getResponseBody = this.#getResponseBodyFactory(operation.getResponseByStatusCode(statusCode) as boolean | OpenAPIV3_1.ResponseObject)
 
     const { contentType } = this.#options
     const responseBody = getResponseBody(contentType)
@@ -405,10 +410,10 @@ export class Oas extends BaseOas {
       return {}
     }
 
-    return this.dereferenceWithRef(schema)
+    return this.dereferenceWithRef(schema) as OpenAPIV3_1.BaseSchemaObject
   }
 
-  getRequestSchema(operation: Operation): SchemaObject | undefined {
+  getRequestSchema(operation: Operation): OpenAPIV3_1.BaseSchemaObject | undefined {
     const { contentType } = this.#options
 
     if (operation.schema.requestBody) {
@@ -427,10 +432,10 @@ export class Oas extends BaseOas {
       return undefined
     }
 
-    return this.dereferenceWithRef(schema)
+    return this.dereferenceWithRef(schema) as OpenAPIV3_1.BaseSchemaObject
   }
 
-  getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): SchemaObject | null {
+  getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): OpenAPIV3_1.BaseSchemaObject | null {
     const { contentType = operation.getContentType() } = this.#options
     const params = operation
       .getParameters()
@@ -445,7 +450,7 @@ export class Oas extends BaseOas {
 
     return params.reduce(
       (schema, pathParameters) => {
-        const property = (pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as SchemaObject)) as SchemaObject | null
+        const property = (pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as OpenAPIV3_1.SchemaObject)) as OpenAPIV3_1.SchemaObject | null
         const required =
           typeof schema.required === 'boolean'
             ? schema.required
@@ -473,38 +478,38 @@ export class Oas extends BaseOas {
           // flatten it to the root level by merging additionalProperties with existing schema.
           // This preserves other query parameters while allowing dynamic key-value pairs.
           return {
-            ...schema,
-            description: pathParameters.description || schema.description,
-            deprecated: schema.deprecated,
-            example: property.example || schema.example,
-            additionalProperties: property.additionalProperties,
-          } as SchemaObject
+            ...(schema as object),
+            description: pathParameters.description || (schema as any).description,
+            deprecated: (schema as any).deprecated,
+            example: (property as any).example || (schema as any).example,
+            additionalProperties: (property as any).additionalProperties,
+          } as OpenAPIV3_1.BaseSchemaObject
         }
 
         return {
-          ...schema,
-          description: schema.description,
-          deprecated: schema.deprecated,
-          example: schema.example,
+          ...(schema as object),
+          description: (schema as any).description,
+          deprecated: (schema as any).deprecated,
+          example: (schema as any).example,
           required,
           properties: {
-            ...schema.properties,
+            ...(schema as any).properties,
             [pathParameters.name]: {
               description: pathParameters.description,
-              ...property,
+              ...(property as object),
             },
           },
-        } as SchemaObject
+        } as OpenAPIV3_1.BaseSchemaObject
       },
-      { type: 'object', required: [], properties: {} } as SchemaObject,
+      { type: 'object', required: [], properties: {} } as OpenAPIV3_1.BaseSchemaObject,
     )
   }
 
   async validate() {
-    return validate(this.api)
+    return validate(this.api as Document)
   }
 
-  flattenSchema(schema: SchemaObject | null): SchemaObject | null {
+  flattenSchema(schema: OpenAPIV3_1.BaseSchemaObject): OpenAPIV3_1.BaseSchemaObject {
     return flattenSchema(schema)
   }
 
@@ -512,20 +517,20 @@ export class Oas extends BaseOas {
    * Get schemas from OpenAPI components (schemas, responses, requestBodies).
    * Returns schemas in dependency order along with name mapping for collision resolution.
    */
-  getSchemas(options: { contentType?: contentType; includes?: Array<'schemas' | 'responses' | 'requestBodies'>; collisionDetection?: boolean } = {}): {
-    schemas: Record<string, SchemaObject>
+  getSchemas(options: { contentType?: ContentType; includes?: Array<'schemas' | 'responses' | 'requestBodies'>; collisionDetection?: boolean } = {}): {
+    schemas: Record<string, OpenAPIV3_1.BaseSchemaObject>
     nameMapping: Map<string, string>
   } {
     const contentType = options.contentType ?? this.#options.contentType
     const includes = options.includes ?? ['schemas', 'requestBodies', 'responses']
     const shouldResolveCollisions = options.collisionDetection ?? this.#options.collisionDetection ?? false
 
-    const components = this.getDefinition().components
+    const components = (this.getDefinition() as OpenAPIV3_1.Document).components
     const schemasWithMeta: SchemaWithMetadata[] = []
 
     // Collect schemas from components
     if (includes.includes('schemas')) {
-      const componentSchemas = (components?.schemas as Record<string, SchemaObject>) || {}
+      const componentSchemas = (components?.schemas as Record<string, OpenAPIV3_1.BaseSchemaObject>) || {}
       for (const [name, schema] of Object.entries(componentSchemas)) {
         schemasWithMeta.push({ schema, source: 'schemas', originalName: name })
       }
@@ -534,8 +539,7 @@ export class Oas extends BaseOas {
     if (includes.includes('responses')) {
       const responses = components?.responses || {}
       for (const [name, response] of Object.entries(responses)) {
-        const responseObject = response as ResponseObject
-        const schema = extractSchemaFromContent(responseObject.content, contentType)
+        const schema = extractSchemaFromContent(response.content, contentType)
         if (schema) {
           schemasWithMeta.push({ schema, source: 'responses', originalName: name })
         }

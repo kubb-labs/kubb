@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import yaml from '@stoplight/yaml'
 import { describe, expect, test } from 'vitest'
 import { Oas } from './Oas.ts'
-import type { Document, SchemaObject } from './types.ts'
+import type { Document, SchemaObject } from '@internals/openapi-types'
 import { parse } from './utils.ts'
 
 const __filename = fileURLToPath(import.meta.url)
