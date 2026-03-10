@@ -1,7 +1,17 @@
 import type { contentType, Oas, OasTypes } from '@kubb/oas'
 
+/**
+ * A schema object with `minimum`/`maximum` normalized to Kubb's `min`/`max` convention.
+ * This type is local to `plugin-oas` — the `min`/`max` fields belong to Kubb's AST layer,
+ * not to the raw `@kubb/oas` schema types.
+ */
+export type NormalizedSchemaObject = Omit<OasTypes.SchemaObject, 'minimum' | 'maximum'> & {
+  min?: number
+  max?: number
+}
+
 export type GetSchemasResult = {
-  schemas: Record<string, OasTypes.SchemaObject>
+  schemas: Record<string, NormalizedSchemaObject>
   /**
    * Mapping from original component name to resolved name after collision handling
    * e.g., { 'Order': 'OrderSchema', 'variant': 'variant2' }
@@ -28,7 +38,7 @@ type GetSchemasProps = {
  * surfaced as `min`/`max` (consistent with Kubb's AST naming convention).
  * The original `minimum`/`maximum` keys are removed to avoid ambiguity.
  */
-function normalizeSchema({ minimum, maximum, ...rest }: OasTypes.SchemaObject): OasTypes.SchemaObject {
+function normalizeSchema({ minimum, maximum, ...rest }: OasTypes.SchemaObject): NormalizedSchemaObject {
   return {
     ...rest,
     ...(minimum !== undefined && { min: minimum }),
@@ -52,7 +62,7 @@ export function getSchemas({ oas, contentType, includes = ['schemas', 'requestBo
     collisionDetection,
   })
 
-  const normalizedSchemas: Record<string, OasTypes.SchemaObject> = {}
+  const normalizedSchemas: Record<string, NormalizedSchemaObject> = {}
   for (const [name, schema] of Object.entries(schemas)) {
     normalizedSchemas[name] = normalizeSchema(schema)
   }

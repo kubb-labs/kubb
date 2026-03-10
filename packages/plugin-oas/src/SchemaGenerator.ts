@@ -17,6 +17,13 @@ export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> 
 
 export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
+/**
+ * A schema object that may carry Kubb-normalized `min`/`max` fields
+ * (set by `getSchemas()`) in addition to the raw OAS `minimum`/`maximum`.
+ * Defined locally so the `@kubb/oas` package stays free of Kubb conventions.
+ */
+type SchemaObjectWithBounds = SchemaObject & { min?: number; max?: number }
+
 /** Max concurrent generator tasks (across generators). */
 const GENERATOR_CONCURRENCY = 3
 /** Max concurrent schema parsing tasks (per generator). */
@@ -695,8 +702,12 @@ export class SchemaGenerator<
         },
       },
     ]
-    const min = schemaObject.min ?? schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
-    const max = schemaObject.max ?? schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
+    const _schemaWithBounds = schemaObject as SchemaObjectWithBounds
+    const min = _schemaWithBounds.min ?? schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
+    const max = _schemaWithBounds.max ?? schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
+
+    const exclusiveMinimum = schemaObject.exclusiveMinimum
+    const exclusiveMaximum = schemaObject.exclusiveMaximum
 
     const nullable = isNullable(schemaObject)
     const defaultNullAndNullable = schemaObject.default === null && nullable
@@ -1083,8 +1094,9 @@ export class SchemaGenerator<
     if ('prefixItems' in schemaObject) {
       const prefixItems = schemaObject.prefixItems as SchemaObject[]
       const items = 'items' in schemaObject ? (schemaObject.items as SchemaObject[]) : []
-      const min = schemaObject.min ?? schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
-      const max = schemaObject.max ?? schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
+      const _schemaWithBounds = schemaObject as SchemaObjectWithBounds
+      const min = _schemaWithBounds.min ?? schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
+      const max = _schemaWithBounds.max ?? schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
 
       return [
         {
@@ -1256,8 +1268,9 @@ export class SchemaGenerator<
 
     // type based logic
     if ('items' in schemaObject || schemaObject.type === ('array' as 'string')) {
-      const min = schemaObject.min ?? schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
-      const max = schemaObject.max ?? schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
+      const _schemaWithBounds = schemaObject as SchemaObjectWithBounds
+      const min = _schemaWithBounds.min ?? schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
+      const max = _schemaWithBounds.max ?? schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
       const items = this.parse({ schema: 'items' in schemaObject ? (schemaObject.items as SchemaObject) : [], name, parentName, rootName })
       const unique = !!schemaObject.uniqueItems
 
@@ -1318,9 +1331,10 @@ export class SchemaGenerator<
 
     // Infer type from constraints when no explicit type is provided
     let inferredType: OpenAPIV3.NonArraySchemaObjectType | undefined
+    const _schemaWithBoundsForInfer = schemaObject as SchemaObjectWithBounds
     if (schemaObject.minLength !== undefined || schemaObject.maxLength !== undefined || schemaObject.pattern !== undefined) {
       inferredType = 'string'
-    } else if (schemaObject.min !== undefined || schemaObject.max !== undefined || schemaObject.minimum !== undefined || schemaObject.maximum !== undefined) {
+    } else if (_schemaWithBoundsForInfer.min !== undefined || _schemaWithBoundsForInfer.max !== undefined || schemaObject.minimum !== undefined || schemaObject.maximum !== undefined) {
       inferredType = 'number'
     }
     // Note: minItems/maxItems don't infer type 'array' because arrays are handled
