@@ -1,7 +1,7 @@
 import { type AsyncEventEmitter, getUniqueName, pascalCase, stringify } from '@internals/utils'
 import type { FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import type {ContentType, Oas, OpenAPIV3, OpenAPIV3_1} from '@kubb/oas'
+import type { ContentType, Oas, OpenAPIV3, OpenAPIV3_1 } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'
 import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'

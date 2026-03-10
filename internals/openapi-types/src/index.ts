@@ -17,17 +17,9 @@ export namespace OpenAPI {
   // OpenAPI.Document<{
   //   'x-foobar': Foobar
   // }>
-  export type Document<T extends AnyOtherAttribute = {}> =
-    | OpenAPIV2.Document<T>
-    | OpenAPIV3.Document<T>
-    | OpenAPIV3_1.Document<T>
-    | OpenAPIV3_2.Document<T>
+  export type Document<T extends AnyOtherAttribute = {}> = OpenAPIV2.Document<T> | OpenAPIV3.Document<T> | OpenAPIV3_1.Document<T> | OpenAPIV3_2.Document<T>
 
-  export type Operation<T = {}> =
-    | OpenAPIV2.OperationObject<T>
-    | OpenAPIV3.OperationObject<T>
-    | OpenAPIV3_1.OperationObject<T>
-    | OpenAPIV3_2.OperationObject<T>
+  export type Operation<T = {}> = OpenAPIV2.OperationObject<T> | OpenAPIV3.OperationObject<T> | OpenAPIV3_1.OperationObject<T> | OpenAPIV3_2.OperationObject<T>
 
   export type Request = {
     body?: any
@@ -36,17 +28,9 @@ export namespace OpenAPI {
     query?: object
   }
 
-  export type ResponseObject =
-    | OpenAPIV2.ResponseObject
-    | OpenAPIV3.ResponseObject
-    | OpenAPIV3_1.ResponseObject
-    | OpenAPIV3_2.ResponseObject
+  export type ResponseObject = OpenAPIV2.ResponseObject | OpenAPIV3.ResponseObject | OpenAPIV3_1.ResponseObject | OpenAPIV3_2.ResponseObject
 
-  export type HeaderObject =
-    | OpenAPIV2.HeaderObject
-    | OpenAPIV3.HeaderObject
-    | OpenAPIV3_1.HeaderObject
-    | OpenAPIV3_2.HeaderObject
+  export type HeaderObject = OpenAPIV2.HeaderObject | OpenAPIV3.HeaderObject | OpenAPIV3_1.HeaderObject | OpenAPIV3_2.HeaderObject
 
   export type Parameter =
     | OpenAPIV3_2.ReferenceObject
@@ -64,23 +48,11 @@ export namespace OpenAPI {
     | (OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject)[]
     | (OpenAPIV2.ReferenceObject | OpenAPIV2.Parameter)[]
 
-  export type ExampleObject =
-    | OpenAPIV2.ExampleObject
-    | OpenAPIV3.ExampleObject
-    | OpenAPIV3_1.ExampleObject
-    | OpenAPIV3_2.ExampleObject
+  export type ExampleObject = OpenAPIV2.ExampleObject | OpenAPIV3.ExampleObject | OpenAPIV3_1.ExampleObject | OpenAPIV3_2.ExampleObject
 
-  export type SchemaObject =
-    | OpenAPIV2.SchemaObject
-    | OpenAPIV3.SchemaObject
-    | OpenAPIV3_1.SchemaObject
-    | OpenAPIV3_2.SchemaObject
+  export type SchemaObject = OpenAPIV2.SchemaObject | OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject | OpenAPIV3_2.SchemaObject
 
-  export type HttpMethod =
-    | OpenAPIV2.HttpMethods
-    | OpenAPIV3.HttpMethods
-    | OpenAPIV3_1.HttpMethods
-    | OpenAPIV3_2.HttpMethods
+  export type HttpMethod = OpenAPIV2.HttpMethods | OpenAPIV3.HttpMethods | OpenAPIV3_1.HttpMethods | OpenAPIV3_2.HttpMethods
 }
 
 export namespace OpenAPIV3_2 {
@@ -105,12 +77,12 @@ export namespace OpenAPIV3_2 {
       $self?: string
       tags?: TagObject[]
     } & (
-    | (Pick<PathsWebhooksComponents<T>, 'paths'> & Omit<Partial<PathsWebhooksComponents<T>>, 'paths'>)
-    | (Pick<PathsWebhooksComponents<T>, 'webhooks'> & Omit<Partial<PathsWebhooksComponents<T>>, 'webhooks'>)
-    | (Pick<PathsWebhooksComponents<T>, 'components'> & Omit<Partial<PathsWebhooksComponents<T>>, 'components'>)
+      | (Pick<PathsWebhooksComponents<T>, 'paths'> & Omit<Partial<PathsWebhooksComponents<T>>, 'paths'>)
+      | (Pick<PathsWebhooksComponents<T>, 'webhooks'> & Omit<Partial<PathsWebhooksComponents<T>>, 'webhooks'>)
+      | (Pick<PathsWebhooksComponents<T>, 'components'> & Omit<Partial<PathsWebhooksComponents<T>>, 'components'>)
     ) &
-    T &
-    AnyOtherAttribute
+      T &
+      AnyOtherAttribute
   >
 
   export type ServerObject = Modify<
@@ -177,8 +149,7 @@ export namespace OpenAPIV3_2 {
    * 'items' will be always visible as optional
    * Casting schema object to ArraySchemaObject or NonArraySchemaObject will work fine
    */
-  export type SchemaObject = (ArraySchemaObject | NonArraySchemaObject | MixedSchemaObject | boolean) &
-    AnyOtherAttribute
+  export type SchemaObject = (ArraySchemaObject | NonArraySchemaObject | MixedSchemaObject | boolean) & AnyOtherAttribute
 
   export type ArraySchemaObject = {
     type?: ArraySchemaObjectType
@@ -295,8 +266,8 @@ export namespace OpenAPIV3_2 {
     | ApiKeySecurityScheme
     | OAuth2SecurityScheme
     | (OpenIdSecurityScheme & {
-    deprecated?: boolean
-  })
+        deprecated?: boolean
+      })
 
   export type HttpSecurityScheme = OpenAPIV3_1.HttpSecurityScheme
 
@@ -306,8 +277,8 @@ export namespace OpenAPIV3_2 {
     deviceAuthorization?: AnyOtherAttribute &
       OpenAPIV3.OAuthFlowBase &
       OpenAPIV3.OAuthFlowTokenUrlTrait & {
-      deviceAuthorizationUrl?: string
-    }
+        deviceAuthorizationUrl?: string
+      }
   }
 
   export type OAuth2SecurityScheme = Modify<
@@ -348,12 +319,12 @@ export namespace OpenAPIV3_1 {
       jsonSchemaDialect?: string
       servers?: ServerObject[]
     } & (
-    | (Pick<PathsWebhooksComponents<T>, 'paths'> & Omit<Partial<PathsWebhooksComponents<T>>, 'paths'>)
-    | (Pick<PathsWebhooksComponents<T>, 'webhooks'> & Omit<Partial<PathsWebhooksComponents<T>>, 'webhooks'>)
-    | (Pick<PathsWebhooksComponents<T>, 'components'> & Omit<Partial<PathsWebhooksComponents<T>>, 'components'>)
+      | (Pick<PathsWebhooksComponents<T>, 'paths'> & Omit<Partial<PathsWebhooksComponents<T>>, 'paths'>)
+      | (Pick<PathsWebhooksComponents<T>, 'webhooks'> & Omit<Partial<PathsWebhooksComponents<T>>, 'webhooks'>)
+      | (Pick<PathsWebhooksComponents<T>, 'components'> & Omit<Partial<PathsWebhooksComponents<T>>, 'components'>)
     ) &
-    T &
-    AnyOtherAttribute
+      T &
+      AnyOtherAttribute
   >
 
   export type InfoObject = Modify<
@@ -446,8 +417,7 @@ export namespace OpenAPIV3_1 {
    * 'items' will be always visible as optional
    * Casting schema object to ArraySchemaObject or NonArraySchemaObject will work fine
    */
-  export type SchemaObject = (ArraySchemaObject | NonArraySchemaObject | MixedSchemaObject | boolean) &
-    AnyOtherAttribute
+  export type SchemaObject = (ArraySchemaObject | NonArraySchemaObject | MixedSchemaObject | boolean) & AnyOtherAttribute
 
   export type ArraySchemaObject = {
     type?: ArraySchemaObjectType
@@ -674,14 +644,7 @@ export namespace OpenAPIV3 {
 
   export type HeaderObject = {} & ParameterBaseObject
 
-  export type ParameterStyle =
-    | 'matrix'
-    | 'label'
-    | 'form'
-    | 'simple'
-    | 'spaceDelimited'
-    | 'pipeDelimited'
-    | 'deepObject'
+  export type ParameterStyle = 'matrix' | 'label' | 'form' | 'simple' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject'
 
   export type ParameterBaseObject = {
     description?: string
@@ -838,11 +801,7 @@ export namespace OpenAPIV3 {
     callbacks?: { [key: string]: ReferenceObject | CallbackObject }
   }
 
-  export type SecuritySchemeObject =
-    | HttpSecurityScheme
-    | ApiKeySecurityScheme
-    | OAuth2SecurityScheme
-    | OpenIdSecurityScheme
+  export type SecuritySchemeObject = HttpSecurityScheme | ApiKeySecurityScheme | OAuth2SecurityScheme | OpenIdSecurityScheme
 
   export type HttpSecurityScheme = {
     type?: 'http'

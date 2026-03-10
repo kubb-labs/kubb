@@ -1,16 +1,11 @@
 import path from 'node:path'
+import type { ContentType, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@internals/openapi-types'
 import { pascalCase, URLPath } from '@internals/utils'
 import type { Config } from '@kubb/core'
 import { bundle, loadConfig } from '@redocly/openapi-core'
 import yaml from '@stoplight/yaml'
 import { isRef } from 'oas/types'
 import OASNormalize from 'oas-normalize'
-import type {
-  ContentType,
-  OpenAPIV2,
-  OpenAPIV3,
-  OpenAPIV3_1,
-} from '@internals/openapi-types'
 import { isPlainObject, mergeDeep } from 'remeda'
 import swagger2openapi from 'swagger2openapi'
 import { Oas } from './Oas.ts'

@@ -1,4 +1,4 @@
-import type { Oas, OpenAPIV3, OpenAPIV3_1, } from '@kubb/oas'
+import type { Oas, OpenAPIV3, OpenAPIV3_1 } from '@kubb/oas'
 import { isOpenApiV3_1Document } from '@kubb/oas'
 
 /**

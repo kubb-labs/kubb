@@ -1,8 +1,8 @@
+import type { ContentType, OpenAPIV3_1 } from '@internals/openapi-types'
 import jsonpointer from 'jsonpointer'
 import BaseOas from 'oas'
-import { matchesMimeType } from 'oas/utils'
 import type { Operation } from 'oas/operation'
-import type { OpenAPIV3_1, ContentType} from '@internals/openapi-types'
+import { matchesMimeType } from 'oas/utils'
 import {
   extractSchemaFromContent,
   flattenSchema,
@@ -98,7 +98,7 @@ export class Oas extends BaseOas {
   }
 
   #setDiscriminator(schema: OpenAPIV3_1.BaseSchemaObject): void {
-    if(!schema.discriminator){
+    if (!schema.discriminator) {
       return
     }
 
@@ -120,7 +120,7 @@ export class Oas extends BaseOas {
 
           if (childSchema.properties) {
             childSchema.properties[propertyName] = {
-              ...(((childSchema.properties ? childSchema.properties[propertyName] : {}) as object)),
+              ...((childSchema.properties ? childSchema.properties[propertyName] : {}) as object),
               enum: [...((property as any)?.enum?.filter((value: unknown) => value !== mappingKey) ?? []), mappingKey],
             }
 
@@ -135,13 +135,11 @@ export class Oas extends BaseOas {
   }
 
   getDiscriminator(schema: OpenAPIV3_1.BaseSchemaObject): OpenAPIV3_1.SchemaObject | null {
-    if(!schema.discriminator){
+    if (!schema.discriminator) {
       return null
     }
 
-
     const { mapping = {}, propertyName } = schema.discriminator
-
 
     /**
      * Helper to extract discriminator value from a schema.
@@ -162,7 +160,7 @@ export class Oas extends BaseOas {
       }
 
       // Check if property has const value
-      const propertySchema =propertyName?  schema.properties?.[propertyName] : undefined
+      const propertySchema = propertyName ? schema.properties?.[propertyName] : undefined
       if (propertySchema && 'const' in propertySchema && propertySchema.const !== undefined) {
         return String(propertySchema.const)
       }
@@ -270,7 +268,6 @@ export class Oas extends BaseOas {
     }
 
     const visit = (schema: OpenAPIV3_1.BaseSchemaObject) => {
-
       if (isReference(schema)) {
         visit(this.get((schema as OpenAPIV3_1.ReferenceObject).$ref!)!)
         return
@@ -324,7 +321,9 @@ export class Oas extends BaseOas {
   /**
    * Oas does not have a getResponseBody(contentType)
    */
-  #getResponseBodyFactory(responseBody: boolean | OpenAPIV3_1.ResponseObject): (contentType?: string) => OpenAPIV3_1.MediaTypeObject | false | [string, OpenAPIV3_1.MediaTypeObject, ...string[]] {
+  #getResponseBodyFactory(
+    responseBody: boolean | OpenAPIV3_1.ResponseObject,
+  ): (contentType?: string) => OpenAPIV3_1.MediaTypeObject | false | [string, OpenAPIV3_1.MediaTypeObject, ...string[]] {
     function hasResponseBody(res = responseBody): res is OpenAPIV3_1.ResponseObject {
       return !!res
     }
@@ -373,7 +372,11 @@ export class Oas extends BaseOas {
       }
 
       if (availableContentType) {
-        return [availableContentType, response.content[availableContentType]! as OpenAPIV3_1.MediaTypeObject, ...(response.description ? [response.description] : [])]
+        return [
+          availableContentType,
+          response.content[availableContentType]! as OpenAPIV3_1.MediaTypeObject,
+          ...(response.description ? [response.description] : []),
+        ]
       }
 
       return false
@@ -450,7 +453,8 @@ export class Oas extends BaseOas {
 
     return params.reduce(
       (schema, pathParameters) => {
-        const property = (pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as OpenAPIV3_1.SchemaObject)) as OpenAPIV3_1.SchemaObject | null
+        const property = (pathParameters.content?.[contentType]?.schema ??
+          (pathParameters.schema as OpenAPIV3_1.SchemaObject)) as OpenAPIV3_1.SchemaObject | null
         const required =
           typeof schema.required === 'boolean'
             ? schema.required
