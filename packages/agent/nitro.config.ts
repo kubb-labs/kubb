@@ -1,5 +1,12 @@
 export default defineNitroConfig({
   srcDir: 'server',
+  alias: {
+    // @redocly/openapi-core uses an npm alias pointing 'ajv' to '@redocly/ajv'.
+    // esbuild (used by Nitro) resolves based on the physical folder structure and
+    // does not follow the alias in the lockfile/package.json metadata during bundling.
+    // Explicitly mapping 'ajv' here ensures Nitro/esbuild finds the correct package.
+    ajv: '@redocly/ajv',
+  },
   storage: {
     kubb: {
       driver: 'fs',
