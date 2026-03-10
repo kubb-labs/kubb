@@ -5,6 +5,9 @@ import type { ResponseNode } from './nodes/response.ts'
 import type { RootNode } from './nodes/root.ts'
 import type { SchemaNode } from './nodes/schema.ts'
 
+/** Distributive `Omit` that correctly distributes over union types. */
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+
 /**
  * Creates a `RootNode` with sensible defaults.
  * Overrides can be supplied to populate schemas and operations immediately.
@@ -37,13 +40,11 @@ export function createOperation(
 
 /**
  * Creates a `SchemaNode`.
- * `type` is required; all other fields are optional.
+ * `type` is required; all other fields are optional and validated against the specific variant.
+ * The return type is inferred from the input, so callers get the specific schema variant type.
  */
-export function createSchema(props: Pick<SchemaNode, 'type'> & Partial<Omit<SchemaNode, 'kind' | 'type'>>): SchemaNode {
-  return {
-    ...props,
-    kind: 'Schema',
-  }
+export function createSchema<T extends DistributiveOmit<SchemaNode, 'kind'>>(props: T): T & { kind: 'Schema' } {
+  return { ...(props as object), kind: 'Schema' } as T & { kind: 'Schema' }
 }
 
 /**

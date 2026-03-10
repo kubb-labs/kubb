@@ -15,6 +15,9 @@ import { createOperation, createParameter, createProperty, createResponse, creat
 import type { Oas, Operation, SchemaObject } from '@kubb/oas'
 import { isNullable, isReference } from '@kubb/oas'
 
+/** Distributive `Omit` that correctly distributes over union types. */
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+
 /**
  * Converts an OpenAPI/Swagger spec (wrapped in a Kubb `Oas` instance) into
  * a `RootNode` — the top-level node of the `@internals/ast` tree.
@@ -104,17 +107,18 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
     // In OAS 3.0 siblings of $ref are technically ignored, but Kubb intentionally
     // preserves them so that annotations like `pattern`, `description`, and `nullable`
     // that authors place next to a $ref are reflected in generated JSDoc / type modifiers.
-    const siblingSchema = schema as unknown as SchemaObject
+    // Cast back to SchemaObject to access sibling properties alongside $ref.
+    const schemaObject = schema as unknown as SchemaObject & { $ref: string }
     return createSchema({
       type: 'ref',
       name,
-      ref: extractRefName((schema as unknown as { $ref: string }).$ref),
-      nullable: isNullable(siblingSchema) || undefined,
-      description: siblingSchema.description,
-      deprecated: siblingSchema.deprecated,
-      pattern: siblingSchema.pattern,
-      example: siblingSchema.example,
-      default: siblingSchema.default,
+      ref: extractRefName(schemaObject.$ref),
+      nullable: isNullable(schemaObject) || undefined,
+      description: schemaObject.description,
+      deprecated: schemaObject.deprecated,
+      pattern: schemaObject.pattern,
+      example: schemaObject.example,
+      default: schemaObject.default,
     })
   }
 
@@ -139,7 +143,7 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
         default: schema.default ?? memberNode.default,
         example: schema.example ?? memberNode.example,
         pattern: schema.pattern ?? memberNode.pattern,
-      })
+      } as DistributiveOmit<SchemaNode, 'kind'>)
     }
 
     return createSchema({
@@ -268,8 +272,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       deprecated: schema.deprecated,
       readOnly: schema.readOnly,
       writeOnly: schema.writeOnly,
-      minLength: schema.minItems,
-      maxLength: schema.maxItems,
+      min: schema.minItems,
+      max: schema.maxItems,
       default: schema.default,
       example: schema.example,
     })
@@ -288,8 +292,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       writeOnly: schema.writeOnly,
       default: schema.default,
       example: schema.example,
-      minLength: schema.minLength,
-      maxLength: schema.maxLength,
+      min: schema.minLength,
+      max: schema.maxLength,
       pattern: schema.pattern,
     })
   }
@@ -307,8 +311,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       writeOnly: schema.writeOnly,
       default: schema.default,
       example: schema.example,
-      minimum: schema.minimum,
-      maximum: schema.maximum,
+      min: schema.minimum,
+      max: schema.maximum,
       exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
       exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
     })
@@ -327,8 +331,8 @@ export function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
       writeOnly: schema.writeOnly,
       default: schema.default,
       example: schema.example,
-      minimum: schema.minimum,
-      maximum: schema.maximum,
+      min: schema.minimum,
+      max: schema.maximum,
       exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
       exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
     })

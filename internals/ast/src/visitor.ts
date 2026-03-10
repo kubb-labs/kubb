@@ -16,7 +16,7 @@ import type { SchemaNode } from './nodes/schema.ts'
  * @example
  * ```ts
  * const printer: KubbVisitor = {
- *   visitOperation(node) {
+ *   operation(node) {
  *     console.log(node.operationId)
  *   },
  * }
@@ -24,17 +24,17 @@ import type { SchemaNode } from './nodes/schema.ts'
  * ```
  */
 export interface KubbVisitor {
-  visitRoot?(node: RootNode): void | RootNode
-  visitOperation?(node: OperationNode): void | OperationNode
-  visitSchema?(node: SchemaNode): void | SchemaNode
-  visitProperty?(node: PropertyNode): void | PropertyNode
-  visitParameter?(node: ParameterNode): void | ParameterNode
-  visitResponse?(node: ResponseNode): void | ResponseNode
+  root?(node: RootNode): void | RootNode
+  operation?(node: OperationNode): void | OperationNode
+  schema?(node: SchemaNode): void | SchemaNode
+  property?(node: PropertyNode): void | PropertyNode
+  parameter?(node: ParameterNode): void | ParameterNode
+  response?(node: ResponseNode): void | ResponseNode
 }
 
 /**
  * Traverses the AST rooted at `node` depth-first, calling the matching
- * `visitor.visit*` method for every node encountered.
+ * visitor method for every node encountered.
  *
  * Use `walk` for **side-effect** operations (logging, validation, …).
  * The visitor's return values are ignored.
@@ -42,7 +42,7 @@ export interface KubbVisitor {
  * @example
  * ```ts
  * walk(root, {
- *   visitOperation(op) { console.log(op.operationId) },
+ *   operation(op) { console.log(op.operationId) },
  * })
  * ```
  */
@@ -50,14 +50,14 @@ export function walk(node: Node, visitor: KubbVisitor): void {
   switch (node.kind) {
     case 'Root': {
       const root = node as RootNode
-      visitor.visitRoot?.(root)
+      visitor.root?.(root)
       for (const schema of root.schemas) walk(schema, visitor)
       for (const operation of root.operations) walk(operation, visitor)
       break
     }
     case 'Operation': {
       const op = node as OperationNode
-      visitor.visitOperation?.(op)
+      visitor.operation?.(op)
       for (const param of op.parameters) walk(param, visitor)
       if (op.requestBody) walk(op.requestBody, visitor)
       for (const response of op.responses) walk(response, visitor)
@@ -65,33 +65,33 @@ export function walk(node: Node, visitor: KubbVisitor): void {
     }
     case 'Schema': {
       const schema = node as SchemaNode
-      visitor.visitSchema?.(schema)
-      if (schema.properties) {
+      visitor.schema?.(schema)
+      if ('properties' in schema && schema.properties) {
         for (const prop of schema.properties) walk(prop, visitor)
       }
-      if (schema.items) {
+      if ('items' in schema && schema.items) {
         for (const item of schema.items) walk(item, visitor)
       }
-      if (schema.members) {
+      if ('members' in schema && schema.members) {
         for (const member of schema.members) walk(member, visitor)
       }
       break
     }
     case 'Property': {
       const prop = node as PropertyNode
-      visitor.visitProperty?.(prop)
+      visitor.property?.(prop)
       walk(prop.schema, visitor)
       break
     }
     case 'Parameter': {
       const param = node as ParameterNode
-      visitor.visitParameter?.(param)
+      visitor.parameter?.(param)
       walk(param.schema, visitor)
       break
     }
     case 'Response': {
       const response = node as ResponseNode
-      visitor.visitResponse?.(response)
+      visitor.response?.(response)
       if (response.schema) walk(response.schema, visitor)
       break
     }
@@ -100,7 +100,7 @@ export function walk(node: Node, visitor: KubbVisitor): void {
 
 /**
  * Traverses the AST rooted at `node` depth-first, optionally replacing
- * nodes with the values returned by `visitor.visit*`.
+ * nodes with the values returned by visitor methods.
  *
  * - If a visitor method returns a new node, that node **replaces** the
  *   original in the tree.
@@ -114,7 +114,7 @@ export function walk(node: Node, visitor: KubbVisitor): void {
  * @example
  * ```ts
  * const prefixed = transform(root, {
- *   visitOperation(op) {
+ *   operation(op) {
  *     return { ...op, operationId: `api_${op.operationId}` }
  *   },
  * }) as RootNode
@@ -124,7 +124,7 @@ export function transform(node: Node, visitor: KubbVisitor): Node {
   switch (node.kind) {
     case 'Root': {
       let root = node as RootNode
-      const replaced = visitor.visitRoot?.(root)
+      const replaced = visitor.root?.(root)
       if (replaced) root = replaced
 
       return {
@@ -135,7 +135,7 @@ export function transform(node: Node, visitor: KubbVisitor): Node {
     }
     case 'Operation': {
       let op = node as OperationNode
-      const replaced = visitor.visitOperation?.(op)
+      const replaced = visitor.operation?.(op)
       if (replaced) op = replaced
 
       return {
@@ -147,19 +147,19 @@ export function transform(node: Node, visitor: KubbVisitor): Node {
     }
     case 'Schema': {
       let schema = node as SchemaNode
-      const replaced = visitor.visitSchema?.(schema)
+      const replaced = visitor.schema?.(schema)
       if (replaced) schema = replaced
 
       return {
         ...schema,
-        properties: schema.properties?.map((p) => transform(p, visitor) as PropertyNode),
-        items: schema.items?.map((i) => transform(i, visitor) as SchemaNode),
-        members: schema.members?.map((m) => transform(m, visitor) as SchemaNode),
+        ...('properties' in schema ? { properties: schema.properties?.map((p) => transform(p, visitor) as PropertyNode) } : {}),
+        ...('items' in schema ? { items: schema.items?.map((i) => transform(i, visitor) as SchemaNode) } : {}),
+        ...('members' in schema ? { members: schema.members?.map((m) => transform(m, visitor) as SchemaNode) } : {}),
       } as SchemaNode
     }
     case 'Property': {
       let prop = node as PropertyNode
-      const replaced = visitor.visitProperty?.(prop)
+      const replaced = visitor.property?.(prop)
       if (replaced) prop = replaced
 
       return {
@@ -169,7 +169,7 @@ export function transform(node: Node, visitor: KubbVisitor): Node {
     }
     case 'Parameter': {
       let param = node as ParameterNode
-      const replaced = visitor.visitParameter?.(param)
+      const replaced = visitor.parameter?.(param)
       if (replaced) param = replaced
 
       return {
@@ -179,7 +179,7 @@ export function transform(node: Node, visitor: KubbVisitor): Node {
     }
     case 'Response': {
       let response = node as ResponseNode
-      const replaced = visitor.visitResponse?.(response)
+      const replaced = visitor.response?.(response)
       if (replaced) response = replaced
 
       return {
