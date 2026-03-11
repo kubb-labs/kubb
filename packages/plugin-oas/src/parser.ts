@@ -1,10 +1,11 @@
 import type {
   ArraySchemaNode,
-  CompositeSchemaNode,
   DateSchemaNode,
   DatetimeSchemaNode,
   EnumSchemaNode,
   HttpMethod,
+  IntersectionSchemaNode,
+  UnionSchemaNode,
   MediaType,
   NumberSchemaNode,
   ObjectSchemaNode,
@@ -47,13 +48,13 @@ type ResolveDateTimeNode<TDateType extends Options['dateType']> = DateTimeNodeBy
  */
 type SchemaNodeMap<TDateType extends Options['dateType'] = Options['dateType']> = [
   [{ $ref: string }, RefSchemaNode],
-  [{ allOf: ReadonlyArray<unknown> }, CompositeSchemaNode | SchemaNode],
-  [{ oneOf: ReadonlyArray<unknown> }, CompositeSchemaNode],
-  [{ anyOf: ReadonlyArray<unknown> }, CompositeSchemaNode],
+  [{ allOf: ReadonlyArray<unknown> }, IntersectionSchemaNode | SchemaNode],
+  [{ oneOf: ReadonlyArray<unknown> }, UnionSchemaNode],
+  [{ anyOf: ReadonlyArray<unknown> }, UnionSchemaNode],
   [{ const: null }, ScalarSchemaNode],
   [{ const: string | number | boolean }, EnumSchemaNode],
   // OAS 3.1 multi-type array: `{ type: ['string', 'integer'] }` → union node.
-  [{ type: ReadonlyArray<string> }, CompositeSchemaNode],
+  [{ type: ReadonlyArray<string> }, UnionSchemaNode],
   // `{ type: 'array', enum }` is normalized at runtime: enum moves into items → array node.
   [{ type: 'array'; enum: ReadonlyArray<unknown> }, ArraySchemaNode],
   [{ enum: ReadonlyArray<unknown> }, EnumSchemaNode],
@@ -320,10 +321,8 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
     // Composition: oneOf / anyOf → union
     const unionMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
     if (unionMembers.length) {
-      return createSchema({
-        type: 'union',
+      const unionBase = {
         name,
-        members: unionMembers.map((s) => convertSchema(s as SchemaObject)),
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
@@ -332,6 +331,31 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
         writeOnly: schema.writeOnly,
         default: defaultValue,
         example: schema.example,
+        discriminatorPropertyName: isDiscriminator(schema) ? schema.discriminator.propertyName : undefined,
+      }
+
+      // When the union schema also has sibling `properties`, each member is intersected with
+      // the properties schema — matching the OAS pattern of adding shared fields alongside oneOf.
+      if (schema.properties) {
+        const { oneOf: _oneOf, anyOf: _anyOf, ...schemaWithoutUnion } = schema as SchemaObject & { oneOf?: unknown[]; anyOf?: unknown[] }
+        const propertiesNode = convertSchema(schemaWithoutUnion as SchemaObject)
+
+        return createSchema({
+          type: 'union',
+          ...unionBase,
+          members: unionMembers.map((s) =>
+            createSchema({
+              type: 'intersection',
+              members: [convertSchema(s as SchemaObject), propertiesNode],
+            }),
+          ),
+        })
+      }
+
+      return createSchema({
+        type: 'union',
+        ...unionBase,
+        members: unionMembers.map((s) => convertSchema(s as SchemaObject)),
       })
     }
 

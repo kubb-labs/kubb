@@ -1,14 +1,16 @@
 import type {
   ArraySchemaNode,
-  CompositeSchemaNode,
   EnumSchemaNode,
+  IntersectionSchemaNode,
   NumberSchemaNode,
   ObjectSchemaNode,
   RefSchemaNode,
   ScalarSchemaNode,
   SchemaNode,
   StringSchemaNode,
+  UnionSchemaNode,
 } from '@internals/ast'
+import { narrowSchema } from '@internals/ast'
 import type { SchemaObject } from '@kubb/oas'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { buildMinimalOas } from './mocks/index.ts'
@@ -36,7 +38,7 @@ describe('buildAst', () => {
     it('converts object schema with properties', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const pet = root.schemas.find((s) => s.name === 'Pet') as ObjectSchemaNode | undefined
+      const pet = narrowSchema<ObjectSchemaNode>(root.schemas.find((s) => s.name === 'Pet'), 'object')
 
       expect(pet?.type).toBe('object')
       expect(pet?.properties?.map((p) => p.name)).toEqual(expect.arrayContaining(['id', 'name', 'tag']))
@@ -45,7 +47,7 @@ describe('buildAst', () => {
     it('marks required properties', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const pet = root.schemas.find((s) => s.name === 'Pet') as ObjectSchemaNode | undefined
+      const pet = narrowSchema<ObjectSchemaNode>(root.schemas.find((s) => s.name === 'Pet'), 'object')
       const idProp = pet?.properties?.find((p) => p.name === 'id')
       const tagProp = pet?.properties?.find((p) => p.name === 'tag')
 
@@ -56,7 +58,7 @@ describe('buildAst', () => {
     it('converts array schema', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const list = root.schemas.find((s) => s.name === 'PetList') as ArraySchemaNode | undefined
+      const list = narrowSchema<ArraySchemaNode>(root.schemas.find((s) => s.name === 'PetList'), 'array')
 
       expect(list?.type).toBe('array')
       expect(list?.items).toHaveLength(1)
@@ -66,7 +68,7 @@ describe('buildAst', () => {
     it('converts enum schema', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const status = root.schemas.find((s) => s.name === 'Status') as EnumSchemaNode | undefined
+      const status = narrowSchema<EnumSchemaNode>(root.schemas.find((s) => s.name === 'Status'), 'enum')
 
       expect(status?.type).toBe('enum')
       expect(status?.enumValues).toEqual(['active', 'inactive', 'pending'])
@@ -75,7 +77,7 @@ describe('buildAst', () => {
     it('converts oneOf to union', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const petOrError = root.schemas.find((s) => s.name === 'PetOrError') as CompositeSchemaNode | undefined
+      const petOrError = narrowSchema<UnionSchemaNode>(root.schemas.find((s) => s.name === 'PetOrError'), 'union')
 
       expect(petOrError?.type).toBe('union')
       expect(petOrError?.members).toHaveLength(2)
@@ -84,7 +86,7 @@ describe('buildAst', () => {
     it('converts allOf to intersection', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const fullPet = root.schemas.find((s) => s.name === 'FullPet') as CompositeSchemaNode | undefined
+      const fullPet = narrowSchema<IntersectionSchemaNode>(root.schemas.find((s) => s.name === 'FullPet'), 'intersection')
 
       expect(fullPet?.type).toBe('intersection')
       expect(fullPet?.members).toHaveLength(2)
@@ -105,7 +107,7 @@ describe('buildAst', () => {
     it('flattens single-member allOf for nullable $ref', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const nullableRef = root.schemas.find((s) => s.name === 'NullableRef') as RefSchemaNode | undefined
+      const nullableRef = narrowSchema<RefSchemaNode>(root.schemas.find((s) => s.name === 'NullableRef'), 'ref')
 
       // Should be flattened to a ref — not an intersection
       expect(nullableRef?.type).toBe('ref')
@@ -116,9 +118,9 @@ describe('buildAst', () => {
     it('maps format date-time to datetime SchemaType', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const fullPet = root.schemas.find((s) => s.name === 'FullPet') as CompositeSchemaNode | undefined
+      const fullPet = narrowSchema<IntersectionSchemaNode>(root.schemas.find((s) => s.name === 'FullPet'), 'intersection')
       // second member is an inline object with createdAt (datetime) and email
-      const objectMember = fullPet?.members?.find((m) => m.type === 'object') as ObjectSchemaNode | undefined
+      const objectMember = narrowSchema<ObjectSchemaNode>(fullPet?.members?.find((m) => m.type === 'object'), 'object')
       const createdAt = objectMember?.properties?.find((p) => p.name === 'createdAt')
 
       expect(createdAt?.schema.type).toBe('datetime')
@@ -127,8 +129,8 @@ describe('buildAst', () => {
     it('maps format email to email SchemaType', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const fullPet = root.schemas.find((s) => s.name === 'FullPet') as CompositeSchemaNode | undefined
-      const objectMember = fullPet?.members?.find((m) => m.type === 'object') as ObjectSchemaNode | undefined
+      const fullPet = narrowSchema<IntersectionSchemaNode>(root.schemas.find((s) => s.name === 'FullPet'), 'intersection')
+      const objectMember = narrowSchema<ObjectSchemaNode>(fullPet?.members?.find((m) => m.type === 'object'), 'object')
       const email = objectMember?.properties?.find((p) => p.name === 'email')
 
       expect(email?.schema.type).toBe('email')
@@ -259,16 +261,16 @@ describe('convertSchema return type narrowing', () => {
     expectTypeOf(node).toEqualTypeOf<EnumSchemaNode>()
   })
 
-  it('narrows to CompositeSchemaNode when oneOf is present', () => {
+  it('narrows to UnionSchemaNode when oneOf is present', () => {
     const node = parser.convertSchema({ oneOf: [{ type: 'string' }, { type: 'number' }] })
 
-    expectTypeOf(node).toEqualTypeOf<CompositeSchemaNode>()
+    expectTypeOf(node).toEqualTypeOf<UnionSchemaNode>()
   })
 
-  it('narrows to CompositeSchemaNode when anyOf is present', () => {
+  it('narrows to UnionSchemaNode when anyOf is present', () => {
     const node = parser.convertSchema({ anyOf: [{ type: 'string' }, { type: 'number' }] })
 
-    expectTypeOf(node).toEqualTypeOf<CompositeSchemaNode>()
+    expectTypeOf(node).toEqualTypeOf<UnionSchemaNode>()
   })
 
   it('narrows to StringSchemaNode for string type', () => {
@@ -476,6 +478,97 @@ describe('convertSchema contentMediaType (OAS 3.1)', () => {
   })
 })
 
+describe('convertSchema oneOf / anyOf', () => {
+  const parser = createOasParser()
+
+  it('maps oneOf to a union node', () => {
+    const node = parser.convertSchema({ oneOf: [{ type: 'string' }, { type: 'number' }] })
+
+    expect(node.type).toBe('union')
+  })
+
+  it('maps anyOf to a union node', () => {
+    const node = parser.convertSchema({ anyOf: [{ type: 'string' }, { type: 'number' }] })
+
+    expect(node.type).toBe('union')
+  })
+
+  it('combines oneOf and anyOf members into a single union', () => {
+    const node = parser.convertSchema({
+      oneOf: [{ type: 'string' }],
+      anyOf: [{ type: 'number' }, { type: 'boolean' }],
+    })
+
+    expect(node.type).toBe('union')
+    expect(node.members).toHaveLength(3)
+  })
+
+  it('converts each oneOf member schema', () => {
+    const node = parser.convertSchema({
+      oneOf: [{ type: 'string' }, { $ref: '#/components/schemas/Pet' }],
+    })
+
+    const members = node.members ?? []
+    expect(members[0]?.type).toBe('string')
+    expect(members[1]?.type).toBe('ref')
+  })
+
+  it('propagates nullable onto the union node', () => {
+    const node = parser.convertSchema({ oneOf: [{ type: 'string' }], nullable: true })
+
+    expect(node.nullable).toBe(true)
+  })
+
+  it('propagates metadata onto the union node', () => {
+    const node = parser.convertSchema({
+      oneOf: [{ type: 'string' }],
+      description: 'one of many',
+      deprecated: true,
+    })
+
+    expect(node.description).toBe('one of many')
+    expect(node.deprecated).toBe(true)
+  })
+
+  it('sets discriminatorPropertyName when discriminator is present', () => {
+    const node = parser.convertSchema({
+      oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+      discriminator: { propertyName: 'petType' },
+    })
+
+    expect(node.discriminatorPropertyName).toBe('petType')
+  })
+
+  it('does not set discriminatorPropertyName when discriminator is absent', () => {
+    const node = parser.convertSchema({ oneOf: [{ type: 'string' }] })
+
+    expect(node.discriminatorPropertyName).toBeUndefined()
+  })
+
+  it('intersects each member with sibling properties when properties are present', () => {
+    const node = parser.convertSchema({
+      oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+      properties: { id: { type: 'integer' } },
+    })
+
+    expect(node.type).toBe('union')
+    expect(node.members).toHaveLength(2)
+    expect(node.members?.every((m) => m.type === 'intersection')).toBe(true)
+  })
+
+  it('each intersection member contains the oneOf ref and the properties node', () => {
+    const node = parser.convertSchema({
+      oneOf: [{ $ref: '#/components/schemas/Cat' }],
+      properties: { id: { type: 'integer' } },
+    })
+
+    const intersection = narrowSchema<IntersectionSchemaNode>(node.members?.[0], 'intersection')
+    const [refMember, propsMember] = intersection?.members ?? []
+    expect(refMember?.type).toBe('ref')
+    expect(propsMember?.type).toBe('object')
+  })
+})
+
 describe('convertSchema const (OAS 3.1)', () => {
   const parser = createOasParser()
 
@@ -666,7 +759,7 @@ describe('convertSchema object properties', () => {
       type: 'object',
       required: ['id'],
       properties: { id: { type: 'integer' } },
-    }) as ObjectSchemaNode
+    })
     const prop = node.properties?.find((p) => p.name === 'id')
 
     expect(prop?.required).toBe(true)
@@ -679,7 +772,7 @@ describe('convertSchema object properties', () => {
     const node = parser.convertSchema({
       type: 'object',
       properties: { tag: { type: 'string' } },
-    }) as ObjectSchemaNode
+    })
     const prop = node.properties?.find((p) => p.name === 'tag')
 
     expect(prop?.required).toBe(false)
@@ -692,7 +785,7 @@ describe('convertSchema object properties', () => {
     const node = parser.convertSchema({
       type: 'object',
       properties: { tag: { type: 'string', nullable: true } },
-    }) as ObjectSchemaNode
+    })
     const prop = node.properties?.find((p) => p.name === 'tag')
 
     expect(prop?.required).toBe(false)
@@ -706,7 +799,7 @@ describe('convertSchema object properties', () => {
       type: 'object',
       required: ['tag'],
       properties: { tag: { type: 'string', nullable: true } },
-    }) as ObjectSchemaNode
+    })
     const prop = node.properties?.find((p) => p.name === 'tag')
 
     expect(prop?.required).toBe(true)
@@ -720,7 +813,7 @@ describe('convertSchema object properties', () => {
       type: 'object',
       required: true as unknown as string[],
       properties: { id: { type: 'integer' }, tag: { type: 'string' } },
-    }) as ObjectSchemaNode
+    })
 
     const id = node.properties?.find((p) => p.name === 'id')
     const tag = node.properties?.find((p) => p.name === 'tag')
@@ -893,8 +986,9 @@ describe('convertSchema object discriminator', () => {
     })
 
     const petTypeProp = node.properties?.find((p) => p.name === 'petType')
-    expect(petTypeProp?.schema.type).toBe('enum')
-    expect((petTypeProp?.schema as EnumSchemaNode).enumValues).toEqual(['Cat', 'Dog'])
+    const petTypeSchema = narrowSchema<EnumSchemaNode>(petTypeProp?.schema, 'enum')
+    expect(petTypeSchema?.type).toBe('enum')
+    expect(petTypeSchema?.enumValues).toEqual(['Cat', 'Dog'])
   })
 
   it('leaves other properties unchanged when discriminator is present', () => {
@@ -1054,7 +1148,7 @@ describe('convertSchema nullable', () => {
   })
 
   it('strips null from enum values when nullable via null in enum', () => {
-    const node = parser.convertSchema({ enum: ['a', 'b', null] }) as EnumSchemaNode
+    const node = parser.convertSchema({ enum: ['a', 'b', null] })
 
     expect(node.enumValues).toEqual(['a', 'b'])
   })
@@ -1294,7 +1388,7 @@ describe('convertSchema enum', () => {
 
     expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
     expect(node.type).toBe('array')
-    const itemNode = node.items?.[0] as EnumSchemaNode | undefined
+    const itemNode = narrowSchema<EnumSchemaNode>(node.items?.[0], 'enum')
     expect(itemNode?.type).toBe('enum')
     expect(itemNode?.enumValues).toEqual(['x', 'y'])
   })
@@ -1304,7 +1398,7 @@ describe('convertSchema enum', () => {
 
     expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
     expect(node.type).toBe('array')
-    const itemNode = node.items?.[0] as EnumSchemaNode | undefined
+    const itemNode = narrowSchema<EnumSchemaNode>(node.items?.[0], 'enum')
     expect(itemNode?.type).toBe('enum')
     expect(itemNode?.enumValues).toEqual(['x', 'y'])
   })
@@ -1329,10 +1423,10 @@ describe('convertSchema null', () => {
 describe('convertSchema OAS 3.1 type array', () => {
   const parser = createOasParser()
 
-  it('narrows to CompositeSchemaNode for a multi-type array', () => {
+  it('narrows to UnionSchemaNode for a multi-type array', () => {
     const node = parser.convertSchema({ type: ['string', 'integer'] })
 
-    expectTypeOf(node).toEqualTypeOf<CompositeSchemaNode>()
+    expectTypeOf(node).toEqualTypeOf<UnionSchemaNode>()
   })
 
   it('produces a union node for two non-null types', () => {
@@ -1483,7 +1577,7 @@ describe('convertSchema pattern', () => {
     const node = parser.convertSchema({ type: 'number', pattern: '^[0-9]+$' })
 
     expect(node.type).toBe('number')
-    expect((node as unknown as { pattern?: string }).pattern).toBeUndefined()
+    expect('pattern' in node ? (node as { pattern?: string }).pattern : undefined).toBeUndefined()
   })
 
   it('preserves nullable on a pattern string', () => {
@@ -1571,7 +1665,7 @@ describe('convertSchema array', () => {
 
   it('converts nested array items recursively', () => {
     const node = parser.convertSchema({ type: 'array', items: { type: 'array', items: { type: 'number' } } })
-    const outerItem = node.items?.[0] as ArraySchemaNode | undefined
+    const outerItem = narrowSchema<ArraySchemaNode>(node.items?.[0], 'array')
     const innerItem = outerItem?.items?.[0]
 
     expect(node.type).toBe('array')

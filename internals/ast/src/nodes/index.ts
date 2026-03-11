@@ -9,11 +9,11 @@ export type {
   ScalarSchemaType,
   ArraySchemaNode,
   ComplexSchemaType,
-  CompositeSchemaNode,
   DateSchemaNode,
   DatetimeSchemaNode,
   EnumSchemaNode,
   EnumValueNode,
+  IntersectionSchemaNode,
   NumberSchemaNode,
   ObjectSchemaNode,
   PrimitiveSchemaType,
@@ -24,5 +24,6 @@ export type {
   SpecialSchemaType,
   StringSchemaNode,
   TimeSchemaNode,
+  UnionSchemaNode,
 } from './schema.ts'
 export { schemaTypes } from './schema.ts'

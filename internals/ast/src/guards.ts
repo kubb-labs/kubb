@@ -6,6 +6,18 @@ import type { ResponseNode } from './nodes/response.ts'
 import type { RootNode } from './nodes/root.ts'
 import type { SchemaNode } from './nodes/schema.ts'
 
+/**
+ * Narrows a `SchemaNode` (or `undefined`) to a specific variant by matching its `type`.
+ * Returns the narrowed node when it matches, or `undefined` otherwise.
+ *
+ * @example
+ * const obj = narrowSchema(node, 'object')  // ObjectSchemaNode | undefined
+ * const union = narrowSchema(node, 'union') // UnionSchemaNode | undefined
+ */
+export function narrowSchema<T extends SchemaNode>(node: SchemaNode | undefined, type: T['type']): T | undefined {
+  return node?.type === type ? (node as T) : undefined
+}
+
 function isKind<T extends Node>(kind: NodeKind) {
   return (node: Node): node is T => node.kind === kind
 }

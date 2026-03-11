@@ -142,10 +142,22 @@ export interface ArraySchemaNode extends SchemaNodeBase {
   unique?: boolean
 }
 
-/** Schema for `'union'` and `'intersection'` types — carries member schemas. */
-export interface CompositeSchemaNode extends SchemaNodeBase {
-  type: 'union' | 'intersection'
-  /** Member schemas for union / intersection. */
+/** Schema for `'union'` type (`oneOf` / `anyOf` / multi-type arrays). */
+export interface UnionSchemaNode extends SchemaNodeBase {
+  type: 'union'
+  /** Member schemas of the union. */
+  members?: Array<SchemaNode>
+  /**
+   * The name of the property used as a discriminator to select among union members.
+   * Sourced from the OAS `discriminator.propertyName` field on the parent schema.
+   */
+  discriminatorPropertyName?: string
+}
+
+/** Schema for `'intersection'` type (`allOf`). */
+export interface IntersectionSchemaNode extends SchemaNodeBase {
+  type: 'intersection'
+  /** Member schemas of the intersection. */
   members?: Array<SchemaNode>
 }
 
@@ -276,7 +288,8 @@ export interface ScalarSchemaNode extends SchemaNodeBase {
 export type SchemaNode =
   | ObjectSchemaNode
   | ArraySchemaNode
-  | CompositeSchemaNode
+  | UnionSchemaNode
+  | IntersectionSchemaNode
   | EnumSchemaNode
   | RefSchemaNode
   | DatetimeSchemaNode

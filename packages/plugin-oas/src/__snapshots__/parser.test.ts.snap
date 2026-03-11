@@ -470,6 +470,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "default": undefined,
       "deprecated": undefined,
       "description": undefined,
+      "discriminatorPropertyName": undefined,
       "example": undefined,
       "kind": "Schema",
       "members": [
@@ -1058,6 +1059,7 @@ exports[`buildAst snapshots > schema 'PetOrError' ('oneOf / union') 1`] = `
   "default": undefined,
   "deprecated": undefined,
   "description": undefined,
+  "discriminatorPropertyName": undefined,
   "example": undefined,
   "kind": "Schema",
   "members": [

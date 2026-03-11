@@ -3,18 +3,18 @@
 // factory
 export { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from './factory.ts'
 // guards
-export { isOperationNode, isParameterNode, isPropertyNode, isResponseNode, isRootNode, isSchemaNode } from './guards.ts'
+export { isOperationNode, isParameterNode, isPropertyNode, isResponseNode, isRootNode, isSchemaNode, narrowSchema } from './guards.ts'
 export type {
   ScalarSchemaType,
   ArraySchemaNode,
   BaseNode,
   ComplexSchemaType,
-  CompositeSchemaNode,
   DateSchemaNode,
   DatetimeSchemaNode,
   EnumSchemaNode,
   EnumValueNode,
   HttpMethod,
+  IntersectionSchemaNode,
   HttpStatusCode,
   MediaType,
   Node,
@@ -36,6 +36,7 @@ export type {
   StatusCode,
   StringSchemaNode,
   TimeSchemaNode,
+  UnionSchemaNode,
 } from './nodes/index.ts'
 export { schemaTypes } from './nodes/index.ts'
 // refs
