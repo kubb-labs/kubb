@@ -1,162 +1,13 @@
-import type { ArraySchemaNode, CompositeSchemaNode, EnumSchemaNode, ObjectSchemaNode, RefSchemaNode } from '@internals/ast'
-import { parse } from '@kubb/oas'
-import { describe, expect, it } from 'vitest'
+import type { ArraySchemaNode, CompositeSchemaNode, EnumSchemaNode, ObjectSchemaNode, RefSchemaNode, ScalarSchemaNode, SchemaNode } from '@internals/ast'
+import { describe, expect, expectTypeOf, it } from 'vitest'
+import { buildMinimalOas } from './mocks/index.ts'
 import { createOasParser } from './parser.ts'
-
-async function buildMinimalOas() {
-  return parse({
-    openapi: '3.0.3',
-    info: { title: 'Test', version: '1.0.0' },
-    paths: {
-      '/pets': {
-        get: {
-          operationId: 'listPets',
-          summary: 'List all pets',
-          tags: ['pets'],
-          parameters: [
-            {
-              name: 'limit',
-              in: 'query',
-              required: false,
-              schema: { type: 'integer', minimum: 1, maximum: 100 },
-            },
-          ],
-          responses: {
-            '200': {
-              description: 'A list of pets',
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/PetList' },
-                },
-              },
-            },
-            '400': {
-              description: 'Bad request',
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/Error' },
-                },
-              },
-            },
-          },
-        },
-        post: {
-          operationId: 'createPet',
-          tags: ['pets'],
-          deprecated: true,
-          requestBody: {
-            required: true,
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/NewPet' },
-              },
-            },
-          },
-          responses: {
-            '201': {
-              description: 'Pet created',
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/Pet' },
-                },
-              },
-            },
-          },
-        },
-      },
-      '/pets/{petId}': {
-        get: {
-          operationId: 'getPetById',
-          tags: ['pets'],
-          parameters: [
-            {
-              name: 'petId',
-              in: 'path',
-              required: true,
-              schema: { type: 'integer' },
-            },
-          ],
-          responses: {
-            '200': {
-              description: 'A single pet',
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/Pet' },
-                },
-              },
-            },
-            '404': { description: 'Not found' },
-          },
-        },
-      },
-    },
-    components: {
-      schemas: {
-        Pet: {
-          type: 'object',
-          required: ['id', 'name'],
-          properties: {
-            id: { type: 'integer', readOnly: true },
-            name: { type: 'string' },
-            tag: { type: 'string', nullable: true },
-          },
-        },
-        NewPet: {
-          type: 'object',
-          required: ['name'],
-          properties: {
-            name: { type: 'string' },
-            tag: { type: 'string' },
-          },
-        },
-        PetList: {
-          type: 'array',
-          items: { $ref: '#/components/schemas/Pet' },
-        },
-        Error: {
-          type: 'object',
-          required: ['code', 'message'],
-          properties: {
-            code: { type: 'integer' },
-            message: { type: 'string' },
-          },
-        },
-        Status: {
-          type: 'string',
-          enum: ['active', 'inactive', 'pending'],
-        },
-        PetOrError: {
-          oneOf: [{ $ref: '#/components/schemas/Pet' }, { $ref: '#/components/schemas/Error' }],
-        },
-        FullPet: {
-          allOf: [
-            { $ref: '#/components/schemas/Pet' },
-            {
-              type: 'object',
-              properties: {
-                createdAt: { type: 'string', format: 'date-time' },
-                email: { type: 'string', format: 'email' },
-              },
-            },
-          ],
-        },
-        NullableString: {
-          example: 'some-value',
-          readOnly: true,
-          allOf: [{ type: 'string', nullable: true }],
-        },
-        NullableRef: {
-          allOf: [{ $ref: '#/components/schemas/Pet', nullable: true }],
-        },
-      },
-    },
-  })
-}
 
 describe('buildAst', () => {
   it('returns a RootNode', async () => {
     const oas = await buildMinimalOas()
     const root = createOasParser().buildAst(oas)
+
     expect(root.kind).toBe('Root')
   })
 
@@ -165,6 +16,7 @@ describe('buildAst', () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
       const names = root.schemas.map((s) => s.name)
+
       expect(names).toContain('Pet')
       expect(names).toContain('NewPet')
       expect(names).toContain('Error')
@@ -174,6 +26,7 @@ describe('buildAst', () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
       const pet = root.schemas.find((s) => s.name === 'Pet') as ObjectSchemaNode | undefined
+
       expect(pet?.type).toBe('object')
       expect(pet?.properties?.map((p) => p.name)).toEqual(expect.arrayContaining(['id', 'name', 'tag']))
     })
@@ -184,6 +37,7 @@ describe('buildAst', () => {
       const pet = root.schemas.find((s) => s.name === 'Pet') as ObjectSchemaNode | undefined
       const idProp = pet?.properties?.find((p) => p.name === 'id')
       const tagProp = pet?.properties?.find((p) => p.name === 'tag')
+
       expect(idProp?.required).toBe(true)
       expect(tagProp?.required).toBe(false)
     })
@@ -192,6 +46,7 @@ describe('buildAst', () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
       const list = root.schemas.find((s) => s.name === 'PetList') as ArraySchemaNode | undefined
+
       expect(list?.type).toBe('array')
       expect(list?.items).toHaveLength(1)
       expect(list?.items?.[0]?.type).toBe('ref')
@@ -201,6 +56,7 @@ describe('buildAst', () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
       const status = root.schemas.find((s) => s.name === 'Status') as EnumSchemaNode | undefined
+
       expect(status?.type).toBe('enum')
       expect(status?.enumValues).toEqual(['active', 'inactive', 'pending'])
     })
@@ -209,6 +65,7 @@ describe('buildAst', () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
       const petOrError = root.schemas.find((s) => s.name === 'PetOrError') as CompositeSchemaNode | undefined
+
       expect(petOrError?.type).toBe('union')
       expect(petOrError?.members).toHaveLength(2)
     })
@@ -217,6 +74,7 @@ describe('buildAst', () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
       const fullPet = root.schemas.find((s) => s.name === 'FullPet') as CompositeSchemaNode | undefined
+
       expect(fullPet?.type).toBe('intersection')
       expect(fullPet?.members).toHaveLength(2)
     })
@@ -225,6 +83,7 @@ describe('buildAst', () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
       const nullableString = root.schemas.find((s) => s.name === 'NullableString')
+
       // Should be flattened to 'string' — not an intersection
       expect(nullableString?.type).toBe('string')
       expect(nullableString?.nullable).toBe(true)
@@ -236,6 +95,7 @@ describe('buildAst', () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
       const nullableRef = root.schemas.find((s) => s.name === 'NullableRef') as RefSchemaNode | undefined
+
       // Should be flattened to a ref — not an intersection
       expect(nullableRef?.type).toBe('ref')
       expect(nullableRef?.ref).toBe('Pet')
@@ -249,6 +109,7 @@ describe('buildAst', () => {
       // second member is an inline object with createdAt (datetime) and email
       const objectMember = fullPet?.members?.find((m) => m.type === 'object') as ObjectSchemaNode | undefined
       const createdAt = objectMember?.properties?.find((p) => p.name === 'createdAt')
+
       expect(createdAt?.schema.type).toBe('datetime')
     })
 
@@ -258,6 +119,7 @@ describe('buildAst', () => {
       const fullPet = root.schemas.find((s) => s.name === 'FullPet') as CompositeSchemaNode | undefined
       const objectMember = fullPet?.members?.find((m) => m.type === 'object') as ObjectSchemaNode | undefined
       const email = objectMember?.properties?.find((p) => p.name === 'email')
+
       expect(email?.schema.type).toBe('email')
     })
   })
@@ -266,6 +128,7 @@ describe('buildAst', () => {
     it('converts all operations', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
+
       expect(root.operations).toHaveLength(3)
     })
 
@@ -273,6 +136,7 @@ describe('buildAst', () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
       const listPets = root.operations.find((op) => op.operationId === 'listPets')
+
       expect(listPets?.method).toBe('GET')
       expect(listPets?.path).toBe('/pets')
       expect(listPets?.tags).toContain('pets')
@@ -283,6 +147,7 @@ describe('buildAst', () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
+
       expect(createPet?.deprecated).toBe(true)
     })
 
@@ -299,6 +164,7 @@ describe('buildAst', () => {
       const root = createOasParser().buildAst(oas)
       const listPets = root.operations.find((op) => op.operationId === 'listPets')
       const limit = listPets?.parameters.find((p) => p.name === 'limit')
+
       expect(limit?.in).toBe('query')
       expect(limit?.required).toBe(false)
       expect(limit?.schema.type).toBe('integer')
@@ -309,6 +175,7 @@ describe('buildAst', () => {
       const root = createOasParser().buildAst(oas)
       const getPet = root.operations.find((op) => op.operationId === 'getPetById')
       const petId = getPet?.parameters.find((p) => p.name === 'petId')
+
       expect(petId?.in).toBe('path')
       expect(petId?.required).toBe(true)
       expect(petId?.schema.type).toBe('integer')
@@ -318,6 +185,7 @@ describe('buildAst', () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
+
       expect(createPet?.requestBody).toBeDefined()
       expect(createPet?.requestBody?.type).toBe('ref')
     })
@@ -327,6 +195,7 @@ describe('buildAst', () => {
       const root = createOasParser().buildAst(oas)
       const listPets = root.operations.find((op) => op.operationId === 'listPets')
       const ok = listPets?.responses.find((r) => r.statusCode === '200')
+
       expect(ok?.description).toBe('A list of pets')
       expect(ok?.schema?.type).toBe('ref')
     })
@@ -336,6 +205,7 @@ describe('buildAst', () => {
       const root = createOasParser().buildAst(oas)
       const getPet = root.operations.find((op) => op.operationId === 'getPetById')
       const notFound = getPet?.responses.find((r) => r.statusCode === '404')
+
       expect(notFound?.description).toBe('Not found')
       expect(notFound?.schema).toBeUndefined()
     })
@@ -345,7 +215,218 @@ describe('buildAst', () => {
       const root = createOasParser().buildAst(oas)
       const listPets = root.operations.find((op) => op.operationId === 'listPets')
       const ok = listPets?.responses.find((r) => r.statusCode === '200')
+
       expect(ok?.mediaType).toBe('application/json')
+    })
+  })
+})
+
+describe('convertSchema return type narrowing', () => {
+  const parser = createOasParser()
+
+  it('narrows to RefSchemaNode when $ref is present', () => {
+    const node = parser.convertSchema({ $ref: '#/components/schemas/Pet' })
+    expectTypeOf(node).toEqualTypeOf<RefSchemaNode>()
+  })
+
+  it('narrows to ObjectSchemaNode when type is object', () => {
+    const node = parser.convertSchema({ type: 'object' })
+    expectTypeOf(node).toEqualTypeOf<ObjectSchemaNode>()
+  })
+
+  it('narrows to ArraySchemaNode when type is array', () => {
+    const node = parser.convertSchema({ type: 'array' })
+    expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
+  })
+
+  it('narrows to EnumSchemaNode when enum is present', () => {
+    const node = parser.convertSchema({ enum: ['a', 'b'] })
+    expectTypeOf(node).toEqualTypeOf<EnumSchemaNode>()
+  })
+
+  it('narrows to CompositeSchemaNode when oneOf is present', () => {
+    const node = parser.convertSchema({ oneOf: [{ type: 'string' }, { type: 'number' }] })
+    expectTypeOf(node).toEqualTypeOf<CompositeSchemaNode>()
+  })
+
+  it('narrows to CompositeSchemaNode when anyOf is present', () => {
+    const node = parser.convertSchema({ anyOf: [{ type: 'string' }, { type: 'number' }] })
+    expectTypeOf(node).toEqualTypeOf<CompositeSchemaNode>()
+  })
+
+  it('narrows to ScalarSchemaNode for string type', () => {
+    const node = parser.convertSchema({ type: 'string' })
+    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+  })
+
+  it('narrows to ScalarSchemaNode for number type', () => {
+    const node = parser.convertSchema({ type: 'number' })
+    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+  })
+
+  it('narrows to ScalarSchemaNode for integer type', () => {
+    const node = parser.convertSchema({ type: 'integer' })
+    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+  })
+
+  it('narrows to ScalarSchemaNode for boolean type', () => {
+    const node = parser.convertSchema({ type: 'boolean' })
+    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+  })
+
+  it('falls back to SchemaNode for an untyped empty schema', () => {
+    const node = parser.convertSchema({})
+    expectTypeOf(node).toEqualTypeOf<SchemaNode>()
+  })
+})
+
+describe('convertSchema constraints', () => {
+  const parser = createOasParser()
+
+  describe('array: minItems / maxItems', () => {
+    it('maps minItems to min', () => {
+      const node = parser.convertSchema({ type: 'array', minItems: 2 })
+
+      expect(node.min).toBe(2)
+    })
+
+    it('maps maxItems to max', () => {
+      const node = parser.convertSchema({ type: 'array', maxItems: 10 })
+
+      expect(node.max).toBe(10)
+    })
+
+    it('maps both minItems and maxItems', () => {
+      const node = parser.convertSchema({ type: 'array', minItems: 1, maxItems: 5 })
+
+      expect(node.min).toBe(1)
+      expect(node.max).toBe(5)
+    })
+
+    it('leaves min/max undefined when not set', () => {
+      const node = parser.convertSchema({ type: 'array' })
+
+      expect(node.min).toBeUndefined()
+      expect(node.max).toBeUndefined()
+    })
+  })
+
+  describe('string: minLength / maxLength', () => {
+    it('maps minLength to min', () => {
+      const node = parser.convertSchema({ type: 'string', minLength: 3 })
+
+      expect(node.min).toBe(3)
+    })
+
+    it('maps maxLength to max', () => {
+      const node = parser.convertSchema({ type: 'string', maxLength: 255 })
+
+      expect(node.max).toBe(255)
+    })
+
+    it('maps both minLength and maxLength', () => {
+      const node = parser.convertSchema({ type: 'string', minLength: 1, maxLength: 100 })
+
+      expect(node.min).toBe(1)
+      expect(node.max).toBe(100)
+    })
+
+    it('leaves min/max undefined when not set', () => {
+      const node = parser.convertSchema({ type: 'string' })
+
+      expect(node.min).toBeUndefined()
+      expect(node.max).toBeUndefined()
+    })
+  })
+
+  describe('number: minimum / maximum', () => {
+    it('maps minimum to min', () => {
+      const node = parser.convertSchema({ type: 'number', minimum: 0 })
+
+      expect(node.min).toBe(0)
+    })
+
+    it('maps maximum to max', () => {
+      const node = parser.convertSchema({ type: 'number', maximum: 999 })
+      expect(node.max).toBe(999)
+    })
+
+    it('maps both minimum and maximum', () => {
+      const node = parser.convertSchema({ type: 'number', minimum: 1, maximum: 100 })
+
+      expect(node.min).toBe(1)
+      expect(node.max).toBe(100)
+    })
+
+    it('maps numeric exclusiveMinimum', () => {
+      const node = parser.convertSchema({ type: 'number', exclusiveMinimum: 0 })
+
+      expect(node.exclusiveMinimum).toBe(0)
+    })
+
+    it('maps numeric exclusiveMaximum', () => {
+      const node = parser.convertSchema({ type: 'number', exclusiveMaximum: 100 })
+
+      expect(node.exclusiveMaximum).toBe(100)
+    })
+
+    it('ignores boolean exclusiveMinimum (OAS 3.0 style)', () => {
+      const node = parser.convertSchema({ type: 'number', exclusiveMinimum: true })
+
+      expect(node.exclusiveMinimum).toBeUndefined()
+    })
+
+    it('leaves min/max undefined when not set', () => {
+      const node = parser.convertSchema({ type: 'number' })
+
+      expect(node.min).toBeUndefined()
+      expect(node.max).toBeUndefined()
+    })
+  })
+
+  describe('integer: minimum / maximum', () => {
+    it('maps minimum to min', () => {
+      const node = parser.convertSchema({ type: 'integer', minimum: 1 })
+
+      expect(node.min).toBe(1)
+    })
+
+    it('maps maximum to max', () => {
+      const node = parser.convertSchema({ type: 'integer', maximum: 100 })
+
+      expect(node.max).toBe(100)
+    })
+
+    it('maps both minimum and maximum', () => {
+      const node = parser.convertSchema({ type: 'integer', minimum: 1, maximum: 100 })
+
+      expect(node.min).toBe(1)
+      expect(node.max).toBe(100)
+    })
+
+    it('maps numeric exclusiveMinimum', () => {
+      const node = parser.convertSchema({ type: 'integer', exclusiveMinimum: 0 })
+
+      expect(node.exclusiveMinimum).toBe(0)
+    })
+
+    it('maps numeric exclusiveMaximum', () => {
+      const node = parser.convertSchema({ type: 'integer', exclusiveMaximum: 100 })
+
+      expect(node.exclusiveMaximum).toBe(100)
+    })
+
+    it('ignores boolean exclusiveMinimum (OAS 3.0 style)', () => {
+      const node = parser.convertSchema({ type: 'integer', exclusiveMinimum: true })
+
+      expect(node.exclusiveMinimum).toBeUndefined()
+    })
+
+    it('leaves min/max undefined when not set', () => {
+      const node = parser.convertSchema({ type: 'integer' })
+
+      expect(node.min).toBeUndefined()
+      expect(node.max).toBeUndefined()
     })
   })
 })
@@ -355,30 +436,35 @@ describe('createOasParser options', () => {
     it('defaults to unknown for a schema with no type information', () => {
       const parser = createOasParser()
       const node = parser.convertSchema({})
+
       expect(node.type).toBe('unknown')
     })
 
     it('emptySchemaType: any returns any for an empty schema', () => {
       const parser = createOasParser({ emptySchemaType: 'any' })
       const node = parser.convertSchema({})
+
       expect(node.type).toBe('any')
     })
 
     it('emptySchemaType: void returns void for an empty schema', () => {
       const parser = createOasParser({ emptySchemaType: 'void' })
       const node = parser.convertSchema({})
+
       expect(node.type).toBe('void')
     })
 
     it('emptySchemaType: unknown returns unknown for an empty schema', () => {
       const parser = createOasParser({ emptySchemaType: 'unknown' })
       const node = parser.convertSchema({})
+
       expect(node.type).toBe('unknown')
     })
 
     it('emptySchemaType does not affect typed schemas', () => {
       const parser = createOasParser({ emptySchemaType: 'any' })
       const node = parser.convertSchema({ type: 'string' })
+
       expect(node.type).toBe('string')
     })
   })

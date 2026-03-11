@@ -1,12 +1,18 @@
 import type {
+  ArraySchemaNode,
+  CompositeSchemaNode,
+  EnumSchemaNode,
   HttpMethod,
   MediaType,
+  ObjectSchemaNode,
   OperationNode,
   ParameterLocation,
   ParameterNode,
   PropertyNode,
+  RefSchemaNode,
   ResponseNode,
   RootNode,
+  ScalarSchemaNode,
   SchemaNode,
   SchemaType,
   SpecialSchemaType,
@@ -18,6 +24,38 @@ import { isNullable, isReference } from '@kubb/oas'
 
 /** Distributive `Omit` that correctly distributes over union types. */
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+
+/**
+ * Narrows the return type of `convertSchema` based on the discriminating
+ * fields present in the input `SchemaObject`.
+ *
+ * Resolution order matches the runtime branches inside `convertSchema`:
+ *  1. `$ref` present              → `RefSchemaNode`
+ *  2. `allOf` present             → `CompositeSchemaNode` (intersection) or the flattened member type
+ *  3. `oneOf` / `anyOf` present   → `CompositeSchemaNode` (union)
+ *  4. `enum` present              → `EnumSchemaNode`
+ *  5. `type === 'object'`         → `ObjectSchemaNode`
+ *  6. `type === 'array'`          → `ArraySchemaNode`
+ *  7. any other `type`            → `ScalarSchemaNode`
+ *  8. no discriminating field     → `SchemaNode` (wide fallback)
+ */
+type InferSchemaNode<T extends SchemaObject> = T extends { $ref: string }
+  ? RefSchemaNode
+  : T extends { allOf: ReadonlyArray<unknown> }
+    ? CompositeSchemaNode | SchemaNode
+    : T extends { oneOf: ReadonlyArray<unknown> }
+      ? CompositeSchemaNode
+      : T extends { anyOf: ReadonlyArray<unknown> }
+        ? CompositeSchemaNode
+        : T extends { enum: ReadonlyArray<unknown> }
+          ? EnumSchemaNode
+          : T extends { type: 'object' }
+            ? ObjectSchemaNode
+            : T extends { type: 'array' }
+              ? ArraySchemaNode
+              : T extends { type: string }
+                ? ScalarSchemaNode
+                : SchemaNode
 
 type Options = {
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
@@ -93,7 +131,7 @@ function toMediaType(contentType: string): MediaType | undefined {
  * ```ts
  * const parser = createOasParser({ emptySchemaType: 'unknown' })
  * const root = parser.buildAst(oas)
- * const node = parser.convertSchema({ schema: schemaObject, name: 'Pet' })
+ * const node = parser.convertSchema(schemaObject, 'Pet')
  * ```
  */
 export function createOasParser(userOptions?: Partial<Options>) {
@@ -110,6 +148,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
     return schemaTypes.unknown
   }
 
+  function convertSchema<T extends SchemaObject>(schema: T, name?: string): InferSchemaNode<T>
   function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
     const emptyType = getEmptyType(options.emptySchemaType)
 
@@ -140,7 +179,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
       // a primitive with extra constraints (e.g. `allOf: [{ type: 'string', nullable: true }]`).
       if (schema.allOf.length === 1 && !schema.properties) {
         const [memberSchema] = schema.allOf as SchemaObject[]
-        const memberNode = convertSchema({ schema: memberSchema! })
+        const memberNode = convertSchema(memberSchema!)
         const { kind: _kind, ...memberNodeProps } = memberNode
         return createSchema({
           ...memberNodeProps,
@@ -160,7 +199,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
       return createSchema({
         type: 'intersection',
         name,
-        members: schema.allOf.map((s) => convertSchema({ schema: s as SchemaObject })),
+        members: schema.allOf.map((s) => convertSchema(s as SchemaObject)),
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
@@ -178,7 +217,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
       return createSchema({
         type: 'union',
         name,
-        members: unionMembers.map((s) => convertSchema({ schema: s as SchemaObject })),
+        members: unionMembers.map((s) => convertSchema(s as SchemaObject)),
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
@@ -244,7 +283,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
             return createProperty({
               name: propName,
               schema: {
-                ...convertSchema({ schema: resolvedSchema }),
+                ...convertSchema(resolvedSchema),
                 nullable: nullable || undefined,
                 optional: !required && !nullable ? true : undefined,
                 nullish: !required && nullable ? true : undefined,
@@ -272,7 +311,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
     // Array
     if (type === 'array') {
       const rawSchema = schema as unknown as { items?: SchemaObject }
-      const items = rawSchema.items ? [convertSchema({ schema: rawSchema.items })] : []
+      const items = rawSchema.items ? [convertSchema(rawSchema.items)] : []
       return createSchema({
         type: 'array',
         name,
@@ -383,7 +422,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
 
   function convertParameter(param: Record<string, unknown>): ParameterNode {
     const schema =
-      param['schema'] && !isReference(param['schema'] as object) ? convertSchema({ schema: param['schema'] as SchemaObject }) : createSchema({ type: 'any' })
+      param['schema'] && !isReference(param['schema'] as object) ? convertSchema(param['schema'] as SchemaObject) : createSchema({ type: 'any' })
 
     return createParameter({
       name: param['name'] as string,
@@ -401,13 +440,13 @@ export function createOasParser(userOptions?: Partial<Options>) {
     })
 
     const requestBodySchema = oas.getRequestSchema(operation)
-    const requestBody = requestBodySchema ? convertSchema({ schema: requestBodySchema }) : undefined
+    const requestBody = requestBodySchema ? convertSchema(requestBodySchema) : undefined
 
     const responses: Array<ResponseNode> = operation.getResponseStatusCodes().map((statusCode) => {
       const responseObj = operation.getResponseByStatusCode(statusCode)
       const responseSchema = oas.getResponseSchema(operation, statusCode)
 
-      const schema = responseSchema && Object.keys(responseSchema).length > 0 ? convertSchema({ schema: responseSchema }) : undefined
+      const schema = responseSchema && Object.keys(responseSchema).length > 0 ? convertSchema(responseSchema) : undefined
 
       const description = typeof responseObj === 'object' && responseObj !== null && !Array.isArray(responseObj) ? responseObj.description : undefined
 
@@ -447,7 +486,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
   function buildAst(oas: Oas): RootNode {
     const { schemas: schemaObjects } = oas.getSchemas()
 
-    const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) => convertSchema({ schema: schemaObject, name }))
+    const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) => convertSchema(schemaObject, name))
 
     const paths = oas.getPaths()
 
