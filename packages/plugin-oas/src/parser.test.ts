@@ -321,6 +321,35 @@ describe('convertSchema uuid', () => {
   })
 })
 
+describe('convertSchema email', () => {
+  const parser = createOasParser()
+
+  it('maps format email to email', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'email' })
+
+    expect(node.type).toBe('email')
+  })
+
+  it('maps format idn-email to email', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'idn-email' })
+
+    expect(node.type).toBe('email')
+  })
+
+  it('maps format email without type to email (format overrides type)', () => {
+    const node = parser.convertSchema({ format: 'email' })
+
+    expect(node.type).toBe('email')
+  })
+
+  it('preserves nullable on email', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'email', nullable: true })
+
+    expect(node.type).toBe('email')
+    expect(node.nullable).toBe(true)
+  })
+})
+
 describe('convertSchema binary', () => {
   const parser = createOasParser()
 

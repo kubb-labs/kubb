@@ -70,6 +70,7 @@ const FORMAT_MAP: Record<string, SchemaType> = {
   time: 'time',
   uuid: 'uuid',
   email: 'email',
+  'idn-email': 'email',
   uri: 'url',
   url: 'url',
   binary: 'blob',
