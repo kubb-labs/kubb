@@ -143,6 +143,10 @@ export type Options = {
    * Unstable naming for v5
    */
   UNSTABLE_NAMING?: true
+  /**
+   * Unstable code generation for v5, use with caution and report any issues you find
+   */
+  UNSTABLE_SCHEMA?: true
 }
 
 type ResolvedOptions = {
@@ -162,6 +166,7 @@ type ResolvedOptions = {
   syntaxType: NonNullable<Options['syntaxType']>
   mapper: Record<string, any>
   paramsCasing: Options['paramsCasing']
+  UNSTABLE_SCHEMA: Options['UNSTABLE_SCHEMA']
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions>

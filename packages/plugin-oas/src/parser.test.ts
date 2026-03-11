@@ -2220,6 +2220,171 @@ describe('createOasParser options', () => {
   })
 })
 
+describe('convertSchema primitive', () => {
+  const parser = createOasParser()
+
+  it('string type has primitive string', () => {
+    const node = parser.convertSchema({ type: 'string' })
+
+    expect(node.primitive).toBe('string')
+  })
+
+  it('number type has primitive number', () => {
+    const node = parser.convertSchema({ type: 'number' })
+
+    expect(node.primitive).toBe('number')
+  })
+
+  it('integer type has primitive integer', () => {
+    const node = parser.convertSchema({ type: 'integer' })
+
+    expect(node.primitive).toBe('integer')
+  })
+
+  it('boolean type has primitive boolean', () => {
+    const node = parser.convertSchema({ type: 'boolean' })
+
+    expect(node.primitive).toBe('boolean')
+  })
+
+  it('null type has primitive null', () => {
+    const node = parser.convertSchema({ type: 'null' })
+
+    expect(node.primitive).toBe('null')
+  })
+
+  it('uuid format has primitive string', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'uuid' })
+
+    expect(node.primitive).toBe('string')
+  })
+
+  it('email format has primitive string', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'email' })
+
+    expect(node.primitive).toBe('string')
+  })
+
+  it('uri format has primitive string', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'uri' })
+
+    expect(node.primitive).toBe('string')
+  })
+
+  it('binary format (blob) has primitive string', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'binary' })
+
+    expect(node.primitive).toBe('string')
+  })
+
+  it('date-time format has primitive string', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'date-time' })
+
+    expect(node.primitive).toBe('string')
+  })
+
+  it('date format has primitive string', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'date' })
+
+    expect(node.primitive).toBe('string')
+  })
+
+  it('time format has primitive string', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'time' })
+
+    expect(node.primitive).toBe('string')
+  })
+
+  it('int64 format has primitive integer', () => {
+    const node = parser.convertSchema({ type: 'integer', format: 'int64' })
+
+    expect(node.primitive).toBe('integer')
+  })
+
+  it('string enum has primitive string', () => {
+    const node = parser.convertSchema({ type: 'string', enum: ['a', 'b'] })
+
+    expect(node.primitive).toBe('string')
+  })
+
+  it('number enum has primitive number', () => {
+    const node = parser.convertSchema({ type: 'number', enum: [1, 2] })
+
+    expect(node.primitive).toBe('number')
+  })
+
+  it('integer enum has primitive integer', () => {
+    const node = parser.convertSchema({ type: 'integer', enum: [1, 2] })
+
+    expect(node.primitive).toBe('integer')
+  })
+
+  it('boolean enum has primitive boolean', () => {
+    const node = parser.convertSchema({ type: 'boolean', enum: [true, false] })
+
+    expect(node.primitive).toBe('boolean')
+  })
+
+  it('const string has primitive string', () => {
+    const node = parser.convertSchema({ const: 'hello' })
+
+    expect(node.primitive).toBe('string')
+  })
+
+  it('const number has primitive number', () => {
+    const node = parser.convertSchema({ const: 42 })
+
+    expect(node.primitive).toBe('number')
+  })
+
+  it('const null has primitive null', () => {
+    const node = parser.convertSchema({ const: null })
+
+    expect(node.primitive).toBe('null')
+  })
+
+  it('minLength-inferred string has primitive string', () => {
+    const node = parser.convertSchema({ minLength: 1 })
+
+    expect(node.primitive).toBe('string')
+  })
+
+  it('minimum-inferred number has primitive number', () => {
+    const node = parser.convertSchema({ minimum: 0 })
+
+    expect(node.primitive).toBe('number')
+  })
+
+  it('object type has no primitive', () => {
+    const node = parser.convertSchema({ type: 'object' })
+
+    expect(node.primitive).toBeUndefined()
+  })
+
+  it('array type has no primitive', () => {
+    const node = parser.convertSchema({ type: 'array' })
+
+    expect(node.primitive).toBeUndefined()
+  })
+
+  it('union (oneOf) has no primitive', () => {
+    const node = parser.convertSchema({ oneOf: [{ type: 'string' }, { type: 'number' }] })
+
+    expect(node.primitive).toBeUndefined()
+  })
+
+  it('intersection (allOf) has no primitive', () => {
+    const node = parser.convertSchema({
+      allOf: [
+        { type: 'object', properties: { a: { type: 'string' } } },
+        { type: 'object', properties: { b: { type: 'number' } } },
+      ],
+    })
+
+    expect(node.primitive).toBeUndefined()
+  })
+})
+
 describe('buildAst snapshots', async () => {
   const oas = await buildMinimalOas()
   const root = createOasParser().buildAst(oas)

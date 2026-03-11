@@ -11,6 +11,7 @@ import type {
   OperationNode,
   ParameterLocation,
   ParameterNode,
+  PrimitiveSchemaType,
   PropertyNode,
   RefSchemaNode,
   ResponseNode,
@@ -451,12 +452,22 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
       const constValue = schema.const
 
       if (constValue === null) {
-        return createSchema({ type: 'null', name, title: schema.title, description: schema.description, deprecated: schema.deprecated, nullable })
+        return createSchema({
+          type: 'null',
+          primitive: 'null',
+          name,
+          title: schema.title,
+          description: schema.description,
+          deprecated: schema.deprecated,
+          nullable,
+        })
       }
 
       if (constValue !== undefined) {
+        const constPrimitive = typeof constValue === 'number' ? 'number' : typeof constValue === 'boolean' ? 'boolean' : ('string' as const)
         return createSchema({
           type: 'enum',
+          primitive: constPrimitive,
           name,
           enumValues: [constValue as string | number | boolean],
           title: schema.title,
@@ -478,6 +489,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
       if (schema.format === 'int64') {
         return createSchema({
           type: options.integerType === 'bigint' ? 'bigint' : 'integer',
+          primitive: 'integer',
           name,
           nullable,
           title: schema.title,
@@ -501,6 +513,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
         if (dateType) {
           const base = {
             name,
+            primitive: 'string' as const,
             nullable,
             title: schema.title,
             description: schema.description,
@@ -521,8 +534,11 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
         const specialType = formatToSchemaType(schema.format)
 
         if (specialType) {
+          const specialPrimitive: PrimitiveSchemaType =
+            specialType === 'number' || specialType === 'integer' || specialType === 'bigint' ? specialType : 'string'
           const base = {
             name,
+            primitive: specialPrimitive,
             nullable,
             title: schema.title,
             description: schema.description,
@@ -545,6 +561,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
     if (schema.type === 'string' && (schema as SchemaObject & { contentMediaType?: string }).contentMediaType === 'application/octet-stream') {
       return createSchema({
         type: 'blob',
+        primitive: 'string',
         name,
         nullable,
         title: schema.title,
@@ -591,6 +608,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
       if (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined) {
         return createSchema({
           type: 'string',
+          primitive: 'string',
           name,
           nullable,
           title: schema.title,
@@ -609,6 +627,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
       if (schema.minimum !== undefined || schema.maximum !== undefined) {
         return createSchema({
           type: 'number',
+          primitive: 'number',
           name,
           nullable,
           title: schema.title,
@@ -645,8 +664,11 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
       const enumNullable = nullable || nullInEnum || undefined
       const enumDefault = schema.default === null && enumNullable ? undefined : schema.default
 
+      const enumPrimitive: PrimitiveSchemaType = type === 'number' || type === 'integer' ? type : type === 'boolean' ? 'boolean' : 'string'
+
       const enumBase = {
         type: 'enum' as const,
+        primitive: enumPrimitive,
         name,
         title: schema.title,
         description: schema.description,
@@ -849,6 +871,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
     if (type === 'string') {
       return createSchema({
         type: 'string',
+        primitive: 'string',
         name,
         nullable,
         title: schema.title,
@@ -868,6 +891,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
     if (type === 'number') {
       return createSchema({
         type: 'number',
+        primitive: 'number',
         name,
         nullable,
         title: schema.title,
@@ -888,6 +912,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
     if (type === 'integer') {
       return createSchema({
         type: 'integer',
+        primitive: 'integer',
         name,
         nullable,
         title: schema.title,
@@ -908,6 +933,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
     if (type === 'boolean') {
       return createSchema({
         type: 'boolean',
+        primitive: 'boolean',
         name,
         nullable,
         title: schema.title,
@@ -924,6 +950,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
     if (type === 'null') {
       return createSchema({
         type: 'null',
+        primitive: 'null',
         name,
         title: schema.title,
         description: schema.description,

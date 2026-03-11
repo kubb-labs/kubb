@@ -8,6 +8,7 @@ import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type ts from 'typescript'
 import * as factory from '../factory.ts'
 import { parse, typeKeywordMapper } from '../parser.ts'
+import { parseSchemaNode } from '../parserSchemaNode.ts'
 import type { PluginTs } from '../types.ts'
 
 type Props = {
@@ -24,6 +25,7 @@ type Props = {
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
   description?: string
   keysToOmit?: string[]
+  UNSTABLE_SCHEMA?: true
 }
 
 export function Type({
@@ -39,6 +41,7 @@ export function Type({
   enumType,
   enumKeyCasing,
   mapper,
+  UNSTABLE_SCHEMA,
   ...rest
 }: Props): FabricReactNode {
   const typeNodes: ts.Node[] = []
@@ -65,6 +68,10 @@ export function Type({
       )
       .filter(Boolean)
       .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
+
+  if (UNSTABLE_SCHEMA && schemaNode) {
+    type = parseSchemaNode(schemaNode, { optionalType, arrayType, enumType })!
+  }
 
   // Add a "Key" suffix to avoid collisions where necessary
   if (['asConst', 'asPascalConst'].includes(enumType) && enumSchemas.length > 0) {

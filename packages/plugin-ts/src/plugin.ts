@@ -30,6 +30,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     generators = [typeGenerator].filter(Boolean),
     contentType,
     UNSTABLE_NAMING,
+    UNSTABLE_SCHEMA,
   } = options
 
   // @deprecated Will be removed in v5 when collisionDetection defaults to true
@@ -55,6 +56,8 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       mapper,
       paramsCasing,
       usedEnumNames,
+      UNSTABLE_SCHEMA,
+      UNSTABLE_NAMING,
     },
     pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {

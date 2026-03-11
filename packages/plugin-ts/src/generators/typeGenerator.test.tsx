@@ -600,6 +600,7 @@ describe('typeGenerator schema', async () => {
       syntaxType: 'type',
       emptySchemaType: 'unknown',
       paramsCasing: undefined,
+      UNSTABLE_SCHEMA: undefined,
       output: {
         path: '.',
       },
@@ -613,7 +614,6 @@ describe('typeGenerator schema', async () => {
       fabric,
       oas,
       pluginManager: mockedPluginManager,
-
       plugin,
       contentType: 'application/json',
       include: undefined,
@@ -767,6 +767,7 @@ describe('typeGenerator operation', async () => {
       },
       group: undefined,
       emptySchemaType: 'unknown',
+      UNSTABLE_SCHEMA: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
@@ -776,7 +777,6 @@ describe('typeGenerator operation', async () => {
       oas,
       include: undefined,
       pluginManager: mockedPluginManager,
-
       plugin,
       contentType: undefined,
       override: undefined,

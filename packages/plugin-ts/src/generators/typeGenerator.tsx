@@ -314,7 +314,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   Operation({ operation, generator, plugin }) {
     const {
       options,
-      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing },
+      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing, UNSTABLE_SCHEMA },
     } = plugin
 
     const mode = useMode()
@@ -379,6 +379,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
             arrayType={arrayType}
             keysToOmit={keysToOmit}
             syntaxType={syntaxType}
+            UNSTABLE_SCHEMA={UNSTABLE_SCHEMA}
           />
         </>
       )

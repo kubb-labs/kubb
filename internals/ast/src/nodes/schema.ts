@@ -101,6 +101,22 @@ interface SchemaNodeBase extends BaseNode {
   default?: unknown
   /** An example value for this schema. */
   example?: unknown
+  /**
+   * The underlying primitive type of this schema before any format / semantic
+   * promotion.  Set by the OAS parser so that downstream generators can always
+   * recover the original data type regardless of how `type` was mapped.
+   *
+   * Examples:
+   * - `uuid` node  → `primitive: 'string'`
+   * - `datetime` node → `primitive: 'string'`
+   * - `number` enum → `primitive: 'number'`
+   * - `string` node → `primitive: 'string'`
+   * - `integer` node → `primitive: 'integer'`
+   *
+   * `undefined` when the schema has no meaningful primitive origin (e.g.
+   * `object`, `array`, `union`, `intersection`, `ref`).
+   */
+  primitive?: PrimitiveSchemaType
 }
 
 /** Schema for `'object'` type — carries ordered property definitions. */
