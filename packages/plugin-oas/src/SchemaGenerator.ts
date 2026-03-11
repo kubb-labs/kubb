@@ -1383,7 +1383,8 @@ export class SchemaGenerator<
             }
 
             const tree = this.parse({ schema: resolvedSchemaObject, name, parentName: null, rootName: name })
-            const schemaNode = this.context.oas.refMap?.get(name) ?? createOasParser(this.#options).convertSchema({ schema: resolvedSchemaObject, name })
+            const oasParser = createOasParser(options)
+            const schemaNode = oasParser.convertSchema(resolvedSchemaObject, name)
 
             if (generator.type === 'react') {
               await buildSchema(

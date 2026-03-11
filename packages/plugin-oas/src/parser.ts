@@ -110,7 +110,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
     return schemaTypes.unknown
   }
 
-  function convertSchema({ schema, name }: { schema: SchemaObject; name?: string }): SchemaNode {
+  function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
     const emptyType = getEmptyType(options.emptySchemaType)
 
     // $ref — the schema is a pointer to another definition

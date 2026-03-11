@@ -22,7 +22,7 @@ export type SpecialSchemaType = 'ref' | 'date' | 'datetime' | 'time' | 'uuid' | 
 export type SchemaType = PrimitiveSchemaType | ComplexSchemaType | SpecialSchemaType
 
 /** Runtime constants for all schema type values. */
-export const schemaType = {
+export const schemaTypes = {
   // Primitive scalar types
   string: 'string',
   number: 'number',
