@@ -284,6 +284,42 @@ describe('convertSchema return type narrowing', () => {
     expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
   })
 
+  it('narrows to ArraySchemaNode when items is present', () => {
+    const node = parser.convertSchema({ items: { type: 'string' } })
+
+    expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
+  })
+
+  it('narrows to ScalarSchemaNode when minLength is present', () => {
+    const node = parser.convertSchema({ minLength: 1 })
+
+    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+  })
+
+  it('narrows to ScalarSchemaNode when maxLength is present', () => {
+    const node = parser.convertSchema({ maxLength: 100 })
+
+    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+  })
+
+  it('narrows to ScalarSchemaNode when pattern is present', () => {
+    const node = parser.convertSchema({ pattern: '^[a-z]+$' })
+
+    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+  })
+
+  it('narrows to ScalarSchemaNode when minimum is present', () => {
+    const node = parser.convertSchema({ minimum: 0 })
+
+    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+  })
+
+  it('narrows to ScalarSchemaNode when maximum is present', () => {
+    const node = parser.convertSchema({ maximum: 100 })
+
+    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+  })
+
   it('falls back to SchemaNode for an untyped empty schema', () => {
     const node = parser.convertSchema({})
 
