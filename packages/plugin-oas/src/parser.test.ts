@@ -291,6 +291,22 @@ describe('convertSchema return type narrowing', () => {
   })
 })
 
+describe('convertSchema binary', () => {
+  const parser = createOasParser()
+
+  it('maps string with format binary to blob', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'binary' })
+
+    expect(node.type).toBe('blob')
+  })
+
+  it('maps string with format byte to blob', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'byte' })
+
+    expect(node.type).toBe('blob')
+  })
+})
+
 describe('convertSchema contentMediaType (OAS 3.1)', () => {
   const parser = createOasParser()
 
