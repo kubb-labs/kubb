@@ -176,6 +176,11 @@ type OasParser<TDateType extends Options['dateType']> = {
   ) => InferSchemaNode<TSchema, TDateType>
 }
 
+type ParserConfig = {
+  /** Optional OAS instance used for dereferencing `$ref` schemas in `allOf` required-key resolution and circular reference detection. */
+  oas?: Oas
+}
+
 /**
  * Creates a scope-bound OAS parser that converts an OpenAPI/Swagger spec into
  * the `@internals/ast` tree. All helpers close over the resolved `options` so
@@ -197,9 +202,11 @@ type OasParser<TDateType extends Options['dateType']> = {
 export function createOasParser(): OasParser<'string'>
 export function createOasParser<TOptions extends Partial<Options>>(
   userOptions: TOptions,
+  config?: ParserConfig,
 ): OasParser<TOptions extends { dateType: Options['dateType'] } ? TOptions['dateType'] : (typeof DEFAULT_OPTIONS)['dateType']>
-export function createOasParser<TOptions extends Partial<Options>>(userOptions?: TOptions) {
+export function createOasParser<TOptions extends Partial<Options>>(userOptions?: TOptions, config?: ParserConfig) {
   const options: Options = { ...DEFAULT_OPTIONS, ...userOptions }
+  const oas = config?.oas
 
   function getUnknownType() {
     if (options.unknownType === 'any') {
@@ -321,7 +328,29 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
         } as DistributiveOmit<SchemaNode, 'kind'>)
       }
 
-      const allOfMembers: SchemaNode[] = schema.allOf.map((s) => convertSchema(s as SchemaObject))
+      // When a child schema extends a discriminator parent via allOf and the parent's oneOf/anyOf
+      // references that child back, skip that allOf item to prevent a circular type reference.
+      const allOfMembers: SchemaNode[] = (schema.allOf as SchemaObject[])
+        .filter((item) => {
+          if (!isReference(item) || !name || !oas) {
+            return true
+          }
+          const deref = oas.get<SchemaObject>((item as { $ref: string }).$ref)
+          if (!deref || !isDiscriminator(deref)) {
+            return true
+          }
+          const parentUnion = (deref as SchemaObject).oneOf ?? (deref as SchemaObject).anyOf
+          if (!parentUnion) {
+            return true
+          }
+          const childRef = `#/components/schemas/${name}`
+          const inOneOf = parentUnion.some((oneOfItem) => isReference(oneOfItem) && (oneOfItem as { $ref: string }).$ref === childRef)
+          const inMapping = Object.values((deref as SchemaObject & { discriminator: { mapping?: Record<string, string> } }).discriminator.mapping ?? {}).some(
+            (v) => v === childRef,
+          )
+          return !inOneOf && !inMapping
+        })
+        .map((s) => convertSchema(s as SchemaObject))
 
       // When `required` lists keys not present in the outer `properties`, resolve them from
       // the allOf member schemas and inject them as extra intersection members.
@@ -330,8 +359,17 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
         const missingRequired = schema.required.filter((key) => !outerKeys.has(key))
 
         if (missingRequired.length) {
-          // Resolve each allOf member to its SchemaObject (dereference $ref by extracting the name)
-          const resolvedMembers = (schema.allOf as SchemaObject[]).map((item) => (isReference(item) ? (item as SchemaObject) : item))
+          // Dereference each allOf member: use `oas.get()` when available, skip bare $refs otherwise.
+          const resolvedMembers = (schema.allOf as SchemaObject[]).flatMap((item) => {
+            if (!isReference(item)) {
+              return [item]
+            }
+            if (oas) {
+              const deref = oas.get<SchemaObject>(item.$ref)
+              return deref && !isReference(deref) ? [deref as SchemaObject] : []
+            }
+            return []
+          })
 
           for (const key of missingRequired) {
             for (const resolved of resolvedMembers) {
@@ -503,8 +541,8 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
       }
     }
 
-    // OAS 3.1: `contentMediaType: 'application/octet-stream'` signals binary data — format overrides type.
-    if ((schema as SchemaObject & { contentMediaType?: string }).contentMediaType === 'application/octet-stream') {
+    // OAS 3.1: `contentMediaType: 'application/octet-stream'` on a string schema signals binary data.
+    if (schema.type === 'string' && (schema as SchemaObject & { contentMediaType?: string }).contentMediaType === 'application/octet-stream') {
       return createSchema({
         type: 'blob',
         name,
@@ -961,16 +999,24 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
    * Converts an OpenAPI/Swagger spec (wrapped in a Kubb `Oas` instance) into
    * a `RootNode` — the top-level node of the `@internals/ast` tree.
    */
-  function buildAst(oas: Oas): RootNode {
-    const { schemas: schemaObjects } = oas.getSchemas()
+  function buildAst(oasInstance: Oas): RootNode {
+    // Create a parser with oas bound for dereferencing ($ref resolution in allOf, circular-ref detection).
+    // When createOasParser was called without an oas config, we bind it lazily here at buildAst time.
+    const oasAwareConvertSchema = oas
+      ? convertSchema
+      : createOasParser(userOptions as TOptions, { oas: oasInstance }).convertSchema
 
-    const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) => convertSchema(schemaObject, name))
+    const { schemas: schemaObjects } = oasInstance.getSchemas()
 
-    const paths = oas.getPaths()
+    const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) =>
+      oasAwareConvertSchema(schemaObject as SchemaObject, name),
+    )
+
+    const paths = oasInstance.getPaths()
 
     const operations: Array<OperationNode> = Object.entries(paths).flatMap(([, methods]) =>
       Object.entries(methods)
-        .map(([, operation]) => (operation ? convertOperation(oas, operation) : null))
+        .map(([, operation]) => (operation ? convertOperation(oasInstance, operation) : null))
         .filter((op): op is OperationNode => op !== null),
     )
 
