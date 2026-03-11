@@ -7,7 +7,7 @@
  */
 
 /** Primitive scalar types. */
-export type PrimitiveSchemaType = 'string' | 'number' | 'integer' | 'bigint' | 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'object' | 'array'
+export type PrimitiveSchemaType = 'string' | 'number' | 'integer' | 'bigint' | 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'object' | 'array' | 'date'
 
 /** Structural / composite types. */
 export type ComplexSchemaType = 'tuple' | 'union' | 'intersection' | 'enum'
@@ -109,6 +109,7 @@ interface SchemaNodeBase extends BaseNode {
    * Examples:
    * - `uuid` node  → `primitive: 'string'`
    * - `datetime` node → `primitive: 'string'`
+   * - `date` node → `primitive: 'date'`
    * - `number` enum → `primitive: 'number'`
    * - `string` node → `primitive: 'string'`
    * - `integer` node → `primitive: 'integer'`
