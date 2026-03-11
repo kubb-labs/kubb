@@ -111,7 +111,9 @@ const configs: Array<{ name: string; config: UserConfig }> = [
           validate: false,
           generators: [],
         }),
-        pluginTs({}),
+        pluginTs({
+          UNSTABLE_SCHEMA: true,
+        }),
       ],
     },
   },
@@ -136,6 +138,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
+          UNSTABLE_SCHEMA: true,
         }),
       ],
     },
@@ -162,6 +165,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
+          UNSTABLE_SCHEMA: true,
         }),
       ],
     },
@@ -188,6 +192,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
+          UNSTABLE_SCHEMA: true,
         }),
       ],
     },
@@ -214,6 +219,13 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         pluginOas({
           validate: false,
           generators: [],
+        }),
+        pluginTs({
+          output: {
+            path: './types',
+            barrelType: false,
+          },
+          // UNSTABLE_SCHEMA: true,
         }),
         pluginZod({
           output: {
@@ -254,6 +266,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
+          UNSTABLE_SCHEMA: true,
         }),
       ],
     },

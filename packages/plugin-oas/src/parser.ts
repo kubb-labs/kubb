@@ -25,7 +25,7 @@ import type {
   TimeSchemaNode,
   UnionSchemaNode,
 } from '@internals/ast'
-import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, schemaTypes } from '@internals/ast'
+import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, schemaTypes, transform } from '@internals/ast'
 import { pascalCase } from '@internals/utils'
 import type { Oas, Operation, SchemaObject } from '@kubb/oas'
 import { flattenSchema, isDiscriminator, isNullable, isReference } from '@kubb/oas'
@@ -182,6 +182,11 @@ type OasParser<TDateType extends Options['dateType']> = {
     schema: TSchema,
     name?: string,
   ) => InferSchemaNode<TSchema, TDateType>
+  /**
+   * Walks `node` and replaces each `ref` value with the name returned by
+   * `resolveName`. Pass a no-op (`(n) => n`) to skip resolution.
+   */
+  resolveRefs: (node: SchemaNode, resolveName: (name: string) => string | undefined) => SchemaNode
 }
 
 type ParserConfig = {
@@ -1059,7 +1064,20 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
     return createRoot({ schemas, operations })
   }
 
-  return { buildAst, convertSchema } as OasParser<any>
+  function resolveRefs(node: SchemaNode, resolveName: (name: string) => string | undefined): SchemaNode {
+    return transform(node, {
+      schema(schemaNode) {
+        if (schemaNode.type === 'ref' && schemaNode.ref) {
+          const resolved = resolveName(schemaNode.ref)
+          if (resolved) {
+            return { ...schemaNode, ref: resolved }
+          }
+        }
+      },
+    }) as SchemaNode
+  }
+
+  return { buildAst, convertSchema, resolveRefs } as OasParser<any>
 }
 
 /**
