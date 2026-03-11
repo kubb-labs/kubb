@@ -3,7 +3,7 @@ import type { PluginManager } from '@kubb/core'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { Operation } from '@kubb/oas'
-import { convertSchema, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator } from '@kubb/plugin-oas'
+import { createOasParser, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { applyParamsCasing, getBanner, getFooter, getImports, isParameterSchema } from '@kubb/plugin-oas/utils'
@@ -314,7 +314,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   Operation({ operation, generator, plugin }) {
     const {
       options,
-      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing, UNSTABLE_SCHEMA },
+      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing, UNSTABLE_SCHEMA, enumSuffix },
     } = plugin
 
     const mode = useMode()
@@ -351,7 +351,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       const imports = getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
 
-      const schemaNode = convertSchema(transformedSchema, name)
+      const schemaNode = createOasParser({ enumSuffix }).convertSchema(transformedSchema, name)
 
       const type = {
         name: schemaManager.getName(name, { type: 'type' }),

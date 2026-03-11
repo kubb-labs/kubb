@@ -28,6 +28,7 @@ import type {
 import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, schemaTypes } from '@internals/ast'
 import type { Oas, Operation, SchemaObject } from '@kubb/oas'
 import { flattenSchema, isDiscriminator, isNullable, isReference } from '@kubb/oas'
+import { pascalCase } from '@internals/utils'
 
 /** Distributive `Omit` that correctly distributes over union types. */
 type DistributiveOmit<TValue, TKey extends PropertyKey> = TValue extends unknown ? Omit<TValue, TKey> : never
@@ -106,6 +107,11 @@ type Options = {
   integerType: 'number' | 'bigint'
   unknownType: 'any' | 'unknown' | 'void'
   emptySchemaType: 'any' | 'unknown' | 'void'
+  /**
+   * Suffix appended to derived enum names when building property schema names.
+   * @default `'enum'`
+   */
+  enumSuffix: string
 }
 
 const DEFAULT_OPTIONS: Options = {
@@ -113,6 +119,7 @@ const DEFAULT_OPTIONS: Options = {
   integerType: 'number',
   unknownType: 'any',
   emptySchemaType: 'any',
+  enumSuffix: 'enum',
 }
 
 const FORMAT_MAP: Record<string, SchemaType> = {
@@ -760,10 +767,13 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
             const resolvedPropSchema = propSchema as SchemaObject
             const propNullable = isNullable(resolvedPropSchema)
 
+            const enumNameParts = [name, propName, options.enumSuffix]
+            const derivedPropName = name ? pascalCase(enumNameParts.filter(Boolean).join(' ')) : undefined
+
             return createProperty({
               name: propName,
               schema: {
-                ...convertSchema(resolvedPropSchema),
+                ...convertSchema(resolvedPropSchema, derivedPropName),
                 nullable: propNullable || undefined,
                 optional: !required && !propNullable ? true : undefined,
                 nullish: !required && propNullable ? true : undefined,
