@@ -709,8 +709,100 @@ describe('convertSchema nullable', () => {
   })
 })
 
+describe('convertSchema string', () => {
+  const parser = createOasParser()
+
+  it('maps type string to string node', () => {
+    const node = parser.convertSchema({ type: 'string' })
+
+    expect(node.type).toBe('string')
+  })
+
+  it('preserves nullable on string', () => {
+    const node = parser.convertSchema({ type: 'string', nullable: true })
+
+    expect(node.type).toBe('string')
+    expect(node.nullable).toBe(true)
+  })
+
+  it('maps minLength to min', () => {
+    const node = parser.convertSchema({ type: 'string', minLength: 1 })
+
+    expect(node.min).toBe(1)
+  })
+
+  it('maps maxLength to max', () => {
+    const node = parser.convertSchema({ type: 'string', maxLength: 100 })
+
+    expect(node.max).toBe(100)
+  })
+})
+
+describe('convertSchema boolean', () => {
+  const parser = createOasParser()
+
+  it('maps type boolean to boolean node', () => {
+    const node = parser.convertSchema({ type: 'boolean' })
+
+    expect(node.type).toBe('boolean')
+  })
+
+  it('preserves nullable on boolean', () => {
+    const node = parser.convertSchema({ type: 'boolean', nullable: true })
+
+    expect(node.type).toBe('boolean')
+    expect(node.nullable).toBe(true)
+  })
+
+  it('passes through default value', () => {
+    const node = parser.convertSchema({ type: 'boolean', default: false })
+
+    expect(node.default).toBe(false)
+  })
+})
+
+describe('convertSchema null', () => {
+  const parser = createOasParser()
+
+  it('maps type null to null node', () => {
+    const node = parser.convertSchema({ type: 'null' })
+
+    expect(node.type).toBe('null')
+  })
+
+  it('propagates description on null', () => {
+    const node = parser.convertSchema({ type: 'null', description: 'always null' })
+
+    expect(node.description).toBe('always null')
+  })
+})
+
+describe('convertSchema OAS 3.1 type array', () => {
+  const parser = createOasParser()
+
+  it('sets nullable when null is in the type array', () => {
+    const node = parser.convertSchema({ type: ['string', 'null'] })
+
+    expect(node.type).toBe('string')
+    expect(node.nullable).toBe(true)
+  })
+
+  it('handles type array with a single non-null entry', () => {
+    const node = parser.convertSchema({ type: ['integer'] })
+
+    expect(node.type).toBe('integer')
+    expect(node.nullable).toBeUndefined()
+  })
+})
+
 describe('convertSchema integer', () => {
   const parser = createOasParser()
+
+  it('maps type integer to integer node', () => {
+    const node = parser.convertSchema({ type: 'integer' })
+
+    expect(node.type).toBe('integer')
+  })
 
   it('maps integer int32 to integer', () => {
     const node = parser.convertSchema({ type: 'integer', format: 'int32' })
@@ -724,10 +816,28 @@ describe('convertSchema integer', () => {
     expect(node.type).toBe('integer')
   })
 
+  it('maps format int64 without type to integer (format overrides type)', () => {
+    const node = parser.convertSchema({ format: 'int64' })
+
+    expect(node.type).toBe('integer')
+  })
+
+  it('preserves nullable on integer', () => {
+    const node = parser.convertSchema({ type: 'integer', nullable: true })
+
+    expect(node.type).toBe('integer')
+    expect(node.nullable).toBe(true)
+  })
 })
 
 describe('convertSchema number', () => {
   const parser = createOasParser()
+
+  it('maps type number to number node', () => {
+    const node = parser.convertSchema({ type: 'number' })
+
+    expect(node.type).toBe('number')
+  })
 
   it('maps number float to number', () => {
     const node = parser.convertSchema({ type: 'number', format: 'float' })
@@ -739,6 +849,19 @@ describe('convertSchema number', () => {
     const node = parser.convertSchema({ type: 'number', format: 'double' })
 
     expect(node.type).toBe('number')
+  })
+
+  it('maps format float without type to number (format overrides type)', () => {
+    const node = parser.convertSchema({ format: 'float' })
+
+    expect(node.type).toBe('number')
+  })
+
+  it('preserves nullable on number', () => {
+    const node = parser.convertSchema({ type: 'number', nullable: true })
+
+    expect(node.type).toBe('number')
+    expect(node.nullable).toBe(true)
   })
 })
 
