@@ -13,6 +13,7 @@ export type {
   DateSchemaNode,
   DatetimeSchemaNode,
   EnumSchemaNode,
+  EnumValueNode,
   HttpMethod,
   HttpStatusCode,
   MediaType,

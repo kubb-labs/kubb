@@ -149,11 +149,34 @@ export interface CompositeSchemaNode extends SchemaNodeBase {
   members?: Array<SchemaNode>
 }
 
+/** A single named variant inside an enum, carrying its label, raw value, and value type. */
+export interface EnumValueNode {
+  /** Display / identifier name for this variant (e.g. the x-enumNames label or a stringified value). */
+  name: string
+  /** The raw enum value as it appears in the schema. */
+  value: string | number | boolean
+  /** How the value should be interpreted: `'string'`, `'number'`, or `'boolean'`. */
+  format: 'string' | 'number' | 'boolean'
+}
+
 /** Schema for `'enum'` type — carries the list of allowed literal values. */
 export interface EnumSchemaNode extends SchemaNodeBase {
   type: 'enum'
-  /** List of allowed literal values. */
+  /**
+   * The value type of the enum members.
+   * `'string'` is the default; `'number'` / `'boolean'` indicate typed enums.
+   * When set, generators should use a const-assertion rather than a string-enum construct.
+   */
+  enumType?: 'string' | 'number' | 'boolean'
+  /** List of allowed literal values (simple form — present when `namedEnumValues` is absent). */
   enumValues?: Array<string | number | boolean | null>
+  /**
+   * Named enum variants (rich form).
+   * Present when the source schema carried `x-enumNames` / `x-enum-varnames` or the enum
+   * type requires explicit const mapping (number / boolean enums).
+   * When present, generators should prefer this over `enumValues`.
+   */
+  namedEnumValues?: Array<EnumValueNode>
 }
 
 /** Schema for `'ref'` type — carries the resolved reference identifier. */

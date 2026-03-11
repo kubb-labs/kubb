@@ -1110,6 +1110,180 @@ describe('convertSchema boolean', () => {
   })
 })
 
+describe('convertSchema enum', () => {
+  const parser = createOasParser()
+
+  it('narrows to EnumSchemaNode when enum is present', () => {
+    const node = parser.convertSchema({enum: ['a', 'b']})
+
+    expectTypeOf(node).toEqualTypeOf<EnumSchemaNode>()
+  })
+
+  it('maps type to enum', () => {
+    const node = parser.convertSchema({enum: ['a', 'b']})
+
+    expect(node.type).toBe('enum')
+  })
+
+  it('stores string values in enumValues', () => {
+    const node = parser.convertSchema({enum: ['foo', 'bar', 'baz']})
+
+    expect(node.enumValues).toEqual(['foo', 'bar', 'baz'])
+  })
+
+  it('deduplicates enum values', () => {
+    const node = parser.convertSchema({enum: ['a', 'a', 'b']})
+
+    expect(node.enumValues).toEqual(['a', 'b'])
+  })
+
+  it('strips null from enumValues and sets nullable', () => {
+    const node = parser.convertSchema({enum: ['a', null, 'b']})
+
+    expect(node.nullable).toBe(true)
+    expect(node.enumValues).toEqual(['a', 'b'])
+  })
+
+  it('sets nullable from null in enum even when nullable is not set on schema', () => {
+    const node = parser.convertSchema({enum: [null]})
+
+    expect(node.nullable).toBe(true)
+  })
+
+  it('sets enumNullable from schema nullable combined with null in enum', () => {
+    const node = parser.convertSchema({enum: ['a', null], nullable: true})
+
+    expect(node.nullable).toBe(true)
+    expect(node.enumValues).toEqual(['a'])
+  })
+
+  it('clears default when default is null and enum is nullable', () => {
+    const node = parser.convertSchema({enum: ['a', null], default: null})
+
+    expect(node.default).toBeUndefined()
+  })
+
+  it('preserves non-null default', () => {
+    const node = parser.convertSchema({enum: ['a', 'b'], default: 'a'})
+
+    expect(node.default).toBe('a')
+  })
+
+  // Number enum
+  it('produces namedEnumValues with format number for integer enum', () => {
+    const node = parser.convertSchema({type: 'integer', enum: [1, 2, 3]})
+
+    expect(node.type).toBe('enum')
+    expect((node).enumType).toBe('number')
+    const values = (node).namedEnumValues
+    expect(values?.map((v) => v.value)).toEqual([1, 2, 3])
+    expect(values?.every((v) => v.format === 'number')).toBe(true)
+  })
+
+  it('produces namedEnumValues with format number for number enum', () => {
+    const node = parser.convertSchema({type: 'number', enum: [0.5, 1.5]})
+
+    expect((node).enumType).toBe('number')
+    expect((node).namedEnumValues?.map((v) => v.value)).toEqual([0.5, 1.5])
+  })
+
+  it('uses stringified value as name for numeric enum values', () => {
+    const node = parser.convertSchema({type: 'integer', enum: [42]})
+
+    expect((node).namedEnumValues?.[0]?.name).toBe('42')
+  })
+
+  it('deduplicates numeric enum values', () => {
+    const node = parser.convertSchema({type: 'integer', enum: [1, 1, 2]})
+
+    expect((node).namedEnumValues?.map((v) => v.value)).toEqual([1, 2])
+  })
+
+  // Boolean enum
+  it('produces namedEnumValues with format boolean for boolean enum', () => {
+    const node = parser.convertSchema({type: 'boolean', enum: [true, false]})
+
+    expect((node).enumType).toBe('boolean')
+    const values = (node).namedEnumValues
+    expect(values?.map((v) => v.value)).toEqual([true, false])
+    expect(values?.every((v) => v.format === 'boolean')).toBe(true)
+  })
+
+  // x-enumNames
+  it('uses x-enumNames labels as namedEnumValues names', () => {
+    const node = parser.convertSchema({
+      type: 'integer',
+      enum: [1, 2, 3],
+      'x-enumNames': ['One', 'Two', 'Three'],
+    })
+
+    const values = (node).namedEnumValues
+    expect(values?.map((v) => v.name)).toEqual(['One', 'Two', 'Three'])
+    expect(values?.map((v) => v.value)).toEqual([1, 2, 3])
+  })
+
+  it('uses x-enum-varnames labels as namedEnumValues names', () => {
+    const node = parser.convertSchema({
+      enum: ['active', 'inactive'],
+      'x-enum-varnames': ['Active', 'Inactive'],
+    })
+
+    const values = (node).namedEnumValues
+    expect(values?.map((v) => v.name)).toEqual(['Active', 'Inactive'])
+    expect(values?.map((v) => v.value)).toEqual(['active', 'inactive'])
+  })
+
+  it('x-enumNames deduplicates names', () => {
+    const node = parser.convertSchema({
+      enum: [1, 2, 3],
+      'x-enumNames': ['A', 'A', 'B'],
+    })
+
+    const values = (node).namedEnumValues
+    expect(values?.map((v) => v.name)).toEqual(['A', 'B'])
+  })
+
+  it('x-enumNames sets enumType number for integer type', () => {
+    const node = parser.convertSchema({
+      type: 'integer',
+      enum: [0, 1],
+      'x-enumNames': ['Off', 'On'],
+    })
+
+    expect((node).enumType).toBe('number')
+  })
+
+  it('x-enumNames sets enumType string when type is not numeric or boolean', () => {
+    const node = parser.convertSchema({
+      enum: ['a', 'b'],
+      'x-enumNames': ['Alpha', 'Beta'],
+    })
+
+    expect((node).enumType).toBe('string')
+  })
+
+  // Array + enum normalization
+  it('normalizes array+enum by moving enum into items and returning array node', () => {
+    const node = parser.convertSchema({ type: 'array', enum: ['x', 'y'] })
+
+    expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
+    expect(node.type).toBe('array')
+    const itemNode = node.items?.[0] as EnumSchemaNode | undefined
+    expect(itemNode?.type).toBe('enum')
+    expect(itemNode?.enumValues).toEqual(['x', 'y'])
+  })
+
+  it('merges existing items schema when normalizing array+enum', () => {
+    const node = parser.convertSchema({ type: 'array', items: { type: 'string' }, enum: ['x', 'y'] })
+
+    expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
+    expect(node.type).toBe('array')
+    const itemNode = node.items?.[0] as EnumSchemaNode | undefined
+    expect(itemNode?.type).toBe('enum')
+    expect(itemNode?.enumValues).toEqual(['x', 'y'])
+  })
+})
+
 describe('convertSchema null', () => {
   const parser = createOasParser()
 

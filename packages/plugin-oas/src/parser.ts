@@ -52,6 +52,8 @@ type SchemaNodeMap<TDateType extends Options['dateType'] = Options['dateType']> 
   [{ anyOf: ReadonlyArray<unknown> }, CompositeSchemaNode],
   [{ const: null }, ScalarSchemaNode],
   [{ const: string | number | boolean }, EnumSchemaNode],
+  // `{ type: 'array', enum }` is normalized at runtime: enum moves into items → array node.
+  [{ type: 'array'; enum: ReadonlyArray<unknown> }, ArraySchemaNode],
   [{ enum: ReadonlyArray<unknown> }, EnumSchemaNode],
   [{ type: 'object' }, ObjectSchemaNode],
   [{additionalProperties: boolean | { }}, ObjectSchemaNode],
@@ -357,30 +359,6 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
       }
     }
 
-    // Enum
-    if (schema.enum?.length) {
-      // `null` in enum values is the OAS 3.0 convention for a nullable enum.
-      // Detect it, set the nullable flag, and strip it from the actual enum values.
-      const nullInEnum = schema.enum.includes(null)
-      const filteredEnumValues = nullInEnum ? schema.enum.filter((v) => v !== null) : schema.enum
-      const enumNullable = nullable || nullInEnum || undefined
-      const enumDefault = schema.default === null && enumNullable ? undefined : schema.default
-
-      return createSchema({
-        type: 'enum',
-        name,
-        enumValues: filteredEnumValues as Array<string | number | boolean | null>,
-        title: schema.title,
-        description: schema.description,
-        deprecated: schema.deprecated,
-        nullable: enumNullable,
-        readOnly: schema.readOnly,
-        writeOnly: schema.writeOnly,
-        default: enumDefault,
-        example: schema.example,
-      })
-    }
-
     // Format-based special types (takes precedence over primitive `type`).
     // see https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.7
     if (schema.format) {
@@ -489,6 +467,89 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
           exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
         })
       }
+    }
+
+    // Enum
+    if (schema.enum?.length) {
+      // Malformed schema: `{ type: 'array', enum: [...] }` — normalize by moving the enum into items.
+      // This pattern is technically invalid OAS but appears in some real-world specs.
+      if (type === 'array') {
+        const rawSchema = schema as unknown as { items?: SchemaObject; enum?: unknown[] }
+        const isItemsObject = typeof rawSchema.items === 'object' && !Array.isArray(rawSchema.items)
+        const normalizedItems = { ...(isItemsObject ? rawSchema.items : {}), enum: schema.enum } as SchemaObject
+        const { enum: _enum, ...schemaWithoutEnum } = schema as SchemaObject & { enum?: unknown[] }
+        return convertSchema({ ...schemaWithoutEnum, items: normalizedItems } as SchemaObject, name)
+      }
+
+      // `null` in enum values is the OAS 3.0 convention for a nullable enum.
+      // Detect it, set the nullable flag, and strip it from the actual enum values.
+      const nullInEnum = schema.enum.includes(null)
+      const filteredValues = (nullInEnum ? schema.enum.filter((v) => v !== null) : schema.enum) as Array<string | number | boolean>
+      const enumNullable = nullable || nullInEnum || undefined
+      const enumDefault = schema.default === null && enumNullable ? undefined : schema.default
+
+      const enumBase = {
+        type: 'enum' as const,
+        name,
+        title: schema.title,
+        description: schema.description,
+        deprecated: schema.deprecated,
+        nullable: enumNullable,
+        readOnly: schema.readOnly,
+        writeOnly: schema.writeOnly,
+        default: enumDefault,
+        example: schema.example,
+      }
+
+      // x-enumNames / x-enum-varnames: named variants with explicit labels take priority.
+      const extensionKey = (['x-enumNames', 'x-enum-varnames'] as const).find((key) => key in schema)
+      if (extensionKey) {
+        const rawNames = (schema as Record<string, unknown>)[extensionKey] as Array<string | number>
+        const uniqueNames = [...new Set(rawNames)]
+        const enumType = type === 'number' || type === 'integer' ? ('number' as const) : type === 'boolean' ? ('boolean' as const) : ('string' as const)
+
+        return createSchema({
+          ...enumBase,
+          enumType,
+          namedEnumValues: uniqueNames.map((label, index) => ({
+            name: String(label),
+            value: filteredValues[index] ?? label,
+            format: enumType,
+          })),
+        })
+      }
+
+      // Number / integer enum — must use a const map since most generators can't use string-enum for numbers.
+      if (type === 'number' || type === 'integer') {
+        return createSchema({
+          ...enumBase,
+          enumType: 'number' as const,
+          namedEnumValues: [...new Set(filteredValues)].map((value) => ({
+            name: String(value),
+            value: value as number,
+            format: 'number' as const,
+          })),
+        })
+      }
+
+      // Boolean enum — same const-map approach as numeric.
+      if (type === 'boolean') {
+        return createSchema({
+          ...enumBase,
+          enumType: 'boolean' as const,
+          namedEnumValues: [...new Set(filteredValues)].map((value) => ({
+            name: String(value),
+            value: value as boolean,
+            format: 'boolean' as const,
+          })),
+        })
+      }
+
+      // Plain string enum (default path).
+      return createSchema({
+        ...enumBase,
+        enumValues: [...new Set(filteredValues)],
+      })
     }
 
     // Object — also triggered by additionalProperties or patternProperties without explicit type.
