@@ -280,6 +280,53 @@ describe('convertSchema return type narrowing', () => {
   })
 })
 
+describe('convertSchema readOnly / writeOnly', () => {
+  const parser = createOasParser()
+
+  it('sets readOnly: true when marked', () => {
+    const node = parser.convertSchema({ type: 'string', readOnly: true })
+
+    expect(node.readOnly).toBe(true)
+  })
+
+  it('sets writeOnly: true when marked', () => {
+    const node = parser.convertSchema({ type: 'string', writeOnly: true })
+
+    expect(node.writeOnly).toBe(true)
+  })
+
+  it('leaves readOnly / writeOnly undefined when not set', () => {
+    const node = parser.convertSchema({ type: 'string' })
+
+    expect(node.readOnly).toBeUndefined()
+    expect(node.writeOnly).toBeUndefined()
+  })
+
+  it('propagates readOnly on object schema', () => {
+    const node = parser.convertSchema({ type: 'object', readOnly: true })
+
+    expect(node.readOnly).toBe(true)
+  })
+
+  it('propagates writeOnly on array schema', () => {
+    const node = parser.convertSchema({ type: 'array', writeOnly: true })
+
+    expect(node.writeOnly).toBe(true)
+  })
+
+  it('propagates readOnly on enum schema', () => {
+    const node = parser.convertSchema({ enum: ['a', 'b'], readOnly: true })
+
+    expect(node.readOnly).toBe(true)
+  })
+
+  it('propagates readOnly on ref schema siblings', () => {
+    const node = parser.convertSchema({ $ref: '#/components/schemas/Pet', readOnly: true })
+
+    expect(node.readOnly).toBe(true)
+  })
+})
+
 describe('convertSchema deprecated', () => {
   const parser = createOasParser()
 

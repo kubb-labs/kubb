@@ -170,6 +170,8 @@ export function createOasParser(userOptions?: Partial<Options>) {
         nullable,
         description: schemaObject.description,
         deprecated: schemaObject.deprecated,
+        readOnly: schemaObject.readOnly,
+        writeOnly: schemaObject.writeOnly,
         pattern: schemaObject.pattern,
         example: schemaObject.example,
         default: defaultValue,
