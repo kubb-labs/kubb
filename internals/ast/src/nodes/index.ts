@@ -18,3 +18,4 @@ export type {
   SchemaType,
   SpecialSchemaType,
 } from './schema.ts'
+export { schemaTypes } from './schema.ts'

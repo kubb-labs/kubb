@@ -21,6 +21,35 @@ export type SpecialSchemaType = 'ref' | 'date' | 'datetime' | 'time' | 'uuid' | 
 /** All possible schema types. */
 export type SchemaType = PrimitiveSchemaType | ComplexSchemaType | SpecialSchemaType
 
+/** Runtime constants for all schema type values. */
+export const schemaType = {
+  // Primitive scalar types
+  string: 'string',
+  number: 'number',
+  integer: 'integer',
+  boolean: 'boolean',
+  null: 'null',
+  any: 'any',
+  unknown: 'unknown',
+  void: 'void',
+  // Structural / composite types
+  object: 'object',
+  array: 'array',
+  tuple: 'tuple',
+  union: 'union',
+  intersection: 'intersection',
+  enum: 'enum',
+  // Well-known semantic types
+  ref: 'ref',
+  date: 'date',
+  datetime: 'datetime',
+  time: 'time',
+  uuid: 'uuid',
+  email: 'email',
+  url: 'url',
+  blob: 'blob',
+} as const satisfies Record<SchemaType, SchemaType>
+
 import type { BaseNode } from './base.ts'
 import type { PropertyNode } from './property.ts'
 

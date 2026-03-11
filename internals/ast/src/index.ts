@@ -30,6 +30,7 @@ export type {
   SpecialSchemaType,
   StatusCode,
 } from './nodes/index.ts'
+export { schemaTypes } from './nodes/index.ts'
 // refs
 export type { RefMap } from './refs.ts'
 export { buildRefMap, refMapToObject, resolveRef } from './refs.ts'

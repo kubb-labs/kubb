@@ -7,7 +7,7 @@ import type { Oas } from '@kubb/oas'
 import { parseFromConfig, resolveServerUrl } from '@kubb/oas'
 import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
-import { buildAst } from './parser.ts'
+import { createOasParser } from './parser.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 import type { PluginOas } from './types.ts'
 
@@ -39,7 +39,7 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
       collisionDetection,
     })
 
-    oas.ast = buildAst(oas)
+    oas.ast = createOasParser().buildAst(oas)
     oas.refMap = buildRefMap(oas.ast)
 
     try {
