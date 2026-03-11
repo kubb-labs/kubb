@@ -1,9 +1,9 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import type { SchemaObject } from '@internals/openapi-types'
 import type { Config } from '@kubb/core'
 import yaml from '@stoplight/yaml'
 import { describe, expect, test } from 'vitest'
-import type { SchemaObject } from './types.ts'
 import {
   collectRefs,
   extractSchemaFromContent,

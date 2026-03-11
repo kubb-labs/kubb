@@ -1,7 +1,7 @@
 import { type AsyncEventEmitter, getUniqueName, pascalCase, stringify } from '@internals/utils'
 import type { FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
+import type { ContentType, Oas, OpenAPIV3, OpenAPIV3_1 } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'
 import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
@@ -33,7 +33,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   mode: KubbFile.Mode
   include?: Array<'schemas' | 'responses' | 'requestBodies'>
   override: Array<Override<TOptions>> | undefined
-  contentType?: contentType
+  contentType?: ContentType
   output?: string
 }
 
@@ -69,7 +69,7 @@ export type SchemaGeneratorOptions = {
 export type SchemaGeneratorBuildOptions = Omit<OperationSchema, 'name' | 'schema'>
 
 type SchemaProps = {
-  schema: SchemaObject | null
+  schema: OpenAPIV3_1.SchemaObject | null
   name: string | null
   parentName: string | null
   rootName?: string | null
@@ -368,7 +368,7 @@ export class SchemaGenerator<
   /**
    * Recursively creates a type literal with the given props.
    */
-  #parseProperties(name: string | null, schemaObject: SchemaObject, rootName?: string | null): Schema[] {
+  #parseProperties(name: string | null, schemaObject: OpenAPIV3_1.SchemaObject, rootName?: string | null): Schema[] {
     const properties = schemaObject?.properties || {}
     const additionalProperties = schemaObject?.additionalProperties
     const required = schemaObject?.required
@@ -377,7 +377,7 @@ export class SchemaGenerator<
     const propertiesSchemas = Object.keys(properties)
       .map((propertyName) => {
         const validationFunctions: Schema[] = []
-        const propertySchema = properties[propertyName] as SchemaObject
+        const propertySchema = properties[propertyName] as OpenAPIV3_1.SchemaObject
 
         const isRequired = Array.isArray(required) ? required?.includes(propertyName) : !!required
         const nullable = isNullable(propertySchema)
@@ -406,7 +406,7 @@ export class SchemaGenerator<
       additionalPropertiesSchemas =
         additionalProperties === true || !Object.keys(additionalProperties).length
           ? [{ keyword: this.#getUnknownType(name) }]
-          : this.parse({ schema: additionalProperties as SchemaObject, name: null, parentName: name, rootName: rootName || name })
+          : this.parse({ schema: additionalProperties as OpenAPIV3_1.SchemaObject, name: null, parentName: name, rootName: rootName || name })
     }
 
     let patternPropertiesSchemas: Record<string, Schema[]> = {}
@@ -416,7 +416,7 @@ export class SchemaGenerator<
         const schemas =
           patternSchema === true || !Object.keys(patternSchema as object).length
             ? [{ keyword: this.#getUnknownType(name) }]
-            : this.parse({ schema: patternSchema, name: null, parentName: name, rootName: rootName || name })
+            : this.parse({ schema: patternSchema as OpenAPIV3_1.SchemaObject, name: null, parentName: name, rootName: rootName || name })
 
         return {
           ...acc,
@@ -473,7 +473,7 @@ export class SchemaGenerator<
                   keyword: schemaKeywords.object,
                   args: {
                     properties: {
-                      [dereferencedSchema.discriminator.propertyName]: [
+                      [dereferencedSchema.discriminator.propertyName!]: [
                         {
                           keyword: schemaKeywords.const,
                           args: {
@@ -506,7 +506,7 @@ export class SchemaGenerator<
     // Resolve them inline instead of registering them as named schema references.
     if ($ref.startsWith('#') && !$ref.startsWith('#/components/')) {
       try {
-        const inlineSchema = this.context.oas.get<SchemaObject>($ref)
+        const inlineSchema = this.context.oas.get<OpenAPIV3_1.SchemaObject>($ref)
         if (inlineSchema && !isReference(inlineSchema)) {
           return this.parse({ schema: inlineSchema, name, parentName: null, rootName: null })
         }
@@ -548,7 +548,7 @@ export class SchemaGenerator<
     return this.#getRefAlias(schemaObject, name)
   }
 
-  #getParsedSchemaObject(schema: SchemaObject | null) {
+  #getParsedSchemaObject(schema: OpenAPIV3_1.SchemaObject | null) {
     return getSchemaFactory(this.context.oas)(schema)
   }
 
@@ -557,7 +557,7 @@ export class SchemaGenerator<
     schemaObject,
     discriminator,
   }: {
-    schemaObject: SchemaObject
+    schemaObject: OpenAPIV3_1.SchemaObject
     schema: TSchema
     discriminator: OpenAPIV3.DiscriminatorObject
   }): TSchema {
@@ -568,7 +568,7 @@ export class SchemaGenerator<
     // If the discriminator property is an extension property (starts with x-),
     // its metadata and not an actual schema property, so we can't add constraints for it.
     // In this case, return the union as-is without adding discriminator constraints.
-    if (discriminator.propertyName.startsWith('x-')) {
+    if (discriminator.propertyName?.startsWith('x-')) {
       return schema
     }
 
@@ -605,7 +605,7 @@ export class SchemaGenerator<
                 args: {
                   properties: {
                     ...(objectPropertySchema?.args?.properties || {}),
-                    [discriminator.propertyName]: [
+                    [discriminator.propertyName!]: [
                       {
                         keyword: schemaKeywords.const,
                         args: {
@@ -615,7 +615,7 @@ export class SchemaGenerator<
                         },
                       },
                       //enum and literal will conflict
-                      ...(objectPropertySchema?.args?.properties[discriminator.propertyName] || []),
+                      ...(objectPropertySchema?.args?.properties[discriminator.propertyName!] || []),
                     ].filter((item) => !isKeyword(item, schemaKeywords.enum)),
                   },
                 },
@@ -640,7 +640,7 @@ export class SchemaGenerator<
       return false
     }
 
-    const dereferencedSchema = this.context.oas.dereferenceWithRef(item)
+    const dereferencedSchema = this.context.oas.dereferenceWithRef(item) as OpenAPIV3_1.SchemaObject
 
     if (dereferencedSchema && isDiscriminator(dereferencedSchema)) {
       // Only check for circular references if parent has oneOf/anyOf
@@ -834,7 +834,7 @@ export class SchemaGenerator<
         args: (schemaObject.oneOf || schemaObject.anyOf)!
           .map((item) => {
             // first item, this is ref
-            return item && this.parse({ schema: item as SchemaObject, name, parentName, rootName })[0]
+            return item && this.parse({ schema: item as OpenAPIV3_1.SchemaObject, name, parentName, rootName })[0]
           })
           .filter((x): x is Schema => Boolean(x)),
       }
@@ -885,10 +885,10 @@ export class SchemaGenerator<
 
       if (schemaWithoutAllOf.required?.length) {
         const allOfItems = schemaObject.allOf
-        const resolvedSchemas: SchemaObject[] = []
+        const resolvedSchemas: OpenAPIV3_1.SchemaObject[] = []
 
         for (const item of allOfItems) {
-          const resolved = isReference(item) ? (this.context.oas.get(item.$ref) as SchemaObject) : item
+          const resolved = isReference(item) ? (this.context.oas.get(item.$ref) as OpenAPIV3_1.SchemaObject) : item
 
           if (resolved) {
             resolvedSchemas.push(resolved)
@@ -897,7 +897,7 @@ export class SchemaGenerator<
 
         const existingKeys = schemaWithoutAllOf.properties ? new Set(Object.keys(schemaWithoutAllOf.properties)) : null
 
-        const parsedItems: SchemaObject[] = []
+        const parsedItems: OpenAPIV3_1.SchemaObject[] = []
 
         for (const key of schemaWithoutAllOf.required) {
           if (existingKeys?.has(key)) {
@@ -911,7 +911,7 @@ export class SchemaGenerator<
                   [key]: schema.properties[key],
                 },
                 required: [key],
-              } as SchemaObject)
+              } as OpenAPIV3_1.SchemaObject)
               break
             }
           }
@@ -942,13 +942,13 @@ export class SchemaGenerator<
         const normalizedItems = {
           ...(isItemsObject ? schemaObject.items : {}),
           enum: schemaObject.enum,
-        } as SchemaObject
+        } as OpenAPIV3_1.SchemaObject
 
         const { enum: _, ...schemaWithoutEnum } = schemaObject
         const normalizedSchema = {
           ...schemaWithoutEnum,
           items: normalizedItems,
-        } as SchemaObject
+        } as OpenAPIV3_1.SchemaObject
 
         return this.parse({ schema: normalizedSchema, name, parentName, rootName })
       }
@@ -1260,7 +1260,7 @@ export class SchemaGenerator<
     if ('items' in schemaObject || schemaObject.type === ('array' as 'string')) {
       const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
       const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
-      const items = this.parse({ schema: 'items' in schemaObject ? (schemaObject.items as SchemaObject) : [], name, parentName, rootName })
+      const items = this.parse({ schema: 'items' in schemaObject ? (schemaObject.items as OpenAPIV3_1.SchemaObject) : [], name, parentName, rootName })
       const unique = !!schemaObject.uniqueItems
 
       return [
@@ -1292,11 +1292,11 @@ export class SchemaGenerator<
                   enum: schemaObject.discriminator.mapping ? Object.keys(schemaObject.discriminator.mapping) : undefined,
                 },
               },
-            } as SchemaObject
+            } as OpenAPIV3_1.SchemaObject
           }
 
           return acc
-        }, schemaObject as SchemaObject)
+        }, schemaObject as OpenAPIV3_1.SchemaObject)
 
         return [...this.#parseProperties(name, schemaObjectOverridden, rootName), ...baseItems]
       }
@@ -1358,7 +1358,7 @@ export class SchemaGenerator<
     return this.#doBuild(schemas, generators)
   }
 
-  async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async #doBuild(schemas: Record<string, OpenAPIV3_1.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const schemaEntries = Object.entries(schemas)
 
     const generatorLimit = pLimit(GENERATOR_CONCURRENCY)
@@ -1375,7 +1375,7 @@ export class SchemaGenerator<
             // parsed as a reference to itself, generating `z.lazy(() => schemaName)`.
             let resolvedSchemaObject = schemaObject
             if (isReference(schemaObject)) {
-              const resolved = this.context.oas.get<OasTypes.SchemaObject>(schemaObject.$ref)
+              const resolved = this.context.oas.get<OpenAPIV3_1.SchemaObject>(schemaObject.$ref)
               if (resolved && !isReference(resolved)) {
                 resolvedSchemaObject = resolved
               }

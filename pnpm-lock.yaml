@@ -764,6 +764,12 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
 
+  internals/openapi-types:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 20.19.37
+
   internals/tanstack-query:
     dependencies:
       '@internals/utils':
@@ -981,6 +987,9 @@ importers:
 
   packages/oas:
     dependencies:
+      '@internals/openapi-types':
+        specifier: workspace:*
+        version: link:../../internals/openapi-types
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -996,9 +1005,6 @@ importers:
       oas-normalize:
         specifier: ^15.7.1
         version: 15.7.1(encoding@0.1.13)
-      openapi-types:
-        specifier: ^12.1.3
-        version: 12.1.3
       remeda:
         specifier: 'catalog:'
         version: 2.33.6

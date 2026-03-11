@@ -1,36 +1,23 @@
 import path from 'node:path'
+import type { ContentType, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@internals/openapi-types'
 import { pascalCase, URLPath } from '@internals/utils'
 import type { Config } from '@kubb/core'
 import { bundle, loadConfig } from '@redocly/openapi-core'
 import yaml from '@stoplight/yaml'
-import type { ParameterObject, SchemaObject } from 'oas/types'
-import { isRef, isSchema } from 'oas/types'
+import { isRef } from 'oas/types'
 import OASNormalize from 'oas-normalize'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { isPlainObject, mergeDeep } from 'remeda'
 import swagger2openapi from 'swagger2openapi'
 import { Oas } from './Oas.ts'
-import type { contentType, Document } from './types.ts'
 
 export const STRUCTURAL_KEYS = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'])
 
 export function isOpenApiV2Document(doc: any): doc is OpenAPIV2.Document {
   return doc && isPlainObject(doc) && !('openapi' in doc)
 }
-export function isOpenApiV3Document(doc: any): doc is OpenAPIV3.Document {
-  return doc && isPlainObject(doc) && 'openapi' in doc
-}
 
 export function isOpenApiV3_1Document(doc: any): doc is OpenAPIV3_1.Document {
-  return doc && isPlainObject<OpenAPIV3_1.Document>(doc) && 'openapi' in doc && doc.openapi.startsWith('3.1')
-}
-
-export function isJSONSchema(obj?: unknown): obj is SchemaObject {
-  return !!obj && isSchema(obj)
-}
-
-export function isParameterObject(obj: ParameterObject | SchemaObject): obj is ParameterObject {
-  return obj && 'in' in obj
+  return doc && isPlainObject<OpenAPIV3_1.Document>(doc) && 'openapi' in doc && doc.openapi?.startsWith('3.1')
 }
 
 /**
@@ -38,7 +25,7 @@ export function isParameterObject(obj: ParameterObject | SchemaObject): obj is P
  * - OpenAPI 3.0 `nullable` / `x-nullable`
  * - OpenAPI 3.1 JSON Schema `type: ['null', ...]` or `type: 'null'`
  */
-export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): boolean {
+export function isNullable(schema?: OpenAPIV3_1.SchemaObject & { 'x-nullable'?: boolean }): boolean {
   const explicitNullable = schema?.nullable ?? schema?.['x-nullable']
   if (explicitNullable === true) {
     return true
@@ -58,14 +45,14 @@ export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): 
 /**
  * Determines if the given object is an OpenAPI ReferenceObject.
  */
-export function isReference(obj?: any): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
+export function isReference(obj?: any): obj is OpenAPIV3_1.ReferenceObject {
   return !!obj && isRef(obj)
 }
 
 /**
  * Determines if the given object is a SchemaObject with a discriminator property of type DiscriminatorObject.
  */
-export function isDiscriminator(obj?: any): obj is SchemaObject & { discriminator: OpenAPIV3.DiscriminatorObject } {
+export function isDiscriminator(obj?: any): obj is OpenAPIV3_1.SchemaObject & { discriminator: OpenAPIV3.DiscriminatorObject } {
   return !!obj && obj?.['discriminator'] && typeof obj.discriminator !== 'string'
 }
 
@@ -74,7 +61,7 @@ export function isDiscriminator(obj?: any): obj is SchemaObject & { discriminato
  *
  * Returns true if the schema has a non-empty {@link SchemaObject.required} array or a truthy {@link SchemaObject.required} property.
  */
-export function isRequired(schema?: SchemaObject): boolean {
+export function isRequired(schema?: OpenAPIV3_1.SchemaObject): boolean {
   if (!schema) {
     return false
   }
@@ -111,7 +98,7 @@ export function isAllOptional(schema: unknown): boolean {
   return groups.every((arr) => arr.every((child) => isAllOptional(child)))
 }
 
-export function isOptional(schema?: SchemaObject): boolean {
+export function isOptional(schema?: OpenAPIV3_1.SchemaObject): boolean {
   return !isRequired(schema)
 }
 
@@ -125,7 +112,7 @@ export function isOptional(schema?: SchemaObject): boolean {
  * - For primitive types (string, number, boolean): returns undefined (no default)
  * - For required types: returns undefined (no default)
  */
-export function getDefaultValue(schema?: SchemaObject): string | undefined {
+export function getDefaultValue(schema?: OpenAPIV3_1.SchemaObject): string | undefined {
   if (!schema || !isOptional(schema)) {
     return undefined
   }
@@ -179,7 +166,7 @@ export async function parse(
   const document = (await oasNormalize.load()) as Document
 
   if (isOpenApiV2Document(document)) {
-    const { openapi } = await swagger2openapi.convertObj(document, {
+    const { openapi } = await swagger2openapi.convertObj(document as any, {
       anchors: true,
     })
 
@@ -251,27 +238,23 @@ export function parseFromConfig(config: Config, oasClass: typeof Oas = Oas): Pro
  * Flatten allOf schemas by merging keyword-only fragments.
  * Only flattens schemas where allOf items don't contain structural keys or $refs.
  */
-export function flattenSchema(schema: SchemaObject | null): SchemaObject | null {
-  if (!schema?.allOf || schema.allOf.length === 0) {
-    return schema || null
-  }
-
+export function flattenSchema(schema: OpenAPIV3_1.SchemaObject): OpenAPIV3_1.SchemaObject {
   // Never touch ref-based or structural composition
-  if (schema.allOf.some((item) => isRef(item))) {
+  if (schema.allOf.some((item: unknown) => isRef(item))) {
     return schema
   }
 
-  const isPlainFragment = (item: SchemaObject) => !Object.keys(item).some((key) => STRUCTURAL_KEYS.has(key))
+  const isPlainFragment = (item: OpenAPIV3_1.SchemaObject) => !Object.keys(item).some((key) => STRUCTURAL_KEYS.has(key))
 
   // Only flatten keyword-only fragments
-  if (!schema.allOf.every((item) => isPlainFragment(item as SchemaObject))) {
+  if (!schema.allOf.every((item: unknown) => isPlainFragment(item as OpenAPIV3_1.SchemaObject))) {
     return schema
   }
 
-  const merged: SchemaObject = { ...schema }
-  delete merged.allOf
+  const merged: OpenAPIV3_1.SchemaObject = { ...(schema as object) } as OpenAPIV3_1.SchemaObject
+  delete (merged as any).allOf
 
-  for (const fragment of schema.allOf as SchemaObject[]) {
+  for (const fragment of schema.allOf as OpenAPIV3_1.SchemaObject[]) {
     for (const [key, value] of Object.entries(fragment)) {
       if (merged[key as keyof typeof merged] === undefined) {
         merged[key as keyof typeof merged] = value
@@ -305,13 +288,13 @@ export async function validate(document: Document) {
 type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies'
 
 export type SchemaWithMetadata = {
-  schema: SchemaObject
+  schema: OpenAPIV3_1.SchemaObject
   source: SchemaSourceMode
   originalName: string
 }
 
 type GetSchemasResult = {
-  schemas: Record<string, SchemaObject>
+  schemas: Record<string, OpenAPIV3_1.SchemaObject>
   nameMapping: Map<string, string>
 }
 
@@ -345,7 +328,7 @@ export function collectRefs(schema: unknown, refs = new Set<string>()): Set<stri
 /**
  * Sort schemas topologically so referenced schemas appear first.
  */
-export function sortSchemas(schemas: Record<string, SchemaObject>): Record<string, SchemaObject> {
+export function sortSchemas(schemas: Record<string, OpenAPIV3_1.SchemaObject>): Record<string, OpenAPIV3_1.SchemaObject> {
   const deps = new Map<string, string[]>()
 
   for (const [name, schema] of Object.entries(schemas)) {
@@ -378,7 +361,7 @@ export function sortSchemas(schemas: Record<string, SchemaObject>): Record<strin
     visit(name)
   }
 
-  const sortedSchemas: Record<string, SchemaObject> = {}
+  const sortedSchemas: Record<string, OpenAPIV3_1.SchemaObject> = {}
   for (const name of sorted) {
     sortedSchemas[name] = schemas[name]!
   }
@@ -389,13 +372,13 @@ export function sortSchemas(schemas: Record<string, SchemaObject>): Record<strin
  * Extract schema from content object (used by responses and requestBodies).
  * Returns null if the schema is just a $ref (not a unique type definition).
  */
-export function extractSchemaFromContent(content: Record<string, unknown> | undefined, preferredContentType?: contentType): SchemaObject | null {
+export function extractSchemaFromContent(content: Record<string, unknown> | undefined, preferredContentType?: ContentType): OpenAPIV3_1.SchemaObject | null {
   if (!content) {
     return null
   }
   const firstContentType = Object.keys(content)[0] || 'application/json'
   const targetContentType = preferredContentType || firstContentType
-  const contentSchema = content[targetContentType] as { schema?: SchemaObject } | undefined
+  const contentSchema = content[targetContentType] as { schema?: OpenAPIV3_1.SchemaObject } | undefined
   const schema = contentSchema?.schema
 
   // Skip schemas that are just references - they don't define unique types
@@ -426,7 +409,7 @@ export function getSemanticSuffix(source: SchemaSourceMode): string {
  * @deprecated
  */
 export function legacyResolve(schemasWithMeta: SchemaWithMetadata[]): GetSchemasResult {
-  const schemas: Record<string, SchemaObject> = {}
+  const schemas: Record<string, OpenAPIV3_1.SchemaObject> = {}
   const nameMapping = new Map<string, string>()
 
   // Simply use original names without collision detection
@@ -448,7 +431,7 @@ export function legacyResolve(schemasWithMeta: SchemaWithMetadata[]): GetSchemas
  * - Cross-component collisions (e.g., "Pet" in schemas + "Pet" in requestBodies): semantic suffixes (PetSchema, PetRequest)
  */
 export function resolveCollisions(schemasWithMeta: SchemaWithMetadata[]): GetSchemasResult {
-  const schemas: Record<string, SchemaObject> = {}
+  const schemas: Record<string, OpenAPIV3_1.SchemaObject> = {}
   const nameMapping = new Map<string, string>()
   const normalizedNames = new Map<string, SchemaWithMetadata[]>()
 
