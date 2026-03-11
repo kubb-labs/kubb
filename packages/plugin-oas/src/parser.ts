@@ -57,6 +57,7 @@ type SchemaNodeMap<TDateType extends Options['dateType'] = Options['dateType']> 
   [{additionalProperties: boolean | { }}, ObjectSchemaNode],
   [{ type: 'array' }, ArraySchemaNode],
   [{ items: object }, ArraySchemaNode],
+  [{ prefixItems: ReadonlyArray<unknown> }, ArraySchemaNode],
   // Format entries with explicit type — placed before generic type entries so format wins.
   [{ type: string; format: 'date-time' }, ResolveDateTimeNode<TDateType>],
   [{ type: string; format: 'date' }, DateSchemaNode],
@@ -565,6 +566,33 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
         properties,
         additionalProperties: additionalPropertiesNode,
         patternProperties,
+        nullable,
+        title: schema.title,
+        description: schema.description,
+        deprecated: schema.deprecated,
+        readOnly: schema.readOnly,
+        writeOnly: schema.writeOnly,
+        default: defaultValue,
+        example: schema.example,
+      })
+    }
+
+    // Tuple — OAS 3.1 / JSON Schema: `prefixItems` defines positional item schemas.
+    // `items` (when also present) describes the schema for additional items beyond the prefix.
+    if ('prefixItems' in schema) {
+      const rawSchema = schema as unknown as { prefixItems: SchemaObject[]; items?: SchemaObject }
+      const tupleItems = rawSchema.prefixItems.map((item) => convertSchema(item))
+      const rest = rawSchema.items ? convertSchema(rawSchema.items) : undefined
+      const min = schema.minItems
+      const max = schema.maxItems
+
+      return createSchema({
+        type: 'tuple',
+        name,
+        items: tupleItems,
+        rest,
+        min,
+        max,
         nullable,
         title: schema.title,
         description: schema.description,

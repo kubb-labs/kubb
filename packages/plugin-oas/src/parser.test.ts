@@ -902,6 +902,104 @@ describe('convertSchema object discriminator', () => {
   })
 })
 
+describe('convertSchema prefixItems (tuple)', () => {
+  const parser = createOasParser()
+
+  it('narrows to ArraySchemaNode when prefixItems is present', () => {
+    const node = parser.convertSchema({ prefixItems: [{ type: 'string' }] })
+
+    expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
+  })
+
+  it('maps type to tuple', () => {
+    const node = parser.convertSchema({ prefixItems: [{ type: 'string' }] })
+
+    expect(node.type).toBe('tuple')
+  })
+
+  it('maps each prefixItem to an items entry in order', () => {
+    const node = parser.convertSchema({
+      prefixItems: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
+    })
+
+    expect(node.items).toHaveLength(3)
+    expect(node.items?.[0]?.type).toBe('string')
+    expect(node.items?.[1]?.type).toBe('number')
+    expect(node.items?.[2]?.type).toBe('boolean')
+  })
+
+  it('maps items (alongside prefixItems) to rest', () => {
+    const node = parser.convertSchema({
+      prefixItems: [{ type: 'string' }],
+      items: { type: 'number' },
+    })
+
+    expect(node.rest?.type).toBe('number')
+  })
+
+  it('sets rest to undefined when items is absent', () => {
+    const node = parser.convertSchema({ prefixItems: [{ type: 'string' }] })
+
+    expect(node.rest).toBeUndefined()
+  })
+
+  it('converts a $ref prefixItem to a ref node', () => {
+    const node = parser.convertSchema({
+      prefixItems: [{ $ref: '#/components/schemas/Pet' }],
+    })
+
+    expect(node.items?.[0]?.type).toBe('ref')
+  })
+
+  it('converts a nested object prefixItem', () => {
+    const node = parser.convertSchema({
+      prefixItems: [{ type: 'object', properties: { id: { type: 'integer' } } }],
+    })
+
+    expect(node.items?.[0]?.type).toBe('object')
+  })
+
+  it('converts a $ref rest schema', () => {
+    const node = parser.convertSchema({
+      prefixItems: [{ type: 'string' }],
+      items: { $ref: '#/components/schemas/Extra' },
+    })
+
+    expect(node.rest?.type).toBe('ref')
+  })
+
+  it('maps minItems to min', () => {
+    const node = parser.convertSchema({ prefixItems: [{ type: 'string' }], minItems: 1 })
+
+    expect(node.min).toBe(1)
+  })
+
+  it('maps maxItems to max', () => {
+    const node = parser.convertSchema({ prefixItems: [{ type: 'string' }], maxItems: 4 })
+
+    expect(node.max).toBe(4)
+  })
+
+  it('leaves min and max undefined when minItems and maxItems are absent', () => {
+    const node = parser.convertSchema({ prefixItems: [{ type: 'string' }] })
+
+    expect(node.min).toBeUndefined()
+    expect(node.max).toBeUndefined()
+  })
+
+  it('produces an empty items array for an empty prefixItems', () => {
+    const node = parser.convertSchema({ prefixItems: [] })
+
+    expect(node.items).toHaveLength(0)
+  })
+
+  it('takes precedence over type: array — always resolves to tuple', () => {
+    const node = parser.convertSchema({ type: 'array', prefixItems: [{ type: 'string' }] })
+
+    expect(node.type).toBe('tuple')
+  })
+})
+
 describe('convertSchema nullable', () => {
   const parser = createOasParser()
 

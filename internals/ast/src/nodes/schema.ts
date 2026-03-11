@@ -127,8 +127,13 @@ export interface ObjectSchemaNode extends SchemaNodeBase {
  */
 export interface ArraySchemaNode extends SchemaNodeBase {
   type: 'array' | 'tuple'
-  /** Schema(s) describing array items. Single-element = homogeneous; multiple = tuple. */
+  /** Schema(s) describing array items. Single-element = homogeneous; multiple = positional tuple. */
   items?: Array<SchemaNode>
+  /**
+   * Schema for additional items beyond the positional `items` in a tuple (`prefixItems` / `items` continuation).
+   * Only meaningful when `type` is `'tuple'`.
+   */
+  rest?: SchemaNode
   /** Minimum number of items (`minItems` in JSON Schema / OAS). */
   min?: number
   /** Maximum number of items (`maxItems` in JSON Schema / OAS). */
