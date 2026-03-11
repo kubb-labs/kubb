@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { buildRefMap } from '@internals/ast'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { camelCase } from '@internals/utils'
 import { type Config, definePlugin, type Group, getMode, type KubbEvents } from '@kubb/core'
@@ -6,6 +7,7 @@ import type { Oas } from '@kubb/oas'
 import { parseFromConfig, resolveServerUrl } from '@kubb/oas'
 import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
+import { buildAst } from './parser.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 import type { PluginOas } from './types.ts'
 
@@ -36,6 +38,9 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
       discriminator,
       collisionDetection,
     })
+
+    oas.ast = buildAst(oas)
+    oas.refMap = buildRefMap(oas.ast)
 
     try {
       if (validate) {
@@ -138,7 +143,6 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
       if (!output) {
         return
       }
-
       await oas.dereference()
 
       const schemaGenerator = new SchemaGenerator(

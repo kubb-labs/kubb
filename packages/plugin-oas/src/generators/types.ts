@@ -1,3 +1,4 @@
+import type { SchemaNode } from '@internals/ast'
 import type { Config, Plugin, PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import type { OperationGenerator } from '../OperationGenerator.ts'
@@ -25,9 +26,23 @@ export type SchemaProps<TOptions extends PluginFactoryOptions> = {
   generator: Omit<SchemaGenerator<SchemaGeneratorOptions, TOptions>, 'build'>
   plugin: Plugin<TOptions>
   schema: {
+    /**
+     * @deprecated will be replaced with schemaNode
+     */
     name: string
+    /**
+     * @deprecated will be replaced with schemaNode
+     */
     tree: Array<Schema>
+    /**
+     * @deprecated will be replaced with schemaNode
+     */
     value: SchemaObject
+    /**
+     * The spec-agnostic AST node for this schema, populated from the kubb-parser stage.
+     * Use this to generate code without coupling to OpenAPI/Swagger internals.
+     */
+    schemaNode: SchemaNode
   }
 }
 

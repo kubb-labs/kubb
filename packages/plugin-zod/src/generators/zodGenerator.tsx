@@ -39,6 +39,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     const operationSchemas = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response]
       .flat()
       .filter(Boolean)
+
     const toZodPath = path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')
 
     const mapOperationSchema = ({ name, schema: schemaOriginal, description, keysToOmit: keysToOmitOriginal, ...options }: OperationSchemaType) => {

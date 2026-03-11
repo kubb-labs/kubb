@@ -1,3 +1,4 @@
+import type { SchemaNode } from '@internals/ast'
 import type { Config, Plugin, PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import { App, createReactFabric, type Fabric } from '@kubb/react-fabric'
@@ -77,6 +78,7 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
     name: string
     tree: Array<Schema>
     value: SchemaObject
+    schemaNode: SchemaNode
   },
   { config, fabric, plugin, Component, generator }: BuildSchemaOptions<TOptions>,
 ): Promise<void> {

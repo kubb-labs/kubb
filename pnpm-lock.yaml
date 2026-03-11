@@ -764,6 +764,12 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
 
+  internals/ast:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 20.19.37
+
   internals/tanstack-query:
     dependencies:
       '@internals/utils':
@@ -1006,6 +1012,9 @@ importers:
         specifier: ^7.0.8
         version: 7.0.8(encoding@0.1.13)
     devDependencies:
+      '@internals/ast':
+        specifier: workspace:*
+        version: link:../../internals/ast
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
@@ -1156,6 +1165,9 @@ importers:
         specifier: 'catalog:'
         version: 2.33.6
     devDependencies:
+      '@internals/ast':
+        specifier: workspace:*
+        version: link:../../internals/ast
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
@@ -1341,6 +1353,9 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
     devDependencies:
+      '@internals/ast':
+        specifier: workspace:*
+        version: link:../../internals/ast
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils

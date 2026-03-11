@@ -108,6 +108,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
+    "@internals/ast": "workspace:*",
     "@internals/utils": "workspace:*",
     "p-limit": "catalog:"
   },

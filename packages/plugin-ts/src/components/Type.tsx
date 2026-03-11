@@ -1,7 +1,8 @@
+import type { SchemaNode } from '@internals/ast'
 import { camelCase, jsStringEscape, pascalCase, trimQuotes } from '@internals/utils'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { SchemaObject } from '@kubb/oas'
-import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { File } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type ts from 'typescript'
@@ -12,6 +13,7 @@ import type { PluginTs } from '../types.ts'
 type Props = {
   name: string
   typedName: string
+  schemaNode?: SchemaNode
   schema: SchemaObject
   tree: Array<Schema>
   optionalType: PluginTs['resolvedOptions']['optionalType']
@@ -27,6 +29,7 @@ type Props = {
 export function Type({
   name,
   typedName,
+  schemaNode,
   tree,
   keysToOmit,
   schema,
@@ -36,7 +39,7 @@ export function Type({
   enumType,
   enumKeyCasing,
   mapper,
-  description,
+  ...rest
 }: Props): FabricReactNode {
   const typeNodes: ts.Node[] = []
 
@@ -44,7 +47,7 @@ export function Type({
     return ''
   }
 
-  const schemaFromTree = tree.find((item) => item.keyword === schemaKeywords.schema)
+  const description = rest.description || schemaNode?.description
   const enumSchemas = SchemaGenerator.deepSearch(tree, schemaKeywords.enum)
 
   let type =
@@ -74,7 +77,7 @@ export function Type({
 
       type = factory.createTypeReferenceNode(typeNameWithKey)
 
-      if (schema.type === 'array') {
+      if (isDirectEnum) {
         if (arrayType === 'generic') {
           type = factory.createTypeReferenceNode(factory.createIdentifier('Array'), [type])
         } else {
@@ -84,24 +87,20 @@ export function Type({
     }
   }
 
-  if (schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.schema)) {
-    const isNullish = tree.some((item) => item.keyword === schemaKeywords.nullish)
-    const isNullable = tree.some((item) => item.keyword === schemaKeywords.nullable)
-    const isOptional = tree.some((item) => item.keyword === schemaKeywords.optional)
-
-    if (isNullable) {
+  if (schemaNode) {
+    if (schemaNode.nullable) {
       type = factory.createUnionDeclaration({
         nodes: [type, factory.keywordTypeNodes.null],
       }) as ts.TypeNode
     }
 
-    if (isNullish && ['undefined', 'questionTokenAndUndefined'].includes(optionalType as string)) {
+    if (schemaNode.nullish && ['undefined', 'questionTokenAndUndefined'].includes(optionalType as string)) {
       type = factory.createUnionDeclaration({
         nodes: [type, factory.keywordTypeNodes.undefined],
       }) as ts.TypeNode
     }
 
-    if (isOptional && ['undefined', 'questionTokenAndUndefined'].includes(optionalType as string)) {
+    if (schemaNode.optional && ['undefined', 'questionTokenAndUndefined'].includes(optionalType as string)) {
       type = factory.createUnionDeclaration({
         nodes: [type, factory.keywordTypeNodes.undefined],
       }) as ts.TypeNode
@@ -123,14 +122,14 @@ export function Type({
         : type,
       syntax: useTypeGeneration ? 'type' : 'interface',
       comments: [
-        schema.title ? `${jsStringEscape(schema.title)}` : undefined,
+        schemaNode?.title ? `${jsStringEscape(schemaNode.title)}` : undefined,
         description ? `@description ${jsStringEscape(description)}` : undefined,
-        schema.deprecated ? '@deprecated' : undefined,
-        schema.minLength ? `@minLength ${schema.minLength}` : undefined,
-        schema.maxLength ? `@maxLength ${schema.maxLength}` : undefined,
-        schema.pattern ? `@pattern ${schema.pattern}` : undefined,
-        schema.default ? `@default ${schema.default}` : undefined,
-        schema.example ? `@example ${schema.example}` : undefined,
+        schemaNode?.deprecated ? '@deprecated' : undefined,
+        schemaNode && 'min' in schemaNode && schemaNode.min !== undefined ? `@minLength ${schemaNode.min}` : undefined,
+        schemaNode && 'max' in schemaNode && schemaNode.max !== undefined ? `@maxLength ${schemaNode.max}` : undefined,
+        schemaNode?.pattern ? `@pattern ${schemaNode?.pattern}` : undefined,
+        schemaNode?.default ? `@default ${schemaNode.default}` : undefined,
+        schemaNode?.example ? `@example ${schemaNode.example}` : undefined,
       ],
     }),
   )

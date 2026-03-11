@@ -7,6 +7,7 @@ import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import type { Generator } from './generators/types.ts'
+import { convertSchema } from './parser.ts'
 import { isKeyword, type Schema, type SchemaKeywordMapper, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
@@ -1382,6 +1383,7 @@ export class SchemaGenerator<
             }
 
             const tree = this.parse({ schema: resolvedSchemaObject, name, parentName: null, rootName: name })
+            const schemaNode = this.context.oas.refMap?.get(name) ?? convertSchema(resolvedSchemaObject, name)
 
             if (generator.type === 'react') {
               await buildSchema(
@@ -1389,6 +1391,7 @@ export class SchemaGenerator<
                   name,
                   value: resolvedSchemaObject,
                   tree,
+                  schemaNode,
                 },
                 {
                   config: this.context.pluginManager.config,
@@ -1415,6 +1418,7 @@ export class SchemaGenerator<
                 name,
                 value: resolvedSchemaObject,
                 tree,
+                schemaNode,
               },
               plugin: {
                 ...this.context.plugin,
