@@ -325,6 +325,18 @@ describe('convertSchema readOnly / writeOnly', () => {
 
     expect(node.readOnly).toBe(true)
   })
+
+  it('propagates pattern on ref sibling when type is string', () => {
+    const node = parser.convertSchema({ $ref: '#/components/schemas/Pet', type: 'string', pattern: '^[a-z]+$' })
+
+    expect(node.pattern).toBe('^[a-z]+$')
+  })
+
+  it('drops pattern on ref sibling when type is not string', () => {
+    const node = parser.convertSchema({ $ref: '#/components/schemas/Pet', pattern: '^[a-z]+$' })
+
+    expect(node.pattern).toBeUndefined()
+  })
 })
 
 describe('convertSchema deprecated', () => {
