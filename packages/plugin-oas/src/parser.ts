@@ -52,6 +52,8 @@ type SchemaNodeMap<TDateType extends Options['dateType'] = Options['dateType']> 
   [{ anyOf: ReadonlyArray<unknown> }, CompositeSchemaNode],
   [{ const: null }, ScalarSchemaNode],
   [{ const: string | number | boolean }, EnumSchemaNode],
+  // OAS 3.1 multi-type array: `{ type: ['string', 'integer'] }` → union node.
+  [{ type: ReadonlyArray<string> }, CompositeSchemaNode],
   // `{ type: 'array', enum }` is normalized at runtime: enum moves into items → array node.
   [{ type: 'array'; enum: ReadonlyArray<unknown> }, ArraySchemaNode],
   [{ enum: ReadonlyArray<unknown> }, EnumSchemaNode],
@@ -423,6 +425,31 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
         default: defaultValue,
         example: schema.example,
       })
+    }
+
+    // OAS 3.1: `type` may be an array of types — e.g. `["string", "integer", "null"]`.
+    // `null` in the array is the 3.1 equivalent of `nullable: true`; strip it and set the flag.
+    // When 2+ non-null types remain, produce a union node covering each type individually.
+    // When exactly 1 non-null type remains, fall through to the normal single-type branches below.
+    if (Array.isArray(schema.type) && schema.type.length > 1) {
+      const nonNullTypes = schema.type.filter((t) => t !== 'null') as string[]
+      const arrayNullable = schema.type.includes('null') || nullable || undefined
+
+      if (nonNullTypes.length > 1) {
+        return createSchema({
+          type: 'union',
+          name,
+          members: nonNullTypes.map((t) => convertSchema({ ...schema, type: t } as SchemaObject)),
+          nullable: arrayNullable,
+          title: schema.title,
+          description: schema.description,
+          deprecated: schema.deprecated,
+          readOnly: schema.readOnly,
+          writeOnly: schema.writeOnly,
+          default: defaultValue,
+          example: schema.example,
+        })
+      }
     }
 
     const type = Array.isArray(schema.type) ? schema.type[0] : schema.type

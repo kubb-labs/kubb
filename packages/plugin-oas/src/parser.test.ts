@@ -1329,7 +1329,37 @@ describe('convertSchema null', () => {
 describe('convertSchema OAS 3.1 type array', () => {
   const parser = createOasParser()
 
-  it('sets nullable when null is in the type array', () => {
+  it('narrows to CompositeSchemaNode for a multi-type array', () => {
+    const node = parser.convertSchema({ type: ['string', 'integer'] })
+
+    expectTypeOf(node).toEqualTypeOf<CompositeSchemaNode>()
+  })
+
+  it('produces a union node for two non-null types', () => {
+    const node = parser.convertSchema({ type: ['string', 'integer'] })
+
+    expect(node.type).toBe('union')
+    expect((node).members).toHaveLength(2)
+    expect((node).members?.[0]?.type).toBe('string')
+    expect((node).members?.[1]?.type).toBe('integer')
+  })
+
+  it('produces a union node for three non-null types', () => {
+    const node = parser.convertSchema({ type: ['string', 'integer', 'boolean'] })
+
+    expect(node.type).toBe('union')
+    expect((node).members).toHaveLength(3)
+  })
+
+  it('sets nullable when null is among multiple types', () => {
+    const node = parser.convertSchema({ type: ['string', 'integer', 'null'] })
+
+    expect(node.type).toBe('union')
+    expect(node.nullable).toBe(true)
+    expect((node).members).toHaveLength(2)
+  })
+
+  it('sets nullable when null is in a single-non-null type array', () => {
     const node = parser.convertSchema({ type: ['string', 'null'] })
 
     expect(node.type).toBe('string')
@@ -1341,6 +1371,24 @@ describe('convertSchema OAS 3.1 type array', () => {
 
     expect(node.type).toBe('integer')
     expect(node.nullable).toBeUndefined()
+  })
+
+  it('propagates shared schema metadata onto the union node', () => {
+    const node = parser.convertSchema({
+      type: ['string', 'integer'],
+      description: 'id or label',
+      deprecated: true,
+    })
+
+    expect(node.description).toBe('id or label')
+    expect(node.deprecated).toBe(true)
+  })
+
+  it('each union member schema carries the shared schema properties', () => {
+    const node = parser.convertSchema({ type: ['string', 'integer'], readOnly: true })
+
+    const members = (node).members ?? []
+    expect(members.every((m) => m.readOnly === true)).toBe(true)
   })
 })
 
