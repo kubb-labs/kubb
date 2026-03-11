@@ -1,7 +1,7 @@
 import type {
   ArraySchemaNode,
   CompositeSchemaNode,
-  DateSchemaNode,
+
   EnumSchemaNode,
   NumberSchemaNode,
   ObjectSchemaNode,
@@ -1372,7 +1372,7 @@ describe('createOasParser options', () => {
 
       it('dateType: date returns date with representation: date', () => {
         const parser = createOasParser({ dateType: 'date' })
-        const node = parser.convertSchema({ type: 'string', format: 'date-time' }) as unknown as DateSchemaNode
+        const node = parser.convertSchema({ type: 'string', format: 'date-time' })
 
         expect(node.type).toBe('date')
         expect(node.representation).toBe('date')

@@ -26,13 +26,26 @@ import type { Oas, Operation, SchemaObject } from '@kubb/oas'
 import { isNullable, isReference } from '@kubb/oas'
 
 /** Distributive `Omit` that correctly distributes over union types. */
-type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+type DistributiveOmit<TValue, TKey extends PropertyKey> = TValue extends unknown ? Omit<TValue, TKey> : never
+
+/** Maps each `dateType` option value to the AST node produced by `format: 'date-time'`. */
+type DateTimeNodeByDateType = {
+  date: DateSchemaNode
+  string: DatetimeSchemaNode
+  stringOffset: DatetimeSchemaNode
+  stringLocal: DatetimeSchemaNode
+  false: StringSchemaNode
+}
+
+/** Resolves the AST node produced by `format: 'date-time'` based on the `dateType` option. */
+type ResolveDateTimeNode<TDateType extends Options['dateType']> = DateTimeNodeByDateType[TDateType extends keyof DateTimeNodeByDateType ? TDateType : 'string']
 
 /**
  * Single source of truth: ordered list of `[shape, SchemaNode]` pairs.
  * `InferSchemaNode` walks this tuple in order and returns the node type of the first matching entry.
+ * Parameterised over `TDateType` so `format: 'date-time'` resolves to the correct node based on the option.
  */
-type SchemaNodeMap = [
+type SchemaNodeMap<TDateType extends Options['dateType'] = Options['dateType']> = [
   [{ $ref: string }, RefSchemaNode],
   [{ allOf: ReadonlyArray<unknown> }, CompositeSchemaNode | SchemaNode],
   [{ oneOf: ReadonlyArray<unknown> }, CompositeSchemaNode],
@@ -44,10 +57,10 @@ type SchemaNodeMap = [
   [{ type: 'array' }, ArraySchemaNode],
   [{ items: object }, ArraySchemaNode],
   // Format entries with explicit type — placed before generic type entries so format wins.
-  [{ type: string; format: 'date-time' }, DatetimeSchemaNode],
+  [{ type: string; format: 'date-time' }, ResolveDateTimeNode<TDateType>],
   [{ type: string; format: 'date' }, DateSchemaNode],
   [{ type: string; format: 'time' }, TimeSchemaNode],
-  [{ format: 'date-time' }, DatetimeSchemaNode],
+  [{ format: 'date-time' }, ResolveDateTimeNode<TDateType>],
   [{ format: 'date' }, DateSchemaNode],
   [{ format: 'time' }, TimeSchemaNode],
   [{ type: 'string' }, StringSchemaNode],
@@ -63,13 +76,14 @@ type SchemaNodeMap = [
   [{ maximum: number }, NumberSchemaNode],
 ]
 
-type InferSchemaNode<T extends SchemaObject, Entries extends ReadonlyArray<[object, SchemaNode]> = SchemaNodeMap> = Entries extends [
-  infer Head extends [object, SchemaNode],
-  ...infer Tail extends ReadonlyArray<[object, SchemaNode]>,
-]
-  ? T extends Head[0]
-    ? Head[1]
-    : InferSchemaNode<T, Tail>
+type InferSchemaNode<
+  TSchema extends SchemaObject,
+  TDateType extends Options['dateType'] = Options['dateType'],
+  TEntries extends ReadonlyArray<[object, SchemaNode]> = SchemaNodeMap<TDateType>,
+> = TEntries extends [infer TEntry extends [object, SchemaNode], ...infer TRest extends ReadonlyArray<[object, SchemaNode]>]
+  ? TSchema extends TEntry[0]
+    ? TEntry[1]
+    : InferSchemaNode<TSchema, TDateType, TRest>
   : SchemaNode
 
 type Options = {
@@ -141,6 +155,12 @@ function toMediaType(contentType: string): MediaType | undefined {
   return known.includes(contentType as MediaType) ? (contentType as MediaType) : undefined
 }
 
+/** The public interface returned by `createOasParser`, typed over the resolved `dateType` option. */
+type OasParser<TDateType extends Options['dateType']> = {
+  buildAst: (oas: Oas) => RootNode
+  convertSchema: <TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }>(schema: TSchema, name?: string) => InferSchemaNode<TSchema, TDateType>
+}
+
 /**
  * Creates a scope-bound OAS parser that converts an OpenAPI/Swagger spec into
  * the `@internals/ast` tree. All helpers close over the resolved `options` so
@@ -159,7 +179,9 @@ function toMediaType(contentType: string): MediaType | undefined {
  * const node = parser.convertSchema(schemaObject, 'Pet')
  * ```
  */
-export function createOasParser(userOptions?: Partial<Options>) {
+export function createOasParser(): OasParser<'string'>
+export function createOasParser<TOptions extends Partial<Options>>(userOptions: TOptions): OasParser<TOptions extends { dateType: Options['dateType'] } ? TOptions['dateType'] : (typeof DEFAULT_OPTIONS)['dateType']>
+export function createOasParser<TOptions extends Partial<Options>>(userOptions?: TOptions) {
   const options: Options = { ...DEFAULT_OPTIONS, ...userOptions }
 
   function getUnknownType() {
@@ -216,7 +238,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
     return { type: 'time', representation: options.dateType === 'date' ? 'date' : 'string' }
   }
 
-  function convertSchema<F extends string, T extends SchemaObject & { format?: F }>(schema: T, name?: string): InferSchemaNode<T>
+  function convertSchema<TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }>(schema: TSchema, name?: string): InferSchemaNode<TSchema, TOptions extends { dateType: Options['dateType'] } ? TOptions['dateType'] : (typeof DEFAULT_OPTIONS)['dateType']>
   function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
     const emptyType = getEmptySchemaType()
     const nullable = isNullable(schema) || undefined
@@ -688,12 +710,12 @@ export function createOasParser(userOptions?: Partial<Options>) {
 
     const operations: Array<OperationNode> = Object.entries(paths).flatMap(([, methods]) =>
       Object.entries(methods)
-        .map(([, operation]) => (operation ? convertOperation(oas, operation as Operation) : null))
+        .map(([, operation]) => (operation ? convertOperation(oas, operation) : null))
         .filter((op): op is OperationNode => op !== null),
     )
 
     return createRoot({ schemas, operations })
   }
 
-  return { buildAst, convertSchema }
+  return { buildAst, convertSchema } as OasParser<any>
 }
