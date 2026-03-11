@@ -108,6 +108,36 @@ describe('getSchemas', () => {
     expect(result).toMatchSnapshot()
   })
 
+  it('should handle self-referencing schema in components.schemas without infinite loop', async () => {
+    // Regression test for https://github.com/kubb-labs/kubb/issues/2730
+    // When a component schema is itself a $ref (e.g. from an external file that the
+    // bundler exposes as a local self-ref), getSchemas must NOT throw
+    // "Maximum call stack size exceeded".
+    const oas = await parse({
+      openapi: '3.0.0',
+      components: {
+        schemas: {
+          Parcel: { $ref: '#/components/schemas/Parcel' } as unknown as OasTypes.SchemaObject,
+          Result: {
+            type: 'object',
+            properties: {
+              parcels: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/Parcel' },
+              },
+            },
+          },
+        },
+      },
+    } as unknown as OasTypes.OASDocument)
+
+    // Should not throw "Maximum call stack size exceeded"
+    expect(() => getSchemas({ oas, collisionDetection: true })).not.toThrow()
+    const { schemas: result } = getSchemas({ oas, collisionDetection: true })
+    const keys = Object.keys(result)
+    expect(keys.sort()).toEqual(['Parcel', 'Result'])
+  })
+
   it('should respect custom contentType when multiple exist', async () => {
     const oas = await parse({
       openapi: '3.0.0',

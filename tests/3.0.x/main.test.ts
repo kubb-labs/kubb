@@ -223,6 +223,39 @@ const configs: Array<{ name: string; config: UserConfig }> = [
   },
   {
     /**
+     * Regression test for https://github.com/kubb-labs/kubb/issues/2730
+     *
+     * When components.schemas has an entry that is itself a $ref to an external file
+     * (e.g. `Parcel: { $ref: "api-definitions.yaml#/components/schemas/Parcel" }`),
+     * kubb must NOT produce "Maximum call stack size exceeded". Instead it should
+     * generate a single Parcel schema file and reference it correctly.
+     */
+    name: 'issue2730',
+    config: {
+      root: __dirname,
+      input: {
+        path: '../../schemas/external-refs/component-ref/main.yaml',
+      },
+      output: {
+        path: './gen',
+        barrelType: false,
+      },
+      plugins: [
+        pluginOas({
+          validate: false,
+          generators: [],
+        }),
+        pluginZod({
+          output: {
+            path: './zod',
+            barrelType: false,
+          },
+        }),
+      ],
+    },
+  },
+  {
+    /**
      * Regression test for https://github.com/kubb-labs/kubb/issues/2696
      *
      * When path operations use external path-item $refs (e.g. `$ref: './paths/me.yaml'`) and

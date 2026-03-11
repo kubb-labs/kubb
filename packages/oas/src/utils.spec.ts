@@ -291,6 +291,29 @@ components:
       const sorted = sortSchemas(schemas)
       expect(Object.keys(sorted)).toHaveLength(2)
     })
+
+    test('should handle self-referencing schema without infinite loop', () => {
+      // Regression test for https://github.com/kubb-labs/kubb/issues/2730
+      // When components.schemas.X is { $ref: "#/components/schemas/X" } (self-ref),
+      // sortSchemas must NOT cause "Maximum call stack size exceeded".
+      const schemas: Record<string, SchemaObject> = {
+        Parcel: { $ref: '#/components/schemas/Parcel' } as SchemaObject,
+        Result: {
+          type: 'object',
+          properties: {
+            parcels: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/Parcel' },
+            },
+          },
+        },
+      }
+
+      // Should not throw "Maximum call stack size exceeded"
+      expect(() => sortSchemas(schemas)).not.toThrow()
+      const sorted = sortSchemas(schemas)
+      expect(Object.keys(sorted)).toHaveLength(2)
+    })
   })
 
   describe('extractSchemaFromContent', () => {
