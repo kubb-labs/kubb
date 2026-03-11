@@ -373,6 +373,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "readOnly": undefined,
       "title": undefined,
       "type": "array",
+      "unique": undefined,
       "writeOnly": undefined,
     },
     {
@@ -1024,6 +1025,7 @@ exports[`buildAst snapshots > schema 'PetList' ('array of refs') 1`] = `
   "readOnly": undefined,
   "title": undefined,
   "type": "array",
+  "unique": undefined,
   "writeOnly": undefined,
 }
 `;

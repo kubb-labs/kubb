@@ -122,6 +122,8 @@ export interface ArraySchemaNode extends SchemaNodeBase {
   min?: number
   /** Maximum number of items (`maxItems` in JSON Schema / OAS). */
   max?: number
+  /** Whether all items must be unique (`uniqueItems` in JSON Schema / OAS). */
+  unique?: boolean
 }
 
 /** Schema for `'union'` and `'intersection'` types — carries member schemas. */

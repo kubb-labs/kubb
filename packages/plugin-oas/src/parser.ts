@@ -407,8 +407,8 @@ export function createOasParser(userOptions?: Partial<Options>) {
       })
     }
 
-    // Array
-    if (type === 'array') {
+    // Array — also triggered when `items` is present without an explicit `type: 'array'`.
+    if (type === 'array' || 'items' in schema) {
       const rawSchema = schema as unknown as { items?: SchemaObject }
       const items = rawSchema.items ? [convertSchema(rawSchema.items)] : []
       return createSchema({
@@ -423,6 +423,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
         writeOnly: schema.writeOnly,
         min: schema.minItems,
         max: schema.maxItems,
+        unique: schema.uniqueItems ?? undefined,
         default: defaultValue,
         example: schema.example,
       })

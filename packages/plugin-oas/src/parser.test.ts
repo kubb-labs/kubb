@@ -784,6 +784,89 @@ describe('convertSchema pattern', () => {
   })
 })
 
+describe('convertSchema array', () => {
+  const parser = createOasParser()
+
+  it('maps type array to array node', () => {
+    const node = parser.convertSchema({ type: 'array' })
+
+    expect(node.type).toBe('array')
+  })
+
+  it('infers array type from items key alone (no explicit type)', () => {
+    const node = parser.convertSchema({ items: { type: 'string' } })
+
+    expect(node.type).toBe('array')
+  })
+
+  it('converts items to a single-element items array', () => {
+    const node = parser.convertSchema({ type: 'array', items: { type: 'string' } })
+
+    expect(node.items).toHaveLength(1)
+    expect(node.items?.[0]?.type).toBe('string')
+  })
+
+  it('produces an empty items array when items is absent', () => {
+    const node = parser.convertSchema({ type: 'array' })
+
+    expect(node.items).toHaveLength(0)
+  })
+
+  it('maps minItems to min', () => {
+    const node = parser.convertSchema({ type: 'array', minItems: 1 })
+
+    expect(node.min).toBe(1)
+  })
+
+  it('maps maxItems to max', () => {
+    const node = parser.convertSchema({ type: 'array', maxItems: 5 })
+
+    expect(node.max).toBe(5)
+  })
+
+  it('maps uniqueItems: true to unique: true', () => {
+    const node = parser.convertSchema({ type: 'array', uniqueItems: true })
+
+    expect(node.unique).toBe(true)
+  })
+
+  it('maps uniqueItems: false to unique: false', () => {
+    const node = parser.convertSchema({ type: 'array', uniqueItems: false })
+
+    expect(node.unique).toBe(false)
+  })
+
+  it('leaves unique undefined when uniqueItems is not set', () => {
+    const node = parser.convertSchema({ type: 'array' })
+
+    expect(node.unique).toBeUndefined()
+  })
+
+  it('preserves nullable on array', () => {
+    const node = parser.convertSchema({ type: 'array', nullable: true })
+
+    expect(node.type).toBe('array')
+    expect(node.nullable).toBe(true)
+  })
+
+  it('converts nested array items recursively', () => {
+    const node = parser.convertSchema({ type: 'array', items: { type: 'array', items: { type: 'number' } } })
+    const outerItem = node.items?.[0] as ArraySchemaNode | undefined
+    const innerItem = outerItem?.items?.[0]
+
+    expect(node.type).toBe('array')
+    expect(outerItem?.type).toBe('array')
+    expect(innerItem?.type).toBe('number')
+  })
+
+  it('converts ref items', () => {
+    const node = parser.convertSchema({ type: 'array', items: { $ref: '#/components/schemas/Pet' } })
+
+    expect(node.type).toBe('array')
+    expect(node.items?.[0]?.type).toBe('ref')
+  })
+})
+
 describe('convertSchema constraints', () => {
   const parser = createOasParser()
 
@@ -813,6 +896,7 @@ describe('convertSchema constraints', () => {
       expect(node.min).toBeUndefined()
       expect(node.max).toBeUndefined()
     })
+
   })
 
   describe('string: minLength / maxLength', () => {
