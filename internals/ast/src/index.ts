@@ -5,7 +5,6 @@ export { createOperation, createParameter, createProperty, createResponse, creat
 // guards
 export { isOperationNode, isParameterNode, isPropertyNode, isResponseNode, isRootNode, isSchemaNode, narrowSchema } from './guards.ts'
 export type {
-  ScalarSchemaType,
   ArraySchemaNode,
   BaseNode,
   ComplexSchemaType,
@@ -14,8 +13,8 @@ export type {
   EnumSchemaNode,
   EnumValueNode,
   HttpMethod,
-  IntersectionSchemaNode,
   HttpStatusCode,
+  IntersectionSchemaNode,
   MediaType,
   Node,
   NodeKind,
@@ -30,6 +29,7 @@ export type {
   ResponseNode,
   RootNode,
   ScalarSchemaNode,
+  ScalarSchemaType,
   SchemaNode,
   SchemaType,
   SpecialSchemaType,

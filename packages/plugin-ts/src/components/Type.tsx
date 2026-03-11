@@ -127,7 +127,7 @@ export function Type({
         schemaNode?.deprecated ? '@deprecated' : undefined,
         schemaNode && 'min' in schemaNode && schemaNode.min !== undefined ? `@minLength ${schemaNode.min}` : undefined,
         schemaNode && 'max' in schemaNode && schemaNode.max !== undefined ? `@maxLength ${schemaNode.max}` : undefined,
-        schemaNode?.pattern ? `@pattern ${schemaNode?.pattern}` : undefined,
+        schemaNode && 'pattern' in schemaNode && schemaNode.pattern ? `@pattern ${schemaNode.pattern}` : undefined,
         schemaNode?.default ? `@default ${schemaNode.default}` : undefined,
         schemaNode?.example ? `@example ${schemaNode.example}` : undefined,
       ],

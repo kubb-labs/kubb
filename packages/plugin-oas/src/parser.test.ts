@@ -38,7 +38,10 @@ describe('buildAst', () => {
     it('converts object schema with properties', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const pet = narrowSchema<ObjectSchemaNode>(root.schemas.find((s) => s.name === 'Pet'), 'object')
+      const pet = narrowSchema<ObjectSchemaNode>(
+        root.schemas.find((s) => s.name === 'Pet'),
+        'object',
+      )
 
       expect(pet?.type).toBe('object')
       expect(pet?.properties?.map((p) => p.name)).toEqual(expect.arrayContaining(['id', 'name', 'tag']))
@@ -47,7 +50,10 @@ describe('buildAst', () => {
     it('marks required properties', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const pet = narrowSchema<ObjectSchemaNode>(root.schemas.find((s) => s.name === 'Pet'), 'object')
+      const pet = narrowSchema<ObjectSchemaNode>(
+        root.schemas.find((s) => s.name === 'Pet'),
+        'object',
+      )
       const idProp = pet?.properties?.find((p) => p.name === 'id')
       const tagProp = pet?.properties?.find((p) => p.name === 'tag')
 
@@ -58,7 +64,10 @@ describe('buildAst', () => {
     it('converts array schema', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const list = narrowSchema<ArraySchemaNode>(root.schemas.find((s) => s.name === 'PetList'), 'array')
+      const list = narrowSchema<ArraySchemaNode>(
+        root.schemas.find((s) => s.name === 'PetList'),
+        'array',
+      )
 
       expect(list?.type).toBe('array')
       expect(list?.items).toHaveLength(1)
@@ -68,7 +77,10 @@ describe('buildAst', () => {
     it('converts enum schema', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const status = narrowSchema<EnumSchemaNode>(root.schemas.find((s) => s.name === 'Status'), 'enum')
+      const status = narrowSchema<EnumSchemaNode>(
+        root.schemas.find((s) => s.name === 'Status'),
+        'enum',
+      )
 
       expect(status?.type).toBe('enum')
       expect(status?.enumValues).toEqual(['active', 'inactive', 'pending'])
@@ -77,7 +89,10 @@ describe('buildAst', () => {
     it('converts oneOf to union', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const petOrError = narrowSchema<UnionSchemaNode>(root.schemas.find((s) => s.name === 'PetOrError'), 'union')
+      const petOrError = narrowSchema<UnionSchemaNode>(
+        root.schemas.find((s) => s.name === 'PetOrError'),
+        'union',
+      )
 
       expect(petOrError?.type).toBe('union')
       expect(petOrError?.members).toHaveLength(2)
@@ -86,7 +101,10 @@ describe('buildAst', () => {
     it('converts allOf to intersection', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const fullPet = narrowSchema<IntersectionSchemaNode>(root.schemas.find((s) => s.name === 'FullPet'), 'intersection')
+      const fullPet = narrowSchema<IntersectionSchemaNode>(
+        root.schemas.find((s) => s.name === 'FullPet'),
+        'intersection',
+      )
 
       expect(fullPet?.type).toBe('intersection')
       expect(fullPet?.members).toHaveLength(2)
@@ -107,7 +125,10 @@ describe('buildAst', () => {
     it('flattens single-member allOf for nullable $ref', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const nullableRef = narrowSchema<RefSchemaNode>(root.schemas.find((s) => s.name === 'NullableRef'), 'ref')
+      const nullableRef = narrowSchema<RefSchemaNode>(
+        root.schemas.find((s) => s.name === 'NullableRef'),
+        'ref',
+      )
 
       // Should be flattened to a ref — not an intersection
       expect(nullableRef?.type).toBe('ref')
@@ -118,9 +139,15 @@ describe('buildAst', () => {
     it('maps format date-time to datetime SchemaType', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const fullPet = narrowSchema<IntersectionSchemaNode>(root.schemas.find((s) => s.name === 'FullPet'), 'intersection')
+      const fullPet = narrowSchema<IntersectionSchemaNode>(
+        root.schemas.find((s) => s.name === 'FullPet'),
+        'intersection',
+      )
       // second member is an inline object with createdAt (datetime) and email
-      const objectMember = narrowSchema<ObjectSchemaNode>(fullPet?.members?.find((m) => m.type === 'object'), 'object')
+      const objectMember = narrowSchema<ObjectSchemaNode>(
+        fullPet?.members?.find((m) => m.type === 'object'),
+        'object',
+      )
       const createdAt = objectMember?.properties?.find((p) => p.name === 'createdAt')
 
       expect(createdAt?.schema.type).toBe('datetime')
@@ -129,8 +156,14 @@ describe('buildAst', () => {
     it('maps format email to email SchemaType', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser().buildAst(oas)
-      const fullPet = narrowSchema<IntersectionSchemaNode>(root.schemas.find((s) => s.name === 'FullPet'), 'intersection')
-      const objectMember = narrowSchema<ObjectSchemaNode>(fullPet?.members?.find((m) => m.type === 'object'), 'object')
+      const fullPet = narrowSchema<IntersectionSchemaNode>(
+        root.schemas.find((s) => s.name === 'FullPet'),
+        'intersection',
+      )
+      const objectMember = narrowSchema<ObjectSchemaNode>(
+        fullPet?.members?.find((m) => m.type === 'object'),
+        'object',
+      )
       const email = objectMember?.properties?.find((p) => p.name === 'email')
 
       expect(email?.schema.type).toBe('email')
@@ -1059,7 +1092,7 @@ describe('convertSchema object patternProperties', () => {
   it('patternProperties triggers object even without type or properties', () => {
     const node = parser.convertSchema({
       patternProperties: { '^x-': { type: 'string' } },
-    } )
+    })
 
     expect(node.type).toBe('object')
   })
@@ -1342,97 +1375,97 @@ describe('convertSchema enum', () => {
   const parser = createOasParser()
 
   it('narrows to EnumSchemaNode when enum is present', () => {
-    const node = parser.convertSchema({enum: ['a', 'b']})
+    const node = parser.convertSchema({ enum: ['a', 'b'] })
 
     expectTypeOf(node).toEqualTypeOf<EnumSchemaNode>()
   })
 
   it('maps type to enum', () => {
-    const node = parser.convertSchema({enum: ['a', 'b']})
+    const node = parser.convertSchema({ enum: ['a', 'b'] })
 
     expect(node.type).toBe('enum')
   })
 
   it('stores string values in enumValues', () => {
-    const node = parser.convertSchema({enum: ['foo', 'bar', 'baz']})
+    const node = parser.convertSchema({ enum: ['foo', 'bar', 'baz'] })
 
     expect(node.enumValues).toEqual(['foo', 'bar', 'baz'])
   })
 
   it('deduplicates enum values', () => {
-    const node = parser.convertSchema({enum: ['a', 'a', 'b']})
+    const node = parser.convertSchema({ enum: ['a', 'a', 'b'] })
 
     expect(node.enumValues).toEqual(['a', 'b'])
   })
 
   it('strips null from enumValues and sets nullable', () => {
-    const node = parser.convertSchema({enum: ['a', null, 'b']})
+    const node = parser.convertSchema({ enum: ['a', null, 'b'] })
 
     expect(node.nullable).toBe(true)
     expect(node.enumValues).toEqual(['a', 'b'])
   })
 
   it('sets nullable from null in enum even when nullable is not set on schema', () => {
-    const node = parser.convertSchema({enum: [null]})
+    const node = parser.convertSchema({ enum: [null] })
 
     expect(node.nullable).toBe(true)
   })
 
   it('sets enumNullable from schema nullable combined with null in enum', () => {
-    const node = parser.convertSchema({enum: ['a', null], nullable: true})
+    const node = parser.convertSchema({ enum: ['a', null], nullable: true })
 
     expect(node.nullable).toBe(true)
     expect(node.enumValues).toEqual(['a'])
   })
 
   it('clears default when default is null and enum is nullable', () => {
-    const node = parser.convertSchema({enum: ['a', null], default: null})
+    const node = parser.convertSchema({ enum: ['a', null], default: null })
 
     expect(node.default).toBeUndefined()
   })
 
   it('preserves non-null default', () => {
-    const node = parser.convertSchema({enum: ['a', 'b'], default: 'a'})
+    const node = parser.convertSchema({ enum: ['a', 'b'], default: 'a' })
 
     expect(node.default).toBe('a')
   })
 
   // Number enum
   it('produces namedEnumValues with format number for integer enum', () => {
-    const node = parser.convertSchema({type: 'integer', enum: [1, 2, 3]})
+    const node = parser.convertSchema({ type: 'integer', enum: [1, 2, 3] })
 
     expect(node.type).toBe('enum')
-    expect((node).enumType).toBe('number')
-    const values = (node).namedEnumValues
+    expect(node.enumType).toBe('number')
+    const values = node.namedEnumValues
     expect(values?.map((v) => v.value)).toEqual([1, 2, 3])
     expect(values?.every((v) => v.format === 'number')).toBe(true)
   })
 
   it('produces namedEnumValues with format number for number enum', () => {
-    const node = parser.convertSchema({type: 'number', enum: [0.5, 1.5]})
+    const node = parser.convertSchema({ type: 'number', enum: [0.5, 1.5] })
 
-    expect((node).enumType).toBe('number')
-    expect((node).namedEnumValues?.map((v) => v.value)).toEqual([0.5, 1.5])
+    expect(node.enumType).toBe('number')
+    expect(node.namedEnumValues?.map((v) => v.value)).toEqual([0.5, 1.5])
   })
 
   it('uses stringified value as name for numeric enum values', () => {
-    const node = parser.convertSchema({type: 'integer', enum: [42]})
+    const node = parser.convertSchema({ type: 'integer', enum: [42] })
 
-    expect((node).namedEnumValues?.[0]?.name).toBe('42')
+    expect(node.namedEnumValues?.[0]?.name).toBe('42')
   })
 
   it('deduplicates numeric enum values', () => {
-    const node = parser.convertSchema({type: 'integer', enum: [1, 1, 2]})
+    const node = parser.convertSchema({ type: 'integer', enum: [1, 1, 2] })
 
-    expect((node).namedEnumValues?.map((v) => v.value)).toEqual([1, 2])
+    expect(node.namedEnumValues?.map((v) => v.value)).toEqual([1, 2])
   })
 
   // Boolean enum
   it('produces namedEnumValues with format boolean for boolean enum', () => {
-    const node = parser.convertSchema({type: 'boolean', enum: [true, false]})
+    const node = parser.convertSchema({ type: 'boolean', enum: [true, false] })
 
-    expect((node).enumType).toBe('boolean')
-    const values = (node).namedEnumValues
+    expect(node.enumType).toBe('boolean')
+    const values = node.namedEnumValues
     expect(values?.map((v) => v.value)).toEqual([true, false])
     expect(values?.every((v) => v.format === 'boolean')).toBe(true)
   })
@@ -1445,7 +1478,7 @@ describe('convertSchema enum', () => {
       'x-enumNames': ['One', 'Two', 'Three'],
     })
 
-    const values = (node).namedEnumValues
+    const values = node.namedEnumValues
     expect(values?.map((v) => v.name)).toEqual(['One', 'Two', 'Three'])
     expect(values?.map((v) => v.value)).toEqual([1, 2, 3])
   })
@@ -1456,7 +1489,7 @@ describe('convertSchema enum', () => {
       'x-enum-varnames': ['Active', 'Inactive'],
     })
 
-    const values = (node).namedEnumValues
+    const values = node.namedEnumValues
     expect(values?.map((v) => v.name)).toEqual(['Active', 'Inactive'])
     expect(values?.map((v) => v.value)).toEqual(['active', 'inactive'])
   })
@@ -1467,7 +1500,7 @@ describe('convertSchema enum', () => {
       'x-enumNames': ['A', 'A', 'B'],
     })
 
-    const values = (node).namedEnumValues
+    const values = node.namedEnumValues
     expect(values?.map((v) => v.name)).toEqual(['A', 'B'])
   })
 
@@ -1478,7 +1511,7 @@ describe('convertSchema enum', () => {
       'x-enumNames': ['Off', 'On'],
     })
 
-    expect((node).enumType).toBe('number')
+    expect(node.enumType).toBe('number')
   })
 
   it('x-enumNames sets enumType string when type is not numeric or boolean', () => {
@@ -1487,7 +1520,7 @@ describe('convertSchema enum', () => {
       'x-enumNames': ['Alpha', 'Beta'],
     })
 
-    expect((node).enumType).toBe('string')
+    expect(node.enumType).toBe('string')
   })
 
   // Array + enum normalization
@@ -1541,16 +1574,16 @@ describe('convertSchema OAS 3.1 type array', () => {
     const node = parser.convertSchema({ type: ['string', 'integer'] })
 
     expect(node.type).toBe('union')
-    expect((node).members).toHaveLength(2)
-    expect((node).members?.[0]?.type).toBe('string')
-    expect((node).members?.[1]?.type).toBe('integer')
+    expect(node.members).toHaveLength(2)
+    expect(node.members?.[0]?.type).toBe('string')
+    expect(node.members?.[1]?.type).toBe('integer')
   })
 
   it('produces a union node for three non-null types', () => {
     const node = parser.convertSchema({ type: ['string', 'integer', 'boolean'] })
 
     expect(node.type).toBe('union')
-    expect((node).members).toHaveLength(3)
+    expect(node.members).toHaveLength(3)
   })
 
   it('sets nullable when null is among multiple types', () => {
@@ -1558,7 +1591,7 @@ describe('convertSchema OAS 3.1 type array', () => {
 
     expect(node.type).toBe('union')
     expect(node.nullable).toBe(true)
-    expect((node).members).toHaveLength(2)
+    expect(node.members).toHaveLength(2)
   })
 
   it('sets nullable when null is in a single-non-null type array', () => {
@@ -1589,7 +1622,7 @@ describe('convertSchema OAS 3.1 type array', () => {
   it('each union member schema carries the shared schema properties', () => {
     const node = parser.convertSchema({ type: ['string', 'integer'], readOnly: true })
 
-    const members = (node).members ?? []
+    const members = node.members ?? []
     expect(members.every((m) => m.readOnly === true)).toBe(true)
   })
 })
@@ -1872,7 +1905,6 @@ describe('convertSchema constraints', () => {
       expect(node.min).toBeUndefined()
       expect(node.max).toBeUndefined()
     })
-
   })
 
   describe('string: minLength / maxLength', () => {

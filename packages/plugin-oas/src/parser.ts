@@ -5,7 +5,6 @@ import type {
   EnumSchemaNode,
   HttpMethod,
   IntersectionSchemaNode,
-  UnionSchemaNode,
   MediaType,
   NumberSchemaNode,
   ObjectSchemaNode,
@@ -17,10 +16,13 @@ import type {
   ResponseNode,
   RootNode,
   ScalarSchemaNode,
+  ScalarSchemaType,
   SchemaNode,
+  SchemaType,
+  StatusCode,
   StringSchemaNode,
   TimeSchemaNode,
-  StatusCode, SchemaType, ScalarSchemaType,
+  UnionSchemaNode,
 } from '@internals/ast'
 import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, schemaTypes } from '@internals/ast'
 import type { Oas, Operation, SchemaObject } from '@kubb/oas'
@@ -64,7 +66,7 @@ type SchemaNodeMap<TDateType extends Options['dateType'] = Options['dateType']> 
   [{ type: 'array'; enum: ReadonlyArray<unknown> }, ArraySchemaNode],
   [{ enum: ReadonlyArray<unknown> }, EnumSchemaNode],
   [{ type: 'object' }, ObjectSchemaNode],
-  [{additionalProperties: boolean | { }}, ObjectSchemaNode],
+  [{ additionalProperties: boolean | {} }, ObjectSchemaNode],
   [{ type: 'array' }, ArraySchemaNode],
   [{ items: object }, ArraySchemaNode],
   [{ prefixItems: ReadonlyArray<unknown> }, ArraySchemaNode],
@@ -88,7 +90,7 @@ type SchemaNodeMap<TDateType extends Options['dateType'] = Options['dateType']> 
   [{ maximum: number }, NumberSchemaNode],
 ]
 
-type InferSchemaNode<
+export type InferSchemaNode<
   TSchema extends SchemaObject,
   TDateType extends Options['dateType'] = Options['dateType'],
   TEntries extends ReadonlyArray<[object, SchemaNode]> = SchemaNodeMap<TDateType>,
@@ -111,8 +113,6 @@ const DEFAULT_OPTIONS: Options = {
   unknownType: 'unknown',
   emptySchemaType: 'unknown',
 }
-
-
 
 const FORMAT_MAP: Record<string, SchemaType> = {
   uuid: 'uuid',
@@ -170,7 +170,10 @@ function toMediaType(contentType: string): MediaType | undefined {
 /** The public interface returned by `createOasParser`, typed over the resolved `dateType` option. */
 type OasParser<TDateType extends Options['dateType']> = {
   buildAst: (oas: Oas) => RootNode
-  convertSchema: <TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }>(schema: TSchema, name?: string) => InferSchemaNode<TSchema, TDateType>
+  convertSchema: <TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }>(
+    schema: TSchema,
+    name?: string,
+  ) => InferSchemaNode<TSchema, TDateType>
 }
 
 /**
@@ -192,7 +195,9 @@ type OasParser<TDateType extends Options['dateType']> = {
  * ```
  */
 export function createOasParser(): OasParser<'string'>
-export function createOasParser<TOptions extends Partial<Options>>(userOptions: TOptions): OasParser<TOptions extends { dateType: Options['dateType'] } ? TOptions['dateType'] : (typeof DEFAULT_OPTIONS)['dateType']>
+export function createOasParser<TOptions extends Partial<Options>>(
+  userOptions: TOptions,
+): OasParser<TOptions extends { dateType: Options['dateType'] } ? TOptions['dateType'] : (typeof DEFAULT_OPTIONS)['dateType']>
 export function createOasParser<TOptions extends Partial<Options>>(userOptions?: TOptions) {
   const options: Options = { ...DEFAULT_OPTIONS, ...userOptions }
 
@@ -250,7 +255,10 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
     return { type: 'time', representation: options.dateType === 'date' ? 'date' : 'string' }
   }
 
-  function convertSchema<TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }>(schema: TSchema, name?: string): InferSchemaNode<TSchema, TOptions extends { dateType: Options['dateType'] } ? TOptions['dateType'] : (typeof DEFAULT_OPTIONS)['dateType']>
+  function convertSchema<TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }>(
+    schema: TSchema,
+    name?: string,
+  ): InferSchemaNode<TSchema, TOptions extends { dateType: Options['dateType'] } ? TOptions['dateType'] : (typeof DEFAULT_OPTIONS)['dateType']>
   function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
     // Flatten keyword-only allOf fragments (no $ref, no structural keys) into the parent
     // schema before parsing, so simple annotation patterns don't produce needless intersections.
@@ -285,7 +293,6 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
         default: defaultValue,
       })
     }
-
 
     // Composition: allOf → intersection
     if (schema.allOf?.length) {
@@ -324,16 +331,12 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
 
         if (missingRequired.length) {
           // Resolve each allOf member to its SchemaObject (dereference $ref by extracting the name)
-          const resolvedMembers = (schema.allOf as SchemaObject[]).map((item) =>
-            isReference(item) ? (item as SchemaObject) : item,
-          )
+          const resolvedMembers = (schema.allOf as SchemaObject[]).map((item) => (isReference(item) ? (item as SchemaObject) : item))
 
           for (const key of missingRequired) {
             for (const resolved of resolvedMembers) {
               if (resolved.properties?.[key]) {
-                allOfMembers.push(
-                  convertSchema({ properties: { [key]: resolved.properties[key] }, required: [key] } as SchemaObject),
-                )
+                allOfMembers.push(convertSchema({ properties: { [key]: resolved.properties[key] }, required: [key] } as SchemaObject))
                 break
               }
             }
@@ -458,7 +461,17 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
         const dateType = getDateType(schema.format)
 
         if (dateType) {
-          const base = { name, nullable, title: schema.title, description: schema.description, deprecated: schema.deprecated, readOnly: schema.readOnly, writeOnly: schema.writeOnly, default: defaultValue, example: schema.example }
+          const base = {
+            name,
+            nullable,
+            title: schema.title,
+            description: schema.description,
+            deprecated: schema.deprecated,
+            readOnly: schema.readOnly,
+            writeOnly: schema.writeOnly,
+            default: defaultValue,
+            example: schema.example,
+          }
 
           if (dateType.type === 'datetime') {
             return createSchema({ ...base, type: 'datetime', offset: dateType.offset, local: dateType.local })
@@ -470,7 +483,17 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
         const specialType = formatToSchemaType(schema.format)
 
         if (specialType) {
-          const base = { name, nullable, title: schema.title, description: schema.description, deprecated: schema.deprecated, readOnly: schema.readOnly, writeOnly: schema.writeOnly, default: defaultValue, example: schema.example }
+          const base = {
+            name,
+            nullable,
+            title: schema.title,
+            description: schema.description,
+            deprecated: schema.deprecated,
+            readOnly: schema.readOnly,
+            writeOnly: schema.writeOnly,
+            default: defaultValue,
+            example: schema.example,
+          }
 
           if (specialType === 'number' || specialType === 'integer' || specialType === 'bigint') {
             return createSchema({ ...base, type: specialType })
@@ -702,9 +725,10 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
                 ? createSchema({ type: getUnknownType() })
                 : undefined
 
-      const rawPatternProperties = 'patternProperties' in resolvedSchema
-        ? (resolvedSchema as unknown as { patternProperties?: Record<string, SchemaObject> }).patternProperties
-        : undefined
+      const rawPatternProperties =
+        'patternProperties' in resolvedSchema
+          ? (resolvedSchema as unknown as { patternProperties?: Record<string, SchemaObject> }).patternProperties
+          : undefined
 
       const patternProperties = rawPatternProperties
         ? Object.fromEntries(
@@ -954,4 +978,21 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
   }
 
   return { buildAst, convertSchema } as OasParser<any>
+}
+
+/**
+ * Converts a single `SchemaObject` to a Kubb AST `SchemaNode` using default parser options.
+ *
+ * For full control over options (e.g. `dateType`, `unknownType`) use `createOasParser` instead.
+ *
+ * @example
+ * ```ts
+ * const node = convertSchema(schemaObject, 'Pet')
+ * ```
+ */
+export function convertSchema<TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }>(
+  schema: TSchema,
+  name?: string,
+): InferSchemaNode<TSchema, (typeof DEFAULT_OPTIONS)['dateType']> {
+  return createOasParser().convertSchema(schema, name) as InferSchemaNode<TSchema, (typeof DEFAULT_OPTIONS)['dateType']>
 }

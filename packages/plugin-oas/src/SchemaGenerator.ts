@@ -1391,7 +1391,7 @@ export class SchemaGenerator<
               await buildSchema(
                 {
                   name,
-                  value: resolvedSchemaObject,
+                  value: resolvedSchema,
                   tree,
                   schemaNode,
                 },
@@ -1418,7 +1418,7 @@ export class SchemaGenerator<
               generator: this,
               schema: {
                 name,
-                value: resolvedSchemaObject,
+                value: resolvedSchema,
                 tree,
                 schemaNode,
               },

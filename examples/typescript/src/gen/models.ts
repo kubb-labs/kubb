@@ -662,7 +662,6 @@ export type PlaceOrder405 = any
 
 /**
  * @description Order description
- * @pattern ^[a-zA-Z0-9]{1,13}$
  */
 export type PlaceOrderMutationRequest = Order
 

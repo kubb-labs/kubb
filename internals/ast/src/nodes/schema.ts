@@ -275,7 +275,10 @@ export interface NumberSchemaNode extends SchemaNodeBase {
  * booleans, null, any, unknown, void, and well-known semantic scalars (uuid, email, url, blob).
  */
 export interface ScalarSchemaNode extends SchemaNodeBase {
-  type: Exclude<SchemaType, 'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum' | 'ref' | 'datetime' | 'date' | 'time' | 'string' | 'number' | 'integer' | 'bigint'>
+  type: Exclude<
+    SchemaType,
+    'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum' | 'ref' | 'datetime' | 'date' | 'time' | 'string' | 'number' | 'integer' | 'bigint'
+  >
 }
 
 /**
