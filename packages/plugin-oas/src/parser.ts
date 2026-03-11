@@ -151,6 +151,9 @@ export function createOasParser(userOptions?: Partial<Options>) {
   function convertSchema<T extends SchemaObject>(schema: T, name?: string): InferSchemaNode<T>
   function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
     const emptyType = getEmptyType(options.emptySchemaType)
+    const nullable = isNullable(schema) || undefined
+    const defaultValue = schema.default === null && nullable ? undefined : schema.default
+
 
     // $ref — the schema is a pointer to another definition
     if (isReference(schema)) {
@@ -159,18 +162,20 @@ export function createOasParser(userOptions?: Partial<Options>) {
       // that authors place next to a $ref are reflected in generated JSDoc / type modifiers.
       // Cast back to SchemaObject to access sibling properties alongside $ref.
       const schemaObject = schema as unknown as SchemaObject & { $ref: string }
+
       return createSchema({
         type: 'ref',
         name,
         ref: extractRefName(schemaObject.$ref),
-        nullable: isNullable(schemaObject) || undefined,
+        nullable,
         description: schemaObject.description,
         deprecated: schemaObject.deprecated,
         pattern: schemaObject.pattern,
         example: schemaObject.example,
-        default: schemaObject.default,
+        default: defaultValue,
       })
     }
+
 
     // Composition: allOf → intersection
     if (schema.allOf?.length) {
@@ -181,16 +186,19 @@ export function createOasParser(userOptions?: Partial<Options>) {
         const [memberSchema] = schema.allOf as SchemaObject[]
         const memberNode = convertSchema(memberSchema!)
         const { kind: _kind, ...memberNodeProps } = memberNode
+        const mergedNullable = nullable || memberNode.nullable || undefined
+        const mergedDefault = schema.default === null && mergedNullable ? undefined : (schema.default ?? memberNode.default)
+
         return createSchema({
           ...memberNodeProps,
           name,
           title: schema.title ?? memberNode.title,
           description: schema.description ?? memberNode.description,
           deprecated: schema.deprecated ?? memberNode.deprecated,
-          nullable: isNullable(schema) || memberNode.nullable || undefined,
+          nullable: mergedNullable,
           readOnly: schema.readOnly ?? memberNode.readOnly,
           writeOnly: schema.writeOnly ?? memberNode.writeOnly,
-          default: schema.default ?? memberNode.default,
+          default: mergedDefault,
           example: schema.example ?? memberNode.example,
           pattern: schema.pattern ?? memberNode.pattern,
         } as DistributiveOmit<SchemaNode, 'kind'>)
@@ -203,10 +211,10 @@ export function createOasParser(userOptions?: Partial<Options>) {
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
-        nullable: isNullable(schema) || undefined,
+        nullable,
         readOnly: schema.readOnly,
         writeOnly: schema.writeOnly,
-        default: schema.default,
+        default: defaultValue,
         example: schema.example,
       })
     }
@@ -221,10 +229,10 @@ export function createOasParser(userOptions?: Partial<Options>) {
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
-        nullable: isNullable(schema) || undefined,
+        nullable,
         readOnly: schema.readOnly,
         writeOnly: schema.writeOnly,
-        default: schema.default,
+        default: defaultValue,
         example: schema.example,
       })
     }
@@ -235,6 +243,8 @@ export function createOasParser(userOptions?: Partial<Options>) {
       // Detect it, set the nullable flag, and strip it from the actual enum values.
       const nullInEnum = schema.enum.includes(null)
       const filteredEnumValues = nullInEnum ? schema.enum.filter((v) => v !== null) : schema.enum
+      const enumNullable = nullable || nullInEnum || undefined
+      const enumDefault = schema.default === null && enumNullable ? undefined : schema.default
 
       return createSchema({
         type: 'enum',
@@ -243,10 +253,10 @@ export function createOasParser(userOptions?: Partial<Options>) {
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
-        nullable: isNullable(schema) || nullInEnum || undefined,
+        nullable: enumNullable,
         readOnly: schema.readOnly,
         writeOnly: schema.writeOnly,
-        default: schema.default,
+        default: enumDefault,
         example: schema.example,
       })
     }
@@ -254,17 +264,18 @@ export function createOasParser(userOptions?: Partial<Options>) {
     // Format-based special types (takes precedence over primitive `type`)
     if (schema.format) {
       const specialType = formatToSchemaType(schema.format)
+
       if (specialType) {
         return createSchema({
           type: specialType,
           name,
-          nullable: isNullable(schema) || undefined,
+          nullable,
           title: schema.title,
           description: schema.description,
           deprecated: schema.deprecated,
           readOnly: schema.readOnly,
           writeOnly: schema.writeOnly,
-          default: schema.default,
+          default: defaultValue,
           example: schema.example,
         })
       }
@@ -278,15 +289,15 @@ export function createOasParser(userOptions?: Partial<Options>) {
         ? Object.entries(schema.properties).map(([propName, propSchema]) => {
             const required = Array.isArray(schema.required) ? schema.required.includes(propName) : false
             const resolvedSchema = propSchema as SchemaObject
-            const nullable = isNullable(resolvedSchema)
+            const propNullable = isNullable(resolvedSchema)
 
             return createProperty({
               name: propName,
               schema: {
                 ...convertSchema(resolvedSchema),
-                nullable: nullable || undefined,
-                optional: !required && !nullable ? true : undefined,
-                nullish: !required && nullable ? true : undefined,
+                nullable: propNullable || undefined,
+                optional: !required && !propNullable ? true : undefined,
+                nullish: !required && propNullable ? true : undefined,
               },
               required,
             })
@@ -297,13 +308,13 @@ export function createOasParser(userOptions?: Partial<Options>) {
         type: 'object',
         name,
         properties,
-        nullable: isNullable(schema) || undefined,
+        nullable,
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
         readOnly: schema.readOnly,
         writeOnly: schema.writeOnly,
-        default: schema.default,
+        default: defaultValue,
         example: schema.example,
       })
     }
@@ -316,7 +327,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
         type: 'array',
         name,
         items,
-        nullable: isNullable(schema) || undefined,
+        nullable,
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
@@ -324,7 +335,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
         writeOnly: schema.writeOnly,
         min: schema.minItems,
         max: schema.maxItems,
-        default: schema.default,
+        default: defaultValue,
         example: schema.example,
       })
     }
@@ -334,13 +345,13 @@ export function createOasParser(userOptions?: Partial<Options>) {
       return createSchema({
         type: 'string',
         name,
-        nullable: isNullable(schema) || undefined,
+        nullable,
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
         readOnly: schema.readOnly,
         writeOnly: schema.writeOnly,
-        default: schema.default,
+        default: defaultValue,
         example: schema.example,
         min: schema.minLength,
         max: schema.maxLength,
@@ -353,13 +364,13 @@ export function createOasParser(userOptions?: Partial<Options>) {
       return createSchema({
         type: 'number',
         name,
-        nullable: isNullable(schema) || undefined,
+        nullable,
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
         readOnly: schema.readOnly,
         writeOnly: schema.writeOnly,
-        default: schema.default,
+        default: defaultValue,
         example: schema.example,
         min: schema.minimum,
         max: schema.maximum,
@@ -373,13 +384,13 @@ export function createOasParser(userOptions?: Partial<Options>) {
       return createSchema({
         type: 'integer',
         name,
-        nullable: isNullable(schema) || undefined,
+        nullable,
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
         readOnly: schema.readOnly,
         writeOnly: schema.writeOnly,
-        default: schema.default,
+        default: defaultValue,
         example: schema.example,
         min: schema.minimum,
         max: schema.maximum,
@@ -393,13 +404,13 @@ export function createOasParser(userOptions?: Partial<Options>) {
       return createSchema({
         type: 'boolean',
         name,
-        nullable: isNullable(schema) || undefined,
+        nullable,
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
         readOnly: schema.readOnly,
         writeOnly: schema.writeOnly,
-        default: schema.default,
+        default: defaultValue,
         example: schema.example,
       })
     }
@@ -412,7 +423,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
-        nullable: isNullable(schema) || undefined,
+        nullable,
       })
     }
 

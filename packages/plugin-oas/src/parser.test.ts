@@ -280,6 +280,52 @@ describe('convertSchema return type narrowing', () => {
   })
 })
 
+describe('convertSchema default', () => {
+  const parser = createOasParser()
+
+  it('passes through a normal default value', () => {
+    const node = parser.convertSchema({ type: 'string', default: 'hello' })
+
+    expect(node.default).toBe('hello')
+  })
+
+  it('passes through a falsy-but-non-null default (0)', () => {
+    const node = parser.convertSchema({ type: 'number', default: 0 })
+
+    expect(node.default).toBe(0)
+  })
+
+  it('passes through a falsy-but-non-null default (false)', () => {
+    const node = parser.convertSchema({ type: 'boolean', default: false })
+
+    expect(node.default).toBe(false)
+  })
+
+  it('drops default: null when schema is nullable (defaultNullAndNullable)', () => {
+    const node = parser.convertSchema({ type: 'string', nullable: true, default: null })
+
+    expect(node.default).toBeUndefined()
+  })
+
+  it('keeps default: null when schema is not nullable', () => {
+    const node = parser.convertSchema({ type: 'string', default: null })
+
+    expect(node.default).toBeNull()
+  })
+
+  it('drops default: null for nullable enum', () => {
+    const node = parser.convertSchema({ enum: ['a', 'b'], nullable: true, default: null })
+
+    expect(node.default).toBeUndefined()
+  })
+
+  it('drops default: null for nullable ref sibling', () => {
+    const node = parser.convertSchema({ $ref: '#/components/schemas/Pet', nullable: true, default: null })
+
+    expect(node.default).toBeUndefined()
+  })
+})
+
 describe('convertSchema object properties', () => {
   const parser = createOasParser()
 
