@@ -15,7 +15,6 @@ import type {
   ScalarSchemaNode,
   SchemaNode,
   SchemaType,
-  SpecialSchemaType,
   StatusCode,
 } from '@internals/ast'
 import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, schemaTypes } from '@internals/ast'
@@ -65,7 +64,7 @@ const DEFAULT_OPTIONS: Options = {
   emptySchemaType: 'unknown',
 }
 
-const FORMAT_MAP: Record<string, SpecialSchemaType> = {
+const FORMAT_MAP: Record<string, SchemaType> = {
   'date-time': 'datetime',
   date: 'date',
   time: 'time',
@@ -75,9 +74,14 @@ const FORMAT_MAP: Record<string, SpecialSchemaType> = {
   url: 'url',
   binary: 'blob',
   byte: 'blob',
+  // Numeric formats — format is more specific than type, so these override type.
+  // see https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.7
+  int32: 'integer',
+  float: 'number',
+  double: 'number',
 }
 
-function formatToSchemaType(format: string): SpecialSchemaType | undefined {
+function formatToSchemaType(format: string): SchemaType | undefined {
   return FORMAT_MAP[format]
 }
 
@@ -283,8 +287,29 @@ export function createOasParser(userOptions?: Partial<Options>) {
       })
     }
 
-    // Format-based special types (takes precedence over primitive `type`)
+    // Format-based special types (takes precedence over primitive `type`).
+    // see https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.7
     if (schema.format) {
+      // int64 is option-dependent so it can't live in the static FORMAT_MAP.
+      if (schema.format === 'int64') {
+        return createSchema({
+          type: options.integerType === 'bigint' ? 'bigint' : 'integer',
+          name,
+          nullable,
+          title: schema.title,
+          description: schema.description,
+          deprecated: schema.deprecated,
+          readOnly: schema.readOnly,
+          writeOnly: schema.writeOnly,
+          default: defaultValue,
+          example: schema.example,
+          min: schema.minimum,
+          max: schema.maximum,
+          exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
+          exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
+        })
+      }
+
       const specialType = formatToSchemaType(schema.format)
 
       if (specialType) {
@@ -301,6 +326,22 @@ export function createOasParser(userOptions?: Partial<Options>) {
           example: schema.example,
         })
       }
+    }
+
+    // OAS 3.1: `contentMediaType: 'application/octet-stream'` signals binary data — format overrides type.
+    if ((schema as SchemaObject & { contentMediaType?: string }).contentMediaType === 'application/octet-stream') {
+      return createSchema({
+        type: 'blob',
+        name,
+        nullable,
+        title: schema.title,
+        description: schema.description,
+        deprecated: schema.deprecated,
+        readOnly: schema.readOnly,
+        writeOnly: schema.writeOnly,
+        default: defaultValue,
+        example: schema.example,
+      })
     }
 
     const type = Array.isArray(schema.type) ? schema.type[0] : schema.type
@@ -364,22 +405,6 @@ export function createOasParser(userOptions?: Partial<Options>) {
 
     // String
     if (type === 'string') {
-      // OAS 3.1: `contentMediaType: 'application/octet-stream'` signals binary data — format overrides type.
-      if (schema.contentMediaType === 'application/octet-stream') {
-        return createSchema({
-          type: 'blob',
-          name,
-          nullable,
-          title: schema.title,
-          description: schema.description,
-          deprecated: schema.deprecated,
-          readOnly: schema.readOnly,
-          writeOnly: schema.writeOnly,
-          default: defaultValue,
-          example: schema.example,
-        })
-      }
-
       return createSchema({
         type: 'string',
         name,
@@ -397,10 +422,10 @@ export function createOasParser(userOptions?: Partial<Options>) {
       })
     }
 
-    // Number — float/double formats are still number; format overrides type per JSON Schema spec.
+    // Number
     if (type === 'number') {
       return createSchema({
-        type: schema.format === 'float' || schema.format === 'double' ? 'number' : 'number',
+        type: 'number',
         name,
         nullable,
         title: schema.title,
@@ -417,12 +442,10 @@ export function createOasParser(userOptions?: Partial<Options>) {
       })
     }
 
-    // Integer — int64 may map to bigint depending on the integerType option.
+    // Integer
     if (type === 'integer') {
-      const integerSchemaType = schema.format === 'int64' && options.integerType === 'bigint' ? 'bigint' : 'integer'
-
       return createSchema({
-        type: integerSchemaType,
+        type: 'integer',
         name,
         nullable,
         title: schema.title,

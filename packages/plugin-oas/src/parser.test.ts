@@ -291,6 +291,36 @@ describe('convertSchema return type narrowing', () => {
   })
 })
 
+describe('convertSchema uuid', () => {
+  const parser = createOasParser()
+
+  it('maps format uuid to uuid', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'uuid' })
+
+    expect(node.type).toBe('uuid')
+  })
+
+  it('maps format uuid without type to uuid (format overrides type)', () => {
+    const node = parser.convertSchema({ format: 'uuid' })
+
+    expect(node.type).toBe('uuid')
+  })
+
+  it('preserves nullable on uuid', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'uuid', nullable: true })
+
+    expect(node.type).toBe('uuid')
+    expect(node.nullable).toBe(true)
+  })
+
+  it('preserves description on uuid', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'uuid', description: 'A unique identifier' })
+
+    expect(node.type).toBe('uuid')
+    expect(node.description).toBe('A unique identifier')
+  })
+})
+
 describe('convertSchema binary', () => {
   const parser = createOasParser()
 
@@ -302,6 +332,12 @@ describe('convertSchema binary', () => {
 
   it('maps string with format byte to blob', () => {
     const node = parser.convertSchema({ type: 'string', format: 'byte' })
+
+    expect(node.type).toBe('blob')
+  })
+
+  it('maps format binary without type to blob (format overrides type)', () => {
+    const node = parser.convertSchema({ format: 'binary' })
 
     expect(node.type).toBe('blob')
   })
