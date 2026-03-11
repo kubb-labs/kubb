@@ -280,6 +280,46 @@ describe('convertSchema return type narrowing', () => {
   })
 })
 
+describe('convertSchema deprecated', () => {
+  const parser = createOasParser()
+
+  it('sets deprecated: true when marked', () => {
+    const node = parser.convertSchema({ type: 'string', deprecated: true })
+
+    expect(node.deprecated).toBe(true)
+  })
+
+  it('leaves deprecated undefined when not set', () => {
+    const node = parser.convertSchema({ type: 'string' })
+
+    expect(node.deprecated).toBeUndefined()
+  })
+
+  it('propagates deprecated on object schema', () => {
+    const node = parser.convertSchema({ type: 'object', deprecated: true })
+
+    expect(node.deprecated).toBe(true)
+  })
+
+  it('propagates deprecated on array schema', () => {
+    const node = parser.convertSchema({ type: 'array', deprecated: true })
+
+    expect(node.deprecated).toBe(true)
+  })
+
+  it('propagates deprecated on enum schema', () => {
+    const node = parser.convertSchema({ enum: ['a', 'b'], deprecated: true })
+
+    expect(node.deprecated).toBe(true)
+  })
+
+  it('propagates deprecated on ref schema siblings', () => {
+    const node = parser.convertSchema({ $ref: '#/components/schemas/Pet', deprecated: true })
+
+    expect(node.deprecated).toBe(true)
+  })
+})
+
 describe('convertSchema default', () => {
   const parser = createOasParser()
 
