@@ -26,42 +26,30 @@ import { isNullable, isReference } from '@kubb/oas'
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
 
 /**
- * Narrows the return type of `convertSchema` based on the discriminating
- * fields present in the input `SchemaObject`.
- *
- * Resolution order matches the runtime branches inside `convertSchema`:
- *  1. `$ref` present              → `RefSchemaNode`
- *  2. `allOf` present             → `CompositeSchemaNode` (intersection) or the flattened member type
- *  3. `oneOf` / `anyOf` present   → `CompositeSchemaNode` (union)
- *  4. `const: null` present       → `ScalarSchemaNode` (null)
- *  5. `const` present             → `EnumSchemaNode` (single-value enum)
- *  6. `enum` present              → `EnumSchemaNode`
- *  7. `type === 'object'`         → `ObjectSchemaNode`
- *  8. `type === 'array'`          → `ArraySchemaNode`
- *  9. any other `type`            → `ScalarSchemaNode`
- * 10. no discriminating field     → `SchemaNode` (wide fallback)
+ * Single source of truth: ordered list of `[shape, SchemaNode]` pairs.
+ * `InferSchemaNode` walks this tuple in order and returns the node type of the first matching entry.
  */
-type InferSchemaNode<T extends SchemaObject> = T extends { $ref: string }
-  ? RefSchemaNode
-  : T extends { allOf: ReadonlyArray<unknown> }
-    ? CompositeSchemaNode | SchemaNode
-    : T extends { oneOf: ReadonlyArray<unknown> }
-      ? CompositeSchemaNode
-      : T extends { anyOf: ReadonlyArray<unknown> }
-        ? CompositeSchemaNode
-        : T extends { const: null }
-          ? ScalarSchemaNode
-          : T extends { const: string | number | boolean }
-            ? EnumSchemaNode
-            : T extends { enum: ReadonlyArray<unknown> }
-              ? EnumSchemaNode
-              : T extends { type: 'object' }
-                ? ObjectSchemaNode
-                : T extends { type: 'array' }
-                  ? ArraySchemaNode
-                  : T extends { type: string }
-                    ? ScalarSchemaNode
-                    : SchemaNode
+type SchemaNodeMap = [
+  [{ $ref: string }, RefSchemaNode],
+  [{ allOf: ReadonlyArray<unknown> }, CompositeSchemaNode | SchemaNode],
+  [{ oneOf: ReadonlyArray<unknown> }, CompositeSchemaNode],
+  [{ anyOf: ReadonlyArray<unknown> }, CompositeSchemaNode],
+  [{ const: null }, ScalarSchemaNode],
+  [{ const: string | number | boolean }, EnumSchemaNode],
+  [{ enum: ReadonlyArray<unknown> }, EnumSchemaNode],
+  [{ type: 'object' }, ObjectSchemaNode],
+  [{ type: 'array' }, ArraySchemaNode],
+  [{ type: string }, ScalarSchemaNode],
+]
+
+type InferSchemaNode<T extends SchemaObject, Entries extends ReadonlyArray<[object, SchemaNode]> = SchemaNodeMap> = Entries extends [
+  infer Head extends [object, SchemaNode],
+  ...infer Tail extends ReadonlyArray<[object, SchemaNode]>,
+]
+  ? T extends Head[0]
+    ? Head[1]
+    : InferSchemaNode<T, Tail>
+  : SchemaNode
 
 type Options = {
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
@@ -70,7 +58,7 @@ type Options = {
   emptySchemaType: 'any' | 'unknown' | 'void'
 }
 
-const defaultOptions: Options = {
+const DEFAULT_OPTIONS: Options = {
   dateType: 'string',
   integerType: 'number',
   unknownType: 'unknown',
@@ -141,7 +129,7 @@ function toMediaType(contentType: string): MediaType | undefined {
  * ```
  */
 export function createOasParser(userOptions?: Partial<Options>) {
-  const options: Options = { ...defaultOptions, ...userOptions }
+  const options: Options = { ...DEFAULT_OPTIONS, ...userOptions }
 
   function getEmptyType(emptySchemaType: Options['emptySchemaType']): SchemaType {
     if (emptySchemaType === 'any') {
@@ -248,7 +236,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
     // OAS 3.1 const — a single fixed value, semantically equivalent to a one-item enum.
     // `const: null` maps to the null scalar; `const: undefined` falls through to the empty-type fallback.
     if ('const' in schema) {
-      const constValue = (schema as SchemaObject & { const: unknown }).const
+      const constValue = schema.const
 
       if (constValue === null) {
         return createSchema({ type: 'null', name, title: schema.title, description: schema.description, deprecated: schema.deprecated, nullable })
