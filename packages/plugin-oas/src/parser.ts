@@ -19,7 +19,7 @@ import { isNullable, isReference } from '@kubb/oas'
 /** Distributive `Omit` that correctly distributes over union types. */
 type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
 
-export type Options = {
+type Options = {
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   integerType: 'number' | 'bigint'
   unknownType: 'any' | 'unknown' | 'void'

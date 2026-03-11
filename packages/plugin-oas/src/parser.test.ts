@@ -350,6 +350,40 @@ describe('buildAst', () => {
   })
 })
 
+describe('createOasParser options', () => {
+  describe('emptySchemaType', () => {
+    it('defaults to unknown for a schema with no type information', () => {
+      const parser = createOasParser()
+      const node = parser.convertSchema({})
+      expect(node.type).toBe('unknown')
+    })
+
+    it('emptySchemaType: any returns any for an empty schema', () => {
+      const parser = createOasParser({ emptySchemaType: 'any' })
+      const node = parser.convertSchema({})
+      expect(node.type).toBe('any')
+    })
+
+    it('emptySchemaType: void returns void for an empty schema', () => {
+      const parser = createOasParser({ emptySchemaType: 'void' })
+      const node = parser.convertSchema({})
+      expect(node.type).toBe('void')
+    })
+
+    it('emptySchemaType: unknown returns unknown for an empty schema', () => {
+      const parser = createOasParser({ emptySchemaType: 'unknown' })
+      const node = parser.convertSchema({})
+      expect(node.type).toBe('unknown')
+    })
+
+    it('emptySchemaType does not affect typed schemas', () => {
+      const parser = createOasParser({ emptySchemaType: 'any' })
+      const node = parser.convertSchema({ type: 'string' })
+      expect(node.type).toBe('string')
+    })
+  })
+})
+
 describe('buildAst snapshots', async () => {
   const oas = await buildMinimalOas()
   const root = createOasParser().buildAst(oas)
