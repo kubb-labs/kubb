@@ -1,4 +1,15 @@
-import type { ArraySchemaNode, CompositeSchemaNode, EnumSchemaNode, ObjectSchemaNode, RefSchemaNode, ScalarSchemaNode, SchemaNode } from '@internals/ast'
+import type {
+  ArraySchemaNode,
+  CompositeSchemaNode,
+  DateSchemaNode,
+  EnumSchemaNode,
+  NumberSchemaNode,
+  ObjectSchemaNode,
+  RefSchemaNode,
+  ScalarSchemaNode,
+  SchemaNode,
+  StringSchemaNode,
+} from '@internals/ast'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { buildMinimalOas } from './mocks/index.ts'
 import { createOasParser } from './parser.ts'
@@ -260,22 +271,22 @@ describe('convertSchema return type narrowing', () => {
     expectTypeOf(node).toEqualTypeOf<CompositeSchemaNode>()
   })
 
-  it('narrows to ScalarSchemaNode for string type', () => {
+  it('narrows to StringSchemaNode for string type', () => {
     const node = parser.convertSchema({ type: 'string' })
 
-    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+    expectTypeOf(node).toEqualTypeOf<StringSchemaNode>()
   })
 
-  it('narrows to ScalarSchemaNode for number type', () => {
+  it('narrows to NumberSchemaNode for number type', () => {
     const node = parser.convertSchema({ type: 'number' })
 
-    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+    expectTypeOf(node).toEqualTypeOf<NumberSchemaNode>()
   })
 
-  it('narrows to ScalarSchemaNode for integer type', () => {
+  it('narrows to NumberSchemaNode for integer type', () => {
     const node = parser.convertSchema({ type: 'integer' })
 
-    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+    expectTypeOf(node).toEqualTypeOf<NumberSchemaNode>()
   })
 
   it('narrows to ScalarSchemaNode for boolean type', () => {
@@ -290,34 +301,52 @@ describe('convertSchema return type narrowing', () => {
     expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
   })
 
-  it('narrows to ScalarSchemaNode when minLength is present', () => {
+  it('narrows to StringSchemaNode when minLength is present', () => {
     const node = parser.convertSchema({ minLength: 1 })
 
-    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+    expectTypeOf(node).toEqualTypeOf<StringSchemaNode>()
   })
 
-  it('narrows to ScalarSchemaNode when maxLength is present', () => {
+  it('narrows to StringSchemaNode when maxLength is present', () => {
     const node = parser.convertSchema({ maxLength: 100 })
 
-    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+    expectTypeOf(node).toEqualTypeOf<StringSchemaNode>()
   })
 
-  it('narrows to ScalarSchemaNode when pattern is present', () => {
+  it('narrows to StringSchemaNode when pattern is present', () => {
     const node = parser.convertSchema({ pattern: '^[a-z]+$' })
 
-    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+    expectTypeOf(node).toEqualTypeOf<StringSchemaNode>()
   })
 
-  it('narrows to ScalarSchemaNode when minimum is present', () => {
+  it('narrows to NumberSchemaNode when minimum is present', () => {
     const node = parser.convertSchema({ minimum: 0 })
 
-    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+    expectTypeOf(node).toEqualTypeOf<NumberSchemaNode>()
   })
 
-  it('narrows to ScalarSchemaNode when maximum is present', () => {
+  it('narrows to NumberSchemaNode when maximum is present', () => {
     const node = parser.convertSchema({ maximum: 100 })
 
-    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
+    expectTypeOf(node).toEqualTypeOf<NumberSchemaNode>()
+  })
+
+  it('resolves to datetime type when format is date-time', () => {
+    const node = parser.convertSchema({ format: 'date-time' })
+
+    expect(node.type).toBe('datetime')
+  })
+
+  it('resolves to date type when format is date', () => {
+    const node = parser.convertSchema({ format: 'date' })
+
+    expect(node.type).toBe('date')
+  })
+
+  it('resolves to time type when format is time', () => {
+    const node = parser.convertSchema({ format: 'time' })
+
+    expect(node.type).toBe('time')
   })
 
   it('falls back to SchemaNode for an untyped empty schema', () => {
@@ -922,7 +951,7 @@ describe('convertSchema pattern', () => {
     const node = parser.convertSchema({ type: 'number', pattern: '^[0-9]+$' })
 
     expect(node.type).toBe('number')
-    expect(node.pattern).toBeUndefined()
+    expect((node as unknown as { pattern?: string }).pattern).toBeUndefined()
   })
 
   it('preserves nullable on a pattern string', () => {
@@ -1304,6 +1333,123 @@ describe('createOasParser options', () => {
       const node = parser.convertSchema({ type: 'number', format: 'float' })
 
       expect(node.type).toBe('number')
+    })
+  })
+
+  describe('dateType', () => {
+    describe('format date-time', () => {
+      it('defaults to datetime', () => {
+        const parser = createOasParser()
+        const node = parser.convertSchema({ type: 'string', format: 'date-time' })
+
+        expect(node.type).toBe('datetime')
+        expect(node.offset).toBe(false)
+      })
+
+      it('dateType: string returns datetime with offset: false', () => {
+        const parser = createOasParser({ dateType: 'string' })
+        const node = parser.convertSchema({ type: 'string', format: 'date-time' })
+
+        expect(node.type).toBe('datetime')
+        expect(node.offset).toBe(false)
+      })
+
+      it('dateType: stringOffset returns datetime with offset: true', () => {
+        const parser = createOasParser({ dateType: 'stringOffset' })
+        const node = parser.convertSchema({ type: 'string', format: 'date-time' })
+
+        expect(node.type).toBe('datetime')
+        expect(node.offset).toBe(true)
+      })
+
+      it('dateType: stringLocal returns datetime with local: true', () => {
+        const parser = createOasParser({ dateType: 'stringLocal' })
+        const node = parser.convertSchema({ type: 'string', format: 'date-time' })
+
+        expect(node.type).toBe('datetime')
+        expect(node.local).toBe(true)
+      })
+
+      it('dateType: date returns date with representation: date', () => {
+        const parser = createOasParser({ dateType: 'date' })
+        const node = parser.convertSchema({ type: 'string', format: 'date-time' }) as unknown as DateSchemaNode
+
+        expect(node.type).toBe('date')
+        expect(node.representation).toBe('date')
+      })
+
+      it('dateType: false falls through to string', () => {
+        const parser = createOasParser({ dateType: false })
+        const node = parser.convertSchema({ type: 'string', format: 'date-time' })
+
+        expect(node.type).toBe('string')
+      })
+    })
+
+    describe('format date', () => {
+      it('defaults to date with representation: string', () => {
+        const parser = createOasParser()
+        const node = parser.convertSchema({ type: 'string', format: 'date' })
+
+        expect(node.type).toBe('date')
+        expect(node.representation).toBe('string')
+      })
+
+      it('dateType: date returns date with representation: date', () => {
+        const parser = createOasParser({ dateType: 'date' })
+        const node = parser.convertSchema({ type: 'string', format: 'date' })
+
+        expect(node.type).toBe('date')
+        expect(node.representation).toBe('date')
+      })
+
+      it('dateType: string returns date with representation: string', () => {
+        const parser = createOasParser({ dateType: 'string' })
+        const node = parser.convertSchema({ type: 'string', format: 'date' })
+
+        expect(node.type).toBe('date')
+        expect(node.representation).toBe('string')
+      })
+
+      it('dateType: false falls through to string', () => {
+        const parser = createOasParser({ dateType: false })
+        const node = parser.convertSchema({ type: 'string', format: 'date' })
+
+        expect(node.type).toBe('string')
+      })
+    })
+
+    describe('format time', () => {
+      it('defaults to time with representation: string', () => {
+        const parser = createOasParser()
+        const node = parser.convertSchema({ type: 'string', format: 'time' })
+
+        expect(node.type).toBe('time')
+        expect(node.representation).toBe('string')
+      })
+
+      it('dateType: date returns time with representation: date', () => {
+        const parser = createOasParser({ dateType: 'date' })
+        const node = parser.convertSchema({ type: 'string', format: 'time' })
+
+        expect(node.type).toBe('time')
+        expect(node.representation).toBe('date')
+      })
+
+      it('dateType: string returns time with representation: string', () => {
+        const parser = createOasParser({ dateType: 'string' })
+        const node = parser.convertSchema({ type: 'string', format: 'time' })
+
+        expect(node.type).toBe('time')
+        expect(node.representation).toBe('string')
+      })
+
+      it('dateType: false falls through to string', () => {
+        const parser = createOasParser({ dateType: false })
+        const node = parser.convertSchema({ type: 'string', format: 'time' })
+
+        expect(node.type).toBe('string')
+      })
     })
   })
 })

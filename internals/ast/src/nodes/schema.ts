@@ -21,6 +21,8 @@ export type SpecialSchemaType = 'ref' | 'date' | 'datetime' | 'time' | 'uuid' | 
 /** All possible schema types. */
 export type SchemaType = PrimitiveSchemaType | ComplexSchemaType | SpecialSchemaType
 
+export type ScalarSchemaType = ScalarSchemaNode['type']
+
 /** Runtime constants for all schema type values. */
 export const schemaTypes = {
   // Primitive scalar types
@@ -95,8 +97,6 @@ interface SchemaNodeBase extends BaseNode {
   readOnly?: boolean
   /** Whether the schema is write-only. */
   writeOnly?: boolean
-  /** Regex pattern constraint (e.g. `pattern` from JSON Schema / OAS). */
-  pattern?: string
   /** A concrete default value for this schema. */
   default?: unknown
   /** An example value for this schema. */
@@ -145,33 +145,86 @@ export interface RefSchemaNode extends SchemaNodeBase {
   type: 'ref'
   /** The resolved reference identifier (e.g. schema name or import path). */
   ref?: string
+  /**
+   * Regex pattern constraint propagated from a sibling `pattern` field next to the `$ref`.
+   * Only set when the referenced schema is a string type.
+   */
+  pattern?: string
 }
 
 /**
- * Schema for primitive scalar types and well-known semantic types
- * (everything that is not `object`, `array`, `tuple`, `union`, `intersection`, `enum`, or `ref`).
- *
- * `min` / `max` are interpreted according to `type`:
- * - `'string'`: minimum / maximum character length (`minLength` / `maxLength`).
- * - `'number'` / `'integer'`: minimum / maximum value (`minimum` / `maximum`).
- * - Other scalars (e.g. `'date'`, `'uuid'`): not typically used.
+ * Schema for `'datetime'` type — carries timezone modifiers that cannot be
+ * expressed on a plain scalar node.
+ */
+export interface DatetimeSchemaNode extends SchemaNodeBase {
+  type: 'datetime'
+  /**
+   * Whether the datetime includes a timezone offset (`+00:00`).
+   * Corresponds to `dateType: 'stringOffset'`.
+   */
+  offset?: boolean
+  /**
+   * Whether the datetime is a local (no timezone) datetime.
+   * Corresponds to `dateType: 'stringLocal'`.
+   */
+  local?: boolean
+}
+
+/**
+ * Schema for `'date'` type.
+ * `representation: 'date'` produces a native `Date` object; `representation: 'string'` keeps it as a string.
+ * Corresponds to `dateType: 'date'` vs any other string dateType.
+ */
+export interface DateSchemaNode extends SchemaNodeBase {
+  type: 'date'
+  /** How the date value is represented in generated code: native `Date` object or plain string. */
+  representation: 'date' | 'string'
+}
+
+/**
+ * Schema for `'time'` type.
+ * `representation: 'date'` produces a native `Date` object; `representation: 'string'` keeps it as a string.
+ * Corresponds to `dateType: 'date'` vs any other string dateType.
+ */
+export interface TimeSchemaNode extends SchemaNodeBase {
+  type: 'time'
+  /** How the time value is represented in generated code: native `Date` object or plain string. */
+  representation: 'date' | 'string'
+}
+
+/** Schema for `'string'` type — carries length and pattern constraints. */
+export interface StringSchemaNode extends SchemaNodeBase {
+  type: 'string'
+  /** Minimum character length (`minLength` in JSON Schema / OAS). */
+  min?: number
+  /** Maximum character length (`maxLength` in JSON Schema / OAS). */
+  max?: number
+  /** Regex pattern constraint (`pattern` in JSON Schema / OAS). */
+  pattern?: string
+}
+
+/**
+ * Schema for `'number'`, `'integer'`, and `'bigint'` types — carries numeric range constraints.
+ * `exclusiveMinimum` / `exclusiveMaximum` follow JSON Schema draft 2019-09+ (numeric values, not booleans).
+ */
+export interface NumberSchemaNode extends SchemaNodeBase {
+  type: 'number' | 'integer' | 'bigint'
+  /** Minimum numeric value (`minimum` in JSON Schema / OAS). */
+  min?: number
+  /** Maximum numeric value (`maximum` in JSON Schema / OAS). */
+  max?: number
+  /** Exclusive lower bound (`exclusiveMinimum` as a number in JSON Schema draft 2019-09+). */
+  exclusiveMinimum?: number
+  /** Exclusive upper bound (`exclusiveMaximum` as a number in JSON Schema draft 2019-09+). */
+  exclusiveMaximum?: number
+}
+
+/**
+ * Schema for all remaining scalar types that carry no type-specific constraints:
+ * booleans, null, any, unknown, void, and well-known semantic scalars (uuid, email, url, blob).
  */
 export interface ScalarSchemaNode extends SchemaNodeBase {
-  type: Exclude<SchemaType, 'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum' | 'ref'>
-  /**
-   * Minimum constraint.
-   * - `'string'`: minimum character length.
-   * - `'number'` / `'integer'`: minimum numeric value.
-   */
-  min?: number
-  /**
-   * Maximum constraint.
-   * - `'string'`: maximum character length.
-   * - `'number'` / `'integer'`: maximum numeric value.
-   */
-  max?: number
-  exclusiveMinimum?: number
-  exclusiveMaximum?: number
+  type: Exclude<SchemaType, 'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum' | 'ref' | 'datetime' | 'date' | 'time' | 'string' | 'number' | 'integer' | 'bigint'>
 }
 
 /**
@@ -181,4 +234,15 @@ export interface ScalarSchemaNode extends SchemaNodeBase {
  * to the exact variant and access only the fields that are meaningful for that
  * schema kind.
  */
-export type SchemaNode = ObjectSchemaNode | ArraySchemaNode | CompositeSchemaNode | EnumSchemaNode | RefSchemaNode | ScalarSchemaNode
+export type SchemaNode =
+  | ObjectSchemaNode
+  | ArraySchemaNode
+  | CompositeSchemaNode
+  | EnumSchemaNode
+  | RefSchemaNode
+  | DatetimeSchemaNode
+  | DateSchemaNode
+  | TimeSchemaNode
+  | StringSchemaNode
+  | NumberSchemaNode
+  | ScalarSchemaNode

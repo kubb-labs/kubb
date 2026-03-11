@@ -6,10 +6,14 @@ export type { PropertyNode } from './property.ts'
 export type { ResponseNode } from './response.ts'
 export type { RootNode } from './root.ts'
 export type {
+  ScalarSchemaType,
   ArraySchemaNode,
   ComplexSchemaType,
   CompositeSchemaNode,
+  DateSchemaNode,
+  DatetimeSchemaNode,
   EnumSchemaNode,
+  NumberSchemaNode,
   ObjectSchemaNode,
   PrimitiveSchemaType,
   RefSchemaNode,
@@ -17,5 +21,7 @@ export type {
   SchemaNode,
   SchemaType,
   SpecialSchemaType,
+  StringSchemaNode,
+  TimeSchemaNode,
 } from './schema.ts'
 export { schemaTypes } from './schema.ts'

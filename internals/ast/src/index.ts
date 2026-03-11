@@ -5,16 +5,20 @@ export { createOperation, createParameter, createProperty, createResponse, creat
 // guards
 export { isOperationNode, isParameterNode, isPropertyNode, isResponseNode, isRootNode, isSchemaNode } from './guards.ts'
 export type {
+  ScalarSchemaType,
   ArraySchemaNode,
   BaseNode,
   ComplexSchemaType,
   CompositeSchemaNode,
+  DateSchemaNode,
+  DatetimeSchemaNode,
   EnumSchemaNode,
   HttpMethod,
   HttpStatusCode,
   MediaType,
   Node,
   NodeKind,
+  NumberSchemaNode,
   ObjectSchemaNode,
   OperationNode,
   ParameterLocation,
@@ -29,6 +33,8 @@ export type {
   SchemaType,
   SpecialSchemaType,
   StatusCode,
+  StringSchemaNode,
+  TimeSchemaNode,
 } from './nodes/index.ts'
 export { schemaTypes } from './nodes/index.ts'
 // refs

@@ -1,9 +1,12 @@
 import type {
   ArraySchemaNode,
   CompositeSchemaNode,
+  DateSchemaNode,
+  DatetimeSchemaNode,
   EnumSchemaNode,
   HttpMethod,
   MediaType,
+  NumberSchemaNode,
   ObjectSchemaNode,
   OperationNode,
   ParameterLocation,
@@ -14,8 +17,9 @@ import type {
   RootNode,
   ScalarSchemaNode,
   SchemaNode,
-  SchemaType,
-  StatusCode,
+  StringSchemaNode,
+  TimeSchemaNode,
+  StatusCode, SchemaType, ScalarSchemaType,
 } from '@internals/ast'
 import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, schemaTypes } from '@internals/ast'
 import type { Oas, Operation, SchemaObject } from '@kubb/oas'
@@ -39,13 +43,24 @@ type SchemaNodeMap = [
   [{ type: 'object' }, ObjectSchemaNode],
   [{ type: 'array' }, ArraySchemaNode],
   [{ items: object }, ArraySchemaNode],
+  // Format entries with explicit type — placed before generic type entries so format wins.
+  [{ type: string; format: 'date-time' }, DatetimeSchemaNode],
+  [{ type: string; format: 'date' }, DateSchemaNode],
+  [{ type: string; format: 'time' }, TimeSchemaNode],
+  [{ format: 'date-time' }, DatetimeSchemaNode],
+  [{ format: 'date' }, DateSchemaNode],
+  [{ format: 'time' }, TimeSchemaNode],
+  [{ type: 'string' }, StringSchemaNode],
+  [{ type: 'number' }, NumberSchemaNode],
+  [{ type: 'integer' }, NumberSchemaNode],
+  [{ type: 'bigint' }, NumberSchemaNode],
   [{ type: string }, ScalarSchemaNode],
   // Inferred scalar types from constraints when no explicit type is present.
-  [{ minLength: number }, ScalarSchemaNode],
-  [{ maxLength: number }, ScalarSchemaNode],
-  [{ pattern: string }, ScalarSchemaNode],
-  [{ minimum: number }, ScalarSchemaNode],
-  [{ maximum: number }, ScalarSchemaNode],
+  [{ minLength: number }, StringSchemaNode],
+  [{ maxLength: number }, StringSchemaNode],
+  [{ pattern: string }, StringSchemaNode],
+  [{ minimum: number }, NumberSchemaNode],
+  [{ maximum: number }, NumberSchemaNode],
 ]
 
 type InferSchemaNode<T extends SchemaObject, Entries extends ReadonlyArray<[object, SchemaNode]> = SchemaNodeMap> = Entries extends [
@@ -71,10 +86,9 @@ const DEFAULT_OPTIONS: Options = {
   emptySchemaType: 'unknown',
 }
 
+
+
 const FORMAT_MAP: Record<string, SchemaType> = {
-  'date-time': 'datetime',
-  date: 'date',
-  time: 'time',
   uuid: 'uuid',
   email: 'email',
   'idn-email': 'email',
@@ -148,20 +162,63 @@ function toMediaType(contentType: string): MediaType | undefined {
 export function createOasParser(userOptions?: Partial<Options>) {
   const options: Options = { ...DEFAULT_OPTIONS, ...userOptions }
 
-  function getEmptyType(emptySchemaType: Options['emptySchemaType']): SchemaType {
-    if (emptySchemaType === 'any') {
+  function getUnknownType() {
+    if (options.unknownType === 'any') {
       return schemaTypes.any
     }
-    if (emptySchemaType === 'void') {
+    if (options.unknownType === 'void') {
       return schemaTypes.void
     }
 
     return schemaTypes.unknown
   }
 
-  function convertSchema<T extends SchemaObject>(schema: T, name?: string): InferSchemaNode<T>
+  function getEmptySchemaType() {
+    if (options.emptySchemaType === 'any') {
+      return schemaTypes.any
+    }
+    if (options.emptySchemaType === 'void') {
+      return schemaTypes.void
+    }
+
+    return schemaTypes.unknown
+  }
+
+  /**
+   * Resolves the AST type and datetime modifiers for a date/time format, honouring the `dateType` option.
+   * Returns `undefined` when `dateType` is `false`, meaning the format should fall through to `string`.
+   */
+  function getDateType(
+    format: 'date-time' | 'date' | 'time',
+  ): { type: 'datetime'; offset?: boolean; local?: boolean } | { type: 'date' | 'time'; representation: 'date' | 'string' } | undefined {
+    if (!options.dateType) {
+      return undefined
+    }
+
+    if (format === 'date-time') {
+      if (options.dateType === 'date') {
+        return { type: 'date', representation: 'date' }
+      }
+      if (options.dateType === 'stringOffset') {
+        return { type: 'datetime', offset: true }
+      }
+      if (options.dateType === 'stringLocal') {
+        return { type: 'datetime', local: true }
+      }
+      return { type: 'datetime', offset: false }
+    }
+
+    if (format === 'date') {
+      return { type: 'date', representation: options.dateType === 'date' ? 'date' : 'string' }
+    }
+
+    // time
+    return { type: 'time', representation: options.dateType === 'date' ? 'date' : 'string' }
+  }
+
+  function convertSchema<F extends string, T extends SchemaObject & { format?: F }>(schema: T, name?: string): InferSchemaNode<T>
   function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
-    const emptyType = getEmptyType(options.emptySchemaType)
+    const emptyType = getEmptySchemaType()
     const nullable = isNullable(schema) || undefined
     const defaultValue = schema.default === null && nullable ? undefined : schema.default
 
@@ -213,7 +270,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
           writeOnly: schema.writeOnly ?? memberNode.writeOnly,
           default: mergedDefault,
           example: schema.example ?? memberNode.example,
-          pattern: schema.pattern ?? memberNode.pattern,
+          pattern: schema.pattern ?? ('pattern' in memberNode ? memberNode.pattern : undefined),
         } as DistributiveOmit<SchemaNode, 'kind'>)
       }
 
@@ -323,21 +380,30 @@ export function createOasParser(userOptions?: Partial<Options>) {
         })
       }
 
-      const specialType = formatToSchemaType(schema.format)
+      // date-time / date / time are option-dependent and can't live in the static FORMAT_MAP.
+      if (schema.format === 'date-time' || schema.format === 'date' || schema.format === 'time') {
+        const dateType = getDateType(schema.format)
 
-      if (specialType) {
-        return createSchema({
-          type: specialType,
-          name,
-          nullable,
-          title: schema.title,
-          description: schema.description,
-          deprecated: schema.deprecated,
-          readOnly: schema.readOnly,
-          writeOnly: schema.writeOnly,
-          default: defaultValue,
-          example: schema.example,
-        })
+        if (dateType) {
+          const base = { name, nullable, title: schema.title, description: schema.description, deprecated: schema.deprecated, readOnly: schema.readOnly, writeOnly: schema.writeOnly, default: defaultValue, example: schema.example }
+
+          if (dateType.type === 'datetime') {
+            return createSchema({ ...base, type: 'datetime', offset: dateType.offset, local: dateType.local })
+          }
+          return createSchema({ ...base, type: dateType.type, representation: dateType.representation })
+        }
+        // dateType: false — fall through to string type below
+      } else {
+        const specialType = formatToSchemaType(schema.format)
+
+        if (specialType) {
+          const base = { name, nullable, title: schema.title, description: schema.description, deprecated: schema.deprecated, readOnly: schema.readOnly, writeOnly: schema.writeOnly, default: defaultValue, example: schema.example }
+
+          if (specialType === 'number' || specialType === 'integer' || specialType === 'bigint') {
+            return createSchema({ ...base, type: specialType })
+          }
+          return createSchema({ ...base, type: specialType as ScalarSchemaType })
+        }
       }
     }
 
@@ -399,25 +465,6 @@ export function createOasParser(userOptions?: Partial<Options>) {
           exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
         })
       }
-    }
-
-    // Pattern — only meaningful for strings; applies when explicit type is string.
-    if (schema.pattern && type === 'string') {
-      return createSchema({
-        type: 'string',
-        name,
-        nullable,
-        title: schema.title,
-        description: schema.description,
-        deprecated: schema.deprecated,
-        readOnly: schema.readOnly,
-        writeOnly: schema.writeOnly,
-        default: defaultValue,
-        example: schema.example,
-        min: schema.minLength,
-        max: schema.maxLength,
-        pattern: schema.pattern,
-      })
     }
 
     // Object
@@ -493,6 +540,7 @@ export function createOasParser(userOptions?: Partial<Options>) {
         example: schema.example,
         min: schema.minLength,
         max: schema.maxLength,
+        pattern: schema.pattern,
       })
     }
 
@@ -565,12 +613,12 @@ export function createOasParser(userOptions?: Partial<Options>) {
     }
 
     // Fallback
-    return createSchema({ type: emptyType, name, title: schema.title, description: schema.description })
+    return createSchema({ type: emptyType as ScalarSchemaType, name, title: schema.title, description: schema.description })
   }
 
   function convertParameter(param: Record<string, unknown>): ParameterNode {
     const schema =
-      param['schema'] && !isReference(param['schema'] as object) ? convertSchema(param['schema'] as SchemaObject) : createSchema({ type: 'any' })
+      param['schema'] && !isReference(param['schema'] as object) ? convertSchema(param['schema'] as SchemaObject) : createSchema({ type: getUnknownType() })
 
     return createParameter({
       name: param['name'] as string,
