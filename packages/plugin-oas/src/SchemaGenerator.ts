@@ -129,6 +129,17 @@ export class SchemaGenerator<
   }
 
   /**
+   * Resolves a schema reference to its collision-detected name.
+   * Accepts either a full `$ref` path (e.g. `#/components/schemas/Order`) or a short name (e.g. `Order`).
+   * Returns the collision-resolved name (e.g. `OrderSchema`) or the input unchanged if no mapping exists.
+   */
+  resolveSchemaRef(ref: string): string {
+    this.#ensureNameMapping()
+
+    return this.#schemaNameMapping.get(ref) ?? ref
+  }
+
+  /**
    * Creates a type node from a given schema.
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.

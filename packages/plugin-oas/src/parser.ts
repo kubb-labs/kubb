@@ -184,9 +184,10 @@ type OasParser<TDateType extends Options['dateType']> = {
   ) => InferSchemaNode<TSchema, TDateType>
   /**
    * Walks `node` and replaces each `ref` value with the name returned by
-   * `resolveName`. Pass a no-op (`(n) => n`) to skip resolution.
+   * `resolveName`. The callback receives the full `$ref` path (e.g. `#/components/schemas/Order`)
+   * when available, falling back to the short name. Pass a no-op (`(n) => n`) to skip resolution.
    */
-  resolveRefs: (node: SchemaNode, resolveName: (name: string) => string | undefined) => SchemaNode
+  resolveRefs: (node: SchemaNode, resolveName: (ref: string) => string | undefined) => SchemaNode
 }
 
 type ParserConfig = {
@@ -303,6 +304,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
         type: 'ref',
         name,
         ref: extractRefName(schemaObject.$ref),
+        $ref: schemaObject.$ref,
         nullable,
         description: schemaObject.description,
         deprecated: schemaObject.deprecated,
@@ -1064,11 +1066,11 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
     return createRoot({ schemas, operations })
   }
 
-  function resolveRefs(node: SchemaNode, resolveName: (name: string) => string | undefined): SchemaNode {
+  function resolveRefs(node: SchemaNode, resolveName: (ref: string) => string | undefined): SchemaNode {
     return transform(node, {
       schema(schemaNode) {
-        if (schemaNode.type === 'ref' && schemaNode.ref) {
-          const resolved = resolveName(schemaNode.ref)
+        if (schemaNode.type === 'ref' && (schemaNode.$ref || schemaNode.ref)) {
+          const resolved = resolveName(schemaNode.$ref ?? schemaNode.ref!)
           if (resolved) {
             return { ...schemaNode, ref: resolved }
           }

@@ -213,6 +213,11 @@ export interface RefSchemaNode extends SchemaNodeBase {
   /** The resolved reference identifier (e.g. schema name or import path). */
   ref?: string
   /**
+   * The original full `$ref` path (e.g. `#/components/schemas/Order`).
+   * Used for collision-detection name resolution via the schema name mapping.
+   */
+  $ref?: string
+  /**
    * Regex pattern constraint propagated from a sibling `pattern` field next to the `$ref`.
    * Only set when the referenced schema is a string type.
    */

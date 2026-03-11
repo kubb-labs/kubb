@@ -44,6 +44,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
           "kind": "Response",
           "mediaType": "application/json",
           "schema": {
+            "$ref": "#/components/schemas/PetList",
             "default": undefined,
             "deprecated": undefined,
             "description": undefined,
@@ -64,6 +65,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
           "kind": "Response",
           "mediaType": "application/json",
           "schema": {
+            "$ref": "#/components/schemas/Error",
             "default": undefined,
             "deprecated": undefined,
             "description": undefined,
@@ -94,6 +96,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "parameters": [],
       "path": "/pets",
       "requestBody": {
+        "$ref": "#/components/schemas/NewPet",
         "default": undefined,
         "deprecated": undefined,
         "description": undefined,
@@ -113,6 +116,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
           "kind": "Response",
           "mediaType": "application/json",
           "schema": {
+            "$ref": "#/components/schemas/Pet",
             "default": undefined,
             "deprecated": undefined,
             "description": undefined,
@@ -174,6 +178,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
           "kind": "Response",
           "mediaType": "application/json",
           "schema": {
+            "$ref": "#/components/schemas/Pet",
             "default": undefined,
             "deprecated": undefined,
             "description": undefined,
@@ -368,6 +373,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "example": undefined,
       "items": [
         {
+          "$ref": "#/components/schemas/Pet",
           "default": undefined,
           "deprecated": undefined,
           "description": undefined,
@@ -489,6 +495,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "kind": "Schema",
       "members": [
         {
+          "$ref": "#/components/schemas/Pet",
           "default": undefined,
           "deprecated": undefined,
           "description": undefined,
@@ -503,6 +510,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
           "writeOnly": undefined,
         },
         {
+          "$ref": "#/components/schemas/Error",
           "default": undefined,
           "deprecated": undefined,
           "description": undefined,
@@ -532,6 +540,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "kind": "Schema",
       "members": [
         {
+          "$ref": "#/components/schemas/Pet",
           "default": undefined,
           "deprecated": undefined,
           "description": undefined,
@@ -633,6 +642,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "writeOnly": undefined,
     },
     {
+      "$ref": "#/components/schemas/Pet",
       "default": undefined,
       "deprecated": undefined,
       "description": undefined,
@@ -661,6 +671,7 @@ exports[`buildAst snapshots > operation 'createPet' 1`] = `
   "parameters": [],
   "path": "/pets",
   "requestBody": {
+    "$ref": "#/components/schemas/NewPet",
     "default": undefined,
     "deprecated": undefined,
     "description": undefined,
@@ -680,6 +691,7 @@ exports[`buildAst snapshots > operation 'createPet' 1`] = `
       "kind": "Response",
       "mediaType": "application/json",
       "schema": {
+        "$ref": "#/components/schemas/Pet",
         "default": undefined,
         "deprecated": undefined,
         "description": undefined,
@@ -744,6 +756,7 @@ exports[`buildAst snapshots > operation 'getPetById' 1`] = `
       "kind": "Response",
       "mediaType": "application/json",
       "schema": {
+        "$ref": "#/components/schemas/Pet",
         "default": undefined,
         "deprecated": undefined,
         "description": undefined,
@@ -815,6 +828,7 @@ exports[`buildAst snapshots > operation 'listPets' 1`] = `
       "kind": "Response",
       "mediaType": "application/json",
       "schema": {
+        "$ref": "#/components/schemas/PetList",
         "default": undefined,
         "deprecated": undefined,
         "description": undefined,
@@ -835,6 +849,7 @@ exports[`buildAst snapshots > operation 'listPets' 1`] = `
       "kind": "Response",
       "mediaType": "application/json",
       "schema": {
+        "$ref": "#/components/schemas/Error",
         "default": undefined,
         "deprecated": undefined,
         "description": undefined,
@@ -867,6 +882,7 @@ exports[`buildAst snapshots > schema 'FullPet' ('allOf / intersection with forma
   "kind": "Schema",
   "members": [
     {
+      "$ref": "#/components/schemas/Pet",
       "default": undefined,
       "deprecated": undefined,
       "description": undefined,
@@ -1054,6 +1070,7 @@ exports[`buildAst snapshots > schema 'PetList' ('array of refs') 1`] = `
   "example": undefined,
   "items": [
     {
+      "$ref": "#/components/schemas/Pet",
       "default": undefined,
       "deprecated": undefined,
       "description": undefined,
@@ -1092,6 +1109,7 @@ exports[`buildAst snapshots > schema 'PetOrError' ('oneOf / union') 1`] = `
   "kind": "Schema",
   "members": [
     {
+      "$ref": "#/components/schemas/Pet",
       "default": undefined,
       "deprecated": undefined,
       "description": undefined,
@@ -1106,6 +1124,7 @@ exports[`buildAst snapshots > schema 'PetOrError' ('oneOf / union') 1`] = `
       "writeOnly": undefined,
     },
     {
+      "$ref": "#/components/schemas/Error",
       "default": undefined,
       "deprecated": undefined,
       "description": undefined,
