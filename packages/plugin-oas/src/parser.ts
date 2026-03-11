@@ -47,7 +47,7 @@ type ResolveDateTimeNode<TDateType extends Options['dateType']> = DateTimeNodeBy
 /**
  * Single source of truth: ordered list of `[shape, SchemaNode]` pairs.
  * `InferSchemaNode` walks this tuple in order and returns the node type of the first matching entry.
- * Parameterised over `TDateType` so `format: 'date-time'` resolves to the correct node based on the option.
+ * Parameterized over `TDateType` so `format: 'date-time'` resolves to the correct node based on the option.
  */
 type SchemaNodeMap<TDateType extends Options['dateType'] = Options['dateType']> = [
   [{ $ref: string }, RefSchemaNode],
