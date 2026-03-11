@@ -352,6 +352,25 @@ export function createOasParser(userOptions?: Partial<Options>) {
 
     const type = Array.isArray(schema.type) ? schema.type[0] : schema.type
 
+    // Pattern — only meaningful for strings; infers string type when no explicit type is set.
+    if (schema.pattern && (!type || type === 'string')) {
+      return createSchema({
+        type: 'string',
+        name,
+        nullable,
+        title: schema.title,
+        description: schema.description,
+        deprecated: schema.deprecated,
+        readOnly: schema.readOnly,
+        writeOnly: schema.writeOnly,
+        default: defaultValue,
+        example: schema.example,
+        min: schema.minLength,
+        max: schema.maxLength,
+        pattern: schema.pattern,
+      })
+    }
+
     // Object
     if (type === 'object' || schema.properties) {
       const properties: Array<PropertyNode> = schema.properties
@@ -424,7 +443,6 @@ export function createOasParser(userOptions?: Partial<Options>) {
         example: schema.example,
         min: schema.minLength,
         max: schema.maxLength,
-        pattern: schema.pattern,
       })
     }
 

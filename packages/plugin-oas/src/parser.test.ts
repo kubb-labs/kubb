@@ -742,6 +742,48 @@ describe('convertSchema number', () => {
   })
 })
 
+describe('convertSchema pattern', () => {
+  const parser = createOasParser()
+
+  it('maps pattern on a string type to a string node with pattern', () => {
+    const node = parser.convertSchema({ type: 'string', pattern: '^[a-z]+$' })
+
+    expect(node.type).toBe('string')
+    expect(node.pattern).toBe('^[a-z]+$')
+  })
+
+  it('infers string type from pattern alone (no explicit type)', () => {
+    const node = parser.convertSchema({ pattern: '^[0-9]+$' })
+
+    expect(node.type).toBe('string')
+    expect(node.pattern).toBe('^[0-9]+$')
+  })
+
+  it('ignores pattern on non-string types', () => {
+    const node = parser.convertSchema({ type: 'number', pattern: '^[0-9]+$' })
+
+    expect(node.type).toBe('number')
+    expect(node.pattern).toBeUndefined()
+  })
+
+  it('preserves nullable on a pattern string', () => {
+    const node = parser.convertSchema({ type: 'string', pattern: '^[a-z]+$', nullable: true })
+
+    expect(node.type).toBe('string')
+    expect(node.pattern).toBe('^[a-z]+$')
+    expect(node.nullable).toBe(true)
+  })
+
+  it('preserves minLength and maxLength alongside pattern', () => {
+    const node = parser.convertSchema({ type: 'string', pattern: '^[a-z]+$', minLength: 2, maxLength: 10 })
+
+    expect(node.type).toBe('string')
+    expect(node.pattern).toBe('^[a-z]+$')
+    expect(node.min).toBe(2)
+    expect(node.max).toBe(10)
+  })
+})
+
 describe('convertSchema constraints', () => {
   const parser = createOasParser()
 
