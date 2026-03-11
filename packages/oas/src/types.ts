@@ -20,6 +20,7 @@ export type contentType = 'application/json' | (string & {})
 
 export type SchemaObject = OASSchemaObject & {
   'x-nullable'?: boolean
+  const: string | number | boolean | null
   $ref?: string
 }
 

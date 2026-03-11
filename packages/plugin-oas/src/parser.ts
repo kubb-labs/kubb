@@ -33,11 +33,13 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
  *  1. `$ref` present              → `RefSchemaNode`
  *  2. `allOf` present             → `CompositeSchemaNode` (intersection) or the flattened member type
  *  3. `oneOf` / `anyOf` present   → `CompositeSchemaNode` (union)
- *  4. `enum` present              → `EnumSchemaNode`
- *  5. `type === 'object'`         → `ObjectSchemaNode`
- *  6. `type === 'array'`          → `ArraySchemaNode`
- *  7. any other `type`            → `ScalarSchemaNode`
- *  8. no discriminating field     → `SchemaNode` (wide fallback)
+ *  4. `const: null` present       → `ScalarSchemaNode` (null)
+ *  5. `const` present             → `EnumSchemaNode` (single-value enum)
+ *  6. `enum` present              → `EnumSchemaNode`
+ *  7. `type === 'object'`         → `ObjectSchemaNode`
+ *  8. `type === 'array'`          → `ArraySchemaNode`
+ *  9. any other `type`            → `ScalarSchemaNode`
+ * 10. no discriminating field     → `SchemaNode` (wide fallback)
  */
 type InferSchemaNode<T extends SchemaObject> = T extends { $ref: string }
   ? RefSchemaNode
@@ -47,15 +49,19 @@ type InferSchemaNode<T extends SchemaObject> = T extends { $ref: string }
       ? CompositeSchemaNode
       : T extends { anyOf: ReadonlyArray<unknown> }
         ? CompositeSchemaNode
-        : T extends { enum: ReadonlyArray<unknown> }
-          ? EnumSchemaNode
-          : T extends { type: 'object' }
-            ? ObjectSchemaNode
-            : T extends { type: 'array' }
-              ? ArraySchemaNode
-              : T extends { type: string }
-                ? ScalarSchemaNode
-                : SchemaNode
+        : T extends { const: null }
+          ? ScalarSchemaNode
+          : T extends { const: string | number | boolean }
+            ? EnumSchemaNode
+            : T extends { enum: ReadonlyArray<unknown> }
+              ? EnumSchemaNode
+              : T extends { type: 'object' }
+                ? ObjectSchemaNode
+                : T extends { type: 'array' }
+                  ? ArraySchemaNode
+                  : T extends { type: string }
+                    ? ScalarSchemaNode
+                    : SchemaNode
 
 type Options = {
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
@@ -237,6 +243,32 @@ export function createOasParser(userOptions?: Partial<Options>) {
         default: defaultValue,
         example: schema.example,
       })
+    }
+
+    // OAS 3.1 const — a single fixed value, semantically equivalent to a one-item enum.
+    // `const: null` maps to the null scalar; `const: undefined` falls through to the empty-type fallback.
+    if ('const' in schema) {
+      const constValue = (schema as SchemaObject & { const: unknown }).const
+
+      if (constValue === null) {
+        return createSchema({ type: 'null', name, title: schema.title, description: schema.description, deprecated: schema.deprecated, nullable })
+      }
+
+      if (constValue !== undefined) {
+        return createSchema({
+          type: 'enum',
+          name,
+          enumValues: [constValue as string | number | boolean],
+          title: schema.title,
+          description: schema.description,
+          deprecated: schema.deprecated,
+          nullable,
+          readOnly: schema.readOnly,
+          writeOnly: schema.writeOnly,
+          default: defaultValue,
+          example: schema.example,
+        })
+      }
     }
 
     // Enum

@@ -280,6 +280,43 @@ describe('convertSchema return type narrowing', () => {
   })
 })
 
+describe('convertSchema const (OAS 3.1)', () => {
+  const parser = createOasParser()
+
+  it('maps const string to a single-value enum', () => {
+    const node = parser.convertSchema({ const: 'active' })
+
+    expect(node.type).toBe('enum')
+    expect(node.enumValues).toEqual(['active'])
+  })
+
+  it('maps const number to a single-value enum', () => {
+    const node = parser.convertSchema({ const: 42 })
+
+    expect(node.type).toBe('enum')
+    expect(node.enumValues).toEqual([42])
+  })
+
+  it('maps const boolean to a single-value enum', () => {
+    const node = parser.convertSchema({ const: true })
+
+    expect(node.type).toBe('enum')
+    expect(node.enumValues).toEqual([true])
+  })
+
+  it('maps const: null to a null scalar', () => {
+    const node = parser.convertSchema({ const: null })
+
+    expect(node.type).toBe('null')
+  })
+
+  it('propagates name on const enum', () => {
+    const node = parser.convertSchema({ const: 'active' }, 'Status')
+
+    expect(node.name).toBe('Status')
+  })
+})
+
 describe('convertSchema readOnly / writeOnly', () => {
   const parser = createOasParser()
 
@@ -493,7 +530,7 @@ describe('convertSchema nullable', () => {
   })
 
   it('sets nullable via x-nullable: true', () => {
-    const node = parser.convertSchema({ type: 'string', 'x-nullable': true } as Parameters<typeof parser.convertSchema>[0])
+    const node = parser.convertSchema({ type: 'string', 'x-nullable': true })
 
     expect(node.nullable).toBe(true)
   })
