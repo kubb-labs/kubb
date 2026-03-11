@@ -605,6 +605,39 @@ describe('convertSchema nullable', () => {
   })
 })
 
+describe('convertSchema integer', () => {
+  const parser = createOasParser()
+
+  it('maps integer int32 to integer', () => {
+    const node = parser.convertSchema({ type: 'integer', format: 'int32' })
+
+    expect(node.type).toBe('integer')
+  })
+
+  it('maps integer int64 to integer when integerType is number (default)', () => {
+    const node = parser.convertSchema({ type: 'integer', format: 'int64' })
+
+    expect(node.type).toBe('integer')
+  })
+
+})
+
+describe('convertSchema number', () => {
+  const parser = createOasParser()
+
+  it('maps number float to number', () => {
+    const node = parser.convertSchema({ type: 'number', format: 'float' })
+
+    expect(node.type).toBe('number')
+  })
+
+  it('maps number double to number', () => {
+    const node = parser.convertSchema({ type: 'number', format: 'double' })
+
+    expect(node.type).toBe('number')
+  })
+})
+
 describe('convertSchema constraints', () => {
   const parser = createOasParser()
 
@@ -791,6 +824,43 @@ describe('createOasParser options', () => {
       const node = parser.convertSchema({ type: 'string' })
 
       expect(node.type).toBe('string')
+    })
+  })
+
+  describe('integerType', () => {
+    it('defaults to integer for int64 when integerType is not set', () => {
+      const parser = createOasParser()
+      const node = parser.convertSchema({ type: 'integer', format: 'int64' })
+
+      expect(node.type).toBe('integer')
+    })
+
+    it('integerType: number keeps int64 as integer', () => {
+      const parser = createOasParser({ integerType: 'number' })
+      const node = parser.convertSchema({ type: 'integer', format: 'int64' })
+
+      expect(node.type).toBe('integer')
+    })
+
+    it('integerType: bigint maps int64 to bigint', () => {
+      const parser = createOasParser({ integerType: 'bigint' })
+      const node = parser.convertSchema({ type: 'integer', format: 'int64' })
+
+      expect(node.type).toBe('bigint')
+    })
+
+    it('integerType: bigint does not affect int32', () => {
+      const parser = createOasParser({ integerType: 'bigint' })
+      const node = parser.convertSchema({ type: 'integer', format: 'int32' })
+
+      expect(node.type).toBe('integer')
+    })
+
+    it('integerType does not affect non-integer types', () => {
+      const parser = createOasParser({ integerType: 'bigint' })
+      const node = parser.convertSchema({ type: 'number', format: 'float' })
+
+      expect(node.type).toBe('number')
     })
   })
 })

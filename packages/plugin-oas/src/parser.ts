@@ -397,10 +397,10 @@ export function createOasParser(userOptions?: Partial<Options>) {
       })
     }
 
-    // Number
+    // Number — float/double formats are still number; format overrides type per JSON Schema spec.
     if (type === 'number') {
       return createSchema({
-        type: 'number',
+        type: schema.format === 'float' || schema.format === 'double' ? 'number' : 'number',
         name,
         nullable,
         title: schema.title,
@@ -417,10 +417,12 @@ export function createOasParser(userOptions?: Partial<Options>) {
       })
     }
 
-    // Integer
+    // Integer — int64 may map to bigint depending on the integerType option.
     if (type === 'integer') {
+      const integerSchemaType = schema.format === 'int64' && options.integerType === 'bigint' ? 'bigint' : 'integer'
+
       return createSchema({
-        type: 'integer',
+        type: integerSchemaType,
         name,
         nullable,
         title: schema.title,

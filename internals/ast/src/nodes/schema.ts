@@ -7,7 +7,7 @@
  */
 
 /** Primitive scalar types. */
-export type PrimitiveSchemaType = 'string' | 'number' | 'integer' | 'boolean' | 'null' | 'any' | 'unknown' | 'void'
+export type PrimitiveSchemaType = 'string' | 'number' | 'integer' | 'bigint' | 'boolean' | 'null' | 'any' | 'unknown' | 'void'
 
 /** Structural / composite types. */
 export type ComplexSchemaType = 'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum'
@@ -25,8 +25,12 @@ export type SchemaType = PrimitiveSchemaType | ComplexSchemaType | SpecialSchema
 export const schemaTypes = {
   // Primitive scalar types
   string: 'string',
+  /** Floating-point number (`float`, `double`). Maps to `number` in TypeScript and most languages. */
   number: 'number',
+  /** Whole number (`int32`). Maps to `number` in TypeScript. Use `bigint` for `int64` when precision matters. */
   integer: 'integer',
+  /** 64-bit integer (`int64`). Maps to `bigint` in TypeScript. Only used when the `integerType` option is set to `'bigint'`. */
+  bigint: 'bigint',
   boolean: 'boolean',
   null: 'null',
   any: 'any',
