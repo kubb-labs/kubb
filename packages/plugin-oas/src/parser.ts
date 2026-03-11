@@ -231,7 +231,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
   }
 
   /**
-   * Resolves the AST type and datetime modifiers for a date/time format, honouring the `dateType` option.
+   * Resolves the AST type and datetime modifiers for a date/time format, honoring the `dateType` option.
    * Returns `undefined` when `dateType` is `false`, meaning the format should fall through to `string`.
    */
   function getDateType(

@@ -1,3 +1,4 @@
+import type { SchemaNode } from '@internals/ast'
 import { jsStringEscape } from '@internals/utils'
 import type { SchemaObject } from '@kubb/oas'
 import { isKeyword, type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
@@ -12,6 +13,7 @@ type Props = {
   inferTypeName?: string
   tree: Array<Schema>
   schema: SchemaObject
+  schemaNode: SchemaNode
   description?: string
   coercion: PluginZod['resolvedOptions']['coercion']
   mapper: PluginZod['resolvedOptions']['mapper']
@@ -28,6 +30,7 @@ export function Zod({
   typeName,
   tree,
   schema,
+  schemaNode,
   inferTypeName,
   mapper,
   coercion,
@@ -56,7 +59,10 @@ export function Zod({
     .map((schemaKeyword, index) => {
       const siblings = baseSchemas.filter((_, i) => i !== index)
 
-      return parserZod.parse({ schema, parent: undefined, current: schemaKeyword, siblings, name }, { mapper, coercion, wrapOutput, version, guidType, mini })
+      return parserZod.parse(
+        { schema, parent: undefined, current: schemaKeyword, siblings, name, schemaNode },
+        { mapper, coercion, wrapOutput, version, guidType, mini },
+      )
     })
     .filter(Boolean)
     .join('')
@@ -93,6 +99,7 @@ export function Zod({
         keyword: schemaKeywords[emptySchemaType],
       },
       siblings: [],
+      schemaNode,
     },
     { mapper, coercion, wrapOutput, version, guidType, mini },
   )

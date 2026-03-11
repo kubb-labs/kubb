@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
-import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { convertSchema, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter, getImports } from '@kubb/plugin-oas/utils'
@@ -83,6 +83,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       const group = options.operation ? getGroup(options.operation) : undefined
 
       const coercion = name.includes('Params') ? { numbers: true, strings: false, dates: true } : globalCoercion
+      const schemaNode = convertSchema(schemaObject, name)
 
       const zod = {
         name: schemaManager.getName(name, { type: 'function' }),
@@ -114,6 +115,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
             description={description}
             tree={tree}
             schema={schemaObject}
+            schemaNode={schemaNode}
             mapper={mapper}
             coercion={coercion}
             keysToOmit={keysToOmit}
@@ -189,6 +191,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
           description={schema.value.description}
           tree={schema.tree}
           schema={schema.value}
+          schemaNode={schema.schemaNode}
           mapper={mapper}
           coercion={coercion}
           wrapOutput={wrapOutput}

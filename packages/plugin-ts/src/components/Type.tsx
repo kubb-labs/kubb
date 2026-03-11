@@ -13,7 +13,7 @@ import type { PluginTs } from '../types.ts'
 type Props = {
   name: string
   typedName: string
-  schemaNode?: SchemaNode
+  schemaNode: SchemaNode
   schema: SchemaObject
   tree: Array<Schema>
   optionalType: PluginTs['resolvedOptions']['optionalType']
@@ -54,7 +54,7 @@ export function Type({
     (tree
       .map((current, _index, siblings) =>
         parse(
-          { name, schema, parent: undefined, current, siblings },
+          { name, schema, parent: undefined, current, siblings, schemaNode },
           {
             optionalType,
             arrayType,

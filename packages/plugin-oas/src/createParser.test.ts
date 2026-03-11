@@ -1,3 +1,4 @@
+import { createSchema } from '@internals/ast'
 import type { SchemaKeywordMapper } from '@kubb/plugin-oas'
 import { createParser, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import { describe, expect, it } from 'vitest'
@@ -52,6 +53,7 @@ describe('createParser type narrowing', () => {
         parent: undefined,
         current: refSchema,
         siblings: [refSchema],
+        schemaNode: createSchema({ type: 'ref', ref: 'Error' }),
       },
       {},
     )
@@ -94,6 +96,7 @@ describe('createParser type narrowing', () => {
         parent: undefined,
         current: refSchema,
         siblings: [refSchema],
+        schemaNode: createSchema({ type: 'ref', ref: 'Error' }),
       },
       {},
     )

@@ -207,7 +207,7 @@ export const parse = createParser<string, ParserOptions>({
   mapper: fakerKeywordMapper,
   handlers: {
     union(tree, options) {
-      const { current, schema, name, siblings } = tree
+      const { current } = tree
 
       if (Array.isArray(current.args) && !current.args.length) {
         return ''
@@ -215,32 +215,27 @@ export const parse = createParser<string, ParserOptions>({
 
       return fakerKeywordMapper.union(
         current.args
-          .map((it) => this.parse({ schema, parent: current, name, current: it, siblings }, { ...options, canOverride: false }))
+          .map((it) => this.parse({ ...tree, parent: current, current: it }, { ...options, canOverride: false }))
           .filter((x): x is string => Boolean(x)),
       )
     },
     and(tree, options) {
-      const { current, schema, siblings } = tree
+      const { current } = tree
 
       return fakerKeywordMapper.and(
         current.args
-          .map((it) => this.parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false }))
+          .map((it) => this.parse({ ...tree, parent: current, current: it }, { ...options, canOverride: false }))
           .filter((x): x is string => Boolean(x)),
       )
     },
     array(tree, options) {
-      const { current, schema } = tree
+      const { current } = tree
 
       return fakerKeywordMapper.array(
         current.args.items
           .map((it) =>
             this.parse(
-              {
-                schema,
-                parent: current,
-                current: it,
-                siblings: current.args.items,
-              },
+              { ...tree, parent: current, current: it, siblings: current.args.items },
               {
                 ...options,
                 typeName: `NonNullable<${options.typeName}>[number]`,
@@ -316,7 +311,7 @@ export const parse = createParser<string, ParserOptions>({
       return `${current.args.name}()`
     },
     object(tree, options) {
-      const { current, schema } = tree
+      const { current } = tree
 
       const argsObject = Object.entries(current.args?.properties || {})
         .filter((item) => {
@@ -338,13 +333,7 @@ export const parse = createParser<string, ParserOptions>({
               .sort(schemaKeywordSorter)
               .map((it) =>
                 this.parse(
-                  {
-                    schema,
-                    name,
-                    parent: current,
-                    current: it,
-                    siblings: schemas,
-                  },
+                  { ...tree, name, parent: current, current: it, siblings: schemas },
                   {
                     ...options,
                     typeName: `NonNullable<${options.typeName}>[${JSON.stringify(name)}]`,
@@ -360,17 +349,17 @@ export const parse = createParser<string, ParserOptions>({
       return `{${argsObject}}`
     },
     tuple(tree, options) {
-      const { current, schema, siblings } = tree
+      const { current } = tree
 
       if (Array.isArray(current.args.items)) {
         return fakerKeywordMapper.tuple(
           current.args.items
-            .map((it) => this.parse({ schema, parent: current, current: it, siblings }, { ...options, canOverride: false }))
+            .map((it) => this.parse({ ...tree, parent: current, current: it }, { ...options, canOverride: false }))
             .filter((x): x is string => Boolean(x)),
         )
       }
 
-      return this.parse({ schema, parent: current, current: current.args.items, siblings }, { ...options, canOverride: false })
+      return this.parse({ ...tree, parent: current, current: current.args.items }, { ...options, canOverride: false })
     },
     const(tree, _options) {
       const { current } = tree
