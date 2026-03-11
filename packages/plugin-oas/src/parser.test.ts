@@ -9,6 +9,7 @@ import type {
   SchemaNode,
   StringSchemaNode,
 } from '@internals/ast'
+import type { SchemaObject } from '@kubb/oas'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { buildMinimalOas } from './mocks/index.ts'
 import { createOasParser } from './parser.ts'
@@ -713,6 +714,22 @@ describe('convertSchema object properties', () => {
     expect(prop?.schema.optional).toBeUndefined()
     expect(prop?.schema.nullish).toBeUndefined()
   })
+
+  it('treats required: true (OAS 2.0 scalar) as all properties required', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      required: true as unknown as string[],
+      properties: { id: { type: 'integer' }, tag: { type: 'string' } },
+    }) as ObjectSchemaNode
+
+    const id = node.properties?.find((p) => p.name === 'id')
+    const tag = node.properties?.find((p) => p.name === 'tag')
+
+    expect(id?.required).toBe(true)
+    expect(id?.schema.optional).toBeUndefined()
+    expect(tag?.required).toBe(true)
+    expect(tag?.schema.optional).toBeUndefined()
+  })
 })
 
 describe('convertSchema object additionalProperties', () => {
@@ -824,6 +841,15 @@ describe('convertSchema object patternProperties', () => {
     const node = parser.convertSchema({
       type: 'object',
       patternProperties: { '^x-': {} },
+    })
+
+    expect(node.patternProperties?.['^x-']).toMatchObject({ type: 'unknown' })
+  })
+
+  it('pattern schema true falls back to unknownType', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      patternProperties: { '^x-': true as unknown as SchemaObject },
     })
 
     expect(node.patternProperties?.['^x-']).toMatchObject({ type: 'unknown' })

@@ -577,7 +577,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
 
       const properties: Array<PropertyNode> = resolvedSchema.properties
         ? Object.entries(resolvedSchema.properties).map(([propName, propSchema]) => {
-            const required = Array.isArray(resolvedSchema.required) ? resolvedSchema.required.includes(propName) : false
+            const required = Array.isArray(resolvedSchema.required) ? resolvedSchema.required.includes(propName) : !!resolvedSchema.required
             const resolvedPropSchema = propSchema as SchemaObject
             const propNullable = isNullable(resolvedPropSchema)
 
@@ -614,9 +614,9 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
         ? Object.fromEntries(
             Object.entries(rawPatternProperties).map(([pattern, patternSchema]) => [
               pattern,
-              Object.keys(patternSchema as object).length > 0
-                ? convertSchema(patternSchema as SchemaObject)
-                : createSchema({ type: getUnknownType() }),
+              (patternSchema as unknown) === true || Object.keys(patternSchema as object).length === 0
+                ? createSchema({ type: getUnknownType() })
+                : convertSchema(patternSchema as SchemaObject),
             ]),
           )
         : undefined
