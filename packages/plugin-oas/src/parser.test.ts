@@ -350,6 +350,29 @@ describe('convertSchema email', () => {
   })
 })
 
+describe('convertSchema url', () => {
+  const parser = createOasParser()
+
+  it.each(['uri', 'uri-reference', 'url', 'ipv4', 'ipv6', 'hostname', 'idn-hostname'])('maps format %s to url', (format) => {
+    const node = parser.convertSchema({ type: 'string', format })
+
+    expect(node.type).toBe('url')
+  })
+
+  it('maps format uri without type to url (format overrides type)', () => {
+    const node = parser.convertSchema({ format: 'uri' })
+
+    expect(node.type).toBe('url')
+  })
+
+  it('preserves nullable on url', () => {
+    const node = parser.convertSchema({ type: 'string', format: 'uri', nullable: true })
+
+    expect(node.type).toBe('url')
+    expect(node.nullable).toBe(true)
+  })
+})
+
 describe('convertSchema binary', () => {
   const parser = createOasParser()
 

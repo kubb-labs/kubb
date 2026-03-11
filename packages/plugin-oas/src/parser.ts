@@ -72,7 +72,12 @@ const FORMAT_MAP: Record<string, SchemaType> = {
   email: 'email',
   'idn-email': 'email',
   uri: 'url',
+  'uri-reference': 'url',
   url: 'url',
+  ipv4: 'url',
+  ipv6: 'url',
+  hostname: 'url',
+  'idn-hostname': 'url',
   binary: 'blob',
   byte: 'blob',
   // Numeric formats — format is more specific than type, so these override type.
