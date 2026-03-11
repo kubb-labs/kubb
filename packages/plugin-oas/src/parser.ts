@@ -26,9 +26,9 @@ import type {
   UnionSchemaNode,
 } from '@internals/ast'
 import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, schemaTypes } from '@internals/ast'
+import { pascalCase } from '@internals/utils'
 import type { Oas, Operation, SchemaObject } from '@kubb/oas'
 import { flattenSchema, isDiscriminator, isNullable, isReference } from '@kubb/oas'
-import { pascalCase } from '@internals/utils'
 
 /** Distributive `Omit` that correctly distributes over union types. */
 type DistributiveOmit<TValue, TKey extends PropertyKey> = TValue extends unknown ? Omit<TValue, TKey> : never
