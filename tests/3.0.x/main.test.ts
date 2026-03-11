@@ -36,6 +36,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
+          UNSTABLE_SCHEMA: true,
         }),
       ],
     },

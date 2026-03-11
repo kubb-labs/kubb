@@ -1024,7 +1024,7 @@ describe('convertSchema object additionalProperties', () => {
     })
 
     expect(node.type).toBe('object')
-    expect(node.additionalProperties).toMatchObject({ type: 'unknown' })
+    expect(node.additionalProperties).toMatchObject({ type: 'any' })
   })
 
   it('respects unknownType option for empty additionalProperties', () => {
@@ -1077,7 +1077,7 @@ describe('convertSchema object patternProperties', () => {
       patternProperties: { '^x-': {} },
     })
 
-    expect(node.patternProperties?.['^x-']).toMatchObject({ type: 'unknown' })
+    expect(node.patternProperties?.['^x-']).toMatchObject({ type: 'any' })
   })
 
   it('pattern schema true falls back to unknownType', () => {
@@ -1086,7 +1086,7 @@ describe('convertSchema object patternProperties', () => {
       patternProperties: { '^x-': true as unknown as SchemaObject },
     })
 
-    expect(node.patternProperties?.['^x-']).toMatchObject({ type: 'unknown' })
+    expect(node.patternProperties?.['^x-']).toMatchObject({ type: 'any' })
   })
 
   it('patternProperties triggers object even without type or properties', () => {
@@ -2029,11 +2029,11 @@ describe('convertSchema constraints', () => {
 
 describe('createOasParser options', () => {
   describe('emptySchemaType', () => {
-    it('defaults to unknown for a schema with no type information', () => {
+    it('defaults to any for a schema with no type information', () => {
       const parser = createOasParser()
       const node = parser.convertSchema({})
 
-      expect(node.type).toBe('unknown')
+      expect(node.type).toBe('any')
     })
 
     it('emptySchemaType: any returns any for an empty schema', () => {
@@ -2358,13 +2358,13 @@ describe('convertSchema primitive', () => {
   it('object type has no primitive', () => {
     const node = parser.convertSchema({ type: 'object' })
 
-    expect(node.primitive).toBeUndefined()
+    expect(node.primitive).toBe('object')
   })
 
   it('array type has no primitive', () => {
     const node = parser.convertSchema({ type: 'array' })
 
-    expect(node.primitive).toBeUndefined()
+    expect(node.primitive).toBe('array')
   })
 
   it('union (oneOf) has no primitive', () => {

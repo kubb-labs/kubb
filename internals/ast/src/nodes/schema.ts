@@ -7,10 +7,10 @@
  */
 
 /** Primitive scalar types. */
-export type PrimitiveSchemaType = 'string' | 'number' | 'integer' | 'bigint' | 'boolean' | 'null' | 'any' | 'unknown' | 'void'
+export type PrimitiveSchemaType = 'string' | 'number' | 'integer' | 'bigint' | 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'object' | 'array'
 
 /** Structural / composite types. */
-export type ComplexSchemaType = 'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum'
+export type ComplexSchemaType = 'tuple' | 'union' | 'intersection' | 'enum'
 
 /**
  * Well-known semantic types that most code-generators want to handle
@@ -114,7 +114,7 @@ interface SchemaNodeBase extends BaseNode {
    * - `integer` node → `primitive: 'integer'`
    *
    * `undefined` when the schema has no meaningful primitive origin (e.g.
-   * `object`, `array`, `union`, `intersection`, `ref`).
+   * `union`, `intersection`, `ref`).
    */
   primitive?: PrimitiveSchemaType
 }

@@ -69,7 +69,11 @@ export function Type({
       .filter(Boolean)
       .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
 
-  if (UNSTABLE_SCHEMA && schemaNode) {
+  if (UNSTABLE_SCHEMA) {
+    if (!schemaNode) {
+      throw new Error('schemaNode is required when UNSTABLE_SCHEMA is true')
+    }
+
     type = parseSchemaNode(schemaNode, { optionalType, arrayType, enumType })!
   }
 

@@ -1,5 +1,5 @@
 import type { SchemaNode } from '@internals/ast'
-import { jsStringEscape } from '@internals/utils'
+import { jsStringEscape, stringify } from '@internals/utils'
 import { createParserSchemaNode } from '@kubb/plugin-oas'
 import type ts from 'typescript'
 import * as factory from './factory.ts'
@@ -83,6 +83,7 @@ export const parseSchemaNode = createParserSchemaNode<ts.TypeNode, ParserSchemaN
 
       // Reference to a named enum/const declaration
       const typeName = ['asConst', 'asPascalConst'].includes(options.enumType) ? `${node.name}Key` : node.name
+
       return factory.createTypeReferenceNode(typeName, undefined)
     },
     union(node, options) {
@@ -140,9 +141,13 @@ export const parseSchemaNode = createParserSchemaNode<ts.TypeNode, ParserSchemaN
             'min' in prop.schema && prop.schema.min !== undefined ? `@minLength ${prop.schema.min}` : undefined,
             'max' in prop.schema && prop.schema.max !== undefined ? `@maxLength ${prop.schema.max}` : undefined,
             'pattern' in prop.schema && prop.schema.pattern ? `@pattern ${prop.schema.pattern}` : undefined,
-            prop.schema.default !== undefined ? `@default ${prop.schema.default}` : undefined,
+            prop.schema.default !== undefined && prop.schema.primitive === 'string' ? `@default ${stringify(prop.schema.default as string)}` : undefined,
+            prop.schema.default !== undefined && prop.schema.primitive === 'number' ? `@default ${prop.schema.default}` : undefined,
+            prop.schema.default !== undefined && prop.schema.primitive === 'boolean' ? `@default ${prop.schema.default ?? false}` : undefined,
             prop.schema.example !== undefined ? `@example ${prop.schema.example}` : undefined,
-            prop.schema.primitive ? `@type ${prop.schema.primitive || 'unknown'}${prop.schema.optional ? ' | undefined' : ''}` : undefined,
+            prop.schema.primitive
+              ? [`@type ${prop.schema.primitive || 'unknown'}`, prop.schema.optional ? ' | undefined' : undefined].filter(Boolean).join('')
+              : undefined,
           ],
         })
       })

@@ -111,8 +111,8 @@ type Options = {
 const DEFAULT_OPTIONS: Options = {
   dateType: 'string',
   integerType: 'number',
-  unknownType: 'unknown',
-  emptySchemaType: 'unknown',
+  unknownType: 'any',
+  emptySchemaType: 'any',
 }
 
 const FORMAT_MAP: Record<string, SchemaType> = {
@@ -803,6 +803,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
 
       return createSchema({
         type: 'object',
+        primitive: 'object',
         name,
         properties,
         additionalProperties: additionalPropertiesNode,
@@ -829,6 +830,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
 
       return createSchema({
         type: 'tuple',
+        primitive: 'array',
         name,
         items: tupleItems,
         rest,
@@ -851,6 +853,7 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
       const items = rawSchema.items ? [convertSchema(rawSchema.items)] : []
       return createSchema({
         type: 'array',
+        primitive: 'array',
         name,
         items,
         nullable,

@@ -214,6 +214,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "name": "Pet",
       "nullable": undefined,
       "patternProperties": undefined,
+      "primitive": "object",
       "properties": [
         {
           "kind": "Property",
@@ -304,6 +305,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "name": "NewPet",
       "nullable": undefined,
       "patternProperties": undefined,
+      "primitive": "object",
       "properties": [
         {
           "kind": "Property",
@@ -385,6 +387,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "min": undefined,
       "name": "PetList",
       "nullable": undefined,
+      "primitive": "array",
       "readOnly": undefined,
       "title": undefined,
       "type": "array",
@@ -401,6 +404,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "name": "Error",
       "nullable": undefined,
       "patternProperties": undefined,
+      "primitive": "object",
       "properties": [
         {
           "kind": "Property",
@@ -551,6 +555,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
           "name": undefined,
           "nullable": undefined,
           "patternProperties": undefined,
+          "primitive": "object",
           "properties": [
             {
               "kind": "Property",
@@ -885,6 +890,7 @@ exports[`buildAst snapshots > schema 'FullPet' ('allOf / intersection with forma
       "name": undefined,
       "nullable": undefined,
       "patternProperties": undefined,
+      "primitive": "object",
       "properties": [
         {
           "kind": "Property",
@@ -957,6 +963,7 @@ exports[`buildAst snapshots > schema 'Pet' ('object with required props') 1`] = 
   "name": "Pet",
   "nullable": undefined,
   "patternProperties": undefined,
+  "primitive": "object",
   "properties": [
     {
       "kind": "Property",
@@ -1066,6 +1073,7 @@ exports[`buildAst snapshots > schema 'PetList' ('array of refs') 1`] = `
   "min": undefined,
   "name": "PetList",
   "nullable": undefined,
+  "primitive": "array",
   "readOnly": undefined,
   "title": undefined,
   "type": "array",

@@ -19,7 +19,7 @@ export type FindPetsByStatusQueryParams = {
      * @default "available"
      * @type string | undefined
     */
-    status?: FindPetsByStatusQueryParamsStatusEnumKey;
+    status?: ("available" | "pending" | "sold");
 };
 
 /**
