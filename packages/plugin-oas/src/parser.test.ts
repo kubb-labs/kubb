@@ -990,6 +990,60 @@ describe('convertSchema array', () => {
   })
 })
 
+describe('convertSchema type inference (no explicit type)', () => {
+  const parser = createOasParser()
+
+  it('infers string from minLength alone', () => {
+    const node = parser.convertSchema({ minLength: 1 })
+
+    expect(node.type).toBe('string')
+    expect(node.min).toBe(1)
+  })
+
+  it('infers string from maxLength alone', () => {
+    const node = parser.convertSchema({ maxLength: 100 })
+
+    expect(node.type).toBe('string')
+    expect(node.max).toBe(100)
+  })
+
+  it('infers string from both minLength and maxLength', () => {
+    const node = parser.convertSchema({ minLength: 2, maxLength: 50 })
+
+    expect(node.type).toBe('string')
+    expect(node.min).toBe(2)
+    expect(node.max).toBe(50)
+  })
+
+  it('infers number from minimum alone', () => {
+    const node = parser.convertSchema({ minimum: 0 })
+
+    expect(node.type).toBe('number')
+    expect(node.min).toBe(0)
+  })
+
+  it('infers number from maximum alone', () => {
+    const node = parser.convertSchema({ maximum: 999 })
+
+    expect(node.type).toBe('number')
+    expect(node.max).toBe(999)
+  })
+
+  it('infers number from both minimum and maximum', () => {
+    const node = parser.convertSchema({ minimum: 1, maximum: 100 })
+
+    expect(node.type).toBe('number')
+    expect(node.min).toBe(1)
+    expect(node.max).toBe(100)
+  })
+
+  it('does not infer array from minItems/maxItems alone', () => {
+    const node = parser.convertSchema({ minItems: 1, maxItems: 5 })
+
+    expect(node.type).not.toBe('array')
+  })
+})
+
 describe('convertSchema constraints', () => {
   const parser = createOasParser()
 

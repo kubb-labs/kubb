@@ -38,7 +38,14 @@ type SchemaNodeMap = [
   [{ enum: ReadonlyArray<unknown> }, EnumSchemaNode],
   [{ type: 'object' }, ObjectSchemaNode],
   [{ type: 'array' }, ArraySchemaNode],
+  [{ items: object }, ArraySchemaNode],
   [{ type: string }, ScalarSchemaNode],
+  // Inferred scalar types from constraints when no explicit type is present.
+  [{ minLength: number }, ScalarSchemaNode],
+  [{ maxLength: number }, ScalarSchemaNode],
+  [{ pattern: string }, ScalarSchemaNode],
+  [{ minimum: number }, ScalarSchemaNode],
+  [{ maximum: number }, ScalarSchemaNode],
 ]
 
 type InferSchemaNode<T extends SchemaObject, Entries extends ReadonlyArray<[object, SchemaNode]> = SchemaNodeMap> = Entries extends [
@@ -352,8 +359,50 @@ export function createOasParser(userOptions?: Partial<Options>) {
 
     const type = Array.isArray(schema.type) ? schema.type[0] : schema.type
 
-    // Pattern — only meaningful for strings; infers string type when no explicit type is set.
-    if (schema.pattern && (!type || type === 'string')) {
+    // Infer type from constraints when no explicit type is provided.
+    // minLength / maxLength / pattern → string; minimum / maximum → number.
+    // Note: minItems/maxItems do NOT infer array — arrays require an items key and are handled above.
+    if (!type) {
+      if (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined) {
+        return createSchema({
+          type: 'string',
+          name,
+          nullable,
+          title: schema.title,
+          description: schema.description,
+          deprecated: schema.deprecated,
+          readOnly: schema.readOnly,
+          writeOnly: schema.writeOnly,
+          default: defaultValue,
+          example: schema.example,
+          min: schema.minLength,
+          max: schema.maxLength,
+          pattern: schema.pattern,
+        })
+      }
+
+      if (schema.minimum !== undefined || schema.maximum !== undefined) {
+        return createSchema({
+          type: 'number',
+          name,
+          nullable,
+          title: schema.title,
+          description: schema.description,
+          deprecated: schema.deprecated,
+          readOnly: schema.readOnly,
+          writeOnly: schema.writeOnly,
+          default: defaultValue,
+          example: schema.example,
+          min: schema.minimum,
+          max: schema.maximum,
+          exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
+          exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
+        })
+      }
+    }
+
+    // Pattern — only meaningful for strings; applies when explicit type is string.
+    if (schema.pattern && type === 'string') {
       return createSchema({
         type: 'string',
         name,
