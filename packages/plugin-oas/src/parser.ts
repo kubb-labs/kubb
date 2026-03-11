@@ -1002,15 +1002,11 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
   function buildAst(oasInstance: Oas): RootNode {
     // Create a parser with oas bound for dereferencing ($ref resolution in allOf, circular-ref detection).
     // When createOasParser was called without an oas config, we bind it lazily here at buildAst time.
-    const oasAwareConvertSchema = oas
-      ? convertSchema
-      : createOasParser(userOptions as TOptions, { oas: oasInstance }).convertSchema
+    const oasAwareConvertSchema = oas ? convertSchema : createOasParser(userOptions as TOptions, { oas: oasInstance }).convertSchema
 
     const { schemas: schemaObjects } = oasInstance.getSchemas()
 
-    const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) =>
-      oasAwareConvertSchema(schemaObject as SchemaObject, name),
-    )
+    const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) => oasAwareConvertSchema(schemaObject as SchemaObject, name))
 
     const paths = oasInstance.getPaths()
 
