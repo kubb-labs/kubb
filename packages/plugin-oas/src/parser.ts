@@ -364,6 +364,22 @@ export function createOasParser(userOptions?: Partial<Options>) {
 
     // String
     if (type === 'string') {
+      // OAS 3.1: `contentMediaType: 'application/octet-stream'` signals binary data — format overrides type.
+      if (schema.contentMediaType === 'application/octet-stream') {
+        return createSchema({
+          type: 'blob',
+          name,
+          nullable,
+          title: schema.title,
+          description: schema.description,
+          deprecated: schema.deprecated,
+          readOnly: schema.readOnly,
+          writeOnly: schema.writeOnly,
+          default: defaultValue,
+          example: schema.example,
+        })
+      }
+
       return createSchema({
         type: 'string',
         name,

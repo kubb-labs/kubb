@@ -226,57 +226,84 @@ describe('convertSchema return type narrowing', () => {
 
   it('narrows to RefSchemaNode when $ref is present', () => {
     const node = parser.convertSchema({ $ref: '#/components/schemas/Pet' })
+
     expectTypeOf(node).toEqualTypeOf<RefSchemaNode>()
   })
 
   it('narrows to ObjectSchemaNode when type is object', () => {
     const node = parser.convertSchema({ type: 'object' })
+
     expectTypeOf(node).toEqualTypeOf<ObjectSchemaNode>()
   })
 
   it('narrows to ArraySchemaNode when type is array', () => {
     const node = parser.convertSchema({ type: 'array' })
+
     expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
   })
 
   it('narrows to EnumSchemaNode when enum is present', () => {
     const node = parser.convertSchema({ enum: ['a', 'b'] })
+
     expectTypeOf(node).toEqualTypeOf<EnumSchemaNode>()
   })
 
   it('narrows to CompositeSchemaNode when oneOf is present', () => {
     const node = parser.convertSchema({ oneOf: [{ type: 'string' }, { type: 'number' }] })
+
     expectTypeOf(node).toEqualTypeOf<CompositeSchemaNode>()
   })
 
   it('narrows to CompositeSchemaNode when anyOf is present', () => {
     const node = parser.convertSchema({ anyOf: [{ type: 'string' }, { type: 'number' }] })
+
     expectTypeOf(node).toEqualTypeOf<CompositeSchemaNode>()
   })
 
   it('narrows to ScalarSchemaNode for string type', () => {
     const node = parser.convertSchema({ type: 'string' })
+
     expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
   })
 
   it('narrows to ScalarSchemaNode for number type', () => {
     const node = parser.convertSchema({ type: 'number' })
+
     expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
   })
 
   it('narrows to ScalarSchemaNode for integer type', () => {
     const node = parser.convertSchema({ type: 'integer' })
+
     expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
   })
 
   it('narrows to ScalarSchemaNode for boolean type', () => {
     const node = parser.convertSchema({ type: 'boolean' })
+
     expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
   })
 
   it('falls back to SchemaNode for an untyped empty schema', () => {
     const node = parser.convertSchema({})
+
     expectTypeOf(node).toEqualTypeOf<SchemaNode>()
+  })
+})
+
+describe('convertSchema contentMediaType (OAS 3.1)', () => {
+  const parser = createOasParser()
+
+  it('maps string with contentMediaType application/octet-stream to blob', () => {
+    const node = parser.convertSchema({ type: 'string', contentMediaType: 'application/octet-stream' })
+
+    expect(node.type).toBe('blob')
+  })
+
+  it('leaves string with other contentMediaType as string', () => {
+    const node = parser.convertSchema({ type: 'string', contentMediaType: 'text/plain' })
+
+    expect(node.type).toBe('string')
   })
 })
 
