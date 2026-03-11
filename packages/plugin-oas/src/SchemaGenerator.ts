@@ -1382,9 +1382,10 @@ export class SchemaGenerator<
               }
             }
 
-            const tree = this.parse({ schema: resolvedSchemaObject, name, parentName: null, rootName: name })
+            const resolvedSchema = resolvedSchemaObject as SchemaObject
+            const tree = this.parse({ schema: resolvedSchema, name, parentName: null, rootName: name })
             const oasParser = createOasParser(options)
-            const schemaNode = oasParser.convertSchema(resolvedSchemaObject, name)
+            const schemaNode = oasParser.convertSchema(resolvedSchema, name)
 
             if (generator.type === 'react') {
               await buildSchema(

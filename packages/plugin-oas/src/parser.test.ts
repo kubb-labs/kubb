@@ -478,6 +478,114 @@ describe('convertSchema contentMediaType (OAS 3.1)', () => {
   })
 })
 
+describe('convertSchema allOf', () => {
+  const parser = createOasParser()
+
+  it('flattens single-member allOf to the member type', () => {
+    const node = parser.convertSchema({ allOf: [{ type: 'string' }] } as const)
+
+    expectTypeOf(node).toEqualTypeOf<SchemaNode>()
+    expect(node.type).toBe('string')
+  })
+
+  it('merges outer metadata onto a flattened single-member allOf', () => {
+    const node = parser.convertSchema({
+      allOf: [{ type: 'string' }],
+      description: 'wrapped',
+      deprecated: true,
+      nullable: true,
+    } as const)
+
+    expectTypeOf(node).toEqualTypeOf<SchemaNode>()
+    expect(node.type).toBe('string')
+    expect(node.description).toBe('wrapped')
+    expect(node.deprecated).toBe(true)
+    expect(node.nullable).toBe(true)
+  })
+
+  it('flattens single-member allOf $ref and preserves nullable', () => {
+    const node = parser.convertSchema({ allOf: [{ $ref: '#/components/schemas/Pet' }], nullable: true } as const)
+
+    expectTypeOf(node).toEqualTypeOf<SchemaNode>()
+    expect(node.type).toBe('ref')
+    expect(node.nullable).toBe(true)
+  })
+
+  it('produces an intersection for multiple allOf members', () => {
+    const node = parser.convertSchema({
+      allOf: [{ $ref: '#/components/schemas/Pet' }, { type: 'object', properties: { tag: { type: 'string' } } }],
+    } as const)
+
+    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
+    expect(node.type).toBe('intersection')
+    expect(node.members).toHaveLength(2)
+  })
+
+  it('appends sibling properties as an extra intersection member', () => {
+    const node = parser.convertSchema({
+      allOf: [{ $ref: '#/components/schemas/Pet' }],
+      properties: { extra: { type: 'string' } },
+    } as const)
+
+    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
+    // first member: the $ref, last member: the sibling properties object
+    expect(node.members?.[0]?.type).toBe('ref')
+    expect(node.members?.[node.members.length - 1]?.type).toBe('object')
+  })
+
+  it('resolves required keys missing from outer properties by looking into allOf members', () => {
+    const node = parser.convertSchema({
+      required: ['id'],
+      allOf: [
+        { type: 'object', properties: { id: { type: 'integer' } } },
+        { type: 'object', properties: { name: { type: 'string' } } },
+      ],
+    } as const)
+
+    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
+    // 2 allOf members + 1 injected member for the missing required key
+    expect(node.members).toHaveLength(3)
+    // the injected member is an object with `id` marked required
+    const injected = narrowSchema<ObjectSchemaNode>(node.members?.[2], 'object')
+    expect(injected?.properties?.find((p) => p.name === 'id')?.required).toBe(true)
+  })
+
+  it('does not inject required keys that are already in outer properties', () => {
+    const node = parser.convertSchema({
+      required: ['id'],
+      properties: { id: { type: 'integer' } },
+      allOf: [{ type: 'object', properties: { id: { type: 'integer' } } }],
+    } as const)
+
+    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
+    // only the allOf member + the sibling properties object; no extra injection
+    const objectMembers = node.members?.filter((m) => m.type === 'object')
+    expect(objectMembers).toHaveLength(2)
+  })
+
+  it('propagates nullable onto the intersection node', () => {
+    const node = parser.convertSchema({
+      allOf: [{ type: 'string' }, { type: 'number' }],
+      nullable: true,
+    } as const)
+
+    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
+    expect(node.nullable).toBe(true)
+  })
+
+  it('propagates metadata onto the intersection node', () => {
+    const node = parser.convertSchema({
+      allOf: [{ type: 'string' }, { type: 'number' }],
+      description: 'combined',
+      deprecated: true,
+    } as const)
+
+    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
+    expect(node.description).toBe('combined')
+    expect(node.deprecated).toBe(true)
+  })
+})
+
 describe('convertSchema oneOf / anyOf', () => {
   const parser = createOasParser()
 

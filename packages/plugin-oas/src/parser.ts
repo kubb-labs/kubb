@@ -24,7 +24,7 @@ import type {
 } from '@internals/ast'
 import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, schemaTypes } from '@internals/ast'
 import type { Oas, Operation, SchemaObject } from '@kubb/oas'
-import { isDiscriminator, isNullable, isReference } from '@kubb/oas'
+import { flattenSchema, isDiscriminator, isNullable, isReference } from '@kubb/oas'
 
 /** Distributive `Omit` that correctly distributes over union types. */
 type DistributiveOmit<TValue, TKey extends PropertyKey> = TValue extends unknown ? Omit<TValue, TKey> : never
@@ -48,7 +48,12 @@ type ResolveDateTimeNode<TDateType extends Options['dateType']> = DateTimeNodeBy
  */
 type SchemaNodeMap<TDateType extends Options['dateType'] = Options['dateType']> = [
   [{ $ref: string }, RefSchemaNode],
-  [{ allOf: ReadonlyArray<unknown> }, IntersectionSchemaNode | SchemaNode],
+  // allOf with sibling `properties` always produces an intersection (shared props are appended as a member).
+  [{ allOf: ReadonlyArray<unknown>; properties: object }, IntersectionSchemaNode],
+  // allOf with 2+ members always produces an intersection.
+  [{ allOf: readonly [unknown, unknown, ...unknown[]] }, IntersectionSchemaNode],
+  // Single-member allOf without sibling `properties` flattens to the member type.
+  [{ allOf: ReadonlyArray<unknown> }, SchemaNode],
   [{ oneOf: ReadonlyArray<unknown> }, UnionSchemaNode],
   [{ anyOf: ReadonlyArray<unknown> }, UnionSchemaNode],
   [{ const: null }, ScalarSchemaNode],
@@ -247,10 +252,16 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
 
   function convertSchema<TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }>(schema: TSchema, name?: string): InferSchemaNode<TSchema, TOptions extends { dateType: Options['dateType'] } ? TOptions['dateType'] : (typeof DEFAULT_OPTIONS)['dateType']>
   function convertSchema(schema: SchemaObject, name?: string): SchemaNode {
+    // Flatten keyword-only allOf fragments (no $ref, no structural keys) into the parent
+    // schema before parsing, so simple annotation patterns don't produce needless intersections.
+    const flattenedSchema = flattenSchema(schema as unknown as Parameters<typeof flattenSchema>[0]) as SchemaObject | null
+    if (flattenedSchema && flattenedSchema !== (schema as unknown)) {
+      return convertSchema(flattenedSchema, name)
+    }
+
     const emptyType = getEmptySchemaType()
     const nullable = isNullable(schema) || undefined
     const defaultValue = schema.default === null && nullable ? undefined : schema.default
-
 
     // $ref — the schema is a pointer to another definition
     if (isReference(schema)) {
@@ -303,10 +314,44 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
         } as DistributiveOmit<SchemaNode, 'kind'>)
       }
 
+      const allOfMembers: SchemaNode[] = schema.allOf.map((s) => convertSchema(s as SchemaObject))
+
+      // When `required` lists keys not present in the outer `properties`, resolve them from
+      // the allOf member schemas and inject them as extra intersection members.
+      if (Array.isArray(schema.required) && schema.required.length) {
+        const outerKeys = schema.properties ? new Set(Object.keys(schema.properties)) : new Set<string>()
+        const missingRequired = schema.required.filter((key) => !outerKeys.has(key))
+
+        if (missingRequired.length) {
+          // Resolve each allOf member to its SchemaObject (dereference $ref by extracting the name)
+          const resolvedMembers = (schema.allOf as SchemaObject[]).map((item) =>
+            isReference(item) ? (item as SchemaObject) : item,
+          )
+
+          for (const key of missingRequired) {
+            for (const resolved of resolvedMembers) {
+              if (resolved.properties?.[key]) {
+                allOfMembers.push(
+                  convertSchema({ properties: { [key]: resolved.properties[key] }, required: [key] } as SchemaObject),
+                )
+                break
+              }
+            }
+          }
+        }
+      }
+
+      // When the allOf schema also has sibling `properties`, append the properties schema
+      // as an additional intersection member.
+      if (schema.properties) {
+        const { allOf: _allOf, ...schemaWithoutAllOf } = schema as SchemaObject & { allOf?: unknown[] }
+        allOfMembers.push(convertSchema(schemaWithoutAllOf as SchemaObject))
+      }
+
       return createSchema({
         type: 'intersection',
         name,
-        members: schema.allOf.map((s) => convertSchema(s as SchemaObject)),
+        members: allOfMembers,
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
