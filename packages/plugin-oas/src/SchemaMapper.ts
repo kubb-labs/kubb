@@ -183,7 +183,7 @@ export type SchemaTree = {
    * The spec-agnostic AST node produced by `convertSchema` for this schema.
    * Set to the top-level AST node at the root parse call; propagated as-is to all recursive sub-node calls.
    */
-  schemaNode: SchemaNode
+  schemaNode?: SchemaNode
   /**
    * @deprecated
    */

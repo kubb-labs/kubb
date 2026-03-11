@@ -1,14 +1,11 @@
-import { createSchema } from '@internals/ast'
 import { schemas } from '@kubb/plugin-oas/mocks'
 import { describe, expect, it, test } from 'vitest'
 import * as parserType from './parser.ts'
 
-const unknownNode = createSchema({ type: 'unknown' })
-
 describe('type parse', () => {
   test.each(schemas.basic)('$name', ({ name, schema }) => {
     const text = parserType.parse(
-      { name, schema: {}, parent: undefined, current: schema, siblings: [schema], schemaNode: unknownNode },
+      { name, schema: {}, parent: undefined, current: schema, siblings: [schema] },
       { optionalType: 'questionToken', arrayType: 'array', enumType: 'asConst' },
     )
     expect(text).toMatchSnapshot()
@@ -36,7 +33,7 @@ describe('type parse', () => {
       },
     }
     const result = parserType.parse(
-      { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema], schemaNode: unknownNode },
+      { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] },
       { optionalType: 'questionToken', arrayType: 'array', enumType: 'asConst' },
     )
 
@@ -54,7 +51,7 @@ describe('type parse', () => {
       args: [{ keyword: 'unknown' }, { keyword: 'null' }],
     }
     const result = parserType.parse(
-      { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema], schemaNode: unknownNode },
+      { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] },
       { optionalType: 'questionToken', arrayType: 'array', enumType: 'asConst' },
     )
 
@@ -72,7 +69,7 @@ describe('type parse', () => {
         },
       }
       const result = parserType.parse(
-        { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema], schemaNode: unknownNode },
+        { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] },
         { optionalType: 'questionToken', arrayType: 'array', enumType: 'asConst' },
       )
 
@@ -88,7 +85,7 @@ describe('type parse', () => {
         },
       }
       const result = parserType.parse(
-        { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema], schemaNode: unknownNode },
+        { name: 'test', schema: {}, parent: undefined, current: schema, siblings: [schema] },
         { optionalType: 'questionToken', arrayType: 'generic', enumType: 'asConst' },
       )
 

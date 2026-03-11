@@ -1,10 +1,7 @@
-import { createSchema } from '@internals/ast'
 import { schemaKeywords } from '@kubb/plugin-oas'
 import { schemas } from '@kubb/plugin-oas/mocks'
 import { describe, expect, test } from 'vitest'
 import * as parserZod from './parser.ts'
-
-const unknownNode = createSchema({ type: 'unknown' })
 
 describe('zod parse', () => {
   test.each(schemas.basic)('$name', ({ name, schema }) => {
@@ -15,7 +12,6 @@ describe('zod parse', () => {
         parent: undefined,
         current: schema,
         siblings: [schema],
-        schemaNode: unknownNode,
       },
       { version: '3' },
     )
@@ -30,7 +26,6 @@ describe('zod parse', () => {
         parent: undefined,
         current: schema,
         siblings: [schema],
-        schemaNode: unknownNode,
       },
       { version: '4' },
     )
@@ -47,7 +42,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', coercion: true },
       )
@@ -63,7 +57,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '3', coercion: true },
       )
@@ -79,7 +72,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', coercion: true },
       )
@@ -95,7 +87,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '3', coercion: true },
       )
@@ -111,7 +102,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', coercion: true },
       )
@@ -127,7 +117,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '3', coercion: true },
       )
@@ -143,7 +132,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', coercion: false },
       )
@@ -159,7 +147,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '3', coercion: false },
       )
@@ -175,7 +162,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', guidType: 'guid' },
       )
@@ -191,7 +177,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '3', guidType: 'guid' },
       )
@@ -211,7 +196,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema, minSchema, maxSchema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true },
       )
@@ -227,7 +211,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true },
       )
@@ -245,7 +228,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema, minSchema, maxSchema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true },
       )
@@ -261,7 +243,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true },
       )
@@ -284,7 +265,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true },
       )
@@ -300,7 +280,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true },
       )
@@ -316,7 +295,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true },
       )
@@ -332,7 +310,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true },
       )
@@ -348,7 +325,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true, guidType: 'guid' },
       )
@@ -364,7 +340,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true },
       )
@@ -388,7 +363,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema, exclusiveMinSchema, exclusiveMaxSchema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true },
       )
@@ -414,7 +388,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true },
       )
@@ -441,7 +414,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true },
       )
@@ -468,7 +440,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true },
       )
@@ -492,7 +463,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema, minSchema, maxSchema],
-          schemaNode: unknownNode,
         },
         { version: '3' },
       )
@@ -513,7 +483,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema, minSchema, maxSchema],
-          schemaNode: unknownNode,
         },
         { version: '4' },
       )
@@ -534,7 +503,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema, minSchema, maxSchema],
-          schemaNode: unknownNode,
         },
         { version: '4', mini: true },
       )
@@ -551,7 +519,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema, minSchema],
-          schemaNode: unknownNode,
         },
         { version: '4' },
       )
@@ -568,7 +535,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema, maxSchema],
-          schemaNode: unknownNode,
         },
         { version: '4' },
       )
@@ -584,7 +550,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4' },
       )
@@ -602,7 +567,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4' },
       )
@@ -618,7 +582,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4' },
       )
@@ -634,7 +597,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4' },
       )
@@ -650,7 +612,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4' },
       )
@@ -666,7 +627,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '4' },
       )
@@ -704,7 +664,6 @@ describe('zod parse', () => {
           parent: undefined,
           current: schema,
           siblings: [schema],
-          schemaNode: unknownNode,
         },
         { version: '3' },
       )
