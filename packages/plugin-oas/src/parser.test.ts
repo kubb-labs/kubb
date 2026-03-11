@@ -1,7 +1,6 @@
 import type {
   ArraySchemaNode,
   CompositeSchemaNode,
-
   EnumSchemaNode,
   NumberSchemaNode,
   ObjectSchemaNode,
@@ -713,6 +712,193 @@ describe('convertSchema object properties', () => {
     expect(prop?.schema.nullable).toBe(true)
     expect(prop?.schema.optional).toBeUndefined()
     expect(prop?.schema.nullish).toBeUndefined()
+  })
+})
+
+describe('convertSchema object additionalProperties', () => {
+  const parser = createOasParser()
+
+  it('additionalProperties: true → additionalProperties is true', () => {
+    const node = parser.convertSchema({ type: 'object', additionalProperties: true })
+
+    expect(node.type).toBe('object')
+    expect(node.additionalProperties).toBe(true)
+  })
+
+  it('additionalProperties with a schema → additionalProperties is a SchemaNode', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      additionalProperties: { type: 'string' },
+    })
+
+    expect(node.type).toBe('object')
+    expect(node.additionalProperties).toMatchObject({ type: 'string' })
+  })
+
+  it('additionalProperties with an integer schema → additionalProperties is a NumberSchemaNode', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      additionalProperties: { type: 'integer' },
+    })
+
+    expect(node.additionalProperties).toMatchObject({ type: 'integer' })
+  })
+
+  it('additionalProperties: false → additionalProperties is undefined', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      additionalProperties: false,
+    })
+
+    expect(node.additionalProperties).toBeUndefined()
+  })
+
+  it('no additionalProperties → additionalProperties is undefined', () => {
+    const node = parser.convertSchema({ type: 'object', properties: { id: { type: 'integer' } } })
+
+    expect(node.additionalProperties).toBeUndefined()
+  })
+
+  it('additionalProperties: true triggers object even without type or properties', () => {
+    const node = parser.convertSchema({ additionalProperties: true })
+
+    expect(node.type).toBe('object')
+    expect(node.additionalProperties).toBe(true)
+  })
+
+  it('additionalProperties with an empty schema → uses unknownType', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      additionalProperties: {},
+    })
+
+    expect(node.type).toBe('object')
+    expect(node.additionalProperties).toMatchObject({ type: 'unknown' })
+  })
+
+  it('respects unknownType option for empty additionalProperties', () => {
+    const customParser = createOasParser({ unknownType: 'any' })
+    const node = customParser.convertSchema({
+      type: 'object',
+      additionalProperties: {},
+    })
+
+    expect(node.additionalProperties).toMatchObject({ type: 'any' })
+  })
+
+  it('properties and additionalProperties coexist', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      required: ['id'],
+      properties: { id: { type: 'integer' } },
+      additionalProperties: { type: 'string' },
+    })
+
+    expect(node.properties).toHaveLength(1)
+    expect(node.properties?.[0]?.name).toBe('id')
+    expect(node.additionalProperties).toMatchObject({ type: 'string' })
+  })
+})
+
+describe('convertSchema object patternProperties', () => {
+  const parser = createOasParser()
+
+  it('maps patternProperties patterns to converted SchemaNodes', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      patternProperties: {
+        '^S_': { type: 'string' },
+        '^I_': { type: 'integer' },
+      },
+    })
+
+    expect(node.type).toBe('object')
+    expect(node.patternProperties?.['I_']).toBeUndefined()
+    expect(node.patternProperties?.['S_']).toBeUndefined()
+    expect(node.patternProperties?.['S_']).toBeUndefined()
+    expect(node.patternProperties?.['^S_']).toMatchObject({ type: 'string' })
+    expect(node.patternProperties?.['^I_']).toMatchObject({ type: 'integer' })
+  })
+
+  it('empty pattern schema falls back to unknownType', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      patternProperties: { '^x-': {} },
+    })
+
+    expect(node.patternProperties?.['^x-']).toMatchObject({ type: 'unknown' })
+  })
+
+  it('patternProperties triggers object even without type or properties', () => {
+    const node = parser.convertSchema({
+      patternProperties: { '^x-': { type: 'string' } },
+    } )
+
+    expect(node.type).toBe('object')
+  })
+
+  it('properties and patternProperties coexist', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      properties: { id: { type: 'integer' } },
+      patternProperties: { '^meta_': { type: 'string' } },
+    })
+
+    expect(node.properties).toHaveLength(1)
+    expect(node.patternProperties?.['^meta_']).toMatchObject({ type: 'string' })
+  })
+})
+
+describe('convertSchema object discriminator', () => {
+  const parser = createOasParser()
+
+  it('overrides discriminator property with enum of mapping keys', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      required: ['petType'],
+      properties: {
+        petType: { type: 'string' },
+        name: { type: 'string' },
+      },
+      discriminator: {
+        propertyName: 'petType',
+        mapping: { Cat: '#/components/schemas/Cat', Dog: '#/components/schemas/Dog' },
+      },
+    })
+
+    const petTypeProp = node.properties?.find((p) => p.name === 'petType')
+    expect(petTypeProp?.schema.type).toBe('enum')
+    expect((petTypeProp?.schema as EnumSchemaNode).enumValues).toEqual(['Cat', 'Dog'])
+  })
+
+  it('leaves other properties unchanged when discriminator is present', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      required: ['petType'],
+      properties: {
+        petType: { type: 'string' },
+        name: { type: 'string' },
+      },
+      discriminator: {
+        propertyName: 'petType',
+        mapping: { Cat: '#/components/schemas/Cat' },
+      },
+    })
+
+    const nameProp = node.properties?.find((p) => p.name === 'name')
+    expect(nameProp?.schema.type).toBe('string')
+  })
+
+  it('discriminator without mapping produces no enum', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      required: ['type'],
+      properties: { type: { type: 'string' } },
+      discriminator: { propertyName: 'type' },
+    })
+
+    const typeProp = node.properties?.find((p) => p.name === 'type')
+    expect(typeProp?.schema.type).toBe('string')
   })
 })
 

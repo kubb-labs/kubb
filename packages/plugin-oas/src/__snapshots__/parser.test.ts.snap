@@ -203,6 +203,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
   ],
   "schemas": [
     {
+      "additionalProperties": undefined,
       "default": undefined,
       "deprecated": undefined,
       "description": undefined,
@@ -210,6 +211,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "kind": "Schema",
       "name": "Pet",
       "nullable": undefined,
+      "patternProperties": undefined,
       "properties": [
         {
           "kind": "Property",
@@ -288,6 +290,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "writeOnly": undefined,
     },
     {
+      "additionalProperties": undefined,
       "default": undefined,
       "deprecated": undefined,
       "description": undefined,
@@ -295,6 +298,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "kind": "Schema",
       "name": "NewPet",
       "nullable": undefined,
+      "patternProperties": undefined,
       "properties": [
         {
           "kind": "Property",
@@ -381,6 +385,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "writeOnly": undefined,
     },
     {
+      "additionalProperties": undefined,
       "default": undefined,
       "deprecated": undefined,
       "description": undefined,
@@ -388,6 +393,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
       "kind": "Schema",
       "name": "Error",
       "nullable": undefined,
+      "patternProperties": undefined,
       "properties": [
         {
           "kind": "Property",
@@ -525,6 +531,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
           "writeOnly": undefined,
         },
         {
+          "additionalProperties": undefined,
           "default": undefined,
           "deprecated": undefined,
           "description": undefined,
@@ -532,6 +539,7 @@ exports[`buildAst snapshots > full RootNode 1`] = `
           "kind": "Schema",
           "name": undefined,
           "nullable": undefined,
+          "patternProperties": undefined,
           "properties": [
             {
               "kind": "Property",
@@ -852,6 +860,7 @@ exports[`buildAst snapshots > schema 'FullPet' ('allOf / intersection with forma
       "writeOnly": undefined,
     },
     {
+      "additionalProperties": undefined,
       "default": undefined,
       "deprecated": undefined,
       "description": undefined,
@@ -859,6 +868,7 @@ exports[`buildAst snapshots > schema 'FullPet' ('allOf / intersection with forma
       "kind": "Schema",
       "name": undefined,
       "nullable": undefined,
+      "patternProperties": undefined,
       "properties": [
         {
           "kind": "Property",
@@ -920,6 +930,7 @@ exports[`buildAst snapshots > schema 'FullPet' ('allOf / intersection with forma
 
 exports[`buildAst snapshots > schema 'Pet' ('object with required props') 1`] = `
 {
+  "additionalProperties": undefined,
   "default": undefined,
   "deprecated": undefined,
   "description": undefined,
@@ -927,6 +938,7 @@ exports[`buildAst snapshots > schema 'Pet' ('object with required props') 1`] = 
   "kind": "Schema",
   "name": "Pet",
   "nullable": undefined,
+  "patternProperties": undefined,
   "properties": [
     {
       "kind": "Property",

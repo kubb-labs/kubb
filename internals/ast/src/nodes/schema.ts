@@ -106,8 +106,19 @@ interface SchemaNodeBase extends BaseNode {
 /** Schema for `'object'` type — carries ordered property definitions. */
 export interface ObjectSchemaNode extends SchemaNodeBase {
   type: 'object'
-  /** Ordered list of property definitions. */
+  /** Ordered list of named property definitions. */
   properties?: Array<PropertyNode>
+  /**
+   * Schema for values of additional (unknown-key) properties.
+   * `true` means any value is allowed; a `SchemaNode` constrains the value type.
+   * Absent / `undefined` means additional properties are not permitted.
+   */
+  additionalProperties?: SchemaNode | true
+  /**
+   * Per-pattern additional properties, keyed by regex pattern string.
+   * Each value is the schema constraining property values whose key matches the pattern.
+   */
+  patternProperties?: Record<string, SchemaNode>
 }
 
 /**

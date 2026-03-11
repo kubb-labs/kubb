@@ -23,7 +23,7 @@ import type {
 } from '@internals/ast'
 import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, schemaTypes } from '@internals/ast'
 import type { Oas, Operation, SchemaObject } from '@kubb/oas'
-import { isNullable, isReference } from '@kubb/oas'
+import { isDiscriminator, isNullable, isReference } from '@kubb/oas'
 
 /** Distributive `Omit` that correctly distributes over union types. */
 type DistributiveOmit<TValue, TKey extends PropertyKey> = TValue extends unknown ? Omit<TValue, TKey> : never
@@ -54,6 +54,7 @@ type SchemaNodeMap<TDateType extends Options['dateType'] = Options['dateType']> 
   [{ const: string | number | boolean }, EnumSchemaNode],
   [{ enum: ReadonlyArray<unknown> }, EnumSchemaNode],
   [{ type: 'object' }, ObjectSchemaNode],
+  [{additionalProperties: boolean | { }}, ObjectSchemaNode],
   [{ type: 'array' }, ArraySchemaNode],
   [{ items: object }, ArraySchemaNode],
   // Format entries with explicit type — placed before generic type entries so format wins.
@@ -489,18 +490,39 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
       }
     }
 
-    // Object
-    if (type === 'object' || schema.properties) {
-      const properties: Array<PropertyNode> = schema.properties
-        ? Object.entries(schema.properties).map(([propName, propSchema]) => {
-            const required = Array.isArray(schema.required) ? schema.required.includes(propName) : false
-            const resolvedSchema = propSchema as SchemaObject
-            const propNullable = isNullable(resolvedSchema)
+    // Object — also triggered by additionalProperties or patternProperties without explicit type.
+    if (type === 'object' || schema.properties || schema.additionalProperties || 'patternProperties' in schema) {
+      // When a discriminator is present, override the discriminator property's schema to use
+      // an enum of the mapping keys, so generators can produce a precise literal-union type.
+      const resolvedSchema: SchemaObject = isDiscriminator(schema)
+        ? Object.keys(schema.properties ?? {}).reduce<SchemaObject>((acc, propName) => {
+            if (acc.properties?.[propName] && propName === schema.discriminator.propertyName) {
+              const existing = acc.properties[propName] as SchemaObject
+              return {
+                ...acc,
+                properties: {
+                  ...acc.properties,
+                  [propName]: {
+                    ...existing,
+                    enum: schema.discriminator.mapping ? Object.keys(schema.discriminator.mapping) : undefined,
+                  },
+                },
+              } as SchemaObject
+            }
+            return acc
+          }, schema as SchemaObject)
+        : schema
+
+      const properties: Array<PropertyNode> = resolvedSchema.properties
+        ? Object.entries(resolvedSchema.properties).map(([propName, propSchema]) => {
+            const required = Array.isArray(resolvedSchema.required) ? resolvedSchema.required.includes(propName) : false
+            const resolvedPropSchema = propSchema as SchemaObject
+            const propNullable = isNullable(resolvedPropSchema)
 
             return createProperty({
               name: propName,
               schema: {
-                ...convertSchema(resolvedSchema),
+                ...convertSchema(resolvedPropSchema),
                 nullable: propNullable || undefined,
                 optional: !required && !propNullable ? true : undefined,
                 nullish: !required && propNullable ? true : undefined,
@@ -510,10 +532,39 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
           })
         : []
 
+      const additionalProperties = resolvedSchema.additionalProperties
+      const additionalPropertiesNode =
+        additionalProperties === true
+          ? (true as const)
+          : additionalProperties && Object.keys(additionalProperties).length > 0
+            ? convertSchema(additionalProperties as SchemaObject)
+            : additionalProperties === false
+              ? undefined
+              : additionalProperties
+                ? createSchema({ type: getUnknownType() })
+                : undefined
+
+      const rawPatternProperties = 'patternProperties' in resolvedSchema
+        ? (resolvedSchema as unknown as { patternProperties?: Record<string, SchemaObject> }).patternProperties
+        : undefined
+
+      const patternProperties = rawPatternProperties
+        ? Object.fromEntries(
+            Object.entries(rawPatternProperties).map(([pattern, patternSchema]) => [
+              pattern,
+              Object.keys(patternSchema as object).length > 0
+                ? convertSchema(patternSchema as SchemaObject)
+                : createSchema({ type: getUnknownType() }),
+            ]),
+          )
+        : undefined
+
       return createSchema({
         type: 'object',
         name,
         properties,
+        additionalProperties: additionalPropertiesNode,
+        patternProperties,
         nullable,
         title: schema.title,
         description: schema.description,
