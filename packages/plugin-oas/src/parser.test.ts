@@ -280,6 +280,122 @@ describe('convertSchema return type narrowing', () => {
   })
 })
 
+describe('convertSchema object properties', () => {
+  const parser = createOasParser()
+
+  it('required + not nullable → required: true, optional/nullish undefined', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      required: ['id'],
+      properties: { id: { type: 'integer' } },
+    }) as ObjectSchemaNode
+    const prop = node.properties?.find((p) => p.name === 'id')
+
+    expect(prop?.required).toBe(true)
+    expect(prop?.schema.optional).toBeUndefined()
+    expect(prop?.schema.nullish).toBeUndefined()
+    expect(prop?.schema.nullable).toBeUndefined()
+  })
+
+  it('not required + not nullable → optional: true', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      properties: { tag: { type: 'string' } },
+    }) as ObjectSchemaNode
+    const prop = node.properties?.find((p) => p.name === 'tag')
+
+    expect(prop?.required).toBe(false)
+    expect(prop?.schema.optional).toBe(true)
+    expect(prop?.schema.nullish).toBeUndefined()
+    expect(prop?.schema.nullable).toBeUndefined()
+  })
+
+  it('not required + nullable → nullish: true', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      properties: { tag: { type: 'string', nullable: true } },
+    }) as ObjectSchemaNode
+    const prop = node.properties?.find((p) => p.name === 'tag')
+
+    expect(prop?.required).toBe(false)
+    expect(prop?.schema.nullish).toBe(true)
+    expect(prop?.schema.optional).toBeUndefined()
+    expect(prop?.schema.nullable).toBe(true)
+  })
+
+  it('required + nullable → nullable: true, optional/nullish undefined', () => {
+    const node = parser.convertSchema({
+      type: 'object',
+      required: ['tag'],
+      properties: { tag: { type: 'string', nullable: true } },
+    }) as ObjectSchemaNode
+    const prop = node.properties?.find((p) => p.name === 'tag')
+
+    expect(prop?.required).toBe(true)
+    expect(prop?.schema.nullable).toBe(true)
+    expect(prop?.schema.optional).toBeUndefined()
+    expect(prop?.schema.nullish).toBeUndefined()
+  })
+})
+
+describe('convertSchema nullable', () => {
+  const parser = createOasParser()
+
+  it('sets nullable via nullable: true (OAS 3.0)', () => {
+    const node = parser.convertSchema({ type: 'string', nullable: true })
+
+    expect(node.nullable).toBe(true)
+  })
+
+  it('sets nullable via x-nullable: true', () => {
+    const node = parser.convertSchema({ type: 'string', 'x-nullable': true } as Parameters<typeof parser.convertSchema>[0])
+
+    expect(node.nullable).toBe(true)
+  })
+
+  it('sets nullable via type array including null (OAS 3.1)', () => {
+    const node = parser.convertSchema({ type: ['string', 'null'] })
+
+    expect(node.nullable).toBe(true)
+  })
+
+  it('sets nullable via null in enum values (OAS 3.0 convention)', () => {
+    const node = parser.convertSchema({ enum: ['a', 'b', null] })
+
+    expect(node.nullable).toBe(true)
+  })
+
+  it('strips null from enum values when nullable via null in enum', () => {
+    const node = parser.convertSchema({ enum: ['a', 'b', null] }) as EnumSchemaNode
+
+    expect(node.enumValues).toEqual(['a', 'b'])
+  })
+
+  it('does not set nullable when not specified', () => {
+    const node = parser.convertSchema({ type: 'string' })
+
+    expect(node.nullable).toBeUndefined()
+  })
+
+  it('propagates nullable from object schema', () => {
+    const node = parser.convertSchema({ type: 'object', nullable: true })
+
+    expect(node.nullable).toBe(true)
+  })
+
+  it('propagates nullable from array schema', () => {
+    const node = parser.convertSchema({ type: 'array', nullable: true })
+
+    expect(node.nullable).toBe(true)
+  })
+
+  it('propagates nullable from ref schema siblings', () => {
+    const node = parser.convertSchema({ $ref: '#/components/schemas/Pet', nullable: true })
+
+    expect(node.nullable).toBe(true)
+  })
+})
+
 describe('convertSchema constraints', () => {
   const parser = createOasParser()
 
