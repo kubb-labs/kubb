@@ -406,7 +406,7 @@ export type AddPet200 = Pet
  */
 export interface AddPet405 {
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   code?: number
   /**
@@ -500,7 +500,7 @@ export type FindPetsByTagsQuery = {
 export interface GetPetByIdPathParams {
   /**
    * @description ID of pet to return
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -531,7 +531,7 @@ export type GetPetByIdQuery = {
 export interface UpdatePetWithFormPathParams {
   /**
    * @description ID of pet that needs to be updated
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -566,7 +566,7 @@ export type UpdatePetWithFormMutation = {
 export interface DeletePetPathParams {
   /**
    * @description Pet id to delete
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -606,7 +606,7 @@ export type DeletePetMutation = {
 export interface UploadFilePathParams {
   /**
    * @description ID of pet to update
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -696,7 +696,7 @@ export type PlaceOrderPatchMutation = {
 export interface GetOrderByIdPathParams {
   /**
    * @description ID of order that needs to be fetched
-   * @type integer, int64
+   * @type integer
    */
   orderId: number
 }
@@ -727,7 +727,7 @@ export type GetOrderByIdQuery = {
 export interface DeleteOrderPathParams {
   /**
    * @description ID of the order that needs to be deleted
-   * @type integer, int64
+   * @type integer
    */
   orderId: number
 }

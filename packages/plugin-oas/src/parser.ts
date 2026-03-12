@@ -867,7 +867,14 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
     // Array — also triggered when `items` is present without an explicit `type: 'array'`.
     if (type === 'array' || 'items' in schema) {
       const rawSchema = schema as unknown as { items?: SchemaObject }
-      const items = rawSchema.items ? [convertSchema(rawSchema.items)] : []
+      // When the array items schema contains an inline enum, derive a name from the parent
+      // array's name + enumSuffix so generators can emit a named enum/const declaration and
+      // reference it by name (e.g. `DeletePet200Enum[]`) instead of inlining the literal
+      // union (e.g. `('TYPE1' | 'TYPE2' | 'TYPE3')[]`).  Mirrors the SchemaGenerator legacy
+      // path which passes `name` when recursing into array items.
+      const rawItems = rawSchema.items as SchemaObject | undefined
+      const itemName = rawItems?.enum?.length && name ? pascalCase([name, options.enumSuffix].join(' ')) : undefined
+      const items = rawSchema.items ? [convertSchema(rawSchema.items, itemName)] : []
       return createSchema({
         type: 'array',
         primitive: 'array',
