@@ -437,11 +437,16 @@ export class Oas extends BaseOas {
     // Collect parameters from both operation-level and path-level, resolving $ref pointers.
     // oas v31+ filters out $ref parameters in getParameters(), so we access raw parameters
     // directly and resolve refs ourselves to preserve backward compatibility.
-    const operationParams = (operation.schema?.parameters || []).map((p) => this.dereferenceWithRef(p) as ParameterObject)
+    // Note: dereferenceWithRef preserves the $ref property on resolved objects, so we check
+    // for 'in' and 'name' fields to validate successful resolution instead of !isReference().
+    const resolveParams = (params: unknown[]): Array<ParameterObject> =>
+      params
+        .map((p) => this.dereferenceWithRef(p))
+        .filter((p): p is ParameterObject => !!p && typeof p === 'object' && 'in' in p && 'name' in p)
+
+    const operationParams = resolveParams(operation.schema?.parameters || [])
     const pathItem = this.api?.paths?.[operation.path]
-    const pathLevelParams = (pathItem && !isReference(pathItem) && pathItem.parameters ? pathItem.parameters : []).map(
-      (p) => this.dereferenceWithRef(p) as ParameterObject,
-    )
+    const pathLevelParams = resolveParams(pathItem && !isReference(pathItem) && pathItem.parameters ? pathItem.parameters : [])
 
     // Deduplicate: operation-level parameters override path-level ones with the same name+in
     const paramMap = new Map<string, ParameterObject>()
