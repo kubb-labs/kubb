@@ -1,5 +1,6 @@
 import jsonpointer from 'jsonpointer'
 import BaseOas from 'oas'
+import type { ParameterObject } from 'oas/types'
 import { matchesMimeType } from 'oas/utils'
 import type { contentType, DiscriminatorObject, Document, MediaTypeObject, Operation, ReferenceObject, ResponseObject, SchemaObject } from './types.ts'
 import {
@@ -432,12 +433,33 @@ export class Oas extends BaseOas {
 
   getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): SchemaObject | null {
     const { contentType = operation.getContentType() } = this.#options
-    const params = operation
-      .getParameters()
-      .map((schema) => {
-        return this.dereferenceWithRef(schema)
-      })
-      .filter((v) => v.in === inKey)
+
+    // Collect parameters from both operation-level and path-level, resolving $ref pointers.
+    // oas v31+ filters out $ref parameters in getParameters(), so we access raw parameters
+    // directly and resolve refs ourselves to preserve backward compatibility.
+    // Note: dereferenceWithRef preserves the $ref property on resolved objects, so we check
+    // for 'in' and 'name' fields to validate successful resolution instead of !isReference().
+    const resolveParams = (params: unknown[]): Array<ParameterObject> =>
+      params.map((p) => this.dereferenceWithRef(p)).filter((p): p is ParameterObject => !!p && typeof p === 'object' && 'in' in p && 'name' in p)
+
+    const operationParams = resolveParams(operation.schema?.parameters || [])
+    const pathItem = this.api?.paths?.[operation.path]
+    const pathLevelParams = resolveParams(pathItem && !isReference(pathItem) && pathItem.parameters ? pathItem.parameters : [])
+
+    // Deduplicate: operation-level parameters override path-level ones with the same name+in
+    const paramMap = new Map<string, ParameterObject>()
+    for (const p of pathLevelParams) {
+      if (p.name && p.in) {
+        paramMap.set(`${p.in}:${p.name}`, p)
+      }
+    }
+    for (const p of operationParams) {
+      if (p.name && p.in) {
+        paramMap.set(`${p.in}:${p.name}`, p)
+      }
+    }
+
+    const params = Array.from(paramMap.values()).filter((v) => v.in === inKey)
 
     if (!params.length) {
       return null
