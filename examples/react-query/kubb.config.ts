@@ -27,6 +27,7 @@ export const config = {
           return `// version: ${oas.api.info.version}`
         },
       },
+      UNSTABLE_SCHEMA: true,
     }),
     pluginReactQuery({
       client: {
