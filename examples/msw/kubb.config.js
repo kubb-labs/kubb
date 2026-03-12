@@ -23,6 +23,7 @@ export default defineConfig(() => {
         output: {
           path: 'models',
         },
+        UNSTABLE_SCHEMA: true,
       }),
       pluginFaker({
         output: {

@@ -29,6 +29,7 @@ export default defineConfig(() => {
       }),
       pluginTs({
         output: { path: 'models/ts' },
+        UNSTABLE_SCHEMA: true,
       }),
       pluginZod({}),
       pluginMcp({
