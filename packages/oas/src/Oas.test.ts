@@ -912,3 +912,126 @@ describe('[oas] getParametersSchema with explode and style form', () => {
     expect(querySchema?.additionalProperties).toEqual({ type: 'string' })
   })
 })
+
+describe('[oas] getParametersSchema with $ref parameters', () => {
+  test('should resolve $ref parameters correctly', () => {
+    const document: Document = {
+      openapi: '3.0.3',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/pets/{petId}': {
+          get: {
+            operationId: 'getPet',
+            parameters: [
+              { $ref: '#/components/parameters/PetId' },
+              {
+                name: 'include',
+                in: 'query',
+                schema: { type: 'string' },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        parameters: {
+          PetId: {
+            name: 'petId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        },
+      },
+    }
+
+    const oas = new Oas(document as Document)
+    const operation = oas.operation('/pets/{petId}', 'get')
+
+    const pathSchema = oas.getParametersSchema(operation, 'path')
+    expect(pathSchema?.type).toBe('object')
+    expect(pathSchema?.properties?.petId).toBeDefined()
+    expect(pathSchema?.required).toContain('petId')
+
+    const querySchema = oas.getParametersSchema(operation, 'query')
+    expect(querySchema?.type).toBe('object')
+    expect(querySchema?.properties?.include).toBeDefined()
+  })
+
+  test('should resolve path-level $ref parameters', () => {
+    const document: Document = {
+      openapi: '3.0.3',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/pets/{petId}': {
+          parameters: [{ $ref: '#/components/parameters/PetId' }],
+          get: {
+            operationId: 'getPet',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        parameters: {
+          PetId: {
+            name: 'petId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        },
+      },
+    }
+
+    const oas = new Oas(document as Document)
+    const operation = oas.operation('/pets/{petId}', 'get')
+
+    const pathSchema = oas.getParametersSchema(operation, 'path')
+    expect(pathSchema?.type).toBe('object')
+    expect(pathSchema?.properties?.petId).toBeDefined()
+    expect(pathSchema?.required).toContain('petId')
+  })
+
+  test('should deduplicate operation-level and path-level parameters', () => {
+    const document: Document = {
+      openapi: '3.0.3',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/pets/{petId}': {
+          parameters: [
+            {
+              name: 'petId',
+              in: 'path',
+              required: true,
+              description: 'path-level description',
+              schema: { type: 'string' },
+            },
+          ],
+          get: {
+            operationId: 'getPet',
+            parameters: [
+              {
+                name: 'petId',
+                in: 'path',
+                required: true,
+                description: 'operation-level description',
+                schema: { type: 'string', format: 'uuid' },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+
+    const oas = new Oas(document as Document)
+    const operation = oas.operation('/pets/{petId}', 'get')
+
+    const pathSchema = oas.getParametersSchema(operation, 'path')
+    expect(pathSchema?.type).toBe('object')
+    // Operation-level should override path-level
+    expect((pathSchema?.properties?.petId as SchemaObject)?.format).toBe('uuid')
+    expect((pathSchema?.properties?.petId as SchemaObject)?.description).toBe('operation-level description')
+  })
+})
