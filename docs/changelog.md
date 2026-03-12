@@ -6,6 +6,33 @@ outline: deep
 
 # Changelog
 
+## 4.33.3
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/oas`](/plugins/oas)
+
+-   Fixed `$ref` parameter handling in `getParametersSchema()` to resolve `$ref` parameters directly following changes in `oas` v31. This adjustment ensures all parameters, including those filtered out in `getParameters()`, are now accounted for as part of schema generation.
+
+::: code-group
+
+```typescript [Before]
+export const parametersSchema = getParameters({
+  ...otherParameters,
+  $refParams: undefined, // Missing $ref parameters
+});
+```
+
+```typescript [After]
+export const parametersSchema = resolveParameters({
+  ...otherParameters,
+  resolvedRefs: $refParams, // Ensures $ref parameters are included
+});
+```
+
+:::
+
+
 ## 4.33.2
 
 ### 🐛 Bug Fixes
