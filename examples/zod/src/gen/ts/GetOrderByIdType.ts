@@ -8,7 +8,7 @@ import type { OrderType } from './OrderType.ts'
 export type GetOrderByIdPathParamsType = {
   /**
    * @description ID of order that needs to be fetched
-   * @type integer, int64
+   * @type integer
    */
   orderId: number
 }

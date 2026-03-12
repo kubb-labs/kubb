@@ -186,8 +186,11 @@ type OasParser<TDateType extends Options['dateType']> = {
    * Walks `node` and replaces each `ref` value with the name returned by
    * `resolveName`. The callback receives the full `$ref` path (e.g. `#/components/schemas/Order`)
    * when available, falling back to the short name. Pass a no-op (`(n) => n`) to skip resolution.
+   *
+   * The optional `resolveEnumName` callback is called for inline `enum` nodes and should return
+   * the transformed name to use (e.g. with a plugin `transformers.name` applied).
    */
-  resolveRefs: (node: SchemaNode, resolveName: (ref: string) => string | undefined) => SchemaNode
+  resolveRefs: (node: SchemaNode, resolveName: (ref: string) => string | undefined, resolveEnumName?: (name: string) => string | undefined) => SchemaNode
 }
 
 type ParserConfig = {
@@ -1073,13 +1076,19 @@ export function createOasParser<TOptions extends Partial<Options>>(userOptions?:
     return createRoot({ schemas, operations })
   }
 
-  function resolveRefs(node: SchemaNode, resolveName: (ref: string) => string | undefined): SchemaNode {
+  function resolveRefs(node: SchemaNode, resolveName: (ref: string) => string | undefined, resolveEnumName?: (name: string) => string | undefined): SchemaNode {
     return transform(node, {
       schema(schemaNode) {
         if (schemaNode.type === 'ref' && (schemaNode.$ref || schemaNode.ref)) {
           const resolved = resolveName(schemaNode.$ref ?? schemaNode.ref!)
           if (resolved) {
             return { ...schemaNode, ref: resolved }
+          }
+        }
+        if (resolveEnumName && schemaNode.type === 'enum' && schemaNode.name) {
+          const resolved = resolveEnumName(schemaNode.name)
+          if (resolved) {
+            return { ...schemaNode, name: resolved }
           }
         }
       },

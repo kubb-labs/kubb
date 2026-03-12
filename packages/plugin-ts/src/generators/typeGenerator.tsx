@@ -353,9 +353,14 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
       const parser = createOasParser({ enumSuffix })
       const rawSchemaNode = parser.convertSchema(transformedSchema, name)
-      const schemaNode = parser.resolveRefs(rawSchemaNode, (ref) => {
-        return schemaGenerator.resolveSchemaRef(ref)
-      })
+      const schemaNode = parser.resolveRefs(
+        rawSchemaNode,
+        (ref) => {
+          const resolvedName = schemaGenerator.resolveSchemaRef(ref)
+          return schemaManager.getName(resolvedName, { type: 'type' })
+        },
+        (name) => schemaManager.getName(name, { type: 'type' }),
+      )
 
       const type = {
         name: schemaManager.getName(name, { type: 'type' }),
