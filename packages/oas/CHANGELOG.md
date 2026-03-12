@@ -1,5 +1,14 @@
 # @kubb/oas
 
+## 4.33.3
+
+### Patch Changes
+
+- [#2724](https://github.com/kubb-labs/kubb/pull/2724) [`b221f9a`](https://github.com/kubb-labs/kubb/commit/b221f9aac6b94a725b86349cf8e8009c337ed23b) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Upgrade `oas` to `^31.1.2` and `oas-normalize` to `^16.0.2`. Updated `getParametersSchema()` to resolve `$ref` parameters directly since oas v31 now filters them out in `getParameters()`.
+
+- Updated dependencies []:
+  - @kubb/core@4.33.3
+
 ## 4.33.2
 
 ### Patch Changes
