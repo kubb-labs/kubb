@@ -440,9 +440,7 @@ export class Oas extends BaseOas {
     // Note: dereferenceWithRef preserves the $ref property on resolved objects, so we check
     // for 'in' and 'name' fields to validate successful resolution instead of !isReference().
     const resolveParams = (params: unknown[]): Array<ParameterObject> =>
-      params
-        .map((p) => this.dereferenceWithRef(p))
-        .filter((p): p is ParameterObject => !!p && typeof p === 'object' && 'in' in p && 'name' in p)
+      params.map((p) => this.dereferenceWithRef(p)).filter((p): p is ParameterObject => !!p && typeof p === 'object' && 'in' in p && 'name' in p)
 
     const operationParams = resolveParams(operation.schema?.parameters || [])
     const pathItem = this.api?.paths?.[operation.path]
