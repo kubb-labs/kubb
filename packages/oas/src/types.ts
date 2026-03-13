@@ -19,7 +19,18 @@ export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 export type contentType = 'application/json' | (string & {})
 
 export type SchemaObject = OASSchemaObject & {
+  /**
+   * Oas 3.1 adds support for `x-nullable` to specify that a schema can be null, even if `type` does not include `null`.
+   */
   'x-nullable'?: boolean
+  /**
+   * Oas 3.1 adds support for `const` to specify that a schema can only have a single value, which must be equal to the value of `const`.
+   */
+  const?: string | number | boolean | null
+  /**
+   * Oas 3.1 adds support for `contentMediaType` to specify the media type of the content being described by the schema.
+   */
+  contentMediaType?: string
   $ref?: string
 }
 
