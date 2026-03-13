@@ -1,5 +1,14 @@
 # @kubb/oas
 
+## 4.33.5
+
+### Patch Changes
+
+- [#2738](https://github.com/kubb-labs/kubb/pull/2738) [`45b7dc7`](https://github.com/kubb-labs/kubb/commit/45b7dc7939621a29a342af36db34c5f9bee3e155) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix `$ref` resolution in `Oas.getSchemas()` to prevent self-referential `z.lazy()` output when the bundler deduplicates schemas referenced from multiple external files.
+  The resolution logic is moved from `SchemaGenerator` into `Oas` where it belongs.
+- Updated dependencies []:
+  - @kubb/core@4.33.5
+
 ## 4.33.4
 
 ### Patch Changes
