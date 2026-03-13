@@ -12,7 +12,7 @@ import type { PluginTs } from '../types.ts'
 type Props = {
   name: string
   typedName: string
-  schemaNode: SchemaNode
+  node: SchemaNode
   optionalType: PluginTs['resolvedOptions']['optionalType']
   arrayType: PluginTs['resolvedOptions']['arrayType']
   enumType: PluginTs['resolvedOptions']['enumType']
@@ -21,13 +21,12 @@ type Props = {
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
   description?: string
   keysToOmit?: string[]
-  UNSTABLE_SCHEMA?: true
 }
 
 export function UnstableType({
   name,
   typedName,
-  schemaNode,
+  node,
   keysToOmit,
   optionalType,
   arrayType,
@@ -35,24 +34,23 @@ export function UnstableType({
   enumType,
   enumKeyCasing,
   mapper,
-  UNSTABLE_SCHEMA,
   ...rest
 }: Props): FabricReactNode {
   const typeNodes: ts.Node[] = []
 
-  const description = rest.description || schemaNode?.description
-  const enumSchemaNodes = collect<EnumSchemaNode>(schemaNode, {
+  const description = rest.description || node?.description
+  const enumSchemaNodes = collect<EnumSchemaNode>(node, {
     schema(n): EnumSchemaNode | undefined {
       if (n.type === 'enum' && n.name) return n as EnumSchemaNode
     },
   })
 
-  let type = parseSchemaNode(schemaNode, { optionalType, arrayType, enumType })!
+  let type = parseSchemaNode(node, { optionalType, arrayType, enumType })!
 
   // Add a "Key" suffix to avoid collisions where necessary
   if (['asConst', 'asPascalConst'].includes(enumType) && enumSchemaNodes.length > 0) {
-    const isDirectEnum = schemaNode.type === 'array' && schemaNode.items !== undefined
-    const isEnumOnly = 'enum' in schemaNode && schemaNode.enum
+    const isDirectEnum = node.type === 'array' && node.items !== undefined
+    const isEnumOnly = 'enum' in node && node.enum
 
     if (isDirectEnum || isEnumOnly) {
       const enumSchemaNode = enumSchemaNodes[0]!
@@ -70,20 +68,20 @@ export function UnstableType({
     }
   }
 
-  if (schemaNode) {
-    if (schemaNode.nullable) {
+  if (node) {
+    if (node.nullable) {
       type = factory.createUnionDeclaration({
         nodes: [type, factory.keywordTypeNodes.null],
       }) as ts.TypeNode
     }
 
-    if (schemaNode.nullish && ['undefined', 'questionTokenAndUndefined'].includes(optionalType as string)) {
+    if (node.nullish && ['undefined', 'questionTokenAndUndefined'].includes(optionalType as string)) {
       type = factory.createUnionDeclaration({
         nodes: [type, factory.keywordTypeNodes.undefined],
       }) as ts.TypeNode
     }
 
-    if (schemaNode.optional && ['undefined', 'questionTokenAndUndefined'].includes(optionalType as string)) {
+    if (node.optional && ['undefined', 'questionTokenAndUndefined'].includes(optionalType as string)) {
       type = factory.createUnionDeclaration({
         nodes: [type, factory.keywordTypeNodes.undefined],
       }) as ts.TypeNode
@@ -105,14 +103,14 @@ export function UnstableType({
         : type,
       syntax: useTypeGeneration ? 'type' : 'interface',
       comments: [
-        schemaNode?.title ? `${jsStringEscape(schemaNode.title)}` : undefined,
+        node?.title ? `${jsStringEscape(node.title)}` : undefined,
         description ? `@description ${jsStringEscape(description)}` : undefined,
-        schemaNode?.deprecated ? '@deprecated' : undefined,
-        schemaNode && 'min' in schemaNode && schemaNode.min !== undefined ? `@minLength ${schemaNode.min}` : undefined,
-        schemaNode && 'max' in schemaNode && schemaNode.max !== undefined ? `@maxLength ${schemaNode.max}` : undefined,
-        schemaNode && 'pattern' in schemaNode && schemaNode.pattern ? `@pattern ${schemaNode.pattern}` : undefined,
-        schemaNode?.default ? `@default ${schemaNode.default}` : undefined,
-        schemaNode?.example ? `@example ${schemaNode.example}` : undefined,
+        node?.deprecated ? '@deprecated' : undefined,
+        node && 'min' in node && node.min !== undefined ? `@minLength ${node.min}` : undefined,
+        node && 'max' in node && node.max !== undefined ? `@maxLength ${node.max}` : undefined,
+        node && 'pattern' in node && node.pattern ? `@pattern ${node.pattern}` : undefined,
+        node?.default ? `@default ${node.default}` : undefined,
+        node?.example ? `@example ${node.example}` : undefined,
       ],
     }),
   )

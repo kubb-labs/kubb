@@ -4,6 +4,7 @@ import type { Operation, SchemaObject } from '@kubb/oas'
 import { App, createReactFabric, type Fabric } from '@kubb/react-fabric'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
 import type { OperationGenerator } from './OperationGenerator.ts'
+import type { OasParser } from './parser.ts'
 import type { SchemaGenerator, SchemaGeneratorOptions } from './SchemaGenerator.ts'
 import type { Schema } from './SchemaMapper.ts'
 
@@ -71,6 +72,7 @@ type BuildSchemaOptions<TOptions extends PluginFactoryOptions> = {
   Component: ReactGenerator<any>['Schema']
   generator: Omit<SchemaGenerator<SchemaGeneratorOptions, TOptions>, 'build'>
   plugin: Plugin<TOptions>
+  parser: OasParser
 }
 
 export async function buildSchema<TOptions extends PluginFactoryOptions>(
@@ -78,9 +80,9 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
     name: string
     tree: Array<Schema>
     value: SchemaObject
+    node: SchemaNode
   },
-  schemaNode: SchemaNode,
-  { config, fabric, plugin, Component, generator }: BuildSchemaOptions<TOptions>,
+  { config, fabric, plugin, parser, Component, generator }: BuildSchemaOptions<TOptions>,
 ): Promise<void> {
   if (!Component) {
     return undefined
@@ -91,7 +93,7 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
   const fabricChild = createReactFabric()
   await fabricChild.render(
     <App meta={{ pluginManager, plugin, mode, oas }}>
-      <Component config={config} schema={schema} schemaNode={schemaNode} plugin={plugin} generator={generator} />
+      <Component config={config} schema={schema} parser={parser} node={schema.node} plugin={plugin} generator={generator} />
     </App>,
   )
 

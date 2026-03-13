@@ -146,7 +146,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       </File>
     )
   },
-  Schema({ config, schema, schemaNode, plugin }) {
+  Schema({ config, schema, node, plugin }) {
     const { getName, getFile } = useSchemaManager()
     const {
       options: { output, emptySchemaType, coercion, inferred, typed, mapper, importPath, wrapOutput, version, guidType, mini },
@@ -192,7 +192,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
           description={schema.value.description}
           tree={schema.tree}
           schema={schema.value}
-          schemaNode={schemaNode}
+          schemaNode={node}
           mapper={mapper}
           coercion={coercion}
           wrapOutput={wrapOutput}

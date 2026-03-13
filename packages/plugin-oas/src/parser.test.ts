@@ -135,7 +135,7 @@ describe('buildAst', () => {
 
       // Should be flattened to a ref — not an intersection
       expect(nullableRef?.type).toBe('ref')
-      expect(nullableRef?.name).toBe('Pet')
+      expect(nullableRef?.ref).toBe('#/components/schemas/Pet')
       expect(nullableRef?.nullable).toBe(true)
     })
 

@@ -169,7 +169,7 @@ describe('parseSchemaNode parity — formats', () => {
 describe('parseSchemaNode parity — ref', () => {
   it('$ref → type reference', () => {
     const tree = fromTree({ keyword: schemaKeywords.ref, args: { name: 'Pet', $ref: '#/components/schemas/Pet', path: '/Pet' as any, isImportable: true } })
-    const node = fromNode(createSchema({ type: 'ref', ref: 'Pet' }))
+    const node = fromNode(createSchema({ type: 'ref', name: 'Pet' }))
     expect(node).toBe(tree)
     expect(node).toBe('Pet')
   })
@@ -330,7 +330,7 @@ describe('parseSchemaNode parity — array', () => {
     const node = fromNode(
       createSchema({
         type: 'array',
-        items: [createSchema({ type: 'ref', ref: 'Pet' })],
+        items: [createSchema({ type: 'ref', name: 'Pet' })],
       }),
     )
     expect(node).toBe(tree)

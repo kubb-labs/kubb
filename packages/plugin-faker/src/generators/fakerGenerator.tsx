@@ -107,7 +107,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       </File>
     )
   },
-  Schema({ schema, schemaNode, plugin }) {
+  Schema({ schema, node, plugin }) {
     const { getName, getFile } = useSchemaManager()
     const {
       options: { output, dateParser, regexGenerator, seed, mapper },
@@ -161,7 +161,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
           typeName={type.name}
           description={schema.value.description}
           tree={schema.tree}
-          schemaNode={schemaNode}
+          schemaNode={node}
           regexGenerator={regexGenerator}
           dateParser={dateParser}
           mapper={mapper}

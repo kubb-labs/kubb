@@ -4,7 +4,6 @@
  */
 
 /**
- * @description F
  * @example [object Object]
  */
 export type SystemsQueryParams = {

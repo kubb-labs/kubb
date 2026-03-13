@@ -1395,16 +1395,20 @@ export class SchemaGenerator<
             {
               async schema(schemaNode: SchemaNode) {
                 if (generator.type === 'react') {
-                  await buildSchema(undefined as any, schemaNode, {
-                    config: instance.context.pluginManager.config,
-                    fabric: instance.context.fabric,
-                    Component: generator.Schema,
-                    generator: instance,
-                    plugin: {
-                      ...instance.context.plugin,
-                      options: instance.options,
+                  await buildSchema(
+                    { node: schemaNode, value: undefined as any, name: undefined as any, tree: undefined as any },
+                    {
+                      config: instance.context.pluginManager.config,
+                      fabric: instance.context.fabric,
+                      Component: generator.Schema,
+                      generator: instance,
+                      plugin: {
+                        ...instance.context.plugin,
+                        options: instance.options,
+                      },
+                      parser: oasParser,
                     },
-                  })
+                  )
                 }
               },
             },
@@ -1422,7 +1426,6 @@ export class SchemaGenerator<
 
             const resolvedSchema = schemaObject as SchemaObject
             const tree = this.parse({ schema: resolvedSchema, name, parentName: null, rootName: name })
-            const schemaNode = oasParser.convertSchema({ schema: resolvedSchema, name }, options)
 
             if (generator.type === 'react') {
               await buildSchema(
@@ -1430,8 +1433,8 @@ export class SchemaGenerator<
                   name,
                   value: resolvedSchema,
                   tree,
+                  node: undefined as any,
                 },
-                schemaNode,
                 {
                   config: this.context.pluginManager.config,
                   fabric: this.context.fabric,
@@ -1444,6 +1447,7 @@ export class SchemaGenerator<
                       ...options,
                     },
                   },
+                  parser: oasParser,
                 },
               )
 
@@ -1458,7 +1462,8 @@ export class SchemaGenerator<
                 value: resolvedSchema,
                 tree,
               },
-              schemaNode,
+              node: undefined as any,
+              parser: oasParser,
               plugin: {
                 ...this.context.plugin,
                 options: {

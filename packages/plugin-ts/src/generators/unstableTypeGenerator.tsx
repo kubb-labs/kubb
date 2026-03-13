@@ -343,9 +343,9 @@ export const unstableTypeGenerator = createReactGenerator<PluginTs>({
       const group = options.operation ? getGroup(options.operation) : undefined
 
       const rawSchemaNode = parser.convertSchema({ schema: transformedSchema, name }, { enumSuffix })
-      const schemaNode = parser.resolveRefs(rawSchemaNode, (name) => schemaManager.getName(name, { type: 'type' }))
+      const node = parser.resolveRefs(rawSchemaNode, (name) => schemaManager.getName(name, { type: 'type' }))
 
-      const imports = parser.getImports(schemaNode, (schemaName) => ({
+      const imports = parser.getImports(node, (schemaName) => ({
         name: schemaManager.getName(schemaName, { type: 'type' }),
         path: schemaManager.getFile(schemaName).path,
       }))
@@ -366,7 +366,7 @@ export const unstableTypeGenerator = createReactGenerator<PluginTs>({
             name={type.name}
             typedName={type.typedName}
             description={description}
-            schemaNode={schemaNode}
+            node={node}
             mapper={mapper}
             enumType={enumType}
             enumKeyCasing={enumKeyCasing}
@@ -411,7 +411,7 @@ export const unstableTypeGenerator = createReactGenerator<PluginTs>({
       </File>
     )
   },
-  Schema({ schemaNode, plugin }) {
+  Schema({ node, plugin }) {
     const {
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
     } = plugin
@@ -422,30 +422,30 @@ export const unstableTypeGenerator = createReactGenerator<PluginTs>({
 
     const { getName, getFile } = useSchemaManager()
 
-    if (!schemaNode.name) {
+    if (!node.name) {
       return
     }
 
     const parser = createOasParser(oas)
-    const imports = parser.getImports(schemaNode, (schemaName) => ({
+    const imports = parser.getImports(node, (schemaName) => ({
       name: getName(schemaName, { type: 'type' }),
       path: getFile(schemaName).path,
     }))
 
     console.log(imports)
 
-    const isEnumSchema = schemaNode.type === 'enum'
+    const isEnumSchema = node.type === 'enum'
 
-    let typedName = getName(schemaNode.name, { type: 'type' })
+    let typedName = getName(node.name, { type: 'type' })
 
     if (['asConst', 'asPascalConst'].includes(enumType) && isEnumSchema) {
       typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
     }
 
     const type = {
-      name: getName(schemaNode.name, { type: 'function' }),
+      name: getName(node.name, { type: 'function' }),
       typedName,
-      file: getFile(schemaNode.name),
+      file: getFile(node.name),
     }
 
     return (
@@ -458,13 +458,13 @@ export const unstableTypeGenerator = createReactGenerator<PluginTs>({
       >
         {mode === 'split' &&
           imports.map((imp) => (
-            <File.Import key={[schemaNode.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
+            <File.Import key={[node.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
           ))}
 
         <UnstableType
           name={type.name}
           typedName={type.typedName}
-          schemaNode={schemaNode}
+          node={node}
           mapper={mapper}
           enumType={enumType}
           enumKeyCasing={enumKeyCasing}

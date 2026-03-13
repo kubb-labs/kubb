@@ -331,7 +331,6 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
       return createSchema({
         type: 'ref',
-        name,
         name: extractRefName(schemaObject.$ref),
         ref: schemaObject.$ref,
         nullable,
