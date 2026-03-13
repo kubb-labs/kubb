@@ -1,5 +1,14 @@
 # unplugin-kubb
 
+## 5.0.1
+
+### Patch Changes
+
+- [#2729](https://github.com/kubb-labs/kubb/pull/2729) [`711e6a3`](https://github.com/kubb-labs/kubb/commit/711e6a3fe4373dba49c2dbdbfaa38e0c1bce0d8c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update internal packages
+
+- Updated dependencies [[`711e6a3`](https://github.com/kubb-labs/kubb/commit/711e6a3fe4373dba49c2dbdbfaa38e0c1bce0d8c)]:
+  - @kubb/core@4.33.4
+
 ## 5.0.0
 
 ### Major Changes
