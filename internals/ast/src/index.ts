@@ -44,5 +44,5 @@ export { schemaTypes } from './nodes/index.ts'
 export type { RefMap } from './refs.ts'
 export { buildRefMap, refMapToObject, resolveRef } from './refs.ts'
 // visitor
-export type { AsyncKubbVisitor, KubbVisitor } from './visitor.ts'
-export { transform, walk } from './visitor.ts'
+export type { AsyncVisitor, CollectVisitor, Visitor } from './visitor.ts'
+export { collect, transform, walk } from './visitor.ts'

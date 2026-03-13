@@ -15,7 +15,7 @@ import type { SchemaNode } from './nodes/schema.ts'
  *
  * @example
  * ```ts
- * const printer: KubbVisitor = {
+ * const printer: Visitor = {
  *   operation(node) {
  *     console.log(node.operationId)
  *   },
@@ -23,7 +23,7 @@ import type { SchemaNode } from './nodes/schema.ts'
  * walk(root, printer)
  * ```
  */
-export interface KubbVisitor {
+export interface Visitor {
   root?(node: RootNode): void | RootNode
   operation?(node: OperationNode): void | OperationNode
   schema?(node: SchemaNode): void | SchemaNode
@@ -32,20 +32,46 @@ export interface KubbVisitor {
   response?(node: ResponseNode): void | ResponseNode
 }
 
+type MaybePromise<T> = T | Promise<T>
+
 /**
- * Async variant of {@link KubbVisitor} for use with the async {@link walk} function.
+ * Async variant of {@link Visitor} for use with the async {@link walk} function.
  *
  * Every method is optional and may return a `Promise`. Sync visitors
- * ({@link KubbVisitor}) are structurally compatible and can be passed to
+ * ({@link Visitor}) are structurally compatible and can be passed to
  * `walk` without any changes.
  */
-export interface AsyncKubbVisitor {
-  root?(node: RootNode): Promise<void | RootNode>
-  operation?(node: OperationNode): Promise<void | OperationNode>
-  schema?(node: SchemaNode): Promise<void | SchemaNode>
-  property?(node: PropertyNode): Promise<void | PropertyNode>
-  parameter?(node: ParameterNode): Promise<void | ParameterNode>
-  response?(node: ResponseNode): Promise<void | ResponseNode>
+export interface AsyncVisitor {
+  root?(node: RootNode): MaybePromise<void | RootNode>
+  operation?(node: OperationNode): MaybePromise<void | OperationNode>
+  schema?(node: SchemaNode): MaybePromise<void | SchemaNode>
+  property?(node: PropertyNode): MaybePromise<void | PropertyNode>
+  parameter?(node: ParameterNode): MaybePromise<void | ParameterNode>
+  response?(node: ResponseNode): MaybePromise<void | ResponseNode>
+}
+
+/**
+ * A visitor that can be passed to {@link collect}.
+ *
+ * Every method is optional. Return a value `T` to include it in the result
+ * array; return `undefined` to skip the node.
+ *
+ * @example
+ * ```ts
+ * const refs = collect(root, {
+ *   schema(node) {
+ *     if (node.type === 'ref') return node
+ *   },
+ * })
+ * ```
+ */
+export interface CollectVisitor<T> {
+  root?(node: RootNode): T | undefined
+  operation?(node: OperationNode): T | undefined
+  schema?(node: SchemaNode): T | undefined
+  property?(node: PropertyNode): T | undefined
+  parameter?(node: ParameterNode): T | undefined
+  response?(node: ResponseNode): T | undefined
 }
 
 /**
@@ -64,7 +90,7 @@ export interface AsyncKubbVisitor {
  * })
  * ```
  */
-export async function walk(node: Node, visitor: AsyncKubbVisitor): Promise<void> {
+export async function walk(node: Node, visitor: AsyncVisitor): Promise<void> {
   switch (node.kind) {
     case 'Root': {
       const root = node as RootNode
@@ -138,7 +164,7 @@ export async function walk(node: Node, visitor: AsyncKubbVisitor): Promise<void>
  * }) as RootNode
  * ```
  */
-export function transform(node: Node, visitor: KubbVisitor): Node {
+export function transform(node: Node, visitor: Visitor): Node {
   switch (node.kind) {
     case 'Root': {
       let root = node as RootNode
@@ -206,4 +232,84 @@ export function transform(node: Node, visitor: KubbVisitor): Node {
       } as ResponseNode
     }
   }
+}
+
+/**
+ * Traverses the AST rooted at `node` depth-first, collecting the non-`undefined`
+ * return values of visitor methods into an array.
+ *
+ * Use `collect` when you need to **extract values** from the tree synchronously
+ * (e.g. gathering all importable ref nodes). Unlike {@link walk} (async
+ * side-effects) or {@link transform} (node replacement), `collect` is a pure
+ * read-only, synchronous reduction.
+ *
+ * @example
+ * ```ts
+ * const refs = collect(root, {
+ *   schema(node) {
+ *     if (node.type === 'ref') return node
+ *   },
+ * })
+ * ```
+ */
+export function collect<T>(node: Node, visitor: CollectVisitor<T>): Array<T> {
+  const results: Array<T> = []
+
+  switch (node.kind) {
+    case 'Root': {
+      const root = node as RootNode
+      const v = visitor.root?.(root)
+      if (v !== undefined) results.push(v)
+      for (const schema of root.schemas) results.push(...collect(schema, visitor))
+      for (const operation of root.operations) results.push(...collect(operation, visitor))
+      break
+    }
+    case 'Operation': {
+      const op = node as OperationNode
+      const v = visitor.operation?.(op)
+      if (v !== undefined) results.push(v)
+      for (const param of op.parameters) results.push(...collect(param, visitor))
+      if (op.requestBody) results.push(...collect(op.requestBody, visitor))
+      for (const response of op.responses) results.push(...collect(response, visitor))
+      break
+    }
+    case 'Schema': {
+      const schema = node as SchemaNode
+      const v = visitor.schema?.(schema)
+      if (v !== undefined) results.push(v)
+      if ('properties' in schema && schema.properties) {
+        for (const prop of schema.properties) results.push(...collect(prop, visitor))
+      }
+      if ('items' in schema && schema.items) {
+        for (const item of schema.items) results.push(...collect(item, visitor))
+      }
+      if ('members' in schema && schema.members) {
+        for (const member of schema.members) results.push(...collect(member, visitor))
+      }
+      break
+    }
+    case 'Property': {
+      const prop = node as PropertyNode
+      const v = visitor.property?.(prop)
+      if (v !== undefined) results.push(v)
+      results.push(...collect(prop.schema, visitor))
+      break
+    }
+    case 'Parameter': {
+      const param = node as ParameterNode
+      const v = visitor.parameter?.(param)
+      if (v !== undefined) results.push(v)
+      results.push(...collect(param.schema, visitor))
+      break
+    }
+    case 'Response': {
+      const response = node as ResponseNode
+      const v = visitor.response?.(response)
+      if (v !== undefined) results.push(v)
+      if (response.schema) results.push(...collect(response.schema, visitor))
+      break
+    }
+  }
+
+  return results
 }
