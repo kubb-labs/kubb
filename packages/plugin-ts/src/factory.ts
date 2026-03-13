@@ -4,6 +4,14 @@ import ts from 'typescript'
 
 const { SyntaxKind, factory } = ts
 
+function createNumericExpression(value: number): ts.Expression {
+  if (value < 0) {
+    return factory.createPrefixUnaryExpression(ts.SyntaxKind.MinusToken, factory.createNumericLiteral(Math.abs(value)))
+  }
+
+  return factory.createNumericLiteral(value)
+}
+
 // https://ts-ast-viewer.com/
 
 export const modifiers = {
@@ -481,7 +489,7 @@ export function createEnumDeclaration({
           enums
             .map(([_key, value]) => {
               if (isNumber(value)) {
-                return factory.createLiteralTypeNode(factory.createNumericLiteral(value?.toString()))
+                return factory.createLiteralTypeNode(createNumericExpression(value))
               }
 
               if (typeof value === 'boolean') {
@@ -571,15 +579,7 @@ export function createEnumDeclaration({
                     let initializer: ts.Expression = factory.createStringLiteral(value?.toString())
 
                     if (isNumber(value)) {
-                      // Error: Negative numbers should be created in combination with createPrefixUnaryExpression factory.
-                      // The method createNumericLiteral only accepts positive numbers
-                      // or those combined with createPrefixUnaryExpression.
-                      // Therefore, we need to ensure that the number is not negative.
-                      if (value < 0) {
-                        initializer = factory.createPrefixUnaryExpression(ts.SyntaxKind.MinusToken, factory.createNumericLiteral(Math.abs(value)))
-                      } else {
-                        initializer = factory.createNumericLiteral(value)
-                      }
+                      initializer = createNumericExpression(value)
                     }
 
                     if (typeof value === 'boolean') {

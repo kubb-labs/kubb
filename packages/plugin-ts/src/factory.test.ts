@@ -391,6 +391,22 @@ describe('Code Generation', () => {
       ),
     ).toMatchSnapshot()
 
+    // https://github.com/kubb-labs/kubb/issues/2734
+    expect(
+      await formatTS(
+        createEnumDeclaration({
+          type: 'literal',
+          name: 'allowance',
+          typeName: 'Allowance',
+          enums: [
+            ['NEGATIVE', -1],
+            ['ZERO', 0],
+            ['POSITIVE', 5],
+          ],
+        }),
+      ),
+    ).toMatchSnapshot()
+
     expect(
       await formatTS(
         createEnumDeclaration({

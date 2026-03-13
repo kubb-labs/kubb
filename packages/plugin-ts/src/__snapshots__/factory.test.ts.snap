@@ -104,6 +104,11 @@ exports[`Code Generation > should create enum declaration 7`] = `
 `;
 
 exports[`Code Generation > should create enum declaration 8`] = `
+"export type Allowance = -1 | 0 | 5
+"
+`;
+
+exports[`Code Generation > should create enum declaration 9`] = `
 "export enum Hello {
   Hello_1 = 'world',
   Hello_2 = 2050,
@@ -112,12 +117,12 @@ exports[`Code Generation > should create enum declaration 8`] = `
 "
 `;
 
-exports[`Code Generation > should create enum declaration 9`] = `
+exports[`Code Generation > should create enum declaration 10`] = `
 "export type HelloKey = never
 "
 `;
 
-exports[`Code Generation > should create enum declaration 10`] = `
+exports[`Code Generation > should create enum declaration 11`] = `
 "export type HelloKey = never
 "
 `;
