@@ -63,12 +63,14 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "@kubb/fabric-core": "catalog:",
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/react-fabric": "catalog:",
     "handlebars": "^4.7.8"
   },
   "peerDependencies": {
+    "@kubb/fabric-core": "0.13.3",
     "@kubb/react-fabric": "0.13.3"
   },
   "engines": {
