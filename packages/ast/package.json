@@ -1,22 +1,21 @@
 {
-  "name": "@internals/ast",
-  "version": "0.0.0",
-  "description": "Internal spec-agnostic AST layer for Kubb. Defines nodes, visitor pattern, and factory functions used across codegen plugins.",
+  "name": "@kubb/ast",
+  "version": "4.33.3",
+  "description": "Spec-agnostic AST layer for Kubb. Defines nodes, visitor pattern, and factory functions used across codegen plugins.",
   "keywords": [
     "kubb",
-    "internal",
     "ast",
     "typescript",
-    "codegen"
+    "codegen",
+    "openapi"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
-    "directory": "internals/ast"
+    "directory": "packages/ast"
   },
   "license": "MIT",
   "author": "stijnvanhulle",
-  "private": true,
   "sideEffects": false,
   "type": "module",
   "exports": {
@@ -42,6 +41,8 @@
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --fix --unsafe .",
+    "release": "pnpm publish --no-git-check",
+    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
     "start": "tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
