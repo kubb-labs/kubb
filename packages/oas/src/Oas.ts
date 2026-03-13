@@ -1,4 +1,3 @@
-import type { RefMap, RootNode, SchemaNode } from '@kubb/ast/types'
 import jsonpointer from 'jsonpointer'
 import BaseOas from 'oas'
 import type { ParameterObject } from 'oas/types'
@@ -38,12 +37,6 @@ export class Oas extends BaseOas {
     discriminator: 'strict',
   }
   document: Document
-
-  /** The Kubb AST built from this spec. Populated by `plugin-oas`. */
-  ast?: RootNode
-
-  /** A fast name → SchemaNode lookup map. Populated by `plugin-oas` alongside `ast`. */
-  refMap: RefMap = new Map<string, SchemaNode>()
 
   constructor(document: Document) {
     super(document, undefined)
