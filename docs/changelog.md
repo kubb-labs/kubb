@@ -15,25 +15,6 @@ outline: deep
 
 -   [#2738](https://github.com/kubb-labs/kubb/pull/2738) [`45b7dc7`](https://github.com/kubb-labs/kubb/commit/45b7dc7939621a29a342af36db34c5f9bee3e155) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix `$ref` resolution in `Oas.getSchemas()` to prevent self-referential `z.lazy()` output when the bundler deduplicates schemas referenced from multiple external files. The resolution logic is moved from `SchemaGenerator` into `Oas` where it belongs.
 
-::: code-group
-```typescript [Before]
-const schema = getSchema({
-  $refParams: schema1,
-  references: schema2,
-  // Repeated $ref includes resulted in z.lazy()
-});
-```
-
-```typescript [After]
-const schema = resolveSchema({
-  $refResolveds: schema1,
-  resolvedRefs: schema2,
-  // Accurate alignment of references
-});
-```
-:::
-```
-
 
 ## 4.33.4
 
