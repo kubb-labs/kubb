@@ -9,6 +9,7 @@ export type {
   AddPetRequest,
   AddPetRequestStatusEnumKey,
 } from './ts/models/AddPetRequest.ts'
+export { addPetRequestStatusEnum } from './ts/models/AddPetRequest.ts'
 export type { Address } from './ts/models/Address.ts'
 export type { ApiResponse } from './ts/models/ApiResponse.ts'
 export type { Cat } from './ts/models/Cat.ts'
@@ -30,6 +31,7 @@ export type {
   Customer,
   CustomerParamsEnumStatusEnumKey,
 } from './ts/models/Customer.ts'
+export { customerParamsEnumStatusEnum } from './ts/models/Customer.ts'
 export type {
   DeleteOrder400,
   DeleteOrder404,
@@ -46,6 +48,7 @@ export type {
   DeletePetMutationResponse,
   DeletePetPathParams,
 } from './ts/models/DeletePet.ts'
+export { deletePet200Enum } from './ts/models/DeletePet.ts'
 export type {
   DeleteUser400,
   DeleteUser404,
@@ -62,6 +65,7 @@ export type {
   FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
 } from './ts/models/FindPetsByStatus.ts'
+export { findPetsByStatusQueryParamsStatusEnum } from './ts/models/FindPetsByStatus.ts'
 export type {
   FindPetsByTags200,
   FindPetsByTags400,
@@ -117,6 +121,7 @@ export type {
   OrderHttpStatusEnumKey,
   OrderParamsEnumStatusEnumKey,
 } from './ts/models/Order.ts'
+export { orderHttpStatusEnum, orderParamsEnumStatusEnum } from './ts/models/Order.ts'
 export type { Pet } from './ts/models/Pet.ts'
 export type { PetNotFound } from './ts/models/PetNotFound.ts'
 export type {
@@ -168,9 +173,3 @@ export type {
 } from './ts/models/UploadFile.ts'
 export type { User } from './ts/models/User.ts'
 export type { UserArray } from './ts/models/UserArray.ts'
-export { addPetRequestStatusEnum } from './ts/models/AddPetRequest.ts'
-export { customerParamsEnumStatusEnum } from './ts/models/Customer.ts'
-export { deletePet200Enum } from './ts/models/DeletePet.ts'
-export { findPetsByStatusQueryParamsStatusEnum } from './ts/models/FindPetsByStatus.ts'
-export { orderHttpStatusEnum } from './ts/models/Order.ts'
-export { orderParamsEnumStatusEnum } from './ts/models/Order.ts'
