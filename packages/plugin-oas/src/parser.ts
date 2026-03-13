@@ -1,33 +1,41 @@
-import type {
-  ArraySchemaNode,
-  DateSchemaNode,
-  DatetimeSchemaNode,
-  EnumSchemaNode,
-  HttpMethod,
-  IntersectionSchemaNode,
-  MediaType,
-  NumberSchemaNode,
-  ObjectSchemaNode,
-  OperationNode,
-  ParameterLocation,
-  ParameterNode,
-  PrimitiveSchemaType,
-  PropertyNode,
-  RefSchemaNode,
-  ResponseNode,
-  RootNode,
-  ScalarSchemaNode,
-  ScalarSchemaType,
-  SchemaNode,
-  SchemaType,
-  StatusCode,
-  StringSchemaNode,
-  TimeSchemaNode,
-  UnionSchemaNode,
+import {
+  type ArraySchemaNode,
+  createOperation,
+  createParameter,
+  createProperty,
+  createResponse,
+  createRoot,
+  createSchema,
+  type DateSchemaNode,
+  type DatetimeSchemaNode,
+  type EnumSchemaNode,
+  type HttpMethod,
+  type IntersectionSchemaNode,
+  type MediaType,
+  type NumberSchemaNode,
+  narrowSchema,
+  type ObjectSchemaNode,
+  type OperationNode,
+  type ParameterLocation,
+  type ParameterNode,
+  type PrimitiveSchemaType,
+  type PropertyNode,
+  type RefSchemaNode,
+  type ResponseNode,
+  type RootNode,
+  type ScalarSchemaNode,
+  type ScalarSchemaType,
+  type SchemaNode,
+  type SchemaType,
+  type StatusCode,
+  type StringSchemaNode,
+  schemaTypes,
+  type TimeSchemaNode,
+  transform,
+  type UnionSchemaNode,
 } from '@internals/ast'
-import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, schemaTypes, transform } from '@internals/ast'
 import { pascalCase } from '@internals/utils'
-import type { Operation, SchemaObject } from '@kubb/oas'
+import type { contentType, Operation, SchemaObject } from '@kubb/oas'
 import { flattenSchema, isDiscriminator, isNullable, isReference, type Oas } from '@kubb/oas'
 
 /** Distributive `Omit` that correctly distributes over union types. */
@@ -112,6 +120,11 @@ type Options = {
    * @default `'enum'`
    */
   enumSuffix: string
+}
+
+type OasParserOptions = {
+  contentType?: contentType
+  collisionDetection?: boolean
 }
 
 const DEFAULT_OPTIONS = {
@@ -216,7 +229,11 @@ export type OasParser = {
  * const root = parser.buildAst({ emptySchemaType: 'unknown' })
  * ```
  */
-export function createOasParser(oas: Oas): OasParser {
+export function createOasParser(oas: Oas, { contentType, collisionDetection }: OasParserOptions = {}): OasParser {
+  // Map from original component paths to resolved schema names (after collision resolution)
+  // e.g., { '#/components/schemas/Order': 'OrderSchema', '#/components/responses/Product': 'ProductResponse' }
+  const { schemas: schemaObjects, nameMapping } = oas.getSchemas({ contentType, collisionDetection })
+
   function getUnknownType(options: Options) {
     if (options.unknownType === 'any') {
       return schemaTypes.any
@@ -227,7 +244,6 @@ export function createOasParser(oas: Oas): OasParser {
 
     return schemaTypes.unknown
   }
-
   function getEmptySchemaType(options: Options) {
     if (options.emptySchemaType === 'any') {
       return schemaTypes.any
@@ -1050,7 +1066,6 @@ export function createOasParser(oas: Oas): OasParser {
    */
   function buildAst<TOptions extends Partial<Options> = object>(options?: TOptions): RootNode {
     const mergedOptions: Options = { ...DEFAULT_OPTIONS, ...options }
-    const { schemas: schemaObjects } = oas.getSchemas()
 
     const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) =>
       convertSchema({ schema: schemaObject as SchemaObject, name }, mergedOptions),
@@ -1067,17 +1082,27 @@ export function createOasParser(oas: Oas): OasParser {
     return createRoot({ schemas, operations })
   }
 
-  function resolveRefs(node: SchemaNode, resolveName: (ref: string) => string | undefined, resolveEnumName?: (name: string) => string | undefined): SchemaNode {
+  function resolveRefs(node: SchemaNode, resolveName: (name: string) => string | undefined): SchemaNode {
     return transform(node, {
       schema(schemaNode) {
-        if (schemaNode.type === 'ref' && (schemaNode.$ref || schemaNode.ref)) {
-          const resolved = resolveName(schemaNode.$ref ?? schemaNode.ref!)
+        const schemaRef = narrowSchema(schemaNode, schemaTypes.ref)
+
+        if (schemaRef && (schemaRef.$ref || schemaRef.ref)) {
+          const ref = schemaRef.$ref ?? schemaRef.ref
+
+          if (!ref) {
+            throw new Error(`Unknown ref "${ref}" in ${schemaNode.$ref}`)
+          }
+
+          const resolved = resolveName(nameMapping.get(ref) ?? ref)
+
           if (resolved) {
             return { ...schemaNode, ref: resolved }
           }
         }
-        if (resolveEnumName && schemaNode.type === 'enum' && schemaNode.name) {
-          const resolved = resolveEnumName(schemaNode.name)
+
+        if (schemaNode.type === 'enum' && schemaNode.name) {
+          const resolved = resolveName(schemaNode.name)
           if (resolved) {
             return { ...schemaNode, name: resolved }
           }

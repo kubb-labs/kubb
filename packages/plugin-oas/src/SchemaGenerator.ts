@@ -1,3 +1,4 @@
+import * as fs from 'node:fs'
 import { type AsyncEventEmitter, getUniqueName, pascalCase, stringify } from '@internals/utils'
 import type { FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
@@ -1355,12 +1356,6 @@ export class SchemaGenerator<
       const { schemas, nameMapping } = oas.getSchemas({ contentType, includes: include })
       this.#schemaNameMapping = nameMapping
       this.#nameMappingInitialized = true
-      const schemaEntries = Object.entries(schemas)
-
-      this.context.events?.emit('debug', {
-        date: new Date(),
-        logs: [`Building ${schemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],
-      })
 
       // Continue with build using the schemas
       return this.#doBuild(schemas, generators)
@@ -1371,6 +1366,10 @@ export class SchemaGenerator<
   }
 
   async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+    const { oas, contentType } = this.context
+
+    const oasParser = createOasParser(oas, { contentType })
+
     const schemaEntries = Object.entries(schemas)
 
     const generatorLimit = pLimit(GENERATOR_CONCURRENCY)
@@ -1378,6 +1377,17 @@ export class SchemaGenerator<
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
+        const rootNode = oasParser.buildAst({
+          contentType: this.#context.contentType,
+          dateType: this.#options.dateType,
+          emptySchemaType: this.#options.emptySchemaType,
+          enumSuffix: this.#options.enumSuffix,
+          integerType: this.#options.integerType,
+          unknownType: this.#options.unknownType,
+        })
+
+        fs.writeFileSync('./test.json', JSON.stringify(rootNode, null, 2), 'utf8')
+
         const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
           schemaLimit(async () => {
             const options = this.#getOptions(name)
@@ -1395,7 +1405,6 @@ export class SchemaGenerator<
 
             const resolvedSchema = resolvedSchemaObject as SchemaObject
             const tree = this.parse({ schema: resolvedSchema, name, parentName: null, rootName: name })
-            const oasParser = createOasParser(this.#context.oas)
             const schemaNode = oasParser.convertSchema({ schema: resolvedSchema, name }, options)
 
             if (generator.type === 'react') {
