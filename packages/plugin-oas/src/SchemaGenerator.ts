@@ -1,4 +1,5 @@
 import * as fs from 'node:fs'
+import { type SchemaNode, walk } from '@internals/ast'
 import { type AsyncEventEmitter, getUniqueName, pascalCase, stringify } from '@internals/utils'
 import type { FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
@@ -66,6 +67,7 @@ export type SchemaGeneratorOptions = {
      */
     schema?: (schemaProps: SchemaProps, defaultSchemas: Schema[]) => Array<Schema> | undefined
   }
+  UNSTABLE_SCHEMA?: true
 }
 
 export type SchemaGeneratorBuildOptions = Omit<OperationSchema, 'name' | 'schema'>
@@ -1367,6 +1369,7 @@ export class SchemaGenerator<
 
   async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType } = this.context
+    const instance = this
 
     const oasParser = createOasParser(oas, { contentType })
 
@@ -1386,7 +1389,30 @@ export class SchemaGenerator<
           unknownType: this.#options.unknownType,
         })
 
-        fs.writeFileSync('./test.json', JSON.stringify(rootNode, null, 2), 'utf8')
+        if (this.options.UNSTABLE_SCHEMA) {
+          await walk(rootNode, {
+            async schema(schemaNode: SchemaNode) {
+              console.log(JSON.stringify(schemaNode, null, 2))
+
+              if (generator.type === 'react') {
+                await buildSchema(undefined as any, schemaNode, {
+                  config: instance.context.pluginManager.config,
+                  fabric: instance.context.fabric,
+                  Component: generator.Schema,
+                  generator: instance,
+                  plugin: {
+                    ...instance.context.plugin,
+                    options: instance.options,
+                  },
+                })
+              }
+            },
+          })
+
+          fs.writeFileSync('./test.json', JSON.stringify(rootNode, null, 2), 'utf8')
+
+          return
+        }
 
         const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
           schemaLimit(async () => {

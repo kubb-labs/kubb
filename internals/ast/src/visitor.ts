@@ -33,66 +33,84 @@ export interface KubbVisitor {
 }
 
 /**
+ * Async variant of {@link KubbVisitor} for use with the async {@link walk} function.
+ *
+ * Every method is optional and may return a `Promise`. Sync visitors
+ * ({@link KubbVisitor}) are structurally compatible and can be passed to
+ * `walk` without any changes.
+ */
+export interface AsyncKubbVisitor {
+  root?(node: RootNode): Promise<void | RootNode>
+  operation?(node: OperationNode): Promise<void | OperationNode>
+  schema?(node: SchemaNode): Promise<void | SchemaNode>
+  property?(node: PropertyNode): Promise<void | PropertyNode>
+  parameter?(node: ParameterNode): Promise<void | ParameterNode>
+  response?(node: ResponseNode): Promise<void | ResponseNode>
+}
+
+/**
  * Traverses the AST rooted at `node` depth-first, calling the matching
  * visitor method for every node encountered.
  *
  * Use `walk` for **side-effect** operations (logging, validation, …).
  * The visitor's return values are ignored.
  *
+ * Visitor methods may be `async`; `walk` awaits each one before continuing.
+ *
  * @example
  * ```ts
- * walk(root, {
- *   operation(op) { console.log(op.operationId) },
+ * await walk(root, {
+ *   async operation(op) { await doSomething(op.operationId) },
  * })
  * ```
  */
-export function walk(node: Node, visitor: KubbVisitor): void {
+export async function walk(node: Node, visitor: AsyncKubbVisitor): Promise<void> {
   switch (node.kind) {
     case 'Root': {
       const root = node as RootNode
-      visitor.root?.(root)
-      for (const schema of root.schemas) walk(schema, visitor)
-      for (const operation of root.operations) walk(operation, visitor)
+      await visitor.root?.(root)
+      for (const schema of root.schemas) await walk(schema, visitor)
+      for (const operation of root.operations) await walk(operation, visitor)
       break
     }
     case 'Operation': {
       const op = node as OperationNode
-      visitor.operation?.(op)
-      for (const param of op.parameters) walk(param, visitor)
-      if (op.requestBody) walk(op.requestBody, visitor)
-      for (const response of op.responses) walk(response, visitor)
+      await visitor.operation?.(op)
+      for (const param of op.parameters) await walk(param, visitor)
+      if (op.requestBody) await walk(op.requestBody, visitor)
+      for (const response of op.responses) await walk(response, visitor)
       break
     }
     case 'Schema': {
       const schema = node as SchemaNode
-      visitor.schema?.(schema)
+      await visitor.schema?.(schema)
       if ('properties' in schema && schema.properties) {
-        for (const prop of schema.properties) walk(prop, visitor)
+        for (const prop of schema.properties) await walk(prop, visitor)
       }
       if ('items' in schema && schema.items) {
-        for (const item of schema.items) walk(item, visitor)
+        for (const item of schema.items) await walk(item, visitor)
       }
       if ('members' in schema && schema.members) {
-        for (const member of schema.members) walk(member, visitor)
+        for (const member of schema.members) await walk(member, visitor)
       }
       break
     }
     case 'Property': {
       const prop = node as PropertyNode
-      visitor.property?.(prop)
-      walk(prop.schema, visitor)
+      await visitor.property?.(prop)
+      await walk(prop.schema, visitor)
       break
     }
     case 'Parameter': {
       const param = node as ParameterNode
-      visitor.parameter?.(param)
-      walk(param.schema, visitor)
+      await visitor.parameter?.(param)
+      await walk(param.schema, visitor)
       break
     }
     case 'Response': {
       const response = node as ResponseNode
-      visitor.response?.(response)
-      if (response.schema) walk(response.schema, visitor)
+      await visitor.response?.(response)
+      if (response.schema) await walk(response.schema, visitor)
       break
     }
   }

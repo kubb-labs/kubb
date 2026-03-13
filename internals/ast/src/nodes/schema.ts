@@ -211,6 +211,7 @@ export interface EnumSchemaNode extends SchemaNodeBase {
 /** Schema for `'ref'` type — carries the resolved reference identifier. */
 export interface RefSchemaNode extends SchemaNodeBase {
   type: 'ref'
+  // TODO use of name instead
   /** The resolved reference identifier (e.g. schema name or import path). */
   ref?: string
   /**
@@ -301,6 +302,36 @@ export interface ScalarSchemaNode extends SchemaNodeBase {
     SchemaType,
     'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum' | 'ref' | 'datetime' | 'date' | 'time' | 'string' | 'number' | 'integer' | 'bigint'
   >
+}
+
+/**
+ * Maps each `SchemaType` string to the exact `SchemaNode` variant it belongs to.
+ * Used by `narrowSchema` to infer the correct node type from a type discriminant.
+ */
+export type SchemaNodeByType = {
+  object: ObjectSchemaNode
+  array: ArraySchemaNode
+  tuple: ArraySchemaNode
+  union: UnionSchemaNode
+  intersection: IntersectionSchemaNode
+  enum: EnumSchemaNode
+  ref: RefSchemaNode
+  datetime: DatetimeSchemaNode
+  date: DateSchemaNode
+  time: TimeSchemaNode
+  string: StringSchemaNode
+  number: NumberSchemaNode
+  integer: NumberSchemaNode
+  bigint: NumberSchemaNode
+  boolean: ScalarSchemaNode
+  null: ScalarSchemaNode
+  any: ScalarSchemaNode
+  unknown: ScalarSchemaNode
+  void: ScalarSchemaNode
+  uuid: ScalarSchemaNode
+  email: ScalarSchemaNode
+  url: ScalarSchemaNode
+  blob: ScalarSchemaNode
 }
 
 /**

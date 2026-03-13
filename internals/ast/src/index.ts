@@ -31,6 +31,7 @@ export type {
   ScalarSchemaNode,
   ScalarSchemaType,
   SchemaNode,
+  SchemaNodeByType,
   SchemaType,
   SpecialSchemaType,
   StatusCode,
@@ -43,5 +44,5 @@ export { schemaTypes } from './nodes/index.ts'
 export type { RefMap } from './refs.ts'
 export { buildRefMap, refMapToObject, resolveRef } from './refs.ts'
 // visitor
-export type { KubbVisitor } from './visitor.ts'
+export type { AsyncKubbVisitor, KubbVisitor } from './visitor.ts'
 export { transform, walk } from './visitor.ts'

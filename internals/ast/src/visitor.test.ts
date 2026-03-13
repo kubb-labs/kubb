@@ -28,7 +28,7 @@ function buildSampleTree(): RootNode {
 }
 
 describe('walk', () => {
-  it('visits all node kinds in a tree', () => {
+  it('visits all node kinds in a tree', async () => {
     const root = buildSampleTree()
     const visited = {
       root: 0,
@@ -39,7 +39,7 @@ describe('walk', () => {
       response: 0,
     }
 
-    walk(root, {
+    await walk(root, {
       root() {
         visited.root++
       },
@@ -69,10 +69,10 @@ describe('walk', () => {
     expect(visited.schema).toBeGreaterThanOrEqual(5)
   })
 
-  it('accepts a partial visitor (only some methods)', () => {
+  it('accepts a partial visitor (only some methods)', async () => {
     const root = buildSampleTree()
     const ids: Array<string> = []
-    walk(root, {
+    await walk(root, {
       operation(op) {
         ids.push(op.operationId)
       },
@@ -80,10 +80,10 @@ describe('walk', () => {
     expect(ids).toEqual(['getPetById'])
   })
 
-  it('does not mutate the original tree', () => {
+  it('does not mutate the original tree', async () => {
     const root = buildSampleTree()
     const original = JSON.stringify(root)
-    walk(root, {
+    await walk(root, {
       operation(op) {
         return { ...op, operationId: 'mutated' }
       },

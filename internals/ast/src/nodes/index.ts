@@ -20,6 +20,7 @@ export type {
   ScalarSchemaNode,
   ScalarSchemaType,
   SchemaNode,
+  SchemaNodeByType,
   SchemaType,
   SpecialSchemaType,
   StringSchemaNode,

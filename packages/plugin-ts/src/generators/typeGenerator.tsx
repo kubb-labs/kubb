@@ -9,7 +9,7 @@ import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/
 import { applyParamsCasing, getBanner, getFooter, getImports, isParameterSchema } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
 import ts from 'typescript'
-import { Type } from '../components'
+import { Type, UnstableType } from '../components'
 import * as factory from '../factory.ts'
 import { createUrlTemplateType, getUnknownType, keywordTypeNodes } from '../factory.ts'
 import { pluginTsName } from '../plugin.ts'
@@ -314,7 +314,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   Operation({ operation, generator, plugin }) {
     const {
       options,
-      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing, UNSTABLE_SCHEMA, enumSuffix },
+      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing, enumSuffix },
     } = plugin
 
     const mode = useMode()
@@ -381,7 +381,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
             arrayType={arrayType}
             keysToOmit={keysToOmit}
             syntaxType={syntaxType}
-            UNSTABLE_SCHEMA={UNSTABLE_SCHEMA}
           />
         </>
       )
@@ -421,7 +420,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   },
   Schema({ schema, schemaNode, plugin }) {
     const {
-      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
+      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output, UNSTABLE_SCHEMA },
     } = plugin
     const mode = useMode()
 
@@ -462,19 +461,36 @@ export const typeGenerator = createReactGenerator<PluginTs>({
           imports.map((imp) => (
             <File.Import key={[schemaNode.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
           ))}
-        <Type
-          name={type.name}
-          typedName={type.typedName}
-          tree={schema.tree}
-          schema={schema.value}
-          schemaNode={schemaNode}
-          mapper={mapper}
-          enumType={enumType}
-          enumKeyCasing={enumKeyCasing}
-          optionalType={optionalType}
-          arrayType={arrayType}
-          syntaxType={syntaxType}
-        />
+
+        {UNSTABLE_SCHEMA ? (
+          <UnstableType
+            name={type.name}
+            typedName={type.typedName}
+            tree={schema.tree}
+            schema={schema.value}
+            schemaNode={schemaNode}
+            mapper={mapper}
+            enumType={enumType}
+            enumKeyCasing={enumKeyCasing}
+            optionalType={optionalType}
+            arrayType={arrayType}
+            syntaxType={syntaxType}
+          />
+        ) : (
+          <Type
+            name={type.name}
+            typedName={type.typedName}
+            tree={schema.tree}
+            schema={schema.value}
+            schemaNode={schemaNode}
+            mapper={mapper}
+            enumType={enumType}
+            enumKeyCasing={enumKeyCasing}
+            optionalType={optionalType}
+            arrayType={arrayType}
+            syntaxType={syntaxType}
+          />
+        )}
       </File>
     )
   },

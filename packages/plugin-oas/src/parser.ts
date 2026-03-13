@@ -1091,7 +1091,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
           const ref = schemaRef.$ref ?? schemaRef.ref
 
           if (!ref) {
-            throw new Error(`Unknown ref "${ref}" in ${schemaNode.$ref}`)
+            throw new Error(`Unknown ref "${ref}" in ${schemaRef.$ref}`)
           }
 
           const resolved = resolveName(nameMapping.get(ref) ?? ref)

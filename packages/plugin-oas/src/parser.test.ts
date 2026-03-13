@@ -41,7 +41,7 @@ describe('buildAst', () => {
     it('converts object schema with properties', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser(oas).buildAst()
-      const pet = narrowSchema<ObjectSchemaNode>(
+      const pet = narrowSchema(
         root.schemas.find((s) => s.name === 'Pet'),
         'object',
       )
@@ -53,7 +53,7 @@ describe('buildAst', () => {
     it('marks required properties', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser(oas).buildAst()
-      const pet = narrowSchema<ObjectSchemaNode>(
+      const pet = narrowSchema(
         root.schemas.find((s) => s.name === 'Pet'),
         'object',
       )
@@ -67,7 +67,7 @@ describe('buildAst', () => {
     it('converts array schema', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser(oas).buildAst()
-      const list = narrowSchema<ArraySchemaNode>(
+      const list = narrowSchema(
         root.schemas.find((s) => s.name === 'PetList'),
         'array',
       )
@@ -80,7 +80,7 @@ describe('buildAst', () => {
     it('converts enum schema', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser(oas).buildAst()
-      const status = narrowSchema<EnumSchemaNode>(
+      const status = narrowSchema(
         root.schemas.find((s) => s.name === 'Status'),
         'enum',
       )
@@ -92,7 +92,7 @@ describe('buildAst', () => {
     it('converts oneOf to union', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser(oas).buildAst()
-      const petOrError = narrowSchema<UnionSchemaNode>(
+      const petOrError = narrowSchema(
         root.schemas.find((s) => s.name === 'PetOrError'),
         'union',
       )
@@ -104,7 +104,7 @@ describe('buildAst', () => {
     it('converts allOf to intersection', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser(oas).buildAst()
-      const fullPet = narrowSchema<IntersectionSchemaNode>(
+      const fullPet = narrowSchema(
         root.schemas.find((s) => s.name === 'FullPet'),
         'intersection',
       )
@@ -128,7 +128,7 @@ describe('buildAst', () => {
     it('flattens single-member allOf for nullable $ref', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser(oas).buildAst()
-      const nullableRef = narrowSchema<RefSchemaNode>(
+      const nullableRef = narrowSchema(
         root.schemas.find((s) => s.name === 'NullableRef'),
         'ref',
       )
@@ -142,12 +142,12 @@ describe('buildAst', () => {
     it('maps format date-time to datetime SchemaType', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser(oas).buildAst()
-      const fullPet = narrowSchema<IntersectionSchemaNode>(
+      const fullPet = narrowSchema(
         root.schemas.find((s) => s.name === 'FullPet'),
         'intersection',
       )
       // second member is an inline object with createdAt (datetime) and email
-      const objectMember = narrowSchema<ObjectSchemaNode>(
+      const objectMember = narrowSchema(
         fullPet?.members?.find((m) => m.type === 'object'),
         'object',
       )
@@ -159,11 +159,11 @@ describe('buildAst', () => {
     it('maps format email to email SchemaType', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser(oas).buildAst()
-      const fullPet = narrowSchema<IntersectionSchemaNode>(
+      const fullPet = narrowSchema(
         root.schemas.find((s) => s.name === 'FullPet'),
         'intersection',
       )
-      const objectMember = narrowSchema<ObjectSchemaNode>(
+      const objectMember = narrowSchema(
         fullPet?.members?.find((m) => m.type === 'object'),
         'object',
       )
@@ -590,7 +590,7 @@ describe('convertSchema allOf', () => {
     // 2 allOf members + 1 injected member for the missing required key
     expect(node.members).toHaveLength(3)
     // the injected member is an object with `id` marked required
-    const injected = narrowSchema<ObjectSchemaNode>(node.members?.[2], 'object')
+    const injected = narrowSchema(node.members?.[2], 'object')
     expect(injected?.properties?.find((p) => p.name === 'id')?.required).toBe(true)
   })
 
@@ -732,7 +732,7 @@ describe('convertSchema oneOf / anyOf', () => {
       },
     })
 
-    const intersection = narrowSchema<IntersectionSchemaNode>(node.members?.[0], 'intersection')
+    const intersection = narrowSchema(node.members?.[0], 'intersection')
     const [refMember, propsMember] = intersection?.members ?? []
     expect(refMember?.type).toBe('ref')
     expect(propsMember?.type).toBe('object')
@@ -1193,7 +1193,7 @@ describe('convertSchema object discriminator', () => {
     })
 
     const petTypeProp = node.properties?.find((p) => p.name === 'petType')
-    const petTypeSchema = narrowSchema<EnumSchemaNode>(petTypeProp?.schema, 'enum')
+    const petTypeSchema = narrowSchema(petTypeProp?.schema, 'enum')
     expect(petTypeSchema?.type).toBe('enum')
     expect(petTypeSchema?.enumValues).toEqual(['Cat', 'Dog'])
   })
@@ -1619,7 +1619,7 @@ describe('convertSchema enum', () => {
 
     expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
     expect(node.type).toBe('array')
-    const itemNode = narrowSchema<EnumSchemaNode>(node.items?.[0], 'enum')
+    const itemNode = narrowSchema(node.items?.[0], 'enum')
     expect(itemNode?.type).toBe('enum')
     expect(itemNode?.enumValues).toEqual(['x', 'y'])
   })
@@ -1629,7 +1629,7 @@ describe('convertSchema enum', () => {
 
     expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
     expect(node.type).toBe('array')
-    const itemNode = narrowSchema<EnumSchemaNode>(node.items?.[0], 'enum')
+    const itemNode = narrowSchema(node.items?.[0], 'enum')
     expect(itemNode?.type).toBe('enum')
     expect(itemNode?.enumValues).toEqual(['x', 'y'])
   })
@@ -1898,7 +1898,7 @@ describe('convertSchema array', () => {
 
   it('converts nested array items recursively', () => {
     const node = parser.convertSchema({ schema: { type: 'array', items: { type: 'array', items: { type: 'number' } } } })
-    const outerItem = narrowSchema<ArraySchemaNode>(node.items?.[0], 'array')
+    const outerItem = narrowSchema(node.items?.[0], 'array')
     const innerItem = outerItem?.items?.[0]
 
     expect(node.type).toBe('array')
