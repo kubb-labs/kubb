@@ -1,5 +1,10 @@
 import { defineConfig, type UserConfig } from 'tsdown'
 
+const entry = {
+  index: 'src/index.ts',
+  types: 'src/types.ts',
+}
+
 const shared: Partial<UserConfig> = {
   platform: 'node',
   sourcemap: true,
@@ -13,13 +18,13 @@ const shared: Partial<UserConfig> = {
 
 export default defineConfig([
   {
-    entry: { index: 'src/index.ts' },
+    entry,
     format: 'esm',
     dts: true,
     ...shared,
   },
   {
-    entry: { index: 'src/index.ts' },
+    entry,
     format: 'cjs',
     dts: false,
     ...shared,

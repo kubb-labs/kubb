@@ -3,7 +3,7 @@ import type { OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode
 /**
  * Distributive variant of `Omit` that preserves union members.
  */
-type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
 
 /**
  * Creates a `RootNode`.
