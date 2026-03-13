@@ -1,5 +1,5 @@
 import { useMode, usePluginManager } from '@kubb/core/hooks'
-import { convertSchema, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { createOasParser, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { applyParamsCasing, getBanner, getFooter, getImports, isParameterSchema } from '@kubb/plugin-oas/utils'
@@ -46,7 +46,8 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       const tree = schemaGenerator.parse({ schema: transformedSchema, name, parentName: null })
       const imports = getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
-      const schemaNode = convertSchema(transformedSchema, name)
+      const parser = createOasParser(oas)
+      const schemaNode = parser.convertSchema({ schema: transformedSchema, name })
 
       const faker = {
         name: schemaManager.getName(name, { type: 'function' }),
@@ -106,7 +107,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       </File>
     )
   },
-  Schema({ schema, plugin }) {
+  Schema({ schema, schemaNode, plugin }) {
     const { getName, getFile } = useSchemaManager()
     const {
       options: { output, dateParser, regexGenerator, seed, mapper },
@@ -160,7 +161,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
           typeName={type.name}
           description={schema.value.description}
           tree={schema.tree}
-          schemaNode={schema.schemaNode}
+          schemaNode={schemaNode}
           regexGenerator={regexGenerator}
           dateParser={dateParser}
           mapper={mapper}

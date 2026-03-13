@@ -39,7 +39,7 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
       collisionDetection,
     })
 
-    oas.ast = createOasParser().buildAst(oas)
+    oas.ast = createOasParser(oas).buildAst()
     oas.refMap = buildRefMap(oas.ast)
 
     try {

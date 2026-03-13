@@ -7,8 +7,8 @@ export type { CreateParserConfig, CreateParserSchemaNodeConfig, KeywordHandler, 
 export { createParser, createParserSchemaNode, findSchemaKeyword } from './createParser.ts'
 export type { OperationMethodResult } from './OperationGenerator.ts'
 export { OperationGenerator } from './OperationGenerator.ts'
-export type { InferSchemaNode } from './parser.ts'
-export { convertSchema, createOasParser } from './parser.ts'
+export type { InferSchemaNode, OasParser } from './parser.ts'
+export { createOasParser } from './parser.ts'
 export { pluginOas, pluginOasName } from './plugin.ts'
 export type {
   GetSchemaGeneratorOptions,

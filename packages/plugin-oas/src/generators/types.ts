@@ -38,12 +38,12 @@ export type SchemaProps<TOptions extends PluginFactoryOptions> = {
      * @deprecated will be replaced with schemaNode
      */
     value: SchemaObject
-    /**
-     * The spec-agnostic AST node for this schema, populated from the kubb-parser stage.
-     * Use this to generate code without coupling to OpenAPI/Swagger internals.
-     */
-    schemaNode: SchemaNode
   }
+  /**
+   * The spec-agnostic AST node for this schema, populated from the kubb-parser stage.
+   * Use this to generate code without coupling to OpenAPI/Swagger internals.
+   */
+  schemaNode: SchemaNode
 }
 
 export type Generator<TOptions extends PluginFactoryOptions> = CoreGenerator<TOptions> | ReactGenerator<TOptions>

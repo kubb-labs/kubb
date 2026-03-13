@@ -1395,8 +1395,8 @@ export class SchemaGenerator<
 
             const resolvedSchema = resolvedSchemaObject as SchemaObject
             const tree = this.parse({ schema: resolvedSchema, name, parentName: null, rootName: name })
-            const oasParser = createOasParser(options, { oas: this.#context.oas })
-            const schemaNode = oasParser.convertSchema(resolvedSchema, name)
+            const oasParser = createOasParser(this.#context.oas)
+            const schemaNode = oasParser.convertSchema({ schema: resolvedSchema, name }, options)
 
             if (generator.type === 'react') {
               await buildSchema(
@@ -1404,8 +1404,8 @@ export class SchemaGenerator<
                   name,
                   value: resolvedSchema,
                   tree,
-                  schemaNode,
                 },
+                schemaNode,
                 {
                   config: this.context.pluginManager.config,
                   fabric: this.context.fabric,
@@ -1431,8 +1431,8 @@ export class SchemaGenerator<
                 name,
                 value: resolvedSchema,
                 tree,
-                schemaNode,
               },
+              schemaNode,
               plugin: {
                 ...this.context.plugin,
                 options: {

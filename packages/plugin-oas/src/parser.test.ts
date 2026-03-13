@@ -12,14 +12,17 @@ import type {
 } from '@internals/ast'
 import { narrowSchema } from '@internals/ast'
 import type { SchemaObject } from '@kubb/oas'
+import { Oas } from '@kubb/oas'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { buildMinimalOas } from './mocks/index.ts'
 import { createOasParser } from './parser.ts'
 
+const emptyOas = new Oas({ openapi: '3.0.0', info: { title: '', version: '' }, paths: {} } as any)
+
 describe('buildAst', () => {
   it('returns a RootNode', async () => {
     const oas = await buildMinimalOas()
-    const root = createOasParser().buildAst(oas)
+    const root = createOasParser(oas).buildAst()
 
     expect(root.kind).toBe('Root')
   })
@@ -27,7 +30,7 @@ describe('buildAst', () => {
   describe('schemas', () => {
     it('converts named component schemas', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const names = root.schemas.map((s) => s.name)
 
       expect(names).toContain('Pet')
@@ -37,7 +40,7 @@ describe('buildAst', () => {
 
     it('converts object schema with properties', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const pet = narrowSchema<ObjectSchemaNode>(
         root.schemas.find((s) => s.name === 'Pet'),
         'object',
@@ -49,7 +52,7 @@ describe('buildAst', () => {
 
     it('marks required properties', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const pet = narrowSchema<ObjectSchemaNode>(
         root.schemas.find((s) => s.name === 'Pet'),
         'object',
@@ -63,7 +66,7 @@ describe('buildAst', () => {
 
     it('converts array schema', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const list = narrowSchema<ArraySchemaNode>(
         root.schemas.find((s) => s.name === 'PetList'),
         'array',
@@ -76,7 +79,7 @@ describe('buildAst', () => {
 
     it('converts enum schema', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const status = narrowSchema<EnumSchemaNode>(
         root.schemas.find((s) => s.name === 'Status'),
         'enum',
@@ -88,7 +91,7 @@ describe('buildAst', () => {
 
     it('converts oneOf to union', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const petOrError = narrowSchema<UnionSchemaNode>(
         root.schemas.find((s) => s.name === 'PetOrError'),
         'union',
@@ -100,7 +103,7 @@ describe('buildAst', () => {
 
     it('converts allOf to intersection', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const fullPet = narrowSchema<IntersectionSchemaNode>(
         root.schemas.find((s) => s.name === 'FullPet'),
         'intersection',
@@ -112,7 +115,7 @@ describe('buildAst', () => {
 
     it('flattens single-member allOf and propagates nullable', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const nullableString = root.schemas.find((s) => s.name === 'NullableString')
 
       // Should be flattened to 'string' — not an intersection
@@ -124,7 +127,7 @@ describe('buildAst', () => {
 
     it('flattens single-member allOf for nullable $ref', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const nullableRef = narrowSchema<RefSchemaNode>(
         root.schemas.find((s) => s.name === 'NullableRef'),
         'ref',
@@ -138,7 +141,7 @@ describe('buildAst', () => {
 
     it('maps format date-time to datetime SchemaType', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const fullPet = narrowSchema<IntersectionSchemaNode>(
         root.schemas.find((s) => s.name === 'FullPet'),
         'intersection',
@@ -155,7 +158,7 @@ describe('buildAst', () => {
 
     it('maps format email to email SchemaType', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const fullPet = narrowSchema<IntersectionSchemaNode>(
         root.schemas.find((s) => s.name === 'FullPet'),
         'intersection',
@@ -173,14 +176,14 @@ describe('buildAst', () => {
   describe('operations', () => {
     it('converts all operations', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
 
       expect(root.operations).toHaveLength(3)
     })
 
     it('sets operationId, method, path, tags', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const listPets = root.operations.find((op) => op.operationId === 'listPets')
 
       expect(listPets?.method).toBe('GET')
@@ -191,7 +194,7 @@ describe('buildAst', () => {
 
     it('sets deprecated flag', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
 
       expect(createPet?.deprecated).toBe(true)
@@ -199,7 +202,7 @@ describe('buildAst', () => {
 
     it('uses uppercase HTTP method per RFC 9110', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       for (const op of root.operations) {
         expect(op.method).toBe(op.method.toUpperCase())
       }
@@ -207,7 +210,7 @@ describe('buildAst', () => {
 
     it('converts query parameters', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const listPets = root.operations.find((op) => op.operationId === 'listPets')
       const limit = listPets?.parameters.find((p) => p.name === 'limit')
 
@@ -218,7 +221,7 @@ describe('buildAst', () => {
 
     it('converts path parameters', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const getPet = root.operations.find((op) => op.operationId === 'getPetById')
       const petId = getPet?.parameters.find((p) => p.name === 'petId')
 
@@ -229,7 +232,7 @@ describe('buildAst', () => {
 
     it('converts requestBody', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
 
       expect(createPet?.requestBody).toBeDefined()
@@ -238,7 +241,7 @@ describe('buildAst', () => {
 
     it('converts responses with statusCode and schema', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const listPets = root.operations.find((op) => op.operationId === 'listPets')
       const ok = listPets?.responses.find((r) => r.statusCode === '200')
 
@@ -248,7 +251,7 @@ describe('buildAst', () => {
 
     it('converts responses without a body schema', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const getPet = root.operations.find((op) => op.operationId === 'getPetById')
       const notFound = getPet?.responses.find((r) => r.statusCode === '404')
 
@@ -258,7 +261,7 @@ describe('buildAst', () => {
 
     it('sets mediaType on responses', async () => {
       const oas = await buildMinimalOas()
-      const root = createOasParser().buildAst(oas)
+      const root = createOasParser(oas).buildAst()
       const listPets = root.operations.find((op) => op.operationId === 'listPets')
       const ok = listPets?.responses.find((r) => r.statusCode === '200')
 
@@ -268,153 +271,153 @@ describe('buildAst', () => {
 })
 
 describe('convertSchema return type narrowing', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('narrows to RefSchemaNode when $ref is present', () => {
-    const node = parser.convertSchema({ $ref: '#/components/schemas/Pet' })
+    const node = parser.convertSchema({ schema: { $ref: '#/components/schemas/Pet' } })
 
     expectTypeOf(node).toEqualTypeOf<RefSchemaNode>()
   })
 
   it('narrows to ObjectSchemaNode when type is object', () => {
-    const node = parser.convertSchema({ type: 'object' })
+    const node = parser.convertSchema({ schema: { type: 'object' } })
 
     expectTypeOf(node).toEqualTypeOf<ObjectSchemaNode>()
   })
 
   it('narrows to ArraySchemaNode when type is array', () => {
-    const node = parser.convertSchema({ type: 'array' })
+    const node = parser.convertSchema({ schema: { type: 'array' } })
 
     expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
   })
 
   it('narrows to EnumSchemaNode when enum is present', () => {
-    const node = parser.convertSchema({ enum: ['a', 'b'] })
+    const node = parser.convertSchema({ schema: { enum: ['a', 'b'] } })
 
     expectTypeOf(node).toEqualTypeOf<EnumSchemaNode>()
   })
 
   it('narrows to UnionSchemaNode when oneOf is present', () => {
-    const node = parser.convertSchema({ oneOf: [{ type: 'string' }, { type: 'number' }] })
+    const node = parser.convertSchema({ schema: { oneOf: [{ type: 'string' }, { type: 'number' }] } })
 
     expectTypeOf(node).toEqualTypeOf<UnionSchemaNode>()
   })
 
   it('narrows to UnionSchemaNode when anyOf is present', () => {
-    const node = parser.convertSchema({ anyOf: [{ type: 'string' }, { type: 'number' }] })
+    const node = parser.convertSchema({ schema: { anyOf: [{ type: 'string' }, { type: 'number' }] } })
 
     expectTypeOf(node).toEqualTypeOf<UnionSchemaNode>()
   })
 
   it('narrows to StringSchemaNode for string type', () => {
-    const node = parser.convertSchema({ type: 'string' })
+    const node = parser.convertSchema({ schema: { type: 'string' } })
 
     expectTypeOf(node).toEqualTypeOf<StringSchemaNode>()
   })
 
   it('narrows to NumberSchemaNode for number type', () => {
-    const node = parser.convertSchema({ type: 'number' })
+    const node = parser.convertSchema({ schema: { type: 'number' } })
 
     expectTypeOf(node).toEqualTypeOf<NumberSchemaNode>()
   })
 
   it('narrows to NumberSchemaNode for integer type', () => {
-    const node = parser.convertSchema({ type: 'integer' })
+    const node = parser.convertSchema({ schema: { type: 'integer' } })
 
     expectTypeOf(node).toEqualTypeOf<NumberSchemaNode>()
   })
 
   it('narrows to ScalarSchemaNode for boolean type', () => {
-    const node = parser.convertSchema({ type: 'boolean' })
+    const node = parser.convertSchema({ schema: { type: 'boolean' } })
 
     expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
   })
 
   it('narrows to ArraySchemaNode when items is present', () => {
-    const node = parser.convertSchema({ items: { type: 'string' } })
+    const node = parser.convertSchema({ schema: { items: { type: 'string' } } })
 
     expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
   })
 
   it('narrows to StringSchemaNode when minLength is present', () => {
-    const node = parser.convertSchema({ minLength: 1 })
+    const node = parser.convertSchema({ schema: { minLength: 1 } })
 
     expectTypeOf(node).toEqualTypeOf<StringSchemaNode>()
   })
 
   it('narrows to StringSchemaNode when maxLength is present', () => {
-    const node = parser.convertSchema({ maxLength: 100 })
+    const node = parser.convertSchema({ schema: { maxLength: 100 } })
 
     expectTypeOf(node).toEqualTypeOf<StringSchemaNode>()
   })
 
   it('narrows to StringSchemaNode when pattern is present', () => {
-    const node = parser.convertSchema({ pattern: '^[a-z]+$' })
+    const node = parser.convertSchema({ schema: { pattern: '^[a-z]+$' } })
 
     expectTypeOf(node).toEqualTypeOf<StringSchemaNode>()
   })
 
   it('narrows to NumberSchemaNode when minimum is present', () => {
-    const node = parser.convertSchema({ minimum: 0 })
+    const node = parser.convertSchema({ schema: { minimum: 0 } })
 
     expectTypeOf(node).toEqualTypeOf<NumberSchemaNode>()
   })
 
   it('narrows to NumberSchemaNode when maximum is present', () => {
-    const node = parser.convertSchema({ maximum: 100 })
+    const node = parser.convertSchema({ schema: { maximum: 100 } })
 
     expectTypeOf(node).toEqualTypeOf<NumberSchemaNode>()
   })
 
   it('resolves to datetime type when format is date-time', () => {
-    const node = parser.convertSchema({ format: 'date-time' })
+    const node = parser.convertSchema({ schema: { format: 'date-time' } })
 
     expect(node.type).toBe('datetime')
   })
 
   it('resolves to date type when format is date', () => {
-    const node = parser.convertSchema({ format: 'date' })
+    const node = parser.convertSchema({ schema: { format: 'date' } })
 
     expect(node.type).toBe('date')
   })
 
   it('resolves to time type when format is time', () => {
-    const node = parser.convertSchema({ format: 'time' })
+    const node = parser.convertSchema({ schema: { format: 'time' } })
 
     expect(node.type).toBe('time')
   })
 
   it('falls back to SchemaNode for an untyped empty schema', () => {
-    const node = parser.convertSchema({})
+    const node = parser.convertSchema({ schema: {} })
 
     expectTypeOf(node).toEqualTypeOf<SchemaNode>()
   })
 })
 
 describe('convertSchema uuid', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('maps format uuid to uuid', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'uuid' })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'uuid' } })
 
     expect(node.type).toBe('uuid')
   })
 
   it('maps format uuid without type to uuid (format overrides type)', () => {
-    const node = parser.convertSchema({ format: 'uuid' })
+    const node = parser.convertSchema({ schema: { format: 'uuid' } })
 
     expect(node.type).toBe('uuid')
   })
 
   it('preserves nullable on uuid', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'uuid', nullable: true })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'uuid', nullable: true } })
 
     expect(node.type).toBe('uuid')
     expect(node.nullable).toBe(true)
   })
 
   it('preserves description on uuid', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'uuid', description: 'A unique identifier' })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'uuid', description: 'A unique identifier' } })
 
     expect(node.type).toBe('uuid')
     expect(node.description).toBe('A unique identifier')
@@ -422,28 +425,28 @@ describe('convertSchema uuid', () => {
 })
 
 describe('convertSchema email', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('maps format email to email', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'email' })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'email' } })
 
     expect(node.type).toBe('email')
   })
 
   it('maps format idn-email to email', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'idn-email' })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'idn-email' } })
 
     expect(node.type).toBe('email')
   })
 
   it('maps format email without type to email (format overrides type)', () => {
-    const node = parser.convertSchema({ format: 'email' })
+    const node = parser.convertSchema({ schema: { format: 'email' } })
 
     expect(node.type).toBe('email')
   })
 
   it('preserves nullable on email', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'email', nullable: true })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'email', nullable: true } })
 
     expect(node.type).toBe('email')
     expect(node.nullable).toBe(true)
@@ -451,22 +454,22 @@ describe('convertSchema email', () => {
 })
 
 describe('convertSchema url', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it.each(['uri', 'uri-reference', 'url', 'ipv4', 'ipv6', 'hostname', 'idn-hostname'])('maps format %s to url', (format) => {
-    const node = parser.convertSchema({ type: 'string', format })
+    const node = parser.convertSchema({ schema: { type: 'string', format } })
 
     expect(node.type).toBe('url')
   })
 
   it('maps format uri without type to url (format overrides type)', () => {
-    const node = parser.convertSchema({ format: 'uri' })
+    const node = parser.convertSchema({ schema: { format: 'uri' } })
 
     expect(node.type).toBe('url')
   })
 
   it('preserves nullable on url', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'uri', nullable: true })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'uri', nullable: true } })
 
     expect(node.type).toBe('url')
     expect(node.nullable).toBe(true)
@@ -474,48 +477,48 @@ describe('convertSchema url', () => {
 })
 
 describe('convertSchema binary', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('maps string with format binary to blob', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'binary' })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'binary' } })
 
     expect(node.type).toBe('blob')
   })
 
   it('maps string with format byte to blob', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'byte' })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'byte' } })
 
     expect(node.type).toBe('blob')
   })
 
   it('maps format binary without type to blob (format overrides type)', () => {
-    const node = parser.convertSchema({ format: 'binary' })
+    const node = parser.convertSchema({ schema: { format: 'binary' } })
 
     expect(node.type).toBe('blob')
   })
 })
 
 describe('convertSchema contentMediaType (OAS 3.1)', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('maps string with contentMediaType application/octet-stream to blob', () => {
-    const node = parser.convertSchema({ type: 'string', contentMediaType: 'application/octet-stream' })
+    const node = parser.convertSchema({ schema: { type: 'string', contentMediaType: 'application/octet-stream' } })
 
     expect(node.type).toBe('blob')
   })
 
   it('leaves string with other contentMediaType as string', () => {
-    const node = parser.convertSchema({ type: 'string', contentMediaType: 'text/plain' })
+    const node = parser.convertSchema({ schema: { type: 'string', contentMediaType: 'text/plain' } })
 
     expect(node.type).toBe('string')
   })
 })
 
 describe('convertSchema allOf', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('flattens single-member allOf to the member type', () => {
-    const node = parser.convertSchema({ allOf: [{ type: 'string' }] } as const)
+    const node = parser.convertSchema({ schema: { allOf: [{ type: 'string' }] } as const })
 
     expectTypeOf(node).toEqualTypeOf<SchemaNode>()
     expect(node.type).toBe('string')
@@ -523,11 +526,13 @@ describe('convertSchema allOf', () => {
 
   it('merges outer metadata onto a flattened single-member allOf', () => {
     const node = parser.convertSchema({
-      allOf: [{ type: 'string' }],
-      description: 'wrapped',
-      deprecated: true,
-      nullable: true,
-    } as const)
+      schema: {
+        allOf: [{ type: 'string' }],
+        description: 'wrapped',
+        deprecated: true,
+        nullable: true,
+      } as const,
+    })
 
     expectTypeOf(node).toEqualTypeOf<SchemaNode>()
     expect(node.type).toBe('string')
@@ -537,7 +542,7 @@ describe('convertSchema allOf', () => {
   })
 
   it('flattens single-member allOf $ref and preserves nullable', () => {
-    const node = parser.convertSchema({ allOf: [{ $ref: '#/components/schemas/Pet' }], nullable: true } as const)
+    const node = parser.convertSchema({ schema: { allOf: [{ $ref: '#/components/schemas/Pet' }], nullable: true } as const })
 
     expectTypeOf(node).toEqualTypeOf<SchemaNode>()
     expect(node.type).toBe('ref')
@@ -546,8 +551,10 @@ describe('convertSchema allOf', () => {
 
   it('produces an intersection for multiple allOf members', () => {
     const node = parser.convertSchema({
-      allOf: [{ $ref: '#/components/schemas/Pet' }, { type: 'object', properties: { tag: { type: 'string' } } }],
-    } as const)
+      schema: {
+        allOf: [{ $ref: '#/components/schemas/Pet' }, { type: 'object', properties: { tag: { type: 'string' } } }],
+      } as const,
+    })
 
     expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     expect(node.type).toBe('intersection')
@@ -556,9 +563,11 @@ describe('convertSchema allOf', () => {
 
   it('appends sibling properties as an extra intersection member', () => {
     const node = parser.convertSchema({
-      allOf: [{ $ref: '#/components/schemas/Pet' }],
-      properties: { extra: { type: 'string' } },
-    } as const)
+      schema: {
+        allOf: [{ $ref: '#/components/schemas/Pet' }],
+        properties: { extra: { type: 'string' } },
+      } as const,
+    })
 
     expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     // first member: the $ref, last member: the sibling properties object
@@ -568,12 +577,14 @@ describe('convertSchema allOf', () => {
 
   it('resolves required keys missing from outer properties by looking into allOf members', () => {
     const node = parser.convertSchema({
-      required: ['id'],
-      allOf: [
-        { type: 'object', properties: { id: { type: 'integer' } } },
-        { type: 'object', properties: { name: { type: 'string' } } },
-      ],
-    } as const)
+      schema: {
+        required: ['id'],
+        allOf: [
+          { type: 'object', properties: { id: { type: 'integer' } } },
+          { type: 'object', properties: { name: { type: 'string' } } },
+        ],
+      } as const,
+    })
 
     expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     // 2 allOf members + 1 injected member for the missing required key
@@ -585,10 +596,12 @@ describe('convertSchema allOf', () => {
 
   it('does not inject required keys that are already in outer properties', () => {
     const node = parser.convertSchema({
-      required: ['id'],
-      properties: { id: { type: 'integer' } },
-      allOf: [{ type: 'object', properties: { id: { type: 'integer' } } }],
-    } as const)
+      schema: {
+        required: ['id'],
+        properties: { id: { type: 'integer' } },
+        allOf: [{ type: 'object', properties: { id: { type: 'integer' } } }],
+      } as const,
+    })
 
     expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     // only the allOf member + the sibling properties object; no extra injection
@@ -598,9 +611,11 @@ describe('convertSchema allOf', () => {
 
   it('propagates nullable onto the intersection node', () => {
     const node = parser.convertSchema({
-      allOf: [{ type: 'string' }, { type: 'number' }],
-      nullable: true,
-    } as const)
+      schema: {
+        allOf: [{ type: 'string' }, { type: 'number' }],
+        nullable: true,
+      } as const,
+    })
 
     expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     expect(node.nullable).toBe(true)
@@ -608,10 +623,12 @@ describe('convertSchema allOf', () => {
 
   it('propagates metadata onto the intersection node', () => {
     const node = parser.convertSchema({
-      allOf: [{ type: 'string' }, { type: 'number' }],
-      description: 'combined',
-      deprecated: true,
-    } as const)
+      schema: {
+        allOf: [{ type: 'string' }, { type: 'number' }],
+        description: 'combined',
+        deprecated: true,
+      } as const,
+    })
 
     expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     expect(node.description).toBe('combined')
@@ -620,24 +637,26 @@ describe('convertSchema allOf', () => {
 })
 
 describe('convertSchema oneOf / anyOf', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('maps oneOf to a union node', () => {
-    const node = parser.convertSchema({ oneOf: [{ type: 'string' }, { type: 'number' }] })
+    const node = parser.convertSchema({ schema: { oneOf: [{ type: 'string' }, { type: 'number' }] } })
 
     expect(node.type).toBe('union')
   })
 
   it('maps anyOf to a union node', () => {
-    const node = parser.convertSchema({ anyOf: [{ type: 'string' }, { type: 'number' }] })
+    const node = parser.convertSchema({ schema: { anyOf: [{ type: 'string' }, { type: 'number' }] } })
 
     expect(node.type).toBe('union')
   })
 
   it('combines oneOf and anyOf members into a single union', () => {
     const node = parser.convertSchema({
-      oneOf: [{ type: 'string' }],
-      anyOf: [{ type: 'number' }, { type: 'boolean' }],
+      schema: {
+        oneOf: [{ type: 'string' }],
+        anyOf: [{ type: 'number' }, { type: 'boolean' }],
+      },
     })
 
     expect(node.type).toBe('union')
@@ -646,7 +665,9 @@ describe('convertSchema oneOf / anyOf', () => {
 
   it('converts each oneOf member schema', () => {
     const node = parser.convertSchema({
-      oneOf: [{ type: 'string' }, { $ref: '#/components/schemas/Pet' }],
+      schema: {
+        oneOf: [{ type: 'string' }, { $ref: '#/components/schemas/Pet' }],
+      },
     })
 
     const members = node.members ?? []
@@ -655,16 +676,18 @@ describe('convertSchema oneOf / anyOf', () => {
   })
 
   it('propagates nullable onto the union node', () => {
-    const node = parser.convertSchema({ oneOf: [{ type: 'string' }], nullable: true })
+    const node = parser.convertSchema({ schema: { oneOf: [{ type: 'string' }], nullable: true } })
 
     expect(node.nullable).toBe(true)
   })
 
   it('propagates metadata onto the union node', () => {
     const node = parser.convertSchema({
-      oneOf: [{ type: 'string' }],
-      description: 'one of many',
-      deprecated: true,
+      schema: {
+        oneOf: [{ type: 'string' }],
+        description: 'one of many',
+        deprecated: true,
+      },
     })
 
     expect(node.description).toBe('one of many')
@@ -673,23 +696,27 @@ describe('convertSchema oneOf / anyOf', () => {
 
   it('sets discriminatorPropertyName when discriminator is present', () => {
     const node = parser.convertSchema({
-      oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
-      discriminator: { propertyName: 'petType' },
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+        discriminator: { propertyName: 'petType' },
+      },
     })
 
     expect(node.discriminatorPropertyName).toBe('petType')
   })
 
   it('does not set discriminatorPropertyName when discriminator is absent', () => {
-    const node = parser.convertSchema({ oneOf: [{ type: 'string' }] })
+    const node = parser.convertSchema({ schema: { oneOf: [{ type: 'string' }] } })
 
     expect(node.discriminatorPropertyName).toBeUndefined()
   })
 
   it('intersects each member with sibling properties when properties are present', () => {
     const node = parser.convertSchema({
-      oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
-      properties: { id: { type: 'integer' } },
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+        properties: { id: { type: 'integer' } },
+      },
     })
 
     expect(node.type).toBe('union')
@@ -699,8 +726,10 @@ describe('convertSchema oneOf / anyOf', () => {
 
   it('each intersection member contains the oneOf ref and the properties node', () => {
     const node = parser.convertSchema({
-      oneOf: [{ $ref: '#/components/schemas/Cat' }],
-      properties: { id: { type: 'integer' } },
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/Cat' }],
+        properties: { id: { type: 'integer' } },
+      },
     })
 
     const intersection = narrowSchema<IntersectionSchemaNode>(node.members?.[0], 'intersection')
@@ -711,195 +740,197 @@ describe('convertSchema oneOf / anyOf', () => {
 })
 
 describe('convertSchema const (OAS 3.1)', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('maps const string to a single-value enum', () => {
-    const node = parser.convertSchema({ const: 'active' })
+    const node = parser.convertSchema({ schema: { const: 'active' } })
 
     expect(node.type).toBe('enum')
     expect(node.enumValues).toEqual(['active'])
   })
 
   it('maps const number to a single-value enum', () => {
-    const node = parser.convertSchema({ const: 42 })
+    const node = parser.convertSchema({ schema: { const: 42 } })
 
     expect(node.type).toBe('enum')
     expect(node.enumValues).toEqual([42])
   })
 
   it('maps const boolean to a single-value enum', () => {
-    const node = parser.convertSchema({ const: true })
+    const node = parser.convertSchema({ schema: { const: true } })
 
     expect(node.type).toBe('enum')
     expect(node.enumValues).toEqual([true])
   })
 
   it('maps const: null to a null scalar', () => {
-    const node = parser.convertSchema({ const: null })
+    const node = parser.convertSchema({ schema: { const: null } })
 
     expect(node.type).toBe('null')
   })
 
   it('propagates name on const enum', () => {
-    const node = parser.convertSchema({ const: 'active' }, 'Status')
+    const node = parser.convertSchema({ schema: { const: 'active' }, name: 'Status' })
 
     expect(node.name).toBe('Status')
   })
 })
 
 describe('convertSchema readOnly / writeOnly', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('sets readOnly: true when marked', () => {
-    const node = parser.convertSchema({ type: 'string', readOnly: true })
+    const node = parser.convertSchema({ schema: { type: 'string', readOnly: true } })
 
     expect(node.readOnly).toBe(true)
   })
 
   it('sets writeOnly: true when marked', () => {
-    const node = parser.convertSchema({ type: 'string', writeOnly: true })
+    const node = parser.convertSchema({ schema: { type: 'string', writeOnly: true } })
 
     expect(node.writeOnly).toBe(true)
   })
 
   it('leaves readOnly / writeOnly undefined when not set', () => {
-    const node = parser.convertSchema({ type: 'string' })
+    const node = parser.convertSchema({ schema: { type: 'string' } })
 
     expect(node.readOnly).toBeUndefined()
     expect(node.writeOnly).toBeUndefined()
   })
 
   it('propagates readOnly on object schema', () => {
-    const node = parser.convertSchema({ type: 'object', readOnly: true })
+    const node = parser.convertSchema({ schema: { type: 'object', readOnly: true } })
 
     expect(node.readOnly).toBe(true)
   })
 
   it('propagates writeOnly on array schema', () => {
-    const node = parser.convertSchema({ type: 'array', writeOnly: true })
+    const node = parser.convertSchema({ schema: { type: 'array', writeOnly: true } })
 
     expect(node.writeOnly).toBe(true)
   })
 
   it('propagates readOnly on enum schema', () => {
-    const node = parser.convertSchema({ enum: ['a', 'b'], readOnly: true })
+    const node = parser.convertSchema({ schema: { enum: ['a', 'b'], readOnly: true } })
 
     expect(node.readOnly).toBe(true)
   })
 
   it('propagates readOnly on ref schema siblings', () => {
-    const node = parser.convertSchema({ $ref: '#/components/schemas/Pet', readOnly: true })
+    const node = parser.convertSchema({ schema: { $ref: '#/components/schemas/Pet', readOnly: true } })
 
     expect(node.readOnly).toBe(true)
   })
 
   it('propagates pattern on ref sibling when type is string', () => {
-    const node = parser.convertSchema({ $ref: '#/components/schemas/Pet', type: 'string', pattern: '^[a-z]+$' })
+    const node = parser.convertSchema({ schema: { $ref: '#/components/schemas/Pet', type: 'string', pattern: '^[a-z]+$' } })
 
     expect(node.pattern).toBe('^[a-z]+$')
   })
 
   it('drops pattern on ref sibling when type is not string', () => {
-    const node = parser.convertSchema({ $ref: '#/components/schemas/Pet', pattern: '^[a-z]+$' })
+    const node = parser.convertSchema({ schema: { $ref: '#/components/schemas/Pet', pattern: '^[a-z]+$' } })
 
     expect(node.pattern).toBeUndefined()
   })
 })
 
 describe('convertSchema deprecated', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('sets deprecated: true when marked', () => {
-    const node = parser.convertSchema({ type: 'string', deprecated: true })
+    const node = parser.convertSchema({ schema: { type: 'string', deprecated: true } })
 
     expect(node.deprecated).toBe(true)
   })
 
   it('leaves deprecated undefined when not set', () => {
-    const node = parser.convertSchema({ type: 'string' })
+    const node = parser.convertSchema({ schema: { type: 'string' } })
 
     expect(node.deprecated).toBeUndefined()
   })
 
   it('propagates deprecated on object schema', () => {
-    const node = parser.convertSchema({ type: 'object', deprecated: true })
+    const node = parser.convertSchema({ schema: { type: 'object', deprecated: true } })
 
     expect(node.deprecated).toBe(true)
   })
 
   it('propagates deprecated on array schema', () => {
-    const node = parser.convertSchema({ type: 'array', deprecated: true })
+    const node = parser.convertSchema({ schema: { type: 'array', deprecated: true } })
 
     expect(node.deprecated).toBe(true)
   })
 
   it('propagates deprecated on enum schema', () => {
-    const node = parser.convertSchema({ enum: ['a', 'b'], deprecated: true })
+    const node = parser.convertSchema({ schema: { enum: ['a', 'b'], deprecated: true } })
 
     expect(node.deprecated).toBe(true)
   })
 
   it('propagates deprecated on ref schema siblings', () => {
-    const node = parser.convertSchema({ $ref: '#/components/schemas/Pet', deprecated: true })
+    const node = parser.convertSchema({ schema: { $ref: '#/components/schemas/Pet', deprecated: true } })
 
     expect(node.deprecated).toBe(true)
   })
 })
 
 describe('convertSchema default', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('passes through a normal default value', () => {
-    const node = parser.convertSchema({ type: 'string', default: 'hello' })
+    const node = parser.convertSchema({ schema: { type: 'string', default: 'hello' } })
 
     expect(node.default).toBe('hello')
   })
 
   it('passes through a falsy-but-non-null default (0)', () => {
-    const node = parser.convertSchema({ type: 'number', default: 0 })
+    const node = parser.convertSchema({ schema: { type: 'number', default: 0 } })
 
     expect(node.default).toBe(0)
   })
 
   it('passes through a falsy-but-non-null default (false)', () => {
-    const node = parser.convertSchema({ type: 'boolean', default: false })
+    const node = parser.convertSchema({ schema: { type: 'boolean', default: false } })
 
     expect(node.default).toBe(false)
   })
 
   it('drops default: null when schema is nullable (defaultNullAndNullable)', () => {
-    const node = parser.convertSchema({ type: 'string', nullable: true, default: null })
+    const node = parser.convertSchema({ schema: { type: 'string', nullable: true, default: null } })
 
     expect(node.default).toBeUndefined()
   })
 
   it('keeps default: null when schema is not nullable', () => {
-    const node = parser.convertSchema({ type: 'string', default: null })
+    const node = parser.convertSchema({ schema: { type: 'string', default: null } })
 
     expect(node.default).toBeNull()
   })
 
   it('drops default: null for nullable enum', () => {
-    const node = parser.convertSchema({ enum: ['a', 'b'], nullable: true, default: null })
+    const node = parser.convertSchema({ schema: { enum: ['a', 'b'], nullable: true, default: null } })
 
     expect(node.default).toBeUndefined()
   })
 
   it('drops default: null for nullable ref sibling', () => {
-    const node = parser.convertSchema({ $ref: '#/components/schemas/Pet', nullable: true, default: null })
+    const node = parser.convertSchema({ schema: { $ref: '#/components/schemas/Pet', nullable: true, default: null } })
 
     expect(node.default).toBeUndefined()
   })
 })
 
 describe('convertSchema object properties', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('required + not nullable → required: true, optional/nullish undefined', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      required: ['id'],
-      properties: { id: { type: 'integer' } },
+      schema: {
+        type: 'object',
+        required: ['id'],
+        properties: { id: { type: 'integer' } },
+      },
     })
     const prop = node.properties?.find((p) => p.name === 'id')
 
@@ -911,8 +942,10 @@ describe('convertSchema object properties', () => {
 
   it('not required + not nullable → optional: true', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      properties: { tag: { type: 'string' } },
+      schema: {
+        type: 'object',
+        properties: { tag: { type: 'string' } },
+      },
     })
     const prop = node.properties?.find((p) => p.name === 'tag')
 
@@ -924,8 +957,10 @@ describe('convertSchema object properties', () => {
 
   it('not required + nullable → nullish: true', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      properties: { tag: { type: 'string', nullable: true } },
+      schema: {
+        type: 'object',
+        properties: { tag: { type: 'string', nullable: true } },
+      },
     })
     const prop = node.properties?.find((p) => p.name === 'tag')
 
@@ -937,9 +972,11 @@ describe('convertSchema object properties', () => {
 
   it('required + nullable → nullable: true, optional/nullish undefined', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      required: ['tag'],
-      properties: { tag: { type: 'string', nullable: true } },
+      schema: {
+        type: 'object',
+        required: ['tag'],
+        properties: { tag: { type: 'string', nullable: true } },
+      },
     })
     const prop = node.properties?.find((p) => p.name === 'tag')
 
@@ -951,9 +988,11 @@ describe('convertSchema object properties', () => {
 
   it('treats required: true (OAS 2.0 scalar) as all properties required', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      required: true as unknown as string[],
-      properties: { id: { type: 'integer' }, tag: { type: 'string' } },
+      schema: {
+        type: 'object',
+        required: true as unknown as string[],
+        properties: { id: { type: 'integer' }, tag: { type: 'string' } },
+      },
     })
 
     const id = node.properties?.find((p) => p.name === 'id')
@@ -967,10 +1006,10 @@ describe('convertSchema object properties', () => {
 })
 
 describe('convertSchema object additionalProperties', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('additionalProperties: true → additionalProperties is true', () => {
-    const node = parser.convertSchema({ type: 'object', additionalProperties: true })
+    const node = parser.convertSchema({ schema: { type: 'object', additionalProperties: true } })
 
     expect(node.type).toBe('object')
     expect(node.additionalProperties).toBe(true)
@@ -978,8 +1017,10 @@ describe('convertSchema object additionalProperties', () => {
 
   it('additionalProperties with a schema → additionalProperties is a SchemaNode', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      additionalProperties: { type: 'string' },
+      schema: {
+        type: 'object',
+        additionalProperties: { type: 'string' },
+      },
     })
 
     expect(node.type).toBe('object')
@@ -988,8 +1029,10 @@ describe('convertSchema object additionalProperties', () => {
 
   it('additionalProperties with an integer schema → additionalProperties is a NumberSchemaNode', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      additionalProperties: { type: 'integer' },
+      schema: {
+        type: 'object',
+        additionalProperties: { type: 'integer' },
+      },
     })
 
     expect(node.additionalProperties).toMatchObject({ type: 'integer' })
@@ -997,21 +1040,23 @@ describe('convertSchema object additionalProperties', () => {
 
   it('additionalProperties: false → additionalProperties is undefined', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      additionalProperties: false,
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+      },
     })
 
     expect(node.additionalProperties).toBeUndefined()
   })
 
   it('no additionalProperties → additionalProperties is undefined', () => {
-    const node = parser.convertSchema({ type: 'object', properties: { id: { type: 'integer' } } })
+    const node = parser.convertSchema({ schema: { type: 'object', properties: { id: { type: 'integer' } } } })
 
     expect(node.additionalProperties).toBeUndefined()
   })
 
   it('additionalProperties: true triggers object even without type or properties', () => {
-    const node = parser.convertSchema({ additionalProperties: true })
+    const node = parser.convertSchema({ schema: { additionalProperties: true } })
 
     expect(node.type).toBe('object')
     expect(node.additionalProperties).toBe(true)
@@ -1019,8 +1064,10 @@ describe('convertSchema object additionalProperties', () => {
 
   it('additionalProperties with an empty schema → uses unknownType', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      additionalProperties: {},
+      schema: {
+        type: 'object',
+        additionalProperties: {},
+      },
     })
 
     expect(node.type).toBe('object')
@@ -1028,21 +1075,28 @@ describe('convertSchema object additionalProperties', () => {
   })
 
   it('respects unknownType option for empty additionalProperties', () => {
-    const customParser = createOasParser({ unknownType: 'any' })
-    const node = customParser.convertSchema({
-      type: 'object',
-      additionalProperties: {},
-    })
+    const customParser = createOasParser(emptyOas)
+    const node = customParser.convertSchema(
+      {
+        schema: {
+          type: 'object',
+          additionalProperties: {},
+        },
+      },
+      { unknownType: 'any' },
+    )
 
     expect(node.additionalProperties).toMatchObject({ type: 'any' })
   })
 
   it('properties and additionalProperties coexist', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      required: ['id'],
-      properties: { id: { type: 'integer' } },
-      additionalProperties: { type: 'string' },
+      schema: {
+        type: 'object',
+        required: ['id'],
+        properties: { id: { type: 'integer' } },
+        additionalProperties: { type: 'string' },
+      },
     })
 
     expect(node.properties).toHaveLength(1)
@@ -1052,14 +1106,16 @@ describe('convertSchema object additionalProperties', () => {
 })
 
 describe('convertSchema object patternProperties', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('maps patternProperties patterns to converted SchemaNodes', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      patternProperties: {
-        '^S_': { type: 'string' },
-        '^I_': { type: 'integer' },
+      schema: {
+        type: 'object',
+        patternProperties: {
+          '^S_': { type: 'string' },
+          '^I_': { type: 'integer' },
+        },
       },
     })
 
@@ -1073,8 +1129,10 @@ describe('convertSchema object patternProperties', () => {
 
   it('empty pattern schema falls back to unknownType', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      patternProperties: { '^x-': {} },
+      schema: {
+        type: 'object',
+        patternProperties: { '^x-': {} },
+      },
     })
 
     expect(node.patternProperties?.['^x-']).toMatchObject({ type: 'any' })
@@ -1082,8 +1140,10 @@ describe('convertSchema object patternProperties', () => {
 
   it('pattern schema true falls back to unknownType', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      patternProperties: { '^x-': true as unknown as SchemaObject },
+      schema: {
+        type: 'object',
+        patternProperties: { '^x-': true as unknown as SchemaObject },
+      },
     })
 
     expect(node.patternProperties?.['^x-']).toMatchObject({ type: 'any' })
@@ -1091,7 +1151,9 @@ describe('convertSchema object patternProperties', () => {
 
   it('patternProperties triggers object even without type or properties', () => {
     const node = parser.convertSchema({
-      patternProperties: { '^x-': { type: 'string' } },
+      schema: {
+        patternProperties: { '^x-': { type: 'string' } },
+      },
     })
 
     expect(node.type).toBe('object')
@@ -1099,9 +1161,11 @@ describe('convertSchema object patternProperties', () => {
 
   it('properties and patternProperties coexist', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      properties: { id: { type: 'integer' } },
-      patternProperties: { '^meta_': { type: 'string' } },
+      schema: {
+        type: 'object',
+        properties: { id: { type: 'integer' } },
+        patternProperties: { '^meta_': { type: 'string' } },
+      },
     })
 
     expect(node.properties).toHaveLength(1)
@@ -1110,19 +1174,21 @@ describe('convertSchema object patternProperties', () => {
 })
 
 describe('convertSchema object discriminator', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('overrides discriminator property with enum of mapping keys', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      required: ['petType'],
-      properties: {
-        petType: { type: 'string' },
-        name: { type: 'string' },
-      },
-      discriminator: {
-        propertyName: 'petType',
-        mapping: { Cat: '#/components/schemas/Cat', Dog: '#/components/schemas/Dog' },
+      schema: {
+        type: 'object',
+        required: ['petType'],
+        properties: {
+          petType: { type: 'string' },
+          name: { type: 'string' },
+        },
+        discriminator: {
+          propertyName: 'petType',
+          mapping: { Cat: '#/components/schemas/Cat', Dog: '#/components/schemas/Dog' },
+        },
       },
     })
 
@@ -1134,15 +1200,17 @@ describe('convertSchema object discriminator', () => {
 
   it('leaves other properties unchanged when discriminator is present', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      required: ['petType'],
-      properties: {
-        petType: { type: 'string' },
-        name: { type: 'string' },
-      },
-      discriminator: {
-        propertyName: 'petType',
-        mapping: { Cat: '#/components/schemas/Cat' },
+      schema: {
+        type: 'object',
+        required: ['petType'],
+        properties: {
+          petType: { type: 'string' },
+          name: { type: 'string' },
+        },
+        discriminator: {
+          propertyName: 'petType',
+          mapping: { Cat: '#/components/schemas/Cat' },
+        },
       },
     })
 
@@ -1152,10 +1220,12 @@ describe('convertSchema object discriminator', () => {
 
   it('discriminator without mapping produces no enum', () => {
     const node = parser.convertSchema({
-      type: 'object',
-      required: ['type'],
-      properties: { type: { type: 'string' } },
-      discriminator: { propertyName: 'type' },
+      schema: {
+        type: 'object',
+        required: ['type'],
+        properties: { type: { type: 'string' } },
+        discriminator: { propertyName: 'type' },
+      },
     })
 
     const typeProp = node.properties?.find((p) => p.name === 'type')
@@ -1164,23 +1234,25 @@ describe('convertSchema object discriminator', () => {
 })
 
 describe('convertSchema prefixItems (tuple)', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('narrows to ArraySchemaNode when prefixItems is present', () => {
-    const node = parser.convertSchema({ prefixItems: [{ type: 'string' }] })
+    const node = parser.convertSchema({ schema: { prefixItems: [{ type: 'string' }] } })
 
     expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
   })
 
   it('maps type to tuple', () => {
-    const node = parser.convertSchema({ prefixItems: [{ type: 'string' }] })
+    const node = parser.convertSchema({ schema: { prefixItems: [{ type: 'string' }] } })
 
     expect(node.type).toBe('tuple')
   })
 
   it('maps each prefixItem to an items entry in order', () => {
     const node = parser.convertSchema({
-      prefixItems: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
+      schema: {
+        prefixItems: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
+      },
     })
 
     expect(node.items).toHaveLength(3)
@@ -1191,22 +1263,26 @@ describe('convertSchema prefixItems (tuple)', () => {
 
   it('maps items (alongside prefixItems) to rest', () => {
     const node = parser.convertSchema({
-      prefixItems: [{ type: 'string' }],
-      items: { type: 'number' },
+      schema: {
+        prefixItems: [{ type: 'string' }],
+        items: { type: 'number' },
+      },
     })
 
     expect(node.rest?.type).toBe('number')
   })
 
   it('sets rest to undefined when items is absent', () => {
-    const node = parser.convertSchema({ prefixItems: [{ type: 'string' }] })
+    const node = parser.convertSchema({ schema: { prefixItems: [{ type: 'string' }] } })
 
     expect(node.rest).toBeUndefined()
   })
 
   it('converts a $ref prefixItem to a ref node', () => {
     const node = parser.convertSchema({
-      prefixItems: [{ $ref: '#/components/schemas/Pet' }],
+      schema: {
+        prefixItems: [{ $ref: '#/components/schemas/Pet' }],
+      },
     })
 
     expect(node.items?.[0]?.type).toBe('ref')
@@ -1214,7 +1290,9 @@ describe('convertSchema prefixItems (tuple)', () => {
 
   it('converts a nested object prefixItem', () => {
     const node = parser.convertSchema({
-      prefixItems: [{ type: 'object', properties: { id: { type: 'integer' } } }],
+      schema: {
+        prefixItems: [{ type: 'object', properties: { id: { type: 'integer' } } }],
+      },
     })
 
     expect(node.items?.[0]?.type).toBe('object')
@@ -1222,217 +1300,219 @@ describe('convertSchema prefixItems (tuple)', () => {
 
   it('converts a $ref rest schema', () => {
     const node = parser.convertSchema({
-      prefixItems: [{ type: 'string' }],
-      items: { $ref: '#/components/schemas/Extra' },
+      schema: {
+        prefixItems: [{ type: 'string' }],
+        items: { $ref: '#/components/schemas/Extra' },
+      },
     })
 
     expect(node.rest?.type).toBe('ref')
   })
 
   it('maps minItems to min', () => {
-    const node = parser.convertSchema({ prefixItems: [{ type: 'string' }], minItems: 1 })
+    const node = parser.convertSchema({ schema: { prefixItems: [{ type: 'string' }], minItems: 1 } })
 
     expect(node.min).toBe(1)
   })
 
   it('maps maxItems to max', () => {
-    const node = parser.convertSchema({ prefixItems: [{ type: 'string' }], maxItems: 4 })
+    const node = parser.convertSchema({ schema: { prefixItems: [{ type: 'string' }], maxItems: 4 } })
 
     expect(node.max).toBe(4)
   })
 
   it('leaves min and max undefined when minItems and maxItems are absent', () => {
-    const node = parser.convertSchema({ prefixItems: [{ type: 'string' }] })
+    const node = parser.convertSchema({ schema: { prefixItems: [{ type: 'string' }] } })
 
     expect(node.min).toBeUndefined()
     expect(node.max).toBeUndefined()
   })
 
   it('produces an empty items array for an empty prefixItems', () => {
-    const node = parser.convertSchema({ prefixItems: [] })
+    const node = parser.convertSchema({ schema: { prefixItems: [] } })
 
     expect(node.items).toHaveLength(0)
   })
 
   it('takes precedence over type: array — always resolves to tuple', () => {
-    const node = parser.convertSchema({ type: 'array', prefixItems: [{ type: 'string' }] })
+    const node = parser.convertSchema({ schema: { type: 'array', prefixItems: [{ type: 'string' }] } })
 
     expect(node.type).toBe('tuple')
   })
 })
 
 describe('convertSchema nullable', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('sets nullable via nullable: true (OAS 3.0)', () => {
-    const node = parser.convertSchema({ type: 'string', nullable: true })
+    const node = parser.convertSchema({ schema: { type: 'string', nullable: true } })
 
     expect(node.nullable).toBe(true)
   })
 
   it('sets nullable via x-nullable: true', () => {
-    const node = parser.convertSchema({ type: 'string', 'x-nullable': true })
+    const node = parser.convertSchema({ schema: { type: 'string', 'x-nullable': true } })
 
     expect(node.nullable).toBe(true)
   })
 
   it('sets nullable via type array including null (OAS 3.1)', () => {
-    const node = parser.convertSchema({ type: ['string', 'null'] })
+    const node = parser.convertSchema({ schema: { type: ['string', 'null'] } })
 
     expect(node.nullable).toBe(true)
   })
 
   it('sets nullable via null in enum values (OAS 3.0 convention)', () => {
-    const node = parser.convertSchema({ enum: ['a', 'b', null] })
+    const node = parser.convertSchema({ schema: { enum: ['a', 'b', null] } })
 
     expect(node.nullable).toBe(true)
   })
 
   it('strips null from enum values when nullable via null in enum', () => {
-    const node = parser.convertSchema({ enum: ['a', 'b', null] })
+    const node = parser.convertSchema({ schema: { enum: ['a', 'b', null] } })
 
     expect(node.enumValues).toEqual(['a', 'b'])
   })
 
   it('does not set nullable when not specified', () => {
-    const node = parser.convertSchema({ type: 'string' })
+    const node = parser.convertSchema({ schema: { type: 'string' } })
 
     expect(node.nullable).toBeUndefined()
   })
 
   it('propagates nullable from object schema', () => {
-    const node = parser.convertSchema({ type: 'object', nullable: true })
+    const node = parser.convertSchema({ schema: { type: 'object', nullable: true } })
 
     expect(node.nullable).toBe(true)
   })
 
   it('propagates nullable from array schema', () => {
-    const node = parser.convertSchema({ type: 'array', nullable: true })
+    const node = parser.convertSchema({ schema: { type: 'array', nullable: true } })
 
     expect(node.nullable).toBe(true)
   })
 
   it('propagates nullable from ref schema siblings', () => {
-    const node = parser.convertSchema({ $ref: '#/components/schemas/Pet', nullable: true })
+    const node = parser.convertSchema({ schema: { $ref: '#/components/schemas/Pet', nullable: true } })
 
     expect(node.nullable).toBe(true)
   })
 })
 
 describe('convertSchema string', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('maps type string to string node', () => {
-    const node = parser.convertSchema({ type: 'string' })
+    const node = parser.convertSchema({ schema: { type: 'string' } })
 
     expect(node.type).toBe('string')
   })
 
   it('preserves nullable on string', () => {
-    const node = parser.convertSchema({ type: 'string', nullable: true })
+    const node = parser.convertSchema({ schema: { type: 'string', nullable: true } })
 
     expect(node.type).toBe('string')
     expect(node.nullable).toBe(true)
   })
 
   it('maps minLength to min', () => {
-    const node = parser.convertSchema({ type: 'string', minLength: 1 })
+    const node = parser.convertSchema({ schema: { type: 'string', minLength: 1 } })
 
     expect(node.min).toBe(1)
   })
 
   it('maps maxLength to max', () => {
-    const node = parser.convertSchema({ type: 'string', maxLength: 100 })
+    const node = parser.convertSchema({ schema: { type: 'string', maxLength: 100 } })
 
     expect(node.max).toBe(100)
   })
 })
 
 describe('convertSchema boolean', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('maps type boolean to boolean node', () => {
-    const node = parser.convertSchema({ type: 'boolean' })
+    const node = parser.convertSchema({ schema: { type: 'boolean' } })
 
     expect(node.type).toBe('boolean')
   })
 
   it('preserves nullable on boolean', () => {
-    const node = parser.convertSchema({ type: 'boolean', nullable: true })
+    const node = parser.convertSchema({ schema: { type: 'boolean', nullable: true } })
 
     expect(node.type).toBe('boolean')
     expect(node.nullable).toBe(true)
   })
 
   it('passes through default value', () => {
-    const node = parser.convertSchema({ type: 'boolean', default: false })
+    const node = parser.convertSchema({ schema: { type: 'boolean', default: false } })
 
     expect(node.default).toBe(false)
   })
 })
 
 describe('convertSchema enum', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('narrows to EnumSchemaNode when enum is present', () => {
-    const node = parser.convertSchema({ enum: ['a', 'b'] })
+    const node = parser.convertSchema({ schema: { enum: ['a', 'b'] } })
 
     expectTypeOf(node).toEqualTypeOf<EnumSchemaNode>()
   })
 
   it('maps type to enum', () => {
-    const node = parser.convertSchema({ enum: ['a', 'b'] })
+    const node = parser.convertSchema({ schema: { enum: ['a', 'b'] } })
 
     expect(node.type).toBe('enum')
   })
 
   it('stores string values in enumValues', () => {
-    const node = parser.convertSchema({ enum: ['foo', 'bar', 'baz'] })
+    const node = parser.convertSchema({ schema: { enum: ['foo', 'bar', 'baz'] } })
 
     expect(node.enumValues).toEqual(['foo', 'bar', 'baz'])
   })
 
   it('deduplicates enum values', () => {
-    const node = parser.convertSchema({ enum: ['a', 'a', 'b'] })
+    const node = parser.convertSchema({ schema: { enum: ['a', 'a', 'b'] } })
 
     expect(node.enumValues).toEqual(['a', 'b'])
   })
 
   it('strips null from enumValues and sets nullable', () => {
-    const node = parser.convertSchema({ enum: ['a', null, 'b'] })
+    const node = parser.convertSchema({ schema: { enum: ['a', null, 'b'] } })
 
     expect(node.nullable).toBe(true)
     expect(node.enumValues).toEqual(['a', 'b'])
   })
 
   it('sets nullable from null in enum even when nullable is not set on schema', () => {
-    const node = parser.convertSchema({ enum: [null] })
+    const node = parser.convertSchema({ schema: { enum: [null] } })
 
     expect(node.nullable).toBe(true)
   })
 
   it('sets enumNullable from schema nullable combined with null in enum', () => {
-    const node = parser.convertSchema({ enum: ['a', null], nullable: true })
+    const node = parser.convertSchema({ schema: { enum: ['a', null], nullable: true } })
 
     expect(node.nullable).toBe(true)
     expect(node.enumValues).toEqual(['a'])
   })
 
   it('clears default when default is null and enum is nullable', () => {
-    const node = parser.convertSchema({ enum: ['a', null], default: null })
+    const node = parser.convertSchema({ schema: { enum: ['a', null], default: null } })
 
     expect(node.default).toBeUndefined()
   })
 
   it('preserves non-null default', () => {
-    const node = parser.convertSchema({ enum: ['a', 'b'], default: 'a' })
+    const node = parser.convertSchema({ schema: { enum: ['a', 'b'], default: 'a' } })
 
     expect(node.default).toBe('a')
   })
 
   // Number enum
   it('produces namedEnumValues with format number for integer enum', () => {
-    const node = parser.convertSchema({ type: 'integer', enum: [1, 2, 3] })
+    const node = parser.convertSchema({ schema: { type: 'integer', enum: [1, 2, 3] } })
 
     expect(node.type).toBe('enum')
     expect(node.enumType).toBe('number')
@@ -1442,27 +1522,27 @@ describe('convertSchema enum', () => {
   })
 
   it('produces namedEnumValues with format number for number enum', () => {
-    const node = parser.convertSchema({ type: 'number', enum: [0.5, 1.5] })
+    const node = parser.convertSchema({ schema: { type: 'number', enum: [0.5, 1.5] } })
 
     expect(node.enumType).toBe('number')
     expect(node.namedEnumValues?.map((v) => v.value)).toEqual([0.5, 1.5])
   })
 
   it('uses stringified value as name for numeric enum values', () => {
-    const node = parser.convertSchema({ type: 'integer', enum: [42] })
+    const node = parser.convertSchema({ schema: { type: 'integer', enum: [42] } })
 
     expect(node.namedEnumValues?.[0]?.name).toBe('42')
   })
 
   it('deduplicates numeric enum values', () => {
-    const node = parser.convertSchema({ type: 'integer', enum: [1, 1, 2] })
+    const node = parser.convertSchema({ schema: { type: 'integer', enum: [1, 1, 2] } })
 
     expect(node.namedEnumValues?.map((v) => v.value)).toEqual([1, 2])
   })
 
   // Boolean enum
   it('produces namedEnumValues with format boolean for boolean enum', () => {
-    const node = parser.convertSchema({ type: 'boolean', enum: [true, false] })
+    const node = parser.convertSchema({ schema: { type: 'boolean', enum: [true, false] } })
 
     expect(node.enumType).toBe('boolean')
     const values = node.namedEnumValues
@@ -1473,9 +1553,11 @@ describe('convertSchema enum', () => {
   // x-enumNames
   it('uses x-enumNames labels as namedEnumValues names', () => {
     const node = parser.convertSchema({
-      type: 'integer',
-      enum: [1, 2, 3],
-      'x-enumNames': ['One', 'Two', 'Three'],
+      schema: {
+        type: 'integer',
+        enum: [1, 2, 3],
+        'x-enumNames': ['One', 'Two', 'Three'],
+      },
     })
 
     const values = node.namedEnumValues
@@ -1485,8 +1567,10 @@ describe('convertSchema enum', () => {
 
   it('uses x-enum-varnames labels as namedEnumValues names', () => {
     const node = parser.convertSchema({
-      enum: ['active', 'inactive'],
-      'x-enum-varnames': ['Active', 'Inactive'],
+      schema: {
+        enum: ['active', 'inactive'],
+        'x-enum-varnames': ['Active', 'Inactive'],
+      },
     })
 
     const values = node.namedEnumValues
@@ -1496,8 +1580,10 @@ describe('convertSchema enum', () => {
 
   it('x-enumNames deduplicates names', () => {
     const node = parser.convertSchema({
-      enum: [1, 2, 3],
-      'x-enumNames': ['A', 'A', 'B'],
+      schema: {
+        enum: [1, 2, 3],
+        'x-enumNames': ['A', 'A', 'B'],
+      },
     })
 
     const values = node.namedEnumValues
@@ -1506,9 +1592,11 @@ describe('convertSchema enum', () => {
 
   it('x-enumNames sets enumType number for integer type', () => {
     const node = parser.convertSchema({
-      type: 'integer',
-      enum: [0, 1],
-      'x-enumNames': ['Off', 'On'],
+      schema: {
+        type: 'integer',
+        enum: [0, 1],
+        'x-enumNames': ['Off', 'On'],
+      },
     })
 
     expect(node.enumType).toBe('number')
@@ -1516,8 +1604,10 @@ describe('convertSchema enum', () => {
 
   it('x-enumNames sets enumType string when type is not numeric or boolean', () => {
     const node = parser.convertSchema({
-      enum: ['a', 'b'],
-      'x-enumNames': ['Alpha', 'Beta'],
+      schema: {
+        enum: ['a', 'b'],
+        'x-enumNames': ['Alpha', 'Beta'],
+      },
     })
 
     expect(node.enumType).toBe('string')
@@ -1525,7 +1615,7 @@ describe('convertSchema enum', () => {
 
   // Array + enum normalization
   it('normalizes array+enum by moving enum into items and returning array node', () => {
-    const node = parser.convertSchema({ type: 'array', enum: ['x', 'y'] })
+    const node = parser.convertSchema({ schema: { type: 'array', enum: ['x', 'y'] } })
 
     expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
     expect(node.type).toBe('array')
@@ -1535,7 +1625,7 @@ describe('convertSchema enum', () => {
   })
 
   it('merges existing items schema when normalizing array+enum', () => {
-    const node = parser.convertSchema({ type: 'array', items: { type: 'string' }, enum: ['x', 'y'] })
+    const node = parser.convertSchema({ schema: { type: 'array', items: { type: 'string' }, enum: ['x', 'y'] } })
 
     expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
     expect(node.type).toBe('array')
@@ -1546,32 +1636,32 @@ describe('convertSchema enum', () => {
 })
 
 describe('convertSchema null', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('maps type null to null node', () => {
-    const node = parser.convertSchema({ type: 'null' })
+    const node = parser.convertSchema({ schema: { type: 'null' } })
 
     expect(node.type).toBe('null')
   })
 
   it('propagates description on null', () => {
-    const node = parser.convertSchema({ type: 'null', description: 'always null' })
+    const node = parser.convertSchema({ schema: { type: 'null', description: 'always null' } })
 
     expect(node.description).toBe('always null')
   })
 })
 
 describe('convertSchema OAS 3.1 type array', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('narrows to UnionSchemaNode for a multi-type array', () => {
-    const node = parser.convertSchema({ type: ['string', 'integer'] })
+    const node = parser.convertSchema({ schema: { type: ['string', 'integer'] } })
 
     expectTypeOf(node).toEqualTypeOf<UnionSchemaNode>()
   })
 
   it('produces a union node for two non-null types', () => {
-    const node = parser.convertSchema({ type: ['string', 'integer'] })
+    const node = parser.convertSchema({ schema: { type: ['string', 'integer'] } })
 
     expect(node.type).toBe('union')
     expect(node.members).toHaveLength(2)
@@ -1580,14 +1670,14 @@ describe('convertSchema OAS 3.1 type array', () => {
   })
 
   it('produces a union node for three non-null types', () => {
-    const node = parser.convertSchema({ type: ['string', 'integer', 'boolean'] })
+    const node = parser.convertSchema({ schema: { type: ['string', 'integer', 'boolean'] } })
 
     expect(node.type).toBe('union')
     expect(node.members).toHaveLength(3)
   })
 
   it('sets nullable when null is among multiple types', () => {
-    const node = parser.convertSchema({ type: ['string', 'integer', 'null'] })
+    const node = parser.convertSchema({ schema: { type: ['string', 'integer', 'null'] } })
 
     expect(node.type).toBe('union')
     expect(node.nullable).toBe(true)
@@ -1595,14 +1685,14 @@ describe('convertSchema OAS 3.1 type array', () => {
   })
 
   it('sets nullable when null is in a single-non-null type array', () => {
-    const node = parser.convertSchema({ type: ['string', 'null'] })
+    const node = parser.convertSchema({ schema: { type: ['string', 'null'] } })
 
     expect(node.type).toBe('string')
     expect(node.nullable).toBe(true)
   })
 
   it('handles type array with a single non-null entry', () => {
-    const node = parser.convertSchema({ type: ['integer'] })
+    const node = parser.convertSchema({ schema: { type: ['integer'] } })
 
     expect(node.type).toBe('integer')
     expect(node.nullable).toBeUndefined()
@@ -1610,9 +1700,11 @@ describe('convertSchema OAS 3.1 type array', () => {
 
   it('propagates shared schema metadata onto the union node', () => {
     const node = parser.convertSchema({
-      type: ['string', 'integer'],
-      description: 'id or label',
-      deprecated: true,
+      schema: {
+        type: ['string', 'integer'],
+        description: 'id or label',
+        deprecated: true,
+      },
     })
 
     expect(node.description).toBe('id or label')
@@ -1620,7 +1712,7 @@ describe('convertSchema OAS 3.1 type array', () => {
   })
 
   it('each union member schema carries the shared schema properties', () => {
-    const node = parser.convertSchema({ type: ['string', 'integer'], readOnly: true })
+    const node = parser.convertSchema({ schema: { type: ['string', 'integer'], readOnly: true } })
 
     const members = node.members ?? []
     expect(members.every((m) => m.readOnly === true)).toBe(true)
@@ -1628,34 +1720,34 @@ describe('convertSchema OAS 3.1 type array', () => {
 })
 
 describe('convertSchema integer', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('maps type integer to integer node', () => {
-    const node = parser.convertSchema({ type: 'integer' })
+    const node = parser.convertSchema({ schema: { type: 'integer' } })
 
     expect(node.type).toBe('integer')
   })
 
   it('maps integer int32 to integer', () => {
-    const node = parser.convertSchema({ type: 'integer', format: 'int32' })
+    const node = parser.convertSchema({ schema: { type: 'integer', format: 'int32' } })
 
     expect(node.type).toBe('integer')
   })
 
   it('maps integer int64 to integer when integerType is number (default)', () => {
-    const node = parser.convertSchema({ type: 'integer', format: 'int64' })
+    const node = parser.convertSchema({ schema: { type: 'integer', format: 'int64' } })
 
     expect(node.type).toBe('integer')
   })
 
   it('maps format int64 without type to integer (format overrides type)', () => {
-    const node = parser.convertSchema({ format: 'int64' })
+    const node = parser.convertSchema({ schema: { format: 'int64' } })
 
     expect(node.type).toBe('integer')
   })
 
   it('preserves nullable on integer', () => {
-    const node = parser.convertSchema({ type: 'integer', nullable: true })
+    const node = parser.convertSchema({ schema: { type: 'integer', nullable: true } })
 
     expect(node.type).toBe('integer')
     expect(node.nullable).toBe(true)
@@ -1663,34 +1755,34 @@ describe('convertSchema integer', () => {
 })
 
 describe('convertSchema number', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('maps type number to number node', () => {
-    const node = parser.convertSchema({ type: 'number' })
+    const node = parser.convertSchema({ schema: { type: 'number' } })
 
     expect(node.type).toBe('number')
   })
 
   it('maps number float to number', () => {
-    const node = parser.convertSchema({ type: 'number', format: 'float' })
+    const node = parser.convertSchema({ schema: { type: 'number', format: 'float' } })
 
     expect(node.type).toBe('number')
   })
 
   it('maps number double to number', () => {
-    const node = parser.convertSchema({ type: 'number', format: 'double' })
+    const node = parser.convertSchema({ schema: { type: 'number', format: 'double' } })
 
     expect(node.type).toBe('number')
   })
 
   it('maps format float without type to number (format overrides type)', () => {
-    const node = parser.convertSchema({ format: 'float' })
+    const node = parser.convertSchema({ schema: { format: 'float' } })
 
     expect(node.type).toBe('number')
   })
 
   it('preserves nullable on number', () => {
-    const node = parser.convertSchema({ type: 'number', nullable: true })
+    const node = parser.convertSchema({ schema: { type: 'number', nullable: true } })
 
     expect(node.type).toBe('number')
     expect(node.nullable).toBe(true)
@@ -1698,31 +1790,31 @@ describe('convertSchema number', () => {
 })
 
 describe('convertSchema pattern', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('maps pattern on a string type to a string node with pattern', () => {
-    const node = parser.convertSchema({ type: 'string', pattern: '^[a-z]+$' })
+    const node = parser.convertSchema({ schema: { type: 'string', pattern: '^[a-z]+$' } })
 
     expect(node.type).toBe('string')
     expect(node.pattern).toBe('^[a-z]+$')
   })
 
   it('infers string type from pattern alone (no explicit type)', () => {
-    const node = parser.convertSchema({ pattern: '^[0-9]+$' })
+    const node = parser.convertSchema({ schema: { pattern: '^[0-9]+$' } })
 
     expect(node.type).toBe('string')
     expect(node.pattern).toBe('^[0-9]+$')
   })
 
   it('ignores pattern on non-string types', () => {
-    const node = parser.convertSchema({ type: 'number', pattern: '^[0-9]+$' })
+    const node = parser.convertSchema({ schema: { type: 'number', pattern: '^[0-9]+$' } })
 
     expect(node.type).toBe('number')
     expect('pattern' in node ? (node as { pattern?: string }).pattern : undefined).toBeUndefined()
   })
 
   it('preserves nullable on a pattern string', () => {
-    const node = parser.convertSchema({ type: 'string', pattern: '^[a-z]+$', nullable: true })
+    const node = parser.convertSchema({ schema: { type: 'string', pattern: '^[a-z]+$', nullable: true } })
 
     expect(node.type).toBe('string')
     expect(node.pattern).toBe('^[a-z]+$')
@@ -1730,7 +1822,7 @@ describe('convertSchema pattern', () => {
   })
 
   it('preserves minLength and maxLength alongside pattern', () => {
-    const node = parser.convertSchema({ type: 'string', pattern: '^[a-z]+$', minLength: 2, maxLength: 10 })
+    const node = parser.convertSchema({ schema: { type: 'string', pattern: '^[a-z]+$', minLength: 2, maxLength: 10 } })
 
     expect(node.type).toBe('string')
     expect(node.pattern).toBe('^[a-z]+$')
@@ -1740,72 +1832,72 @@ describe('convertSchema pattern', () => {
 })
 
 describe('convertSchema array', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('maps type array to array node', () => {
-    const node = parser.convertSchema({ type: 'array' })
+    const node = parser.convertSchema({ schema: { type: 'array' } })
 
     expect(node.type).toBe('array')
   })
 
   it('infers array type from items key alone (no explicit type)', () => {
-    const node = parser.convertSchema({ items: { type: 'string' } })
+    const node = parser.convertSchema({ schema: { items: { type: 'string' } } })
 
     expect(node.type).toBe('array')
   })
 
   it('converts items to a single-element items array', () => {
-    const node = parser.convertSchema({ type: 'array', items: { type: 'string' } })
+    const node = parser.convertSchema({ schema: { type: 'array', items: { type: 'string' } } })
 
     expect(node.items).toHaveLength(1)
     expect(node.items?.[0]?.type).toBe('string')
   })
 
   it('produces an empty items array when items is absent', () => {
-    const node = parser.convertSchema({ type: 'array' })
+    const node = parser.convertSchema({ schema: { type: 'array' } })
 
     expect(node.items).toHaveLength(0)
   })
 
   it('maps minItems to min', () => {
-    const node = parser.convertSchema({ type: 'array', minItems: 1 })
+    const node = parser.convertSchema({ schema: { type: 'array', minItems: 1 } })
 
     expect(node.min).toBe(1)
   })
 
   it('maps maxItems to max', () => {
-    const node = parser.convertSchema({ type: 'array', maxItems: 5 })
+    const node = parser.convertSchema({ schema: { type: 'array', maxItems: 5 } })
 
     expect(node.max).toBe(5)
   })
 
   it('maps uniqueItems: true to unique: true', () => {
-    const node = parser.convertSchema({ type: 'array', uniqueItems: true })
+    const node = parser.convertSchema({ schema: { type: 'array', uniqueItems: true } })
 
     expect(node.unique).toBe(true)
   })
 
   it('maps uniqueItems: false to unique: false', () => {
-    const node = parser.convertSchema({ type: 'array', uniqueItems: false })
+    const node = parser.convertSchema({ schema: { type: 'array', uniqueItems: false } })
 
     expect(node.unique).toBe(false)
   })
 
   it('leaves unique undefined when uniqueItems is not set', () => {
-    const node = parser.convertSchema({ type: 'array' })
+    const node = parser.convertSchema({ schema: { type: 'array' } })
 
     expect(node.unique).toBeUndefined()
   })
 
   it('preserves nullable on array', () => {
-    const node = parser.convertSchema({ type: 'array', nullable: true })
+    const node = parser.convertSchema({ schema: { type: 'array', nullable: true } })
 
     expect(node.type).toBe('array')
     expect(node.nullable).toBe(true)
   })
 
   it('converts nested array items recursively', () => {
-    const node = parser.convertSchema({ type: 'array', items: { type: 'array', items: { type: 'number' } } })
+    const node = parser.convertSchema({ schema: { type: 'array', items: { type: 'array', items: { type: 'number' } } } })
     const outerItem = narrowSchema<ArraySchemaNode>(node.items?.[0], 'array')
     const innerItem = outerItem?.items?.[0]
 
@@ -1815,7 +1907,7 @@ describe('convertSchema array', () => {
   })
 
   it('converts ref items', () => {
-    const node = parser.convertSchema({ type: 'array', items: { $ref: '#/components/schemas/Pet' } })
+    const node = parser.convertSchema({ schema: { type: 'array', items: { $ref: '#/components/schemas/Pet' } } })
 
     expect(node.type).toBe('array')
     expect(node.items?.[0]?.type).toBe('ref')
@@ -1823,24 +1915,24 @@ describe('convertSchema array', () => {
 })
 
 describe('convertSchema type inference (no explicit type)', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('infers string from minLength alone', () => {
-    const node = parser.convertSchema({ minLength: 1 })
+    const node = parser.convertSchema({ schema: { minLength: 1 } })
 
     expect(node.type).toBe('string')
     expect(node.min).toBe(1)
   })
 
   it('infers string from maxLength alone', () => {
-    const node = parser.convertSchema({ maxLength: 100 })
+    const node = parser.convertSchema({ schema: { maxLength: 100 } })
 
     expect(node.type).toBe('string')
     expect(node.max).toBe(100)
   })
 
   it('infers string from both minLength and maxLength', () => {
-    const node = parser.convertSchema({ minLength: 2, maxLength: 50 })
+    const node = parser.convertSchema({ schema: { minLength: 2, maxLength: 50 } })
 
     expect(node.type).toBe('string')
     expect(node.min).toBe(2)
@@ -1848,21 +1940,21 @@ describe('convertSchema type inference (no explicit type)', () => {
   })
 
   it('infers number from minimum alone', () => {
-    const node = parser.convertSchema({ minimum: 0 })
+    const node = parser.convertSchema({ schema: { minimum: 0 } })
 
     expect(node.type).toBe('number')
     expect(node.min).toBe(0)
   })
 
   it('infers number from maximum alone', () => {
-    const node = parser.convertSchema({ maximum: 999 })
+    const node = parser.convertSchema({ schema: { maximum: 999 } })
 
     expect(node.type).toBe('number')
     expect(node.max).toBe(999)
   })
 
   it('infers number from both minimum and maximum', () => {
-    const node = parser.convertSchema({ minimum: 1, maximum: 100 })
+    const node = parser.convertSchema({ schema: { minimum: 1, maximum: 100 } })
 
     expect(node.type).toBe('number')
     expect(node.min).toBe(1)
@@ -1870,37 +1962,37 @@ describe('convertSchema type inference (no explicit type)', () => {
   })
 
   it('does not infer array from minItems/maxItems alone', () => {
-    const node = parser.convertSchema({ minItems: 1, maxItems: 5 })
+    const node = parser.convertSchema({ schema: { minItems: 1, maxItems: 5 } })
 
     expect(node.type).not.toBe('array')
   })
 })
 
 describe('convertSchema constraints', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   describe('array: minItems / maxItems', () => {
     it('maps minItems to min', () => {
-      const node = parser.convertSchema({ type: 'array', minItems: 2 })
+      const node = parser.convertSchema({ schema: { type: 'array', minItems: 2 } })
 
       expect(node.min).toBe(2)
     })
 
     it('maps maxItems to max', () => {
-      const node = parser.convertSchema({ type: 'array', maxItems: 10 })
+      const node = parser.convertSchema({ schema: { type: 'array', maxItems: 10 } })
 
       expect(node.max).toBe(10)
     })
 
     it('maps both minItems and maxItems', () => {
-      const node = parser.convertSchema({ type: 'array', minItems: 1, maxItems: 5 })
+      const node = parser.convertSchema({ schema: { type: 'array', minItems: 1, maxItems: 5 } })
 
       expect(node.min).toBe(1)
       expect(node.max).toBe(5)
     })
 
     it('leaves min/max undefined when not set', () => {
-      const node = parser.convertSchema({ type: 'array' })
+      const node = parser.convertSchema({ schema: { type: 'array' } })
 
       expect(node.min).toBeUndefined()
       expect(node.max).toBeUndefined()
@@ -1909,26 +2001,26 @@ describe('convertSchema constraints', () => {
 
   describe('string: minLength / maxLength', () => {
     it('maps minLength to min', () => {
-      const node = parser.convertSchema({ type: 'string', minLength: 3 })
+      const node = parser.convertSchema({ schema: { type: 'string', minLength: 3 } })
 
       expect(node.min).toBe(3)
     })
 
     it('maps maxLength to max', () => {
-      const node = parser.convertSchema({ type: 'string', maxLength: 255 })
+      const node = parser.convertSchema({ schema: { type: 'string', maxLength: 255 } })
 
       expect(node.max).toBe(255)
     })
 
     it('maps both minLength and maxLength', () => {
-      const node = parser.convertSchema({ type: 'string', minLength: 1, maxLength: 100 })
+      const node = parser.convertSchema({ schema: { type: 'string', minLength: 1, maxLength: 100 } })
 
       expect(node.min).toBe(1)
       expect(node.max).toBe(100)
     })
 
     it('leaves min/max undefined when not set', () => {
-      const node = parser.convertSchema({ type: 'string' })
+      const node = parser.convertSchema({ schema: { type: 'string' } })
 
       expect(node.min).toBeUndefined()
       expect(node.max).toBeUndefined()
@@ -1937,43 +2029,43 @@ describe('convertSchema constraints', () => {
 
   describe('number: minimum / maximum', () => {
     it('maps minimum to min', () => {
-      const node = parser.convertSchema({ type: 'number', minimum: 0 })
+      const node = parser.convertSchema({ schema: { type: 'number', minimum: 0 } })
 
       expect(node.min).toBe(0)
     })
 
     it('maps maximum to max', () => {
-      const node = parser.convertSchema({ type: 'number', maximum: 999 })
+      const node = parser.convertSchema({ schema: { type: 'number', maximum: 999 } })
       expect(node.max).toBe(999)
     })
 
     it('maps both minimum and maximum', () => {
-      const node = parser.convertSchema({ type: 'number', minimum: 1, maximum: 100 })
+      const node = parser.convertSchema({ schema: { type: 'number', minimum: 1, maximum: 100 } })
 
       expect(node.min).toBe(1)
       expect(node.max).toBe(100)
     })
 
     it('maps numeric exclusiveMinimum', () => {
-      const node = parser.convertSchema({ type: 'number', exclusiveMinimum: 0 })
+      const node = parser.convertSchema({ schema: { type: 'number', exclusiveMinimum: 0 } })
 
       expect(node.exclusiveMinimum).toBe(0)
     })
 
     it('maps numeric exclusiveMaximum', () => {
-      const node = parser.convertSchema({ type: 'number', exclusiveMaximum: 100 })
+      const node = parser.convertSchema({ schema: { type: 'number', exclusiveMaximum: 100 } })
 
       expect(node.exclusiveMaximum).toBe(100)
     })
 
     it('ignores boolean exclusiveMinimum (OAS 3.0 style)', () => {
-      const node = parser.convertSchema({ type: 'number', exclusiveMinimum: true })
+      const node = parser.convertSchema({ schema: { type: 'number', exclusiveMinimum: true } })
 
       expect(node.exclusiveMinimum).toBeUndefined()
     })
 
     it('leaves min/max undefined when not set', () => {
-      const node = parser.convertSchema({ type: 'number' })
+      const node = parser.convertSchema({ schema: { type: 'number' } })
 
       expect(node.min).toBeUndefined()
       expect(node.max).toBeUndefined()
@@ -1982,44 +2074,44 @@ describe('convertSchema constraints', () => {
 
   describe('integer: minimum / maximum', () => {
     it('maps minimum to min', () => {
-      const node = parser.convertSchema({ type: 'integer', minimum: 1 })
+      const node = parser.convertSchema({ schema: { type: 'integer', minimum: 1 } })
 
       expect(node.min).toBe(1)
     })
 
     it('maps maximum to max', () => {
-      const node = parser.convertSchema({ type: 'integer', maximum: 100 })
+      const node = parser.convertSchema({ schema: { type: 'integer', maximum: 100 } })
 
       expect(node.max).toBe(100)
     })
 
     it('maps both minimum and maximum', () => {
-      const node = parser.convertSchema({ type: 'integer', minimum: 1, maximum: 100 })
+      const node = parser.convertSchema({ schema: { type: 'integer', minimum: 1, maximum: 100 } })
 
       expect(node.min).toBe(1)
       expect(node.max).toBe(100)
     })
 
     it('maps numeric exclusiveMinimum', () => {
-      const node = parser.convertSchema({ type: 'integer', exclusiveMinimum: 0 })
+      const node = parser.convertSchema({ schema: { type: 'integer', exclusiveMinimum: 0 } })
 
       expect(node.exclusiveMinimum).toBe(0)
     })
 
     it('maps numeric exclusiveMaximum', () => {
-      const node = parser.convertSchema({ type: 'integer', exclusiveMaximum: 100 })
+      const node = parser.convertSchema({ schema: { type: 'integer', exclusiveMaximum: 100 } })
 
       expect(node.exclusiveMaximum).toBe(100)
     })
 
     it('ignores boolean exclusiveMinimum (OAS 3.0 style)', () => {
-      const node = parser.convertSchema({ type: 'integer', exclusiveMinimum: true })
+      const node = parser.convertSchema({ schema: { type: 'integer', exclusiveMinimum: true } })
 
       expect(node.exclusiveMinimum).toBeUndefined()
     })
 
     it('leaves min/max undefined when not set', () => {
-      const node = parser.convertSchema({ type: 'integer' })
+      const node = parser.convertSchema({ schema: { type: 'integer' } })
 
       expect(node.min).toBeUndefined()
       expect(node.max).toBeUndefined()
@@ -2027,39 +2119,39 @@ describe('convertSchema constraints', () => {
   })
 })
 
-describe('createOasParser options', () => {
+describe('parser options', () => {
   describe('emptySchemaType', () => {
     it('defaults to any for a schema with no type information', () => {
-      const parser = createOasParser()
-      const node = parser.convertSchema({})
+      const parser = createOasParser(emptyOas)
+      const node = parser.convertSchema({ schema: {} })
 
       expect(node.type).toBe('any')
     })
 
     it('emptySchemaType: any returns any for an empty schema', () => {
-      const parser = createOasParser({ emptySchemaType: 'any' })
-      const node = parser.convertSchema({})
+      const parser = createOasParser(emptyOas)
+      const node = parser.convertSchema({ schema: {} }, { emptySchemaType: 'any' })
 
       expect(node.type).toBe('any')
     })
 
     it('emptySchemaType: void returns void for an empty schema', () => {
-      const parser = createOasParser({ emptySchemaType: 'void' })
-      const node = parser.convertSchema({})
+      const parser = createOasParser(emptyOas)
+      const node = parser.convertSchema({ schema: {} }, { emptySchemaType: 'void' })
 
       expect(node.type).toBe('void')
     })
 
     it('emptySchemaType: unknown returns unknown for an empty schema', () => {
-      const parser = createOasParser({ emptySchemaType: 'unknown' })
-      const node = parser.convertSchema({})
+      const parser = createOasParser(emptyOas)
+      const node = parser.convertSchema({ schema: {} }, { emptySchemaType: 'unknown' })
 
       expect(node.type).toBe('unknown')
     })
 
     it('emptySchemaType does not affect typed schemas', () => {
-      const parser = createOasParser({ emptySchemaType: 'any' })
-      const node = parser.convertSchema({ type: 'string' })
+      const parser = createOasParser(emptyOas)
+      const node = parser.convertSchema({ schema: { type: 'string' } }, { emptySchemaType: 'any' })
 
       expect(node.type).toBe('string')
     })
@@ -2067,36 +2159,36 @@ describe('createOasParser options', () => {
 
   describe('integerType', () => {
     it('defaults to integer for int64 when integerType is not set', () => {
-      const parser = createOasParser()
-      const node = parser.convertSchema({ type: 'integer', format: 'int64' })
+      const parser = createOasParser(emptyOas)
+      const node = parser.convertSchema({ schema: { type: 'integer', format: 'int64' } })
 
       expect(node.type).toBe('integer')
     })
 
     it('integerType: number keeps int64 as integer', () => {
-      const parser = createOasParser({ integerType: 'number' })
-      const node = parser.convertSchema({ type: 'integer', format: 'int64' })
+      const parser = createOasParser(emptyOas)
+      const node = parser.convertSchema({ schema: { type: 'integer', format: 'int64' } }, { integerType: 'number' })
 
       expect(node.type).toBe('integer')
     })
 
     it('integerType: bigint maps int64 to bigint', () => {
-      const parser = createOasParser({ integerType: 'bigint' })
-      const node = parser.convertSchema({ type: 'integer', format: 'int64' })
+      const parser = createOasParser(emptyOas)
+      const node = parser.convertSchema({ schema: { type: 'integer', format: 'int64' } }, { integerType: 'bigint' })
 
       expect(node.type).toBe('bigint')
     })
 
     it('integerType: bigint does not affect int32', () => {
-      const parser = createOasParser({ integerType: 'bigint' })
-      const node = parser.convertSchema({ type: 'integer', format: 'int32' })
+      const parser = createOasParser(emptyOas)
+      const node = parser.convertSchema({ schema: { type: 'integer', format: 'int32' } }, { integerType: 'bigint' })
 
       expect(node.type).toBe('integer')
     })
 
     it('integerType does not affect non-integer types', () => {
-      const parser = createOasParser({ integerType: 'bigint' })
-      const node = parser.convertSchema({ type: 'number', format: 'float' })
+      const parser = createOasParser(emptyOas)
+      const node = parser.convertSchema({ schema: { type: 'number', format: 'float' } }, { integerType: 'bigint' })
 
       expect(node.type).toBe('number')
     })
@@ -2105,48 +2197,48 @@ describe('createOasParser options', () => {
   describe('dateType', () => {
     describe('format date-time', () => {
       it('defaults to datetime', () => {
-        const parser = createOasParser()
-        const node = parser.convertSchema({ type: 'string', format: 'date-time' })
+        const parser = createOasParser(emptyOas)
+        const node = parser.convertSchema({ schema: { type: 'string', format: 'date-time' } })
 
         expect(node.type).toBe('datetime')
         expect(node.offset).toBe(false)
       })
 
       it('dateType: string returns datetime with offset: false', () => {
-        const parser = createOasParser({ dateType: 'string' })
-        const node = parser.convertSchema({ type: 'string', format: 'date-time' })
+        const parser = createOasParser(emptyOas)
+        const node = parser.convertSchema({ schema: { type: 'string', format: 'date-time' } }, { dateType: 'string' })
 
         expect(node.type).toBe('datetime')
         expect(node.offset).toBe(false)
       })
 
       it('dateType: stringOffset returns datetime with offset: true', () => {
-        const parser = createOasParser({ dateType: 'stringOffset' })
-        const node = parser.convertSchema({ type: 'string', format: 'date-time' })
+        const parser = createOasParser(emptyOas)
+        const node = parser.convertSchema({ schema: { type: 'string', format: 'date-time' } }, { dateType: 'stringOffset' })
 
         expect(node.type).toBe('datetime')
         expect(node.offset).toBe(true)
       })
 
       it('dateType: stringLocal returns datetime with local: true', () => {
-        const parser = createOasParser({ dateType: 'stringLocal' })
-        const node = parser.convertSchema({ type: 'string', format: 'date-time' })
+        const parser = createOasParser(emptyOas)
+        const node = parser.convertSchema({ schema: { type: 'string', format: 'date-time' } }, { dateType: 'stringLocal' })
 
         expect(node.type).toBe('datetime')
         expect(node.local).toBe(true)
       })
 
       it('dateType: date returns date with representation: date', () => {
-        const parser = createOasParser({ dateType: 'date' })
-        const node = parser.convertSchema({ type: 'string', format: 'date-time' })
+        const parser = createOasParser(emptyOas)
+        const node = parser.convertSchema({ schema: { type: 'string', format: 'date-time' } }, { dateType: 'date' })
 
         expect(node.type).toBe('date')
         expect(node.representation).toBe('date')
       })
 
       it('dateType: false falls through to string', () => {
-        const parser = createOasParser({ dateType: false })
-        const node = parser.convertSchema({ type: 'string', format: 'date-time' })
+        const parser = createOasParser(emptyOas)
+        const node = parser.convertSchema({ schema: { type: 'string', format: 'date-time' } }, { dateType: false })
 
         expect(node.type).toBe('string')
       })
@@ -2154,32 +2246,32 @@ describe('createOasParser options', () => {
 
     describe('format date', () => {
       it('defaults to date with representation: string', () => {
-        const parser = createOasParser()
-        const node = parser.convertSchema({ type: 'string', format: 'date' })
+        const parser = createOasParser(emptyOas)
+        const node = parser.convertSchema({ schema: { type: 'string', format: 'date' } })
 
         expect(node.type).toBe('date')
         expect(node.representation).toBe('string')
       })
 
       it('dateType: date returns date with representation: date', () => {
-        const parser = createOasParser({ dateType: 'date' })
-        const node = parser.convertSchema({ type: 'string', format: 'date' })
+        const parser = createOasParser(emptyOas)
+        const node = parser.convertSchema({ schema: { type: 'string', format: 'date' } }, { dateType: 'date' })
 
         expect(node.type).toBe('date')
         expect(node.representation).toBe('date')
       })
 
       it('dateType: string returns date with representation: string', () => {
-        const parser = createOasParser({ dateType: 'string' })
-        const node = parser.convertSchema({ type: 'string', format: 'date' })
+        const parser = createOasParser(emptyOas)
+        const node = parser.convertSchema({ schema: { type: 'string', format: 'date' } }, { dateType: 'string' })
 
         expect(node.type).toBe('date')
         expect(node.representation).toBe('string')
       })
 
       it('dateType: false falls through to string', () => {
-        const parser = createOasParser({ dateType: false })
-        const node = parser.convertSchema({ type: 'string', format: 'date' })
+        const parser = createOasParser(emptyOas)
+        const node = parser.convertSchema({ schema: { type: 'string', format: 'date' } }, { dateType: false })
 
         expect(node.type).toBe('string')
       })
@@ -2187,32 +2279,32 @@ describe('createOasParser options', () => {
 
     describe('format time', () => {
       it('defaults to time with representation: string', () => {
-        const parser = createOasParser()
-        const node = parser.convertSchema({ type: 'string', format: 'time' })
+        const parser = createOasParser(emptyOas)
+        const node = parser.convertSchema({ schema: { type: 'string', format: 'time' } })
 
         expect(node.type).toBe('time')
         expect(node.representation).toBe('string')
       })
 
       it('dateType: date returns time with representation: date', () => {
-        const parser = createOasParser({ dateType: 'date' })
-        const node = parser.convertSchema({ type: 'string', format: 'time' })
+        const parser = createOasParser(emptyOas)
+        const node = parser.convertSchema({ schema: { type: 'string', format: 'time' } }, { dateType: 'date' })
 
         expect(node.type).toBe('time')
         expect(node.representation).toBe('date')
       })
 
       it('dateType: string returns time with representation: string', () => {
-        const parser = createOasParser({ dateType: 'string' })
-        const node = parser.convertSchema({ type: 'string', format: 'time' })
+        const parser = createOasParser(emptyOas)
+        const node = parser.convertSchema({ schema: { type: 'string', format: 'time' } }, { dateType: 'string' })
 
         expect(node.type).toBe('time')
         expect(node.representation).toBe('string')
       })
 
       it('dateType: false falls through to string', () => {
-        const parser = createOasParser({ dateType: false })
-        const node = parser.convertSchema({ type: 'string', format: 'time' })
+        const parser = createOasParser(emptyOas)
+        const node = parser.convertSchema({ schema: { type: 'string', format: 'time' } }, { dateType: false })
 
         expect(node.type).toBe('string')
       })
@@ -2221,164 +2313,166 @@ describe('createOasParser options', () => {
 })
 
 describe('convertSchema primitive', () => {
-  const parser = createOasParser()
+  const parser = createOasParser(emptyOas)
 
   it('string type has primitive string', () => {
-    const node = parser.convertSchema({ type: 'string' })
+    const node = parser.convertSchema({ schema: { type: 'string' } })
 
     expect(node.primitive).toBe('string')
   })
 
   it('number type has primitive number', () => {
-    const node = parser.convertSchema({ type: 'number' })
+    const node = parser.convertSchema({ schema: { type: 'number' } })
 
     expect(node.primitive).toBe('number')
   })
 
   it('integer type has primitive integer', () => {
-    const node = parser.convertSchema({ type: 'integer' })
+    const node = parser.convertSchema({ schema: { type: 'integer' } })
 
     expect(node.primitive).toBe('integer')
   })
 
   it('boolean type has primitive boolean', () => {
-    const node = parser.convertSchema({ type: 'boolean' })
+    const node = parser.convertSchema({ schema: { type: 'boolean' } })
 
     expect(node.primitive).toBe('boolean')
   })
 
   it('null type has primitive null', () => {
-    const node = parser.convertSchema({ type: 'null' })
+    const node = parser.convertSchema({ schema: { type: 'null' } })
 
     expect(node.primitive).toBe('null')
   })
 
   it('uuid format has primitive string', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'uuid' })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'uuid' } })
 
     expect(node.primitive).toBe('string')
   })
 
   it('email format has primitive string', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'email' })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'email' } })
 
     expect(node.primitive).toBe('string')
   })
 
   it('uri format has primitive string', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'uri' })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'uri' } })
 
     expect(node.primitive).toBe('string')
   })
 
   it('binary format (blob) has primitive string', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'binary' })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'binary' } })
 
     expect(node.primitive).toBe('string')
   })
 
   it('date-time format has primitive string', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'date-time' })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'date-time' } })
 
     expect(node.primitive).toBe('string')
   })
 
   it('date format has primitive string', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'date' })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'date' } })
 
     expect(node.primitive).toBe('string')
   })
 
   it('time format has primitive string', () => {
-    const node = parser.convertSchema({ type: 'string', format: 'time' })
+    const node = parser.convertSchema({ schema: { type: 'string', format: 'time' } })
 
     expect(node.primitive).toBe('string')
   })
 
   it('int64 format has primitive integer', () => {
-    const node = parser.convertSchema({ type: 'integer', format: 'int64' })
+    const node = parser.convertSchema({ schema: { type: 'integer', format: 'int64' } })
 
     expect(node.primitive).toBe('integer')
   })
 
   it('string enum has primitive string', () => {
-    const node = parser.convertSchema({ type: 'string', enum: ['a', 'b'] })
+    const node = parser.convertSchema({ schema: { type: 'string', enum: ['a', 'b'] } })
 
     expect(node.primitive).toBe('string')
   })
 
   it('number enum has primitive number', () => {
-    const node = parser.convertSchema({ type: 'number', enum: [1, 2] })
+    const node = parser.convertSchema({ schema: { type: 'number', enum: [1, 2] } })
 
     expect(node.primitive).toBe('number')
   })
 
   it('integer enum has primitive integer', () => {
-    const node = parser.convertSchema({ type: 'integer', enum: [1, 2] })
+    const node = parser.convertSchema({ schema: { type: 'integer', enum: [1, 2] } })
 
     expect(node.primitive).toBe('integer')
   })
 
   it('boolean enum has primitive boolean', () => {
-    const node = parser.convertSchema({ type: 'boolean', enum: [true, false] })
+    const node = parser.convertSchema({ schema: { type: 'boolean', enum: [true, false] } })
 
     expect(node.primitive).toBe('boolean')
   })
 
   it('const string has primitive string', () => {
-    const node = parser.convertSchema({ const: 'hello' })
+    const node = parser.convertSchema({ schema: { const: 'hello' } })
 
     expect(node.primitive).toBe('string')
   })
 
   it('const number has primitive number', () => {
-    const node = parser.convertSchema({ const: 42 })
+    const node = parser.convertSchema({ schema: { const: 42 } })
 
     expect(node.primitive).toBe('number')
   })
 
   it('const null has primitive null', () => {
-    const node = parser.convertSchema({ const: null })
+    const node = parser.convertSchema({ schema: { const: null } })
 
     expect(node.primitive).toBe('null')
   })
 
   it('minLength-inferred string has primitive string', () => {
-    const node = parser.convertSchema({ minLength: 1 })
+    const node = parser.convertSchema({ schema: { minLength: 1 } })
 
     expect(node.primitive).toBe('string')
   })
 
   it('minimum-inferred number has primitive number', () => {
-    const node = parser.convertSchema({ minimum: 0 })
+    const node = parser.convertSchema({ schema: { minimum: 0 } })
 
     expect(node.primitive).toBe('number')
   })
 
   it('object type has no primitive', () => {
-    const node = parser.convertSchema({ type: 'object' })
+    const node = parser.convertSchema({ schema: { type: 'object' } })
 
     expect(node.primitive).toBe('object')
   })
 
   it('array type has no primitive', () => {
-    const node = parser.convertSchema({ type: 'array' })
+    const node = parser.convertSchema({ schema: { type: 'array' } })
 
     expect(node.primitive).toBe('array')
   })
 
   it('union (oneOf) has no primitive', () => {
-    const node = parser.convertSchema({ oneOf: [{ type: 'string' }, { type: 'number' }] })
+    const node = parser.convertSchema({ schema: { oneOf: [{ type: 'string' }, { type: 'number' }] } })
 
     expect(node.primitive).toBeUndefined()
   })
 
   it('intersection (allOf) has no primitive', () => {
     const node = parser.convertSchema({
-      allOf: [
-        { type: 'object', properties: { a: { type: 'string' } } },
-        { type: 'object', properties: { b: { type: 'number' } } },
-      ],
+      schema: {
+        allOf: [
+          { type: 'object', properties: { a: { type: 'string' } } },
+          { type: 'object', properties: { b: { type: 'number' } } },
+        ],
+      },
     })
 
     expect(node.primitive).toBeUndefined()
@@ -2387,7 +2481,7 @@ describe('convertSchema primitive', () => {
 
 describe('buildAst snapshots', async () => {
   const oas = await buildMinimalOas()
-  const root = createOasParser().buildAst(oas)
+  const root = createOasParser(oas).buildAst()
 
   it('full RootNode', () => {
     expect(root).toMatchSnapshot()

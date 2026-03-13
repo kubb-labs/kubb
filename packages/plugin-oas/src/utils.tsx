@@ -78,8 +78,8 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
     name: string
     tree: Array<Schema>
     value: SchemaObject
-    schemaNode: SchemaNode
   },
+  schemaNode: SchemaNode,
   { config, fabric, plugin, Component, generator }: BuildSchemaOptions<TOptions>,
 ): Promise<void> {
   if (!Component) {
@@ -91,7 +91,7 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
   const fabricChild = createReactFabric()
   await fabricChild.render(
     <App meta={{ pluginManager, plugin, mode, oas }}>
-      <Component config={config} schema={schema} plugin={plugin} generator={generator} />
+      <Component config={config} schema={schema} schemaNode={schemaNode} plugin={plugin} generator={generator} />
     </App>,
   )
 

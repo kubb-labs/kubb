@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
-import { convertSchema, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { createOasParser, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter, getImports } from '@kubb/plugin-oas/utils'
@@ -83,7 +83,8 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       const group = options.operation ? getGroup(options.operation) : undefined
 
       const coercion = name.includes('Params') ? { numbers: true, strings: false, dates: true } : globalCoercion
-      const schemaNode = convertSchema(schemaObject, name)
+      const parser = createOasParser(oas)
+      const schemaNode = parser.convertSchema({ schema: schemaObject, name })
 
       const zod = {
         name: schemaManager.getName(name, { type: 'function' }),
@@ -145,7 +146,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       </File>
     )
   },
-  Schema({ config, schema, plugin }) {
+  Schema({ config, schema, schemaNode, plugin }) {
     const { getName, getFile } = useSchemaManager()
     const {
       options: { output, emptySchemaType, coercion, inferred, typed, mapper, importPath, wrapOutput, version, guidType, mini },
@@ -191,7 +192,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
           description={schema.value.description}
           tree={schema.tree}
           schema={schema.value}
-          schemaNode={schema.schemaNode}
+          schemaNode={schemaNode}
           mapper={mapper}
           coercion={coercion}
           wrapOutput={wrapOutput}

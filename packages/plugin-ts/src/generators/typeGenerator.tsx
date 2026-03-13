@@ -351,8 +351,8 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       const imports = getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
 
-      const parser = createOasParser({ enumSuffix })
-      const rawSchemaNode = parser.convertSchema(transformedSchema, name)
+      const parser = createOasParser(oas)
+      const rawSchemaNode = parser.convertSchema({ schema: transformedSchema, name }, { enumSuffix })
       const schemaNode = parser.resolveRefs(
         rawSchemaNode,
         (ref) => {
@@ -426,11 +426,10 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       </File>
     )
   },
-  Schema({ schema, plugin }) {
+  Schema({ schema, schemaNode, plugin }) {
     const {
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
     } = plugin
-    const { schemaNode } = schema
     const mode = useMode()
 
     const oas = useOas()
