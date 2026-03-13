@@ -20,6 +20,7 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
+    "@kubb/fabric-core": "0.13.3",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
