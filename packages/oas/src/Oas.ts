@@ -1,3 +1,4 @@
+import type { RefMap, RootNode, SchemaNode } from '@kubb/ast/types'
 import jsonpointer from 'jsonpointer'
 import BaseOas from 'oas'
 import type { ParameterObject } from 'oas/types'
@@ -37,6 +38,12 @@ export class Oas extends BaseOas {
     discriminator: 'strict',
   }
   document: Document
+
+  /** The Kubb AST built from this spec. Populated by `plugin-oas`. */
+  ast?: RootNode
+
+  /** A fast name → SchemaNode lookup map. Populated by `plugin-oas` alongside `ast`. */
+  refMap: RefMap = new Map<string, SchemaNode>()
 
   constructor(document: Document) {
     super(document, undefined)
@@ -548,7 +555,17 @@ export class Oas extends BaseOas {
     // Collect schemas from components
     if (includes.includes('schemas')) {
       const componentSchemas = (components?.schemas as Record<string, SchemaObject>) || {}
-      for (const [name, schema] of Object.entries(componentSchemas)) {
+      for (const [name, schemaObject] of Object.entries(componentSchemas)) {
+        // Resolve schema if it's a $ref (can happen when the bundler deduplicates schemas
+        // referenced from multiple external files). Without this, a $ref schema would be
+        // parsed as a reference to itself, generating `z.lazy(() => schemaName)`.
+        let schema = schemaObject
+        if (isReference(schemaObject)) {
+          const resolved = this.get<SchemaObject>(schemaObject.$ref)
+          if (resolved && !isReference(resolved)) {
+            schema = resolved
+          }
+        }
         schemasWithMeta.push({ schema, source: 'schemas', originalName: name })
       }
     }
@@ -559,7 +576,17 @@ export class Oas extends BaseOas {
         const responseObject = response as ResponseObject
         const schema = extractSchemaFromContent(responseObject.content, contentType)
         if (schema) {
-          schemasWithMeta.push({ schema, source: 'responses', originalName: name })
+          // Resolve schema if it's a $ref (can happen when the bundler deduplicates schemas
+          // referenced from multiple external files). Without this, a $ref schema would be
+          // parsed as a reference to itself, generating `z.lazy(() => schemaName)`.
+          let resolvedSchema = schema
+          if (isReference(schema)) {
+            const resolved = this.get<SchemaObject>(schema.$ref)
+            if (resolved && !isReference(resolved)) {
+              resolvedSchema = resolved
+            }
+          }
+          schemasWithMeta.push({ schema: resolvedSchema, source: 'responses', originalName: name })
         }
       }
     }
@@ -570,7 +597,17 @@ export class Oas extends BaseOas {
         const requestObject = request as { content?: Record<string, unknown> }
         const schema = extractSchemaFromContent(requestObject.content, contentType)
         if (schema) {
-          schemasWithMeta.push({ schema, source: 'requestBodies', originalName: name })
+          // Resolve schema if it's a $ref (can happen when the bundler deduplicates schemas
+          // referenced from multiple external files). Without this, a $ref schema would be
+          // parsed as a reference to itself, generating `z.lazy(() => schemaName)`.
+          let resolvedSchema = schema
+          if (isReference(schema)) {
+            const resolved = this.get<SchemaObject>(schema.$ref)
+            if (resolved && !isReference(resolved)) {
+              resolvedSchema = resolved
+            }
+          }
+          schemasWithMeta.push({ schema: resolvedSchema, source: 'requestBodies', originalName: name })
         }
       }
     }
