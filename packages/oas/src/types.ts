@@ -8,10 +8,10 @@ export type { OasTypes }
 import type {
   DiscriminatorObject as OASDiscriminatorObject,
   OASDocument,
-  HttpMethods as OASHttpMethods,
   MediaTypeObject as OASMediaTypeObject,
   ResponseObject as OASResponseObject,
   SchemaObject as OASSchemaObject,
+  HttpMethods as OASHttpMethods,
 } from 'oas/types'
 
 export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
@@ -20,30 +20,24 @@ export type contentType = 'application/json' | (string & {})
 
 export type SchemaObject = OASSchemaObject & {
   /**
-   * Oas 3.1 adds support for `x-nullable` to specify that a schema can be null, even if `type` does not include `null`.
+   * OAS 3.1 extension: allows marking a schema as nullable even when `type` does not include `'null'`.
    */
   'x-nullable'?: boolean
   /**
-   * Oas 3.1 adds support for `const` to specify that a schema can only have a single value, which must be equal to the value of `const`.
+   * OAS 3.1: constrains the schema to a single fixed value.
+   * Semantically equivalent to a one-item `enum`.
    */
   const?: string | number | boolean | null
   /**
-   * Oas 3.1 adds support for `contentMediaType` to specify the media type of the content being described by the schema.
+   * OAS 3.1: specifies the media type of the schema content.
+   * When set to `'application/octet-stream'` on a `string` schema, the schema is treated as binary (`blob`).
    */
   contentMediaType?: string
   $ref?: string
 }
 
-export const HttpMethods = {
-  GET: 'get',
-  POST: 'post',
-  PUT: 'put',
-  PATCH: 'patch',
-  DELETE: 'delete',
-  HEAD: 'head',
-  OPTIONS: 'options',
-  TRACE: 'trace',
-} satisfies Record<Uppercase<OASHttpMethods>, OASHttpMethods>
+/** Re-exported from `constants.ts` for backwards compatibility. */
+export { httpMethods as HttpMethods } from './constants.ts'
 
 export type HttpMethod = OASHttpMethods
 
