@@ -1366,17 +1366,17 @@ export class SchemaGenerator<
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
-        const schemaTasks = schemaEntries.map(([name, _schemaObject]) =>
+        const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
           schemaLimit(async () => {
             const options = this.#getOptions(name)
 
-            const tree = this.parse({ schema: resolvedSchemaObject, name, parentName: null, rootName: name })
+            const tree = this.parse({ schema: schemaObject as SchemaObject, name, parentName: null, rootName: name })
 
             if (generator.type === 'react') {
               await buildSchema(
                 {
                   name,
-                  value: resolvedSchemaObject,
+                  value: schemaObject as SchemaObject,
                   tree,
                 },
                 {
@@ -1402,7 +1402,7 @@ export class SchemaGenerator<
               generator: this,
               schema: {
                 name,
-                value: resolvedSchemaObject,
+                value: schemaObject as SchemaObject,
                 tree,
               },
               plugin: {
