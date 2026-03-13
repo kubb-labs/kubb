@@ -3,14 +3,14 @@ import { pascalCase, URLPath } from '@internals/utils'
 import type { Config } from '@kubb/core'
 import { bundle, loadConfig } from '@redocly/openapi-core'
 import yaml from '@stoplight/yaml'
-import type { ParameterObject, SchemaObject } from 'oas/types'
+import type { ParameterObject } from 'oas/types'
 import { isRef, isSchema } from 'oas/types'
 import OASNormalize from 'oas-normalize'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { isPlainObject, mergeDeep } from 'remeda'
 import swagger2openapi from 'swagger2openapi'
 import { Oas } from './Oas.ts'
-import type { contentType, Document } from './types.ts'
+import type { contentType, Document, SchemaObject } from './types.ts'
 
 export const STRUCTURAL_KEYS = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'])
 
