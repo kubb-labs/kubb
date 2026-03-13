@@ -1,4 +1,4 @@
-{
+p{
   "files": [
     "packages/core/README.md"
   ],
@@ -479,15 +479,6 @@
       "name": "Hamza Mihai Daniel",
       "avatar_url": "https://avatars.githubusercontent.com/u/12731515?v=4",
       "profile": "https://hamzamihaidaniel.com",
-      "contributions": [
-        "code"
-      ]
-    },
-    {
-      "login": "saschabuehrle",
-      "name": "Sascha Buehrle",
-      "avatar_url": "https://avatars.githubusercontent.com/u/47737812?v=4",
-      "profile": "https://github.com/saschabuehrle",
       "contributions": [
         "code"
       ]
