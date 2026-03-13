@@ -39,8 +39,8 @@ import type {
   UnionSchemaNode,
 } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import type { Oas } from './Oas.ts'
 import { ENUM_EXTENSION_KEYS, FORMAT_MAP, KNOWN_MEDIA_TYPES } from './constants.ts'
+import type { Oas } from './Oas.ts'
 import type { contentType, Operation, SchemaObject } from './types.ts'
 import { flattenSchema, isDiscriminator, isNullable, isReference } from './utils.ts'
 
@@ -641,7 +641,12 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     if (extensionKey) {
       const rawNames = (schema as Record<string, unknown>)[extensionKey] as Array<string | number>
       const uniqueNames = [...new Set(rawNames)]
-      const enumType = getPrimitiveType(type) === 'number' || getPrimitiveType(type) === 'integer' ? ('number' as const) : getPrimitiveType(type) === 'boolean' ? ('boolean' as const) : ('string' as const)
+      const enumType =
+        getPrimitiveType(type) === 'number' || getPrimitiveType(type) === 'integer'
+          ? ('number' as const)
+          : getPrimitiveType(type) === 'boolean'
+            ? ('boolean' as const)
+            : ('string' as const)
 
       return createSchema({
         ...enumBase,
@@ -754,9 +759,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     }
 
     const rawPatternProperties =
-      'patternProperties' in resolvedSchema
-        ? (resolvedSchema as unknown as { patternProperties?: Record<string, SchemaObject> }).patternProperties
-        : undefined
+      'patternProperties' in resolvedSchema ? (resolvedSchema as unknown as { patternProperties?: Record<string, SchemaObject> }).patternProperties : undefined
 
     const patternProperties = rawPatternProperties
       ? Object.fromEntries(
@@ -1096,11 +1099,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    *
    * Collision-resolved names (from `nameMapping`) are applied before user-supplied resolvers.
    */
-  function resolveRefs(
-    node: SchemaNode,
-    resolveName: (ref: string) => string | undefined,
-    resolveEnumName?: (name: string) => string | undefined,
-  ): SchemaNode {
+  function resolveRefs(node: SchemaNode, resolveName: (ref: string) => string | undefined, resolveEnumName?: (name: string) => string | undefined): SchemaNode {
     return transform(node, {
       schema(schemaNode) {
         const schemaRef = narrowSchema(schemaNode, schemaTypes.ref)

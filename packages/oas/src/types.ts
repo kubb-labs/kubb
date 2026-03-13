@@ -8,10 +8,10 @@ export type { OasTypes }
 import type {
   DiscriminatorObject as OASDiscriminatorObject,
   OASDocument,
+  HttpMethods as OASHttpMethods,
   MediaTypeObject as OASMediaTypeObject,
   ResponseObject as OASResponseObject,
   SchemaObject as OASSchemaObject,
-  HttpMethods as OASHttpMethods,
 } from 'oas/types'
 
 export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'

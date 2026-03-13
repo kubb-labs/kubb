@@ -2312,7 +2312,6 @@ describe('parser options', () => {
   })
 })
 
-
 describe('buildAst', async () => {
   const oas = await buildMinimalOas()
   const root = createOasParser(oas).buildAst()

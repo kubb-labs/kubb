@@ -9,8 +9,8 @@ import OASNormalize from 'oas-normalize'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { isPlainObject, mergeDeep } from 'remeda'
 import swagger2openapi from 'swagger2openapi'
-import { Oas } from './Oas.ts'
 import { STRUCTURAL_KEYS } from './constants.ts'
+import { Oas } from './Oas.ts'
 import type { contentType, Document, SchemaObject } from './types.ts'
 
 export { STRUCTURAL_KEYS }
