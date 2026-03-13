@@ -1366,7 +1366,7 @@ export class SchemaGenerator<
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
-        const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
+        const schemaTasks = schemaEntries.map(([name, _schemaObject]) =>
           schemaLimit(async () => {
             const options = this.#getOptions(name)
 
