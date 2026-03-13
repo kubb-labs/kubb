@@ -388,6 +388,11 @@
               "text": "Generators",
               "link": "/guide/generators",
               "activeMatch": "^/guide/generators/?$"
+            },
+            {
+              "text": "AST",
+              "link": "/guide/ast",
+              "activeMatch": "^/guide/ast/?$"
             }
           ]
         },
