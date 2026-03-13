@@ -71,8 +71,8 @@ describe('createSchema', () => {
   })
 
   it('creates a ref schema', () => {
-    const node = createSchema({ type: 'ref', ref: 'Pet' })
-    expect(node.ref).toBe('Pet')
+    const node = createSchema({ type: 'ref', name: 'Pet' })
+    expect(node.name).toBe('Pet')
   })
 })
 
