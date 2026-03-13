@@ -7,6 +7,18 @@ import type { RootNode } from './nodes/root.ts'
 import type { SchemaNode } from './nodes/schema.ts'
 
 /**
+ * Options shared by {@link walk}, {@link transform}, and {@link collect}.
+ *
+ * @property depth - Controls how deep schema nodes are traversed.
+ *   - `1` — visit only the schema node itself; do **not** recurse into its
+ *     `properties`, `items`, or `members` children.
+ *   - `2` — recurse into `properties`, `items`, and `members` (default).
+ */
+export type VisitorOptions = {
+  depth?: 1 | 2
+}
+
+/**
  * A visitor that can be passed to `walk` or `transform`.
  *
  * Every method is optional. Return `undefined` / `void` from a `transform`
@@ -83,60 +95,69 @@ export interface CollectVisitor<T> {
  *
  * Visitor methods may be `async`; `walk` awaits each one before continuing.
  *
+ * @param options.depth - `1` visits only the schema node itself (no
+ *   `properties`/`items`/`members`); `2` recurses into them (default).
+ *
  * @example
  * ```ts
  * await walk(root, {
  *   async operation(op) { await doSomething(op.operationId) },
  * })
+ *
+ * // Only visit top-level schemas, not their properties/items/members:
+ * await walk(root, { schema(s) { console.log(s.name) } }, { depth: 1 })
  * ```
  */
-export async function walk(node: Node, visitor: AsyncVisitor): Promise<void> {
+export async function walk(node: Node, visitor: AsyncVisitor, options: VisitorOptions = {}): Promise<void> {
+  const depth = (options.depth ?? 2) === 2
   switch (node.kind) {
     case 'Root': {
       const root = node as RootNode
       await visitor.root?.(root)
-      for (const schema of root.schemas) await walk(schema, visitor)
-      for (const operation of root.operations) await walk(operation, visitor)
+      for (const schema of root.schemas) await walk(schema, visitor, options)
+      for (const operation of root.operations) await walk(operation, visitor, options)
       break
     }
     case 'Operation': {
       const op = node as OperationNode
       await visitor.operation?.(op)
-      for (const param of op.parameters) await walk(param, visitor)
-      if (op.requestBody) await walk(op.requestBody, visitor)
-      for (const response of op.responses) await walk(response, visitor)
+      for (const param of op.parameters) await walk(param, visitor, options)
+      if (op.requestBody) await walk(op.requestBody, visitor, options)
+      for (const response of op.responses) await walk(response, visitor, options)
       break
     }
     case 'Schema': {
       const schema = node as SchemaNode
       await visitor.schema?.(schema)
-      if ('properties' in schema && schema.properties) {
-        for (const prop of schema.properties) await walk(prop, visitor)
-      }
-      if ('items' in schema && schema.items) {
-        for (const item of schema.items) await walk(item, visitor)
-      }
-      if ('members' in schema && schema.members) {
-        for (const member of schema.members) await walk(member, visitor)
+      if (depth) {
+        if ('properties' in schema && schema.properties) {
+          for (const prop of schema.properties) await walk(prop, visitor, options)
+        }
+        if ('items' in schema && schema.items) {
+          for (const item of schema.items) await walk(item, visitor, options)
+        }
+        if ('members' in schema && schema.members) {
+          for (const member of schema.members) await walk(member, visitor, options)
+        }
       }
       break
     }
     case 'Property': {
       const prop = node as PropertyNode
       await visitor.property?.(prop)
-      await walk(prop.schema, visitor)
+      await walk(prop.schema, visitor, options)
       break
     }
     case 'Parameter': {
       const param = node as ParameterNode
       await visitor.parameter?.(param)
-      await walk(param.schema, visitor)
+      await walk(param.schema, visitor, options)
       break
     }
     case 'Response': {
       const response = node as ResponseNode
       await visitor.response?.(response)
-      if (response.schema) await walk(response.schema, visitor)
+      if (response.schema) await walk(response.schema, visitor, options)
       break
     }
   }
@@ -155,6 +176,9 @@ export async function walk(node: Node, visitor: AsyncVisitor): Promise<void> {
  * Use `transform` when you need an **immutable** transformed copy of the
  * tree (e.g. adding a prefix to all operation IDs).
  *
+ * @param options.depth - `1` visits only the schema node itself (no
+ *   `properties`/`items`/`members`); `2` recurses into them (default).
+ *
  * @example
  * ```ts
  * const prefixed = transform(root, {
@@ -162,9 +186,13 @@ export async function walk(node: Node, visitor: AsyncVisitor): Promise<void> {
  *     return { ...op, operationId: `api_${op.operationId}` }
  *   },
  * }) as RootNode
+ *
+ * // Transform only top-level schemas, leave nested properties untouched:
+ * transform(root, { schema(s) { return { ...s, description: 'top-level' } } }, { depth: 1 })
  * ```
  */
-export function transform(node: Node, visitor: Visitor): Node {
+export function transform(node: Node, visitor: Visitor, options: VisitorOptions = {}): Node {
+  const depth = (options.depth ?? 2) === 2
   switch (node.kind) {
     case 'Root': {
       let root = node as RootNode
@@ -173,8 +201,8 @@ export function transform(node: Node, visitor: Visitor): Node {
 
       return {
         ...root,
-        schemas: root.schemas.map((s) => transform(s, visitor) as SchemaNode),
-        operations: root.operations.map((op) => transform(op, visitor) as OperationNode),
+        schemas: root.schemas.map((s) => transform(s, visitor, options) as SchemaNode),
+        operations: root.operations.map((op) => transform(op, visitor, options) as OperationNode),
       } as RootNode
     }
     case 'Operation': {
@@ -184,9 +212,9 @@ export function transform(node: Node, visitor: Visitor): Node {
 
       return {
         ...op,
-        parameters: op.parameters.map((p) => transform(p, visitor) as ParameterNode),
-        requestBody: op.requestBody ? (transform(op.requestBody, visitor) as SchemaNode) : undefined,
-        responses: op.responses.map((r) => transform(r, visitor) as ResponseNode),
+        parameters: op.parameters.map((p) => transform(p, visitor, options) as ParameterNode),
+        requestBody: op.requestBody ? (transform(op.requestBody, visitor, options) as SchemaNode) : undefined,
+        responses: op.responses.map((r) => transform(r, visitor, options) as ResponseNode),
       } as OperationNode
     }
     case 'Schema': {
@@ -196,9 +224,9 @@ export function transform(node: Node, visitor: Visitor): Node {
 
       return {
         ...schema,
-        ...('properties' in schema ? { properties: schema.properties?.map((p) => transform(p, visitor) as PropertyNode) } : {}),
-        ...('items' in schema ? { items: schema.items?.map((i) => transform(i, visitor) as SchemaNode) } : {}),
-        ...('members' in schema ? { members: schema.members?.map((m) => transform(m, visitor) as SchemaNode) } : {}),
+        ...('properties' in schema && depth ? { properties: schema.properties?.map((p) => transform(p, visitor, options) as PropertyNode) } : {}),
+        ...('items' in schema && depth ? { items: schema.items?.map((i) => transform(i, visitor, options) as SchemaNode) } : {}),
+        ...('members' in schema && depth ? { members: schema.members?.map((m) => transform(m, visitor, options) as SchemaNode) } : {}),
       } as SchemaNode
     }
     case 'Property': {
@@ -208,7 +236,7 @@ export function transform(node: Node, visitor: Visitor): Node {
 
       return {
         ...prop,
-        schema: transform(prop.schema, visitor) as SchemaNode,
+        schema: transform(prop.schema, visitor, options) as SchemaNode,
       } as PropertyNode
     }
     case 'Parameter': {
@@ -218,7 +246,7 @@ export function transform(node: Node, visitor: Visitor): Node {
 
       return {
         ...param,
-        schema: transform(param.schema, visitor) as SchemaNode,
+        schema: transform(param.schema, visitor, options) as SchemaNode,
       } as ParameterNode
     }
     case 'Response': {
@@ -228,7 +256,7 @@ export function transform(node: Node, visitor: Visitor): Node {
 
       return {
         ...response,
-        schema: response.schema ? (transform(response.schema, visitor) as SchemaNode) : undefined,
+        schema: response.schema ? (transform(response.schema, visitor, options) as SchemaNode) : undefined,
       } as ResponseNode
     }
   }
@@ -243,6 +271,9 @@ export function transform(node: Node, visitor: Visitor): Node {
  * side-effects) or {@link transform} (node replacement), `collect` is a pure
  * read-only, synchronous reduction.
  *
+ * @param options.depth - `1` visits only the schema node itself (no
+ *   `properties`/`items`/`members`); `2` recurses into them (default).
+ *
  * @example
  * ```ts
  * const refs = collect(root, {
@@ -250,9 +281,13 @@ export function transform(node: Node, visitor: Visitor): Node {
  *     if (node.type === 'ref') return node
  *   },
  * })
+ *
+ * // Only collect top-level schemas (no nested properties):
+ * const topSchemas = collect(root, { schema(n) { return n } }, { depth: 1 })
  * ```
  */
-export function collect<T>(node: Node, visitor: CollectVisitor<T>): Array<T> {
+export function collect<T>(node: Node, visitor: CollectVisitor<T>, options: VisitorOptions = {}): Array<T> {
+  const depth = (options.depth ?? 2) === 2
   const results: Array<T> = []
 
   switch (node.kind) {
@@ -260,31 +295,33 @@ export function collect<T>(node: Node, visitor: CollectVisitor<T>): Array<T> {
       const root = node as RootNode
       const v = visitor.root?.(root)
       if (v !== undefined) results.push(v)
-      for (const schema of root.schemas) results.push(...collect(schema, visitor))
-      for (const operation of root.operations) results.push(...collect(operation, visitor))
+      for (const schema of root.schemas) results.push(...collect(schema, visitor, options))
+      for (const operation of root.operations) results.push(...collect(operation, visitor, options))
       break
     }
     case 'Operation': {
       const op = node as OperationNode
       const v = visitor.operation?.(op)
       if (v !== undefined) results.push(v)
-      for (const param of op.parameters) results.push(...collect(param, visitor))
-      if (op.requestBody) results.push(...collect(op.requestBody, visitor))
-      for (const response of op.responses) results.push(...collect(response, visitor))
+      for (const param of op.parameters) results.push(...collect(param, visitor, options))
+      if (op.requestBody) results.push(...collect(op.requestBody, visitor, options))
+      for (const response of op.responses) results.push(...collect(response, visitor, options))
       break
     }
     case 'Schema': {
       const schema = node as SchemaNode
       const v = visitor.schema?.(schema)
       if (v !== undefined) results.push(v)
-      if ('properties' in schema && schema.properties) {
-        for (const prop of schema.properties) results.push(...collect(prop, visitor))
-      }
-      if ('items' in schema && schema.items) {
-        for (const item of schema.items) results.push(...collect(item, visitor))
-      }
-      if ('members' in schema && schema.members) {
-        for (const member of schema.members) results.push(...collect(member, visitor))
+      if (depth) {
+        if ('properties' in schema && schema.properties) {
+          for (const prop of schema.properties) results.push(...collect(prop, visitor, options))
+        }
+        if ('items' in schema && schema.items) {
+          for (const item of schema.items) results.push(...collect(item, visitor, options))
+        }
+        if ('members' in schema && schema.members) {
+          for (const member of schema.members) results.push(...collect(member, visitor, options))
+        }
       }
       break
     }
@@ -292,21 +329,21 @@ export function collect<T>(node: Node, visitor: CollectVisitor<T>): Array<T> {
       const prop = node as PropertyNode
       const v = visitor.property?.(prop)
       if (v !== undefined) results.push(v)
-      results.push(...collect(prop.schema, visitor))
+      results.push(...collect(prop.schema, visitor, options))
       break
     }
     case 'Parameter': {
       const param = node as ParameterNode
       const v = visitor.parameter?.(param)
       if (v !== undefined) results.push(v)
-      results.push(...collect(param.schema, visitor))
+      results.push(...collect(param.schema, visitor, options))
       break
     }
     case 'Response': {
       const response = node as ResponseNode
       const v = visitor.response?.(response)
       if (v !== undefined) results.push(v)
-      if (response.schema) results.push(...collect(response.schema, visitor))
+      if (response.schema) results.push(...collect(response.schema, visitor, options))
       break
     }
   }

@@ -3,13 +3,13 @@ import type { PluginManager } from '@kubb/core'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { Operation } from '@kubb/oas'
-import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { createOasParser, type OperationSchemas, type OperationSchema as OperationSchemaType } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
-import { applyParamsCasing, getBanner, getFooter, getImports, isParameterSchema } from '@kubb/plugin-oas/utils'
+import { applyParamsCasing, getBanner, getFooter, isParameterSchema } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
 import ts from 'typescript'
-import { Type } from '../components'
+import { UnstableType } from '../components'
 import * as factory from '../factory.ts'
 import { createUrlTemplateType, getUnknownType, keywordTypeNodes } from '../factory.ts'
 import { pluginTsName } from '../plugin.ts'
@@ -309,12 +309,11 @@ function printResponseSchema({
   return results.join('\n\n')
 }
 
-export const typeGenerator = createReactGenerator<PluginTs>({
-  name: 'typescript',
+export const unstableTypeGenerator = createReactGenerator<PluginTs>({
+  name: 'unstable-typescript',
   Operation({ operation, generator, plugin }) {
     const {
-      options,
-      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing },
+      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing, enumSuffix },
     } = plugin
 
     const mode = useMode()
@@ -328,28 +327,28 @@ export const typeGenerator = createReactGenerator<PluginTs>({
 
     const file = getFile(operation)
     const schemas = getSchemas(operation)
-    const schemaGenerator = new SchemaGenerator(options, {
-      fabric: generator.context.fabric,
-      oas,
-      events: generator.context.events,
-      plugin,
-      pluginManager,
-      mode,
-      override: options.override,
-    })
 
     const operationSchemas = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response]
       .flat()
       .filter(Boolean)
+
+    // Create the parser once per operation; reused by every operation schema.
+    const parser = createOasParser(oas)
 
     const mapOperationSchema = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType) => {
       // Apply paramsCasing transformation to pathParams, queryParams, and headerParams (not response)
       const shouldTransform = paramsCasing && isParameterSchema(name)
       const transformedSchema = shouldTransform ? applyParamsCasing(schema, paramsCasing) : schema
 
-      const tree = schemaGenerator.parse({ schema: transformedSchema, name, parentName: null })
-      const imports = getImports(tree)
       const group = options.operation ? getGroup(options.operation) : undefined
+
+      const rawSchemaNode = parser.convertSchema({ schema: transformedSchema, name }, { enumSuffix })
+      const schemaNode = parser.resolveRefs(rawSchemaNode, (name) => schemaManager.getName(name, { type: 'type' }))
+
+      const imports = parser.getImports(schemaNode, (schemaName) => ({
+        name: schemaManager.getName(schemaName, { type: 'type' }),
+        path: schemaManager.getFile(schemaName).path,
+      }))
 
       const type = {
         name: schemaManager.getName(name, { type: 'type' }),
@@ -363,12 +362,11 @@ export const typeGenerator = createReactGenerator<PluginTs>({
             imports.map((imp) => (
               <File.Import key={[name, imp.name, imp.path, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />
             ))}
-          <Type
+          <UnstableType
             name={type.name}
             typedName={type.typedName}
             description={description}
-            tree={tree}
-            schema={transformedSchema}
+            schemaNode={schemaNode}
             mapper={mapper}
             enumType={enumType}
             enumKeyCasing={enumKeyCasing}
@@ -413,7 +411,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       </File>
     )
   },
-  Schema({ schema, plugin }) {
+  Schema({ schemaNode, plugin }) {
     const {
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
     } = plugin
@@ -423,19 +421,31 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const pluginManager = usePluginManager()
 
     const { getName, getFile } = useSchemaManager()
-    const imports = getImports(schema.tree)
-    const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
 
-    let typedName = getName(schema.name, { type: 'type' })
+    if (!schemaNode.name) {
+      return
+    }
 
-    if (['asConst', 'asPascalConst'].includes(enumType) && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
+    const parser = createOasParser(oas)
+    const imports = parser.getImports(schemaNode, (schemaName) => ({
+      name: getName(schemaName, { type: 'type' }),
+      path: getFile(schemaName).path,
+    }))
+
+    console.log(imports)
+
+    const isEnumSchema = schemaNode.type === 'enum'
+
+    let typedName = getName(schemaNode.name, { type: 'type' })
+
+    if (['asConst', 'asPascalConst'].includes(enumType) && isEnumSchema) {
       typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
     }
 
     const type = {
-      name: getName(schema.name, { type: 'function' }),
+      name: getName(schemaNode.name, { type: 'function' }),
       typedName,
-      file: getFile(schema.name),
+      file: getFile(schemaNode.name),
     }
 
     return (
@@ -448,14 +458,13 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       >
         {mode === 'split' &&
           imports.map((imp) => (
-            <File.Import key={[schema.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
+            <File.Import key={[schemaNode.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
           ))}
-        <Type
+
+        <UnstableType
           name={type.name}
           typedName={type.typedName}
-          description={schema.value.description}
-          tree={schema.tree}
-          schema={schema.value}
+          schemaNode={schemaNode}
           mapper={mapper}
           enumType={enumType}
           enumKeyCasing={enumKeyCasing}

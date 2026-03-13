@@ -1390,28 +1390,30 @@ export class SchemaGenerator<
         })
 
         if (this.options.UNSTABLE_SCHEMA) {
-          await walk(rootNode, {
-            async schema(schemaNode: SchemaNode) {
-              console.log(JSON.stringify(schemaNode, null, 2))
-
-              if (generator.type === 'react') {
-                await buildSchema(undefined as any, schemaNode, {
-                  config: instance.context.pluginManager.config,
-                  fabric: instance.context.fabric,
-                  Component: generator.Schema,
-                  generator: instance,
-                  plugin: {
-                    ...instance.context.plugin,
-                    options: instance.options,
-                  },
-                })
-              }
+          await walk(
+            rootNode,
+            {
+              async schema(schemaNode: SchemaNode) {
+                if (generator.type === 'react') {
+                  await buildSchema(undefined as any, schemaNode, {
+                    config: instance.context.pluginManager.config,
+                    fabric: instance.context.fabric,
+                    Component: generator.Schema,
+                    generator: instance,
+                    plugin: {
+                      ...instance.context.plugin,
+                      options: instance.options,
+                    },
+                  })
+                }
+              },
             },
-          })
+            { depth: 1 },
+          )
 
           fs.writeFileSync('./test.json', JSON.stringify(rootNode, null, 2), 'utf8')
 
-          return
+          return []
         }
 
         const schemaTasks = schemaEntries.map(([name, schemaObject]) =>

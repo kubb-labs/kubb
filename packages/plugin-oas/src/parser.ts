@@ -332,8 +332,8 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       return createSchema({
         type: 'ref',
         name,
-        ref: extractRefName(schemaObject.$ref),
-        $ref: schemaObject.$ref,
+        name: extractRefName(schemaObject.$ref),
+        ref: schemaObject.$ref,
         nullable,
         description: schemaObject.description,
         deprecated: schemaObject.deprecated,
@@ -1107,17 +1107,17 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       schema(schemaNode) {
         const schemaRef = narrowSchema(schemaNode, schemaTypes.ref)
 
-        if (schemaRef && (schemaRef.$ref || schemaRef.ref)) {
-          const ref = schemaRef.$ref ?? schemaRef.ref
+        if (schemaRef && (schemaRef.ref || schemaRef.name)) {
+          const rawRef = schemaRef.ref ?? schemaRef.name
 
-          if (!ref) {
-            throw new Error(`Unknown ref "${ref}" in ${schemaRef.$ref}`)
+          if (!rawRef) {
+            throw new Error(`Unknown ref "${rawRef}" in ${schemaRef.ref}`)
           }
 
-          const resolved = resolveName(nameMapping.get(ref) ?? ref)
+          const resolved = resolveName(nameMapping.get(rawRef) ?? rawRef)
 
           if (resolved) {
-            return { ...schemaNode, ref: resolved }
+            return { ...schemaNode, name: resolved }
           }
         }
 
@@ -1134,11 +1134,11 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
   function getImports(node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string } | undefined): Array<KubbFile.Import> {
     return collect<KubbFile.Import>(node, {
       schema(schemaNode): KubbFile.Import | undefined {
-        if (schemaNode.type !== 'ref' || !schemaNode.$ref) return
+        if (schemaNode.type !== 'ref' || !schemaNode.ref) return
         // Use the OAS instance to verify this $ref is importable (exists in the spec).
-        if (!oas.get(schemaNode.$ref)) return
+        if (!oas.get(schemaNode.ref)) return
 
-        const rawName = schemaNode.$ref.split('/').at(-1)
+        const rawName = schemaNode.ref.split('/').at(-1)
         if (!rawName) return
 
         // Apply collision-resolved name if available.

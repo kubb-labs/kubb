@@ -1,13 +1,11 @@
 import type { SchemaNode } from '@internals/ast'
+import { collect, type EnumSchemaNode } from '@internals/ast'
 import { camelCase, jsStringEscape, pascalCase, trimQuotes } from '@internals/utils'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
-import type { SchemaObject } from '@kubb/oas'
-import { type Schema, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { File } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type ts from 'typescript'
 import * as factory from '../factory.ts'
-import { parse, typeKeywordMapper } from '../parser.ts'
 import { parseSchemaNode } from '../parserSchemaNode.ts'
 import type { PluginTs } from '../types.ts'
 
@@ -15,8 +13,6 @@ type Props = {
   name: string
   typedName: string
   schemaNode: SchemaNode
-  schema: SchemaObject
-  tree: Array<Schema>
   optionalType: PluginTs['resolvedOptions']['optionalType']
   arrayType: PluginTs['resolvedOptions']['arrayType']
   enumType: PluginTs['resolvedOptions']['enumType']
@@ -32,9 +28,7 @@ export function UnstableType({
   name,
   typedName,
   schemaNode,
-  tree,
   keysToOmit,
-  schema,
   optionalType,
   arrayType,
   syntaxType,
@@ -46,45 +40,23 @@ export function UnstableType({
 }: Props): FabricReactNode {
   const typeNodes: ts.Node[] = []
 
-  if (!tree.length) {
-    return ''
-  }
-
   const description = rest.description || schemaNode?.description
-  const enumSchemas = SchemaGenerator.deepSearch(tree, schemaKeywords.enum)
+  const enumSchemaNodes = collect<EnumSchemaNode>(schemaNode, {
+    schema(n): EnumSchemaNode | undefined {
+      if (n.type === 'enum' && n.name) return n as EnumSchemaNode
+    },
+  })
 
-  let type =
-    (tree
-      .map((current, _index, siblings) =>
-        parse(
-          { name, schema, parent: undefined, current, siblings, schemaNode },
-          {
-            optionalType,
-            arrayType,
-            enumType,
-            mapper,
-          },
-        ),
-      )
-      .filter(Boolean)
-      .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
-
-  if (UNSTABLE_SCHEMA) {
-    if (!schemaNode) {
-      throw new Error('schemaNode is required when UNSTABLE_SCHEMA is true')
-    }
-
-    type = parseSchemaNode(schemaNode, { optionalType, arrayType, enumType })!
-  }
+  let type = parseSchemaNode(schemaNode, { optionalType, arrayType, enumType })!
 
   // Add a "Key" suffix to avoid collisions where necessary
-  if (['asConst', 'asPascalConst'].includes(enumType) && enumSchemas.length > 0) {
-    const isDirectEnum = schema.type === 'array' && schema.items !== undefined
-    const isEnumOnly = 'enum' in schema && schema.enum
+  if (['asConst', 'asPascalConst'].includes(enumType) && enumSchemaNodes.length > 0) {
+    const isDirectEnum = schemaNode.type === 'array' && schemaNode.items !== undefined
+    const isEnumOnly = 'enum' in schemaNode && schemaNode.enum
 
     if (isDirectEnum || isEnumOnly) {
-      const enumSchema = enumSchemas[0]!
-      const typeNameWithKey = `${enumSchema.args.typeName}Key`
+      const enumSchemaNode = enumSchemaNodes[0]!
+      const typeNameWithKey = `${enumSchemaNode.name!}Key`
 
       type = factory.createTypeReferenceNode(typeNameWithKey)
 
@@ -145,16 +117,16 @@ export function UnstableType({
     }),
   )
 
-  const enums = [...new Set(enumSchemas)].map((enumSchema) => {
-    const name = enumType === 'asPascalConst' ? pascalCase(enumSchema.args.name) : camelCase(enumSchema.args.name)
-    const typeName = ['asConst', 'asPascalConst'].includes(enumType) ? `${enumSchema.args.typeName}Key` : enumSchema.args.typeName
+  const enums = [...new Map(enumSchemaNodes.map((n) => [n.name, n])).values()].map((enumSchemaNode) => {
+    const name = enumType === 'asPascalConst' ? pascalCase(enumSchemaNode.name!) : camelCase(enumSchemaNode.name!)
+    const typeName = ['asConst', 'asPascalConst'].includes(enumType) ? `${enumSchemaNode.name!}Key` : enumSchemaNode.name!
 
     const [nameNode, typeNode] = factory.createEnumDeclaration({
       name,
       typeName,
-      enums: enumSchema.args.items
-        .map((item) => (item.value === undefined ? undefined : [trimQuotes(item.name?.toString()), item.value]))
-        .filter(Boolean) as unknown as Array<[string, string]>,
+      enums: (enumSchemaNode.namedEnumValues?.map((v) => [trimQuotes(v.name.toString()), v.value]) ??
+        enumSchemaNode.enumValues?.filter((v): v is NonNullable<typeof v> => v !== null && v !== undefined).map((v) => [trimQuotes(v.toString()), v]) ??
+        []) as unknown as Array<[string, string]>,
       type: enumType,
       enumKeyCasing,
     })

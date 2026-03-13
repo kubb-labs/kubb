@@ -3,7 +3,7 @@ import { createOperation, createParameter, createProperty, createResponse, creat
 import type { OperationNode } from './nodes/operation.ts'
 import type { RootNode } from './nodes/root.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { transform, walk } from './visitor.ts'
+import { collect, transform, walk } from './visitor.ts'
 
 function buildSampleTree(): RootNode {
   const petSchema = createSchema({
@@ -21,7 +21,7 @@ function buildSampleTree(): RootNode {
     path: '/pets/{petId}',
     tags: ['pets'],
     parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
-    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', ref: 'Pet' }) }), createResponse({ statusCode: '404' })],
+    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'Pet' }) }), createResponse({ statusCode: '404' })],
   })
 
   return createRoot({ schemas: [petSchema], operations: [operation] })
@@ -90,6 +90,34 @@ describe('walk', () => {
     })
     expect(JSON.stringify(root)).toBe(original)
   })
+
+  it('does not recurse into schema properties/items/members when depth: 1', async () => {
+    const root = buildSampleTree()
+    const schemaTypes: Array<string> = []
+    const propertyNames: Array<string> = []
+
+    await walk(
+      root,
+      {
+        schema(s) {
+          schemaTypes.push(s.type)
+        },
+        property(p) {
+          propertyNames.push(p.name)
+        },
+      },
+      { depth: 1 },
+    )
+
+    // Top-level Pet object schema is visited
+    expect(schemaTypes).toContain('object')
+    // Parameter schema (integer) is still visited — it's not a schema property
+    expect(schemaTypes).toContain('integer')
+    // Properties of Pet are NOT descended into, so 'string' (Pet.name) is absent
+    expect(schemaTypes).not.toContain('string')
+    // PropertyNodes are NOT visited since the object schema doesn't recurse into them
+    expect(propertyNames).toHaveLength(0)
+  })
 })
 
 describe('transform', () => {
@@ -148,5 +176,61 @@ describe('transform', () => {
     expect(types).toContain('object')
     expect(types).toContain('integer')
     expect(types).toContain('string')
+  })
+
+  it('does not recurse into schema properties/items/members when depth: 1', () => {
+    const root = buildSampleTree()
+    const types: Array<string> = []
+    transform(
+      root,
+      {
+        schema(schema): SchemaNode {
+          types.push(schema.type)
+          return schema
+        },
+      },
+      { depth: 1 },
+    )
+
+    // Top-level object schema is visited
+    expect(types).toContain('object')
+    // Parameter schema (integer) is still visited — not a schema property
+    expect(types).toContain('integer')
+    // 'string' (Pet.name property schema) is NOT visited — guarded by depth
+    expect(types).not.toContain('string')
+  })
+})
+
+describe('collect', () => {
+  it('collects all schema types with default depth traversal', () => {
+    const root = buildSampleTree()
+    const types = collect<string>(root, {
+      schema(n) {
+        return n.type
+      },
+    })
+
+    expect(types).toContain('object')
+    expect(types).toContain('integer')
+    expect(types).toContain('string')
+  })
+
+  it('collects only top-level schemas (not object properties) when depth: 1', () => {
+    const root = buildSampleTree()
+    const types = collect<string>(
+      root,
+      {
+        schema(n) {
+          return n.type
+        },
+      },
+      { depth: 1 },
+    )
+
+    expect(types).toContain('object')
+    // Parameter schema (integer) is still collected — not guarded by depth
+    expect(types).toContain('integer')
+    // 'string' (Pet.name property schema) is NOT collected — guarded by depth
+    expect(types).not.toContain('string')
   })
 })

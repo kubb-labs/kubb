@@ -4,32 +4,27 @@
  */
 
 import type { Cat } from './Cat.ts'
+import type { Category } from './Category.ts'
 import type { Dog } from './Dog.ts'
 import type { Tag } from './Tag.ts'
-
-export const statusEnum = {
-  available: 'available',
-  pending: 'pending',
-  sold: 'sold',
-} as const
-
-export type StatusEnumKey = (typeof statusEnum)[keyof typeof statusEnum]
 
 export type Pet =
   | (Dog & {
       /**
-       * @type integer | undefined, int64
+       * @example 10
+       * @type integer | undefined
        */
       id?: number
       /**
        * @type string
        */
-      readonly type: 'dog'
+      readonly type: 'dog' | 'cat'
       /**
+       * @example doggie
        * @type string
        */
       name: string
-      category?: string
+      category?: Category
       /**
        * @type array
        */
@@ -42,22 +37,24 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: StatusEnumKey
+      status?: 'available' | 'pending' | 'sold'
     })
   | (Cat & {
       /**
-       * @type integer | undefined, int64
+       * @example 10
+       * @type integer | undefined
        */
       id?: number
       /**
        * @type string
        */
-      readonly type: 'cat'
+      readonly type: 'dog' | 'cat'
       /**
+       * @example doggie
        * @type string
        */
       name: string
-      category?: string
+      category?: Category
       /**
        * @type array
        */
@@ -70,5 +67,5 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: StatusEnumKey
+      status?: 'available' | 'pending' | 'sold'
     })
