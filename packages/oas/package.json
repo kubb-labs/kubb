@@ -63,8 +63,11 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/fabric-core": "catalog:",
     "@kubb/core": "workspace:*",
+    "@kubb/ast": "workspace:*",
     "@redocly/openapi-core": "^2.21.1",
+    "@stoplight/yaml": "^4.3.0",
     "jsonpointer": "^5.0.1",
     "oas": "^31.1.2",
     "oas-normalize": "^16.0.2",
@@ -74,8 +77,10 @@
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
-    "@stoplight/yaml": "^4.3.0",
     "@types/swagger2openapi": "^7.0.4"
+  },
+  "peerDependencies": {
+    "@kubb/fabric-core": "0.13.3"
   },
   "engines": {
     "node": ">=20"
