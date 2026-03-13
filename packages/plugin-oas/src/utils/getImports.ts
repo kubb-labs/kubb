@@ -5,6 +5,9 @@ import { schemaKeywords } from '../SchemaMapper'
 
 /**
  * Get imports from a schema tree by extracting all ref schemas that are importable
+ * @deprecated Use `getImportsFromSchema` from `@kubb/plugin-oas` together with
+ * `collect` from `@internals/ast` instead. Build a `Map<string, KubbFile.Import>`
+ * keyed by `$ref` string and pass it to `getImportsFromSchema(schemaNode, map)`.
  */
 export function getImports(tree: Array<Schema>): Array<KubbFile.Import> {
   const refs = SchemaGenerator.deepSearch(tree, schemaKeywords.ref)

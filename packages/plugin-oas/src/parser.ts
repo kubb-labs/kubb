@@ -1,5 +1,6 @@
 import {
   type ArraySchemaNode,
+  collect,
   createOperation,
   createParameter,
   createProperty,
@@ -35,6 +36,7 @@ import {
   type UnionSchemaNode,
 } from '@internals/ast'
 import { pascalCase } from '@internals/utils'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, Operation, SchemaObject } from '@kubb/oas'
 import { flattenSchema, isDiscriminator, isNullable, isReference, type Oas } from '@kubb/oas'
 
@@ -208,6 +210,24 @@ export type OasParser = {
    * the transformed name to use (e.g. with a plugin `transformers.name` applied).
    */
   resolveRefs: (node: SchemaNode, resolveName: (ref: string) => string | undefined, resolveEnumName?: (name: string) => string | undefined) => SchemaNode
+  /**
+   * Extracts `KubbFile.Import` entries from a `SchemaNode` tree by collecting
+   * all importable `ref` nodes. A `$ref` is considered importable when it resolves
+   * to a known component in the OAS spec (`oas.get($ref)` is truthy).
+   *
+   * The `resolve` callback is called with the schema name (last segment of the
+   * `$ref`, collision-corrected via the OAS name mapping) and must return the
+   * `{ name, path }` pair for the generated import, or `undefined` to skip it.
+   *
+   * @example
+   * ```ts
+   * const imports = parser.getImports(schemaNode, (schemaName) => ({
+   *   name: schemaManager.getName(schemaName, { type: 'type' }),
+   *   path: schemaManager.getFile(schemaName).path,
+   * }))
+   * ```
+   */
+  getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string } | undefined) => Array<KubbFile.Import>
 }
 
 /**
@@ -1111,9 +1131,30 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     }) as SchemaNode
   }
 
+  function getImports(node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string } | undefined): Array<KubbFile.Import> {
+    return collect<KubbFile.Import>(node, {
+      schema(schemaNode): KubbFile.Import | undefined {
+        if (schemaNode.type !== 'ref' || !schemaNode.$ref) return
+        // Use the OAS instance to verify this $ref is importable (exists in the spec).
+        if (!oas.get(schemaNode.$ref)) return
+
+        const rawName = schemaNode.$ref.split('/').at(-1)
+        if (!rawName) return
+
+        // Apply collision-resolved name if available.
+        const schemaName = nameMapping.get(rawName) ?? rawName
+        const result = resolve(schemaName)
+        if (!result) return
+
+        return { name: [result.name], path: result.path }
+      },
+    })
+  }
+
   return {
     buildAst,
     convertSchema,
     resolveRefs,
+    getImports,
   } as OasParser
 }
