@@ -120,7 +120,7 @@ describe('transform', () => {
       operation(op): OperationNode {
         return { ...op, operationId: `api_${op.operationId}` }
       },
-    }) 
+    })
 
     expect(result.operations[0]?.operationId).toBe('api_getPetById')
     // Original unchanged

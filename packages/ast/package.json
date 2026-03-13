@@ -32,7 +32,9 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "types": ["./dist/types.d.ts"]
+      "types": [
+        "./dist/types.d.ts"
+      ]
     }
   },
   "files": [
