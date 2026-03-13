@@ -6,6 +6,15 @@ outline: deep
 
 # Changelog
 
+## 4.33.4
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/core`](/plugins/core)
+
+-   Improved internal package management to ensure better stability and consistency across plugins. This change resolves a range of minor bugs caused by dependency mismatches.
+
+
 ## 4.33.3
 
 ### 🐛 Bug Fixes
