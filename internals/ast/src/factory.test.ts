@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from './factory.ts'
+import type { ObjectSchemaNode, StringSchemaNode } from './nodes/schema.ts'
 
 describe('createRoot', () => {
   it('creates a RootNode with default empty arrays', () => {
@@ -82,6 +83,14 @@ describe('createSchema', () => {
     const node = createSchema({ type: 'ref', name: 'Pet' })
 
     expect(node.name).toBe('Pet')
+  })
+
+  it('narrows return type to StringSchemaNode for type "string"', () => {
+    expectTypeOf(createSchema({ type: 'string' })).toMatchTypeOf<StringSchemaNode & { kind: 'Schema' }>()
+  })
+
+  it('narrows return type to ObjectSchemaNode for type "object"', () => {
+    expectTypeOf(createSchema({ type: 'object' })).toMatchTypeOf<ObjectSchemaNode & { kind: 'Schema' }>()
   })
 })
 

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import { buildSampleTree } from './mocks.ts'
 import type { OperationNode } from './nodes/operation.ts'
 import type { RootNode } from './nodes/root.ts'
@@ -103,10 +103,15 @@ describe('walk', () => {
 describe('transform', () => {
   it('returns a new tree without mutating the original', () => {
     const root = buildSampleTree()
-    const result = transform(root, {}) as RootNode
+    const result = transform(root, {})
 
     expect(result).not.toBe(root)
     expect(result.kind).toBe('Root')
+  })
+
+  it('return type matches input type via overloads', () => {
+    const root = buildSampleTree()
+    expectTypeOf(transform(root, {})).toEqualTypeOf<RootNode>()
   })
 
   it('replaces operations via visitor return value', () => {
@@ -115,7 +120,7 @@ describe('transform', () => {
       operation(op): OperationNode {
         return { ...op, operationId: `api_${op.operationId}` }
       },
-    }) as RootNode
+    }) 
 
     expect(result.operations[0]?.operationId).toBe('api_getPetById')
     // Original unchanged
@@ -128,7 +133,7 @@ describe('transform', () => {
       schema(schema): SchemaNode {
         return { ...schema, description: 'transformed' }
       },
-    }) as RootNode
+    })
 
     expect(result.schemas[0]?.description).toBe('transformed')
   })
@@ -139,7 +144,7 @@ describe('transform', () => {
       operation() {
         return undefined
       },
-    }) as RootNode
+    })
 
     expect(unchanged.operations[0]?.operationId).toBe('getPetById')
   })
