@@ -1,11 +1,11 @@
-import type { CLIOptions, defineConfig } from '../config.ts'
+import type { CLIOptions, ConfigInput } from '../config.ts'
 import type { Config, UserConfig } from '../types.ts'
 import { getPlugins } from './getPlugins.ts'
 
 /**
  * Converting UserConfig to Config Array without a change in the object beside the JSON convert.
  */
-export async function getConfigs(config: ReturnType<typeof defineConfig> | UserConfig, args: CLIOptions): Promise<Array<Config>> {
+export async function getConfigs(config: ConfigInput | UserConfig, args: CLIOptions): Promise<Array<Config>> {
   const resolvedConfig: Promise<UserConfig | Array<UserConfig>> =
     typeof config === 'function' ? Promise.resolve(config(args as CLIOptions)) : Promise.resolve(config)
 

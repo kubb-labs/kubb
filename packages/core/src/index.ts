@@ -1,5 +1,5 @@
 export { build, build as default, safeBuild, setup } from './build.ts'
-export { type CLIOptions, defineConfig, isInputPath } from './config.ts'
+export { type CLIOptions, type ConfigInput, defineConfig, isInputPath } from './config.ts'
 export { formatters, linters, logLevel } from './constants.ts'
 export { defineLogger } from './defineLogger.ts'
 export { definePlugin } from './definePlugin.ts'
