@@ -1,4 +1,11 @@
-export type { BaseNode, Node, NodeKind } from './base.ts'
+import type { OperationNode } from './operation.ts'
+import type { ParameterNode } from './parameter.ts'
+import type { PropertyNode } from './property.ts'
+import type { ResponseNode } from './response.ts'
+import type { RootNode } from './root.ts'
+import type { SchemaNode } from './schema.ts'
+
+export type { BaseNode, NodeKind } from './base.ts'
 export type { HttpStatusCode, MediaType, StatusCode } from './http.ts'
 export type { HttpMethod, OperationNode } from './operation.ts'
 export type { ParameterLocation, ParameterNode } from './parameter.ts'
@@ -27,4 +34,12 @@ export type {
   TimeSchemaNode,
   UnionSchemaNode,
 } from './schema.ts'
-export { schemaTypes } from './schema.ts'
+
+/**
+ * Discriminated union of every AST node.
+ *
+ * Using a concrete union (instead of the bare `BaseNode` alias) lets
+ * TypeScript narrow the type automatically inside `switch (node.kind)`
+ * blocks, eliminating the need for manual `as TypeName` casts.
+ */
+export type Node = RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode

@@ -1,4 +1,4 @@
-import type { Node, NodeKind } from './nodes/base.ts'
+import type { Node, NodeKind } from './nodes/index.ts'
 import type { OperationNode } from './nodes/operation.ts'
 import type { ParameterNode } from './nodes/parameter.ts'
 import type { PropertyNode } from './nodes/property.ts'
@@ -7,12 +7,7 @@ import type { RootNode } from './nodes/root.ts'
 import type { SchemaNode, SchemaNodeByType } from './nodes/schema.ts'
 
 /**
- * Narrows a `SchemaNode` (or `undefined`) to a specific variant by matching its `type`.
- * Returns the narrowed node when it matches, or `undefined` otherwise.
- *
- * @example
- * const obj = narrowSchema(node, 'object')  // ObjectSchemaNode | undefined
- * const union = narrowSchema(node, 'union') // UnionSchemaNode | undefined
+ * Narrows a `SchemaNode` to the specific variant matching `type`.
  */
 export function narrowSchema<T extends SchemaNode['type']>(node: SchemaNode | undefined, type: T): SchemaNodeByType[T] | undefined {
   return node?.type === type ? (node as SchemaNodeByType[T]) : undefined
@@ -22,20 +17,32 @@ function isKind<T extends Node>(kind: NodeKind) {
   return (node: Node): node is T => node.kind === kind
 }
 
-/** Returns `true` when `node` is a `RootNode`. */
+/**
+ * Type guard for `RootNode`.
+ */
 export const isRootNode = isKind<RootNode>('Root')
 
-/** Returns `true` when `node` is an `OperationNode`. */
+/**
+ * Type guard for `OperationNode`.
+ */
 export const isOperationNode = isKind<OperationNode>('Operation')
 
-/** Returns `true` when `node` is a `SchemaNode`. */
+/**
+ * Type guard for `SchemaNode`.
+ */
 export const isSchemaNode = isKind<SchemaNode>('Schema')
 
-/** Returns `true` when `node` is a `PropertyNode`. */
+/**
+ * Type guard for `PropertyNode`.
+ */
 export const isPropertyNode = isKind<PropertyNode>('Property')
 
-/** Returns `true` when `node` is a `ParameterNode`. */
+/**
+ * Type guard for `ParameterNode`.
+ */
 export const isParameterNode = isKind<ParameterNode>('Parameter')
 
-/** Returns `true` when `node` is a `ResponseNode`. */
+/**
+ * Type guard for `ResponseNode`.
+ */
 export const isResponseNode = isKind<ResponseNode>('Response')

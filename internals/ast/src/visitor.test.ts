@@ -91,7 +91,7 @@ describe('walk', () => {
     expect(JSON.stringify(root)).toBe(original)
   })
 
-  it('does not recurse into schema properties/items/members when depth: 1', async () => {
+  it('does not recurse into schema properties/items/members when depth: shallow', async () => {
     const root = buildSampleTree()
     const schemaTypes: Array<string> = []
     const propertyNames: Array<string> = []
@@ -106,7 +106,7 @@ describe('walk', () => {
           propertyNames.push(p.name)
         },
       },
-      { depth: 1 },
+      { depth: 'shallow' },
     )
 
     // Top-level Pet object schema is visited
@@ -178,7 +178,7 @@ describe('transform', () => {
     expect(types).toContain('string')
   })
 
-  it('does not recurse into schema properties/items/members when depth: 1', () => {
+  it('does not recurse into schema properties/items/members when depth: shallow', () => {
     const root = buildSampleTree()
     const types: Array<string> = []
     transform(
@@ -189,7 +189,7 @@ describe('transform', () => {
           return schema
         },
       },
-      { depth: 1 },
+      { depth: 'shallow' },
     )
 
     // Top-level object schema is visited
@@ -215,7 +215,7 @@ describe('collect', () => {
     expect(types).toContain('string')
   })
 
-  it('collects only top-level schemas (not object properties) when depth: 1', () => {
+  it('collects only top-level schemas (not object properties) when depth: shallow', () => {
     const root = buildSampleTree()
     const types = collect<string>(
       root,
@@ -224,7 +224,7 @@ describe('collect', () => {
           return n.type
         },
       },
-      { depth: 1 },
+      { depth: 'shallow' },
     )
 
     expect(types).toContain('object')
