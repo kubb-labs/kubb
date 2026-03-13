@@ -24,6 +24,10 @@ export type CLIOptions = {
   /** Run Kubb with Bun */
   bun?: boolean
 }
+
+/** All accepted forms of a Kubb configuration. */
+export type ConfigInput = PossiblePromise<UserConfig | UserConfig[]> | ((cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>)
+
 /**
  * Helper for defining a Kubb configuration.
  *
@@ -38,9 +42,9 @@ export type CLIOptions = {
  *   plugins: [myPlugin()],
  * }))
  */
-export function defineConfig(
-  config: PossiblePromise<UserConfig | UserConfig[]> | ((cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>),
-): typeof config {
+export function defineConfig(config: (cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>): typeof config
+export function defineConfig(config: PossiblePromise<UserConfig | UserConfig[]>): typeof config
+export function defineConfig(config: ConfigInput): ConfigInput {
   return config
 }
 
