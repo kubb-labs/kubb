@@ -27,7 +27,7 @@ export function buildSampleTree(): RootNode {
 }
 
 /**
- * Petstore-like tree: six named schemas (`Pet`, `NewPet`, `PetList`, `Error`, `PetOrError`, `FullPet`)
+ * PetStore-like tree: six named schemas (`Pet`, `NewPet`, `PetList`, `Error`, `PetOrError`, `FullPet`)
  * and two operations (`listPets`, `createPet`).
  */
 export function buildFixture(): RootNode {
