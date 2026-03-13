@@ -52,9 +52,11 @@
     "@kubb/plugin-oas": "workspace:*"
   },
   "peerDependencies": {
+    "@kubb/fabric-core": "0.13.3",
     "@kubb/react-fabric": "0.13.3"
   },
   "devDependencies": {
+    "@kubb/fabric-core": "catalog:",
     "@kubb/react-fabric": "catalog:",
     "@types/node": "catalog:"
   },

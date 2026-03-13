@@ -93,11 +93,13 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "@kubb/fabric-core": "catalog:",
     "@kubb/oas": "workspace:*",
     "@kubb/react-fabric": "catalog:",
     "remeda": "catalog:"
   },
   "peerDependencies": {
+    "@kubb/fabric-core": "0.13.3",
     "@kubb/react-fabric": "0.13.3"
   },
   "engines": {
