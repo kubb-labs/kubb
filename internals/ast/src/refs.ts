@@ -11,6 +11,7 @@ export type RefMap = Map<string, SchemaNode>
  */
 export function buildRefMap(root: RootNode): RefMap {
   const map: RefMap = new Map()
+
   for (const schema of root.schemas) {
     if (schema.name) {
       map.set(schema.name, schema)

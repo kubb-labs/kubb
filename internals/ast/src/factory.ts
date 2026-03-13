@@ -1,14 +1,9 @@
-import type { OperationNode } from './nodes/operation.ts'
-import type { ParameterNode } from './nodes/parameter.ts'
-import type { PropertyNode } from './nodes/property.ts'
-import type { ResponseNode } from './nodes/response.ts'
-import type { RootNode } from './nodes/root.ts'
-import type { SchemaNode } from './nodes/schema.ts'
+import type { OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode } from './nodes/index.ts'
 
 /**
  * Distributive variant of `Omit` that preserves union members.
  */
-export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
 
 /**
  * Creates a `RootNode`.

@@ -1,31 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from './factory.ts'
+import { buildSampleTree } from './mocks.ts'
 import type { OperationNode } from './nodes/operation.ts'
 import type { RootNode } from './nodes/root.ts'
 import type { SchemaNode } from './nodes/schema.ts'
 import { collect, transform, walk } from './visitor.ts'
-
-function buildSampleTree(): RootNode {
-  const petSchema = createSchema({
-    type: 'object',
-    name: 'Pet',
-    properties: [
-      createProperty({ name: 'id', schema: createSchema({ type: 'integer' }), required: true }),
-      createProperty({ name: 'name', schema: createSchema({ type: 'string' }), required: true }),
-    ],
-  })
-
-  const operation = createOperation({
-    operationId: 'getPetById',
-    method: 'GET',
-    path: '/pets/{petId}',
-    tags: ['pets'],
-    parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
-    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'Pet' }) }), createResponse({ statusCode: '404' })],
-  })
-
-  return createRoot({ schemas: [petSchema], operations: [operation] })
-}
 
 describe('walk', () => {
   it('visits all node kinds in a tree', async () => {
@@ -77,6 +55,7 @@ describe('walk', () => {
         ids.push(op.operationId)
       },
     })
+
     expect(ids).toEqual(['getPetById'])
   })
 
@@ -88,6 +67,7 @@ describe('walk', () => {
         return { ...op, operationId: 'mutated' }
       },
     })
+
     expect(JSON.stringify(root)).toBe(original)
   })
 
@@ -124,6 +104,7 @@ describe('transform', () => {
   it('returns a new tree without mutating the original', () => {
     const root = buildSampleTree()
     const result = transform(root, {}) as RootNode
+
     expect(result).not.toBe(root)
     expect(result.kind).toBe('Root')
   })

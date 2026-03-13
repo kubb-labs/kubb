@@ -1,10 +1,4 @@
-import type { Node, NodeKind } from './nodes/index.ts'
-import type { OperationNode } from './nodes/operation.ts'
-import type { ParameterNode } from './nodes/parameter.ts'
-import type { PropertyNode } from './nodes/property.ts'
-import type { ResponseNode } from './nodes/response.ts'
-import type { RootNode } from './nodes/root.ts'
-import type { SchemaNode, SchemaNodeByType } from './nodes/schema.ts'
+import type { Node, NodeKind, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode, SchemaNodeByType } from './nodes/index.ts'
 
 /**
  * Narrows a `SchemaNode` to the specific variant matching `type`.

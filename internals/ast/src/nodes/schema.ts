@@ -1,18 +1,21 @@
-export type PrimitiveSchemaType = 'string' | 'number' | 'integer' | 'bigint' | 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'object' | 'array'
+import type { BaseNode } from './base.ts'
+import type { PropertyNode } from './property.ts'
+
+export type PrimitiveSchemaType = 'string' | 'number' | 'integer' | 'bigint' | 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'object' | 'array' | 'date'
 
 export type ComplexSchemaType = 'tuple' | 'union' | 'intersection' | 'enum'
 
 /**
  * Semantic types requiring special handling in code generation (e.g. generating a `Date` object or a branded type).
  */
-export type SpecialSchemaType = 'ref' | 'date' | 'datetime' | 'time' | 'uuid' | 'email' | 'url' | 'blob'
+export type SpecialSchemaType = 'ref' | 'datetime' | 'time' | 'uuid' | 'email' | 'url' | 'blob'
 
 export type SchemaType = PrimitiveSchemaType | ComplexSchemaType | SpecialSchemaType
 
-export type ScalarSchemaType = ScalarSchemaNode['type']
-
-import type { BaseNode } from './base.ts'
-import type { PropertyNode } from './property.ts'
+export type ScalarSchemaType = Exclude<
+  SchemaType,
+  'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum' | 'ref' | 'datetime' | 'date' | 'time' | 'string' | 'number' | 'integer' | 'bigint'
+>
 
 /**
  * Base fields shared by every schema variant. Does not include spec-specific fields.
@@ -26,10 +29,6 @@ interface SchemaNodeBase extends BaseNode {
   title?: string
   description?: string
   nullable?: boolean
-  /**
-   * Present in the parent object but absent from `required`.
-   */
-  optional?: boolean
   /**
    * Both optional and nullable (`optional` + `nullable`).
    */
@@ -203,10 +202,7 @@ export interface NumberSchemaNode extends SchemaNodeBase {
  * Schema for scalar types with no additional constraints.
  */
 export interface ScalarSchemaNode extends SchemaNodeBase {
-  type: Exclude<
-    SchemaType,
-    'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum' | 'ref' | 'datetime' | 'date' | 'time' | 'string' | 'number' | 'integer' | 'bigint'
-  >
+  type: ScalarSchemaType
 }
 
 /**

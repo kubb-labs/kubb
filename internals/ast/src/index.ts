@@ -1,4 +1,13 @@
 // nodes
+export type { VisitorDepth } from './constants.ts'
+export { DEFAULT_STATUS_CODE, httpMethods, mediaTypes, nodeKinds, parameterLocations, schemaTypes, visitorDepths } from './constants.ts'
+// factory
+
+export { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from './factory.ts'
+// guards
+
+export { isOperationNode, isParameterNode, isPropertyNode, isResponseNode, isRootNode, isSchemaNode, narrowSchema } from './guards.ts'
+
 export type {
   ArraySchemaNode,
   BaseNode,
@@ -34,15 +43,6 @@ export type {
   TimeSchemaNode,
   UnionSchemaNode,
 } from './nodes/index.ts'
-export { DEFAULT_STATUS_CODE, httpMethods, mediaTypes, nodeKinds, parameterLocations, schemaTypes, visitorDepths } from './constants.ts'
-export type { VisitorDepth } from './constants.ts'
-
-// factory
-export { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from './factory.ts'
-export type { DistributiveOmit } from './factory.ts'
-
-// guards
-export { isOperationNode, isParameterNode, isPropertyNode, isResponseNode, isRootNode, isSchemaNode, narrowSchema } from './guards.ts'
 
 // refs
 export type { RefMap } from './refs.ts'

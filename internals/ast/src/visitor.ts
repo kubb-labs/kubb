@@ -1,6 +1,6 @@
-import type { Node, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode } from './nodes/index.ts'
-import { visitorDepths } from './constants.ts'
 import type { VisitorDepth } from './constants.ts'
+import { visitorDepths } from './constants.ts'
+import type { Node, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode } from './nodes/index.ts'
 
 /**
  * Shared options for `walk`, `transform`, and `collect`.
@@ -57,11 +57,14 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
     case 'Operation':
       return [...node.parameters, ...(node.requestBody ? [node.requestBody] : []), ...node.responses]
     case 'Schema': {
-      if (!recurse) return []
       const children: Array<Node> = []
+
+      if (!recurse) return []
+
       if ('properties' in node && node.properties) children.push(...node.properties)
       if ('items' in node && node.items) children.push(...node.items)
       if ('members' in node && node.members) children.push(...node.members)
+
       return children
     }
     case 'Property':
@@ -117,6 +120,7 @@ export function transform(node: ResponseNode, visitor: Visitor, options?: Visito
 export function transform(node: Node, visitor: Visitor, options?: VisitorOptions): Node
 export function transform(node: Node, visitor: Visitor, options: VisitorOptions = {}): Node {
   const recurse = (options.depth ?? visitorDepths.deep) === visitorDepths.deep
+
   switch (node.kind) {
     case 'Root': {
       let root = node
