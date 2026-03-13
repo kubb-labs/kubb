@@ -1,5 +1,7 @@
+import type { OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { Config, Plugin, PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
+import type { OasParser } from '@kubb/plugin-oas'
 import type { OperationGenerator } from '../OperationGenerator.ts'
 import type { SchemaGenerator, SchemaGeneratorOptions } from '../SchemaGenerator.ts'
 import type { Schema } from '../SchemaMapper.ts'
@@ -18,6 +20,8 @@ export type OperationProps<TOptions extends PluginFactoryOptions> = {
   generator: Omit<OperationGenerator<TOptions>, 'build'>
   plugin: Plugin<TOptions>
   operation: Operation
+  node: OperationNode
+  parser: OasParser
 }
 
 export type SchemaProps<TOptions extends PluginFactoryOptions> = {
@@ -25,10 +29,25 @@ export type SchemaProps<TOptions extends PluginFactoryOptions> = {
   generator: Omit<SchemaGenerator<SchemaGeneratorOptions, TOptions>, 'build'>
   plugin: Plugin<TOptions>
   schema: {
+    /**
+     * @deprecated will be replaced with schemaNode
+     */
     name: string
+    /**
+     * @deprecated will be replaced with schemaNode
+     */
     tree: Array<Schema>
+    /**
+     * @deprecated will be replaced with schemaNode
+     */
     value: SchemaObject
   }
+  /**
+   * The spec-agnostic AST node for this schema, populated from the kubb-parser stage.
+   * Use this to generate code without coupling to OpenAPI/Swagger internals.
+   */
+  node: SchemaNode
+  parser: OasParser
 }
 
 export type Generator<TOptions extends PluginFactoryOptions> = CoreGenerator<TOptions> | ReactGenerator<TOptions>

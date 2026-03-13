@@ -58,6 +58,7 @@ export default defineConfig({
           },
         },
       ],
+      UNSTABLE_SCHEMA: true,
     }),
     pluginZod({
       output: {

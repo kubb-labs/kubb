@@ -111,6 +111,7 @@
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
+    "@kubb/ast": "workspace:*",
     "p-limit": "catalog:"
   },
   "main": "./dist/index.cjs",

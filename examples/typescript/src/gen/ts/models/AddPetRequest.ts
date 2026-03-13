@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 
+import type { Category } from './Category.ts'
 import type { Tag } from './Tag.ts'
 
 export const addPetRequestStatusEnum = {
@@ -16,14 +17,16 @@ export type AddPetRequestStatusEnumKey = (typeof addPetRequestStatusEnum)[keyof 
 
 export type AddPetRequest = {
   /**
-   * @type integer | undefined, int64
+   * @example 10
+   * @type integer | undefined
    */
   id?: number
   /**
+   * @example doggie
    * @type string
    */
   name: string
-  category?: string
+  category?: Category
   /**
    * @type array
    */

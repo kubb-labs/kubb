@@ -4,7 +4,7 @@ import type { ZodOpenAPIMetadata } from '@asteasolutions/zod-to-openapi'
 import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
+import { buildOperation, buildSchema, createOasParser, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, expect, test } from 'vitest'
@@ -350,6 +350,8 @@ describe('zodGenerator schema', async () => {
     const name = props.path
     const schema = schemas[name] as SchemaObject
     const tree = generator.parse({ schema, name, parentName: null })
+    const parser = createOasParser(oas)
+    const schemaNode = parser.convertSchema({ schema, name })
 
     await buildSchema(
       {
@@ -357,6 +359,7 @@ describe('zodGenerator schema', async () => {
         tree,
         value: schema,
       },
+      schemaNode,
       {
         config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
@@ -411,6 +414,8 @@ describe('zodGenerator schema', async () => {
     const { schemas } = getSchemas({ oas })
     const schema = schemas.Pets as SchemaObject
     const tree = generator.parse({ schema, name: 'Pets', parentName: null })
+    const parser = createOasParser(oas)
+    const schemaNode = parser.convertSchema({ schema, name: 'pets' })
 
     await buildSchema(
       {
@@ -418,6 +423,7 @@ describe('zodGenerator schema', async () => {
         tree,
         value: schema,
       },
+      schemaNode,
       {
         config: { root: '.', output: { path: 'test' } } as Config,
         fabric,

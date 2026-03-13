@@ -1,4 +1,5 @@
 import { type AsyncEventEmitter, getUniqueName, pascalCase, stringify } from '@internals/utils'
+import { walk } from '@kubb/ast'
 import type { FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
@@ -7,6 +8,7 @@ import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import type { Generator } from './generators/types.ts'
+import { createOasParser } from './parser.ts'
 import { isKeyword, type Schema, type SchemaKeywordMapper, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
@@ -64,6 +66,7 @@ export type SchemaGeneratorOptions = {
      */
     schema?: (schemaProps: SchemaProps, defaultSchemas: Schema[]) => Array<Schema> | undefined
   }
+  UNSTABLE_SCHEMA?: true
 }
 
 export type SchemaGeneratorBuildOptions = Omit<OperationSchema, 'name' | 'schema'>
@@ -125,6 +128,17 @@ export class SchemaGenerator<
     const { nameMapping } = oas.getSchemas({ contentType, includes: include })
     this.#schemaNameMapping = nameMapping
     this.#nameMappingInitialized = true
+  }
+
+  /**
+   * Resolves a schema reference to its collision-detected name.
+   * Accepts either a full `$ref` path (e.g. `#/components/schemas/Order`) or a short name (e.g. `Order`).
+   * Returns the collision-resolved name (e.g. `OrderSchema`) or the input unchanged if no mapping exists.
+   */
+  resolveSchemaRef(ref: string): string {
+    this.#ensureNameMapping()
+
+    return this.#schemaNameMapping.get(ref) ?? ref
   }
 
   /**
@@ -1343,12 +1357,6 @@ export class SchemaGenerator<
       const { schemas, nameMapping } = oas.getSchemas({ contentType, includes: include })
       this.#schemaNameMapping = nameMapping
       this.#nameMappingInitialized = true
-      const schemaEntries = Object.entries(schemas)
-
-      this.context.events?.emit('debug', {
-        date: new Date(),
-        logs: [`Building ${schemaEntries.length} schemas`, `  • Content Type: ${contentType || 'application/json'}`, `  • Generators: ${generators.length}`],
-      })
 
       // Continue with build using the schemas
       return this.#doBuild(schemas, generators)
@@ -1359,6 +1367,11 @@ export class SchemaGenerator<
   }
 
   async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+    const { oas, contentType } = this.context
+    const instance = this
+
+    const oasParser = createOasParser(oas, { contentType })
+
     const schemaEntries = Object.entries(schemas)
 
     const generatorLimit = pLimit(GENERATOR_CONCURRENCY)
@@ -1366,31 +1379,64 @@ export class SchemaGenerator<
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
+        const rootNode = oasParser.buildAst({
+          dateType: this.#options.dateType,
+          emptySchemaType: this.#options.emptySchemaType,
+          enumSuffix: this.#options.enumSuffix,
+          integerType: this.#options.integerType,
+          unknownType: this.#options.unknownType,
+        })
+
+        if (this.options.UNSTABLE_SCHEMA) {
+          await walk(
+            rootNode,
+            {
+              async schema(node) {
+                if (generator.type === 'react') {
+                  await buildSchema(
+                    {
+                      value: undefined as any,
+                      name: undefined as any,
+                      tree: undefined as any,
+                    },
+                    {
+                      node,
+                      config: instance.context.pluginManager.config,
+                      fabric: instance.context.fabric,
+                      Component: generator.Schema,
+                      generator: instance,
+                      plugin: {
+                        ...instance.context.plugin,
+                        options: instance.options,
+                      },
+                      parser: oasParser,
+                    },
+                  )
+                }
+              },
+            },
+            { depth: 1 },
+          )
+
+          return []
+        }
+
         const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
           schemaLimit(async () => {
             const options = this.#getOptions(name)
 
-            // Resolve schema if it's a $ref (can happen when the bundler deduplicates schemas
-            // referenced from multiple external files). Without this, a $ref schema would be
-            // parsed as a reference to itself, generating `z.lazy(() => schemaName)`.
-            let resolvedSchemaObject = schemaObject
-            if (isReference(schemaObject)) {
-              const resolved = this.context.oas.get<OasTypes.SchemaObject>(schemaObject.$ref)
-              if (resolved && !isReference(resolved)) {
-                resolvedSchemaObject = resolved
-              }
-            }
-
-            const tree = this.parse({ schema: resolvedSchemaObject, name, parentName: null, rootName: name })
+            const resolvedSchema = schemaObject as SchemaObject
+            const tree = this.parse({ schema: resolvedSchema, name, parentName: null, rootName: name })
 
             if (generator.type === 'react') {
               await buildSchema(
                 {
                   name,
-                  value: resolvedSchemaObject,
+                  value: resolvedSchema,
                   tree,
                 },
                 {
+                  node: undefined as any,
                   config: this.context.pluginManager.config,
                   fabric: this.context.fabric,
                   Component: generator.Schema,
@@ -1402,6 +1448,7 @@ export class SchemaGenerator<
                       ...options,
                     },
                   },
+                  parser: oasParser,
                 },
               )
 
@@ -1413,9 +1460,11 @@ export class SchemaGenerator<
               generator: this,
               schema: {
                 name,
-                value: resolvedSchemaObject,
+                value: resolvedSchema,
                 tree,
               },
+              node: undefined as any,
+              parser: oasParser,
               plugin: {
                 ...this.context.plugin,
                 options: {

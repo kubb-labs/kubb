@@ -26,6 +26,7 @@ module.exports = defineConfig(() => {
           output: {
             path: 'models',
           },
+          UNSTABLE_SCHEMA: true,
         }),
         pluginFaker({
           output: {
@@ -60,6 +61,7 @@ module.exports = defineConfig(() => {
           output: {
             path: 'models',
           },
+          UNSTABLE_SCHEMA: true,
         }),
         pluginFaker({
           output: {

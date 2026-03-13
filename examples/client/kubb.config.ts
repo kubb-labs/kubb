@@ -39,6 +39,7 @@ export default defineConfig(() => {
         },
         enumType: 'asConst',
         dateType: 'date',
+        UNSTABLE_SCHEMA: true,
       }),
       pluginClient({
         output: {

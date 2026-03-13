@@ -8,7 +8,7 @@ import type { ApiResponseType } from './ApiResponseType.ts'
 export type UploadFilePathParamsType = {
   /**
    * @description ID of pet to update
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }

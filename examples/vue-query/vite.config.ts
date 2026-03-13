@@ -29,6 +29,7 @@ export default defineConfig({
             output: {
               path: 'models',
             },
+            UNSTABLE_SCHEMA: true,
           }),
           pluginVueQuery({
             output: {

@@ -6,6 +6,7 @@ import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } 
 import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import type { Generator } from './generators/types.ts'
+import { createOasParser } from './parser.ts'
 import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
 import { withRequiredRequestBodySchema } from './utils/requestBody.ts'
 import { buildOperation, buildOperations } from './utils.tsx'
@@ -206,7 +207,10 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
   }
 
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+    const { oas, contentType } = this.context
     const operations = await this.getOperations()
+
+    const oasParser = createOasParser(oas, { contentType })
 
     // Increased parallelism for better performance
     // - generatorLimit increased from 1 to 3 to allow parallel generator processing
@@ -221,6 +225,39 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
+        // const rootNode = oasParser.buildAst()
+
+        // if ('UNSTABLE_SCHEMA' in this.options && this.options.UNSTABLE_SCHEMA) {
+        //   await walk(
+        //     rootNode,
+        //     {
+        //       async operation(node) {
+        //         // const options = instance.getOptions(operation, method)
+        //
+        //         if (generator.type === 'react') {
+        //           await buildOperation(undefined as any, {
+        //             config: instance.context.pluginManager.config,
+        //             fabric: instance.context.fabric,
+        //             Component: generator.Operation,
+        //             generator: instance,
+        //             node,
+        //             parser: oasParser,
+        //             plugin: {
+        //               ...instance.context.plugin,
+        //               options: {
+        //                 ...instance.options,
+        //               },
+        //             },
+        //           })
+        //         }
+        //       },
+        //     },
+        //     { depth: 1 },
+        //   )
+        //
+        //   return []
+        // }
+
         const operationTasks = operations.map(({ operation, method }) =>
           operationLimit(async () => {
             const options = this.getOptions(operation, method)
@@ -231,6 +268,8 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
                 fabric: this.context.fabric,
                 Component: generator.Operation,
                 generator: this,
+                node: undefined as any,
+                parser: oasParser,
                 plugin: {
                   ...this.context.plugin,
                   options: {
@@ -247,6 +286,8 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
               generator: this,
               config: this.context.pluginManager.config,
               operation,
+              node: undefined as any,
+              parser: oasParser,
               plugin: {
                 ...this.context.plugin,
                 options: {

@@ -8,7 +8,7 @@ import type { PetType } from './PetType.ts'
 export type GetPetByIdPathParamsType = {
   /**
    * @description ID of pet to return
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }

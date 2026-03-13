@@ -21,6 +21,7 @@ export default defineConfig({
     }),
     pluginTs({
       output: { path: 'models' },
+      UNSTABLE_SCHEMA: true,
     }),
     pluginSolidQuery({
       client: {

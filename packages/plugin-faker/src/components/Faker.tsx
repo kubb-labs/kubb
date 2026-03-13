@@ -1,4 +1,5 @@
 import { jsStringEscape } from '@internals/utils'
+import type { SchemaNode } from '@kubb/ast/types'
 import type { Schema } from '@kubb/plugin-oas'
 import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
@@ -10,6 +11,7 @@ type Props = {
   name: string
   typeName: string
   tree: Array<Schema>
+  schemaNode: SchemaNode
   seed?: PluginFaker['options']['seed']
   description?: string
   regexGenerator?: PluginFaker['options']['regexGenerator']
@@ -18,12 +20,12 @@ type Props = {
   canOverride: boolean
 }
 
-export function Faker({ tree, description, name, typeName, seed, regexGenerator, canOverride, mapper, dateParser }: Props): FabricReactNode {
+export function Faker({ tree, schemaNode, description, name, typeName, seed, regexGenerator, canOverride, mapper, dateParser }: Props): FabricReactNode {
   const fakerText = parserFaker.joinItems(
     tree
       .map((schema, _index, siblings) =>
         parserFaker.parse(
-          { name, schema, parent: undefined, current: schema, siblings },
+          { name, schema, parent: undefined, current: schema, siblings, schemaNode },
           {
             typeName,
             rootTypeName: name,

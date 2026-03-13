@@ -29,6 +29,7 @@ export default defineConfig([
             return `${name}Type`
           },
         },
+        UNSTABLE_SCHEMA: true,
       }),
       pluginZod({
         output: {

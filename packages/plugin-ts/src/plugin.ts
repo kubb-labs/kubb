@@ -2,7 +2,7 @@ import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
-import { typeGenerator } from './generators'
+import { typeGenerator, unstableTypeGenerator } from './generators'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
@@ -27,9 +27,10 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     transformers = {},
     mapper = {},
     paramsCasing,
-    generators = [typeGenerator].filter(Boolean),
     contentType,
     UNSTABLE_NAMING,
+    UNSTABLE_SCHEMA,
+    generators = [UNSTABLE_SCHEMA ? unstableTypeGenerator : typeGenerator].filter(Boolean),
   } = options
 
   // @deprecated Will be removed in v5 when collisionDetection defaults to true
@@ -55,6 +56,8 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       mapper,
       paramsCasing,
       usedEnumNames,
+      UNSTABLE_SCHEMA,
+      UNSTABLE_NAMING,
     },
     pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {

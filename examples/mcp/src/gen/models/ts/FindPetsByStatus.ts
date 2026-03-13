@@ -14,6 +14,8 @@ export type FindPetsByStatusPathParams = {
 
 /**
  * @description successful operation
+ * @minLength 1
+ * @maxLength 3
  */
 export type FindPetsByStatus200 = Pet[]
 

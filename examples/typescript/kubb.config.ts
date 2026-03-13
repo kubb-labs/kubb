@@ -24,6 +24,7 @@ export default defineConfig({
       },
       enumType: 'enum',
       syntaxType: 'interface',
+      UNSTABLE_SCHEMA: true,
     }),
     pluginTs({
       output: {
@@ -31,6 +32,7 @@ export default defineConfig({
         barrelType: false,
       },
       enumType: 'asConst',
+      UNSTABLE_SCHEMA: true,
     }),
     pluginTs({
       output: {
@@ -38,6 +40,7 @@ export default defineConfig({
         barrelType: false,
       },
       enumType: 'asPascalConst',
+      UNSTABLE_SCHEMA: true,
     }),
     pluginTs({
       output: {
@@ -45,6 +48,7 @@ export default defineConfig({
         barrelType: false,
       },
       enumType: 'constEnum',
+      UNSTABLE_SCHEMA: true,
     }),
     pluginTs({
       output: {
@@ -52,6 +56,7 @@ export default defineConfig({
         barrelType: false,
       },
       enumType: 'literal',
+      UNSTABLE_SCHEMA: true,
     }),
     pluginTs({
       output: {
@@ -65,6 +70,7 @@ export default defineConfig({
           factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
         ),
       },
+      UNSTABLE_SCHEMA: true,
     }),
   ],
 })

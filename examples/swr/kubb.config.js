@@ -23,6 +23,7 @@ export default defineConfig({
         path: 'models',
         barrelType: 'barrel',
       },
+      UNSTABLE_SCHEMA: true,
     }),
     pluginSwr({
       output: {

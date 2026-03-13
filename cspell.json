@@ -87,6 +87,7 @@
     "Logtail",
     "logtail",
     "apidevtools",
-    "arraybuffer"
+    "arraybuffer",
+    "codegen"
   ]
 }

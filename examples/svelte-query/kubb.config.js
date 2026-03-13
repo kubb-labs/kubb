@@ -23,6 +23,7 @@ export default defineConfig({
     pluginTs({
       output: { path: 'models' },
       paramsCasing: 'camelcase',
+      UNSTABLE_SCHEMA: true,
     }),
     pluginSvelteQuery({
       client: {

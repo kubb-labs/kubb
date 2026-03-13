@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { useMode, usePluginManager } from '@kubb/core/hooks'
-import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { createOasParser, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter, getImports } from '@kubb/plugin-oas/utils'
@@ -39,6 +39,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     const operationSchemas = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response]
       .flat()
       .filter(Boolean)
+
     const toZodPath = path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')
 
     const mapOperationSchema = ({ name, schema: schemaOriginal, description, keysToOmit: keysToOmitOriginal, ...options }: OperationSchemaType) => {
@@ -82,6 +83,8 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       const group = options.operation ? getGroup(options.operation) : undefined
 
       const coercion = name.includes('Params') ? { numbers: true, strings: false, dates: true } : globalCoercion
+      const parser = createOasParser(oas)
+      const schemaNode = parser.convertSchema({ schema: schemaObject, name })
 
       const zod = {
         name: schemaManager.getName(name, { type: 'function' }),
@@ -113,6 +116,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
             description={description}
             tree={tree}
             schema={schemaObject}
+            schemaNode={schemaNode}
             mapper={mapper}
             coercion={coercion}
             keysToOmit={keysToOmit}
@@ -142,7 +146,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       </File>
     )
   },
-  Schema({ config, schema, plugin }) {
+  Schema({ config, schema, node, plugin }) {
     const { getName, getFile } = useSchemaManager()
     const {
       options: { output, emptySchemaType, coercion, inferred, typed, mapper, importPath, wrapOutput, version, guidType, mini },
@@ -188,6 +192,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
           description={schema.value.description}
           tree={schema.tree}
           schema={schema.value}
+          schemaNode={node}
           mapper={mapper}
           coercion={coercion}
           wrapOutput={wrapOutput}

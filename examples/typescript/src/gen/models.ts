@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export enum ParamsStatusEnum {
+export enum OrderParamsEnumStatusEnum {
   placed = 'placed',
   approved = 'approved',
   delivered = 'delivered',
@@ -17,11 +17,13 @@ export enum OrderHttpStatusEnum {
 
 export interface Order {
   /**
-   * @type integer | undefined, int64
+   * @example 10
+   * @type integer | undefined
    */
   id?: number
   /**
-   * @type integer | undefined, int64
+   * @example 198772
+   * @type integer | undefined
    */
   petId?: number
   /**
@@ -30,28 +32,31 @@ export interface Order {
   params?: {
     /**
      * @description Order Status
+     * @example approved
      * @type string
      */
-    status: ParamsStatusEnum
+    status: OrderParamsEnumStatusEnum
     /**
      * @type string
      */
     type: string
   }
   /**
-   * @type integer | undefined, int32
+   * @example 7
+   * @type integer | undefined
    */
   quantity?: number
   /**
-   * @type string | undefined, date-time
+   * @type string | undefined
    */
   shipDate?: string
   /**
    * @description Order Status
    */
-  status?: string
+  status?: '' | string
   /**
    * @description HTTP Status
+   * @example 200
    * @type number | undefined
    */
   http_status?: OrderHttpStatusEnum
@@ -71,20 +76,23 @@ export interface Address {
    */
   streetNumber?: string
   /**
+   * @example Palo Alto
    * @type string | undefined
    */
   city?: string
   /**
+   * @example CA
    * @type string | undefined
    */
   state?: string
   /**
+   * @example 94301
    * @type string | undefined
    */
   zip?: string
 }
 
-export enum ParamsStatusEnum2 {
+export enum CustomerParamsEnumStatusEnum {
   placed = 'placed',
   approved = 'approved',
   delivered = 'delivered',
@@ -92,7 +100,8 @@ export enum ParamsStatusEnum2 {
 
 export interface Customer {
   /**
-   * @type integer | undefined, int64
+   * @example 100000
+   * @type integer | undefined
    */
   id?: number
   /**
@@ -101,15 +110,17 @@ export interface Customer {
   params?: {
     /**
      * @description Order Status
+     * @example approved
      * @type string
      */
-    status: ParamsStatusEnum2
+    status: CustomerParamsEnumStatusEnum
     /**
      * @type string
      */
     type: string
   }
   /**
+   * @example fehguy
    * @type string | undefined
    */
   username?: string
@@ -139,10 +150,12 @@ export type UnhappyCustomer = Customer & {
 
 export interface Category {
   /**
-   * @type integer | undefined, int64
+   * @example 1
+   * @type integer | undefined
    */
   id?: number
   /**
+   * @example Dogs
    * @type string | undefined
    */
   name?: string
@@ -150,43 +163,51 @@ export interface Category {
 
 export interface User {
   /**
-   * @type integer | undefined, int64
+   * @example 10
+   * @type integer | undefined
    */
   id?: number
   /**
+   * @example theUser
    * @type string | undefined
    */
   username?: string
   /**
+   * @example John
    * @type string | undefined
    */
   firstName?: string
   /**
+   * @example James
    * @type string | undefined
    */
   lastName?: string
   /**
+   * @example john@email.com
    * @type string | undefined
    */
   email?: string
   /**
+   * @example 12345
    * @type string | undefined
    */
   password?: string
   /**
+   * @example 12345
    * @type string | undefined
    */
   phone?: string
   /**
    * @description User Status
-   * @type integer | undefined, int32
+   * @example 1
+   * @type integer | undefined
    */
   userStatus?: number
 }
 
 export interface Tag {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
@@ -219,29 +240,22 @@ export interface Cat {
   name?: string
 }
 
-export enum StatusEnum {
-  available = 'available',
-  pending = 'pending',
-  sold = 'sold',
-}
-
 export type Pet =
   | (Dog & {
       /**
-       * @type integer | undefined, int64
+       * @example 10
+       * @type integer | undefined
        */
       id?: number
       /**
        * @type string
        */
-      readonly type: 'dog'
+      readonly type: 'dog' | 'cat'
       /**
+       * @example doggie
        * @type string
        */
       name: string
-      /**
-       * @type object | undefined
-       */
       category?: Category
       /**
        * @type array
@@ -255,24 +269,23 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: StatusEnum
+      status?: 'available' | 'pending' | 'sold'
     })
   | (Cat & {
       /**
-       * @type integer | undefined, int64
+       * @example 10
+       * @type integer | undefined
        */
       id?: number
       /**
        * @type string
        */
-      readonly type: 'cat'
+      readonly type: 'dog' | 'cat'
       /**
+       * @example doggie
        * @type string
        */
       name: string
-      /**
-       * @type object | undefined
-       */
       category?: Category
       /**
        * @type array
@@ -286,7 +299,7 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: StatusEnum
+      status?: 'available' | 'pending' | 'sold'
     })
 
 export type FullAddress = Address & {
@@ -294,6 +307,7 @@ export type FullAddress = Address & {
    * @type string
    */
   streetNumber: string
+} & {
   /**
    * @type string
    */
@@ -309,16 +323,15 @@ export enum AddPetRequestStatusEnum {
 
 export interface AddPetRequest {
   /**
-   * @type integer | undefined, int64
+   * @example 10
+   * @type integer | undefined
    */
   id?: number
   /**
+   * @example doggie
    * @type string
    */
   name: string
-  /**
-   * @type object | undefined
-   */
   category?: Category
   /**
    * @type array
@@ -337,7 +350,7 @@ export interface AddPetRequest {
 
 export interface ApiResponse {
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   code?: number
   /**
@@ -352,7 +365,7 @@ export interface ApiResponse {
 
 export interface PetNotFound {
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   code?: number
   /**
@@ -406,7 +419,7 @@ export type AddPet200 = Pet
  */
 export interface AddPet405 {
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   code?: number
   /**
@@ -500,7 +513,7 @@ export type FindPetsByTagsQuery = {
 export interface GetPetByIdPathParams {
   /**
    * @description ID of pet to return
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -531,7 +544,7 @@ export type GetPetByIdQuery = {
 export interface UpdatePetWithFormPathParams {
   /**
    * @description ID of pet that needs to be updated
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -566,7 +579,7 @@ export type UpdatePetWithFormMutation = {
 export interface DeletePetPathParams {
   /**
    * @description Pet id to delete
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -606,7 +619,7 @@ export type DeletePetMutation = {
 export interface UploadFilePathParams {
   /**
    * @description ID of pet to update
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -661,7 +674,7 @@ export type PlaceOrder200 = Order
 export type PlaceOrder405 = any
 
 /**
- * @pattern ^[a-zA-Z0-9]{1,13}$
+ * @description Order description
  */
 export type PlaceOrderMutationRequest = Order
 
@@ -696,7 +709,7 @@ export type PlaceOrderPatchMutation = {
 export interface GetOrderByIdPathParams {
   /**
    * @description ID of order that needs to be fetched
-   * @type integer, int64
+   * @type integer
    */
   orderId: number
 }
@@ -727,7 +740,7 @@ export type GetOrderByIdQuery = {
 export interface DeleteOrderPathParams {
   /**
    * @description ID of the order that needs to be deleted
-   * @type integer, int64
+   * @type integer
    */
   orderId: number
 }

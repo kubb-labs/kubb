@@ -16,7 +16,7 @@ export type PlaceOrder200 = Order
 export type PlaceOrder405 = any
 
 /**
- * @pattern ^[a-zA-Z0-9]{1,13}$
+ * @description Order description
  */
 export type PlaceOrderMutationRequest = Order
 

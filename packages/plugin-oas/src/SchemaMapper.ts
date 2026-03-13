@@ -1,6 +1,10 @@
+import type { SchemaNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { SchemaObject } from '@kubb/oas'
 
+/**
+ * @deprecated replaced with SchemaNode
+ */
 export type SchemaKeywordMapper = {
   object: {
     keyword: 'object'
@@ -95,7 +99,9 @@ export type SchemaKeywordMapper = {
   catchall: { keyword: 'catchall' }
   interface: { keyword: 'interface' }
 }
-
+/**
+ * @deprecated replaced with SchemaNode
+ */
 export const schemaKeywords = {
   any: 'any',
   unknown: 'unknown',
@@ -150,31 +156,59 @@ export const schemaKeywords = {
 } satisfies {
   [K in keyof SchemaKeywordMapper]: SchemaKeywordMapper[K]['keyword']
 }
-
+/**
+ * @deprecated replaced with SchemaNode
+ */
 export type SchemaKeyword = keyof SchemaKeywordMapper
-
+/**
+ * @deprecated replaced with SchemaNode
+ */
 export type SchemaMapper<T = string | null | undefined> = {
   [K in keyof SchemaKeywordMapper]: (() => T | undefined) | undefined
 }
-
+/**
+ * @deprecated replaced with SchemaNode
+ */
 export type SchemaKeywordBase<T> = {
   keyword: SchemaKeyword
   args: T
 }
-
+/**
+ * @deprecated replaced with SchemaNode
+ */
 export type Schema = { keyword: string } | SchemaKeywordMapper[keyof SchemaKeywordMapper]
 
 export type SchemaTree = {
+  /**
+   * The spec-agnostic AST node produced by `convertSchema` for this schema.
+   * Set to the top-level AST node at the root parse call; propagated as-is to all recursive sub-node calls.
+   */
+  schemaNode?: SchemaNode
+  /**
+   * @deprecated
+   */
   schema: SchemaObject
+  /**
+   * @deprecated
+   */
   parent: Schema | undefined
+  /**
+   * @deprecated
+   */
   current: Schema
+  /**
+   * @deprecated
+   */
   siblings: Schema[]
   /**
    * this is equal to the key of a property(object)
+   * @deprecated
    */
   name?: string
 }
-
+/**
+ * @deprecated replaced with SchemaNode
+ */
 export function isKeyword<T extends Schema, K extends keyof SchemaKeywordMapper>(meta: T, keyword: K): meta is Extract<T, SchemaKeywordMapper[K]> {
   return meta.keyword === keyword
 }

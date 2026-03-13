@@ -177,24 +177,24 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
   mapper: typeKeywordMapper,
   handlers: {
     union(tree, options) {
-      const { current, schema, name } = tree
+      const { current } = tree
 
       return typeKeywordMapper.union(
-        current.args.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
+        current.args.map((it) => this.parse({ ...tree, parent: current, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
       )
     },
     and(tree, options) {
-      const { current, schema, name } = tree
+      const { current } = tree
 
       return typeKeywordMapper.and(
-        current.args.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
+        current.args.map((it) => this.parse({ ...tree, parent: current, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
       )
     },
     array(tree, options) {
-      const { current, schema, name } = tree
+      const { current } = tree
 
       return typeKeywordMapper.array(
-        current.args.items.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
+        current.args.items.map((it) => this.parse({ ...tree, parent: current, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
         options.arrayType,
       )
     },
@@ -227,12 +227,12 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
       return typeKeywordMapper.blob()
     },
     tuple(tree, options) {
-      const { current, schema, name } = tree
+      const { current } = tree
 
       return typeKeywordMapper.tuple(
-        current.args.items.map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
+        current.args.items.map((it) => this.parse({ ...tree, parent: current, current: it, siblings: [] }, options)).filter(Boolean) as ts.TypeNode[],
         current.args.rest &&
-          ((this.parse({ schema, parent: current, name, current: current.args.rest, siblings: [] }, options) ?? undefined) as ts.TypeNode | undefined),
+          ((this.parse({ ...tree, parent: current, current: current.args.rest, siblings: [] }, options) ?? undefined) as ts.TypeNode | undefined),
         current.args.min,
         current.args.max,
       )
@@ -243,7 +243,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
       return typeKeywordMapper.const(current.args.name, current.args.format)
     },
     object(tree, options) {
-      const { current, schema, name } = tree
+      const { current } = tree
 
       const properties = Object.entries(current.args?.properties || {})
         .filter((item) => {
@@ -274,18 +274,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
           const matchesSchema = schemas.find((schema) => schema.keyword === schemaKeywords.matches) as SchemaKeywordMapper['matches'] | undefined
 
           let type = schemas
-            .map((it) =>
-              this.parse(
-                {
-                  schema,
-                  parent: current,
-                  name,
-                  current: it,
-                  siblings: schemas,
-                },
-                options,
-              ),
-            )
+            .map((it) => this.parse({ ...tree, parent: current, name, current: it, siblings: schemas }, options))
             .filter(Boolean)[0] as ts.TypeNode
 
           if (isNullable) {
@@ -334,7 +323,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
 
       if (current.args?.additionalProperties?.length) {
         let additionalPropertiesType = current.args.additionalProperties
-          .map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options))
+          .map((it) => this.parse({ ...tree, parent: current, current: it, siblings: [] }, options))
           .filter(Boolean)
           .at(0) as ts.TypeNode
 
@@ -362,7 +351,7 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
 
         if (allPatternSchemas.length > 0) {
           patternProperties = allPatternSchemas
-            .map((it) => this.parse({ schema, parent: current, name, current: it, siblings: [] }, options))
+            .map((it) => this.parse({ ...tree, parent: current, current: it, siblings: [] }, options))
             .filter(Boolean)
             .at(0) as ts.TypeNode
 
