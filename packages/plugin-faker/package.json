@@ -98,7 +98,7 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "devDependencies": {
-    "@internals/ast": "workspace:*",
-    "@internals/utils": "workspace:*"
+    "@internals/utils": "workspace:*",
+    "@kubb/ast": "workspace:*"
   }
 }

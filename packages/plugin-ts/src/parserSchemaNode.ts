@@ -1,5 +1,5 @@
-import type { SchemaNode } from '@internals/ast'
 import { jsStringEscape, stringify } from '@internals/utils'
+import type { SchemaNode } from '@kubb/ast/types'
 import { createParserSchemaNode } from '@kubb/plugin-oas'
 import type ts from 'typescript'
 import * as factory from './factory.ts'
@@ -193,7 +193,7 @@ function constToTypeNode(value: string | number | boolean, format: 'string' | 'n
   return factory.createLiteralTypeNode(factory.createStringLiteral(String(value)))
 }
 
-import type { ArraySchemaNode } from '@internals/ast'
+import type { ArraySchemaNode } from '@kubb/ast/types'
 
 function buildTupleNode(
   node: ArraySchemaNode,

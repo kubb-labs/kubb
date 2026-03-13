@@ -1,5 +1,5 @@
-import { walk } from '@internals/ast'
 import { type AsyncEventEmitter, getUniqueName, pascalCase, stringify } from '@internals/utils'
+import { walk } from '@kubb/ast'
 import type { FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'

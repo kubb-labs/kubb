@@ -1,4 +1,4 @@
-import type { OperationNode, SchemaNode } from '@internals/ast'
+import type { OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { Config, Plugin, PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import { App, createReactFabric, type Fabric } from '@kubb/react-fabric'

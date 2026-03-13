@@ -1,3 +1,4 @@
+import { narrowSchema } from '@kubb/ast'
 import type {
   ArraySchemaNode,
   EnumSchemaNode,
@@ -9,8 +10,7 @@ import type {
   SchemaNode,
   StringSchemaNode,
   UnionSchemaNode,
-} from '@internals/ast'
-import { narrowSchema } from '@internals/ast'
+} from '@kubb/ast/types'
 import type { SchemaObject } from '@kubb/oas'
 import { Oas } from '@kubb/oas'
 import { describe, expect, expectTypeOf, it } from 'vitest'

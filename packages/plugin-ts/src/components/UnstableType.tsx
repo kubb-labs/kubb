@@ -1,6 +1,6 @@
-import type { SchemaNode } from '@internals/ast'
-import { collect, type EnumSchemaNode } from '@internals/ast'
 import { camelCase, jsStringEscape, pascalCase, trimQuotes } from '@internals/utils'
+import { collect } from '@kubb/ast'
+import type { EnumSchemaNode, SchemaNode } from '@kubb/ast/types'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import { File } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'

@@ -97,8 +97,8 @@
   },
   "devDependencies": {
     "@asteasolutions/zod-to-openapi": "^8.4.3",
-    "@internals/ast": "workspace:*",
     "@internals/utils": "workspace:*",
+    "@kubb/ast": "workspace:*",
     "zod": "^3.25.76"
   },
   "engines": {

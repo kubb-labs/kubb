@@ -1,5 +1,5 @@
+import { pascalCase } from '@internals/utils'
 import {
-  type ArraySchemaNode,
   collect,
   createOperation,
   createParameter,
@@ -7,35 +7,37 @@ import {
   createResponse,
   createRoot,
   createSchema,
-  type DateSchemaNode,
-  type DatetimeSchemaNode,
-  type EnumSchemaNode,
-  type HttpMethod,
-  type IntersectionSchemaNode,
-  type MediaType,
-  type NumberSchemaNode,
   narrowSchema,
-  type ObjectSchemaNode,
-  type OperationNode,
-  type ParameterLocation,
-  type ParameterNode,
-  type PrimitiveSchemaType,
-  type PropertyNode,
-  type RefSchemaNode,
-  type ResponseNode,
-  type RootNode,
-  type ScalarSchemaNode,
-  type ScalarSchemaType,
-  type SchemaNode,
-  type SchemaType,
-  type StatusCode,
-  type StringSchemaNode,
   schemaTypes,
-  type TimeSchemaNode,
   transform,
-  type UnionSchemaNode,
-} from '@internals/ast'
-import { pascalCase } from '@internals/utils'
+} from '@kubb/ast'
+import type {
+  ArraySchemaNode,
+  DateSchemaNode,
+  DatetimeSchemaNode,
+  EnumSchemaNode,
+  HttpMethod,
+  IntersectionSchemaNode,
+  MediaType,
+  NumberSchemaNode,
+  ObjectSchemaNode,
+  OperationNode,
+  ParameterLocation,
+  ParameterNode,
+  PrimitiveSchemaType,
+  PropertyNode,
+  RefSchemaNode,
+  ResponseNode,
+  RootNode,
+  ScalarSchemaNode,
+  ScalarSchemaType,
+  SchemaNode,
+  SchemaType,
+  StatusCode,
+  StringSchemaNode,
+  TimeSchemaNode,
+  UnionSchemaNode,
+} from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, Operation, SchemaObject } from '@kubb/oas'
 import { flattenSchema, isDiscriminator, isNullable, isReference, type Oas } from '@kubb/oas'
@@ -194,7 +196,7 @@ function toMediaType(contentType: string): MediaType | undefined {
 export type OasParser = {
   /**
    * Converts an OpenAPI/Swagger spec (wrapped in a Kubb `Oas` instance) into
-   * a `RootNode` — the top-level node of the `@internals/ast` tree.
+   * a `RootNode` — the top-level node of the `@kubb/ast` tree.
    */
   buildAst: <TOptions extends Partial<Options> = object>(options?: TOptions) => RootNode
   convertSchema: <TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }, TOptions extends Partial<Options> = object>(
@@ -232,7 +234,7 @@ export type OasParser = {
 
 /**
  * Creates an OAS parser that converts an OpenAPI/Swagger spec into
- * the `@internals/ast` tree.
+ * the `@kubb/ast` tree.
  *
  * Options are passed per-call to `buildAst` or `convertSchema` rather than
  * at construction time, keeping the factory lightweight.
@@ -1081,7 +1083,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
   /**
    * Converts an OpenAPI/Swagger spec (wrapped in a Kubb `Oas` instance) into
-   * a `RootNode` — the top-level node of the `@internals/ast` tree.
+   * a `RootNode` — the top-level node of the `@kubb/ast` tree.
    */
   function buildAst<TOptions extends Partial<Options> = object>(options?: TOptions): RootNode {
     const mergedOptions: Options = { ...DEFAULT_OPTIONS, ...options }

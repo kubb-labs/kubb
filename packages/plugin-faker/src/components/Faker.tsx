@@ -1,5 +1,5 @@
-import type { SchemaNode } from '@internals/ast'
 import { jsStringEscape } from '@internals/utils'
+import type { SchemaNode } from '@kubb/ast/types'
 import type { Schema } from '@kubb/plugin-oas'
 import { isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'

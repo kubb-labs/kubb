@@ -1,4 +1,4 @@
-import { createSchema } from '@internals/ast'
+import { createSchema } from '@kubb/ast'
 import type { SchemaKeywordMapper } from '@kubb/plugin-oas'
 import { createParser, createParserSchemaNode, isKeyword, schemaKeywords } from '@kubb/plugin-oas'
 import { describe, expect, it } from 'vitest'

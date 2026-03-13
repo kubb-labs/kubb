@@ -9,6 +9,8 @@
       "@internals/utils": ["internals/utils/src/index.ts"],
       "@internals/tanstack-query": ["internals/tanstack-query/src/index.ts"],
       "@kubb/core/hooks": ["packages/core/src/hooks/index.ts"],
+      "@kubb/ast": ["packages/ast/src/index.ts"],
+      "@kubb/ast/types": ["packages/ast/src/types.ts"],
       "@kubb/core": ["packages/core/src/index.ts"],
       "@kubb/cypress": ["packages/cypress/src/index.ts"],
       "@kubb/agent": ["packages/agent/src/index.ts"],

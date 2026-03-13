@@ -13,7 +13,7 @@ import type {
   StringSchemaNode,
   TimeSchemaNode,
   UnionSchemaNode,
-} from '@internals/ast'
+} from '@kubb/ast/types'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 import type { Schema, SchemaKeywordMapper, SchemaMapper, SchemaTree } from './SchemaMapper.ts'
 import { schemaKeywords } from './SchemaMapper.ts'

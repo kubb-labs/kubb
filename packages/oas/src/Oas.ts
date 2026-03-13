@@ -1,4 +1,4 @@
-import type { RefMap, RootNode, SchemaNode } from '@internals/ast'
+import type { RefMap, RootNode, SchemaNode } from '@kubb/ast/types'
 import jsonpointer from 'jsonpointer'
 import BaseOas from 'oas'
 import type { ParameterObject } from 'oas/types'

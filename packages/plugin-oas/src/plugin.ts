@@ -1,7 +1,7 @@
 import path from 'node:path'
-import { buildRefMap } from '@internals/ast'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { camelCase } from '@internals/utils'
+import { buildRefMap } from '@kubb/ast'
 import { type Config, definePlugin, type Group, getMode, type KubbEvents } from '@kubb/core'
 import type { Oas } from '@kubb/oas'
 import { parseFromConfig, resolveServerUrl } from '@kubb/oas'

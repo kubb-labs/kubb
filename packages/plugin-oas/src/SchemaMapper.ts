@@ -1,4 +1,4 @@
-import type { SchemaNode } from '@internals/ast'
+import type { SchemaNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { SchemaObject } from '@kubb/oas'
 

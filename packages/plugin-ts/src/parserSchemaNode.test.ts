@@ -7,7 +7,7 @@
  *
  * Both are printed with `safePrint` and the strings must match.
  */
-import { createSchema } from '@internals/ast'
+import { createSchema } from '@kubb/ast'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import { schemaKeywords } from '@kubb/plugin-oas'
 import type ts from 'typescript'
