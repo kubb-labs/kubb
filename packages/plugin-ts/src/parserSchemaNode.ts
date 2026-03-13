@@ -59,10 +59,10 @@ export const parseSchemaNode = createParserSchemaNode<ts.TypeNode, ParserSchemaN
       return factory.keywordTypeNodes.string
     },
     ref(node) {
-      if (!node.ref) {
+      if (!node.name) {
         return undefined
       }
-      return factory.createTypeReferenceNode(node.ref, undefined)
+      return factory.createTypeReferenceNode(node.name, undefined)
     },
     enum(node, options) {
       // Inline literal union: `'a' | 'b' | 42`
