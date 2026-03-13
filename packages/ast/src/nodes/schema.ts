@@ -29,6 +29,7 @@ interface SchemaNodeBase extends BaseNode {
   title?: string
   description?: string
   nullable?: boolean
+  optional?: boolean
   /**
    * Both optional and nullable (`optional` + `nullable`).
    */
