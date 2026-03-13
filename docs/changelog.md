@@ -13,22 +13,6 @@ outline: deep
 #### [`@kubb/core`](/plugins/core)
 
 -   Improved internal package management to ensure better stability and consistency across plugins. This change resolves a range of minor bugs caused by dependency mismatches.
-    
-    ::: code-group
-
-    ```typescript [Before]
-    import { getConfig } from 'old-module';
-
-    const config = getConfig(deprecatedParams);
-    ```
-    
-    ```typescript [After]
-    import { getConfig } from '@kubb/core';
-
-    const config = getConfig(newParams);
-    ```
-    
-    :::
 
 
 ## 4.33.3
