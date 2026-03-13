@@ -1,4 +1,4 @@
-import type { SchemaNode } from '@internals/ast'
+import type { OperationNode, SchemaNode } from '@internals/ast'
 import type { Config, Plugin, PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import type { OasParser } from '@kubb/plugin-oas'
@@ -20,6 +20,8 @@ export type OperationProps<TOptions extends PluginFactoryOptions> = {
   generator: Omit<OperationGenerator<TOptions>, 'build'>
   plugin: Plugin<TOptions>
   operation: Operation
+  node: OperationNode
+  parser: OasParser
 }
 
 export type SchemaProps<TOptions extends PluginFactoryOptions> = {

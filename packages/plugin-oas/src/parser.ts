@@ -114,7 +114,7 @@ export type InferSchemaNode<
 
 type Options = {
   dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
-  integerType: 'number' | 'bigint'
+  integerType?: 'number' | 'bigint'
   unknownType: 'any' | 'unknown' | 'void'
   emptySchemaType: 'any' | 'unknown' | 'void'
   /**

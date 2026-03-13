@@ -432,8 +432,6 @@ export const unstableTypeGenerator = createReactGenerator<PluginTs>({
       path: getFile(schemaName).path,
     }))
 
-    console.log(imports)
-
     const isEnumSchema = node.type === 'enum'
 
     let typedName = getName(node.name, { type: 'type' })

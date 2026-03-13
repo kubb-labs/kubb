@@ -1,5 +1,4 @@
-import * as fs from 'node:fs'
-import { type SchemaNode, walk } from '@internals/ast'
+import { walk } from '@internals/ast'
 import { type AsyncEventEmitter, getUniqueName, pascalCase, stringify } from '@internals/utils'
 import type { FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
@@ -1381,7 +1380,6 @@ export class SchemaGenerator<
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
         const rootNode = oasParser.buildAst({
-          contentType: this.#context.contentType,
           dateType: this.#options.dateType,
           emptySchemaType: this.#options.emptySchemaType,
           enumSuffix: this.#options.enumSuffix,
@@ -1393,11 +1391,16 @@ export class SchemaGenerator<
           await walk(
             rootNode,
             {
-              async schema(schemaNode: SchemaNode) {
+              async schema(node) {
                 if (generator.type === 'react') {
                   await buildSchema(
-                    { node: schemaNode, value: undefined as any, name: undefined as any, tree: undefined as any },
                     {
+                      value: undefined as any,
+                      name: undefined as any,
+                      tree: undefined as any,
+                    },
+                    {
+                      node,
                       config: instance.context.pluginManager.config,
                       fabric: instance.context.fabric,
                       Component: generator.Schema,
@@ -1415,8 +1418,6 @@ export class SchemaGenerator<
             { depth: 1 },
           )
 
-          fs.writeFileSync('./test.json', JSON.stringify(rootNode, null, 2), 'utf8')
-
           return []
         }
 
@@ -1433,9 +1434,9 @@ export class SchemaGenerator<
                   name,
                   value: resolvedSchema,
                   tree,
-                  node: undefined as any,
                 },
                 {
+                  node: undefined as any,
                   config: this.context.pluginManager.config,
                   fabric: this.context.fabric,
                   Component: generator.Schema,
