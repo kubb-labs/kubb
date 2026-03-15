@@ -1,7 +1,7 @@
-import { useMode, usePluginManager } from '@kubb/core/hooks'
+import { useMode } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas, useSchemaManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
+import { useSchemaManager } from '@kubb/plugin-oas/hooks'
+
 import { File } from '@kubb/react-fabric'
 
 import { Type } from '../../components/v2/Type.tsx'
@@ -12,12 +12,9 @@ export const typeGenerator = createReactGenerator<PluginTs, '2'>({
   version: '2',
   Schema({ node, adapter, plugin }) {
     const {
-      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
+      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType },
     } = plugin
     const mode = useMode()
-
-    const oas = useOas()
-    const pluginManager = usePluginManager()
 
     const { getName, getFile } = useSchemaManager()
 
@@ -47,13 +44,7 @@ export const typeGenerator = createReactGenerator<PluginTs, '2'>({
     }
 
     return (
-      <File
-        baseName={type.file.baseName}
-        path={type.file.path}
-        meta={type.file.meta}
-        banner={getBanner({ oas, output, config: pluginManager.config })}
-        footer={getFooter({ oas, output })}
-      >
+      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta}>
         {mode === 'split' &&
           imports.map((imp) => (
             <File.Import key={[node.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
