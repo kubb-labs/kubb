@@ -40,6 +40,7 @@ export function createSchema<T extends Omit<ObjectSchemaNode, 'kind' | 'properti
   props: T,
 ): Omit<T, 'properties'> & { properties: Array<PropertyNode>; kind: 'Schema' }
 export function createSchema<T extends DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>>(props: T): T & { kind: 'Schema' }
+export function createSchema(props: DistributiveOmit<SchemaNode, 'kind'>): SchemaNode
 export function createSchema(props: Record<string, unknown>): Record<string, unknown> {
   if (props['type'] === 'object') {
     return { properties: [], ...props, kind: 'Schema' }
