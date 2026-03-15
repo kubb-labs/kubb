@@ -2,7 +2,7 @@ import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
 import type { RootNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
-import type { logLevel } from './constants.ts'
+import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginManager } from './PluginManager.ts'
 
@@ -98,6 +98,15 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
 }
 
 export type BarrelType = 'all' | 'named' | 'propagate'
+
+export type DevtoolsOptions = {
+  /**
+   * Open the AST inspector view (`/ast`) in Kubb Studio.
+   * When `false`, opens the main Studio page instead.
+   * @default false
+   */
+  ast?: boolean
+}
 
 /**
  * @private
@@ -201,6 +210,18 @@ export type Config<TInput = Input> = {
    * If a plugin depends on another plugin, an error is returned if the required dependency is missing. See pre for more details.
    */
   plugins?: Array<Plugin>
+  /**
+   * Devtools configuration for Kubb Studio integration.
+   */
+  devtools?:
+    | true
+    | {
+        /**
+         * Override the Kubb Studio base URL.
+         * @default 'https://studio.kubb.dev'
+         */
+        studioUrl?: typeof DEFAULT_STUDIO_URL | (string & {})
+      }
   /**
    * Hooks triggered when a specific action occurs in Kubb.
    */
@@ -385,7 +406,13 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * Returns the universal `@kubb/ast` `RootNode` produced by the configured adapter.
    * Returns `undefined` when no adapter was set (legacy OAS-only usage).
    */
-  getRootNode: () => RootNode | undefined
+  rootNode: RootNode | undefined
+  /**
+   * Opens the Kubb Studio URL for the current `rootNode` in the default browser.
+   * Falls back to printing the URL if the browser cannot be launched.
+   * No-ops silently when no adapter has set a `rootNode`.
+   */
+  openInStudio: (options?: DevtoolsOptions) => Promise<void>
 } & Kubb.PluginContext
 /**
  * Specify the export location for the files and define the behavior of the output

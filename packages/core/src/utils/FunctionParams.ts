@@ -1,4 +1,5 @@
 import { camelCase } from '@internals/utils'
+// TODO replace with @internals/utils
 import { sortBy } from 'remeda'
 
 type FunctionParamsASTWithoutType = {

@@ -1004,6 +1004,9 @@ importers:
       empathic:
         specifier: ^2.0.0
         version: 2.0.0
+      fflate:
+        specifier: ^0.8.2
+        version: 0.8.2
       remeda:
         specifier: 'catalog:'
         version: 2.33.6

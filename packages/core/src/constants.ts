@@ -1,5 +1,7 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
 
+export const DEFAULT_STUDIO_URL = 'https://studio.kubb.dev' as const
+
 export const CORE_PLUGIN_NAME = 'core' as const
 
 export const DEFAULT_MAX_LISTENERS = 100

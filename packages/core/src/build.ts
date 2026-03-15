@@ -6,7 +6,7 @@ import { createFabric } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
 import { fsPlugin } from '@kubb/react-fabric/plugins'
 import { isInputPath } from './config.ts'
-import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION } from './constants.ts'
+import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import { BuildError } from './errors.ts'
 import { PluginManager } from './PluginManager.ts'
 import type { AdapterSource, Config, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
@@ -96,6 +96,12 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
       defaultBanner: DEFAULT_BANNER,
       ...userConfig.output,
     },
+    devtools: userConfig.devtools
+      ? {
+          studioUrl: DEFAULT_STUDIO_URL,
+          ...(typeof userConfig.devtools === 'boolean' ? {} : userConfig.devtools),
+        }
+      : undefined,
     plugins: userConfig.plugins as Config['plugins'],
   }
 

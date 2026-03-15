@@ -103,6 +103,13 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     async install() {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
+
+      if (this.rootNode) {
+        await this.openInStudio({ ast: true })
+
+        return
+      }
+
       const oas = await this.getOas()
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {

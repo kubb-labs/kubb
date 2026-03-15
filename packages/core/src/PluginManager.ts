@@ -5,11 +5,13 @@ import { setUniqueName, transformReservedWord } from '@internals/utils'
 import type { RootNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
-import { CORE_PLUGIN_NAME } from './constants.ts'
+import { CORE_PLUGIN_NAME, DEFAULT_STUDIO_URL } from './constants.ts'
+import { openInStudio as openInStudioFn } from './devtools.ts'
 import { ValidationPluginError } from './errors.ts'
 import { isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
 import type {
   Config,
+  DevtoolsOptions,
   KubbEvents,
   Plugin,
   PluginContext,
@@ -69,6 +71,7 @@ export class PluginManager {
    * the build pipeline after the adapter's `parse()` resolves.
    */
   rootNode: RootNode | undefined = undefined
+  #studioIsOpen = false
 
   readonly #plugins = new Set<Plugin>()
   readonly #usedPluginNames: Record<string, number> = {}
@@ -93,6 +96,8 @@ export class PluginManager {
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
     const plugins = [...this.#plugins]
+    const pluginManager = this
+
     const baseContext = {
       fabric: this.options.fabric,
       config: this.config,
@@ -106,7 +111,28 @@ export class PluginManager {
       upsertFile: async (...files: Array<KubbFile.File>) => {
         await this.options.fabric.upsertFile(...files)
       },
-      getRootNode: (): RootNode | undefined => this.rootNode,
+      get rootNode(): RootNode | undefined {
+        return pluginManager.rootNode
+      },
+      openInStudio(options?: DevtoolsOptions) {
+        if (typeof pluginManager.config.devtools !== 'object') {
+          throw new Error('Devtools must be an object')
+        }
+
+        if (!pluginManager.rootNode) {
+          throw new Error('RootNode is not defined, make sure you have set the parser in kubb.config.ts')
+        }
+
+        if (pluginManager.#studioIsOpen) {
+          return
+        }
+
+        pluginManager.#studioIsOpen = true
+
+        const studioUrl = pluginManager.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
+
+        return openInStudioFn(pluginManager.rootNode, studioUrl, options)
+      },
     } as unknown as PluginContext<TOptions>
 
     const mergedExtras: Record<string, unknown> = {}
