@@ -6,6 +6,27 @@ outline: deep
 
 # Changelog
 
+```markdown
+## 4.35.0
+
+### ✨ Features
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client)
+
+-   [#2554](https://github.com/kubb-labs/kubb/pull/2554) [`4d8616c`](https://github.com/kubb-labs/kubb/commit/4d8616c7120acea5deb057a2e8fd337bdab6b26d) Thanks [@icholy](https://github.com/icholy)! - Add `wrapper` option to generate a wrapper class that composes all tag-based client classes into a single entry point.
+
+::: code-group
+```typescript [Example Usage]
+
+const api = new ApiWrapper({
+  client: new HttpClient(),
+});
+const user = await api.user.getUserById({ id: '123' });
+```
+:::
+```
+
+
 ## 4.34.0
 
 ### ✨ Features
