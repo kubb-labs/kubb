@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { URLPath, pascalCase } from '@internals/utils'
+import { pascalCase, URLPath } from '@internals/utils'
 import type { Config } from '@kubb/core'
 import { bundle, loadConfig } from '@redocly/openapi-core'
 import yaml from '@stoplight/yaml'
@@ -10,7 +10,7 @@ import { isPlainObject, mergeDeep } from 'remeda'
 import swagger2openapi from 'swagger2openapi'
 import { MERGE_DEFAULT_TITLE, MERGE_DEFAULT_VERSION, MERGE_OPENAPI_VERSION, structuralKeys } from '../constants.ts'
 import { Oas } from './Oas.ts'
-import type { Document, SchemaObject, contentType } from './types.ts'
+import type { contentType, Document, SchemaObject } from './types.ts'
 
 /**
  * Narrows `doc` to a Swagger 2.0 document.

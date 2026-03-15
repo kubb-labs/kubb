@@ -46,7 +46,20 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
 
   return {
     name: adapterOasName,
-    options: { validate, oasClass, contentType, serverIndex, serverVariables, discriminator, collisionDetection, dateType, integerType, unknownType, emptySchemaType, devtools },
+    options: {
+      validate,
+      oasClass,
+      contentType,
+      serverIndex,
+      serverVariables,
+      discriminator,
+      collisionDetection,
+      dateType,
+      integerType,
+      unknownType,
+      emptySchemaType,
+      devtools,
+    },
     async parse(source) {
       const fakeConfig = sourceToFakeConfig(source)
       const oas = await parseFromConfig(fakeConfig, oasClass)

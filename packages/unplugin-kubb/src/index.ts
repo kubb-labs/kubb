@@ -6,5 +6,4 @@ export { unpluginFactory } from './unpluginFactory.ts'
 
 const plugin = /* #__PURE__ */ createUnplugin(unpluginFactory)
 
-export { plugin as unplugin }
-export { plugin as default }
+export { plugin as unplugin, plugin as default }

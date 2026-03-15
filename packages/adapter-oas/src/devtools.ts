@@ -1,5 +1,5 @@
-import { deflateSync, inflateSync } from 'fflate'
 import type { RootNode } from '@kubb/ast/types'
+import { deflateSync, inflateSync } from 'fflate'
 
 /**
  * Default Kubb Studio base URL used when no `studioUrl` override is provided.

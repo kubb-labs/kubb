@@ -54,10 +54,7 @@ type Input = InputPath | InputData | Array<InputPath>
  * The raw source passed to an adapter's `parse` function.
  * Mirrors the shape of `Config['input']` with paths already resolved to absolute.
  */
-export type AdapterSource =
-  | { type: 'path'; path: string }
-  | { type: 'data'; data: string | unknown }
-  | { type: 'paths'; paths: Array<string> }
+export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown } | { type: 'paths'; paths: Array<string> }
 
 /**
  * Type parameters for an adapter definition.
@@ -67,11 +64,7 @@ export type AdapterSource =
  * - `TOptions` — raw user-facing options passed to the adapter factory
  * - `TResolvedOptions` — defaults applied; what the adapter stores as `options`
  */
-export type AdapterFactoryOptions<
-  TName extends string = string,
-  TOptions extends object = object,
-  TResolvedOptions extends object = TOptions,
-> = {
+export type AdapterFactoryOptions<TName extends string = string, TOptions extends object = object, TResolvedOptions extends object = TOptions> = {
   name: TName
   options: TOptions
   resolvedOptions: TResolvedOptions
