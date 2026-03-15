@@ -50,7 +50,7 @@ type SchemaNodeBase = BaseNode & {
  */
 export type ObjectSchemaNode = SchemaNodeBase & {
   type: 'object'
-  properties?: Array<PropertyNode>
+  properties: Array<PropertyNode>
   /**
    * `true` allows any value; a `SchemaNode` constrains it; absent means not permitted.
    */

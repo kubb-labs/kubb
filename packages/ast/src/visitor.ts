@@ -94,7 +94,7 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
 
       if (!recurse) return []
 
-      if ('properties' in node && node.properties) children.push(...node.properties)
+      if ('properties' in node && node.properties.length > 0) children.push(...node.properties)
       if ('items' in node && node.items) children.push(...node.items)
       if ('members' in node && node.members) children.push(...node.members)
 
@@ -189,7 +189,7 @@ export function transform(node: Node, visitor: Visitor, options: VisitorOptions 
 
       return {
         ...schema,
-        ...('properties' in schema && recurse ? { properties: schema.properties?.map((p) => transform(p, visitor, options)) } : {}),
+        ...('properties' in schema && recurse ? { properties: schema.properties.map((p) => transform(p, visitor, options)) } : {}),
         ...('items' in schema && recurse ? { items: schema.items?.map((i) => transform(i, visitor, options)) } : {}),
         ...('members' in schema && recurse ? { members: schema.members?.map((m) => transform(m, visitor, options)) } : {}),
       }
