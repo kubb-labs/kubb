@@ -90,12 +90,5 @@
     "registry": "https://registry.npmjs.org/"
   },
   "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "inlinedDependencies": {
-    "tslib": "2.8.1",
-    "@stoplight/yaml-ast-parser": "0.0.50",
-    "@stoplight/yaml": "4.3.0",
-    "@stoplight/ordered-object-literal": "1.0.5",
-    "@stoplight/types": "14.1.1"
-  }
+  "module": "./dist/index.js"
 }

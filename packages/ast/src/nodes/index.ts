@@ -11,7 +11,7 @@ export type { HttpMethod, OperationNode } from './operation.ts'
 export type { ParameterLocation, ParameterNode } from './parameter.ts'
 export type { PropertyNode } from './property.ts'
 export type { ResponseNode } from './response.ts'
-export type { RootNode } from './root.ts'
+export type { RootMeta, RootNode } from './root.ts'
 export type {
   ArraySchemaNode,
   ComplexSchemaType,

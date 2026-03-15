@@ -12,7 +12,7 @@ export type VisitorOptions = {
 /**
  * Synchronous visitor for `transform` and `walk`.
  */
-export interface Visitor {
+export type Visitor = {
   root?(node: RootNode): void | RootNode
   operation?(node: OperationNode): void | OperationNode
   schema?(node: SchemaNode): void | SchemaNode
@@ -26,7 +26,7 @@ type MaybePromise<T> = T | Promise<T>
 /**
  * Async visitor for `walk`. Synchronous `Visitor` objects are compatible.
  */
-export interface AsyncVisitor {
+export type AsyncVisitor = {
   root?(node: RootNode): MaybePromise<void | RootNode>
   operation?(node: OperationNode): MaybePromise<void | OperationNode>
   schema?(node: SchemaNode): MaybePromise<void | SchemaNode>
@@ -38,7 +38,7 @@ export interface AsyncVisitor {
 /**
  * Visitor for `collect`.
  */
-export interface CollectVisitor<T> {
+export type CollectVisitor<T> = {
   root?(node: RootNode): T | undefined
   operation?(node: OperationNode): T | undefined
   schema?(node: SchemaNode): T | undefined

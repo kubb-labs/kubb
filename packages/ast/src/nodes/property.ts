@@ -4,7 +4,7 @@ import type { SchemaNode } from './schema.ts'
 /**
  * A named property within an object schema.
  */
-export interface PropertyNode extends BaseNode {
+export type PropertyNode = BaseNode & {
   kind: 'Property'
   name: string
   schema: SchemaNode

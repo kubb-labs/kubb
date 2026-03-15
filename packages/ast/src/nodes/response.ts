@@ -5,7 +5,7 @@ import type { SchemaNode } from './schema.ts'
 /**
  * A single response variant for an operation.
  */
-export interface ResponseNode extends BaseNode {
+export type ResponseNode = BaseNode & {
   kind: 'Response'
   /**
    * HTTP status code or `'default'` for a fallback response.

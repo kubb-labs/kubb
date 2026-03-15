@@ -6,7 +6,7 @@ export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie'
 /**
  * A single input parameter for an operation.
  */
-export interface ParameterNode extends BaseNode {
+export type ParameterNode = BaseNode & {
   kind: 'Parameter'
   name: string
   in: ParameterLocation

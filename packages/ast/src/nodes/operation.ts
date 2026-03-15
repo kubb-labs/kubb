@@ -8,7 +8,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 
 /**
  * A spec-agnostic representation of a single API operation.
  */
-export interface OperationNode extends BaseNode {
+export type OperationNode = BaseNode & {
   kind: 'Operation'
   /**
    * Unique operation identifier (maps to `operationId` in OAS).
