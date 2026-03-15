@@ -9,10 +9,10 @@ import { printerTs } from './printer.ts'
  * Wraps a `ts.TypeNode` in `type _ = <node>` so prettier can parse it as a
  * valid TypeScript statement, then strips the wrapper from the result.
  */
-const formatTS = async (node: ReturnType<ReturnType<typeof printerTs>['print']>): Promise<string> => {
+const formatTS = async (node: ts.TypeNode | null | undefined): Promise<string> => {
   if (!node) return ''
 
-  const alias = ts.factory.createTypeAliasDeclaration(undefined, '_', undefined, node as ts.TypeNode)
+  const alias = ts.factory.createTypeAliasDeclaration(undefined, '_', undefined, node)
   const source = print(alias)
   const formatted = await format(source)
 
@@ -202,6 +202,39 @@ describe('printerTs', () => {
 
       expect(await formatTS(result)).toBe('Status')
     })
+
+    it('enum with name and enumType=constEnum renders reference without Key suffix', async () => {
+      const p = printerTs({ optionalType: 'questionToken', arrayType: 'array', enumType: 'constEnum' })
+      const result = p.print(createSchema({ type: 'enum', name: 'Status', enumValues: ['active', 'inactive'] }))
+
+      expect(await formatTS(result)).toBe('Status')
+    })
+
+    it('namedEnumValues are used when provided', async () => {
+      const result = printer.print(
+        createSchema({
+          type: 'enum',
+          namedEnumValues: [
+            { name: 'Active', value: 'active', format: 'string' },
+            { name: 'Inactive', value: 'inactive', format: 'string' },
+          ],
+        }),
+      )
+
+      expect(await formatTS(result)).toMatchInlineSnapshot(`"'active' | 'inactive'"`)
+    })
+
+    it('namedEnumValues take precedence over enumValues', async () => {
+      const result = printer.print(
+        createSchema({
+          type: 'enum',
+          namedEnumValues: [{ name: 'Yes', value: 1, format: 'number' }],
+          enumValues: ['ignored'],
+        }),
+      )
+
+      expect(await formatTS(result)).toMatchInlineSnapshot(`"1"`)
+    })
   })
 
   describe('union', () => {
@@ -335,6 +368,19 @@ describe('printerTs', () => {
       )
 
       expect(await formatTS(result)).toBe('[string, number]')
+    })
+
+    it('renders tuple with max and rest — fills up to max with rest type', async () => {
+      const result = printer.print(
+        createSchema({
+          type: 'tuple',
+          items: [createSchema({ type: 'string' })],
+          rest: createSchema({ type: 'number' }),
+          max: 3,
+        }),
+      )
+
+      expect(await formatTS(result)).toBe('[string, number, number]')
     })
   })
 
@@ -521,15 +567,89 @@ describe('printerTs', () => {
         }"
       `)
     })
-  })
 
-  describe('.for()', () => {
-    it('maps an array of nodes to output', () => {
-      const nodes = [createSchema({ type: 'string' }), createSchema({ type: 'number' }), createSchema({ type: 'boolean' })]
-      const results = printer.for(nodes)
+    it('nullish property with optionalType=questionToken adds ?', async () => {
+      const result = printer.print(
+        createSchema({
+          type: 'object',
+          properties: [createProperty({ name: 'tag', schema: createSchema({ type: 'string', nullish: true }) })],
+        }),
+      )
 
-      expect(results).toHaveLength(3)
-      expect(results.every((r) => r !== null && r !== undefined)).toBe(true)
+      expect(await formatTS(result)).toMatchInlineSnapshot(`
+        "{
+          tag?: string
+        }"
+      `)
+    })
+
+    it('nullish property with optionalType=undefined adds | undefined', async () => {
+      const p = printerTs({ optionalType: 'undefined', arrayType: 'array', enumType: 'inlineLiteral' })
+      const result = p.print(
+        createSchema({
+          type: 'object',
+          properties: [createProperty({ name: 'tag', schema: createSchema({ type: 'string', nullish: true }) })],
+        }),
+      )
+
+      expect(await formatTS(result)).toMatchInlineSnapshot(`
+        "{
+          tag: string | undefined
+        }"
+      `)
+    })
+
+    it('property with description adds @description JSDoc comment', async () => {
+      const result = printer.print(
+        createSchema({
+          type: 'object',
+          properties: [createProperty({ name: 'name', schema: createSchema({ type: 'string', description: 'The user name' }) })],
+        }),
+      )
+
+      const output = await formatTS(result)
+
+      expect(output).toContain('@description The user name')
+    })
+
+    it('property with deprecated flag adds @deprecated JSDoc comment', async () => {
+      const result = printer.print(
+        createSchema({
+          type: 'object',
+          properties: [createProperty({ name: 'oldField', schema: createSchema({ type: 'string', deprecated: true }) })],
+        }),
+      )
+
+      const output = await formatTS(result)
+
+      expect(output).toContain('@deprecated')
+    })
+
+    it('property with min/max adds @minLength/@maxLength JSDoc comments', async () => {
+      const result = printer.print(
+        createSchema({
+          type: 'object',
+          properties: [createProperty({ name: 'code', schema: createSchema({ type: 'string', min: 2, max: 10 }) })],
+        }),
+      )
+
+      const output = await formatTS(result)
+
+      expect(output).toContain('@minLength 2')
+      expect(output).toContain('@maxLength 10')
+    })
+
+    it('property with default adds @default JSDoc comment', async () => {
+      const result = printer.print(
+        createSchema({
+          type: 'object',
+          properties: [createProperty({ name: 'count', schema: createSchema({ type: 'number', default: 0 }) })],
+        }),
+      )
+
+      const output = await formatTS(result)
+
+      expect(output).toContain('@default 0')
     })
   })
 })
