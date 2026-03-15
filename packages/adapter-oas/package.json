@@ -50,7 +50,6 @@
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/fabric-core": "catalog:",
-    "@kubb/oas": "workspace:*",
     "@redocly/openapi-core": "^2.21.1",
     "@stoplight/yaml": "^4.3.0",
     "fflate": "^0.8.2",
