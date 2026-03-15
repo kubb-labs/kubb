@@ -6,7 +6,7 @@ export type NodeKind = 'Root' | 'Operation' | 'Schema' | 'Property' | 'Parameter
 /**
  * Common base for all AST nodes.
  */
-export interface BaseNode {
+export type BaseNode = {
   kind: NodeKind
 }
 

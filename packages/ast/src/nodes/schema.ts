@@ -20,7 +20,7 @@ export type ScalarSchemaType = Exclude<
 /**
  * Base fields shared by every schema variant. Does not include spec-specific fields.
  */
-interface SchemaNodeBase extends BaseNode {
+type SchemaNodeBase = BaseNode & {
   kind: 'Schema'
   /**
    * Named schema identifier (e.g. `"Pet"` from `#/components/schemas/Pet`). `undefined` for inline schemas.
@@ -48,7 +48,7 @@ interface SchemaNodeBase extends BaseNode {
 /**
  * Object schema with ordered property definitions.
  */
-export interface ObjectSchemaNode extends SchemaNodeBase {
+export type ObjectSchemaNode = SchemaNodeBase & {
   type: 'object'
   properties?: Array<PropertyNode>
   /**
@@ -61,7 +61,7 @@ export interface ObjectSchemaNode extends SchemaNodeBase {
 /**
  * Array or tuple schema.
  */
-export interface ArraySchemaNode extends SchemaNodeBase {
+export type ArraySchemaNode = SchemaNodeBase & {
   type: 'array' | 'tuple'
   items?: Array<SchemaNode>
   /**
@@ -76,14 +76,14 @@ export interface ArraySchemaNode extends SchemaNodeBase {
 /**
  * Shared base for union and intersection schemas.
  */
-interface CompositeSchemaNodeBase extends SchemaNodeBase {
+type CompositeSchemaNodeBase = SchemaNodeBase & {
   members?: Array<SchemaNode>
 }
 
 /**
  * Union schema (`oneOf` / `anyOf`).
  */
-export interface UnionSchemaNode extends CompositeSchemaNodeBase {
+export type UnionSchemaNode = CompositeSchemaNodeBase & {
   type: 'union'
   /**
    * Discriminator property from OAS `discriminator.propertyName`.
@@ -94,14 +94,14 @@ export interface UnionSchemaNode extends CompositeSchemaNodeBase {
 /**
  * Intersection schema (`allOf`).
  */
-export interface IntersectionSchemaNode extends CompositeSchemaNodeBase {
+export type IntersectionSchemaNode = CompositeSchemaNodeBase & {
   type: 'intersection'
 }
 
 /**
  * A named enum variant.
  */
-export interface EnumValueNode {
+export type EnumValueNode = {
   name: string
   value: string | number | boolean
   format: 'string' | 'number' | 'boolean'
@@ -110,7 +110,7 @@ export interface EnumValueNode {
 /**
  * Enum schema.
  */
-export interface EnumSchemaNode extends SchemaNodeBase {
+export type EnumSchemaNode = SchemaNodeBase & {
   type: 'enum'
   /**
    * Enum member type. Generators should use const assertions for `'number'` / `'boolean'`.
@@ -129,7 +129,7 @@ export interface EnumSchemaNode extends SchemaNodeBase {
 /**
  * Ref schema — pointer to another schema definition.
  */
-export interface RefSchemaNode extends SchemaNodeBase {
+export type RefSchemaNode = SchemaNodeBase & {
   type: 'ref'
   name?: string
   /**
@@ -145,7 +145,7 @@ export interface RefSchemaNode extends SchemaNodeBase {
 /**
  * Datetime schema.
  */
-export interface DatetimeSchemaNode extends SchemaNodeBase {
+export type DatetimeSchemaNode = SchemaNodeBase & {
   type: 'datetime'
   /**
    * Includes timezone offset (`dateType: 'stringOffset'`).
@@ -160,7 +160,7 @@ export interface DatetimeSchemaNode extends SchemaNodeBase {
 /**
  * Base for `date` and `time` schemas.
  */
-interface TemporalSchemaNodeBase<T extends 'date' | 'time'> extends SchemaNodeBase {
+type TemporalSchemaNodeBase<T extends 'date' | 'time'> = SchemaNodeBase & {
   type: T
   /**
    * Representation in generated code: native `Date` or plain string.
@@ -181,7 +181,7 @@ export type TimeSchemaNode = TemporalSchemaNodeBase<'time'>
 /**
  * String schema.
  */
-export interface StringSchemaNode extends SchemaNodeBase {
+export type StringSchemaNode = SchemaNodeBase & {
   type: 'string'
   min?: number
   max?: number
@@ -191,7 +191,7 @@ export interface StringSchemaNode extends SchemaNodeBase {
 /**
  * Number, integer, or bigint schema.
  */
-export interface NumberSchemaNode extends SchemaNodeBase {
+export type NumberSchemaNode = SchemaNodeBase & {
   type: 'number' | 'integer' | 'bigint'
   min?: number
   max?: number
@@ -202,7 +202,7 @@ export interface NumberSchemaNode extends SchemaNodeBase {
 /**
  * Schema for scalar types with no additional constraints.
  */
-export interface ScalarSchemaNode extends SchemaNodeBase {
+export type ScalarSchemaNode = SchemaNodeBase & {
   type: ScalarSchemaType
 }
 

@@ -23,6 +23,7 @@ export type {
   PropertyNode,
   RefSchemaNode,
   ResponseNode,
+  RootMeta,
   RootNode,
   ScalarSchemaNode,
   ScalarSchemaType,
