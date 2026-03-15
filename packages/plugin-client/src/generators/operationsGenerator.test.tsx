@@ -55,6 +55,7 @@ describe('operationsGenerator operations', async () => {
       },
       group: undefined,
       urlType: 'export',
+      wrapper: undefined,
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>
