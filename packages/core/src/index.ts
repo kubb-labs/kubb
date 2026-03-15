@@ -1,4 +1,5 @@
 export { AsyncEventEmitter } from '@internals/utils'
+export { definePrinter } from '@kubb/ast'
 export { build, build as default, safeBuild, setup } from './build.ts'
 export { type CLIOptions, type ConfigInput, defineConfig, isInputPath } from './config.ts'
 export { formatters, linters, logLevel } from './constants.ts'

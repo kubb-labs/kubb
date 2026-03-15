@@ -103,7 +103,7 @@ importers:
         version: 6.1.1(typescript@5.9.3)(vite@7.3.1(@types/node@20.19.37)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))
       vitest:
         specifier: ^4.1.0
-        version: 4.1.0(@types/node@20.19.37)(@vitest/ui@4.1.0)(msw@2.12.10(@types/node@20.19.37)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.37)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))
+        version: 4.1.0(@types/node@20.19.37)(@vitest/ui@4.1.0)(msw@2.12.11(@types/node@20.19.37)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.37)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))
 
   examples/advanced:
     dependencies:
@@ -174,8 +174,8 @@ importers:
         specifier: ~14.3.3
         version: 14.3.3
       msw:
-        specifier: ^2.12.10
-        version: 2.12.10(@types/node@24.10.1)(typescript@5.9.3)
+        specifier: ^2.12.11
+        version: 2.12.11(@types/node@24.10.1)(typescript@5.9.3)
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -443,10 +443,10 @@ importers:
         version: link:../../packages/plugin-ts
       '@mswjs/http-middleware':
         specifier: ^0.9.2
-        version: 0.9.2(msw@2.12.10(@types/node@24.10.1)(typescript@5.2.2))
+        version: 0.9.2(msw@2.12.11(@types/node@24.10.1)(typescript@5.2.2))
       msw:
-        specifier: ^2.12.10
-        version: 2.12.10(@types/node@24.10.1)(typescript@5.2.2)
+        specifier: ^2.12.11
+        version: 2.12.11(@types/node@24.10.1)(typescript@5.2.2)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -938,8 +938,8 @@ importers:
         specifier: ^8.18.1
         version: 8.18.1
       msw:
-        specifier: ^2.12.10
-        version: 2.12.10(@types/node@24.10.1)(typescript@5.9.3)
+        specifier: ^2.12.11
+        version: 2.12.11(@types/node@24.10.1)(typescript@5.9.3)
       nitropack:
         specifier: ^2.13.1
         version: 2.13.1(encoding@0.1.13)(rolldown@1.0.0-rc.9)
@@ -1628,8 +1628,8 @@ importers:
         specifier: ~14.2.1
         version: 14.2.1
       msw:
-        specifier: ^2.12.10
-        version: 2.12.10(@types/node@24.10.1)(typescript@5.9.3)
+        specifier: ^2.12.11
+        version: 2.12.11(@types/node@24.10.1)(typescript@5.9.3)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -5879,8 +5879,8 @@ packages:
       typescript:
         optional: true
 
-  msw@2.12.10:
-    resolution: {integrity: sha512-G3VUymSE0/iegFnuipujpwyTM2GuZAKXNeerUSrG2+Eg391wW63xFs5ixWsK9MWzr1AGoSkYGmyAzNgbR3+urw==}
+  msw@2.12.11:
+    resolution: {integrity: sha512-dVg20zi2I2EvnwH/+WupzsOC2mCa7qsIhyMAWtfRikn6RKtwL9+7SaF1IQ5LyZry4tlUtf6KyTVhnlQiZXozTQ==}
     engines: {node: '>=18'}
     hasBin: true
     peerDependencies:
@@ -8792,10 +8792,10 @@ snapshots:
       '@types/set-cookie-parser': 2.4.10
       set-cookie-parser: 2.7.2
 
-  '@mswjs/http-middleware@0.9.2(msw@2.12.10(@types/node@24.10.1)(typescript@5.2.2))':
+  '@mswjs/http-middleware@0.9.2(msw@2.12.11(@types/node@24.10.1)(typescript@5.2.2))':
     dependencies:
       express: 4.21.2
-      msw: 2.12.10(@types/node@24.10.1)(typescript@5.2.2)
+      msw: 2.12.11(@types/node@24.10.1)(typescript@5.2.2)
       strict-event-emitter: 0.5.1
     transitivePeerDependencies:
       - supports-color
@@ -9606,7 +9606,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.0.0
       tinyrainbow: 3.0.3
-      vitest: 4.1.0(@types/node@20.19.37)(@vitest/ui@4.1.0)(msw@2.12.10(@types/node@20.19.37)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.37)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))
+      vitest: 4.1.0(@types/node@20.19.37)(@vitest/ui@4.1.0)(msw@2.12.11(@types/node@20.19.37)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.37)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))
 
   '@vitest/expect@4.1.0':
     dependencies:
@@ -9617,13 +9617,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.0.3
 
-  '@vitest/mocker@4.1.0(msw@2.12.10(@types/node@20.19.37)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.37)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))':
+  '@vitest/mocker@4.1.0(msw@2.12.11(@types/node@20.19.37)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.37)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))':
     dependencies:
       '@vitest/spy': 4.1.0
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      msw: 2.12.10(@types/node@20.19.37)(typescript@5.9.3)
+      msw: 2.12.11(@types/node@20.19.37)(typescript@5.9.3)
       vite: 7.3.1(@types/node@20.19.37)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2)
 
   '@vitest/pretty-format@4.1.0':
@@ -9653,7 +9653,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vitest: 4.1.0(@types/node@20.19.37)(@vitest/ui@4.1.0)(msw@2.12.10(@types/node@20.19.37)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.37)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))
+      vitest: 4.1.0(@types/node@20.19.37)(@vitest/ui@4.1.0)(msw@2.12.11(@types/node@20.19.37)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.37)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))
 
   '@vitest/utils@4.1.0':
     dependencies:
@@ -12265,7 +12265,7 @@ snapshots:
       - encoding
       - supports-color
 
-  msw@2.12.10(@types/node@20.19.37)(typescript@5.9.3):
+  msw@2.12.11(@types/node@20.19.37)(typescript@5.9.3):
     dependencies:
       '@inquirer/confirm': 5.1.21(@types/node@20.19.37)
       '@mswjs/interceptors': 0.41.2
@@ -12291,7 +12291,7 @@ snapshots:
       - '@types/node'
     optional: true
 
-  msw@2.12.10(@types/node@24.10.1)(typescript@5.2.2):
+  msw@2.12.11(@types/node@24.10.1)(typescript@5.2.2):
     dependencies:
       '@inquirer/confirm': 5.1.21(@types/node@24.10.1)
       '@mswjs/interceptors': 0.41.2
@@ -12316,7 +12316,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  msw@2.12.10(@types/node@24.10.1)(typescript@5.9.3):
+  msw@2.12.11(@types/node@24.10.1)(typescript@5.9.3):
     dependencies:
       '@inquirer/confirm': 5.1.21(@types/node@24.10.1)
       '@mswjs/interceptors': 0.41.2
@@ -14020,10 +14020,10 @@ snapshots:
       terser: 5.44.1
       yaml: 2.8.2
 
-  vitest@4.1.0(@types/node@20.19.37)(@vitest/ui@4.1.0)(msw@2.12.10(@types/node@20.19.37)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.37)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2)):
+  vitest@4.1.0(@types/node@20.19.37)(@vitest/ui@4.1.0)(msw@2.12.11(@types/node@20.19.37)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.37)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2)):
     dependencies:
       '@vitest/expect': 4.1.0
-      '@vitest/mocker': 4.1.0(msw@2.12.10(@types/node@20.19.37)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.37)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))
+      '@vitest/mocker': 4.1.0(msw@2.12.11(@types/node@20.19.37)(typescript@5.9.3))(vite@7.3.1(@types/node@20.19.37)(jiti@2.6.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.2))
       '@vitest/pretty-format': 4.1.0
       '@vitest/runner': 4.1.0
       '@vitest/snapshot': 4.1.0

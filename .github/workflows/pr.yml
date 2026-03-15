@@ -153,6 +153,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Build
+        run: pnpm run build
+
       - name: Run Vitest benchmarks
         run: pnpm run test:bench
 
