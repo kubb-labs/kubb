@@ -13,7 +13,7 @@ import type {
 } from '@kubb/ast/types'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
-import { Oas } from './Oas.ts'
+import { Oas, parse } from './index.ts'
 import { createOasParser } from './parser.ts'
 import type { SchemaObject } from './types.ts'
 
@@ -633,6 +633,45 @@ describe('convertSchema allOf', () => {
     expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     expect(node.description).toBe('combined')
     expect(node.deprecated).toBe(true)
+  })
+
+  it('produces an intersection when single-member allOf has a sibling required array', () => {
+    // required on the outer schema signals structural intent — do not flatten.
+    const node = parser.convertSchema({
+      schema: {
+        allOf: [{ type: 'object', properties: { id: { type: 'integer' }, name: { type: 'string' } } }],
+        required: ['id'],
+      } as const,
+    })
+
+    expect(node.type).toBe('intersection')
+  })
+
+  it('produces an intersection when single-member allOf has a sibling additionalProperties', () => {
+    // additionalProperties on the outer schema adds a constraint — do not flatten.
+    const node = parser.convertSchema({
+      schema: {
+        allOf: [{ $ref: '#/components/schemas/Foo' }],
+        additionalProperties: false,
+      } as const,
+    })
+
+    expect(node.type).toBe('intersection')
+  })
+
+  it('still flattens single-member allOf when only annotation metadata is present', () => {
+    // description / nullable / deprecated are safe to merge; no structural keys → flatten.
+    const node = parser.convertSchema({
+      schema: {
+        allOf: [{ $ref: '#/components/schemas/Foo' }],
+        description: 'annotation only',
+        nullable: true,
+      } as const,
+    })
+
+    expect(node.type).toBe('ref')
+    expect(node.description).toBe('annotation only')
+    expect(node.nullable).toBe(true)
   })
 })
 
@@ -2312,6 +2351,99 @@ describe('parser options', () => {
   })
 })
 
+describe('convertSchema not keyword', () => {
+  const parser = createOasParser(emptyOas)
+
+  it('falls through to the emptySchemaType (any by default) since "not" is not supported', () => {
+    // JSON Schema `not` has no direct equivalent in most code generators.
+    // The parser intentionally does not handle it and falls through to the configured emptySchemaType.
+    const node = parser.convertSchema({ schema: { not: { type: 'string' } } as SchemaObject })
+
+    expect(node.type).toBe('any')
+  })
+
+  it('respects emptySchemaType option when falling through for not keyword', () => {
+    const node = parser.convertSchema({ schema: { not: { type: 'string' } } as SchemaObject }, { emptySchemaType: 'unknown' })
+
+    expect(node.type).toBe('unknown')
+  })
+})
+
+describe('convertSchema discriminator on union (oneOf/anyOf)', () => {
+  const parser = createOasParser(emptyOas)
+
+  it('sets discriminatorPropertyName on union node from oneOf discriminator', () => {
+    const node = parser.convertSchema({
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+        discriminator: { propertyName: 'petType' },
+      },
+    })
+
+    expect(node.type).toBe('union')
+    expect(node.discriminatorPropertyName).toBe('petType')
+  })
+
+  it('sets discriminatorPropertyName on union node from anyOf discriminator', () => {
+    const node = parser.convertSchema({
+      schema: {
+        anyOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+        discriminator: { propertyName: 'kind' },
+      },
+    })
+
+    expect(node.type).toBe('union')
+    expect(node.discriminatorPropertyName).toBe('kind')
+  })
+
+  it('does not set discriminatorPropertyName when no discriminator is present', () => {
+    const node = parser.convertSchema({
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+      },
+    })
+
+    expect(node.type).toBe('union')
+    expect(node.discriminatorPropertyName).toBeUndefined()
+  })
+})
+
+describe('convertSchema circular allOf discriminator detection', () => {
+  it('skips allOf member that references the child schema back through its discriminator parent', async () => {
+    // This models the OAS pattern: Animal (parent, discriminator) → Cat (child, allOf: [Animal])
+    // The parser must skip the back-reference to Animal from Cat's allOf to avoid circular types.
+    const oas = await parse({
+      openapi: '3.0.3',
+      info: { title: 'Circular', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Animal: {
+            oneOf: [{ $ref: '#/components/schemas/Cat' }],
+            discriminator: { propertyName: 'type' },
+          },
+          Cat: {
+            allOf: [
+              { $ref: '#/components/schemas/Animal' },
+              { type: 'object', required: ['type'], properties: { type: { type: 'string' }, name: { type: 'string' } } },
+            ],
+          },
+        },
+      },
+    })
+
+    const root = createOasParser(oas).buildAst()
+    const cat = root.schemas.find((s) => s.name === 'Cat')
+
+    expect(cat).toBeDefined()
+    expect(cat!.type).toBe('intersection')
+    // The intersection should contain only the concrete Cat properties — Animal is filtered out.
+    const members = (cat as { members?: Array<{ type: string; name?: string }> }).members ?? []
+    expect(members.length).toBeGreaterThan(0)
+    expect(members.some((m) => m.type === 'ref' && m.name === 'Animal')).toBe(false)
+  })
+})
+
 describe('buildAst', async () => {
   const oas = await buildMinimalOas()
   const root = createOasParser(oas).buildAst()
@@ -2385,5 +2517,76 @@ describe('buildAst', async () => {
       expect(schema).toBeDefined()
       expect(schema!.type).toBe('intersection')
     })
+  })
+})
+
+describe('buildAst – header and cookie parameters', async () => {
+  const oas = await parse({
+    openapi: '3.0.3',
+    info: { title: 'Params', version: '1.0.0' },
+    paths: {
+      '/items': {
+        get: {
+          operationId: 'getItems',
+          description: 'Fetch a list of items',
+          parameters: [
+            {
+              name: 'X-Request-ID',
+              in: 'header',
+              required: true,
+              schema: { type: 'string', format: 'uuid' },
+            },
+            {
+              name: 'session',
+              in: 'cookie',
+              required: false,
+              schema: { type: 'string' },
+            },
+            {
+              name: 'page',
+              in: 'query',
+              required: false,
+              schema: { type: 'integer' },
+            },
+          ],
+          responses: {
+            '200': { description: 'OK' },
+          },
+        },
+      },
+    },
+  })
+
+  const root = createOasParser(oas).buildAst()
+  const getItems = root.operations.find((o) => o.operationId === 'getItems')
+
+  it('parses operation description', () => {
+    expect(getItems?.description).toBe('Fetch a list of items')
+  })
+
+  it('converts header parameters with in: header', () => {
+    const header = getItems?.parameters.find((p) => p.name === 'X-Request-ID')
+
+    expect(header).toBeDefined()
+    expect(header!.in).toBe('header')
+    expect(header!.required).toBe(true)
+    expect(header!.schema.type).toBe('uuid')
+  })
+
+  it('converts cookie parameters with in: cookie', () => {
+    const cookie = getItems?.parameters.find((p) => p.name === 'session')
+
+    expect(cookie).toBeDefined()
+    expect(cookie!.in).toBe('cookie')
+    expect(cookie!.required).toBe(false)
+    expect(cookie!.schema.type).toBe('string')
+  })
+
+  it('includes all four parameter locations in the same operation', () => {
+    const locations = getItems?.parameters.map((p) => p.in) ?? []
+
+    expect(locations).toContain('header')
+    expect(locations).toContain('cookie')
+    expect(locations).toContain('query')
   })
 })

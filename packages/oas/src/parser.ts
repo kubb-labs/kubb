@@ -401,15 +401,19 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * Converts a `allOf` schema into either a flattened member node (single-member `allOf`)
    * or an `IntersectionSchemaNode` (multi-member `allOf`).
    *
-   * Single-member `allOf` without sibling `properties` is the common OAS 3.0 pattern for
+   * Single-member `allOf` without sibling structural keys is the common OAS 3.0 pattern for
    * annotating a `$ref` or primitive with extra constraints; it is flattened to avoid
    * producing needless intersection wrappers.
+   *
+   * The flatten path is skipped when the outer schema carries structural keys that cannot be
+   * merged into annotation fields: `properties`, `required`, or `additionalProperties`.
+   * Those cases must become an intersection so the constraints are preserved.
    *
    * Circular references through discriminator parents are detected and skipped to prevent
    * infinite recursion during code generation.
    */
   function convertAllOf({ schema, name, nullable, defaultValue, options }: SchemaContext): SchemaNode {
-    if (schema.allOf!.length === 1 && !schema.properties) {
+    if (schema.allOf!.length === 1 && !schema.properties && !(Array.isArray(schema.required) && schema.required.length) && schema.additionalProperties === undefined) {
       const [memberSchema] = schema.allOf as SchemaObject[]
       const memberNode = convertSchema({ schema: memberSchema! }, options)
       const { kind: _kind, ...memberNodeProps } = memberNode
@@ -707,24 +711,21 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
   function convertObject({ schema, name, nullable, defaultValue, options, mergedOptions }: SchemaContext): SchemaNode {
     // When a discriminator is present, override the discriminator property's schema to use
     // an enum of the mapping keys for a precise literal-union type.
-    const resolvedSchema: SchemaObject = isDiscriminator(schema)
-      ? Object.keys(schema.properties ?? {}).reduce<SchemaObject>((acc, propName) => {
-          if (acc.properties?.[propName] && propName === schema.discriminator.propertyName) {
-            const existing = acc.properties[propName] as SchemaObject
-            return {
-              ...acc,
-              properties: {
-                ...acc.properties,
-                [propName]: {
-                  ...existing,
-                  enum: schema.discriminator.mapping ? Object.keys(schema.discriminator.mapping) : undefined,
-                },
-              },
-            } as SchemaObject
-          }
-          return acc
-        }, schema as SchemaObject)
-      : schema
+    const resolvedSchema: SchemaObject = (() => {
+      if (!isDiscriminator(schema)) return schema
+      const propName = schema.discriminator.propertyName
+      if (!schema.properties?.[propName]) return schema
+      return {
+        ...schema,
+        properties: {
+          ...schema.properties,
+          [propName]: {
+            ...(schema.properties[propName] as SchemaObject),
+            enum: schema.discriminator.mapping ? Object.keys(schema.discriminator.mapping) : undefined,
+          },
+        },
+      } as SchemaObject
+    })()
 
     const properties: Array<PropertyNode> = resolvedSchema.properties
       ? Object.entries(resolvedSchema.properties).map(([propName, propSchema]) => {
