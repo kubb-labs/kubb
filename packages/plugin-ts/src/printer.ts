@@ -175,10 +175,10 @@ export const printerTs = definePrinter<TsPrinter>((options) => ({
       return factory.createTypeReferenceNode(typeName, undefined)
     },
     union(node) {
-      return factory.createUnionDeclaration({ withParentheses: true, nodes: buildMemberNodes(node.members, this.print.bind(this)) }) ?? undefined
+      return factory.createUnionDeclaration({ withParentheses: true, nodes: buildMemberNodes(node.members, this.print) }) ?? undefined
     },
     intersection(node) {
-      return factory.createIntersectionDeclaration({ withParentheses: true, nodes: buildMemberNodes(node.members, this.print.bind(this)) }) ?? undefined
+      return factory.createIntersectionDeclaration({ withParentheses: true, nodes: buildMemberNodes(node.members, this.print) }) ?? undefined
     },
     array(node) {
       const itemNodes = (node.items ?? []).map((item) => this.print(item)).filter(Boolean) as Array<ts.TypeNode>
@@ -186,11 +186,11 @@ export const printerTs = definePrinter<TsPrinter>((options) => ({
       return factory.createArrayDeclaration({ nodes: itemNodes, arrayType: this.options.arrayType }) ?? undefined
     },
     tuple(node) {
-      return buildTupleNode(node, this.print.bind(this))
+      return buildTupleNode(node, this.print)
     },
     object(node) {
       const addsQuestionToken = ['questionToken', 'questionTokenAndUndefined'].includes(this.options.optionalType)
-      const print = this.print.bind(this)
+      const { print } = this
 
       const propertyNodes: Array<ts.TypeElement> = node.properties.map((prop) => {
         const baseType = (print(prop.schema) ?? factory.keywordTypeNodes.unknown) as ts.TypeNode

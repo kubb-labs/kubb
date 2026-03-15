@@ -110,18 +110,20 @@ export function definePrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
   return (options) => {
     const { name, options: resolvedOptions, nodes } = build(options ?? ({} as T['options']))
 
-    function print(node: SchemaNode): T['output'] | null | undefined {
-      const type = node.type as SchemaType
-
-      const handler = nodes[type]
-      if (handler) {
-        const context: PrinterHandlerContext<T['output'], T['options']> = { print, options: resolvedOptions }
-        return (handler as PrinterHandler<T['output'], T['options']>).call(context, node as SchemaNodeByType[SchemaType])
-      }
-
-      return undefined
+    const context: PrinterHandlerContext<T['output'], T['options']> = {
+      options: resolvedOptions,
+      print: (node: SchemaNode) => {
+        const type = node.type as SchemaType
+        const handler = nodes[type]
+        return handler ? (handler as PrinterHandler<T['output'], T['options']>).call(context, node as SchemaNodeByType[SchemaType]) : undefined
+      },
     }
 
-    return { name, options: resolvedOptions, print, for: (nodes) => nodes.map(print) }
+    return {
+      name,
+      options: resolvedOptions,
+      print: context.print,
+      for: (nodes) => nodes.map(context.print),
+    }
   }
 }
