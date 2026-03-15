@@ -1029,6 +1029,8 @@ describe('convertSchema object properties', () => {
     const node = parser.convertSchema({
       schema: {
         type: 'object',
+        // OAS 2.0 allows `required: true` (boolean) on individual properties.
+        // Cast simulates an OAS 2.0 spec parsed at runtime where the type diverges from the TS definition.
         required: true as unknown as string[],
         properties: { id: { type: 'integer' }, tag: { type: 'string' } },
       },
@@ -1181,6 +1183,8 @@ describe('convertSchema object patternProperties', () => {
     const node = parser.convertSchema({
       schema: {
         type: 'object',
+        // OAS 3.1 / JSON Schema 2020-12 allows boolean schemas for patternProperties values.
+        // Cast simulates a `true` boolean schema at runtime where the TS type expects SchemaObject.
         patternProperties: { '^x-': true as unknown as SchemaObject },
       },
     })
@@ -1849,7 +1853,7 @@ describe('convertSchema pattern', () => {
     const node = parser.convertSchema({ schema: { type: 'number', pattern: '^[0-9]+$' } })
 
     expect(node.type).toBe('number')
-    expect('pattern' in node ? (node as { pattern?: string }).pattern : undefined).toBeUndefined()
+    expect(narrowSchema(node, 'string')?.pattern).toBeUndefined()
   })
 
   it('preserves nullable on a pattern string', () => {
@@ -2357,12 +2361,14 @@ describe('convertSchema not keyword', () => {
   it('falls through to the emptySchemaType (any by default) since "not" is not supported', () => {
     // JSON Schema `not` has no direct equivalent in most code generators.
     // The parser intentionally does not handle it and falls through to the configured emptySchemaType.
+    // Cast required: `not` is valid JSON Schema / OAS 3.1 but not in the TS SchemaObject type.
     const node = parser.convertSchema({ schema: { not: { type: 'string' } } as SchemaObject })
 
     expect(node.type).toBe('any')
   })
 
   it('respects emptySchemaType option when falling through for not keyword', () => {
+    // Cast required: `not` is valid JSON Schema / OAS 3.1 but not in the TS SchemaObject type.
     const node = parser.convertSchema({ schema: { not: { type: 'string' } } as SchemaObject }, { emptySchemaType: 'unknown' })
 
     expect(node.type).toBe('unknown')
@@ -2438,7 +2444,7 @@ describe('convertSchema circular allOf discriminator detection', () => {
     expect(cat).toBeDefined()
     expect(cat!.type).toBe('intersection')
     // The intersection should contain only the concrete Cat properties — Animal is filtered out.
-    const members = (cat as { members?: Array<{ type: string; name?: string }> }).members ?? []
+    const members = narrowSchema(cat, 'intersection')?.members ?? []
     expect(members.length).toBeGreaterThan(0)
     expect(members.some((m) => m.type === 'ref' && m.name === 'Animal')).toBe(false)
   })
@@ -2486,7 +2492,7 @@ describe('buildAst', async () => {
       const schema = root.schemas.find((s) => s.name === 'Pet')
       expect(schema).toBeDefined()
       expect(schema!.type).toBe('object')
-      const props = (schema as { properties?: Array<{ name: string; required: boolean }> }).properties ?? []
+      const props = narrowSchema(schema, 'object')?.properties ?? []
       expect(props.find((p) => p.name === 'id')?.required).toBe(true)
       expect(props.find((p) => p.name === 'name')?.required).toBe(true)
     })
@@ -2508,7 +2514,7 @@ describe('buildAst', async () => {
       const schema = root.schemas.find((s) => s.name === 'PetOrError')
       expect(schema).toBeDefined()
       expect(schema!.type).toBe('union')
-      const members = (schema as { members?: unknown[] }).members ?? []
+      const members = narrowSchema(schema, 'union')?.members ?? []
       expect(members.length).toBe(2)
     })
 
