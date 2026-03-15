@@ -70,7 +70,7 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
         try {
           await oas.validate()
         } catch (_err) {
-          // Validation failures are non-fatal — mirror plugin-oas behaviour
+          // Validation failures are non-fatal — mirror plugin-oas behavior
         }
       }
 

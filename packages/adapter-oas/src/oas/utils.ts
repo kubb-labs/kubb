@@ -110,7 +110,7 @@ export async function parse(
  *
  * Each document is parsed independently (without path dereferencing) and then
  * recursively merged using `remeda`'s `mergeDeep`. The result is re-parsed so
- * the returned `Oas` instance is fully initialised.
+ * the returned `Oas` instance is fully initialized.
  *
  * Throws when the input array is empty — at least one document is required.
  */
@@ -202,7 +202,7 @@ export function flattenSchema(schema: SchemaObject | null): SchemaObject | null 
 
 /**
  * Validates an OpenAPI document using `oas-normalize`.
- * Enables path validation and colorised error output.
+ * Enables path validation and colorized error output.
  */
 export async function validate(document: Document) {
   const oasNormalize = new OASNormalize(document, {
@@ -354,7 +354,7 @@ export function legacyResolve(schemasWithMeta: SchemaWithMetadata[]): GetSchemas
 /**
  * Builds `GetSchemasResult` with automatic name-collision resolution.
  *
- * When two or more schemas normalise to the same PascalCase name:
+ * When two or more schemas normalize to the same PascalCase name:
  * - If they share the same source, a numeric suffix (`2`, `3`, …) is appended.
  * - If they come from different sources (schemas / responses / requestBodies),
  *   a semantic suffix (`Schema`, `Response`, `Request`) is appended.
