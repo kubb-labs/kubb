@@ -1,4 +1,4 @@
-import { camelCase } from '@kubb/core/transformers'
+import { camelCase } from '@internals/utils'
 import { File } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 
