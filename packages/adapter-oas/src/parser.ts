@@ -231,7 +231,7 @@ export type OasParser = {
    * Converts an OpenAPI/Swagger spec (wrapped in a Kubb `Oas` instance) into
    * a `RootNode` — the top-level node of the `@kubb/ast` tree.
    */
-  buildAst: <TOptions extends Partial<Options> = object>(options?: TOptions) => RootNode
+  parse: <TOptions extends Partial<Options> = object>(options?: TOptions) => RootNode
   convertSchema: <TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }, TOptions extends Partial<Options> = object>(
     params: { schema: TSchema; name?: string },
     options?: TOptions,
@@ -290,7 +290,7 @@ function applyDiscriminatorEnum(schema: SchemaObject): SchemaObject {
  * Creates an OAS parser that converts an OpenAPI/Swagger spec into
  * the `@kubb/ast` tree.
  *
- * Options are passed per-call to `buildAst` or `convertSchema` rather than
+ * Options are passed per-call to `parse` or `convertSchema` rather than
  * at construction time, keeping the factory lightweight.
  *
  * This is the **kubb-parser** stage of the compilation lifecycle:
@@ -302,7 +302,7 @@ function applyDiscriminatorEnum(schema: SchemaObject): SchemaObject {
  * @example
  * ```ts
  * const parser = createOasParser(oas)
- * const root = parser.buildAst({ emptySchemaType: 'unknown' })
+ * const root = parser.parse({ emptySchemaType: 'unknown' })
  * ```
  */
 export function createOasParser(oas: Oas, { contentType, collisionDetection }: OasParserOptions = {}): OasParser {
@@ -1052,7 +1052,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * Converts an OpenAPI/Swagger spec (wrapped in a Kubb `Oas` instance) into
    * a `RootNode` — the top-level node of the `@kubb/ast` tree.
    */
-  function buildAst<TOptions extends Partial<Options> = object>(options?: TOptions): RootNode {
+  function parse<TOptions extends Partial<Options> = object>(options?: TOptions): RootNode {
     const mergedOptions: Options = { ...DEFAULT_OPTIONS, ...options }
 
     const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) =>
@@ -1128,7 +1128,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
   }
 
   return {
-    buildAst,
+    parse: parse,
     convertSchema,
     resolveRefs,
     getImports,

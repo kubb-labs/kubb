@@ -8,7 +8,7 @@ export function narrowSchema<T extends SchemaNode['type']>(node: SchemaNode | un
 }
 
 function isKind<T extends Node>(kind: NodeKind) {
-  return (node: Node): node is T => node.kind === kind
+  return (node: unknown): node is T => (node as Node).kind === kind
 }
 
 /**

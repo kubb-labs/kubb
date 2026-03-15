@@ -6,7 +6,9 @@ import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from
 import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
-import type { Generator } from './generators/types.ts'
+import type { CoreGenerator } from './generators/createGenerator.ts'
+import type { ReactGenerator } from './generators/createReactGenerator.ts'
+import type { Generator, Version } from './generators/types.ts'
 import { isKeyword, type Schema, type SchemaKeywordMapper, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
@@ -1335,7 +1337,7 @@ export class SchemaGenerator<
     return [{ keyword: emptyType }, ...baseItems]
   }
 
-  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<TPluginOptions, Version>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
 
     // Initialize the name mapping if not already done
@@ -1358,7 +1360,10 @@ export class SchemaGenerator<
     return this.#doBuild(schemas, generators)
   }
 
-  async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async #doBuild(
+    schemas: Record<string, OasTypes.SchemaObject>,
+    generators: Array<Generator<TPluginOptions, Version>>,
+  ): Promise<Array<KubbFile.File<TFileMeta>>> {
     const schemaEntries = Object.entries(schemas)
 
     const generatorLimit = pLimit(GENERATOR_CONCURRENCY)
@@ -1366,13 +1371,20 @@ export class SchemaGenerator<
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
+        if (generator.version === '2') {
+          return []
+        }
+
+        // After the v2 guard above, all generators here are v1
+        const v1Generator = generator as ReactGenerator<TPluginOptions, '1'> | CoreGenerator<TPluginOptions, '1'>
+
         const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
           schemaLimit(async () => {
             const options = this.#getOptions(name)
 
             const tree = this.parse({ schema: schemaObject as SchemaObject, name, parentName: null, rootName: name })
 
-            if (generator.type === 'react') {
+            if (v1Generator.type === 'react') {
               await buildSchema(
                 {
                   name,
@@ -1382,7 +1394,7 @@ export class SchemaGenerator<
                 {
                   config: this.context.pluginManager.config,
                   fabric: this.context.fabric,
-                  Component: generator.Schema,
+                  Component: v1Generator.Schema,
                   generator: this,
                   plugin: {
                     ...this.context.plugin,
@@ -1397,7 +1409,7 @@ export class SchemaGenerator<
               return []
             }
 
-            const result = await generator.schema?.({
+            const result = await v1Generator.schema?.({
               config: this.context.pluginManager.config,
               generator: this,
               schema: {

@@ -77,15 +77,19 @@ describe('walk', () => {
     let current = 0
     const order: Array<string> = []
 
-    await walk(root, {
-      async schema(s) {
-        current++
-        if (current > maxConcurrent) maxConcurrent = current
-        await new Promise((r) => setTimeout(r, 5))
-        order.push(s.type)
-        current--
+    await walk(
+      root,
+      {
+        async schema(s) {
+          current++
+          if (current > maxConcurrent) maxConcurrent = current
+          await new Promise((r) => setTimeout(r, 5))
+          order.push(s.type)
+          current--
+        },
       },
-    }, { concurrency: 2 })
+      { concurrency: 2 },
+    )
 
     expect(maxConcurrent).toBeLessThanOrEqual(2)
     expect(order.length).toBeGreaterThan(0)

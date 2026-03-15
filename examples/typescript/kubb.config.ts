@@ -1,4 +1,4 @@
-import { adapterOas } from '@kubb/adapter-oas'
+// import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -16,12 +16,12 @@ export default defineConfig({
   hooks: {
     done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
   },
-  adapter: adapterOas({
-    validate: false,
-    devtools: {
-      studioUrl: 'http://localhost:3000',
-    },
-  }),
+  // adapter: adapterOas({
+  //   validate: false,
+  //   devtools: {
+  //     studioUrl: 'http://localhost:3000',
+  //   },
+  // }),
   plugins: [
     pluginOas({ validate: false }),
     pluginTs({
