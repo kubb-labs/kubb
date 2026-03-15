@@ -1,8 +1,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { AsyncEventEmitter } from '@internals/utils'
-import type { Config } from '@kubb/core'
-import { build } from '@kubb/core'
+import { build, type Config, defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -27,7 +26,7 @@ describe('Plugin Generation Performance', () => {
   bench(
     'single plugin generation (plugin-ts)',
     async () => {
-      const config: Config = {
+      const config = defineConfig({
         root: '.',
         input: {
           path: petStorePath,
@@ -47,10 +46,10 @@ describe('Plugin Generation Performance', () => {
             enumType: 'asConst',
           }),
         ],
-      }
+      })
 
       const events = new AsyncEventEmitter()
-      await build({ config, events })
+      await build({ config: config as Config, events })
     },
     {
       time: 10000,
@@ -60,7 +59,7 @@ describe('Plugin Generation Performance', () => {
   bench(
     'multiple plugins generation (plugin-ts + plugin-client)',
     async () => {
-      const config: Config = {
+      const config = defineConfig({
         root: '.',
         input: {
           path: petStorePath,
@@ -85,10 +84,10 @@ describe('Plugin Generation Performance', () => {
             },
           }),
         ],
-      }
+      })
 
       const events = new AsyncEventEmitter()
-      await build({ config, events })
+      await build({ config: config as Config, events })
     },
     {
       time: 10000,
@@ -98,7 +97,7 @@ describe('Plugin Generation Performance', () => {
   bench(
     'comprehensive plugin suite generation',
     async () => {
-      const config: Config = {
+      const config = defineConfig({
         root: '.',
         input: {
           path: petStorePath,
@@ -136,10 +135,10 @@ describe('Plugin Generation Performance', () => {
             },
           }),
         ],
-      }
+      })
 
       const events = new AsyncEventEmitter()
-      await build({ config, events })
+      await build({ config: config as Config, events })
     },
     {
       time: 10000,
