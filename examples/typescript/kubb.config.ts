@@ -4,72 +4,95 @@ import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import ts, { factory } from 'typescript'
 
-export default defineConfig({
-  root: '.',
-  input: {
-    path: './petStore.yaml',
+export default defineConfig([
+  {
+    name: 'v4',
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+      clean: true,
+    },
+    hooks: {
+      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
+    },
+    plugins: [
+      pluginOas({ validate: false }),
+      pluginTs({
+        output: {
+          path: 'models.ts',
+          barrelType: false,
+        },
+        enumType: 'enum',
+        syntaxType: 'interface',
+      }),
+      pluginTs({
+        output: {
+          path: 'modelsConst.ts',
+          barrelType: false,
+        },
+        enumType: 'asConst',
+      }),
+      pluginTs({
+        output: {
+          path: 'modelsPascalConst.ts',
+          barrelType: false,
+        },
+        enumType: 'asPascalConst',
+      }),
+      pluginTs({
+        output: {
+          path: 'modelsConstEnum.ts',
+          barrelType: false,
+        },
+        enumType: 'constEnum',
+      }),
+      pluginTs({
+        output: {
+          path: 'modelsLiteral.ts',
+          barrelType: false,
+        },
+        enumType: 'literal',
+      }),
+      pluginTs({
+        output: {
+          path: 'ts/models',
+        },
+        mapper: {
+          category: factory.createPropertySignature(
+            undefined,
+            factory.createIdentifier('category'),
+            factory.createToken(ts.SyntaxKind.QuestionToken),
+            factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+          ),
+        },
+      }),
+    ],
   },
-  output: {
-    path: './src/gen',
-    clean: true,
+  {
+    name: 'v5',
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/v5',
+      clean: true,
+    },
+    hooks: {
+      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
+    },
+    adapter: adapterOas({
+      validate: false,
+    }),
+    devtools: true,
+    plugins: [
+      pluginTs({
+        enumType: 'enum',
+        syntaxType: 'interface',
+      }),
+    ],
   },
-  hooks: {
-    done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
-  },
-  adapter: adapterOas({
-    validate: false,
-  }),
-  devtools: true,
-  plugins: [
-    pluginOas({ validate: false }),
-    pluginTs({
-      output: {
-        path: 'models.ts',
-        barrelType: false,
-      },
-      enumType: 'enum',
-      syntaxType: 'interface',
-    }),
-    pluginTs({
-      output: {
-        path: 'modelsConst.ts',
-        barrelType: false,
-      },
-      enumType: 'asConst',
-    }),
-    pluginTs({
-      output: {
-        path: 'modelsPascalConst.ts',
-        barrelType: false,
-      },
-      enumType: 'asPascalConst',
-    }),
-    pluginTs({
-      output: {
-        path: 'modelsConstEnum.ts',
-        barrelType: false,
-      },
-      enumType: 'constEnum',
-    }),
-    pluginTs({
-      output: {
-        path: 'modelsLiteral.ts',
-        barrelType: false,
-      },
-      enumType: 'literal',
-    }),
-    pluginTs({
-      output: {
-        path: 'ts/models',
-      },
-      mapper: {
-        category: factory.createPropertySignature(
-          undefined,
-          factory.createIdentifier('category'),
-          factory.createToken(ts.SyntaxKind.QuestionToken),
-          factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-        ),
-      },
-    }),
-  ],
-})
+])

@@ -120,16 +120,16 @@ export class PluginManager {
         return pluginManager.adapter
       },
       openInStudio(options?: DevtoolsOptions) {
+        if (!pluginManager.config.devtools || pluginManager.#studioIsOpen) {
+          return
+        }
+
         if (typeof pluginManager.config.devtools !== 'object') {
           throw new Error('Devtools must be an object')
         }
 
-        if (!pluginManager.rootNode) {
-          throw new Error('RootNode is not defined, make sure you have set the parser in kubb.config.ts')
-        }
-
-        if (pluginManager.#studioIsOpen) {
-          return
+        if (!pluginManager.rootNode || !pluginManager.adapter) {
+          throw new Error('adapter is not defined, make sure you have set the parser in kubb.config.ts')
         }
 
         pluginManager.#studioIsOpen = true
@@ -461,7 +461,12 @@ export class PluginManager {
     return plugins
       .map((plugin) => {
         if (plugin.pre) {
-          const missingPlugins = plugin.pre.filter((pluginName) => !plugins.find((pluginToFind) => pluginToFind.name === pluginName))
+          let missingPlugins = plugin.pre.filter((pluginName) => !plugins.find((pluginToFind) => pluginToFind.name === pluginName))
+
+          // when adapter is set, we can ignore the depends on plugin-oas, in v5 this will not be needed anymore
+          if (missingPlugins.includes('plugin-oas') && this.adapter) {
+            missingPlugins = missingPlugins.filter((pluginName) => pluginName !== 'plugin-oas')
+          }
 
           if (missingPlugins.length > 0) {
             throw new ValidationPluginError(`The plugin '${plugin.name}' has a pre set that references missing plugins for '${missingPlugins.join(', ')}'`)
