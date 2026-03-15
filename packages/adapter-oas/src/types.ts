@@ -3,7 +3,7 @@ import type { DevtoolsOptions } from './devtools.ts'
 import type { Oas as OasClass } from './oas/Oas.ts'
 import type { contentType } from './oas/types.ts'
 
-type Options = {
+export type OasAdapterOptions = {
   /**
    * Validate the OpenAPI spec before parsing.
    * @default true
@@ -21,7 +21,7 @@ type Options = {
   /**
    * Which server to use from `oas.api.servers` when computing `baseURL`.
    * - `0` → first server, `1` → second server, etc.
-   * - When omitted, `getBaseURL()` returns `undefined`.
+   * - When omitted, `baseURL` in the resulting `RootNode.meta` is `undefined`.
    */
   serverIndex?: number
   /**
@@ -80,18 +80,19 @@ type Options = {
   devtools?: boolean | DevtoolsOptions
 }
 
-export type ResolvedOptions = {
+export type OasAdapterResolvedOptions = {
   validate: boolean
-  oasClass: Options['oasClass']
-  contentType: Options['contentType']
-  serverIndex: Options['serverIndex']
-  serverVariables: Options['serverVariables']
-  discriminator: NonNullable<Options['discriminator']>
+  oasClass: OasAdapterOptions['oasClass']
+  contentType: OasAdapterOptions['contentType']
+  serverIndex: OasAdapterOptions['serverIndex']
+  serverVariables: OasAdapterOptions['serverVariables']
+  discriminator: NonNullable<OasAdapterOptions['discriminator']>
   collisionDetection: boolean
-  dateType: NonNullable<Options['dateType']>
-  integerType: NonNullable<Options['integerType']>
-  unknownType: NonNullable<Options['unknownType']>
-  emptySchemaType: NonNullable<Options['emptySchemaType']>
+  dateType: NonNullable<OasAdapterOptions['dateType']>
+  integerType: NonNullable<OasAdapterOptions['integerType']>
+  unknownType: NonNullable<OasAdapterOptions['unknownType']>
+  emptySchemaType: NonNullable<OasAdapterOptions['emptySchemaType']>
+  devtools: OasAdapterOptions['devtools']
 }
 
-export type OasAdapter = AdapterFactoryOptions<'oas', Options, ResolvedOptions>
+export type OasAdapter = AdapterFactoryOptions<'oas', OasAdapterOptions, OasAdapterResolvedOptions>

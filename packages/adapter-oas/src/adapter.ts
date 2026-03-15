@@ -46,20 +46,7 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
 
   return {
     name: adapterOasName,
-    options: {
-      validate,
-      oasClass,
-      contentType,
-      serverIndex,
-      serverVariables,
-      discriminator,
-      collisionDetection,
-      dateType,
-      integerType,
-      unknownType,
-      emptySchemaType,
-      devtools,
-    },
+    options: { validate, oasClass, contentType, serverIndex, serverVariables, discriminator, collisionDetection, dateType, integerType, unknownType, emptySchemaType, devtools },
     async parse(source) {
       const fakeConfig = sourceToFakeConfig(source)
       const oas = await parseFromConfig(fakeConfig, oasClass)
@@ -78,7 +65,7 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
 
       const parser = createOasParser(oas, { contentType, collisionDetection })
-      const root = parser.buildAst({ dateType, integerType, unknownType, emptySchemaType, enumSuffix: 'enum' })
+      const root = parser.buildAst({ dateType, integerType, unknownType, emptySchemaType })
 
       const rootNode = createRoot({
         ...root,
@@ -90,9 +77,7 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
       })
 
       if (devtools) {
-        const devtoolsOptions = devtools === true ? {} : devtools
-
-        logAst(rootNode, devtoolsOptions)
+        logAst(rootNode, devtools === true ? {} : devtools)
       }
 
       return rootNode
@@ -100,11 +85,7 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
   }
 })
 
-/**
- * Maps an `AdapterSource` back to the minimal Config shape that
- * `parseFromConfig` expects.
- * @deprecated make parseFromConfig to use AdapterSource
- */
+// TODO: remove once parseFromConfig accepts AdapterSource directly
 function sourceToFakeConfig(source: AdapterSource): Parameters<typeof parseFromConfig>[0] {
   switch (source.type) {
     case 'path':

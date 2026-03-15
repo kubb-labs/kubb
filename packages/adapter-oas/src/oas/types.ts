@@ -32,8 +32,10 @@ export type SchemaObject = OASSchemaObject & {
   $ref?: string
 }
 
-/** Re-exported from `constants.ts` for backwards compatibility. */
-export { httpMethods as HttpMethods } from './constants.ts'
+/**
+ * Re-exported from `constants.ts` for backwards compatibility.
+ */
+export { httpMethods as HttpMethods } from '../constants.ts'
 
 export type HttpMethod = OASHttpMethods
 

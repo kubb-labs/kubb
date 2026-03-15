@@ -20,7 +20,7 @@ import {
  * The suffix is the schema index within the discriminator's `oneOf`/`anyOf` array.
  * @example `#kubb-inline-0`
  */
-export const KUBB_INLINE_REF_PREFIX = '#kubb-inline-'
+const KUBB_INLINE_REF_PREFIX = '#kubb-inline-'
 
 type OasOptions = {
   contentType?: contentType
