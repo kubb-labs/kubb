@@ -13,9 +13,10 @@ import type {
   UnionSchemaNode,
 } from '@kubb/ast/types'
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Oas, parse } from './oas/index.ts'
+import { Oas } from './oas/Oas.ts'
+import { parse } from './oas/utils.ts'
 import { createOasParser } from './parser.ts'
-import type { SchemaObject } from './oas/index.ts'
+import type { SchemaObject } from './oas/types.ts'
 
 const emptyOas = new Oas({ openapi: '3.0.0', info: { title: '', version: '' }, paths: {} } as any)
 

@@ -39,9 +39,10 @@ import type {
   UnionSchemaNode,
 } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import { ENUM_EXTENSION_KEYS, flattenSchema, FORMAT_MAP, isDiscriminator, isNullable, isReference, KNOWN_MEDIA_TYPES } from './oas/index.ts'
-import type { Oas } from './oas/index.ts'
-import type { contentType, Operation, SchemaObject } from './oas/index.ts'
+import { ENUM_EXTENSION_KEYS, FORMAT_MAP, KNOWN_MEDIA_TYPES } from './oas/constants.ts'
+import type { Oas } from './oas/Oas.ts'
+import type { contentType, Operation, SchemaObject } from './oas/types.ts'
+import { flattenSchema, isDiscriminator, isNullable, isReference } from './oas/utils.ts'
 
 /**
  * Distributive `Omit` — correctly distributes over union types so that
