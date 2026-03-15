@@ -10,7 +10,7 @@ import type { PluginTs } from '../../types'
 export const typeGenerator = createReactGenerator<PluginTs, '2'>({
   name: 'typescript',
   version: '2',
-  Schema({ node, plugin }) {
+  Schema({ node, adapter, plugin }) {
     const {
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
     } = plugin
@@ -24,13 +24,13 @@ export const typeGenerator = createReactGenerator<PluginTs, '2'>({
     if (!node.name) {
       return
     }
-    //
-    // const imports = adapter.getImports(node, (schemaName) => ({
-    //   name: getName(schemaName, { type: 'type' }),
-    //   path: getFile(schemaName).path,
-    // }))
 
-    const imports = [] as any[]
+    const imports = adapter.getImports(node, (schemaName) => ({
+      name: getName(schemaName, { type: 'type' }),
+      path: getFile(schemaName).path,
+    }))
+
+    console.log(JSON.stringify(imports, null, 2))
 
     const isEnumSchema = node.type === 'enum'
 

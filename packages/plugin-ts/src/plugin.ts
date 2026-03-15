@@ -102,7 +102,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       return resolvedName
     },
     async install() {
-      const { config, fabric, plugin, adapter, rootNode, openInStudio } = this
+      const { config, fabric, plugin, adapter, rootNode, pluginManager, openInStudio } = this
 
       const root = path.resolve(config.root, config.output.path)
       const mode = getMode(path.resolve(root, output.path))
@@ -122,6 +122,8 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
                     fabric,
                     Component: generator.Schema,
                     plugin,
+                    pluginManager,
+                    mode,
                     version: generator.version,
                   })
                 }

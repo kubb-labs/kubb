@@ -104,7 +104,7 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * The `resolve` callback receives the collision-corrected schema name and must
    * return the `{ name, path }` pair for the import, or `undefined` to skip it.
    */
-  getImports: (params: { node: SchemaNode; resolve: (schemaName: string) => { name: string; path: string } | undefined }) => Array<KubbFile.Import>
+  getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<KubbFile.Import>
 }
 
 export type BarrelType = 'all' | 'named' | 'propagate'

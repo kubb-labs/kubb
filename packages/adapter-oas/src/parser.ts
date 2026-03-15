@@ -311,7 +311,7 @@ export function getImports({
   node: SchemaNode
   nameMapping: Map<string, string>
   resolve: (schemaName: string) => { name: string; path: string } | undefined
-  oas?: { get: ($ref: string) => unknown }
+  oas?: Oas
 }): Array<KubbFile.Import> {
   return collect<KubbFile.Import>(node, {
     schema(schemaNode): KubbFile.Import | undefined {

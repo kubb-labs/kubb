@@ -2,6 +2,7 @@ import path from 'node:path'
 import { createRoot } from '@kubb/ast'
 import type { AdapterSource } from '@kubb/core'
 import { defineAdapter } from '@kubb/core'
+import type { Oas } from './oas/Oas.ts'
 import { resolveServerUrl } from './oas/resolveServerUrl.ts'
 import { parseFromConfig } from './oas/utils.ts'
 import { createOasParser, getImports } from './parser.ts'
@@ -47,7 +48,7 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
   const nameMapping = new Map<string, string>()
 
   // Holds the OAS instance from the most recent parse() call for use in getImports.
-  let currentOas: { get: ($ref: string) => unknown } | undefined
+  let currentOas: Oas
 
   return {
     name: adapterOasName,
@@ -65,7 +66,7 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
       emptySchemaType,
       nameMapping,
     },
-    getImports({ node, resolve }) {
+    getImports(node, resolve) {
       return getImports({ node, nameMapping, resolve, oas: currentOas })
     },
     async parse(source) {
