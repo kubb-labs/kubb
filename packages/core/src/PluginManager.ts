@@ -10,6 +10,7 @@ import { openInStudio as openInStudioFn } from './devtools.ts'
 import { ValidationPluginError } from './errors.ts'
 import { isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
 import type {
+  Adapter,
   Config,
   DevtoolsOptions,
   KubbEvents,
@@ -71,6 +72,7 @@ export class PluginManager {
    * the build pipeline after the adapter's `parse()` resolves.
    */
   rootNode: RootNode | undefined = undefined
+  adapter: Adapter | undefined = undefined
   #studioIsOpen = false
 
   readonly #plugins = new Set<Plugin>()
@@ -113,6 +115,9 @@ export class PluginManager {
       },
       get rootNode(): RootNode | undefined {
         return pluginManager.rootNode
+      },
+      get adapter(): Adapter | undefined {
+        return pluginManager.adapter
       },
       openInStudio(options?: DevtoolsOptions) {
         if (typeof pluginManager.config.devtools !== 'object') {

@@ -1128,7 +1128,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
   }
 
   return {
-    parse: parse,
+    parse,
     convertSchema,
     resolveRefs,
     getImports,

@@ -3,7 +3,7 @@ import { camelCase, pascalCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { buildSchema, OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
-import { typeGenerator } from './generators'
+import { typeGenerator, typeGeneratorV2 } from './generators'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
@@ -28,7 +28,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     transformers = {},
     mapper = {},
     paramsCasing,
-    generators = [typeGenerator].filter(Boolean),
+    generators = [typeGenerator, typeGeneratorV2].filter(Boolean),
     contentType,
     UNSTABLE_NAMING,
   } = options
@@ -102,21 +102,22 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       return resolvedName
     },
     async install() {
-      const { config, fabric, plugin } = this
+      const { config, fabric, plugin, adapter, rootNode, openInStudio } = this
 
       const root = path.resolve(config.root, config.output.path)
       const mode = getMode(path.resolve(root, output.path))
 
-      if (this.rootNode) {
-        await this.openInStudio({ ast: true })
+      if (adapter) {
+        await openInStudio({ ast: true })
 
         await walk(
-          this.rootNode,
+          rootNode,
           {
             async schema(schemaNode) {
               const writeTasks = generators.map(async (generator) => {
                 if (generator.type === 'react' && generator.version === '2') {
                   await buildSchema(schemaNode, {
+                    adapter,
                     config,
                     fabric,
                     Component: generator.Schema,
@@ -134,6 +135,8 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
 
         return
       }
+
+      // v1 flow
 
       const oas = await this.getOas()
 

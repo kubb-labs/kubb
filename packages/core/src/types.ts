@@ -404,18 +404,31 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * Current plugin
    */
   plugin: Plugin<TOptions>
-  /**
-   * Returns the universal `@kubb/ast` `RootNode` produced by the configured adapter.
-   * Returns `undefined` when no adapter was set (legacy OAS-only usage).
-   */
-  rootNode: RootNode | undefined
+
   /**
    * Opens the Kubb Studio URL for the current `rootNode` in the default browser.
    * Falls back to printing the URL if the browser cannot be launched.
    * No-ops silently when no adapter has set a `rootNode`.
    */
   openInStudio: (options?: DevtoolsOptions) => Promise<void>
-} & Kubb.PluginContext
+} & (
+  | {
+      /**
+       * Returns the universal `@kubb/ast` `RootNode` produced by the configured adapter.
+       * Returns `undefined` when no adapter was set (legacy OAS-only usage).
+       */
+      rootNode: RootNode
+      /**
+       * Return the adapter from `@kubb/ast`
+       */
+      adapter: Adapter
+    }
+  | {
+      rootNode?: never
+      adapter?: never
+    }
+) &
+  Kubb.PluginContext
 /**
  * Specify the export location for the files and define the behavior of the output
  */

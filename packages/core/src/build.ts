@@ -174,6 +174,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
       logs: [`Running adapter: ${definedConfig.adapter.name}`],
     })
 
+    pluginManager.adapter = definedConfig.adapter
     pluginManager.rootNode = await definedConfig.adapter.parse(source)
 
     await events.emit('debug', {

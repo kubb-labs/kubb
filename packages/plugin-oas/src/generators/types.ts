@@ -1,5 +1,5 @@
 import type { OperationNode, SchemaNode } from '@kubb/ast/types'
-import type { Config, Plugin, PluginFactoryOptions } from '@kubb/core'
+import type { Adapter, Config, Plugin, PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import type { OperationGenerator } from '../OperationGenerator.ts'
 import type { SchemaGenerator, SchemaGeneratorOptions } from '../SchemaGenerator.ts'
@@ -58,6 +58,7 @@ export type SchemaV2Props<TOptions extends PluginFactoryOptions> = {
   config: Config
   plugin: Plugin<TOptions>
   node: SchemaNode
+  adapter: Adapter
 }
 
 export type SchemaProps<TOptions extends PluginFactoryOptions, TVersion extends Version = '1'> = TVersion extends '2'

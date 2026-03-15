@@ -1,0 +1,76 @@
+import { useMode, usePluginManager } from '@kubb/core/hooks'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
+import { useOas, useSchemaManager } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
+import { File } from '@kubb/react-fabric'
+
+import { Type } from '../../components/v2/Type.tsx'
+import type { PluginTs } from '../../types'
+
+export const typeGenerator = createReactGenerator<PluginTs, '2'>({
+  name: 'typescript',
+  version: '2',
+  Schema({ node, plugin }) {
+    const {
+      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
+    } = plugin
+    const mode = useMode()
+
+    const oas = useOas()
+    const pluginManager = usePluginManager()
+
+    const { getName, getFile } = useSchemaManager()
+
+    if (!node.name) {
+      return
+    }
+    //
+    // const imports = adapter.getImports(node, (schemaName) => ({
+    //   name: getName(schemaName, { type: 'type' }),
+    //   path: getFile(schemaName).path,
+    // }))
+
+    const imports = [] as any[]
+
+    const isEnumSchema = node.type === 'enum'
+
+    let typedName = getName(node.name, { type: 'type' })
+
+    if (['asConst', 'asPascalConst'].includes(enumType) && isEnumSchema) {
+      typedName = typedName += 'Key'
+    }
+
+    const type = {
+      name: getName(node.name, { type: 'function' }),
+      typedName,
+      file: getFile(node.name),
+    }
+
+    return (
+      <File
+        baseName={type.file.baseName}
+        path={type.file.path}
+        meta={type.file.meta}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
+        footer={getFooter({ oas, output })}
+      >
+        {mode === 'split' &&
+          imports.map((imp) => (
+            <File.Import key={[node.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
+          ))}
+
+        <Type
+          name={type.name}
+          typedName={type.typedName}
+          node={node}
+          mapper={mapper}
+          enumType={enumType}
+          enumKeyCasing={enumKeyCasing}
+          optionalType={optionalType}
+          arrayType={arrayType}
+          syntaxType={syntaxType}
+        />
+      </File>
+    )
+  },
+})
