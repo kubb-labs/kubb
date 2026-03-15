@@ -32,11 +32,7 @@ export type PrinterHandler<TOutput, TOptions extends object, T extends SchemaTyp
  * - `TOptions` — options passed to and stored on the printer
  * - `TOutput` — the type emitted by `print` (typically `string`)
  */
-export type PrinterFactoryOptions<
-  TName extends string = string,
-  TOptions extends object = object,
-  TOutput = unknown,
-> = {
+export type PrinterFactoryOptions<TName extends string = string, TOptions extends object = object, TOutput = unknown> = {
   name: TName
   options: TOptions
   output: TOutput
@@ -110,9 +106,7 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  * printer.print(node)     // 'z.string()'
  * ```
  */
-export function definePrinter<T extends PrinterFactoryOptions = PrinterFactoryOptions>(
-  build: PrinterBuilder<T>,
-): (options?: T['options']) => Printer<T> {
+export function definePrinter<T extends PrinterFactoryOptions = PrinterFactoryOptions>(build: PrinterBuilder<T>): (options?: T['options']) => Printer<T> {
   return (options) => {
     const { name, options: resolvedOptions, nodes } = build(options ?? ({} as T['options']))
 
