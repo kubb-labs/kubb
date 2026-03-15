@@ -39,7 +39,7 @@ export const FORMAT_MAP = {
 } as const satisfies Record<string, SchemaType>
 
 /**
- * Exhaustive list of media types that Kubb recognises.
+ * Exhaustive list of media types that Kubb recognizes.
  * Kept as a module-level constant to avoid re-allocating the array on every call.
  */
 export const KNOWN_MEDIA_TYPES = [

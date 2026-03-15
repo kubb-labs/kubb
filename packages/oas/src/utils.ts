@@ -37,7 +37,7 @@ export function isOpenApiV3_1Document(doc: unknown): doc is OpenAPIV3_1.Document
 }
 
 /**
- * Returns `true` when `obj` is a JSON Schema object recognised by the `oas` library.
+ * Returns `true` when `obj` is a JSON Schema object recognized by the `oas` library.
  */
 export function isJSONSchema(obj?: unknown): obj is SchemaObject {
   return !!obj && isSchema(obj)

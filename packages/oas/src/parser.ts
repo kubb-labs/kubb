@@ -199,7 +199,7 @@ function getPrimitiveType(type: string | undefined): PrimitiveSchemaType {
 }
 
 /**
- * Narrows a raw content-type string to the `MediaType` union recognised by Kubb.
+ * Narrows a raw content-type string to the `MediaType` union recognized by Kubb.
  * Returns `undefined` for content types not present in `KNOWN_MEDIA_TYPES`.
  */
 function toMediaType(contentType: string): MediaType | undefined {
@@ -216,7 +216,7 @@ type SchemaContext = {
   nullable: true | undefined
   defaultValue: unknown
   /**
-   * Normalised single type string (first element when OAS 3.1 multi-type array).
+   * Normalized single type string (first element when OAS 3.1 multi-type array).
    */
   type: string | undefined
   options: Partial<Options> | undefined
@@ -353,7 +353,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
   /**
    * Shared metadata fields included in every `createSchema` call.
-   * Centralises the common properties so sub-handlers don't repeat them.
+   * Centralizes the common properties so sub-handlers don't repeat them.
    */
   function buildSchemaBase(schema: SchemaObject, name: string | undefined, nullable: true | undefined, defaultValue: unknown) {
     return {
@@ -599,7 +599,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * Converts an `enum` schema into an `EnumSchemaNode`.
    *
    * Handles several edge cases:
-   * - `{ type: 'array', enum }` (technically invalid OAS) — the enum is normalised into `items`.
+   * - `{ type: 'array', enum }` (technically invalid OAS) — the enum is normalized into `items`.
    * - `null` in enum values (OAS 3.0 nullable enum convention) — stripped and reflected as `nullable`.
    * - `x-enumNames` / `x-enum-varnames` vendor extensions — produce named enum variants with explicit labels.
    * - Numeric and boolean enums require a const-map representation because most generators cannot
@@ -926,7 +926,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
     const nullable = isNullable(schema) || undefined
     const defaultValue = schema.default === null && nullable ? undefined : schema.default
-    // Normalise OAS 3.1 multi-type array to a single type string for the dispatch below.
+    // Normalize OAS 3.1 multi-type array to a single type string for the dispatch below.
     const type = Array.isArray(schema.type) ? schema.type[0] : schema.type
 
     const ctx: SchemaContext = { schema, name, nullable, defaultValue, type, options, mergedOptions }
