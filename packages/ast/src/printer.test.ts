@@ -5,7 +5,7 @@ import type { PrinterFactoryOptions } from './printer.ts'
 
 describe('definePrinter', () => {
   it('exposes the given name and resolved options', () => {
-    type P = PrinterFactoryOptions<'zod', { strict?: boolean }, { strict: boolean }, string>
+    type P = PrinterFactoryOptions<'zod', { strict?: boolean }, string>
 
     const zodPrinter = definePrinter<P>((options) => {
       const { strict = true } = options
@@ -19,7 +19,7 @@ describe('definePrinter', () => {
   })
 
   it('applies defaults when called with no options', () => {
-    type P = PrinterFactoryOptions<'zod', { strict?: boolean }, { strict: boolean }, string>
+    type P = PrinterFactoryOptions<'zod', { strict?: boolean }, string>
 
     const zodPrinter = definePrinter<P>((options) => {
       const { strict = true } = options
@@ -30,7 +30,7 @@ describe('definePrinter', () => {
   })
 
   it('print returns undefined when no node handler matches', () => {
-    type P = PrinterFactoryOptions<'zod', object, object, string>
+    type P = PrinterFactoryOptions<'zod', object, string>
 
     const zodPrinter = definePrinter<P>(() => ({ name: 'zod', options: {}, nodes: {} }))
 
@@ -38,7 +38,7 @@ describe('definePrinter', () => {
   })
 
   it('print dispatches to the matching node handler', () => {
-    type P = PrinterFactoryOptions<'zod', object, object, string>
+    type P = PrinterFactoryOptions<'zod', object, string>
 
     const zodPrinter = definePrinter<P>(() => ({
       name: 'zod',
@@ -58,7 +58,7 @@ describe('definePrinter', () => {
   })
 
   it('handler accesses resolved options via this.options', () => {
-    type P = PrinterFactoryOptions<'zod', { prefix?: string }, { prefix: string }, string>
+    type P = PrinterFactoryOptions<'zod', { prefix?: string }, string>
 
     const zodPrinter = definePrinter<P>((options) => {
       const { prefix = 'z' } = options
@@ -79,7 +79,7 @@ describe('definePrinter', () => {
   })
 
   it('handler can call this.print recursively for object properties', () => {
-    type P = PrinterFactoryOptions<'zod', object, object, string>
+    type P = PrinterFactoryOptions<'zod', object, string>
 
     const zodPrinter = definePrinter<P>(() => ({
       name: 'zod',
@@ -110,7 +110,7 @@ describe('definePrinter', () => {
   })
 
   it('handler can call this.print recursively for union members', () => {
-    type P = PrinterFactoryOptions<'zod', object, object, string>
+    type P = PrinterFactoryOptions<'zod', object, string>
 
     const zodPrinter = definePrinter<P>(() => ({
       name: 'zod',
@@ -137,13 +137,36 @@ describe('definePrinter', () => {
     expect(zodPrinter().print(node)).toBe('z.union([z.string(), z.number()])')
   })
 
+  it('for maps print over an array of nodes', () => {
+    type P = PrinterFactoryOptions<'zod', object, string>
+
+    const zodPrinter = definePrinter<P>(() => ({
+      name: 'zod',
+      options: {},
+      nodes: {
+        string() {
+          return 'z.string()'
+        },
+        number() {
+          return 'z.number()'
+        },
+      },
+    }))
+
+    const printer = zodPrinter()
+    const result = printer.for([createSchema({ type: 'string' }), createSchema({ type: 'number' }), createSchema({ type: 'boolean' })])
+
+    expect(result).toEqual(['z.string()', 'z.number()', undefined])
+  })
+
   it('infers Printer type correctly', () => {
-    type P = PrinterFactoryOptions<'zod', object, object, string>
+    type P = PrinterFactoryOptions<'zod', object, string>
     const zodPrinter = definePrinter<P>(() => ({ name: 'zod', options: {}, nodes: {} }))
     const printer = zodPrinter()
 
     expectTypeOf(printer.name).toEqualTypeOf<'zod'>()
     expectTypeOf(printer.options).toEqualTypeOf<object>()
     expectTypeOf(printer.print(createSchema({ type: 'string' }))).toEqualTypeOf<string | null | undefined>()
+    expectTypeOf(printer.for([createSchema({ type: 'string' })])).toEqualTypeOf<Array<string | null | undefined>>()
   })
 })

@@ -4,19 +4,23 @@ import type { SchemaNode, SchemaNodeByType, SchemaType } from './nodes/index.ts'
  * Handler context for `definePrinter` — mirrors `PluginContext` from `@kubb/core`.
  * Available as `this` inside each node handler.
  */
-export type PrinterHandlerContext<TOutput, TResolvedOptions extends object> = {
-  /** Recursively print a nested `SchemaNode`. */
+export type PrinterHandlerContext<TOutput, TOptions extends object> = {
+  /**
+   * Recursively print a nested `SchemaNode`.
+   */
   print: (node: SchemaNode) => TOutput | null | undefined
-  /** Resolved options for this printer instance. */
-  options: TResolvedOptions
+  /**
+   * Options for this printer instance.
+   */
+  options: TOptions
 }
 
 /**
  * Handler for a specific `SchemaNode` variant identified by `SchemaType` key `T`.
  * Use a regular function (not an arrow function) so that `this` is available.
  */
-export type PrinterHandler<TOutput, TResolvedOptions extends object, T extends SchemaType = SchemaType> = (
-  this: PrinterHandlerContext<TOutput, TResolvedOptions>,
+export type PrinterHandler<TOutput, TOptions extends object, T extends SchemaType = SchemaType> = (
+  this: PrinterHandlerContext<TOutput, TOptions>,
   node: SchemaNodeByType[T],
 ) => TOutput | null | undefined
 
@@ -25,19 +29,16 @@ export type PrinterHandler<TOutput, TResolvedOptions extends object, T extends S
  * Mirrors `AdapterFactoryOptions` / `PluginFactoryOptions` from `@kubb/core`.
  *
  * - `TName` — unique string identifier (e.g. `'zod'`, `'ts'`)
- * - `TOptions` — raw user-facing options passed to the printer factory
- * - `TResolvedOptions` — defaults applied; what the printer stores as `options`
+ * - `TOptions` — options passed to and stored on the printer
  * - `TOutput` — the type emitted by `print` (typically `string`)
  */
 export type PrinterFactoryOptions<
   TName extends string = string,
   TOptions extends object = object,
-  TResolvedOptions extends object = TOptions,
   TOutput = unknown,
 > = {
   name: TName
   options: TOptions
-  resolvedOptions: TResolvedOptions
   output: TOutput
 }
 
@@ -46,20 +47,32 @@ export type PrinterFactoryOptions<
  * Mirrors the shape of `Adapter` from `@kubb/core`.
  */
 export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
-  /** Unique identifier supplied at creation time. */
+  /**
+   * Unique identifier supplied at creation time.
+   */
   name: T['name']
-  /** Resolved options (after defaults have been applied). */
-  options: T['resolvedOptions']
-  /** Emits `TOutput` from a `SchemaNode`. Returns `null | undefined` when no handler matches. */
+  /**
+   * Options for this printer instance.
+   */
+  options: T['options']
+  /**
+   * Emits `TOutput` from a `SchemaNode`. Returns `null | undefined` when no handler matches.
+   */
   print: (node: SchemaNode) => T['output'] | null | undefined
+  /**
+   * Maps `print` over an array of `SchemaNode`s.
+   */
+  for: (nodes: Array<SchemaNode>) => Array<T['output'] | null | undefined>
 }
 
 type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) => {
   name: T['name']
-  /** Resolved options to store on the printer (mirrors `Adapter.options`). */
-  options: T['resolvedOptions']
+  /**
+   * Options to store on the printer.
+   */
+  options: T['options']
   nodes: Partial<{
-    [K in SchemaType]: PrinterHandler<T['output'], T['resolvedOptions'], K>
+    [K in SchemaType]: PrinterHandler<T['output'], T['options'], K>
   }>
 }
 
@@ -108,13 +121,13 @@ export function definePrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
 
       const handler = nodes[type]
       if (handler) {
-        const context: PrinterHandlerContext<T['output'], T['resolvedOptions']> = { print, options: resolvedOptions }
-        return (handler as PrinterHandler<T['output'], T['resolvedOptions']>).call(context, node as SchemaNodeByType[SchemaType])
+        const context: PrinterHandlerContext<T['output'], T['options']> = { print, options: resolvedOptions }
+        return (handler as PrinterHandler<T['output'], T['options']>).call(context, node as SchemaNodeByType[SchemaType])
       }
 
       return undefined
     }
 
-    return { name, options: resolvedOptions, print }
+    return { name, options: resolvedOptions, print, for: (nodes) => nodes.map(print) }
   }
 }
