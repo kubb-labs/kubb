@@ -4,7 +4,7 @@ import type { AdapterSource } from '@kubb/core'
 import { defineAdapter } from '@kubb/core'
 import { resolveServerUrl } from './oas/resolveServerUrl.ts'
 import { parseFromConfig } from './oas/utils.ts'
-import { createOasParser } from './parser.ts'
+import { createOasParser, getImports } from './parser.ts'
 import type { OasAdapter } from './types.ts'
 
 export const adapterOasName = 'oas' satisfies OasAdapter['name']
@@ -42,6 +42,13 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
     emptySchemaType = unknownType,
   } = options
 
+  // Mutable Map shared between `options` and each `parse()` call.
+  // Populated (and replaced) on every parse so consumers always see the latest state.
+  const nameMapping = new Map<string, string>()
+
+  // Holds the OAS instance from the most recent parse() call for use in getImports.
+  let currentOas: { get: ($ref: string) => unknown } | undefined
+
   return {
     name: adapterOasName,
     options: {
@@ -56,6 +63,10 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
       integerType,
       unknownType,
       emptySchemaType,
+      nameMapping,
+    },
+    getImports({ node, resolve }) {
+      return getImports({ node, nameMapping, resolve, oas: currentOas })
     },
     async parse(source) {
       const fakeConfig = sourceToFakeConfig(source)
@@ -75,6 +86,16 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
 
       const parser = createOasParser(oas, { contentType, collisionDetection })
+
+      // Sync the adapter's shared nameMapping with the one computed by the parser.
+      nameMapping.clear()
+      for (const [key, value] of parser.nameMapping) {
+        nameMapping.set(key, value)
+      }
+
+      // Store the OAS instance so getImports can use it for $ref existence checks.
+      currentOas = oas
+
       const root = parser.parse({ dateType, integerType, unknownType, emptySchemaType })
 
       return createRoot({

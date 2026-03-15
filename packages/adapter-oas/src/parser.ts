@@ -245,24 +245,15 @@ export type OasParser = {
    * the transformed name to use (e.g. with a plugin `transformers.name` applied).
    */
   resolveRefs: (node: SchemaNode, resolveName: (ref: string) => string | undefined, resolveEnumName?: (name: string) => string | undefined) => SchemaNode
+
   /**
-   * Extracts `KubbFile.Import` entries from a `SchemaNode` tree by collecting
-   * all importable `ref` nodes. A `$ref` is considered importable when it resolves
-   * to a known component in the OAS spec (`oas.get($ref)` is truthy).
+   * Map from original `$ref` paths to their collision-resolved schema names.
+   * e.g. `'#/components/schemas/Order'` → `'OrderSchema'`
    *
-   * The `resolve` callback is called with the schema name (last segment of the
-   * `$ref`, collision-corrected via the OAS name mapping) and must return the
-   * `{ name, path }` pair for the generated import, or `undefined` to skip it.
-   *
-   * @example
-   * ```ts
-   * const imports = parser.getImports(schemaNode, (schemaName) => ({
-   *   name: schemaManager.getName(schemaName, { type: 'type' }),
-   *   path: schemaManager.getFile(schemaName).path,
-   * }))
-   * ```
+   * Pass this to the standalone `getImports()` to resolve imports without holding
+   * a reference to the full parser or OAS instance.
    */
-  getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string } | undefined) => Array<KubbFile.Import>
+  nameMapping: Map<string, string>
 }
 
 /**
@@ -284,6 +275,60 @@ function applyDiscriminatorEnum(schema: SchemaObject): SchemaObject {
       },
     },
   } as SchemaObject
+}
+
+/**
+ * Standalone import extractor that works from a pre-computed `nameMapping`.
+ *
+ * Walks `node` looking for `ref` nodes, applies collision-resolved names from
+ * `nameMapping`, and calls `resolve` to obtain the `{ name, path }` pair for
+ * each import. When `oas` is supplied, only `$ref`s that are resolvable in the
+ * spec are included; omit it to skip the existence check.
+ *
+ * This function is the pure, state-free alternative to `OasParser.getImports`.
+ * Because it receives `nameMapping` explicitly it can be called without holding
+ * a reference to the parser or the OAS instance.
+ *
+ * @example
+ * ```ts
+ * // Use adapter state directly — no parser reference needed
+ * const imports = getImports({
+ *   node: schemaNode,
+ *   nameMapping: adapter.options.nameMapping,
+ *   resolve: (schemaName) => ({
+ *     name: schemaManager.getName(schemaName, { type: 'type' }),
+ *     path: schemaManager.getFile(schemaName).path,
+ *   }),
+ * })
+ * ```
+ */
+export function getImports({
+  node,
+  nameMapping,
+  resolve,
+  oas,
+}: {
+  node: SchemaNode
+  nameMapping: Map<string, string>
+  resolve: (schemaName: string) => { name: string; path: string } | undefined
+  oas?: { get: ($ref: string) => unknown }
+}): Array<KubbFile.Import> {
+  return collect<KubbFile.Import>(node, {
+    schema(schemaNode): KubbFile.Import | undefined {
+      if (schemaNode.type !== 'ref' || !schemaNode.ref) return
+      // When an OAS instance is provided, verify the $ref exists in the spec.
+      if (oas && !oas.get(schemaNode.ref)) return
+
+      const rawName = extractRefName(schemaNode.ref)
+
+      // Apply collision-resolved name if available.
+      const schemaName = nameMapping.get(rawName) ?? rawName
+      const result = resolve(schemaName)
+      if (!result) return
+
+      return { name: [result.name], path: result.path }
+    },
+  })
 }
 
 /**
@@ -1101,36 +1146,10 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     }) as SchemaNode
   }
 
-  /**
-   * Collects all `KubbFile.Import` descriptors needed by a `SchemaNode` tree.
-   *
-   * Walks the tree looking for `ref` nodes, verifies each `$ref` is resolvable in the spec,
-   * applies collision-resolved names from `nameMapping`, and calls `resolve` to obtain the
-   * import path and name. Returns an empty array for refs that cannot be resolved.
-   */
-  function getImports(node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string } | undefined): Array<KubbFile.Import> {
-    return collect<KubbFile.Import>(node, {
-      schema(schemaNode): KubbFile.Import | undefined {
-        if (schemaNode.type !== 'ref' || !schemaNode.ref) return
-        // Use the OAS instance to verify this $ref is importable (exists in the spec).
-        if (!oas.get(schemaNode.ref)) return
-
-        const rawName = extractRefName(schemaNode.ref)
-
-        // Apply collision-resolved name if available.
-        const schemaName = nameMapping.get(rawName) ?? rawName
-        const result = resolve(schemaName)
-        if (!result) return
-
-        return { name: [result.name], path: result.path }
-      },
-    })
-  }
-
   return {
     parse,
     convertSchema,
     resolveRefs,
-    getImports,
+    nameMapping,
   } as OasParser
 }

@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { RootNode } from '@kubb/ast/types'
+import type { RootNode, SchemaNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
@@ -97,6 +97,14 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   options: TOptions['resolvedOptions']
   /** Convert the raw source into a universal `RootNode`. */
   parse: (source: AdapterSource) => PossiblePromise<RootNode>
+  /**
+   * Extracts `KubbFile.Import` entries needed by a `SchemaNode` tree.
+   * Populated after the first `parse()` call. Returns an empty array before that.
+   *
+   * The `resolve` callback receives the collision-corrected schema name and must
+   * return the `{ name, path }` pair for the import, or `undefined` to skip it.
+   */
+  getImports: (params: { node: SchemaNode; resolve: (schemaName: string) => { name: string; path: string } | undefined }) => Array<KubbFile.Import>
 }
 
 export type BarrelType = 'all' | 'named' | 'propagate'
