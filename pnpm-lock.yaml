@@ -110,6 +110,9 @@ importers:
       '@faker-js/faker':
         specifier: ^8.4.1
         version: 8.4.1
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/fabric-core':
         specifier: 0.13.3
         version: 0.13.3
@@ -674,6 +677,9 @@ importers:
 
   examples/typescript:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
