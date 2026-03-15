@@ -481,7 +481,13 @@ export function createEnumDeclaration({
           enums
             .map(([_key, value]) => {
               if (isNumber(value)) {
-                return factory.createLiteralTypeNode(factory.createNumericLiteral(value?.toString()))
+                if (value < 0) {
+                  return factory.createLiteralTypeNode(
+                    factory.createPrefixUnaryExpression(ts.SyntaxKind.MinusToken, factory.createNumericLiteral(Math.abs(value).toString()))
+                  )
+                } else {
+                  return factory.createLiteralTypeNode(factory.createNumericLiteral(value?.toString()))
+                }
               }
 
               if (typeof value === 'boolean') {
