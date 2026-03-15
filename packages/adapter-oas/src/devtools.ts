@@ -1,4 +1,4 @@
-import zlib from 'node:zlib'
+import { deflateSync, inflateSync } from 'fflate'
 import type { RootNode } from '@kubb/ast/types'
 
 /**
@@ -17,14 +17,25 @@ export type DevtoolsOptions = {
 /**
  * Encodes a `RootNode` as a compressed, URL-safe string.
  *
- * The JSON representation is deflate-compressed before base64url encoding, which
- * typically reduces payload size by 70–80 % and keeps URLs well within browser
- * and server path-length limits.
+ * The JSON representation is deflate-compressed with {@link deflateSync} before
+ * base64url encoding, which typically reduces payload size by 70–80 % and
+ * keeps URLs well within browser and server path-length limits.
+ *
+ * Use {@link decodeAst} to reverse.
  */
 export function encodeAst(root: RootNode): string {
-  const json = JSON.stringify(root)
-  const compressed = zlib.deflateRawSync(Buffer.from(json))
-  return compressed.toString('base64url')
+  const compressed = deflateSync(new TextEncoder().encode(JSON.stringify(root)))
+  return Buffer.from(compressed).toString('base64url')
+}
+
+/**
+ * Decodes a `RootNode` from a string produced by {@link encodeAst}.
+ *
+ * Works in both Node.js and the browser — no streaming APIs required.
+ */
+export function decodeAst(encoded: string): RootNode {
+  const bytes = Buffer.from(encoded, 'base64url')
+  return JSON.parse(new TextDecoder().decode(inflateSync(bytes))) as RootNode
 }
 
 /**
