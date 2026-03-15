@@ -1,5 +1,20 @@
 # @kubb/plugin-client
 
+## 4.35.0
+
+### Minor Changes
+
+- [#2554](https://github.com/kubb-labs/kubb/pull/2554) [`4d8616c`](https://github.com/kubb-labs/kubb/commit/4d8616c7120acea5deb057a2e8fd337bdab6b26d) Thanks [@icholy](https://github.com/icholy)! - Add `wrapper` option to generate a wrapper class that composes all tag-based client classes into a single entry point.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@4.35.0
+  - @kubb/oas@4.35.0
+  - @kubb/plugin-oas@4.35.0
+  - @kubb/plugin-ts@4.35.0
+  - @kubb/plugin-zod@4.35.0
+
 ## 4.34.0
 
 ### Patch Changes
