@@ -1,12 +1,43 @@
 import type { VisitorDepth } from './constants.ts'
-import { visitorDepths } from './constants.ts'
+import { visitorDepths, WALK_CONCURRENCY } from './constants.ts'
 import type { Node, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode } from './nodes/index.ts'
+
+function createLimit(concurrency: number) {
+  let active = 0
+  const queue: Array<() => void> = []
+
+  function next() {
+    if (active < concurrency && queue.length > 0) {
+      active++
+      queue.shift()!()
+    }
+  }
+
+  return function limit<T>(fn: () => Promise<T> | T): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      queue.push(() => {
+        Promise.resolve(fn()).then(resolve, reject).finally(() => {
+          active--
+          next()
+        })
+      })
+      next()
+    })
+  }
+}
+
+type LimitFn = ReturnType<typeof createLimit>
 
 /**
  * Shared options for `walk`, `transform`, and `collect`.
  */
 export type VisitorOptions = {
   depth?: VisitorDepth
+  /**
+   * Maximum number of sibling nodes visited concurrently inside `walk`.
+   * @default 30
+   */
+  concurrency?: number
 }
 
 /**
@@ -78,34 +109,38 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
 
 /**
  * Depth-first traversal for side effects. Visitor return values are ignored.
+ * Sibling nodes at each level are visited concurrently up to `options.concurrency` (default: 30).
  */
 export async function walk(node: Node, visitor: AsyncVisitor, options: VisitorOptions = {}): Promise<void> {
   const recurse = (options.depth ?? visitorDepths.deep) === visitorDepths.deep
+  const limit = createLimit(options.concurrency ?? WALK_CONCURRENCY)
+  return _walk(node, visitor, recurse, limit)
+}
 
+async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit: LimitFn): Promise<void> {
   switch (node.kind) {
     case 'Root':
-      await visitor.root?.(node)
+      await limit(() => visitor.root?.(node))
       break
     case 'Operation':
-      await visitor.operation?.(node)
+      await limit(() => visitor.operation?.(node))
       break
     case 'Schema':
-      await visitor.schema?.(node)
+      await limit(() => visitor.schema?.(node))
       break
     case 'Property':
-      await visitor.property?.(node)
+      await limit(() => visitor.property?.(node))
       break
     case 'Parameter':
-      await visitor.parameter?.(node)
+      await limit(() => visitor.parameter?.(node))
       break
     case 'Response':
-      await visitor.response?.(node)
+      await limit(() => visitor.response?.(node))
       break
   }
 
-  for (const child of getChildren(node, recurse)) {
-    await walk(child, visitor, options)
-  }
+  const children = getChildren(node, recurse)
+  await Promise.all(children.map((child) => _walk(child, visitor, recurse, limit)))
 }
 
 /**

@@ -77,6 +77,11 @@ export const parameterLocations = {
 } as const satisfies Record<ParameterLocation, ParameterLocation>
 
 /**
+ * Default max concurrent visitor calls in `walk`.
+ */
+export const WALK_CONCURRENCY = 30
+
+/**
  * Fallback status code string for API spec responses.
  */
 export const DEFAULT_STATUS_CODE = 'default' as const
