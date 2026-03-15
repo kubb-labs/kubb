@@ -60,6 +60,24 @@ export type AdapterSource =
   | { type: 'paths'; paths: Array<string> }
 
 /**
+ * Type parameters for an adapter definition.
+ *
+ * Mirrors `PluginFactoryOptions` but scoped to the adapter lifecycle:
+ * - `TName` — unique string identifier (e.g. `'oas'`, `'asyncapi'`)
+ * - `TOptions` — raw user-facing options passed to the adapter factory
+ * - `TResolvedOptions` — defaults applied; what the adapter stores as `options`
+ */
+export type AdapterFactoryOptions<
+  TName extends string = string,
+  TOptions extends object = object,
+  TResolvedOptions extends object = TOptions,
+> = {
+  name: TName
+  options: TOptions
+  resolvedOptions: TResolvedOptions
+}
+
+/**
  * An adapter converts a source file or data into a `@kubb/ast` `RootNode`.
  *
  * Adapters are the single entry-point for different schema formats
@@ -71,15 +89,17 @@ export type AdapterSource =
  * import { oasAdapter } from '@kubb/adapter-oas'
  *
  * export default defineConfig({
- *   adapter: oasAdapter(),         // default — OpenAPI / Swagger
+ *   adapter: adapterOas(),         // default — OpenAPI / Swagger
  *   input:   { path: './openapi.yaml' },
  *   plugins: [pluginTs(), pluginZod()],
  * })
  * ```
  */
-export type Adapter = {
+export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptions> = {
   /** Human-readable identifier, e.g. `'oas'`, `'drizzle'`, `'asyncapi'`. */
-  name: string
+  name: TOptions['name']
+  /** Resolved options (after defaults have been applied). */
+  options: TOptions['resolvedOptions']
   /** Convert the raw source into a universal `RootNode`. */
   parse: (source: AdapterSource) => PossiblePromise<RootNode>
 }
