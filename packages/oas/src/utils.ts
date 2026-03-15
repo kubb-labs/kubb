@@ -9,28 +9,43 @@ import OASNormalize from 'oas-normalize'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { isPlainObject, mergeDeep } from 'remeda'
 import swagger2openapi from 'swagger2openapi'
+import { STRUCTURAL_KEYS } from './constants.ts'
 import { Oas } from './Oas.ts'
 import type { contentType, Document, SchemaObject } from './types.ts'
 
-export const STRUCTURAL_KEYS = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'])
-
-export function isOpenApiV2Document(doc: any): doc is OpenAPIV2.Document {
-  return doc && isPlainObject(doc) && !('openapi' in doc)
-}
-export function isOpenApiV3Document(doc: any): doc is OpenAPIV3.Document {
-  return doc && isPlainObject(doc) && 'openapi' in doc
+/**
+ * Returns `true` when `doc` looks like a Swagger 2.0 document (no `openapi` key).
+ */
+export function isOpenApiV2Document(doc: unknown): doc is OpenAPIV2.Document {
+  return !!doc && isPlainObject(doc) && !('openapi' in doc)
 }
 
-export function isOpenApiV3_1Document(doc: any): doc is OpenAPIV3_1.Document {
-  return doc && isPlainObject<OpenAPIV3_1.Document>(doc) && 'openapi' in doc && doc.openapi.startsWith('3.1')
+/**
+ * Returns `true` when `doc` looks like an OpenAPI 3.x document (has `openapi` key).
+ */
+export function isOpenApiV3Document(doc: unknown): doc is OpenAPIV3.Document {
+  return !!doc && isPlainObject(doc) && 'openapi' in doc
 }
 
+/**
+ * Returns `true` when `doc` is an OpenAPI 3.1 document.
+ */
+export function isOpenApiV3_1Document(doc: unknown): doc is OpenAPIV3_1.Document {
+  return !!doc && isPlainObject(doc) && 'openapi' in (doc as object) && (doc as { openapi: string }).openapi.startsWith('3.1')
+}
+
+/**
+ * Returns `true` when `obj` is a JSON Schema object recognized by the `oas` library.
+ */
 export function isJSONSchema(obj?: unknown): obj is SchemaObject {
   return !!obj && isSchema(obj)
 }
 
+/**
+ * Returns `true` when `obj` is a parameter object (has an `in` field distinguishing it from a schema).
+ */
 export function isParameterObject(obj: ParameterObject | SchemaObject): obj is ParameterObject {
-  return obj && 'in' in obj
+  return !!obj && 'in' in obj
 }
 
 /**
@@ -56,17 +71,19 @@ export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): 
 }
 
 /**
- * Determines if the given object is an OpenAPI ReferenceObject.
+ * Returns `true` when `obj` is an OpenAPI `$ref` pointer object.
  */
-export function isReference(obj?: any): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
-  return !!obj && isRef(obj)
+export function isReference(obj?: unknown): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
+  return !!obj && isRef(obj as object)
 }
 
 /**
- * Determines if the given object is a SchemaObject with a discriminator property of type DiscriminatorObject.
+ * Returns `true` when `obj` is a schema that carries a structured `discriminator` object
+ * (as opposed to a plain string discriminator used in some older specs).
  */
-export function isDiscriminator(obj?: any): obj is SchemaObject & { discriminator: OpenAPIV3.DiscriminatorObject } {
-  return !!obj && obj?.['discriminator'] && typeof obj.discriminator !== 'string'
+export function isDiscriminator(obj?: unknown): obj is SchemaObject & { discriminator: OpenAPIV3.DiscriminatorObject } {
+  const record = obj as Record<string, unknown>
+  return !!obj && !!record['discriminator'] && typeof record['discriminator'] !== 'string'
 }
 
 /**
