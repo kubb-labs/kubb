@@ -6,6 +6,8 @@ import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginManager } from './PluginManager.ts'
 
+export type { Printer } from '@kubb/ast/types'
+
 declare global {
   namespace Kubb {
     interface PluginContext {}
