@@ -807,6 +807,22 @@ importers:
         specifier: 'catalog:'
         version: 20.19.37
 
+  packages/adapter-oas:
+    dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
+    devDependencies:
+      '@internals/utils':
+        specifier: workspace:*
+        version: link:../../internals/utils
+
   packages/agent:
     dependencies:
       '@kubb/core':
@@ -940,6 +956,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/fabric-core':
         specifier: 'catalog:'
         version: 0.13.3
@@ -1182,6 +1201,9 @@ importers:
 
   packages/plugin-oas:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../adapter-oas
       '@kubb/core':
         specifier: workspace:*
         version: link:../core

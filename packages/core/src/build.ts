@@ -9,7 +9,7 @@ import { isInputPath } from './config.ts'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION } from './constants.ts'
 import { BuildError } from './errors.ts'
 import { PluginManager } from './PluginManager.ts'
-import type { Config, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
+import type { AdapterSource, Config, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 
@@ -158,6 +158,27 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     events,
     concurrency: DEFAULT_CONCURRENCY,
   })
+
+  // Run the adapter (if provided) to produce the universal RootNode
+  if (definedConfig.adapter) {
+    const source = inputToAdapterSource(definedConfig)
+
+    await events.emit('debug', {
+      date: new Date(),
+      logs: [`Running adapter: ${definedConfig.adapter.name}`],
+    })
+
+    pluginManager.rootNode = await definedConfig.adapter.parse(source)
+
+    await events.emit('debug', {
+      date: new Date(),
+      logs: [
+        `✓ Adapter '${definedConfig.adapter.name}' resolved RootNode`,
+        `  • Schemas: ${pluginManager.rootNode.schemas.length}`,
+        `  • Operations: ${pluginManager.rootNode.operations.length}`,
+      ],
+    })
+  }
 
   return {
     events,
@@ -363,4 +384,24 @@ function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, plu
       ]
     })
   })
+}
+
+/**
+ * Maps the resolved `Config['input']` shape into an `AdapterSource` that
+ * the adapter's `parse()` can consume.
+ */
+function inputToAdapterSource(config: Config): AdapterSource {
+  if (Array.isArray(config.input)) {
+    return {
+      type: 'paths',
+      paths: config.input.map((i) => resolve(config.root, i.path)),
+    }
+  }
+
+  if ('data' in config.input) {
+    return { type: 'data', data: config.input.data }
+  }
+
+  const resolved = resolve(config.root, config.input.path)
+  return { type: 'path', path: resolved }
 }

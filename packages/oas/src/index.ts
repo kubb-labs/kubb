@@ -12,6 +12,7 @@ export {
   isParameterObject,
   isReference,
   isRequired,
+  flattenSchema,
   merge,
   parse,
   parseFromConfig,

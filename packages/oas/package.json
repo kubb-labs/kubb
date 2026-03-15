@@ -31,7 +31,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./mocks": {
+      "import": "./mocks/oas.ts",
+      "require": "./mocks/oas.ts"
+    }
   },
   "types": "./dist/index.d.ts",
   "typesVersions": {

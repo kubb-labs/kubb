@@ -2,6 +2,7 @@ import path from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { setUniqueName, transformReservedWord } from '@internals/utils'
+import type { RootNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import { CORE_PLUGIN_NAME } from './constants.ts'
@@ -63,6 +64,12 @@ export class PluginManager {
   readonly config: Config
   readonly options: Options
 
+  /**
+   * The universal `@kubb/ast` `RootNode` produced by the adapter, set by
+   * the build pipeline after the adapter's `parse()` resolves.
+   */
+  rootNode: RootNode | undefined = undefined
+
   readonly #plugins = new Set<Plugin>()
   readonly #usedPluginNames: Record<string, number> = {}
   readonly #promiseManager
@@ -99,6 +106,7 @@ export class PluginManager {
       upsertFile: async (...files: Array<KubbFile.File>) => {
         await this.options.fabric.upsertFile(...files)
       },
+      getRootNode: (): RootNode | undefined => this.rootNode,
     } as unknown as PluginContext<TOptions>
 
     const mergedExtras: Record<string, unknown> = {}

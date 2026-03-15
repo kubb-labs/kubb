@@ -1,4 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
+import type { RootNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import type { logLevel } from './constants.ts'
@@ -49,6 +50,40 @@ export type InputData = {
 
 type Input = InputPath | InputData | Array<InputPath>
 
+/**
+ * The raw source passed to an adapter's `parse` function.
+ * Mirrors the shape of `Config['input']` with paths already resolved to absolute.
+ */
+export type AdapterSource =
+  | { type: 'path'; path: string }
+  | { type: 'data'; data: string | unknown }
+  | { type: 'paths'; paths: Array<string> }
+
+/**
+ * An adapter converts a source file or data into a `@kubb/ast` `RootNode`.
+ *
+ * Adapters are the single entry-point for different schema formats
+ * (OpenAPI, AsyncAPI, Drizzle, …) and produce the universal `RootNode`
+ * that all Kubb plugins consume.
+ *
+ * @example
+ * ```ts
+ * import { oasAdapter } from '@kubb/adapter-oas'
+ *
+ * export default defineConfig({
+ *   adapter: oasAdapter(),         // default — OpenAPI / Swagger
+ *   input:   { path: './openapi.yaml' },
+ *   plugins: [pluginTs(), pluginZod()],
+ * })
+ * ```
+ */
+export type Adapter = {
+  /** Human-readable identifier, e.g. `'oas'`, `'drizzle'`, `'asyncapi'`. */
+  name: string
+  /** Convert the raw source into a universal `RootNode`. */
+  parse: (source: AdapterSource) => PossiblePromise<RootNode>
+}
+
 export type BarrelType = 'all' | 'named' | 'propagate'
 
 /**
@@ -64,6 +99,24 @@ export type Config<TInput = Input> = {
    * @default process.cwd()
    */
   root: string
+  /**
+   * Adapter that converts the input file into a `@kubb/ast` `RootNode` — the universal
+   * intermediate representation consumed by all Kubb plugins.
+   *
+   * - Omit (or pass `undefined`) to use the built-in OpenAPI/Swagger adapter.
+   * - Use `@kubb/adapter-oas` for explicit OpenAPI configuration (validate, contentType, …).
+   * - Use `@kubb/adapter-drizzle` or `@kubb/adapter-asyncapi` for other formats.
+   *
+   * @example
+   * ```ts
+   * import { drizzleAdapter } from '@kubb/adapter-drizzle'
+   * export default defineConfig({
+   *   adapter: drizzleAdapter(),
+   *   input: { path: './src/schema.ts' },
+   * })
+   * ```
+   */
+  adapter?: Adapter
   /**
    * You can use either `input.path` or `input.data`, depending on your specific needs.
    */
@@ -315,6 +368,11 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * Current plugin
    */
   plugin: Plugin<TOptions>
+  /**
+   * Returns the universal `@kubb/ast` `RootNode` produced by the configured adapter.
+   * Returns `undefined` when no adapter was set (legacy OAS-only usage).
+   */
+  getRootNode: () => RootNode | undefined
 } & Kubb.PluginContext
 /**
  * Specify the export location for the files and define the behavior of the output
