@@ -74,6 +74,7 @@ export const ENUM_EXTENSION_KEYS = ['x-enumNames', 'x-enum-varnames'] as const
  * Canonical HTTP method names used throughout the Kubb OAS layer.
  * Keys are uppercase (as used in generated code); values are the lowercase
  * strings that the `oas` library uses internally.
+ * @deprecated use httpMethods from @kubb/ast
  */
 export const httpMethods = {
   GET: 'get',

@@ -13,8 +13,6 @@ import { STRUCTURAL_KEYS } from './constants.ts'
 import { Oas } from './Oas.ts'
 import type { contentType, Document, SchemaObject } from './types.ts'
 
-export { STRUCTURAL_KEYS }
-
 /**
  * Returns `true` when `doc` looks like a Swagger 2.0 document (no `openapi` key).
  */
