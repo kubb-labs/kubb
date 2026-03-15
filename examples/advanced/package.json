@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/fabric-core": "0.13.3",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-cypress": "workspace:*",

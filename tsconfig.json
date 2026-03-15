@@ -2,6 +2,7 @@
   "extends": "./bundler.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "rootDir": ".",
     "types": ["bun-types"],
     "paths": {
       "#mocks": ["configs/mocks.ts"],
@@ -22,6 +23,7 @@
       "@kubb/plugin-oas/components": ["packages/plugin-oas/src/components/index.ts"],
       "@kubb/plugin-oas/mocks": ["packages/plugin-oas/src/mocks/index.ts"],
       "@kubb/plugin-oas": ["packages/plugin-oas/src/index.ts"],
+      "@kubb/adapter-oas": ["packages/adapter-oas/src/index.ts"],
       "@kubb/plugin-ts/hooks": ["packages/plugin-ts/src/hooks/index.ts"],
       "@kubb/plugin-ts": ["packages/plugin-ts/src/index.ts"],
       "@kubb/plugin-client/components": ["packages/plugin-client/src/components/index.ts"],
@@ -39,6 +41,7 @@
       "@kubb/plugin-zod/templates/ToZod.source": ["packages/plugin-zod/src/templates/ToZod.source.ts"],
       "@kubb/plugin-zod": ["packages/plugin-zod/src/index.ts"],
       "@kubb/oas": ["packages/oas/src/index.ts"],
+      "@kubb/oas/mocks": ["packages/oas/mocks/oas.ts"],
       "unplugin-kubb": ["packages/unplugin/src/index.ts"]
     }
   },

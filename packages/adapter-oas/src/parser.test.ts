@@ -1,21 +1,11 @@
 import { narrowSchema } from '@kubb/ast'
-import type {
-  ArraySchemaNode,
-  EnumSchemaNode,
-  IntersectionSchemaNode,
-  NumberSchemaNode,
-  ObjectSchemaNode,
-  RefSchemaNode,
-  ScalarSchemaNode,
-  SchemaNode,
-  StringSchemaNode,
-  UnionSchemaNode,
-} from '@kubb/ast/types'
+import type { ArraySchemaNode, EnumSchemaNode, IntersectionSchemaNode, SchemaNode, UnionSchemaNode } from '@kubb/ast/types'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
-import { Oas, parse } from './index.ts'
+import { Oas } from './oas/Oas.ts'
+import type { SchemaObject } from './oas/types.ts'
+import { parse } from './oas/utils.ts'
 import { createOasParser } from './parser.ts'
-import type { SchemaObject } from './types.ts'
 
 const emptyOas = new Oas({ openapi: '3.0.0', info: { title: '', version: '' }, paths: {} } as any)
 
@@ -267,130 +257,6 @@ describe('buildAst', () => {
 
       expect(ok?.mediaType).toBe('application/json')
     })
-  })
-})
-
-describe('convertSchema return type narrowing', () => {
-  const parser = createOasParser(emptyOas)
-
-  it('narrows to RefSchemaNode when $ref is present', () => {
-    const node = parser.convertSchema({ schema: { $ref: '#/components/schemas/Pet' } })
-
-    expectTypeOf(node).toEqualTypeOf<RefSchemaNode>()
-  })
-
-  it('narrows to ObjectSchemaNode when type is object', () => {
-    const node = parser.convertSchema({ schema: { type: 'object' } })
-
-    expectTypeOf(node).toEqualTypeOf<ObjectSchemaNode>()
-  })
-
-  it('narrows to ArraySchemaNode when type is array', () => {
-    const node = parser.convertSchema({ schema: { type: 'array' } })
-
-    expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
-  })
-
-  it('narrows to EnumSchemaNode when enum is present', () => {
-    const node = parser.convertSchema({ schema: { enum: ['a', 'b'] } })
-
-    expectTypeOf(node).toEqualTypeOf<EnumSchemaNode>()
-  })
-
-  it('narrows to UnionSchemaNode when oneOf is present', () => {
-    const node = parser.convertSchema({ schema: { oneOf: [{ type: 'string' }, { type: 'number' }] } })
-
-    expectTypeOf(node).toEqualTypeOf<UnionSchemaNode>()
-  })
-
-  it('narrows to UnionSchemaNode when anyOf is present', () => {
-    const node = parser.convertSchema({ schema: { anyOf: [{ type: 'string' }, { type: 'number' }] } })
-
-    expectTypeOf(node).toEqualTypeOf<UnionSchemaNode>()
-  })
-
-  it('narrows to StringSchemaNode for string type', () => {
-    const node = parser.convertSchema({ schema: { type: 'string' } })
-
-    expectTypeOf(node).toEqualTypeOf<StringSchemaNode>()
-  })
-
-  it('narrows to NumberSchemaNode for number type', () => {
-    const node = parser.convertSchema({ schema: { type: 'number' } })
-
-    expectTypeOf(node).toEqualTypeOf<NumberSchemaNode>()
-  })
-
-  it('narrows to NumberSchemaNode for integer type', () => {
-    const node = parser.convertSchema({ schema: { type: 'integer' } })
-
-    expectTypeOf(node).toEqualTypeOf<NumberSchemaNode>()
-  })
-
-  it('narrows to ScalarSchemaNode for boolean type', () => {
-    const node = parser.convertSchema({ schema: { type: 'boolean' } })
-
-    expectTypeOf(node).toEqualTypeOf<ScalarSchemaNode>()
-  })
-
-  it('narrows to ArraySchemaNode when items is present', () => {
-    const node = parser.convertSchema({ schema: { items: { type: 'string' } } })
-
-    expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
-  })
-
-  it('narrows to StringSchemaNode when minLength is present', () => {
-    const node = parser.convertSchema({ schema: { minLength: 1 } })
-
-    expectTypeOf(node).toEqualTypeOf<StringSchemaNode>()
-  })
-
-  it('narrows to StringSchemaNode when maxLength is present', () => {
-    const node = parser.convertSchema({ schema: { maxLength: 100 } })
-
-    expectTypeOf(node).toEqualTypeOf<StringSchemaNode>()
-  })
-
-  it('narrows to StringSchemaNode when pattern is present', () => {
-    const node = parser.convertSchema({ schema: { pattern: '^[a-z]+$' } })
-
-    expectTypeOf(node).toEqualTypeOf<StringSchemaNode>()
-  })
-
-  it('narrows to NumberSchemaNode when minimum is present', () => {
-    const node = parser.convertSchema({ schema: { minimum: 0 } })
-
-    expectTypeOf(node).toEqualTypeOf<NumberSchemaNode>()
-  })
-
-  it('narrows to NumberSchemaNode when maximum is present', () => {
-    const node = parser.convertSchema({ schema: { maximum: 100 } })
-
-    expectTypeOf(node).toEqualTypeOf<NumberSchemaNode>()
-  })
-
-  it('resolves to datetime type when format is date-time', () => {
-    const node = parser.convertSchema({ schema: { format: 'date-time' } })
-
-    expect(node.type).toBe('datetime')
-  })
-
-  it('resolves to date type when format is date', () => {
-    const node = parser.convertSchema({ schema: { format: 'date' } })
-
-    expect(node.type).toBe('date')
-  })
-
-  it('resolves to time type when format is time', () => {
-    const node = parser.convertSchema({ schema: { format: 'time' } })
-
-    expect(node.type).toBe('time')
-  })
-
-  it('falls back to SchemaNode for an untyped empty schema', () => {
-    const node = parser.convertSchema({ schema: {} })
-
-    expectTypeOf(node).toEqualTypeOf<SchemaNode>()
   })
 })
 

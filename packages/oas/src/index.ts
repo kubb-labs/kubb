@@ -3,6 +3,7 @@ export { KUBB_INLINE_REF_PREFIX, Oas } from './Oas.ts'
 export { resolveServerUrl } from './resolveServerUrl.ts'
 export * from './types.ts'
 export {
+  flattenSchema,
   getDefaultValue,
   isAllOptional,
   isDiscriminator,

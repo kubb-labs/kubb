@@ -1,26 +1,20 @@
 {
-  "name": "@kubb/core",
-  "version": "4.34.0",
-  "description": "Core functionality for Kubb's plugin-based code generation system, providing the foundation for transforming OpenAPI specifications.",
+  "name": "@kubb/adapter-oas",
+  "version": "4.33.4",
+  "description": "OpenAPI / Swagger adapter for Kubb — converts OAS input into a @kubb/ast RootNode.",
   "keywords": [
-    "typescript",
-    "plugins",
-    "plugin-system",
-    "plugin-framework",
-    "code-generator",
-    "codegen",
-    "ast",
-    "file-system",
     "openapi",
     "swagger",
     "oas",
-    "core-library",
-    "kubb"
+    "adapter",
+    "kubb",
+    "codegen",
+    "typescript"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/core"
+    "directory": "packages/adapter-oas"
   },
   "license": "MIT",
   "author": "stijnvanhulle",
@@ -31,40 +25,18 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./hooks": {
-      "import": "./dist/hooks.js",
-      "require": "./dist/hooks.cjs"
-    },
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "hooks": [
-        "./dist/hooks.d.ts"
-      ]
-    }
-  },
   "files": [
     "src",
-    "schemas",
     "dist",
-    "*.d.ts",
-    "*.d.cts",
-    "schema.json",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
   ],
-  "size-limit": [
-    {
-      "path": "./dist/*.js",
-      "limit": "510 KiB",
-      "gzip": true
-    }
-  ],
   "scripts": {
-    "build": "tsdown && size-limit",
+    "build": "tsdown",
     "clean": "npx rimraf ./dist",
     "lint": "bun biome lint .",
     "lint:fix": "bun biome lint --fix --unsafe .",
@@ -76,21 +48,21 @@
   },
   "dependencies": {
     "@kubb/ast": "workspace:*",
+    "@kubb/core": "workspace:*",
     "@kubb/fabric-core": "catalog:",
-    "@kubb/react-fabric": "catalog:",
-    "empathic": "^2.0.0",
+    "@redocly/openapi-core": "^2.21.1",
+    "@stoplight/yaml": "^4.3.0",
+    "fflate": "^0.8.2",
+    "jsonpointer": "^5.0.1",
+    "oas": "^31.1.2",
+    "oas-normalize": "^16.0.2",
+    "openapi-types": "^12.1.3",
     "remeda": "catalog:",
-    "semver": "^7.7.4",
-    "tinyexec": "catalog:"
+    "swagger2openapi": "^7.0.8"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
-    "@types/semver": "^7.7.1",
-    "p-limit": "catalog:"
-  },
-  "peerDependencies": {
-    "@kubb/fabric-core": "0.13.3",
-    "@kubb/react-fabric": "0.13.3"
+    "@types/swagger2openapi": "^7.0.4"
   },
   "engines": {
     "node": ">=20"
@@ -100,9 +72,5 @@
     "registry": "https://registry.npmjs.org/"
   },
   "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "inlinedDependencies": {
-    "p-limit": "7.3.0",
-    "yocto-queue": "1.2.2"
-  }
+  "module": "./dist/index.js"
 }

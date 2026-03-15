@@ -1,4 +1,5 @@
 import { generateToken, hashToken } from '@internals/utils'
+
 export { generateToken, hashToken }
 
 const _fallbackSecret = generateToken()
