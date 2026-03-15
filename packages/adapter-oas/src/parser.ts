@@ -231,7 +231,7 @@ export type OasParser = {
    * Converts an OpenAPI/Swagger spec (wrapped in a Kubb `Oas` instance) into
    * a `RootNode` — the top-level node of the `@kubb/ast` tree.
    */
-  buildAst: <TOptions extends Partial<Options> = object>(options?: TOptions) => RootNode
+  buildRootNode: <TOptions extends Partial<Options> = object>(options?: TOptions) => RootNode
   convertSchema: <TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }, TOptions extends Partial<Options> = object>(
     params: { schema: TSchema; name?: string },
     options?: TOptions,
@@ -1128,7 +1128,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
   }
 
   return {
-    buildAst,
+    buildRootNode: buildAst,
     convertSchema,
     resolveRefs,
     getImports,

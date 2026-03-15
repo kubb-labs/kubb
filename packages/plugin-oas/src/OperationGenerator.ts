@@ -4,7 +4,9 @@ import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
 import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
-import type { Generator } from './generators/types.ts'
+import type { CoreGenerator } from './generators/createGenerator.ts'
+import type { ReactGenerator } from './generators/createReactGenerator.ts'
+import type { Generator, Version } from './generators/types.ts'
 import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
 import { withRequiredRequestBodySchema } from './utils/requestBody.ts'
 import { buildOperation, buildOperations } from './utils.tsx'
@@ -204,7 +206,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
     )
   }
 
-  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<TPluginOptions, Version>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const operations = await this.getOperations()
 
     // Increased parallelism for better performance
@@ -220,15 +222,22 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
 
     const writeTasks = generators.map((generator) =>
       generatorLimit(async () => {
+        if (generator.version === '2') {
+          return []
+        }
+
+        // After the v2 guard above, all generators here are v1
+        const v1Generator = generator as ReactGenerator<TPluginOptions, '1'> | CoreGenerator<TPluginOptions, '1'>
+
         const operationTasks = operations.map(({ operation, method }) =>
           operationLimit(async () => {
             const options = this.getOptions(operation, method)
 
-            if (generator.type === 'react') {
+            if (v1Generator.type === 'react') {
               await buildOperation(operation, {
                 config: this.context.pluginManager.config,
                 fabric: this.context.fabric,
-                Component: generator.Operation,
+                Component: v1Generator.Operation,
                 generator: this,
                 plugin: {
                   ...this.context.plugin,
@@ -242,7 +251,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
               return []
             }
 
-            const result = await generator.operation?.({
+            const result = await v1Generator.operation?.({
               generator: this,
               config: this.context.pluginManager.config,
               operation,
@@ -262,13 +271,13 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
         const operationResults = await Promise.all(operationTasks)
         const opResultsFlat = operationResults.flat()
 
-        if (generator.type === 'react') {
+        if (v1Generator.type === 'react') {
           await buildOperations(
             operations.map((op) => op.operation),
             {
               fabric: this.context.fabric,
               config: this.context.pluginManager.config,
-              Component: generator.Operations,
+              Component: v1Generator.Operations,
               generator: this,
               plugin: this.context.plugin,
             },
@@ -277,7 +286,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
           return []
         }
 
-        const operationsResult = await generator.operations?.({
+        const operationsResult = await v1Generator.operations?.({
           generator: this,
           config: this.context.pluginManager.config,
           operations: operations.map((op) => op.operation),

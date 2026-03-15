@@ -75,7 +75,7 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
 
       const parser = createOasParser(oas, { contentType, collisionDetection })
-      const root = parser.buildAst({ dateType, integerType, unknownType, emptySchemaType })
+      const root = parser.buildRootNode({ dateType, integerType, unknownType, emptySchemaType })
 
       return createRoot({
         ...root,

@@ -1,7 +1,8 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
+import { walk } from '@kubb/ast'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
-import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
+import { buildSchema, OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { typeGenerator } from './generators'
 import type { PluginTs } from './types.ts'
 
@@ -101,11 +102,35 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       return resolvedName
     },
     async install() {
-      const root = path.resolve(this.config.root, this.config.output.path)
+      const { config, fabric, plugin } = this
+
+      const root = path.resolve(config.root, config.output.path)
       const mode = getMode(path.resolve(root, output.path))
 
       if (this.rootNode) {
         await this.openInStudio({ ast: true })
+
+        await walk(
+          this.rootNode,
+          {
+            async schema(schemaNode) {
+              const writeTasks = generators.map(async (generator) => {
+                if (generator.type === 'react' && generator.version === '2') {
+                  await buildSchema(schemaNode, {
+                    config,
+                    fabric,
+                    Component: generator.Schema,
+                    plugin,
+                    version: generator.version,
+                  })
+                }
+              })
+
+              await writeTasks
+            },
+          },
+          { depth: 'shallow' },
+        )
 
         return
       }
