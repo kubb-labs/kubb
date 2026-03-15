@@ -1,5 +1,4 @@
 import type { AdapterFactoryOptions } from '@kubb/core'
-import type { DevtoolsOptions } from './devtools.ts'
 import type { Oas as OasClass } from './oas/Oas.ts'
 import type { contentType } from './oas/types.ts'
 
@@ -69,15 +68,6 @@ export type OasAdapterOptions = {
    * @default `unknownType`
    */
   emptySchemaType?: 'any' | 'unknown' | 'void'
-  /**
-   * Enable visual AST inspection via Kubb Studio.
-   *
-   * - `true` — opens `https://studio.kubb.dev/ast?root=<encoded>` after every `parse()`.
-   * - `{ studioUrl }` — same, with a custom Studio URL (e.g. your self-hosted instance).
-   *
-   * Logs the URL to the console so you can click/open it during development or CI.
-   */
-  devtools?: boolean | DevtoolsOptions
 }
 
 export type OasAdapterResolvedOptions = {
@@ -92,7 +82,6 @@ export type OasAdapterResolvedOptions = {
   integerType: NonNullable<OasAdapterOptions['integerType']>
   unknownType: NonNullable<OasAdapterOptions['unknownType']>
   emptySchemaType: NonNullable<OasAdapterOptions['emptySchemaType']>
-  devtools: OasAdapterOptions['devtools']
 }
 
 export type OasAdapter = AdapterFactoryOptions<'oas', OasAdapterOptions, OasAdapterResolvedOptions>

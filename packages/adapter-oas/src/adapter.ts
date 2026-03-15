@@ -2,7 +2,6 @@ import path from 'node:path'
 import { createRoot } from '@kubb/ast'
 import type { AdapterSource } from '@kubb/core'
 import { defineAdapter } from '@kubb/core'
-import { logAst } from './devtools.ts'
 import { resolveServerUrl } from './oas/resolveServerUrl.ts'
 import { parseFromConfig } from './oas/utils.ts'
 import { createOasParser } from './parser.ts'
@@ -41,7 +40,6 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
     integerType = 'number',
     unknownType = 'any',
     emptySchemaType = unknownType,
-    devtools,
   } = options
 
   return {
@@ -58,7 +56,6 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
       integerType,
       unknownType,
       emptySchemaType,
-      devtools,
     },
     async parse(source) {
       const fakeConfig = sourceToFakeConfig(source)
@@ -80,7 +77,7 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
       const parser = createOasParser(oas, { contentType, collisionDetection })
       const root = parser.buildAst({ dateType, integerType, unknownType, emptySchemaType })
 
-      const rootNode = createRoot({
+      return createRoot({
         ...root,
         meta: {
           title: oas.api.info?.title,
@@ -88,12 +85,6 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
           baseURL,
         },
       })
-
-      if (devtools) {
-        logAst(rootNode, devtools === true ? {} : devtools)
-      }
-
-      return rootNode
     },
   }
 })
