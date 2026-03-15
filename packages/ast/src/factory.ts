@@ -1,4 +1,4 @@
-import type { OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode } from './nodes/index.ts'
+import type { ObjectSchemaNode, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode } from './nodes/index.ts'
 
 /**
  * Distributive variant of `Omit` that preserves union members.
@@ -34,9 +34,18 @@ export function createOperation(
 
 /**
  * Creates a `SchemaNode`, narrowed to the variant of `props.type`.
+ * For object schemas, `properties` defaults to `[]` when not provided.
  */
-export function createSchema<T extends DistributiveOmit<SchemaNode, 'kind'>>(props: T): T & { kind: 'Schema' } {
-  return { ...props, kind: 'Schema' } as T & { kind: 'Schema' }
+export function createSchema<T extends Omit<ObjectSchemaNode, 'kind' | 'properties'> & { properties?: Array<PropertyNode> }>(
+  props: T,
+): Omit<T, 'properties'> & { properties: Array<PropertyNode>; kind: 'Schema' }
+export function createSchema<T extends DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>>(props: T): T & { kind: 'Schema' }
+export function createSchema(props: Record<string, unknown>): Record<string, unknown> {
+  if (props['type'] === 'object') {
+    return { properties: [], ...props, kind: 'Schema' }
+  }
+
+  return { ...props, kind: 'Schema' }
 }
 
 /**

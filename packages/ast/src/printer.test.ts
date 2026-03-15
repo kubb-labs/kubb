@@ -92,7 +92,7 @@ describe('definePrinter', () => {
           return 'z.number()'
         },
         object(node) {
-          const props = node.properties?.map((p) => `${p.name}: ${this.print(p.schema)}`).join(', ') ?? ''
+          const props = node.properties.map((p) => `${p.name}: ${this.print(p.schema)}`).join(', ')
           return `z.object({ ${props} })`
         },
       },

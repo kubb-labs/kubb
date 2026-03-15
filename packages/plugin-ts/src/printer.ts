@@ -192,7 +192,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => ({
       const addsQuestionToken = ['questionToken', 'questionTokenAndUndefined'].includes(this.options.optionalType)
       const print = this.print.bind(this)
 
-      const propertyNodes: Array<ts.TypeElement> = (node.properties ?? []).map((prop) => {
+      const propertyNodes: Array<ts.TypeElement> = node.properties.map((prop) => {
         const baseType = (print(prop.schema) ?? factory.keywordTypeNodes.unknown) as ts.TypeNode
         const type = buildPropertyType(prop.schema, baseType, this.options.optionalType)
 
