@@ -1,77 +1,31 @@
 import path from 'node:path'
-import type { RootNode } from '@kubb/ast/types'
-import type { Adapter, AdapterSource } from '@kubb/core'
-import type { Oas as OasClass } from '@kubb/oas'
+import type { AdapterSource } from '@kubb/core'
+import { defineAdapter } from '@kubb/core'
 import { parseFromConfig } from '@kubb/oas'
 import { createOasParser } from './parser.ts'
+import type { OasAdapter } from './types.ts'
 
-type OasAdapterOptions = {
-  /**
-   * Validate the OpenAPI spec before parsing.
-   * @default true
-   */
-  validate?: boolean
-  /**
-   * Override the `Oas` class (e.g. for custom subclass behavior).
-   */
-  oasClass?: typeof OasClass
-  /**
-   * Restrict which content-type is used when extracting request/response schemas.
-   * By default the first valid JSON media type is used.
-   */
-  contentType?: string
-  /**
-   * How the discriminator field should be interpreted.
-   * - `'strict'`  — uses `oneOf` schemas as defined.
-   * - `'inherit'` — replaces `oneOf` with the schema from `discriminator.mapping`.
-   * @default 'strict'
-   */
-  discriminator?: 'strict' | 'inherit'
-  /**
-   * Automatically resolve name collisions across schema components.
-   * @default false
-   */
-  collisionDetection?: boolean
-  /**
-   * How `format: 'date-time'` schemas are represented.
-   * @default 'string'
-   */
-  dateType?: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
-  /**
-   * Whether `type: 'integer'` produces `number` or `bigint` nodes.
-   * @default 'number'
-   */
-  integerType?: 'number' | 'bigint'
-  /**
-   * AST type used when no schema type can be inferred.
-   * @default 'any'
-   */
-  unknownType?: 'any' | 'unknown' | 'void'
-}
-
-export const adapterOasName = 'oas' as const
+export const adapterOasName = 'oas' satisfies OasAdapter['name']
 
 /**
  * Creates an OpenAPI / Swagger adapter for Kubb.
  *
  * This is the default adapter — you can omit it from your config when using
  * an OpenAPI spec, but supplying it explicitly lets you pass options.
- *
- * Inspired by the adapter pattern from [Better Auth](https://better-auth.com/docs/adapters/drizzle).
- *
+ **
  * @example
  * ```ts
  * import { defineConfig } from '@kubb/core'
- * import { oasAdapter } from '@kubb/adapter-oas'
+ * import { adapterOas } from '@kubb/adapter-oas'
  *
  * export default defineConfig({
- *   adapter: oasAdapter({ validate: true }),
+ *   adapter: adapterOas({ validate: true, dateType: 'date' }),
  *   input:   { path: './openapi.yaml' },
  *   plugins: [pluginTs(), pluginZod()],
  * })
  * ```
  */
-export function adapterOas(options: OasAdapterOptions = {}): Adapter {
+export const adapterOas = defineAdapter<OasAdapter>((options) => {
   const {
     validate = true,
     oasClass,
@@ -81,13 +35,26 @@ export function adapterOas(options: OasAdapterOptions = {}): Adapter {
     dateType = 'string',
     integerType = 'number',
     unknownType = 'any',
+    emptySchemaType = unknownType,
   } = options
 
   return {
-    name: 'oas',
-    async parse(source: AdapterSource): Promise<RootNode> {
+    name: adapterOasName,
+    options: {
+      validate,
+      oasClass,
+      contentType,
+      discriminator,
+      collisionDetection,
+      dateType,
+      integerType,
+      unknownType,
+      emptySchemaType,
+    },
+    async parse(source) {
       const fakeConfig = sourceToFakeConfig(source)
       const oas = await parseFromConfig(fakeConfig, oasClass)
+
       oas.setOptions({ contentType, discriminator, collisionDetection })
 
       if (validate) {
@@ -99,14 +66,10 @@ export function adapterOas(options: OasAdapterOptions = {}): Adapter {
       }
 
       const parser = createOasParser(oas, { contentType, collisionDetection })
-      return parser.buildAst({ dateType, integerType, unknownType, emptySchemaType: unknownType, enumSuffix: 'enum' })
+      return parser.buildAst({ dateType, integerType, unknownType, emptySchemaType, enumSuffix: 'enum' })
     },
   }
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+})
 
 /**
  * Maps an `AdapterSource` back to the minimal Config shape that
