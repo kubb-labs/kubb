@@ -1,5 +1,5 @@
 import { narrowSchema } from '@kubb/ast'
-import { buildMinimalOas } from '@kubb/oas/mocks'
+import { buildMinimalOas } from '../mocks/oas.ts'
 import type {
   ArraySchemaNode,
   EnumSchemaNode,
@@ -13,9 +13,9 @@ import type {
   UnionSchemaNode,
 } from '@kubb/ast/types'
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { Oas, parse } from '@kubb/oas'
+import { Oas, parse } from './oas/index.ts'
 import { createOasParser } from './parser.ts'
-import type { SchemaObject } from '@kubb/oas'
+import type { SchemaObject } from './oas/index.ts'
 
 const emptyOas = new Oas({ openapi: '3.0.0', info: { title: '', version: '' }, paths: {} } as any)
 

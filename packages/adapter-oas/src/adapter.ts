@@ -1,7 +1,8 @@
 import path from 'node:path'
+import { createRoot } from '@kubb/ast'
 import type { AdapterSource } from '@kubb/core'
 import { defineAdapter } from '@kubb/core'
-import { parseFromConfig } from '@kubb/oas'
+import { parseFromConfig, resolveServerUrl } from './oas/index.ts'
 import { createOasParser } from './parser.ts'
 import type { OasAdapter } from './types.ts'
 
@@ -12,7 +13,7 @@ export const adapterOasName = 'oas' satisfies OasAdapter['name']
  *
  * This is the default adapter — you can omit it from your config when using
  * an OpenAPI spec, but supplying it explicitly lets you pass options.
- **
+ *
  * @example
  * ```ts
  * import { defineConfig } from '@kubb/core'
@@ -30,6 +31,8 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
     validate = true,
     oasClass,
     contentType,
+    serverIndex,
+    serverVariables,
     discriminator = 'strict',
     collisionDetection = false,
     dateType = 'string',
@@ -44,6 +47,8 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
       validate,
       oasClass,
       contentType,
+      serverIndex,
+      serverVariables,
       discriminator,
       collisionDetection,
       dateType,
@@ -65,15 +70,28 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
         }
       }
 
+      const server = serverIndex !== undefined ? oas.api.servers?.at(serverIndex) : undefined
+      const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
+
       const parser = createOasParser(oas, { contentType, collisionDetection })
-      return parser.buildAst({ dateType, integerType, unknownType, emptySchemaType, enumSuffix: 'enum' })
+      const root = parser.buildAst({ dateType, integerType, unknownType, emptySchemaType, enumSuffix: 'enum' })
+
+      return createRoot({
+        ...root,
+        meta: {
+          title: oas.api.info?.title,
+          version: oas.api.info?.version,
+          baseURL,
+        },
+      })
     },
   }
 })
 
 /**
  * Maps an `AdapterSource` back to the minimal Config shape that
- * `parseFromConfig` from `@kubb/oas` expects.
+ * `parseFromConfig` expects.
+ * @deprecated make parseFromConfig to use AdapterSource
  */
 function sourceToFakeConfig(source: AdapterSource): Parameters<typeof parseFromConfig>[0] {
   switch (source.type) {

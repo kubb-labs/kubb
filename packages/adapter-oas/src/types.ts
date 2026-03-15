@@ -1,5 +1,5 @@
 import type { AdapterFactoryOptions } from '@kubb/core'
-import type { contentType, Oas as OasClass } from '@kubb/oas'
+import type { contentType, Oas as OasClass } from './oas/index.ts'
 
 type Options = {
   /**
@@ -16,6 +16,22 @@ type Options = {
    * By default, the first valid JSON media type is used.
    */
   contentType?: contentType
+  /**
+   * Which server to use from `oas.api.servers` when computing `baseURL`.
+   * - `0` → first server, `1` → second server, etc.
+   * - When omitted, `getBaseURL()` returns `undefined`.
+   */
+  serverIndex?: number
+  /**
+   * Override values for `{variable}` placeholders in the selected server URL.
+   * Only used when `serverIndex` is set.
+   *
+   * @example
+   * // spec server: "https://api.{env}.example.com"
+   * serverVariables: { env: 'prod' }
+   * // → baseURL: "https://api.prod.example.com"
+   */
+  serverVariables?: Record<string, string>
   /**
    * How the discriminator field should be interpreted.
    * - `'strict'`  — uses `oneOf` schemas as defined.
@@ -57,6 +73,8 @@ export type ResolvedOptions = {
   validate: boolean
   oasClass: Options['oasClass']
   contentType: Options['contentType']
+  serverIndex: Options['serverIndex']
+  serverVariables: Options['serverVariables']
   discriminator: NonNullable<Options['discriminator']>
   collisionDetection: boolean
   dateType: NonNullable<Options['dateType']>

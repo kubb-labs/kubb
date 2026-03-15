@@ -39,9 +39,9 @@ import type {
   UnionSchemaNode,
 } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import { ENUM_EXTENSION_KEYS, flattenSchema, FORMAT_MAP, isDiscriminator, isNullable, isReference, KNOWN_MEDIA_TYPES } from '@kubb/oas'
-import type { Oas } from '@kubb/oas'
-import type { contentType, Operation, SchemaObject } from '@kubb/oas'
+import { ENUM_EXTENSION_KEYS, flattenSchema, FORMAT_MAP, isDiscriminator, isNullable, isReference, KNOWN_MEDIA_TYPES } from './oas/index.ts'
+import type { Oas } from './oas/index.ts'
+import type { contentType, Operation, SchemaObject } from './oas/index.ts'
 
 /**
  * Distributive `Omit` — correctly distributes over union types so that
@@ -152,7 +152,7 @@ export type Options = {
 /**
  * Construction-time options for `createOasParser`.
  */
-type OasParserOptions = {
+export type OasParserOptions = {
   contentType?: contentType
   collisionDetection?: boolean
 }
