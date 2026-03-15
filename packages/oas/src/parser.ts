@@ -413,7 +413,12 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * infinite recursion during code generation.
    */
   function convertAllOf({ schema, name, nullable, defaultValue, options }: SchemaContext): SchemaNode {
-    if (schema.allOf!.length === 1 && !schema.properties && !(Array.isArray(schema.required) && schema.required.length) && schema.additionalProperties === undefined) {
+    if (
+      schema.allOf!.length === 1 &&
+      !schema.properties &&
+      !(Array.isArray(schema.required) && schema.required.length) &&
+      schema.additionalProperties === undefined
+    ) {
       const [memberSchema] = schema.allOf as SchemaObject[]
       const memberNode = convertSchema({ schema: memberSchema! }, options)
       const { kind: _kind, ...memberNodeProps } = memberNode
