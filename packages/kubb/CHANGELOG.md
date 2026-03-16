@@ -1,5 +1,15 @@
 # kubb
 
+## 3.0.247
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@4.35.1
+  - @kubb/cli@4.35.1
+  - @kubb/core@4.35.1
+  - @kubb/mcp@4.35.1
+
 ## 3.0.246
 
 ### Patch Changes
