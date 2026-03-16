@@ -773,9 +773,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
           const basePropName = name ? pascalCase([name, propName].join(' ')) : undefined
           const propNode = convertSchema({ schema: resolvedPropSchema, name: basePropName }, options)
           const isEnumNode = !!narrowSchema(propNode, 'enum')
-          const derivedPropName = isEnumNode && name
-            ? pascalCase([name, propName, mergedOptions.enumSuffix].filter(Boolean).join(' '))
-            : basePropName
+          const derivedPropName = isEnumNode && name ? pascalCase([name, propName, mergedOptions.enumSuffix].filter(Boolean).join(' ')) : basePropName
           const schemaNode = isEnumNode && derivedPropName !== basePropName ? { ...propNode, name: derivedPropName } : propNode
 
           return createProperty({
