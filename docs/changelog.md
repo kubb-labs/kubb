@@ -6,6 +6,68 @@ outline: deep
 
 # Changelog
 
+## 4.36.0
+
+### ✨ Features
+
+#### [`@kubb/core`](/packages/core)
+
+-   [#2759](https://github.com/kubb-labs/kubb/pull/2759) [`4e06911`](https://github.com/kubb-labs/kubb/commit/4e0691160314ff3b9054fbba3efcaeb4c9b10008) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add storage abstraction for generated output.
+
+    Introduces a `storage` option in `output` that replaces direct filesystem writes with a pluggable storage layer, inspired by the Nitro/unstorage API.
+
+    **New exports from `@kubb/core`:**
+
+    -   `defineStorage(builder)` — factory helper (same pattern as `definePlugin`/`defineLogger`/`defineAdapter`) that wraps a builder function and makes options optional.
+    -   `fsStorage()` — built-in filesystem driver; the default when no `storage` is configured, preserving existing on-disk behavior.
+    -   `memoryStorage()` — built-in in-memory driver; useful for testing and dry-run scenarios.
+    -   `DefineStorage` — TypeScript interface for implementing custom drivers.
+
+    **`output.write` is now deprecated.** Setting `write: false` for dry-runs still works and continues to be supported.
+
+    ::: code-group
+    ```typescript [Example Usage]
+    import { defineConfig, defineStorage, fsStorage } from "@kubb/core";
+
+    // Default (no change needed for existing configs)
+    export default defineConfig({
+      output: { path: "./src/gen" },
+    });
+
+    // Explicit filesystem storage
+    export default defineConfig({
+      output: { path: "./src/gen", storage: fsStorage() },
+    });
+
+    // Custom in-memory storage
+    export const memoryStorage = defineStorage((_options) => {
+      const store = new Map<string, string>();
+      return {
+        name: "memory",
+        async hasItem(key) {
+          return store.has(key);
+        },
+        async getItem(key) {
+          return store.get(key) ?? null;
+        },
+        async setItem(key, value) {
+          store.set(key, value);
+        },
+        async removeItem(key) {
+          store.delete(key);
+        },
+        async getKeys() {
+          return [...store.keys()];
+        },
+        async clear() {
+          store.clear();
+        },
+      };
+    });
+    ```
+    :::
+
+
 ## 4.35.1
 
 ### 🐛 Bug Fixes
