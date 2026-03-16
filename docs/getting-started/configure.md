@@ -308,7 +308,7 @@ export default defineConfig({
 
 #### output.storage
 
-Where generated files are persisted. Defaults to `fsStorage()` — the built-in filesystem driver — which preserves the existing on-disk behaviour.
+Where generated files are persisted. Defaults to `fsStorage()` — the built-in filesystem driver — which preserves the existing on-disk behavior.
 
 Use `defineStorage` to create a custom driver for any backend (S3, Redis, in-memory, etc.).
 
