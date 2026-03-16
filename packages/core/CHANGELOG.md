@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 4.36.1
+
+### Patch Changes
+
+- [`a4ac8d2`](https://github.com/kubb-labs/kubb/commit/a4ac8d28d4b17f5275c3fbe3dedfff0ac3bc3357) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - expose URLPath helper
+
+- Updated dependencies []:
+  - @kubb/ast@4.36.1
+
 ## 4.36.0
 
 ### Minor Changes
