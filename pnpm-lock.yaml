@@ -824,9 +824,6 @@ importers:
       '@kubb/fabric-core':
         specifier: 'catalog:'
         version: 0.13.3
-      '@kubb/oas':
-        specifier: workspace:*
-        version: link:../oas
       '@redocly/openapi-core':
         specifier: ^2.21.1
         version: 2.21.1

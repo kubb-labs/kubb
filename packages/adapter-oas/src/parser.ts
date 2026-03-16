@@ -770,12 +770,18 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
           const required = Array.isArray(resolvedSchema.required) ? resolvedSchema.required.includes(propName) : !!resolvedSchema.required
           const resolvedPropSchema = propSchema as SchemaObject
           const propNullable = isNullable(resolvedPropSchema)
-          const derivedPropName = name ? pascalCase([name, propName, mergedOptions.enumSuffix].filter(Boolean).join(' ')) : undefined
+          const basePropName = name ? pascalCase([name, propName].join(' ')) : undefined
+          const propNode = convertSchema({ schema: resolvedPropSchema, name: basePropName }, options)
+          const isEnumNode = !!narrowSchema(propNode, 'enum')
+          const derivedPropName = isEnumNode && name
+            ? pascalCase([name, propName, mergedOptions.enumSuffix].filter(Boolean).join(' '))
+            : basePropName
+          const schemaNode = isEnumNode && derivedPropName !== basePropName ? { ...propNode, name: derivedPropName } : propNode
 
           return createProperty({
             name: propName,
             schema: {
-              ...convertSchema({ schema: resolvedPropSchema, name: derivedPropName }, options),
+              ...schemaNode,
               nullable: propNullable || undefined,
               optional: !required && !propNullable ? true : undefined,
               nullish: !required && propNullable ? true : undefined,
