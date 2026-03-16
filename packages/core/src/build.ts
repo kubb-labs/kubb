@@ -1,5 +1,5 @@
-import { dirname, resolve } from 'node:path'
-import { AsyncEventEmitter, clean, exists, formatMs, getElapsedMs, getRelativePath, URLPath, write } from '@internals/utils'
+import { dirname, relative, resolve } from 'node:path'
+import { AsyncEventEmitter, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import { createFabric } from '@kubb/react-fabric'
@@ -9,7 +9,8 @@ import { isInputPath } from './config.ts'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import { BuildError } from './errors.ts'
 import { PluginManager } from './PluginManager.ts'
-import type { AdapterSource, Config, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
+import { fsStorage } from './storages/fsStorage.ts'
+import type { AdapterSource, Config, DefineStorage, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 
@@ -54,7 +55,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
       `  • Output: ${userConfig.output?.path || 'not specified'}`,
       `  • Plugins: ${userConfig.plugins?.length || 0}`,
       'Output Settings:',
-      `  • Write: ${userConfig.output?.write !== false ? 'enabled' : 'disabled'}`,
+      `  • Storage: ${userConfig.output?.storage ? `custom(${userConfig.output.storage.name})` : userConfig.output?.write === false ? 'disabled' : 'filesystem (default)'}`,
       `  • Formatter: ${userConfig.output?.format || 'none'}`,
       `  • Linter: ${userConfig.output?.lint || 'none'}`,
       'Environment:',
@@ -105,12 +106,18 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     plugins: userConfig.plugins as Config['plugins'],
   }
 
+  // write: false is the explicit dry-run opt-out; otherwise use the provided
+  // storage or fall back to fsStorage (backwards-compatible default).
+  // Keys are root-relative (e.g. `src/gen/api/getPets.ts`) so fsStorage()
+  // needs no configuration — it resolves them against process.cwd().
+  const storage: DefineStorage | null = definedConfig.output.write === false ? null : (definedConfig.output.storage ?? fsStorage())
+
   if (definedConfig.output.clean) {
     await events.emit('debug', {
       date: new Date(),
       logs: ['Cleaning output directories', `  • Output: ${definedConfig.output.path}`],
     })
-    await clean(definedConfig.output.path)
+    await storage?.clear(resolve(definedConfig.root, definedConfig.output.path))
   }
 
   const fabric = createFabric()
@@ -134,10 +141,9 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     })
 
     if (source) {
-      if (definedConfig.output.write) {
-        await write(file.path, source, { sanity: false })
-      }
-
+      // Key is root-relative so it's meaningful for any backend (fs, S3, Redis…)
+      const key = relative(resolve(definedConfig.root), file.path)
+      await storage?.setItem(key, source)
       sources.set(file.path, source)
     }
   })
@@ -154,7 +160,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     date: new Date(),
     logs: [
       '✓ Fabric initialized',
-      `  • File writing: ${definedConfig.output.write ? 'enabled' : 'disabled (dry-run)'}`,
+      `  • Storage: ${storage ? storage.name : 'disabled (dry-run)'}`,
       `  • Barrel type: ${definedConfig.output.barrelType || 'none'}`,
     ],
   })

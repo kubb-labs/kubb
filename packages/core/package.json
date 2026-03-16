@@ -40,9 +40,7 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "hooks": [
-        "./dist/hooks.d.ts"
-      ]
+      "hooks": ["./dist/hooks.d.ts"]
     }
   },
   "files": [

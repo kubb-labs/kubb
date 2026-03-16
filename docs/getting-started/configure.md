@@ -283,7 +283,10 @@ export default defineConfig({
 
 #### output.write
 
-Write generated files to disk. Set to `false` to generate in-memory only (useful for testing).
+Set to `false` for a dry-run — files are generated in memory but nothing is persisted.
+
+> [!WARNING]
+> **Deprecated.** Use `output.storage` to control where files are written.
 
 |           |           |
 |----------:|:----------|
@@ -298,7 +301,63 @@ export default defineConfig({
   input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
-    write: false, // Don't write to disk (testing mode)
+    write: false, // dry-run, nothing written to disk
+  },
+})
+```
+
+#### output.storage
+
+Where generated files are persisted. Defaults to `fsStorage()` — the built-in filesystem driver — which preserves the existing write-to-disk behavior.
+
+Accepts any object implementing the `Storage` interface, so you can swap in any storage system.
+
+|           |                         |
+|----------:|:------------------------|
+|     Type: | `Storage`               |
+| Required: | `false`                 |
+|  Default: | `fsStorage()`           |
+
+```typescript twoslash [kubb.config.ts]
+// @noErrors
+import { defineConfig, defineStorage, fsStorage } from '@kubb/core'
+
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: {
+    path: './src/gen',
+    storage: defineStorage(fsStorage()), // explicit — same as the default
+  },
+})
+```
+
+**Custom storage** — implement the `Storage` interface for any backend:
+
+```typescript twoslash [kubb.config.ts]
+// @noErrors
+import { defineConfig, defineStorage } from '@kubb/core'
+import type { Storage } from '@kubb/core'
+
+function memoryStorage(): Storage {
+  const store = new Map<string, string>()
+  return defineStorage({
+    hasItem:    async (key) => store.has(key),
+    getItem:    async (key) => store.get(key) ?? null,
+    setItem:    async (key, value) => { store.set(key, value) },
+    removeItem: async (key) => { store.delete(key) },
+    getKeys:    async (base) => [...store.keys()].filter(k => !base || k.startsWith(base)),
+    clear:      async (base) => {
+      if (base) [...store.keys()].filter(k => k.startsWith(base)).forEach(k => store.delete(k))
+      else store.clear()
+    },
+  })
+}
+
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: {
+    path: './src/gen',
+    storage: memoryStorage(),
   },
 })
 ```

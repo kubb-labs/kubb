@@ -5,8 +5,10 @@ import type { Fabric } from '@kubb/react-fabric'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginManager } from './PluginManager.ts'
+import type { DefineStorage } from './storage.ts'
 
 export type { Printer, PrinterFactoryOptions } from '@kubb/ast/types'
+export type { DefineStorage } from './storage.ts'
 
 declare global {
   namespace Kubb {
@@ -158,8 +160,22 @@ export type Config<TInput = Input> = {
     /**
      * Save files to the file system.
      * @default true
+     * @deprecated Use `storage` to control where files are written.
      */
     write?: boolean
+    /**
+     * Storage backend for generated files.
+     * Defaults to `fsStorage()` — the built-in filesystem driver.
+     * Accepts any object implementing the {@link DefineStorage} interface.
+     * Keys are root-relative paths (e.g. `src/gen/api/getPets.ts`).
+     * @default fsStorage()
+     * @example
+     * ```ts
+     * import { defineStorage, fsStorage } from '@kubb/core'
+     * storage: defineStorage(fsStorage())
+     * ```
+     */
+    storage?: DefineStorage
     /**
      * Specifies the formatting tool to be used.
      * - 'auto' automatically detects and uses biome or prettier (in that order of preference).
