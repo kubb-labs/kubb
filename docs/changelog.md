@@ -6,6 +6,35 @@ outline: deep
 
 # Changelog
 
+## 4.35.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/plugins/plugin-ts)
+
+-   [#2754](https://github.com/kubb-labs/kubb/pull/2754) [`e24fe13`](https://github.com/kubb-labs/kubb/commit/e24fe135aba61f56d3ff218735cb616a627027b9) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix crash when generating enums with negative numeric values (e.g., `enum: [-1, 0, 5]`). Negative numbers now correctly use `createPrefixUnaryExpression` instead of `createNumericLiteral` for all enum type variants (`literal`, `inlineLiteral`, `enum`, `constEnum`).
+
+::: code-group
+```typescript [Before]
+// Invalid code for negative numbers was generated
+export const MyEnum = {
+  Negative: -1,
+  Zero: 0,
+  Positive: 5,
+}
+```
+
+```typescript [After]
+// Negative numbers now properly use createPrefixUnaryExpression
+export const MyEnum = {
+  Negative: -1,
+  Zero: 0,
+  Positive: 5,
+}
+```
+:::
+
+
 ## 4.35.0
 
 ### ✨ Features
