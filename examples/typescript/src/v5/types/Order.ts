@@ -1,4 +1,4 @@
-export enum OrderParamsEnumStatusEnum {
+export enum OrderParamsStatusEnum {
   placed = 'placed',
   approved = 'approved',
   delivered = 'delivered',
@@ -30,7 +30,7 @@ export interface Order {
      * @example approved
      * @type string
      */
-    status: OrderParamsEnumStatusEnum
+    status: OrderParamsStatusEnum
     /**
      * @type string
      */

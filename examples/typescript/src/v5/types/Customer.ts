@@ -1,6 +1,6 @@
 import type { Address } from './Address.ts'
 
-export enum CustomerParamsEnumStatusEnum {
+export enum CustomerParamsStatusEnum {
   placed = 'placed',
   approved = 'approved',
   delivered = 'delivered',
@@ -21,7 +21,7 @@ export interface Customer {
      * @example approved
      * @type string
      */
-    status: CustomerParamsEnumStatusEnum
+    status: CustomerParamsStatusEnum
     /**
      * @type string
      */
