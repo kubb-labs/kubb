@@ -31,8 +31,8 @@ catalogs:
       specifier: ^1.0.4
       version: 1.0.4
     tsdown:
-      specifier: ^0.21.3
-      version: 0.21.3
+      specifier: ^0.21.4
+      version: 0.21.4
     typescript:
       specifier: ^5.9.3
       version: 5.9.3
@@ -91,7 +91,7 @@ importers:
         version: 10.9.2(@types/node@20.19.37)(typescript@5.9.3)
       tsdown:
         specifier: 'catalog:'
-        version: 0.21.3(oxc-resolver@11.16.0)(typescript@5.9.3)
+        version: 0.21.4(oxc-resolver@11.16.0)(typescript@5.9.3)
       turbo:
         specifier: ^2.8.17
         version: 2.8.17
@@ -825,8 +825,8 @@ importers:
         specifier: 'catalog:'
         version: 0.13.3
       '@redocly/openapi-core':
-        specifier: ^2.21.1
-        version: 2.21.1
+        specifier: ^2.22.1
+        version: 2.22.1
       '@stoplight/yaml':
         specifier: ^4.3.0
         version: 4.3.0
@@ -1079,8 +1079,8 @@ importers:
         specifier: 'catalog:'
         version: 0.13.3
       '@redocly/openapi-core':
-        specifier: ^2.21.1
-        version: 2.21.1
+        specifier: ^2.22.1
+        version: 2.22.1
       '@stoplight/yaml':
         specifier: ^4.3.0
         version: 4.3.0
@@ -2922,8 +2922,8 @@ packages:
   '@redocly/config@0.44.1':
     resolution: {integrity: sha512-l6/ZE+/RBfNDdhzltau6cbW8+k5PgJbJBMqaBrlQlZQlmGBHMxqGyDaon4dPLj0jdi37gsMQ3yf95JBY/vaDSg==}
 
-  '@redocly/openapi-core@2.21.1':
-    resolution: {integrity: sha512-xqO0avM42DOnninr3NqCPGgD61L1EunmDy+hQNZhuCM2/a6X0g19ZYNioQxeGw3/OlKNVeplSO26lEq52R12VQ==}
+  '@redocly/openapi-core@2.22.1':
+    resolution: {integrity: sha512-sb3QYpqJZq4U31x6LRuYXgaA4byNFoTMGVLCvq8o8Om1GGv6O0/oMu6EpPZoDAYDxIsTRDPC04Lu6MLVU6D/ag==}
     engines: {node: '>=22.12.0 || >=20.19.0 <21.0.0', npm: '>=10'}
 
   '@rolldown/binding-android-arm64@1.0.0-rc.9':
@@ -5139,8 +5139,8 @@ packages:
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
 
-  hookable@6.0.1:
-    resolution: {integrity: sha512-uKGyY8BuzN/a5gvzvA+3FVWo0+wUjgtfSdnmjtrOVwQCZPHpHDH2WRO3VZSOeluYrHoDCiXFffZXs8Dj1ULWtw==}
+  hookable@6.1.0:
+    resolution: {integrity: sha512-ZoKZSJgu8voGK2geJS+6YtYjvIzu9AOM/KZXsBxr83uhLL++e9pEv/dlgwgy3dvHg06kTz6JOh1hk3C8Ceiymw==}
 
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
@@ -7030,14 +7030,14 @@ packages:
       typescript:
         optional: true
 
-  tsdown@0.21.3:
-    resolution: {integrity: sha512-oKKeMC8+IgNsB+81hvF5VBsqhqL/nr0g9vse+ujbK40vv0i3ReFI6gUts7hQH7J53ylQNjMgf2Vu6n0+P/uddA==}
+  tsdown@0.21.4:
+    resolution: {integrity: sha512-Q/kBi8SXkr4X6JI/NAZKZY1UuiEcbuXtIskL4tZCsgpDiEPM/2W6lC+OonNA31S+V3KsWedFvbFDBs23hvt+Aw==}
     engines: {node: '>=20.19.0'}
     hasBin: true
     peerDependencies:
       '@arethetypeswrong/core': ^0.18.1
-      '@tsdown/css': 0.21.3
-      '@tsdown/exe': 0.21.3
+      '@tsdown/css': 0.21.4
+      '@tsdown/exe': 0.21.4
       '@vitejs/devtools': '*'
       publint: ^0.3.0
       typescript: ^5.0.0
@@ -9091,7 +9091,7 @@ snapshots:
     dependencies:
       json-schema-to-ts: 2.7.2
 
-  '@redocly/openapi-core@2.21.1':
+  '@redocly/openapi-core@2.22.1':
     dependencies:
       '@redocly/ajv': 8.18.0
       '@redocly/config': 0.44.1
@@ -11504,7 +11504,7 @@ snapshots:
 
   hookable@5.5.3: {}
 
-  hookable@6.0.1: {}
+  hookable@6.1.0: {}
 
   html-escaper@2.0.2: {}
 
@@ -13683,13 +13683,13 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  tsdown@0.21.3(oxc-resolver@11.16.0)(typescript@5.9.3):
+  tsdown@0.21.4(oxc-resolver@11.16.0)(typescript@5.9.3):
     dependencies:
       ansis: 4.2.0
       cac: 7.0.0
       defu: 6.1.4
       empathic: 2.0.0
-      hookable: 6.0.1
+      hookable: 6.1.0
       import-without-cache: 0.2.5
       obug: 2.1.1
       picomatch: 4.0.3
