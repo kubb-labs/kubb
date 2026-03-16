@@ -27,6 +27,9 @@ function constToTypeNode(value: string | number | boolean, format: 'string' | 'n
     return factory.createLiteralTypeNode(value === true ? factory.createTrue() : factory.createFalse())
   }
   if (format === 'number' && typeof value === 'number') {
+    if (value < 0) {
+      return factory.createLiteralTypeNode(factory.createPrefixUnaryExpression(ts.SyntaxKind.MinusToken, factory.createNumericLiteral(Math.abs(value))))
+    }
     return factory.createLiteralTypeNode(factory.createNumericLiteral(value))
   }
   return factory.createLiteralTypeNode(factory.createStringLiteral(String(value)))

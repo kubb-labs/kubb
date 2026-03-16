@@ -92,6 +92,12 @@ components:
         status:
           type: string
           enum: []
+    enum.NegativeNumber:
+      type: number
+      enum:
+        - -1
+        - 0
+        - 5
 
 openapi: "3.1.0"
 info:
