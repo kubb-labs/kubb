@@ -723,3 +723,6 @@ export const createTrue = factory.createTrue
 export const createFalse = factory.createFalse
 export const createIndexedAccessTypeNode = factory.createIndexedAccessTypeNode
 export const createTypeOperatorNode = factory.createTypeOperatorNode
+export const createPrefixUnaryExpression = factory.createPrefixUnaryExpression
+
+export { SyntaxKind }
