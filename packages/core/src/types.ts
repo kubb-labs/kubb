@@ -3,12 +3,11 @@ import type { RootNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
+import type { DefineStorage } from './defineStorage.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginManager } from './PluginManager.ts'
-import type { DefineStorage } from './storage.ts'
 
 export type { Printer, PrinterFactoryOptions } from '@kubb/ast/types'
-export type { DefineStorage } from './storage.ts'
 
 declare global {
   namespace Kubb {
@@ -499,4 +498,5 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
 
 export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Omit<Logger<TOptions>, 'logLevel'>
 
+export type { DefineStorage } from './defineStorage.ts'
 export type { KubbEvents } from './Kubb.ts'

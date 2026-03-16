@@ -66,11 +66,11 @@ export const fsStorage = defineStorage(() => ({
 
     return keys
   },
-
   async clear(base?: string) {
     if (!base) {
       return
     }
+
     await clean(resolve(base))
   },
 }))
