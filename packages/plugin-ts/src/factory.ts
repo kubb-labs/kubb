@@ -516,7 +516,11 @@ export function createEnumDeclaration({
             const isExactNumber = Number.parseInt(value.toString(), 10) === value
 
             if (isExactNumber && isNumber(Number.parseInt(value.toString(), 10))) {
-              initializer = factory.createNumericLiteral(value as number)
+              if ((value as number) < 0) {
+                initializer = factory.createPrefixUnaryExpression(ts.SyntaxKind.MinusToken, factory.createNumericLiteral(Math.abs(value as number)))
+              } else {
+                initializer = factory.createNumericLiteral(value as number)
+              }
             }
 
             if (typeof value === 'boolean') {
