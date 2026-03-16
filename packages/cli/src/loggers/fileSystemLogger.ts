@@ -50,9 +50,7 @@ export const fileSystemLogger = defineLogger({
         }
       }
 
-      await Promise.all(
-        Object.entries(files).map(([fileName, logs]) => write(fileName, logs.join('\n\n'))),
-      )
+      await Promise.all(Object.entries(files).map(([fileName, logs]) => write(fileName, logs.join('\n\n'))))
 
       return Object.keys(files)
     }

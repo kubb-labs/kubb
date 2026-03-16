@@ -5,11 +5,17 @@ describe('defineStorage', () => {
   it('returns a callable that invokes the builder with provided options', () => {
     const factory = defineStorage((options: { prefix: string }) => ({
       name: `custom-${options.prefix}`,
-      async hasItem() { return false },
-      async getItem() { return null },
+      async hasItem() {
+        return false
+      },
+      async getItem() {
+        return null
+      },
       async setItem() {},
       async removeItem() {},
-      async getKeys() { return [] },
+      async getKeys() {
+        return []
+      },
       async clear() {},
     }))
 
@@ -21,11 +27,17 @@ describe('defineStorage', () => {
   it('uses empty object when options are omitted', () => {
     const factory = defineStorage((_options: Record<string, never>) => ({
       name: 'no-options',
-      async hasItem() { return false },
-      async getItem() { return null },
+      async hasItem() {
+        return false
+      },
+      async getItem() {
+        return null
+      },
       async setItem() {},
       async removeItem() {},
-      async getKeys() { return [] },
+      async getKeys() {
+        return []
+      },
       async clear() {},
     }))
 
@@ -38,12 +50,24 @@ describe('defineStorage', () => {
 
     const factory = defineStorage((_options: Record<string, never>) => ({
       name: 'memory',
-      async hasItem(key: string) { return map.has(key) },
-      async getItem(key: string) { return map.get(key) ?? null },
-      async setItem(key: string, value: string) { map.set(key, value) },
-      async removeItem(key: string) { map.delete(key) },
-      async getKeys() { return [...map.keys()] },
-      async clear() { map.clear() },
+      async hasItem(key: string) {
+        return map.has(key)
+      },
+      async getItem(key: string) {
+        return map.get(key) ?? null
+      },
+      async setItem(key: string, value: string) {
+        map.set(key, value)
+      },
+      async removeItem(key: string) {
+        map.delete(key)
+      },
+      async getKeys() {
+        return [...map.keys()]
+      },
+      async clear() {
+        map.clear()
+      },
     }))
 
     const storage = factory()
