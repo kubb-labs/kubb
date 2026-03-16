@@ -1,5 +1,6 @@
 import { AsyncEventEmitter, formatMs, maskString, serializePluginOptions } from '@internals/utils'
 import type { KubbEvents } from '@kubb/core'
+import { fsStorage, memoryStorage } from '@kubb/core'
 import type { NitroApp } from 'nitropack/types'
 import { version } from '~~/package.json'
 import { type AgentConnectResponse, type AgentMessage, isCommandMessage, isDisconnectMessage, isPongMessage, isPublishCommandMessage } from '../types/agent.ts'
@@ -202,7 +203,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 ...config,
                 root,
                 input: inputOverride ?? config.input,
-                output: { ...config.output, write: effectiveWrite },
+                output: { ...config.output, storage: effectiveWrite ? fsStorage() : memoryStorage() },
                 plugins,
               },
               events,

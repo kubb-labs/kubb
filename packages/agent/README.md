@@ -262,7 +262,7 @@ The `payload` may also include an `input` field containing a raw OpenAPI / Swagg
 
 When Kubb Studio provisions a session for the **Sandbox Agent** (the shared agent hosted by Studio itself), it sets `isSandbox: true` in the session response. In sandbox mode the agent behaves differently from a user-owned agent:
 
-| Behaviour | Normal agent | Sandbox agent |
+| behavior | Normal agent | Sandbox agent |
 |---|---|---|
 | Write generated files to disk | ✅ (when `KUBB_AGENT_ALLOW_WRITE=true`) | ❌ Never |
 | Read `input.path` from disk | ✅ | ✅ (falls back when no inline input supplied) |

@@ -568,6 +568,44 @@ describe('typeGenerator schema', async () => {
       path: 'BodyTest',
       options: {},
     },
+    // https://github.com/kubb-labs/kubb/issues/2762
+    // Literal enums crash on negative numeric values
+    {
+      name: 'EnumNegativeNumberLiteral',
+      input: '../../mocks/enums.yaml',
+      path: 'enum.NegativeNumber',
+      options: {
+        enumType: 'literal',
+      },
+    },
+    // https://github.com/kubb-labs/kubb/issues/2762
+    {
+      name: 'EnumNegativeNumberAsConst',
+      input: '../../mocks/enums.yaml',
+      path: 'enum.NegativeNumber',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
+      },
+    },
+    // https://github.com/kubb-labs/kubb/issues/2762
+    {
+      name: 'EnumNegativeNumberEnum',
+      input: '../../mocks/enums.yaml',
+      path: 'enum.NegativeNumber',
+      options: {
+        enumType: 'enum',
+      },
+    },
+    // https://github.com/kubb-labs/kubb/issues/2762
+    {
+      name: 'EnumNegativeNumberConstEnum',
+      input: '../../mocks/enums.yaml',
+      path: 'enum.NegativeNumber',
+      options: {
+        enumType: 'constEnum',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

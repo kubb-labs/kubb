@@ -69,7 +69,7 @@ type WriteOptions = {
  * identical to what is already on disk.
  * Creates any missing parent directories automatically.
  * When `sanity` is `true`, re-reads the file after writing and throws if the
- * content does not match — useful for catching write failures on unreliable file systems.
+ * content does not match.
  */
 export async function write(path: string, data: string, options: WriteOptions = {}): Promise<string | undefined> {
   const trimmed = data.trim()

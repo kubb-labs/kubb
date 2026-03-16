@@ -1,5 +1,47 @@
 # @kubb/agent
 
+## 4.36.0
+
+### Patch Changes
+
+- Updated dependencies [[`4e06911`](https://github.com/kubb-labs/kubb/commit/4e0691160314ff3b9054fbba3efcaeb4c9b10008)]:
+  - @kubb/core@4.36.0
+  - @kubb/plugin-client@4.36.0
+  - @kubb/plugin-cypress@4.36.0
+  - @kubb/plugin-faker@4.36.0
+  - @kubb/plugin-mcp@4.36.0
+  - @kubb/plugin-msw@4.36.0
+  - @kubb/plugin-oas@4.36.0
+  - @kubb/plugin-react-query@4.36.0
+  - @kubb/plugin-redoc@4.36.0
+  - @kubb/plugin-solid-query@4.36.0
+  - @kubb/plugin-svelte-query@4.36.0
+  - @kubb/plugin-swr@4.36.0
+  - @kubb/plugin-ts@4.36.0
+  - @kubb/plugin-vue-query@4.36.0
+  - @kubb/plugin-zod@4.36.0
+
+## 4.35.1
+
+### Patch Changes
+
+- Updated dependencies [[`e24fe13`](https://github.com/kubb-labs/kubb/commit/e24fe135aba61f56d3ff218735cb616a627027b9)]:
+  - @kubb/plugin-ts@4.35.1
+  - @kubb/plugin-client@4.35.1
+  - @kubb/plugin-cypress@4.35.1
+  - @kubb/plugin-faker@4.35.1
+  - @kubb/plugin-mcp@4.35.1
+  - @kubb/plugin-msw@4.35.1
+  - @kubb/plugin-react-query@4.35.1
+  - @kubb/plugin-solid-query@4.35.1
+  - @kubb/plugin-svelte-query@4.35.1
+  - @kubb/plugin-swr@4.35.1
+  - @kubb/plugin-vue-query@4.35.1
+  - @kubb/plugin-zod@4.35.1
+  - @kubb/core@4.35.1
+  - @kubb/plugin-oas@4.35.1
+  - @kubb/plugin-redoc@4.35.1
+
 ## 4.35.0
 
 ### Patch Changes

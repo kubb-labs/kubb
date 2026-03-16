@@ -481,6 +481,11 @@ export function createEnumDeclaration({
           enums
             .map(([_key, value]) => {
               if (isNumber(value)) {
+                if (value < 0) {
+                  return factory.createLiteralTypeNode(
+                    factory.createPrefixUnaryExpression(ts.SyntaxKind.MinusToken, factory.createNumericLiteral(Math.abs(value))),
+                  )
+                }
                 return factory.createLiteralTypeNode(factory.createNumericLiteral(value?.toString()))
               }
 
@@ -511,7 +516,11 @@ export function createEnumDeclaration({
             const isExactNumber = Number.parseInt(value.toString(), 10) === value
 
             if (isExactNumber && isNumber(Number.parseInt(value.toString(), 10))) {
-              initializer = factory.createNumericLiteral(value as number)
+              if ((value as number) < 0) {
+                initializer = factory.createPrefixUnaryExpression(ts.SyntaxKind.MinusToken, factory.createNumericLiteral(Math.abs(value as number)))
+              } else {
+                initializer = factory.createNumericLiteral(value as number)
+              }
             }
 
             if (typeof value === 'boolean') {
@@ -714,3 +723,6 @@ export const createTrue = factory.createTrue
 export const createFalse = factory.createFalse
 export const createIndexedAccessTypeNode = factory.createIndexedAccessTypeNode
 export const createTypeOperatorNode = factory.createTypeOperatorNode
+export const createPrefixUnaryExpression = factory.createPrefixUnaryExpression
+
+export { SyntaxKind }

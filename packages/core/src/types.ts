@@ -3,6 +3,7 @@ import type { RootNode, SchemaNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
+import type { DefineStorage } from './defineStorage.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginManager } from './PluginManager.ts'
 
@@ -166,8 +167,22 @@ export type Config<TInput = Input> = {
     /**
      * Save files to the file system.
      * @default true
+     * @deprecated Use `storage` to control where files are written.
      */
     write?: boolean
+    /**
+     * Storage backend for generated files.
+     * Defaults to `fsStorage()` — the built-in filesystem driver.
+     * Accepts any object implementing the {@link DefineStorage} interface.
+     * Keys are root-relative paths (e.g. `src/gen/api/getPets.ts`).
+     * @default fsStorage()
+     * @example
+     * ```ts
+     * import { defineStorage, fsStorage } from '@kubb/core'
+     * storage: defineStorage(fsStorage())
+     * ```
+     */
+    storage?: DefineStorage
     /**
      * Specifies the formatting tool to be used.
      * - 'auto' automatically detects and uses biome or prettier (in that order of preference).
@@ -504,4 +519,5 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
 
 export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Omit<Logger<TOptions>, 'logLevel'>
 
+export type { DefineStorage } from './defineStorage.ts'
 export type { KubbEvents } from './Kubb.ts'

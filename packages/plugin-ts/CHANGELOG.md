@@ -1,5 +1,27 @@
 # @kubb/plugin-ts
 
+## 4.36.0
+
+### Patch Changes
+
+- Updated dependencies [[`4e06911`](https://github.com/kubb-labs/kubb/commit/4e0691160314ff3b9054fbba3efcaeb4c9b10008)]:
+  - @kubb/core@4.36.0
+  - @kubb/oas@4.36.0
+  - @kubb/plugin-oas@4.36.0
+  - @kubb/ast@4.36.0
+
+## 4.35.1
+
+### Patch Changes
+
+- [#2754](https://github.com/kubb-labs/kubb/pull/2754) [`e24fe13`](https://github.com/kubb-labs/kubb/commit/e24fe135aba61f56d3ff218735cb616a627027b9) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix crash when generating enums with negative numeric values (e.g., `enum: [-1, 0, 5]`). Negative numbers now correctly use `createPrefixUnaryExpression` instead of `createNumericLiteral` for all enum type variants (`literal`, `inlineLiteral`, `enum`, `constEnum`).
+
+- Updated dependencies []:
+  - @kubb/ast@4.35.1
+  - @kubb/core@4.35.1
+  - @kubb/oas@4.35.1
+  - @kubb/plugin-oas@4.35.1
+
 ## 4.35.0
 
 ### Patch Changes
