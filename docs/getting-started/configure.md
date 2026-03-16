@@ -286,7 +286,7 @@ export default defineConfig({
 Set to `false` for a dry-run — files are generated in memory but nothing is persisted.
 
 > [!WARNING]
-> **Deprecated.** Use `output.storage` to control where files are written.
+> **Deprecated.** Use `output.storage` instead. To disable writing, pass `write: false` — this remains supported for backwards compatibility.
 
 |           |           |
 |----------:|:----------|
@@ -301,57 +301,66 @@ export default defineConfig({
   input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
-    write: false, // dry-run, nothing written to disk
+    write: false, // dry-run — nothing written to disk
   },
 })
 ```
 
 #### output.storage
 
-Where generated files are persisted. Defaults to `fsStorage()` — the built-in filesystem driver — which preserves the existing write-to-disk behavior.
+Where generated files are persisted. Defaults to `fsStorage()` — the built-in filesystem driver — which preserves the existing on-disk behaviour.
 
-Accepts any object implementing the `Storage` interface, so you can swap in any storage system.
+Use `defineStorage` to create a custom driver for any backend (S3, Redis, in-memory, etc.).
 
-|           |                         |
-|----------:|:------------------------|
-|     Type: | `Storage`               |
-| Required: | `false`                 |
-|  Default: | `fsStorage()`           |
+|           |               |
+|----------:|:--------------|
+|     Type: | `Storage`     |
+| Required: | `false`       |
+|  Default: | `fsStorage()` |
 
 ```typescript twoslash [kubb.config.ts]
 // @noErrors
-import { defineConfig, defineStorage, fsStorage } from '@kubb/core'
+import { defineConfig, fsStorage } from '@kubb/core'
 
 export default defineConfig({
   input: { path: './petStore.yaml' },
   output: {
     path: './src/gen',
-    storage: defineStorage(fsStorage()), // explicit — same as the default
+    storage: fsStorage(), // explicit — same as the default
   },
 })
 ```
 
-**Custom storage** — implement the `Storage` interface for any backend:
+**Custom storage** — use `defineStorage` to implement `DefineStorage` for any backend:
 
 ```typescript twoslash [kubb.config.ts]
 // @noErrors
 import { defineConfig, defineStorage } from '@kubb/core'
-import type { Storage } from '@kubb/core'
 
-function memoryStorage(): Storage {
+export const memoryStorage = defineStorage(() => {
   const store = new Map<string, string>()
-  return defineStorage({
-    hasItem:    async (key) => store.has(key),
-    getItem:    async (key) => store.get(key) ?? null,
-    setItem:    async (key, value) => { store.set(key, value) },
-    removeItem: async (key) => { store.delete(key) },
-    getKeys:    async (base) => [...store.keys()].filter(k => !base || k.startsWith(base)),
-    clear:      async (base) => {
-      if (base) [...store.keys()].filter(k => k.startsWith(base)).forEach(k => store.delete(k))
-      else store.clear()
+
+  return {
+    name: 'memory',
+    async hasItem(key) { return store.has(key) },
+    async getItem(key) { return store.get(key) ?? null },
+    async setItem(key, value) { store.set(key, value) },
+    async removeItem(key) { store.delete(key) },
+    async getKeys(base) {
+      const keys = [...store.keys()]
+      return base ? keys.filter(k => k.startsWith(base)) : keys
     },
-  })
-}
+    async clear(base) {
+      if (base) {
+        for (const k of store.keys()) {
+          if (k.startsWith(base)) store.delete(k)
+        }
+      } else {
+        store.clear()
+      }
+    },
+  }
+})
 
 export default defineConfig({
   input: { path: './petStore.yaml' },

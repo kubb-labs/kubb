@@ -5,9 +5,17 @@ import { clean, write } from '@internals/utils'
 import { defineStorage } from '../defineStorage.ts'
 
 /**
- * Built-in filesystem storage driver. This is the default when no `storage` is configured.
- * Keys are resolved relative to `process.cwd()` so root-relative paths (e.g. `src/gen/api/getPets.ts`)
- * land in the correct location without any extra configuration.
+ * Built-in filesystem storage driver.
+ *
+ * This is the default storage when no `storage` option is configured in `output`.
+ * Keys are resolved against `process.cwd()`, so root-relative paths such as
+ * `src/gen/api/getPets.ts` are written to the correct location without extra configuration.
+ *
+ * Internally uses the `write` utility from `@internals/utils`, which:
+ * - trims leading/trailing whitespace before writing
+ * - skips the write when file content is already identical (deduplication)
+ * - creates missing parent directories automatically
+ * - supports Bun's native file API when running under Bun
  *
  * @example
  * ```ts
