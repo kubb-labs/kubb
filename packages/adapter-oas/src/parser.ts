@@ -1,16 +1,5 @@
 import { pascalCase, URLPath } from '@internals/utils'
-import {
-  collect,
-  createOperation,
-  createParameter,
-  createProperty,
-  createResponse,
-  createRoot,
-  createSchema,
-  narrowSchema,
-  schemaTypes,
-  transform,
-} from '@kubb/ast'
+import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type {
   ArraySchemaNode,
   DateSchemaNode,
@@ -38,11 +27,13 @@ import type {
   TimeSchemaNode,
   UnionSchemaNode,
 } from '@kubb/ast/types'
-import type { KubbFile } from '@kubb/fabric-core/types'
 import { enumExtensionKeys, formatMap, knownMediaTypes } from './constants.ts'
 import type { Oas } from './oas/Oas.ts'
 import type { contentType, Operation, SchemaObject } from './oas/types.ts'
 import { flattenSchema, isDiscriminator, isNullable, isReference } from './oas/utils.ts'
+import { applyDiscriminatorEnum, extractRefName, mergeAdjacentAnonymousObjects } from './utils.ts'
+
+export { applyDiscriminatorEnum, extractRefName, getImports, mergeAdjacentAnonymousObjects } from './utils.ts'
 
 /**
  * Distributive `Omit` — correctly distributes over union types so that
@@ -179,15 +170,6 @@ function formatToSchemaType(format: string): SchemaType | undefined {
 }
 
 /**
- * Extracts the final path segment of a JSON Pointer `$ref` string.
- * For `#/components/schemas/Order` this returns `'Order'`.
- * Falls back to the full ref string when no slash is present.
- */
-function extractRefName($ref: string): string {
-  return $ref.split('/').at(-1) ?? $ref
-}
-
-/**
  * Maps an OAS primitive type string to its `PrimitiveSchemaType` equivalent.
  * Numeric types (`number`, `integer`, `bigint`) are returned unchanged;
  * `boolean` maps to `'boolean'`; everything else defaults to `'string'`.
@@ -254,81 +236,6 @@ export type OasParser = {
    * a reference to the full parser or OAS instance.
    */
   nameMapping: Map<string, string>
-}
-
-/**
- * When a discriminator is present, replaces the discriminator property's schema with
- * an enum of the mapping keys so downstream code emits a precise literal-union type.
- * Returns the original schema unchanged when there is no discriminator or no mapping.
- */
-function applyDiscriminatorEnum(schema: SchemaObject): SchemaObject {
-  if (!isDiscriminator(schema)) return schema
-  const propName = schema.discriminator.propertyName
-  if (!schema.properties?.[propName]) return schema
-  return {
-    ...schema,
-    properties: {
-      ...schema.properties,
-      [propName]: {
-        ...(schema.properties[propName] as SchemaObject),
-        enum: schema.discriminator.mapping ? Object.keys(schema.discriminator.mapping) : undefined,
-      },
-    },
-  } as SchemaObject
-}
-
-/**
- * Standalone import extractor that works from a pre-computed `nameMapping`.
- *
- * Walks `node` looking for `ref` nodes, applies collision-resolved names from
- * `nameMapping`, and calls `resolve` to obtain the `{ name, path }` pair for
- * each import. When `oas` is supplied, only `$ref`s that are resolvable in the
- * spec are included; omit it to skip the existence check.
- *
- * This function is the pure, state-free alternative to `OasParser.getImports`.
- * Because it receives `nameMapping` explicitly it can be called without holding
- * a reference to the parser or the OAS instance.
- *
- * @example
- * ```ts
- * // Use adapter state directly — no parser reference needed
- * const imports = getImports({
- *   node: schemaNode,
- *   nameMapping: adapter.options.nameMapping,
- *   resolve: (schemaName) => ({
- *     name: schemaManager.getName(schemaName, { type: 'type' }),
- *     path: schemaManager.getFile(schemaName).path,
- *   }),
- * })
- * ```
- */
-export function getImports({
-  node,
-  nameMapping,
-  resolve,
-  oas,
-}: {
-  node: SchemaNode
-  nameMapping: Map<string, string>
-  resolve: (schemaName: string) => { name: string; path: string } | undefined
-  oas?: Oas
-}): Array<KubbFile.Import> {
-  return collect<KubbFile.Import>(node, {
-    schema(schemaNode): KubbFile.Import | undefined {
-      if (schemaNode.type !== 'ref' || !schemaNode.ref) return
-      // When an OAS instance is provided, verify the $ref exists in the spec.
-      if (oas && !oas.get(schemaNode.ref)) return
-
-      const rawName = extractRefName(schemaNode.ref)
-
-      // Apply collision-resolved name if available.
-      const schemaName = nameMapping.get(rawName) ?? rawName
-      const result = resolve(schemaName)
-      if (!result) return
-
-      return { name: [result.name], path: result.path }
-    },
-  })
 }
 
 /**
@@ -505,6 +412,10 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       })
       .map((s) => convertSchema({ schema: s as SchemaObject }, options))
 
+    // Track where allOf-derived members end so only the synthetic members added below
+    // (injected required-key objects + outer-properties object) are candidates for merging.
+    const syntheticStart = allOfMembers.length
+
     // When `required` lists keys not present in the outer `properties`, resolve them from
     // the allOf member schemas and inject them as extra intersection members.
     if (Array.isArray(schema.required) && schema.required.length) {
@@ -534,9 +445,10 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       allOfMembers.push(convertSchema({ schema: schemaWithoutAllOf as SchemaObject }, options))
     }
 
+    // Merge consecutive anonymous object members within the synthetic portion — see `mergeAdjacentAnonymousObjects`.
     return createSchema({
       type: 'intersection',
-      members: allOfMembers,
+      members: [...allOfMembers.slice(0, syntheticStart), ...mergeAdjacentAnonymousObjects(allOfMembers.slice(syntheticStart))],
       ...buildSchemaBase(schema, name, nullable, defaultValue),
     })
   }
@@ -558,17 +470,24 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
     if (schema.properties) {
       const { oneOf: _oneOf, anyOf: _anyOf, ...schemaWithoutUnion } = schema as SchemaObject & { oneOf?: unknown[]; anyOf?: unknown[] }
-      const propertiesNode = convertSchema({ schema: schemaWithoutUnion as SchemaObject }, options)
 
       return createSchema({
         type: 'union',
         ...unionBase,
-        members: unionMembers.map((s) =>
-          createSchema({
+        members: unionMembers.map((s) => {
+          const discriminatorValue =
+            isDiscriminator(schema) && schema.discriminator.mapping && isReference(s as object)
+              ? Object.entries(schema.discriminator.mapping).find(([, v]) => v === (s as { $ref: string }).$ref)?.[0]
+              : undefined
+
+          const memberPropertiesSchema = applyDiscriminatorEnum(schemaWithoutUnion as SchemaObject, discriminatorValue)
+          const propertiesNode = convertSchema({ schema: memberPropertiesSchema, name }, options)
+
+          return createSchema({
             type: 'intersection',
             members: [convertSchema({ schema: s as SchemaObject }, options), propertiesNode],
-          }),
-        ),
+          })
+        }),
       })
     }
 

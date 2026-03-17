@@ -539,6 +539,35 @@ describe('convertSchema allOf', () => {
     expect(node.description).toBe('annotation only')
     expect(node.nullable).toBe(true)
   })
+
+  it('merges synthetic object members (injected required-key + outer properties) into a single object', () => {
+    // Models the FullAddress pattern:
+    //   allOf: [$ref Address]
+    //   properties: { streetName }
+    //   required: [streetName, streetNumber]  ← streetNumber resolved from Address
+    // Expected: Address & { streetNumber; streetName }  (not three separate members)
+    const node = parser.convertSchema({
+      name: 'FullAddress',
+      schema: {
+        allOf: [
+          {
+            type: 'object' as const,
+            properties: { streetNumber: { type: 'string' as const } },
+          },
+        ],
+        properties: { streetName: { type: 'string' as const } },
+        required: ['streetName', 'streetNumber'],
+      },
+    })
+
+    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
+    // allOf member + one merged synthetic object (streetNumber + streetName combined)
+    expect(node.members).toHaveLength(2)
+    const merged = narrowSchema(node.members?.[1], 'object')
+    const propNames = merged?.properties?.map((p) => p.name)
+    expect(propNames).toContain('streetNumber')
+    expect(propNames).toContain('streetName')
+  })
 })
 
 describe('convertSchema oneOf / anyOf', () => {
@@ -2277,6 +2306,68 @@ describe('convertSchema discriminator on union (oneOf/anyOf)', () => {
 
     expect(node.type).toBe('union')
     expect(node.discriminatorPropertyName).toBeUndefined()
+  })
+
+  it('narrows the discriminator property to a single value per union member when a mapping is present', () => {
+    const node = parser.convertSchema({
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+        discriminator: {
+          propertyName: 'type',
+          mapping: {
+            dog: '#/components/schemas/Dog',
+            cat: '#/components/schemas/Cat',
+          },
+        },
+        properties: {
+          type: { type: 'string', enum: ['dog', 'cat'], readOnly: true },
+          name: { type: 'string' },
+        },
+        required: ['type', 'name'],
+      },
+    })
+
+    expect(node.type).toBe('union')
+    const { members } = narrowSchema(node, 'union')!
+
+    // Dog member: intersection of Dog ref + properties narrowed to type='dog'
+    const dogIntersection = narrowSchema(members![0], 'intersection')
+    const dogPropertiesNode = narrowSchema(dogIntersection!.members![1], 'object')
+    const dogTypeProp = dogPropertiesNode?.properties?.find((p) => p.name === 'type')
+    expect(narrowSchema(dogTypeProp?.schema, 'enum')?.enumValues).toEqual(['dog'])
+
+    // Cat member: intersection of Cat ref + properties narrowed to type='cat'
+    const catIntersection = narrowSchema(members![1], 'intersection')
+    const catPropertiesNode = narrowSchema(catIntersection!.members![1], 'object')
+    const catTypeProp = catPropertiesNode?.properties?.find((p) => p.name === 'type')
+    expect(narrowSchema(catTypeProp?.schema, 'enum')?.enumValues).toEqual(['cat'])
+  })
+
+  it('gives enum sibling properties a name derived from the union schema name', () => {
+    const node = parser.convertSchema({
+      name: 'Pet',
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+        discriminator: {
+          propertyName: 'type',
+          mapping: {
+            dog: '#/components/schemas/Dog',
+            cat: '#/components/schemas/Cat',
+          },
+        },
+        properties: {
+          type: { type: 'string', enum: ['dog', 'cat'], readOnly: true },
+          status: { type: 'string', enum: ['available', 'pending', 'sold'] },
+        },
+        required: ['type'],
+      },
+    })
+
+    const { members } = narrowSchema(node, 'union')!
+    const dogPropertiesNode = narrowSchema(narrowSchema(members![0], 'intersection')!.members![1], 'object')
+    const statusProp = dogPropertiesNode?.properties?.find((p) => p.name === 'status')
+    // The enum schema should carry a name derived from the parent union name
+    expect(statusProp?.schema.name).toBe('PetStatusEnum')
   })
 })
 

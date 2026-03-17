@@ -14,19 +14,19 @@ export const typeGenerator = createReactGenerator<PluginTs, '2'>({
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType },
     } = plugin
     const mode = useMode()
-    const pluginManager = usePluginManager()
+    const { resolveName, getFile } = usePluginManager()
 
     if (!node.name) {
       return
     }
 
     const imports = adapter.getImports(node, (schemaName) => ({
-      name: pluginManager.resolveName({
+      name: resolveName({
         name: schemaName,
         pluginName: plugin.name,
         type: 'type',
       }),
-      path: pluginManager.getFile({
+      path: getFile({
         name: schemaName,
         pluginName: plugin.name,
         extname: '.ts',
@@ -39,7 +39,7 @@ export const typeGenerator = createReactGenerator<PluginTs, '2'>({
 
     const isEnumSchema = node.type === 'enum'
 
-    let typedName = pluginManager.resolveName({
+    let typedName = resolveName({
       name: node.name,
       pluginName: plugin.name,
       type: 'type',
@@ -50,13 +50,13 @@ export const typeGenerator = createReactGenerator<PluginTs, '2'>({
     }
 
     const type = {
-      name: pluginManager.resolveName({
+      name: resolveName({
         name: node.name,
         pluginName: plugin.name,
         type: 'function',
       }),
       typedName,
-      file: pluginManager.getFile({
+      file: getFile({
         name: node.name,
         pluginName: plugin.name,
         extname: '.ts',
@@ -65,9 +65,7 @@ export const typeGenerator = createReactGenerator<PluginTs, '2'>({
         //   group
         // },
       }),
-    }
-
-    console.log(type)
+    } as const
 
     return (
       <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta}>
