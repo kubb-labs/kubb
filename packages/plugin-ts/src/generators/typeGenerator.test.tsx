@@ -465,6 +465,55 @@ describe('typeGenerator schema', async () => {
       path: 'Advanced',
       options: {},
     },
+    {
+      name: 'PetsStoreAdvancedDiscriminatorEnumType',
+      input: '../../mocks/discriminator.yaml',
+      path: 'Advanced',
+      options: {
+        enumType: 'enum',
+      },
+    },
+    {
+      name: 'CatDogDiscriminatorEnumType',
+      input: '../../mocks/discriminator.yaml',
+      path: 'CatDog',
+      options: {
+        enumType: 'enum',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'PetStorePetDiscriminatorEnum',
+      input: '../../mocks/discriminator.yaml',
+      path: 'PetStorePet',
+      options: {
+        enumType: 'enum',
+      },
+    },
+    {
+      name: 'PetStorePetDiscriminatorAsConst',
+      input: '../../mocks/discriminator.yaml',
+      path: 'PetStorePet',
+      options: {
+        enumType: 'asConst',
+      },
+    },
+    {
+      name: 'PetStoreDogEnum',
+      input: '../../mocks/discriminator.yaml',
+      path: 'PetStoreDog',
+      options: {
+        enumType: 'enum',
+      },
+    },
+    {
+      name: 'PetStoreCatEnum',
+      input: '../../mocks/discriminator.yaml',
+      path: 'PetStoreCat',
+      options: {
+        enumType: 'enum',
+      },
+    },
     // https://github.com/kubb-labs/kubb/issues/1669
     {
       name: 'PetsStoreNotifcationDiscriminator',
@@ -604,6 +653,16 @@ describe('typeGenerator schema', async () => {
       path: 'enum.NegativeNumber',
       options: {
         enumType: 'constEnum',
+      },
+    },
+    // anyOf with const should produce 'test' | (string & {})
+    {
+      name: 'AnyOfConst',
+      input: '../../mocks/discriminator.yaml',
+      path: 'AnyOfConst',
+      options: {
+        enumType: 'asConst',
+        optionalType: 'questionToken',
       },
     },
   ] as const satisfies Array<{
