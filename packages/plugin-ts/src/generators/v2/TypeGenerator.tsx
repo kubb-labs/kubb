@@ -1,4 +1,4 @@
-import { useMode, usePluginManager } from '@kubb/core/hooks'
+import { useApp } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 
 import { File } from '@kubb/react-fabric'
@@ -13,8 +13,7 @@ export const typeGenerator = createReactGenerator<PluginTs, '2'>({
     const {
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType },
     } = plugin
-    const mode = useMode()
-    const { resolveName, getFile } = usePluginManager()
+    const { mode, resolveName, getFile } = useApp<PluginTs>()
 
     if (!node.name) {
       return

@@ -29,11 +29,9 @@ import type {
 } from '@kubb/ast/types'
 import { enumExtensionKeys, formatMap, knownMediaTypes } from './constants.ts'
 import type { Oas } from './oas/Oas.ts'
-import type { contentType, Operation, SchemaObject } from './oas/types.ts'
+import type { contentType, Operation, ReferenceObject, SchemaObject } from './oas/types.ts'
 import { flattenSchema, isDiscriminator, isNullable, isReference } from './oas/utils.ts'
-import { applyDiscriminatorEnum, extractRefName, mergeAdjacentAnonymousObjects } from './utils.ts'
-
-export { applyDiscriminatorEnum, extractRefName, getImports, mergeAdjacentAnonymousObjects } from './utils.ts'
+import { applyDiscriminatorEnum, extractRefName, mergeAdjacentAnonymousObjects, simplifyUnionMembers } from './utils.ts'
 
 /**
  * Distributive `Omit` — correctly distributes over union types so that
@@ -335,18 +333,17 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * reflected in generated JSDoc and type modifiers.
    */
   function convertRef({ schema, nullable, defaultValue }: SchemaContext): SchemaNode {
-    const schemaObject = schema as unknown as SchemaObject & { $ref: string }
     return createSchema({
       type: 'ref',
-      name: extractRefName(schemaObject.$ref),
-      ref: schemaObject.$ref,
+      name: extractRefName(schema.$ref!),
+      ref: schema.$ref,
       nullable,
-      description: schemaObject.description,
-      deprecated: schemaObject.deprecated,
-      readOnly: schemaObject.readOnly,
-      writeOnly: schemaObject.writeOnly,
-      pattern: schemaObject.type === 'string' ? schemaObject.pattern : undefined,
-      example: schemaObject.example,
+      description: schema.description,
+      deprecated: schema.deprecated,
+      readOnly: schema.readOnly,
+      writeOnly: schema.writeOnly,
+      pattern: schema.type === 'string' ? schema.pattern : undefined,
+      example: schema.example,
       default: defaultValue,
     })
   }
@@ -373,8 +370,8 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       !(Array.isArray(schema.required) && schema.required.length) &&
       schema.additionalProperties === undefined
     ) {
-      const [memberSchema] = schema.allOf as SchemaObject[]
-      const memberNode = convertSchema({ schema: memberSchema! }, options)
+      const [memberSchema] = schema.allOf as Array<SchemaObject | ReferenceObject>
+      const memberNode = convertSchema({ schema: memberSchema! as SchemaObject }, options)
       const { kind: _kind, ...memberNodeProps } = memberNode
       const mergedNullable = nullable || memberNode.nullable || undefined
       const mergedDefault = schema.default === null && mergedNullable ? undefined : (schema.default ?? memberNode.default)
@@ -396,18 +393,16 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
     // When a child schema extends a discriminator parent via allOf and the parent's oneOf/anyOf
     // references that child back, skip that allOf item to prevent a circular type reference.
-    const allOfMembers: SchemaNode[] = (schema.allOf as SchemaObject[])
+    const allOfMembers: Array<SchemaNode> = (schema.allOf as Array<SchemaObject | ReferenceObject>)
       .filter((item) => {
         if (!isReference(item) || !name) return true
-        const deref = oas.get<SchemaObject>((item as { $ref: string }).$ref)
+        const deref = oas.get<SchemaObject>(item.$ref)
         if (!deref || !isDiscriminator(deref)) return true
-        const parentUnion = (deref as SchemaObject).oneOf ?? (deref as SchemaObject).anyOf
+        const parentUnion = deref.oneOf ?? deref.anyOf
         if (!parentUnion) return true
         const childRef = `#/components/schemas/${name}`
-        const inOneOf = parentUnion.some((oneOfItem) => isReference(oneOfItem) && (oneOfItem as { $ref: string }).$ref === childRef)
-        const inMapping = Object.values((deref as SchemaObject & { discriminator: { mapping?: Record<string, string> } }).discriminator.mapping ?? {}).some(
-          (v) => v === childRef,
-        )
+        const inOneOf = parentUnion.some((oneOfItem) => isReference(oneOfItem) && oneOfItem.$ref === childRef)
+        const inMapping = Object.values(deref.discriminator.mapping ?? {}).some((v) => v === childRef)
         return !inOneOf && !inMapping
       })
       .map((s) => convertSchema({ schema: s as SchemaObject }, options))
@@ -423,10 +418,10 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       const missingRequired = schema.required.filter((key) => !outerKeys.has(key))
 
       if (missingRequired.length) {
-        const resolvedMembers = (schema.allOf as SchemaObject[]).flatMap((item) => {
-          if (!isReference(item)) return [item]
+        const resolvedMembers = (schema.allOf as Array<SchemaObject | ReferenceObject>).flatMap((item) => {
+          if (!isReference(item)) return [item as SchemaObject]
           const deref = oas.get<SchemaObject>(item.$ref)
-          return deref && !isReference(deref) ? [deref as SchemaObject] : []
+          return deref && !isReference(deref) ? [deref] : []
         })
 
         for (const key of missingRequired) {
@@ -441,8 +436,8 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     }
 
     if (schema.properties) {
-      const { allOf: _allOf, ...schemaWithoutAllOf } = schema as SchemaObject & { allOf?: unknown[] }
-      allOfMembers.push(convertSchema({ schema: schemaWithoutAllOf as SchemaObject }, options))
+      const { allOf: _allOf, ...schemaWithoutAllOf } = schema
+      allOfMembers.push(convertSchema({ schema: schemaWithoutAllOf }, options))
     }
 
     // Merge consecutive anonymous object members within the synthetic portion — see `mergeAdjacentAnonymousObjects`.
@@ -469,18 +464,19 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     }
 
     if (schema.properties) {
-      const { oneOf: _oneOf, anyOf: _anyOf, ...schemaWithoutUnion } = schema as SchemaObject & { oneOf?: unknown[]; anyOf?: unknown[] }
+      const { oneOf: _oneOf, anyOf: _anyOf, ...schemaWithoutUnion } = schema
 
       return createSchema({
         type: 'union',
         ...unionBase,
         members: unionMembers.map((s) => {
+          const ref = isReference(s) ? s.$ref : undefined
           const discriminatorValue =
-            isDiscriminator(schema) && schema.discriminator.mapping && isReference(s as object)
-              ? Object.entries(schema.discriminator.mapping).find(([, v]) => v === (s as { $ref: string }).$ref)?.[0]
+            isDiscriminator(schema) && schema.discriminator.mapping && ref
+              ? Object.entries(schema.discriminator.mapping).find(([, v]) => v === ref)?.[0]
               : undefined
 
-          const memberPropertiesSchema = applyDiscriminatorEnum(schemaWithoutUnion as SchemaObject, discriminatorValue)
+          const memberPropertiesSchema = applyDiscriminatorEnum(schemaWithoutUnion, discriminatorValue)
           const propertiesNode = convertSchema({ schema: memberPropertiesSchema, name }, options)
 
           return createSchema({
@@ -494,7 +490,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     return createSchema({
       type: 'union',
       ...unionBase,
-      members: unionMembers.map((s) => convertSchema({ schema: s as SchemaObject }, options)),
+      members: simplifyUnionMembers(unionMembers.map((s) => convertSchema({ schema: s as SchemaObject }, options))),
     })
   }
 
@@ -583,10 +579,9 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
   function convertEnum({ schema, name, nullable, type, options }: SchemaContext): SchemaNode {
     // Malformed schema: `{ type: 'array', enum: [...] }` — normalize by moving the enum into items.
     if (type === 'array') {
-      const rawSchema = schema as unknown as { items?: SchemaObject; enum?: unknown[] }
-      const isItemsObject = typeof rawSchema.items === 'object' && !Array.isArray(rawSchema.items)
-      const normalizedItems = { ...(isItemsObject ? rawSchema.items : {}), enum: schema.enum } as SchemaObject
-      const { enum: _enum, ...schemaWithoutEnum } = schema as SchemaObject & { enum?: unknown[] }
+      const isItemsObject = typeof schema.items === 'object' && !Array.isArray(schema.items)
+      const normalizedItems: SchemaObject = { ...(isItemsObject ? (schema.items as SchemaObject) : {}), enum: schema.enum }
+      const { enum: _enum, ...schemaWithoutEnum } = schema
       return convertSchema({ schema: { ...schemaWithoutEnum, items: normalizedItems } as SchemaObject, name }, options)
     }
 
@@ -720,14 +715,13 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       additionalPropertiesNode = createSchema({ type: resolveTypeOption(mergedOptions.unknownType) })
     }
 
-    const rawPatternProperties =
-      'patternProperties' in resolvedSchema ? (resolvedSchema as unknown as { patternProperties?: Record<string, SchemaObject> }).patternProperties : undefined
+    const rawPatternProperties = 'patternProperties' in resolvedSchema ? resolvedSchema.patternProperties : undefined
 
     const patternProperties = rawPatternProperties
       ? Object.fromEntries(
           Object.entries(rawPatternProperties).map(([pattern, patternSchema]) => [
             pattern,
-            (patternSchema as unknown) === true || Object.keys(patternSchema as object).length === 0
+            patternSchema === true || (typeof patternSchema === 'object' && Object.keys(patternSchema).length === 0)
               ? createSchema({ type: resolveTypeOption(mergedOptions.unknownType) })
               : convertSchema({ schema: patternSchema as SchemaObject }, options),
           ]),
@@ -751,9 +745,8 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * after the prefix items is mapped to the rest parameter of the tuple.
    */
   function convertTuple({ schema, name, nullable, defaultValue, options }: SchemaContext): SchemaNode {
-    const rawSchema = schema as unknown as { prefixItems: SchemaObject[]; items?: SchemaObject }
-    const tupleItems = rawSchema.prefixItems.map((item) => convertSchema({ schema: item }, options))
-    const rest = rawSchema.items ? convertSchema({ schema: rawSchema.items }, options) : undefined
+    const tupleItems = (schema.prefixItems ?? []).map((item) => convertSchema({ schema: item as SchemaObject }, options))
+    const rest = schema.items ? convertSchema({ schema: schema.items as SchemaObject }, options) : undefined
 
     return createSchema({
       type: 'tuple',
@@ -773,12 +766,11 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * `enumSuffix` is forwarded so generators can emit a named enum declaration.
    */
   function convertArray({ schema, name, nullable, defaultValue, options, mergedOptions }: SchemaContext): SchemaNode {
-    const rawSchema = schema as unknown as { items?: SchemaObject }
+    const rawItems = schema.items as SchemaObject | undefined
     // When the array items schema contains an inline enum, derive a name from the parent
     // array's name + enumSuffix so generators can emit a named enum declaration.
-    const rawItems = rawSchema.items as SchemaObject | undefined
     const itemName = rawItems?.enum?.length && name ? pascalCase([name, mergedOptions.enumSuffix].join(' ')) : undefined
-    const items = rawSchema.items ? [convertSchema({ schema: rawSchema.items, name: itemName }, options)] : []
+    const items = rawItems ? [convertSchema({ schema: rawItems, name: itemName }, options)] : []
 
     return createSchema({
       type: 'array',
@@ -866,8 +858,8 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     const mergedOptions: Options = { ...DEFAULT_OPTIONS, ...options }
     // Flatten keyword-only allOf fragments (no $ref, no structural keys) into the parent
     // schema before parsing, so simple annotation patterns don't produce needless intersections.
-    const flattenedSchema = flattenSchema(schema as unknown as Parameters<typeof flattenSchema>[0]) as SchemaObject | null
-    if (flattenedSchema && flattenedSchema !== (schema as unknown)) {
+    const flattenedSchema = flattenSchema(schema)
+    if (flattenedSchema && flattenedSchema !== schema) {
       return convertSchema({ schema: flattenedSchema, name }, options)
     }
 
@@ -901,7 +893,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     }
 
     // OAS 3.1: `contentMediaType: 'application/octet-stream'` on a string schema signals binary data.
-    if (schema.type === 'string' && (schema as SchemaObject & { contentMediaType?: string }).contentMediaType === 'application/octet-stream') {
+    if (schema.type === 'string' && schema.contentMediaType === 'application/octet-stream') {
       return createSchema({ type: 'blob', primitive: 'string', ...buildSchemaBase(schema, name, nullable, defaultValue) })
     }
 
@@ -915,7 +907,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       if (nonNullTypes.length > 1) {
         return createSchema({
           type: 'union',
-          members: nonNullTypes.map((t) => convertSchema({ schema: { ...schema, type: t } as SchemaObject }, options)),
+          members: nonNullTypes.map((t) => convertSchema({ schema: { ...schema, type: t } as SchemaObject, name }, options)),
           ...buildSchemaBase(schema, name, arrayNullable, defaultValue),
         })
       }

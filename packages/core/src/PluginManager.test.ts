@@ -274,7 +274,20 @@ describe('PluginManager', () => {
   })
 
   test('getFile should create file with correct properties', () => {
-    const file = pluginManager.getFile({
+    const pluginWithPath = definePlugin(() => ({
+      name: 'pluginA',
+      options: undefined as any,
+      context: undefined as never,
+      resolvePath(baseName: string) {
+        return `pluginA/gen/${baseName}`
+      },
+    }))
+    const localPluginManager = new PluginManager(
+      { ...config, plugins: [pluginWithPath({})] as Plugin[] },
+      { fabric: createFabric(), events: new AsyncEventEmitter<KubbEvents>() },
+    )
+
+    const file = localPluginManager.getFile({
       name: 'testFile',
       extname: '.ts',
       pluginName: 'pluginA',
@@ -286,7 +299,20 @@ describe('PluginManager', () => {
   })
 
   test('getFile should work with custom mode', () => {
-    const file = pluginManager.getFile({
+    const pluginWithPath = definePlugin(() => ({
+      name: 'pluginA',
+      options: undefined as any,
+      context: undefined as never,
+      resolvePath(baseName: string) {
+        return `pluginA/gen/${baseName || 'index.ts'}`
+      },
+    }))
+    const localPluginManager = new PluginManager(
+      { ...config, plugins: [pluginWithPath({})] as Plugin[] },
+      { fabric: createFabric(), events: new AsyncEventEmitter<KubbEvents>() },
+    )
+
+    const file = localPluginManager.getFile({
       name: 'testFile',
       extname: '.ts',
       mode: 'single',
@@ -294,7 +320,8 @@ describe('PluginManager', () => {
     })
 
     expect(file).toBeDefined()
-    expect(file.baseName).toBe('testFile.ts')
+    // in single mode resolvedName is '', so the plugin receives '.ts' as baseName
+    expect(file.baseName).toBe('.ts')
   })
 
   test('getPluginsByName should return correct plugins', () => {

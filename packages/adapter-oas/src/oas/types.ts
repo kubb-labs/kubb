@@ -30,6 +30,25 @@ export type SchemaObject = OASSchemaObject & {
    */
   contentMediaType?: string
   $ref?: string
+  /**
+   * OAS 3.1 / JSON Schema: positional items in a tuple schema.
+   * Replaces the OAS 3.0 multi-item `items` array syntax.
+   */
+  prefixItems?: Array<SchemaObject | ReferenceObject>
+  /**
+   * JSON Schema: maps regex patterns to sub-schemas for additional property validation.
+   */
+  patternProperties?: Record<string, SchemaObject | boolean>
+  /**
+   * OAS 3.0 / JSON Schema: single-schema form.
+   * The OAS base type already includes this, but we re-declare it here to ensure
+   * the single-schema overload takes precedence over the multi-schema tuple form.
+   */
+  items?: SchemaObject | ReferenceObject
+  /**
+   * Enum values for this schema (narrowed from `unknown[]` in the base type).
+   */
+  enum?: Array<string | number | boolean | null>
 }
 
 /**

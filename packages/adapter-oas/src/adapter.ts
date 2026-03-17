@@ -5,8 +5,9 @@ import { defineAdapter } from '@kubb/core'
 import type { Oas } from './oas/Oas.ts'
 import { resolveServerUrl } from './oas/resolveServerUrl.ts'
 import { parseFromConfig } from './oas/utils.ts'
-import { createOasParser, getImports } from './parser.ts'
+import { createOasParser } from './parser.ts'
 import type { OasAdapter } from './types.ts'
+import { getImports } from './utils.ts'
 
 export const adapterOasName = 'oas' satisfies OasAdapter['name']
 

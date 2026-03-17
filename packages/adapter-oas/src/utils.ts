@@ -33,19 +33,21 @@ export function applyDiscriminatorEnum(schema: SchemaObject, specificValue?: str
 
   const enumValues = specificValue ? [specificValue] : schema.discriminator.mapping ? Object.keys(schema.discriminator.mapping) : undefined
 
-  // Strip `discriminator` when narrowing so convertObject won't re-apply the full enum.
-  const { discriminator: _d, ...base } = specificValue ? (schema as SchemaObject & { discriminator?: unknown }) : { ...schema, discriminator: undefined }
-
-  return {
-    ...(specificValue ? base : schema),
-    properties: {
-      ...schema.properties,
-      [propName]: {
-        ...(schema.properties[propName] as SchemaObject),
-        enum: enumValues,
-      },
+  const updatedProperties = {
+    ...schema.properties,
+    [propName]: {
+      ...(schema.properties[propName] as SchemaObject),
+      enum: enumValues,
     },
-  } as SchemaObject
+  } as SchemaObject['properties']
+
+  if (specificValue) {
+    // Strip `discriminator` when narrowing so convertObject won't re-apply the full enum.
+    const { discriminator: _d, ...base } = schema
+    return { ...base, properties: updatedProperties } as SchemaObject
+  }
+
+  return { ...schema, properties: updatedProperties } as SchemaObject
 }
 
 /**
@@ -76,7 +78,32 @@ export function mergeAdjacentAnonymousObjects(members: Array<SchemaNode>): Array
 }
 
 /**
- * Walks `node` looking for `ref` nodes, applies collision-resolved names from
+ * Simplifies a union member list by removing `enum` nodes whose `primitive` type is
+ * already represented by a broader scalar node in the same union.
+ *
+ * For example `['placed', 'approved'] | string` collapses to `string` because
+ * `string` subsumes all string literals.  `'' | string` similarly becomes `string`.
+ *
+ * Only scalar primitives (`string`, `number`, `integer`, `bigint`, `boolean`) are
+ * considered — object, array, and ref members are left untouched.
+ */
+export function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNode> {
+  const scalarPrimitives = new Set(members.filter((m) => ['string', 'number', 'integer', 'bigint', 'boolean'].includes(m.type)).map((m) => m.type as string))
+  if (!scalarPrimitives.size) return members
+
+  return members.filter((m) => {
+    if (m.type !== 'enum') return true
+    const prim = m.primitive
+    // Keep the enum if its primitive isn't fully subsumed.
+    if (!prim) return true
+    // `number` subsumes `integer` literals and vice-versa for our purposes.
+    if (scalarPrimitives.has(prim)) return false
+    if ((prim === 'integer' || prim === 'number') && (scalarPrimitives.has('integer') || scalarPrimitives.has('number'))) return false
+    return true
+  })
+}
+
+/**
  * `nameMapping`, and calls `resolve` to obtain the `{ name, path }` pair for
  * each import. When `oas` is supplied, only `$ref`s that are resolvable in the
  * spec are included; omit it to skip the existence check.
