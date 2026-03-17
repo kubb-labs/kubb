@@ -220,8 +220,8 @@ type ByContentType = {
   pattern: string | RegExp
 }
 
-export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | ByContentType
-export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType
+export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
+export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
 
 export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName | ByContentType) & {
   options: Partial<TOptions>

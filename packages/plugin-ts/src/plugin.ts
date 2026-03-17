@@ -2,7 +2,7 @@ import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
-import { buildOperation, buildSchema, OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
+import { buildOperation, buildSchema, OperationGenerator, pluginOasName, resolveOptions, SchemaGenerator } from '@kubb/plugin-oas'
 import { typeGenerator, typeGeneratorV2 } from './generators'
 import type { PluginTs } from './types.ts'
 
@@ -58,7 +58,9 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       usedEnumNames,
     },
     pre: [pluginOasName],
-    //resolveOptions(operation|schema): ResolvedOptions
+    resolveOptions(node) {
+      return resolveOptions(node, { options: this.plugin.options, exclude, include, override })
+    },
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? getMode(path.resolve(root, output.path))

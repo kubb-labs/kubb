@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { RootNode, SchemaNode } from '@kubb/ast/types'
+import type { Node, RootNode, SchemaNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
@@ -368,6 +368,14 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * @example ('pet') => 'Pet'
    */
   resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
+  /**
+   * Resolve the effective options for a given AST node by applying `exclude`, `include`, and `override` rules.
+   *
+   * Returns `null` when the node is excluded or filtered out by `include`.
+   * Returns merged options (base options + any matching `override` entries) otherwise.
+   * @type hookFirst
+   */
+  resolveOptions?: (this: PluginContext<TOptions>, node: Node) => TOptions['resolvedOptions'] | null
 }
 
 export type PluginLifecycleHooks = keyof PluginLifecycle
