@@ -6,6 +6,67 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.2
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/core`](/packages/core)
+
+-   [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, and adding duplicate plugins will throw an error.
+
+#### [`@kubb/plugin-swr`](/packages/plugin-swr)
+
+-   [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, and adding duplicate plugins will throw an error.
+
+#### [`@kubb/plugin-cypress`](/packages/plugin-cypress)
+
+-   [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, and adding duplicate plugins will throw an error.
+
+#### [`@kubb/plugin-msw`](/packages/plugin-msw)
+
+-   [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, and adding duplicate plugins will throw an error.
+
+#### [`@kubb/plugin-vue-query`](/packages/plugin-vue-query)
+
+-   [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, and adding duplicate plugins will throw an error.
+
+#### [`@kubb/plugin-ts`](/packages/plugin-ts)
+
+-   [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, and adding duplicate plugins will throw an error.
+
+#### [`@kubb/plugin-mcp`](/packages/plugin-mcp)
+
+-   [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, and adding duplicate plugins will throw an error.
+
+#### [`@kubb/plugin-react-query`](/packages/plugin-react-query)
+
+-   [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, and adding duplicate plugins will throw an error.
+
+#### [`@kubb/plugin-solid-query`](/packages/plugin-solid-query)
+
+-   [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, and adding duplicate plugins will throw an error.
+
+#### [`@kubb/plugin-svelte-query`](/packages/plugin-svelte-query)
+
+-   [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, and adding duplicate plugins will throw an error.
+
+#### [`@kubb/plugin-client`](/packages/plugin-client)
+
+-   [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, and adding duplicate plugins will throw an error.
+
+#### [`@kubb/plugin-zod`](/packages/plugin-zod)
+
+-   [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, and adding duplicate plugins will throw an error.
+
+#### [`@kubb/plugin-oas`](/packages/plugin-oas)
+
+-   [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, and adding duplicate plugins will throw an error.
+
+#### [`@kubb/plugin-faker`](/packages/plugin-faker)
+
+-   [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, and adding duplicate plugins will throw an error.
+
+
 ## 4.36.1
 
 ### ✨ Features
