@@ -1,10 +1,10 @@
 import { join } from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { BarrelManager } from '../BarrelManager.ts'
-import type { BarrelType, Plugin } from '../types.ts'
+import type { BarrelType } from '../types.ts'
 
 export type FileMetaBase = {
-  pluginKey?: Plugin['key']
+  pluginName?: string
 }
 
 type AddIndexesProps = {

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "4.36.0",
+  "version": "5.0.0-alpha.2",
   "description": "Core functionality for Kubb's plugin-based code generation system, providing the foundation for transforming OpenAPI specifications.",
   "keywords": [
     "typescript",
@@ -94,7 +94,7 @@
     "@kubb/react-fabric": "0.13.3"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "publishConfig": {
     "access": "public",

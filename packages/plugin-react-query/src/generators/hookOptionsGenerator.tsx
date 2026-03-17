@@ -13,7 +13,7 @@ export const hookOptionsGenerator = createReactGenerator<PluginReactQuery>({
     const {
       options,
       options: { output },
-      key: pluginKey,
+      name: pluginName,
     } = plugin
     const pluginManager = usePluginManager()
 
@@ -25,7 +25,7 @@ export const hookOptionsGenerator = createReactGenerator<PluginReactQuery>({
     }
 
     const name = 'HookOptions'
-    const file = pluginManager.getFile({ name, extname: '.ts', pluginKey })
+    const file = pluginManager.getFile({ name, extname: '.ts', pluginName })
 
     const getOperationOptions = (operation: Operation) => {
       const operationOptions = generator.getOptions(operation, operation.method)

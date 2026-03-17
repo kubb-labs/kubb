@@ -13,7 +13,7 @@ export const customHookOptionsFileGenerator = createReactGenerator<PluginReactQu
     const {
       options,
       options: { output },
-      key: pluginKey,
+      name: pluginName,
     } = plugin
     const pluginManager = usePluginManager()
 
@@ -37,7 +37,7 @@ export const customHookOptionsFileGenerator = createReactGenerator<PluginReactQu
         return getFile(firstOperation, { prefix: 'use' }).path
       }
       // Get the index file of the hooks directory
-      return pluginManager.getFile({ name: 'index', extname: '.ts', pluginKey }).path
+      return pluginManager.getFile({ name: 'index', extname: '.ts', pluginName }).path
     }
 
     const ensureExtension = (filePath: string, extname: string) => {

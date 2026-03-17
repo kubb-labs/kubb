@@ -52,7 +52,7 @@ type GetFileProps<TOptions = object> = {
   name: string
   mode?: KubbFile.Mode
   extname: KubbFile.Extname
-  pluginKey: Plugin['key']
+  pluginName: string
   options?: TOptions
 }
 
@@ -163,19 +163,19 @@ export class PluginManager {
     return this.#getSortedPlugins()
   }
 
-  getFile<TOptions = object>({ name, mode, extname, pluginKey, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {
+  getFile<TOptions = object>({ name, mode, extname, pluginName, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginName: string }> {
     const baseName = `${name}${extname}` as const
-    const path = this.resolvePath({ baseName, mode, pluginKey, options })
+    const path = this.resolvePath({ baseName, mode, pluginName, options })
 
     if (!path) {
-      throw new Error(`Filepath should be defined for resolvedName "${name}" and pluginKey [${JSON.stringify(pluginKey)}]`)
+      throw new Error(`Filepath should be defined for resolvedName "${name}" and pluginName "${pluginName}"`)
     }
 
     return {
       path,
       baseName,
       meta: {
-        pluginKey,
+        pluginName,
       },
       sources: [],
       imports: [],
@@ -187,9 +187,9 @@ export class PluginManager {
     const root = path.resolve(this.config.root, this.config.output.path)
     const defaultPath = path.resolve(root, params.baseName)
 
-    if (params.pluginKey) {
+    if (params.pluginName) {
       const paths = this.hookForPluginSync({
-        pluginKey: params.pluginKey,
+        pluginName: params.pluginName,
         hookName: 'resolvePath',
         parameters: [params.baseName, params.mode, params.options as object],
       })
@@ -206,9 +206,9 @@ export class PluginManager {
   }
   //TODO refactor by using the order of plugins and the cache of the fileManager instead of guessing and recreating the name/path
   resolveName = (params: ResolveNameParams): string => {
-    if (params.pluginKey) {
+    if (params.pluginName) {
       const names = this.hookForPluginSync({
-        pluginKey: params.pluginKey,
+        pluginName: params.pluginName,
         hookName: 'resolveName',
         parameters: [params.name.trim(), params.type],
       })
@@ -230,15 +230,15 @@ export class PluginManager {
    * Run a specific hookName for plugin x.
    */
   async hookForPlugin<H extends PluginLifecycleHooks>({
-    pluginKey,
+    pluginName,
     hookName,
     parameters,
   }: {
-    pluginKey: Plugin['key']
+    pluginName: string
     hookName: H
     parameters: PluginParameter<H>
   }): Promise<Array<ReturnType<ParseResult<H>> | null>> {
-    const plugins = this.getPluginsByKey(hookName, pluginKey)
+    const plugins = this.getPluginsByName(hookName, pluginName)
 
     this.events.emit('plugins:hook:progress:start', {
       hookName,
@@ -269,15 +269,15 @@ export class PluginManager {
    */
 
   hookForPluginSync<H extends PluginLifecycleHooks>({
-    pluginKey,
+    pluginName,
     hookName,
     parameters,
   }: {
-    pluginKey: Plugin['key']
+    pluginName: string
     hookName: H
     parameters: PluginParameter<H>
   }): Array<ReturnType<ParseResult<H>>> | null {
-    const plugins = this.getPluginsByKey(hookName, pluginKey)
+    const plugins = this.getPluginsByName(hookName, pluginName)
 
     const result = plugins
       .map((plugin) => {
@@ -486,41 +486,21 @@ export class PluginManager {
       })
   }
 
-  getPluginByKey(pluginKey: Plugin['key']): Plugin | undefined {
+  getPluginByName(pluginName: string): Plugin | undefined {
     const plugins = [...this.#plugins]
-    const [searchPluginName] = pluginKey
 
-    return plugins.find((item) => {
-      const [name] = item.key
-
-      return name === searchPluginName
-    })
+    return plugins.find((item) => item.name === pluginName)
   }
 
-  getPluginsByKey(hookName: keyof PluginWithLifeCycle, pluginKey: Plugin['key']): Plugin[] {
+  getPluginsByName(hookName: keyof PluginWithLifeCycle, pluginName: string): Plugin[] {
     const plugins = [...this.plugins]
-    const [searchPluginName, searchIdentifier] = pluginKey
 
-    const pluginByPluginName = plugins
-      .filter((plugin) => hookName in plugin)
-      .filter((item) => {
-        const [name, identifier] = item.key
-
-        const identifierCheck = identifier?.toString() === searchIdentifier?.toString()
-        const nameCheck = name === searchPluginName
-
-        if (searchIdentifier) {
-          return identifierCheck && nameCheck
-        }
-
-        return nameCheck
-      })
+    const pluginByPluginName = plugins.filter((plugin) => hookName in plugin).filter((item) => item.name === pluginName)
 
     if (!pluginByPluginName?.length) {
       // fallback on the core plugin when there is no match
 
       const corePlugin = plugins.find((plugin) => plugin.name === CORE_PLUGIN_NAME && hookName in plugin)
-      // Removed noisy debug logs for missing hooks - these are expected behavior, not errors
 
       return corePlugin ? [corePlugin] : []
     }
@@ -667,20 +647,16 @@ export class PluginManager {
 
     setUniqueName(plugin.name, usedPluginNames)
 
-    // Emit warning if this is a duplicate plugin (will be removed in v5)
     const usageCount = usedPluginNames[plugin.name]
     if (usageCount && usageCount > 1) {
-      this.events.emit(
-        'warn',
-        `Multiple instances of plugin "${plugin.name}" detected. This behavior is deprecated and will be removed in v5.`,
-        `Plugin key: [${plugin.name}, ${usageCount}]`,
+      throw new ValidationPluginError(
+        `Duplicate plugin "${plugin.name}" detected. Each plugin can only be used once. Use a different configuration instead of adding multiple instances of the same plugin.`,
       )
     }
 
     return {
       install() {},
       ...plugin,
-      key: [plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.name, string],
     } as unknown as Plugin
   }
 }

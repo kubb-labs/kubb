@@ -53,8 +53,8 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       }
 
       const type = {
-        name: schemaManager.getName(name, { type: 'type', pluginKey: [pluginTsName] }),
-        file: schemaManager.getFile(options.operationName || name, { pluginKey: [pluginTsName], group }),
+        name: schemaManager.getName(name, { type: 'type', pluginName: pluginTsName }),
+        file: schemaManager.getFile(options.operationName || name, { pluginName: pluginTsName, group }),
       }
 
       const canOverride = tree.some(
@@ -119,8 +119,8 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     }
 
     const type = {
-      name: getName(schema.name, { type: 'type', pluginKey: [pluginTsName] }),
-      file: getFile(schema.name, { pluginKey: [pluginTsName] }),
+      name: getName(schema.name, { type: 'type', pluginName: pluginTsName }),
+      file: getFile(schema.name, { pluginName: pluginTsName }),
     }
 
     const canOverride = schema.tree.some(

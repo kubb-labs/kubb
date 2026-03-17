@@ -139,7 +139,7 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
         this.plugin.options.client.baseURL = baseURL
       }
 
-      const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
+      const hasClientPlugin = !!this.pluginManager.getPluginByName(pluginClientName)
 
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled fetch
@@ -197,7 +197,7 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
         root,
         output,
         meta: {
-          pluginKey: this.plugin.key,
+          pluginName: this.plugin.name,
         },
       })
 

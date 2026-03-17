@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-zod",
-  "version": "4.36.0",
+  "version": "5.0.0-alpha.2",
   "description": "Zod schema generator plugin for Kubb, creating type-safe validation schemas from OpenAPI specifications for runtime data validation.",
   "keywords": [
     "zod",
@@ -101,7 +101,7 @@
     "zod": "^3.25.76"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "publishConfig": {
     "access": "public",

@@ -1,9 +1,9 @@
-import type { FileMetaBase, Plugin, ResolveNameParams } from '@kubb/core'
+import type { FileMetaBase, ResolveNameParams } from '@kubb/core'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 
 type FileMeta = FileMetaBase & {
-  pluginKey: Plugin['key']
+  pluginName: string
   name: string
   group?: {
     tag?: string
@@ -12,11 +12,11 @@ type FileMeta = FileMetaBase & {
 }
 
 type UseSchemaManagerResult = {
-  getName: (name: string, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
+  getName: (name: string, params: { pluginName?: string; type: ResolveNameParams['type'] }) => string
   getFile: (
     name: string,
     params?: {
-      pluginKey?: Plugin['key']
+      pluginName?: string
       mode?: KubbFile.Mode
       extname?: KubbFile.Extname
       group?: {
@@ -34,22 +34,22 @@ export function useSchemaManager(): UseSchemaManagerResult {
   const plugin = usePlugin()
   const pluginManager = usePluginManager()
 
-  const getName: UseSchemaManagerResult['getName'] = (name, { pluginKey = plugin.key, type }) => {
+  const getName: UseSchemaManagerResult['getName'] = (name, { pluginName = plugin.name, type }) => {
     return pluginManager.resolveName({
       name,
-      pluginKey,
+      pluginName,
       type,
     })
   }
 
-  const getFile: UseSchemaManagerResult['getFile'] = (name, { mode = 'split', pluginKey = plugin.key, extname = '.ts', group } = {}) => {
-    const resolvedName = mode === 'single' ? '' : getName(name, { type: 'file', pluginKey })
+  const getFile: UseSchemaManagerResult['getFile'] = (name, { mode = 'split', pluginName = plugin.name, extname = '.ts', group } = {}) => {
+    const resolvedName = mode === 'single' ? '' : getName(name, { type: 'file', pluginName })
 
     const file = pluginManager.getFile({
       name: resolvedName,
       extname,
-      pluginKey,
-      options: { type: 'file', pluginKey, group },
+      pluginName,
+      options: { type: 'file', pluginName, group },
     })
 
     return {
@@ -57,7 +57,7 @@ export function useSchemaManager(): UseSchemaManagerResult {
       meta: {
         ...file.meta,
         name: resolvedName,
-        pluginKey,
+        pluginName,
       },
     }
   }

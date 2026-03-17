@@ -263,7 +263,7 @@ export type Config<TInput = Input> = {
 
 export type PluginFactoryOptions<
   /**
-   * Name to be used for the plugin, this will also be used for they key.
+   * Name to be used for the plugin.
    */
   TName extends string = string,
   /**
@@ -284,17 +284,11 @@ export type PluginFactoryOptions<
   TResolvePathOptions extends object = object,
 > = {
   name: TName
-  /**
-   * Same behavior like what has been done with `QueryKey` in `@tanstack/react-query`
-   */
-  key: PluginKey<TName | string>
   options: TOptions
   resolvedOptions: TResolvedOptions
   context: TContext
   resolvePathOptions: TResolvePathOptions
 }
-
-export type PluginKey<TName> = [name: TName, identifier?: string | number]
 
 export type GetPluginFactoryOptions<TPlugin extends UserPlugin> = TPlugin extends UserPlugin<infer X> ? X : never
 
@@ -331,11 +325,6 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    * @example @kubb/typescript
    */
   name: TOptions['name']
-  /**
-   * Internal key used when a developer uses more than one of the same plugin
-   * @private
-   */
-  key: TOptions['key']
   /**
    * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin is executed after these plugins.
    * Can be used to validate dependent plugins.
@@ -386,7 +375,7 @@ export type PluginLifecycleHooks = keyof PluginLifecycle
 export type PluginParameter<H extends PluginLifecycleHooks> = Parameters<Required<PluginLifecycle>[H]>
 
 export type ResolvePathParams<TOptions = object> = {
-  pluginKey?: Plugin['key']
+  pluginName?: string
   baseName: KubbFile.BaseName
   mode?: KubbFile.Mode
   /**
@@ -397,7 +386,7 @@ export type ResolvePathParams<TOptions = object> = {
 
 export type ResolveNameParams = {
   name: string
-  pluginKey?: Plugin['key']
+  pluginName?: string
   /**
    * Specifies the type of entity being named.
    * - 'file' customizes the name of the created file (uses camelCase).

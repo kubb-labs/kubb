@@ -27,7 +27,6 @@ describe('build', () => {
       name: 'plugin',
       options: undefined as any,
       context: undefined as never,
-      key: ['plugin'],
       async install(...params) {
         pluginMocks.install(...params)
 
@@ -192,7 +191,6 @@ describe('build', () => {
         name: 'errorPlugin',
         options: undefined as any,
         context: undefined as never,
-        key: ['errorPlugin'],
         async install() {
           throw new Error('Installation failed')
         },
@@ -256,7 +254,6 @@ describe('build', () => {
         name: 'throwingPlugin',
         options: undefined as any,
         context: undefined as never,
-        key: ['throwingPlugin'],
         async install() {
           throw new Error('Critical error')
         },
@@ -319,7 +316,7 @@ describe('build', () => {
         ],
         imports: [],
         exports: [],
-        meta: { pluginKey: ['excludedPlugin'] },
+        meta: { pluginName: 'excludedPlugin' },
       }
 
       const excludedPlugin = definePlugin(() => {
@@ -327,7 +324,6 @@ describe('build', () => {
           name: 'excludedPlugin',
           options: { output: { barrelType: false } } as any,
           context: undefined as never,
-          key: ['excludedPlugin'],
           async install() {
             await this.addFile(indexableFile)
           },

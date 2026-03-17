@@ -6,6 +6,28 @@ outline: deep
 
 # Changelog
 
+## 4.36.1
+
+### ✨ Features
+
+#### [`@kubb/core`](/packages/core)
+
+-   [`a4ac8d2`](https://github.com/kubb-labs/kubb/commit/a4ac8d28d4b17f5275c3fbe3dedfff0ac3bc3357) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Exposed a new `URLPath` helper to simplify the management and manipulation of URL paths in custom plugins.
+
+    The `URLPath` helper provides utility methods for standardizing and assembling paths, making it easier to ensure consistency in generated URLs across various plugins.
+
+    ::: code-group
+    ```typescript [Example Usage]
+    import { URLPath } from "@kubb/core";
+
+    const path = new URLPath("api/v1");
+    path.append("users");
+    path.replace("v1", "v2");
+    console.log(path.toString()); // Outputs "api/v2/users"
+    ```
+    :::
+
+
 ## 4.36.0
 
 ### ✨ Features

@@ -32,7 +32,7 @@ type Controller = {
 export const classClientGenerator = createReactGenerator<PluginClient>({
   name: 'classClient',
   Operations({ operations, generator, plugin, config }) {
-    const { options, key: pluginKey } = plugin
+    const { options, name: pluginName } = plugin
     const pluginManager = usePluginManager()
 
     const oas = useOas()
@@ -40,13 +40,13 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
 
     function buildOperationData(operation: Operation): OperationData {
       const type = {
-        file: getFile(operation, { pluginKey: [pluginTsName] }),
-        schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+        file: getFile(operation, { pluginName: pluginTsName }),
+        schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
       }
 
       const zod = {
-        file: getFile(operation, { pluginKey: [pluginZodName] }),
-        schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+        file: getFile(operation, { pluginName: pluginZodName }),
+        schemas: getSchemas(operation, { pluginName: pluginZodName, type: 'function' }),
       }
 
       return {
@@ -71,7 +71,7 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
           const file = pluginManager.getFile({
             name,
             extname: '.ts',
-            pluginKey,
+            pluginName,
           })
 
           const operationData = buildOperationData(operation)
@@ -88,7 +88,7 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
           const file = pluginManager.getFile({
             name,
             extname: '.ts',
-            pluginKey,
+            pluginName,
             options: { group },
           })
 
@@ -235,7 +235,7 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
       const wrapperFile = pluginManager.getFile({
         name: options.wrapper.className,
         extname: '.ts',
-        pluginKey,
+        pluginName,
       })
 
       files.push(

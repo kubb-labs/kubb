@@ -18,9 +18,9 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
     const { getFile, getName, getSchemas } = useOperationManager(generator)
 
     const name = 'server'
-    const file = pluginManager.getFile({ name, extname: '.ts', pluginKey: plugin.key })
+    const file = pluginManager.getFile({ name, extname: '.ts', pluginName: plugin.name })
 
-    const jsonFile = pluginManager.getFile({ name: '.mcp', extname: '.json', pluginKey: plugin.key })
+    const jsonFile = pluginManager.getFile({ name: '.mcp', extname: '.json', pluginName: plugin.name })
 
     const operationsMapped = operations.map((operation) => {
       return {
@@ -39,13 +39,13 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
         zod: {
           name: getName(operation, {
             type: 'function',
-            pluginKey: [pluginZodName],
+            pluginName: pluginZodName,
           }),
-          schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
-          file: getFile(operation, { pluginKey: [pluginZodName] }),
+          schemas: getSchemas(operation, { pluginName: pluginZodName, type: 'function' }),
+          file: getFile(operation, { pluginName: pluginZodName }),
         },
         type: {
-          schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+          schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
         },
       }
     })

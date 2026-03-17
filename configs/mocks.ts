@@ -7,7 +7,7 @@ import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
 import { expect } from 'vitest'
 import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
-import type { Plugin, PluginManager } from '../packages/core/src'
+import type { PluginManager } from '../packages/core/src'
 
 const formatOptions: Options = {
   tabWidth: 2,
@@ -53,16 +53,16 @@ export const createMockedPluginManager = (name?: string) =>
       },
     },
     resolvePath: ({ baseName }) => baseName,
-    getPluginByKey: (_pluginKey: Plugin['key']) => {
+    getPluginByName: (_pluginName: string) => {
       return undefined
     },
-    getFile: ({ name, extname, pluginKey }) => {
+    getFile: ({ name, extname, pluginName }) => {
       const baseName = `${name}${extname}`
 
       return {
         path: baseName,
         baseName,
-        meta: { pluginKey },
+        meta: { pluginName },
       }
     },
   }) as PluginManager

@@ -4,22 +4,21 @@ import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import ts, { factory } from 'typescript'
 
+const input = { path: './petStore.yaml' } as const
+
 export default defineConfig([
   {
-    name: 'v4',
     root: '.',
-    input: {
-      path: './petStore.yaml',
-    },
+    input,
     output: {
       path: './src/gen',
       clean: true,
     },
-    hooks: {
-      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
-    },
+    adapter: adapterOas({
+      validate: false,
+    }),
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'models.ts',
@@ -28,6 +27,14 @@ export default defineConfig([
         enumType: 'enum',
         syntaxType: 'interface',
       }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen2', clean: true },
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'modelsConst.ts',
@@ -35,6 +42,14 @@ export default defineConfig([
         },
         enumType: 'asConst',
       }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen3', clean: true },
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'modelsPascalConst.ts',
@@ -42,6 +57,14 @@ export default defineConfig([
         },
         enumType: 'asPascalConst',
       }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen4', clean: true },
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'modelsConstEnum.ts',
@@ -49,6 +72,14 @@ export default defineConfig([
         },
         enumType: 'constEnum',
       }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen5', clean: true },
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'modelsLiteral.ts',
@@ -56,6 +87,17 @@ export default defineConfig([
         },
         enumType: 'literal',
       }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen6', clean: true },
+    hooks: {
+      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
+    },
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'ts/models',
@@ -68,30 +110,6 @@ export default defineConfig([
             factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
           ),
         },
-      }),
-    ],
-  },
-  {
-    name: 'v5',
-    root: '.',
-    input: {
-      path: './petStore.yaml',
-    },
-    output: {
-      path: './src/v5',
-      clean: true,
-    },
-    hooks: {
-      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
-    },
-    adapter: adapterOas({
-      validate: false,
-    }),
-    devtools: true,
-    plugins: [
-      pluginTs({
-        enumType: 'enum',
-        syntaxType: 'interface',
       }),
     ],
   },

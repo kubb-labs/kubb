@@ -24,8 +24,8 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
     }
 
     const type = {
-      file: getFile(operation, { pluginKey: [pluginTsName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+      file: getFile(operation, { pluginName: pluginTsName }),
+      schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
     }
 
     return (

@@ -34,19 +34,19 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
       file: getFile(operation, { prefix: 'create' }),
     }
 
-    const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
+    const hasClientPlugin = !!pluginManager.getPluginByName(pluginClientName)
     // Class-based clients are not compatible with query hooks, so we generate inline clients
     const shouldUseClientPlugin = hasClientPlugin && options.client.clientType !== 'class'
     const client = {
       name: shouldUseClientPlugin
         ? getName(operation, {
             type: 'function',
-            pluginKey: [pluginClientName],
+            pluginName: pluginClientName,
           })
         : getName(operation, {
             type: 'function',
           }),
-      file: getFile(operation, { pluginKey: [pluginClientName] }),
+      file: getFile(operation, { pluginName: pluginClientName }),
     }
 
     const queryOptions = {
@@ -59,18 +59,18 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
     }
 
     const type = {
-      file: getFile(operation, { pluginKey: [pluginTsName] }),
+      file: getFile(operation, { pluginName: pluginTsName }),
       //todo remove type?
       schemas: getSchemas(operation, {
-        pluginKey: [pluginTsName],
+        pluginName: pluginTsName,
         type: 'type',
       }),
     }
 
     const zod = {
-      file: getFile(operation, { pluginKey: [pluginZodName] }),
+      file: getFile(operation, { pluginName: pluginZodName }),
       schemas: getSchemas(operation, {
-        pluginKey: [pluginZodName],
+        pluginName: pluginZodName,
         type: 'function',
       }),
     }

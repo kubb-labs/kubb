@@ -1,5 +1,93 @@
 # @kubb/agent
 
+## 5.0.0-alpha.2
+
+### Patch Changes
+
+- Updated dependencies [[`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b)]:
+  - @kubb/core@5.0.0-alpha.2
+  - @kubb/plugin-oas@5.0.0-alpha.2
+  - @kubb/plugin-ts@5.0.0-alpha.2
+  - @kubb/plugin-client@5.0.0-alpha.2
+  - @kubb/plugin-faker@5.0.0-alpha.2
+  - @kubb/plugin-zod@5.0.0-alpha.2
+  - @kubb/plugin-msw@5.0.0-alpha.2
+  - @kubb/plugin-swr@5.0.0-alpha.2
+  - @kubb/plugin-react-query@5.0.0-alpha.2
+  - @kubb/plugin-vue-query@5.0.0-alpha.2
+  - @kubb/plugin-svelte-query@5.0.0-alpha.2
+  - @kubb/plugin-solid-query@5.0.0-alpha.2
+  - @kubb/plugin-cypress@5.0.0-alpha.2
+  - @kubb/plugin-mcp@5.0.0-alpha.2
+  - @kubb/plugin-redoc@5.0.0-alpha.2
+
+## 5.0.0-alpha.1
+
+### Major Changes
+
+- [`a4682ea`](https://github.com/kubb-labs/kubb/commit/a4682ea8896ef7d9ccae1b6e9abd6ed7bcaac073) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - The minimum required Node.js version is 22.
+
+### Patch Changes
+
+- Updated dependencies [[`a4682ea`](https://github.com/kubb-labs/kubb/commit/a4682ea8896ef7d9ccae1b6e9abd6ed7bcaac073)]:
+  - @kubb/plugin-svelte-query@5.0.0-alpha.1
+  - @kubb/plugin-react-query@5.0.0-alpha.1
+  - @kubb/plugin-solid-query@5.0.0-alpha.1
+  - @kubb/plugin-vue-query@5.0.0-alpha.1
+  - @kubb/plugin-cypress@5.0.0-alpha.1
+  - @kubb/plugin-client@5.0.0-alpha.1
+  - @kubb/plugin-faker@5.0.0-alpha.1
+  - @kubb/plugin-redoc@5.0.0-alpha.1
+  - @kubb/plugin-mcp@5.0.0-alpha.1
+  - @kubb/plugin-msw@5.0.0-alpha.1
+  - @kubb/plugin-oas@5.0.0-alpha.1
+  - @kubb/plugin-swr@5.0.0-alpha.1
+  - @kubb/plugin-zod@5.0.0-alpha.1
+  - @kubb/plugin-ts@5.0.0-alpha.1
+  - @kubb/core@5.0.0-alpha.1
+
+## 5.0.0-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [[`2d474ef`](https://github.com/kubb-labs/kubb/commit/2d474ef68bad43e13ec34e762194048cd2a194d9)]:
+  - @kubb/core@5.0.0-alpha.0
+  - @kubb/plugin-client@5.0.0-alpha.0
+  - @kubb/plugin-cypress@5.0.0-alpha.0
+  - @kubb/plugin-faker@5.0.0-alpha.0
+  - @kubb/plugin-mcp@5.0.0-alpha.0
+  - @kubb/plugin-msw@5.0.0-alpha.0
+  - @kubb/plugin-oas@5.0.0-alpha.0
+  - @kubb/plugin-react-query@5.0.0-alpha.0
+  - @kubb/plugin-redoc@5.0.0-alpha.0
+  - @kubb/plugin-solid-query@5.0.0-alpha.0
+  - @kubb/plugin-svelte-query@5.0.0-alpha.0
+  - @kubb/plugin-swr@5.0.0-alpha.0
+  - @kubb/plugin-ts@5.0.0-alpha.0
+  - @kubb/plugin-vue-query@5.0.0-alpha.0
+  - @kubb/plugin-zod@5.0.0-alpha.0
+
+## 4.36.1
+
+### Patch Changes
+
+- Updated dependencies [[`a4ac8d2`](https://github.com/kubb-labs/kubb/commit/a4ac8d28d4b17f5275c3fbe3dedfff0ac3bc3357)]:
+  - @kubb/core@4.36.1
+  - @kubb/plugin-client@4.36.1
+  - @kubb/plugin-cypress@4.36.1
+  - @kubb/plugin-faker@4.36.1
+  - @kubb/plugin-mcp@4.36.1
+  - @kubb/plugin-msw@4.36.1
+  - @kubb/plugin-oas@4.36.1
+  - @kubb/plugin-react-query@4.36.1
+  - @kubb/plugin-redoc@4.36.1
+  - @kubb/plugin-solid-query@4.36.1
+  - @kubb/plugin-svelte-query@4.36.1
+  - @kubb/plugin-swr@4.36.1
+  - @kubb/plugin-ts@4.36.1
+  - @kubb/plugin-vue-query@4.36.1
+  - @kubb/plugin-zod@4.36.1
+
 ## 4.36.0
 
 ### Patch Changes

@@ -12,7 +12,7 @@ export const jsonGenerator = createGenerator<PluginOas>({
       name: camelCase(schema.name),
       extname: '.json',
       mode: 'split',
-      pluginKey: plugin.key,
+      pluginName: plugin.name,
     })
 
     return [

@@ -158,9 +158,9 @@ describe('mutationGenerator operation', async () => {
     const mockedPluginManager = createMockedPluginManager(props.name)
 
     if ('mockClientPlugin' in props && props.mockClientPlugin) {
-      mockedPluginManager.getPluginByKey = (pluginKey) => {
-        if (Array.isArray(pluginKey) && pluginKey.includes('plugin-client')) {
-          return { key: 'plugin-client' } as any
+      mockedPluginManager.getPluginByName = (pluginName) => {
+        if (pluginName === 'plugin-client') {
+          return { name: 'plugin-client' } as any
         }
 
         return undefined

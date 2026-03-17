@@ -14,7 +14,7 @@
     "**/CHANGELOG.md",
     "**/changelog.md",
     "README.md",
-    "examples/**/src/**",
+    "examples/**/src/gen*/**",
     "examples/**/kubb-gen/**",
     "tests/**/gen/**",
     "tests/e2e/schemas/**",

@@ -1,5 +1,47 @@
 # @kubb/core
 
+## 5.0.0-alpha.2
+
+### Major Changes
+
+- [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, adding duplicate plugins throws an error.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.2
+
+## 5.0.0-alpha.1
+
+### Major Changes
+
+- [`a4682ea`](https://github.com/kubb-labs/kubb/commit/a4682ea8896ef7d9ccae1b6e9abd6ed7bcaac073) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - The minimum required Node.js version is 22.
+
+### Patch Changes
+
+- Updated dependencies [[`a4682ea`](https://github.com/kubb-labs/kubb/commit/a4682ea8896ef7d9ccae1b6e9abd6ed7bcaac073)]:
+  - @kubb/ast@5.0.0-alpha.1
+
+## 5.0.0-alpha.0
+
+### Major Changes
+
+- [`2d474ef`](https://github.com/kubb-labs/kubb/commit/2d474ef68bad43e13ec34e762194048cd2a194d9) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - First v5 alpha version
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.0
+
+## 4.36.1
+
+### Patch Changes
+
+- [`a4ac8d2`](https://github.com/kubb-labs/kubb/commit/a4ac8d28d4b17f5275c3fbe3dedfff0ac3bc3357) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - expose URLPath helper
+
+- Updated dependencies []:
+  - @kubb/ast@4.36.1
+
 ## 4.36.0
 
 ### Minor Changes

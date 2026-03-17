@@ -172,7 +172,7 @@ export const createPets = {
 Create your generator:
 
 ```tsx
-import { URLPath } from '@kubb/core/utils'
+import { URLPath } from '@kubb/core'
 import type { PluginClient } from '@kubb/plugin-client'
 import { createGenerator } from '@kubb/plugin-oas/generators'
 
@@ -253,7 +253,7 @@ export const createPets = {
 Create your generator with `@kubb/react-fabric`:
 
 ```tsx
-import { URLPath } from '@kubb/core/utils'
+import { URLPath } from '@kubb/core'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
 import { File } from '@kubb/react-fabric'

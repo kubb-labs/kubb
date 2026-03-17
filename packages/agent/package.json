@@ -1,6 +1,6 @@
 {
   "name": "@kubb/agent",
-  "version": "4.36.0",
+  "version": "5.0.0-alpha.2",
   "description": "Agent server for Kubb, enabling HTTP-based access to code generation capabilities.",
   "keywords": [
     "agent",
@@ -77,7 +77,7 @@
     "vite": "^7.3.1"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "publishConfig": {
     "access": "public",

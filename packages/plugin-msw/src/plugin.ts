@@ -105,7 +105,7 @@ export const pluginMsw = definePlugin<PluginMsw>((options) => {
         root,
         output,
         meta: {
-          pluginKey: this.plugin.key,
+          pluginName: this.plugin.name,
         },
       })
 

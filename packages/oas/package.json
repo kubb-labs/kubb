@@ -1,6 +1,6 @@
 {
   "name": "@kubb/oas",
-  "version": "4.36.0",
+  "version": "5.0.0-alpha.2",
   "description": "OpenAPI Specification (OAS) utilities and helpers for Kubb, providing parsing, normalization, and manipulation of OpenAPI/Swagger schemas.",
   "keywords": [
     "openapi",
@@ -83,7 +83,7 @@
     "@kubb/fabric-core": "0.13.3"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "publishConfig": {
     "access": "public",
