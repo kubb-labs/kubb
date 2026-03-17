@@ -1,3 +1,4 @@
+import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -13,9 +14,9 @@ export default defineConfig([
       path: './src/gen',
       clean: true,
     },
-    // adapter: adapterOas({
-    //   validate: false,
-    // }),
+    adapter: adapterOas({
+      validate: false,
+    }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
