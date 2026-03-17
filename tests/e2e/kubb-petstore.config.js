@@ -32,13 +32,6 @@ export default defineConfig(() => {
         validate: false,
         docs: false,
       }),
-      pluginOas({
-        output: {
-          path: 'schemas2',
-        },
-        generators: [],
-        validate: false,
-      }),
       pluginTs({
         output: {
           path: 'models/ts',
@@ -67,23 +60,15 @@ export default defineConfig(() => {
       }),
       pluginClient({
         output: {
-          path: './clients/axios',
-        },
-        group: {
-          type: 'tag',
-          name({ group }) {
-            return `${group}Service`
-          },
-        },
-      }),
-      pluginClient({
-        output: {
           path: './clients/axiosClass',
           barrelType: false,
         },
         clientType: 'class',
         group: {
           type: 'tag',
+          name({ group }) {
+            return `${group}Service`
+          },
         },
         wrapper: {
           className: 'PetStoreClient',
