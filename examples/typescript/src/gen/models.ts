@@ -4,9 +4,9 @@
  */
 
 export enum ParamsStatusEnum {
-  placed = 'placed',
-  approved = 'approved',
-  delivered = 'delivered',
+  placed = "placed",
+  approved = "approved",
+  delivered = "delivered",
 }
 
 export enum OrderHttpStatusEnum {
@@ -19,11 +19,11 @@ export interface Order {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: number;
   /**
    * @type integer | undefined, int64
    */
-  petId?: number
+  petId?: number;
   /**
    * @type object | undefined
    */
@@ -32,69 +32,69 @@ export interface Order {
      * @description Order Status
      * @type string
      */
-    status: ParamsStatusEnum
+    status: ParamsStatusEnum;
     /**
      * @type string
      */
-    type: string
-  }
+    type: string;
+  };
   /**
    * @type integer | undefined, int32
    */
-  quantity?: number
+  quantity?: number;
   /**
    * @type string | undefined, date-time
    */
-  shipDate?: string
+  shipDate?: string;
   /**
    * @description Order Status
    */
-  status?: 'accepted' | string
+  status?: "accepted" | string;
   /**
    * @description HTTP Status
    * @type number | undefined
    */
-  http_status?: OrderHttpStatusEnum
+  http_status?: OrderHttpStatusEnum;
   /**
    * @type boolean | undefined
    */
-  complete?: boolean
+  complete?: boolean;
 }
 
 export interface Address {
   /**
    * @type string | undefined
    */
-  streetName?: string
+  streetName?: string;
   /**
    * @type string | undefined
    */
-  streetNumber?: string
+  streetNumber?: string;
   /**
    * @type string | undefined
    */
-  city?: string
+  city?: string;
   /**
    * @type string | undefined
    */
-  state?: string
+  state?: string;
   /**
    * @type string | undefined
    */
-  zip?: string
+  zip?: string;
 }
 
 export enum ParamsStatusEnum2 {
-  placed = 'placed',
-  approved = 'approved',
-  delivered = 'delivered',
+  placed = "placed",
+  approved = "approved",
+  delivered = "delivered",
 }
 
 export interface Customer {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: number;
   /**
    * @type object | undefined
    */
@@ -103,96 +103,96 @@ export interface Customer {
      * @description Order Status
      * @type string
      */
-    status: ParamsStatusEnum2
+    status: ParamsStatusEnum2;
     /**
      * @type string
      */
-    type: string
-  }
+    type: string;
+  };
   /**
    * @type string | undefined
    */
-  username?: string
+  username?: string;
   /**
    * @type array | undefined
    */
-  address?: Address[]
+  address?: Address[];
 }
 
 export type HappyCustomer = Customer & {
   /**
    * @type boolean | undefined
    */
-  isHappy?: true
-}
+  isHappy?: true;
+};
 
 export type UnhappyCustomer = Customer & {
   /**
    * @type string | undefined
    */
-  reasonToBeUnhappy?: string
+  reasonToBeUnhappy?: string;
   /**
    * @type boolean | undefined
    */
-  isHappy?: false
-}
+  isHappy?: false;
+};
 
 export interface Category {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: number;
   /**
    * @type string | undefined
    */
-  name?: string
+  name?: string;
 }
 
 export interface User {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: number;
   /**
    * @type string | undefined
    */
-  username?: string
+  username?: string;
   /**
    * @type string | undefined
    */
-  firstName?: string
+  firstName?: string;
   /**
    * @type string | undefined
    */
-  lastName?: string
+  lastName?: string;
   /**
    * @type string | undefined
    */
-  email?: string
+  email?: string;
   /**
    * @type string | undefined
    */
-  password?: string
+  password?: string;
   /**
    * @type string | undefined
    */
-  phone?: string
+  phone?: string;
   /**
    * @description User Status
    * @type integer | undefined, int32
    */
-  userStatus?: number
+  userStatus?: number;
 }
 
 export interface Tag {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: number;
   /**
    * @type string | undefined
    */
-  name?: string
+  name?: string;
 }
 
 export interface Dog {
@@ -200,11 +200,11 @@ export interface Dog {
    * @minLength 1
    * @type string | undefined
    */
-  readonly type?: string
+  readonly type?: string;
   /**
    * @type string | undefined
    */
-  bark?: string
+  bark?: string;
 }
 
 export interface Cat {
@@ -212,17 +212,17 @@ export interface Cat {
    * @minLength 1
    * @type string | undefined
    */
-  readonly type?: string
+  readonly type?: string;
   /**
    * @type string | undefined
    */
-  name?: string
+  name?: string;
 }
 
 export enum StatusEnum {
-  available = 'available',
-  pending = 'pending',
-  sold = 'sold',
+  available = "available",
+  pending = "pending",
+  sold = "sold",
 }
 
 export type Pet =
@@ -230,176 +230,176 @@ export type Pet =
       /**
        * @type integer | undefined, int64
        */
-      id?: number
+      id?: number;
       /**
        * @type string
        */
-      readonly type: 'dog'
+      readonly type: "dog";
       /**
        * @type string
        */
-      name: string
+      name: string;
       /**
        * @type object | undefined
        */
-      category?: Category
+      category?: Category;
       /**
        * @type array
        */
-      photoUrls: string[]
+      photoUrls: string[];
       /**
        * @type array | undefined
        */
-      readonly tags?: Tag[]
+      readonly tags?: Tag[];
       /**
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: StatusEnum
+      status?: StatusEnum;
     })
   | (Cat & {
       /**
        * @type integer | undefined, int64
        */
-      id?: number
+      id?: number;
       /**
        * @type string
        */
-      readonly type: 'cat'
+      readonly type: "cat";
       /**
        * @type string
        */
-      name: string
+      name: string;
       /**
        * @type object | undefined
        */
-      category?: Category
+      category?: Category;
       /**
        * @type array
        */
-      photoUrls: string[]
+      photoUrls: string[];
       /**
        * @type array | undefined
        */
-      readonly tags?: Tag[]
+      readonly tags?: Tag[];
       /**
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: StatusEnum
-    })
+      status?: StatusEnum;
+    });
 
 export type FullAddress = Address & {
   /**
    * @type string
    */
-  streetNumber: string
+  streetNumber: string;
   /**
    * @type string
    */
-  streetName: string
-}
+  streetName: string;
+};
 
 export enum AddPetRequestStatusEnum {
-  available = 'available',
-  pending = 'pending',
-  sold = 'sold',
-  'in store' = 'in store',
+  available = "available",
+  pending = "pending",
+  sold = "sold",
+  "in store" = "in store",
 }
 
 export interface AddPetRequest {
   /**
    * @type integer | undefined, int64
    */
-  id?: number
+  id?: number;
   /**
    * @type string
    */
-  name: string
+  name: string;
   /**
    * @type object | undefined
    */
-  category?: Category
+  category?: Category;
   /**
    * @type array
    */
-  photoUrls: string[]
+  photoUrls: string[];
   /**
    * @type array | undefined
    */
-  tags?: Tag[]
+  tags?: Tag[];
   /**
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: AddPetRequestStatusEnum
+  status?: AddPetRequestStatusEnum;
 }
 
 export interface ApiResponse {
   /**
    * @type integer | undefined, int32
    */
-  code?: number
+  code?: number;
   /**
    * @type string | undefined
    */
-  type?: string
+  type?: string;
   /**
    * @type string | undefined
    */
-  message?: string
+  message?: string;
 }
 
 export interface PetNotFound {
   /**
    * @type integer | undefined, int32
    */
-  code?: number
+  code?: number;
   /**
    * @type string | undefined
    */
-  message?: string
+  message?: string;
 }
 
-export type UserArray = User[]
+export type UserArray = User[];
 
 /**
  * @description Successful operation
  */
-export type UpdatePet200 = Pet
+export type UpdatePet200 = Pet;
 
 /**
  * @description Invalid ID supplied
  */
-export type UpdatePet400 = any
+export type UpdatePet400 = any;
 
 /**
  * @description Pet not found
  */
-export type UpdatePet404 = any
+export type UpdatePet404 = any;
 
 /**
  * @description Validation exception
  */
-export type UpdatePet405 = any
+export type UpdatePet405 = any;
 
 /**
  * @description Update an existent pet in the store
  */
-export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'type' | 'tags'>
+export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, "type" | "tags">;
 
-export type UpdatePetMutationResponse = UpdatePet200
+export type UpdatePetMutationResponse = UpdatePet200;
 
 export type UpdatePetMutation = {
-  Response: UpdatePet200
-  Request: UpdatePetMutationRequest
-  Errors: UpdatePet400 | UpdatePet404 | UpdatePet405
-}
+  Response: UpdatePet200;
+  Request: UpdatePetMutationRequest;
+  Errors: UpdatePet400 | UpdatePet404 | UpdatePet405;
+};
 
 /**
  * @description Successful operation
  */
-export type AddPet200 = Pet
+export type AddPet200 = Pet;
 
 /**
  * @description Pet not found
@@ -408,30 +408,30 @@ export interface AddPet405 {
   /**
    * @type integer | undefined, int32
    */
-  code?: number
+  code?: number;
   /**
    * @type string | undefined
    */
-  message?: string
+  message?: string;
 }
 
 /**
  * @description Create a new pet in the store
  */
-export type AddPetMutationRequest = AddPetRequest
+export type AddPetMutationRequest = AddPetRequest;
 
-export type AddPetMutationResponse = AddPet200
+export type AddPetMutationResponse = AddPet200;
 
 export type AddPetMutation = {
-  Response: AddPet200
-  Request: AddPetMutationRequest
-  Errors: AddPet405
-}
+  Response: AddPet200;
+  Request: AddPetMutationRequest;
+  Errors: AddPet405;
+};
 
 export enum FindPetsByStatusQueryParamsStatusEnum {
-  available = 'available',
-  pending = 'pending',
-  sold = 'sold',
+  available = "available",
+  pending = "pending",
+  sold = "sold",
 }
 
 export interface FindPetsByStatusQueryParams {
@@ -440,100 +440,100 @@ export interface FindPetsByStatusQueryParams {
    * @default "available"
    * @type string | undefined
    */
-  status?: FindPetsByStatusQueryParamsStatusEnum
+  status?: FindPetsByStatusQueryParamsStatusEnum;
 }
 
 /**
  * @description successful operation
  */
-export type FindPetsByStatus200 = Pet[]
+export type FindPetsByStatus200 = Pet[];
 
 /**
  * @description Invalid status value
  */
-export type FindPetsByStatus400 = any
+export type FindPetsByStatus400 = any;
 
-export type FindPetsByStatusQueryResponse = FindPetsByStatus200
+export type FindPetsByStatusQueryResponse = FindPetsByStatus200;
 
 export type FindPetsByStatusQuery = {
-  Response: FindPetsByStatus200
-  QueryParams: FindPetsByStatusQueryParams
-  Errors: FindPetsByStatus400
-}
+  Response: FindPetsByStatus200;
+  QueryParams: FindPetsByStatusQueryParams;
+  Errors: FindPetsByStatus400;
+};
 
 export interface FindPetsByTagsQueryParams {
   /**
    * @description Tags to filter by
    * @type array | undefined
    */
-  tags?: string[]
+  tags?: string[];
   /**
    * @description to request with required page number or pagination
    * @type string | undefined
    */
-  page?: string
+  page?: string;
   /**
    * @description to request with required page size
    * @type string | undefined
    */
-  pageSize?: string
+  pageSize?: string;
 }
 
 /**
  * @description successful operation
  */
-export type FindPetsByTags200 = Pet[]
+export type FindPetsByTags200 = Pet[];
 
 /**
  * @description Invalid tag value
  */
-export type FindPetsByTags400 = any
+export type FindPetsByTags400 = any;
 
-export type FindPetsByTagsQueryResponse = FindPetsByTags200
+export type FindPetsByTagsQueryResponse = FindPetsByTags200;
 
 export type FindPetsByTagsQuery = {
-  Response: FindPetsByTags200
-  QueryParams: FindPetsByTagsQueryParams
-  Errors: FindPetsByTags400
-}
+  Response: FindPetsByTags200;
+  QueryParams: FindPetsByTagsQueryParams;
+  Errors: FindPetsByTags400;
+};
 
 export interface GetPetByIdPathParams {
   /**
    * @description ID of pet to return
    * @type integer, int64
    */
-  petId: number
+  petId: number;
 }
 
 /**
  * @description successful operation
  */
-export type GetPetById200 = Pet
+export type GetPetById200 = Pet;
 
 /**
  * @description Invalid ID supplied
  */
-export type GetPetById400 = any
+export type GetPetById400 = any;
 
 /**
  * @description Pet not found
  */
-export type GetPetById404 = any
+export type GetPetById404 = any;
 
-export type GetPetByIdQueryResponse = GetPetById200
+export type GetPetByIdQueryResponse = GetPetById200;
 
 export type GetPetByIdQuery = {
-  Response: GetPetById200
-  PathParams: GetPetByIdPathParams
-  Errors: GetPetById400 | GetPetById404
-}
+  Response: GetPetById200;
+  PathParams: GetPetByIdPathParams;
+  Errors: GetPetById400 | GetPetById404;
+};
 
 export interface UpdatePetWithFormPathParams {
   /**
    * @description ID of pet that needs to be updated
    * @type integer, int64
    */
-  petId: number
+  petId: number;
 }
 
 export interface UpdatePetWithFormQueryParams {
@@ -541,74 +541,74 @@ export interface UpdatePetWithFormQueryParams {
    * @description Name of pet that needs to be updated
    * @type string | undefined
    */
-  name?: string
+  name?: string;
   /**
    * @description Status of pet that needs to be updated
    * @type string | undefined
    */
-  status?: string
+  status?: string;
 }
 
 /**
  * @description Invalid input
  */
-export type UpdatePetWithForm405 = any
+export type UpdatePetWithForm405 = any;
 
-export type UpdatePetWithFormMutationResponse = any
+export type UpdatePetWithFormMutationResponse = any;
 
 export type UpdatePetWithFormMutation = {
-  Response: any
-  PathParams: UpdatePetWithFormPathParams
-  QueryParams: UpdatePetWithFormQueryParams
-  Errors: UpdatePetWithForm405
-}
+  Response: any;
+  PathParams: UpdatePetWithFormPathParams;
+  QueryParams: UpdatePetWithFormQueryParams;
+  Errors: UpdatePetWithForm405;
+};
 
 export interface DeletePetPathParams {
   /**
    * @description Pet id to delete
    * @type integer, int64
    */
-  petId: number
+  petId: number;
 }
 
 export interface DeletePetHeaderParams {
   /**
    * @type string | undefined
    */
-  api_key?: string
+  api_key?: string;
 }
 
 export enum DeletePet200Enum {
-  TYPE1 = 'TYPE1',
-  TYPE2 = 'TYPE2',
-  TYPE3 = 'TYPE3',
+  TYPE1 = "TYPE1",
+  TYPE2 = "TYPE2",
+  TYPE3 = "TYPE3",
 }
 
 /**
  * @description items
  */
-export type DeletePet200 = DeletePet200Enum[]
+export type DeletePet200 = DeletePet200Enum[];
 
 /**
  * @description Invalid pet value
  */
-export type DeletePet400 = any
+export type DeletePet400 = any;
 
-export type DeletePetMutationResponse = DeletePet200
+export type DeletePetMutationResponse = DeletePet200;
 
 export type DeletePetMutation = {
-  Response: DeletePet200
-  PathParams: DeletePetPathParams
-  HeaderParams: DeletePetHeaderParams
-  Errors: DeletePet400
-}
+  Response: DeletePet200;
+  PathParams: DeletePetPathParams;
+  HeaderParams: DeletePetHeaderParams;
+  Errors: DeletePet400;
+};
 
 export interface UploadFilePathParams {
   /**
    * @description ID of pet to update
    * @type integer, int64
    */
-  petId: number
+  petId: number;
 }
 
 export interface UploadFileQueryParams {
@@ -616,301 +616,302 @@ export interface UploadFileQueryParams {
    * @description Additional Metadata
    * @type string | undefined
    */
-  additionalMetadata?: string
+  additionalMetadata?: string;
 }
 
 /**
  * @description successful operation
  */
-export type UploadFile200 = ApiResponse
+export type UploadFile200 = ApiResponse;
 
-export type UploadFileMutationRequest = Blob
+export type UploadFileMutationRequest = Blob;
 
-export type UploadFileMutationResponse = UploadFile200
+export type UploadFileMutationResponse = UploadFile200;
 
 export type UploadFileMutation = {
-  Response: UploadFile200
-  Request: UploadFileMutationRequest
-  PathParams: UploadFilePathParams
-  QueryParams: UploadFileQueryParams
-  Errors: any
-}
+  Response: UploadFile200;
+  Request: UploadFileMutationRequest;
+  PathParams: UploadFilePathParams;
+  QueryParams: UploadFileQueryParams;
+  Errors: any;
+};
 
 /**
  * @description successful operation
  */
 export interface GetInventory200 {
-  [key: string]: number
+  [key: string]: number;
 }
 
-export type GetInventoryQueryResponse = GetInventory200
+export type GetInventoryQueryResponse = GetInventory200;
 
 export type GetInventoryQuery = {
-  Response: GetInventory200
-  Errors: any
-}
+  Response: GetInventory200;
+  Errors: any;
+};
 
 /**
  * @description successful operation
  */
-export type PlaceOrder200 = Order
+export type PlaceOrder200 = Order;
 
 /**
  * @description Invalid input
  */
-export type PlaceOrder405 = any
+export type PlaceOrder405 = any;
 
 /**
  * @pattern ^[a-zA-Z0-9]{1,13}$
  */
-export type PlaceOrderMutationRequest = Order
+export type PlaceOrderMutationRequest = Order;
 
-export type PlaceOrderMutationResponse = PlaceOrder200
+export type PlaceOrderMutationResponse = PlaceOrder200;
 
 export type PlaceOrderMutation = {
-  Response: PlaceOrder200
-  Request: PlaceOrderMutationRequest
-  Errors: PlaceOrder405
-}
+  Response: PlaceOrder200;
+  Request: PlaceOrderMutationRequest;
+  Errors: PlaceOrder405;
+};
 
 /**
  * @description successful operation
  */
-export type PlaceOrderPatch200 = Order
+export type PlaceOrderPatch200 = Order;
 
 /**
  * @description Invalid input
  */
-export type PlaceOrderPatch405 = any
+export type PlaceOrderPatch405 = any;
 
-export type PlaceOrderPatchMutationRequest = Order
+export type PlaceOrderPatchMutationRequest = Order;
 
-export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
+export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200;
 
 export type PlaceOrderPatchMutation = {
-  Response: PlaceOrderPatch200
-  Request: PlaceOrderPatchMutationRequest
-  Errors: PlaceOrderPatch405
-}
+  Response: PlaceOrderPatch200;
+  Request: PlaceOrderPatchMutationRequest;
+  Errors: PlaceOrderPatch405;
+};
 
 export interface GetOrderByIdPathParams {
   /**
    * @description ID of order that needs to be fetched
    * @type integer, int64
    */
-  orderId: number
+  orderId: number;
 }
 
 /**
  * @description successful operation
  */
-export type GetOrderById200 = Order
+export type GetOrderById200 = Order;
 
 /**
  * @description Invalid ID supplied
  */
-export type GetOrderById400 = any
+export type GetOrderById400 = any;
 
 /**
  * @description Order not found
  */
-export type GetOrderById404 = any
+export type GetOrderById404 = any;
 
-export type GetOrderByIdQueryResponse = GetOrderById200
+export type GetOrderByIdQueryResponse = GetOrderById200;
 
 export type GetOrderByIdQuery = {
-  Response: GetOrderById200
-  PathParams: GetOrderByIdPathParams
-  Errors: GetOrderById400 | GetOrderById404
-}
+  Response: GetOrderById200;
+  PathParams: GetOrderByIdPathParams;
+  Errors: GetOrderById400 | GetOrderById404;
+};
 
 export interface DeleteOrderPathParams {
   /**
    * @description ID of the order that needs to be deleted
    * @type integer, int64
    */
-  orderId: number
+  orderId: number;
 }
 
 /**
  * @description Invalid ID supplied
  */
-export type DeleteOrder400 = any
+export type DeleteOrder400 = any;
 
 /**
  * @description Order not found
  */
-export type DeleteOrder404 = any
+export type DeleteOrder404 = any;
 
-export type DeleteOrderMutationResponse = any
+export type DeleteOrderMutationResponse = any;
 
 export type DeleteOrderMutation = {
-  Response: any
-  PathParams: DeleteOrderPathParams
-  Errors: DeleteOrder400 | DeleteOrder404
-}
+  Response: any;
+  PathParams: DeleteOrderPathParams;
+  Errors: DeleteOrder400 | DeleteOrder404;
+};
 
 /**
  * @description successful operation
  */
-export type CreateUserError = User
+export type CreateUserError = User;
 
 /**
  * @description Created user object
  */
-export type CreateUserMutationRequest = User
+export type CreateUserMutationRequest = User;
 
-export type CreateUserMutationResponse = any
+export type CreateUserMutationResponse = any;
 
 export type CreateUserMutation = {
-  Response: any
-  Request: CreateUserMutationRequest
-  Errors: any
-}
+  Response: any;
+  Request: CreateUserMutationRequest;
+  Errors: any;
+};
 
 /**
  * @description Successful operation
  */
-export type CreateUsersWithListInput200 = User
+export type CreateUsersWithListInput200 = User;
 
 /**
  * @description successful operation
  */
-export type CreateUsersWithListInputError = any
+export type CreateUsersWithListInputError = any;
 
-export type CreateUsersWithListInputMutationRequest = User[]
+export type CreateUsersWithListInputMutationRequest = User[];
 
-export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200
+export type CreateUsersWithListInputMutationResponse =
+  CreateUsersWithListInput200;
 
 export type CreateUsersWithListInputMutation = {
-  Response: CreateUsersWithListInput200
-  Request: CreateUsersWithListInputMutationRequest
-  Errors: any
-}
+  Response: CreateUsersWithListInput200;
+  Request: CreateUsersWithListInputMutationRequest;
+  Errors: any;
+};
 
 export interface LoginUserQueryParams {
   /**
    * @description The user name for login
    * @type string | undefined
    */
-  username?: string
+  username?: string;
   /**
    * @description The password for login in clear text
    * @type string | undefined
    */
-  password?: string
+  password?: string;
 }
 
 /**
  * @description successful operation
  */
-export type LoginUser200 = string
+export type LoginUser200 = string;
 
 /**
  * @description Invalid username/password supplied
  */
-export type LoginUser400 = any
+export type LoginUser400 = any;
 
-export type LoginUserQueryResponse = LoginUser200
+export type LoginUserQueryResponse = LoginUser200;
 
 export type LoginUserQuery = {
-  Response: LoginUser200
-  QueryParams: LoginUserQueryParams
-  Errors: LoginUser400
-}
+  Response: LoginUser200;
+  QueryParams: LoginUserQueryParams;
+  Errors: LoginUser400;
+};
 
 /**
  * @description successful operation
  */
-export type LogoutUserError = any
+export type LogoutUserError = any;
 
-export type LogoutUserQueryResponse = any
+export type LogoutUserQueryResponse = any;
 
 export type LogoutUserQuery = {
-  Response: any
-  Errors: any
-}
+  Response: any;
+  Errors: any;
+};
 
 export interface GetUserByNamePathParams {
   /**
    * @description The name that needs to be fetched. Use user1 for testing.
    * @type string
    */
-  username: string
+  username: string;
 }
 
 /**
  * @description successful operation
  */
-export type GetUserByName200 = User
+export type GetUserByName200 = User;
 
 /**
  * @description Invalid username supplied
  */
-export type GetUserByName400 = any
+export type GetUserByName400 = any;
 
 /**
  * @description User not found
  */
-export type GetUserByName404 = any
+export type GetUserByName404 = any;
 
-export type GetUserByNameQueryResponse = GetUserByName200
+export type GetUserByNameQueryResponse = GetUserByName200;
 
 export type GetUserByNameQuery = {
-  Response: GetUserByName200
-  PathParams: GetUserByNamePathParams
-  Errors: GetUserByName400 | GetUserByName404
-}
+  Response: GetUserByName200;
+  PathParams: GetUserByNamePathParams;
+  Errors: GetUserByName400 | GetUserByName404;
+};
 
 export interface UpdateUserPathParams {
   /**
    * @description name that need to be deleted
    * @type string
    */
-  username: string
+  username: string;
 }
 
 /**
  * @description successful operation
  */
-export type UpdateUserError = any
+export type UpdateUserError = any;
 
 /**
  * @description Update an existent user in the store
  */
-export type UpdateUserMutationRequest = User
+export type UpdateUserMutationRequest = User;
 
-export type UpdateUserMutationResponse = any
+export type UpdateUserMutationResponse = any;
 
 export type UpdateUserMutation = {
-  Response: any
-  Request: UpdateUserMutationRequest
-  PathParams: UpdateUserPathParams
-  Errors: any
-}
+  Response: any;
+  Request: UpdateUserMutationRequest;
+  PathParams: UpdateUserPathParams;
+  Errors: any;
+};
 
 export interface DeleteUserPathParams {
   /**
    * @description The name that needs to be deleted
    * @type string
    */
-  username: string | null
+  username: string | null;
 }
 
 /**
  * @description Invalid username supplied
  */
-export type DeleteUser400 = any
+export type DeleteUser400 = any;
 
 /**
  * @description User not found
  */
-export type DeleteUser404 = any
+export type DeleteUser404 = any;
 
-export type DeleteUserMutationResponse = any
+export type DeleteUserMutationResponse = any;
 
 export type DeleteUserMutation = {
-  Response: any
-  PathParams: DeleteUserPathParams
-  Errors: DeleteUser400 | DeleteUser404
-}
+  Response: any;
+  PathParams: DeleteUserPathParams;
+  Errors: DeleteUser400 | DeleteUser404;
+};
