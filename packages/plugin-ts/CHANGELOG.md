@@ -1,5 +1,21 @@
 # @kubb/plugin-ts
 
+## 5.0.0-alpha.3
+
+### Minor Changes
+
+- [#2752](https://github.com/kubb-labs/kubb/pull/2752) [`827b444`](https://github.com/kubb-labs/kubb/commit/827b444e7c7c62d36ba9eaed7303ed0d18a7fa45) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - - Improved discriminator handling — named and inline enum variants are now generated correctly for discriminator properties.
+  - Better support for string-based types (`uuid`, `email`, `url`, `datetime`, `date`, `time`) so they are consistently emitted as plain strings when expected.
+  - Operation paths are now available in Express-style format (e.g. `/pets/:petId`) making it easier to use them directly in route definitions.
+
+### Patch Changes
+
+- Updated dependencies [[`827b444`](https://github.com/kubb-labs/kubb/commit/827b444e7c7c62d36ba9eaed7303ed0d18a7fa45)]:
+  - @kubb/ast@5.0.0-alpha.3
+  - @kubb/core@5.0.0-alpha.3
+  - @kubb/oas@5.0.0-alpha.3
+  - @kubb/plugin-oas@5.0.0-alpha.3
+
 ## 5.0.0-alpha.2
 
 ### Major Changes
