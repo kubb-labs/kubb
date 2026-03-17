@@ -3,5 +3,5 @@ export { createOperation, createParameter, createProperty, createResponse, creat
 export { isOperationNode, isParameterNode, isPropertyNode, isResponseNode, isRootNode, isSchemaNode, narrowSchema } from './guards.ts'
 export { definePrinter } from './printer.ts'
 export { buildRefMap, refMapToObject, resolveRef } from './refs.ts'
-export { isPlainStringType, resolveOptions } from './utils.ts'
+export { isPlainStringType } from './utils.ts'
 export { collect, transform, walk } from './visitor.ts'
