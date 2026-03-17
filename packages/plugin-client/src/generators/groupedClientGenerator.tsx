@@ -10,7 +10,7 @@ import type { PluginClient } from '../types'
 export const groupedClientGenerator = createReactGenerator<PluginClient>({
   name: 'groupedClient',
   Operations({ operations, generator, plugin }) {
-    const { options, key: pluginKey } = plugin
+    const { options, name: pluginName } = plugin
     const pluginManager = usePluginManager()
 
     const oas = useOas()
@@ -29,7 +29,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
           const file = pluginManager.getFile({
             name,
             extname: '.ts',
-            pluginKey,
+            pluginName,
             options: { group },
           })
 

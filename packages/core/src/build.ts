@@ -246,7 +246,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
         await events.emit('debug', {
           date: timestamp,
-          logs: ['Installing plugin...', `  • Plugin Key: [${plugin.key.join(', ')}]`],
+          logs: ['Installing plugin...', `  • Plugin Name: ${plugin.name}`],
         })
 
         await installer(context)
@@ -275,7 +275,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           date: errorTimestamp,
           logs: [
             '✗ Plugin installation failed',
-            `  • Plugin Key: ${JSON.stringify(plugin.key)}`,
+            `  • Plugin Name: ${plugin.name}`,
             `  • Error: ${error.constructor.name} - ${error.message}`,
             '  • Stack Trace:',
             error.stack || 'No stack trace available',
@@ -361,9 +361,9 @@ type BuildBarrelExportsParams = {
 }
 
 function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, pluginManager }: BuildBarrelExportsParams): KubbFile.Export[] {
-  const pluginKeyMap = new Map<string, Plugin>()
+  const pluginNameMap = new Map<string, Plugin>()
   for (const plugin of pluginManager.plugins) {
-    pluginKeyMap.set(JSON.stringify(plugin.key), plugin)
+    pluginNameMap.set(plugin.name, plugin)
   }
 
   return barrelFiles.flatMap((file) => {
@@ -375,7 +375,7 @@ function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, plu
       }
 
       const meta = file.meta as FileMetaBase | undefined
-      const plugin = meta?.pluginKey ? pluginKeyMap.get(JSON.stringify(meta.pluginKey)) : undefined
+      const plugin = meta?.pluginName ? pluginNameMap.get(meta.pluginName) : undefined
       const pluginOptions = plugin?.options as { output?: Output<unknown> } | undefined
 
       if (!pluginOptions || pluginOptions.output?.barrelType === false) {

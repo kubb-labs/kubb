@@ -6,7 +6,39 @@ description: Migrate to the latest Kubb version. Breaking changes, upgrade steps
 outline: deep
 ---
 
+# Migrating to Kubb v5
+
+## Breaking Changes
+
+### Node.js 22 required
+
+Kubb v5 requires **Node.js 22** or later. Please upgrade your Node.js version before updating.
+
+### Each plugin can only be used once
+
+You can no longer add the same plugin twice in your config. If you were using multiple instances of the same plugin, consolidate them into a single instance.
+
+```typescript
+// ❌ No longer allowed
+export default defineConfig({
+  plugins: [
+    pluginTs({}),
+    pluginTs({}),
+  ],
+})
+
+// ✅ Use a single instance
+export default defineConfig({
+  plugins: [
+    pluginTs({}),
+  ],
+})
+```
+
+---
+
 # Migrating to Kubb v3
+
 
 
 ## New Features

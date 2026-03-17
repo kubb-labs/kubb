@@ -28,6 +28,7 @@ export default defineConfig([
     plugins: [
       pluginOas({
         validate: true,
+        generators: [],
       }),
       pluginRedoc({
         output: {
@@ -35,7 +36,7 @@ export default defineConfig([
         },
       }),
       pluginTs({
-        output: { path: 'models.ts' },
+        output: { path: 'models.ts', clean: true },
       }),
       pluginReactQuery({
         output: {

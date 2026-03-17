@@ -28,10 +28,10 @@ const createMockedPluginManager = () =>
       on() {},
       logLevel: 3,
     },
-    getPluginByKey: () => undefined,
-    getFile: ({ name, extname, pluginKey }: { name: string; extname: string; pluginKey: Plugin['key'] | undefined }) => {
+    getPluginByName: () => undefined,
+    getFile: ({ name, extname, pluginName }: { name: string; extname: string; pluginName: string | undefined }) => {
       const baseName = `${name}${extname}`
-      return { path: baseName, baseName, meta: { pluginKey } }
+      return { path: baseName, baseName, meta: { pluginName } }
     },
   }) as unknown as PluginManager
 

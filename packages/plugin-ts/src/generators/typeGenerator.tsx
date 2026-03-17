@@ -23,7 +23,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
       nodes: schemas.responses.map((res) => {
         const identifier = pluginManager.resolveName({
           name: res.name,
-          pluginKey: [pluginTsName],
+          pluginName: pluginTsName,
           type: 'function',
         })
 
@@ -35,7 +35,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
   if (schemas.request) {
     const identifier = pluginManager.resolveName({
       name: schemas.request.name,
-      pluginKey: [pluginTsName],
+      pluginName: pluginTsName,
       type: 'function',
     })
     properties['request'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
@@ -44,7 +44,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
   if (schemas.pathParams) {
     const identifier = pluginManager.resolveName({
       name: schemas.pathParams.name,
-      pluginKey: [pluginTsName],
+      pluginName: pluginTsName,
       type: 'function',
     })
     properties['pathParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
@@ -53,7 +53,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
   if (schemas.queryParams) {
     const identifier = pluginManager.resolveName({
       name: schemas.queryParams.name,
-      pluginKey: [pluginTsName],
+      pluginName: pluginTsName,
       type: 'function',
     })
     properties['queryParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
@@ -62,7 +62,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
   if (schemas.headerParams) {
     const identifier = pluginManager.resolveName({
       name: schemas.headerParams.name,
-      pluginKey: [pluginTsName],
+      pluginName: pluginTsName,
       type: 'function',
     })
     properties['headerParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
@@ -73,7 +73,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
       nodes: schemas.errors.map((error) => {
         const identifier = pluginManager.resolveName({
           name: error.name,
-          pluginKey: [pluginTsName],
+          pluginName: pluginTsName,
           type: 'function',
         })
 
@@ -118,7 +118,7 @@ function printRequestSchema({
 }): string {
   const name = pluginManager.resolveName({
     name: `${baseName} Request`,
-    pluginKey: [pluginTsName],
+    pluginName: pluginTsName,
     type: 'type',
   })
 
@@ -130,7 +130,7 @@ function printRequestSchema({
   if (schemas.request) {
     const identifier = pluginManager.resolveName({
       name: schemas.request.name,
-      pluginKey: [pluginTsName],
+      pluginName: pluginTsName,
       type: 'type',
     })
     dataRequestProperties.push(
@@ -154,7 +154,7 @@ function printRequestSchema({
   if (schemas.pathParams) {
     const identifier = pluginManager.resolveName({
       name: schemas.pathParams.name,
-      pluginKey: [pluginTsName],
+      pluginName: pluginTsName,
       type: 'type',
     })
     dataRequestProperties.push(
@@ -177,7 +177,7 @@ function printRequestSchema({
   if (schemas.queryParams) {
     const identifier = pluginManager.resolveName({
       name: schemas.queryParams.name,
-      pluginKey: [pluginTsName],
+      pluginName: pluginTsName,
       type: 'type',
     })
     dataRequestProperties.push(
@@ -201,7 +201,7 @@ function printRequestSchema({
   if (schemas.headerParams) {
     const identifier = pluginManager.resolveName({
       name: schemas.headerParams.name,
-      pluginKey: [pluginTsName],
+      pluginName: pluginTsName,
       type: 'type',
     })
     dataRequestProperties.push(
@@ -255,7 +255,7 @@ function printResponseSchema({
 
   const name = pluginManager.resolveName({
     name: `${baseName} ResponseData`,
-    pluginKey: [pluginTsName],
+    pluginName: pluginTsName,
     type: 'type',
   })
 
@@ -264,7 +264,7 @@ function printResponseSchema({
     const responsesProperties: ts.PropertySignature[] = schemas.responses.map((res) => {
       const identifier = pluginManager.resolveName({
         name: res.name,
-        pluginKey: [pluginTsName],
+        pluginName: pluginTsName,
         type: 'type',
       })
 
@@ -325,7 +325,7 @@ export const typeGenerator = createReactGenerator<PluginTs, '1'>({
     const { getSchemas, getFile, getName, getGroup } = useOperationManager(generator)
     const schemaManager = useSchemaManager()
 
-    const name = getName(operation, { type: 'type', pluginKey: [pluginTsName] })
+    const name = getName(operation, { type: 'type', pluginName: pluginTsName })
 
     const file = getFile(operation)
     const schemas = getSchemas(operation)

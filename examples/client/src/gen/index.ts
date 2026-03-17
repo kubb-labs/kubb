@@ -16,7 +16,6 @@ export { loginUser } from './clients/axios/userService/loginUser.js'
 export { logoutUser } from './clients/axios/userService/logoutUser.js'
 export { updateUser } from './clients/axios/userService/updateUser.js'
 export { userService } from './clients/axios/userService/userService.js'
-export { uploadFileXML } from './clients/axios/xml/uploadFile.js'
 export type {
   AddPetRequest,
   AddPetRequestStatusEnumKey,
@@ -181,18 +180,3 @@ export type {
   UpdateUserMutationResponse,
   UpdateUserPathParams,
 } from './models/ts/userController/UpdateUser.js'
-export {
-  deleteOrderController,
-  getInventoryController,
-  getOrderByIdController,
-  placeOrderController,
-  placeOrderPatchController,
-  storeController,
-} from './tag.js'
-export {
-  deleteOrder,
-  getInventory,
-  getOrderById,
-  placeOrder,
-  placeOrderPatch,
-} from './tagObject.js'

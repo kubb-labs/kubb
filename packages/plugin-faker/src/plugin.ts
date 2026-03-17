@@ -139,7 +139,7 @@ export const pluginFaker = definePlugin<PluginFaker>((options) => {
         root,
         output,
         meta: {
-          pluginKey: this.plugin.key,
+          pluginName: this.plugin.name,
         },
       })
 
