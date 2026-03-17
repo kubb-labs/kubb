@@ -1,5 +1,6 @@
 import type { OperationNode, SchemaNode } from '@kubb/ast/types'
-import type { Config, Plugin, PluginFactoryOptions } from '@kubb/core'
+import type { Adapter, Config, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import { App, createReactFabric, type Fabric } from '@kubb/react-fabric'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
@@ -22,6 +23,9 @@ type BuildOperationsV1Options<TOptions extends PluginFactoryOptions> = BuildOper
 type BuildOperationsV2Options<TOptions extends PluginFactoryOptions> = BuildOperationsBaseOptions<TOptions> & {
   version: '2'
   Component: ReactGenerator<any, '2'>['Operations']
+  adapter: Adapter
+  pluginManager: PluginManager
+  mode: KubbFile.Mode
 }
 
 function isBuildOperationsV1Options<TOptions extends PluginFactoryOptions>(
@@ -60,10 +64,11 @@ export async function buildOperations<TOptions extends PluginFactoryOptions>(
       </App>,
     )
   } else {
-    const { Component } = options
+    const { Component, adapter } = options
+
     await fabricChild.render(
       <App meta={{ plugin }}>
-        <Component config={config} nodes={operationsOrNodes as Array<OperationNode>} plugin={plugin} />
+        <Component config={config} adapter={adapter} nodes={operationsOrNodes as Array<OperationNode>} options={plugin.options} />
       </App>,
     )
   }
@@ -87,6 +92,9 @@ type BuildOperationV1Options<TOptions extends PluginFactoryOptions> = BuildOpera
 type BuildOperationV2Options<TOptions extends PluginFactoryOptions> = BuildOperationBaseOptions<TOptions> & {
   version: '2'
   Component: ReactGenerator<any, '2'>['Operation']
+  adapter: Adapter
+  pluginManager: PluginManager
+  mode: KubbFile.Mode
 }
 
 function isBuildOperationV1Options<TOptions extends PluginFactoryOptions>(
@@ -119,10 +127,11 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
       </App>,
     )
   } else {
-    const { Component } = options
+    const { Component, adapter, pluginManager, mode } = options
+
     await fabricChild.render(
-      <App meta={{ plugin }}>
-        <Component config={config} node={operationOrNode as OperationNode} plugin={plugin} />
+      <App meta={{ plugin, pluginManager, mode }}>
+        <Component config={config} adapter={adapter} node={operationOrNode as OperationNode} options={plugin.options} />
       </App>,
     )
   }
@@ -146,6 +155,9 @@ type BuildSchemaV1Options<TOptions extends PluginFactoryOptions> = BuildSchemaBa
 type BuildSchemaV2Options<TOptions extends PluginFactoryOptions> = BuildSchemaBaseOptions<TOptions> & {
   version: '2'
   Component: ReactGenerator<any, '2'>['Schema']
+  adapter: Adapter
+  pluginManager: PluginManager
+  mode: KubbFile.Mode
 }
 
 function isBuildSchemaV1Options<TOptions extends PluginFactoryOptions>(
@@ -181,10 +193,11 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
       </App>,
     )
   } else {
-    const { Component } = options
+    const { Component, adapter, pluginManager, mode } = options
+
     await fabricChild.render(
-      <App meta={{ plugin }}>
-        <Component config={config} node={schema as SchemaNode} plugin={plugin} />
+      <App meta={{ plugin, pluginManager, mode }}>
+        <Component config={config} adapter={adapter} node={schema as SchemaNode} options={plugin.options} />
       </App>,
     )
   }

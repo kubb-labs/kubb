@@ -13,7 +13,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "generate": "kubb --config kubb.config.js",
+    "generate": "KUBB_DISABLE_TELEMETRY=1 kubb --config kubb.config.js",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },

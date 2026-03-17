@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { RootNode } from '@kubb/ast/types'
+import type { RootNode, SchemaNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Fabric } from '@kubb/react-fabric'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
@@ -98,6 +98,14 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   options: TOptions['resolvedOptions']
   /** Convert the raw source into a universal `RootNode`. */
   parse: (source: AdapterSource) => PossiblePromise<RootNode>
+  /**
+   * Extracts `KubbFile.Import` entries needed by a `SchemaNode` tree.
+   * Populated after the first `parse()` call. Returns an empty array before that.
+   *
+   * The `resolve` callback receives the collision-corrected schema name and must
+   * return the `{ name, path }` pair for the import, or `undefined` to skip it.
+   */
+  getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<KubbFile.Import>
 }
 
 export type BarrelType = 'all' | 'named' | 'propagate'
@@ -408,18 +416,31 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * Current plugin
    */
   plugin: Plugin<TOptions>
-  /**
-   * Returns the universal `@kubb/ast` `RootNode` produced by the configured adapter.
-   * Returns `undefined` when no adapter was set (legacy OAS-only usage).
-   */
-  rootNode: RootNode | undefined
+
   /**
    * Opens the Kubb Studio URL for the current `rootNode` in the default browser.
    * Falls back to printing the URL if the browser cannot be launched.
    * No-ops silently when no adapter has set a `rootNode`.
    */
   openInStudio: (options?: DevtoolsOptions) => Promise<void>
-} & Kubb.PluginContext
+} & (
+  | {
+      /**
+       * Returns the universal `@kubb/ast` `RootNode` produced by the configured adapter.
+       * Returns `undefined` when no adapter was set (legacy OAS-only usage).
+       */
+      rootNode: RootNode
+      /**
+       * Return the adapter from `@kubb/ast`
+       */
+      adapter: Adapter
+    }
+  | {
+      rootNode?: never
+      adapter?: never
+    }
+) &
+  Kubb.PluginContext
 /**
  * Specify the export location for the files and define the behavior of the output
  */

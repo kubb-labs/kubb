@@ -385,6 +385,7 @@ export const typeGenerator = createReactGenerator<PluginTs, '1'>({
     const responseName = schemaManager.getName(schemas.response.name, {
       type: 'type',
     })
+
     const combinedSchemaName = operation.method === 'get' ? `${name}Query` : `${name}Mutation`
 
     return (

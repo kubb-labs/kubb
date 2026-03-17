@@ -15,6 +15,8 @@ export const modifiers = {
 
 export const syntaxKind = {
   union: SyntaxKind.UnionType as 192,
+  literalType: SyntaxKind.LiteralType,
+  stringLiteral: SyntaxKind.StringLiteral,
 } as const
 
 export function getUnknownType(unknownType: 'any' | 'unknown' | 'void' | undefined) {

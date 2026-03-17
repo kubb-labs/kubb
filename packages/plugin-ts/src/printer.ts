@@ -1,4 +1,5 @@
 import { jsStringEscape, stringify } from '@internals/utils'
+import { isPlainStringType } from '@kubb/ast'
 import type { ArraySchemaNode, SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
@@ -178,7 +179,29 @@ export const printerTs = definePrinter<TsPrinter>((options) => ({
       return factory.createTypeReferenceNode(typeName, undefined)
     },
     union(node) {
-      return factory.createUnionDeclaration({ withParentheses: true, nodes: buildMemberNodes(node.members, this.print) }) ?? undefined
+      const members = node.members ?? []
+
+      const hasStringLiteral = members.some((m) => m.type === 'enum' && m.enumType === 'string')
+      const hasPlainString = members.some((m) => isPlainStringType(m))
+
+      if (hasStringLiteral && hasPlainString) {
+        const nodes = members
+          .map((m) => {
+            if (isPlainStringType(m)) {
+              return factory.createIntersectionDeclaration({
+                nodes: [factory.keywordTypeNodes.string, factory.createTypeLiteralNode([])],
+                withParentheses: true,
+              }) as ts.TypeNode
+            }
+
+            return this.print(m)
+          })
+          .filter(Boolean) as Array<ts.TypeNode>
+
+        return factory.createUnionDeclaration({ withParentheses: true, nodes }) ?? undefined
+      }
+
+      return factory.createUnionDeclaration({ withParentheses: true, nodes: buildMemberNodes(members, this.print) }) ?? undefined
     },
     intersection(node) {
       return factory.createIntersectionDeclaration({ withParentheses: true, nodes: buildMemberNodes(node.members, this.print) }) ?? undefined

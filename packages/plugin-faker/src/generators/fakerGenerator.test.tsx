@@ -155,7 +155,7 @@ describe('fakerGenerator schema', async () => {
     }
     const plugin = { options } as Plugin<PluginFaker>
 
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
@@ -189,7 +189,7 @@ describe('fakerGenerator schema', async () => {
       },
     )
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })
 
@@ -292,7 +292,7 @@ describe('fakerGenerator operation', async () => {
     }
     const plugin = { options } as Plugin<PluginFaker>
 
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -315,6 +315,6 @@ describe('fakerGenerator operation', async () => {
       plugin,
     })
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })

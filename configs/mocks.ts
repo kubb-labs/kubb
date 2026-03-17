@@ -7,7 +7,7 @@ import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
 import { expect } from 'vitest'
 import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
-import type { PluginManager } from '../packages/core/src'
+import type { Plugin, PluginManager, ResolveNameParams, ResolvePathParams } from '../packages/core/src'
 
 const formatOptions: Options = {
   tabWidth: 2,
@@ -29,11 +29,11 @@ export async function format(source?: string): Promise<string> {
   }
 }
 
-export const createMockedPluginManager = (name?: string) =>
+export const createMockedPluginManager = (options: { name?: string; plugin?: Plugin<any>; config?: PluginManager['config'] } = {}) =>
   ({
-    resolveName: (result) => {
+    resolveName: (result: ResolveNameParams) => {
       if (result.type === 'file') {
-        return camelCase(name || result.name)
+        return camelCase(options?.name || result.name)
       }
 
       if (result.type === 'type') {
@@ -46,17 +46,17 @@ export const createMockedPluginManager = (name?: string) =>
 
       return camelCase(result.name)
     },
-    config: {
+    config: options?.config ?? {
       root: '.',
       output: {
         path: './path',
       },
     },
-    resolvePath: ({ baseName }) => baseName,
+    resolvePath: ({ baseName }: ResolvePathParams) => baseName,
     getPluginByName: (_pluginName: string) => {
-      return undefined
+      return options?.plugin
     },
-    getFile: ({ name, extname, pluginName }) => {
+    getFile: ({ name, extname, pluginName }: { name: string; extname: KubbFile.Extname; pluginName: string }) => {
       const baseName = `${name}${extname}`
 
       return {
@@ -65,9 +65,21 @@ export const createMockedPluginManager = (name?: string) =>
         meta: { pluginName },
       }
     },
-  }) as PluginManager
+    getPlugin(pluginName: Plugin['name']): Plugin | undefined {
+      if (options?.plugin && options.plugin.name === pluginName) {
+        return options.plugin
+      }
+      return (
+        options.plugin ||
+        ({
+          name: pluginName,
+          resolvers: [],
+        } as unknown as Plugin)
+      )
+    },
+  }) as unknown as PluginManager
 
-export const mockedPluginManager = createMockedPluginManager('')
+export const mockedPluginManager = createMockedPluginManager()
 
 export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.File> | undefined, pre?: string) {
   if (!files?.length) return
@@ -92,7 +104,7 @@ export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.F
 
     processed.set(file.path, code)
 
-    const snapshotPath = path.join('__snapshots__', ...(pre ? [pre] : []), file.path)
+    const snapshotPath = path.join('__snapshots__', ...(pre ? [camelCase(pre)] : []), file.baseName)
     await expect(code).toMatchFileSnapshot(snapshotPath)
   }
 

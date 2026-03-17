@@ -332,7 +332,7 @@ describe('zodGenerator schema', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
@@ -366,7 +366,7 @@ describe('zodGenerator schema', async () => {
       },
     )
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 
   test('typed schemas add ToZod once as a type-only import', async () => {
@@ -395,7 +395,7 @@ describe('zodGenerator schema', async () => {
       mini: false,
     }
     const plugin = { options } as Plugin<PluginZod>
-    const mockedPluginManager = createMockedPluginManager('Pets')
+    const mockedPluginManager = createMockedPluginManager({ name: 'Pets' })
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
@@ -545,7 +545,7 @@ describe('zodGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginZod>
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -567,7 +567,7 @@ describe('zodGenerator operation', async () => {
       plugin,
     })
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 
   test('typed operations add ToZod once per generated file', async () => {
@@ -596,7 +596,7 @@ describe('zodGenerator operation', async () => {
       mini: false,
     }
     const plugin = { options } as Plugin<PluginZod>
-    const mockedPluginManager = createMockedPluginManager('createPets')
+    const mockedPluginManager = createMockedPluginManager({ name: 'createPets' })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -679,7 +679,7 @@ describe('zodGenerator operation', async () => {
         ...props.options,
       }
       const plugin = { options } as Plugin<PluginZod>
-      const mockedPluginManager = createMockedPluginManager(props.name)
+      const mockedPluginManager = createMockedPluginManager({ name: props.name })
       const generator = new OperationGenerator(options, {
         fabric,
         oas,
@@ -709,7 +709,7 @@ describe('zodGenerator operation', async () => {
         return file
       })
 
-      await matchFiles(files)
+      await matchFiles(files, ['wrapOutput', props.name].join('/'))
     })
 
     test('wraps the entire output', async () => {
@@ -774,7 +774,7 @@ describe('zodGenerator operation', async () => {
         ...entry.options,
       }
       const plugin = { options } as Plugin<PluginZod>
-      const mockedPluginManager = createMockedPluginManager(entry.name)
+      const mockedPluginManager = createMockedPluginManager({ name: entry.name })
       const generator = new OperationGenerator(options, {
         fabric,
         oas,
@@ -804,7 +804,7 @@ describe('zodGenerator operation', async () => {
         return file
       })
 
-      await matchFiles(files)
+      await matchFiles(files, ['wrapOutputAll', entry.name].join('/'))
     })
 
     test('ensures wrapOutput receives schema for all traversed nodes', async () => {
@@ -857,7 +857,7 @@ describe('zodGenerator operation', async () => {
         ...entry.options,
       }
       const plugin = { options } as Plugin<PluginZod>
-      const mockedPluginManager = createMockedPluginManager(entry.name)
+      const mockedPluginManager = createMockedPluginManager({ name: entry.name })
       const generator = new OperationGenerator(options, {
         fabric,
         oas,
@@ -886,7 +886,7 @@ describe('zodGenerator operation', async () => {
         return file
       })
 
-      await matchFiles(files)
+      await matchFiles(files, ['wrapOutputQueryFilter', entry.name].join('/'))
     })
   })
 })

@@ -13,10 +13,10 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "generate": "kubb generate",
-    "generate:js": "kubb generate --config .kubbrc",
-    "generate:json": "kubb generate --config kubb.json",
-    "generate:ts": "kubb generate --config kubb.config.js",
+    "generate": "KUBB_DISABLE_TELEMETRY=1 kubb generate",
+    "generate:js": "KUBB_DISABLE_TELEMETRY=1 kubb generate --config .kubbrc",
+    "generate:json": "KUBB_DISABLE_TELEMETRY=1 kubb generate --config kubb.json",
+    "generate:ts": "KUBB_DISABLE_TELEMETRY=1 kubb generate --config kubb.config.js",
     "start:server": "bun ./src/server.ts",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
@@ -31,7 +31,7 @@
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@mswjs/http-middleware": "^0.9.2",
-    "msw": "^2.12.11",
+    "msw": "^2.12.13",
     "react": "^18.3.1"
   },
   "devDependencies": {

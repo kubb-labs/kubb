@@ -1,5 +1,5 @@
 import type { OperationNode, SchemaNode } from '@kubb/ast/types'
-import type { Config, Plugin, PluginFactoryOptions } from '@kubb/core'
+import type { Adapter, Config, Plugin, PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import type { OperationGenerator } from '../OperationGenerator.ts'
 import type { SchemaGenerator, SchemaGeneratorOptions } from '../SchemaGenerator.ts'
@@ -18,7 +18,8 @@ export type OperationsV1Props<TOptions extends PluginFactoryOptions> = {
 
 export type OperationsV2Props<TOptions extends PluginFactoryOptions> = {
   config: Config
-  plugin: Plugin<TOptions>
+  adapter: Adapter
+  options: Plugin<TOptions>['options']
   nodes: Array<OperationNode>
 }
 
@@ -31,7 +32,8 @@ export type OperationV1Props<TOptions extends PluginFactoryOptions> = {
 
 export type OperationV2Props<TOptions extends PluginFactoryOptions> = {
   config: Config
-  plugin: Plugin<TOptions>
+  adapter: Adapter
+  options: Plugin<TOptions>['options']
   node: OperationNode
 }
 
@@ -56,8 +58,9 @@ export type SchemaV1Props<TOptions extends PluginFactoryOptions> = {
 
 export type SchemaV2Props<TOptions extends PluginFactoryOptions> = {
   config: Config
-  plugin: Plugin<TOptions>
+  options: Plugin<TOptions>['options']
   node: SchemaNode
+  adapter: Adapter
 }
 
 export type SchemaProps<TOptions extends PluginFactoryOptions, TVersion extends Version = '1'> = TVersion extends '2'

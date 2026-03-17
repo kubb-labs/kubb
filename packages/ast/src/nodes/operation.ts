@@ -15,6 +15,10 @@ export type OperationNode = BaseNode & {
    */
   operationId: string
   method: HttpMethod
+  /**
+   * Express-style path string, e.g. `/pets/:petId`.
+   * Derived from the OpenAPI path by converting `{param}` tokens to `:param`.
+   */
   path: string
   tags: Array<string>
   summary?: string

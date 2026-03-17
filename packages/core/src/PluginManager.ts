@@ -1,4 +1,4 @@
-import path from 'node:path'
+import { basename, extname, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { setUniqueName, transformReservedWord } from '@internals/utils'
@@ -10,6 +10,7 @@ import { openInStudio as openInStudioFn } from './devtools.ts'
 import { ValidationPluginError } from './errors.ts'
 import { isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
 import type {
+  Adapter,
   Config,
   DevtoolsOptions,
   KubbEvents,
@@ -59,7 +60,7 @@ export function getMode(fileOrFolder: string | undefined | null): KubbFile.Mode 
   if (!fileOrFolder) {
     return 'split'
   }
-  return path.extname(fileOrFolder) ? 'single' : 'split'
+  return extname(fileOrFolder) ? 'single' : 'split'
 }
 
 export class PluginManager {
@@ -71,6 +72,7 @@ export class PluginManager {
    * the build pipeline after the adapter's `parse()` resolves.
    */
   rootNode: RootNode | undefined = undefined
+  adapter: Adapter | undefined = undefined
   #studioIsOpen = false
 
   readonly #plugins = new Set<Plugin>()
@@ -104,7 +106,7 @@ export class PluginManager {
       plugin,
       events: this.options.events,
       pluginManager: this,
-      mode: getMode(path.resolve(this.config.root, this.config.output.path)),
+      mode: getMode(resolve(this.config.root, this.config.output.path)),
       addFile: async (...files: Array<KubbFile.File>) => {
         await this.options.fabric.addFile(...files)
       },
@@ -114,17 +116,20 @@ export class PluginManager {
       get rootNode(): RootNode | undefined {
         return pluginManager.rootNode
       },
+      get adapter(): Adapter | undefined {
+        return pluginManager.adapter
+      },
       openInStudio(options?: DevtoolsOptions) {
+        if (!pluginManager.config.devtools || pluginManager.#studioIsOpen) {
+          return
+        }
+
         if (typeof pluginManager.config.devtools !== 'object') {
           throw new Error('Devtools must be an object')
         }
 
-        if (!pluginManager.rootNode) {
-          throw new Error('RootNode is not defined, make sure you have set the parser in kubb.config.ts')
-        }
-
-        if (pluginManager.#studioIsOpen) {
-          return
+        if (!pluginManager.rootNode || !pluginManager.adapter) {
+          throw new Error('adapter is not defined, make sure you have set the parser in kubb.config.ts')
         }
 
         pluginManager.#studioIsOpen = true
@@ -159,16 +164,22 @@ export class PluginManager {
   }
 
   getFile<TOptions = object>({ name, mode, extname, pluginName, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginName: string }> {
-    const baseName = `${name}${extname}` as const
-    const path = this.resolvePath({ baseName, mode, pluginName, options })
+    const resolvedName = mode ? (mode === 'single' ? '' : this.resolveName({ name, pluginName, type: 'file' })) : name
+
+    const path = this.resolvePath({
+      baseName: `${resolvedName}${extname}` as const,
+      mode,
+      pluginName,
+      options,
+    })
 
     if (!path) {
-      throw new Error(`Filepath should be defined for resolvedName "${name}" and pluginName "${pluginName}"`)
+      throw new Error(`Filepath should be defined for resolvedName "${resolvedName}" and pluginName "${pluginName}"`)
     }
 
     return {
       path,
-      baseName,
+      baseName: basename(path) as KubbFile.File['baseName'],
       meta: {
         pluginName,
       },
@@ -179,8 +190,8 @@ export class PluginManager {
   }
 
   resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): KubbFile.Path => {
-    const root = path.resolve(this.config.root, this.config.output.path)
-    const defaultPath = path.resolve(root, params.baseName)
+    const root = resolve(this.config.root, this.config.output.path)
+    const defaultPath = resolve(root, params.baseName)
 
     if (params.pluginName) {
       const paths = this.hookForPluginSync({
@@ -456,7 +467,12 @@ export class PluginManager {
     return plugins
       .map((plugin) => {
         if (plugin.pre) {
-          const missingPlugins = plugin.pre.filter((pluginName) => !plugins.find((pluginToFind) => pluginToFind.name === pluginName))
+          let missingPlugins = plugin.pre.filter((pluginName) => !plugins.find((pluginToFind) => pluginToFind.name === pluginName))
+
+          // when adapter is set, we can ignore the depends on plugin-oas, in v5 this will not be needed anymore
+          if (missingPlugins.includes('plugin-oas') && this.adapter) {
+            missingPlugins = missingPlugins.filter((pluginName) => pluginName !== 'plugin-oas')
+          }
 
           if (missingPlugins.length > 0) {
             throw new ValidationPluginError(`The plugin '${plugin.name}' has a pre set that references missing plugins for '${missingPlugins.join(', ')}'`)

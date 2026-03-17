@@ -465,6 +465,55 @@ describe('typeGenerator schema', async () => {
       path: 'Advanced',
       options: {},
     },
+    {
+      name: 'PetsStoreAdvancedDiscriminatorEnumType',
+      input: '../../mocks/discriminator.yaml',
+      path: 'Advanced',
+      options: {
+        enumType: 'enum',
+      },
+    },
+    {
+      name: 'CatDogDiscriminatorEnumType',
+      input: '../../mocks/discriminator.yaml',
+      path: 'CatDog',
+      options: {
+        enumType: 'enum',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'PetStorePetDiscriminatorEnum',
+      input: '../../mocks/discriminator.yaml',
+      path: 'PetStorePet',
+      options: {
+        enumType: 'enum',
+      },
+    },
+    {
+      name: 'PetStorePetDiscriminatorAsConst',
+      input: '../../mocks/discriminator.yaml',
+      path: 'PetStorePet',
+      options: {
+        enumType: 'asConst',
+      },
+    },
+    {
+      name: 'PetStoreDogEnum',
+      input: '../../mocks/discriminator.yaml',
+      path: 'PetStoreDog',
+      options: {
+        enumType: 'enum',
+      },
+    },
+    {
+      name: 'PetStoreCatEnum',
+      input: '../../mocks/discriminator.yaml',
+      path: 'PetStoreCat',
+      options: {
+        enumType: 'enum',
+      },
+    },
     // https://github.com/kubb-labs/kubb/issues/1669
     {
       name: 'PetsStoreNotifcationDiscriminator',
@@ -646,7 +695,7 @@ describe('typeGenerator schema', async () => {
     }
     const plugin = { options } as Plugin<PluginTs>
 
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
@@ -680,7 +729,7 @@ describe('typeGenerator schema', async () => {
       },
     )
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })
 
@@ -807,7 +856,7 @@ describe('typeGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -829,6 +878,6 @@ describe('typeGenerator operation', async () => {
       plugin,
     })
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })

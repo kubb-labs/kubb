@@ -2,7 +2,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Plugin } from '@kubb/core'
 import { parse } from '@kubb/oas'
-import { OperationGenerator } from '@kubb/plugin-oas'
+import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
 import { createMockedPluginManager, matchFiles } from '#mocks'
@@ -65,7 +65,7 @@ describe('classClientGenerator operations', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -81,7 +81,7 @@ describe('classClientGenerator operations', async () => {
 
     const operations = await generator.getOperations()
 
-    await (await import('@kubb/plugin-oas')).buildOperations(
+    await buildOperations(
       operations.map((item) => item.operation),
       {
         config: {
@@ -95,6 +95,6 @@ describe('classClientGenerator operations', async () => {
       },
     )
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })

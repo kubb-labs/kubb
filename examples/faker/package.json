@@ -13,11 +13,11 @@
   "sideEffects": false,
   "type": "commonjs",
   "scripts": {
-    "generate": "kubb generate",
-    "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
-    "generate:js": "kubb generate --config .kubbrc",
-    "generate:json": "kubb generate --config kubb.json",
-    "generate:ts": "kubb generate --config kubb.config.js",
+    "generate": "KUBB_DISABLE_TELEMETRY=1 kubb generate",
+    "generate:debug": "NODE_OPTIONS='--inspect-brk' KUBB_DISABLE_TELEMETRY=1 kubb generate",
+    "generate:js": "KUBB_DISABLE_TELEMETRY=1 kubb generate --config .kubbrc",
+    "generate:json": "KUBB_DISABLE_TELEMETRY=1 kubb generate --config kubb.json",
+    "generate:ts": "KUBB_DISABLE_TELEMETRY=1 kubb generate --config kubb.config.js",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },

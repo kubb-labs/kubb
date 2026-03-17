@@ -49,7 +49,7 @@ describe('handlersGenerator operations', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginMsw>
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -76,6 +76,6 @@ describe('handlersGenerator operations', async () => {
       },
     )
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })

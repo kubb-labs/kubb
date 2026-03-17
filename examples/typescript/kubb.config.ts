@@ -1,4 +1,4 @@
-// import { adapterOas } from '@kubb/adapter-oas'
+import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -19,6 +19,28 @@ export default defineConfig([
       pluginTs({
         output: {
           path: 'models.ts',
+          barrelType: false,
+        },
+        enumType: 'enum',
+        syntaxType: 'interface',
+      }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: {
+      path: './src/gen2',
+      clean: true,
+    },
+    adapter: adapterOas({
+      validate: false,
+    }),
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
+      pluginTs({
+        output: {
+          path: 'models_v5.ts',
           barrelType: false,
         },
         enumType: 'enum',

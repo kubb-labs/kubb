@@ -82,6 +82,12 @@ export type OasAdapterResolvedOptions = {
   integerType: NonNullable<OasAdapterOptions['integerType']>
   unknownType: NonNullable<OasAdapterOptions['unknownType']>
   emptySchemaType: NonNullable<OasAdapterOptions['emptySchemaType']>
+  /**
+   * Map from original `$ref` paths to their collision-resolved schema names.
+   * Populated by the adapter after each `parse()` call.
+   * e.g. `'#/components/schemas/Order'` → `'OrderSchema'`
+   */
+  nameMapping: Map<string, string>
 }
 
 export type OasAdapter = AdapterFactoryOptions<'oas', OasAdapterOptions, OasAdapterResolvedOptions>

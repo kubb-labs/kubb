@@ -86,6 +86,8 @@
     "logtail",
     "apidevtools",
     "arraybuffer",
-    "fflate"
+    "fflate",
+    "Palo",
+    "fehguy"
   ]
 }

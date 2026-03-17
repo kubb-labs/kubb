@@ -262,6 +262,17 @@ describe('printerTs', () => {
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`"string | (number | boolean)"`)
     })
+
+    it('renders string & {} when union has string literal and plain string', async () => {
+      const result = printer.print(
+        createSchema({
+          type: 'union',
+          members: [createSchema({ type: 'enum', enumType: 'string', enumValues: ['test'] }), createSchema({ type: 'email' })],
+        }),
+      )
+
+      expect(await formatTS(result)).toMatchInlineSnapshot(`"'test' | (string & {})"`)
+    })
   })
 
   describe('intersection', () => {
