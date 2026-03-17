@@ -1,5 +1,18 @@
 # @kubb/plugin-ts
 
+## 5.0.0-alpha.4
+
+### Patch Changes
+
+- [#2776](https://github.com/kubb-labs/kubb/pull/2776) [`64e3d85`](https://github.com/kubb-labs/kubb/commit/64e3d8583c50c073bfe8945dcda5e700d262d9d9) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - - Add `resolveOptions(node, context)` utility to `@kubb/ast` — resolves the effective plugin options for an `OperationNode` or `SchemaNode` by applying `exclude`, `include`, and `override` rules. Returns `null` when the node is excluded or not matched by `include`.
+  - Add explicit `options` parameter to `buildOperations`, `buildOperation`, and `buildSchema` in `@kubb/plugin-oas` so callers pass pre-resolved options instead of relying on `plugin.options` directly.
+  - `plugin-ts` now calls `resolveOptions` from `@kubb/ast` inline before each `buildSchema`/`buildOperation` call and correctly awaits generators with `Promise.all`.
+- Updated dependencies [[`64e3d85`](https://github.com/kubb-labs/kubb/commit/64e3d8583c50c073bfe8945dcda5e700d262d9d9)]:
+  - @kubb/ast@5.0.0-alpha.4
+  - @kubb/plugin-oas@5.0.0-alpha.4
+  - @kubb/core@5.0.0-alpha.4
+  - @kubb/oas@5.0.0-alpha.4
+
 ## 5.0.0-alpha.3
 
 ### Minor Changes
