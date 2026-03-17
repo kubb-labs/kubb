@@ -154,7 +154,7 @@ type BuildSchemaV1Options<TOptions extends PluginFactoryOptions> = BuildSchemaBa
 
 type BuildSchemaV2Options<TOptions extends PluginFactoryOptions> = BuildSchemaBaseOptions<TOptions> & {
   version: '2'
-  Component: ReactGeneratorV2<TOptions>['Schema']
+  Component: ReactGeneratorV2<TOptions>['Schema'] | undefined
   adapter: Adapter
   pluginManager: PluginManager
   mode: KubbFile.Mode
