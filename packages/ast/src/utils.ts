@@ -1,7 +1,6 @@
-import { isOperationNode, isSchemaNode } from './guards.ts'
+import { isOperationNode, isSchemaNode, narrowSchema } from './guards.ts'
 import type { Node, OperationNode, SchemaNode } from './nodes/index.ts'
 import type { SchemaType } from './nodes/schema.ts'
-import { narrowSchema } from './guards.ts'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'])
 
@@ -109,4 +108,3 @@ export function resolveOptions<TOptions>(node: Node, { options, exclude = [], in
 
   return options
 }
-

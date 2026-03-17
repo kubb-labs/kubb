@@ -74,7 +74,7 @@ export async function buildOperations<TOptions extends PluginFactoryOptions>(
     )
   }
 
-   fabric.context.fileManager.upsert(...fabricChild.files)
+  fabric.context.fileManager.upsert(...fabricChild.files)
   fabricChild.unmount()
 }
 
@@ -138,7 +138,7 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
     )
   }
 
-   fabric.context.fileManager.upsert(...fabricChild.files)
+  fabric.context.fileManager.upsert(...fabricChild.files)
   fabricChild.unmount()
 }
 

@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { walk, resolveOptions } from '@kubb/ast'
+import { resolveOptions, walk } from '@kubb/ast'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { buildOperation, buildSchema, OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { typeGenerator, typeGeneratorV2 } from './generators'
@@ -116,7 +116,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
             async schema(schemaNode) {
               const writeTasks = generators.map(async (generator) => {
                 if (generator.type === 'react' && generator.version === '2') {
-                  const options = resolveOptions(schemaNode, {options: plugin.options,exclude, include, override })
+                  const options = resolveOptions(schemaNode, { options: plugin.options, exclude, include, override })
 
                   await buildSchema(schemaNode, {
                     options,
@@ -137,7 +137,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
             async operation(operationNode) {
               const writeTasks = generators.map(async (generator) => {
                 if (generator.type === 'react' && generator.version === '2') {
-                  const options = resolveOptions(operationNode, {options: plugin.options,exclude, include, override })
+                  const options = resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
 
                   await buildOperation(operationNode, {
                     options,
