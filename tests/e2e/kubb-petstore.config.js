@@ -22,11 +22,6 @@ export default defineConfig(() => {
       lint: 'biome',
     },
     plugins: [
-      pluginTs({
-        output: {
-          path: './types.ts',
-        },
-      }),
       pluginOas({
         generators: [],
         validate: false,
