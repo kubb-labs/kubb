@@ -48,6 +48,8 @@ export function applyDiscriminatorEnum({
         primitive: 'string' as const,
         enumValues: values,
         name: enumName,
+        readOnly: prop.schema.readOnly,
+        writeOnly: prop.schema.writeOnly,
       })
 
       return createProperty({

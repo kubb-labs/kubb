@@ -107,6 +107,38 @@ describe('applyDiscriminatorEnum', () => {
 
     expect(typeProp!.schema.primitive).toBe('string')
   })
+
+  it('preserves readOnly from the original property schema', () => {
+    const readOnlyNode = createSchema({
+      type: 'object',
+      properties: [
+        createProperty({ name: 'type', schema: createSchema({ type: 'string', readOnly: true }) as SchemaNode }),
+      ],
+    }) as SchemaNode
+
+    const result = applyDiscriminatorEnum({ node: readOnlyNode, propertyName: 'type', values: ['dog'] })
+
+    if (result.type !== 'object') return
+    const typeProp = result.properties?.find((p) => p.name === 'type')
+
+    expect(typeProp!.schema.readOnly).toBe(true)
+  })
+
+  it('preserves writeOnly from the original property schema', () => {
+    const writeOnlyNode = createSchema({
+      type: 'object',
+      properties: [
+        createProperty({ name: 'type', schema: createSchema({ type: 'string', writeOnly: true }) as SchemaNode }),
+      ],
+    }) as SchemaNode
+
+    const result = applyDiscriminatorEnum({ node: writeOnlyNode, propertyName: 'type', values: ['dog'] })
+
+    if (result.type !== 'object') return
+    const typeProp = result.properties?.find((p) => p.name === 'type')
+
+    expect(typeProp!.schema.writeOnly).toBe(true)
+  })
 })
 
 describe('mergeAdjacentAnonymousObjects', () => {
