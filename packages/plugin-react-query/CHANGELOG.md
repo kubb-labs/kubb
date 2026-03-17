@@ -1,5 +1,21 @@
 # @kubb/plugin-react-query
 
+## 5.0.0-alpha.2
+
+### Major Changes
+
+- [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, adding duplicate plugins throws an error.
+
+### Patch Changes
+
+- Updated dependencies [[`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b)]:
+  - @kubb/core@5.0.0-alpha.2
+  - @kubb/plugin-oas@5.0.0-alpha.2
+  - @kubb/plugin-ts@5.0.0-alpha.2
+  - @kubb/plugin-client@5.0.0-alpha.2
+  - @kubb/plugin-zod@5.0.0-alpha.2
+  - @kubb/oas@5.0.0-alpha.2
+
 ## 5.0.0-alpha.1
 
 ### Major Changes
