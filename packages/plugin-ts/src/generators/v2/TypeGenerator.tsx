@@ -1,6 +1,4 @@
-import { createProperty, createSchema, groupParametersByLocation, narrowSchema } from '@kubb/ast'
-import type { ParameterNode, SchemaNode } from '@kubb/ast/types'
-import { pascalCase } from '@internals/utils'
+import type { SchemaNode } from '@kubb/ast/types'
 import { useKubb } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { File } from '@kubb/react-fabric'
@@ -22,15 +20,7 @@ export const typeGenerator = createReactGenerator<PluginTs, '2'>({
       mode,
     })
 
-    const paramGroups = groupParametersByLocation(node.parameters)
-
-    const paramLocationMap: Array<{ suffix: string; params: Array<ParameterNode> }> = [
-      { suffix: 'PathParams', params: paramGroups['path'] ?? [] },
-      { suffix: 'QueryParams', params: paramGroups['query'] ?? [] },
-      { suffix: 'HeaderParams', params: paramGroups['header'] ?? [] },
-    ]
-
-    function renderSchemaType({ node: schemaNode, name: resolvedName, typedName, description }: { node: SchemaNode; name: string; typedName: string; description?: string }) {
+    function renderSchemaType({ node: schemaNode, name, typedName, description }: { node: SchemaNode; name: string; typedName: string; description?: string }) {
       const imports = adapter.getImports(schemaNode, (schemaName) => ({
         name: resolveName({
           name: schemaName,
@@ -48,12 +38,10 @@ export const typeGenerator = createReactGenerator<PluginTs, '2'>({
       return (
         <>
           {mode === 'split' &&
-            imports.map((imp) => (
-              <File.Import key={[resolvedName, imp.path, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />
-            ))}
+            imports.map((imp) => <File.Import key={[name, imp.path, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />)}
 
           <Type
-            name={resolvedName}
+            name={name}
             typedName={typedName}
             node={schemaNode}
             description={description}
@@ -67,33 +55,21 @@ export const typeGenerator = createReactGenerator<PluginTs, '2'>({
       )
     }
 
-    // Parameter group types (PathParams, QueryParams, HeaderParams)
-    const paramTypes = paramLocationMap
-      .filter(({ params }) => params.length > 0)
-      .map(({ suffix, params }) => {
-        const resolvedName = resolveName({
-          name: `${node.operationId} ${suffix}`,
-          pluginName: plugin.name,
-          type: 'function',
-        })
-        const typedName = resolveName({
-          name: `${node.operationId} ${suffix}`,
-          pluginName: plugin.name,
-          type: 'type',
-        })
-        const schemaNode: SchemaNode = createSchema({
-          type: 'object',
-          properties: params.map((p) => {
-            const isEnum = !!narrowSchema(p.schema, 'enum')
-            const enumName = isEnum ? pascalCase([resolvedName, p.name, 'enum'].join(' ')) : undefined
-            const schema: SchemaNode = enumName ? { ...p.schema, name: enumName } : p.schema
-
-            return createProperty({ name: p.name, schema })
-          }),
-        })
-
-        return renderSchemaType({ node: schemaNode, name: resolvedName, typedName })
+    // Parameter types — each parameter rendered as its own type
+    const paramTypes = node.parameters.map((param) => {
+      const name = resolveName({
+        name: `${node.operationId} ${param.name}`,
+        pluginName: plugin.name,
+        type: 'function',
       })
+      const typedName = resolveName({
+        name: `${node.operationId} ${param.name}`,
+        pluginName: plugin.name,
+        type: 'type',
+      })
+
+      return renderSchemaType({ node: param.schema, name, typedName })
+    })
 
     // Response types
     const responseTypes = node.responses

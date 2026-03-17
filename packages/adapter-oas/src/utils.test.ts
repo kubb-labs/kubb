@@ -1,12 +1,7 @@
 import { createProperty, createSchema } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { describe, expect, it } from 'vitest'
-import {
-  applyDiscriminatorEnum,
-  extractRefName,
-  getImports,
-  mergeAdjacentAnonymousObjects,
-} from './utils.ts'
+import { applyDiscriminatorEnum, extractRefName, getImports, mergeAdjacentAnonymousObjects } from './utils.ts'
 
 describe('extractRefName', () => {
   it('extracts the last path segment from a $ref string', () => {
