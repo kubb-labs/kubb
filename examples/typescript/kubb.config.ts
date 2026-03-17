@@ -30,7 +30,7 @@ export default defineConfig([
     root: '.',
     input,
     output: {
-      path: './src/gen2',
+      path: './src/gen-adapter',
       clean: true,
     },
     adapter: adapterOas({
@@ -46,7 +46,7 @@ export default defineConfig([
         override: [
           {
             type: 'schemaName',
-            pattern: 'Pet',
+            pattern: 'ApiResponse',
             options: {
               syntaxType: 'type',
             },
