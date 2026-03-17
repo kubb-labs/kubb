@@ -58,7 +58,6 @@ export default defineConfig(() => {
           path: './clients/axiosClass',
           barrelType: false,
         },
-        clientType: 'class',
         group: {
           type: 'tag',
           name({ group }) {
