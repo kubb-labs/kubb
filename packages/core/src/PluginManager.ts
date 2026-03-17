@@ -1,4 +1,4 @@
-import path from 'node:path'
+import { basename, extname, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { setUniqueName, transformReservedWord } from '@internals/utils'
@@ -60,7 +60,7 @@ export function getMode(fileOrFolder: string | undefined | null): KubbFile.Mode 
   if (!fileOrFolder) {
     return 'split'
   }
-  return path.extname(fileOrFolder) ? 'single' : 'split'
+  return extname(fileOrFolder) ? 'single' : 'split'
 }
 
 export class PluginManager {
@@ -106,7 +106,7 @@ export class PluginManager {
       plugin,
       events: this.options.events,
       pluginManager: this,
-      mode: getMode(path.resolve(this.config.root, this.config.output.path)),
+      mode: getMode(resolve(this.config.root, this.config.output.path)),
       addFile: async (...files: Array<KubbFile.File>) => {
         await this.options.fabric.addFile(...files)
       },
@@ -164,16 +164,22 @@ export class PluginManager {
   }
 
   getFile<TOptions = object>({ name, mode, extname, pluginName, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginName: string }> {
-    const baseName = `${name}${extname}` as const
-    const path = this.resolvePath({ baseName, mode, pluginName, options })
+    const resolvedName = mode ? (mode === 'single' ? '' : this.resolveName({ name, pluginName, type: 'file' })) : name
+
+    const path = this.resolvePath({
+      baseName: `${resolvedName}${extname}` as const,
+      mode,
+      pluginName,
+      options,
+    })
 
     if (!path) {
-      throw new Error(`Filepath should be defined for resolvedName "${name}" and pluginName "${pluginName}"`)
+      throw new Error(`Filepath should be defined for resolvedName "${resolvedName}" and pluginName "${pluginName}"`)
     }
 
     return {
       path,
-      baseName,
+      baseName: basename(path) as KubbFile.File['baseName'],
       meta: {
         pluginName,
       },
@@ -184,8 +190,8 @@ export class PluginManager {
   }
 
   resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): KubbFile.Path => {
-    const root = path.resolve(this.config.root, this.config.output.path)
-    const defaultPath = path.resolve(root, params.baseName)
+    const root = resolve(this.config.root, this.config.output.path)
+    const defaultPath = resolve(root, params.baseName)
 
     if (params.pluginName) {
       const paths = this.hookForPluginSync({

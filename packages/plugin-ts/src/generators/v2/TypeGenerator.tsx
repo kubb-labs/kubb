@@ -1,6 +1,5 @@
-import { useMode } from '@kubb/core/hooks'
+import { useMode, usePluginManager } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useSchemaManager } from '@kubb/plugin-oas/hooks'
 
 import { File } from '@kubb/react-fabric'
 
@@ -15,33 +14,60 @@ export const typeGenerator = createReactGenerator<PluginTs, '2'>({
       options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType },
     } = plugin
     const mode = useMode()
-
-    const { getName, getFile } = useSchemaManager()
+    const pluginManager = usePluginManager()
 
     if (!node.name) {
       return
     }
 
     const imports = adapter.getImports(node, (schemaName) => ({
-      name: getName(schemaName, { type: 'type' }),
-      path: getFile(schemaName).path,
+      name: pluginManager.resolveName({
+        name: schemaName,
+        pluginName: plugin.name,
+        type: 'type',
+      }),
+      path: pluginManager.getFile({
+        name: schemaName,
+        pluginName: plugin.name,
+        extname: '.ts',
+        mode,
+        // options: {
+        //   group
+        // },
+      }).path,
     }))
-
-    console.log(JSON.stringify(imports, null, 2))
 
     const isEnumSchema = node.type === 'enum'
 
-    let typedName = getName(node.name, { type: 'type' })
+    let typedName = pluginManager.resolveName({
+      name: node.name,
+      pluginName: plugin.name,
+      type: 'type',
+    })
 
     if (['asConst', 'asPascalConst'].includes(enumType) && isEnumSchema) {
       typedName = typedName += 'Key'
     }
 
     const type = {
-      name: getName(node.name, { type: 'function' }),
+      name: pluginManager.resolveName({
+        name: node.name,
+        pluginName: plugin.name,
+        type: 'function',
+      }),
       typedName,
-      file: getFile(node.name),
+      file: pluginManager.getFile({
+        name: node.name,
+        pluginName: plugin.name,
+        extname: '.ts',
+        mode,
+        // options: {
+        //   group
+        // },
+      }),
     }
+
+    console.log(type)
 
     return (
       <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta}>
