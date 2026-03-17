@@ -17,4 +17,3 @@ export {
   isRequestBodyRequired,
   withRequiredRequestBodySchema,
 } from './requestBody.ts'
-export { resolveOptions } from './resolveOptions.ts'

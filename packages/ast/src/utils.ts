@@ -33,7 +33,7 @@ type OverrideItem<TOptions> = FilterItem & {
   options: Partial<TOptions>
 }
 
-export type ResolveOptionsContext<TOptions> = {
+type ResolveOptionsContext<TOptions> = {
   options: TOptions
   exclude?: Array<FilterItem>
   include?: Array<FilterItem>

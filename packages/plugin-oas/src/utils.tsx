@@ -26,6 +26,7 @@ type BuildOperationsV2Options<TOptions extends PluginFactoryOptions> = BuildOper
   adapter: Adapter
   pluginManager: PluginManager
   mode: KubbFile.Mode
+  options: TOptions['resolvedOptions'] | null
 }
 
 function isBuildOperationsV1Options<TOptions extends PluginFactoryOptions>(
@@ -68,12 +69,12 @@ export async function buildOperations<TOptions extends PluginFactoryOptions>(
 
     await fabricChild.render(
       <App meta={{ plugin }}>
-        <Component config={config} adapter={adapter} nodes={operationsOrNodes as Array<OperationNode>} options={plugin.options} />
+        <Component config={config} adapter={adapter} nodes={operationsOrNodes as Array<OperationNode>} options={options.options} />
       </App>,
     )
   }
 
-  await fabric.context.fileManager.upsert(...fabricChild.files)
+   fabric.context.fileManager.upsert(...fabricChild.files)
   fabricChild.unmount()
 }
 
@@ -95,6 +96,7 @@ type BuildOperationV2Options<TOptions extends PluginFactoryOptions> = BuildOpera
   adapter: Adapter
   pluginManager: PluginManager
   mode: KubbFile.Mode
+  options: TOptions['resolvedOptions'] | null
 }
 
 function isBuildOperationV1Options<TOptions extends PluginFactoryOptions>(
@@ -131,12 +133,12 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
 
     await fabricChild.render(
       <App meta={{ plugin, pluginManager, mode }}>
-        <Component config={config} adapter={adapter} node={operationOrNode as OperationNode} options={plugin.options} />
+        <Component config={config} adapter={adapter} node={operationOrNode as OperationNode} options={options.options} />
       </App>,
     )
   }
 
-  await fabric.context.fileManager.upsert(...fabricChild.files)
+   fabric.context.fileManager.upsert(...fabricChild.files)
   fabricChild.unmount()
 }
 
@@ -158,6 +160,7 @@ type BuildSchemaV2Options<TOptions extends PluginFactoryOptions> = BuildSchemaBa
   adapter: Adapter
   pluginManager: PluginManager
   mode: KubbFile.Mode
+  options: TOptions['resolvedOptions'] | null
 }
 
 function isBuildSchemaV1Options<TOptions extends PluginFactoryOptions>(
@@ -197,11 +200,12 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
 
     await fabricChild.render(
       <App meta={{ plugin, pluginManager, mode }}>
-        <Component config={config} adapter={adapter} node={schema as SchemaNode} options={plugin.options} />
+        <Component config={config} adapter={adapter} node={schema as SchemaNode} options={options.options} />
       </App>,
     )
   }
 
-  await fabric.context.fileManager.upsert(...fabricChild.files)
+  fabric.context.fileManager.upsert(...fabricChild.files)
+
   fabricChild.unmount()
 }

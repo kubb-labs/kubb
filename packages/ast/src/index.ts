@@ -4,5 +4,4 @@ export { isOperationNode, isParameterNode, isPropertyNode, isResponseNode, isRoo
 export { definePrinter } from './printer.ts'
 export { buildRefMap, refMapToObject, resolveRef } from './refs.ts'
 export { isPlainStringType, resolveOptions } from './utils.ts'
-export type { ResolveOptionsContext } from './utils.ts'
 export { collect, transform, walk } from './visitor.ts'

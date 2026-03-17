@@ -26,19 +26,18 @@ export type {
 export { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 export type * from './types.ts'
 export { buildOperation, buildOperations, buildSchema } from './utils.tsx'
-export { resolveOptions } from './utils/resolveOptions.ts'
 
 /**
- * @deprecated Use `import { defineGenerator } from '@kubb/core'`
+ * @deprecated use `import { createGenerator } from '@kubb/plugin-oas/generators'`
  */
 export const createGenerator = _createGenerator
 
 /**
- * @deprecated Use `import { defineGenerator } from '@kubb/core'`
+ * @deprecated use `import { createReactGenerator } from '@kubb/plugin-oas/generators'`
  */
 export const createReactGenerator = _createReactGenerator
 
 /**
- * @deprecated use `import { Generator } from '@kubb/core'`
+ * @deprecated use `import { Generator } from '@kubb/plugin-oas/generators'`
  */
 export type Generator<TOptions extends PluginFactoryOptions, TVersion extends import('./generators/types.ts').Version = '1'> = _Generator<TOptions, TVersion>
