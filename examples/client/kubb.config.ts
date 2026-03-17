@@ -59,7 +59,7 @@ export default defineConfig([
     input,
     output: { path: './src/gen2' },
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: false, generators: [] }),
       tsPlugin,
       pluginClient({
         output: {
@@ -84,7 +84,7 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen3' },
+    output: { path: './src/gen3', clean: true },
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
@@ -106,7 +106,7 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen4' },
+    output: { path: './src/gen4', clean: true },
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginClient({
@@ -121,7 +121,7 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen5' },
+    output: { path: './src/gen5', clean: true },
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginClient({
@@ -136,7 +136,7 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen6' },
+    output: { path: './src/gen6', clean: true },
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
@@ -164,7 +164,7 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen7' },
+    output: { path: './src/gen7', clean: true },
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },

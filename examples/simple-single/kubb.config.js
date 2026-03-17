@@ -36,7 +36,7 @@ export default defineConfig([
         },
       }),
       pluginTs({
-        output: { path: 'models.ts' },
+        output: { path: 'models.ts', clean: true },
       }),
       pluginReactQuery({
         output: {

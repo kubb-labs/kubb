@@ -135,7 +135,7 @@ export const pluginOas = definePlugin<PluginOas>((options) => {
     async install() {
       const oas = await this.getOas({ validate })
 
-      if (!output) {
+      if (!output || generators.length === 0) {
         return
       }
 
