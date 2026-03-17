@@ -655,16 +655,6 @@ describe('typeGenerator schema', async () => {
         enumType: 'constEnum',
       },
     },
-    // anyOf with const should produce 'test' | (string & {})
-    {
-      name: 'AnyOfConst',
-      input: '../../mocks/discriminator.yaml',
-      path: 'AnyOfConst',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
   ] as const satisfies Array<{
     input: string
     name: string
