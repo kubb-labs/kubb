@@ -6,7 +6,7 @@ import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import type { CoreGenerator } from './generators/createGenerator.ts'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
-import type { Generator, Version } from './generators/types.ts'
+import type { Generator } from './generators/types.ts'
 import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
 import { withRequiredRequestBodySchema } from './utils/requestBody.ts'
 import { buildOperation, buildOperations } from './utils.tsx'
@@ -206,7 +206,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
     )
   }
 
-  async build(...generators: Array<Generator<TPluginOptions, Version>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const operations = await this.getOperations()
 
     // Increased parallelism for better performance
@@ -227,7 +227,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
         }
 
         // After the v2 guard above, all generators here are v1
-        const v1Generator = generator as ReactGenerator<TPluginOptions, '1'> | CoreGenerator<TPluginOptions, '1'>
+        const v1Generator = generator as ReactGenerator<TPluginOptions> | CoreGenerator<TPluginOptions>
 
         const operationTasks = operations.map(({ operation, method }) =>
           operationLimit(async () => {

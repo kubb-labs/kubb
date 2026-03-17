@@ -8,7 +8,6 @@ import type { PluginTs } from '../../types'
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
-  version: '2',
   Operation({ node, adapter, options }) {
     const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType } = options
 

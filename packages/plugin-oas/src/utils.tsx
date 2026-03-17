@@ -22,7 +22,7 @@ type BuildOperationsV1Options<TOptions extends PluginFactoryOptions> = BuildOper
 
 type BuildOperationsV2Options<TOptions extends PluginFactoryOptions> = BuildOperationsBaseOptions<TOptions> & {
   version: '2'
-  Component: ReactGeneratorV2<TOptions>['Operations']
+  Component: ReactGeneratorV2<TOptions>['Operations'] | undefined
   adapter: Adapter
   pluginManager: PluginManager
   mode: KubbFile.Mode
@@ -91,7 +91,7 @@ type BuildOperationV1Options<TOptions extends PluginFactoryOptions> = BuildOpera
 
 type BuildOperationV2Options<TOptions extends PluginFactoryOptions> = BuildOperationBaseOptions<TOptions> & {
   version: '2'
-  Component: ReactGeneratorV2<TOptions>['Operation']
+  Component: ReactGeneratorV2<TOptions>['Operation'] | undefined
   adapter: Adapter
   pluginManager: PluginManager
   mode: KubbFile.Mode

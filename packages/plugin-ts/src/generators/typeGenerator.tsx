@@ -309,9 +309,8 @@ function printResponseSchema({
   return results.join('\n\n')
 }
 
-export const typeGenerator = createReactGenerator<PluginTs, '1'>({
+export const typeGenerator = createReactGenerator<PluginTs>({
   name: 'typescript',
-  version: '1',
   Operation({ operation, generator, plugin }) {
     const {
       options,
