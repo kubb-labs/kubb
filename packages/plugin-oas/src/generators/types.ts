@@ -1,5 +1,5 @@
 import type { OperationNode, SchemaNode } from '@kubb/ast/types'
-import type { Adapter, Config, Plugin, PluginFactoryOptions } from '@kubb/core'
+import type { Adapter, Config, Plugin, PluginFactoryOptions, Generator as v2Generator } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import type { OperationGenerator } from '../OperationGenerator.ts'
 import type { SchemaGenerator, SchemaGeneratorOptions } from '../SchemaGenerator.ts'
@@ -70,3 +70,4 @@ export type SchemaProps<TOptions extends PluginFactoryOptions, TVersion extends 
 export type Generator<TOptions extends PluginFactoryOptions, TVersion extends Version = Version> =
   | CoreGenerator<TOptions, TVersion>
   | ReactGenerator<TOptions, TVersion>
+  | v2Generator<TOptions>
