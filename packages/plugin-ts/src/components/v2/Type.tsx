@@ -17,25 +17,12 @@ type Props = {
   arrayType: PluginTs['resolvedOptions']['arrayType']
   enumType: PluginTs['resolvedOptions']['enumType']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
-  mapper: PluginTs['resolvedOptions']['mapper']
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
   description?: string
   keysToOmit?: string[]
 }
 
-export function Type({
-  name,
-  typedName,
-  node,
-  keysToOmit,
-  optionalType,
-  arrayType,
-  syntaxType,
-  enumType,
-  enumKeyCasing,
-  mapper,
-  ...rest
-}: Props): FabricReactNode {
+export function Type({ name, typedName, node, keysToOmit, optionalType, arrayType, syntaxType, enumType, enumKeyCasing, ...rest }: Props): FabricReactNode {
   const typeNodes: ts.Node[] = []
 
   const description = rest.description || node?.description
