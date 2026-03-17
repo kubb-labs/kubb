@@ -39,6 +39,20 @@ function dateOrStringNode(node: { representation?: string }): ts.TypeNode {
   return node.representation === 'date' ? factory.createTypeReferenceNode(factory.createIdentifier('Date')) : factory.keywordTypeNodes.string
 }
 
+const plainStringTypes = new Set(['string', 'uuid', 'email', 'url', 'datetime'])
+
+function isPlainStringType(node: SchemaNode): boolean {
+  if (plainStringTypes.has(node.type)) {
+    return true
+  }
+
+  if ((node.type === 'date' || node.type === 'time') && (node as { representation?: string }).representation !== 'date') {
+    return true
+  }
+
+  return false
+}
+
 function buildMemberNodes(members: Array<SchemaNode> | undefined, print: (node: SchemaNode) => ts.TypeNode | null | undefined): Array<ts.TypeNode> {
   return (members ?? []).map(print).filter(Boolean) as Array<ts.TypeNode>
 }
@@ -178,7 +192,29 @@ export const printerTs = definePrinter<TsPrinter>((options) => ({
       return factory.createTypeReferenceNode(typeName, undefined)
     },
     union(node) {
-      return factory.createUnionDeclaration({ withParentheses: true, nodes: buildMemberNodes(node.members, this.print) }) ?? undefined
+      const members = node.members ?? []
+
+      const hasStringLiteral = members.some((m) => m.type === 'enum' && m.enumType === 'string')
+      const hasPlainString = members.some((m) => isPlainStringType(m))
+
+      if (hasStringLiteral && hasPlainString) {
+        const nodes = members
+          .map((m) => {
+            if (isPlainStringType(m)) {
+              return factory.createIntersectionDeclaration({
+                nodes: [factory.keywordTypeNodes.string, factory.createTypeLiteralNode([])],
+                withParentheses: true,
+              }) as ts.TypeNode
+            }
+
+            return this.print(m)
+          })
+          .filter(Boolean) as Array<ts.TypeNode>
+
+        return factory.createUnionDeclaration({ withParentheses: true, nodes }) ?? undefined
+      }
+
+      return factory.createUnionDeclaration({ withParentheses: true, nodes: buildMemberNodes(members, this.print) }) ?? undefined
     },
     intersection(node) {
       return factory.createIntersectionDeclaration({ withParentheses: true, nodes: buildMemberNodes(node.members, this.print) }) ?? undefined
