@@ -1,8 +1,6 @@
-import { collect, createSchema, narrowSchema } from '@kubb/ast'
+import { collect, createProperty, createSchema, narrowSchema } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import type { SchemaObject } from './oas/types.ts'
-import { isDiscriminator } from './oas/utils.ts'
 
 /**
  * Extracts the schema name from a `$ref` string.
@@ -14,39 +12,50 @@ export function extractRefName($ref: string): string {
 }
 
 /**
- * When `schema` has a `discriminator` and the discriminator property exists in
- * `schema.properties`, widens (or narrows) the discriminator property's `enum`:
+ * Replaces the discriminator property's schema inside an `ObjectSchemaNode`
+ * with an enum of the given `values`.
  *
- * - Without `specificValue`: sets `enum` to all mapping keys (the full set).
- * - With `specificValue`: sets `enum` to `[specificValue]` **and** strips the
- *   `discriminator` key so that downstream converters (e.g. `convertObject`)
- *   do not re-apply the full set of mapping keys.
+ * - When `enumName` is provided the enum is named, which lets printers emit a
+ *   standalone enum declaration + type reference (e.g. `PetTypeEnum`).
+ * - When `enumName` is omitted the enum stays anonymous, so printers inline it
+ *   as a literal union (e.g. `'dog'`).
  *
- * Returns the schema unchanged when it has no `discriminator` or no matching property.
+ * Returns the node unchanged when it is not an object or lacks the target property.
  */
-export function applyDiscriminatorEnum(schema: SchemaObject, specificValue?: string): SchemaObject {
-  if (!isDiscriminator(schema)) return schema
+export function applyDiscriminatorEnum({
+  node,
+  propertyName,
+  values,
+  enumName,
+}: {
+  node: SchemaNode
+  propertyName: string
+  values: Array<string>
+  enumName?: string
+}): SchemaNode {
+  if (node.type !== 'object' || !node.properties?.length) return node
 
-  const propName = schema.discriminator.propertyName
-  if (!schema.properties?.[propName]) return schema
+  const hasProperty = node.properties.some((prop) => prop.name === propertyName)
+  if (!hasProperty) return node
 
-  const enumValues = specificValue ? [specificValue] : schema.discriminator.mapping ? Object.keys(schema.discriminator.mapping) : undefined
+  return createSchema({
+    ...node,
+    properties: node.properties.map((prop) => {
+      if (prop.name !== propertyName) return prop
 
-  const updatedProperties = {
-    ...schema.properties,
-    [propName]: {
-      ...(schema.properties[propName] as SchemaObject),
-      enum: enumValues,
-    },
-  } as SchemaObject['properties']
+      const enumSchema: SchemaNode = createSchema({
+        type: 'enum' as const,
+        primitive: 'string' as const,
+        enumValues: values,
+        name: enumName,
+      })
 
-  if (specificValue) {
-    // Strip `discriminator` when narrowing so convertObject won't re-apply the full enum.
-    const { discriminator: _d, ...base } = schema
-    return { ...base, properties: updatedProperties } as SchemaObject
-  }
-
-  return { ...schema, properties: updatedProperties } as SchemaObject
+      return createProperty({
+        ...prop,
+        schema: enumSchema,
+      })
+    }),
+  })
 }
 
 /**

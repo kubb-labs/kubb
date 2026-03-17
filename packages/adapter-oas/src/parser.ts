@@ -465,6 +465,12 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
     if (schema.properties) {
       const { oneOf: _oneOf, anyOf: _anyOf, ...schemaWithoutUnion } = schema
+      const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
+
+      // Strip discriminator so convertObject won't re-apply the full mapping enum.
+      const memberBaseSchema: SchemaObject = discriminator
+        ? (Object.fromEntries(Object.entries(schemaWithoutUnion).filter(([key]) => key !== 'discriminator')) as SchemaObject)
+        : schemaWithoutUnion
 
       return createSchema({
         type: 'union',
@@ -472,12 +478,13 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
         members: unionMembers.map((s) => {
           const ref = isReference(s) ? s.$ref : undefined
           const discriminatorValue =
-            isDiscriminator(schema) && schema.discriminator.mapping && ref
-              ? Object.entries(schema.discriminator.mapping).find(([, v]) => v === ref)?.[0]
-              : undefined
+            discriminator?.mapping && ref ? Object.entries(discriminator.mapping).find(([, v]) => v === ref)?.[0] : undefined
 
-          const memberPropertiesSchema = applyDiscriminatorEnum(schemaWithoutUnion, discriminatorValue)
-          const propertiesNode = convertSchema({ schema: memberPropertiesSchema, name }, options)
+          let propertiesNode = convertSchema({ schema: memberBaseSchema, name }, options)
+
+          if (discriminatorValue && discriminator) {
+            propertiesNode = applyDiscriminatorEnum({ node: propertiesNode, propertyName: discriminator.propertyName, values: [discriminatorValue] })
+          }
 
           return createSchema({
             type: 'intersection',
@@ -675,13 +682,9 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * - not required + nullable → `nullish: true`
    */
   function convertObject({ schema, name, nullable, defaultValue, options, mergedOptions }: SchemaContext): SchemaNode {
-    // When a discriminator is present, override the discriminator property's schema to use
-    // an enum of the mapping keys for a precise literal-union type.
-    const resolvedSchema = applyDiscriminatorEnum(schema)
-
-    const properties: Array<PropertyNode> = resolvedSchema.properties
-      ? Object.entries(resolvedSchema.properties).map(([propName, propSchema]) => {
-          const required = Array.isArray(resolvedSchema.required) ? resolvedSchema.required.includes(propName) : !!resolvedSchema.required
+    const properties: Array<PropertyNode> = schema.properties
+      ? Object.entries(schema.properties).map(([propName, propSchema]) => {
+          const required = Array.isArray(schema.required) ? schema.required.includes(propName) : !!schema.required
           const resolvedPropSchema = propSchema as SchemaObject
           const propNullable = isNullable(resolvedPropSchema)
           const basePropName = name ? pascalCase([name, propName].join(' ')) : undefined
@@ -703,7 +706,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
         })
       : []
 
-    const additionalProperties = resolvedSchema.additionalProperties
+    const additionalProperties = schema.additionalProperties
     let additionalPropertiesNode: SchemaNode | true | undefined
     if (additionalProperties === true) {
       additionalPropertiesNode = true
@@ -715,7 +718,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       additionalPropertiesNode = createSchema({ type: resolveTypeOption(mergedOptions.unknownType) })
     }
 
-    const rawPatternProperties = 'patternProperties' in resolvedSchema ? resolvedSchema.patternProperties : undefined
+    const rawPatternProperties = 'patternProperties' in schema ? schema.patternProperties : undefined
 
     const patternProperties = rawPatternProperties
       ? Object.fromEntries(
@@ -728,7 +731,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
         )
       : undefined
 
-    return createSchema({
+    const objectNode: SchemaNode = createSchema({
       type: 'object',
       primitive: 'object',
       properties,
@@ -736,6 +739,17 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       patternProperties,
       ...buildSchemaBase(schema, name, nullable, defaultValue),
     })
+
+    // When a discriminator is present, replace the discriminator property's schema
+    // with an enum of the mapping keys for a precise literal-union type.
+    if (isDiscriminator(schema) && schema.discriminator.mapping) {
+      const discPropName = schema.discriminator.propertyName
+      const values = Object.keys(schema.discriminator.mapping)
+      const enumName = name ? pascalCase([name, discPropName, mergedOptions.enumSuffix].filter(Boolean).join(' ')) : undefined
+      return applyDiscriminatorEnum({ node: objectNode, propertyName: discPropName, values, enumName })
+    }
+
+    return objectNode
   }
 
   /**

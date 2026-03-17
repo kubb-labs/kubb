@@ -1,7 +1,6 @@
 import { createProperty, createSchema } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { describe, expect, it } from 'vitest'
-import type { SchemaObject } from './oas/types.ts'
 import { applyDiscriminatorEnum, extractRefName, getImports, mergeAdjacentAnonymousObjects } from './utils.ts'
 
 describe('extractRefName', () => {
@@ -19,61 +18,94 @@ describe('extractRefName', () => {
 })
 
 describe('applyDiscriminatorEnum', () => {
-  const baseSchema: SchemaObject = {
-    type: 'object',
-    discriminator: {
-      propertyName: 'type',
-      mapping: {
-        dog: '#/components/schemas/Dog',
-        cat: '#/components/schemas/Cat',
-      },
-    },
-    properties: {
-      type: { type: 'string' },
-    },
-  } as SchemaObject
-
-  it('returns schema unchanged when there is no discriminator', () => {
-    const schema: SchemaObject = { type: 'object', properties: { id: { type: 'string' } } } as SchemaObject
-
-    expect(applyDiscriminatorEnum(schema)).toBe(schema)
-  })
-
-  it('returns schema unchanged when discriminator property is not in properties', () => {
-    const schema: SchemaObject = {
+  function makeObjectNode(propNames: Array<string>, name?: string): SchemaNode {
+    return createSchema({
       type: 'object',
-      discriminator: { propertyName: 'kind', mapping: { a: '#/a' } },
-      properties: {},
-    } as SchemaObject
+      name,
+      properties: propNames.map((p) => createProperty({ name: p, schema: createSchema({ type: 'string' }) as SchemaNode })),
+    }) as SchemaNode
+  }
 
-    expect(applyDiscriminatorEnum(schema)).toBe(schema)
+  const baseNode = makeObjectNode(['type', 'name'], 'Pet')
+
+  it('returns node unchanged when it is not an object', () => {
+    const stringNode = createSchema({ type: 'string' }) as SchemaNode
+    const result = applyDiscriminatorEnum({ node: stringNode, propertyName: 'type', values: ['dog'] })
+
+    expect(result).toBe(stringNode)
   })
 
-  it('widens enum to all mapping keys when no specificValue', () => {
-    const result = applyDiscriminatorEnum(baseSchema)
+  it('returns node unchanged when the target property does not exist', () => {
+    const result = applyDiscriminatorEnum({ node: baseNode, propertyName: 'kind', values: ['dog'] })
 
-    expect((result.properties!['type'] as SchemaObject).enum).toEqual(['dog', 'cat'])
-    // discriminator key is kept when no specificValue
-    expect((result as any).discriminator).toBeDefined()
+    expect(result).toBe(baseNode)
   })
 
-  it('narrows enum to the single specificValue', () => {
-    const result = applyDiscriminatorEnum(baseSchema, 'dog')
+  it('returns node unchanged when properties are empty', () => {
+    const emptyObj = createSchema({ type: 'object', properties: [] }) as SchemaNode
+    const result = applyDiscriminatorEnum({ node: emptyObj, propertyName: 'type', values: ['dog'] })
 
-    expect((result.properties!['type'] as SchemaObject).enum).toEqual(['dog'])
+    expect(result).toBe(emptyObj)
   })
 
-  it('strips the discriminator key when specificValue is provided', () => {
-    const result = applyDiscriminatorEnum(baseSchema, 'cat')
+  it('replaces the discriminator property with an unnamed enum for a single value', () => {
+    const result = applyDiscriminatorEnum({ node: baseNode, propertyName: 'type', values: ['dog'] })
 
-    expect((result as any).discriminator).toBeUndefined()
-  })
-
-  it('preserves other properties when narrowing', () => {
-    const result = applyDiscriminatorEnum(baseSchema, 'dog')
-
-    expect(result.properties).toHaveProperty('type')
     expect(result.type).toBe('object')
+
+    if (result.type !== 'object') return
+    const typeProp = result.properties?.find((p) => p.name === 'type')
+
+    expect(typeProp).toBeDefined()
+    expect(typeProp!.schema.type).toBe('enum')
+
+    if (typeProp!.schema.type !== 'enum') return
+
+    expect(typeProp!.schema.enumValues).toEqual(['dog'])
+    expect(typeProp!.schema.name).toBeUndefined()
+  })
+
+  it('replaces the discriminator property with a named enum for multiple values', () => {
+    const result = applyDiscriminatorEnum({
+      node: baseNode,
+      propertyName: 'type',
+      values: ['dog', 'cat'],
+      enumName: 'PetType',
+    })
+
+    expect(result.type).toBe('object')
+
+    if (result.type !== 'object') return
+    const typeProp = result.properties?.find((p) => p.name === 'type')
+
+    expect(typeProp).toBeDefined()
+    expect(typeProp!.schema.type).toBe('enum')
+
+    if (typeProp!.schema.type !== 'enum') return
+
+    expect(typeProp!.schema.enumValues).toEqual(['dog', 'cat'])
+    expect(typeProp!.schema.name).toBe('PetType')
+  })
+
+  it('preserves other properties when replacing the discriminator', () => {
+    const result = applyDiscriminatorEnum({ node: baseNode, propertyName: 'type', values: ['dog'] })
+
+    if (result.type !== 'object') return
+    const nameProp = result.properties?.find((p) => p.name === 'name')
+
+    expect(nameProp).toBeDefined()
+    expect(nameProp!.schema.type).toBe('string')
+  })
+
+  it('preserves the enum primitive as string', () => {
+    const result = applyDiscriminatorEnum({ node: baseNode, propertyName: 'type', values: ['dog'] })
+
+    if (result.type !== 'object') return
+    const typeProp = result.properties?.find((p) => p.name === 'type')
+
+    if (typeProp!.schema.type !== 'enum') return
+
+    expect(typeProp!.schema.primitive).toBe('string')
   })
 })
 
