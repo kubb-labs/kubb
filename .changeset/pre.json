@@ -45,5 +45,7 @@
     "unplugin-kubb": "5.0.7",
     "e2e": "0.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "tough-lemons-pump"
+  ]
 }

@@ -1,5 +1,16 @@
 # @kubb/core
 
+## 5.0.0-alpha.0
+
+### Major Changes
+
+- [`2d474ef`](https://github.com/kubb-labs/kubb/commit/2d474ef68bad43e13ec34e762194048cd2a194d9) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - First v5 alpha version
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.0
+
 ## 4.36.1
 
 ### Patch Changes
