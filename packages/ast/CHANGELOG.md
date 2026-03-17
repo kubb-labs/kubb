@@ -1,5 +1,11 @@
 # @kubb/ast
 
+## 5.0.0-alpha.1
+
+### Major Changes
+
+- [`a4682ea`](https://github.com/kubb-labs/kubb/commit/a4682ea8896ef7d9ccae1b6e9abd6ed7bcaac073) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - The minimum required Node.js version is 22.
+
 ## 5.0.0-alpha.0
 
 ## 4.36.1
