@@ -13,8 +13,8 @@
   "sideEffects": false,
   "scripts": {
     "clean": "npx rimraf ./dist",
-    "generate": "kubb generate",
-    "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
+    "generate": "KUBB_DISABLE_TELEMETRY=1 kubb generate",
+    "generate:debug": "NODE_OPTIONS='--inspect-brk' KUBB_DISABLE_TELEMETRY=1 kubb generate",
     "validate": "kubb validate --input petStore.yaml",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"

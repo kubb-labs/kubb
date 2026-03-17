@@ -14,6 +14,25 @@ export default defineConfig([
       path: './src/gen',
       clean: true,
     },
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
+      pluginTs({
+        output: {
+          path: 'models.ts',
+          barrelType: false,
+        },
+        enumType: 'enum',
+        syntaxType: 'interface',
+      }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: {
+      path: './src/gen2',
+      clean: true,
+    },
     adapter: adapterOas({
       validate: false,
     }),
@@ -21,7 +40,7 @@ export default defineConfig([
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
-          path: 'models.ts',
+          path: 'models_v5.ts',
           barrelType: false,
         },
         enumType: 'enum',

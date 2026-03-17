@@ -16,7 +16,7 @@
     "build": "vite build",
     "clean": "npx rimraf ./dist",
     "dev": "vite",
-    "generate": "kubb generate",
+    "generate": "KUBB_DISABLE_TELEMETRY=1 kubb generate",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },

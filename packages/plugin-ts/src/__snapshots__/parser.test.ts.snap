@@ -510,37 +510,7 @@ NodeObject {
 }
 `;
 
-exports[`type parse > 'const' 1`] = `
-NodeObject {
-  "emitNode": undefined,
-  "end": -1,
-  "flags": 16,
-  "id": 0,
-  "kind": 202,
-  "literal": NodeObject {
-    "emitNode": undefined,
-    "end": -1,
-    "flags": 16,
-    "hasExtendedUnicodeEscape": undefined,
-    "id": 0,
-    "kind": 11,
-    "localSymbol": undefined,
-    "modifierFlagsCache": 0,
-    "original": undefined,
-    "parent": undefined,
-    "pos": -1,
-    "singleQuote": undefined,
-    "symbol": undefined,
-    "text": "",
-    "transformFlags": 0,
-  },
-  "modifierFlagsCache": 0,
-  "original": undefined,
-  "parent": undefined,
-  "pos": -1,
-  "transformFlags": 1,
-}
-`;
+exports[`type parse > 'const' 1`] = `undefined`;
 
 exports[`type parse > 'date' 1`] = `
 TokenObject {

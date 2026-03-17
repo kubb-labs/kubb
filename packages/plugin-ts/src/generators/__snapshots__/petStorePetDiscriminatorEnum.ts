@@ -18,7 +18,7 @@ export type petStorePet =
       /**
        * @type string
        */
-      readonly type: 'dog'
+      type: 'dog'
       /**
        * @type string
        */
@@ -36,7 +36,7 @@ export type petStorePet =
       /**
        * @type string
        */
-      readonly type: 'cat'
+      type: 'cat'
       /**
        * @type string
        */

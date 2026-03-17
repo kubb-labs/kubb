@@ -13,14 +13,14 @@
   "sideEffects": false,
   "scripts": {
     "clean": "npx rimraf ./dist",
-    "generate": "kubb generate",
+    "generate": "KUBB_DISABLE_TELEMETRY=1 kubb generate",
     "validate": "kubb validate --input petStore.yaml",
     "mcp": "kubb mcp",
-    "generate:watch": "kubb generate --watch",
-    "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
+    "generate:watch": "KUBB_DISABLE_TELEMETRY=1 kubb generate --watch",
+    "generate:debug": "NODE_OPTIONS='--inspect-brk' KUBB_DISABLE_TELEMETRY=1 kubb generate",
     "agent": "kubb agent start --port 4002",
     "init": "kubb init -y",
-    "generate:ts": "kubb generate --config configs/kubb.config.ts",
+    "generate:ts": "KUBB_DISABLE_TELEMETRY=1 kubb generate --config configs/kubb.config.ts",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
