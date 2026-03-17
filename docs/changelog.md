@@ -6,6 +6,43 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.1
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/cli`](/packages/cli)
+#### [`@kubb/core`](/packages/core)
+#### [`@kubb/plugin-client`](/packages/plugin-client)
+#### [`@kubb/plugin-cypress`](/packages/plugin-cypress)
+#### [`@kubb/plugin-faker`](/packages/plugin-faker)
+#### [`@kubb/plugin-msw`](/packages/plugin-msw)
+#### [`@kubb/plugin-mcp`](/packages/plugin-mcp)
+#### [`@kubb/plugin-oas`](/packages/plugin-oas)
+#### [`@kubb/plugin-react-query`](/packages/plugin-react-query)
+#### [`@kubb/plugin-redoc`](/packages/plugin-redoc)
+#### [`@kubb/plugin-solid-query`](/packages/plugin-solid-query)
+#### [`@kubb/plugin-svelte-query`](/packages/plugin-svelte-query)
+#### [`@kubb/plugin-swr`](/packages/plugin-swr)
+#### [`@kubb/plugin-ts`](/packages/plugin-ts)
+#### [`@kubb/plugin-vue-query`](/packages/plugin-vue-query)
+#### [`@kubb/plugin-zod`](/packages/plugin-zod)
+#### [`@kubb/oas`](/packages/oas)
+#### [`@kubb/adapter-oas`](/packages/adapter-oas)
+#### [`@kubb/ast`](/packages/ast)
+
+-   [`a4682ea`](https://github.com/kubb-labs/kubb/commit/a4682ea8896ef7d9ccae1b6e9abd6ed7bcaac073) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - The minimum required Node.js version is now **22**. This update affects all plugins and core packages listed above. Ensure your environment is running Node.js 22 or higher to utilize this version.
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-client`](/packages/plugin-client)
+#### [`@kubb/plugin-cypress`](/packages/plugin-cypress)
+#### [`@kubb/plugin-faker`](/packages/plugin-faker)
+#### [`@kubb/plugin-msw`](/packages/plugin-msw)
+#### [`@kubb/plugin-mcp`](/packages/plugin-mcp) ...
+
+- `patch-changes:a508c`
+
+
 ## 4.36.1
 
 ### ✨ Features
