@@ -65,9 +65,6 @@ export default defineConfig(() => {
             return `${group}Service`
           },
         },
-        wrapper: {
-          className: 'PetStoreClient',
-        },
       }),
       pluginCypress({
         output: {
