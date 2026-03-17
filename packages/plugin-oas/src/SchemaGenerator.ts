@@ -1360,10 +1360,7 @@ export class SchemaGenerator<
     return this.#doBuild(schemas, generators)
   }
 
-  async #doBuild(
-    schemas: Record<string, OasTypes.SchemaObject>,
-    generators: Array<Generator<TPluginOptions>>,
-  ): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const schemaEntries = Object.entries(schemas)
 
     const generatorLimit = pLimit(GENERATOR_CONCURRENCY)

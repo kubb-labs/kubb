@@ -30,6 +30,7 @@ export type SchemaV2Props<TPlugin extends PluginFactoryOptions = PluginFactoryOp
 type UserCoreGeneratorV2<TPlugin extends PluginFactoryOptions> = {
   name: string
   type: 'core'
+  version?: '2'
   operations?(props: OperationsV2Props<TPlugin>): Promise<Array<KubbFile.File>>
   operation?(props: OperationV2Props<TPlugin>): Promise<Array<KubbFile.File>>
   schema?(props: SchemaV2Props<TPlugin>): Promise<Array<KubbFile.File>>
@@ -38,6 +39,7 @@ type UserCoreGeneratorV2<TPlugin extends PluginFactoryOptions> = {
 type UserReactGeneratorV2<TPlugin extends PluginFactoryOptions> = {
   name: string
   type: 'react'
+  version?: '2'
   Operations?(props: OperationsV2Props<TPlugin>): FabricReactNode
   Operation?(props: OperationV2Props<TPlugin>): FabricReactNode
   Schema?(props: SchemaV2Props<TPlugin>): FabricReactNode

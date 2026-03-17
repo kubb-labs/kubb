@@ -41,4 +41,3 @@ export const createReactGenerator = _createReactGenerator
  * @deprecated use `import { Generator } from '@kubb/plugin-oas/generators'`
  */
 export type Generator<TOptions extends PluginFactoryOptions> = _Generator<TOptions>
-
