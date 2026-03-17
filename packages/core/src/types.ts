@@ -508,5 +508,6 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
 
 export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Omit<Logger<TOptions>, 'logLevel'>
 
+export type { CoreGeneratorV2, Generator, ReactGeneratorV2 } from './defineGenerator.ts'
 export type { DefineStorage } from './defineStorage.ts'
 export type { KubbEvents } from './Kubb.ts'

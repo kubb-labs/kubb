@@ -1,5 +1,5 @@
 import type { OperationNode, SchemaNode } from '@kubb/ast/types'
-import type { Adapter, Config, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
+import type { Adapter, Config, Plugin, PluginFactoryOptions, PluginManager, ReactGeneratorV2 } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import { App, createReactFabric, type Fabric } from '@kubb/react-fabric'
@@ -16,13 +16,13 @@ type BuildOperationsBaseOptions<TOptions extends PluginFactoryOptions> = {
 
 type BuildOperationsV1Options<TOptions extends PluginFactoryOptions> = BuildOperationsBaseOptions<TOptions> & {
   version?: '1'
-  Component: ReactGenerator<any, '1'>['Operations']
+  Component: ReactGenerator<TOptions>['Operations']
   generator: Omit<OperationGenerator<TOptions>, 'build'>
 }
 
 type BuildOperationsV2Options<TOptions extends PluginFactoryOptions> = BuildOperationsBaseOptions<TOptions> & {
   version: '2'
-  Component: ReactGenerator<any, '2'>['Operations']
+  Component: ReactGeneratorV2<TOptions>['Operations'] | undefined
   adapter: Adapter
   pluginManager: PluginManager
   mode: KubbFile.Mode
@@ -85,13 +85,13 @@ type BuildOperationBaseOptions<TOptions extends PluginFactoryOptions> = {
 
 type BuildOperationV1Options<TOptions extends PluginFactoryOptions> = BuildOperationBaseOptions<TOptions> & {
   version?: '1'
-  Component: ReactGenerator<any, '1'>['Operation']
+  Component: ReactGenerator<TOptions>['Operation']
   generator: Omit<OperationGenerator<TOptions>, 'build'>
 }
 
 type BuildOperationV2Options<TOptions extends PluginFactoryOptions> = BuildOperationBaseOptions<TOptions> & {
   version: '2'
-  Component: ReactGenerator<any, '2'>['Operation']
+  Component: ReactGeneratorV2<TOptions>['Operation'] | undefined
   adapter: Adapter
   pluginManager: PluginManager
   mode: KubbFile.Mode
@@ -148,13 +148,13 @@ type BuildSchemaBaseOptions<TOptions extends PluginFactoryOptions> = {
 
 type BuildSchemaV1Options<TOptions extends PluginFactoryOptions> = BuildSchemaBaseOptions<TOptions> & {
   version?: '1'
-  Component: ReactGenerator<any, '1'>['Schema']
+  Component: ReactGenerator<TOptions>['Schema']
   generator: Omit<SchemaGenerator<SchemaGeneratorOptions, TOptions>, 'build'>
 }
 
 type BuildSchemaV2Options<TOptions extends PluginFactoryOptions> = BuildSchemaBaseOptions<TOptions> & {
   version: '2'
-  Component: ReactGenerator<any, '2'>['Schema']
+  Component: ReactGeneratorV2<TOptions>['Schema'] | undefined
   adapter: Adapter
   pluginManager: PluginManager
   mode: KubbFile.Mode

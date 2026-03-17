@@ -1,13 +1,13 @@
 import type { SchemaNode } from '@kubb/ast/types'
+import { defineGenerator } from '@kubb/core'
 import { useKubb } from '@kubb/core/hooks'
-import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { File } from '@kubb/react-fabric'
 import { Type } from '../../components/v2/Type.tsx'
 import type { PluginTs } from '../../types'
 
-export const typeGenerator = createReactGenerator<PluginTs, '2'>({
+export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
-  version: '2',
+  type: 'react',
   Operation({ node, adapter, options }) {
     const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType } = options
 

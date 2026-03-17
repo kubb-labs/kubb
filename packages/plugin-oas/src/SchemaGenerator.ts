@@ -8,7 +8,7 @@ import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import type { CoreGenerator } from './generators/createGenerator.ts'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
-import type { Generator, Version } from './generators/types.ts'
+import type { Generator } from './generators/types.ts'
 import { isKeyword, type Schema, type SchemaKeywordMapper, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
@@ -1337,7 +1337,7 @@ export class SchemaGenerator<
     return [{ keyword: emptyType }, ...baseItems]
   }
 
-  async build(...generators: Array<Generator<TPluginOptions, Version>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
 
     // Initialize the name mapping if not already done
@@ -1360,10 +1360,7 @@ export class SchemaGenerator<
     return this.#doBuild(schemas, generators)
   }
 
-  async #doBuild(
-    schemas: Record<string, OasTypes.SchemaObject>,
-    generators: Array<Generator<TPluginOptions, Version>>,
-  ): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const schemaEntries = Object.entries(schemas)
 
     const generatorLimit = pLimit(GENERATOR_CONCURRENCY)
@@ -1376,7 +1373,7 @@ export class SchemaGenerator<
         }
 
         // After the v2 guard above, all generators here are v1
-        const v1Generator = generator as ReactGenerator<TPluginOptions, '1'> | CoreGenerator<TPluginOptions, '1'>
+        const v1Generator = generator as ReactGenerator<TPluginOptions> | CoreGenerator<TPluginOptions>
 
         const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
           schemaLimit(async () => {
