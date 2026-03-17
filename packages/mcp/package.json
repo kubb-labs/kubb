@@ -75,7 +75,7 @@
     "@kubb/react-fabric": "0.13.3"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "publishConfig": {
     "access": "public",
