@@ -2,7 +2,7 @@ import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
 import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
-import { buildSchema, OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
+import { buildOperation, buildSchema, OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { typeGenerator, typeGeneratorV2 } from './generators'
 import type { PluginTs } from './types.ts'
 
@@ -58,6 +58,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       usedEnumNames,
     },
     pre: [pluginOasName],
+    //resolveOptions(operation|schema): ResolvedOptions
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? getMode(path.resolve(root, output.path))
@@ -121,6 +122,24 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
                     config,
                     fabric,
                     Component: generator.Schema,
+                    plugin,
+                    pluginManager,
+                    mode,
+                    version: generator.version,
+                  })
+                }
+              })
+
+              await writeTasks
+            },
+            async operation(operationNode) {
+              const writeTasks = generators.map(async (generator) => {
+                if (generator.type === 'react' && generator.version === '2') {
+                  await buildOperation(operationNode, {
+                    adapter,
+                    config,
+                    fabric,
+                    Component: generator.Operation,
                     plugin,
                     pluginManager,
                     mode,

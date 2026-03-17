@@ -18,7 +18,8 @@ export type OperationsV1Props<TOptions extends PluginFactoryOptions> = {
 
 export type OperationsV2Props<TOptions extends PluginFactoryOptions> = {
   config: Config
-  plugin: Plugin<TOptions>
+  adapter: Adapter
+  options: Plugin<TOptions>['options']
   nodes: Array<OperationNode>
 }
 
@@ -31,7 +32,8 @@ export type OperationV1Props<TOptions extends PluginFactoryOptions> = {
 
 export type OperationV2Props<TOptions extends PluginFactoryOptions> = {
   config: Config
-  plugin: Plugin<TOptions>
+  adapter: Adapter
+  options: Plugin<TOptions>['options']
   node: OperationNode
 }
 
@@ -56,7 +58,7 @@ export type SchemaV1Props<TOptions extends PluginFactoryOptions> = {
 
 export type SchemaV2Props<TOptions extends PluginFactoryOptions> = {
   config: Config
-  plugin: Plugin<TOptions>
+  options: Plugin<TOptions>['options']
   node: SchemaNode
   adapter: Adapter
 }
