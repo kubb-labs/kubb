@@ -695,7 +695,7 @@ describe('typeGenerator schema', async () => {
     }
     const plugin = { options } as Plugin<PluginTs>
 
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
@@ -729,7 +729,7 @@ describe('typeGenerator schema', async () => {
       },
     )
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })
 
@@ -856,7 +856,7 @@ describe('typeGenerator operation', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginTs>
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -878,6 +878,6 @@ describe('typeGenerator operation', async () => {
       plugin,
     })
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })

@@ -59,7 +59,7 @@ describe('groupedClientsGenerators operations', async () => {
       ...props.options,
     }
     const plugin = { options } as Plugin<PluginClient>
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -86,6 +86,6 @@ describe('groupedClientsGenerators operations', async () => {
       },
     )
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })

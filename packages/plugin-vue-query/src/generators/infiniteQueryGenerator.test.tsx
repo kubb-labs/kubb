@@ -88,7 +88,7 @@ describe('infiniteQueryGenerator operation', async () => {
     }
     const plugin = { options } as Plugin<PluginVueQuery>
 
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
@@ -111,6 +111,6 @@ describe('infiniteQueryGenerator operation', async () => {
       plugin,
     })
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })
