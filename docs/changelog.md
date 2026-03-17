@@ -6,6 +6,53 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.3
+
+### ✨ Features
+
+#### [`@kubb/plugin-ts`](/packages/plugin-ts)
+
+-   [#2752](https://github.com/kubb-labs/kubb/pull/2752) [`827b444`](https://github.com/kubb-labs/kubb/commit/827b444e7c7c62d36ba9eaed7303ed0d18a7fa45) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Improved discriminator handling — named and inline enum variants are now generated correctly for discriminator properties.
+
+    ::: code-group
+    ```typescript [Example]
+    // Named enum example
+    type Animal = { type: 'dog', bark: boolean } | { type: 'cat', meow: boolean };
+
+    // Inline enum example
+    type Animal = { type: 'dog' | 'cat'; sound: 'bark' | 'meow' | 'purr' };
+    ```
+    :::
+
+-   Better support for string-based types (`uuid`, `email`, `url`, `datetime`, `date`, `time`) so they are consistently emitted as plain strings when expected.
+
+-   Operation paths are now available in Express-style format (e.g., `/pets/:petId`), making it easier to use them directly in route definitions.
+
+    ::: code-group
+    ```typescript [Example Usage]
+    const path = "/pets/:petId";
+    // Use with Express
+    app.get(path, (req, res) => {
+      res.send(`Fetching details for pet with ID ${req.params.petId}`);
+    });
+    ```
+    :::
+
+#### [`@kubb/adapter-oas`](/packages/adapter-oas)
+
+-   [#2752](https://github.com/kubb-labs/kubb/pull/2752) [`827b444`](https://github.com/kubb-labs/kubb/commit/827b444e7c7c62d36ba9eaed7303ed0d18a7fa45) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Improved discriminator handling — named and inline enum variants are now generated correctly for discriminator properties.
+
+    -   Better support for string-based types (`uuid`, `email`, `url`, `datetime`, `date`, `time`) so they are consistently emitted as plain strings when expected.
+    -   Operation paths are now available in Express-style format (e.g., `/pets/:petId`), making it easier to use them directly in route definitions.
+
+#### [`@kubb/ast`](/packages/ast)
+
+-   [#2752](https://github.com/kubb-labs/kubb/pull/2752) [`827b444`](https://github.com/kubb-labs/kubb/commit/827b444e7c7c62d36ba9eaed7303ed0d18a7fa45) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Improved discriminator handling — named and inline enum variants are now generated correctly for discriminator properties.
+
+    -   Better support for string-based types (`uuid`, `email`, `url`, `datetime`, `date`, `time`) so they are consistently emitted as plain strings when expected.
+    -   Operation paths are now available in Express-style format (e.g., `/pets/:petId`), making it easier to use them directly in route definitions.
+
+
 ## 4.36.1
 
 ### ✨ Features
