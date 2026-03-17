@@ -22,4 +22,3 @@ export function isPlainStringType(node: SchemaNode): boolean {
 
   return false
 }
-
