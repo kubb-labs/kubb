@@ -1,4 +1,5 @@
 import { jsStringEscape, stringify } from '@internals/utils'
+import { isPlainStringType } from '@kubb/ast'
 import type { ArraySchemaNode, SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
@@ -37,20 +38,6 @@ function constToTypeNode(value: string | number | boolean, format: 'string' | 'n
 
 function dateOrStringNode(node: { representation?: string }): ts.TypeNode {
   return node.representation === 'date' ? factory.createTypeReferenceNode(factory.createIdentifier('Date')) : factory.keywordTypeNodes.string
-}
-
-const plainStringTypes = new Set(['string', 'uuid', 'email', 'url', 'datetime'])
-
-function isPlainStringType(node: SchemaNode): boolean {
-  if (plainStringTypes.has(node.type)) {
-    return true
-  }
-
-  if ((node.type === 'date' || node.type === 'time') && (node as { representation?: string }).representation !== 'date') {
-    return true
-  }
-
-  return false
 }
 
 function buildMemberNodes(members: Array<SchemaNode> | undefined, print: (node: SchemaNode) => ts.TypeNode | null | undefined): Array<ts.TypeNode> {
