@@ -1,4 +1,80 @@
 export type {
+  AddPetMutationArg,
+  AddPetMutationKey,
+} from './hooks/useAddPet.ts'
+export { addPet, addPetMutationKey, useAddPet } from './hooks/useAddPet.ts'
+export type {
+  CreateUserMutationArg,
+  CreateUserMutationKey,
+} from './hooks/useCreateUser.ts'
+export { createUser, createUserMutationKey, useCreateUser } from './hooks/useCreateUser.ts'
+export type {
+  CreateUsersWithListInputMutationArg,
+  CreateUsersWithListInputMutationKey,
+} from './hooks/useCreateUsersWithListInput.ts'
+export { createUsersWithListInput, createUsersWithListInputMutationKey, useCreateUsersWithListInput } from './hooks/useCreateUsersWithListInput.ts'
+export type {
+  DeleteOrderMutationArg,
+  DeleteOrderMutationKey,
+} from './hooks/useDeleteOrder.ts'
+export { deleteOrder, deleteOrderMutationKey, useDeleteOrder } from './hooks/useDeleteOrder.ts'
+export type {
+  DeletePetMutationArg,
+  DeletePetMutationKey,
+} from './hooks/useDeletePet.ts'
+export { deletePet, deletePetMutationKey, useDeletePet } from './hooks/useDeletePet.ts'
+export type {
+  DeleteUserMutationArg,
+  DeleteUserMutationKey,
+} from './hooks/useDeleteUser.ts'
+export { deleteUser, deleteUserMutationKey, useDeleteUser } from './hooks/useDeleteUser.ts'
+export type { FindPetsByStatusQueryKey } from './hooks/useFindPetsByStatus.ts'
+export { findPetsByStatus, findPetsByStatusQueryKey, findPetsByStatusQueryOptions, useFindPetsByStatus } from './hooks/useFindPetsByStatus.ts'
+export type { FindPetsByTagsQueryKey } from './hooks/useFindPetsByTags.ts'
+export { findPetsByTags, findPetsByTagsQueryKey, findPetsByTagsQueryOptions, useFindPetsByTags } from './hooks/useFindPetsByTags.ts'
+export type { GetInventoryQueryKey } from './hooks/useGetInventory.ts'
+export { getInventory, getInventoryQueryKey, getInventoryQueryOptions, useGetInventory } from './hooks/useGetInventory.ts'
+export type { GetOrderByIdQueryKey } from './hooks/useGetOrderById.ts'
+export { getOrderById, getOrderByIdQueryKey, getOrderByIdQueryOptions, useGetOrderById } from './hooks/useGetOrderById.ts'
+export type { GetPetByIdQueryKey } from './hooks/useGetPetById.ts'
+export { getPetById, getPetByIdQueryKey, getPetByIdQueryOptions, useGetPetById } from './hooks/useGetPetById.ts'
+export type { GetUserByNameQueryKey } from './hooks/useGetUserByName.ts'
+export { getUserByName, getUserByNameQueryKey, getUserByNameQueryOptions, useGetUserByName } from './hooks/useGetUserByName.ts'
+export type { LoginUserQueryKey } from './hooks/useLoginUser.ts'
+export { loginUser, loginUserQueryKey, loginUserQueryOptions, useLoginUser } from './hooks/useLoginUser.ts'
+export type { LogoutUserQueryKey } from './hooks/useLogoutUser.ts'
+export { logoutUser, logoutUserQueryKey, logoutUserQueryOptions, useLogoutUser } from './hooks/useLogoutUser.ts'
+export type {
+  PlaceOrderMutationArg,
+  PlaceOrderMutationKey,
+} from './hooks/usePlaceOrder.ts'
+export { placeOrder, placeOrderMutationKey, usePlaceOrder } from './hooks/usePlaceOrder.ts'
+export type {
+  PlaceOrderPatchMutationArg,
+  PlaceOrderPatchMutationKey,
+} from './hooks/usePlaceOrderPatch.ts'
+export { placeOrderPatch, placeOrderPatchMutationKey, usePlaceOrderPatch } from './hooks/usePlaceOrderPatch.ts'
+export type {
+  UpdatePetMutationArg,
+  UpdatePetMutationKey,
+} from './hooks/useUpdatePet.ts'
+export { updatePet, updatePetMutationKey, useUpdatePet } from './hooks/useUpdatePet.ts'
+export type {
+  UpdatePetWithFormMutationArg,
+  UpdatePetWithFormMutationKey,
+} from './hooks/useUpdatePetWithForm.ts'
+export { updatePetWithForm, updatePetWithFormMutationKey, useUpdatePetWithForm } from './hooks/useUpdatePetWithForm.ts'
+export type {
+  UpdateUserMutationArg,
+  UpdateUserMutationKey,
+} from './hooks/useUpdateUser.ts'
+export { updateUser, updateUserMutationKey, useUpdateUser } from './hooks/useUpdateUser.ts'
+export type {
+  UploadFileMutationArg,
+  UploadFileMutationKey,
+} from './hooks/useUploadFile.ts'
+export { uploadFile, uploadFileMutationKey, useUploadFile } from './hooks/useUploadFile.ts'
+export type {
   AddPet200,
   AddPet405,
   AddPetMutation,

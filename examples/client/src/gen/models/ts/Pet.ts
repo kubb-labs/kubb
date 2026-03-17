@@ -3,16 +3,16 @@
  * Do not edit manually.
  */
 
-import type { Category } from './Category.ts'
-import type { Tag } from './Tag.ts'
+import type { Category } from './Category.js'
+import type { Tag } from './Tag.js'
 
-export const petStatusEnum5 = {
+export const petStatusEnum = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
 
-export type PetStatusEnum5Key = (typeof petStatusEnum5)[keyof typeof petStatusEnum5]
+export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
 
 export type Pet = {
   /**
@@ -39,5 +39,5 @@ export type Pet = {
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: PetStatusEnum5Key
+  status?: PetStatusEnumKey
 }

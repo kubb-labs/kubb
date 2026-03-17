@@ -3,16 +3,16 @@
  * Do not edit manually.
  */
 
-import type { Category } from './Category.ts'
-import type { Tag } from './Tag.ts'
+import type { Category } from './Category.js'
+import type { Tag } from './Tag.js'
 
-export const addPetRequestStatusEnum5 = {
+export const addPetRequestStatusEnum = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
 
-export type AddPetRequestStatusEnum5Key = (typeof addPetRequestStatusEnum5)[keyof typeof addPetRequestStatusEnum5]
+export type AddPetRequestStatusEnumKey = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
 
 export type AddPetRequest = {
   /**
@@ -39,5 +39,5 @@ export type AddPetRequest = {
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: AddPetRequestStatusEnum5Key
+  status?: AddPetRequestStatusEnumKey
 }

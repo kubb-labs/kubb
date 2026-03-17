@@ -35,7 +35,7 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen' },
+    output: { path: './src/gen2' },
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },

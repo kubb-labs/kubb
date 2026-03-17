@@ -4,30 +4,30 @@ export type {
   AddPetMutation,
   AddPetMutationRequest,
   AddPetMutationResponse,
-} from './AddPet.ts'
+} from './AddPet.js'
 export type {
   DeletePet400,
   DeletePetHeaderParams,
   DeletePetMutation,
   DeletePetMutationResponse,
   DeletePetPathParams,
-} from './DeletePet.ts'
+} from './DeletePet.js'
 export type {
   FindPetsByStatus200,
   FindPetsByStatus400,
   FindPetsByStatusQuery,
   FindPetsByStatusQueryParams,
-  FindPetsByStatusQueryParamsStatusEnum5Key,
+  FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
-} from './FindPetsByStatus.ts'
-export { findPetsByStatusQueryParamsStatusEnum5 } from './FindPetsByStatus.ts'
+} from './FindPetsByStatus.js'
+export { findPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatus.js'
 export type {
   FindPetsByTags200,
   FindPetsByTags400,
   FindPetsByTagsQuery,
   FindPetsByTagsQueryParams,
   FindPetsByTagsQueryResponse,
-} from './FindPetsByTags.ts'
+} from './FindPetsByTags.js'
 export type {
   GetPetById200,
   GetPetById400,
@@ -35,7 +35,7 @@ export type {
   GetPetByIdPathParams,
   GetPetByIdQuery,
   GetPetByIdQueryResponse,
-} from './GetPetById.ts'
+} from './GetPetById.js'
 export type {
   UpdatePet200,
   UpdatePet400,
@@ -44,14 +44,14 @@ export type {
   UpdatePetMutation,
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
-} from './UpdatePet.ts'
+} from './UpdatePet.js'
 export type {
   UpdatePetWithForm405,
   UpdatePetWithFormMutation,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-} from './UpdatePetWithForm.ts'
+} from './UpdatePetWithForm.js'
 export type {
   UploadFile200,
   UploadFileMutation,
@@ -59,4 +59,4 @@ export type {
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
-} from './UploadFile.ts'
+} from './UploadFile.js'

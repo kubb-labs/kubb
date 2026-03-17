@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { Pet } from '../Pet.ts'
+import type { Pet } from '../Pet.js'
 
 /**
  * @description Successful operation

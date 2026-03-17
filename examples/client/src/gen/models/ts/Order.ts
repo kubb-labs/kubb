@@ -3,21 +3,21 @@
  * Do not edit manually.
  */
 
-export const orderStatusEnum5 = {
+export const orderStatusEnum = {
   placed: 'placed',
   approved: 'approved',
   delivered: 'delivered',
 } as const
 
-export type OrderStatusEnum5Key = (typeof orderStatusEnum5)[keyof typeof orderStatusEnum5]
+export type OrderStatusEnumKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
-export const orderHttpStatusEnum5 = {
+export const orderHttpStatusEnum = {
   '200': 200,
   '400': 400,
   '500': 500,
 } as const
 
-export type OrderHttpStatusEnum5Key = (typeof orderHttpStatusEnum5)[keyof typeof orderHttpStatusEnum5]
+export type OrderHttpStatusEnumKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
 
 export type Order = {
   /**
@@ -40,12 +40,12 @@ export type Order = {
    * @description Order Status
    * @type string | undefined
    */
-  status?: OrderStatusEnum5Key
+  status?: OrderStatusEnumKey
   /**
    * @description HTTP Status
    * @type number | undefined
    */
-  http_status?: OrderHttpStatusEnum5Key
+  http_status?: OrderHttpStatusEnumKey
   /**
    * @type boolean | undefined
    */

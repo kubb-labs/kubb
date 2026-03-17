@@ -1,0 +1,6 @@
+{
+  "properties": {
+    "code": { "format": "int32", "type": "integer" },
+    "message": { "type": "string" }
+  }
+}

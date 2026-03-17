@@ -36,6 +36,7 @@ export default defineConfig(() => {
         output: {
           path: 'schemas2',
         },
+        generators: [],
         validate: false,
       }),
       pluginTs({

@@ -25,7 +25,7 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen' },
+    output: { path: './src/gen2' },
     plugins: [
       pluginOas({
         output: { path: './example2.ts' },
@@ -37,7 +37,7 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen' },
+    output: { path: './src/gen3' },
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },

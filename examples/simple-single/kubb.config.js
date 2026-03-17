@@ -28,6 +28,7 @@ export default defineConfig([
     plugins: [
       pluginOas({
         validate: true,
+        generators: [],
       }),
       pluginRedoc({
         output: {

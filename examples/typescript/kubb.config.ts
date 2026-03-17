@@ -15,7 +15,7 @@ export default defineConfig([
       clean: true,
     },
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'models.ts',
@@ -29,9 +29,9 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen' },
+    output: { path: './src/gen2' },
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'modelsConst.ts',
@@ -46,7 +46,7 @@ export default defineConfig([
     input,
     output: { path: './src/gen' },
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'modelsPascalConst.ts',
@@ -61,7 +61,7 @@ export default defineConfig([
     input,
     output: { path: './src/gen' },
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'modelsConstEnum.ts',
@@ -76,7 +76,7 @@ export default defineConfig([
     input,
     output: { path: './src/gen' },
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'modelsLiteral.ts',
@@ -94,7 +94,7 @@ export default defineConfig([
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'ts/models',

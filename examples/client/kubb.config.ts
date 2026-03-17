@@ -33,7 +33,7 @@ export default defineConfig([
       },
     },
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: false, generators: [] }),
       tsPlugin,
       pluginClient({
         output: {
@@ -57,7 +57,7 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen' },
+    output: { path: './src/gen2' },
     plugins: [
       pluginOas({ validate: false }),
       tsPlugin,
@@ -84,9 +84,9 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen' },
+    output: { path: './src/gen3' },
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: false, generators: [] }),
       tsPlugin,
       pluginClient({
         output: { path: './tagObject.ts' },
@@ -106,9 +106,9 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen' },
+    output: { path: './src/gen4' },
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: false, generators: [] }),
       pluginClient({
         output: { path: './tagClientOperation.ts' },
         generators: [clientOperationGenerator],
@@ -121,9 +121,9 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen' },
+    output: { path: './src/gen5' },
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: false, generators: [] }),
       pluginClient({
         output: { path: './tagClientOperationReact.ts' },
         generators: [clientOperationReactGenerator],
@@ -136,9 +136,9 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen' },
+    output: { path: './src/gen6' },
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: false, generators: [] }),
       tsPlugin,
       pluginClient({
         output: { path: './tag.ts' },
@@ -164,12 +164,12 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen' },
+    output: { path: './src/gen7' },
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
     plugins: [
-      pluginOas({ validate: false }),
+      pluginOas({ validate: false, generators: [] }),
       tsPlugin,
       pluginClient({
         output: {
