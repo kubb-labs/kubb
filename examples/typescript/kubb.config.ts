@@ -43,6 +43,15 @@ export default defineConfig([
           path: 'models_v5.ts',
           barrelType: false,
         },
+        override: [
+          {
+            type: 'schemaName',
+            pattern: 'Pet',
+            options: {
+              syntaxType: 'type',
+            },
+          },
+        ],
         enumType: 'enum',
         syntaxType: 'interface',
       }),
