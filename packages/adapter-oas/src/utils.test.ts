@@ -1,7 +1,12 @@
 import { createProperty, createSchema } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { describe, expect, it } from 'vitest'
-import { applyDiscriminatorEnum, extractRefName, getImports, mergeAdjacentAnonymousObjects } from './utils.ts'
+import {
+  applyDiscriminatorEnum,
+  extractRefName,
+  getImports,
+  mergeAdjacentAnonymousObjects,
+} from './utils.ts'
 
 describe('extractRefName', () => {
   it('extracts the last path segment from a $ref string', () => {
@@ -111,9 +116,7 @@ describe('applyDiscriminatorEnum', () => {
   it('preserves readOnly from the original property schema', () => {
     const readOnlyNode = createSchema({
       type: 'object',
-      properties: [
-        createProperty({ name: 'type', schema: createSchema({ type: 'string', readOnly: true }) as SchemaNode }),
-      ],
+      properties: [createProperty({ name: 'type', schema: createSchema({ type: 'string', readOnly: true }) as SchemaNode })],
     }) as SchemaNode
 
     const result = applyDiscriminatorEnum({ node: readOnlyNode, propertyName: 'type', values: ['dog'] })
@@ -127,9 +130,7 @@ describe('applyDiscriminatorEnum', () => {
   it('preserves writeOnly from the original property schema', () => {
     const writeOnlyNode = createSchema({
       type: 'object',
-      properties: [
-        createProperty({ name: 'type', schema: createSchema({ type: 'string', writeOnly: true }) as SchemaNode }),
-      ],
+      properties: [createProperty({ name: 'type', schema: createSchema({ type: 'string', writeOnly: true }) as SchemaNode })],
     }) as SchemaNode
 
     const result = applyDiscriminatorEnum({ node: writeOnlyNode, propertyName: 'type', values: ['dog'] })

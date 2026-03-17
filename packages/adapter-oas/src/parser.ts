@@ -477,8 +477,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
         ...unionBase,
         members: unionMembers.map((s) => {
           const ref = isReference(s) ? s.$ref : undefined
-          const discriminatorValue =
-            discriminator?.mapping && ref ? Object.entries(discriminator.mapping).find(([, v]) => v === ref)?.[0] : undefined
+          const discriminatorValue = discriminator?.mapping && ref ? Object.entries(discriminator.mapping).find(([, v]) => v === ref)?.[0] : undefined
 
           let propertiesNode = convertSchema({ schema: memberBaseSchema, name }, options)
 
@@ -958,16 +957,21 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * When the parameter has no `schema` or its schema is a `$ref`, falls back to `unknownType`.
    */
   function parseParameter(options: Options, param: Record<string, unknown>): ParameterNode {
-    const schema =
-      param['schema'] && !isReference(param['schema'] as object)
+    const required = (param['required'] as boolean | undefined) ?? false
+
+    const schema: SchemaNode =
+      param['schema'] && !isReference(param['schema'])
         ? convertSchema({ schema: param['schema'] as SchemaObject }, options)
         : createSchema({ type: resolveTypeOption(options.unknownType) })
 
     return createParameter({
       name: param['name'] as string,
       in: param['in'] as ParameterLocation,
-      schema,
-      required: (param['required'] as boolean | undefined) ?? false,
+      schema: {
+        ...schema,
+        optional: !required || schema.optional || undefined,
+      },
+      required,
     })
   }
 
