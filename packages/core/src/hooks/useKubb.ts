@@ -3,7 +3,7 @@ import { useApp as useAppBase } from '@kubb/react-fabric'
 import type { PluginManager } from '../PluginManager.ts'
 import type { Plugin, PluginFactoryOptions } from '../types.ts'
 
-export function useApp<TOptions extends PluginFactoryOptions = PluginFactoryOptions>() {
+export function useKubb<TOptions extends PluginFactoryOptions = PluginFactoryOptions>() {
   const { meta } = useAppBase<{
     plugin: Plugin<TOptions>
     mode: KubbFile.Mode
