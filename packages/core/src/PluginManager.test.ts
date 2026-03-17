@@ -20,7 +20,6 @@ describe('PluginManager', () => {
       options: undefined as any,
       context: undefined as never,
 
-      key: ['pluginA'],
       install() {
         pluginAMocks.install()
       },
@@ -37,7 +36,6 @@ describe('PluginManager', () => {
       name: 'pluginB',
       options: undefined as any,
       context: undefined as never,
-      key: ['pluginB', 1],
       install() {
         pluginBMocks.install()
       },
@@ -52,22 +50,21 @@ describe('PluginManager', () => {
     }
   })
 
-  const pluginBBis = definePlugin(() => {
+  const pluginC = definePlugin(() => {
     return {
-      name: 'pluginB',
+      name: 'pluginC',
       options: undefined as any,
       context: undefined as never,
-      key: ['pluginB', 2],
       install() {
         pluginBMocks.install()
       },
       resolvePath() {
         pluginBMocks.resolvePath()
 
-        return 'pluginBBis/gen'
+        return 'pluginC/gen'
       },
       resolveName() {
-        return 'pluginBBisName'
+        return 'pluginCName'
       },
     }
   })
@@ -81,7 +78,7 @@ describe('PluginManager', () => {
       path: './src/gen',
       clean: true,
     },
-    plugins: [pluginA({}), pluginB({}), pluginBBis({})] as Plugin[],
+    plugins: [pluginA({}), pluginB({}), pluginC({})] as Plugin[],
   } satisfies Config
   const pluginManager = new PluginManager(config, {
     fabric: createFabric(),
@@ -95,7 +92,7 @@ describe('PluginManager', () => {
 
   test('if pluginManager can be created', () => {
     expect(pluginManager.plugins.length).toBe(config.plugins.length)
-    expect(pluginManager.getPluginsByKey('install', ['pluginB'])?.[0]?.name).toBe('pluginB')
+    expect(pluginManager.getPluginsByName('install', 'pluginB')?.[0]?.name).toBe('pluginB')
   })
 
   test('hookFirst', async () => {
@@ -135,34 +132,23 @@ describe('PluginManager', () => {
     expect(pluginBMocks.resolvePath).toHaveBeenCalled()
   })
 
-  test('resolvePath without `pluginKey`', () => {
+  test('resolvePath without `pluginName`', () => {
     const path = pluginManager.resolvePath({
       baseName: 'baseName.ts',
     })
 
     expect(path).toBe('pluginA/gen')
   })
-  test('resolvePath with `pluginKey`', () => {
+  test('resolvePath with `pluginName`', () => {
     const path = pluginManager.resolvePath({
       baseName: 'fileNameB.ts',
-      pluginKey: ['pluginB', 1],
+      pluginName: 'pluginB',
     })
 
     expect(path).toBe('pluginB/gen')
   })
 
-  test('resolvePath with `pluginKey` that will run on first `pluginB` variant', () => {
-    try {
-      pluginManager.resolvePath({
-        baseName: 'fileNameB.ts',
-        pluginKey: ['pluginB'],
-      })
-    } catch (error) {
-      expect(error).toBeDefined()
-    }
-  })
-
-  test('resolveName without `pluginKey`', () => {
+  test('resolveName without `pluginName`', () => {
     const name = pluginManager.resolveName({
       name: 'name',
     })
@@ -170,7 +156,7 @@ describe('PluginManager', () => {
     // pluginA does not have `resolveName` so taking the first plugin that returns a name
     expect(name).toBe('pluginBName')
   })
-  test('resolveName with `pluginKey`', () => {
+  test('resolveName with `pluginName`', () => {
     const hooksFirstSyncMock = vi.fn(pluginManager.hookFirstSync)
     const hookForPluginSyncMock = vi.fn(pluginManager.hookForPluginSync)
 
@@ -179,7 +165,7 @@ describe('PluginManager', () => {
 
     const name = pluginManager.resolveName({
       name: 'nameB',
-      pluginKey: ['pluginB', '1'],
+      pluginName: 'pluginB',
     })
 
     expect(name).toBe('pluginBName')
@@ -187,13 +173,14 @@ describe('PluginManager', () => {
   })
 
   test('hookForPlugin', async () => {
+    pluginBMocks.resolvePath.mockReset()
+
     await pluginManager.hookForPlugin({
-      pluginKey: ['pluginB'],
+      pluginName: 'pluginB',
       hookName: 'resolvePath',
       parameters: ['path.ts'],
     })
 
-    expect(pluginAMocks.resolvePath).toHaveBeenCalled()
     expect(pluginBMocks.resolvePath).toHaveBeenCalled()
   })
 
@@ -203,7 +190,6 @@ describe('PluginManager', () => {
         name: 'staticPlugin',
         options: undefined as any,
         context: undefined as never,
-        key: ['staticPlugin'],
         resolvePath: 'static/path' as any,
       }
     })
@@ -219,7 +205,7 @@ describe('PluginManager', () => {
     })
 
     const paths = staticPluginManager.hookForPluginSync({
-      pluginKey: ['staticPlugin'],
+      pluginName: 'staticPlugin',
       hookName: 'resolvePath',
       parameters: ['path.ts'],
     })
@@ -233,7 +219,6 @@ describe('PluginManager', () => {
         name: 'errorPlugin',
         options: undefined as any,
         context: undefined as never,
-        key: ['errorPlugin'],
         install() {
           throw new Error('Install failed')
         },
@@ -268,7 +253,6 @@ describe('PluginManager', () => {
         name: 'noResolvePlugin',
         options: undefined as any,
         context: undefined as never,
-        key: ['noResolvePlugin'],
       }
     })
 
@@ -293,7 +277,7 @@ describe('PluginManager', () => {
     const file = pluginManager.getFile({
       name: 'testFile',
       extname: '.ts',
-      pluginKey: ['pluginA'],
+      pluginName: 'pluginA',
     })
 
     expect(file).toBeDefined()
@@ -306,62 +290,47 @@ describe('PluginManager', () => {
       name: 'testFile',
       extname: '.ts',
       mode: 'single',
-      pluginKey: ['pluginA'],
+      pluginName: 'pluginA',
     })
 
     expect(file).toBeDefined()
     expect(file.baseName).toBe('testFile.ts')
   })
 
-  test('getPluginsByKey should return correct plugins', () => {
-    const plugins = pluginManager.getPluginsByKey('install', ['pluginB'])
+  test('getPluginsByName should return correct plugins', () => {
+    const plugins = pluginManager.getPluginsByName('install', 'pluginB')
 
     expect(plugins).toBeDefined()
     expect(plugins?.length).toBeGreaterThan(0)
     expect(plugins?.[0]?.name).toBe('pluginB')
   })
 
-  test('getPluginsByKey should return empty array for non-existent plugin', () => {
-    const plugins = pluginManager.getPluginsByKey('install', ['nonExistent'])
+  test('getPluginsByName should return empty array for non-existent plugin', () => {
+    const plugins = pluginManager.getPluginsByName('install', 'nonExistent')
 
     expect(plugins).toEqual([])
   })
 
-  test('should emit warning when multiple instances of the same plugin are used', () => {
-    const warnSpy = vi.fn()
-    const events = new AsyncEventEmitter<KubbEvents>()
-    events.on('warn', warnSpy)
-
+  test('should throw when multiple instances of the same plugin are used', () => {
     const duplicatePlugin = definePlugin(() => {
       return {
         name: 'duplicatePlugin',
         options: undefined as any,
         context: undefined as never,
-        key: ['duplicatePlugin'],
       }
     })
 
     const duplicateConfig = {
       ...config,
-      plugins: [duplicatePlugin({}), duplicatePlugin({}), duplicatePlugin({})] as Plugin[],
+      plugins: [duplicatePlugin({}), duplicatePlugin({})] as Plugin[],
     } satisfies Config
 
-    new PluginManager(duplicateConfig, {
-      fabric: createFabric(),
-      events,
-    })
-
-    // Should emit warning for the 2nd and 3rd instances
-    expect(warnSpy).toHaveBeenCalledTimes(2)
-    expect(warnSpy).toHaveBeenNthCalledWith(
-      1,
-      'Multiple instances of plugin "duplicatePlugin" detected. This behavior is deprecated and will be removed in v5.',
-      'Plugin key: [duplicatePlugin, 2]',
-    )
-    expect(warnSpy).toHaveBeenNthCalledWith(
-      2,
-      'Multiple instances of plugin "duplicatePlugin" detected. This behavior is deprecated and will be removed in v5.',
-      'Plugin key: [duplicatePlugin, 3]',
-    )
+    expect(
+      () =>
+        new PluginManager(duplicateConfig, {
+          fabric: createFabric(),
+          events: new AsyncEventEmitter<KubbEvents>(),
+        }),
+    ).toThrow('Duplicate plugin "duplicatePlugin" detected')
   })
 })

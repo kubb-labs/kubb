@@ -175,7 +175,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
         root,
         output,
         meta: {
-          pluginKey: this.plugin.key,
+          pluginName: this.plugin.name,
         },
       })
 

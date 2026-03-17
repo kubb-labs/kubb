@@ -173,7 +173,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
         root,
         output,
         meta: {
-          pluginKey: this.plugin.key,
+          pluginName: this.plugin.name,
         },
       })
 

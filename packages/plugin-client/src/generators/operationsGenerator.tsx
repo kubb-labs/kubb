@@ -10,7 +10,7 @@ export const operationsGenerator = createReactGenerator<PluginClient>({
   name: 'client',
   Operations({ operations, plugin }) {
     const {
-      key: pluginKey,
+      name: pluginName,
       options: { output },
     } = plugin
     const pluginManager = usePluginManager()
@@ -18,7 +18,7 @@ export const operationsGenerator = createReactGenerator<PluginClient>({
     const oas = useOas()
 
     const name = 'operations'
-    const file = pluginManager.getFile({ name, extname: '.ts', pluginKey })
+    const file = pluginManager.getFile({ name, extname: '.ts', pluginName })
 
     return (
       <File

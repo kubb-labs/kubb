@@ -1,4 +1,4 @@
-import type { FileMetaBase, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { FileMetaBase, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, Operation as OperationType } from '@kubb/oas'
@@ -6,7 +6,7 @@ import type { OperationGenerator } from '../OperationGenerator.ts'
 import type { OperationSchemas } from '../types.ts'
 
 type FileMeta = FileMetaBase & {
-  pluginKey: Plugin['key']
+  pluginName: string
   name: string
   group?: {
     tag?: string
@@ -31,7 +31,7 @@ type UseOperationManagerResult = {
     params: {
       prefix?: string
       suffix?: string
-      pluginKey?: Plugin['key']
+      pluginName?: string
       type: ResolveNameParams['type']
     },
   ) => string
@@ -40,7 +40,7 @@ type UseOperationManagerResult = {
     params?: {
       prefix?: string
       suffix?: string
-      pluginKey?: Plugin['key']
+      pluginName?: string
       extname?: KubbFile.Extname
       group?: {
         tag?: string
@@ -51,11 +51,11 @@ type UseOperationManagerResult = {
   groupSchemasByName: (
     operation: OperationType,
     params: {
-      pluginKey?: Plugin['key']
+      pluginName?: string
       type: ResolveNameParams['type']
     },
   ) => SchemaNames
-  getSchemas: (operation: Operation, params?: { pluginKey?: Plugin['key']; type?: ResolveNameParams['type'] }) => OperationSchemas
+  getSchemas: (operation: Operation, params?: { pluginName?: string; type?: ResolveNameParams['type'] }) => OperationSchemas
   getGroup: (operation: Operation) => FileMeta['group'] | undefined
 }
 
@@ -68,10 +68,10 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
   const plugin = usePlugin()
   const pluginManager = usePluginManager()
 
-  const getName: UseOperationManagerResult['getName'] = (operation, { prefix = '', suffix = '', pluginKey = plugin.key, type }) => {
+  const getName: UseOperationManagerResult['getName'] = (operation, { prefix = '', suffix = '', pluginName = plugin.name, type }) => {
     return pluginManager.resolveName({
       name: `${prefix} ${operation.getOperationId()} ${suffix}`,
-      pluginKey,
+      pluginName,
       type,
     })
   }
@@ -92,21 +92,21 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
       resolveName: (name) =>
         pluginManager.resolveName({
           name,
-          pluginKey: params?.pluginKey,
+          pluginName: params?.pluginName,
           type: params?.type,
         }),
     })
   }
 
-  const getFile: UseOperationManagerResult['getFile'] = (operation, { prefix, suffix, pluginKey = plugin.key, extname = '.ts' } = {}) => {
-    const name = getName(operation, { type: 'file', pluginKey, prefix, suffix })
+  const getFile: UseOperationManagerResult['getFile'] = (operation, { prefix, suffix, pluginName = plugin.name, extname = '.ts' } = {}) => {
+    const name = getName(operation, { type: 'file', pluginName, prefix, suffix })
     const group = getGroup(operation)
 
     const file = pluginManager.getFile({
       name,
       extname,
-      pluginKey,
-      options: { type: 'file', pluginKey, group },
+      pluginName,
+      options: { type: 'file', pluginName, group },
     })
 
     return {
@@ -114,13 +114,13 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
       meta: {
         ...file.meta,
         name,
-        pluginKey,
+        pluginName,
         group,
       },
     }
   }
 
-  const groupSchemasByName: UseOperationManagerResult['groupSchemasByName'] = (operation, { pluginKey = plugin.key, type }) => {
+  const groupSchemasByName: UseOperationManagerResult['groupSchemasByName'] = (operation, { pluginName = plugin.name, type }) => {
     if (!generator) {
       throw new Error(`useOperationManager: 'generator' parameter is required but was not provided`)
     }
@@ -135,7 +135,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
 
         prev[acc.statusCode] = pluginManager.resolveName({
           name: acc.name,
-          pluginKey,
+          pluginName,
           type,
         })
 
@@ -152,7 +152,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
 
         prev[acc.statusCode] = pluginManager.resolveName({
           name: acc.name,
-          pluginKey,
+          pluginName,
           type,
         })
 
@@ -165,7 +165,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
       request: schemas.request?.name
         ? pluginManager.resolveName({
             name: schemas.request.name,
-            pluginKey,
+            pluginName,
             type,
           })
         : undefined,
@@ -173,21 +173,21 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
         path: schemas.pathParams?.name
           ? pluginManager.resolveName({
               name: schemas.pathParams.name,
-              pluginKey,
+              pluginName,
               type,
             })
           : undefined,
         query: schemas.queryParams?.name
           ? pluginManager.resolveName({
               name: schemas.queryParams.name,
-              pluginKey,
+              pluginName,
               type,
             })
           : undefined,
         header: schemas.headerParams?.name
           ? pluginManager.resolveName({
               name: schemas.headerParams.name,
-              pluginKey,
+              pluginName,
               type,
             })
           : undefined,
@@ -196,7 +196,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
         ...responses,
         ['default']: pluginManager.resolveName({
           name: schemas.response.name,
-          pluginKey,
+          pluginName,
           type,
         }),
         ...errors,

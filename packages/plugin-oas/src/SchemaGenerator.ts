@@ -526,18 +526,18 @@ export class SchemaGenerator<
 
     const propertyName = this.context.pluginManager.resolveName({
       name: resolvedName,
-      pluginKey: this.context.plugin.key,
+      pluginName: this.context.plugin.name,
       type: 'function',
     })
 
     const fileName = this.context.pluginManager.resolveName({
       name: resolvedName,
-      pluginKey: this.context.plugin.key,
+      pluginName: this.context.plugin.name,
       type: 'file',
     })
     const file = this.context.pluginManager.getFile({
       name: fileName,
-      pluginKey: this.context.plugin.key,
+      pluginName: this.context.plugin.name,
       extname: '.ts',
     })
 
@@ -970,7 +970,7 @@ export class SchemaGenerator<
         : getUniqueName(pascalCase(enumNameParts.join(' ')), this.options.usedEnumNames || {})
       const typeName = this.context.pluginManager.resolveName({
         name: enumName,
-        pluginKey: this.context.plugin.key,
+        pluginName: this.context.plugin.name,
         type: 'type',
       })
 

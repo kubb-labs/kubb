@@ -92,10 +92,10 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       const type = {
         name: schemaManager.getName(name, {
           type: 'type',
-          pluginKey: [pluginTsName],
+          pluginName: pluginTsName,
         }),
         file: schemaManager.getFile(options.operationName || name, {
-          pluginKey: [pluginTsName],
+          pluginName: pluginTsName,
           group,
         }),
       }
@@ -159,8 +159,8 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     }
 
     const type = {
-      name: getName(schema.name, { type: 'type', pluginKey: [pluginTsName] }),
-      file: getFile(schema.name, { pluginKey: [pluginTsName] }),
+      name: getName(schema.name, { type: 'type', pluginName: pluginTsName }),
+      file: getFile(schema.name, { pluginName: pluginTsName }),
     }
 
     const isZodImport = importPath === 'zod' || importPath === 'zod/mini'
