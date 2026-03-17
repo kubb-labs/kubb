@@ -2344,11 +2344,11 @@ describe('buildAst', async () => {
       expect(op!.requestBody).toBeDefined()
     })
 
-    it('getPetById is a GET on /pets/{petId} with a path parameter', () => {
+    it('getPetById is a GET on /pets/:petId with a path parameter', () => {
       const op = root.operations.find((o) => o.operationId === 'getPetById')
       expect(op).toBeDefined()
       expect(op!.method).toBe('GET')
-      expect(op!.path).toBe('/pets/{petId}')
+      expect(op!.path).toBe('/pets/:petId')
       expect(op!.parameters.some((p) => p.name === 'petId' && p.in === 'path')).toBe(true)
     })
   })

@@ -1,4 +1,4 @@
-import { pascalCase } from '@internals/utils'
+import { pascalCase, URLPath } from '@internals/utils'
 import {
   collect,
   createOperation,
@@ -1086,7 +1086,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     return createOperation({
       operationId: operation.getOperationId(),
       method: operation.method.toUpperCase() as HttpMethod,
-      path: operation.path,
+      path: new URLPath(operation.path).URL,
       tags: operation.getTags().map((tag) => tag.name),
       summary: operation.getSummary() || undefined,
       description: operation.getDescription() || undefined,
