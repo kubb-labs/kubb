@@ -72,7 +72,7 @@
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@types/ws": "^8.18.1",
-    "msw": "^2.12.11",
+    "msw": "^2.12.13",
     "nitropack": "^2.13.1",
     "vite": "^7.3.1"
   },
