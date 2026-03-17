@@ -1,5 +1,30 @@
 # @kubb/agent
 
+## 5.0.0-alpha.1
+
+### Major Changes
+
+- [`a4682ea`](https://github.com/kubb-labs/kubb/commit/a4682ea8896ef7d9ccae1b6e9abd6ed7bcaac073) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - The minimum required Node.js version is 22.
+
+### Patch Changes
+
+- Updated dependencies [[`a4682ea`](https://github.com/kubb-labs/kubb/commit/a4682ea8896ef7d9ccae1b6e9abd6ed7bcaac073)]:
+  - @kubb/plugin-svelte-query@5.0.0-alpha.1
+  - @kubb/plugin-react-query@5.0.0-alpha.1
+  - @kubb/plugin-solid-query@5.0.0-alpha.1
+  - @kubb/plugin-vue-query@5.0.0-alpha.1
+  - @kubb/plugin-cypress@5.0.0-alpha.1
+  - @kubb/plugin-client@5.0.0-alpha.1
+  - @kubb/plugin-faker@5.0.0-alpha.1
+  - @kubb/plugin-redoc@5.0.0-alpha.1
+  - @kubb/plugin-mcp@5.0.0-alpha.1
+  - @kubb/plugin-msw@5.0.0-alpha.1
+  - @kubb/plugin-oas@5.0.0-alpha.1
+  - @kubb/plugin-swr@5.0.0-alpha.1
+  - @kubb/plugin-zod@5.0.0-alpha.1
+  - @kubb/plugin-ts@5.0.0-alpha.1
+  - @kubb/core@5.0.0-alpha.1
+
 ## 5.0.0-alpha.0
 
 ### Patch Changes

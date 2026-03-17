@@ -46,6 +46,7 @@
     "e2e": "0.0.0"
   },
   "changesets": [
+    "pretty-schools-fly",
     "tough-lemons-pump"
   ]
 }
