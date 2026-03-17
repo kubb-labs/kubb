@@ -2,7 +2,6 @@ import path from 'node:path'
 import { createRoot } from '@kubb/ast'
 import type { AdapterSource } from '@kubb/core'
 import { defineAdapter } from '@kubb/core'
-import type { Oas } from './oas/Oas.ts'
 import { resolveServerUrl } from './oas/resolveServerUrl.ts'
 import { parseFromConfig } from './oas/utils.ts'
 import { createOasParser } from './parser.ts'
@@ -48,9 +47,6 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
   // Populated (and replaced) on every parse so consumers always see the latest state.
   const nameMapping = new Map<string, string>()
 
-  // Holds the OAS instance from the most recent parse() call for use in getImports.
-  let currentOas: Oas
-
   return {
     name: adapterOasName,
     options: {
@@ -68,7 +64,7 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
       nameMapping,
     },
     getImports(node, resolve) {
-      return getImports({ node, nameMapping, resolve, oas: currentOas })
+      return getImports({ node, nameMapping, resolve })
     },
     async parse(source) {
       const fakeConfig = sourceToFakeConfig(source)
@@ -94,9 +90,6 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
       for (const [key, value] of parser.nameMapping) {
         nameMapping.set(key, value)
       }
-
-      // Store the OAS instance so getImports can use it for $ref existence checks.
-      currentOas = oas
 
       const root = parser.parse({ dateType, integerType, unknownType, emptySchemaType })
 

@@ -1,7 +1,6 @@
 import { collect, createSchema, narrowSchema } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import type { Oas } from './oas/Oas.ts'
 import type { SchemaObject } from './oas/types.ts'
 import { isDiscriminator } from './oas/utils.ts'
 
@@ -129,18 +128,14 @@ export function getImports({
   node,
   nameMapping,
   resolve,
-  oas,
 }: {
   node: SchemaNode
   nameMapping: Map<string, string>
   resolve: (schemaName: string) => { name: string; path: string } | undefined
-  oas?: Oas
 }): Array<KubbFile.Import> {
   return collect<KubbFile.Import>(node, {
     schema(schemaNode): KubbFile.Import | undefined {
       if (schemaNode.type !== 'ref' || !schemaNode.ref) return
-      // When an OAS instance is provided, verify the $ref exists in the spec.
-      if (oas && !oas.get(schemaNode.ref)) return
 
       const rawName = extractRefName(schemaNode.ref)
 
