@@ -5,11 +5,11 @@
 
 import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderPathParams } from './models/ts/storeController/DeleteOrder.js'
-import type { GetInventoryQueryResponse } from './models/ts/storeController/GetInventory.js'
-import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from './models/ts/storeController/GetOrderById.js'
-import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from './models/ts/storeController/PlaceOrder.js'
-import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from './models/ts/storeController/PlaceOrderPatch.js'
+import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderPathParams } from './models/ts/storeController/DeleteOrder.ts'
+import type { GetInventoryQueryResponse } from './models/ts/storeController/GetInventory.ts'
+import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from './models/ts/storeController/GetOrderById.ts'
+import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from './models/ts/storeController/PlaceOrder.ts'
+import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from './models/ts/storeController/PlaceOrderPatch.ts'
 
 function getGetInventoryUrlController() {
   const res = { method: 'GET', url: '/store/inventory' as const }

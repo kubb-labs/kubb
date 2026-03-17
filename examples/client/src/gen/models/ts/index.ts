@@ -1,51 +1,51 @@
 export type {
   AddPetRequest,
-  AddPetRequestStatusEnumKey,
-} from './AddPetRequest.js'
-export { addPetRequestStatusEnum } from './AddPetRequest.js'
-export type { Address } from './Address.js'
-export type { ApiResponse } from './ApiResponse.js'
-export type { Category } from './Category.js'
-export type { Customer } from './Customer.js'
+  AddPetRequestStatusEnum5Key,
+} from './AddPetRequest.ts'
+export { addPetRequestStatusEnum5 } from './AddPetRequest.ts'
+export type { Address } from './Address.ts'
+export type { ApiResponse } from './ApiResponse.ts'
+export type { Category } from './Category.ts'
+export type { Customer } from './Customer.ts'
 export type {
   Order,
-  OrderHttpStatusEnumKey,
-  OrderStatusEnumKey,
-} from './Order.js'
-export { orderHttpStatusEnum, orderStatusEnum } from './Order.js'
-export type { Pet, PetStatusEnumKey } from './Pet.js'
-export { petStatusEnum } from './Pet.js'
-export type { PetNotFound } from './PetNotFound.js'
+  OrderHttpStatusEnum5Key,
+  OrderStatusEnum5Key,
+} from './Order.ts'
+export { orderHttpStatusEnum5, orderStatusEnum5 } from './Order.ts'
+export type { Pet, PetStatusEnum5Key } from './Pet.ts'
+export { petStatusEnum5 } from './Pet.ts'
+export type { PetNotFound } from './PetNotFound.ts'
 export type {
   AddPet200,
   AddPet405,
   AddPetMutation,
   AddPetMutationRequest,
   AddPetMutationResponse,
-} from './petController/AddPet.js'
+} from './petController/AddPet.ts'
 export type {
   DeletePet400,
   DeletePetHeaderParams,
   DeletePetMutation,
   DeletePetMutationResponse,
   DeletePetPathParams,
-} from './petController/DeletePet.js'
+} from './petController/DeletePet.ts'
 export type {
   FindPetsByStatus200,
   FindPetsByStatus400,
   FindPetsByStatusQuery,
   FindPetsByStatusQueryParams,
-  FindPetsByStatusQueryParamsStatusEnumKey,
+  FindPetsByStatusQueryParamsStatusEnum5Key,
   FindPetsByStatusQueryResponse,
-} from './petController/FindPetsByStatus.js'
-export { findPetsByStatusQueryParamsStatusEnum } from './petController/FindPetsByStatus.js'
+} from './petController/FindPetsByStatus.ts'
+export { findPetsByStatusQueryParamsStatusEnum5 } from './petController/FindPetsByStatus.ts'
 export type {
   FindPetsByTags200,
   FindPetsByTags400,
   FindPetsByTagsQuery,
   FindPetsByTagsQueryParams,
   FindPetsByTagsQueryResponse,
-} from './petController/FindPetsByTags.js'
+} from './petController/FindPetsByTags.ts'
 export type {
   GetPetById200,
   GetPetById400,
@@ -53,7 +53,7 @@ export type {
   GetPetByIdPathParams,
   GetPetByIdQuery,
   GetPetByIdQueryResponse,
-} from './petController/GetPetById.js'
+} from './petController/GetPetById.ts'
 export type {
   UpdatePet200,
   UpdatePet400,
@@ -62,14 +62,14 @@ export type {
   UpdatePetMutation,
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
-} from './petController/UpdatePet.js'
+} from './petController/UpdatePet.ts'
 export type {
   UpdatePetWithForm405,
   UpdatePetWithFormMutation,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-} from './petController/UpdatePetWithForm.js'
+} from './petController/UpdatePetWithForm.ts'
 export type {
   UploadFile200,
   UploadFileMutation,
@@ -77,19 +77,19 @@ export type {
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
-} from './petController/UploadFile.js'
+} from './petController/UploadFile.ts'
 export type {
   DeleteOrder400,
   DeleteOrder404,
   DeleteOrderMutation,
   DeleteOrderMutationResponse,
   DeleteOrderPathParams,
-} from './storeController/DeleteOrder.js'
+} from './storeController/DeleteOrder.ts'
 export type {
   GetInventory200,
   GetInventoryQuery,
   GetInventoryQueryResponse,
-} from './storeController/GetInventory.js'
+} from './storeController/GetInventory.ts'
 export type {
   GetOrderById200,
   GetOrderById400,
@@ -97,44 +97,44 @@ export type {
   GetOrderByIdPathParams,
   GetOrderByIdQuery,
   GetOrderByIdQueryResponse,
-} from './storeController/GetOrderById.js'
+} from './storeController/GetOrderById.ts'
 export type {
   PlaceOrder200,
   PlaceOrder405,
   PlaceOrderMutation,
   PlaceOrderMutationRequest,
   PlaceOrderMutationResponse,
-} from './storeController/PlaceOrder.js'
+} from './storeController/PlaceOrder.ts'
 export type {
   PlaceOrderPatch200,
   PlaceOrderPatch405,
   PlaceOrderPatchMutation,
   PlaceOrderPatchMutationRequest,
   PlaceOrderPatchMutationResponse,
-} from './storeController/PlaceOrderPatch.js'
-export type { Tag } from './Tag.js'
-export type { User } from './User.js'
-export type { UserArray } from './UserArray.js'
+} from './storeController/PlaceOrderPatch.ts'
+export type { Tag } from './Tag.ts'
+export type { User } from './User.ts'
+export type { UserArray } from './UserArray.ts'
 export type {
   CreateUserError,
   CreateUserMutation,
   CreateUserMutationRequest,
   CreateUserMutationResponse,
-} from './userController/CreateUser.js'
+} from './userController/CreateUser.ts'
 export type {
   CreateUsersWithListInput200,
   CreateUsersWithListInputError,
   CreateUsersWithListInputMutation,
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
-} from './userController/CreateUsersWithListInput.js'
+} from './userController/CreateUsersWithListInput.ts'
 export type {
   DeleteUser400,
   DeleteUser404,
   DeleteUserMutation,
   DeleteUserMutationResponse,
   DeleteUserPathParams,
-} from './userController/DeleteUser.js'
+} from './userController/DeleteUser.ts'
 export type {
   GetUserByName200,
   GetUserByName400,
@@ -142,23 +142,23 @@ export type {
   GetUserByNamePathParams,
   GetUserByNameQuery,
   GetUserByNameQueryResponse,
-} from './userController/GetUserByName.js'
+} from './userController/GetUserByName.ts'
 export type {
   LoginUser200,
   LoginUser400,
   LoginUserQuery,
   LoginUserQueryParams,
   LoginUserQueryResponse,
-} from './userController/LoginUser.js'
+} from './userController/LoginUser.ts'
 export type {
   LogoutUserError,
   LogoutUserQuery,
   LogoutUserQueryResponse,
-} from './userController/LogoutUser.js'
+} from './userController/LogoutUser.ts'
 export type {
   UpdateUserError,
   UpdateUserMutation,
   UpdateUserMutationRequest,
   UpdateUserMutationResponse,
   UpdateUserPathParams,
-} from './userController/UpdateUser.js'
+} from './userController/UpdateUser.ts'

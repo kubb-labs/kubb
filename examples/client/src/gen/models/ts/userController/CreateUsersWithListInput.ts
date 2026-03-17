@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { User } from '../User.js'
+import type { User } from '../User.ts'
 
 /**
  * @description Successful operation

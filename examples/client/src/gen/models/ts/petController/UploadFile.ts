@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { ApiResponse } from '../ApiResponse.js'
+import type { ApiResponse } from '../ApiResponse.ts'
 
 export type UploadFilePathParams = {
   /**

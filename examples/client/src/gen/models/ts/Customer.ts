@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { Address } from './Address.js'
+import type { Address } from './Address.ts'
 
 export type Customer = {
   /**

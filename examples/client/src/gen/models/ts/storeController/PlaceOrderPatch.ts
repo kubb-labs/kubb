@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { Order } from '../Order.js'
+import type { Order } from '../Order.ts'
 
 /**
  * @description successful operation

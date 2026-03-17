@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { AddPetRequest } from '../AddPetRequest.js'
-import type { Pet } from '../Pet.js'
+import type { AddPetRequest } from '../AddPetRequest.ts'
+import type { Pet } from '../Pet.ts'
 
 /**
  * @description Successful operation

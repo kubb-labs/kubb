@@ -6,31 +6,31 @@
 
 import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch, { mergeConfig } from '@kubb/plugin-client/clients/fetch'
-import { buildFormData } from '../../../.kubb/config.js'
-import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet.js'
-import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../../models/ts/petController/DeletePet.js'
-import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus.js'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../../models/ts/petController/FindPetsByTags.js'
-import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById.js'
+import { buildFormData } from '../../../.kubb/config.ts'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet.ts'
+import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../../models/ts/petController/DeletePet.ts'
+import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus.ts'
+import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../../models/ts/petController/FindPetsByTags.ts'
+import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById.ts'
 import type {
   UpdatePet400,
   UpdatePet404,
   UpdatePet405,
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
-} from '../../../models/ts/petController/UpdatePet.js'
+} from '../../../models/ts/petController/UpdatePet.ts'
 import type {
   UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-} from '../../../models/ts/petController/UpdatePetWithForm.js'
+} from '../../../models/ts/petController/UpdatePetWithForm.ts'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
-} from '../../../models/ts/petController/UploadFile.js'
+} from '../../../models/ts/petController/UploadFile.ts'
 
 export class Pet {
   #config: Partial<RequestConfig> & { client?: Client }

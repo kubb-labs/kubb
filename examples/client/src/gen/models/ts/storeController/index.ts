@@ -4,12 +4,12 @@ export type {
   DeleteOrderMutation,
   DeleteOrderMutationResponse,
   DeleteOrderPathParams,
-} from './DeleteOrder.js'
+} from './DeleteOrder.ts'
 export type {
   GetInventory200,
   GetInventoryQuery,
   GetInventoryQueryResponse,
-} from './GetInventory.js'
+} from './GetInventory.ts'
 export type {
   GetOrderById200,
   GetOrderById400,
@@ -17,18 +17,18 @@ export type {
   GetOrderByIdPathParams,
   GetOrderByIdQuery,
   GetOrderByIdQueryResponse,
-} from './GetOrderById.js'
+} from './GetOrderById.ts'
 export type {
   PlaceOrder200,
   PlaceOrder405,
   PlaceOrderMutation,
   PlaceOrderMutationRequest,
   PlaceOrderMutationResponse,
-} from './PlaceOrder.js'
+} from './PlaceOrder.ts'
 export type {
   PlaceOrderPatch200,
   PlaceOrderPatch405,
   PlaceOrderPatchMutation,
   PlaceOrderPatchMutationRequest,
   PlaceOrderPatchMutationResponse,
-} from './PlaceOrderPatch.js'
+} from './PlaceOrderPatch.ts'
