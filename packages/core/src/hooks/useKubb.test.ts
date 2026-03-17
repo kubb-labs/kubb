@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { createMockedPluginManager } from '../../../../configs/mocks.ts'
 import type { Plugin } from '../types.ts'
 
-const mockedPluginManager = createMockedPluginManager('')
+const mockedPluginManager = createMockedPluginManager()
 
 const mockedPlugin = { options: {} } as Plugin
 

@@ -7,7 +7,7 @@ import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
 import { expect } from 'vitest'
 import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
-import type { Plugin, PluginManager } from '../packages/core/src'
+import type { Plugin, PluginManager, ResolveNameParams, ResolvePathParams } from '../packages/core/src'
 
 const formatOptions: Options = {
   tabWidth: 2,
@@ -31,7 +31,7 @@ export async function format(source?: string): Promise<string> {
 
 export const createMockedPluginManager = (options: { name?: string; plugin?: Plugin<any>; config?: PluginManager['config'] } = {}) =>
   ({
-    resolveName: (result) => {
+    resolveName: (result: ResolveNameParams) => {
       if (result.type === 'file') {
         return camelCase(options?.name || result.name)
       }
@@ -52,11 +52,11 @@ export const createMockedPluginManager = (options: { name?: string; plugin?: Plu
         path: './path',
       },
     },
-    resolvePath: ({ baseName }) => baseName,
+    resolvePath: ({ baseName }: ResolvePathParams) => baseName,
     getPluginByName: (_pluginName: string) => {
       return options?.plugin
     },
-    getFile: ({ name, extname, pluginName }) => {
+    getFile: ({ name, extname, pluginName }: { name: string; extname: KubbFile.Extname; pluginName: string }) => {
       const baseName = `${name}${extname}`
 
       return {
@@ -77,7 +77,7 @@ export const createMockedPluginManager = (options: { name?: string; plugin?: Plu
         } as unknown as Plugin)
       )
     },
-  }) as PluginManager
+  }) as unknown as PluginManager
 
 export const mockedPluginManager = createMockedPluginManager()
 
