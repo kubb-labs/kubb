@@ -969,7 +969,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       in: param['in'] as ParameterLocation,
       schema: {
         ...schema,
-        optional: (!required || !!schema.optional) ? true : undefined,
+        optional: !required || !!schema.optional ? true : undefined,
       },
       required,
     })
