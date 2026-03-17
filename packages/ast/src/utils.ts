@@ -54,11 +54,13 @@ function matchesOperationPattern(node: OperationNode, type: string, pattern: str
   }
 }
 
-function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | RegExp): boolean {
-  if (type === 'schemaName' && node.name) {
-    return !!node.name.match(pattern)
+function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | RegExp): boolean | null {
+  switch (type) {
+    case 'schemaName':
+      return node.name ? !!node.name.match(pattern) : false
+    default:
+      return null
   }
-  return false
 }
 
 /**
@@ -92,16 +94,19 @@ export function resolveOptions<TOptions>(node: Node, { options, exclude = [], in
   }
 
   if (isSchemaNode(node)) {
-    const isExcluded = exclude.some(({ type, pattern }) => matchesSchemaPattern(node, type, pattern))
-    if (isExcluded) {
+    if (exclude.some(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)) {
       return null
     }
 
-    if (include && !include.some(({ type, pattern }) => matchesSchemaPattern(node, type, pattern))) {
-      return null
+    if (include) {
+      const results = include.map(({ type, pattern }) => matchesSchemaPattern(node, type, pattern))
+      const applicable = results.filter((r) => r !== null)
+      if (applicable.length > 0 && !applicable.includes(true)) {
+        return null
+      }
     }
 
-    const overrideOptions = override.find(({ type, pattern }) => matchesSchemaPattern(node, type, pattern))?.options
+    const overrideOptions = override.find(({ type, pattern }) => matchesSchemaPattern(node, type, pattern) === true)?.options
 
     return { ...options, ...overrideOptions }
   }
