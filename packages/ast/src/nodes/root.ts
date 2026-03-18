@@ -7,9 +7,13 @@ import type { SchemaNode } from './schema.ts'
  * Adapters populate whichever fields are available in their source format.
  */
 export type RootMeta = {
-  /** API title (from `info.title` in OAS/AsyncAPI). */
+  /**
+   * API title (from `info.title` in OAS/AsyncAPI).
+   */
   title?: string
-  /** API version string (from `info.version` in OAS/AsyncAPI). */
+  /**
+   * API version string (from `info.version` in OAS/AsyncAPI).
+   */
   version?: string
   /**
    * Resolved base URL for the API.
@@ -27,6 +31,8 @@ export type RootNode = BaseNode & {
   kind: 'Root'
   schemas: Array<SchemaNode>
   operations: Array<OperationNode>
-  /** Format-agnostic document metadata populated by the adapter. */
+  /**
+   * Format-agnostic document metadata populated by the adapter.
+   */
   meta?: RootMeta
 }
