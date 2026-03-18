@@ -569,6 +569,10 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     if (specialType === 'number' || specialType === 'integer' || specialType === 'bigint') {
       return createSchema({ ...base, primitive: specialPrimitive, type: specialType })
     }
+    if (specialType === 'url') {
+      return createSchema({ ...base, primitive: 'string' as const, type: 'url' })
+    }
+
     return createSchema({ ...base, primitive: specialPrimitive, type: specialType as ScalarSchemaType })
   }
 
