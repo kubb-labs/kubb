@@ -1,21 +1,33 @@
-import { useKubb } from '@kubb/core/hooks'
+import { applyParamsCasing } from '@kubb/ast'
+import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
+import { useKubb } from '@kubb/core/hooks'
 import { File } from '@kubb/react-fabric'
 import { Type } from '../../components/v2/Type.tsx'
 import type { PluginTs } from '../../types'
-import { buildDataSchemaNode, buildResponseUnionSchemaNode, buildResponsesSchemaNode } from './utils.ts'
-import type { SchemaNode } from '@kubb/ast/types'
+import { buildDataSchemaNode, buildResponsesSchemaNode, buildResponseUnionSchemaNode } from './utils.ts'
 
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Operation({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType } = options
+    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, mapper } = options
     const { mode, getFile, resolveName } = useKubb<PluginTs>()
 
     const file = getFile({ name: node.operationId, extname: '.ts', mode })
+    const params = applyParamsCasing(node.parameters, paramsCasing)
 
-    function renderSchemaType({ node: schemaNode, name, typedName, description }: { node: SchemaNode | null; name: string; typedName: string; description?: string }) {
+    function renderSchemaType({
+      node: schemaNode,
+      name,
+      typedName,
+      description,
+    }: {
+      node: SchemaNode | null
+      name: string
+      typedName: string
+      description?: string
+    }) {
       if (!schemaNode) {
         return null
       }
@@ -39,12 +51,13 @@ export const typeGenerator = defineGenerator<PluginTs>({
             optionalType={optionalType}
             arrayType={arrayType}
             syntaxType={syntaxType}
+            mapper={mapper}
           />
         </>
       )
     }
 
-    const paramTypes = node.parameters.map((param) =>
+    const paramTypes = params.map((param) =>
       renderSchemaType({
         node: param.schema,
         name: resolveName({ name: `${node.operationId} ${param.name}`, type: 'function' }),
@@ -73,7 +86,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
       : null
 
     const dataType = renderSchemaType({
-      node: buildDataSchemaNode({ node, resolveName }),
+      node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolveName }),
       name: resolveName({ name: `${node.operationId} Data`, type: 'function' }),
       typedName: resolveName({ name: `${node.operationId} Data`, type: 'type' }),
     })
@@ -102,7 +115,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
   },
   Schema({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType } = options
+    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, mapper } = options
     const { mode, resolveName, getFile } = useKubb<PluginTs>()
 
     if (!node.name) {
@@ -142,6 +155,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
           optionalType={optionalType}
           arrayType={arrayType}
           syntaxType={syntaxType}
+          mapper={mapper}
         />
       </File>
     )

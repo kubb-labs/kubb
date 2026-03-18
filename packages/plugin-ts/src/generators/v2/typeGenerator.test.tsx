@@ -1,6 +1,6 @@
-import type { Config, Plugin } from '@kubb/core'
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
+import type { Config, Plugin } from '@kubb/core'
 import { buildOperation } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'

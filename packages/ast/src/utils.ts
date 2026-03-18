@@ -1,5 +1,7 @@
+import { camelCase, isValidVarName } from '@internals/utils'
+
 import { narrowSchema } from './guards.ts'
-import type { SchemaNode } from './nodes/index.ts'
+import type { ParameterNode, SchemaNode } from './nodes/index.ts'
 import type { SchemaType } from './nodes/schema.ts'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'])
@@ -21,4 +23,26 @@ export function isPlainStringType(node: SchemaNode): boolean {
   }
 
   return false
+}
+
+/**
+ * Transforms the `name` field of each parameter node according to the given casing strategy.
+ *
+ * The original `params` array is never mutated — a new array of cloned nodes is returned.
+ * When no `casing` is provided the original array is returned as-is.
+ *
+ * Use this before passing parameters to schema builders so that property keys
+ * in the generated output match the desired casing while the original
+ * `OperationNode.parameters` array remains untouched for other consumers.
+ */
+export function applyParamsCasing(params: Array<ParameterNode>, casing: 'camelcase' | undefined): Array<ParameterNode> {
+  if (!casing) {
+    return params
+  }
+
+  return params.map((param) => {
+    const transformed = casing === 'camelcase' || !isValidVarName(param.name) ? camelCase(param.name) : param.name
+
+    return { ...param, name: transformed }
+  })
 }

@@ -167,6 +167,17 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
           { depth: 'shallow' },
         )
 
+        const barrelFiles = await getBarrelFiles(this.fabric.files, {
+          type: output.barrelType ?? 'named',
+          root,
+          output,
+          meta: {
+            pluginName: this.plugin.name,
+          },
+        })
+
+        await this.upsertFile(...barrelFiles)
+
         return
       }
 

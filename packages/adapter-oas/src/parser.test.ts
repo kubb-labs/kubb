@@ -2574,10 +2574,7 @@ describe('unknownType / emptySchemaType → SchemaNode type', () => {
   })
 
   it('unannotated additionalProperties produce type: any by default', () => {
-    const node = narrowSchema(
-      createOasParser(emptyOas).convertSchema({ schema: { type: 'object', additionalProperties: {} } as SchemaObject }),
-      'object',
-    )
+    const node = narrowSchema(createOasParser(emptyOas).convertSchema({ schema: { type: 'object', additionalProperties: {} } as SchemaObject }), 'object')
 
     expect(node?.additionalProperties).toMatchObject({ type: 'any' })
   })

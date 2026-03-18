@@ -1,7 +1,20 @@
 import type { BaseNode } from './base.ts'
 import type { PropertyNode } from './property.ts'
 
-export type PrimitiveSchemaType = 'string' | 'number' | 'integer' | 'bigint' | 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'never' | 'object' | 'array' | 'date'
+export type PrimitiveSchemaType =
+  | 'string'
+  | 'number'
+  | 'integer'
+  | 'bigint'
+  | 'boolean'
+  | 'null'
+  | 'any'
+  | 'unknown'
+  | 'void'
+  | 'never'
+  | 'object'
+  | 'array'
+  | 'date'
 
 export type ComplexSchemaType = 'tuple' | 'union' | 'intersection' | 'enum'
 

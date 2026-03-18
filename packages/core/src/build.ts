@@ -1,7 +1,6 @@
 import { dirname, relative, resolve } from 'node:path'
 import { AsyncEventEmitter, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
-import type { KubbFile } from '@kubb/fabric-core/types'
-import type { Fabric } from '@kubb/react-fabric'
+import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import { createFabric } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
 import { fsPlugin } from '@kubb/react-fabric/plugins'
@@ -21,7 +20,7 @@ type BuildOptions = {
 
 type BuildOutput = {
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
-  fabric: Fabric
+  fabric: FabricType
   files: Array<KubbFile.ResolvedFile>
   pluginManager: PluginManager
   pluginTimings: Map<string, number>
@@ -31,7 +30,7 @@ type BuildOutput = {
 
 type SetupResult = {
   events: AsyncEventEmitter<KubbEvents>
-  fabric: Fabric
+  fabric: FabricType
   pluginManager: PluginManager
   sources: Map<KubbFile.Path, string>
 }
