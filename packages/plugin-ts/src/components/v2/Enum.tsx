@@ -3,8 +3,8 @@ import type { EnumSchemaNode } from '@kubb/ast/types'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import { File } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import * as factory from '../../factory.ts'
 import { ENUM_TYPES_WITH_KEY_SUFFIX, ENUM_TYPES_WITH_RUNTIME_VALUE, ENUM_TYPES_WITH_TYPE_ONLY } from '../../constants.ts'
+import * as factory from '../../factory.ts'
 import type { PluginTs } from '../../types.ts'
 
 type Props = {
@@ -59,12 +59,7 @@ export function Enum({ node, enumType, enumKeyCasing }: Props): FabricReactNode 
           {safePrint(nameNode)}
         </File.Source>
       )}
-      <File.Source
-        name={typeName}
-        isIndexable
-        isExportable={ENUM_TYPES_WITH_RUNTIME_VALUE.has(enumType)}
-        isTypeOnly={ENUM_TYPES_WITH_TYPE_ONLY.has(enumType)}
-      >
+      <File.Source name={typeName} isIndexable isExportable={ENUM_TYPES_WITH_RUNTIME_VALUE.has(enumType)} isTypeOnly={ENUM_TYPES_WITH_TYPE_ONLY.has(enumType)}>
         {safePrint(typeNode)}
       </File.Source>
     </>
