@@ -6,7 +6,6 @@ import { parse } from '@kubb/oas'
 import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
-import ts, { factory } from 'typescript'
 import { beforeEach, describe, test } from 'vitest'
 import { createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../types.ts'
@@ -52,21 +51,6 @@ describe('typeGenerator schema', async () => {
       path: 'Pet',
       options: {
         optionalType: 'undefined',
-      },
-    },
-    {
-      name: 'PetMapper',
-      input: '../../mocks/petStore.yaml',
-      path: 'Pet',
-      options: {
-        mapper: {
-          category: factory.createPropertySignature(
-            undefined,
-            factory.createIdentifier('category'),
-            factory.createToken(ts.SyntaxKind.QuestionToken),
-            factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-          ),
-        },
       },
     },
     {
@@ -683,7 +667,6 @@ describe('typeGenerator schema', async () => {
       optionalType: 'questionToken',
       arrayType: 'array',
       override: [],
-      mapper: {},
       syntaxType: 'type',
       emptySchemaType: 'unknown',
       paramsCasing: undefined,
@@ -845,7 +828,6 @@ describe('typeGenerator operation', async () => {
       unknownType: 'any',
       syntaxType: 'type',
       override: [],
-      mapper: {},
       paramsCasing: undefined,
       output: {
         path: '.',
