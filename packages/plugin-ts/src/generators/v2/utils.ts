@@ -118,7 +118,7 @@ export function buildResponsesSchemaNode({ node, resolveName }: BuildOperationSc
 }
 
 /**
- * Builds a `UnionSchemaNode` representing `<OperationId>Response` — all response types unioned.
+ * Builds a `UnionSchemaNode` representing `<OperationId>Response` — all response types in union format.
  * Returns `null` when the operation has no responses with schemas.
  */
 export function buildResponseUnionSchemaNode({ node, resolveName }: BuildOperationSchemaOptions): SchemaNode | null {
