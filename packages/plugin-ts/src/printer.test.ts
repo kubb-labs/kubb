@@ -9,10 +9,10 @@ import { printerTs } from './printer.ts'
  * Wraps a `ts.TypeNode` in `type _ = <node>` so prettier can parse it as a
  * valid TypeScript statement, then strips the wrapper from the result.
  */
-const formatTS = async (node: ts.TypeNode | null | undefined): Promise<string> => {
+const formatTS = async (node: ts.Node | null | undefined): Promise<string> => {
   if (!node) return ''
 
-  const alias = ts.factory.createTypeAliasDeclaration(undefined, '_', undefined, node)
+  const alias = ts.factory.createTypeAliasDeclaration(undefined, '_', undefined, node as ts.TypeNode)
   const source = print(alias)
   const formatted = await format(source)
 

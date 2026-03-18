@@ -1,9 +1,9 @@
-export type deletePetPetId = string
+export type deletePetPathPetId = string
 
-export type deletePetData = {
+export type deletePetRequestConfig = {
   data?: never
   pathParams: {
-    petId: deletePetPetId
+    petId: deletePetPathPetId
   }
   queryParams?: never
   headerParams?: never

@@ -1,10 +1,10 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
+import type { EnumSchemaNode, OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import { buildOperation } from '@kubb/plugin-oas'
+import { buildOperation, buildSchema } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import ts, { factory } from 'typescript'
-import { beforeEach, describe, test } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
@@ -187,5 +187,130 @@ describe('typeGenerator v2 — Operation', () => {
     })
 
     await matchFiles(fabric.files, props.name)
+  })
+})
+
+describe('typeGenerator v2 — Operation — group', () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
+  const defaultOptions: PluginTs['resolvedOptions'] = {
+    enumType: 'asConst',
+    enumKeyCasing: 'none',
+    enumSuffix: '',
+    dateType: 'string',
+    integerType: 'bigint',
+    optionalType: 'questionToken',
+    arrayType: 'array',
+    transformers: {},
+    unknownType: 'any',
+    syntaxType: 'type',
+    override: [],
+    mapper: {},
+    paramsCasing: undefined,
+    output: { path: '.' },
+    group: undefined,
+    emptySchemaType: 'unknown',
+  }
+
+  const node = createOperation({
+    operationId: 'listPets',
+    method: 'GET',
+    path: '/pets',
+    tags: ['pets'],
+    parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+    responses: [
+      createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
+      createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+    ],
+  })
+
+  test.each([
+    { group: { type: 'tag' as const }, expectedPath: 'pets/listPets.ts' },
+    { group: undefined, expectedPath: 'listPets.ts' },
+  ])('group=$group.type — file path is $expectedPath', async ({ group, expectedPath }) => {
+    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginManager = createMockedPluginManager({ name: 'listPets' })
+
+    await buildOperation(node, {
+      version: '2',
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      pluginManager: mockedPluginManager,
+      Component: typeGenerator.Operation,
+      plugin,
+      mode: 'split',
+      options,
+    })
+
+    const file = fabric.files.find((f) => f.baseName === 'listPets.ts')
+    expect(file).toBeDefined()
+    expect(file!.path).toBe(expectedPath)
+  })
+})
+
+describe('typeGenerator v2 — Schema (enum)', () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
+  /**
+   * Raw YAML key name with a dot (e.g. `enumNames.Type`) — the kind of name that comes
+   * straight from the OAS adapter for top-level schemas and is NOT a valid TS identifier.
+   * This is the exact scenario that the constEnum bug was triggered by.
+   */
+  const enumSchemaNode = createSchema({
+    type: 'enum',
+    name: 'enumNames.Type',
+    enumType: 'string',
+    enumValues: ['available', 'pending', 'sold'],
+  }) as EnumSchemaNode
+
+  const defaultSchemaOptions: PluginTs['resolvedOptions'] = {
+    enumType: 'asConst',
+    enumKeyCasing: 'none',
+    enumSuffix: '',
+    dateType: 'string',
+    integerType: 'bigint',
+    optionalType: 'questionToken',
+    arrayType: 'array',
+    transformers: {},
+    unknownType: 'any',
+    syntaxType: 'type',
+    override: [],
+    mapper: {},
+    paramsCasing: undefined,
+    output: { path: '.' },
+    group: undefined,
+    emptySchemaType: 'unknown',
+  }
+
+  const enumTypes = ['asConst', 'asPascalConst', 'constEnum', 'enum', 'literal', 'inlineLiteral'] as const
+
+  test.each(enumTypes.map((et) => ({ enumType: et })))('enumType=$enumType — top-level enum with dotted name', async ({ enumType }) => {
+    const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumType }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginManager = createMockedPluginManager({ name: `enumNames.Type — ${enumType}` })
+
+    await buildSchema(enumSchemaNode, {
+      version: '2',
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      pluginManager: mockedPluginManager,
+      Component: typeGenerator.Schema,
+      plugin,
+      mode: 'split',
+      options,
+    })
+
+    await matchFiles(fabric.files, `enumNames.Type — ${enumType}`)
   })
 })

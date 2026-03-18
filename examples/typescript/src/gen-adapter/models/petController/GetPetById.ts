@@ -1,0 +1,27 @@
+import type { Pet } from '../Pet.ts'
+
+export type GetPetByIdPathPetId = number
+
+/**
+ * @description successful operation
+ */
+export type GetPetByIdStatus200 = Pet
+
+export interface GetPetByIdRequestConfig {
+  data?: never
+  pathParams: {
+    petId: GetPetByIdPathPetId
+  }
+  queryParams?: never
+  headerParams?: never
+  url: `/pet/${string}`
+}
+
+export interface GetPetByIdResponses {
+  '200': GetPetByIdStatus200
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type GetPetByIdResponse = GetPetByIdStatus200

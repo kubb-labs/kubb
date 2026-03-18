@@ -3,6 +3,15 @@ import { useFabric } from '@kubb/react-fabric'
 import type { GetFileOptions, PluginManager } from '../PluginManager.ts'
 import type { Config, Plugin, PluginFactoryOptions, ResolveNameParams, ResolvePathParams } from '../types.ts'
 
+type ResolvePathOptions = {
+  pluginName?: string
+  group?: {
+    tag?: string
+    path?: string
+  }
+  type?: ResolveNameParams['type']
+}
+
 type UseKubbReturn<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   plugin: Plugin<TOptions>
   mode: KubbFile.Mode
@@ -14,7 +23,7 @@ type UseKubbReturn<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
   /**
    * Resolves a file reference, defaulting `pluginName` to the current plugin.
    */
-  getFile: <TFileOptions = object>(params: Omit<GetFileOptions<TFileOptions>, 'pluginName'> & { pluginName?: string }) => KubbFile.File<{ pluginName: string }>
+  getFile: (params: Omit<GetFileOptions<ResolvePathOptions>, 'pluginName'> & { pluginName?: string }) => KubbFile.File<{ pluginName: string }>
   /**
    * Resolves a name, defaulting `pluginName` to the current plugin.
    */

@@ -137,28 +137,6 @@ describe('definePrinter', () => {
     expect(zodPrinter().print(node)).toBe('z.union([z.string(), z.number()])')
   })
 
-  it('for maps print over an array of nodes', () => {
-    type P = PrinterFactoryOptions<'zod', object, string>
-
-    const zodPrinter = definePrinter<P>(() => ({
-      name: 'zod',
-      options: {},
-      nodes: {
-        string() {
-          return 'z.string()'
-        },
-        number() {
-          return 'z.number()'
-        },
-      },
-    }))
-
-    const printer = zodPrinter()
-    const result = printer.for([createSchema({ type: 'string' }), createSchema({ type: 'number' }), createSchema({ type: 'boolean' })])
-
-    expect(result).toEqual(['z.string()', 'z.number()', undefined])
-  })
-
   it('infers Printer type correctly', () => {
     type P = PrinterFactoryOptions<'zod', object, string>
     const zodPrinter = definePrinter<P>(() => ({ name: 'zod', options: {}, nodes: {} }))
@@ -167,6 +145,5 @@ describe('definePrinter', () => {
     expectTypeOf(printer.name).toEqualTypeOf<'zod'>()
     expectTypeOf(printer.options).toEqualTypeOf<object>()
     expectTypeOf(printer.print(createSchema({ type: 'string' }))).toEqualTypeOf<string | null | undefined>()
-    expectTypeOf(printer.for([createSchema({ type: 'string' })])).toEqualTypeOf<Array<string | null | undefined>>()
   })
 })

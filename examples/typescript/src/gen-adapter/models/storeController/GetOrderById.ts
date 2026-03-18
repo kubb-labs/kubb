@@ -1,0 +1,27 @@
+import type { Order } from '../Order.ts'
+
+export type GetOrderByIdPathOrderId = number
+
+/**
+ * @description successful operation
+ */
+export type GetOrderByIdStatus200 = Order
+
+export interface GetOrderByIdRequestConfig {
+  data?: never
+  pathParams: {
+    orderId: GetOrderByIdPathOrderId
+  }
+  queryParams?: never
+  headerParams?: never
+  url: `/store/order/${string}`
+}
+
+export interface GetOrderByIdResponses {
+  '200': GetOrderByIdStatus200
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type GetOrderByIdResponse = GetOrderByIdStatus200

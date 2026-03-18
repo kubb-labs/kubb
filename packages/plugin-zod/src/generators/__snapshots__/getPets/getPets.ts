@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 import * as z from 'zod'
+import { error, pets } from '../getPets'
 
 export const listPetsQueryParams = z.object({
   limit: z.optional(z.string().describe('How many items to return at one time (max 100)')),

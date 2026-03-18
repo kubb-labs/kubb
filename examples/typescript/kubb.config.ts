@@ -40,8 +40,7 @@ export default defineConfig([
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
-          path: 'models_v5.ts',
-          barrelType: false,
+          path: 'models',
         },
         override: [
           {
@@ -52,7 +51,10 @@ export default defineConfig([
             },
           },
         ],
-        enumType: 'enum',
+        group: {
+          type: 'tag',
+        },
+        enumType: 'constEnum',
         syntaxType: 'interface',
       }),
     ],

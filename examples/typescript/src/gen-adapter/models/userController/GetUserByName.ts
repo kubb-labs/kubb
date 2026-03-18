@@ -1,0 +1,27 @@
+import type { User } from '../User.ts'
+
+export type GetUserByNamePathUsername = string
+
+/**
+ * @description successful operation
+ */
+export type GetUserByNameStatus200 = User
+
+export interface GetUserByNameRequestConfig {
+  data?: never
+  pathParams: {
+    username: GetUserByNamePathUsername
+  }
+  queryParams?: never
+  headerParams?: never
+  url: `/user/${string}`
+}
+
+export interface GetUserByNameResponses {
+  '200': GetUserByNameStatus200
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type GetUserByNameResponse = GetUserByNameStatus200

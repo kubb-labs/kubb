@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 import { faker } from '@faker-js/faker'
+import { error, pet } from '../updatePet'
 
 export function updatePetPathParams(data?: Partial<UpdatePetPathParams>): UpdatePetPathParams {
   return {

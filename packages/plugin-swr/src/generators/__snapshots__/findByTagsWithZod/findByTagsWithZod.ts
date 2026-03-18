@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 import useSWR from 'swr'
-import type { Client, RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
-import { fetch } from './test/.kubb/fetch'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../test/.kubb/fetch'
+import { fetch } from '../test/.kubb/fetch'
 
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 

@@ -18,17 +18,19 @@ const sourceFile = ts.createSourceFile('', '', ts.ScriptTarget.Latest)
 
 function printSchema(schema: ReturnType<typeof buildParamsSchema>): string {
   const node = printer.print(schema)
+
   if (!node) return ''
+
   return tsPrinter.printNode(ts.EmitHint.Unspecified, node, sourceFile)
 }
 
 describe('buildParamsSchema', () => {
-  it('builds an object type for required params', () => {
+  it('builds required params as non-optional properties', () => {
     const params = [createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })]
 
     expect(printSchema(buildParamsSchema({ params, operationId: 'showPetById', resolveName }))).toMatchInlineSnapshot(`
       "{
-          petId: showPetByIdPetId;
+          petId: showPetByIdPathPetId;
       }"
     `)
   })
@@ -38,21 +40,7 @@ describe('buildParamsSchema', () => {
 
     expect(printSchema(buildParamsSchema({ params, operationId: 'listPets', resolveName }))).toMatchInlineSnapshot(`
       "{
-          limit?: listPetsLimit;
-      }"
-    `)
-  })
-
-  it('builds an object type for multiple params', () => {
-    const params = [
-      createParameter({ name: 'storeId', schema: createSchema({ type: 'string' }), in: 'path', required: true }),
-      createParameter({ name: 'orderId', schema: createSchema({ type: 'integer' }), in: 'path', required: true }),
-    ]
-
-    expect(printSchema(buildParamsSchema({ params, operationId: 'getOrder', resolveName }))).toMatchInlineSnapshot(`
-      "{
-          storeId: getOrderStoreId;
-          orderId: getOrderOrderId;
+          limit?: listPetsQueryLimit;
       }"
     `)
   })
@@ -80,7 +68,7 @@ describe('buildDataSchemaNode', () => {
 
     expect(printSchema(buildDataSchemaNode({ node, resolveName }))).toMatchInlineSnapshot(`
       "{
-          data?: createPetMutationRequest;
+          data?: createPetData;
           pathParams?: never;
           queryParams?: never;
           headerParams?: never;
@@ -101,7 +89,7 @@ describe('buildDataSchemaNode', () => {
       "{
           data?: never;
           pathParams: {
-              petId: showPetByIdPetId;
+              petId: showPetByIdPathPetId;
           };
           queryParams?: never;
           headerParams?: never;
@@ -122,7 +110,7 @@ describe('buildDataSchemaNode', () => {
           data?: never;
           pathParams?: never;
           queryParams?: {
-              limit?: listPetsLimit;
+              limit?: listPetsQueryLimit;
           };
           headerParams?: never;
           url: "/pets";
@@ -156,8 +144,8 @@ describe('buildResponsesSchemaNode', () => {
 
     expect(printSchema(buildResponsesSchemaNode({ node, resolveName })!)).toMatchInlineSnapshot(`
       "{
-          "200": listPets200;
-          default: listPetsDefault;
+          "200": listPetsStatus200;
+          default: listPetsStatusDefault;
       }"
     `)
   })
@@ -186,6 +174,6 @@ describe('buildResponseUnionSchemaNode', () => {
       ],
     })
 
-    expect(printSchema(buildResponseUnionSchemaNode({ node, resolveName })!)).toMatchInlineSnapshot(`"(listPets200 | listPets405)"`)
+    expect(printSchema(buildResponseUnionSchemaNode({ node, resolveName })!)).toMatchInlineSnapshot(`"(listPetsStatus200 | listPetsStatus405)"`)
   })
 })

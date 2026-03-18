@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 import { faker } from '@faker-js/faker'
+import { error } from '../createPetSeed'
 
 /**
  * @description Null response

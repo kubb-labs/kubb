@@ -1,3 +1,4 @@
+import { pascalCase } from '@internals/utils'
 import { createProperty, createSchema } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 
@@ -12,6 +13,8 @@ type BuildParamsSchemaOptions = {
 /**
  * Builds an `ObjectSchemaNode` for a group of parameters (path/query/header).
  * Each property is a `ref` schema pointing to the individually-resolved parameter type.
+ * The ref name includes the parameter location so generated type names follow
+ * the `<OperationId><Location><ParamName>` convention.
  */
 export function buildParamsSchema({ params, operationId, resolveName }: BuildParamsSchemaOptions): SchemaNode {
   return createSchema({
@@ -21,7 +24,7 @@ export function buildParamsSchema({ params, operationId, resolveName }: BuildPar
         name: param.name,
         schema: createSchema({
           type: 'ref',
-          name: resolveName({ name: `${operationId} ${param.name}`, type: 'function' }),
+          name: resolveName({ name: `${operationId} ${pascalCase(param.in)} ${param.name}`, type: 'function' }),
           optional: !param.required,
         }),
       }),
@@ -35,7 +38,7 @@ type BuildOperationSchemaOptions = {
 }
 
 /**
- * Builds an `ObjectSchemaNode` representing the `<OperationId>Data` type:
+ * Builds an `ObjectSchemaNode` representing the `<OperationId>RequestConfig` type:
  * - `data`         → request body ref (optional) or `never`
  * - `pathParams`   → inline object of path param refs, or `never`
  * - `queryParams`  → inline object of query param refs (optional), or `never`
@@ -55,7 +58,7 @@ export function buildDataSchemaNode({ node, resolveName }: BuildOperationSchemaO
         schema: node.requestBody
           ? createSchema({
               type: 'ref',
-              name: resolveName({ name: `${node.operationId} MutationRequest`, type: 'function' }),
+              name: resolveName({ name: `${node.operationId} Data`, type: 'function' }),
               optional: true,
             })
           : createSchema({ type: 'never', optional: true }),
@@ -91,11 +94,7 @@ export function buildDataSchemaNode({ node, resolveName }: BuildOperationSchemaO
 
 /**
  * Builds an `ObjectSchemaNode` representing `<OperationId>Responses` — keyed by HTTP status code.
- *
- * Example output:
- * ```ts
- * export type PlaceOrderPatchResponses = { 200: PlaceOrderPatch200; 405: PlaceOrderPatch405 }
- * ```
+ * Numeric status codes produce unquoted numeric keys (e.g. `200:`).
  */
 export function buildResponsesSchemaNode({ node, resolveName }: BuildOperationSchemaOptions): SchemaNode | null {
   const responsesWithSchema = node.responses.filter((res) => res.schema)
@@ -111,7 +110,7 @@ export function buildResponsesSchemaNode({ node, resolveName }: BuildOperationSc
         name: String(res.statusCode),
         schema: createSchema({
           type: 'ref',
-          name: resolveName({ name: `${node.operationId} ${res.statusCode}`, type: 'function' }),
+          name: resolveName({ name: `${node.operationId} Status ${res.statusCode}`, type: 'function' }),
         }),
       }),
     ),
@@ -120,11 +119,7 @@ export function buildResponsesSchemaNode({ node, resolveName }: BuildOperationSc
 
 /**
  * Builds a `UnionSchemaNode` representing `<OperationId>Response` — all response types in union format.
- *
- * Example output:
- * ```ts
- * export type PlaceOrderPatchResponse = PlaceOrderPatch200 | PlaceOrderPatch405
- * ```
+ * Returns `null` when the operation has no responses with schemas.
  */
 export function buildResponseUnionSchemaNode({ node, resolveName }: BuildOperationSchemaOptions): SchemaNode | null {
   const responsesWithSchema = node.responses.filter((res) => res.schema)
@@ -138,7 +133,7 @@ export function buildResponseUnionSchemaNode({ node, resolveName }: BuildOperati
     members: responsesWithSchema.map((res) =>
       createSchema({
         type: 'ref',
-        name: resolveName({ name: `${node.operationId} ${res.statusCode}`, type: 'function' }),
+        name: resolveName({ name: `${node.operationId} Status ${res.statusCode}`, type: 'function' }),
       }),
     ),
   })

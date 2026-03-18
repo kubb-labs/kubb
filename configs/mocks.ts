@@ -57,11 +57,25 @@ export const createMockedPluginManager = (options: { name?: string; plugin?: Plu
     getPluginByName: (_pluginName: string) => {
       return options?.plugin
     },
-    getFile: ({ name, extname, pluginName }: { name: string; extname: KubbFile.Extname; pluginName: string }) => {
+    getFile: ({
+      name,
+      extname,
+      pluginName,
+      options,
+    }: {
+      name: string
+      extname: KubbFile.Extname
+      pluginName: string
+      options?: { group?: { tag?: string; path?: string } }
+    }) => {
       const baseName = `${name}${extname}`
+      // Mirror plugin-ts resolvePath: for tag groups use the tag directly; for path groups
+      // take the first non-empty segment (strips leading '/') to avoid absolute-looking paths.
+      const groupDir = options?.group?.tag ?? options?.group?.path?.split('/').filter(Boolean)[0]
+      const filePath = groupDir ? `${groupDir}/${baseName}` : baseName
 
       return {
-        path: baseName,
+        path: filePath,
         baseName,
         meta: { pluginName },
       }

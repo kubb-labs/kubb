@@ -1,0 +1,28 @@
+export type LoginUserQueryUsername = string
+
+export type LoginUserQueryPassword = string
+
+/**
+ * @description successful operation
+ */
+export type LoginUserStatus200 = string
+
+export interface LoginUserRequestConfig {
+  data?: never
+  pathParams?: never
+  queryParams?: {
+    username?: LoginUserQueryUsername
+    password?: LoginUserQueryPassword
+  }
+  headerParams?: never
+  url: '/user/login'
+}
+
+export interface LoginUserResponses {
+  '200': LoginUserStatus200
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type LoginUserResponse = LoginUserStatus200

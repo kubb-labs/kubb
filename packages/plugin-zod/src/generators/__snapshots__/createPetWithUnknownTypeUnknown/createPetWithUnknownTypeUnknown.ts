@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 import * as z from 'zod'
+import { error } from '../createPetWithUnknownTypeUnknown'
 
 /**
  * @description Null response

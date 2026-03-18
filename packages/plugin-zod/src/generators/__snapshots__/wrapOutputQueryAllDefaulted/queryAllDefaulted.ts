@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 import { z } from '@hono/zod-openapi'
+import { thing } from '../queryAllDefaulted'
 
 export const getThingsQueryParams = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(100).describe('Maximum number of things to return'),
