@@ -1,5 +1,13 @@
 # @kubb/swagger
 
+## 5.0.0-alpha.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.6
+  - @kubb/oas@5.0.0-alpha.6
+
 ## 5.0.0-alpha.5
 
 ### Patch Changes

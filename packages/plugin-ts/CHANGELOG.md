@@ -1,5 +1,19 @@
 # @kubb/plugin-ts
 
+## 5.0.0-alpha.6
+
+### Major Changes
+
+- [#2789](https://github.com/kubb-labs/kubb/pull/2789) [`0aba63f`](https://github.com/kubb-labs/kubb/commit/0aba63f026e7e93bf1057b7a3740bbfe9ee07c00) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Remove the `mapper` option from `@kubb/plugin-ts`. This option allowed overriding specific TypeScript property signatures by name. Use a custom generator instead to transform the generated output.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.6
+  - @kubb/core@5.0.0-alpha.6
+  - @kubb/oas@5.0.0-alpha.6
+  - @kubb/plugin-oas@5.0.0-alpha.6
+
 ## 5.0.0-alpha.5
 
 ### Minor Changes

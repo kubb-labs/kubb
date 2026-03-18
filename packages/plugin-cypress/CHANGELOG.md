@@ -1,5 +1,15 @@
 # @kubb/plugin-cypress
 
+## 5.0.0-alpha.6
+
+### Patch Changes
+
+- Updated dependencies [[`0aba63f`](https://github.com/kubb-labs/kubb/commit/0aba63f026e7e93bf1057b7a3740bbfe9ee07c00)]:
+  - @kubb/plugin-ts@5.0.0-alpha.6
+  - @kubb/core@5.0.0-alpha.6
+  - @kubb/oas@5.0.0-alpha.6
+  - @kubb/plugin-oas@5.0.0-alpha.6
+
 ## 5.0.0-alpha.5
 
 ### Patch Changes
