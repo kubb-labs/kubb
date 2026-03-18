@@ -155,7 +155,7 @@ describe('Full Spec Circular Discriminator References', () => {
       fabric,
       oas,
       include: undefined,
-      pluginDriver: mockedPluginDriver,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,

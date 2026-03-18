@@ -38,7 +38,7 @@ export function useKubb<TOptions extends PluginFactoryOptions = PluginFactoryOpt
   const { meta } = useFabric<{
     plugin: Plugin<TOptions>
     mode: KubbFile.Mode
-    pluginDriver: PluginDriver
+    driver: PluginDriver
   }>()
 
   const defaultPluginName = meta.plugin.name
@@ -46,10 +46,10 @@ export function useKubb<TOptions extends PluginFactoryOptions = PluginFactoryOpt
   return {
     plugin: meta.plugin as Plugin<TOptions>,
     mode: meta.mode,
-    config: meta.pluginDriver.config,
-    getPluginByName: (pluginName = defaultPluginName) => meta.pluginDriver.getPluginByName.call(meta.pluginDriver, pluginName),
-    getFile: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginDriver.getFile.call(meta.pluginDriver, { pluginName, ...rest }),
-    resolveName: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginDriver.resolveName.call(meta.pluginDriver, { pluginName, ...rest }),
-    resolvePath: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginDriver.resolvePath.call(meta.pluginDriver, { pluginName, ...rest }),
+    config: meta.driver.config,
+    getPluginByName: (pluginName = defaultPluginName) => meta.driver.getPluginByName.call(meta.driver, pluginName),
+    getFile: ({ pluginName = defaultPluginName, ...rest }) => meta.driver.getFile.call(meta.driver, { pluginName, ...rest }),
+    resolveName: ({ pluginName = defaultPluginName, ...rest }) => meta.driver.resolveName.call(meta.driver, { pluginName, ...rest }),
+    resolvePath: ({ pluginName = defaultPluginName, ...rest }) => meta.driver.resolvePath.call(meta.driver, { pluginName, ...rest }),
   }
 }

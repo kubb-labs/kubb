@@ -151,7 +151,7 @@ describe('infiniteQueryGenerator operation', async () => {
       fabric,
       oas,
       include: undefined,
-      pluginDriver: mockedPluginDriver,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,

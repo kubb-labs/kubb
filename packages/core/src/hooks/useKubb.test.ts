@@ -20,7 +20,7 @@ describe('useKubb', () => {
       meta: {
         plugin: mockedPlugin,
         mode: 'split',
-        pluginDriver: mockedPluginDriver,
+        driver: mockedPluginDriver,
       },
     })
   })
@@ -58,7 +58,7 @@ describe('useKubb', () => {
       meta: {
         plugin: mockedPlugin,
         mode: 'single',
-        pluginDriver: mockedPluginDriver,
+        driver: mockedPluginDriver,
       },
     })
     const { mode } = useKubb()

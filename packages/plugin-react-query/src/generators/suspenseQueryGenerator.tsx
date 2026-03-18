@@ -19,7 +19,7 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
       options,
       options: { output },
     } = plugin
-    const pluginDriver = usePluginDriver()
+    const driver = usePluginDriver()
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)
@@ -43,7 +43,7 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
       file: getFile(operation, { prefix: 'use', suffix: 'suspense' }),
     }
 
-    const hasClientPlugin = !!pluginDriver.getPluginByName(pluginClientName)
+    const hasClientPlugin = !!driver.getPluginByName(pluginClientName)
     // Class-based clients are not compatible with query hooks, so we generate inline clients
     const shouldUseClientPlugin = hasClientPlugin && options.client.clientType !== 'class'
     const client = {
@@ -100,7 +100,7 @@ export const suspenseQueryGenerator = createReactGenerator<PluginReactQuery>({
         baseName={query.file.baseName}
         path={query.file.path}
         meta={query.file.meta}
-        banner={getBanner({ oas, output, config: pluginDriver.config })}
+        banner={getBanner({ oas, output, config: driver.config })}
         footer={getFooter({ oas, output })}
       >
         {options.parser === 'zod' && (

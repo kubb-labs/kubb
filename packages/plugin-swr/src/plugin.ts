@@ -139,7 +139,7 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
         this.plugin.options.client.baseURL = baseURL
       }
 
-      const hasClientPlugin = !!this.pluginDriver.getPluginByName(pluginClientName)
+      const hasClientPlugin = !!this.driver.getPluginByName(pluginClientName)
 
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled fetch
@@ -179,7 +179,7 @@ export const pluginSwr = definePlugin<PluginSwr>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        pluginDriver: this.pluginDriver,
+        driver: this.driver,
         events: this.events,
         plugin: this.plugin,
         contentType,

@@ -682,7 +682,7 @@ describe('typeGenerator schema', async () => {
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
-      pluginDriver: mockedPluginDriver,
+      driver: mockedPluginDriver,
       plugin,
       contentType: 'application/json',
       include: undefined,
@@ -842,7 +842,7 @@ describe('typeGenerator operation', async () => {
       fabric,
       oas,
       include: undefined,
-      pluginDriver: mockedPluginDriver,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,

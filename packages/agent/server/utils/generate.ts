@@ -24,7 +24,7 @@ export async function generate({ config, events }: GenerateProps): Promise<void>
 
   await events.emit('info', config.name ? `Setup generation ${config.name}` : 'Setup generation')
 
-  const { sources, fabric, pluginDriver } = await setup({
+  const { sources, fabric, driver } = await setup({
     config,
     events,
   })
@@ -36,7 +36,7 @@ export async function generate({ config, events }: GenerateProps): Promise<void>
       config,
       events,
     },
-    { pluginDriver, fabric, events, sources },
+    { driver, fabric, events, sources },
   )
 
   await events.emit('info', 'Load summary')

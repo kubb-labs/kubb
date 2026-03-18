@@ -58,7 +58,7 @@ describe('operationsGenerator operations', async () => {
       fabric,
       oas,
       include: undefined,
-      pluginDriver: mockedPluginDriver,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,

@@ -15,7 +15,7 @@ export const hookOptionsGenerator = createReactGenerator<PluginReactQuery>({
       options: { output },
       name: pluginName,
     } = plugin
-    const pluginDriver = usePluginDriver()
+    const driver = usePluginDriver()
 
     const oas = useOas()
     const { getName, getFile } = useOperationManager(generator)
@@ -25,7 +25,7 @@ export const hookOptionsGenerator = createReactGenerator<PluginReactQuery>({
     }
 
     const name = 'HookOptions'
-    const file = pluginDriver.getFile({ name, extname: '.ts', pluginName })
+    const file = driver.getFile({ name, extname: '.ts', pluginName })
 
     const getOperationOptions = (operation: Operation) => {
       const operationOptions = generator.getOptions(operation, operation.method)
@@ -181,7 +181,7 @@ export const hookOptionsGenerator = createReactGenerator<PluginReactQuery>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output, config: pluginDriver.config })}
+        banner={getBanner({ oas, output, config: driver.config })}
         footer={getFooter({ oas, output })}
       >
         {imports}

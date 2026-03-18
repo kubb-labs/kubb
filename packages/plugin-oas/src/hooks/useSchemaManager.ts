@@ -33,10 +33,10 @@ type UseSchemaManagerResult = {
  */
 export function useSchemaManager(): UseSchemaManagerResult {
   const plugin = usePlugin()
-  const pluginDriver = usePluginDriver()
+  const driver = usePluginDriver()
 
   const getName: UseSchemaManagerResult['getName'] = (name, { pluginName = plugin.name, type }) => {
-    return pluginDriver.resolveName({
+    return driver.resolveName({
       name,
       pluginName,
       type,
@@ -46,7 +46,7 @@ export function useSchemaManager(): UseSchemaManagerResult {
   const getFile: UseSchemaManagerResult['getFile'] = (name, { mode = 'split', pluginName = plugin.name, extname = '.ts', group } = {}) => {
     const resolvedName = mode === 'single' ? '' : getName(name, { type: 'file', pluginName })
 
-    const file = pluginDriver.getFile({
+    const file = driver.getFile({
       name: resolvedName,
       extname,
       pluginName,

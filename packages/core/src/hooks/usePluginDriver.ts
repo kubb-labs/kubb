@@ -5,7 +5,7 @@ import type { PluginDriver } from '../PluginDriver.ts'
  * @deprecated use `useKubb` instead
  */
 export function usePluginDriver(): PluginDriver {
-  const { meta } = useFabric<{ pluginDriver: PluginDriver }>()
+  const { meta } = useFabric<{ driver: PluginDriver }>()
 
-  return meta.pluginDriver
+  return meta.driver
 }

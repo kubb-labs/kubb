@@ -91,7 +91,7 @@ export const pluginCypress = definePlugin<PluginCypress>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        pluginDriver: this.pluginDriver,
+        driver: this.driver,
         events: this.events,
         plugin: this.plugin,
         contentType,

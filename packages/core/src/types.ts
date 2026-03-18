@@ -400,7 +400,7 @@ export type ResolveNameParams = {
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   fabric: FabricType
   config: Config
-  pluginDriver: PluginDriver
+  driver: PluginDriver
   /**
    * Only add when the file does not exist yet
    */

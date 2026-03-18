@@ -11,16 +11,16 @@ import type { PluginMcp } from '../types'
 export const serverGenerator = createReactGenerator<PluginMcp>({
   name: 'operations',
   Operations({ operations, generator, plugin }) {
-    const pluginDriver = usePluginDriver()
+    const driver = usePluginDriver()
     const { options } = plugin
 
     const oas = useOas()
     const { getFile, getName, getSchemas } = useOperationManager(generator)
 
     const name = 'server'
-    const file = pluginDriver.getFile({ name, extname: '.ts', pluginName: plugin.name })
+    const file = driver.getFile({ name, extname: '.ts', pluginName: plugin.name })
 
-    const jsonFile = pluginDriver.getFile({ name: '.mcp', extname: '.json', pluginName: plugin.name })
+    const jsonFile = driver.getFile({ name: '.mcp', extname: '.json', pluginName: plugin.name })
 
     const operationsMapped = operations.map((operation) => {
       return {
@@ -74,7 +74,7 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
           baseName={file.baseName}
           path={file.path}
           meta={file.meta}
-          banner={getBanner({ oas, output: options.output, config: pluginDriver.config })}
+          banner={getBanner({ oas, output: options.output, config: driver.config })}
           footer={getFooter({ oas, output: options.output })}
         >
           <File.Import name={['McpServer']} path={'@modelcontextprotocol/sdk/server/mcp'} />

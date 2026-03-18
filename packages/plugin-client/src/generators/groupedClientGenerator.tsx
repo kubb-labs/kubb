@@ -11,7 +11,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
   name: 'groupedClient',
   Operations({ operations, generator, plugin }) {
     const { options, name: pluginName } = plugin
-    const pluginDriver = usePluginDriver()
+    const driver = usePluginDriver()
 
     const oas = useOas()
     const { getName, getFile, getGroup } = useOperationManager(generator)
@@ -26,7 +26,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
             return acc
           }
 
-          const file = pluginDriver.getFile({
+          const file = driver.getFile({
             name,
             extname: '.ts',
             pluginName,
@@ -59,7 +59,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
           baseName={file.baseName}
           path={file.path}
           meta={file.meta}
-          banner={getBanner({ oas, output: options.output, config: pluginDriver.config })}
+          banner={getBanner({ oas, output: options.output, config: driver.config })}
           footer={getFooter({ oas, output: options.output })}
         >
           {clients.map((client) => (

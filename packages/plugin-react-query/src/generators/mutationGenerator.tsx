@@ -20,7 +20,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
       options,
       options: { output },
     } = plugin
-    const pluginDriver = usePluginDriver()
+    const driver = usePluginDriver()
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)
@@ -50,7 +50,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
       schemas: getSchemas(operation, { pluginName: pluginZodName, type: 'function' }),
     }
 
-    const hasClientPlugin = !!pluginDriver.getPluginByName(pluginClientName)
+    const hasClientPlugin = !!driver.getPluginByName(pluginClientName)
     // Class-based clients are not compatible with query hooks, so we generate inline clients
     const shouldUseClientPlugin = hasClientPlugin && options.client.clientType !== 'class'
     const client = {
@@ -83,7 +83,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
         baseName={mutation.file.baseName}
         path={mutation.file.path}
         meta={mutation.file.meta}
-        banner={getBanner({ oas, output, config: pluginDriver.config })}
+        banner={getBanner({ oas, output, config: driver.config })}
         footer={getFooter({ oas, output })}
       >
         {options.parser === 'zod' && (

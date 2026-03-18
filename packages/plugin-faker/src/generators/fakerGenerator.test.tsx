@@ -159,7 +159,7 @@ describe('fakerGenerator schema', async () => {
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
-      pluginDriver: mockedPluginDriver,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: 'application/json',
@@ -297,7 +297,7 @@ describe('fakerGenerator operation', async () => {
       fabric,
       oas,
       include: undefined,
-      pluginDriver: mockedPluginDriver,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,

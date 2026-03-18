@@ -9,12 +9,12 @@ import type { PluginMsw } from '../types'
 export const handlersGenerator = createReactGenerator<PluginMsw>({
   name: 'plugin-msw',
   Operations({ operations, generator, plugin }) {
-    const pluginDriver = usePluginDriver()
+    const driver = usePluginDriver()
 
     const oas = useOas()
     const { getName, getFile } = useOperationManager(generator)
 
-    const file = pluginDriver.getFile({ name: 'handlers', extname: '.ts', pluginName: plugin.name })
+    const file = driver.getFile({ name: 'handlers', extname: '.ts', pluginName: plugin.name })
 
     const imports = operations.map((operation) => {
       const operationFile = getFile(operation, { pluginName: plugin.name })
@@ -30,7 +30,7 @@ export const handlersGenerator = createReactGenerator<PluginMsw>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output: plugin.options.output, config: pluginDriver.config })}
+        banner={getBanner({ oas, output: plugin.options.output, config: driver.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
         {imports}

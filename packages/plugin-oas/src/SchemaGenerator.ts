@@ -25,7 +25,7 @@ const SCHEMA_CONCURRENCY = 30
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   fabric: FabricType
   oas: Oas
-  pluginDriver: PluginDriver
+  driver: PluginDriver
   events?: AsyncEventEmitter<KubbEvents>
   /**
    * Current plugin
@@ -523,18 +523,18 @@ export class SchemaGenerator<
     // Use the full $ref path to look up the collision-resolved name
     const resolvedName = this.#schemaNameMapping.get($ref) || originalName
 
-    const propertyName = this.context.pluginDriver.resolveName({
+    const propertyName = this.context.driver.resolveName({
       name: resolvedName,
       pluginName: this.context.plugin.name,
       type: 'function',
     })
 
-    const fileName = this.context.pluginDriver.resolveName({
+    const fileName = this.context.driver.resolveName({
       name: resolvedName,
       pluginName: this.context.plugin.name,
       type: 'file',
     })
-    const file = this.context.pluginDriver.getFile({
+    const file = this.context.driver.getFile({
       name: fileName,
       pluginName: this.context.plugin.name,
       extname: '.ts',
@@ -967,7 +967,7 @@ export class SchemaGenerator<
       const enumName = useCollisionDetection
         ? pascalCase(enumNameParts.join(' '))
         : getUniqueName(pascalCase(enumNameParts.join(' ')), this.options.usedEnumNames || {})
-      const typeName = this.context.pluginDriver.resolveName({
+      const typeName = this.context.driver.resolveName({
         name: enumName,
         pluginName: this.context.plugin.name,
         type: 'type',
@@ -1388,7 +1388,7 @@ export class SchemaGenerator<
                   tree,
                 },
                 {
-                  config: this.context.pluginDriver.config,
+                  config: this.context.driver.config,
                   fabric: this.context.fabric,
                   Component: v1Generator.Schema,
                   generator: this,
@@ -1406,7 +1406,7 @@ export class SchemaGenerator<
             }
 
             const result = await v1Generator.schema?.({
-              config: this.context.pluginDriver.config,
+              config: this.context.driver.config,
               generator: this,
               schema: {
                 name,

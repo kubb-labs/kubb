@@ -97,14 +97,14 @@ export class PluginDriver {
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
     const plugins = [...this.#plugins]
-    const pluginDriver = this
+    const driver = this
 
     const baseContext = {
       fabric: this.options.fabric,
       config: this.config,
       plugin,
       events: this.options.events,
-      pluginDriver: this,
+      driver: this,
       mode: getMode(resolve(this.config.root, this.config.output.path)),
       addFile: async (...files: Array<KubbFile.File>) => {
         await this.options.fabric.addFile(...files)
@@ -113,29 +113,29 @@ export class PluginDriver {
         await this.options.fabric.upsertFile(...files)
       },
       get rootNode(): RootNode | undefined {
-        return pluginDriver.rootNode
+        return driver.rootNode
       },
       get adapter(): Adapter | undefined {
-        return pluginDriver.adapter
+        return driver.adapter
       },
       openInStudio(options?: DevtoolsOptions) {
-        if (!pluginDriver.config.devtools || pluginDriver.#studioIsOpen) {
+        if (!driver.config.devtools || driver.#studioIsOpen) {
           return
         }
 
-        if (typeof pluginDriver.config.devtools !== 'object') {
+        if (typeof driver.config.devtools !== 'object') {
           throw new Error('Devtools must be an object')
         }
 
-        if (!pluginDriver.rootNode || !pluginDriver.adapter) {
+        if (!driver.rootNode || !driver.adapter) {
           throw new Error('adapter is not defined, make sure you have set the parser in kubb.config.ts')
         }
 
-        pluginDriver.#studioIsOpen = true
+        driver.#studioIsOpen = true
 
-        const studioUrl = pluginDriver.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
+        const studioUrl = driver.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
 
-        return openInStudioFn(pluginDriver.rootNode, studioUrl, options)
+        return openInStudioFn(driver.rootNode, studioUrl, options)
       },
     } as unknown as PluginContext<TOptions>
 

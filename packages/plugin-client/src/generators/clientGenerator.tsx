@@ -13,7 +13,7 @@ import type { PluginClient } from '../types'
 export const clientGenerator = createReactGenerator<PluginClient>({
   name: 'client',
   Operation({ config, plugin, operation, generator }) {
-    const pluginDriver = usePluginDriver()
+    const driver = usePluginDriver()
     const {
       options,
       options: { output, urlType },
@@ -49,7 +49,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
         baseName={client.file.baseName}
         path={client.file.path}
         meta={client.file.meta}
-        banner={getBanner({ oas, output, config: pluginDriver.config })}
+        banner={getBanner({ oas, output, config: driver.config })}
         footer={getFooter({ oas, output })}
       >
         {options.importPath ? (

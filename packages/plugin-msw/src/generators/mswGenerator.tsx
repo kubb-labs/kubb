@@ -14,7 +14,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
     const {
       options: { output, parser, baseURL },
     } = plugin
-    const pluginDriver = usePluginDriver()
+    const driver = usePluginDriver()
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)
@@ -58,7 +58,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
         baseName={mock.file.baseName}
         path={mock.file.path}
         meta={mock.file.meta}
-        banner={getBanner({ oas, output, config: pluginDriver.config })}
+        banner={getBanner({ oas, output, config: driver.config })}
         footer={getFooter({ oas, output })}
       >
         <File.Import name={['http']} path="msw" />

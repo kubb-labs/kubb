@@ -13,7 +13,7 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
     const {
       options: { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType },
     } = plugin
-    const pluginDriver = usePluginDriver()
+    const driver = usePluginDriver()
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)
@@ -33,7 +33,7 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
         baseName={request.file.baseName}
         path={request.file.path}
         meta={request.file.meta}
-        banner={getBanner({ oas, output, config: pluginDriver.config })}
+        banner={getBanner({ oas, output, config: driver.config })}
         footer={getFooter({ oas, output })}
       >
         <File.Import

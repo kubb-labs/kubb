@@ -66,10 +66,10 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
   generator: Omit<OperationGenerator<TPluginOptions>, 'build'>,
 ): UseOperationManagerResult {
   const plugin = usePlugin()
-  const pluginDriver = usePluginDriver()
+  const driver = usePluginDriver()
 
   const getName: UseOperationManagerResult['getName'] = (operation, { prefix = '', suffix = '', pluginName = plugin.name, type }) => {
-    return pluginDriver.resolveName({
+    return driver.resolveName({
       name: `${prefix} ${operation.getOperationId()} ${suffix}`,
       pluginName,
       type,
@@ -90,7 +90,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
 
     return generator.getSchemas(operation, {
       resolveName: (name) =>
-        pluginDriver.resolveName({
+        driver.resolveName({
           name,
           pluginName: params?.pluginName,
           type: params?.type,
@@ -102,7 +102,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
     const name = getName(operation, { type: 'file', pluginName, prefix, suffix })
     const group = getGroup(operation)
 
-    const file = pluginDriver.getFile({
+    const file = driver.getFile({
       name,
       extname,
       pluginName,
@@ -133,7 +133,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
           return prev
         }
 
-        prev[acc.statusCode] = pluginDriver.resolveName({
+        prev[acc.statusCode] = driver.resolveName({
           name: acc.name,
           pluginName,
           type,
@@ -150,7 +150,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
           return prev
         }
 
-        prev[acc.statusCode] = pluginDriver.resolveName({
+        prev[acc.statusCode] = driver.resolveName({
           name: acc.name,
           pluginName,
           type,
@@ -163,7 +163,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
 
     return {
       request: schemas.request?.name
-        ? pluginDriver.resolveName({
+        ? driver.resolveName({
             name: schemas.request.name,
             pluginName,
             type,
@@ -171,21 +171,21 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
         : undefined,
       parameters: {
         path: schemas.pathParams?.name
-          ? pluginDriver.resolveName({
+          ? driver.resolveName({
               name: schemas.pathParams.name,
               pluginName,
               type,
             })
           : undefined,
         query: schemas.queryParams?.name
-          ? pluginDriver.resolveName({
+          ? driver.resolveName({
               name: schemas.queryParams.name,
               pluginName,
               type,
             })
           : undefined,
         header: schemas.headerParams?.name
-          ? pluginDriver.resolveName({
+          ? driver.resolveName({
               name: schemas.headerParams.name,
               pluginName,
               type,
@@ -194,7 +194,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
       },
       responses: {
         ...responses,
-        ['default']: pluginDriver.resolveName({
+        ['default']: driver.resolveName({
           name: schemas.response.name,
           pluginName,
           type,
