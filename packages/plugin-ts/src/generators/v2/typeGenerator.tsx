@@ -14,7 +14,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
   type: 'react',
   Operation({ node, adapter, options }) {
     const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, mapper, group } = options
-    const { mode, getFile, resolveName } = useKubb<PluginTs>()
+    const { mode, getFile, resolveName, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     const file = getFile({
       name: node.operationId,
@@ -114,7 +114,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     })
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={resolveBanner(node)} footer={resolveFooter(node)}>
         {paramTypes}
         {responseTypes}
         {requestType}
@@ -126,7 +126,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
   },
   Schema({ node, adapter, options }) {
     const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, mapper } = options
-    const { mode, resolveName, getFile } = useKubb<PluginTs>()
+    const { mode, resolveName, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     if (!node.name) {
       return
@@ -151,7 +151,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     } as const
 
     return (
-      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta}>
+      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta} banner={resolveBanner(node)} footer={resolveFooter(node)}>
         {mode === 'split' &&
           imports.map((imp) => (
             <File.Import key={[node.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />

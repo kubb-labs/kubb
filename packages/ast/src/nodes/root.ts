@@ -12,6 +12,10 @@ export type RootMeta = {
    */
   title?: string
   /**
+   * API description (from `info.description` in OAS/AsyncAPI).
+   */
+  description?: string
+  /**
    * API version string (from `info.version` in OAS/AsyncAPI).
    */
   version?: string
