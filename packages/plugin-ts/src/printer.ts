@@ -4,6 +4,7 @@ import type { ArraySchemaNode, SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import type ts from 'typescript'
+import { ENUM_TYPES_WITH_KEY_SUFFIX, OPTIONAL_ADDS_QUESTION_TOKEN, OPTIONAL_ADDS_UNDEFINED } from './constants.ts'
 import * as factory from './factory.ts'
 import type { PluginTs } from './types.ts'
 
@@ -50,10 +51,6 @@ type TsOptions = {
  * TypeScript printer factory options: maps `SchemaNode` → `ts.TypeNode` (raw) or `ts.Node` (full declaration).
  */
 type TsPrinter = PrinterFactoryOptions<'typescript', TsOptions, ts.TypeNode, ts.Node>
-
-const OPTIONAL_ADDS_UNDEFINED = new Set<TsOptions['optionalType']>(['undefined', 'questionTokenAndUndefined'])
-const OPTIONAL_ADDS_QUESTION_TOKEN = new Set<TsOptions['optionalType']>(['questionToken', 'questionTokenAndUndefined'])
-const ENUM_TYPES_WITH_KEY_SUFFIX = new Set<TsOptions['enumType']>(['asConst', 'asPascalConst'])
 
 /**
  * Converts a primitive const value to a TypeScript literal type node.

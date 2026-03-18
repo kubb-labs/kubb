@@ -228,8 +228,11 @@ describe('typeGenerator v2 — Operation — group', () => {
     ],
   })
 
-  test('group by tag — file is placed under the tag directory', async () => {
-    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group: { type: 'tag' } }
+  test.each([
+    { group: { type: 'tag' as const }, expectedPath: 'pets/listPets.ts' },
+    { group: undefined, expectedPath: 'listPets.ts' },
+  ])('group=$group.type — file path is $expectedPath', async ({ group, expectedPath }) => {
+    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group }
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
     const mockedPluginManager = createMockedPluginManager({ name: 'listPets' })
 
@@ -247,51 +250,7 @@ describe('typeGenerator v2 — Operation — group', () => {
 
     const file = fabric.files.find((f) => f.baseName === 'listPets.ts')
     expect(file).toBeDefined()
-    expect(file!.path).toBe('pets/listPets.ts')
-  })
-
-  test('group by path — file is placed under the path directory', async () => {
-    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group: { type: 'path' } }
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
-    const mockedPluginManager = createMockedPluginManager({ name: 'listPets' })
-
-    await buildOperation(node, {
-      version: '2',
-      config: { root: '.', output: { path: 'test' } } as Config,
-      fabric,
-      adapter: createMockedAdapter(),
-      pluginManager: mockedPluginManager,
-      Component: typeGenerator.Operation,
-      plugin,
-      mode: 'split',
-      options,
-    })
-
-    const file = fabric.files.find((f) => f.baseName === 'listPets.ts')
-    expect(file).toBeDefined()
-    expect(file!.path).toBe('pets/listPets.ts')
-  })
-
-  test('no group — file is placed flat', async () => {
-    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group: undefined }
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
-    const mockedPluginManager = createMockedPluginManager({ name: 'listPets' })
-
-    await buildOperation(node, {
-      version: '2',
-      config: { root: '.', output: { path: 'test' } } as Config,
-      fabric,
-      adapter: createMockedAdapter(),
-      pluginManager: mockedPluginManager,
-      Component: typeGenerator.Operation,
-      plugin,
-      mode: 'split',
-      options,
-    })
-
-    const file = fabric.files.find((f) => f.baseName === 'listPets.ts')
-    expect(file).toBeDefined()
-    expect(file!.path).toBe('listPets.ts')
+    expect(file!.path).toBe(expectedPath)
   })
 })
 

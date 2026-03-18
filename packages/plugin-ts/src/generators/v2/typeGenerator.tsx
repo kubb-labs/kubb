@@ -1,12 +1,13 @@
-import { pascalCase } from '@internals/utils'
 import { applyParamsCasing } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
 import { useKubb } from '@kubb/core/hooks'
+import { pascalCase } from '@internals/utils'
 import { File } from '@kubb/react-fabric'
+import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../../constants.ts'
 import { Type } from '../../components/v2/Type.tsx'
 import type { PluginTs } from '../../types'
-import { buildDataSchemaNode, buildResponsesSchemaNode, buildResponseUnionSchemaNode } from './utils.ts'
+import { buildDataSchemaNode, buildResponseUnionSchemaNode, buildResponsesSchemaNode } from './utils.ts'
 
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
@@ -139,7 +140,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     const isEnumSchema = node.type === 'enum'
 
     let typedName = resolveName({ name: node.name, type: 'type' })
-    if (['asConst', 'asPascalConst'].includes(enumType) && isEnumSchema) {
+    if (ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema) {
       typedName += 'Key'
     }
 

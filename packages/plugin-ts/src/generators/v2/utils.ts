@@ -13,8 +13,8 @@ type BuildParamsSchemaOptions = {
 /**
  * Builds an `ObjectSchemaNode` for a group of parameters (path/query/header).
  * Each property is a `ref` schema pointing to the individually-resolved parameter type.
- * The ref name includes the parameter location (e.g. `Path`, `Query`, `Header`) so that
- * generated type names follow the `<OperationId><Location><ParamName>` convention.
+ * The ref name includes the parameter location so generated type names follow
+ * the `<OperationId><Location><ParamName>` convention.
  */
 export function buildParamsSchema({ params, operationId, resolveName }: BuildParamsSchemaOptions): SchemaNode {
   return createSchema({
@@ -95,11 +95,6 @@ export function buildDataSchemaNode({ node, resolveName }: BuildOperationSchemaO
 /**
  * Builds an `ObjectSchemaNode` representing `<OperationId>Responses` — keyed by HTTP status code.
  * Numeric status codes produce unquoted numeric keys (e.g. `200:`).
- *
- * Example output:
- * ```ts
- * export interface PlaceOrderPatchResponses { 200: PlaceOrderPatchStatus200; 405: PlaceOrderPatchStatus405 }
- * ```
  */
 export function buildResponsesSchemaNode({ node, resolveName }: BuildOperationSchemaOptions): SchemaNode | null {
   const responsesWithSchema = node.responses.filter((res) => res.schema)
@@ -123,12 +118,8 @@ export function buildResponsesSchemaNode({ node, resolveName }: BuildOperationSc
 }
 
 /**
- * Builds a `UnionSchemaNode` representing `<OperationId>Response` — all response types in union format.
- *
- * Example output:
- * ```ts
- * export type PlaceOrderPatchResponse = PlaceOrderPatchStatus200 | PlaceOrderPatchStatus405
- * ```
+ * Builds a `UnionSchemaNode` representing `<OperationId>Response` — all response types unioned.
+ * Returns `null` when the operation has no responses with schemas.
  */
 export function buildResponseUnionSchemaNode({ node, resolveName }: BuildOperationSchemaOptions): SchemaNode | null {
   const responsesWithSchema = node.responses.filter((res) => res.schema)

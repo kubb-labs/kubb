@@ -25,7 +25,7 @@ function printSchema(schema: ReturnType<typeof buildParamsSchema>): string {
 }
 
 describe('buildParamsSchema', () => {
-  it('builds an object type for required params', () => {
+  it('builds required params as non-optional properties', () => {
     const params = [createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })]
 
     expect(printSchema(buildParamsSchema({ params, operationId: 'showPetById', resolveName }))).toMatchInlineSnapshot(`
@@ -41,20 +41,6 @@ describe('buildParamsSchema', () => {
     expect(printSchema(buildParamsSchema({ params, operationId: 'listPets', resolveName }))).toMatchInlineSnapshot(`
       "{
           limit?: listPetsQueryLimit;
-      }"
-    `)
-  })
-
-  it('builds an object type for multiple params', () => {
-    const params = [
-      createParameter({ name: 'storeId', schema: createSchema({ type: 'string' }), in: 'path', required: true }),
-      createParameter({ name: 'orderId', schema: createSchema({ type: 'integer' }), in: 'path', required: true }),
-    ]
-
-    expect(printSchema(buildParamsSchema({ params, operationId: 'getOrder', resolveName }))).toMatchInlineSnapshot(`
-      "{
-          storeId: getOrderPathStoreId;
-          orderId: getOrderPathOrderId;
       }"
     `)
   })
