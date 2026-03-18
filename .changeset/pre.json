@@ -45,5 +45,13 @@
     "unplugin-kubb": "5.0.7",
     "e2e": "0.0.0"
   },
-  "changesets": ["ast-utils-operation-path", "feat-resolve-options", "pretty-schools-fly", "remove-plugin-key", "tough-lemons-pump"]
+  "changesets": [
+    "ast-utils-operation-path",
+    "feat-resolve-options",
+    "pretty-schools-fly",
+    "remove-mapper-plugin-ts",
+    "remove-plugin-key",
+    "tough-lemons-pump",
+    "type-generator-v2-helpers"
+  ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "5.0.0-alpha.4",
+  "version": "5.0.0-alpha.6",
   "description": "Core functionality for Kubb's plugin-based code generation system, providing the foundation for transforming OpenAPI specifications.",
   "keywords": [
     "typescript",

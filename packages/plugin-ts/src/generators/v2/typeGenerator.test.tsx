@@ -3,7 +3,6 @@ import type { EnumSchemaNode, OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
 import { buildOperation, buildSchema } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
-import ts, { factory } from 'typescript'
 import { beforeEach, describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../../types.ts'
@@ -121,30 +120,6 @@ describe('typeGenerator v2 — Operation', () => {
         paramsCasing: 'camelcase',
       },
     },
-    {
-      name: 'createPet — POST with mapper overriding request body property',
-      node: createOperation({
-        operationId: 'createPets',
-        method: 'POST',
-        path: '/pets',
-        tags: ['pets'],
-        parameters: [createParameter({ name: 'name', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
-        responses: [
-          createResponse({ statusCode: '201', schema: createSchema({ type: 'object', properties: [] }), description: 'Null response' }),
-          createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
-        ],
-      }),
-      options: {
-        mapper: {
-          name: factory.createPropertySignature(
-            undefined,
-            factory.createIdentifier('fullName'),
-            factory.createToken(ts.SyntaxKind.QuestionToken),
-            factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-          ),
-        },
-      },
-    },
   ] as const satisfies Array<{ name: string; node: OperationNode; options?: Partial<PluginTs['resolvedOptions']> }>
 
   const defaultOptions: PluginTs['resolvedOptions'] = {
@@ -159,7 +134,6 @@ describe('typeGenerator v2 — Operation', () => {
     unknownType: 'any',
     syntaxType: 'type',
     override: [],
-    mapper: {},
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,
@@ -209,7 +183,6 @@ describe('typeGenerator v2 — Operation — group', () => {
     unknownType: 'any',
     syntaxType: 'type',
     override: [],
-    mapper: {},
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,
@@ -285,7 +258,6 @@ describe('typeGenerator v2 — Schema (enum)', () => {
     unknownType: 'any',
     syntaxType: 'type',
     override: [],
-    mapper: {},
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,

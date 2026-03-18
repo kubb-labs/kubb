@@ -1,6 +1,6 @@
 {
   "name": "@kubb/mcp",
-  "version": "5.0.0-alpha.4",
+  "version": "5.0.0-alpha.6",
   "description": "Model Context Protocol (MCP) server for Kubb, enabling AI assistants to generate code from OpenAPI specifications.",
   "keywords": [
     "mcp",

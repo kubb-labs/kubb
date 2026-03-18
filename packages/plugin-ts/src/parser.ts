@@ -159,7 +159,6 @@ type ParserOptions = {
    * @note In Kubb v5, `inlineLiteral` becomes the default.
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
-  mapper?: Record<string, ts.PropertySignature>
 }
 
 /**
@@ -170,7 +169,7 @@ type ParserOptions = {
  * @param current - The schema node to parse.
  * @param siblings - Sibling schema nodes, used for context in certain mappings.
  * @param name - The name of the schema or property being parsed.
- * @param options - Parsing options controlling output style, property handling, and custom mappers.
+ * @param options - Parsing options controlling output style, property handling.
  * @returns The generated TypeScript AST node, or `undefined` if the schema keyword is not mapped.
  */
 export const parse = createParser<ts.Node | null, ParserOptions>({
@@ -253,12 +252,6 @@ export const parse = createParser<ts.Node | null, ParserOptions>({
         .map(([name, schemas]) => {
           const nameSchema = schemas.find((schema) => schema.keyword === schemaKeywords.name) as SchemaKeywordMapper['name']
           const mappedName = nameSchema?.args || name
-
-          // custom mapper(pluginOptions)
-          // Use Object.hasOwn to avoid matching inherited properties like 'toString', 'valueOf', etc.
-          if (options.mapper && Object.hasOwn(options.mapper, mappedName)) {
-            return options.mapper[mappedName]
-          }
 
           const isNullish = schemas.some((schema) => schema.keyword === schemaKeywords.nullish)
           const isNullable = schemas.some((schema) => schema.keyword === schemaKeywords.nullable)

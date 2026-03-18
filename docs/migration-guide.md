@@ -35,6 +35,44 @@ export default defineConfig({
 })
 ```
 
+### `mapper` removed from `@kubb/plugin-ts`
+
+The `mapper` option has been removed from `@kubb/plugin-ts`. This option allowed overriding specific TypeScript property signatures by name. A new `transform` option will be introduced in v5 that provides a more powerful way to transform the generated AST nodes (`schemaNode` and `operationNode`).
+
+::: code-group
+```typescript [Before]
+import { pluginTs } from '@kubb/plugin-ts'
+import ts, { factory } from 'typescript'
+
+export default defineConfig({
+  plugins: [
+    pluginTs({
+      mapper: {
+        category: factory.createPropertySignature(
+          undefined,
+          factory.createIdentifier('category'),
+          factory.createToken(ts.SyntaxKind.QuestionToken),
+          factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+        ),
+      },
+    }),
+  ],
+})
+```
+
+```typescript [After (v5)]
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  plugins: [
+    pluginTs({
+      // Use the new transform option (coming in v5) to transform schemaNode and operationNode
+    }),
+  ],
+})
+```
+:::
+
 ---
 
 # Migrating to Kubb v3

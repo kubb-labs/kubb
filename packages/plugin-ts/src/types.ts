@@ -2,7 +2,6 @@ import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@ku
 import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
-import type ts from 'typescript'
 
 export type Options = {
   /**
@@ -128,17 +127,6 @@ export type Options = {
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
   /**
-   * @example
-   * Use https://ts-ast-viewer.com to generate factory code(see createPropertySignature)
-   * category: factory.createPropertySignature(
-   *   undefined,
-   *   factory.createIdentifier("category"),
-   *   factory.createToken(ts.SyntaxKind.QuestionToken),
-   *   factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)
-   * )
-   */
-  mapper?: Record<string, ts.PropertySignature>
-  /**
    * How to style your params, by default no casing is applied
    * - 'camelcase' uses camelCase for pathParams, queryParams and headerParams property names
    * @default undefined
@@ -170,7 +158,6 @@ type ResolvedOptions = {
   arrayType: NonNullable<Options['arrayType']>
   transformers: NonNullable<Options['transformers']>
   syntaxType: NonNullable<Options['syntaxType']>
-  mapper: Record<string, any>
   paramsCasing: Options['paramsCasing']
 }
 

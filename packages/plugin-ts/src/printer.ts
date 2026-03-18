@@ -27,10 +27,6 @@ type TsOptions = {
    */
   syntaxType?: PluginTs['resolvedOptions']['syntaxType']
   /**
-   * Custom property signatures that override specific object properties by name.
-   */
-  mapper?: PluginTs['resolvedOptions']['mapper']
-  /**
    * When set, `printer.print(node)` produces a full `type Name = …` declaration.
    * When omitted, `printer.print(node)` returns the raw type node.
    */
@@ -299,10 +295,6 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         const addsQuestionToken = OPTIONAL_ADDS_QUESTION_TOKEN.has(options.optionalType)
 
         const propertyNodes: Array<ts.TypeElement> = node.properties.map((prop) => {
-          if (options.mapper && Object.hasOwn(options.mapper, prop.name)) {
-            return options.mapper[prop.name] ?? factory.keywordTypeNodes.unknown
-          }
-
           const baseType = print(prop.schema) ?? factory.keywordTypeNodes.unknown
           const type = buildPropertyType(prop.schema, baseType, options.optionalType)
 

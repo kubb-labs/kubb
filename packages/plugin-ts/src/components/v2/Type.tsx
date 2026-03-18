@@ -16,7 +16,6 @@ type Props = {
   enumType: PluginTs['resolvedOptions']['enumType']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
-  mapper?: PluginTs['resolvedOptions']['mapper']
   description?: string
   keysToOmit?: string[]
 }
@@ -31,7 +30,6 @@ export function Type({
   syntaxType,
   enumType,
   enumKeyCasing,
-  mapper,
   description,
 }: Props): FabricReactNode {
   const resolvedDescription = description || node?.description
@@ -41,17 +39,17 @@ export function Type({
     },
   })
 
-  const printer = printerTs({ optionalType, arrayType, enumType, mapper, typeName: name, syntaxType, description: resolvedDescription, keysToOmit })
+  const printer = printerTs({ optionalType, arrayType, enumType, typeName: name, syntaxType, description: resolvedDescription, keysToOmit })
   const typeNode = printer.print(node)
 
   if (!typeNode) {
     return
   }
 
-  const enums = [...new Map(enumSchemaNodes.map((n) => [n.name, n])).values()].map((enumSchemaNode) => {
+  const enums = [...new Map(enumSchemaNodes.map((n) => [n.name, n])).values()].map((node) => {
     return {
-      enumSchemaNode,
-      ...getEnumNames(enumSchemaNode, enumType),
+      node,
+      ...getEnumNames(node, enumType),
     }
   })
 
@@ -61,7 +59,7 @@ export function Type({
 
   return (
     <>
-      {shouldExportEnums && enums.map(({ enumSchemaNode }) => <Enum enumSchemaNode={enumSchemaNode} enumType={enumType} enumKeyCasing={enumKeyCasing} />)}
+      {shouldExportEnums && enums.map(({ node }) => <Enum node={node} enumType={enumType} enumKeyCasing={enumKeyCasing} />)}
       {shouldExportType && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
           {safePrint(typeNode)}

@@ -13,8 +13,8 @@ export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Operation({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, mapper, group } = options
-    const { mode, getFile, resolveName, resolveBanner, resolveFooter } = useKubb<PluginTs>()
+    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group } = options
+    const { mode, getFile, resolveName } = useKubb<PluginTs>()
 
     const file = getFile({
       name: node.operationId,
@@ -60,7 +60,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
             optionalType={optionalType}
             arrayType={arrayType}
             syntaxType={syntaxType}
-            mapper={mapper}
           />
         </>
       )
@@ -114,7 +113,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     })
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={resolveBanner(node)} footer={resolveFooter(node)}>
+      <File baseName={file.baseName} path={file.path} meta={file.meta}>
         {paramTypes}
         {responseTypes}
         {requestType}
@@ -125,8 +124,8 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
   },
   Schema({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, mapper } = options
-    const { mode, resolveName, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
+    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType } = options
+    const { mode, resolveName, getFile } = useKubb<PluginTs>()
 
     if (!node.name) {
       return
@@ -151,7 +150,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     } as const
 
     return (
-      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta} banner={resolveBanner(node)} footer={resolveFooter(node)}>
+      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta}>
         {mode === 'split' &&
           imports.map((imp) => (
             <File.Import key={[node.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
@@ -165,7 +164,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
           optionalType={optionalType}
           arrayType={arrayType}
           syntaxType={syntaxType}
-          mapper={mapper}
         />
       </File>
     )
