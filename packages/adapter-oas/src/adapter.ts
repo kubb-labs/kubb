@@ -97,6 +97,7 @@ export const adapterOas = defineAdapter<OasAdapter>((options) => {
         ...root,
         meta: {
           title: oas.api.info?.title,
+          description: oas.api.info?.description,
           version: oas.api.info?.version,
           baseURL,
         },
