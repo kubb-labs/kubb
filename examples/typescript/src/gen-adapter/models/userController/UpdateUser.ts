@@ -1,13 +1,13 @@
 import type { User } from '../User.ts'
 
-export type UpdateUserUsername = string
+export type UpdateUserPathUsername = string
 
 export type UpdateUserMutationRequest = User
 
-export interface UpdateUserData {
+export interface UpdateUserRequestConfig {
   data?: UpdateUserMutationRequest
   pathParams: {
-    username: UpdateUserUsername
+    username: UpdateUserPathUsername
   }
   queryParams?: never
   headerParams?: never

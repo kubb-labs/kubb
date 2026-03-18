@@ -3,14 +3,14 @@ import type { Order } from '../Order.ts'
 /**
  * @description successful operation
  */
-export type PlaceOrder200 = Order
+export type PlaceOrderStatus200 = Order
 
 /**
  * @description Order description
  */
 export type PlaceOrderMutationRequest = Order
 
-export interface PlaceOrderData {
+export interface PlaceOrderRequestConfig {
   data?: PlaceOrderMutationRequest
   pathParams?: never
   queryParams?: never
@@ -19,7 +19,10 @@ export interface PlaceOrderData {
 }
 
 export interface PlaceOrderResponses {
-  '200': PlaceOrder200
+  '200': PlaceOrderStatus200
 }
 
-export type PlaceOrderResponse = PlaceOrder200
+/**
+ * @description Union of all possible responses
+ */
+export type PlaceOrderResponse = PlaceOrderStatus200

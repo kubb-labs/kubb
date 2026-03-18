@@ -1,17 +1,17 @@
-export type UpdatePetWithFormPetId = number
+export type UpdatePetWithFormPathPetId = number
 
-export type UpdatePetWithFormName = string
+export type UpdatePetWithFormQueryName = string
 
-export type UpdatePetWithFormStatus = string
+export type UpdatePetWithFormQueryStatus = string
 
-export interface UpdatePetWithFormData {
+export interface UpdatePetWithFormRequestConfig {
   data?: never
   pathParams: {
-    petId: UpdatePetWithFormPetId
+    petId: UpdatePetWithFormPathPetId
   }
   queryParams?: {
-    name?: UpdatePetWithFormName
-    status?: UpdatePetWithFormStatus
+    name?: UpdatePetWithFormQueryName
+    status?: UpdatePetWithFormQueryStatus
   }
   headerParams?: never
   url: `/pet/${string}`

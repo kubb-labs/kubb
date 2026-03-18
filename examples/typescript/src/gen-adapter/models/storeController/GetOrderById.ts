@@ -1,16 +1,16 @@
 import type { Order } from '../Order.ts'
 
-export type GetOrderByIdOrderId = number
+export type GetOrderByIdPathOrderId = number
 
 /**
  * @description successful operation
  */
-export type GetOrderById200 = Order
+export type GetOrderByIdStatus200 = Order
 
-export interface GetOrderByIdData {
+export interface GetOrderByIdRequestConfig {
   data?: never
   pathParams: {
-    orderId: GetOrderByIdOrderId
+    orderId: GetOrderByIdPathOrderId
   }
   queryParams?: never
   headerParams?: never
@@ -18,7 +18,10 @@ export interface GetOrderByIdData {
 }
 
 export interface GetOrderByIdResponses {
-  '200': GetOrderById200
+  '200': GetOrderByIdStatus200
 }
 
-export type GetOrderByIdResponse = GetOrderById200
+/**
+ * @description Union of all possible responses
+ */
+export type GetOrderByIdResponse = GetOrderByIdStatus200

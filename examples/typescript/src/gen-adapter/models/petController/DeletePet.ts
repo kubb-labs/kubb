@@ -1,26 +1,29 @@
-export type DeletePetApiKey = string
+export type DeletePetHeaderApiKey = string
 
-export type DeletePetPetId = number
+export type DeletePetPathPetId = number
 
 /**
  * @description items
  */
-export type DeletePet200 = ('TYPE1' | 'TYPE2' | 'TYPE3')[]
+export type DeletePetStatus200 = ('TYPE1' | 'TYPE2' | 'TYPE3')[]
 
-export interface DeletePetData {
+export interface DeletePetRequestConfig {
   data?: never
   pathParams: {
-    petId: DeletePetPetId
+    petId: DeletePetPathPetId
   }
   queryParams?: never
   headerParams?: {
-    api_key?: DeletePetApiKey
+    api_key?: DeletePetHeaderApiKey
   }
   url: `/pet/${string}`
 }
 
 export interface DeletePetResponses {
-  '200': DeletePet200
+  '200': DeletePetStatus200
 }
 
-export type DeletePetResponse = DeletePet200
+/**
+ * @description Union of all possible responses
+ */
+export type DeletePetResponse = DeletePetStatus200

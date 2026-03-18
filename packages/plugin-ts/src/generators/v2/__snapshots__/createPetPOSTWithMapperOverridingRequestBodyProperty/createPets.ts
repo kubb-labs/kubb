@@ -1,16 +1,16 @@
-export type createPetsName = number
+export type createPetsPathName = number
 
 /**
  * @description Null response
  */
-export type createPets201 = object
+export type createPetsStatus201 = object
 
 /**
  * @description Unexpected error
  */
-export type createPetsDefault = object
+export type createPetsStatusDefault = object
 
-export type createPetsData = {
+export type createPetsRequestConfig = {
   data?: never
   pathParams: {
     fullName?: string
@@ -21,8 +21,11 @@ export type createPetsData = {
 }
 
 export type createPetsResponses = {
-  '201': createPets201
-  default: createPetsDefault
+  '201': createPetsStatus201
+  default: createPetsStatusDefault
 }
 
-export type createPetsResponse = createPets201 | createPetsDefault
+/**
+ * @description Union of all possible responses
+ */
+export type createPetsResponse = createPetsStatus201 | createPetsStatusDefault

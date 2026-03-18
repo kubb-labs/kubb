@@ -1,4 +1,4 @@
-export interface LogoutUserData {
+export interface LogoutUserRequestConfig {
   data?: never
   pathParams?: never
   queryParams?: never

@@ -1,28 +1,31 @@
-export type { DeleteOrderData, DeleteOrderOrderId } from './DeleteOrder.ts'
 export type {
-  GetInventory200,
-  GetInventoryData,
+  DeleteOrderPathOrderId,
+  DeleteOrderRequestConfig,
+} from './DeleteOrder.ts'
+export type {
+  GetInventoryRequestConfig,
   GetInventoryResponse,
   GetInventoryResponses,
+  GetInventoryStatus200,
 } from './GetInventory.ts'
 export type {
-  GetOrderById200,
-  GetOrderByIdData,
-  GetOrderByIdOrderId,
+  GetOrderByIdPathOrderId,
+  GetOrderByIdRequestConfig,
   GetOrderByIdResponse,
   GetOrderByIdResponses,
+  GetOrderByIdStatus200,
 } from './GetOrderById.ts'
 export type {
-  PlaceOrder200,
-  PlaceOrderData,
   PlaceOrderMutationRequest,
+  PlaceOrderRequestConfig,
   PlaceOrderResponse,
   PlaceOrderResponses,
+  PlaceOrderStatus200,
 } from './PlaceOrder.ts'
 export type {
-  PlaceOrderPatch200,
-  PlaceOrderPatchData,
   PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchRequestConfig,
   PlaceOrderPatchResponse,
   PlaceOrderPatchResponses,
+  PlaceOrderPatchStatus200,
 } from './PlaceOrderPatch.ts'

@@ -1,9 +1,9 @@
-export type DeleteUserUsername = string | null
+export type DeleteUserPathUsername = string | null
 
-export interface DeleteUserData {
+export interface DeleteUserRequestConfig {
   data?: never
   pathParams: {
-    username: DeleteUserUsername
+    username: DeleteUserPathUsername
   }
   queryParams?: never
   headerParams?: never

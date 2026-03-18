@@ -15,135 +15,135 @@ export type { Pet } from './models/Pet.ts'
 export { PetStatusEnum } from './models/Pet.ts'
 export type { PetNotFound } from './models/PetNotFound.ts'
 export type {
-  AddPet200,
-  AddPet405,
-  AddPetData,
   AddPetMutationRequest,
+  AddPetRequestConfig,
   AddPetResponse,
   AddPetResponses,
+  AddPetStatus200,
+  AddPetStatus405,
 } from './models/petController/AddPet.ts'
 export type {
-  DeletePet200,
-  DeletePetApiKey,
-  DeletePetData,
-  DeletePetPetId,
+  DeletePetHeaderApiKey,
+  DeletePetPathPetId,
+  DeletePetRequestConfig,
   DeletePetResponse,
   DeletePetResponses,
+  DeletePetStatus200,
 } from './models/petController/DeletePet.ts'
 export type {
-  FindPetsByStatus200,
-  FindPetsByStatusData,
+  FindPetsByStatusQueryStatus,
+  FindPetsByStatusRequestConfig,
   FindPetsByStatusResponse,
   FindPetsByStatusResponses,
-  FindPetsByStatusStatus,
+  FindPetsByStatusStatus200,
 } from './models/petController/FindPetsByStatus.ts'
 export type {
-  FindPetsByTags200,
-  FindPetsByTagsData,
+  FindPetsByTagsQueryTags,
+  FindPetsByTagsRequestConfig,
   FindPetsByTagsResponse,
   FindPetsByTagsResponses,
-  FindPetsByTagsTags,
+  FindPetsByTagsStatus200,
 } from './models/petController/FindPetsByTags.ts'
 export type {
-  GetPetById200,
-  GetPetByIdData,
-  GetPetByIdPetId,
+  GetPetByIdPathPetId,
+  GetPetByIdRequestConfig,
   GetPetByIdResponse,
   GetPetByIdResponses,
+  GetPetByIdStatus200,
 } from './models/petController/GetPetById.ts'
 export type {
-  UpdatePet200,
-  UpdatePetData,
   UpdatePetMutationRequest,
+  UpdatePetRequestConfig,
   UpdatePetResponse,
   UpdatePetResponses,
+  UpdatePetStatus200,
 } from './models/petController/UpdatePet.ts'
 export type {
-  UpdatePetWithFormData,
-  UpdatePetWithFormName,
-  UpdatePetWithFormPetId,
-  UpdatePetWithFormStatus,
+  UpdatePetWithFormPathPetId,
+  UpdatePetWithFormQueryName,
+  UpdatePetWithFormQueryStatus,
+  UpdatePetWithFormRequestConfig,
 } from './models/petController/UpdatePetWithForm.ts'
 export type {
-  UploadFile200,
-  UploadFileAdditionalMetadata,
-  UploadFileData,
   UploadFileMutationRequest,
-  UploadFilePetId,
+  UploadFilePathPetId,
+  UploadFileQueryAdditionalMetadata,
+  UploadFileRequestConfig,
   UploadFileResponse,
   UploadFileResponses,
+  UploadFileStatus200,
 } from './models/petController/UploadFile.ts'
 export type {
-  DeleteOrderData,
-  DeleteOrderOrderId,
+  DeleteOrderPathOrderId,
+  DeleteOrderRequestConfig,
 } from './models/storeController/DeleteOrder.ts'
 export type {
-  GetInventory200,
-  GetInventoryData,
+  GetInventoryRequestConfig,
   GetInventoryResponse,
   GetInventoryResponses,
+  GetInventoryStatus200,
 } from './models/storeController/GetInventory.ts'
 export type {
-  GetOrderById200,
-  GetOrderByIdData,
-  GetOrderByIdOrderId,
+  GetOrderByIdPathOrderId,
+  GetOrderByIdRequestConfig,
   GetOrderByIdResponse,
   GetOrderByIdResponses,
+  GetOrderByIdStatus200,
 } from './models/storeController/GetOrderById.ts'
 export type {
-  PlaceOrder200,
-  PlaceOrderData,
   PlaceOrderMutationRequest,
+  PlaceOrderRequestConfig,
   PlaceOrderResponse,
   PlaceOrderResponses,
+  PlaceOrderStatus200,
 } from './models/storeController/PlaceOrder.ts'
 export type {
-  PlaceOrderPatch200,
-  PlaceOrderPatchData,
   PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchRequestConfig,
   PlaceOrderPatchResponse,
   PlaceOrderPatchResponses,
+  PlaceOrderPatchStatus200,
 } from './models/storeController/PlaceOrderPatch.ts'
 export type { Tag } from './models/Tag.ts'
 export type { UnhappyCustomer } from './models/UnhappyCustomer.ts'
 export type { User } from './models/User.ts'
 export type { UserArray } from './models/UserArray.ts'
 export type {
-  CreateUserData,
-  CreateUserDefault,
   CreateUserMutationRequest,
+  CreateUserRequestConfig,
   CreateUserResponse,
   CreateUserResponses,
+  CreateUserStatusDefault,
 } from './models/userController/CreateUser.ts'
 export type {
-  CreateUsersWithListInput200,
-  CreateUsersWithListInputData,
   CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputRequestConfig,
   CreateUsersWithListInputResponse,
   CreateUsersWithListInputResponses,
+  CreateUsersWithListInputStatus200,
 } from './models/userController/CreateUsersWithListInput.ts'
 export type {
-  DeleteUserData,
-  DeleteUserUsername,
+  DeleteUserPathUsername,
+  DeleteUserRequestConfig,
 } from './models/userController/DeleteUser.ts'
 export type {
-  GetUserByName200,
-  GetUserByNameData,
+  GetUserByNamePathUsername,
+  GetUserByNameRequestConfig,
   GetUserByNameResponse,
   GetUserByNameResponses,
-  GetUserByNameUsername,
+  GetUserByNameStatus200,
 } from './models/userController/GetUserByName.ts'
 export type {
-  LoginUser200,
-  LoginUserData,
-  LoginUserPassword,
+  LoginUserQueryPassword,
+  LoginUserQueryUsername,
+  LoginUserRequestConfig,
   LoginUserResponse,
   LoginUserResponses,
-  LoginUserUsername,
+  LoginUserStatus200,
 } from './models/userController/LoginUser.ts'
-export type { LogoutUserData } from './models/userController/LogoutUser.ts'
+export type { LogoutUserRequestConfig } from './models/userController/LogoutUser.ts'
 export type {
-  UpdateUserData,
   UpdateUserMutationRequest,
-  UpdateUserUsername,
+  UpdateUserPathUsername,
+  UpdateUserRequestConfig,
 } from './models/userController/UpdateUser.ts'

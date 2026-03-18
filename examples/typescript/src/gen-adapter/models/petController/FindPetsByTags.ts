@@ -1,24 +1,27 @@
 import type { Pet } from '../Pet.ts'
 
-export type FindPetsByTagsTags = string[]
+export type FindPetsByTagsQueryTags = string[]
 
 /**
  * @description successful operation
  */
-export type FindPetsByTags200 = Pet[]
+export type FindPetsByTagsStatus200 = Pet[]
 
-export interface FindPetsByTagsData {
+export interface FindPetsByTagsRequestConfig {
   data?: never
   pathParams?: never
   queryParams?: {
-    tags?: FindPetsByTagsTags
+    tags?: FindPetsByTagsQueryTags
   }
   headerParams?: never
   url: '/pet/findByTags'
 }
 
 export interface FindPetsByTagsResponses {
-  '200': FindPetsByTags200
+  '200': FindPetsByTagsStatus200
 }
 
-export type FindPetsByTagsResponse = FindPetsByTags200
+/**
+ * @description Union of all possible responses
+ */
+export type FindPetsByTagsResponse = FindPetsByTagsStatus200

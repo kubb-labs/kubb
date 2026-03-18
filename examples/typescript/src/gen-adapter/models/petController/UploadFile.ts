@@ -1,30 +1,33 @@
 import type { ApiResponse } from '../ApiResponse.ts'
 
-export type UploadFilePetId = number
+export type UploadFilePathPetId = number
 
-export type UploadFileAdditionalMetadata = string
+export type UploadFileQueryAdditionalMetadata = string
 
 /**
  * @description successful operation
  */
-export type UploadFile200 = ApiResponse
+export type UploadFileStatus200 = ApiResponse
 
 export type UploadFileMutationRequest = Blob
 
-export interface UploadFileData {
+export interface UploadFileRequestConfig {
   data?: UploadFileMutationRequest
   pathParams: {
-    petId: UploadFilePetId
+    petId: UploadFilePathPetId
   }
   queryParams?: {
-    additionalMetadata?: UploadFileAdditionalMetadata
+    additionalMetadata?: UploadFileQueryAdditionalMetadata
   }
   headerParams?: never
   url: `/pet/${string}/uploadImage`
 }
 
 export interface UploadFileResponses {
-  '200': UploadFile200
+  '200': UploadFileStatus200
 }
 
-export type UploadFileResponse = UploadFile200
+/**
+ * @description Union of all possible responses
+ */
+export type UploadFileResponse = UploadFileStatus200

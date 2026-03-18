@@ -4,12 +4,12 @@ import type { Pet } from '../Pet.ts'
 /**
  * @description Successful operation
  */
-export type AddPet200 = Pet
+export type AddPetStatus200 = Pet
 
 /**
  * @description Pet not found
  */
-export interface AddPet405 {
+export interface AddPetStatus405 {
   /**
    * @type integer | undefined
    */
@@ -22,7 +22,7 @@ export interface AddPet405 {
 
 export type AddPetMutationRequest = AddPetRequest
 
-export interface AddPetData {
+export interface AddPetRequestConfig {
   data?: AddPetMutationRequest
   pathParams?: never
   queryParams?: never
@@ -31,8 +31,11 @@ export interface AddPetData {
 }
 
 export interface AddPetResponses {
-  '200': AddPet200
-  '405': AddPet405
+  '200': AddPetStatus200
+  '405': AddPetStatus405
 }
 
-export type AddPetResponse = AddPet200 | AddPet405
+/**
+ * @description Union of all possible responses
+ */
+export type AddPetResponse = AddPetStatus200 | AddPetStatus405

@@ -3,11 +3,11 @@ import type { User } from '../User.ts'
 /**
  * @description Successful operation
  */
-export type CreateUsersWithListInput200 = User
+export type CreateUsersWithListInputStatus200 = User
 
 export type CreateUsersWithListInputMutationRequest = User[]
 
-export interface CreateUsersWithListInputData {
+export interface CreateUsersWithListInputRequestConfig {
   data?: CreateUsersWithListInputMutationRequest
   pathParams?: never
   queryParams?: never
@@ -16,7 +16,10 @@ export interface CreateUsersWithListInputData {
 }
 
 export interface CreateUsersWithListInputResponses {
-  '200': CreateUsersWithListInput200
+  '200': CreateUsersWithListInputStatus200
 }
 
-export type CreateUsersWithListInputResponse = CreateUsersWithListInput200
+/**
+ * @description Union of all possible responses
+ */
+export type CreateUsersWithListInputResponse = CreateUsersWithListInputStatus200

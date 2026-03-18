@@ -1,24 +1,24 @@
-export type placeOrderPatchOrderId = number
+export type placeOrderPatchPathOrderId = number
 
 /**
  * @description Successful operation
  */
-export type placeOrderPatch200 = object
+export type placeOrderPatchStatus200 = object
 
 /**
  * @description Invalid input
  */
-export type placeOrderPatch405 = object
+export type placeOrderPatchStatus405 = object
 
 /**
  * @description Order payload
  */
 export type placeOrderPatchMutationRequest = object
 
-export type placeOrderPatchData = {
+export type placeOrderPatchRequestConfig = {
   data?: placeOrderPatchMutationRequest
   pathParams: {
-    orderId: placeOrderPatchOrderId
+    orderId: placeOrderPatchPathOrderId
   }
   queryParams?: never
   headerParams?: never
@@ -26,8 +26,11 @@ export type placeOrderPatchData = {
 }
 
 export type placeOrderPatchResponses = {
-  '200': placeOrderPatch200
-  '405': placeOrderPatch405
+  '200': placeOrderPatchStatus200
+  '405': placeOrderPatchStatus405
 }
 
-export type placeOrderPatchResponse = placeOrderPatch200 | placeOrderPatch405
+/**
+ * @description Union of all possible responses
+ */
+export type placeOrderPatchResponse = placeOrderPatchStatus200 | placeOrderPatchStatus405

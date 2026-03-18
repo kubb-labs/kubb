@@ -1,19 +1,19 @@
 /**
  * @description Null response
  */
-export type createPets201 = object
+export type createPetsStatus201 = object
 
 /**
  * @description Unexpected error
  */
-export type createPetsDefault = object
+export type createPetsStatusDefault = object
 
 /**
  * @description Pet to add
  */
 export type createPetsMutationRequest = object
 
-export type createPetsData = {
+export type createPetsRequestConfig = {
   data?: createPetsMutationRequest
   pathParams?: never
   queryParams?: never
@@ -22,8 +22,11 @@ export type createPetsData = {
 }
 
 export type createPetsResponses = {
-  '201': createPets201
-  default: createPetsDefault
+  '201': createPetsStatus201
+  default: createPetsStatusDefault
 }
 
-export type createPetsResponse = createPets201 | createPetsDefault
+/**
+ * @description Union of all possible responses
+ */
+export type createPetsResponse = createPetsStatus201 | createPetsStatusDefault

@@ -1,59 +1,59 @@
 export type {
-  AddPet200,
-  AddPet405,
-  AddPetData,
   AddPetMutationRequest,
+  AddPetRequestConfig,
   AddPetResponse,
   AddPetResponses,
+  AddPetStatus200,
+  AddPetStatus405,
 } from './AddPet.ts'
 export type {
-  DeletePet200,
-  DeletePetApiKey,
-  DeletePetData,
-  DeletePetPetId,
+  DeletePetHeaderApiKey,
+  DeletePetPathPetId,
+  DeletePetRequestConfig,
   DeletePetResponse,
   DeletePetResponses,
+  DeletePetStatus200,
 } from './DeletePet.ts'
 export type {
-  FindPetsByStatus200,
-  FindPetsByStatusData,
+  FindPetsByStatusQueryStatus,
+  FindPetsByStatusRequestConfig,
   FindPetsByStatusResponse,
   FindPetsByStatusResponses,
-  FindPetsByStatusStatus,
+  FindPetsByStatusStatus200,
 } from './FindPetsByStatus.ts'
 export type {
-  FindPetsByTags200,
-  FindPetsByTagsData,
+  FindPetsByTagsQueryTags,
+  FindPetsByTagsRequestConfig,
   FindPetsByTagsResponse,
   FindPetsByTagsResponses,
-  FindPetsByTagsTags,
+  FindPetsByTagsStatus200,
 } from './FindPetsByTags.ts'
 export type {
-  GetPetById200,
-  GetPetByIdData,
-  GetPetByIdPetId,
+  GetPetByIdPathPetId,
+  GetPetByIdRequestConfig,
   GetPetByIdResponse,
   GetPetByIdResponses,
+  GetPetByIdStatus200,
 } from './GetPetById.ts'
 export type {
-  UpdatePet200,
-  UpdatePetData,
   UpdatePetMutationRequest,
+  UpdatePetRequestConfig,
   UpdatePetResponse,
   UpdatePetResponses,
+  UpdatePetStatus200,
 } from './UpdatePet.ts'
 export type {
-  UpdatePetWithFormData,
-  UpdatePetWithFormName,
-  UpdatePetWithFormPetId,
-  UpdatePetWithFormStatus,
+  UpdatePetWithFormPathPetId,
+  UpdatePetWithFormQueryName,
+  UpdatePetWithFormQueryStatus,
+  UpdatePetWithFormRequestConfig,
 } from './UpdatePetWithForm.ts'
 export type {
-  UploadFile200,
-  UploadFileAdditionalMetadata,
-  UploadFileData,
   UploadFileMutationRequest,
-  UploadFilePetId,
+  UploadFilePathPetId,
+  UploadFileQueryAdditionalMetadata,
+  UploadFileRequestConfig,
   UploadFileResponse,
   UploadFileResponses,
+  UploadFileStatus200,
 } from './UploadFile.ts'

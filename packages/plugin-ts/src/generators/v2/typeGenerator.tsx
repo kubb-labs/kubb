@@ -1,3 +1,4 @@
+import { pascalCase } from '@internals/utils'
 import { applyParamsCasing } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
@@ -67,8 +68,8 @@ export const typeGenerator = defineGenerator<PluginTs>({
     const paramTypes = params.map((param) =>
       renderSchemaType({
         node: param.schema,
-        name: resolveName({ name: `${node.operationId} ${param.name}`, type: 'function' }),
-        typedName: resolveName({ name: `${node.operationId} ${param.name}`, type: 'type' }),
+        name: resolveName({ name: `${node.operationId} ${pascalCase(param.in)} ${param.name}`, type: 'function' }),
+        typedName: resolveName({ name: `${node.operationId} ${pascalCase(param.in)} ${param.name}`, type: 'type' }),
       }),
     )
 
@@ -77,8 +78,8 @@ export const typeGenerator = defineGenerator<PluginTs>({
       .map((res) =>
         renderSchemaType({
           node: res.schema!,
-          name: resolveName({ name: `${node.operationId} ${res.statusCode}`, type: 'function' }),
-          typedName: resolveName({ name: `${node.operationId} ${res.statusCode}`, type: 'type' }),
+          name: resolveName({ name: `${node.operationId} Status ${res.statusCode}`, type: 'function' }),
+          typedName: resolveName({ name: `${node.operationId} Status ${res.statusCode}`, type: 'type' }),
           description: res.description,
         }),
       )
@@ -94,8 +95,8 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
     const dataType = renderSchemaType({
       node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolveName }),
-      name: resolveName({ name: `${node.operationId} Data`, type: 'function' }),
-      typedName: resolveName({ name: `${node.operationId} Data`, type: 'type' }),
+      name: resolveName({ name: `${node.operationId} RequestConfig`, type: 'function' }),
+      typedName: resolveName({ name: `${node.operationId} RequestConfig`, type: 'type' }),
     })
 
     const responsesType = renderSchemaType({
@@ -108,6 +109,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
       node: buildResponseUnionSchemaNode({ node, resolveName }),
       name: resolveName({ name: `${node.operationId} Response`, type: 'function' }),
       typedName: resolveName({ name: `${node.operationId} Response`, type: 'type' }),
+      description: 'Union of all possible responses',
     })
 
     return (

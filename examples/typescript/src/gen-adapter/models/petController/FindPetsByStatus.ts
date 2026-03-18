@@ -3,25 +3,28 @@ import type { Pet } from '../Pet.ts'
 /**
  * @default available
  */
-export type FindPetsByStatusStatus = 'available' | 'pending' | 'sold'
+export type FindPetsByStatusQueryStatus = 'available' | 'pending' | 'sold'
 
 /**
  * @description successful operation
  */
-export type FindPetsByStatus200 = Pet[]
+export type FindPetsByStatusStatus200 = Pet[]
 
-export interface FindPetsByStatusData {
+export interface FindPetsByStatusRequestConfig {
   data?: never
   pathParams?: never
   queryParams?: {
-    status?: FindPetsByStatusStatus
+    status?: FindPetsByStatusQueryStatus
   }
   headerParams?: never
   url: '/pet/findByStatus'
 }
 
 export interface FindPetsByStatusResponses {
-  '200': FindPetsByStatus200
+  '200': FindPetsByStatusStatus200
 }
 
-export type FindPetsByStatusResponse = FindPetsByStatus200
+/**
+ * @description Union of all possible responses
+ */
+export type FindPetsByStatusResponse = FindPetsByStatusStatus200

@@ -350,8 +350,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         return type
       }
 
-      const useTypeGeneration =
-        syntaxType === 'type' || type.kind === factory.syntaxKind.union || !!keysToOmit?.length
+      const useTypeGeneration = syntaxType === 'type' || type.kind === factory.syntaxKind.union || !!keysToOmit?.length
 
       return factory.createTypeDeclaration({
         name: typeName,

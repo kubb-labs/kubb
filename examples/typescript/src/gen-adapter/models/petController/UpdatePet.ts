@@ -3,11 +3,11 @@ import type { Pet } from '../Pet.ts'
 /**
  * @description Successful operation
  */
-export type UpdatePet200 = Pet
+export type UpdatePetStatus200 = Pet
 
 export type UpdatePetMutationRequest = Pet
 
-export interface UpdatePetData {
+export interface UpdatePetRequestConfig {
   data?: UpdatePetMutationRequest
   pathParams?: never
   queryParams?: never
@@ -16,7 +16,10 @@ export interface UpdatePetData {
 }
 
 export interface UpdatePetResponses {
-  '200': UpdatePet200
+  '200': UpdatePetStatus200
 }
 
-export type UpdatePetResponse = UpdatePet200
+/**
+ * @description Union of all possible responses
+ */
+export type UpdatePetResponse = UpdatePetStatus200

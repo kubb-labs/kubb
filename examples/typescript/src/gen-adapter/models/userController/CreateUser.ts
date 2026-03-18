@@ -3,11 +3,11 @@ import type { User } from '../User.ts'
 /**
  * @description successful operation
  */
-export type CreateUserDefault = User
+export type CreateUserStatusDefault = User
 
 export type CreateUserMutationRequest = User
 
-export interface CreateUserData {
+export interface CreateUserRequestConfig {
   data?: CreateUserMutationRequest
   pathParams?: never
   queryParams?: never
@@ -16,7 +16,10 @@ export interface CreateUserData {
 }
 
 export interface CreateUserResponses {
-  default: CreateUserDefault
+  default: CreateUserStatusDefault
 }
 
-export type CreateUserResponse = CreateUserDefault
+/**
+ * @description Union of all possible responses
+ */
+export type CreateUserResponse = CreateUserStatusDefault

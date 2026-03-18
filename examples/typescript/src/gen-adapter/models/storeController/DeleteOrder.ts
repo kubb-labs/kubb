@@ -1,9 +1,9 @@
-export type DeleteOrderOrderId = number
+export type DeleteOrderPathOrderId = number
 
-export interface DeleteOrderData {
+export interface DeleteOrderRequestConfig {
   data?: never
   pathParams: {
-    orderId: DeleteOrderOrderId
+    orderId: DeleteOrderPathOrderId
   }
   queryParams?: never
   headerParams?: never

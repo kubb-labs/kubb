@@ -1,11 +1,11 @@
 /**
  * @description successful operation
  */
-export interface GetInventory200 {
+export interface GetInventoryStatus200 {
   [key: string]: number
 }
 
-export interface GetInventoryData {
+export interface GetInventoryRequestConfig {
   data?: never
   pathParams?: never
   queryParams?: never
@@ -14,7 +14,10 @@ export interface GetInventoryData {
 }
 
 export interface GetInventoryResponses {
-  '200': GetInventory200
+  '200': GetInventoryStatus200
 }
 
-export type GetInventoryResponse = GetInventory200
+/**
+ * @description Union of all possible responses
+ */
+export type GetInventoryResponse = GetInventoryStatus200

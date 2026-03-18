@@ -1,36 +1,39 @@
 export type {
-  CreateUserData,
-  CreateUserDefault,
   CreateUserMutationRequest,
+  CreateUserRequestConfig,
   CreateUserResponse,
   CreateUserResponses,
+  CreateUserStatusDefault,
 } from './CreateUser.ts'
 export type {
-  CreateUsersWithListInput200,
-  CreateUsersWithListInputData,
   CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputRequestConfig,
   CreateUsersWithListInputResponse,
   CreateUsersWithListInputResponses,
+  CreateUsersWithListInputStatus200,
 } from './CreateUsersWithListInput.ts'
-export type { DeleteUserData, DeleteUserUsername } from './DeleteUser.ts'
 export type {
-  GetUserByName200,
-  GetUserByNameData,
+  DeleteUserPathUsername,
+  DeleteUserRequestConfig,
+} from './DeleteUser.ts'
+export type {
+  GetUserByNamePathUsername,
+  GetUserByNameRequestConfig,
   GetUserByNameResponse,
   GetUserByNameResponses,
-  GetUserByNameUsername,
+  GetUserByNameStatus200,
 } from './GetUserByName.ts'
 export type {
-  LoginUser200,
-  LoginUserData,
-  LoginUserPassword,
+  LoginUserQueryPassword,
+  LoginUserQueryUsername,
+  LoginUserRequestConfig,
   LoginUserResponse,
   LoginUserResponses,
-  LoginUserUsername,
+  LoginUserStatus200,
 } from './LoginUser.ts'
-export type { LogoutUserData } from './LogoutUser.ts'
+export type { LogoutUserRequestConfig } from './LogoutUser.ts'
 export type {
-  UpdateUserData,
   UpdateUserMutationRequest,
-  UpdateUserUsername,
+  UpdateUserPathUsername,
+  UpdateUserRequestConfig,
 } from './UpdateUser.ts'

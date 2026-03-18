@@ -30,7 +30,7 @@ describe('buildParamsSchema', () => {
 
     expect(printSchema(buildParamsSchema({ params, operationId: 'showPetById', resolveName }))).toMatchInlineSnapshot(`
       "{
-          petId: showPetByIdPetId;
+          petId: showPetByIdPathPetId;
       }"
     `)
   })
@@ -40,7 +40,7 @@ describe('buildParamsSchema', () => {
 
     expect(printSchema(buildParamsSchema({ params, operationId: 'listPets', resolveName }))).toMatchInlineSnapshot(`
       "{
-          limit?: listPetsLimit;
+          limit?: listPetsQueryLimit;
       }"
     `)
   })
@@ -53,8 +53,8 @@ describe('buildParamsSchema', () => {
 
     expect(printSchema(buildParamsSchema({ params, operationId: 'getOrder', resolveName }))).toMatchInlineSnapshot(`
       "{
-          storeId: getOrderStoreId;
-          orderId: getOrderOrderId;
+          storeId: getOrderPathStoreId;
+          orderId: getOrderPathOrderId;
       }"
     `)
   })
@@ -103,7 +103,7 @@ describe('buildDataSchemaNode', () => {
       "{
           data?: never;
           pathParams: {
-              petId: showPetByIdPetId;
+              petId: showPetByIdPathPetId;
           };
           queryParams?: never;
           headerParams?: never;
@@ -124,7 +124,7 @@ describe('buildDataSchemaNode', () => {
           data?: never;
           pathParams?: never;
           queryParams?: {
-              limit?: listPetsLimit;
+              limit?: listPetsQueryLimit;
           };
           headerParams?: never;
           url: "/pets";
@@ -158,8 +158,8 @@ describe('buildResponsesSchemaNode', () => {
 
     expect(printSchema(buildResponsesSchemaNode({ node, resolveName })!)).toMatchInlineSnapshot(`
       "{
-          "200": listPets200;
-          default: listPetsDefault;
+          "200": listPetsStatus200;
+          default: listPetsStatusDefault;
       }"
     `)
   })
@@ -188,6 +188,6 @@ describe('buildResponseUnionSchemaNode', () => {
       ],
     })
 
-    expect(printSchema(buildResponseUnionSchemaNode({ node, resolveName })!)).toMatchInlineSnapshot(`"(listPets200 | listPets405)"`)
+    expect(printSchema(buildResponseUnionSchemaNode({ node, resolveName })!)).toMatchInlineSnapshot(`"(listPetsStatus200 | listPetsStatus405)"`)
   })
 })
