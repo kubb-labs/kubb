@@ -1,22 +1,19 @@
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import { createProperty, createSchema } from '@kubb/ast'
 
-type ResolveName = (opts: { name: string; pluginName: string; type: 'type' | 'function' }) => string
+type ResolveName = (opts: { name: string; type: 'type' | 'function' }) => string
 
 type BuildParamsSchemaOptions = {
   params: Array<ParameterNode>
   operationId: string
   resolveName: ResolveName
-  pluginName: string
 }
-
-
 
 /**
  * Builds an `ObjectSchemaNode` for a group of parameters (path/query/header).
  * Each property is a `ref` schema pointing to the individually-resolved parameter type.
  */
-export function buildParamsSchema({ params, operationId, resolveName, pluginName }: BuildParamsSchemaOptions): SchemaNode {
+export function buildParamsSchema({ params, operationId, resolveName }: BuildParamsSchemaOptions): SchemaNode {
   return createSchema({
     type: 'object',
     properties: params.map((param) =>
@@ -24,7 +21,7 @@ export function buildParamsSchema({ params, operationId, resolveName, pluginName
         name: param.name,
         schema: createSchema({
           type: 'ref',
-          name: resolveName({ name: `${operationId} ${param.name}`, pluginName, type: 'function' }),
+          name: resolveName({ name: `${operationId} ${param.name}`, type: 'function' }),
           optional: !param.required,
         }),
       }),
@@ -35,7 +32,6 @@ export function buildParamsSchema({ params, operationId, resolveName, pluginName
 type BuildOperationSchemaOptions = {
   node: OperationNode
   resolveName: ResolveName
-  pluginName: string
 }
 
 /**
@@ -46,7 +42,7 @@ type BuildOperationSchemaOptions = {
  * - `headerParams` → inline object of header param refs (optional), or `never`
  * - `url`          → Express-style template literal (plugin-ts extension, handled by printer)
  */
-export function buildDataSchemaNode({ node, resolveName, pluginName }: BuildOperationSchemaOptions): SchemaNode {
+export function buildDataSchemaNode({ node, resolveName }: BuildOperationSchemaOptions): SchemaNode {
   const pathParams = node.parameters.filter((p) => p.in === 'path')
   const queryParams = node.parameters.filter((p) => p.in === 'query')
   const headerParams = node.parameters.filter((p) => p.in === 'header')
@@ -59,7 +55,7 @@ export function buildDataSchemaNode({ node, resolveName, pluginName }: BuildOper
         schema: node.requestBody
           ? createSchema({
               type: 'ref',
-              name: resolveName({ name: `${node.operationId} MutationRequest`, pluginName, type: 'function' }),
+              name: resolveName({ name: `${node.operationId} MutationRequest`, type: 'function' }),
               optional: true,
             })
           : createSchema({ type: 'never', optional: true }),
@@ -68,21 +64,21 @@ export function buildDataSchemaNode({ node, resolveName, pluginName }: BuildOper
         name: 'pathParams',
         schema:
           pathParams.length > 0
-            ? buildParamsSchema({ params: pathParams, operationId: node.operationId, resolveName, pluginName })
+            ? buildParamsSchema({ params: pathParams, operationId: node.operationId, resolveName })
             : createSchema({ type: 'never', optional: true }),
       }),
       createProperty({
         name: 'queryParams',
         schema:
           queryParams.length > 0
-            ? createSchema({ ...buildParamsSchema({ params: queryParams, operationId: node.operationId, resolveName, pluginName }), optional: true })
+            ? createSchema({ ...buildParamsSchema({ params: queryParams, operationId: node.operationId, resolveName }), optional: true })
             : createSchema({ type: 'never', optional: true }),
       }),
       createProperty({
         name: 'headerParams',
         schema:
           headerParams.length > 0
-            ? createSchema({ ...buildParamsSchema({ params: headerParams, operationId: node.operationId, resolveName, pluginName }), optional: true })
+            ? createSchema({ ...buildParamsSchema({ params: headerParams, operationId: node.operationId, resolveName }), optional: true })
             : createSchema({ type: 'never', optional: true }),
       }),
       createProperty({
@@ -101,7 +97,7 @@ export function buildDataSchemaNode({ node, resolveName, pluginName }: BuildOper
  * export type PlaceOrderPatchResponses = { 200: PlaceOrderPatch200; 405: PlaceOrderPatch405 }
  * ```
  */
-export function buildResponsesSchemaNode({ node, resolveName, pluginName }: BuildOperationSchemaOptions): SchemaNode | null {
+export function buildResponsesSchemaNode({ node, resolveName }: BuildOperationSchemaOptions): SchemaNode | null {
   const responsesWithSchema = node.responses.filter((res) => res.schema)
 
   if (responsesWithSchema.length === 0) {
@@ -115,7 +111,7 @@ export function buildResponsesSchemaNode({ node, resolveName, pluginName }: Buil
         name: String(res.statusCode),
         schema: createSchema({
           type: 'ref',
-          name: resolveName({ name: `${node.operationId} ${res.statusCode}`, pluginName, type: 'function' }),
+          name: resolveName({ name: `${node.operationId} ${res.statusCode}`, type: 'function' }),
         }),
       }),
     ),
@@ -130,7 +126,7 @@ export function buildResponsesSchemaNode({ node, resolveName, pluginName }: Buil
  * export type PlaceOrderPatchResponse = PlaceOrderPatch200 | PlaceOrderPatch405
  * ```
  */
-export function buildResponseUnionSchemaNode({ node, resolveName, pluginName }: BuildOperationSchemaOptions): SchemaNode | null {
+export function buildResponseUnionSchemaNode({ node, resolveName }: BuildOperationSchemaOptions): SchemaNode | null {
   const responsesWithSchema = node.responses.filter((res) => res.schema)
 
   if (responsesWithSchema.length === 0) {
@@ -142,9 +138,8 @@ export function buildResponseUnionSchemaNode({ node, resolveName, pluginName }: 
     members: responsesWithSchema.map((res) =>
       createSchema({
         type: 'ref',
-        name: resolveName({ name: `${node.operationId} ${res.statusCode}`, pluginName, type: 'function' }),
+        name: resolveName({ name: `${node.operationId} ${res.statusCode}`, type: 'function' }),
       }),
     ),
   })
 }
-

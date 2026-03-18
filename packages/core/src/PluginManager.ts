@@ -48,7 +48,7 @@ type Options = {
   concurrency?: number
 }
 
-type GetFileProps<TOptions = object> = {
+export type GetFileOptions<TOptions = object> = {
   name: string
   mode?: KubbFile.Mode
   extname: KubbFile.Extname
@@ -163,7 +163,7 @@ export class PluginManager {
     return this.#getSortedPlugins()
   }
 
-  getFile<TOptions = object>({ name, mode, extname, pluginName, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginName: string }> {
+  getFile<TOptions = object>({ name, mode, extname, pluginName, options }: GetFileOptions<TOptions>): KubbFile.File<{ pluginName: string }> {
     const resolvedName = mode ? (mode === 'single' ? '' : this.resolveName({ name, pluginName, type: 'file' })) : name
 
     const path = this.resolvePath({

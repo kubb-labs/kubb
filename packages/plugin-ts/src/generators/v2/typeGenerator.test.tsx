@@ -1,23 +1,12 @@
-import type { Adapter, Config, Plugin } from '@kubb/core'
+import type { Config, Plugin } from '@kubb/core'
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import { buildOperation } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
-
-/**
- * Minimal adapter mock for v2 tests — getImports always returns [] since
- * tests are run in a single-file mode and cross-file imports are not exercised.
- */
-const mockAdapter = {
-  name: 'oas',
-  options: {},
-  parse: async () => ({ kind: 'Root' as const, schemas: [], operations: [] }),
-  getImports: () => [],
-} satisfies Adapter<any>
 
 describe('typeGenerator v2 — Operation', () => {
   const fabric = createReactFabric()
@@ -116,40 +105,39 @@ describe('typeGenerator v2 — Operation', () => {
     },
   ] as const satisfies Array<{ name: string; node: OperationNode }>
 
-  test.each(testData)('$name', async (props) => {
-    const options: PluginTs['resolvedOptions'] = {
-      enumType: 'asConst',
-      enumKeyCasing: 'none',
-      enumSuffix: '',
-      dateType: 'string',
-      integerType: 'bigint',
-      optionalType: 'questionToken',
-      arrayType: 'array',
-      transformers: {},
-      unknownType: 'any',
-      syntaxType: 'type',
-      override: [],
-      mapper: {},
-      paramsCasing: undefined,
-      output: { path: '.' },
-      group: undefined,
-      emptySchemaType: 'unknown',
-    }
+  const defaultOptions: PluginTs['resolvedOptions'] = {
+    enumType: 'asConst',
+    enumKeyCasing: 'none',
+    enumSuffix: '',
+    dateType: 'string',
+    integerType: 'bigint',
+    optionalType: 'questionToken',
+    arrayType: 'array',
+    transformers: {},
+    unknownType: 'any',
+    syntaxType: 'type',
+    override: [],
+    mapper: {},
+    paramsCasing: undefined,
+    output: { path: '.' },
+    group: undefined,
+    emptySchemaType: 'unknown',
+  }
 
-    const plugin = { options, name: '@kubb/plugin-ts' } as unknown as Plugin<PluginTs>
+  test.each(testData)('$name', async (props) => {
+    const plugin = { options: defaultOptions, name: '@kubb/plugin-ts' } as unknown as Plugin<PluginTs>
     const mockedPluginManager = createMockedPluginManager({ name: props.name })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (buildOperation as any)(props.node, {
+    await (buildOperation as unknown as Function)(props.node, {
       version: '2',
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
-      adapter: mockAdapter,
+      adapter: createMockedAdapter(),
       pluginManager: mockedPluginManager,
       Component: typeGenerator.Operation,
       plugin,
       mode: 'split',
-      options,
+      options: defaultOptions,
     })
 
     await matchFiles(fabric.files, props.name)
