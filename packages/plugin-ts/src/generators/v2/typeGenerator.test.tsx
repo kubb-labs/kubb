@@ -1,10 +1,10 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
-import type { Config, Plugin } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import { buildOperation } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedAdapter, createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
 import ts, { factory } from "typescript"
@@ -171,7 +171,7 @@ describe('typeGenerator v2 — Operation', () => {
       ...defaultOptions,
       ...('options' in props ? props.options : {}),
     }
-    const plugin = { options, name: '@kubb/plugin-ts' } as unknown as Plugin<PluginTs>
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
     const mockedPluginManager = createMockedPluginManager({ name: props.name })
 
     await buildOperation(props.node, {
