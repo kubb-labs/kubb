@@ -1,9 +1,12 @@
 import type { Oas } from '@kubb/oas'
 
-import { useApp } from '@kubb/react-fabric'
+import { useFabric } from '@kubb/react-fabric'
 
+/**
+ * @deprecated use schemaNode or operationNode instead
+ */
 export function useOas(): Oas {
-  const { meta } = useApp<{ oas: Oas }>()
+  const { meta } = useFabric<{ oas: Oas }>()
 
   return meta.oas
 }

@@ -35,7 +35,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react-fabric": "catalog:",
     "@tanstack/react-query": "^5.90.21",
-    "@tanstack/solid-query": "^5.90.26",
+    "@tanstack/solid-query": "^5.91.0",
     "@tanstack/svelte-query": "^5.90.2",
     "@tanstack/vue-query": "^5.92.9",
     "axios": "^1.13.6",

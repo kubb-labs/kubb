@@ -1,8 +1,7 @@
 import { pascalCase } from '@internals/utils'
 import type { AsyncEventEmitter, FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
-import type { KubbFile } from '@kubb/fabric-core/types'
+import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
-import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import type { CoreGenerator } from './generators/createGenerator.ts'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
@@ -14,7 +13,7 @@ import { buildOperation, buildOperations } from './utils.tsx'
 export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
-  fabric: Fabric
+  fabric: FabricType
   oas: Oas
   exclude: Array<Exclude> | undefined
   include: Array<Include> | undefined

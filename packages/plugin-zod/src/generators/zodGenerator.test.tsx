@@ -1,14 +1,14 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { ZodOpenAPIMetadata } from '@asteasolutions/zod-to-openapi'
-import type { Config, Plugin } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import type { HttpMethod, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, expect, test } from 'vitest'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginZod } from '../types.ts'
 import { zodGenerator } from './zodGenerator.tsx'
 
@@ -331,7 +331,7 @@ describe('zodGenerator schema', async () => {
       mini: false,
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginZod>
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options })
     const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new SchemaGenerator(options, {
       fabric,
@@ -394,7 +394,7 @@ describe('zodGenerator schema', async () => {
       emptySchemaType: 'unknown',
       mini: false,
     }
-    const plugin = { options } as Plugin<PluginZod>
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options })
     const mockedPluginManager = createMockedPluginManager({ name: 'Pets' })
     const generator = new SchemaGenerator(options, {
       fabric,
@@ -544,7 +544,7 @@ describe('zodGenerator operation', async () => {
       mini: false,
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginZod>
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options })
     const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
@@ -595,7 +595,7 @@ describe('zodGenerator operation', async () => {
       emptySchemaType: 'unknown',
       mini: false,
     }
-    const plugin = { options } as Plugin<PluginZod>
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options })
     const mockedPluginManager = createMockedPluginManager({ name: 'createPets' })
     const generator = new OperationGenerator(options, {
       fabric,
@@ -678,7 +678,7 @@ describe('zodGenerator operation', async () => {
         mini: false,
         ...props.options,
       }
-      const plugin = { options } as Plugin<PluginZod>
+      const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options })
       const mockedPluginManager = createMockedPluginManager({ name: props.name })
       const generator = new OperationGenerator(options, {
         fabric,
@@ -773,7 +773,7 @@ describe('zodGenerator operation', async () => {
         mini: false,
         ...entry.options,
       }
-      const plugin = { options } as Plugin<PluginZod>
+      const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options })
       const mockedPluginManager = createMockedPluginManager({ name: entry.name })
       const generator = new OperationGenerator(options, {
         fabric,
@@ -856,7 +856,7 @@ describe('zodGenerator operation', async () => {
         mini: false,
         ...entry.options,
       }
-      const plugin = { options } as Plugin<PluginZod>
+      const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options })
       const mockedPluginManager = createMockedPluginManager({ name: entry.name })
       const generator = new OperationGenerator(options, {
         fabric,

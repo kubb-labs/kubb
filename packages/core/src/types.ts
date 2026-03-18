@@ -1,7 +1,6 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
 import type { RootNode, SchemaNode } from '@kubb/ast/types'
-import type { KubbFile } from '@kubb/fabric-core/types'
-import type { Fabric } from '@kubb/react-fabric'
+import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { DefineStorage } from './defineStorage.ts'
 import type { KubbEvents } from './Kubb.ts'
@@ -399,7 +398,7 @@ export type ResolveNameParams = {
 }
 
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
-  fabric: Fabric
+  fabric: FabricType
   config: Config
   pluginManager: PluginManager
   /**

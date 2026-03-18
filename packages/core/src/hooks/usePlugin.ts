@@ -1,11 +1,11 @@
-import { useApp } from '@kubb/react-fabric'
+import { useFabric } from '@kubb/react-fabric'
 import type { Plugin, PluginFactoryOptions } from '../types.ts'
 
 /**
- * @deprecated use useApp instead
+ * @deprecated use useKubb instead
  */
 export function usePlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(): Plugin<TOptions> {
-  const { meta } = useApp<{ plugin: Plugin<TOptions> }>()
+  const { meta } = useFabric<{ plugin: Plugin<TOptions> }>()
 
   return meta.plugin
 }

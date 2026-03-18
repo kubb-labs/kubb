@@ -2553,3 +2553,38 @@ describe('buildAst – header and cookie parameters', async () => {
     expect(locations).toContain('query')
   })
 })
+
+describe('unknownType / emptySchemaType → SchemaNode type', () => {
+  it('empty schema produces type: any by default', () => {
+    const node = createOasParser(emptyOas).convertSchema({ schema: {} as SchemaObject })
+
+    expect(node.type).toBe('any')
+  })
+
+  it('empty schema produces type: unknown when emptySchemaType is unknown', () => {
+    const node = createOasParser(emptyOas).convertSchema({ schema: {} as SchemaObject }, { emptySchemaType: 'unknown' })
+
+    expect(node.type).toBe('unknown')
+  })
+
+  it('empty schema produces type: void when emptySchemaType is void', () => {
+    const node = createOasParser(emptyOas).convertSchema({ schema: {} as SchemaObject }, { emptySchemaType: 'void' })
+
+    expect(node.type).toBe('void')
+  })
+
+  it('unannotated additionalProperties produce type: any by default', () => {
+    const node = narrowSchema(createOasParser(emptyOas).convertSchema({ schema: { type: 'object', additionalProperties: {} } as SchemaObject }), 'object')
+
+    expect(node?.additionalProperties).toMatchObject({ type: 'any' })
+  })
+
+  it('unannotated additionalProperties produce type: unknown when unknownType is unknown', () => {
+    const node = narrowSchema(
+      createOasParser(emptyOas).convertSchema({ schema: { type: 'object', additionalProperties: {} } as SchemaObject }, { unknownType: 'unknown' }),
+      'object',
+    )
+
+    expect(node?.additionalProperties).toMatchObject({ type: 'unknown' })
+  })
+})

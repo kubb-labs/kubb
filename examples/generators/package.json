@@ -20,11 +20,11 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/fabric-core": "0.13.3",
+    "@kubb/fabric-core": "0.14.0",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "@kubb/react-fabric": "0.13.3",
+    "@kubb/react-fabric": "0.14.0",
     "axios": "^1.13.6"
   },
   "devDependencies": {

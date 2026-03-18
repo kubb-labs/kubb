@@ -7,7 +7,8 @@ import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
 import { expect } from 'vitest'
 import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
-import type { Plugin, PluginManager, ResolveNameParams, ResolvePathParams } from '../packages/core/src'
+import type { SchemaNode } from '../packages/ast/src/types.ts'
+import type { Adapter, AdapterFactoryOptions, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams, ResolvePathParams } from '../packages/core/src'
 
 const formatOptions: Options = {
   tabWidth: 2,
@@ -80,6 +81,50 @@ export const createMockedPluginManager = (options: { name?: string; plugin?: Plu
   }) as unknown as PluginManager
 
 export const mockedPluginManager = createMockedPluginManager()
+
+/**
+ * Creates a minimal `Adapter` mock suitable for unit tests.
+ *
+ * - `parse` returns an empty `RootNode` by default; override via `options.parse`.
+ * - `getImports` returns `[]` by default (single-file mode, no cross-file imports).
+ */
+export function createMockedAdapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptions>(
+  options: {
+    name?: TOptions['name']
+    resolvedOptions?: TOptions['resolvedOptions']
+    parse?: Adapter<TOptions>['parse']
+    getImports?: Adapter<TOptions>['getImports']
+  } = {},
+): Adapter<TOptions> {
+  return {
+    name: (options.name ?? 'oas') as TOptions['name'],
+    options: (options.resolvedOptions ?? {}) as TOptions['resolvedOptions'],
+    parse: options.parse ?? (async () => ({ kind: 'Root' as const, schemas: [], operations: [] })),
+    getImports: options.getImports ?? ((_node: SchemaNode, _resolve: (schemaName: string) => { name: string; path: string }) => []),
+  } as Adapter<TOptions>
+}
+
+/**
+ * Creates a minimal `Plugin` mock suitable for unit tests.
+ *
+ * @example
+ * const plugin = createMockedPlugin<PluginTs>({ name: '@kubb/plugin-ts', options })
+ */
+export function createMockedPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(params: {
+  name: TOptions['name']
+  options: TOptions['resolvedOptions']
+  pre?: Array<string>
+  post?: Array<string>
+}): Plugin<TOptions> {
+  return {
+    name: params.name,
+    options: params.options,
+    pre: params.pre,
+    post: params.post,
+    install: () => {},
+    inject: () => undefined as TOptions['context'],
+  } as unknown as Plugin<TOptions>
+}
 
 export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.File> | undefined, pre?: string) {
   if (!files?.length) return

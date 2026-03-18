@@ -3,8 +3,7 @@ import { performance } from 'node:perf_hooks'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { setUniqueName, transformReservedWord } from '@internals/utils'
 import type { RootNode } from '@kubb/ast/types'
-import type { KubbFile } from '@kubb/fabric-core/types'
-import type { Fabric } from '@kubb/react-fabric'
+import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import { CORE_PLUGIN_NAME, DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { ValidationPluginError } from './errors.ts'
@@ -40,7 +39,7 @@ type SafeParseResult<H extends PluginLifecycleHooks, Result = ReturnType<ParseRe
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
 type Options = {
-  fabric: Fabric
+  fabric: FabricType
   events: AsyncEventEmitter<KubbEvents>
   /**
    * @default Number.POSITIVE_INFINITY
@@ -48,7 +47,7 @@ type Options = {
   concurrency?: number
 }
 
-type GetFileProps<TOptions = object> = {
+export type GetFileOptions<TOptions = object> = {
   name: string
   mode?: KubbFile.Mode
   extname: KubbFile.Extname
@@ -163,7 +162,7 @@ export class PluginManager {
     return this.#getSortedPlugins()
   }
 
-  getFile<TOptions = object>({ name, mode, extname, pluginName, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginName: string }> {
+  getFile<TOptions = object>({ name, mode, extname, pluginName, options }: GetFileOptions<TOptions>): KubbFile.File<{ pluginName: string }> {
     const resolvedName = mode ? (mode === 'single' ? '' : this.resolveName({ name, pluginName, type: 'file' })) : name
 
     const path = this.resolvePath({

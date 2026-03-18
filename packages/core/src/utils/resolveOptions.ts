@@ -7,7 +7,7 @@ type FilterItem = {
 }
 
 type OverrideItem<TOptions> = FilterItem & {
-  options: Partial<TOptions>
+  options: Omit<Partial<TOptions>, 'override'>
 }
 
 type ResolveOptionsContext<TOptions> = {

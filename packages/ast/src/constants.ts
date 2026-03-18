@@ -56,6 +56,7 @@ export const schemaTypes = {
   email: 'email',
   url: 'url',
   blob: 'blob',
+  never: 'never',
 } as const satisfies Record<SchemaType, SchemaType>
 
 export const httpMethods = {

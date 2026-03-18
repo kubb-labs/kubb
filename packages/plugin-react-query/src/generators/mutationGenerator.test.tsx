@@ -1,12 +1,12 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Config, Plugin } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, expect, test } from 'vitest'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginReactQuery } from '../types.ts'
 import { mutationGenerator } from './mutationGenerator.tsx'
@@ -154,7 +154,7 @@ describe('mutationGenerator operation', async () => {
       group: undefined,
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginReactQuery>
+    const plugin = createMockedPlugin<PluginReactQuery>({ name: 'plugin-react-query', options })
     const mockedPluginManager = createMockedPluginManager({ name: props.name })
 
     if ('mockClientPlugin' in props && props.mockClientPlugin) {
@@ -220,7 +220,7 @@ describe('mutationGenerator operation', async () => {
       },
       group: undefined,
     }
-    const plugin = { options } as Plugin<PluginReactQuery>
+    const plugin = createMockedPlugin<PluginReactQuery>({ name: 'plugin-react-query', options })
     const mockedPluginManager = createMockedPluginManager({ name: 'mutationDisabled' })
     const generator = new OperationGenerator(options, {
       fabric,

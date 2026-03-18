@@ -1,9 +1,8 @@
 import { getUniqueName, pascalCase, stringify } from '@internals/utils'
 import type { AsyncEventEmitter, FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
-import type { KubbFile } from '@kubb/fabric-core/types'
+import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'
-import type { Fabric } from '@kubb/react-fabric'
 import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import type { CoreGenerator } from './generators/createGenerator.ts'
@@ -24,7 +23,7 @@ const GENERATOR_CONCURRENCY = 3
 const SCHEMA_CONCURRENCY = 30
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
-  fabric: Fabric
+  fabric: FabricType
   oas: Oas
   pluginManager: PluginManager
   events?: AsyncEventEmitter<KubbEvents>

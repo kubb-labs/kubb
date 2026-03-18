@@ -19,6 +19,10 @@ type TsOptions = {
    * @default `'inlineLiteral'`
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
+  /**
+   * Custom property signatures that override specific object properties by name.
+   */
+  mapper?: Record<string, ts.PropertySignature>
 }
 
 type TsPrinter = PrinterFactoryOptions<'typescript', TsOptions, ts.TypeNode>
@@ -143,13 +147,19 @@ export const printerTs = definePrinter<TsPrinter>((options) => ({
     any: () => factory.keywordTypeNodes.any,
     unknown: () => factory.keywordTypeNodes.unknown,
     void: () => factory.keywordTypeNodes.void,
+    never: () => factory.keywordTypeNodes.never,
     boolean: () => factory.keywordTypeNodes.boolean,
     null: () => factory.keywordTypeNodes.null,
     blob: () => factory.createTypeReferenceNode('Blob', []),
     string: () => factory.keywordTypeNodes.string,
     uuid: () => factory.keywordTypeNodes.string,
     email: () => factory.keywordTypeNodes.string,
-    url: () => factory.keywordTypeNodes.string,
+    url: (node) => {
+      if (node.path) {
+        return factory.createUrlTemplateType(node.path)
+      }
+      return factory.keywordTypeNodes.string
+    },
     datetime: () => factory.keywordTypeNodes.string,
     number: () => factory.keywordTypeNodes.number,
     integer: () => factory.keywordTypeNodes.number,
@@ -219,6 +229,10 @@ export const printerTs = definePrinter<TsPrinter>((options) => ({
       const { print } = this
 
       const propertyNodes: Array<ts.TypeElement> = node.properties.map((prop) => {
+        if (this.options.mapper && Object.hasOwn(this.options.mapper, prop.name)) {
+          return this.options.mapper[prop.name]!
+        }
+
         const baseType = (print(prop.schema) ?? factory.keywordTypeNodes.unknown) as ts.TypeNode
         const type = buildPropertyType(prop.schema, baseType, this.options.optionalType)
 

@@ -1,13 +1,13 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Config, Plugin } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import type { HttpMethod, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginFaker } from '../types.ts'
 import { fakerGenerator } from './fakerGenerator.tsx'
 
@@ -153,7 +153,7 @@ describe('fakerGenerator schema', async () => {
       ...props.options,
       paramsCasing: undefined,
     }
-    const plugin = { options } as Plugin<PluginFaker>
+    const plugin = createMockedPlugin<PluginFaker>({ name: 'plugin-faker', options })
 
     const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new SchemaGenerator(options, {
@@ -290,7 +290,7 @@ describe('fakerGenerator operation', async () => {
       ...props.options,
       paramsCasing: undefined,
     }
-    const plugin = { options } as Plugin<PluginFaker>
+    const plugin = createMockedPlugin<PluginFaker>({ name: 'plugin-faker', options })
 
     const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new OperationGenerator(options, {

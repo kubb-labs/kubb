@@ -1,9 +1,10 @@
 import { camelCase, pascalCase } from '@internals/utils'
-import type { Plugin, PluginManager } from '@kubb/core'
+import type { PluginManager } from '@kubb/core'
 import type { OasTypes, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, it } from 'vitest'
+import { createMockedPlugin } from '#mocks'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from '../SchemaGenerator.ts'
 
 // Simple mocked plugin manager for testing
@@ -147,7 +148,7 @@ describe('Full Spec Circular Discriminator References', () => {
       emptySchemaType: 'unknown',
       transformers: {},
     }
-    const plugin = { options } as Plugin<any>
+    const plugin = createMockedPlugin<any>({ name: 'plugin-oas', options })
     const mockedPluginManager = createMockedPluginManager()
 
     const generator = new SchemaGenerator(options, {
