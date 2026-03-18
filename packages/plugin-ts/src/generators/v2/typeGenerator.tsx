@@ -1,9 +1,10 @@
-import type { SchemaNode } from '@kubb/ast/types'
-import { defineGenerator } from '@kubb/core'
 import { useKubb } from '@kubb/core/hooks'
+import {defineGenerator} from '@kubb/core'
 import { File } from '@kubb/react-fabric'
 import { Type } from '../../components/v2/Type.tsx'
 import type { PluginTs } from '../../types'
+import { buildDataSchemaNode, buildResponseUnionSchemaNode, buildResponsesSchemaNode } from './utils.ts'
+import type {SchemaNode} from "@kubb/ast/types";
 
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
@@ -20,7 +21,11 @@ export const typeGenerator = defineGenerator<PluginTs>({
       mode,
     })
 
-    function renderSchemaType({ node: schemaNode, name, typedName, description }: { node: SchemaNode; name: string; typedName: string; description?: string }) {
+    function renderSchemaType({ node: schemaNode, name, typedName, description }: { node: SchemaNode | null; name: string; typedName: string; description?: string }) {
+      if(!schemaNode) {
+        return null
+      }
+
       const imports = adapter.getImports(schemaNode, (schemaName) => ({
         name: resolveName({
           name: schemaName,
@@ -110,11 +115,25 @@ export const typeGenerator = defineGenerator<PluginTs>({
         })()
       : null
 
+    // Combined Data type: flat aggregate of all request inputs
+
+    const dataType = renderSchemaType({
+      node: buildDataSchemaNode({ node, resolveName, pluginName: plugin.name }), name: resolveName({ name: `${node.operationId} Data`, pluginName: plugin.name, type: 'function' }), typedName: resolveName({ name: `${node.operationId} Data`, pluginName: plugin.name, type: 'type' }) })
+
+    // Combined Responses type: status-code-keyed response map
+    const responsesType = renderSchemaType({ node: buildResponsesSchemaNode({ node, resolveName, pluginName: plugin.name }), name: resolveName({ name: `${node.operationId} Responses`, pluginName: plugin.name, type: 'function' }), typedName: resolveName({ name: `${node.operationId} Responses`, pluginName: plugin.name, type: 'type' }) })
+
+    // Combined Response type: union of all response types
+    const responseType = renderSchemaType({ node: buildResponseUnionSchemaNode({ node, resolveName, pluginName: plugin.name }), name: resolveName({ name: `${node.operationId} Response`, pluginName: plugin.name, type: 'function' }), typedName:  resolveName({ name: `${node.operationId} Response`, pluginName: plugin.name, type: 'type' }) })
+
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta}>
         {paramTypes}
         {responseTypes}
         {requestType}
+        {dataType}
+        {responsesType}
+        {responseType}
       </File>
     )
   },

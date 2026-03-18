@@ -548,3 +548,30 @@ describe('Import/Export Sorting Consistency', () => {
     expect(print(result).trim()).toBe('`/api/${string}/${string}`')
   })
 })
+
+describe('createUrlTemplateType (Express-style paths)', () => {
+  it('returns a string literal for paths without params', () => {
+    const result = createUrlTemplateType('/pets')
+    expect(print(result).trim()).toBe('"/pets"')
+  })
+
+  it('converts a single Express path param to a template literal', () => {
+    const result = createUrlTemplateType('/pets/:petId')
+    expect(print(result).trim()).toBe('`/pets/${string}`')
+  })
+
+  it('converts multiple Express path params to a template literal', () => {
+    const result = createUrlTemplateType('/store/:storeId/order/:orderId')
+    expect(print(result).trim()).toBe('`/store/${string}/order/${string}`')
+  })
+
+  it('handles trailing static segments after params', () => {
+    const result = createUrlTemplateType('/pets/:petId/photos')
+    expect(print(result).trim()).toBe('`/pets/${string}/photos`')
+  })
+
+  it('handles consecutive params', () => {
+    const result = createUrlTemplateType('/api/:version/:resource')
+    expect(print(result).trim()).toBe('`/api/${string}/${string}`')
+  })
+})

@@ -5,7 +5,6 @@ import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import type ts from 'typescript'
 import * as factory from './factory.ts'
-import { createExpressUrlTemplateType } from './factory.ts'
 
 type TsOptions = {
   /**
@@ -148,15 +147,15 @@ export const printerTs = definePrinter<TsPrinter>((options) => ({
     boolean: () => factory.keywordTypeNodes.boolean,
     null: () => factory.keywordTypeNodes.null,
     blob: () => factory.createTypeReferenceNode('Blob', []),
-    string: (node) => {
-      if ('expressPath' in node && typeof node.expressPath === 'string') {
-        return createExpressUrlTemplateType(node.expressPath)
+    string: () => factory.keywordTypeNodes.string,
+    uuid: () => factory.keywordTypeNodes.string,
+    email: () => factory.keywordTypeNodes.string,
+    url: (node) => {
+      if (node.path) {
+        return factory.createUrlTemplateType(node.path)
       }
       return factory.keywordTypeNodes.string
     },
-    uuid: () => factory.keywordTypeNodes.string,
-    email: () => factory.keywordTypeNodes.string,
-    url: () => factory.keywordTypeNodes.string,
     datetime: () => factory.keywordTypeNodes.string,
     number: () => factory.keywordTypeNodes.number,
     integer: () => factory.keywordTypeNodes.number,
