@@ -119,7 +119,7 @@ export function buildResponsesSchemaNode({ node, resolveName }: BuildOperationSc
 }
 
 /**
- * Builds a `UnionSchemaNode` representing `<OperationId>Response` — all response types unioned.
+ * Builds a `UnionSchemaNode` representing `<OperationId>Response` — all response types in union format.
  *
  * Example output:
  * ```ts
