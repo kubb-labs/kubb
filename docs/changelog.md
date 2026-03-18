@@ -6,6 +6,44 @@ outline: deep
 
 # Changelog
 
+```markdown
+## 5.0.0-alpha.5
+
+### ✨ Features
+
+#### [`@kubb/ast`](/packages/ast)
+
+-   [#2782](https://github.com/kubb-labs/kubb/pull/2782) [`f373168`](https://github.com/kubb-labs/kubb/commit/f37316845ef3f8753a93e04a946b333ee4e42073) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Added `never` to `PrimitiveSchemaType` and `SchemaNodeByType`. Introduced the `UrlSchemaNode` type with an optional `path` field for Express-style template literal generation. Excluded `url` from `ScalarSchemaType`. Added a new `applyParamsCasing` helper function to transform parameter names before schema building.
+
+#### [`@kubb/adapter-oas`](/packages/adapter-oas)
+
+-   [#2782](https://github.com/kubb-labs/kubb/pull/2782) [`f373168`](https://github.com/kubb-labs/kubb/commit/f37316845ef3f8753a93e04a946b333ee4e42073) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Added new options `unknownType` and `emptySchemaType` to the `convertSchema` method, allowing callers to control the type emitted for empty or untyped schemas. Added `url` special-type handling to the parser.
+
+#### [`@kubb/core`](/packages/core)
+
+-   [#2782](https://github.com/kubb-labs/kubb/pull/2782) [`f373168`](https://github.com/kubb-labs/kubb/commit/f37316845ef3f8753a93e04a946b333ee4e42073) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `resolveOptions` now prevents recursive overrides by typing `OverrideItem.options` as `Omit<Partial<TOptions>, 'override'>`.
+
+#### [`@kubb/plugin-ts`](/packages/plugin-ts)
+
+-   [#2782](https://github.com/kubb-labs/kubb/pull/2782) [`f373168`](https://github.com/kubb-labs/kubb/commit/f37316845ef3f8753a93e04a946b333ee4e42073) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Introduced new v2 schema-builder utilities for generating typed schemas:
+    - `buildDataSchemaNode`: Generates the `Data` schema type.
+    - `buildParamsSchema`: Creates parameter schemas.
+    - `buildResponsesSchemaNode`: Builds response schemas.
+    - `buildResponseUnionSchemaNode`: Constructs union types for responses.
+
+    Additionally, the printer now handles the new `never` schema type, aligning with recent updates in `@kubb/ast`.
+
+    ::: code-group
+    ```typescript [Example Usage - buildDataSchemaNode]
+    import { buildDataSchemaNode } from "@kubb/plugin-ts";
+
+    const dataNode = buildDataSchemaNode(operationNode);
+    console.log(dataNode.code);
+    ```
+    :::
+```
+
+
 ## 4.36.1
 
 ### ✨ Features
