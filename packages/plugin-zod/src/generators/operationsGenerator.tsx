@@ -1,4 +1,4 @@
-import { usePluginManager } from '@kubb/core/hooks'
+import { usePluginDriver } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -13,13 +13,13 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
       name: pluginName,
       options: { output, importPath },
     } = plugin
-    const pluginManager = usePluginManager()
+    const pluginDriver = usePluginDriver()
 
     const oas = useOas()
     const { getFile, groupSchemasByName } = useOperationManager(generator)
 
     const name = 'operations'
-    const file = pluginManager.getFile({ name, extname: '.ts', pluginName })
+    const file = pluginDriver.getFile({ name, extname: '.ts', pluginName })
 
     const transformedOperations = operations.map((operation) => ({ operation, data: groupSchemasByName(operation, { type: 'function' }) }))
 
@@ -38,7 +38,7 @@ export const operationsGenerator = createReactGenerator<PluginZod>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output, config: pluginManager.config })}
+        banner={getBanner({ oas, output, config: pluginDriver.config })}
         footer={getFooter({ oas, output })}
       >
         <File.Import isTypeOnly name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />

@@ -87,7 +87,7 @@ export const pluginMsw = definePlugin<PluginMsw>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        pluginManager: this.pluginManager,
+        pluginDriver: this.pluginDriver,
         events: this.events,
         plugin: this.plugin,
         contentType,

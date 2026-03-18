@@ -1,5 +1,5 @@
 import { getUniqueName, pascalCase, stringify } from '@internals/utils'
-import type { AsyncEventEmitter, FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
+import type { AsyncEventEmitter, FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginDriver, ResolveNameParams } from '@kubb/core'
 import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'
@@ -25,7 +25,7 @@ const SCHEMA_CONCURRENCY = 30
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   fabric: FabricType
   oas: Oas
-  pluginManager: PluginManager
+  pluginDriver: PluginDriver
   events?: AsyncEventEmitter<KubbEvents>
   /**
    * Current plugin
@@ -523,18 +523,18 @@ export class SchemaGenerator<
     // Use the full $ref path to look up the collision-resolved name
     const resolvedName = this.#schemaNameMapping.get($ref) || originalName
 
-    const propertyName = this.context.pluginManager.resolveName({
+    const propertyName = this.context.pluginDriver.resolveName({
       name: resolvedName,
       pluginName: this.context.plugin.name,
       type: 'function',
     })
 
-    const fileName = this.context.pluginManager.resolveName({
+    const fileName = this.context.pluginDriver.resolveName({
       name: resolvedName,
       pluginName: this.context.plugin.name,
       type: 'file',
     })
-    const file = this.context.pluginManager.getFile({
+    const file = this.context.pluginDriver.getFile({
       name: fileName,
       pluginName: this.context.plugin.name,
       extname: '.ts',
@@ -967,7 +967,7 @@ export class SchemaGenerator<
       const enumName = useCollisionDetection
         ? pascalCase(enumNameParts.join(' '))
         : getUniqueName(pascalCase(enumNameParts.join(' ')), this.options.usedEnumNames || {})
-      const typeName = this.context.pluginManager.resolveName({
+      const typeName = this.context.pluginDriver.resolveName({
         name: enumName,
         pluginName: this.context.plugin.name,
         type: 'type',
@@ -1388,7 +1388,7 @@ export class SchemaGenerator<
                   tree,
                 },
                 {
-                  config: this.context.pluginManager.config,
+                  config: this.context.pluginDriver.config,
                   fabric: this.context.fabric,
                   Component: v1Generator.Schema,
                   generator: this,
@@ -1406,7 +1406,7 @@ export class SchemaGenerator<
             }
 
             const result = await v1Generator.schema?.({
-              config: this.context.pluginManager.config,
+              config: this.context.pluginDriver.config,
               generator: this,
               schema: {
                 name,

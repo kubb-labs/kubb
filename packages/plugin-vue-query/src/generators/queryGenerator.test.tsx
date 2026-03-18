@@ -7,7 +7,7 @@ import { parse } from '@kubb/oas'
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginVueQuery } from '../types.ts'
 import { queryGenerator } from './queryGenerator.tsx'
@@ -162,12 +162,12 @@ describe('queryGenerator operation', async () => {
     }
     const plugin = createMockedPlugin<PluginVueQuery>({ name: 'plugin-vue-query', options })
 
-    const mockedPluginManager = createMockedPluginManager({ name: props.name })
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      pluginDriver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,

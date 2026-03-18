@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { parse, type SchemaObject } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, test } from 'vitest'
-import { createMockedPlugin, mockedPluginManager } from '#mocks'
+import { createMockedPlugin, mockedPluginDriver } from '#mocks'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from './SchemaGenerator.ts'
 import { schemaKeywords } from './SchemaMapper.ts'
 
@@ -147,7 +147,7 @@ describe('SchemaGenerator core', async () => {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      pluginDriver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,
@@ -349,7 +349,7 @@ describe('SchemaGenerator core', async () => {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      pluginDriver: mockedPluginDriver,
       plugin,
       contentType: undefined,
       override: undefined,
@@ -429,7 +429,7 @@ describe('SchemaGenerator core', async () => {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      pluginDriver: mockedPluginDriver,
       plugin,
       contentType: undefined,
       override: undefined,

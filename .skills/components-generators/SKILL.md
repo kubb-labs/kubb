@@ -36,7 +36,7 @@ export function Query({ name }: Props): FabricReactNode {
 ## Tips for Agents
 
 - Recommend small, composable components
-- Encourage use of `usePluginManager()`, `useOas()`, `useOperationManager()` in components
+- Encourage use of `usePluginDriver()`, `useOas()`, `useOperationManager()` in components
 - Recommend deterministic output to avoid noisy diffs
 
 ## Related Skills

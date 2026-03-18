@@ -6,7 +6,7 @@ import { parse } from '@kubb/oas'
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, expect, test } from 'vitest'
-import { createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginReactQuery } from '../types.ts'
 import { mutationGenerator } from './mutationGenerator.tsx'
@@ -155,10 +155,10 @@ describe('mutationGenerator operation', async () => {
       ...props.options,
     }
     const plugin = createMockedPlugin<PluginReactQuery>({ name: 'plugin-react-query', options })
-    const mockedPluginManager = createMockedPluginManager({ name: props.name })
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
 
     if ('mockClientPlugin' in props && props.mockClientPlugin) {
-      mockedPluginManager.getPluginByName = (pluginName) => {
+      mockedPluginDriver.getPluginByName = (pluginName) => {
         if (pluginName === 'plugin-client') {
           return { name: 'plugin-client' } as any
         }
@@ -171,7 +171,7 @@ describe('mutationGenerator operation', async () => {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      pluginDriver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,
@@ -221,12 +221,12 @@ describe('mutationGenerator operation', async () => {
       group: undefined,
     }
     const plugin = createMockedPlugin<PluginReactQuery>({ name: 'plugin-react-query', options })
-    const mockedPluginManager = createMockedPluginManager({ name: 'mutationDisabled' })
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'mutationDisabled' })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      pluginDriver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,

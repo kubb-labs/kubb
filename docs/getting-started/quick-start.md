@@ -173,7 +173,7 @@ import { build } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
-const { error, files, pluginManager } = await build({
+const { error, files, pluginDriver } = await build({
   config: {
     root: '.',
     input: {

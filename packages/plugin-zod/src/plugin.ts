@@ -139,7 +139,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        pluginManager: this.pluginManager,
+        pluginDriver: this.pluginDriver,
         events: this.events,
         plugin: this.plugin,
         contentType,
@@ -155,7 +155,7 @@ export const pluginZod = definePlugin<PluginZod>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        pluginManager: this.pluginManager,
+        pluginDriver: this.pluginDriver,
         events: this.events,
         plugin: this.plugin,
         contentType,

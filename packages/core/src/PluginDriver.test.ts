@@ -2,10 +2,10 @@ import { AsyncEventEmitter } from '@internals/utils'
 import { createFabric } from '@kubb/react-fabric'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { definePlugin } from './definePlugin.ts'
-import { PluginManager } from './PluginManager.ts'
+import { PluginDriver } from './PluginDriver.ts'
 import type { Config, KubbEvents, Plugin } from './types.ts'
 
-describe('PluginManager', () => {
+describe('PluginDriver', () => {
   const pluginAMocks = {
     install: vi.fn(),
     resolvePath: vi.fn(),
@@ -80,23 +80,23 @@ describe('PluginManager', () => {
     },
     plugins: [pluginA({}), pluginB({}), pluginC({})] as Plugin[],
   } satisfies Config
-  const pluginManager = new PluginManager(config, {
+  const pluginDriver = new PluginDriver(config, {
     fabric: createFabric(),
     events: new AsyncEventEmitter<KubbEvents>(),
   })
 
   afterEach(() => {
     pluginBMocks.resolvePath.mockReset()
-    pluginManager.events.removeAll()
+    pluginDriver.events.removeAll()
   })
 
-  test('if pluginManager can be created', () => {
-    expect(pluginManager.plugins.length).toBe(config.plugins.length)
-    expect(pluginManager.getPluginsByName('install', 'pluginB')?.[0]?.name).toBe('pluginB')
+  test('if pluginDriver can be created', () => {
+    expect(pluginDriver.plugins.length).toBe(config.plugins.length)
+    expect(pluginDriver.getPluginsByName('install', 'pluginB')?.[0]?.name).toBe('pluginB')
   })
 
   test('hookFirst', async () => {
-    const { result, plugin } = await pluginManager.hookFirst({
+    const { result, plugin } = await pluginDriver.hookFirst({
       hookName: 'resolvePath',
       parameters: ['path.ts'],
     })
@@ -109,7 +109,7 @@ describe('PluginManager', () => {
   })
 
   test('hookFirstSync', () => {
-    const { result, plugin } = pluginManager.hookFirstSync({
+    const { result, plugin } = pluginDriver.hookFirstSync({
       hookName: 'resolvePath',
       parameters: ['path.ts'],
     })!
@@ -123,7 +123,7 @@ describe('PluginManager', () => {
   })
 
   test('hookParallel', async () => {
-    await pluginManager.hookParallel({
+    await pluginDriver.hookParallel({
       hookName: 'resolvePath',
       parameters: ['path.ts'],
     })
@@ -133,14 +133,14 @@ describe('PluginManager', () => {
   })
 
   test('resolvePath without `pluginName`', () => {
-    const path = pluginManager.resolvePath({
+    const path = pluginDriver.resolvePath({
       baseName: 'baseName.ts',
     })
 
     expect(path).toBe('pluginA/gen')
   })
   test('resolvePath with `pluginName`', () => {
-    const path = pluginManager.resolvePath({
+    const path = pluginDriver.resolvePath({
       baseName: 'fileNameB.ts',
       pluginName: 'pluginB',
     })
@@ -149,7 +149,7 @@ describe('PluginManager', () => {
   })
 
   test('resolveName without `pluginName`', () => {
-    const name = pluginManager.resolveName({
+    const name = pluginDriver.resolveName({
       name: 'name',
     })
 
@@ -157,13 +157,13 @@ describe('PluginManager', () => {
     expect(name).toBe('pluginBName')
   })
   test('resolveName with `pluginName`', () => {
-    const hooksFirstSyncMock = vi.fn(pluginManager.hookFirstSync)
-    const hookForPluginSyncMock = vi.fn(pluginManager.hookForPluginSync)
+    const hooksFirstSyncMock = vi.fn(pluginDriver.hookFirstSync)
+    const hookForPluginSyncMock = vi.fn(pluginDriver.hookForPluginSync)
 
-    pluginManager.hookFirstSync = hooksFirstSyncMock as any
-    pluginManager.hookForPluginSync = hookForPluginSyncMock as any
+    pluginDriver.hookFirstSync = hooksFirstSyncMock as any
+    pluginDriver.hookForPluginSync = hookForPluginSyncMock as any
 
-    const name = pluginManager.resolveName({
+    const name = pluginDriver.resolveName({
       name: 'nameB',
       pluginName: 'pluginB',
     })
@@ -175,7 +175,7 @@ describe('PluginManager', () => {
   test('hookForPlugin', async () => {
     pluginBMocks.resolvePath.mockReset()
 
-    await pluginManager.hookForPlugin({
+    await pluginDriver.hookForPlugin({
       pluginName: 'pluginB',
       hookName: 'resolvePath',
       parameters: ['path.ts'],
@@ -199,12 +199,12 @@ describe('PluginManager', () => {
       plugins: [staticPlugin({})] as Plugin[],
     } satisfies Config
 
-    const staticPluginManager = new PluginManager(staticConfig, {
+    const staticPluginDriver = new PluginDriver(staticConfig, {
       fabric: createFabric(),
       events: new AsyncEventEmitter<KubbEvents>(),
     })
 
-    const paths = staticPluginManager.hookForPluginSync({
+    const paths = staticPluginDriver.hookForPluginSync({
       pluginName: 'staticPlugin',
       hookName: 'resolvePath',
       parameters: ['path.ts'],
@@ -230,15 +230,15 @@ describe('PluginManager', () => {
       plugins: [errorPlugin({})] as Plugin[],
     } satisfies Config
 
-    const errorPluginManager = new PluginManager(errorConfig, {
+    const errorPluginDriver = new PluginDriver(errorConfig, {
       fabric: createFabric(),
       events: new AsyncEventEmitter<KubbEvents>(),
     })
 
     const errorSpy = vi.fn()
-    errorPluginManager.events.on('error', errorSpy)
+    errorPluginDriver.events.on('error', errorSpy)
 
-    const result = await errorPluginManager.hookFirst({
+    const result = await errorPluginDriver.hookFirst({
       hookName: 'install',
       parameters: [] as any,
     })
@@ -261,12 +261,12 @@ describe('PluginManager', () => {
       plugins: [noResolvePlugin({})] as Plugin[],
     } satisfies Config
 
-    const noResolvePluginManager = new PluginManager(noResolveConfig, {
+    const noResolvePluginDriver = new PluginDriver(noResolveConfig, {
       fabric: createFabric(),
       events: new AsyncEventEmitter<KubbEvents>(),
     })
 
-    const path = noResolvePluginManager.resolvePath({
+    const path = noResolvePluginDriver.resolvePath({
       baseName: 'test.ts',
     })
 
@@ -282,12 +282,12 @@ describe('PluginManager', () => {
         return `pluginA/gen/${baseName}`
       },
     }))
-    const localPluginManager = new PluginManager(
+    const localPluginDriver = new PluginDriver(
       { ...config, plugins: [pluginWithPath({})] as Plugin[] },
       { fabric: createFabric(), events: new AsyncEventEmitter<KubbEvents>() },
     )
 
-    const file = localPluginManager.getFile({
+    const file = localPluginDriver.getFile({
       name: 'testFile',
       extname: '.ts',
       pluginName: 'pluginA',
@@ -307,12 +307,12 @@ describe('PluginManager', () => {
         return `pluginA/gen/${baseName || 'index.ts'}`
       },
     }))
-    const localPluginManager = new PluginManager(
+    const localPluginDriver = new PluginDriver(
       { ...config, plugins: [pluginWithPath({})] as Plugin[] },
       { fabric: createFabric(), events: new AsyncEventEmitter<KubbEvents>() },
     )
 
-    const file = localPluginManager.getFile({
+    const file = localPluginDriver.getFile({
       name: 'testFile',
       extname: '.ts',
       mode: 'single',
@@ -325,7 +325,7 @@ describe('PluginManager', () => {
   })
 
   test('getPluginsByName should return correct plugins', () => {
-    const plugins = pluginManager.getPluginsByName('install', 'pluginB')
+    const plugins = pluginDriver.getPluginsByName('install', 'pluginB')
 
     expect(plugins).toBeDefined()
     expect(plugins?.length).toBeGreaterThan(0)
@@ -333,7 +333,7 @@ describe('PluginManager', () => {
   })
 
   test('getPluginsByName should return empty array for non-existent plugin', () => {
-    const plugins = pluginManager.getPluginsByName('install', 'nonExistent')
+    const plugins = pluginDriver.getPluginsByName('install', 'nonExistent')
 
     expect(plugins).toEqual([])
   })
@@ -354,7 +354,7 @@ describe('PluginManager', () => {
 
     expect(
       () =>
-        new PluginManager(duplicateConfig, {
+        new PluginDriver(duplicateConfig, {
           fabric: createFabric(),
           events: new AsyncEventEmitter<KubbEvents>(),
         }),

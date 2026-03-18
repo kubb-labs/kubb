@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import { createMockedPluginManager } from '../../../../configs/mocks.ts'
+import { createMockedPluginDriver } from '../../../../configs/mocks.ts'
 import type { Plugin } from '../types.ts'
 
-const mockedPluginManager = createMockedPluginManager()
+const mockedPluginDriver = createMockedPluginDriver()
 
 const mockedPlugin = { options: {} } as Plugin
 
@@ -20,7 +20,7 @@ describe('useKubb', () => {
       meta: {
         plugin: mockedPlugin,
         mode: 'split',
-        pluginManager: mockedPluginManager,
+        pluginDriver: mockedPluginDriver,
       },
     })
   })
@@ -37,13 +37,13 @@ describe('useKubb', () => {
     expect(mode).toBe('split')
   })
 
-  test('returns config from pluginManager', () => {
+  test('returns config from pluginDriver', () => {
     const { config } = useKubb()
 
-    expect(config).toBe(mockedPluginManager.config)
+    expect(config).toBe(mockedPluginDriver.config)
   })
 
-  test('exposes bound pluginManager methods as top-level', () => {
+  test('exposes bound pluginDriver methods as top-level', () => {
     const result = useKubb()
 
     expect(typeof result.resolveName).toBe('function')
@@ -58,7 +58,7 @@ describe('useKubb', () => {
       meta: {
         plugin: mockedPlugin,
         mode: 'single',
-        pluginManager: mockedPluginManager,
+        pluginDriver: mockedPluginDriver,
       },
     })
     const { mode } = useKubb()

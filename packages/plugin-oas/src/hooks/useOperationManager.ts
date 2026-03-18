@@ -1,5 +1,5 @@
 import type { FileMetaBase, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import { usePlugin, usePluginManager } from '@kubb/core/hooks'
+import { usePlugin, usePluginDriver } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, Operation as OperationType } from '@kubb/oas'
 import type { OperationGenerator } from '../OperationGenerator.ts'
@@ -66,10 +66,10 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
   generator: Omit<OperationGenerator<TPluginOptions>, 'build'>,
 ): UseOperationManagerResult {
   const plugin = usePlugin()
-  const pluginManager = usePluginManager()
+  const pluginDriver = usePluginDriver()
 
   const getName: UseOperationManagerResult['getName'] = (operation, { prefix = '', suffix = '', pluginName = plugin.name, type }) => {
-    return pluginManager.resolveName({
+    return pluginDriver.resolveName({
       name: `${prefix} ${operation.getOperationId()} ${suffix}`,
       pluginName,
       type,
@@ -90,7 +90,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
 
     return generator.getSchemas(operation, {
       resolveName: (name) =>
-        pluginManager.resolveName({
+        pluginDriver.resolveName({
           name,
           pluginName: params?.pluginName,
           type: params?.type,
@@ -102,7 +102,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
     const name = getName(operation, { type: 'file', pluginName, prefix, suffix })
     const group = getGroup(operation)
 
-    const file = pluginManager.getFile({
+    const file = pluginDriver.getFile({
       name,
       extname,
       pluginName,
@@ -133,7 +133,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
           return prev
         }
 
-        prev[acc.statusCode] = pluginManager.resolveName({
+        prev[acc.statusCode] = pluginDriver.resolveName({
           name: acc.name,
           pluginName,
           type,
@@ -150,7 +150,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
           return prev
         }
 
-        prev[acc.statusCode] = pluginManager.resolveName({
+        prev[acc.statusCode] = pluginDriver.resolveName({
           name: acc.name,
           pluginName,
           type,
@@ -163,7 +163,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
 
     return {
       request: schemas.request?.name
-        ? pluginManager.resolveName({
+        ? pluginDriver.resolveName({
             name: schemas.request.name,
             pluginName,
             type,
@@ -171,21 +171,21 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
         : undefined,
       parameters: {
         path: schemas.pathParams?.name
-          ? pluginManager.resolveName({
+          ? pluginDriver.resolveName({
               name: schemas.pathParams.name,
               pluginName,
               type,
             })
           : undefined,
         query: schemas.queryParams?.name
-          ? pluginManager.resolveName({
+          ? pluginDriver.resolveName({
               name: schemas.queryParams.name,
               pluginName,
               type,
             })
           : undefined,
         header: schemas.headerParams?.name
-          ? pluginManager.resolveName({
+          ? pluginDriver.resolveName({
               name: schemas.headerParams.name,
               pluginName,
               type,
@@ -194,7 +194,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
       },
       responses: {
         ...responses,
-        ['default']: pluginManager.resolveName({
+        ['default']: pluginDriver.resolveName({
           name: schemas.response.name,
           pluginName,
           type,

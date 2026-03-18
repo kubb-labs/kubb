@@ -1,4 +1,4 @@
-import { usePluginManager } from '@kubb/core/hooks'
+import { usePluginDriver } from '@kubb/core/hooks'
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -14,7 +14,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
     const {
       options: { output, parser, baseURL },
     } = plugin
-    const pluginManager = usePluginManager()
+    const pluginDriver = usePluginDriver()
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)
@@ -58,7 +58,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
         baseName={mock.file.baseName}
         path={mock.file.path}
         meta={mock.file.meta}
-        banner={getBanner({ oas, output, config: pluginManager.config })}
+        banner={getBanner({ oas, output, config: pluginDriver.config })}
         footer={getFooter({ oas, output })}
       >
         <File.Import name={['http']} path="msw" />

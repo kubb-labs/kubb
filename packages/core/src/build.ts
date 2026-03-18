@@ -7,7 +7,7 @@ import { fsPlugin } from '@kubb/react-fabric/plugins'
 import { isInputPath } from './config.ts'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import { BuildError } from './errors.ts'
-import { PluginManager } from './PluginManager.ts'
+import { PluginDriver } from './PluginDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { AdapterSource, Config, DefineStorage, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
@@ -22,7 +22,7 @@ type BuildOutput = {
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
   fabric: FabricType
   files: Array<KubbFile.ResolvedFile>
-  pluginManager: PluginManager
+  pluginDriver: PluginDriver
   pluginTimings: Map<string, number>
   error?: Error
   sources: Map<KubbFile.Path, string>
@@ -31,7 +31,7 @@ type BuildOutput = {
 type SetupResult = {
   events: AsyncEventEmitter<KubbEvents>
   fabric: FabricType
-  pluginManager: PluginManager
+  pluginDriver: PluginDriver
   sources: Map<KubbFile.Path, string>
 }
 
@@ -164,7 +164,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     ],
   })
 
-  const pluginManager = new PluginManager(definedConfig, {
+  const pluginDriver = new PluginDriver(definedConfig, {
     fabric,
     events,
     concurrency: DEFAULT_CONCURRENCY,
@@ -179,15 +179,15 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
       logs: [`Running adapter: ${definedConfig.adapter.name}`],
     })
 
-    pluginManager.adapter = definedConfig.adapter
-    pluginManager.rootNode = await definedConfig.adapter.parse(source)
+    pluginDriver.adapter = definedConfig.adapter
+    pluginDriver.rootNode = await definedConfig.adapter.parse(source)
 
     await events.emit('debug', {
       date: new Date(),
       logs: [
         `✓ Adapter '${definedConfig.adapter.name}' resolved RootNode`,
-        `  • Schemas: ${pluginManager.rootNode.schemas.length}`,
-        `  • Operations: ${pluginManager.rootNode.operations.length}`,
+        `  • Schemas: ${pluginDriver.rootNode.schemas.length}`,
+        `  • Operations: ${pluginDriver.rootNode.operations.length}`,
       ],
     })
   }
@@ -195,13 +195,13 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   return {
     events,
     fabric,
-    pluginManager,
+    pluginDriver,
     sources,
   }
 }
 
 export async function build(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { fabric, files, pluginManager, failedPlugins, pluginTimings, error, sources } = await safeBuild(options, overrides)
+  const { fabric, files, pluginDriver, failedPlugins, pluginTimings, error, sources } = await safeBuild(options, overrides)
 
   if (error) {
     throw error
@@ -217,7 +217,7 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
     failedPlugins,
     fabric,
     files,
-    pluginManager,
+    pluginDriver,
     pluginTimings,
     error: undefined,
     sources,
@@ -225,16 +225,16 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
 }
 
 export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { fabric, pluginManager, events, sources } = overrides ? overrides : await setup(options)
+  const { fabric, pluginDriver, events, sources } = overrides ? overrides : await setup(options)
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   // in ms
   const pluginTimings = new Map<string, number>()
-  const config = pluginManager.config
+  const config = pluginDriver.config
 
   try {
-    for (const plugin of pluginManager.plugins) {
-      const context = pluginManager.getContext(plugin)
+    for (const plugin of pluginDriver.plugins) {
+      const context = pluginDriver.getContext(plugin)
       const hrStart = process.hrtime()
 
       const installer = plugin.install.bind(context)
@@ -313,7 +313,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       const rootFile: KubbFile.File = {
         path: rootPath,
         baseName: BARREL_FILENAME,
-        exports: buildBarrelExports({ barrelFiles, rootDir, existingExports, config, pluginManager }),
+        exports: buildBarrelExports({ barrelFiles, rootDir, existingExports, config, pluginDriver }),
         sources: [],
         imports: [],
         meta: {},
@@ -335,7 +335,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       failedPlugins,
       fabric,
       files,
-      pluginManager,
+      pluginDriver,
       pluginTimings,
       sources,
     }
@@ -344,7 +344,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       failedPlugins,
       fabric,
       files: [],
-      pluginManager,
+      pluginDriver,
       pluginTimings,
       error: error as Error,
       sources,
@@ -357,12 +357,12 @@ type BuildBarrelExportsParams = {
   rootDir: string
   existingExports: Set<string>
   config: Config
-  pluginManager: PluginManager
+  pluginDriver: PluginDriver
 }
 
-function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, pluginManager }: BuildBarrelExportsParams): KubbFile.Export[] {
+function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, pluginDriver }: BuildBarrelExportsParams): KubbFile.Export[] {
   const pluginNameMap = new Map<string, Plugin>()
-  for (const plugin of pluginManager.plugins) {
+  for (const plugin of pluginDriver.plugins) {
     pluginNameMap.set(plugin.name, plugin)
   }
 

@@ -8,7 +8,7 @@ import pluginTypescript from 'prettier/plugins/typescript'
 import { expect } from 'vitest'
 import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
 import type { SchemaNode } from '../packages/ast/src/types.ts'
-import type { Adapter, AdapterFactoryOptions, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams, ResolvePathParams } from '../packages/core/src'
+import type { Adapter, AdapterFactoryOptions, Plugin, PluginFactoryOptions, PluginDriver, ResolveNameParams, ResolvePathParams } from '../packages/core/src'
 
 const formatOptions: Options = {
   tabWidth: 2,
@@ -30,7 +30,7 @@ export async function format(source?: string): Promise<string> {
   }
 }
 
-export const createMockedPluginManager = (options: { name?: string; plugin?: Plugin<any>; config?: PluginManager['config'] } = {}) =>
+export const createMockedPluginDriver = (options: { name?: string; plugin?: Plugin<any>; config?: PluginDriver['config'] } = {}) =>
   ({
     resolveName: (result: ResolveNameParams) => {
       if (result.type === 'file') {
@@ -92,9 +92,9 @@ export const createMockedPluginManager = (options: { name?: string; plugin?: Plu
         } as unknown as Plugin)
       )
     },
-  }) as unknown as PluginManager
+  }) as unknown as PluginDriver
 
-export const mockedPluginManager = createMockedPluginManager()
+export const mockedPluginDriver = createMockedPluginDriver()
 
 /**
  * Creates a minimal `Adapter` mock suitable for unit tests.

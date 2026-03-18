@@ -1,5 +1,5 @@
 import type { OperationNode, SchemaNode } from '@kubb/ast/types'
-import type { Adapter, Config, Plugin, PluginFactoryOptions, PluginManager, ReactGeneratorV2 } from '@kubb/core'
+import type { Adapter, Config, Plugin, PluginFactoryOptions, PluginDriver, ReactGeneratorV2 } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import { createReactFabric, Fabric } from '@kubb/react-fabric'
@@ -25,7 +25,7 @@ type BuildOperationsV2Options<TOptions extends PluginFactoryOptions> = BuildOper
   version: '2'
   Component: ReactGeneratorV2<TOptions>['Operations'] | undefined
   adapter: Adapter
-  pluginManager: PluginManager
+  pluginDriver: PluginDriver
   mode: KubbFile.Mode
   options: TOptions['resolvedOptions']
 }
@@ -58,10 +58,10 @@ export async function buildOperations<TOptions extends PluginFactoryOptions>(
 
   if (isBuildOperationsV1Options(options)) {
     const { generator, Component } = options
-    const { pluginManager, oas, mode } = generator.context
+    const { pluginDriver, oas, mode } = generator.context
 
     await fabricChild.render(
-      <Fabric meta={{ pluginManager, plugin, mode, oas }}>
+      <Fabric meta={{ pluginDriver, plugin, mode, oas }}>
         <Component config={config} operations={operationsOrNodes as Array<Operation>} generator={generator} plugin={plugin} />
       </Fabric>,
     )
@@ -95,7 +95,7 @@ type BuildOperationV2Options<TOptions extends PluginFactoryOptions> = BuildOpera
   version: '2'
   Component: ReactGeneratorV2<TOptions>['Operation'] | undefined
   adapter: Adapter
-  pluginManager: PluginManager
+  pluginDriver: PluginDriver
   mode: KubbFile.Mode
   options: TOptions['resolvedOptions']
 }
@@ -122,18 +122,18 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
 
   if (isBuildOperationV1Options(options)) {
     const { generator, Component } = options
-    const { pluginManager, oas, mode } = generator.context
+    const { pluginDriver, oas, mode } = generator.context
 
     await fabricChild.render(
-      <Fabric meta={{ pluginManager, plugin, mode, oas }}>
+      <Fabric meta={{ pluginDriver, plugin, mode, oas }}>
         <Component config={config} operation={operationOrNode as Operation} plugin={plugin} generator={generator} />
       </Fabric>,
     )
   } else {
-    const { Component, adapter, pluginManager, mode } = options
+    const { Component, adapter, pluginDriver, mode } = options
 
     await fabricChild.render(
-      <Fabric meta={{ plugin, pluginManager, mode }}>
+      <Fabric meta={{ plugin, pluginDriver, mode }}>
         <Component config={config} adapter={adapter} node={operationOrNode as OperationNode} options={options.options} />
       </Fabric>,
     )
@@ -159,7 +159,7 @@ type BuildSchemaV2Options<TOptions extends PluginFactoryOptions> = BuildSchemaBa
   version: '2'
   Component: ReactGeneratorV2<TOptions>['Schema'] | undefined
   adapter: Adapter
-  pluginManager: PluginManager
+  pluginDriver: PluginDriver
   mode: KubbFile.Mode
   options: TOptions['resolvedOptions']
 }
@@ -189,18 +189,18 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
 
   if (isBuildSchemaV1Options(options)) {
     const { generator, Component } = options
-    const { pluginManager, oas, mode } = generator.context
+    const { pluginDriver, oas, mode } = generator.context
 
     await fabricChild.render(
-      <Fabric meta={{ pluginManager, plugin, mode, oas }}>
+      <Fabric meta={{ pluginDriver, plugin, mode, oas }}>
         <Component config={config} schema={schema as { name: string; tree: Array<Schema>; value: SchemaObject }} plugin={plugin} generator={generator} />
       </Fabric>,
     )
   } else {
-    const { Component, adapter, pluginManager, mode } = options
+    const { Component, adapter, pluginDriver, mode } = options
 
     await fabricChild.render(
-      <Fabric meta={{ plugin, pluginManager, mode }}>
+      <Fabric meta={{ plugin, pluginDriver, mode }}>
         <Component config={config} adapter={adapter} node={schema as SchemaNode} options={options.options} />
       </Fabric>,
     )

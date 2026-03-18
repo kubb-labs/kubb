@@ -1,6 +1,6 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { useFabric } from '@kubb/react-fabric'
-import type { GetFileOptions, PluginManager } from '../PluginManager.ts'
+import type { GetFileOptions, PluginDriver } from '../PluginDriver.ts'
 import type { Config, Plugin, PluginFactoryOptions, ResolveNameParams, ResolvePathParams } from '../types.ts'
 
 type ResolvePathOptions = {
@@ -38,7 +38,7 @@ export function useKubb<TOptions extends PluginFactoryOptions = PluginFactoryOpt
   const { meta } = useFabric<{
     plugin: Plugin<TOptions>
     mode: KubbFile.Mode
-    pluginManager: PluginManager
+    pluginDriver: PluginDriver
   }>()
 
   const defaultPluginName = meta.plugin.name
@@ -46,10 +46,10 @@ export function useKubb<TOptions extends PluginFactoryOptions = PluginFactoryOpt
   return {
     plugin: meta.plugin as Plugin<TOptions>,
     mode: meta.mode,
-    config: meta.pluginManager.config,
-    getPluginByName: (pluginName = defaultPluginName) => meta.pluginManager.getPluginByName.call(meta.pluginManager, pluginName),
-    getFile: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginManager.getFile.call(meta.pluginManager, { pluginName, ...rest }),
-    resolveName: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginManager.resolveName.call(meta.pluginManager, { pluginName, ...rest }),
-    resolvePath: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginManager.resolvePath.call(meta.pluginManager, { pluginName, ...rest }),
+    config: meta.pluginDriver.config,
+    getPluginByName: (pluginName = defaultPluginName) => meta.pluginDriver.getPluginByName.call(meta.pluginDriver, pluginName),
+    getFile: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginDriver.getFile.call(meta.pluginDriver, { pluginName, ...rest }),
+    resolveName: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginDriver.resolveName.call(meta.pluginDriver, { pluginName, ...rest }),
+    resolvePath: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginDriver.resolvePath.call(meta.pluginDriver, { pluginName, ...rest }),
   }
 }

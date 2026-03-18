@@ -100,7 +100,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       return resolvedName
     },
     async install() {
-      const { config, fabric, plugin, adapter, rootNode, pluginManager, openInStudio } = this
+      const { config, fabric, plugin, adapter, rootNode, pluginDriver, openInStudio } = this
 
       const root = path.resolve(config.root, config.output.path)
       const mode = getMode(path.resolve(root, output.path))
@@ -127,7 +127,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
                     fabric,
                     Component: generator.Schema,
                     plugin,
-                    pluginManager,
+                    pluginDriver,
                     mode,
                     version: generator.version,
                   })
@@ -152,7 +152,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
                     fabric,
                     Component: generator.Operation,
                     plugin,
-                    pluginManager,
+                    pluginDriver,
                     mode,
                     version: generator.version,
                   })
@@ -186,7 +186,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        pluginManager: this.pluginManager,
+        pluginDriver: this.pluginDriver,
         events: this.events,
         plugin: this.plugin,
         contentType,
@@ -202,7 +202,7 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        pluginManager: this.pluginManager,
+        pluginDriver: this.pluginDriver,
         events: this.events,
         plugin: this.plugin,
         contentType,

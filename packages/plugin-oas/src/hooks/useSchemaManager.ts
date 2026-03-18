@@ -1,5 +1,5 @@
 import type { FileMetaBase, ResolveNameParams } from '@kubb/core'
-import { usePlugin, usePluginManager } from '@kubb/core/hooks'
+import { usePlugin, usePluginDriver } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 
 type FileMeta = FileMetaBase & {
@@ -33,10 +33,10 @@ type UseSchemaManagerResult = {
  */
 export function useSchemaManager(): UseSchemaManagerResult {
   const plugin = usePlugin()
-  const pluginManager = usePluginManager()
+  const pluginDriver = usePluginDriver()
 
   const getName: UseSchemaManagerResult['getName'] = (name, { pluginName = plugin.name, type }) => {
-    return pluginManager.resolveName({
+    return pluginDriver.resolveName({
       name,
       pluginName,
       type,
@@ -46,7 +46,7 @@ export function useSchemaManager(): UseSchemaManagerResult {
   const getFile: UseSchemaManagerResult['getFile'] = (name, { mode = 'split', pluginName = plugin.name, extname = '.ts', group } = {}) => {
     const resolvedName = mode === 'single' ? '' : getName(name, { type: 'file', pluginName })
 
-    const file = pluginManager.getFile({
+    const file = pluginDriver.getFile({
       name: resolvedName,
       extname,
       pluginName,

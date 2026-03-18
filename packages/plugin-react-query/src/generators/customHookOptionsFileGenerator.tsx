@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { usePluginManager } from '@kubb/core/hooks'
+import { usePluginDriver } from '@kubb/core/hooks'
 import type { Operation } from '@kubb/oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -15,7 +15,7 @@ export const customHookOptionsFileGenerator = createReactGenerator<PluginReactQu
       options: { output },
       name: pluginName,
     } = plugin
-    const pluginManager = usePluginManager()
+    const pluginDriver = usePluginDriver()
 
     const { getFile } = useOperationManager(generator)
 
@@ -37,7 +37,7 @@ export const customHookOptionsFileGenerator = createReactGenerator<PluginReactQu
         return getFile(firstOperation, { prefix: 'use' }).path
       }
       // Get the index file of the hooks directory
-      return pluginManager.getFile({ name: 'index', extname: '.ts', pluginName }).path
+      return pluginDriver.getFile({ name: 'index', extname: '.ts', pluginName }).path
     }
 
     const ensureExtension = (filePath: string, extname: string) => {

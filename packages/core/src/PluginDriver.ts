@@ -62,7 +62,7 @@ export function getMode(fileOrFolder: string | undefined | null): KubbFile.Mode 
   return extname(fileOrFolder) ? 'single' : 'split'
 }
 
-export class PluginManager {
+export class PluginDriver {
   readonly config: Config
   readonly options: Options
 
@@ -97,14 +97,14 @@ export class PluginManager {
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
     const plugins = [...this.#plugins]
-    const pluginManager = this
+    const pluginDriver = this
 
     const baseContext = {
       fabric: this.options.fabric,
       config: this.config,
       plugin,
       events: this.options.events,
-      pluginManager: this,
+      pluginDriver: this,
       mode: getMode(resolve(this.config.root, this.config.output.path)),
       addFile: async (...files: Array<KubbFile.File>) => {
         await this.options.fabric.addFile(...files)
@@ -113,29 +113,29 @@ export class PluginManager {
         await this.options.fabric.upsertFile(...files)
       },
       get rootNode(): RootNode | undefined {
-        return pluginManager.rootNode
+        return pluginDriver.rootNode
       },
       get adapter(): Adapter | undefined {
-        return pluginManager.adapter
+        return pluginDriver.adapter
       },
       openInStudio(options?: DevtoolsOptions) {
-        if (!pluginManager.config.devtools || pluginManager.#studioIsOpen) {
+        if (!pluginDriver.config.devtools || pluginDriver.#studioIsOpen) {
           return
         }
 
-        if (typeof pluginManager.config.devtools !== 'object') {
+        if (typeof pluginDriver.config.devtools !== 'object') {
           throw new Error('Devtools must be an object')
         }
 
-        if (!pluginManager.rootNode || !pluginManager.adapter) {
+        if (!pluginDriver.rootNode || !pluginDriver.adapter) {
           throw new Error('adapter is not defined, make sure you have set the parser in kubb.config.ts')
         }
 
-        pluginManager.#studioIsOpen = true
+        pluginDriver.#studioIsOpen = true
 
-        const studioUrl = pluginManager.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
+        const studioUrl = pluginDriver.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
 
-        return openInStudioFn(pluginManager.rootNode, studioUrl, options)
+        return openInStudioFn(pluginDriver.rootNode, studioUrl, options)
       },
     } as unknown as PluginContext<TOptions>
 

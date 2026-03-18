@@ -159,7 +159,7 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
 
   await events.emit('info', config.name ? `Setup generation ${styleText('bold', config.name)}` : 'Setup generation', inputPath)
 
-  const { sources, fabric, pluginManager } = await setup({
+  const { sources, fabric, pluginDriver } = await setup({
     config,
     events,
   })
@@ -171,7 +171,7 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
       config,
       events,
     },
-    { pluginManager, fabric, events, sources },
+    { pluginDriver, fabric, events, sources },
   )
 
   await events.emit('info', 'Load summary')
@@ -206,7 +206,7 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
       buildTelemetryEvent({
         command: 'generate',
         kubbVersion: version,
-        plugins: pluginManager.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
+        plugins: pluginDriver.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
         hrStart,
         filesCreated: files.length,
         status: 'failed',
@@ -274,7 +274,7 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
   const telemetryEvent = buildTelemetryEvent({
     command: 'generate',
     kubbVersion: version,
-    plugins: pluginManager.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
+    plugins: pluginDriver.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
     hrStart,
     filesCreated: files.length,
     status: 'success',

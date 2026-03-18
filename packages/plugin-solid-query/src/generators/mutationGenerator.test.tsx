@@ -6,7 +6,7 @@ import { parse } from '@kubb/oas'
 import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginSolidQuery } from '../types.ts'
 import { mutationGenerator } from './mutationGenerator.tsx'
@@ -117,12 +117,12 @@ describe('mutationGenerator operation', async () => {
       ...props.options,
     }
     const plugin = createMockedPlugin<PluginSolidQuery>({ name: 'plugin-solid-query', options })
-    const mockedPluginManager = createMockedPluginManager({ name: props.name })
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      pluginDriver: mockedPluginDriver,
       plugin,
       contentType: undefined,
       override: undefined,

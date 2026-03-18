@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { usePluginManager } from '@kubb/core/hooks'
+import { usePluginDriver } from '@kubb/core/hooks'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
@@ -19,7 +19,7 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
       options,
       options: { output },
     } = plugin
-    const pluginManager = usePluginManager()
+    const pluginDriver = usePluginDriver()
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)
@@ -36,7 +36,7 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
       file: getFile(operation, { prefix: 'use' }),
     }
 
-    const hasClientPlugin = !!pluginManager.getPluginByName(pluginClientName)
+    const hasClientPlugin = !!pluginDriver.getPluginByName(pluginClientName)
     // Class-based clients are not compatible with query hooks, so we generate inline clients
     const shouldUseClientPlugin = hasClientPlugin && options.client.clientType !== 'class'
     const client = {
@@ -86,7 +86,7 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
         baseName={query.file.baseName}
         path={query.file.path}
         meta={query.file.meta}
-        banner={getBanner({ oas, output, config: pluginManager.config })}
+        banner={getBanner({ oas, output, config: pluginDriver.config })}
         footer={getFooter({ oas, output })}
       >
         {options.parser === 'zod' && (

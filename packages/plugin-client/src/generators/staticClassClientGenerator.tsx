@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { usePluginManager } from '@kubb/core/hooks'
+import { usePluginDriver } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
@@ -32,7 +32,7 @@ export const staticClassClientGenerator = createReactGenerator<PluginClient>({
   name: 'staticClassClient',
   Operations({ operations, generator, plugin, config }) {
     const { options, name: pluginName } = plugin
-    const pluginManager = usePluginManager()
+    const pluginDriver = usePluginDriver()
 
     const oas = useOas()
     const { getName, getFile, getGroup, getSchemas } = useOperationManager(generator)
@@ -67,7 +67,7 @@ export const staticClassClientGenerator = createReactGenerator<PluginClient>({
         if (!group?.tag && !options.group) {
           // If no grouping, put all operations in a single class
           const name = 'ApiClient'
-          const file = pluginManager.getFile({
+          const file = pluginDriver.getFile({
             name,
             extname: '.ts',
             pluginName,
@@ -84,7 +84,7 @@ export const staticClassClientGenerator = createReactGenerator<PluginClient>({
         } else if (group?.tag) {
           // Group by tag
           const name = groupName
-          const file = pluginManager.getFile({
+          const file = pluginDriver.getFile({
             name,
             extname: '.ts',
             pluginName,
@@ -166,7 +166,7 @@ export const staticClassClientGenerator = createReactGenerator<PluginClient>({
           baseName={file.baseName}
           path={file.path}
           meta={file.meta}
-          banner={getBanner({ oas, output: options.output, config: pluginManager.config })}
+          banner={getBanner({ oas, output: options.output, config: pluginDriver.config })}
           footer={getFooter({ oas, output: options.output })}
         >
           {options.importPath ? (
