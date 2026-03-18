@@ -1,4 +1,4 @@
-import { createParameter, createResponse, createSchema } from '@kubb/ast'
+import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 import { printerTs } from '../../printer.ts'
@@ -25,6 +25,7 @@ function printSchema(schema: ReturnType<typeof buildParamsSchema>): string {
 describe('buildParamsSchema', () => {
   it('builds an object type for required params', () => {
     const params = [createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })]
+
     expect(printSchema(buildParamsSchema({ params, operationId: 'showPetById', resolveName }))).toMatchInlineSnapshot(`
       "{
           petId: showPetByIdPetId;
@@ -34,6 +35,7 @@ describe('buildParamsSchema', () => {
 
   it('marks optional params with ?', () => {
     const params = [createParameter({ name: 'limit', schema: createSchema({ type: 'integer' }), in: 'query', required: false })]
+
     expect(printSchema(buildParamsSchema({ params, operationId: 'listPets', resolveName }))).toMatchInlineSnapshot(`
       "{
           limit?: listPetsLimit;
@@ -46,6 +48,7 @@ describe('buildParamsSchema', () => {
       createParameter({ name: 'storeId', schema: createSchema({ type: 'string' }), in: 'path', required: true }),
       createParameter({ name: 'orderId', schema: createSchema({ type: 'integer' }), in: 'path', required: true }),
     ]
+
     expect(printSchema(buildParamsSchema({ params, operationId: 'getOrder', resolveName }))).toMatchInlineSnapshot(`
       "{
           storeId: getOrderStoreId;
@@ -56,10 +59,11 @@ describe('buildParamsSchema', () => {
 })
 
 describe('buildDataSchemaNode', () => {
-  const baseNode = { path: '/pets', parameters: [], responses: [], requestBody: undefined } as any
+  const baseNode = createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
 
   it('emits data?: never when no request body', () => {
-    const node = { ...baseNode, operationId: 'listPets' }
+    const node = createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
+
     expect(printSchema(buildDataSchemaNode({ node, resolveName }))).toMatchInlineSnapshot(`
       "{
           data?: never;
@@ -72,7 +76,8 @@ describe('buildDataSchemaNode', () => {
   })
 
   it('emits data? referencing the MutationRequest type when body exists', () => {
-    const node = { ...baseNode, operationId: 'createPet', requestBody: createSchema({ type: 'object' }) }
+    const node = createOperation({ operationId: 'createPet', method: 'POST', path: '/pets', requestBody: createSchema({ type: 'object' }) })
+
     expect(printSchema(buildDataSchemaNode({ node, resolveName }))).toMatchInlineSnapshot(`
       "{
           data?: createPetMutationRequest;
@@ -85,13 +90,13 @@ describe('buildDataSchemaNode', () => {
   })
 
   it('emits required pathParams when path parameters exist', () => {
-    const node = {
+    const node = createOperation({
       operationId: 'showPetById',
+      method: 'GET',
       path: '/pets/:petId',
       parameters: [createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })],
-      responses: [],
-      requestBody: undefined,
-    } as any
+    })
+
     expect(printSchema(buildDataSchemaNode({ node, resolveName }))).toMatchInlineSnapshot(`
       "{
           data?: never;
@@ -106,11 +111,12 @@ describe('buildDataSchemaNode', () => {
   })
 
   it('emits optional queryParams when query parameters exist', () => {
-    const node = {
+    const node = createOperation({
       ...baseNode,
       operationId: 'listPets',
       parameters: [createParameter({ name: 'limit', schema: createSchema({ type: 'integer' }), in: 'query', required: false })],
-    } as any
+    })
+
     expect(printSchema(buildDataSchemaNode({ node, resolveName }))).toMatchInlineSnapshot(`
       "{
           data?: never;
@@ -127,18 +133,27 @@ describe('buildDataSchemaNode', () => {
 
 describe('buildResponsesSchemaNode', () => {
   it('returns null when no responses have schemas', () => {
-    const node = { operationId: 'deletePet', responses: [createResponse({ statusCode: '204', description: 'No content' })] } as any
+    const node = createOperation({
+      operationId: 'deletePet',
+      method: 'DELETE',
+      path: '/pets/:petId',
+      responses: [createResponse({ statusCode: '204', description: 'No content' })],
+    })
+
     expect(buildResponsesSchemaNode({ node, resolveName })).toBeNull()
   })
 
   it('emits a keyed object type for responses with schemas', () => {
-    const node = {
+    const node = createOperation({
       operationId: 'listPets',
+      method: 'GET',
+      path: '/pets',
       responses: [
         createResponse({ statusCode: '200', description: 'OK', schema: createSchema({ type: 'object' }) }),
         createResponse({ statusCode: 'default', description: 'Error', schema: createSchema({ type: 'object' }) }),
       ],
-    } as any
+    })
+
     expect(printSchema(buildResponsesSchemaNode({ node, resolveName })!)).toMatchInlineSnapshot(`
       "{
           "200": listPets200;
@@ -150,18 +165,27 @@ describe('buildResponsesSchemaNode', () => {
 
 describe('buildResponseUnionSchemaNode', () => {
   it('returns null when no responses have schemas', () => {
-    const node = { operationId: 'deletePet', responses: [createResponse({ statusCode: '204', description: 'No content' })] } as any
+    const node = createOperation({
+      operationId: 'deletePet',
+      method: 'DELETE',
+      path: '/pets/:petId',
+      responses: [createResponse({ statusCode: '204', description: 'No content' })],
+    })
+
     expect(buildResponseUnionSchemaNode({ node, resolveName })).toBeNull()
   })
 
   it('emits a union of all response types', () => {
-    const node = {
+    const node = createOperation({
       operationId: 'listPets',
+      method: 'GET',
+      path: '/pets',
       responses: [
         createResponse({ statusCode: '200', description: 'OK', schema: createSchema({ type: 'object' }) }),
         createResponse({ statusCode: '405', description: 'Error', schema: createSchema({ type: 'object' }) }),
       ],
-    } as any
+    })
+
     expect(printSchema(buildResponseUnionSchemaNode({ node, resolveName })!)).toMatchInlineSnapshot(`"(listPets200 | listPets405)"`)
   })
 })
