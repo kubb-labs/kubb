@@ -7,6 +7,7 @@ import { beforeEach, describe, test } from 'vitest'
 import { createMockedAdapter, createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
+import ts, { factory } from "typescript"
 
 describe('typeGenerator v2 — Operation', () => {
   const fabric = createReactFabric()
@@ -103,7 +104,48 @@ describe('typeGenerator v2 — Operation', () => {
         responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Results' })],
       }),
     },
-  ] as const satisfies Array<{ name: string; node: OperationNode }>
+    {
+      name: 'listPets — GET with query params and paramsCasing camelcase',
+      node: createOperation({
+        operationId: 'listPets',
+        method: 'GET',
+        path: '/pets',
+        tags: ['pets'],
+        parameters: [createParameter({ name: 'my_limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+        responses: [
+          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
+          createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+        ],
+      }),
+      options: {
+        paramsCasing: 'camelcase',
+      },
+    },
+    {
+      name: 'createPet — POST with mapper overriding request body property',
+      node: createOperation({
+        operationId: 'createPets',
+        method: 'POST',
+        path: '/pets',
+        tags: ['pets'],
+        parameters: [createParameter({ name: 'name', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
+        responses: [
+          createResponse({ statusCode: '201', schema: createSchema({ type: 'object', properties: [] }), description: 'Null response' }),
+          createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+        ],
+      }),
+      options: {
+        mapper: {
+          name: factory.createPropertySignature(
+            undefined,
+            factory.createIdentifier('fullName'),
+            factory.createToken(ts.SyntaxKind.QuestionToken),
+            factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+          ),
+        },
+      },
+    },
+  ] as const satisfies Array<{ name: string; node: OperationNode; options?: Partial<PluginTs['resolvedOptions']> }>
 
   const defaultOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
@@ -125,10 +167,14 @@ describe('typeGenerator v2 — Operation', () => {
   }
 
   test.each(testData)('$name', async (props) => {
-    const plugin = { options: defaultOptions, name: '@kubb/plugin-ts' } as unknown as Plugin<PluginTs>
+    const options: PluginTs['resolvedOptions'] = {
+      ...defaultOptions,
+      ...('options' in props ? props.options : {}),
+    }
+    const plugin = { options, name: '@kubb/plugin-ts' } as unknown as Plugin<PluginTs>
     const mockedPluginManager = createMockedPluginManager({ name: props.name })
 
-    await (buildOperation as unknown as Function)(props.node, {
+    await buildOperation(props.node, {
       version: '2',
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
@@ -137,7 +183,7 @@ describe('typeGenerator v2 — Operation', () => {
       Component: typeGenerator.Operation,
       plugin,
       mode: 'split',
-      options: defaultOptions,
+      options: options,
     })
 
     await matchFiles(fabric.files, props.name)
