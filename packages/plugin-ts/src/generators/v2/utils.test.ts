@@ -82,7 +82,7 @@ describe('buildDataSchemaNode', () => {
 
     expect(printSchema(buildDataSchemaNode({ node, resolveName }))).toMatchInlineSnapshot(`
       "{
-          data?: createPetMutationRequest;
+          data?: createPetData;
           pathParams?: never;
           queryParams?: never;
           headerParams?: never;
