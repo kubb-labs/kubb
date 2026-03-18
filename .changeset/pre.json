@@ -49,6 +49,7 @@
     "ast-utils-operation-path",
     "feat-resolve-options",
     "pretty-schools-fly",
+    "remove-mapper-plugin-ts",
     "remove-plugin-key",
     "tough-lemons-pump",
     "type-generator-v2-helpers"
