@@ -1,7 +1,7 @@
 import type { BaseNode } from './base.ts'
 import type { PropertyNode } from './property.ts'
 
-export type PrimitiveSchemaType = 'string' | 'number' | 'integer' | 'bigint' | 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'object' | 'array' | 'date'
+export type PrimitiveSchemaType = 'string' | 'number' | 'integer' | 'bigint' | 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'never' | 'object' | 'array' | 'date'
 
 export type ComplexSchemaType = 'tuple' | 'union' | 'intersection' | 'enum'
 
@@ -14,7 +14,7 @@ export type SchemaType = PrimitiveSchemaType | ComplexSchemaType | SpecialSchema
 
 export type ScalarSchemaType = Exclude<
   SchemaType,
-  'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum' | 'ref' | 'datetime' | 'date' | 'time' | 'string' | 'number' | 'integer' | 'bigint'
+  'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum' | 'ref' | 'datetime' | 'date' | 'time' | 'string' | 'number' | 'integer' | 'bigint' | 'url'
 >
 
 /**
@@ -207,6 +207,17 @@ export type ScalarSchemaNode = SchemaNodeBase & {
 }
 
 /**
+ * URL schema, optionally carrying an Express-style path template for template literal generation.
+ */
+export type UrlSchemaNode = SchemaNodeBase & {
+  type: 'url'
+  /**
+   * Express-style path (e.g. `'/pets/:petId'`). When set, printers may emit a template literal type.
+   */
+  path?: string
+}
+
+/**
  * Maps each schema type string to its `SchemaNode` variant. Used by `narrowSchema`.
  */
 export type SchemaNodeByType = {
@@ -229,9 +240,10 @@ export type SchemaNodeByType = {
   any: ScalarSchemaNode
   unknown: ScalarSchemaNode
   void: ScalarSchemaNode
+  never: ScalarSchemaNode
   uuid: ScalarSchemaNode
   email: ScalarSchemaNode
-  url: ScalarSchemaNode
+  url: UrlSchemaNode
   blob: ScalarSchemaNode
 }
 
@@ -250,4 +262,5 @@ export type SchemaNode =
   | TimeSchemaNode
   | StringSchemaNode
   | NumberSchemaNode
+  | UrlSchemaNode
   | ScalarSchemaNode

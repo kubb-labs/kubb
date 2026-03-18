@@ -33,6 +33,7 @@ export type {
   StringSchemaNode,
   TimeSchemaNode,
   UnionSchemaNode,
+  UrlSchemaNode,
 } from './schema.ts'
 
 /**

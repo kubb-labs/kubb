@@ -35,6 +35,7 @@ export type {
   StringSchemaNode,
   TimeSchemaNode,
   UnionSchemaNode,
+  UrlSchemaNode,
 } from './nodes/index.ts'
 export type { Printer, PrinterFactoryOptions, PrinterHandler, PrinterHandlerContext } from './printer.ts'
 export type { RefMap } from './refs.ts'
