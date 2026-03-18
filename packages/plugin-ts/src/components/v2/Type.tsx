@@ -32,16 +32,16 @@ export function Type({
   enumType,
   enumKeyCasing,
   mapper,
-  ...rest
+  description,
 }: Props): FabricReactNode {
-  const description = rest.description || node?.description
+  const resolvedDescription = description || node?.description
   const enumSchemaNodes = collect<EnumSchemaNode>(node, {
     schema(n): EnumSchemaNode | undefined {
       if (n.type === 'enum' && n.name) return n as EnumSchemaNode
     },
   })
 
-  const printer = printerTs({ optionalType, arrayType, enumType, mapper, typeName: name, syntaxType, description, keysToOmit })
+  const printer = printerTs({ optionalType, arrayType, enumType, mapper, typeName: name, syntaxType, description: resolvedDescription, keysToOmit })
   const typeNode = printer.print(node)
 
   if (!typeNode) {
@@ -61,10 +61,7 @@ export function Type({
 
   return (
     <>
-      {shouldExportEnums &&
-        enums.map(({ enumSchemaNode }) => (
-          <Enum enumSchemaNode={enumSchemaNode} enumType={enumType} enumKeyCasing={enumKeyCasing} />
-        ))}
+      {shouldExportEnums && enums.map(({ enumSchemaNode }) => <Enum enumSchemaNode={enumSchemaNode} enumType={enumType} enumKeyCasing={enumKeyCasing} />)}
       {shouldExportType && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
           {safePrint(typeNode)}

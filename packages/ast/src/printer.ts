@@ -31,17 +31,14 @@ export type PrinterHandler<TOutput, TOptions extends object, T extends SchemaTyp
  *
  * - `TName`        — unique string identifier (e.g. `'zod'`, `'ts'`)
  * - `TOptions`     — options passed to and stored on the printer
- * - `TOutput`      — the type emitted by node handlers and `printType`
+ * - `TOutput`      — the type emitted by node handlers
  * - `TPrintOutput` — the type emitted by the public `print` override (defaults to `TOutput`)
  */
-export type PrinterFactoryOptions<
-  TName extends string = string,
-  TOptions extends object = object,
-  TOutput = unknown
-> = {
+export type PrinterFactoryOptions<TName extends string = string, TOptions extends object = object, TOutput = unknown, TPrintOutput = TOutput> = {
   name: TName
   options: TOptions
   output: TOutput
+  printOutput: TPrintOutput
 }
 
 /**
@@ -59,18 +56,9 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
   /**
    * Public printer. If the builder provides a root-level `print`, this calls that
    * higher-level function (which may produce full declarations). Otherwise falls back
-   * to the node-level dispatcher, identical to `printType`.
+   * to the node-level dispatcher
    */
-  print: (node: SchemaNode) => T['output'] | null | undefined
-  /**
-   * Always the node-level dispatcher — calls the matching `nodes` handler.
-   * Use this when you need the raw type output without declaration wrapping.
-   */
-  printType: (node: SchemaNode) => T['output'] | null | undefined
-  /**
-   * Maps the node-level printer over an array of `SchemaNode`s.
-   */
-  for: (nodes: Array<SchemaNode>) => Array<T['output'] | null | undefined>
+  print: (node: SchemaNode) => T['printOutput'] | null | undefined
 }
 
 type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) => {
@@ -87,7 +75,7 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
    * `this.print(node)` inside this function calls the node-level dispatcher (`nodes` handlers),
    * not the override itself — so recursion is safe.
    */
-  print?: (this: PrinterHandlerContext<T['output'], T['options']>, node: SchemaNode) => T['output'] | null | undefined
+  print?: (this: PrinterHandlerContext<T['output'], T['options']>, node: SchemaNode) => T['printOutput'] | null | undefined
 }
 
 /**
@@ -152,9 +140,7 @@ export function definePrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
     return {
       name,
       options: resolvedOptions,
-      printType: context.print,
-      print: printOverride ? printOverride.bind(context) : (context.print),
-      for: (nodes) => nodes.map(context.print),
+      print: (printOverride ? printOverride.bind(context) : context.print) as Printer<T>['print'],
     }
   }
 }

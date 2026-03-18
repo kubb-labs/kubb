@@ -51,7 +51,7 @@ export default defineNitroConfig({
   },
   hooks: {
     // The `ajv` alias above replaces the entry-point import in the bundle, so Nitro's
-    // module tracer only traces sub-path imports (e.g. `ajv/dist/compile/codegen`)
+    // module tracer only traces sub-path imports (e.g. `ajv/dist/compile`)
     // and never copies the full package. However, `ajv-formats` is kept as an external
     // CJS module and does `require('ajv')` at runtime — which resolves via the
     // filesystem and fails because the package is incomplete. Copy the full package

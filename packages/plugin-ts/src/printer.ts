@@ -125,7 +125,7 @@ function buildIndexSignatures(
   const elements: Array<ts.TypeElement> = []
 
   if (node.additionalProperties && node.additionalProperties !== true) {
-    const additionalType = (print(node.additionalProperties) ?? factory.keywordTypeNodes.unknown)
+    const additionalType = print(node.additionalProperties) ?? factory.keywordTypeNodes.unknown
 
     elements.push(factory.createIndexSignature(propertyCount > 0 ? factory.keywordTypeNodes.unknown : additionalType))
   } else if (node.additionalProperties === true) {
@@ -135,7 +135,7 @@ function buildIndexSignatures(
   if (node.patternProperties) {
     const first = Object.values(node.patternProperties)[0]
     if (first) {
-      let patternType = (print(first) ?? factory.keywordTypeNodes.unknown)
+      let patternType = print(first) ?? factory.keywordTypeNodes.unknown
 
       if (first.nullable) {
         patternType = factory.createUnionDeclaration({ nodes: [patternType, factory.keywordTypeNodes.null] })
@@ -148,15 +148,11 @@ function buildIndexSignatures(
 }
 
 /**
- * Converts a `SchemaNode` AST node into a TypeScript `ts.TypeNode`.
+ * Converts a `SchemaNode` AST node into a TypeScript `ts.TypeNode` (via `printType`) or a
+ * full `type Name = …` declaration (via `print`, when `typeName` is set in options).
  *
- * Built on `definePrinter` — dispatches on `node.type`, with options closed over
- * per printer instance.
- *
- * In addition to the standard `print` / `for` methods, the returned printer exposes
- * `printDeclaration()` which combines type-node printing with the full declaration
- * pipeline: Key-suffix correction for enum types, top-level nullable/optional union
- * modifiers, and the complete `type Foo = …` statement node.
+ * Built on `definePrinter` — dispatches on `node.type` per handler in `nodes`,
+ * with options closed over per printer instance.
  */
 export const printerTs = definePrinter<TsPrinter>((options) => {
   const addsUndefined = ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType)
@@ -255,7 +251,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
             return this.options.mapper[prop.name]!
           }
 
-          const baseType = (print(prop.schema) ?? factory.keywordTypeNodes.unknown)
+          const baseType = print(prop.schema) ?? factory.keywordTypeNodes.unknown
           const type = buildPropertyType(prop.schema, baseType, this.options.optionalType)
 
           const propertyNode = factory.createPropertySignature({
@@ -299,7 +295,8 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         return type
       }
 
-      const useTypeGeneration = syntaxType === 'type' || [factory.syntaxKind.union].includes(type.kind as typeof factory.syntaxKind.union) || !!keysToOmit?.length
+      const useTypeGeneration =
+        syntaxType === 'type' || [factory.syntaxKind.union].includes(type.kind as typeof factory.syntaxKind.union) || !!keysToOmit?.length
 
       return factory.createTypeDeclaration({
         name: typeName,
@@ -322,7 +319,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
           node?.default ? `@default ${node.default}` : undefined,
           node?.example ? `@example ${node.example}` : undefined,
         ],
-      })
+      }) as unknown as ts.TypeNode
     },
   }
 })
