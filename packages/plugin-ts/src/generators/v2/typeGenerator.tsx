@@ -1,10 +1,10 @@
-import { useKubb } from '@kubb/core/hooks'
+import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
+import { useKubb } from '@kubb/core/hooks'
 import { File } from '@kubb/react-fabric'
 import { Type } from '../../components/v2/Type.tsx'
 import type { PluginTs } from '../../types'
-import { buildDataSchemaNode, buildResponseUnionSchemaNode, buildResponsesSchemaNode } from './utils.ts'
-import type { SchemaNode } from '@kubb/ast/types'
+import { buildDataSchemaNode, buildResponsesSchemaNode, buildResponseUnionSchemaNode } from './utils.ts'
 
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
@@ -15,7 +15,17 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
     const file = getFile({ name: node.operationId, extname: '.ts', mode })
 
-    function renderSchemaType({ node: schemaNode, name, typedName, description }: { node: SchemaNode | null; name: string; typedName: string; description?: string }) {
+    function renderSchemaType({
+      node: schemaNode,
+      name,
+      typedName,
+      description,
+    }: {
+      node: SchemaNode | null
+      name: string
+      typedName: string
+      description?: string
+    }) {
       if (!schemaNode) {
         return null
       }

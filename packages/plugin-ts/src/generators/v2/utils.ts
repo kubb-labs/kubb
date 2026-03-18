@@ -1,5 +1,5 @@
-import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import { createProperty, createSchema } from '@kubb/ast'
+import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 
 type ResolveName = (opts: { name: string; type: 'type' | 'function' }) => string
 

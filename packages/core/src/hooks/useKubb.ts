@@ -3,7 +3,7 @@ import { useApp as useAppBase } from '@kubb/react-fabric'
 import type { GetFileOptions, PluginManager } from '../PluginManager.ts'
 import type { Config, Plugin, PluginFactoryOptions, ResolveNameParams, ResolvePathParams } from '../types.ts'
 
- type UseKubbReturn<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+type UseKubbReturn<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   plugin: Plugin<TOptions>
   mode: KubbFile.Mode
   config: Config
@@ -38,9 +38,9 @@ export function useKubb<TOptions extends PluginFactoryOptions = PluginFactoryOpt
     plugin: meta.plugin as Plugin<TOptions>,
     mode: meta.mode,
     config: meta.pluginManager.config,
-    getPluginByName: (pluginName = defaultPluginName) => meta.pluginManager.getPluginByName.call(meta.pluginManager,pluginName),
-    getFile: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginManager.getFile.call(meta.pluginManager,{ pluginName, ...rest }),
-    resolveName: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginManager.resolveName.call(meta.pluginManager,{ pluginName, ...rest }),
-    resolvePath: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginManager.resolvePath.call(meta.pluginManager,{ pluginName, ...rest }),
+    getPluginByName: (pluginName = defaultPluginName) => meta.pluginManager.getPluginByName.call(meta.pluginManager, pluginName),
+    getFile: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginManager.getFile.call(meta.pluginManager, { pluginName, ...rest }),
+    resolveName: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginManager.resolveName.call(meta.pluginManager, { pluginName, ...rest }),
+    resolvePath: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginManager.resolvePath.call(meta.pluginManager, { pluginName, ...rest }),
   }
 }
