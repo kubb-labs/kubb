@@ -668,14 +668,14 @@ export const keywordTypeNodes = {
  * like `` `/pets/${string}` ``.
  */
 export function createUrlTemplateType(path: string): ts.TypeNode {
-  // Normalise Express `:param` → OAS `{param}` so a single regex handles both.
-  const normalised = path.replace(/:([^/]+)/g, '{$1}')
+  // normalized Express `:param` → OAS `{param}` so a single regex handles both.
+  const normalized = path.replace(/:([^/]+)/g, '{$1}')
 
-  if (!normalised.includes('{')) {
-    return factory.createLiteralTypeNode(factory.createStringLiteral(normalised))
+  if (!normalized.includes('{')) {
+    return factory.createLiteralTypeNode(factory.createStringLiteral(normalized))
   }
 
-  const segments = normalised.split(/(\{[^}]+\})/)
+  const segments = normalized.split(/(\{[^}]+\})/)
   const parts: string[] = []
   const parameterIndices: number[] = []
 
