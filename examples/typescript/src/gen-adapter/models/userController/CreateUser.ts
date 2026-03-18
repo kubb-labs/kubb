@@ -5,10 +5,10 @@ import type { User } from '../User.ts'
  */
 export type CreateUserStatusDefault = User
 
-export type CreateUserMutationRequest = User
+export type CreateUserData = User
 
 export interface CreateUserRequestConfig {
-  data?: CreateUserMutationRequest
+  data?: CreateUserData
   pathParams?: never
   queryParams?: never
   headerParams?: never

@@ -9,10 +9,10 @@ export type UploadFileQueryAdditionalMetadata = string
  */
 export type UploadFileStatus200 = ApiResponse
 
-export type UploadFileMutationRequest = Blob
+export type UploadFileData = Blob
 
 export interface UploadFileRequestConfig {
-  data?: UploadFileMutationRequest
+  data?: UploadFileData
   pathParams: {
     petId: UploadFilePathPetId
   }

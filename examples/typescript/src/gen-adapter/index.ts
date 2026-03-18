@@ -15,7 +15,7 @@ export type { Pet } from './models/Pet.ts'
 export { PetStatusEnum } from './models/Pet.ts'
 export type { PetNotFound } from './models/PetNotFound.ts'
 export type {
-  AddPetMutationRequest,
+  AddPetData,
   AddPetRequestConfig,
   AddPetResponse,
   AddPetResponses,
@@ -52,7 +52,7 @@ export type {
   GetPetByIdStatus200,
 } from './models/petController/GetPetById.ts'
 export type {
-  UpdatePetMutationRequest,
+  UpdatePetData,
   UpdatePetRequestConfig,
   UpdatePetResponse,
   UpdatePetResponses,
@@ -65,7 +65,7 @@ export type {
   UpdatePetWithFormRequestConfig,
 } from './models/petController/UpdatePetWithForm.ts'
 export type {
-  UploadFileMutationRequest,
+  UploadFileData,
   UploadFilePathPetId,
   UploadFileQueryAdditionalMetadata,
   UploadFileRequestConfig,
@@ -91,14 +91,14 @@ export type {
   GetOrderByIdStatus200,
 } from './models/storeController/GetOrderById.ts'
 export type {
-  PlaceOrderMutationRequest,
+  PlaceOrderData,
   PlaceOrderRequestConfig,
   PlaceOrderResponse,
   PlaceOrderResponses,
   PlaceOrderStatus200,
 } from './models/storeController/PlaceOrder.ts'
 export type {
-  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchData,
   PlaceOrderPatchRequestConfig,
   PlaceOrderPatchResponse,
   PlaceOrderPatchResponses,
@@ -109,14 +109,14 @@ export type { UnhappyCustomer } from './models/UnhappyCustomer.ts'
 export type { User } from './models/User.ts'
 export type { UserArray } from './models/UserArray.ts'
 export type {
-  CreateUserMutationRequest,
+  CreateUserData,
   CreateUserRequestConfig,
   CreateUserResponse,
   CreateUserResponses,
   CreateUserStatusDefault,
 } from './models/userController/CreateUser.ts'
 export type {
-  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputData,
   CreateUsersWithListInputRequestConfig,
   CreateUsersWithListInputResponse,
   CreateUsersWithListInputResponses,
@@ -143,7 +143,7 @@ export type {
 } from './models/userController/LoginUser.ts'
 export type { LogoutUserRequestConfig } from './models/userController/LogoutUser.ts'
 export type {
-  UpdateUserMutationRequest,
+  UpdateUserData,
   UpdateUserPathUsername,
   UpdateUserRequestConfig,
 } from './models/userController/UpdateUser.ts'

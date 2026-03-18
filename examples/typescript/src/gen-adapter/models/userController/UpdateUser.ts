@@ -2,10 +2,10 @@ import type { User } from '../User.ts'
 
 export type UpdateUserPathUsername = string
 
-export type UpdateUserMutationRequest = User
+export type UpdateUserData = User
 
 export interface UpdateUserRequestConfig {
-  data?: UpdateUserMutationRequest
+  data?: UpdateUserData
   pathParams: {
     username: UpdateUserPathUsername
   }

@@ -15,7 +15,7 @@ export type { Pet } from './Pet.ts'
 export { PetStatusEnum } from './Pet.ts'
 export type { PetNotFound } from './PetNotFound.ts'
 export type {
-  AddPetMutationRequest,
+  AddPetData,
   AddPetRequestConfig,
   AddPetResponse,
   AddPetResponses,
@@ -52,7 +52,7 @@ export type {
   GetPetByIdStatus200,
 } from './petController/GetPetById.ts'
 export type {
-  UpdatePetMutationRequest,
+  UpdatePetData,
   UpdatePetRequestConfig,
   UpdatePetResponse,
   UpdatePetResponses,
@@ -65,7 +65,7 @@ export type {
   UpdatePetWithFormRequestConfig,
 } from './petController/UpdatePetWithForm.ts'
 export type {
-  UploadFileMutationRequest,
+  UploadFileData,
   UploadFilePathPetId,
   UploadFileQueryAdditionalMetadata,
   UploadFileRequestConfig,
@@ -91,14 +91,14 @@ export type {
   GetOrderByIdStatus200,
 } from './storeController/GetOrderById.ts'
 export type {
-  PlaceOrderMutationRequest,
+  PlaceOrderData,
   PlaceOrderRequestConfig,
   PlaceOrderResponse,
   PlaceOrderResponses,
   PlaceOrderStatus200,
 } from './storeController/PlaceOrder.ts'
 export type {
-  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchData,
   PlaceOrderPatchRequestConfig,
   PlaceOrderPatchResponse,
   PlaceOrderPatchResponses,
@@ -109,14 +109,14 @@ export type { UnhappyCustomer } from './UnhappyCustomer.ts'
 export type { User } from './User.ts'
 export type { UserArray } from './UserArray.ts'
 export type {
-  CreateUserMutationRequest,
+  CreateUserData,
   CreateUserRequestConfig,
   CreateUserResponse,
   CreateUserResponses,
   CreateUserStatusDefault,
 } from './userController/CreateUser.ts'
 export type {
-  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputData,
   CreateUsersWithListInputRequestConfig,
   CreateUsersWithListInputResponse,
   CreateUsersWithListInputResponses,
@@ -143,7 +143,7 @@ export type {
 } from './userController/LoginUser.ts'
 export type { LogoutUserRequestConfig } from './userController/LogoutUser.ts'
 export type {
-  UpdateUserMutationRequest,
+  UpdateUserData,
   UpdateUserPathUsername,
   UpdateUserRequestConfig,
 } from './userController/UpdateUser.ts'

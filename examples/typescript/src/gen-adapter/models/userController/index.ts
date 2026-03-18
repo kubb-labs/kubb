@@ -1,12 +1,12 @@
 export type {
-  CreateUserMutationRequest,
+  CreateUserData,
   CreateUserRequestConfig,
   CreateUserResponse,
   CreateUserResponses,
   CreateUserStatusDefault,
 } from './CreateUser.ts'
 export type {
-  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputData,
   CreateUsersWithListInputRequestConfig,
   CreateUsersWithListInputResponse,
   CreateUsersWithListInputResponses,
@@ -33,7 +33,7 @@ export type {
 } from './LoginUser.ts'
 export type { LogoutUserRequestConfig } from './LogoutUser.ts'
 export type {
-  UpdateUserMutationRequest,
+  UpdateUserData,
   UpdateUserPathUsername,
   UpdateUserRequestConfig,
 } from './UpdateUser.ts'

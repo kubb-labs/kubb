@@ -11,10 +11,10 @@ export type createPetsStatusDefault = object
 /**
  * @description Pet to add
  */
-export type createPetsMutationRequest = object
+export type createPetsData = object
 
 export type createPetsRequestConfig = {
-  data?: createPetsMutationRequest
+  data?: createPetsData
   pathParams?: never
   queryParams?: never
   headerParams?: never

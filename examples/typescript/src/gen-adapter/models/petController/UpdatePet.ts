@@ -5,10 +5,10 @@ import type { Pet } from '../Pet.ts'
  */
 export type UpdatePetStatus200 = Pet
 
-export type UpdatePetMutationRequest = Pet
+export type UpdatePetData = Pet
 
 export interface UpdatePetRequestConfig {
-  data?: UpdatePetMutationRequest
+  data?: UpdatePetData
   pathParams?: never
   queryParams?: never
   headerParams?: never

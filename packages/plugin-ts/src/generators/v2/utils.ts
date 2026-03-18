@@ -58,7 +58,7 @@ export function buildDataSchemaNode({ node, resolveName }: BuildOperationSchemaO
         schema: node.requestBody
           ? createSchema({
               type: 'ref',
-              name: resolveName({ name: `${node.operationId} MutationRequest`, type: 'function' }),
+              name: resolveName({ name: `${node.operationId} Data`, type: 'function' }),
               optional: true,
             })
           : createSchema({ type: 'never', optional: true }),

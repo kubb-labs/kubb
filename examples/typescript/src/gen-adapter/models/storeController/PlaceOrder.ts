@@ -8,10 +8,10 @@ export type PlaceOrderStatus200 = Order
 /**
  * @description Order description
  */
-export type PlaceOrderMutationRequest = Order
+export type PlaceOrderData = Order
 
 export interface PlaceOrderRequestConfig {
-  data?: PlaceOrderMutationRequest
+  data?: PlaceOrderData
   pathParams?: never
   queryParams?: never
   headerParams?: never

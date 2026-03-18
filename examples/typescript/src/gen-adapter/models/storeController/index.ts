@@ -16,14 +16,14 @@ export type {
   GetOrderByIdStatus200,
 } from './GetOrderById.ts'
 export type {
-  PlaceOrderMutationRequest,
+  PlaceOrderData,
   PlaceOrderRequestConfig,
   PlaceOrderResponse,
   PlaceOrderResponses,
   PlaceOrderStatus200,
 } from './PlaceOrder.ts'
 export type {
-  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchData,
   PlaceOrderPatchRequestConfig,
   PlaceOrderPatchResponse,
   PlaceOrderPatchResponses,

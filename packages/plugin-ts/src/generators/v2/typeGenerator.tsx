@@ -87,8 +87,8 @@ export const typeGenerator = defineGenerator<PluginTs>({
     const requestType = node.requestBody
       ? renderSchemaType({
           node: node.requestBody,
-          name: resolveName({ name: `${node.operationId} MutationRequest`, type: 'function' }),
-          typedName: resolveName({ name: `${node.operationId} MutationRequest`, type: 'type' }),
+          name: resolveName({ name: `${node.operationId} Data`, type: 'function' }),
+          typedName: resolveName({ name: `${node.operationId} Data`, type: 'type' }),
           description: node.requestBody.description,
         })
       : null

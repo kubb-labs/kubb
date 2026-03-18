@@ -5,10 +5,10 @@ import type { Order } from '../Order.ts'
  */
 export type PlaceOrderPatchStatus200 = Order
 
-export type PlaceOrderPatchMutationRequest = Order
+export type PlaceOrderPatchData = Order
 
 export interface PlaceOrderPatchRequestConfig {
-  data?: PlaceOrderPatchMutationRequest
+  data?: PlaceOrderPatchData
   pathParams?: never
   queryParams?: never
   headerParams?: never

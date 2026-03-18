@@ -20,10 +20,10 @@ export interface AddPetStatus405 {
   message?: string
 }
 
-export type AddPetMutationRequest = AddPetRequest
+export type AddPetData = AddPetRequest
 
 export interface AddPetRequestConfig {
-  data?: AddPetMutationRequest
+  data?: AddPetData
   pathParams?: never
   queryParams?: never
   headerParams?: never

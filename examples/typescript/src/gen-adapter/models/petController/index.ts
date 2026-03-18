@@ -1,5 +1,5 @@
 export type {
-  AddPetMutationRequest,
+  AddPetData,
   AddPetRequestConfig,
   AddPetResponse,
   AddPetResponses,
@@ -36,7 +36,7 @@ export type {
   GetPetByIdStatus200,
 } from './GetPetById.ts'
 export type {
-  UpdatePetMutationRequest,
+  UpdatePetData,
   UpdatePetRequestConfig,
   UpdatePetResponse,
   UpdatePetResponses,
@@ -49,7 +49,7 @@ export type {
   UpdatePetWithFormRequestConfig,
 } from './UpdatePetWithForm.ts'
 export type {
-  UploadFileMutationRequest,
+  UploadFileData,
   UploadFilePathPetId,
   UploadFileQueryAdditionalMetadata,
   UploadFileRequestConfig,

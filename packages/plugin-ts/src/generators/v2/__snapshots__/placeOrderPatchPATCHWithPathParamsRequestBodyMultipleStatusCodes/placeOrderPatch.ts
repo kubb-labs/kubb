@@ -13,10 +13,10 @@ export type placeOrderPatchStatus405 = object
 /**
  * @description Order payload
  */
-export type placeOrderPatchMutationRequest = object
+export type placeOrderPatchData = object
 
 export type placeOrderPatchRequestConfig = {
-  data?: placeOrderPatchMutationRequest
+  data?: placeOrderPatchData
   pathParams: {
     orderId: placeOrderPatchPathOrderId
   }

@@ -5,10 +5,10 @@ import type { User } from '../User.ts'
  */
 export type CreateUsersWithListInputStatus200 = User
 
-export type CreateUsersWithListInputMutationRequest = User[]
+export type CreateUsersWithListInputData = User[]
 
 export interface CreateUsersWithListInputRequestConfig {
-  data?: CreateUsersWithListInputMutationRequest
+  data?: CreateUsersWithListInputData
   pathParams?: never
   queryParams?: never
   headerParams?: never
