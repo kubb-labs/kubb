@@ -3,11 +3,11 @@ import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
 import { buildOperation } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
+import ts, { factory } from 'typescript'
 import { beforeEach, describe, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
-import ts, { factory } from "typescript"
 
 describe('typeGenerator v2 — Operation', () => {
   const fabric = createReactFabric()
