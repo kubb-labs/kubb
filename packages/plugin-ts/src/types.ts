@@ -63,6 +63,8 @@ export type Options = {
   /**
    * Set a suffix for the generated enums.
    * @default 'enum'
+   * @deprecated Set `enumSuffix` on the adapter (`adapterOas({ enumSuffix })`) instead.
+   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
    */
   enumSuffix?: string
   /**
@@ -70,6 +72,8 @@ export type Options = {
    * - 'string' represents dates as string values.
    * - 'date' represents dates as JavaScript Date objects.
    * @default 'string'
+   * @deprecated Set `dateType` on the adapter (`adapterOas({ dateType })`) instead.
+   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
    */
   dateType?: 'string' | 'date'
   /**
@@ -78,6 +82,8 @@ export type Options = {
    * - 'bigint' uses the TypeScript `bigint` type (accurate for values exceeding Number.MAX_SAFE_INTEGER).
    * @note in v5 of Kubb 'bigint' will become the default to better align with OpenAPI's int64 specification.
    * @default 'number'
+   * @deprecated Set `integerType` on the adapter (`adapterOas({ integerType })`) instead.
+   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
    */
   integerType?: 'number' | 'bigint'
   /**
@@ -86,6 +92,8 @@ export type Options = {
    * - 'unknown' requires type narrowing before use.
    * - 'void' represents no value.
    * @default 'any'
+   * @deprecated Set `unknownType` on the adapter (`adapterOas({ unknownType })`) instead.
+   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
    */
   unknownType?: 'any' | 'unknown' | 'void'
   /**
@@ -94,6 +102,8 @@ export type Options = {
    * - 'unknown' requires type narrowing before use.
    * - 'void' represents no value.
    * @default `unknownType`
+   * @deprecated Set `emptySchemaType` on the adapter (`adapterOas({ emptySchemaType })`) instead.
+   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
    */
   emptySchemaType?: 'any' | 'unknown' | 'void'
   /**
