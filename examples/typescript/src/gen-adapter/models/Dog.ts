@@ -1,0 +1,11 @@
+export interface Dog {
+  /**
+   * @minLength 1
+   * @type string | undefined
+   */
+  readonly type?: string
+  /**
+   * @type string | undefined
+   */
+  bark?: string
+}

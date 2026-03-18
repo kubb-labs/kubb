@@ -1,0 +1,36 @@
+import type { Category } from './Category.ts'
+import type { Tag } from './Tag.ts'
+
+export enum AddPetRequestStatusEnum {
+  available = 'available',
+  pending = 'pending',
+  sold = 'sold',
+  'in store' = 'in store',
+}
+
+export interface AddPetRequest {
+  /**
+   * @example 10
+   * @type integer | undefined
+   */
+  id?: number
+  /**
+   * @example doggie
+   * @type string
+   */
+  name: string
+  category?: Category
+  /**
+   * @type array
+   */
+  photoUrls: string[]
+  /**
+   * @type array | undefined
+   */
+  tags?: Tag[]
+  /**
+   * @description pet status in the store
+   * @type string | undefined
+   */
+  status?: AddPetRequestStatusEnum
+}
