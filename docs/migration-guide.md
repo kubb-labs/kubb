@@ -37,7 +37,7 @@ export default defineConfig({
 
 ### `mapper` removed from `@kubb/plugin-ts`
 
-The `mapper` option has been removed from `@kubb/plugin-ts`. This option allowed overriding specific TypeScript property signatures by name. If you were using `mapper`, you should use a custom [generator](/plugins/plugin-ts#generators) instead to transform the generated output.
+The `mapper` option has been removed from `@kubb/plugin-ts`. This option allowed overriding specific TypeScript property signatures by name. A new `transform` option will be introduced in v5 that provides a more powerful way to transform the generated AST nodes (`schemaNode` and `operationNode`).
 
 ::: code-group
 ```typescript [Before]
@@ -60,13 +60,13 @@ export default defineConfig({
 })
 ```
 
-```typescript [After]
+```typescript [After (v5)]
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   plugins: [
     pluginTs({
-      // Use a custom generator to transform the output
+      // Use the new transform option (coming in v5) to transform schemaNode and operationNode
     }),
   ],
 })
