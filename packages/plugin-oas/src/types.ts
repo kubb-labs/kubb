@@ -224,7 +224,7 @@ export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | ByContentType 
 export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
 
 export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName | ByContentType) & {
-  options: Partial<TOptions>
+  options: Omit<Partial<TOptions>, 'override'>
 }
 
 type ResolvedOptions = Options & {
