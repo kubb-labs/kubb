@@ -52,7 +52,7 @@ export default defineConfig([
             },
           },
         ],
-        enumType: 'enum',
+        enumType: 'constEnum',
         syntaxType: 'interface',
       }),
     ],

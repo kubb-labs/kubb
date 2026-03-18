@@ -31,85 +31,85 @@ describe('printerTs', () => {
 
   describe('scalar types', () => {
     it('any', async () => {
-      const result = printer.print(createSchema({ type: 'any' }))
+      const result = printer.printType(createSchema({ type: 'any' }))
 
       expect(await formatTS(result)).toBe('any')
     })
 
     it('unknown', async () => {
-      const result = printer.print(createSchema({ type: 'unknown' }))
+      const result = printer.printType(createSchema({ type: 'unknown' }))
 
       expect(await formatTS(result)).toBe('unknown')
     })
 
     it('void', async () => {
-      const result = printer.print(createSchema({ type: 'void' }))
+      const result = printer.printType(createSchema({ type: 'void' }))
 
       expect(await formatTS(result)).toBe('void')
     })
 
     it('boolean', async () => {
-      const result = printer.print(createSchema({ type: 'boolean' }))
+      const result = printer.printType(createSchema({ type: 'boolean' }))
 
       expect(await formatTS(result)).toBe('boolean')
     })
 
     it('null', async () => {
-      const result = printer.print(createSchema({ type: 'null' }))
+      const result = printer.printType(createSchema({ type: 'null' }))
 
       expect(await formatTS(result)).toBe('null')
     })
 
     it('string', async () => {
-      const result = printer.print(createSchema({ type: 'string' }))
+      const result = printer.printType(createSchema({ type: 'string' }))
 
       expect(await formatTS(result)).toBe('string')
     })
 
     it('uuid', async () => {
-      const result = printer.print(createSchema({ type: 'uuid' }))
+      const result = printer.printType(createSchema({ type: 'uuid' }))
 
       expect(await formatTS(result)).toBe('string')
     })
 
     it('email', async () => {
-      const result = printer.print(createSchema({ type: 'email' }))
+      const result = printer.printType(createSchema({ type: 'email' }))
 
       expect(await formatTS(result)).toBe('string')
     })
 
     it('url', async () => {
-      const result = printer.print(createSchema({ type: 'url' }))
+      const result = printer.printType(createSchema({ type: 'url' }))
 
       expect(await formatTS(result)).toBe('string')
     })
 
     it('datetime', async () => {
-      const result = printer.print(createSchema({ type: 'datetime' }))
+      const result = printer.printType(createSchema({ type: 'datetime' }))
 
       expect(await formatTS(result)).toBe('string')
     })
 
     it('number', async () => {
-      const result = printer.print(createSchema({ type: 'number' }))
+      const result = printer.printType(createSchema({ type: 'number' }))
 
       expect(await formatTS(result)).toBe('number')
     })
 
     it('integer', async () => {
-      const result = printer.print(createSchema({ type: 'integer' }))
+      const result = printer.printType(createSchema({ type: 'integer' }))
 
       expect(await formatTS(result)).toBe('number')
     })
 
     it('bigint', async () => {
-      const result = printer.print(createSchema({ type: 'bigint' }))
+      const result = printer.printType(createSchema({ type: 'bigint' }))
 
       expect(await formatTS(result)).toBe('bigint')
     })
 
     it('blob', async () => {
-      const result = printer.print(createSchema({ type: 'blob' }))
+      const result = printer.printType(createSchema({ type: 'blob' }))
 
       expect(await formatTS(result)).toBe('Blob')
     })
@@ -117,25 +117,25 @@ describe('printerTs', () => {
 
   describe('date / time', () => {
     it('date with representation=date returns Date', async () => {
-      const result = printer.print(createSchema({ type: 'date', representation: 'date' }))
+      const result = printer.printType(createSchema({ type: 'date', representation: 'date' }))
 
       expect(await formatTS(result)).toBe('Date')
     })
 
     it('date without date representation returns string', async () => {
-      const result = printer.print(createSchema({ type: 'date', representation: 'string' }))
+      const result = printer.printType(createSchema({ type: 'date', representation: 'string' }))
 
       expect(await formatTS(result)).toBe('string')
     })
 
     it('time with representation=date returns Date', async () => {
-      const result = printer.print(createSchema({ type: 'time', representation: 'date' }))
+      const result = printer.printType(createSchema({ type: 'time', representation: 'date' }))
 
       expect(await formatTS(result)).toBe('Date')
     })
 
     it('time without date representation returns string', async () => {
-      const result = printer.print(createSchema({ type: 'time', representation: 'string' }))
+      const result = printer.printType(createSchema({ type: 'time', representation: 'string' }))
 
       expect(await formatTS(result)).toBe('string')
     })
@@ -143,13 +143,13 @@ describe('printerTs', () => {
 
   describe('ref', () => {
     it('ref with name returns type reference', async () => {
-      const result = printer.print(createSchema({ type: 'ref', name: 'MyType' }))
+      const result = printer.printType(createSchema({ type: 'ref', name: 'MyType' }))
 
       expect(await formatTS(result)).toBe('MyType')
     })
 
     it('ref without name returns undefined', () => {
-      const result = printer.print(createSchema({ type: 'ref' }))
+      const result = printer.printType(createSchema({ type: 'ref' }))
 
       expect(result).toBeUndefined()
     })
@@ -157,13 +157,13 @@ describe('printerTs', () => {
 
   describe('enum', () => {
     it('inlineLiteral (default) renders literal union', async () => {
-      const result = printer.print(createSchema({ type: 'enum', enumValues: ['a', 'b', 'c'] }))
+      const result = printer.printType(createSchema({ type: 'enum', enumValues: ['a', 'b', 'c'] }))
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`"'a' | 'b' | 'c'"`)
     })
 
     it('inlineLiteral with mixed types', async () => {
-      const result = printer.print(createSchema({ type: 'enum', enumValues: ['x', 1, true] }))
+      const result = printer.printType(createSchema({ type: 'enum', enumValues: ['x', 1, true] }))
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`"'x' | 1 | true"`)
     })
@@ -211,7 +211,7 @@ describe('printerTs', () => {
     })
 
     it('namedEnumValues are used when provided', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'enum',
           namedEnumValues: [
@@ -225,7 +225,7 @@ describe('printerTs', () => {
     })
 
     it('namedEnumValues take precedence over enumValues', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'enum',
           namedEnumValues: [{ name: 'Yes', value: 1, format: 'number' }],
@@ -239,7 +239,7 @@ describe('printerTs', () => {
 
   describe('union', () => {
     it('renders a union of members', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'union',
           members: [createSchema({ type: 'string' }), createSchema({ type: 'number' })],
@@ -250,7 +250,7 @@ describe('printerTs', () => {
     })
 
     it('renders nested union', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'union',
           members: [
@@ -264,7 +264,7 @@ describe('printerTs', () => {
     })
 
     it('renders string & {} when union has string literal and plain string', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'union',
           members: [createSchema({ type: 'enum', enumType: 'string', enumValues: ['test'] }), createSchema({ type: 'email' })],
@@ -277,7 +277,7 @@ describe('printerTs', () => {
 
   describe('intersection', () => {
     it('renders an intersection of members', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'intersection',
           members: [
@@ -299,7 +299,7 @@ describe('printerTs', () => {
 
   describe('array', () => {
     it('arrayType=array renders T[]', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'array',
           items: [createSchema({ type: 'string' })],
@@ -322,7 +322,7 @@ describe('printerTs', () => {
     })
 
     it('renders array with multiple item types as union', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'array',
           items: [createSchema({ type: 'string' }), createSchema({ type: 'number' })],
@@ -335,7 +335,7 @@ describe('printerTs', () => {
 
   describe('tuple', () => {
     it('renders a basic tuple', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'tuple',
           items: [createSchema({ type: 'string' }), createSchema({ type: 'number' })],
@@ -346,7 +346,7 @@ describe('printerTs', () => {
     })
 
     it('renders tuple with rest element', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'tuple',
           items: [createSchema({ type: 'string' })],
@@ -358,7 +358,7 @@ describe('printerTs', () => {
     })
 
     it('renders tuple with min — optional items after min', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'tuple',
           items: [createSchema({ type: 'string' }), createSchema({ type: 'number' }), createSchema({ type: 'boolean' })],
@@ -370,7 +370,7 @@ describe('printerTs', () => {
     })
 
     it('renders tuple with max — items truncated to max', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'tuple',
           items: [createSchema({ type: 'string' }), createSchema({ type: 'number' }), createSchema({ type: 'boolean' })],
@@ -382,7 +382,7 @@ describe('printerTs', () => {
     })
 
     it('renders tuple with max and rest — fills up to max with rest type', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'tuple',
           items: [createSchema({ type: 'string' })],
@@ -397,13 +397,13 @@ describe('printerTs', () => {
 
   describe('object', () => {
     it('empty object returns object keyword', async () => {
-      const result = printer.print(createSchema({ type: 'object' }))
+      const result = printer.printType(createSchema({ type: 'object' }))
 
       expect(await formatTS(result)).toBe('object')
     })
 
     it('renders object with properties', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'object',
           properties: [
@@ -422,7 +422,7 @@ describe('printerTs', () => {
     })
 
     it('optional property with optionalType=questionToken', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'object',
           properties: [createProperty({ name: 'tag', schema: createSchema({ type: 'string', optional: true }) })],
@@ -469,7 +469,7 @@ describe('printerTs', () => {
     })
 
     it('nullable property adds | null', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'object',
           properties: [createProperty({ name: 'value', schema: createSchema({ type: 'string', nullable: true }) })],
@@ -484,7 +484,7 @@ describe('printerTs', () => {
     })
 
     it('readonly property', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'object',
           properties: [createProperty({ name: 'id', schema: createSchema({ type: 'number', readOnly: true }) })],
@@ -499,7 +499,7 @@ describe('printerTs', () => {
     })
 
     it('additionalProperties=true adds index signature of unknown', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'object',
           properties: [],
@@ -515,7 +515,7 @@ describe('printerTs', () => {
     })
 
     it('additionalProperties as SchemaNode adds typed index signature', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'object',
           properties: [],
@@ -531,7 +531,7 @@ describe('printerTs', () => {
     })
 
     it('additionalProperties with existing properties uses unknown for index', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'object',
           properties: [createProperty({ name: 'id', schema: createSchema({ type: 'number' }) })],
@@ -548,7 +548,7 @@ describe('printerTs', () => {
     })
 
     it('patternProperties adds index signature', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'object',
           properties: [],
@@ -564,7 +564,7 @@ describe('printerTs', () => {
     })
 
     it('patternProperties with nullable adds | null to index type', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'object',
           properties: [],
@@ -580,7 +580,7 @@ describe('printerTs', () => {
     })
 
     it('nullish property with optionalType=questionToken adds ?', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'object',
           properties: [createProperty({ name: 'tag', schema: createSchema({ type: 'string', nullish: true }) })],
@@ -611,7 +611,7 @@ describe('printerTs', () => {
     })
 
     it('property with description adds @description JSDoc comment', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'object',
           properties: [createProperty({ name: 'name', schema: createSchema({ type: 'string', description: 'The user name' }) })],
@@ -624,7 +624,7 @@ describe('printerTs', () => {
     })
 
     it('property with deprecated flag adds @deprecated JSDoc comment', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'object',
           properties: [createProperty({ name: 'oldField', schema: createSchema({ type: 'string', deprecated: true }) })],
@@ -637,7 +637,7 @@ describe('printerTs', () => {
     })
 
     it('property with min/max adds @minLength/@maxLength JSDoc comments', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'object',
           properties: [createProperty({ name: 'code', schema: createSchema({ type: 'string', min: 2, max: 10 }) })],
@@ -651,7 +651,7 @@ describe('printerTs', () => {
     })
 
     it('property with default adds @default JSDoc comment', async () => {
-      const result = printer.print(
+      const result = printer.printType(
         createSchema({
           type: 'object',
           properties: [createProperty({ name: 'count', schema: createSchema({ type: 'number', default: 0 }) })],

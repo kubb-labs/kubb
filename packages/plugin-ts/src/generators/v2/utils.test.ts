@@ -17,8 +17,10 @@ const tsPrinter = ts.createPrinter()
 const sourceFile = ts.createSourceFile('', '', ts.ScriptTarget.Latest)
 
 function printSchema(schema: ReturnType<typeof buildParamsSchema>): string {
-  const node = printer.print(schema)
+  const node = printer.printType(schema)
+
   if (!node) return ''
+
   return tsPrinter.printNode(ts.EmitHint.Unspecified, node, sourceFile)
 }
 
