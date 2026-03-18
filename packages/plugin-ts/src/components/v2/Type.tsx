@@ -48,10 +48,10 @@ export function Type({
     return
   }
 
-  const enums = [...new Map(enumSchemaNodes.map((n) => [n.name, n])).values()].map((enumSchemaNode) => {
+  const enums = [...new Map(enumSchemaNodes.map((n) => [n.name, n])).values()].map((node) => {
     return {
-      enumSchemaNode,
-      ...getEnumNames(enumSchemaNode, enumType),
+      node,
+      ...getEnumNames(node, enumType),
     }
   })
 
@@ -61,7 +61,7 @@ export function Type({
 
   return (
     <>
-      {shouldExportEnums && enums.map(({ enumSchemaNode }) => <Enum enumSchemaNode={enumSchemaNode} enumType={enumType} enumKeyCasing={enumKeyCasing} />)}
+      {shouldExportEnums && enums.map(({ node }) => <Enum node={node} enumType={enumType} enumKeyCasing={enumKeyCasing} />)}
       {shouldExportType && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
           {safePrint(typeNode)}
