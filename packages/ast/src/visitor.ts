@@ -2,6 +2,10 @@ import type { VisitorDepth } from './constants.ts'
 import { visitorDepths, WALK_CONCURRENCY } from './constants.ts'
 import type { Node, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode } from './nodes/index.ts'
 
+/**
+ * Creates a concurrency-limiting wrapper. At most `concurrency` promises may be
+ * in-flight simultaneously; additional calls are queued and dispatched as slots free.
+ */
 function createLimit(concurrency: number) {
   let active = 0
   const queue: Array<() => void> = []
@@ -81,7 +85,10 @@ export type CollectVisitor<T> = {
 }
 
 /**
- * Traversable children of `node`, respecting `recurse` for schema nodes.
+ * Returns the immediate traversable children of `node`.
+ *
+ * For `Schema` nodes, children (properties, items, members) are only included
+ * when `recurse` is `true`; shallow traversal omits them entirely.
  */
 function getChildren(node: Node, recurse: boolean): Array<Node> {
   switch (node.kind) {
@@ -119,6 +126,9 @@ export async function walk(node: Node, visitor: AsyncVisitor, options: VisitorOp
   return _walk(node, visitor, recurse, limit)
 }
 
+/**
+ * Internal recursive walk implementation — calls visitor then recurses into children.
+ */
 async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit: LimitFn): Promise<void> {
   switch (node.kind) {
     case 'Root':
