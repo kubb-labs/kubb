@@ -5,7 +5,7 @@ import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import type ts from 'typescript'
 import * as factory from './factory.ts'
-import type {PluginTs} from "./types.ts";
+import type { PluginTs } from './types.ts'
 
 type TsOptions = {
   /**
@@ -28,7 +28,7 @@ type TsOptions = {
   /**
    * Custom property signatures that override specific object properties by name.
    */
-  mapper?:  PluginTs['resolvedOptions']['mapper']
+  mapper?: PluginTs['resolvedOptions']['mapper']
   /**
    * When set, `printer.print(node)` produces a full `type Name = …` declaration.
    * When omitted, `printer.print(node)` returns the raw type node.
