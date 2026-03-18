@@ -5,7 +5,7 @@ import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import type ts from 'typescript'
 import * as factory from './factory.ts'
-import type {PluginTs} from "./types.ts";
+import type { PluginTs } from './types.ts'
 
 type TsOptions = {
   /**
@@ -28,7 +28,7 @@ type TsOptions = {
   /**
    * Custom property signatures that override specific object properties by name.
    */
-  mapper?:  PluginTs['resolvedOptions']['mapper']
+  mapper?: PluginTs['resolvedOptions']['mapper']
   /**
    * When set, `printer.print(node)` produces a full `type Name = …` declaration.
    * When omitted, `printer.print(node)` returns the raw type node.
@@ -50,6 +50,10 @@ type TsOptions = {
  * TypeScript printer factory options: maps `SchemaNode` → `ts.TypeNode` (raw) or `ts.Node` (full declaration).
  */
 type TsPrinter = PrinterFactoryOptions<'typescript', TsOptions, ts.TypeNode, ts.Node>
+
+const OPTIONAL_ADDS_UNDEFINED = new Set<TsOptions['optionalType']>(['undefined', 'questionTokenAndUndefined'])
+const OPTIONAL_ADDS_QUESTION_TOKEN = new Set<TsOptions['optionalType']>(['questionToken', 'questionTokenAndUndefined'])
+const ENUM_TYPES_WITH_KEY_SUFFIX = new Set<TsOptions['enumType']>(['asConst', 'asPascalConst'])
 
 /**
  * Converts a primitive const value to a TypeScript literal type node.
@@ -114,7 +118,7 @@ function buildTupleNode(node: ArraySchemaNode, print: (node: SchemaNode) => ts.T
  * Applies `nullable` and optional/nullish `| undefined` union modifiers to a property's resolved base type.
  */
 function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalType: TsOptions['optionalType']): ts.TypeNode {
-  const addsUndefined = ['undefined', 'questionTokenAndUndefined'].includes(optionalType)
+  const addsUndefined = OPTIONAL_ADDS_UNDEFINED.has(optionalType)
 
   let type = baseType
 
@@ -206,7 +210,7 @@ function buildIndexSignatures(
  * ```
  */
 export const printerTs = definePrinter<TsPrinter>((options) => {
-  const addsUndefined = ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType)
+  const addsUndefined = OPTIONAL_ADDS_UNDEFINED.has(options.optionalType)
 
   return {
     name: 'typescript',
@@ -232,8 +236,8 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
       number: () => factory.keywordTypeNodes.number,
       integer: () => factory.keywordTypeNodes.number,
       bigint: () => factory.keywordTypeNodes.bigint,
-      date: (node) => dateOrStringNode(node),
-      time: (node) => dateOrStringNode(node),
+      date: dateOrStringNode,
+      time: dateOrStringNode,
       ref(node) {
         if (!node.name) {
           return undefined
@@ -246,14 +250,14 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         if (this.options.enumType === 'inlineLiteral' || !node.name) {
           const literalNodes = values
             .filter((v): v is string | number | boolean => v !== null)
-            .map((value) => constToTypeNode(value, typeof value === 'number' ? 'number' : typeof value === 'boolean' ? 'boolean' : 'string'))
+            .map((value) => constToTypeNode(value, typeof value as 'string' | 'number' | 'boolean'))
             .filter(Boolean)
 
           return factory.createUnionDeclaration({ withParentheses: true, nodes: literalNodes }) ?? undefined
         }
 
         const resolvedName = pascalCase(node.name)
-        const typeName = ['asConst', 'asPascalConst'].includes(this.options.enumType) ? `${resolvedName}Key` : resolvedName
+        const typeName = ENUM_TYPES_WITH_KEY_SUFFIX.has(this.options.enumType) ? `${resolvedName}Key` : resolvedName
 
         return factory.createTypeReferenceNode(typeName, undefined)
       },
@@ -264,7 +268,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         const hasPlainString = members.some((m) => isPlainStringType(m))
 
         if (hasStringLiteral && hasPlainString) {
-          const nodes = members
+          const memberNodes = members
             .map((m) => {
               if (isPlainStringType(m)) {
                 return factory.createIntersectionDeclaration({
@@ -277,7 +281,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
             })
             .filter(Boolean)
 
-          return factory.createUnionDeclaration({ withParentheses: true, nodes }) ?? undefined
+          return factory.createUnionDeclaration({ withParentheses: true, nodes: memberNodes }) ?? undefined
         }
 
         return factory.createUnionDeclaration({ withParentheses: true, nodes: buildMemberNodes(members, this.print) }) ?? undefined
@@ -294,16 +298,16 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         return buildTupleNode(node, this.print)
       },
       object(node) {
-        const addsQuestionToken = ['questionToken', 'questionTokenAndUndefined'].includes(this.options.optionalType)
-        const { print } = this
+        const { print, options } = this
+        const addsQuestionToken = OPTIONAL_ADDS_QUESTION_TOKEN.has(options.optionalType)
 
         const propertyNodes: Array<ts.TypeElement> = node.properties.map((prop) => {
-          if (this.options.mapper && Object.hasOwn(this.options.mapper, prop.name)) {
-            return this.options.mapper[prop.name]!
+          if (options.mapper && Object.hasOwn(options.mapper, prop.name)) {
+            return options.mapper[prop.name] ?? factory.keywordTypeNodes.unknown
           }
 
           const baseType = print(prop.schema) ?? factory.keywordTypeNodes.unknown
-          const type = buildPropertyType(prop.schema, baseType, this.options.optionalType)
+          const type = buildPropertyType(prop.schema, baseType, options.optionalType)
 
           const propertyNode = factory.createPropertySignature({
             questionToken: prop.schema.optional || prop.schema.nullish ? addsQuestionToken : false,
@@ -347,7 +351,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
       }
 
       const useTypeGeneration =
-        syntaxType === 'type' || [factory.syntaxKind.union].includes(type.kind as typeof factory.syntaxKind.union) || !!keysToOmit?.length
+        syntaxType === 'type' || type.kind === factory.syntaxKind.union || !!keysToOmit?.length
 
       return factory.createTypeDeclaration({
         name: typeName,
@@ -361,7 +365,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
           : type,
         syntax: useTypeGeneration ? 'type' : 'interface',
         comments: [
-          node?.title ? `${jsStringEscape(node.title)}` : undefined,
+          node?.title ? jsStringEscape(node.title) : undefined,
           description ? `@description ${jsStringEscape(description)}` : undefined,
           node?.deprecated ? '@deprecated' : undefined,
           node && 'min' in node && node.min !== undefined ? `@minLength ${node.min}` : undefined,
