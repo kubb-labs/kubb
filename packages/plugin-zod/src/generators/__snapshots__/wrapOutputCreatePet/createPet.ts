@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 import { z } from '@hono/zod-openapi'
+import { error } from '../createPet'
 
 /**
  * @description Null response

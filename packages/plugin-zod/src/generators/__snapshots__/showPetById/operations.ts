@@ -3,21 +3,18 @@
  * Do not edit manually.
  */
 import type * as z from 'zod'
+import { deletePet400, deletePetMutationResponse, deletePetPathParams, deletePetHeaderParams } from './pet/showPetById'
 import {
   createPetsMutationRequest,
   createPets201,
   createPetsMutationResponse,
-  deletePet400,
-  deletePetMutationResponse,
-  deletePetPathParams,
-  deletePetHeaderParams,
   listPets200,
   listPetsQueryResponse,
   listPetsQueryParams,
   showPetById200,
   showPetByIdQueryResponse,
   showPetByIdPathParams,
-} from './showPetById'
+} from './pets/showPetById'
 
 export type OperationSchema = {
   readonly request: z.ZodTypeAny | undefined

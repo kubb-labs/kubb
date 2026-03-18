@@ -4,7 +4,7 @@ import type { Config } from '@kubb/core'
 import { buildOperation } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import ts, { factory } from 'typescript'
-import { beforeEach, describe, test } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
@@ -187,5 +187,110 @@ describe('typeGenerator v2 — Operation', () => {
     })
 
     await matchFiles(fabric.files, props.name)
+  })
+})
+
+describe('typeGenerator v2 — Operation — group', () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
+  const defaultOptions: PluginTs['resolvedOptions'] = {
+    enumType: 'asConst',
+    enumKeyCasing: 'none',
+    enumSuffix: '',
+    dateType: 'string',
+    integerType: 'bigint',
+    optionalType: 'questionToken',
+    arrayType: 'array',
+    transformers: {},
+    unknownType: 'any',
+    syntaxType: 'type',
+    override: [],
+    mapper: {},
+    paramsCasing: undefined,
+    output: { path: '.' },
+    group: undefined,
+    emptySchemaType: 'unknown',
+  }
+
+  const node = createOperation({
+    operationId: 'listPets',
+    method: 'GET',
+    path: '/pets',
+    tags: ['pets'],
+    parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+    responses: [
+      createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
+      createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+    ],
+  })
+
+  test('group by tag — file is placed under the tag directory', async () => {
+    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group: { type: 'tag' } }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginManager = createMockedPluginManager({ name: 'listPets' })
+
+    await buildOperation(node, {
+      version: '2',
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      pluginManager: mockedPluginManager,
+      Component: typeGenerator.Operation,
+      plugin,
+      mode: 'split',
+      options,
+    })
+
+    const file = fabric.files.find((f) => f.baseName === 'listPets.ts')
+    expect(file).toBeDefined()
+    expect(file!.path).toBe('pets/listPets.ts')
+  })
+
+  test('group by path — file is placed under the path directory', async () => {
+    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group: { type: 'path' } }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginManager = createMockedPluginManager({ name: 'listPets' })
+
+    await buildOperation(node, {
+      version: '2',
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      pluginManager: mockedPluginManager,
+      Component: typeGenerator.Operation,
+      plugin,
+      mode: 'split',
+      options,
+    })
+
+    const file = fabric.files.find((f) => f.baseName === 'listPets.ts')
+    expect(file).toBeDefined()
+    expect(file!.path).toBe('pets/listPets.ts')
+  })
+
+  test('no group — file is placed flat', async () => {
+    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group: undefined }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginManager = createMockedPluginManager({ name: 'listPets' })
+
+    await buildOperation(node, {
+      version: '2',
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      pluginManager: mockedPluginManager,
+      Component: typeGenerator.Operation,
+      plugin,
+      mode: 'split',
+      options,
+    })
+
+    const file = fabric.files.find((f) => f.baseName === 'listPets.ts')
+    expect(file).toBeDefined()
+    expect(file!.path).toBe('listPets.ts')
   })
 })

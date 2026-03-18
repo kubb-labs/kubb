@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 import { faker } from '@faker-js/faker'
+import { error, pet } from '../showPetById'
 
 export function showPetByIdPathParams(data?: Partial<ShowPetByIdPathParams>): ShowPetByIdPathParams {
   return {

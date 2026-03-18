@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 import { faker } from '@faker-js/faker'
+import { error, pagination, pets } from '../getPets'
 
 export function listPetsQueryParams(data?: Partial<ListPetsQueryParams>): ListPetsQueryParams {
   return {

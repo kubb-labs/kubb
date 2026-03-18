@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 import type { Client, RequestConfig } from './test/.kubb/fetch'
-import { Pet } from './Pet'
-import { Store } from './Store'
-import { User } from './User'
+import { Pet } from './pet/Pet'
+import { Store } from './store/Store'
+import { User } from './user/User'
 
 export class PetStoreClient {
   readonly pet: Pet

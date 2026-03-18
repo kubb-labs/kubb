@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 import * as z from 'zod'
+import { error, pet } from '../showPetById'
 
 export const showPetByIdPathParams = z.object({
   petId: z.string().describe('The id of the pet to retrieve'),

@@ -11,10 +11,17 @@ export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Operation({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, mapper } = options
+    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, mapper, group } = options
     const { mode, getFile, resolveName } = useKubb<PluginTs>()
 
-    const file = getFile({ name: node.operationId, extname: '.ts', mode })
+    const file = getFile({
+      name: node.operationId,
+      extname: '.ts',
+      mode,
+      options: {
+        group: group ? (group.type === 'tag' ? { tag: node.tags[0] } : { path: node.path }) : undefined,
+      },
+    })
     const params = applyParamsCasing(node.parameters, paramsCasing)
 
     function renderSchemaType({

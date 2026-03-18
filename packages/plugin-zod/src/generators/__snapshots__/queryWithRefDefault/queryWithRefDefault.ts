@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 import * as z from 'zod'
+import { projectType } from '../queryWithRefDefault'
 
 export const projectsGetQueryParams = z.object({
   get type() {

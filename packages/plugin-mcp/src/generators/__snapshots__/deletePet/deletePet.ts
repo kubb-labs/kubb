@@ -1,6 +1,6 @@
-import type { ResponseErrorConfig } from './test/.kubb/fetch'
+import type { ResponseErrorConfig } from '../test/.kubb/fetch'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import { fetch } from './test/.kubb/fetch'
+import { fetch } from '../test/.kubb/fetch'
 
 /**
  * {@link /pets/:petId}

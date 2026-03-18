@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 import * as z from 'zod'
+import { error, pet } from '../getPetsWithQueryFilter'
 
 export const showPetByIdPathParams = z
   .object({

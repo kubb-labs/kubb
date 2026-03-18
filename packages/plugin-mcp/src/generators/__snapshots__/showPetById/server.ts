@@ -13,7 +13,7 @@ import {
   listPetsQueryResponse,
   showPetByIdHandler,
   showPetByIdQueryResponse,
-} from './showPetById'
+} from './pets/showPetById'
 import { z } from 'zod'
 
 export const server = new McpServer({

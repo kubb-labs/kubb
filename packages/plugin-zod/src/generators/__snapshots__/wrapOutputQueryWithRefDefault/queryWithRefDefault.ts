@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 import { z } from '@hono/zod-openapi'
+import { projectType } from '../queryWithRefDefault'
 
 export const projectsGetQueryParams = z.object({
   get type() {

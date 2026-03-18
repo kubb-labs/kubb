@@ -3,6 +3,7 @@
  * Do not edit manually.
  */
 import { z } from '@hono/zod-openapi'
+import { error, pet } from '../showPetById'
 
 export const showPetByIdPathParams = z.object({
   petId: z.string().describe('The id of the pet to retrieve'),
