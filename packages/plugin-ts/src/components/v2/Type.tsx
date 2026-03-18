@@ -16,7 +16,6 @@ type Props = {
   enumType: PluginTs['resolvedOptions']['enumType']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
-  mapper?: PluginTs['resolvedOptions']['mapper']
   description?: string
   keysToOmit?: string[]
 }
@@ -31,7 +30,6 @@ export function Type({
   syntaxType,
   enumType,
   enumKeyCasing,
-  mapper,
   description,
 }: Props): FabricReactNode {
   const resolvedDescription = description || node?.description
@@ -41,7 +39,7 @@ export function Type({
     },
   })
 
-  const printer = printerTs({ optionalType, arrayType, enumType, mapper, typeName: name, syntaxType, description: resolvedDescription, keysToOmit })
+  const printer = printerTs({ optionalType, arrayType, enumType, typeName: name, syntaxType, description: resolvedDescription, keysToOmit })
   const typeNode = printer.print(node)
 
   if (!typeNode) {

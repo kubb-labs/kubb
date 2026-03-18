@@ -314,7 +314,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   Operation({ operation, generator, plugin }) {
     const {
       options,
-      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing },
+      options: { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing },
     } = plugin
 
     const mode = useMode()
@@ -369,7 +369,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
             description={description}
             tree={tree}
             schema={transformedSchema}
-            mapper={mapper}
             enumType={enumType}
             enumKeyCasing={enumKeyCasing}
             optionalType={optionalType}
@@ -416,7 +415,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
   },
   Schema({ schema, plugin }) {
     const {
-      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
+      options: { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
     } = plugin
     const mode = useMode()
 
@@ -457,7 +456,6 @@ export const typeGenerator = createReactGenerator<PluginTs>({
           description={schema.value.description}
           tree={schema.tree}
           schema={schema.value}
-          mapper={mapper}
           enumType={enumType}
           enumKeyCasing={enumKeyCasing}
           optionalType={optionalType}

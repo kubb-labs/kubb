@@ -35,9 +35,47 @@ export default defineConfig({
 })
 ```
 
+### `mapper` removed from `@kubb/plugin-ts`
+
+The `mapper` option has been removed from `@kubb/plugin-ts`. This option allowed overriding specific TypeScript property signatures by name. If you were using `mapper`, you should use a custom [generator](/plugins/plugin-ts#generators) instead to transform the generated output.
+
+::: code-group
+```typescript [Before]
+import { pluginTs } from '@kubb/plugin-ts'
+import ts, { factory } from 'typescript'
+
+export default defineConfig({
+  plugins: [
+    pluginTs({
+      mapper: {
+        category: factory.createPropertySignature(
+          undefined,
+          factory.createIdentifier('category'),
+          factory.createToken(ts.SyntaxKind.QuestionToken),
+          factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+        ),
+      },
+    }),
+  ],
+})
+```
+
+```typescript [After]
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  plugins: [
+    pluginTs({
+      // Use a custom generator to transform the output
+    }),
+  ],
+})
+```
+:::
+
 ---
 
-# Migrating to Kubb v3
+
 
 
 
