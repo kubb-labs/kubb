@@ -61,6 +61,11 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
   print: (node: SchemaNode) => T['printOutput'] | null | undefined
 }
 
+/**
+ * Builder function passed to `definePrinter`. Receives the resolved options and returns the
+ * printer configuration: a unique `name`, the stored `options`, node-level `nodes` handlers,
+ * and an optional root-level `print` override.
+ */
 type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) => {
   name: T['name']
   /**
@@ -83,13 +88,16 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  * from `@kubb/core` — wraps a builder to make options optional and separates raw options
  * from resolved options.
  *
- * The builder may return an optional root-level `print` alongside `nodes`. When present,
- * `printer.print` calls this higher-level function (e.g. to wrap output in a full declaration).
- * Inside it, `this.print(node)` always calls the node-level dispatcher — no infinite recursion.
- * `printer.printType(node)` is always the node-level dispatcher, useful for tests or
- * callers that need the raw type output.
+ * The builder receives resolved options and returns:
+ * - `name` — a unique identifier for the printer
+ * - `options` — options stored on the returned printer instance
+ * - `nodes` — a map of `SchemaType` → handler functions that convert a `SchemaNode` to `TOutput`
+ * - `print` _(optional)_ — a root-level override that becomes the public `printer.print`.
+ *   Inside it, `this.print(node)` still dispatches to the `nodes` map — safe recursion, no infinite loop.
  *
- * @example
+ * When no `print` override is provided, `printer.print` is the node-level dispatcher directly.
+ *
+ * @example Basic usage — Zod schema printer
  * ```ts
  * type ZodPrinter = PrinterFactoryOptions<'zod', { strict?: boolean }, string>
  *
@@ -106,18 +114,16 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  * }))
  * ```
  *
- * With a root-level `print` for declaration wrapping:
- *
- * @example
+ * @example With a root-level `print` override to wrap output in a full declaration
  * ```ts
  * type TsPrinter = PrinterFactoryOptions<'ts', { typeName?: string }, ts.TypeNode, ts.Node>
  *
- * export const tsPrinter = definePrinter<TsPrinter>((options) => ({
+ * export const printerTs = definePrinter<TsPrinter>((options) => ({
  *   name: 'ts',
  *   options,
  *   nodes: { string: () => factory.keywordTypeNodes.string },
  *   print(node) {
- *     const type = this.print(node) // node-level
+ *     const type = this.print(node) // calls the node-level dispatcher
  *     if (!type || !this.options.typeName) return type
  *     return factory.createTypeAliasDeclaration(this.options.typeName, type)
  *   },

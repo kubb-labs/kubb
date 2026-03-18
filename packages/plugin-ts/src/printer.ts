@@ -5,40 +5,56 @@ import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import type ts from 'typescript'
 import * as factory from './factory.ts'
+import type {PluginTs} from "./types.ts";
 
 type TsOptions = {
   /**
    * @default `'questionToken'`
    */
-  optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
+  optionalType: PluginTs['resolvedOptions']['optionalType']
   /**
    * @default `'array'`
    */
-  arrayType: 'array' | 'generic'
+  arrayType: PluginTs['resolvedOptions']['arrayType']
   /**
    * @default `'inlineLiteral'`
    */
-  enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
-  /**
-   * Custom property signatures that override specific object properties by name.
-   */
-  mapper?: Record<string, ts.PropertySignature>
-  /**
-   * When set, `printer.print(node)` produces a full `type Name = …` declaration.
-   * When omitted, `printer.print(node)` returns the raw type node (same as `printType`).
-   */
-  typeName?: string
+  enumType: PluginTs['resolvedOptions']['enumType']
   /**
    * Controls whether a `type` alias or `interface` declaration is emitted.
    * @default `'type'`
    */
-  syntaxType?: 'type' | 'interface'
+  syntaxType?: PluginTs['resolvedOptions']['syntaxType']
+  /**
+   * Custom property signatures that override specific object properties by name.
+   */
+  mapper?:  PluginTs['resolvedOptions']['mapper']
+  /**
+   * When set, `printer.print(node)` produces a full `type Name = …` declaration.
+   * When omitted, `printer.print(node)` returns the raw type node.
+   */
+  typeName?: string
+
+  /**
+   * JSDoc `@description` comment added to the generated type or interface declaration.
+   */
   description?: string
+  /**
+   * Property keys to exclude from the generated type via `Omit<Type, Keys>`.
+   * Forces type-alias syntax even when `syntaxType` is `'interface'`.
+   */
   keysToOmit?: Array<string>
 }
 
+/**
+ * TypeScript printer factory options: maps `SchemaNode` → `ts.TypeNode` (raw) or `ts.Node` (full declaration).
+ */
 type TsPrinter = PrinterFactoryOptions<'typescript', TsOptions, ts.TypeNode, ts.Node>
 
+/**
+ * Converts a primitive const value to a TypeScript literal type node.
+ * Handles negative numbers via a prefix unary expression.
+ */
 function constToTypeNode(value: string | number | boolean, format: 'string' | 'number' | 'boolean'): ts.TypeNode | undefined {
   if (format === 'boolean') {
     return factory.createLiteralTypeNode(value === true ? factory.createTrue() : factory.createFalse())
@@ -52,14 +68,24 @@ function constToTypeNode(value: string | number | boolean, format: 'string' | 'n
   return factory.createLiteralTypeNode(factory.createStringLiteral(String(value)))
 }
 
+/**
+ * Returns a `Date` reference type node when `representation` is `'date'`, otherwise falls back to `string`.
+ */
 function dateOrStringNode(node: { representation?: string }): ts.TypeNode {
   return node.representation === 'date' ? factory.createTypeReferenceNode(factory.createIdentifier('Date')) : factory.keywordTypeNodes.string
 }
 
+/**
+ * Maps an array of `SchemaNode`s through the printer, filtering out `null` and `undefined` results.
+ */
 function buildMemberNodes(members: Array<SchemaNode> | undefined, print: (node: SchemaNode) => ts.TypeNode | null | undefined): Array<ts.TypeNode> {
   return (members ?? []).map(print).filter(Boolean)
 }
 
+/**
+ * Builds a TypeScript tuple type node from an array schema's `items`,
+ * applying min/max slice and optional/rest element rules.
+ */
 function buildTupleNode(node: ArraySchemaNode, print: (node: SchemaNode) => ts.TypeNode | null | undefined): ts.TypeNode | undefined {
   let items = (node.items ?? []).map(print).filter(Boolean)
 
@@ -84,6 +110,9 @@ function buildTupleNode(node: ArraySchemaNode, print: (node: SchemaNode) => ts.T
   return factory.createTupleTypeNode(items)
 }
 
+/**
+ * Applies `nullable` and optional/nullish `| undefined` union modifiers to a property's resolved base type.
+ */
 function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalType: TsOptions['optionalType']): ts.TypeNode {
   const addsUndefined = ['undefined', 'questionTokenAndUndefined'].includes(optionalType)
 
@@ -100,6 +129,9 @@ function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalTy
   return type
 }
 
+/**
+ * Collects JSDoc annotation strings (description, deprecated, min/max, pattern, default, example, type) for a schema node.
+ */
 function buildPropertyJSDocComments(schema: SchemaNode): Array<string | undefined> {
   return [
     'description' in schema && schema.description ? `@description ${jsStringEscape(schema.description)}` : undefined,
@@ -117,6 +149,9 @@ function buildPropertyJSDocComments(schema: SchemaNode): Array<string | undefine
   ]
 }
 
+/**
+ * Creates TypeScript index signatures for `additionalProperties` and `patternProperties` on an object schema node.
+ */
 function buildIndexSignatures(
   node: { additionalProperties?: SchemaNode | boolean; patternProperties?: Record<string, SchemaNode> },
   propertyCount: number,
@@ -148,11 +183,27 @@ function buildIndexSignatures(
 }
 
 /**
- * Converts a `SchemaNode` AST node into a TypeScript `ts.TypeNode` (via `printType`) or a
- * full `type Name = …` declaration (via `print`, when `typeName` is set in options).
+ * TypeScript type printer built with `definePrinter`.
  *
- * Built on `definePrinter` — dispatches on `node.type` per handler in `nodes`,
- * with options closed over per printer instance.
+ * Converts a `SchemaNode` AST node into a TypeScript AST node:
+ * - **`printer.print(node)`** — when `options.typeName` is set, returns a full
+ *   `type Name = …` or `interface Name { … }` declaration (`ts.Node`).
+ *   Without `typeName`, returns the raw `ts.TypeNode` for the schema.
+ *
+ * Dispatches on `node.type` to the appropriate handler in `nodes`. Options are closed
+ * over per printer instance, so each call to `printerTs(options)` produces an independent printer.
+ *
+ * @example Raw type node (no `typeName`)
+ * ```ts
+ * const printer = printerTs({ optionalType: 'questionToken', arrayType: 'array', enumType: 'inlineLiteral' })
+ * const typeNode = printer.print(schemaNode) // ts.TypeNode
+ * ```
+ *
+ * @example Full declaration (with `typeName`)
+ * ```ts
+ * const printer = printerTs({ optionalType: 'questionToken', arrayType: 'array', enumType: 'inlineLiteral', typeName: 'MyType' })
+ * const declaration = printer.print(schemaNode) // ts.TypeAliasDeclaration | ts.InterfaceDeclaration
+ * ```
  */
 export const printerTs = definePrinter<TsPrinter>((options) => {
   const addsUndefined = ['undefined', 'questionTokenAndUndefined'].includes(options.optionalType)
@@ -319,7 +370,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
           node?.default ? `@default ${node.default}` : undefined,
           node?.example ? `@example ${node.example}` : undefined,
         ],
-      }) as unknown as ts.TypeNode
+      })
     },
   }
 })
