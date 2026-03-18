@@ -1,10 +1,10 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Plugin } from '@kubb/core'
+
 import { parse, type SchemaObject } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, test } from 'vitest'
-import { mockedPluginManager } from '#mocks'
+import { createMockedPlugin, mockedPluginManager } from '#mocks'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from './SchemaGenerator.ts'
 import { schemaKeywords } from './SchemaMapper.ts'
 
@@ -141,7 +141,7 @@ describe('SchemaGenerator core', async () => {
       emptySchemaType: 'unknown',
       ...props.options,
     }
-    const plugin = { options } as Plugin<any>
+    const plugin = createMockedPlugin<any>({ name: 'plugin-oas', options })
 
     const generator = new SchemaGenerator(options, {
       fabric,
@@ -343,7 +343,7 @@ describe('SchemaGenerator core', async () => {
       transformers: {},
       unknownType: 'unknown',
     }
-    const plugin = { options } as Plugin<any>
+    const plugin = createMockedPlugin<any>({ name: 'plugin-oas', options })
 
     const generator = new SchemaGenerator(options, {
       fabric,
@@ -423,7 +423,7 @@ describe('SchemaGenerator core', async () => {
       transformers: {},
       unknownType: 'unknown',
     }
-    const plugin = { options } as Plugin<any>
+    const plugin = createMockedPlugin<any>({ name: 'plugin-oas', options })
 
     const generator = new SchemaGenerator(options, {
       fabric,

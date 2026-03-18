@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Config, Plugin } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import type { HttpMethod, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
@@ -8,7 +8,7 @@ import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
 import ts, { factory } from 'typescript'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
 
@@ -693,14 +693,13 @@ describe('typeGenerator schema', async () => {
       group: undefined,
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginTs>
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
 
     const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
       pluginManager: mockedPluginManager,
-
       plugin,
       contentType: 'application/json',
       include: undefined,
@@ -855,7 +854,7 @@ describe('typeGenerator operation', async () => {
       emptySchemaType: 'unknown',
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginTs>
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
     const mockedPluginManager = createMockedPluginManager({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
