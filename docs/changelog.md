@@ -6,6 +6,17 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.6
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/plugin-ts`](/packages/plugin-ts)
+
+-   [#2789](https://github.com/kubb-labs/kubb/pull/2789) [`0aba63f`](https://github.com/kubb-labs/kubb/commit/0aba63f026e7e93bf1057b7a3740bbfe9ee07c00) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Removed the `mapper` option from `@kubb/plugin-ts`. This option was used to override specific TypeScript property signatures by name.
+
+    Developers should use a custom generator to achieve similar transformations in the generated output moving forward.
+
+
 ## 4.36.1
 
 ### ✨ Features
