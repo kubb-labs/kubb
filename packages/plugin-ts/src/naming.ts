@@ -1,7 +1,13 @@
 import { pascalCase } from '@internals/utils'
-import type { OperationNode, ParameterNode } from '@kubb/ast/types'
+import { defineNaming } from '@kubb/core'
+import type { Naming, NamingResolveName } from '@kubb/core'
 
-export type ResolveName = (params: { name: string; type?: 'file' | 'function' | 'type' | 'const' }) => string
+/**
+ * Resolver function for converting a raw name (and optional entity type) into
+ * a string identifier. Alias of `NamingResolveName` from `@kubb/core` exposed
+ * for convenience when importing directly from `@kubb/plugin-ts`.
+ */
+export type ResolveName = NamingResolveName
 
 /**
  * The default `resolveName` used by plugin-ts.
@@ -10,98 +16,55 @@ export type ResolveName = (params: { name: string; type?: 'file' | 'function' | 
 export const defaultResolveName: ResolveName = ({ name, type }) => pascalCase(name, { isFile: type === 'file' })
 
 /**
- * Returns the resolved name for a schema node (e.g. `Pet`, `PetList`).
- */
-export function getSchemaName(node: { name?: string }, { type = 'type', resolveName = defaultResolveName }: { type?: 'file' | 'function' | 'type'; resolveName?: ResolveName } = {}): string {
-  if (!node.name) {
-    throw new Error('Schema node does not have a name')
-  }
-
-  return resolveName({ name: node.name, type })
-}
-
-/**
- * Returns the resolved name for an individual parameter type of an operation.
+ * Centralised naming object for plugin-ts generated types.
+ *
+ * Import this in other plugins to compute the exact names that plugin-ts
+ * generates without hardcoding naming conventions. Each method accepts an
+ * optional `resolveName` override to apply user-configured name transformers.
  *
  * @example
- * // path param `petId` of operation `deletePet` → `DeletePetPathPetId`
- * getParameterName(node, { name: 'petId', in: 'path' })
- */
-export function getParameterName(
-  node: Pick<OperationNode, 'operationId'>,
-  param: Pick<ParameterNode, 'name' | 'in'>,
-  { type = 'type', resolveName = defaultResolveName }: { type?: 'function' | 'type'; resolveName?: ResolveName } = {},
-): string {
-  return resolveName({ name: `${node.operationId} ${pascalCase(param.in)} ${param.name}`, type })
-}
-
-/**
- * Returns the resolved name for a specific response status type of an operation.
+ * ```ts
+ * import { naming, pluginTsName } from '@kubb/plugin-ts'
  *
- * @example
- * // 200 response of operation `deletePet` → `DeletePetStatus200`
- * getResponseStatusName(node, 200)
- */
-export function getResponseStatusName(
-  node: Pick<OperationNode, 'operationId'>,
-  statusCode: number | string,
-  { type = 'type', resolveName = defaultResolveName }: { type?: 'function' | 'type'; resolveName?: ResolveName } = {},
-): string {
-  return resolveName({ name: `${node.operationId} Status ${statusCode}`, type })
-}
-
-/**
- * Returns the resolved name for the request body type of an operation.
+ * // default (pascalCase, same as plugin-ts internals)
+ * naming.getResponseStatusName({ operationId: 'listPets' }, 200) // → 'ListPetsStatus200'
  *
- * @example
- * // request body of operation `createPet` → `CreatePetData`
- * getRequestBodyName(node)
+ * // with driver resolver to apply user transformers
+ * naming.getRequestBodyName(operationNode, {
+ *   resolveName: ({ name, type }) => driver.resolveName({ name, type, pluginName: pluginTsName }),
+ * })
+ * ```
  */
-export function getRequestBodyName(
-  node: Pick<OperationNode, 'operationId'>,
-  { type = 'type', resolveName = defaultResolveName }: { type?: 'function' | 'type'; resolveName?: ResolveName } = {},
-): string {
-  return resolveName({ name: `${node.operationId} Data`, type })
-}
+export const naming: Naming = defineNaming({
+  getSchemaName(node, { type = 'type', resolveName = defaultResolveName } = {}) {
+    if (!node.name) {
+      throw new Error('Schema node does not have a name')
+    }
 
-/**
- * Returns the resolved name for the `RequestConfig` type of an operation.
- *
- * @example
- * // request config of operation `deletePet` → `DeletePetRequestConfig`
- * getRequestConfigName(node)
- */
-export function getRequestConfigName(
-  node: Pick<OperationNode, 'operationId'>,
-  { type = 'type', resolveName = defaultResolveName }: { type?: 'function' | 'type'; resolveName?: ResolveName } = {},
-): string {
-  return resolveName({ name: `${node.operationId} RequestConfig`, type })
-}
+    return resolveName({ name: node.name, type })
+  },
 
-/**
- * Returns the resolved name for the `Responses` map type of an operation (status code → response type).
- *
- * @example
- * // responses map of operation `listPets` → `ListPetsResponses`
- * getResponsesName(node)
- */
-export function getResponsesName(
-  node: Pick<OperationNode, 'operationId'>,
-  { type = 'type', resolveName = defaultResolveName }: { type?: 'function' | 'type'; resolveName?: ResolveName } = {},
-): string {
-  return resolveName({ name: `${node.operationId} Responses`, type })
-}
+  getParameterName(node, param, { type = 'type', resolveName = defaultResolveName } = {}) {
+    return resolveName({ name: `${node.operationId} ${pascalCase(param.in)} ${param.name}`, type })
+  },
 
-/**
- * Returns the resolved name for the union `Response` type of an operation (union of all response types).
- *
- * @example
- * // response union of operation `listPets` → `ListPetsResponse`
- * getResponseName(node)
- */
-export function getResponseName(
-  node: Pick<OperationNode, 'operationId'>,
-  { type = 'type', resolveName = defaultResolveName }: { type?: 'function' | 'type'; resolveName?: ResolveName } = {},
-): string {
-  return resolveName({ name: `${node.operationId} Response`, type })
-}
+  getResponseStatusName(node, statusCode, { type = 'type', resolveName = defaultResolveName } = {}) {
+    return resolveName({ name: `${node.operationId} Status ${statusCode}`, type })
+  },
+
+  getRequestBodyName(node, { type = 'type', resolveName = defaultResolveName } = {}) {
+    return resolveName({ name: `${node.operationId} Data`, type })
+  },
+
+  getRequestConfigName(node, { type = 'type', resolveName = defaultResolveName } = {}) {
+    return resolveName({ name: `${node.operationId} RequestConfig`, type })
+  },
+
+  getResponsesName(node, { type = 'type', resolveName = defaultResolveName } = {}) {
+    return resolveName({ name: `${node.operationId} Responses`, type })
+  },
+
+  getResponseName(node, { type = 'type', resolveName = defaultResolveName } = {}) {
+    return resolveName({ name: `${node.operationId} Response`, type })
+  },
+})

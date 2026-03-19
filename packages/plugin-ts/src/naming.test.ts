@@ -1,6 +1,6 @@
 import { createOperation, createParameter, createSchema } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import { defaultResolveName, getParameterName, getRequestBodyName, getRequestConfigName, getResponseName, getResponsesName, getResponseStatusName, getSchemaName } from './naming.ts'
+import { defaultResolveName, naming } from './naming.ts'
 
 describe('defaultResolveName', () => {
   it('applies pascalCase to a plain name', () => {
@@ -17,48 +17,48 @@ describe('defaultResolveName', () => {
   })
 })
 
-describe('getSchemaName', () => {
+describe('naming.getSchemaName', () => {
   it('returns the resolved name for a schema node', () => {
     const node = { name: 'Pet' }
 
-    expect(getSchemaName(node)).toBe('Pet')
-    expect(getSchemaName(node, { type: 'type' })).toBe('Pet')
+    expect(naming.getSchemaName(node)).toBe('Pet')
+    expect(naming.getSchemaName(node, { type: 'type' })).toBe('Pet')
   })
 
   it('throws when schema node has no name', () => {
     const node = {}
 
-    expect(() => getSchemaName(node)).toThrow('Schema node does not have a name')
+    expect(() => naming.getSchemaName(node)).toThrow('Schema node does not have a name')
   })
 
   it('accepts a custom resolveName', () => {
     const node = { name: 'Pet' }
     const resolveName = ({ name }: { name: string }) => name.toLowerCase()
 
-    expect(getSchemaName(node, { resolveName })).toBe('pet')
+    expect(naming.getSchemaName(node, { resolveName })).toBe('pet')
   })
 })
 
-describe('getParameterName', () => {
+describe('naming.getParameterName', () => {
   it('resolves a path parameter name', () => {
     const operation = createOperation({ operationId: 'deletePet', method: 'DELETE', path: '/pets/:petId' })
     const param = createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })
 
-    expect(getParameterName(operation, param)).toBe('DeletePetPathPetId')
+    expect(naming.getParameterName(operation, param)).toBe('DeletePetPathPetId')
   })
 
   it('resolves a query parameter name', () => {
     const operation = createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
     const param = createParameter({ name: 'limit', schema: createSchema({ type: 'integer' }), in: 'query', required: false })
 
-    expect(getParameterName(operation, param)).toBe('ListPetsQueryLimit')
+    expect(naming.getParameterName(operation, param)).toBe('ListPetsQueryLimit')
   })
 
   it('resolves a header parameter name', () => {
     const operation = createOperation({ operationId: 'createPet', method: 'POST', path: '/pets' })
     const param = createParameter({ name: 'x-api-key', schema: createSchema({ type: 'string' }), in: 'header', required: true })
 
-    expect(getParameterName(operation, param)).toBe('CreatePetHeaderXApiKey')
+    expect(naming.getParameterName(operation, param)).toBe('CreatePetHeaderXApiKey')
   })
 
   it('accepts a custom resolveName', () => {
@@ -66,65 +66,65 @@ describe('getParameterName', () => {
     const param = createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })
     const resolveName = ({ name }: { name: string }) => name.toLowerCase()
 
-    expect(getParameterName(operation, param, { resolveName })).toBe('deletepet path petid')
+    expect(naming.getParameterName(operation, param, { resolveName })).toBe('deletepet path petid')
   })
 })
 
-describe('getResponseStatusName', () => {
+describe('naming.getResponseStatusName', () => {
   it('resolves a numeric status code', () => {
     const operation = createOperation({ operationId: 'deletePet', method: 'DELETE', path: '/pets/:petId' })
 
-    expect(getResponseStatusName(operation, 200)).toBe('DeletePetStatus200')
+    expect(naming.getResponseStatusName(operation, 200)).toBe('DeletePetStatus200')
   })
 
   it('resolves a string status code', () => {
     const operation = createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
 
-    expect(getResponseStatusName(operation, 'default')).toBe('ListPetsStatusDefault')
+    expect(naming.getResponseStatusName(operation, 'default')).toBe('ListPetsStatusDefault')
   })
 
   it('accepts a custom resolveName', () => {
     const operation = createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
     const resolveName = ({ name }: { name: string }) => name.replace(/\s/g, '_')
 
-    expect(getResponseStatusName(operation, 200, { resolveName })).toBe('listPets_Status_200')
+    expect(naming.getResponseStatusName(operation, 200, { resolveName })).toBe('listPets_Status_200')
   })
 })
 
-describe('getRequestBodyName', () => {
+describe('naming.getRequestBodyName', () => {
   it('resolves the request body name', () => {
     const operation = createOperation({ operationId: 'createPet', method: 'POST', path: '/pets' })
 
-    expect(getRequestBodyName(operation)).toBe('CreatePetData')
+    expect(naming.getRequestBodyName(operation)).toBe('CreatePetData')
   })
 
   it('accepts type override', () => {
     const operation = createOperation({ operationId: 'createPet', method: 'POST', path: '/pets' })
 
-    expect(getRequestBodyName(operation, { type: 'type' })).toBe('CreatePetData')
+    expect(naming.getRequestBodyName(operation, { type: 'type' })).toBe('CreatePetData')
   })
 })
 
-describe('getRequestConfigName', () => {
+describe('naming.getRequestConfigName', () => {
   it('resolves the request config name', () => {
     const operation = createOperation({ operationId: 'deletePet', method: 'DELETE', path: '/pets/:petId' })
 
-    expect(getRequestConfigName(operation)).toBe('DeletePetRequestConfig')
+    expect(naming.getRequestConfigName(operation)).toBe('DeletePetRequestConfig')
   })
 })
 
-describe('getResponsesName', () => {
+describe('naming.getResponsesName', () => {
   it('resolves the responses map name', () => {
     const operation = createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
 
-    expect(getResponsesName(operation)).toBe('ListPetsResponses')
+    expect(naming.getResponsesName(operation)).toBe('ListPetsResponses')
   })
 })
 
-describe('getResponseName', () => {
+describe('naming.getResponseName', () => {
   it('resolves the response union name', () => {
     const operation = createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
 
-    expect(getResponseName(operation)).toBe('ListPetsResponse')
+    expect(naming.getResponseName(operation)).toBe('ListPetsResponse')
   })
 })
