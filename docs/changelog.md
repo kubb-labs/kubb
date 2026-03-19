@@ -6,6 +6,203 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.8
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/core`](/packages/core)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Rename factory functions from `define*` to `create*` to align with Vite ecosystem conventions.
+
+    **Rule:** `define*` is reserved for pure identity/type helpers (no runtime behavior — removing the call doesn't change the value, only loses type inference). `create*` is used for functions that produce instances, wrap builders, or apply logic.
+
+    `defineConfig` is unchanged — it is a pure identity helper.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+
+    - defineAdapter
+    + createAdapter
+
+    - defineGenerator
+    + createGenerator
+
+    - defineLogger
+    + createLogger
+
+    - defineStorage
+    + createStorage
+    ```
+    :::
+
+#### [`@kubb/plugin-vue-query`](/packages/plugins/vue-query)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+#### [`@kubb/plugin-swr`](/packages/plugins/swr)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+#### [`@kubb/plugin-client`](/packages/plugins/client)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+#### [`@kubb/plugin-faker`](/packages/plugins/faker)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+#### [`@kubb/plugin-oas`](/packages/plugins/oas)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+#### [`@kubb/plugin-msw`](/packages/plugins/msw)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+#### [`@kubb/plugin-react-query`](/packages/plugins/react-query)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+#### [`@kubb/plugin-solid-query`](/packages/plugins/solid-query)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+#### [`@kubb/plugin-cypress`](/packages/plugins/cypress)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+#### [`@kubb/plugin-zod`](/packages/plugins/zod)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+#### [`@kubb/plugin-svelte-query`](/packages/plugins/svelte-query)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+#### [`@kubb/plugin-ts`](/packages/plugins/ts)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+#### [`@kubb/plugin-redoc`](/packages/plugins/redoc)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+#### [`@kubb/adapter-oas`](/packages/adapter-oas)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+#### [`@kubb/plugin-mcp`](/packages/plugins/mcp)
+
+-   [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Updated all factory functions to use the `create*` naming convention for consistency with Vite ecosystem.
+
+    ::: code-group
+    ```diff [Migration Guide]
+    - definePlugin
+    + createPlugin
+    ```
+    :::
+
+
 ## 4.36.1
 
 ### ✨ Features
