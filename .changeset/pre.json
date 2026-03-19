@@ -51,6 +51,7 @@
     "pretty-schools-fly",
     "remove-mapper-plugin-ts",
     "remove-plugin-key",
+    "rename-plugin-manager-to-plugin-driver",
     "tough-lemons-pump",
     "type-generator-v2-helpers"
   ]
