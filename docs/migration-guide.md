@@ -87,6 +87,34 @@ const name = generator.context.driver.resolveName({ name: 'Foo', type: 'function
 ```
 :::
 
+### Object and JSON plugin formats removed
+
+The legacy object-style and JSON-style plugin formats are no longer supported. Only the array-of-plugin-instances format is valid.
+
+::: code-group
+```typescript [Before (object style)]
+export default defineConfig({
+  plugins: {
+    '@kubb/plugin-ts': {},
+  },
+})
+```
+
+```typescript [Before (JSON style)]
+export default defineConfig({
+  plugins: [['@kubb/plugin-ts', {}]],
+})
+```
+
+```typescript [After (v5)]
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  plugins: [pluginTs({})],
+})
+```
+:::
+
 ### `mapper` removed from `@kubb/plugin-ts`
 
 The `mapper` option has been removed from `@kubb/plugin-ts`. This option allowed overriding specific TypeScript property signatures by name. A new `transform` option will be introduced in v5 that provides a more powerful way to transform the generated AST nodes (`schemaNode` and `operationNode`).
