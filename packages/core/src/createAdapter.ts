@@ -7,7 +7,7 @@ type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) =
  *
  * @example
  * ```ts
- * export const adapterOas = defineAdapter<OasAdapter>((options) => {
+ * export const adapterOas = createAdapter<OasAdapter>((options) => {
  *   const { validate = true, dateType = 'string' } = options
  *   return {
  *     name: adapterOasName,
@@ -17,6 +17,6 @@ type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) =
  * })
  * ```
  */
-export function defineAdapter<T extends AdapterFactoryOptions = AdapterFactoryOptions>(build: AdapterBuilder<T>): (options?: T['options']) => Adapter<T> {
+export function createAdapter<T extends AdapterFactoryOptions = AdapterFactoryOptions>(build: AdapterBuilder<T>): (options?: T['options']) => Adapter<T> {
   return (options) => build(options ?? ({} as T['options']))
 }

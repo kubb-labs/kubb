@@ -100,16 +100,16 @@ Kubb uses event-driven architecture for logging and progress tracking. The CLI s
 - **Plain Logger** - Simple text output for basic terminals
 - **File System Logger** - Writes logs to files
 
-The system selects the logger automatically based on the environment, or use the `defineLogger` API for custom loggers.
+The system selects the logger automatically based on the environment, or use the `createLogger` API for custom loggers.
 
 ### Custom logger implementation
 
 Create custom loggers by listening to `KubbEvents`:
 
 ```typescript [kubb.logger.ts]
-import { defineLogger, LogLevel } from '@kubb/core'
+import { createLogger, LogLevel } from '@kubb/core'
 
-export const customLogger = defineLogger({
+export const customLogger = createLogger({
   name: 'custom',
   install(context, options) {
     const logLevel = options?.logLevel || LogLevel.info

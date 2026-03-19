@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
 import { formatHrtime, formatMs, formatMsWithColor, toCause } from '@internals/utils'
-import { type Config, defineLogger, logLevel as logLevelMap } from '@kubb/core'
+import { type Config, createLogger, logLevel as logLevelMap } from '@kubb/core'
 import { runHook } from '../utils/runHook.ts'
 import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils.ts'
 
@@ -8,7 +8,7 @@ import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils
  * GitHub Actions adapter for CI environments
  * Uses Github group annotations for collapsible sections
  */
-export const githubActionsLogger = defineLogger({
+export const githubActionsLogger = createLogger({
   name: 'github-actions',
   install(context, options) {
     const logLevel = options?.logLevel ?? logLevelMap.info

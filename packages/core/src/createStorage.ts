@@ -5,7 +5,7 @@
  * Implement this interface to route generated files to any backend — filesystem,
  * S3, Redis, in-memory, etc.
  *
- * Use `defineStorage` to create a typed storage driver.
+ * Use `createStorage` to create a typed storage driver.
  */
 export interface DefineStorage {
   /** Identifier used for logging and debugging (e.g. `'fs'`, `'s3'`). */
@@ -28,16 +28,16 @@ export interface DefineStorage {
 
 /**
  * Wraps a storage builder so the `options` argument is optional, following the
- * same factory pattern as `definePlugin`, `defineLogger`, and `defineAdapter`.
+ * same factory pattern as `createPlugin`, `createLogger`, and `createAdapter`.
  *
  * The builder receives the resolved options object and must return a
  * `DefineStorage`-compatible object that includes a `name` string.
  *
  * @example
  * ```ts
- * import { defineStorage } from '@kubb/core'
+ * import { createStorage } from '@kubb/core'
  *
- * export const memoryStorage = defineStorage((_options) => {
+ * export const memoryStorage = createStorage((_options) => {
  *   const store = new Map<string, string>()
  *   return {
  *     name: 'memory',
@@ -51,6 +51,6 @@ export interface DefineStorage {
  * })
  * ```
  */
-export function defineStorage<TOptions = Record<string, never>>(build: (options: TOptions) => DefineStorage): (options?: TOptions) => DefineStorage {
+export function createStorage<TOptions = Record<string, never>>(build: (options: TOptions) => DefineStorage): (options?: TOptions) => DefineStorage {
   return (options) => build(options ?? ({} as TOptions))
 }

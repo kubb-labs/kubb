@@ -84,7 +84,7 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
 }
 
 /**
- * Creates a named printer factory. Mirrors the `definePlugin` / `defineAdapter` pattern
+ * Creates a named printer factory. Mirrors the `createPlugin` / `createAdapter` pattern
  * from `@kubb/core` — wraps a builder to make options optional and separates raw options
  * from resolved options.
  *

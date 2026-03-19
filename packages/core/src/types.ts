@@ -2,7 +2,7 @@ import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
 import type { RootNode, SchemaNode } from '@kubb/ast/types'
 import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
-import type { DefineStorage } from './defineStorage.ts'
+import type { DefineStorage } from './createStorage.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
@@ -177,8 +177,8 @@ export type Config<TInput = Input> = {
      * @default fsStorage()
      * @example
      * ```ts
-     * import { defineStorage, fsStorage } from '@kubb/core'
-     * storage: defineStorage(fsStorage())
+     * import { createStorage, fsStorage } from '@kubb/core'
+     * storage: createStorage(fsStorage())
      * ```
      */
     storage?: DefineStorage
@@ -340,7 +340,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
 
   install: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**
-   * Define a context that can be used by other plugins, see `PluginDriver' where we convert from `UserPlugin` to `Plugin`(used when calling `definePlugin`).
+   * Define a context that can be used by other plugins, see `PluginDriver' where we convert from `UserPlugin` to `Plugin`(used when calling `createPlugin`).
    */
   inject: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => TOptions['context']
 }
@@ -507,6 +507,6 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
 
 export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Omit<Logger<TOptions>, 'logLevel'>
 
-export type { CoreGeneratorV2, Generator, ReactGeneratorV2 } from './defineGenerator.ts'
-export type { DefineStorage } from './defineStorage.ts'
+export type { CoreGeneratorV2, Generator, ReactGeneratorV2 } from './createGenerator.ts'
+export type { DefineStorage } from './createStorage.ts'
 export type { KubbEvents } from './Kubb.ts'

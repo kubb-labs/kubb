@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
@@ -14,7 +14,7 @@ import type { PluginSwr } from './types.ts'
 
 export const pluginSwrName = 'plugin-swr' satisfies PluginSwr['name']
 
-export const pluginSwr = definePlugin<PluginSwr>((options) => {
+export const pluginSwr = createPlugin<PluginSwr>((options) => {
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,

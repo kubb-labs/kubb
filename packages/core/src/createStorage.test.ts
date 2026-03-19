@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { defineStorage } from './defineStorage.ts'
+import { createStorage } from './createStorage.ts'
 
-describe('defineStorage', () => {
+describe('createStorage', () => {
   it('returns a callable that invokes the builder with provided options', () => {
-    const factory = defineStorage((options: { prefix: string }) => ({
+    const factory = createStorage((options: { prefix: string }) => ({
       name: `custom-${options.prefix}`,
       async hasItem() {
         return false
@@ -25,7 +25,7 @@ describe('defineStorage', () => {
   })
 
   it('uses empty object when options are omitted', () => {
-    const factory = defineStorage((_options: Record<string, never>) => ({
+    const factory = createStorage((_options: Record<string, never>) => ({
       name: 'no-options',
       async hasItem() {
         return false
@@ -48,7 +48,7 @@ describe('defineStorage', () => {
   it('fulfils the DefineStorage interface contract', async () => {
     const map = new Map<string, string>()
 
-    const factory = defineStorage((_options: Record<string, never>) => ({
+    const factory = createStorage((_options: Record<string, never>) => ({
       name: 'memory',
       async hasItem(key: string) {
         return map.has(key)

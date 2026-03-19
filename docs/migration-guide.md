@@ -10,6 +10,34 @@ outline: deep
 
 ## Breaking Changes
 
+### Factory functions renamed: `define*` → `create*`
+
+The `definePlugin`, `defineAdapter`, `defineGenerator`, `defineLogger`, and `defineStorage` factory functions have been renamed to use the `create*` prefix. This aligns with Vite ecosystem conventions where `define*` is reserved for pure type/config helpers (like `defineConfig`), and `create*` is used for functions that produce instances or apply logic.
+
+::: code-group
+```typescript [Before]
+import { definePlugin, defineAdapter, defineLogger, defineGenerator, defineStorage } from '@kubb/core'
+
+export const pluginExample = definePlugin((options) => ({ /* ... */ }))
+export const adapterExample = defineAdapter((options) => ({ /* ... */ }))
+export const loggerExample = defineLogger({ name: 'example', install() { /* ... */ } })
+export const generatorExample = defineGenerator({ /* ... */ })
+export const storageExample = defineStorage((options) => ({ /* ... */ }))
+```
+
+```typescript [After (v5)]
+import { createPlugin, createAdapter, createLogger, createGenerator, createStorage } from '@kubb/core'
+
+export const pluginExample = createPlugin((options) => ({ /* ... */ }))
+export const adapterExample = createAdapter((options) => ({ /* ... */ }))
+export const loggerExample = createLogger({ name: 'example', install() { /* ... */ } })
+export const generatorExample = createGenerator({ /* ... */ })
+export const storageExample = createStorage((options) => ({ /* ... */ }))
+```
+:::
+
+`defineConfig` is unchanged — it is a pure identity helper that only provides TypeScript inference and has no runtime behavior, which is exactly the `define*` convention.
+
 ### Node.js 22 required
 
 Kubb v5 requires **Node.js 22** or later. Please upgrade your Node.js version before updating.

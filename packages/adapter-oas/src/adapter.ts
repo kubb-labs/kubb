@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { createRoot } from '@kubb/ast'
 import type { AdapterSource } from '@kubb/core'
-import { defineAdapter } from '@kubb/core'
+import { createAdapter } from '@kubb/core'
 import { resolveServerUrl } from './oas/resolveServerUrl.ts'
 import { parseFromConfig } from './oas/utils.ts'
 import { createOasParser } from './parser.ts'
@@ -28,7 +28,7 @@ export const adapterOasName = 'oas' satisfies OasAdapter['name']
  * })
  * ```
  */
-export const adapterOas = defineAdapter<OasAdapter>((options) => {
+export const adapterOas = createAdapter<OasAdapter>((options) => {
   const {
     validate = true,
     oasClass,

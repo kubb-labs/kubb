@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import type { AsyncEventEmitter } from '@kubb/core'
-import { type Config, definePlugin, type Group, getMode, type KubbEvents } from '@kubb/core'
+import { type Config, createPlugin, type Group, getMode, type KubbEvents } from '@kubb/core'
 import type { Oas } from '@kubb/oas'
 import { parseFromConfig, resolveServerUrl } from '@kubb/oas'
 import { jsonGenerator } from './generators'
@@ -11,7 +11,7 @@ import type { PluginOas } from './types.ts'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 
-export const pluginOas = definePlugin<PluginOas>((options) => {
+export const pluginOas = createPlugin<PluginOas>((options) => {
   const {
     output = {
       path: 'schemas',
