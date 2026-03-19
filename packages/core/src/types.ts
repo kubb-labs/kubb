@@ -3,7 +3,7 @@ import type { RootNode, SchemaNode } from '@kubb/ast/types'
 import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { DefineStorage } from './createStorage.ts'
-import type { Transformer } from './createTransformer.ts'
+import type { Resolver } from './createResolver.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
@@ -283,17 +283,17 @@ export type PluginFactoryOptions<
    */
   TResolvePathOptions extends object = object,
   /**
-   * Transformer object that encapsulates the naming and path-resolution helpers used by this plugin.
-   * Use `createTransformer` to create the transformer object and export it alongside the plugin.
+   * Resolver object that encapsulates the naming and path-resolution helpers used by this plugin.
+   * Use `createResolver` to create the resolver object and export it alongside the plugin.
    */
-  TTransformer extends Transformer = Transformer,
+  TResolver extends Resolver = Resolver,
 > = {
   name: TName
   options: TOptions
   resolvedOptions: TResolvedOptions
   context: TContext
   resolvePathOptions: TResolvePathOptions
-  transformer: TTransformer
+  resolver: TResolver
 }
 
 export type GetPluginFactoryOptions<TPlugin extends UserPlugin> = TPlugin extends UserPlugin<infer X> ? X : never

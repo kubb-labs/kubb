@@ -4,7 +4,7 @@ import { walk } from '@kubb/ast'
 import { createPlugin, type Group, getBarrelFiles, getMode, resolveOptions } from '@kubb/core'
 import { buildOperation, buildSchema, OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { typeGenerator, typeGeneratorV2 } from './generators'
-import { transformer } from './transformer.ts'
+import { resolver } from './resolver.ts'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
@@ -92,7 +92,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
-      const resolvedName = transformer.default(name, type)
+      const resolvedName = resolver.default(name, type)
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName

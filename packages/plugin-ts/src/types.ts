@@ -1,20 +1,21 @@
 import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { OperationNode, ParameterNode, SchemaNode, StatusCode } from '@kubb/ast/types'
 import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
 
 /**
- * The concrete transformer type for `@kubb/plugin-ts`.
+ * The concrete resolver type for `@kubb/plugin-ts`.
  * Defines the exact helper methods provided by the plugin.
  */
-export type PluginTsTransformer = {
+export type PluginTsResolver = {
   /**
    * Converts a raw name using the plugin's default naming convention (PascalCase).
    * The optional `type` discriminant lets the caller signal the role of the name
    * (e.g. `'type'`, `'function'`, `'file'`, `'const'`).
    *
    * @example
-   * transformer.default('list pets', 'type') // → 'ListPets'
+   * resolver.default('list pets', 'type') // → 'ListPets'
    */
   default(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
   /**
@@ -23,23 +24,23 @@ export type PluginTsTransformer = {
    * so call-sites don't need to repeat the `'function'` type literal.
    *
    * @example
-   * transformer.name('list pets status 200') // → 'ListPetsStatus200'
+   * resolver.resolveName('list pets status 200') // → 'ListPetsStatus200'
    */
-  name(name: string): string
+  resolveName(name: string): string
   /**
    * Resolves the TypeScript type name for a given raw name (equivalent to `default(name, 'type')`).
    * Use this shorthand when matching the `typedName` field produced by the v2 TypeGenerator,
    * so call-sites don't need to repeat the `'type'` type literal.
    *
    * @example
-   * transformer.typedName('list pets status 200') // → 'ListPetsStatus200'
+   * resolver.resolveTypedName('list pets status 200') // → 'ListPetsStatus200'
    */
-  typedName(name: string): string
+  resolveTypedName(name: string): string
   /**
    * Resolves the file/path name for a given identifier using PascalCase.
    *
    * @example
-   * transformer.resolvePathName('list pets', 'file') // → 'ListPets'
+   * resolver.resolvePathName('list pets', 'file') // → 'ListPets'
    */
   resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
   /**
@@ -47,99 +48,99 @@ export type PluginTsTransformer = {
    * Encapsulates the `<operationId> <PascalCase(paramIn)> <paramName>` naming convention.
    *
    * @example
-   * transformer.paramName('listPets', 'query', 'limit') // → 'ListPetsQueryLimit'
+   * resolver.resolveParamName(node, param) // → 'ListPetsQueryLimit'
    */
-  paramName(operationId: string, paramIn: string, name: string): string
+  resolveParamName(node: OperationNode, param: ParameterNode): string
   /**
    * Resolves the TypeScript type alias name for an operation parameter
-   * (equivalent to `paramName` with `type: 'type'`).
+   * (equivalent to `resolveParamName` with `type: 'type'`).
    * In the default implementation both return the same PascalCase string;
    * the distinction is preserved so overrides can diverge the two forms.
    *
    * @example
-   * transformer.paramTypedName('listPets', 'query', 'limit') // → 'ListPetsQueryLimit'
+   * resolver.resolveParamTypedName(node, param) // → 'ListPetsQueryLimit'
    */
-  paramTypedName(operationId: string, paramIn: string, name: string): string
+  resolveParamTypedName(node: OperationNode, param: ParameterNode): string
   /**
    * Resolves the variable/function name for an operation response by status code.
    * Encapsulates the `<operationId> Status <statusCode>` template with PascalCase applied to the result.
    *
    * @example
-   * transformer.responseStatusName('listPets', 200) // → 'ListPetsStatus200'
+   * resolver.resolveResponseStatusName(node, 200) // → 'ListPetsStatus200'
    */
-  responseStatusName(operationId: string, statusCode: number | string): string
+  resolveResponseStatusName(node: OperationNode, statusCode: StatusCode): string
   /**
    * Resolves the TypeScript type alias name for an operation response by status code.
    * Encapsulates the `<operationId> Status <statusCode>` template with PascalCase applied to the result.
    *
    * @example
-   * transformer.responseStatusTypedName('listPets', 200) // → 'ListPetsStatus200'
+   * resolver.resolveResponseStatusTypedName(node, 200) // → 'ListPetsStatus200'
    */
-  responseStatusTypedName(operationId: string, statusCode: number | string): string
+  resolveResponseStatusTypedName(node: OperationNode, statusCode: StatusCode): string
   /**
    * Resolves the variable/function name for an operation's request body (`Data`).
    *
    * @example
-   * transformer.dataName('listPets') // → 'ListPetsData'
+   * resolver.resolveDataName(node) // → 'ListPetsData'
    */
-  dataName(operationId: string): string
+  resolveDataName(node: OperationNode): string
   /**
    * Resolves the TypeScript type alias name for an operation's request body (`Data`).
    *
    * @example
-   * transformer.dataTypedName('listPets') // → 'ListPetsData'
+   * resolver.resolveDataTypedName(node) // → 'ListPetsData'
    */
-  dataTypedName(operationId: string): string
+  resolveDataTypedName(node: OperationNode): string
   /**
    * Resolves the variable/function name for an operation's request config (`RequestConfig`).
    *
    * @example
-   * transformer.requestConfigName('listPets') // → 'ListPetsRequestConfig'
+   * resolver.resolveRequestConfigName(node) // → 'ListPetsRequestConfig'
    */
-  requestConfigName(operationId: string): string
+  resolveRequestConfigName(node: OperationNode): string
   /**
    * Resolves the TypeScript type alias name for an operation's request config (`RequestConfig`).
    *
    * @example
-   * transformer.requestConfigTypedName('listPets') // → 'ListPetsRequestConfig'
+   * resolver.resolveRequestConfigTypedName(node) // → 'ListPetsRequestConfig'
    */
-  requestConfigTypedName(operationId: string): string
+  resolveRequestConfigTypedName(node: OperationNode): string
   /**
    * Resolves the variable/function name for the collection of all operation responses (`Responses`).
    *
    * @example
-   * transformer.responsesName('listPets') // → 'ListPetsResponses'
+   * resolver.resolveResponsesName(node) // → 'ListPetsResponses'
    */
-  responsesName(operationId: string): string
+  resolveResponsesName(node: OperationNode): string
   /**
    * Resolves the TypeScript type alias name for the collection of all operation responses.
    *
    * @example
-   * transformer.responsesTypedName('listPets') // → 'ListPetsResponses'
+   * resolver.resolveResponsesTypedName(node) // → 'ListPetsResponses'
    */
-  responsesTypedName(operationId: string): string
+  resolveResponsesTypedName(node: OperationNode): string
   /**
    * Resolves the variable/function name for the union of all operation responses (`Response`).
    *
    * @example
-   * transformer.responseName('listPets') // → 'ListPetsResponse'
+   * resolver.resolveResponseName(node) // → 'ListPetsResponse'
    */
-  responseName(operationId: string): string
+  resolveResponseName(node: OperationNode): string
   /**
    * Resolves the TypeScript type alias name for the union of all operation responses.
    *
    * @example
-   * transformer.responseTypedName('listPets') // → 'ListPetsResponse'
+   * resolver.resolveResponseTypedName(node) // → 'ListPetsResponse'
    */
-  responseTypedName(operationId: string): string
+  resolveResponseTypedName(node: OperationNode): string
   /**
    * Resolves the TypeScript type alias name for an enum schema's key variant.
    * Appends the `Key` suffix after applying the default naming convention.
    *
    * @example
-   * transformer.enumKeyTypedName('petStatus') // → 'PetStatusKey'
+   * resolver.resolveEnumKeyTypedName(node) // → 'PetStatusKey'
    */
-  enumKeyTypedName(name: string): string
+  resolveEnumKeyTypedName(node: SchemaNode): string
 }
 
 export type Options = {
@@ -300,4 +301,4 @@ type ResolvedOptions = {
   paramsCasing: Options['paramsCasing']
 }
 
-export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, PluginTsTransformer>
+export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, PluginTsResolver>
