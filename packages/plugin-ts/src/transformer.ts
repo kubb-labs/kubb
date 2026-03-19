@@ -1,6 +1,7 @@
 import { pascalCase } from '@internals/utils'
 import { createTransformer } from '@kubb/core'
 import type { PluginTs, PluginTsTransformer } from './types.ts'
+
 export type { PluginTsTransformer } from './types.ts'
 
 function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
