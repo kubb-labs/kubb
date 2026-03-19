@@ -463,6 +463,7 @@ export interface AddPetResponses {
 export type AddPetResponse = AddPetStatus200 | AddPetStatus405
 
 /**
+ * @description Status values that need to be considered for filter
  * @default available
  */
 export type FindPetsByStatusQueryStatus = 'available' | 'pending' | 'sold'
@@ -481,6 +482,9 @@ export interface FindPetsByStatusRequestConfig {
   data?: never
   pathParams?: never
   queryParams?: {
+    /**
+     * @description Status values that need to be considered for filter
+     */
     status?: FindPetsByStatusQueryStatus
   }
   headerParams?: never

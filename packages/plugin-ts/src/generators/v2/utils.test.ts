@@ -117,6 +117,29 @@ describe('buildDataSchemaNode', () => {
       }"
     `)
   })
+
+  it('emits JSDoc on queryParams properties when parameters have descriptions', () => {
+    const node = createOperation({
+      ...baseNode,
+      operationId: 'listPets',
+      parameters: [
+        createParameter({ name: 'limit', schema: createSchema({ type: 'integer', description: 'Maximum number of results' }), in: 'query', required: false }),
+      ],
+    })
+
+    expect(printSchema(buildDataSchemaNode({ node, resolveName }))).toMatchInlineSnapshot(`
+      "{
+          data?: never;
+          pathParams?: never;
+          queryParams?: {
+              /** @description Maximum number of results */
+              limit?: listPetsQueryLimit;
+          };
+          headerParams?: never;
+          url: "/pets";
+      }"
+    `)
+  })
 })
 
 describe('buildResponsesSchemaNode', () => {
