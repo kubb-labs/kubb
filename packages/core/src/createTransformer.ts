@@ -1,45 +1,35 @@
 /**
- * Object with transformer helpers returned by a plugin, allowing other plugins to
- * reference the exact naming and path-resolution logic of the originating plugin.
+ * Base constraint for all plugin transformer objects.
+ *
+ * Plugins extend this with their own concrete helper methods; core intentionally
+ * does not prescribe any specific method signatures.
  */
-export type Transformer = {
-  /**
-   * The default name transformer.
-   * Converts a raw name into the identifier form used by the plugin.
-   *
-   * @example
-   * transformer.default('list pets', 'type') // → 'ListPets'
-   */
-  default(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
-  /**
-   * Resolves the file/path name for a given identifier.
-   *
-   * @example
-   * transformer.resolvePathName('list pets', 'file') // → 'ListPets'
-   */
-  resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
-}
+export type Transformer = Record<string, unknown>
 
 /**
  * Creates a typed transformer object for a plugin, following the same factory pattern
  * as `definePlugin`, `defineLogger`, and `defineAdapter`.
  *
- * Pass the plugin's factory type (`PluginTs`, `PluginClient`, …) as the `TPlugin` generic
+ * Pass the plugin's factory type (`PluginTs`, `PluginClient`, …) as the first generic
  * to tie the transformer to the correct plugin at the type level.
+ * The second generic `TTransformer` is inferred from the factory return value,
+ * so callers get back the full concrete type instead of the base `Transformer`.
  *
  * @example
  * ```ts
  * import { createTransformer } from '@kubb/core'
  * import type { PluginTs } from '@kubb/plugin-ts'
  *
- * export const transformer = createTransformer<PluginTs>(() => {
+ * export const transformer = createTransformer<PluginTs>()(() => {
  *   return {
- *     default(name, type) { return pascalCase(name) },
- *     resolvePathName(name, type) { return pascalCase(name, { isFile: type === 'file' }) },
+ *     default(name: string) { return pascalCase(name) },
+ *     resolvePathName(name: string) { return pascalCase(name) },
  *   }
  * })
  * ```
  */
-export function createTransformer<_TPlugin extends object = object>(factory: () => Transformer): Transformer {
-  return factory()
+export function createTransformer<_TPlugin extends object = object>() {
+  return function <TTransformer extends Transformer>(factory: () => TTransformer): TTransformer {
+    return factory()
+  }
 }

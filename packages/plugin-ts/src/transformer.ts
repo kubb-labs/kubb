@@ -1,7 +1,27 @@
 import { pascalCase } from '@internals/utils'
 import { createTransformer } from '@kubb/core'
-import type { Transformer } from '@kubb/core'
 import type { PluginTs } from './types.ts'
+
+/**
+ * The concrete transformer type for `@kubb/plugin-ts`.
+ * Defines the exact helper methods provided by the plugin.
+ */
+export type PluginTsTransformer = {
+  /**
+   * Converts a raw name into the PascalCase identifier used by plugin-ts.
+   *
+   * @example
+   * transformer.default('list pets', 'type') // → 'ListPets'
+   */
+  default(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+  /**
+   * Resolves the file/path name for a given identifier using PascalCase.
+   *
+   * @example
+   * transformer.resolvePathName('list pets', 'file') // → 'ListPets'
+   */
+  resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+}
 
 function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
   return pascalCase(name, { isFile: type === 'file' })
@@ -20,7 +40,7 @@ function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'
  * transformer.resolvePathName('list pets', 'file') // → 'ListPets'
  * ```
  */
-export const transformer: Transformer = createTransformer<PluginTs>(() => {
+export const transformer: PluginTsTransformer = createTransformer<PluginTs>()(() => {
   return {
     default: resolveName,
     resolvePathName: resolveName,
