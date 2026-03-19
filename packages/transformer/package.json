@@ -1,0 +1,77 @@
+{
+  "name": "@kubb/transformer",
+  "version": "5.0.0-alpha.6",
+  "description": "High-performance string transformation utilities for Kubb, powered by a Rust/NAPI-RS native binary with a pure JavaScript fallback.",
+  "keywords": [
+    "kubb",
+    "transformer",
+    "codegen",
+    "camelCase",
+    "pascalCase",
+    "snakeCase",
+    "rust",
+    "napi",
+    "napi-rs",
+    "native",
+    "performance"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/transformer"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./index.js",
+      "types": "./index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "fallback.js",
+    "*.node",
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
+  ],
+  "napi": {
+    "binaryName": "kubb-transformer",
+    "packageName": "@kubb/transformer",
+    "targets": [
+      "x86_64-unknown-linux-gnu",
+      "x86_64-unknown-linux-musl",
+      "aarch64-unknown-linux-gnu",
+      "aarch64-unknown-linux-musl",
+      "x86_64-apple-darwin",
+      "aarch64-apple-darwin",
+      "x86_64-pc-windows-msvc",
+      "aarch64-pc-windows-msvc",
+      "i686-pc-windows-msvc"
+    ]
+  },
+  "scripts": {
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "clean": "npx rimraf *.node",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^3.5.1",
+    "@types/node": "catalog:"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

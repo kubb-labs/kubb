@@ -1,0 +1,21 @@
+[package]
+name = "kubb-transformer"
+version = "0.1.0"
+edition = "2021"
+description = "High-performance string transformation utilities for Kubb, implemented in Rust via NAPI-RS"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+napi = { version = "2", default-features = false, features = ["napi4"] }
+napi-derive = "2"
+regex = "1"
+
+[build-dependencies]
+napi-build = "2"
+
+[profile.release]
+lto = true
+strip = true
