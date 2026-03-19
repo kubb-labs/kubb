@@ -1,10 +1,13 @@
 /**
  * Base constraint for all plugin transformer objects.
  *
- * Plugins extend this with their own concrete helper methods; core intentionally
- * does not prescribe any specific method signatures.
+ * `default` is the one resolver every transformer must implement so consumers
+ * always have a typed, autocomplete-friendly entry point. Plugins extend this
+ * intersection with their own concrete helper methods via `Record<string, unknown>`.
  */
-export type Transformer = Record<string, unknown>
+export type Transformer = {
+  default(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+} & Record<string, unknown>
 
 /**
  * Creates a typed transformer object for a plugin, following the same factory pattern
