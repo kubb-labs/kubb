@@ -40,5 +40,38 @@ export const transformer: PluginTsTransformer = createTransformer<PluginTs>(() =
     paramTypedName(operationId, paramIn, name) {
       return this.typedName(`${operationId} ${this.default(paramIn)} ${name}`)
     },
+    responseStatusName(operationId, statusCode) {
+      return this.name(`${operationId} Status ${statusCode}`)
+    },
+    responseStatusTypedName(operationId, statusCode) {
+      return this.typedName(`${operationId} Status ${statusCode}`)
+    },
+    dataName(operationId) {
+      return this.name(`${operationId} Data`)
+    },
+    dataTypedName(operationId) {
+      return this.typedName(`${operationId} Data`)
+    },
+    requestConfigName(operationId) {
+      return this.name(`${operationId} RequestConfig`)
+    },
+    requestConfigTypedName(operationId) {
+      return this.typedName(`${operationId} RequestConfig`)
+    },
+    responsesName(operationId) {
+      return this.name(`${operationId} Responses`)
+    },
+    responsesTypedName(operationId) {
+      return this.typedName(`${operationId} Responses`)
+    },
+    responseName(operationId) {
+      return this.name(`${operationId} Response`)
+    },
+    responseTypedName(operationId) {
+      return this.typedName(`${operationId} Response`)
+    },
+    enumKeyTypedName(name) {
+      return `${this.typedName(name)}Key`
+    },
   }
 })()

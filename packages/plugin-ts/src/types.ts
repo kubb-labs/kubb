@@ -60,6 +60,85 @@ export type PluginTsTransformer = {
    * transformer.paramTypedName('listPets', 'query', 'limit') // → 'ListPetsQueryLimit'
    */
   paramTypedName(operationId: string, paramIn: string, name: string): string
+  /**
+   * Resolves the variable/function name for an operation response by status code.
+   * Encapsulates the `<operationId> Status <statusCode>` naming convention.
+   *
+   * @example
+   * transformer.responseStatusName('listPets', 200) // → 'ListPetsStatus200'
+   */
+  responseStatusName(operationId: string, statusCode: number | string): string
+  /**
+   * Resolves the TypeScript type alias name for an operation response by status code.
+   *
+   * @example
+   * transformer.responseStatusTypedName('listPets', 200) // → 'ListPetsStatus200'
+   */
+  responseStatusTypedName(operationId: string, statusCode: number | string): string
+  /**
+   * Resolves the variable/function name for an operation's request body (`Data`).
+   *
+   * @example
+   * transformer.dataName('listPets') // → 'ListPetsData'
+   */
+  dataName(operationId: string): string
+  /**
+   * Resolves the TypeScript type alias name for an operation's request body (`Data`).
+   *
+   * @example
+   * transformer.dataTypedName('listPets') // → 'ListPetsData'
+   */
+  dataTypedName(operationId: string): string
+  /**
+   * Resolves the variable/function name for an operation's request config (`RequestConfig`).
+   *
+   * @example
+   * transformer.requestConfigName('listPets') // → 'ListPetsRequestConfig'
+   */
+  requestConfigName(operationId: string): string
+  /**
+   * Resolves the TypeScript type alias name for an operation's request config (`RequestConfig`).
+   *
+   * @example
+   * transformer.requestConfigTypedName('listPets') // → 'ListPetsRequestConfig'
+   */
+  requestConfigTypedName(operationId: string): string
+  /**
+   * Resolves the variable/function name for the collection of all operation responses (`Responses`).
+   *
+   * @example
+   * transformer.responsesName('listPets') // → 'ListPetsResponses'
+   */
+  responsesName(operationId: string): string
+  /**
+   * Resolves the TypeScript type alias name for the collection of all operation responses.
+   *
+   * @example
+   * transformer.responsesTypedName('listPets') // → 'ListPetsResponses'
+   */
+  responsesTypedName(operationId: string): string
+  /**
+   * Resolves the variable/function name for the union of all operation responses (`Response`).
+   *
+   * @example
+   * transformer.responseName('listPets') // → 'ListPetsResponse'
+   */
+  responseName(operationId: string): string
+  /**
+   * Resolves the TypeScript type alias name for the union of all operation responses.
+   *
+   * @example
+   * transformer.responseTypedName('listPets') // → 'ListPetsResponse'
+   */
+  responseTypedName(operationId: string): string
+  /**
+   * Resolves the TypeScript type alias name for an enum schema's key variant.
+   * Appends the `Key` suffix after applying the default naming convention.
+   *
+   * @example
+   * transformer.enumKeyTypedName('petStatus') // → 'PetStatusKey'
+   */
+  enumKeyTypedName(name: string): string
 }
 
 export type Options = {

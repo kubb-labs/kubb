@@ -75,41 +75,40 @@ export const typeGenerator = createGenerator<PluginTs>({
 
     const responseTypes = node.responses
       .filter((res) => res.schema)
-      .map((res) => {
-        const responseRawName = `${node.operationId} Status ${res.statusCode}`
-        return renderSchemaType({
+      .map((res) =>
+        renderSchemaType({
           node: res.schema!,
-          name: transformer.name(responseRawName),
-          typedName: transformer.typedName(responseRawName),
+          name: transformer.responseStatusName(node.operationId, res.statusCode),
+          typedName: transformer.responseStatusTypedName(node.operationId, res.statusCode),
           description: res.description,
-        })
-      })
+        }),
+      )
 
     const requestType = node.requestBody
       ? renderSchemaType({
           node: node.requestBody,
-          name: transformer.name(`${node.operationId} Data`),
-          typedName: transformer.typedName(`${node.operationId} Data`),
+          name: transformer.dataName(node.operationId),
+          typedName: transformer.dataTypedName(node.operationId),
           description: node.requestBody.description,
         })
       : null
 
     const dataType = renderSchemaType({
       node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolveName }),
-      name: transformer.name(`${node.operationId} RequestConfig`),
-      typedName: transformer.typedName(`${node.operationId} RequestConfig`),
+      name: transformer.requestConfigName(node.operationId),
+      typedName: transformer.requestConfigTypedName(node.operationId),
     })
 
     const responsesType = renderSchemaType({
       node: buildResponsesSchemaNode({ node, resolveName }),
-      name: transformer.name(`${node.operationId} Responses`),
-      typedName: transformer.typedName(`${node.operationId} Responses`),
+      name: transformer.responsesName(node.operationId),
+      typedName: transformer.responsesTypedName(node.operationId),
     })
 
     const responseType = renderSchemaType({
       node: buildResponseUnionSchemaNode({ node, resolveName }),
-      name: transformer.name(`${node.operationId} Response`),
-      typedName: transformer.typedName(`${node.operationId} Response`),
+      name: transformer.responseName(node.operationId),
+      typedName: transformer.responseTypedName(node.operationId),
       description: 'Union of all possible responses',
     })
 
@@ -139,10 +138,8 @@ export const typeGenerator = createGenerator<PluginTs>({
 
     const isEnumSchema = node.type === 'enum'
 
-    let typedName = transformer.typedName(node.name)
-    if (ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema) {
-      typedName += 'Key'
-    }
+    const typedName =
+      ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? transformer.enumKeyTypedName(node.name) : transformer.typedName(node.name)
 
     const type = {
       name: transformer.name(node.name),
