@@ -2,7 +2,6 @@ import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
-import ts, { factory } from 'typescript'
 
 const input = { path: './petStore.yaml' } as const
 
@@ -14,6 +13,9 @@ export default defineConfig([
       path: './src/gen',
       clean: true,
     },
+    adapter: adapterOas({
+      validate: false,
+    }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
@@ -63,6 +65,9 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen2', clean: true },
+    adapter: adapterOas({
+      validate: false,
+    }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
@@ -78,6 +83,9 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen3', clean: true },
+    adapter: adapterOas({
+      validate: false,
+    }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
@@ -93,6 +101,9 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen4', clean: true },
+    adapter: adapterOas({
+      validate: false,
+    }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
@@ -108,6 +119,9 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen5', clean: true },
+    adapter: adapterOas({
+      validate: false,
+    }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
@@ -126,19 +140,14 @@ export default defineConfig([
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
+    adapter: adapterOas({
+      validate: false,
+    }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'ts/models',
-        },
-        mapper: {
-          category: factory.createPropertySignature(
-            undefined,
-            factory.createIdentifier('category'),
-            factory.createToken(ts.SyntaxKind.QuestionToken),
-            factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-          ),
         },
       }),
     ],

@@ -3,33 +3,31 @@
  * Do not edit manually.
  */
 
-export type LoginUserQueryParams = {
-  /**
-   * @description The user name for login
-   * @type string | undefined
-   */
-  username?: string
-  /**
-   * @description The password for login in clear text
-   * @type string | undefined
-   */
-  password?: string
-}
+export type LoginUserQueryUsername = string
+
+export type LoginUserQueryPassword = string
 
 /**
  * @description successful operation
  */
-export type LoginUser200 = string
+export type LoginUserStatus200 = string
+
+export type LoginUserRequestConfig = {
+  data?: never
+  pathParams?: never
+  queryParams?: {
+    username?: LoginUserQueryUsername
+    password?: LoginUserQueryPassword
+  }
+  headerParams?: never
+  url: '/user/login'
+}
+
+export type LoginUserResponses = {
+  '200': LoginUserStatus200
+}
 
 /**
- * @description Invalid username/password supplied
+ * @description Union of all possible responses
  */
-export type LoginUser400 = any
-
-export type LoginUserQueryResponse = LoginUser200
-
-export type LoginUserQuery = {
-  Response: LoginUser200
-  QueryParams: LoginUserQueryParams
-  Errors: LoginUser400
-}
+export type LoginUserResponse = LoginUserStatus200

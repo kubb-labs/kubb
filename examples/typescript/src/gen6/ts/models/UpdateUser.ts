@@ -5,29 +5,16 @@
 
 import type { User } from './User.ts'
 
-export type UpdateUserPathParams = {
-  /**
-   * @description name that need to be deleted
-   * @type string
-   */
-  username: string
-}
+export type UpdateUserPathUsername = string
 
-/**
- * @description successful operation
- */
-export type UpdateUserError = any
+export type UpdateUserData = User
 
-/**
- * @description Update an existent user in the store
- */
-export type UpdateUserMutationRequest = User
-
-export type UpdateUserMutationResponse = any
-
-export type UpdateUserMutation = {
-  Response: any
-  Request: UpdateUserMutationRequest
-  PathParams: UpdateUserPathParams
-  Errors: any
+export type UpdateUserRequestConfig = {
+  data?: UpdateUserData
+  pathParams: {
+    username: UpdateUserPathUsername
+  }
+  queryParams?: never
+  headerParams?: never
+  url: `/user/${string}`
 }

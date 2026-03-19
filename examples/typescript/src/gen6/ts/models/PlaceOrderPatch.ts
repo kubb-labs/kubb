@@ -8,19 +8,23 @@ import type { Order } from './Order.ts'
 /**
  * @description successful operation
  */
-export type PlaceOrderPatch200 = Order
+export type PlaceOrderPatchStatus200 = Order
+
+export type PlaceOrderPatchData = Order
+
+export type PlaceOrderPatchRequestConfig = {
+  data?: PlaceOrderPatchData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/store/order'
+}
+
+export type PlaceOrderPatchResponses = {
+  '200': PlaceOrderPatchStatus200
+}
 
 /**
- * @description Invalid input
+ * @description Union of all possible responses
  */
-export type PlaceOrderPatch405 = any
-
-export type PlaceOrderPatchMutationRequest = Order
-
-export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
-
-export type PlaceOrderPatchMutation = {
-  Response: PlaceOrderPatch200
-  Request: PlaceOrderPatchMutationRequest
-  Errors: PlaceOrderPatch405
-}
+export type PlaceOrderPatchResponse = PlaceOrderPatchStatus200
