@@ -140,11 +140,15 @@ describe('createParameter', () => {
 
 describe('createResponse', () => {
   it('creates a response with just a status code', () => {
-    const node = createResponse({ statusCode: '200' })
+    const node = createResponse({
+      statusCode: '200',
+      schema: createSchema({
+        type: 'string',
+      }),
+    })
 
     expect(node.kind).toBe('Response')
     expect(node.statusCode).toBe('200')
-    expect(node.schema).toBeUndefined()
   })
 
   it('accepts a schema and description', () => {

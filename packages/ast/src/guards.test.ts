@@ -87,13 +87,27 @@ describe('isPropertyNode', () => {
 
 describe('isResponseNode', () => {
   it('returns true for ResponseNode', () => {
-    expect(isResponseNode(createResponse({ statusCode: '200' }))).toBe(true)
+    expect(
+      isResponseNode(
+        createResponse({
+          statusCode: '200',
+          schema: createSchema({
+            type: 'string',
+          }),
+        }),
+      ),
+    ).toBe(true)
   })
   it('returns false for other nodes', () => {
     expect(isResponseNode(createRoot())).toBe(false)
   })
   it('narrows to ResponseNode in a conditional', () => {
-    const node: Node = createResponse({ statusCode: '200' })
+    const node: Node = createResponse({
+      statusCode: '200',
+      schema: createSchema({
+        type: 'string',
+      }),
+    })
     if (isResponseNode(node)) {
       expectTypeOf(node).toEqualTypeOf<ResponseNode>()
     }

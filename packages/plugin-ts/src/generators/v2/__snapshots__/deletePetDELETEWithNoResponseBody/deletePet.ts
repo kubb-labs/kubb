@@ -5,6 +5,11 @@
 
 export type DeletePetPathPetId = string
 
+/**
+ * @description No content
+ */
+export type DeletePetStatus204 = string
+
 export type DeletePetRequestConfig = {
   data?: never
   pathParams: {
@@ -14,3 +19,12 @@ export type DeletePetRequestConfig = {
   headerParams?: never
   url: `/pets/${string}`
 }
+
+export type DeletePetResponses = {
+  '204': deletePetStatus204
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type DeletePetResponse = deletePetStatus204

@@ -52,6 +52,7 @@ export function buildDataSchemaNode({ node, resolveName }: BuildOperationSchemaO
 
   return createSchema({
     type: 'object',
+    deprecated: node.deprecated,
     properties: [
       createProperty({
         name: 'data',
@@ -95,17 +96,16 @@ export function buildDataSchemaNode({ node, resolveName }: BuildOperationSchemaO
 /**
  * Builds an `ObjectSchemaNode` representing `<OperationId>Responses` — keyed by HTTP status code.
  * Numeric status codes produce unquoted numeric keys (e.g. `200:`).
+ * All responses are included; those without a schema are represented as a ref to a `never` type.
  */
 export function buildResponsesSchemaNode({ node, resolveName }: BuildOperationSchemaOptions): SchemaNode | null {
-  const responsesWithSchema = node.responses.filter((res) => res.schema)
-
-  if (responsesWithSchema.length === 0) {
+  if (node.responses.length === 0) {
     return null
   }
 
   return createSchema({
     type: 'object',
-    properties: responsesWithSchema.map((res) =>
+    properties: node.responses.map((res) =>
       createProperty({
         name: String(res.statusCode),
         schema: createSchema({

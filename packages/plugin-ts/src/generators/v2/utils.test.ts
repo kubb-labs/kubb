@@ -120,17 +120,6 @@ describe('buildDataSchemaNode', () => {
 })
 
 describe('buildResponsesSchemaNode', () => {
-  it('returns null when no responses have schemas', () => {
-    const node = createOperation({
-      operationId: 'deletePet',
-      method: 'DELETE',
-      path: '/pets/:petId',
-      responses: [createResponse({ statusCode: '204', description: 'No content' })],
-    })
-
-    expect(buildResponsesSchemaNode({ node, resolveName })).toBeNull()
-  })
-
   it('emits a keyed object type for responses with schemas', () => {
     const node = createOperation({
       operationId: 'listPets',
@@ -157,7 +146,15 @@ describe('buildResponseUnionSchemaNode', () => {
       operationId: 'deletePet',
       method: 'DELETE',
       path: '/pets/:petId',
-      responses: [createResponse({ statusCode: '204', description: 'No content' })],
+      responses: [
+        createResponse({
+          statusCode: '204',
+          description: 'No content',
+          schema: createSchema({
+            type: 'string',
+          }),
+        }),
+      ],
     })
 
     expect(buildResponseUnionSchemaNode({ node, resolveName })).toBeNull()

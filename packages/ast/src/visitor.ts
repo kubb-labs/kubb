@@ -231,7 +231,7 @@ export function transform(node: Node, visitor: Visitor, options: VisitorOptions 
 
       return {
         ...response,
-        schema: response.schema ? transform(response.schema, visitor, options) : undefined,
+        schema: transform(response.schema, visitor, options),
       }
     }
   }

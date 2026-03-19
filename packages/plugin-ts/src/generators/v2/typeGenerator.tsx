@@ -73,16 +73,14 @@ export const typeGenerator = defineGenerator<PluginTs>({
       }),
     )
 
-    const responseTypes = node.responses
-      .filter((res) => res.schema)
-      .map((res) =>
-        renderSchemaType({
-          node: res.schema!,
-          name: resolverTs.resolveResponseStatusName(node, res.statusCode),
-          typedName: resolverTs.resolveResponseStatusTypedName(node, res.statusCode),
-          description: res.description,
-        }),
-      )
+    const responseTypes = node.responses.map((res) =>
+      renderSchemaType({
+        node: res.schema,
+        name: resolverTs.resolveResponseStatusName(node, res.statusCode),
+        typedName: resolverTs.resolveResponseStatusTypedName(node, res.statusCode),
+        description: res.description,
+      }),
+    )
 
     const requestType = node.requestBody
       ? renderSchemaType({
@@ -97,6 +95,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
       node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolveName }),
       name: resolverTs.resolveRequestConfigName(node),
       typedName: resolverTs.resolveRequestConfigTypedName(node),
+      description: node.description || node.summary,
     })
 
     const responsesType = renderSchemaType({
