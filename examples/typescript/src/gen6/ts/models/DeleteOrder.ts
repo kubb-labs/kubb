@@ -5,6 +5,16 @@
 
 export type DeleteOrderPathOrderId = number
 
+/**
+ * @description Invalid ID supplied
+ */
+export type DeleteOrderStatus400 = any
+
+/**
+ * @description Order not found
+ */
+export type DeleteOrderStatus404 = any
+
 export type DeleteOrderRequestConfig = {
   data?: never
   pathParams: {
@@ -14,3 +24,13 @@ export type DeleteOrderRequestConfig = {
   headerParams?: never
   url: `/store/order/${string}`
 }
+
+export type DeleteOrderResponses = {
+  '400': DeleteOrderStatus400
+  '404': DeleteOrderStatus404
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type DeleteOrderResponse = DeleteOrderStatus400 | DeleteOrderStatus404

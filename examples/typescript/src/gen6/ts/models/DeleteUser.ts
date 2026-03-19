@@ -5,6 +5,16 @@
 
 export type DeleteUserPathUsername = string | null
 
+/**
+ * @description Invalid username supplied
+ */
+export type DeleteUserStatus400 = any
+
+/**
+ * @description User not found
+ */
+export type DeleteUserStatus404 = any
+
 export type DeleteUserRequestConfig = {
   data?: never
   pathParams: {
@@ -14,3 +24,13 @@ export type DeleteUserRequestConfig = {
   headerParams?: never
   url: `/user/${string}`
 }
+
+export type DeleteUserResponses = {
+  '400': DeleteUserStatus400
+  '404': DeleteUserStatus404
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type DeleteUserResponse = DeleteUserStatus400 | DeleteUserStatus404

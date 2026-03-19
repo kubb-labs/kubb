@@ -10,6 +10,11 @@ import type { Order } from '../Order.ts'
  */
 export type PlaceOrderPatchStatus200 = Order
 
+/**
+ * @description Invalid input
+ */
+export type PlaceOrderPatchStatus405 = any
+
 export type PlaceOrderPatchData = Order
 
 export interface PlaceOrderPatchRequestConfig {
@@ -22,9 +27,10 @@ export interface PlaceOrderPatchRequestConfig {
 
 export interface PlaceOrderPatchResponses {
   '200': PlaceOrderPatchStatus200
+  '405': PlaceOrderPatchStatus405
 }
 
 /**
  * @description Union of all possible responses
  */
-export type PlaceOrderPatchResponse = PlaceOrderPatchStatus200
+export type PlaceOrderPatchResponse = PlaceOrderPatchStatus200 | PlaceOrderPatchStatus405

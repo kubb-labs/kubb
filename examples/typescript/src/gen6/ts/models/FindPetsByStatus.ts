@@ -15,6 +15,11 @@ export type FindPetsByStatusQueryStatus = 'available' | 'pending' | 'sold'
  */
 export type FindPetsByStatusStatus200 = Pet[]
 
+/**
+ * @description Invalid status value
+ */
+export type FindPetsByStatusStatus400 = any
+
 export type FindPetsByStatusRequestConfig = {
   data?: never
   pathParams?: never
@@ -27,9 +32,10 @@ export type FindPetsByStatusRequestConfig = {
 
 export type FindPetsByStatusResponses = {
   '200': FindPetsByStatusStatus200
+  '400': FindPetsByStatusStatus400
 }
 
 /**
  * @description Union of all possible responses
  */
-export type FindPetsByStatusResponse = FindPetsByStatusStatus200
+export type FindPetsByStatusResponse = FindPetsByStatusStatus200 | FindPetsByStatusStatus400

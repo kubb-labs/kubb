@@ -365,6 +365,21 @@ export type UserArray = User[]
  */
 export type UpdatePetStatus200 = Pet
 
+/**
+ * @description Invalid ID supplied
+ */
+export type UpdatePetStatus400 = any
+
+/**
+ * @description Pet not found
+ */
+export type UpdatePetStatus404 = any
+
+/**
+ * @description Validation exception
+ */
+export type UpdatePetStatus405 = any
+
 export type UpdatePetData = Pet
 
 export type UpdatePetRequestConfig = {
@@ -377,12 +392,15 @@ export type UpdatePetRequestConfig = {
 
 export type UpdatePetResponses = {
   '200': UpdatePetStatus200
+  '400': UpdatePetStatus400
+  '404': UpdatePetStatus404
+  '405': UpdatePetStatus405
 }
 
 /**
  * @description Union of all possible responses
  */
-export type UpdatePetResponse = UpdatePetStatus200
+export type UpdatePetResponse = UpdatePetStatus200 | UpdatePetStatus400 | UpdatePetStatus404 | UpdatePetStatus405
 
 /**
  * @description Successful operation
@@ -433,6 +451,11 @@ export type FindPetsByStatusQueryStatus = 'available' | 'pending' | 'sold'
  */
 export type FindPetsByStatusStatus200 = Pet[]
 
+/**
+ * @description Invalid status value
+ */
+export type FindPetsByStatusStatus400 = any
+
 export type FindPetsByStatusRequestConfig = {
   data?: never
   pathParams?: never
@@ -445,25 +468,37 @@ export type FindPetsByStatusRequestConfig = {
 
 export type FindPetsByStatusResponses = {
   '200': FindPetsByStatusStatus200
+  '400': FindPetsByStatusStatus400
 }
 
 /**
  * @description Union of all possible responses
  */
-export type FindPetsByStatusResponse = FindPetsByStatusStatus200
+export type FindPetsByStatusResponse = FindPetsByStatusStatus200 | FindPetsByStatusStatus400
 
 export type FindPetsByTagsQueryTags = string[]
+
+export type FindPetsByTagsQueryPage = string
+
+export type FindPetsByTagsQueryPageSize = string
 
 /**
  * @description successful operation
  */
 export type FindPetsByTagsStatus200 = Pet[]
 
+/**
+ * @description Invalid tag value
+ */
+export type FindPetsByTagsStatus400 = any
+
 export type FindPetsByTagsRequestConfig = {
   data?: never
   pathParams?: never
   queryParams?: {
     tags?: FindPetsByTagsQueryTags
+    page?: FindPetsByTagsQueryPage
+    pageSize?: FindPetsByTagsQueryPageSize
   }
   headerParams?: never
   url: '/pet/findByTags'
@@ -471,12 +506,13 @@ export type FindPetsByTagsRequestConfig = {
 
 export type FindPetsByTagsResponses = {
   '200': FindPetsByTagsStatus200
+  '400': FindPetsByTagsStatus400
 }
 
 /**
  * @description Union of all possible responses
  */
-export type FindPetsByTagsResponse = FindPetsByTagsStatus200
+export type FindPetsByTagsResponse = FindPetsByTagsStatus200 | FindPetsByTagsStatus400
 
 export type GetPetByIdPathPetId = number
 
@@ -484,6 +520,16 @@ export type GetPetByIdPathPetId = number
  * @description successful operation
  */
 export type GetPetByIdStatus200 = Pet
+
+/**
+ * @description Invalid ID supplied
+ */
+export type GetPetByIdStatus400 = any
+
+/**
+ * @description Pet not found
+ */
+export type GetPetByIdStatus404 = any
 
 export type GetPetByIdRequestConfig = {
   data?: never
@@ -497,18 +543,25 @@ export type GetPetByIdRequestConfig = {
 
 export type GetPetByIdResponses = {
   '200': GetPetByIdStatus200
+  '400': GetPetByIdStatus400
+  '404': GetPetByIdStatus404
 }
 
 /**
  * @description Union of all possible responses
  */
-export type GetPetByIdResponse = GetPetByIdStatus200
+export type GetPetByIdResponse = GetPetByIdStatus200 | GetPetByIdStatus400 | GetPetByIdStatus404
 
 export type UpdatePetWithFormPathPetId = number
 
 export type UpdatePetWithFormQueryName = string
 
 export type UpdatePetWithFormQueryStatus = string
+
+/**
+ * @description Invalid input
+ */
+export type UpdatePetWithFormStatus405 = any
 
 export type UpdatePetWithFormRequestConfig = {
   data?: never
@@ -523,6 +576,15 @@ export type UpdatePetWithFormRequestConfig = {
   url: `/pet/${string}`
 }
 
+export type UpdatePetWithFormResponses = {
+  '405': UpdatePetWithFormStatus405
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type UpdatePetWithFormResponse = UpdatePetWithFormStatus405
+
 export type DeletePetHeaderApiKey = string
 
 export type DeletePetPathPetId = number
@@ -531,6 +593,11 @@ export type DeletePetPathPetId = number
  * @description items
  */
 export type DeletePetStatus200 = ('TYPE1' | 'TYPE2' | 'TYPE3')[]
+
+/**
+ * @description Invalid pet value
+ */
+export type DeletePetStatus400 = any
 
 export type DeletePetRequestConfig = {
   data?: never
@@ -546,12 +613,13 @@ export type DeletePetRequestConfig = {
 
 export type DeletePetResponses = {
   '200': DeletePetStatus200
+  '400': DeletePetStatus400
 }
 
 /**
  * @description Union of all possible responses
  */
-export type DeletePetResponse = DeletePetStatus200
+export type DeletePetResponse = DeletePetStatus200 | DeletePetStatus400
 
 export type UploadFilePathPetId = number
 
@@ -615,6 +683,11 @@ export type GetInventoryResponse = GetInventoryStatus200
 export type PlaceOrderStatus200 = Order
 
 /**
+ * @description Invalid input
+ */
+export type PlaceOrderStatus405 = any
+
+/**
  * @description Order description
  */
 export type PlaceOrderData = Order
@@ -629,17 +702,23 @@ export type PlaceOrderRequestConfig = {
 
 export type PlaceOrderResponses = {
   '200': PlaceOrderStatus200
+  '405': PlaceOrderStatus405
 }
 
 /**
  * @description Union of all possible responses
  */
-export type PlaceOrderResponse = PlaceOrderStatus200
+export type PlaceOrderResponse = PlaceOrderStatus200 | PlaceOrderStatus405
 
 /**
  * @description successful operation
  */
 export type PlaceOrderPatchStatus200 = Order
+
+/**
+ * @description Invalid input
+ */
+export type PlaceOrderPatchStatus405 = any
 
 export type PlaceOrderPatchData = Order
 
@@ -653,12 +732,13 @@ export type PlaceOrderPatchRequestConfig = {
 
 export type PlaceOrderPatchResponses = {
   '200': PlaceOrderPatchStatus200
+  '405': PlaceOrderPatchStatus405
 }
 
 /**
  * @description Union of all possible responses
  */
-export type PlaceOrderPatchResponse = PlaceOrderPatchStatus200
+export type PlaceOrderPatchResponse = PlaceOrderPatchStatus200 | PlaceOrderPatchStatus405
 
 export type GetOrderByIdPathOrderId = number
 
@@ -666,6 +746,16 @@ export type GetOrderByIdPathOrderId = number
  * @description successful operation
  */
 export type GetOrderByIdStatus200 = Order
+
+/**
+ * @description Invalid ID supplied
+ */
+export type GetOrderByIdStatus400 = any
+
+/**
+ * @description Order not found
+ */
+export type GetOrderByIdStatus404 = any
 
 export type GetOrderByIdRequestConfig = {
   data?: never
@@ -679,14 +769,26 @@ export type GetOrderByIdRequestConfig = {
 
 export type GetOrderByIdResponses = {
   '200': GetOrderByIdStatus200
+  '400': GetOrderByIdStatus400
+  '404': GetOrderByIdStatus404
 }
 
 /**
  * @description Union of all possible responses
  */
-export type GetOrderByIdResponse = GetOrderByIdStatus200
+export type GetOrderByIdResponse = GetOrderByIdStatus200 | GetOrderByIdStatus400 | GetOrderByIdStatus404
 
 export type DeleteOrderPathOrderId = number
+
+/**
+ * @description Invalid ID supplied
+ */
+export type DeleteOrderStatus400 = any
+
+/**
+ * @description Order not found
+ */
+export type DeleteOrderStatus404 = any
 
 export type DeleteOrderRequestConfig = {
   data?: never
@@ -697,6 +799,16 @@ export type DeleteOrderRequestConfig = {
   headerParams?: never
   url: `/store/order/${string}`
 }
+
+export type DeleteOrderResponses = {
+  '400': DeleteOrderStatus400
+  '404': DeleteOrderStatus404
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type DeleteOrderResponse = DeleteOrderStatus400 | DeleteOrderStatus404
 
 /**
  * @description successful operation
@@ -727,6 +839,11 @@ export type CreateUserResponse = CreateUserStatusDefault
  */
 export type CreateUsersWithListInputStatus200 = User
 
+/**
+ * @description successful operation
+ */
+export type CreateUsersWithListInputStatusDefault = any
+
 export type CreateUsersWithListInputData = User[]
 
 export type CreateUsersWithListInputRequestConfig = {
@@ -739,12 +856,13 @@ export type CreateUsersWithListInputRequestConfig = {
 
 export type CreateUsersWithListInputResponses = {
   '200': CreateUsersWithListInputStatus200
+  default: CreateUsersWithListInputStatusDefault
 }
 
 /**
  * @description Union of all possible responses
  */
-export type CreateUsersWithListInputResponse = CreateUsersWithListInputStatus200
+export type CreateUsersWithListInputResponse = CreateUsersWithListInputStatus200 | CreateUsersWithListInputStatusDefault
 
 export type LoginUserQueryUsername = string
 
@@ -754,6 +872,11 @@ export type LoginUserQueryPassword = string
  * @description successful operation
  */
 export type LoginUserStatus200 = string
+
+/**
+ * @description Invalid username/password supplied
+ */
+export type LoginUserStatus400 = any
 
 export type LoginUserRequestConfig = {
   data?: never
@@ -768,12 +891,18 @@ export type LoginUserRequestConfig = {
 
 export type LoginUserResponses = {
   '200': LoginUserStatus200
+  '400': LoginUserStatus400
 }
 
 /**
  * @description Union of all possible responses
  */
-export type LoginUserResponse = LoginUserStatus200
+export type LoginUserResponse = LoginUserStatus200 | LoginUserStatus400
+
+/**
+ * @description successful operation
+ */
+export type LogoutUserStatusDefault = any
 
 export type LogoutUserRequestConfig = {
   data?: never
@@ -783,12 +912,31 @@ export type LogoutUserRequestConfig = {
   url: '/user/logout'
 }
 
+export type LogoutUserResponses = {
+  default: LogoutUserStatusDefault
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type LogoutUserResponse = LogoutUserStatusDefault
+
 export type GetUserByNamePathUsername = string
 
 /**
  * @description successful operation
  */
 export type GetUserByNameStatus200 = User
+
+/**
+ * @description Invalid username supplied
+ */
+export type GetUserByNameStatus400 = any
+
+/**
+ * @description User not found
+ */
+export type GetUserByNameStatus404 = any
 
 export type GetUserByNameRequestConfig = {
   data?: never
@@ -802,14 +950,21 @@ export type GetUserByNameRequestConfig = {
 
 export type GetUserByNameResponses = {
   '200': GetUserByNameStatus200
+  '400': GetUserByNameStatus400
+  '404': GetUserByNameStatus404
 }
 
 /**
  * @description Union of all possible responses
  */
-export type GetUserByNameResponse = GetUserByNameStatus200
+export type GetUserByNameResponse = GetUserByNameStatus200 | GetUserByNameStatus400 | GetUserByNameStatus404
 
 export type UpdateUserPathUsername = string
+
+/**
+ * @description successful operation
+ */
+export type UpdateUserStatusDefault = any
 
 export type UpdateUserData = User
 
@@ -823,7 +978,26 @@ export type UpdateUserRequestConfig = {
   url: `/user/${string}`
 }
 
+export type UpdateUserResponses = {
+  default: UpdateUserStatusDefault
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type UpdateUserResponse = UpdateUserStatusDefault
+
 export type DeleteUserPathUsername = string | null
+
+/**
+ * @description Invalid username supplied
+ */
+export type DeleteUserStatus400 = any
+
+/**
+ * @description User not found
+ */
+export type DeleteUserStatus404 = any
 
 export type DeleteUserRequestConfig = {
   data?: never
@@ -834,3 +1008,13 @@ export type DeleteUserRequestConfig = {
   headerParams?: never
   url: `/user/${string}`
 }
+
+export type DeleteUserResponses = {
+  '400': DeleteUserStatus400
+  '404': DeleteUserStatus404
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type DeleteUserResponse = DeleteUserStatus400 | DeleteUserStatus404

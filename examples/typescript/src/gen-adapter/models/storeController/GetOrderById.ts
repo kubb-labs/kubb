@@ -12,6 +12,16 @@ export type GetOrderByIdPathOrderId = number
  */
 export type GetOrderByIdStatus200 = Order
 
+/**
+ * @description Invalid ID supplied
+ */
+export type GetOrderByIdStatus400 = any
+
+/**
+ * @description Order not found
+ */
+export type GetOrderByIdStatus404 = any
+
 export interface GetOrderByIdRequestConfig {
   data?: never
   pathParams: {
@@ -24,9 +34,11 @@ export interface GetOrderByIdRequestConfig {
 
 export interface GetOrderByIdResponses {
   '200': GetOrderByIdStatus200
+  '400': GetOrderByIdStatus400
+  '404': GetOrderByIdStatus404
 }
 
 /**
  * @description Union of all possible responses
  */
-export type GetOrderByIdResponse = GetOrderByIdStatus200
+export type GetOrderByIdResponse = GetOrderByIdStatus200 | GetOrderByIdStatus400 | GetOrderByIdStatus404

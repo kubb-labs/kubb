@@ -12,6 +12,16 @@ export type GetUserByNamePathUsername = string
  */
 export type GetUserByNameStatus200 = User
 
+/**
+ * @description Invalid username supplied
+ */
+export type GetUserByNameStatus400 = any
+
+/**
+ * @description User not found
+ */
+export type GetUserByNameStatus404 = any
+
 export type GetUserByNameRequestConfig = {
   data?: never
   pathParams: {
@@ -24,9 +34,11 @@ export type GetUserByNameRequestConfig = {
 
 export type GetUserByNameResponses = {
   '200': GetUserByNameStatus200
+  '400': GetUserByNameStatus400
+  '404': GetUserByNameStatus404
 }
 
 /**
  * @description Union of all possible responses
  */
-export type GetUserByNameResponse = GetUserByNameStatus200
+export type GetUserByNameResponse = GetUserByNameStatus200 | GetUserByNameStatus400 | GetUserByNameStatus404

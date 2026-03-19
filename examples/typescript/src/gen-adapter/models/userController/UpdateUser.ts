@@ -7,6 +7,11 @@ import type { User } from '../User.ts'
 
 export type UpdateUserPathUsername = string
 
+/**
+ * @description successful operation
+ */
+export type UpdateUserStatusDefault = any
+
 export type UpdateUserData = User
 
 export interface UpdateUserRequestConfig {
@@ -18,3 +23,12 @@ export interface UpdateUserRequestConfig {
   headerParams?: never
   url: `/user/${string}`
 }
+
+export interface UpdateUserResponses {
+  default: UpdateUserStatusDefault
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type UpdateUserResponse = UpdateUserStatusDefault

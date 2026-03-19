@@ -12,6 +12,16 @@ export type GetPetByIdPathPetId = number
  */
 export type GetPetByIdStatus200 = Pet
 
+/**
+ * @description Invalid ID supplied
+ */
+export type GetPetByIdStatus400 = any
+
+/**
+ * @description Pet not found
+ */
+export type GetPetByIdStatus404 = any
+
 export interface GetPetByIdRequestConfig {
   data?: never
   pathParams: {
@@ -24,9 +34,11 @@ export interface GetPetByIdRequestConfig {
 
 export interface GetPetByIdResponses {
   '200': GetPetByIdStatus200
+  '400': GetPetByIdStatus400
+  '404': GetPetByIdStatus404
 }
 
 /**
  * @description Union of all possible responses
  */
-export type GetPetByIdResponse = GetPetByIdStatus200
+export type GetPetByIdResponse = GetPetByIdStatus200 | GetPetByIdStatus400 | GetPetByIdStatus404

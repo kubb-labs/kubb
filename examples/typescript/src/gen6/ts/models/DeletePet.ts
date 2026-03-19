@@ -12,6 +12,11 @@ export type DeletePetPathPetId = number
  */
 export type DeletePetStatus200 = ('TYPE1' | 'TYPE2' | 'TYPE3')[]
 
+/**
+ * @description Invalid pet value
+ */
+export type DeletePetStatus400 = any
+
 export type DeletePetRequestConfig = {
   data?: never
   pathParams: {
@@ -26,9 +31,10 @@ export type DeletePetRequestConfig = {
 
 export type DeletePetResponses = {
   '200': DeletePetStatus200
+  '400': DeletePetStatus400
 }
 
 /**
  * @description Union of all possible responses
  */
-export type DeletePetResponse = DeletePetStatus200
+export type DeletePetResponse = DeletePetStatus200 | DeletePetStatus400

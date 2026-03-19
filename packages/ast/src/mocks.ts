@@ -24,9 +24,7 @@ export function buildSampleTree(): RootNode {
       createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'Pet' }) }),
       createResponse({
         statusCode: '404',
-        schema: createSchema({
-          type: 'string',
-        }),
+        schema: createSchema({ type: 'ref', name: 'Error' }),
       }),
     ],
   })

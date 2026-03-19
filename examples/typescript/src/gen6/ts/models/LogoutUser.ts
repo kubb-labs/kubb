@@ -3,6 +3,11 @@
  * Do not edit manually.
  */
 
+/**
+ * @description successful operation
+ */
+export type LogoutUserStatusDefault = any
+
 export type LogoutUserRequestConfig = {
   data?: never
   pathParams?: never
@@ -10,3 +15,12 @@ export type LogoutUserRequestConfig = {
   headerParams?: never
   url: '/user/logout'
 }
+
+export type LogoutUserResponses = {
+  default: LogoutUserStatusDefault
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type LogoutUserResponse = LogoutUserStatusDefault

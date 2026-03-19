@@ -9,6 +9,11 @@ export type UpdatePetWithFormQueryName = string
 
 export type UpdatePetWithFormQueryStatus = string
 
+/**
+ * @description Invalid input
+ */
+export type UpdatePetWithFormStatus405 = any
+
 export interface UpdatePetWithFormRequestConfig {
   data?: never
   pathParams: {
@@ -21,3 +26,12 @@ export interface UpdatePetWithFormRequestConfig {
   headerParams?: never
   url: `/pet/${string}`
 }
+
+export interface UpdatePetWithFormResponses {
+  '405': UpdatePetWithFormStatus405
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type UpdatePetWithFormResponse = UpdatePetWithFormStatus405

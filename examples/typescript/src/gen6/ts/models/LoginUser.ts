@@ -12,6 +12,11 @@ export type LoginUserQueryPassword = string
  */
 export type LoginUserStatus200 = string
 
+/**
+ * @description Invalid username/password supplied
+ */
+export type LoginUserStatus400 = any
+
 export type LoginUserRequestConfig = {
   data?: never
   pathParams?: never
@@ -25,9 +30,10 @@ export type LoginUserRequestConfig = {
 
 export type LoginUserResponses = {
   '200': LoginUserStatus200
+  '400': LoginUserStatus400
 }
 
 /**
  * @description Union of all possible responses
  */
-export type LoginUserResponse = LoginUserStatus200
+export type LoginUserResponse = LoginUserStatus200 | LoginUserStatus400

@@ -10,6 +10,11 @@ import type { User } from './User.ts'
  */
 export type CreateUsersWithListInputStatus200 = User
 
+/**
+ * @description successful operation
+ */
+export type CreateUsersWithListInputStatusDefault = any
+
 export type CreateUsersWithListInputData = User[]
 
 export type CreateUsersWithListInputRequestConfig = {
@@ -22,9 +27,10 @@ export type CreateUsersWithListInputRequestConfig = {
 
 export type CreateUsersWithListInputResponses = {
   '200': CreateUsersWithListInputStatus200
+  default: CreateUsersWithListInputStatusDefault
 }
 
 /**
  * @description Union of all possible responses
  */
-export type CreateUsersWithListInputResponse = CreateUsersWithListInputStatus200
+export type CreateUsersWithListInputResponse = CreateUsersWithListInputStatus200 | CreateUsersWithListInputStatusDefault

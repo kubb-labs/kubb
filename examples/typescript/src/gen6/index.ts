@@ -28,6 +28,7 @@ export type {
   CreateUsersWithListInputResponse,
   CreateUsersWithListInputResponses,
   CreateUsersWithListInputStatus200,
+  CreateUsersWithListInputStatusDefault,
 } from './ts/models/CreateUsersWithListInput.ts'
 export type {
   Customer,
@@ -37,6 +38,10 @@ export { customerParamsStatusEnum } from './ts/models/Customer.ts'
 export type {
   DeleteOrderPathOrderId,
   DeleteOrderRequestConfig,
+  DeleteOrderResponse,
+  DeleteOrderResponses,
+  DeleteOrderStatus400,
+  DeleteOrderStatus404,
 } from './ts/models/DeleteOrder.ts'
 export type {
   DeletePetHeaderApiKey,
@@ -45,10 +50,15 @@ export type {
   DeletePetResponse,
   DeletePetResponses,
   DeletePetStatus200,
+  DeletePetStatus400,
 } from './ts/models/DeletePet.ts'
 export type {
   DeleteUserPathUsername,
   DeleteUserRequestConfig,
+  DeleteUserResponse,
+  DeleteUserResponses,
+  DeleteUserStatus400,
+  DeleteUserStatus404,
 } from './ts/models/DeleteUser.ts'
 export type { Dog } from './ts/models/Dog.ts'
 export type {
@@ -57,13 +67,17 @@ export type {
   FindPetsByStatusResponse,
   FindPetsByStatusResponses,
   FindPetsByStatusStatus200,
+  FindPetsByStatusStatus400,
 } from './ts/models/FindPetsByStatus.ts'
 export type {
+  FindPetsByTagsQueryPage,
+  FindPetsByTagsQueryPageSize,
   FindPetsByTagsQueryTags,
   FindPetsByTagsRequestConfig,
   FindPetsByTagsResponse,
   FindPetsByTagsResponses,
   FindPetsByTagsStatus200,
+  FindPetsByTagsStatus400,
 } from './ts/models/FindPetsByTags.ts'
 export type { FullAddress } from './ts/models/FullAddress.ts'
 export type {
@@ -78,6 +92,8 @@ export type {
   GetOrderByIdResponse,
   GetOrderByIdResponses,
   GetOrderByIdStatus200,
+  GetOrderByIdStatus400,
+  GetOrderByIdStatus404,
 } from './ts/models/GetOrderById.ts'
 export type {
   GetPetByIdPathPetId,
@@ -85,6 +101,8 @@ export type {
   GetPetByIdResponse,
   GetPetByIdResponses,
   GetPetByIdStatus200,
+  GetPetByIdStatus400,
+  GetPetByIdStatus404,
 } from './ts/models/GetPetById.ts'
 export type {
   GetUserByNamePathUsername,
@@ -92,6 +110,8 @@ export type {
   GetUserByNameResponse,
   GetUserByNameResponses,
   GetUserByNameStatus200,
+  GetUserByNameStatus400,
+  GetUserByNameStatus404,
 } from './ts/models/GetUserByName.ts'
 export type { HappyCustomer } from './ts/models/HappyCustomer.ts'
 export type {
@@ -101,8 +121,14 @@ export type {
   LoginUserResponse,
   LoginUserResponses,
   LoginUserStatus200,
+  LoginUserStatus400,
 } from './ts/models/LoginUser.ts'
-export type { LogoutUserRequestConfig } from './ts/models/LogoutUser.ts'
+export type {
+  LogoutUserRequestConfig,
+  LogoutUserResponse,
+  LogoutUserResponses,
+  LogoutUserStatusDefault,
+} from './ts/models/LogoutUser.ts'
 export type {
   Order,
   OrderHttpStatusEnumKey,
@@ -118,6 +144,7 @@ export type {
   PlaceOrderResponse,
   PlaceOrderResponses,
   PlaceOrderStatus200,
+  PlaceOrderStatus405,
 } from './ts/models/PlaceOrder.ts'
 export type {
   PlaceOrderPatchData,
@@ -125,6 +152,7 @@ export type {
   PlaceOrderPatchResponse,
   PlaceOrderPatchResponses,
   PlaceOrderPatchStatus200,
+  PlaceOrderPatchStatus405,
 } from './ts/models/PlaceOrderPatch.ts'
 export type { Tag } from './ts/models/Tag.ts'
 export type { UnhappyCustomer } from './ts/models/UnhappyCustomer.ts'
@@ -134,17 +162,26 @@ export type {
   UpdatePetResponse,
   UpdatePetResponses,
   UpdatePetStatus200,
+  UpdatePetStatus400,
+  UpdatePetStatus404,
+  UpdatePetStatus405,
 } from './ts/models/UpdatePet.ts'
 export type {
   UpdatePetWithFormPathPetId,
   UpdatePetWithFormQueryName,
   UpdatePetWithFormQueryStatus,
   UpdatePetWithFormRequestConfig,
+  UpdatePetWithFormResponse,
+  UpdatePetWithFormResponses,
+  UpdatePetWithFormStatus405,
 } from './ts/models/UpdatePetWithForm.ts'
 export type {
   UpdateUserData,
   UpdateUserPathUsername,
   UpdateUserRequestConfig,
+  UpdateUserResponse,
+  UpdateUserResponses,
+  UpdateUserStatusDefault,
 } from './ts/models/UpdateUser.ts'
 export type {
   UploadFileData,

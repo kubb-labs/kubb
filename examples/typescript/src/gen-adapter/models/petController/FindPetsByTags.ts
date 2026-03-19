@@ -7,16 +7,27 @@ import type { Pet } from '../Pet.ts'
 
 export type FindPetsByTagsQueryTags = string[]
 
+export type FindPetsByTagsQueryPage = string
+
+export type FindPetsByTagsQueryPageSize = string
+
 /**
  * @description successful operation
  */
 export type FindPetsByTagsStatus200 = Pet[]
+
+/**
+ * @description Invalid tag value
+ */
+export type FindPetsByTagsStatus400 = any
 
 export interface FindPetsByTagsRequestConfig {
   data?: never
   pathParams?: never
   queryParams?: {
     tags?: FindPetsByTagsQueryTags
+    page?: FindPetsByTagsQueryPage
+    pageSize?: FindPetsByTagsQueryPageSize
   }
   headerParams?: never
   url: '/pet/findByTags'
@@ -24,9 +35,10 @@ export interface FindPetsByTagsRequestConfig {
 
 export interface FindPetsByTagsResponses {
   '200': FindPetsByTagsStatus200
+  '400': FindPetsByTagsStatus400
 }
 
 /**
  * @description Union of all possible responses
  */
-export type FindPetsByTagsResponse = FindPetsByTagsStatus200
+export type FindPetsByTagsResponse = FindPetsByTagsStatus200 | FindPetsByTagsStatus400

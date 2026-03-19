@@ -10,6 +10,21 @@ import type { Pet } from '../Pet.ts'
  */
 export type UpdatePetStatus200 = Pet
 
+/**
+ * @description Invalid ID supplied
+ */
+export type UpdatePetStatus400 = any
+
+/**
+ * @description Pet not found
+ */
+export type UpdatePetStatus404 = any
+
+/**
+ * @description Validation exception
+ */
+export type UpdatePetStatus405 = any
+
 export type UpdatePetData = Pet
 
 export interface UpdatePetRequestConfig {
@@ -22,9 +37,12 @@ export interface UpdatePetRequestConfig {
 
 export interface UpdatePetResponses {
   '200': UpdatePetStatus200
+  '400': UpdatePetStatus400
+  '404': UpdatePetStatus404
+  '405': UpdatePetStatus405
 }
 
 /**
  * @description Union of all possible responses
  */
-export type UpdatePetResponse = UpdatePetStatus200
+export type UpdatePetResponse = UpdatePetStatus200 | UpdatePetStatus400 | UpdatePetStatus404 | UpdatePetStatus405
