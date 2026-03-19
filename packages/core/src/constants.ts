@@ -14,7 +14,7 @@ export const DEFAULT_BANNER = 'simple' as const
 
 export const DEFAULT_EXTENSION: Record<KubbFile.Extname, KubbFile.Extname | ''> = { '.ts': '.ts' }
 
-export const PATH_SEPARATORS = ['/', '\\'] as const
+export const PATH_SEPARATORS = new Set(['/', '\\'] as const)
 
 export const logLevel = {
   silent: Number.NEGATIVE_INFINITY,

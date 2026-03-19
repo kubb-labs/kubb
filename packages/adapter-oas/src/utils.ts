@@ -1,6 +1,7 @@
 import { collect, createProperty, createSchema, narrowSchema } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
+import { SCALAR_PRIMITIVE_TYPES } from './constants.ts'
 
 /**
  * Extracts the schema name from a `$ref` string.
@@ -98,7 +99,7 @@ export function mergeAdjacentAnonymousObjects(members: Array<SchemaNode>): Array
  * considered — object, array, and ref members are left untouched.
  */
 export function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNode> {
-  const scalarPrimitives = new Set(members.filter((m) => ['string', 'number', 'integer', 'bigint', 'boolean'].includes(m.type)).map((m) => m.type as string))
+  const scalarPrimitives = new Set(members.filter((m) => SCALAR_PRIMITIVE_TYPES.has(m.type as 'string')).map((m) => m.type as string))
   if (!scalarPrimitives.size) return members
 
   return members.filter((m) => {

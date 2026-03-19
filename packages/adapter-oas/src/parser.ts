@@ -183,7 +183,7 @@ function getPrimitiveType(type: string | undefined): PrimitiveSchemaType {
  * Returns `undefined` for content types not present in `KNOWN_MEDIA_TYPES`.
  */
 function toMediaType(contentType: string): MediaType | undefined {
-  return knownMediaTypes.includes(contentType as MediaType) ? (contentType as MediaType) : undefined
+  return knownMediaTypes.has(contentType as MediaType) ? (contentType as MediaType) : undefined
 }
 
 /**

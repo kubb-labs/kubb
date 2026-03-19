@@ -1,4 +1,4 @@
-import type { MediaType, SchemaType } from '@kubb/ast/types'
+import type { SchemaType } from '@kubb/ast/types'
 import type { HttpMethods as OASHttpMethods } from 'oas/types'
 
 // ─── Merge defaults ────────────────────────────────────────────────────────────
@@ -25,7 +25,7 @@ export const MERGE_DEFAULT_VERSION = '1.0.0' as const
  * A schema fragment containing any of these keys must not be inlined into its
  * parent during `allOf` flattening — it carries semantic meaning of its own.
  */
-export const structuralKeys = new Set<string>(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'])
+export const structuralKeys = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'] as const)
 
 /**
  * Maps OAS/JSON Schema `format` strings to their Kubb `SchemaType` equivalents.
@@ -59,9 +59,8 @@ export const formatMap = {
 
 /**
  * Exhaustive list of media types that Kubb recognizes.
- * Kept as a module-level constant to avoid re-allocating the array on every call.
  */
-export const knownMediaTypes = [
+export const knownMediaTypes = new Set([
   'application/json',
   'application/xml',
   'application/x-www-form-urlencoded',
@@ -81,13 +80,18 @@ export const knownMediaTypes = [
   'image/svg+xml',
   'audio/mpeg',
   'video/mp4',
-] as const satisfies ReadonlyArray<MediaType>
+] as const)
 
 /**
  * Vendor extension keys used to attach human-readable labels to enum values.
  * Checked in priority order: the first key found wins.
  */
 export const enumExtensionKeys = ['x-enumNames', 'x-enum-varnames'] as const
+
+/**
+ * Scalar primitive schema types used for union member simplification.
+ */
+export const SCALAR_PRIMITIVE_TYPES = new Set(['string', 'number', 'integer', 'bigint', 'boolean'] as const)
 
 // ─── HTTP ──────────────────────────────────────────────────────────────────────
 

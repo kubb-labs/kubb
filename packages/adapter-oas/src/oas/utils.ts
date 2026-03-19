@@ -183,7 +183,7 @@ export function flattenSchema(schema: SchemaObject | null): SchemaObject | null 
   if (!schema?.allOf || schema.allOf.length === 0) return schema ?? null
   if (schema.allOf.some((item) => isRef(item))) return schema
 
-  const isPlainFragment = (item: SchemaObject) => !Object.keys(item).some((key) => structuralKeys.has(key))
+  const isPlainFragment = (item: SchemaObject) => !Object.keys(item).some((key) => structuralKeys.has(key as 'properties'))
   if (!schema.allOf.every((item) => isPlainFragment(item as SchemaObject))) return schema
 
   const merged: SchemaObject = { ...schema }

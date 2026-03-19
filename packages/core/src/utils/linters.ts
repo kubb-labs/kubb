@@ -13,7 +13,7 @@ async function isLinterAvailable(linter: Linter): Promise<boolean> {
 }
 
 export async function detectLinter(): Promise<Linter | undefined> {
-  const linterNames: Linter[] = ['biome', 'oxlint', 'eslint']
+  const linterNames = new Set(['biome', 'oxlint', 'eslint'] as const)
 
   for (const linter of linterNames) {
     if (await isLinterAvailable(linter)) {
