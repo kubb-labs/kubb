@@ -65,8 +65,14 @@ function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'
 export const transformer: PluginTsTransformer = createTransformer<PluginTs>(() => {
   return {
     default: resolveName,
-    name: (name) => resolveName(name, 'function'),
-    typedName: (name) => resolveName(name, 'type'),
-    resolvePathName: resolveName,
+    name(name) {
+      return this.default(name, 'function')
+    },
+    typedName(name) {
+      return this.default(name, 'type')
+    },
+    resolvePathName(name, type) {
+      return this.default(name, type)
+    },
   }
 })()
