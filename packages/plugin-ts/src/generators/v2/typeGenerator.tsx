@@ -5,7 +5,7 @@ import { useKubb } from '@kubb/core/hooks'
 import { File } from '@kubb/react-fabric'
 import { Type } from '../../components/v2/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../../constants.ts'
-import { resolver } from '../../resolver.ts'
+import { resolverTs } from '../../resolverTs.ts'
 import type { PluginTs } from '../../types'
 import { buildDataSchemaNode, buildResponsesSchemaNode, buildResponseUnionSchemaNode } from './utils.ts'
 
@@ -68,8 +68,8 @@ export const typeGenerator = createGenerator<PluginTs>({
     const paramTypes = params.map((param) =>
       renderSchemaType({
         node: param.schema,
-        name: resolver.resolveParamName(node, param),
-        typedName: resolver.resolveParamTypedName(node, param),
+        name: resolverTs.resolveParamName(node, param),
+        typedName: resolverTs.resolveParamTypedName(node, param),
       }),
     )
 
@@ -78,8 +78,8 @@ export const typeGenerator = createGenerator<PluginTs>({
       .map((res) =>
         renderSchemaType({
           node: res.schema!,
-          name: resolver.resolveResponseStatusName(node, res.statusCode),
-          typedName: resolver.resolveResponseStatusTypedName(node, res.statusCode),
+          name: resolverTs.resolveResponseStatusName(node, res.statusCode),
+          typedName: resolverTs.resolveResponseStatusTypedName(node, res.statusCode),
           description: res.description,
         }),
       )
@@ -87,28 +87,28 @@ export const typeGenerator = createGenerator<PluginTs>({
     const requestType = node.requestBody
       ? renderSchemaType({
           node: node.requestBody,
-          name: resolver.resolveDataName(node),
-          typedName: resolver.resolveDataTypedName(node),
+          name: resolverTs.resolveDataName(node),
+          typedName: resolverTs.resolveDataTypedName(node),
           description: node.requestBody.description,
         })
       : null
 
     const dataType = renderSchemaType({
       node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolveName }),
-      name: resolver.resolveRequestConfigName(node),
-      typedName: resolver.resolveRequestConfigTypedName(node),
+      name: resolverTs.resolveRequestConfigName(node),
+      typedName: resolverTs.resolveRequestConfigTypedName(node),
     })
 
     const responsesType = renderSchemaType({
       node: buildResponsesSchemaNode({ node, resolveName }),
-      name: resolver.resolveResponsesName(node),
-      typedName: resolver.resolveResponsesTypedName(node),
+      name: resolverTs.resolveResponsesName(node),
+      typedName: resolverTs.resolveResponsesTypedName(node),
     })
 
     const responseType = renderSchemaType({
       node: buildResponseUnionSchemaNode({ node, resolveName }),
-      name: resolver.resolveResponseName(node),
-      typedName: resolver.resolveResponseTypedName(node),
+      name: resolverTs.resolveResponseName(node),
+      typedName: resolverTs.resolveResponseTypedName(node),
       description: 'Union of all possible responses',
     })
 
@@ -139,12 +139,10 @@ export const typeGenerator = createGenerator<PluginTs>({
     const isEnumSchema = node.type === 'enum'
 
     const typedName =
-      ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema
-        ? resolver.resolveEnumKeyTypedName(node)
-        : resolver.resolveTypedName(node.name)
+      ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolverTs.resolveEnumKeyTypedName(node) : resolverTs.resolveTypedName(node.name)
 
     const type = {
-      name: resolver.resolveName(node.name),
+      name: resolverTs.resolveName(node.name),
       typedName,
       file: getFile({ name: node.name, extname: '.ts', mode }),
     } as const

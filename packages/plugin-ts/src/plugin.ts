@@ -1,10 +1,10 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
-import { createPlugin, type Group, getBarrelFiles, getMode, resolveOptions } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { buildOperation, buildSchema, OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { typeGenerator, typeGeneratorV2 } from './generators'
-import { resolver } from './resolver.ts'
+import { resolverTs } from './resolverTs.ts'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
@@ -92,7 +92,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
-      const resolvedName = resolver.default(name, type)
+      const resolvedName = resolverTs.default(name, type)
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName
@@ -115,7 +115,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
             async schema(schemaNode) {
               const writeTasks = generators.map(async (generator) => {
                 if (generator.type === 'react' && generator.version === '2') {
-                  const options = resolveOptions(schemaNode, { options: plugin.options, exclude, include, override })
+                  const options = resolverTs.resolveOptions(schemaNode, { options: plugin.options, exclude, include, override })
 
                   if (options === null) {
                     return
@@ -140,7 +140,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
             async operation(operationNode) {
               const writeTasks = generators.map(async (generator) => {
                 if (generator.type === 'react' && generator.version === '2') {
-                  const options = resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
+                  const options = resolverTs.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
 
                   if (options === null) {
                     return

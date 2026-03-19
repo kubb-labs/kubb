@@ -1,7 +1,6 @@
+import { pascalCase } from '@internals/utils'
 import { createResolver } from '@kubb/core'
-import type { PluginTs, PluginTsResolver } from './types.ts'
-
-export type { PluginTsResolver } from './types.ts'
+import type { PluginTs } from './types.ts'
 
 /**
  * Resolver for `@kubb/plugin-ts` that provides the default naming and path-resolution
@@ -21,8 +20,11 @@ export type { PluginTsResolver } from './types.ts'
  * resolver.resolvePathName('list pets', 'file')       // → 'listPets'
  * ```
  */
-export const resolver: PluginTsResolver = createResolver<PluginTs>(() => {
+export const resolverTs = createResolver<PluginTs>(() => {
   return {
+    default(name, type) {
+      return pascalCase(name, { isFile: type === 'file' })
+    },
     resolveName(name) {
       return this.default(name, 'function')
     },

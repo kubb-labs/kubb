@@ -1,5 +1,5 @@
-import type { Group, Output, PluginFactoryOptions, Resolver, ResolveNameParams } from '@kubb/core'
 import type { OperationNode, ParameterNode, SchemaNode, StatusCode } from '@kubb/ast/types'
+import type { Group, Output, PluginFactoryOptions, ResolveNameParams, Resolver } from '@kubb/core'
 import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
@@ -9,7 +9,7 @@ import type { Generator } from '@kubb/plugin-oas/generators'
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
  * plugin-specific naming helpers for operations, parameters, responses, and schemas.
  */
-export type PluginTsResolver = Resolver & {
+type ResolverTs = Resolver & {
   /**
    * Resolves the variable/function name for a given raw name (equivalent to `default(name, 'function')`).
    * Use this shorthand when matching the `name` field produced by the v2 TypeGenerator,
@@ -293,4 +293,4 @@ type ResolvedOptions = {
   paramsCasing: Options['paramsCasing']
 }
 
-export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, PluginTsResolver>
+export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>
