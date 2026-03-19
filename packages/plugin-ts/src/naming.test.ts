@@ -2,6 +2,12 @@ import { createOperation, createParameter, createSchema } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { defaultResolveName, naming } from './naming.ts'
 
+describe('naming.pluginName', () => {
+  it('exposes the plugin name', () => {
+    expect(naming.pluginName).toBe('plugin-ts')
+  })
+})
+
 describe('defaultResolveName', () => {
   it('applies pascalCase to a plain name', () => {
     expect(defaultResolveName({ name: 'pet list' })).toBe('PetList')

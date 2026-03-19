@@ -21,21 +21,23 @@ export const defaultResolveName: ResolveName = ({ name, type }) => pascalCase(na
  * Import this in other plugins to compute the exact names that plugin-ts
  * generates without hardcoding naming conventions. Each method accepts an
  * optional `resolveName` override to apply user-configured name transformers.
+ * The `naming.pluginName` property provides the plugin name for use with
+ * `driver.resolveName`.
  *
  * @example
  * ```ts
- * import { naming, pluginTsName } from '@kubb/plugin-ts'
+ * import { naming } from '@kubb/plugin-ts'
  *
  * // default (pascalCase, same as plugin-ts internals)
  * naming.getResponseStatusName({ operationId: 'listPets' }, 200) // → 'ListPetsStatus200'
  *
  * // with driver resolver to apply user transformers
  * naming.getRequestBodyName(operationNode, {
- *   resolveName: ({ name, type }) => driver.resolveName({ name, type, pluginName: pluginTsName }),
+ *   resolveName: ({ name, type }) => driver.resolveName({ name, type, pluginName: naming.pluginName }),
  * })
  * ```
  */
-export const naming: Naming = defineNaming({
+export const naming: Naming<'plugin-ts'> = defineNaming('plugin-ts', {
   getSchemaName(node, { type = 'type', resolveName = defaultResolveName } = {}) {
     if (!node.name) {
       throw new Error('Schema node does not have a name')

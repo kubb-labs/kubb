@@ -1,19 +1,37 @@
 import type { OperationNode, ParameterNode } from '@kubb/ast/types'
-import type { ResolveNameParams } from './types.ts'
 
 /**
  * Resolver function that converts a raw name (and optional entity type) into a
  * string identifier — without the `pluginName` routing used by `PluginDriver.resolveName`.
  */
-export type NamingResolveName = (params: Omit<ResolveNameParams, 'pluginName'>) => string
+export type NamingResolveName = (params: { name: string; type?: 'file' | 'function' | 'type' | 'const' }) => string
 
 /**
- * Contract for a plugin-ts naming object.
+ * Contract for a naming object provided by a plugin.
+ *
+ * The `TName` generic captures the plugin name literal so callers have
+ * type-safe access to `naming.pluginName` when constructing a
+ * `driver.resolveName` call.
+ *
  * Each method accepts an optional `resolveName` so callers can swap in a
  * driver-bound resolver (e.g. `driver.resolveName`) while reusing the same
  * name-construction logic.
  */
-export type Naming = {
+export type Naming<TName extends string = string> = {
+  /**
+   * The name of the plugin this naming object belongs to.
+   * Use this when calling `driver.resolveName` so the driver can apply the
+   * plugin-specific name transformers configured by the user.
+   *
+   * @example
+   * ```ts
+   * naming.getRequestBodyName(node, {
+   *   resolveName: ({ name, type }) =>
+   *     driver.resolveName({ name, type, pluginName: naming.pluginName }),
+   * })
+   * ```
+   */
+  pluginName: TName
   /**
    * Resolves the name for a schema node, e.g. `Pet` or `PetList`.
    * @throws When `node.name` is undefined.
@@ -64,23 +82,31 @@ export type Naming = {
 }
 
 /**
- * Creates a typed naming object, following the same factory pattern as
- * `definePlugin`, `defineLogger`, and `defineAdapter`.
+ * Creates a typed naming object bound to a plugin name, following the same
+ * factory pattern as `definePlugin`, `defineLogger`, and `defineAdapter`.
  *
- * Use this in a plugin to provide a `naming` export so consumers can resolve
- * the exact type names the plugin generates without hardcoding naming conventions.
+ * Pass the plugin's name constant as the first argument so consumers have
+ * type-safe access to `naming.pluginName` when forwarding calls to
+ * `driver.resolveName`.
  *
  * @example
  * ```ts
  * import { defineNaming } from '@kubb/core'
  *
- * export const naming = defineNaming({
+ * export const naming = defineNaming('my-plugin', {
  *   getSchemaName(node, opts) { ... },
  *   getResponseName(node, opts) { ... },
  *   // ...
  * })
+ *
+ * // Consumer:
+ * naming.getRequestBodyName(node, {
+ *   resolveName: ({ name, type }) =>
+ *     driver.resolveName({ name, type, pluginName: naming.pluginName }),
+ * })
  * ```
  */
-export function defineNaming(naming: Naming): Naming {
-  return { ...naming }
+export function defineNaming<TName extends string>(pluginName: TName, naming: Omit<Naming<TName>, 'pluginName'>): Naming<TName> {
+  return { pluginName, ...naming }
 }
+
