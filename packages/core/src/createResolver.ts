@@ -91,9 +91,9 @@ export type Naming<TName extends string = string> = {
  *
  * @example
  * ```ts
- * import { defineNaming } from '@kubb/core'
+ * import { createResolver } from '@kubb/core'
  *
- * export const naming = defineNaming('my-plugin', {
+ * export const naming = createResolver('my-plugin', {
  *   getSchemaName(node, opts) { ... },
  *   getResponseName(node, opts) { ... },
  *   // ...
@@ -106,7 +106,7 @@ export type Naming<TName extends string = string> = {
  * })
  * ```
  */
-export function defineNaming<TName extends string>(pluginName: TName, naming: Omit<Naming<TName>, 'pluginName'>): Naming<TName> {
+export function createResolver<TName extends string>(pluginName: TName, naming: Omit<Naming<TName>, 'pluginName'>): Naming<TName> {
   return { pluginName, ...naming }
 }
 

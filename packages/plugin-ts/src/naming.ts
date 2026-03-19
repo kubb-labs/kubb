@@ -1,5 +1,5 @@
 import { pascalCase } from '@internals/utils'
-import { defineNaming } from '@kubb/core'
+import { createResolver } from '@kubb/core'
 import type { Naming, NamingResolveName } from '@kubb/core'
 
 /**
@@ -37,7 +37,7 @@ export const defaultResolveName: ResolveName = ({ name, type }) => pascalCase(na
  * })
  * ```
  */
-export const naming: Naming<'plugin-ts'> = defineNaming('plugin-ts', {
+export const naming: Naming<'plugin-ts'> = createResolver('plugin-ts', {
   getSchemaName(node, { type = 'type', resolveName = defaultResolveName } = {}) {
     if (!node.name) {
       throw new Error('Schema node does not have a name')

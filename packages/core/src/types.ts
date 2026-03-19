@@ -3,7 +3,7 @@ import type { RootNode, SchemaNode } from '@kubb/ast/types'
 import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { DefineStorage } from './defineStorage.ts'
-import type { Naming } from './defineNaming.ts'
+import type { Naming } from './createResolver.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
@@ -284,7 +284,7 @@ export type PluginFactoryOptions<
   TResolvePathOptions extends object = object,
   /**
    * Naming object that encapsulates the exact naming conventions used by this plugin.
-   * Use `defineNaming` to create the naming object and export it alongside the plugin.
+   * Use `createResolver` to create the naming object and export it alongside the plugin.
    */
   TNaming extends Naming = Naming,
 > = {
