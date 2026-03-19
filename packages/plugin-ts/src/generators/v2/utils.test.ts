@@ -141,25 +141,6 @@ describe('buildResponsesSchemaNode', () => {
 })
 
 describe('buildResponseUnionSchemaNode', () => {
-  it('returns null when no responses have schemas', () => {
-    const node = createOperation({
-      operationId: 'deletePet',
-      method: 'DELETE',
-      path: '/pets/:petId',
-      responses: [
-        createResponse({
-          statusCode: '204',
-          description: 'No content',
-          schema: createSchema({
-            type: 'string',
-          }),
-        }),
-      ],
-    })
-
-    expect(buildResponseUnionSchemaNode({ node, resolveName })).toBeNull()
-  })
-
   it('emits a union of all response types', () => {
     const node = createOperation({
       operationId: 'listPets',

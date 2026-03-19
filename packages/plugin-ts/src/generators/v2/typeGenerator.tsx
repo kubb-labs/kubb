@@ -95,7 +95,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
       node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolveName }),
       name: resolverTs.resolveRequestConfigName(node),
       typedName: resolverTs.resolveRequestConfigTypedName(node),
-      description: node.description || node.summary,
     })
 
     const responsesType = renderSchemaType({

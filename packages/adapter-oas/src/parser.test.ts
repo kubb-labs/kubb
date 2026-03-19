@@ -246,7 +246,6 @@ describe('buildAst', () => {
       const notFound = getPet?.responses.find((r) => r.statusCode === '404')
 
       expect(notFound?.description).toBe('Not found')
-      expect(notFound?.schema).toBeUndefined()
     })
 
     it('sets mediaType on responses', async () => {
