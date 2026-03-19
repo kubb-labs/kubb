@@ -3,7 +3,8 @@
  *
  * This module is used when the native NAPI-RS binary is not available
  * for the current platform.  The implementation is a direct port of the
- * TypeScript source in `internals/utils/src/casing.ts`.
+ * TypeScript source in `internals/utils/src/casing.ts`,
+ * `internals/utils/src/reserved.ts`, and `internals/utils/src/fs.ts`.
  */
 
 // ---------------------------------------------------------------------------
@@ -131,4 +132,174 @@ export function snakeCase(text, { prefix = '', suffix = '' } = {}) {
  */
 export function screamingSnakeCase(text, { prefix = '', suffix = '' } = {}) {
   return snakeCase(text, { prefix, suffix }).toUpperCase()
+}
+
+// ---------------------------------------------------------------------------
+// Reserved-word transformation
+// ---------------------------------------------------------------------------
+
+/**
+ * JavaScript and Java reserved words.
+ * Using a `Set` for O(1) membership test (vs Array.includes() which is O(n)).
+ *
+ * @type {Set<string>}
+ */
+const _reservedWords = new Set([
+  'abstract',
+  'arguments',
+  'boolean',
+  'break',
+  'byte',
+  'case',
+  'catch',
+  'char',
+  'class',
+  'const',
+  'continue',
+  'debugger',
+  'default',
+  'delete',
+  'do',
+  'double',
+  'else',
+  'enum',
+  'eval',
+  'export',
+  'extends',
+  'false',
+  'final',
+  'finally',
+  'float',
+  'for',
+  'function',
+  'goto',
+  'if',
+  'implements',
+  'import',
+  'in',
+  'instanceof',
+  'int',
+  'interface',
+  'let',
+  'long',
+  'native',
+  'new',
+  'null',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'return',
+  'short',
+  'static',
+  'super',
+  'switch',
+  'synchronized',
+  'this',
+  'throw',
+  'throws',
+  'transient',
+  'true',
+  'try',
+  'typeof',
+  'var',
+  'void',
+  'volatile',
+  'while',
+  'with',
+  'yield',
+  'Array',
+  'Date',
+  'hasOwnProperty',
+  'Infinity',
+  'isFinite',
+  'isNaN',
+  'isPrototypeOf',
+  'length',
+  'Math',
+  'name',
+  'NaN',
+  'Number',
+  'Object',
+  'prototype',
+  'String',
+  'toString',
+  'undefined',
+  'valueOf',
+])
+
+/**
+ * Prefixes `word` with `_` when it is a reserved JavaScript/Java identifier
+ * or starts with a digit (0–9).
+ *
+ * @param {string} word
+ * @returns {string}
+ *
+ * @example
+ * transformReservedWord('delete')  // '_delete'
+ * transformReservedWord('1test')   // '_1test'
+ * transformReservedWord('myVar')   // 'myVar'
+ */
+export function transformReservedWord(word) {
+  if (!word) return word
+  const firstChar = word.charCodeAt(0)
+  if (_reservedWords.has(word) || (firstChar >= 48 && firstChar <= 57)) {
+    return `_${word}`
+  }
+  return word
+}
+
+// ---------------------------------------------------------------------------
+// Path utilities
+// ---------------------------------------------------------------------------
+
+/**
+ * Converts all backslashes to forward slashes.
+ * Extended-length Windows paths (`\\?\...`) are left unchanged.
+ *
+ * @param {string} p
+ * @returns {string}
+ */
+function _toSlash(p) {
+  if (p.startsWith('\\\\?\\')) return p
+  return p.replaceAll('\\', '/')
+}
+
+/**
+ * Computes `posix.relative(from, to)` using only forward-slash string ops.
+ *
+ * @param {string} from
+ * @param {string} to
+ * @returns {string}
+ */
+function _posixRelative(from, to) {
+  const fromParts = from.split('/').filter(Boolean)
+  const toParts = to.split('/').filter(Boolean)
+  let common = 0
+  while (common < fromParts.length && common < toParts.length && fromParts[common] === toParts[common]) {
+    common++
+  }
+  const upCount = fromParts.length - common
+  const down = toParts.slice(common)
+  return [...Array(upCount).fill('..'), ...down].join('/')
+}
+
+/**
+ * Returns the relative path from `rootDir` to `filePath`, always using
+ * forward slashes and prefixed with `./` when not already traversing upward.
+ *
+ * @param {string} rootDir
+ * @param {string} filePath
+ * @returns {string}
+ *
+ * @example
+ * getRelativePath('/project/src', '/project/src/gen/types.ts')  // './gen/types.ts'
+ * getRelativePath('/project/src/gen', '/project/src')            // './..'
+ */
+export function getRelativePath(rootDir, filePath) {
+  if (!rootDir || !filePath) {
+    throw new Error(`Root and file should be filled in when retrieving the relativePath, ${rootDir ?? ''} ${filePath ?? ''}`)
+  }
+  const relative = _posixRelative(_toSlash(rootDir), _toSlash(filePath))
+  return relative.startsWith('../') ? relative : `./${relative}`
 }

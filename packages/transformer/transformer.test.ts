@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { camelCase, pascalCase, screamingSnakeCase, snakeCase } from './index.js'
+import { camelCase, getRelativePath, pascalCase, screamingSnakeCase, snakeCase, transformReservedWord } from './index.js'
 
 describe('transformer – camelCase', () => {
   test('basic file-mode tests', () => {
@@ -87,5 +87,58 @@ describe('transformer – screamingSnakeCase', () => {
     expect(screamingSnakeCase('PetType')).toBe('PET_TYPE')
     expect(screamingSnakeCase('tag', { prefix: 'create' })).toBe('CREATE_TAG')
     expect(screamingSnakeCase('tag', { suffix: 'schema' })).toBe('TAG_SCHEMA')
+  })
+})
+
+describe('transformer – transformReservedWord', () => {
+  test('prefixes reserved JS/Java words with _', () => {
+    expect(transformReservedWord('delete')).toBe('_delete')
+    expect(transformReservedWord('this')).toBe('_this')
+    expect(transformReservedWord('var')).toBe('_var')
+    expect(transformReservedWord('class')).toBe('_class')
+    expect(transformReservedWord('return')).toBe('_return')
+    expect(transformReservedWord('function')).toBe('_function')
+  })
+
+  test('prefixes words starting with a digit with _', () => {
+    expect(transformReservedWord('1test')).toBe('_1test')
+    expect(transformReservedWord('0abc')).toBe('_0abc')
+  })
+
+  test('leaves regular identifiers unchanged', () => {
+    expect(transformReservedWord('myVar')).toBe('myVar')
+    expect(transformReservedWord('PetType')).toBe('PetType')
+    expect(transformReservedWord('createPetById')).toBe('createPetById')
+  })
+
+  test('returns empty string unchanged', () => {
+    expect(transformReservedWord('')).toBe('')
+  })
+})
+
+describe('transformer – getRelativePath', () => {
+  test('returns relative path from root to child (POSIX)', () => {
+    expect(getRelativePath('/project/src', '/project/src/gen/types.ts')).toBe('./gen/types.ts')
+  })
+
+  test('returns relative path going up one level', () => {
+    expect(getRelativePath('/project/src/gen', '/project/src')).toBe('./..')
+  })
+
+  test('returns relative path for sibling directories', () => {
+    expect(getRelativePath('/project/src', '/project/src/folder')).toBe('./folder')
+  })
+
+  test('handles Windows-style backslash paths', () => {
+    expect(getRelativePath('C:\\Users\\project\\mocks', 'C:\\Users\\project\\mocks\\folder\\test.js')).toBe('./folder/test.js')
+    expect(getRelativePath('C:\\Users\\project\\mocks\\folder', 'C:\\Users\\project\\mocks')).toBe('./..')
+    expect(getRelativePath('C:/Users/project/mocks', 'C:\\Users\\project\\mocks\\folder\\test.js')).toBe('./folder/test.js')
+  })
+
+  test('throws when arguments are missing', () => {
+    // @ts-expect-error – testing runtime guard
+    expect(() => getRelativePath(null, null)).toThrow()
+    // @ts-expect-error
+    expect(() => getRelativePath('', '/some/path')).toThrow()
   })
 })

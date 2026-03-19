@@ -21,6 +21,8 @@ import {
   pascalCase as _pascalCaseFallback,
   snakeCase as _snakeCaseFallback,
   screamingSnakeCase as _screamingSnakeCaseFallback,
+  transformReservedWord as _transformReservedWordFallback,
+  getRelativePath as _getRelativePathFallback,
 } from './fallback.js'
 
 const _require = createRequire(import.meta.url)
@@ -131,3 +133,34 @@ export const snakeCase = _native?.snakeCase ?? _snakeCaseFallback
  * screamingSnakeCase('helloWorld') // 'HELLO_WORLD'
  */
 export const screamingSnakeCase = _native?.screamingSnakeCase ?? _screamingSnakeCaseFallback
+
+/**
+ * Prefixes `word` with `_` when it is a reserved JavaScript/Java identifier
+ * or starts with a digit (0–9).
+ *
+ * Uses an O(1) hash-set lookup in the native binary vs O(n) `Array.includes()`
+ * in the JavaScript fallback.
+ *
+ * @param {string} word
+ * @returns {string}
+ *
+ * @example
+ * transformReservedWord('delete')  // '_delete'
+ * transformReservedWord('1test')   // '_1test'
+ * transformReservedWord('myVar')   // 'myVar'
+ */
+export const transformReservedWord = _native?.transformReservedWord ?? _transformReservedWordFallback
+
+/**
+ * Returns the relative path from `rootDir` to `filePath`, always using
+ * forward slashes and prefixed with `./` when not already traversing upward.
+ *
+ * @param {string} rootDir
+ * @param {string} filePath
+ * @returns {string}
+ *
+ * @example
+ * getRelativePath('/project/src', '/project/src/gen/types.ts')  // './gen/types.ts'
+ * getRelativePath('/project/src/gen', '/project/src')            // './..'
+ */
+export const getRelativePath = _native?.getRelativePath ?? _getRelativePathFallback

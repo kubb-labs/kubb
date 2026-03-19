@@ -1,6 +1,7 @@
 #![deny(clippy::all)]
 
 use napi_derive::napi;
+use std::collections::HashSet;
 use std::sync::OnceLock;
 
 use regex::Regex;
@@ -294,4 +295,201 @@ pub fn snake_case(text: String, options: Option<SnakeCaseOptions>) -> String {
 #[napi(js_name = "screamingSnakeCase")]
 pub fn screaming_snake_case(text: String, options: Option<SnakeCaseOptions>) -> String {
   snake_case(text, options).to_uppercase()
+}
+
+// ---------------------------------------------------------------------------
+// Reserved-word transformation
+// ---------------------------------------------------------------------------
+
+/// Returns a reference to the static set of JavaScript/Java reserved words.
+/// Compiled once with `OnceLock`; O(1) average lookup thereafter.
+fn reserved_words() -> &'static HashSet<&'static str> {
+  static SET: OnceLock<HashSet<&'static str>> = OnceLock::new();
+  SET.get_or_init(|| {
+    [
+      "abstract",
+      "arguments",
+      "boolean",
+      "break",
+      "byte",
+      "case",
+      "catch",
+      "char",
+      "class",
+      "const",
+      "continue",
+      "debugger",
+      "default",
+      "delete",
+      "do",
+      "double",
+      "else",
+      "enum",
+      "eval",
+      "export",
+      "extends",
+      "false",
+      "final",
+      "finally",
+      "float",
+      "for",
+      "function",
+      "goto",
+      "if",
+      "implements",
+      "import",
+      "in",
+      "instanceof",
+      "int",
+      "interface",
+      "let",
+      "long",
+      "native",
+      "new",
+      "null",
+      "package",
+      "private",
+      "protected",
+      "public",
+      "return",
+      "short",
+      "static",
+      "super",
+      "switch",
+      "synchronized",
+      "this",
+      "throw",
+      "throws",
+      "transient",
+      "true",
+      "try",
+      "typeof",
+      "var",
+      "void",
+      "volatile",
+      "while",
+      "with",
+      "yield",
+      "Array",
+      "Date",
+      "hasOwnProperty",
+      "Infinity",
+      "isFinite",
+      "isNaN",
+      "isPrototypeOf",
+      "length",
+      "Math",
+      "name",
+      "NaN",
+      "Number",
+      "Object",
+      "prototype",
+      "String",
+      "toString",
+      "undefined",
+      "valueOf",
+    ]
+    .into()
+  })
+}
+
+/// Prefixes `word` with `_` when it is a reserved JavaScript/Java identifier
+/// or starts with a digit (ASCII 0–9).
+///
+/// Replicates `transformReservedWord` from `internals/utils/src/reserved.ts`
+/// but uses an O(1) hash-set lookup instead of O(n) `Array.includes()`.
+///
+/// @example
+/// ```js
+/// transformReservedWord('delete')  // '_delete'
+/// transformReservedWord('1test')   // '_1test'
+/// transformReservedWord('myVar')   // 'myVar'
+/// ```
+#[napi(js_name = "transformReservedWord")]
+pub fn transform_reserved_word(word: String) -> String {
+  if word.is_empty() {
+    return word;
+  }
+  let first = word.as_bytes()[0];
+  // Digit: ASCII '0'=48 … '9'=57
+  if (48..=57).contains(&first) || reserved_words().contains(word.as_str()) {
+    format!("_{word}")
+  } else {
+    word
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Path utilities
+// ---------------------------------------------------------------------------
+
+/// Converts all backslashes to forward slashes.
+/// Extended-length Windows paths (`\\?\...`) are left unchanged.
+fn to_slash(p: &str) -> String {
+  if p.starts_with(r"\\?\") {
+    p.to_owned()
+  } else {
+    p.replace('\\', "/")
+  }
+}
+
+/// Replicates `node:path/posix`'s `relative(from, to)`:
+/// finds the relative path from `from` to `to` using forward slashes only.
+fn posix_relative(from: &str, to: &str) -> String {
+  // Normalise: split on '/' and drop empty segments (handles duplicate slashes)
+  let from_parts: Vec<&str> = from.split('/').filter(|s| !s.is_empty()).collect();
+  let to_parts: Vec<&str> = to.split('/').filter(|s| !s.is_empty()).collect();
+
+  // Find length of common prefix
+  let common = from_parts
+    .iter()
+    .zip(to_parts.iter())
+    .take_while(|(a, b)| a == b)
+    .count();
+
+  let up_count = from_parts.len() - common;
+  let down = &to_parts[common..];
+
+  let mut parts: Vec<&str> = Vec::with_capacity(up_count + down.len());
+  for _ in 0..up_count {
+    parts.push("..");
+  }
+  for part in down {
+    parts.push(part);
+  }
+
+  parts.join("/")
+}
+
+/// Returns the relative path from `root_dir` to `file_path`, always using
+/// forward slashes and prefixed with `./` when not already traversing upward.
+///
+/// Replicates `getRelativePath` from `internals/utils/src/fs.ts`.
+///
+/// @example
+/// ```js
+/// getRelativePath('/project/src', '/project/src/gen/types.ts')  // './gen/types.ts'
+/// getRelativePath('/project/src/gen', '/project/src')            // './..'
+/// ```
+#[napi(js_name = "getRelativePath")]
+pub fn get_relative_path(root_dir: String, file_path: String) -> napi::Result<String> {
+  if root_dir.is_empty() || file_path.is_empty() {
+    return Err(napi::Error::new(
+      napi::Status::InvalidArg,
+      format!(
+        "Root and file should be filled in when retrieving the relativePath, {} {}",
+        root_dir, file_path
+      ),
+    ));
+  }
+
+  let root = to_slash(&root_dir);
+  let file = to_slash(&file_path);
+  let relative = posix_relative(&root, &file);
+
+  if relative.starts_with("../") {
+    Ok(relative)
+  } else {
+    Ok(format!("./{relative}"))
+  }
 }
