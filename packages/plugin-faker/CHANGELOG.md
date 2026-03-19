@@ -1,5 +1,19 @@
 # @kubb/plugin-faker
 
+## 5.0.0-alpha.7
+
+### Major Changes
+
+- [#2794](https://github.com/kubb-labs/kubb/pull/2794) [`bf5f955`](https://github.com/kubb-labs/kubb/commit/bf5f955ec285badb0d99a3950b0a880622180ec2) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Rename `PluginManager` to `PluginDriver`. The `pluginManager` property in context/meta is now `driver`. The hook `usePluginManager` is now `usePluginDriver`.
+
+### Patch Changes
+
+- Updated dependencies [[`bf5f955`](https://github.com/kubb-labs/kubb/commit/bf5f955ec285badb0d99a3950b0a880622180ec2)]:
+  - @kubb/core@5.0.0-alpha.7
+  - @kubb/plugin-oas@5.0.0-alpha.7
+  - @kubb/plugin-ts@5.0.0-alpha.7
+  - @kubb/oas@5.0.0-alpha.7
+
 ## 5.0.0-alpha.6
 
 ### Patch Changes
