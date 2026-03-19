@@ -8,7 +8,7 @@ export type DeletePetPathPetId = string
 /**
  * @description No content
  */
-export type DeletePetStatus204 = string
+export type DeletePetStatus204 = void
 
 export type DeletePetRequestConfig = {
   data?: never

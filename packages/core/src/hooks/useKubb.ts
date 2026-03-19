@@ -125,6 +125,9 @@ export function useKubb<TOptions extends PluginFactoryOptions = PluginFactoryOpt
       if (typeof output?.banner === 'string') {
         return output.banner
       }
+      if (config.output.defaultBanner === false) {
+        return undefined
+      }
       return buildDefaultBanner({ config })
     },
     resolveFooter: (node?: RootNode) => {
