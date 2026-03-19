@@ -1,5 +1,6 @@
 import { createResolver } from '@kubb/core'
 import type { PluginTs, PluginTsResolver } from './types.ts'
+
 export type { PluginTsResolver } from './types.ts'
 
 /**

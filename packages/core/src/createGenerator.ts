@@ -70,7 +70,6 @@ export function createGenerator<TPlugin extends PluginFactoryOptions = PluginFac
 ): ReactGeneratorV2<TPlugin>
 
 export function createGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(generator: UserCoreGeneratorV2<TPlugin>): CoreGeneratorV2<TPlugin>
-
 export function createGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
   generator: UserCoreGeneratorV2<TPlugin> | UserReactGeneratorV2<TPlugin>,
 ): unknown {

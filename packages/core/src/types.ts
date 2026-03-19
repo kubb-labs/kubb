@@ -1,8 +1,8 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { RootNode, SchemaNode } from '@kubb/ast/types'
+import type { Node, RootNode, SchemaNode } from '@kubb/ast/types'
 import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
-import type { DefineStorage } from './createStorage.ts'
+import type { Storage } from './createStorage.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
@@ -172,7 +172,7 @@ export type Config<TInput = Input> = {
     /**
      * Storage backend for generated files.
      * Defaults to `fsStorage()` — the built-in filesystem driver.
-     * Accepts any object implementing the {@link DefineStorage} interface.
+     * Accepts any object implementing the {@link Storage} interface.
      * Keys are root-relative paths (e.g. `src/gen/api/getPets.ts`).
      * @default fsStorage()
      * @example
@@ -181,7 +181,7 @@ export type Config<TInput = Input> = {
      * storage: createStorage(fsStorage())
      * ```
      */
-    storage?: DefineStorage
+    storage?: Storage
     /**
      * Specifies the formatting tool to be used.
      * - 'auto' automatically detects and uses biome or prettier (in that order of preference).
@@ -260,24 +260,43 @@ export type Config<TInput = Input> = {
 
 // plugin
 
+type FilterItem = {
+  type: string
+  pattern: string | RegExp
+}
+
+type OverrideItem<TOptions> = FilterItem & {
+  options: Omit<Partial<TOptions>, 'override'>
+}
+
+export type ResolveOptionsContext<TOptions> = {
+  options: TOptions
+  exclude?: Array<FilterItem>
+  include?: Array<FilterItem>
+  override?: Array<OverrideItem<TOptions>>
+}
+
 /**
  * Base constraint for all plugin resolver objects.
  *
- * `default` is the one method every resolver must implement so consumers
- * always have a typed, autocomplete-friendly entry point. Plugins extend this
- * intersection with their own concrete helper methods via `Record<string, unknown>`.
+ * `default` and `resolveOptions` are injected automatically by `createResolver` — plugin
+ * authors may override them but never need to implement them from scratch.
+ * Concrete plugin resolver types extend this with their own helper methods.
  */
 export type Resolver = {
-  default(name: ResolveNameParams['name'], type: ResolveNameParams['type']): string
-} & Record<string, unknown>
+  default(name: ResolveNameParams['name'], type?: ResolveNameParams['type']): string
+  resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
+}
 
 /**
- * The user-facing subset of a `Resolver` — everything except the `default` method.
+ * The user-facing subset of a `Resolver` — everything except the methods injected by
+ * `createResolver` (`default` and `resolveOptions`).
  *
- * When you pass a `UserResolver` to `createResolver`, the standard `default` implementation
- * is injected automatically so plugin authors never need to define it by hand.
+ * When you pass a `UserResolver` to `createResolver`, the standard `default` and
+ * `resolveOptions` implementations are injected automatically so plugin authors never
+ * need to define them by hand. Both can still be overridden by providing them explicitly.
  */
-export type UserResolver = Omit<Resolver, 'default'>
+export type UserResolver = Omit<Resolver, 'default' | 'resolveOptions'>
 
 export type PluginFactoryOptions<
   /**
@@ -533,5 +552,5 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
 export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Omit<Logger<TOptions>, 'logLevel'>
 
 export type { CoreGeneratorV2, Generator, ReactGeneratorV2 } from './createGenerator.ts'
-export type { DefineStorage } from './createStorage.ts'
+export type { Storage } from './createStorage.ts'
 export type { KubbEvents } from './Kubb.ts'

@@ -9,7 +9,7 @@ import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION
 import { BuildError } from './errors.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import type { AdapterSource, Config, DefineStorage, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
+import type { AdapterSource, Config, KubbEvents, Output, Plugin, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 
@@ -109,7 +109,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   // storage or fall back to fsStorage (backwards-compatible default).
   // Keys are root-relative (e.g. `src/gen/api/getPets.ts`) so fsStorage()
   // needs no configuration — it resolves them against process.cwd().
-  const storage: DefineStorage | null = definedConfig.output.write === false ? null : (definedConfig.output.storage ?? fsStorage())
+  const storage: Storage | null = definedConfig.output.write === false ? null : (definedConfig.output.storage ?? fsStorage())
 
   if (definedConfig.output.clean) {
     await events.emit('debug', {

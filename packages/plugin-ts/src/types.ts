@@ -1,4 +1,4 @@
-import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Group, Output, PluginFactoryOptions, Resolver, ResolveNameParams } from '@kubb/core'
 import type { OperationNode, ParameterNode, SchemaNode, StatusCode } from '@kubb/ast/types'
 import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
@@ -6,25 +6,17 @@ import type { Generator } from '@kubb/plugin-oas/generators'
 
 /**
  * The concrete resolver type for `@kubb/plugin-ts`.
- * Defines the exact helper methods provided by the plugin.
+ * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
+ * plugin-specific naming helpers for operations, parameters, responses, and schemas.
  */
-export type PluginTsResolver = {
-  /**
-   * Converts a raw name using the plugin's default naming convention (PascalCase).
-   * The optional `type` discriminant lets the caller signal the role of the name
-   * (e.g. `'type'`, `'function'`, `'file'`, `'const'`).
-   *
-   * @example
-   * resolver.default('list pets', 'type') // → 'ListPets'
-   */
-  default(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+export type PluginTsResolver = Resolver & {
   /**
    * Resolves the variable/function name for a given raw name (equivalent to `default(name, 'function')`).
    * Use this shorthand when matching the `name` field produced by the v2 TypeGenerator,
    * so call-sites don't need to repeat the `'function'` type literal.
    *
    * @example
-   * resolver.resolveName('list pets status 200') // → 'ListPetsStatus200'
+   * resolver.resolveName('list pets status 200') // → 'listPetsStatus200'
    */
   resolveName(name: string): string
   /**
