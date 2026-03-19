@@ -29,10 +29,10 @@ type AddIndexesProps = {
   meta?: FileMetaBase
 }
 
-function getBarrelFilesByRoot({ files: generatedFiles, root }: { files: KubbFile.File[]; root?: string }): Array<KubbFile.File> {
+function getBarrelFilesByRoot(root: string | undefined, files: KubbFile.File[]): Array<KubbFile.File> {
   const cachedFiles = new Map<KubbFile.Path, KubbFile.File>()
 
-  TreeNode.build(generatedFiles, root)?.forEach((treeNode) => {
+  TreeNode.build(files, root)?.forEach((treeNode) => {
     if (!treeNode || !treeNode.children || !treeNode.parent?.data.path) {
       return
     }
@@ -115,10 +115,7 @@ export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type
     return []
   }
 
-  const barrelFiles = getBarrelFilesByRoot({
-    files,
-    root: pathToBuildFrom,
-  })
+  const barrelFiles = getBarrelFilesByRoot(pathToBuildFrom, files)
 
   if (type === 'all') {
     return barrelFiles.map((file) => {
