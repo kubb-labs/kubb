@@ -7,7 +7,6 @@ import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import { CORE_PLUGIN_NAME, DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { ValidationPluginError } from './errors.ts'
-import { hookFirst, hookParallel, hookSeq } from './utils/executeStrategies.ts'
 import type {
   Adapter,
   Config,
@@ -24,6 +23,7 @@ import type {
   ResolvePathParams,
   UserPlugin,
 } from './types.ts'
+import { hookFirst, hookParallel, hookSeq } from './utils/executeStrategies.ts'
 
 type RequiredPluginLifecycle = Required<PluginLifecycle>
 
