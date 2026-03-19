@@ -180,7 +180,7 @@ export const clientOperationGenerator = createGenerator<PluginClient>({
   name: 'client-operation',
   async operation({ operation, generator }) {
     const pluginKey = generator.context.plugin.key
-    const name = generator.context.pluginDriver.resolveName({
+    const name = generator.context.driver.resolveName({
       name: operation.getOperationId(),
       pluginKey,
       type: 'function',
@@ -188,7 +188,7 @@ export const clientOperationGenerator = createGenerator<PluginClient>({
 
     const client = {
       name,
-      file: generator.context.pluginDriver.getFile({
+      file: generator.context.driver.getFile({
         name,
         extname: '.ts',
         pluginKey,
