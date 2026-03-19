@@ -35,6 +35,30 @@ export default defineConfig({
 })
 ```
 
+### `PluginManager` renamed to `PluginDriver`
+
+The `PluginManager` class has been renamed to `PluginDriver`. In addition, all references to `pluginManager` in context objects and meta have been shortened to `driver`, and the `usePluginManager` hook is now `usePluginDriver`.
+
+::: code-group
+```typescript [Before]
+import { PluginManager } from '@kubb/core'
+import { usePluginManager } from '@kubb/core/hooks'
+
+// In a generator or plugin context:
+const driver = meta.pluginManager
+const name = generator.context.pluginManager.resolveName({ name: 'Foo', type: 'function' })
+```
+
+```typescript [After (v5)]
+import { PluginDriver } from '@kubb/core'
+import { usePluginDriver } from '@kubb/core/hooks'
+
+// In a generator or plugin context:
+const driver = meta.driver
+const name = generator.context.driver.resolveName({ name: 'Foo', type: 'function' })
+```
+:::
+
 ### `mapper` removed from `@kubb/plugin-ts`
 
 The `mapper` option has been removed from `@kubb/plugin-ts`. This option allowed overriding specific TypeScript property signatures by name. A new `transform` option will be introduced in v5 that provides a more powerful way to transform the generated AST nodes (`schemaNode` and `operationNode`).
