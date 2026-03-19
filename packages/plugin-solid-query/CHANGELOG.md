@@ -1,5 +1,33 @@
 # @kubb/plugin-solid-query
 
+## 5.0.0-alpha.8
+
+### Major Changes
+
+- [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Rename factory functions from `define*` to `create*` to align with Vite ecosystem conventions.
+
+  **Rule:** `define*` is reserved for pure identity/type helpers (no runtime behavior — removing the call doesn't change the value, only loses type inference). `create*` is used for functions that produce instances, wrap builders, or apply logic.
+
+  `defineConfig` is unchanged — it is a pure identity helper.
+
+  | Before            | After             |
+  | ----------------- | ----------------- |
+  | `definePlugin`    | `createPlugin`    |
+  | `defineAdapter`   | `createAdapter`   |
+  | `defineGenerator` | `createGenerator` |
+  | `defineLogger`    | `createLogger`    |
+  | `defineStorage`   | `createStorage`   |
+
+### Patch Changes
+
+- Updated dependencies [[`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517)]:
+  - @kubb/core@5.0.0-alpha.8
+  - @kubb/plugin-oas@5.0.0-alpha.8
+  - @kubb/plugin-ts@5.0.0-alpha.8
+  - @kubb/plugin-client@5.0.0-alpha.8
+  - @kubb/plugin-zod@5.0.0-alpha.8
+  - @kubb/oas@5.0.0-alpha.8
+
 ## 5.0.0-alpha.7
 
 ### Major Changes
