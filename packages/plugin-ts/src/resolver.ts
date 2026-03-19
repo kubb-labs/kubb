@@ -1,30 +1,27 @@
-import { pascalCase } from '@internals/utils'
 import { createResolver } from '@kubb/core'
 import type { PluginTs, PluginTsResolver } from './types.ts'
 export type { PluginTsResolver } from './types.ts'
-
-function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
-  return pascalCase(name, { isFile: type === 'file' })
-}
 
 /**
  * Resolver for `@kubb/plugin-ts` that provides the default naming and path-resolution
  * helpers used by the plugin. Import this in other plugins to resolve the exact names and
  * paths that `plugin-ts` generates without hardcoding the conventions.
  *
+ * The `default` method is automatically injected by `createResolver` — it uses `camelCase`
+ * for identifiers/files and `pascalCase` for type names.
+ *
  * @example
  * ```ts
  * import { resolver } from '@kubb/plugin-ts'
  *
  * resolver.default('list pets', 'type')              // → 'ListPets'
- * resolver.resolveName('list pets status 200')        // → 'ListPetsStatus200'
+ * resolver.resolveName('list pets status 200')        // → 'listPetsStatus200'
  * resolver.resolveTypedName('list pets status 200')   // → 'ListPetsStatus200'
- * resolver.resolvePathName('list pets', 'file')       // → 'ListPets'
+ * resolver.resolvePathName('list pets', 'file')       // → 'listPets'
  * ```
  */
 export const resolver: PluginTsResolver = createResolver<PluginTs>(() => {
   return {
-    default: resolveName,
     resolveName(name) {
       return this.default(name, 'function')
     },

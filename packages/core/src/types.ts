@@ -268,8 +268,16 @@ export type Config<TInput = Input> = {
  * intersection with their own concrete helper methods via `Record<string, unknown>`.
  */
 export type Resolver = {
-  default(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+  default(name: ResolveNameParams['name'], type: ResolveNameParams['type']): string
 } & Record<string, unknown>
+
+/**
+ * The user-facing subset of a `Resolver` — everything except the `default` method.
+ *
+ * When you pass a `UserResolver` to `createResolver`, the standard `default` implementation
+ * is injected automatically so plugin authors never need to define it by hand.
+ */
+export type UserResolver = Omit<Resolver, 'default'>
 
 export type PluginFactoryOptions<
   /**
