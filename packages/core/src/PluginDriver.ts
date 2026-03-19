@@ -1,13 +1,12 @@
 import { basename, extname, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { AsyncEventEmitter } from '@internals/utils'
-import { setUniqueName, transformReservedWord } from '@internals/utils'
+import { isPromiseRejectedResult, setUniqueName, transformReservedWord } from '@internals/utils'
 import type { RootNode } from '@kubb/ast/types'
 import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import { CORE_PLUGIN_NAME, DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { ValidationPluginError } from './errors.ts'
-import { isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
 import type {
   Adapter,
   Config,
@@ -24,6 +23,7 @@ import type {
   ResolvePathParams,
   UserPlugin,
 } from './types.ts'
+import { hookFirst, hookParallel, hookSeq } from './utils/executeStrategies.ts'
 
 type RequiredPluginLifecycle = Required<PluginLifecycle>
 
@@ -62,7 +62,9 @@ export function getMode(fileOrFolder: string | undefined | null): KubbFile.Mode 
   return extname(fileOrFolder) ? 'single' : 'split'
 }
 
-export class PluginManager {
+const hookFirstNullCheck = (state: unknown) => !!(state as SafeParseResult<'resolveName'> | null)?.result
+
+export class PluginDriver {
   readonly config: Config
   readonly options: Options
 
@@ -76,14 +78,10 @@ export class PluginManager {
 
   readonly #plugins = new Set<Plugin>()
   readonly #usedPluginNames: Record<string, number> = {}
-  readonly #promiseManager
 
   constructor(config: Config, options: Options) {
     this.config = config
     this.options = options
-    this.#promiseManager = new PromiseManager({
-      nullCheck: (state: SafeParseResult<'resolveName'> | null) => !!state?.result,
-    })
     ;[...(config.plugins || [])].forEach((plugin) => {
       const parsedPlugin = this.#parse(plugin as UserPlugin)
 
@@ -97,14 +95,14 @@ export class PluginManager {
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
     const plugins = [...this.#plugins]
-    const pluginManager = this
+    const driver = this
 
     const baseContext = {
       fabric: this.options.fabric,
       config: this.config,
       plugin,
       events: this.options.events,
-      pluginManager: this,
+      driver: this,
       mode: getMode(resolve(this.config.root, this.config.output.path)),
       addFile: async (...files: Array<KubbFile.File>) => {
         await this.options.fabric.addFile(...files)
@@ -113,29 +111,29 @@ export class PluginManager {
         await this.options.fabric.upsertFile(...files)
       },
       get rootNode(): RootNode | undefined {
-        return pluginManager.rootNode
+        return driver.rootNode
       },
       get adapter(): Adapter | undefined {
-        return pluginManager.adapter
+        return driver.adapter
       },
       openInStudio(options?: DevtoolsOptions) {
-        if (!pluginManager.config.devtools || pluginManager.#studioIsOpen) {
+        if (!driver.config.devtools || driver.#studioIsOpen) {
           return
         }
 
-        if (typeof pluginManager.config.devtools !== 'object') {
+        if (typeof driver.config.devtools !== 'object') {
           throw new Error('Devtools must be an object')
         }
 
-        if (!pluginManager.rootNode || !pluginManager.adapter) {
+        if (!driver.rootNode || !driver.adapter) {
           throw new Error('adapter is not defined, make sure you have set the parser in kubb.config.ts')
         }
 
-        pluginManager.#studioIsOpen = true
+        driver.#studioIsOpen = true
 
-        const studioUrl = pluginManager.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
+        const studioUrl = driver.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
 
-        return openInStudioFn(pluginManager.rootNode, studioUrl, options)
+        return openInStudioFn(driver.rootNode, studioUrl, options)
       },
     } as unknown as PluginContext<TOptions>
 
@@ -332,7 +330,7 @@ export class PluginManager {
       }
     })
 
-    const result = await this.#promiseManager.run('first', promises)
+    const result = await hookFirst(promises, hookFirstNullCheck)
 
     this.events.emit('plugins:hook:progress:end', { hookName })
 
@@ -402,9 +400,7 @@ export class PluginManager {
       }
     })
 
-    const results = await this.#promiseManager.run('parallel', promises, {
-      concurrency: this.options.concurrency,
-    })
+    const results = await hookParallel(promises, this.options.concurrency)
 
     results.forEach((result, index) => {
       if (isPromiseRejectedResult<Error>(result)) {
@@ -450,7 +446,7 @@ export class PluginManager {
         })
     })
 
-    await this.#promiseManager.run('seq', promises)
+    await hookSeq(promises)
 
     this.events.emit('plugins:hook:progress:end', { hookName })
   }

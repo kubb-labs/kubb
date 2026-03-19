@@ -7,7 +7,7 @@ import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import type { PluginFaker } from '../types.ts'
 import { fakerGenerator } from './fakerGenerator.tsx'
 
@@ -155,11 +155,11 @@ describe('fakerGenerator schema', async () => {
     }
     const plugin = createMockedPlugin<PluginFaker>({ name: 'plugin-faker', options })
 
-    const mockedPluginManager = createMockedPluginManager({ name: props.name })
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: 'application/json',
@@ -292,12 +292,12 @@ describe('fakerGenerator operation', async () => {
     }
     const plugin = createMockedPlugin<PluginFaker>({ name: 'plugin-faker', options })
 
-    const mockedPluginManager = createMockedPluginManager({ name: props.name })
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,

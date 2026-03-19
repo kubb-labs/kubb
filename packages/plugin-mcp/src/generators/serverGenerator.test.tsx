@@ -6,7 +6,7 @@ import { parse } from '@kubb/oas'
 import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import type { PluginMcp } from '../types.ts'
 import { serverGenerator } from './serverGenerator.tsx'
 
@@ -53,12 +53,12 @@ describe('operationsGenerator operations', async () => {
       ...props.options,
     }
     const plugin = createMockedPlugin<PluginMcp>({ name: 'plugin-mcp', options })
-    const mockedPluginManager = createMockedPluginManager({ name: props.name })
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,

@@ -5,7 +5,7 @@ import { parse } from '@kubb/oas'
 import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import type { PluginClient } from '../types.ts'
 import { staticClassClientGenerator } from './staticClassClientGenerator.tsx'
 
@@ -62,12 +62,12 @@ describe('staticClassClientGenerator operations', async () => {
       ...props.options,
     }
     const plugin = createMockedPlugin<PluginClient>({ name: 'plugin-client', options })
-    const mockedPluginManager = createMockedPluginManager({ name: props.name })
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
       plugin,
       contentType: undefined,
       override: undefined,

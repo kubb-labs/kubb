@@ -150,7 +150,7 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
         this.plugin.options.client.baseURL = baseURL
       }
 
-      const hasClientPlugin = !!this.pluginManager.getPluginByName(pluginClientName)
+      const hasClientPlugin = !!this.driver.getPluginByName(pluginClientName)
 
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled
@@ -190,7 +190,7 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        pluginManager: this.pluginManager,
+        driver: this.driver,
         events: this.events,
         plugin: this.plugin,
         contentType,

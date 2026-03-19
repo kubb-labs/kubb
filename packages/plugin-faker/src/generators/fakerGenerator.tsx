@@ -1,4 +1,4 @@
-import { useMode, usePluginManager } from '@kubb/core/hooks'
+import { useMode, usePluginDriver } from '@kubb/core/hooks'
 import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
@@ -16,7 +16,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       options: { dateParser, regexGenerator, seed, mapper },
     } = plugin
     const mode = useMode()
-    const pluginManager = usePluginManager()
+    const driver = usePluginDriver()
 
     const oas = useOas()
     const { getSchemas, getFile, getGroup } = useOperationManager(generator)
@@ -29,7 +29,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       oas,
       plugin,
       events: generator.context.events,
-      pluginManager,
+      driver,
       mode,
       override: options.override,
     })
@@ -94,7 +94,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
+        banner={getBanner({ oas, output: plugin.options.output, config: driver.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
         <File.Import name={['faker']} path="@faker-js/faker" />
@@ -109,7 +109,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     const {
       options: { output, dateParser, regexGenerator, seed, mapper },
     } = plugin
-    const pluginManager = usePluginManager()
+    const driver = usePluginDriver()
     const oas = useOas()
     const imports = getImports(schema.tree)
 
@@ -142,7 +142,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         baseName={faker.file.baseName}
         path={faker.file.path}
         meta={faker.file.meta}
-        banner={getBanner({ oas, output, config: pluginManager.config })}
+        banner={getBanner({ oas, output, config: driver.config })}
         footer={getFooter({ oas, output })}
       >
         <File.Import name={['faker']} path="@faker-js/faker" />

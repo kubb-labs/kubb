@@ -1,5 +1,5 @@
 import { pascalCase } from '@internals/utils'
-import type { AsyncEventEmitter, FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
+import type { AsyncEventEmitter, FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
 import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
 import pLimit from 'p-limit'
@@ -19,7 +19,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   include: Array<Include> | undefined
   override: Array<Override<TOptions>> | undefined
   contentType: contentType | undefined
-  pluginManager: PluginManager
+  driver: PluginDriver
   events?: AsyncEventEmitter<KubbEvents>
   /**
    * Current plugin
@@ -234,7 +234,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
 
             if (v1Generator.type === 'react') {
               await buildOperation(operation, {
-                config: this.context.pluginManager.config,
+                config: this.context.driver.config,
                 fabric: this.context.fabric,
                 Component: v1Generator.Operation,
                 generator: this,
@@ -252,7 +252,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
 
             const result = await v1Generator.operation?.({
               generator: this,
-              config: this.context.pluginManager.config,
+              config: this.context.driver.config,
               operation,
               plugin: {
                 ...this.context.plugin,
@@ -275,7 +275,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
             operations.map((op) => op.operation),
             {
               fabric: this.context.fabric,
-              config: this.context.pluginManager.config,
+              config: this.context.driver.config,
               Component: v1Generator.Operations,
               generator: this,
               plugin: this.context.plugin,
@@ -287,7 +287,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
 
         const operationsResult = await v1Generator.operations?.({
           generator: this,
-          config: this.context.pluginManager.config,
+          config: this.context.driver.config,
           operations: operations.map((op) => op.operation),
           plugin: this.context.plugin,
         })

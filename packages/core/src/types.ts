@@ -4,7 +4,7 @@ import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { DefineStorage } from './defineStorage.ts'
 import type { KubbEvents } from './Kubb.ts'
-import type { PluginManager } from './PluginManager.ts'
+import type { PluginDriver } from './PluginDriver.ts'
 
 export type { Printer, PrinterFactoryOptions } from '@kubb/ast/types'
 
@@ -32,7 +32,7 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
   /**
    * An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Refer to “pre” for more details.
    */
-  // inject needs to be omitted because else we have a clash with the PluginManager instance
+  // inject needs to be omitted because else we have a clash with the PluginDriver instance
   plugins?: Array<Omit<UnknownUserPlugin, 'inject'>>
 }
 
@@ -340,7 +340,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
 
   install: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**
-   * Define a context that can be used by other plugins, see `PluginManager' where we convert from `UserPlugin` to `Plugin`(used when calling `definePlugin`).
+   * Define a context that can be used by other plugins, see `PluginDriver' where we convert from `UserPlugin` to `Plugin`(used when calling `definePlugin`).
    */
   inject: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => TOptions['context']
 }
@@ -400,7 +400,7 @@ export type ResolveNameParams = {
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   fabric: FabricType
   config: Config
-  pluginManager: PluginManager
+  driver: PluginDriver
   /**
    * Only add when the file does not exist yet
    */

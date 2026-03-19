@@ -6,28 +6,28 @@ description: Understand Kubb's plugin system. Create custom plugins, plugin life
 outline: deep
 ---
 
-# PluginManager <Badge type="info" text="@kubb/core" />
+# PluginDriver <Badge type="info" text="@kubb/core" />
 
-The `PluginManager` instance contains the building blocks for executing plugins in a specific order. The instance includes a queue system, the `FileManager`, `resolvePath` to retrieve a path needed for plugin x, and `resolveName` to retrieve a name that can be used for a function, file, or type.
+The `PluginDriver` instance contains the building blocks for executing plugins in a specific order. The instance includes a queue system, the `FileManager`, `resolvePath` to retrieve a path needed for plugin x, and `resolveName` to retrieve a name that can be used for a function, file, or type.
 
 > [!TIP]
-> Here we also create the core plugin with the link(see `this.`) to the `PluginManager`.
+> Here we also create the core plugin with the link(see `this.`) to the `PluginDriver`.
 
-### pluginManager.plugins
+### driver.plugins
 
 An array of plugins with the lifecycle hooks included. This also adds the core plugin. Behind the scenes, the API prop is converted from a function to an object.
 
 - **Type:** `KubbPluginWithLifeCycle` <br/>
 
-### pluginManager.fileManager
+### driver.fileManager
 
 Instance of the [FileManager](/reference/filemManager).
 
 - **Type:** `FileManager` <br/>
 
-### pluginManager.events
+### driver.events
 
-The `PluginManager` triggers events when a plugin executes (`execute`), when a plugin has completed (`executed`), and when an error occurs (`error`).
+The `PluginDriver` triggers events when a plugin executes (`execute`), when a plugin has completed (`executed`), and when an error occurs (`error`).
 
 ```typescript [Events]
 type Events = {
@@ -39,71 +39,71 @@ type Events = {
 
 - **Type:** `Events` <br/>
 
-### pluginManager.queue
+### driver.queue
 
 Instance of the queue.
 
 - **Type:** `Queue` <br/>
 
-### pluginManager.config
+### driver.config
 
 The config that has been set in `kubb.config.ts`.
 
 - **Type:** `KubbConfig` <br/>
 
-### pluginManager.executed
+### driver.executed
 
 Array of all executed plugins.
 
 - **Type:** `Array<Executer>` <br/>
 
 
-### pluginManager.resolvePath
+### driver.resolvePath
 
-Every plugin can set `resolvePath`. When you call `pluginManager.resolvePath`, it finds the first resolvePath based on the plugins array and uses that return value as the path.
+Every plugin can set `resolvePath`. When you call `driver.resolvePath`, it finds the first resolvePath based on the plugins array and uses that return value as the path.
 
 You can set `pluginKey` as an option. If provided, it finds the plugin with that `pluginKey` and uses the return value of that specific plugin as the path.
 
 - **Type:** `(params: ResolvePathParams): KubbFile.OptionalPath` <br/>
 
-### pluginManager.resolveName
+### driver.resolveName
 
-Every plugin can set `resolveName`. When you call `pluginManager.resolveName`, it finds the first resolveName based on the plugins array and uses that return value as the name for a function, file, or type.
+Every plugin can set `resolveName`. When you call `driver.resolveName`, it finds the first resolveName based on the plugins array and uses that return value as the name for a function, file, or type.
 
 You can set `pluginKey` as an option. If provided, it finds the plugin with that `pluginKey` and uses the return value of that specific plugin as the name.
 
 - **Type:** `(params: ResolveNameParams): string` <br/>
 
-### pluginManager.on
+### driver.on
 
-Instead of calling `pluginManager.events.on`, you can use `pluginManager.on`. This method also has better types.
+Instead of calling `driver.events.on`, you can use `driver.on`. This method also has better types.
 
 - **Type:** `(eventName: keyof Events, handler: (...eventArg: any) => void` <br/>
 
-### pluginManager.hookForPlugin
+### driver.hookForPlugin
 
 Run a specific hookName for plugin x.
 
-### pluginManager.hookForPluginSync
+### driver.hookForPluginSync
 
 Run a specific hookName for plugin x.
 
-### pluginManager.hookFirst
+### driver.hookFirst
 
 First non-null result stops and will return its value.
 
-### pluginManager.hookFirstSync
+### driver.hookFirstSync
 
 First non-null result stops and will return its value.
 
-### pluginManager.hookParallel
+### driver.hookParallel
 
 Run all plugins in parallel. Order is based on `this.plugin` and whether `pre` or `post` is set.
 
-### pluginManager.hookReduceArg0
+### driver.hookReduceArg0
 
 Chain all plugins using `reduce` to handle every returned value. The return value of the first plugin is used as the first parameter for the plugin after that.
 
-### pluginManager.hookSequential
+### driver.hookSequential
 
 Run all plugins sequentially. Order is based on `this.plugin` and whether `pre` or `post` is set.

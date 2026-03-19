@@ -4,7 +4,7 @@ import type { Config } from '@kubb/core'
 import { buildOperation, buildSchema } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, expect, test } from 'vitest'
-import { createMockedAdapter, createMockedPlugin, createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import type { PluginTs } from '../../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
 
@@ -146,14 +146,14 @@ describe('typeGenerator v2 — Operation', () => {
       ...('options' in props ? props.options : {}),
     }
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
-    const mockedPluginManager = createMockedPluginManager({ name: props.name })
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
 
     await buildOperation(props.node, {
       version: '2',
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       adapter: createMockedAdapter(),
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
       Component: typeGenerator.Operation,
       plugin,
       mode: 'split',
@@ -207,14 +207,14 @@ describe('typeGenerator v2 — Operation — group', () => {
   ])('group=$group.type — file path is $expectedPath', async ({ group, expectedPath }) => {
     const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group }
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
-    const mockedPluginManager = createMockedPluginManager({ name: 'listPets' })
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'listPets' })
 
     await buildOperation(node, {
       version: '2',
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       adapter: createMockedAdapter(),
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
       Component: typeGenerator.Operation,
       plugin,
       mode: 'split',
@@ -269,14 +269,14 @@ describe('typeGenerator v2 — Schema (enum)', () => {
   test.each(enumTypes.map((et) => ({ enumType: et })))('enumType=$enumType — top-level enum with dotted name', async ({ enumType }) => {
     const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumType }
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
-    const mockedPluginManager = createMockedPluginManager({ name: `enumNames.Type — ${enumType}` })
+    const mockedPluginDriver = createMockedPluginDriver({ name: `enumNames.Type — ${enumType}` })
 
     await buildSchema(enumSchemaNode, {
       version: '2',
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       adapter: createMockedAdapter(),
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
       Component: typeGenerator.Schema,
       plugin,
       mode: 'split',

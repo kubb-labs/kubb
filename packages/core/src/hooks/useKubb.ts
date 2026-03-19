@@ -2,7 +2,7 @@ import path from 'node:path'
 import type { RootNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { useFabric } from '@kubb/react-fabric'
-import type { GetFileOptions, PluginManager } from '../PluginManager.ts'
+import type { GetFileOptions, PluginDriver } from '../PluginDriver.ts'
 import type { Config, Plugin, PluginFactoryOptions, ResolveNameParams, ResolvePathParams } from '../types.ts'
 
 type ResolvePathOptions = {
@@ -98,11 +98,10 @@ export function useKubb<TOptions extends PluginFactoryOptions = PluginFactoryOpt
   const { meta } = useFabric<{
     plugin: Plugin<TOptions>
     mode: KubbFile.Mode
-    pluginManager: PluginManager
-    rootNode?: RootNode
+    driver: PluginDriver
   }>()
 
-  const config = meta.pluginManager.config
+  const config = meta.driver.config
   const defaultPluginName = meta.plugin.name
 
   const output = (
@@ -113,33 +112,27 @@ export function useKubb<TOptions extends PluginFactoryOptions = PluginFactoryOpt
     plugin: meta.plugin as Plugin<TOptions>,
     mode: meta.mode,
     config,
-    getPluginByName: (pluginName = defaultPluginName) => meta.pluginManager.getPluginByName.call(meta.pluginManager, pluginName),
-    getFile: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginManager.getFile.call(meta.pluginManager, { pluginName, ...rest }),
-    resolveName: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginManager.resolveName.call(meta.pluginManager, { pluginName, ...rest }),
-    resolvePath: ({ pluginName = defaultPluginName, ...rest }) => meta.pluginManager.resolvePath.call(meta.pluginManager, { pluginName, ...rest }),
-    resolveBanner: (node) => {
-      let defaultBanner: string | undefined
-      if (config?.output?.defaultBanner !== false && config && node.meta) {
-        const { title, version, description } = node.meta
-
-        defaultBanner = buildDefaultBanner({ title, description, version, config })
+    getPluginByName: (pluginName = defaultPluginName) => meta.driver.getPluginByName.call(meta.driver, pluginName),
+    getFile: ({ pluginName = defaultPluginName, ...rest }) => meta.driver.getFile.call(meta.driver, { pluginName, ...rest }),
+    resolveName: ({ pluginName = defaultPluginName, ...rest }) => meta.driver.resolveName.call(meta.driver, { pluginName, ...rest }),
+    resolvePath: ({ pluginName = defaultPluginName, ...rest }) => meta.driver.resolvePath.call(meta.driver, { pluginName, ...rest }),
+    resolveBanner: (node: RootNode) => {
+      if (typeof output?.banner === 'function') {
+        return output.banner(node)
       }
-
-      let customBanner: string | undefined
-      if (output?.banner) {
-        customBanner = typeof output.banner === 'function' ? output.banner(node) : output.banner
+      if (typeof output?.banner === 'string') {
+        return output.banner
       }
-
-      if (customBanner && defaultBanner) {
-        return `${customBanner}\n${defaultBanner}`
-      }
-      return customBanner ?? defaultBanner
+      return buildDefaultBanner({ config })
     },
-    resolveFooter: (node) => {
-      if (!output?.footer) return undefined
-      if (typeof output.footer === 'function') return output.footer(node)
-
-      return output.footer
+    resolveFooter: (node: RootNode) => {
+      if (typeof output?.footer === 'function') {
+        return output.footer(node)
+      }
+      if (typeof output?.footer === 'string') {
+        return output.footer
+      }
+      return undefined
     },
   }
 }

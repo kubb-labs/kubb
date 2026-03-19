@@ -1,6 +1,6 @@
 import path from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import { getMode } from '../PluginManager.ts'
+import { getMode } from '../PluginDriver.ts'
 
 type BarrelData = {
   file?: KubbFile.File

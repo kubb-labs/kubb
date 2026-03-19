@@ -1,4 +1,4 @@
-import { usePluginManager } from '@kubb/core/hooks'
+import { usePluginDriver } from '@kubb/core/hooks'
 import type { Operation } from '@kubb/oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -15,7 +15,7 @@ export const hookOptionsGenerator = createReactGenerator<PluginReactQuery>({
       options: { output },
       name: pluginName,
     } = plugin
-    const pluginManager = usePluginManager()
+    const driver = usePluginDriver()
 
     const oas = useOas()
     const { getName, getFile } = useOperationManager(generator)
@@ -25,7 +25,7 @@ export const hookOptionsGenerator = createReactGenerator<PluginReactQuery>({
     }
 
     const name = 'HookOptions'
-    const file = pluginManager.getFile({ name, extname: '.ts', pluginName })
+    const file = driver.getFile({ name, extname: '.ts', pluginName })
 
     const getOperationOptions = (operation: Operation) => {
       const operationOptions = generator.getOptions(operation, operation.method)
@@ -181,7 +181,7 @@ export const hookOptionsGenerator = createReactGenerator<PluginReactQuery>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output, config: pluginManager.config })}
+        banner={getBanner({ oas, output, config: driver.config })}
         footer={getFooter({ oas, output })}
       >
         {imports}

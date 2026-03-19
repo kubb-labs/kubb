@@ -1,6 +1,6 @@
 import { pascalCase } from '@internals/utils'
-import type { PluginManager } from '@kubb/core'
-import { useMode, usePluginManager } from '@kubb/core/hooks'
+import type { PluginDriver } from '@kubb/core'
+import { useMode, usePluginDriver } from '@kubb/core/hooks'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type { Operation } from '@kubb/oas'
 import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
@@ -15,13 +15,13 @@ import { createUrlTemplateType, getUnknownType, keywordTypeNodes } from '../fact
 import { pluginTsName } from '../plugin.ts'
 import type { PluginTs } from '../types'
 
-function printCombinedSchema({ name, schemas, pluginManager }: { name: string; schemas: OperationSchemas; pluginManager: PluginManager }): string {
+function printCombinedSchema({ name, schemas, driver }: { name: string; schemas: OperationSchemas; driver: PluginDriver }): string {
   const properties: Record<string, ts.TypeNode> = {}
 
   if (schemas.response) {
     properties['response'] = factory.createUnionDeclaration({
       nodes: schemas.responses.map((res) => {
-        const identifier = pluginManager.resolveName({
+        const identifier = driver.resolveName({
           name: res.name,
           pluginName: pluginTsName,
           type: 'function',
@@ -33,7 +33,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
   }
 
   if (schemas.request) {
-    const identifier = pluginManager.resolveName({
+    const identifier = driver.resolveName({
       name: schemas.request.name,
       pluginName: pluginTsName,
       type: 'function',
@@ -42,7 +42,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
   }
 
   if (schemas.pathParams) {
-    const identifier = pluginManager.resolveName({
+    const identifier = driver.resolveName({
       name: schemas.pathParams.name,
       pluginName: pluginTsName,
       type: 'function',
@@ -51,7 +51,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
   }
 
   if (schemas.queryParams) {
-    const identifier = pluginManager.resolveName({
+    const identifier = driver.resolveName({
       name: schemas.queryParams.name,
       pluginName: pluginTsName,
       type: 'function',
@@ -60,7 +60,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
   }
 
   if (schemas.headerParams) {
-    const identifier = pluginManager.resolveName({
+    const identifier = driver.resolveName({
       name: schemas.headerParams.name,
       pluginName: pluginTsName,
       type: 'function',
@@ -71,7 +71,7 @@ function printCombinedSchema({ name, schemas, pluginManager }: { name: string; s
   if (schemas.errors) {
     properties['errors'] = factory.createUnionDeclaration({
       nodes: schemas.errors.map((error) => {
-        const identifier = pluginManager.resolveName({
+        const identifier = driver.resolveName({
           name: error.name,
           pluginName: pluginTsName,
           type: 'function',
@@ -109,14 +109,14 @@ function printRequestSchema({
   baseName,
   operation,
   schemas,
-  pluginManager,
+  driver,
 }: {
   baseName: string
   operation: Operation
   schemas: OperationSchemas
-  pluginManager: PluginManager
+  driver: PluginDriver
 }): string {
-  const name = pluginManager.resolveName({
+  const name = driver.resolveName({
     name: `${baseName} Request`,
     pluginName: pluginTsName,
     type: 'type',
@@ -128,7 +128,7 @@ function printRequestSchema({
   const dataRequestProperties: ts.PropertySignature[] = []
 
   if (schemas.request) {
-    const identifier = pluginManager.resolveName({
+    const identifier = driver.resolveName({
       name: schemas.request.name,
       pluginName: pluginTsName,
       type: 'type',
@@ -152,7 +152,7 @@ function printRequestSchema({
 
   // Add pathParams property
   if (schemas.pathParams) {
-    const identifier = pluginManager.resolveName({
+    const identifier = driver.resolveName({
       name: schemas.pathParams.name,
       pluginName: pluginTsName,
       type: 'type',
@@ -175,7 +175,7 @@ function printRequestSchema({
 
   // Add queryParams property
   if (schemas.queryParams) {
-    const identifier = pluginManager.resolveName({
+    const identifier = driver.resolveName({
       name: schemas.queryParams.name,
       pluginName: pluginTsName,
       type: 'type',
@@ -199,7 +199,7 @@ function printRequestSchema({
 
   // Add headerParams property
   if (schemas.headerParams) {
-    const identifier = pluginManager.resolveName({
+    const identifier = driver.resolveName({
       name: schemas.headerParams.name,
       pluginName: pluginTsName,
       type: 'type',
@@ -243,17 +243,17 @@ function printRequestSchema({
 function printResponseSchema({
   baseName,
   schemas,
-  pluginManager,
+  driver,
   unknownType,
 }: {
   baseName: string
   schemas: OperationSchemas
-  pluginManager: PluginManager
+  driver: PluginDriver
   unknownType: PluginTs['resolvedOptions']['unknownType']
 }): string {
   const results: string[] = []
 
-  const name = pluginManager.resolveName({
+  const name = driver.resolveName({
     name: `${baseName} ResponseData`,
     pluginName: pluginTsName,
     type: 'type',
@@ -262,7 +262,7 @@ function printResponseSchema({
   // Generate Responses type (mapping status codes to response types)
   if (schemas.responses && schemas.responses.length > 0) {
     const responsesProperties: ts.PropertySignature[] = schemas.responses.map((res) => {
-      const identifier = pluginManager.resolveName({
+      const identifier = driver.resolveName({
         name: res.name,
         pluginName: pluginTsName,
         type: 'type',
@@ -318,7 +318,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     } = plugin
 
     const mode = useMode()
-    const pluginManager = usePluginManager()
+    const driver = usePluginDriver()
 
     const oas = useOas()
     const { getSchemas, getFile, getName, getGroup } = useOperationManager(generator)
@@ -333,7 +333,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
       oas,
       events: generator.context.events,
       plugin,
-      pluginManager,
+      driver,
       mode,
       override: options.override,
     })
@@ -391,7 +391,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
+        banner={getBanner({ oas, output: plugin.options.output, config: driver.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
         {operationSchemas.map(mapOperationSchema)}
@@ -399,15 +399,15 @@ export const typeGenerator = createReactGenerator<PluginTs>({
         {generator.context.UNSTABLE_NAMING ? (
           <>
             <File.Source name={`${name}Request`} isExportable isIndexable isTypeOnly>
-              {printRequestSchema({ baseName: name, operation, schemas, pluginManager })}
+              {printRequestSchema({ baseName: name, operation, schemas, driver })}
             </File.Source>
             <File.Source name={responseName} isExportable isIndexable isTypeOnly>
-              {printResponseSchema({ baseName: name, schemas, pluginManager, unknownType })}
+              {printResponseSchema({ baseName: name, schemas, driver, unknownType })}
             </File.Source>
           </>
         ) : (
           <File.Source name={combinedSchemaName} isExportable isIndexable isTypeOnly>
-            {printCombinedSchema({ name: combinedSchemaName, schemas, pluginManager })}
+            {printCombinedSchema({ name: combinedSchemaName, schemas, driver })}
           </File.Source>
         )}
       </File>
@@ -420,7 +420,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
     const mode = useMode()
 
     const oas = useOas()
-    const pluginManager = usePluginManager()
+    const driver = usePluginDriver()
 
     const { getName, getFile } = useSchemaManager()
     const imports = getImports(schema.tree)
@@ -443,7 +443,7 @@ export const typeGenerator = createReactGenerator<PluginTs>({
         baseName={type.file.baseName}
         path={type.file.path}
         meta={type.file.meta}
-        banner={getBanner({ oas, output, config: pluginManager.config })}
+        banner={getBanner({ oas, output, config: driver.config })}
         footer={getFooter({ oas, output })}
       >
         {mode === 'split' &&

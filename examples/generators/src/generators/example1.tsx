@@ -7,7 +7,7 @@ export const example1 = createGenerator<PluginOas>({
   name: 'client-operation',
   async operation({ operation, generator }) {
     const pluginName = generator.context.plugin.name
-    const name = generator.context.pluginManager.resolveName({
+    const name = generator.context.driver.resolveName({
       name: operation.getOperationId(),
       pluginName,
       type: 'function',
@@ -15,7 +15,7 @@ export const example1 = createGenerator<PluginOas>({
 
     const client = {
       name,
-      file: generator.context.pluginManager.getFile({
+      file: generator.context.driver.getFile({
         name,
         extname: '.ts',
         pluginName,

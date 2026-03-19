@@ -16,7 +16,6 @@ import {
   type KubbEvents,
   linters,
   logLevel as logLevelMap,
-  PromiseManager,
   safeBuild,
   setup,
 } from '@kubb/core'
@@ -159,7 +158,7 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
 
   await events.emit('info', config.name ? `Setup generation ${styleText('bold', config.name)}` : 'Setup generation', inputPath)
 
-  const { sources, fabric, pluginManager } = await setup({
+  const { sources, fabric, driver } = await setup({
     config,
     events,
   })
@@ -171,7 +170,7 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
       config,
       events,
     },
-    { pluginManager, fabric, events, sources },
+    { driver, fabric, events, sources },
   )
 
   await events.emit('info', 'Load summary')
@@ -206,7 +205,7 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
       buildTelemetryEvent({
         command: 'generate',
         kubbVersion: version,
-        plugins: pluginManager.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
+        plugins: driver.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
         hrStart,
         filesCreated: files.length,
         status: 'failed',
@@ -274,7 +273,7 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
   const telemetryEvent = buildTelemetryEvent({
     command: 'generate',
     kubbVersion: version,
-    plugins: pluginManager.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
+    plugins: driver.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
     hrStart,
     filesCreated: files.length,
     status: 'success',
@@ -293,7 +292,6 @@ type GenerateCommandOptions = {
 export async function runGenerateCommand({ input, configPath, logLevel: logLevelKey, watch }: GenerateCommandOptions): Promise<void> {
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const events = new AsyncEventEmitterClass<KubbEvents>()
-  const promiseManager = new PromiseManager()
 
   await setupLogger(events, { logLevel })
 
@@ -322,26 +320,20 @@ export async function runGenerateCommand({ input, configPath, logLevel: logLevel
 
     await events.emit('lifecycle:start', version)
 
-    const promises = configs.map((config) => {
-      return async () => {
-        if (isInputPath(config) && watch) {
-          await startWatcher([input || config.input.path], async (paths) => {
-            // remove to avoid duplicate listeners after each change
-            events.removeAll()
+    for (const config of configs) {
+      if (isInputPath(config) && watch) {
+        await startWatcher([input || config.input.path], async (paths) => {
+          // remove to avoid duplicate listeners after each change
+          events.removeAll()
 
-            await generate({ input, config, logLevel, events })
+          await generate({ input, config, logLevel, events })
 
-            clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
-          })
-
-          return
-        }
-
+          clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
+        })
+      } else {
         await generate({ input, config, logLevel, events })
       }
-    })
-
-    await promiseManager.run('seq', promises)
+    }
 
     await events.emit('lifecycle:end')
   } catch (error) {

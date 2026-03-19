@@ -1,5 +1,5 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
-import type { Strategy } from './PluginManager.ts'
+import type { Strategy } from './PluginDriver.ts'
 import type { Config, Plugin, PluginLifecycleHooks } from './types'
 
 type DebugEvent = {
