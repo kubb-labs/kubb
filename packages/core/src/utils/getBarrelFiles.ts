@@ -104,7 +104,7 @@ function trimExtName(text: string): string {
   return text
 }
 
-export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type, meta = {}, root, output }: AddIndexesProps): Promise<KubbFile.File[]> {
+export async function getBarrelFiles(files: Array<KubbFile.File>, { type, meta = {}, root, output }: AddIndexesProps): Promise<KubbFile.File[]> {
   if (!type || type === 'propagate') {
     return []
   }
