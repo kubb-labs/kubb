@@ -74,4 +74,4 @@ export const resolver: PluginTsResolver = createResolver<PluginTs>(() => {
       return `${this.resolveTypedName(node.name ?? '')}Key`
     },
   }
-})()
+})

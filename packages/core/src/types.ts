@@ -3,7 +3,6 @@ import type { RootNode, SchemaNode } from '@kubb/ast/types'
 import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { DefineStorage } from './createStorage.ts'
-import type { Resolver } from './createResolver.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
@@ -260,6 +259,17 @@ export type Config<TInput = Input> = {
 }
 
 // plugin
+
+/**
+ * Base constraint for all plugin resolver objects.
+ *
+ * `default` is the one method every resolver must implement so consumers
+ * always have a typed, autocomplete-friendly entry point. Plugins extend this
+ * intersection with their own concrete helper methods via `Record<string, unknown>`.
+ */
+export type Resolver = {
+  default(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+} & Record<string, unknown>
 
 export type PluginFactoryOptions<
   /**
