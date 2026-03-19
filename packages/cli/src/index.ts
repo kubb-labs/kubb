@@ -1,17 +1,18 @@
 import { styleText } from 'node:util'
 import { createCLI } from '@internals/utils'
 import { version } from '../package.json'
+import { QUITE_FLAGS } from './constants.ts'
+import { isFlag } from './utils/flags.ts'
 import { isTelemetryDisabled } from './utils/telemetry.ts'
 
 const cli = createCLI()
 
-function shouldShowTelemetryNotice(argv: string[]): boolean {
+function shouldShowTelemetryNotice(argv: Array<string>): boolean {
   if (isTelemetryDisabled()) {
     return false
   }
   // Skip when the user is just asking for help or version info
-  const quietFlags = new Set(['--help', '-h', '--version', '-v'])
-  if (argv.some((arg) => quietFlags.has(arg))) {
+  if (argv.some((arg) => isFlag(QUITE_FLAGS, arg))) {
     return false
   }
   // Skip in non-interactive / scripting contexts
@@ -21,7 +22,7 @@ function shouldShowTelemetryNotice(argv: string[]): boolean {
   return true
 }
 
-export async function run(argv: string[] = process.argv): Promise<void> {
+export async function run(argv: Array<string> = process.argv): Promise<void> {
   if (shouldShowTelemetryNotice(argv)) {
     console.log(
       `${styleText('yellow', 'Notice:')} Kubb collects anonymous telemetry data to help improve the tool. No personal data or file contents are collected. \nTo disable, set ${styleText('cyan', 'KUBB_DISABLE_TELEMETRY=1')}.\n`,
