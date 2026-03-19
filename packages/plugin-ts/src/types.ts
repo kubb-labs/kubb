@@ -62,7 +62,7 @@ export type PluginTsTransformer = {
   paramTypedName(operationId: string, paramIn: string, name: string): string
   /**
    * Resolves the variable/function name for an operation response by status code.
-   * Encapsulates the `<operationId> Status <statusCode>` naming convention.
+   * Encapsulates the `<operationId> Status <statusCode>` template with PascalCase applied to the result.
    *
    * @example
    * transformer.responseStatusName('listPets', 200) // → 'ListPetsStatus200'
@@ -70,6 +70,7 @@ export type PluginTsTransformer = {
   responseStatusName(operationId: string, statusCode: number | string): string
   /**
    * Resolves the TypeScript type alias name for an operation response by status code.
+   * Encapsulates the `<operationId> Status <statusCode>` template with PascalCase applied to the result.
    *
    * @example
    * transformer.responseStatusTypedName('listPets', 200) // → 'ListPetsStatus200'
