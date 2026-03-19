@@ -282,11 +282,8 @@ describe('getBarrelFiles', () => {
               "path": "./sub/index.ts",
             },
           ],
-          "extname": ".ts",
-          "id": "src/index.ts",
           "imports": [],
           "meta": {},
-          "name": "index",
           "path": "src/index.ts",
           "sources": [
             {
@@ -344,11 +341,8 @@ describe('getBarrelFiles', () => {
               "path": "./world.ts",
             },
           ],
-          "extname": ".ts",
-          "id": "src/sub/index.ts",
           "imports": [],
           "meta": {},
-          "name": "index",
           "path": "src/sub/index.ts",
           "sources": [
             {
