@@ -10,17 +10,17 @@ export type Transformer = Record<string, unknown>
  * Creates a typed transformer object for a plugin, following the same factory pattern
  * as `definePlugin`, `defineLogger`, and `defineAdapter`.
  *
- * Pass the plugin's factory type (`PluginTs`, `PluginClient`, …) as the first generic
+ * Pass the plugin's factory type (`PluginTs`, `PluginClient`, …) as the generic
  * to tie the transformer to the correct plugin at the type level.
- * The second generic `TTransformer` is inferred from the factory return value,
- * so callers get back the full concrete type instead of the base `Transformer`.
+ * The return type is inferred from `TPlugin['transformer']`, so callers get back
+ * the full concrete transformer type that was declared in `PluginFactoryOptions`.
  *
  * @example
  * ```ts
  * import { createTransformer } from '@kubb/core'
  * import type { PluginTs } from '@kubb/plugin-ts'
  *
- * export const transformer = createTransformer<PluginTs>()(() => {
+ * export const transformer = createTransformer<PluginTs>(() => {
  *   return {
  *     default(name: string) { return pascalCase(name) },
  *     resolvePathName(name: string) { return pascalCase(name) },
@@ -28,8 +28,6 @@ export type Transformer = Record<string, unknown>
  * })
  * ```
  */
-export function createTransformer<_TPlugin extends object = object>() {
-  return function <TTransformer extends Transformer>(factory: () => TTransformer): TTransformer {
-    return factory()
-  }
+export function createTransformer<TPlugin extends { transformer: Transformer }>(factory: () => TPlugin['transformer']): TPlugin['transformer'] {
+  return factory()
 }

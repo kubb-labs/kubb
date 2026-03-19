@@ -40,7 +40,7 @@ function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'
  * transformer.resolvePathName('list pets', 'file') // → 'ListPets'
  * ```
  */
-export const transformer: PluginTsTransformer = createTransformer<PluginTs>()(() => {
+export const transformer: PluginTsTransformer = createTransformer<PluginTs>(() => {
   return {
     default: resolveName,
     resolvePathName: resolveName,
