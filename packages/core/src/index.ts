@@ -3,11 +3,9 @@ export { definePrinter } from '@kubb/ast'
 export { build, build as default, safeBuild, setup } from './build.ts'
 export { type CLIOptions, type ConfigInput, defineConfig, isInputPath } from './config.ts'
 export { formatters, linters, logLevel } from './constants.ts'
-// create* — return a factory function; end-users call the result with their options
 export { createAdapter } from './createAdapter.ts'
 export { createPlugin } from './createPlugin.ts'
 export { createStorage } from './createStorage.ts'
-// define* — return the object directly; no further call needed
 export { defineGenerator } from './defineGenerator.ts'
 export { defineLogger } from './defineLogger.ts'
 export { defaultResolveOptions, defineResolver } from './defineResolver.ts'

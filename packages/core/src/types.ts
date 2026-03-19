@@ -177,8 +177,8 @@ export type Config<TInput = Input> = {
      * @default fsStorage()
      * @example
      * ```ts
-     * import { createStorage, fsStorage } from '@kubb/core'
-     * storage: createStorage(fsStorage())
+     * import { memoryStorage } from '@kubb/core'
+     * storage: memoryStorage()
      * ```
      */
     storage?: Storage
@@ -260,20 +260,20 @@ export type Config<TInput = Input> = {
 
 // plugin
 
-type FilterItem = {
+type PatternFilter = {
   type: string
   pattern: string | RegExp
 }
 
-type OverrideItem<TOptions> = FilterItem & {
+type PatternOverride<TOptions> = PatternFilter & {
   options: Omit<Partial<TOptions>, 'override'>
 }
 
 export type ResolveOptionsContext<TOptions> = {
   options: TOptions
-  exclude?: Array<FilterItem>
-  include?: Array<FilterItem>
-  override?: Array<OverrideItem<TOptions>>
+  exclude?: Array<PatternFilter>
+  include?: Array<PatternFilter>
+  override?: Array<PatternOverride<TOptions>>
 }
 
 /**
@@ -333,8 +333,6 @@ export type PluginFactoryOptions<
   resolver: TResolver
 }
 
-export type GetPluginFactoryOptions<TPlugin extends UserPlugin> = TPlugin extends UserPlugin<infer X> ? X : never
-
 export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
    * Unique name used for the plugin
@@ -360,7 +358,7 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
 
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
 
-export type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<any, any, any, any, any>>
+type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<string, object, object, unknown, object>>
 
 export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
@@ -384,7 +382,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
 
   install: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**
-   * Define a context that can be used by other plugins, see `PluginDriver' where we convert from `UserPlugin` to `Plugin`(used when calling `createPlugin`).
+   * Defines a context that can be used by other plugins, see `PluginDriver` where we convert from `UserPlugin` to `Plugin` (used when calling `createPlugin`).
    */
   inject: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => TOptions['context']
 }
@@ -512,10 +510,6 @@ export type Output<TOptions> = {
   override?: boolean
 }
 
-type GroupContext = {
-  group: string
-}
-
 export type Group = {
   /**
    * Defines the type where to group the files.
@@ -525,9 +519,9 @@ export type Group = {
    */
   type: 'tag' | 'path'
   /**
-   * Return the name of a group based on the group name, this used for the file and name generation
+   * Return the name of a group based on the group name, this is used for the file and name generation.
    */
-  name?: (context: GroupContext) => string
+  name?: (context: { group: string }) => string
 }
 
 export type LoggerOptions = {
@@ -540,16 +534,14 @@ export type LoggerOptions = {
 /**
  * Shared context passed to all plugins, parsers, and Fabric internals.
  */
-export interface LoggerContext extends AsyncEventEmitter<KubbEvents> {}
-
-type Install<TOptions = unknown> = (context: LoggerContext, options?: TOptions) => void | Promise<void>
+export type LoggerContext = AsyncEventEmitter<KubbEvents>
 
 export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
   name: string
-  install: Install<TOptions>
+  install: (context: LoggerContext, options?: TOptions) => void | Promise<void>
 }
 
-export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Omit<Logger<TOptions>, 'logLevel'>
+export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Logger<TOptions>
 
 export type { Storage } from './createStorage.ts'
 export type { CoreGeneratorV2, Generator, ReactGeneratorV2 } from './defineGenerator.ts'
