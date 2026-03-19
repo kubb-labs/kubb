@@ -2,7 +2,47 @@ import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@ku
 import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
-import type { PluginTsTransformer } from './transformer.ts'
+
+/**
+ * The concrete transformer type for `@kubb/plugin-ts`.
+ * Defines the exact helper methods provided by the plugin.
+ */
+export type PluginTsTransformer = {
+  /**
+   * Converts a raw name using the plugin's default naming convention (PascalCase).
+   * The optional `type` discriminant lets the caller signal the role of the name
+   * (e.g. `'type'`, `'function'`, `'file'`, `'const'`).
+   *
+   * @example
+   * transformer.default('list pets', 'type') // → 'ListPets'
+   */
+  default(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+  /**
+   * Resolves the variable/function name for a given raw name (equivalent to `default(name, 'function')`).
+   * Use this shorthand when matching the `name` field produced by the v2 TypeGenerator,
+   * so call-sites don't need to repeat the `'function'` type literal.
+   *
+   * @example
+   * transformer.name('list pets status 200') // → 'ListPetsStatus200'
+   */
+  name(name: string): string
+  /**
+   * Resolves the TypeScript type name for a given raw name (equivalent to `default(name, 'type')`).
+   * Use this shorthand when matching the `typedName` field produced by the v2 TypeGenerator,
+   * so call-sites don't need to repeat the `'type'` type literal.
+   *
+   * @example
+   * transformer.typedName('list pets status 200') // → 'ListPetsStatus200'
+   */
+  typedName(name: string): string
+  /**
+   * Resolves the file/path name for a given identifier using PascalCase.
+   *
+   * @example
+   * transformer.resolvePathName('list pets', 'file') // → 'ListPets'
+   */
+  resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+}
 
 export type Options = {
   /**

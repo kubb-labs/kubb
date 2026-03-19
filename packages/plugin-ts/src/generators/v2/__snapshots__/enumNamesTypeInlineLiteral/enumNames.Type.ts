@@ -1,1 +1,1 @@
-export type enumNamesType = 'available' | 'pending' | 'sold'
+export type EnumNamesType = 'available' | 'pending' | 'sold'

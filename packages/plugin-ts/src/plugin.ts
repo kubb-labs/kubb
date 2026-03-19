@@ -1,9 +1,10 @@
 import path from 'node:path'
-import { camelCase, pascalCase } from '@internals/utils'
+import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
 import { createPlugin, type Group, getBarrelFiles, getMode, resolveOptions } from '@kubb/core'
 import { buildOperation, buildSchema, OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { typeGenerator, typeGeneratorV2 } from './generators'
+import { transformer } from './transformer.ts'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
@@ -91,7 +92,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
-      const resolvedName = pascalCase(name, { isFile: type === 'file' })
+      const resolvedName = transformer.default(name, type)
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName

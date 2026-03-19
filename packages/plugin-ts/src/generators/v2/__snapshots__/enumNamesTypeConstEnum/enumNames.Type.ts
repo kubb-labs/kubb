@@ -3,5 +3,3 @@ export const enum EnumNamesType {
   pending = 'pending',
   sold = 'sold',
 }
-
-export type enumNamesType = EnumNamesType
