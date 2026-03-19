@@ -29,16 +29,20 @@ type AddIndexesProps = {
   meta?: FileMetaBase
 }
 
-function getBarrelFilesByRoot(root: string | undefined, files: KubbFile.File[]): Array<KubbFile.File> {
-  const cachedFiles = new Map<KubbFile.Path, KubbFile.File>()
+function getBarrelFilesByRoot(root: string | undefined, files: Array<KubbFile.ResolvedFile>): Array<KubbFile.ResolvedFile> {
+  const cachedFiles = new Map<KubbFile.Path, KubbFile.ResolvedFile>()
 
   TreeNode.build(files, root)?.forEach((treeNode) => {
     if (!treeNode || !treeNode.children || !treeNode.parent?.data.path) {
       return
     }
 
-    const barrelFile: KubbFile.File = {
-      path: join(treeNode.parent?.data.path, 'index.ts') as KubbFile.Path,
+    const barrelFilePath = join(treeNode.parent?.data.path, 'index.ts') as KubbFile.Path
+    const barrelFile: KubbFile.ResolvedFile = {
+      id: barrelFilePath,
+      name: 'index',
+      extname: '.ts',
+      path: barrelFilePath,
       baseName: 'index.ts',
       exports: [],
       imports: [],
@@ -104,7 +108,7 @@ function trimExtName(text: string): string {
   return text
 }
 
-export async function getBarrelFiles(files: Array<KubbFile.File>, { type, meta = {}, root, output }: AddIndexesProps): Promise<KubbFile.File[]> {
+export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type, meta = {}, root, output }: AddIndexesProps): Promise<KubbFile.ResolvedFile[]> {
   if (!type || type === 'propagate') {
     return []
   }

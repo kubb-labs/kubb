@@ -99,8 +99,11 @@ describe('getBarrelFiles', () => {
   })
 
   it(`should return 'index.ts' barrel files`, async () => {
-    const files: KubbFile.File[] = [
+    const files: KubbFile.ResolvedFile[] = [
       {
+        id: 'src/test.ts',
+        name: 'test',
+        extname: '.ts',
         path: 'src/test.ts',
         baseName: 'test.ts',
         sources: [
@@ -115,6 +118,9 @@ describe('getBarrelFiles', () => {
         exports: [],
       },
       {
+        id: 'src/sub/hello.ts',
+        name: 'hello',
+        extname: '.ts',
         path: 'src/sub/hello.ts',
         baseName: 'hello.ts',
         sources: [
@@ -129,6 +135,9 @@ describe('getBarrelFiles', () => {
         exports: [],
       },
       {
+        id: 'src/sub/world.ts',
+        name: 'world',
+        extname: '.ts',
         path: 'src/sub/world.ts',
         baseName: 'world.ts',
         sources: [
@@ -153,8 +162,11 @@ describe('getBarrelFiles', () => {
   })
 
   test('should generate barrel files for subdirectories that contain existing index files', async () => {
-    const files: KubbFile.File[] = [
+    const files: KubbFile.ResolvedFile[] = [
       {
+        id: 'src/test.ts',
+        name: 'test',
+        extname: '.ts',
         path: 'src/test.ts',
         baseName: 'test.ts',
         sources: [
@@ -169,6 +181,9 @@ describe('getBarrelFiles', () => {
         exports: [],
       },
       {
+        id: 'src/sub/hello.ts',
+        name: 'hello',
+        extname: '.ts',
         path: 'src/sub/hello.ts',
         baseName: 'hello.ts',
         sources: [
@@ -183,6 +198,9 @@ describe('getBarrelFiles', () => {
         exports: [],
       },
       {
+        id: 'src/sub/world.ts',
+        name: 'world',
+        extname: '.ts',
         path: 'src/sub/world.ts',
         baseName: 'world.ts',
         sources: [
@@ -197,6 +215,9 @@ describe('getBarrelFiles', () => {
         exports: [],
       },
       {
+        id: 'src/sub/index.ts',
+        name: 'index',
+        extname: '.ts',
         path: 'src/sub/index.ts',
         baseName: 'index.ts',
         sources: [
@@ -261,8 +282,11 @@ describe('getBarrelFiles', () => {
               "path": "./sub/index.ts",
             },
           ],
+          "extname": ".ts",
+          "id": "src/index.ts",
           "imports": [],
           "meta": {},
+          "name": "index",
           "path": "src/index.ts",
           "sources": [
             {
@@ -320,8 +344,11 @@ describe('getBarrelFiles', () => {
               "path": "./world.ts",
             },
           ],
+          "extname": ".ts",
+          "id": "src/sub/index.ts",
           "imports": [],
           "meta": {},
+          "name": "index",
           "path": "src/sub/index.ts",
           "sources": [
             {

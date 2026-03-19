@@ -18,6 +18,9 @@
     "meta": {}
   },
   {
+    "id": "a2a171449d862fe29692ce031981047d7ab755ae7f84c707aef80701b3ea0c80",
+    "name": "index",
+    "extname": ".ts",
     "path": "src/index.ts",
     "baseName": "index.ts",
     "exports": [
@@ -52,9 +55,6 @@
         "isIndexable": false
       }
     ],
-    "id": "a2a171449d862fe29692ce031981047d7ab755ae7f84c707aef80701b3ea0c80",
-    "name": "index",
-    "extname": ".ts",
     "meta": {}
   },
   {
