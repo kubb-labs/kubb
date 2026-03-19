@@ -1,5 +1,5 @@
-import type { Group, Output, PluginFactoryOptions, Resolver, ResolveNameParams } from '@kubb/core'
 import type { OperationNode, ParameterNode, SchemaNode, StatusCode } from '@kubb/ast/types'
+import type { Group, Output, PluginFactoryOptions, ResolveNameParams, Resolver } from '@kubb/core'
 import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
