@@ -6,50 +6,6 @@ outline: deep
 
 # Changelog
 
-## 5.x.x
-
-### 💥 Breaking Changes
-
-#### [`@kubb/core`](/packages/core)
-
--   Factory functions have been renamed from `define*` to `create*` to align with Vite ecosystem conventions.
-
-    **Why the rename?**
-
-    In the Vite ecosystem, `define*` is reserved for pure configuration helpers — identity functions that return their input unchanged and exist solely to provide TypeScript type inference (e.g. `defineConfig`). Functions that actually produce instances, wrap builders, or apply logic use the `create*` prefix (e.g. `createServer`, `createBuilder`).
-
-    Kubb's factory functions — `createPlugin`, `createAdapter`, `createGenerator`, `createLogger`, `createStorage` — all apply logic (making options optional, wrapping builders, returning callables), so `create*` is the correct prefix.
-
-    `defineConfig` remains unchanged as it is a pure identity helper.
-
-    | Before | After |
-    |---|---|
-    | `definePlugin` | `createPlugin` |
-    | `defineAdapter` | `createAdapter` |
-    | `defineGenerator` | `createGenerator` |
-    | `defineLogger` | `createLogger` |
-    | `defineStorage` | `createStorage` |
-
-    ::: code-group
-    ```typescript [Before]
-    import { definePlugin, defineAdapter, defineLogger } from '@kubb/core'
-
-    export const pluginTs = definePlugin<PluginTs>((options) => ({ /* ... */ }))
-    export const adapterOas = defineAdapter<OasAdapter>((options) => ({ /* ... */ }))
-    export const clackLogger = defineLogger({ name: 'clack', install() { /* ... */ } })
-    ```
-
-    ```typescript [After]
-    import { createPlugin, createAdapter, createLogger } from '@kubb/core'
-
-    export const pluginTs = createPlugin<PluginTs>((options) => ({ /* ... */ }))
-    export const adapterOas = createAdapter<OasAdapter>((options) => ({ /* ... */ }))
-    export const clackLogger = createLogger({ name: 'clack', install() { /* ... */ } })
-    ```
-    :::
-
-    See the [migration guide](/migration-guide) for full details.
-
 ## 4.36.1
 
 ### ✨ Features
