@@ -21,7 +21,7 @@ This skill instructs agents on how plugins are defined, registered, and how gene
 ## Example Plugin Shape
 
 ```ts
-export const definePlugin = createPlugin<PluginOptions>((options) => ({
+export const pluginExample = createPlugin<PluginOptions>((options) => ({
   name: pluginName,
   options,
   pre: [],

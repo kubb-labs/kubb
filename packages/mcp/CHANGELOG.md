@@ -1,5 +1,12 @@
 # @kubb/mcp
 
+## 5.0.0-alpha.8
+
+### Patch Changes
+
+- Updated dependencies [[`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517)]:
+  - @kubb/core@5.0.0-alpha.8
+
 ## 5.0.0-alpha.7
 
 ### Patch Changes

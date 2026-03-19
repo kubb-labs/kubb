@@ -6,7 +6,7 @@ import type { KubbFile } from '@kubb/fabric-core/types'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { build, safeBuild } from './build.ts'
 import { defineConfig } from './config.ts'
-import { definePlugin } from './definePlugin.ts'
+import { createPlugin } from './createPlugin.ts'
 import type { KubbEvents, Plugin, UserConfig } from './types.ts'
 
 describe('build', () => {
@@ -22,7 +22,7 @@ describe('build', () => {
     imports: [],
     exports: [],
   }
-  const plugin = definePlugin(() => {
+  const plugin = createPlugin(() => {
     return {
       name: 'plugin',
       options: undefined as any,
@@ -186,7 +186,7 @@ describe('build', () => {
   })
 
   it('should handle plugin installation errors', async () => {
-    const errorPlugin = definePlugin(() => {
+    const errorPlugin = createPlugin(() => {
       return {
         name: 'errorPlugin',
         options: undefined as any,
@@ -249,7 +249,7 @@ describe('build', () => {
   it.todo('should handle "all" barrel type')
 
   test('safeBuild should return error instead of throwing', async () => {
-    const throwingPlugin = definePlugin(() => {
+    const throwingPlugin = createPlugin(() => {
       return {
         name: 'throwingPlugin',
         options: undefined as any,
@@ -319,7 +319,7 @@ describe('build', () => {
         meta: { pluginName: 'excludedPlugin' },
       }
 
-      const excludedPlugin = definePlugin(() => {
+      const excludedPlugin = createPlugin(() => {
         return {
           name: 'excludedPlugin',
           options: { output: { barrelType: false } } as any,

@@ -1,7 +1,7 @@
 import { AsyncEventEmitter } from '@internals/utils'
 import { createFabric } from '@kubb/react-fabric'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
-import { definePlugin } from './definePlugin.ts'
+import { createPlugin } from './createPlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import type { Config, KubbEvents, Plugin } from './types.ts'
 
@@ -14,7 +14,7 @@ describe('PluginDriver', () => {
     install: vi.fn(),
     resolvePath: vi.fn(),
   } as const
-  const pluginA = definePlugin(() => {
+  const pluginA = createPlugin(() => {
     return {
       name: 'pluginA',
       options: undefined as any,
@@ -31,7 +31,7 @@ describe('PluginDriver', () => {
     }
   })
 
-  const pluginB = definePlugin(() => {
+  const pluginB = createPlugin(() => {
     return {
       name: 'pluginB',
       options: undefined as any,
@@ -50,7 +50,7 @@ describe('PluginDriver', () => {
     }
   })
 
-  const pluginC = definePlugin(() => {
+  const pluginC = createPlugin(() => {
     return {
       name: 'pluginC',
       options: undefined as any,
@@ -185,7 +185,7 @@ describe('PluginDriver', () => {
   })
 
   test('hookForPluginSync should work with non-function hooks', () => {
-    const staticPlugin = definePlugin(() => {
+    const staticPlugin = createPlugin(() => {
       return {
         name: 'staticPlugin',
         options: undefined as any,
@@ -214,7 +214,7 @@ describe('PluginDriver', () => {
   })
 
   it('should handle plugin hook errors gracefully', async () => {
-    const errorPlugin = definePlugin(() => {
+    const errorPlugin = createPlugin(() => {
       return {
         name: 'errorPlugin',
         options: undefined as any,
@@ -248,7 +248,7 @@ describe('PluginDriver', () => {
   })
 
   test('resolvePath should return default path when no plugins have resolvePath', () => {
-    const noResolvePlugin = definePlugin(() => {
+    const noResolvePlugin = createPlugin(() => {
       return {
         name: 'noResolvePlugin',
         options: undefined as any,
@@ -274,7 +274,7 @@ describe('PluginDriver', () => {
   })
 
   test('getFile should create file with correct properties', () => {
-    const pluginWithPath = definePlugin(() => ({
+    const pluginWithPath = createPlugin(() => ({
       name: 'pluginA',
       options: undefined as any,
       context: undefined as never,
@@ -299,7 +299,7 @@ describe('PluginDriver', () => {
   })
 
   test('getFile should work with custom mode', () => {
-    const pluginWithPath = definePlugin(() => ({
+    const pluginWithPath = createPlugin(() => ({
       name: 'pluginA',
       options: undefined as any,
       context: undefined as never,
@@ -339,7 +339,7 @@ describe('PluginDriver', () => {
   })
 
   test('should throw when multiple instances of the same plugin are used', () => {
-    const duplicatePlugin = definePlugin(() => {
+    const duplicatePlugin = createPlugin(() => {
       return {
         name: 'duplicatePlugin',
         options: undefined as any,

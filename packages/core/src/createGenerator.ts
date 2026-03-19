@@ -65,13 +65,13 @@ export type ReactGeneratorV2<TPlugin extends PluginFactoryOptions = PluginFactor
 
 export type Generator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = UserCoreGeneratorV2<TPlugin> | UserReactGeneratorV2<TPlugin>
 
-export function defineGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
+export function createGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
   generator: UserReactGeneratorV2<TPlugin>,
 ): ReactGeneratorV2<TPlugin>
 
-export function defineGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(generator: UserCoreGeneratorV2<TPlugin>): CoreGeneratorV2<TPlugin>
+export function createGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(generator: UserCoreGeneratorV2<TPlugin>): CoreGeneratorV2<TPlugin>
 
-export function defineGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
+export function createGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
   generator: UserCoreGeneratorV2<TPlugin> | UserReactGeneratorV2<TPlugin>,
 ): unknown {
   if (generator.type === 'react') {

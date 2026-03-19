@@ -310,7 +310,7 @@ export default defineConfig({
 
 Where generated files are persisted. Defaults to `fsStorage()` — the built-in filesystem driver — which preserves the existing on-disk behavior.
 
-Use `defineStorage` to create a custom driver for any backend (S3, Redis, in-memory, etc.).
+Use `createStorage` to create a custom driver for any backend (S3, Redis, in-memory, etc.).
 
 |           |               |
 |----------:|:--------------|
@@ -331,13 +331,13 @@ export default defineConfig({
 })
 ```
 
-**Custom storage** — use `defineStorage` to implement `DefineStorage` for any backend:
+**Custom storage** — use `createStorage` to implement `DefineStorage` for any backend:
 
 ```typescript twoslash [kubb.config.ts]
 // @noErrors
-import { defineConfig, defineStorage } from '@kubb/core'
+import { defineConfig, createStorage } from '@kubb/core'
 
-export const memoryStorage = defineStorage(() => {
+export const memoryStorage = createStorage(() => {
   const store = new Map<string, string>()
 
   return {
