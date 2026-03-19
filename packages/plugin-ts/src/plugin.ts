@@ -1,14 +1,14 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
-import { definePlugin, type Group, getBarrelFiles, getMode, resolveOptions } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode, resolveOptions } from '@kubb/core'
 import { buildOperation, buildSchema, OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { typeGenerator, typeGeneratorV2 } from './generators'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
 
-export const pluginTs = definePlugin<PluginTs>((options) => {
+export const pluginTs = createPlugin<PluginTs>((options) => {
   const {
     output = { path: 'types', barrelType: 'named' },
     group,

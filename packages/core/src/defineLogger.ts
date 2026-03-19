@@ -1,7 +1,6 @@
-import type { Logger, LoggerOptions, UserLogger } from './types.ts'
+export { createLogger } from './createLogger.ts'
 
-export function defineLogger<Options extends LoggerOptions = LoggerOptions>(logger: UserLogger<Options>): Logger<Options> {
-  return {
-    ...logger,
-  }
-}
+/**
+ * @deprecated Use `createLogger` instead.
+ */
+export { createLogger as defineLogger } from './createLogger.ts'
