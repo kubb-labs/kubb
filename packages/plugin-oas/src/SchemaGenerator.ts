@@ -1,5 +1,5 @@
 import { getUniqueName, pascalCase, stringify } from '@internals/utils'
-import type { AsyncEventEmitter, FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginDriver, ResolveNameParams } from '@kubb/core'
+import type { AsyncEventEmitter, FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'

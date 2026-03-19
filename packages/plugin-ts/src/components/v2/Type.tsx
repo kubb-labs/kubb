@@ -20,18 +20,7 @@ type Props = {
   keysToOmit?: string[]
 }
 
-export function Type({
-  name,
-  typedName,
-  node,
-  keysToOmit,
-  optionalType,
-  arrayType,
-  syntaxType,
-  enumType,
-  enumKeyCasing,
-  description,
-}: Props): FabricReactNode {
+export function Type({ name, typedName, node, keysToOmit, optionalType, arrayType, syntaxType, enumType, enumKeyCasing, description }: Props): FabricReactNode {
   const resolvedDescription = description || node?.description
   const enumSchemaNodes = collect<EnumSchemaNode>(node, {
     schema(n): EnumSchemaNode | undefined {

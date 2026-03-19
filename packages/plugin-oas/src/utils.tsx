@@ -1,5 +1,5 @@
 import type { OperationNode, SchemaNode } from '@kubb/ast/types'
-import type { Adapter, Config, Plugin, PluginFactoryOptions, PluginDriver, ReactGeneratorV2 } from '@kubb/core'
+import type { Adapter, Config, Plugin, PluginDriver, PluginFactoryOptions, ReactGeneratorV2 } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import { createReactFabric, Fabric } from '@kubb/react-fabric'

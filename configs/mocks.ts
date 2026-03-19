@@ -8,7 +8,7 @@ import pluginTypescript from 'prettier/plugins/typescript'
 import { expect } from 'vitest'
 import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
 import type { SchemaNode } from '../packages/ast/src/types.ts'
-import type { Adapter, AdapterFactoryOptions, Plugin, PluginFactoryOptions, PluginDriver, ResolveNameParams, ResolvePathParams } from '../packages/core/src'
+import type { Adapter, AdapterFactoryOptions, Plugin, PluginDriver, PluginFactoryOptions, ResolveNameParams, ResolvePathParams } from '../packages/core/src'
 
 const formatOptions: Options = {
   tabWidth: 2,
