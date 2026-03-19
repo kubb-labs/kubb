@@ -138,10 +138,7 @@ export const typeGenerator = createGenerator<PluginTs>({
 
     const isEnumSchema = node.type === 'enum'
 
-    const typedName =
-      ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema
-        ? resolver.resolveEnumKeyTypedName(node)
-        : resolver.resolveTypedName(node.name)
+    const typedName = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyTypedName(node) : resolver.resolveTypedName(node.name)
 
     const type = {
       name: resolver.resolveName(node.name),

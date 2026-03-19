@@ -1,6 +1,7 @@
 import { pascalCase } from '@internals/utils'
 import { createResolver } from '@kubb/core'
 import type { PluginTs, PluginTsResolver } from './types.ts'
+
 export type { PluginTsResolver } from './types.ts'
 
 function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
