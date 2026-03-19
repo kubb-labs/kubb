@@ -69,4 +69,4 @@ export const transformer: PluginTsTransformer = createTransformer<PluginTs>(() =
     typedName: (name) => resolveName(name, 'type'),
     resolvePathName: resolveName,
   }
-})
+})()

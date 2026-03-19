@@ -9,14 +9,15 @@ export type Transformer = {
   default(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
 } & Record<string, unknown>
 
+type TransformerBuilder<TPlugin extends { transformer: Transformer }> = () => TPlugin['transformer']
+
 /**
- * Creates a typed transformer object for a plugin, following the same factory pattern
- * as `definePlugin`, `defineLogger`, and `defineAdapter`.
+ * Wraps a transformer builder to create a lazy transformer factory, following the same
+ * factory pattern as `createAdapter` and `createStorage`.
  *
  * Pass the plugin's factory type (`PluginTs`, `PluginClient`, …) as the generic
  * to tie the transformer to the correct plugin at the type level.
- * The return type is inferred from `TPlugin['transformer']`, so callers get back
- * the full concrete transformer type that was declared in `PluginFactoryOptions`.
+ * Call the returned function to obtain the concrete transformer instance.
  *
  * @example
  * ```ts
@@ -28,9 +29,9 @@ export type Transformer = {
  *     default(name: string) { return pascalCase(name) },
  *     resolvePathName(name: string) { return pascalCase(name) },
  *   }
- * })
+ * })()
  * ```
  */
-export function createTransformer<TPlugin extends { transformer: Transformer }>(factory: () => TPlugin['transformer']): TPlugin['transformer'] {
-  return factory()
+export function createTransformer<TPlugin extends { transformer: Transformer }>(build: TransformerBuilder<TPlugin>): () => TPlugin['transformer'] {
+  return () => build()
 }
