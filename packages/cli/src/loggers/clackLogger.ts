@@ -2,9 +2,8 @@ import { relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { formatMs, formatMsWithColor, toCause } from '@internals/utils'
-import { createLogger, logLevel as logLevelMap } from '@kubb/core'
-import { getIntro } from '../utils/getIntro.ts'
+import { formatMs, formatMsWithColor, getIntro, toCause } from '@internals/utils'
+import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
 import { getSummary } from '../utils/getSummary.ts'
 import { runHook } from '../utils/runHook.ts'
 import { ClackWritable } from '../utils/Writables.ts'
@@ -14,7 +13,7 @@ import { buildProgressLine, formatCommandWithArgs, formatMessage } from './utils
  * Clack adapter for local TTY environments
  * Provides a beautiful CLI UI with flat structure inspired by Claude's CLI patterns
  */
-export const clackLogger = createLogger({
+export const clackLogger = defineLogger({
   name: 'clack',
   install(context, options) {
     const logLevel = options?.logLevel ?? logLevelMap.info

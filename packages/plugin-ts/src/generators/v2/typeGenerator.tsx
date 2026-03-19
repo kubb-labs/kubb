@@ -1,15 +1,15 @@
-import { pascalCase } from '@internals/utils'
 import { applyParamsCasing } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
-import { createGenerator } from '@kubb/core'
+import { defineGenerator } from '@kubb/core'
 import { useKubb } from '@kubb/core/hooks'
 import { File } from '@kubb/react-fabric'
 import { Type } from '../../components/v2/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../../constants.ts'
+import { resolverTs } from '../../resolverTs.ts'
 import type { PluginTs } from '../../types'
 import { buildDataSchemaNode, buildResponsesSchemaNode, buildResponseUnionSchemaNode } from './utils.ts'
 
-export const typeGenerator = createGenerator<PluginTs>({
+export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Operation({ node, adapter, options }) {
@@ -68,8 +68,8 @@ export const typeGenerator = createGenerator<PluginTs>({
     const paramTypes = params.map((param) =>
       renderSchemaType({
         node: param.schema,
-        name: resolveName({ name: `${node.operationId} ${pascalCase(param.in)} ${param.name}`, type: 'function' }),
-        typedName: resolveName({ name: `${node.operationId} ${pascalCase(param.in)} ${param.name}`, type: 'type' }),
+        name: resolverTs.resolveParamName(node, param),
+        typedName: resolverTs.resolveParamTypedName(node, param),
       }),
     )
 
@@ -78,8 +78,8 @@ export const typeGenerator = createGenerator<PluginTs>({
       .map((res) =>
         renderSchemaType({
           node: res.schema!,
-          name: resolveName({ name: `${node.operationId} Status ${res.statusCode}`, type: 'function' }),
-          typedName: resolveName({ name: `${node.operationId} Status ${res.statusCode}`, type: 'type' }),
+          name: resolverTs.resolveResponseStatusName(node, res.statusCode),
+          typedName: resolverTs.resolveResponseStatusTypedName(node, res.statusCode),
           description: res.description,
         }),
       )
@@ -87,28 +87,28 @@ export const typeGenerator = createGenerator<PluginTs>({
     const requestType = node.requestBody
       ? renderSchemaType({
           node: node.requestBody,
-          name: resolveName({ name: `${node.operationId} Data`, type: 'function' }),
-          typedName: resolveName({ name: `${node.operationId} Data`, type: 'type' }),
+          name: resolverTs.resolveDataName(node),
+          typedName: resolverTs.resolveDataTypedName(node),
           description: node.requestBody.description,
         })
       : null
 
     const dataType = renderSchemaType({
       node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolveName }),
-      name: resolveName({ name: `${node.operationId} RequestConfig`, type: 'function' }),
-      typedName: resolveName({ name: `${node.operationId} RequestConfig`, type: 'type' }),
+      name: resolverTs.resolveRequestConfigName(node),
+      typedName: resolverTs.resolveRequestConfigTypedName(node),
     })
 
     const responsesType = renderSchemaType({
       node: buildResponsesSchemaNode({ node, resolveName }),
-      name: resolveName({ name: `${node.operationId} Responses`, type: 'function' }),
-      typedName: resolveName({ name: `${node.operationId} Responses`, type: 'type' }),
+      name: resolverTs.resolveResponsesName(node),
+      typedName: resolverTs.resolveResponsesTypedName(node),
     })
 
     const responseType = renderSchemaType({
       node: buildResponseUnionSchemaNode({ node, resolveName }),
-      name: resolveName({ name: `${node.operationId} Response`, type: 'function' }),
-      typedName: resolveName({ name: `${node.operationId} Response`, type: 'type' }),
+      name: resolverTs.resolveResponseName(node),
+      typedName: resolverTs.resolveResponseTypedName(node),
       description: 'Union of all possible responses',
     })
 
@@ -138,13 +138,11 @@ export const typeGenerator = createGenerator<PluginTs>({
 
     const isEnumSchema = node.type === 'enum'
 
-    let typedName = resolveName({ name: node.name, type: 'type' })
-    if (ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema) {
-      typedName += 'Key'
-    }
+    const typedName =
+      ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolverTs.resolveEnumKeyTypedName(node) : resolverTs.resolveTypedName(node.name)
 
     const type = {
-      name: resolveName({ name: node.name, type: 'function' }),
+      name: resolverTs.resolveName(node.name),
       typedName,
       file: getFile({ name: node.name, extname: '.ts', mode }),
     } as const

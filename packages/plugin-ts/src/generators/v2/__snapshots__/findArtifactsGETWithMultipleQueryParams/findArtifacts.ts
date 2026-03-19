@@ -1,15 +1,15 @@
-export type findArtifactsQueryPage = number
+export type FindArtifactsQueryPage = number
 
-export type findArtifactsQueryLimit = number
+export type FindArtifactsQueryLimit = number
 
-export type findArtifactsQuerySort = string
+export type FindArtifactsQuerySort = string
 
 /**
  * @description Results
  */
-export type findArtifactsStatus200 = object
+export type FindArtifactsStatus200 = object
 
-export type findArtifactsRequestConfig = {
+export type FindArtifactsRequestConfig = {
   data?: never
   pathParams?: never
   queryParams?: {
@@ -21,11 +21,11 @@ export type findArtifactsRequestConfig = {
   url: '/artifacts'
 }
 
-export type findArtifactsResponses = {
+export type FindArtifactsResponses = {
   '200': findArtifactsStatus200
 }
 
 /**
  * @description Union of all possible responses
  */
-export type findArtifactsResponse = findArtifactsStatus200
+export type FindArtifactsResponse = findArtifactsStatus200

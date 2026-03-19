@@ -4,7 +4,7 @@ import { narrowSchema } from './guards.ts'
 import type { ParameterNode, SchemaNode } from './nodes/index.ts'
 import type { SchemaType } from './nodes/schema.ts'
 
-const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'])
+const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
 
 /**
  * Returns `true` when a schema node will be represented as a plain string in generated code.

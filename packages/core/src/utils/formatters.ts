@@ -44,7 +44,7 @@ async function isFormatterAvailable(formatter: Formatter): Promise<boolean> {
  * ```
  */
 export async function detectFormatter(): Promise<Formatter | undefined> {
-  const formatterNames: Formatter[] = ['biome', 'oxfmt', 'prettier']
+  const formatterNames = new Set(['biome', 'oxfmt', 'prettier'] as const)
 
   for (const formatter of formatterNames) {
     if (await isFormatterAvailable(formatter)) {

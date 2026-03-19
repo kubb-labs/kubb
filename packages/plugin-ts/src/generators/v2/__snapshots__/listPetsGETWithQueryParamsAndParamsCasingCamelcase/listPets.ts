@@ -1,16 +1,16 @@
-export type listPetsQueryMyLimit = number
+export type ListPetsQueryMyLimit = number
 
 /**
  * @description A paged array of pets
  */
-export type listPetsStatus200 = object
+export type ListPetsStatus200 = object
 
 /**
  * @description Unexpected error
  */
-export type listPetsStatusDefault = object
+export type ListPetsStatusDefault = object
 
-export type listPetsRequestConfig = {
+export type ListPetsRequestConfig = {
   data?: never
   pathParams?: never
   queryParams?: {
@@ -20,7 +20,7 @@ export type listPetsRequestConfig = {
   url: '/pets'
 }
 
-export type listPetsResponses = {
+export type ListPetsResponses = {
   '200': listPetsStatus200
   default: listPetsStatusDefault
 }
@@ -28,4 +28,4 @@ export type listPetsResponses = {
 /**
  * @description Union of all possible responses
  */
-export type listPetsResponse = listPetsStatus200 | listPetsStatusDefault
+export type ListPetsResponse = listPetsStatus200 | listPetsStatusDefault

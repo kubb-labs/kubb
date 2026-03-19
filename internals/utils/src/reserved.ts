@@ -2,7 +2,7 @@
  * JavaScript and Java reserved words.
  * @link https://github.com/jonschlinkert/reserved/blob/master/index.js
  */
-const reservedWords = [
+const reservedWords = new Set([
   'abstract',
   'arguments',
   'boolean',
@@ -84,7 +84,7 @@ const reservedWords = [
   'toString',
   'undefined',
   'valueOf',
-]
+] as const)
 
 /**
  * Prefixes a word with `_` when it is a reserved JavaScript/Java identifier
@@ -92,7 +92,7 @@ const reservedWords = [
  */
 export function transformReservedWord(word: string): string {
   const firstChar = word.charCodeAt(0)
-  if (word && (reservedWords.includes(word) || (firstChar >= 48 && firstChar <= 57))) {
+  if (word && (reservedWords.has(word as 'valueOf') || (firstChar >= 48 && firstChar <= 57))) {
     return `_${word}`
   }
   return word

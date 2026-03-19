@@ -1,7 +1,7 @@
 import { relative, resolve } from 'node:path'
 import process from 'node:process'
 import { formatMs, write } from '@internals/utils'
-import { createLogger } from '@kubb/core'
+import { defineLogger } from '@kubb/core'
 
 type CachedEvent = {
   date: Date
@@ -16,7 +16,7 @@ type CachedEvent = {
  * Note: Logs are written on lifecycle:end or process exit. If the process crashes
  * before these events, some cached logs may be lost.
  */
-export const fileSystemLogger = createLogger({
+export const fileSystemLogger = defineLogger({
   name: 'filesystem',
   install(context) {
     const state = {

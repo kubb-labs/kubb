@@ -331,7 +331,7 @@ export default defineConfig({
 })
 ```
 
-**Custom storage** — use `createStorage` to implement `DefineStorage` for any backend:
+**Custom storage** — use `createStorage` to implement storage for any backend:
 
 ```typescript twoslash [kubb.config.ts]
 // @noErrors

@@ -45,7 +45,7 @@ describe('createStorage', () => {
     expect(factory().name).toBe('no-options')
   })
 
-  it('fulfils the DefineStorage interface contract', async () => {
+  it('fulfils the Storage interface contract', async () => {
     const map = new Map<string, string>()
 
     const factory = createStorage((_options: Record<string, never>) => ({

@@ -1,16 +1,16 @@
-export type showPetByIdPathPetId = string
+export type ShowPetByIdPathPetId = string
 
 /**
  * @description Expected response to a valid request
  */
-export type showPetByIdStatus200 = object
+export type ShowPetByIdStatus200 = object
 
 /**
  * @description Unexpected error
  */
-export type showPetByIdStatusDefault = object
+export type ShowPetByIdStatusDefault = object
 
-export type showPetByIdRequestConfig = {
+export type ShowPetByIdRequestConfig = {
   data?: never
   pathParams: {
     petId: showPetByIdPathPetId
@@ -20,7 +20,7 @@ export type showPetByIdRequestConfig = {
   url: `/pets/${string}`
 }
 
-export type showPetByIdResponses = {
+export type ShowPetByIdResponses = {
   '200': showPetByIdStatus200
   default: showPetByIdStatusDefault
 }
@@ -28,4 +28,4 @@ export type showPetByIdResponses = {
 /**
  * @description Union of all possible responses
  */
-export type showPetByIdResponse = showPetByIdStatus200 | showPetByIdStatusDefault
+export type ShowPetByIdResponse = showPetByIdStatus200 | showPetByIdStatusDefault

@@ -1,7 +1,139 @@
-import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { OperationNode, ParameterNode, SchemaNode, StatusCode } from '@kubb/ast/types'
+import type { Group, Output, PluginFactoryOptions, ResolveNameParams, Resolver } from '@kubb/core'
 import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
+
+/**
+ * The concrete resolver type for `@kubb/plugin-ts`.
+ * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
+ * plugin-specific naming helpers for operations, parameters, responses, and schemas.
+ */
+type ResolverTs = Resolver & {
+  /**
+   * Resolves the variable/function name for a given raw name (equivalent to `default(name, 'function')`).
+   * Use this shorthand when matching the `name` field produced by the v2 TypeGenerator,
+   * so call-sites don't need to repeat the `'function'` type literal.
+   *
+   * @example
+   * resolver.resolveName('list pets status 200') // → 'listPetsStatus200'
+   */
+  resolveName(name: string): string
+  /**
+   * Resolves the TypeScript type name for a given raw name (equivalent to `default(name, 'type')`).
+   * Use this shorthand when matching the `typedName` field produced by the v2 TypeGenerator,
+   * so call-sites don't need to repeat the `'type'` type literal.
+   *
+   * @example
+   * resolver.resolveTypedName('list pets status 200') // → 'ListPetsStatus200'
+   */
+  resolveTypedName(name: string): string
+  /**
+   * Resolves the file/path name for a given identifier using PascalCase.
+   *
+   * @example
+   * resolver.resolvePathName('list pets', 'file') // → 'ListPets'
+   */
+  resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+  /**
+   * Resolves the variable/function name for an operation parameter.
+   * Encapsulates the `<operationId> <PascalCase(paramIn)> <paramName>` naming convention.
+   *
+   * @example
+   * resolver.resolveParamName(node, param) // → 'ListPetsQueryLimit'
+   */
+  resolveParamName(node: OperationNode, param: ParameterNode): string
+  /**
+   * Resolves the TypeScript type alias name for an operation parameter
+   * (equivalent to `resolveParamName` with `type: 'type'`).
+   * In the default implementation both return the same PascalCase string;
+   * the distinction is preserved so overrides can diverge the two forms.
+   *
+   * @example
+   * resolver.resolveParamTypedName(node, param) // → 'ListPetsQueryLimit'
+   */
+  resolveParamTypedName(node: OperationNode, param: ParameterNode): string
+  /**
+   * Resolves the variable/function name for an operation response by status code.
+   * Encapsulates the `<operationId> Status <statusCode>` template with PascalCase applied to the result.
+   *
+   * @example
+   * resolver.resolveResponseStatusName(node, 200) // → 'ListPetsStatus200'
+   */
+  resolveResponseStatusName(node: OperationNode, statusCode: StatusCode): string
+  /**
+   * Resolves the TypeScript type alias name for an operation response by status code.
+   * Encapsulates the `<operationId> Status <statusCode>` template with PascalCase applied to the result.
+   *
+   * @example
+   * resolver.resolveResponseStatusTypedName(node, 200) // → 'ListPetsStatus200'
+   */
+  resolveResponseStatusTypedName(node: OperationNode, statusCode: StatusCode): string
+  /**
+   * Resolves the variable/function name for an operation's request body (`Data`).
+   *
+   * @example
+   * resolver.resolveDataName(node) // → 'ListPetsData'
+   */
+  resolveDataName(node: OperationNode): string
+  /**
+   * Resolves the TypeScript type alias name for an operation's request body (`Data`).
+   *
+   * @example
+   * resolver.resolveDataTypedName(node) // → 'ListPetsData'
+   */
+  resolveDataTypedName(node: OperationNode): string
+  /**
+   * Resolves the variable/function name for an operation's request config (`RequestConfig`).
+   *
+   * @example
+   * resolver.resolveRequestConfigName(node) // → 'ListPetsRequestConfig'
+   */
+  resolveRequestConfigName(node: OperationNode): string
+  /**
+   * Resolves the TypeScript type alias name for an operation's request config (`RequestConfig`).
+   *
+   * @example
+   * resolver.resolveRequestConfigTypedName(node) // → 'ListPetsRequestConfig'
+   */
+  resolveRequestConfigTypedName(node: OperationNode): string
+  /**
+   * Resolves the variable/function name for the collection of all operation responses (`Responses`).
+   *
+   * @example
+   * resolver.resolveResponsesName(node) // → 'ListPetsResponses'
+   */
+  resolveResponsesName(node: OperationNode): string
+  /**
+   * Resolves the TypeScript type alias name for the collection of all operation responses.
+   *
+   * @example
+   * resolver.resolveResponsesTypedName(node) // → 'ListPetsResponses'
+   */
+  resolveResponsesTypedName(node: OperationNode): string
+  /**
+   * Resolves the variable/function name for the union of all operation responses (`Response`).
+   *
+   * @example
+   * resolver.resolveResponseName(node) // → 'ListPetsResponse'
+   */
+  resolveResponseName(node: OperationNode): string
+  /**
+   * Resolves the TypeScript type alias name for the union of all operation responses.
+   *
+   * @example
+   * resolver.resolveResponseTypedName(node) // → 'ListPetsResponse'
+   */
+  resolveResponseTypedName(node: OperationNode): string
+  /**
+   * Resolves the TypeScript type alias name for an enum schema's key variant.
+   * Appends the `Key` suffix after applying the default naming convention.
+   *
+   * @example
+   * resolver.resolveEnumKeyTypedName(node) // → 'PetStatusKey'
+   */
+  resolveEnumKeyTypedName(node: SchemaNode): string
+}
 
 export type Options = {
   /**
@@ -161,4 +293,4 @@ type ResolvedOptions = {
   paramsCasing: Options['paramsCasing']
 }
 
-export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>

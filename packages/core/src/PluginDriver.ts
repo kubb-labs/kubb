@@ -1,12 +1,12 @@
 import { basename, extname, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { AsyncEventEmitter } from '@internals/utils'
-import { isPromiseRejectedResult, setUniqueName, transformReservedWord } from '@internals/utils'
+import { isPromiseRejectedResult, setUniqueName, transformReservedWord, ValidationPluginError } from '@internals/utils'
 import type { RootNode } from '@kubb/ast/types'
 import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import { CORE_PLUGIN_NAME, DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
-import { ValidationPluginError } from './errors.ts'
+
 import type {
   Adapter,
   Config,

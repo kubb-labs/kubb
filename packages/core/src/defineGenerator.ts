@@ -5,7 +5,9 @@ import type { Adapter, Config, Plugin, PluginFactoryOptions } from './types.ts'
 
 export type Version = '1' | '2'
 
-// V2 props — fully typed with @kubb/ast (already a @kubb/core dependency)
+/**
+ * Props for the `operations` lifecycle — receives all operation nodes at once.
+ */
 export type OperationsV2Props<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
   config: Config
   adapter: Adapter
@@ -13,6 +15,9 @@ export type OperationsV2Props<TPlugin extends PluginFactoryOptions = PluginFacto
   nodes: Array<OperationNode>
 }
 
+/**
+ * Props for the `operation` lifecycle — receives a single operation node.
+ */
 export type OperationV2Props<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
   config: Config
   adapter: Adapter
@@ -20,6 +25,9 @@ export type OperationV2Props<TPlugin extends PluginFactoryOptions = PluginFactor
   node: OperationNode
 }
 
+/**
+ * Props for the `schema` lifecycle — receives a single schema node.
+ */
 export type SchemaV2Props<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
   config: Config
   adapter: Adapter
@@ -65,13 +73,33 @@ export type ReactGeneratorV2<TPlugin extends PluginFactoryOptions = PluginFactor
 
 export type Generator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = UserCoreGeneratorV2<TPlugin> | UserReactGeneratorV2<TPlugin>
 
-export function createGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
+/**
+ * Defines a generator with no-op defaults for any omitted lifecycle methods.
+ * Works for both `core` (async file output) and `react` (JSX component) generators.
+ *
+ * @example
+ * // react generator
+ * export const typeGenerator = defineGenerator<PluginTs>({
+ *   name: 'typescript',
+ *   type: 'react',
+ *   Operation({ node, options }) { return <File>...</File> },
+ *   Schema({ node, options }) { return <File>...</File> },
+ * })
+ *
+ * @example
+ * // core generator
+ * export const myGenerator = defineGenerator<MyPlugin>({
+ *   name: 'my-generator',
+ *   type: 'core',
+ *   async operation({ node, options }) { return [{ path: '...', content: '...' }] },
+ * })
+ */
+export function defineGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
   generator: UserReactGeneratorV2<TPlugin>,
 ): ReactGeneratorV2<TPlugin>
 
-export function createGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(generator: UserCoreGeneratorV2<TPlugin>): CoreGeneratorV2<TPlugin>
-
-export function createGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
+export function defineGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(generator: UserCoreGeneratorV2<TPlugin>): CoreGeneratorV2<TPlugin>
+export function defineGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
   generator: UserCoreGeneratorV2<TPlugin> | UserReactGeneratorV2<TPlugin>,
 ): unknown {
   if (generator.type === 'react') {
