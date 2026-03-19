@@ -996,7 +996,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       const schema =
         responseSchema && Object.keys(responseSchema).length > 0
           ? convertSchema({ schema: responseSchema }, options)
-          : createSchema({ type: resolveTypeOption(options.unknownType) })
+          : createSchema({ type: resolveTypeOption(options.emptySchemaType) })
 
       const description = typeof responseObj === 'object' && responseObj !== null && !Array.isArray(responseObj) ? responseObj.description : undefined
 

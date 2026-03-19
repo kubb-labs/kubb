@@ -90,7 +90,7 @@ describe('typeGenerator v2 — Operation', () => {
             statusCode: '204',
             description: 'No content',
             schema: createSchema({
-              type: 'string',
+              type: 'void',
             }),
           }),
         ],
