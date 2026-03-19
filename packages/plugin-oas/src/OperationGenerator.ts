@@ -1,5 +1,6 @@
 import { pascalCase } from '@internals/utils'
-import type { AsyncEventEmitter, FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
+import type { AsyncEventEmitter } from '@internals/utils'
+import type { FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
 import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
 import pLimit from 'p-limit'

@@ -36,7 +36,8 @@ type HookResult<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
  *
  * @example
  * ```typescript
- * import type { AsyncEventEmitter, KubbEvents } from '@kubb/core'
+ * import type { AsyncEventEmitter } from '@internals/utils'
+ * import type { KubbEvents } from '@kubb/core'
  *
  * const events: AsyncEventEmitter<KubbEvents> = new AsyncEventEmitter()
  *
