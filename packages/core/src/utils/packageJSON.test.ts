@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest'
-import { satisfiesDependency } from './utils/packageJSON.ts'
+import { satisfiesDependency } from './packageJSON.ts'
 
 describe('satisfiesDependency', () => {
   test('returns true when dependency satisfies the version range', () => {
-    expect(satisfiesDependency('typescript', '>=5')).toBeTruthy()
+    expect(satisfiesDependency('semver', '>=7')).toBeTruthy()
   })
 
   test('returns false for an unknown dependency', () => {

@@ -4,7 +4,7 @@ import type { Logger, LoggerOptions, UserLogger } from './types.ts'
  * Wraps a logger definition into a typed {@link Logger}.
  *
  * @example
- * export const myLogger = createLogger({
+ * export const myLogger = defineLogger({
  *   name: 'my-logger',
  *   install(context, options) {
  *     context.on('info', (message) => console.log('ℹ', message))
@@ -12,8 +12,6 @@ import type { Logger, LoggerOptions, UserLogger } from './types.ts'
  *   },
  * })
  */
-export function createLogger<Options extends LoggerOptions = LoggerOptions>(logger: UserLogger<Options>): Logger<Options> {
-  return {
-    ...logger,
-  }
+export function defineLogger<Options extends LoggerOptions = LoggerOptions>(logger: UserLogger<Options>): Logger<Options> {
+  return logger
 }

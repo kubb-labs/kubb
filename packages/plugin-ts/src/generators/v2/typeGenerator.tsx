@@ -1,6 +1,6 @@
 import { applyParamsCasing } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
-import { createGenerator } from '@kubb/core'
+import { defineGenerator } from '@kubb/core'
 import { useKubb } from '@kubb/core/hooks'
 import { File } from '@kubb/react-fabric'
 import { Type } from '../../components/v2/Type.tsx'
@@ -9,7 +9,7 @@ import { resolverTs } from '../../resolverTs.ts'
 import type { PluginTs } from '../../types'
 import { buildDataSchemaNode, buildResponsesSchemaNode, buildResponseUnionSchemaNode } from './utils.ts'
 
-export const typeGenerator = createGenerator<PluginTs>({
+export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Operation({ node, adapter, options }) {

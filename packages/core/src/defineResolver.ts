@@ -106,11 +106,11 @@ export function defaultResolveOptions<TOptions>(
 }
 
 /**
- * Creates a resolver for a plugin, with built-in defaults for name casing and include/exclude/override filtering.
- * Override `default` or `resolveOptions` in the builder to customise the behaviour.
+ * Defines a resolver for a plugin, with built-in defaults for name casing and include/exclude/override filtering.
+ * Override `default` or `resolveOptions` in the builder to customize the behaviur.
  *
  * @example
- * export const resolver = createResolver<PluginTs>(() => ({
+ * export const resolver = defineResolver<PluginTs>(() => ({
  *   resolveName(name) {
  *     return this.default(name, 'function')
  *   },
@@ -122,7 +122,7 @@ export function defaultResolveOptions<TOptions>(
  *   },
  * }))
  */
-export function createResolver<T extends PluginFactoryOptions>(build: ResolverBuilder<T>): T['resolver'] {
+export function defineResolver<T extends PluginFactoryOptions>(build: ResolverBuilder<T>): T['resolver'] {
   return {
     default: defaultResolver,
     resolveOptions: defaultResolveOptions,

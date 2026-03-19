@@ -279,7 +279,7 @@ export type ResolveOptionsContext<TOptions> = {
 /**
  * Base constraint for all plugin resolver objects.
  *
- * `default` and `resolveOptions` are injected automatically by `createResolver` — plugin
+ * `default` and `resolveOptions` are injected automatically by `defineResolver` — plugin
  * authors may override them but never need to implement them from scratch.
  * Concrete plugin resolver types extend this with their own helper methods.
  */
@@ -290,9 +290,9 @@ export type Resolver = {
 
 /**
  * The user-facing subset of a `Resolver` — everything except the methods injected by
- * `createResolver` (`default` and `resolveOptions`).
+ * `defineResolver` (`default` and `resolveOptions`).
  *
- * When you pass a `UserResolver` to `createResolver`, the standard `default` and
+ * When you pass a `UserResolver` to `defineResolver`, the standard `default` and
  * `resolveOptions` implementations are injected automatically so plugin authors never
  * need to define them by hand. Both can still be overridden by providing them explicitly.
  */
@@ -321,7 +321,7 @@ export type PluginFactoryOptions<
   TResolvePathOptions extends object = object,
   /**
    * Resolver object that encapsulates the naming and path-resolution helpers used by this plugin.
-   * Use `createResolver` to create the resolver object and export it alongside the plugin.
+   * Use `defineResolver` to define the resolver object and export it alongside the plugin.
    */
   TResolver extends Resolver = Resolver,
 > = {
@@ -551,6 +551,6 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
 
 export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Omit<Logger<TOptions>, 'logLevel'>
 
-export type { CoreGeneratorV2, Generator, ReactGeneratorV2 } from './createGenerator.ts'
 export type { Storage } from './createStorage.ts'
+export type { CoreGeneratorV2, Generator, ReactGeneratorV2 } from './defineGenerator.ts'
 export type { KubbEvents } from './Kubb.ts'

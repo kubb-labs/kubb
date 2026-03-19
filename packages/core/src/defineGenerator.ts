@@ -74,12 +74,12 @@ export type ReactGeneratorV2<TPlugin extends PluginFactoryOptions = PluginFactor
 export type Generator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = UserCoreGeneratorV2<TPlugin> | UserReactGeneratorV2<TPlugin>
 
 /**
- * Creates a generator with no-op defaults for any omitted lifecycle methods.
+ * Defines a generator with no-op defaults for any omitted lifecycle methods.
  * Works for both `core` (async file output) and `react` (JSX component) generators.
  *
  * @example
  * // react generator
- * export const typeGenerator = createGenerator<PluginTs>({
+ * export const typeGenerator = defineGenerator<PluginTs>({
  *   name: 'typescript',
  *   type: 'react',
  *   Operation({ node, options }) { return <File>...</File> },
@@ -88,18 +88,18 @@ export type Generator<TPlugin extends PluginFactoryOptions = PluginFactoryOption
  *
  * @example
  * // core generator
- * export const myGenerator = createGenerator<MyPlugin>({
+ * export const myGenerator = defineGenerator<MyPlugin>({
  *   name: 'my-generator',
  *   type: 'core',
  *   async operation({ node, options }) { return [{ path: '...', content: '...' }] },
  * })
  */
-export function createGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
+export function defineGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
   generator: UserReactGeneratorV2<TPlugin>,
 ): ReactGeneratorV2<TPlugin>
 
-export function createGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(generator: UserCoreGeneratorV2<TPlugin>): CoreGeneratorV2<TPlugin>
-export function createGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
+export function defineGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(generator: UserCoreGeneratorV2<TPlugin>): CoreGeneratorV2<TPlugin>
+export function defineGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
   generator: UserCoreGeneratorV2<TPlugin> | UserReactGeneratorV2<TPlugin>,
 ): unknown {
   if (generator.type === 'react') {

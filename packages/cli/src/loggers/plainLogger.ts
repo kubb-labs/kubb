@@ -1,6 +1,6 @@
 import { relative } from 'node:path'
 import { formatMs, toCause } from '@internals/utils'
-import { createLogger, logLevel as logLevelMap } from '@kubb/core'
+import { defineLogger, logLevel as logLevelMap } from '@kubb/core'
 import { SUMMARY_SEPARATOR } from '../constants.ts'
 import { getSummary } from '../utils/getSummary.ts'
 import { runHook } from '../utils/runHook.ts'
@@ -10,7 +10,7 @@ import { formatCommandWithArgs, formatMessage } from './utils.ts'
  * Plain console adapter for non-TTY environments
  * Simple console.log output with indentation
  */
-export const plainLogger = createLogger({
+export const plainLogger = defineLogger({
   name: 'plain',
   install(context, options) {
     const logLevel = options?.logLevel ?? logLevelMap.info
