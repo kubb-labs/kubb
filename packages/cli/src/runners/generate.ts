@@ -16,7 +16,6 @@ import {
   type KubbEvents,
   linters,
   logLevel as logLevelMap,
-  PromiseManager,
   safeBuild,
   setup,
 } from '@kubb/core'
@@ -293,7 +292,6 @@ type GenerateCommandOptions = {
 export async function runGenerateCommand({ input, configPath, logLevel: logLevelKey, watch }: GenerateCommandOptions): Promise<void> {
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const events = new AsyncEventEmitterClass<KubbEvents>()
-  const promiseManager = new PromiseManager()
 
   await setupLogger(events, { logLevel })
 
@@ -322,26 +320,20 @@ export async function runGenerateCommand({ input, configPath, logLevel: logLevel
 
     await events.emit('lifecycle:start', version)
 
-    const promises = configs.map((config) => {
-      return async () => {
-        if (isInputPath(config) && watch) {
-          await startWatcher([input || config.input.path], async (paths) => {
-            // remove to avoid duplicate listeners after each change
-            events.removeAll()
+    for (const config of configs) {
+      if (isInputPath(config) && watch) {
+        await startWatcher([input || config.input.path], async (paths) => {
+          // remove to avoid duplicate listeners after each change
+          events.removeAll()
 
-            await generate({ input, config, logLevel, events })
+          await generate({ input, config, logLevel, events })
 
-            clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
-          })
-
-          return
-        }
-
+          clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
+        })
+      } else {
         await generate({ input, config, logLevel, events })
       }
-    })
-
-    await promiseManager.run('seq', promises)
+    }
 
     await events.emit('lifecycle:end')
   } catch (error) {
