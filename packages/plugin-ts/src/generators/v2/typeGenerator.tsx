@@ -1,4 +1,3 @@
-import { pascalCase } from '@internals/utils'
 import { applyParamsCasing } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { createGenerator } from '@kubb/core'
@@ -66,14 +65,13 @@ export const typeGenerator = createGenerator<PluginTs>({
       )
     }
 
-    const paramTypes = params.map((param) => {
-      const paramRawName = `${node.operationId} ${pascalCase(param.in)} ${param.name}`
-      return renderSchemaType({
+    const paramTypes = params.map((param) =>
+      renderSchemaType({
         node: param.schema,
-        name: transformer.name(paramRawName),
-        typedName: transformer.typedName(paramRawName),
-      })
-    })
+        name: transformer.paramName(node.operationId, param.in, param.name),
+        typedName: transformer.paramTypedName(node.operationId, param.in, param.name),
+      }),
+    )
 
     const responseTypes = node.responses
       .filter((res) => res.schema)

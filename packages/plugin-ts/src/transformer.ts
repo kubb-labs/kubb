@@ -34,5 +34,11 @@ export const transformer: PluginTsTransformer = createTransformer<PluginTs>(() =
     resolvePathName(name, type) {
       return this.default(name, type)
     },
+    paramName(operationId, paramIn, name) {
+      return this.name(`${operationId} ${this.default(paramIn)} ${name}`)
+    },
+    paramTypedName(operationId, paramIn, name) {
+      return this.typedName(`${operationId} ${this.default(paramIn)} ${name}`)
+    },
   }
 })()

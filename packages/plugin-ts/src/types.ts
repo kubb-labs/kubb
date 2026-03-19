@@ -42,6 +42,24 @@ export type PluginTsTransformer = {
    * transformer.resolvePathName('list pets', 'file') // → 'ListPets'
    */
   resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+  /**
+   * Resolves the variable/function name for an operation parameter.
+   * Encapsulates the `<operationId> <PascalCase(paramIn)> <paramName>` naming convention.
+   *
+   * @example
+   * transformer.paramName('listPets', 'query', 'limit') // → 'ListPetsQueryLimit'
+   */
+  paramName(operationId: string, paramIn: string, name: string): string
+  /**
+   * Resolves the TypeScript type alias name for an operation parameter
+   * (equivalent to `paramName` with `type: 'type'`).
+   * In the default implementation both return the same PascalCase string;
+   * the distinction is preserved so overrides can diverge the two forms.
+   *
+   * @example
+   * transformer.paramTypedName('listPets', 'query', 'limit') // → 'ListPetsQueryLimit'
+   */
+  paramTypedName(operationId: string, paramIn: string, name: string): string
 }
 
 export type Options = {
