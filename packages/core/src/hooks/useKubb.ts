@@ -101,7 +101,7 @@ export function useKubb<TOptions extends PluginFactoryOptions = PluginFactoryOpt
     driver: PluginDriver
   }>()
 
-  const _config = meta.pluginManager.config
+  const _config = meta.driver.config
   const defaultPluginName = meta.plugin.name
 
   const _output = (
@@ -116,5 +116,23 @@ export function useKubb<TOptions extends PluginFactoryOptions = PluginFactoryOpt
     getFile: ({ pluginName = defaultPluginName, ...rest }) => meta.driver.getFile.call(meta.driver, { pluginName, ...rest }),
     resolveName: ({ pluginName = defaultPluginName, ...rest }) => meta.driver.resolveName.call(meta.driver, { pluginName, ...rest }),
     resolvePath: ({ pluginName = defaultPluginName, ...rest }) => meta.driver.resolvePath.call(meta.driver, { pluginName, ...rest }),
+    resolveBanner: (node: RootNode) => {
+      if (typeof _output?.banner === 'function') {
+        return _output.banner(node)
+      }
+      if (typeof _output?.banner === 'string') {
+        return _output.banner
+      }
+      return _buildDefaultBanner({ config: _config })
+    },
+    resolveFooter: (node: RootNode) => {
+      if (typeof _output?.footer === 'function') {
+        return _output.footer(node)
+      }
+      if (typeof _output?.footer === 'string') {
+        return _output.footer
+      }
+      return undefined
+    },
   }
 }
