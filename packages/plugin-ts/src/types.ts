@@ -1,4 +1,4 @@
-import type { Group, Naming, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Group, Output, PluginFactoryOptions, ResolveNameParams, Transformer } from '@kubb/core'
 import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
@@ -161,4 +161,4 @@ type ResolvedOptions = {
   paramsCasing: Options['paramsCasing']
 }
 
-export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, Naming<'plugin-ts'>>
+export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, Transformer>
