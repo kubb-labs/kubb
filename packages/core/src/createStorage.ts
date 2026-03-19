@@ -33,6 +33,26 @@ export type Storage = {
   dispose?(): Promise<void>
 }
 
+/**
+ * Creates a storage factory. Call the returned function with optional options to get the storage instance.
+ *
+ * @example
+ * export const memoryStorage = createStorage(() => {
+ *   const store = new Map<string, string>()
+ *   return {
+ *     name: 'memory',
+ *     async hasItem(key) { return store.has(key) },
+ *     async getItem(key) { return store.get(key) ?? null },
+ *     async setItem(key, value) { store.set(key, value) },
+ *     async removeItem(key) { store.delete(key) },
+ *     async getKeys(base) {
+ *       const keys = [...store.keys()]
+ *       return base ? keys.filter((k) => k.startsWith(base)) : keys
+ *     },
+ *     async clear(base) { if (!base) store.clear() },
+ *   }
+ * })
+ */
 export function createStorage<TOptions = Record<string, never>>(build: (options: TOptions) => Storage): (options?: TOptions) => Storage {
   return (options) => build(options ?? ({} as TOptions))
 }

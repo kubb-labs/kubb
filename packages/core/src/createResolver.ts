@@ -3,10 +3,17 @@ import { isOperationNode, isSchemaNode } from '@kubb/ast'
 import type { Node, OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { PluginFactoryOptions, ResolveNameParams, ResolveOptionsContext } from './types.ts'
 
+/**
+ * Builder type for the plugin-specific resolver fields.
+ * `default` and `resolveOptions` are optional — built-in fallbacks are used when omitted.
+ */
 type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<T['resolver'], 'default' | 'resolveOptions'> &
   Partial<Pick<T['resolver'], 'default' | 'resolveOptions'>> &
   ThisType<T['resolver']>
 
+/**
+ * Checks if an operation matches a pattern for a given filter type (`tag`, `operationId`, `path`, `method`).
+ */
 function matchesOperationPattern(node: OperationNode, type: string, pattern: string | RegExp): boolean {
   switch (type) {
     case 'tag':
@@ -22,6 +29,10 @@ function matchesOperationPattern(node: OperationNode, type: string, pattern: str
   }
 }
 
+/**
+ * Checks if a schema matches a pattern for a given filter type (`schemaName`).
+ * Returns `null` when the filter type doesn't apply to schemas.
+ */
 function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | RegExp): boolean | null {
   switch (type) {
     case 'schemaName':
@@ -31,6 +42,9 @@ function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | 
   }
 }
 
+/**
+ * Default name resolver — `camelCase` for most types, `PascalCase` for `type`.
+ */
 function defaultResolver(name: ResolveNameParams['name'], type: ResolveNameParams['type']): string {
   let resolvedName = camelCase(name)
 
@@ -47,6 +61,10 @@ function defaultResolver(name: ResolveNameParams['name'], type: ResolveNameParam
   return resolvedName
 }
 
+/**
+ * Default option resolver — applies include/exclude filters and merges any matching override options.
+ * Returns `null` when the node is filtered out.
+ */
 export function defaultResolveOptions<TOptions>(
   node: Node,
   { options, exclude = [], include, override = [] }: ResolveOptionsContext<TOptions>,
@@ -87,6 +105,23 @@ export function defaultResolveOptions<TOptions>(
   return options
 }
 
+/**
+ * Creates a resolver for a plugin, with built-in defaults for name casing and include/exclude/override filtering.
+ * Override `default` or `resolveOptions` in the builder to customise the behaviour.
+ *
+ * @example
+ * export const resolver = createResolver<PluginTs>(() => ({
+ *   resolveName(name) {
+ *     return this.default(name, 'function')
+ *   },
+ *   resolveTypedName(name) {
+ *     return this.default(name, 'type')
+ *   },
+ *   resolveParamName(node, param) {
+ *     return this.resolveName(`${node.operationId} ${param.in} ${param.name}`)
+ *   },
+ * }))
+ */
 export function createResolver<T extends PluginFactoryOptions>(build: ResolverBuilder<T>): T['resolver'] {
   return {
     default: defaultResolver,
