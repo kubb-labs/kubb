@@ -17,10 +17,10 @@ export type PlaceOrder405Type = any
 
 export type PlaceOrderMutationRequestType = OrderType
 
-export type PlaceOrderMutationResponseType = PlaceOrder200Type
-
-export type PlaceOrderTypeMutation = {
+export type PlaceOrderMutationType = {
   Response: PlaceOrder200Type
   Request: PlaceOrderMutationRequestType
   Errors: PlaceOrder405Type
 }
+
+export type PlaceOrderMutationResponseType = PlaceOrder200Type

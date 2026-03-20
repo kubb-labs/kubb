@@ -5,43 +5,33 @@
 
 import type { Order } from './Order.ts'
 
-/**
- * @description ID of order that needs to be fetched
- */
-export type GetOrderByIdPathOrderId = number
+export type GetOrderByIdPathParams = {
+  /**
+   * @description ID of order that needs to be fetched
+   * @type integer
+   */
+  orderId: number
+}
 
 /**
  * @description successful operation
  */
-export type GetOrderByIdStatus200 = Order
+export type GetOrderById200 = Order
 
 /**
  * @description Invalid ID supplied
  */
-export type GetOrderByIdStatus400 = any
+export type GetOrderById400 = any
 
 /**
  * @description Order not found
  */
-export type GetOrderByIdStatus404 = any
+export type GetOrderById404 = any
 
-export type GetOrderByIdRequestConfig = {
-  data?: never
-  pathParams: {
-    orderId: GetOrderByIdPathOrderId
-  }
-  queryParams?: never
-  headerParams?: never
-  url: `/store/order/${string}`
+export type GetOrderByIdQuery = {
+  Response: GetOrderById200
+  PathParams: GetOrderByIdPathParams
+  Errors: GetOrderById400 | GetOrderById404
 }
 
-export type GetOrderByIdResponses = {
-  '200': GetOrderByIdStatus200
-  '400': GetOrderByIdStatus400
-  '404': GetOrderByIdStatus404
-}
-
-/**
- * @description Union of all possible responses
- */
-export type GetOrderByIdResponse = GetOrderByIdStatus200 | GetOrderByIdStatus400 | GetOrderByIdStatus404
+export type GetOrderByIdQueryResponse = GetOrderById200
