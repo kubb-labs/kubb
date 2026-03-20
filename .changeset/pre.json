@@ -46,9 +46,13 @@
     "e2e": "0.0.0"
   },
   "changesets": [
+    "adapter-oas-parser-options",
+    "ast-additional-properties-visitor",
     "ast-function-params",
     "ast-utils-operation-path",
+    "core-url-input-resolve",
     "feat-resolve-options",
+    "plugin-oas-operation-manager",
     "pretty-schools-fly",
     "remove-mapper-plugin-ts",
     "remove-object-json-plugins-validation",
