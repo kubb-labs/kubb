@@ -132,7 +132,6 @@ describe('buildDataSchemaNode', () => {
           data?: never;
           pathParams?: never;
           queryParams?: {
-              /** @description Maximum number of results */
               limit?: listPetsQueryLimit;
           };
           headerParams?: never;
