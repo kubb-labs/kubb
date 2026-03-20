@@ -28,6 +28,7 @@ type UseKubbReturn<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
   getFile: (params: Omit<GetFileOptions<ResolvePathOptions>, 'pluginName'> & { pluginName?: string }) => KubbFile.File<{ pluginName: string }>
   /**
    * Resolves a name, defaulting `pluginName` to the current plugin.
+   * @deprecated user `resolver` from options instead
    */
   resolveName: (params: Omit<ResolveNameParams, 'pluginName'> & { pluginName?: string }) => string
   /**

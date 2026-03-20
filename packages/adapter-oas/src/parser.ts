@@ -1,4 +1,4 @@
-import { pascalCase, URLPath } from '@internals/utils'
+import { getUniqueName, pascalCase, URLPath } from '@internals/utils'
 import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type {
   ArraySchemaNode,
@@ -27,10 +27,11 @@ import type {
   TimeSchemaNode,
   UnionSchemaNode,
 } from '@kubb/ast/types'
-import { enumExtensionKeys, formatMap, knownMediaTypes } from './constants.ts'
+import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, formatMap, knownMediaTypes } from './constants.ts'
 import type { Oas } from './oas/Oas.ts'
 import type { contentType, Operation, ReferenceObject, SchemaObject } from './oas/types.ts'
 import { flattenSchema, isDiscriminator, isNullable, isReference } from './oas/utils.ts'
+import type { ParserOptions } from './types.ts'
 import { applyDiscriminatorEnum, extractRefName, mergeAdjacentAnonymousObjects, simplifyUnionMembers } from './utils.ts'
 
 /**
@@ -54,14 +55,16 @@ type DateTimeNodeByDateType = {
 /**
  * Resolves the AST node produced by `format: 'date-time'` based on the `dateType` option.
  */
-type ResolveDateTimeNode<TDateType extends Options['dateType']> = DateTimeNodeByDateType[TDateType extends keyof DateTimeNodeByDateType ? TDateType : 'string']
+type ResolveDateTimeNode<TDateType extends ParserOptions['dateType']> = DateTimeNodeByDateType[TDateType extends keyof DateTimeNodeByDateType
+  ? TDateType
+  : 'string']
 
 /**
  * Single source of truth: ordered list of `[shape, SchemaNode]` pairs.
  * `InferSchemaNode` walks this tuple in order and returns the node type of the first matching entry.
  * Parameterized over `TDateType` so `format: 'date-time'` resolves to the correct node based on the option.
  */
-type SchemaNodeMap<TDateType extends Options['dateType'] = Options['dateType']> = [
+type SchemaNodeMap<TDateType extends ParserOptions['dateType'] = 'string'> = [
   [{ $ref: string }, RefSchemaNode],
   // allOf with sibling `properties` always produces an intersection (shared props are appended as a member).
   [{ allOf: ReadonlyArray<unknown>; properties: object }, IntersectionSchemaNode],
@@ -105,7 +108,7 @@ type SchemaNodeMap<TDateType extends Options['dateType'] = Options['dateType']> 
 
 export type InferSchemaNode<
   TSchema extends SchemaObject,
-  TDateType extends Options['dateType'] = Options['dateType'],
+  TDateType extends ParserOptions['dateType'] = 'string',
   TEntries extends ReadonlyArray<[object, SchemaNode]> = SchemaNodeMap<TDateType>,
 > = TEntries extends [infer TEntry extends [object, SchemaNode], ...infer TRest extends ReadonlyArray<[object, SchemaNode]>]
   ? TSchema extends TEntry[0]
@@ -114,49 +117,12 @@ export type InferSchemaNode<
   : SchemaNode
 
 /**
- * Controls how various OAS constructs are mapped to Kubb AST nodes.
- */
-export type Options = {
-  /**
-   * How `format: 'date-time'` schemas are represented. `false` falls through to a plain string.
-   */
-  dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
-  /**
-   * Whether `type: 'integer'` and `format: 'int64'` produce `number` or `bigint` nodes.
-   */
-  integerType?: 'number' | 'bigint'
-  /**
-   * AST type used when no schema type can be inferred.
-   */
-  unknownType: 'any' | 'unknown' | 'void'
-  /**
-   * AST type used for completely empty schemas (`{}`).
-   */
-  emptySchemaType: 'any' | 'unknown' | 'void'
-  /**
-   * Suffix appended to derived enum names when building property schema names.
-   */
-  enumSuffix: string
-}
-
-/**
  * Construction-time options for `createOasParser`.
  */
 export type OasParserOptions = {
   contentType?: contentType
   collisionDetection?: boolean
 }
-
-/**
- * Default values for all `Options` fields.
- */
-const DEFAULT_OPTIONS = {
-  dateType: 'string',
-  integerType: 'number',
-  unknownType: 'any',
-  emptySchemaType: 'any',
-  enumSuffix: 'enum',
-} as const satisfies Options
 
 /**
  * Looks up the Kubb `SchemaType` for a given OAS `format` string.
@@ -199,8 +165,8 @@ type SchemaContext = {
    * Normalized single type string (first element when OAS 3.1 multi-type array).
    */
   type: string | undefined
-  options: Partial<Options> | undefined
-  mergedOptions: Options
+  options: Partial<ParserOptions> | undefined
+  mergedOptions: ParserOptions
 }
 
 /**
@@ -211,11 +177,11 @@ export type OasParser = {
    * Converts an OpenAPI/Swagger spec (wrapped in a Kubb `Oas` instance) into
    * a `RootNode` — the top-level node of the `@kubb/ast` tree.
    */
-  parse: <TOptions extends Partial<Options> = object>(options?: TOptions) => RootNode
-  convertSchema: <TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }, TOptions extends Partial<Options> = object>(
+  parse: <TOptions extends Partial<ParserOptions> = object>(options?: TOptions) => RootNode
+  convertSchema: <TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }, TOptions extends Partial<ParserOptions> = object>(
     params: { schema: TSchema; name?: string },
     options?: TOptions,
-  ) => InferSchemaNode<TSchema, TOptions extends { dateType: Options['dateType'] } ? TOptions['dateType'] : (typeof DEFAULT_OPTIONS)['dateType']>
+  ) => InferSchemaNode<TSchema, TOptions extends { dateType: ParserOptions['dateType'] } ? TOptions['dateType'] : 'string'>
   /**
    * Walks `node` and replaces each `ref` value with the name returned by
    * `resolveName`. The callback receives the full `$ref` path (e.g. `#/components/schemas/Order`)
@@ -260,6 +226,14 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
   // e.g., { '#/components/schemas/Order': 'OrderSchema', '#/components/responses/Product': 'ProductResponse' }
   const { schemas: schemaObjects, nameMapping } = oas.getSchemas({ contentType, collisionDetection })
 
+  // Legacy enum name deduplication: tracks used enum names and appends numeric suffixes
+  // (e.g. ParamsStatusEnum, ParamsStatusEnum2) when collisionDetection is disabled.
+  const usedEnumNames: Record<string, number> = {}
+
+  // Only apply legacy naming when collisionDetection is explicitly false.
+  // When undefined (e.g. direct parser usage without adapter), use the default (new) behavior.
+  const isLegacyNaming = collisionDetection === false
+
   /**
    * Maps an `'any' | 'unknown' | 'void'` option string to the corresponding `SchemaType` constant.
    * Used for both `unknownType` (unannotated schemas) and `emptySchemaType` (empty `{}` schemas).
@@ -275,7 +249,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * Returns `undefined` when `dateType` is `false`, meaning the format should fall through to `string`.
    */
   function getDateType(
-    options: Options,
+    options: ParserOptions,
     format: 'date-time' | 'date' | 'time',
   ): { type: 'datetime'; offset?: boolean; local?: boolean } | { type: 'date' | 'time'; representation: 'date' | 'string' } | undefined {
     if (!options.dateType) {
@@ -472,6 +446,10 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
         ? (Object.fromEntries(Object.entries(schemaWithoutUnion).filter(([key]) => key !== 'discriminator')) as SchemaObject)
         : schemaWithoutUnion
 
+      // Convert shared properties once to avoid duplicate enum naming
+      // (e.g. StatusEnum appearing twice and getting a numeric suffix).
+      const sharedPropertiesNode = convertSchema({ schema: memberBaseSchema, name: isLegacyNaming ? undefined : name }, options)
+
       return createSchema({
         type: 'union',
         ...unionBase,
@@ -479,7 +457,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
           const ref = isReference(s) ? s.$ref : undefined
           const discriminatorValue = discriminator?.mapping && ref ? Object.entries(discriminator.mapping).find(([, v]) => v === ref)?.[0] : undefined
 
-          let propertiesNode = convertSchema({ schema: memberBaseSchema, name }, options)
+          let propertiesNode = sharedPropertiesNode
 
           if (discriminatorValue && discriminator) {
             propertiesNode = applyDiscriminatorEnum({ node: propertiesNode, propertyName: discriminator.propertyName, values: [discriminatorValue] })
@@ -684,17 +662,64 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * - not required + not nullable → `optional: true`
    * - not required + nullable → `nullish: true`
    */
+  /**
+   * Builds the propagation name for a child property during recursive schema conversion.
+   *
+   * - **Legacy naming** (`isLegacyNaming`): only the immediate property key is used
+   *   (e.g. `Params` for property `params`), keeping nested names short.
+   * - **Default naming**: the parent name is prepended so the full path is encoded
+   *   (e.g. `OrderParams` when parent is `Order`).
+   */
+  function resolveChildName(parentName: string | undefined, propName: string): string | undefined {
+    if (isLegacyNaming) {
+      return pascalCase(propName)
+    }
+    return parentName ? pascalCase([parentName, propName].join(' ')) : undefined
+  }
+
+  /**
+   * Derives the final name for an enum property schema node.
+   *
+   * The raw name always includes the enum suffix (e.g. `StatusEnum`).
+   * In legacy mode an additional deduplication step appends a numeric suffix
+   * when the same name has already been used (e.g. `ParamsStatusEnum2`).
+   */
+  function resolveEnumPropName(parentName: string | undefined, propName: string, enumSuffix: string): string {
+    const raw = pascalCase([parentName, propName, enumSuffix].filter(Boolean).join(' '))
+    return isLegacyNaming ? getUniqueName(raw, usedEnumNames) : raw
+  }
+
+  /**
+   * Given a freshly-converted property schema, returns the node with a correct
+   * `name` attached — or stripped — depending on whether the node is a named
+   * enum, a boolean const-enum (always inlined), or a regular schema.
+   */
+  function applyEnumName(propNode: SchemaNode, parentName: string | undefined, propName: string, enumSuffix: string): SchemaNode {
+    const enumNode = narrowSchema(propNode, 'enum')
+
+    // Boolean-primitive enum nodes (e.g. `const: false`) are always inlined as
+    // literal types and must not receive a named identifier.
+    if (enumNode?.primitive === 'boolean') {
+      return { ...propNode, name: undefined }
+    }
+
+    if (enumNode) {
+      return { ...propNode, name: resolveEnumPropName(parentName, propName, enumSuffix) }
+    }
+
+    return propNode
+  }
+
   function convertObject({ schema, name, nullable, defaultValue, options, mergedOptions }: SchemaContext): SchemaNode {
     const properties: Array<PropertyNode> = schema.properties
       ? Object.entries(schema.properties).map(([propName, propSchema]) => {
           const required = Array.isArray(schema.required) ? schema.required.includes(propName) : !!schema.required
           const resolvedPropSchema = propSchema as SchemaObject
           const propNullable = isNullable(resolvedPropSchema)
-          const basePropName = name ? pascalCase([name, propName].join(' ')) : undefined
-          const propNode = convertSchema({ schema: resolvedPropSchema, name: basePropName }, options)
-          const isEnumNode = !!narrowSchema(propNode, 'enum')
-          const derivedPropName = isEnumNode && name ? pascalCase([name, propName, mergedOptions.enumSuffix].filter(Boolean).join(' ')) : basePropName
-          const schemaNode = isEnumNode && derivedPropName !== basePropName ? { ...propNode, name: derivedPropName } : propNode
+
+          const childName = resolveChildName(name, propName)
+          const propNode = convertSchema({ schema: resolvedPropSchema, name: childName }, options)
+          const schemaNode = applyEnumName(propNode, name, propName, mergedOptions.enumSuffix)
 
           return createProperty({
             name: propName,
@@ -748,7 +773,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     if (isDiscriminator(schema) && schema.discriminator.mapping) {
       const discPropName = schema.discriminator.propertyName
       const values = Object.keys(schema.discriminator.mapping)
-      const enumName = name ? pascalCase([name, discPropName, mergedOptions.enumSuffix].filter(Boolean).join(' ')) : undefined
+      const enumName = name ? resolveEnumPropName(name, discPropName, mergedOptions.enumSuffix) : undefined
       return applyDiscriminatorEnum({ node: objectNode, propertyName: discPropName, values, enumName })
     }
 
@@ -784,9 +809,9 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    */
   function convertArray({ schema, name, nullable, defaultValue, options, mergedOptions }: SchemaContext): SchemaNode {
     const rawItems = schema.items as SchemaObject | undefined
-    // When the array items schema contains an inline enum, derive a name from the parent
-    // array's name + enumSuffix so generators can emit a named enum declaration.
-    const itemName = rawItems?.enum?.length && name ? pascalCase([name, mergedOptions.enumSuffix].join(' ')) : undefined
+    // When the items schema contains an inline enum, derive a named identifier
+    // so generators can emit a standalone enum declaration.
+    const itemName = rawItems?.enum?.length && name ? resolveEnumPropName(undefined, name, mergedOptions.enumSuffix) : undefined
     const items = rawItems ? [convertSchema({ schema: rawItems, name: itemName }, options)] : []
 
     return createSchema({
@@ -871,8 +896,8 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * 10. Object / array / tuple / scalar by `type`
    * 11. Empty schema fallback (`emptySchemaType` option)
    */
-  function convertSchema({ schema, name }: { schema: SchemaObject; name?: string }, options?: Partial<Options>): SchemaNode {
-    const mergedOptions: Options = { ...DEFAULT_OPTIONS, ...options }
+  function convertSchema({ schema, name }: { schema: SchemaObject; name?: string }, options?: Partial<ParserOptions>): SchemaNode {
+    const mergedOptions: ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...options }
     // Flatten keyword-only allOf fragments (no $ref, no structural keys) into the parent
     // schema before parsing, so simple annotation patterns don't produce needless intersections.
     const flattenedSchema = flattenSchema(schema)
@@ -960,7 +985,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * Converts a single dereferenced OAS parameter object into a `ParameterNode`.
    * When the parameter has no `schema` or its schema is a `$ref`, falls back to `unknownType`.
    */
-  function parseParameter(options: Options, param: Record<string, unknown>): ParameterNode {
+  function parseParameter(options: ParserOptions, param: Record<string, unknown>): ParameterNode {
     const required = (param['required'] as boolean | undefined) ?? false
 
     const schema: SchemaNode =
@@ -984,7 +1009,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * Converts an OAS `Operation` into an `OperationNode`, resolving parameters,
    * request body, and all response codes into their AST node equivalents.
    */
-  function parseOperation(options: Options, oas: Oas, operation: Operation): OperationNode {
+  function parseOperation(options: ParserOptions, oas: Oas, operation: Operation): OperationNode {
     const parameters: Array<ParameterNode> = oas.getParameters(operation).map((param) => parseParameter(options, param as unknown as Record<string, unknown>))
 
     const requestBodySchema = oas.getRequestSchema(operation)
@@ -1034,8 +1059,8 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * Converts an OpenAPI/Swagger spec (wrapped in a Kubb `Oas` instance) into
    * a `RootNode` — the top-level node of the `@kubb/ast` tree.
    */
-  function parse<TOptions extends Partial<Options> = object>(options?: TOptions): RootNode {
-    const mergedOptions: Options = { ...DEFAULT_OPTIONS, ...options }
+  function parse<TOptions extends Partial<ParserOptions> = object>(options?: TOptions): RootNode {
+    const mergedOptions: ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...options }
 
     const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) =>
       convertSchema({ schema: schemaObject as SchemaObject, name }, mergedOptions),

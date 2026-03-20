@@ -2,6 +2,32 @@ import type { AdapterFactoryOptions } from '@kubb/core'
 import type { Oas as OasClass } from './oas/Oas.ts'
 import type { contentType } from './oas/types.ts'
 
+/**
+ * Controls how various OAS constructs are mapped to Kubb AST nodes.
+ */
+export type ParserOptions = {
+  /**
+   * How `format: 'date-time'` schemas are represented. `false` falls through to a plain string.
+   */
+  dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
+  /**
+   * Whether `type: 'integer'` and `format: 'int64'` produce `number` or `bigint` nodes.
+   */
+  integerType?: 'number' | 'bigint'
+  /**
+   * AST type used when no schema type can be inferred.
+   */
+  unknownType: 'any' | 'unknown' | 'void'
+  /**
+   * AST type used for completely empty schemas (`{}`).
+   */
+  emptySchemaType: 'any' | 'unknown' | 'void'
+  /**
+   * Suffix appended to derived enum names when building property schema names.
+   */
+  enumSuffix: 'enum' | (string & {})
+}
+
 export type OasAdapterOptions = {
   /**
    * Validate the OpenAPI spec before parsing.
@@ -41,8 +67,13 @@ export type OasAdapterOptions = {
    */
   discriminator?: 'strict' | 'inherit'
   /**
-   * Automatically resolve name collisions across schema components.
-   * @default false
+   * Enable collision detection for inline enum and schema type names.
+   * When `true` (default), full-path names are used and name collisions
+   * across schema components are automatically resolved (e.g. `OrderParamsStatusEnum`).
+   * When `false`, enum names use only the immediate property context
+   * (e.g. `ParamsStatusEnum`) matching the v4 naming conventions, with numeric
+   * suffixes for deduplication (e.g. `ParamsStatusEnum2`).
+   * @default true
    */
   collisionDetection?: boolean
   /**
@@ -52,23 +83,7 @@ export type OasAdapterOptions = {
    * - `false` falls through to a plain `string` node.
    * @default 'string'
    */
-  dateType?: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
-  /**
-   * Whether `type: 'integer'` / `format: 'int64'` produces `number` or `bigint` nodes.
-   * @default 'number'
-   */
-  integerType?: 'number' | 'bigint'
-  /**
-   * AST type used when no schema type can be inferred.
-   * @default 'any'
-   */
-  unknownType?: 'any' | 'unknown' | 'void'
-  /**
-   * AST type used for completely empty schemas (`{}`).
-   * @default `unknownType`
-   */
-  emptySchemaType?: 'any' | 'unknown' | 'void'
-}
+} & Partial<ParserOptions>
 
 export type OasAdapterResolvedOptions = {
   validate: boolean
@@ -82,6 +97,7 @@ export type OasAdapterResolvedOptions = {
   integerType: NonNullable<OasAdapterOptions['integerType']>
   unknownType: NonNullable<OasAdapterOptions['unknownType']>
   emptySchemaType: NonNullable<OasAdapterOptions['emptySchemaType']>
+  enumSuffix: OasAdapterOptions['enumSuffix']
   /**
    * Map from original `$ref` paths to their collision-resolved schema names.
    * Populated by the adapter after each `parse()` call.
