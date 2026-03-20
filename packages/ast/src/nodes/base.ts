@@ -1,7 +1,16 @@
 /**
  * Kind discriminant for every AST node.
  */
-export type NodeKind = 'Root' | 'Operation' | 'Schema' | 'Property' | 'Parameter' | 'Response' | 'FunctionParameter' | 'ObjectBindingParameter' | 'FunctionParameters'
+export type NodeKind =
+  | 'Root'
+  | 'Operation'
+  | 'Schema'
+  | 'Property'
+  | 'Parameter'
+  | 'Response'
+  | 'FunctionParameter'
+  | 'ObjectBindingParameter'
+  | 'FunctionParameters'
 
 /**
  * Common base for all AST nodes.

@@ -1,4 +1,15 @@
-import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode, ObjectSchemaNode, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode } from './nodes/index.ts'
+import type {
+  FunctionParameterNode,
+  FunctionParametersNode,
+  ObjectBindingParameterNode,
+  ObjectSchemaNode,
+  OperationNode,
+  ParameterNode,
+  PropertyNode,
+  ResponseNode,
+  RootNode,
+  SchemaNode,
+} from './nodes/index.ts'
 
 /**
  * Distributive variant of `Omit` that preserves union members.

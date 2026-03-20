@@ -31,12 +31,11 @@ export type FunctionParameterNode = BaseNode & {
    * @default false
    */
   rest?: boolean
-} & /**
-   * Explicitly optional parameter — rendered with `?` in the signature.
-   * Cannot be combined with `default`; a parameter with a default is implicitly optional.
-   * @example `name?: Type`
-   */
-  (
+} /**
+ * Explicitly optional parameter — rendered with `?` in the signature.
+ * Cannot be combined with `default`; a parameter with a default is implicitly optional.
+ * @example `name?: Type`
+ */ & (
     | { optional: true; default?: never }
     /**
      * Required parameter, or a parameter with a default value (implicitly optional).

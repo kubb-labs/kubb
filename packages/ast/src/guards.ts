@@ -1,4 +1,17 @@
-import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode, Node, NodeKind, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode, SchemaNodeByType } from './nodes/index.ts'
+import type {
+  FunctionParameterNode,
+  FunctionParametersNode,
+  Node,
+  NodeKind,
+  ObjectBindingParameterNode,
+  OperationNode,
+  ParameterNode,
+  PropertyNode,
+  ResponseNode,
+  RootNode,
+  SchemaNode,
+  SchemaNodeByType,
+} from './nodes/index.ts'
 
 /**
  * Narrows a `SchemaNode` to the specific variant matching `type`.

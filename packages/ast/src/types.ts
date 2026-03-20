@@ -42,6 +42,6 @@ export type {
   UnionSchemaNode,
   UrlSchemaNode,
 } from './nodes/index.ts'
-export type { Printer } from './printer.ts'
+export type { Printer, PrinterFactoryOptions } from './printer.ts'
 export type { RefMap } from './refs.ts'
 export type { AsyncVisitor, CollectVisitor, Visitor } from './visitor.ts'
