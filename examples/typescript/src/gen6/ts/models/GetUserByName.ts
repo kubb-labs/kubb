@@ -5,6 +5,9 @@
 
 import type { User } from './User.ts'
 
+/**
+ * @description The name that needs to be fetched. Use user1 for testing. 
+ */
 export type GetUserByNamePathUsername = string
 
 /**
@@ -25,6 +28,9 @@ export type GetUserByNameStatus404 = any
 export type GetUserByNameRequestConfig = {
   data?: never
   pathParams: {
+    /**
+     * @description The name that needs to be fetched. Use user1 for testing. 
+     */
     username: GetUserByNamePathUsername
   }
   queryParams?: never

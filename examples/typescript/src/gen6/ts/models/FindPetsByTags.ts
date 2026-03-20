@@ -5,10 +5,19 @@
 
 import type { Pet } from './Pet.ts'
 
+/**
+ * @description Tags to filter by
+ */
 export type FindPetsByTagsQueryTags = string[]
 
+/**
+ * @description to request with required page number or pagination
+ */
 export type FindPetsByTagsQueryPage = string
 
+/**
+ * @description to request with required page size
+ */
 export type FindPetsByTagsQueryPageSize = string
 
 /**
@@ -25,8 +34,17 @@ export type FindPetsByTagsRequestConfig = {
   data?: never
   pathParams?: never
   queryParams?: {
+    /**
+     * @description Tags to filter by
+     */
     tags?: FindPetsByTagsQueryTags
+    /**
+     * @description to request with required page number or pagination
+     */
     page?: FindPetsByTagsQueryPage
+    /**
+     * @description to request with required page size
+     */
     pageSize?: FindPetsByTagsQueryPageSize
   }
   headerParams?: never

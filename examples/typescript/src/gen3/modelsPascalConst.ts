@@ -473,6 +473,7 @@ export type AddPetResponses = {
 export type AddPetResponse = AddPetStatus200 | AddPetStatus405
 
 /**
+ * @description Status values that need to be considered for filter
  * @default available
  */
 export type FindPetsByStatusQueryStatus = 'available' | 'pending' | 'sold'
@@ -491,6 +492,9 @@ export type FindPetsByStatusRequestConfig = {
   data?: never
   pathParams?: never
   queryParams?: {
+    /**
+     * @description Status values that need to be considered for filter
+     */
     status?: FindPetsByStatusQueryStatus
   }
   headerParams?: never
@@ -507,10 +511,19 @@ export type FindPetsByStatusResponses = {
  */
 export type FindPetsByStatusResponse = FindPetsByStatusStatus200 | FindPetsByStatusStatus400
 
+/**
+ * @description Tags to filter by
+ */
 export type FindPetsByTagsQueryTags = string[]
 
+/**
+ * @description to request with required page number or pagination
+ */
 export type FindPetsByTagsQueryPage = string
 
+/**
+ * @description to request with required page size
+ */
 export type FindPetsByTagsQueryPageSize = string
 
 /**
@@ -527,8 +540,17 @@ export type FindPetsByTagsRequestConfig = {
   data?: never
   pathParams?: never
   queryParams?: {
+    /**
+     * @description Tags to filter by
+     */
     tags?: FindPetsByTagsQueryTags
+    /**
+     * @description to request with required page number or pagination
+     */
     page?: FindPetsByTagsQueryPage
+    /**
+     * @description to request with required page size
+     */
     pageSize?: FindPetsByTagsQueryPageSize
   }
   headerParams?: never
@@ -545,6 +567,9 @@ export type FindPetsByTagsResponses = {
  */
 export type FindPetsByTagsResponse = FindPetsByTagsStatus200 | FindPetsByTagsStatus400
 
+/**
+ * @description ID of pet to return
+ */
 export type GetPetByIdPathPetId = number
 
 /**
@@ -565,6 +590,9 @@ export type GetPetByIdStatus404 = any
 export type GetPetByIdRequestConfig = {
   data?: never
   pathParams: {
+    /**
+     * @description ID of pet to return
+     */
     petId: GetPetByIdPathPetId
   }
   queryParams?: never
@@ -583,10 +611,19 @@ export type GetPetByIdResponses = {
  */
 export type GetPetByIdResponse = GetPetByIdStatus200 | GetPetByIdStatus400 | GetPetByIdStatus404
 
+/**
+ * @description ID of pet that needs to be updated
+ */
 export type UpdatePetWithFormPathPetId = number
 
+/**
+ * @description Name of pet that needs to be updated
+ */
 export type UpdatePetWithFormQueryName = string
 
+/**
+ * @description Status of pet that needs to be updated
+ */
 export type UpdatePetWithFormQueryStatus = string
 
 /**
@@ -597,10 +634,19 @@ export type UpdatePetWithFormStatus405 = any
 export type UpdatePetWithFormRequestConfig = {
   data?: never
   pathParams: {
+    /**
+     * @description ID of pet that needs to be updated
+     */
     petId: UpdatePetWithFormPathPetId
   }
   queryParams?: {
+    /**
+     * @description Name of pet that needs to be updated
+     */
     name?: UpdatePetWithFormQueryName
+    /**
+     * @description Status of pet that needs to be updated
+     */
     status?: UpdatePetWithFormQueryStatus
   }
   headerParams?: never
@@ -618,6 +664,9 @@ export type UpdatePetWithFormResponse = UpdatePetWithFormStatus405
 
 export type DeletePetHeaderApiKey = string
 
+/**
+ * @description Pet id to delete
+ */
 export type DeletePetPathPetId = number
 
 /**
@@ -633,6 +682,9 @@ export type DeletePetStatus400 = any
 export type DeletePetRequestConfig = {
   data?: never
   pathParams: {
+    /**
+     * @description Pet id to delete
+     */
     petId: DeletePetPathPetId
   }
   queryParams?: never
@@ -652,8 +704,14 @@ export type DeletePetResponses = {
  */
 export type DeletePetResponse = DeletePetStatus200 | DeletePetStatus400
 
+/**
+ * @description ID of pet to update
+ */
 export type UploadFilePathPetId = number
 
+/**
+ * @description Additional Metadata
+ */
 export type UploadFileQueryAdditionalMetadata = string
 
 /**
@@ -666,9 +724,15 @@ export type UploadFileData = Blob
 export type UploadFileRequestConfig = {
   data?: UploadFileData
   pathParams: {
+    /**
+     * @description ID of pet to update
+     */
     petId: UploadFilePathPetId
   }
   queryParams?: {
+    /**
+     * @description Additional Metadata
+     */
     additionalMetadata?: UploadFileQueryAdditionalMetadata
   }
   headerParams?: never
@@ -771,6 +835,9 @@ export type PlaceOrderPatchResponses = {
  */
 export type PlaceOrderPatchResponse = PlaceOrderPatchStatus200 | PlaceOrderPatchStatus405
 
+/**
+ * @description ID of order that needs to be fetched
+ */
 export type GetOrderByIdPathOrderId = number
 
 /**
@@ -791,6 +858,9 @@ export type GetOrderByIdStatus404 = any
 export type GetOrderByIdRequestConfig = {
   data?: never
   pathParams: {
+    /**
+     * @description ID of order that needs to be fetched
+     */
     orderId: GetOrderByIdPathOrderId
   }
   queryParams?: never
@@ -809,6 +879,9 @@ export type GetOrderByIdResponses = {
  */
 export type GetOrderByIdResponse = GetOrderByIdStatus200 | GetOrderByIdStatus400 | GetOrderByIdStatus404
 
+/**
+ * @description ID of the order that needs to be deleted
+ */
 export type DeleteOrderPathOrderId = number
 
 /**
@@ -824,6 +897,9 @@ export type DeleteOrderStatus404 = any
 export type DeleteOrderRequestConfig = {
   data?: never
   pathParams: {
+    /**
+     * @description ID of the order that needs to be deleted
+     */
     orderId: DeleteOrderPathOrderId
   }
   queryParams?: never
@@ -895,8 +971,14 @@ export type CreateUsersWithListInputResponses = {
  */
 export type CreateUsersWithListInputResponse = CreateUsersWithListInputStatus200 | CreateUsersWithListInputStatusDefault
 
+/**
+ * @description The user name for login
+ */
 export type LoginUserQueryUsername = string
 
+/**
+ * @description The password for login in clear text
+ */
 export type LoginUserQueryPassword = string
 
 /**
@@ -913,7 +995,13 @@ export type LoginUserRequestConfig = {
   data?: never
   pathParams?: never
   queryParams?: {
+    /**
+     * @description The user name for login
+     */
     username?: LoginUserQueryUsername
+    /**
+     * @description The password for login in clear text
+     */
     password?: LoginUserQueryPassword
   }
   headerParams?: never
@@ -952,6 +1040,9 @@ export type LogoutUserResponses = {
  */
 export type LogoutUserResponse = LogoutUserStatusDefault
 
+/**
+ * @description The name that needs to be fetched. Use user1 for testing. 
+ */
 export type GetUserByNamePathUsername = string
 
 /**
@@ -972,6 +1063,9 @@ export type GetUserByNameStatus404 = any
 export type GetUserByNameRequestConfig = {
   data?: never
   pathParams: {
+    /**
+     * @description The name that needs to be fetched. Use user1 for testing. 
+     */
     username: GetUserByNamePathUsername
   }
   queryParams?: never
@@ -990,6 +1084,9 @@ export type GetUserByNameResponses = {
  */
 export type GetUserByNameResponse = GetUserByNameStatus200 | GetUserByNameStatus400 | GetUserByNameStatus404
 
+/**
+ * @description name that need to be deleted
+ */
 export type UpdateUserPathUsername = string
 
 /**
@@ -1002,6 +1099,9 @@ export type UpdateUserData = User
 export type UpdateUserRequestConfig = {
   data?: UpdateUserData
   pathParams: {
+    /**
+     * @description name that need to be deleted
+     */
     username: UpdateUserPathUsername
   }
   queryParams?: never
@@ -1018,6 +1118,9 @@ export type UpdateUserResponses = {
  */
 export type UpdateUserResponse = UpdateUserStatusDefault
 
+/**
+ * @description The name that needs to be deleted
+ */
 export type DeleteUserPathUsername = string | null
 
 /**
@@ -1033,6 +1136,9 @@ export type DeleteUserStatus404 = any
 export type DeleteUserRequestConfig = {
   data?: never
   pathParams: {
+    /**
+     * @description The name that needs to be deleted
+     */
     username: DeleteUserPathUsername
   }
   queryParams?: never

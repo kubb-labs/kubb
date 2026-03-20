@@ -5,6 +5,9 @@
 
 import type { Order } from './Order.ts'
 
+/**
+ * @description ID of order that needs to be fetched
+ */
 export type GetOrderByIdPathOrderId = number
 
 /**
@@ -25,6 +28,9 @@ export type GetOrderByIdStatus404 = any
 export type GetOrderByIdRequestConfig = {
   data?: never
   pathParams: {
+    /**
+     * @description ID of order that needs to be fetched
+     */
     orderId: GetOrderByIdPathOrderId
   }
   queryParams?: never
