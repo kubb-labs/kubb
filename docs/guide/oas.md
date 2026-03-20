@@ -1,12 +1,15 @@
 ---
 layout: doc
 
-title: OpenAPI Specification Guide for Kubb
+title: OpenAPI Support
 description: OpenAPI/Swagger best practices for Kubb code generation. Schema design, operation IDs, and specification tips.
 outline: deep
+redirect: /guide/openapi-support
 ---
 
-# OpenAPI/Swagger <a href="/plugins/plugin-oas"><Badge type="info" text="@kubb/plugin-oas" /></a>
+# OpenAPI/Swagger
+
+> This page has moved. See [OpenAPI Support](/guide/openapi-support) for the full guide.
 
 This guide explains the OpenAPI (formerly known as Swagger) specification and how Kubb uses it to generate code.
 

@@ -335,7 +335,7 @@
               "activeMatch": "^/guide/best-practices/?$"
             },
             {
-              "text": "OpenAPI Support Matrix",
+              "text": "OpenAPI Support",
               "link": "/guide/openapi-support",
               "activeMatch": "^/guide/openapi-support/?$"
             }
@@ -348,11 +348,6 @@
               "text": "Custom HTTP client",
               "link": "/guide/fetch",
               "activeMatch": "^/guide/fetch/?$"
-            },
-            {
-              "text": "Oas",
-              "link": "/guide/oas",
-              "activeMatch": "^/guide/oas/?$"
             },
             {
               "text": "Use of your own baseUrl",
