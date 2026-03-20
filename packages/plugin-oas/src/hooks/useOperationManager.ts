@@ -67,8 +67,9 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
 ): UseOperationManagerResult {
   const plugin = usePlugin()
   const driver = usePluginDriver()
+  const defaultPluginName = plugin.name
 
-  const getName: UseOperationManagerResult['getName'] = (operation, { prefix = '', suffix = '', pluginName = plugin.name, type }) => {
+  const getName: UseOperationManagerResult['getName'] = (operation, { prefix = '', suffix = '', pluginName = defaultPluginName, type }) => {
     return driver.resolveName({
       name: `${prefix} ${operation.getOperationId()} ${suffix}`,
       pluginName,
@@ -92,13 +93,13 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
       resolveName: (name) =>
         driver.resolveName({
           name,
-          pluginName: params?.pluginName,
+          pluginName: params?.pluginName ?? defaultPluginName,
           type: params?.type,
         }),
     })
   }
 
-  const getFile: UseOperationManagerResult['getFile'] = (operation, { prefix, suffix, pluginName = plugin.name, extname = '.ts' } = {}) => {
+  const getFile: UseOperationManagerResult['getFile'] = (operation, { prefix, suffix, pluginName = defaultPluginName, extname = '.ts' } = {}) => {
     const name = getName(operation, { type: 'file', pluginName, prefix, suffix })
     const group = getGroup(operation)
 
@@ -120,7 +121,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
     }
   }
 
-  const groupSchemasByName: UseOperationManagerResult['groupSchemasByName'] = (operation, { pluginName = plugin.name, type }) => {
+  const groupSchemasByName: UseOperationManagerResult['groupSchemasByName'] = (operation, { pluginName = defaultPluginName, type }) => {
     if (!generator) {
       throw new Error(`useOperationManager: 'generator' parameter is required but was not provided`)
     }

@@ -5,29 +5,29 @@
 
 import { z } from '../../zod.ts'
 
-export const loginUserQueryParamsTypeSchema = z
+export const loginUserQueryParamsSchema = z
   .object({
     username: z.optional(z.string().describe('The user name for login')),
     password: z.optional(z.string().describe('The password for login in clear text')),
   })
   .optional()
 
-export type LoginUserQueryParamsTypeSchema = z.infer<typeof loginUserQueryParamsTypeSchema>
+export type LoginUserQueryParamsSchema = z.infer<typeof loginUserQueryParamsSchema>
 
 /**
  * @description successful operation
  */
-export const loginUser200TypeSchema = z.string()
+export const loginUser200Schema = z.string()
 
-export type LoginUser200TypeSchema = z.infer<typeof loginUser200TypeSchema>
+export type LoginUser200Schema = z.infer<typeof loginUser200Schema>
 
 /**
  * @description Invalid username/password supplied
  */
-export const loginUser400TypeSchema = z.any()
+export const loginUser400Schema = z.any()
 
-export type LoginUser400TypeSchema = z.infer<typeof loginUser400TypeSchema>
+export type LoginUser400Schema = z.infer<typeof loginUser400Schema>
 
-export const loginUserQueryResponseTypeSchema = z.lazy(() => loginUser200TypeSchema)
+export const loginUserQueryResponseSchema = z.lazy(() => loginUser200Schema)
 
-export type LoginUserQueryResponseTypeSchema = z.infer<typeof loginUserQueryResponseTypeSchema>
+export type LoginUserQueryResponseSchema = z.infer<typeof loginUserQueryResponseSchema>

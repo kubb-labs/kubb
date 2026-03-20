@@ -4,105 +4,84 @@
  */
 
 import type { z } from '../../zod.ts'
-import { addPet200TypeSchema, addPet405TypeSchema, addPetMutationRequestTypeSchema, addPetMutationResponseTypeSchema } from './addPetSchema.ts'
+import { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './addPetSchema.ts'
 import {
-  createPets201TypeSchema,
-  createPetsHeaderParamsTypeSchema,
-  createPetsMutationRequestTypeSchema,
-  createPetsMutationResponseTypeSchema,
-  createPetsPathParamsTypeSchema,
-  createPetsQueryParamsTypeSchema,
+  createPets201Schema,
+  createPetsHeaderParamsSchema,
+  createPetsMutationRequestSchema,
+  createPetsMutationResponseSchema,
+  createPetsPathParamsSchema,
+  createPetsQueryParamsSchema,
 } from './createPetsSchema.ts'
-import { createUserMutationRequestTypeSchema, createUserMutationResponseTypeSchema } from './createUserSchema.ts'
+import { createUserMutationRequestSchema, createUserMutationResponseSchema } from './createUserSchema.ts'
 import {
-  createUsersWithListInput200TypeSchema,
-  createUsersWithListInputMutationRequestTypeSchema,
-  createUsersWithListInputMutationResponseTypeSchema,
+  createUsersWithListInput200Schema,
+  createUsersWithListInputMutationRequestSchema,
+  createUsersWithListInputMutationResponseSchema,
 } from './createUsersWithListInputSchema.ts'
+import { deleteOrder400Schema, deleteOrder404Schema, deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema } from './deleteOrderSchema.ts'
+import { deletePet400Schema, deletePetHeaderParamsSchema, deletePetMutationResponseSchema, deletePetPathParamsSchema } from './deletePetSchema.ts'
+import { deleteUser400Schema, deleteUser404Schema, deleteUserMutationResponseSchema, deleteUserPathParamsSchema } from './deleteUserSchema.ts'
 import {
-  deleteOrder400TypeSchema,
-  deleteOrder404TypeSchema,
-  deleteOrderMutationResponseTypeSchema,
-  deleteOrderPathParamsTypeSchema,
-} from './deleteOrderSchema.ts'
-import {
-  deletePet400TypeSchema,
-  deletePetHeaderParamsTypeSchema,
-  deletePetMutationResponseTypeSchema,
-  deletePetPathParamsTypeSchema,
-} from './deletePetSchema.ts'
-import { deleteUser400TypeSchema, deleteUser404TypeSchema, deleteUserMutationResponseTypeSchema, deleteUserPathParamsTypeSchema } from './deleteUserSchema.ts'
-import {
-  findPetsByStatus200TypeSchema,
-  findPetsByStatus400TypeSchema,
-  findPetsByStatusQueryParamsTypeSchema,
-  findPetsByStatusQueryResponseTypeSchema,
+  findPetsByStatus200Schema,
+  findPetsByStatus400Schema,
+  findPetsByStatusQueryParamsSchema,
+  findPetsByStatusQueryResponseSchema,
 } from './findPetsByStatusSchema.ts'
 import {
-  findPetsByTags200TypeSchema,
-  findPetsByTags400TypeSchema,
-  findPetsByTagsHeaderParamsTypeSchema,
-  findPetsByTagsQueryParamsTypeSchema,
-  findPetsByTagsQueryResponseTypeSchema,
+  findPetsByTags200Schema,
+  findPetsByTags400Schema,
+  findPetsByTagsHeaderParamsSchema,
+  findPetsByTagsQueryParamsSchema,
+  findPetsByTagsQueryResponseSchema,
 } from './findPetsByTagsSchema.ts'
-import { getInventory200TypeSchema, getInventoryQueryResponseTypeSchema } from './getInventorySchema.ts'
+import { getInventory200Schema, getInventoryQueryResponseSchema } from './getInventorySchema.ts'
 import {
-  getOrderById200TypeSchema,
-  getOrderById400TypeSchema,
-  getOrderById404TypeSchema,
-  getOrderByIdPathParamsTypeSchema,
-  getOrderByIdQueryResponseTypeSchema,
+  getOrderById200Schema,
+  getOrderById400Schema,
+  getOrderById404Schema,
+  getOrderByIdPathParamsSchema,
+  getOrderByIdQueryResponseSchema,
 } from './getOrderByIdSchema.ts'
+import { getPetById200Schema, getPetById400Schema, getPetById404Schema, getPetByIdPathParamsSchema, getPetByIdQueryResponseSchema } from './getPetByIdSchema.ts'
+import { getThings201Schema, getThingsQueryParamsSchema, getThingsQueryResponseSchema } from './getThingsSchema.ts'
 import {
-  getPetById200TypeSchema,
-  getPetById400TypeSchema,
-  getPetById404TypeSchema,
-  getPetByIdPathParamsTypeSchema,
-  getPetByIdQueryResponseTypeSchema,
-} from './getPetByIdSchema.ts'
-import { getThings201TypeSchema, getThingsQueryParamsTypeSchema, getThingsQueryResponseTypeSchema } from './getThingsSchema.ts'
-import {
-  getUserByName200TypeSchema,
-  getUserByName400TypeSchema,
-  getUserByName404TypeSchema,
-  getUserByNamePathParamsTypeSchema,
-  getUserByNameQueryResponseTypeSchema,
+  getUserByName200Schema,
+  getUserByName400Schema,
+  getUserByName404Schema,
+  getUserByNamePathParamsSchema,
+  getUserByNameQueryResponseSchema,
 } from './getUserByNameSchema.ts'
-import { loginUser200TypeSchema, loginUser400TypeSchema, loginUserQueryParamsTypeSchema, loginUserQueryResponseTypeSchema } from './loginUserSchema.ts'
-import { logoutUserQueryResponseTypeSchema } from './logoutUserSchema.ts'
+import { loginUser200Schema, loginUser400Schema, loginUserQueryParamsSchema, loginUserQueryResponseSchema } from './loginUserSchema.ts'
+import { logoutUserQueryResponseSchema } from './logoutUserSchema.ts'
 import {
-  placeOrderPatch200TypeSchema,
-  placeOrderPatch405TypeSchema,
-  placeOrderPatchMutationRequestTypeSchema,
-  placeOrderPatchMutationResponseTypeSchema,
+  placeOrderPatch200Schema,
+  placeOrderPatch405Schema,
+  placeOrderPatchMutationRequestSchema,
+  placeOrderPatchMutationResponseSchema,
 } from './placeOrderPatchSchema.ts'
+import { placeOrder200Schema, placeOrder405Schema, placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from './placeOrderSchema.ts'
 import {
-  placeOrder200TypeSchema,
-  placeOrder405TypeSchema,
-  placeOrderMutationRequestTypeSchema,
-  placeOrderMutationResponseTypeSchema,
-} from './placeOrderSchema.ts'
-import {
-  updatePet200TypeSchema,
-  updatePet400TypeSchema,
-  updatePet404TypeSchema,
-  updatePet405TypeSchema,
-  updatePetMutationRequestTypeSchema,
-  updatePetMutationResponseTypeSchema,
+  updatePet200Schema,
+  updatePet400Schema,
+  updatePet404Schema,
+  updatePet405Schema,
+  updatePetMutationRequestSchema,
+  updatePetMutationResponseSchema,
 } from './updatePetSchema.ts'
 import {
-  updatePetWithForm405TypeSchema,
-  updatePetWithFormMutationResponseTypeSchema,
-  updatePetWithFormPathParamsTypeSchema,
-  updatePetWithFormQueryParamsTypeSchema,
+  updatePetWithForm405Schema,
+  updatePetWithFormMutationResponseSchema,
+  updatePetWithFormPathParamsSchema,
+  updatePetWithFormQueryParamsSchema,
 } from './updatePetWithFormSchema.ts'
-import { updateUserMutationRequestTypeSchema, updateUserMutationResponseTypeSchema, updateUserPathParamsTypeSchema } from './updateUserSchema.ts'
+import { updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from './updateUserSchema.ts'
 import {
-  uploadFile200TypeSchema,
-  uploadFileMutationRequestTypeSchema,
-  uploadFileMutationResponseTypeSchema,
-  uploadFilePathParamsTypeSchema,
-  uploadFileQueryParamsTypeSchema,
+  uploadFile200Schema,
+  uploadFileMutationRequestSchema,
+  uploadFileMutationResponseSchema,
+  uploadFilePathParamsSchema,
+  uploadFileQueryParamsSchema,
 } from './uploadFileSchema.ts'
 
 export type OperationSchema = {
@@ -128,154 +107,154 @@ export const operations = {
     request: undefined,
     parameters: {
       path: undefined,
-      query: getThingsQueryParamsTypeSchema,
+      query: getThingsQueryParamsSchema,
       header: undefined,
     },
     responses: {
-      201: getThings201TypeSchema,
-      default: getThingsQueryResponseTypeSchema,
+      201: getThings201Schema,
+      default: getThingsQueryResponseSchema,
     },
     errors: {},
   },
   createPets: {
-    request: createPetsMutationRequestTypeSchema,
+    request: createPetsMutationRequestSchema,
     parameters: {
-      path: createPetsPathParamsTypeSchema,
-      query: createPetsQueryParamsTypeSchema,
-      header: createPetsHeaderParamsTypeSchema,
+      path: createPetsPathParamsSchema,
+      query: createPetsQueryParamsSchema,
+      header: createPetsHeaderParamsSchema,
     },
     responses: {
-      201: createPets201TypeSchema,
-      default: createPetsMutationResponseTypeSchema,
+      201: createPets201Schema,
+      default: createPetsMutationResponseSchema,
     },
     errors: {},
   },
   updatePet: {
-    request: updatePetMutationRequestTypeSchema,
+    request: updatePetMutationRequestSchema,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: updatePet200TypeSchema,
-      400: updatePet400TypeSchema,
-      404: updatePet404TypeSchema,
-      405: updatePet405TypeSchema,
-      default: updatePetMutationResponseTypeSchema,
+      200: updatePet200Schema,
+      400: updatePet400Schema,
+      404: updatePet404Schema,
+      405: updatePet405Schema,
+      default: updatePetMutationResponseSchema,
     },
     errors: {
-      400: updatePet400TypeSchema,
-      404: updatePet404TypeSchema,
-      405: updatePet405TypeSchema,
+      400: updatePet400Schema,
+      404: updatePet404Schema,
+      405: updatePet405Schema,
     },
   },
   addPet: {
-    request: addPetMutationRequestTypeSchema,
+    request: addPetMutationRequestSchema,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: addPet200TypeSchema,
-      405: addPet405TypeSchema,
-      default: addPetMutationResponseTypeSchema,
+      200: addPet200Schema,
+      405: addPet405Schema,
+      default: addPetMutationResponseSchema,
     },
     errors: {
-      405: addPet405TypeSchema,
+      405: addPet405Schema,
     },
   },
   findPetsByStatus: {
     request: undefined,
     parameters: {
       path: undefined,
-      query: findPetsByStatusQueryParamsTypeSchema,
+      query: findPetsByStatusQueryParamsSchema,
       header: undefined,
     },
     responses: {
-      200: findPetsByStatus200TypeSchema,
-      400: findPetsByStatus400TypeSchema,
-      default: findPetsByStatusQueryResponseTypeSchema,
+      200: findPetsByStatus200Schema,
+      400: findPetsByStatus400Schema,
+      default: findPetsByStatusQueryResponseSchema,
     },
     errors: {
-      400: findPetsByStatus400TypeSchema,
+      400: findPetsByStatus400Schema,
     },
   },
   findPetsByTags: {
     request: undefined,
     parameters: {
       path: undefined,
-      query: findPetsByTagsQueryParamsTypeSchema,
-      header: findPetsByTagsHeaderParamsTypeSchema,
+      query: findPetsByTagsQueryParamsSchema,
+      header: findPetsByTagsHeaderParamsSchema,
     },
     responses: {
-      200: findPetsByTags200TypeSchema,
-      400: findPetsByTags400TypeSchema,
-      default: findPetsByTagsQueryResponseTypeSchema,
+      200: findPetsByTags200Schema,
+      400: findPetsByTags400Schema,
+      default: findPetsByTagsQueryResponseSchema,
     },
     errors: {
-      400: findPetsByTags400TypeSchema,
+      400: findPetsByTags400Schema,
     },
   },
   getPetById: {
     request: undefined,
     parameters: {
-      path: getPetByIdPathParamsTypeSchema,
+      path: getPetByIdPathParamsSchema,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: getPetById200TypeSchema,
-      400: getPetById400TypeSchema,
-      404: getPetById404TypeSchema,
-      default: getPetByIdQueryResponseTypeSchema,
+      200: getPetById200Schema,
+      400: getPetById400Schema,
+      404: getPetById404Schema,
+      default: getPetByIdQueryResponseSchema,
     },
     errors: {
-      400: getPetById400TypeSchema,
-      404: getPetById404TypeSchema,
+      400: getPetById400Schema,
+      404: getPetById404Schema,
     },
   },
   updatePetWithForm: {
     request: undefined,
     parameters: {
-      path: updatePetWithFormPathParamsTypeSchema,
-      query: updatePetWithFormQueryParamsTypeSchema,
+      path: updatePetWithFormPathParamsSchema,
+      query: updatePetWithFormQueryParamsSchema,
       header: undefined,
     },
     responses: {
-      405: updatePetWithForm405TypeSchema,
-      default: updatePetWithFormMutationResponseTypeSchema,
+      405: updatePetWithForm405Schema,
+      default: updatePetWithFormMutationResponseSchema,
     },
     errors: {
-      405: updatePetWithForm405TypeSchema,
+      405: updatePetWithForm405Schema,
     },
   },
   deletePet: {
     request: undefined,
     parameters: {
-      path: deletePetPathParamsTypeSchema,
+      path: deletePetPathParamsSchema,
       query: undefined,
-      header: deletePetHeaderParamsTypeSchema,
+      header: deletePetHeaderParamsSchema,
     },
     responses: {
-      400: deletePet400TypeSchema,
-      default: deletePetMutationResponseTypeSchema,
+      400: deletePet400Schema,
+      default: deletePetMutationResponseSchema,
     },
     errors: {
-      400: deletePet400TypeSchema,
+      400: deletePet400Schema,
     },
   },
   uploadFile: {
-    request: uploadFileMutationRequestTypeSchema,
+    request: uploadFileMutationRequestSchema,
     parameters: {
-      path: uploadFilePathParamsTypeSchema,
-      query: uploadFileQueryParamsTypeSchema,
+      path: uploadFilePathParamsSchema,
+      query: uploadFileQueryParamsSchema,
       header: undefined,
     },
     responses: {
-      200: uploadFile200TypeSchema,
-      default: uploadFileMutationResponseTypeSchema,
+      200: uploadFile200Schema,
+      default: uploadFileMutationResponseSchema,
     },
     errors: {},
   },
@@ -287,100 +266,100 @@ export const operations = {
       header: undefined,
     },
     responses: {
-      200: getInventory200TypeSchema,
-      default: getInventoryQueryResponseTypeSchema,
+      200: getInventory200Schema,
+      default: getInventoryQueryResponseSchema,
     },
     errors: {},
   },
   placeOrder: {
-    request: placeOrderMutationRequestTypeSchema,
+    request: placeOrderMutationRequestSchema,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: placeOrder200TypeSchema,
-      405: placeOrder405TypeSchema,
-      default: placeOrderMutationResponseTypeSchema,
+      200: placeOrder200Schema,
+      405: placeOrder405Schema,
+      default: placeOrderMutationResponseSchema,
     },
     errors: {
-      405: placeOrder405TypeSchema,
+      405: placeOrder405Schema,
     },
   },
   placeOrderPatch: {
-    request: placeOrderPatchMutationRequestTypeSchema,
+    request: placeOrderPatchMutationRequestSchema,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: placeOrderPatch200TypeSchema,
-      405: placeOrderPatch405TypeSchema,
-      default: placeOrderPatchMutationResponseTypeSchema,
+      200: placeOrderPatch200Schema,
+      405: placeOrderPatch405Schema,
+      default: placeOrderPatchMutationResponseSchema,
     },
     errors: {
-      405: placeOrderPatch405TypeSchema,
+      405: placeOrderPatch405Schema,
     },
   },
   getOrderById: {
     request: undefined,
     parameters: {
-      path: getOrderByIdPathParamsTypeSchema,
+      path: getOrderByIdPathParamsSchema,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: getOrderById200TypeSchema,
-      400: getOrderById400TypeSchema,
-      404: getOrderById404TypeSchema,
-      default: getOrderByIdQueryResponseTypeSchema,
+      200: getOrderById200Schema,
+      400: getOrderById400Schema,
+      404: getOrderById404Schema,
+      default: getOrderByIdQueryResponseSchema,
     },
     errors: {
-      400: getOrderById400TypeSchema,
-      404: getOrderById404TypeSchema,
+      400: getOrderById400Schema,
+      404: getOrderById404Schema,
     },
   },
   deleteOrder: {
     request: undefined,
     parameters: {
-      path: deleteOrderPathParamsTypeSchema,
+      path: deleteOrderPathParamsSchema,
       query: undefined,
       header: undefined,
     },
     responses: {
-      400: deleteOrder400TypeSchema,
-      404: deleteOrder404TypeSchema,
-      default: deleteOrderMutationResponseTypeSchema,
+      400: deleteOrder400Schema,
+      404: deleteOrder404Schema,
+      default: deleteOrderMutationResponseSchema,
     },
     errors: {
-      400: deleteOrder400TypeSchema,
-      404: deleteOrder404TypeSchema,
+      400: deleteOrder400Schema,
+      404: deleteOrder404Schema,
     },
   },
   createUser: {
-    request: createUserMutationRequestTypeSchema,
+    request: createUserMutationRequestSchema,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      default: createUserMutationResponseTypeSchema,
+      default: createUserMutationResponseSchema,
     },
     errors: {},
   },
   createUsersWithListInput: {
-    request: createUsersWithListInputMutationRequestTypeSchema,
+    request: createUsersWithListInputMutationRequestSchema,
     parameters: {
       path: undefined,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: createUsersWithListInput200TypeSchema,
-      default: createUsersWithListInputMutationResponseTypeSchema,
+      200: createUsersWithListInput200Schema,
+      default: createUsersWithListInputMutationResponseSchema,
     },
     errors: {},
   },
@@ -388,16 +367,16 @@ export const operations = {
     request: undefined,
     parameters: {
       path: undefined,
-      query: loginUserQueryParamsTypeSchema,
+      query: loginUserQueryParamsSchema,
       header: undefined,
     },
     responses: {
-      200: loginUser200TypeSchema,
-      400: loginUser400TypeSchema,
-      default: loginUserQueryResponseTypeSchema,
+      200: loginUser200Schema,
+      400: loginUser400Schema,
+      default: loginUserQueryResponseSchema,
     },
     errors: {
-      400: loginUser400TypeSchema,
+      400: loginUser400Schema,
     },
   },
   logoutUser: {
@@ -408,55 +387,55 @@ export const operations = {
       header: undefined,
     },
     responses: {
-      default: logoutUserQueryResponseTypeSchema,
+      default: logoutUserQueryResponseSchema,
     },
     errors: {},
   },
   getUserByName: {
     request: undefined,
     parameters: {
-      path: getUserByNamePathParamsTypeSchema,
+      path: getUserByNamePathParamsSchema,
       query: undefined,
       header: undefined,
     },
     responses: {
-      200: getUserByName200TypeSchema,
-      400: getUserByName400TypeSchema,
-      404: getUserByName404TypeSchema,
-      default: getUserByNameQueryResponseTypeSchema,
+      200: getUserByName200Schema,
+      400: getUserByName400Schema,
+      404: getUserByName404Schema,
+      default: getUserByNameQueryResponseSchema,
     },
     errors: {
-      400: getUserByName400TypeSchema,
-      404: getUserByName404TypeSchema,
+      400: getUserByName400Schema,
+      404: getUserByName404Schema,
     },
   },
   updateUser: {
-    request: updateUserMutationRequestTypeSchema,
+    request: updateUserMutationRequestSchema,
     parameters: {
-      path: updateUserPathParamsTypeSchema,
+      path: updateUserPathParamsSchema,
       query: undefined,
       header: undefined,
     },
     responses: {
-      default: updateUserMutationResponseTypeSchema,
+      default: updateUserMutationResponseSchema,
     },
     errors: {},
   },
   deleteUser: {
     request: undefined,
     parameters: {
-      path: deleteUserPathParamsTypeSchema,
+      path: deleteUserPathParamsSchema,
       query: undefined,
       header: undefined,
     },
     responses: {
-      400: deleteUser400TypeSchema,
-      404: deleteUser404TypeSchema,
-      default: deleteUserMutationResponseTypeSchema,
+      400: deleteUser400Schema,
+      404: deleteUser404Schema,
+      default: deleteUserMutationResponseSchema,
     },
     errors: {
-      400: deleteUser400TypeSchema,
-      404: deleteUser404TypeSchema,
+      400: deleteUser400Schema,
+      404: deleteUser404Schema,
     },
   },
 } as const

@@ -5,28 +5,28 @@
 
 import { z } from '../../zod.ts'
 
-export const updatePetWithFormPathParamsTypeSchema = z.object({
+export const updatePetWithFormPathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet that needs to be updated'),
 })
 
-export type UpdatePetWithFormPathParamsTypeSchema = z.infer<typeof updatePetWithFormPathParamsTypeSchema>
+export type UpdatePetWithFormPathParamsSchema = z.infer<typeof updatePetWithFormPathParamsSchema>
 
-export const updatePetWithFormQueryParamsTypeSchema = z
+export const updatePetWithFormQueryParamsSchema = z
   .object({
     name: z.optional(z.string().describe('Name of pet that needs to be updated')),
     status: z.optional(z.string().describe('Status of pet that needs to be updated')),
   })
   .optional()
 
-export type UpdatePetWithFormQueryParamsTypeSchema = z.infer<typeof updatePetWithFormQueryParamsTypeSchema>
+export type UpdatePetWithFormQueryParamsSchema = z.infer<typeof updatePetWithFormQueryParamsSchema>
 
 /**
  * @description Invalid input
  */
-export const updatePetWithForm405TypeSchema = z.any()
+export const updatePetWithForm405Schema = z.any()
 
-export type UpdatePetWithForm405TypeSchema = z.infer<typeof updatePetWithForm405TypeSchema>
+export type UpdatePetWithForm405Schema = z.infer<typeof updatePetWithForm405Schema>
 
-export const updatePetWithFormMutationResponseTypeSchema = z.any()
+export const updatePetWithFormMutationResponseSchema = z.any()
 
-export type UpdatePetWithFormMutationResponseTypeSchema = z.infer<typeof updatePetWithFormMutationResponseTypeSchema>
+export type UpdatePetWithFormMutationResponseSchema = z.infer<typeof updatePetWithFormMutationResponseSchema>

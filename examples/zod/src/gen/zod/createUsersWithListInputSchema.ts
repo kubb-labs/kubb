@@ -9,21 +9,21 @@ import { userSchema } from './userSchema.ts'
 /**
  * @description Successful operation
  */
-export const createUsersWithListInput200TypeSchema = z.lazy(() => userSchema)
+export const createUsersWithListInput200Schema = z.lazy(() => userSchema)
 
-export type CreateUsersWithListInput200TypeSchema = z.infer<typeof createUsersWithListInput200TypeSchema>
+export type CreateUsersWithListInput200Schema = z.infer<typeof createUsersWithListInput200Schema>
 
 /**
  * @description successful operation
  */
-export const createUsersWithListInputErrorTypeSchema = z.any()
+export const createUsersWithListInputErrorSchema = z.any()
 
-export type CreateUsersWithListInputErrorTypeSchema = z.infer<typeof createUsersWithListInputErrorTypeSchema>
+export type CreateUsersWithListInputErrorSchema = z.infer<typeof createUsersWithListInputErrorSchema>
 
-export const createUsersWithListInputMutationRequestTypeSchema = z.array(z.lazy(() => userSchema))
+export const createUsersWithListInputMutationRequestSchema = z.array(z.lazy(() => userSchema))
 
-export type CreateUsersWithListInputMutationRequestTypeSchema = z.infer<typeof createUsersWithListInputMutationRequestTypeSchema>
+export type CreateUsersWithListInputMutationRequestSchema = z.infer<typeof createUsersWithListInputMutationRequestSchema>
 
-export const createUsersWithListInputMutationResponseTypeSchema = z.lazy(() => createUsersWithListInput200TypeSchema)
+export const createUsersWithListInputMutationResponseSchema = z.lazy(() => createUsersWithListInput200Schema)
 
-export type CreateUsersWithListInputMutationResponseTypeSchema = z.infer<typeof createUsersWithListInputMutationResponseTypeSchema>
+export type CreateUsersWithListInputMutationResponseSchema = z.infer<typeof createUsersWithListInputMutationResponseSchema>

@@ -6,27 +6,27 @@
 import { z } from '../../zod.ts'
 import { petNotFoundSchema } from './petNotFoundSchema.ts'
 
-export const getThingsQueryParamsTypeSchema = z.object({
+export const getThingsQueryParamsSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(100).describe('Maximum number of things to return'),
   skip: z.coerce.number().int().min(0).default(0).describe('Number of things to skip'),
 })
 
-export type GetThingsQueryParamsTypeSchema = z.infer<typeof getThingsQueryParamsTypeSchema>
+export type GetThingsQueryParamsSchema = z.infer<typeof getThingsQueryParamsSchema>
 
 /**
  * @description Null response
  */
-export const getThings201TypeSchema = z.any()
+export const getThings201Schema = z.any()
 
-export type GetThings201TypeSchema = z.infer<typeof getThings201TypeSchema>
+export type GetThings201Schema = z.infer<typeof getThings201Schema>
 
 /**
  * @description unexpected error
  */
-export const getThingsErrorTypeSchema = z.lazy(() => petNotFoundSchema).describe('Pet not found')
+export const getThingsErrorSchema = z.lazy(() => petNotFoundSchema).describe('Pet not found')
 
-export type GetThingsErrorTypeSchema = z.infer<typeof getThingsErrorTypeSchema>
+export type GetThingsErrorSchema = z.infer<typeof getThingsErrorSchema>
 
-export const getThingsQueryResponseTypeSchema = z.lazy(() => getThings201TypeSchema)
+export const getThingsQueryResponseSchema = z.lazy(() => getThings201Schema)
 
-export type GetThingsQueryResponseTypeSchema = z.infer<typeof getThingsQueryResponseTypeSchema>
+export type GetThingsQueryResponseSchema = z.infer<typeof getThingsQueryResponseSchema>

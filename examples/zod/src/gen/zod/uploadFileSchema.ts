@@ -6,31 +6,31 @@
 import { z } from '../../zod.ts'
 import { apiResponseSchema } from './apiResponseSchema.ts'
 
-export const uploadFilePathParamsTypeSchema = z.object({
+export const uploadFilePathParamsSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet to update'),
 })
 
-export type UploadFilePathParamsTypeSchema = z.infer<typeof uploadFilePathParamsTypeSchema>
+export type UploadFilePathParamsSchema = z.infer<typeof uploadFilePathParamsSchema>
 
-export const uploadFileQueryParamsTypeSchema = z
+export const uploadFileQueryParamsSchema = z
   .object({
     additionalMetadata: z.optional(z.string().describe('Additional Metadata')),
   })
   .optional()
 
-export type UploadFileQueryParamsTypeSchema = z.infer<typeof uploadFileQueryParamsTypeSchema>
+export type UploadFileQueryParamsSchema = z.infer<typeof uploadFileQueryParamsSchema>
 
 /**
  * @description successful operation
  */
-export const uploadFile200TypeSchema = z.lazy(() => apiResponseSchema)
+export const uploadFile200Schema = z.lazy(() => apiResponseSchema)
 
-export type UploadFile200TypeSchema = z.infer<typeof uploadFile200TypeSchema>
+export type UploadFile200Schema = z.infer<typeof uploadFile200Schema>
 
-export const uploadFileMutationRequestTypeSchema = z.instanceof(File)
+export const uploadFileMutationRequestSchema = z.instanceof(File)
 
-export type UploadFileMutationRequestTypeSchema = z.infer<typeof uploadFileMutationRequestTypeSchema>
+export type UploadFileMutationRequestSchema = z.infer<typeof uploadFileMutationRequestSchema>
 
-export const uploadFileMutationResponseTypeSchema = z.lazy(() => uploadFile200TypeSchema)
+export const uploadFileMutationResponseSchema = z.lazy(() => uploadFile200Schema)
 
-export type UploadFileMutationResponseTypeSchema = z.infer<typeof uploadFileMutationResponseTypeSchema>
+export type UploadFileMutationResponseSchema = z.infer<typeof uploadFileMutationResponseSchema>

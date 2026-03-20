@@ -6,33 +6,33 @@
 import { z } from '../../zod.ts'
 import { userSchema } from './userSchema.ts'
 
-export const getUserByNamePathParamsTypeSchema = z.object({
+export const getUserByNamePathParamsSchema = z.object({
   username: z.string().describe('The name that needs to be fetched. Use user1 for testing. '),
 })
 
-export type GetUserByNamePathParamsTypeSchema = z.infer<typeof getUserByNamePathParamsTypeSchema>
+export type GetUserByNamePathParamsSchema = z.infer<typeof getUserByNamePathParamsSchema>
 
 /**
  * @description successful operation
  */
-export const getUserByName200TypeSchema = z.lazy(() => userSchema)
+export const getUserByName200Schema = z.lazy(() => userSchema)
 
-export type GetUserByName200TypeSchema = z.infer<typeof getUserByName200TypeSchema>
+export type GetUserByName200Schema = z.infer<typeof getUserByName200Schema>
 
 /**
  * @description Invalid username supplied
  */
-export const getUserByName400TypeSchema = z.any()
+export const getUserByName400Schema = z.any()
 
-export type GetUserByName400TypeSchema = z.infer<typeof getUserByName400TypeSchema>
+export type GetUserByName400Schema = z.infer<typeof getUserByName400Schema>
 
 /**
  * @description User not found
  */
-export const getUserByName404TypeSchema = z.any()
+export const getUserByName404Schema = z.any()
 
-export type GetUserByName404TypeSchema = z.infer<typeof getUserByName404TypeSchema>
+export type GetUserByName404Schema = z.infer<typeof getUserByName404Schema>
 
-export const getUserByNameQueryResponseTypeSchema = z.lazy(() => getUserByName200TypeSchema)
+export const getUserByNameQueryResponseSchema = z.lazy(() => getUserByName200Schema)
 
-export type GetUserByNameQueryResponseTypeSchema = z.infer<typeof getUserByNameQueryResponseTypeSchema>
+export type GetUserByNameQueryResponseSchema = z.infer<typeof getUserByNameQueryResponseSchema>
