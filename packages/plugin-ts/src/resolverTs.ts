@@ -77,6 +77,28 @@ export const resolverTs = defineResolver<PluginTs>(() => {
     resolveEnumKeyTypedName(node) {
       return `${this.resolveTypedName(node.name ?? '')}Key`
     },
+    resolvePathParamsName(_node) {
+      throw new Error('resolvePathParamsName is only available in legacy mode (legacy: true). Use resolveParamName per individual parameter instead.')
+    },
+    resolvePathParamsTypedName(_node) {
+      throw new Error('resolvePathParamsTypedName is only available in legacy mode (legacy: true). Use resolveParamTypedName per individual parameter instead.')
+    },
+    resolveQueryParamsName(_node) {
+      throw new Error('resolveQueryParamsName is only available in legacy mode (legacy: true). Use resolveParamName per individual parameter instead.')
+    },
+    resolveQueryParamsTypedName(_node) {
+      throw new Error(
+        'resolveQueryParamsTypedName is only available in legacy mode (legacy: true). Use resolveParamTypedName per individual parameter instead.',
+      )
+    },
+    resolveHeaderParamsName(_node) {
+      throw new Error('resolveHeaderParamsName is only available in legacy mode (legacy: true). Use resolveParamName per individual parameter instead.')
+    },
+    resolveHeaderParamsTypedName(_node) {
+      throw new Error(
+        'resolveHeaderParamsTypedName is only available in legacy mode (legacy: true). Use resolveParamTypedName per individual parameter instead.',
+      )
+    },
   }
 })
 
@@ -104,68 +126,24 @@ export const resolverTs = defineResolver<PluginTs>(() => {
  */
 export const resolverTsLegacy = defineResolver<PluginTs>(() => {
   return {
-    default(name, type) {
-      return pascalCase(name, { isFile: type === 'file' })
+    ...resolverTs,
+    resolvePathParamsName(node) {
+      return this.resolveName(`${node.operationId} PathParams`)
     },
-    resolveName(name) {
-      return this.default(name, 'function')
+    resolvePathParamsTypedName(node) {
+      return this.resolveTypedName(`${node.operationId} PathParams`)
     },
-    resolveTypedName(name) {
-      return this.default(name, 'type')
+    resolveQueryParamsName(node) {
+      return this.resolveName(`${node.operationId} QueryParams`)
     },
-    resolvePathName(name, type) {
-      return this.default(name, type)
+    resolveQueryParamsTypedName(node) {
+      return this.resolveTypedName(`${node.operationId} QueryParams`)
     },
-    resolveParamName(node, param) {
-      return this.resolveName(`${node.operationId} ${this.default(param.in)} ${param.name}`)
+    resolveHeaderParamsName(node) {
+      return this.resolveName(`${node.operationId} HeaderParams`)
     },
-    resolveParamTypedName(node, param) {
-      return this.resolveTypedName(`${node.operationId} ${this.default(param.in)} ${param.name}`)
-    },
-    resolveResponseStatusName(node, statusCode) {
-      if (statusCode === 'default') {
-        return this.resolveName(`${node.operationId} Error`)
-      }
-      return this.resolveName(`${node.operationId} ${statusCode}`)
-    },
-    resolveResponseStatusTypedName(node, statusCode) {
-      if (statusCode === 'default') {
-        return this.resolveTypedName(`${node.operationId} Error`)
-      }
-      return this.resolveTypedName(`${node.operationId} ${statusCode}`)
-    },
-    resolveDataName(node) {
-      const isGet = node.method.toLowerCase() === 'get'
-      return this.resolveName(`${node.operationId} ${isGet ? 'Query' : 'Mutation'} Request`)
-    },
-    resolveDataTypedName(node) {
-      const isGet = node.method.toLowerCase() === 'get'
-      return this.resolveTypedName(`${node.operationId} ${isGet ? 'Query' : 'Mutation'} Request`)
-    },
-    resolveRequestConfigName(node) {
-      return this.resolveName(`${node.operationId} RequestConfig`)
-    },
-    resolveRequestConfigTypedName(node) {
-      return this.resolveTypedName(`${node.operationId} RequestConfig`)
-    },
-    resolveResponsesName(node) {
-      const isGet = node.method.toLowerCase() === 'get'
-      return this.resolveName(`${node.operationId} ${isGet ? 'Query' : 'Mutation'}`)
-    },
-    resolveResponsesTypedName(node) {
-      const isGet = node.method.toLowerCase() === 'get'
-      return this.resolveTypedName(`${node.operationId} ${isGet ? 'Query' : 'Mutation'}`)
-    },
-    resolveResponseName(node) {
-      const isGet = node.method.toLowerCase() === 'get'
-      return this.resolveName(`${node.operationId} ${isGet ? 'Query' : 'Mutation'} Response`)
-    },
-    resolveResponseTypedName(node) {
-      const isGet = node.method.toLowerCase() === 'get'
-      return this.resolveTypedName(`${node.operationId} ${isGet ? 'Query' : 'Mutation'} Response`)
-    },
-    resolveEnumKeyTypedName(node) {
-      return `${this.resolveTypedName(node.name ?? '')}Key`
+    resolveHeaderParamsTypedName(node) {
+      return this.resolveTypedName(`${node.operationId} HeaderParams`)
     },
   }
 })

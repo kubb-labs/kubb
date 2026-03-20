@@ -661,9 +661,17 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
           // are based only on the nearest property context (e.g. ParamsStatusEnum, not OrderParamsStatusEnum).
           const basePropName = collisionDetection ? (name ? pascalCase([name, propName].join(' ')) : undefined) : pascalCase(propName)
           const propNode = convertSchema({ schema: resolvedPropSchema, name: basePropName }, options)
-          const isEnumNode = !!narrowSchema(propNode, 'enum')
+          const enumPropNode = narrowSchema(propNode, 'enum')
+          // Boolean-primitive enum nodes (e.g. `const: false`) are always inlined as literal types
+          // and must not receive a named identifier, which would cause printers to emit an external reference.
+          const isBooleanConstEnum = !!enumPropNode && enumPropNode.primitive === 'boolean'
+          const isEnumNode = !!enumPropNode && !isBooleanConstEnum
           const derivedPropName = isEnumNode && name ? pascalCase([name, propName, mergedOptions.enumSuffix].filter(Boolean).join(' ')) : basePropName
-          const schemaNode = isEnumNode && derivedPropName !== basePropName ? { ...propNode, name: derivedPropName } : propNode
+          const schemaNode = isBooleanConstEnum
+            ? { ...propNode, name: undefined }
+            : isEnumNode && derivedPropName !== basePropName
+              ? { ...propNode, name: derivedPropName }
+              : propNode
 
           return createProperty({
             name: propName,

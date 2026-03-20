@@ -133,3 +133,109 @@ export function buildResponseUnionSchemaNode({ node, resolver }: BuildOperationS
     ),
   })
 }
+
+type BuildGroupedParamsSchemaOptions = {
+  params: Array<ParameterNode>
+}
+
+/**
+ * Builds an `ObjectSchemaNode` for a grouped parameters type (path/query/header) in legacy mode.
+ * Each property directly embeds the parameter's schema inline (not a ref).
+ * Used to generate `<OperationId>PathParams`, `<OperationId>QueryParams`, `<OperationId>HeaderParams`.
+ * @deprecated Legacy only — will be removed in v6.
+ */
+export function buildGroupedParamsSchema({ params }: BuildGroupedParamsSchemaOptions): SchemaNode {
+  return createSchema({
+    type: 'object',
+    properties: params.map((param) =>
+      createProperty({
+        name: param.name,
+        schema: { ...param.schema, optional: !param.required },
+      }),
+    ),
+  })
+}
+
+/**
+ * Builds the legacy wrapper `ObjectSchemaNode` for `<OperationId>Mutation` / `<OperationId>Query`.
+ * Structure: `{ Response, Request (mutation) | QueryParams (query), Errors }`.
+ * Mirrors the v4 naming convention where this type acts as a namespace for the operation's shapes.
+ *
+ * @deprecated Legacy only — will be removed in v6.
+ */
+export function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperationSchemaOptions): SchemaNode | null {
+  const isGet = node.method.toLowerCase() === 'get'
+  const successResponses = node.responses.filter((res) => {
+    const code = Number(res.statusCode)
+    return !Number.isNaN(code) && code >= 200 && code < 300
+  })
+  const errorResponses = node.responses.filter((res) => res.statusCode === 'default' || Number(res.statusCode) >= 400)
+
+  const responseSchema =
+    successResponses.length > 0
+      ? successResponses.length === 1
+        ? createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, successResponses[0]!.statusCode) })
+        : createSchema({
+            type: 'union',
+            members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
+          })
+      : createSchema({ type: 'any' })
+
+  const errorsSchema =
+    errorResponses.length > 0
+      ? errorResponses.length === 1
+        ? createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, errorResponses[0]!.statusCode) })
+        : createSchema({
+            type: 'union',
+            members: errorResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
+          })
+      : createSchema({ type: 'any' })
+
+  const properties = [createProperty({ name: 'Response', schema: responseSchema })]
+
+  if (!isGet && node.requestBody) {
+    properties.push(
+      createProperty({
+        name: 'Request',
+        schema: createSchema({ type: 'ref', name: resolver.resolveDataName(node), optional: true }),
+      }),
+    )
+  } else if (isGet && node.parameters.some((p) => p.in === 'query')) {
+    properties.push(
+      createProperty({
+        name: 'QueryParams',
+        schema: createSchema({ type: 'ref', name: resolver.resolveQueryParamsName!(node), optional: true }),
+      }),
+    )
+  }
+
+  properties.push(createProperty({ name: 'Errors', schema: errorsSchema }))
+
+  return createSchema({ type: 'object', properties })
+}
+
+/**
+ * Builds the legacy response union for `<OperationId>MutationResponse` / `<OperationId>QueryResponse`.
+ * In legacy mode this is the **success** response only (not the full union including errors).
+ * Returns an `any` schema when there is no success response, matching v4 behavior.
+ * @deprecated Legacy only — will be removed in v6.
+ */
+export function buildLegacyResponseUnionSchemaNode({ node, resolver }: BuildOperationSchemaOptions): SchemaNode {
+  const successResponses = node.responses.filter((res) => {
+    const code = Number(res.statusCode)
+    return !Number.isNaN(code) && code >= 200 && code < 300
+  })
+
+  if (successResponses.length === 0) {
+    return createSchema({ type: 'any' })
+  }
+
+  if (successResponses.length === 1) {
+    return createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, successResponses[0]!.statusCode) })
+  }
+
+  return createSchema({
+    type: 'union',
+    members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
+  })
+}

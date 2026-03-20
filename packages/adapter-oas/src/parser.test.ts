@@ -707,6 +707,25 @@ describe('convertSchema const (OAS 3.1)', () => {
 
     expect(node.name).toBe('Status')
   })
+
+  it('boolean const inside an object property has no name (inline literal)', () => {
+    const node = parser.convertSchema({
+      schema: {
+        type: 'object',
+        properties: {
+          isHappy: { type: 'boolean', const: false },
+        },
+      },
+      name: 'Pet',
+    })
+
+    const objectNode = narrowSchema(node, 'object')
+    const isHappyProp = objectNode?.properties.find((p) => p.name === 'isHappy')
+    const isHappyEnum = narrowSchema(isHappyProp?.schema, 'enum')
+
+    expect(isHappyEnum?.name).toBeUndefined()
+    expect(isHappyEnum?.enumValues).toEqual([false])
+  })
 })
 
 describe('convertSchema readOnly / writeOnly', () => {

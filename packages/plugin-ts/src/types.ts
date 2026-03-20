@@ -133,6 +133,60 @@ export type ResolverTs = Resolver & {
    * resolver.resolveEnumKeyTypedName(node) // → 'PetStatusKey'
    */
   resolveEnumKeyTypedName(node: SchemaNode): string
+  /**
+   * Resolves the variable/function name for an operation's grouped path parameters type.
+   * Only available in legacy mode (`legacy: true`).
+   *
+   * @deprecated Legacy only — will be removed in v6. Use `resolveParamName` per individual parameter instead.
+   * @example
+   * resolver.resolvePathParamsName(node) // → 'GetPetByIdPathParams'
+   */
+  resolvePathParamsName?(node: OperationNode): string
+  /**
+   * Resolves the TypeScript type alias name for an operation's grouped path parameters type.
+   * Only available in legacy mode (`legacy: true`).
+   *
+   * @deprecated Legacy only — will be removed in v6. Use `resolveParamTypedName` per individual parameter instead.
+   * @example
+   * resolver.resolvePathParamsTypedName(node) // → 'GetPetByIdPathParams'
+   */
+  resolvePathParamsTypedName?(node: OperationNode): string
+  /**
+   * Resolves the variable/function name for an operation's grouped query parameters type.
+   * Only available in legacy mode (`legacy: true`).
+   *
+   * @deprecated Legacy only — will be removed in v6. Use `resolveParamName` per individual parameter instead.
+   * @example
+   * resolver.resolveQueryParamsName(node) // → 'FindPetsByStatusQueryParams'
+   */
+  resolveQueryParamsName?(node: OperationNode): string
+  /**
+   * Resolves the TypeScript type alias name for an operation's grouped query parameters type.
+   * Only available in legacy mode (`legacy: true`).
+   *
+   * @deprecated Legacy only — will be removed in v6. Use `resolveParamTypedName` per individual parameter instead.
+   * @example
+   * resolver.resolveQueryParamsTypedName(node) // → 'FindPetsByStatusQueryParams'
+   */
+  resolveQueryParamsTypedName?(node: OperationNode): string
+  /**
+   * Resolves the variable/function name for an operation's grouped header parameters type.
+   * Only available in legacy mode (`legacy: true`).
+   *
+   * @deprecated Legacy only — will be removed in v6. Use `resolveParamName` per individual parameter instead.
+   * @example
+   * resolver.resolveHeaderParamsName(node) // → 'DeletePetHeaderParams'
+   */
+  resolveHeaderParamsName?(node: OperationNode): string
+  /**
+   * Resolves the TypeScript type alias name for an operation's grouped header parameters type.
+   * Only available in legacy mode (`legacy: true`).
+   *
+   * @deprecated Legacy only — will be removed in v6. Use `resolveParamTypedName` per individual parameter instead.
+   * @example
+   * resolver.resolveHeaderParamsTypedName(node) // → 'DeletePetHeaderParams'
+   */
+  resolveHeaderParamsTypedName?(node: OperationNode): string
 }
 
 export type Options = {

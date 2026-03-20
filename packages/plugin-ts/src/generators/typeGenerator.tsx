@@ -6,13 +6,20 @@ import { File } from '@kubb/react-fabric'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
 import type { PluginTs } from '../types'
-import { buildDataSchemaNode, buildResponsesSchemaNode, buildResponseUnionSchemaNode } from './utils.ts'
+import {
+  buildDataSchemaNode,
+  buildGroupedParamsSchema,
+  buildLegacyResponsesSchemaNode,
+  buildLegacyResponseUnionSchemaNode,
+  buildResponsesSchemaNode,
+  buildResponseUnionSchemaNode,
+} from './utils.ts'
 
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Operation({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver } = options
+    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver, legacy } = options
     const { mode, getFile, resolveName, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     const file = getFile({
@@ -64,14 +71,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
       )
     }
 
-    const paramTypes = params.map((param) =>
-      renderSchemaType({
-        node: param.schema,
-        name: resolver.resolveParamName(node, param),
-        typedName: resolver.resolveParamTypedName(node, param),
-      }),
-    )
-
     const responseTypes = node.responses.map((res) =>
       renderSchemaType({
         node: res.schema,
@@ -89,6 +88,66 @@ export const typeGenerator = defineGenerator<PluginTs>({
           description: node.requestBody.description,
         })
       : null
+
+    if (legacy) {
+      const pathParams = params.filter((p) => p.in === 'path')
+      const queryParams = params.filter((p) => p.in === 'query')
+      const headerParams = params.filter((p) => p.in === 'header')
+
+      const legacyParamTypes = [
+        pathParams.length > 0
+          ? renderSchemaType({
+              node: buildGroupedParamsSchema({ params: pathParams }),
+              name: resolver.resolvePathParamsName!(node),
+              typedName: resolver.resolvePathParamsTypedName!(node),
+            })
+          : null,
+        queryParams.length > 0
+          ? renderSchemaType({
+              node: buildGroupedParamsSchema({ params: queryParams }),
+              name: resolver.resolveQueryParamsName!(node),
+              typedName: resolver.resolveQueryParamsTypedName!(node),
+            })
+          : null,
+        headerParams.length > 0
+          ? renderSchemaType({
+              node: buildGroupedParamsSchema({ params: headerParams }),
+              name: resolver.resolveHeaderParamsName!(node),
+              typedName: resolver.resolveHeaderParamsTypedName!(node),
+            })
+          : null,
+      ]
+
+      const legacyResponsesType = renderSchemaType({
+        node: buildLegacyResponsesSchemaNode({ node, resolver }),
+        name: resolver.resolveResponsesName(node),
+        typedName: resolver.resolveResponsesTypedName(node),
+      })
+
+      const legacyResponseType = renderSchemaType({
+        node: buildLegacyResponseUnionSchemaNode({ node, resolver }),
+        name: resolver.resolveResponseName(node),
+        typedName: resolver.resolveResponseTypedName(node),
+      })
+
+      return (
+        <File baseName={file.baseName} path={file.path} meta={file.meta} banner={resolveBanner()} footer={resolveFooter()}>
+          {legacyParamTypes}
+          {responseTypes}
+          {requestType}
+          {legacyResponsesType}
+          {legacyResponseType}
+        </File>
+      )
+    }
+
+    const paramTypes = params.map((param) =>
+      renderSchemaType({
+        node: param.schema,
+        name: resolver.resolveParamName(node, param),
+        typedName: resolver.resolveParamTypedName(node, param),
+      }),
+    )
 
     const dataType = renderSchemaType({
       node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolver }),
