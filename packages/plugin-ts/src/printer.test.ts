@@ -273,6 +273,17 @@ describe('printerTs', () => {
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`"'test' | (string & {})"`)
     })
+
+    it('renders string & {} when union has const-derived string enum (primitive only) and plain string', async () => {
+      const result = printer.print(
+        createSchema({
+          type: 'union',
+          members: [createSchema({ type: 'enum', primitive: 'string', enumValues: ['accepted'] }), createSchema({ type: 'string' })],
+        }),
+      )
+
+      expect(await formatTS(result)).toMatchInlineSnapshot(`"'accepted' | (string & {})"`)
+    })
   })
 
   describe('intersection', () => {

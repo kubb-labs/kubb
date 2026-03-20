@@ -1,7 +1,7 @@
 import { createProperty, createSchema } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { describe, expect, it } from 'vitest'
-import { applyDiscriminatorEnum, extractRefName, getImports, mergeAdjacentAnonymousObjects } from './utils.ts'
+import { applyDiscriminatorEnum, extractRefName, getImports, mergeAdjacentAnonymousObjects, simplifyUnionMembers } from './utils.ts'
 
 describe('extractRefName', () => {
   it('extracts the last path segment from a $ref string', () => {
@@ -262,5 +262,68 @@ describe('getImports', () => {
     })
 
     expect(resolvedWith).toBe('PetRenamed')
+  })
+})
+
+describe('simplifyUnionMembers', () => {
+  it('returns members unchanged when no scalar primitives are present', () => {
+    const ref = createSchema({ type: 'ref', ref: '#/components/schemas/Foo', name: 'Foo' }) as SchemaNode
+    const members = [ref]
+
+    expect(simplifyUnionMembers(members)).toBe(members)
+  })
+
+  it('removes string enum when a plain string is also present', () => {
+    const members = [
+      createSchema({ type: 'enum', primitive: 'string', enumType: 'string', enumValues: ['placed', 'approved'] }) as SchemaNode,
+      createSchema({ type: 'string' }) as SchemaNode,
+    ]
+    const result = simplifyUnionMembers(members)
+
+    expect(result).toHaveLength(1)
+    expect(result[0]!.type).toBe('string')
+  })
+
+  it('removes const-derived string enum (primitive only, no enumType) when plain string is present', () => {
+    const members = [
+      createSchema({ type: 'enum', primitive: 'string', enumValues: ['accepted'] }) as SchemaNode,
+      createSchema({ type: 'string' }) as SchemaNode,
+    ]
+    const result = simplifyUnionMembers(members)
+
+    expect(result).toHaveLength(1)
+    expect(result[0]!.type).toBe('string')
+  })
+
+  it('keeps string enum when no broader string scalar is present', () => {
+    const members = [createSchema({ type: 'enum', primitive: 'string', enumValues: ['placed'] }) as SchemaNode]
+    const result = simplifyUnionMembers(members)
+
+    expect(result).toHaveLength(1)
+    expect(result[0]!.type).toBe('enum')
+  })
+
+  it('removes number enum when a plain number is also present', () => {
+    const members = [
+      createSchema({ type: 'enum', primitive: 'number', enumValues: [200, 400] }) as SchemaNode,
+      createSchema({ type: 'number' }) as SchemaNode,
+    ]
+    const result = simplifyUnionMembers(members)
+
+    expect(result).toHaveLength(1)
+    expect(result[0]!.type).toBe('number')
+  })
+
+  it('preserves ref members alongside scalar types', () => {
+    const members = [
+      createSchema({ type: 'enum', primitive: 'string', enumValues: ['x'] }) as SchemaNode,
+      createSchema({ type: 'string' }) as SchemaNode,
+      createSchema({ type: 'ref', ref: '#/components/schemas/Bar', name: 'Bar' }) as SchemaNode,
+    ]
+    const result = simplifyUnionMembers(members)
+
+    expect(result).toHaveLength(2)
+    expect(result[0]!.type).toBe('string')
+    expect(result[1]!.type).toBe('ref')
   })
 })
