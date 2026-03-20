@@ -227,6 +227,17 @@ export type Options = {
    * Unstable naming for v5
    */
   UNSTABLE_NAMING?: true
+  /**
+   * Enable legacy naming conventions for backwards compatibility.
+   * When enabled, operation-level types use the old naming scheme:
+   * - GET responses → `<OperationId>QueryResponse`, `<OperationId>Query`
+   * - Non-GET responses → `<OperationId>MutationResponse`, `<OperationId>Mutation`
+   * - Request body → `<OperationId>QueryRequest` / `<OperationId>MutationRequest`
+   * - Response status codes → `<OperationId><StatusCode>` (e.g. `CreatePets201`)
+   * - Default/error response → `<OperationId>Error`
+   * @default false
+   */
+  legacy?: boolean
 }
 
 type ResolvedOptions = {
@@ -240,6 +251,7 @@ type ResolvedOptions = {
   transformers: NonNullable<Options['transformers']>
   syntaxType: NonNullable<Options['syntaxType']>
   paramsCasing: Options['paramsCasing']
+  legacy: NonNullable<Options['legacy']>
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>

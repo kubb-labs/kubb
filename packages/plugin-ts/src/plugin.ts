@@ -1,9 +1,8 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
-import { renderOperation, renderSchema, createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
-import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
-import { typeGenerator, typeGeneratorV2 } from './generators'
+import { createPlugin, type Group, getBarrelFiles, getMode, renderOperation, renderSchema } from '@kubb/core'
+import { typeGenerator } from './generators'
 import { resolverTs } from './resolverTs.ts'
 import type { PluginTs } from './types.ts'
 
@@ -24,6 +23,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     transformers = {},
     paramsCasing,
     generators = [typeGenerator].filter(Boolean),
+    legacy = false,
   } = options
 
   return {
@@ -39,6 +39,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       group,
       override,
       paramsCasing,
+      legacy,
     },
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
@@ -110,7 +111,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
                   plugin,
                   driver,
                   mode,
-                  version: generator.version,
                 })
               }
             })
@@ -135,7 +135,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
                   plugin,
                   driver,
                   mode,
-                  version: generator.version,
                 })
               }
             })

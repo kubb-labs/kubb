@@ -6,6 +6,7 @@ import { File } from '@kubb/react-fabric'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
 import { resolverTs } from '../resolverTs.ts'
+import { resolverTsLegacy } from '../resolverTsLegacy.ts'
 import type { PluginTs } from '../types'
 import { buildDataSchemaNode, buildResponsesSchemaNode, buildResponseUnionSchemaNode } from './utils.ts'
 
@@ -13,8 +14,10 @@ export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Operation({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group } = options
+    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, legacy } = options
     const { mode, getFile, resolveName, resolveBanner, resolveFooter } = useKubb<PluginTs>()
+
+    const resolver = legacy ? resolverTsLegacy : resolverTs
 
     const file = getFile({
       name: node.operationId,
@@ -68,16 +71,16 @@ export const typeGenerator = defineGenerator<PluginTs>({
     const paramTypes = params.map((param) =>
       renderSchemaType({
         node: param.schema,
-        name: resolverTs.resolveParamName(node, param),
-        typedName: resolverTs.resolveParamTypedName(node, param),
+        name: resolver.resolveParamName(node, param),
+        typedName: resolver.resolveParamTypedName(node, param),
       }),
     )
 
     const responseTypes = node.responses.map((res) =>
       renderSchemaType({
         node: res.schema,
-        name: resolverTs.resolveResponseStatusName(node, res.statusCode),
-        typedName: resolverTs.resolveResponseStatusTypedName(node, res.statusCode),
+        name: resolver.resolveResponseStatusName(node, res.statusCode),
+        typedName: resolver.resolveResponseStatusTypedName(node, res.statusCode),
         description: res.description,
       }),
     )
@@ -85,28 +88,28 @@ export const typeGenerator = defineGenerator<PluginTs>({
     const requestType = node.requestBody
       ? renderSchemaType({
           node: node.requestBody,
-          name: resolverTs.resolveDataName(node),
-          typedName: resolverTs.resolveDataTypedName(node),
+          name: resolver.resolveDataName(node),
+          typedName: resolver.resolveDataTypedName(node),
           description: node.requestBody.description,
         })
       : null
 
     const dataType = renderSchemaType({
       node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolveName }),
-      name: resolverTs.resolveRequestConfigName(node),
-      typedName: resolverTs.resolveRequestConfigTypedName(node),
+      name: resolver.resolveRequestConfigName(node),
+      typedName: resolver.resolveRequestConfigTypedName(node),
     })
 
     const responsesType = renderSchemaType({
       node: buildResponsesSchemaNode({ node, resolveName }),
-      name: resolverTs.resolveResponsesName(node),
-      typedName: resolverTs.resolveResponsesTypedName(node),
+      name: resolver.resolveResponsesName(node),
+      typedName: resolver.resolveResponsesTypedName(node),
     })
 
     const responseType = renderSchemaType({
       node: buildResponseUnionSchemaNode({ node, resolveName }),
-      name: resolverTs.resolveResponseName(node),
-      typedName: resolverTs.resolveResponseTypedName(node),
+      name: resolver.resolveResponseName(node),
+      typedName: resolver.resolveResponseTypedName(node),
       description: 'Union of all possible responses',
     })
 
@@ -122,7 +125,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
   },
   Schema({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType } = options
+    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, legacy } = options
     const { mode, resolveName, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     if (!node.name) {
@@ -135,12 +138,13 @@ export const typeGenerator = defineGenerator<PluginTs>({
     }))
 
     const isEnumSchema = node.type === 'enum'
+    const resolver = legacy ? resolverTsLegacy : resolverTs
 
     const typedName =
-      ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolverTs.resolveEnumKeyTypedName(node) : resolverTs.resolveTypedName(node.name)
+      ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyTypedName(node) : resolver.resolveTypedName(node.name)
 
     const type = {
-      name: resolverTs.resolveName(node.name),
+      name: resolver.resolveName(node.name),
       typedName,
       file: getFile({ name: node.name, extname: '.ts', mode }),
     } as const
