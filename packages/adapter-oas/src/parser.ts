@@ -64,7 +64,7 @@ type ResolveDateTimeNode<TDateType extends ParserOptions['dateType']> = DateTime
  * `InferSchemaNode` walks this tuple in order and returns the node type of the first matching entry.
  * Parameterized over `TDateType` so `format: 'date-time'` resolves to the correct node based on the option.
  */
-type SchemaNodeMap<TDateType extends ParserOptions['dateType'] = ParserOptions['dateType']> = [
+type SchemaNodeMap<TDateType extends ParserOptions['dateType'] = 'string'> = [
   [{ $ref: string }, RefSchemaNode],
   // allOf with sibling `properties` always produces an intersection (shared props are appended as a member).
   [{ allOf: ReadonlyArray<unknown>; properties: object }, IntersectionSchemaNode],
@@ -108,7 +108,7 @@ type SchemaNodeMap<TDateType extends ParserOptions['dateType'] = ParserOptions['
 
 export type InferSchemaNode<
   TSchema extends SchemaObject,
-  TDateType extends ParserOptions['dateType'] = ParserOptions['dateType'],
+  TDateType extends ParserOptions['dateType'] = 'string',
   TEntries extends ReadonlyArray<[object, SchemaNode]> = SchemaNodeMap<TDateType>,
 > = TEntries extends [infer TEntry extends [object, SchemaNode], ...infer TRest extends ReadonlyArray<[object, SchemaNode]>]
   ? TSchema extends TEntry[0]
@@ -181,7 +181,7 @@ export type OasParser = {
   convertSchema: <TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }, TOptions extends Partial<ParserOptions> = object>(
     params: { schema: TSchema; name?: string },
     options?: TOptions,
-  ) => InferSchemaNode<TSchema, TOptions extends { dateType: ParserOptions['dateType'] } ? TOptions['dateType'] : ParserOptions['dateType']>
+  ) => InferSchemaNode<TSchema, TOptions extends { dateType: ParserOptions['dateType'] } ? TOptions['dateType'] : 'string'>
   /**
    * Walks `node` and replaces each `ref` value with the name returned by
    * `resolveName`. The callback receives the full `$ref` path (e.g. `#/components/schemas/Order`)
