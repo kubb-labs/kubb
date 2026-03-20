@@ -38,11 +38,13 @@ export const typeGenerator = defineGenerator<PluginTs>({
       name,
       typedName,
       description,
+      keysToOmit,
     }: {
       node: SchemaNode | null
       name: string
       typedName: string
       description?: string
+      keysToOmit?: Array<string>
     }) {
       if (!schemaNode) {
         return null
@@ -68,6 +70,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
             arrayType={arrayType}
             syntaxType={syntaxType}
             resolver={resolver}
+            keysToOmit={keysToOmit}
           />
         </>
       )
@@ -82,6 +85,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
             name: responseName,
             typedName: resolver.resolveResponseStatusTypedName(node, res.statusCode),
             description: res.description,
+            keysToOmit: res.keysToOmit,
           })
         })
       : node.responses.map((res) =>
@@ -90,15 +94,17 @@ export const typeGenerator = defineGenerator<PluginTs>({
             name: resolver.resolveResponseStatusName(node, res.statusCode),
             typedName: resolver.resolveResponseStatusTypedName(node, res.statusCode),
             description: res.description,
+            keysToOmit: res.keysToOmit,
           }),
         )
 
-    const requestType = node.requestBody
+    const requestType = node.requestBody?.schema
       ? renderSchemaType({
-          node: legacy ? nameUnnamedEnums(node.requestBody, resolver.resolveDataName(node)) : node.requestBody,
+          node: legacy ? nameUnnamedEnums(node.requestBody.schema, resolver.resolveDataName(node)) : node.requestBody.schema,
           name: resolver.resolveDataName(node),
           typedName: resolver.resolveDataTypedName(node),
-          description: node.requestBody.description,
+          description: node.requestBody.schema.description,
+          keysToOmit: node.requestBody.keysToOmit,
         })
       : null
 
