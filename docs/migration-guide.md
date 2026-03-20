@@ -153,6 +153,78 @@ export default defineConfig({
 ```
 :::
 
+### Deprecated `@kubb/plugin-ts` options moved to adapter
+
+The following options that were deprecated in v4 have been removed from `pluginTs(...)`. They are now owned by the adapter (e.g. `adapterOas(...)`) which controls schema parsing before any plugin sees the data.
+
+| Removed option | Replacement |
+|---|---|
+| `enumSuffix` | `adapterOas({ enumSuffix })` |
+| `dateType` | `adapterOas({ dateType })` |
+| `integerType` | `adapterOas({ integerType })` |
+| `unknownType` | `adapterOas({ unknownType })` |
+| `emptySchemaType` | `adapterOas({ emptySchemaType })` |
+
+::: code-group
+```typescript [Before]
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  plugins: [
+    pluginTs({
+      enumSuffix: 'enum',
+      dateType: 'date',
+      integerType: 'bigint',
+      unknownType: 'unknown',
+      emptySchemaType: 'unknown',
+    }),
+  ],
+})
+```
+
+```typescript [After (v5)]
+import { adapterOas } from '@kubb/adapter-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  plugins: [
+    adapterOas({
+      enumSuffix: 'enum',
+      dateType: 'date',
+      integerType: 'bigint',
+      unknownType: 'unknown',
+      emptySchemaType: 'unknown',
+    }),
+    pluginTs(),
+  ],
+})
+```
+:::
+
+### `legacy` naming option added to `@kubb/plugin-ts`
+
+If you relied on the old operation-type naming conventions (pre-v2 generator), set `legacy: true` to restore them while you migrate.
+
+| Type | Default naming | Legacy naming (`legacy: true`) |
+|---|---|---|
+| Request body | `<OperationId>Data` | `<OperationId>MutationRequest` / `<OperationId>QueryRequest` |
+| Response union | `<OperationId>Response` | `<OperationId>MutationResponse` / `<OperationId>QueryResponse` |
+| All responses | `<OperationId>Responses` | `<OperationId>Mutation` / `<OperationId>Query` |
+| Response status | `<OperationId>Status201` | `<OperationId>201` |
+| Default/error response | `<OperationId>StatusDefault` | `<OperationId>Error` |
+
+```typescript [kubb.config.ts]
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  plugins: [
+    pluginTs({
+      legacy: true, // restore pre-v2 operation type names
+    }),
+  ],
+})
+```
+
 ---
 
 # Migrating to Kubb v3
