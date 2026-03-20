@@ -1,5 +1,17 @@
 # @kubb/adapter-oas
 
+## 5.0.0-alpha.11
+
+### Minor Changes
+
+- [#2824](https://github.com/kubb-labs/kubb/pull/2824) [`4cfcb62`](https://github.com/kubb-labs/kubb/commit/4cfcb6290ffa11c93f19345c93906af65ec18339) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Refactor parser options: extract `ParserOptions` type, add `enumSuffix` option, change `collisionDetection` default to `true`.
+
+### Patch Changes
+
+- Updated dependencies [[`4cfcb62`](https://github.com/kubb-labs/kubb/commit/4cfcb6290ffa11c93f19345c93906af65ec18339), [`4cfcb62`](https://github.com/kubb-labs/kubb/commit/4cfcb6290ffa11c93f19345c93906af65ec18339)]:
+  - @kubb/ast@5.0.0-alpha.11
+  - @kubb/core@5.0.0-alpha.11
+
 ## 5.0.0-alpha.10
 
 ### Patch Changes
