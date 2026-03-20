@@ -262,25 +262,7 @@ In legacy mode, inline enum values inside operation parameters and responses are
 | Query param enum | `status?: 'available' \| 'pending' \| 'sold'` | `status?: FindPetsByStatusQueryParamsStatusEnumKey` |
 | Response array enum | `('TYPE1' \| 'TYPE2' \| 'TYPE3')[]` | `DeletePet200EnumKey[]` |
 
-```typescript [kubb.config.ts]
-import { adapterOas } from '@kubb/adapter-oas'
-import { pluginTs } from '@kubb/plugin-ts'
-
-export default defineConfig({
-  adapter: adapterOas({
-    collisionDetection: false, // v4 enum naming (short names, collision deduplication)
-  }),
-  plugins: [
-    pluginTs({
-      legacy: true, // restore v4 operation type names and enum extraction
-    }),
-  ],
-})
-```
-
----
-
-# Migrating to Kubb v3 and v4
+# Migrating to Kubb v3
 
 ## New Features
 
