@@ -201,9 +201,48 @@ export default defineConfig({
 ```
 :::
 
+### `collisionDetection` replaced by `legacy` in `@kubb/adapter-oas`
+
+The `collisionDetection` option has been removed from `adapterOas(...)` and replaced by the `legacy` flag. The semantics are inverted: `legacy: true` corresponds to the old `collisionDetection: false` behavior (v4 short enum names), while `legacy: false` (the new default) corresponds to `collisionDetection: true` (v5 full-path enum names with collision resolution).
+
+This affects how inline enum property names are generated. For example, a `status` enum nested inside a `params` object inside an `order` schema:
+
+| Mode | Generated enum name |
+|---|---|
+| `legacy: false` (default, v5) | `OrderParamsStatusEnum` |
+| `legacy: true` (v4 behavior) | `ParamsStatusEnum` |
+
+::: code-group
+```typescript [Before]
+import { adapterOas } from '@kubb/adapter-oas'
+
+export default defineConfig({
+  plugins: [
+    adapterOas({
+      collisionDetection: false, // v4 behavior: short enum names
+    }),
+  ],
+})
+```
+
+```typescript [After (v5)]
+import { adapterOas } from '@kubb/adapter-oas'
+
+export default defineConfig({
+  plugins: [
+    adapterOas({
+      legacy: true, // same as old collisionDetection: false
+    }),
+  ],
+})
+```
+:::
+
+`collisionDetection` is now an internal implementation detail of the adapter and is no longer part of the public API.
+
 ### `legacy` naming option added to `@kubb/plugin-ts`
 
-If you relied on the old operation-type naming conventions (pre-v2 generator), set `legacy: true` to restore them while you migrate.
+If you relied on the old operation-type naming conventions (v4), set `legacy: true` to restore them while you migrate.
 
 | Type | Default naming | Legacy naming (`legacy: true`) |
 |---|---|---|
@@ -219,7 +258,7 @@ import { pluginTs } from '@kubb/plugin-ts'
 export default defineConfig({
   plugins: [
     pluginTs({
-      legacy: true, // restore pre-v2 operation type names
+      legacy: true, // restore v4 operation type names
     }),
   ],
 })
@@ -227,9 +266,7 @@ export default defineConfig({
 
 ---
 
-# Migrating to Kubb v3
-
-
+# Migrating to Kubb v3 and v4
 
 ## New Features
 

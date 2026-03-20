@@ -197,14 +197,14 @@ export function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperatio
     properties.push(
       createProperty({
         name: 'Request',
-        schema: createSchema({ type: 'ref', name: resolver.resolveDataName(node), optional: true }),
+        schema: createSchema({ type: 'ref', name: resolver.resolveDataName(node) }),
       }),
     )
   } else if (isGet && node.parameters.some((p) => p.in === 'query')) {
     properties.push(
       createProperty({
         name: 'QueryParams',
-        schema: createSchema({ type: 'ref', name: resolver.resolveQueryParamsName!(node), optional: true }),
+        schema: createSchema({ type: 'ref', name: resolver.resolveQueryParamsName!(node) }),
       }),
     )
   }

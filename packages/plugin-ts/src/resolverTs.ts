@@ -127,6 +127,42 @@ export const resolverTs = defineResolver<PluginTs>(() => {
 export const resolverTsLegacy = defineResolver<PluginTs>(() => {
   return {
     ...resolverTs,
+    resolveResponseStatusName(node, statusCode) {
+      if (statusCode === 'default') {
+        return this.resolveName(`${node.operationId} Error`)
+      }
+      return this.resolveName(`${node.operationId} ${statusCode}`)
+    },
+    resolveResponseStatusTypedName(node, statusCode) {
+      if (statusCode === 'default') {
+        return this.resolveTypedName(`${node.operationId} Error`)
+      }
+      return this.resolveTypedName(`${node.operationId} ${statusCode}`)
+    },
+    resolveDataName(node) {
+      const suffix = node.method === 'GET' ? 'QueryRequest' : 'MutationRequest'
+      return this.resolveName(`${node.operationId} ${suffix}`)
+    },
+    resolveDataTypedName(node) {
+      const suffix = node.method === 'GET' ? 'QueryRequest' : 'MutationRequest'
+      return this.resolveTypedName(`${node.operationId} ${suffix}`)
+    },
+    resolveResponsesName(node) {
+      const suffix = node.method === 'GET' ? 'Query' : 'Mutation'
+      return this.resolveName(`${node.operationId} ${suffix}`)
+    },
+    resolveResponsesTypedName(node) {
+      const suffix = node.method === 'GET' ? 'Query' : 'Mutation'
+      return this.resolveTypedName(`${node.operationId} ${suffix}`)
+    },
+    resolveResponseName(node) {
+      const suffix = node.method === 'GET' ? 'QueryResponse' : 'MutationResponse'
+      return this.resolveName(`${node.operationId} ${suffix}`)
+    },
+    resolveResponseTypedName(node) {
+      const suffix = node.method === 'GET' ? 'QueryResponse' : 'MutationResponse'
+      return this.resolveTypedName(`${node.operationId} ${suffix}`)
+    },
     resolvePathParamsName(node) {
       return this.resolveName(`${node.operationId} PathParams`)
     },
