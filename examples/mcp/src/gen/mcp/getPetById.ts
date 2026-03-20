@@ -1,7 +1,7 @@
-import fetch from '../../client.js'
-import type { ResponseErrorConfig } from '../../client.js'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/ts/GetPetById.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
+import type { ResponseErrorConfig } from '../../client.js'
+import fetch from '../../client.js'
+import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../models/ts/GetPetById.js'
 
 /**
  * @description Returns a single pet

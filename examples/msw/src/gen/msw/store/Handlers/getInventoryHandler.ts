@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { GetInventoryQueryResponse } from '../../../models/GetInventory.ts'
 import { http } from 'msw'
+import type { GetInventoryQueryResponse } from '../../../models/GetInventory.ts'
 
 export function getInventoryHandlerResponse200(data: GetInventoryQueryResponse) {
   return new Response(JSON.stringify(data), {

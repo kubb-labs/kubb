@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { GetInventory200, GetInventoryQueryResponse } from '../models/GetInventory.ts'
 import { faker } from '@faker-js/faker'
+import type { GetInventory200, GetInventoryQueryResponse } from '../models/GetInventory.ts'
 
 /**
  * @description successful operation

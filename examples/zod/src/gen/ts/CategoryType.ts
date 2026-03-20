@@ -8,11 +8,11 @@ export type CategoryType = {
    * @example 1
    * @type integer | undefined
    */
-  id?: number;
+  id?: number
   /**
    * @example Dogs
    * @type string | undefined
    */
-  name?: string;
-  parent?: CategoryType;
-};
+  name?: string
+  parent?: CategoryType
+}

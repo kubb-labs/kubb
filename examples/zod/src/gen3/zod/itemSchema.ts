@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { itemTypeASchema } from "./itemTypeASchema.ts";
-import { itemTypeBSchema } from "./itemTypeBSchema.ts";
-import { z } from "zod/v4";
+import { z } from 'zod/v4'
+import { itemTypeASchema } from './itemTypeASchema.ts'
+import { itemTypeBSchema } from './itemTypeBSchema.ts'
 
 export const itemSchema = z.union([
   z
@@ -13,7 +13,7 @@ export const itemSchema = z.union([
     .and(
       z.object({
         id: z.optional(z.int()),
-        type: z.literal("typeA"),
+        type: z.literal('typeA'),
         name: z.string(),
         createdAt: z.optional(z.iso.datetime()),
       }),
@@ -23,9 +23,9 @@ export const itemSchema = z.union([
     .and(
       z.object({
         id: z.optional(z.int()),
-        type: z.literal("typeB"),
+        type: z.literal('typeB'),
         name: z.string(),
         createdAt: z.optional(z.iso.datetime()),
       }),
     ),
-]);
+])

@@ -7,6 +7,6 @@ export function createLogoutUserErrorFaker() {
   return undefined
 }
 
-export function createLogoutUserQueryResponseFaker(data?: Partial<LogoutUserQueryResponse>): LogoutUserQueryResponse {
+export function createLogoutUserQueryResponseFaker(_data?: Partial<LogoutUserQueryResponse>): LogoutUserQueryResponse {
   return undefined
 }

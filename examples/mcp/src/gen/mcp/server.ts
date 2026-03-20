@@ -3,6 +3,35 @@
  * Do not edit manually.
  */
 
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
+import { z } from 'zod'
+import { addFilesMutationRequestSchema, addFilesMutationResponseSchema } from '../zod/addFilesSchema.js'
+import { addPetMutationRequestSchema, addPetMutationResponseSchema } from '../zod/addPetSchema.js'
+import {
+  createPetsHeaderParamsSchema,
+  createPetsMutationRequestSchema,
+  createPetsMutationResponseSchema,
+  createPetsQueryParamsSchema,
+} from '../zod/createPetsSchema.js'
+import { createUserMutationRequestSchema, createUserMutationResponseSchema } from '../zod/createUserSchema.js'
+import { createUsersWithListInputMutationRequestSchema, createUsersWithListInputMutationResponseSchema } from '../zod/createUsersWithListInputSchema.js'
+import { deleteOrderMutationResponseSchema } from '../zod/deleteOrderSchema.js'
+import { deletePetHeaderParamsSchema, deletePetMutationResponseSchema } from '../zod/deletePetSchema.js'
+import { deleteUserMutationResponseSchema } from '../zod/deleteUserSchema.js'
+import { findPetsByStatusQueryResponseSchema } from '../zod/findPetsByStatusSchema.js'
+import { findPetsByTagsHeaderParamsSchema, findPetsByTagsQueryParamsSchema, findPetsByTagsQueryResponseSchema } from '../zod/findPetsByTagsSchema.js'
+import { getInventoryQueryResponseSchema } from '../zod/getInventorySchema.js'
+import { getOrderByIdQueryResponseSchema } from '../zod/getOrderByIdSchema.js'
+import { getPetByIdQueryResponseSchema } from '../zod/getPetByIdSchema.js'
+import { getUserByNameQueryResponseSchema } from '../zod/getUserByNameSchema.js'
+import { loginUserQueryParamsSchema, loginUserQueryResponseSchema } from '../zod/loginUserSchema.js'
+import { logoutUserQueryResponseSchema } from '../zod/logoutUserSchema.js'
+import { placeOrderPatchMutationRequestSchema, placeOrderPatchMutationResponseSchema } from '../zod/placeOrderPatchSchema.js'
+import { placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from '../zod/placeOrderSchema.js'
+import { updatePetMutationRequestSchema, updatePetMutationResponseSchema } from '../zod/updatePetSchema.js'
+import { updatePetWithFormMutationResponseSchema, updatePetWithFormQueryParamsSchema } from '../zod/updatePetWithFormSchema.js'
+import { updateUserMutationRequestSchema, updateUserMutationResponseSchema } from '../zod/updateUserSchema.js'
 import { addFilesHandler } from './addFiles.js'
 import { addPetHandler } from './addPet.js'
 import { createPetsHandler } from './createPets.js'
@@ -24,35 +53,6 @@ import { placeOrderPatchHandler } from './placeOrderPatch.js'
 import { updatePetHandler } from './updatePet.js'
 import { updatePetWithFormHandler } from './updatePetWithForm.js'
 import { updateUserHandler } from './updateUser.js'
-import { addFilesMutationRequestSchema, addFilesMutationResponseSchema } from '../zod/addFilesSchema.js'
-import { addPetMutationRequestSchema, addPetMutationResponseSchema } from '../zod/addPetSchema.js'
-import {
-  createPetsMutationRequestSchema,
-  createPetsQueryParamsSchema,
-  createPetsHeaderParamsSchema,
-  createPetsMutationResponseSchema,
-} from '../zod/createPetsSchema.js'
-import { createUserMutationRequestSchema, createUserMutationResponseSchema } from '../zod/createUserSchema.js'
-import { createUsersWithListInputMutationRequestSchema, createUsersWithListInputMutationResponseSchema } from '../zod/createUsersWithListInputSchema.js'
-import { deleteOrderMutationResponseSchema } from '../zod/deleteOrderSchema.js'
-import { deletePetHeaderParamsSchema, deletePetMutationResponseSchema } from '../zod/deletePetSchema.js'
-import { deleteUserMutationResponseSchema } from '../zod/deleteUserSchema.js'
-import { findPetsByStatusQueryResponseSchema } from '../zod/findPetsByStatusSchema.js'
-import { findPetsByTagsQueryParamsSchema, findPetsByTagsHeaderParamsSchema, findPetsByTagsQueryResponseSchema } from '../zod/findPetsByTagsSchema.js'
-import { getInventoryQueryResponseSchema } from '../zod/getInventorySchema.js'
-import { getOrderByIdQueryResponseSchema } from '../zod/getOrderByIdSchema.js'
-import { getPetByIdQueryResponseSchema } from '../zod/getPetByIdSchema.js'
-import { getUserByNameQueryResponseSchema } from '../zod/getUserByNameSchema.js'
-import { loginUserQueryParamsSchema, loginUserQueryResponseSchema } from '../zod/loginUserSchema.js'
-import { logoutUserQueryResponseSchema } from '../zod/logoutUserSchema.js'
-import { placeOrderPatchMutationRequestSchema, placeOrderPatchMutationResponseSchema } from '../zod/placeOrderPatchSchema.js'
-import { placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from '../zod/placeOrderSchema.js'
-import { updatePetMutationRequestSchema, updatePetMutationResponseSchema } from '../zod/updatePetSchema.js'
-import { updatePetWithFormQueryParamsSchema, updatePetWithFormMutationResponseSchema } from '../zod/updatePetWithFormSchema.js'
-import { updateUserMutationRequestSchema, updateUserMutationResponseSchema } from '../zod/updateUserSchema.js'
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio'
-import { z } from 'zod'
 
 export const server = new McpServer({
   name: 'Swagger PetStore - OpenAPI 3.0',

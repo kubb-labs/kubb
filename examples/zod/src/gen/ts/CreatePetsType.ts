@@ -3,68 +3,67 @@
  * Do not edit manually.
  */
 
-import type { PetNotFoundType } from "./PetNotFoundType.ts";
+import type { PetNotFoundType } from './PetNotFoundType.ts'
 
 export type CreatePetsPathParamsType = {
   /**
    * @description UUID
    * @type string
    */
-  uuid: string;
-};
+  uuid: string
+}
 
 export type CreatePetsQueryParamsType = {
   /**
    * @description Offset
    * @type integer | undefined
    */
-  offset?: number;
-};
+  offset?: number
+}
 
 export const createPetsHeaderParamsTypeXEXAMPLEEnum = {
-  ONE: "ONE",
-  TWO: "TWO",
-  THREE: "THREE",
-} as const;
+  ONE: 'ONE',
+  TWO: 'TWO',
+  THREE: 'THREE',
+} as const
 
-export type CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey =
-  (typeof createPetsHeaderParamsTypeXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsTypeXEXAMPLEEnum];
+export type CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey = (typeof createPetsHeaderParamsTypeXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsTypeXEXAMPLEEnum]
 
 export type CreatePetsHeaderParamsType = {
   /**
    * @description Header parameters
    * @type string
    */
-  "X-EXAMPLE": CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey;
-};
+  'X-EXAMPLE': CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey
+}
 
 /**
  * @description Null response
  */
-export type CreatePets201Type = any;
+export type CreatePets201Type = any
 
 /**
  * @description unexpected error
  */
-export type CreatePetsErrorType = PetNotFoundType;
+export type CreatePetsErrorType = PetNotFoundType
 
 export type CreatePetsMutationRequestType = {
   /**
    * @type string
    */
-  name: string;
+  name: string
   /**
    * @type string
    */
-  tag: string;
-};
+  tag: string
+}
 
 export type CreatePetsMutationType = {
-  Response: CreatePets201Type;
-  Request: CreatePetsMutationRequestType;
-  PathParams: CreatePetsPathParamsType;
-  HeaderParams: CreatePetsHeaderParamsType;
-  Errors: CreatePetsErrorType;
-};
+  Response: CreatePets201Type
+  Request: CreatePetsMutationRequestType
+  PathParams: CreatePetsPathParamsType
+  HeaderParams: CreatePetsHeaderParamsType
+  Errors: CreatePetsErrorType
+}
 
-export type CreatePetsMutationResponseType = CreatePets201Type;
+export type CreatePetsMutationResponseType = CreatePets201Type

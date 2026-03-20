@@ -1,12 +1,12 @@
-import fetch from '../../client.js'
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { ResponseErrorConfig } from '../../client.js'
+import fetch from '../../client.js'
 import type {
+  UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdatePetWithForm405,
 } from '../models/ts/UpdatePetWithForm.js'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
 /**
  * @summary Updates a pet in the store with form data

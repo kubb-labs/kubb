@@ -6,11 +6,11 @@
 /**
  * @description successful operation
  */
-export type LogoutUserErrorType = any;
+export type LogoutUserErrorType = any
 
 export type LogoutUserQueryType = {
-  Response: any;
-  Errors: LogoutUserErrorType;
-};
+  Response: any
+  Errors: LogoutUserErrorType
+}
 
-export type LogoutUserQueryResponseType = any;
+export type LogoutUserQueryResponseType = any

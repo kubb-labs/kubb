@@ -1,7 +1,7 @@
-import fetch from '../../client.js'
-import type { ResponseErrorConfig } from '../../client.js'
-import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/ts/CreateUsersWithListInput.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
+import type { ResponseErrorConfig } from '../../client.js'
+import fetch from '../../client.js'
+import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/ts/CreateUsersWithListInput.js'
 
 /**
  * @description Creates list of users with given input array
