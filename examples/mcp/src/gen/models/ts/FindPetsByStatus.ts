@@ -14,6 +14,8 @@ export type FindPetsByStatusPathParams = {
 
 /**
  * @description successful operation
+ * @minLength 1
+ * @maxLength 3
  */
 export type FindPetsByStatus200 = Pet[]
 
@@ -22,10 +24,9 @@ export type FindPetsByStatus200 = Pet[]
  */
 export type FindPetsByStatus400 = any
 
-export type FindPetsByStatusQueryResponse = FindPetsByStatus200
-
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatus200
-  PathParams: FindPetsByStatusPathParams
   Errors: FindPetsByStatus400
 }
+
+export type FindPetsByStatusQueryResponse = FindPetsByStatus200

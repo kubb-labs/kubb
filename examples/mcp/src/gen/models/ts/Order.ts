@@ -27,17 +27,18 @@ export type OrderHttpStatusEnumKey = (typeof orderHttpStatusEnum)[keyof typeof o
 
 export type Order = {
   /**
-   * @minLength 3
-   * @maxLength 100
-   * @type integer | undefined, int64
+   * @example 10
+   * @type integer | undefined
    */
   id?: number
   /**
-   * @type integer | undefined, int64
+   * @example 198772
+   * @type integer | undefined
    */
   petId?: number
   /**
-   * @type integer | undefined, int32
+   * @example 7
+   * @type integer | undefined
    */
   quantity?: number
   /**
@@ -46,20 +47,23 @@ export type Order = {
   orderType?: OrderOrderTypeEnumKey
   /**
    * @description Order Status
+   * @example approved
    * @type string | undefined
    */
   type?: string
   /**
-   * @type string | undefined, date-time
+   * @type string | undefined
    */
   shipDate?: string
   /**
    * @description Order Status
+   * @example approved
    * @type string | undefined
    */
   status?: OrderStatusEnumKey
   /**
    * @description HTTP Status
+   * @example 200
    * @type number | undefined
    */
   http_status?: OrderHttpStatusEnumKey

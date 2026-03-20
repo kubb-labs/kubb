@@ -8,7 +8,7 @@ import type { Pet } from './Pet.js'
 export type GetPetByIdPathParams = {
   /**
    * @description ID of pet to return
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -16,7 +16,7 @@ export type GetPetByIdPathParams = {
 /**
  * @description successful operation
  */
-export type GetPetById200 = Omit<NonNullable<Pet>, 'name'>
+export type GetPetById200 = Pet
 
 /**
  * @description Invalid ID supplied
@@ -28,10 +28,9 @@ export type GetPetById400 = any
  */
 export type GetPetById404 = any
 
-export type GetPetByIdQueryResponse = GetPetById200
-
 export type GetPetByIdQuery = {
   Response: GetPetById200
-  PathParams: GetPetByIdPathParams
   Errors: GetPetById400 | GetPetById404
 }
+
+export type GetPetByIdQueryResponse = GetPetById200

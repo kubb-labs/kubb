@@ -28,6 +28,8 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
   const resolver = legacy ? resolverTsLegacy : resolverTs
 
+  let resolveNameWarning = false
+
   return {
     name: pluginTsName,
     options: {
@@ -79,7 +81,10 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
-      this.driver.events.emit('warn', 'Do not use resolveName for pluginTs, use resolverTs instead')
+      if (!resolveNameWarning) {
+        this.driver.events.emit('warn', 'Do not use resolveName for pluginTs, use resolverTs instead')
+        resolveNameWarning = true
+      }
 
       const resolvedName = resolver.default(name, type)
 

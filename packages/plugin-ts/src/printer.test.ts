@@ -24,11 +24,7 @@ const formatTS = async (node: ts.Node | null | undefined): Promise<string> => {
 }
 
 describe('printerTs', () => {
-  const printer = printerTs({ resolver: resolverTs,
-    optionalType: 'questionToken',
-    arrayType: 'array',
-    enumType: 'inlineLiteral',
-  })
+  const printer = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'inlineLiteral' })
 
   describe('scalar types', () => {
     it('any', async () => {
