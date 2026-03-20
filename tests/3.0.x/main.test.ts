@@ -23,7 +23,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       input: {
         path: '../../schemas/3.0.x/petStore.yaml',
       },
-      adapter: adapterOas({ legacy: true, validate: false }),
+      adapter: adapterOas({ collisionDetection: false, validate: false }),
       output: {
         path: './gen',
         barrelType: false,
@@ -53,7 +53,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ legacy: true, validate: false, discriminator: 'inherit' }),
+      adapter: adapterOas({ collisionDetection: false, validate: false, discriminator: 'inherit' }),
       plugins: [
         pluginOas({
           generators: [],
@@ -79,7 +79,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ legacy: true, validate: false }),
+      adapter: adapterOas({ collisionDetection: false, validate: false }),
       plugins: [
         pluginOas({
           generators: [],
@@ -106,7 +106,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         clean: true,
         barrelType: false,
       },
-      adapter: adapterOas({ legacy: true, validate: false }),
+      adapter: adapterOas({ collisionDetection: false, validate: false }),
       plugins: [
         pluginOas({
           generators: [],
@@ -126,7 +126,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ legacy: true, validate: false }),
+      adapter: adapterOas({ collisionDetection: false, validate: false }),
       plugins: [
         pluginOas({
           generators: [],
@@ -152,7 +152,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ legacy: false, validate: false }),
+      adapter: adapterOas({ collisionDetection: false, validate: false }),
       plugins: [
         pluginOas({
           generators: [],
@@ -178,7 +178,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ legacy: false, validate: false, collisionDetection: true }),
+      adapter: adapterOas({ collisionDetection: false, validate: false }),
       plugins: [
         pluginOas({
           generators: [],
@@ -211,7 +211,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ legacy: true, validate: false }),
+      adapter: adapterOas({ collisionDetection: false, validate: false }),
       plugins: [
         pluginOas({
           generators: [],
@@ -245,7 +245,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ legacy: true, validate: false }),
+      adapter: adapterOas({ collisionDetection: false, validate: false }),
       plugins: [
         pluginOas({
           generators: [],

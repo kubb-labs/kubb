@@ -13,15 +13,13 @@
 
 Six deprecated resolver methods were added to `ResolverTs` to support grouped parameter naming in legacy mode (`resolvePathParamsName`, `resolvePathParamsTypedName`, `resolveQueryParamsName`, `resolveQueryParamsTypedName`, `resolveHeaderParamsName`, `resolveHeaderParamsTypedName`). These are implemented only in `resolverTsLegacy`; calling them on the default resolver throws an error. All six are marked `@deprecated` and will be removed in v6.
 
-**`@kubb/adapter-oas`**: `collisionDetection` is replaced by the `legacy` flag in the public API of `adapterOas(...)`.
+**`@kubb/adapter-oas`**: The `collisionDetection` option is now part of the public API of `adapterOas(...)` with a default of `true`.
 
-- `legacy: false` (default, v5 behaviour) → full-path enum names with collision resolution, e.g. `OrderParamsStatusEnum`
-- `legacy: true` (v4 behaviour) → immediate-parent enum names with numeric deduplication, e.g. `ParamsStatusEnum`, `ParamsStatusEnum2`
+- `collisionDetection: true` (default, v5 behaviour) → full-path enum names with collision resolution, e.g. `OrderParamsStatusEnum`
+- `collisionDetection: false` (v4 behaviour) → immediate-parent enum names with numeric deduplication, e.g. `ParamsStatusEnum`, `ParamsStatusEnum2`
 
-Legacy enum naming rules:
+Naming rules when `collisionDetection: false`:
 - **Nested property enums** use only the immediate parent key: `ParamsStatusEnum` (not `OrderParamsStatusEnum`).
 - **Collision deduplication** appends a numeric suffix when the same enum name appears more than once: `ParamsStatusEnum`, `ParamsStatusEnum2`.
 - **`oneOf`/`anyOf` shared property enums** omit the schema name: `StatusEnum` (not `PetStatusEnum`).
 - **Array items enums** use the array property name: `DeletePet200Enum`.
-
-`collisionDetection` remains an internal implementation detail and is no longer part of the public `OasAdapterOptions` / `OasAdapterResolvedOptions` types.

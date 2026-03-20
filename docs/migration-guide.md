@@ -201,30 +201,33 @@ export default defineConfig({
 ```
 :::
 
-### `collisionDetection` replaced by `legacy` in `@kubb/adapter-oas`
+### `collisionDetection` in `@kubb/adapter-oas`
 
-The `collisionDetection` option has been removed from `adapterOas(...)` and replaced by the `legacy` flag. The semantics are inverted: `legacy: true` corresponds to the old `collisionDetection: false` behavior (v4 short enum names), while `legacy: false` (the new default) corresponds to `collisionDetection: true` (v5 full-path enum names with collision resolution).
+The `collisionDetection` option in `adapterOas(...)` now defaults to `true`. In v4 the default was `false`.
+
+- `collisionDetection: true` (default) — full-path enum names with collision resolution (e.g. `OrderParamsStatusEnum`).
+- `collisionDetection: false` — immediate-parent enum names matching v4 behavior (e.g. `ParamsStatusEnum`).
 
 This affects how inline enum property names are generated. For example, a `status` enum nested inside a `params` object inside an `order` schema:
 
 | Mode | Generated enum name |
 |---|---|
-| `legacy: false` (default, v5) | `OrderParamsStatusEnum` |
-| `legacy: true` (v4 behavior) | `ParamsStatusEnum` |
+| `collisionDetection: true` (default, v5) | `OrderParamsStatusEnum` |
+| `collisionDetection: false` (v4 behavior) | `ParamsStatusEnum` |
 
-In legacy mode, the adapter also handles:
+When `collisionDetection: false`, the adapter also handles:
 
 - **Collision deduplication** — when two schemas produce the same enum name (e.g. `Order.params.status` and `Customer.params.status` both yield `ParamsStatusEnum`), a numeric suffix is appended: `ParamsStatusEnum`, `ParamsStatusEnum2`.
 - **`oneOf`/`anyOf` shared properties** — enum names omit the parent schema name: `StatusEnum` instead of `PetStatusEnum`.
 - **Array items enums** — named after the array property: e.g. `TagsEnum`.
 
 ::: code-group
-```typescript [Before]
+```typescript [Before (v4)]
 import { adapterOas } from '@kubb/adapter-oas'
 
 export default defineConfig({
   adapter: adapterOas({
-    collisionDetection: false, // v4 behavior: short enum names
+    // collisionDetection defaulted to false in v4
   }),
 })
 ```
@@ -234,13 +237,11 @@ import { adapterOas } from '@kubb/adapter-oas'
 
 export default defineConfig({
   adapter: adapterOas({
-    legacy: true, // same as old collisionDetection: false
+    collisionDetection: false, // opt into v4 behavior
   }),
 })
 ```
 :::
-
-`collisionDetection` is now an internal implementation detail of the adapter and is no longer part of the public API.
 
 ### `legacy` naming option added to `@kubb/plugin-ts`
 
@@ -267,7 +268,7 @@ import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   adapter: adapterOas({
-    legacy: true, // v4 enum naming (short names, collision deduplication)
+    collisionDetection: false, // v4 enum naming (short names, collision deduplication)
   }),
   plugins: [
     pluginTs({

@@ -17,7 +17,7 @@ export default defineConfig(() => {
       path: './src/gen',
       clean: true,
     },
-    adapter: adapterOas({ legacy: true }),
+    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({
         validate: false,

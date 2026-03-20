@@ -26,7 +26,7 @@ export default defineConfig([
     hooks: {
       done: ['npm run typecheck'],
     },
-    adapter: adapterOas({ legacy: true }),
+    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({
         validate: true,

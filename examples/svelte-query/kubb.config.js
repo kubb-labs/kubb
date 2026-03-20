@@ -17,7 +17,7 @@ export default defineConfig({
   hooks: {
     done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
   },
-  adapter: adapterOas({ legacy: true }),
+  adapter: adapterOas({ collisionDetection: false }),
   plugins: [
     pluginOas({
       generators: [],

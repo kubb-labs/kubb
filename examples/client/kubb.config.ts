@@ -34,7 +34,7 @@ export default defineConfig([
         '.ts': '.js',
       },
     },
-    adapter: adapterOas({ legacy: true }),
+    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
@@ -61,7 +61,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen2' },
-    adapter: adapterOas({ legacy: true }),
+    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
@@ -89,7 +89,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen3', clean: true },
-    adapter: adapterOas({ legacy: true }),
+    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
@@ -112,7 +112,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen4', clean: true },
-    adapter: adapterOas({ legacy: true }),
+    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginClient({
@@ -128,7 +128,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen5', clean: true },
-    adapter: adapterOas({ legacy: true }),
+    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginClient({
@@ -144,7 +144,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen6', clean: true },
-    adapter: adapterOas({ legacy: true }),
+    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
@@ -176,7 +176,7 @@ export default defineConfig([
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
-    adapter: adapterOas({ legacy: true }),
+    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,

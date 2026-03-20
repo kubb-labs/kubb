@@ -24,7 +24,7 @@ export default defineConfig(() => {
         '.ts': '.js',
       },
     },
-    adapter: adapterOas({ legacy: true }),
+    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({
         validate: false,

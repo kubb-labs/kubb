@@ -22,7 +22,7 @@ export default defineConfig({
           format: 'biome',
           lint: 'biome',
         },
-        adapter: adapterOas({ legacy: true }),
+        adapter: adapterOas({ collisionDetection: false }),
         plugins: [
           pluginOas({
             generators: [],

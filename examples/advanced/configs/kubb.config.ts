@@ -31,7 +31,7 @@ export default defineConfig({
   hooks: {
     done: ['npm run typecheck'],
   },
-  adapter: adapterOas({ legacy: true }),
+  adapter: adapterOas({ collisionDetection: false, enumSuffix: 'enum', dateType: 'string' }),
   plugins: [
     pluginOas({
       validate: true,
@@ -48,8 +48,6 @@ export default defineConfig({
       },
       arrayType: 'generic',
       enumType: 'asConst',
-      enumSuffix: 'enum',
-      dateType: 'string',
       paramsCasing: 'camelcase', // make pathParams and queryParams camelCase to be in sync with client
       override: [
         {

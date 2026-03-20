@@ -230,7 +230,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
   // (e.g. ParamsStatusEnum, ParamsStatusEnum2) when collisionDetection is disabled.
   const usedEnumNames: Record<string, number> = {}
 
-  // Only apply legacy naming when collisionDetection is explicitly false (set by adapter with legacy: true).
+  // Only apply legacy naming when collisionDetection is explicitly false.
   // When undefined (e.g. direct parser usage without adapter), use the default (new) behavior.
   const isLegacyNaming = collisionDetection === false
 
