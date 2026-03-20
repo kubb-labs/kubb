@@ -25,7 +25,7 @@ export type {
 } from './SchemaMapper.ts'
 export { isKeyword, schemaKeywords } from './SchemaMapper.ts'
 export type * from './types.ts'
-export { buildOperation, buildOperations, buildSchema } from './utils.tsx'
+export { renderOperation, renderOperations, renderSchema } from './utils.tsx'
 
 /**
  * @deprecated use `import { createGenerator } from '@kubb/plugin-oas/generators'`

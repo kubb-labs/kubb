@@ -38,7 +38,7 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
     const oas = useOas()
     const { getName, getFile, getGroup, getSchemas } = useOperationManager(generator)
 
-    function buildOperationData(operation: Operation): OperationData {
+    function renderOperationData(operation: Operation): OperationData {
       const type = {
         file: getFile(operation, { pluginName: pluginTsName }),
         schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
@@ -74,7 +74,7 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
             pluginName,
           })
 
-          const operationData = buildOperationData(operation)
+          const operationData = renderOperationData(operation)
           const previousFile = acc.find((item) => item.file.path === file.path)
 
           if (previousFile) {
@@ -92,7 +92,7 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
             options: { group },
           })
 
-          const operationData = buildOperationData(operation)
+          const operationData = renderOperationData(operation)
           const previousFile = acc.find((item) => item.file.path === file.path)
 
           if (previousFile) {

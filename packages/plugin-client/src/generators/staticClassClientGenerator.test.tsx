@@ -2,7 +2,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { parse } from '@kubb/oas'
-import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
+import { renderOperations, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
 import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
@@ -77,7 +77,7 @@ describe('staticClassClientGenerator operations', async () => {
 
     const operations = await generator.getOperations()
 
-    await buildOperations(
+    await renderOperations(
       operations.map((item) => item.operation),
       {
         config: {

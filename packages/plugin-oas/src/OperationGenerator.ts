@@ -9,7 +9,7 @@ import type { ReactGenerator } from './generators/createReactGenerator.ts'
 import type { Generator } from './generators/types.ts'
 import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
 import { withRequiredRequestBodySchema } from './utils/requestBody.ts'
-import { buildOperation, buildOperations } from './utils.tsx'
+import { renderOperation, renderOperations } from './utils.tsx'
 
 export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
@@ -234,7 +234,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
             const options = this.getOptions(operation, method)
 
             if (v1Generator.type === 'react') {
-              await buildOperation(operation, {
+              await renderOperation(operation, {
                 config: this.context.driver.config,
                 fabric: this.context.fabric,
                 Component: v1Generator.Operation,
@@ -272,7 +272,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
         const opResultsFlat = operationResults.flat()
 
         if (v1Generator.type === 'react') {
-          await buildOperations(
+          await renderOperations(
             operations.map((op) => op.operation),
             {
               fabric: this.context.fabric,

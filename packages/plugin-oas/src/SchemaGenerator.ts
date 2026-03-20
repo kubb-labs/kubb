@@ -12,7 +12,7 @@ import type { Generator } from './generators/types.ts'
 import { isKeyword, type Schema, type SchemaKeywordMapper, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
-import { buildSchema } from './utils.tsx'
+import { renderSchema } from './utils.tsx'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
@@ -1382,7 +1382,7 @@ export class SchemaGenerator<
             const tree = this.parse({ schema: schemaObject as SchemaObject, name, parentName: null, rootName: name })
 
             if (v1Generator.type === 'react') {
-              await buildSchema(
+              await renderSchema(
                 {
                   name,
                   value: schemaObject as SchemaObject,
