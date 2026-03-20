@@ -1,20 +1,14 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
+import type { EnumSchemaNode, OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import type { HttpMethod, SchemaObject } from '@kubb/oas'
-import { parse } from '@kubb/oas'
-import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
-import { getSchemas } from '@kubb/plugin-oas/utils'
+import { buildOperation, buildSchema } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
-import { beforeEach, describe, test } from 'vitest'
-import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { beforeEach, describe, expect, test } from 'vitest'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-describe('typeGenerator schema', async () => {
+describe('typeGenerator v2 — Operation', () => {
   const fabric = createReactFabric()
 
   beforeEach(() => {
@@ -23,842 +17,280 @@ describe('typeGenerator schema', async () => {
 
   const testData = [
     {
-      name: 'PetQuestionToken',
-      input: '../../mocks/petStore.yaml',
-      path: 'Pet',
+      name: 'listPets — GET with query params',
+      node: createOperation({
+        operationId: 'listPets',
+        method: 'GET',
+        path: '/pets',
+        tags: ['pets'],
+        parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+        responses: [
+          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
+          createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+        ],
+      }),
+    },
+    {
+      name: 'showPetById — GET with path params',
+      node: createOperation({
+        operationId: 'showPetById',
+        method: 'GET',
+        path: '/pets/:petId',
+        tags: ['pets'],
+        parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
+        responses: [
+          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Expected response to a valid request' }),
+          createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+        ],
+      }),
+    },
+    {
+      name: 'createPet — POST with request body',
+      node: createOperation({
+        operationId: 'createPets',
+        method: 'POST',
+        path: '/pets',
+        tags: ['pets'],
+        requestBody: createSchema({
+          type: 'object',
+          properties: [],
+          description: 'Pet to add',
+        }),
+        responses: [
+          createResponse({ statusCode: '201', schema: createSchema({ type: 'object', properties: [] }), description: 'Null response' }),
+          createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+        ],
+      }),
+    },
+    {
+      name: 'placeOrderPatch — PATCH with path params + request body + multiple status codes',
+      node: createOperation({
+        operationId: 'placeOrderPatch',
+        method: 'PATCH',
+        path: '/store/order/:orderId',
+        tags: ['store'],
+        parameters: [createParameter({ name: 'orderId', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
+        requestBody: createSchema({ type: 'object', properties: [], description: 'Order payload' }),
+        responses: [
+          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
+          createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+        ],
+      }),
+    },
+    {
+      name: 'deletePet — DELETE with no response body',
+      node: createOperation({
+        operationId: 'deletePet',
+        method: 'DELETE',
+        path: '/pets/:petId',
+        tags: ['pets'],
+        parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
+        responses: [
+          createResponse({
+            statusCode: '204',
+            description: 'No content',
+            schema: createSchema({
+              type: 'void',
+            }),
+          }),
+        ],
+      }),
+    },
+    {
+      name: 'findArtifacts — GET with multiple query params',
+      node: createOperation({
+        operationId: 'findArtifacts',
+        method: 'GET',
+        path: '/artifacts',
+        tags: ['artifacts'],
+        parameters: [
+          createParameter({ name: 'page', in: 'query', schema: createSchema({ type: 'integer' }) }),
+          createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) }),
+          createParameter({ name: 'sort', in: 'query', schema: createSchema({ type: 'string' }) }),
+        ],
+        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Results' })],
+      }),
+    },
+    {
+      name: 'listPets — GET with query params and paramsCasing camelcase',
+      node: createOperation({
+        operationId: 'listPets',
+        method: 'GET',
+        path: '/pets',
+        tags: ['pets'],
+        parameters: [createParameter({ name: 'my_limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+        responses: [
+          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
+          createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+        ],
+      }),
       options: {
-        optionalType: 'questionToken',
+        paramsCasing: 'camelcase',
       },
     },
-    {
-      name: 'PetIntegerTypeNumber',
-      input: '../../mocks/petStore.yaml',
-      path: 'Pet',
-      options: {
-        optionalType: 'questionToken',
-        integerType: 'number',
-      },
-    },
-    {
-      name: 'PetDict',
-      input: '../../mocks/petStore.yaml',
-      path: 'PetDict',
-      options: {},
-    },
-    {
-      name: 'PetUndefined',
-      input: '../../mocks/petStore.yaml',
-      path: 'Pet',
-      options: {
-        optionalType: 'undefined',
-      },
-    },
-    {
-      name: 'PetQuestionTokenAndUndefined',
-      input: '../../mocks/petStore.yaml',
-      path: 'Pet',
-      options: {
-        optionalType: 'questionTokenAndUndefined',
-      },
-    },
-    {
-      name: 'Pets',
-      input: '../../mocks/petStore.yaml',
-      path: 'Pets',
-      options: {
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'PetsInterface',
-      input: '../../mocks/petStore.yaml',
-      path: 'Pets',
-      options: {
-        syntaxType: 'interface',
-      },
-    },
-    {
-      name: 'PetsStoreRef',
-      input: '../../mocks/petStoreRef.yaml',
-      path: 'Pets',
-      options: {
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'CatTypeAsConst',
-      input: '../../mocks/discriminator.yaml',
-      path: 'Cat',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'FooBase',
-      input: '../../mocks/discriminator.yaml',
-      path: 'FooBase',
-      options: {
-        enumType: 'literal',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'FooNumber',
-      input: '../../mocks/discriminator.yaml',
-      path: 'FooNumber',
-      options: {
-        enumType: 'literal',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'DogTypeAsConst',
-      input: '../../mocks/discriminator.yaml',
-      path: 'Dog',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'NullConstNull',
-      input: '../../mocks/discriminator.yaml',
-      path: 'NullConst',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'StringValueConst',
-      input: '../../mocks/discriminator.yaml',
-      path: 'StringValueConst',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'NumberValueConst',
-      input: '../../mocks/discriminator.yaml',
-      path: 'NumberValueConst',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'MixedValueTypeConst',
-      input: '../../mocks/discriminator.yaml',
-      path: 'MixedValueTypeConst',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumVarNamesType',
-      input: '../../mocks/enums.yaml',
-      path: 'enumVarNames.Type',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'PascalEnum',
-      input: '../../mocks/enums.yaml',
-      path: 'PASCALEnums.Type',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumNamesType',
-      input: '../../mocks/enums.yaml',
-      path: 'enumNames.Type',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumItems',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.Items',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumString',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.String',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumNullableMember',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.NullableMember',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumNullableType',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.NullableType',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumAllOf',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.AllOf',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumInObject',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.InObject',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumArray',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.Array',
-      options: {
-        enumType: 'literal',
-      },
-    },
-    {
-      name: 'EnumArray_2.0',
-      input: '../../mocks/enums_2.0.yaml',
-      path: 'enum.Array',
-      options: {},
-    },
-    {
-      name: 'EnumNames',
-      input: '../../mocks/enums.yaml',
-      path: 'enumNames.Type',
-      options: {
-        enumType: 'enum',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumNamesPascalConst',
-      input: '../../mocks/enums.yaml',
-      path: 'enumNames.Type',
-      options: {
-        enumType: 'asPascalConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumNamesConst',
-      input: '../../mocks/enums.yaml',
-      path: 'enumNames.Type',
-      options: {
-        enumType: 'constEnum',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumNamesLiteral',
-      input: '../../mocks/enums.yaml',
-      path: 'enumNames.Type',
-      options: {
-        enumType: 'literal',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumNamesInlineLiteral',
-      input: '../../mocks/enums.yaml',
-      path: 'enumNames.Type',
-      options: {
-        enumType: 'inlineLiteral',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumNamesScreamingSnakeCase',
-      input: '../../mocks/enums.yaml',
-      path: 'enumNames.Type',
-      options: {
-        enumType: 'enum',
-        enumKeyCasing: 'screamingSnakeCase',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumNamesSnakeCase',
-      input: '../../mocks/enums.yaml',
-      path: 'enumNames.Type',
-      options: {
-        enumType: 'enum',
-        enumKeyCasing: 'snakeCase',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumNamesPascalCase',
-      input: '../../mocks/enums.yaml',
-      path: 'enumNames.Type',
-      options: {
-        enumType: 'enum',
-        enumKeyCasing: 'pascalCase',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumNamesCamelCase',
-      input: '../../mocks/enums.yaml',
-      path: 'enumNames.Type',
-      options: {
-        enumType: 'enum',
-        enumKeyCasing: 'camelCase',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'EnumStringScreamingSnakeCase',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.String',
-      options: {
-        enumType: 'asConst',
-        enumKeyCasing: 'screamingSnakeCase',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'Body_upload_file_api_assets_post',
-      input: '../../mocks/typeAssertions.yaml',
-      path: 'Body_upload_file_api_assets_post',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'Plain_file',
-      input: '../../mocks/typeAssertions.yaml',
-      path: 'Plain_file',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'Plain_dateString',
-      input: '../../mocks/typeAssertions.yaml',
-      path: 'Plain_date',
-      options: {
-        enumType: 'asConst',
-        dateType: 'string',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'Plain_dateDate',
-      input: '../../mocks/typeAssertions.yaml',
-      path: 'Plain_date',
-      options: {
-        enumType: 'asConst',
-        dateType: 'date',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'Plain_timeDate',
-      input: '../../mocks/typeAssertions.yaml',
-      path: 'Plain_time',
-      options: {
-        enumType: 'asConst',
-        dateType: 'date',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'Plain_email',
-      input: '../../mocks/typeAssertions.yaml',
-      path: 'Plain_email',
-      options: {
-        enumType: 'asConst',
-        dateType: 'date',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'Plain_uuid',
-      input: '../../mocks/typeAssertions.yaml',
-      path: 'Plain_uuid',
-      options: {
-        enumType: 'asConst',
-        dateType: 'date',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'ReadOnly',
-      input: '../../mocks/readOnly.yaml',
-      path: 'Demo',
-      options: {},
-    },
-    // https://github.com/kubb-labs/kubb/issues/1669
-    {
-      name: 'CatDogDiscriminator',
-      input: '../../mocks/discriminator.yaml',
-      path: 'CatDog',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    // https://github.com/kubb-labs/kubb/issues/1669
-    {
-      name: 'CatDogDiscriminatorWithoutMapping',
-      input: '../../mocks/discriminator.yaml',
-      path: 'CatDogWithoutMapping',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    // https://github.com/kubb-labs/kubb/issues/1669
-    // https://github.com/kubb-labs/kubb/issues/1736
-    {
-      name: 'PetsStoreAdvancedDiscriminator',
-      input: '../../mocks/discriminator.yaml',
-      path: 'Advanced',
-      options: {},
-    },
-    {
-      name: 'PetsStoreAdvancedDiscriminatorEnumType',
-      input: '../../mocks/discriminator.yaml',
-      path: 'Advanced',
-      options: {
-        enumType: 'enum',
-      },
-    },
-    {
-      name: 'CatDogDiscriminatorEnumType',
-      input: '../../mocks/discriminator.yaml',
-      path: 'CatDog',
-      options: {
-        enumType: 'enum',
-        optionalType: 'questionToken',
-      },
-    },
-    {
-      name: 'PetStorePetDiscriminatorEnum',
-      input: '../../mocks/discriminator.yaml',
-      path: 'PetStorePet',
-      options: {
-        enumType: 'enum',
-      },
-    },
-    {
-      name: 'PetStorePetDiscriminatorAsConst',
-      input: '../../mocks/discriminator.yaml',
-      path: 'PetStorePet',
-      options: {
-        enumType: 'asConst',
-      },
-    },
-    {
-      name: 'PetStoreDogEnum',
-      input: '../../mocks/discriminator.yaml',
-      path: 'PetStoreDog',
-      options: {
-        enumType: 'enum',
-      },
-    },
-    {
-      name: 'PetStoreCatEnum',
-      input: '../../mocks/discriminator.yaml',
-      path: 'PetStoreCat',
-      options: {
-        enumType: 'enum',
-      },
-    },
-    // https://github.com/kubb-labs/kubb/issues/1669
-    {
-      name: 'PetsStoreNotifcationDiscriminator',
-      input: '../../mocks/discriminator.yaml',
-      path: 'Notification',
-      options: {},
-    },
-    {
-      name: 'Nullable',
-      input: '../../mocks/nullable.yaml',
-      path: 'Nullable',
-      options: {},
-    },
-    {
-      name: 'DiscriminatorStrictVehicle',
-      input: '../../mocks/discriminator.yaml',
-      path: 'Vehicle',
-      options: {},
-      oasOptions: {
-        discriminator: 'strict',
-      },
-    },
-    {
-      name: 'DiscriminatorInheritVehicle',
-      input: '../../mocks/discriminator.yaml',
-      path: 'Vehicle',
-      options: {},
-      oasOptions: {
-        discriminator: 'inherit',
-      },
-    },
-    // https://github.com/kubb-labs/kubb/issues/2072
-    // Test circular reference avoidance: ACHDetailsResponse extends PaymentAccountDetailsResponse via allOf,
-    // but PaymentAccountDetailsResponse's oneOf includes ACHDetailsResponse - no circular ref should occur
-    {
-      name: 'ACHDetailsResponse',
-      input: '../../mocks/discriminator.yaml',
-      path: 'ACHDetailsResponse',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    // https://github.com/kubb-labs/kubb/issues/2072
-    // Test parent discriminator union - should include discriminator constraints
-    {
-      name: 'PaymentAccountDetailsResponse',
-      input: '../../mocks/discriminator.yaml',
-      path: 'PaymentAccountDetailsResponse',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    // https://github.com/kubb-labs/kubb/issues/2564
-    // Barrel file tries to export non-existing runtime consts when enum-like source is empty
-    {
-      name: 'EnumEmpty',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.Empty',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    // https://github.com/kubb-labs/kubb/issues/2564
-    {
-      name: 'EnumNullOnly',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.NullOnly',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    // https://github.com/kubb-labs/kubb/issues/2564
-    {
-      name: 'EnumObjectWithEmptyEnum',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.ObjectWithEmptyEnum',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    // https://github.com/kubb-labs/kubb/issues/2564
-    {
-      name: 'EnumEmptyPascalConst',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.Empty',
-      options: {
-        enumType: 'asPascalConst',
-        optionalType: 'questionToken',
-      },
-    },
-    // https://github.com/kubb-labs/kubb/issues/2561
-    // Format with contentMediaType should be a Blob
-    {
-      name: 'BodyTest',
-      input: '../../mocks/binaryFile.yaml',
-      path: 'BodyTest',
-      options: {},
-    },
-    // https://github.com/kubb-labs/kubb/issues/2762
-    // Literal enums crash on negative numeric values
-    {
-      name: 'EnumNegativeNumberLiteral',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.NegativeNumber',
-      options: {
-        enumType: 'literal',
-      },
-    },
-    // https://github.com/kubb-labs/kubb/issues/2762
-    {
-      name: 'EnumNegativeNumberAsConst',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.NegativeNumber',
-      options: {
-        enumType: 'asConst',
-        optionalType: 'questionToken',
-      },
-    },
-    // https://github.com/kubb-labs/kubb/issues/2762
-    {
-      name: 'EnumNegativeNumberEnum',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.NegativeNumber',
-      options: {
-        enumType: 'enum',
-      },
-    },
-    // https://github.com/kubb-labs/kubb/issues/2762
-    {
-      name: 'EnumNegativeNumberConstEnum',
-      input: '../../mocks/enums.yaml',
-      path: 'enum.NegativeNumber',
-      options: {
-        enumType: 'constEnum',
-      },
-    },
-  ] as const satisfies Array<{
-    input: string
-    name: string
-    path: string
-    options: Partial<PluginTs['resolvedOptions']>
-    oasOptions?: {
-      discriminator?: 'strict' | 'inherit'
-    }
-  }>
+  ] as const satisfies Array<{ name: string; node: OperationNode; options?: Partial<PluginTs['resolvedOptions']> }>
+
+  const defaultOptions: PluginTs['resolvedOptions'] = {
+    enumType: 'asConst',
+    enumKeyCasing: 'none',
+    enumSuffix: '',
+    dateType: 'string',
+    integerType: 'bigint',
+    optionalType: 'questionToken',
+    arrayType: 'array',
+    transformers: {},
+    unknownType: 'any',
+    syntaxType: 'type',
+    override: [],
+    paramsCasing: undefined,
+    output: { path: '.' },
+    group: undefined,
+    emptySchemaType: 'unknown',
+  }
 
   test.each(testData)('$name', async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input))
-
-    if ('oasOptions' in props && props.oasOptions) {
-      oas.setOptions(props.oasOptions)
-    }
-
     const options: PluginTs['resolvedOptions'] = {
-      enumType: 'asConst',
-      enumKeyCasing: 'none',
-      enumSuffix: 'enum',
-      dateType: 'string',
-      integerType: 'bigint',
-      transformers: {},
-      unknownType: 'any',
-      optionalType: 'questionToken',
-      arrayType: 'array',
-      override: [],
-      syntaxType: 'type',
-      emptySchemaType: 'unknown',
-      paramsCasing: undefined,
-      output: {
-        path: '.',
-      },
-      group: undefined,
-      ...props.options,
+      ...defaultOptions,
+      ...('options' in props ? props.options : {}),
     }
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
-
     const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
-    const generator = new SchemaGenerator(options, {
+
+    await buildOperation(props.node, {
+      version: '2',
+      config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
-      oas,
+      adapter: createMockedAdapter(),
       driver: mockedPluginDriver,
+      Component: typeGenerator.Operation,
       plugin,
-      contentType: 'application/json',
-      include: undefined,
-      override: undefined,
       mode: 'split',
-      output: './gen',
+      options: options,
     })
-
-    const { schemas } = getSchemas({ oas })
-    const name = props.path
-    const schema = schemas[name] as SchemaObject
-    const tree = generator.parse({ schema, name, parentName: null })
-
-    await buildSchema(
-      {
-        name,
-        tree,
-        value: schema,
-      },
-      {
-        config: { root: '.', output: { path: 'test' } } as Config,
-        fabric,
-        generator,
-        Component: typeGenerator.Schema,
-        plugin,
-      },
-    )
 
     await matchFiles(fabric.files, props.name)
   })
 })
 
-describe('typeGenerator operation', async () => {
+describe('typeGenerator v2 — Operation — group', () => {
   const fabric = createReactFabric()
 
   beforeEach(() => {
     fabric.context.fileManager.clear()
   })
 
-  const testData = [
-    {
-      name: 'showPetById',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets/{petId}',
-      method: 'get',
-      options: {},
-    },
-    {
-      name: 'getPets',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'get',
-      options: {},
-    },
-    {
-      name: 'createPet',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'post',
-      options: {},
-    },
-    {
-      name: 'createPet with unknownType unknown',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'post',
-      options: {
-        unknownType: 'unknown',
-      },
-    },
-    {
-      name: 'createPet with unknownType void',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'post',
-      options: {
-        unknownType: 'void',
-      },
-    },
-    {
-      name: 'deletePet',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets/{petId}',
-      method: 'delete',
-      options: {},
-    },
-    {
-      name: 'createPet with emptySchemaType unknown',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'post',
-      options: {
-        emptySchemaType: 'unknown',
-      },
-    },
-    {
-      name: 'createPet with emptySchemaType void',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'post',
-      options: {
-        emptySchemaType: 'void',
-      },
-    },
-    {
-      name: 'systems with explode form',
-      input: '../../mocks/explode.yaml',
-      path: '/systems',
-      method: 'get',
-      options: {
-        enumType: 'enum',
-      },
-    },
-    {
-      name: 'findArtifacts with mixed query params',
-      input: '../../mocks/mixedQueryParams.yaml',
-      path: '/artifacts',
-      method: 'get',
-      options: {
-        enumType: 'asConst',
-      },
-    },
-  ] as const satisfies Array<{
-    input: string
-    name: string
-    path: string
-    method: HttpMethod
-    options: Partial<PluginTs['resolvedOptions']>
-  }>
+  const defaultOptions: PluginTs['resolvedOptions'] = {
+    enumType: 'asConst',
+    enumKeyCasing: 'none',
+    enumSuffix: '',
+    dateType: 'string',
+    integerType: 'bigint',
+    optionalType: 'questionToken',
+    arrayType: 'array',
+    transformers: {},
+    unknownType: 'any',
+    syntaxType: 'type',
+    override: [],
+    paramsCasing: undefined,
+    output: { path: '.' },
+    group: undefined,
+    emptySchemaType: 'unknown',
+  }
 
-  test.each(testData)('$name', async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input))
+  const node = createOperation({
+    operationId: 'listPets',
+    method: 'GET',
+    path: '/pets',
+    tags: ['pets'],
+    parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+    responses: [
+      createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
+      createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+    ],
+  })
 
-    const options: PluginTs['resolvedOptions'] = {
-      enumType: 'asConst',
-      enumKeyCasing: 'none',
-      enumSuffix: '',
-      dateType: 'string',
-      integerType: 'bigint',
-      optionalType: 'questionToken',
-      arrayType: 'array',
-      transformers: {},
-      unknownType: 'any',
-      syntaxType: 'type',
-      override: [],
-      paramsCasing: undefined,
-      output: {
-        path: '.',
-      },
-      group: undefined,
-      emptySchemaType: 'unknown',
-      ...props.options,
-    }
+  test.each([
+    { group: { type: 'tag' as const }, expectedPath: 'pets/listPets.ts' },
+    { group: undefined, expectedPath: 'listPets.ts' },
+  ])('group=$group.type — file path is $expectedPath', async ({ group, expectedPath }) => {
+    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group }
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
-    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
-    const generator = new OperationGenerator(options, {
-      fabric,
-      oas,
-      include: undefined,
-      driver: mockedPluginDriver,
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'listPets' })
 
-      plugin,
-      contentType: undefined,
-      override: undefined,
-      mode: 'split',
-      exclude: [],
-    })
-    const operation = oas.operation(props.path, props.method)
-    await buildOperation(operation, {
+    await buildOperation(node, {
+      version: '2',
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
-      generator,
+      adapter: createMockedAdapter(),
+      driver: mockedPluginDriver,
       Component: typeGenerator.Operation,
       plugin,
+      mode: 'split',
+      options,
     })
 
-    await matchFiles(fabric.files, props.name)
+    const file = fabric.files.find((f) => f.baseName === 'listPets.ts')
+    expect(file).toBeDefined()
+    expect(file!.path).toBe(expectedPath)
+  })
+})
+
+describe('typeGenerator v2 — Schema (enum)', () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
+  /**
+   * Raw YAML key name with a dot (e.g. `enumNames.Type`) — the kind of name that comes
+   * straight from the OAS adapter for top-level schemas and is NOT a valid TS identifier.
+   * This is the exact scenario that the constEnum bug was triggered by.
+   */
+  const enumSchemaNode = createSchema({
+    type: 'enum',
+    name: 'enumNames.Type',
+    enumType: 'string',
+    enumValues: ['available', 'pending', 'sold'],
+  }) as EnumSchemaNode
+
+  const defaultSchemaOptions: PluginTs['resolvedOptions'] = {
+    enumType: 'asConst',
+    enumKeyCasing: 'none',
+    enumSuffix: '',
+    dateType: 'string',
+    integerType: 'bigint',
+    optionalType: 'questionToken',
+    arrayType: 'array',
+    transformers: {},
+    unknownType: 'any',
+    syntaxType: 'type',
+    override: [],
+    paramsCasing: undefined,
+    output: { path: '.' },
+    group: undefined,
+    emptySchemaType: 'unknown',
+  }
+
+  const enumTypes = ['asConst', 'asPascalConst', 'constEnum', 'enum', 'literal', 'inlineLiteral'] as const
+
+  test.each(enumTypes.map((et) => ({ enumType: et })))('enumType=$enumType — top-level enum with dotted name', async ({ enumType }) => {
+    const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumType }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: `enumNames.Type — ${enumType}` })
+
+    await buildSchema(enumSchemaNode, {
+      version: '2',
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver: mockedPluginDriver,
+      Component: typeGenerator.Schema,
+      plugin,
+      mode: 'split',
+      options,
+    })
+
+    await matchFiles(fabric.files, `enumNames.Type — ${enumType}`)
   })
 })

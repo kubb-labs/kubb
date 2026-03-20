@@ -192,52 +192,6 @@ export type Options = {
    */
   syntaxType?: 'type' | 'interface'
   /**
-   * Set a suffix for the generated enums.
-   * @default 'enum'
-   * @deprecated Set `enumSuffix` on the adapter (`adapterOas({ enumSuffix })`) instead.
-   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
-   */
-  enumSuffix?: string
-  /**
-   * Choose to use date or datetime as JavaScript Date instead of string.
-   * - 'string' represents dates as string values.
-   * - 'date' represents dates as JavaScript Date objects.
-   * @default 'string'
-   * @deprecated Set `dateType` on the adapter (`adapterOas({ dateType })`) instead.
-   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
-   */
-  dateType?: 'string' | 'date'
-  /**
-   * Choose to use `number` or `bigint` for integer fields with `int64` format.
-   * - 'number' uses the TypeScript `number` type (matches JSON.parse() runtime behavior).
-   * - 'bigint' uses the TypeScript `bigint` type (accurate for values exceeding Number.MAX_SAFE_INTEGER).
-   * @note in v5 of Kubb 'bigint' will become the default to better align with OpenAPI's int64 specification.
-   * @default 'number'
-   * @deprecated Set `integerType` on the adapter (`adapterOas({ integerType })`) instead.
-   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
-   */
-  integerType?: 'number' | 'bigint'
-  /**
-   * Which type to use when the Swagger/OpenAPI file is not providing more information.
-   * - 'any' allows any value.
-   * - 'unknown' requires type narrowing before use.
-   * - 'void' represents no value.
-   * @default 'any'
-   * @deprecated Set `unknownType` on the adapter (`adapterOas({ unknownType })`) instead.
-   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
-   */
-  unknownType?: 'any' | 'unknown' | 'void'
-  /**
-   * Which type to use for empty schema values.
-   * - 'any' allows any value.
-   * - 'unknown' requires type narrowing before use.
-   * - 'void' represents no value.
-   * @default `unknownType`
-   * @deprecated Set `emptySchemaType` on the adapter (`adapterOas({ emptySchemaType })`) instead.
-   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
-   */
-  emptySchemaType?: 'any' | 'unknown' | 'void'
-  /**
    * Choose what to use as mode for an optional value.
    * - 'questionToken' marks the property as optional with ? (e.g., type?: string).
    * - 'undefined' adds undefined to the type union (e.g., type: string | undefined).
@@ -281,11 +235,6 @@ type ResolvedOptions = {
   override: NonNullable<Options['override']>
   enumType: NonNullable<Options['enumType']>
   enumKeyCasing: NonNullable<Options['enumKeyCasing']>
-  enumSuffix: NonNullable<Options['enumSuffix']>
-  dateType: NonNullable<Options['dateType']>
-  integerType: NonNullable<Options['integerType']>
-  unknownType: NonNullable<Options['unknownType']>
-  emptySchemaType: NonNullable<Options['emptySchemaType']>
   optionalType: NonNullable<Options['optionalType']>
   arrayType: NonNullable<Options['arrayType']>
   transformers: NonNullable<Options['transformers']>

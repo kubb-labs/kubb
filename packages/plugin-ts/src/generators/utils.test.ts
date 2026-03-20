@@ -1,7 +1,7 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
-import { printerTs } from '../../printer.ts'
+import { printerTs } from '../printer.ts'
 import { buildDataSchemaNode, buildParamsSchema, buildResponsesSchemaNode, buildResponseUnionSchemaNode } from './utils.ts'
 
 const resolveName = ({ name, type }: { name: string; type: 'type' | 'function' }) => {
