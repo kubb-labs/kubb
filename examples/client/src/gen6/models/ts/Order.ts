@@ -3,54 +3,49 @@
  * Do not edit manually.
  */
 
-export const orderStatusEnum = {
+export const orderStatusEnum4 = {
   placed: 'placed',
   approved: 'approved',
   delivered: 'delivered',
 } as const
 
-export type OrderStatusEnumKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
+export type OrderStatusEnum4Key = (typeof orderStatusEnum4)[keyof typeof orderStatusEnum4]
 
-export const orderHttpStatusEnum = {
+export const orderHttpStatusEnum4 = {
   '200': 200,
   '400': 400,
   '500': 500,
 } as const
 
-export type OrderHttpStatusEnumKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
+export type OrderHttpStatusEnum4Key = (typeof orderHttpStatusEnum4)[keyof typeof orderHttpStatusEnum4]
 
 export type Order = {
   /**
-   * @example 10
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   id?: number
   /**
-   * @example 198772
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   petId?: number
   /**
-   * @example 7
-   * @type integer | undefined
+   * @type integer | undefined, int32
    */
   quantity?: number
   /**
-   * @type string | undefined
+   * @type string | undefined, date-time
    */
   shipDate?: Date
   /**
    * @description Order Status
-   * @example approved
    * @type string | undefined
    */
-  status?: OrderStatusEnumKey
+  status?: OrderStatusEnum4Key
   /**
    * @description HTTP Status
-   * @example 200
    * @type number | undefined
    */
-  http_status?: OrderHttpStatusEnumKey
+  http_status?: OrderHttpStatusEnum4Key
   /**
    * @type boolean | undefined
    */

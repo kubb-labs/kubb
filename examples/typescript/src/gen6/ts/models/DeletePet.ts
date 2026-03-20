@@ -3,44 +3,41 @@
  * Do not edit manually.
  */
 
-export type DeletePetPathParams = {
-  /**
-   * @description Pet id to delete
-   * @type integer
-   */
-  petId: number
-}
+export type DeletePetHeaderApiKey = string
 
-export type DeletePetHeaderParams = {
-  /**
-   * @type string | undefined
-   */
-  api_key?: string
-}
-
-export const deletePet200Enum = {
-  TYPE1: 'TYPE1',
-  TYPE2: 'TYPE2',
-  TYPE3: 'TYPE3',
-} as const
-
-export type DeletePet200EnumKey = (typeof deletePet200Enum)[keyof typeof deletePet200Enum]
+/**
+ * @description Pet id to delete
+ */
+export type DeletePetPathPetId = number
 
 /**
  * @description items
  */
-export type DeletePet200 = DeletePet200EnumKey[]
+export type DeletePetStatus200 = ('TYPE1' | 'TYPE2' | 'TYPE3')[]
 
 /**
  * @description Invalid pet value
  */
-export type DeletePet400 = any
+export type DeletePetStatus400 = any
 
-export type DeletePetMutation = {
-  Response: DeletePet200
-  PathParams: DeletePetPathParams
-  HeaderParams: DeletePetHeaderParams
-  Errors: DeletePet400
+export type DeletePetRequestConfig = {
+  data?: never
+  pathParams: {
+    petId: DeletePetPathPetId
+  }
+  queryParams?: never
+  headerParams?: {
+    api_key?: DeletePetHeaderApiKey
+  }
+  url: `/pet/${string}`
 }
 
-export type DeletePetMutationResponse = DeletePet200
+export type DeletePetResponses = {
+  '200': DeletePetStatus200
+  '400': DeletePetStatus400
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type DeletePetResponse = DeletePetStatus200 | DeletePetStatus400

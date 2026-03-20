@@ -1,21 +1,19 @@
 import type { Address } from './Address.ts'
 
-export const paramsStatusEnum2 = {
+export const customerParamsStatusEnum = {
   placed: 'placed',
   approved: 'approved',
   delivered: 'delivered',
 } as const
 
-export type ParamsStatusEnum2Key = (typeof paramsStatusEnum2)[keyof typeof paramsStatusEnum2]
+export type CustomerParamsStatusEnumKey = (typeof customerParamsStatusEnum)[keyof typeof customerParamsStatusEnum]
 
 export type Customer = {
   /**
-   * @example 100000
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   id?: number
   /**
-   * @example fehguy
    * @type string | undefined
    */
   username?: string
@@ -25,10 +23,9 @@ export type Customer = {
   params?: {
     /**
      * @description Order Status
-     * @example approved
      * @type string
      */
-    status: ParamsStatusEnum2Key
+    status: CustomerParamsStatusEnumKey
     /**
      * @type string
      */

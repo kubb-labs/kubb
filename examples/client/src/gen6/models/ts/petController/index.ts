@@ -17,10 +17,10 @@ export type {
   FindPetsByStatus400,
   FindPetsByStatusQuery,
   FindPetsByStatusQueryParams,
-  FindPetsByStatusQueryParamsStatusEnumKey,
+  FindPetsByStatusQueryParamsStatusEnum4Key,
   FindPetsByStatusQueryResponse,
 } from './FindPetsByStatus.ts'
-export { findPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatus.ts'
+export { findPetsByStatusQueryParamsStatusEnum4 } from './FindPetsByStatus.ts'
 export type {
   FindPetsByTags200,
   FindPetsByTags400,

@@ -5,4 +5,4 @@
 
 import type { PhoneNumberType } from './PhoneNumberType.ts'
 
-export type PhoneWithMaxLengthType = PhoneNumberType & string
+export type PhoneWithMaxLengthType = PhoneNumberType & string & string

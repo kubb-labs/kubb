@@ -16,7 +16,7 @@ export type AddPet200Type = PetType
  */
 export type AddPet405Type = {
   /**
-   * @type integer | undefined
+   * @type integer | undefined, int32
    */
   code?: number
   /**
@@ -25,12 +25,15 @@ export type AddPet405Type = {
   message?: string
 }
 
+/**
+ * @description Create a new pet in the store
+ */
 export type AddPetMutationRequestType = AddPetRequestType
 
-export type AddPetMutationType = {
+export type AddPetMutationResponseType = AddPet200Type
+
+export type AddPetTypeMutation = {
   Response: AddPet200Type
   Request: AddPetMutationRequestType
   Errors: AddPet405Type
 }
-
-export type AddPetMutationResponseType = AddPet200Type

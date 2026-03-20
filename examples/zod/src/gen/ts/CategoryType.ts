@@ -5,14 +5,15 @@
 
 export type CategoryType = {
   /**
-   * @example 1
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   id?: number
   /**
-   * @example Dogs
    * @type string | undefined
    */
   name?: string
+  /**
+   * @type object | undefined
+   */
   parent?: CategoryType
 }

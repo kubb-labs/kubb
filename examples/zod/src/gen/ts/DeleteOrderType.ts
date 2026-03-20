@@ -6,7 +6,7 @@
 export type DeleteOrderPathParamsType = {
   /**
    * @description ID of the order that needs to be deleted
-   * @type integer
+   * @type integer, int64
    */
   orderId: number
 }
@@ -21,10 +21,10 @@ export type DeleteOrder400Type = any
  */
 export type DeleteOrder404Type = any
 
-export type DeleteOrderMutationType = {
+export type DeleteOrderMutationResponseType = any
+
+export type DeleteOrderTypeMutation = {
   Response: any
   PathParams: DeleteOrderPathParamsType
   Errors: DeleteOrder400Type | DeleteOrder404Type
 }
-
-export type DeleteOrderMutationResponseType = any

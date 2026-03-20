@@ -8,14 +8,23 @@ import type { User } from './User.ts'
 /**
  * @description successful operation
  */
-export type CreateUserError = User
+export type CreateUserStatusDefault = User
 
-export type CreateUserMutationRequest = User
+export type CreateUserData = User
 
-export type CreateUserMutation = {
-  Response: any
-  Request: CreateUserMutationRequest
-  Errors: CreateUserError
+export type CreateUserRequestConfig = {
+  data?: CreateUserData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/user'
 }
 
-export type CreateUserMutationResponse = any
+export type CreateUserResponses = {
+  default: CreateUserStatusDefault
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type CreateUserResponse = CreateUserStatusDefault

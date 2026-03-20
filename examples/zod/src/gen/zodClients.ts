@@ -10,11 +10,11 @@ import type { GetInventoryQueryResponseType } from './ts/GetInventoryType.ts'
 import type { GetOrderById400Type, GetOrderById404Type, GetOrderByIdPathParamsType, GetOrderByIdQueryResponseType } from './ts/GetOrderByIdType.ts'
 import type { PlaceOrderPatch405Type, PlaceOrderPatchMutationRequestType, PlaceOrderPatchMutationResponseType } from './ts/PlaceOrderPatchType.ts'
 import type { PlaceOrder405Type, PlaceOrderMutationRequestType, PlaceOrderMutationResponseType } from './ts/PlaceOrderType.ts'
-import { deleteOrderMutationResponseSchema } from './zod/deleteOrderSchema.ts'
-import { getInventoryQueryResponseSchema } from './zod/getInventorySchema.ts'
-import { getOrderByIdQueryResponseSchema } from './zod/getOrderByIdSchema.ts'
-import { placeOrderPatchMutationRequestSchema, placeOrderPatchMutationResponseSchema } from './zod/placeOrderPatchSchema.ts'
-import { placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from './zod/placeOrderSchema.ts'
+import { deleteOrderMutationResponseSchema } from './zod/deleteOrderSchema.gen.ts'
+import { getInventoryQueryResponseSchema } from './zod/getInventorySchema.gen.ts'
+import { getOrderByIdQueryResponseSchema } from './zod/getOrderByIdSchema.gen.ts'
+import { placeOrderPatchMutationRequestSchema, placeOrderPatchMutationResponseSchema } from './zod/placeOrderPatchSchema.gen.ts'
+import { placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from './zod/placeOrderSchema.gen.ts'
 
 function getGetInventoryUrl() {
   const res = { method: 'GET', url: '/store/inventory' as const }

@@ -18,13 +18,16 @@ export type UpdateUserPathParamsType = {
  */
 export type UpdateUserErrorType = any
 
+/**
+ * @description Update an existent user in the store
+ */
 export type UpdateUserMutationRequestType = UserType
 
-export type UpdateUserMutationType = {
+export type UpdateUserMutationResponseType = any
+
+export type UpdateUserTypeMutation = {
   Response: any
   Request: UpdateUserMutationRequestType
   PathParams: UpdateUserPathParamsType
-  Errors: UpdateUserErrorType
+  Errors: any
 }
-
-export type UpdateUserMutationResponseType = any

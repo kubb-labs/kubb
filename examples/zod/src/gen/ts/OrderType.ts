@@ -31,39 +31,33 @@ export type OrderValueEnumTypeKey = (typeof orderValueEnum)[keyof typeof orderVa
 
 export type OrderType = {
   /**
-   * @example 10
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   id?: number
   /**
-   * @example 198772
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   petId?: number
   /**
-   * @example 7
-   * @type integer | undefined
+   * @type integer | undefined, int32
    */
   quantity?: number
   /**
-   * @type string | undefined
+   * @type string | undefined, date-time
    */
   shipDate?: string
   /**
    * @description Order Status
-   * @example approved
    * @type string | undefined
    */
   status?: OrderStatusEnumTypeKey
   /**
    * @description HTTP Status
-   * @example 200
    * @type number | undefined
    */
   http_status?: OrderHttpStatusEnumTypeKey
   /**
    * @description Price
-   * @example 2
    * @type number | undefined
    */
   value?: OrderValueEnumTypeKey

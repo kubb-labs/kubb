@@ -1,7 +1,7 @@
 export type DeletePetPathParams = {
   /**
    * @description Pet id to delete
-   * @type integer
+   * @type integer, int64
    */
   petId: number
 }
@@ -18,11 +18,11 @@ export type DeletePetHeaderParams = {
  */
 export type DeletePet400 = any
 
+export type DeletePetMutationResponse = any
+
 export type DeletePetMutation = {
   Response: any
   PathParams: DeletePetPathParams
   HeaderParams: DeletePetHeaderParams
   Errors: DeletePet400
 }
-
-export type DeletePetMutationResponse = any
