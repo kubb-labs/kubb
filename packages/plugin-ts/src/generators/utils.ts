@@ -220,6 +220,24 @@ export function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperatio
     )
   }
 
+  if (node.parameters.some((p) => p.in === 'path') && resolver.resolvePathParamsTypedName) {
+    properties.push(
+      createProperty({
+        name: 'PathParams',
+        schema: createSchema({ type: 'ref', name: resolver.resolvePathParamsTypedName(node) }),
+      }),
+    )
+  }
+
+  if (node.parameters.some((p) => p.in === 'header') && resolver.resolveHeaderParamsTypedName) {
+    properties.push(
+      createProperty({
+        name: 'HeaderParams',
+        schema: createSchema({ type: 'ref', name: resolver.resolveHeaderParamsTypedName(node) }),
+      }),
+    )
+  }
+
   properties.push(createProperty({ name: 'Errors', schema: errorsSchema }))
 
   return createSchema({ type: 'object', properties })

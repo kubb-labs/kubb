@@ -23,6 +23,7 @@ export type UpdateUserMutationRequestType = UserType
 export type UpdateUserMutationType = {
   Response: any
   Request: UpdateUserMutationRequestType
+  PathParams: UpdateUserPathParamsType
   Errors: UpdateUserErrorType
 }
 

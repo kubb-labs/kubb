@@ -425,6 +425,7 @@ export type GetPetById404 = any
 
 export type GetPetByIdQuery = {
   Response: GetPetById200
+  PathParams: GetPetByIdPathParams
   Errors: GetPetById400 | GetPetById404
 }
 
@@ -458,6 +459,7 @@ export type UpdatePetWithForm405 = any
 
 export type UpdatePetWithFormMutation = {
   Response: any
+  PathParams: UpdatePetWithFormPathParams
   Errors: UpdatePetWithForm405
 }
 
@@ -485,6 +487,8 @@ export type DeletePet400 = any
 
 export type DeletePetMutation = {
   Response: any
+  PathParams: DeletePetPathParams
+  HeaderParams: DeletePetHeaderParams
   Errors: DeletePet400
 }
 
@@ -516,6 +520,7 @@ export type UploadFileMutationRequest = Blob
 export type UploadFileMutation = {
   Response: UploadFile200
   Request: UploadFileMutationRequest
+  PathParams: UploadFilePathParams
   Errors: any
 }
 
@@ -600,6 +605,7 @@ export type GetOrderById404 = any
 
 export type GetOrderByIdQuery = {
   Response: GetOrderById200
+  PathParams: GetOrderByIdPathParams
   Errors: GetOrderById400 | GetOrderById404
 }
 
@@ -625,6 +631,7 @@ export type DeleteOrder404 = any
 
 export type DeleteOrderMutation = {
   Response: any
+  PathParams: DeleteOrderPathParams
   Errors: DeleteOrder400 | DeleteOrder404
 }
 
@@ -733,6 +740,7 @@ export type GetUserByName404 = any
 
 export type GetUserByNameQuery = {
   Response: GetUserByName200
+  PathParams: GetUserByNamePathParams
   Errors: GetUserByName400 | GetUserByName404
 }
 
@@ -756,6 +764,7 @@ export type UpdateUserMutationRequest = User
 export type UpdateUserMutation = {
   Response: any
   Request: UpdateUserMutationRequest
+  PathParams: UpdateUserPathParams
   Errors: UpdateUserError
 }
 
@@ -781,6 +790,7 @@ export type DeleteUser404 = any
 
 export type DeleteUserMutation = {
   Response: any
+  PathParams: DeleteUserPathParams
   Errors: DeleteUser400 | DeleteUser404
 }
 

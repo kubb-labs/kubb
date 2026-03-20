@@ -31,6 +31,7 @@ export type GetOrderById404 = any
 
 export type GetOrderByIdQuery = {
   Response: GetOrderById200
+  PathParams: GetOrderByIdPathParams
   Errors: GetOrderById400 | GetOrderById404
 }
 

@@ -21,6 +21,7 @@ export type FindPetsByStatus400 = any
 
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatus200
+  PathParams: FindPetsByStatusPathParams
   Errors: FindPetsByStatus400
 }
 

@@ -24,6 +24,7 @@ export type DeleteUser404 = any;
 
 export type DeleteUserMutation = {
     Response: any;
+    PathParams: DeleteUserPathParams;
     Errors: (DeleteUser400 | DeleteUser404);
 };
 

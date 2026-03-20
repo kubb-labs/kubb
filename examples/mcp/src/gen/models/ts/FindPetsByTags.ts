@@ -52,6 +52,7 @@ export type FindPetsByTags400 = any
 export type FindPetsByTagsQuery = {
   Response: FindPetsByTags200
   QueryParams: FindPetsByTagsQueryParams
+  HeaderParams: FindPetsByTagsHeaderParams
   Errors: FindPetsByTags400
 }
 

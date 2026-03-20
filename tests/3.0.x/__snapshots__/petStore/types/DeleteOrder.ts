@@ -24,6 +24,7 @@ export type DeleteOrder404 = any;
 
 export type DeleteOrderMutation = {
     Response: any;
+    PathParams: DeleteOrderPathParams;
     Errors: (DeleteOrder400 | DeleteOrder404);
 };
 

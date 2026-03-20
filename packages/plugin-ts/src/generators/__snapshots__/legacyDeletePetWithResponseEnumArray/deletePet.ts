@@ -22,6 +22,7 @@ export type DeletePet200 = DeletePet200EnumKey[]
 
 export type DeletePetMutation = {
   Response: DeletePet200
+  PathParams: DeletePetPathParams
   Errors: any
 }
 

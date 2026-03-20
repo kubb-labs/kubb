@@ -23,6 +23,7 @@ export type DeleteOrder404Type = any
 
 export type DeleteOrderMutationType = {
   Response: any
+  PathParams: DeleteOrderPathParamsType
   Errors: DeleteOrder400Type | DeleteOrder404Type
 }
 

@@ -30,6 +30,7 @@ export type GetUserByName404Type = any
 
 export type GetUserByNameQueryType = {
   Response: GetUserByName200Type
+  PathParams: GetUserByNamePathParamsType
   Errors: GetUserByName400Type | GetUserByName404Type
 }
 
