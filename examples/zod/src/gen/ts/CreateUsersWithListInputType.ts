@@ -17,10 +17,10 @@ export type CreateUsersWithListInputErrorType = any
 
 export type CreateUsersWithListInputMutationRequestType = UserType[]
 
-export type CreateUsersWithListInputMutationResponseType = CreateUsersWithListInput200Type
-
-export type CreateUsersWithListInputTypeMutation = {
+export type CreateUsersWithListInputMutationType = {
   Response: CreateUsersWithListInput200Type
   Request: CreateUsersWithListInputMutationRequestType
-  Errors: any
+  Errors: CreateUsersWithListInputErrorType
 }
+
+export type CreateUsersWithListInputMutationResponseType = CreateUsersWithListInput200Type

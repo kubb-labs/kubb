@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-export const orderParamsStatusEnum = {
+export const paramsStatusEnum = {
   placed: 'placed',
   approved: 'approved',
   delivered: 'delivered',
 } as const
 
-export type OrderParamsStatusEnumKey = (typeof orderParamsStatusEnum)[keyof typeof orderParamsStatusEnum]
+export type ParamsStatusEnumKey = (typeof paramsStatusEnum)[keyof typeof paramsStatusEnum]
 
 export const orderHttpStatusEnum = {
   '200': 200,
@@ -39,7 +39,7 @@ export type Order = {
      * @example approved
      * @type string
      */
-    status: OrderParamsStatusEnumKey
+    status: ParamsStatusEnumKey
     /**
      * @type string
      */

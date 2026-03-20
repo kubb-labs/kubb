@@ -6,21 +6,11 @@
 /**
  * @description successful operation
  */
-export type LogoutUserStatusDefault = any
+export type LogoutUserError = any
 
-export type LogoutUserRequestConfig = {
-  data?: never
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
-  url: '/user/logout'
+export type LogoutUserQuery = {
+  Response: any
+  Errors: LogoutUserError
 }
 
-export type LogoutUserResponses = {
-  default: LogoutUserStatusDefault
-}
-
-/**
- * @description Union of all possible responses
- */
-export type LogoutUserResponse = LogoutUserStatusDefault
+export type LogoutUserQueryResponse = any

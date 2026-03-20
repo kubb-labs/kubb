@@ -13,5 +13,5 @@ export type Dog = {
    * @type string
    */
   name: string
-  readonly image?: Image
+  image?: Image
 }

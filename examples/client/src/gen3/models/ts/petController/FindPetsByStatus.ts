@@ -5,13 +5,13 @@
 
 import type { Pet } from '../Pet.ts'
 
-export const findPetsByStatusQueryParamsStatusEnum3 = {
+export const findPetsByStatusQueryParamsStatusEnum = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
 
-export type FindPetsByStatusQueryParamsStatusEnum3Key = (typeof findPetsByStatusQueryParamsStatusEnum3)[keyof typeof findPetsByStatusQueryParamsStatusEnum3]
+export type FindPetsByStatusQueryParamsStatusEnumKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
 
 export type FindPetsByStatusQueryParams = {
   /**
@@ -19,7 +19,7 @@ export type FindPetsByStatusQueryParams = {
    * @default "available"
    * @type string | undefined
    */
-  status?: FindPetsByStatusQueryParamsStatusEnum3Key
+  status?: FindPetsByStatusQueryParamsStatusEnumKey
 }
 
 /**
@@ -32,10 +32,10 @@ export type FindPetsByStatus200 = Pet[]
  */
 export type FindPetsByStatus400 = any
 
-export type FindPetsByStatusQueryResponse = FindPetsByStatus200
-
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatus200
   QueryParams: FindPetsByStatusQueryParams
   Errors: FindPetsByStatus400
 }
+
+export type FindPetsByStatusQueryResponse = FindPetsByStatus200

@@ -10,15 +10,12 @@ import type { UserType } from './UserType.ts'
  */
 export type CreateUserErrorType = UserType
 
-/**
- * @description Created user object
- */
 export type CreateUserMutationRequestType = UserType
 
-export type CreateUserMutationResponseType = any
-
-export type CreateUserTypeMutation = {
+export type CreateUserMutationType = {
   Response: any
   Request: CreateUserMutationRequestType
-  Errors: any
+  Errors: CreateUserErrorType
 }
+
+export type CreateUserMutationResponseType = any
