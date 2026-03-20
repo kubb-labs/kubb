@@ -7,9 +7,9 @@ export type TagType = {
   /**
    * @type integer | undefined
    */
-  id?: number;
+  id?: number
   /**
    * @type string | undefined
    */
-  name?: string;
-};
+  name?: string
+}

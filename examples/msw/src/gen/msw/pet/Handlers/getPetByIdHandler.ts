@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { GetPetByIdQueryResponse, GetPetById400, GetPetById404 } from '../../../models/GetPetById.ts'
 import { http } from 'msw'
+import type { GetPetById400, GetPetById404, GetPetByIdQueryResponse } from '../../../models/GetPetById.ts'
 
 export function getPetByIdHandlerResponse200(data: GetPetByIdQueryResponse) {
   return new Response(JSON.stringify(data), {

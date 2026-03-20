@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from '../../models/FindPetsByStatus.ts'
+import type { FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus.ts'
 
 export function findPetsByStatus(
   params?: FindPetsByStatusQueryParams,

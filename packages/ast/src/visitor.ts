@@ -197,7 +197,9 @@ export function transform(node: Node, visitor: Visitor, options: VisitorOptions 
       return {
         ...op,
         parameters: op.parameters.map((p) => transform(p, visitor, options)),
-        requestBody: op.requestBody ? { ...op.requestBody, schema: op.requestBody.schema ? transform(op.requestBody.schema, visitor, options) : undefined } : undefined,
+        requestBody: op.requestBody
+          ? { ...op.requestBody, schema: op.requestBody.schema ? transform(op.requestBody.schema, visitor, options) : undefined }
+          : undefined,
         responses: op.responses.map((r) => transform(r, visitor, options)),
       }
     }

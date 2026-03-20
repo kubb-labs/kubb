@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../models/GetPetById.ts'
+import type { GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/GetPetById.ts'
 
 export function getPetById(petId: GetPetByIdPathParams['petId'], options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<GetPetByIdQueryResponse> {
   return cy

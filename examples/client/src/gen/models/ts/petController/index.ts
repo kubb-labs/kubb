@@ -20,6 +20,7 @@ export type {
   FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
 } from './FindPetsByStatus.js'
+export { findPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatus.js'
 export type {
   FindPetsByTags200,
   FindPetsByTags400,
@@ -59,4 +60,3 @@ export type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from './UploadFile.js'
-export { findPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatus.js'
