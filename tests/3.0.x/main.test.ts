@@ -162,7 +162,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
-          legacy: false,
+          legacy: true,
         }),
       ],
     },
