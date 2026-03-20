@@ -5,8 +5,6 @@ import { useKubb } from '@kubb/core/hooks'
 import { File } from '@kubb/react-fabric'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
-import { resolverTs } from '../resolverTs.ts'
-import { resolverTsLegacy } from '../resolverTsLegacy.ts'
 import type { PluginTs } from '../types'
 import { buildDataSchemaNode, buildResponsesSchemaNode, buildResponseUnionSchemaNode } from './utils.ts'
 
@@ -14,10 +12,8 @@ export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Operation({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, legacy } = options
+    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver } = options
     const { mode, getFile, resolveName, resolveBanner, resolveFooter } = useKubb<PluginTs>()
-
-    const resolver = legacy ? resolverTsLegacy : resolverTs
 
     const file = getFile({
       name: node.operationId,
@@ -125,7 +121,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
   },
   Schema({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, legacy } = options
+    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver } = options
     const { mode, resolveName, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     if (!node.name) {
@@ -138,7 +134,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
     }))
 
     const isEnumSchema = node.type === 'enum'
-    const resolver = legacy ? resolverTsLegacy : resolverTs
 
     const typedName = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyTypedName(node) : resolver.resolveTypedName(node.name)
 

@@ -2,6 +2,7 @@ import path from 'node:path'
 import { createRoot } from '@kubb/ast'
 import type { AdapterSource } from '@kubb/core'
 import { createAdapter } from '@kubb/core'
+import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { resolveServerUrl } from './oas/resolveServerUrl.ts'
 import { parseFromConfig } from './oas/utils.ts'
 import { createOasParser } from './parser.ts'
@@ -37,10 +38,11 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
     serverVariables,
     discriminator = 'strict',
     collisionDetection = false,
-    dateType = 'string',
-    integerType = 'number',
-    unknownType = 'any',
-    emptySchemaType = unknownType,
+    dateType = DEFAULT_PARSER_OPTIONS.dateType,
+    integerType = DEFAULT_PARSER_OPTIONS.integerType,
+    unknownType = DEFAULT_PARSER_OPTIONS.unknownType,
+    enumSuffix = DEFAULT_PARSER_OPTIONS.enumSuffix,
+    emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
   } = options
 
   // Mutable Map shared between `options` and each `parse()` call.
@@ -61,6 +63,7 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
       integerType,
       unknownType,
       emptySchemaType,
+      enumSuffix,
       nameMapping,
     },
     getImports(node, resolve) {
@@ -91,7 +94,7 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
         nameMapping.set(key, value)
       }
 
-      const root = parser.parse({ dateType, integerType, unknownType, emptySchemaType })
+      const root = parser.parse({ dateType, integerType, unknownType, emptySchemaType, enumSuffix })
 
       return createRoot({
         ...root,

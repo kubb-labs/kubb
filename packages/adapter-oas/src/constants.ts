@@ -1,7 +1,17 @@
 import type { SchemaType } from '@kubb/ast/types'
 import type { HttpMethods as OASHttpMethods } from 'oas/types'
+import type { ParserOptions } from './types.ts'
 
-// ─── Merge defaults ────────────────────────────────────────────────────────────
+/**
+ * Default values for all `Options` fields.
+ */
+export const DEFAULT_PARSER_OPTIONS = {
+  dateType: 'string',
+  integerType: 'number',
+  unknownType: 'any',
+  emptySchemaType: 'any',
+  enumSuffix: 'enum',
+} as const satisfies ParserOptions
 
 /**
  * OpenAPI version string written into merged document stubs.
@@ -17,8 +27,6 @@ export const MERGE_DEFAULT_TITLE = 'Merged API' as const
  * Fallback `info.version` used when merging multiple API documents.
  */
 export const MERGE_DEFAULT_VERSION = '1.0.0' as const
-
-// ─── Schema analysis ───────────────────────────────────────────────────────────
 
 /**
  * JSON Schema keywords that indicate structural composition.
@@ -92,8 +100,6 @@ export const enumExtensionKeys = ['x-enumNames', 'x-enum-varnames'] as const
  * Scalar primitive schema types used for union member simplification.
  */
 export const SCALAR_PRIMITIVE_TYPES = new Set(['string', 'number', 'integer', 'bigint', 'boolean'] as const)
-
-// ─── HTTP ──────────────────────────────────────────────────────────────────────
 
 /**
  * Canonical HTTP method names for the Kubb OAS layer.

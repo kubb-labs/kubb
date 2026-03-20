@@ -3,7 +3,7 @@ import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
 import { createPlugin, type Group, getBarrelFiles, getMode, renderOperation, renderSchema } from '@kubb/core'
 import { typeGenerator } from './generators'
-import { resolverTs } from './resolverTs.ts'
+import { resolverTs, resolverTsLegacy } from './resolverTs.ts'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
@@ -26,6 +26,8 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     legacy = false,
   } = options
 
+  const resolver = legacy ? resolverTsLegacy : resolverTs
+
   return {
     name: pluginTsName,
     options: {
@@ -40,6 +42,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       override,
       paramsCasing,
       legacy,
+      resolver,
     },
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
@@ -75,8 +78,16 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
       return path.resolve(root, output.path, baseName)
     },
-    resolveName() {
-      throw new Error('Do not use resolveName for pluginTs, use resolverTs instead')
+    resolveName(name, type) {
+      this.driver.events.emit('warn', 'Do not use resolveName for pluginTs, use resolverTs instead')
+
+      const resolvedName = resolver.default(name, type)
+
+      if (type) {
+        return transformers?.name?.(resolvedName, type) || resolvedName
+      }
+
+      return resolvedName
     },
     async install() {
       const { config, fabric, plugin, adapter, rootNode, driver, openInStudio } = this
@@ -96,7 +107,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
           async schema(schemaNode) {
             const writeTasks = generators.map(async (generator) => {
               if (generator.type === 'react' && generator.version === '2') {
-                const options = resolverTs.resolveOptions(schemaNode, { options: plugin.options, exclude, include, override })
+                const options = resolver.resolveOptions(schemaNode, { options: plugin.options, exclude, include, override })
 
                 if (options === null) {
                   return
@@ -120,7 +131,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
           async operation(operationNode) {
             const writeTasks = generators.map(async (generator) => {
               if (generator.type === 'react' && generator.version === '2') {
-                const options = resolverTs.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
+                const options = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
 
                 if (options === null) {
                   return

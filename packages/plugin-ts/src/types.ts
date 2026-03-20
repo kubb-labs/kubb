@@ -252,6 +252,7 @@ type ResolvedOptions = {
   syntaxType: NonNullable<Options['syntaxType']>
   paramsCasing: Options['paramsCasing']
   legacy: NonNullable<Options['legacy']>
+  resolver: ResolverTs
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>

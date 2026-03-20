@@ -1,7 +1,8 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { EnumSchemaNode, OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import { buildOperation, buildSchema } from '@kubb/plugin-oas'
+import { renderOperation, renderSchema } from '@kubb/core'
+import { resolverTs } from '@kubb/plugin-ts'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
@@ -133,19 +134,16 @@ describe('typeGenerator v2 — Operation', () => {
   const defaultOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
     enumKeyCasing: 'none',
-    enumSuffix: '',
-    dateType: 'string',
-    integerType: 'bigint',
     optionalType: 'questionToken',
     arrayType: 'array',
     transformers: {},
-    unknownType: 'any',
     syntaxType: 'type',
     override: [],
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,
-    emptySchemaType: 'unknown',
+    resolver: resolverTs,
+    legacy: false,
   }
 
   test.each(testData)('$name', async (props) => {
@@ -156,8 +154,7 @@ describe('typeGenerator v2 — Operation', () => {
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
     const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
 
-    await buildOperation(props.node, {
-      version: '2',
+    await renderOperation(props.node, {
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       adapter: createMockedAdapter(),
@@ -182,19 +179,16 @@ describe('typeGenerator v2 — Operation — group', () => {
   const defaultOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
     enumKeyCasing: 'none',
-    enumSuffix: '',
-    dateType: 'string',
-    integerType: 'bigint',
     optionalType: 'questionToken',
     arrayType: 'array',
     transformers: {},
-    unknownType: 'any',
     syntaxType: 'type',
     override: [],
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,
-    emptySchemaType: 'unknown',
+    resolver: resolverTs,
+    legacy: false,
   }
 
   const node = createOperation({
@@ -217,8 +211,7 @@ describe('typeGenerator v2 — Operation — group', () => {
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
     const mockedPluginDriver = createMockedPluginDriver({ name: 'listPets' })
 
-    await buildOperation(node, {
-      version: '2',
+    await renderOperation(node, {
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       adapter: createMockedAdapter(),
@@ -257,19 +250,16 @@ describe('typeGenerator v2 — Schema (enum)', () => {
   const defaultSchemaOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
     enumKeyCasing: 'none',
-    enumSuffix: '',
-    dateType: 'string',
-    integerType: 'bigint',
     optionalType: 'questionToken',
     arrayType: 'array',
     transformers: {},
-    unknownType: 'any',
     syntaxType: 'type',
     override: [],
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,
-    emptySchemaType: 'unknown',
+    resolver: resolverTs,
+    legacy: false,
   }
 
   const enumTypes = ['asConst', 'asPascalConst', 'constEnum', 'enum', 'literal', 'inlineLiteral'] as const
@@ -279,8 +269,7 @@ describe('typeGenerator v2 — Schema (enum)', () => {
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
     const mockedPluginDriver = createMockedPluginDriver({ name: `enumNames.Type — ${enumType}` })
 
-    await buildSchema(enumSchemaNode, {
-      version: '2',
+    await renderSchema(enumSchemaNode, {
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       adapter: createMockedAdapter(),
