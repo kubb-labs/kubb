@@ -6,6 +6,31 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.9
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/core`](/packages/core)
+
+-   [#2808](https://github.com/kubb-labs/kubb/pull/2808) [`617aa20`](https://github.com/kubb-labs/kubb/commit/617aa203608222aba2a022ab998ced16f4216ed3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Removed deprecated runtime checks for object-style and JSON-style plugins in `getPlugins`.
+
+    These plugin formats have not been supported for some time, and the associated guards have been removed to streamline runtime behavior. This change might break any downstream custom plugins relying on those obsolete formats. 
+
+    ::: code-group
+    ```typescript [Before]
+    getPlugins([
+      { name: "pluginA", config: {} }, // Object-style
+      "./pluginB.json", // JSON-style
+    ]);
+    ```
+
+    ```typescript [After]
+// Ensure all plugins follow the supported string or array format
+const plugins = getPlugins(["pluginA", "pluginB"]);
+    ```
+    :::
+
+
 ## 4.36.1
 
 ### ✨ Features
