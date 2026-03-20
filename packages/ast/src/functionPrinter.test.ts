@@ -67,6 +67,17 @@ describe('functionPrinter — declaration', () => {
     expect(printer.print(sig)).toBe('petId: string, params?: Params, config: Config = {}')
   })
 
+  it('always sorts rest parameters last', () => {
+    const sig = createFunctionParameters({
+      params: [
+        createFunctionParameter({ name: 'args', type: 'string[]', rest: true }),
+        createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
+      ],
+    })
+
+    expect(printer.print(sig)).toBe('petId: string, ...args: string[]')
+  })
+
   it('renders an object param with auto-computed type', () => {
     const sig = createFunctionParameters({
       params: [

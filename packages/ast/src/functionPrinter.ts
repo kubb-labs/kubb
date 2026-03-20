@@ -77,6 +77,7 @@ function rank(param: FunctionParameterNode | ObjectBindingParameterNode): number
     const isOptional = param.optional ?? param.properties.every((p) => p.optional || p.default !== undefined)
     return isOptional ? 1 : 0
   }
+  if (param.rest) return 3
   if (param.default) return 2
   return param.optional ? 1 : 0
 }
@@ -157,7 +158,8 @@ export const functionPrinter = defineFunctionPrinter<DefaultPrinter>((options) =
 
       const names = sorted.map((p) => {
         const n = transformName ? transformName(p.name) : p.name
-        return p.optional && !p.default ? `${n}?` : n
+
+        return n
       })
 
       const nameStr = names.length ? `{ ${names.join(', ')} }` : undefined
