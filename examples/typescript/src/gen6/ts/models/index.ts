@@ -1,10 +1,9 @@
 export type {
-  AddPetData,
-  AddPetRequestConfig,
-  AddPetResponse,
-  AddPetResponses,
-  AddPetStatus200,
-  AddPetStatus405,
+  AddPet200,
+  AddPet405,
+  AddPetMutation,
+  AddPetMutationRequest,
+  AddPetMutationResponse,
 } from './AddPet.ts'
 export type {
   AddPetRequest,
@@ -16,178 +15,159 @@ export type { ApiResponse } from './ApiResponse.ts'
 export type { Cat } from './Cat.ts'
 export type { Category } from './Category.ts'
 export type {
-  CreateUserData,
-  CreateUserRequestConfig,
-  CreateUserResponse,
-  CreateUserResponses,
-  CreateUserStatusDefault,
+  CreateUserError,
+  CreateUserMutation,
+  CreateUserMutationRequest,
+  CreateUserMutationResponse,
 } from './CreateUser.ts'
 export type {
-  CreateUsersWithListInputData,
-  CreateUsersWithListInputRequestConfig,
-  CreateUsersWithListInputResponse,
-  CreateUsersWithListInputResponses,
-  CreateUsersWithListInputStatus200,
-  CreateUsersWithListInputStatusDefault,
+  CreateUsersWithListInput200,
+  CreateUsersWithListInputError,
+  CreateUsersWithListInputMutation,
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
 } from './CreateUsersWithListInput.ts'
-export type { Customer, CustomerParamsStatusEnumKey } from './Customer.ts'
-export { customerParamsStatusEnum } from './Customer.ts'
+export type { Customer, ParamsStatusEnum2Key } from './Customer.ts'
+export { paramsStatusEnum2 } from './Customer.ts'
 export type {
-  DeleteOrderPathOrderId,
-  DeleteOrderRequestConfig,
-  DeleteOrderResponse,
-  DeleteOrderResponses,
-  DeleteOrderStatus400,
-  DeleteOrderStatus404,
+  DeleteOrder400,
+  DeleteOrder404,
+  DeleteOrderMutation,
+  DeleteOrderMutationResponse,
+  DeleteOrderPathParams,
 } from './DeleteOrder.ts'
 export type {
-  DeletePetHeaderApiKey,
-  DeletePetPathPetId,
-  DeletePetRequestConfig,
-  DeletePetResponse,
-  DeletePetResponses,
-  DeletePetStatus200,
-  DeletePetStatus400,
+  DeletePet200,
+  DeletePet200EnumKey,
+  DeletePet400,
+  DeletePetHeaderParams,
+  DeletePetMutation,
+  DeletePetMutationResponse,
+  DeletePetPathParams,
 } from './DeletePet.ts'
+export { deletePet200Enum } from './DeletePet.ts'
 export type {
-  DeleteUserPathUsername,
-  DeleteUserRequestConfig,
-  DeleteUserResponse,
-  DeleteUserResponses,
-  DeleteUserStatus400,
-  DeleteUserStatus404,
+  DeleteUser400,
+  DeleteUser404,
+  DeleteUserMutation,
+  DeleteUserMutationResponse,
+  DeleteUserPathParams,
 } from './DeleteUser.ts'
 export type { Dog } from './Dog.ts'
 export type {
-  FindPetsByStatusQueryStatus,
-  FindPetsByStatusRequestConfig,
-  FindPetsByStatusResponse,
-  FindPetsByStatusResponses,
-  FindPetsByStatusStatus200,
-  FindPetsByStatusStatus400,
+  FindPetsByStatus200,
+  FindPetsByStatus400,
+  FindPetsByStatusQuery,
+  FindPetsByStatusQueryParams,
+  FindPetsByStatusQueryParamsStatusEnumKey,
+  FindPetsByStatusQueryResponse,
 } from './FindPetsByStatus.ts'
+export { findPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatus.ts'
 export type {
-  FindPetsByTagsQueryPage,
-  FindPetsByTagsQueryPageSize,
-  FindPetsByTagsQueryTags,
-  FindPetsByTagsRequestConfig,
-  FindPetsByTagsResponse,
-  FindPetsByTagsResponses,
-  FindPetsByTagsStatus200,
-  FindPetsByTagsStatus400,
+  FindPetsByTags200,
+  FindPetsByTags400,
+  FindPetsByTagsQuery,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsQueryResponse,
 } from './FindPetsByTags.ts'
 export type { FullAddress } from './FullAddress.ts'
 export type {
-  GetInventoryRequestConfig,
-  GetInventoryResponse,
-  GetInventoryResponses,
-  GetInventoryStatus200,
+  GetInventory200,
+  GetInventoryQuery,
+  GetInventoryQueryResponse,
 } from './GetInventory.ts'
 export type {
-  GetOrderByIdPathOrderId,
-  GetOrderByIdRequestConfig,
-  GetOrderByIdResponse,
-  GetOrderByIdResponses,
-  GetOrderByIdStatus200,
-  GetOrderByIdStatus400,
-  GetOrderByIdStatus404,
+  GetOrderById200,
+  GetOrderById400,
+  GetOrderById404,
+  GetOrderByIdPathParams,
+  GetOrderByIdQuery,
+  GetOrderByIdQueryResponse,
 } from './GetOrderById.ts'
 export type {
-  GetPetByIdPathPetId,
-  GetPetByIdRequestConfig,
-  GetPetByIdResponse,
-  GetPetByIdResponses,
-  GetPetByIdStatus200,
-  GetPetByIdStatus400,
-  GetPetByIdStatus404,
+  GetPetById200,
+  GetPetById400,
+  GetPetById404,
+  GetPetByIdPathParams,
+  GetPetByIdQuery,
+  GetPetByIdQueryResponse,
 } from './GetPetById.ts'
 export type {
-  GetUserByNamePathUsername,
-  GetUserByNameRequestConfig,
-  GetUserByNameResponse,
-  GetUserByNameResponses,
-  GetUserByNameStatus200,
-  GetUserByNameStatus400,
-  GetUserByNameStatus404,
+  GetUserByName200,
+  GetUserByName400,
+  GetUserByName404,
+  GetUserByNamePathParams,
+  GetUserByNameQuery,
+  GetUserByNameQueryResponse,
 } from './GetUserByName.ts'
 export type { HappyCustomer } from './HappyCustomer.ts'
 export type {
-  LoginUserQueryPassword,
-  LoginUserQueryUsername,
-  LoginUserRequestConfig,
-  LoginUserResponse,
-  LoginUserResponses,
-  LoginUserStatus200,
-  LoginUserStatus400,
+  LoginUser200,
+  LoginUser400,
+  LoginUserQuery,
+  LoginUserQueryParams,
+  LoginUserQueryResponse,
 } from './LoginUser.ts'
 export type {
-  LogoutUserRequestConfig,
-  LogoutUserResponse,
-  LogoutUserResponses,
-  LogoutUserStatusDefault,
+  LogoutUserError,
+  LogoutUserQuery,
+  LogoutUserQueryResponse,
 } from './LogoutUser.ts'
 export type {
   Order,
   OrderHttpStatusEnumKey,
-  OrderParamsStatusEnumKey,
+  ParamsStatusEnumKey,
 } from './Order.ts'
-export { orderHttpStatusEnum, orderParamsStatusEnum } from './Order.ts'
-export type { Pet, PetStatusEnumKey } from './Pet.ts'
-export { petStatusEnum } from './Pet.ts'
+export { orderHttpStatusEnum, paramsStatusEnum } from './Order.ts'
+export type { Pet, StatusEnumKey } from './Pet.ts'
+export { statusEnum } from './Pet.ts'
 export type { PetNotFound } from './PetNotFound.ts'
 export type {
-  PlaceOrderData,
-  PlaceOrderRequestConfig,
-  PlaceOrderResponse,
-  PlaceOrderResponses,
-  PlaceOrderStatus200,
-  PlaceOrderStatus405,
+  PlaceOrder200,
+  PlaceOrder405,
+  PlaceOrderMutation,
+  PlaceOrderMutationRequest,
+  PlaceOrderMutationResponse,
 } from './PlaceOrder.ts'
 export type {
-  PlaceOrderPatchData,
-  PlaceOrderPatchRequestConfig,
-  PlaceOrderPatchResponse,
-  PlaceOrderPatchResponses,
-  PlaceOrderPatchStatus200,
-  PlaceOrderPatchStatus405,
+  PlaceOrderPatch200,
+  PlaceOrderPatch405,
+  PlaceOrderPatchMutation,
+  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchMutationResponse,
 } from './PlaceOrderPatch.ts'
 export type { Tag } from './Tag.ts'
 export type { UnhappyCustomer } from './UnhappyCustomer.ts'
 export type {
-  UpdatePetData,
-  UpdatePetRequestConfig,
-  UpdatePetResponse,
-  UpdatePetResponses,
-  UpdatePetStatus200,
-  UpdatePetStatus400,
-  UpdatePetStatus404,
-  UpdatePetStatus405,
+  UpdatePet200,
+  UpdatePet400,
+  UpdatePet404,
+  UpdatePet405,
+  UpdatePetMutation,
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
 } from './UpdatePet.ts'
 export type {
-  UpdatePetWithFormPathPetId,
-  UpdatePetWithFormQueryName,
-  UpdatePetWithFormQueryStatus,
-  UpdatePetWithFormRequestConfig,
-  UpdatePetWithFormResponse,
-  UpdatePetWithFormResponses,
-  UpdatePetWithFormStatus405,
+  UpdatePetWithForm405,
+  UpdatePetWithFormMutation,
+  UpdatePetWithFormMutationResponse,
+  UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
 } from './UpdatePetWithForm.ts'
 export type {
-  UpdateUserData,
-  UpdateUserPathUsername,
-  UpdateUserRequestConfig,
-  UpdateUserResponse,
-  UpdateUserResponses,
-  UpdateUserStatusDefault,
+  UpdateUserError,
+  UpdateUserMutation,
+  UpdateUserMutationRequest,
+  UpdateUserMutationResponse,
+  UpdateUserPathParams,
 } from './UpdateUser.ts'
 export type {
-  UploadFileData,
-  UploadFilePathPetId,
-  UploadFileQueryAdditionalMetadata,
-  UploadFileRequestConfig,
-  UploadFileResponse,
-  UploadFileResponses,
-  UploadFileStatus200,
+  UploadFile200,
+  UploadFileMutation,
+  UploadFileMutationRequest,
+  UploadFileMutationResponse,
+  UploadFilePathParams,
+  UploadFileQueryParams,
 } from './UploadFile.ts'
 export type { User } from './User.ts'
 export type { UserArray } from './UserArray.ts'
