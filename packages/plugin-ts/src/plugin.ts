@@ -26,9 +26,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     generators = [typeGenerator].filter(Boolean),
   } = options
 
-  // @deprecated Will be removed in v5 when collisionDetection defaults to true
-  const usedEnumNames = {}
-
   return {
     name: pluginTsName,
     options: {
@@ -42,7 +39,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       group,
       override,
       paramsCasing,
-      usedEnumNames,
     },
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
