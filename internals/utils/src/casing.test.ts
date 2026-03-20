@@ -47,6 +47,32 @@ describe('casing', () => {
     expect(camelCase(input, options as Parameters<typeof camelCase>[1])).toBe(expected)
   })
 
+  test.each([
+    // version numbers with dots should NOT be split (Bug 4 regression)
+    ['get_enterprise_configurations_id_v2025.0', { isFile: true }, 'getEnterpriseConfigurationsIdV20250'],
+    ['some_operation_v3.14', { isFile: true }, 'someOperationV314'],
+    // dots followed by letters ARE split in file mode (namespace-like paths)
+    ['pet.petId', { isFile: true }, 'pet/petId'],
+    ['pet.Pet', { isFile: true }, 'pet/pet'],
+    // dots before digits should NOT split
+    ['version.1.2.3', { isFile: true }, 'version123'],
+    // dots before letters DO split
+    ['api.v2', { isFile: true }, 'api/v2'],
+  ])('camelCase(%s, %o) -> %s (file mode dot handling)', (input, options, expected) => {
+    expect(camelCase(input, options as Parameters<typeof camelCase>[1])).toBe(expected)
+  })
+
+  test.each([
+    // version numbers with dots should NOT be split (Bug 4 regression)
+    ['get_enterprise_configurations_id_v2025.0', { isFile: true }, 'GetEnterpriseConfigurationsIdV20250'],
+    ['some_operation_v3.14', { isFile: true }, 'SomeOperationV314'],
+    // dots followed by letters ARE split in file mode
+    ['pet.petId', { isFile: true }, 'pet/PetId'],
+    ['pet.Pet', { isFile: true }, 'pet/Pet'],
+  ])('pascalCase(%s, %o) -> %s (file mode dot handling)', (input, options, expected) => {
+    expect(pascalCase(input, options as Parameters<typeof pascalCase>[1])).toBe(expected)
+  })
+
   test('pascalCase', () => {
     expect(pascalCase('pet pet')).toBe('PetPet')
     expect(pascalCase('is HTML test')).toBe('IsHTMLTest')

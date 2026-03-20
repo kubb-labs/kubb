@@ -115,6 +115,17 @@ describe('typeGenerator v2 — Operation', () => {
       }),
     },
     {
+      name: 'noTagsOperation — GET with no tags (Bug 4 regression)',
+      node: createOperation({
+        operationId: 'get_enterprise_configurations_id_v2025.0',
+        method: 'GET',
+        path: '/enterprise_configurations/:enterprise_id',
+        tags: [],
+        parameters: [createParameter({ name: 'enterprise_id', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
+        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Enterprise config' })],
+      }),
+    },
+    {
       name: 'listPets — GET with query params and paramsCasing camelcase',
       node: createOperation({
         operationId: 'listPets',
@@ -227,6 +238,34 @@ describe('typeGenerator v2 — Operation — group', () => {
     const file = fabric.files.find((f) => f.baseName === 'listPets.ts')
     expect(file).toBeDefined()
     expect(file!.path).toBe(expectedPath)
+  })
+
+  test('group=tag with empty tags falls back to default (Bug 4 regression)', async () => {
+    const noTagNode = createOperation({
+      operationId: 'getConfig',
+      method: 'GET',
+      path: '/config',
+      tags: [],
+      responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Config' })],
+    })
+    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group: { type: 'tag' } }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'getConfig' })
+
+    await renderOperation(noTagNode, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver: mockedPluginDriver,
+      Component: typeGenerator.Operation,
+      plugin,
+      mode: 'split',
+      options,
+    })
+
+    const file = fabric.files.find((f) => f.baseName === 'getConfig.ts')
+    expect(file).toBeDefined()
+    expect(file!.path).toBe('default/getConfig.ts')
   })
 })
 

@@ -1,0 +1,44 @@
+openapi: 3.0.3
+info:
+  title: Circular discriminator reference
+  description: |
+    Regression test for Bug 2: a discriminator on a parent schema maps back
+    to child schemas that extend the parent via allOf + $ref. This creates a
+    circular reference where the child's type declaration was self-referencing
+    (e.g. `type ClientDisconnectedProblem = ClientDisconnectedProblem` instead
+    of `type ClientDisconnectedProblem = Problem`).
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    Problem:
+      type: object
+      required:
+        - type
+        - title
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+        status:
+          type: integer
+      discriminator:
+        propertyName: type
+        mapping:
+          "about:blank": "#/components/schemas/GenericProblem"
+          "https://example.com/problems/disconnected": "#/components/schemas/DisconnectedProblem"
+          "https://example.com/problems/forbidden": "#/components/schemas/ForbiddenProblem"
+    GenericProblem:
+      allOf:
+        - $ref: "#/components/schemas/Problem"
+    DisconnectedProblem:
+      description: Client disconnected.
+      allOf:
+        - $ref: "#/components/schemas/Problem"
+    ForbiddenProblem:
+      description: Client forbidden.
+      allOf:
+        - $ref: "#/components/schemas/Problem"
