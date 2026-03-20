@@ -26,19 +26,10 @@ export type UpdatePetWithFormStatus405 = any
 export interface UpdatePetWithFormRequestConfig {
   data?: never
   pathParams: {
-    /**
-     * @description ID of pet that needs to be updated
-     */
     petId: UpdatePetWithFormPathPetId
   }
   queryParams?: {
-    /**
-     * @description Name of pet that needs to be updated
-     */
     name?: UpdatePetWithFormQueryName
-    /**
-     * @description Status of pet that needs to be updated
-     */
     status?: UpdatePetWithFormQueryStatus
   }
   headerParams?: never

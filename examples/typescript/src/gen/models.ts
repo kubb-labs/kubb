@@ -482,9 +482,6 @@ export interface FindPetsByStatusRequestConfig {
   data?: never
   pathParams?: never
   queryParams?: {
-    /**
-     * @description Status values that need to be considered for filter
-     */
     status?: FindPetsByStatusQueryStatus
   }
   headerParams?: never
@@ -530,17 +527,8 @@ export interface FindPetsByTagsRequestConfig {
   data?: never
   pathParams?: never
   queryParams?: {
-    /**
-     * @description Tags to filter by
-     */
     tags?: FindPetsByTagsQueryTags
-    /**
-     * @description to request with required page number or pagination
-     */
     page?: FindPetsByTagsQueryPage
-    /**
-     * @description to request with required page size
-     */
     pageSize?: FindPetsByTagsQueryPageSize
   }
   headerParams?: never
@@ -580,9 +568,6 @@ export type GetPetByIdStatus404 = any
 export interface GetPetByIdRequestConfig {
   data?: never
   pathParams: {
-    /**
-     * @description ID of pet to return
-     */
     petId: GetPetByIdPathPetId
   }
   queryParams?: never
@@ -624,19 +609,10 @@ export type UpdatePetWithFormStatus405 = any
 export interface UpdatePetWithFormRequestConfig {
   data?: never
   pathParams: {
-    /**
-     * @description ID of pet that needs to be updated
-     */
     petId: UpdatePetWithFormPathPetId
   }
   queryParams?: {
-    /**
-     * @description Name of pet that needs to be updated
-     */
     name?: UpdatePetWithFormQueryName
-    /**
-     * @description Status of pet that needs to be updated
-     */
     status?: UpdatePetWithFormQueryStatus
   }
   headerParams?: never
@@ -672,9 +648,6 @@ export type DeletePetStatus400 = any
 export interface DeletePetRequestConfig {
   data?: never
   pathParams: {
-    /**
-     * @description Pet id to delete
-     */
     petId: DeletePetPathPetId
   }
   queryParams?: never
@@ -714,15 +687,9 @@ export type UploadFileData = Blob
 export interface UploadFileRequestConfig {
   data?: UploadFileData
   pathParams: {
-    /**
-     * @description ID of pet to update
-     */
     petId: UploadFilePathPetId
   }
   queryParams?: {
-    /**
-     * @description Additional Metadata
-     */
     additionalMetadata?: UploadFileQueryAdditionalMetadata
   }
   headerParams?: never
@@ -848,9 +815,6 @@ export type GetOrderByIdStatus404 = any
 export interface GetOrderByIdRequestConfig {
   data?: never
   pathParams: {
-    /**
-     * @description ID of order that needs to be fetched
-     */
     orderId: GetOrderByIdPathOrderId
   }
   queryParams?: never
@@ -887,9 +851,6 @@ export type DeleteOrderStatus404 = any
 export interface DeleteOrderRequestConfig {
   data?: never
   pathParams: {
-    /**
-     * @description ID of the order that needs to be deleted
-     */
     orderId: DeleteOrderPathOrderId
   }
   queryParams?: never
@@ -985,13 +946,7 @@ export interface LoginUserRequestConfig {
   data?: never
   pathParams?: never
   queryParams?: {
-    /**
-     * @description The user name for login
-     */
     username?: LoginUserQueryUsername
-    /**
-     * @description The password for login in clear text
-     */
     password?: LoginUserQueryPassword
   }
   headerParams?: never
@@ -1053,9 +1008,6 @@ export type GetUserByNameStatus404 = any
 export interface GetUserByNameRequestConfig {
   data?: never
   pathParams: {
-    /**
-     * @description The name that needs to be fetched. Use user1 for testing.
-     */
     username: GetUserByNamePathUsername
   }
   queryParams?: never
@@ -1089,9 +1041,6 @@ export type UpdateUserData = User
 export interface UpdateUserRequestConfig {
   data?: UpdateUserData
   pathParams: {
-    /**
-     * @description name that need to be deleted
-     */
     username: UpdateUserPathUsername
   }
   queryParams?: never
@@ -1126,9 +1075,6 @@ export type DeleteUserStatus404 = any
 export interface DeleteUserRequestConfig {
   data?: never
   pathParams: {
-    /**
-     * @description The name that needs to be deleted
-     */
     username: DeleteUserPathUsername
   }
   queryParams?: never

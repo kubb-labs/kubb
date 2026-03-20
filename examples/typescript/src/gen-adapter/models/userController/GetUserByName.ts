@@ -28,9 +28,6 @@ export type GetUserByNameStatus404 = any
 export interface GetUserByNameRequestConfig {
   data?: never
   pathParams: {
-    /**
-     * @description The name that needs to be fetched. Use user1 for testing.
-     */
     username: GetUserByNamePathUsername
   }
   queryParams?: never

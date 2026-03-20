@@ -21,9 +21,6 @@ export type DeleteUserStatus404 = any
 export interface DeleteUserRequestConfig {
   data?: never
   pathParams: {
-    /**
-     * @description The name that needs to be deleted
-     */
     username: DeleteUserPathUsername
   }
   queryParams?: never

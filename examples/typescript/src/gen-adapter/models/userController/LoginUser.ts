@@ -27,13 +27,7 @@ export interface LoginUserRequestConfig {
   data?: never
   pathParams?: never
   queryParams?: {
-    /**
-     * @description The user name for login
-     */
     username?: LoginUserQueryUsername
-    /**
-     * @description The password for login in clear text
-     */
     password?: LoginUserQueryPassword
   }
   headerParams?: never

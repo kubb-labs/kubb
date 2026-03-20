@@ -21,9 +21,6 @@ export type DeleteOrderStatus404 = any
 export interface DeleteOrderRequestConfig {
   data?: never
   pathParams: {
-    /**
-     * @description ID of the order that needs to be deleted
-     */
     orderId: DeleteOrderPathOrderId
   }
   queryParams?: never

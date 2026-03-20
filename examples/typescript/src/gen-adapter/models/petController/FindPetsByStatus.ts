@@ -25,9 +25,6 @@ export interface FindPetsByStatusRequestConfig {
   data?: never
   pathParams?: never
   queryParams?: {
-    /**
-     * @description Status values that need to be considered for filter
-     */
     status?: FindPetsByStatusQueryStatus
   }
   headerParams?: never
