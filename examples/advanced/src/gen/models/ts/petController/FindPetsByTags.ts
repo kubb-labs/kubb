@@ -44,11 +44,11 @@ export type FindPetsByTags200 = Array<Pet>
  */
 export type FindPetsByTags400 = any
 
-export type FindPetsByTagsQueryResponse = FindPetsByTags200
-
 export type FindPetsByTagsQuery = {
   Response: FindPetsByTags200
   QueryParams: FindPetsByTagsQueryParams
   HeaderParams: FindPetsByTagsHeaderParams
   Errors: FindPetsByTags400
 }
+
+export type FindPetsByTagsQueryResponse = FindPetsByTags200
