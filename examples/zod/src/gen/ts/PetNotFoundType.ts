@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-export type PetNotFoundType = {
+export type PetNotFound = {
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   code?: number
   /**

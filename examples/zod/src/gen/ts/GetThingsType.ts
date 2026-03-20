@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { PetNotFoundType } from './PetNotFoundType.ts'
+import type { PetNotFound } from './PetNotFoundType.ts'
 
-export type GetThingsQueryParamsType = {
+export type GetThingsQueryParams = {
   /**
    * @description Maximum number of things to return
    * @minLength 1
@@ -26,17 +26,17 @@ export type GetThingsQueryParamsType = {
 /**
  * @description Null response
  */
-export type GetThings201Type = any
+export type GetThings201 = any
 
 /**
  * @description unexpected error
  */
-export type GetThingsErrorType = PetNotFoundType
+export type GetThingsError = PetNotFound
 
-export type GetThingsQueryResponseType = GetThings201Type
-
-export type GetThingsTypeQuery = {
-  Response: GetThings201Type
-  QueryParams: GetThingsQueryParamsType
-  Errors: any
+export type GetThingsQuery = {
+  Response: GetThings201
+  QueryParams: GetThingsQueryParams
+  Errors: GetThingsError
 }
+
+export type GetThingsQueryResponse = GetThings201

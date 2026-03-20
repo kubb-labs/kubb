@@ -3,24 +3,24 @@
  * Do not edit manually.
  */
 
-import type { UserType } from './UserType.ts'
+import type { User } from './UserType.ts'
 
 /**
  * @description Successful operation
  */
-export type CreateUsersWithListInput200Type = UserType
+export type CreateUsersWithListInput200 = User
 
 /**
  * @description successful operation
  */
-export type CreateUsersWithListInputErrorType = any
+export type CreateUsersWithListInputError = any
 
-export type CreateUsersWithListInputMutationRequestType = UserType[]
+export type CreateUsersWithListInputMutationRequest = User[]
 
-export type CreateUsersWithListInputMutationResponseType = CreateUsersWithListInput200Type
-
-export type CreateUsersWithListInputTypeMutation = {
-  Response: CreateUsersWithListInput200Type
-  Request: CreateUsersWithListInputMutationRequestType
-  Errors: any
+export type CreateUsersWithListInputMutation = {
+  Response: CreateUsersWithListInput200
+  Request: CreateUsersWithListInputMutationRequest
+  Errors: CreateUsersWithListInputError
 }
+
+export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200

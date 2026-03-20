@@ -1,6 +1,5 @@
 export type { AddPet200, AddPet405, AddPetMutation, AddPetMutationRequest, AddPetMutationResponse } from './AddPet.ts'
-export type { Address, AddressIdentifierEnumKey } from './Address.ts'
-export { addressIdentifierEnum } from './Address.ts'
+export type { Address } from './Address.ts'
 export type { ApiResponse } from './ApiResponse.ts'
 export type { Category } from './Category.ts'
 export type { CreateUserError, CreateUserMutation, CreateUserMutationRequest, CreateUserMutationResponse } from './CreateUser.ts'

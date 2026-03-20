@@ -3,19 +3,21 @@
  * Do not edit manually.
  */
 
-import type { AddressType } from './AddressType.ts'
+import type { Address } from './AddressType.ts'
 
-export type CustomerType = {
+export type Customer = {
   /**
-   * @type integer | undefined, int64
+   * @example 100000
+   * @type integer | undefined
    */
   id?: number
   /**
+   * @example fehguy
    * @type string | undefined
    */
   username?: string
   /**
    * @type array | undefined
    */
-  address?: AddressType[]
+  address?: Address[]
 }

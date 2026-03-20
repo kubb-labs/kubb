@@ -1,3 +1,4 @@
+import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginCypress } from '@kubb/plugin-cypress'
@@ -44,6 +45,7 @@ const baseConfig = {
     lint: 'auto',
     format: 'auto',
   },
+  adapter: adapterOas({ legacy: true }),
   plugins: [
     pluginOas({
       generators: [],
@@ -59,6 +61,7 @@ const baseConfig = {
         type: 'tag',
       },
       enumType: 'asConst',
+      legacy: true,
     }),
     pluginReactQuery({
       output: {
