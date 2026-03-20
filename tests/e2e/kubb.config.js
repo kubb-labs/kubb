@@ -16,7 +16,7 @@ const schemas = [
   { name: 'discriminator', path: './schemas/discriminator.yaml' },
   { name: 'Figma', path: 'https://raw.githubusercontent.com/figma/rest-api-spec/refs/heads/main/openapi/openapi.yaml' },
   // { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },  // TS2300: duplicate barrel exports in hook index files
-  // { name: 'atlassian.com', path: 'https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json', strict: false },  // blocked by bunq.com failure
+  { name: 'atlassian.com', path: 'https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json', strict: false },
   { name: 'optionalParameters', path: './schemas/optionalParameters.json' },
   { name: 'allOf', path: './schemas/allOf.json' },
   { name: 'anyOf', path: './schemas/anyOf.json' },

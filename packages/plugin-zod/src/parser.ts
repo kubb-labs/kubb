@@ -451,11 +451,24 @@ export function extractMiniModifiers(schemas: Schema[]): MiniModifiers {
   const defaultSchema = schemas.find((item) => isKeyword(item, schemaKeywords.default)) as { keyword: string; args: unknown } | undefined
   const isBigInt = schemas.some((item) => isKeyword(item, schemaKeywords.bigint))
 
+  // When paired with an enum, skip the default if the value is not a valid enum member.
+  // Zod's default() for an enum must receive a value that is present in the enum.
+  let defaultValue = defaultSchema?.args as string | number | true | object | undefined
+  if (defaultValue !== undefined) {
+    const enumSchema = schemas.find((it) => isKeyword(it, schemaKeywords.enum)) as SchemaKeywordMapper['enum'] | undefined
+    if (enumSchema) {
+      const validValues = enumSchema.args.items.map((item) => item.value ?? item.name)
+      if (!validValues.includes(defaultValue as string | number | boolean)) {
+        defaultValue = undefined
+      }
+    }
+  }
+
   return {
     hasOptional: schemas.some((item) => isKeyword(item, schemaKeywords.optional)),
     hasNullable: schemas.some((item) => isKeyword(item, schemaKeywords.nullable)),
     hasNullish: schemas.some((item) => isKeyword(item, schemaKeywords.nullish)),
-    defaultValue: defaultSchema?.args as string | number | true | object | undefined,
+    defaultValue,
     isBigInt,
   }
 }
@@ -799,7 +812,18 @@ export const parse = createParser<string, ParserOptions>({
       // Check if this is a bigint type by looking at siblings
       const isBigInt = siblings.some((it) => isKeyword(it, schemaKeywords.bigint))
 
+      // When a default is paired with an enum, skip the default if the value
+      // is not one of the enum's valid values (e.g. an empty string "").
+      // Zod's .default() for an enum must receive a value that is in the enum.
       if (current.args !== undefined) {
+        const enumSchema = siblings.find((it) => isKeyword(it, schemaKeywords.enum)) as SchemaKeywordMapper['enum'] | undefined
+        if (enumSchema) {
+          const validValues = enumSchema.args.items.map((item) => item.value ?? item.name)
+          if (!validValues.includes(current.args as string | number | boolean)) {
+            return undefined
+          }
+        }
+
         return zodKeywordMapper.default(current.args, undefined, undefined, isBigInt)
       }
       // When args is undefined, call the mapper without arguments
