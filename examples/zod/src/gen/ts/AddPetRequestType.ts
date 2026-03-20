@@ -14,18 +14,19 @@ export const addPetRequestStatusEnum = {
 
 export type AddPetRequestStatusEnumTypeKey = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
 
+export type AddPetRequestStatusEnumType = AddPetRequestStatusEnumTypeKey
+
 export type AddPetRequestType = {
   /**
-   * @type integer | undefined, int64
+   * @example 10
+   * @type integer | undefined
    */
   id?: number
   /**
+   * @example doggie
    * @type string
    */
   name: string
-  /**
-   * @type object | undefined
-   */
   category?: CategoryType
   /**
    * @type array

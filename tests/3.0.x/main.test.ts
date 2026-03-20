@@ -260,6 +260,69 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       ],
     },
   },
+  {
+    /**
+     * Regression test for Bug 3: with enumType='asConst', enum files must export
+     * a PascalCase type alias (e.g. `export type Status = StatusKey`) so that
+     * other files importing the PascalCase name resolve correctly.
+     */
+    name: 'asConstEnum',
+    config: {
+      root: __dirname,
+      input: {
+        path: '../../schemas/3.0.x/asConstEnum.yaml',
+      },
+      output: {
+        path: './gen',
+        barrelType: false,
+      },
+      adapter: adapterOas({ collisionDetection: false, validate: false }),
+      plugins: [
+        pluginOas({
+          generators: [],
+        }),
+        pluginTs({
+          output: {
+            path: './types',
+            barrelType: false,
+          },
+          enumType: 'asConst',
+          legacy: true,
+        }),
+      ],
+    },
+  },
+  {
+    /**
+     * Regression test for Bug 4: operations with no tags + operationIds containing
+     * version-like dots (e.g. v2025.0) that should not be split into path segments.
+     */
+    name: 'noTagsDotOperationId',
+    config: {
+      root: __dirname,
+      input: {
+        path: '../../schemas/3.0.x/noTagsDotOperationId.yaml',
+      },
+      output: {
+        path: './gen',
+        barrelType: false,
+      },
+      adapter: adapterOas({ collisionDetection: false, validate: false }),
+      plugins: [
+        pluginOas({
+          generators: [],
+        }),
+        pluginTs({
+          output: {
+            path: './types',
+            barrelType: false,
+          },
+          group: { type: 'tag' },
+          legacy: true,
+        }),
+      ],
+    },
+  },
 ]
 
 describe(`Main OpenAPI ${version}`, () => {

@@ -1,4 +1,5 @@
 export type {
+  AddPetRequestStatusEnumType,
   AddPetRequestStatusEnumTypeKey,
   AddPetRequestType,
 } from './ts/AddPetRequestType.ts'
@@ -8,7 +9,7 @@ export type {
   AddPet405Type,
   AddPetMutationRequestType,
   AddPetMutationResponseType,
-  AddPetTypeMutation,
+  AddPetMutationType,
 } from './ts/AddPetType.ts'
 export type { AddressType } from './ts/AddressType.ts'
 export type { ApiResponseType } from './ts/ApiResponseType.ts'
@@ -17,72 +18,75 @@ export type {
   CreatePets201Type,
   CreatePetsErrorType,
   CreatePetsHeaderParamsType,
-  CreatePetsHeaderParamsXEXAMPLEEnumTypeKey,
+  CreatePetsHeaderParamsTypeXEXAMPLEEnumType,
+  CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey,
   CreatePetsMutationRequestType,
   CreatePetsMutationResponseType,
+  CreatePetsMutationType,
   CreatePetsPathParamsType,
   CreatePetsQueryParamsType,
-  CreatePetsTypeMutation,
 } from './ts/CreatePetsType.ts'
-export { createPetsHeaderParamsXEXAMPLEEnum } from './ts/CreatePetsType.ts'
+export { createPetsHeaderParamsTypeXEXAMPLEEnum } from './ts/CreatePetsType.ts'
 export type {
   CreateUsersWithListInput200Type,
   CreateUsersWithListInputErrorType,
   CreateUsersWithListInputMutationRequestType,
   CreateUsersWithListInputMutationResponseType,
-  CreateUsersWithListInputTypeMutation,
+  CreateUsersWithListInputMutationType,
 } from './ts/CreateUsersWithListInputType.ts'
 export type {
   CreateUserErrorType,
   CreateUserMutationRequestType,
   CreateUserMutationResponseType,
-  CreateUserTypeMutation,
+  CreateUserMutationType,
 } from './ts/CreateUserType.ts'
 export type { CustomerType } from './ts/CustomerType.ts'
 export type {
   DeleteOrder400Type,
   DeleteOrder404Type,
   DeleteOrderMutationResponseType,
+  DeleteOrderMutationType,
   DeleteOrderPathParamsType,
-  DeleteOrderTypeMutation,
 } from './ts/DeleteOrderType.ts'
 export type {
   DeletePet400Type,
   DeletePetHeaderParamsType,
   DeletePetMutationResponseType,
+  DeletePetMutationType,
   DeletePetPathParamsType,
-  DeletePetTypeMutation,
 } from './ts/DeletePetType.ts'
 export type {
   DeleteUser400Type,
   DeleteUser404Type,
   DeleteUserMutationResponseType,
+  DeleteUserMutationType,
   DeleteUserPathParamsType,
-  DeleteUserTypeMutation,
 } from './ts/DeleteUserType.ts'
 export type {
   FindPetsByStatus200Type,
   FindPetsByStatus400Type,
-  FindPetsByStatusQueryParamsStatusEnumTypeKey,
   FindPetsByStatusQueryParamsType,
+  FindPetsByStatusQueryParamsTypeStatusEnumType,
+  FindPetsByStatusQueryParamsTypeStatusEnumTypeKey,
   FindPetsByStatusQueryResponseType,
-  FindPetsByStatusTypeQuery,
+  FindPetsByStatusQueryType,
 } from './ts/FindPetsByStatusType.ts'
-export { findPetsByStatusQueryParamsStatusEnum } from './ts/FindPetsByStatusType.ts'
+export { findPetsByStatusQueryParamsTypeStatusEnum } from './ts/FindPetsByStatusType.ts'
 export type {
   FindPetsByTags200Type,
   FindPetsByTags400Type,
   FindPetsByTagsHeaderParamsType,
-  FindPetsByTagsHeaderParamsXEXAMPLEEnumTypeKey,
+  FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumType,
+  FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumTypeKey,
   FindPetsByTagsQueryParamsType,
   FindPetsByTagsQueryResponseType,
-  FindPetsByTagsTypeQuery,
+  FindPetsByTagsQueryType,
 } from './ts/FindPetsByTagsType.ts'
-export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './ts/FindPetsByTagsType.ts'
+export { findPetsByTagsHeaderParamsTypeXEXAMPLEEnum } from './ts/FindPetsByTagsType.ts'
 export type {
   GetInventory200Type,
   GetInventoryQueryResponseType,
-  GetInventoryTypeQuery,
+  GetInventoryQueryType,
 } from './ts/GetInventoryType.ts'
 export type {
   GetOrderById200Type,
@@ -90,7 +94,7 @@ export type {
   GetOrderById404Type,
   GetOrderByIdPathParamsType,
   GetOrderByIdQueryResponseType,
-  GetOrderByIdTypeQuery,
+  GetOrderByIdQueryType,
 } from './ts/GetOrderByIdType.ts'
 export type {
   GetPetById200Type,
@@ -98,14 +102,14 @@ export type {
   GetPetById404Type,
   GetPetByIdPathParamsType,
   GetPetByIdQueryResponseType,
-  GetPetByIdTypeQuery,
+  GetPetByIdQueryType,
 } from './ts/GetPetByIdType.ts'
 export type {
   GetThings201Type,
   GetThingsErrorType,
   GetThingsQueryParamsType,
   GetThingsQueryResponseType,
-  GetThingsTypeQuery,
+  GetThingsQueryType,
 } from './ts/GetThingsType.ts'
 export type {
   GetUserByName200Type,
@@ -113,29 +117,36 @@ export type {
   GetUserByName404Type,
   GetUserByNamePathParamsType,
   GetUserByNameQueryResponseType,
-  GetUserByNameTypeQuery,
+  GetUserByNameQueryType,
 } from './ts/GetUserByNameType.ts'
 export type {
   LoginUser200Type,
   LoginUser400Type,
   LoginUserQueryParamsType,
   LoginUserQueryResponseType,
-  LoginUserTypeQuery,
+  LoginUserQueryType,
 } from './ts/LoginUserType.ts'
 export type {
   LogoutUserErrorType,
   LogoutUserQueryResponseType,
-  LogoutUserTypeQuery,
+  LogoutUserQueryType,
 } from './ts/LogoutUserType.ts'
 export type {
+  OrderHttpStatusEnumType,
   OrderHttpStatusEnumTypeKey,
+  OrderStatusEnumType,
   OrderStatusEnumTypeKey,
   OrderType,
+  OrderValueEnumType,
   OrderValueEnumTypeKey,
 } from './ts/OrderType.ts'
 export { orderHttpStatusEnum, orderStatusEnum, orderValueEnum } from './ts/OrderType.ts'
 export type { PetNotFoundType } from './ts/PetNotFoundType.ts'
-export type { PetStatusEnumTypeKey, PetType } from './ts/PetType.ts'
+export type {
+  PetStatusEnumType,
+  PetStatusEnumTypeKey,
+  PetType,
+} from './ts/PetType.ts'
 export { petStatusEnum } from './ts/PetType.ts'
 export type { PhoneNumberType } from './ts/PhoneNumberType.ts'
 export type { PhoneWithMaxLengthExplicitType } from './ts/PhoneWithMaxLengthExplicitType.ts'
@@ -145,14 +156,14 @@ export type {
   PlaceOrderPatch405Type,
   PlaceOrderPatchMutationRequestType,
   PlaceOrderPatchMutationResponseType,
-  PlaceOrderPatchTypeMutation,
+  PlaceOrderPatchMutationType,
 } from './ts/PlaceOrderPatchType.ts'
 export type {
   PlaceOrder200Type,
   PlaceOrder405Type,
   PlaceOrderMutationRequestType,
   PlaceOrderMutationResponseType,
-  PlaceOrderTypeMutation,
+  PlaceOrderMutationType,
 } from './ts/PlaceOrderType.ts'
 export type { TagType } from './ts/TagType.ts'
 export type {
@@ -162,47 +173,47 @@ export type {
   UpdatePet405Type,
   UpdatePetMutationRequestType,
   UpdatePetMutationResponseType,
-  UpdatePetTypeMutation,
+  UpdatePetMutationType,
 } from './ts/UpdatePetType.ts'
 export type {
   UpdatePetWithForm405Type,
   UpdatePetWithFormMutationResponseType,
+  UpdatePetWithFormMutationType,
   UpdatePetWithFormPathParamsType,
   UpdatePetWithFormQueryParamsType,
-  UpdatePetWithFormTypeMutation,
 } from './ts/UpdatePetWithFormType.ts'
 export type {
   UpdateUserErrorType,
   UpdateUserMutationRequestType,
   UpdateUserMutationResponseType,
+  UpdateUserMutationType,
   UpdateUserPathParamsType,
-  UpdateUserTypeMutation,
 } from './ts/UpdateUserType.ts'
 export type {
   UploadFile200Type,
   UploadFileMutationRequestType,
   UploadFileMutationResponseType,
+  UploadFileMutationType,
   UploadFilePathParamsType,
   UploadFileQueryParamsType,
-  UploadFileTypeMutation,
 } from './ts/UploadFileType.ts'
 export type { UserArrayType } from './ts/UserArrayType.ts'
 export type { UserType } from './ts/UserType.ts'
-export type { AddPetRequestSchema } from './zod/addPetRequestSchema.gen.ts'
-export { addPetRequestSchema } from './zod/addPetRequestSchema.gen.ts'
+export type { AddPetRequestSchema } from './zod/addPetRequestSchema.ts'
+export { addPetRequestSchema } from './zod/addPetRequestSchema.ts'
 export type {
   AddPet200Schema,
   AddPet405Schema,
   AddPetMutationRequestSchema,
   AddPetMutationResponseSchema,
-} from './zod/addPetSchema.gen.ts'
-export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './zod/addPetSchema.gen.ts'
-export type { AddressSchema } from './zod/addressSchema.gen.ts'
-export { addressSchema } from './zod/addressSchema.gen.ts'
-export type { ApiResponseSchema } from './zod/apiResponseSchema.gen.ts'
-export { apiResponseSchema } from './zod/apiResponseSchema.gen.ts'
-export type { CategorySchema } from './zod/categorySchema.gen.ts'
-export { categorySchema } from './zod/categorySchema.gen.ts'
+} from './zod/addPetSchema.ts'
+export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './zod/addPetSchema.ts'
+export type { AddressSchema } from './zod/addressSchema.ts'
+export { addressSchema } from './zod/addressSchema.ts'
+export type { ApiResponseSchema } from './zod/apiResponseSchema.ts'
+export { apiResponseSchema } from './zod/apiResponseSchema.ts'
+export type { CategorySchema } from './zod/categorySchema.ts'
+export { categorySchema } from './zod/categorySchema.ts'
 export type {
   CreatePets201Schema,
   CreatePetsErrorSchema,
@@ -211,7 +222,7 @@ export type {
   CreatePetsMutationResponseSchema,
   CreatePetsPathParamsSchema,
   CreatePetsQueryParamsSchema,
-} from './zod/createPetsSchema.gen.ts'
+} from './zod/createPetsSchema.ts'
 export {
   createPets201Schema,
   createPetsErrorSchema,
@@ -220,179 +231,179 @@ export {
   createPetsMutationResponseSchema,
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
-} from './zod/createPetsSchema.gen.ts'
+} from './zod/createPetsSchema.ts'
 export type {
   CreateUserErrorSchema,
   CreateUserMutationRequestSchema,
   CreateUserMutationResponseSchema,
-} from './zod/createUserSchema.gen.ts'
-export { createUserErrorSchema, createUserMutationRequestSchema, createUserMutationResponseSchema } from './zod/createUserSchema.gen.ts'
+} from './zod/createUserSchema.ts'
+export { createUserErrorSchema, createUserMutationRequestSchema, createUserMutationResponseSchema } from './zod/createUserSchema.ts'
 export type {
   CreateUsersWithListInput200Schema,
   CreateUsersWithListInputErrorSchema,
   CreateUsersWithListInputMutationRequestSchema,
   CreateUsersWithListInputMutationResponseSchema,
-} from './zod/createUsersWithListInputSchema.gen.ts'
+} from './zod/createUsersWithListInputSchema.ts'
 export {
   createUsersWithListInput200Schema,
   createUsersWithListInputErrorSchema,
   createUsersWithListInputMutationRequestSchema,
   createUsersWithListInputMutationResponseSchema,
-} from './zod/createUsersWithListInputSchema.gen.ts'
-export type { CustomerSchema } from './zod/customerSchema.gen.ts'
-export { customerSchema } from './zod/customerSchema.gen.ts'
+} from './zod/createUsersWithListInputSchema.ts'
+export type { CustomerSchema } from './zod/customerSchema.ts'
+export { customerSchema } from './zod/customerSchema.ts'
 export type {
   DeleteOrder400Schema,
   DeleteOrder404Schema,
   DeleteOrderMutationResponseSchema,
   DeleteOrderPathParamsSchema,
-} from './zod/deleteOrderSchema.gen.ts'
-export { deleteOrder400Schema, deleteOrder404Schema, deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema } from './zod/deleteOrderSchema.gen.ts'
+} from './zod/deleteOrderSchema.ts'
+export { deleteOrder400Schema, deleteOrder404Schema, deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema } from './zod/deleteOrderSchema.ts'
 export type {
   DeletePet400Schema,
   DeletePetHeaderParamsSchema,
   DeletePetMutationResponseSchema,
   DeletePetPathParamsSchema,
-} from './zod/deletePetSchema.gen.ts'
-export { deletePet400Schema, deletePetHeaderParamsSchema, deletePetMutationResponseSchema, deletePetPathParamsSchema } from './zod/deletePetSchema.gen.ts'
+} from './zod/deletePetSchema.ts'
+export { deletePet400Schema, deletePetHeaderParamsSchema, deletePetMutationResponseSchema, deletePetPathParamsSchema } from './zod/deletePetSchema.ts'
 export type {
   DeleteUser400Schema,
   DeleteUser404Schema,
   DeleteUserMutationResponseSchema,
   DeleteUserPathParamsSchema,
-} from './zod/deleteUserSchema.gen.ts'
-export { deleteUser400Schema, deleteUser404Schema, deleteUserMutationResponseSchema, deleteUserPathParamsSchema } from './zod/deleteUserSchema.gen.ts'
+} from './zod/deleteUserSchema.ts'
+export { deleteUser400Schema, deleteUser404Schema, deleteUserMutationResponseSchema, deleteUserPathParamsSchema } from './zod/deleteUserSchema.ts'
 export type {
   FindPetsByStatus200Schema,
   FindPetsByStatus400Schema,
   FindPetsByStatusQueryParamsSchema,
   FindPetsByStatusQueryResponseSchema,
-} from './zod/findPetsByStatusSchema.gen.ts'
+} from './zod/findPetsByStatusSchema.ts'
 export {
   findPetsByStatus200Schema,
   findPetsByStatus400Schema,
   findPetsByStatusQueryParamsSchema,
   findPetsByStatusQueryResponseSchema,
-} from './zod/findPetsByStatusSchema.gen.ts'
+} from './zod/findPetsByStatusSchema.ts'
 export type {
   FindPetsByTags200Schema,
   FindPetsByTags400Schema,
   FindPetsByTagsHeaderParamsSchema,
   FindPetsByTagsQueryParamsSchema,
   FindPetsByTagsQueryResponseSchema,
-} from './zod/findPetsByTagsSchema.gen.ts'
+} from './zod/findPetsByTagsSchema.ts'
 export {
   findPetsByTags200Schema,
   findPetsByTags400Schema,
   findPetsByTagsHeaderParamsSchema,
   findPetsByTagsQueryParamsSchema,
   findPetsByTagsQueryResponseSchema,
-} from './zod/findPetsByTagsSchema.gen.ts'
+} from './zod/findPetsByTagsSchema.ts'
 export type {
   GetInventory200Schema,
   GetInventoryQueryResponseSchema,
-} from './zod/getInventorySchema.gen.ts'
-export { getInventory200Schema, getInventoryQueryResponseSchema } from './zod/getInventorySchema.gen.ts'
+} from './zod/getInventorySchema.ts'
+export { getInventory200Schema, getInventoryQueryResponseSchema } from './zod/getInventorySchema.ts'
 export type {
   GetOrderById200Schema,
   GetOrderById400Schema,
   GetOrderById404Schema,
   GetOrderByIdPathParamsSchema,
   GetOrderByIdQueryResponseSchema,
-} from './zod/getOrderByIdSchema.gen.ts'
+} from './zod/getOrderByIdSchema.ts'
 export {
   getOrderById200Schema,
   getOrderById400Schema,
   getOrderById404Schema,
   getOrderByIdPathParamsSchema,
   getOrderByIdQueryResponseSchema,
-} from './zod/getOrderByIdSchema.gen.ts'
+} from './zod/getOrderByIdSchema.ts'
 export type {
   GetPetById200Schema,
   GetPetById400Schema,
   GetPetById404Schema,
   GetPetByIdPathParamsSchema,
   GetPetByIdQueryResponseSchema,
-} from './zod/getPetByIdSchema.gen.ts'
+} from './zod/getPetByIdSchema.ts'
 export {
   getPetById200Schema,
   getPetById400Schema,
   getPetById404Schema,
   getPetByIdPathParamsSchema,
   getPetByIdQueryResponseSchema,
-} from './zod/getPetByIdSchema.gen.ts'
+} from './zod/getPetByIdSchema.ts'
 export type {
   GetThings201Schema,
   GetThingsErrorSchema,
   GetThingsQueryParamsSchema,
   GetThingsQueryResponseSchema,
-} from './zod/getThingsSchema.gen.ts'
-export { getThings201Schema, getThingsErrorSchema, getThingsQueryParamsSchema, getThingsQueryResponseSchema } from './zod/getThingsSchema.gen.ts'
+} from './zod/getThingsSchema.ts'
+export { getThings201Schema, getThingsErrorSchema, getThingsQueryParamsSchema, getThingsQueryResponseSchema } from './zod/getThingsSchema.ts'
 export type {
   GetUserByName200Schema,
   GetUserByName400Schema,
   GetUserByName404Schema,
   GetUserByNamePathParamsSchema,
   GetUserByNameQueryResponseSchema,
-} from './zod/getUserByNameSchema.gen.ts'
+} from './zod/getUserByNameSchema.ts'
 export {
   getUserByName200Schema,
   getUserByName400Schema,
   getUserByName404Schema,
   getUserByNamePathParamsSchema,
   getUserByNameQueryResponseSchema,
-} from './zod/getUserByNameSchema.gen.ts'
+} from './zod/getUserByNameSchema.ts'
 export type {
   LoginUser200Schema,
   LoginUser400Schema,
   LoginUserQueryParamsSchema,
   LoginUserQueryResponseSchema,
-} from './zod/loginUserSchema.gen.ts'
-export { loginUser200Schema, loginUser400Schema, loginUserQueryParamsSchema, loginUserQueryResponseSchema } from './zod/loginUserSchema.gen.ts'
+} from './zod/loginUserSchema.ts'
+export { loginUser200Schema, loginUser400Schema, loginUserQueryParamsSchema, loginUserQueryResponseSchema } from './zod/loginUserSchema.ts'
 export type {
   LogoutUserErrorSchema,
   LogoutUserQueryResponseSchema,
-} from './zod/logoutUserSchema.gen.ts'
-export { logoutUserErrorSchema, logoutUserQueryResponseSchema } from './zod/logoutUserSchema.gen.ts'
+} from './zod/logoutUserSchema.ts'
+export { logoutUserErrorSchema, logoutUserQueryResponseSchema } from './zod/logoutUserSchema.ts'
 export {
   OperationSchema,
   OperationsMap,
   operations,
   paths,
 } from './zod/operations.ts'
-export type { OrderSchema } from './zod/orderSchema.gen.ts'
-export { orderSchema } from './zod/orderSchema.gen.ts'
-export type { PetNotFoundSchema } from './zod/petNotFoundSchema.gen.ts'
-export { petNotFoundSchema } from './zod/petNotFoundSchema.gen.ts'
-export type { PetSchema } from './zod/petSchema.gen.ts'
-export { petSchema } from './zod/petSchema.gen.ts'
-export type { PhoneNumberSchema } from './zod/phoneNumberSchema.gen.ts'
-export { phoneNumberSchema } from './zod/phoneNumberSchema.gen.ts'
-export type { PhoneWithMaxLengthExplicitSchema } from './zod/phoneWithMaxLengthExplicitSchema.gen.ts'
-export { phoneWithMaxLengthExplicitSchema } from './zod/phoneWithMaxLengthExplicitSchema.gen.ts'
-export type { PhoneWithMaxLengthSchema } from './zod/phoneWithMaxLengthSchema.gen.ts'
-export { phoneWithMaxLengthSchema } from './zod/phoneWithMaxLengthSchema.gen.ts'
+export type { OrderSchema } from './zod/orderSchema.ts'
+export { orderSchema } from './zod/orderSchema.ts'
+export type { PetNotFoundSchema } from './zod/petNotFoundSchema.ts'
+export { petNotFoundSchema } from './zod/petNotFoundSchema.ts'
+export type { PetSchema } from './zod/petSchema.ts'
+export { petSchema } from './zod/petSchema.ts'
+export type { PhoneNumberSchema } from './zod/phoneNumberSchema.ts'
+export { phoneNumberSchema } from './zod/phoneNumberSchema.ts'
+export type { PhoneWithMaxLengthExplicitSchema } from './zod/phoneWithMaxLengthExplicitSchema.ts'
+export { phoneWithMaxLengthExplicitSchema } from './zod/phoneWithMaxLengthExplicitSchema.ts'
+export type { PhoneWithMaxLengthSchema } from './zod/phoneWithMaxLengthSchema.ts'
+export { phoneWithMaxLengthSchema } from './zod/phoneWithMaxLengthSchema.ts'
 export type {
   PlaceOrderPatch200Schema,
   PlaceOrderPatch405Schema,
   PlaceOrderPatchMutationRequestSchema,
   PlaceOrderPatchMutationResponseSchema,
-} from './zod/placeOrderPatchSchema.gen.ts'
+} from './zod/placeOrderPatchSchema.ts'
 export {
   placeOrderPatch200Schema,
   placeOrderPatch405Schema,
   placeOrderPatchMutationRequestSchema,
   placeOrderPatchMutationResponseSchema,
-} from './zod/placeOrderPatchSchema.gen.ts'
+} from './zod/placeOrderPatchSchema.ts'
 export type {
   PlaceOrder200Schema,
   PlaceOrder405Schema,
   PlaceOrderMutationRequestSchema,
   PlaceOrderMutationResponseSchema,
-} from './zod/placeOrderSchema.gen.ts'
-export { placeOrder200Schema, placeOrder405Schema, placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from './zod/placeOrderSchema.gen.ts'
-export type { TagSchema } from './zod/tagSchema.gen.ts'
-export { tagSchema } from './zod/tagSchema.gen.ts'
+} from './zod/placeOrderSchema.ts'
+export { placeOrder200Schema, placeOrder405Schema, placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from './zod/placeOrderSchema.ts'
+export type { TagSchema } from './zod/tagSchema.ts'
+export { tagSchema } from './zod/tagSchema.ts'
 export type {
   UpdatePet200Schema,
   UpdatePet400Schema,
@@ -400,7 +411,7 @@ export type {
   UpdatePet405Schema,
   UpdatePetMutationRequestSchema,
   UpdatePetMutationResponseSchema,
-} from './zod/updatePetSchema.gen.ts'
+} from './zod/updatePetSchema.ts'
 export {
   updatePet200Schema,
   updatePet400Schema,
@@ -408,46 +419,41 @@ export {
   updatePet405Schema,
   updatePetMutationRequestSchema,
   updatePetMutationResponseSchema,
-} from './zod/updatePetSchema.gen.ts'
+} from './zod/updatePetSchema.ts'
 export type {
   UpdatePetWithForm405Schema,
   UpdatePetWithFormMutationResponseSchema,
   UpdatePetWithFormPathParamsSchema,
   UpdatePetWithFormQueryParamsSchema,
-} from './zod/updatePetWithFormSchema.gen.ts'
+} from './zod/updatePetWithFormSchema.ts'
 export {
   updatePetWithForm405Schema,
   updatePetWithFormMutationResponseSchema,
   updatePetWithFormPathParamsSchema,
   updatePetWithFormQueryParamsSchema,
-} from './zod/updatePetWithFormSchema.gen.ts'
+} from './zod/updatePetWithFormSchema.ts'
 export type {
   UpdateUserErrorSchema,
   UpdateUserMutationRequestSchema,
   UpdateUserMutationResponseSchema,
   UpdateUserPathParamsSchema,
-} from './zod/updateUserSchema.gen.ts'
-export {
-  updateUserErrorSchema,
-  updateUserMutationRequestSchema,
-  updateUserMutationResponseSchema,
-  updateUserPathParamsSchema,
-} from './zod/updateUserSchema.gen.ts'
+} from './zod/updateUserSchema.ts'
+export { updateUserErrorSchema, updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from './zod/updateUserSchema.ts'
 export type {
   UploadFile200Schema,
   UploadFileMutationRequestSchema,
   UploadFileMutationResponseSchema,
   UploadFilePathParamsSchema,
   UploadFileQueryParamsSchema,
-} from './zod/uploadFileSchema.gen.ts'
+} from './zod/uploadFileSchema.ts'
 export {
   uploadFile200Schema,
   uploadFileMutationRequestSchema,
   uploadFileMutationResponseSchema,
   uploadFilePathParamsSchema,
   uploadFileQueryParamsSchema,
-} from './zod/uploadFileSchema.gen.ts'
-export type { UserArraySchema } from './zod/userArraySchema.gen.ts'
-export { userArraySchema } from './zod/userArraySchema.gen.ts'
-export type { UserSchema } from './zod/userSchema.gen.ts'
-export { userSchema } from './zod/userSchema.gen.ts'
+} from './zod/uploadFileSchema.ts'
+export type { UserArraySchema } from './zod/userArraySchema.ts'
+export { userArraySchema } from './zod/userArraySchema.ts'
+export type { UserSchema } from './zod/userSchema.ts'
+export { userSchema } from './zod/userSchema.ts'

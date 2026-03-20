@@ -14,6 +14,7 @@ export type {
 } from './AddPet.js'
 export type {
   AddPetRequest,
+  AddPetRequestStatusEnum,
   AddPetRequestStatusEnumKey,
 } from './AddPetRequest.js'
 export { addPetRequestStatusEnum } from './AddPetRequest.js'
@@ -24,6 +25,7 @@ export type {
   CreatePets201,
   CreatePetsError,
   CreatePetsHeaderParams,
+  CreatePetsHeaderParamsXEXAMPLEEnum,
   CreatePetsHeaderParamsXEXAMPLEEnumKey,
   CreatePetsMutation,
   CreatePetsMutationRequest,
@@ -78,6 +80,7 @@ export type {
   FindPetsByTags200,
   FindPetsByTags400,
   FindPetsByTagsHeaderParams,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnum,
   FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
   FindPetsByTagsQuery,
   FindPetsByTagsQueryParams,
@@ -127,12 +130,15 @@ export type {
 } from './LogoutUser.js'
 export type {
   Order,
+  OrderHttpStatusEnum,
   OrderHttpStatusEnumKey,
+  OrderOrderTypeEnum,
   OrderOrderTypeEnumKey,
+  OrderStatusEnum,
   OrderStatusEnumKey,
 } from './Order.js'
 export { orderHttpStatusEnum, orderOrderTypeEnum, orderStatusEnum } from './Order.js'
-export type { Pet, PetStatusEnumKey } from './Pet.js'
+export type { Pet, PetStatusEnum, PetStatusEnumKey } from './Pet.js'
 export { petStatusEnum } from './Pet.js'
 export type { PetNotFound } from './PetNotFound.js'
 export type {

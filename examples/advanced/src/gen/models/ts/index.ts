@@ -1,17 +1,27 @@
-export type { AddPetRequest, AddPetRequestStatusEnumKey } from './AddPetRequest.ts'
+export type { AddPetRequest, AddPetRequestStatusEnum, AddPetRequestStatusEnumKey } from './AddPetRequest.ts'
 export { addPetRequestStatusEnum } from './AddPetRequest.ts'
 export type { Address } from './Address.ts'
 export type { Animal } from './Animal.ts'
 export type { ApiResponse } from './ApiResponse.ts'
 export type { Cat } from './Cat.ts'
 export type { Category } from './Category.ts'
-export type { Customer, CustomerParamsStatusEnumKey } from './Customer.ts'
-export { customerParamsStatusEnum } from './Customer.ts'
+export type { Customer, ParamsStatusEnum2, ParamsStatusEnum2Key } from './Customer.ts'
+export { paramsStatusEnum2 } from './Customer.ts'
 export type { Dog } from './Dog.ts'
 export type { Image } from './Image.ts'
-export type { Order, OrderHttpStatusEnumKey, OrderOrderTypeEnumKey, OrderParamsStatusEnumKey, OrderStatusEnumKey } from './Order.ts'
-export { orderHttpStatusEnum, orderOrderTypeEnum, orderParamsStatusEnum, orderStatusEnum } from './Order.ts'
-export type { Pet, PetStatusEnumKey } from './Pet.ts'
+export type {
+  Order,
+  OrderHttpStatusEnum,
+  OrderHttpStatusEnumKey,
+  OrderOrderTypeEnum,
+  OrderOrderTypeEnumKey,
+  OrderStatusEnum,
+  OrderStatusEnumKey,
+  ParamsStatusEnum,
+  ParamsStatusEnumKey,
+} from './Order.ts'
+export { orderHttpStatusEnum, orderOrderTypeEnum, orderStatusEnum, paramsStatusEnum } from './Order.ts'
+export type { Pet, PetStatusEnum, PetStatusEnumKey } from './Pet.ts'
 export { petStatusEnum } from './Pet.ts'
 export type { PetNotFound } from './PetNotFound.ts'
 export type { AddFiles200, AddFiles405, AddFilesMutation, AddFilesMutationRequest, AddFilesMutationResponse } from './petController/AddFiles.ts'
@@ -28,6 +38,7 @@ export type {
   FindPetsByTags200,
   FindPetsByTags400,
   FindPetsByTagsHeaderParams,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnum,
   FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
   FindPetsByTagsQuery,
   FindPetsByTagsQueryParams,
@@ -64,12 +75,14 @@ export type {
   CreatePets201,
   CreatePetsError,
   CreatePetsHeaderParams,
+  CreatePetsHeaderParamsXEXAMPLEEnum,
   CreatePetsHeaderParamsXEXAMPLEEnumKey,
   CreatePetsMutation,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
+  CreatePetsQueryParamsBoolParamEnum,
   CreatePetsQueryParamsBoolParamEnumKey,
 } from './petsController/CreatePets.ts'
 export { createPetsHeaderParamsXEXAMPLEEnum, createPetsQueryParamsBoolParamEnum } from './petsController/CreatePets.ts'

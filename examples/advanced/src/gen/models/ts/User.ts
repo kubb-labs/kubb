@@ -2,46 +2,53 @@ import type { TagTag } from './tag/Tag.ts'
 
 export type User = {
   /**
-   * @type integer | undefined, int64
+   * @example 10
+   * @type integer | undefined
    */
   id?: number
   /**
+   * @example theUser
    * @type string | undefined
    */
   username?: string
   /**
    * @deprecated
-   * @type string | undefined, uuid
+   * @type string | undefined
    */
   uuid?: string
   /**
    * @description The active tag
-   * @type object | undefined
    */
   readonly tag?: TagTag
   /**
+   * @example John
    * @type string | undefined
    */
   firstName?: string
   /**
+   * @example James
    * @type string | undefined
    */
   lastName?: string
   /**
-   * @type string | undefined, email
+   * @example john@email.com
+   * @type string | undefined
    */
   email?: string
   /**
+   * @example 12345
    * @type string | undefined
    */
   password?: string
   /**
+   * @example 12345
    * @type string | undefined
    */
   phone?: string
   /**
    * @description User Status
-   * @type integer | undefined, int32
+   * @example 1
+   * @type integer | undefined
    */
   userStatus?: number
 }

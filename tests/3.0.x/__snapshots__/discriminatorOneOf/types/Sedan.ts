@@ -11,6 +11,8 @@ export const typeEnum = {
 
 export type TypeEnumKey = (typeof typeEnum)[keyof typeof typeEnum];
 
+export type TypeEnum = TypeEnumKey
+
 export type Sedan = (Vehicle & {
     /**
      * @type string | undefined

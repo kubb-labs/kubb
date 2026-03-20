@@ -150,6 +150,36 @@ describe('printerTs', () => {
 
       expect(result).toBeUndefined()
     })
+
+    it('ref with $ref path uses canonical name from path, not node.name (Bug 1: allOf name override)', async () => {
+      // When allOf flatten overrides node.name to the property name ("content"),
+      // the printer should still resolve to the $ref target name ("TestContent").
+      const result = printer.print(createSchema({ type: 'ref', name: 'content', ref: '#/components/schemas/TestContent' }))
+
+      expect(await formatTS(result)).toBe('TestContent')
+    })
+
+    it('ref with $ref path resolves discriminator child to parent (Bug 2: circular discriminator)', async () => {
+      // ClientDisconnectedProblem allOf $ref -> Problem. The node.name is overridden
+      // to "ClientDisconnectedProblem" by the flatten, but the ref points to Problem.
+      const result = printer.print(createSchema({ type: 'ref', name: 'ClientDisconnectedProblem', ref: '#/components/schemas/Problem' }))
+
+      expect(await formatTS(result)).toBe('Problem')
+    })
+
+    it('ref without $ref path (inline ref) uses node.name directly', async () => {
+      // Inline refs from getImports/utils don't carry a $ref path — node.name is the resolved type.
+      const result = printer.print(createSchema({ type: 'ref', name: 'ResolvedType' }))
+
+      expect(await formatTS(result)).toBe('ResolvedType')
+    })
+
+    it('ref with $ref path falls back to node.name when path segment missing', async () => {
+      // Defensive: if $ref path has no segments, fall back to node.name
+      const result = printer.print(createSchema({ type: 'ref', name: 'FallbackType', ref: '' }))
+
+      expect(await formatTS(result)).toBe('FallbackType')
+    })
   })
 
   describe('enum', () => {

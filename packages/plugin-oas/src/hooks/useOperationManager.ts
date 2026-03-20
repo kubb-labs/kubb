@@ -79,7 +79,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
 
   const getGroup: UseOperationManagerResult['getGroup'] = (operation) => {
     return {
-      tag: operation.getTags().at(0)?.name,
+      tag: operation.getTags().at(0)?.name ?? 'default',
       path: operation.path,
     }
   }

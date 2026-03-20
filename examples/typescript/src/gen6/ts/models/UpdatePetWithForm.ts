@@ -3,44 +3,36 @@
  * Do not edit manually.
  */
 
-/**
- * @description ID of pet that needs to be updated
- */
-export type UpdatePetWithFormPathPetId = number
+export type UpdatePetWithFormPathParams = {
+  /**
+   * @description ID of pet that needs to be updated
+   * @type integer
+   */
+  petId: number
+}
 
-/**
- * @description Name of pet that needs to be updated
- */
-export type UpdatePetWithFormQueryName = string
-
-/**
- * @description Status of pet that needs to be updated
- */
-export type UpdatePetWithFormQueryStatus = string
+export type UpdatePetWithFormQueryParams = {
+  /**
+   * @description Name of pet that needs to be updated
+   * @type string | undefined
+   */
+  name?: string
+  /**
+   * @description Status of pet that needs to be updated
+   * @type string | undefined
+   */
+  status?: string
+}
 
 /**
  * @description Invalid input
  */
-export type UpdatePetWithFormStatus405 = any
+export type UpdatePetWithForm405 = any
 
-export type UpdatePetWithFormRequestConfig = {
-  data?: never
-  pathParams: {
-    petId: UpdatePetWithFormPathPetId
-  }
-  queryParams?: {
-    name?: UpdatePetWithFormQueryName
-    status?: UpdatePetWithFormQueryStatus
-  }
-  headerParams?: never
-  url: `/pet/${string}`
+export type UpdatePetWithFormMutation = {
+  Response: any
+  PathParams: UpdatePetWithFormPathParams
+  Errors: UpdatePetWithForm405
 }
 
-export type UpdatePetWithFormResponses = {
-  '405': UpdatePetWithFormStatus405
-}
-
-/**
- * @description Union of all possible responses
- */
-export type UpdatePetWithFormResponse = UpdatePetWithFormStatus405
+export type UpdatePetWithFormMutationResponse = any

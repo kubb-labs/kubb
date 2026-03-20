@@ -28,7 +28,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
       extname: '.ts',
       mode,
       options: {
-        group: group ? (group.type === 'tag' ? { tag: node.tags[0] } : { path: node.path }) : undefined,
+        group: group ? (group.type === 'tag' ? { tag: node.tags[0] ?? 'default' } : { path: node.path }) : undefined,
       },
     })
     const params = applyParamsCasing(node.parameters, paramsCasing)

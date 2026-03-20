@@ -10,6 +10,8 @@ export const orderOrderTypeEnum = {
 
 export type OrderOrderTypeEnumKey = (typeof orderOrderTypeEnum)[keyof typeof orderOrderTypeEnum]
 
+export type OrderOrderTypeEnum = OrderOrderTypeEnumKey
+
 export const orderStatusEnum = {
   placed: 'placed',
   approved: 'approved',
@@ -18,6 +20,8 @@ export const orderStatusEnum = {
 
 export type OrderStatusEnumKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
+export type OrderStatusEnum = OrderStatusEnumKey
+
 export const orderHttpStatusEnum = {
   ok: 200,
   not_found: 400,
@@ -25,19 +29,22 @@ export const orderHttpStatusEnum = {
 
 export type OrderHttpStatusEnumKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
 
+export type OrderHttpStatusEnum = OrderHttpStatusEnumKey
+
 export type Order = {
   /**
-   * @minLength 3
-   * @maxLength 100
-   * @type integer | undefined, int64
+   * @example 10
+   * @type integer | undefined
    */
   id?: number
   /**
-   * @type integer | undefined, int64
+   * @example 198772
+   * @type integer | undefined
    */
   petId?: number
   /**
-   * @type integer | undefined, int32
+   * @example 7
+   * @type integer | undefined
    */
   quantity?: number
   /**
@@ -46,20 +53,23 @@ export type Order = {
   orderType?: OrderOrderTypeEnumKey
   /**
    * @description Order Status
+   * @example approved
    * @type string | undefined
    */
   type?: string
   /**
-   * @type string | undefined, date-time
+   * @type string | undefined
    */
   shipDate?: string
   /**
    * @description Order Status
+   * @example approved
    * @type string | undefined
    */
   status?: OrderStatusEnumKey
   /**
    * @description HTTP Status
+   * @example 200
    * @type number | undefined
    */
   http_status?: OrderHttpStatusEnumKey
