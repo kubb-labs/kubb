@@ -19,18 +19,18 @@ export type ListPetsRequestConfig = {
   data?: never
   pathParams?: never
   queryParams?: {
-    myLimit?: listPetsQueryMyLimit
+    myLimit?: ListPetsQueryMyLimit
   }
   headerParams?: never
   url: '/pets'
 }
 
 export type ListPetsResponses = {
-  '200': listPetsStatus200
-  default: listPetsStatusDefault
+  '200': ListPetsStatus200
+  default: ListPetsStatusDefault
 }
 
 /**
  * @description Union of all possible responses
  */
-export type ListPetsResponse = listPetsStatus200 | listPetsStatusDefault
+export type ListPetsResponse = ListPetsStatus200 | ListPetsStatusDefault

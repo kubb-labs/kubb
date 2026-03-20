@@ -212,16 +212,20 @@ This affects how inline enum property names are generated. For example, a `statu
 | `legacy: false` (default, v5) | `OrderParamsStatusEnum` |
 | `legacy: true` (v4 behavior) | `ParamsStatusEnum` |
 
+In legacy mode, the adapter also handles:
+
+- **Collision deduplication** — when two schemas produce the same enum name (e.g. `Order.params.status` and `Customer.params.status` both yield `ParamsStatusEnum`), a numeric suffix is appended: `ParamsStatusEnum`, `ParamsStatusEnum2`.
+- **`oneOf`/`anyOf` shared properties** — enum names omit the parent schema name: `StatusEnum` instead of `PetStatusEnum`.
+- **Array items enums** — named after the array property: e.g. `TagsEnum`.
+
 ::: code-group
 ```typescript [Before]
 import { adapterOas } from '@kubb/adapter-oas'
 
 export default defineConfig({
-  plugins: [
-    adapterOas({
-      collisionDetection: false, // v4 behavior: short enum names
-    }),
-  ],
+  adapter: adapterOas({
+    collisionDetection: false, // v4 behavior: short enum names
+  }),
 })
 ```
 
@@ -229,11 +233,9 @@ export default defineConfig({
 import { adapterOas } from '@kubb/adapter-oas'
 
 export default defineConfig({
-  plugins: [
-    adapterOas({
-      legacy: true, // same as old collisionDetection: false
-    }),
-  ],
+  adapter: adapterOas({
+    legacy: true, // same as old collisionDetection: false
+  }),
 })
 ```
 :::
@@ -252,13 +254,24 @@ If you relied on the old operation-type naming conventions (v4), set `legacy: tr
 | Response status | `<OperationId>Status201` | `<OperationId>201` |
 | Default/error response | `<OperationId>StatusDefault` | `<OperationId>Error` |
 
+In legacy mode, inline enum values inside operation parameters and responses are also extracted as named declarations instead of being inlined as union literals:
+
+| Location | Default (v5) | Legacy (`legacy: true`) |
+|---|---|---|
+| Query param enum | `status?: 'available' \| 'pending' \| 'sold'` | `status?: FindPetsByStatusQueryParamsStatusEnumKey` |
+| Response array enum | `('TYPE1' \| 'TYPE2' \| 'TYPE3')[]` | `DeletePet200EnumKey[]` |
+
 ```typescript [kubb.config.ts]
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
+  adapter: adapterOas({
+    legacy: true, // v4 enum naming (short names, collision deduplication)
+  }),
   plugins: [
     pluginTs({
-      legacy: true, // restore v4 operation type names
+      legacy: true, // restore v4 operation type names and enum extraction
     }),
   ],
 })

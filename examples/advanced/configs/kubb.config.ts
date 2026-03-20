@@ -1,5 +1,6 @@
 // can devtools and ui work together, default port for devtools are 8097
 
+import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginCypress } from '@kubb/plugin-cypress'
@@ -30,6 +31,7 @@ export default defineConfig({
   hooks: {
     done: ['npm run typecheck'],
   },
+  adapter: adapterOas({ legacy: true }),
   plugins: [
     pluginOas({
       validate: true,
@@ -58,6 +60,7 @@ export default defineConfig({
           },
         },
       ],
+      legacy: true,
     }),
     pluginZod({
       output: {

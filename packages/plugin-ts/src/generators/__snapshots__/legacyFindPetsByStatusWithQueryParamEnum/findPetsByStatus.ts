@@ -3,8 +3,6 @@
  * Do not edit manually.
  */
 
-import type { Pet } from './Pet.ts'
-
 export const findPetsByStatusQueryParamsStatusEnum = {
   available: 'available',
   pending: 'pending',
@@ -14,28 +12,18 @@ export const findPetsByStatusQueryParamsStatusEnum = {
 export type FindPetsByStatusQueryParamsStatusEnumKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
 
 export type FindPetsByStatusQueryParams = {
-  /**
-   * @description Status values that need to be considered for filter
-   * @default "available"
-   * @type string | undefined
-   */
   status?: FindPetsByStatusQueryParamsStatusEnumKey
 }
 
 /**
- * @description successful operation
+ * @description Successful operation
  */
-export type FindPetsByStatus200 = Pet[]
-
-/**
- * @description Invalid status value
- */
-export type FindPetsByStatus400 = any
+export type FindPetsByStatus200 = object
 
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatus200
   QueryParams: FindPetsByStatusQueryParams
-  Errors: FindPetsByStatus400
+  Errors: any
 }
 
 export type FindPetsByStatusQueryResponse = FindPetsByStatus200

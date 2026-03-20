@@ -5,43 +5,32 @@
 
 import type { User } from './User.ts'
 
-/**
- * @description The name that needs to be fetched. Use user1 for testing.
- */
-export type GetUserByNamePathUsername = string
+export type GetUserByNamePathParams = {
+  /**
+   * @description The name that needs to be fetched. Use user1 for testing.
+   * @type string
+   */
+  username: string
+}
 
 /**
  * @description successful operation
  */
-export type GetUserByNameStatus200 = User
+export type GetUserByName200 = User
 
 /**
  * @description Invalid username supplied
  */
-export type GetUserByNameStatus400 = any
+export type GetUserByName400 = any
 
 /**
  * @description User not found
  */
-export type GetUserByNameStatus404 = any
+export type GetUserByName404 = any
 
-export type GetUserByNameRequestConfig = {
-  data?: never
-  pathParams: {
-    username: GetUserByNamePathUsername
-  }
-  queryParams?: never
-  headerParams?: never
-  url: `/user/${string}`
+export type GetUserByNameQuery = {
+  Response: GetUserByName200
+  Errors: GetUserByName400 | GetUserByName404
 }
 
-export type GetUserByNameResponses = {
-  '200': GetUserByNameStatus200
-  '400': GetUserByNameStatus400
-  '404': GetUserByNameStatus404
-}
-
-/**
- * @description Union of all possible responses
- */
-export type GetUserByNameResponse = GetUserByNameStatus200 | GetUserByNameStatus400 | GetUserByNameStatus404
+export type GetUserByNameQueryResponse = GetUserByName200

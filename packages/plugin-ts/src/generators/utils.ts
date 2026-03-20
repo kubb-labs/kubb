@@ -1,4 +1,5 @@
-import { createProperty, createSchema } from '@kubb/ast'
+import { pascalCase } from '@internals/utils'
+import { createProperty, createSchema, narrowSchema, transform } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import type { ResolverTs } from '../types.ts'
 
@@ -136,6 +137,11 @@ export function buildResponseUnionSchemaNode({ node, resolver }: BuildOperationS
 
 type BuildGroupedParamsSchemaOptions = {
   params: Array<ParameterNode>
+  /**
+   * Parent type name (e.g. `FindPetsByStatusQueryParams`) used to derive enum names
+   * for inline enum properties (e.g. `FindPetsByStatusQueryParamsStatusEnum`).
+   */
+  parentName?: string
 }
 
 /**
@@ -144,15 +150,20 @@ type BuildGroupedParamsSchemaOptions = {
  * Used to generate `<OperationId>PathParams`, `<OperationId>QueryParams`, `<OperationId>HeaderParams`.
  * @deprecated Legacy only — will be removed in v6.
  */
-export function buildGroupedParamsSchema({ params }: BuildGroupedParamsSchemaOptions): SchemaNode {
+export function buildGroupedParamsSchema({ params, parentName }: BuildGroupedParamsSchemaOptions): SchemaNode {
   return createSchema({
     type: 'object',
-    properties: params.map((param) =>
-      createProperty({
+    properties: params.map((param) => {
+      let schema = { ...param.schema, optional: !param.required } as SchemaNode
+      // Name unnamed enum properties so they are emitted as enum declarations
+      if (narrowSchema(schema, 'enum') && !schema.name && parentName) {
+        schema = { ...schema, name: pascalCase([parentName, param.name, 'enum'].join(' ')) }
+      }
+      return createProperty({
         name: param.name,
-        schema: { ...param.schema, optional: !param.required },
-      }),
-    ),
+        schema,
+      })
+    }),
   })
 }
 
@@ -237,5 +248,33 @@ export function buildLegacyResponseUnionSchemaNode({ node, resolver }: BuildOper
   return createSchema({
     type: 'union',
     members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
+  })
+}
+
+/**
+ * Names unnamed enum nodes within a schema tree based on the parent type name.
+ * Used in legacy mode to ensure inline enums in response/request schemas get
+ * extracted as named enum declarations (e.g. `DeletePet200Enum`).
+ *
+ * @deprecated Legacy only — will be removed in v6.
+ */
+export function nameUnnamedEnums(node: SchemaNode, parentName: string): SchemaNode {
+  return transform(node, {
+    schema(n) {
+      if (n.type === 'enum' && !n.name) {
+        return { ...n, name: pascalCase([parentName, 'enum'].join(' ')) }
+      }
+      return undefined
+    },
+    property(p) {
+      const enumNode = narrowSchema(p.schema, 'enum')
+      if (enumNode && !enumNode.name) {
+        return {
+          ...p,
+          schema: { ...enumNode, name: pascalCase([parentName, p.name, 'enum'].join(' ')) },
+        }
+      }
+      return undefined
+    },
   })
 }

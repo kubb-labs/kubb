@@ -18,19 +18,19 @@ export type FindArtifactsRequestConfig = {
   data?: never
   pathParams?: never
   queryParams?: {
-    page?: findArtifactsQueryPage
-    limit?: findArtifactsQueryLimit
-    sort?: findArtifactsQuerySort
+    page?: FindArtifactsQueryPage
+    limit?: FindArtifactsQueryLimit
+    sort?: FindArtifactsQuerySort
   }
   headerParams?: never
   url: '/artifacts'
 }
 
 export type FindArtifactsResponses = {
-  '200': findArtifactsStatus200
+  '200': FindArtifactsStatus200
 }
 
 /**
  * @description Union of all possible responses
  */
-export type FindArtifactsResponse = findArtifactsStatus200
+export type FindArtifactsResponse = FindArtifactsStatus200

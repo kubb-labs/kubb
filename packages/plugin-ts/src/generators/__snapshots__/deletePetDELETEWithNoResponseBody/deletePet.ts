@@ -13,7 +13,7 @@ export type DeletePetStatus204 = void
 export type DeletePetRequestConfig = {
   data?: never
   pathParams: {
-    petId: deletePetPathPetId
+    petId: DeletePetPathPetId
   }
   queryParams?: never
   headerParams?: never
@@ -21,10 +21,10 @@ export type DeletePetRequestConfig = {
 }
 
 export type DeletePetResponses = {
-  '204': deletePetStatus204
+  '204': DeletePetStatus204
 }
 
 /**
  * @description Union of all possible responses
  */
-export type DeletePetResponse = deletePetStatus204
+export type DeletePetResponse = DeletePetStatus204

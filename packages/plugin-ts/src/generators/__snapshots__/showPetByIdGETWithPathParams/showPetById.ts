@@ -18,7 +18,7 @@ export type ShowPetByIdStatusDefault = object
 export type ShowPetByIdRequestConfig = {
   data?: never
   pathParams: {
-    petId: showPetByIdPathPetId
+    petId: ShowPetByIdPathPetId
   }
   queryParams?: never
   headerParams?: never
@@ -26,11 +26,11 @@ export type ShowPetByIdRequestConfig = {
 }
 
 export type ShowPetByIdResponses = {
-  '200': showPetByIdStatus200
-  default: showPetByIdStatusDefault
+  '200': ShowPetByIdStatus200
+  default: ShowPetByIdStatusDefault
 }
 
 /**
  * @description Union of all possible responses
  */
-export type ShowPetByIdResponse = showPetByIdStatus200 | showPetByIdStatusDefault
+export type ShowPetByIdResponse = ShowPetByIdStatus200 | ShowPetByIdStatusDefault

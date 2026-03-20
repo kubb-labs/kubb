@@ -3,37 +3,27 @@
  * Do not edit manually.
  */
 
-/**
- * @description ID of the order that needs to be deleted
- */
-export type DeleteOrderPathOrderId = number
+export type DeleteOrderPathParams = {
+  /**
+   * @description ID of the order that needs to be deleted
+   * @type integer
+   */
+  orderId: number
+}
 
 /**
  * @description Invalid ID supplied
  */
-export type DeleteOrderStatus400 = any
+export type DeleteOrder400 = any
 
 /**
  * @description Order not found
  */
-export type DeleteOrderStatus404 = any
+export type DeleteOrder404 = any
 
-export type DeleteOrderRequestConfig = {
-  data?: never
-  pathParams: {
-    orderId: DeleteOrderPathOrderId
-  }
-  queryParams?: never
-  headerParams?: never
-  url: `/store/order/${string}`
+export type DeleteOrderMutation = {
+  Response: any
+  Errors: DeleteOrder400 | DeleteOrder404
 }
 
-export type DeleteOrderResponses = {
-  '400': DeleteOrderStatus400
-  '404': DeleteOrderStatus404
-}
-
-/**
- * @description Union of all possible responses
- */
-export type DeleteOrderResponse = DeleteOrderStatus400 | DeleteOrderStatus404
+export type DeleteOrderMutationResponse = any

@@ -2,7 +2,7 @@ import { createOperation, createParameter, createResponse, createSchema } from '
 import type { EnumSchemaNode, OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
 import { renderOperation, renderSchema } from '@kubb/core'
-import { resolverTs } from '@kubb/plugin-ts'
+import { resolverTs, resolverTsLegacy } from '@kubb/plugin-ts'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
@@ -281,5 +281,100 @@ describe('typeGenerator v2 — Schema (enum)', () => {
     })
 
     await matchFiles(fabric.files, `enumNames.Type — ${enumType}`)
+  })
+})
+
+describe('typeGenerator v2 — Operation — legacy', () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
+  const legacyOptions: PluginTs['resolvedOptions'] = {
+    enumType: 'asConst',
+    enumKeyCasing: 'none',
+    optionalType: 'questionToken',
+    arrayType: 'array',
+    transformers: {},
+    syntaxType: 'type',
+    override: [],
+    paramsCasing: undefined,
+    output: { path: '.' },
+    group: undefined,
+    resolver: resolverTsLegacy,
+    legacy: true,
+  }
+
+  const testData = [
+    {
+      name: 'legacy — findPetsByStatus with query param enum',
+      node: createOperation({
+        operationId: 'findPetsByStatus',
+        method: 'GET',
+        path: '/pet/findByStatus',
+        tags: ['pet'],
+        parameters: [
+          createParameter({
+            name: 'status',
+            in: 'query',
+            schema: createSchema({ type: 'enum', enumType: 'string', enumValues: ['available', 'pending', 'sold'] }),
+          }),
+        ],
+        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' })],
+      }),
+    },
+    {
+      name: 'legacy — deletePet with response enum array',
+      node: createOperation({
+        operationId: 'deletePet',
+        method: 'DELETE',
+        path: '/pet/:petId',
+        tags: ['pet'],
+        parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
+        responses: [
+          createResponse({
+            statusCode: '200',
+            schema: createSchema({
+              type: 'array',
+              items: [createSchema({ type: 'enum', enumType: 'string', enumValues: ['TYPE1', 'TYPE2', 'TYPE3'] })],
+            }),
+            description: 'Successful deletion',
+          }),
+        ],
+      }),
+    },
+    {
+      name: 'legacy — listPets basic GET',
+      node: createOperation({
+        operationId: 'listPets',
+        method: 'GET',
+        path: '/pets',
+        tags: ['pets'],
+        parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+        responses: [
+          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
+          createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+        ],
+      }),
+    },
+  ] as const satisfies Array<{ name: string; node: OperationNode }>
+
+  test.each(testData)('$name', async (props) => {
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options: legacyOptions })
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
+
+    await renderOperation(props.node, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver: mockedPluginDriver,
+      Component: typeGenerator.Operation,
+      plugin,
+      mode: 'split',
+      options: legacyOptions,
+    })
+
+    await matchFiles(fabric.files, props.name)
   })
 })

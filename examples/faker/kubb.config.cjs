@@ -2,6 +2,7 @@
 
 const { defineConfig } = require('@kubb/core')
 
+const { adapterOas } = require('@kubb/adapter-oas')
 const { pluginOas, schemaKeywords } = require('@kubb/plugin-oas')
 const { pluginFaker } = require('@kubb/plugin-faker')
 const { pluginTs } = require('@kubb/plugin-ts')
@@ -20,12 +21,14 @@ module.exports = defineConfig(() => {
       hooks: {
         done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
       },
+      adapter: adapterOas({ legacy: true }),
       plugins: [
         pluginOas({ generators: [] }),
         pluginTs({
           output: {
             path: 'models',
           },
+          legacy: true,
         }),
         pluginFaker({
           output: {
@@ -54,12 +57,14 @@ module.exports = defineConfig(() => {
       hooks: {
         done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
       },
+      adapter: adapterOas({ legacy: true }),
       plugins: [
         pluginOas({ generators: [] }),
         pluginTs({
           output: {
             path: 'models',
           },
+          legacy: true,
         }),
         pluginFaker({
           output: {

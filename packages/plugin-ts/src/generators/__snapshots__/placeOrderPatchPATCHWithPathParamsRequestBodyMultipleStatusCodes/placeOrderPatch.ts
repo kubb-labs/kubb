@@ -21,9 +21,9 @@ export type PlaceOrderPatchStatus405 = object
 export type PlaceOrderPatchData = object
 
 export type PlaceOrderPatchRequestConfig = {
-  data?: placeOrderPatchData
+  data?: PlaceOrderPatchData
   pathParams: {
-    orderId: placeOrderPatchPathOrderId
+    orderId: PlaceOrderPatchPathOrderId
   }
   queryParams?: never
   headerParams?: never
@@ -31,11 +31,11 @@ export type PlaceOrderPatchRequestConfig = {
 }
 
 export type PlaceOrderPatchResponses = {
-  '200': placeOrderPatchStatus200
-  '405': placeOrderPatchStatus405
+  '200': PlaceOrderPatchStatus200
+  '405': PlaceOrderPatchStatus405
 }
 
 /**
  * @description Union of all possible responses
  */
-export type PlaceOrderPatchResponse = placeOrderPatchStatus200 | placeOrderPatchStatus405
+export type PlaceOrderPatchResponse = PlaceOrderPatchStatus200 | PlaceOrderPatchStatus405

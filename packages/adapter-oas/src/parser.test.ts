@@ -2740,3 +2740,232 @@ describe('unknownType / emptySchemaType → SchemaNode type', () => {
     expect(node?.additionalProperties).toMatchObject({ type: 'unknown' })
   })
 })
+
+describe('parameter enum naming', () => {
+  it('parameter enum schemas are unnamed at the parser level (naming happens in plugin)', async () => {
+    const oas = await parse({
+      openapi: '3.0.3',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/pets': {
+          get: {
+            operationId: 'listPets',
+            parameters: [
+              {
+                name: 'status',
+                in: 'query',
+                required: false,
+                schema: { type: 'string', default: 'available', enum: ['available', 'pending', 'sold'] },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+    const root = createOasParser(oas).parse()
+    const op = root.operations.find((o) => o.operationId === 'listPets')
+    const statusParam = op?.parameters.find((p) => p.name === 'status')
+    const enumNode = narrowSchema(statusParam?.schema, 'enum')
+
+    // Parser does not assign names to parameter enums — that's the plugin's job
+    expect(enumNode?.name).toBeUndefined()
+    expect(enumNode?.enumValues).toEqual(['available', 'pending', 'sold'])
+    expect(enumNode?.default).toBe('available')
+  })
+})
+
+describe('legacy enum naming (collisionDetection: false)', () => {
+  it('deduplicates colliding enum names with numeric suffix', () => {
+    const parser = createOasParser(emptyOas, { collisionDetection: false })
+
+    // Two top-level schemas each have params.status enum → both resolve to ParamsStatusEnum
+    const orderNode = parser.convertSchema(
+      {
+        schema: {
+          type: 'object',
+          properties: {
+            params: {
+              type: 'object',
+              properties: {
+                status: { type: 'string', enum: ['active', 'inactive'] },
+              },
+            },
+          },
+        },
+        name: 'Order',
+      },
+      { enumSuffix: 'enum' },
+    )
+    const customerNode = parser.convertSchema(
+      {
+        schema: {
+          type: 'object',
+          properties: {
+            params: {
+              type: 'object',
+              properties: {
+                status: { type: 'string', enum: ['new', 'returning'] },
+              },
+            },
+          },
+        },
+        name: 'Customer',
+      },
+      { enumSuffix: 'enum' },
+    )
+
+    const orderEnum = narrowSchema(
+      narrowSchema(orderNode.properties?.find((p) => p.name === 'params')?.schema, 'object')?.properties?.find((p) => p.name === 'status')?.schema,
+      'enum',
+    )
+    const customerEnum = narrowSchema(
+      narrowSchema(customerNode.properties?.find((p) => p.name === 'params')?.schema, 'object')?.properties?.find((p) => p.name === 'status')?.schema,
+      'enum',
+    )
+
+    expect(orderEnum?.name).toBe('ParamsStatusEnum')
+    expect(customerEnum?.name).toBe('ParamsStatusEnum2')
+  })
+
+  it('oneOf shared property enums do not include schema name', () => {
+    const parser = createOasParser(emptyOas, { collisionDetection: false })
+
+    // Shared properties must be declared at the top level alongside oneOf
+    // for the parser to extract them (properties inside members are not merged).
+    const node = parser.convertSchema(
+      {
+        schema: {
+          properties: {
+            status: { type: 'string', enum: ['active', 'inactive'] },
+          },
+          oneOf: [
+            { type: 'object', properties: { role: { type: 'string' } } },
+            { type: 'object', properties: { dept: { type: 'string' } } },
+          ],
+        },
+        name: 'Pet',
+      },
+      { enumSuffix: 'enum' },
+    )
+
+    const unionNode = narrowSchema(node, 'union')
+    // Shared properties are extracted to the intersection level
+    const firstMember = narrowSchema(unionNode?.members?.[0], 'intersection')
+    const sharedObj = firstMember?.members?.find((m) => narrowSchema(m, 'object')?.properties?.some((p) => p.name === 'status'))
+    const statusProp = narrowSchema(sharedObj, 'object')?.properties?.find((p) => p.name === 'status')
+    const enumNode = narrowSchema(statusProp?.schema, 'enum')
+
+    // Legacy: name is StatusEnum (not PetStatusEnum)
+    expect(enumNode?.name).toBe('StatusEnum')
+  })
+
+  it('array items enum uses array name', () => {
+    const parser = createOasParser(emptyOas, { collisionDetection: false })
+
+    const node = parser.convertSchema(
+      {
+        schema: {
+          type: 'object',
+          properties: {
+            tags: {
+              type: 'array',
+              items: { type: 'string', enum: ['a', 'b', 'c'] },
+            },
+          },
+        },
+        name: 'Item',
+      },
+      { enumSuffix: 'enum' },
+    )
+
+    const tagsProp = node.properties?.find((p) => p.name === 'tags')
+    const arrayNode = narrowSchema(tagsProp?.schema, 'array')
+    const enumNode = narrowSchema(arrayNode?.items?.[0], 'enum')
+
+    expect(enumNode?.name).toBe('TagsEnum')
+  })
+})
+
+describe('non-legacy enum naming (collisionDetection: true)', () => {
+  it('enum name accumulates full parent path without collision suffix', () => {
+    const parser = createOasParser(emptyOas, { collisionDetection: true })
+
+    const orderNode = parser.convertSchema(
+      {
+        schema: {
+          type: 'object',
+          properties: {
+            params: {
+              type: 'object',
+              properties: {
+                status: { type: 'string', enum: ['active', 'inactive'] },
+              },
+            },
+          },
+        },
+        name: 'Order',
+      },
+      { enumSuffix: 'enum' },
+    )
+    const customerNode = parser.convertSchema(
+      {
+        schema: {
+          type: 'object',
+          properties: {
+            params: {
+              type: 'object',
+              properties: {
+                status: { type: 'string', enum: ['new', 'returning'] },
+              },
+            },
+          },
+        },
+        name: 'Customer',
+      },
+      { enumSuffix: 'enum' },
+    )
+
+    const orderEnum = narrowSchema(
+      narrowSchema(orderNode.properties?.find((p) => p.name === 'params')?.schema, 'object')?.properties?.find((p) => p.name === 'status')?.schema,
+      'enum',
+    )
+    const customerEnum = narrowSchema(
+      narrowSchema(customerNode.properties?.find((p) => p.name === 'params')?.schema, 'object')?.properties?.find((p) => p.name === 'status')?.schema,
+      'enum',
+    )
+
+    // Full path means no collision
+    expect(orderEnum?.name).toBe('OrderParamsStatusEnum')
+    expect(customerEnum?.name).toBe('CustomerParamsStatusEnum')
+  })
+
+  it('oneOf shared property enums include schema name', () => {
+    const parser = createOasParser(emptyOas, { collisionDetection: true })
+
+    const node = parser.convertSchema(
+      {
+        schema: {
+          properties: {
+            status: { type: 'string', enum: ['active', 'inactive'] },
+          },
+          oneOf: [
+            { type: 'object', properties: { role: { type: 'string' } } },
+            { type: 'object', properties: { dept: { type: 'string' } } },
+          ],
+        },
+        name: 'Pet',
+      },
+      { enumSuffix: 'enum' },
+    )
+
+    const unionNode = narrowSchema(node, 'union')
+    const firstMember = narrowSchema(unionNode?.members?.[0], 'intersection')
+    const sharedObj = firstMember?.members?.find((m) => narrowSchema(m, 'object')?.properties?.some((p) => p.name === 'status'))
+    const statusProp = narrowSchema(sharedObj, 'object')?.properties?.find((p) => p.name === 'status')
+    const enumNode = narrowSchema(statusProp?.schema, 'enum')
+
+    // Non-legacy: name includes schema name
+    expect(enumNode?.name).toBe('PetStatusEnum')
+  })
+})

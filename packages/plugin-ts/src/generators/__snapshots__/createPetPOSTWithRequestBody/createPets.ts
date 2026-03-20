@@ -19,7 +19,7 @@ export type CreatePetsStatusDefault = object
 export type CreatePetsData = object
 
 export type CreatePetsRequestConfig = {
-  data?: createPetsData
+  data?: CreatePetsData
   pathParams?: never
   queryParams?: never
   headerParams?: never
@@ -27,11 +27,11 @@ export type CreatePetsRequestConfig = {
 }
 
 export type CreatePetsResponses = {
-  '201': createPetsStatus201
-  default: createPetsStatusDefault
+  '201': CreatePetsStatus201
+  default: CreatePetsStatusDefault
 }
 
 /**
  * @description Union of all possible responses
  */
-export type CreatePetsResponse = createPetsStatus201 | createPetsStatusDefault
+export type CreatePetsResponse = CreatePetsStatus201 | CreatePetsStatusDefault

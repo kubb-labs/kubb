@@ -13,6 +13,7 @@ import {
   buildLegacyResponseUnionSchemaNode,
   buildResponsesSchemaNode,
   buildResponseUnionSchemaNode,
+  nameUnnamedEnums,
 } from './utils.ts'
 
 export const typeGenerator = defineGenerator<PluginTs>({
@@ -71,18 +72,29 @@ export const typeGenerator = defineGenerator<PluginTs>({
       )
     }
 
-    const responseTypes = node.responses.map((res) =>
-      renderSchemaType({
-        node: res.schema,
-        name: resolver.resolveResponseStatusName(node, res.statusCode),
-        typedName: resolver.resolveResponseStatusTypedName(node, res.statusCode),
-        description: res.description,
-      }),
-    )
+    const responseTypes = legacy
+      ? node.responses.map((res) => {
+          const responseName = resolver.resolveResponseStatusName(node, res.statusCode)
+
+          return renderSchemaType({
+            node: res.schema ? nameUnnamedEnums(res.schema, responseName) : res.schema,
+            name: responseName,
+            typedName: resolver.resolveResponseStatusTypedName(node, res.statusCode),
+            description: res.description,
+          })
+        })
+      : node.responses.map((res) =>
+          renderSchemaType({
+            node: res.schema,
+            name: resolver.resolveResponseStatusName(node, res.statusCode),
+            typedName: resolver.resolveResponseStatusTypedName(node, res.statusCode),
+            description: res.description,
+          }),
+        )
 
     const requestType = node.requestBody
       ? renderSchemaType({
-          node: node.requestBody,
+          node: legacy ? nameUnnamedEnums(node.requestBody, resolver.resolveDataName(node)) : node.requestBody,
           name: resolver.resolveDataName(node),
           typedName: resolver.resolveDataTypedName(node),
           description: node.requestBody.description,
@@ -97,21 +109,21 @@ export const typeGenerator = defineGenerator<PluginTs>({
       const legacyParamTypes = [
         pathParams.length > 0
           ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: pathParams }),
+              node: buildGroupedParamsSchema({ params: pathParams, parentName: resolver.resolvePathParamsName!(node) }),
               name: resolver.resolvePathParamsName!(node),
               typedName: resolver.resolvePathParamsTypedName!(node),
             })
           : null,
         queryParams.length > 0
           ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: queryParams }),
+              node: buildGroupedParamsSchema({ params: queryParams, parentName: resolver.resolveQueryParamsName!(node) }),
               name: resolver.resolveQueryParamsName!(node),
               typedName: resolver.resolveQueryParamsTypedName!(node),
             })
           : null,
         headerParams.length > 0
           ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: headerParams }),
+              node: buildGroupedParamsSchema({ params: headerParams, parentName: resolver.resolveHeaderParamsName!(node) }),
               name: resolver.resolveHeaderParamsName!(node),
               typedName: resolver.resolveHeaderParamsTypedName!(node),
             })

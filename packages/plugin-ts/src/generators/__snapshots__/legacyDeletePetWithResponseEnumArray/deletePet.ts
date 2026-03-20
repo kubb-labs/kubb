@@ -4,18 +4,7 @@
  */
 
 export type DeletePetPathParams = {
-  /**
-   * @description Pet id to delete
-   * @type integer
-   */
-  petId: number
-}
-
-export type DeletePetHeaderParams = {
-  /**
-   * @type string | undefined
-   */
-  api_key?: string
+  petId: string
 }
 
 export const deletePet200Enum = {
@@ -27,18 +16,13 @@ export const deletePet200Enum = {
 export type DeletePet200EnumKey = (typeof deletePet200Enum)[keyof typeof deletePet200Enum]
 
 /**
- * @description items
+ * @description Successful deletion
  */
 export type DeletePet200 = DeletePet200EnumKey[]
 
-/**
- * @description Invalid pet value
- */
-export type DeletePet400 = any
-
 export type DeletePetMutation = {
   Response: DeletePet200
-  Errors: DeletePet400
+  Errors: any
 }
 
 export type DeletePetMutationResponse = DeletePet200
