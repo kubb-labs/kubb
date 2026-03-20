@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { Order } from './OrderType.ts'
+import type { OrderType } from './OrderType.ts'
 
-export type GetOrderByIdPathParams = {
+export type GetOrderByIdPathParamsType = {
   /**
    * @description ID of order that needs to be fetched
    * @type integer
@@ -16,21 +16,21 @@ export type GetOrderByIdPathParams = {
 /**
  * @description successful operation
  */
-export type GetOrderById200 = Order
+export type GetOrderById200Type = OrderType
 
 /**
  * @description Invalid ID supplied
  */
-export type GetOrderById400 = any
+export type GetOrderById400Type = any
 
 /**
  * @description Order not found
  */
-export type GetOrderById404 = any
+export type GetOrderById404Type = any
 
-export type GetOrderByIdQuery = {
-  Response: GetOrderById200
-  Errors: GetOrderById400 | GetOrderById404
+export type GetOrderByIdQueryType = {
+  Response: GetOrderById200TypeType
+  Errors: GetOrderById400TypeType | GetOrderById404TypeType
 }
 
-export type GetOrderByIdQueryResponse = GetOrderById200
+export type GetOrderByIdQueryResponseType = GetOrderById200TypeType

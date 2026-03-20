@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { Pet } from './PetType.ts'
+import type { PetType } from './PetType.ts'
 
-export type FindPetsByTagsQueryParams = {
+export type FindPetsByTagsQueryParamsType = {
   /**
    * @description Tags to filter by
    * @type array | undefined
@@ -23,36 +23,37 @@ export type FindPetsByTagsQueryParams = {
   pageSize?: string
 }
 
-export const findPetsByTagsHeaderParamsXEXAMPLEEnum = {
+export const findPetsByTagsHeaderParamsTypeXEXAMPLEEnum = {
   ONE: 'ONE',
   TWO: 'TWO',
   THREE: 'THREE',
 } as const
 
-export type FindPetsByTagsHeaderParamsXEXAMPLEEnumKey = (typeof findPetsByTagsHeaderParamsXEXAMPLEEnum)[keyof typeof findPetsByTagsHeaderParamsXEXAMPLEEnum]
+export type FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumKey =
+  (typeof findPetsByTagsHeaderParamsTypeXEXAMPLEEnum)[keyof typeof findPetsByTagsHeaderParamsTypeXEXAMPLEEnum]
 
-export type FindPetsByTagsHeaderParams = {
+export type FindPetsByTagsHeaderParamsType = {
   /**
    * @description Header parameters
    * @type string
    */
-  'X-EXAMPLE': FindPetsByTagsHeaderParamsXEXAMPLEEnumKey
+  'X-EXAMPLE': FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumTypeKey
 }
 
 /**
  * @description successful operation
  */
-export type FindPetsByTags200 = Pet[]
+export type FindPetsByTags200Type = PetType[]
 
 /**
  * @description Invalid tag value
  */
-export type FindPetsByTags400 = any
+export type FindPetsByTags400Type = any
 
-export type FindPetsByTagsQuery = {
-  Response: FindPetsByTags200
-  QueryParams: FindPetsByTagsQueryParams
-  Errors: FindPetsByTags400
+export type FindPetsByTagsQueryType = {
+  Response: FindPetsByTags200TypeType
+  QueryParams: FindPetsByTagsQueryParamsTypeType
+  Errors: FindPetsByTags400TypeType
 }
 
-export type FindPetsByTagsQueryResponse = FindPetsByTags200
+export type FindPetsByTagsQueryResponseType = FindPetsByTags200TypeType

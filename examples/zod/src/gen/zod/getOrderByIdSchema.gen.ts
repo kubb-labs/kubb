@@ -6,33 +6,33 @@
 import { z } from '../../zod.ts'
 import { orderSchema } from './orderSchema.gen.ts'
 
-export const getOrderByIdPathParamsSchema = z.object({
+export const getOrderByIdPathParamsTypeSchema = z.object({
   orderId: z.coerce.number().int().describe('ID of order that needs to be fetched'),
 })
 
-export type GetOrderByIdPathParamsSchema = z.infer<typeof getOrderByIdPathParamsSchema>
+export type GetOrderByIdPathParamsTypeSchema = z.infer<typeof getOrderByIdPathParamsTypeSchema>
 
 /**
  * @description successful operation
  */
-export const getOrderById200Schema = z.lazy(() => orderSchema)
+export const getOrderById200TypeSchema = z.lazy(() => orderSchema)
 
-export type GetOrderById200Schema = z.infer<typeof getOrderById200Schema>
+export type GetOrderById200TypeSchema = z.infer<typeof getOrderById200TypeSchema>
 
 /**
  * @description Invalid ID supplied
  */
-export const getOrderById400Schema = z.any()
+export const getOrderById400TypeSchema = z.any()
 
-export type GetOrderById400Schema = z.infer<typeof getOrderById400Schema>
+export type GetOrderById400TypeSchema = z.infer<typeof getOrderById400TypeSchema>
 
 /**
  * @description Order not found
  */
-export const getOrderById404Schema = z.any()
+export const getOrderById404TypeSchema = z.any()
 
-export type GetOrderById404Schema = z.infer<typeof getOrderById404Schema>
+export type GetOrderById404TypeSchema = z.infer<typeof getOrderById404TypeSchema>
 
-export const getOrderByIdQueryResponseSchema = z.lazy(() => getOrderById200Schema)
+export const getOrderByIdQueryResponseTypeSchema = z.lazy(() => getOrderById200TypeSchema)
 
-export type GetOrderByIdQueryResponseSchema = z.infer<typeof getOrderByIdQueryResponseSchema>
+export type GetOrderByIdQueryResponseTypeSchema = z.infer<typeof getOrderByIdQueryResponseTypeSchema>

@@ -26,7 +26,21 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     legacy = false,
   } = options
 
-  const resolver = legacy ? resolverTsLegacy : resolverTs
+  const baseResolver = legacy ? resolverTsLegacy : resolverTs
+
+  // When a `transformers.name` callback is provided, wrap the resolver so that
+  // every name produced by `default()` (and therefore by every helper that calls
+  // `this.default(...)`) flows through the user's transformer.
+  const resolver: typeof baseResolver = transformers?.name
+    ? {
+        ...baseResolver,
+        default(name, type) {
+          const resolved = baseResolver.default(name, type)
+
+          return transformers.name!(resolved, type) || resolved
+        },
+      }
+    : baseResolver
 
   let resolveNameWarning = false
 
@@ -86,13 +100,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         resolveNameWarning = true
       }
 
-      const resolvedName = resolver.default(name, type)
-
-      if (type) {
-        return transformers?.name?.(resolvedName, type) || resolvedName
-      }
-
-      return resolvedName
+      return resolver.default(name, type)
     },
     async install() {
       const { config, fabric, plugin, adapter, rootNode, driver, openInStudio } = this

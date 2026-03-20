@@ -3,6 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { AsyncEventEmitter, getRelativePath } from '@internals/utils'
+import { adapterOas } from '@kubb/adapter-oas'
 import { type KubbEvents, safeBuild, type UserConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -22,13 +23,13 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       input: {
         path: '../../schemas/3.0.x/petStore.yaml',
       },
+      adapter: adapterOas({ legacy: true, validate: false }),
       output: {
         path: './gen',
         barrelType: false,
       },
       plugins: [
         pluginOas({
-          validate: false,
           generators: [],
         }),
         pluginTs({
@@ -36,6 +37,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
+          legacy: true,
         }),
       ],
     },
@@ -51,17 +53,17 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
+      adapter: adapterOas({ legacy: true, validate: false, discriminator: 'inherit' }),
       plugins: [
         pluginOas({
-          validate: false,
           generators: [],
-          discriminator: 'inherit',
         }),
         pluginTs({
           output: {
             path: './types',
             barrelType: false,
           },
+          legacy: true,
         }),
       ],
     },
@@ -77,9 +79,9 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
+      adapter: adapterOas({ legacy: true, validate: false }),
       plugins: [
         pluginOas({
-          validate: false,
           generators: [],
         }),
         pluginTs({
@@ -87,6 +89,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
+          legacy: true,
         }),
       ],
     },
@@ -103,12 +106,12 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         clean: true,
         barrelType: false,
       },
+      adapter: adapterOas({ legacy: true, validate: false }),
       plugins: [
         pluginOas({
-          validate: false,
           generators: [],
         }),
-        pluginTs({}),
+        pluginTs({ legacy: true }),
       ],
     },
   },
@@ -123,9 +126,9 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
+      adapter: adapterOas({ legacy: true, validate: false }),
       plugins: [
         pluginOas({
-          validate: false,
           generators: [],
         }),
         pluginTs({
@@ -133,6 +136,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
+          legacy: true,
         }),
       ],
     },
@@ -148,17 +152,17 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
+      adapter: adapterOas({ legacy: false, validate: false }),
       plugins: [
         pluginOas({
-          validate: false,
           generators: [],
-          collisionDetection: true,
         }),
         pluginTs({
           output: {
             path: './types',
             barrelType: false,
           },
+          legacy: false,
         }),
       ],
     },
@@ -174,17 +178,17 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
+      adapter: adapterOas({ legacy: false, validate: false, collisionDetection: true }),
       plugins: [
         pluginOas({
-          validate: false,
           generators: [],
-          collisionDetection: true,
         }),
         pluginTs({
           output: {
             path: './types',
             barrelType: false,
           },
+          legacy: true,
         }),
       ],
     },
@@ -207,9 +211,9 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
+      adapter: adapterOas({ legacy: true, validate: false }),
       plugins: [
         pluginOas({
-          validate: false,
           generators: [],
         }),
         pluginZod({
@@ -241,9 +245,9 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
+      adapter: adapterOas({ legacy: true, validate: false }),
       plugins: [
         pluginOas({
-          validate: false,
           generators: [],
         }),
         pluginTs({
@@ -251,6 +255,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
+          legacy: true,
         }),
       ],
     },

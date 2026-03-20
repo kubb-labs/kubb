@@ -3,34 +3,34 @@
  * Do not edit manually.
  */
 
-import type { Pet } from './PetType.ts'
+import type { PetType } from './PetType.ts'
 
 /**
  * @description Successful operation
  */
-export type UpdatePet200 = Pet
+export type UpdatePet200Type = PetType
 
 /**
  * @description Invalid ID supplied
  */
-export type UpdatePet400 = any
+export type UpdatePet400Type = any
 
 /**
  * @description Pet not found
  */
-export type UpdatePet404 = any
+export type UpdatePet404Type = any
 
 /**
  * @description Validation exception
  */
-export type UpdatePet405 = any
+export type UpdatePet405Type = any
 
-export type UpdatePetMutationRequest = Pet
+export type UpdatePetMutationRequestType = PetType
 
-export type UpdatePetMutation = {
-  Response: UpdatePet200
-  Request: UpdatePetMutationRequest
-  Errors: UpdatePet400 | UpdatePet404 | UpdatePet405
+export type UpdatePetMutationType = {
+  Response: UpdatePet200TypeType
+  Request: UpdatePetMutationRequestTypeType
+  Errors: UpdatePet400TypeType | UpdatePet404TypeType | UpdatePet405TypeType
 }
 
-export type UpdatePetMutationResponse = UpdatePet200
+export type UpdatePetMutationResponseType = UpdatePet200TypeType

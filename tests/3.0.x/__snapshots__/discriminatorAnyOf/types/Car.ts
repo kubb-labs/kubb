@@ -6,8 +6,4 @@
 import type { SUV } from "./SUV.ts";
 import type { Sedan } from "./Sedan.ts";
 
-export type Car = ((Sedan & {
-    type: "Sedan";
-}) | (SUV & {
-    type: "SUV";
-}));
+export type Car = (Sedan | SUV);

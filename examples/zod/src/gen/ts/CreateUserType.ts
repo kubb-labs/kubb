@@ -3,19 +3,19 @@
  * Do not edit manually.
  */
 
-import type { User } from './UserType.ts'
+import type { UserType } from './UserType.ts'
 
 /**
  * @description successful operation
  */
-export type CreateUserError = User
+export type CreateUserErrorType = UserType
 
-export type CreateUserMutationRequest = User
+export type CreateUserMutationRequestType = UserType
 
-export type CreateUserMutation = {
+export type CreateUserMutationType = {
   Response: any
-  Request: CreateUserMutationRequest
-  Errors: CreateUserError
+  Request: CreateUserMutationRequestTypeType
+  Errors: CreateUserErrorTypeType
 }
 
-export type CreateUserMutationResponse = any
+export type CreateUserMutationResponseType = any

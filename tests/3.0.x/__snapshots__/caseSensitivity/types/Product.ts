@@ -4,7 +4,7 @@
 */
 
 
-export type GetProducts200 = {
+export type Product = {
     /**
      * @type string | undefined
     */
@@ -18,10 +18,3 @@ export type GetProducts200 = {
     */
     stock?: number;
 };
-
-export type GetProductsQuery = {
-    Response: GetProducts200;
-    Errors: any;
-};
-
-export type GetProductsQueryResponse = GetProducts200;

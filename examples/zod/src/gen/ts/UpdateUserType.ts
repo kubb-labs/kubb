@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { User } from './UserType.ts'
+import type { UserType } from './UserType.ts'
 
-export type UpdateUserPathParams = {
+export type UpdateUserPathParamsType = {
   /**
    * @description name that need to be deleted
    * @type string
@@ -16,14 +16,14 @@ export type UpdateUserPathParams = {
 /**
  * @description successful operation
  */
-export type UpdateUserError = any
+export type UpdateUserErrorType = any
 
-export type UpdateUserMutationRequest = User
+export type UpdateUserMutationRequestType = UserType
 
-export type UpdateUserMutation = {
+export type UpdateUserMutationType = {
   Response: any
-  Request: UpdateUserMutationRequest
-  Errors: UpdateUserError
+  Request: UpdateUserMutationRequestTypeType
+  Errors: UpdateUserErrorTypeType
 }
 
-export type UpdateUserMutationResponse = any
+export type UpdateUserMutationResponseType = any

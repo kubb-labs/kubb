@@ -29,7 +29,7 @@ export const orderValueEnum = {
 
 export type OrderValueEnumKey = (typeof orderValueEnum)[keyof typeof orderValueEnum]
 
-export type Order = {
+export type OrderType = {
   /**
    * @example 10
    * @type integer | undefined
@@ -54,19 +54,19 @@ export type Order = {
    * @example approved
    * @type string | undefined
    */
-  status?: OrderStatusEnumKey
+  status?: OrderStatusEnumTypeKey
   /**
    * @description HTTP Status
    * @example 200
    * @type number | undefined
    */
-  http_status?: OrderHttpStatusEnumKey
+  http_status?: OrderHttpStatusEnumTypeKey
   /**
    * @description Price
    * @example 2
    * @type number | undefined
    */
-  value?: OrderValueEnumKey
+  value?: OrderValueEnumTypeKey
   /**
    * @type boolean | undefined
    */

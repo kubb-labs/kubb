@@ -3,39 +3,40 @@
  * Do not edit manually.
  */
 
-import type { Pet } from './PetType.ts'
+import type { PetType } from './PetType.ts'
 
-export const findPetsByStatusQueryParamsStatusEnum = {
+export const findPetsByStatusQueryParamsTypeStatusEnum = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
 
-export type FindPetsByStatusQueryParamsStatusEnumKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
+export type FindPetsByStatusQueryParamsTypeStatusEnumKey =
+  (typeof findPetsByStatusQueryParamsTypeStatusEnum)[keyof typeof findPetsByStatusQueryParamsTypeStatusEnum]
 
-export type FindPetsByStatusQueryParams = {
+export type FindPetsByStatusQueryParamsType = {
   /**
    * @description Status values that need to be considered for filter
    * @default "available"
    * @type string | undefined
    */
-  status?: FindPetsByStatusQueryParamsStatusEnumKey
+  status?: FindPetsByStatusQueryParamsTypeStatusEnumTypeKey
 }
 
 /**
  * @description successful operation
  */
-export type FindPetsByStatus200 = Pet[]
+export type FindPetsByStatus200Type = PetType[]
 
 /**
  * @description Invalid status value
  */
-export type FindPetsByStatus400 = any
+export type FindPetsByStatus400Type = any
 
-export type FindPetsByStatusQuery = {
-  Response: FindPetsByStatus200
-  QueryParams: FindPetsByStatusQueryParams
-  Errors: FindPetsByStatus400
+export type FindPetsByStatusQueryType = {
+  Response: FindPetsByStatus200TypeType
+  QueryParams: FindPetsByStatusQueryParamsTypeType
+  Errors: FindPetsByStatus400TypeType
 }
 
-export type FindPetsByStatusQueryResponse = FindPetsByStatus200
+export type FindPetsByStatusQueryResponseType = FindPetsByStatus200TypeType

@@ -5,27 +5,27 @@
 
 import { z } from '../../zod.ts'
 
-export const deletePetPathParamsSchema = z.object({
+export const deletePetPathParamsTypeSchema = z.object({
   petId: z.coerce.number().int().describe('Pet id to delete'),
 })
 
-export type DeletePetPathParamsSchema = z.infer<typeof deletePetPathParamsSchema>
+export type DeletePetPathParamsTypeSchema = z.infer<typeof deletePetPathParamsTypeSchema>
 
-export const deletePetHeaderParamsSchema = z
+export const deletePetHeaderParamsTypeSchema = z
   .object({
     api_key: z.optional(z.string()),
   })
   .optional()
 
-export type DeletePetHeaderParamsSchema = z.infer<typeof deletePetHeaderParamsSchema>
+export type DeletePetHeaderParamsTypeSchema = z.infer<typeof deletePetHeaderParamsTypeSchema>
 
 /**
  * @description Invalid pet value
  */
-export const deletePet400Schema = z.any()
+export const deletePet400TypeSchema = z.any()
 
-export type DeletePet400Schema = z.infer<typeof deletePet400Schema>
+export type DeletePet400TypeSchema = z.infer<typeof deletePet400TypeSchema>
 
-export const deletePetMutationResponseSchema = z.any()
+export const deletePetMutationResponseTypeSchema = z.any()
 
-export type DeletePetMutationResponseSchema = z.infer<typeof deletePetMutationResponseSchema>
+export type DeletePetMutationResponseTypeSchema = z.infer<typeof deletePetMutationResponseTypeSchema>

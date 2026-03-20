@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { ApiResponse } from './ApiResponseType.ts'
+import type { ApiResponseType } from './ApiResponseType.ts'
 
-export type UploadFilePathParams = {
+export type UploadFilePathParamsType = {
   /**
    * @description ID of pet to update
    * @type integer
@@ -13,7 +13,7 @@ export type UploadFilePathParams = {
   petId: number
 }
 
-export type UploadFileQueryParams = {
+export type UploadFileQueryParamsType = {
   /**
    * @description Additional Metadata
    * @type string | undefined
@@ -24,14 +24,14 @@ export type UploadFileQueryParams = {
 /**
  * @description successful operation
  */
-export type UploadFile200 = ApiResponse
+export type UploadFile200Type = ApiResponseType
 
-export type UploadFileMutationRequest = Blob
+export type UploadFileMutationRequestType = Blob
 
-export type UploadFileMutation = {
-  Response: UploadFile200
-  Request: UploadFileMutationRequest
+export type UploadFileMutationType = {
+  Response: UploadFile200TypeType
+  Request: UploadFileMutationRequestTypeType
   Errors: any
 }
 
-export type UploadFileMutationResponse = UploadFile200
+export type UploadFileMutationResponseType = UploadFile200TypeType

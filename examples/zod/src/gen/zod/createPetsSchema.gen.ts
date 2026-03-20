@@ -6,47 +6,47 @@
 import { z } from '../../zod.ts'
 import { petNotFoundSchema } from './petNotFoundSchema.gen.ts'
 
-export const createPetsPathParamsSchema = z.object({
+export const createPetsPathParamsTypeSchema = z.object({
   uuid: z.string().describe('UUID'),
 })
 
-export type CreatePetsPathParamsSchema = z.infer<typeof createPetsPathParamsSchema>
+export type CreatePetsPathParamsTypeSchema = z.infer<typeof createPetsPathParamsTypeSchema>
 
-export const createPetsQueryParamsSchema = z
+export const createPetsQueryParamsTypeSchema = z
   .object({
     offset: z.optional(z.coerce.number().int().describe('Offset')),
   })
   .optional()
 
-export type CreatePetsQueryParamsSchema = z.infer<typeof createPetsQueryParamsSchema>
+export type CreatePetsQueryParamsTypeSchema = z.infer<typeof createPetsQueryParamsTypeSchema>
 
-export const createPetsHeaderParamsSchema = z.object({
+export const createPetsHeaderParamsTypeSchema = z.object({
   'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters'),
 })
 
-export type CreatePetsHeaderParamsSchema = z.infer<typeof createPetsHeaderParamsSchema>
+export type CreatePetsHeaderParamsTypeSchema = z.infer<typeof createPetsHeaderParamsTypeSchema>
 
 /**
  * @description Null response
  */
-export const createPets201Schema = z.any()
+export const createPets201TypeSchema = z.any()
 
-export type CreatePets201Schema = z.infer<typeof createPets201Schema>
+export type CreatePets201TypeSchema = z.infer<typeof createPets201TypeSchema>
 
 /**
  * @description unexpected error
  */
-export const createPetsErrorSchema = z.lazy(() => petNotFoundSchema).describe('Pet not found')
+export const createPetsErrorTypeSchema = z.lazy(() => petNotFoundSchema).describe('Pet not found')
 
-export type CreatePetsErrorSchema = z.infer<typeof createPetsErrorSchema>
+export type CreatePetsErrorTypeSchema = z.infer<typeof createPetsErrorTypeSchema>
 
-export const createPetsMutationRequestSchema = z.object({
+export const createPetsMutationRequestTypeSchema = z.object({
   name: z.string(),
   tag: z.string(),
 })
 
-export type CreatePetsMutationRequestSchema = z.infer<typeof createPetsMutationRequestSchema>
+export type CreatePetsMutationRequestTypeSchema = z.infer<typeof createPetsMutationRequestTypeSchema>
 
-export const createPetsMutationResponseSchema = z.lazy(() => createPets201Schema)
+export const createPetsMutationResponseTypeSchema = z.lazy(() => createPets201TypeSchema)
 
-export type CreatePetsMutationResponseSchema = z.infer<typeof createPetsMutationResponseSchema>
+export type CreatePetsMutationResponseTypeSchema = z.infer<typeof createPetsMutationResponseTypeSchema>

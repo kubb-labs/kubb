@@ -6,7 +6,7 @@
 import { z } from '../../zod.ts'
 import { petSchema } from './petSchema.gen.ts'
 
-export const findPetsByTagsQueryParamsSchema = z
+export const findPetsByTagsQueryParamsTypeSchema = z
   .object({
     tags: z.optional(z.array(z.string()).describe('Tags to filter by')),
     page: z.optional(z.string().describe('to request with required page number or pagination')),
@@ -14,28 +14,28 @@ export const findPetsByTagsQueryParamsSchema = z
   })
   .optional()
 
-export type FindPetsByTagsQueryParamsSchema = z.infer<typeof findPetsByTagsQueryParamsSchema>
+export type FindPetsByTagsQueryParamsTypeSchema = z.infer<typeof findPetsByTagsQueryParamsTypeSchema>
 
-export const findPetsByTagsHeaderParamsSchema = z.object({
+export const findPetsByTagsHeaderParamsTypeSchema = z.object({
   'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters'),
 })
 
-export type FindPetsByTagsHeaderParamsSchema = z.infer<typeof findPetsByTagsHeaderParamsSchema>
+export type FindPetsByTagsHeaderParamsTypeSchema = z.infer<typeof findPetsByTagsHeaderParamsTypeSchema>
 
 /**
  * @description successful operation
  */
-export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema))
+export const findPetsByTags200TypeSchema = z.array(z.lazy(() => petSchema))
 
-export type FindPetsByTags200Schema = z.infer<typeof findPetsByTags200Schema>
+export type FindPetsByTags200TypeSchema = z.infer<typeof findPetsByTags200TypeSchema>
 
 /**
  * @description Invalid tag value
  */
-export const findPetsByTags400Schema = z.any()
+export const findPetsByTags400TypeSchema = z.any()
 
-export type FindPetsByTags400Schema = z.infer<typeof findPetsByTags400Schema>
+export type FindPetsByTags400TypeSchema = z.infer<typeof findPetsByTags400TypeSchema>
 
-export const findPetsByTagsQueryResponseSchema = z.lazy(() => findPetsByTags200Schema)
+export const findPetsByTagsQueryResponseTypeSchema = z.lazy(() => findPetsByTags200TypeSchema)
 
-export type FindPetsByTagsQueryResponseSchema = z.infer<typeof findPetsByTagsQueryResponseSchema>
+export type FindPetsByTagsQueryResponseTypeSchema = z.infer<typeof findPetsByTagsQueryResponseTypeSchema>

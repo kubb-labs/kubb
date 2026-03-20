@@ -6,26 +6,26 @@
 import { z } from '../../zod.ts'
 import { petSchema } from './petSchema.gen.ts'
 
-export const findPetsByStatusQueryParamsSchema = z.object({
+export const findPetsByStatusQueryParamsTypeSchema = z.object({
   status: z.enum(['available', 'pending', 'sold']).default('available').describe('Status values that need to be considered for filter'),
 })
 
-export type FindPetsByStatusQueryParamsSchema = z.infer<typeof findPetsByStatusQueryParamsSchema>
+export type FindPetsByStatusQueryParamsTypeSchema = z.infer<typeof findPetsByStatusQueryParamsTypeSchema>
 
 /**
  * @description successful operation
  */
-export const findPetsByStatus200Schema = z.array(z.lazy(() => petSchema))
+export const findPetsByStatus200TypeSchema = z.array(z.lazy(() => petSchema))
 
-export type FindPetsByStatus200Schema = z.infer<typeof findPetsByStatus200Schema>
+export type FindPetsByStatus200TypeSchema = z.infer<typeof findPetsByStatus200TypeSchema>
 
 /**
  * @description Invalid status value
  */
-export const findPetsByStatus400Schema = z.any()
+export const findPetsByStatus400TypeSchema = z.any()
 
-export type FindPetsByStatus400Schema = z.infer<typeof findPetsByStatus400Schema>
+export type FindPetsByStatus400TypeSchema = z.infer<typeof findPetsByStatus400TypeSchema>
 
-export const findPetsByStatusQueryResponseSchema = z.lazy(() => findPetsByStatus200Schema)
+export const findPetsByStatusQueryResponseTypeSchema = z.lazy(() => findPetsByStatus200TypeSchema)
 
-export type FindPetsByStatusQueryResponseSchema = z.infer<typeof findPetsByStatusQueryResponseSchema>
+export type FindPetsByStatusQueryResponseTypeSchema = z.infer<typeof findPetsByStatusQueryResponseTypeSchema>

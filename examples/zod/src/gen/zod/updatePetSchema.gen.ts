@@ -9,38 +9,38 @@ import { petSchema } from './petSchema.gen.ts'
 /**
  * @description Successful operation
  */
-export const updatePet200Schema = z.lazy(() => petSchema)
+export const updatePet200TypeSchema = z.lazy(() => petSchema)
 
-export type UpdatePet200Schema = z.infer<typeof updatePet200Schema>
+export type UpdatePet200TypeSchema = z.infer<typeof updatePet200TypeSchema>
 
 /**
  * @description Invalid ID supplied
  */
-export const updatePet400Schema = z.any()
+export const updatePet400TypeSchema = z.any()
 
-export type UpdatePet400Schema = z.infer<typeof updatePet400Schema>
+export type UpdatePet400TypeSchema = z.infer<typeof updatePet400TypeSchema>
 
 /**
  * @description Pet not found
  */
-export const updatePet404Schema = z.any()
+export const updatePet404TypeSchema = z.any()
 
-export type UpdatePet404Schema = z.infer<typeof updatePet404Schema>
+export type UpdatePet404TypeSchema = z.infer<typeof updatePet404TypeSchema>
 
 /**
  * @description Validation exception
  */
-export const updatePet405Schema = z.any()
+export const updatePet405TypeSchema = z.any()
 
-export type UpdatePet405Schema = z.infer<typeof updatePet405Schema>
+export type UpdatePet405TypeSchema = z.infer<typeof updatePet405TypeSchema>
 
 /**
  * @description Update an existent pet in the store
  */
-export const updatePetMutationRequestSchema = z.lazy(() => petSchema)
+export const updatePetMutationRequestTypeSchema = z.lazy(() => petSchema)
 
-export type UpdatePetMutationRequestSchema = z.infer<typeof updatePetMutationRequestSchema>
+export type UpdatePetMutationRequestTypeSchema = z.infer<typeof updatePetMutationRequestTypeSchema>
 
-export const updatePetMutationResponseSchema = z.lazy(() => updatePet200Schema)
+export const updatePetMutationResponseTypeSchema = z.lazy(() => updatePet200TypeSchema)
 
-export type UpdatePetMutationResponseSchema = z.infer<typeof updatePetMutationResponseSchema>
+export type UpdatePetMutationResponseTypeSchema = z.infer<typeof updatePetMutationResponseTypeSchema>

@@ -9,21 +9,21 @@ import { orderSchema } from './orderSchema.gen.ts'
 /**
  * @description successful operation
  */
-export const placeOrderPatch200Schema = z.lazy(() => orderSchema)
+export const placeOrderPatch200TypeSchema = z.lazy(() => orderSchema)
 
-export type PlaceOrderPatch200Schema = z.infer<typeof placeOrderPatch200Schema>
+export type PlaceOrderPatch200TypeSchema = z.infer<typeof placeOrderPatch200TypeSchema>
 
 /**
  * @description Invalid input
  */
-export const placeOrderPatch405Schema = z.any()
+export const placeOrderPatch405TypeSchema = z.any()
 
-export type PlaceOrderPatch405Schema = z.infer<typeof placeOrderPatch405Schema>
+export type PlaceOrderPatch405TypeSchema = z.infer<typeof placeOrderPatch405TypeSchema>
 
-export const placeOrderPatchMutationRequestSchema = z.lazy(() => orderSchema)
+export const placeOrderPatchMutationRequestTypeSchema = z.lazy(() => orderSchema)
 
-export type PlaceOrderPatchMutationRequestSchema = z.infer<typeof placeOrderPatchMutationRequestSchema>
+export type PlaceOrderPatchMutationRequestTypeSchema = z.infer<typeof placeOrderPatchMutationRequestTypeSchema>
 
-export const placeOrderPatchMutationResponseSchema = z.lazy(() => placeOrderPatch200Schema)
+export const placeOrderPatchMutationResponseTypeSchema = z.lazy(() => placeOrderPatch200TypeSchema)
 
-export type PlaceOrderPatchMutationResponseSchema = z.infer<typeof placeOrderPatchMutationResponseSchema>
+export type PlaceOrderPatchMutationResponseTypeSchema = z.infer<typeof placeOrderPatchMutationResponseTypeSchema>

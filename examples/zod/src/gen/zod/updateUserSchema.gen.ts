@@ -6,26 +6,26 @@
 import { z } from '../../zod.ts'
 import { userSchema } from './userSchema.gen.ts'
 
-export const updateUserPathParamsSchema = z.object({
+export const updateUserPathParamsTypeSchema = z.object({
   username: z.string().describe('name that need to be deleted'),
 })
 
-export type UpdateUserPathParamsSchema = z.infer<typeof updateUserPathParamsSchema>
+export type UpdateUserPathParamsTypeSchema = z.infer<typeof updateUserPathParamsTypeSchema>
 
 /**
  * @description successful operation
  */
-export const updateUserErrorSchema = z.any()
+export const updateUserErrorTypeSchema = z.any()
 
-export type UpdateUserErrorSchema = z.infer<typeof updateUserErrorSchema>
+export type UpdateUserErrorTypeSchema = z.infer<typeof updateUserErrorTypeSchema>
 
 /**
  * @description Update an existent user in the store
  */
-export const updateUserMutationRequestSchema = z.lazy(() => userSchema)
+export const updateUserMutationRequestTypeSchema = z.lazy(() => userSchema)
 
-export type UpdateUserMutationRequestSchema = z.infer<typeof updateUserMutationRequestSchema>
+export type UpdateUserMutationRequestTypeSchema = z.infer<typeof updateUserMutationRequestTypeSchema>
 
-export const updateUserMutationResponseSchema = z.any()
+export const updateUserMutationResponseTypeSchema = z.any()
 
-export type UpdateUserMutationResponseSchema = z.infer<typeof updateUserMutationResponseSchema>
+export type UpdateUserMutationResponseTypeSchema = z.infer<typeof updateUserMutationResponseTypeSchema>

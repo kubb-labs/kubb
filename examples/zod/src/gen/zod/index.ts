@@ -1,12 +1,12 @@
 export type { AddPetRequestSchema } from './addPetRequestSchema.gen.ts'
 export { addPetRequestSchema } from './addPetRequestSchema.gen.ts'
 export type {
-  AddPet200Schema,
-  AddPet405Schema,
-  AddPetMutationRequestSchema,
-  AddPetMutationResponseSchema,
+  AddPet200TypeSchema,
+  AddPet405TypeSchema,
+  AddPetMutationRequestTypeSchema,
+  AddPetMutationResponseTypeSchema,
 } from './addPetSchema.gen.ts'
-export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './addPetSchema.gen.ts'
+export { addPet200TypeSchema, addPet405TypeSchema, addPetMutationRequestTypeSchema, addPetMutationResponseTypeSchema } from './addPetSchema.gen.ts'
 export type { AddressSchema } from './addressSchema.gen.ts'
 export { addressSchema } from './addressSchema.gen.ts'
 export type { ApiResponseSchema } from './apiResponseSchema.gen.ts'
@@ -14,156 +14,171 @@ export { apiResponseSchema } from './apiResponseSchema.gen.ts'
 export type { CategorySchema } from './categorySchema.gen.ts'
 export { categorySchema } from './categorySchema.gen.ts'
 export type {
-  CreatePets201Schema,
-  CreatePetsErrorSchema,
-  CreatePetsHeaderParamsSchema,
-  CreatePetsMutationRequestSchema,
-  CreatePetsMutationResponseSchema,
-  CreatePetsPathParamsSchema,
-  CreatePetsQueryParamsSchema,
+  CreatePets201TypeSchema,
+  CreatePetsErrorTypeSchema,
+  CreatePetsHeaderParamsTypeSchema,
+  CreatePetsMutationRequestTypeSchema,
+  CreatePetsMutationResponseTypeSchema,
+  CreatePetsPathParamsTypeSchema,
+  CreatePetsQueryParamsTypeSchema,
 } from './createPetsSchema.gen.ts'
 export {
-  createPets201Schema,
-  createPetsErrorSchema,
-  createPetsHeaderParamsSchema,
-  createPetsMutationRequestSchema,
-  createPetsMutationResponseSchema,
-  createPetsPathParamsSchema,
-  createPetsQueryParamsSchema,
+  createPets201TypeSchema,
+  createPetsErrorTypeSchema,
+  createPetsHeaderParamsTypeSchema,
+  createPetsMutationRequestTypeSchema,
+  createPetsMutationResponseTypeSchema,
+  createPetsPathParamsTypeSchema,
+  createPetsQueryParamsTypeSchema,
 } from './createPetsSchema.gen.ts'
 export type {
-  CreateUserErrorSchema,
-  CreateUserMutationRequestSchema,
-  CreateUserMutationResponseSchema,
+  CreateUserErrorTypeSchema,
+  CreateUserMutationRequestTypeSchema,
+  CreateUserMutationResponseTypeSchema,
 } from './createUserSchema.gen.ts'
-export { createUserErrorSchema, createUserMutationRequestSchema, createUserMutationResponseSchema } from './createUserSchema.gen.ts'
+export { createUserErrorTypeSchema, createUserMutationRequestTypeSchema, createUserMutationResponseTypeSchema } from './createUserSchema.gen.ts'
 export type {
-  CreateUsersWithListInput200Schema,
-  CreateUsersWithListInputErrorSchema,
-  CreateUsersWithListInputMutationRequestSchema,
-  CreateUsersWithListInputMutationResponseSchema,
+  CreateUsersWithListInput200TypeSchema,
+  CreateUsersWithListInputErrorTypeSchema,
+  CreateUsersWithListInputMutationRequestTypeSchema,
+  CreateUsersWithListInputMutationResponseTypeSchema,
 } from './createUsersWithListInputSchema.gen.ts'
 export {
-  createUsersWithListInput200Schema,
-  createUsersWithListInputErrorSchema,
-  createUsersWithListInputMutationRequestSchema,
-  createUsersWithListInputMutationResponseSchema,
+  createUsersWithListInput200TypeSchema,
+  createUsersWithListInputErrorTypeSchema,
+  createUsersWithListInputMutationRequestTypeSchema,
+  createUsersWithListInputMutationResponseTypeSchema,
 } from './createUsersWithListInputSchema.gen.ts'
 export type { CustomerSchema } from './customerSchema.gen.ts'
 export { customerSchema } from './customerSchema.gen.ts'
 export type {
-  DeleteOrder400Schema,
-  DeleteOrder404Schema,
-  DeleteOrderMutationResponseSchema,
-  DeleteOrderPathParamsSchema,
+  DeleteOrder400TypeSchema,
+  DeleteOrder404TypeSchema,
+  DeleteOrderMutationResponseTypeSchema,
+  DeleteOrderPathParamsTypeSchema,
 } from './deleteOrderSchema.gen.ts'
-export { deleteOrder400Schema, deleteOrder404Schema, deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema } from './deleteOrderSchema.gen.ts'
+export {
+  deleteOrder400TypeSchema,
+  deleteOrder404TypeSchema,
+  deleteOrderMutationResponseTypeSchema,
+  deleteOrderPathParamsTypeSchema,
+} from './deleteOrderSchema.gen.ts'
 export type {
-  DeletePet400Schema,
-  DeletePetHeaderParamsSchema,
-  DeletePetMutationResponseSchema,
-  DeletePetPathParamsSchema,
+  DeletePet400TypeSchema,
+  DeletePetHeaderParamsTypeSchema,
+  DeletePetMutationResponseTypeSchema,
+  DeletePetPathParamsTypeSchema,
 } from './deletePetSchema.gen.ts'
-export { deletePet400Schema, deletePetHeaderParamsSchema, deletePetMutationResponseSchema, deletePetPathParamsSchema } from './deletePetSchema.gen.ts'
+export {
+  deletePet400TypeSchema,
+  deletePetHeaderParamsTypeSchema,
+  deletePetMutationResponseTypeSchema,
+  deletePetPathParamsTypeSchema,
+} from './deletePetSchema.gen.ts'
 export type {
-  DeleteUser400Schema,
-  DeleteUser404Schema,
-  DeleteUserMutationResponseSchema,
-  DeleteUserPathParamsSchema,
+  DeleteUser400TypeSchema,
+  DeleteUser404TypeSchema,
+  DeleteUserMutationResponseTypeSchema,
+  DeleteUserPathParamsTypeSchema,
 } from './deleteUserSchema.gen.ts'
-export { deleteUser400Schema, deleteUser404Schema, deleteUserMutationResponseSchema, deleteUserPathParamsSchema } from './deleteUserSchema.gen.ts'
+export {
+  deleteUser400TypeSchema,
+  deleteUser404TypeSchema,
+  deleteUserMutationResponseTypeSchema,
+  deleteUserPathParamsTypeSchema,
+} from './deleteUserSchema.gen.ts'
 export type {
-  FindPetsByStatus200Schema,
-  FindPetsByStatus400Schema,
-  FindPetsByStatusQueryParamsSchema,
-  FindPetsByStatusQueryResponseSchema,
+  FindPetsByStatus200TypeSchema,
+  FindPetsByStatus400TypeSchema,
+  FindPetsByStatusQueryParamsTypeSchema,
+  FindPetsByStatusQueryResponseTypeSchema,
 } from './findPetsByStatusSchema.gen.ts'
 export {
-  findPetsByStatus200Schema,
-  findPetsByStatus400Schema,
-  findPetsByStatusQueryParamsSchema,
-  findPetsByStatusQueryResponseSchema,
+  findPetsByStatus200TypeSchema,
+  findPetsByStatus400TypeSchema,
+  findPetsByStatusQueryParamsTypeSchema,
+  findPetsByStatusQueryResponseTypeSchema,
 } from './findPetsByStatusSchema.gen.ts'
 export type {
-  FindPetsByTags200Schema,
-  FindPetsByTags400Schema,
-  FindPetsByTagsHeaderParamsSchema,
-  FindPetsByTagsQueryParamsSchema,
-  FindPetsByTagsQueryResponseSchema,
+  FindPetsByTags200TypeSchema,
+  FindPetsByTags400TypeSchema,
+  FindPetsByTagsHeaderParamsTypeSchema,
+  FindPetsByTagsQueryParamsTypeSchema,
+  FindPetsByTagsQueryResponseTypeSchema,
 } from './findPetsByTagsSchema.gen.ts'
 export {
-  findPetsByTags200Schema,
-  findPetsByTags400Schema,
-  findPetsByTagsHeaderParamsSchema,
-  findPetsByTagsQueryParamsSchema,
-  findPetsByTagsQueryResponseSchema,
+  findPetsByTags200TypeSchema,
+  findPetsByTags400TypeSchema,
+  findPetsByTagsHeaderParamsTypeSchema,
+  findPetsByTagsQueryParamsTypeSchema,
+  findPetsByTagsQueryResponseTypeSchema,
 } from './findPetsByTagsSchema.gen.ts'
 export type {
-  GetInventory200Schema,
-  GetInventoryQueryResponseSchema,
+  GetInventory200TypeSchema,
+  GetInventoryQueryResponseTypeSchema,
 } from './getInventorySchema.gen.ts'
-export { getInventory200Schema, getInventoryQueryResponseSchema } from './getInventorySchema.gen.ts'
+export { getInventory200TypeSchema, getInventoryQueryResponseTypeSchema } from './getInventorySchema.gen.ts'
 export type {
-  GetOrderById200Schema,
-  GetOrderById400Schema,
-  GetOrderById404Schema,
-  GetOrderByIdPathParamsSchema,
-  GetOrderByIdQueryResponseSchema,
+  GetOrderById200TypeSchema,
+  GetOrderById400TypeSchema,
+  GetOrderById404TypeSchema,
+  GetOrderByIdPathParamsTypeSchema,
+  GetOrderByIdQueryResponseTypeSchema,
 } from './getOrderByIdSchema.gen.ts'
 export {
-  getOrderById200Schema,
-  getOrderById400Schema,
-  getOrderById404Schema,
-  getOrderByIdPathParamsSchema,
-  getOrderByIdQueryResponseSchema,
+  getOrderById200TypeSchema,
+  getOrderById400TypeSchema,
+  getOrderById404TypeSchema,
+  getOrderByIdPathParamsTypeSchema,
+  getOrderByIdQueryResponseTypeSchema,
 } from './getOrderByIdSchema.gen.ts'
 export type {
-  GetPetById200Schema,
-  GetPetById400Schema,
-  GetPetById404Schema,
-  GetPetByIdPathParamsSchema,
-  GetPetByIdQueryResponseSchema,
+  GetPetById200TypeSchema,
+  GetPetById400TypeSchema,
+  GetPetById404TypeSchema,
+  GetPetByIdPathParamsTypeSchema,
+  GetPetByIdQueryResponseTypeSchema,
 } from './getPetByIdSchema.gen.ts'
 export {
-  getPetById200Schema,
-  getPetById400Schema,
-  getPetById404Schema,
-  getPetByIdPathParamsSchema,
-  getPetByIdQueryResponseSchema,
+  getPetById200TypeSchema,
+  getPetById400TypeSchema,
+  getPetById404TypeSchema,
+  getPetByIdPathParamsTypeSchema,
+  getPetByIdQueryResponseTypeSchema,
 } from './getPetByIdSchema.gen.ts'
 export type {
-  GetThings201Schema,
-  GetThingsErrorSchema,
-  GetThingsQueryParamsSchema,
-  GetThingsQueryResponseSchema,
+  GetThings201TypeSchema,
+  GetThingsErrorTypeSchema,
+  GetThingsQueryParamsTypeSchema,
+  GetThingsQueryResponseTypeSchema,
 } from './getThingsSchema.gen.ts'
-export { getThings201Schema, getThingsErrorSchema, getThingsQueryParamsSchema, getThingsQueryResponseSchema } from './getThingsSchema.gen.ts'
+export { getThings201TypeSchema, getThingsErrorTypeSchema, getThingsQueryParamsTypeSchema, getThingsQueryResponseTypeSchema } from './getThingsSchema.gen.ts'
 export type {
-  GetUserByName200Schema,
-  GetUserByName400Schema,
-  GetUserByName404Schema,
-  GetUserByNamePathParamsSchema,
-  GetUserByNameQueryResponseSchema,
+  GetUserByName200TypeSchema,
+  GetUserByName400TypeSchema,
+  GetUserByName404TypeSchema,
+  GetUserByNamePathParamsTypeSchema,
+  GetUserByNameQueryResponseTypeSchema,
 } from './getUserByNameSchema.gen.ts'
 export {
-  getUserByName200Schema,
-  getUserByName400Schema,
-  getUserByName404Schema,
-  getUserByNamePathParamsSchema,
-  getUserByNameQueryResponseSchema,
+  getUserByName200TypeSchema,
+  getUserByName400TypeSchema,
+  getUserByName404TypeSchema,
+  getUserByNamePathParamsTypeSchema,
+  getUserByNameQueryResponseTypeSchema,
 } from './getUserByNameSchema.gen.ts'
 export type {
-  LoginUser200Schema,
-  LoginUser400Schema,
-  LoginUserQueryParamsSchema,
-  LoginUserQueryResponseSchema,
+  LoginUser200TypeSchema,
+  LoginUser400TypeSchema,
+  LoginUserQueryParamsTypeSchema,
+  LoginUserQueryResponseTypeSchema,
 } from './loginUserSchema.gen.ts'
-export { loginUser200Schema, loginUser400Schema, loginUserQueryParamsSchema, loginUserQueryResponseSchema } from './loginUserSchema.gen.ts'
+export { loginUser200TypeSchema, loginUser400TypeSchema, loginUserQueryParamsTypeSchema, loginUserQueryResponseTypeSchema } from './loginUserSchema.gen.ts'
 export type {
-  LogoutUserErrorSchema,
-  LogoutUserQueryResponseSchema,
+  LogoutUserErrorTypeSchema,
+  LogoutUserQueryResponseTypeSchema,
 } from './logoutUserSchema.gen.ts'
-export { logoutUserErrorSchema, logoutUserQueryResponseSchema } from './logoutUserSchema.gen.ts'
+export { logoutUserErrorTypeSchema, logoutUserQueryResponseTypeSchema } from './logoutUserSchema.gen.ts'
 export {
   OperationSchema,
   OperationsMap,
@@ -183,74 +198,84 @@ export { phoneWithMaxLengthExplicitSchema } from './phoneWithMaxLengthExplicitSc
 export type { PhoneWithMaxLengthSchema } from './phoneWithMaxLengthSchema.gen.ts'
 export { phoneWithMaxLengthSchema } from './phoneWithMaxLengthSchema.gen.ts'
 export type {
-  PlaceOrderPatch200Schema,
-  PlaceOrderPatch405Schema,
-  PlaceOrderPatchMutationRequestSchema,
-  PlaceOrderPatchMutationResponseSchema,
+  PlaceOrderPatch200TypeSchema,
+  PlaceOrderPatch405TypeSchema,
+  PlaceOrderPatchMutationRequestTypeSchema,
+  PlaceOrderPatchMutationResponseTypeSchema,
 } from './placeOrderPatchSchema.gen.ts'
 export {
-  placeOrderPatch200Schema,
-  placeOrderPatch405Schema,
-  placeOrderPatchMutationRequestSchema,
-  placeOrderPatchMutationResponseSchema,
+  placeOrderPatch200TypeSchema,
+  placeOrderPatch405TypeSchema,
+  placeOrderPatchMutationRequestTypeSchema,
+  placeOrderPatchMutationResponseTypeSchema,
 } from './placeOrderPatchSchema.gen.ts'
 export type {
-  PlaceOrder200Schema,
-  PlaceOrder405Schema,
-  PlaceOrderMutationRequestSchema,
-  PlaceOrderMutationResponseSchema,
+  PlaceOrder200TypeSchema,
+  PlaceOrder405TypeSchema,
+  PlaceOrderMutationRequestTypeSchema,
+  PlaceOrderMutationResponseTypeSchema,
 } from './placeOrderSchema.gen.ts'
-export { placeOrder200Schema, placeOrder405Schema, placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from './placeOrderSchema.gen.ts'
+export {
+  placeOrder200TypeSchema,
+  placeOrder405TypeSchema,
+  placeOrderMutationRequestTypeSchema,
+  placeOrderMutationResponseTypeSchema,
+} from './placeOrderSchema.gen.ts'
 export type { TagSchema } from './tagSchema.gen.ts'
 export { tagSchema } from './tagSchema.gen.ts'
 export type {
-  UpdatePet200Schema,
-  UpdatePet400Schema,
-  UpdatePet404Schema,
-  UpdatePet405Schema,
-  UpdatePetMutationRequestSchema,
-  UpdatePetMutationResponseSchema,
+  UpdatePet200TypeSchema,
+  UpdatePet400TypeSchema,
+  UpdatePet404TypeSchema,
+  UpdatePet405TypeSchema,
+  UpdatePetMutationRequestTypeSchema,
+  UpdatePetMutationResponseTypeSchema,
 } from './updatePetSchema.gen.ts'
 export {
-  updatePet200Schema,
-  updatePet400Schema,
-  updatePet404Schema,
-  updatePet405Schema,
-  updatePetMutationRequestSchema,
-  updatePetMutationResponseSchema,
+  updatePet200TypeSchema,
+  updatePet400TypeSchema,
+  updatePet404TypeSchema,
+  updatePet405TypeSchema,
+  updatePetMutationRequestTypeSchema,
+  updatePetMutationResponseTypeSchema,
 } from './updatePetSchema.gen.ts'
 export type {
-  UpdatePetWithForm405Schema,
-  UpdatePetWithFormMutationResponseSchema,
-  UpdatePetWithFormPathParamsSchema,
-  UpdatePetWithFormQueryParamsSchema,
+  UpdatePetWithForm405TypeSchema,
+  UpdatePetWithFormMutationResponseTypeSchema,
+  UpdatePetWithFormPathParamsTypeSchema,
+  UpdatePetWithFormQueryParamsTypeSchema,
 } from './updatePetWithFormSchema.gen.ts'
 export {
-  updatePetWithForm405Schema,
-  updatePetWithFormMutationResponseSchema,
-  updatePetWithFormPathParamsSchema,
-  updatePetWithFormQueryParamsSchema,
+  updatePetWithForm405TypeSchema,
+  updatePetWithFormMutationResponseTypeSchema,
+  updatePetWithFormPathParamsTypeSchema,
+  updatePetWithFormQueryParamsTypeSchema,
 } from './updatePetWithFormSchema.gen.ts'
 export type {
-  UpdateUserErrorSchema,
-  UpdateUserMutationRequestSchema,
-  UpdateUserMutationResponseSchema,
-  UpdateUserPathParamsSchema,
+  UpdateUserErrorTypeSchema,
+  UpdateUserMutationRequestTypeSchema,
+  UpdateUserMutationResponseTypeSchema,
+  UpdateUserPathParamsTypeSchema,
 } from './updateUserSchema.gen.ts'
-export { updateUserErrorSchema, updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from './updateUserSchema.gen.ts'
+export {
+  updateUserErrorTypeSchema,
+  updateUserMutationRequestTypeSchema,
+  updateUserMutationResponseTypeSchema,
+  updateUserPathParamsTypeSchema,
+} from './updateUserSchema.gen.ts'
 export type {
-  UploadFile200Schema,
-  UploadFileMutationRequestSchema,
-  UploadFileMutationResponseSchema,
-  UploadFilePathParamsSchema,
-  UploadFileQueryParamsSchema,
+  UploadFile200TypeSchema,
+  UploadFileMutationRequestTypeSchema,
+  UploadFileMutationResponseTypeSchema,
+  UploadFilePathParamsTypeSchema,
+  UploadFileQueryParamsTypeSchema,
 } from './uploadFileSchema.gen.ts'
 export {
-  uploadFile200Schema,
-  uploadFileMutationRequestSchema,
-  uploadFileMutationResponseSchema,
-  uploadFilePathParamsSchema,
-  uploadFileQueryParamsSchema,
+  uploadFile200TypeSchema,
+  uploadFileMutationRequestTypeSchema,
+  uploadFileMutationResponseTypeSchema,
+  uploadFilePathParamsTypeSchema,
+  uploadFileQueryParamsTypeSchema,
 } from './uploadFileSchema.gen.ts'
 export type { UserArraySchema } from './userArraySchema.gen.ts'
 export { userArraySchema } from './userArraySchema.gen.ts'

@@ -3,24 +3,24 @@
  * Do not edit manually.
  */
 
-import type { Order } from './OrderType.ts'
+import type { OrderType } from './OrderType.ts'
 
 /**
  * @description successful operation
  */
-export type PlaceOrderPatch200 = Order
+export type PlaceOrderPatch200Type = OrderType
 
 /**
  * @description Invalid input
  */
-export type PlaceOrderPatch405 = any
+export type PlaceOrderPatch405Type = any
 
-export type PlaceOrderPatchMutationRequest = Order
+export type PlaceOrderPatchMutationRequestType = OrderType
 
-export type PlaceOrderPatchMutation = {
-  Response: PlaceOrderPatch200
-  Request: PlaceOrderPatchMutationRequest
-  Errors: PlaceOrderPatch405
+export type PlaceOrderPatchMutationType = {
+  Response: PlaceOrderPatch200TypeType
+  Request: PlaceOrderPatchMutationRequestTypeType
+  Errors: PlaceOrderPatch405TypeType
 }
 
-export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
+export type PlaceOrderPatchMutationResponseType = PlaceOrderPatch200TypeType

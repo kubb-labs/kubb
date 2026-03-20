@@ -10,27 +10,27 @@ import { petSchema } from './petSchema.gen.ts'
 /**
  * @description Successful operation
  */
-export const addPet200Schema = z.lazy(() => petSchema)
+export const addPet200TypeSchema = z.lazy(() => petSchema)
 
-export type AddPet200Schema = z.infer<typeof addPet200Schema>
+export type AddPet200TypeSchema = z.infer<typeof addPet200TypeSchema>
 
 /**
  * @description Pet not found
  */
-export const addPet405Schema = z.object({
+export const addPet405TypeSchema = z.object({
   code: z.optional(z.int()),
   message: z.optional(z.string()),
 })
 
-export type AddPet405Schema = z.infer<typeof addPet405Schema>
+export type AddPet405TypeSchema = z.infer<typeof addPet405TypeSchema>
 
 /**
  * @description Create a new pet in the store
  */
-export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema)
+export const addPetMutationRequestTypeSchema = z.lazy(() => addPetRequestSchema)
 
-export type AddPetMutationRequestSchema = z.infer<typeof addPetMutationRequestSchema>
+export type AddPetMutationRequestTypeSchema = z.infer<typeof addPetMutationRequestTypeSchema>
 
-export const addPetMutationResponseSchema = z.lazy(() => addPet200Schema)
+export const addPetMutationResponseTypeSchema = z.lazy(() => addPet200TypeSchema)
 
-export type AddPetMutationResponseSchema = z.infer<typeof addPetMutationResponseSchema>
+export type AddPetMutationResponseTypeSchema = z.infer<typeof addPetMutationResponseTypeSchema>

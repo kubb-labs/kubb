@@ -24,3 +24,9 @@ export type Variant = {
     */
     type?: VariantTypeEnumKey;
 };
+
+export const variantCategoryEnum = {
+    lowercase: "lowercase"
+} as const;
+
+export type VariantCategoryEnumKey = (typeof variantCategoryEnum)[keyof typeof variantCategoryEnum];

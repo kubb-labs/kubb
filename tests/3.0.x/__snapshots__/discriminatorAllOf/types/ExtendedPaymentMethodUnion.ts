@@ -5,4 +5,4 @@
 
 import type { PaymentMethodUnion } from "./PaymentMethodUnion.ts";
 
-export type ExtendedPaymentMethodUnion = PaymentMethodUnion;
+export type ExtendedPaymentMethodUnion = ExtendedPaymentMethodUnion;

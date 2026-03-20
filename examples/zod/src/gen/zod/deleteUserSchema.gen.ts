@@ -5,26 +5,26 @@
 
 import { z } from '../../zod.ts'
 
-export const deleteUserPathParamsSchema = z.object({
+export const deleteUserPathParamsTypeSchema = z.object({
   username: z.string().describe('The name that needs to be deleted'),
 })
 
-export type DeleteUserPathParamsSchema = z.infer<typeof deleteUserPathParamsSchema>
+export type DeleteUserPathParamsTypeSchema = z.infer<typeof deleteUserPathParamsTypeSchema>
 
 /**
  * @description Invalid username supplied
  */
-export const deleteUser400Schema = z.any()
+export const deleteUser400TypeSchema = z.any()
 
-export type DeleteUser400Schema = z.infer<typeof deleteUser400Schema>
+export type DeleteUser400TypeSchema = z.infer<typeof deleteUser400TypeSchema>
 
 /**
  * @description User not found
  */
-export const deleteUser404Schema = z.any()
+export const deleteUser404TypeSchema = z.any()
 
-export type DeleteUser404Schema = z.infer<typeof deleteUser404Schema>
+export type DeleteUser404TypeSchema = z.infer<typeof deleteUser404TypeSchema>
 
-export const deleteUserMutationResponseSchema = z.any()
+export const deleteUserMutationResponseTypeSchema = z.any()
 
-export type DeleteUserMutationResponseSchema = z.infer<typeof deleteUserMutationResponseSchema>
+export type DeleteUserMutationResponseTypeSchema = z.infer<typeof deleteUserMutationResponseTypeSchema>

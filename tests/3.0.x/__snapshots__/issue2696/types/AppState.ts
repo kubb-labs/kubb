@@ -7,9 +7,6 @@ import type { Employer } from "./Employer.ts";
 import type { User } from "./User.ts";
 
 export type AppState = {
-    /**
-     * @type object | undefined
-    */
     currentUser?: User;
     /**
      * @type array | undefined
