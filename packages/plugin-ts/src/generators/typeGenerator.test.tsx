@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import type { Config } from '@kubb/core'
 import type { HttpMethod, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
+import { renderOperation, renderSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
@@ -696,7 +696,7 @@ describe('typeGenerator schema', async () => {
     const schema = schemas[name] as SchemaObject
     const tree = generator.parse({ schema, name, parentName: null })
 
-    await buildSchema(
+    await renderSchema(
       {
         name,
         tree,
@@ -851,7 +851,7 @@ describe('typeGenerator operation', async () => {
       exclude: [],
     })
     const operation = oas.operation(props.path, props.method)
-    await buildOperation(operation, {
+    await renderOperation(operation, {
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,

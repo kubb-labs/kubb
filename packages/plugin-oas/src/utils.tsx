@@ -18,7 +18,7 @@ type BuildOperationsV1Options<TOptions extends PluginFactoryOptions> = {
 /**
  * Renders a React component for a list of operations (V1 generators).
  */
-export async function buildOperations<TOptions extends PluginFactoryOptions>(
+export async function renderOperations<TOptions extends PluginFactoryOptions>(
   operations: Array<Operation>,
   options: BuildOperationsV1Options<TOptions>,
 ): Promise<void> {
@@ -52,7 +52,7 @@ type BuildOperationV1Options<TOptions extends PluginFactoryOptions> = {
 /**
  * Renders a React component for a single operation (V1 generators).
  */
-export async function buildOperation<TOptions extends PluginFactoryOptions>(operation: Operation, options: BuildOperationV1Options<TOptions>): Promise<void> {
+export async function renderOperation<TOptions extends PluginFactoryOptions>(operation: Operation, options: BuildOperationV1Options<TOptions>): Promise<void> {
   const { config, fabric, plugin, Component, generator } = options
 
   if (!Component) {
@@ -83,7 +83,7 @@ type BuildSchemaV1Options<TOptions extends PluginFactoryOptions> = {
 /**
  * Renders a React component for a single schema (V1 generators).
  */
-export async function buildSchema<TOptions extends PluginFactoryOptions>(
+export async function renderSchema<TOptions extends PluginFactoryOptions>(
   schema: { name: string; tree: Array<Schema>; value: SchemaObject },
   options: BuildSchemaV1Options<TOptions>,
 ): Promise<void> {

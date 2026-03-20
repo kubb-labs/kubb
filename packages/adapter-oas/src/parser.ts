@@ -307,7 +307,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * Shared metadata fields included in every `createSchema` call.
    * Centralizes the common properties so sub-handlers don't repeat them.
    */
-  function buildSchemaBase(schema: SchemaObject, name: string | undefined, nullable: true | undefined, defaultValue: unknown) {
+  function renderSchemaBase(schema: SchemaObject, name: string | undefined, nullable: true | undefined, defaultValue: unknown) {
     return {
       name,
       nullable,
@@ -444,7 +444,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     return createSchema({
       type: 'intersection',
       members: [...allOfMembers.slice(0, syntheticStart), ...mergeAdjacentAnonymousObjects(allOfMembers.slice(syntheticStart))],
-      ...buildSchemaBase(schema, name, nullable, defaultValue),
+      ...renderSchemaBase(schema, name, nullable, defaultValue),
     })
   }
 
@@ -459,7 +459,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
   function convertUnion({ schema, name, nullable, defaultValue, options }: SchemaContext): SchemaNode {
     const unionMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
     const unionBase = {
-      ...buildSchemaBase(schema, name, nullable, defaultValue),
+      ...renderSchemaBase(schema, name, nullable, defaultValue),
       discriminatorPropertyName: isDiscriminator(schema) ? schema.discriminator.propertyName : undefined,
     }
 
@@ -525,7 +525,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       type: 'enum',
       primitive: constPrimitive,
       enumValues: [constValue as string | number | boolean],
-      ...buildSchemaBase(schema, name, nullable, defaultValue),
+      ...renderSchemaBase(schema, name, nullable, defaultValue),
     })
   }
 
@@ -535,7 +535,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * (i.e. `format: 'date-time'` with `dateType: false`).
    */
   function convertFormat({ schema, name, nullable, defaultValue, mergedOptions }: SchemaContext): SchemaNode | undefined {
-    const base = buildSchemaBase(schema, name, nullable, defaultValue)
+    const base = renderSchemaBase(schema, name, nullable, defaultValue)
 
     // int64 is option-dependent so it can't live in the static formatMap.
     if (schema.format === 'int64') {
@@ -740,7 +740,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       properties,
       additionalProperties: additionalPropertiesNode,
       patternProperties,
-      ...buildSchemaBase(schema, name, nullable, defaultValue),
+      ...renderSchemaBase(schema, name, nullable, defaultValue),
     })
 
     // When a discriminator is present, replace the discriminator property's schema
@@ -772,7 +772,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       rest,
       min: schema.minItems,
       max: schema.maxItems,
-      ...buildSchemaBase(schema, name, nullable, defaultValue),
+      ...renderSchemaBase(schema, name, nullable, defaultValue),
     })
   }
 
@@ -796,7 +796,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       min: schema.minItems,
       max: schema.maxItems,
       unique: schema.uniqueItems ?? undefined,
-      ...buildSchemaBase(schema, name, nullable, defaultValue),
+      ...renderSchemaBase(schema, name, nullable, defaultValue),
     })
   }
 
@@ -810,7 +810,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       min: schema.minLength,
       max: schema.maxLength,
       pattern: schema.pattern,
-      ...buildSchemaBase(schema, name, nullable, defaultValue),
+      ...renderSchemaBase(schema, name, nullable, defaultValue),
     })
   }
 
@@ -825,7 +825,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       max: schema.maximum,
       exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
       exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
-      ...buildSchemaBase(schema, name, nullable, defaultValue),
+      ...renderSchemaBase(schema, name, nullable, defaultValue),
     })
   }
 
@@ -836,7 +836,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     return createSchema({
       type: 'boolean',
       primitive: 'boolean',
-      ...buildSchemaBase(schema, name, nullable, defaultValue),
+      ...renderSchemaBase(schema, name, nullable, defaultValue),
     })
   }
 
@@ -911,7 +911,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
     // OAS 3.1: `contentMediaType: 'application/octet-stream'` on a string schema signals binary data.
     if (schema.type === 'string' && schema.contentMediaType === 'application/octet-stream') {
-      return createSchema({ type: 'blob', primitive: 'string', ...buildSchemaBase(schema, name, nullable, defaultValue) })
+      return createSchema({ type: 'blob', primitive: 'string', ...renderSchemaBase(schema, name, nullable, defaultValue) })
     }
 
     // OAS 3.1: `type` may be an array — e.g. `["string", "integer", "null"]`.
@@ -925,7 +925,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
         return createSchema({
           type: 'union',
           members: nonNullTypes.map((t) => convertSchema({ schema: { ...schema, type: t } as SchemaObject, name }, options)),
-          ...buildSchemaBase(schema, name, arrayNullable, defaultValue),
+          ...renderSchemaBase(schema, name, arrayNullable, defaultValue),
         })
       }
     }

@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
-import { buildOperation, buildSchema, createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { renderOperation, renderSchema, createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { typeGenerator, typeGeneratorV2 } from './generators'
 import { resolverTs } from './resolverTs.ts'
@@ -121,7 +121,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
                     return
                   }
 
-                  await buildSchema(schemaNode, {
+                  await renderSchema(schemaNode, {
                     options,
                     adapter,
                     config,
@@ -145,7 +145,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
                     return
                   }
 
-                  await buildOperation(operationNode, {
+                  await renderOperation(operationNode, {
                     options,
                     adapter,
                     config,

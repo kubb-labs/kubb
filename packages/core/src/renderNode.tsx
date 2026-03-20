@@ -19,7 +19,7 @@ type BuildOperationsV2Options<TOptions extends PluginFactoryOptions> = {
 /**
  * Renders a React component for a list of operation nodes (V2 generators).
  */
-export async function buildOperations<TOptions extends PluginFactoryOptions>(
+export async function renderOperations<TOptions extends PluginFactoryOptions>(
   nodes: Array<OperationNode>,
   options: BuildOperationsV2Options<TOptions>,
 ): Promise<void> {
@@ -55,7 +55,7 @@ type BuildOperationV2Options<TOptions extends PluginFactoryOptions> = {
 /**
  * Renders a React component for a single operation node (V2 generators).
  */
-export async function buildOperation<TOptions extends PluginFactoryOptions>(node: OperationNode, options: BuildOperationV2Options<TOptions>): Promise<void> {
+export async function renderOperation<TOptions extends PluginFactoryOptions>(node: OperationNode, options: BuildOperationV2Options<TOptions>): Promise<void> {
   const { config, fabric, plugin, Component, adapter, driver, mode } = options
 
   if (!Component) {
@@ -88,7 +88,7 @@ type BuildSchemaV2Options<TOptions extends PluginFactoryOptions> = {
 /**
  * Renders a React component for a single schema node (V2 generators).
  */
-export async function buildSchema<TOptions extends PluginFactoryOptions>(node: SchemaNode, options: BuildSchemaV2Options<TOptions>): Promise<void> {
+export async function renderSchema<TOptions extends PluginFactoryOptions>(node: SchemaNode, options: BuildSchemaV2Options<TOptions>): Promise<void> {
   const { config, fabric, plugin, Component, adapter, driver, mode } = options
 
   if (!Component) {

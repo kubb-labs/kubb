@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import type { Config } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
+import { renderOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, expect, test } from 'vitest'
 import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
@@ -181,7 +181,7 @@ describe('mutationGenerator operation', async () => {
     })
 
     const operation = oas.operation(props.path, props.method)
-    await buildOperation(operation, {
+    await renderOperation(operation, {
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
@@ -236,7 +236,7 @@ describe('mutationGenerator operation', async () => {
     })
 
     const operation = oas.operation('/pet/{pet_id}', 'post')
-    await buildOperation(operation, {
+    await renderOperation(operation, {
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,

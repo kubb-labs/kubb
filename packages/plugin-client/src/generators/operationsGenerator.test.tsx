@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import type { Config } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
+import { renderOperations, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
 import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
@@ -75,7 +75,7 @@ describe('operationsGenerator operations', async () => {
 
     const operations = await generator.getOperations()
 
-    await buildOperations(
+    await renderOperations(
       operations.map((item) => item.operation),
       {
         config: { root: '.', output: { path: 'test' } } as Config,
