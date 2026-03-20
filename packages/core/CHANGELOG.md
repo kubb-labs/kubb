@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 5.0.0-alpha.11
+
+### Patch Changes
+
+- [#2824](https://github.com/kubb-labs/kubb/pull/2824) [`4cfcb62`](https://github.com/kubb-labs/kubb/commit/4cfcb6290ffa11c93f19345c93906af65ec18339) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix URL inputs being incorrectly resolved through `path.resolve`. Deprecate `useKubb.resolveName`.
+
+- Updated dependencies [[`4cfcb62`](https://github.com/kubb-labs/kubb/commit/4cfcb6290ffa11c93f19345c93906af65ec18339)]:
+  - @kubb/ast@5.0.0-alpha.11
+
 ## 5.0.0-alpha.10
 
 ### Patch Changes
