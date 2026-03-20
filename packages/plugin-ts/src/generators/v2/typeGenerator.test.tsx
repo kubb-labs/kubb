@@ -1,7 +1,6 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { EnumSchemaNode, OperationNode } from '@kubb/ast/types'
-import type { Config } from '@kubb/core'
-import { buildOperation, buildSchema } from '@kubb/plugin-oas'
+import { buildOperation, buildSchema, type Config } from '@kubb/core'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
@@ -157,7 +156,6 @@ describe('typeGenerator v2 — Operation', () => {
     const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
 
     await buildOperation(props.node, {
-      version: '2',
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       adapter: createMockedAdapter(),
@@ -218,7 +216,6 @@ describe('typeGenerator v2 — Operation — group', () => {
     const mockedPluginDriver = createMockedPluginDriver({ name: 'listPets' })
 
     await buildOperation(node, {
-      version: '2',
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       adapter: createMockedAdapter(),
@@ -280,7 +277,6 @@ describe('typeGenerator v2 — Schema (enum)', () => {
     const mockedPluginDriver = createMockedPluginDriver({ name: `enumNames.Type — ${enumType}` })
 
     await buildSchema(enumSchemaNode, {
-      version: '2',
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       adapter: createMockedAdapter(),
