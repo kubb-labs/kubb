@@ -30,12 +30,12 @@ type FunctionParamsASTWithType = {
   default?: string
 }
 /**
- * @deprecated
+ * @deprecated use ast package instead
  */
 export type FunctionParamsAST = FunctionParamsASTWithoutType | FunctionParamsASTWithType
 
 /**
- * @deprecated
+ * @deprecated use ast package instead
  */
 export class FunctionParams {
   #items: Array<FunctionParamsAST | FunctionParamsAST[]> = []
