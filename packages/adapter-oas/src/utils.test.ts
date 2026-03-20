@@ -284,15 +284,16 @@ describe('simplifyUnionMembers', () => {
     expect(result[0]!.type).toBe('string')
   })
 
-  it('removes const-derived string enum (primitive only, no enumType) when plain string is present', () => {
+  it('keeps const-derived string enum (no enumType) when plain string is also present', () => {
     const members = [
       createSchema({ type: 'enum', primitive: 'string', enumValues: ['accepted'] }) as SchemaNode,
       createSchema({ type: 'string' }) as SchemaNode,
     ]
     const result = simplifyUnionMembers(members)
 
-    expect(result).toHaveLength(1)
-    expect(result[0]!.type).toBe('string')
+    expect(result).toHaveLength(2)
+    expect(result[0]!.type).toBe('enum')
+    expect(result[1]!.type).toBe('string')
   })
 
   it('keeps string enum when no broader string scalar is present', () => {
@@ -304,7 +305,10 @@ describe('simplifyUnionMembers', () => {
   })
 
   it('removes number enum when a plain number is also present', () => {
-    const members = [createSchema({ type: 'enum', primitive: 'number', enumValues: [200, 400] }) as SchemaNode, createSchema({ type: 'number' }) as SchemaNode]
+    const members = [
+      createSchema({ type: 'enum', primitive: 'number', enumType: 'number', enumValues: [200, 400] }) as SchemaNode,
+      createSchema({ type: 'number' }) as SchemaNode,
+    ]
     const result = simplifyUnionMembers(members)
 
     expect(result).toHaveLength(1)
@@ -313,7 +317,7 @@ describe('simplifyUnionMembers', () => {
 
   it('preserves ref members alongside scalar types', () => {
     const members = [
-      createSchema({ type: 'enum', primitive: 'string', enumValues: ['x'] }) as SchemaNode,
+      createSchema({ type: 'enum', primitive: 'string', enumType: 'string', enumValues: ['x'] }) as SchemaNode,
       createSchema({ type: 'string' }) as SchemaNode,
       createSchema({ type: 'ref', ref: '#/components/schemas/Bar', name: 'Bar' }) as SchemaNode,
     ]

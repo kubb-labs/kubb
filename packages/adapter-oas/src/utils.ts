@@ -97,6 +97,10 @@ export function mergeAdjacentAnonymousObjects(members: Array<SchemaNode>): Array
  *
  * Only scalar primitives (`string`, `number`, `integer`, `bigint`, `boolean`) are
  * considered — object, array, and ref members are left untouched.
+ *
+ * Const-derived enums (those without an `enumType`, produced from an OpenAPI `const`
+ * keyword) are **never** removed — `'accepted' | string` must stay as-is because the
+ * literal is intentional.
  */
 export function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNode> {
   const scalarPrimitives = new Set(members.filter((m) => SCALAR_PRIMITIVE_TYPES.has(m.type as 'string')).map((m) => m.type as string))
@@ -107,6 +111,8 @@ export function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNo
     const prim = m.primitive
     // Keep the enum if its primitive isn't fully subsumed.
     if (!prim) return true
+    // Const-derived enums have no `enumType`; keep them as intentional literals.
+    if (!m.enumType) return true
     // `number` subsumes `integer` literals and vice-versa for our purposes.
     if (scalarPrimitives.has(prim)) return false
     if ((prim === 'integer' || prim === 'number') && (scalarPrimitives.has('integer') || scalarPrimitives.has('number'))) return false

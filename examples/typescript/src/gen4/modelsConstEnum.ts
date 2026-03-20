@@ -53,7 +53,7 @@ export type Order = {
   /**
    * @description Order Status
    */
-  status?: string
+  status?: 'accepted' | (string & {})
   /**
    * @description HTTP Status
    * @example 200
