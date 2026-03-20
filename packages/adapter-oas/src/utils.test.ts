@@ -304,10 +304,7 @@ describe('simplifyUnionMembers', () => {
   })
 
   it('removes number enum when a plain number is also present', () => {
-    const members = [
-      createSchema({ type: 'enum', primitive: 'number', enumValues: [200, 400] }) as SchemaNode,
-      createSchema({ type: 'number' }) as SchemaNode,
-    ]
+    const members = [createSchema({ type: 'enum', primitive: 'number', enumValues: [200, 400] }) as SchemaNode, createSchema({ type: 'number' }) as SchemaNode]
     const result = simplifyUnionMembers(members)
 
     expect(result).toHaveLength(1)
