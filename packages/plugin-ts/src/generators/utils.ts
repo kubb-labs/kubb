@@ -55,7 +55,7 @@ export function buildDataSchemaNode({ node, resolver }: BuildOperationSchemaOpti
     properties: [
       createProperty({
         name: 'data',
-        schema: node.requestBody
+        schema: node.requestBody?.schema
           ? createSchema({
               type: 'ref',
               name: resolver.resolveDataTypedName(node),
@@ -204,7 +204,7 @@ export function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperatio
 
   const properties = [createProperty({ name: 'Response', schema: responseSchema })]
 
-  if (!isGet && node.requestBody) {
+  if (!isGet && node.requestBody?.schema) {
     properties.push(
       createProperty({
         name: 'Request',

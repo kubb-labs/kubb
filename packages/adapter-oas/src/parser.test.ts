@@ -226,7 +226,7 @@ describe('buildAst', () => {
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
 
       expect(createPet?.requestBody).toBeDefined()
-      expect(createPet?.requestBody?.type).toBe('ref')
+      expect(createPet?.requestBody?.schema?.type).toBe('ref')
     })
 
     it('converts responses with statusCode and schema', async () => {
