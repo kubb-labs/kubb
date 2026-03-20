@@ -48,6 +48,7 @@ export type {
   FindPetsByStatus400,
   FindPetsByStatusQuery,
   FindPetsByStatusQueryParams,
+  FindPetsByStatusQueryParamsStatusEnum,
   FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
 } from './FindPetsByStatus.ts'
@@ -101,9 +102,9 @@ export type {
   LogoutUserQuery,
   LogoutUserQueryResponse,
 } from './LogoutUser.ts'
-export type { Order, OrderStatusEnumKey } from './Order.ts'
+export type { Order, OrderStatusEnum, OrderStatusEnumKey } from './Order.ts'
 export { orderStatusEnum } from './Order.ts'
-export type { Pet, PetStatusEnumKey } from './Pet.ts'
+export type { Pet, PetStatusEnum, PetStatusEnumKey } from './Pet.ts'
 export { petStatusEnum } from './Pet.ts'
 export type {
   PlaceOrder200,

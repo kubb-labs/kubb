@@ -333,6 +333,11 @@
               "text": "Best Practices",
               "link": "/guide/best-practices",
               "activeMatch": "^/guide/best-practices/?$"
+            },
+            {
+              "text": "OpenAPI Support Matrix",
+              "link": "/guide/openapi-support",
+              "activeMatch": "^/guide/openapi-support/?$"
             }
           ]
         },

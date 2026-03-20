@@ -13,6 +13,8 @@ export const paramsStatusEnum2 = {
 
 export type ParamsStatusEnum2Key = (typeof paramsStatusEnum2)[keyof typeof paramsStatusEnum2]
 
+export type ParamsStatusEnum2 = ParamsStatusEnum2Key
+
 export type Customer = {
   /**
    * @example 100000

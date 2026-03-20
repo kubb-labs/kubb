@@ -1,5 +1,6 @@
 export type {
   AddPetRequest,
+  AddPetRequestStatusEnum,
   AddPetRequestStatusEnumKey,
 } from './models/ts/AddPetRequest.ts'
 export { addPetRequestStatusEnum } from './models/ts/AddPetRequest.ts'
@@ -9,11 +10,13 @@ export type { Category } from './models/ts/Category.ts'
 export type { Customer } from './models/ts/Customer.ts'
 export type {
   Order,
+  OrderHttpStatusEnum,
   OrderHttpStatusEnumKey,
+  OrderStatusEnum,
   OrderStatusEnumKey,
 } from './models/ts/Order.ts'
 export { orderHttpStatusEnum, orderStatusEnum } from './models/ts/Order.ts'
-export type { Pet, PetStatusEnumKey } from './models/ts/Pet.ts'
+export type { Pet, PetStatusEnum, PetStatusEnumKey } from './models/ts/Pet.ts'
 export { petStatusEnum } from './models/ts/Pet.ts'
 export type { PetNotFound } from './models/ts/PetNotFound.ts'
 export type {
@@ -35,6 +38,7 @@ export type {
   FindPetsByStatus400,
   FindPetsByStatusQuery,
   FindPetsByStatusQueryParams,
+  FindPetsByStatusQueryParamsStatusEnum,
   FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
 } from './models/ts/petController/FindPetsByStatus.ts'

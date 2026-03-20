@@ -57,6 +57,7 @@ export type {
   FindPetsByStatus400,
   FindPetsByStatusQuery,
   FindPetsByStatusQueryParams,
+  FindPetsByStatusQueryParamsStatusEnum,
   FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
 } from './models/FindPetsByStatus.ts'
@@ -88,9 +89,9 @@ export type {
 } from './models/GetUserByName.ts'
 export type { LoginUser200, LoginUser400, LoginUserQuery, LoginUserQueryParams, LoginUserQueryResponse } from './models/LoginUser.ts'
 export type { LogoutUserError, LogoutUserQuery, LogoutUserQueryResponse } from './models/LogoutUser.ts'
-export type { Order, OrderStatusEnumKey } from './models/Order.ts'
+export type { Order, OrderStatusEnum, OrderStatusEnumKey } from './models/Order.ts'
 export { orderStatusEnum } from './models/Order.ts'
-export type { Pet, PetStatusEnumKey } from './models/Pet.ts'
+export type { Pet, PetStatusEnum, PetStatusEnumKey } from './models/Pet.ts'
 export { petStatusEnum } from './models/Pet.ts'
 export type { PlaceOrder200, PlaceOrder405, PlaceOrderMutation, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from './models/PlaceOrder.ts'
 export type { Tag } from './models/Tag.ts'
