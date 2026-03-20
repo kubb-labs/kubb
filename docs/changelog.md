@@ -6,6 +6,54 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.10
+
+### ✨ Features
+
+#### [`@kubb/ast`](/packages/ast)
+
+-   [#2819](https://github.com/kubb-labs/kubb/pull/2819) [`c8f203c`](https://github.com/kubb-labs/kubb/commit/c8f203c47cf3badef59e7fa382b98b011ead755d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Added support for creating and printing function parameters within the AST.
+
+    **New features:**
+    
+    -   Added new node types: `FunctionParameterNode`, `FunctionParametersNode`, and `ObjectBindingParameterNode`.
+    -   Introduced corresponding factory functions: `createFunctionParameter`, `createFunctionParameters`, and `createObjectBindingParameter`.
+    -   Implemented type guards: `isFunctionParameterNode`, `isFunctionParametersNode`, and `isObjectBindingParameterNode`.
+    -   Developed a flexible `functionPrinter` with multiple rendering modes:
+        -   **declaration**
+        -   **call**
+        -   **keys**
+        -   **values**
+    -   Provided a `defineFunctionPrinter` utility for creating custom printer factories.
+
+    ::: code-group
+    ```typescript [Example Usage of createFunctionParameter]
+    import { createFunctionParameter } from "@kubb/ast";
+
+    const param = createFunctionParameter({
+      name: "id",
+      type: "string",
+    });
+
+    console.log(param);
+    // Output: { type: 'FunctionParameterNode', name: 'id', dataType: 'string' }
+    ```
+
+    ```typescript [Example Usage of functionPrinter]
+    import { functionPrinter } from "@kubb/ast";
+
+    const params = [
+      { name: "id", type: "string" },
+      { name: "name", type: "string" },
+    ];
+    
+    const rendered = functionPrinter.print("myFunction", params, "declaration");
+    console.log(rendered);
+    // Output: "function myFunction(id: string, name: string): void"
+    ```
+    :::
+
+
 ## 4.36.1
 
 ### ✨ Features
