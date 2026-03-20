@@ -125,7 +125,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
       throw new Error(`useOperationManager: 'generator' parameter is required but was not provided`)
     }
 
-    const schemas = generator.getSchemas(operation)
+    const schemas = getSchemas(operation)
 
     const errors = (schemas.errors || []).reduce(
       (prev, acc) => {
