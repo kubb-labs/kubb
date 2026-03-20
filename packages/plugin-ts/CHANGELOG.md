@@ -1,5 +1,15 @@
 # @kubb/plugin-ts
 
+## 5.0.0-alpha.10
+
+### Patch Changes
+
+- Updated dependencies [[`c8f203c`](https://github.com/kubb-labs/kubb/commit/c8f203c47cf3badef59e7fa382b98b011ead755d)]:
+  - @kubb/ast@5.0.0-alpha.10
+  - @kubb/core@5.0.0-alpha.10
+  - @kubb/oas@5.0.0-alpha.10
+  - @kubb/plugin-oas@5.0.0-alpha.10
+
 ## 5.0.0-alpha.9
 
 ### Patch Changes

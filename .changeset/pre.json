@@ -46,6 +46,7 @@
     "e2e": "0.0.0"
   },
   "changesets": [
+    "ast-function-params",
     "ast-utils-operation-path",
     "feat-resolve-options",
     "pretty-schools-fly",

@@ -1,5 +1,19 @@
 # @kubb/ast
 
+## 5.0.0-alpha.10
+
+### Minor Changes
+
+- [#2819](https://github.com/kubb-labs/kubb/pull/2819) [`c8f203c`](https://github.com/kubb-labs/kubb/commit/c8f203c47cf3badef59e7fa382b98b011ead755d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add AST nodes and printer for function parameters.
+
+  New node types: `FunctionParameterNode`, `FunctionParametersNode`, `ObjectBindingParameterNode`.
+
+  New factory functions: `createFunctionParameter`, `createFunctionParameters`, `createObjectBindingParameter`.
+
+  New type guards: `isFunctionParameterNode`, `isFunctionParametersNode`, `isObjectBindingParameterNode`.
+
+  New `functionPrinter` with four rendering modes (`declaration`, `call`, `keys`, `values`) and `defineFunctionPrinter` for custom printer factories.
+
 ## 5.0.0-alpha.9
 
 ## 5.0.0-alpha.8
