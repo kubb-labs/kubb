@@ -8,6 +8,10 @@ export type {
   DatetimeSchemaNode,
   EnumSchemaNode,
   EnumValueNode,
+  FunctionNode,
+  FunctionNodeType,
+  FunctionParameterNode,
+  FunctionParametersNode,
   HttpMethod,
   HttpStatusCode,
   IntersectionSchemaNode,
@@ -15,6 +19,7 @@ export type {
   Node,
   NodeKind,
   NumberSchemaNode,
+  ObjectBindingParameterNode,
   ObjectSchemaNode,
   OperationNode,
   ParameterLocation,
@@ -37,6 +42,6 @@ export type {
   UnionSchemaNode,
   UrlSchemaNode,
 } from './nodes/index.ts'
-export type { Printer, PrinterFactoryOptions, PrinterHandler, PrinterHandlerContext } from './printer.ts'
+export type { Printer, PrinterFactoryOptions } from './printer.ts'
 export type { RefMap } from './refs.ts'
 export type { AsyncVisitor, CollectVisitor, Visitor } from './visitor.ts'

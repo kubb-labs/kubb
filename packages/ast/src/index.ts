@@ -1,6 +1,28 @@
 export { httpMethods, mediaTypes, nodeKinds, schemaTypes } from './constants.ts'
-export { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from './factory.ts'
-export { isOperationNode, isParameterNode, isPropertyNode, isResponseNode, isRootNode, isSchemaNode, narrowSchema } from './guards.ts'
+export {
+  createFunctionParameter,
+  createFunctionParameters,
+  createObjectBindingParameter,
+  createOperation,
+  createParameter,
+  createProperty,
+  createResponse,
+  createRoot,
+  createSchema,
+} from './factory.ts'
+export { functionPrinter } from './functionPrinter.ts'
+export {
+  isFunctionParameterNode,
+  isFunctionParametersNode,
+  isObjectBindingParameterNode,
+  isOperationNode,
+  isParameterNode,
+  isPropertyNode,
+  isResponseNode,
+  isRootNode,
+  isSchemaNode,
+  narrowSchema,
+} from './guards.ts'
 export { definePrinter } from './printer.ts'
 export { buildRefMap, refMapToObject, resolveRef } from './refs.ts'
 export { applyParamsCasing, isPlainStringType } from './utils.ts'

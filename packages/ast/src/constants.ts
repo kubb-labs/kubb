@@ -21,7 +21,10 @@ export const nodeKinds = {
   property: 'Property',
   parameter: 'Parameter',
   response: 'Response',
-} as const satisfies Record<Lowercase<NodeKind>, NodeKind>
+  functionParameter: 'FunctionParameter',
+  objectBindingParameter: 'ObjectBindingParameter',
+  functionParameters: 'FunctionParameters',
+} as const satisfies Record<string, NodeKind>
 
 export const schemaTypes = {
   string: 'string',

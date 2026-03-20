@@ -131,27 +131,58 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  * ```
  */
 export function definePrinter<T extends PrinterFactoryOptions = PrinterFactoryOptions>(build: PrinterBuilder<T>): (options?: T['options']) => Printer<T> {
-  return (options) => {
-    const { name, options: resolvedOptions, nodes, print: printOverride } = build(options ?? ({} as T['options']))
+  return createPrinterFactory<SchemaNode, SchemaType, SchemaNodeByType>((node) => node.type)(build) as (options?: T['options']) => Printer<T>
+}
 
-    const context: PrinterHandlerContext<T['output'], T['options']> = {
-      options: resolvedOptions,
-      print: (node: SchemaNode) => {
-        const schemaType = node.type
-        const handler = nodes[schemaType]
+/**
+ * Generic printer factory. Extracts the core dispatch + context logic so it can be reused
+ * for any node type — not just `SchemaNode`. `definePrinter` is built on top of this.
+ *
+ * @param getKey — derives the handler-map key from a node. Return `undefined` to skip.
+ *
+ * @example
+ * ```ts
+ * export const defineFunctionPrinter = createPrinterFactory<FunctionNode, FunctionNodeType, FunctionNodeByType>(
+ *   (node) => kindToHandlerKey[node.kind],
+ * )
+ * ```
+ */
+export function createPrinterFactory<TNode, TKey extends string, TNodeByKey extends Partial<Record<TKey, TNode>>>(getKey: (node: TNode) => TKey | undefined) {
+  return function <T extends PrinterFactoryOptions>(
+    build: (options: T['options']) => {
+      name: T['name']
+      options: T['options']
+      nodes: Partial<{
+        [K in TKey]: (
+          this: { print: (node: TNode) => T['output'] | null | undefined; options: T['options'] },
+          node: TNodeByKey[K],
+        ) => T['output'] | null | undefined
+      }>
+      print?: (this: { print: (node: TNode) => T['output'] | null | undefined; options: T['options'] }, node: TNode) => T['printOutput'] | null | undefined
+    },
+  ): (options?: T['options']) => { name: T['name']; options: T['options']; print: (node: TNode) => T['printOutput'] | null | undefined } {
+    return (options) => {
+      const { name, options: resolvedOptions, nodes, print: printOverride } = build(options ?? ({} as T['options']))
 
-        if (!handler) return undefined
+      const context = {
+        options: resolvedOptions,
+        print: (node: TNode): T['output'] | null | undefined => {
+          const key = getKey(node)
+          if (key === undefined) return undefined
 
-        const typedHandler = handler as PrinterHandler<T['output'], T['options']>
+          const handler = nodes[key]
 
-        return typedHandler.call(context, node as SchemaNodeByType[SchemaType])
-      },
-    }
+          if (!handler) return undefined
 
-    return {
-      name,
-      options: resolvedOptions,
-      print: (printOverride ? printOverride.bind(context) : context.print) as Printer<T>['print'],
+          return (handler as (this: typeof context, node: TNode) => T['output'] | null | undefined).call(context, node)
+        },
+      }
+
+      return {
+        name,
+        options: resolvedOptions,
+        print: (printOverride ? printOverride.bind(context) : context.print) as (node: TNode) => T['printOutput'] | null | undefined,
+      }
     }
   }
 }

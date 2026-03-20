@@ -1,6 +1,6 @@
+import type { RootNode } from '@kubb/ast/types'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { createMockedPluginDriver } from '../../../../configs/mocks.ts'
-import type { RootNode } from '@kubb/ast/types'
 import type { Plugin } from '../types.ts'
 
 const mockedPluginDriver = createMockedPluginDriver()
