@@ -4,7 +4,7 @@
  */
 
 import { z } from '../../zod.ts'
-import { orderSchema } from './orderSchema.gen.ts'
+import { orderSchema } from './orderSchema.ts'
 
 /**
  * @description successful operation

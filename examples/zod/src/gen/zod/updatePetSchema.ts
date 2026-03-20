@@ -4,7 +4,7 @@
  */
 
 import { z } from '../../zod.ts'
-import { petSchema } from './petSchema.gen.ts'
+import { petSchema } from './petSchema.ts'
 
 /**
  * @description Successful operation

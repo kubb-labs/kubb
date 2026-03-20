@@ -4,7 +4,7 @@
  */
 
 import { z } from '../../zod.ts'
-import { petNotFoundSchema } from './petNotFoundSchema.gen.ts'
+import { petNotFoundSchema } from './petNotFoundSchema.ts'
 
 export const getThingsQueryParamsTypeSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(100).describe('Maximum number of things to return'),

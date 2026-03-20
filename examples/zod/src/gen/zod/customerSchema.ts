@@ -4,7 +4,7 @@
  */
 
 import { z } from '../../zod.ts'
-import { addressSchema } from './addressSchema.gen.ts'
+import { addressSchema } from './addressSchema.ts'
 
 export const customerSchema = z.object({
   id: z.optional(z.int()),

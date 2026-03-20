@@ -4,11 +4,15 @@
  */
 
 import { z } from '../../zod.ts'
-import { categorySchema } from './categorySchema.gen.ts'
-import { tagSchema } from './tagSchema.gen.ts'
+import { categorySchema } from './categorySchema.ts'
+import { tagSchema } from './tagSchema.ts'
 
-export const addPetRequestSchema = z.object({
+export const petSchema = z.object({
   id: z.optional(z.int()),
+  get parent() {
+    return z.array(petSchema).optional()
+  },
+  internalId: z.optional(z.string().regex(/^[0-9]{1,19}$/)),
   name: z.string(),
   get category() {
     return categorySchema.optional()
@@ -20,4 +24,4 @@ export const addPetRequestSchema = z.object({
   status: z.optional(z.enum(['available', 'pending', 'sold']).describe('pet status in the store')),
 })
 
-export type AddPetRequestSchema = z.infer<typeof addPetRequestSchema>
+export type PetSchema = z.infer<typeof petSchema>

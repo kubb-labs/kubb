@@ -4,7 +4,7 @@
  */
 
 import { z } from '../../zod.ts'
-import { phoneNumberSchema } from './phoneNumberSchema.gen.ts'
+import { phoneNumberSchema } from './phoneNumberSchema.ts'
 
 export const phoneWithMaxLengthSchema = z.lazy(() => phoneNumberSchema).and(z.string().max(15))
 

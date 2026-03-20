@@ -4,7 +4,7 @@
  */
 
 import { z } from '../../zod.ts'
-import { petSchema } from './petSchema.gen.ts'
+import { petSchema } from './petSchema.ts'
 
 export const getPetByIdPathParamsTypeSchema = z.object({
   petId: z.coerce.number().int().describe('ID of pet to return'),

@@ -4,7 +4,7 @@
  */
 
 import { z } from '../../zod.ts'
-import { userSchema } from './userSchema.gen.ts'
+import { userSchema } from './userSchema.ts'
 
 /**
  * @description successful operation

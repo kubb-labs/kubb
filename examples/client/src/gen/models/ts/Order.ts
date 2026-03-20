@@ -38,7 +38,7 @@ export type Order = {
   /**
    * @type string | undefined
    */
-  shipDate?: string
+  shipDate?: Date
   /**
    * @description Order Status
    * @example approved
