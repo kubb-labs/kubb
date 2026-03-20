@@ -1031,7 +1031,7 @@ export interface LogoutUserResponses {
 export type LogoutUserResponse = LogoutUserStatusDefault
 
 /**
- * @description The name that needs to be fetched. Use user1 for testing. 
+ * @description The name that needs to be fetched. Use user1 for testing.
  */
 export type GetUserByNamePathUsername = string
 
@@ -1054,7 +1054,7 @@ export interface GetUserByNameRequestConfig {
   data?: never
   pathParams: {
     /**
-     * @description The name that needs to be fetched. Use user1 for testing. 
+     * @description The name that needs to be fetched. Use user1 for testing.
      */
     username: GetUserByNamePathUsername
   }
