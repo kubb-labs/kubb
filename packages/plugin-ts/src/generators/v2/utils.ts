@@ -26,7 +26,6 @@ export function buildParamsSchema({ params, operationId, resolveName }: BuildPar
           type: 'ref',
           name: resolveName({ name: `${operationId} ${pascalCase(param.in)} ${param.name}`, type: 'function' }),
           optional: !param.required,
-          description: param.schema.description,
         }),
       }),
     ),
