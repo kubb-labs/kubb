@@ -104,6 +104,7 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
       if ('properties' in node && node.properties.length > 0) children.push(...node.properties)
       if ('items' in node && node.items) children.push(...node.items)
       if ('members' in node && node.members) children.push(...node.members)
+      if ('additionalProperties' in node && node.additionalProperties && node.additionalProperties !== true) children.push(node.additionalProperties)
 
       return children
     }
@@ -210,6 +211,9 @@ export function transform(node: Node, visitor: Visitor, options: VisitorOptions 
         ...('properties' in schema && recurse ? { properties: schema.properties.map((p) => transform(p, visitor, options)) } : {}),
         ...('items' in schema && recurse ? { items: schema.items?.map((i) => transform(i, visitor, options)) } : {}),
         ...('members' in schema && recurse ? { members: schema.members?.map((m) => transform(m, visitor, options)) } : {}),
+        ...('additionalProperties' in schema && recurse && schema.additionalProperties && schema.additionalProperties !== true
+          ? { additionalProperties: transform(schema.additionalProperties, visitor, options) }
+          : {}),
       }
     }
     case 'Property': {

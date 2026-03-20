@@ -153,6 +153,24 @@ export default defineConfig({
 ```
 :::
 
+### `collisionDetection` default changed to `true` in `@kubb/adapter-oas`
+
+The `collisionDetection` option in `@kubb/adapter-oas` (and the underlying adapter) now defaults to `true` instead of `false`.
+
+When `true`, inline enum names include the full property path (e.g. `OrderParamsStatusEnum`) so name collisions across schema components are resolved automatically. When `false`, only the immediate property context is used for the name (e.g. `ParamsStatusEnum`), matching the previous v4 behaviour, with numeric suffixes added for any duplicates (e.g. `ParamsStatusEnum2`).
+
+If your generated code relied on the old short-path naming, set `collisionDetection: false` explicitly:
+
+```typescript
+import { adapterOas } from '@kubb/adapter-oas'
+
+export default defineConfig({
+  adapter: adapterOas({
+    collisionDetection: false, // restore previous naming behaviour
+  }),
+})
+```
+
 ---
 
 # Migrating to Kubb v3
