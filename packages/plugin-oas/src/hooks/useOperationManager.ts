@@ -165,32 +165,32 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
     return {
       request: schemas.request?.name
         ? driver.resolveName({
-          name: schemas.request.name,
-          pluginName,
-          type,
-        })
+            name: schemas.request.name,
+            pluginName,
+            type,
+          })
         : undefined,
       parameters: {
         path: schemas.pathParams?.name
           ? driver.resolveName({
-            name: schemas.pathParams.name,
-            pluginName,
-            type,
-          })
+              name: schemas.pathParams.name,
+              pluginName,
+              type,
+            })
           : undefined,
         query: schemas.queryParams?.name
           ? driver.resolveName({
-            name: schemas.queryParams.name,
-            pluginName,
-            type,
-          })
+              name: schemas.queryParams.name,
+              pluginName,
+              type,
+            })
           : undefined,
         header: schemas.headerParams?.name
           ? driver.resolveName({
-            name: schemas.headerParams.name,
-            pluginName,
-            type,
-          })
+              name: schemas.headerParams.name,
+              pluginName,
+              type,
+            })
           : undefined,
       },
       responses: {

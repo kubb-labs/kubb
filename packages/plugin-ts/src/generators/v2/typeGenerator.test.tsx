@@ -1,6 +1,6 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { EnumSchemaNode, OperationNode } from '@kubb/ast/types'
-import { renderOperation, renderSchema, type Config } from '@kubb/core'
+import { type Config, renderOperation, renderSchema } from '@kubb/core'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
