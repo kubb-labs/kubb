@@ -23,9 +23,6 @@ export type DeletePetStatus400 = any
 export interface DeletePetRequestConfig {
   data?: never
   pathParams: {
-    /**
-     * @description Pet id to delete
-     */
     petId: DeletePetPathPetId
   }
   queryParams?: never

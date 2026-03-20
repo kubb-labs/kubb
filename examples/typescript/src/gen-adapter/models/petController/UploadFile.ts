@@ -25,15 +25,9 @@ export type UploadFileData = Blob
 export interface UploadFileRequestConfig {
   data?: UploadFileData
   pathParams: {
-    /**
-     * @description ID of pet to update
-     */
     petId: UploadFilePathPetId
   }
   queryParams?: {
-    /**
-     * @description Additional Metadata
-     */
     additionalMetadata?: UploadFileQueryAdditionalMetadata
   }
   headerParams?: never

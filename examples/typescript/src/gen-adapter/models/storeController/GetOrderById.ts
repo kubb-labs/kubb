@@ -28,9 +28,6 @@ export type GetOrderByIdStatus404 = any
 export interface GetOrderByIdRequestConfig {
   data?: never
   pathParams: {
-    /**
-     * @description ID of order that needs to be fetched
-     */
     orderId: GetOrderByIdPathOrderId
   }
   queryParams?: never

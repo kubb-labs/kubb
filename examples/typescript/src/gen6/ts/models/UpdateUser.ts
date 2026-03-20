@@ -20,9 +20,6 @@ export type UpdateUserData = User
 export type UpdateUserRequestConfig = {
   data?: UpdateUserData
   pathParams: {
-    /**
-     * @description name that need to be deleted
-     */
     username: UpdateUserPathUsername
   }
   queryParams?: never

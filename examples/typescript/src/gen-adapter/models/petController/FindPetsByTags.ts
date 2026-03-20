@@ -34,17 +34,8 @@ export interface FindPetsByTagsRequestConfig {
   data?: never
   pathParams?: never
   queryParams?: {
-    /**
-     * @description Tags to filter by
-     */
     tags?: FindPetsByTagsQueryTags
-    /**
-     * @description to request with required page number or pagination
-     */
     page?: FindPetsByTagsQueryPage
-    /**
-     * @description to request with required page size
-     */
     pageSize?: FindPetsByTagsQueryPageSize
   }
   headerParams?: never
