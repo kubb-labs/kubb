@@ -21,7 +21,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
   type: 'react',
   Operation({ node, adapter, options }) {
     const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver, legacy } = options
-    const { mode, getFile, resolveName, resolveBanner, resolveFooter } = useKubb<PluginTs>()
+    const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     const file = getFile({
       name: node.operationId,
@@ -49,7 +49,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
       }
 
       const imports = adapter.getImports(schemaNode, (schemaName) => ({
-        name: resolveName({ name: schemaName, type: 'type' }),
+        name: resolver.default(schemaName, 'type'),
         path: getFile({ name: schemaName, extname: '.ts', mode }).path,
       }))
 
@@ -67,6 +67,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
             optionalType={optionalType}
             arrayType={arrayType}
             syntaxType={syntaxType}
+            resolver={resolver}
           />
         </>
       )
@@ -193,14 +194,14 @@ export const typeGenerator = defineGenerator<PluginTs>({
   },
   Schema({ node, adapter, options }) {
     const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver } = options
-    const { mode, resolveName, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
+    const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     if (!node.name) {
       return
     }
 
     const imports = adapter.getImports(node, (schemaName) => ({
-      name: resolveName({ name: schemaName, type: 'type' }),
+      name: resolver.default(schemaName, 'type'),
       path: getFile({ name: schemaName, extname: '.ts', mode }).path,
     }))
 
@@ -229,6 +230,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
           optionalType={optionalType}
           arrayType={arrayType}
           syntaxType={syntaxType}
+          resolver={resolver}
         />
       </File>
     )
