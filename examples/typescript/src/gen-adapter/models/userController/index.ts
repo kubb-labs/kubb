@@ -11,10 +11,15 @@ export type {
   CreateUsersWithListInputResponse,
   CreateUsersWithListInputResponses,
   CreateUsersWithListInputStatus200,
+  CreateUsersWithListInputStatusDefault,
 } from './CreateUsersWithListInput.ts'
 export type {
   DeleteUserPathUsername,
   DeleteUserRequestConfig,
+  DeleteUserResponse,
+  DeleteUserResponses,
+  DeleteUserStatus400,
+  DeleteUserStatus404,
 } from './DeleteUser.ts'
 export type {
   GetUserByNamePathUsername,
@@ -22,6 +27,8 @@ export type {
   GetUserByNameResponse,
   GetUserByNameResponses,
   GetUserByNameStatus200,
+  GetUserByNameStatus400,
+  GetUserByNameStatus404,
 } from './GetUserByName.ts'
 export type {
   LoginUserQueryPassword,
@@ -30,10 +37,19 @@ export type {
   LoginUserResponse,
   LoginUserResponses,
   LoginUserStatus200,
+  LoginUserStatus400,
 } from './LoginUser.ts'
-export type { LogoutUserRequestConfig } from './LogoutUser.ts'
+export type {
+  LogoutUserRequestConfig,
+  LogoutUserResponse,
+  LogoutUserResponses,
+  LogoutUserStatusDefault,
+} from './LogoutUser.ts'
 export type {
   UpdateUserData,
   UpdateUserPathUsername,
   UpdateUserRequestConfig,
+  UpdateUserResponse,
+  UpdateUserResponses,
+  UpdateUserStatusDefault,
 } from './UpdateUser.ts'

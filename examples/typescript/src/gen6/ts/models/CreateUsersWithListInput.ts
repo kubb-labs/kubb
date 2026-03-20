@@ -8,19 +8,29 @@ import type { User } from './User.ts'
 /**
  * @description Successful operation
  */
-export type CreateUsersWithListInput200 = User
+export type CreateUsersWithListInputStatus200 = User
 
 /**
  * @description successful operation
  */
-export type CreateUsersWithListInputError = any
+export type CreateUsersWithListInputStatusDefault = any
 
-export type CreateUsersWithListInputMutationRequest = User[]
+export type CreateUsersWithListInputData = User[]
 
-export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200
-
-export type CreateUsersWithListInputMutation = {
-  Response: CreateUsersWithListInput200
-  Request: CreateUsersWithListInputMutationRequest
-  Errors: any
+export type CreateUsersWithListInputRequestConfig = {
+  data?: CreateUsersWithListInputData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/user/createWithList'
 }
+
+export type CreateUsersWithListInputResponses = {
+  '200': CreateUsersWithListInputStatus200
+  default: CreateUsersWithListInputStatusDefault
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type CreateUsersWithListInputResponse = CreateUsersWithListInputStatus200 | CreateUsersWithListInputStatusDefault

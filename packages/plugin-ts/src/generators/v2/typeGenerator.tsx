@@ -14,7 +14,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
   type: 'react',
   Operation({ node, adapter, options }) {
     const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group } = options
-    const { mode, getFile, resolveName } = useKubb<PluginTs>()
+    const { mode, getFile, resolveName, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     const file = getFile({
       name: node.operationId,
@@ -73,16 +73,14 @@ export const typeGenerator = defineGenerator<PluginTs>({
       }),
     )
 
-    const responseTypes = node.responses
-      .filter((res) => res.schema)
-      .map((res) =>
-        renderSchemaType({
-          node: res.schema!,
-          name: resolverTs.resolveResponseStatusName(node, res.statusCode),
-          typedName: resolverTs.resolveResponseStatusTypedName(node, res.statusCode),
-          description: res.description,
-        }),
-      )
+    const responseTypes = node.responses.map((res) =>
+      renderSchemaType({
+        node: res.schema,
+        name: resolverTs.resolveResponseStatusName(node, res.statusCode),
+        typedName: resolverTs.resolveResponseStatusTypedName(node, res.statusCode),
+        description: res.description,
+      }),
+    )
 
     const requestType = node.requestBody
       ? renderSchemaType({
@@ -113,7 +111,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     })
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta}>
+      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={resolveBanner()} footer={resolveFooter()}>
         {paramTypes}
         {responseTypes}
         {requestType}
@@ -125,7 +123,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
   },
   Schema({ node, adapter, options }) {
     const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType } = options
-    const { mode, resolveName, getFile } = useKubb<PluginTs>()
+    const { mode, resolveName, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     if (!node.name) {
       return
@@ -148,7 +146,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     } as const
 
     return (
-      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta}>
+      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta} banner={resolveBanner()} footer={resolveFooter()}>
         {mode === 'split' &&
           imports.map((imp) => (
             <File.Import key={[node.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />

@@ -85,7 +85,15 @@ describe('typeGenerator v2 — Operation', () => {
         path: '/pets/:petId',
         tags: ['pets'],
         parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
-        responses: [createResponse({ statusCode: '204', description: 'No content' })],
+        responses: [
+          createResponse({
+            statusCode: '204',
+            description: 'No content',
+            schema: createSchema({
+              type: 'void',
+            }),
+          }),
+        ],
       }),
     },
     {

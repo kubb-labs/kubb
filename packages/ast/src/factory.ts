@@ -76,7 +76,9 @@ export function createParameter(
 /**
  * Creates a `ResponseNode`.
  */
-export function createResponse(props: Pick<ResponseNode, 'statusCode'> & Partial<Omit<ResponseNode, 'kind' | 'statusCode'>>): ResponseNode {
+export function createResponse(
+  props: Pick<ResponseNode, 'statusCode' | 'schema'> & Partial<Omit<ResponseNode, 'kind' | 'statusCode' | 'schema'>>,
+): ResponseNode {
   return {
     ...props,
     kind: 'Response',

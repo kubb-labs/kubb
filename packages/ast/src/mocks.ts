@@ -20,7 +20,13 @@ export function buildSampleTree(): RootNode {
     path: '/pets/{petId}',
     tags: ['pets'],
     parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
-    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'Pet' }) }), createResponse({ statusCode: '404' })],
+    responses: [
+      createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'Pet' }) }),
+      createResponse({
+        statusCode: '404',
+        schema: createSchema({ type: 'ref', name: 'Error' }),
+      }),
+    ],
   })
 
   return createRoot({ schemas: [petSchema], operations: [operation] })

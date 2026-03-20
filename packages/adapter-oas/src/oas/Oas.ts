@@ -431,14 +431,15 @@ export class Oas extends BaseOas {
     return this.dereferenceWithRef(schema)
   }
 
-  getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): SchemaObject | null {
-    const { contentType = operation.getContentType() } = this.#options
-
-    // Collect parameters from both operation-level and path-level, resolving $ref pointers.
-    // oas v31+ filters out $ref parameters in getParameters(), so we access raw parameters
-    // directly and resolve refs ourselves to preserve backward compatibility.
-    // Note: dereferenceWithRef preserves the $ref property on resolved objects, so we check
-    // for 'in' and 'name' fields to validate successful resolution instead of !isReference().
+  /**
+   * Returns all resolved parameters for an operation, merging path-level and operation-level
+   * parameters and deduplicating by `in:name` (operation-level takes precedence).
+   *
+   * oas v31+ filters out `$ref` parameters in `getParameters()`, so this method accesses the
+   * raw `operation.schema.parameters` and path-item parameters directly and resolves `$ref`
+   * pointers via `dereferenceWithRef` to preserve backward compatibility.
+   */
+  getParameters(operation: Operation): Array<ParameterObject> {
     const resolveParams = (params: unknown[]): Array<ParameterObject> =>
       params.map((p) => this.dereferenceWithRef(p)).filter((p): p is ParameterObject => !!p && typeof p === 'object' && 'in' in p && 'name' in p)
 
@@ -459,7 +460,13 @@ export class Oas extends BaseOas {
       }
     }
 
-    const params = Array.from(paramMap.values()).filter((v) => v.in === inKey)
+    return Array.from(paramMap.values())
+  }
+
+  getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): SchemaObject | null {
+    const { contentType = operation.getContentType() } = this.#options
+
+    const params = this.getParameters(operation).filter((v) => v.in === inKey)
 
     if (!params.length) {
       return null

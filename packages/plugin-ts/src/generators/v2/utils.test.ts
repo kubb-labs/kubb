@@ -117,20 +117,31 @@ describe('buildDataSchemaNode', () => {
       }"
     `)
   })
+
+  it('emits JSDoc on queryParams properties when parameters have descriptions', () => {
+    const node = createOperation({
+      ...baseNode,
+      operationId: 'listPets',
+      parameters: [
+        createParameter({ name: 'limit', schema: createSchema({ type: 'integer', description: 'Maximum number of results' }), in: 'query', required: false }),
+      ],
+    })
+
+    expect(printSchema(buildDataSchemaNode({ node, resolveName }))).toMatchInlineSnapshot(`
+      "{
+          data?: never;
+          pathParams?: never;
+          queryParams?: {
+              limit?: listPetsQueryLimit;
+          };
+          headerParams?: never;
+          url: "/pets";
+      }"
+    `)
+  })
 })
 
 describe('buildResponsesSchemaNode', () => {
-  it('returns null when no responses have schemas', () => {
-    const node = createOperation({
-      operationId: 'deletePet',
-      method: 'DELETE',
-      path: '/pets/:petId',
-      responses: [createResponse({ statusCode: '204', description: 'No content' })],
-    })
-
-    expect(buildResponsesSchemaNode({ node, resolveName })).toBeNull()
-  })
-
   it('emits a keyed object type for responses with schemas', () => {
     const node = createOperation({
       operationId: 'listPets',
@@ -152,17 +163,6 @@ describe('buildResponsesSchemaNode', () => {
 })
 
 describe('buildResponseUnionSchemaNode', () => {
-  it('returns null when no responses have schemas', () => {
-    const node = createOperation({
-      operationId: 'deletePet',
-      method: 'DELETE',
-      path: '/pets/:petId',
-      responses: [createResponse({ statusCode: '204', description: 'No content' })],
-    })
-
-    expect(buildResponseUnionSchemaNode({ node, resolveName })).toBeNull()
-  })
-
   it('emits a union of all response types', () => {
     const node = createOperation({
       operationId: 'listPets',

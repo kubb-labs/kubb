@@ -8,32 +8,41 @@ import type { Pet } from './Pet.ts'
 /**
  * @description Successful operation
  */
-export type UpdatePet200 = Pet
+export type UpdatePetStatus200 = Pet
 
 /**
  * @description Invalid ID supplied
  */
-export type UpdatePet400 = any
+export type UpdatePetStatus400 = any
 
 /**
  * @description Pet not found
  */
-export type UpdatePet404 = any
+export type UpdatePetStatus404 = any
 
 /**
  * @description Validation exception
  */
-export type UpdatePet405 = any
+export type UpdatePetStatus405 = any
+
+export type UpdatePetData = Pet
+
+export type UpdatePetRequestConfig = {
+  data?: UpdatePetData
+  pathParams?: never
+  queryParams?: never
+  headerParams?: never
+  url: '/pet'
+}
+
+export type UpdatePetResponses = {
+  '200': UpdatePetStatus200
+  '400': UpdatePetStatus400
+  '404': UpdatePetStatus404
+  '405': UpdatePetStatus405
+}
 
 /**
- * @description Update an existent pet in the store
+ * @description Union of all possible responses
  */
-export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'type' | 'tags'>
-
-export type UpdatePetMutationResponse = UpdatePet200
-
-export type UpdatePetMutation = {
-  Response: UpdatePet200
-  Request: UpdatePetMutationRequest
-  Errors: UpdatePet400 | UpdatePet404 | UpdatePet405
-}
+export type UpdatePetResponse = UpdatePetStatus200 | UpdatePetStatus400 | UpdatePetStatus404 | UpdatePetStatus405

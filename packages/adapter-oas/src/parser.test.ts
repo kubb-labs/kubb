@@ -246,7 +246,6 @@ describe('buildAst', () => {
       const notFound = getPet?.responses.find((r) => r.statusCode === '404')
 
       expect(notFound?.description).toBe('Not found')
-      expect(notFound?.schema).toBeUndefined()
     })
 
     it('sets mediaType on responses', async () => {
@@ -2551,6 +2550,83 @@ describe('buildAst – header and cookie parameters', async () => {
     expect(locations).toContain('header')
     expect(locations).toContain('cookie')
     expect(locations).toContain('query')
+  })
+})
+
+describe('buildAst – parameter description propagation', async () => {
+  const oas = await parse({
+    openapi: '3.0.3',
+    info: { title: 'Params', version: '1.0.0' },
+    paths: {
+      '/pets': {
+        get: {
+          operationId: 'listPets',
+          parameters: [
+            {
+              name: 'limit',
+              in: 'query',
+              description: 'Maximum number of results to return',
+              required: false,
+              schema: { type: 'integer' },
+            },
+            {
+              name: 'petId',
+              in: 'path',
+              description: 'The id of the pet to retrieve',
+              required: true,
+              schema: { type: 'integer' },
+            },
+          ],
+          responses: {
+            '200': { description: 'OK' },
+          },
+        },
+      },
+    },
+  })
+
+  const root = createOasParser(oas).parse()
+  const listPets = root.operations.find((o) => o.operationId === 'listPets')
+
+  it('propagates parameter-level description to schema.description for query params', () => {
+    const limit = listPets?.parameters.find((p) => p.name === 'limit')
+
+    expect(limit?.schema.description).toBe('Maximum number of results to return')
+  })
+
+  it('propagates parameter-level description to schema.description for path params', () => {
+    const petId = listPets?.parameters.find((p) => p.name === 'petId')
+
+    expect(petId?.schema.description).toBe('The id of the pet to retrieve')
+  })
+
+  it('prefers parameter-level description over schema-level description', async () => {
+    const oasWithBoth = await parse({
+      openapi: '3.0.3',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/items': {
+          get: {
+            operationId: 'getItems',
+            parameters: [
+              {
+                name: 'q',
+                in: 'query',
+                description: 'Parameter description',
+                required: false,
+                schema: { type: 'string', description: 'Schema description' },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+    const root2 = createOasParser(oasWithBoth).parse()
+    const getItems = root2.operations.find((o) => o.operationId === 'getItems')
+    const q = getItems?.parameters.find((p) => p.name === 'q')
+
+    expect(q?.schema.description).toBe('Parameter description')
   })
 })
 

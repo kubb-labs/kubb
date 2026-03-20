@@ -12,6 +12,6 @@ export type ResponseNode = BaseNode & {
    */
   statusCode: StatusCode
   description?: string
-  schema?: SchemaNode
+  schema: SchemaNode
   mediaType?: MediaType
 }

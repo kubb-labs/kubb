@@ -43,7 +43,7 @@ describe('walk', () => {
     expect(visited.property).toBe(2) // id + name
     expect(visited.parameter).toBe(1) // petId
     expect(visited.response).toBe(2) // 200 + 404
-    // schemas: petSchema(object) + id(integer) + name(string) + petId param(integer) + 200 response ref + parameter schema
+    // schemas: petSchema(object) + id(integer) + name(string) + petId param(integer) + 200 response(ref) + 404 response(ref)
     expect(visited.schema).toBeGreaterThanOrEqual(5)
   })
 

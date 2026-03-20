@@ -973,6 +973,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       in: param['in'] as ParameterLocation,
       schema: {
         ...schema,
+        description: (param['description'] as string | undefined) ?? schema.description,
         optional: !required || !!schema.optional ? true : undefined,
       },
       required,
@@ -984,11 +985,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * request body, and all response codes into their AST node equivalents.
    */
   function parseOperation(options: Options, oas: Oas, operation: Operation): OperationNode {
-    const parameters: Array<ParameterNode> = operation.getParameters().map((param) => {
-      const dereferenced = oas.dereferenceWithRef(param) as unknown as Record<string, unknown>
-
-      return parseParameter(options, dereferenced)
-    })
+    const parameters: Array<ParameterNode> = oas.getParameters(operation).map((param) => parseParameter(options, param as unknown as Record<string, unknown>))
 
     const requestBodySchema = oas.getRequestSchema(operation)
     const requestBody = requestBodySchema ? convertSchema({ schema: requestBodySchema }, options) : undefined
@@ -997,7 +994,10 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       const responseObj = operation.getResponseByStatusCode(statusCode)
       const responseSchema = oas.getResponseSchema(operation, statusCode)
 
-      const schema = responseSchema && Object.keys(responseSchema).length > 0 ? convertSchema({ schema: responseSchema }, options) : undefined
+      const schema =
+        responseSchema && Object.keys(responseSchema).length > 0
+          ? convertSchema({ schema: responseSchema }, options)
+          : createSchema({ type: resolveTypeOption(options.emptySchemaType) })
 
       const description = typeof responseObj === 'object' && responseObj !== null && !Array.isArray(responseObj) ? responseObj.description : undefined
 

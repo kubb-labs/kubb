@@ -3,37 +3,44 @@
  * Do not edit manually.
  */
 
-export type UpdatePetWithFormPathParams = {
-  /**
-   * @description ID of pet that needs to be updated
-   * @type integer, int64
-   */
-  petId: number
-}
+/**
+ * @description ID of pet that needs to be updated
+ */
+export type UpdatePetWithFormPathPetId = number
 
-export type UpdatePetWithFormQueryParams = {
-  /**
-   * @description Name of pet that needs to be updated
-   * @type string | undefined
-   */
-  name?: string
-  /**
-   * @description Status of pet that needs to be updated
-   * @type string | undefined
-   */
-  status?: string
-}
+/**
+ * @description Name of pet that needs to be updated
+ */
+export type UpdatePetWithFormQueryName = string
+
+/**
+ * @description Status of pet that needs to be updated
+ */
+export type UpdatePetWithFormQueryStatus = string
 
 /**
  * @description Invalid input
  */
-export type UpdatePetWithForm405 = any
+export type UpdatePetWithFormStatus405 = any
 
-export type UpdatePetWithFormMutationResponse = any
-
-export type UpdatePetWithFormMutation = {
-  Response: any
-  PathParams: UpdatePetWithFormPathParams
-  QueryParams: UpdatePetWithFormQueryParams
-  Errors: UpdatePetWithForm405
+export type UpdatePetWithFormRequestConfig = {
+  data?: never
+  pathParams: {
+    petId: UpdatePetWithFormPathPetId
+  }
+  queryParams?: {
+    name?: UpdatePetWithFormQueryName
+    status?: UpdatePetWithFormQueryStatus
+  }
+  headerParams?: never
+  url: `/pet/${string}`
 }
+
+export type UpdatePetWithFormResponses = {
+  '405': UpdatePetWithFormStatus405
+}
+
+/**
+ * @description Union of all possible responses
+ */
+export type UpdatePetWithFormResponse = UpdatePetWithFormStatus405
