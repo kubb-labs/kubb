@@ -15,7 +15,7 @@ export type AddPet405 = {
 /**
  * @description Successful operation
  */
-export type AddPetError = Pet
+export type AddPetError = Omit<NonNullable<Pet>, 'name'>
 
 export type AddPetMutationRequest = AddPetRequest
 

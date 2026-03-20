@@ -11,7 +11,7 @@ export type GetPetByIdPathParams = {
 /**
  * @description successful operation
  */
-export type GetPetById200 = Pet
+export type GetPetById200 = Omit<NonNullable<Pet>, 'name'>
 
 /**
  * @description Invalid ID supplied

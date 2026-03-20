@@ -401,7 +401,7 @@ export type UpdatePet404 = any
  */
 export type UpdatePet405 = any
 
-export type UpdatePetMutationRequest = Pet
+export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'type' | 'tags'>
 
 export type UpdatePetMutation = {
   Response: UpdatePet200

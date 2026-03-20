@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { http } from 'msw'
 import type { DeleteOrder400, DeleteOrder404 } from '../../../models/DeleteOrder.ts'
+import { http } from 'msw'
 
 export function deleteOrderHandlerResponse400(data?: DeleteOrder400) {
   return new Response(JSON.stringify(data), {

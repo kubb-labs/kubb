@@ -1015,6 +1015,12 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     const requestBodySchema = oas.getRequestSchema(operation)
     const requestBody = requestBodySchema ? convertSchema({ schema: requestBodySchema }, options) : undefined
 
+    const requestBodyKeysToOmit = requestBodySchema?.properties
+      ? Object.entries(requestBodySchema.properties)
+          .filter(([, prop]) => !isReference(prop) && (prop as { readOnly?: boolean }).readOnly)
+          .map(([key]) => key)
+      : undefined
+
     const responses: Array<ResponseNode> = operation.getResponseStatusCodes().map((statusCode) => {
       const responseObj = operation.getResponseByStatusCode(statusCode)
       const responseSchema = oas.getResponseSchema(operation, statusCode)
@@ -1033,11 +1039,18 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
       const mediaType = rawContent ? toMediaType(Object.keys(rawContent)[0] ?? '') : toMediaType(operation.contentType ?? '')
 
+      const keysToOmit = responseSchema?.properties
+        ? Object.entries(responseSchema.properties)
+            .filter(([, prop]) => !isReference(prop) && (prop as { writeOnly?: boolean }).writeOnly)
+            .map(([key]) => key)
+        : undefined
+
       return createResponse({
         statusCode: statusCode as StatusCode,
         description,
         schema,
         mediaType,
+        keysToOmit: keysToOmit?.length ? keysToOmit : undefined,
       })
     })
 
@@ -1051,6 +1064,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       deprecated: operation.isDeprecated() || undefined,
       parameters,
       requestBody,
+      requestBodyKeysToOmit: requestBodyKeysToOmit?.length ? requestBodyKeysToOmit : undefined,
       responses,
     })
   }

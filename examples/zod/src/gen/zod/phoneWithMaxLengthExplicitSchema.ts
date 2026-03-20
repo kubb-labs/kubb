@@ -3,9 +3,13 @@
  * Do not edit manually.
  */
 
-import { z } from '../../zod.ts'
-import { phoneNumberSchema } from './phoneNumberSchema.ts'
+import { z } from "../../zod.ts";
+import { phoneNumberSchema } from "./phoneNumberSchema.ts";
 
-export const phoneWithMaxLengthExplicitSchema = z.lazy(() => phoneNumberSchema).and(z.string().max(15))
+export const phoneWithMaxLengthExplicitSchema = z
+  .lazy(() => phoneNumberSchema)
+  .and(z.string().max(15));
 
-export type PhoneWithMaxLengthExplicitSchema = z.infer<typeof phoneWithMaxLengthExplicitSchema>
+export type PhoneWithMaxLengthExplicitSchema = z.infer<
+  typeof phoneWithMaxLengthExplicitSchema
+>;

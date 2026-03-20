@@ -8,14 +8,14 @@ import type { Pet } from './Pet.js'
 /**
  * @description successful operation
  */
-export type AddFiles200 = Pet
+export type AddFiles200 = Omit<NonNullable<Pet>, 'name'>
 
 /**
  * @description Invalid input
  */
 export type AddFiles405 = any
 
-export type AddFilesMutationRequest = Pet
+export type AddFilesMutationRequest = Omit<NonNullable<Pet>, 'id'>
 
 export type AddFilesMutation = {
   Response: AddFiles200

@@ -4,26 +4,24 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
-import fetch, { mergeConfig } from '@kubb/plugin-client/clients/fetch'
-import { buildFormData } from '../../../.kubb/config.ts'
-import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet.ts'
-import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../../models/ts/petController/DeletePet.ts'
-import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus.ts'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../../models/ts/petController/FindPetsByTags.ts'
-import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById.ts'
+import fetch from '@kubb/plugin-client/clients/fetch'
+import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet.ts'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet.ts'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../../../models/ts/petController/FindPetsByTags.ts'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById.ts'
 import type {
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
   UpdatePet400,
   UpdatePet404,
   UpdatePet405,
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
 } from '../../../models/ts/petController/UpdatePet.ts'
 import type {
-  UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm.ts'
 import type {
   UploadFileMutationRequest,
@@ -31,6 +29,9 @@ import type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import { buildFormData } from '../../../.kubb/config.ts'
+import { mergeConfig } from '@kubb/plugin-client/clients/fetch'
 
 export class Pet {
   #config: Partial<RequestConfig> & { client?: Client }

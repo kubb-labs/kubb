@@ -4,23 +4,24 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
-import fetch, { mergeConfig } from '@kubb/plugin-client/clients/fetch'
+import fetch from '@kubb/plugin-client/clients/fetch'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../../models/ts/userController/CreateUsersWithListInput.ts'
-import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser.ts'
+import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser.ts'
 import type {
+  GetUserByNameQueryResponse,
+  GetUserByNamePathParams,
   GetUserByName400,
   GetUserByName404,
-  GetUserByNamePathParams,
-  GetUserByNameQueryResponse,
 } from '../../../models/ts/userController/GetUserByName.ts'
-import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../../models/ts/userController/LoginUser.ts'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import { mergeConfig } from '@kubb/plugin-client/clients/fetch'
 
 export class User {
   #config: Partial<RequestConfig> & { client?: Client }

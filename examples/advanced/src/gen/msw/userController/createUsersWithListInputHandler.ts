@@ -1,5 +1,5 @@
-import { http } from 'msw'
 import type { CreateUsersWithListInputMutationResponse } from '../../models/ts/userController/CreateUsersWithListInput.ts'
+import { http } from 'msw'
 
 export function createUsersWithListInputHandlerResponse200(data: CreateUsersWithListInputMutationResponse) {
   return new Response(JSON.stringify(data), {

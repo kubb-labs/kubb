@@ -29,5 +29,11 @@ export type OperationNode = BaseNode & {
    * Request body schema. For OAS, this is the schema of the first content entry.
    */
   requestBody?: SchemaNode
+  /**
+   * Property keys to exclude from the generated request body type via `Omit<Type, Keys>`.
+   * Populated when the request body schema is a `$ref` and the referenced schema has
+   * `readOnly` properties that should not appear in request types.
+   */
+  requestBodyKeysToOmit?: Array<string>
   responses: Array<ResponseNode>
 }

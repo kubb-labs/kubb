@@ -3,16 +3,16 @@
  * Do not edit manually.
  */
 
-import type { PetType } from './PetType.ts'
+import type { PetType } from "./PetType.ts";
 
 export const findPetsByStatusQueryParamsTypeStatusEnum = {
-  available: 'available',
-  pending: 'pending',
-  sold: 'sold',
-} as const
+  available: "available",
+  pending: "pending",
+  sold: "sold",
+} as const;
 
 export type FindPetsByStatusQueryParamsTypeStatusEnumTypeKey =
-  (typeof findPetsByStatusQueryParamsTypeStatusEnum)[keyof typeof findPetsByStatusQueryParamsTypeStatusEnum]
+  (typeof findPetsByStatusQueryParamsTypeStatusEnum)[keyof typeof findPetsByStatusQueryParamsTypeStatusEnum];
 
 export type FindPetsByStatusQueryParamsType = {
   /**
@@ -20,23 +20,23 @@ export type FindPetsByStatusQueryParamsType = {
    * @default "available"
    * @type string | undefined
    */
-  status?: FindPetsByStatusQueryParamsTypeStatusEnumTypeKey
-}
+  status?: FindPetsByStatusQueryParamsTypeStatusEnumTypeKey;
+};
 
 /**
  * @description successful operation
  */
-export type FindPetsByStatus200Type = PetType[]
+export type FindPetsByStatus200Type = PetType[];
 
 /**
  * @description Invalid status value
  */
-export type FindPetsByStatus400Type = any
+export type FindPetsByStatus400Type = any;
 
 export type FindPetsByStatusQueryType = {
-  Response: FindPetsByStatus200Type
-  QueryParams: FindPetsByStatusQueryParamsType
-  Errors: FindPetsByStatus400Type
-}
+  Response: FindPetsByStatus200Type;
+  QueryParams: FindPetsByStatusQueryParamsType;
+  Errors: FindPetsByStatus400Type;
+};
 
-export type FindPetsByStatusQueryResponseType = FindPetsByStatus200Type
+export type FindPetsByStatusQueryResponseType = FindPetsByStatus200Type;

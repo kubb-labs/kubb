@@ -3,50 +3,51 @@
  * Do not edit manually.
  */
 
-import type { CategoryType } from './CategoryType.ts'
-import type { TagType } from './TagType.ts'
+import type { CategoryType } from "./CategoryType.ts";
+import type { TagType } from "./TagType.ts";
 
 export const petStatusEnum = {
-  available: 'available',
-  pending: 'pending',
-  sold: 'sold',
-} as const
+  available: "available",
+  pending: "pending",
+  sold: "sold",
+} as const;
 
-export type PetStatusEnumTypeKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
+export type PetStatusEnumTypeKey =
+  (typeof petStatusEnum)[keyof typeof petStatusEnum];
 
 export type PetType = {
   /**
    * @example 10
    * @type integer | undefined
    */
-  id?: number
+  id?: number;
   /**
    * @type array | undefined
    */
-  parent?: PetType[]
+  parent?: PetType[];
   /**
    * @pattern ^[0-9]{1,19}$
    * @example 10
    * @type string | undefined
    */
-  internalId?: string
+  internalId?: string;
   /**
    * @example doggie
    * @type string
    */
-  name: string
-  category?: CategoryType
+  name: string;
+  category?: CategoryType;
   /**
    * @type array
    */
-  photoUrls: string[]
+  photoUrls: string[];
   /**
    * @type array | undefined
    */
-  tags?: TagType[]
+  tags?: TagType[];
   /**
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: PetStatusEnumTypeKey
-}
+  status?: PetStatusEnumTypeKey;
+};
