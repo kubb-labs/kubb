@@ -405,12 +405,16 @@ function inputToAdapterSource(config: Config): AdapterSource {
   if (Array.isArray(config.input)) {
     return {
       type: 'paths',
-      paths: config.input.map((i) => resolve(config.root, i.path)),
+      paths: config.input.map((i) => (new URLPath(i.path).isURL ? i.path : resolve(config.root, i.path))),
     }
   }
 
   if ('data' in config.input) {
     return { type: 'data', data: config.input.data }
+  }
+
+  if (new URLPath(config.input.path).isURL) {
+    return { type: 'path', path: config.input.path }
   }
 
   const resolved = resolve(config.root, config.input.path)
