@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import type { TagTag } from '../../models/ts/tag/Tag.ts'
+import { faker } from '@faker-js/faker'
 
 export function createTagTagFaker(data?: Partial<TagTag>): TagTag {
   return {

@@ -59,7 +59,7 @@ describe('buildDataSchemaNode', () => {
   })
 
   it('emits data? referencing the Data type when body exists', () => {
-    const node = createOperation({ operationId: 'createPet', method: 'POST', path: '/pets', requestBody: createSchema({ type: 'object' }) })
+    const node = createOperation({ operationId: 'createPet', method: 'POST', path: '/pets', requestBody: { schema: createSchema({ type: 'object' }) } })
 
     expect(printSchema(buildDataSchemaNode({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{

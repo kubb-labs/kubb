@@ -52,11 +52,13 @@ describe('typeGenerator v2 — Operation', () => {
         method: 'POST',
         path: '/pets',
         tags: ['pets'],
-        requestBody: createSchema({
-          type: 'object',
-          properties: [],
-          description: 'Pet to add',
-        }),
+        requestBody: {
+          schema: createSchema({
+            type: 'object',
+            properties: [],
+            description: 'Pet to add',
+          }),
+        },
         responses: [
           createResponse({ statusCode: '201', schema: createSchema({ type: 'object', properties: [] }), description: 'Null response' }),
           createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
@@ -71,7 +73,7 @@ describe('typeGenerator v2 — Operation', () => {
         path: '/store/order/:orderId',
         tags: ['store'],
         parameters: [createParameter({ name: 'orderId', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
-        requestBody: createSchema({ type: 'object', properties: [], description: 'Order payload' }),
+        requestBody: { schema: createSchema({ type: 'object', properties: [], description: 'Order payload' }) },
         responses: [
           createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
           createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),

@@ -95,7 +95,7 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
     case 'Root':
       return [...node.schemas, ...node.operations]
     case 'Operation':
-      return [...node.parameters, ...(node.requestBody ? [node.requestBody] : []), ...node.responses]
+      return [...node.parameters, ...(node.requestBody?.schema ? [node.requestBody.schema] : []), ...node.responses]
     case 'Schema': {
       const children: Array<Node> = []
 
@@ -197,7 +197,7 @@ export function transform(node: Node, visitor: Visitor, options: VisitorOptions 
       return {
         ...op,
         parameters: op.parameters.map((p) => transform(p, visitor, options)),
-        requestBody: op.requestBody ? transform(op.requestBody, visitor, options) : undefined,
+        requestBody: op.requestBody ? { ...op.requestBody, schema: op.requestBody.schema ? transform(op.requestBody.schema, visitor, options) : undefined } : undefined,
         responses: op.responses.map((r) => transform(r, visitor, options)),
       }
     }

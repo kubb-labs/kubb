@@ -8,31 +8,31 @@ export type UpdatePetWithFormPathParamsType = {
    * @description ID of pet that needs to be updated
    * @type integer
    */
-  petId: number
-}
+  petId: number;
+};
 
 export type UpdatePetWithFormQueryParamsType = {
   /**
    * @description Name of pet that needs to be updated
    * @type string | undefined
    */
-  name?: string
+  name?: string;
   /**
    * @description Status of pet that needs to be updated
    * @type string | undefined
    */
-  status?: string
-}
+  status?: string;
+};
 
 /**
  * @description Invalid input
  */
-export type UpdatePetWithForm405Type = any
+export type UpdatePetWithForm405Type = any;
 
 export type UpdatePetWithFormMutationType = {
-  Response: any
-  PathParams: UpdatePetWithFormPathParamsType
-  Errors: UpdatePetWithForm405Type
-}
+  Response: any;
+  PathParams: UpdatePetWithFormPathParamsType;
+  Errors: UpdatePetWithForm405Type;
+};
 
-export type UpdatePetWithFormMutationResponseType = any
+export type UpdatePetWithFormMutationResponseType = any;

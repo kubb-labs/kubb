@@ -98,13 +98,13 @@ export const typeGenerator = defineGenerator<PluginTs>({
           }),
         )
 
-    const requestType = node.requestBody
+    const requestType = node.requestBody?.schema
       ? renderSchemaType({
-          node: legacy ? nameUnnamedEnums(node.requestBody, resolver.resolveDataName(node)) : node.requestBody,
+          node: legacy ? nameUnnamedEnums(node.requestBody.schema, resolver.resolveDataName(node)) : node.requestBody.schema,
           name: resolver.resolveDataName(node),
           typedName: resolver.resolveDataTypedName(node),
-          description: node.requestBody.description,
-          keysToOmit: node.requestBodyKeysToOmit,
+          description: node.requestBody.schema.description,
+          keysToOmit: node.requestBody.keysToOmit,
         })
       : null
 

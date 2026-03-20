@@ -4,19 +4,21 @@
  */
 
 export const orderStatusEnum = {
-  placed: 'placed',
-  approved: 'approved',
-  delivered: 'delivered',
-} as const
+  placed: "placed",
+  approved: "approved",
+  delivered: "delivered",
+} as const;
 
-export type OrderStatusEnumTypeKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
+export type OrderStatusEnumTypeKey =
+  (typeof orderStatusEnum)[keyof typeof orderStatusEnum];
 
 export const orderHttpStatusEnum = {
   ok: 200,
   not_found: 400,
-} as const
+} as const;
 
-export type OrderHttpStatusEnumTypeKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
+export type OrderHttpStatusEnumTypeKey =
+  (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum];
 
 export const orderValueEnum = {
   FIRST_VALUE: 0,
@@ -25,50 +27,51 @@ export const orderValueEnum = {
   ONE_MORE: 3,
   ALMOST_FINISHED: 3.5,
   DONE: 4,
-} as const
+} as const;
 
-export type OrderValueEnumTypeKey = (typeof orderValueEnum)[keyof typeof orderValueEnum]
+export type OrderValueEnumTypeKey =
+  (typeof orderValueEnum)[keyof typeof orderValueEnum];
 
 export type OrderType = {
   /**
    * @example 10
    * @type integer | undefined
    */
-  id?: number
+  id?: number;
   /**
    * @example 198772
    * @type integer | undefined
    */
-  petId?: number
+  petId?: number;
   /**
    * @example 7
    * @type integer | undefined
    */
-  quantity?: number
+  quantity?: number;
   /**
    * @type string | undefined
    */
-  shipDate?: string
+  shipDate?: string;
   /**
    * @description Order Status
    * @example approved
    * @type string | undefined
    */
-  status?: OrderStatusEnumTypeKey
+  status?: OrderStatusEnumTypeKey;
   /**
    * @description HTTP Status
    * @example 200
    * @type number | undefined
    */
-  http_status?: OrderHttpStatusEnumTypeKey
+  http_status?: OrderHttpStatusEnumTypeKey;
   /**
    * @description Price
    * @example 2
    * @type number | undefined
    */
-  value?: OrderValueEnumTypeKey
+  value?: OrderValueEnumTypeKey;
   /**
    * @type boolean | undefined
    */
-  complete?: boolean
-}
+  complete?: boolean;
+};

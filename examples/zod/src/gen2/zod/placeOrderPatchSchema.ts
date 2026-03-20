@@ -3,19 +3,21 @@
  * Do not edit manually.
  */
 
-import * as z from 'zod/mini'
-import { orderSchema } from './orderSchema.ts'
+import * as z from "zod/mini";
+import { orderSchema } from "./orderSchema.ts";
 
 /**
  * @description successful operation
  */
-export const placeOrderPatch200Schema = z.lazy(() => orderSchema)
+export const placeOrderPatch200Schema = z.lazy(() => orderSchema);
 
 /**
  * @description Invalid input
  */
-export const placeOrderPatch405Schema = z.any()
+export const placeOrderPatch405Schema = z.any();
 
-export const placeOrderPatchMutationRequestSchema = z.lazy(() => orderSchema)
+export const placeOrderPatchMutationRequestSchema = z.lazy(() => orderSchema);
 
-export const placeOrderPatchMutationResponseSchema = z.lazy(() => placeOrderPatch200Schema)
+export const placeOrderPatchMutationResponseSchema = z.lazy(
+  () => placeOrderPatch200Schema,
+);

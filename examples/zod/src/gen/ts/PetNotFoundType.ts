@@ -7,9 +7,9 @@ export type PetNotFoundType = {
   /**
    * @type integer | undefined
    */
-  code?: number
+  code?: number;
   /**
    * @type string | undefined
    */
-  message?: string
-}
+  message?: string;
+};

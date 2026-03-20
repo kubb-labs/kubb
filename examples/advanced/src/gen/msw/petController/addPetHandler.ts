@@ -1,5 +1,5 @@
-import { http } from 'msw'
 import type { AddPet405 } from '../../models/ts/petController/AddPet.ts'
+import { http } from 'msw'
 
 export function addPetHandlerResponse405(data: AddPet405) {
   return new Response(JSON.stringify(data), {
