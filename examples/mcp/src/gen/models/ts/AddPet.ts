@@ -9,7 +9,7 @@ import type { Pet } from './Pet.js'
 /**
  * @description Successful operation
  */
-export type AddPet200 = Pet
+export type AddPet200 = Omit<NonNullable<Pet>, 'name'>
 
 /**
  * @description Pet not found

@@ -8,7 +8,7 @@ import type { Pet } from './Pet.js'
 /**
  * @description Successful operation
  */
-export type UpdatePet200 = Pet
+export type UpdatePet200 = Omit<NonNullable<Pet>, 'name'>
 
 /**
  * @description accepted operation
@@ -36,7 +36,7 @@ export type UpdatePet404 = any
  */
 export type UpdatePet405 = any
 
-export type UpdatePetMutationRequest = Pet
+export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'id'>
 
 export type UpdatePetMutation = {
   Response: UpdatePet200 | UpdatePet202
