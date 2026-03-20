@@ -58,7 +58,7 @@ export function buildDataSchemaNode({ node, resolver }: BuildOperationSchemaOpti
         schema: node.requestBody
           ? createSchema({
               type: 'ref',
-              name: resolver.resolveDataName(node),
+              name: resolver.resolveDataTypedName(node),
               optional: true,
             })
           : createSchema({ type: 'never', optional: true }),
@@ -106,7 +106,7 @@ export function buildResponsesSchemaNode({ node, resolver }: BuildOperationSchem
         name: String(res.statusCode),
         schema: createSchema({
           type: 'ref',
-          name: resolver.resolveResponseStatusName(node, res.statusCode),
+          name: resolver.resolveResponseStatusTypedName(node, res.statusCode),
         }),
       }),
     ),
@@ -129,7 +129,7 @@ export function buildResponseUnionSchemaNode({ node, resolver }: BuildOperationS
     members: responsesWithSchema.map((res) =>
       createSchema({
         type: 'ref',
-        name: resolver.resolveResponseStatusName(node, res.statusCode),
+        name: resolver.resolveResponseStatusTypedName(node, res.statusCode),
       }),
     ),
   })
@@ -185,20 +185,20 @@ export function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperatio
   const responseSchema =
     successResponses.length > 0
       ? successResponses.length === 1
-        ? createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, successResponses[0]!.statusCode) })
+        ? createSchema({ type: 'ref', name: resolver.resolveResponseStatusTypedName(node, successResponses[0]!.statusCode) })
         : createSchema({
             type: 'union',
-            members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
+            members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusTypedName(node, res.statusCode) })),
           })
       : createSchema({ type: 'any' })
 
   const errorsSchema =
     errorResponses.length > 0
       ? errorResponses.length === 1
-        ? createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, errorResponses[0]!.statusCode) })
+        ? createSchema({ type: 'ref', name: resolver.resolveResponseStatusTypedName(node, errorResponses[0]!.statusCode) })
         : createSchema({
             type: 'union',
-            members: errorResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
+            members: errorResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusTypedName(node, res.statusCode) })),
           })
       : createSchema({ type: 'any' })
 
@@ -208,14 +208,14 @@ export function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperatio
     properties.push(
       createProperty({
         name: 'Request',
-        schema: createSchema({ type: 'ref', name: resolver.resolveDataName(node) }),
+        schema: createSchema({ type: 'ref', name: resolver.resolveDataTypedName(node) }),
       }),
     )
   } else if (isGet && node.parameters.some((p) => p.in === 'query')) {
     properties.push(
       createProperty({
         name: 'QueryParams',
-        schema: createSchema({ type: 'ref', name: resolver.resolveQueryParamsName!(node) }),
+        schema: createSchema({ type: 'ref', name: resolver.resolveQueryParamsTypedName!(node) }),
       }),
     )
   }
@@ -242,12 +242,12 @@ export function buildLegacyResponseUnionSchemaNode({ node, resolver }: BuildOper
   }
 
   if (successResponses.length === 1) {
-    return createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, successResponses[0]!.statusCode) })
+    return createSchema({ type: 'ref', name: resolver.resolveResponseStatusTypedName(node, successResponses[0]!.statusCode) })
   }
 
   return createSchema({
     type: 'union',
-    members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
+    members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusTypedName(node, res.statusCode) })),
   })
 }
 

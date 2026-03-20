@@ -29,8 +29,8 @@ export type GetUserByName400Type = any
 export type GetUserByName404Type = any
 
 export type GetUserByNameQueryType = {
-  Response: GetUserByName200TypeType
-  Errors: GetUserByName400TypeType | GetUserByName404TypeType
+  Response: GetUserByName200Type
+  Errors: GetUserByName400Type | GetUserByName404Type
 }
 
-export type GetUserByNameQueryResponseType = GetUserByName200TypeType
+export type GetUserByNameQueryResponseType = GetUserByName200Type

@@ -25,7 +25,7 @@ export type DeletePet400Type = any
 
 export type DeletePetMutationType = {
   Response: any
-  Errors: DeletePet400TypeType
+  Errors: DeletePet400Type
 }
 
 export type DeletePetMutationResponseType = any

@@ -29,9 +29,9 @@ export type UploadFile200Type = ApiResponseType
 export type UploadFileMutationRequestType = Blob
 
 export type UploadFileMutationType = {
-  Response: UploadFile200TypeType
-  Request: UploadFileMutationRequestTypeType
+  Response: UploadFile200Type
+  Request: UploadFileMutationRequestType
   Errors: any
 }
 
-export type UploadFileMutationResponseType = UploadFile200TypeType
+export type UploadFileMutationResponseType = UploadFile200Type

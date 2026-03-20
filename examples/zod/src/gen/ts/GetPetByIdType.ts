@@ -29,8 +29,8 @@ export type GetPetById400Type = any
 export type GetPetById404Type = any
 
 export type GetPetByIdQueryType = {
-  Response: GetPetById200TypeType
-  Errors: GetPetById400TypeType | GetPetById404TypeType
+  Response: GetPetById200Type
+  Errors: GetPetById400Type | GetPetById404Type
 }
 
-export type GetPetByIdQueryResponseType = GetPetById200TypeType
+export type GetPetByIdQueryResponseType = GetPetById200Type

@@ -34,9 +34,9 @@ export type GetThings201Type = any
 export type GetThingsErrorType = PetNotFoundType
 
 export type GetThingsQueryType = {
-  Response: GetThings201TypeType
-  QueryParams: GetThingsQueryParamsTypeType
-  Errors: GetThingsErrorTypeType
+  Response: GetThings201Type
+  QueryParams: GetThingsQueryParamsType
+  Errors: GetThingsErrorType
 }
 
-export type GetThingsQueryResponseType = GetThings201TypeType
+export type GetThingsQueryResponseType = GetThings201Type

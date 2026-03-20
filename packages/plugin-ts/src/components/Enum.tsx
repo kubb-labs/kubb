@@ -1,27 +1,31 @@
-import { camelCase, pascalCase, trimQuotes } from '@internals/utils'
+import { camelCase, trimQuotes } from '@internals/utils'
 import type { EnumSchemaNode } from '@kubb/ast/types'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import { File } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import { ENUM_TYPES_WITH_KEY_SUFFIX, ENUM_TYPES_WITH_RUNTIME_VALUE, ENUM_TYPES_WITH_TYPE_ONLY } from '../constants.ts'
 import * as factory from '../factory.ts'
-import type { PluginTs } from '../types.ts'
+import type { PluginTs, ResolverTs } from '../types.ts'
 
 type Props = {
   node: EnumSchemaNode
   enumType: PluginTs['resolvedOptions']['enumType']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
+  resolver: ResolverTs
 }
 
 /**
  * Resolves the runtime identifier name and the TypeScript type name for an enum schema node.
  *
  * The raw `node.name` may be a YAML key such as `"enumNames.Type"` which is not a
- * valid TypeScript identifier. `pascalCase` normalizes it unconditionally; for inline enum
- * properties the adapter already emits a PascalCase+suffix name so `pascalCase` is a no-op.
+ * valid TypeScript identifier. The resolver normalizes it; for inline enum
+ * properties the adapter already emits a PascalCase+suffix name so resolution is typically a no-op.
  */
-export function getEnumNames(node: EnumSchemaNode, enumType: PluginTs['resolvedOptions']['enumType']): { enumName: string; typeName: string } {
-  const resolved = pascalCase(node.name!)
+export function getEnumNames({ node, enumType, resolver }: { node: EnumSchemaNode; enumType: PluginTs['resolvedOptions']['enumType']; resolver: ResolverTs }): {
+  enumName: string
+  typeName: string
+} {
+  const resolved = resolver.default(node.name!, 'type')
   const enumName = enumType === 'asPascalConst' ? resolved : camelCase(node.name!)
   const typeName = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) ? `${resolved}Key` : resolved
 
@@ -39,8 +43,8 @@ export function getEnumNames(node: EnumSchemaNode, enumType: PluginTs['resolvedO
  * The emitted `File.Source` nodes carry the resolved names so that the barrel
  * index picks up the correct export identifiers.
  */
-export function Enum({ node, enumType, enumKeyCasing }: Props): FabricReactNode {
-  const { enumName, typeName } = getEnumNames(node, enumType)
+export function Enum({ node, enumType, enumKeyCasing, resolver }: Props): FabricReactNode {
+  const { enumName, typeName } = getEnumNames({ node, enumType, resolver })
 
   const [nameNode, typeNode] = factory.createEnumDeclaration({
     name: enumName,

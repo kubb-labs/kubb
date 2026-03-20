@@ -14,8 +14,8 @@ export type CreateUserMutationRequestType = UserType
 
 export type CreateUserMutationType = {
   Response: any
-  Request: CreateUserMutationRequestTypeType
-  Errors: CreateUserErrorTypeType
+  Request: CreateUserMutationRequestType
+  Errors: CreateUserErrorType
 }
 
 export type CreateUserMutationResponseType = any

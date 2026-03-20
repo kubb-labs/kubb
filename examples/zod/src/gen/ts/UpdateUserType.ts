@@ -22,8 +22,8 @@ export type UpdateUserMutationRequestType = UserType
 
 export type UpdateUserMutationType = {
   Response: any
-  Request: UpdateUserMutationRequestTypeType
-  Errors: UpdateUserErrorTypeType
+  Request: UpdateUserMutationRequestType
+  Errors: UpdateUserErrorType
 }
 
 export type UpdateUserMutationResponseType = any

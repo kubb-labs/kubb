@@ -27,7 +27,7 @@ export const createPetsHeaderParamsTypeXEXAMPLEEnum = {
   THREE: 'THREE',
 } as const
 
-export type CreatePetsHeaderParamsTypeXEXAMPLEEnumKey = (typeof createPetsHeaderParamsTypeXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsTypeXEXAMPLEEnum]
+export type CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey = (typeof createPetsHeaderParamsTypeXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsTypeXEXAMPLEEnum]
 
 export type CreatePetsHeaderParamsType = {
   /**
@@ -59,9 +59,9 @@ export type CreatePetsMutationRequestType = {
 }
 
 export type CreatePetsMutationType = {
-  Response: CreatePets201TypeType
-  Request: CreatePetsMutationRequestTypeType
-  Errors: CreatePetsErrorTypeType
+  Response: CreatePets201Type
+  Request: CreatePetsMutationRequestType
+  Errors: CreatePetsErrorType
 }
 
-export type CreatePetsMutationResponseType = CreatePets201TypeType
+export type CreatePetsMutationResponseType = CreatePets201Type

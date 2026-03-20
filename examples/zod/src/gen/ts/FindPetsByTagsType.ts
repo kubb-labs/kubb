@@ -29,7 +29,7 @@ export const findPetsByTagsHeaderParamsTypeXEXAMPLEEnum = {
   THREE: 'THREE',
 } as const
 
-export type FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumKey =
+export type FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumTypeKey =
   (typeof findPetsByTagsHeaderParamsTypeXEXAMPLEEnum)[keyof typeof findPetsByTagsHeaderParamsTypeXEXAMPLEEnum]
 
 export type FindPetsByTagsHeaderParamsType = {
@@ -51,9 +51,9 @@ export type FindPetsByTags200Type = PetType[]
 export type FindPetsByTags400Type = any
 
 export type FindPetsByTagsQueryType = {
-  Response: FindPetsByTags200TypeType
-  QueryParams: FindPetsByTagsQueryParamsTypeType
-  Errors: FindPetsByTags400TypeType
+  Response: FindPetsByTags200Type
+  QueryParams: FindPetsByTagsQueryParamsType
+  Errors: FindPetsByTags400Type
 }
 
-export type FindPetsByTagsQueryResponseType = FindPetsByTags200TypeType
+export type FindPetsByTagsQueryResponseType = FindPetsByTags200Type

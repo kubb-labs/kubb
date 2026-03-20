@@ -23,7 +23,7 @@ export type DeleteOrder404Type = any
 
 export type DeleteOrderMutationType = {
   Response: any
-  Errors: DeleteOrder400TypeType | DeleteOrder404TypeType
+  Errors: DeleteOrder400Type | DeleteOrder404Type
 }
 
 export type DeleteOrderMutationResponseType = any

@@ -31,7 +31,7 @@ export type UpdatePetWithForm405Type = any
 
 export type UpdatePetWithFormMutationType = {
   Response: any
-  Errors: UpdatePetWithForm405TypeType
+  Errors: UpdatePetWithForm405Type
 }
 
 export type UpdatePetWithFormMutationResponseType = any

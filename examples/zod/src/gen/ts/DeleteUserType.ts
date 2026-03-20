@@ -23,7 +23,7 @@ export type DeleteUser404Type = any
 
 export type DeleteUserMutationType = {
   Response: any
-  Errors: DeleteUser400TypeType | DeleteUser404TypeType
+  Errors: DeleteUser400Type | DeleteUser404Type
 }
 
 export type DeleteUserMutationResponseType = any

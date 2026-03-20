@@ -11,8 +11,8 @@ export type GetInventory200Type = {
 }
 
 export type GetInventoryQueryType = {
-  Response: GetInventory200TypeType
+  Response: GetInventory200Type
   Errors: any
 }
 
-export type GetInventoryQueryResponseType = GetInventory200TypeType
+export type GetInventoryQueryResponseType = GetInventory200Type

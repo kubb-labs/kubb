@@ -29,8 +29,8 @@ export type GetOrderById400Type = any
 export type GetOrderById404Type = any
 
 export type GetOrderByIdQueryType = {
-  Response: GetOrderById200TypeType
-  Errors: GetOrderById400TypeType | GetOrderById404TypeType
+  Response: GetOrderById200Type
+  Errors: GetOrderById400Type | GetOrderById404Type
 }
 
-export type GetOrderByIdQueryResponseType = GetOrderById200TypeType
+export type GetOrderByIdQueryResponseType = GetOrderById200Type

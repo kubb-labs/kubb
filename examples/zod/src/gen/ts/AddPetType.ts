@@ -28,9 +28,9 @@ export type AddPet405Type = {
 export type AddPetMutationRequestType = AddPetRequestType
 
 export type AddPetMutationType = {
-  Response: AddPet200TypeType
-  Request: AddPetMutationRequestTypeType
-  Errors: AddPet405TypeType
+  Response: AddPet200Type
+  Request: AddPetMutationRequestType
+  Errors: AddPet405Type
 }
 
-export type AddPetMutationResponseType = AddPet200TypeType
+export type AddPetMutationResponseType = AddPet200Type

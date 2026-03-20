@@ -239,7 +239,10 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         if (!node.name) {
           return undefined
         }
-        return factory.createTypeReferenceNode(this.options.resolver.default(node.name, 'type'), undefined)
+        // Parser-generated refs (with $ref) carry raw schema names that need resolving.
+        // Inline refs (without $ref) from utils already carry resolved type names.
+        const name = node.ref ? this.options.resolver.default(node.name, 'type') : node.name
+        return factory.createTypeReferenceNode(name, undefined)
       },
       enum(node) {
         const values = node.namedEnumValues?.map((v) => v.value) ?? node.enumValues ?? []
