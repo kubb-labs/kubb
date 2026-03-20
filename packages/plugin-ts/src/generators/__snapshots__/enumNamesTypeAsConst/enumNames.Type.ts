@@ -10,3 +10,5 @@ export const enumNamesType = {
 } as const
 
 export type EnumNamesTypeKey = (typeof enumNamesType)[keyof typeof enumNamesType]
+
+export type EnumNamesType = EnumNamesTypeKey
