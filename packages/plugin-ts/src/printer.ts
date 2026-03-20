@@ -240,8 +240,12 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
           return undefined
         }
         // Parser-generated refs (with $ref) carry raw schema names that need resolving.
+        // Use the canonical name from the $ref path — node.name may have been overridden
+        // (e.g. by single-member allOf flatten using the property-derived child name).
         // Inline refs (without $ref) from utils already carry resolved type names.
-        const name = node.ref ? this.options.resolver.default(node.name, 'type') : node.name
+        const refName = node.ref ? (node.ref.split('/').at(-1) ?? node.name) : node.name
+        const name = node.ref ? this.options.resolver.default(refName, 'type') : refName
+
         return factory.createTypeReferenceNode(name, undefined)
       },
       enum(node) {
