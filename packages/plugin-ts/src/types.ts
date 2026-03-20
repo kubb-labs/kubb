@@ -9,7 +9,7 @@ import type { Generator } from '@kubb/plugin-oas/generators'
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
  * plugin-specific naming helpers for operations, parameters, responses, and schemas.
  */
-type ResolverTs = Resolver & {
+export type ResolverTs = Resolver & {
   /**
    * Resolves the variable/function name for a given raw name (equivalent to `default(name, 'function')`).
    * Use this shorthand when matching the `name` field produced by the v2 TypeGenerator,

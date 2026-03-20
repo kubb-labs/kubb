@@ -2,15 +2,8 @@ import { createOperation, createParameter, createResponse, createSchema } from '
 import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 import { printerTs } from '../printer.ts'
+import { resolverTs } from '../resolverTs.ts'
 import { buildDataSchemaNode, buildParamsSchema, buildResponsesSchemaNode, buildResponseUnionSchemaNode } from './utils.ts'
-
-const resolveName = ({ name, type }: { name: string; type: 'type' | 'function' }) => {
-  const words = name.split(/\s+/)
-  if (type === 'function') {
-    return words.map((w, i) => (i === 0 ? w[0]!.toLowerCase() + w.slice(1) : w[0]!.toUpperCase() + w.slice(1))).join('')
-  }
-  return words.map((w) => w[0]!.toUpperCase() + w.slice(1)).join('')
-}
 
 const printer = printerTs({ optionalType: 'questionToken', arrayType: 'array', enumType: 'inlineLiteral' })
 const tsPrinter = ts.createPrinter()
@@ -27,20 +20,22 @@ function printSchema(schema: ReturnType<typeof buildParamsSchema>): string {
 describe('buildParamsSchema', () => {
   it('builds required params as non-optional properties', () => {
     const params = [createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })]
+    const node = createOperation({ operationId: 'showPetById', method: 'GET', path: '/pets/:petId' })
 
-    expect(printSchema(buildParamsSchema({ params, operationId: 'showPetById', resolveName }))).toMatchInlineSnapshot(`
+    expect(printSchema(buildParamsSchema({ params, node, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
-          petId: showPetByIdPathPetId;
+          petId: ShowPetByIdPathPetId;
       }"
     `)
   })
 
   it('marks optional params with ?', () => {
     const params = [createParameter({ name: 'limit', schema: createSchema({ type: 'integer' }), in: 'query', required: false })]
+    const node = createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
 
-    expect(printSchema(buildParamsSchema({ params, operationId: 'listPets', resolveName }))).toMatchInlineSnapshot(`
+    expect(printSchema(buildParamsSchema({ params, node, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
-          limit?: listPetsQueryLimit;
+          limit?: ListPetsQueryLimit;
       }"
     `)
   })
@@ -52,7 +47,7 @@ describe('buildDataSchemaNode', () => {
   it('emits data?: never when no request body', () => {
     const node = createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
 
-    expect(printSchema(buildDataSchemaNode({ node, resolveName }))).toMatchInlineSnapshot(`
+    expect(printSchema(buildDataSchemaNode({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
           data?: never;
           pathParams?: never;
@@ -63,12 +58,12 @@ describe('buildDataSchemaNode', () => {
     `)
   })
 
-  it('emits data? referencing the MutationRequest type when body exists', () => {
+  it('emits data? referencing the Data type when body exists', () => {
     const node = createOperation({ operationId: 'createPet', method: 'POST', path: '/pets', requestBody: createSchema({ type: 'object' }) })
 
-    expect(printSchema(buildDataSchemaNode({ node, resolveName }))).toMatchInlineSnapshot(`
+    expect(printSchema(buildDataSchemaNode({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
-          data?: createPetData;
+          data?: CreatePetData;
           pathParams?: never;
           queryParams?: never;
           headerParams?: never;
@@ -85,11 +80,11 @@ describe('buildDataSchemaNode', () => {
       parameters: [createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })],
     })
 
-    expect(printSchema(buildDataSchemaNode({ node, resolveName }))).toMatchInlineSnapshot(`
+    expect(printSchema(buildDataSchemaNode({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
           data?: never;
           pathParams: {
-              petId: showPetByIdPathPetId;
+              petId: ShowPetByIdPathPetId;
           };
           queryParams?: never;
           headerParams?: never;
@@ -105,12 +100,12 @@ describe('buildDataSchemaNode', () => {
       parameters: [createParameter({ name: 'limit', schema: createSchema({ type: 'integer' }), in: 'query', required: false })],
     })
 
-    expect(printSchema(buildDataSchemaNode({ node, resolveName }))).toMatchInlineSnapshot(`
+    expect(printSchema(buildDataSchemaNode({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
           data?: never;
           pathParams?: never;
           queryParams?: {
-              limit?: listPetsQueryLimit;
+              limit?: ListPetsQueryLimit;
           };
           headerParams?: never;
           url: "/pets";
@@ -127,12 +122,12 @@ describe('buildDataSchemaNode', () => {
       ],
     })
 
-    expect(printSchema(buildDataSchemaNode({ node, resolveName }))).toMatchInlineSnapshot(`
+    expect(printSchema(buildDataSchemaNode({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
           data?: never;
           pathParams?: never;
           queryParams?: {
-              limit?: listPetsQueryLimit;
+              limit?: ListPetsQueryLimit;
           };
           headerParams?: never;
           url: "/pets";
@@ -153,10 +148,10 @@ describe('buildResponsesSchemaNode', () => {
       ],
     })
 
-    expect(printSchema(buildResponsesSchemaNode({ node, resolveName })!)).toMatchInlineSnapshot(`
+    expect(printSchema(buildResponsesSchemaNode({ node, resolver: resolverTs })!)).toMatchInlineSnapshot(`
       "{
-          "200": listPetsStatus200;
-          default: listPetsStatusDefault;
+          "200": ListPetsStatus200;
+          default: ListPetsStatusDefault;
       }"
     `)
   })
@@ -174,6 +169,6 @@ describe('buildResponseUnionSchemaNode', () => {
       ],
     })
 
-    expect(printSchema(buildResponseUnionSchemaNode({ node, resolveName })!)).toMatchInlineSnapshot(`"(listPetsStatus200 | listPetsStatus405)"`)
+    expect(printSchema(buildResponseUnionSchemaNode({ node, resolver: resolverTs })!)).toMatchInlineSnapshot(`"(ListPetsStatus200 | ListPetsStatus405)"`)
   })
 })

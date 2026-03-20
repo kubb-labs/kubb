@@ -656,7 +656,10 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
           const required = Array.isArray(schema.required) ? schema.required.includes(propName) : !!schema.required
           const resolvedPropSchema = propSchema as SchemaObject
           const propNullable = isNullable(resolvedPropSchema)
-          const basePropName = name ? pascalCase([name, propName].join(' ')) : undefined
+          // When collisionDetection is false, don't accumulate parent name segments — use only
+          // the immediate property key. This matches the legacy behavior where nested enum names
+          // are based only on the nearest property context (e.g. ParamsStatusEnum, not OrderParamsStatusEnum).
+          const basePropName = collisionDetection ? (name ? pascalCase([name, propName].join(' ')) : undefined) : pascalCase(propName)
           const propNode = convertSchema({ schema: resolvedPropSchema, name: basePropName }, options)
           const isEnumNode = !!narrowSchema(propNode, 'enum')
           const derivedPropName = isEnumNode && name ? pascalCase([name, propName, mergedOptions.enumSuffix].filter(Boolean).join(' ')) : basePropName

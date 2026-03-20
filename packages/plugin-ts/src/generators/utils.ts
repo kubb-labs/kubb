@@ -1,13 +1,11 @@
-import { pascalCase } from '@internals/utils'
 import { createProperty, createSchema } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
-
-type ResolveName = (opts: { name: string; type: 'type' | 'function' }) => string
+import type { ResolverTs } from '../types.ts'
 
 type BuildParamsSchemaOptions = {
   params: Array<ParameterNode>
-  operationId: string
-  resolveName: ResolveName
+  node: OperationNode
+  resolver: ResolverTs
 }
 
 /**
@@ -16,7 +14,7 @@ type BuildParamsSchemaOptions = {
  * The ref name includes the parameter location so generated type names follow
  * the `<OperationId><Location><ParamName>` convention.
  */
-export function buildParamsSchema({ params, operationId, resolveName }: BuildParamsSchemaOptions): SchemaNode {
+export function buildParamsSchema({ params, node, resolver }: BuildParamsSchemaOptions): SchemaNode {
   return createSchema({
     type: 'object',
     properties: params.map((param) =>
@@ -24,7 +22,7 @@ export function buildParamsSchema({ params, operationId, resolveName }: BuildPar
         name: param.name,
         schema: createSchema({
           type: 'ref',
-          name: resolveName({ name: `${operationId} ${pascalCase(param.in)} ${param.name}`, type: 'function' }),
+          name: resolver.resolveParamName(node, param),
           optional: !param.required,
         }),
       }),
@@ -34,7 +32,7 @@ export function buildParamsSchema({ params, operationId, resolveName }: BuildPar
 
 type BuildOperationSchemaOptions = {
   node: OperationNode
-  resolveName: ResolveName
+  resolver: ResolverTs
 }
 
 /**
@@ -45,7 +43,7 @@ type BuildOperationSchemaOptions = {
  * - `headerParams` → inline object of header param refs (optional), or `never`
  * - `url`          → Express-style template literal (plugin-ts extension, handled by printer)
  */
-export function buildDataSchemaNode({ node, resolveName }: BuildOperationSchemaOptions): SchemaNode {
+export function buildDataSchemaNode({ node, resolver }: BuildOperationSchemaOptions): SchemaNode {
   const pathParams = node.parameters.filter((p) => p.in === 'path')
   const queryParams = node.parameters.filter((p) => p.in === 'query')
   const headerParams = node.parameters.filter((p) => p.in === 'header')
@@ -59,30 +57,27 @@ export function buildDataSchemaNode({ node, resolveName }: BuildOperationSchemaO
         schema: node.requestBody
           ? createSchema({
               type: 'ref',
-              name: resolveName({ name: `${node.operationId} Data`, type: 'function' }),
+              name: resolver.resolveDataName(node),
               optional: true,
             })
           : createSchema({ type: 'never', optional: true }),
       }),
       createProperty({
         name: 'pathParams',
-        schema:
-          pathParams.length > 0
-            ? buildParamsSchema({ params: pathParams, operationId: node.operationId, resolveName })
-            : createSchema({ type: 'never', optional: true }),
+        schema: pathParams.length > 0 ? buildParamsSchema({ params: pathParams, node, resolver }) : createSchema({ type: 'never', optional: true }),
       }),
       createProperty({
         name: 'queryParams',
         schema:
           queryParams.length > 0
-            ? createSchema({ ...buildParamsSchema({ params: queryParams, operationId: node.operationId, resolveName }), optional: true })
+            ? createSchema({ ...buildParamsSchema({ params: queryParams, node, resolver }), optional: true })
             : createSchema({ type: 'never', optional: true }),
       }),
       createProperty({
         name: 'headerParams',
         schema:
           headerParams.length > 0
-            ? createSchema({ ...buildParamsSchema({ params: headerParams, operationId: node.operationId, resolveName }), optional: true })
+            ? createSchema({ ...buildParamsSchema({ params: headerParams, node, resolver }), optional: true })
             : createSchema({ type: 'never', optional: true }),
       }),
       createProperty({
@@ -98,7 +93,7 @@ export function buildDataSchemaNode({ node, resolveName }: BuildOperationSchemaO
  * Numeric status codes produce unquoted numeric keys (e.g. `200:`).
  * All responses are included; those without a schema are represented as a ref to a `never` type.
  */
-export function buildResponsesSchemaNode({ node, resolveName }: BuildOperationSchemaOptions): SchemaNode | null {
+export function buildResponsesSchemaNode({ node, resolver }: BuildOperationSchemaOptions): SchemaNode | null {
   if (node.responses.length === 0) {
     return null
   }
@@ -110,7 +105,7 @@ export function buildResponsesSchemaNode({ node, resolveName }: BuildOperationSc
         name: String(res.statusCode),
         schema: createSchema({
           type: 'ref',
-          name: resolveName({ name: `${node.operationId} Status ${res.statusCode}`, type: 'function' }),
+          name: resolver.resolveResponseStatusName(node, res.statusCode),
         }),
       }),
     ),
@@ -121,7 +116,7 @@ export function buildResponsesSchemaNode({ node, resolveName }: BuildOperationSc
  * Builds a `UnionSchemaNode` representing `<OperationId>Response` — all response types in union format.
  * Returns `null` when the operation has no responses with schemas.
  */
-export function buildResponseUnionSchemaNode({ node, resolveName }: BuildOperationSchemaOptions): SchemaNode | null {
+export function buildResponseUnionSchemaNode({ node, resolver }: BuildOperationSchemaOptions): SchemaNode | null {
   const responsesWithSchema = node.responses.filter((res) => res.schema)
 
   if (responsesWithSchema.length === 0) {
@@ -133,7 +128,7 @@ export function buildResponseUnionSchemaNode({ node, resolveName }: BuildOperati
     members: responsesWithSchema.map((res) =>
       createSchema({
         type: 'ref',
-        name: resolveName({ name: `${node.operationId} Status ${res.statusCode}`, type: 'function' }),
+        name: resolver.resolveResponseStatusName(node, res.statusCode),
       }),
     ),
   })

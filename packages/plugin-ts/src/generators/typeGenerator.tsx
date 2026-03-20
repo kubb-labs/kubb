@@ -91,19 +91,19 @@ export const typeGenerator = defineGenerator<PluginTs>({
       : null
 
     const dataType = renderSchemaType({
-      node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolveName }),
+      node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolver }),
       name: resolver.resolveRequestConfigName(node),
       typedName: resolver.resolveRequestConfigTypedName(node),
     })
 
     const responsesType = renderSchemaType({
-      node: buildResponsesSchemaNode({ node, resolveName }),
+      node: buildResponsesSchemaNode({ node, resolver }),
       name: resolver.resolveResponsesName(node),
       typedName: resolver.resolveResponsesTypedName(node),
     })
 
     const responseType = renderSchemaType({
-      node: buildResponseUnionSchemaNode({ node, resolveName }),
+      node: buildResponseUnionSchemaNode({ node, resolver }),
       name: resolver.resolveResponseName(node),
       typedName: resolver.resolveResponseTypedName(node),
       description: 'Union of all possible responses',

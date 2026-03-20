@@ -1170,6 +1170,63 @@ describe('convertSchema object discriminator', () => {
   })
 })
 
+describe('convertSchema object inline enum naming', () => {
+  it('collisionDetection: false — enum name uses only immediate property key (ParamsStatusEnum)', () => {
+    // Without collision detection, nested enum names should NOT accumulate the full parent
+    // name chain. The schema "Order" has a nested object "params" with an inline enum "status".
+    // Expected: ParamsStatusEnum (parentKey + propKey + suffix), not OrderParamsStatusEnum.
+    const parserNoCollision = createOasParser(emptyOas, { collisionDetection: false })
+    const node = parserNoCollision.convertSchema(
+      {
+        schema: {
+          type: 'object',
+          properties: {
+            params: {
+              type: 'object',
+              properties: {
+                status: { type: 'string', enum: ['active', 'inactive'] },
+              },
+            },
+          },
+        },
+        name: 'Order',
+      },
+      { enumSuffix: 'enum' },
+    )
+
+    const paramsProp = node.properties?.find((p) => p.name === 'params')
+    const paramsSchema = narrowSchema(paramsProp?.schema, 'object')
+    const statusProp = paramsSchema?.properties?.find((p) => p.name === 'status')
+    expect(statusProp?.schema.name).toBe('ParamsStatusEnum')
+  })
+
+  it('collisionDetection: true — enum name accumulates full parent path (OrderParamsStatusEnum)', () => {
+    const parserWithCollision = createOasParser(emptyOas, { collisionDetection: true })
+    const node = parserWithCollision.convertSchema(
+      {
+        schema: {
+          type: 'object',
+          properties: {
+            params: {
+              type: 'object',
+              properties: {
+                status: { type: 'string', enum: ['active', 'inactive'] },
+              },
+            },
+          },
+        },
+        name: 'Order',
+      },
+      { enumSuffix: 'enum' },
+    )
+
+    const paramsProp = node.properties?.find((p) => p.name === 'params')
+    const paramsSchema = narrowSchema(paramsProp?.schema, 'object')
+    const statusProp = paramsSchema?.properties?.find((p) => p.name === 'status')
+    expect(statusProp?.schema.name).toBe('OrderParamsStatusEnum')
+  })
+})
+
 describe('convertSchema prefixItems (tuple)', () => {
   const parser = createOasParser(emptyOas)
 

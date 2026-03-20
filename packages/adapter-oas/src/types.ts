@@ -67,10 +67,14 @@ export type OasAdapterOptions = {
    */
   discriminator?: 'strict' | 'inherit'
   /**
-   * Automatically resolve name collisions across schema components.
+   * Enable legacy (v4) naming conventions for inline enum and schema types.
+   * When `true`, enum names use only the immediate property context
+   * (e.g. `ParamsStatusEnum`) instead of the full path (e.g. `OrderParamsStatusEnum`).
+   * In v5 the default is `false` — full-path names are used and name collisions
+   * across schema components are automatically resolved.
    * @default false
    */
-  collisionDetection?: boolean
+  legacy?: boolean
   /**
    * How `format: 'date-time'` schemas are represented in the AST.
    * - `'string'` maps to a `datetime` string node.
@@ -87,7 +91,7 @@ export type OasAdapterResolvedOptions = {
   serverIndex: OasAdapterOptions['serverIndex']
   serverVariables: OasAdapterOptions['serverVariables']
   discriminator: NonNullable<OasAdapterOptions['discriminator']>
-  collisionDetection: boolean
+  legacy: boolean
   dateType: NonNullable<OasAdapterOptions['dateType']>
   integerType: NonNullable<OasAdapterOptions['integerType']>
   unknownType: NonNullable<OasAdapterOptions['unknownType']>

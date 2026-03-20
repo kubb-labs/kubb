@@ -37,13 +37,17 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
     serverIndex,
     serverVariables,
     discriminator = 'strict',
-    collisionDetection = false,
+    legacy = false,
     dateType = DEFAULT_PARSER_OPTIONS.dateType,
     integerType = DEFAULT_PARSER_OPTIONS.integerType,
     unknownType = DEFAULT_PARSER_OPTIONS.unknownType,
     enumSuffix = DEFAULT_PARSER_OPTIONS.enumSuffix,
     emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
   } = options
+
+  // legacy: true  → old v4 naming (no collision resolution, shorter enum names)
+  // legacy: false → v5 default (full collision resolution, full-path enum names)
+  const collisionDetection = !legacy
 
   // Mutable Map shared between `options` and each `parse()` call.
   // Populated (and replaced) on every parse so consumers always see the latest state.
@@ -58,7 +62,7 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
       serverIndex,
       serverVariables,
       discriminator,
-      collisionDetection,
+      legacy,
       dateType,
       integerType,
       unknownType,
