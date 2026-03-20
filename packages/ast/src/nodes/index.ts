@@ -1,3 +1,4 @@
+import type { FunctionNode } from './function.ts'
 import type { OperationNode } from './operation.ts'
 import type { ParameterNode } from './parameter.ts'
 import type { PropertyNode } from './property.ts'
@@ -6,6 +7,7 @@ import type { RootNode } from './root.ts'
 import type { SchemaNode } from './schema.ts'
 
 export type { BaseNode, NodeKind } from './base.ts'
+export type { FunctionNode, FunctionNodeType, FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode } from './function.ts'
 export type { HttpStatusCode, MediaType, StatusCode } from './http.ts'
 export type { HttpMethod, OperationNode } from './operation.ts'
 export type { ParameterLocation, ParameterNode } from './parameter.ts'
@@ -43,4 +45,4 @@ export type {
  * TypeScript narrow the type automatically inside `switch (node.kind)`
  * blocks, eliminating the need for manual `as TypeName` casts.
  */
-export type Node = RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode
+export type Node = RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode | FunctionNode

@@ -1,4 +1,4 @@
-import type { ObjectSchemaNode, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode } from './nodes/index.ts'
+import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode, ObjectSchemaNode, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode } from './nodes/index.ts'
 
 /**
  * Distributive variant of `Omit` that preserves union members.
@@ -82,5 +82,92 @@ export function createResponse(
   return {
     ...props,
     kind: 'Response',
+  }
+}
+
+/**
+ * Creates a `FunctionParameterNode`. `optional` defaults to `false`.
+ *
+ * @example Required typed param
+ * ```ts
+ * createFunctionParameter({ name: 'petId', type: 'string' })
+ * // → petId: string
+ * ```
+ *
+ * @example Optional param
+ * ```ts
+ * createFunctionParameter({ name: 'params', type: 'QueryParams', optional: true })
+ * // → params?: QueryParams
+ * ```
+ *
+ * @example Param with default (implicitly optional — cannot combine with `optional: true`)
+ * ```ts
+ * createFunctionParameter({ name: 'config', type: 'RequestConfig', default: '{}' })
+ * // → config: RequestConfig = {}
+ * ```
+ */
+export function createFunctionParameter(
+  props: { name: string; type?: string; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string }),
+): FunctionParameterNode {
+  return {
+    optional: false,
+    ...props,
+    kind: 'FunctionParameter',
+  } as FunctionParameterNode
+}
+
+/**
+ * Creates an `ObjectBindingParameterNode` — an object-destructured parameter group.
+ *
+ * @example Destructured object param
+ * ```ts
+ * createObjectBindingParameter({
+ *   properties: [
+ *     createFunctionParameter({ name: 'id', type: 'string', optional: false }),
+ *     createFunctionParameter({ name: 'name', type: 'string', optional: true }),
+ *   ],
+ *   default: '{}',
+ * })
+ * // declaration → { id, name? }: { id: string; name?: string } = {}
+ * // call        → { id, name }
+ * ```
+ *
+ * @example Inline — children emitted as individual top-level params
+ * ```ts
+ * createObjectBindingParameter({
+ *   properties: [createFunctionParameter({ name: 'petId', type: 'string', optional: false })],
+ *   inline: true,
+ * })
+ * // declaration → petId: string
+ * // call        → petId
+ * ```
+ */
+export function createObjectBindingParameter(
+  props: Pick<ObjectBindingParameterNode, 'properties'> & Partial<Omit<ObjectBindingParameterNode, 'kind' | 'properties'>>,
+): ObjectBindingParameterNode {
+  return {
+    ...props,
+    kind: 'ObjectBindingParameter',
+  }
+}
+
+/**
+ * Creates a `FunctionParametersNode` from an ordered list of params.
+ *
+ * @example
+ * ```ts
+ * createFunctionParameters({
+ *   params: [
+ *     createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
+ *     createFunctionParameter({ name: 'config', type: 'RequestConfig', optional: false, default: '{}' }),
+ *   ],
+ * })
+ * ```
+ */
+export function createFunctionParameters(props: Partial<Omit<FunctionParametersNode, 'kind'>> = {}): FunctionParametersNode {
+  return {
+    params: [],
+    ...props,
+    kind: 'FunctionParameters',
   }
 }

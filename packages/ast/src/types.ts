@@ -1,6 +1,11 @@
 export type { VisitorDepth } from './constants.ts'
 export type { DistributiveOmit } from './factory.ts'
 export type {
+  FunctionNodeByType,
+  FunctionSignaturePrinterOptions,
+  FunctionSignaturePrintMode,
+} from './functionPrinter.ts'
+export type {
   ArraySchemaNode,
   BaseNode,
   ComplexSchemaType,
@@ -8,6 +13,10 @@ export type {
   DatetimeSchemaNode,
   EnumSchemaNode,
   EnumValueNode,
+  FunctionNode,
+  FunctionNodeType,
+  FunctionParameterNode,
+  FunctionParametersNode,
   HttpMethod,
   HttpStatusCode,
   IntersectionSchemaNode,
@@ -15,6 +24,7 @@ export type {
   Node,
   NodeKind,
   NumberSchemaNode,
+  ObjectBindingParameterNode,
   ObjectSchemaNode,
   OperationNode,
   ParameterLocation,

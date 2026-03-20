@@ -1,4 +1,4 @@
-import type { Node, NodeKind, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode, SchemaNodeByType } from './nodes/index.ts'
+import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode, Node, NodeKind, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode, SchemaNodeByType } from './nodes/index.ts'
 
 /**
  * Narrows a `SchemaNode` to the specific variant matching `type`.
@@ -40,3 +40,18 @@ export const isParameterNode = isKind<ParameterNode>('Parameter')
  * Type guard for `ResponseNode`.
  */
 export const isResponseNode = isKind<ResponseNode>('Response')
+
+/**
+ * Type guard for `FunctionParameterNode`.
+ */
+export const isFunctionParameterNode = isKind<FunctionParameterNode>('FunctionParameter')
+
+/**
+ * Type guard for `ObjectBindingParameterNode`.
+ */
+export const isObjectBindingParameterNode = isKind<ObjectBindingParameterNode>('ObjectBindingParameter')
+
+/**
+ * Type guard for `FunctionParametersNode`.
+ */
+export const isFunctionParametersNode = isKind<FunctionParametersNode>('FunctionParameters')
