@@ -6,6 +6,48 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.11
+
+### ✨ Features
+
+#### [`@kubb/adapter-oas`](/packages/adapter-oas)
+
+-   [#2824](https://github.com/kubb-labs/kubb/pull/2824) [`4cfcb62`](https://github.com/kubb-labs/kubb/commit/4cfcb6290ffa11c93f19345c93906af65ec18339) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Refactor parser options: extract `ParserOptions` type, add `enumSuffix` option, and change the default value of `collisionDetection` to `true`.
+
+    ::: code-group
+    ```typescript [Before]
+    const parserOptions = {
+      resolveRefs: true,
+      // collisionDetection is off by default
+    }
+    ```
+
+    ```typescript [After]
+    import { ParserOptions } from "@kubb/adapter-oas";
+
+    const parserOptions: ParserOptions = {
+      resolveRefs: true,
+      collisionDetection: true, // New default value
+      enumSuffix: "Enum", // New option available
+    }
+    ```
+    :::
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/core`](/packages/core)
+
+-   [#2824](https://github.com/kubb-labs/kubb/pull/2824) [`4cfcb62`](https://github.com/kubb-labs/kubb/commit/4cfcb6290ffa11c93f19345c93906af65ec18339) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fixed URL inputs being incorrectly resolved through `path.resolve` and deprecated the `useKubb.resolveName` utility.
+
+#### [`@kubb/ast`](/packages/ast)
+
+-   [#2824](https://github.com/kubb-labs/kubb/pull/2824) [`4cfcb62`](https://github.com/kubb-labs/kubb/commit/4cfcb6290ffa11c93f19345c93906af65ec18339) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Updated visitor to correctly traverse `additionalProperties` nodes in schemas.
+
+#### [`@kubb/plugin-oas`](/packages/plugin-oas)
+
+-   [#2824](https://github.com/kubb-labs/kubb/pull/2824) [`4cfcb62`](https://github.com/kubb-labs/kubb/commit/4cfcb6290ffa11c93f19345c93906af65ec18339) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fixed `useOperationManager` stale closure on `plugin.name` and added missing `pluginName` fallback in `getSchemas`.
+
+
 ## 4.36.1
 
 ### ✨ Features
