@@ -50,6 +50,7 @@
     "feat-resolve-options",
     "pretty-schools-fly",
     "remove-mapper-plugin-ts",
+    "remove-object-json-plugins-validation",
     "remove-plugin-key",
     "rename-define-to-create-factory-functions",
     "rename-plugin-manager-to-plugin-driver",

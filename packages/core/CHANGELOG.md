@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 5.0.0-alpha.9
+
+### Patch Changes
+
+- [#2808](https://github.com/kubb-labs/kubb/pull/2808) [`617aa20`](https://github.com/kubb-labs/kubb/commit/617aa203608222aba2a022ab998ced16f4216ed3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove deprecated runtime checks for object-style and JSON-style plugins in `getPlugins`.
+  These formats have not been supported for some time and the guards are no longer needed.
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.9
+
 ## 5.0.0-alpha.8
 
 ### Major Changes
