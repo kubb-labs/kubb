@@ -5,8 +5,14 @@
 
 import type { ApiResponse } from './ApiResponse.ts'
 
+/**
+ * @description ID of pet to update
+ */
 export type UploadFilePathPetId = number
 
+/**
+ * @description Additional Metadata
+ */
 export type UploadFileQueryAdditionalMetadata = string
 
 /**
@@ -19,9 +25,15 @@ export type UploadFileData = Blob
 export type UploadFileRequestConfig = {
   data?: UploadFileData
   pathParams: {
+    /**
+     * @description ID of pet to update
+     */
     petId: UploadFilePathPetId
   }
   queryParams?: {
+    /**
+     * @description Additional Metadata
+     */
     additionalMetadata?: UploadFileQueryAdditionalMetadata
   }
   headerParams?: never

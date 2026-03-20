@@ -3,10 +3,19 @@
  * Do not edit manually.
  */
 
+/**
+ * @description ID of pet that needs to be updated
+ */
 export type UpdatePetWithFormPathPetId = number
 
+/**
+ * @description Name of pet that needs to be updated
+ */
 export type UpdatePetWithFormQueryName = string
 
+/**
+ * @description Status of pet that needs to be updated
+ */
 export type UpdatePetWithFormQueryStatus = string
 
 /**
@@ -17,10 +26,19 @@ export type UpdatePetWithFormStatus405 = any
 export interface UpdatePetWithFormRequestConfig {
   data?: never
   pathParams: {
+    /**
+     * @description ID of pet that needs to be updated
+     */
     petId: UpdatePetWithFormPathPetId
   }
   queryParams?: {
+    /**
+     * @description Name of pet that needs to be updated
+     */
     name?: UpdatePetWithFormQueryName
+    /**
+     * @description Status of pet that needs to be updated
+     */
     status?: UpdatePetWithFormQueryStatus
   }
   headerParams?: never

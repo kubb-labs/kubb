@@ -5,6 +5,9 @@
 
 import type { Pet } from './Pet.ts'
 
+/**
+ * @description ID of pet to return
+ */
 export type GetPetByIdPathPetId = number
 
 /**
@@ -25,6 +28,9 @@ export type GetPetByIdStatus404 = any
 export type GetPetByIdRequestConfig = {
   data?: never
   pathParams: {
+    /**
+     * @description ID of pet to return
+     */
     petId: GetPetByIdPathPetId
   }
   queryParams?: never

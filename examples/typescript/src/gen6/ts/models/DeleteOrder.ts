@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * @description ID of the order that needs to be deleted
+ */
 export type DeleteOrderPathOrderId = number
 
 /**
@@ -18,6 +21,9 @@ export type DeleteOrderStatus404 = any
 export type DeleteOrderRequestConfig = {
   data?: never
   pathParams: {
+    /**
+     * @description ID of the order that needs to be deleted
+     */
     orderId: DeleteOrderPathOrderId
   }
   queryParams?: never
