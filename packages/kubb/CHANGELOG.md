@@ -1,5 +1,15 @@
 # kubb
 
+## 4.0.0-alpha.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@5.0.0-alpha.12
+  - @kubb/cli@5.0.0-alpha.12
+  - @kubb/core@5.0.0-alpha.12
+  - @kubb/mcp@5.0.0-alpha.12
+
 ## 4.0.0-alpha.11
 
 ### Patch Changes

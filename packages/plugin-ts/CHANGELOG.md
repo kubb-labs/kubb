@@ -1,5 +1,55 @@
 # @kubb/plugin-ts
 
+## 5.0.0-alpha.12
+
+### Major Changes
+
+- [#2821](https://github.com/kubb-labs/kubb/pull/2821) [`ebe0774`](https://github.com/kubb-labs/kubb/commit/ebe07749c5e3ef16d0e53daf11dd3954a582216b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove deprecated options from `@kubb/plugin-ts`. Use `adapterOas(...)` instead:
+
+  | Removed           | Replacement                       |
+  | ----------------- | --------------------------------- |
+  | `enumSuffix`      | `adapterOas({ enumSuffix })`      |
+  | `dateType`        | `adapterOas({ dateType })`        |
+  | `integerType`     | `adapterOas({ integerType })`     |
+  | `unknownType`     | `adapterOas({ unknownType })`     |
+  | `emptySchemaType` | `adapterOas({ emptySchemaType })` |
+
+### Minor Changes
+
+- [#2821](https://github.com/kubb-labs/kubb/pull/2821) [`ebe0774`](https://github.com/kubb-labs/kubb/commit/ebe07749c5e3ef16d0e53daf11dd3954a582216b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add `legacy` option to `@kubb/plugin-ts` for backwards-compatible (v4) naming conventions.
+
+  When `legacy: true`, the `typeGenerator` uses `resolverTsLegacy` with old naming:
+  - Response status: `<OperationId><StatusCode>` (e.g. `CreatePets201`)
+  - Default/error: `<OperationId>Error`
+  - Request body: `<OperationId>MutationRequest` / `<OperationId>QueryRequest`
+  - Responses wrapper: `<OperationId>Mutation` / `<OperationId>Query`
+  - Response union: `<OperationId>MutationResponse` / `<OperationId>QueryResponse`
+
+  `resolverTsLegacy` is exported from `@kubb/plugin-ts`.
+
+- [#2821](https://github.com/kubb-labs/kubb/pull/2821) [`f4105fe`](https://github.com/kubb-labs/kubb/commit/f4105fe44e46ec2846e665fd6079290e6d6ce6c6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - **`@kubb/plugin-ts`**: When `legacy: true`, the type generator now fully matches the v4 output:
+  - Grouped parameter types: `<OperationId>PathParams`, `<OperationId>QueryParams`, `<OperationId>HeaderParams`
+  - No `<OperationId>RequestConfig` type emitted
+  - Wrapper types (`Mutation`/`Query`) use `{ Response, Request?, QueryParams?, Errors }` shape
+  - Response union (`MutationResponse`/`QueryResponse`) contains only the 2xx type; no 2xx → `any`
+  - Inline enum values in parameters and responses are extracted as named declarations
+
+  Six `@deprecated` resolver methods added to `ResolverTs` for grouped parameter naming (`resolvePathParamsName`, `resolveQueryParamsName`, `resolveHeaderParamsName` and typed variants). Implemented only in `resolverTsLegacy`; will be removed in v6.
+
+  **`@kubb/adapter-oas`**: `collisionDetection` is now part of the public API with a default of `true`.
+  - `collisionDetection: true` (default) → full-path enum names, e.g. `OrderParamsStatusEnum`
+  - `collisionDetection: false` → immediate-parent enum names with numeric deduplication, e.g. `ParamsStatusEnum`, `ParamsStatusEnum2`
+
+### Patch Changes
+
+- [#2821](https://github.com/kubb-labs/kubb/pull/2821) [`d97bf00`](https://github.com/kubb-labs/kubb/commit/d97bf007db4fa3a5341463dab0e891afeaf82fff) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix `keysToOmit` support in the type generator. The v2 type generator was not forwarding `keysToOmit` to the `Type` component, causing write-only/read-only field omission to be silently ignored. The merged generator now correctly passes `keysToOmit` through to the printer.
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.12
+  - @kubb/core@5.0.0-alpha.12
+  - @kubb/oas@5.0.0-alpha.12
+  - @kubb/plugin-oas@5.0.0-alpha.12
+
 ## 5.0.0-alpha.11
 
 ### Patch Changes

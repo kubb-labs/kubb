@@ -46,6 +46,7 @@
     "e2e": "0.0.0"
   },
   "changesets": [
+    "adapter-oas-boolean-const-inline",
     "adapter-oas-parser-options",
     "ast-additional-properties-visitor",
     "ast-function-params",
@@ -53,13 +54,16 @@
     "core-url-input-resolve",
     "feat-resolve-options",
     "plugin-oas-operation-manager",
+    "plugin-ts-keys-to-omit",
+    "plugin-ts-legacy-flag",
+    "plugin-ts-legacy-naming-parity",
+    "plugin-ts-remove-deprecated-options",
     "pretty-schools-fly",
     "remove-mapper-plugin-ts",
     "remove-object-json-plugins-validation",
     "remove-plugin-key",
     "rename-define-to-create-factory-functions",
     "rename-plugin-manager-to-plugin-driver",
-    "tough-lemons-pump",
     "type-generator-v2-helpers"
   ]
 }
