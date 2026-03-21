@@ -66,7 +66,7 @@
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/fabric-core": "catalog:",
-    "@redocly/openapi-core": "^2.21.1",
+    "@redocly/openapi-core": "^2.24.1",
     "@stoplight/yaml": "^4.3.0",
     "jsonpointer": "^5.0.1",
     "oas": "^31.1.2",

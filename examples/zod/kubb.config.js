@@ -1,6 +1,6 @@
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
-import { pluginOas, schemaKeywords } from '@kubb/plugin-oas'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 
@@ -33,26 +33,6 @@ export default defineConfig([
       pluginZod({
         output: {
           path: './zod',
-        },
-        transformers: {
-          name: (name, type) => (type === 'file' ? `${name}.gen` : name),
-          schema: ({ parentName, name }, defaultSchemas) => {
-            /* override a property with name 'name'
-               Pet:
-                  required:
-                    - name
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                      example: doggie
-            */
-            if (parentName === 'Pet' && name === 'name') {
-              // see mapper where we map `productionName` to `faker.commerce.productName`, the original name will be kept.
-              return [...defaultSchemas, { keyword: schemaKeywords.name, args: 'productName' }]
-            }
-            return undefined
-          },
         },
         operations: true,
         mapper: {

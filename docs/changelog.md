@@ -6,6 +6,14 @@ outline: deep
 
 # Changelog
 
+## 4.36.2
+
+### 📦 Dependencies
+
+- Upgrade external packages
+
+---
+
 ## 4.36.1
 
 ### ✨ Features
@@ -420,7 +428,7 @@ export type MyEnumKey = never;  // ✅ No unused constant
 
 **Fix named array type aliases no longer wrapped in `Partial<>`**
 
-Named array type aliases are no longer erroneously wrapped with the `Partial<>` TypeScript utility type, ensuring the correct type generation. 
+Named array type aliases are no longer erroneously wrapped with the `Partial<>` TypeScript utility type, ensuring the correct type generation.
 
 ---
 

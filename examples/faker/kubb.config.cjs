@@ -26,6 +26,7 @@ module.exports = defineConfig(() => {
           output: {
             path: 'models',
           },
+          legacy: true,
         }),
         pluginFaker({
           output: {
@@ -60,6 +61,7 @@ module.exports = defineConfig(() => {
           output: {
             path: 'models',
           },
+          legacy: true,
         }),
         pluginFaker({
           output: {

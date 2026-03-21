@@ -12,15 +12,19 @@ const camelCase = (str: string) =>
     .map((w, i) => (i === 0 ? w.charAt(0).toLowerCase() + w.slice(1) : w.charAt(0).toUpperCase() + w.slice(1)))
     .join('')
 
-export default defineConfig(() => {
-  return {
+const input = { path: './petStore.yaml' } as const
+
+const tsPlugin = pluginTs({
+  output: { path: 'models/ts' },
+  group: { type: 'tag' },
+  enumType: 'asConst',
+  dateType: 'date',
+})
+
+export default defineConfig([
+  {
     root: '.',
-    input: {
-      path: './petStore.yaml',
-    },
-    hooks: {
-      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
-    },
+    input,
     output: {
       path: './src/gen',
       clean: true,
@@ -29,17 +33,8 @@ export default defineConfig(() => {
       },
     },
     plugins: [
-      pluginOas({
-        validate: false,
-      }),
-      pluginTs({
-        output: { path: 'models/ts' },
-        group: {
-          type: 'tag',
-        },
-        enumType: 'asConst',
-        dateType: 'date',
-      }),
+      pluginOas({ validate: false, generators: [] }),
+      tsPlugin,
       pluginClient({
         output: {
           path: './clients/axios',
@@ -47,12 +42,7 @@ export default defineConfig(() => {
           banner: '/* eslint-disable no-alert, no-console */',
         },
         client: 'fetch',
-        exclude: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
+        exclude: [{ type: 'tag', pattern: 'store' }],
         group: {
           type: 'tag',
           name({ group }) {
@@ -62,6 +52,15 @@ export default defineConfig(() => {
         operations: true,
         pathParamsType: 'object',
       }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen2' },
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
+      tsPlugin,
       pluginClient({
         output: {
           path: './clients/axios/xml',
@@ -69,34 +68,30 @@ export default defineConfig(() => {
           banner: '/* eslint-disable no-alert, no-console */',
         },
         contentType: 'application/xml',
-        include: [
-          {
-            type: 'operationId',
-            pattern: 'uploadFile',
-          },
-        ],
+        include: [{ type: 'operationId', pattern: 'uploadFile' }],
         transformers: {
           name(name, type) {
             if (type === 'function') {
               return `${name}XML`
             }
-
             return name
           },
         },
         pathParamsType: 'object',
       }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen3', clean: true },
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
+      tsPlugin,
       pluginClient({
-        output: {
-          path: './tagObject.ts',
-        },
+        output: { path: './tagObject.ts' },
         generators: [clientStaticGenerator],
-        include: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
+        include: [{ type: 'tag', pattern: 'store' }],
         group: {
           type: 'tag',
           name({ group }) {
@@ -106,45 +101,49 @@ export default defineConfig(() => {
         dataReturnType: 'full',
         pathParamsType: 'object',
       }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen4', clean: true },
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
       pluginClient({
-        output: {
-          path: './tagClientOperation.ts',
-        },
+        output: { path: './tagClientOperation.ts' },
         generators: [clientOperationGenerator],
-        include: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
+        include: [{ type: 'tag', pattern: 'store' }],
         dataReturnType: 'full',
         pathParamsType: 'object',
       }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen5', clean: true },
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
       pluginClient({
-        output: {
-          path: './tagClientOperationReact.ts',
-        },
+        output: { path: './tagClientOperationReact.ts' },
         generators: [clientOperationReactGenerator],
-        include: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
+        include: [{ type: 'tag', pattern: 'store' }],
         dataReturnType: 'full',
         pathParamsType: 'object',
       }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen6', clean: true },
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
+      tsPlugin,
       pluginClient({
-        output: {
-          path: './tag.ts',
-        },
+        output: { path: './tag.ts' },
         parser: 'client',
-        include: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
+        include: [{ type: 'tag', pattern: 'store' }],
         group: {
           type: 'tag',
           name({ group }) {
@@ -156,11 +155,22 @@ export default defineConfig(() => {
             if (type === 'function') {
               return camelCase(`${name} controller`)
             }
-
             return name
           },
         },
       }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen7', clean: true },
+    hooks: {
+      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
+    },
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
+      tsPlugin,
       pluginClient({
         output: {
           path: './clients/class',
@@ -169,11 +179,9 @@ export default defineConfig(() => {
         },
         client: 'fetch',
         clientType: 'class',
-        group: {
-          type: 'tag',
-        },
+        group: { type: 'tag' },
         pathParamsType: 'object',
       }),
     ],
-  }
-})
+  },
+])

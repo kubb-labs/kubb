@@ -4,41 +4,49 @@ import { example1 } from './src/generators/example1'
 import { example2 } from './src/generators/example2'
 import { example3 } from './src/generators/example3'
 
-export default defineConfig(() => {
-  return {
+const input = { path: './petStore.yaml' } as const
+
+export default defineConfig([
+  {
     root: '.',
-    input: {
-      path: './petStore.yaml',
-    },
-    hooks: {
-      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
-    },
+    input,
     output: {
       path: './src/gen',
       clean: true,
     },
     plugins: [
       pluginOas({
-        output: {
-          path: './example1.ts',
-        },
+        output: { path: './example1.ts' },
         validate: false,
         generators: [example1],
       }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen2' },
+    plugins: [
       pluginOas({
-        output: {
-          path: './example2.ts',
-        },
+        output: { path: './example2.ts' },
         validate: false,
         generators: [example2],
       }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen3' },
+    hooks: {
+      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
+    },
+    plugins: [
       pluginOas({
-        output: {
-          path: './example3.tsx',
-        },
+        output: { path: './example3.tsx' },
         validate: false,
         generators: [example3],
       }),
     ],
-  }
-})
+  },
+])
