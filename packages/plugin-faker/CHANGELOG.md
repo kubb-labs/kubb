@@ -1,5 +1,15 @@
 # @kubb/plugin-faker
 
+## 5.0.0-alpha.12
+
+### Patch Changes
+
+- Updated dependencies [[`d97bf00`](https://github.com/kubb-labs/kubb/commit/d97bf007db4fa3a5341463dab0e891afeaf82fff), [`ebe0774`](https://github.com/kubb-labs/kubb/commit/ebe07749c5e3ef16d0e53daf11dd3954a582216b), [`f4105fe`](https://github.com/kubb-labs/kubb/commit/f4105fe44e46ec2846e665fd6079290e6d6ce6c6), [`ebe0774`](https://github.com/kubb-labs/kubb/commit/ebe07749c5e3ef16d0e53daf11dd3954a582216b)]:
+  - @kubb/plugin-ts@5.0.0-alpha.12
+  - @kubb/core@5.0.0-alpha.12
+  - @kubb/oas@5.0.0-alpha.12
+  - @kubb/plugin-oas@5.0.0-alpha.12
+
 ## 5.0.0-alpha.11
 
 ### Patch Changes

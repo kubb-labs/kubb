@@ -1,5 +1,32 @@
 # @kubb/adapter-oas
 
+## 5.0.0-alpha.12
+
+### Minor Changes
+
+- [#2821](https://github.com/kubb-labs/kubb/pull/2821) [`f4105fe`](https://github.com/kubb-labs/kubb/commit/f4105fe44e46ec2846e665fd6079290e6d6ce6c6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - **`@kubb/plugin-ts`**: When `legacy: true`, the type generator now fully matches the v4 output:
+  - Grouped parameter types: `<OperationId>PathParams`, `<OperationId>QueryParams`, `<OperationId>HeaderParams`
+  - No `<OperationId>RequestConfig` type emitted
+  - Wrapper types (`Mutation`/`Query`) use `{ Response, Request?, QueryParams?, Errors }` shape
+  - Response union (`MutationResponse`/`QueryResponse`) contains only the 2xx type; no 2xx → `any`
+  - Inline enum values in parameters and responses are extracted as named declarations
+
+  Six `@deprecated` resolver methods added to `ResolverTs` for grouped parameter naming (`resolvePathParamsName`, `resolveQueryParamsName`, `resolveHeaderParamsName` and typed variants). Implemented only in `resolverTsLegacy`; will be removed in v6.
+
+  **`@kubb/adapter-oas`**: `collisionDetection` is now part of the public API with a default of `true`.
+  - `collisionDetection: true` (default) → full-path enum names, e.g. `OrderParamsStatusEnum`
+  - `collisionDetection: false` → immediate-parent enum names with numeric deduplication, e.g. `ParamsStatusEnum`, `ParamsStatusEnum2`
+
+### Patch Changes
+
+- [#2821](https://github.com/kubb-labs/kubb/pull/2821) [`f4105fe`](https://github.com/kubb-labs/kubb/commit/f4105fe44e46ec2846e665fd6079290e6d6ce6c6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Boolean `const` values are now inlined as literal types instead of generating an external named enum.
+
+  Parameter schemas with an `enum` field now produce a named enum node instead of an anonymous inline literal union.
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.12
+  - @kubb/core@5.0.0-alpha.12
+
 ## 5.0.0-alpha.11
 
 ### Minor Changes
