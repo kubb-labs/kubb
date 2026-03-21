@@ -34,7 +34,6 @@ const schemas = [
   { name: 'enums', path: './schemas/enums.yaml' },
   { name: 'dataset_api', path: './schemas/dataset_api.yaml' },
   { name: 'petStoreV3', path: 'https://petstore3.swagger.io/api/v3/openapi.json' },
-  { name: 'digitalocean', path: './schemas/digitalocean.yaml', strict: false },
   { name: 'stripe', path: 'https://raw.githubusercontent.com/stripe/openapi/master/openapi/spec3.json', strict: false },
   { name: 'openai', path: 'https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.yaml', strict: false },
   { name: 'vercel', path: 'https://openapi.vercel.sh/', strict: false },
