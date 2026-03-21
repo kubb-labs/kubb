@@ -12,8 +12,6 @@ outline: deep
 
 - Upgrade external packages
 
----
-
 ## 4.36.1
 
 ### ✨ Features
