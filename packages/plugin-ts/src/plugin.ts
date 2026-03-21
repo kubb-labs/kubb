@@ -3,7 +3,7 @@ import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
 import { createPlugin, type Group, getBarrelFiles, getMode, renderOperation, renderSchema } from '@kubb/core'
 import { typeGenerator } from './generators'
-import { resolverTs, resolverTsLegacy } from './resolverTs.ts'
+import { resolverTs, resolverTsLegacy } from './resolver.ts'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
