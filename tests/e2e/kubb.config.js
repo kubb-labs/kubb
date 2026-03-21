@@ -15,7 +15,7 @@ const schemas = [
   // OpenAPI 3.1
   { name: 'train-travel', path: './schemas/train-travel.yaml' },
   { name: 'Figma', path: 'https://raw.githubusercontent.com/figma/rest-api-spec/refs/heads/main/openapi/openapi.yaml' },
-  { name: 'spotify', path: 'https://developer.spotify.com/reference/openapi.json', strict: false },
+  { name: 'spotify', path: 'https://raw.githubusercontent.com/sonallux/spotify-web-api/refs/heads/main/official-spotify-open-api.yml', strict: false },
   // OpenAPI 3.0
   { name: 'discriminator', path: './schemas/discriminator.yaml' },
   // { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },  // TS2300: duplicate barrel exports in hook index files
