@@ -12,9 +12,12 @@ import { pluginZod } from '@kubb/plugin-zod'
 
 const schemas = [
   // { name: 'test', path: './schemas/test.json' },
+  // OpenAPI 3.1
   { name: 'train-travel', path: './schemas/train-travel.yaml' },
-  { name: 'discriminator', path: './schemas/discriminator.yaml' },
   { name: 'Figma', path: 'https://raw.githubusercontent.com/figma/rest-api-spec/refs/heads/main/openapi/openapi.yaml' },
+  { name: 'spotify', path: 'https://developer.spotify.com/reference/openapi.json', strict: false },
+  // OpenAPI 3.0
+  { name: 'discriminator', path: './schemas/discriminator.yaml' },
   // { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },  // TS2300: duplicate barrel exports in hook index files
   { name: 'atlassian.com', path: 'https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json', strict: false },
   { name: 'optionalParameters', path: './schemas/optionalParameters.json' },
@@ -31,6 +34,10 @@ const schemas = [
   { name: 'enums', path: './schemas/enums.yaml' },
   { name: 'dataset_api', path: './schemas/dataset_api.yaml' },
   { name: 'petStoreV3', path: 'https://petstore3.swagger.io/api/v3/openapi.json' },
+  { name: 'digitalocean', path: './schemas/digitalocean.yaml', strict: false },
+  { name: 'stripe', path: 'https://raw.githubusercontent.com/stripe/openapi/master/openapi/spec3.json', strict: false },
+  { name: 'openai', path: 'https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.yaml', strict: false },
+  { name: 'vercel', path: 'https://openapi.vercel.sh/', strict: false },
 ]
 
 /** @type {import('@kubb/core').UserConfig} */
