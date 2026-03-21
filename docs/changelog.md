@@ -6,6 +6,55 @@ outline: deep
 
 # Changelog
 
+## 4.36.2
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-zod`](/packages/plugin-zod)
+
+-   [#2838](https://github.com/kubb-labs/kubb/pull/2838) [`9e3332e`](https://github.com/kubb-labs/kubb/commit/9e3332edd9d19f926519ad7b7bccb66ec4a78fc1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Resolved issues with outdated package dependencies to ensure compatibility and stability across plugins.
+
+#### [`@kubb/oas`](/packages/oas)
+
+-   [#2838](https://github.com/kubb-labs/kubb/pull/2838) [`9e3332e`](https://github.com/kubb-labs/kubb/commit/9e3332edd9d19f926519ad7b7bccb66ec4a78fc1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fixed internal bugs related to schema generation and upgraded dependencies for consistent performance.
+
+#### [`@kubb/adapter-oas`](/packages/adapter-oas)
+
+-   [#2838](https://github.com/kubb-labs/kubb/pull/2838) [`9e3332e`](https://github.com/kubb-labs/kubb/commit/9e3332edd9d19f926519ad7b7bccb66ec4a78fc1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Addressed issues with API schema parsing to improve compatibility with advanced OpenAPI specifications.
+
+#### [`@kubb/agent`](/packages/agent)
+
+-   [#2838](https://github.com/kubb-labs/kubb/pull/2838) [`9e3332e`](https://github.com/kubb-labs/kubb/commit/9e3332edd9d19f926519ad7b7bccb66ec4a78fc1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Resolved dependency conflicts that improved stability and integration across plugins. Updated plugins now include:
+
+  ::: code-group
+  ```plaintext [Updated Packages]
+  @kubb/plugin-zod
+  @kubb/plugin-client
+  @kubb/plugin-mcp
+  @kubb/plugin-react-query
+  @kubb/plugin-solid-query
+  @kubb/plugin-svelte-query
+  @kubb/plugin-swr
+  @kubb/plugin-vue-query
+  @kubb/plugin-cypress
+  @kubb/plugin-faker
+  @kubb/plugin-msw
+  @kubb/plugin-oas
+  @kubb/plugin-redoc
+  @kubb/plugin-ts
+  @kubb/core
+  ```
+  :::
+
+
+## 4.36.2
+
+### 📦 Dependencies
+
+- Upgrade external packages
+
+---
+
 ## 4.36.1
 
 ### ✨ Features
