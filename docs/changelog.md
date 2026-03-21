@@ -6,6 +6,83 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.12
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/plugin-ts`](/packages/plugin-ts)
+
+-   [#2821](https://github.com/kubb-labs/kubb/pull/2821) [`ebe0774`](https://github.com/kubb-labs/kubb/commit/ebe07749c5e3ef16d0e53daf11dd3954a582216b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove deprecated options from `@kubb/plugin-ts`. Use `adapterOas(...)` instead:
+
+    | Removed           | Replacement                       |
+    | ----------------- | --------------------------------- |
+    | `enumSuffix`      | `adapterOas({ enumSuffix })`      |
+    | `dateType`        | `adapterOas({ dateType })`        |
+    | `integerType`     | `adapterOas({ integerType })`     |
+    | `unknownType`     | `adapterOas({ unknownType })`     |
+    | `emptySchemaType` | `adapterOas({ emptySchemaType })` |
+
+### ✨ Features
+
+#### [`@kubb/plugin-ts`](/packages/plugin-ts)
+
+-   [#2821](https://github.com/kubb-labs/kubb/pull/2821) [`ebe0774`](https://github.com/kubb-labs/kubb/commit/ebe07749c5e3ef16d0e53daf11dd3954a582216b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add `legacy` option to `@kubb/plugin-ts` for backwards-compatible (v4) naming conventions.
+
+    When `legacy: true`, the `typeGenerator` uses `resolverTsLegacy` with old naming:
+
+    -   Response status: `<OperationId><StatusCode>` (e.g. `CreatePets201`)
+    -   Default/error: `<OperationId>Error`
+    -   Request body: `<OperationId>MutationRequest` / `<OperationId>QueryRequest`
+    -   Responses wrapper: `<OperationId>Mutation` / `<OperationId>Query`
+    -   Response union: `<OperationId>MutationResponse` / `<OperationId>QueryResponse`
+
+    `resolverTsLegacy` is exported from `@kubb/plugin-ts`.
+
+-   [#2821](https://github.com/kubb-labs/kubb/pull/2821) [`f4105fe`](https://github.com/kubb-labs/kubb/commit/f4105fe44e46ec2846e665fd6079290e6d6ce6c6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add detailed support for customizing parameter and response types in the `@kubb/plugin-ts` type generator.
+
+    **Examples when `legacy: true`:**
+
+    -   Grouped parameter types: `<OperationId>PathParams`, `<OperationId>QueryParams`, `<OperationId>HeaderParams`
+    -   Wrapper types (`Mutation`/`Query`) use `{ Response, Request?, QueryParams?, Errors }` shape
+    -   Response union (`MutationResponse`/`QueryResponse`) contains only the 2xx type; no 2xx → `any`
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](/packages/plugin-ts)
+
+-   [#2821](https://github.com/kubb-labs/kubb/pull/2821) [`d97bf00`](https://github.com/kubb-labs/kubb/commit/d97bf007db4fa3a5341463dab0e891afeaf82fff) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fixed an issue where `keysToOmit` was not properly applied in the type generator. The updated implementation now ensures that `keysToOmit` is correctly passed to the `Type` component, resolving issues with unwanted fields in the generated TypeScript definitions.
+
+    ::: code-group
+    ```typescript [Before]
+    // `keysToOmit` was ignored.
+    ```
+    ```typescript [After]
+    // `keysToOmit` is now applied correctly in Type generation.
+    ```
+    :::
+
+#### [`@kubb/adapter-oas`](/packages/adapter-oas)
+
+-   [#2821](https://github.com/kubb-labs/kubb/pull/2821) [`f4105fe`](https://github.com/kubb-labs/kubb/commit/f4105fe44e46ec2846e665fd6079290e6d6ce6c6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fixed an issue where boolean `const` values were not being inlined correctly. They are now inlined as literal types instead of generating external named enums.
+
+    Updated how enum values in parameter and response schemas are handled. Previously, these always generated inline literal unions. Now, named enums replace inline unions to improve readability.
+
+    ::: code-group
+    ```typescript [Before]
+// Inline literal type
+type Status = 'open' | 'closed';
+```
+
+    ```typescript [After]
+// Named enum replaces inline type
+export enum Status {
+  Open = 'open',
+  Closed = 'closed',
+}
+```
+    :::
+
+
 ## 4.36.1
 
 ### ✨ Features
