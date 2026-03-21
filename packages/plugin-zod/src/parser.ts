@@ -452,13 +452,22 @@ export function extractMiniModifiers(schemas: Schema[]): MiniModifiers {
   const isBigInt = schemas.some((item) => isKeyword(item, schemaKeywords.bigint))
 
   // When paired with an enum, skip the default if the value is not a valid enum member.
-  // Zod's default() for an enum must receive a value that is present in the enum.
+  // String default args are JSON-stringified (e.g. '"available"'), so parse them back
+  // to the raw value before comparing against enum item values.
   let defaultValue = defaultSchema?.args as string | number | true | object | undefined
   if (defaultValue !== undefined) {
     const enumSchema = schemas.find((it) => isKeyword(it, schemaKeywords.enum)) as SchemaKeywordMapper['enum'] | undefined
     if (enumSchema) {
+      let rawDefault: unknown = defaultValue
+      if (typeof rawDefault === 'string') {
+        try {
+          rawDefault = JSON.parse(rawDefault)
+        } catch {
+          // leave as-is if not valid JSON
+        }
+      }
       const validValues = enumSchema.args.items.map((item) => item.value ?? item.name)
-      if (!validValues.includes(defaultValue as string | number | boolean)) {
+      if (!validValues.includes(rawDefault as string | number | boolean)) {
         defaultValue = undefined
       }
     }
@@ -818,8 +827,18 @@ export const parse = createParser<string, ParserOptions>({
       if (current.args !== undefined) {
         const enumSchema = siblings.find((it) => isKeyword(it, schemaKeywords.enum)) as SchemaKeywordMapper['enum'] | undefined
         if (enumSchema) {
+          // String default args are JSON-stringified (e.g. '"available"'), so parse
+          // them back to the raw value before comparing against enum item values.
+          let rawDefault: unknown = current.args
+          if (typeof rawDefault === 'string') {
+            try {
+              rawDefault = JSON.parse(rawDefault)
+            } catch {
+              // leave as-is if not valid JSON
+            }
+          }
           const validValues = enumSchema.args.items.map((item) => item.value ?? item.name)
-          if (!validValues.includes(current.args as string | number | boolean)) {
+          if (!validValues.includes(rawDefault as string | number | boolean)) {
             return undefined
           }
         }
