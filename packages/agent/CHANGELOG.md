@@ -1,5 +1,28 @@
 # @kubb/agent
 
+## 4.36.2
+
+### Patch Changes
+
+- [#2838](https://github.com/kubb-labs/kubb/pull/2838) [`9e3332e`](https://github.com/kubb-labs/kubb/commit/9e3332edd9d19f926519ad7b7bccb66ec4a78fc1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Upgrade packages
+
+- Updated dependencies [[`9e3332e`](https://github.com/kubb-labs/kubb/commit/9e3332edd9d19f926519ad7b7bccb66ec4a78fc1)]:
+  - @kubb/plugin-zod@4.36.2
+  - @kubb/plugin-client@4.36.2
+  - @kubb/plugin-mcp@4.36.2
+  - @kubb/plugin-react-query@4.36.2
+  - @kubb/plugin-solid-query@4.36.2
+  - @kubb/plugin-svelte-query@4.36.2
+  - @kubb/plugin-swr@4.36.2
+  - @kubb/plugin-vue-query@4.36.2
+  - @kubb/plugin-cypress@4.36.2
+  - @kubb/plugin-faker@4.36.2
+  - @kubb/plugin-msw@4.36.2
+  - @kubb/plugin-oas@4.36.2
+  - @kubb/plugin-redoc@4.36.2
+  - @kubb/plugin-ts@4.36.2
+  - @kubb/core@4.36.2
+
 ## 4.36.1
 
 ### Patch Changes
