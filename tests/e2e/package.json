@@ -17,11 +17,12 @@
     "format": "echo 'empty'",
     "generate": "kubb generate",
     "generate:petstore": "kubb generate --config kubb-petstore.config.js",
-    "generate:debug": "NODE_OPTIONS='--inspect-brk' kubb generate",
+    "generate:debug": "KUBB_DISABLE_TELEMETRY=1 NODE_OPTIONS='--inspect-brk' kubb generate",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-client": "workspace:*",

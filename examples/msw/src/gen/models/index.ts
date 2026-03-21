@@ -7,6 +7,7 @@ export type {
 } from './AddPet.ts'
 export type {
   AddPetRequest,
+  AddPetRequestStatusEnum,
   AddPetRequestStatusEnumKey,
 } from './AddPetRequest.ts'
 export { addPetRequestStatusEnum } from './AddPetRequest.ts'
@@ -53,6 +54,7 @@ export type {
   FindPetsByStatus400,
   FindPetsByStatusQuery,
   FindPetsByStatusQueryParams,
+  FindPetsByStatusQueryParamsStatusEnum,
   FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
 } from './FindPetsByStatus.ts'
@@ -112,11 +114,13 @@ export type {
 } from './OptionsFindPetsByStatus.ts'
 export type {
   Order,
+  OrderHttpStatusEnum,
   OrderHttpStatusEnumKey,
+  OrderStatusEnum,
   OrderStatusEnumKey,
 } from './Order.ts'
 export { orderHttpStatusEnum, orderStatusEnum } from './Order.ts'
-export type { Pet, PetStatusEnumKey } from './Pet.ts'
+export type { Pet, PetStatusEnum, PetStatusEnumKey } from './Pet.ts'
 export { petStatusEnum } from './Pet.ts'
 export type { PetNotFound } from './PetNotFound.ts'
 export type {

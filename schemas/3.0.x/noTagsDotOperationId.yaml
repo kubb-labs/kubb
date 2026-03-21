@@ -1,0 +1,62 @@
+openapi: 3.0.3
+info:
+  title: No tags + dot in operationId
+  description: |
+    Regression test for Bug 4: operations with no tags (empty tags array)
+    and operationIds containing version-like dots (e.g. v2025.0) that should
+    not be split into path segments.
+  version: 1.0.0
+paths:
+  /config/{config_id}:
+    get:
+      operationId: get_config_id_v2025.0
+      summary: Get configuration
+      parameters:
+        - name: config_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Configuration response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Config"
+  /config:
+    post:
+      operationId: create_config_v2025.0
+      summary: Create configuration
+      tags: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfigCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Config"
+components:
+  schemas:
+    Config:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+    ConfigCreate:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string

@@ -216,6 +216,9 @@ importers:
 
   examples/client:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -253,6 +256,9 @@ importers:
 
   examples/cypress:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -284,6 +290,9 @@ importers:
       '@faker-js/faker':
         specifier: ^8.4.1
         version: 8.4.1
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -321,6 +330,9 @@ importers:
 
   examples/fetch:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -346,6 +358,9 @@ importers:
 
   examples/generators:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -383,6 +398,9 @@ importers:
 
   examples/mcp:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -420,6 +438,9 @@ importers:
       '@faker-js/faker':
         specifier: ^8.4.1
         version: 8.4.1
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -460,6 +481,9 @@ importers:
 
   examples/react-query:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -524,6 +548,9 @@ importers:
 
   examples/simple-single:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -566,6 +593,9 @@ importers:
 
   examples/solid-query:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -603,6 +633,9 @@ importers:
 
   examples/svelte-query:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -640,6 +673,9 @@ importers:
 
   examples/swr:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -705,6 +741,9 @@ importers:
 
   examples/vue-query:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -754,6 +793,9 @@ importers:
 
   examples/zod:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli
@@ -1576,6 +1618,9 @@ importers:
       '@faker-js/faker':
         specifier: ^8.4.1
         version: 8.4.1
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../../packages/adapter-oas
       '@kubb/cli':
         specifier: workspace:*
         version: link:../../packages/cli

@@ -17,10 +17,10 @@ export type CreateUsersWithListInputError = any;
 
 export type CreateUsersWithListInputMutationRequest = User[];
 
-export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200;
-
 export type CreateUsersWithListInputMutation = {
     Response: CreateUsersWithListInput200;
     Request: CreateUsersWithListInputMutationRequest;
-    Errors: any;
+    Errors: CreateUsersWithListInputError;
 };
+
+export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200;

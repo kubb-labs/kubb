@@ -9,7 +9,7 @@ import type { Generator } from '@kubb/plugin-oas/generators'
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
  * plugin-specific naming helpers for operations, parameters, responses, and schemas.
  */
-type ResolverTs = Resolver & {
+export type ResolverTs = Resolver & {
   /**
    * Resolves the variable/function name for a given raw name (equivalent to `default(name, 'function')`).
    * Use this shorthand when matching the `name` field produced by the v2 TypeGenerator,
@@ -133,6 +133,60 @@ type ResolverTs = Resolver & {
    * resolver.resolveEnumKeyTypedName(node) // → 'PetStatusKey'
    */
   resolveEnumKeyTypedName(node: SchemaNode): string
+  /**
+   * Resolves the variable/function name for an operation's grouped path parameters type.
+   * Only available in legacy mode (`legacy: true`).
+   *
+   * @deprecated Legacy only — will be removed in v6. Use `resolveParamName` per individual parameter instead.
+   * @example
+   * resolver.resolvePathParamsName(node) // → 'GetPetByIdPathParams'
+   */
+  resolvePathParamsName?(node: OperationNode): string
+  /**
+   * Resolves the TypeScript type alias name for an operation's grouped path parameters type.
+   * Only available in legacy mode (`legacy: true`).
+   *
+   * @deprecated Legacy only — will be removed in v6. Use `resolveParamTypedName` per individual parameter instead.
+   * @example
+   * resolver.resolvePathParamsTypedName(node) // → 'GetPetByIdPathParams'
+   */
+  resolvePathParamsTypedName?(node: OperationNode): string
+  /**
+   * Resolves the variable/function name for an operation's grouped query parameters type.
+   * Only available in legacy mode (`legacy: true`).
+   *
+   * @deprecated Legacy only — will be removed in v6. Use `resolveParamName` per individual parameter instead.
+   * @example
+   * resolver.resolveQueryParamsName(node) // → 'FindPetsByStatusQueryParams'
+   */
+  resolveQueryParamsName?(node: OperationNode): string
+  /**
+   * Resolves the TypeScript type alias name for an operation's grouped query parameters type.
+   * Only available in legacy mode (`legacy: true`).
+   *
+   * @deprecated Legacy only — will be removed in v6. Use `resolveParamTypedName` per individual parameter instead.
+   * @example
+   * resolver.resolveQueryParamsTypedName(node) // → 'FindPetsByStatusQueryParams'
+   */
+  resolveQueryParamsTypedName?(node: OperationNode): string
+  /**
+   * Resolves the variable/function name for an operation's grouped header parameters type.
+   * Only available in legacy mode (`legacy: true`).
+   *
+   * @deprecated Legacy only — will be removed in v6. Use `resolveParamName` per individual parameter instead.
+   * @example
+   * resolver.resolveHeaderParamsName(node) // → 'DeletePetHeaderParams'
+   */
+  resolveHeaderParamsName?(node: OperationNode): string
+  /**
+   * Resolves the TypeScript type alias name for an operation's grouped header parameters type.
+   * Only available in legacy mode (`legacy: true`).
+   *
+   * @deprecated Legacy only — will be removed in v6. Use `resolveParamTypedName` per individual parameter instead.
+   * @example
+   * resolver.resolveHeaderParamsTypedName(node) // → 'DeletePetHeaderParams'
+   */
+  resolveHeaderParamsTypedName?(node: OperationNode): string
 }
 
 export type Options = {
@@ -192,52 +246,6 @@ export type Options = {
    */
   syntaxType?: 'type' | 'interface'
   /**
-   * Set a suffix for the generated enums.
-   * @default 'enum'
-   * @deprecated Set `enumSuffix` on the adapter (`adapterOas({ enumSuffix })`) instead.
-   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
-   */
-  enumSuffix?: string
-  /**
-   * Choose to use date or datetime as JavaScript Date instead of string.
-   * - 'string' represents dates as string values.
-   * - 'date' represents dates as JavaScript Date objects.
-   * @default 'string'
-   * @deprecated Set `dateType` on the adapter (`adapterOas({ dateType })`) instead.
-   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
-   */
-  dateType?: 'string' | 'date'
-  /**
-   * Choose to use `number` or `bigint` for integer fields with `int64` format.
-   * - 'number' uses the TypeScript `number` type (matches JSON.parse() runtime behavior).
-   * - 'bigint' uses the TypeScript `bigint` type (accurate for values exceeding Number.MAX_SAFE_INTEGER).
-   * @note in v5 of Kubb 'bigint' will become the default to better align with OpenAPI's int64 specification.
-   * @default 'number'
-   * @deprecated Set `integerType` on the adapter (`adapterOas({ integerType })`) instead.
-   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
-   */
-  integerType?: 'number' | 'bigint'
-  /**
-   * Which type to use when the Swagger/OpenAPI file is not providing more information.
-   * - 'any' allows any value.
-   * - 'unknown' requires type narrowing before use.
-   * - 'void' represents no value.
-   * @default 'any'
-   * @deprecated Set `unknownType` on the adapter (`adapterOas({ unknownType })`) instead.
-   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
-   */
-  unknownType?: 'any' | 'unknown' | 'void'
-  /**
-   * Which type to use for empty schema values.
-   * - 'any' allows any value.
-   * - 'unknown' requires type narrowing before use.
-   * - 'void' represents no value.
-   * @default `unknownType`
-   * @deprecated Set `emptySchemaType` on the adapter (`adapterOas({ emptySchemaType })`) instead.
-   * In v5, the adapter owns this decision at parse time; the plugin option is ignored.
-   */
-  emptySchemaType?: 'any' | 'unknown' | 'void'
-  /**
    * Choose what to use as mode for an optional value.
    * - 'questionToken' marks the property as optional with ? (e.g., type?: string).
    * - 'undefined' adds undefined to the type union (e.g., type: string | undefined).
@@ -273,6 +281,17 @@ export type Options = {
    * Unstable naming for v5
    */
   UNSTABLE_NAMING?: true
+  /**
+   * Enable legacy naming conventions for backwards compatibility.
+   * When enabled, operation-level types use the old naming scheme:
+   * - GET responses → `<OperationId>QueryResponse`, `<OperationId>Query`
+   * - Non-GET responses → `<OperationId>MutationResponse`, `<OperationId>Mutation`
+   * - Request body → `<OperationId>QueryRequest` / `<OperationId>MutationRequest`
+   * - Response status codes → `<OperationId><StatusCode>` (e.g. `CreatePets201`)
+   * - Default/error response → `<OperationId>Error`
+   * @default false
+   */
+  legacy?: boolean
 }
 
 type ResolvedOptions = {
@@ -281,16 +300,13 @@ type ResolvedOptions = {
   override: NonNullable<Options['override']>
   enumType: NonNullable<Options['enumType']>
   enumKeyCasing: NonNullable<Options['enumKeyCasing']>
-  enumSuffix: NonNullable<Options['enumSuffix']>
-  dateType: NonNullable<Options['dateType']>
-  integerType: NonNullable<Options['integerType']>
-  unknownType: NonNullable<Options['unknownType']>
-  emptySchemaType: NonNullable<Options['emptySchemaType']>
   optionalType: NonNullable<Options['optionalType']>
   arrayType: NonNullable<Options['arrayType']>
   transformers: NonNullable<Options['transformers']>
   syntaxType: NonNullable<Options['syntaxType']>
   paramsCasing: Options['paramsCasing']
+  legacy: NonNullable<Options['legacy']>
+  resolver: ResolverTs
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>

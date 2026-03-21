@@ -5,9 +5,7 @@
 
 import type { PaymentMethodMapped } from "./PaymentMethodMapped.ts";
 
-export type BankTransferPaymentMapped = ((PaymentMethodMapped & {
-    type: "bank_transfer";
-}) & {
+export type BankTransferPaymentMapped = (PaymentMethodMapped & {
     /**
      * @type string | undefined
     */

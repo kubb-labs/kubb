@@ -1,3 +1,4 @@
+import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
@@ -25,6 +26,7 @@ export default defineConfig([
     hooks: {
       done: ['npm run typecheck'],
     },
+    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({
         validate: true,
@@ -37,6 +39,7 @@ export default defineConfig([
       }),
       pluginTs({
         output: { path: 'models.ts', clean: true },
+        legacy: true,
       }),
       pluginReactQuery({
         output: {

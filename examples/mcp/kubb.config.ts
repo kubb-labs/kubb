@@ -1,3 +1,4 @@
+import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginMcp } from '@kubb/plugin-mcp'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -23,6 +24,7 @@ export default defineConfig(() => {
         '.ts': '.js',
       },
     },
+    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({
         validate: false,
@@ -30,6 +32,7 @@ export default defineConfig(() => {
       }),
       pluginTs({
         output: { path: 'models/ts' },
+        legacy: true,
       }),
       pluginZod({}),
       pluginMcp({

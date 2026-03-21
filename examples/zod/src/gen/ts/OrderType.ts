@@ -11,12 +11,16 @@ export const orderStatusEnum = {
 
 export type OrderStatusEnumTypeKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
+export type OrderStatusEnumType = OrderStatusEnumTypeKey
+
 export const orderHttpStatusEnum = {
   ok: 200,
   not_found: 400,
 } as const
 
 export type OrderHttpStatusEnumTypeKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
+
+export type OrderHttpStatusEnumType = OrderHttpStatusEnumTypeKey
 
 export const orderValueEnum = {
   FIRST_VALUE: 0,
@@ -29,35 +33,43 @@ export const orderValueEnum = {
 
 export type OrderValueEnumTypeKey = (typeof orderValueEnum)[keyof typeof orderValueEnum]
 
+export type OrderValueEnumType = OrderValueEnumTypeKey
+
 export type OrderType = {
   /**
-   * @type integer | undefined, int64
+   * @example 10
+   * @type integer | undefined
    */
   id?: number
   /**
-   * @type integer | undefined, int64
+   * @example 198772
+   * @type integer | undefined
    */
   petId?: number
   /**
-   * @type integer | undefined, int32
+   * @example 7
+   * @type integer | undefined
    */
   quantity?: number
   /**
-   * @type string | undefined, date-time
+   * @type string | undefined
    */
   shipDate?: string
   /**
    * @description Order Status
+   * @example approved
    * @type string | undefined
    */
   status?: OrderStatusEnumTypeKey
   /**
    * @description HTTP Status
+   * @example 200
    * @type number | undefined
    */
   http_status?: OrderHttpStatusEnumTypeKey
   /**
    * @description Price
+   * @example 2
    * @type number | undefined
    */
   value?: OrderValueEnumTypeKey

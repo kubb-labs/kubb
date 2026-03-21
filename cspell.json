@@ -89,6 +89,8 @@
     "arraybuffer",
     "fflate",
     "Palo",
-    "fehguy"
+    "fehguy",
+    "worldtime",
+    "bunq"
   ]
 }

@@ -98,7 +98,7 @@ export function buildFixture(): RootNode {
         method: 'POST',
         path: '/pets',
         tags: ['pets'],
-        requestBody: createSchema({ type: 'ref', ref: 'NewPet' }),
+        requestBody: { schema: createSchema({ type: 'ref', ref: 'NewPet' }) },
         responses: [createResponse({ statusCode: '201', schema: refPet, mediaType: 'application/json' })],
       }),
     ],

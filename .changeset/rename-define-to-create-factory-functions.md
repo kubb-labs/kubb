@@ -17,11 +17,7 @@
 "@kubb/plugin-redoc": major
 ---
 
-Rename factory functions from `define*` to `create*` to align with Vite ecosystem conventions.
-
-**Rule:** `define*` is reserved for pure identity/type helpers (no runtime behavior — removing the call doesn't change the value, only loses type inference). `create*` is used for functions that produce instances, wrap builders, or apply logic.
-
-`defineConfig` is unchanged — it is a pure identity helper.
+Rename factory functions from `define*` to `create*`. `defineConfig` is unchanged.
 
 | Before | After |
 |---|---|

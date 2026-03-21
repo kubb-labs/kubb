@@ -1013,7 +1013,20 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     const parameters: Array<ParameterNode> = oas.getParameters(operation).map((param) => parseParameter(options, param as unknown as Record<string, unknown>))
 
     const requestBodySchema = oas.getRequestSchema(operation)
-    const requestBody = requestBodySchema ? convertSchema({ schema: requestBodySchema }, options) : undefined
+    const requestBodySchemaNode = requestBodySchema ? convertSchema({ schema: requestBodySchema }, options) : undefined
+
+    const requestBodyKeysToOmit = requestBodySchema?.properties
+      ? Object.entries(requestBodySchema.properties)
+          .filter(([, prop]) => !isReference(prop) && (prop as { readOnly?: boolean }).readOnly)
+          .map(([key]) => key)
+      : undefined
+
+    const requestBody = requestBodySchemaNode
+      ? {
+          schema: requestBodySchemaNode,
+          keysToOmit: requestBodyKeysToOmit?.length ? requestBodyKeysToOmit : undefined,
+        }
+      : undefined
 
     const responses: Array<ResponseNode> = operation.getResponseStatusCodes().map((statusCode) => {
       const responseObj = operation.getResponseByStatusCode(statusCode)
@@ -1033,11 +1046,18 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
       const mediaType = rawContent ? toMediaType(Object.keys(rawContent)[0] ?? '') : toMediaType(operation.contentType ?? '')
 
+      const keysToOmit = responseSchema?.properties
+        ? Object.entries(responseSchema.properties)
+            .filter(([, prop]) => !isReference(prop) && (prop as { writeOnly?: boolean }).writeOnly)
+            .map(([key]) => key)
+        : undefined
+
       return createResponse({
         statusCode: statusCode as StatusCode,
         description,
         schema,
         mediaType,
+        keysToOmit: keysToOmit?.length ? keysToOmit : undefined,
       })
     })
 

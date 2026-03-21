@@ -1,3 +1,4 @@
+import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginCypress } from '@kubb/plugin-cypress'
@@ -15,6 +16,7 @@ export default defineConfig(() => {
     input: {
       path: 'https://petstore3.swagger.io/api/v3/openapi.json',
     },
+    adapter: adapterOas({ legacy: true }),
     output: {
       path: './src/gen',
       clean: true,
@@ -36,6 +38,7 @@ export default defineConfig(() => {
           type: 'tag',
         },
         enumType: 'asConst',
+        legacy: true,
       }),
       pluginReactQuery({
         output: {

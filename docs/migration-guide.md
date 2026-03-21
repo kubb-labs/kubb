@@ -10,62 +10,55 @@ outline: deep
 
 ## Breaking Changes
 
+### Node.js 22 required
+
+Kubb v5 requires **Node.js 22** or later.
+
 ### Factory functions renamed: `define*` → `create*`
 
-The `definePlugin`, `defineAdapter`, `defineGenerator`, `defineLogger`, and `defineStorage` factory functions have been renamed to use the `create*` prefix. This aligns with Vite ecosystem conventions where `define*` is reserved for pure type/config helpers (like `defineConfig`), and `create*` is used for functions that produce instances or apply logic.
+`defineConfig` is unchanged. All other factory functions now use the `create*` prefix.
 
 ::: code-group
 ```typescript [Before]
 import { definePlugin, defineAdapter, defineLogger, defineGenerator, defineStorage } from '@kubb/core'
 
-export const pluginExample = definePlugin((options) => ({ /* ... */ }))
-export const adapterExample = defineAdapter((options) => ({ /* ... */ }))
-export const loggerExample = defineLogger({ name: 'example', install() { /* ... */ } })
-export const generatorExample = defineGenerator({ /* ... */ })
-export const storageExample = defineStorage((options) => ({ /* ... */ }))
+export const myPlugin = definePlugin((options) => ({ /* ... */ }))
+export const myAdapter = defineAdapter((options) => ({ /* ... */ }))
+export const myLogger = defineLogger({ name: 'my-logger', install() { /* ... */ } })
+export const myGenerator = defineGenerator({ /* ... */ })
+export const myStorage = defineStorage((options) => ({ /* ... */ }))
 ```
 
-```typescript [After (v5)]
+```typescript [After]
 import { createPlugin, createAdapter, createLogger, createGenerator, createStorage } from '@kubb/core'
 
-export const pluginExample = createPlugin((options) => ({ /* ... */ }))
-export const adapterExample = createAdapter((options) => ({ /* ... */ }))
-export const loggerExample = createLogger({ name: 'example', install() { /* ... */ } })
-export const generatorExample = createGenerator({ /* ... */ })
-export const storageExample = createStorage((options) => ({ /* ... */ }))
+export const myPlugin = createPlugin((options) => ({ /* ... */ }))
+export const myAdapter = createAdapter((options) => ({ /* ... */ }))
+export const myLogger = createLogger({ name: 'my-logger', install() { /* ... */ } })
+export const myGenerator = createGenerator({ /* ... */ })
+export const myStorage = createStorage((options) => ({ /* ... */ }))
 ```
 :::
 
-`defineConfig` is unchanged — it is a pure identity helper that only provides TypeScript inference and has no runtime behavior, which is exactly the `define*` convention.
-
-### Node.js 22 required
-
-Kubb v5 requires **Node.js 22** or later. Please upgrade your Node.js version before updating.
-
 ### Each plugin can only be used once
 
-You can no longer add the same plugin twice in your config. If you were using multiple instances of the same plugin, consolidate them into a single instance.
+Adding the same plugin twice will throw an error.
 
 ```typescript
 // ❌ No longer allowed
 export default defineConfig({
-  plugins: [
-    pluginTs({}),
-    pluginTs({}),
-  ],
+  plugins: [pluginTs({}), pluginTs({})],
 })
 
 // ✅ Use a single instance
 export default defineConfig({
-  plugins: [
-    pluginTs({}),
-  ],
+  plugins: [pluginTs({})],
 })
 ```
 
 ### `PluginManager` renamed to `PluginDriver`
 
-The `PluginManager` class has been renamed to `PluginDriver`. In addition, all references to `pluginManager` in context objects and meta have been shortened to `driver`, and the `usePluginManager` hook is now `usePluginDriver`.
+Affects custom plugin and generator authors.
 
 ::: code-group
 ```typescript [Before]
@@ -73,40 +66,36 @@ import { PluginManager } from '@kubb/core'
 import { usePluginManager } from '@kubb/core/hooks'
 
 // In a generator or plugin context:
-const driver = meta.pluginManager
-const name = generator.context.pluginManager.resolveName({ name: 'Foo', type: 'function' })
+meta.pluginManager
 ```
 
-```typescript [After (v5)]
+```typescript [After]
 import { PluginDriver } from '@kubb/core'
 import { usePluginDriver } from '@kubb/core/hooks'
 
 // In a generator or plugin context:
-const driver = meta.driver
-const name = generator.context.driver.resolveName({ name: 'Foo', type: 'function' })
+meta.driver
 ```
 :::
 
 ### Object and JSON plugin formats removed
 
-The legacy object-style and JSON-style plugin formats are no longer supported. Only the array-of-plugin-instances format is valid.
+Only the array-of-plugin-instances format is supported.
 
 ::: code-group
 ```typescript [Before (object style)]
 export default defineConfig({
-  plugins: {
-    '@kubb/plugin-ts': {},
-  },
+  plugins: { '@kubb/plugin-ts': {} },
 })
 ```
 
-```typescript [Before (JSON style)]
+```typescript [Before (array tuple)]
 export default defineConfig({
   plugins: [['@kubb/plugin-ts', {}]],
 })
 ```
 
-```typescript [After (v5)]
+```typescript [After]
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
@@ -117,65 +106,96 @@ export default defineConfig({
 
 ### `mapper` removed from `@kubb/plugin-ts`
 
-The `mapper` option has been removed from `@kubb/plugin-ts`. This option allowed overriding specific TypeScript property signatures by name. A new `transform` option will be introduced in v5 that provides a more powerful way to transform the generated AST nodes (`schemaNode` and `operationNode`).
+The `mapper` option has been removed. Use a custom generator to transform generated output instead.
+
+### `@kubb/plugin-ts` options moved to `adapterOas`
+
+These options no longer exist on `pluginTs(...)` — pass them to `adapterOas(...)` instead.
 
 ::: code-group
 ```typescript [Before]
+import { defineConfig } from '@kubb/core'
 import { pluginTs } from '@kubb/plugin-ts'
-import ts, { factory } from 'typescript'
 
 export default defineConfig({
   plugins: [
     pluginTs({
-      mapper: {
-        category: factory.createPropertySignature(
-          undefined,
-          factory.createIdentifier('category'),
-          factory.createToken(ts.SyntaxKind.QuestionToken),
-          factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
-        ),
-      },
+      enumSuffix: 'enum',
+      dateType: 'date',
+      integerType: 'bigint',
+      unknownType: 'unknown',
+      emptySchemaType: 'unknown',
     }),
   ],
 })
 ```
 
-```typescript [After (v5)]
+```typescript [After]
+import { defineConfig } from '@kubb/core'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   plugins: [
-    pluginTs({
-      // Use the new transform option (coming in v5) to transform schemaNode and operationNode
+    adapterOas({
+      enumSuffix: 'enum',
+      dateType: 'date',
+      integerType: 'bigint',
+      unknownType: 'unknown',
+      emptySchemaType: 'unknown',
     }),
+    pluginTs(),
   ],
 })
 ```
 :::
 
-### `collisionDetection` default changed to `true` in `@kubb/adapter-oas`
+### Enum naming changed (`collisionDetection`)
 
-The `collisionDetection` option in `@kubb/adapter-oas` (and the underlying adapter) now defaults to `true` instead of `false`.
+`collisionDetection` defaults to `true` in v5 (was `false` in v4). This changes how nested enum names are generated.
 
-When `true`, inline enum names include the full property path (e.g. `OrderParamsStatusEnum`) so name collisions across schema components are resolved automatically. When `false`, only the immediate property context is used for the name (e.g. `ParamsStatusEnum`), matching the previous v4 behavior, with numeric suffixes added for any duplicates (e.g. `ParamsStatusEnum2`).
+| Mode | Example |
+|---|---|
+| `true` (default, v5) | `OrderParamsStatusEnum` |
+| `false` (v4 behavior) | `ParamsStatusEnum` |
 
-If your generated code relied on the old short-path naming, set `collisionDetection: false` explicitly:
+To keep v4 behavior:
 
 ```typescript
+import { defineConfig } from '@kubb/core'
 import { adapterOas } from '@kubb/adapter-oas'
 
 export default defineConfig({
-  adapter: adapterOas({
-    collisionDetection: false, // restore previous naming behavior
-  }),
+  plugins: [
+    adapterOas({ collisionDetection: false }),
+  ],
 })
 ```
 
----
+### Backwards-compatible type naming (`legacy` option)
+
+If your code relies on v4 operation type names, set `legacy: true` in `pluginTs` while you migrate.
+
+```typescript
+import { defineConfig } from '@kubb/core'
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  plugins: [
+    pluginTs({ legacy: true }),
+  ],
+})
+```
+
+| Type | v5 default | `legacy: true` |
+|---|---|---|
+| Request body | `<OperationId>Data` | `<OperationId>MutationRequest` / `QueryRequest` |
+| Response union | `<OperationId>Response` | `<OperationId>MutationResponse` / `QueryResponse` |
+| All responses | `<OperationId>Responses` | `<OperationId>Mutation` / `Query` |
+| Response status | `<OperationId>Status201` | `<OperationId>201` |
+| Default/error | `<OperationId>StatusDefault` | `<OperationId>Error` |
 
 # Migrating to Kubb v3
-
-
 
 ## New Features
 

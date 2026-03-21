@@ -38,9 +38,12 @@ function toCamelOrPascal(text: string, pascal: boolean): string {
  * Splits `text` on `.` and applies `transformPart` to each segment.
  * The last segment receives `isLast = true`, all earlier segments receive `false`.
  * Segments are joined with `/` to form a file path.
+ *
+ * Only splits on dots followed by a letter so that version numbers
+ * embedded in operationIds (e.g. `v2025.0`) are kept intact.
  */
 function applyToFileParts(text: string, transformPart: (part: string, isLast: boolean) => string): string {
-  const parts = text.split('.')
+  const parts = text.split(/\.(?=[a-zA-Z])/)
   return parts.map((part, i) => transformPart(part, i === parts.length - 1)).join('/')
 }
 

@@ -1,4 +1,4 @@
-import { jsStringEscape, pascalCase, stringify } from '@internals/utils'
+import { jsStringEscape, stringify } from '@internals/utils'
 import { isPlainStringType } from '@kubb/ast'
 import type { ArraySchemaNode, SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
@@ -6,7 +6,7 @@ import { definePrinter } from '@kubb/core'
 import type ts from 'typescript'
 import { ENUM_TYPES_WITH_KEY_SUFFIX, OPTIONAL_ADDS_QUESTION_TOKEN, OPTIONAL_ADDS_UNDEFINED } from './constants.ts'
 import * as factory from './factory.ts'
-import type { PluginTs } from './types.ts'
+import type { PluginTs, ResolverTs } from './types.ts'
 
 type TsOptions = {
   /**
@@ -41,6 +41,10 @@ type TsOptions = {
    * Forces type-alias syntax even when `syntaxType` is `'interface'`.
    */
   keysToOmit?: Array<string>
+  /**
+   * Resolver used to transform raw schema names into valid TypeScript identifiers.
+   */
+  resolver: ResolverTs
 }
 
 /**
@@ -235,7 +239,14 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         if (!node.name) {
           return undefined
         }
-        return factory.createTypeReferenceNode(node.name, undefined)
+        // Parser-generated refs (with $ref) carry raw schema names that need resolving.
+        // Use the canonical name from the $ref path — node.name may have been overridden
+        // (e.g. by single-member allOf flatten using the property-derived child name).
+        // Inline refs (without $ref) from utils already carry resolved type names.
+        const refName = node.ref ? (node.ref.split('/').at(-1) ?? node.name) : node.name
+        const name = node.ref ? this.options.resolver.default(refName, 'type') : refName
+
+        return factory.createTypeReferenceNode(name, undefined)
       },
       enum(node) {
         const values = node.namedEnumValues?.map((v) => v.value) ?? node.enumValues ?? []
@@ -249,7 +260,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
           return factory.createUnionDeclaration({ withParentheses: true, nodes: literalNodes }) ?? undefined
         }
 
-        const resolvedName = pascalCase(node.name)
+        const resolvedName = this.options.resolver.default(node.name, 'type')
         const typeName = ENUM_TYPES_WITH_KEY_SUFFIX.has(this.options.enumType) ? `${resolvedName}Key` : resolvedName
 
         return factory.createTypeReferenceNode(typeName, undefined)

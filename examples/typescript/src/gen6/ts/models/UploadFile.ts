@@ -5,40 +5,34 @@
 
 import type { ApiResponse } from './ApiResponse.ts'
 
-/**
- * @description ID of pet to update
- */
-export type UploadFilePathPetId = number
+export type UploadFilePathParams = {
+  /**
+   * @description ID of pet to update
+   * @type integer
+   */
+  petId: number
+}
 
-/**
- * @description Additional Metadata
- */
-export type UploadFileQueryAdditionalMetadata = string
+export type UploadFileQueryParams = {
+  /**
+   * @description Additional Metadata
+   * @type string | undefined
+   */
+  additionalMetadata?: string
+}
 
 /**
  * @description successful operation
  */
-export type UploadFileStatus200 = ApiResponse
+export type UploadFile200 = ApiResponse
 
-export type UploadFileData = Blob
+export type UploadFileMutationRequest = Blob
 
-export type UploadFileRequestConfig = {
-  data?: UploadFileData
-  pathParams: {
-    petId: UploadFilePathPetId
-  }
-  queryParams?: {
-    additionalMetadata?: UploadFileQueryAdditionalMetadata
-  }
-  headerParams?: never
-  url: `/pet/${string}/uploadImage`
+export type UploadFileMutation = {
+  Response: UploadFile200
+  Request: UploadFileMutationRequest
+  PathParams: UploadFilePathParams
+  Errors: any
 }
 
-export type UploadFileResponses = {
-  '200': UploadFileStatus200
-}
-
-/**
- * @description Union of all possible responses
- */
-export type UploadFileResponse = UploadFileStatus200
+export type UploadFileMutationResponse = UploadFile200

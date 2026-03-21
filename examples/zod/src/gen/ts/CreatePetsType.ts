@@ -21,20 +21,22 @@ export type CreatePetsQueryParamsType = {
   offset?: number
 }
 
-export const createPetsHeaderParamsXEXAMPLEEnum = {
+export const createPetsHeaderParamsTypeXEXAMPLEEnum = {
   ONE: 'ONE',
   TWO: 'TWO',
   THREE: 'THREE',
 } as const
 
-export type CreatePetsHeaderParamsXEXAMPLEEnumTypeKey = (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum]
+export type CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey = (typeof createPetsHeaderParamsTypeXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsTypeXEXAMPLEEnum]
+
+export type CreatePetsHeaderParamsTypeXEXAMPLEEnumType = CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey
 
 export type CreatePetsHeaderParamsType = {
   /**
    * @description Header parameters
    * @type string
    */
-  'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnumTypeKey
+  'X-EXAMPLE': CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey
 }
 
 /**
@@ -58,13 +60,12 @@ export type CreatePetsMutationRequestType = {
   tag: string
 }
 
-export type CreatePetsMutationResponseType = CreatePets201Type
-
-export type CreatePetsTypeMutation = {
+export type CreatePetsMutationType = {
   Response: CreatePets201Type
   Request: CreatePetsMutationRequestType
   PathParams: CreatePetsPathParamsType
-  QueryParams: CreatePetsQueryParamsType
   HeaderParams: CreatePetsHeaderParamsType
-  Errors: any
+  Errors: CreatePetsErrorType
 }
+
+export type CreatePetsMutationResponseType = CreatePets201Type

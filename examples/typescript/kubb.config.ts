@@ -10,11 +10,12 @@ export default defineConfig([
     root: '.',
     input,
     output: {
-      path: './src/gen',
+      path: './src/legacy',
       clean: true,
     },
     adapter: adapterOas({
       validate: false,
+      collisionDetection: false,
     }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -25,6 +26,7 @@ export default defineConfig([
         },
         enumType: 'enum',
         syntaxType: 'interface',
+        legacy: true,
       }),
     ],
   },
@@ -32,32 +34,23 @@ export default defineConfig([
     root: '.',
     input,
     output: {
-      path: './src/gen-adapter',
+      path: './src/gen',
       clean: true,
     },
     adapter: adapterOas({
       validate: false,
+      collisionDetection: false,
     }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
-          path: 'models',
+          path: 'models.ts',
+          barrelType: false,
         },
-        override: [
-          {
-            type: 'schemaName',
-            pattern: 'ApiResponse',
-            options: {
-              syntaxType: 'type',
-            },
-          },
-        ],
-        group: {
-          type: 'tag',
-        },
-        enumType: 'constEnum',
+        enumType: 'enum',
         syntaxType: 'interface',
+        legacy: true,
       }),
     ],
   },
@@ -67,6 +60,7 @@ export default defineConfig([
     output: { path: './src/gen2', clean: true },
     adapter: adapterOas({
       validate: false,
+      collisionDetection: false,
     }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -76,6 +70,7 @@ export default defineConfig([
           barrelType: false,
         },
         enumType: 'asConst',
+        legacy: true,
       }),
     ],
   },
@@ -85,6 +80,7 @@ export default defineConfig([
     output: { path: './src/gen3', clean: true },
     adapter: adapterOas({
       validate: false,
+      collisionDetection: false,
     }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -94,6 +90,7 @@ export default defineConfig([
           barrelType: false,
         },
         enumType: 'asPascalConst',
+        legacy: true,
       }),
     ],
   },
@@ -103,6 +100,7 @@ export default defineConfig([
     output: { path: './src/gen4', clean: true },
     adapter: adapterOas({
       validate: false,
+      collisionDetection: false,
     }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -112,6 +110,7 @@ export default defineConfig([
           barrelType: false,
         },
         enumType: 'constEnum',
+        legacy: true,
       }),
     ],
   },
@@ -121,6 +120,7 @@ export default defineConfig([
     output: { path: './src/gen5', clean: true },
     adapter: adapterOas({
       validate: false,
+      collisionDetection: false,
     }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -130,6 +130,7 @@ export default defineConfig([
           barrelType: false,
         },
         enumType: 'literal',
+        legacy: true,
       }),
     ],
   },
@@ -142,6 +143,7 @@ export default defineConfig([
     },
     adapter: adapterOas({
       validate: false,
+      collisionDetection: false,
     }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -149,6 +151,7 @@ export default defineConfig([
         output: {
           path: 'ts/models',
         },
+        legacy: true,
       }),
     ],
   },

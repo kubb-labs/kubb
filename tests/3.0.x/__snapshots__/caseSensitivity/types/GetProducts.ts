@@ -4,9 +4,6 @@
 */
 
 
-/**
- * @description Product response
-*/
 export type GetProducts200 = {
     /**
      * @type string | undefined
@@ -22,9 +19,9 @@ export type GetProducts200 = {
     stock?: number;
 };
 
-export type GetProductsQueryResponse = GetProducts200;
-
 export type GetProductsQuery = {
     Response: GetProducts200;
     Errors: any;
 };
+
+export type GetProductsQueryResponse = GetProducts200;
