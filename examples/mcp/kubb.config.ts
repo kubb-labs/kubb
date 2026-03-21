@@ -26,6 +26,7 @@ export default defineConfig(() => {
     plugins: [
       pluginOas({
         validate: false,
+        generators: [],
       }),
       pluginTs({
         output: { path: 'models/ts' },

@@ -682,9 +682,8 @@ components:
           description: Order Status
           anyOf:
             - type: string
-              const: ''
+              const: 'accepted'
             - type: string
-              format: email
         http_status:
           type: number
           description: HTTP Status
