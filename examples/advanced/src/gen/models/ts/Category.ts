@@ -1,6 +1,6 @@
 export type Category = {
   /**
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   id?: number
   /**

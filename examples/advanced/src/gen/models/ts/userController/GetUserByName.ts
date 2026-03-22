@@ -26,7 +26,13 @@ export type GetUserByName404 = any
 export type GetUserByNameQueryResponse = GetUserByName200
 
 export type GetUserByNameQuery = {
+  /**
+   * @type object
+   */
   Response: GetUserByName200
+  /**
+   * @type object
+   */
   PathParams: GetUserByNamePathParams
   Errors: GetUserByName400 | GetUserByName404
 }

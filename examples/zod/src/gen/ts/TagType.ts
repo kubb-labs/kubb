@@ -5,7 +5,7 @@
 
 export type TagType = {
   /**
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   id?: number
   /**

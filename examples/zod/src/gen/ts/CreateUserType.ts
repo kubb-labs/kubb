@@ -17,8 +17,14 @@ export type CreateUserMutationRequestType = UserType
 
 export type CreateUserMutationResponseType = any
 
-export type CreateUserMutationType = {
+export type CreateUserTypeMutation = {
   Response: any
+  /**
+   * @type object
+   */
   Request: CreateUserMutationRequestType
+  /**
+   * @type object
+   */
   Errors: CreateUserErrorType
 }

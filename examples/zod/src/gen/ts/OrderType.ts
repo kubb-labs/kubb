@@ -31,19 +31,19 @@ export type OrderValueEnumTypeKey = (typeof orderValueEnum)[keyof typeof orderVa
 
 export type OrderType = {
   /**
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   id?: number
   /**
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   petId?: number
   /**
-   * @type integer | undefined
+   * @type integer | undefined, int32
    */
   quantity?: number
   /**
-   * @type string | undefined
+   * @type string | undefined, date-time
    */
   shipDate?: string
   /**

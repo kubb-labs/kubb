@@ -8,7 +8,7 @@ import type { OrderType } from './OrderType.ts'
 export type GetOrderByIdPathParamsType = {
   /**
    * @description ID of order that needs to be fetched
-   * @type integer
+   * @type integer, int64
    */
   orderId: number
 }
@@ -30,8 +30,14 @@ export type GetOrderById404Type = any
 
 export type GetOrderByIdQueryResponseType = GetOrderById200Type
 
-export type GetOrderByIdQueryType = {
+export type GetOrderByIdTypeQuery = {
+  /**
+   * @type object
+   */
   Response: GetOrderById200Type
+  /**
+   * @type object
+   */
   PathParams: GetOrderByIdPathParamsType
   Errors: GetOrderById400Type | GetOrderById404Type
 }

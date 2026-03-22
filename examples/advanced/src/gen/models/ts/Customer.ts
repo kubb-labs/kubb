@@ -10,7 +10,7 @@ export type ParamsStatusEnum2Key = (typeof paramsStatusEnum2)[keyof typeof param
 
 export type Customer = {
   /**
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   id?: number
   /**

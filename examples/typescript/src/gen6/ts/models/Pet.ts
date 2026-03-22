@@ -19,7 +19,7 @@ export type StatusEnumKey = (typeof statusEnum)[keyof typeof statusEnum]
 export type Pet =
   | (Dog & {
       /**
-       * @type integer | undefined
+       * @type integer | undefined, int64
        */
       id?: number
       /**
@@ -30,6 +30,9 @@ export type Pet =
        * @type string
        */
       name: string
+      /**
+       * @type object | undefined
+       */
       category?: Category
       /**
        * @type array
@@ -47,7 +50,7 @@ export type Pet =
     })
   | (Cat & {
       /**
-       * @type integer | undefined
+       * @type integer | undefined, int64
        */
       id?: number
       /**
@@ -58,6 +61,9 @@ export type Pet =
        * @type string
        */
       name: string
+      /**
+       * @type object | undefined
+       */
       category?: Category
       /**
        * @type array

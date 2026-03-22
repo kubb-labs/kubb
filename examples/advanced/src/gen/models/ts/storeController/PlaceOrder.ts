@@ -15,7 +15,16 @@ export type PlaceOrderMutationRequest = Order
 export type PlaceOrderMutationResponse = PlaceOrder200
 
 export type PlaceOrderMutation = {
+  /**
+   * @type object
+   */
   Response: PlaceOrder200
+  /**
+   * @type object
+   */
   Request: PlaceOrderMutationRequest
+  /**
+   * @type object
+   */
   Errors: PlaceOrder405
 }

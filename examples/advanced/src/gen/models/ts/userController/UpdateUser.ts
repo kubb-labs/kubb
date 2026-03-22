@@ -22,7 +22,16 @@ export type UpdateUserMutationResponse = any
 
 export type UpdateUserMutation = {
   Response: any
+  /**
+   * @type object
+   */
   Request: UpdateUserMutationRequest
+  /**
+   * @type object
+   */
   PathParams: UpdateUserPathParams
+  /**
+   * @type object
+   */
   Errors: UpdateUserError
 }

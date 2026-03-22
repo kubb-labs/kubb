@@ -13,5 +13,8 @@ export type Dog = {
    * @type string
    */
   name: string
+  /**
+   * @type object | undefined
+   */
   image?: Image
 }

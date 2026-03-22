@@ -15,7 +15,16 @@ export type AddFilesMutationRequest = Omit<NonNullable<Pet>, 'id'>
 export type AddFilesMutationResponse = AddFiles200
 
 export type AddFilesMutation = {
+  /**
+   * @type object
+   */
   Response: AddFiles200
+  /**
+   * @type object
+   */
   Request: AddFilesMutationRequest
+  /**
+   * @type object
+   */
   Errors: AddFiles405
 }
