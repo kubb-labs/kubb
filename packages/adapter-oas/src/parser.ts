@@ -487,6 +487,8 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     const constValue = schema.const
 
     if (constValue === null) {
+      // Do not propagate `nullable` here: the type is already `null`, so marking it
+      // nullable too would cause the printer to emit `null | null`.
       return createSchema({
         type: 'null',
         primitive: 'null',
@@ -494,7 +496,6 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
-        nullable,
       })
     }
 
@@ -725,7 +726,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
             name: propName,
             schema: {
               ...schemaNode,
-              nullable: propNullable || undefined,
+              nullable: schemaNode.type === 'null' ? undefined : propNullable || undefined,
               optional: !required && !propNullable ? true : undefined,
               nullish: !required && propNullable ? true : undefined,
             },
