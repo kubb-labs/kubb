@@ -16,7 +16,7 @@ export type PetStatusEnumTypeKey = (typeof petStatusEnum)[keyof typeof petStatus
 
 export type PetType = {
   /**
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   id?: number
   /**
@@ -32,6 +32,9 @@ export type PetType = {
    * @type string
    */
   name: string
+  /**
+   * @type object | undefined
+   */
   category?: CategoryType
   /**
    * @type array

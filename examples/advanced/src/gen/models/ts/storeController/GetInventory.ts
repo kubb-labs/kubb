@@ -8,6 +8,9 @@ export type GetInventory200 = {
 export type GetInventoryQueryResponse = GetInventory200
 
 export type GetInventoryQuery = {
+  /**
+   * @type object
+   */
   Response: GetInventory200
   Errors: any
 }

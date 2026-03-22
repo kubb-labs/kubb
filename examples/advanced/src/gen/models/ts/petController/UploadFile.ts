@@ -3,7 +3,7 @@ import type { ApiResponse } from '../ApiResponse.ts'
 export type UploadFilePathParams = {
   /**
    * @description ID of pet to update
-   * @type integer
+   * @type integer, int64
    */
   petId: number
 }
@@ -26,8 +26,21 @@ export type UploadFileMutationRequest = Blob
 export type UploadFileMutationResponse = UploadFile200
 
 export type UploadFileMutation = {
+  /**
+   * @type object
+   */
   Response: UploadFile200
+  /**
+   * @type object
+   */
   Request: UploadFileMutationRequest
+  /**
+   * @type object
+   */
   PathParams: UploadFilePathParams
+  /**
+   * @type object
+   */
+  QueryParams: UploadFileQueryParams
   Errors: any
 }

@@ -16,13 +16,16 @@ export type AddPetRequestStatusEnumKey = (typeof addPetRequestStatusEnum)[keyof 
 
 export type AddPetRequest = {
   /**
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   id?: number
   /**
    * @type string
    */
   name: string
+  /**
+   * @type object | undefined
+   */
   category?: Category
   /**
    * @type array

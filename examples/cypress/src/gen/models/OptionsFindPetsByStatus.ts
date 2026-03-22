@@ -13,6 +13,9 @@ export type OptionsFindPetsByStatus200 = Pet[]
 export type OptionsFindPetsByStatusMutationResponse = OptionsFindPetsByStatus200
 
 export type OptionsFindPetsByStatusMutation = {
+  /**
+   * @type object
+   */
   Response: OptionsFindPetsByStatus200
   Errors: any
 }

@@ -6,7 +6,7 @@
 
 export type User = {
   /**
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   id?: number
   /**
@@ -35,7 +35,7 @@ export type User = {
   phone?: string
   /**
    * @description User Status
-   * @type integer | undefined
+   * @type integer | undefined, int32
    */
   userStatus?: number
 }
