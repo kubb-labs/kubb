@@ -34,13 +34,7 @@ export type UpdatePetMutationRequest = Pet
 export type UpdatePetMutationResponse = UpdatePet200
 
 export type UpdatePetMutation = {
-  /**
-   * @type object
-   */
   Response: UpdatePet200
-  /**
-   * @type object
-   */
   Request: UpdatePetMutationRequest
   Errors: UpdatePet400 | UpdatePet404 | UpdatePet405
 }

@@ -24,16 +24,7 @@ export type LoginUser400 = any
 export type LoginUserQueryResponse = LoginUser200
 
 export type LoginUserQuery = {
-  /**
-   * @type object
-   */
   Response: LoginUser200
-  /**
-   * @type object
-   */
   QueryParams: LoginUserQueryParams
-  /**
-   * @type object
-   */
   Errors: LoginUser400
 }

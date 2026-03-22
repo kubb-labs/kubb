@@ -36,16 +36,7 @@ export type FindPetsByStatus400Type = any
 export type FindPetsByStatusQueryResponseType = FindPetsByStatus200Type
 
 export type FindPetsByStatusTypeQuery = {
-  /**
-   * @type object
-   */
   Response: FindPetsByStatus200Type
-  /**
-   * @type object
-   */
   QueryParams: FindPetsByStatusQueryParamsType
-  /**
-   * @type object
-   */
   Errors: FindPetsByStatus400Type
 }

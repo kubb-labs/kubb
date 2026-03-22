@@ -10,7 +10,7 @@ export type UpdatePet200 = Omit<NonNullable<Pet>, 'name'>
  */
 export type UpdatePet202 = {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
 }
@@ -39,9 +39,6 @@ export type UpdatePetMutationResponse = UpdatePet200 | UpdatePet202
 
 export type UpdatePetMutation = {
   Response: UpdatePet200 | UpdatePet202
-  /**
-   * @type object
-   */
   Request: UpdatePetMutationRequest
   Errors: UpdatePet400 | UpdatePet404 | UpdatePet405
 }
