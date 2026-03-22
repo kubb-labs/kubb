@@ -5,16 +5,7 @@
 
 
 export type User = {
-    /**
-     * @type string
-    */
     id: string;
-    /**
-     * @type string
-    */
     email: string;
-    /**
-     * @type string | undefined
-    */
     name?: string;
 };

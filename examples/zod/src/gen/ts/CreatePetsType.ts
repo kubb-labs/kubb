@@ -8,7 +8,6 @@ import type { PetNotFoundType } from './PetNotFoundType.ts'
 export type CreatePetsPathParamsType = {
   /**
    * @description UUID
-   * @type string
    */
   uuid: string
 }
@@ -16,7 +15,6 @@ export type CreatePetsPathParamsType = {
 export type CreatePetsQueryParamsType = {
   /**
    * @description Offset
-   * @type integer | undefined
    */
   offset?: number
 }
@@ -32,7 +30,6 @@ export type CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey = (typeof createPetsHe
 export type CreatePetsHeaderParamsType = {
   /**
    * @description Header parameters
-   * @type string
    */
   'X-EXAMPLE': CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey
 }
@@ -48,13 +45,7 @@ export type CreatePets201Type = any
 export type CreatePetsErrorType = PetNotFoundType
 
 export type CreatePetsMutationRequestType = {
-  /**
-   * @type string
-   */
   name: string
-  /**
-   * @type string
-   */
   tag: string
 }
 

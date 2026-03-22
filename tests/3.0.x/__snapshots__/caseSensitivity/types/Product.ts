@@ -5,16 +5,7 @@
 
 
 export type Product = {
-    /**
-     * @type string | undefined
-    */
     productId?: string;
-    /**
-     * @type string | undefined
-    */
     productName?: string;
-    /**
-     * @type integer | undefined
-    */
     stock?: number;
 };

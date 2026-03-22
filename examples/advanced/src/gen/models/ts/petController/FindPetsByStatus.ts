@@ -1,16 +1,11 @@
 import type { Pet } from '../Pet.ts'
 
 export type FindPetsByStatusPathParams = {
-  /**
-   * @type string
-   */
   stepId: string
 }
 
 /**
  * @description successful operation
- * @minLength 1
- * @maxLength 3
  */
 export type FindPetsByStatus200 = Array<Pet>
 

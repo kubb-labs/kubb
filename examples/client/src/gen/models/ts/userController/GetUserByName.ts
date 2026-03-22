@@ -8,7 +8,6 @@ import type { User } from '../User.js'
 export type GetUserByNamePathParams = {
   /**
    * @description The name that needs to be fetched. Use user1 for testing.
-   * @type string
    */
   username: string
 }

@@ -3,7 +3,6 @@ import type { User } from '../User.ts'
 export type UpdateUserPathParams = {
   /**
    * @description name that need to be deleted
-   * @type string
    */
   username: string
 }

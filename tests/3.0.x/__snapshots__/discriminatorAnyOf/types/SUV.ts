@@ -12,13 +12,9 @@ export const typeEnum2 = {
 export type TypeEnum2Key = (typeof typeEnum2)[keyof typeof typeEnum2];
 
 export type SUV = (Vehicle & {
-    /**
-     * @type string | undefined
-    */
     type?: TypeEnum2Key;
     /**
      * @description Can handle offroad terrain
-     * @type boolean | undefined
     */
     offroadCapability?: boolean;
 });

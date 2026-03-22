@@ -6,9 +6,6 @@
 import type { Config } from "../Config.ts";
 
 export type GetConfigIdV20250PathParams = {
-    /**
-     * @type string
-    */
     config_id: string;
 };
 

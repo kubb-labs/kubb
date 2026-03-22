@@ -7,16 +7,7 @@
 import type { Address } from './Address.ts'
 
 export type Customer = {
-  /**
-   * @type integer | undefined
-   */
   id?: number
-  /**
-   * @type string | undefined
-   */
   username?: string
-  /**
-   * @type array | undefined
-   */
   address?: Address[]
 }

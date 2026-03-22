@@ -4,12 +4,6 @@
  */
 
 export type PetNotFoundType = {
-  /**
-   * @type integer | undefined
-   */
   code?: number
-  /**
-   * @type string | undefined
-   */
   message?: string
 }

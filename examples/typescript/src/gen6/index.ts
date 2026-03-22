@@ -27,8 +27,11 @@ export type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from './ts/models/CreateUsersWithListInput.ts'
-export type { Customer, ParamsStatusEnum2Key } from './ts/models/Customer.ts'
-export { paramsStatusEnum2 } from './ts/models/Customer.ts'
+export type {
+  Customer,
+  CustomerParamsStatusEnumKey,
+} from './ts/models/Customer.ts'
+export { customerParamsStatusEnum } from './ts/models/Customer.ts'
 export type {
   DeleteOrder400,
   DeleteOrder404,
@@ -116,9 +119,9 @@ export type {
 export type {
   Order,
   OrderHttpStatusEnumKey,
-  ParamsStatusEnumKey,
+  OrderParamsStatusEnumKey,
 } from './ts/models/Order.ts'
-export { orderHttpStatusEnum, paramsStatusEnum } from './ts/models/Order.ts'
+export { orderHttpStatusEnum, orderParamsStatusEnum } from './ts/models/Order.ts'
 export type { Pet, StatusEnumKey } from './ts/models/Pet.ts'
 export { statusEnum } from './ts/models/Pet.ts'
 export type { PetNotFound } from './ts/models/PetNotFound.ts'

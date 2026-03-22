@@ -4,13 +4,7 @@
  */
 
 export type CategoryType = {
-  /**
-   * @type integer | undefined
-   */
   id?: number
-  /**
-   * @type string | undefined
-   */
   name?: string
   parent?: CategoryType
 }

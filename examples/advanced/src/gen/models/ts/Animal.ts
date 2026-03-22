@@ -6,14 +6,8 @@ import type { Dog } from './Dog.ts'
  */
 export type Animal =
   | (Cat & {
-      /**
-       * @type string
-       */
       readonly type: 'cat'
     })
   | (Dog & {
-      /**
-       * @type string
-       */
       readonly type: 'dog'
     })

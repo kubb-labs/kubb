@@ -18,7 +18,6 @@ export type FindPetsByStatusQueryParamsType = {
   /**
    * @description Status values that need to be considered for filter
    * @default "available"
-   * @type string | undefined
    */
   status?: FindPetsByStatusQueryParamsTypeStatusEnumTypeKey
 }

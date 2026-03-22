@@ -2807,14 +2807,8 @@ describe('legacy enum naming (collisionDetection: false)', () => {
       { enumSuffix: 'enum' },
     )
 
-    const firstEnum = narrowSchema(
-      firstNode.properties?.find((p) => p.name === 'status')?.schema,
-      'enum',
-    )
-    const secondEnum = narrowSchema(
-      secondNode.properties?.find((p) => p.name === 'status')?.schema,
-      'enum',
-    )
+    const firstEnum = narrowSchema(firstNode.properties?.find((p) => p.name === 'status')?.schema, 'enum')
+    const secondEnum = narrowSchema(secondNode.properties?.find((p) => p.name === 'status')?.schema, 'enum')
 
     expect(firstEnum?.name).toBe('OrderStatusEnum')
     expect(secondEnum?.name).toBe('OrderStatusEnum2')

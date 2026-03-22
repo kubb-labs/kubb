@@ -5,8 +5,5 @@
 
 
 export type PaymentMethod = {
-    /**
-     * @type string
-    */
     type: string;
 };

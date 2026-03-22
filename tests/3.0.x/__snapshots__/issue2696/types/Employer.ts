@@ -5,16 +5,7 @@
 
 
 export type Employer = {
-    /**
-     * @type string
-    */
     id: string;
-    /**
-     * @type string
-    */
     name: string;
-    /**
-     * @type string | undefined
-    */
     industry?: string;
 };

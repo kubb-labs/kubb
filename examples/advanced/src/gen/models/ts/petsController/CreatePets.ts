@@ -3,7 +3,6 @@ import type { PetNotFound } from '../PetNotFound.ts'
 export type CreatePetsPathParams = {
   /**
    * @description UUID
-   * @type string
    */
   uuid: string
 }
@@ -15,13 +14,9 @@ export const createPetsQueryParamsBoolParamEnum = {
 export type CreatePetsQueryParamsBoolParamEnumKey = (typeof createPetsQueryParamsBoolParamEnum)[keyof typeof createPetsQueryParamsBoolParamEnum]
 
 export type CreatePetsQueryParams = {
-  /**
-   * @type boolean | undefined
-   */
   boolParam?: CreatePetsQueryParamsBoolParamEnumKey
   /**
    * @description Offset *\/
-   * @type integer | undefined
    */
   offset?: number
 }
@@ -37,7 +32,6 @@ export type CreatePetsHeaderParamsXEXAMPLEEnumKey = (typeof createPetsHeaderPara
 export type CreatePetsHeaderParams = {
   /**
    * @description Header parameters
-   * @type string
    */
   xEXAMPLE: CreatePetsHeaderParamsXEXAMPLEEnumKey
 }
@@ -53,13 +47,7 @@ export type CreatePets201 = any
 export type CreatePetsError = PetNotFound
 
 export type CreatePetsMutationRequest = {
-  /**
-   * @type string
-   */
   name: string
-  /**
-   * @type string
-   */
   tag: string
 }
 

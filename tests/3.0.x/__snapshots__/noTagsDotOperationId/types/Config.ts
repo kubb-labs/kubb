@@ -5,16 +5,7 @@
 
 
 export type Config = {
-    /**
-     * @type string | undefined
-    */
     id?: string;
-    /**
-     * @type string | undefined
-    */
     name?: string;
-    /**
-     * @type string | undefined
-    */
     version?: string;
 };

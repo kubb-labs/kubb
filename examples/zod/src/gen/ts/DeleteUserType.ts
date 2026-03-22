@@ -6,7 +6,6 @@
 export type DeleteUserPathParamsType = {
   /**
    * @description The name that needs to be deleted
-   * @type string
    */
   username: string
 }

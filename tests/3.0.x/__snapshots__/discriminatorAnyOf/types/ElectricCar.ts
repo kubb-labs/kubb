@@ -12,13 +12,9 @@ export const typeEnum3 = {
 export type TypeEnum3Key = (typeof typeEnum3)[keyof typeof typeEnum3];
 
 export type ElectricCar = (Vehicle & {
-    /**
-     * @type string | undefined
-    */
     type?: TypeEnum3Key;
     /**
      * @description Battery capacity in kWh
-     * @type number | undefined
     */
     batteryCapacity?: number;
 });

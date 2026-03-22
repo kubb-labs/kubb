@@ -6,16 +6,11 @@
 import type { Pet } from './Pet.js'
 
 export type FindPetsByStatusPathParams = {
-  /**
-   * @type string
-   */
   step_id: string
 }
 
 /**
  * @description successful operation
- * @minLength 1
- * @maxLength 3
  */
 export type FindPetsByStatus200 = Pet[]
 

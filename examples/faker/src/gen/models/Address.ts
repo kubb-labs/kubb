@@ -4,24 +4,9 @@
  */
 
 export type Address = {
-  /**
-   * @type string | undefined
-   */
   street?: string
-  /**
-   * @type string | undefined
-   */
   city?: string
-  /**
-   * @type string | undefined
-   */
   state?: string
-  /**
-   * @type string | undefined
-   */
   zip?: string
-  /**
-   * @type array | undefined
-   */
   identifier?: [number, string, 'NW' | 'NE' | 'SW' | 'SE']
 }

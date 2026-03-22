@@ -15,13 +15,7 @@ export type AddPet200Type = PetType
  * @description Pet not found
  */
 export type AddPet405Type = {
-  /**
-   * @type integer | undefined
-   */
   code?: number
-  /**
-   * @type string | undefined
-   */
   message?: string
 }
 

@@ -5,12 +5,6 @@
 
 
 export type BankTransferPaymentUnion = {
-    /**
-     * @type string | undefined
-    */
     type?: string;
-    /**
-     * @type string | undefined
-    */
     iban?: string;
 };

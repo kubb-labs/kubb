@@ -6,4 +6,8 @@
 import type { BankTransferPaymentUnion } from "./BankTransferPaymentUnion.ts";
 import type { CardPaymentUnion } from "./CardPaymentUnion.ts";
 
-export type PaymentMethodUnion = (CardPaymentUnion | BankTransferPaymentUnion);
+export type PaymentMethodUnion = ((CardPaymentUnion & {
+    type: "card";
+}) | (BankTransferPaymentUnion & {
+    type: "bank_transfer";
+}));

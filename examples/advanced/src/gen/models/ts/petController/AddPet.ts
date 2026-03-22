@@ -1,14 +1,11 @@
 import type { AddPetRequest } from '../AddPetRequest.ts'
 import type { Pet } from '../Pet.ts'
 
+/**
+ * @description Pet not found
+ */
 export type AddPet405 = {
-  /**
-   * @type integer | undefined
-   */
   code?: number
-  /**
-   * @type string | undefined
-   */
   message?: string
 }
 

@@ -11,17 +11,8 @@ export const variantTypeEnum = {
 export type VariantTypeEnumKey = (typeof variantTypeEnum)[keyof typeof variantTypeEnum];
 
 export type Variant = {
-    /**
-     * @type string | undefined
-    */
     id?: string;
-    /**
-     * @type string | undefined
-    */
     name?: string;
-    /**
-     * @type string | undefined
-    */
     type?: VariantTypeEnumKey;
 };
 

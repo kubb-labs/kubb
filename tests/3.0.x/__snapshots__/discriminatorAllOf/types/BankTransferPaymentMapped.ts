@@ -5,9 +5,8 @@
 
 import type { PaymentMethodMapped } from "./PaymentMethodMapped.ts";
 
-export type BankTransferPaymentMapped = (PaymentMethodMapped & {
-    /**
-     * @type string | undefined
-    */
+export type BankTransferPaymentMapped = ((PaymentMethodMapped & {
+    type: "bank_transfer";
+}) & {
     iban?: string;
 });

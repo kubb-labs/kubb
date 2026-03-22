@@ -5,12 +5,6 @@
 
 
 export type CardPaymentUnion = {
-    /**
-     * @type string | undefined
-    */
     type?: string;
-    /**
-     * @type string | undefined
-    */
     cardNumber?: string;
 };

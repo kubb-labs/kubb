@@ -8,17 +8,14 @@ import type { PetType } from './PetType.ts'
 export type FindPetsByTagsQueryParamsType = {
   /**
    * @description Tags to filter by
-   * @type array | undefined
    */
   tags?: string[]
   /**
    * @description to request with required page number or pagination
-   * @type string | undefined
    */
   page?: string
   /**
    * @description to request with required page size
-   * @type string | undefined
    */
   pageSize?: string
 }
@@ -35,7 +32,6 @@ export type FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumTypeKey =
 export type FindPetsByTagsHeaderParamsType = {
   /**
    * @description Header parameters
-   * @type string
    */
   'X-EXAMPLE': FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumTypeKey
 }

@@ -7,14 +7,8 @@ import type { Priority } from "./Priority.ts";
 import type { Status } from "./Status.ts";
 
 export type Task = {
-    /**
-     * @type string
-    */
     id: string;
     status: Status;
     priority?: Priority;
-    /**
-     * @type string | undefined
-    */
     title?: string;
 };

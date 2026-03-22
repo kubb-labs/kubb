@@ -15,35 +15,18 @@ export const petStatusEnum = {
 export type PetStatusEnumTypeKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
 
 export type PetType = {
-  /**
-   * @type integer | undefined
-   */
   id?: number
-  /**
-   * @type array | undefined
-   */
   parent?: PetType[]
   /**
    * @pattern ^[0-9]{1,19}$
-   * @type string | undefined
    */
   internalId?: string
-  /**
-   * @type string
-   */
   name: string
   category?: CategoryType
-  /**
-   * @type array
-   */
   photoUrls: string[]
-  /**
-   * @type array | undefined
-   */
   tags?: TagType[]
   /**
    * @description pet status in the store
-   * @type string | undefined
    */
   status?: PetStatusEnumTypeKey
 }

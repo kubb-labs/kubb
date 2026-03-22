@@ -7,12 +7,10 @@
 export type Vehicle = {
     /**
      * @description Unique vehicle identifier
-     * @type string
     */
     id: string;
     /**
      * @description Type of the vehicle, used for discriminator
-     * @type string
     */
     type: string;
 };

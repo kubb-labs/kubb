@@ -20,134 +20,59 @@ export const orderHttpStatusEnum = {
 export type OrderHttpStatusEnumKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
 
 export type Order = {
-  /**
-   * @type integer | undefined
-   */
   id?: number
-  /**
-   * @type integer | undefined
-   */
   petId?: number
-  /**
-   * @type integer | undefined
-   */
   quantity?: number
-  /**
-   * @type string | undefined
-   */
   shipDate?: string
   /**
    * @description Order Status
-   * @type string | undefined
    */
   status?: OrderStatusEnumKey
   /**
    * @description HTTP Status\'s and item of this
-   * @type number | undefined
    */
   http_status?: OrderHttpStatusEnumKey
-  /**
-   * @type boolean | undefined
-   */
   complete?: boolean
 }
 
 export type Address = {
-  /**
-   * @type string | undefined
-   */
   street?: string
-  /**
-   * @type string | undefined
-   */
   city?: string
-  /**
-   * @type string | undefined
-   */
   state?: string
-  /**
-   * @type string | undefined
-   */
   zip?: string
 }
 
 export type Customer = {
-  /**
-   * @type integer | undefined
-   */
   id?: number
-  /**
-   * @type string | undefined
-   */
   username?: string
-  /**
-   * @type array | undefined
-   */
   address?: Address[]
 }
 
 export type Category = {
-  /**
-   * @type integer | undefined
-   */
   id?: number
-  /**
-   * @type string | undefined
-   */
   name?: string
 }
 
 export type Person = {
-  /**
-   * @type string | undefined
-   */
   name?: string
 }
 
 export type User = Person & {
-  /**
-   * @type integer | undefined
-   */
   id?: number
-  /**
-   * @type string | undefined
-   */
   username?: string
-  /**
-   * @type string | undefined
-   */
   firstName?: string
-  /**
-   * @type string | undefined
-   */
   lastName?: string
-  /**
-   * @type string | undefined
-   */
   email?: string
-  /**
-   * @type string | undefined
-   */
   password?: string
-  /**
-   * @type string | undefined
-   */
   phone?: string
   /**
    * @description User Status
-   * @type integer | undefined
    */
   userStatus?: number
 }
 
 export type Tag = {
-  /**
-   * @type integer | undefined
-   */
   id?: number
-  /**
-   * @type string | undefined
-   */
   name?: string
 }
 
@@ -160,26 +85,13 @@ export const petStatusEnum = {
 export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
 
 export type Pet = {
-  /**
-   * @type integer | undefined
-   */
   id?: number
-  /**
-   * @type string
-   */
   name: string
   category?: Category
-  /**
-   * @type array
-   */
   photoUrls: string[]
-  /**
-   * @type array | undefined
-   */
   tags?: Tag[]
   /**
    * @description pet status in the store
-   * @type string | undefined
    */
   status?: PetStatusEnumKey
 }
@@ -193,53 +105,25 @@ export const addPetRequestStatusEnum = {
 export type AddPetRequestStatusEnumKey = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
 
 export type AddPetRequest = {
-  /**
-   * @type integer | undefined
-   */
   id?: number
-  /**
-   * @type string
-   */
   name: string
   category?: Category
-  /**
-   * @type array
-   */
   photoUrls: string[]
-  /**
-   * @type array | undefined
-   */
   tags?: Tag[]
   /**
    * @description pet status in the store
-   * @type string | undefined
    */
   status?: AddPetRequestStatusEnumKey
 }
 
 export type ApiResponse = {
-  /**
-   * @type integer | undefined
-   */
   code?: number
-  /**
-   * @type string | undefined
-   */
   type?: string
-  /**
-   * @type string | undefined
-   */
   message?: string
 }
 
 export type PetNotFound = {
-  /**
-   * @type integer | undefined
-   */
   code?: number
-  /**
-   * @type string | undefined
-   */
   message?: string
 }
 
@@ -287,13 +171,7 @@ export type AddPet200 = Pet
  * @description Pet not found
  */
 export type AddPet405 = {
-  /**
-   * @type integer | undefined
-   */
   code?: number
-  /**
-   * @type string | undefined
-   */
   message?: string
 }
 
@@ -322,7 +200,6 @@ export type FindPetsByStatusQueryParams = {
   /**
    * @description Status values that need to be considered for filter
    * @default "available"
-   * @type string | undefined
    */
   status?: FindPetsByStatusQueryParamsStatusEnumKey
 }
@@ -348,17 +225,14 @@ export type FindPetsByStatusQuery = {
 export type FindPetsByTagsQueryParams = {
   /**
    * @description Tags to filter by
-   * @type array | undefined
    */
   tags?: string[]
   /**
    * @description to request with required page number or pagination
-   * @type string | undefined
    */
   page?: string
   /**
    * @description to request with required page size
-   * @type string | undefined
    */
   pageSize?: string
 }
@@ -384,7 +258,6 @@ export type FindPetsByTagsQuery = {
 export type GetPetByIdPathParams = {
   /**
    * @description ID of pet to return
-   * @type integer
    */
   petId: number
 }
@@ -415,7 +288,6 @@ export type GetPetByIdQuery = {
 export type UpdatePetWithFormPathParams = {
   /**
    * @description ID of pet that needs to be updated
-   * @type integer
    */
   petId: number
 }
@@ -423,12 +295,10 @@ export type UpdatePetWithFormPathParams = {
 export type UpdatePetWithFormQueryParams = {
   /**
    * @description Name of pet that needs to be updated
-   * @type string | undefined
    */
   name?: string
   /**
    * @description Status of pet that needs to be updated
-   * @type string | undefined
    */
   status?: string
 }
@@ -450,15 +320,11 @@ export type UpdatePetWithFormMutation = {
 export type DeletePetPathParams = {
   /**
    * @description Pet id to delete
-   * @type integer
    */
   petId: number
 }
 
 export type DeletePetHeaderParams = {
-  /**
-   * @type string | undefined
-   */
   api_key?: string
 }
 
@@ -479,7 +345,6 @@ export type DeletePetMutation = {
 export type UploadFilePathParams = {
   /**
    * @description ID of pet to update
-   * @type integer
    */
   petId: number
 }
@@ -487,7 +352,6 @@ export type UploadFilePathParams = {
 export type UploadFileQueryParams = {
   /**
    * @description Additional Metadata
-   * @type string | undefined
    */
   additionalMetadata?: string
 }
@@ -566,7 +430,6 @@ export type PlaceOrderPatchMutation = {
 export type GetOrderByIdPathParams = {
   /**
    * @description ID of order that needs to be fetched
-   * @type integer
    */
   orderId: number
 }
@@ -597,7 +460,6 @@ export type GetOrderByIdQuery = {
 export type DeleteOrderPathParams = {
   /**
    * @description ID of the order that needs to be deleted
-   * @type integer
    */
   orderId: number
 }
@@ -661,12 +523,10 @@ export type CreateUsersWithListInputMutation = {
 export type LoginUserQueryParams = {
   /**
    * @description The user name for login
-   * @type string | undefined
    */
   username?: string
   /**
    * @description The password for login in clear text
-   * @type string | undefined
    */
   password?: string
 }
@@ -704,7 +564,6 @@ export type LogoutUserQuery = {
 export type GetUserByNamePathParams = {
   /**
    * @description The name that needs to be fetched. Use user1 for testing.
-   * @type string
    */
   username: string
 }
@@ -735,7 +594,6 @@ export type GetUserByNameQuery = {
 export type UpdateUserPathParams = {
   /**
    * @description name that need to be deleted
-   * @type string
    */
   username: string
 }
@@ -762,7 +620,6 @@ export type UpdateUserMutation = {
 export type DeleteUserPathParams = {
   /**
    * @description The name that needs to be deleted
-   * @type string
    */
   username: string
 }

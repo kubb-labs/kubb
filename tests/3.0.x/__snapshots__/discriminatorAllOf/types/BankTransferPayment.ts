@@ -6,8 +6,5 @@
 import type { PaymentMethod } from "./PaymentMethod.ts";
 
 export type BankTransferPayment = (PaymentMethod & {
-    /**
-     * @type string | undefined
-    */
     iban?: string;
 });

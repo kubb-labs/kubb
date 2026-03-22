@@ -15,13 +15,7 @@ export type AddPet200 = Omit<NonNullable<Pet>, 'name'>
  * @description Pet not found
  */
 export type AddPet405 = {
-  /**
-   * @type integer | undefined
-   */
   code?: number
-  /**
-   * @type string | undefined
-   */
   message?: string
 }
 

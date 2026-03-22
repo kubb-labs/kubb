@@ -12,13 +12,9 @@ export const typeEnum = {
 export type TypeEnumKey = (typeof typeEnum)[keyof typeof typeEnum];
 
 export type Sedan = (Vehicle & {
-    /**
-     * @type string | undefined
-    */
     type?: TypeEnumKey;
     /**
      * @description Number of seats
-     * @type integer | undefined
     */
     seats?: number;
 });

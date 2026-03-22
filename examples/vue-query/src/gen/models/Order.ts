@@ -12,29 +12,13 @@ export const orderStatusEnum = {
 export type OrderStatusEnumKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
 export type Order = {
-  /**
-   * @type integer | undefined
-   */
   id?: number
-  /**
-   * @type integer | undefined
-   */
   petId?: number
-  /**
-   * @type integer | undefined
-   */
   quantity?: number
-  /**
-   * @type string | undefined
-   */
   shipDate?: string
   /**
    * @description Order Status
-   * @type string | undefined
    */
   status?: OrderStatusEnumKey
-  /**
-   * @type boolean | undefined
-   */
   complete?: boolean
 }

@@ -8,8 +8,5 @@ import type { User } from "./User.ts";
 
 export type AppState = {
     currentUser?: User;
-    /**
-     * @type array | undefined
-    */
     employers?: Employer[];
 };

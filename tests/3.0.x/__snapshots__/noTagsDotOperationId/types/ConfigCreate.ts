@@ -5,8 +5,5 @@
 
 
 export type ConfigCreate = {
-    /**
-     * @type string
-    */
     name: string;
 };
