@@ -6,7 +6,6 @@
 export type UpdatePetWithFormPathParamsType = {
   /**
    * @description ID of pet that needs to be updated
-   * @type integer
    */
   petId: number
 }
@@ -14,12 +13,10 @@ export type UpdatePetWithFormPathParamsType = {
 export type UpdatePetWithFormQueryParamsType = {
   /**
    * @description Name of pet that needs to be updated
-   * @type string | undefined
    */
   name?: string
   /**
    * @description Status of pet that needs to be updated
-   * @type string | undefined
    */
   status?: string
 }
@@ -31,8 +28,9 @@ export type UpdatePetWithForm405Type = any
 
 export type UpdatePetWithFormMutationResponseType = any
 
-export type UpdatePetWithFormMutationType = {
+export type UpdatePetWithFormTypeMutation = {
   Response: any
   PathParams: UpdatePetWithFormPathParamsType
+  QueryParams: UpdatePetWithFormQueryParamsType
   Errors: UpdatePetWithForm405Type
 }

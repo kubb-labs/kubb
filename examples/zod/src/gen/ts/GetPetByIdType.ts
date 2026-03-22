@@ -8,7 +8,6 @@ import type { PetType } from './PetType.ts'
 export type GetPetByIdPathParamsType = {
   /**
    * @description ID of pet to return
-   * @type integer
    */
   petId: number
 }
@@ -30,7 +29,7 @@ export type GetPetById404Type = any
 
 export type GetPetByIdQueryResponseType = GetPetById200Type
 
-export type GetPetByIdQueryType = {
+export type GetPetByIdTypeQuery = {
   Response: GetPetById200Type
   PathParams: GetPetByIdPathParamsType
   Errors: GetPetById400Type | GetPetById404Type

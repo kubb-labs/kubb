@@ -6,12 +6,10 @@
 export type LoginUserQueryParamsType = {
   /**
    * @description The user name for login
-   * @type string | undefined
    */
   username?: string
   /**
    * @description The password for login in clear text
-   * @type string | undefined
    */
   password?: string
 }
@@ -28,7 +26,7 @@ export type LoginUser400Type = any
 
 export type LoginUserQueryResponseType = LoginUser200Type
 
-export type LoginUserQueryType = {
+export type LoginUserTypeQuery = {
   Response: LoginUser200Type
   QueryParams: LoginUserQueryParamsType
   Errors: LoginUser400Type

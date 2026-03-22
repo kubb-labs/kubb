@@ -6,7 +6,6 @@
 export type DeleteUserPathParamsType = {
   /**
    * @description The name that needs to be deleted
-   * @type string
    */
   username: string
 }
@@ -23,7 +22,7 @@ export type DeleteUser404Type = any
 
 export type DeleteUserMutationResponseType = any
 
-export type DeleteUserMutationType = {
+export type DeleteUserTypeMutation = {
   Response: any
   PathParams: DeleteUserPathParamsType
   Errors: DeleteUser400Type | DeleteUser404Type
