@@ -381,8 +381,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       })
       .map((s) => convertSchema({ schema: s as SchemaObject }, options))
 
-    // Track where allOf-derived members end so only the synthetic members added below
-    // (injected required-key objects + outer-properties object) are candidates for merging.
+    // Track where allOf-derived members end so each portion can be merged independently.
     const syntheticStart = allOfMembers.length
 
     // When `required` lists keys not present in the outer `properties`, resolve them from
@@ -414,10 +413,13 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       allOfMembers.push(convertSchema({ schema: schemaWithoutAllOf }, options))
     }
 
-    // Merge consecutive anonymous object members within the synthetic portion — see `mergeAdjacentAnonymousObjects`.
+    // Merge consecutive anonymous object members in each portion independently —
+    // allOf-derived members are merged among themselves, synthetic members among themselves.
+    // This collapses adjacent inline objects while avoiding duplicate properties across the boundary.
+    // See `mergeAdjacentAnonymousObjects`.
     return createSchema({
       type: 'intersection',
-      members: [...allOfMembers.slice(0, syntheticStart), ...mergeAdjacentAnonymousObjects(allOfMembers.slice(syntheticStart))],
+      members: [...mergeAdjacentAnonymousObjects(allOfMembers.slice(0, syntheticStart)), ...mergeAdjacentAnonymousObjects(allOfMembers.slice(syntheticStart))],
       ...renderSchemaBase(schema, name, nullable, defaultValue),
     })
   }
