@@ -47,7 +47,7 @@ type TsOptions = {
   resolver: ResolverTs
   /**
    * When `true`, suppresses v5-only additions (e.g. `@example` JSDoc, `(string & {})` open unions)
-   * so that output matches v4 behaviour.
+   * so that output matches v4 behavior.
    */
   legacy?: boolean
 }

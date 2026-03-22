@@ -465,7 +465,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     }
 
     // Merge consecutive anonymous object members so that adjacent inline property objects
-    // collapse into a single object (matching v4 behaviour where e.g. `& { data } & { links }`
+    // collapse into a single object (matching v4 behavior where e.g. `& { data } & { links }`
     // becomes `& { data; links }`).
     const mergedMembers = mergeAdjacentAnonymousObjects(allOfMembers)
     return createSchema({
@@ -536,9 +536,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
           const refName = ref ? extractRefName(ref) : undefined
 
           // Look up the discriminant value from the mapping, or infer it from the ref name.
-          const discriminatorValue = discriminator.mapping
-            ? Object.entries(discriminator.mapping).find(([, v]) => v === ref)?.[0]
-            : refName
+          const discriminatorValue = discriminator.mapping ? Object.entries(discriminator.mapping).find(([, v]) => v === ref)?.[0] : refName
 
           const memberNode = convertSchema({ schema: s as SchemaObject }, options)
 
@@ -1115,9 +1113,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
     const paramName = param['name'] as string
 
-    const schema: SchemaNode = rawSchema
-      ? convertSchema({ schema: rawSchema }, options)
-      : createSchema({ type: resolveTypeOption(options.unknownType) })
+    const schema: SchemaNode = rawSchema ? convertSchema({ schema: rawSchema }, options) : createSchema({ type: resolveTypeOption(options.unknownType) })
 
     return createParameter({
       name: paramName,

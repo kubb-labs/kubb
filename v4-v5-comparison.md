@@ -1,7 +1,7 @@
 # Kubb v4 vs v5 Output Comparison Report
 
 > **Methodology**: Generated output was compared recursively between v5 (`/tests/e2e/gen-compare/`) and v4 (`kubb-v4/tests/e2e/gen-compare/`) using per-schema configs that include `plugin-ts`, `plugin-client`, and `plugin-zod`.
-> In v5, configs use `legacy: true` and `collisionDetection: false` to approximate v4 behaviour.
+> In v5, configs use `legacy: true` and `collisionDetection: false` to approximate v4 behavior.
 > Comparison configs: `tests/e2e/kubb-compare.config.js` in both repos.
 > `diff <v5-file> <v4-file>` — `<` = v5, `>` = v4.
 >
