@@ -71,6 +71,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
             syntaxType={syntaxType}
             resolver={resolver}
             keysToOmit={keysToOmit}
+            legacy={legacy}
           />
         </>
       )
@@ -103,7 +104,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
           node: legacy ? nameUnnamedEnums(node.requestBody.schema, resolver.resolveDataName(node)) : node.requestBody.schema,
           name: resolver.resolveDataName(node),
           typedName: resolver.resolveDataTypedName(node),
-          description: node.requestBody.schema.description,
+          description: legacy ? node.requestBody.description || node.requestBody.schema.description : node.requestBody.schema.description,
           keysToOmit: node.requestBody.keysToOmit,
         })
       : null
@@ -154,8 +155,8 @@ export const typeGenerator = defineGenerator<PluginTs>({
           {legacyParamTypes}
           {responseTypes}
           {requestType}
-          {legacyResponsesType}
           {legacyResponseType}
+          {legacyResponsesType}
         </File>
       )
     }
@@ -199,7 +200,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
   },
   Schema({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver } = options
+    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver, legacy } = options
     const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     if (!node.name) {
@@ -237,6 +238,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
           arrayType={arrayType}
           syntaxType={syntaxType}
           resolver={resolver}
+          legacy={legacy}
         />
       </File>
     )

@@ -1025,6 +1025,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       ? {
           schema: requestBodySchemaNode,
           keysToOmit: requestBodyKeysToOmit?.length ? requestBodyKeysToOmit : undefined,
+          description: (operation.schema.requestBody as { description?: string } | undefined)?.description,
         }
       : undefined
 

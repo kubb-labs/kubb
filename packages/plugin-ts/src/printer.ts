@@ -45,6 +45,11 @@ type TsOptions = {
    * Resolver used to transform raw schema names into valid TypeScript identifiers.
    */
   resolver: ResolverTs
+  /**
+   * When `true`, suppresses v5-only additions (e.g. `@example` JSDoc, `(string & {})` open unions)
+   * so that output matches v4 behaviour.
+   */
+  legacy?: boolean
 }
 
 /**
@@ -133,7 +138,7 @@ function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalTy
 /**
  * Collects JSDoc annotation strings (description, deprecated, min/max, pattern, default, example, type) for a schema node.
  */
-function buildPropertyJSDocComments(schema: SchemaNode): Array<string | undefined> {
+function buildPropertyJSDocComments(schema: SchemaNode, legacy?: boolean): Array<string | undefined> {
   return [
     'description' in schema && schema.description ? `@description ${jsStringEscape(schema.description)}` : undefined,
     'deprecated' in schema && schema.deprecated ? '@deprecated' : undefined,
@@ -143,7 +148,7 @@ function buildPropertyJSDocComments(schema: SchemaNode): Array<string | undefine
     'default' in schema && schema.default !== undefined
       ? `@default ${'primitive' in schema && schema.primitive === 'string' ? stringify(schema.default as string) : schema.default}`
       : undefined,
-    'example' in schema && schema.example !== undefined ? `@example ${schema.example}` : undefined,
+    !legacy && 'example' in schema && schema.example !== undefined ? `@example ${schema.example}` : undefined,
     'primitive' in schema && schema.primitive
       ? [`@type ${schema.primitive || 'unknown'}`, 'optional' in schema && schema.optional ? ' | undefined' : undefined].filter(Boolean).join('')
       : undefined,
@@ -272,6 +277,10 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         const hasPlainString = members.some((m) => isPlainStringType(m))
 
         if (hasStringLiteral && hasPlainString) {
+          if (this.options.legacy) {
+            return factory.createUnionDeclaration({ withParentheses: true, nodes: buildMemberNodes(members, this.print) }) ?? undefined
+          }
+
           const memberNodes = members
             .map((m) => {
               if (isPlainStringType(m)) {
@@ -316,7 +325,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
             readOnly: prop.schema.readOnly,
           })
 
-          return factory.appendJSDocToNode({ node: propertyNode, comments: buildPropertyJSDocComments(prop.schema) })
+          return factory.appendJSDocToNode({ node: propertyNode, comments: buildPropertyJSDocComments(prop.schema, this.options.legacy) })
         })
 
         const allElements = [...propertyNodes, ...buildIndexSignatures(node, propertyNodes.length, print)]
@@ -371,7 +380,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
           node && 'max' in node && node.max !== undefined ? `@maxLength ${node.max}` : undefined,
           node && 'pattern' in node && node.pattern ? `@pattern ${node.pattern}` : undefined,
           node?.default ? `@default ${node.default}` : undefined,
-          node?.example ? `@example ${node.example}` : undefined,
+          !options.legacy && node?.example ? `@example ${node.example}` : undefined,
         ],
       })
     },

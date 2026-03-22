@@ -12,6 +12,7 @@ type Props = {
   enumType: PluginTs['resolvedOptions']['enumType']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
   resolver: ResolverTs
+  legacy?: boolean
 }
 
 /**
@@ -48,7 +49,7 @@ export function getEnumNames({ node, enumType, resolver }: { node: EnumSchemaNod
  * The emitted `File.Source` nodes carry the resolved names so that the barrel
  * index picks up the correct export identifiers.
  */
-export function Enum({ node, enumType, enumKeyCasing, resolver }: Props): FabricReactNode {
+export function Enum({ node, enumType, enumKeyCasing, resolver, legacy }: Props): FabricReactNode {
   const { enumName, typeName, refName } = getEnumNames({ node, enumType, resolver })
 
   const [nameNode, typeNode] = factory.createEnumDeclaration({
@@ -61,7 +62,7 @@ export function Enum({ node, enumType, enumKeyCasing, resolver }: Props): Fabric
     enumKeyCasing,
   })
 
-  const needsRefAlias = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && refName !== typeName
+  const needsRefAlias = !legacy && ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && refName !== typeName
 
   return (
     <>

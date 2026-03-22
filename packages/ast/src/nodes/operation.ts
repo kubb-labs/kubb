@@ -39,6 +39,10 @@ export type OperationNode = BaseNode & {
      * that should not appear in request types.
      */
     keysToOmit?: Array<string>
+    /**
+     * OAS-level description for the request body (maps to `requestBody.description`).
+     */
+    description?: string
   }
   responses: Array<ResponseNode>
 }
