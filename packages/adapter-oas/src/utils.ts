@@ -76,9 +76,12 @@ export function mergeAdjacentAnonymousObjects(members: Array<SchemaNode>): Array
       const prev = acc[acc.length - 1]
       const prevObj = prev ? narrowSchema(prev, 'object') : null
       if (prevObj && !prevObj.name) {
+        const mergedProperties = [...(prevObj.properties ?? []), ...(obj.properties ?? [])]
+        const dedupedProperties = [...new Map(mergedProperties.map((prop) => [prop.name, prop])).values()]
+
         acc[acc.length - 1] = createSchema({
           ...prevObj,
-          properties: [...(prevObj.properties ?? []), ...(obj.properties ?? [])],
+          properties: dedupedProperties,
         }) as SchemaNode
         return acc
       }

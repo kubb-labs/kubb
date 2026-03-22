@@ -3,12 +3,12 @@
 * Do not edit manually.
 */
 
-import type { Priority } from "./Priority.ts";
-import type { Status } from "./Status.ts";
+import type { PriorityEnum } from "./PriorityEnum.ts";
+import type { StatusEnum } from "./StatusEnum.ts";
 
 export type Task = {
     id: string;
-    status: Status;
-    priority?: Priority;
+    status: StatusEnum;
+    priority?: PriorityEnum;
     title?: string;
 };

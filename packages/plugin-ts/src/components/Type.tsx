@@ -60,7 +60,14 @@ export function Type({
 
   // Skip enum exports when using inlineLiteral
   const shouldExportEnums = enumType !== 'inlineLiteral'
-  const shouldExportType = enumType === 'inlineLiteral' || enums.every((item) => item.typeName !== name)
+  const shouldExportType =
+    enumType === 'inlineLiteral' ||
+    enums.every((item) => {
+      // For enum schema files, compare against the generated type alias name.
+      // The file's `name` can be the runtime const name (e.g. linkAccessEnum),
+      // while the declaration identifier is `typedName` (e.g. LinkAccessEnumKey).
+      return item.typeName !== typedName
+    })
 
   return (
     <>

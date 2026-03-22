@@ -87,14 +87,14 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
 
       const parser = createOasParser(oas, { contentType, collisionDetection })
+      const root = parser.parse({ dateType, integerType, unknownType, emptySchemaType, enumSuffix })
 
       // Sync the adapter's shared nameMapping with the one computed by the parser.
+      // This must happen after parse() because legacy enum remapping is finalized there.
       nameMapping.clear()
       for (const [key, value] of parser.nameMapping) {
         nameMapping.set(key, value)
       }
-
-      const root = parser.parse({ dateType, integerType, unknownType, emptySchemaType, enumSuffix })
 
       return createRoot({
         ...root,

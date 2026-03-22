@@ -322,10 +322,14 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       }
     })()
 
+    const rawRefName = extractRefName(schema.$ref!)
+    const resolvedRefName = nameMapping.get(schema.$ref!) ?? nameMapping.get(rawRefName) ?? rawRefName
+    const resolvedRef = schema.$ref?.includes('/') ? `${schema.$ref.split('/').slice(0, -1).join('/')}/${resolvedRefName}` : resolvedRefName
+
     return createSchema({
       type: 'ref',
-      name: extractRefName(schema.$ref!),
-      ref: schema.$ref,
+      name: resolvedRefName,
+      ref: resolvedRef,
       title: schema.title ?? resolvedTitle,
       nullable,
       description: schema.description ?? resolvedDescription,
@@ -448,10 +452,16 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
           return deref && !isReference(deref) ? [deref] : []
         })
 
+        const appendedKeys = new Set<string>()
+
         for (const key of missingRequired) {
           for (const resolved of resolvedMembers) {
             if (resolved.properties?.[key]) {
+              if (appendedKeys.has(key)) {
+                break
+              }
               allOfMembers.push(convertSchema({ schema: { properties: { [key]: resolved.properties[key] }, required: [key] } as SchemaObject }, options))
+              appendedKeys.add(key)
               break
             }
           }
@@ -1208,11 +1218,31 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
   function parse<TOptions extends Partial<ParserOptions> = object>(options?: TOptions): RootNode {
     const mergedOptions: ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...options }
 
+    if (isLegacyNaming) {
+      const reservedNames = new Set(Object.keys(schemaObjects))
+      for (const [name, schemaObject] of Object.entries(schemaObjects)) {
+        const so = schemaObject as SchemaObject
+        if (so.enum?.length) {
+          const baseName = pascalCase([name, mergedOptions.enumSuffix].join(' '))
+          let resolvedName = baseName
+          let index = 2
+
+          while (resolvedName !== name && reservedNames.has(resolvedName)) {
+            resolvedName = `${baseName}${index}`
+            index += 1
+          }
+
+          reservedNames.add(resolvedName)
+          nameMapping.set(`#/components/schemas/${name}`, resolvedName)
+        }
+      }
+    }
+
     const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) => {
       const so = schemaObject as SchemaObject
       // In legacy mode, top-level enum schemas get the enum suffix appended to their name
       // (e.g. "ZoningDistrictClassCategory" → "ZoningDistrictClassCategoryEnum").
-      const schemaName = isLegacyNaming && so.enum?.length ? resolveEnumPropName(undefined, name, mergedOptions.enumSuffix) : name
+      const schemaName = nameMapping.get(`#/components/schemas/${name}`) ?? nameMapping.get(name) ?? name
       return convertSchema({ schema: so, name: schemaName }, mergedOptions)
     })
 
