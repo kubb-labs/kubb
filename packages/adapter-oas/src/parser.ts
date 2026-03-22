@@ -435,10 +435,6 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
         return memberNode
       })
 
-    // Track where allOf-derived members end so only the synthetic members added below
-    // (injected required-key objects + outer-properties object) are candidates for merging.
-    const syntheticStart = allOfMembers.length
-
     // When `required` lists keys not present in the outer `properties`, resolve them from
     // the allOf member schemas and inject them as extra intersection members.
     if (Array.isArray(schema.required) && schema.required.length) {
@@ -468,13 +464,10 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       allOfMembers.push(convertSchema({ schema: schemaWithoutAllOf }, options))
     }
 
-    // Merge consecutive anonymous object members across the full members list so that adjacent
-    // inline-property objects from the OAS allOf array are collapsed into a single object
-    // (matching v4 behaviour where e.g. `& { data } & { links }` becomes `& { data; links }`).
-    const mergedMembers = mergeAdjacentAnonymousObjects([
-      ...allOfMembers.slice(0, syntheticStart),
-      ...mergeAdjacentAnonymousObjects(allOfMembers.slice(syntheticStart)),
-    ])
+    // Merge consecutive anonymous object members so that adjacent inline property objects
+    // collapse into a single object (matching v4 behaviour where e.g. `& { data } & { links }`
+    // becomes `& { data; links }`).
+    const mergedMembers = mergeAdjacentAnonymousObjects(allOfMembers)
     return createSchema({
       type: 'intersection',
       members: mergedMembers,
@@ -574,7 +567,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     return createSchema({
       type: 'union',
       ...unionBase,
-      members: simplifyUnionMembers(unionMembers.map((s) => convertSchema({ schema: s as SchemaObject }, options))),
+      members: simplifyUnionMembers(unionMembers.map((s) => convertSchema({ schema: s as SchemaObject, name }, options))),
     })
   }
 
@@ -781,7 +774,9 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    */
   function resolveChildName(parentName: string | undefined, propName: string): string | undefined {
     if (isLegacyNaming) {
-      return pascalCase(propName)
+      // Include parent so sub-converters (e.g. convertArray) can derive
+      // correctly-prefixed enum names (e.g. Article + ageGroups → ArticleAgeGroupsEnum).
+      return parentName ? pascalCase([parentName, propName].join(' ')) : pascalCase(propName)
     }
     return parentName ? pascalCase([parentName, propName].join(' ')) : undefined
   }
@@ -1096,16 +1091,36 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * When the parameter has no `schema`, falls back to `unknownType`.
    * When the schema is a `$ref`, it is converted via `convertRef` (through `convertSchema`)
    * so that the referenced type (e.g. `TestId`) is used instead of falling back to `any`.
+   *
+   * OAS 3.1 allows parameters to define their schema via `content` instead of a top-level
+   * `schema`.  When `content` is present we extract the schema from the first media-type entry.
    */
   function parseParameter(options: ParserOptions, param: Record<string, unknown>): ParameterNode {
     const required = (param['required'] as boolean | undefined) ?? false
 
-    const schema: SchemaNode = param['schema']
-      ? convertSchema({ schema: param['schema'] as SchemaObject }, options)
+    // Extract the raw schema — either from a direct `schema` key or from the
+    // `content` map (OAS 3.1 style: `content: { "application/json": { schema: … } }`).
+    // For OAS 2.0 parameters, `type`/`items`/`enum` are at the parameter level itself.
+    let rawSchema = param['schema'] as SchemaObject | undefined
+    if (!rawSchema && param['content']) {
+      const contentMap = param['content'] as Record<string, { schema?: SchemaObject }>
+      const firstEntry = Object.values(contentMap)[0]
+      rawSchema = firstEntry?.schema
+    }
+    if (!rawSchema && (param['type'] || param['enum'])) {
+      // OAS 2.0 inline parameter schema — extract schema-relevant keys from the parameter itself.
+      const { name: _name, in: _in, required: _req, description: _desc, ...inlineSchema } = param
+      rawSchema = inlineSchema as SchemaObject
+    }
+
+    const paramName = param['name'] as string
+
+    const schema: SchemaNode = rawSchema
+      ? convertSchema({ schema: rawSchema }, options)
       : createSchema({ type: resolveTypeOption(options.unknownType) })
 
     return createParameter({
-      name: param['name'] as string,
+      name: paramName,
       in: param['in'] as ParameterLocation,
       schema: {
         ...schema,
@@ -1197,9 +1212,13 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
   function parse<TOptions extends Partial<ParserOptions> = object>(options?: TOptions): RootNode {
     const mergedOptions: ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...options }
 
-    const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) =>
-      convertSchema({ schema: schemaObject as SchemaObject, name }, mergedOptions),
-    )
+    const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) => {
+      const so = schemaObject as SchemaObject
+      // In legacy mode, top-level enum schemas get the enum suffix appended to their name
+      // (e.g. "ZoningDistrictClassCategory" → "ZoningDistrictClassCategoryEnum").
+      const schemaName = isLegacyNaming && so.enum?.length ? resolveEnumPropName(undefined, name, mergedOptions.enumSuffix) : name
+      return convertSchema({ schema: so, name: schemaName }, mergedOptions)
+    })
 
     const paths = oas.getPaths()
 

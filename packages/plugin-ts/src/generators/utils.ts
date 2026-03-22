@@ -155,9 +155,22 @@ export function buildGroupedParamsSchema({ params, parentName }: BuildGroupedPar
     type: 'object',
     properties: params.map((param) => {
       let schema = { ...param.schema, optional: !param.required } as SchemaNode
-      // Name unnamed enum properties so they are emitted as enum declarations
-      if (narrowSchema(schema, 'enum') && !schema.name && parentName) {
+      // Name enum properties with the operation context (e.g. getArticlesQueryParamsStatusEnum)
+      if (narrowSchema(schema, 'enum') && parentName) {
         schema = { ...schema, name: pascalCase([parentName, param.name, 'enum'].join(' ')) }
+      }
+      // Also handle array-of-enum properties: name the enum items with the operation context
+      const arrayNode = narrowSchema(schema, 'array')
+      if (arrayNode && parentName) {
+        const items = arrayNode.items?.map((item) => {
+          if (narrowSchema(item, 'enum')) {
+            return { ...item, name: pascalCase([parentName, param.name, 'enum'].join(' ')) }
+          }
+          return item
+        })
+        if (items) {
+          schema = { ...schema, items } as SchemaNode
+        }
       }
       return createProperty({
         name: param.name,

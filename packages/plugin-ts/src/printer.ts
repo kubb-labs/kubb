@@ -139,11 +139,13 @@ function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalTy
  * Collects JSDoc annotation strings (description, deprecated, min/max, pattern, default, example, type) for a schema node.
  */
 function buildPropertyJSDocComments(schema: SchemaNode, legacy?: boolean): Array<string | undefined> {
+  const isArray = schema.type === 'array'
   return [
     'description' in schema && schema.description ? `@description ${jsStringEscape(schema.description)}` : undefined,
     'deprecated' in schema && schema.deprecated ? '@deprecated' : undefined,
-    'min' in schema && schema.min !== undefined ? `@minLength ${schema.min}` : undefined,
-    'max' in schema && schema.max !== undefined ? `@maxLength ${schema.max}` : undefined,
+    // minItems/maxItems on arrays should not be emitted as @minLength/@maxLength
+    !isArray && 'min' in schema && schema.min !== undefined ? `@minLength ${schema.min}` : undefined,
+    !isArray && 'max' in schema && schema.max !== undefined ? `@maxLength ${schema.max}` : undefined,
     'pattern' in schema && schema.pattern ? `@pattern ${schema.pattern}` : undefined,
     'default' in schema && schema.default !== undefined
       ? `@default ${'primitive' in schema && schema.primitive === 'string' ? stringify(schema.default as string) : schema.default}`
@@ -374,8 +376,8 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
           node?.title ? jsStringEscape(node.title) : undefined,
           description ? `@description ${jsStringEscape(description)}` : undefined,
           node?.deprecated ? '@deprecated' : undefined,
-          node && 'min' in node && node.min !== undefined ? `@minLength ${node.min}` : undefined,
-          node && 'max' in node && node.max !== undefined ? `@maxLength ${node.max}` : undefined,
+          node && node.type !== 'array' && 'min' in node && node.min !== undefined ? `@minLength ${node.min}` : undefined,
+          node && node.type !== 'array' && 'max' in node && node.max !== undefined ? `@maxLength ${node.max}` : undefined,
           node && 'pattern' in node && node.pattern ? `@pattern ${node.pattern}` : undefined,
           node?.default ? `@default ${node.default}` : undefined,
           !options.legacy && node?.example ? `@example ${node.example}` : undefined,

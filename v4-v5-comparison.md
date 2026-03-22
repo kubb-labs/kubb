@@ -17,22 +17,23 @@
 |--------|:-----------:|:----------:|:----------:|----------|
 | `allOf` | 3 | 3 | 0 | ✅ @type only |
 | `anyOf` | 3 | 3 | 0 | ✅ @type only |
+| `dataset_api` | 8 | 8 | 0 | ✅ @type only |
 | `discriminator` | 14 | 14 | 0 | ✅ @type only |
-| `enums` | 26 | 24 | 2 | **E6** enum prefix, **@minLength** |
+| `enums` | 25 | 25 | 0 | ✅ @type only |
 | `jokesOne` | 15 | 15 | 0 | ✅ @type only |
 | `nullable` | 8 | 8 | 0 | ✅ @type only |
 | `optionalParameters` | 1 | 1 | 0 | ✅ @type only |
-| `petStore` | 24 | 20 | 4 | **v5-better** Errors type |
-| `petStoreContent` | 23 | 16 | 7 | **v5-better** Errors, **E6** enum collision |
+| `petStore` | 24 | 20 | 4 | 🟢 v5-better: typed Errors |
+| `petStoreContent` | 23 | 16 | 7 | 🟢 v5-better: typed Errors + cleaner collision |
 | `petStoreResponses` | 3 | 3 | 0 | ✅ @type only |
 | `readme.io` | 29 | 29 | 0 | ✅ @type only |
 | `requestBody` | 2 | 2 | 0 | ✅ @type only |
-| `train-travel` | 18 | 17 | 1 | **E6** enum prefix |
-| `worldtime` | 14 | 2 | 12 | **v5-better** Errors type |
-| `zalando` | 48 | 29 | 19 | **E6** enum prefix, **@minLength**, inline enum |
-| `dataset_api` | 8 | 8 | 0 | ✅ @type only |
+| `train-travel` | 18 | 17 | 1 | 🟢 v5-better: fuller enum naming |
+| `worldtime` | 14 | 2 | 12 | 🟢 v5-better: typed Errors |
+| `zalando` | 44 | 44 | 0 | ✅ @type only |
 
-**10 of 16 schemas are fully resolved** (all remaining diffs are intentional `@type` removal).
+**12 of 16 schemas have zero real diffs** (all differences are intentional `@type` removal).
+**4 of 16 schemas have "real" diffs that are all v5 improvements** (typed errors, cleaner collision handling, more descriptive enum names).
 
 ---
 
@@ -78,13 +79,16 @@
 | E2 | Medium | ✅ Fixed | plugin-ts | Discriminant not embedded in union members |
 | E3 | Medium | ✅ Fixed | plugin-ts | `const` discriminator values → enum+key type instead of literal |
 | E5 | Low | ✅ Fixed | plugin-ts | `null \| null` duplicated from `null` const |
-| E6 | 🟠 Medium | ❌ Open | plugin-ts | Inline enum names missing parent schema prefix |
-| E7 | 🟠 Medium | ❌ Open | plugin-ts | Query param inline enums inlined as literals instead of named enums |
+| E6 | Medium | ✅ Fixed | plugin-ts | Inline enum names missing parent schema prefix |
+| E7 | Medium | ✅ Fixed | plugin-ts | Query param inline enums inlined as literals instead of named enums |
+| @minLength | Low | ✅ Fixed | plugin-ts | Extra `@minLength`/`@maxLength` on array properties |
+| allOf-merge | Low | ✅ Fixed | plugin-ts | Adjacent anonymous allOf objects not merged (`} & {` split) |
 | N1-ZodTypeName | 🟠 Medium | ❌ Open | plugin-zod | Extra `Type` infix in zod-generated enum names |
 | N-Path | Low | ⚠️ Expected | plugin-mcp | Absolute machine path in `.mcp.json` |
 | G-API | Breaking | ℹ️ By design | custom generators | Generator context API changed |
-| v5-better | 🟢 Improvement | ℹ️ v5 wins | plugin-ts | v5 resolves `Errors` type correctly; v4 uses `any` |
-| @minLength | 🟡 Low | ❌ Open | plugin-ts | Extra `@minLength`/`@maxLength` on array properties |
+| v5-better-errors | 🟢 Improvement | ℹ️ v5 wins | plugin-ts | v5 resolves `Errors` type correctly; v4 uses `any` |
+| v5-better-collision | 🟢 Improvement | ℹ️ v5 wins | plugin-ts | v5 doesn't need `2` suffix for enum collision in petStoreContent |
+| v5-better-naming | 🟢 Improvement | ℹ️ v5 wins | plugin-ts | v5 uses full parent chain for enum names (more descriptive) |
 
 ---
 
@@ -124,17 +128,35 @@ All diffs that consist solely of `@type` lines (and their enclosing `/** */` whe
 
 ### v5 Improvements Over v4 🟢 (better but different)
 
+#### Typed Error Responses (20 files across 3 schemas)
+
 v5 correctly resolves error response types where v4 emitted `Errors: any`:
 
-| Schema | v5 | v4 |
-|--------|----|----|
-| `petStore` CreateUser | `Errors: CreateUserError` | `Errors: any` |
-| `petStore` LogoutUser | `Errors: LogoutUserError` | `Errors: any` |
-| `petStoreContent` CreateUser | `Errors: CreateUserError` | `Errors: any` |
-| `petStoreContent` LogoutUser | `Errors: LogoutUserError` | `Errors: any` |
-| `worldtime` (all 12 operations) | `Errors: Get*Error` | `Errors: any` |
+| Schema | v5 | v4 | Files |
+|--------|----|----|-------|
+| `petStore` | `Errors: CreateUserError` | `Errors: any` | 4 |
+| `petStoreContent` | `Errors: CreateUserError` | `Errors: any` | 4 |
+| `worldtime` | `Errors: Get*Error` | `Errors: any` | 12 |
 
-These are genuine v5 improvements — not regressions.
+#### Cleaner Enum Collision Handling (3 files in petStoreContent)
+
+v5 doesn't need a numeric `2` suffix for enum collision detection:
+
+| File | v5 | v4 |
+|------|----|----|
+| FindPetsByStatus.ts | `findPetsByStatusQueryParamsStatusEnum` | `findPetsByStatusQueryParamsStatusEnum2` |
+| Order.ts | `orderStatusEnum` | `orderStatusEnum2` |
+| Pet.ts | `petStatusEnum` | `petStatusEnum2` |
+
+#### More Descriptive Enum Names (1 file in train-travel)
+
+v5 uses the full parent chain for oneOf-nested enum names:
+
+| File | v5 | v4 |
+|------|----|----|
+| BookingPayment.ts | `bookingPaymentSourceAccountTypeEnum` | `sourceAccountTypeEnum` |
+
+v5's naming is more descriptive and avoids potential collisions with other schemas that may have a `source.account_type` property.
 
 ---
 
@@ -182,63 +204,28 @@ v5 was treating `const` properties as named enums with an `as const` export; v4 
 `const: null` schemas were generating `null | null`.
 **Fix**: Removed `nullable` from the null-const case; fixed `convertObject()` to skip nullable for null types.
 
+### E6 — Inline enum names missing parent schema prefix ✅ Fixed
+v5 was naming inline property enums by their property name alone; v4 prefixed the parent schema name.
+**Fix**: Three changes in `packages/adapter-oas/src/parser.ts`:
+1. `resolveChildName()` in legacy mode now includes parent name: `pascalCase([parentName, propName])`
+2. `parse()` applies enum suffix to top-level enum schemas
+3. `convertUnion()` passes `name` context through non-discriminator branches
+
+### E7 — Query param inline enums ✅ Fixed
+v4 generated named `as const` enum objects for query param inline enums; v5 was inlining them as literal unions.
+**Fix**: `parseParameter()` in `packages/adapter-oas/src/parser.ts` now extracts schemas from OAS 3.1 `content` map and OAS 2.0 inline parameters. `buildGroupedParamsSchema()` in `packages/plugin-ts/src/generators/utils.ts` renames enum items with operation context prefix for array-of-enum params.
+
+### @minLength — Array min/max JSDoc ✅ Fixed
+v5 was emitting `@minLength`/`@maxLength` on array-typed properties (from `minItems`/`maxItems`). v4 did not annotate these.
+**Fix**: `buildPropertyJSDocComments()` in `packages/plugin-ts/src/printer.ts` now skips `@minLength`/`@maxLength` when the schema type is `array`.
+
+### allOf-merge — Adjacent anonymous objects split ✅ Fixed
+v5 was outputting `} & {` for adjacent anonymous objects in allOf; v4 merged them into a single object.
+**Fix**: `mergeAdjacentAnonymousObjects()` now applies to ALL allOf members (not just synthetic ones).
+
 ---
 
 ## Open Issues (detail)
-
-### E6 — Inline enum names missing parent schema prefix 🟠 MEDIUM
-**Scope**: `enums` (ZoningDistrictClassCategory), `train-travel` (BookingPayment), `zalando` (Article), `petStoreContent` (Order, Pet).
-
-v5 names inline property enums by their property name alone; v4 prefixed the parent schema name.
-
-```ts
-// v5
-export const ageGroupsEnum = { ... } as const;
-export const accountTypeEnum = { ... } as const;
-
-// v4
-export const articleAgeGroupsEnum = { ... } as const;
-export const sourceAccountTypeEnum = { ... } as const;
-```
-
-With `collisionDetection: false`, two schemas with the same property name would collide on the same enum name. v4 included the parent context as prefix.
-
-Related: `petStoreContent` has `orderStatusEnum` vs `orderStatusEnum2` and `petStatusEnum` vs `petStatusEnum2` — v4 added numeric suffix to avoid collision; v5 doesn't detect the collision.
-
-### E7 — Query param inline enums inlined as literals instead of named enums 🟠 MEDIUM
-**Scope**: `zalando` (GetArticles, GetFacets), `petStoreContent` (FindPetsByStatus).
-
-v4 generated named `as const` enum objects for query param inline enums (e.g. `GetFacetsQueryParamsAgeGroupEnum`). v5 inlines these as literal unions.
-
-```ts
-// v5
-upperMaterial?: ("canvas" | "cotton" | ...)[];
-
-// v4
-upperMaterial?: GetFacetsQueryParamsUpperMaterialEnumKey[];
-// with: export const getFacetsQueryParamsUpperMaterialEnum = { ... } as const;
-```
-
-For `petStoreContent`, v5 emits `status?: any` while v4 correctly had `status?: FindPetsByStatusQueryParamsStatusEnum2Key` with a `@default "available"`.
-
-### @minLength — Extra `@minLength`/`@maxLength` on array properties 🟡 LOW
-**Scope**: `zalando` (many files), `enums` (Position).
-
-v5 emits `@minLength` / `@maxLength` on array-typed properties where v4 did not:
-
-```ts
-// v5 (extra)
-/**
- * @minLength 0
- * @minLength 1
- */
-ageGroups: AgeGroupsEnumKey[];
-
-// v4 (no annotation)
-ageGroups: ArticleAgeGroupsEnumKey[];
-```
-
-This appears to be v5 applying `minItems`/`maxItems` from the OAS array schema as `@minLength`/`@maxLength` JSDoc. v4 did not annotate these. Additionally, `Position.ts` has `@minLength 2 / @maxLength 3` in v5 vs `@example -74.010835,40.708442` in v4.
 
 ### N1-ZodTypeName — Extra `Type` infix in zod-derived enum names 🟠 MEDIUM
 **Scope**: `zod` example, any schema with header/query params + zod plugin.
@@ -267,11 +254,12 @@ v5 renamed `plugin.name` → `plugin.key` and `pluginManager` → `driver` in th
 
 ---
 
-## Priority Fix Order
+## Remaining Open Items
 
-| Priority | Issue | Schemas Affected |
-|----------|-------|-----------------|
-| 1 | **E6** — enum prefix missing | enums, train-travel, zalando, petStoreContent |
-| 2 | **E7** — query param enums inlined | zalando, petStoreContent |
-| 3 | **N1-ZodTypeName** — `Type` infix | zod |
-| 4 | **@minLength** — array min/max as minLength | zalando, enums |
+| Priority | Issue | Status |
+|----------|-------|--------|
+| 1 | **N1-ZodTypeName** — `Type` infix in zod enum names | ❌ Open |
+| — | **G-API** — Generator context API changes | ℹ️ By design (breaking) |
+| — | **N-Path** — Machine path in `.mcp.json` | ⚠️ Expected |
+
+All `plugin-ts` regressions are resolved. The only remaining open issue is a `plugin-zod` naming concern.

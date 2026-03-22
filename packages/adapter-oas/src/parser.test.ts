@@ -452,11 +452,12 @@ describe('convertSchema allOf', () => {
     })
 
     expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
-    // 2 allOf members + 1 injected member for the missing required key
-    expect(node.members).toHaveLength(3)
-    // the injected member is an object with `id` marked required
-    const injected = narrowSchema(node.members?.[2], 'object')
-    expect(injected?.properties?.find((p) => p.name === 'id')?.required).toBe(true)
+    // All anonymous object members (2 allOf + 1 injected) are merged into one
+    expect(node.members).toHaveLength(1)
+    const merged = narrowSchema(node.members?.[0], 'object')
+    // The injected required-key property exists in the merged object
+    expect(merged?.properties?.some((p) => p.name === 'id' && p.required === true)).toBe(true)
+    expect(merged?.properties?.find((p) => p.name === 'name')).toBeDefined()
   })
 
   it('does not inject required keys that are already in outer properties', () => {
@@ -469,9 +470,9 @@ describe('convertSchema allOf', () => {
     })
 
     expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
-    // only the allOf member + the sibling properties object; no extra injection
+    // allOf member + sibling properties object merged into one
     const objectMembers = node.members?.filter((m) => m.type === 'object')
-    expect(objectMembers).toHaveLength(2)
+    expect(objectMembers).toHaveLength(1)
   })
 
   it('propagates nullable onto the intersection node', () => {
@@ -544,7 +545,7 @@ describe('convertSchema allOf', () => {
     //   allOf: [$ref Address]
     //   properties: { streetName }
     //   required: [streetName, streetNumber]  ← streetNumber resolved from Address
-    // Expected: Address & { streetNumber; streetName }  (not three separate members)
+    // Expected: merged { streetNumber; streetName } (all adjacent anonymous objects merge)
     const node = parser.convertSchema({
       name: 'FullAddress',
       schema: {
@@ -560,9 +561,9 @@ describe('convertSchema allOf', () => {
     })
 
     expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
-    // allOf member + one merged synthetic object (streetNumber + streetName combined)
-    expect(node.members).toHaveLength(2)
-    const merged = narrowSchema(node.members?.[1], 'object')
+    // allOf member + injected + outer properties all merged into one object
+    expect(node.members).toHaveLength(1)
+    const merged = narrowSchema(node.members?.[0], 'object')
     const propNames = merged?.properties?.map((p) => p.name)
     expect(propNames).toContain('streetNumber')
     expect(propNames).toContain('streetName')
@@ -1190,10 +1191,9 @@ describe('convertSchema object discriminator', () => {
 })
 
 describe('convertSchema object inline enum naming', () => {
-  it('collisionDetection: false — enum name uses only immediate property key (ParamsStatusEnum)', () => {
-    // Without collision detection, nested enum names should NOT accumulate the full parent
-    // name chain. The schema "Order" has a nested object "params" with an inline enum "status".
-    // Expected: ParamsStatusEnum (parentKey + propKey + suffix), not OrderParamsStatusEnum.
+  it('collisionDetection: false — enum name includes parent chain (OrderParamsStatusEnum)', () => {
+    // With the parent-prefixed naming in legacy mode, nested enum names now include
+    // the full parent chain for disambiguation (matching v4 behaviour for array-of-enum).
     const parserNoCollision = createOasParser(emptyOas, { collisionDetection: false })
     const node = parserNoCollision.convertSchema(
       {
@@ -1216,7 +1216,7 @@ describe('convertSchema object inline enum naming', () => {
     const paramsProp = node.properties?.find((p) => p.name === 'params')
     const paramsSchema = narrowSchema(paramsProp?.schema, 'object')
     const statusProp = paramsSchema?.properties?.find((p) => p.name === 'status')
-    expect(statusProp?.schema.name).toBe('ParamsStatusEnum')
+    expect(statusProp?.schema.name).toBe('OrderParamsStatusEnum')
   })
 
   it('collisionDetection: true — enum name accumulates full parent path (OrderParamsStatusEnum)', () => {
@@ -2779,53 +2779,45 @@ describe('legacy enum naming (collisionDetection: false)', () => {
   it('deduplicates colliding enum names with numeric suffix', () => {
     const parser = createOasParser(emptyOas, { collisionDetection: false })
 
-    // Two top-level schemas each have params.status enum → both resolve to ParamsStatusEnum
-    const orderNode = parser.convertSchema(
+    // Two top-level schemas each have params.status enum.
+    // With parent-prefixed naming: OrderParamsStatusEnum vs CustomerParamsStatusEnum (unique, no dedup).
+    // To test dedup, use the same parent name:
+    const firstNode = parser.convertSchema(
       {
         schema: {
           type: 'object',
           properties: {
-            params: {
-              type: 'object',
-              properties: {
-                status: { type: 'string', enum: ['active', 'inactive'] },
-              },
-            },
+            status: { type: 'string', enum: ['active', 'inactive'] },
           },
         },
         name: 'Order',
       },
       { enumSuffix: 'enum' },
     )
-    const customerNode = parser.convertSchema(
+    const secondNode = parser.convertSchema(
       {
         schema: {
           type: 'object',
           properties: {
-            params: {
-              type: 'object',
-              properties: {
-                status: { type: 'string', enum: ['new', 'returning'] },
-              },
-            },
+            status: { type: 'string', enum: ['new', 'returning'] },
           },
         },
-        name: 'Customer',
+        name: 'Order',
       },
       { enumSuffix: 'enum' },
     )
 
-    const orderEnum = narrowSchema(
-      narrowSchema(orderNode.properties?.find((p) => p.name === 'params')?.schema, 'object')?.properties?.find((p) => p.name === 'status')?.schema,
+    const firstEnum = narrowSchema(
+      firstNode.properties?.find((p) => p.name === 'status')?.schema,
       'enum',
     )
-    const customerEnum = narrowSchema(
-      narrowSchema(customerNode.properties?.find((p) => p.name === 'params')?.schema, 'object')?.properties?.find((p) => p.name === 'status')?.schema,
+    const secondEnum = narrowSchema(
+      secondNode.properties?.find((p) => p.name === 'status')?.schema,
       'enum',
     )
 
-    expect(orderEnum?.name).toBe('ParamsStatusEnum')
-    expect(customerEnum?.name).toBe('ParamsStatusEnum2')
+    expect(firstEnum?.name).toBe('OrderStatusEnum')
+    expect(secondEnum?.name).toBe('OrderStatusEnum2')
   })
 
   it('oneOf shared property enums do not include schema name', () => {
@@ -2860,7 +2852,7 @@ describe('legacy enum naming (collisionDetection: false)', () => {
     expect(enumNode?.name).toBe('StatusEnum')
   })
 
-  it('array items enum uses array name', () => {
+  it('array items enum uses parent-prefixed array name', () => {
     const parser = createOasParser(emptyOas, { collisionDetection: false })
 
     const node = parser.convertSchema(
@@ -2883,7 +2875,7 @@ describe('legacy enum naming (collisionDetection: false)', () => {
     const arrayNode = narrowSchema(tagsProp?.schema, 'array')
     const enumNode = narrowSchema(arrayNode?.items?.[0], 'enum')
 
-    expect(enumNode?.name).toBe('TagsEnum')
+    expect(enumNode?.name).toBe('ItemTagsEnum')
   })
 })
 
