@@ -41,13 +41,12 @@ import {
   convertTuple,
   convertUnion,
 } from './converters.ts'
-import { applyEnumName, resolveChildName, resolveEnumPropName } from './naming.ts'
 import type { NamingConfig } from './naming.ts'
+import { applyEnumName, resolveChildName, resolveEnumPropName } from './naming.ts'
 import type { Oas } from './oas/Oas.ts'
 import type { contentType, Operation, SchemaObject } from './oas/types.ts'
 import { flattenSchema, isNullable, isReference } from './oas/utils.ts'
 import type { ParserOptions } from './types.ts'
-
 
 /**
  * Maps each `dateType` option value to the AST node produced by `format: 'date-time'`.
@@ -186,7 +185,6 @@ export type OasParser = {
   nameMapping: Map<string, string>
 }
 
-
 /**
  * Looks up the Kubb `SchemaType` for a given OAS `format` string.
  * Returns `undefined` for formats not in `formatMap`.
@@ -215,10 +213,7 @@ function toMediaType(contentType: string): MediaType | undefined {
  * Collects property keys that should be excluded via `Omit<>` based on a boolean flag.
  * Used to filter `readOnly` keys from request bodies and `writeOnly` keys from responses.
  */
-function getKeysToOmit(
-  schema: SchemaObject | undefined,
-  flag: 'readOnly' | 'writeOnly',
-): Array<string> | undefined {
+function getKeysToOmit(schema: SchemaObject | undefined, flag: 'readOnly' | 'writeOnly'): Array<string> | undefined {
   if (!schema?.properties) return undefined
 
   const keys = Object.entries(schema.properties)
@@ -253,7 +248,6 @@ function extractParameterSchema(param: Record<string, unknown>): SchemaObject | 
   return undefined
 }
 
-
 /**
  * Creates an OAS parser that converts an OpenAPI/Swagger spec into the `@kubb/ast` tree.
  *
@@ -277,7 +271,6 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     isLegacyNaming,
     usedEnumNames: {},
   }
-
 
   function resolveTypeOption(value: 'any' | 'unknown' | 'void'): ScalarSchemaType {
     if (value === 'any') return schemaTypes.any
@@ -305,7 +298,17 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     return { type: 'time', representation: options.dateType === 'date' ? 'date' : 'string' }
   }
 
-  function renderSchemaBase({ schema, name, nullable, defaultValue }: { schema: SchemaObject; name: string | undefined; nullable: true | undefined; defaultValue: unknown }) {
+  function renderSchemaBase({
+    schema,
+    name,
+    nullable,
+    defaultValue,
+  }: {
+    schema: SchemaObject
+    name: string | undefined
+    nullable: true | undefined
+    defaultValue: unknown
+  }) {
     return {
       name,
       nullable,
@@ -319,7 +322,6 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     } as const
   }
 
-
   const deps: ConverterDeps = {
     oas,
     isLegacyNaming,
@@ -331,7 +333,6 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     renderSchemaBase,
     getDateType,
   }
-
 
   /**
    * Converts an OAS `SchemaObject` into a `SchemaNode`.
@@ -514,7 +515,10 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       const so = schemaObject as SchemaObject
       // In legacy mode, top-level enum schemas get the enum suffix appended to their name
       // (e.g. "ZoningDistrictClassCategory" → "ZoningDistrictClassCategoryEnum").
-      const schemaName = isLegacyNaming && so.enum?.length ? resolveEnumPropName({ config: namingConfig, parentName: undefined, propName: name, enumSuffix: mergedOptions.enumSuffix }) : name
+      const schemaName =
+        isLegacyNaming && so.enum?.length
+          ? resolveEnumPropName({ config: namingConfig, parentName: undefined, propName: name, enumSuffix: mergedOptions.enumSuffix })
+          : name
       return convertSchema({ schema: so, name: schemaName }, mergedOptions)
     })
 

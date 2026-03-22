@@ -19,7 +19,15 @@ export type NamingConfig = {
  * - **Default naming**: same behavior when parent is present; `undefined` otherwise
  *   so the child remains anonymous.
  */
-export function resolveChildName({ config, parentName, propName }: { config: NamingConfig; parentName: string | undefined; propName: string }): string | undefined {
+export function resolveChildName({
+  config,
+  parentName,
+  propName,
+}: {
+  config: NamingConfig
+  parentName: string | undefined
+  propName: string
+}): string | undefined {
   if (config.isLegacyNaming) {
     return parentName ? pascalCase([parentName, propName].join(' ')) : pascalCase(propName)
   }

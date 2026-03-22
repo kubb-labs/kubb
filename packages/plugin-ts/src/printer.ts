@@ -171,10 +171,7 @@ function buildPropertyJSDocComments(schema: SchemaNode, legacy?: boolean): Array
 /**
  * Builds JSDoc comments for a top-level type declaration: title + description + constraint annotations.
  */
-function buildDeclarationJSDocComments(
-  node: SchemaNode,
-  options: { description?: string; legacy?: boolean },
-): Array<string | undefined> {
+function buildDeclarationJSDocComments(node: SchemaNode, options: { description?: string; legacy?: boolean }): Array<string | undefined> {
   return [
     node?.title ? jsStringEscape(node.title) : undefined,
     options.description ? `@description ${jsStringEscape(options.description)}` : undefined,
@@ -186,10 +183,7 @@ function buildDeclarationJSDocComments(
  * Builds an open string union: replaces plain `string` members with `(string & {})`
  * to preserve IDE autocompletion for known literal values while allowing arbitrary strings.
  */
-function buildOpenUnionMembers(
-  members: Array<SchemaNode>,
-  print: (node: SchemaNode) => ts.TypeNode | null | undefined,
-): Array<ts.TypeNode> {
+function buildOpenUnionMembers(members: Array<SchemaNode>, print: (node: SchemaNode) => ts.TypeNode | null | undefined): Array<ts.TypeNode> {
   return members
     .map((m) => {
       if (isPlainStringType(m)) {
@@ -247,9 +241,7 @@ function buildDeclaration(type: ts.TypeNode, node: SchemaNode, options: TsOption
   return factory.createTypeDeclaration({
     name: typeName!,
     isExportable: true,
-    type: keysToOmit?.length
-      ? factory.createOmitDeclaration({ keys: keysToOmit, type, nonNullable: true })
-      : type,
+    type: keysToOmit?.length ? factory.createOmitDeclaration({ keys: keysToOmit, type, nonNullable: true }) : type,
     syntax: useTypeAlias ? 'type' : 'interface',
     comments: buildDeclarationJSDocComments(node, { description: options.description, legacy: options.legacy }),
   })
@@ -344,9 +336,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
           members.some((m) => m.type === 'enum' && (m.enumType === 'string' || m.primitive === 'string')) &&
           members.some((m) => isPlainStringType(m))
 
-        const memberNodes = isOpenStringUnion
-          ? buildOpenUnionMembers(members, this.print)
-          : buildMemberNodes(members, this.print)
+        const memberNodes = isOpenStringUnion ? buildOpenUnionMembers(members, this.print) : buildMemberNodes(members, this.print)
 
         return factory.createUnionDeclaration({ withParentheses: true, nodes: memberNodes }) ?? undefined
       },

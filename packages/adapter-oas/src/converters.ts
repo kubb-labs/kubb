@@ -1,5 +1,5 @@
 import { createProperty, createSchema } from '@kubb/ast'
-import type { PrimitiveSchemaType, PropertyNode, SchemaNode, ScalarSchemaType } from '@kubb/ast/types'
+import type { PrimitiveSchemaType, PropertyNode, ScalarSchemaType, SchemaNode } from '@kubb/ast/types'
 import { enumExtensionKeys, formatMap } from './constants.ts'
 import type { ReferenceObject, SchemaObject } from './oas/types.ts'
 import { isDiscriminator, isNullable, isReference } from './oas/utils.ts'
@@ -7,7 +7,6 @@ import type { ConverterDeps, SchemaContext } from './parser.ts'
 import { formatToSchemaType, getPrimitiveType } from './parser.ts'
 import type { DistributiveOmit, ParserOptions } from './types.ts'
 import { applyDiscriminatorEnum, extractRefName, mergeAdjacentAnonymousObjects, simplifyUnionMembers } from './utils.ts'
-
 
 /**
  * Converts a `$ref` schema pointer into a `RefSchemaNode`.
@@ -47,7 +46,6 @@ function resolveRefAnnotations({ deps, $ref }: { deps: ConverterDeps; $ref: stri
   }
 }
 
-
 /**
  * Converts an `allOf` schema into either a flattened member node (single-member `allOf`)
  * or an `IntersectionSchemaNode` (multi-member `allOf`).
@@ -81,10 +79,7 @@ export function convertAllOf(deps: ConverterDeps, ctx: SchemaContext): SchemaNod
 
 function isSingleMemberAllOf(schema: SchemaObject): boolean {
   return (
-    schema.allOf!.length === 1 &&
-    !schema.properties &&
-    !(Array.isArray(schema.required) && schema.required.length) &&
-    schema.additionalProperties === undefined
+    schema.allOf!.length === 1 && !schema.properties && !(Array.isArray(schema.required) && schema.required.length) && schema.additionalProperties === undefined
   )
 }
 
@@ -133,15 +128,7 @@ function buildAllOfMembers({
 /**
  * Detects whether an allOf item is a circular reference back through a discriminator parent.
  */
-function isCircularDiscriminatorRef({
-  deps,
-  item,
-  name,
-}: {
-  deps: ConverterDeps
-  item: SchemaObject | ReferenceObject
-  name: string | undefined
-}): boolean {
+function isCircularDiscriminatorRef({ deps, item, name }: { deps: ConverterDeps; item: SchemaObject | ReferenceObject; name: string | undefined }): boolean {
   if (!isReference(item) || !name) return false
 
   const deref = deps.oas.get<SchemaObject>(item.$ref)
@@ -241,7 +228,6 @@ function appendMissingRequiredKeys({
     }
   }
 }
-
 
 /**
  * Converts a `oneOf` / `anyOf` schema into a `UnionSchemaNode`.
@@ -364,7 +350,6 @@ function convertLegacyDiscriminatorUnion({
   })
 }
 
-
 /**
  * Converts an OAS 3.1 `const` schema into either a null scalar or a single-value `EnumSchemaNode`.
  */
@@ -392,7 +377,6 @@ export function convertConst(deps: ConverterDeps, ctx: SchemaContext): SchemaNod
     ...deps.renderSchemaBase({ schema, name, nullable, defaultValue }),
   })
 }
-
 
 /**
  * Handles `format`-based special types (date/time, uuid, email, blob, etc.).
@@ -451,7 +435,6 @@ function convertStaticFormat({ schema, base }: { schema: SchemaObject; base: obj
 
   return createSchema({ ...base, primitive: specialPrimitive, type: specialType as ScalarSchemaType })
 }
-
 
 /**
  * Converts an `enum` schema into an `EnumSchemaNode`.
@@ -517,13 +500,11 @@ export function convertEnum(deps: ConverterDeps, ctx: SchemaContext): SchemaNode
   return createSchema({ ...enumBase, enumValues: [...new Set(filteredValues)] })
 }
 
-function normalizeEnumValues({
-  schema,
-  nullable,
-}: {
-  schema: SchemaObject
-  nullable: true | undefined
-}): { filteredValues: Array<string | number | boolean>; enumNullable: true | undefined; enumDefault: unknown } {
+function normalizeEnumValues({ schema, nullable }: { schema: SchemaObject; nullable: true | undefined }): {
+  filteredValues: Array<string | number | boolean>
+  enumNullable: true | undefined
+  enumDefault: unknown
+} {
   const nullInEnum = schema.enum!.includes(null)
   const filteredValues = (nullInEnum ? schema.enum!.filter((v) => v !== null) : schema.enum!) as Array<string | number | boolean>
   const enumNullable = nullable || nullInEnum || undefined
@@ -564,7 +545,6 @@ function tryExtensionEnum({
     })),
   })
 }
-
 
 /**
  * Converts an object-like schema (`type: 'object'`, `properties`, `additionalProperties`,
@@ -677,7 +657,6 @@ function buildPatternProperties({
   )
 }
 
-
 /**
  * Converts an OAS 3.1 `prefixItems` tuple into a `TupleSchemaNode`.
  */
@@ -696,7 +675,6 @@ export function convertTuple(deps: ConverterDeps, ctx: SchemaContext): SchemaNod
     ...deps.renderSchemaBase({ schema, name, nullable, defaultValue }),
   })
 }
-
 
 /**
  * Converts a `type: 'array'` schema into an `ArraySchemaNode`.
@@ -717,7 +695,6 @@ export function convertArray(deps: ConverterDeps, ctx: SchemaContext): SchemaNod
     ...deps.renderSchemaBase({ schema, name, nullable, defaultValue }),
   })
 }
-
 
 /**
  * Converts a `type: 'string'` schema into a `StringSchemaNode`.
