@@ -37,14 +37,14 @@
 | ID | Severity | Status | Affects |
 |----|----------|--------|---------|
 | T1 | Medium | ✅ Fixed | plugin-ts |
-| T2 | High | ✅ Fixed | plugin-ts (all examples) |
+| T2 | High | ❌ Open | plugin-ts (all examples) |
 | T3 | Low | ✅ Fixed | plugin-ts |
 | T4 | Low | ✅ Fixed | plugin-ts |
 | T5 | Medium | ✅ Fixed | plugin-ts (all examples) |
 | T6 | Low | ✅ Fixed | plugin-ts |
 | T7 | Low | ✅ Fixed | plugin-ts |
 | N-Import | Low | ❌ Open | all plugins |
-| N-AggType | Medium | ✅ Fixed | plugin-ts |
+| N-AggType | Medium | ❌ Open | plugin-ts |
 | N-QueryParams | High | ✅ Fixed | plugin-ts |
 | N-ZodNaming | Medium | ✅ Fixed | plugin-zod |
 | N-Collision | Medium | ❌ Open | advanced example only |
@@ -59,14 +59,6 @@
 v5 was emitting `@example` annotations from OpenAPI `example` fields; v4 did not emit them in legacy mode.
 
 **Fix**: When `legacy: true`, the `@example` tag is suppressed in `packages/plugin-ts/src/printer.ts`.
-
----
-
-### T2 — `@type` format suffix ✅ Fixed
-
-v4 appended the OpenAPI `format` value after the type in `@type` JSDoc comments (e.g. `@type integer | undefined, int64`). v5 omitted it.
-
-**Fix**: Added `oasFormat?: string` to `SchemaNodeBase` in `packages/ast/src/nodes/schema.ts`. Populated from `schema.format` via `renderSchemaBase()` in `packages/adapter-oas/src/parser.ts`. In `buildPropertyJSDocComments()` in `packages/plugin-ts/src/printer.ts`, appends `, ${oasFormat}` when `legacy && oasFormat`.
 
 ---
 
@@ -110,14 +102,6 @@ v4 included the operation `requestBody.description` as a JSDoc comment on the re
 
 ---
 
-### N-AggType — Aggregated operation type: `interface` vs `type =` ✅ Fixed
-
-When `syntaxType: 'interface'` was configured, v5 generated the aggregated `XxxMutation`/`XxxQuery` type as `export interface` while v4 always generated it as `export type X = { ... }`.
-
-**Fix**: In `typeGenerator.tsx`, the `legacyResponsesType` rendering passes `syntaxTypeOverride: 'type'` to force type-alias syntax regardless of the configured `syntaxType`.
-
----
-
 ### N-QueryParams — Missing `QueryParams` in aggregated operation types ✅ Fixed
 
 v4 included `QueryParams` in the aggregated `XxxMutation`/`XxxQuery` type for ALL operations that have query parameters. v5 only included `QueryParams` for GET operations.
@@ -135,6 +119,34 @@ When `transformers.name` was set (e.g. `name => \`${name}Type\``), v5 applied th
 ---
 
 ## Open Issues
+
+### T2 — `@type` format suffix missing (HIGH priority)
+
+v4 appends the OpenAPI `format` value after the type in `@type` JSDoc comments. v5 omits it.
+
+| v5 output | v4 output |
+|-----------|-----------|
+| `@type integer \| undefined` | `@type integer \| undefined, int64` |
+| `@type integer \| undefined` | `@type integer \| undefined, int32` |
+| `@type string \| undefined` | `@type string \| undefined, date-time` |
+| `@type integer` | `@type integer, int64` |
+
+**Affected examples**: typescript, client, fetch, react-query, msw, zod, faker, svelte-query, solid-query, swr, cypress, mcp, simple-single, advanced (ALL).
+
+---
+
+### N-AggType — Aggregated operation type: `interface` vs `type =` (MEDIUM priority)
+
+v5 generates aggregated operation types (the object grouping `Response`, `Request`, `PathParams`, etc.) as `export interface`, while v4 generates them as `export type X = { ... }`.
+
+| v5 output | v4 output |
+|-----------|-----------|
+| `export interface UpdatePetMutation {` | `export type UpdatePetMutation = {` |
+| `export interface GetInventoryQuery {` | `export type GetInventoryQuery = {` |
+
+**Affected examples**: typescript, client, fetch, simple-single (all files with aggregated operation types).
+
+---
 
 ### N-Import — Import ordering and quote style (LOW priority)
 

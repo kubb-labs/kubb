@@ -292,7 +292,6 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       writeOnly: schema.writeOnly,
       default: defaultValue,
       example: schema.example,
-      oasFormat: schema.format,
     } as const
   }
 

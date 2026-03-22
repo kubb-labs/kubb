@@ -146,9 +146,7 @@ function buildPropertyJSDocComments(schema: SchemaNode, legacy?: boolean): Array
     // were dereferenced to their target schema (usually object) at parse time.
     typeAnnotation = `@type object${schema.optional ? ' | undefined' : ''}`
   } else if ('primitive' in schema && schema.primitive) {
-    const oasFormat = 'oasFormat' in schema && schema.oasFormat ? schema.oasFormat : undefined
-    const base = `@type ${schema.primitive || 'unknown'}${'optional' in schema && schema.optional ? ' | undefined' : ''}`
-    typeAnnotation = legacy && oasFormat ? `${base}, ${oasFormat}` : base
+    typeAnnotation = `@type ${schema.primitive || 'unknown'}${'optional' in schema && schema.optional ? ' | undefined' : ''}`
   }
 
   return [

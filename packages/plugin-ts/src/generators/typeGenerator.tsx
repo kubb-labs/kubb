@@ -39,14 +39,12 @@ export const typeGenerator = defineGenerator<PluginTs>({
       typedName,
       description,
       keysToOmit,
-      syntaxTypeOverride,
     }: {
       node: SchemaNode | null
       name: string
       typedName: string
       description?: string
       keysToOmit?: Array<string>
-      syntaxTypeOverride?: PluginTs['resolvedOptions']['syntaxType']
     }) {
       if (!schemaNode) {
         return null
@@ -70,7 +68,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
             enumKeyCasing={enumKeyCasing}
             optionalType={optionalType}
             arrayType={arrayType}
-            syntaxType={syntaxTypeOverride ?? syntaxType}
+            syntaxType={syntaxType}
             resolver={resolver}
             keysToOmit={keysToOmit}
             legacy={legacy}
@@ -144,8 +142,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
         node: buildLegacyResponsesSchemaNode({ node, resolver }),
         name: resolver.resolveResponsesName(node),
         typedName: resolver.resolveResponsesTypedName(node),
-        // v4 always generated the aggregated Mutation/Query type as `type =` alias, not `interface`
-        syntaxTypeOverride: 'type',
       })
 
       const legacyResponseType = renderSchemaType({
