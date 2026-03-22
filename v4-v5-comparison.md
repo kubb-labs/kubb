@@ -405,3 +405,175 @@ v4's collision resolution prefixed the schema name (`Order` + `paramsStatus` →
 ---
 
 *Report generated after running all examples with `pnpm build` + `npx kubb` in both repos. v5 commit: latest main; v4 repo: `/Users/stijnvanhulle/GitHub/kubb-v4`.*
+
+---
+
+## E2E Schema Comparison (`tests/e2e/schemas/`)
+
+> **Methodology**: Generated per-schema output in both v5 (`tests/e2e/gen-compare/<name>/`) and v4 (`tests/e2e/gen-compare/<name>/`) using identical configs (plugin-ts with `legacy:true` + `collisionDetection:false` in v5, same plugins without adapter in v4). Only local schemas used (no network required). Schemas: `allOf`, `anyOf`, `box`, `dataset_api`, `discriminator`, `enums`, `jokesOne`, `nullable`, `optionalParameters`, `petStore`, `petStoreContent`, `petStoreResponses`, `readme.io`, `requestBody`, `train-travel`, `twitter`, `worldtime`, `zalando`.
+
+### E2E Summary Table
+
+| Schema | Files differ | Only in v4 | Only in v5 | Issues |
+|--------|:-----------:|:----------:|:----------:|--------|
+| `allOf` | 3 | 0 | 0 | T2, **E1** |
+| `anyOf` | 3 | 0 | 0 | T2, T5 |
+| `box` | 237 | 105 | 105 | **E4** (file naming) |
+| `dataset_api` | 6 | 0 | 0 | T2 |
+| `discriminator` | 12 | 0 | 0 | **E2**, **E3**, **E5** |
+| `enums` | 9 | 0 | 0 | **E6**, **E7** |
+| `jokesOne` | 13 | 0 | 0 | T2, N-QueryParams |
+| `nullable` | 2 | 0 | 0 | T5 |
+| `optionalParameters` | 1 | 0 | 0 | T2, **E8** |
+| `petStore` | 18 | 0 | 0 | T2, T5 |
+| `petStoreContent` | 18 | 0 | 0 | T2, T5 |
+| `petStoreResponses` | 3 | 0 | 0 | T2, T5 |
+| `readme.io` | 5 | 0 | 0 | T2, N-QueryParams |
+| `requestBody` | 1 | 0 | 0 | T2 |
+| `train-travel` | 16 | 0 | 0 | T2, T5 |
+| `twitter` | 274 | 0 | 0 | T2, T5 |
+| `worldtime` | 12 | 0 | 0 | T2, N-QueryParams |
+| `zalando` | 37 | 0 | 0 | T2, **E6**, **E9** |
+
+---
+
+### E1 — Path parameter `$ref` typed as `any` (HIGH priority)
+
+When an OpenAPI path parameter uses `schema: { $ref: '#/components/schemas/Xxx' }`, v5 types it as `any`. v4 resolves the ref and emits the correct named type.
+
+| v5 output | v4 output |
+|-----------|-----------|
+| `test_id: any` | `test_id: TestId` |
+
+**Affected schemas**: `allOf`, and any schema with `$ref` schemas on path parameters.
+
+**Sample** (`allOf/models/ts/testController/CreateTest.ts`):
+```diff
++import type { TestId } from "../TestId.ts";
+ export type CreateTestPathParams = {
+-  test_id: any;
++  test_id: TestId;
+ };
+```
+
+---
+
+### E2 — Discriminated union: missing type discriminant embedding (HIGH priority)
+
+For schemas using OpenAPI `discriminator`, v4 embeds the discriminant value (`type: "Cat"`) inside each union member. v5 generates a plain union without the discriminant.
+
+| v5 output | v4 output |
+|-----------|-----------|
+| `export type CatDog = Cat \| Dog` | `export type CatDog = (Cat & { type: "Cat" }) \| (Dog & { type: "Dog" })` |
+
+**Affected schemas**: `discriminator` (all discriminated union types: `CatDog`, `CatDogWithoutMapping`).
+
+**Sample** (`discriminator/models/ts/CatDog.ts`):
+```diff
+-export type CatDog = Cat | Dog
++export type CatDog =
++  | (Cat & { type: 'Cat' })
++  | (Dog & { type: 'Dog' })
+```
+
+---
+
+### E3 — Discriminator const properties: enum vs inline literal (MEDIUM priority)
+
+When a schema has a `const` value for a discriminator property (e.g., `type: { const: "Cat" }`), v5 generates an enum const object and an enum key type, then uses the enum key type. v4 uses the inline string literal directly.
+
+| v5 output | v4 output |
+|-----------|-----------|
+| `export const catTypeEnum = { Cat: "Cat" } as const`<br>`export type CatTypeEnumKey = ...`<br>`type: CatTypeEnumKey` | `type: "Cat"` |
+
+**Affected schemas**: `discriminator` (Cat, Dog, MixedValueTypeConst, NumberValueConst).
+
+---
+
+### E4 — File naming for operations with numeric version suffixes (MEDIUM priority)
+
+For operations whose operationId ends in a number (e.g., `deleteArchivesIdV2025`), v5 and v4 produce different file structures.
+
+| v5 output | v4 output |
+|-----------|-----------|
+| `mocks/archivesController/createDeleteArchivesIdV20250.ts` | `mocks/archivesController/deleteArchivesIdV2025/create0.ts` |
+
+v4 creates a subdirectory named after the operationId with a file `create0.ts` (the trailing digit becomes a subdirectory separator). v5 appends the trailing character to the filename.
+
+**Affected schemas**: `box` (105 operations affected — all with version-suffixed operationIds like `V2025`).
+
+---
+
+### E5 — `null | null` duplicated null type (LOW priority)
+
+For a `null` const schema (e.g., `{ type: null, const: null }`), v5 generates `null | null` (duplicated), while v4 generates just `null`.
+
+| v5 output | v4 output |
+|-----------|-----------|
+| `withoutValue: null \| null` | `withoutValue: null` |
+
+**Affected schemas**: `discriminator` (NullConst schema).
+
+---
+
+### E6 — Inline enum naming: no schema prefix in v5 (MEDIUM priority)
+
+For inline enums (enum values defined directly inside a schema property), v5 names the generated const without the parent schema name prefix. v4 includes the schema name as a prefix.
+
+| v5 output | v4 output |
+|-----------|-----------|
+| `export const ageGroupsEnum = { ... }` | `export const articleAgeGroupsEnum = { ... }` |
+| `export type AgeGroupsEnumKey = ...` | `export type ArticleAgeGroupsEnumKey = ...` |
+
+**Affected schemas**: `enums`, `zalando` (any schema with inline property enums).
+
+> **Note**: This overlaps with **N-Collision** from the examples comparison. When `collisionDetection: false`, multiple schemas can have the same inline enum name, leading to conflicts.
+
+---
+
+### E7 — Enum type alias missing in v5 (MEDIUM priority)
+
+For top-level enum schemas (schemas that are entirely an enum), v4 generates both the enum const AND a type alias pointing to it. v5 generates only the enum const and key type.
+
+| v5 output | v4 output |
+|-----------|-----------|
+| `export const zoningDistrictClassCategoryEnum = { ... } as const`<br>`export type ZoningDistrictClassCategoryEnumKey = ...` | `export const zoningDistrictClassCategoryEnum = { ... } as const`<br>`export type ZoningDistrictClassCategoryEnumKey = ...`<br>`export type ZoningDistrictClassCategory = ZoningDistrictClassCategoryEnumKey` |
+
+v4 generates an additional `export type ZoningDistrictClassCategory = ZoningDistrictClassCategoryEnumKey` alias that v5 does not.
+
+**Affected schemas**: `enums` (all top-level enum schemas).
+
+---
+
+### E8 — `@minLength` JSDoc annotation inconsistency (LOW priority)
+
+Behavior differs between v5 and v4 for `@minLength`:
+- **`optionalParameters` schema**: v4 emits `@minLength 1`, v5 does not.
+- **`zalando` schema**: v5 emits `@minLength 1`, v4 does not.
+
+This suggests inconsistent JSDoc annotation emission for string length constraints. The difference appears to depend on whether the constraint is applied at the property level or the schema level.
+
+---
+
+### E9 — `@type object` for `allOf`/ref properties in discriminator contexts (LOW priority)
+
+In some schemas (zalando, twitter), v4 includes `@type object` or `@type array` JSDoc annotations for properties that reference object/array schemas via `$ref`. v5 omits these (same as **T5** in the examples).
+
+---
+
+### Cross-Schema Issue Frequency
+
+| Issue | # Schemas affected |
+|-------|:-----------------:|
+| T2 (format suffix missing) | 17/18 |
+| T5 (@type object for refs) | 8/18 |
+| N-QueryParams (missing in aggregated type) | 3/18 |
+| E1 (path param $ref → any) | 1/18 |
+| E2 (discriminant not embedded in union) | 1/18 |
+| E3 (const → enum instead of literal) | 1/18 |
+| E4 (numeric suffix file naming) | 1/18 |
+| E5 (null\|null) | 1/18 |
+| E6 (enum naming without schema prefix) | 2/18 |
+| E7 (missing enum type alias) | 1/18 |
+| E8 (@minLength inconsistency) | 2/18 |
+
