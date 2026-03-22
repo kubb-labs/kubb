@@ -367,6 +367,8 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
     // When a child schema extends a discriminator parent via allOf and the parent's oneOf/anyOf
     // references that child back, skip that allOf item to prevent a circular type reference.
+    // When an item is skipped, collect its discriminant value so it can be injected below.
+    const filteredDiscriminantValues: Array<{ propertyName: string; value: string }> = []
     const allOfMembers: Array<SchemaNode> = (schema.allOf as Array<SchemaObject | ReferenceObject>)
       .filter((item) => {
         if (!isReference(item) || !name) return true
@@ -377,7 +379,14 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
         const childRef = `#/components/schemas/${name}`
         const inOneOf = parentUnion.some((oneOfItem) => isReference(oneOfItem) && oneOfItem.$ref === childRef)
         const inMapping = Object.values(deref.discriminator.mapping ?? {}).some((v) => v === childRef)
-        return !inOneOf && !inMapping
+        if (inOneOf || inMapping) {
+          const discriminatorValue = Object.entries(deref.discriminator.mapping ?? {}).find(([, v]) => v === childRef)?.[0]
+          if (discriminatorValue) {
+            filteredDiscriminantValues.push({ propertyName: deref.discriminator.propertyName, value: discriminatorValue })
+          }
+          return false
+        }
+        return true
       })
       .map((s) => convertSchema({ schema: s as SchemaObject }, options))
 
@@ -412,6 +421,28 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     if (schema.properties) {
       const { allOf: _allOf, ...schemaWithoutAllOf } = schema
       allOfMembers.push(convertSchema({ schema: schemaWithoutAllOf }, options))
+    }
+
+    // Inject a synthetic single-property object for each discriminant value collected from
+    // filtered discriminator parents so that child schemas carry the narrowed literal type.
+    for (const { propertyName, value } of filteredDiscriminantValues) {
+      allOfMembers.push(
+        createSchema({
+          type: 'object',
+          primitive: 'object',
+          properties: [
+            createProperty({
+              name: propertyName,
+              schema: createSchema({
+                type: 'enum',
+                primitive: 'string',
+                enumValues: [value],
+              }),
+              required: true,
+            }),
+          ],
+        }),
+      )
     }
 
     // Merge consecutive anonymous object members within the synthetic portion — see `mergeAdjacentAnonymousObjects`.
@@ -466,6 +497,45 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
           return createSchema({
             type: 'intersection',
             members: [convertSchema({ schema: s as SchemaObject }, options), propertiesNode],
+          })
+        }),
+      })
+    }
+
+    // When a discriminator with mapping is present but there are no sibling properties,
+    // embed the narrowed discriminant value into each member to produce precise literal
+    // intersection types (e.g. `Cat & { type: 'cat' }`) instead of plain `Cat | Dog`.
+    const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
+    if (discriminator?.mapping) {
+      return createSchema({
+        type: 'union',
+        ...unionBase,
+        members: unionMembers.map((s) => {
+          const ref = isReference(s) ? s.$ref : undefined
+          const discriminatorValue = ref ? Object.entries(discriminator.mapping!).find(([, v]) => v === ref)?.[0] : undefined
+          const memberNode = convertSchema({ schema: s as SchemaObject }, options)
+
+          if (!discriminatorValue) return memberNode
+
+          const discriminantNode = createSchema({
+            type: 'object',
+            primitive: 'object',
+            properties: [
+              createProperty({
+                name: discriminator.propertyName,
+                schema: createSchema({
+                  type: 'enum',
+                  primitive: 'string',
+                  enumValues: [discriminatorValue],
+                }),
+                required: true,
+              }),
+            ],
+          })
+
+          return createSchema({
+            type: 'intersection',
+            members: [memberNode, discriminantNode],
           })
         }),
       })
