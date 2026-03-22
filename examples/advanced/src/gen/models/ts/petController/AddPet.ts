@@ -3,7 +3,7 @@ import type { Pet } from '../Pet.ts'
 
 export type AddPet405 = {
   /**
-   * @type integer | undefined
+   * @type integer | undefined, int32
    */
   code?: number
   /**
@@ -26,6 +26,9 @@ export type AddPetMutationResponse = any
 
 export type AddPetMutation = {
   Response: any
+  /**
+   * @type object
+   */
   Request: AddPetMutationRequest
   Errors: AddPet405 | AddPetError
 }

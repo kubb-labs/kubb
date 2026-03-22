@@ -7,5 +7,8 @@ export type LogoutUserQueryResponse = any
 
 export type LogoutUserQuery = {
   Response: any
+  /**
+   * @type object
+   */
   Errors: LogoutUserError
 }

@@ -20,7 +20,16 @@ export type PlaceOrderPatchMutationRequest = Order
 export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
 
 export type PlaceOrderPatchMutation = {
+  /**
+   * @type object
+   */
   Response: PlaceOrderPatch200
+  /**
+   * @type object
+   */
   Request: PlaceOrderPatchMutationRequest
+  /**
+   * @type object
+   */
   Errors: PlaceOrderPatch405
 }

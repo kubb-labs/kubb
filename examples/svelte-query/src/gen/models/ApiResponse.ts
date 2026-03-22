@@ -6,7 +6,7 @@
 
 export type ApiResponse = {
   /**
-   * @type integer | undefined
+   * @type integer | undefined, int32
    */
   code?: number
   /**

@@ -11,20 +11,20 @@
 
 | Example | Config location | Plugin(s) | Files differ | Only in v4 | Status |
 |---------|----------------|-----------|:------------:|:----------:|--------|
-| `typescript` | `kubb.config.ts` | plugin-ts | 1 | 0 | ❌ T2, T5 |
-| `simple-single` | `kubb.config.js` | plugin-ts, plugin-react-query | 2 | 0 | ❌ T2, T5, N-Import |
-| `fetch` | `kubb.config.ts` | plugin-ts, plugin-client | 22 | 0 | ❌ T2, T5, N-Import |
-| `faker` | `kubb.config.cjs` | plugin-ts, plugin-faker | 46 | 0 | ❌ T2, T5, N-Import |
-| `msw` | `kubb.config.js` | plugin-ts, plugin-msw | 57 | 0 | ❌ T2, T5, N-Import |
-| `zod` | `kubb.config.js` | plugin-ts, plugin-zod | 78 | 0 | ❌ T2, T5, N-ZodNaming, N-Import |
-| `react-query` | `kubb.config.ts` | plugin-ts, plugin-react-query | 71 | 35 | ❌ T2, T5, N-Import |
-| `svelte-query` | `kubb.config.js` | plugin-ts, plugin-svelte-query | 56 | 0 | ❌ T2, T5, N-Import |
-| `solid-query` | `kubb.config.js` | plugin-ts, plugin-solid-query | 56 | 0 | ❌ T2, T5, N-Import |
-| `swr` | `kubb.config.js` | plugin-ts, plugin-swr | 55 | 0 | ❌ T2, T5, N-Import |
-| `cypress` | `kubb.config.js` | plugin-ts, plugin-cypress | 54 | 0 | ❌ T2, T5, N-Import |
-| `mcp` | `kubb.config.ts` | plugin-ts, plugin-mcp | 94 | 0 | ❌ T2, T5, N-Import, N-Path |
-| `client` | `kubb.config.ts` | plugin-ts, plugin-client | 55 | 19 | ❌ T2, T5, N-Import, N-AggType, N-QueryParams |
-| `advanced` | `configs/kubb.config.ts` | all plugins | 27 | 0 | ❌ T2, N-Collision |
+| `typescript` | `kubb.config.ts` | plugin-ts | ~0 | 0 | ✅ T2, T5 fixed |
+| `simple-single` | `kubb.config.js` | plugin-ts, plugin-react-query | ~0 | 0 | ✅ T2, T5 fixed; ⚠️ N-Import |
+| `fetch` | `kubb.config.ts` | plugin-ts, plugin-client | ~0 | 0 | ✅ T2, T5 fixed; ⚠️ N-Import |
+| `faker` | `kubb.config.cjs` | plugin-ts, plugin-faker | ~0 | 0 | ✅ T2, T5 fixed; ⚠️ N-Import |
+| `msw` | `kubb.config.js` | plugin-ts, plugin-msw | ~0 | 0 | ✅ T2, T5 fixed; ⚠️ N-Import |
+| `zod` | `kubb.config.js` | plugin-ts, plugin-zod | ~0 | 0 | ✅ T2, T5, N-ZodNaming fixed; ⚠️ N-Import |
+| `react-query` | `kubb.config.ts` | plugin-ts, plugin-react-query | ~36 | 35 | ✅ T2, T5 fixed; ⚠️ N-Import |
+| `svelte-query` | `kubb.config.js` | plugin-ts, plugin-svelte-query | ~0 | 0 | ✅ T2, T5 fixed; ⚠️ N-Import |
+| `solid-query` | `kubb.config.js` | plugin-ts, plugin-solid-query | ~0 | 0 | ✅ T2, T5 fixed; ⚠️ N-Import |
+| `swr` | `kubb.config.js` | plugin-ts, plugin-swr | ~0 | 0 | ✅ T2, T5 fixed; ⚠️ N-Import |
+| `cypress` | `kubb.config.js` | plugin-ts, plugin-cypress | ~0 | 0 | ✅ T2, T5 fixed; ⚠️ N-Import |
+| `mcp` | `kubb.config.ts` | plugin-ts, plugin-mcp | ~0 | 0 | ✅ T2, T5 fixed; ⚠️ N-Import, N-Path(expected) |
+| `client` | `kubb.config.ts` | plugin-ts, plugin-client | ~19 | 19 | ✅ T2, T5, N-AggType, N-QueryParams fixed; ⚠️ N-Import |
+| `advanced` | `configs/kubb.config.ts` | all plugins | ~4 | 0 | ✅ T2 fixed; ⚠️ N-Collision |
 | `generators` | `kubb.config.ts` | plugin-oas (custom) | — | — | ⚠️ Custom generator API change |
 | `vue-query` | (no config found) | — | — | — | ⚠️ Skipped |
 
@@ -45,10 +45,10 @@
 | T7 | Low | ✅ Fixed | plugin-ts |
 | N-Import | Low | ❌ Open | all plugins |
 | N-AggType | Medium | ❌ Open | plugin-ts |
-| N-QueryParams | High | ❌ Open | plugin-ts |
-| N-ZodNaming | Medium | ❌ Open | plugin-zod |
+| N-QueryParams | High | ✅ Fixed | plugin-ts |
+| N-ZodNaming | Medium | ✅ Fixed | plugin-zod |
 | N-Collision | Medium | ❌ Open | advanced example only |
-| N-Path | Low | ❌ Open | plugin-mcp |
+| N-Path | Low | ⚠️ Not a bug | plugin-mcp |
 
 ---
 
@@ -94,6 +94,22 @@ v4 included the operation `requestBody.description` as a JSDoc comment on the re
 
 ---
 
+### N-QueryParams — Missing `QueryParams` in aggregated operation types ✅ Fixed
+
+v4 included `QueryParams` in the aggregated `XxxMutation`/`XxxQuery` type for ALL operations that have query parameters. v5 only included `QueryParams` for GET operations.
+
+**Fix**: In `buildLegacyResponsesSchemaNode()` in `packages/plugin-ts/src/generators/utils.ts`, removed the `else if (isGet && ...)` guard. `QueryParams` is now added for any operation that has query parameters, and the property order is `Response → Request → PathParams → QueryParams → HeaderParams → Errors` (matching v4).
+
+---
+
+### N-ZodNaming — Aggregated Zod type name order ✅ Fixed
+
+When `transformers.name` was set (e.g. `name => \`${name}Type\``), v5 applied the transformer to the fully composed name (`AddPetMutation` → `AddPetMutationType`). v4 applied the transformer to the base operationId first (`AddPet` → `AddPetType`), then appended the suffix (`AddPetTypeMutation`).
+
+**Fix**: In `resolverTsLegacy`, `resolveResponsesName` and `resolveResponsesTypedName` now call `this.default(node.operationId, type)` to get the (possibly transformed) base name, then append the suffix directly — matching v4's composition order.
+
+---
+
 ## Open Issues
 
 ### T2 — `@type` format suffix missing (HIGH priority)
@@ -109,40 +125,6 @@ v4 appends the OpenAPI `format` value after the type in `@type` JSDoc comments. 
 
 **Affected examples**: typescript, client, fetch, react-query, msw, zod, faker, svelte-query, solid-query, swr, cypress, mcp, simple-single, advanced (ALL).
 
-**Root cause**: v4's `SchemaGenerator` calls `oas.dereferenceWithRef(schema)` which resolves `$ref`s and preserves `format` metadata. It builds JSDoc by joining type + format: `` `@type ${type}${optional ? ' | undefined' : ''}` + `, ${format}` ``. v5's `SchemaNode` AST does not carry an `oasFormat` field.
-
-**Fix path**: Add `oasFormat?: string` to `SchemaNodeBase` in `packages/ast/src/nodes/schema.ts`. Populate from `schema.format` in `packages/adapter-oas/src/parser.ts`. In `buildPropertyJSDocComments()` in `printer.ts`, append `, ${oasFormat}` when `legacy && oasFormat`.
-
-**Sample** (`examples/typescript/src/gen/models.ts`, `examples/faker/src/gen/models/Category.ts`, etc.):
-```diff
--   * @type integer | undefined
-+   * @type integer | undefined, int64
-```
-
----
-
-### T5 — Missing `@type object | undefined` for ref properties (MEDIUM priority)
-
-v4 emits `@type object | undefined` (or `@type object`) for properties whose type resolves to an object schema via a `$ref`. v5 omits the `@type` JSDoc comment entirely for such properties.
-
-| v5 output | v4 output |
-|-----------|-----------|
-| (no JSDoc for `parent` / `category` / `tags` properties) | `* @type object \| undefined` |
-
-**Affected examples**: typescript, simple-single, zod (Category.parent, Pet.category, Customer.address, etc.).
-
-**Root cause**: v4 dereferences `$ref`s at schema parse time via `oas.dereferenceWithRef()`, so `schemaSchema.args.type` becomes `'object'` for ref targets. In v5, ref properties become `RefSchemaNode` which has `type: 'ref'` — `buildPropertyJSDocComments()` has no case for `type === 'ref'` so no `@type` is emitted.
-
-**Fix path**: In `buildPropertyJSDocComments()` in `packages/plugin-ts/src/printer.ts`, when `legacy && schema.type === 'ref'`, emit `@type object${optional ? ' | undefined' : ''}`.
-
-**Sample** (`examples/typescript/src/gen/models.ts`):
-```diff
-+   /**
-+    * @type object | undefined
-+    */
-    parent?: CategoryType
-```
-
 ---
 
 ### N-AggType — Aggregated operation type: `interface` vs `type =` (MEDIUM priority)
@@ -156,21 +138,17 @@ v5 generates aggregated operation types (the object grouping `Response`, `Reques
 
 **Affected examples**: typescript, client, fetch, simple-single (all files with aggregated operation types).
 
-**Root cause**: The aggregated operation type (`XxxMutation`, `XxxQuery`) is generated in `typeGenerator.tsx`. v5 uses `interface` for all non-inline types; v4 generated these as `type` aliases.
-
 ---
 
-### N-QueryParams — Missing `QueryParams` in aggregated operation types (HIGH priority)
+### T5 — Missing `@type object | undefined` for ref properties (MEDIUM priority)
 
-For operations that have both path params and query params, v4 includes a `QueryParams` key in the aggregated `XxxMutation`/`XxxQuery` type. v5 omits `QueryParams`.
+v4 emitted `@type object | undefined` for `$ref`-typed properties (since `$ref`s were dereferenced to their object target at parse time). v5 omits the `@type` JSDoc for `ref` schema nodes.
 
 | v5 output | v4 output |
 |-----------|-----------|
-| `export interface UpdatePetWithFormMutation {`<br>`  Response: any`<br>`  PathParams: UpdatePetWithFormPathParams`<br>`  Errors: UpdatePetWithForm405`<br>`}` | `export type UpdatePetWithFormMutation = {`<br>`  Response: any`<br>`  PathParams: UpdatePetWithFormPathParams`<br>`  QueryParams: UpdatePetWithFormQueryParams`<br>`  Errors: UpdatePetWithForm405`<br>`}` |
+| (no `@type` annotation) | `@type object \| undefined` |
 
-**Affected operations**: `UpdatePetWithForm` (has query params), `UploadFile` (has query params), and potentially others.
-
-**Affected examples**: typescript, client, and any example that generates aggregated operation types.
+**Affected examples**: typescript, client, fetch (all examples with object properties referencing other schemas).
 
 ---
 
@@ -192,21 +170,6 @@ v4 generates imports in alphabetical order within a single `import` statement (g
 
 ---
 
-### N-ZodNaming — Aggregated Zod type name order (MEDIUM priority)
-
-For the `plugin-zod` + `plugin-ts` combination, v5 names the aggregated operation type `AddPetMutationType` while v4 names it `AddPetTypeMutation`.
-
-| v5 output | v4 output |
-|-----------|-----------|
-| `export type AddPetMutationType = {` | `export type AddPetTypeMutation = {` |
-| `export type GetInventoryQueryType = {` | `export type GetInventoryTypeQuery = {` |
-
-**Affected examples**: zod (all operation files in `ts/` output directory).
-
-**Root cause**: When `plugin-ts` uses a `transformers.name` function (e.g., `name => \`${name}Type\``), v5 applies the transformer to the base name and then appends the operation suffix. v4 appended the operation suffix first, then applied the transformer.
-
----
-
 ### N-Collision — Collision detection naming convention (MEDIUM priority, advanced example)
 
 When multiple enums have the same name (e.g., `status` in both `Order` and `Customer`), v5 and v4 use different strategies to avoid collisions.
@@ -220,20 +183,6 @@ When multiple enums have the same name (e.g., `status` in both `Order` and `Cust
 **Affected examples**: advanced (where `collisionDetection: false` exposes this — both `Order.status` and `Customer.status` enums conflict).
 
 **Root cause**: v5 with `collisionDetection: false` falls back to numeric suffixes (`enum2`) to resolve name conflicts. v4 prefixed the schema name (`orderParams…`, `customerParams…`) to the enum name.
-
----
-
-### N-Path — Absolute path in MCP config file (LOW priority)
-
-The MCP plugin generates a `.mcp.json` that includes the absolute filesystem path to `server.ts`. This path differs between machines/repos.
-
-| v5 output | v4 output |
-|-----------|-----------|
-| `"args": ["tsx", "/Users/.../kubb/examples/mcp/src/gen/mcp/server.ts"]` | `"args": ["tsx", "/Users/.../kubb-v4/examples/mcp/src/gen/mcp/server.ts"]` |
-
-**Affected examples**: mcp, advanced.
-
-> **Note**: This is expected behaviour — the path is machine-specific and intentional. Not a bug.
 
 ---
 

@@ -61,9 +61,28 @@ export type CreatePetsMutationRequest = {
 export type CreatePetsMutationResponse = CreatePets201
 
 export type CreatePetsMutation = {
+  /**
+   * @type object
+   */
   Response: CreatePets201
+  /**
+   * @type object
+   */
   Request: CreatePetsMutationRequest
+  /**
+   * @type object
+   */
   PathParams: CreatePetsPathParams
+  /**
+   * @type object
+   */
+  QueryParams: CreatePetsQueryParams
+  /**
+   * @type object
+   */
   HeaderParams: CreatePetsHeaderParams
+  /**
+   * @type object
+   */
   Errors: CreatePetsError
 }

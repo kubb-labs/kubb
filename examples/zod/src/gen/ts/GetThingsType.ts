@@ -35,8 +35,17 @@ export type GetThingsErrorType = PetNotFoundType
 
 export type GetThingsQueryResponseType = GetThings201Type
 
-export type GetThingsQueryType = {
+export type GetThingsTypeQuery = {
+  /**
+   * @type object
+   */
   Response: GetThings201Type
+  /**
+   * @type object
+   */
   QueryParams: GetThingsQueryParamsType
+  /**
+   * @type object
+   */
   Errors: GetThingsErrorType
 }
