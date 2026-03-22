@@ -8,7 +8,7 @@ import type { ApiResponse } from '../ApiResponse.js'
 export type UploadFilePathParams = {
   /**
    * @description ID of pet to update
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -28,7 +28,7 @@ export type UploadFile200 = ApiResponse
 
 export type UploadFileMutationRequest = {
   /**
-   * @type string, binary
+   * @type string
    */
   file: Blob
 }

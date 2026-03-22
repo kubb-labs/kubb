@@ -5,7 +5,7 @@
 
 export type CategoryType = {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**

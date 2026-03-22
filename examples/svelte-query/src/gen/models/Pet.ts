@@ -17,7 +17,7 @@ export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum
 
 export type Pet = {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**

@@ -17,11 +17,11 @@ export enum OrderHttpStatusEnum {
 
 export type Order = {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   petId?: number
   /**
@@ -39,11 +39,11 @@ export type Order = {
     type: string
   }
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   quantity?: number
   /**
-   * @type string | undefined, date-time
+   * @type string | undefined
    */
   shipDate?: string
   /**
@@ -92,7 +92,7 @@ export enum ParamsStatusEnum2 {
 
 export type Customer = {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
@@ -139,7 +139,7 @@ export type UnhappyCustomer = Customer & {
 
 export type Category = {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
@@ -150,7 +150,7 @@ export type Category = {
 
 export type User = {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
@@ -179,14 +179,14 @@ export type User = {
   phone?: string
   /**
    * @description User Status
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   userStatus?: number
 }
 
 export type Tag = {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
@@ -228,7 +228,7 @@ export enum StatusEnum {
 export type Pet =
   | (Dog & {
       /**
-       * @type integer | undefined, int64
+       * @type integer | undefined
        */
       id?: number
       /**
@@ -259,7 +259,7 @@ export type Pet =
     })
   | (Cat & {
       /**
-       * @type integer | undefined, int64
+       * @type integer | undefined
        */
       id?: number
       /**
@@ -309,7 +309,7 @@ export enum AddPetRequestStatusEnum {
 
 export type AddPetRequest = {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
@@ -337,7 +337,7 @@ export type AddPetRequest = {
 
 export type ApiResponse = {
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   code?: number
   /**
@@ -352,7 +352,7 @@ export type ApiResponse = {
 
 export type PetNotFound = {
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   code?: number
   /**
@@ -412,7 +412,7 @@ export type AddPet200 = Pet
  */
 export type AddPet405 = {
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   code?: number
   /**
@@ -533,7 +533,7 @@ export type FindPetsByTagsQuery = {
 export type GetPetByIdPathParams = {
   /**
    * @description ID of pet to return
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -570,7 +570,7 @@ export type GetPetByIdQuery = {
 export type UpdatePetWithFormPathParams = {
   /**
    * @description ID of pet that needs to be updated
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -614,7 +614,7 @@ export type UpdatePetWithFormMutation = {
 export type DeletePetPathParams = {
   /**
    * @description Pet id to delete
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -666,7 +666,7 @@ export type DeletePetMutation = {
 export type UploadFilePathParams = {
   /**
    * @description ID of pet to update
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -789,7 +789,7 @@ export type PlaceOrderPatchMutation = {
 export type GetOrderByIdPathParams = {
   /**
    * @description ID of order that needs to be fetched
-   * @type integer, int64
+   * @type integer
    */
   orderId: number
 }
@@ -826,7 +826,7 @@ export type GetOrderByIdQuery = {
 export type DeleteOrderPathParams = {
   /**
    * @description ID of the order that needs to be deleted
-   * @type integer, int64
+   * @type integer
    */
   orderId: number
 }

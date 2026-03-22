@@ -6,7 +6,7 @@
 export type DeletePetPathParams = {
   /**
    * @description Pet id to delete
-   * @type integer, int64
+   * @type integer
    */
   pet_id: number
 }

@@ -3,7 +3,7 @@ import type { Pet } from '../Pet.ts'
 
 export type AddPet405 = {
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   code?: number
   /**

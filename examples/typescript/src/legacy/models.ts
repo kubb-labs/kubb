@@ -17,11 +17,11 @@ export enum OrderHttpStatusEnum {
 
 export interface Order {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   petId?: number
   /**
@@ -39,11 +39,11 @@ export interface Order {
     type: string
   }
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   quantity?: number
   /**
-   * @type string | undefined, date-time
+   * @type string | undefined
    */
   shipDate?: string
   /**
@@ -92,7 +92,7 @@ export enum ParamsStatusEnum2 {
 
 export interface Customer {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
@@ -139,7 +139,7 @@ export type UnhappyCustomer = Customer & {
 
 export interface Category {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
@@ -150,7 +150,7 @@ export interface Category {
 
 export interface User {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
@@ -179,14 +179,14 @@ export interface User {
   phone?: string
   /**
    * @description User Status
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   userStatus?: number
 }
 
 export interface Tag {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
@@ -228,7 +228,7 @@ export enum StatusEnum {
 export type Pet =
   | (Dog & {
       /**
-       * @type integer | undefined, int64
+       * @type integer | undefined
        */
       id?: number
       /**
@@ -259,7 +259,7 @@ export type Pet =
     })
   | (Cat & {
       /**
-       * @type integer | undefined, int64
+       * @type integer | undefined
        */
       id?: number
       /**
@@ -309,7 +309,7 @@ export enum AddPetRequestStatusEnum {
 
 export interface AddPetRequest {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
@@ -337,7 +337,7 @@ export interface AddPetRequest {
 
 export interface ApiResponse {
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   code?: number
   /**
@@ -352,7 +352,7 @@ export interface ApiResponse {
 
 export interface PetNotFound {
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   code?: number
   /**
@@ -390,7 +390,7 @@ export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'type' | 'tags'>
 
 export type UpdatePetMutationResponse = UpdatePet200
 
-export type UpdatePetMutation = {
+export interface UpdatePetMutation {
   /**
    * @type object
    */
@@ -412,7 +412,7 @@ export type AddPet200 = Pet
  */
 export interface AddPet405 {
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   code?: number
   /**
@@ -428,7 +428,7 @@ export type AddPetMutationRequest = AddPetRequest
 
 export type AddPetMutationResponse = AddPet200
 
-export type AddPetMutation = {
+export interface AddPetMutation {
   /**
    * @type object
    */
@@ -470,7 +470,7 @@ export type FindPetsByStatus400 = any
 
 export type FindPetsByStatusQueryResponse = FindPetsByStatus200
 
-export type FindPetsByStatusQuery = {
+export interface FindPetsByStatusQuery {
   /**
    * @type object
    */
@@ -515,7 +515,7 @@ export type FindPetsByTags400 = any
 
 export type FindPetsByTagsQueryResponse = FindPetsByTags200
 
-export type FindPetsByTagsQuery = {
+export interface FindPetsByTagsQuery {
   /**
    * @type object
    */
@@ -533,7 +533,7 @@ export type FindPetsByTagsQuery = {
 export interface GetPetByIdPathParams {
   /**
    * @description ID of pet to return
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -555,7 +555,7 @@ export type GetPetById404 = any
 
 export type GetPetByIdQueryResponse = GetPetById200
 
-export type GetPetByIdQuery = {
+export interface GetPetByIdQuery {
   /**
    * @type object
    */
@@ -570,7 +570,7 @@ export type GetPetByIdQuery = {
 export interface UpdatePetWithFormPathParams {
   /**
    * @description ID of pet that needs to be updated
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -595,7 +595,7 @@ export type UpdatePetWithForm405 = any
 
 export type UpdatePetWithFormMutationResponse = any
 
-export type UpdatePetWithFormMutation = {
+export interface UpdatePetWithFormMutation {
   Response: any
   /**
    * @type object
@@ -614,7 +614,7 @@ export type UpdatePetWithFormMutation = {
 export interface DeletePetPathParams {
   /**
    * @description Pet id to delete
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -644,7 +644,7 @@ export type DeletePet400 = any
 
 export type DeletePetMutationResponse = DeletePet200
 
-export type DeletePetMutation = {
+export interface DeletePetMutation {
   /**
    * @type object
    */
@@ -666,7 +666,7 @@ export type DeletePetMutation = {
 export interface UploadFilePathParams {
   /**
    * @description ID of pet to update
-   * @type integer, int64
+   * @type integer
    */
   petId: number
 }
@@ -688,7 +688,7 @@ export type UploadFileMutationRequest = Blob
 
 export type UploadFileMutationResponse = UploadFile200
 
-export type UploadFileMutation = {
+export interface UploadFileMutation {
   /**
    * @type object
    */
@@ -717,7 +717,7 @@ export interface GetInventory200 {
 
 export type GetInventoryQueryResponse = GetInventory200
 
-export type GetInventoryQuery = {
+export interface GetInventoryQuery {
   /**
    * @type object
    */
@@ -742,7 +742,7 @@ export type PlaceOrderMutationRequest = Order
 
 export type PlaceOrderMutationResponse = PlaceOrder200
 
-export type PlaceOrderMutation = {
+export interface PlaceOrderMutation {
   /**
    * @type object
    */
@@ -771,7 +771,7 @@ export type PlaceOrderPatchMutationRequest = Order
 
 export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
 
-export type PlaceOrderPatchMutation = {
+export interface PlaceOrderPatchMutation {
   /**
    * @type object
    */
@@ -789,7 +789,7 @@ export type PlaceOrderPatchMutation = {
 export interface GetOrderByIdPathParams {
   /**
    * @description ID of order that needs to be fetched
-   * @type integer, int64
+   * @type integer
    */
   orderId: number
 }
@@ -811,7 +811,7 @@ export type GetOrderById404 = any
 
 export type GetOrderByIdQueryResponse = GetOrderById200
 
-export type GetOrderByIdQuery = {
+export interface GetOrderByIdQuery {
   /**
    * @type object
    */
@@ -826,7 +826,7 @@ export type GetOrderByIdQuery = {
 export interface DeleteOrderPathParams {
   /**
    * @description ID of the order that needs to be deleted
-   * @type integer, int64
+   * @type integer
    */
   orderId: number
 }
@@ -843,7 +843,7 @@ export type DeleteOrder404 = any
 
 export type DeleteOrderMutationResponse = any
 
-export type DeleteOrderMutation = {
+export interface DeleteOrderMutation {
   Response: any
   /**
    * @type object
@@ -864,7 +864,7 @@ export type CreateUserMutationRequest = User
 
 export type CreateUserMutationResponse = any
 
-export type CreateUserMutation = {
+export interface CreateUserMutation {
   Response: any
   /**
    * @type object
@@ -890,7 +890,7 @@ export type CreateUsersWithListInputMutationRequest = User[]
 
 export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200
 
-export type CreateUsersWithListInputMutation = {
+export interface CreateUsersWithListInputMutation {
   /**
    * @type object
    */
@@ -930,7 +930,7 @@ export type LoginUser400 = any
 
 export type LoginUserQueryResponse = LoginUser200
 
-export type LoginUserQuery = {
+export interface LoginUserQuery {
   /**
    * @type object
    */
@@ -952,7 +952,7 @@ export type LogoutUserError = any
 
 export type LogoutUserQueryResponse = any
 
-export type LogoutUserQuery = {
+export interface LogoutUserQuery {
   Response: any
   /**
    * @type object
@@ -985,7 +985,7 @@ export type GetUserByName404 = any
 
 export type GetUserByNameQueryResponse = GetUserByName200
 
-export type GetUserByNameQuery = {
+export interface GetUserByNameQuery {
   /**
    * @type object
    */
@@ -1017,7 +1017,7 @@ export type UpdateUserMutationRequest = User
 
 export type UpdateUserMutationResponse = any
 
-export type UpdateUserMutation = {
+export interface UpdateUserMutation {
   Response: any
   /**
    * @type object
@@ -1053,7 +1053,7 @@ export type DeleteUser404 = any
 
 export type DeleteUserMutationResponse = any
 
-export type DeleteUserMutation = {
+export interface DeleteUserMutation {
   Response: any
   /**
    * @type object
