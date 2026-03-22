@@ -95,7 +95,6 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
         nameMapping.set(key, value)
       }
 
-
       return createRoot({
         ...root,
         meta: {
