@@ -1193,7 +1193,7 @@ describe('convertSchema object discriminator', () => {
 describe('convertSchema object inline enum naming', () => {
   it('collisionDetection: false — enum name includes parent chain (OrderParamsStatusEnum)', () => {
     // With the parent-prefixed naming in legacy mode, nested enum names now include
-    // the full parent chain for disambiguation (matching v4 behaviour for array-of-enum).
+    // the full parent chain for disambiguation (matching v4 behavior for array-of-enum).
     const parserNoCollision = createOasParser(emptyOas, { collisionDetection: false })
     const node = parserNoCollision.convertSchema(
       {

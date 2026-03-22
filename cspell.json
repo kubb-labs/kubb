@@ -27,7 +27,8 @@
     "docs/about.md",
     "getParams.test.ts",
     "paramsCasing.test.ts",
-    "paramsCasing.ts"
+    "paramsCasing.ts",
+    "v4-v5-comparison.md"
   ],
   "ignoreRegExpList": ["https?://github\\.com/[a-zA-Z0-9-_]+(/[a-zA-Z0-9-_]+)?", "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b", "\\[kub[ːˑ]+\\]"],
   "words": [
