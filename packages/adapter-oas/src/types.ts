@@ -107,3 +107,10 @@ export type OasAdapterResolvedOptions = {
 }
 
 export type OasAdapter = AdapterFactoryOptions<'oas', OasAdapterOptions, OasAdapterResolvedOptions>
+
+/**
+ * Distributive `Omit` — correctly distributes over union types so that
+ * `Omit<A | B, 'kind'>` produces `Omit<A, 'kind'> | Omit<B, 'kind'>`
+ * rather than `Omit<A | B, 'kind'>`.
+ */
+export type DistributiveOmit<TValue, TKey extends PropertyKey> = TValue extends unknown ? Omit<TValue, TKey> : never

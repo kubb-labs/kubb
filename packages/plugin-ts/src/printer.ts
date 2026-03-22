@@ -117,9 +117,10 @@ function buildTupleNode(node: ArraySchemaNode, print: (node: SchemaNode) => ts.T
 }
 
 /**
- * Applies `nullable` and optional/nullish `| undefined` union modifiers to a property's resolved base type.
+ * Applies `nullable` and optional/nullish `| undefined` union modifiers to a type node.
+ * Used for both individual property types and top-level type declarations.
  */
-function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalType: TsOptions['optionalType']): ts.TypeNode {
+function applyNullableModifiers(schema: SchemaNode, baseType: ts.TypeNode, optionalType: TsOptions['optionalType']): ts.TypeNode {
   const addsUndefined = OPTIONAL_ADDS_UNDEFINED.has(optionalType)
 
   let type = baseType
@@ -136,22 +137,70 @@ function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalTy
 }
 
 /**
- * Collects JSDoc annotation strings (description, deprecated, min/max, pattern, default, example, type) for a schema node.
+ * Collects shared JSDoc constraint annotations for a schema node.
+ * Covers: deprecated, minLength, maxLength, pattern, default, example.
+ *
+ * When `stringifyDefault` is `true`, string-typed `@default` values are
+ * quoted (property-level). Declaration-level defaults are emitted raw.
  */
-function buildPropertyJSDocComments(schema: SchemaNode, legacy?: boolean): Array<string | undefined> {
+function buildSchemaAnnotations(schema: SchemaNode, options: { legacy?: boolean; stringifyDefault?: boolean }): Array<string | undefined> {
   const isArray = schema.type === 'array'
   return [
-    'description' in schema && schema.description ? `@description ${jsStringEscape(schema.description)}` : undefined,
     'deprecated' in schema && schema.deprecated ? '@deprecated' : undefined,
     // minItems/maxItems on arrays should not be emitted as @minLength/@maxLength
     !isArray && 'min' in schema && schema.min !== undefined ? `@minLength ${schema.min}` : undefined,
     !isArray && 'max' in schema && schema.max !== undefined ? `@maxLength ${schema.max}` : undefined,
     'pattern' in schema && schema.pattern ? `@pattern ${schema.pattern}` : undefined,
     'default' in schema && schema.default !== undefined
-      ? `@default ${'primitive' in schema && schema.primitive === 'string' ? stringify(schema.default as string) : schema.default}`
+      ? `@default ${options.stringifyDefault && 'primitive' in schema && schema.primitive === 'string' ? stringify(schema.default as string) : schema.default}`
       : undefined,
-    !legacy && 'example' in schema && schema.example !== undefined ? `@example ${schema.example}` : undefined,
+    !options.legacy && 'example' in schema && schema.example !== undefined ? `@example ${schema.example}` : undefined,
   ]
+}
+
+/**
+ * Builds JSDoc comments for a schema property: description + constraint annotations.
+ */
+function buildPropertyJSDocComments(schema: SchemaNode, legacy?: boolean): Array<string | undefined> {
+  return [
+    'description' in schema && schema.description ? `@description ${jsStringEscape(schema.description)}` : undefined,
+    ...buildSchemaAnnotations(schema, { legacy, stringifyDefault: true }),
+  ]
+}
+
+/**
+ * Builds JSDoc comments for a top-level type declaration: title + description + constraint annotations.
+ */
+function buildDeclarationJSDocComments(
+  node: SchemaNode,
+  options: { description?: string; legacy?: boolean },
+): Array<string | undefined> {
+  return [
+    node?.title ? jsStringEscape(node.title) : undefined,
+    options.description ? `@description ${jsStringEscape(options.description)}` : undefined,
+    ...buildSchemaAnnotations(node, { legacy: options.legacy }),
+  ]
+}
+
+/**
+ * Builds an open string union: replaces plain `string` members with `(string & {})`
+ * to preserve IDE autocompletion for known literal values while allowing arbitrary strings.
+ */
+function buildOpenUnionMembers(
+  members: Array<SchemaNode>,
+  print: (node: SchemaNode) => ts.TypeNode | null | undefined,
+): Array<ts.TypeNode> {
+  return members
+    .map((m) => {
+      if (isPlainStringType(m)) {
+        return factory.createIntersectionDeclaration({
+          nodes: [factory.keywordTypeNodes.string, factory.createTypeLiteralNode([])],
+          withParentheses: true,
+        })
+      }
+      return print(m)
+    })
+    .filter(Boolean)
 }
 
 /**
@@ -188,6 +237,25 @@ function buildIndexSignatures(
 }
 
 /**
+ * Wraps a resolved type node in a full `type Name = …` or `interface Name { … }` declaration.
+ * Applies `Omit<>` wrapping when `keysToOmit` is set, and forces type-alias syntax for unions and omit types.
+ */
+function buildDeclaration(type: ts.TypeNode, node: SchemaNode, options: TsOptions): ts.Node {
+  const { typeName, syntaxType = 'type', keysToOmit } = options
+  const useTypeAlias = syntaxType === 'type' || type.kind === factory.syntaxKind.union || !!keysToOmit?.length
+
+  return factory.createTypeDeclaration({
+    name: typeName!,
+    isExportable: true,
+    type: keysToOmit?.length
+      ? factory.createOmitDeclaration({ keys: keysToOmit, type, nonNullable: true })
+      : type,
+    syntax: useTypeAlias ? 'type' : 'interface',
+    comments: buildDeclarationJSDocComments(node, { description: options.description, legacy: options.legacy }),
+  })
+}
+
+/**
  * TypeScript type printer built with `definePrinter`.
  *
  * Converts a `SchemaNode` AST node into a TypeScript AST node:
@@ -211,8 +279,6 @@ function buildIndexSignatures(
  * ```
  */
 export const printerTs = definePrinter<TsPrinter>((options) => {
-  const addsUndefined = OPTIONAL_ADDS_UNDEFINED.has(options.optionalType)
-
   return {
     name: 'typescript',
     options,
@@ -273,31 +339,16 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
       union(node) {
         const members = node.members ?? []
 
-        const hasStringLiteral = members.some((m) => m.type === 'enum' && (m.enumType === 'string' || m.primitive === 'string'))
-        const hasPlainString = members.some((m) => isPlainStringType(m))
+        const isOpenStringUnion =
+          !this.options.legacy &&
+          members.some((m) => m.type === 'enum' && (m.enumType === 'string' || m.primitive === 'string')) &&
+          members.some((m) => isPlainStringType(m))
 
-        if (hasStringLiteral && hasPlainString) {
-          if (this.options.legacy) {
-            return factory.createUnionDeclaration({ withParentheses: true, nodes: buildMemberNodes(members, this.print) }) ?? undefined
-          }
+        const memberNodes = isOpenStringUnion
+          ? buildOpenUnionMembers(members, this.print)
+          : buildMemberNodes(members, this.print)
 
-          const memberNodes = members
-            .map((m) => {
-              if (isPlainStringType(m)) {
-                return factory.createIntersectionDeclaration({
-                  nodes: [factory.keywordTypeNodes.string, factory.createTypeLiteralNode([])],
-                  withParentheses: true,
-                })
-              }
-
-              return this.print(m)
-            })
-            .filter(Boolean)
-
-          return factory.createUnionDeclaration({ withParentheses: true, nodes: memberNodes }) ?? undefined
-        }
-
-        return factory.createUnionDeclaration({ withParentheses: true, nodes: buildMemberNodes(members, this.print) }) ?? undefined
+        return factory.createUnionDeclaration({ withParentheses: true, nodes: memberNodes }) ?? undefined
       },
       intersection(node) {
         return factory.createIntersectionDeclaration({ withParentheses: true, nodes: buildMemberNodes(node.members, this.print) }) ?? undefined
@@ -316,7 +367,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
 
         const propertyNodes: Array<ts.TypeElement> = node.properties.map((prop) => {
           const baseType = print(prop.schema) ?? factory.keywordTypeNodes.unknown
-          const type = buildPropertyType(prop.schema, baseType, options.optionalType)
+          const type = applyNullableModifiers(prop.schema, baseType, options.optionalType)
 
           const propertyNode = factory.createPropertySignature({
             questionToken: prop.schema.optional || prop.schema.nullish ? addsQuestionToken : false,
@@ -338,51 +389,19 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
       },
     },
     print(node) {
-      let type = this.print(node)
+      const type = this.print(node)
 
       if (!type) {
         return undefined
       }
 
-      // Apply top-level nullable / optional union modifiers.
-      if (node.nullable) {
-        type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.null] })
+      const resolved = applyNullableModifiers(node, type, this.options.optionalType)
+
+      if (!this.options.typeName) {
+        return resolved
       }
 
-      if ((node.nullish || node.optional) && addsUndefined) {
-        type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] })
-      }
-
-      // Without typeName, return the type node as-is (no declaration wrapping).
-      const { typeName, syntaxType = 'type', description, keysToOmit } = this.options
-      if (!typeName) {
-        return type
-      }
-
-      const useTypeGeneration = syntaxType === 'type' || type.kind === factory.syntaxKind.union || !!keysToOmit?.length
-
-      return factory.createTypeDeclaration({
-        name: typeName,
-        isExportable: true,
-        type: keysToOmit?.length
-          ? factory.createOmitDeclaration({
-              keys: keysToOmit,
-              type,
-              nonNullable: true,
-            })
-          : type,
-        syntax: useTypeGeneration ? 'type' : 'interface',
-        comments: [
-          node?.title ? jsStringEscape(node.title) : undefined,
-          description ? `@description ${jsStringEscape(description)}` : undefined,
-          node?.deprecated ? '@deprecated' : undefined,
-          node && node.type !== 'array' && 'min' in node && node.min !== undefined ? `@minLength ${node.min}` : undefined,
-          node && node.type !== 'array' && 'max' in node && node.max !== undefined ? `@maxLength ${node.max}` : undefined,
-          node && 'pattern' in node && node.pattern ? `@pattern ${node.pattern}` : undefined,
-          node?.default ? `@default ${node.default}` : undefined,
-          !options.legacy && node?.example ? `@example ${node.example}` : undefined,
-        ],
-      })
+      return buildDeclaration(resolved, node, this.options)
     },
   }
 })
