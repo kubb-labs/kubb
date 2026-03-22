@@ -204,6 +204,10 @@ export function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperatio
 
   const properties = [createProperty({ name: 'Response', schema: responseSchema })]
 
+  const hasPathParams = node.parameters.some((p) => p.in === 'path')
+  const hasQueryParams = node.parameters.some((p) => p.in === 'query')
+  const hasHeaderParams = node.parameters.some((p) => p.in === 'header')
+
   if (!isGet && node.requestBody?.schema) {
     properties.push(
       createProperty({
@@ -211,16 +215,9 @@ export function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperatio
         schema: createSchema({ type: 'ref', name: resolver.resolveDataTypedName(node) }),
       }),
     )
-  } else if (isGet && node.parameters.some((p) => p.in === 'query')) {
-    properties.push(
-      createProperty({
-        name: 'QueryParams',
-        schema: createSchema({ type: 'ref', name: resolver.resolveQueryParamsTypedName!(node) }),
-      }),
-    )
   }
 
-  if (node.parameters.some((p) => p.in === 'path') && resolver.resolvePathParamsTypedName) {
+  if (hasPathParams && resolver.resolvePathParamsTypedName) {
     properties.push(
       createProperty({
         name: 'PathParams',
@@ -229,7 +226,16 @@ export function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperatio
     )
   }
 
-  if (node.parameters.some((p) => p.in === 'header') && resolver.resolveHeaderParamsTypedName) {
+  if (hasQueryParams && resolver.resolveQueryParamsTypedName) {
+    properties.push(
+      createProperty({
+        name: 'QueryParams',
+        schema: createSchema({ type: 'ref', name: resolver.resolveQueryParamsTypedName(node) }),
+      }),
+    )
+  }
+
+  if (hasHeaderParams && resolver.resolveHeaderParamsTypedName) {
     properties.push(
       createProperty({
         name: 'HeaderParams',

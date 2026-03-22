@@ -56,6 +56,11 @@ type SchemaNodeBase = BaseNode & {
    * Underlying primitive before format/semantic promotion (e.g. `'string'` for a `uuid` node).
    */
   primitive?: PrimitiveSchemaType
+  /**
+   * Raw OpenAPI `format` value (e.g. `'int64'`, `'int32'`, `'date-time'`).
+   * Preserved for legacy JSDoc `@type` annotation output (v4 compatibility).
+   */
+  oasFormat?: string
 }
 
 /**
