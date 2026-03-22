@@ -149,9 +149,6 @@ function buildPropertyJSDocComments(schema: SchemaNode, legacy?: boolean): Array
       ? `@default ${'primitive' in schema && schema.primitive === 'string' ? stringify(schema.default as string) : schema.default}`
       : undefined,
     !legacy && 'example' in schema && schema.example !== undefined ? `@example ${schema.example}` : undefined,
-    'primitive' in schema && schema.primitive
-      ? [`@type ${schema.primitive || 'unknown'}`, 'optional' in schema && schema.optional ? ' | undefined' : undefined].filter(Boolean).join('')
-      : undefined,
   ]
 }
 
@@ -256,7 +253,8 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
       enum(node) {
         const values = node.namedEnumValues?.map((v) => v.value) ?? node.enumValues ?? []
 
-        if (this.options.enumType === 'inlineLiteral' || !node.name) {
+        // In legacy mode, `const`-derived single-value enums are emitted as inline literals.
+        if (this.options.enumType === 'inlineLiteral' || !node.name || (this.options.legacy && node.fromConst)) {
           const literalNodes = values
             .filter((v): v is string | number | boolean => v !== null)
             .map((value) => constToTypeNode(value, typeof value as 'string' | 'number' | 'boolean'))

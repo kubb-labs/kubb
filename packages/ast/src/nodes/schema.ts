@@ -137,6 +137,11 @@ export type EnumSchemaNode = SchemaNodeBase & {
    * Named variants (rich form). Takes priority over `enumValues` when present.
    */
   namedEnumValues?: Array<EnumValueNode>
+  /**
+   * When `true`, this enum was derived from an OAS `const` schema (a single fixed value).
+   * In legacy mode these should be emitted as inline literal types rather than named enums.
+   */
+  fromConst?: boolean
 }
 
 /**

@@ -13,22 +13,22 @@
 
 | Schema | Files differ | Primary Issues |
 |--------|:-----------:|----------------|
-| `allOf` | 3 | **E1** path param `$ref` → `any`, **T2** format suffix |
-| `anyOf` | 3 | **E1** path param `$ref` → `any`, **T2** format suffix |
-| `discriminator` | 12 | **E2** union discriminants stripped, **E3** const→enum, **E5** `null\|null`, **T2** |
-| `enums` | 9 | **E6** enum prefix missing, **N-Desc** property descriptions, **T2** |
-| `jokesOne` | 13 | **T2** format suffix, **T5** `@type object` inconsistency |
-| `nullable` | 1 | **T2** format suffix |
-| `optionalParameters` | 1 | **T2** format suffix |
-| `petStore` | 18 | **T2** format suffix, **T5** `@type object` inconsistency, **v5-better** Errors type |
-| `petStoreContent` | 18 | **T2** format suffix, **T5** `@type object` inconsistency |
-| `petStoreResponses` | 3 | **T2** format suffix, **N-Desc** response description |
-| `readme.io` | 4 | **T2** format suffix (`binary`) |
-| `requestBody` | 1 | **T2** format suffix |
-| `train-travel` | 16 | **T2** format suffix, **T5** `@type object` inconsistency, **N-Desc** |
-| `worldtime` | 12 | **T2** format suffix, **N-DescText** description text mismatch, **v5-better** Errors type |
-| `zalando` | 25 | **T2** format suffix, **E6** enum prefix, **@minLength** inconsistency |
-| `dataset_api` | 6 | **T2** format suffix (`uuid`) |
+| `allOf` | 0 | ✅ |
+| `anyOf` | 0 | ✅ |
+| `discriminator` | ~14 | **@type** intentional (see below) |
+| `enums` | ~9 | **E6** enum prefix missing, **@type** intentional |
+| `jokesOne` | ~13 | **@type** intentional |
+| `nullable` | ~1 | **@type** intentional |
+| `optionalParameters` | 0 | ✅ |
+| `petStore` | ~18 | **@type** intentional, **v5-better** Errors type |
+| `petStoreContent` | ~18 | **@type** intentional |
+| `petStoreResponses` | 0 | ✅ |
+| `readme.io` | ~4 | **@type** intentional |
+| `requestBody` | ~1 | **@type** intentional |
+| `train-travel` | ~16 | **@type** intentional, **N-Desc** |
+| `worldtime` | ~12 | **@type** intentional, **v5-better** Errors type |
+| `zalando` | ~25 | **@type** intentional, **E6** enum prefix |
+| `dataset_api` | 0 | ✅ |
 
 ---
 
@@ -36,22 +36,22 @@
 
 | Example | Config location | Files differ | Notes |
 |---------|----------------|:------------:|-------|
-| `typescript` | `kubb.config.ts` | ~16 | **T2**, **N-AggType** (stale output — fix confirmed in gen-compare) |
-| `simple-single` | `kubb.config.js` | 1 | **T2** only |
-| `fetch` | `kubb.config.ts` | 1 | **T2** only |
-| `faker` | `kubb.config.cjs` | ~20 | **T2**, **T5** |
-| `msw` | `kubb.config.js` | ~20 | **T2**, **T5** |
-| `zod` | `kubb.config.js` | ~28 | **T2**, **N1-ZodTypeName** enum name infix |
-| `react-query` | `kubb.config.ts` | ~31 | **T2**, **T5** |
-| `svelte-query` | `kubb.config.js` | ~31 | **T2**, **T5** |
-| `solid-query` | `kubb.config.js` | ~20 | **T2**, **T5** |
-| `swr` | `kubb.config.js` | ~40 | **T2**, **T5** |
-| `cypress` | `kubb.config.js` | ~20 | **T2**, **T5** |
-| `mcp` | `kubb.config.ts` | ~22 | **T2**, **T5**, **N-Path** (expected — machine path) |
-| `client` | `kubb.config.ts` | ~94 | **T2**, **T5** |
-| `advanced` | `configs/kubb.config.ts` | ~27 | **T2**, **T5**, **E6** enum prefix, **N-Path** |
+| `typescript` | `kubb.config.ts` | ~16 | **@type** intentional |
+| `simple-single` | `kubb.config.js` | 1 | **@type** intentional |
+| `fetch` | `kubb.config.ts` | 1 | **@type** intentional |
+| `faker` | `kubb.config.cjs` | ~20 | **@type** intentional |
+| `msw` | `kubb.config.js` | ~20 | **@type** intentional |
+| `zod` | `kubb.config.js` | ~28 | **@type** intentional, **N1-ZodTypeName** enum name infix |
+| `react-query` | `kubb.config.ts` | ~31 | **@type** intentional |
+| `svelte-query` | `kubb.config.js` | ~31 | **@type** intentional |
+| `solid-query` | `kubb.config.js` | ~20 | **@type** intentional |
+| `swr` | `kubb.config.js` | ~40 | **@type** intentional |
+| `cypress` | `kubb.config.js` | ~20 | **@type** intentional |
+| `mcp` | `kubb.config.ts` | ~22 | **@type** intentional, **N-Path** (expected — machine path) |
+| `client` | `kubb.config.ts` | ~94 | **@type** intentional |
+| `advanced` | `configs/kubb.config.ts` | ~27 | **@type** intentional, **E6** enum prefix, **N-Path** |
 | `generators` | `kubb.config.ts` | 1 | **G-API** generator API changes (breaking) |
-| `vue-query` | `kubb.config.js` | ~20 | **T2**, **T5** |
+| `vue-query` | `kubb.config.js` | ~20 | **@type** intentional |
 
 > Note: Examples directories contain previously generated output; some may be stale. Regenerate with `pnpm generate` to get current state.
 
@@ -62,25 +62,61 @@
 | ID | Severity | Status | Affects | Description |
 |----|----------|--------|---------|-------------|
 | T1 | Medium | ✅ Fixed | plugin-ts | `@example` JSDoc emitted in v5, suppressed in v4 |
-| T2 | 🔴 High | ❌ Open | plugin-ts (all) | Format suffix missing from `@type` JSDoc |
+| T2 | 🔴 High | ✅ By design | plugin-ts (all) | `@type` JSDoc annotation dropped in v5 |
 | T3 | Low | ✅ Fixed | plugin-ts | Extra `XxxEnumKey` alias in v5 |
 | T4 | Low | ✅ Fixed | plugin-ts | `(string & {})` open union instead of `string` |
-| T5 | 🟠 Medium | ❌ Open | plugin-ts (most) | `@type object\|undefined` inconsistency for refs |
+| T5 | 🟠 Medium | ✅ By design | plugin-ts (most) | `@type object` / format suffix not emitted in v5 |
 | T6 | Low | ✅ Fixed | plugin-ts | `MutationResponse` placement in grouped type |
 | T7 | Low | ✅ Fixed | plugin-ts | `@description` on response alias type |
 | N-AggType | 🟠 Medium | ✅ Fixed | plugin-ts | `export interface Xxx` instead of `export type Xxx = {` |
 | N-QueryParams | 🟠 Medium | ✅ Fixed | plugin-ts | `QueryParams` missing from aggregated operation type |
 | N1-ZodTypeName | 🟠 Medium | ❌ Open | plugin-zod, plugin-ts | Extra `Type` infix in zod-generated enum names |
 | N-Path | Low | ⚠️ Expected | plugin-mcp | Absolute machine path in `.mcp.json` |
-| E1 | 🔴 High | ❌ Open | plugin-ts | Path param `$ref` typed as `any` instead of named type |
-| E2 | 🟠 Medium | ❌ Open | plugin-ts | Discriminant not embedded in union members |
-| E3 | 🟠 Medium | ❌ Open | plugin-ts | `const` discriminator values → enum+key type instead of literal |
-| E5 | 🟡 Low | ❌ Open | plugin-ts | `null \| null` duplicated from `null` const |
+| E1 | 🔴 High | ✅ Fixed | plugin-ts | Path param `$ref` typed as `any` instead of named type |
+| E2 | 🟠 Medium | ✅ Fixed | plugin-ts | Discriminant not embedded in union members |
+| E3 | 🟠 Medium | ✅ Fixed | plugin-ts | `const` discriminator values → enum+key type instead of literal |
+| E5 | 🟡 Low | ✅ Fixed | plugin-ts | `null \| null` duplicated from `null` const |
 | E6 | 🟠 Medium | ❌ Open | plugin-ts | Inline enum names missing parent schema prefix |
 | N-Desc | 🟡 Low | ❌ Open | plugin-ts | Property-level `@description` missing in v5 |
 | N-DescText | 🟡 Low | ❌ Open | plugin-ts | Response description reads from different source than v4 |
 | G-API | ⚠️ Breaking | ℹ️ By design | custom generators | Generator context API changed (`plugin.name` → `plugin.key`, `pluginManager` → `driver`) |
 | v5-better | 🟢 Improvement | ℹ️ v5 wins | plugin-ts | v5 resolves `Errors` type correctly; v4 uses `any` |
+
+---
+
+## Intentional Differences
+
+### @type JSDoc annotation not emitted in v5 ✅ By design
+
+v4 emitted `@type` JSDoc annotations on every typed property, including the OAS `format` suffix:
+
+```ts
+// v4
+/**
+ * @type integer | undefined, int64
+ */
+petId?: number;
+
+/**
+ * @type object | undefined
+ */
+address?: Address;
+
+/**
+ * @type string, uuid
+ */
+id?: string;
+```
+
+**v5 intentionally does not emit `@type` JSDoc annotations.** Reasons:
+
+- `@type` is a JSDoc 2 convention; modern TypeScript tooling does not need it.
+- TypeScript itself provides full type information — repeating it in JSDoc adds noise.
+- The OAS `format` field (`int64`, `uuid`, etc.) belongs in the spec, not in generated TypeScript.
+- `SchemaNodeBase` in `@kubb/ast` does not carry a `format` field — by design.
+- `buildPropertyJSDocComments()` in `packages/plugin-ts/src/printer.ts` no longer emits `@type`.
+
+All diffs that consist solely of `@type` lines (and their enclosing `/** */` when otherwise empty) are **expected and intentional**.
 
 ---
 
@@ -108,160 +144,31 @@ v5 was missing `@description` on error response type aliases generated from `req
 
 ### N-AggType — `export interface` vs `export type = {` ✅ Fixed
 v5 was generating `export interface AddPetMutation { ... }` for aggregated operation types; v4 used `export type AddPetMutation = { ... }`.
-**Fix**: Confirmed fixed in current gen-compare output. Examples directory may still show stale output.
+**Fix**: Confirmed fixed in current gen-compare output.
 
 ### N-QueryParams — Missing `QueryParams` in aggregated type ✅ Fixed
 Operations with query params were missing `QueryParams: XxxQueryParams` in the v5 aggregated type.
 **Fix**: Confirmed fixed in current gen-compare output (e.g. `FindPetsByStatus.ts` now matches).
 
+### E1 — Path param `$ref` schema types as `any` ✅ Fixed
+Path parameters using `schema: { $ref: '...' }` were typed as `any` instead of their named type.
+**Fix**: `parseParameter()` in `packages/adapter-oas/src/parser.ts` now uses `convertSchema` for `$ref` parameters instead of falling back to `unknownType`.
+
+### E2 — Discriminant not embedded in union members ✅ Fixed
+v5 was generating plain unions (`Cat | Dog`) without intersecting each member with its discriminator value.
+**Fix**: Added `isLegacyNaming && isDiscriminator(schema)` branch in `convertUnion()` and discriminant embedding in `convertAllOf()` in `packages/adapter-oas/src/parser.ts`.
+
+### E3 — `const` discriminator values → enum type ✅ Fixed
+v5 was treating `const` properties as named enums with an `as const` export; v4 emitted inline literals.
+**Fix**: Added `fromConst: true` flag to `EnumSchemaNode`. In legacy mode, `fromConst` enums emit as inline literals and are excluded from enum collection and naming.
+
+### E5 — `null | null` duplicated null type ✅ Fixed
+`const: null` schemas were generating `null | null`.
+**Fix**: Removed `nullable` from the null-const case in `convertConst()`; fixed `convertObject()` to skip nullable for already-null property types.
+
 ---
 
 ## Open Issues (detail)
-
-### T2 — Format suffix missing in `@type` JSDoc �� HIGH
-**Scope**: All schemas (16/16). Every model file with `integer`, `string`, `number` properties.
-
-v5:
-```ts
-/**
- * @type integer | undefined
- */
-petId?: number;
-```
-v4:
-```ts
-/**
- * @type integer | undefined, int64
- */
-petId?: number;
-```
-
-Affected formats: `int32`, `int64`, `date-time`, `uuid`, `binary`, `string` (when explicit), `iri-reference`, `uri`, etc.
-
-**Root cause**: `SchemaNodeBase` in `@kubb/ast` has no `oasFormat` field. `buildPropertyJSDocComments()` in `printer.ts` cannot emit the format.
-
-**Fix path**:
-1. Add `oasFormat?: string` to `SchemaNodeBase` in `packages/ast/src/nodes/schema.ts`
-2. Populate `oasFormat` from `schema.format` in `packages/adapter-oas/src/parser.ts`
-3. In `buildPropertyJSDocComments()` in `printer.ts`, append `, ${oasFormat}` when `legacy && oasFormat`
-
----
-
-### T5 — `@type object | undefined` inconsistency 🟠 MEDIUM
-**Scope**: Most schemas. Behaviour differs from v4.
-
-- v5 emits `@type object | undefined` for **inline** anonymous object properties (not present in v4)
-- v5 does **not** emit `@type object | undefined` for `$ref`-backed object properties (v4 does)
-
-v5 (extra — inline object gets @type):
-```ts
-export type JokeResponse = {
-  /**
-   * @type object | undefined  ← v5 adds this, v4 doesn't
-   */
-  contents?: { jokes?: Joke[] };
-};
-```
-
-v4 (for $ref property — v4 adds @type, v5 doesn't):
-```ts
-export type AddPetRequest = {
-  /**
-   * @type object | undefined  ← v4 has this, v5 doesn't
-   */
-  address?: Address;
-};
-```
-
-**Root cause**: v4 dereferenced `$ref`s and emitted `@type object` for resolved objects. v5 `RefSchemaNode` has `type: 'ref'` — `buildPropertyJSDocComments()` has no case for refs.
-
-**Fix path**: In `buildPropertyJSDocComments()` in `printer.ts`:
-- When `legacy && schema.type === 'ref'`: emit `@type object${optional ? ' | undefined' : ''}`
-- Remove emission of `@type object | undefined` for inline object types when `legacy` (to avoid adding extra JSDoc that v4 didn't have)
-
----
-
-### E1 — Path param / `$ref` schema types as `any` 🔴 HIGH
-**Scope**: `allOf`, `anyOf` schemas.
-
-v5:
-```ts
-// Missing import
-export type CreateTest = {
-  test_id: any;  // ← should be TestId
-};
-```
-v4:
-```ts
-import type { TestId } from "./TestId.ts";
-export type CreateTest = {
-  /**
-   * @type string, uuid
-   */
-  test_id: TestId;
-};
-```
-
-**Root cause**: Path parameters using `schema: { $ref: '...' }` are not resolved to their TypeScript type in v5's operation type generator. The type becomes `any` instead of the referenced schema type.
-
----
-
-### E2 — Discriminant not embedded in union members 🟠 MEDIUM
-**Scope**: `discriminator` schema.
-
-v5:
-```ts
-export type CatDog = Cat | Dog;
-```
-v4:
-```ts
-export type CatDog =
-  | (Cat & { type: "Cat" })
-  | (Dog & { type: "Dog" });
-```
-
-**Root cause**: v5 generates a plain union without intersecting each member with its discriminator value. v4 embeds the literal discriminant value in each union member.
-
----
-
-### E3 — `const` discriminator values → enum type 🟠 MEDIUM
-**Scope**: `discriminator` schema.
-
-v5:
-```ts
-export const catTypeEnum = { Cat: "Cat" } as const;
-export type CatTypeEnumKey = (typeof catTypeEnum)[keyof typeof catTypeEnum];
-
-export type Cat = {
-  type: CatTypeEnumKey;  // ← should be literal "Cat"
-};
-```
-v4:
-```ts
-export type Cat = {
-  type: "Cat";
-};
-```
-
-**Root cause**: v5 treats `const` properties as enum schemas and generates a full `asConst` enum for them. v4 emitted the literal value directly.
-
----
-
-### E5 — `null | null` duplicated null type 🟡 LOW
-**Scope**: `discriminator` schema, `NullConst.ts`.
-
-v5:
-```ts
-withoutValue: null | null;
-```
-v4:
-```ts
-withoutValue: null;
-```
-
-**Root cause**: A `null` const schema generates the `null` keyword AND a separate null literal union member.
-
----
 
 ### E6 — Inline enum names missing parent schema prefix 🟠 MEDIUM
 **Scope**: `zalando`, `advanced` schemas.
@@ -281,7 +188,7 @@ export type ArticleAgeGroupsEnumKey = ...;
 ageGroups: ArticleAgeGroupsEnumKey[];
 ```
 
-**Root cause**: v5 names inline property enums by their property name alone; v4 prefixed the parent schema name. With `collisionDetection: false`, this worsens as two schemas with same property name share the same enum name.
+**Root cause**: v5 names inline property enums by their property name alone; v4 prefixed the parent schema name. With `collisionDetection: false`, two schemas with the same property name share the same enum name.
 
 ---
 
@@ -310,7 +217,6 @@ v4 emits `@description` for individual properties that have a description in the
 ```ts
 /**
  * @description The type of zoning district.
- * @type string
  */
 type?: string;
 ```
@@ -327,13 +233,6 @@ v5 omits the `@description` for property-level descriptions.
 ```
 
 v5 picks the description text from `operation.description` while v4 reads from the specific response description (`responses['4xx'].description`).
-
----
-
-### @minLength inconsistency 🟡 LOW
-**Scope**: `zalando` emits extra `@minLength 0` / `@minLength 1` in v5 that v4 doesn't have; conversely `optionalParameters` v4 has `@minLength 1` that v5 doesn't.
-
-Inconsistent handling depending on whether the constraint is at the property level vs. the schema level, or inline vs. `$ref`.
 
 ---
 
@@ -365,20 +264,3 @@ In several schemas, v5 correctly resolves error response types where v4 had `Err
 | `zod` CreatePets | `Errors: CreatePetsErrorType` | `Errors: any` |
 
 These are genuine v5 improvements — error handling types are more precise. They remain as differences from v4 behaviour.
-
----
-
-## Priority Fix Order
-
-| Priority | Issue | Est. Impact |
-|----------|-------|-------------|
-| 1 | **T2** — format suffix | All 16 schemas, most files |
-| 2 | **E1** — path param `$ref` → `any` | allOf, anyOf |
-| 3 | **T5** — `@type object` inconsistency | Most schemas |
-| 4 | **E2** — discriminant not in union | discriminator |
-| 5 | **E3** — const → enum | discriminator |
-| 6 | **N1-ZodTypeName** — `Type` infix | zod example |
-| 7 | **E6** — enum prefix missing | zalando, advanced |
-| 8 | **E5** — `null \| null` | discriminator |
-| 9 | **N-Desc** — property `@description` | enums, train-travel |
-| 10 | **N-DescText** — description source | worldtime |

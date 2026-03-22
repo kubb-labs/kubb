@@ -285,14 +285,14 @@ export function buildLegacyResponseUnionSchemaNode({ node, resolver }: BuildOper
 export function nameUnnamedEnums(node: SchemaNode, parentName: string): SchemaNode {
   return transform(node, {
     schema(n) {
-      if (n.type === 'enum' && !n.name) {
+      if (n.type === 'enum' && !n.name && !n.fromConst) {
         return { ...n, name: pascalCase([parentName, 'enum'].join(' ')) }
       }
       return undefined
     },
     property(p) {
       const enumNode = narrowSchema(p.schema, 'enum')
-      if (enumNode && !enumNode.name) {
+      if (enumNode && !enumNode.name && !enumNode.fromConst) {
         return {
           ...p,
           schema: { ...enumNode, name: pascalCase([parentName, p.name, 'enum'].join(' ')) },

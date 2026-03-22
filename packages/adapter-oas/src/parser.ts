@@ -305,14 +305,30 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
    * In OAS 3.0 siblings of `$ref` are technically ignored by the spec, but Kubb intentionally
    * preserves them so that annotations like `pattern`, `description`, and `nullable` are
    * reflected in generated JSDoc and type modifiers.
+   *
+  /**
+   * Resolves the target schema's `title` and `description` so that ref properties
+   * inherit them when not overridden by their own sibling fields.
    */
   function convertRef({ schema, nullable, defaultValue }: SchemaContext): SchemaNode {
+    const [resolvedTitle, resolvedDescription] = ((): [string | undefined, string | undefined] => {
+      if (!schema.$ref) return [undefined, undefined]
+      try {
+        const resolved = oas.get<SchemaObject>(schema.$ref)
+        if (!resolved) return [undefined, undefined]
+        return [(resolved as { title?: string }).title, (resolved as { description?: string }).description]
+      } catch {
+        return [undefined, undefined]
+      }
+    })()
+
     return createSchema({
       type: 'ref',
       name: extractRefName(schema.$ref!),
       ref: schema.$ref,
+      title: schema.title ?? resolvedTitle,
       nullable,
-      description: schema.description,
+      description: schema.description ?? resolvedDescription,
       deprecated: schema.deprecated,
       readOnly: schema.readOnly,
       writeOnly: schema.writeOnly,
@@ -367,6 +383,8 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
     // When a child schema extends a discriminator parent via allOf and the parent's oneOf/anyOf
     // references that child back, skip that allOf item to prevent a circular type reference.
+    // In legacy mode, when the parent has a discriminator mapping that includes this child,
+    // embed the discriminant value as an intersection (e.g. `FooBase & { $type: "type-number" }`).
     const allOfMembers: Array<SchemaNode> = (schema.allOf as Array<SchemaObject | ReferenceObject>)
       .filter((item) => {
         if (!isReference(item) || !name) return true
@@ -379,7 +397,43 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
         const inMapping = Object.values(deref.discriminator.mapping ?? {}).some((v) => v === childRef)
         return !inOneOf && !inMapping
       })
-      .map((s) => convertSchema({ schema: s as SchemaObject }, options))
+      .map((s) => {
+        const memberNode = convertSchema({ schema: s as SchemaObject }, options)
+
+        // In legacy mode: when this allOf item is a discriminator parent that lists the current
+        // schema in its mapping, embed the discriminant value as `(ParentRef & { prop: "value" })`.
+        if (isLegacyNaming && isReference(s) && name) {
+          try {
+            const deref = oas.get<SchemaObject>(s.$ref)
+            if (deref && isDiscriminator(deref) && deref.discriminator.mapping) {
+              const childRef = `#/components/schemas/${name}`
+              const discriminantEntry = Object.entries(deref.discriminator.mapping).find(([, v]) => v === childRef)
+              if (discriminantEntry) {
+                const [discriminantValue] = discriminantEntry
+                const discriminantObject = createSchema({
+                  type: 'object',
+                  properties: [
+                    createProperty({
+                      name: deref.discriminator.propertyName,
+                      schema: createSchema({
+                        type: 'enum',
+                        primitive: 'string',
+                        enumValues: [discriminantValue],
+                      }),
+                      required: true,
+                    }),
+                  ],
+                })
+                return createSchema({ type: 'intersection', members: [memberNode, discriminantObject] })
+              }
+            }
+          } catch {
+            // oas.get() may throw if the ref is unresolvable — fall through to use memberNode as-is.
+          }
+        }
+
+        return memberNode
+      })
 
     // Track where allOf-derived members end so only the synthetic members added below
     // (injected required-key objects + outer-properties object) are candidates for merging.
@@ -414,10 +468,16 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       allOfMembers.push(convertSchema({ schema: schemaWithoutAllOf }, options))
     }
 
-    // Merge consecutive anonymous object members within the synthetic portion — see `mergeAdjacentAnonymousObjects`.
+    // Merge consecutive anonymous object members across the full members list so that adjacent
+    // inline-property objects from the OAS allOf array are collapsed into a single object
+    // (matching v4 behaviour where e.g. `& { data } & { links }` becomes `& { data; links }`).
+    const mergedMembers = mergeAdjacentAnonymousObjects([
+      ...allOfMembers.slice(0, syntheticStart),
+      ...mergeAdjacentAnonymousObjects(allOfMembers.slice(syntheticStart)),
+    ])
     return createSchema({
       type: 'intersection',
-      members: [...allOfMembers.slice(0, syntheticStart), ...mergeAdjacentAnonymousObjects(allOfMembers.slice(syntheticStart))],
+      members: mergedMembers,
       ...renderSchemaBase(schema, name, nullable, defaultValue),
     })
   }
@@ -471,6 +531,46 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       })
     }
 
+    // In legacy mode, when there's a discriminator but no shared properties, embed the discriminant
+    // value in each union member as an intersection (e.g. `(Cat & { type: "Cat" }) | (Dog & { type: "Dog" })`).
+    if (isLegacyNaming && isDiscriminator(schema)) {
+      const discriminator = schema.discriminator
+      return createSchema({
+        type: 'union',
+        ...unionBase,
+        members: unionMembers.map((s) => {
+          const ref = isReference(s) ? s.$ref : undefined
+          const refName = ref ? extractRefName(ref) : undefined
+
+          // Look up the discriminant value from the mapping, or infer it from the ref name.
+          const discriminatorValue = discriminator.mapping
+            ? Object.entries(discriminator.mapping).find(([, v]) => v === ref)?.[0]
+            : refName
+
+          const memberNode = convertSchema({ schema: s as SchemaObject }, options)
+
+          if (!discriminatorValue) return memberNode
+
+          const discriminantObject = createSchema({
+            type: 'object',
+            properties: [
+              createProperty({
+                name: discriminator.propertyName,
+                schema: createSchema({
+                  type: 'enum',
+                  primitive: 'string',
+                  enumValues: [discriminatorValue],
+                  fromConst: true,
+                }),
+                required: true,
+              }),
+            ],
+          })
+          return createSchema({ type: 'intersection', members: [memberNode, discriminantObject] })
+        }),
+      })
+    }
+
     return createSchema({
       type: 'union',
       ...unionBase,
@@ -494,7 +594,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
-        nullable,
+        // A `null` schema is inherently null; don't pass `nullable` to avoid emitting `null | null`.
       })
     }
 
@@ -503,6 +603,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       type: 'enum',
       primitive: constPrimitive,
       enumValues: [constValue as string | number | boolean],
+      fromConst: true,
       ...renderSchemaBase(schema, name, nullable, defaultValue),
     })
   }
@@ -545,7 +646,15 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     const specialPrimitive: PrimitiveSchemaType = specialType === 'number' || specialType === 'integer' || specialType === 'bigint' ? specialType : 'string'
 
     if (specialType === 'number' || specialType === 'integer' || specialType === 'bigint') {
-      return createSchema({ ...base, primitive: specialPrimitive, type: specialType })
+      return createSchema({
+        ...base,
+        primitive: specialPrimitive,
+        type: specialType,
+        min: schema.minimum,
+        max: schema.maximum,
+        exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
+        exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
+      })
     }
     if (specialType === 'url') {
       return createSchema({ ...base, primitive: 'string' as const, type: 'url' })
@@ -725,7 +834,8 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
             name: propName,
             schema: {
               ...schemaNode,
-              nullable: propNullable || undefined,
+              // Don't add nullable when the schema is already a `null` type — that would produce `null | null`.
+              nullable: (propNullable && schemaNode.type !== 'null') || undefined,
               optional: !required && !propNullable ? true : undefined,
               nullish: !required && propNullable ? true : undefined,
             },
@@ -983,15 +1093,16 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
   /**
    * Converts a single dereferenced OAS parameter object into a `ParameterNode`.
-   * When the parameter has no `schema` or its schema is a `$ref`, falls back to `unknownType`.
+   * When the parameter has no `schema`, falls back to `unknownType`.
+   * When the schema is a `$ref`, it is converted via `convertRef` (through `convertSchema`)
+   * so that the referenced type (e.g. `TestId`) is used instead of falling back to `any`.
    */
   function parseParameter(options: ParserOptions, param: Record<string, unknown>): ParameterNode {
     const required = (param['required'] as boolean | undefined) ?? false
 
-    const schema: SchemaNode =
-      param['schema'] && !isReference(param['schema'])
-        ? convertSchema({ schema: param['schema'] as SchemaObject }, options)
-        : createSchema({ type: resolveTypeOption(options.unknownType) })
+    const schema: SchemaNode = param['schema']
+      ? convertSchema({ schema: param['schema'] as SchemaObject }, options)
+      : createSchema({ type: resolveTypeOption(options.unknownType) })
 
     return createParameter({
       name: param['name'] as string,
@@ -1030,8 +1141,11 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       : undefined
 
     const responses: Array<ResponseNode> = operation.getResponseStatusCodes().map((statusCode) => {
-      const responseObj = operation.getResponseByStatusCode(statusCode)
+      // `oas.getResponseSchema` mutates `operation.schema.responses` to dereference any $ref response
+      // objects. We must call it before reading `responseObj` so that all response entries are
+      // dereferenced and `responseObj.description` is available even for the first status code.
       const responseSchema = oas.getResponseSchema(operation, statusCode)
+      const responseObj = operation.getResponseByStatusCode(statusCode)
 
       const schema =
         responseSchema && Object.keys(responseSchema).length > 0

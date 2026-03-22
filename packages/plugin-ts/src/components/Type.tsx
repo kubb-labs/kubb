@@ -39,7 +39,8 @@ export function Type({
   const resolvedDescription = description || node?.description
   const enumSchemaNodes = collect<EnumSchemaNode>(node, {
     schema(n): EnumSchemaNode | undefined {
-      if (n.type === 'enum' && n.name) return n as EnumSchemaNode
+      // In legacy mode, `const`-derived single-value enums are emitted as inline literals — skip them.
+      if (n.type === 'enum' && n.name && !(legacy && n.fromConst)) return n as EnumSchemaNode
     },
   })
 
