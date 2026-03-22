@@ -13,10 +13,10 @@ export type CreateConfigV20250201 = Config;
 
 export type CreateConfigV20250MutationRequest = ConfigCreate;
 
+export type CreateConfigV20250MutationResponse = CreateConfigV20250201;
+
 export type CreateConfigV20250Mutation = {
     Response: CreateConfigV20250201;
     Request: CreateConfigV20250MutationRequest;
     Errors: any;
 };
-
-export type CreateConfigV20250MutationResponse = CreateConfigV20250201;

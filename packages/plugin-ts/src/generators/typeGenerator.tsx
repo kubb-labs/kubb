@@ -154,8 +154,8 @@ export const typeGenerator = defineGenerator<PluginTs>({
           {legacyParamTypes}
           {responseTypes}
           {requestType}
-          {legacyResponsesType}
           {legacyResponseType}
+          {legacyResponsesType}
         </File>
       )
     }

@@ -52,11 +52,11 @@ export type FindPetsByTags200Type = PetType[]
  */
 export type FindPetsByTags400Type = any
 
+export type FindPetsByTagsQueryResponseType = FindPetsByTags200Type
+
 export type FindPetsByTagsQueryType = {
   Response: FindPetsByTags200Type
   QueryParams: FindPetsByTagsQueryParamsType
   HeaderParams: FindPetsByTagsHeaderParamsType
   Errors: FindPetsByTags400Type
 }
-
-export type FindPetsByTagsQueryResponseType = FindPetsByTags200Type

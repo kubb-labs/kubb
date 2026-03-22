@@ -10,9 +10,9 @@ import type { Order } from "./Order.ts";
 */
 export type CreateOrder201 = Order;
 
+export type CreateOrderMutationResponse = CreateOrder201;
+
 export type CreateOrderMutation = {
     Response: CreateOrder201;
     Errors: any;
 };
-
-export type CreateOrderMutationResponse = CreateOrder201;

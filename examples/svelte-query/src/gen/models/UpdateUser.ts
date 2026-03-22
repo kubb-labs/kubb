@@ -21,11 +21,11 @@ export type UpdateUserError = any
 
 export type UpdateUserMutationRequest = User
 
+export type UpdateUserMutationResponse = any
+
 export type UpdateUserMutation = {
   Response: any
   Request: UpdateUserMutationRequest
   PathParams: UpdateUserPathParams
   Errors: UpdateUserError
 }
-
-export type UpdateUserMutationResponse = any

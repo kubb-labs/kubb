@@ -12,10 +12,10 @@ export type CreateUserErrorType = UserType
 
 export type CreateUserMutationRequestType = UserType
 
+export type CreateUserMutationResponseType = any
+
 export type CreateUserMutationType = {
   Response: any
   Request: CreateUserMutationRequestType
   Errors: CreateUserErrorType
 }
-
-export type CreateUserMutationResponseType = any

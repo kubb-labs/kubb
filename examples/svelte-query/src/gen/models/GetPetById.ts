@@ -29,10 +29,10 @@ export type GetPetById400 = any
  */
 export type GetPetById404 = any
 
+export type GetPetByIdQueryResponse = GetPetById200
+
 export type GetPetByIdQuery = {
   Response: GetPetById200
   PathParams: GetPetByIdPathParams
   Errors: GetPetById400 | GetPetById404
 }
-
-export type GetPetByIdQueryResponse = GetPetById200

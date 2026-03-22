@@ -29,10 +29,10 @@ export type GetOrderById400 = any
  */
 export type GetOrderById404 = any
 
+export type GetOrderByIdQueryResponse = GetOrderById200
+
 export type GetOrderByIdQuery = {
   Response: GetOrderById200
   PathParams: GetOrderByIdPathParams
   Errors: GetOrderById400 | GetOrderById404
 }
-
-export type GetOrderByIdQueryResponse = GetOrderById200

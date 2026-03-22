@@ -19,10 +19,10 @@ export type AddPetError = Omit<NonNullable<Pet>, 'name'>
 
 export type AddPetMutationRequest = AddPetRequest
 
+export type AddPetMutationResponse = any
+
 export type AddPetMutation = {
   Response: any
   Request: AddPetMutationRequest
   Errors: AddPet405 | AddPetError
 }
-
-export type AddPetMutationResponse = any

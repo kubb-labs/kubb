@@ -67,12 +67,12 @@
     "remeda": "catalog:",
     "tinyexec": "catalog:",
     "unstorage": "^1.17.4",
-    "ws": "^8.19.0"
+    "ws": "^8.20.0"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@types/ws": "^8.18.1",
-    "msw": "^2.12.13",
+    "msw": "^2.12.14",
     "nitropack": "^2.13.2",
     "vite": "^7.3.1"
   },

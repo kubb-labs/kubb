@@ -12,10 +12,10 @@ export type CreateUsersWithListInputError = any
 
 export type CreateUsersWithListInputMutationRequest = Array<User>
 
+export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200
+
 export type CreateUsersWithListInputMutation = {
   Response: CreateUsersWithListInput200
   Request: CreateUsersWithListInputMutationRequest
   Errors: CreateUsersWithListInputError
 }
-
-export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200

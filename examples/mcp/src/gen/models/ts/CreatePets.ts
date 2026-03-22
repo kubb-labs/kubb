@@ -60,6 +60,8 @@ export type CreatePetsMutationRequest = {
   tag: string
 }
 
+export type CreatePetsMutationResponse = CreatePets201
+
 export type CreatePetsMutation = {
   Response: CreatePets201
   Request: CreatePetsMutationRequest
@@ -67,5 +69,3 @@ export type CreatePetsMutation = {
   HeaderParams: CreatePetsHeaderParams
   Errors: CreatePetsError
 }
-
-export type CreatePetsMutationResponse = CreatePets201
