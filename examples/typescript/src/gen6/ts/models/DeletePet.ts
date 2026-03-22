@@ -26,8 +26,6 @@ export const deletePet200Enum = {
 
 export type DeletePet200EnumKey = (typeof deletePet200Enum)[keyof typeof deletePet200Enum]
 
-export type DeletePet200Enum = DeletePet200EnumKey
-
 /**
  * @description items
  */
@@ -38,11 +36,11 @@ export type DeletePet200 = DeletePet200EnumKey[]
  */
 export type DeletePet400 = any
 
+export type DeletePetMutationResponse = DeletePet200
+
 export type DeletePetMutation = {
   Response: DeletePet200
   PathParams: DeletePetPathParams
   HeaderParams: DeletePetHeaderParams
   Errors: DeletePet400
 }
-
-export type DeletePetMutationResponse = DeletePet200

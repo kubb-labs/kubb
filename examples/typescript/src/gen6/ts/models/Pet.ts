@@ -16,12 +16,9 @@ export const statusEnum = {
 
 export type StatusEnumKey = (typeof statusEnum)[keyof typeof statusEnum]
 
-export type StatusEnum = StatusEnumKey
-
 export type Pet =
   | (Dog & {
       /**
-       * @example 10
        * @type integer | undefined
        */
       id?: number
@@ -30,7 +27,6 @@ export type Pet =
        */
       readonly type: 'dog'
       /**
-       * @example doggie
        * @type string
        */
       name: string
@@ -51,7 +47,6 @@ export type Pet =
     })
   | (Cat & {
       /**
-       * @example 10
        * @type integer | undefined
        */
       id?: number
@@ -60,7 +55,6 @@ export type Pet =
        */
       readonly type: 'cat'
       /**
-       * @example doggie
        * @type string
        */
       name: string

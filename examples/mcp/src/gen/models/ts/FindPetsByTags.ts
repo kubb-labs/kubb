@@ -31,8 +31,6 @@ export const findPetsByTagsHeaderParamsXEXAMPLEEnum = {
 
 export type FindPetsByTagsHeaderParamsXEXAMPLEEnumKey = (typeof findPetsByTagsHeaderParamsXEXAMPLEEnum)[keyof typeof findPetsByTagsHeaderParamsXEXAMPLEEnum]
 
-export type FindPetsByTagsHeaderParamsXEXAMPLEEnum = FindPetsByTagsHeaderParamsXEXAMPLEEnumKey
-
 export type FindPetsByTagsHeaderParams = {
   /**
    * @description Header parameters
@@ -51,11 +49,11 @@ export type FindPetsByTags200 = Pet[]
  */
 export type FindPetsByTags400 = any
 
+export type FindPetsByTagsQueryResponse = FindPetsByTags200
+
 export type FindPetsByTagsQuery = {
   Response: FindPetsByTags200
   QueryParams: FindPetsByTagsQueryParams
   HeaderParams: FindPetsByTagsHeaderParams
   Errors: FindPetsByTags400
 }
-
-export type FindPetsByTagsQueryResponse = FindPetsByTags200

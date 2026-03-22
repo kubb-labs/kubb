@@ -29,8 +29,6 @@ export const createPetsHeaderParamsTypeXEXAMPLEEnum = {
 
 export type CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey = (typeof createPetsHeaderParamsTypeXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsTypeXEXAMPLEEnum]
 
-export type CreatePetsHeaderParamsTypeXEXAMPLEEnumType = CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey
-
 export type CreatePetsHeaderParamsType = {
   /**
    * @description Header parameters
@@ -60,6 +58,8 @@ export type CreatePetsMutationRequestType = {
   tag: string
 }
 
+export type CreatePetsMutationResponseType = CreatePets201Type
+
 export type CreatePetsMutationType = {
   Response: CreatePets201Type
   Request: CreatePetsMutationRequestType
@@ -67,5 +67,3 @@ export type CreatePetsMutationType = {
   HeaderParams: CreatePetsHeaderParamsType
   Errors: CreatePetsErrorType
 }
-
-export type CreatePetsMutationResponseType = CreatePets201Type

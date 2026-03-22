@@ -25,12 +25,15 @@ export type AddPet405Type = {
   message?: string
 }
 
+/**
+ * @description Create a new pet in the store
+ */
 export type AddPetMutationRequestType = AddPetRequestType
+
+export type AddPetMutationResponseType = AddPet200Type
 
 export type AddPetMutationType = {
   Response: AddPet200Type
   Request: AddPetMutationRequestType
   Errors: AddPet405Type
 }
-
-export type AddPetMutationResponseType = AddPet200Type

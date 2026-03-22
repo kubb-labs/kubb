@@ -17,10 +17,10 @@ export type GetConfigIdV20250PathParams = {
 */
 export type GetConfigIdV20250200 = Config;
 
+export type GetConfigIdV20250QueryResponse = GetConfigIdV20250200;
+
 export type GetConfigIdV20250Query = {
     Response: GetConfigIdV20250200;
     PathParams: GetConfigIdV20250PathParams;
     Errors: any;
 };
-
-export type GetConfigIdV20250QueryResponse = GetConfigIdV20250200;

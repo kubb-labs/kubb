@@ -17,10 +17,10 @@ export type ListPets200 = object
  */
 export type ListPetsError = object
 
+export type ListPetsQueryResponse = ListPets200
+
 export type ListPetsQuery = {
   Response: ListPets200
   QueryParams: ListPetsQueryParams
   Errors: ListPetsError
 }
-
-export type ListPetsQueryResponse = ListPets200

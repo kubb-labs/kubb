@@ -13,11 +13,8 @@ export const paramsStatusEnum2 = {
 
 export type ParamsStatusEnum2Key = (typeof paramsStatusEnum2)[keyof typeof paramsStatusEnum2]
 
-export type ParamsStatusEnum2 = ParamsStatusEnum2Key
-
 export type Customer = {
   /**
-   * @example 100000
    * @type integer | undefined
    */
   id?: number
@@ -27,7 +24,6 @@ export type Customer = {
   params?: {
     /**
      * @description Order Status
-     * @example approved
      * @type string
      */
     status: ParamsStatusEnum2Key
@@ -37,7 +33,6 @@ export type Customer = {
     type: string
   }
   /**
-   * @example fehguy
    * @type string | undefined
    */
   username?: string

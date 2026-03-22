@@ -28,11 +28,11 @@ export type UploadFile200Type = ApiResponseType
 
 export type UploadFileMutationRequestType = Blob
 
+export type UploadFileMutationResponseType = UploadFile200Type
+
 export type UploadFileMutationType = {
   Response: UploadFile200Type
   Request: UploadFileMutationRequestType
   PathParams: UploadFilePathParamsType
   Errors: any
 }
-
-export type UploadFileMutationResponseType = UploadFile200Type

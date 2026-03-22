@@ -11,8 +11,6 @@ export const paramsStatusEnum = {
 
 export type ParamsStatusEnumKey = (typeof paramsStatusEnum)[keyof typeof paramsStatusEnum]
 
-export type ParamsStatusEnum = ParamsStatusEnumKey
-
 export const orderHttpStatusEnum = {
   '200': 200,
   '400': 400,
@@ -21,16 +19,12 @@ export const orderHttpStatusEnum = {
 
 export type OrderHttpStatusEnumKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
 
-export type OrderHttpStatusEnum = OrderHttpStatusEnumKey
-
 export type Order = {
   /**
-   * @example 10
    * @type integer | undefined
    */
   id?: number
   /**
-   * @example 198772
    * @type integer | undefined
    */
   petId?: number
@@ -40,7 +34,6 @@ export type Order = {
   params?: {
     /**
      * @description Order Status
-     * @example approved
      * @type string
      */
     status: ParamsStatusEnumKey
@@ -50,7 +43,6 @@ export type Order = {
     type: string
   }
   /**
-   * @example 7
    * @type integer | undefined
    */
   quantity?: number
@@ -61,10 +53,9 @@ export type Order = {
   /**
    * @description Order Status
    */
-  status?: 'accepted' | (string & {})
+  status?: 'accepted' | string
   /**
    * @description HTTP Status
-   * @example 200
    * @type number | undefined
    */
   http_status?: OrderHttpStatusEnumKey

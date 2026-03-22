@@ -7,12 +7,10 @@ import type { Address } from './Address.js'
 
 export type Customer = {
   /**
-   * @example 100000
    * @type integer | undefined
    */
   id?: number
   /**
-   * @example fehguy
    * @type string | undefined
    */
   username?: string

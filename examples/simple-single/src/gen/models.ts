@@ -11,8 +11,6 @@ export const orderStatusEnum = {
 
 export type OrderStatusEnumKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
-export type OrderStatusEnum = OrderStatusEnumKey
-
 export const orderHttpStatusEnum = {
   '200': 200,
   '400': 400,
@@ -21,21 +19,16 @@ export const orderHttpStatusEnum = {
 
 export type OrderHttpStatusEnumKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
 
-export type OrderHttpStatusEnum = OrderHttpStatusEnumKey
-
 export type Order = {
   /**
-   * @example 10
    * @type integer | undefined
    */
   id?: number
   /**
-   * @example 198772
    * @type integer | undefined
    */
   petId?: number
   /**
-   * @example 7
    * @type integer | undefined
    */
   quantity?: number
@@ -45,13 +38,11 @@ export type Order = {
   shipDate?: string
   /**
    * @description Order Status
-   * @example approved
    * @type string | undefined
    */
   status?: OrderStatusEnumKey
   /**
    * @description HTTP Status\'s and item of this
-   * @example 200
    * @type number | undefined
    */
   http_status?: OrderHttpStatusEnumKey
@@ -63,22 +54,18 @@ export type Order = {
 
 export type Address = {
   /**
-   * @example 437 Lytton
    * @type string | undefined
    */
   street?: string
   /**
-   * @example Palo Alto
    * @type string | undefined
    */
   city?: string
   /**
-   * @example CA
    * @type string | undefined
    */
   state?: string
   /**
-   * @example 94301
    * @type string | undefined
    */
   zip?: string
@@ -86,12 +73,10 @@ export type Address = {
 
 export type Customer = {
   /**
-   * @example 100000
    * @type integer | undefined
    */
   id?: number
   /**
-   * @example fehguy
    * @type string | undefined
    */
   username?: string
@@ -103,12 +88,10 @@ export type Customer = {
 
 export type Category = {
   /**
-   * @example 1
    * @type integer | undefined
    */
   id?: number
   /**
-   * @example Dogs
    * @type string | undefined
    */
   name?: string
@@ -123,43 +106,35 @@ export type Person = {
 
 export type User = Person & {
   /**
-   * @example 10
    * @type integer | undefined
    */
   id?: number
   /**
-   * @example theUser
    * @type string | undefined
    */
   username?: string
   /**
-   * @example John
    * @type string | undefined
    */
   firstName?: string
   /**
-   * @example James
    * @type string | undefined
    */
   lastName?: string
   /**
-   * @example john@email.com
    * @type string | undefined
    */
   email?: string
   /**
-   * @example 12345
    * @type string | undefined
    */
   password?: string
   /**
-   * @example 12345
    * @type string | undefined
    */
   phone?: string
   /**
    * @description User Status
-   * @example 1
    * @type integer | undefined
    */
   userStatus?: number
@@ -184,16 +159,12 @@ export const petStatusEnum = {
 
 export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
 
-export type PetStatusEnum = PetStatusEnumKey
-
 export type Pet = {
   /**
-   * @example 10
    * @type integer | undefined
    */
   id?: number
   /**
-   * @example doggie
    * @type string
    */
   name: string
@@ -221,16 +192,12 @@ export const addPetRequestStatusEnum = {
 
 export type AddPetRequestStatusEnumKey = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
 
-export type AddPetRequestStatusEnum = AddPetRequestStatusEnumKey
-
 export type AddPetRequest = {
   /**
-   * @example 10
    * @type integer | undefined
    */
   id?: number
   /**
-   * @example doggie
    * @type string
    */
   name: string
@@ -298,15 +265,18 @@ export type UpdatePet404 = any
  */
 export type UpdatePet405 = any
 
+/**
+ * @description Update an existent pet in the store
+ */
 export type UpdatePetMutationRequest = Pet
+
+export type UpdatePetMutationResponse = UpdatePet200
 
 export type UpdatePetMutation = {
   Response: UpdatePet200
   Request: UpdatePetMutationRequest
   Errors: UpdatePet400 | UpdatePet404 | UpdatePet405
 }
-
-export type UpdatePetMutationResponse = UpdatePet200
 
 /**
  * @description Successful operation
@@ -327,15 +297,18 @@ export type AddPet405 = {
   message?: string
 }
 
+/**
+ * @description Create a new pet in the store
+ */
 export type AddPetMutationRequest = AddPetRequest
+
+export type AddPetMutationResponse = AddPet200
 
 export type AddPetMutation = {
   Response: AddPet200
   Request: AddPetMutationRequest
   Errors: AddPet405
 }
-
-export type AddPetMutationResponse = AddPet200
 
 export const findPetsByStatusQueryParamsStatusEnum = {
   available: 'available',
@@ -344,8 +317,6 @@ export const findPetsByStatusQueryParamsStatusEnum = {
 } as const
 
 export type FindPetsByStatusQueryParamsStatusEnumKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
-
-export type FindPetsByStatusQueryParamsStatusEnum = FindPetsByStatusQueryParamsStatusEnumKey
 
 export type FindPetsByStatusQueryParams = {
   /**
@@ -366,13 +337,13 @@ export type FindPetsByStatus200 = Pet[]
  */
 export type FindPetsByStatus400 = any
 
+export type FindPetsByStatusQueryResponse = FindPetsByStatus200
+
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatus200
   QueryParams: FindPetsByStatusQueryParams
   Errors: FindPetsByStatus400
 }
-
-export type FindPetsByStatusQueryResponse = FindPetsByStatus200
 
 export type FindPetsByTagsQueryParams = {
   /**
@@ -402,13 +373,13 @@ export type FindPetsByTags200 = Pet[]
  */
 export type FindPetsByTags400 = any
 
+export type FindPetsByTagsQueryResponse = FindPetsByTags200
+
 export type FindPetsByTagsQuery = {
   Response: FindPetsByTags200
   QueryParams: FindPetsByTagsQueryParams
   Errors: FindPetsByTags400
 }
-
-export type FindPetsByTagsQueryResponse = FindPetsByTags200
 
 export type GetPetByIdPathParams = {
   /**
@@ -433,13 +404,13 @@ export type GetPetById400 = any
  */
 export type GetPetById404 = any
 
+export type GetPetByIdQueryResponse = GetPetById200
+
 export type GetPetByIdQuery = {
   Response: GetPetById200
   PathParams: GetPetByIdPathParams
   Errors: GetPetById400 | GetPetById404
 }
-
-export type GetPetByIdQueryResponse = GetPetById200
 
 export type UpdatePetWithFormPathParams = {
   /**
@@ -467,13 +438,13 @@ export type UpdatePetWithFormQueryParams = {
  */
 export type UpdatePetWithForm405 = any
 
+export type UpdatePetWithFormMutationResponse = any
+
 export type UpdatePetWithFormMutation = {
   Response: any
   PathParams: UpdatePetWithFormPathParams
   Errors: UpdatePetWithForm405
 }
-
-export type UpdatePetWithFormMutationResponse = any
 
 export type DeletePetPathParams = {
   /**
@@ -495,14 +466,14 @@ export type DeletePetHeaderParams = {
  */
 export type DeletePet400 = any
 
+export type DeletePetMutationResponse = any
+
 export type DeletePetMutation = {
   Response: any
   PathParams: DeletePetPathParams
   HeaderParams: DeletePetHeaderParams
   Errors: DeletePet400
 }
-
-export type DeletePetMutationResponse = any
 
 export type UploadFilePathParams = {
   /**
@@ -527,14 +498,14 @@ export type UploadFile200 = ApiResponse
 
 export type UploadFileMutationRequest = Blob
 
+export type UploadFileMutationResponse = UploadFile200
+
 export type UploadFileMutation = {
   Response: UploadFile200
   Request: UploadFileMutationRequest
   PathParams: UploadFilePathParams
   Errors: any
 }
-
-export type UploadFileMutationResponse = UploadFile200
 
 /**
  * @description successful operation
@@ -543,12 +514,12 @@ export type GetInventory200 = {
   [key: string]: number
 }
 
+export type GetInventoryQueryResponse = GetInventory200
+
 export type GetInventoryQuery = {
   Response: GetInventory200
   Errors: any
 }
-
-export type GetInventoryQueryResponse = GetInventory200
 
 /**
  * @description successful operation
@@ -562,13 +533,13 @@ export type PlaceOrder405 = any
 
 export type PlaceOrderMutationRequest = Order
 
+export type PlaceOrderMutationResponse = PlaceOrder200
+
 export type PlaceOrderMutation = {
   Response: PlaceOrder200
   Request: PlaceOrderMutationRequest
   Errors: PlaceOrder405
 }
-
-export type PlaceOrderMutationResponse = PlaceOrder200
 
 /**
  * @description successful operation
@@ -582,13 +553,13 @@ export type PlaceOrderPatch405 = any
 
 export type PlaceOrderPatchMutationRequest = Order
 
+export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
+
 export type PlaceOrderPatchMutation = {
   Response: PlaceOrderPatch200
   Request: PlaceOrderPatchMutationRequest
   Errors: PlaceOrderPatch405
 }
-
-export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
 
 export type GetOrderByIdPathParams = {
   /**
@@ -613,13 +584,13 @@ export type GetOrderById400 = any
  */
 export type GetOrderById404 = any
 
+export type GetOrderByIdQueryResponse = GetOrderById200
+
 export type GetOrderByIdQuery = {
   Response: GetOrderById200
   PathParams: GetOrderByIdPathParams
   Errors: GetOrderById400 | GetOrderById404
 }
-
-export type GetOrderByIdQueryResponse = GetOrderById200
 
 export type DeleteOrderPathParams = {
   /**
@@ -639,28 +610,31 @@ export type DeleteOrder400 = any
  */
 export type DeleteOrder404 = any
 
+export type DeleteOrderMutationResponse = any
+
 export type DeleteOrderMutation = {
   Response: any
   PathParams: DeleteOrderPathParams
   Errors: DeleteOrder400 | DeleteOrder404
 }
 
-export type DeleteOrderMutationResponse = any
-
 /**
  * @description successful operation
  */
 export type CreateUserError = User
 
+/**
+ * @description Created user object
+ */
 export type CreateUserMutationRequest = User
+
+export type CreateUserMutationResponse = any
 
 export type CreateUserMutation = {
   Response: any
   Request: CreateUserMutationRequest
   Errors: CreateUserError
 }
-
-export type CreateUserMutationResponse = any
 
 /**
  * @description Successful operation
@@ -674,13 +648,13 @@ export type CreateUsersWithListInputError = any
 
 export type CreateUsersWithListInputMutationRequest = User[]
 
+export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200
+
 export type CreateUsersWithListInputMutation = {
   Response: CreateUsersWithListInput200
   Request: CreateUsersWithListInputMutationRequest
   Errors: CreateUsersWithListInputError
 }
-
-export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200
 
 export type LoginUserQueryParams = {
   /**
@@ -705,25 +679,25 @@ export type LoginUser200 = string
  */
 export type LoginUser400 = any
 
+export type LoginUserQueryResponse = LoginUser200
+
 export type LoginUserQuery = {
   Response: LoginUser200
   QueryParams: LoginUserQueryParams
   Errors: LoginUser400
 }
 
-export type LoginUserQueryResponse = LoginUser200
-
 /**
  * @description successful operation
  */
 export type LogoutUserError = any
 
+export type LogoutUserQueryResponse = any
+
 export type LogoutUserQuery = {
   Response: any
   Errors: LogoutUserError
 }
-
-export type LogoutUserQueryResponse = any
 
 export type GetUserByNamePathParams = {
   /**
@@ -748,13 +722,13 @@ export type GetUserByName400 = any
  */
 export type GetUserByName404 = any
 
+export type GetUserByNameQueryResponse = GetUserByName200
+
 export type GetUserByNameQuery = {
   Response: GetUserByName200
   PathParams: GetUserByNamePathParams
   Errors: GetUserByName400 | GetUserByName404
 }
-
-export type GetUserByNameQueryResponse = GetUserByName200
 
 export type UpdateUserPathParams = {
   /**
@@ -769,7 +743,12 @@ export type UpdateUserPathParams = {
  */
 export type UpdateUserError = any
 
+/**
+ * @description Update an existent user in the store
+ */
 export type UpdateUserMutationRequest = User
+
+export type UpdateUserMutationResponse = any
 
 export type UpdateUserMutation = {
   Response: any
@@ -777,8 +756,6 @@ export type UpdateUserMutation = {
   PathParams: UpdateUserPathParams
   Errors: UpdateUserError
 }
-
-export type UpdateUserMutationResponse = any
 
 export type DeleteUserPathParams = {
   /**
@@ -798,10 +775,10 @@ export type DeleteUser400 = any
  */
 export type DeleteUser404 = any
 
+export type DeleteUserMutationResponse = any
+
 export type DeleteUserMutation = {
   Response: any
   PathParams: DeleteUserPathParams
   Errors: DeleteUser400 | DeleteUser404
 }
-
-export type DeleteUserMutationResponse = any

@@ -29,10 +29,10 @@ export type UpdatePetWithFormQueryParamsType = {
  */
 export type UpdatePetWithForm405Type = any
 
+export type UpdatePetWithFormMutationResponseType = any
+
 export type UpdatePetWithFormMutationType = {
   Response: any
   PathParams: UpdatePetWithFormPathParamsType
   Errors: UpdatePetWithForm405Type
 }
-
-export type UpdatePetWithFormMutationResponseType = any

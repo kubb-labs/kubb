@@ -17,12 +17,15 @@ export type AddPet405 = {
  */
 export type AddPetError = Omit<NonNullable<Pet>, 'name'>
 
+/**
+ * @description Create a new pet in the store
+ */
 export type AddPetMutationRequest = AddPetRequest
+
+export type AddPetMutationResponse = any
 
 export type AddPetMutation = {
   Response: any
   Request: AddPetMutationRequest
   Errors: AddPet405 | AddPetError
 }
-
-export type AddPetMutationResponse = any

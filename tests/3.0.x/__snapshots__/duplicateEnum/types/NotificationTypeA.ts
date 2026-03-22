@@ -11,8 +11,6 @@ export const paramsChannelEnum = {
 
 export type ParamsChannelEnumKey = (typeof paramsChannelEnum)[keyof typeof paramsChannelEnum];
 
-export type ParamsChannelEnum = ParamsChannelEnumKey
-
 export type NotificationTypeA = {
     /**
      * @type string

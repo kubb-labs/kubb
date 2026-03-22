@@ -23,11 +23,11 @@ export type DeletePetHeaderParamsType = {
  */
 export type DeletePet400Type = any
 
+export type DeletePetMutationResponseType = any
+
 export type DeletePetMutationType = {
   Response: any
   PathParams: DeletePetPathParamsType
   HeaderParams: DeletePetHeaderParamsType
   Errors: DeletePet400Type
 }
-
-export type DeletePetMutationResponseType = any

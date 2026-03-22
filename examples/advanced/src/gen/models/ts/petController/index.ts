@@ -12,7 +12,6 @@ export type {
   FindPetsByTags200,
   FindPetsByTags400,
   FindPetsByTagsHeaderParams,
-  FindPetsByTagsHeaderParamsXEXAMPLEEnum,
   FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
   FindPetsByTagsQuery,
   FindPetsByTagsQueryParams,

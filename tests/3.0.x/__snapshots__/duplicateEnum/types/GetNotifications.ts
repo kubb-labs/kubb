@@ -11,9 +11,9 @@ import type { NotificationTypeB } from "./NotificationTypeB.ts";
 */
 export type GetNotifications200 = (NotificationTypeA | NotificationTypeB)[];
 
+export type GetNotificationsQueryResponse = GetNotifications200;
+
 export type GetNotificationsQuery = {
     Response: GetNotifications200;
     Errors: any;
 };
-
-export type GetNotificationsQueryResponse = GetNotifications200;

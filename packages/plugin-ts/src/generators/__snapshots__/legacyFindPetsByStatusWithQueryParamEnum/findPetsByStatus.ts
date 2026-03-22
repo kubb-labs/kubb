@@ -11,8 +11,6 @@ export const findPetsByStatusQueryParamsStatusEnum = {
 
 export type FindPetsByStatusQueryParamsStatusEnumKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
 
-export type FindPetsByStatusQueryParamsStatusEnum = FindPetsByStatusQueryParamsStatusEnumKey
-
 export type FindPetsByStatusQueryParams = {
   status?: FindPetsByStatusQueryParamsStatusEnumKey
 }
@@ -22,10 +20,10 @@ export type FindPetsByStatusQueryParams = {
  */
 export type FindPetsByStatus200 = object
 
+export type FindPetsByStatusQueryResponse = FindPetsByStatus200
+
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatus200
   QueryParams: FindPetsByStatusQueryParams
   Errors: any
 }
-
-export type FindPetsByStatusQueryResponse = FindPetsByStatus200
