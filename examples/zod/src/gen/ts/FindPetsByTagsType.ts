@@ -8,14 +8,17 @@ import type { PetType } from './PetType.ts'
 export type FindPetsByTagsQueryParamsType = {
   /**
    * @description Tags to filter by
+   * @type array | undefined
    */
   tags?: string[]
   /**
    * @description to request with required page number or pagination
+   * @type string | undefined
    */
   page?: string
   /**
    * @description to request with required page size
+   * @type string | undefined
    */
   pageSize?: string
 }
@@ -29,9 +32,12 @@ export const findPetsByTagsHeaderParamsTypeXEXAMPLEEnum = {
 export type FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumTypeKey =
   (typeof findPetsByTagsHeaderParamsTypeXEXAMPLEEnum)[keyof typeof findPetsByTagsHeaderParamsTypeXEXAMPLEEnum]
 
+export type FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumType = FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumTypeKey
+
 export type FindPetsByTagsHeaderParamsType = {
   /**
    * @description Header parameters
+   * @type string
    */
   'X-EXAMPLE': FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumTypeKey
 }
@@ -48,7 +54,7 @@ export type FindPetsByTags400Type = any
 
 export type FindPetsByTagsQueryResponseType = FindPetsByTags200Type
 
-export type FindPetsByTagsTypeQuery = {
+export type FindPetsByTagsQueryType = {
   Response: FindPetsByTags200Type
   QueryParams: FindPetsByTagsQueryParamsType
   HeaderParams: FindPetsByTagsHeaderParamsType

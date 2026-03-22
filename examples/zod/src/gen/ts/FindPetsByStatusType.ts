@@ -14,10 +14,13 @@ export const findPetsByStatusQueryParamsTypeStatusEnum = {
 export type FindPetsByStatusQueryParamsTypeStatusEnumTypeKey =
   (typeof findPetsByStatusQueryParamsTypeStatusEnum)[keyof typeof findPetsByStatusQueryParamsTypeStatusEnum]
 
+export type FindPetsByStatusQueryParamsTypeStatusEnumType = FindPetsByStatusQueryParamsTypeStatusEnumTypeKey
+
 export type FindPetsByStatusQueryParamsType = {
   /**
    * @description Status values that need to be considered for filter
    * @default "available"
+   * @type string | undefined
    */
   status?: FindPetsByStatusQueryParamsTypeStatusEnumTypeKey
 }
@@ -34,7 +37,7 @@ export type FindPetsByStatus400Type = any
 
 export type FindPetsByStatusQueryResponseType = FindPetsByStatus200Type
 
-export type FindPetsByStatusTypeQuery = {
+export type FindPetsByStatusQueryType = {
   Response: FindPetsByStatus200Type
   QueryParams: FindPetsByStatusQueryParamsType
   Errors: FindPetsByStatus400Type

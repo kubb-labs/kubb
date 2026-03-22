@@ -11,12 +11,14 @@ export type GetThingsQueryParamsType = {
    * @minLength 1
    * @maxLength 100
    * @default 100
+   * @type integer | undefined
    */
   limit?: number
   /**
    * @description Number of things to skip
    * @minLength 0
    * @default 0
+   * @type integer | undefined
    */
   skip?: number
 }
@@ -33,7 +35,7 @@ export type GetThingsErrorType = PetNotFoundType
 
 export type GetThingsQueryResponseType = GetThings201Type
 
-export type GetThingsTypeQuery = {
+export type GetThingsQueryType = {
   Response: GetThings201Type
   QueryParams: GetThingsQueryParamsType
   Errors: GetThingsErrorType

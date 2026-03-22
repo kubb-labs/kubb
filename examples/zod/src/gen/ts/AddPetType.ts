@@ -15,18 +15,21 @@ export type AddPet200Type = PetType
  * @description Pet not found
  */
 export type AddPet405Type = {
+  /**
+   * @type integer | undefined
+   */
   code?: number
+  /**
+   * @type string | undefined
+   */
   message?: string
 }
 
-/**
- * @description Create a new pet in the store
- */
 export type AddPetMutationRequestType = AddPetRequestType
 
 export type AddPetMutationResponseType = AddPet200Type
 
-export type AddPetTypeMutation = {
+export type AddPetMutationType = {
   Response: AddPet200Type
   Request: AddPetMutationRequestType
   Errors: AddPet405Type
