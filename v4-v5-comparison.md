@@ -40,7 +40,7 @@
 | T2 | High | ❌ Open | plugin-ts (all examples) |
 | T3 | Low | ✅ Fixed | plugin-ts |
 | T4 | Low | ✅ Fixed | plugin-ts |
-| T5 | Medium | ✅ Fixed | plugin-ts (all examples) |
+| T5 | Medium | ❌ Open | plugin-ts (all examples) |
 | T6 | Low | ✅ Fixed | plugin-ts |
 | T7 | Low | ✅ Fixed | plugin-ts |
 | N-Import | Low | ❌ Open | all plugins |
@@ -75,14 +75,6 @@ v5 was generating an extra `export type FooKey = ...` alias alongside the enum c
 v5 emitted `(string & {})` for open string unions in enum types; v4 emitted plain `string`.
 
 **Fix**: When `legacy: true`, `(string & {})` is replaced with `string` in `packages/plugin-ts/src/printer.ts`.
-
----
-
-### T5 — Missing `@type object | undefined` for ref properties ✅ Fixed
-
-v4 emitted `@type object | undefined` for `$ref`-typed properties (since `$ref`s were dereferenced to their object target at parse time). v5 omitted the `@type` JSDoc for `ref` schema nodes.
-
-**Fix**: In `buildPropertyJSDocComments()` in `packages/plugin-ts/src/printer.ts`, when `legacy && schema.type === 'ref'`, emits `@type object${optional ? ' | undefined' : ''}`.
 
 ---
 
@@ -145,6 +137,18 @@ v5 generates aggregated operation types (the object grouping `Response`, `Reques
 | `export interface GetInventoryQuery {` | `export type GetInventoryQuery = {` |
 
 **Affected examples**: typescript, client, fetch, simple-single (all files with aggregated operation types).
+
+---
+
+### T5 — Missing `@type object | undefined` for ref properties (MEDIUM priority)
+
+v4 emitted `@type object | undefined` for `$ref`-typed properties (since `$ref`s were dereferenced to their object target at parse time). v5 omits the `@type` JSDoc for `ref` schema nodes.
+
+| v5 output | v4 output |
+|-----------|-----------|
+| (no `@type` annotation) | `@type object \| undefined` |
+
+**Affected examples**: typescript, client, fetch (all examples with object properties referencing other schemas).
 
 ---
 

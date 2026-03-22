@@ -139,16 +139,6 @@ function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalTy
  * Collects JSDoc annotation strings (description, deprecated, min/max, pattern, default, example, type) for a schema node.
  */
 function buildPropertyJSDocComments(schema: SchemaNode, legacy?: boolean): Array<string | undefined> {
-  let typeAnnotation: string | undefined
-
-  if (legacy && schema.type === 'ref') {
-    // v4 emitted `@type object | undefined` for ref-typed properties since $refs
-    // were dereferenced to their target schema (usually object) at parse time.
-    typeAnnotation = `@type object${schema.optional ? ' | undefined' : ''}`
-  } else if ('primitive' in schema && schema.primitive) {
-    typeAnnotation = `@type ${schema.primitive || 'unknown'}${'optional' in schema && schema.optional ? ' | undefined' : ''}`
-  }
-
   return [
     'description' in schema && schema.description ? `@description ${jsStringEscape(schema.description)}` : undefined,
     'deprecated' in schema && schema.deprecated ? '@deprecated' : undefined,
@@ -159,7 +149,9 @@ function buildPropertyJSDocComments(schema: SchemaNode, legacy?: boolean): Array
       ? `@default ${'primitive' in schema && schema.primitive === 'string' ? stringify(schema.default as string) : schema.default}`
       : undefined,
     !legacy && 'example' in schema && schema.example !== undefined ? `@example ${schema.example}` : undefined,
-    typeAnnotation,
+    'primitive' in schema && schema.primitive
+      ? [`@type ${schema.primitive || 'unknown'}`, 'optional' in schema && schema.optional ? ' | undefined' : undefined].filter(Boolean).join('')
+      : undefined,
   ]
 }
 
