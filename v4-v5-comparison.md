@@ -11,47 +11,51 @@
 
 ## Summary Table — E2E Schemas
 
-| Schema | Files differ | Primary Issues |
-|--------|:-----------:|----------------|
-| `allOf` | 0 | ✅ |
-| `anyOf` | 0 | ✅ |
-| `discriminator` | ~14 | **@type** intentional (see below) |
-| `enums` | ~9 | **E6** enum prefix missing, **@type** intentional |
-| `jokesOne` | ~13 | **@type** intentional |
-| `nullable` | ~1 | **@type** intentional |
-| `optionalParameters` | 0 | ✅ |
-| `petStore` | ~18 | **@type** intentional, **v5-better** Errors type |
-| `petStoreContent` | ~18 | **@type** intentional |
-| `petStoreResponses` | 0 | ✅ |
-| `readme.io` | ~4 | **@type** intentional |
-| `requestBody` | ~1 | **@type** intentional |
-| `train-travel` | ~16 | **@type** intentional, **N-Desc** |
-| `worldtime` | ~12 | **@type** intentional, **v5-better** Errors type |
-| `zalando` | ~25 | **@type** intentional, **E6** enum prefix |
-| `dataset_api` | 0 | ✅ |
+"@type only" means all diffs in that schema are purely `@type` JSDoc annotations (intentionally removed in v5).
+
+| Schema | Files differ | @type only | Real diffs | Category |
+|--------|:-----------:|:----------:|:----------:|----------|
+| `allOf` | 3 | 3 | 0 | ✅ @type only |
+| `anyOf` | 3 | 3 | 0 | ✅ @type only |
+| `discriminator` | 14 | 14 | 0 | ✅ @type only |
+| `enums` | 26 | 24 | 2 | **E6** enum prefix, **@minLength** |
+| `jokesOne` | 15 | 15 | 0 | ✅ @type only |
+| `nullable` | 8 | 8 | 0 | ✅ @type only |
+| `optionalParameters` | 1 | 1 | 0 | ✅ @type only |
+| `petStore` | 24 | 20 | 4 | **v5-better** Errors type |
+| `petStoreContent` | 23 | 16 | 7 | **v5-better** Errors, **E6** enum collision |
+| `petStoreResponses` | 3 | 3 | 0 | ✅ @type only |
+| `readme.io` | 29 | 29 | 0 | ✅ @type only |
+| `requestBody` | 2 | 2 | 0 | ✅ @type only |
+| `train-travel` | 18 | 17 | 1 | **E6** enum prefix |
+| `worldtime` | 14 | 2 | 12 | **v5-better** Errors type |
+| `zalando` | 48 | 29 | 19 | **E6** enum prefix, **@minLength**, inline enum |
+| `dataset_api` | 8 | 8 | 0 | ✅ @type only |
+
+**10 of 16 schemas are fully resolved** (all remaining diffs are intentional `@type` removal).
 
 ---
 
 ## Summary Table — Examples
 
-| Example | Config location | Files differ | Notes |
-|---------|----------------|:------------:|-------|
-| `typescript` | `kubb.config.ts` | ~16 | **@type** intentional |
-| `simple-single` | `kubb.config.js` | 1 | **@type** intentional |
-| `fetch` | `kubb.config.ts` | 1 | **@type** intentional |
-| `faker` | `kubb.config.cjs` | ~20 | **@type** intentional |
-| `msw` | `kubb.config.js` | ~20 | **@type** intentional |
-| `zod` | `kubb.config.js` | ~28 | **@type** intentional, **N1-ZodTypeName** enum name infix |
-| `react-query` | `kubb.config.ts` | ~31 | **@type** intentional |
-| `svelte-query` | `kubb.config.js` | ~31 | **@type** intentional |
-| `solid-query` | `kubb.config.js` | ~20 | **@type** intentional |
-| `swr` | `kubb.config.js` | ~40 | **@type** intentional |
-| `cypress` | `kubb.config.js` | ~20 | **@type** intentional |
-| `mcp` | `kubb.config.ts` | ~22 | **@type** intentional, **N-Path** (expected — machine path) |
-| `client` | `kubb.config.ts` | ~94 | **@type** intentional |
-| `advanced` | `configs/kubb.config.ts` | ~27 | **@type** intentional, **E6** enum prefix, **N-Path** |
-| `generators` | `kubb.config.ts` | 1 | **G-API** generator API changes (breaking) |
-| `vue-query` | `kubb.config.js` | ~20 | **@type** intentional |
+| Example | Config location | Notes |
+|---------|----------------|-------|
+| `typescript` | `kubb.config.ts` | **@type** intentional |
+| `simple-single` | `kubb.config.js` | **@type** intentional |
+| `fetch` | `kubb.config.ts` | **@type** intentional |
+| `faker` | `kubb.config.cjs` | **@type** intentional |
+| `msw` | `kubb.config.js` | **@type** intentional |
+| `zod` | `kubb.config.js` | **@type** intentional, **N1-ZodTypeName** enum name infix |
+| `react-query` | `kubb.config.ts` | **@type** intentional |
+| `svelte-query` | `kubb.config.js` | **@type** intentional |
+| `solid-query` | `kubb.config.js` | **@type** intentional |
+| `swr` | `kubb.config.js` | **@type** intentional |
+| `cypress` | `kubb.config.js` | **@type** intentional |
+| `mcp` | `kubb.config.ts` | **@type** intentional, **N-Path** (expected — machine path) |
+| `client` | `kubb.config.ts` | **@type** intentional |
+| `advanced` | `configs/kubb.config.ts` | **@type** intentional, **E6** enum prefix, **N-Path** |
+| `generators` | `kubb.config.ts` | **G-API** generator API changes (breaking) |
+| `vue-query` | `kubb.config.js` | **@type** intentional |
 
 > Note: Examples directories contain previously generated output; some may be stale. Regenerate with `pnpm generate` to get current state.
 
@@ -62,25 +66,25 @@
 | ID | Severity | Status | Affects | Description |
 |----|----------|--------|---------|-------------|
 | T1 | Medium | ✅ Fixed | plugin-ts | `@example` JSDoc emitted in v5, suppressed in v4 |
-| T2 | 🔴 High | ✅ By design | plugin-ts (all) | `@type` JSDoc annotation dropped in v5 |
+| T2 | — | ✅ By design | plugin-ts (all) | `@type` JSDoc annotation dropped in v5 |
 | T3 | Low | ✅ Fixed | plugin-ts | Extra `XxxEnumKey` alias in v5 |
 | T4 | Low | ✅ Fixed | plugin-ts | `(string & {})` open union instead of `string` |
-| T5 | 🟠 Medium | ✅ By design | plugin-ts (most) | `@type object` / format suffix not emitted in v5 |
+| T5 | — | ✅ By design | plugin-ts (most) | `@type object` / format suffix not emitted in v5 |
 | T6 | Low | ✅ Fixed | plugin-ts | `MutationResponse` placement in grouped type |
 | T7 | Low | ✅ Fixed | plugin-ts | `@description` on response alias type |
-| N-AggType | 🟠 Medium | ✅ Fixed | plugin-ts | `export interface Xxx` instead of `export type Xxx = {` |
-| N-QueryParams | 🟠 Medium | ✅ Fixed | plugin-ts | `QueryParams` missing from aggregated operation type |
-| N1-ZodTypeName | 🟠 Medium | ❌ Open | plugin-zod, plugin-ts | Extra `Type` infix in zod-generated enum names |
-| N-Path | Low | ⚠️ Expected | plugin-mcp | Absolute machine path in `.mcp.json` |
-| E1 | 🔴 High | ✅ Fixed | plugin-ts | Path param `$ref` typed as `any` instead of named type |
-| E2 | 🟠 Medium | ✅ Fixed | plugin-ts | Discriminant not embedded in union members |
-| E3 | 🟠 Medium | ✅ Fixed | plugin-ts | `const` discriminator values → enum+key type instead of literal |
-| E5 | 🟡 Low | ✅ Fixed | plugin-ts | `null \| null` duplicated from `null` const |
+| N-AggType | Medium | ✅ Fixed | plugin-ts | `export interface Xxx` instead of `export type Xxx = {` |
+| N-QueryParams | Medium | ✅ Fixed | plugin-ts | `QueryParams` missing from aggregated operation type |
+| E1 | High | ✅ Fixed | plugin-ts | Path param `$ref` typed as `any` instead of named type |
+| E2 | Medium | ✅ Fixed | plugin-ts | Discriminant not embedded in union members |
+| E3 | Medium | ✅ Fixed | plugin-ts | `const` discriminator values → enum+key type instead of literal |
+| E5 | Low | ✅ Fixed | plugin-ts | `null \| null` duplicated from `null` const |
 | E6 | 🟠 Medium | ❌ Open | plugin-ts | Inline enum names missing parent schema prefix |
-| N-Desc | 🟡 Low | ❌ Open | plugin-ts | Property-level `@description` missing in v5 |
-| N-DescText | 🟡 Low | ❌ Open | plugin-ts | Response description reads from different source than v4 |
-| G-API | ⚠️ Breaking | ℹ️ By design | custom generators | Generator context API changed (`plugin.name` → `plugin.key`, `pluginManager` → `driver`) |
+| E7 | 🟠 Medium | ❌ Open | plugin-ts | Query param inline enums inlined as literals instead of named enums |
+| N1-ZodTypeName | 🟠 Medium | ❌ Open | plugin-zod | Extra `Type` infix in zod-generated enum names |
+| N-Path | Low | ⚠️ Expected | plugin-mcp | Absolute machine path in `.mcp.json` |
+| G-API | Breaking | ℹ️ By design | custom generators | Generator context API changed |
 | v5-better | 🟢 Improvement | ℹ️ v5 wins | plugin-ts | v5 resolves `Errors` type correctly; v4 uses `any` |
+| @minLength | 🟡 Low | ❌ Open | plugin-ts | Extra `@minLength`/`@maxLength` on array properties |
 
 ---
 
@@ -112,11 +116,25 @@ id?: string;
 
 - `@type` is a JSDoc 2 convention; modern TypeScript tooling does not need it.
 - TypeScript itself provides full type information — repeating it in JSDoc adds noise.
-- The OAS `format` field (`int64`, `uuid`, etc.) belongs in the spec, not in generated TypeScript.
+- The OAS `format` field (`int64`, `uuid`, etc.) is metadata that belongs in the schema spec, not in generated TypeScript.
 - `SchemaNodeBase` in `@kubb/ast` does not carry a `format` field — by design.
 - `buildPropertyJSDocComments()` in `packages/plugin-ts/src/printer.ts` no longer emits `@type`.
 
-All diffs that consist solely of `@type` lines (and their enclosing `/** */` when otherwise empty) are **expected and intentional**.
+All diffs that consist solely of `@type` lines (and their enclosing `/** */` when otherwise empty) are **expected and intentional**. This accounts for the majority of remaining file diffs across all schemas.
+
+### v5 Improvements Over v4 🟢 (better but different)
+
+v5 correctly resolves error response types where v4 emitted `Errors: any`:
+
+| Schema | v5 | v4 |
+|--------|----|----|
+| `petStore` CreateUser | `Errors: CreateUserError` | `Errors: any` |
+| `petStore` LogoutUser | `Errors: LogoutUserError` | `Errors: any` |
+| `petStoreContent` CreateUser | `Errors: CreateUserError` | `Errors: any` |
+| `petStoreContent` LogoutUser | `Errors: LogoutUserError` | `Errors: any` |
+| `worldtime` (all 12 operations) | `Errors: Get*Error` | `Errors: any` |
+
+These are genuine v5 improvements — not regressions.
 
 ---
 
@@ -144,97 +162,96 @@ v5 was missing `@description` on error response type aliases generated from `req
 
 ### N-AggType — `export interface` vs `export type = {` ✅ Fixed
 v5 was generating `export interface AddPetMutation { ... }` for aggregated operation types; v4 used `export type AddPetMutation = { ... }`.
-**Fix**: Confirmed fixed in current gen-compare output.
 
 ### N-QueryParams — Missing `QueryParams` in aggregated type ✅ Fixed
 Operations with query params were missing `QueryParams: XxxQueryParams` in the v5 aggregated type.
-**Fix**: Confirmed fixed in current gen-compare output (e.g. `FindPetsByStatus.ts` now matches).
 
 ### E1 — Path param `$ref` schema types as `any` ✅ Fixed
 Path parameters using `schema: { $ref: '...' }` were typed as `any` instead of their named type.
-**Fix**: `parseParameter()` in `packages/adapter-oas/src/parser.ts` now uses `convertSchema` for `$ref` parameters instead of falling back to `unknownType`.
+**Fix**: `parseParameter()` in `packages/adapter-oas/src/parser.ts` now uses `convertSchema` for `$ref` parameters.
 
 ### E2 — Discriminant not embedded in union members ✅ Fixed
 v5 was generating plain unions (`Cat | Dog`) without intersecting each member with its discriminator value.
-**Fix**: Added `isLegacyNaming && isDiscriminator(schema)` branch in `convertUnion()` and discriminant embedding in `convertAllOf()` in `packages/adapter-oas/src/parser.ts`.
+**Fix**: Added discriminant embedding in `convertUnion()` and `convertAllOf()` in `packages/adapter-oas/src/parser.ts`.
 
 ### E3 — `const` discriminator values → enum type ✅ Fixed
 v5 was treating `const` properties as named enums with an `as const` export; v4 emitted inline literals.
-**Fix**: Added `fromConst: true` flag to `EnumSchemaNode`. In legacy mode, `fromConst` enums emit as inline literals and are excluded from enum collection and naming.
+**Fix**: Added `fromConst: true` flag to `EnumSchemaNode`. In legacy mode, `fromConst` enums emit as inline literals.
 
 ### E5 — `null | null` duplicated null type ✅ Fixed
 `const: null` schemas were generating `null | null`.
-**Fix**: Removed `nullable` from the null-const case in `convertConst()`; fixed `convertObject()` to skip nullable for already-null property types.
+**Fix**: Removed `nullable` from the null-const case; fixed `convertObject()` to skip nullable for null types.
 
 ---
 
 ## Open Issues (detail)
 
 ### E6 — Inline enum names missing parent schema prefix 🟠 MEDIUM
-**Scope**: `zalando`, `advanced` schemas.
+**Scope**: `enums` (ZoningDistrictClassCategory), `train-travel` (BookingPayment), `zalando` (Article), `petStoreContent` (Order, Pet).
 
-v5:
+v5 names inline property enums by their property name alone; v4 prefixed the parent schema name.
+
 ```ts
+// v5
 export const ageGroupsEnum = { ... } as const;
-export type AgeGroupsEnumKey = ...;
-// used as:
-ageGroups: AgeGroupsEnumKey[];
-```
-v4:
-```ts
+export const accountTypeEnum = { ... } as const;
+
+// v4
 export const articleAgeGroupsEnum = { ... } as const;
-export type ArticleAgeGroupsEnumKey = ...;
-// used as:
+export const sourceAccountTypeEnum = { ... } as const;
+```
+
+With `collisionDetection: false`, two schemas with the same property name would collide on the same enum name. v4 included the parent context as prefix.
+
+Related: `petStoreContent` has `orderStatusEnum` vs `orderStatusEnum2` and `petStatusEnum` vs `petStatusEnum2` — v4 added numeric suffix to avoid collision; v5 doesn't detect the collision.
+
+### E7 — Query param inline enums inlined as literals instead of named enums 🟠 MEDIUM
+**Scope**: `zalando` (GetArticles, GetFacets), `petStoreContent` (FindPetsByStatus).
+
+v4 generated named `as const` enum objects for query param inline enums (e.g. `GetFacetsQueryParamsAgeGroupEnum`). v5 inlines these as literal unions.
+
+```ts
+// v5
+upperMaterial?: ("canvas" | "cotton" | ...)[];
+
+// v4
+upperMaterial?: GetFacetsQueryParamsUpperMaterialEnumKey[];
+// with: export const getFacetsQueryParamsUpperMaterialEnum = { ... } as const;
+```
+
+For `petStoreContent`, v5 emits `status?: any` while v4 correctly had `status?: FindPetsByStatusQueryParamsStatusEnum2Key` with a `@default "available"`.
+
+### @minLength — Extra `@minLength`/`@maxLength` on array properties 🟡 LOW
+**Scope**: `zalando` (many files), `enums` (Position).
+
+v5 emits `@minLength` / `@maxLength` on array-typed properties where v4 did not:
+
+```ts
+// v5 (extra)
+/**
+ * @minLength 0
+ * @minLength 1
+ */
+ageGroups: AgeGroupsEnumKey[];
+
+// v4 (no annotation)
 ageGroups: ArticleAgeGroupsEnumKey[];
 ```
 
-**Root cause**: v5 names inline property enums by their property name alone; v4 prefixed the parent schema name. With `collisionDetection: false`, two schemas with the same property name share the same enum name.
-
----
+This appears to be v5 applying `minItems`/`maxItems` from the OAS array schema as `@minLength`/`@maxLength` JSDoc. v4 did not annotate these. Additionally, `Position.ts` has `@minLength 2 / @maxLength 3` in v5 vs `@example -74.010835,40.708442` in v4.
 
 ### N1-ZodTypeName — Extra `Type` infix in zod-derived enum names 🟠 MEDIUM
 **Scope**: `zod` example, any schema with header/query params + zod plugin.
 
-v5:
 ```ts
+// v5
 export const createPetsHeaderParamsTypeXEXAMPLEEnum = { ... }
-export type CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey = ...
-```
-v4:
-```ts
+
+// v4
 export const createPetsHeaderParamsXEXAMPLEEnum = { ... }
-export type CreatePetsHeaderParamsXEXAMPLEEnumTypeKey = ...
 ```
 
 The word `Type` is inserted between the operation name and the field name in v5's enum naming.
-
----
-
-### N-Desc — Property-level `@description` missing 🟡 LOW
-**Scope**: `enums`, `train-travel` schemas (and likely others with property descriptions in OpenAPI).
-
-v4 emits `@description` for individual properties that have a description in the OpenAPI spec:
-```ts
-/**
- * @description The type of zoning district.
- */
-type?: string;
-```
-v5 omits the `@description` for property-level descriptions.
-
----
-
-### N-DescText — Response description reads from different source 🟡 LOW
-**Scope**: `worldtime` schema (and potentially others).
-
-```diff
-- * @description a list of available timezones         ← v5 (operation description)
-+ * @description the list of available timezones in JSON format  ← v4 (response description)
-```
-
-v5 picks the description text from `operation.description` while v4 reads from the specific response description (`responses['4xx'].description`).
-
----
 
 ### G-API — Generator context API changes ⚠️ Breaking (by design)
 **Scope**: Custom generators (`generators` example).
@@ -250,17 +267,11 @@ v5 renamed `plugin.name` → `plugin.key` and `pluginManager` → `driver` in th
 
 ---
 
-### v5 Improvements Over v4 🟢 (better but different)
+## Priority Fix Order
 
-In several schemas, v5 correctly resolves error response types where v4 had `Errors: any`:
-
-| Schema | v5 | v4 |
-|--------|----|----|
-| `worldtime` GetTimezone | `Errors: GetTimezoneError` | `Errors: any` |
-| `worldtime` GetIp | `Errors: GetIpError` | `Errors: any` |
-| `petStore` LogoutUser | `Errors: LogoutUserError` | `Errors: any` |
-| `simple-single` CreateUser | `Errors: CreateUserError` | `Errors: any` |
-| `simple-single` LogoutUser | `Errors: LogoutUserError` | `Errors: any` |
-| `zod` CreatePets | `Errors: CreatePetsErrorType` | `Errors: any` |
-
-These are genuine v5 improvements — error handling types are more precise. They remain as differences from v4 behaviour.
+| Priority | Issue | Schemas Affected |
+|----------|-------|-----------------|
+| 1 | **E6** — enum prefix missing | enums, train-travel, zalando, petStoreContent |
+| 2 | **E7** — query param enums inlined | zalando, petStoreContent |
+| 3 | **N1-ZodTypeName** — `Type` infix | zod |
+| 4 | **@minLength** — array min/max as minLength | zalando, enums |
