@@ -20,16 +20,7 @@ export type CreateUsersWithListInputMutationRequestType = UserType[]
 export type CreateUsersWithListInputMutationResponseType = CreateUsersWithListInput200Type
 
 export type CreateUsersWithListInputTypeMutation = {
-  /**
-   * @type object
-   */
   Response: CreateUsersWithListInput200Type
-  /**
-   * @type object
-   */
   Request: CreateUsersWithListInputMutationRequestType
-  /**
-   * @type object
-   */
   Errors: CreateUsersWithListInputErrorType
 }

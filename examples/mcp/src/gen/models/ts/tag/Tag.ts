@@ -10,7 +10,7 @@ export type TagTag = {
   /**
    * @deprecated
    * @default 1
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**

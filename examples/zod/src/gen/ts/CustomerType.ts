@@ -7,7 +7,7 @@ import type { AddressType } from './AddressType.ts'
 
 export type CustomerType = {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**

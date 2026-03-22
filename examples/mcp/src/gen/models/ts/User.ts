@@ -5,7 +5,7 @@
 
 export type User = {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
@@ -14,7 +14,7 @@ export type User = {
   username?: string
   /**
    * @deprecated
-   * @type string | undefined, uuid
+   * @type string | undefined
    */
   uuid?: string
   /**
@@ -26,7 +26,7 @@ export type User = {
    */
   lastName?: string
   /**
-   * @type string | undefined, email
+   * @type string | undefined
    */
   email?: string
   /**
@@ -39,7 +39,7 @@ export type User = {
   phone?: string
   /**
    * @description User Status
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   userStatus?: number
 }

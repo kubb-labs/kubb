@@ -16,7 +16,7 @@ export type AddPet200Type = PetType
  */
 export type AddPet405Type = {
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   code?: number
   /**
@@ -33,16 +33,7 @@ export type AddPetMutationRequestType = AddPetRequestType
 export type AddPetMutationResponseType = AddPet200Type
 
 export type AddPetTypeMutation = {
-  /**
-   * @type object
-   */
   Response: AddPet200Type
-  /**
-   * @type object
-   */
   Request: AddPetMutationRequestType
-  /**
-   * @type object
-   */
   Errors: AddPet405Type
 }

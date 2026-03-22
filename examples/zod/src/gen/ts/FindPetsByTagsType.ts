@@ -53,20 +53,8 @@ export type FindPetsByTags400Type = any
 export type FindPetsByTagsQueryResponseType = FindPetsByTags200Type
 
 export type FindPetsByTagsTypeQuery = {
-  /**
-   * @type object
-   */
   Response: FindPetsByTags200Type
-  /**
-   * @type object
-   */
   QueryParams: FindPetsByTagsQueryParamsType
-  /**
-   * @type object
-   */
   HeaderParams: FindPetsByTagsHeaderParamsType
-  /**
-   * @type object
-   */
   Errors: FindPetsByTags400Type
 }

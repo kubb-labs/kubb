@@ -13,27 +13,27 @@ export type OrderStatusEnumKey = (typeof orderStatusEnum)[keyof typeof orderStat
 
 export type Order = {
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   id?: number
   /**
-   * @type integer | undefined, int64
+   * @type integer | undefined
    */
   petId?: number
   /**
-   * @type integer | undefined, int32
+   * @type integer | undefined
    */
   quantity?: number
   /**
-   * @type string | undefined, date-time
+   * @type string | undefined
    */
   shipDateTime?: string
   /**
-   * @type string | undefined, date
+   * @type string | undefined
    */
   shipDate?: string
   /**
-   * @type string | undefined, time
+   * @type string | undefined
    */
   shipTime?: string
   /**

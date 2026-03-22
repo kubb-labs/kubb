@@ -23,16 +23,7 @@ export type AddPetMutationRequest = Pet
 export type AddPetMutationResponse = AddPet200
 
 export type AddPetMutation = {
-  /**
-   * @type object
-   */
   Response: AddPet200
-  /**
-   * @type object
-   */
   Request: AddPetMutationRequest
-  /**
-   * @type object
-   */
   Errors: AddPet405
 }
