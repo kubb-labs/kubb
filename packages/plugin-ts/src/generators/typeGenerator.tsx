@@ -21,7 +21,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Operation({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver, legacy, transformers  } = options
+    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver, baseResolver, legacy, transformers = [] } = options
     const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     const file = getFile({
@@ -51,7 +51,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
         return null
       }
 
-      const transformedNode = transformers.length > 0 ? transform(schemaNode, composeTransformers(...transformers)) : schemaNode
+      const transformedNode = transform(schemaNode, composeTransformers(...transformers))
 
       const imports = adapter.getImports(transformedNode, (schemaName) => ({
         name: resolver.default(schemaName, 'type'),
@@ -83,7 +83,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     const responseTypes = legacy
       ? node.responses.map((res) => {
           const responseName = resolver.resolveResponseStatusName(node, res.statusCode)
-          const baseResponseName = resolver.resolveResponseStatusName(node, res.statusCode)
+          const baseResponseName = baseResolver.resolveResponseStatusName(node, res.statusCode)
 
           return renderSchemaType({
             node: res.schema ? nameUnnamedEnums(res.schema, baseResponseName) : res.schema,
@@ -105,7 +105,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
     const requestType = node.requestBody?.schema
       ? renderSchemaType({
-          node: legacy ? nameUnnamedEnums(node.requestBody.schema, resolver.resolveDataName(node)) : node.requestBody.schema,
+          node: legacy ? nameUnnamedEnums(node.requestBody.schema, baseResolver.resolveDataName(node)) : node.requestBody.schema,
           name: resolver.resolveDataName(node),
           typedName: resolver.resolveDataTypedName(node),
           description: node.requestBody.description ?? node.requestBody.schema.description,
@@ -121,21 +121,21 @@ export const typeGenerator = defineGenerator<PluginTs>({
       const legacyParamTypes = [
         pathParams.length > 0
           ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: pathParams, parentName: resolver.resolvePathParamsName!(node) }),
+              node: buildGroupedParamsSchema({ params: pathParams, parentName: baseResolver.resolvePathParamsName!(node) }),
               name: resolver.resolvePathParamsName!(node),
               typedName: resolver.resolvePathParamsTypedName!(node),
             })
           : null,
         queryParams.length > 0
           ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: queryParams, parentName: resolver.resolveQueryParamsName!(node) }),
+              node: buildGroupedParamsSchema({ params: queryParams, parentName: baseResolver.resolveQueryParamsName!(node) }),
               name: resolver.resolveQueryParamsName!(node),
               typedName: resolver.resolveQueryParamsTypedName!(node),
             })
           : null,
         headerParams.length > 0
           ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: headerParams, parentName: resolver.resolveHeaderParamsName!(node) }),
+              node: buildGroupedParamsSchema({ params: headerParams, parentName: baseResolver.resolveHeaderParamsName!(node) }),
               name: resolver.resolveHeaderParamsName!(node),
               typedName: resolver.resolveHeaderParamsTypedName!(node),
             })
@@ -215,7 +215,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
   },
   Schema({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver, legacy, transformers } = options
+    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver, legacy, transformers = [] } = options
     const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     if (!node.name) {

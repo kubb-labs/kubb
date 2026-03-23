@@ -79,19 +79,16 @@ describe('walk', () => {
     let current = 0
     const order: Array<string> = []
 
-    await walk(
-      root,
-      {
-        async schema(s) {
-          current++
-          if (current > maxConcurrent) maxConcurrent = current
-          await new Promise((r) => setTimeout(r, 5))
-          order.push(s.type)
-          current--
-        },
+    await walk(root, {
+      concurrency: 2,
+      async schema(s) {
+        current++
+        if (current > maxConcurrent) maxConcurrent = current
+        await new Promise((r) => setTimeout(r, 5))
+        order.push(s.type)
+        current--
       },
-      { concurrency: 2 },
-    )
+    })
 
     expect(maxConcurrent).toBeLessThanOrEqual(2)
     expect(order.length).toBeGreaterThan(0)
@@ -102,18 +99,15 @@ describe('walk', () => {
     const schemaTypes: Array<string> = []
     const propertyNames: Array<string> = []
 
-    await walk(
-      root,
-      {
-        schema(s) {
-          schemaTypes.push(s.type)
-        },
-        property(p) {
-          propertyNames.push(p.name)
-        },
+    await walk(root, {
+      depth: 'shallow',
+      schema(s) {
+        schemaTypes.push(s.type)
       },
-      { depth: 'shallow' },
-    )
+      property(p) {
+        propertyNames.push(p.name)
+      },
+    })
 
     // Top-level Pet object schema is visited
     expect(schemaTypes).toContain('object')
@@ -193,16 +187,13 @@ describe('transform', () => {
   it('does not recurse into schema properties/items/members when depth: shallow', () => {
     const root = buildSampleTree()
     const types: Array<string> = []
-    transform(
-      root,
-      {
-        schema(schema): SchemaNode {
-          types.push(schema.type)
-          return schema
-        },
+    transform(root, {
+      depth: 'shallow',
+      schema(schema): SchemaNode {
+        types.push(schema.type)
+        return schema
       },
-      { depth: 'shallow' },
-    )
+    })
 
     // Top-level object schema is visited
     expect(types).toContain('object')
@@ -260,9 +251,7 @@ describe('composeTransformers', () => {
     const node = createSchema({
       type: 'object',
       name: 'Pet',
-      properties: [
-        createProperty({ name: 'age', schema: createSchema({ type: 'integer' }), required: true }),
-      ],
+      properties: [createProperty({ name: 'age', schema: createSchema({ type: 'integer' }), required: true })],
     })
 
     const makeOptional = {
@@ -311,14 +300,17 @@ describe('composeTransformers', () => {
   it('single visitor modifies schema type', () => {
     const node = createSchema({ type: 'date', representation: 'string' })
 
-    const result = transform(node, composeTransformers({
-      schema(n): SchemaNode {
-        if (n.type === 'date') {
-          return createSchema({ type: 'string', name: n.name })
-        }
-        return n
-      },
-    }))
+    const result = transform(
+      node,
+      composeTransformers({
+        schema(n): SchemaNode {
+          if (n.type === 'date') {
+            return createSchema({ type: 'string', name: n.name })
+          }
+          return n
+        },
+      }),
+    )
 
     expect(result.type).toBe('string')
   })
@@ -333,13 +325,16 @@ describe('composeTransformers', () => {
       ],
     })
 
-    const result = transform(node, composeTransformers({
-      property(n): PropertyNode | void {
-        if (n.name === 'password') {
-          return { ...n, required: false }
-        }
-      },
-    }))
+    const result = transform(
+      node,
+      composeTransformers({
+        property(n): PropertyNode | void {
+          if (n.name === 'password') {
+            return { ...n, required: false }
+          }
+        },
+      }),
+    )
 
     expect(result.type).toBe('object')
 
@@ -359,16 +354,118 @@ describe('composeTransformers', () => {
       ],
     })
 
-    const result = transform(node, composeTransformers({
-      schema(n) {
-        if (n.type === 'enum') {
-          return createSchema({ type: 'string', name: n.name })
-        }
-      },
-    }))
+    const result = transform(
+      node,
+      composeTransformers({
+        schema(n) {
+          if (n.type === 'enum') {
+            return createSchema({ type: 'string', name: n.name })
+          }
+        },
+      }),
+    )
 
     expect(result.type).toBe('string')
     expect(result.name).toBe('Status')
+  })
+})
+
+describe('VisitorContext — parent', () => {
+  it('property visitor receives parent schema via context', () => {
+    const node = createSchema({
+      type: 'object',
+      name: 'Pet',
+      properties: [
+        createProperty({ name: 'name', schema: createSchema({ type: 'string' }), required: true }),
+        createProperty({ name: 'tag', schema: createSchema({ type: 'string' }), required: false }),
+      ],
+    })
+
+    const result = transform(node, {
+      property(prop, { parent }) {
+        if (parent?.kind === 'Schema' && 'name' in parent && parent.name === 'Pet' && prop.name === 'tag') {
+          return { ...prop, required: true }
+        }
+      },
+    })
+
+    if (result.type === 'object') {
+      expect(result.properties.find((p) => p.name === 'tag')?.required).toBe(true)
+      expect(result.properties.find((p) => p.name === 'name')?.required).toBe(true)
+    }
+  })
+
+  it('property visitor ignores properties from other schemas', () => {
+    const root = buildSampleTree()
+
+    const names: Array<string> = []
+    transform(root, {
+      property(prop, { parent }) {
+        if (parent?.kind === 'Schema' && 'name' in parent) {
+          names.push(`${parent.name}.${prop.name}`)
+        }
+      },
+    })
+
+    expect(names).toContain('Pet.name')
+  })
+
+  it('schema visitor receives parent root node', () => {
+    const root = buildSampleTree()
+
+    let parentKind: string | undefined
+    transform(root, {
+      schema(_node, { parent }) {
+        if (!parentKind && parent) {
+          parentKind = parent.kind
+        }
+      },
+    })
+
+    expect(parentKind).toBe('Root')
+  })
+
+  it('operation visitor receives parent root node', () => {
+    const root = buildSampleTree()
+
+    let parentKind: string | undefined
+    transform(root, {
+      operation(_node, { parent }) {
+        if (parent) {
+          parentKind = parent.kind
+        }
+      },
+    })
+
+    expect(parentKind).toBe('Root')
+  })
+
+  it('root visitor has no parent', () => {
+    const root = buildSampleTree()
+
+    let hasParent = false
+    transform(root, {
+      root(_node, { parent }) {
+        hasParent = !!parent
+      },
+    })
+
+    expect(hasParent).toBe(false)
+  })
+
+  it('walk passes parent context', async () => {
+    const root = buildSampleTree()
+
+    const pairs: Array<string> = []
+    await walk(root, {
+      property(prop, { parent }) {
+        if (parent?.kind === 'Schema' && 'name' in parent) {
+          pairs.push(`${parent.name}.${prop.name}`)
+        }
+      },
+    })
+
+    expect(pairs).toContain('Pet.name')
   })
 })
 
@@ -388,15 +485,12 @@ describe('collect', () => {
 
   it('collects only top-level schemas (not object properties) when depth: shallow', () => {
     const root = buildSampleTree()
-    const types = collect<string>(
-      root,
-      {
-        schema(n) {
-          return n.type
-        },
+    const types = collect<string>(root, {
+      depth: 'shallow',
+      schema(n) {
+        return n.type
       },
-      { depth: 'shallow' },
-    )
+    })
 
     expect(types).toContain('object')
     // Parameter schema (integer) is still collected — not guarded by depth

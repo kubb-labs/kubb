@@ -26,11 +26,6 @@ export default defineConfig([
         output: {
           path: './ts',
         },
-        transformers: {
-          name: (name, _type) => {
-            return `${name}Type`
-          },
-        },
         legacy: true,
       }),
       pluginZod({

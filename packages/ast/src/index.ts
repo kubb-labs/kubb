@@ -26,4 +26,5 @@ export {
 export { definePrinter } from './printer.ts'
 export { buildRefMap, refMapToObject, resolveRef } from './refs.ts'
 export { applyParamsCasing, isPlainStringType } from './utils.ts'
+export type { CollectOptions, TransformOptions, VisitorContext, WalkOptions } from './visitor.ts'
 export { collect, composeTransformers, transform, walk } from './visitor.ts'

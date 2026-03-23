@@ -307,7 +307,8 @@ export default defineConfig({
 ```typescript [After (v5)]
 import { defineConfig } from '@kubb/core'
 import { defineResolver } from '@kubb/core'
-import { pluginTs, resolverTs } from '@kubb/plugin-ts'
+import { pluginTs } from '@kubb/plugin-ts'
+import { resolverTs } from '@kubb/plugin-ts/resolvers'
 
 export default defineConfig({
   plugins: [

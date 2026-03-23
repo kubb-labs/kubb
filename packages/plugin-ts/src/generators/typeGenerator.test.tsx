@@ -155,6 +155,7 @@ describe('typeGenerator v2 — Operation', () => {
     output: { path: '.' },
     group: undefined,
     resolver: resolverTs,
+    baseResolver: resolverTs,
     legacy: false,
     transformers: [],
   }
@@ -200,6 +201,7 @@ describe('typeGenerator v2 — Operation — group', () => {
     output: { path: '.' },
     group: undefined,
     resolver: resolverTs,
+    baseResolver: resolverTs,
     legacy: false,
     transformers: [],
   }
@@ -299,6 +301,7 @@ describe('typeGenerator v2 — Schema (enum)', () => {
     output: { path: '.' },
     group: undefined,
     resolver: resolverTs,
+    baseResolver: resolverTs,
     legacy: false,
     transformers: [],
   }
@@ -343,6 +346,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     output: { path: '.' },
     group: undefined,
     resolver: resolverTsLegacy,
+    baseResolver: resolverTsLegacy,
     legacy: true,
     transformers: [],
   }
@@ -465,6 +469,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     const options: PluginTs['resolvedOptions'] = {
       ...legacyOptions,
       resolver: wrappedResolver,
+      baseResolver: wrappedResolver,
     }
 
     const node = createOperation({
@@ -512,6 +517,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     const options: PluginTs['resolvedOptions'] = {
       ...legacyOptions,
       resolver: wrappedResolver,
+      baseResolver: wrappedResolver,
     }
 
     const node = createOperation({
@@ -555,6 +561,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     const options: PluginTs['resolvedOptions'] = {
       ...legacyOptions,
       resolver: wrappedResolver,
+      baseResolver: wrappedResolver,
     }
 
     const node = createOperation({

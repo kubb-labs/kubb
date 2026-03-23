@@ -115,4 +115,3 @@ describe('backwards compatibility — legacy flag maps to resolverTsLegacy', () 
     expect(resolver.resolveResponsesTypedName(node)).toBe('ListPetsResponses')
   })
 })
-

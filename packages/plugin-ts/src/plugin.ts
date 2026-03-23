@@ -27,8 +27,8 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     transformers = [],
   } = options
 
-  const defaultResolvers = legacy ? [resolverTsLegacy] : [resolverTs]
-  const resolver = mergeResolvers(...(userResolvers ?? defaultResolvers))
+  const baseResolver = mergeResolvers(...(legacy ? [resolverTsLegacy] : [resolverTs]))
+  const resolver = mergeResolvers(...(userResolvers ?? [baseResolver]))
 
   let resolveNameWarning = false
 
@@ -46,6 +46,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       paramsCasing,
       legacy,
       resolver,
+      baseResolver,
       transformers,
     },
     resolvePath(baseName, pathMode, options) {
@@ -102,60 +103,57 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
       await openInStudio({ ast: true })
 
-      await walk(
-        rootNode,
-        {
-          async schema(schemaNode) {
-            const writeTasks = generators.map(async (generator) => {
-              if (generator.type === 'react' && generator.version === '2') {
-                const options = resolver.resolveOptions(schemaNode, { options: plugin.options, exclude, include, override })
+      await walk(rootNode, {
+        depth: 'shallow',
+        async schema(schemaNode) {
+          const writeTasks = generators.map(async (generator) => {
+            if (generator.type === 'react' && generator.version === '2') {
+              const options = resolver.resolveOptions(schemaNode, { options: plugin.options, exclude, include, override })
 
-                if (options === null) {
-                  return
-                }
-
-                await renderSchema(schemaNode, {
-                  options,
-                  adapter,
-                  config,
-                  fabric,
-                  Component: generator.Schema,
-                  plugin,
-                  driver,
-                  mode,
-                })
+              if (options === null) {
+                return
               }
-            })
 
-            await Promise.all(writeTasks)
-          },
-          async operation(operationNode) {
-            const writeTasks = generators.map(async (generator) => {
-              if (generator.type === 'react' && generator.version === '2') {
-                const options = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
+              await renderSchema(schemaNode, {
+                options,
+                adapter,
+                config,
+                fabric,
+                Component: generator.Schema,
+                plugin,
+                driver,
+                mode,
+              })
+            }
+          })
 
-                if (options === null) {
-                  return
-                }
-
-                await renderOperation(operationNode, {
-                  options,
-                  adapter,
-                  config,
-                  fabric,
-                  Component: generator.Operation,
-                  plugin,
-                  driver,
-                  mode,
-                })
-              }
-            })
-
-            await Promise.all(writeTasks)
-          },
+          await Promise.all(writeTasks)
         },
-        { depth: 'shallow' },
-      )
+        async operation(operationNode) {
+          const writeTasks = generators.map(async (generator) => {
+            if (generator.type === 'react' && generator.version === '2') {
+              const options = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
+
+              if (options === null) {
+                return
+              }
+
+              await renderOperation(operationNode, {
+                options,
+                adapter,
+                config,
+                fabric,
+                Component: generator.Operation,
+                plugin,
+                driver,
+                mode,
+              })
+            }
+          })
+
+          await Promise.all(writeTasks)
+        },
+      })
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',

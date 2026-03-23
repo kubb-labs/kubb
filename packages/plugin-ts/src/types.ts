@@ -324,6 +324,12 @@ type ResolvedOptions = {
   paramsCasing: Options['paramsCasing']
   legacy: NonNullable<Options['legacy']>
   resolver: ResolverTs
+  /**
+   * The resolver without user naming overrides applied.
+   * Used internally to derive stable names for unnamed enums and grouped params
+   * so that the schema tree stays consistent regardless of `transformers.name` / custom resolvers.
+   */
+  baseResolver: ResolverTs
   transformers: Array<Visitor>
 }
 

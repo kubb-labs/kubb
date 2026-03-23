@@ -8,9 +8,7 @@ import type { PluginFactoryOptions, ResolveNameParams, ResolveOptionsContext } f
  * `default`, `resolveOptions`, and `name` are optional — built-in fallbacks are used when omitted.
  */
 type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<T['resolver'], 'default' | 'resolveOptions' | 'name'> &
-  Partial<Pick<T['resolver'], 'default' | 'resolveOptions'>> &
-  { name: string } &
-  ThisType<T['resolver']>
+  Partial<Pick<T['resolver'], 'default' | 'resolveOptions'>> & { name: string } & ThisType<T['resolver']>
 
 /**
  * Checks if an operation matches a pattern for a given filter type (`tag`, `operationId`, `path`, `method`).
