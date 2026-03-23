@@ -72,17 +72,17 @@
 | T4 | Low | ❌ Open | plugin-ts | `(string & {})` open union instead of `string` |
 | T5 | — | ✅ By design | plugin-ts (most) | `@type object` / format suffix not emitted in v5 |
 | T6 | Low | ❌ Open | plugin-ts | `MutationResponse` placement in grouped type |
-| T7 | Low | ❌ Open | plugin-ts | `@description` on response alias type |
+| T7 | Low | ✅ Fixed | plugin-ts | `@description` on response alias type |
 | N-AggType | Medium | ❌ Open | plugin-ts | `export interface Xxx` instead of `export type Xxx = {` |
 | N-QueryParams | Medium | ❌ Open | plugin-ts | `QueryParams` missing from aggregated operation type |
 | E1 | High | ❌ Open | plugin-ts | Path param `$ref` typed as `any` instead of named type |
-| E2 | Medium | ❌ Open | plugin-ts | Discriminant not embedded in union members |
+| E2 | Medium | ✅ Fixed | plugin-ts | Discriminant not embedded in union members |
 | E3 | Medium | ❌ Open | plugin-ts | `const` discriminator values → enum+key type instead of literal |
-| E5 | Low | ❌ Open | plugin-ts | `null \| null` duplicated from `null` const |
+| E5 | Low | ✅ Fixed | plugin-ts | `null \| null` duplicated from `null` const |
 | E6 | Medium | ❌ Open | plugin-ts | Inline enum names missing parent schema prefix |
 | E7 | Medium | ❌ Open| plugin-ts | Query param inline enums inlined as literals instead of named enums |
-| @minLength | Low | ❌ Open| plugin-ts | Extra `@minLength`/`@maxLength` on array properties |
-| allOf-merge | Low | ❌ Open | plugin-ts | Adjacent anonymous allOf objects not merged (`} & {` split) |
+| @minLength | Low | ✅ Fixed | plugin-ts | Extra `@minLength`/`@maxLength` on array properties |
+| allOf-merge | Low | ✅ Fixed | plugin-ts | Adjacent anonymous allOf objects not merged (`} & {` split) |
 | N1-ZodTypeName | 🟠 Medium | ❌ Open | plugin-zod | Extra `Type` infix in zod-generated enum names |
 | N-Path | Low | ⚠️ Expected | plugin-mcp | Absolute machine path in `.mcp.json` |
 | G-API | Breaking | ℹ️ By design | custom generators | Generator context API changed |
