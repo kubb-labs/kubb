@@ -47,9 +47,13 @@
   },
   "changesets": [
     "adapter-oas-boolean-const-inline",
+    "adapter-oas-discriminant-embedding",
+    "adapter-oas-null-const-no-nullable",
     "adapter-oas-parser-options",
+    "adapter-oas-path-param-ref-schema",
     "ast-additional-properties-visitor",
     "ast-function-params",
+    "ast-requestbody-description",
     "ast-utils-operation-path",
     "core-url-input-resolve",
     "feat-resolve-options",
@@ -58,12 +62,14 @@
     "plugin-ts-legacy-flag",
     "plugin-ts-legacy-naming-parity",
     "plugin-ts-remove-deprecated-options",
+    "plugin-ts-v5-query-params-grouped-type",
     "pretty-schools-fly",
     "remove-mapper-plugin-ts",
     "remove-object-json-plugins-validation",
     "remove-plugin-key",
     "rename-define-to-create-factory-functions",
     "rename-plugin-manager-to-plugin-driver",
+    "shaky-bobcats-rest",
     "type-generator-v2-helpers"
   ]
 }
