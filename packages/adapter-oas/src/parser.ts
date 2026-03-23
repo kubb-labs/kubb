@@ -1054,15 +1054,14 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
   /**
    * Converts a single dereferenced OAS parameter object into a `ParameterNode`.
-   * When the parameter has no `schema` or its schema is a `$ref`, falls back to `unknownType`.
+   * When the parameter has no `schema`, falls back to `unknownType`; `$ref` schemas are resolved through `convertSchema` to produce a proper named type reference.
    */
   function parseParameter(options: ParserOptions, param: Record<string, unknown>): ParameterNode {
     const required = (param['required'] as boolean | undefined) ?? false
 
-    const schema: SchemaNode =
-      param['schema'] && !isReference(param['schema'])
-        ? convertSchema({ schema: param['schema'] as SchemaObject }, options)
-        : createSchema({ type: resolveTypeOption(options.unknownType) })
+    const schema: SchemaNode = param['schema']
+      ? convertSchema({ schema: param['schema'] as SchemaObject }, options)
+      : createSchema({ type: resolveTypeOption(options.unknownType) })
 
     return createParameter({
       name: param['name'] as string,
