@@ -3,12 +3,13 @@ import type { Operation as OASOperation } from 'oas/operation'
 import type {
   DiscriminatorObject as OASDiscriminatorObject,
   OASDocument,
-  HttpMethods as OASHttpMethods,
   MediaTypeObject as OASMediaTypeObject,
   ResponseObject as OASResponseObject,
   SchemaObject as OASSchemaObject,
 } from 'oas/types'
 import type { OpenAPIV3 } from 'openapi-types'
+import type { HttpMethod as AstHttpMethod } from '@kubb/ast/types'
+import { httpMethods } from '@kubb/ast'
 
 export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 
@@ -52,11 +53,15 @@ export type SchemaObject = OASSchemaObject & {
 }
 
 /**
- * Re-exported from `constants.ts` for backwards compatibility.
+ * Canonical uppercase->lowercase HTTP method map.
+ * Re-exported for backwards compatibility with previous adapter-oas API.
  */
-export { httpMethods as HttpMethods } from '../constants.ts'
+export const HttpMethods = Object.fromEntries(Object.entries(httpMethods).map(([lower, upper]) => [upper, lower])) as Record<
+  Uppercase<AstHttpMethod>,
+  Lowercase<AstHttpMethod>
+>
 
-export type HttpMethod = OASHttpMethods
+export type HttpMethod = Lowercase<AstHttpMethod>
 
 export type Document = OASDocument
 
