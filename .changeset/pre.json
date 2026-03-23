@@ -47,9 +47,12 @@
   },
   "changesets": [
     "adapter-oas-boolean-const-inline",
+    "adapter-oas-discriminant-embedding",
+    "adapter-oas-null-const-no-nullable",
     "adapter-oas-parser-options",
     "ast-additional-properties-visitor",
     "ast-function-params",
+    "ast-requestbody-description",
     "ast-utils-operation-path",
     "core-url-input-resolve",
     "feat-resolve-options",
@@ -64,6 +67,7 @@
     "remove-plugin-key",
     "rename-define-to-create-factory-functions",
     "rename-plugin-manager-to-plugin-driver",
+    "shaky-bobcats-rest",
     "type-generator-v2-helpers"
   ]
 }
