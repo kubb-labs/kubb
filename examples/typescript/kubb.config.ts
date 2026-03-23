@@ -26,11 +26,10 @@ export default defineConfig([
         },
         transformers: [
           {
-            // Make all properties of the "Pet" schema optional
+            // Make all properties of the "Pet" schema required
             property(node, { parent }) {
-              console.log(parent)
               if (parent?.name === 'Address') {
-                return { ...node, required: true }
+                return { ...node, required: false }
               }
             },
           },
