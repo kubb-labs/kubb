@@ -2,7 +2,7 @@ import { createOperation, createParameter, createResponse, createSchema } from '
 import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 import { printerTs } from '../printer.ts'
-import { resolverTs } from '../resolver.ts'
+import { resolverTs } from '../resolvers/index.ts'
 import { buildDataSchemaNode, buildParamsSchema, buildResponsesSchemaNode, buildResponseUnionSchemaNode } from './utils.ts'
 
 const printer = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'inlineLiteral' })

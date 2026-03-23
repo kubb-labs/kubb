@@ -2,8 +2,8 @@ import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
 import { createPlugin, type Group, getBarrelFiles, getMode, renderOperation, renderSchema } from '@kubb/core'
-import { typeGenerator } from './generators'
-import { resolverTs, resolverTsLegacy } from './resolver.ts'
+import { typeGenerator } from './generators/index.ts'
+import { resolverTs, resolverTsLegacy } from './resolvers/index.ts'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']

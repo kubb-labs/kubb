@@ -4,7 +4,7 @@ import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 import { format } from '#mocks'
 import { printerTs } from './printer.ts'
-import { resolverTs } from './resolver.ts'
+import { resolverTs } from './resolvers/resolverTs.ts'
 
 /**
  * Wraps a `ts.TypeNode` in `type _ = <node>` so prettier can parse it as a
