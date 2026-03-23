@@ -789,7 +789,15 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
           const childName = resolveChildName(name, propName)
           const propNode = convertSchema({ schema: resolvedPropSchema, name: childName }, options)
-          const schemaNode = applyEnumName(propNode, name, propName, mergedOptions.enumSuffix)
+          let schemaNode = applyEnumName(propNode, name, propName, mergedOptions.enumSuffix)
+
+          const tupleNode = narrowSchema(schemaNode, 'tuple')
+          if (tupleNode?.items) {
+            const namedItems = tupleNode.items.map((item) => applyEnumName(item, name, propName, mergedOptions.enumSuffix))
+            if (namedItems.some((item, i) => item !== tupleNode.items![i])) {
+              schemaNode = { ...tupleNode, items: namedItems }
+            }
+          }
 
           return createProperty({
             name: propName,
@@ -853,12 +861,14 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
   /**
    * Converts an OAS 3.1 `prefixItems` tuple into a `TupleSchemaNode`.
    *
-   * Each `prefixItems` element maps to a positional tuple slot. An optional `items` schema
-   * after the prefix items is mapped to the rest parameter of the tuple.
+   * Each `prefixItems` element maps to a positional tuple slot. When an explicit `items` schema
+   * is present alongside `prefixItems`, it becomes the rest element. When `items` is absent,
+   * a rest element of type `any` is emitted to match JSON Schema semantics (absent `items`
+   * means additional items are allowed).
    */
   function convertTuple({ schema, name, nullable, defaultValue, options }: SchemaContext): SchemaNode {
     const tupleItems = (schema.prefixItems ?? []).map((item) => convertSchema({ schema: item as SchemaObject }, options))
-    const rest = schema.items ? convertSchema({ schema: schema.items as SchemaObject }, options) : undefined
+    const rest = schema.items ? convertSchema({ schema: schema.items as SchemaObject }, options) : createSchema({ type: 'any' })
 
     return createSchema({
       type: 'tuple',

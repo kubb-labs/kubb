@@ -72,6 +72,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
             syntaxType={syntaxType}
             resolver={resolver}
             keysToOmit={keysToOmit}
+            legacy={legacy}
           />
         </>
       )
@@ -212,7 +213,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
   },
   Schema({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver } = options
+    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver, legacy } = options
     const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     if (!node.name) {
@@ -250,6 +251,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
           arrayType={arrayType}
           syntaxType={syntaxType}
           resolver={resolver}
+          legacy={legacy}
         />
       </File>
     )

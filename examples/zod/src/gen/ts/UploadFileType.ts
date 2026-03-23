@@ -30,9 +30,10 @@ export type UploadFileMutationRequestType = Blob
 
 export type UploadFileMutationResponseType = UploadFile200Type
 
-export type UploadFileMutationType = {
+export type UploadFileTypeMutation = {
   Response: UploadFile200Type
   Request: UploadFileMutationRequestType
+  QueryParams: UploadFileQueryParamsType
   PathParams: UploadFilePathParamsType
   Errors: any
 }
