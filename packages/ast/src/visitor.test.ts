@@ -2,10 +2,13 @@ import { describe, expect, expectTypeOf, it } from 'vitest'
 import { createProperty, createSchema } from './factory.ts'
 import { buildSampleTree } from './mocks.ts'
 import type { OperationNode } from './nodes/operation.ts'
+import type { ParameterNode } from './nodes/parameter.ts'
 import type { PropertyNode } from './nodes/property.ts'
+import type { ResponseNode } from './nodes/response.ts'
 import type { RootNode } from './nodes/root.ts'
 import type { SchemaNode } from './nodes/schema.ts'
 import { collect, composeTransformers, transform, walk } from './visitor.ts'
+import type { ParentOf, VisitorContext } from './visitor.ts'
 
 describe('walk', () => {
   it('visits all node kinds in a tree', async () => {
@@ -466,6 +469,94 @@ describe('VisitorContext — parent', () => {
     })
 
     expect(pairs).toContain('Pet.name')
+  })
+})
+
+describe('ParentOf — type inference', () => {
+  it('RootNode parent is always undefined', () => {
+    expectTypeOf<ParentOf<RootNode>>().toEqualTypeOf<undefined>()
+  })
+
+  it('OperationNode parent is RootNode', () => {
+    expectTypeOf<ParentOf<OperationNode>>().toEqualTypeOf<RootNode>()
+  })
+
+  it('PropertyNode parent is SchemaNode', () => {
+    expectTypeOf<ParentOf<PropertyNode>>().toEqualTypeOf<SchemaNode>()
+  })
+
+  it('ParameterNode parent is OperationNode', () => {
+    expectTypeOf<ParentOf<ParameterNode>>().toEqualTypeOf<OperationNode>()
+  })
+
+  it('ResponseNode parent is OperationNode', () => {
+    expectTypeOf<ParentOf<ResponseNode>>().toEqualTypeOf<OperationNode>()
+  })
+
+  it('SchemaNode parent is a union of possible parents', () => {
+    expectTypeOf<ParentOf<SchemaNode>>().toEqualTypeOf<RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode>()
+  })
+
+  it('VisitorContext narrows parent for PropertyNode', () => {
+    expectTypeOf<VisitorContext<PropertyNode>['parent']>().toEqualTypeOf<SchemaNode | undefined>()
+  })
+
+  it('VisitorContext narrows parent for OperationNode', () => {
+    expectTypeOf<VisitorContext<OperationNode>['parent']>().toEqualTypeOf<RootNode | undefined>()
+  })
+
+  it('VisitorContext narrows parent for RootNode to undefined', () => {
+    expectTypeOf<VisitorContext<RootNode>['parent']>().toEqualTypeOf<undefined>()
+  })
+
+  it('visitor callbacks receive narrowed context', () => {
+    transform(buildSampleTree(), {
+      property(_prop, context) {
+        expectTypeOf(context.parent).toEqualTypeOf<SchemaNode | undefined>()
+      },
+      operation(_op, context) {
+        expectTypeOf(context.parent).toEqualTypeOf<RootNode | undefined>()
+      },
+      schema(_schema, context) {
+        expectTypeOf(context.parent).toEqualTypeOf<RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode | undefined>()
+      },
+      parameter(_param, context) {
+        expectTypeOf(context.parent).toEqualTypeOf<OperationNode | undefined>()
+      },
+      response(_res, context) {
+        expectTypeOf(context.parent).toEqualTypeOf<OperationNode | undefined>()
+      },
+      root(_root, context) {
+        expectTypeOf(context.parent).toEqualTypeOf<undefined>()
+      },
+    })
+  })
+
+  it('walk callbacks receive narrowed context', async () => {
+    await walk(buildSampleTree(), {
+      property(_prop, context) {
+        expectTypeOf(context.parent).toEqualTypeOf<SchemaNode | undefined>()
+      },
+      operation(_op, context) {
+        expectTypeOf(context.parent).toEqualTypeOf<RootNode | undefined>()
+      },
+      parameter(_param, context) {
+        expectTypeOf(context.parent).toEqualTypeOf<OperationNode | undefined>()
+      },
+    })
+  })
+
+  it('collect callbacks receive narrowed context', () => {
+    collect<string>(buildSampleTree(), {
+      property(_prop, context) {
+        expectTypeOf(context.parent).toEqualTypeOf<SchemaNode | undefined>()
+        return 'test'
+      },
+      schema(_schema, context) {
+        expectTypeOf(context.parent).toEqualTypeOf<RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode | undefined>()
+        return 'test'
+      },
+    })
   })
 })
 
