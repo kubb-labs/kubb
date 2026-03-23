@@ -79,10 +79,12 @@ export const resolverTs = defineResolver<PluginTs>(() => {
       return `${this.resolveTypedName(node.name ?? '')}Key`
     },
     resolvePathParamsName(_node) {
-      throw new Error('resolvePathParamsName is only available in legacy mode (legacy: true). Use resolveParamName per individual parameter instead.')
+      throw new Error("resolvePathParamsName is only available with compatibilityPreset: 'kubbV4'. Use resolveParamName per individual parameter instead.")
     },
     resolvePathParamsTypedName(_node) {
-      throw new Error('resolvePathParamsTypedName is only available in legacy mode (legacy: true). Use resolveParamTypedName per individual parameter instead.')
+      throw new Error(
+        "resolvePathParamsTypedName is only available with compatibilityPreset: 'kubbV4'. Use resolveParamTypedName per individual parameter instead.",
+      )
     },
     resolveQueryParamsName(node) {
       return this.resolveName(`${node.operationId} QueryParams`)
@@ -91,11 +93,11 @@ export const resolverTs = defineResolver<PluginTs>(() => {
       return this.resolveTypedName(`${node.operationId} QueryParams`)
     },
     resolveHeaderParamsName(_node) {
-      throw new Error('resolveHeaderParamsName is only available in legacy mode (legacy: true). Use resolveParamName per individual parameter instead.')
+      throw new Error("resolveHeaderParamsName is only available with compatibilityPreset: 'kubbV4'. Use resolveParamName per individual parameter instead.")
     },
     resolveHeaderParamsTypedName(_node) {
       throw new Error(
-        'resolveHeaderParamsTypedName is only available in legacy mode (legacy: true). Use resolveParamTypedName per individual parameter instead.',
+        "resolveHeaderParamsTypedName is only available with compatibilityPreset: 'kubbV4'. Use resolveParamTypedName per individual parameter instead.",
       )
     },
   }

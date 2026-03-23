@@ -1,9 +1,9 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
-import { createPlugin, type Group, getBarrelFiles, getMode, mergeResolvers, renderOperation, renderSchema } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode, renderOperation, renderSchema } from '@kubb/core'
 import { typeGenerator } from './generators/index.ts'
-import { resolverTs, resolverTsLegacy } from './resolvers/index.ts'
+import { getTsResolverComposition } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
@@ -22,13 +22,20 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     syntaxType = 'type',
     paramsCasing,
     generators = [typeGenerator].filter(Boolean),
-    legacy = false,
+    compatibilityPreset = 'none',
     resolvers: userResolvers,
     transformers = [],
   } = options
 
-  const baseResolver = legacy ? resolverTsLegacy : resolverTs
-  const resolver = mergeResolvers(...(userResolvers ?? [baseResolver]))
+  const {
+    resolver,
+    baseResolver,
+    transformers: resolvedTransformers,
+  } = getTsResolverComposition({
+    compatibilityPreset,
+    userResolvers,
+    userTransformers: transformers,
+  })
 
   let resolveNameWarning = false
 
@@ -44,10 +51,10 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       group,
       override,
       paramsCasing,
-      legacy,
+      compatibilityPreset,
       resolver,
       baseResolver,
-      transformers,
+      transformers: resolvedTransformers,
     },
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)

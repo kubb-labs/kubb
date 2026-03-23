@@ -360,6 +360,90 @@ type FindPetsByStatusHeaderParams = {
 
 :::
 
+### compatibilityPreset
+
+Apply close-compatible naming presets for ecosystems with established conventions.
+
+|           |                               |
+| --------: | :---------------------------- |
+|     Type: | `'none' \| 'kubbV4' \| 'heyapi' \| 'orval'` |
+| Required: | `false`                       |
+|  Default: | `'none'`                      |
+
+- `'none'`: Use default `@kubb/plugin-ts` naming.
+- `'kubbV4'`: Reproduce Kubb v4 type-generation naming behavior.
+- `'heyapi'`: Use close-compatible naming for heyapi-style outputs.
+- `'orval'`: Use close-compatible naming for orval-style outputs.
+
+::: code-group
+
+```typescript [Default]
+pluginTs({
+  compatibilityPreset: "none",
+});
+```
+
+```typescript [heyapi-style naming]
+pluginTs({
+  compatibilityPreset: "heyapi",
+});
+```
+
+```typescript [orval-style naming]
+pluginTs({
+  compatibilityPreset: "orval",
+});
+```
+
+```typescript [Kubb v4 compatibility]
+pluginTs({
+  compatibilityPreset: "kubbV4",
+});
+```
+
+:::
+
+> [!NOTE]
+> Compatibility presets are close-compatible naming/output conventions, not strict 1:1 parity with other generators.
+
+### resolvers
+
+Use `resolvers` to compose naming behavior. Later resolvers override earlier ones.
+
+|           |                     |
+| --------: | :------------------ |
+|     Type: | `Array<ResolverTs>` |
+| Required: | `false`             |
+|  Default: | `[resolverTs]`      |
+
+Resolver precedence:
+
+1. Start with `resolverTs`.
+2. Apply `compatibilityPreset` resolver (`kubbV4`/`heyapi`/`orval`) when configured.
+3. Apply explicit `resolvers` overrides (last wins).
+
+::: code-group
+
+```typescript [v4 compatibility]
+import { pluginTs } from "@kubb/plugin-ts";
+
+pluginTs({
+  compatibilityPreset: "kubbV4",
+});
+```
+
+```typescript [Explicit resolver override]
+import { pluginTs } from "@kubb/plugin-ts";
+import { resolverTs } from "@kubb/plugin-ts/resolvers";
+
+pluginTs({
+  compatibilityPreset: "orval",
+  resolvers: [resolverTs], // explicit resolvers take precedence
+});
+```
+
+:::
+
 ### include
 
 <!--@include: ./core/include.md-->
@@ -385,18 +469,8 @@ type FindPetsByStatusHeaderParams = {
 
 <!--@include: ./core/transformers.md-->
 
-#### transformers.name
-
-Customize the names based on the type that is provided by the plugin.
-
-|           |                                                |
-| --------: | :--------------------------------------------- |
-|     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                        |
-
-```typescript
-type ResolveType = "file" | "function" | "type" | "const";
-```
+`@kubb/plugin-ts` uses AST `Visitor` transformers for schema/operation node transforms.
+For naming customization, use `resolvers` instead of `transformers`.
 
 ## Example
 

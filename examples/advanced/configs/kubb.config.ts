@@ -58,7 +58,7 @@ export default defineConfig({
           },
         },
       ],
-      legacy: true,
+      compatibilityPreset: 'kubbV4',
     }),
     pluginZod({
       output: {

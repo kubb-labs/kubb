@@ -29,7 +29,7 @@ export const config = {
           return `// version: ${oas.api.info.version}`
         },
       },
-      legacy: true,
+      compatibilityPreset: 'kubbV4',
     }),
     pluginReactQuery({
       client: {

@@ -156,7 +156,7 @@ describe('typeGenerator v2 — Operation', () => {
     group: undefined,
     resolver: resolverTs,
     baseResolver: resolverTs,
-    legacy: false,
+    compatibilityPreset: 'none',
     transformers: [],
   }
 
@@ -202,7 +202,7 @@ describe('typeGenerator v2 — Operation — group', () => {
     group: undefined,
     resolver: resolverTs,
     baseResolver: resolverTs,
-    legacy: false,
+    compatibilityPreset: 'none',
     transformers: [],
   }
 
@@ -302,7 +302,7 @@ describe('typeGenerator v2 — Schema (enum)', () => {
     group: undefined,
     resolver: resolverTs,
     baseResolver: resolverTs,
-    legacy: false,
+    compatibilityPreset: 'none',
     transformers: [],
   }
 
@@ -347,7 +347,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     group: undefined,
     resolver: resolverTsLegacy,
     baseResolver: resolverTsLegacy,
-    legacy: true,
+    compatibilityPreset: 'kubbV4',
     transformers: [],
   }
 

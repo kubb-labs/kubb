@@ -4,6 +4,8 @@ import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
 
+export type CompatibilityPreset = 'none' | 'kubbV4' | 'heyapi' | 'orval'
+
 /**
  * The concrete resolver type for `@kubb/plugin-ts`.
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
@@ -135,54 +137,54 @@ export type ResolverTs = Resolver & {
   resolveEnumKeyTypedName(node: SchemaNode): string
   /**
    * Resolves the variable/function name for an operation's grouped path parameters type.
-   * Only available in legacy mode (`legacy: true`).
+   * Only available with `compatibilityPreset: 'kubbV4'`.
    *
-   * @deprecated Legacy only — will be removed in v6. Use `resolveParamName` per individual parameter instead.
+   * @deprecated Kubb v4 compatibility only — use `resolveParamName` per individual parameter instead.
    * @example
    * resolver.resolvePathParamsName(node) // → 'GetPetByIdPathParams'
    */
   resolvePathParamsName?(node: OperationNode): string
   /**
    * Resolves the TypeScript type alias name for an operation's grouped path parameters type.
-   * Only available in legacy mode (`legacy: true`).
+   * Only available with `compatibilityPreset: 'kubbV4'`.
    *
-   * @deprecated Legacy only — will be removed in v6. Use `resolveParamTypedName` per individual parameter instead.
+   * @deprecated Kubb v4 compatibility only — use `resolveParamTypedName` per individual parameter instead.
    * @example
    * resolver.resolvePathParamsTypedName(node) // → 'GetPetByIdPathParams'
    */
   resolvePathParamsTypedName?(node: OperationNode): string
   /**
    * Resolves the variable/function name for an operation's grouped query parameters type.
-   * Only available in legacy mode (`legacy: true`).
+   * Only available with `compatibilityPreset: 'kubbV4'`.
    *
-   * @deprecated Legacy only — will be removed in v6. Use `resolveParamName` per individual parameter instead.
+   * @deprecated Kubb v4 compatibility only — use `resolveParamName` per individual parameter instead.
    * @example
    * resolver.resolveQueryParamsName(node) // → 'FindPetsByStatusQueryParams'
    */
   resolveQueryParamsName?(node: OperationNode): string
   /**
    * Resolves the TypeScript type alias name for an operation's grouped query parameters type.
-   * Only available in legacy mode (`legacy: true`).
+   * Only available with `compatibilityPreset: 'kubbV4'`.
    *
-   * @deprecated Legacy only — will be removed in v6. Use `resolveParamTypedName` per individual parameter instead.
+   * @deprecated Kubb v4 compatibility only — use `resolveParamTypedName` per individual parameter instead.
    * @example
    * resolver.resolveQueryParamsTypedName(node) // → 'FindPetsByStatusQueryParams'
    */
   resolveQueryParamsTypedName?(node: OperationNode): string
   /**
    * Resolves the variable/function name for an operation's grouped header parameters type.
-   * Only available in legacy mode (`legacy: true`).
+   * Only available with `compatibilityPreset: 'kubbV4'`.
    *
-   * @deprecated Legacy only — will be removed in v6. Use `resolveParamName` per individual parameter instead.
+   * @deprecated Kubb v4 compatibility only — use `resolveParamName` per individual parameter instead.
    * @example
    * resolver.resolveHeaderParamsName(node) // → 'DeletePetHeaderParams'
    */
   resolveHeaderParamsName?(node: OperationNode): string
   /**
    * Resolves the TypeScript type alias name for an operation's grouped header parameters type.
-   * Only available in legacy mode (`legacy: true`).
+   * Only available with `compatibilityPreset: 'kubbV4'`.
    *
-   * @deprecated Legacy only — will be removed in v6. Use `resolveParamTypedName` per individual parameter instead.
+   * @deprecated Kubb v4 compatibility only — use `resolveParamTypedName` per individual parameter instead.
    * @example
    * resolver.resolveHeaderParamsTypedName(node) // → 'DeletePetHeaderParams'
    */
@@ -276,10 +278,13 @@ export type Options = {
    */
   UNSTABLE_NAMING?: true
   /**
-   * Enable legacy naming conventions for backwards compatibility.
-   * @default false
+   * Apply a compatibility naming preset for ecosystems with established conventions.
+   * Use `kubbV4` for strict v4 type-generation compatibility.
+   * These presets are close-compatible (not strict 1:1 output parity) except `kubbV4`, and can be
+   * further customized with `resolvers`.
+   * @default 'none'
    */
-  legacy?: boolean
+  compatibilityPreset?: CompatibilityPreset
   /**
    * Array of named resolvers that control naming conventions.
    * Later entries override earlier ones (last wins).
@@ -322,7 +327,7 @@ type ResolvedOptions = {
   arrayType: NonNullable<Options['arrayType']>
   syntaxType: NonNullable<Options['syntaxType']>
   paramsCasing: Options['paramsCasing']
-  legacy: NonNullable<Options['legacy']>
+  compatibilityPreset: NonNullable<CompatibilityPreset>
   resolver: ResolverTs
   /**
    * The resolver without user naming overrides applied.

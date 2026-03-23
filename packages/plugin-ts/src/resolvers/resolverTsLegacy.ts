@@ -4,7 +4,8 @@ import { resolverTs } from './resolverTs.ts'
 
 /**
  * Legacy resolver for `@kubb/plugin-ts` that reproduces the naming conventions
- * used before the v2 resolver refactor. Enable via `legacy: true` in plugin options.
+ * used before the v2 resolver refactor. Enable via `compatibilityPreset: 'kubbV4'`
+ * (or by composing this resolver manually).
  *
  * Key differences from the default resolver:
  * - Response status types: `<OperationId><StatusCode>` (e.g. `CreatePets201`) instead of `<OperationId>Status201`

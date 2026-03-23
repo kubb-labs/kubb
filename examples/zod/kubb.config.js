@@ -26,7 +26,7 @@ export default defineConfig([
         output: {
           path: './ts',
         },
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
       pluginZod({
         output: {
