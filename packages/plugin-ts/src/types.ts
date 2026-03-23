@@ -4,8 +4,6 @@ import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
 
-export type { CompatibilityPreset }
-
 /**
  * The concrete resolver type for `@kubb/plugin-ts`.
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
