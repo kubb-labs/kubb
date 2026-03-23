@@ -25,6 +25,9 @@ export type UpdatePet404Type = any
  */
 export type UpdatePet405Type = any
 
+/**
+ * @description Update an existent pet in the store
+ */
 export type UpdatePetMutationRequestType = PetType
 
 export type UpdatePetMutationResponseType = UpdatePet200Type

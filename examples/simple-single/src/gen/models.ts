@@ -298,6 +298,9 @@ export type UpdatePet404 = any
  */
 export type UpdatePet405 = any
 
+/**
+ * @description Update an existent pet in the store
+ */
 export type UpdatePetMutationRequest = Pet
 
 export type UpdatePetMutationResponse = UpdatePet200
@@ -327,6 +330,9 @@ export type AddPet405 = {
   message?: string
 }
 
+/**
+ * @description Create a new pet in the store
+ */
 export type AddPetMutationRequest = AddPetRequest
 
 export type AddPetMutationResponse = AddPet200
@@ -652,6 +658,9 @@ export type DeleteOrderMutation = {
  */
 export type CreateUserError = User
 
+/**
+ * @description Created user object
+ */
 export type CreateUserMutationRequest = User
 
 export type CreateUserMutationResponse = any
@@ -769,6 +778,9 @@ export type UpdateUserPathParams = {
  */
 export type UpdateUserError = any
 
+/**
+ * @description Update an existent user in the store
+ */
 export type UpdateUserMutationRequest = User
 
 export type UpdateUserMutationResponse = any
