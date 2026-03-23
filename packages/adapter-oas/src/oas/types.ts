@@ -1,4 +1,7 @@
 // external packages
+
+import { httpMethods } from '@kubb/ast'
+import type { HttpMethod as AstHttpMethod } from '@kubb/ast/types'
 import type { Operation as OASOperation } from 'oas/operation'
 import type {
   DiscriminatorObject as OASDiscriminatorObject,
@@ -8,8 +11,6 @@ import type {
   SchemaObject as OASSchemaObject,
 } from 'oas/types'
 import type { OpenAPIV3 } from 'openapi-types'
-import type { HttpMethod as AstHttpMethod } from '@kubb/ast/types'
-import { httpMethods } from '@kubb/ast'
 
 export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 

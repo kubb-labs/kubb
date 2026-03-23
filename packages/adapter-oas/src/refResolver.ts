@@ -1,7 +1,6 @@
-import { collect, narrowSchema, schemaTypes, transform } from '@kubb/ast'
+import { collect, extractRefName, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import { extractRefName } from '@kubb/ast'
 
 /**
  * Collects import entries for all `ref` schema nodes in `node`.
