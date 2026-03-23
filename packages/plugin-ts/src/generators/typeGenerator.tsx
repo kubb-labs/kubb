@@ -23,8 +23,10 @@ export const typeGenerator = defineGenerator<PluginTs>({
       },
     })
 
-    // Apply paramsCasing to individual params first, then run all transformers (e.g. legacy
-    // transformer applies nameUnnamedEnums to response/requestBody schemas).
+    // Apply paramsCasing to individual params first, then run all transformers.
+    // In legacy mode the createLegacyOperationTransformer replaces individual params with
+    // synthetic grouped ParameterNodes ({in: 'path'/'query'/'header', name: 'Params'}) so the
+    // uniform param loop below produces the correct legacy type names without any branching.
     const params = applyParamsCasing(node.parameters, paramsCasing)
     const transformedNode = transform({ ...node, parameters: params }, composeTransformers(...transformers))
 
@@ -75,54 +77,25 @@ export const typeGenerator = defineGenerator<PluginTs>({
       )
     }
 
-    const pathParams = transformedNode.parameters.filter((p) => p.in === 'path')
-    const queryParams = transformedNode.parameters.filter((p) => p.in === 'query')
-    const headerParams = transformedNode.parameters.filter((p) => p.in === 'header')
+    // Uniform param loop — works for both modes without any branching:
+    //   Non-legacy: individual params (e.g. {in: 'query', name: 'limit'}) → ListPetsQueryLimit
+    //   Legacy:     synthetic grouped params (e.g. {in: 'query', name: 'Params'}) → ListPetsQueryParams
+    const paramTypes = transformedNode.parameters.map((param) =>
+      renderSchemaType({
+        node: param.schema,
+        name: resolver.resolveParamName(transformedNode, param),
+        typedName: resolver.resolveParamTypedName(transformedNode, param),
+      }),
+    )
 
-    // Detect legacy mode by checking whether the resolver supplies grouped-param builders.
-    // In legacy mode the resolver defines buildPathParamsSchema; in non-legacy it does not.
-    const isLegacyParamMode = typeof resolver.buildPathParamsSchema === 'function'
-
-    // Individual param types — rendered only in non-legacy mode.
-    const paramTypes = isLegacyParamMode
-      ? []
-      : transformedNode.parameters.map((param) =>
-          renderSchemaType({
-            node: param.schema,
-            name: resolver.resolveParamName(transformedNode, param),
-            typedName: resolver.resolveParamTypedName(transformedNode, param),
-          }),
-        )
-
-    // Grouped path params — legacy only (resolver.buildPathParamsSchema is defined).
-    const pathGroupedSchemaNode = resolver.buildPathParamsSchema?.(transformedNode, pathParams) ?? null
-    const pathGroupedType = pathGroupedSchemaNode
+    // Aggregate QueryParams type — non-legacy: ref-based object; legacy: null (synthetic grouped param handles it).
+    const queryParamsList = transformedNode.parameters.filter((p) => p.in === 'query')
+    const queryParamsSchemaNode = resolver.buildQueryParamsSchema?.(transformedNode, queryParamsList) ?? null
+    const queryParamsType = queryParamsSchemaNode
       ? renderSchemaType({
-          node: pathGroupedSchemaNode,
-          name: resolver.resolvePathParamsName!(transformedNode),
-          typedName: resolver.resolvePathParamsTypedName!(transformedNode),
-        })
-      : null
-
-    // Query params — both modes, but with different schemas:
-    //   non-legacy: ref-based aggregate (object of refs to individual query param types)
-    //   legacy:     inline grouped object embedding each query param's schema directly
-    const queryGroupedSchemaNode = resolver.buildQueryParamsSchema?.(transformedNode, queryParams) ?? null
-    const queryGroupedType = queryGroupedSchemaNode
-      ? renderSchemaType({
-          node: queryGroupedSchemaNode,
-          name: resolver.resolveQueryParamsName!(transformedNode),
-          typedName: resolver.resolveQueryParamsTypedName!(transformedNode),
-        })
-      : null
-
-    // Grouped header params — legacy only.
-    const headerGroupedSchemaNode = resolver.buildHeaderParamsSchema?.(transformedNode, headerParams) ?? null
-    const headerGroupedType = headerGroupedSchemaNode
-      ? renderSchemaType({
-          node: headerGroupedSchemaNode,
-          name: resolver.resolveHeaderParamsName!(transformedNode),
-          typedName: resolver.resolveHeaderParamsTypedName!(transformedNode),
+          node: queryParamsSchemaNode,
+          name: resolver.resolveQueryParamsName?.(transformedNode) ?? '',
+          typedName: resolver.resolveQueryParamsTypedName?.(transformedNode) ?? '',
         })
       : null
 
@@ -170,9 +143,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta} banner={resolveBanner()} footer={resolveFooter()}>
         {paramTypes}
-        {pathGroupedType}
-        {queryGroupedType}
-        {headerGroupedType}
+        {queryParamsType}
         {responseTypes}
         {requestType}
         {dataType}

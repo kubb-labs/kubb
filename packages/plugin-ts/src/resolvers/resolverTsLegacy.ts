@@ -1,5 +1,5 @@
 import { defineResolver } from '@kubb/core'
-import { buildGroupedParamsSchema, buildLegacyResponsesSchemaNode, buildLegacyResponseUnionSchemaNode } from '../generators/utils.ts'
+import { buildLegacyResponsesSchemaNode, buildLegacyResponseUnionSchemaNode } from '../generators/utils.ts'
 import type { PluginTs } from '../types.ts'
 import { resolverTs } from './resolverTs.ts'
 
@@ -83,26 +83,47 @@ export const resolverTsLegacy = defineResolver<PluginTs>(() => {
     resolveHeaderParamsTypedName(node) {
       return this.resolveTypedName(`${node.operationId} HeaderParams`)
     },
-    buildPathParamsSchema(node, pathParams) {
-      if (pathParams.length === 0) {
-        return null
+    /**
+     * Overrides `resolveParamName` to handle synthetic grouped `ParameterNode`s
+     * created by `createLegacyOperationTransformer` (those with `name === 'Params'`).
+     *
+     * Using the dedicated `resolvePathParamsName` / `resolveQueryParamsName` /
+     * `resolveHeaderParamsName` methods avoids the `this.default(param.in)` intermediate
+     * step that would cause double-wrapping when the resolver's `default()` function is
+     * overridden (e.g. in tests that append a naming suffix).
+     */
+    resolveParamName(node, param) {
+      if (param.name === 'Params') {
+        switch (param.in) {
+          case 'path':
+            return this.resolvePathParamsName!(node)
+          case 'query':
+            return this.resolveQueryParamsName!(node)
+          case 'header':
+            return this.resolveHeaderParamsName!(node)
+        }
       }
 
-      return buildGroupedParamsSchema({ params: pathParams, parentName: this.resolvePathParamsTypedName!(node) })
+      return resolverTs.resolveParamName.call(this, node, param)
     },
-    buildQueryParamsSchema(node, queryParams) {
-      if (queryParams.length === 0) {
-        return null
+    /**
+     * Overrides `resolveParamTypedName` to handle synthetic grouped `ParameterNode`s.
+     *
+     * See {@link resolveParamName} for details on why this override is necessary.
+     */
+    resolveParamTypedName(node, param) {
+      if (param.name === 'Params') {
+        switch (param.in) {
+          case 'path':
+            return this.resolvePathParamsTypedName!(node)
+          case 'query':
+            return this.resolveQueryParamsTypedName!(node)
+          case 'header':
+            return this.resolveHeaderParamsTypedName!(node)
+        }
       }
 
-      return buildGroupedParamsSchema({ params: queryParams, parentName: this.resolveQueryParamsTypedName!(node) })
-    },
-    buildHeaderParamsSchema(node, headerParams) {
-      if (headerParams.length === 0) {
-        return null
-      }
-
-      return buildGroupedParamsSchema({ params: headerParams, parentName: this.resolveHeaderParamsTypedName!(node) })
+      return resolverTs.resolveParamTypedName.call(this, node, param)
     },
     buildDataSchema(_node) {
       return null

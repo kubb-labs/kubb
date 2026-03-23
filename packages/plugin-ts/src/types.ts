@@ -188,28 +188,11 @@ export type ResolverTs = Resolver & {
    */
   resolveHeaderParamsTypedName?(node: OperationNode): string
   /**
-   * Builds the grouped path parameters schema (inline object with each path param's schema).
-   * Only defined in legacy mode — the generator uses its presence to detect grouped-param mode.
-   * Returns `null` when the operation has no path parameters.
-   *
-   * @deprecated Legacy only — will be removed in v6. Use `resolveParamName` per individual parameter instead.
-   */
-  buildPathParamsSchema?(node: OperationNode, pathParams: Array<ParameterNode>): SchemaNode | null
-  /**
    * Builds the `QueryParams` schema.
    * - Non-legacy: an object with refs to individual query param types (aggregate type).
-   * - Legacy: an inline object embedding each query param's schema directly.
    * Returns `null` when there are no query parameters.
    */
   buildQueryParamsSchema?(node: OperationNode, queryParams: Array<ParameterNode>): SchemaNode | null
-  /**
-   * Builds the grouped header parameters schema (inline object with each header param's schema).
-   * Only defined in legacy mode.
-   * Returns `null` when the operation has no header parameters.
-   *
-   * @deprecated Legacy only — will be removed in v6. Use `resolveParamName` per individual parameter instead.
-   */
-  buildHeaderParamsSchema?(node: OperationNode, headerParams: Array<ParameterNode>): SchemaNode | null
   /**
    * Builds the `RequestConfig` schema (`data`, `pathParams`, `queryParams`, `headerParams`, `url`).
    * Returns `null` in legacy mode (not generated in legacy output).

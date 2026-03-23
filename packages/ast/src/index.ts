@@ -26,5 +26,6 @@ export {
 } from './guards.ts'
 export { definePrinter } from './printer.ts'
 export { buildRefMap, refMapToObject, resolveRef } from './refs.ts'
+export { createLegacyOperationTransformer } from './transformers.ts'
 export { applyParamsCasing, isPlainStringType } from './utils.ts'
 export { collect, composeTransformers, transform, walk } from './visitor.ts'
