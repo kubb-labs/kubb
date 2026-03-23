@@ -1,5 +1,5 @@
 import type { RootNode } from '@kubb/ast/types'
-import { useApp } from '@kubb/react-fabric'
+import { useFabric } from '@kubb/react-fabric'
 
 /**
  * Returns the universal `@kubb/ast` `RootNode` produced by the configured adapter.
@@ -19,7 +19,7 @@ import { useApp } from '@kubb/react-fabric'
  * ```
  */
 export function useRootNode(): RootNode | undefined {
-  const { meta } = useApp<{ pluginManager?: { rootNode?: RootNode } }>()
+  const { meta } = useFabric<{ pluginManager?: { rootNode?: RootNode } }>()
 
   return meta.pluginManager?.rootNode
 }

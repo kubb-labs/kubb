@@ -1,8 +1,8 @@
-import { useApp } from '@kubb/react-fabric'
+import { useFabric } from '@kubb/react-fabric'
 import type { PluginManager } from '../PluginManager.ts'
 
 export function usePluginManager(): PluginManager {
-  const { meta } = useApp<{ pluginManager: PluginManager }>()
+  const { meta } = useFabric<{ pluginManager: PluginManager }>()
 
   return meta.pluginManager
 }

@@ -80,7 +80,7 @@
     "@types/swagger2openapi": "^7.0.4"
   },
   "peerDependencies": {
-    "@kubb/fabric-core": "0.13.3"
+    "@kubb/fabric-core": "0.14.0"
   },
   "engines": {
     "node": ">=20"

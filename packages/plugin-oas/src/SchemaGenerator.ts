@@ -3,7 +3,7 @@ import type { AsyncEventEmitter, FileMetaBase, KubbEvents, Plugin, PluginFactory
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'
-import type { Fabric } from '@kubb/react-fabric'
+import type { Fabric } from '@kubb/react-fabric/types'
 import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import type { CoreGenerator } from './generators/createGenerator.ts'

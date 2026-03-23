@@ -1,7 +1,8 @@
 import type { OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { Config, Plugin, PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
-import { App, createReactFabric, type Fabric } from '@kubb/react-fabric'
+import { createReactFabric, Fabric } from '@kubb/react-fabric'
+import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
 import type { OperationGenerator } from './OperationGenerator.ts'
 import type { SchemaGenerator, SchemaGeneratorOptions } from './SchemaGenerator.ts'
@@ -9,7 +10,7 @@ import type { Schema } from './SchemaMapper.ts'
 
 type BuildOperationsBaseOptions<TOptions extends PluginFactoryOptions> = {
   config: Config
-  fabric: Fabric
+  fabric: FabricType
   plugin: Plugin<TOptions>
 }
 
@@ -55,16 +56,16 @@ export async function buildOperations<TOptions extends PluginFactoryOptions>(
     const { pluginManager, oas, mode } = generator.context
 
     await fabricChild.render(
-      <App meta={{ pluginManager, plugin, mode, oas }}>
+      <Fabric meta={{ pluginManager, plugin, mode, oas }}>
         <Component config={config} operations={operationsOrNodes as Array<Operation>} generator={generator} plugin={plugin} />
-      </App>,
+      </Fabric>,
     )
   } else {
     const { Component } = options
     await fabricChild.render(
-      <App meta={{ plugin }}>
+      <Fabric meta={{ plugin }}>
         <Component config={config} nodes={operationsOrNodes as Array<OperationNode>} plugin={plugin} />
-      </App>,
+      </Fabric>,
     )
   }
 
@@ -74,7 +75,7 @@ export async function buildOperations<TOptions extends PluginFactoryOptions>(
 
 type BuildOperationBaseOptions<TOptions extends PluginFactoryOptions> = {
   config: Config
-  fabric: Fabric
+  fabric: FabricType
   plugin: Plugin<TOptions>
 }
 
@@ -114,16 +115,16 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
     const { pluginManager, oas, mode } = generator.context
 
     await fabricChild.render(
-      <App meta={{ pluginManager, plugin, mode, oas }}>
+      <Fabric meta={{ pluginManager, plugin, mode, oas }}>
         <Component config={config} operation={operationOrNode as Operation} plugin={plugin} generator={generator} />
-      </App>,
+      </Fabric>,
     )
   } else {
     const { Component } = options
     await fabricChild.render(
-      <App meta={{ plugin }}>
+      <Fabric meta={{ plugin }}>
         <Component config={config} node={operationOrNode as OperationNode} plugin={plugin} />
-      </App>,
+      </Fabric>,
     )
   }
 
@@ -133,7 +134,7 @@ export async function buildOperation<TOptions extends PluginFactoryOptions>(
 
 type BuildSchemaBaseOptions<TOptions extends PluginFactoryOptions> = {
   config: Config
-  fabric: Fabric
+  fabric: FabricType
   plugin: Plugin<TOptions>
 }
 
@@ -176,16 +177,16 @@ export async function buildSchema<TOptions extends PluginFactoryOptions>(
     const { pluginManager, oas, mode } = generator.context
 
     await fabricChild.render(
-      <App meta={{ pluginManager, plugin, mode, oas }}>
+      <Fabric meta={{ pluginManager, plugin, mode, oas }}>
         <Component config={config} schema={schema as { name: string; tree: Array<Schema>; value: SchemaObject }} plugin={plugin} generator={generator} />
-      </App>,
+      </Fabric>,
     )
   } else {
     const { Component } = options
     await fabricChild.render(
-      <App meta={{ plugin }}>
+      <Fabric meta={{ plugin }}>
         <Component config={config} node={schema as SchemaNode} plugin={plugin} />
-      </App>,
+      </Fabric>,
     )
   }
 

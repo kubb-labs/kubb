@@ -1,7 +1,7 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
 import type { RootNode } from '@kubb/ast/types'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import type { Fabric } from '@kubb/react-fabric'
+import type { Fabric } from '@kubb/react-fabric/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { DefineStorage } from './defineStorage.ts'
 import type { KubbEvents } from './Kubb.ts'
