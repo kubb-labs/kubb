@@ -1,6 +1,6 @@
 import type { Visitor } from '@kubb/ast/types'
-import { definePreset, mergeResolvers } from '@kubb/core'
 import type { Preset } from '@kubb/core'
+import { definePreset, mergeResolvers } from '@kubb/core'
 import { resolverTs, resolverTsHeyapi, resolverTsLegacy, resolverTsOrval } from './resolvers/index.ts'
 import type { CompatibilityPreset, ResolverTs } from './types.ts'
 
