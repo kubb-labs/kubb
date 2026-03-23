@@ -149,7 +149,6 @@ describe('typeGenerator v2 — Operation', () => {
     enumKeyCasing: 'none',
     optionalType: 'questionToken',
     arrayType: 'array',
-    transformers: {},
     syntaxType: 'type',
     override: [],
     paramsCasing: undefined,
@@ -157,6 +156,7 @@ describe('typeGenerator v2 — Operation', () => {
     group: undefined,
     resolver: resolverTs,
     legacy: false,
+    transformers: [],
   }
 
   test.each(testData)('$name', async (props) => {
@@ -194,7 +194,6 @@ describe('typeGenerator v2 — Operation — group', () => {
     enumKeyCasing: 'none',
     optionalType: 'questionToken',
     arrayType: 'array',
-    transformers: {},
     syntaxType: 'type',
     override: [],
     paramsCasing: undefined,
@@ -202,6 +201,7 @@ describe('typeGenerator v2 — Operation — group', () => {
     group: undefined,
     resolver: resolverTs,
     legacy: false,
+    transformers: [],
   }
 
   const node = createOperation({
@@ -293,7 +293,6 @@ describe('typeGenerator v2 — Schema (enum)', () => {
     enumKeyCasing: 'none',
     optionalType: 'questionToken',
     arrayType: 'array',
-    transformers: {},
     syntaxType: 'type',
     override: [],
     paramsCasing: undefined,
@@ -301,6 +300,7 @@ describe('typeGenerator v2 — Schema (enum)', () => {
     group: undefined,
     resolver: resolverTs,
     legacy: false,
+    transformers: [],
   }
 
   const enumTypes = ['asConst', 'asPascalConst', 'constEnum', 'enum', 'literal', 'inlineLiteral'] as const
@@ -337,7 +337,6 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     enumKeyCasing: 'none',
     optionalType: 'questionToken',
     arrayType: 'array',
-    transformers: {},
     syntaxType: 'type',
     override: [],
     paramsCasing: undefined,
@@ -345,6 +344,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     group: undefined,
     resolver: resolverTsLegacy,
     legacy: true,
+    transformers: [],
   }
 
   const testData = [
@@ -453,8 +453,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
   })
 
   test('legacy — createPets with header param enum and name transformer — no Type infix in enum name', async () => {
-    // Simulate what plugin.ts does when transformers.name is configured:
-    // wrap the resolver's default() so every resolved name goes through the transformer.
+    // Wrap the resolver's default() so every resolved name goes through a custom transform.
     const wrappedResolver: typeof resolverTsLegacy = {
       ...resolverTsLegacy,
       default(name, type) {
@@ -466,7 +465,6 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     const options: PluginTs['resolvedOptions'] = {
       ...legacyOptions,
       resolver: wrappedResolver,
-      baseResolver: resolverTsLegacy,
     }
 
     const node = createOperation({
@@ -514,7 +512,6 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     const options: PluginTs['resolvedOptions'] = {
       ...legacyOptions,
       resolver: wrappedResolver,
-      baseResolver: resolverTsLegacy,
     }
 
     const node = createOperation({
@@ -558,7 +555,6 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     const options: PluginTs['resolvedOptions'] = {
       ...legacyOptions,
       resolver: wrappedResolver,
-      baseResolver: resolverTsLegacy,
     }
 
     const node = createOperation({

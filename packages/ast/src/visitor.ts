@@ -256,6 +256,33 @@ export function transform(node: Node, visitor: Visitor, options: VisitorOptions 
 }
 
 /**
+ * Combines multiple visitors into a single visitor that applies them sequentially (left to right).
+ * For each node kind, the output of one visitor becomes the input of the next.
+ */
+export function composeTransformers(...visitors: Array<Visitor>): Visitor {
+  return {
+    root(node) {
+      return visitors.reduce<RootNode>((acc, v) => v.root?.(acc) ?? acc, node)
+    },
+    operation(node) {
+      return visitors.reduce<OperationNode>((acc, v) => v.operation?.(acc) ?? acc, node)
+    },
+    schema(node) {
+      return visitors.reduce<SchemaNode>((acc, v) => v.schema?.(acc) ?? acc, node)
+    },
+    property(node) {
+      return visitors.reduce<PropertyNode>((acc, v) => v.property?.(acc) ?? acc, node)
+    },
+    parameter(node) {
+      return visitors.reduce<ParameterNode>((acc, v) => v.parameter?.(acc) ?? acc, node)
+    },
+    response(node) {
+      return visitors.reduce<ResponseNode>((acc, v) => v.response?.(acc) ?? acc, node)
+    },
+  }
+}
+
+/**
  * Depth-first synchronous reduction. Collects non-`undefined` visitor return values into an array.
  */
 export function collect<T>(node: Node, visitor: CollectVisitor<T>, options: VisitorOptions = {}): Array<T> {

@@ -1,9 +1,11 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
+import { createProperty, createSchema } from './factory.ts'
 import { buildSampleTree } from './mocks.ts'
 import type { OperationNode } from './nodes/operation.ts'
+import type { PropertyNode } from './nodes/property.ts'
 import type { RootNode } from './nodes/root.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { collect, transform, walk } from './visitor.ts'
+import { collect, composeTransformers, transform, walk } from './visitor.ts'
 
 describe('walk', () => {
   it('visits all node kinds in a tree', async () => {
@@ -208,6 +210,165 @@ describe('transform', () => {
     expect(types).toContain('integer')
     // 'string' (Pet.name property schema) is NOT visited — guarded by depth
     expect(types).not.toContain('string')
+  })
+})
+
+describe('composeTransformers', () => {
+  it('returns a no-op visitor when given no arguments', () => {
+    const root = buildSampleTree()
+    const result = transform(root, composeTransformers())
+
+    expect(result.operations[0]?.operationId).toBe('getPetById')
+  })
+
+  it('single visitor behaves identically to using it directly', () => {
+    const root = buildSampleTree()
+
+    const visitor = {
+      operation(op: OperationNode): OperationNode {
+        return { ...op, operationId: `prefixed_${op.operationId}` }
+      },
+    }
+
+    const direct = transform(root, visitor)
+    const composed = transform(root, composeTransformers(visitor))
+
+    expect(direct.operations[0]?.operationId).toBe(composed.operations[0]?.operationId)
+    expect(composed.operations[0]?.operationId).toBe('prefixed_getPetById')
+  })
+
+  it('chains multiple schema visitors left to right', () => {
+    const node = createSchema({ type: 'object', name: 'Test', properties: [] })
+
+    const first = {
+      schema(s: SchemaNode): SchemaNode {
+        return { ...s, description: 'first' }
+      },
+    }
+    const second = {
+      schema(s: SchemaNode): SchemaNode {
+        return { ...s, description: `${s.description}+second` }
+      },
+    }
+
+    const result = transform(node, composeTransformers(first, second))
+
+    expect(result.description).toBe('first+second')
+  })
+
+  it('later visitor sees changes from earlier visitor', () => {
+    const node = createSchema({
+      type: 'object',
+      name: 'Pet',
+      properties: [
+        createProperty({ name: 'age', schema: createSchema({ type: 'integer' }), required: true }),
+      ],
+    })
+
+    const makeOptional = {
+      property(p: PropertyNode): PropertyNode {
+        return { ...p, required: false }
+      },
+    }
+    const checkOptional = {
+      property(p: PropertyNode): PropertyNode | void {
+        if (!p.required) {
+          return { ...p, name: `optional_${p.name}` }
+        }
+      },
+    }
+
+    const result = transform(node, composeTransformers(makeOptional, checkOptional))
+
+    if (result.type === 'object') {
+      expect(result.properties[0]?.name).toBe('optional_age')
+      expect(result.properties[0]?.required).toBe(false)
+    }
+  })
+
+  it('visitors without matching handler pass node through', () => {
+    const node = createSchema({ type: 'string', name: 'Name' })
+
+    const operationOnly = {
+      operation(op: OperationNode): OperationNode {
+        return { ...op, operationId: 'changed' }
+      },
+    }
+
+    const result = transform(node, composeTransformers(operationOnly))
+
+    expect(result.type).toBe('string')
+    expect(result.name).toBe('Name')
+  })
+
+  it('no-op visitor returns node unchanged', () => {
+    const node = createSchema({ type: 'string' })
+    const result = transform(node, composeTransformers({}))
+
+    expect(result).toEqual(node)
+  })
+
+  it('single visitor modifies schema type', () => {
+    const node = createSchema({ type: 'date', representation: 'string' })
+
+    const result = transform(node, composeTransformers({
+      schema(n): SchemaNode {
+        if (n.type === 'date') {
+          return createSchema({ type: 'string', name: n.name })
+        }
+        return n
+      },
+    }))
+
+    expect(result.type).toBe('string')
+  })
+
+  it('property-level visitor modifies properties', () => {
+    const node = createSchema({
+      type: 'object',
+      name: 'User',
+      properties: [
+        createProperty({ name: 'email', schema: createSchema({ type: 'string' }), required: true }),
+        createProperty({ name: 'password', schema: createSchema({ type: 'string' }), required: true }),
+      ],
+    })
+
+    const result = transform(node, composeTransformers({
+      property(n): PropertyNode | void {
+        if (n.name === 'password') {
+          return { ...n, required: false }
+        }
+      },
+    }))
+
+    expect(result.type).toBe('object')
+
+    if (result.type === 'object') {
+      const passwordProp = result.properties.find((p) => p.name === 'password')
+      expect(passwordProp?.required).toBe(false)
+    }
+  })
+
+  it('schema visitor replaces enum with string', () => {
+    const node = createSchema({
+      type: 'enum',
+      name: 'Status',
+      values: [
+        { value: 'active', name: 'active' },
+        { value: 'inactive', name: 'inactive' },
+      ],
+    })
+
+    const result = transform(node, composeTransformers({
+      schema(n) {
+        if (n.type === 'enum') {
+          return createSchema({ type: 'string', name: n.name })
+        }
+      },
+    }))
+
+    expect(result.type).toBe('string')
+    expect(result.name).toBe('Status')
   })
 })
 

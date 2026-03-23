@@ -5,10 +5,11 @@ import type { PluginFactoryOptions, ResolveNameParams, ResolveOptionsContext } f
 
 /**
  * Builder type for the plugin-specific resolver fields.
- * `default` and `resolveOptions` are optional — built-in fallbacks are used when omitted.
+ * `default`, `resolveOptions`, and `name` are optional — built-in fallbacks are used when omitted.
  */
-type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<T['resolver'], 'default' | 'resolveOptions'> &
+type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<T['resolver'], 'default' | 'resolveOptions' | 'name'> &
   Partial<Pick<T['resolver'], 'default' | 'resolveOptions'>> &
+  { name: string } &
   ThisType<T['resolver']>
 
 /**
@@ -111,6 +112,7 @@ export function defaultResolveOptions<TOptions>(
  *
  * @example
  * export const resolver = defineResolver<PluginTs>(() => ({
+ *   name: 'default',
  *   resolveName(name) {
  *     return this.default(name, 'function')
  *   },
