@@ -11,6 +11,7 @@ import {
   buildGroupedParamsSchema,
   buildLegacyResponsesSchemaNode,
   buildLegacyResponseUnionSchemaNode,
+  buildParamsSchema,
   buildResponsesSchemaNode,
   buildResponseUnionSchemaNode,
   nameUnnamedEnums,
@@ -168,6 +169,16 @@ export const typeGenerator = defineGenerator<PluginTs>({
       }),
     )
 
+    const queryParamsList = params.filter((p) => p.in === 'query')
+    const queryParamsType =
+      queryParamsList.length > 0
+        ? renderSchemaType({
+            node: buildParamsSchema({ params: queryParamsList, node, resolver }),
+            name: resolver.resolveQueryParamsName!(node),
+            typedName: resolver.resolveQueryParamsTypedName!(node),
+          })
+        : null
+
     const dataType = renderSchemaType({
       node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolver }),
       name: resolver.resolveRequestConfigName(node),
@@ -190,6 +201,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta} banner={resolveBanner()} footer={resolveFooter()}>
         {paramTypes}
+        {queryParamsType}
         {responseTypes}
         {requestType}
         {dataType}

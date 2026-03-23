@@ -74,7 +74,7 @@
 | T6 | Low | ✅ Fixed | plugin-ts | `MutationResponse` placement in grouped type |
 | T7 | Low | ✅ Fixed | plugin-ts | `@description` on response alias type |
 | N-AggType | Medium | ✅ By design | plugin-ts | `export interface Xxx` instead of `export type Xxx = {` |
-| N-QueryParams | Medium | ❌ Open | plugin-ts | `QueryParams` missing from aggregated operation type |
+| N-QueryParams | Medium | ✅ Fixed | plugin-ts | `QueryParams` missing from aggregated operation type |
 | E1 | High | ❌ Open | plugin-ts | Path param `$ref` typed as `any` instead of named type |
 | E2 | Medium | ✅ Fixed | plugin-ts | Discriminant not embedded in union members |
 | E3 | Medium | ❌ Open | plugin-ts | `const` discriminator values → enum+key type instead of literal |
