@@ -1,5 +1,5 @@
-import type { OperationNode, ParameterNode, SchemaNode, StatusCode } from '@kubb/ast/types'
-import type { Group, Output, PluginFactoryOptions, ResolveNameParams, Resolver } from '@kubb/core'
+import type { OperationNode, ParameterNode, SchemaNode, StatusCode, Visitor } from '@kubb/ast/types'
+import type { Group, Output, PluginFactoryOptions, Resolver } from '@kubb/core'
 import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
@@ -260,12 +260,6 @@ export type Options = {
    * @default 'array'
    */
   arrayType?: 'generic' | 'array'
-  transformers?: {
-    /**
-     * Customize the names based on the type that is provided by the plugin.
-     */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
-  }
   /**
    * How to style your params, by default no casing is applied
    * - 'camelcase' uses camelCase for pathParams, queryParams and headerParams property names
@@ -283,15 +277,39 @@ export type Options = {
   UNSTABLE_NAMING?: true
   /**
    * Enable legacy naming conventions for backwards compatibility.
-   * When enabled, operation-level types use the old naming scheme:
-   * - GET responses → `<OperationId>QueryResponse`, `<OperationId>Query`
-   * - Non-GET responses → `<OperationId>MutationResponse`, `<OperationId>Mutation`
-   * - Request body → `<OperationId>QueryRequest` / `<OperationId>MutationRequest`
-   * - Response status codes → `<OperationId><StatusCode>` (e.g. `CreatePets201`)
-   * - Default/error response → `<OperationId>Error`
    * @default false
    */
   legacy?: boolean
+  /**
+   * Array of named resolvers that control naming conventions.
+   * Later entries override earlier ones (last wins).
+   * Built-in: `resolverTs` (default), `resolverTsLegacy`.
+   * @default [resolverTs]
+   */
+  resolvers?: Array<ResolverTs>
+  /**
+   * Array of AST visitors applied to each SchemaNode/OperationNode before printing.
+   * Uses `transform()` from `@kubb/ast` — visitors can modify, replace, or annotate nodes.
+   *
+   * @example Remove writeOnly properties from response types
+   * ```ts
+   * transformers: [{
+   *   property(node) {
+   *     if (node.schema.writeOnly) return undefined
+   *   }
+   * }]
+   * ```
+   *
+   * @example Force all dates to plain strings
+   * ```ts
+   * transformers: [{
+   *   schema(node) {
+   *     if (node.type === 'date') return { ...node, type: 'string' }
+   *   }
+   * }]
+   * ```
+   */
+  transformers?: Array<Visitor>
 }
 
 type ResolvedOptions = {
@@ -302,18 +320,17 @@ type ResolvedOptions = {
   enumKeyCasing: NonNullable<Options['enumKeyCasing']>
   optionalType: NonNullable<Options['optionalType']>
   arrayType: NonNullable<Options['arrayType']>
-  transformers: NonNullable<Options['transformers']>
   syntaxType: NonNullable<Options['syntaxType']>
   paramsCasing: Options['paramsCasing']
   legacy: NonNullable<Options['legacy']>
   resolver: ResolverTs
   /**
-   * The base resolver without any `transformers.name` wrapping.
-   * Used internally to derive enum prefix names so that user-defined
-   * name transformations (e.g. appending `Type`) are not embedded in
-   * the middle of inline-enum identifiers.
+   * The resolver without user naming overrides applied.
+   * Used internally to derive stable names for unnamed enums and grouped params
+   * so that the schema tree stays consistent regardless of `transformers.name` / custom resolvers.
    */
-  baseResolver?: ResolverTs
+  baseResolver: ResolverTs
+  transformers: Array<Visitor>
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>

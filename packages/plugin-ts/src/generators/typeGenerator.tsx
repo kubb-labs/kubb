@@ -1,4 +1,4 @@
-import { applyParamsCasing } from '@kubb/ast'
+import { applyParamsCasing, composeTransformers, transform } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
 import { useKubb } from '@kubb/core/hooks'
@@ -21,7 +21,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Operation({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver, baseResolver, legacy } = options
+    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver, baseResolver, legacy, transformers = [] } = options
     const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     const file = getFile({
@@ -51,7 +51,9 @@ export const typeGenerator = defineGenerator<PluginTs>({
         return null
       }
 
-      const imports = adapter.getImports(schemaNode, (schemaName) => ({
+      const transformedNode = transform(schemaNode, composeTransformers(...transformers))
+
+      const imports = adapter.getImports(transformedNode, (schemaName) => ({
         name: resolver.default(schemaName, 'type'),
         path: getFile({ name: schemaName, extname: '.ts', mode }).path,
       }))
@@ -63,7 +65,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
           <Type
             name={name}
             typedName={typedName}
-            node={schemaNode}
+            node={transformedNode}
             description={description}
             enumType={enumType}
             enumKeyCasing={enumKeyCasing}
@@ -81,7 +83,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     const responseTypes = legacy
       ? node.responses.map((res) => {
           const responseName = resolver.resolveResponseStatusName(node, res.statusCode)
-          const baseResponseName = (baseResolver ?? resolver).resolveResponseStatusName(node, res.statusCode)
+          const baseResponseName = baseResolver.resolveResponseStatusName(node, res.statusCode)
 
           return renderSchemaType({
             node: res.schema ? nameUnnamedEnums(res.schema, baseResponseName) : res.schema,
@@ -103,7 +105,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
     const requestType = node.requestBody?.schema
       ? renderSchemaType({
-          node: legacy ? nameUnnamedEnums(node.requestBody.schema, (baseResolver ?? resolver).resolveDataName(node)) : node.requestBody.schema,
+          node: legacy ? nameUnnamedEnums(node.requestBody.schema, baseResolver.resolveDataName(node)) : node.requestBody.schema,
           name: resolver.resolveDataName(node),
           typedName: resolver.resolveDataTypedName(node),
           description: node.requestBody.description ?? node.requestBody.schema.description,
@@ -119,21 +121,21 @@ export const typeGenerator = defineGenerator<PluginTs>({
       const legacyParamTypes = [
         pathParams.length > 0
           ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: pathParams, parentName: (baseResolver ?? resolver).resolvePathParamsName!(node) }),
+              node: buildGroupedParamsSchema({ params: pathParams, parentName: baseResolver.resolvePathParamsName!(node) }),
               name: resolver.resolvePathParamsName!(node),
               typedName: resolver.resolvePathParamsTypedName!(node),
             })
           : null,
         queryParams.length > 0
           ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: queryParams, parentName: (baseResolver ?? resolver).resolveQueryParamsName!(node) }),
+              node: buildGroupedParamsSchema({ params: queryParams, parentName: baseResolver.resolveQueryParamsName!(node) }),
               name: resolver.resolveQueryParamsName!(node),
               typedName: resolver.resolveQueryParamsTypedName!(node),
             })
           : null,
         headerParams.length > 0
           ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: headerParams, parentName: (baseResolver ?? resolver).resolveHeaderParamsName!(node) }),
+              node: buildGroupedParamsSchema({ params: headerParams, parentName: baseResolver.resolveHeaderParamsName!(node) }),
               name: resolver.resolveHeaderParamsName!(node),
               typedName: resolver.resolveHeaderParamsTypedName!(node),
             })
@@ -213,14 +215,16 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
   },
   Schema({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver, legacy } = options
+    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver, legacy, transformers = [] } = options
     const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     if (!node.name) {
       return
     }
 
-    const imports = adapter.getImports(node, (schemaName) => ({
+    const transformedNode = transform(node, composeTransformers(...transformers))
+
+    const imports = adapter.getImports(transformedNode, (schemaName) => ({
       name: resolver.default(schemaName, 'type'),
       path: getFile({ name: schemaName, extname: '.ts', mode }).path,
     }))
@@ -244,7 +248,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
         <Type
           name={type.name}
           typedName={type.typedName}
-          node={node}
+          node={transformedNode}
           enumType={enumType}
           enumKeyCasing={enumKeyCasing}
           optionalType={optionalType}

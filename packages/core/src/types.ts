@@ -284,6 +284,7 @@ export type ResolveOptionsContext<TOptions> = {
  * Concrete plugin resolver types extend this with their own helper methods.
  */
 export type Resolver = {
+  name: string
   default(name: ResolveNameParams['name'], type?: ResolveNameParams['type']): string
   resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
 }

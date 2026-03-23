@@ -61,26 +61,47 @@ export function createSchema(props: Record<string, unknown>): Record<string, unk
 }
 
 /**
+ * Derives `schema.optional` and `schema.nullish` from `required` and `schema.nullable`.
+ * This keeps `PropertyNode.required` as the single source of truth for optionality.
+ */
+export function syncPropertySchema(required: boolean, schema: SchemaNode): SchemaNode {
+  const nullable = schema.nullable ?? false
+
+  return {
+    ...schema,
+    optional: !required && !nullable ? true : undefined,
+    nullish: !required && nullable ? true : undefined,
+  }
+}
+
+/**
  * Creates a `PropertyNode`. `required` defaults to `false`.
+ * `schema.optional` and `schema.nullish` are auto-derived from `required` and `schema.nullable`.
  */
 export function createProperty(props: Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<PropertyNode, 'kind' | 'name' | 'schema'>>): PropertyNode {
+  const required = props.required ?? false
+
   return {
-    required: false,
     ...props,
     kind: 'Property',
+    required,
+    schema: syncPropertySchema(required, props.schema),
   }
 }
 
 /**
  * Creates a `ParameterNode`. `required` defaults to `false`.
+ * `schema.optional` is auto-derived from `required` and `schema.nullable`.
  */
 export function createParameter(
   props: Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial<Omit<ParameterNode, 'kind' | 'name' | 'in' | 'schema'>>,
 ): ParameterNode {
+  const required = props.required ?? false
   return {
-    required: false,
     ...props,
     kind: 'Parameter',
+    required,
+    schema: syncPropertySchema(required, props.schema),
   }
 }
 

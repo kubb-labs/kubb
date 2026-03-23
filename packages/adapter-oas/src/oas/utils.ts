@@ -323,15 +323,14 @@ export function extractSchemaFromContent(content: Record<string, unknown> | unde
  * Returns the PascalCase suffix appended to a component name when resolving
  * cross-source name collisions (schemas vs. responses vs. requestBodies).
  */
+const semanticSuffixes: Record<SchemaSourceMode, string> = {
+  schemas: 'Schema',
+  responses: 'Response',
+  requestBodies: 'Request',
+}
+
 function getSemanticSuffix(source: SchemaSourceMode): string {
-  switch (source) {
-    case 'schemas':
-      return 'Schema'
-    case 'responses':
-      return 'Response'
-    case 'requestBodies':
-      return 'Request'
-  }
+  return semanticSuffixes[source]
 }
 
 /**

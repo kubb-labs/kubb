@@ -9,6 +9,7 @@ export {
   createResponse,
   createRoot,
   createSchema,
+  syncPropertySchema,
 } from './factory.ts'
 export { functionPrinter } from './functionPrinter.ts'
 export {
@@ -26,4 +27,4 @@ export {
 export { definePrinter } from './printer.ts'
 export { buildRefMap, refMapToObject, resolveRef } from './refs.ts'
 export { applyParamsCasing, isPlainStringType } from './utils.ts'
-export { collect, transform, walk } from './visitor.ts'
+export { collect, composeTransformers, transform, walk } from './visitor.ts'

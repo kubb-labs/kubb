@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
-import { createPlugin, type Group, getBarrelFiles, getMode, renderOperation, renderSchema } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode, mergeResolvers, renderOperation, renderSchema } from '@kubb/core'
 import { typeGenerator } from './generators/index.ts'
 import { resolverTs, resolverTsLegacy } from './resolvers/index.ts'
 import type { PluginTs } from './types.ts'
@@ -20,27 +20,15 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     optionalType = 'questionToken',
     arrayType = 'array',
     syntaxType = 'type',
-    transformers = {},
     paramsCasing,
     generators = [typeGenerator].filter(Boolean),
     legacy = false,
+    resolvers: userResolvers,
+    transformers = [],
   } = options
 
   const baseResolver = legacy ? resolverTsLegacy : resolverTs
-
-  // When a `transformers.name` callback is provided, wrap the resolver so that
-  // every name produced by `default()` (and therefore by every helper that calls
-  // `this.default(...)`) flows through the user's transformer.
-  const resolver: typeof baseResolver = transformers?.name
-    ? {
-        ...baseResolver,
-        default(name, type) {
-          const resolved = baseResolver.default(name, type)
-
-          return transformers.name!(resolved, type) || resolved
-        },
-      }
-    : baseResolver
+  const resolver = mergeResolvers(...(userResolvers ?? [baseResolver]))
 
   let resolveNameWarning = false
 
@@ -48,7 +36,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     name: pluginTsName,
     options: {
       output,
-      transformers,
       optionalType,
       arrayType,
       enumType,
@@ -60,6 +47,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       legacy,
       resolver,
       baseResolver,
+      transformers,
     },
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
@@ -115,60 +103,57 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
       await openInStudio({ ast: true })
 
-      await walk(
-        rootNode,
-        {
-          async schema(schemaNode) {
-            const writeTasks = generators.map(async (generator) => {
-              if (generator.type === 'react' && generator.version === '2') {
-                const options = resolver.resolveOptions(schemaNode, { options: plugin.options, exclude, include, override })
+      await walk(rootNode, {
+        depth: 'shallow',
+        async schema(schemaNode) {
+          const writeTasks = generators.map(async (generator) => {
+            if (generator.type === 'react' && generator.version === '2') {
+              const options = resolver.resolveOptions(schemaNode, { options: plugin.options, exclude, include, override })
 
-                if (options === null) {
-                  return
-                }
-
-                await renderSchema(schemaNode, {
-                  options,
-                  adapter,
-                  config,
-                  fabric,
-                  Component: generator.Schema,
-                  plugin,
-                  driver,
-                  mode,
-                })
+              if (options === null) {
+                return
               }
-            })
 
-            await Promise.all(writeTasks)
-          },
-          async operation(operationNode) {
-            const writeTasks = generators.map(async (generator) => {
-              if (generator.type === 'react' && generator.version === '2') {
-                const options = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
+              await renderSchema(schemaNode, {
+                options,
+                adapter,
+                config,
+                fabric,
+                Component: generator.Schema,
+                plugin,
+                driver,
+                mode,
+              })
+            }
+          })
 
-                if (options === null) {
-                  return
-                }
-
-                await renderOperation(operationNode, {
-                  options,
-                  adapter,
-                  config,
-                  fabric,
-                  Component: generator.Operation,
-                  plugin,
-                  driver,
-                  mode,
-                })
-              }
-            })
-
-            await Promise.all(writeTasks)
-          },
+          await Promise.all(writeTasks)
         },
-        { depth: 'shallow' },
-      )
+        async operation(operationNode) {
+          const writeTasks = generators.map(async (generator) => {
+            if (generator.type === 'react' && generator.version === '2') {
+              const options = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
+
+              if (options === null) {
+                return
+              }
+
+              await renderOperation(operationNode, {
+                options,
+                adapter,
+                config,
+                fabric,
+                Component: generator.Operation,
+                plugin,
+                driver,
+                mode,
+              })
+            }
+          })
+
+          await Promise.all(writeTasks)
+        },
+      })
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',

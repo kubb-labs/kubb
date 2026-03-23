@@ -21,10 +21,10 @@ export function buildParamsSchema({ params, node, resolver }: BuildParamsSchemaO
     properties: params.map((param) =>
       createProperty({
         name: param.name,
+        required: param.required,
         schema: createSchema({
           type: 'ref',
           name: resolver.resolveParamName(node, param),
-          optional: !param.required,
         }),
       }),
     ),
@@ -65,7 +65,8 @@ export function buildDataSchemaNode({ node, resolver }: BuildOperationSchemaOpti
       }),
       createProperty({
         name: 'pathParams',
-        schema: pathParams.length > 0 ? buildParamsSchema({ params: pathParams, node, resolver }) : createSchema({ type: 'never', optional: true }),
+        required: pathParams.length > 0,
+        schema: pathParams.length > 0 ? buildParamsSchema({ params: pathParams, node, resolver }) : createSchema({ type: 'never' }),
       }),
       createProperty({
         name: 'queryParams',
@@ -83,6 +84,7 @@ export function buildDataSchemaNode({ node, resolver }: BuildOperationSchemaOpti
       }),
       createProperty({
         name: 'url',
+        required: true,
         schema: createSchema({ type: 'url', path: node.path }),
       }),
     ],
@@ -104,6 +106,7 @@ export function buildResponsesSchemaNode({ node, resolver }: BuildOperationSchem
     properties: node.responses.map((res) =>
       createProperty({
         name: String(res.statusCode),
+        required: true,
         schema: createSchema({
           type: 'ref',
           name: resolver.resolveResponseStatusTypedName(node, res.statusCode),
@@ -154,13 +157,13 @@ export function buildGroupedParamsSchema({ params, parentName }: BuildGroupedPar
   return createSchema({
     type: 'object',
     properties: params.map((param) => {
-      let schema = { ...param.schema, optional: !param.required } as SchemaNode
-      // Name unnamed enum properties so they are emitted as enum declarations
+      let schema = param.schema
       if (narrowSchema(schema, 'enum') && !schema.name && parentName) {
         schema = { ...schema, name: pascalCase([parentName, param.name, 'enum'].join(' ')) }
       }
       return createProperty({
         name: param.name,
+        required: param.required,
         schema,
       })
     }),
@@ -202,12 +205,13 @@ export function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperatio
           })
       : createSchema({ type: 'any' })
 
-  const properties = [createProperty({ name: 'Response', schema: responseSchema })]
+  const properties = [createProperty({ name: 'Response', required: true, schema: responseSchema })]
 
   if (!isGet && node.requestBody?.schema) {
     properties.push(
       createProperty({
         name: 'Request',
+        required: true,
         schema: createSchema({ type: 'ref', name: resolver.resolveDataTypedName(node) }),
       }),
     )
@@ -217,6 +221,7 @@ export function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperatio
     properties.push(
       createProperty({
         name: 'QueryParams',
+        required: true,
         schema: createSchema({ type: 'ref', name: resolver.resolveQueryParamsTypedName(node) }),
       }),
     )
@@ -226,6 +231,7 @@ export function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperatio
     properties.push(
       createProperty({
         name: 'PathParams',
+        required: true,
         schema: createSchema({ type: 'ref', name: resolver.resolvePathParamsTypedName(node) }),
       }),
     )
@@ -235,12 +241,13 @@ export function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperatio
     properties.push(
       createProperty({
         name: 'HeaderParams',
+        required: true,
         schema: createSchema({ type: 'ref', name: resolver.resolveHeaderParamsTypedName(node) }),
       }),
     )
   }
 
-  properties.push(createProperty({ name: 'Errors', schema: errorsSchema }))
+  properties.push(createProperty({ name: 'Errors', required: true, schema: errorsSchema }))
 
   return createSchema({ type: 'object', properties })
 }
