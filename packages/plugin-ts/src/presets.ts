@@ -9,9 +9,9 @@ export type TsCompatibilityPreset = Preset<ResolverTs> & {
 }
 
 const tsPresetRegistry: Record<Exclude<CompatibilityPreset, 'none'>, TsCompatibilityPreset> = {
-  kubbV4: definePreset('kubbV4', [resolverTsLegacy]),
-  heyapi: definePreset('heyapi', [resolverTsHeyapi]),
-  orval: definePreset('orval', [resolverTsOrval]),
+  kubbV4: definePreset('kubbV4', { resolvers: [resolverTsLegacy] }),
+  heyapi: definePreset('heyapi', { resolvers: [resolverTsHeyapi] }),
+  orval: definePreset('orval', { resolvers: [resolverTsOrval] }),
 }
 
 export function getTsCompatibilityPreset(preset: CompatibilityPreset): TsCompatibilityPreset | undefined {
