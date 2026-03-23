@@ -7,6 +7,14 @@ import type { SchemaNode } from './nodes/schema.ts'
 export type RefMap = Map<string, SchemaNode>
 
 /**
+ * Extracts the final segment from a reference string.
+ * Falls back to the original string when no slash exists.
+ */
+export function extractRefName(ref: string): string {
+  return ref.split('/').at(-1) ?? ref
+}
+
+/**
  * Indexes named schemas from `root.schemas` by name. Unnamed schemas are skipped.
  */
 export function buildRefMap(root: RootNode): RefMap {
