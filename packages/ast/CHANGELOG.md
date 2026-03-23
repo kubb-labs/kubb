@@ -1,5 +1,16 @@
 # @kubb/ast
 
+## 5.0.0-alpha.13
+
+### Patch Changes
+
+- [#2858](https://github.com/kubb-labs/kubb/pull/2858) [`975717e`](https://github.com/kubb-labs/kubb/commit/975717e2c8cf8d33f5d9d641be4bb164fd36f423) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix missing `@description` on request body type aliases.
+
+  The OAS `requestBody.description` field (top-level on the request body object, distinct from the schema's own description) was silently dropped. It is now:
+  - Added as `description?: string` to `OperationNode.requestBody` in `@kubb/ast`
+  - Populated by `@kubb/adapter-oas` parser from `operation.schema.requestBody.description`
+  - Used by `@kubb/plugin-ts` typeGenerator: `requestBody.description` takes precedence, falling back to `requestBody.schema.description`
+
 ## 5.0.0-alpha.12
 
 ## 5.0.0-alpha.11
