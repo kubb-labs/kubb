@@ -1,5 +1,17 @@
 # @kubb/plugin-solid-query
 
+## 5.0.0-alpha.14
+
+### Patch Changes
+
+- Updated dependencies [[`591977c`](https://github.com/kubb-labs/kubb/commit/591977c5c2f167736d6e43126ed0387a1e5e0ce5)]:
+  - @kubb/core@5.0.0-alpha.14
+  - @kubb/plugin-ts@5.0.0-alpha.14
+  - @kubb/oas@5.0.0-alpha.14
+  - @kubb/plugin-client@5.0.0-alpha.14
+  - @kubb/plugin-oas@5.0.0-alpha.14
+  - @kubb/plugin-zod@5.0.0-alpha.14
+
 ## 5.0.0-alpha.13
 
 ### Patch Changes

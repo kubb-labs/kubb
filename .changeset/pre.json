@@ -64,6 +64,7 @@
     "plugin-ts-legacy-flag",
     "plugin-ts-legacy-naming-parity",
     "plugin-ts-remove-deprecated-options",
+    "plugin-ts-resolvers-transformers",
     "plugin-ts-v5-query-params-grouped-type",
     "pretty-schools-fly",
     "remove-mapper-plugin-ts",
