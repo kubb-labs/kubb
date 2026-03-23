@@ -21,7 +21,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Operation({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver, baseResolver, legacy, transformers = [] } = options
+    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver, baseResolver, transformers = [] } = options
     const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     const file = getFile({
@@ -74,13 +74,12 @@ export const typeGenerator = defineGenerator<PluginTs>({
             syntaxType={syntaxType}
             resolver={resolver}
             keysToOmit={keysToOmit}
-            legacy={legacy}
           />
         </>
       )
     }
 
-    const responseTypes = legacy
+    const responseTypes = resolver.isLegacy
       ? node.responses.map((res) => {
           const responseName = resolver.resolveResponseStatusName(node, res.statusCode)
           const baseResponseName = baseResolver.resolveResponseStatusName(node, res.statusCode)
@@ -105,7 +104,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
     const requestType = node.requestBody?.schema
       ? renderSchemaType({
-          node: legacy ? nameUnnamedEnums(node.requestBody.schema, baseResolver.resolveDataName(node)) : node.requestBody.schema,
+          node: resolver.isLegacy ? nameUnnamedEnums(node.requestBody.schema, baseResolver.resolveDataName(node)) : node.requestBody.schema,
           name: resolver.resolveDataName(node),
           typedName: resolver.resolveDataTypedName(node),
           description: node.requestBody.description ?? node.requestBody.schema.description,
@@ -113,7 +112,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
         })
       : null
 
-    if (legacy) {
+    if (resolver.isLegacy) {
       const pathParams = params.filter((p) => p.in === 'path')
       const queryParams = params.filter((p) => p.in === 'query')
       const headerParams = params.filter((p) => p.in === 'header')
@@ -215,7 +214,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
   },
   Schema({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver, legacy, transformers = [] } = options
+    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver, transformers = [] } = options
     const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     if (!node.name) {
@@ -255,7 +254,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
           arrayType={arrayType}
           syntaxType={syntaxType}
           resolver={resolver}
-          legacy={legacy}
         />
       </File>
     )

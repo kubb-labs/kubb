@@ -11,6 +11,17 @@ import type { Generator } from '@kubb/plugin-oas/generators'
  */
 export type ResolverTs = Resolver & {
   /**
+   * Whether this resolver operates in legacy mode.
+   * When `true`, the type generator uses grouped parameter types
+   * (`PathParams`, `QueryParams`, `HeaderParams`) and the legacy
+   * `Mutation`/`Query` response namespace shape instead of individual
+   * parameter types and the v2 `RequestConfig`/`Responses`/`Response` shape.
+   *
+   * Set to `true` on `resolverTsLegacy` and `false` on `resolverTs`.
+   * Custom resolvers that extend `resolverTsLegacy` should keep this as `true`.
+   */
+  isLegacy: boolean
+  /**
    * Resolves the variable/function name for a given raw name (equivalent to `default(name, 'function')`).
    * Use this shorthand when matching the `name` field produced by the v2 TypeGenerator,
    * so call-sites don't need to repeat the `'function'` type literal.
