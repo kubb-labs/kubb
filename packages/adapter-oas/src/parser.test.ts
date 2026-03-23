@@ -494,10 +494,14 @@ describe('convertSchema allOf', () => {
     })
 
     expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
-    // 2 allOf members + 1 injected member for the missing required key
-    expect(node.members).toHaveLength(3)
+    // The 2 anonymous allOf members are merged into 1; the injected required-key member is a separate synthetic member
+    expect(node.members).toHaveLength(2)
+    // the merged allOf object contains both id and name
+    const mergedAllOf = narrowSchema(node.members?.[0], 'object')
+    expect(mergedAllOf?.properties?.map((p) => p.name)).toContain('id')
+    expect(mergedAllOf?.properties?.map((p) => p.name)).toContain('name')
     // the injected member is an object with `id` marked required
-    const injected = narrowSchema(node.members?.[2], 'object')
+    const injected = narrowSchema(node.members?.[1], 'object')
     expect(injected?.properties?.find((p) => p.name === 'id')?.required).toBe(true)
   })
 
@@ -581,12 +585,32 @@ describe('convertSchema allOf', () => {
     expect(node.nullable).toBe(true)
   })
 
+  it('merges adjacent anonymous object members within allOf into a single object', () => {
+    const node = parser.convertSchema({
+      schema: {
+        allOf: [
+          { type: 'object', properties: { foo: { type: 'string' } } },
+          { type: 'object', properties: { bar: { type: 'string' } } },
+        ],
+      } as const,
+    })
+
+    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
+    // Both anonymous allOf members should be merged into one object
+    expect(node.members).toHaveLength(1)
+    const merged = narrowSchema(node.members?.[0], 'object')
+    const propNames = merged?.properties?.map((p) => p.name)
+    expect(propNames).toContain('foo')
+    expect(propNames).toContain('bar')
+  })
+
   it('merges synthetic object members (injected required-key + outer properties) into a single object', () => {
     // Models the FullAddress pattern:
-    //   allOf: [$ref Address]
+    //   allOf: [$ref Address]  ← typically a $ref, but here tested with an inline anonymous object
     //   properties: { streetName }
     //   required: [streetName, streetNumber]  ← streetNumber resolved from Address
-    // Expected: Address & { streetNumber; streetName }  (not three separate members)
+    // allOf-derived portion: 1 anonymous object (streetNumber)
+    // synthetic portion: injected required-key (streetNumber) + outer properties (streetName) → merged into 1
     const node = parser.convertSchema({
       name: 'FullAddress',
       schema: {
@@ -602,7 +626,7 @@ describe('convertSchema allOf', () => {
     })
 
     expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
-    // allOf member + one merged synthetic object (streetNumber + streetName combined)
+    // allOf member (not merged — single element) + one merged synthetic object (streetNumber + streetName)
     expect(node.members).toHaveLength(2)
     const merged = narrowSchema(node.members?.[1], 'object')
     const propNames = merged?.properties?.map((p) => p.name)

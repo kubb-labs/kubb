@@ -15,6 +15,9 @@ export type AddPet200 = Pet
  */
 export type AddPet405 = any
 
+/**
+ * @description Create a new pet in the store
+ */
 export type AddPetMutationRequest = Pet
 
 export type AddPetMutationResponse = AddPet200
