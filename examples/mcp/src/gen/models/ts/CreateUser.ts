@@ -10,6 +10,9 @@ import type { User } from './User.js'
  */
 export type CreateUserError = User
 
+/**
+ * @description Created user object
+ */
 export type CreateUserMutationRequest = User
 
 export type CreateUserMutationResponse = any
