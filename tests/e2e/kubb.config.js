@@ -45,7 +45,7 @@ const baseConfig = {
     lint: 'auto',
     format: 'auto',
   },
-  adapter: adapterOas({ collisionDetection: false }),
+  adapter: adapterOas(),
   plugins: [
     pluginOas({
       generators: [],

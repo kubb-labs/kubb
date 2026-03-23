@@ -1281,38 +1281,9 @@ describe('convertSchema object discriminator', () => {
 })
 
 describe('convertSchema object inline enum naming', () => {
-  it('collisionDetection: false — enum name uses only immediate property key (ParamsStatusEnum)', () => {
-    // Without collision detection, nested enum names should NOT accumulate the full parent
-    // name chain. The schema "Order" has a nested object "params" with an inline enum "status".
-    // Expected: ParamsStatusEnum (parentKey + propKey + suffix), not OrderParamsStatusEnum.
-    const parserNoCollision = createOasParser(emptyOas, { collisionDetection: false })
-    const node = parserNoCollision.convertSchema(
-      {
-        schema: {
-          type: 'object',
-          properties: {
-            params: {
-              type: 'object',
-              properties: {
-                status: { type: 'string', enum: ['active', 'inactive'] },
-              },
-            },
-          },
-        },
-        name: 'Order',
-      },
-      { enumSuffix: 'enum' },
-    )
-
-    const paramsProp = node.properties?.find((p) => p.name === 'params')
-    const paramsSchema = narrowSchema(paramsProp?.schema, 'object')
-    const statusProp = paramsSchema?.properties?.find((p) => p.name === 'status')
-    expect(statusProp?.schema.name).toBe('ParamsStatusEnum')
-  })
-
-  it('collisionDetection: true — enum name accumulates full parent path (OrderParamsStatusEnum)', () => {
-    const parserWithCollision = createOasParser(emptyOas, { collisionDetection: true })
-    const node = parserWithCollision.convertSchema(
+  it('enum name accumulates full parent path (OrderParamsStatusEnum)', () => {
+    const parser = createOasParser(emptyOas)
+    const node = parser.convertSchema(
       {
         schema: {
           type: 'object',
@@ -1447,7 +1418,7 @@ describe('convertSchema prefixItems (tuple)', () => {
 
 describe('convertSchema tuple enum naming', () => {
   it('names enum elements inside a tuple property using parent + propName', () => {
-    const parser = createOasParser(emptyOas, { collisionDetection: false })
+    const parser = createOasParser(emptyOas)
     const node = parser.convertSchema(
       {
         schema: {
@@ -1470,8 +1441,8 @@ describe('convertSchema tuple enum naming', () => {
     expect(tupleNode?.items?.[2]?.name).toBe('AddressIdentifierEnum')
   })
 
-  it('collisionDetection: true — full path for enum in tuple', () => {
-    const parser = createOasParser(emptyOas, { collisionDetection: true })
+  it('uses full path for enum in tuple', () => {
+    const parser = createOasParser(emptyOas)
     const node = parser.convertSchema(
       {
         schema: {
@@ -1495,7 +1466,7 @@ describe('convertSchema tuple enum naming', () => {
   })
 
   it('non-enum tuple elements are unaffected by enum naming', () => {
-    const parser = createOasParser(emptyOas, { collisionDetection: false })
+    const parser = createOasParser(emptyOas)
     const node = parser.convertSchema(
       {
         schema: {
@@ -3079,121 +3050,9 @@ describe('parameter enum naming', () => {
   })
 })
 
-describe('legacy enum naming (collisionDetection: false)', () => {
-  it('deduplicates colliding enum names with numeric suffix', () => {
-    const parser = createOasParser(emptyOas, { collisionDetection: false })
-
-    // Two top-level schemas each have params.status enum → both resolve to ParamsStatusEnum
-    const orderNode = parser.convertSchema(
-      {
-        schema: {
-          type: 'object',
-          properties: {
-            params: {
-              type: 'object',
-              properties: {
-                status: { type: 'string', enum: ['active', 'inactive'] },
-              },
-            },
-          },
-        },
-        name: 'Order',
-      },
-      { enumSuffix: 'enum' },
-    )
-    const customerNode = parser.convertSchema(
-      {
-        schema: {
-          type: 'object',
-          properties: {
-            params: {
-              type: 'object',
-              properties: {
-                status: { type: 'string', enum: ['new', 'returning'] },
-              },
-            },
-          },
-        },
-        name: 'Customer',
-      },
-      { enumSuffix: 'enum' },
-    )
-
-    const orderEnum = narrowSchema(
-      narrowSchema(orderNode.properties?.find((p) => p.name === 'params')?.schema, 'object')?.properties?.find((p) => p.name === 'status')?.schema,
-      'enum',
-    )
-    const customerEnum = narrowSchema(
-      narrowSchema(customerNode.properties?.find((p) => p.name === 'params')?.schema, 'object')?.properties?.find((p) => p.name === 'status')?.schema,
-      'enum',
-    )
-
-    expect(orderEnum?.name).toBe('ParamsStatusEnum')
-    expect(customerEnum?.name).toBe('ParamsStatusEnum2')
-  })
-
-  it('oneOf shared property enums do not include schema name', () => {
-    const parser = createOasParser(emptyOas, { collisionDetection: false })
-
-    // Shared properties must be declared at the top level alongside oneOf
-    // for the parser to extract them (properties inside members are not merged).
-    const node = parser.convertSchema(
-      {
-        schema: {
-          properties: {
-            status: { type: 'string', enum: ['active', 'inactive'] },
-          },
-          oneOf: [
-            { type: 'object', properties: { role: { type: 'string' } } },
-            { type: 'object', properties: { dept: { type: 'string' } } },
-          ],
-        },
-        name: 'Pet',
-      },
-      { enumSuffix: 'enum' },
-    )
-
-    const unionNode = narrowSchema(node, 'union')
-    // Shared properties are extracted to the intersection level
-    const firstMember = narrowSchema(unionNode?.members?.[0], 'intersection')
-    const sharedObj = firstMember?.members?.find((m) => narrowSchema(m, 'object')?.properties?.some((p) => p.name === 'status'))
-    const statusProp = narrowSchema(sharedObj, 'object')?.properties?.find((p) => p.name === 'status')
-    const enumNode = narrowSchema(statusProp?.schema, 'enum')
-
-    // Legacy: name is StatusEnum (not PetStatusEnum)
-    expect(enumNode?.name).toBe('StatusEnum')
-  })
-
-  it('array items enum uses array name', () => {
-    const parser = createOasParser(emptyOas, { collisionDetection: false })
-
-    const node = parser.convertSchema(
-      {
-        schema: {
-          type: 'object',
-          properties: {
-            tags: {
-              type: 'array',
-              items: { type: 'string', enum: ['a', 'b', 'c'] },
-            },
-          },
-        },
-        name: 'Item',
-      },
-      { enumSuffix: 'enum' },
-    )
-
-    const tagsProp = node.properties?.find((p) => p.name === 'tags')
-    const arrayNode = narrowSchema(tagsProp?.schema, 'array')
-    const enumNode = narrowSchema(arrayNode?.items?.[0], 'enum')
-
-    expect(enumNode?.name).toBe('TagsEnum')
-  })
-})
-
-describe('non-legacy enum naming (collisionDetection: true)', () => {
+describe('enum naming', () => {
   it('enum name accumulates full parent path without collision suffix', () => {
-    const parser = createOasParser(emptyOas, { collisionDetection: true })
+    const parser = createOasParser(emptyOas)
 
     const orderNode = parser.convertSchema(
       {
@@ -3245,7 +3104,7 @@ describe('non-legacy enum naming (collisionDetection: true)', () => {
   })
 
   it('oneOf shared property enums include schema name', () => {
-    const parser = createOasParser(emptyOas, { collisionDetection: true })
+    const parser = createOasParser(emptyOas)
 
     const node = parser.convertSchema(
       {
@@ -3271,5 +3130,31 @@ describe('non-legacy enum naming (collisionDetection: true)', () => {
 
     // Non-legacy: name includes schema name
     expect(enumNode?.name).toBe('PetStatusEnum')
+  })
+
+  it('array items enum includes the parent schema name', () => {
+    const parser = createOasParser(emptyOas)
+
+    const node = parser.convertSchema(
+      {
+        schema: {
+          type: 'object',
+          properties: {
+            tags: {
+              type: 'array',
+              items: { type: 'string', enum: ['a', 'b', 'c'] },
+            },
+          },
+        },
+        name: 'Item',
+      },
+      { enumSuffix: 'enum' },
+    )
+
+    const tagsProp = node.properties?.find((p) => p.name === 'tags')
+    const arrayNode = narrowSchema(tagsProp?.schema, 'array')
+    const enumNode = narrowSchema(arrayNode?.items?.[0], 'enum')
+
+    expect(enumNode?.name).toBe('ItemTagsEnum')
   })
 })

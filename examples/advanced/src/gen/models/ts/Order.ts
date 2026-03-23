@@ -1,12 +1,12 @@
-export const paramsStatusEnum = {
+export const orderParamsStatusEnum = {
   placed: 'placed',
   approved: 'approved',
   delivered: 'delivered',
 } as const
 
-export type ParamsStatusEnumKey = (typeof paramsStatusEnum)[keyof typeof paramsStatusEnum]
+export type OrderParamsStatusEnumKey = (typeof orderParamsStatusEnum)[keyof typeof orderParamsStatusEnum]
 
-export type ParamsStatusEnum = ParamsStatusEnumKey
+export type OrderParamsStatusEnum = OrderParamsStatusEnumKey
 
 export const orderOrderTypeEnum = {
   foo: 'foo',
@@ -56,7 +56,7 @@ export type Order = {
      * @example approved
      * @type string
      */
-    status: ParamsStatusEnumKey
+    status: OrderParamsStatusEnumKey
     /**
      * @type string
      */
