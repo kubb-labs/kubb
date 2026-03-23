@@ -33,6 +33,7 @@ export type UpdatePetWithFormMutationResponse = any
 
 export type UpdatePetWithFormMutation = {
   Response: any
+  QueryParams: UpdatePetWithFormQueryParams
   PathParams: UpdatePetWithFormPathParams
   Errors: UpdatePetWithForm405
 }

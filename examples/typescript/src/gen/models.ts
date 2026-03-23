@@ -576,6 +576,7 @@ export type UpdatePetWithFormMutationResponse = any
 
 export interface UpdatePetWithFormMutation {
   Response: any
+  QueryParams: UpdatePetWithFormQueryParams
   PathParams: UpdatePetWithFormPathParams
   Errors: UpdatePetWithForm405
 }
@@ -648,6 +649,7 @@ export type UploadFileMutationResponse = UploadFile200
 export interface UploadFileMutation {
   Response: UploadFile200
   Request: UploadFileMutationRequest
+  QueryParams: UploadFileQueryParams
   PathParams: UploadFilePathParams
   Errors: any
 }

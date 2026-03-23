@@ -399,6 +399,39 @@ describe('typeGenerator v2 — Operation — legacy', () => {
         ],
       }),
     },
+    {
+      name: 'legacy — updatePetWithForm POST with query params and path params',
+      node: createOperation({
+        operationId: 'updatePetWithForm',
+        method: 'POST',
+        path: '/pet/:petId',
+        tags: ['pet'],
+        parameters: [
+          createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true }),
+          createParameter({ name: 'name', in: 'query', schema: createSchema({ type: 'string' }) }),
+          createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
+        ],
+        responses: [
+          createResponse({ statusCode: '200', schema: createSchema({ type: 'void' }), description: 'Success' }),
+          createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+        ],
+      }),
+    },
+    {
+      name: 'legacy — uploadFile POST with query params and request body',
+      node: createOperation({
+        operationId: 'uploadFile',
+        method: 'POST',
+        path: '/pet/:petId/uploadImage',
+        tags: ['pet'],
+        parameters: [
+          createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true }),
+          createParameter({ name: 'additionalMetadata', in: 'query', schema: createSchema({ type: 'string' }) }),
+        ],
+        requestBody: { schema: createSchema({ type: 'string', format: 'binary' }) },
+        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+      }),
+    },
   ] as const satisfies Array<{ name: string; node: OperationNode }>
 
   test.each(testData)('$name', async (props) => {

@@ -9,34 +9,17 @@
 
 Five independent issues remain. Each can be assigned to a separate agent.
 
-### Task 1 — Restore `QueryParams` in aggregated mutation types
+### Task 1 — Restore `QueryParams` in aggregated mutation types ✅ DONE
 
 **ID**: missing-mutation-queryparams | **Severity**: High | **Plugin**: plugin-ts
 
-**Problem**: Mutations with query params (e.g. `updatePetWithForm`, `uploadFile`) are missing `QueryParams` in their aggregated type. v4 includes it; v5 does not.
+**Root cause**: `buildLegacyResponsesSchemaNode()` in `packages/plugin-ts/src/generators/utils.ts` used `else if (isGet && ...)` making `Request` and `QueryParams` mutually exclusive. Mutations with query params never got `QueryParams`.
 
-```ts
-// v5 — QueryParams missing
-export type UpdatePetWithFormMutation = {
-  Response: any
-  PathParams: UpdatePetWithFormPathParams
-  Errors: UpdatePetWithForm405
-}
+**Fix**: Split the `if/else if` into two independent checks — `Request` is added for mutations with a body, `QueryParams` is added for any operation with query params. Both can coexist.
 
-// v4 — QueryParams present
-export type UpdatePetWithFormMutation = {
-  Response: any
-  PathParams: UpdatePetWithFormPathParams
-  QueryParams: UpdatePetWithFormQueryParams
-  Errors: UpdatePetWithForm405
-}
-```
-
-**Root cause**: `buildLegacyResponsesSchemaNode()` in `packages/plugin-ts/src/generators/utils.ts` (line ~214) uses `else if (isGet && ...)` — so `QueryParams` is only added for GET operations. Mutations that also have query params are excluded.
-
-**Fix**: Change the `else if` to also add `QueryParams` for non-GET operations when query params exist. The `Request` and `QueryParams` properties are not mutually exclusive — a mutation can have both a request body and query params.
-
-**Verify**: Regenerate typescript, react-query, swr, svelte-query, solid-query examples. Check that `UpdatePetWithFormMutation` and `UploadFileMutation` include `QueryParams`. Update snapshots: `packages/plugin-ts/src/generators/__snapshots__/`.
+**Tests added**:
+- `legacy — updatePetWithForm POST with query params and path params` (mutation, no body, has query params)
+- `legacy — uploadFile POST with query params and request body` (mutation with both body and query params)
 
 ---
 
@@ -142,13 +125,13 @@ Removes 2 exports (`addressIdentifierEnum`, `AddressIdentifierEnumKey`) and chan
 
 | Example | Files match | v5 only | v4 only | Blocked by |
 |---------|:----------:|:-------:|:-------:|------------|
-| typescript | ✅ | 0 | 0 | missing-mutation-queryparams |
-| react-query | ✅ | 5 | 0 | missing-mutation-queryparams, legacy-extra-enum-alias |
+| typescript | ✅ | 0 | 0 | ~~missing-mutation-queryparams~~ |
+| react-query | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, legacy-extra-enum-alias |
 | client | ✅ | 5 | 0 | legacy-extra-enum-alias |
 | fetch | ✅ | 5 | 0 | legacy-extra-enum-alias |
-| swr | ✅ | 5 | 0 | missing-mutation-queryparams, legacy-extra-enum-alias |
-| svelte-query | ✅ | 5 | 0 | missing-mutation-queryparams, legacy-extra-enum-alias |
-| solid-query | ✅ | 5 | 0 | missing-mutation-queryparams, legacy-extra-enum-alias |
+| swr | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, legacy-extra-enum-alias |
+| svelte-query | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, legacy-extra-enum-alias |
+| solid-query | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, legacy-extra-enum-alias |
 | vue-query | ✅ | 3 | 2 | legacy-extra-enum-alias, tuple-enum-inlined |
 | msw | ✅ | 5 | 0 | legacy-extra-enum-alias |
 | faker | ✅ | 3 | 2 | legacy-extra-enum-alias, tuple-enum-inlined |

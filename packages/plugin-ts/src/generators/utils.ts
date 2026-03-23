@@ -169,7 +169,7 @@ export function buildGroupedParamsSchema({ params, parentName }: BuildGroupedPar
 
 /**
  * Builds the legacy wrapper `ObjectSchemaNode` for `<OperationId>Mutation` / `<OperationId>Query`.
- * Structure: `{ Response, Request (mutation) | QueryParams (query), Errors }`.
+ * Structure: `{ Response, Request?, QueryParams?, PathParams?, HeaderParams?, Errors }`.
  * Mirrors the v4 naming convention where this type acts as a namespace for the operation's shapes.
  *
  * @deprecated Legacy only — will be removed in v6.
@@ -211,11 +211,13 @@ export function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperatio
         schema: createSchema({ type: 'ref', name: resolver.resolveDataTypedName(node) }),
       }),
     )
-  } else if (isGet && node.parameters.some((p) => p.in === 'query')) {
+  }
+
+  if (node.parameters.some((p) => p.in === 'query') && resolver.resolveQueryParamsTypedName) {
     properties.push(
       createProperty({
         name: 'QueryParams',
-        schema: createSchema({ type: 'ref', name: resolver.resolveQueryParamsTypedName!(node) }),
+        schema: createSchema({ type: 'ref', name: resolver.resolveQueryParamsTypedName(node) }),
       }),
     )
   }

@@ -33,6 +33,7 @@ export type UploadFileMutationResponseType = UploadFile200Type
 export type UploadFileMutationType = {
   Response: UploadFile200Type
   Request: UploadFileMutationRequestType
+  QueryParams: UploadFileQueryParamsType
   PathParams: UploadFilePathParamsType
   Errors: any
 }
