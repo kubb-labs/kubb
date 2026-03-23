@@ -702,6 +702,31 @@ describe('convertSchema const (OAS 3.1)', () => {
     expect(node.type).toBe('null')
   })
 
+  it('const: null does not set nullable (avoids null | null)', () => {
+    const node = parser.convertSchema({ schema: { const: null, nullable: true } })
+
+    expect(node.type).toBe('null')
+    expect(node.nullable).toBeUndefined()
+  })
+
+  it('const: null as an object property does not set nullable on the property (avoids null | null)', () => {
+    const node = parser.convertSchema({
+      schema: {
+        type: 'object',
+        properties: {
+          status: { const: null },
+        },
+      },
+      name: 'MyObject',
+    })
+
+    const objectNode = narrowSchema(node, 'object')
+    const statusProp = objectNode?.properties.find((p) => p.name === 'status')
+
+    expect(statusProp?.schema.type).toBe('null')
+    expect(statusProp?.schema.nullable).toBeUndefined()
+  })
+
   it('propagates name on const enum', () => {
     const node = parser.convertSchema({ schema: { const: 'active' }, name: 'Status' })
 
@@ -1661,6 +1686,24 @@ describe('convertSchema null', () => {
     const node = parser.convertSchema({ schema: { type: 'null', description: 'always null' } })
 
     expect(node.description).toBe('always null')
+  })
+
+  it('type: null property in object does not set nullable (avoids null | null)', () => {
+    const node = parser.convertSchema({
+      schema: {
+        type: 'object',
+        properties: {
+          field: { type: 'null' },
+        },
+      },
+      name: 'Wrapper',
+    })
+
+    const objectNode = narrowSchema(node, 'object')
+    const fieldProp = objectNode?.properties.find((p) => p.name === 'field')
+
+    expect(fieldProp?.schema.type).toBe('null')
+    expect(fieldProp?.schema.nullable).toBeUndefined()
   })
 })
 
