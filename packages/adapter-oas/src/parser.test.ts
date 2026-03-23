@@ -2571,16 +2571,10 @@ describe('convertSchema circular allOf discriminator detection', () => {
             },
           },
           Cat: {
-            allOf: [
-              { $ref: '#/components/schemas/Animal' },
-              { type: 'object', properties: { name: { type: 'string' } } },
-            ],
+            allOf: [{ $ref: '#/components/schemas/Animal' }, { type: 'object', properties: { name: { type: 'string' } } }],
           },
           Dog: {
-            allOf: [
-              { $ref: '#/components/schemas/Animal' },
-              { type: 'object', properties: { breed: { type: 'string' } } },
-            ],
+            allOf: [{ $ref: '#/components/schemas/Animal' }, { type: 'object', properties: { breed: { type: 'string' } } }],
           },
         },
       },
