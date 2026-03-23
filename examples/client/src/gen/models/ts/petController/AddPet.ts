@@ -25,6 +25,9 @@ export type AddPet405 = {
   message?: string
 }
 
+/**
+ * @description Create a new pet in the store
+ */
 export type AddPetMutationRequest = AddPetRequest
 
 export type AddPetMutationResponse = AddPet200
