@@ -1,4 +1,4 @@
-export { SCALAR_PRIMITIVE_TYPES, httpMethods, mediaTypes, nodeKinds, schemaTypes } from './constants.ts'
+export { httpMethods, mediaTypes, nodeKinds, SCALAR_PRIMITIVE_TYPES, schemaTypes } from './constants.ts'
 export {
   createFunctionParameter,
   createFunctionParameters,

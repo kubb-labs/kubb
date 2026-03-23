@@ -1,7 +1,7 @@
+import { SCALAR_PRIMITIVE_TYPES } from './constants.ts'
 import { createProperty, createSchema } from './factory.ts'
 import { narrowSchema } from './guards.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { SCALAR_PRIMITIVE_TYPES } from './constants.ts'
 
 /**
  * Replaces the discriminator property's schema inside an object node with
@@ -79,7 +79,7 @@ export function mergeAdjacentAnonymousObjects(members: Array<SchemaNode>): Array
  */
 export function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNode> {
   const scalarPrimitives = new Set(
-    members.filter((member) => SCALAR_PRIMITIVE_TYPES.has(member.type as (typeof SCALAR_PRIMITIVE_TYPES extends Set<infer T> ? T : never))).map((m) => m.type),
+    members.filter((member) => SCALAR_PRIMITIVE_TYPES.has(member.type as typeof SCALAR_PRIMITIVE_TYPES extends Set<infer T> ? T : never)).map((m) => m.type),
   )
 
   if (!scalarPrimitives.size) {

@@ -1,6 +1,6 @@
+import { describe, expect, it } from 'vitest'
 import { createProperty, createSchema } from './factory.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { describe, expect, it } from 'vitest'
 import { applyDiscriminatorEnum, mergeAdjacentAnonymousObjects, simplifyUnionMembers } from './transforms.ts'
 
 describe('applyDiscriminatorEnum', () => {
@@ -177,10 +177,7 @@ describe('simplifyUnionMembers', () => {
   })
 
   it('removes number enum when a plain number is also present', () => {
-    const members = [
-      createSchema({ type: 'enum', primitive: 'number', enumType: 'number', enumValues: [200, 400] }),
-      createSchema({ type: 'number' }),
-    ]
+    const members = [createSchema({ type: 'enum', primitive: 'number', enumType: 'number', enumValues: [200, 400] }), createSchema({ type: 'number' })]
 
     expect(simplifyUnionMembers(members)).toEqual([members[1]])
   })
