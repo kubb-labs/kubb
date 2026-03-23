@@ -285,27 +285,17 @@ export default defineConfig({
 ```
 :::
 
-### Enum naming changed (`collisionDetection`)
+### Enum naming changed (`collisionDetection` removed)
 
-`collisionDetection` defaults to `true` in v5 (was `false` in v4). This changes how nested enum names are generated.
+In v5, `@kubb/adapter-oas` always uses collision-safe enum naming. The `collisionDetection` option is no longer supported.
 
-| Mode | Example |
+Nested enums now always include their parent path context:
+
+| v5 behavior | Example |
 |---|---|
-| `true` (default, v5) | `OrderParamsStatusEnum` |
-| `false` (v4 behavior) | `ParamsStatusEnum` |
+| Collision-safe full-path naming | `OrderParamsStatusEnum` |
 
-To keep v4 behavior:
-
-```typescript
-import { defineConfig } from '@kubb/core'
-import { adapterOas } from '@kubb/adapter-oas'
-
-export default defineConfig({
-  plugins: [
-    adapterOas({ collisionDetection: false }),
-  ],
-})
-```
+The old v4-style short naming (e.g. `ParamsStatusEnum`) is not available in v5.
 
 ### Backwards-compatible type naming (`legacy` option)
 

@@ -8,7 +8,6 @@ import {
   flattenSchema,
   isDiscriminator,
   isReference,
-  legacyResolve,
   resolveCollisions,
   type SchemaWithMetadata,
   sortSchemas,
@@ -25,11 +24,6 @@ const KUBB_INLINE_REF_PREFIX = '#kubb-inline-'
 type OasOptions = {
   contentType?: contentType
   discriminator?: 'strict' | 'inherit'
-  /**
-   * Resolve name collisions when schemas from different components share the same name (case-insensitive).
-   * @default false
-   */
-  collisionDetection?: boolean
 }
 
 export class Oas extends BaseOas {
@@ -541,13 +535,12 @@ export class Oas extends BaseOas {
    * Get schemas from OpenAPI components (schemas, responses, requestBodies).
    * Returns schemas in dependency order along with name mapping for collision resolution.
    */
-  getSchemas(options: { contentType?: contentType; includes?: Array<'schemas' | 'responses' | 'requestBodies'>; collisionDetection?: boolean } = {}): {
+  getSchemas(options: { contentType?: contentType; includes?: Array<'schemas' | 'responses' | 'requestBodies'> } = {}): {
     schemas: Record<string, SchemaObject>
     nameMapping: Map<string, string>
   } {
     const contentType = options.contentType ?? this.#options.contentType
     const includes = options.includes ?? ['schemas', 'requestBodies', 'responses']
-    const shouldResolveCollisions = options.collisionDetection ?? this.#options.collisionDetection ?? false
 
     const components = this.getDefinition().components
     const schemasWithMeta: SchemaWithMetadata[] = []
@@ -612,8 +605,7 @@ export class Oas extends BaseOas {
       }
     }
 
-    // Apply collision resolution only if enabled
-    const { schemas, nameMapping } = shouldResolveCollisions ? resolveCollisions(schemasWithMeta) : legacyResolve(schemasWithMeta)
+    const { schemas, nameMapping } = resolveCollisions(schemasWithMeta)
 
     return {
       schemas: sortSchemas(schemas),

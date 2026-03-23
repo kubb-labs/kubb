@@ -30,10 +30,10 @@ export type {
 } from './ts/models/CreateUsersWithListInput.ts'
 export type {
   Customer,
-  ParamsStatusEnum2,
-  ParamsStatusEnum2Key,
+  CustomerParamsStatusEnum,
+  CustomerParamsStatusEnumKey,
 } from './ts/models/Customer.ts'
-export { paramsStatusEnum2 } from './ts/models/Customer.ts'
+export { customerParamsStatusEnum } from './ts/models/Customer.ts'
 export type {
   DeleteOrder400,
   DeleteOrder404,
@@ -124,12 +124,12 @@ export type {
   Order,
   OrderHttpStatusEnum,
   OrderHttpStatusEnumKey,
-  ParamsStatusEnum,
-  ParamsStatusEnumKey,
+  OrderParamsStatusEnum,
+  OrderParamsStatusEnumKey,
 } from './ts/models/Order.ts'
-export { orderHttpStatusEnum, paramsStatusEnum } from './ts/models/Order.ts'
-export type { Pet, StatusEnum, StatusEnumKey } from './ts/models/Pet.ts'
-export { statusEnum } from './ts/models/Pet.ts'
+export { orderHttpStatusEnum, orderParamsStatusEnum } from './ts/models/Order.ts'
+export type { Pet, PetStatusEnum, PetStatusEnumKey } from './ts/models/Pet.ts'
+export { petStatusEnum } from './ts/models/Pet.ts'
 export type { PetNotFound } from './ts/models/PetNotFound.ts'
 export type {
   PlaceOrder200,

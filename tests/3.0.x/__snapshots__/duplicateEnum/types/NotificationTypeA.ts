@@ -4,14 +4,14 @@
 */
 
 
-export const paramsChannelEnum = {
+export const notificationTypeAParamsChannelEnum = {
     public: "public",
     collaborators: "collaborators"
 } as const;
 
-export type ParamsChannelEnumKey = (typeof paramsChannelEnum)[keyof typeof paramsChannelEnum];
+export type NotificationTypeAParamsChannelEnumKey = (typeof notificationTypeAParamsChannelEnum)[keyof typeof notificationTypeAParamsChannelEnum];
 
-export type ParamsChannelEnum = ParamsChannelEnumKey
+export type NotificationTypeAParamsChannelEnum = NotificationTypeAParamsChannelEnumKey
 
 export type NotificationTypeA = {
     /**
@@ -25,7 +25,7 @@ export type NotificationTypeA = {
         /**
          * @type string
         */
-        channel: ParamsChannelEnumKey;
+        channel: NotificationTypeAParamsChannelEnumKey;
         /**
          * @type string
         */

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-export enum ParamsStatusEnum {
+export enum OrderParamsStatusEnum {
   placed = 'placed',
   approved = 'approved',
   delivered = 'delivered',
@@ -35,7 +35,7 @@ export type Order = {
      * @example approved
      * @type string
      */
-    status: ParamsStatusEnum
+    status: OrderParamsStatusEnum
     /**
      * @type string
      */
@@ -92,7 +92,7 @@ export type Address = {
   zip?: string
 }
 
-export enum ParamsStatusEnum2 {
+export enum CustomerParamsStatusEnum {
   placed = 'placed',
   approved = 'approved',
   delivered = 'delivered',
@@ -113,7 +113,7 @@ export type Customer = {
      * @example approved
      * @type string
      */
-    status: ParamsStatusEnum2
+    status: CustomerParamsStatusEnum
     /**
      * @type string
      */
@@ -240,7 +240,7 @@ export type Cat = {
   name?: string
 }
 
-export enum StatusEnum {
+export enum PetStatusEnum {
   available = 'available',
   pending = 'pending',
   sold = 'sold',
@@ -275,7 +275,7 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: StatusEnum
+      status?: PetStatusEnum
     })
   | (Cat & {
       /**
@@ -305,7 +305,7 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: StatusEnum
+      status?: PetStatusEnum
     })
 
 export type FullAddress = Address & {

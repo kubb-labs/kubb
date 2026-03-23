@@ -3,15 +3,15 @@
  * Do not edit manually.
  */
 
-export const ParamsStatusEnum = {
+export const OrderParamsStatusEnum = {
   placed: 'placed',
   approved: 'approved',
   delivered: 'delivered',
 } as const
 
-export type ParamsStatusEnumKey = (typeof ParamsStatusEnum)[keyof typeof ParamsStatusEnum]
+export type OrderParamsStatusEnumKey = (typeof OrderParamsStatusEnum)[keyof typeof OrderParamsStatusEnum]
 
-export type ParamsStatusEnum = ParamsStatusEnumKey
+export type OrderParamsStatusEnum = OrderParamsStatusEnumKey
 
 export const OrderHttpStatusEnum = {
   '200': 200,
@@ -43,7 +43,7 @@ export type Order = {
      * @example approved
      * @type string
      */
-    status: ParamsStatusEnumKey
+    status: OrderParamsStatusEnumKey
     /**
      * @type string
      */
@@ -100,15 +100,15 @@ export type Address = {
   zip?: string
 }
 
-export const ParamsStatusEnum2 = {
+export const CustomerParamsStatusEnum = {
   placed: 'placed',
   approved: 'approved',
   delivered: 'delivered',
 } as const
 
-export type ParamsStatusEnum2Key = (typeof ParamsStatusEnum2)[keyof typeof ParamsStatusEnum2]
+export type CustomerParamsStatusEnumKey = (typeof CustomerParamsStatusEnum)[keyof typeof CustomerParamsStatusEnum]
 
-export type ParamsStatusEnum2 = ParamsStatusEnum2Key
+export type CustomerParamsStatusEnum = CustomerParamsStatusEnumKey
 
 export type Customer = {
   /**
@@ -125,7 +125,7 @@ export type Customer = {
      * @example approved
      * @type string
      */
-    status: ParamsStatusEnum2Key
+    status: CustomerParamsStatusEnumKey
     /**
      * @type string
      */
@@ -252,15 +252,15 @@ export type Cat = {
   name?: string
 }
 
-export const StatusEnum = {
+export const PetStatusEnum = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
 
-export type StatusEnumKey = (typeof StatusEnum)[keyof typeof StatusEnum]
+export type PetStatusEnumKey = (typeof PetStatusEnum)[keyof typeof PetStatusEnum]
 
-export type StatusEnum = StatusEnumKey
+export type PetStatusEnum = PetStatusEnumKey
 
 export type Pet =
   | (Dog & {
@@ -291,7 +291,7 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: StatusEnumKey
+      status?: PetStatusEnumKey
     })
   | (Cat & {
       /**
@@ -321,7 +321,7 @@ export type Pet =
        * @description pet status in the store
        * @type string | undefined
        */
-      status?: StatusEnumKey
+      status?: PetStatusEnumKey
     })
 
 export type FullAddress = Address & {

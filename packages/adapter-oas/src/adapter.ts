@@ -37,7 +37,6 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
     serverIndex,
     serverVariables,
     discriminator = 'strict',
-    collisionDetection = true,
     dateType = DEFAULT_PARSER_OPTIONS.dateType,
     integerType = DEFAULT_PARSER_OPTIONS.integerType,
     unknownType = DEFAULT_PARSER_OPTIONS.unknownType,
@@ -58,7 +57,6 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
       serverIndex,
       serverVariables,
       discriminator,
-      collisionDetection,
       dateType,
       integerType,
       unknownType,
@@ -73,7 +71,7 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
       const fakeConfig = sourceToFakeConfig(source)
       const oas = await parseFromConfig(fakeConfig, oasClass)
 
-      oas.setOptions({ contentType, discriminator, collisionDetection })
+      oas.setOptions({ contentType, discriminator })
 
       if (validate) {
         try {
@@ -86,7 +84,7 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
       const server = serverIndex !== undefined ? oas.api.servers?.at(serverIndex) : undefined
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
 
-      const parser = createOasParser(oas, { contentType, collisionDetection })
+      const parser = createOasParser(oas, { contentType })
       const root = parser.parse({ dateType, integerType, unknownType, emptySchemaType, enumSuffix })
 
       // This must happen after parse() because legacy enum remapping is finalized there.

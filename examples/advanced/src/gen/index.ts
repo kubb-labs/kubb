@@ -225,8 +225,8 @@ export type { Animal } from './models/ts/Animal.ts'
 export type { ApiResponse } from './models/ts/ApiResponse.ts'
 export type { Cat } from './models/ts/Cat.ts'
 export type { Category } from './models/ts/Category.ts'
-export type { Customer, ParamsStatusEnum2, ParamsStatusEnum2Key } from './models/ts/Customer.ts'
-export { paramsStatusEnum2 } from './models/ts/Customer.ts'
+export type { Customer, CustomerParamsStatusEnum, CustomerParamsStatusEnumKey } from './models/ts/Customer.ts'
+export { customerParamsStatusEnum } from './models/ts/Customer.ts'
 export type { Dog } from './models/ts/Dog.ts'
 export type { Image } from './models/ts/Image.ts'
 export type {
@@ -235,12 +235,12 @@ export type {
   OrderHttpStatusEnumKey,
   OrderOrderTypeEnum,
   OrderOrderTypeEnumKey,
+  OrderParamsStatusEnum,
+  OrderParamsStatusEnumKey,
   OrderStatusEnum,
   OrderStatusEnumKey,
-  ParamsStatusEnum,
-  ParamsStatusEnumKey,
 } from './models/ts/Order.ts'
-export { orderHttpStatusEnum, orderOrderTypeEnum, orderStatusEnum, paramsStatusEnum } from './models/ts/Order.ts'
+export { orderHttpStatusEnum, orderOrderTypeEnum, orderParamsStatusEnum, orderStatusEnum } from './models/ts/Order.ts'
 export type { Pet, PetStatusEnum, PetStatusEnumKey } from './models/ts/Pet.ts'
 export { petStatusEnum } from './models/ts/Pet.ts'
 export type { PetNotFound } from './models/ts/PetNotFound.ts'

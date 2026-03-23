@@ -1,4 +1,4 @@
-import { getUniqueName, pascalCase, URLPath } from '@internals/utils'
+import { pascalCase, URLPath } from '@internals/utils'
 import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type {
   ArraySchemaNode,
@@ -121,7 +121,6 @@ export type InferSchemaNode<
  */
 export type OasParserOptions = {
   contentType?: contentType
-  collisionDetection?: boolean
 }
 
 /**
@@ -221,18 +220,10 @@ export type OasParser = {
  * const root = parser.parse({ emptySchemaType: 'unknown' })
  * ```
  */
-export function createOasParser(oas: Oas, { contentType, collisionDetection }: OasParserOptions = {}): OasParser {
+export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}): OasParser {
   // Map from original component paths to resolved schema names (after collision resolution)
   // e.g., { '#/components/schemas/Order': 'OrderSchema', '#/components/responses/Product': 'ProductResponse' }
-  const { schemas: schemaObjects, nameMapping } = oas.getSchemas({ contentType, collisionDetection })
-
-  // Legacy enum name deduplication: tracks used enum names and appends numeric suffixes
-  // (e.g. ParamsStatusEnum, ParamsStatusEnum2) when collisionDetection is disabled.
-  const usedEnumNames: Record<string, number> = {}
-
-  // Only apply legacy naming when collisionDetection is explicitly false.
-  // When undefined (e.g. direct parser usage without adapter), use the default (new) behavior.
-  const isLegacyNaming = collisionDetection === false
+  const { schemas: schemaObjects, nameMapping } = oas.getSchemas({ contentType })
 
   /**
    * Maps an `'any' | 'unknown' | 'void'` option string to the corresponding `SchemaType` constant.
@@ -478,7 +469,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
       // Convert shared properties once to avoid duplicate enum naming
       // (e.g. StatusEnum appearing twice and getting a numeric suffix).
-      const sharedPropertiesNode = convertSchema({ schema: memberBaseSchema, name: isLegacyNaming ? undefined : name }, options)
+      const sharedPropertiesNode = convertSchema({ schema: memberBaseSchema, name }, options)
 
       return createSchema({
         type: 'union',
@@ -735,28 +726,21 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
   /**
    * Builds the propagation name for a child property during recursive schema conversion.
    *
-   * - **Legacy naming** (`isLegacyNaming`): only the immediate property key is used
-   *   (e.g. `Params` for property `params`), keeping nested names short.
-   * - **Default naming**: the parent name is prepended so the full path is encoded
+   * The parent name is prepended so the full path is encoded
    *   (e.g. `OrderParams` when parent is `Order`).
    */
   function resolveChildName(parentName: string | undefined, propName: string): string | undefined {
-    if (isLegacyNaming) {
-      return pascalCase(propName)
-    }
     return parentName ? pascalCase([parentName, propName].join(' ')) : undefined
   }
 
   /**
    * Derives the final name for an enum property schema node.
    *
-   * The raw name always includes the enum suffix (e.g. `StatusEnum`).
-   * In legacy mode an additional deduplication step appends a numeric suffix
-   * when the same name has already been used (e.g. `ParamsStatusEnum2`).
+   * The resulting name always includes the enum suffix and full parent path context
+   * (e.g. `OrderParamsStatusEnum`).
    */
   function resolveEnumPropName(parentName: string | undefined, propName: string, enumSuffix: string): string {
-    const raw = pascalCase([parentName, propName, enumSuffix].filter(Boolean).join(' '))
-    return isLegacyNaming ? getUniqueName(raw, usedEnumNames) : raw
+    return pascalCase([parentName, propName, enumSuffix].filter(Boolean).join(' '))
   }
 
   /**

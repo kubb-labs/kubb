@@ -67,16 +67,6 @@ export type OasAdapterOptions = {
    */
   discriminator?: 'strict' | 'inherit'
   /**
-   * Enable collision detection for inline enum and schema type names.
-   * When `true` (default), full-path names are used and name collisions
-   * across schema components are automatically resolved (e.g. `OrderParamsStatusEnum`).
-   * When `false`, enum names use only the immediate property context
-   * (e.g. `ParamsStatusEnum`) matching the v4 naming conventions, with numeric
-   * suffixes for deduplication (e.g. `ParamsStatusEnum2`).
-   * @default true
-   */
-  collisionDetection?: boolean
-  /**
    * How `format: 'date-time'` schemas are represented in the AST.
    * - `'string'` maps to a `datetime` string node.
    * - `'date'` maps to a JavaScript `Date` node.
@@ -92,7 +82,6 @@ export type OasAdapterResolvedOptions = {
   serverIndex: OasAdapterOptions['serverIndex']
   serverVariables: OasAdapterOptions['serverVariables']
   discriminator: NonNullable<OasAdapterOptions['discriminator']>
-  collisionDetection: boolean
   dateType: NonNullable<OasAdapterOptions['dateType']>
   integerType: NonNullable<OasAdapterOptions['integerType']>
   unknownType: NonNullable<OasAdapterOptions['unknownType']>
