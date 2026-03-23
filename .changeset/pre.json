@@ -61,6 +61,7 @@
     "legacy-extra-enum-alias",
     "missing-mutation-queryparams",
     "plugin-oas-operation-manager",
+    "plugin-ts-compatibility-presets",
     "plugin-ts-keys-to-omit",
     "plugin-ts-legacy-flag",
     "plugin-ts-legacy-naming-parity",
