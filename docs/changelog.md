@@ -6,6 +6,41 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.16
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/plugin-ts`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-ts)
+
+-   [#2881](https://github.com/kubb-labs/kubb/pull/2881) [`f1b2596`](https://github.com/kubb-labs/kubb/commit/f1b2596a36adc73de6aeea6f0843786dfc630426) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Replaced `legacy` mode with `compatibilityPreset` in `@kubb/plugin-ts`.
+
+    -   `'none'` (default)
+    -   `'kubbV4'` (full v4 type-generation naming compatibility)
+
+    The `legacy` option has been removed from `@kubb/plugin-ts` configuration. To enable v4-compatible output, use the new `compatibilityPreset` option set to `'kubbV4'`.
+
+    **Resolver Precedence:**
+
+    -   The base resolver is determined by the default and the selected compatibility preset.
+    -   Explicit entries in `resolvers` are composed after the preset/base resolver, overriding any conflicting methods.
+
+    ::: code-group
+    ```ts [Before: legacy mode]
+    // Example usage with legacy mode
+    const legacyConfig = {
+      configType: 'legacy',
+    };
+    ```
+
+    ```ts [After: compatibilityPreset]
+    // Example usage with compatibilityPreset
+    const newConfig = {
+      compatibilityPreset: 'kubbV4',
+    };
+    ```
+    :::
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
