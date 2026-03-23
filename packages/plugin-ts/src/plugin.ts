@@ -2,8 +2,8 @@ import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
 import { createPlugin, type Group, getBarrelFiles, getMode, mergeResolvers, renderOperation, renderSchema } from '@kubb/core'
-import { typeGenerator, typeGeneratorLegacy } from './generators/index.ts'
-import { resolverTs, resolverTsLegacy } from './resolvers/index.ts'
+import { typeGenerator } from './generators/index.ts'
+import { createTransformerTsLegacy, resolverTs, resolverTsLegacy } from './resolvers/index.ts'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
@@ -21,7 +21,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     arrayType = 'array',
     syntaxType = 'type',
     paramsCasing,
-    generators = [legacy ? typeGeneratorLegacy : typeGenerator].filter(Boolean),
+    generators = [typeGenerator].filter(Boolean),
     legacy = false,
     resolvers: userResolvers,
     transformers = [],
@@ -29,6 +29,11 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
   const baseResolver = legacy ? resolverTsLegacy : resolverTs
   const resolver = mergeResolvers(...(userResolvers ?? [baseResolver]))
+
+  // When legacy mode is enabled, prepend the dedicated legacy transformer so the single
+  // typeGenerator produces the v4 grouped-params / Mutation-Query output shape without
+  // needing any if (legacy) branching in the generator itself.
+  const resolvedTransformers = legacy ? [createTransformerTsLegacy(baseResolver), ...transformers] : transformers
 
   let resolveNameWarning = false
 
@@ -45,8 +50,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       override,
       paramsCasing,
       resolver,
-      baseResolver,
-      transformers,
+      transformers: resolvedTransformers,
     },
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)

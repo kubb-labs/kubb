@@ -27,7 +27,6 @@ describe('transformers — integration with typeGenerator Schema', () => {
     output: { path: '.' },
     group: undefined,
     resolver: resolverTs,
-    baseResolver: resolverTs,
     transformers: [],
   }
 
@@ -121,7 +120,6 @@ describe('transformers — property requiredness auto-sync', () => {
     output: { path: '.' },
     group: undefined,
     resolver: resolverTs,
-    baseResolver: resolverTs,
     transformers: [],
   }
 
@@ -190,7 +188,6 @@ describe('transformers — integration with typeGenerator Operation', () => {
     output: { path: '.' },
     group: undefined,
     resolver: resolverTs,
-    baseResolver: resolverTs,
     transformers: [],
   }
 

@@ -32,11 +32,8 @@ export type FindArtifactsRequestConfig = {
   url: '/artifacts'
 }
 
+export type FindArtifactsResponse = FindArtifactsStatus200
+
 export type FindArtifactsResponses = {
   '200': FindArtifactsStatus200
 }
-
-/**
- * @description Union of all possible responses
- */
-export type FindArtifactsResponse = FindArtifactsStatus200

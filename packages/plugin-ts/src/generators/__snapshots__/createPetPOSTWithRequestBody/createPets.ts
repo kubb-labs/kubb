@@ -26,12 +26,9 @@ export type CreatePetsRequestConfig = {
   url: '/pets'
 }
 
+export type CreatePetsResponse = CreatePetsStatus201 | CreatePetsStatusDefault
+
 export type CreatePetsResponses = {
   '201': CreatePetsStatus201
   default: CreatePetsStatusDefault
 }
-
-/**
- * @description Union of all possible responses
- */
-export type CreatePetsResponse = CreatePetsStatus201 | CreatePetsStatusDefault

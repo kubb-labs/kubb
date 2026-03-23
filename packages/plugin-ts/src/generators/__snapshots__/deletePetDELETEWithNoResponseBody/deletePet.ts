@@ -20,11 +20,8 @@ export type DeletePetRequestConfig = {
   url: `/pets/${string}`
 }
 
+export type DeletePetResponse = DeletePetStatus204
+
 export type DeletePetResponses = {
   '204': DeletePetStatus204
 }
-
-/**
- * @description Union of all possible responses
- */
-export type DeletePetResponse = DeletePetStatus204

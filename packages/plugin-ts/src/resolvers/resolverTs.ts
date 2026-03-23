@@ -1,5 +1,11 @@
 import { pascalCase } from '@internals/utils'
 import { defineResolver } from '@kubb/core'
+import {
+  buildDataSchemaNode,
+  buildParamsSchema,
+  buildResponsesSchemaNode,
+  buildResponseUnionSchemaNode,
+} from '../generators/utils.ts'
 import type { PluginTs } from '../types.ts'
 
 function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
@@ -97,6 +103,22 @@ export const resolverTs = defineResolver<PluginTs>(() => {
       throw new Error(
         'resolveHeaderParamsTypedName is only available in legacy mode (legacy: true). Use resolveParamTypedName per individual parameter instead.',
       )
+    },
+    buildQueryParamsSchema(node, queryParams) {
+      if (queryParams.length === 0) {
+        return null
+      }
+
+      return buildParamsSchema({ params: queryParams, node, resolver: this })
+    },
+    buildDataSchema(node) {
+      return buildDataSchemaNode({ node, resolver: this })
+    },
+    buildResponsesSchema(node) {
+      return buildResponsesSchemaNode({ node, resolver: this })
+    },
+    buildResponseSchema(node) {
+      return buildResponseUnionSchemaNode({ node, resolver: this })
     },
   }
 })

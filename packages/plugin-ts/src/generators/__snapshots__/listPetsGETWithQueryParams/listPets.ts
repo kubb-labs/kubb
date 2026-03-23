@@ -29,12 +29,9 @@ export type ListPetsRequestConfig = {
   url: '/pets'
 }
 
+export type ListPetsResponse = ListPetsStatus200 | ListPetsStatusDefault
+
 export type ListPetsResponses = {
   '200': ListPetsStatus200
   default: ListPetsStatusDefault
 }
-
-/**
- * @description Union of all possible responses
- */
-export type ListPetsResponse = ListPetsStatus200 | ListPetsStatusDefault

@@ -187,6 +187,44 @@ export type ResolverTs = Resolver & {
    * resolver.resolveHeaderParamsTypedName(node) // → 'DeletePetHeaderParams'
    */
   resolveHeaderParamsTypedName?(node: OperationNode): string
+  /**
+   * Builds the grouped path parameters schema (inline object with each path param's schema).
+   * Only defined in legacy mode — the generator uses its presence to detect grouped-param mode.
+   * Returns `null` when the operation has no path parameters.
+   *
+   * @deprecated Legacy only — will be removed in v6. Use `resolveParamName` per individual parameter instead.
+   */
+  buildPathParamsSchema?(node: OperationNode, pathParams: Array<ParameterNode>): SchemaNode | null
+  /**
+   * Builds the `QueryParams` schema.
+   * - Non-legacy: an object with refs to individual query param types (aggregate type).
+   * - Legacy: an inline object embedding each query param's schema directly.
+   * Returns `null` when there are no query parameters.
+   */
+  buildQueryParamsSchema?(node: OperationNode, queryParams: Array<ParameterNode>): SchemaNode | null
+  /**
+   * Builds the grouped header parameters schema (inline object with each header param's schema).
+   * Only defined in legacy mode.
+   * Returns `null` when the operation has no header parameters.
+   *
+   * @deprecated Legacy only — will be removed in v6. Use `resolveParamName` per individual parameter instead.
+   */
+  buildHeaderParamsSchema?(node: OperationNode, headerParams: Array<ParameterNode>): SchemaNode | null
+  /**
+   * Builds the `RequestConfig` schema (`data`, `pathParams`, `queryParams`, `headerParams`, `url`).
+   * Returns `null` in legacy mode (not generated in legacy output).
+   */
+  buildDataSchema?(node: OperationNode): SchemaNode | null
+  /**
+   * Builds the `Responses` / `Mutation` / `Query` aggregate schema.
+   * Non-legacy: keyed by HTTP status code. Legacy: namespace object (`Response`, `Request`, `Errors`, …).
+   */
+  buildResponsesSchema?(node: OperationNode): SchemaNode | null
+  /**
+   * Builds the `Response` / `MutationResponse` / `QueryResponse` union schema.
+   * Non-legacy: union of all responses. Legacy: union of success-only responses.
+   */
+  buildResponseSchema?(node: OperationNode): SchemaNode | null
 }
 
 export type Options = {
@@ -323,12 +361,6 @@ type ResolvedOptions = {
   syntaxType: NonNullable<Options['syntaxType']>
   paramsCasing: Options['paramsCasing']
   resolver: ResolverTs
-  /**
-   * The resolver without user naming overrides applied.
-   * Used internally to derive stable names for unnamed enums and grouped params
-   * so that the schema tree stays consistent regardless of `transformers.name` / custom resolvers.
-   */
-  baseResolver: ResolverTs
   transformers: Array<Visitor>
 }
 

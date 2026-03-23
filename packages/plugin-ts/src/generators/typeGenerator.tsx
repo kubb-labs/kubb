@@ -6,7 +6,6 @@ import { File } from '@kubb/react-fabric'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
 import type { PluginTs } from '../types'
-import { buildDataSchemaNode, buildParamsSchema, buildResponsesSchemaNode, buildResponseUnionSchemaNode } from './utils.ts'
 
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
@@ -23,7 +22,11 @@ export const typeGenerator = defineGenerator<PluginTs>({
         group: group ? (group.type === 'tag' ? { tag: node.tags[0] ?? 'default' } : { path: node.path }) : undefined,
       },
     })
+
+    // Apply paramsCasing to individual params first, then run all transformers (e.g. legacy
+    // transformer applies nameUnnamedEnums to response/requestBody schemas).
     const params = applyParamsCasing(node.parameters, paramsCasing)
+    const transformedNode = transform({ ...node, parameters: params }, composeTransformers(...transformers))
 
     function renderSchemaType({
       node: schemaNode,
@@ -42,9 +45,11 @@ export const typeGenerator = defineGenerator<PluginTs>({
         return null
       }
 
-      const transformedNode = transform(schemaNode, composeTransformers(...transformers))
+      // Apply schema-level transformers (e.g. user property/schema visitors).
+      // Operation-level transformers have already been applied above; they are no-ops here.
+      const transformedSchemaNode = transform(schemaNode, composeTransformers(...transformers))
 
-      const imports = adapter.getImports(transformedNode, (schemaName) => ({
+      const imports = adapter.getImports(transformedSchemaNode, (schemaName) => ({
         name: resolver.default(schemaName, 'type'),
         path: getFile({ name: schemaName, extname: '.ts', mode }).path,
       }))
@@ -56,7 +61,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
           <Type
             name={name}
             typedName={typedName}
-            node={transformedNode}
+            node={transformedSchemaNode}
             description={description}
             enumType={enumType}
             enumKeyCasing={enumKeyCasing}
@@ -70,72 +75,109 @@ export const typeGenerator = defineGenerator<PluginTs>({
       )
     }
 
-    const responseTypes = node.responses.map((res) =>
+    const pathParams = transformedNode.parameters.filter((p) => p.in === 'path')
+    const queryParams = transformedNode.parameters.filter((p) => p.in === 'query')
+    const headerParams = transformedNode.parameters.filter((p) => p.in === 'header')
+
+    // Detect legacy mode by checking whether the resolver supplies grouped-param builders.
+    // In legacy mode the resolver defines buildPathParamsSchema; in non-legacy it does not.
+    const isLegacyParamMode = typeof resolver.buildPathParamsSchema === 'function'
+
+    // Individual param types — rendered only in non-legacy mode.
+    const paramTypes = isLegacyParamMode
+      ? []
+      : transformedNode.parameters.map((param) =>
+          renderSchemaType({
+            node: param.schema,
+            name: resolver.resolveParamName(transformedNode, param),
+            typedName: resolver.resolveParamTypedName(transformedNode, param),
+          }),
+        )
+
+    // Grouped path params — legacy only (resolver.buildPathParamsSchema is defined).
+    const pathGroupedSchemaNode = resolver.buildPathParamsSchema?.(transformedNode, pathParams) ?? null
+    const pathGroupedType = pathGroupedSchemaNode
+      ? renderSchemaType({
+          node: pathGroupedSchemaNode,
+          name: resolver.resolvePathParamsName!(transformedNode),
+          typedName: resolver.resolvePathParamsTypedName!(transformedNode),
+        })
+      : null
+
+    // Query params — both modes, but with different schemas:
+    //   non-legacy: ref-based aggregate (object of refs to individual query param types)
+    //   legacy:     inline grouped object embedding each query param's schema directly
+    const queryGroupedSchemaNode = resolver.buildQueryParamsSchema?.(transformedNode, queryParams) ?? null
+    const queryGroupedType = queryGroupedSchemaNode
+      ? renderSchemaType({
+          node: queryGroupedSchemaNode,
+          name: resolver.resolveQueryParamsName!(transformedNode),
+          typedName: resolver.resolveQueryParamsTypedName!(transformedNode),
+        })
+      : null
+
+    // Grouped header params — legacy only.
+    const headerGroupedSchemaNode = resolver.buildHeaderParamsSchema?.(transformedNode, headerParams) ?? null
+    const headerGroupedType = headerGroupedSchemaNode
+      ? renderSchemaType({
+          node: headerGroupedSchemaNode,
+          name: resolver.resolveHeaderParamsName!(transformedNode),
+          typedName: resolver.resolveHeaderParamsTypedName!(transformedNode),
+        })
+      : null
+
+    const responseTypes = transformedNode.responses.map((res) =>
       renderSchemaType({
         node: res.schema,
-        name: resolver.resolveResponseStatusName(node, res.statusCode),
-        typedName: resolver.resolveResponseStatusTypedName(node, res.statusCode),
+        name: resolver.resolveResponseStatusName(transformedNode, res.statusCode),
+        typedName: resolver.resolveResponseStatusTypedName(transformedNode, res.statusCode),
         description: res.description,
         keysToOmit: res.keysToOmit,
       }),
     )
 
-    const requestType = node.requestBody?.schema
+    const requestType = transformedNode.requestBody?.schema
       ? renderSchemaType({
-          node: node.requestBody.schema,
-          name: resolver.resolveDataName(node),
-          typedName: resolver.resolveDataTypedName(node),
-          description: node.requestBody.description ?? node.requestBody.schema.description,
-          keysToOmit: node.requestBody.keysToOmit,
+          node: transformedNode.requestBody.schema,
+          name: resolver.resolveDataName(transformedNode),
+          typedName: resolver.resolveDataTypedName(transformedNode),
+          description: transformedNode.requestBody.description ?? transformedNode.requestBody.schema.description,
+          keysToOmit: transformedNode.requestBody.keysToOmit,
         })
       : null
 
-    const paramTypes = params.map((param) =>
-      renderSchemaType({
-        node: param.schema,
-        name: resolver.resolveParamName(node, param),
-        typedName: resolver.resolveParamTypedName(node, param),
-      }),
-    )
-
-    const queryParamsList = params.filter((p) => p.in === 'query')
-    const queryParamsType =
-      queryParamsList.length > 0
-        ? renderSchemaType({
-            node: buildParamsSchema({ params: queryParamsList, node, resolver }),
-            name: resolver.resolveQueryParamsName!(node),
-            typedName: resolver.resolveQueryParamsTypedName!(node),
-          })
-        : null
-
+    // RequestConfig type — resolver returns null in legacy mode (not part of legacy output).
     const dataType = renderSchemaType({
-      node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolver }),
-      name: resolver.resolveRequestConfigName(node),
-      typedName: resolver.resolveRequestConfigTypedName(node),
+      node: resolver.buildDataSchema?.(transformedNode) ?? null,
+      name: resolver.resolveRequestConfigName(transformedNode),
+      typedName: resolver.resolveRequestConfigTypedName(transformedNode),
     })
 
-    const responsesType = renderSchemaType({
-      node: buildResponsesSchemaNode({ node, resolver }),
-      name: resolver.resolveResponsesName(node),
-      typedName: resolver.resolveResponsesTypedName(node),
-    })
-
+    // Response union — success-only in legacy (MutationResponse/QueryResponse), all in non-legacy.
     const responseType = renderSchemaType({
-      node: buildResponseUnionSchemaNode({ node, resolver }),
-      name: resolver.resolveResponseName(node),
-      typedName: resolver.resolveResponseTypedName(node),
-      description: 'Union of all possible responses',
+      node: resolver.buildResponseSchema?.(transformedNode) ?? null,
+      name: resolver.resolveResponseName(transformedNode),
+      typedName: resolver.resolveResponseTypedName(transformedNode),
+    })
+
+    // Responses aggregate — Mutation/Query namespace in legacy, keyed HTTP map in non-legacy.
+    const responsesType = renderSchemaType({
+      node: resolver.buildResponsesSchema?.(transformedNode) ?? null,
+      name: resolver.resolveResponsesName(transformedNode),
+      typedName: resolver.resolveResponsesTypedName(transformedNode),
     })
 
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta} banner={resolveBanner()} footer={resolveFooter()}>
         {paramTypes}
-        {queryParamsType}
+        {pathGroupedType}
+        {queryGroupedType}
+        {headerGroupedType}
         {responseTypes}
         {requestType}
         {dataType}
-        {responsesType}
         {responseType}
+        {responsesType}
       </File>
     )
   },

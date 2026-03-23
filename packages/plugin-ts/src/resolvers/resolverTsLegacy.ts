@@ -1,4 +1,5 @@
 import { defineResolver } from '@kubb/core'
+import { buildGroupedParamsSchema, buildLegacyResponsesSchemaNode, buildLegacyResponseUnionSchemaNode } from '../generators/utils.ts'
 import type { PluginTs } from '../types.ts'
 import { resolverTs } from './resolverTs.ts'
 
@@ -81,6 +82,36 @@ export const resolverTsLegacy = defineResolver<PluginTs>(() => {
     },
     resolveHeaderParamsTypedName(node) {
       return this.resolveTypedName(`${node.operationId} HeaderParams`)
+    },
+    buildPathParamsSchema(node, pathParams) {
+      if (pathParams.length === 0) {
+        return null
+      }
+
+      return buildGroupedParamsSchema({ params: pathParams, parentName: this.resolvePathParamsTypedName!(node) })
+    },
+    buildQueryParamsSchema(node, queryParams) {
+      if (queryParams.length === 0) {
+        return null
+      }
+
+      return buildGroupedParamsSchema({ params: queryParams, parentName: this.resolveQueryParamsTypedName!(node) })
+    },
+    buildHeaderParamsSchema(node, headerParams) {
+      if (headerParams.length === 0) {
+        return null
+      }
+
+      return buildGroupedParamsSchema({ params: headerParams, parentName: this.resolveHeaderParamsTypedName!(node) })
+    },
+    buildDataSchema(_node) {
+      return null
+    },
+    buildResponsesSchema(node) {
+      return buildLegacyResponsesSchemaNode({ node, resolver: this })
+    },
+    buildResponseSchema(node) {
+      return buildLegacyResponseUnionSchemaNode({ node, resolver: this })
     },
   }
 })

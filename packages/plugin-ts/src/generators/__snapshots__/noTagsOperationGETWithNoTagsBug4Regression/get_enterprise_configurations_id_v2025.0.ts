@@ -20,11 +20,8 @@ export type GetEnterpriseConfigurationsIdV20250RequestConfig = {
   url: `/enterprise_configurations/${string}`
 }
 
+export type GetEnterpriseConfigurationsIdV20250Response = GetEnterpriseConfigurationsIdV20250Status200
+
 export type GetEnterpriseConfigurationsIdV20250Responses = {
   '200': GetEnterpriseConfigurationsIdV20250Status200
 }
-
-/**
- * @description Union of all possible responses
- */
-export type GetEnterpriseConfigurationsIdV20250Response = GetEnterpriseConfigurationsIdV20250Status200

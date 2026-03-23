@@ -25,12 +25,9 @@ export type ShowPetByIdRequestConfig = {
   url: `/pets/${string}`
 }
 
+export type ShowPetByIdResponse = ShowPetByIdStatus200 | ShowPetByIdStatusDefault
+
 export type ShowPetByIdResponses = {
   '200': ShowPetByIdStatus200
   default: ShowPetByIdStatusDefault
 }
-
-/**
- * @description Union of all possible responses
- */
-export type ShowPetByIdResponse = ShowPetByIdStatus200 | ShowPetByIdStatusDefault

@@ -5,10 +5,9 @@ import { renderOperation, renderSchema } from '@kubb/core'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
-import { resolverTs, resolverTsLegacy } from '../resolvers'
+import { createTransformerTsLegacy, resolverTs, resolverTsLegacy } from '../resolvers'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
-import { typeGeneratorLegacy } from './typeGeneratorLegacy.tsx'
 
 describe('typeGenerator v2 — Operation', () => {
   const fabric = createReactFabric()
@@ -156,7 +155,6 @@ describe('typeGenerator v2 — Operation', () => {
     output: { path: '.' },
     group: undefined,
     resolver: resolverTs,
-    baseResolver: resolverTs,
     transformers: [],
   }
 
@@ -201,7 +199,6 @@ describe('typeGenerator v2 — Operation — group', () => {
     output: { path: '.' },
     group: undefined,
     resolver: resolverTs,
-    baseResolver: resolverTs,
     transformers: [],
   }
 
@@ -300,7 +297,6 @@ describe('typeGenerator v2 — Schema (enum)', () => {
     output: { path: '.' },
     group: undefined,
     resolver: resolverTs,
-    baseResolver: resolverTs,
     transformers: [],
   }
 
@@ -344,8 +340,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     output: { path: '.' },
     group: undefined,
     resolver: resolverTsLegacy,
-    baseResolver: resolverTsLegacy,
-    transformers: [],
+    transformers: [createTransformerTsLegacy(resolverTsLegacy)],
   }
 
   const testData = [
@@ -444,7 +439,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
       fabric,
       adapter: createMockedAdapter(),
       driver: mockedPluginDriver,
-      Component: typeGeneratorLegacy.Operation,
+      Component: typeGenerator.Operation,
       plugin,
       mode: 'split',
       options: legacyOptions,
@@ -466,7 +461,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     const options: PluginTs['resolvedOptions'] = {
       ...legacyOptions,
       resolver: wrappedResolver,
-      baseResolver: wrappedResolver,
+      transformers: [createTransformerTsLegacy(wrappedResolver)],
     }
 
     const node = createOperation({
@@ -493,7 +488,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
       fabric,
       adapter: createMockedAdapter(),
       driver: mockedPluginDriver,
-      Component: typeGeneratorLegacy.Operation,
+      Component: typeGenerator.Operation,
       plugin,
       mode: 'split',
       options,
@@ -514,7 +509,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     const options: PluginTs['resolvedOptions'] = {
       ...legacyOptions,
       resolver: wrappedResolver,
-      baseResolver: wrappedResolver,
+      transformers: [createTransformerTsLegacy(wrappedResolver)],
     }
 
     const node = createOperation({
@@ -537,7 +532,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
       fabric,
       adapter: createMockedAdapter(),
       driver: mockedPluginDriver,
-      Component: typeGeneratorLegacy.Operation,
+      Component: typeGenerator.Operation,
       plugin,
       mode: 'split',
       options,
@@ -558,7 +553,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     const options: PluginTs['resolvedOptions'] = {
       ...legacyOptions,
       resolver: wrappedResolver,
-      baseResolver: wrappedResolver,
+      transformers: [createTransformerTsLegacy(wrappedResolver)],
     }
 
     const node = createOperation({
@@ -583,7 +578,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
       fabric,
       adapter: createMockedAdapter(),
       driver: mockedPluginDriver,
-      Component: typeGeneratorLegacy.Operation,
+      Component: typeGenerator.Operation,
       plugin,
       mode: 'split',
       options,
