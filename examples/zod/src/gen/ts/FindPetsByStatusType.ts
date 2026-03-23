@@ -13,6 +13,8 @@ export const findPetsByStatusQueryParamsStatusEnum = {
 
 export type FindPetsByStatusQueryParamsStatusEnumTypeKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
 
+export type FindPetsByStatusQueryParamsStatusEnumType = FindPetsByStatusQueryParamsStatusEnumTypeKey
+
 export type FindPetsByStatusQueryParamsType = {
   /**
    * @description Status values that need to be considered for filter

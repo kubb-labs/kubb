@@ -11,6 +11,8 @@ export const orderStatusEnum = {
 
 export type OrderStatusEnumKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
+export type OrderStatusEnum = OrderStatusEnumKey
+
 export const orderHttpStatusEnum = {
   '200': 200,
   '400': 400,
@@ -18,6 +20,8 @@ export const orderHttpStatusEnum = {
 } as const
 
 export type OrderHttpStatusEnumKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
+
+export type OrderHttpStatusEnum = OrderHttpStatusEnumKey
 
 export type Order = {
   /**
@@ -173,6 +177,8 @@ export const petStatusEnum = {
 
 export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
 
+export type PetStatusEnum = PetStatusEnumKey
+
 export type Pet = {
   /**
    * @example 10
@@ -207,6 +213,8 @@ export const addPetRequestStatusEnum = {
 } as const
 
 export type AddPetRequestStatusEnumKey = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
+
+export type AddPetRequestStatusEnum = AddPetRequestStatusEnumKey
 
 export type AddPetRequest = {
   /**
@@ -335,6 +343,8 @@ export const findPetsByStatusQueryParamsStatusEnum = {
 } as const
 
 export type FindPetsByStatusQueryParamsStatusEnumKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
+
+export type FindPetsByStatusQueryParamsStatusEnum = FindPetsByStatusQueryParamsStatusEnumKey
 
 export type FindPetsByStatusQueryParams = {
   /**

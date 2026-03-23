@@ -1,4 +1,5 @@
 export type {
+  AddPetRequestStatusEnumType,
   AddPetRequestStatusEnumTypeKey,
   AddPetRequestType,
 } from './AddPetRequestType.ts'
@@ -17,6 +18,7 @@ export type {
   CreatePets201Type,
   CreatePetsErrorType,
   CreatePetsHeaderParamsType,
+  CreatePetsHeaderParamsXEXAMPLEEnumType,
   CreatePetsHeaderParamsXEXAMPLEEnumTypeKey,
   CreatePetsMutationRequestType,
   CreatePetsMutationResponseType,
@@ -63,6 +65,7 @@ export type {
 export type {
   FindPetsByStatus200Type,
   FindPetsByStatus400Type,
+  FindPetsByStatusQueryParamsStatusEnumType,
   FindPetsByStatusQueryParamsStatusEnumTypeKey,
   FindPetsByStatusQueryParamsType,
   FindPetsByStatusQueryResponseType,
@@ -73,6 +76,7 @@ export type {
   FindPetsByTags200Type,
   FindPetsByTags400Type,
   FindPetsByTagsHeaderParamsType,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnumType,
   FindPetsByTagsHeaderParamsXEXAMPLEEnumTypeKey,
   FindPetsByTagsQueryParamsType,
   FindPetsByTagsQueryResponseType,
@@ -128,14 +132,21 @@ export type {
   LogoutUserTypeQuery,
 } from './LogoutUserType.ts'
 export type {
+  OrderHttpStatusEnumType,
   OrderHttpStatusEnumTypeKey,
+  OrderStatusEnumType,
   OrderStatusEnumTypeKey,
   OrderType,
+  OrderValueEnumType,
   OrderValueEnumTypeKey,
 } from './OrderType.ts'
 export { orderHttpStatusEnum, orderStatusEnum, orderValueEnum } from './OrderType.ts'
 export type { PetNotFoundType } from './PetNotFoundType.ts'
-export type { PetStatusEnumTypeKey, PetType } from './PetType.ts'
+export type {
+  PetStatusEnumType,
+  PetStatusEnumTypeKey,
+  PetType,
+} from './PetType.ts'
 export { petStatusEnum } from './PetType.ts'
 export type { PhoneNumberType } from './PhoneNumberType.ts'
 export type { PhoneWithMaxLengthExplicitType } from './PhoneWithMaxLengthExplicitType.ts'

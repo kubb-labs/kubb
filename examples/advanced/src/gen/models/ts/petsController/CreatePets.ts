@@ -14,6 +14,8 @@ export const createPetsQueryParamsBoolParamEnum = {
 
 export type CreatePetsQueryParamsBoolParamEnumKey = (typeof createPetsQueryParamsBoolParamEnum)[keyof typeof createPetsQueryParamsBoolParamEnum]
 
+export type CreatePetsQueryParamsBoolParamEnum = CreatePetsQueryParamsBoolParamEnumKey
+
 export type CreatePetsQueryParams = {
   /**
    * @type boolean | undefined
@@ -33,6 +35,8 @@ export const createPetsHeaderParamsXEXAMPLEEnum = {
 } as const
 
 export type CreatePetsHeaderParamsXEXAMPLEEnumKey = (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum]
+
+export type CreatePetsHeaderParamsXEXAMPLEEnum = CreatePetsHeaderParamsXEXAMPLEEnumKey
 
 export type CreatePetsHeaderParams = {
   /**
