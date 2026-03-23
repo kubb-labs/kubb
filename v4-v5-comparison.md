@@ -66,23 +66,23 @@
 
 | ID | Severity | Status | Affects | Description |
 |----|----------|--------|---------|-------------|
-| T1 | Medium | ✅ Fixed | plugin-ts | `@example` JSDoc emitted in v5, suppressed in v4 |
+| T1 | Medium | ❌ Open | plugin-ts | `@example` JSDoc emitted in v5, suppressed in v4 |
 | T2 | — | ✅ By design | plugin-ts (all) | `@type` JSDoc annotation dropped in v5 |
-| T3 | Low | ✅ Fixed | plugin-ts | Extra `XxxEnumKey` alias in v5 |
-| T4 | Low | ✅ Fixed | plugin-ts | `(string & {})` open union instead of `string` |
+| T3 | Low | ❌ Open | plugin-ts | Extra `XxxEnumKey` alias in v5 |
+| T4 | Low | ❌ Open | plugin-ts | `(string & {})` open union instead of `string` |
 | T5 | — | ✅ By design | plugin-ts (most) | `@type object` / format suffix not emitted in v5 |
-| T6 | Low | ✅ Fixed | plugin-ts | `MutationResponse` placement in grouped type |
-| T7 | Low | ✅ Fixed | plugin-ts | `@description` on response alias type |
-| N-AggType | Medium | ✅ Fixed | plugin-ts | `export interface Xxx` instead of `export type Xxx = {` |
-| N-QueryParams | Medium | ✅ Fixed | plugin-ts | `QueryParams` missing from aggregated operation type |
-| E1 | High | ✅ Fixed | plugin-ts | Path param `$ref` typed as `any` instead of named type |
-| E2 | Medium | ✅ Fixed | plugin-ts | Discriminant not embedded in union members |
-| E3 | Medium | ✅ Fixed | plugin-ts | `const` discriminator values → enum+key type instead of literal |
-| E5 | Low | ✅ Fixed | plugin-ts | `null \| null` duplicated from `null` const |
-| E6 | Medium | ✅ Fixed | plugin-ts | Inline enum names missing parent schema prefix |
-| E7 | Medium | ✅ Fixed | plugin-ts | Query param inline enums inlined as literals instead of named enums |
-| @minLength | Low | ✅ Fixed | plugin-ts | Extra `@minLength`/`@maxLength` on array properties |
-| allOf-merge | Low | ✅ Fixed | plugin-ts | Adjacent anonymous allOf objects not merged (`} & {` split) |
+| T6 | Low | ❌ Open | plugin-ts | `MutationResponse` placement in grouped type |
+| T7 | Low | ❌ Open | plugin-ts | `@description` on response alias type |
+| N-AggType | Medium | ❌ Open | plugin-ts | `export interface Xxx` instead of `export type Xxx = {` |
+| N-QueryParams | Medium | ❌ Open | plugin-ts | `QueryParams` missing from aggregated operation type |
+| E1 | High | ❌ Open | plugin-ts | Path param `$ref` typed as `any` instead of named type |
+| E2 | Medium | ❌ Open | plugin-ts | Discriminant not embedded in union members |
+| E3 | Medium | ❌ Open | plugin-ts | `const` discriminator values → enum+key type instead of literal |
+| E5 | Low | ❌ Open | plugin-ts | `null \| null` duplicated from `null` const |
+| E6 | Medium | ❌ Open | plugin-ts | Inline enum names missing parent schema prefix |
+| E7 | Medium | ❌ Open| plugin-ts | Query param inline enums inlined as literals instead of named enums |
+| @minLength | Low | ❌ Open| plugin-ts | Extra `@minLength`/`@maxLength` on array properties |
+| allOf-merge | Low | ❌ Open | plugin-ts | Adjacent anonymous allOf objects not merged (`} & {` split) |
 | N1-ZodTypeName | 🟠 Medium | ❌ Open | plugin-zod | Extra `Type` infix in zod-generated enum names |
 | N-Path | Low | ⚠️ Expected | plugin-mcp | Absolute machine path in `.mcp.json` |
 | G-API | Breaking | ℹ️ By design | custom generators | Generator context API changed |
@@ -160,72 +160,69 @@ v5's naming is more descriptive and avoids potential collisions with other schem
 
 ---
 
-## Fixed Issues (detail)
+## Issues (detail)
 
-### T1 — `@example` JSDoc tags ✅ Fixed
+### T1 — `@example` JSDoc tags 
 v5 was emitting `@example` from OpenAPI `example` fields; v4 did not.
 **Fix**: When `legacy: true`, the `@example` tag is suppressed in `packages/plugin-ts/src/printer.ts`.
 
-### T3 — Extra enum type alias ✅ Fixed
+### T3 — Extra enum type alias 
 v5 was generating an extra `export type FooKey = (typeof fooEnum)[...]` alias; v4 did not.
 **Fix**: `needsRefAlias` gated on `!legacy` in `packages/plugin-ts/src/components/Enum.tsx`.
 
-### T4 — `(string & {})` open string union ✅ Fixed
+### T4 — `(string & {})` open string union 
 v5 emitted `(string & {})` for open string unions in enum types; v4 emitted plain `string`.
 **Fix**: When `legacy: true`, `(string & {})` is replaced with `string` in `packages/plugin-ts/src/printer.ts`.
 
-### T6 — `MutationResponse` alias placement ✅ Fixed
+### T6 — `MutationResponse` alias placement 
 v5 emitted `MutationResponse` after the grouped `Mutation` type; v4 placed it before.
 **Fix**: Reordered in `packages/plugin-ts/src/generators/typeGenerator.tsx`.
 
-### T7 — `@description` on response alias ✅ Fixed
+### T7 — `@description` on response alias 
 v5 was missing `@description` on error response type aliases generated from `requestBody.description`.
 **Fix**: `requestBody.description` added to `OperationNode` AST and populated in `packages/adapter-oas/src/parser.ts`; used in `typeGenerator.tsx`.
 
-### N-AggType — `export interface` vs `export type = {` ✅ Fixed
+### N-AggType — `export interface` vs `export type = {` 
 v5 was generating `export interface AddPetMutation { ... }` for aggregated operation types; v4 used `export type AddPetMutation = { ... }`.
 
-### N-QueryParams — Missing `QueryParams` in aggregated type ✅ Fixed
+### N-QueryParams — Missing `QueryParams` in aggregated type 
 Operations with query params were missing `QueryParams: XxxQueryParams` in the v5 aggregated type.
 
-### E1 — Path param `$ref` schema types as `any` ✅ Fixed
+### E1 — Path param `$ref` schema types as `any` 
 Path parameters using `schema: { $ref: '...' }` were typed as `any` instead of their named type.
 **Fix**: `parseParameter()` in `packages/adapter-oas/src/parser.ts` now uses `convertSchema` for `$ref` parameters.
 
-### E2 — Discriminant not embedded in union members ✅ Fixed
+### E2 — Discriminant not embedded in union members 
 v5 was generating plain unions (`Cat | Dog`) without intersecting each member with its discriminator value.
 **Fix**: Added discriminant embedding in `convertUnion()` and `convertAllOf()` in `packages/adapter-oas/src/parser.ts`.
 
-### E3 — `const` discriminator values → enum type ✅ Fixed
+### E3 — `const` discriminator values → enum type 
 v5 was treating `const` properties as named enums with an `as const` export; v4 emitted inline literals.
 **Fix**: Added `fromConst: true` flag to `EnumSchemaNode`. In legacy mode, `fromConst` enums emit as inline literals.
 
-### E5 — `null | null` duplicated null type ✅ Fixed
+### E5 — `null | null` duplicated null type 
 `const: null` schemas were generating `null | null`.
 **Fix**: Removed `nullable` from the null-const case; fixed `convertObject()` to skip nullable for null types.
 
-### E6 — Inline enum names missing parent schema prefix ✅ Fixed
+### E6 — Inline enum names missing parent schema prefix 
 v5 was naming inline property enums by their property name alone; v4 prefixed the parent schema name.
 **Fix**: Three changes in `packages/adapter-oas/src/parser.ts`:
 1. `resolveChildName()` in legacy mode now includes parent name: `pascalCase([parentName, propName])`
 2. `parse()` applies enum suffix to top-level enum schemas
 3. `convertUnion()` passes `name` context through non-discriminator branches
 
-### E7 — Query param inline enums ✅ Fixed
+### E7 — Query param inline enums 
 v4 generated named `as const` enum objects for query param inline enums; v5 was inlining them as literal unions.
 **Fix**: `parseParameter()` in `packages/adapter-oas/src/parser.ts` now extracts schemas from OAS 3.1 `content` map and OAS 2.0 inline parameters. `buildGroupedParamsSchema()` in `packages/plugin-ts/src/generators/utils.ts` renames enum items with operation context prefix for array-of-enum params.
 
-### @minLength — Array min/max JSDoc ✅ Fixed
+### @minLength — Array min/max JSDoc
 v5 was emitting `@minLength`/`@maxLength` on array-typed properties (from `minItems`/`maxItems`). v4 did not annotate these.
 **Fix**: `buildPropertyJSDocComments()` in `packages/plugin-ts/src/printer.ts` now skips `@minLength`/`@maxLength` when the schema type is `array`.
 
-### allOf-merge — Adjacent anonymous objects split ✅ Fixed
+### allOf-merge — Adjacent anonymous objects split 
 v5 was outputting `} & {` for adjacent anonymous objects in allOf; v4 merged them into a single object.
 **Fix**: `mergeAdjacentAnonymousObjects()` now applies to ALL allOf members (not just synthetic ones).
 
----
-
-## Open Issues (detail)
 
 ### N1-ZodTypeName — Extra `Type` infix in zod-derived enum names 🟠 MEDIUM
 **Scope**: `zod` example, any schema with header/query params + zod plugin.
