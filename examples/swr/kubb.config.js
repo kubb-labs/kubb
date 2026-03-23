@@ -23,7 +23,7 @@ export default defineConfig([
           path: 'models',
           barrelType: 'barrel',
         },
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
       pluginSwr({
         output: {
@@ -50,7 +50,7 @@ export default defineConfig([
           path: 'models',
           barrelType: 'barrel',
         },
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
       pluginSwr({
         output: {

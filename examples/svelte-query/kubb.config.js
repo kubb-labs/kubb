@@ -25,7 +25,7 @@ export default defineConfig({
     pluginTs({
       output: { path: 'models' },
       paramsCasing: 'camelcase',
-      legacy: true,
+      compatibilityPreset: 'kubbV4',
     }),
     pluginSvelteQuery({
       client: {

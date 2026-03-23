@@ -19,7 +19,7 @@ const tsPlugin = pluginTs({
   output: { path: 'models/ts' },
   group: { type: 'tag' },
   enumType: 'asConst',
-  legacy: true,
+  compatibilityPreset: 'kubbV4',
 })
 
 export default defineConfig([

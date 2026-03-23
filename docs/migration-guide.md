@@ -297,9 +297,9 @@ Nested enums now always include their parent path context:
 
 The old v4-style short naming (e.g. `ParamsStatusEnum`) is not available in v5.
 
-### Backwards-compatible type naming (`legacy` option)
+### Backwards-compatible type naming (`compatibilityPreset: 'kubbV4'`)
 
-If your code relies on v4 operation type names, set `legacy: true` in `pluginTs` while you migrate.
+If your code relies on v4 operation type names, set `compatibilityPreset: 'kubbV4'` in `pluginTs` while you migrate.
 
 ```typescript
 import { defineConfig } from '@kubb/core'
@@ -307,12 +307,12 @@ import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   plugins: [
-    pluginTs({ legacy: true }),
+    pluginTs({ compatibilityPreset: 'kubbV4' }),
   ],
 })
 ```
 
-| Type | v5 default | `legacy: true` |
+| Type | v5 default | `compatibilityPreset: 'kubbV4'` |
 |---|---|---|
 | Request body | `<OperationId>Data` | `<OperationId>MutationRequest` / `QueryRequest` |
 | Response union | `<OperationId>Response` | `<OperationId>MutationResponse` / `QueryResponse` |
@@ -381,6 +381,21 @@ pluginTs({ resolvers: [resolverTs] })
 ```
 
 The `mergeResolvers` helper from `@kubb/core` merges multiple resolvers into a single resolver where later entries override earlier ones.
+
+### Compatibility preset for Kubb v4 naming
+
+Use `compatibilityPreset` in `pluginTs` when you need Kubb v4 naming behavior:
+
+```typescript
+import { pluginTs } from '@kubb/plugin-ts'
+
+pluginTs({ compatibilityPreset: 'kubbV4' })
+```
+
+For custom naming, compose your own `resolvers`.
+
+> [!NOTE]
+> If `resolvers` is explicitly provided, it overrides preset resolver behavior.
 
 ### AST transformers for `@kubb/plugin-ts`
 

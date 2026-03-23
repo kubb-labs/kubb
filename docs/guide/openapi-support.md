@@ -57,7 +57,7 @@ Kubb reads your OpenAPI (formerly Swagger) specification and generates TypeScrip
 | Multiple response status codes | ✅ | Per-status types + union response type |
 | `operationId` as type name basis | ✅ | PascalCase conversion applied |
 | Tag-based grouping | ✅ | Groups into `{tag}Controller/` directories |
-| Legacy naming mode | ✅ | `legacy: true` for backward-compatible naming |
+| Legacy naming mode | ✅ | `compatibilityPreset: 'kubbV4'` for backward-compatible naming |
 | Parameter casing transform | ✅ | `paramsCasing: 'camelcase'` option |
 | `$ref` to local schemas | ✅ | `#/components/schemas/Foo` |
 | `$ref` to external files | ⚠️ Partial | Works for most cases; see [Known Limitations](#external-ref-edge-cases) |

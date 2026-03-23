@@ -38,7 +38,7 @@ export default defineConfig(() => {
           type: 'tag',
         },
         enumType: 'asConst',
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
       pluginReactQuery({
         output: {

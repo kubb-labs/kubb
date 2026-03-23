@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { Node, RootNode, SchemaNode } from '@kubb/ast/types'
+import type { Node, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { Storage } from './createStorage.ts'
@@ -544,6 +544,42 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
 
 export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Logger<TOptions>
 
+/**
+ * Compatibility preset for code generation tools.
+ * - `'default'` – no compatibility adjustments (default behavior).
+ * - `'kubbV4'` – align generated names and structures with Kubb v4 output.
+ */
+export type CompatibilityPreset = 'default' | 'kubbV4'
+
 export type { Storage } from './createStorage.ts'
 export type { CoreGeneratorV2, Generator, ReactGeneratorV2 } from './defineGenerator.ts'
 export type { KubbEvents } from './Kubb.ts'
+
+/**
+ * A preset bundles a name, one or more resolvers, and optional AST transformers
+ * into a single reusable configuration object.
+ *
+ * @template TResolver - The concrete resolver type for this preset.
+ */
+export type Preset<TResolver extends Resolver = Resolver> = {
+  /**
+   * Unique identifier for this preset.
+   */
+  name: string
+  /**
+   * Ordered list of resolvers applied by this preset (last entry wins on merge).
+   */
+  resolvers: Array<TResolver>
+  /**
+   * Optional AST visitors / transformers applied after resolving.
+   */
+  transformers?: Array<Visitor>
+}
+
+/**
+ * A named registry of presets, keyed by preset name.
+ *
+ * @template TResolver - The concrete resolver type shared by all presets in this registry.
+ * @template TName - The union of valid preset name keys.
+ */
+export type Presets<TResolver extends Resolver = Resolver> = Record<CompatibilityPreset, Preset<TResolver>>

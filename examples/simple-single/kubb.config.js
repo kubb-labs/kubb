@@ -39,7 +39,7 @@ export default defineConfig([
       }),
       pluginTs({
         output: { path: 'models.ts', clean: true },
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
       pluginReactQuery({
         output: {
