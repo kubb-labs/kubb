@@ -1376,10 +1376,10 @@ describe('convertSchema prefixItems (tuple)', () => {
     expect(node.rest?.type).toBe('number')
   })
 
-  it('sets rest to undefined when items is absent', () => {
+  it('defaults rest to any when items is absent', () => {
     const node = parser.convertSchema({ schema: { prefixItems: [{ type: 'string' }] } })
 
-    expect(node.rest).toBeUndefined()
+    expect(node.rest?.type).toBe('any')
   })
 
   it('converts a $ref prefixItem to a ref node', () => {
@@ -1442,6 +1442,80 @@ describe('convertSchema prefixItems (tuple)', () => {
     const node = parser.convertSchema({ schema: { type: 'array', prefixItems: [{ type: 'string' }] } })
 
     expect(node.type).toBe('tuple')
+  })
+})
+
+describe('convertSchema tuple enum naming', () => {
+  it('names enum elements inside a tuple property using parent + propName', () => {
+    const parser = createOasParser(emptyOas, { collisionDetection: false })
+    const node = parser.convertSchema(
+      {
+        schema: {
+          type: 'object',
+          properties: {
+            identifier: {
+              type: 'array',
+              prefixItems: [{ type: 'integer' }, { type: 'string' }, { enum: ['NW', 'NE', 'SW', 'SE'] }],
+            },
+          },
+        },
+        name: 'Address',
+      },
+      { enumSuffix: 'enum' },
+    )
+
+    const identifierProp = node.properties?.find((p) => p.name === 'identifier')
+    const tupleNode = narrowSchema(identifierProp?.schema, 'tuple')
+    expect(tupleNode?.items?.[2]?.type).toBe('enum')
+    expect(tupleNode?.items?.[2]?.name).toBe('AddressIdentifierEnum')
+  })
+
+  it('collisionDetection: true — full path for enum in tuple', () => {
+    const parser = createOasParser(emptyOas, { collisionDetection: true })
+    const node = parser.convertSchema(
+      {
+        schema: {
+          type: 'object',
+          properties: {
+            identifier: {
+              type: 'array',
+              prefixItems: [{ type: 'integer' }, { enum: ['NW', 'NE', 'SW', 'SE'] }],
+            },
+          },
+        },
+        name: 'Address',
+      },
+      { enumSuffix: 'enum' },
+    )
+
+    const identifierProp = node.properties?.find((p) => p.name === 'identifier')
+    const tupleNode = narrowSchema(identifierProp?.schema, 'tuple')
+    expect(tupleNode?.items?.[1]?.type).toBe('enum')
+    expect(tupleNode?.items?.[1]?.name).toBe('AddressIdentifierEnum')
+  })
+
+  it('non-enum tuple elements are unaffected by enum naming', () => {
+    const parser = createOasParser(emptyOas, { collisionDetection: false })
+    const node = parser.convertSchema(
+      {
+        schema: {
+          type: 'object',
+          properties: {
+            coords: {
+              type: 'array',
+              prefixItems: [{ type: 'number' }, { type: 'number' }],
+            },
+          },
+        },
+        name: 'Location',
+      },
+      { enumSuffix: 'enum' },
+    )
+
+    const coordsProp = node.properties?.find((p) => p.name === 'coords')
+    const tupleNode = narrowSchema(coordsProp?.schema, 'tuple')
+    expect(tupleNode?.items?.[0]?.name).toBeUndefined()
+    expect(tupleNode?.items?.[1]?.name).toBeUndefined()
   })
 })
 

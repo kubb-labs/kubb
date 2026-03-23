@@ -3,6 +3,15 @@
  * Do not edit manually.
  */
 
+export const addressIdentifierEnum = {
+  NW: 'NW',
+  NE: 'NE',
+  SW: 'SW',
+  SE: 'SE',
+} as const
+
+export type AddressIdentifierEnumKey = (typeof addressIdentifierEnum)[keyof typeof addressIdentifierEnum]
+
 export type Address = {
   /**
    * @example 437 Lytton
@@ -27,5 +36,5 @@ export type Address = {
   /**
    * @type array | undefined
    */
-  identifier?: [number, string, 'NW' | 'NE' | 'SW' | 'SE']
+  identifier?: [number, string, AddressIdentifierEnumKey, ...any[]]
 }

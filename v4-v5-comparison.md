@@ -49,29 +49,23 @@ Five independent issues remain. Each can be assigned to a separate agent.
 
 ---
 
-### Task 4 — Generate named enums for tuple elements
+### Task 4 — Generate named enums for tuple elements ✅ DONE
 
 **ID**: tuple-enum-inlined | **Severity**: Medium | **Plugin**: adapter-oas
 
-**Problem**: For tuple types with enum elements (e.g. `Address.identifier`), v4 generates a named `as const` enum; v5 inlines them as literal unions.
+**Root cause**: Two issues in `convertTuple` in `packages/adapter-oas/src/parser.ts`:
+1. Enum elements inside `prefixItems` were converted without a name, causing them to be inlined as literal unions instead of emitted as named enum declarations.
+2. When `items` was absent alongside `prefixItems`, no rest element was emitted — JSON Schema semantics say absent `items` means additional items are allowed (`...any[]`).
 
-```ts
-// v4
-export const addressIdentifierEnum = { NW: 'NW', NE: 'NE', SW: 'SW', SE: 'SE' } as const
-export type AddressIdentifierEnumKey = (typeof addressIdentifierEnum)[keyof typeof addressIdentifierEnum]
-export type Address = { identifier?: [number, string, AddressIdentifierEnumKey, ...any[]] }
+**Fix**:
+1. In `convertObject`, after converting a tuple property, walk into its items and apply `applyEnumName` to any enum elements using the parent schema name and property key. This gives the same naming as direct enum properties (e.g., `AddressIdentifierEnum`).
+2. In `convertTuple`, default `rest` to `createSchema({ type: 'any' })` when `items` is absent, restoring the `...any[]` rest element.
 
-// v5
-export type Address = { identifier?: [number, string, 'NW' | 'NE' | 'SW' | 'SE'] }
-```
-
-Removes 2 exports (`addressIdentifierEnum`, `AddressIdentifierEnumKey`) and changes the tuple structure (drops `...any[]` rest).
-
-**Root cause**: The OAS parser in `packages/adapter-oas/src/parser.ts` does not extract enum schemas from tuple/`prefixItems` elements when building the AST. The enum values are inlined as a union node instead of being emitted as a named enum schema node.
-
-**Fix**: When parsing `prefixItems` (or `items` in tuple context), detect enum values and emit a named `EnumSchemaNode` the same way property enums are handled. Compare with v4 parser at `/home/stijnvanhulle/git/ext/v4/kubb/packages/plugin-oas/src/SchemaGenerator.ts` to see how it handles tuple enums. Also restore the `...any[]` rest element when `additionalItems` is not `false`.
-
-**Verify**: Regenerate vue-query and faker examples. Confirm `addressIdentifierEnum` and `AddressIdentifierEnumKey` exports exist and the `Address.identifier` tuple matches v4.
+**Tests added**:
+- `names enum elements inside a tuple property using parent + propName`
+- `collisionDetection: true — full path for enum in tuple`
+- `non-enum tuple elements are unaffected by enum naming`
+- Updated existing test: `defaults rest to any when items is absent`
 
 ---
 
@@ -103,9 +97,9 @@ Removes 2 exports (`addressIdentifierEnum`, `AddressIdentifierEnumKey`) and chan
 | swr | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, ~~legacy-extra-enum-alias~~ |
 | svelte-query | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, ~~legacy-extra-enum-alias~~ |
 | solid-query | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, ~~legacy-extra-enum-alias~~ |
-| vue-query | ✅ | 3 | 2 | ~~legacy-extra-enum-alias~~, tuple-enum-inlined |
+| vue-query | ✅ | 3 | 2 | ~~legacy-extra-enum-alias~~, ~~tuple-enum-inlined~~ |
 | msw | ✅ | 5 | 0 | ~~legacy-extra-enum-alias~~ |
-| faker | ✅ | 3 | 2 | ~~legacy-extra-enum-alias~~, tuple-enum-inlined |
+| faker | ✅ | 3 | 2 | ~~legacy-extra-enum-alias~~, ~~tuple-enum-inlined~~ |
 | zod | ✅ | 30 | 22 | ~~legacy-extra-enum-alias~~, ~~zod-typed-name-order~~ |
 
 ---
