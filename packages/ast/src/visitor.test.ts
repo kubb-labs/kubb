@@ -7,8 +7,8 @@ import type { PropertyNode } from './nodes/property.ts'
 import type { ResponseNode } from './nodes/response.ts'
 import type { RootNode } from './nodes/root.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { collect, composeTransformers, transform, walk } from './visitor.ts'
 import type { ParentOf, VisitorContext } from './visitor.ts'
+import { collect, composeTransformers, transform, walk } from './visitor.ts'
 
 describe('walk', () => {
   it('visits all node kinds in a tree', async () => {

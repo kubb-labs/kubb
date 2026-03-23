@@ -35,22 +35,28 @@ function createLimit(concurrency: number) {
 type LimitFn = ReturnType<typeof createLimit>
 
 /**
- * Maps a node type to the set of node types that can be its parent in the AST.
+ * Single source of truth: ordered list of `[NodeType, ParentType]` pairs
+ * describing which node types can be the parent of a given node in the AST.
  *
- * - `RootNode` is always the tree root, so it has no parent.
- * - `OperationNode` is always a direct child of `RootNode`.
- * - `SchemaNode` can appear under many parents (root, operation requestBody, property, parameter, response, or another schema via items/members/additionalProperties).
- * - `PropertyNode` always belongs to an object `SchemaNode`.
- * - `ParameterNode` and `ResponseNode` always belong to an `OperationNode`.
+ * `ParentOf` walks this tuple and returns the parent type of the first matching entry.
  */
-export type ParentOf<T extends Node> =
-  T extends RootNode ? undefined :
-  T extends OperationNode ? RootNode :
-  T extends SchemaNode ? RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode :
-  T extends PropertyNode ? SchemaNode :
-  T extends ParameterNode ? OperationNode :
-  T extends ResponseNode ? OperationNode :
-  Node
+type ParentNodeMap = [
+  [RootNode, undefined],
+  [OperationNode, RootNode],
+  [SchemaNode, RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode],
+  [PropertyNode, SchemaNode],
+  [ParameterNode, OperationNode],
+  [ResponseNode, OperationNode],
+]
+
+export type ParentOf<
+  T extends Node,
+  TEntries extends ReadonlyArray<[Node, unknown]> = ParentNodeMap,
+> = TEntries extends [infer TEntry extends [Node, unknown], ...infer TRest extends ReadonlyArray<[Node, unknown]>]
+  ? T extends TEntry[0]
+    ? TEntry[1]
+    : ParentOf<T, TRest>
+  : Node
 
 /**
  * Traversal context passed as the second argument to every visitor callback.
