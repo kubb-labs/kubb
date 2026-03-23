@@ -1,5 +1,6 @@
 import type { VisitorDepth } from './constants.ts'
 import { visitorDepths, WALK_CONCURRENCY } from './constants.ts'
+import { createParameter, createProperty } from './factory.ts'
 import type { Node, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode } from './nodes/index.ts'
 
 /**
@@ -271,20 +272,20 @@ export function transform(node: Node, options: TransformOptions): Node {
       const replaced = visitor.property?.(prop, { parent: parent as ParentOf<PropertyNode> })
       if (replaced) prop = replaced
 
-      return {
+      return createProperty({
         ...prop,
         schema: transform(prop.schema, { ...options, parent: prop }),
-      }
+      })
     }
     case 'Parameter': {
       let param = node
       const replaced = visitor.parameter?.(param, { parent: parent as ParentOf<ParameterNode> })
       if (replaced) param = replaced
 
-      return {
+      return createParameter({
         ...param,
         schema: transform(param.schema, { ...options, parent: param }),
-      }
+      })
     }
     case 'Response': {
       let response = node

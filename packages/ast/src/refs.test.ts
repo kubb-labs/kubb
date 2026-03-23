@@ -90,7 +90,9 @@ describe('refMapToObject', () => {
         {
           kind: 'Schema',
           type: 'object',
-          properties: [{ kind: 'Property', name: 'createdAt', required: false, schema: { kind: 'Schema', type: 'datetime' } }],
+          properties: [
+            { kind: 'Property', name: 'createdAt', required: false, schema: { kind: 'Schema', type: 'datetime', optional: true, nullish: undefined } },
+          ],
         },
       ],
     })

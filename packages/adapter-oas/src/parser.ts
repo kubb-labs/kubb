@@ -804,8 +804,6 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
             schema: {
               ...schemaNode,
               nullable: schemaNode.type === 'null' ? undefined : propNullable || undefined,
-              optional: !required && !propNullable ? true : undefined,
-              nullish: !required && propNullable ? true : undefined,
             },
             required,
           })
@@ -1078,7 +1076,6 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       schema: {
         ...schema,
         description: (param['description'] as string | undefined) ?? schema.description,
-        optional: !required || !!schema.optional ? true : undefined,
       },
       required,
     })

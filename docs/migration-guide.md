@@ -195,7 +195,80 @@ pluginTs({
 })
 ```
 
+#### Using `context.parent` for scoped transformations
+
+Every transformer callback receives a second argument — a `context` object with a type-safe `parent` field. This lets you scope transformations to properties of a specific schema, parameters of a specific operation, or any other parent-child relationship in the AST.
+
+The `parent` type is automatically narrowed based on the visitor callback:
+
+| Callback      | `context.parent` type                                                              |
+| ------------- | ---------------------------------------------------------------------------------- |
+| `root()`      | `undefined` (root has no parent)                                                   |
+| `operation()` | `RootNode`                                                                         |
+| `schema()`    | `RootNode \| OperationNode \| SchemaNode \| PropertyNode \| ParameterNode \| ResponseNode` |
+| `property()`  | `SchemaNode`                                                                       |
+| `parameter()` | `OperationNode`                                                                    |
+| `response()`  | `OperationNode`                                                                    |
+
+```typescript
+pluginTs({
+  transformers: [
+    {
+      // Make all properties of the "Pet" schema optional
+      property(node, { parent }) {
+        if (parent?.name === 'Pet') {
+          return { ...node, required: false }
+        }
+      },
+    },
+    {
+      // Remove writeOnly properties, but only inside response schemas
+      property(node, { parent }) {
+        if (parent?.kind === 'Schema' && node.schema.writeOnly) {
+          return { ...node, schema: { ...node.schema, kind: 'Schema', type: 'never' } }
+        }
+      },
+    },
+    {
+      // Override a nested schema inside a specific operation's request body
+      schema(node, { parent }) {
+        if (parent?.kind === 'Operation' && parent.operationId === 'createPet' && node.type === 'date') {
+          return { ...node, type: 'string' }
+        }
+      },
+    },
+  ],
+})
+```
+
 Use `composeTransformers` from `@kubb/ast` to combine multiple visitors into one when building reusable transformer presets.
+
+#### Simplified property requiredness
+
+In v5, `PropertyNode.required` is the single source of truth for optionality. When you set `required` on a property in a transformer, `schema.optional` and `schema.nullish` are auto-derived — you no longer need to set them manually.
+
+```typescript
+pluginTs({
+  transformers: [
+    {
+      // Make all properties of the "Address" schema required — just set `required: true`
+      property(node, { parent }) {
+        if (parent?.name === 'Address') {
+          return { ...node, required: true }
+        }
+      },
+    },
+  ],
+})
+```
+
+The derivation rules:
+- `required: true` + not nullable → `schema.optional: undefined`, `schema.nullish: undefined`
+- `required: true` + nullable → `schema.nullable: true` (no optionality)
+- `required: false` + not nullable → `schema.optional: true`
+- `required: false` + nullable → `schema.nullish: true`, `schema.nullable: true`
+
+The same auto-sync applies to `ParameterNode.required`.
 
 ### `@kubb/plugin-ts` options moved to `adapterOas`
 

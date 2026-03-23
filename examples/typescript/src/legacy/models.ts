@@ -68,28 +68,28 @@ export interface Order {
 
 export interface Address {
   /**
-   * @type string | undefined
+   * @type string
    */
-  streetName?: string
+  streetName: string
   /**
-   * @type string | undefined
+   * @type string
    */
-  streetNumber?: string
+  streetNumber: string
   /**
    * @example Palo Alto
-   * @type string | undefined
+   * @type string
    */
-  city?: string
+  city: string
   /**
    * @example CA
-   * @type string | undefined
+   * @type string
    */
-  state?: string
+  state: string
   /**
    * @example 94301
-   * @type string | undefined
+   * @type string
    */
-  zip?: string
+  zip: string
 }
 
 export enum ParamsStatusEnum2 {

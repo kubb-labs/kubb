@@ -9,6 +9,7 @@ export {
   createResponse,
   createRoot,
   createSchema,
+  syncPropertySchema,
 } from './factory.ts'
 export { functionPrinter } from './functionPrinter.ts'
 export {

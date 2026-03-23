@@ -27,7 +27,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     transformers = [],
   } = options
 
-  const baseResolver= legacy ? resolverTsLegacy : resolverTs
+  const baseResolver = legacy ? resolverTsLegacy : resolverTs
   const resolver = mergeResolvers(...(userResolvers ?? [baseResolver]))
 
   let resolveNameWarning = false

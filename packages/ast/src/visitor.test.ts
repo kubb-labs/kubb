@@ -373,6 +373,110 @@ describe('composeTransformers', () => {
   })
 })
 
+describe('syncPropertySchema — auto-derived optional/nullish', () => {
+  it('setting required: true via transformer clears schema.optional', () => {
+    const node = createSchema({
+      type: 'object',
+      name: 'Pet',
+      properties: [createProperty({ name: 'tag', schema: createSchema({ type: 'string' }), required: false })],
+    })
+
+    // Verify baseline: optional property has schema.optional = true
+    if (node.type === 'object') {
+      expect(node.properties[0]?.schema.optional).toBe(true)
+    }
+
+    const result = transform(node, {
+      property(prop): PropertyNode {
+        return { ...prop, required: true }
+      },
+    })
+
+    if (result.type === 'object') {
+      const tag = result.properties[0]!
+      expect(tag.required).toBe(true)
+      expect(tag.schema.optional).toBeUndefined()
+      expect(tag.schema.nullish).toBeUndefined()
+    }
+  })
+
+  it('setting required: false via transformer sets schema.optional for non-nullable', () => {
+    const node = createSchema({
+      type: 'object',
+      name: 'Pet',
+      properties: [createProperty({ name: 'name', schema: createSchema({ type: 'string' }), required: true })],
+    })
+
+    const result = transform(node, {
+      property(prop): PropertyNode {
+        return { ...prop, required: false }
+      },
+    })
+
+    if (result.type === 'object') {
+      const name = result.properties[0]!
+      expect(name.required).toBe(false)
+      expect(name.schema.optional).toBe(true)
+      expect(name.schema.nullish).toBeUndefined()
+    }
+  })
+
+  it('setting required: false on nullable schema sets schema.nullish', () => {
+    const node = createSchema({
+      type: 'object',
+      name: 'Pet',
+      properties: [createProperty({ name: 'tag', schema: createSchema({ type: 'string', nullable: true }), required: true })],
+    })
+
+    // Baseline: required + nullable = no optional/nullish
+    if (node.type === 'object') {
+      expect(node.properties[0]?.schema.optional).toBeUndefined()
+      expect(node.properties[0]?.schema.nullish).toBeUndefined()
+    }
+
+    const result = transform(node, {
+      property(prop): PropertyNode {
+        return { ...prop, required: false }
+      },
+    })
+
+    if (result.type === 'object') {
+      const tag = result.properties[0]!
+      expect(tag.required).toBe(false)
+      expect(tag.schema.optional).toBeUndefined()
+      expect(tag.schema.nullish).toBe(true)
+      expect(tag.schema.nullable).toBe(true)
+    }
+  })
+
+  it('property transformer targeting a specific parent schema auto-syncs', () => {
+    const node = createSchema({
+      type: 'object',
+      name: 'Address',
+      properties: [
+        createProperty({ name: 'street', schema: createSchema({ type: 'string' }), required: false }),
+        createProperty({ name: 'city', schema: createSchema({ type: 'string' }), required: false }),
+      ],
+    })
+
+    const result = transform(node, {
+      property(prop, { parent }) {
+        if (parent?.kind === 'Schema' && 'name' in parent && parent.name === 'Address') {
+          return { ...prop, required: true }
+        }
+      },
+    })
+
+    if (result.type === 'object') {
+      for (const prop of result.properties) {
+        expect(prop.required).toBe(true)
+        expect(prop.schema.optional).toBeUndefined()
+        expect(prop.schema.nullish).toBeUndefined()
+      }
+    }
+  })
+})
+
 describe('VisitorContext — parent', () => {
   it('property visitor receives parent schema via context', () => {
     const node = createSchema({

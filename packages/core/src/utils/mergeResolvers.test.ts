@@ -5,7 +5,7 @@ import { mergeResolvers } from './mergeResolvers.ts'
 
 type TestResolver = Resolver & {
   greet(name: string): string
-  farewell(name: string): string
+  goodbye(name: string): string
 }
 
 type TestPluginFactory = {
@@ -23,7 +23,7 @@ describe('mergeResolvers', () => {
     greet(name) {
       return `Hi ${name}`
     },
-    farewell(name) {
+    goodbye(name) {
       return `Bye ${name}`
     },
   }))
@@ -48,7 +48,7 @@ describe('mergeResolvers', () => {
 
     expect(merged.name).toBe('override')
     expect(merged.greet('Bob')).toBe('Hey Bob!')
-    expect(merged.farewell('Bob')).toBe('Bye Bob')
+    expect(merged.goodbye('Bob')).toBe('Bye Bob')
   })
 
   it('three resolvers — last wins for conflicting methods', () => {
@@ -81,18 +81,18 @@ describe('mergeResolvers', () => {
         return 'custom greet'
       },
     }))
-    const withFarewell = defineResolver<TestPluginFactory>(() => ({
+    const withGoodBye = defineResolver<TestPluginFactory>(() => ({
       ...base,
-      name: 'fareweller',
-      farewell() {
-        return 'custom farewell'
+      name: 'goodbye',
+      goodbye() {
+        return 'custom goodbye'
       },
     }))
 
-    const merged = mergeResolvers(withGreet, withFarewell)
+    const merged = mergeResolvers(withGreet, withGoodBye)
 
     expect(merged.greet('')).toBe('Hi ')
-    expect(merged.farewell('')).toBe('custom farewell')
-    expect(merged.name).toBe('fareweller')
+    expect(merged.goodbye('')).toBe('custom goodbye')
+    expect(merged.name).toBe('goodbye')
   })
 })

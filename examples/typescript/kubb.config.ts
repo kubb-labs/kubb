@@ -24,6 +24,17 @@ export default defineConfig([
           path: 'models.ts',
           barrelType: false,
         },
+        transformers: [
+          {
+            // Make all properties of the "Pet" schema optional
+            property(node, { parent }) {
+              console.log(parent)
+              if (parent?.name === 'Address') {
+                return { ...node, required: true }
+              }
+            },
+          },
+        ],
         enumType: 'enum',
         syntaxType: 'interface',
         legacy: true,

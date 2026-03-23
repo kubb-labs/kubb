@@ -319,8 +319,8 @@ describe('printerTs', () => {
         createSchema({
           type: 'intersection',
           members: [
-            createSchema({ type: 'object', properties: [createProperty({ name: 'a', schema: createSchema({ type: 'string' }) })] }),
-            createSchema({ type: 'object', properties: [createProperty({ name: 'b', schema: createSchema({ type: 'number' }) })] }),
+            createSchema({ type: 'object', properties: [createProperty({ name: 'a', required: true, schema: createSchema({ type: 'string' }) })] }),
+            createSchema({ type: 'object', properties: [createProperty({ name: 'b', required: true, schema: createSchema({ type: 'number' }) })] }),
           ],
         }),
       )
@@ -445,8 +445,8 @@ describe('printerTs', () => {
         createSchema({
           type: 'object',
           properties: [
-            createProperty({ name: 'id', schema: createSchema({ type: 'number' }) }),
-            createProperty({ name: 'name', schema: createSchema({ type: 'string' }) }),
+            createProperty({ name: 'id', required: true, schema: createSchema({ type: 'number' }) }),
+            createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
           ],
         }),
       )
@@ -510,7 +510,7 @@ describe('printerTs', () => {
       const result = printer.print(
         createSchema({
           type: 'object',
-          properties: [createProperty({ name: 'value', schema: createSchema({ type: 'string', nullable: true }) })],
+          properties: [createProperty({ name: 'value', required: true, schema: createSchema({ type: 'string', nullable: true }) })],
         }),
       )
 
@@ -525,7 +525,7 @@ describe('printerTs', () => {
       const result = printer.print(
         createSchema({
           type: 'object',
-          properties: [createProperty({ name: 'id', schema: createSchema({ type: 'number', readOnly: true }) })],
+          properties: [createProperty({ name: 'id', required: true, schema: createSchema({ type: 'number', readOnly: true }) })],
         }),
       )
 
@@ -572,7 +572,7 @@ describe('printerTs', () => {
       const result = printer.print(
         createSchema({
           type: 'object',
-          properties: [createProperty({ name: 'id', schema: createSchema({ type: 'number' }) })],
+          properties: [createProperty({ name: 'id', required: true, schema: createSchema({ type: 'number' }) })],
           additionalProperties: createSchema({ type: 'string' }),
         }),
       )

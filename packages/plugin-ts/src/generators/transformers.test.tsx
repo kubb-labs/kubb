@@ -104,6 +104,76 @@ describe('transformers — integration with typeGenerator Schema', () => {
   })
 })
 
+describe('transformers — property requiredness auto-sync', () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
+  const defaultOptions: PluginTs['resolvedOptions'] = {
+    enumType: 'asConst',
+    enumKeyCasing: 'none',
+    optionalType: 'questionToken',
+    arrayType: 'array',
+    syntaxType: 'type',
+    override: [],
+    paramsCasing: undefined,
+    output: { path: '.' },
+    group: undefined,
+    resolver: resolverTs,
+    baseResolver: resolverTs,
+    legacy: false,
+    transformers: [],
+  }
+
+  it('renders required properties when transformer sets required: true on specific parent', async () => {
+    const node = createSchema({
+      type: 'object',
+      name: 'Address',
+      properties: [
+        createProperty({
+          name: 'street',
+          schema: createSchema({ type: 'string' }),
+          required: false,
+        }),
+        createProperty({
+          name: 'city',
+          schema: createSchema({ type: 'string' }),
+          required: false,
+        }),
+      ],
+    })
+
+    const visitor: Visitor = {
+      property(prop, { parent }) {
+        if (parent?.kind === 'Schema' && 'name' in parent && parent.name === 'Address') {
+          return { ...prop, required: true }
+        }
+      },
+    }
+
+    const options: PluginTs['resolvedOptions'] = {
+      ...defaultOptions,
+      transformers: [visitor],
+    }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+
+    await renderSchema(node, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver: createMockedPluginDriver({ name: 'Address-required' }),
+      Component: typeGenerator.Schema,
+      plugin,
+      mode: 'split',
+      options,
+    })
+
+    await matchFiles(fabric.files, 'schema-property-required-transformer')
+  })
+})
+
 describe('transformers — integration with typeGenerator Operation', () => {
   const fabric = createReactFabric()
 
