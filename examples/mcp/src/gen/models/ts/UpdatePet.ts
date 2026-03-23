@@ -36,6 +36,9 @@ export type UpdatePet404 = any
  */
 export type UpdatePet405 = any
 
+/**
+ * @description Update an existent pet in the store
+ */
 export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'id'>
 
 export type UpdatePetMutationResponse = UpdatePet200 | UpdatePet202
