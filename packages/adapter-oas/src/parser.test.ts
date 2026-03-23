@@ -220,6 +220,40 @@ describe('buildAst', () => {
       expect(petId?.schema.type).toBe('integer')
     })
 
+    it('converts path parameters with $ref schema to a named ref type', async () => {
+      const oas = await parse({
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        components: {
+          schemas: {
+            PetId: { type: 'integer', description: 'Unique identifier of a pet' },
+          },
+        },
+        paths: {
+          '/pets/{petId}': {
+            get: {
+              operationId: 'getPetById',
+              parameters: [
+                {
+                  name: 'petId',
+                  in: 'path',
+                  required: true,
+                  schema: { $ref: '#/components/schemas/PetId' },
+                },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      })
+      const root = createOasParser(oas).parse()
+      const op = root.operations.find((o) => o.operationId === 'getPetById')
+      const petId = op?.parameters.find((p) => p.name === 'petId')
+
+      expect(petId?.schema.type).toBe('ref')
+      expect((petId?.schema as { name?: string }).name).toBe('PetId')
+    })
+
     it('converts requestBody', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser(oas).parse()

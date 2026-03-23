@@ -195,6 +195,36 @@ export default defineConfig({
 | Response status | `<OperationId>Status201` | `<OperationId>201` |
 | Default/error | `<OperationId>StatusDefault` | `<OperationId>Error` |
 
+### Path parameters with `$ref` schemas now resolve to their named type
+
+In v4, a path parameter whose `schema` was a `$ref` was incorrectly typed as `any`. In v5 the referenced type name is used instead.
+
+::: code-group
+```typescript [Before (v4 — typed as any)]
+// OpenAPI spec
+// parameters:
+//   - name: petId
+//     in: path
+//     required: true
+//     schema:
+//       $ref: '#/components/schemas/PetId'
+
+// Generated type (v4)
+export type GetPetByIdPathParams = {
+  petId: any
+}
+```
+
+```typescript [After (v5 — typed correctly)]
+// Generated type (v5)
+export type GetPetByIdPathParams = {
+  petId: PetId
+}
+```
+:::
+
+This is a correctness fix. If you were relying on the `any` type for path parameters that reference a `$ref` schema, update your code to use the referenced type.
+
 # Migrating to Kubb v3
 
 ## New Features
