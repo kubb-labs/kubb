@@ -243,33 +243,6 @@ pluginTs({
 
 Use `composeTransformers` from `@kubb/ast` to combine multiple visitors into one when building reusable transformer presets.
 
-#### Simplified property requiredness
-
-In v5, `PropertyNode.required` is the single source of truth for optionality. When you set `required` on a property in a transformer, `schema.optional` and `schema.nullish` are auto-derived — you no longer need to set them manually.
-
-```typescript
-pluginTs({
-  transformers: [
-    {
-      // Make all properties of the "Address" schema required — just set `required: true`
-      property(node, { parent }) {
-        if (parent?.name === 'Address') {
-          return { ...node, required: true }
-        }
-      },
-    },
-  ],
-})
-```
-
-The derivation rules:
-- `required: true` + not nullable → `schema.optional: undefined`, `schema.nullish: undefined`
-- `required: true` + nullable → `schema.nullable: true` (no optionality)
-- `required: false` + not nullable → `schema.optional: true`
-- `required: false` + nullable → `schema.nullish: true`, `schema.nullable: true`
-
-The same auto-sync applies to `ParameterNode.required`.
-
 ### `@kubb/plugin-ts` options moved to `adapterOas`
 
 These options no longer exist on `pluginTs(...)` — pass them to `adapterOas(...)` instead.
