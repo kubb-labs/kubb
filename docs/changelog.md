@@ -6,6 +6,56 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.14
+
+### ✨ Features
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+-   [#2872](https://github.com/kubb-labs/kubb/pull/2872) [`591977c`](https://github.com/kubb-labs/kubb/commit/591977c5c2f167736d6e43126ed0387a1e5e0ce5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)!
+    -   Add `name: string` to the `Resolver` base type. Every resolver now carries a name that identifies it.
+    -   `defineResolver` build functions must return a `name` property.
+    -   Add `mergeResolvers(...resolvers)` helper that merges multiple resolvers into one (last wins).
+
+#### [`@kubb/ast`](https://github.com/kubb-labs/kubb/tree/main/packages/ast)
+
+-   Add `composeTransformers(...visitors)` helper that combines multiple `Visitor` objects into a single visitor. Each node kind is piped through all visitors sequentially (left to right).
+
+#### [`@kubb/plugin-ts`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-ts)
+
+-   Add `resolvers` option — an array of named resolvers that control naming conventions. Later entries override earlier ones. Built-in resolvers: `resolverTs` (default) and `resolverTsLegacy`.
+-   Add `transformers` option — an array of AST `Visitor` objects applied to each `SchemaNode` before printing. Uses `composeTransformers` + `transform` from `@kubb/ast`.
+-   Export `resolverTs`, `resolverTsLegacy`, and `ResolverTs` from the package root.
+-   Remove the old `transformers: { name? }` object option. Use a custom resolver in `resolvers` instead.
+-   Deprecate `legacy` option in favor of `resolvers: [resolverTsLegacy]`.
+
+::: code-group
+```typescript [Before]
+// Old Transformers Config
+export const transformers = {
+  name: (name) => `${name}_Transformed`,
+}
+```
+
+```typescript [After]
+// New Resolvers Config
+import { resolverTs } from '@kubb/plugin-ts'
+
+export const resolvers = [
+  {
+    ...resolverTs,
+    name: (name) => `${name}_Transformed`,
+  },
+]
+```
+:::
+
+### 📦 Dependencies
+
+#### [`@kubb/plugin-svelte-query`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-svelte-query), [`@kubb/plugin-oas`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-oas), [`@kubb/plugin-cypress`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-cypress), [`@kubb/plugin-mcp`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-mcp), [`@kubb/oas`](https://github.com/kubb-labs/kubb/tree/main/packages/oas), [`@kubb/plugin-msw`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-msw), [`@kubb/mcp`](https://github.com/kubb-labs/kubb/tree/main/packages/mcp), [`@kubb/plugin-vue-query`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-vue-query), [`@kubb/plugin-faker`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-faker), [`@kubb/plugin-client`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-client), [`@kubb/plugin-redoc`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-redoc), [`@kubb/plugin-swr`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-swr), [`@kubb/plugin-solid-query`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-solid-query), [`@kubb/plugin-react-query`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-react-query), [`@kubb/plugin-zod`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-zod), [`@kubb/adapter-oas`](https://github.com/kubb-labs/kubb/tree/main/packages/adapter-oas), [`@kubb/agent`](https://github.com/kubb-labs/kubb/tree/main/packages/agent), [`@kubb/cli`](https://github.com/kubb-labs/kubb/tree/main/packages/cli)  
+-   Updated internal dependencies to integrate enhancements made to [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core), [`@kubb/plugin-ts`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-ts), and [`@kubb/ast`](https://github.com/kubb-labs/kubb/tree/main/packages/ast).
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
