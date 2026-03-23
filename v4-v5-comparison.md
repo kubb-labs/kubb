@@ -66,12 +66,12 @@
 
 | ID | Severity | Status | Affects | Description |
 |----|----------|--------|---------|-------------|
-| T1 | Medium | ❌ Open | plugin-ts | `@example` JSDoc emitted in v5, suppressed in v4 |
+| T1 | Medium | ✅ By design | plugin-ts | `@example` JSDoc emitted in v5, suppressed in v4 |
 | T2 | — | ✅ By design | plugin-ts (all) | `@type` JSDoc annotation dropped in v5 |
 | T3 | Low | ❌ Open | plugin-ts | Extra `XxxEnumKey` alias in v5 |
 | T4 | Low | ✅ By design | plugin-ts | `(string & {})` open union instead of `string` |
 | T5 | — | ✅ By design | plugin-ts (most) | `@type object` / format suffix not emitted in v5 |
-| T6 | Low | ❌ Open | plugin-ts | `MutationResponse` placement in grouped type |
+| T6 | Low | ✅ Fixed | plugin-ts | `MutationResponse` placement in grouped type |
 | T7 | Low | ✅ Fixed | plugin-ts | `@description` on response alias type |
 | N-AggType | Medium | ✅ By design | plugin-ts | `export interface Xxx` instead of `export type Xxx = {` |
 | N-QueryParams | Medium | ❌ Open | plugin-ts | `QueryParams` missing from aggregated operation type |
