@@ -30,6 +30,10 @@ export type OperationNode = BaseNode & {
    */
   requestBody?: {
     /**
+     * Human-readable description of the request body (maps to `requestBody.description` in OAS).
+     */
+    description?: string
+    /**
      * The request body schema. For OAS, this is the schema of the first content entry.
      */
     schema?: SchemaNode

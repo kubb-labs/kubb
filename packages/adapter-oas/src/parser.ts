@@ -367,6 +367,8 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
     // When a child schema extends a discriminator parent via allOf and the parent's oneOf/anyOf
     // references that child back, skip that allOf item to prevent a circular type reference.
+    // When an item is skipped, collect its discriminant value so it can be injected below.
+    const filteredDiscriminantValues: Array<{ propertyName: string; value: string }> = []
     const allOfMembers: Array<SchemaNode> = (schema.allOf as Array<SchemaObject | ReferenceObject>)
       .filter((item) => {
         if (!isReference(item) || !name) return true
@@ -377,7 +379,14 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
         const childRef = `#/components/schemas/${name}`
         const inOneOf = parentUnion.some((oneOfItem) => isReference(oneOfItem) && oneOfItem.$ref === childRef)
         const inMapping = Object.values(deref.discriminator.mapping ?? {}).some((v) => v === childRef)
-        return !inOneOf && !inMapping
+        if (inOneOf || inMapping) {
+          const discriminatorValue = Object.entries(deref.discriminator.mapping ?? {}).find(([, v]) => v === childRef)?.[0]
+          if (discriminatorValue) {
+            filteredDiscriminantValues.push({ propertyName: deref.discriminator.propertyName, value: discriminatorValue })
+          }
+          return false
+        }
+        return true
       })
       .map((s) => convertSchema({ schema: s as SchemaObject }, options))
 
@@ -413,10 +422,29 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       allOfMembers.push(convertSchema({ schema: schemaWithoutAllOf }, options))
     }
 
-    // Merge consecutive anonymous object members in each portion independently —
-    // allOf-derived members are merged among themselves, synthetic members among themselves.
-    // This collapses adjacent inline objects while avoiding duplicate properties across the boundary.
-    // See `mergeAdjacentAnonymousObjects`.
+    // Inject a synthetic single-property object for each discriminant value collected from
+    // filtered discriminator parents so that child schemas carry the narrowed literal type.
+    for (const { propertyName, value } of filteredDiscriminantValues) {
+      allOfMembers.push(
+        createSchema({
+          type: 'object',
+          primitive: 'object',
+          properties: [
+            createProperty({
+              name: propertyName,
+              schema: createSchema({
+                type: 'enum',
+                primitive: 'string',
+                enumValues: [value],
+              }),
+              required: true,
+            }),
+          ],
+        }),
+      )
+    }
+
+    // Merge consecutive anonymous object members within the synthetic portion — see `mergeAdjacentAnonymousObjects`.
     return createSchema({
       type: 'intersection',
       members: [...mergeAdjacentAnonymousObjects(allOfMembers.slice(0, syntheticStart)), ...mergeAdjacentAnonymousObjects(allOfMembers.slice(syntheticStart))],
@@ -473,6 +501,45 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
       })
     }
 
+    // When a discriminator with mapping is present but there are no sibling properties,
+    // embed the narrowed discriminant value into each member to produce precise literal
+    // intersection types (e.g. `Cat & { type: 'cat' }`) instead of plain `Cat | Dog`.
+    const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
+    if (discriminator?.mapping) {
+      return createSchema({
+        type: 'union',
+        ...unionBase,
+        members: unionMembers.map((s) => {
+          const ref = isReference(s) ? s.$ref : undefined
+          const discriminatorValue = ref ? Object.entries(discriminator.mapping!).find(([, v]) => v === ref)?.[0] : undefined
+          const memberNode = convertSchema({ schema: s as SchemaObject }, options)
+
+          if (!discriminatorValue) return memberNode
+
+          const discriminantNode = createSchema({
+            type: 'object',
+            primitive: 'object',
+            properties: [
+              createProperty({
+                name: discriminator.propertyName,
+                schema: createSchema({
+                  type: 'enum',
+                  primitive: 'string',
+                  enumValues: [discriminatorValue],
+                }),
+                required: true,
+              }),
+            ],
+          })
+
+          return createSchema({
+            type: 'intersection',
+            members: [memberNode, discriminantNode],
+          })
+        }),
+      })
+    }
+
     return createSchema({
       type: 'union',
       ...unionBase,
@@ -489,6 +556,8 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     const constValue = schema.const
 
     if (constValue === null) {
+      // Do not propagate `nullable` here: the type is already `null`, so marking it
+      // nullable too would cause the printer to emit `null | null`.
       return createSchema({
         type: 'null',
         primitive: 'null',
@@ -496,7 +565,6 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
         title: schema.title,
         description: schema.description,
         deprecated: schema.deprecated,
-        nullable,
       })
     }
 
@@ -727,7 +795,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
             name: propName,
             schema: {
               ...schemaNode,
-              nullable: propNullable || undefined,
+              nullable: schemaNode.type === 'null' ? undefined : propNullable || undefined,
               optional: !required && !propNullable ? true : undefined,
               nullish: !required && propNullable ? true : undefined,
             },
@@ -1017,6 +1085,11 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     const requestBodySchema = oas.getRequestSchema(operation)
     const requestBodySchemaNode = requestBodySchema ? convertSchema({ schema: requestBodySchema }, options) : undefined
 
+    const requestBodyDescription =
+      operation.schema.requestBody && !isReference(operation.schema.requestBody)
+        ? (operation.schema.requestBody as { description?: string }).description
+        : undefined
+
     const requestBodyKeysToOmit = requestBodySchema?.properties
       ? Object.entries(requestBodySchema.properties)
           .filter(([, prop]) => !isReference(prop) && (prop as { readOnly?: boolean }).readOnly)
@@ -1025,6 +1098,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
     const requestBody = requestBodySchemaNode
       ? {
+          description: requestBodyDescription,
           schema: requestBodySchemaNode,
           keysToOmit: requestBodyKeysToOmit?.length ? requestBodyKeysToOmit : undefined,
         }

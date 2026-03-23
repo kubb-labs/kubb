@@ -229,6 +229,14 @@ describe('buildAst', () => {
       expect(createPet?.requestBody?.schema?.type).toBe('ref')
     })
 
+    it('captures requestBody description', async () => {
+      const oas = await buildMinimalOas()
+      const root = createOasParser(oas).parse()
+      const createPet = root.operations.find((op) => op.operationId === 'createPet')
+
+      expect(createPet?.requestBody?.description).toBe('New pet to create')
+    })
+
     it('converts responses with statusCode and schema', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser(oas).parse()
@@ -724,6 +732,31 @@ describe('convertSchema const (OAS 3.1)', () => {
     const node = parser.convertSchema({ schema: { const: null } })
 
     expect(node.type).toBe('null')
+  })
+
+  it('const: null does not set nullable (avoids null | null)', () => {
+    const node = parser.convertSchema({ schema: { const: null, nullable: true } })
+
+    expect(node.type).toBe('null')
+    expect(node.nullable).toBeUndefined()
+  })
+
+  it('const: null as an object property does not set nullable on the property (avoids null | null)', () => {
+    const node = parser.convertSchema({
+      schema: {
+        type: 'object',
+        properties: {
+          status: { const: null },
+        },
+      },
+      name: 'MyObject',
+    })
+
+    const objectNode = narrowSchema(node, 'object')
+    const statusProp = objectNode?.properties.find((p) => p.name === 'status')
+
+    expect(statusProp?.schema.type).toBe('null')
+    expect(statusProp?.schema.nullable).toBeUndefined()
   })
 
   it('propagates name on const enum', () => {
@@ -1686,6 +1719,24 @@ describe('convertSchema null', () => {
 
     expect(node.description).toBe('always null')
   })
+
+  it('type: null property in object does not set nullable (avoids null | null)', () => {
+    const node = parser.convertSchema({
+      schema: {
+        type: 'object',
+        properties: {
+          field: { type: 'null' },
+        },
+      },
+      name: 'Wrapper',
+    })
+
+    const objectNode = narrowSchema(node, 'object')
+    const fieldProp = objectNode?.properties.find((p) => p.name === 'field')
+
+    expect(fieldProp?.schema.type).toBe('null')
+    expect(fieldProp?.schema.nullable).toBeUndefined()
+  })
 })
 
 describe('convertSchema OAS 3.1 type array', () => {
@@ -2470,6 +2521,76 @@ describe('convertSchema discriminator on union (oneOf/anyOf)', () => {
   })
 })
 
+describe('convertSchema discriminator on union without sibling properties', () => {
+  const parser = createOasParser(emptyOas)
+
+  it('embeds the discriminant value into each union member as an intersection when mapping is present', () => {
+    const node = parser.convertSchema({
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+        discriminator: {
+          propertyName: 'type',
+          mapping: {
+            dog: '#/components/schemas/Dog',
+            cat: '#/components/schemas/Cat',
+          },
+        },
+      },
+    })
+
+    expect(node.type).toBe('union')
+    const { members } = narrowSchema(node, 'union')!
+
+    // Dog member: intersection of Dog ref + { type: 'dog' }
+    const dogIntersection = narrowSchema(members![0], 'intersection')
+    expect(dogIntersection).toBeDefined()
+    const dogDiscNode = narrowSchema(dogIntersection!.members![1], 'object')
+    const dogTypeProp = dogDiscNode?.properties?.find((p) => p.name === 'type')
+    expect(narrowSchema(dogTypeProp?.schema, 'enum')?.enumValues).toEqual(['dog'])
+
+    // Cat member: intersection of Cat ref + { type: 'cat' }
+    const catIntersection = narrowSchema(members![1], 'intersection')
+    expect(catIntersection).toBeDefined()
+    const catDiscNode = narrowSchema(catIntersection!.members![1], 'object')
+    const catTypeProp = catDiscNode?.properties?.find((p) => p.name === 'type')
+    expect(narrowSchema(catTypeProp?.schema, 'enum')?.enumValues).toEqual(['cat'])
+  })
+
+  it('leaves members without a mapping entry as plain refs', () => {
+    const node = parser.convertSchema({
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/Dog' }, { type: 'string' }],
+        discriminator: {
+          propertyName: 'type',
+          mapping: {
+            dog: '#/components/schemas/Dog',
+          },
+        },
+      },
+    })
+
+    const { members } = narrowSchema(node, 'union')!
+    // Dog is in the mapping → wrapped in an intersection
+    expect(members![0]?.type).toBe('intersection')
+    // String literal has no mapping entry → left as-is
+    expect(members![1]?.type).toBe('string')
+  })
+
+  it('produces a plain union when no discriminator mapping is present', () => {
+    const node = parser.convertSchema({
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+        discriminator: { propertyName: 'type' },
+      },
+    })
+
+    expect(node.type).toBe('union')
+    const { members } = narrowSchema(node, 'union')!
+    // No mapping → no intersection wrapping
+    expect(members!.every((m) => m.type !== 'intersection')).toBe(true)
+  })
+})
+
 describe('convertSchema circular allOf discriminator detection', () => {
   it('skips allOf member that references the child schema back through its discriminator parent', async () => {
     // This models the OAS pattern: Animal (parent, discriminator) → Cat (child, allOf: [Animal])
@@ -2503,6 +2624,57 @@ describe('convertSchema circular allOf discriminator detection', () => {
     const members = narrowSchema(cat, 'intersection')?.members ?? []
     expect(members.length).toBeGreaterThan(0)
     expect(members.some((m) => m.type === 'ref' && m.name === 'Animal')).toBe(false)
+  })
+
+  it('injects the narrowed discriminant value when the discriminator parent is filtered from allOf', async () => {
+    // Cat is identified as 'cat' in Animal's mapping; the Animal $ref is skipped to prevent
+    // circularity, but { type: 'cat' } must be injected into Cat's intersection.
+    const oas = await parse({
+      openapi: '3.0.3',
+      info: { title: 'DiscriminantInjection', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Animal: {
+            oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            discriminator: {
+              propertyName: 'type',
+              mapping: {
+                cat: '#/components/schemas/Cat',
+                dog: '#/components/schemas/Dog',
+              },
+            },
+          },
+          Cat: {
+            allOf: [{ $ref: '#/components/schemas/Animal' }, { type: 'object', properties: { name: { type: 'string' } } }],
+          },
+          Dog: {
+            allOf: [{ $ref: '#/components/schemas/Animal' }, { type: 'object', properties: { breed: { type: 'string' } } }],
+          },
+        },
+      },
+    })
+
+    const root = createOasParser(oas).parse()
+
+    const cat = root.schemas.find((s) => s.name === 'Cat')
+    expect(cat?.type).toBe('intersection')
+    const catMembers = narrowSchema(cat, 'intersection')?.members ?? []
+    // A synthetic { type: 'cat' } object must be present in Cat's intersection members.
+    const catDiscNode = catMembers.find((m) => {
+      const obj = narrowSchema(m, 'object')
+      return obj?.properties?.some((p) => p.name === 'type' && narrowSchema(p.schema, 'enum')?.enumValues?.[0] === 'cat')
+    })
+    expect(catDiscNode).toBeDefined()
+
+    const dog = root.schemas.find((s) => s.name === 'Dog')
+    expect(dog?.type).toBe('intersection')
+    const dogMembers = narrowSchema(dog, 'intersection')?.members ?? []
+    const dogDiscNode = dogMembers.find((m) => {
+      const obj = narrowSchema(m, 'object')
+      return obj?.properties?.some((p) => p.name === 'type' && narrowSchema(p.schema, 'enum')?.enumValues?.[0] === 'dog')
+    })
+    expect(dogDiscNode).toBeDefined()
   })
 })
 

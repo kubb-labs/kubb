@@ -134,11 +134,14 @@ function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalTy
  * Collects JSDoc annotation strings (description, deprecated, min/max, pattern, default, example, type) for a schema node.
  */
 function buildPropertyJSDocComments(schema: SchemaNode): Array<string | undefined> {
+  const isArray = schema.type === 'array'
+
   return [
     'description' in schema && schema.description ? `@description ${jsStringEscape(schema.description)}` : undefined,
     'deprecated' in schema && schema.deprecated ? '@deprecated' : undefined,
-    'min' in schema && schema.min !== undefined ? `@minLength ${schema.min}` : undefined,
-    'max' in schema && schema.max !== undefined ? `@maxLength ${schema.max}` : undefined,
+    // minItems/maxItems on arrays should not be emitted as @minLength/@maxLength
+    !isArray && 'min' in schema && schema.min !== undefined ? `@minLength ${schema.min}` : undefined,
+    !isArray && 'max' in schema && schema.max !== undefined ? `@maxLength ${schema.max}` : undefined,
     'pattern' in schema && schema.pattern ? `@pattern ${schema.pattern}` : undefined,
     'default' in schema && schema.default !== undefined
       ? `@default ${'primitive' in schema && schema.primitive === 'string' ? stringify(schema.default as string) : schema.default}`
