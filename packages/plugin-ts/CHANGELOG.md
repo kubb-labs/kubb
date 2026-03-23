@@ -1,5 +1,27 @@
 # @kubb/plugin-ts
 
+## 5.0.0-alpha.16
+
+### Major Changes
+
+- [#2881](https://github.com/kubb-labs/kubb/pull/2881) [`f1b2596`](https://github.com/kubb-labs/kubb/commit/f1b2596a36adc73de6aeea6f0843786dfc630426) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Replace `legacy` mode with `compatibilityPreset` in `@kubb/plugin-ts`.
+  - `'none'` (default)
+  - `'kubbV4'` (full v4 type-generation naming compatibility)
+
+  `legacy` is removed from plugin-ts options. Use `compatibilityPreset: 'kubbV4'` for v4-compatible output.
+
+  Resolver precedence:
+  - Base resolver comes from default + selected compatibility preset
+  - Explicit `resolvers` entries are composed after preset/base and override conflicting methods
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.16
+  - @kubb/core@5.0.0-alpha.16
+  - @kubb/oas@5.0.0-alpha.16
+  - @kubb/plugin-oas@5.0.0-alpha.16
+
 ## 5.0.0-alpha.15
 
 ### Patch Changes

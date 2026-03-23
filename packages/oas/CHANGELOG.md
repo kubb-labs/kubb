@@ -1,5 +1,13 @@
 # @kubb/oas
 
+## 5.0.0-alpha.16
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.16
+  - @kubb/core@5.0.0-alpha.16
+
 ## 5.0.0-alpha.15
 
 ### Patch Changes
