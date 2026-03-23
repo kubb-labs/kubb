@@ -1016,6 +1016,11 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
     const requestBodySchema = oas.getRequestSchema(operation)
     const requestBodySchemaNode = requestBodySchema ? convertSchema({ schema: requestBodySchema }, options) : undefined
 
+    const requestBodyDescription =
+      operation.schema.requestBody && !isReference(operation.schema.requestBody)
+        ? (operation.schema.requestBody as { description?: string }).description
+        : undefined
+
     const requestBodyKeysToOmit = requestBodySchema?.properties
       ? Object.entries(requestBodySchema.properties)
           .filter(([, prop]) => !isReference(prop) && (prop as { readOnly?: boolean }).readOnly)
@@ -1024,6 +1029,7 @@ export function createOasParser(oas: Oas, { contentType, collisionDetection }: O
 
     const requestBody = requestBodySchemaNode
       ? {
+          description: requestBodyDescription,
           schema: requestBodySchemaNode,
           keysToOmit: requestBodyKeysToOmit?.length ? requestBodyKeysToOmit : undefined,
         }

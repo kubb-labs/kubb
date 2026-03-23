@@ -53,10 +53,10 @@ describe('typeGenerator v2 — Operation', () => {
         path: '/pets',
         tags: ['pets'],
         requestBody: {
+          description: 'Pet to add',
           schema: createSchema({
             type: 'object',
             properties: [],
-            description: 'Pet to add',
           }),
         },
         responses: [

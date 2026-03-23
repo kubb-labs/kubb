@@ -229,6 +229,14 @@ describe('buildAst', () => {
       expect(createPet?.requestBody?.schema?.type).toBe('ref')
     })
 
+    it('captures requestBody description', async () => {
+      const oas = await buildMinimalOas()
+      const root = createOasParser(oas).parse()
+      const createPet = root.operations.find((op) => op.operationId === 'createPet')
+
+      expect(createPet?.requestBody?.description).toBe('New pet to create')
+    })
+
     it('converts responses with statusCode and schema', async () => {
       const oas = await buildMinimalOas()
       const root = createOasParser(oas).parse()
