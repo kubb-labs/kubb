@@ -1,5 +1,5 @@
 import type { Visitor } from '@kubb/ast/types'
-import type { Preset } from '@kubb/core'
+import type { Preset, Presets } from '@kubb/core'
 import { definePreset, mergeResolvers } from '@kubb/core'
 import { resolverTs, resolverTsHeyapi, resolverTsLegacy, resolverTsOrval } from './resolvers/index.ts'
 import type { CompatibilityPreset, ResolverTs } from './types.ts'
@@ -8,7 +8,7 @@ export type TsCompatibilityPreset = Preset<ResolverTs> & {
   name: Exclude<CompatibilityPreset, 'none'>
 }
 
-const tsPresetRegistry: Record<Exclude<CompatibilityPreset, 'none'>, TsCompatibilityPreset> = {
+const tsPresetRegistry: Presets<ResolverTs, Exclude<CompatibilityPreset, 'none'>> = {
   kubbV4: definePreset('kubbV4', { resolvers: [resolverTsLegacy] }),
   heyapi: definePreset('heyapi', { resolvers: [resolverTsHeyapi] }),
   orval: definePreset('orval', { resolvers: [resolverTsOrval] }),

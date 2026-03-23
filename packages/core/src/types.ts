@@ -568,3 +568,11 @@ export type Preset<TResolver extends Resolver = Resolver> = {
    */
   transformers?: Array<Visitor>
 }
+
+/**
+ * A named registry of presets, keyed by preset name.
+ *
+ * @template TResolver - The concrete resolver type shared by all presets in this registry.
+ * @template TName - The union of valid preset name keys.
+ */
+export type Presets<TResolver extends Resolver = Resolver, TName extends string = string> = Record<TName, Preset<TResolver>>
