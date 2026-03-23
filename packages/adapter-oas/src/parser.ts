@@ -17,6 +17,7 @@ import type {
   StatusCode,
 } from '@kubb/ast/types'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, formatMap, knownMediaTypes } from './constants.ts'
+import { createDiscriminantNode, resolveDiscriminatorValue } from './discriminator.ts'
 import type { InferSchemaNode } from './infer.ts'
 import { applyEnumName, resolveChildName, resolveEnumPropName } from './naming.ts'
 import type { Oas } from './oas/Oas.ts'
@@ -143,6 +144,13 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
     if (value === 'any') return schemaTypes.any
     if (value === 'void') return schemaTypes.void
     return schemaTypes.unknown
+  }
+
+  function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
+    const isItemsObject = typeof schema.items === 'object' && !Array.isArray(schema.items)
+    const normalizedItems: SchemaObject = { ...(isItemsObject ? (schema.items as SchemaObject) : {}), enum: schema.enum }
+    const { enum: _enum, ...schemaWithoutEnum } = schema
+    return { ...schemaWithoutEnum, items: normalizedItems } as SchemaObject
   }
 
   /**
@@ -281,7 +289,7 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
         const inOneOf = parentUnion.some((oneOfItem) => isReference(oneOfItem) && oneOfItem.$ref === childRef)
         const inMapping = Object.values(deref.discriminator.mapping ?? {}).some((v) => v === childRef)
         if (inOneOf || inMapping) {
-          const discriminatorValue = Object.entries(deref.discriminator.mapping ?? {}).find(([, v]) => v === childRef)?.[0]
+          const discriminatorValue = resolveDiscriminatorValue(deref.discriminator.mapping, childRef)
           if (discriminatorValue) {
             filteredDiscriminantValues.push({ propertyName: deref.discriminator.propertyName, value: discriminatorValue })
           }
@@ -326,23 +334,7 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
     // Inject a synthetic single-property object for each discriminant value collected from
     // filtered discriminator parents so that child schemas carry the narrowed literal type.
     for (const { propertyName, value } of filteredDiscriminantValues) {
-      allOfMembers.push(
-        createSchema({
-          type: 'object',
-          primitive: 'object',
-          properties: [
-            createProperty({
-              name: propertyName,
-              schema: createSchema({
-                type: 'enum',
-                primitive: 'string',
-                enumValues: [value],
-              }),
-              required: true,
-            }),
-          ],
-        }),
-      )
+      allOfMembers.push(createDiscriminantNode(propertyName, value))
     }
 
     // Merge consecutive anonymous object members within the synthetic portion — see `mergeAdjacentAnonymousObjects`.
@@ -367,75 +359,50 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
       ...renderSchemaBase(schema, name, nullable, defaultValue),
       discriminatorPropertyName: isDiscriminator(schema) ? schema.discriminator.propertyName : undefined,
     }
-
-    if (schema.properties) {
-      const { oneOf: _oneOf, anyOf: _anyOf, ...schemaWithoutUnion } = schema
-      const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
-
-      // Strip discriminator so convertObject won't re-apply the full mapping enum.
-      const memberBaseSchema: SchemaObject = discriminator
-        ? (Object.fromEntries(Object.entries(schemaWithoutUnion).filter(([key]) => key !== 'discriminator')) as SchemaObject)
-        : schemaWithoutUnion
-
-      // Convert shared properties once to avoid duplicate enum naming
-      // (e.g. StatusEnum appearing twice and getting a numeric suffix).
-      const sharedPropertiesNode = convertSchema({ schema: memberBaseSchema, name }, options)
-
-      return createSchema({
-        type: 'union',
-        ...unionBase,
-        members: unionMembers.map((s) => {
-          const ref = isReference(s) ? s.$ref : undefined
-          const discriminatorValue = discriminator?.mapping && ref ? Object.entries(discriminator.mapping).find(([, v]) => v === ref)?.[0] : undefined
-
-          let propertiesNode = sharedPropertiesNode
-
-          if (discriminatorValue && discriminator) {
-            propertiesNode = applyDiscriminatorEnum({ node: propertiesNode, propertyName: discriminator.propertyName, values: [discriminatorValue] })
-          }
-
-          return createSchema({
-            type: 'intersection',
-            members: [convertSchema({ schema: s as SchemaObject }, options), propertiesNode],
-          })
-        }),
-      })
-    }
-
-    // When a discriminator with mapping is present but there are no sibling properties,
-    // embed the narrowed discriminant value into each member to produce precise literal
-    // intersection types (e.g. `Cat & { type: 'cat' }`) instead of plain `Cat | Dog`.
     const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
-    if (discriminator?.mapping) {
+    const sharedPropertiesNode = schema.properties
+      ? (() => {
+          const { oneOf: _oneOf, anyOf: _anyOf, ...schemaWithoutUnion } = schema
+          // Strip discriminator so convertObject won't re-apply the full mapping enum.
+          const memberBaseSchema: SchemaObject = discriminator
+            ? (Object.fromEntries(Object.entries(schemaWithoutUnion).filter(([key]) => key !== 'discriminator')) as SchemaObject)
+            : schemaWithoutUnion
+          // Convert shared properties once to avoid duplicate enum naming
+          // (e.g. StatusEnum appearing twice and getting a numeric suffix).
+          return convertSchema({ schema: memberBaseSchema, name }, options)
+        })()
+      : undefined
+
+    if (sharedPropertiesNode || discriminator?.mapping) {
       return createSchema({
         type: 'union',
         ...unionBase,
         members: unionMembers.map((s) => {
           const ref = isReference(s) ? s.$ref : undefined
-          const discriminatorValue = ref ? Object.entries(discriminator.mapping!).find(([, v]) => v === ref)?.[0] : undefined
+          const discriminatorValue = resolveDiscriminatorValue(discriminator?.mapping, ref)
           const memberNode = convertSchema({ schema: s as SchemaObject }, options)
 
-          if (!discriminatorValue) return memberNode
+          if (sharedPropertiesNode) {
+            const narrowedProperties =
+              discriminatorValue && discriminator
+                ? applyDiscriminatorEnum({
+                    node: sharedPropertiesNode,
+                    propertyName: discriminator.propertyName,
+                    values: [discriminatorValue],
+                  })
+                : sharedPropertiesNode
 
-          const discriminantNode = createSchema({
-            type: 'object',
-            primitive: 'object',
-            properties: [
-              createProperty({
-                name: discriminator.propertyName,
-                schema: createSchema({
-                  type: 'enum',
-                  primitive: 'string',
-                  enumValues: [discriminatorValue],
-                }),
-                required: true,
-              }),
-            ],
-          })
+            return createSchema({
+              type: 'intersection',
+              members: [memberNode, narrowedProperties],
+            })
+          }
+
+          if (!discriminatorValue || !discriminator) return memberNode
 
           return createSchema({
             type: 'intersection',
-            members: [memberNode, discriminantNode],
+            members: [memberNode, createDiscriminantNode(discriminator.propertyName, discriminatorValue)],
           })
         }),
       })
@@ -538,10 +505,7 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   function convertEnum({ schema, name, nullable, type, options }: SchemaContext): SchemaNode {
     // Malformed schema: `{ type: 'array', enum: [...] }` — normalize by moving the enum into items.
     if (type === 'array') {
-      const isItemsObject = typeof schema.items === 'object' && !Array.isArray(schema.items)
-      const normalizedItems: SchemaObject = { ...(isItemsObject ? (schema.items as SchemaObject) : {}), enum: schema.enum }
-      const { enum: _enum, ...schemaWithoutEnum } = schema
-      return convertSchema({ schema: { ...schemaWithoutEnum, items: normalizedItems } as SchemaObject, name }, options)
+      return convertSchema({ schema: normalizeArrayEnum(schema), name }, options)
     }
 
     // `null` in enum values is the OAS 3.0 convention for a nullable enum.
@@ -567,49 +531,22 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
 
     // x-enumNames / x-enum-varnames: named variants with explicit labels take priority.
     const extensionKey = enumExtensionKeys.find((key) => key in schema)
-    if (extensionKey) {
-      const rawNames = (schema as Record<string, unknown>)[extensionKey] as Array<string | number>
-      const uniqueNames = [...new Set(rawNames)]
-      const enumType =
-        getPrimitiveType(type) === 'number' || getPrimitiveType(type) === 'integer'
-          ? ('number' as const)
-          : getPrimitiveType(type) === 'boolean'
-            ? ('boolean' as const)
-            : ('string' as const)
+    if (extensionKey || enumPrimitive === 'number' || enumPrimitive === 'integer' || enumPrimitive === 'boolean') {
+      const enumType = (enumPrimitive === 'number' || enumPrimitive === 'integer' ? 'number' : enumPrimitive === 'boolean' ? 'boolean' : 'string') as
+        | 'number'
+        | 'boolean'
+        | 'string'
+      const sourceValues = extensionKey
+        ? [...new Set((schema as Record<string, unknown>)[extensionKey] as Array<string | number>)]
+        : [...new Set(filteredValues)]
 
       return createSchema({
         ...enumBase,
         enumType,
-        namedEnumValues: uniqueNames.map((label, index) => ({
+        namedEnumValues: sourceValues.map((label, index) => ({
           name: String(label),
-          value: filteredValues[index] ?? label,
+          value: extensionKey ? (filteredValues[index] ?? label) : label,
           format: enumType,
-        })),
-      })
-    }
-
-    // Number / integer enum — must use a const map since most generators can't use string-enum for numbers.
-    if (type === 'number' || type === 'integer') {
-      return createSchema({
-        ...enumBase,
-        enumType: 'number' as const,
-        namedEnumValues: [...new Set(filteredValues)].map((value) => ({
-          name: String(value),
-          value: value as number,
-          format: 'number' as const,
-        })),
-      })
-    }
-
-    // Boolean enum — same const-map approach as numeric.
-    if (type === 'boolean') {
-      return createSchema({
-        ...enumBase,
-        enumType: 'boolean' as const,
-        namedEnumValues: [...new Set(filteredValues)].map((value) => ({
-          name: String(value),
-          value: value as boolean,
-          format: 'boolean' as const,
         })),
       })
     }
