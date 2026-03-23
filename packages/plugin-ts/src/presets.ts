@@ -1,27 +1,17 @@
 import type { Visitor } from '@kubb/ast/types'
-import { mergeResolvers } from '@kubb/core'
+import { definePreset, mergeResolvers } from '@kubb/core'
+import type { Preset } from '@kubb/core'
 import { resolverTs, resolverTsHeyapi, resolverTsLegacy, resolverTsOrval } from './resolvers/index.ts'
 import type { CompatibilityPreset, ResolverTs } from './types.ts'
 
-export type TsCompatibilityPreset = {
+export type TsCompatibilityPreset = Preset<ResolverTs> & {
   name: Exclude<CompatibilityPreset, 'none'>
-  resolvers: Array<ResolverTs>
-  transformers?: Array<Visitor>
 }
 
 const tsPresetRegistry: Record<Exclude<CompatibilityPreset, 'none'>, TsCompatibilityPreset> = {
-  kubbV4: {
-    name: 'kubbV4',
-    resolvers: [resolverTsLegacy],
-  },
-  heyapi: {
-    name: 'heyapi',
-    resolvers: [resolverTsHeyapi],
-  },
-  orval: {
-    name: 'orval',
-    resolvers: [resolverTsOrval],
-  },
+  kubbV4: definePreset('kubbV4', [resolverTsLegacy]),
+  heyapi: definePreset('heyapi', [resolverTsHeyapi]),
+  orval: definePreset('orval', [resolverTsOrval]),
 }
 
 export function getTsCompatibilityPreset(preset: CompatibilityPreset): TsCompatibilityPreset | undefined {
