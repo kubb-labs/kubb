@@ -49,10 +49,10 @@ type ParentNodeMap = [
   [ResponseNode, OperationNode],
 ]
 
-export type ParentOf<
-  T extends Node,
-  TEntries extends ReadonlyArray<[Node, unknown]> = ParentNodeMap,
-> = TEntries extends [infer TEntry extends [Node, unknown], ...infer TRest extends ReadonlyArray<[Node, unknown]>]
+export type ParentOf<T extends Node, TEntries extends ReadonlyArray<[Node, unknown]> = ParentNodeMap> = TEntries extends [
+  infer TEntry extends [Node, unknown],
+  ...infer TRest extends ReadonlyArray<[Node, unknown]>,
+]
   ? T extends TEntry[0]
     ? TEntry[1]
     : ParentOf<T, TRest>
