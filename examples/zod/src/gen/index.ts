@@ -18,15 +18,15 @@ export type {
   CreatePets201Type,
   CreatePetsErrorType,
   CreatePetsHeaderParamsType,
-  CreatePetsHeaderParamsTypeXEXAMPLEEnumType,
-  CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey,
+  CreatePetsHeaderParamsXEXAMPLEEnumType,
+  CreatePetsHeaderParamsXEXAMPLEEnumTypeKey,
   CreatePetsMutationRequestType,
   CreatePetsMutationResponseType,
   CreatePetsMutationType,
   CreatePetsPathParamsType,
   CreatePetsQueryParamsType,
 } from './ts/CreatePetsType.ts'
-export { createPetsHeaderParamsTypeXEXAMPLEEnum } from './ts/CreatePetsType.ts'
+export { createPetsHeaderParamsXEXAMPLEEnum } from './ts/CreatePetsType.ts'
 export type {
   CreateUsersWithListInput200Type,
   CreateUsersWithListInputErrorType,
@@ -65,24 +65,24 @@ export type {
 export type {
   FindPetsByStatus200Type,
   FindPetsByStatus400Type,
+  FindPetsByStatusQueryParamsStatusEnumType,
+  FindPetsByStatusQueryParamsStatusEnumTypeKey,
   FindPetsByStatusQueryParamsType,
-  FindPetsByStatusQueryParamsTypeStatusEnumType,
-  FindPetsByStatusQueryParamsTypeStatusEnumTypeKey,
   FindPetsByStatusQueryResponseType,
   FindPetsByStatusQueryType,
 } from './ts/FindPetsByStatusType.ts'
-export { findPetsByStatusQueryParamsTypeStatusEnum } from './ts/FindPetsByStatusType.ts'
+export { findPetsByStatusQueryParamsStatusEnum } from './ts/FindPetsByStatusType.ts'
 export type {
   FindPetsByTags200Type,
   FindPetsByTags400Type,
   FindPetsByTagsHeaderParamsType,
-  FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumType,
-  FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumTypeKey,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnumType,
+  FindPetsByTagsHeaderParamsXEXAMPLEEnumTypeKey,
   FindPetsByTagsQueryParamsType,
   FindPetsByTagsQueryResponseType,
   FindPetsByTagsQueryType,
 } from './ts/FindPetsByTagsType.ts'
-export { findPetsByTagsHeaderParamsTypeXEXAMPLEEnum } from './ts/FindPetsByTagsType.ts'
+export { findPetsByTagsHeaderParamsXEXAMPLEEnum } from './ts/FindPetsByTagsType.ts'
 export type {
   GetInventory200Type,
   GetInventoryQueryResponseType,

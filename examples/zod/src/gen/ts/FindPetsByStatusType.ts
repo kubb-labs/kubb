@@ -5,16 +5,15 @@
 
 import type { PetType } from './PetType.ts'
 
-export const findPetsByStatusQueryParamsTypeStatusEnum = {
+export const findPetsByStatusQueryParamsStatusEnum = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
 
-export type FindPetsByStatusQueryParamsTypeStatusEnumTypeKey =
-  (typeof findPetsByStatusQueryParamsTypeStatusEnum)[keyof typeof findPetsByStatusQueryParamsTypeStatusEnum]
+export type FindPetsByStatusQueryParamsStatusEnumTypeKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
 
-export type FindPetsByStatusQueryParamsTypeStatusEnumType = FindPetsByStatusQueryParamsTypeStatusEnumTypeKey
+export type FindPetsByStatusQueryParamsStatusEnumType = FindPetsByStatusQueryParamsStatusEnumTypeKey
 
 export type FindPetsByStatusQueryParamsType = {
   /**
@@ -22,7 +21,7 @@ export type FindPetsByStatusQueryParamsType = {
    * @default "available"
    * @type string | undefined
    */
-  status?: FindPetsByStatusQueryParamsTypeStatusEnumTypeKey
+  status?: FindPetsByStatusQueryParamsStatusEnumTypeKey
 }
 
 /**

@@ -307,6 +307,13 @@ type ResolvedOptions = {
   paramsCasing: Options['paramsCasing']
   legacy: NonNullable<Options['legacy']>
   resolver: ResolverTs
+  /**
+   * The base resolver without any `transformers.name` wrapping.
+   * Used internally to derive enum prefix names so that user-defined
+   * name transformations (e.g. appending `Type`) are not embedded in
+   * the middle of inline-enum identifiers.
+   */
+  baseResolver?: ResolverTs
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>
