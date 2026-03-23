@@ -23,23 +23,23 @@ export type FindPetsByTagsQueryParamsType = {
   pageSize?: string
 }
 
-export const findPetsByTagsHeaderParamsTypeXEXAMPLEEnum = {
+export const findPetsByTagsHeaderParamsXEXAMPLEEnum = {
   ONE: 'ONE',
   TWO: 'TWO',
   THREE: 'THREE',
 } as const
 
-export type FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumTypeKey =
-  (typeof findPetsByTagsHeaderParamsTypeXEXAMPLEEnum)[keyof typeof findPetsByTagsHeaderParamsTypeXEXAMPLEEnum]
+export type FindPetsByTagsHeaderParamsXEXAMPLEEnumTypeKey =
+  (typeof findPetsByTagsHeaderParamsXEXAMPLEEnum)[keyof typeof findPetsByTagsHeaderParamsXEXAMPLEEnum]
 
-export type FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumType = FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumTypeKey
+export type FindPetsByTagsHeaderParamsXEXAMPLEEnumType = FindPetsByTagsHeaderParamsXEXAMPLEEnumTypeKey
 
 export type FindPetsByTagsHeaderParamsType = {
   /**
    * @description Header parameters
    * @type string
    */
-  'X-EXAMPLE': FindPetsByTagsHeaderParamsTypeXEXAMPLEEnumTypeKey
+  'X-EXAMPLE': FindPetsByTagsHeaderParamsXEXAMPLEEnumTypeKey
 }
 
 /**

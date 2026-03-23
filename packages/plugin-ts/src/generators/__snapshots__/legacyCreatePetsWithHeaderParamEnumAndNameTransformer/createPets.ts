@@ -3,24 +3,6 @@
  * Do not edit manually.
  */
 
-import type { PetNotFoundType } from './PetNotFoundType.ts'
-
-export type CreatePetsPathParamsType = {
-  /**
-   * @description UUID
-   * @type string
-   */
-  uuid: string
-}
-
-export type CreatePetsQueryParamsType = {
-  /**
-   * @description Offset
-   * @type integer | undefined
-   */
-  offset?: number
-}
-
 export const createPetsHeaderParamsXEXAMPLEEnum = {
   ONE: 'ONE',
   TWO: 'TWO',
@@ -32,40 +14,18 @@ export type CreatePetsHeaderParamsXEXAMPLEEnumTypeKey = (typeof createPetsHeader
 export type CreatePetsHeaderParamsXEXAMPLEEnumType = CreatePetsHeaderParamsXEXAMPLEEnumTypeKey
 
 export type CreatePetsHeaderParamsType = {
-  /**
-   * @description Header parameters
-   * @type string
-   */
   'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnumTypeKey
 }
 
 /**
  * @description Null response
  */
-export type CreatePets201Type = any
-
-/**
- * @description unexpected error
- */
-export type CreatePetsErrorType = PetNotFoundType
-
-export type CreatePetsMutationRequestType = {
-  /**
-   * @type string
-   */
-  name: string
-  /**
-   * @type string
-   */
-  tag: string
-}
+export type CreatePets201Type = void
 
 export type CreatePetsMutationResponseType = CreatePets201Type
 
 export type CreatePetsMutationType = {
   Response: CreatePets201Type
-  Request: CreatePetsMutationRequestType
-  PathParams: CreatePetsPathParamsType
   HeaderParams: CreatePetsHeaderParamsType
-  Errors: CreatePetsErrorType
+  Errors: any
 }

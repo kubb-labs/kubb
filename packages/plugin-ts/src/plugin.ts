@@ -59,6 +59,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       paramsCasing,
       legacy,
       resolver,
+      baseResolver,
     },
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)

@@ -418,4 +418,54 @@ describe('typeGenerator v2 — Operation — legacy', () => {
 
     await matchFiles(fabric.files, props.name)
   })
+
+  test('legacy — createPets with header param enum and name transformer — no Type infix in enum name', async () => {
+    // Simulate what plugin.ts does when transformers.name is configured:
+    // wrap the resolver's default() so every resolved name goes through the transformer.
+    const wrappedResolver: typeof resolverTsLegacy = {
+      ...resolverTsLegacy,
+      default(name, type) {
+        const resolved = resolverTsLegacy.default(name, type)
+        return `${resolved}Type`
+      },
+    }
+
+    const options: PluginTs['resolvedOptions'] = {
+      ...legacyOptions,
+      resolver: wrappedResolver,
+      baseResolver: resolverTsLegacy,
+    }
+
+    const node = createOperation({
+      operationId: 'createPets',
+      method: 'POST',
+      path: '/pets',
+      tags: ['pets'],
+      parameters: [
+        createParameter({
+          name: 'X-EXAMPLE',
+          in: 'header',
+          required: true,
+          schema: createSchema({ type: 'enum', enumType: 'string', enumValues: ['ONE', 'TWO', 'THREE'] }),
+        }),
+      ],
+      responses: [createResponse({ statusCode: '201', schema: createSchema({ type: 'void' }), description: 'Null response' })],
+    })
+
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'legacy createPets header param enum transformer' })
+
+    await renderOperation(node, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver: mockedPluginDriver,
+      Component: typeGenerator.Operation,
+      plugin,
+      mode: 'split',
+      options,
+    })
+
+    await matchFiles(fabric.files, 'legacy — createPets with header param enum and name transformer')
+  })
 })
