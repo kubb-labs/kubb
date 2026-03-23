@@ -72,10 +72,10 @@ export function hookParallel<TInput extends Array<PromiseFunc<TValue, null>>, TV
 
 export type Strategy = 'seq' | 'first' | 'parallel'
 
-export type StrategySwitch<TStrategy extends Strategy, TInput extends Array<PromiseFunc<TValue, null>>, TValue> = TStrategy extends 'first'
-  ? HookFirstOutput<TInput, TValue>
-  : TStrategy extends 'seq'
-    ? SeqOutput<TInput, TValue>
-    : TStrategy extends 'parallel'
-      ? HookParallelOutput<TInput, TValue>
-      : never
+type StrategyOutputMap<TInput extends Array<PromiseFunc<TValue, null>>, TValue> = {
+  first: HookFirstOutput<TInput, TValue>
+  seq: SeqOutput<TInput, TValue>
+  parallel: HookParallelOutput<TInput, TValue>
+}
+
+export type StrategySwitch<TStrategy extends Strategy, TInput extends Array<PromiseFunc<TValue, null>>, TValue> = StrategyOutputMap<TInput, TValue>[TStrategy]
