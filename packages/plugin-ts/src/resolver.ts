@@ -83,13 +83,11 @@ export const resolverTs = defineResolver<PluginTs>(() => {
     resolvePathParamsTypedName(_node) {
       throw new Error('resolvePathParamsTypedName is only available in legacy mode (legacy: true). Use resolveParamTypedName per individual parameter instead.')
     },
-    resolveQueryParamsName(_node) {
-      throw new Error('resolveQueryParamsName is only available in legacy mode (legacy: true). Use resolveParamName per individual parameter instead.')
+    resolveQueryParamsName(node) {
+      return this.resolveName(`${node.operationId} QueryParams`)
     },
-    resolveQueryParamsTypedName(_node) {
-      throw new Error(
-        'resolveQueryParamsTypedName is only available in legacy mode (legacy: true). Use resolveParamTypedName per individual parameter instead.',
-      )
+    resolveQueryParamsTypedName(node) {
+      return this.resolveTypedName(`${node.operationId} QueryParams`)
     },
     resolveHeaderParamsName(_node) {
       throw new Error('resolveHeaderParamsName is only available in legacy mode (legacy: true). Use resolveParamName per individual parameter instead.')
