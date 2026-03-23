@@ -1,5 +1,32 @@
 # @kubb/adapter-oas
 
+## 5.0.0-alpha.13
+
+### Patch Changes
+
+- [#2857](https://github.com/kubb-labs/kubb/pull/2857) [`0d40bdb`](https://github.com/kubb-labs/kubb/commit/0d40bdb2809c43f60bb52b95d12de28785dc03f0) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Discriminant values are now embedded into each union member when a discriminator mapping is present.
+
+  Previously, a discriminated `oneOf`/`anyOf` union without sibling `properties` would emit a plain union (`Cat | Dog`). Now each mapped member is intersected with its narrowed discriminant literal value, producing `(Cat & { type: 'cat' }) | (Dog & { type: 'dog' })`.
+
+  Child schemas that extend a discriminated parent via `allOf` now also carry the narrowed discriminant literal in their intersection type, even when the parent `$ref` is filtered to prevent circular type references.
+
+- [#2856](https://github.com/kubb-labs/kubb/pull/2856) [`7579443`](https://github.com/kubb-labs/kubb/commit/75794431daa28c1258f334b53ef7e62114a19bd7) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fixed `null | null` duplication for `const: null` schemas. `convertConst()` no longer propagates the `nullable` flag when the const value is `null`, and `convertObject()` now skips setting `nullable` on properties whose resolved type is already `null`.
+
+- [#2863](https://github.com/kubb-labs/kubb/pull/2863) [`de001b0`](https://github.com/kubb-labs/kubb/commit/de001b0f05acedf160b433878e8868a2e588a44c) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix path parameters with `$ref` schemas being typed as `any` instead of their named type.
+
+- [#2858](https://github.com/kubb-labs/kubb/pull/2858) [`975717e`](https://github.com/kubb-labs/kubb/commit/975717e2c8cf8d33f5d9d641be4bb164fd36f423) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix missing `@description` on request body type aliases.
+
+  The OAS `requestBody.description` field (top-level on the request body object, distinct from the schema's own description) was silently dropped. It is now:
+  - Added as `description?: string` to `OperationNode.requestBody` in `@kubb/ast`
+  - Populated by `@kubb/adapter-oas` parser from `operation.schema.requestBody.description`
+  - Used by `@kubb/plugin-ts` typeGenerator: `requestBody.description` takes precedence, falling back to `requestBody.schema.description`
+
+- [#2869](https://github.com/kubb-labs/kubb/pull/2869) [`b41a75d`](https://github.com/kubb-labs/kubb/commit/b41a75df4e48e6ae469a4d246f37405e4eb08c0e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Generate named enum declarations for enum elements inside tuples (`prefixItems`). Previously, enum values in tuple positions were inlined as literal unions. Now they emit standalone `as const` enum exports (e.g., `addressIdentifierEnum` / `AddressIdentifierEnumKey`) matching v4 behavior. Also restores `...any[]` rest element when `items` is absent alongside `prefixItems`.
+
+- Updated dependencies [[`975717e`](https://github.com/kubb-labs/kubb/commit/975717e2c8cf8d33f5d9d641be4bb164fd36f423)]:
+  - @kubb/ast@5.0.0-alpha.13
+  - @kubb/core@5.0.0-alpha.13
+
 ## 5.0.0-alpha.12
 
 ### Minor Changes
