@@ -1,10 +1,10 @@
 import type { OperationNode, ParameterNode, SchemaNode, StatusCode, Visitor } from '@kubb/ast/types'
-import type { Group, Output, PluginFactoryOptions, Resolver } from '@kubb/core'
+import type { CompatibilityPreset, Group, Output, PluginFactoryOptions, Resolver } from '@kubb/core'
 import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
 
-export type CompatibilityPreset = 'none' | 'kubbV4' | 'heyapi' | 'orval'
+export type { CompatibilityPreset }
 
 /**
  * The concrete resolver type for `@kubb/plugin-ts`.
