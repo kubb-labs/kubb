@@ -547,10 +547,10 @@ describe('convertSchema allOf', () => {
     const node = parser.convertSchema({
       schema: {
         allOf: [
-          { type: 'object' as const, properties: { foo: { type: 'string' as const } } },
-          { type: 'object' as const, properties: { bar: { type: 'string' as const } } },
+          { type: 'object', properties: { foo: { type: 'string' } } },
+          { type: 'object', properties: { bar: { type: 'string' } } },
         ],
-      },
+      } as const,
     })
 
     expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
