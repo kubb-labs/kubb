@@ -1,5 +1,17 @@
 # @kubb/adapter-oas
 
+## 5.0.0-alpha.15
+
+### Major Changes
+
+- [#2879](https://github.com/kubb-labs/kubb/pull/2879) [`0b24fe1`](https://github.com/kubb-labs/kubb/commit/0b24fe1cce398e4b718e0a6828624c0500eadf37) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove the `collisionDetection` option from `adapterOas` and always use collision-safe schema/enum naming in v5.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.15
+  - @kubb/core@5.0.0-alpha.15
+
 ## 5.0.0-alpha.14
 
 ### Patch Changes
