@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 4.36.3
+
+### Patch Changes
+
+- [`ff16227`](https://github.com/kubb-labs/kubb/commit/ff162270a5695543cde5055345668bbf30aa14ce) - Update Fabric
+
+- Updated dependencies []:
+  - @kubb/ast@4.36.3
+
 ## 4.36.2
 
 ### Patch Changes
