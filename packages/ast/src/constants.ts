@@ -62,6 +62,11 @@ export const schemaTypes = {
   never: 'never',
 } as const satisfies Record<SchemaType, SchemaType>
 
+/**
+ * Scalar primitive schema types used for union member simplification.
+ */
+export const SCALAR_PRIMITIVE_TYPES = new Set(['string', 'number', 'integer', 'bigint', 'boolean'] as const)
+
 export const httpMethods = {
   get: 'GET',
   post: 'POST',

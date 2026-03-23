@@ -6,8 +6,8 @@ import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { resolveServerUrl } from './oas/resolveServerUrl.ts'
 import { parseFromConfig } from './oas/utils.ts'
 import { createOasParser } from './parser.ts'
+import { getImports } from './refResolver.ts'
 import type { OasAdapter } from './types.ts'
-import { getImports } from './utils.ts'
 
 export const adapterOasName = 'oas' satisfies OasAdapter['name']
 

@@ -1,4 +1,4 @@
-export { httpMethods, mediaTypes, nodeKinds, schemaTypes } from './constants.ts'
+export { httpMethods, mediaTypes, nodeKinds, SCALAR_PRIMITIVE_TYPES, schemaTypes } from './constants.ts'
 export {
   createFunctionParameter,
   createFunctionParameters,
@@ -25,6 +25,7 @@ export {
   narrowSchema,
 } from './guards.ts'
 export { definePrinter } from './printer.ts'
-export { buildRefMap, refMapToObject, resolveRef } from './refs.ts'
+export { buildRefMap, extractRefName, refMapToObject, resolveRef } from './refs.ts'
+export { applyDiscriminatorEnum, mergeAdjacentAnonymousObjects, simplifyUnionMembers } from './transforms.ts'
 export { applyParamsCasing, isPlainStringType } from './utils.ts'
 export { collect, composeTransformers, transform, walk } from './visitor.ts'

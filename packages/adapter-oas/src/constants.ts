@@ -1,5 +1,4 @@
 import type { SchemaType } from '@kubb/ast/types'
-import type { HttpMethods as OASHttpMethods } from 'oas/types'
 import type { ParserOptions } from './types.ts'
 
 /**
@@ -66,55 +65,7 @@ export const formatMap = {
 } as const satisfies Record<string, SchemaType>
 
 /**
- * Exhaustive list of media types that Kubb recognizes.
- */
-export const knownMediaTypes = new Set([
-  'application/json',
-  'application/xml',
-  'application/x-www-form-urlencoded',
-  'application/octet-stream',
-  'application/pdf',
-  'application/zip',
-  'application/graphql',
-  'multipart/form-data',
-  'text/plain',
-  'text/html',
-  'text/csv',
-  'text/xml',
-  'image/png',
-  'image/jpeg',
-  'image/gif',
-  'image/webp',
-  'image/svg+xml',
-  'audio/mpeg',
-  'video/mp4',
-] as const)
-
-/**
  * Vendor extension keys used to attach human-readable labels to enum values.
  * Checked in priority order: the first key found wins.
  */
 export const enumExtensionKeys = ['x-enumNames', 'x-enum-varnames'] as const
-
-/**
- * Scalar primitive schema types used for union member simplification.
- */
-export const SCALAR_PRIMITIVE_TYPES = new Set(['string', 'number', 'integer', 'bigint', 'boolean'] as const)
-
-/**
- * Canonical HTTP method names for the Kubb OAS layer.
- * Keys are uppercase (used in generated code); values are the lowercase strings
- * that the `oas` library uses internally.
- *
- * TODO(v5): remove — use `httpMethods` from `@kubb/ast`
- */
-export const httpMethods = {
-  GET: 'get',
-  POST: 'post',
-  PUT: 'put',
-  PATCH: 'patch',
-  DELETE: 'delete',
-  HEAD: 'head',
-  OPTIONS: 'options',
-  TRACE: 'trace',
-} as const satisfies Record<Uppercase<OASHttpMethods>, OASHttpMethods>

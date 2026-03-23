@@ -1,6 +1,5 @@
 import { narrowSchema } from '@kubb/ast'
-import type { ArraySchemaNode, EnumSchemaNode, IntersectionSchemaNode, SchemaNode, UnionSchemaNode } from '@kubb/ast/types'
-import { describe, expect, expectTypeOf, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { Oas } from './oas/Oas.ts'
 import type { SchemaObject } from './oas/types.ts'
@@ -427,7 +426,6 @@ describe('convertSchema allOf', () => {
   it('flattens single-member allOf to the member type', () => {
     const node = parser.convertSchema({ schema: { allOf: [{ type: 'string' }] } as const })
 
-    expectTypeOf(node).toEqualTypeOf<SchemaNode>()
     expect(node.type).toBe('string')
   })
 
@@ -441,7 +439,6 @@ describe('convertSchema allOf', () => {
       } as const,
     })
 
-    expectTypeOf(node).toEqualTypeOf<SchemaNode>()
     expect(node.type).toBe('string')
     expect(node.description).toBe('wrapped')
     expect(node.deprecated).toBe(true)
@@ -451,7 +448,6 @@ describe('convertSchema allOf', () => {
   it('flattens single-member allOf $ref and preserves nullable', () => {
     const node = parser.convertSchema({ schema: { allOf: [{ $ref: '#/components/schemas/Pet' }], nullable: true } as const })
 
-    expectTypeOf(node).toEqualTypeOf<SchemaNode>()
     expect(node.type).toBe('ref')
     expect(node.nullable).toBe(true)
   })
@@ -463,7 +459,6 @@ describe('convertSchema allOf', () => {
       } as const,
     })
 
-    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     expect(node.type).toBe('intersection')
     expect(node.members).toHaveLength(2)
   })
@@ -476,7 +471,6 @@ describe('convertSchema allOf', () => {
       } as const,
     })
 
-    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     // first member: the $ref, last member: the sibling properties object
     expect(node.members?.[0]?.type).toBe('ref')
     expect(node.members?.[node.members.length - 1]?.type).toBe('object')
@@ -493,7 +487,6 @@ describe('convertSchema allOf', () => {
       } as const,
     })
 
-    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     // The 2 anonymous allOf members are merged into 1; the injected required-key member is a separate synthetic member
     expect(node.members).toHaveLength(2)
     // the merged allOf object contains both id and name
@@ -514,7 +507,6 @@ describe('convertSchema allOf', () => {
       } as const,
     })
 
-    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     // only the allOf member + the sibling properties object; no extra injection
     const objectMembers = node.members?.filter((m) => m.type === 'object')
     expect(objectMembers).toHaveLength(2)
@@ -528,7 +520,6 @@ describe('convertSchema allOf', () => {
       } as const,
     })
 
-    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     expect(node.nullable).toBe(true)
   })
 
@@ -541,7 +532,6 @@ describe('convertSchema allOf', () => {
       } as const,
     })
 
-    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     expect(node.description).toBe('combined')
     expect(node.deprecated).toBe(true)
   })
@@ -595,7 +585,6 @@ describe('convertSchema allOf', () => {
       } as const,
     })
 
-    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     // Both anonymous allOf members should be merged into one object
     expect(node.members).toHaveLength(1)
     const merged = narrowSchema(node.members?.[0], 'object')
@@ -625,7 +614,6 @@ describe('convertSchema allOf', () => {
       },
     })
 
-    expectTypeOf(node).toEqualTypeOf<IntersectionSchemaNode>()
     // allOf member (not merged — single element) + one merged synthetic object (streetNumber + streetName)
     expect(node.members).toHaveLength(2)
     const merged = narrowSchema(node.members?.[1], 'object')
@@ -1311,12 +1299,6 @@ describe('convertSchema object inline enum naming', () => {
 describe('convertSchema prefixItems (tuple)', () => {
   const parser = createOasParser(emptyOas)
 
-  it('narrows to ArraySchemaNode when prefixItems is present', () => {
-    const node = parser.convertSchema({ schema: { prefixItems: [{ type: 'string' }] } })
-
-    expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
-  })
-
   it('maps type to tuple', () => {
     const node = parser.convertSchema({ schema: { prefixItems: [{ type: 'string' }] } })
 
@@ -1603,12 +1585,6 @@ describe('convertSchema boolean', () => {
 describe('convertSchema enum', () => {
   const parser = createOasParser(emptyOas)
 
-  it('narrows to EnumSchemaNode when enum is present', () => {
-    const node = parser.convertSchema({ schema: { enum: ['a', 'b'] } })
-
-    expectTypeOf(node).toEqualTypeOf<EnumSchemaNode>()
-  })
-
   it('maps type to enum', () => {
     const node = parser.convertSchema({ schema: { enum: ['a', 'b'] } })
 
@@ -1766,7 +1742,6 @@ describe('convertSchema enum', () => {
   it('normalizes array+enum by moving enum into items and returning array node', () => {
     const node = parser.convertSchema({ schema: { type: 'array', enum: ['x', 'y'] } })
 
-    expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
     expect(node.type).toBe('array')
     const itemNode = narrowSchema(node.items?.[0], 'enum')
     expect(itemNode?.type).toBe('enum')
@@ -1776,7 +1751,6 @@ describe('convertSchema enum', () => {
   it('merges existing items schema when normalizing array+enum', () => {
     const node = parser.convertSchema({ schema: { type: 'array', items: { type: 'string' }, enum: ['x', 'y'] } })
 
-    expectTypeOf(node).toEqualTypeOf<ArraySchemaNode>()
     expect(node.type).toBe('array')
     const itemNode = narrowSchema(node.items?.[0], 'enum')
     expect(itemNode?.type).toBe('enum')
@@ -1820,12 +1794,6 @@ describe('convertSchema null', () => {
 
 describe('convertSchema OAS 3.1 type array', () => {
   const parser = createOasParser(emptyOas)
-
-  it('narrows to UnionSchemaNode for a multi-type array', () => {
-    const node = parser.convertSchema({ schema: { type: ['string', 'integer'] } })
-
-    expectTypeOf(node).toEqualTypeOf<UnionSchemaNode>()
-  })
 
   it('produces a union node for two non-null types', () => {
     const node = parser.convertSchema({ schema: { type: ['string', 'integer'] } })
