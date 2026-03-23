@@ -1,7 +1,8 @@
 import type { Visitor } from '@kubb/ast/types'
 import { mergeResolvers } from '@kubb/core'
+import type { CompatibilityPreset } from '@kubb/core'
 import { resolverTs, resolverTsHeyapi, resolverTsLegacy, resolverTsOrval } from './resolvers/index.ts'
-import type { CompatibilityPreset, ResolverTs } from './types.ts'
+import type { ResolverTs } from './types.ts'
 
 export type TsCompatibilityPreset = {
   name: Exclude<CompatibilityPreset, 'none'>
