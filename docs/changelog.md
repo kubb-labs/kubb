@@ -6,6 +6,21 @@ outline: deep
 
 # Changelog
 
+## 4.36.3
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+-   [`ff16227`](https://github.com/kubb-labs/kubb/commit/ff162270a5695543cde5055345668bbf30aa14ce) - Updated internal Fabric setup to address minor compatibility issues, ensuring smoother integration with all plugins.
+
+
+## 4.36.2
+
+### 📦 Dependencies
+
+- Upgrade external packages
+
 ## 4.36.1
 
 ### ✨ Features
