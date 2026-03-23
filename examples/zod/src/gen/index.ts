@@ -65,9 +65,9 @@ export type {
 export type {
   FindPetsByStatus200Type,
   FindPetsByStatus400Type,
-  FindPetsByStatusQueryParamsType,
   FindPetsByStatusQueryParamsStatusEnumType,
   FindPetsByStatusQueryParamsStatusEnumTypeKey,
+  FindPetsByStatusQueryParamsType,
   FindPetsByStatusQueryResponseType,
   FindPetsByStatusQueryType,
 } from './ts/FindPetsByStatusType.ts'
