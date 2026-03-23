@@ -42,6 +42,7 @@ export async function buildMinimalOas() {
           tags: ['pets'],
           deprecated: true,
           requestBody: {
+            description: 'New pet to create',
             required: true,
             content: {
               'application/json': {

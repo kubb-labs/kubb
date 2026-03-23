@@ -103,7 +103,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
           node: legacy ? nameUnnamedEnums(node.requestBody.schema, resolver.resolveDataName(node)) : node.requestBody.schema,
           name: resolver.resolveDataName(node),
           typedName: resolver.resolveDataTypedName(node),
-          description: node.requestBody.schema.description,
+          description: node.requestBody.description ?? node.requestBody.schema.description,
           keysToOmit: node.requestBody.keysToOmit,
         })
       : null
