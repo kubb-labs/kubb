@@ -51,7 +51,7 @@ export type FindPetsByTags400Type = any
 
 export type FindPetsByTagsQueryResponseType = FindPetsByTags200Type
 
-export type FindPetsByTagsQueryType = {
+export type FindPetsByTagsTypeQuery = {
   Response: FindPetsByTags200Type
   QueryParams: FindPetsByTagsQueryParamsType
   HeaderParams: FindPetsByTagsHeaderParamsType

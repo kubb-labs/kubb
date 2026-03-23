@@ -10,7 +10,7 @@ export type LogoutUserErrorType = any
 
 export type LogoutUserQueryResponseType = any
 
-export type LogoutUserQueryType = {
+export type LogoutUserTypeQuery = {
   Response: any
   Errors: LogoutUserErrorType
 }

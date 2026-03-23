@@ -22,7 +22,7 @@ export type CreatePets201Type = void
 
 export type CreatePetsMutationResponseType = CreatePets201Type
 
-export type CreatePetsMutationType = {
+export type CreatePetsTypeMutation = {
   Response: CreatePets201Type
   HeaderParams: CreatePetsHeaderParamsType
   Errors: any

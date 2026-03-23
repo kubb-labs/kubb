@@ -501,4 +501,94 @@ describe('typeGenerator v2 — Operation — legacy', () => {
 
     await matchFiles(fabric.files, 'legacy — createPets with header param enum and name transformer')
   })
+
+  test('legacy — listPets GET with name transformer — Query suffix after Type', async () => {
+    const wrappedResolver: typeof resolverTsLegacy = {
+      ...resolverTsLegacy,
+      default(name, type) {
+        const resolved = resolverTsLegacy.default(name, type)
+        return `${resolved}Type`
+      },
+    }
+
+    const options: PluginTs['resolvedOptions'] = {
+      ...legacyOptions,
+      resolver: wrappedResolver,
+      baseResolver: resolverTsLegacy,
+    }
+
+    const node = createOperation({
+      operationId: 'listPets',
+      method: 'GET',
+      path: '/pets',
+      tags: ['pets'],
+      parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+      responses: [
+        createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
+        createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+      ],
+    })
+
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'legacy listPets GET name transformer' })
+
+    await renderOperation(node, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver: mockedPluginDriver,
+      Component: typeGenerator.Operation,
+      plugin,
+      mode: 'split',
+      options,
+    })
+
+    await matchFiles(fabric.files, 'legacy — listPets GET with name transformer')
+  })
+
+  test('legacy — addPet POST with name transformer — Mutation suffix after Type', async () => {
+    const wrappedResolver: typeof resolverTsLegacy = {
+      ...resolverTsLegacy,
+      default(name, type) {
+        const resolved = resolverTsLegacy.default(name, type)
+        return `${resolved}Type`
+      },
+    }
+
+    const options: PluginTs['resolvedOptions'] = {
+      ...legacyOptions,
+      resolver: wrappedResolver,
+      baseResolver: resolverTsLegacy,
+    }
+
+    const node = createOperation({
+      operationId: 'addPet',
+      method: 'POST',
+      path: '/pet',
+      tags: ['pet'],
+      requestBody: {
+        schema: createSchema({ type: 'object', properties: [] }),
+      },
+      responses: [
+        createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
+        createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+      ],
+    })
+
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'legacy addPet POST name transformer' })
+
+    await renderOperation(node, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver: mockedPluginDriver,
+      Component: typeGenerator.Operation,
+      plugin,
+      mode: 'split',
+      options,
+    })
+
+    await matchFiles(fabric.files, 'legacy — addPet POST with name transformer')
+  })
 })

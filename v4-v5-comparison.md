@@ -35,31 +35,17 @@ Five independent issues remain. Each can be assigned to a separate agent.
 
 ---
 
-### Task 3 — Fix zod operation type naming order
+### Task 3 — Fix aggregated type naming order with name transformers ✅ DONE
 
-**ID**: zod-typed-name-order | **Severity**: High | **Plugin**: plugin-zod
+**ID**: zod-typed-name-order | **Severity**: High | **Plugin**: plugin-ts
 
-**Problem**: The aggregated operation type names in the zod `typed` output changed word order from v4.
+**Root cause**: The legacy resolver's `resolveResponsesTypedName` passed the full `"operationId suffix"` string through `this.resolveTypedName()`, which applied `pascalCase` and then the user's name transformer to the entire string. This produced `AddPetMutationType` (transformer appends `Type` after `Mutation`). In v4, the transformer was applied to just the operationId first, then the suffix was appended, producing `AddPetTypeMutation`.
 
-```ts
-// v4
-export type AddPetTypeMutation = { ... }
-export type GetPetByIdTypeQuery = { ... }
+**Fix**: Changed `resolveResponsesTypedName` and `resolveResponsesName` in the legacy resolver to call `this.default(node.operationId, type)` first (applying the transformer to just the operationId), then append the `Query`/`Mutation` suffix. Without a transformer, the result is identical.
 
-// v5
-export type AddPetMutationType = { ... }
-export type GetPetByIdQueryType = { ... }
-```
-
-22 operation types are affected. This is a breaking rename for consumers importing by name.
-
-**Root cause**: The legacy resolver in `packages/plugin-ts/src/resolver.ts` (line ~148) resolves `resolveResponsesTypedName(node)` as `resolveTypedName("addPet Mutation")`. When the zod plugin's `typed` mode adds the `Type` suffix, it appends it after the full name → `AddPetMutationType`. In v4, `Type` was inserted before the operation suffix → `AddPetTypeMutation`.
-
-The naming depends on how `resolveTypedName` in the zod context composes the `Type` suffix with the operation kind suffix (`Mutation`/`Query`).
-
-**Fix**: In legacy mode, the zod resolver (or the legacy TS resolver when running under zod `typed` context) should produce `${operationId}Type${suffix}` instead of `${operationId}${suffix}Type`. Check `packages/plugin-zod/src/plugin.ts` `resolveName()` and how it interacts with the TS resolver. Compare with the v4 zod plugin resolver at `/home/stijnvanhulle/git/ext/v4/kubb/packages/plugin-zod/src/plugin.ts`.
-
-**Verify**: Regenerate zod example. Confirm `AddPetTypeMutation`, `GetPetByIdTypeQuery`, etc. match v4 names.
+**Tests added**:
+- `legacy — listPets GET with name transformer — Query suffix after Type` (verifies `ListPetsTypeQuery`)
+- `legacy — addPet POST with name transformer — Mutation suffix after Type` (verifies `AddPetTypeMutation`)
 
 ---
 
@@ -120,7 +106,7 @@ Removes 2 exports (`addressIdentifierEnum`, `AddressIdentifierEnumKey`) and chan
 | vue-query | ✅ | 3 | 2 | ~~legacy-extra-enum-alias~~, tuple-enum-inlined |
 | msw | ✅ | 5 | 0 | ~~legacy-extra-enum-alias~~ |
 | faker | ✅ | 3 | 2 | ~~legacy-extra-enum-alias~~, tuple-enum-inlined |
-| zod | ✅ | 30 | 22 | ~~legacy-extra-enum-alias~~, zod-typed-name-order |
+| zod | ✅ | 30 | 22 | ~~legacy-extra-enum-alias~~, ~~zod-typed-name-order~~ |
 
 ---
 

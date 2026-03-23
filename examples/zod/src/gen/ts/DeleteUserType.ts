@@ -23,7 +23,7 @@ export type DeleteUser404Type = any
 
 export type DeleteUserMutationResponseType = any
 
-export type DeleteUserMutationType = {
+export type DeleteUserTypeMutation = {
   Response: any
   PathParams: DeleteUserPathParamsType
   Errors: DeleteUser400Type | DeleteUser404Type
