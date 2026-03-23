@@ -6,6 +6,15 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.15
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/adapter-oas`](https://github.com/kubb-labs/kubb/tree/main/packages/adapter-oas)
+
+-   [#2879](https://github.com/kubb-labs/kubb/pull/2879) [`0b24fe1`](https://github.com/kubb-labs/kubb/commit/0b24fe1cce398e4b718e0a6828624c0500eadf37) - Remove the `collisionDetection` option from `adapterOas` and always use collision-safe schema/enum naming in v5.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
