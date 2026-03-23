@@ -17,6 +17,7 @@ type Props = {
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
   resolver: PluginTs['resolvedOptions']['resolver']
+  legacy?: boolean
   description?: string
   keysToOmit?: string[]
 }
@@ -33,6 +34,7 @@ export function Type({
   enumKeyCasing,
   description,
   resolver,
+  legacy,
 }: Props): FabricReactNode {
   const resolvedDescription = description || node?.description
   const enumSchemaNodes = collect<EnumSchemaNode>(node, {
@@ -61,7 +63,7 @@ export function Type({
 
   return (
     <>
-      {shouldExportEnums && enums.map(({ node }) => <Enum node={node} enumType={enumType} enumKeyCasing={enumKeyCasing} resolver={resolver} />)}
+      {shouldExportEnums && enums.map(({ node }) => <Enum node={node} enumType={enumType} enumKeyCasing={enumKeyCasing} resolver={resolver} legacy={legacy} />)}
       {shouldExportType && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
           {safePrint(typeNode)}

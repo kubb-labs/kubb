@@ -15,8 +15,6 @@ export const deletePet200Enum = {
 
 export type DeletePet200EnumKey = (typeof deletePet200Enum)[keyof typeof deletePet200Enum]
 
-export type DeletePet200Enum = DeletePet200EnumKey
-
 /**
  * @description Successful deletion
  */

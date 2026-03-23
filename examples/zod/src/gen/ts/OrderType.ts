@@ -11,16 +11,12 @@ export const orderStatusEnum = {
 
 export type OrderStatusEnumTypeKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
-export type OrderStatusEnumType = OrderStatusEnumTypeKey
-
 export const orderHttpStatusEnum = {
   ok: 200,
   not_found: 400,
 } as const
 
 export type OrderHttpStatusEnumTypeKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
-
-export type OrderHttpStatusEnumType = OrderHttpStatusEnumTypeKey
 
 export const orderValueEnum = {
   FIRST_VALUE: 0,
@@ -32,8 +28,6 @@ export const orderValueEnum = {
 } as const
 
 export type OrderValueEnumTypeKey = (typeof orderValueEnum)[keyof typeof orderValueEnum]
-
-export type OrderValueEnumType = OrderValueEnumTypeKey
 
 export type OrderType = {
   /**

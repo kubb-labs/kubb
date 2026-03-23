@@ -14,8 +14,6 @@ export const addPetRequestStatusEnum = {
 
 export type AddPetRequestStatusEnumTypeKey = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
 
-export type AddPetRequestStatusEnumType = AddPetRequestStatusEnumTypeKey
-
 export type AddPetRequestType = {
   /**
    * @example 10

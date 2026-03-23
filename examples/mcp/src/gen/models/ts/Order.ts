@@ -10,8 +10,6 @@ export const orderOrderTypeEnum = {
 
 export type OrderOrderTypeEnumKey = (typeof orderOrderTypeEnum)[keyof typeof orderOrderTypeEnum]
 
-export type OrderOrderTypeEnum = OrderOrderTypeEnumKey
-
 export const orderStatusEnum = {
   placed: 'placed',
   approved: 'approved',
@@ -20,16 +18,12 @@ export const orderStatusEnum = {
 
 export type OrderStatusEnumKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
-export type OrderStatusEnum = OrderStatusEnumKey
-
 export const orderHttpStatusEnum = {
   ok: 200,
   not_found: 400,
 } as const
 
 export type OrderHttpStatusEnumKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
-
-export type OrderHttpStatusEnum = OrderHttpStatusEnumKey
 
 export type Order = {
   /**

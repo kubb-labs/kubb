@@ -29,8 +29,6 @@ export const createPetsHeaderParamsXEXAMPLEEnum = {
 
 export type CreatePetsHeaderParamsXEXAMPLEEnumTypeKey = (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum]
 
-export type CreatePetsHeaderParamsXEXAMPLEEnumType = CreatePetsHeaderParamsXEXAMPLEEnumTypeKey
-
 export type CreatePetsHeaderParamsType = {
   /**
    * @description Header parameters

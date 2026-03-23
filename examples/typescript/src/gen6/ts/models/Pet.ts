@@ -16,8 +16,6 @@ export const statusEnum = {
 
 export type StatusEnumKey = (typeof statusEnum)[keyof typeof statusEnum]
 
-export type StatusEnum = StatusEnumKey
-
 export type Pet =
   | (Dog & {
       /**

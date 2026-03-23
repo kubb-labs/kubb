@@ -23,30 +23,15 @@ Five independent issues remain. Each can be assigned to a separate agent.
 
 ---
 
-### Task 2 — Remove extra `*Enum` alias in legacy mode
+### Task 2 — Remove extra `*Enum` alias in legacy mode ✅ DONE
 
 **ID**: legacy-extra-enum-alias | **Severity**: Medium | **Plugin**: plugin-ts
 
-**Problem**: For `asConst` enum types, v5 exports a redundant `export type FooEnum = FooEnumKey` alias that v4 does not have. This is additive (non-breaking) but pollutes the API.
+**Root cause**: `needsRefAlias` in `Enum.tsx` emitted the `*Enum = *EnumKey` alias unconditionally, regardless of legacy mode.
 
-```ts
-// v5 — extra export (not in v4)
-export type OrderStatusEnum = OrderStatusEnumKey
-```
+**Fix**: Added `legacy` prop to `Enum` and `Type` components. Threaded from `typeGenerator.tsx` options through to `Enum`. Gated `needsRefAlias` on `!legacy` — the alias is only emitted in non-legacy mode.
 
-Affects 5 enum names across 9 examples, plus 8 `*EnumType` names in the zod example.
-
-**Root cause**: `packages/plugin-ts/src/components/Enum.tsx` (line ~64):
-
-```ts
-const needsRefAlias = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && refName !== typeName
-```
-
-This emits the alias unconditionally. In legacy mode it should be suppressed.
-
-**Fix**: Gate `needsRefAlias` on `!legacy`. The `legacy` option is available via the plugin options context. When `legacy: true`, skip the `refName` alias emission.
-
-**Verify**: Regenerate react-query example. Confirm `OrderStatusEnum`, `PetStatusEnum`, etc. no longer appear as separate exports. The `OrderStatusEnumKey` type and `orderStatusEnum` const should still exist.
+**Files changed**: `Enum.tsx`, `Type.tsx`, `typeGenerator.tsx`. Snapshots updated — legacy snapshots no longer contain the redundant alias.
 
 ---
 
@@ -126,16 +111,16 @@ Removes 2 exports (`addressIdentifierEnum`, `AddressIdentifierEnumKey`) and chan
 | Example | Files match | v5 only | v4 only | Blocked by |
 |---------|:----------:|:-------:|:-------:|------------|
 | typescript | ✅ | 0 | 0 | ~~missing-mutation-queryparams~~ |
-| react-query | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, legacy-extra-enum-alias |
-| client | ✅ | 5 | 0 | legacy-extra-enum-alias |
-| fetch | ✅ | 5 | 0 | legacy-extra-enum-alias |
-| swr | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, legacy-extra-enum-alias |
-| svelte-query | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, legacy-extra-enum-alias |
-| solid-query | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, legacy-extra-enum-alias |
-| vue-query | ✅ | 3 | 2 | legacy-extra-enum-alias, tuple-enum-inlined |
-| msw | ✅ | 5 | 0 | legacy-extra-enum-alias |
-| faker | ✅ | 3 | 2 | legacy-extra-enum-alias, tuple-enum-inlined |
-| zod | ✅ | 30 | 22 | legacy-extra-enum-alias, zod-typed-name-order |
+| react-query | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, ~~legacy-extra-enum-alias~~ |
+| client | ✅ | 5 | 0 | ~~legacy-extra-enum-alias~~ |
+| fetch | ✅ | 5 | 0 | ~~legacy-extra-enum-alias~~ |
+| swr | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, ~~legacy-extra-enum-alias~~ |
+| svelte-query | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, ~~legacy-extra-enum-alias~~ |
+| solid-query | ✅ | 5 | 0 | ~~missing-mutation-queryparams~~, ~~legacy-extra-enum-alias~~ |
+| vue-query | ✅ | 3 | 2 | ~~legacy-extra-enum-alias~~, tuple-enum-inlined |
+| msw | ✅ | 5 | 0 | ~~legacy-extra-enum-alias~~ |
+| faker | ✅ | 3 | 2 | ~~legacy-extra-enum-alias~~, tuple-enum-inlined |
+| zod | ✅ | 30 | 22 | ~~legacy-extra-enum-alias~~, zod-typed-name-order |
 
 ---
 
