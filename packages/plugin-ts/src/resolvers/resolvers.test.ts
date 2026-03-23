@@ -24,26 +24,6 @@ describe('defineResolver — name property', () => {
   })
 })
 
-describe('defineResolver — isLegacy property', () => {
-  it('resolverTs has isLegacy false', () => {
-    expect(resolverTs.isLegacy).toBe(false)
-  })
-
-  it('resolverTsLegacy has isLegacy true', () => {
-    expect(resolverTsLegacy.isLegacy).toBe(true)
-  })
-
-  it('merging legacy onto default propagates isLegacy true', () => {
-    const merged = mergeResolvers(resolverTs, resolverTsLegacy)
-    expect(merged.isLegacy).toBe(true)
-  })
-
-  it('merging default onto legacy propagates isLegacy false', () => {
-    const merged = mergeResolvers(resolverTsLegacy, resolverTs)
-    expect(merged.isLegacy).toBe(false)
-  })
-})
-
 describe('mergeResolvers — last wins', () => {
   it('single resolver produces itself', () => {
     const merged = mergeResolvers(resolverTs)

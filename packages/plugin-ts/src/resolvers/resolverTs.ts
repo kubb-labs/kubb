@@ -27,7 +27,6 @@ function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'
 export const resolverTs = defineResolver<PluginTs>(() => {
   return {
     name: 'default',
-    isLegacy: false,
     default(name, type) {
       return resolveName(name, type)
     },

@@ -28,7 +28,6 @@ export const resolverTsLegacy = defineResolver<PluginTs>(() => {
   return {
     ...resolverTs,
     name: 'legacy',
-    isLegacy: true,
     resolveResponseStatusName(node, statusCode) {
       if (statusCode === 'default') {
         return this.resolveName(`${node.operationId} Error`)
