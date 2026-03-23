@@ -1,7 +1,7 @@
 import { createProperty, createSchema } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { describe, expect, it } from 'vitest'
-import { applyDiscriminatorEnum, extractRefName, getImports, mergeAdjacentAnonymousObjects, simplifyUnionMembers } from './utils.ts'
+import { applyDiscriminatorEnum, extractRefName, mergeAdjacentAnonymousObjects, simplifyUnionMembers } from './utils.ts'
 
 describe('extractRefName', () => {
   it('extracts the last path segment from a $ref string', () => {
@@ -206,62 +206,6 @@ describe('mergeAdjacentAnonymousObjects', () => {
 
     // Named object is a boundary — not merged
     expect(result).toHaveLength(2)
-  })
-})
-
-describe('getImports', () => {
-  function makeRefNode(ref: string, name: string): SchemaNode {
-    return createSchema({ type: 'ref', ref, name }) as SchemaNode
-  }
-
-  function makeStringNode(): SchemaNode {
-    return createSchema({ type: 'string' }) as SchemaNode
-  }
-
-  const nameMapping = new Map<string, string>()
-
-  it('returns an empty array for a non-ref node', () => {
-    const result = getImports({
-      node: makeStringNode(),
-      nameMapping,
-      resolve: () => ({ name: 'Foo', path: './foo.ts' }),
-    })
-    expect(result).toEqual([])
-  })
-
-  it('returns an import for a ref node when resolver returns a result', () => {
-    const result = getImports({
-      node: makeRefNode('#/components/schemas/Pet', 'Pet'),
-      nameMapping,
-      resolve: (name) => (name === 'Pet' ? { name: 'PetType', path: './pet.ts' } : undefined),
-    })
-    expect(result).toHaveLength(1)
-    expect(result[0]).toMatchObject({ name: ['PetType'], path: './pet.ts' })
-  })
-
-  it('returns empty when resolver returns undefined', () => {
-    const result = getImports({
-      node: makeRefNode('#/components/schemas/Pet', 'Pet'),
-      nameMapping,
-      resolve: () => undefined,
-    })
-    expect(result).toEqual([])
-  })
-
-  it('applies nameMapping collision-resolved name before calling resolve', () => {
-    const mapping = new Map([['Pet', 'PetRenamed']])
-    let resolvedWith: string | undefined
-
-    getImports({
-      node: makeRefNode('#/components/schemas/Pet', 'Pet'),
-      nameMapping: mapping,
-      resolve: (name) => {
-        resolvedWith = name
-        return { name, path: './x.ts' }
-      },
-    })
-
-    expect(resolvedWith).toBe('PetRenamed')
   })
 })
 

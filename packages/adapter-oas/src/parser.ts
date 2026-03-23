@@ -1,120 +1,30 @@
-import { pascalCase, URLPath } from '@internals/utils'
-import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, narrowSchema, schemaTypes, transform } from '@kubb/ast'
+import { URLPath } from '@internals/utils'
+import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema, narrowSchema, schemaTypes } from '@kubb/ast'
 import type {
-  ArraySchemaNode,
-  DateSchemaNode,
-  DatetimeSchemaNode,
-  EnumSchemaNode,
+  DistributiveOmit,
   HttpMethod,
-  IntersectionSchemaNode,
   MediaType,
-  NumberSchemaNode,
-  ObjectSchemaNode,
   OperationNode,
   ParameterLocation,
   ParameterNode,
   PrimitiveSchemaType,
   PropertyNode,
-  RefSchemaNode,
   ResponseNode,
   RootNode,
-  ScalarSchemaNode,
   ScalarSchemaType,
   SchemaNode,
   SchemaType,
   StatusCode,
-  StringSchemaNode,
-  TimeSchemaNode,
-  UnionSchemaNode,
 } from '@kubb/ast/types'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, formatMap, knownMediaTypes } from './constants.ts'
+import type { InferSchemaNode } from './infer.ts'
+import { applyEnumName, resolveChildName, resolveEnumPropName } from './naming.ts'
 import type { Oas } from './oas/Oas.ts'
 import type { contentType, Operation, ReferenceObject, SchemaObject } from './oas/types.ts'
 import { flattenSchema, isDiscriminator, isNullable, isReference } from './oas/utils.ts'
+import { resolveRefs as resolveRefsNode } from './refResolver.ts'
 import type { ParserOptions } from './types.ts'
 import { applyDiscriminatorEnum, extractRefName, mergeAdjacentAnonymousObjects, simplifyUnionMembers } from './utils.ts'
-
-/**
- * Distributive `Omit` — correctly distributes over union types so that
- * `Omit<A | B, 'kind'>` produces `Omit<A, 'kind'> | Omit<B, 'kind'>`
- * rather than `Omit<A | B, 'kind'>`.
- */
-type DistributiveOmit<TValue, TKey extends PropertyKey> = TValue extends unknown ? Omit<TValue, TKey> : never
-
-/**
- * Maps each `dateType` option value to the AST node produced by `format: 'date-time'`.
- */
-type DateTimeNodeByDateType = {
-  date: DateSchemaNode
-  string: DatetimeSchemaNode
-  stringOffset: DatetimeSchemaNode
-  stringLocal: DatetimeSchemaNode
-  false: StringSchemaNode
-}
-
-/**
- * Resolves the AST node produced by `format: 'date-time'` based on the `dateType` option.
- */
-type ResolveDateTimeNode<TDateType extends ParserOptions['dateType']> = DateTimeNodeByDateType[TDateType extends keyof DateTimeNodeByDateType
-  ? TDateType
-  : 'string']
-
-/**
- * Single source of truth: ordered list of `[shape, SchemaNode]` pairs.
- * `InferSchemaNode` walks this tuple in order and returns the node type of the first matching entry.
- * Parameterized over `TDateType` so `format: 'date-time'` resolves to the correct node based on the option.
- */
-type SchemaNodeMap<TDateType extends ParserOptions['dateType'] = 'string'> = [
-  [{ $ref: string }, RefSchemaNode],
-  // allOf with sibling `properties` always produces an intersection (shared props are appended as a member).
-  [{ allOf: ReadonlyArray<unknown>; properties: object }, IntersectionSchemaNode],
-  // allOf with 2+ members always produces an intersection.
-  [{ allOf: readonly [unknown, unknown, ...unknown[]] }, IntersectionSchemaNode],
-  // Single-member allOf without sibling `properties` flattens to the member type.
-  [{ allOf: ReadonlyArray<unknown> }, SchemaNode],
-  [{ oneOf: ReadonlyArray<unknown> }, UnionSchemaNode],
-  [{ anyOf: ReadonlyArray<unknown> }, UnionSchemaNode],
-  [{ const: null }, ScalarSchemaNode],
-  [{ const: string | number | boolean }, EnumSchemaNode],
-  // OAS 3.1 multi-type array: `{ type: ['string', 'integer'] }` → union node.
-  [{ type: ReadonlyArray<string> }, UnionSchemaNode],
-  // `{ type: 'array', enum }` is normalized at runtime: enum moves into items → array node.
-  [{ type: 'array'; enum: ReadonlyArray<unknown> }, ArraySchemaNode],
-  [{ enum: ReadonlyArray<unknown> }, EnumSchemaNode],
-  [{ type: 'object' }, ObjectSchemaNode],
-  [{ additionalProperties: boolean | {} }, ObjectSchemaNode],
-  [{ type: 'array' }, ArraySchemaNode],
-  [{ items: object }, ArraySchemaNode],
-  [{ prefixItems: ReadonlyArray<unknown> }, ArraySchemaNode],
-  // Format entries with explicit type — placed before generic type entries so format wins.
-  [{ type: string; format: 'date-time' }, ResolveDateTimeNode<TDateType>],
-  [{ type: string; format: 'date' }, DateSchemaNode],
-  [{ type: string; format: 'time' }, TimeSchemaNode],
-  [{ format: 'date-time' }, ResolveDateTimeNode<TDateType>],
-  [{ format: 'date' }, DateSchemaNode],
-  [{ format: 'time' }, TimeSchemaNode],
-  [{ type: 'string' }, StringSchemaNode],
-  [{ type: 'number' }, NumberSchemaNode],
-  [{ type: 'integer' }, NumberSchemaNode],
-  [{ type: 'bigint' }, NumberSchemaNode],
-  [{ type: string }, ScalarSchemaNode],
-  // Inferred scalar types from constraints when no explicit type is present.
-  [{ minLength: number }, StringSchemaNode],
-  [{ maxLength: number }, StringSchemaNode],
-  [{ pattern: string }, StringSchemaNode],
-  [{ minimum: number }, NumberSchemaNode],
-  [{ maximum: number }, NumberSchemaNode],
-]
-
-export type InferSchemaNode<
-  TSchema extends SchemaObject,
-  TDateType extends ParserOptions['dateType'] = 'string',
-  TEntries extends ReadonlyArray<[object, SchemaNode]> = SchemaNodeMap<TDateType>,
-> = TEntries extends [infer TEntry extends [object, SchemaNode], ...infer TRest extends ReadonlyArray<[object, SchemaNode]>]
-  ? TSchema extends TEntry[0]
-    ? TEntry[1]
-    : InferSchemaNode<TSchema, TDateType, TRest>
-  : SchemaNode
 
 /**
  * Construction-time options for `createOasParser`.
@@ -723,46 +633,6 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
    * - not required + not nullable → `optional: true`
    * - not required + nullable → `nullish: true`
    */
-  /**
-   * Builds the propagation name for a child property during recursive schema conversion.
-   *
-   * The parent name is prepended so the full path is encoded
-   *   (e.g. `OrderParams` when parent is `Order`).
-   */
-  function resolveChildName(parentName: string | undefined, propName: string): string | undefined {
-    return parentName ? pascalCase([parentName, propName].join(' ')) : undefined
-  }
-
-  /**
-   * Derives the final name for an enum property schema node.
-   *
-   * The resulting name always includes the enum suffix and full parent path context
-   * (e.g. `OrderParamsStatusEnum`).
-   */
-  function resolveEnumPropName(parentName: string | undefined, propName: string, enumSuffix: string): string {
-    return pascalCase([parentName, propName, enumSuffix].filter(Boolean).join(' '))
-  }
-
-  /**
-   * Given a freshly-converted property schema, returns the node with a correct
-   * `name` attached — or stripped — depending on whether the node is a named
-   * enum, a boolean const-enum (always inlined), or a regular schema.
-   */
-  function applyEnumName(propNode: SchemaNode, parentName: string | undefined, propName: string, enumSuffix: string): SchemaNode {
-    const enumNode = narrowSchema(propNode, 'enum')
-
-    // Boolean-primitive enum nodes (e.g. `const: false`) are always inlined as
-    // literal types and must not receive a named identifier.
-    if (enumNode?.primitive === 'boolean') {
-      return { ...propNode, name: undefined }
-    }
-
-    if (enumNode) {
-      return { ...propNode, name: resolveEnumPropName(parentName, propName, enumSuffix) }
-    }
-
-    return propNode
-  }
 
   function convertObject({ schema, name, nullable, defaultValue, options, mergedOptions }: SchemaContext): SchemaNode {
     const properties: Array<PropertyNode> = schema.properties
@@ -1163,36 +1033,11 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
     return createRoot({ schemas, operations })
   }
 
-  /**
-   * Walks a `SchemaNode` tree and resolves all `ref` node names through the provided callbacks.
-   *
-   * `resolveName` handles all schema types; `resolveEnumName` (when provided) takes precedence
-   * for `enum` nodes, enabling a separate naming strategy for enums (e.g. different suffix).
-   *
-   * Collision-resolved names (from `nameMapping`) are applied before user-supplied resolvers.
-   */
-  function resolveRefs(node: SchemaNode, resolveName: (ref: string) => string | undefined, resolveEnumName?: (name: string) => string | undefined): SchemaNode {
-    return transform(node, {
-      schema(schemaNode) {
-        const schemaRef = narrowSchema(schemaNode, schemaTypes.ref)
-
-        if (schemaRef && (schemaRef.ref || schemaRef.name)) {
-          const rawRef = schemaRef.ref ?? schemaRef.name!
-          const resolved = resolveName(nameMapping.get(rawRef) ?? rawRef)
-          if (resolved) {
-            return { ...schemaNode, name: resolved }
-          }
-        }
-
-        if (schemaNode.type === 'enum' && schemaNode.name) {
-          const resolved = (resolveEnumName ?? resolveName)(schemaNode.name)
-          if (resolved) {
-            return { ...schemaNode, name: resolved }
-          }
-        }
-      },
-    }) as SchemaNode
-  }
+  const resolveRefs = (
+    node: SchemaNode,
+    resolveName: (ref: string) => string | undefined,
+    resolveEnumName?: (name: string) => string | undefined,
+  ): SchemaNode => resolveRefsNode({ node, nameMapping, resolveName, resolveEnumName })
 
   return {
     parse,

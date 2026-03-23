@@ -1,6 +1,5 @@
-import { collect, createProperty, createSchema, narrowSchema } from '@kubb/ast'
+import { createProperty, createSchema, narrowSchema } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
-import type { KubbFile } from '@kubb/fabric-core/types'
 import { SCALAR_PRIMITIVE_TYPES } from './constants.ts'
 
 /**
@@ -117,52 +116,5 @@ export function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNo
     if (scalarPrimitives.has(prim)) return false
     if ((prim === 'integer' || prim === 'number') && (scalarPrimitives.has('integer') || scalarPrimitives.has('number'))) return false
     return true
-  })
-}
-
-/**
- * `nameMapping`, and calls `resolve` to obtain the `{ name, path }` pair for
- * each import. When `oas` is supplied, only `$ref`s that are resolvable in the
- * spec are included; omit it to skip the existence check.
- *
- * This function is the pure, state-free alternative to `OasParser.getImports`.
- * Because it receives `nameMapping` explicitly it can be called without holding
- * a reference to the parser or the OAS instance.
- *
- * @example
- * ```ts
- * // Use adapter state directly — no parser reference needed
- * const imports = getImports({
- *   node: schemaNode,
- *   nameMapping: adapter.options.nameMapping,
- *   resolve: (schemaName) => ({
- *     name: schemaManager.getName(schemaName, { type: 'type' }),
- *     path: schemaManager.getFile(schemaName).path,
- *   }),
- * })
- * ```
- */
-export function getImports({
-  node,
-  nameMapping,
-  resolve,
-}: {
-  node: SchemaNode
-  nameMapping: Map<string, string>
-  resolve: (schemaName: string) => { name: string; path: string } | undefined
-}): Array<KubbFile.Import> {
-  return collect<KubbFile.Import>(node, {
-    schema(schemaNode): KubbFile.Import | undefined {
-      if (schemaNode.type !== 'ref' || !schemaNode.ref) return
-
-      const rawName = extractRefName(schemaNode.ref)
-
-      // Apply collision-resolved name if available.
-      const schemaName = nameMapping.get(rawName) ?? rawName
-      const result = resolve(schemaName)
-      if (!result) return
-
-      return { name: [result.name], path: result.path }
-    },
   })
 }
