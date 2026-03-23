@@ -382,19 +382,17 @@ pluginTs({ resolvers: [resolverTs] })
 
 The `mergeResolvers` helper from `@kubb/core` merges multiple resolvers into a single resolver where later entries override earlier ones.
 
-### Compatibility presets for heyapi/orval-style naming
+### Compatibility preset for Kubb v4 naming
 
-If you are migrating from generators with heyapi/orval-style naming expectations, use `compatibilityPreset` in `pluginTs`:
+Use `compatibilityPreset` in `pluginTs` when you need Kubb v4 naming behavior:
 
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
-pluginTs({ compatibilityPreset: 'heyapi' })
-// or
-pluginTs({ compatibilityPreset: 'orval' })
+pluginTs({ compatibilityPreset: 'kubbV4' })
 ```
 
-These presets provide close-compatible naming/output conventions. For strict project-specific parity, compose custom `resolvers`.
+For custom naming, compose your own `resolvers`.
 
 > [!NOTE]
 > If `resolvers` is explicitly provided, it overrides preset resolver behavior.

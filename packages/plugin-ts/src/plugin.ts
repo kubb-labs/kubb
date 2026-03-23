@@ -3,7 +3,7 @@ import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
 import { createPlugin, type Group, getBarrelFiles, getMode, renderOperation, renderSchema } from '@kubb/core'
 import { typeGenerator } from './generators/index.ts'
-import { getTsResolverComposition } from './presets.ts'
+import { getPreset } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
@@ -22,19 +22,14 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     syntaxType = 'type',
     paramsCasing,
     generators = [typeGenerator].filter(Boolean),
-    compatibilityPreset = 'none',
+    compatibilityPreset = 'default',
     resolvers: userResolvers,
-    transformers = [],
+    transformers: userTransformers = [],
   } = options
 
-  const {
-    resolver,
-    baseResolver,
-    transformers: resolvedTransformers,
-  } = getTsResolverComposition({
-    compatibilityPreset,
-    userResolvers,
-    userTransformers: transformers,
+  const { baseResolver, resolver, transformers } = getPreset(compatibilityPreset, {
+    resolvers: userResolvers,
+    transformers: userTransformers,
   })
 
   let resolveNameWarning = false
@@ -52,9 +47,9 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       override,
       paramsCasing,
       compatibilityPreset,
-      resolver,
       baseResolver,
-      transformers: resolvedTransformers,
+      resolver,
+      transformers,
     },
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)

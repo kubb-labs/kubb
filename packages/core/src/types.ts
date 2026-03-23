@@ -546,12 +546,10 @@ export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Logger<
 
 /**
  * Compatibility preset for code generation tools.
- * - `'none'` – no compatibility adjustments (default behaviour).
+ * - `'default'` – no compatibility adjustments (default behavior).
  * - `'kubbV4'` – align generated names and structures with Kubb v4 output.
- * - `'heyapi'` – align generated names and structures with Hey API output.
- * - `'orval'` – align generated names and structures with Orval output.
  */
-export type CompatibilityPreset = 'none' | 'kubbV4' | 'heyapi' | 'orval'
+export type CompatibilityPreset = 'default' | 'kubbV4'
 
 export type { Storage } from './createStorage.ts'
 export type { CoreGeneratorV2, Generator, ReactGeneratorV2 } from './defineGenerator.ts'
@@ -584,4 +582,4 @@ export type Preset<TResolver extends Resolver = Resolver> = {
  * @template TResolver - The concrete resolver type shared by all presets in this registry.
  * @template TName - The union of valid preset name keys.
  */
-export type Presets<TResolver extends Resolver = Resolver, TName extends string = string> = Record<TName, Preset<TResolver>>
+export type Presets<TResolver extends Resolver = Resolver> = Record<CompatibilityPreset, Preset<TResolver>>

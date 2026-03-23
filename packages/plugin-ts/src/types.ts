@@ -276,11 +276,10 @@ export type Options = {
    */
   UNSTABLE_NAMING?: true
   /**
-   * Apply a compatibility naming preset for ecosystems with established conventions.
+   * Apply a compatibility naming preset.
    * Use `kubbV4` for strict v4 type-generation compatibility.
-   * These presets are close-compatible (not strict 1:1 output parity) except `kubbV4`, and can be
-   * further customized with `resolvers`.
-   * @default 'none'
+   * You can further customize naming with `resolvers`.
+   * @default 'default'
    */
   compatibilityPreset?: CompatibilityPreset
   /**

@@ -6,8 +6,6 @@ Replace `legacy` mode with `compatibilityPreset` in `@kubb/plugin-ts`.
 
 - `'none'` (default)
 - `'kubbV4'` (full v4 type-generation naming compatibility)
-- `'heyapi'`
-- `'orval'`
 
 `legacy` is removed from plugin-ts options. Use `compatibilityPreset: 'kubbV4'` for v4-compatible output.
 

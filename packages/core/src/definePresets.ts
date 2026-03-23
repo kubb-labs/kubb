@@ -5,15 +5,12 @@ import type { Preset, Presets, Resolver } from './types.ts'
  *
  * @example
  * import { definePreset, definePresets } from '@kubb/core'
- * import { resolverTsLegacy, resolverTsHeyapi } from '@kubb/plugin-ts'
+ * import { resolverTsLegacy } from '@kubb/plugin-ts'
  *
  * export const myPresets = definePresets({
  *   kubbV4: definePreset('kubbV4', { resolvers: [resolverTsLegacy] }),
- *   heyapi: definePreset('heyapi', { resolvers: [resolverTsHeyapi] }),
  * })
  */
-export function definePresets<TResolver extends Resolver = Resolver, TName extends string = string>(
-  presets: Presets<TResolver, TName>,
-): Presets<TResolver, TName> {
+export function definePresets<TResolver extends Resolver = Resolver>(presets: Presets<TResolver>): Presets<TResolver> {
   return presets
 }

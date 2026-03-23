@@ -364,34 +364,20 @@ type FindPetsByStatusHeaderParams = {
 
 Apply close-compatible naming presets for ecosystems with established conventions.
 
-|           |                               |
-| --------: | :---------------------------- |
-|     Type: | `'none' \| 'kubbV4' \| 'heyapi' \| 'orval'` |
-| Required: | `false`                       |
-|  Default: | `'none'`                      |
+|           |                              |
+| --------: |:-----------------------------|
+|     Type: | `'none' \| 'kubbV4'`         |
+| Required: | `false`                      |
+|  Default: | `'none'`                     |
 
 - `'none'`: Use default `@kubb/plugin-ts` naming.
 - `'kubbV4'`: Reproduce Kubb v4 type-generation naming behavior.
-- `'heyapi'`: Use close-compatible naming for heyapi-style outputs.
-- `'orval'`: Use close-compatible naming for orval-style outputs.
 
 ::: code-group
 
 ```typescript [Default]
 pluginTs({
   compatibilityPreset: "none",
-});
-```
-
-```typescript [heyapi-style naming]
-pluginTs({
-  compatibilityPreset: "heyapi",
-});
-```
-
-```typescript [orval-style naming]
-pluginTs({
-  compatibilityPreset: "orval",
 });
 ```
 
@@ -419,7 +405,7 @@ Use `resolvers` to compose naming behavior. Later resolvers override earlier one
 Resolver precedence:
 
 1. Start with `resolverTs`.
-2. Apply `compatibilityPreset` resolver (`kubbV4`/`heyapi`/`orval`) when configured.
+2. Apply `compatibilityPreset` resolver (`kubbV4`) when configured.
 3. Apply explicit `resolvers` overrides (last wins).
 
 ::: code-group
@@ -437,7 +423,7 @@ import { pluginTs } from "@kubb/plugin-ts";
 import { resolverTs } from "@kubb/plugin-ts/resolvers";
 
 pluginTs({
-  compatibilityPreset: "orval",
+  compatibilityPreset: "default",
   resolvers: [resolverTs], // explicit resolvers take precedence
 });
 ```

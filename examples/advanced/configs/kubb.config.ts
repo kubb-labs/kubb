@@ -31,7 +31,7 @@ export default defineConfig({
   hooks: {
     done: ['npm run typecheck'],
   },
-  adapter: adapterOas({ collisionDetection: false, enumSuffix: 'enum', dateType: 'string' }),
+  adapter: adapterOas({ enumSuffix: 'enum', dateType: 'string' }),
   plugins: [
     pluginOas({
       validate: true,
