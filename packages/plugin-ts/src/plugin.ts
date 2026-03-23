@@ -2,7 +2,7 @@ import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
 import { createPlugin, type Group, getBarrelFiles, getMode, mergeResolvers, renderOperation, renderSchema } from '@kubb/core'
-import { typeGenerator } from './generators/index.ts'
+import { typeGenerator, typeGeneratorLegacy } from './generators/index.ts'
 import { resolverTs, resolverTsLegacy } from './resolvers/index.ts'
 import type { PluginTs } from './types.ts'
 
@@ -21,7 +21,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     arrayType = 'array',
     syntaxType = 'type',
     paramsCasing,
-    generators = [typeGenerator].filter(Boolean),
+    generators = [legacy ? typeGeneratorLegacy : typeGenerator].filter(Boolean),
     legacy = false,
     resolvers: userResolvers,
     transformers = [],
@@ -44,7 +44,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       group,
       override,
       paramsCasing,
-      legacy,
       resolver,
       baseResolver,
       transformers,

@@ -322,7 +322,6 @@ type ResolvedOptions = {
   arrayType: NonNullable<Options['arrayType']>
   syntaxType: NonNullable<Options['syntaxType']>
   paramsCasing: Options['paramsCasing']
-  legacy: NonNullable<Options['legacy']>
   resolver: ResolverTs
   /**
    * The resolver without user naming overrides applied.
