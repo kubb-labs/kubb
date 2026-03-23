@@ -544,6 +544,15 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
 
 export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Logger<TOptions>
 
+/**
+ * Compatibility preset for code generation tools.
+ * - `'none'` – no compatibility adjustments (default behaviour).
+ * - `'kubbV4'` – align generated names and structures with Kubb v4 output.
+ * - `'heyapi'` – align generated names and structures with Hey API output.
+ * - `'orval'` – align generated names and structures with Orval output.
+ */
+export type CompatibilityPreset = 'none' | 'kubbV4' | 'heyapi' | 'orval'
+
 export type { Storage } from './createStorage.ts'
 export type { CoreGeneratorV2, Generator, ReactGeneratorV2 } from './defineGenerator.ts'
 export type { KubbEvents } from './Kubb.ts'
