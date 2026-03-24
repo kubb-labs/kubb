@@ -6,6 +6,75 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.18
+
+### ✨ Features
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Updated to support **TypeScript v6**, enabling compatibility with the latest version of TypeScript. 
+
+#### [`@kubb/cli`](https://github.com/kubb-labs/kubb/tree/main/packages/cli)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Updated to support **TypeScript v6**, providing enhanced tooling for CLI-based workflows.
+
+#### [`@kubb/plugin-mcp`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-mcp)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Now compatible with **TypeScript v6**, improving module control plugin integrations.
+
+#### [`@kubb/plugin-swr`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-swr)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Enhanced with **TypeScript v6** compatibility for advanced SWR hooks generation.
+
+#### [`@kubb/plugin-redoc`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-redoc)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Full support for **TypeScript v6** ensuring access to the latest features in documentation generation.
+
+#### [`@kubb/adapter-oas`](https://github.com/kubb-labs/kubb/tree/main/packages/adapter-oas)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Migrated to **TypeScript v6**, enabling developers to integrate OpenAPI specifications seamlessly.
+
+#### [`@kubb/plugin-vue-query`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-vue-query)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Now supports **TypeScript v6**, providing improved reliability for Vue Query integrations.
+
+#### [`@kubb/plugin-client`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-client)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Updated to leverage **TypeScript v6**, ensuring state-of-the-art client-side development tools.
+
+#### [`@kubb/plugin-svelte-query`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-svelte-query)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Fully supports **TypeScript v6**, streamlining Svelte Query workflows.
+
+#### [`@kubb/agent`](https://github.com/kubb-labs/kubb/tree/main/packages/agent)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Updated to initialize **TypeScript v6** standards for dynamic API calls.
+
+#### [`@kubb/plugin-oas`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-oas)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Introduced **TypeScript v6** support, simplifying OpenAPI operations.
+
+#### [`@kubb/oas`](https://github.com/kubb-labs/kubb/tree/main/packages/oas)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Transitioned to **TypeScript v6** for OpenAPI-aware AST handling.
+
+#### [`@kubb/plugin-solid-query`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-solid-query)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Integrated **TypeScript v6** compatibility, refining Solid Query plugins.
+
+#### [`@kubb/plugin-react-query`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-react-query)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Added **TypeScript v6** support, optimizing React Query interactions.
+
+#### [`@kubb/mcp`](https://github.com/kubb-labs/kubb/tree/main/packages/mcp)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Adopted **TypeScript v6** conventions, ensuring consistency for multi-codebase processing.
+
+#### [`@kubb/ast`](https://github.com/kubb-labs/kubb/tree/main/packages/ast)
+
+-   [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) - Enhanced Abstract Syntax Tree handling with **TypeScript v6**.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
