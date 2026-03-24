@@ -1,5 +1,17 @@
 # @kubb/plugin-svelte-query
 
+## 5.0.0-alpha.17
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.17
+  - @kubb/oas@5.0.0-alpha.17
+  - @kubb/plugin-ts@5.0.0-alpha.17
+  - @kubb/plugin-client@5.0.0-alpha.17
+  - @kubb/plugin-oas@5.0.0-alpha.17
+  - @kubb/plugin-zod@5.0.0-alpha.17
+
 ## 5.0.0-alpha.16
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @kubb/oas
 
+## 5.0.0-alpha.17
+
+### Patch Changes
+
+- Updated dependencies [[`2546c05`](https://github.com/kubb-labs/kubb/commit/2546c051d81e490709df9d8a834402ef546a8f1c)]:
+  - @kubb/ast@5.0.0-alpha.17
+  - @kubb/core@5.0.0-alpha.17
+
 ## 5.0.0-alpha.16
 
 ### Patch Changes
