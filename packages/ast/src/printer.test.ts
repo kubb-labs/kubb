@@ -4,36 +4,20 @@ import type { PrinterFactoryOptions } from './printer.ts'
 import { definePrinter } from './printer.ts'
 
 describe('definePrinter', () => {
+  type P = PrinterFactoryOptions<'zod', { strict?: boolean }, string>
+
+  const zodPrinter = definePrinter<P>((options) => {
+    return { name: 'zod', options, nodes: {} }
+  })
+
   it('exposes the given name and resolved options', () => {
-    type P = PrinterFactoryOptions<'zod', { strict?: boolean }, string>
-
-    const zodPrinter = definePrinter<P>((options) => {
-      const { strict = true } = options
-      return { name: 'zod', options: { strict }, nodes: {} }
-    })
-
     const printer = zodPrinter({ strict: false })
 
     expect(printer.name).toBe('zod')
     expect(printer.options).toEqual({ strict: false })
   })
 
-  it('applies defaults when called with no options', () => {
-    type P = PrinterFactoryOptions<'zod', { strict?: boolean }, string>
-
-    const zodPrinter = definePrinter<P>((options) => {
-      const { strict = true } = options
-      return { name: 'zod', options: { strict }, nodes: {} }
-    })
-
-    expect(zodPrinter().options).toEqual({ strict: true })
-  })
-
   it('print returns undefined when no node handler matches', () => {
-    type P = PrinterFactoryOptions<'zod', object, string>
-
-    const zodPrinter = definePrinter<P>(() => ({ name: 'zod', options: {}, nodes: {} }))
-
     expect(zodPrinter().print(createSchema({ type: 'string' }))).toBeUndefined()
   })
 

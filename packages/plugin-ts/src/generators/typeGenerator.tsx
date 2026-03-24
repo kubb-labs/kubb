@@ -1,4 +1,4 @@
-import { applyParamsCasing, composeTransformers, transform } from '@kubb/ast'
+import { applyParamsCasing, composeTransformers, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
 import { useKubb } from '@kubb/core/hooks'
@@ -243,7 +243,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
       path: getFile({ name: schemaName, extname: '.ts', mode }).path,
     }))
 
-    const isEnumSchema = node.type === 'enum'
+    const isEnumSchema = !!narrowSchema(node, schemaTypes.enum)
 
     const typedName = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyTypedName(node) : resolver.resolveTypedName(node.name)
 

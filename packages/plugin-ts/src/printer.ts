@@ -1,5 +1,5 @@
 import { jsStringEscape, stringify } from '@internals/utils'
-import { isPlainStringType } from '@kubb/ast'
+import { isPlainStringType, narrowSchema, schemaTypes } from '@kubb/ast'
 import type { ArraySchemaNode, SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
@@ -271,7 +271,10 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
       union(node) {
         const members = node.members ?? []
 
-        const hasStringLiteral = members.some((m) => m.type === 'enum' && m.primitive === 'string')
+        const hasStringLiteral = members.some((m) => {
+          const enumNode = narrowSchema(m, schemaTypes.enum)
+          return enumNode?.primitive === 'string'
+        })
         const hasPlainString = members.some((m) => isPlainStringType(m))
 
         if (hasStringLiteral && hasPlainString) {

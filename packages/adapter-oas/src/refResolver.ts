@@ -16,9 +16,10 @@ export function getImports({
 }): Array<KubbFile.Import> {
   return collect<KubbFile.Import>(node, {
     schema(schemaNode): KubbFile.Import | undefined {
-      if (schemaNode.type !== 'ref' || !schemaNode.ref) return
+      const schemaRef = narrowSchema(schemaNode, schemaTypes.ref)
+      if (!schemaRef?.ref) return
 
-      const rawName = extractRefName(schemaNode.ref)
+      const rawName = extractRefName(schemaRef.ref)
       const schemaName = nameMapping.get(rawName) ?? rawName
       const result = resolve(schemaName)
       if (!result) return
@@ -54,8 +55,9 @@ export function resolveRefs({
         }
       }
 
-      if (schemaNode.type === 'enum' && schemaNode.name) {
-        const resolved = (resolveEnumName ?? resolveName)(schemaNode.name)
+      const schemaEnum = narrowSchema(schemaNode, schemaTypes.enum)
+      if (schemaEnum?.name) {
+        const resolved = (resolveEnumName ?? resolveName)(schemaEnum.name)
         if (resolved) {
           return { ...schemaNode, name: resolved }
         }
