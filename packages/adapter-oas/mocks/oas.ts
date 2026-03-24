@@ -1,7 +1,7 @@
-import { parse } from '../src/oas/utils.ts'
+import { parseDocument } from '../src/factory.ts'
 
 export async function buildMinimalOas() {
-  return parse({
+  return parseDocument({
     openapi: '3.0.3',
     info: { title: 'Test', version: '1.0.0' },
     paths: {

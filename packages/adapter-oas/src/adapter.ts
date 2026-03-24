@@ -1,17 +1,16 @@
-import path from 'node:path'
 import { collectImports, createRoot } from '@kubb/ast'
-import type { AdapterSource } from '@kubb/core'
 import { createAdapter } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { resolveServerUrl } from './oas/resolveServerUrl.ts'
-import { parseFromConfig } from './oas/utils.ts'
-import { createOasParser } from './parser.ts'
-import type { OasAdapter } from './types.ts'
+import { applyDiscriminatorInheritance } from './discriminator.ts'
+import { parseFromConfig, validateDocument } from './factory.ts'
+import { resolveServerUrl } from './resolvers.ts'
+import { parseOas } from './transformers.ts'
+import type { AdapterOas } from './types.ts'
 
 /**
  * Stable string identifier for the OAS adapter used in Kubb's adapter registry.
  */
-export const adapterOasName = 'oas' satisfies OasAdapter['name']
+export const adapterOasName = 'oas' satisfies AdapterOas['name']
 
 /**
  * Creates the default OpenAPI / Swagger adapter for Kubb.
@@ -32,10 +31,9 @@ export const adapterOasName = 'oas' satisfies OasAdapter['name']
  * })
  * ```
  */
-export const adapterOas = createAdapter<OasAdapter>((options) => {
+export const adapterOas = createAdapter<AdapterOas>((options) => {
   const {
     validate = true,
-    oasClass,
     contentType,
     serverIndex,
     serverVariables,
@@ -55,7 +53,6 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
     name: adapterOasName,
     options: {
       validate,
-      oasClass,
       contentType,
       serverIndex,
       serverVariables,
@@ -79,63 +76,47 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
       })
     },
     async parse(source) {
-      const fakeConfig = sourceToFakeConfig(source)
-      const oas = await parseFromConfig(fakeConfig, oasClass)
+      const document = await parseFromConfig(source)
 
-      oas.setOptions({ contentType, discriminator })
+      if (discriminator === 'inherit') {
+        applyDiscriminatorInheritance(document)
+      }
 
       if (validate) {
         try {
-          await oas.validate()
+          await validateDocument(document)
         } catch (_err) {
           // Validation failures are non-fatal — mirror plugin-oas behavior
         }
       }
 
-      const server = serverIndex !== undefined ? oas.api.servers?.at(serverIndex) : undefined
+      const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
 
-      const parser = createOasParser(oas, { contentType })
-      const root = parser.parse({ dateType, integerType, unknownType, emptySchemaType, enumSuffix })
+      const { root, nameMapping: parsedNameMapping } = parseOas(document, {
+        contentType,
+        dateType,
+        integerType,
+        unknownType,
+        emptySchemaType,
+        enumSuffix,
+      })
 
-      // This must happen after parse() because legacy enum remapping is finalized there.
+      // This must happen after parseOas() because legacy enum remapping is finalized there.
       nameMapping.clear()
-      for (const [key, value] of parser.nameMapping) {
+      for (const [key, value] of parsedNameMapping) {
         nameMapping.set(key, value)
       }
 
       return createRoot({
         ...root,
         meta: {
-          title: oas.api.info?.title,
-          description: oas.api.info?.description,
-          version: oas.api.info?.version,
+          title: document.info?.title,
+          description: document.info?.description,
+          version: document.info?.version,
           baseURL,
         },
       })
     },
   }
 })
-
-/**
- * Adapts an `AdapterSource` to the shape that `parseFromConfig` expects.
- *
- * @example
- * ```ts
- * const config = sourceToFakeConfig({ type: 'path', path: './openapi.yaml' })
- * // { root: '.', input: { path: './openapi.yaml' } }
- * ```
- */
-function sourceToFakeConfig(source: AdapterSource): Parameters<typeof parseFromConfig>[0] {
-  switch (source.type) {
-    case 'path':
-      return { root: path.dirname(source.path), input: { path: source.path } } as Parameters<typeof parseFromConfig>[0]
-    case 'data':
-      return { root: process.cwd(), input: { data: source.data } } as Parameters<typeof parseFromConfig>[0]
-    case 'paths':
-      return {
-        root: source.paths[0] ? path.dirname(source.paths[0]) : process.cwd(),
-        input: source.paths.map((p) => ({ path: p })),
-      } as Parameters<typeof parseFromConfig>[0]
-  }
-}
