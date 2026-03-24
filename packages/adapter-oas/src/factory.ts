@@ -124,30 +124,6 @@ export function parseFromConfig(source: AdapterSource): Promise<Document> {
 }
 
 /**
- * Dereferences all `$ref` pointers in an OpenAPI document, returning a fully
- * inlined copy with no external or internal references remaining.
- *
- * Useful when you need a self-contained document — for example when embedding
- * the spec in an HTML page for Redoc.
- *
- * > **Note**: Schemas with circular `$ref`s will remain as `$ref` pointers
- * > because `JSON.stringify` cannot serialise circular structures. Non-circular
- * > schemas are always fully inlined.
- *
- * @example
- * ```ts
- * const derefed = await dereferenceDocument(document)
- * ```
- */
-export async function dereferenceDocument(document: Document): Promise<Document> {
-  const oasNormalize = new OASNormalize(document as unknown as object, {
-    enablePaths: false,
-    colorizeErrors: false,
-  })
-  return (await oasNormalize.deref()) as Document
-}
-
-/**
  * Validates an OpenAPI document using `oas-normalize` with colorized error output.
  *
  * @example
