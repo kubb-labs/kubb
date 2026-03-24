@@ -14,11 +14,11 @@ const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 
  *
  * @example
  * ```ts
- * isPlainStringType(createSchema({ type: 'uuid' })) // true
- * isPlainStringType(createSchema({ type: 'date', representation: 'date' })) // false
+ * isStringType(createSchema({ type: 'uuid' })) // true
+ * isStringType(createSchema({ type: 'date', representation: 'date' })) // false
  * ```
  */
-export function isPlainStringType(node: SchemaNode): boolean {
+export function isStringType(node: SchemaNode): boolean {
   if (plainStringTypes.has(node.type)) {
     return true
   }
@@ -44,11 +44,11 @@ export function isPlainStringType(node: SchemaNode): boolean {
  * @example
  * ```ts
  * const params = [createParameter({ name: 'pet_id', in: 'query', schema: createSchema({ type: 'string' }) })]
- * const cased = applyParamsCasing(params, 'camelcase')
+ * const cased = caseParams(params, 'camelcase')
  * // cased[0].name === 'petId'
  * ```
  */
-export function applyParamsCasing(params: Array<ParameterNode>, casing: 'camelcase' | undefined): Array<ParameterNode> {
+export function caseParams(params: Array<ParameterNode>, casing: 'camelcase' | undefined): Array<ParameterNode> {
   if (!casing) {
     return params
   }
@@ -58,4 +58,20 @@ export function applyParamsCasing(params: Array<ParameterNode>, casing: 'camelca
 
     return { ...param, name: transformed }
   })
+}
+
+/**
+ * Syncs property/parameter schema optionality flags from `required` and `schema.nullable`.
+ *
+ * - `optional` is set for non-required, non-nullable schemas.
+ * - `nullish` is set for non-required, nullable schemas.
+ */
+export function syncOptionality(required: boolean, schema: SchemaNode): SchemaNode {
+  const nullable = schema.nullable ?? false
+
+  return {
+    ...schema,
+    optional: !required && !nullable ? true : undefined,
+    nullish: !required && nullable ? true : undefined,
+  }
 }

@@ -373,7 +373,7 @@ describe('composeTransformers', () => {
   })
 })
 
-describe('syncPropertySchema — auto-derived optional/nullish', () => {
+describe('syncOptionality — auto-derived optional/nullish', () => {
   it('setting required: true via transformer clears schema.optional', () => {
     const node = createSchema({
       type: 'object',

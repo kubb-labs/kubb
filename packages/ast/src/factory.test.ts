@@ -1,5 +1,6 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
+  createDiscriminantNode,
   createFunctionParameter,
   createFunctionParameters,
   createObjectBindingParameter,
@@ -173,6 +174,28 @@ describe('createResponse', () => {
 
     expect(node.schema?.type).toBe('object')
     expect(node.description).toBe('Success')
+  })
+})
+
+describe('createDiscriminantNode', () => {
+  it('creates an object with a single required enum property', () => {
+    const node = createDiscriminantNode({ propertyName: 'type', value: 'cat' })
+
+    expect(node.type).toBe('object')
+    if (node.type !== 'object') return
+    expect(node.properties).toHaveLength(1)
+    expect(node.properties?.[0]?.name).toBe('type')
+    expect(node.properties?.[0]?.required).toBe(true)
+    expect(node.properties?.[0]?.schema.type).toBe('enum')
+  })
+
+  it('enum has exactly one value matching the input', () => {
+    const node = createDiscriminantNode({ propertyName: 'kind', value: 'dog' })
+
+    if (node.type !== 'object') return
+    const enumNode = node.properties?.[0]?.schema
+    if (!enumNode || enumNode.type !== 'enum') return
+    expect(enumNode.enumValues).toEqual(['dog'])
   })
 })
 

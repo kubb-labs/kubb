@@ -2,6 +2,8 @@ import { SCALAR_PRIMITIVE_TYPES } from './constants.ts'
 import { createProperty, createSchema } from './factory.ts'
 import { narrowSchema } from './guards.ts'
 import type { SchemaNode } from './nodes/schema.ts'
+import { enumPropName } from './resolvers.ts'
+import { transform } from './visitor.ts'
 
 /**
  * Replaces a discriminator property's schema with a string enum of allowed values.
@@ -15,10 +17,10 @@ import type { SchemaNode } from './nodes/schema.ts'
  *   type: 'object',
  *   properties: [createProperty({ name: 'type', required: true, schema: createSchema({ type: 'string' }) })],
  * })
- * const result = applyDiscriminatorEnum({ node: schema, propertyName: 'type', values: ['dog', 'cat'] })
+ * const result = setDiscriminatorEnum({ node: schema, propertyName: 'type', values: ['dog', 'cat'] })
  * ```
  */
-export function applyDiscriminatorEnum({
+export function setDiscriminatorEnum({
   node,
   propertyName,
   values,
@@ -66,13 +68,13 @@ export function applyDiscriminatorEnum({
  *
  * @example
  * ```ts
- * const merged = mergeAdjacentAnonymousObjects([
+ * const merged = mergeAdjacentObjects([
  *   createSchema({ type: 'object', properties: [createProperty({ name: 'a', schema: createSchema({ type: 'string' }) })] }),
  *   createSchema({ type: 'object', properties: [createProperty({ name: 'b', schema: createSchema({ type: 'number' }) })] }),
  * ])
  * ```
  */
-export function mergeAdjacentAnonymousObjects(members: Array<SchemaNode>): Array<SchemaNode> {
+export function mergeAdjacentObjects(members: Array<SchemaNode>): Array<SchemaNode> {
   return members.reduce<Array<SchemaNode>>((acc, member) => {
     const objectMember = narrowSchema(member, 'object')
     if (objectMember && !objectMember.name) {
@@ -98,14 +100,14 @@ export function mergeAdjacentAnonymousObjects(members: Array<SchemaNode>): Array
  *
  * @example
  * ```ts
- * const simplified = simplifyUnionMembers([
+ * const simplified = simplifyUnion([
  *   createSchema({ type: 'enum', primitive: 'string', enumValues: ['active'] }),
  *   createSchema({ type: 'string' }),
  * ])
  * // keeps only string member
  * ```
  */
-export function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNode> {
+export function simplifyUnion(members: Array<SchemaNode>): Array<SchemaNode> {
   const scalarPrimitives = new Set(
     members.filter((member) => SCALAR_PRIMITIVE_TYPES.has(member.type as typeof SCALAR_PRIMITIVE_TYPES extends Set<infer T> ? T : never)).map((m) => m.type),
   )
@@ -140,4 +142,55 @@ export function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNo
 
     return true
   })
+}
+
+export function setEnumName(propNode: SchemaNode, parentName: string | undefined, propName: string, enumSuffix: string): SchemaNode {
+  const enumNode = narrowSchema(propNode, 'enum')
+
+  if (enumNode?.primitive === 'boolean') {
+    return { ...propNode, name: undefined }
+  }
+
+  if (enumNode) {
+    return { ...propNode, name: enumPropName(parentName, propName, enumSuffix) }
+  }
+
+  return propNode
+}
+
+/**
+ * Walks a schema tree and resolves `ref`/`enum` names through callbacks.
+ */
+export function resolveNames({
+  node,
+  nameMapping,
+  resolveName,
+  resolveEnumName,
+}: {
+  node: SchemaNode
+  nameMapping: Map<string, string>
+  resolveName: (ref: string) => string | undefined
+  resolveEnumName?: (name: string) => string | undefined
+}): SchemaNode {
+  return transform(node, {
+    schema(schemaNode) {
+      const schemaRef = narrowSchema(schemaNode, 'ref')
+
+      if (schemaRef && (schemaRef.ref || schemaRef.name)) {
+        const rawRef = schemaRef.ref ?? schemaRef.name!
+        const resolved = resolveName(nameMapping.get(rawRef) ?? rawRef)
+        if (resolved) {
+          return { ...schemaNode, name: resolved }
+        }
+      }
+
+      const schemaEnum = narrowSchema(schemaNode, 'enum')
+      if (schemaEnum?.name) {
+        const resolved = (resolveEnumName ?? resolveName)(schemaEnum.name)
+        if (resolved) {
+          return { ...schemaNode, name: resolved }
+        }
+      }
+    },
+  }) as SchemaNode
 }

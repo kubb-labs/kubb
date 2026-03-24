@@ -1,5 +1,5 @@
-import type { AdapterFactoryOptions } from '@kubb/core'
 import type { ParserOptions } from '@kubb/ast/types'
+import type { AdapterFactoryOptions } from '@kubb/core'
 import type { Oas as OasClass } from './oas/Oas.ts'
 import type { contentType } from './oas/types.ts'
 

@@ -1,20 +1,26 @@
 import { URLPath } from '@internals/utils'
 import {
-  applyDiscriminatorEnum,
+  childName,
+  createDiscriminantNode,
   createOperation,
   createParameter,
   createProperty,
   createResponse,
   createRoot,
   createSchema,
+  enumPropName,
   extractRefName,
+  findDiscriminator,
   type InferSchemaNode,
   mediaTypes,
-  mergeAdjacentAnonymousObjects,
+  mergeAdjacentObjects,
   narrowSchema,
   type ParserOptions,
+  resolveNames,
   schemaTypes,
-  simplifyUnionMembers,
+  setDiscriminatorEnum,
+  setEnumName,
+  simplifyUnion,
 } from '@kubb/ast'
 import type {
   DistributiveOmit,
@@ -33,12 +39,9 @@ import type {
   StatusCode,
 } from '@kubb/ast/types'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, formatMap } from './constants.ts'
-import { createDiscriminantNode, resolveDiscriminatorValue } from './discriminator.ts'
-import { applyEnumName, resolveChildName, resolveEnumPropName } from './naming.ts'
 import type { Oas } from './oas/Oas.ts'
 import type { contentType, Operation, ReferenceObject, SchemaObject } from './oas/types.ts'
 import { flattenSchema, isDiscriminator, isNullable, isReference } from './oas/utils.ts'
-import { resolveRefs as resolveRefsNode } from './refResolver.ts'
 
 /**
  * Construction-time options for `createOasParser`.
@@ -119,7 +122,7 @@ export type OasParser = {
    * Map from original `$ref` paths to their collision-resolved schema names.
    * e.g. `'#/components/schemas/Order'` → `'OrderSchema'`
    *
-   * Pass this to the standalone `getImports()` to resolve imports without holding
+   * Pass this to the standalone `collectImports()` to resolve imports without holding
    * a reference to the full parser or OAS instance.
    */
   nameMapping: Map<string, string>
@@ -306,7 +309,7 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
         const inOneOf = parentUnion.some((oneOfItem) => isReference(oneOfItem) && oneOfItem.$ref === childRef)
         const inMapping = Object.values(deref.discriminator.mapping ?? {}).some((v) => v === childRef)
         if (inOneOf || inMapping) {
-          const discriminatorValue = resolveDiscriminatorValue(deref.discriminator.mapping, childRef)
+          const discriminatorValue = findDiscriminator(deref.discriminator.mapping, childRef)
           if (discriminatorValue) {
             filteredDiscriminantValues.push({ propertyName: deref.discriminator.propertyName, value: discriminatorValue })
           }
@@ -351,13 +354,13 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
     // Inject a synthetic single-property object for each discriminant value collected from
     // filtered discriminator parents so that child schemas carry the narrowed literal type.
     for (const { propertyName, value } of filteredDiscriminantValues) {
-      allOfMembers.push(createDiscriminantNode(propertyName, value))
+      allOfMembers.push(createDiscriminantNode({ propertyName, value }))
     }
 
-    // Merge consecutive anonymous object members within the synthetic portion — see `mergeAdjacentAnonymousObjects`.
+    // Merge consecutive anonymous object members within the synthetic portion — see `mergeAdjacentObjects`.
     return createSchema({
       type: 'intersection',
-      members: [...mergeAdjacentAnonymousObjects(allOfMembers.slice(0, syntheticStart)), ...mergeAdjacentAnonymousObjects(allOfMembers.slice(syntheticStart))],
+      members: [...mergeAdjacentObjects(allOfMembers.slice(0, syntheticStart)), ...mergeAdjacentObjects(allOfMembers.slice(syntheticStart))],
       ...renderSchemaBase(schema, name, nullable, defaultValue),
     })
   }
@@ -408,7 +411,7 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
     if (sharedPropertiesNode || discriminator?.mapping) {
       const members = unionMembers.map((s) => {
         const ref = isReference(s) ? s.$ref : undefined
-        const discriminatorValue = resolveDiscriminatorValue(discriminator?.mapping, ref)
+        const discriminatorValue = findDiscriminator(discriminator?.mapping, ref)
         const memberNode = convertSchema({ schema: s as SchemaObject }, rawOptions)
 
         if (!discriminatorValue || !discriminator) {
@@ -417,7 +420,7 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
 
         const narrowedDiscriminatorNode = sharedPropertiesNode
           ? pickDiscriminatorPropertyNode(
-              applyDiscriminatorEnum({
+              setDiscriminatorEnum({
                 node: sharedPropertiesNode,
                 propertyName: discriminator.propertyName,
                 values: [discriminatorValue],
@@ -428,7 +431,7 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
 
         return createSchema({
           type: 'intersection',
-          members: [memberNode, narrowedDiscriminatorNode ?? createDiscriminantNode(discriminator.propertyName, discriminatorValue)],
+          members: [memberNode, narrowedDiscriminatorNode ?? createDiscriminantNode({ propertyName: discriminator.propertyName, value: discriminatorValue })],
         })
       })
 
@@ -452,7 +455,7 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
     return createSchema({
       type: 'union',
       ...unionBase,
-      members: simplifyUnionMembers(unionMembers.map((s) => convertSchema({ schema: s as SchemaObject }, rawOptions))),
+      members: simplifyUnion(unionMembers.map((s) => convertSchema({ schema: s as SchemaObject }, rawOptions))),
     })
   }
 
@@ -619,13 +622,13 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
           const resolvedPropSchema = propSchema as SchemaObject
           const propNullable = isNullable(resolvedPropSchema)
 
-          const childName = resolveChildName(name, propName)
-          const propNode = convertSchema({ schema: resolvedPropSchema, name: childName }, rawOptions)
-          let schemaNode = applyEnumName(propNode, name, propName, options.enumSuffix)
+          const resolvedChildName = childName(name, propName)
+          const propNode = convertSchema({ schema: resolvedPropSchema, name: resolvedChildName }, rawOptions)
+          let schemaNode = setEnumName(propNode, name, propName, options.enumSuffix)
 
           const tupleNode = narrowSchema(schemaNode, 'tuple')
           if (tupleNode?.items) {
-            const namedItems = tupleNode.items.map((item) => applyEnumName(item, name, propName, options.enumSuffix))
+            const namedItems = tupleNode.items.map((item) => setEnumName(item, name, propName, options.enumSuffix))
             if (namedItems.some((item, i) => item !== tupleNode.items![i])) {
               schemaNode = { ...tupleNode, items: namedItems }
             }
@@ -681,8 +684,8 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
     if (isDiscriminator(schema) && schema.discriminator.mapping) {
       const discPropName = schema.discriminator.propertyName
       const values = Object.keys(schema.discriminator.mapping)
-      const enumName = name ? resolveEnumPropName(name, discPropName, options.enumSuffix) : undefined
-      return applyDiscriminatorEnum({ node: objectNode, propertyName: discPropName, values, enumName })
+      const enumName = name ? enumPropName(name, discPropName, options.enumSuffix) : undefined
+      return setDiscriminatorEnum({ node: objectNode, propertyName: discPropName, values, enumName })
     }
 
     return objectNode
@@ -721,7 +724,7 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
     const rawItems = schema.items as SchemaObject | undefined
     // When the items schema contains an inline enum, derive a named identifier
     // so generators can emit a standalone enum declaration.
-    const itemName = rawItems?.enum?.length && name ? resolveEnumPropName(undefined, name, options.enumSuffix) : undefined
+    const itemName = rawItems?.enum?.length && name ? enumPropName(undefined, name, options.enumSuffix) : undefined
     const items = rawItems ? [convertSchema({ schema: rawItems, name: itemName }, rawOptions)] : []
 
     return createSchema({
@@ -1015,7 +1018,7 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
     node: SchemaNode,
     resolveName: (ref: string) => string | undefined,
     resolveEnumName?: (name: string) => string | undefined,
-  ): SchemaNode => resolveRefsNode({ node, nameMapping, resolveName, resolveEnumName })
+  ): SchemaNode => resolveNames({ node, nameMapping, resolveName, resolveEnumName })
 
   return {
     parse,

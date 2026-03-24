@@ -11,6 +11,7 @@ import type {
   RootNode,
   SchemaNode,
 } from './nodes/index.ts'
+import { syncOptionality } from './utils.ts'
 
 /**
  * Distributive `Omit` that preserves each member of a union.
@@ -124,35 +125,6 @@ export function createSchema(props: CreateSchemaInput): SchemaNode {
 }
 
 /**
- * Syncs property optionality flags from `required` and `schema.nullable`.
- *
- * This keeps `PropertyNode.required` as the main source and sets:
- * - `optional` for non-required, non-nullable properties
- * - `nullish` for non-required, nullable properties
- *
- * @example
- * ```ts
- * syncPropertySchema(false, createSchema({ type: 'string' }))
- * // -> optional: true
- * ```
- *
- * @example
- * ```ts
- * syncPropertySchema(false, createSchema({ type: 'string', nullable: true }))
- * // -> nullish: true
- * ```
- */
-export function syncPropertySchema(required: boolean, schema: SchemaNode): SchemaNode {
-  const nullable = schema.nullable ?? false
-
-  return {
-    ...schema,
-    optional: !required && !nullable ? true : undefined,
-    nullish: !required && nullable ? true : undefined,
-  }
-}
-
-/**
  * Creates a `PropertyNode`.
  *
  * `required` defaults to `false`.
@@ -184,7 +156,7 @@ export function createProperty(props: Pick<PropertyNode, 'name' | 'schema'> & Pa
     ...props,
     kind: 'Property',
     required,
-    schema: syncPropertySchema(required, props.schema),
+    schema: syncOptionality(required, props.schema),
   }
 }
 
@@ -222,7 +194,7 @@ export function createParameter(
     ...props,
     kind: 'Parameter',
     required,
-    schema: syncPropertySchema(required, props.schema),
+    schema: syncOptionality(required, props.schema),
   }
 }
 
@@ -245,6 +217,33 @@ export function createResponse(
     ...props,
     kind: 'Response',
   }
+}
+
+/**
+ * Creates a single-property object schema used as a discriminator literal.
+ *
+ * @example
+ * ```ts
+ * createDiscriminantNode({ propertyName: 'type', value: 'dog' })
+ * // -> { type: 'object', properties: [{ name: 'type', required: true, schema: enum('dog') }] }
+ * ```
+ */
+export function createDiscriminantNode({ propertyName, value }: { propertyName: string; value: string }): SchemaNode {
+  return createSchema({
+    type: 'object',
+    primitive: 'object',
+    properties: [
+      createProperty({
+        name: propertyName,
+        schema: createSchema({
+          type: 'enum',
+          primitive: 'string',
+          enumValues: [value],
+        }),
+        required: true,
+      }),
+    ],
+  })
 }
 
 /**

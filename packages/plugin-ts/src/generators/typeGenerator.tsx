@@ -1,4 +1,4 @@
-import { applyParamsCasing, composeTransformers, narrowSchema, schemaTypes, transform } from '@kubb/ast'
+import { caseParams, composeTransformers, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
 import { useKubb } from '@kubb/core/hooks'
@@ -45,7 +45,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
         group: group ? (group.type === 'tag' ? { tag: node.tags[0] ?? 'default' } : { path: node.path }) : undefined,
       },
     })
-    const params = applyParamsCasing(node.parameters, paramsCasing)
+    const params = caseParams(node.parameters, paramsCasing)
 
     function renderSchemaType({
       node: schemaNode,
