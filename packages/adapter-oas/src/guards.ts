@@ -18,34 +18,6 @@ export function isOpenApiV2Document(doc: unknown): doc is OpenAPIV2.Document {
 }
 
 /**
- * Returns `true` when `doc` is an OpenAPI 3.x document (has an `openapi` key).
- *
- * @example
- * ```ts
- * if (isOpenApiV3Document(doc)) {
- *   // doc is OpenAPIV3.Document
- * }
- * ```
- */
-export function isOpenApiV3Document(doc: unknown): doc is OpenAPIV3.Document {
-  return !!doc && isPlainObject(doc) && 'openapi' in doc
-}
-
-/**
- * Returns `true` when `doc` is an OpenAPI 3.1 document (version string starts with `'3.1'`).
- *
- * @example
- * ```ts
- * if (isOpenApiV3_1Document(doc)) {
- *   // doc is OpenAPIV3_1.Document — use prefixItems, const, etc.
- * }
- * ```
- */
-export function isOpenApiV3_1Document(doc: unknown): doc is OpenAPIV3_1.Document {
-  return !!doc && isPlainObject(doc) && 'openapi' in (doc as object) && (doc as { openapi: string }).openapi.startsWith('3.1')
-}
-
-/**
  * Returns `true` when a schema should be treated as nullable.
  *
  * Recognises all nullable signals across OAS versions: `nullable: true` (OAS 3.0),
