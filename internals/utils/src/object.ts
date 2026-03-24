@@ -55,14 +55,26 @@ export function serializePluginOptions<TOptions extends object>(options: TOption
 }
 
 /**
+ * Strips all `undefined` values from an object recursively by round-tripping through JSON.
+ * Useful for clean inline snapshot assertions that only show fields with actual values.
+ *
+ * @example
+ * toSnapshot({ kind: 'Schema', name: undefined, type: 'string' })
+ * // { kind: 'Schema', type: 'string' }
+ */
+export function toSnapshot<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value))
+}
+
+/**
  * Converts a dot-notation path or string array into an optional-chaining accessor expression.
  *
  * @example
  * getNestedAccessor('pagination.next.id', 'lastPage')
  * // → "lastPage?.['pagination']?.['next']?.['id']"
  */
-export function getNestedAccessor(param: string | string[], accessor: string): string | undefined {
+export function getNestedAccessor(param: string | string[], accessor: string): string | null {
   const parts = Array.isArray(param) ? param : param.split('.')
-  if (parts.length === 0 || (parts.length === 1 && parts[0] === '')) return undefined
+  if (parts.length === 0 || (parts.length === 1 && parts[0] === '')) return null
   return `${accessor}?.['${`${parts.join("']?.['")}']`}`
 }

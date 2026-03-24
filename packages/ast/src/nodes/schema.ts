@@ -89,8 +89,10 @@ type SchemaNodeBase = BaseNode & {
   /**
    * Schema name for named definitions (for example, `"Pet"`).
    * Inline schemas omit this field.
+   * `null` means kubb has processed this and determined there is no applicable name.
+   * `undefined` means the name has not been set yet.
    */
-  name?: string
+  name?: string | null
   /**
    * Short schema title.
    */

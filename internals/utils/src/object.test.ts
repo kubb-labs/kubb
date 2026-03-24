@@ -19,11 +19,11 @@ describe('getNestedAccessor', () => {
   })
 
   it('should return undefined for empty string', () => {
-    expect(getNestedAccessor('', 'lastPage')).toBeUndefined()
+    expect(getNestedAccessor('', 'lastPage')).toBeNull()
   })
 
   it('should return undefined for empty array', () => {
-    expect(getNestedAccessor([], 'lastPage')).toBeUndefined()
+    expect(getNestedAccessor([], 'lastPage')).toBeNull()
   })
 
   it('should handle deeply nested paths', () => {

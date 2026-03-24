@@ -34,7 +34,7 @@ export type ResponseNode = BaseNode & {
   /**
    * Response media type.
    */
-  mediaType?: MediaType
+  mediaType?: MediaType | null
   /**
    * Property keys to exclude from the generated type via `Omit<Type, Keys>`.
    * Set when a referenced schema has `writeOnly` fields that should not appear in response types.

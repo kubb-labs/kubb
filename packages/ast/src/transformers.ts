@@ -144,7 +144,7 @@ export function simplifyUnion(members: Array<SchemaNode>): Array<SchemaNode> {
   })
 }
 
-export function setEnumName(propNode: SchemaNode, parentName: string | undefined, propName: string, enumSuffix: string): SchemaNode {
+export function setEnumName(propNode: SchemaNode, parentName: string | null | undefined, propName: string, enumSuffix: string): SchemaNode {
   const enumNode = narrowSchema(propNode, 'enum')
 
   if (enumNode?.primitive === 'boolean') {

@@ -184,11 +184,11 @@ export function createPrinterFactory<TNode, TKey extends string, TNodeByKey exte
         options: resolvedOptions,
         print: (node: TNode): T['output'] | null | undefined => {
           const key = getKey(node)
-          if (key === undefined) return undefined
+          if (key === undefined) return null
 
           const handler = nodes[key]
 
-          if (!handler) return undefined
+          if (!handler) return null
 
           return (handler as (this: typeof context, node: TNode) => T['output'] | null | undefined).call(context, node)
         },

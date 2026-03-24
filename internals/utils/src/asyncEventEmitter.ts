@@ -41,7 +41,7 @@ export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: unknown[]
     const listeners = this.#emitter.listeners(eventName) as Array<AsyncListener<TEvents[TEventName]>>
 
     if (listeners.length === 0) {
-      return undefined
+      return
     }
 
     await Promise.all(
