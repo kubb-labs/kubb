@@ -1,9 +1,17 @@
-import type { SchemaNode, SchemaNodeByType, SchemaType } from './nodes/index.ts'
+import type { SchemaNode, SchemaNodeByType, SchemaType } from '../nodes/index.ts'
 
 /**
- * Handler context for `definePrinter` — mirrors `PluginContext` from `@kubb/core`.
- * Available as `this` inside each node handler and the optional root-level `print`.
- * `this.print` always dispatches to the `nodes` handlers (node-level printer).
+ * Runtime context passed as `this` to printer handlers.
+ *
+ * `this.print` always dispatches to node-level handlers from `nodes`.
+ *
+ * @example
+ * ```ts
+ * const context: PrinterHandlerContext<string, {}> = {
+ *   options: {},
+ *   print: () => 'value',
+ * }
+ * ```
  */
 export type PrinterHandlerContext<TOutput, TOptions extends object> = {
   /**
@@ -17,8 +25,16 @@ export type PrinterHandlerContext<TOutput, TOptions extends object> = {
 }
 
 /**
- * Handler for a specific `SchemaNode` variant identified by `SchemaType` key `T`.
- * Use a regular function (not an arrow function) so that `this` is available.
+ * Handler for one schema node type.
+ *
+ * Use a regular function (not an arrow function) if you need `this`.
+ *
+ * @example
+ * ```ts
+ * const handler: PrinterHandler<string, {}, 'string'> = function () {
+ *   return 'string'
+ * }
+ * ```
  */
 export type PrinterHandler<TOutput, TOptions extends object, T extends SchemaType = SchemaType> = (
   this: PrinterHandlerContext<TOutput, TOptions>,
@@ -26,13 +42,17 @@ export type PrinterHandler<TOutput, TOptions extends object, T extends SchemaTyp
 ) => TOutput | null | undefined
 
 /**
- * Shape of the type parameter passed to `definePrinter`.
- * Mirrors `AdapterFactoryOptions` / `PluginFactoryOptions` from `@kubb/core`.
+ * Generic shape used by `definePrinter`.
  *
  * - `TName`        — unique string identifier (e.g. `'zod'`, `'ts'`)
- * - `TOptions`     — options passed to and stored on the printer
+ * - `TOptions`     — options passed to and stored on the printer instance
  * - `TOutput`      — the type emitted by node handlers
- * - `TPrintOutput` — the type emitted by the public `print` override (defaults to `TOutput`)
+ * - `TPrintOutput` — type returned by public `print` (defaults to `TOutput`)
+ *
+ * @example
+ * ```ts
+ * type MyPrinter = PrinterFactoryOptions<'my', { strict: boolean }, string>
+ * ```
  */
 export type PrinterFactoryOptions<TName extends string = string, TOptions extends object = object, TOutput = unknown, TPrintOutput = TOutput> = {
   name: TName
@@ -42,7 +62,12 @@ export type PrinterFactoryOptions<TName extends string = string, TOptions extend
 }
 
 /**
- * The object returned by calling a `definePrinter` instance.
+ * Printer instance returned by a printer factory.
+ *
+ * @example
+ * ```ts
+ * const printer = definePrinter((options: {}) => ({ name: 'x', options, nodes: {} }))({})
+ * ```
  */
 export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
   /**
@@ -55,16 +80,25 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
   options: T['options']
   /**
    * Public printer. If the builder provides a root-level `print`, this calls that
-   * higher-level function (which may produce full declarations). Otherwise falls back
-   * to the node-level dispatcher
+   * higher-level function (which may produce full declarations).
+   * Otherwise, falls back to the node-level dispatcher.
    */
   print: (node: SchemaNode) => T['printOutput'] | null | undefined
 }
 
 /**
- * Builder function passed to `definePrinter`. Receives the resolved options and returns the
- * printer configuration: a unique `name`, the stored `options`, node-level `nodes` handlers,
- * and an optional root-level `print` override.
+ * Builder function passed to `definePrinter`.
+ *
+ * It receives resolved options and returns:
+ * - `name`
+ * - `options`
+ * - `nodes` handlers
+ * - optional top-level `print` override
+ *
+ * @example
+ * ```ts
+ * const build = (options: {}) => ({ name: 'x' as const, options, nodes: {} })
+ * ```
  */
 type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) => {
   name: T['name']
@@ -84,16 +118,17 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
 }
 
 /**
- * Creates a named printer factory. Mirrors the `createPlugin` / `createAdapter` pattern
- * from `@kubb/core` — wraps a builder to make options optional and separates raw options
- * from resolved options.
+ * Creates a schema printer factory.
+ *
+ * This function wraps a builder and makes options optional at call sites.
  *
  * The builder receives resolved options and returns:
  * - `name` — a unique identifier for the printer
  * - `options` — options stored on the returned printer instance
  * - `nodes` — a map of `SchemaType` → handler functions that convert a `SchemaNode` to `TOutput`
- * - `print` _(optional)_ — a root-level override that becomes the public `printer.print`.
- *   Inside it, `this.print(node)` still dispatches to the `nodes` map — safe recursion, no infinite loop.
+ * - `print` _(optional)_ — top-level override exposed as `printer.print`
+ *   - Inside this function, `this.print(node)` still dispatches to the `nodes` map
+ *   - This keeps recursion safe and avoids self-calls
  *
  * When no `print` override is provided, `printer.print` is the node-level dispatcher directly.
  *
@@ -113,33 +148,14 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  *   },
  * }))
  * ```
- *
- * @example With a root-level `print` override to wrap output in a full declaration
- * ```ts
- * type TsPrinter = PrinterFactoryOptions<'ts', { typeName?: string }, ts.TypeNode, ts.Node>
- *
- * export const printerTs = definePrinter<TsPrinter>((options) => ({
- *   name: 'ts',
- *   options,
- *   nodes: { string: () => factory.keywordTypeNodes.string },
- *   print(node) {
- *     const type = this.print(node) // calls the node-level dispatcher
- *     if (!type || !this.options.typeName) return type
- *     return factory.createTypeAliasDeclaration(this.options.typeName, type)
- *   },
- * }))
- * ```
  */
 export function definePrinter<T extends PrinterFactoryOptions = PrinterFactoryOptions>(build: PrinterBuilder<T>): (options?: T['options']) => Printer<T> {
   return createPrinterFactory<SchemaNode, SchemaType, SchemaNodeByType>((node) => node.type)(build) as (options?: T['options']) => Printer<T>
 }
 
 /**
- * Generic printer factory. Extracts the core dispatch + context logic so it can be reused
- * for any node type — not just `SchemaNode`. `definePrinter` is built on top of this.
- *
- * @param getKey — derives the handler-map key from a node. Return `undefined` to skip.
- *
+ * Generic printer-factory function used by `definePrinter` and `defineFunctionPrinter`.
+ **
  * @example
  * ```ts
  * export const defineFunctionPrinter = createPrinterFactory<FunctionNode, FunctionNodeType, FunctionNodeByType>(

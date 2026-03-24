@@ -1,10 +1,10 @@
-import type { FunctionNode, FunctionNodeType } from './nodes/function.ts'
-import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode } from './nodes/index.ts'
+import type { FunctionNode, FunctionNodeType } from '../nodes/function.ts'
+import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode } from '../nodes/index.ts'
 import type { PrinterFactoryOptions } from './printer.ts'
 import { createPrinterFactory } from './printer.ts'
 
 /**
- * Maps each `FunctionNodeType` key to its concrete node type.
+ * Maps each function-printer handler key to its concrete node type.
  */
 export type FunctionNodeByType = {
   functionParameter: FunctionParameterNode
@@ -19,8 +19,10 @@ const kindToHandlerKey = {
 } satisfies Record<string, FunctionNodeType>
 
 /**
- * Creates a named function-signature printer factory.
- * Built on `createPrinterFactory` — dispatches on `node.kind` instead of `node.type`.
+ * Creates a function-parameter printer factory.
+ *
+ * This wrapper uses `createPrinterFactory` and dispatches handlers by `node.kind`
+ * (for function nodes) rather than by `node.type` (for schema nodes).
  *
  * @example
  * ```ts
@@ -46,18 +48,17 @@ const kindToHandlerKey = {
  */
 export const defineFunctionPrinter = createPrinterFactory<FunctionNode, FunctionNodeType, FunctionNodeByType>((node) => kindToHandlerKey[node.kind])
 
-/**
- * The four rendering modes for a `FunctionParametersNode`.
- *
- * | Mode          | Output example                              | Use case                        |
- * |---------------|---------------------------------------------|---------------------------------|
- * | `declaration` | `id: string, config: Config = {}`           | Function parameter declarations |
- * | `call`        | `id, { method, url }`                       | Function call arguments         |
- * | `keys`        | `{ id, config }`                            | Key names only (destructuring)  |
- * | `values`      | `{ id: id, config: config }`                | Key → value pairs               |
- */
-
 export type FunctionPrinterOptions = {
+  /**
+   * Rendering modes supported by `functionPrinter`.
+   *
+   * | Mode          | Output example                              | Use case                        |
+   * |---------------|---------------------------------------------|---------------------------------|
+   * | `declaration` | `id: string, config: Config = {}`           | Function parameter declaration |
+   * | `call`        | `id, { method, url }`                       | Function call arguments |
+   * | `keys`        | `{ id, config }`                            | Key names only (destructuring) |
+   * | `values`      | `{ id: id, config: config }`                | Key/value object entries |
+   */
   mode: 'declaration' | 'call' | 'keys' | 'values'
   /**
    * Optional transformation applied to every parameter name before printing.
@@ -91,12 +92,12 @@ function sortChildParams(params: Array<FunctionParameterNode>): Array<FunctionPa
 }
 
 /**
- * Default function-signature printer. Covers the four standard output modes
- * used throughout Kubb plugins.
+ * Default function-signature printer.
+ * Covers the four standard output modes used across Kubb plugins.
  *
  * @example
  * ```ts
- * const printer = functionSignaturePrinter({ mode: 'declaration' })
+ * const printer = functionPrinter({ mode: 'declaration' })
  *
  * const sig = createFunctionParameters({
  *   params: [

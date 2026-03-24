@@ -14,6 +14,9 @@ export type FindPetsByStatusQueryParamsStatusEnumKey = (typeof findPetsByStatusQ
 export type FindPetsByStatusQueryParamsStatusEnum = FindPetsByStatusQueryParamsStatusEnumKey
 
 export type FindPetsByStatusQueryParams = {
+  /**
+   * @type string | undefined
+   */
   status?: FindPetsByStatusQueryParamsStatusEnumKey
 }
 

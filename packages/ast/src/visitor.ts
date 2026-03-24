@@ -4,8 +4,20 @@ import { createParameter, createProperty } from './factory.ts'
 import type { Node, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode } from './nodes/index.ts'
 
 /**
- * Creates a concurrency-limiting wrapper. At most `concurrency` promises may be
- * in-flight simultaneously; additional calls are queued and dispatched as slots free.
+ * Creates a small async concurrency limiter.
+ *
+ * At most `concurrency` tasks are in flight at once. Extra tasks are queued.
+ *
+ * @example
+ * ```ts
+ * const limit = createLimit(2)
+ * await Promise.all([
+ *   limit(() => taskA()),
+ *   limit(() => taskB()),
+ *   limit(() => taskC()),
+ * ])
+ * // only 2 tasks run at the same time
+ * ```
  */
 function createLimit(concurrency: number) {
   let active = 0
@@ -36,10 +48,9 @@ function createLimit(concurrency: number) {
 type LimitFn = ReturnType<typeof createLimit>
 
 /**
- * Single source of truth: ordered list of `[NodeType, ParentType]` pairs
- * describing which node types can be the parent of a given node in the AST.
+ * Ordered mapping of `[NodeType, ParentType]` pairs.
  *
- * `ParentOf` walks this tuple and returns the parent type of the first matching entry.
+ * `ParentOf` uses this map to find parent types.
  */
 type ParentNodeMap = [
   [RootNode, undefined],
@@ -50,6 +61,30 @@ type ParentNodeMap = [
   [ResponseNode, OperationNode],
 ]
 
+/**
+ * Resolves the parent node type for a given AST node type.
+ *
+ * This is used by visitor context so `ctx.parent` is correctly typed
+ * for each callback.
+ *
+ * @example
+ * ```ts
+ * type RootParent = ParentOf<RootNode>
+ * // undefined
+ * ```
+ *
+ * @example
+ * ```ts
+ * type PropertyParent = ParentOf<PropertyNode>
+ * // SchemaNode
+ * ```
+ *
+ * @example
+ * ```ts
+ * type SchemaParent = ParentOf<SchemaNode>
+ * // RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode
+ * ```
+ */
 export type ParentOf<T extends Node, TEntries extends ReadonlyArray<[Node, unknown]> = ParentNodeMap> = TEntries extends [
   infer TEntry extends [Node, unknown],
   ...infer TRest extends ReadonlyArray<[Node, unknown]>,
@@ -61,14 +96,36 @@ export type ParentOf<T extends Node, TEntries extends ReadonlyArray<[Node, unkno
 
 /**
  * Traversal context passed as the second argument to every visitor callback.
- * The `parent` field is narrowed based on the node type being visited.
+ * `parent` is typed from the current node type.
+ *
+ * @example
+ * ```ts
+ * const visitor: Visitor = {
+ *   schema(node, { parent }) {
+ *     // parent type is narrowed by node kind
+ *   },
+ * }
+ * ```
  */
 export type VisitorContext<T extends Node = Node> = {
+  /**
+   * Parent node of the currently visited node.
+   * For `RootNode`, this is `undefined`.
+   */
   parent?: ParentOf<T>
 }
 
 /**
- * Synchronous visitor for `transform` and `walk`.
+ * Synchronous visitor used by `transform`.
+ *
+ * @example
+ * ```ts
+ * const visitor: Visitor = {
+ *   operation(node) {
+ *     return { ...node, operationId: `x_${node.operationId}` }
+ *   },
+ * }
+ * ```
  */
 export type Visitor = {
   root?(node: RootNode, context: VisitorContext<RootNode>): void | RootNode
@@ -79,10 +136,22 @@ export type Visitor = {
   response?(node: ResponseNode, context: VisitorContext<ResponseNode>): void | ResponseNode
 }
 
+/**
+ * Utility type for values that can be returned directly or asynchronously.
+ */
 type MaybePromise<T> = T | Promise<T>
 
 /**
  * Async visitor for `walk`. Synchronous `Visitor` objects are compatible.
+ *
+ * @example
+ * ```ts
+ * const visitor: AsyncVisitor = {
+ *   async operation(node) {
+ *     await Promise.resolve(node.operationId)
+ *   },
+ * }
+ * ```
  */
 export type AsyncVisitor = {
   root?(node: RootNode, context: VisitorContext<RootNode>): MaybePromise<void | RootNode>
@@ -94,7 +163,16 @@ export type AsyncVisitor = {
 }
 
 /**
- * Visitor for `collect`.
+ * Visitor used by `collect`.
+ *
+ * @example
+ * ```ts
+ * const visitor: CollectVisitor<string> = {
+ *   operation(node) {
+ *     return node.operationId
+ *   },
+ * }
+ * ```
  */
 export type CollectVisitor<T> = {
   root?(node: RootNode, context: VisitorContext<RootNode>): T | undefined
@@ -106,17 +184,44 @@ export type CollectVisitor<T> = {
 }
 
 /**
- * Options for `transform` and `collect`. Extends `Visitor` with traversal settings.
+ * Options for `transform`.
+ *
+ * @example
+ * ```ts
+ * const options: TransformOptions = { depth: 'deep', schema: (node) => node }
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Only transform the current node, not nested children
+ * const options: TransformOptions = { depth: 'shallow', schema: (node) => node }
+ * ```
  */
 export type TransformOptions = Visitor & {
+  /**
+   * Traversal depth (`'deep'` by default).
+   * @default 'deep'
+   */
   depth?: VisitorDepth
+  /**
+   * Internal parent override used during recursion.
+   */
   parent?: Node
 }
 
 /**
- * Options for `walk`. Extends `AsyncVisitor` with traversal settings.
+ * Options for `walk`.
+ *
+ * @example
+ * ```ts
+ * const options: WalkOptions = { depth: 'deep', concurrency: 10, root: () => {} }
+ * ```
  */
 export type WalkOptions = AsyncVisitor & {
+  /**
+   * Traversal depth (`'deep'` by default).
+   * @default 'deep'
+   */
   depth?: VisitorDepth
   /**
    * Maximum number of sibling nodes visited concurrently.
@@ -126,18 +231,37 @@ export type WalkOptions = AsyncVisitor & {
 }
 
 /**
- * Options for `collect`. Extends `CollectVisitor` with traversal settings.
+ * Options for `collect`.
+ *
+ * @example
+ * ```ts
+ * const options: CollectOptions<string> = { depth: 'shallow', schema: () => undefined }
+ * ```
  */
 export type CollectOptions<T> = CollectVisitor<T> & {
+  /**
+   * Traversal depth (`'deep'` by default).
+   * @default 'deep'
+   */
   depth?: VisitorDepth
+  /**
+   * Internal parent override used during recursion.
+   */
   parent?: Node
 }
 
 /**
  * Returns the immediate traversable children of `node`.
  *
- * For `Schema` nodes, children (properties, items, members) are only included
- * when `recurse` is `true`; shallow traversal omits them entirely.
+ * For `Schema` nodes, children (`properties`, `items`, `members`, and non-boolean
+ * `additionalProperties`) are only included
+ * when `recurse` is `true`; shallow mode skips them.
+ *
+ * @example
+ * ```ts
+ * const children = getChildren(operationNode, true)
+ * // returns parameters, requestBody schema (if present), and responses
+ * ```
  */
 function getChildren(node: Node, recurse: boolean): Array<Node> {
   switch (node.kind) {
@@ -172,11 +296,28 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
 
 /**
  * Depth-first traversal for side effects. Visitor return values are ignored.
- * Sibling nodes at each level are visited concurrently up to `options.concurrency` (default: 30).
+ * Sibling nodes at each level are visited concurrently up to `options.concurrency`
+ * (default: `WALK_CONCURRENCY`).
+ *
+ * @example
+ * ```ts
+ * await walk(root, {
+ *   operation(node) {
+ *     console.log(node.operationId)
+ *   },
+ * })
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Visit only the current node
+ * await walk(root, { depth: 'shallow', root: () => {} })
+ * ```
  */
 export async function walk(node: Node, options: WalkOptions): Promise<void> {
   const recurse = (options.depth ?? visitorDepths.deep) === visitorDepths.deep
   const limit = createLimit(options.concurrency ?? WALK_CONCURRENCY)
+
   return _walk(node, options, recurse, limit, undefined)
 }
 
@@ -211,7 +352,25 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
 }
 
 /**
- * Depth-first immutable transformation. Visitor return values replace nodes; `undefined` keeps the original.
+ * Runs a depth-first immutable transform.
+ *
+ * If a visitor returns a node, it replaces the current node.
+ * If it returns `undefined`, the current node stays the same.
+ *
+ * @example
+ * ```ts
+ * const next = transform(root, {
+ *   operation(node) {
+ *     return { ...node, operationId: `prefixed_${node.operationId}` }
+ *   },
+ * })
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Shallow mode: only transform the input node
+ * const next = transform(root, { depth: 'shallow', root: (node) => node })
+ * ```
  */
 export function transform(node: RootNode, options: TransformOptions): RootNode
 export function transform(node: OperationNode, options: TransformOptions): OperationNode
@@ -305,8 +464,18 @@ export function transform(node: Node, options: TransformOptions): Node {
 }
 
 /**
- * Combines multiple visitors into a single visitor that applies them sequentially (left to right).
- * For each node kind, the output of one visitor becomes the input of the next.
+ * Composes multiple visitors into one visitor, applied left to right.
+ *
+ * For each node kind, output from one visitor is input to the next.
+ * If a visitor returns `undefined`, the previous node value is kept.
+ *
+ * @example
+ * ```ts
+ * const visitor = composeTransformers(
+ *   { operation: (node) => ({ ...node, operationId: `a_${node.operationId}` }) },
+ *   { operation: (node) => ({ ...node, operationId: `b_${node.operationId}` }) },
+ * )
+ * ```
  */
 export function composeTransformers(...visitors: Array<Visitor>): Visitor {
   return {
@@ -332,7 +501,24 @@ export function composeTransformers(...visitors: Array<Visitor>): Visitor {
 }
 
 /**
- * Depth-first synchronous reduction. Collects non-`undefined` visitor return values into an array.
+ * Runs a depth-first synchronous collection pass.
+ *
+ * Non-`undefined` values returned by visitor callbacks are appended to the result.
+ *
+ * @example
+ * ```ts
+ * const ids = collect(root, {
+ *   operation(node) {
+ *     return node.operationId
+ *   },
+ * })
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Collect from only the current node
+ * const values = collect(root, { depth: 'shallow', root: () => 'root' })
+ * ```
  */
 export function collect<T>(node: Node, options: CollectOptions<T>): Array<T> {
   const { depth, parent, ...visitor } = options

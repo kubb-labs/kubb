@@ -1,5 +1,4 @@
-import type { SchemaType } from '@kubb/ast/types'
-import type { ParserOptions } from './types.ts'
+import type { ParserOptions, SchemaType } from '@kubb/ast/types'
 
 /**
  * Default values for all `Options` fields.

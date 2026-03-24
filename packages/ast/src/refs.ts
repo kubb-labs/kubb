@@ -2,20 +2,34 @@ import type { RootNode } from './nodes/root.ts'
 import type { SchemaNode } from './nodes/schema.ts'
 
 /**
- * Schema name to `SchemaNode` mapping.
+ * Lookup map from schema name to `SchemaNode`.
  */
 export type RefMap = Map<string, SchemaNode>
 
 /**
- * Extracts the final segment from a reference string.
- * Falls back to the original string when no slash exists.
+ * Returns the last path segment of a reference string.
+ *
+ * Example: `#/components/schemas/Pet` becomes `Pet`.
+ *
+ * @example
+ * ```ts
+ * extractRefName('#/components/schemas/Pet') // 'Pet'
+ * ```
  */
 export function extractRefName(ref: string): string {
   return ref.split('/').at(-1) ?? ref
 }
 
 /**
- * Indexes named schemas from `root.schemas` by name. Unnamed schemas are skipped.
+ * Builds a `RefMap` from `root.schemas` using each schema's `name`.
+ *
+ * Unnamed schemas are skipped.
+ *
+ * @example
+ * ```ts
+ * const refMap = buildRefMap(root)
+ * const pet = refMap.get('Pet')
+ * ```
  */
 export function buildRefMap(root: RootNode): RefMap {
   const map: RefMap = new Map()
@@ -29,14 +43,24 @@ export function buildRefMap(root: RootNode): RefMap {
 }
 
 /**
- * Looks up a schema by name. Prefer over `RefMap.get()` to keep the resolution strategy swappable.
+ * Resolves a schema by name from a `RefMap`.
+ *
+ * @example
+ * ```ts
+ * const petSchema = resolveRef(refMap, 'Pet')
+ * ```
  */
 export function resolveRef(refMap: RefMap, ref: string): SchemaNode | undefined {
   return refMap.get(ref)
 }
 
 /**
- * Converts a `RefMap` to a plain object.
+ * Converts a `RefMap` into a plain object.
+ *
+ * @example
+ * ```ts
+ * const refsObject = refMapToObject(refMap)
+ * ```
  */
 export function refMapToObject(refMap: RefMap): Record<string, SchemaNode> {
   return Object.fromEntries(refMap)

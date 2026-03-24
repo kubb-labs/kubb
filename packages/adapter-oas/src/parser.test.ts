@@ -1643,20 +1643,20 @@ describe('convertSchema enum', () => {
   })
 
   // Number enum
-  it('produces namedEnumValues with format number for integer enum', () => {
+  it('produces namedEnumValues with primitive number for integer enum', () => {
     const node = parser.convertSchema({ schema: { type: 'integer', enum: [1, 2, 3] } })
 
     expect(node.type).toBe('enum')
-    expect(node.enumType).toBe('number')
+    expect(node.primitive).toBe('number')
     const values = node.namedEnumValues
     expect(values?.map((v) => v.value)).toEqual([1, 2, 3])
-    expect(values?.every((v) => v.format === 'number')).toBe(true)
+    expect(values?.every((v) => v.primitive === 'number')).toBe(true)
   })
 
-  it('produces namedEnumValues with format number for number enum', () => {
+  it('produces namedEnumValues with primitive number for number enum', () => {
     const node = parser.convertSchema({ schema: { type: 'number', enum: [0.5, 1.5] } })
 
-    expect(node.enumType).toBe('number')
+    expect(node.primitive).toBe('number')
     expect(node.namedEnumValues?.map((v) => v.value)).toEqual([0.5, 1.5])
   })
 
@@ -1673,13 +1673,13 @@ describe('convertSchema enum', () => {
   })
 
   // Boolean enum
-  it('produces namedEnumValues with format boolean for boolean enum', () => {
+  it('produces namedEnumValues with primitive boolean for boolean enum', () => {
     const node = parser.convertSchema({ schema: { type: 'boolean', enum: [true, false] } })
 
-    expect(node.enumType).toBe('boolean')
+    expect(node.primitive).toBe('boolean')
     const values = node.namedEnumValues
     expect(values?.map((v) => v.value)).toEqual([true, false])
-    expect(values?.every((v) => v.format === 'boolean')).toBe(true)
+    expect(values?.every((v) => v.primitive === 'boolean')).toBe(true)
   })
 
   // x-enumNames
@@ -1722,7 +1722,7 @@ describe('convertSchema enum', () => {
     expect(values?.map((v) => v.name)).toEqual(['A', 'B'])
   })
 
-  it('x-enumNames sets enumType number for integer type', () => {
+  it('x-enumNames sets primitive number for integer type', () => {
     const node = parser.convertSchema({
       schema: {
         type: 'integer',
@@ -1731,10 +1731,10 @@ describe('convertSchema enum', () => {
       },
     })
 
-    expect(node.enumType).toBe('number')
+    expect(node.primitive).toBe('number')
   })
 
-  it('x-enumNames sets enumType string when type is not numeric or boolean', () => {
+  it('x-enumNames sets primitive string when type is not numeric or boolean', () => {
     const node = parser.convertSchema({
       schema: {
         enum: ['a', 'b'],
@@ -1742,7 +1742,7 @@ describe('convertSchema enum', () => {
       },
     })
 
-    expect(node.enumType).toBe('string')
+    expect(node.primitive).toBe('string')
   })
 
   // Array + enum normalization

@@ -1,12 +1,11 @@
 import path from 'node:path'
-import { createRoot } from '@kubb/ast'
+import { collectImports, createRoot } from '@kubb/ast'
 import type { AdapterSource } from '@kubb/core'
 import { createAdapter } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { resolveServerUrl } from './oas/resolveServerUrl.ts'
 import { parseFromConfig } from './oas/utils.ts'
 import { createOasParser } from './parser.ts'
-import { getImports } from './refResolver.ts'
 import type { OasAdapter } from './types.ts'
 
 export const adapterOasName = 'oas' satisfies OasAdapter['name']
@@ -65,7 +64,15 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
       nameMapping,
     },
     getImports(node, resolve) {
-      return getImports({ node, nameMapping, resolve })
+      return collectImports({
+        node,
+        nameMapping,
+        resolve: (schemaName) => {
+          const result = resolve(schemaName)
+          if (!result) return
+          return { name: [result.name], path: result.path }
+        },
+      })
     },
     async parse(source) {
       const fakeConfig = sourceToFakeConfig(source)

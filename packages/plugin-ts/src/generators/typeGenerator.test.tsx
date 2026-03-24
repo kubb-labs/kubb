@@ -286,7 +286,7 @@ describe('typeGenerator v2 — Schema (enum)', () => {
   const enumSchemaNode = createSchema({
     type: 'enum',
     name: 'enumNames.Type',
-    enumType: 'string',
+    primitive: 'string',
     enumValues: ['available', 'pending', 'sold'],
   }) as EnumSchemaNode
 
@@ -363,7 +363,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
           createParameter({
             name: 'status',
             in: 'query',
-            schema: createSchema({ type: 'enum', enumType: 'string', enumValues: ['available', 'pending', 'sold'] }),
+            schema: createSchema({ type: 'enum', primitive: 'string', enumValues: ['available', 'pending', 'sold'] }),
           }),
         ],
         responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' })],
@@ -382,7 +382,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
             statusCode: '200',
             schema: createSchema({
               type: 'array',
-              items: [createSchema({ type: 'enum', enumType: 'string', enumValues: ['TYPE1', 'TYPE2', 'TYPE3'] })],
+              items: [createSchema({ type: 'enum', primitive: 'string', enumValues: ['TYPE1', 'TYPE2', 'TYPE3'] })],
             }),
             description: 'Successful deletion',
           }),
@@ -482,7 +482,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
           name: 'X-EXAMPLE',
           in: 'header',
           required: true,
-          schema: createSchema({ type: 'enum', enumType: 'string', enumValues: ['ONE', 'TWO', 'THREE'] }),
+          schema: createSchema({ type: 'enum', primitive: 'string', enumValues: ['ONE', 'TWO', 'THREE'] }),
         }),
       ],
       responses: [createResponse({ statusCode: '201', schema: createSchema({ type: 'void' }), description: 'Null response' })],

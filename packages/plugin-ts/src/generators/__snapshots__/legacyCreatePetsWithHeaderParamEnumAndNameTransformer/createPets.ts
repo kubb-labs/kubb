@@ -14,6 +14,9 @@ export type CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey = (typeof createPetsHe
 export type CreatePetsHeaderParamsTypeXEXAMPLEEnumType = CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey
 
 export type CreatePetsHeaderParamsType = {
+  /**
+   * @type string
+   */
   'X-EXAMPLE': CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey
 }
 
