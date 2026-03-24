@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { type Adapter, createPlugin } from '@kubb/core'
-import { adapterOasName } from '@kubb/adapter-oas'
+import { adapterOasName, dereferenceDocument } from '@kubb/adapter-oas'
 import type { AdapterOas } from '@kubb/adapter-oas'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
@@ -12,7 +12,7 @@ function trimExtName(text: string): string {
 export const pluginRedocName = 'plugin-redoc' satisfies PluginRedoc['name']
 
 export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
-  const { output = { path: 'docs.html' } } = options
+  const { output = { path: 'docs.html' }, dereference = false } = options
 
   return {
     name: pluginRedocName,
@@ -29,10 +29,14 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
         )
       }
 
-      const document = (adapter as Adapter<AdapterOas>).document
+      let document = (adapter as Adapter<AdapterOas>).document
 
       if (!document) {
         throw new Error(`[${pluginRedocName}] No OpenAPI document found. The adapterOas did not produce a document — ensure the adapter has run before this plugin.`)
+      }
+
+      if (dereference) {
+        document = await dereferenceDocument(document)
       }
 
       const root = path.resolve(this.config.root, this.config.output.path)
