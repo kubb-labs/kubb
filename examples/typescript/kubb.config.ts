@@ -24,9 +24,19 @@ export default defineConfig([
           path: 'models.ts',
           barrelType: false,
         },
+        transformers: [
+          {
+            // Make all properties of the "Pet" schema required
+            property(node, { parent }) {
+              if (parent?.name === 'Address') {
+                return { ...node, required: false }
+              }
+            },
+          },
+        ],
         enumType: 'enum',
         syntaxType: 'interface',
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -50,7 +60,7 @@ export default defineConfig([
         },
         enumType: 'enum',
         syntaxType: 'interface',
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -70,7 +80,7 @@ export default defineConfig([
           barrelType: false,
         },
         enumType: 'asConst',
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -90,7 +100,7 @@ export default defineConfig([
           barrelType: false,
         },
         enumType: 'asPascalConst',
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -110,7 +120,7 @@ export default defineConfig([
           barrelType: false,
         },
         enumType: 'constEnum',
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -130,7 +140,7 @@ export default defineConfig([
           barrelType: false,
         },
         enumType: 'literal',
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -151,7 +161,7 @@ export default defineConfig([
         output: {
           path: 'ts/models',
         },
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   },

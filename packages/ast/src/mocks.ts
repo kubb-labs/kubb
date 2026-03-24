@@ -2,7 +2,7 @@ import { createOperation, createParameter, createProperty, createResponse, creat
 import type { RootNode } from './nodes/root.ts'
 
 /**
- * Minimal single-resource tree: one `Pet` schema and one `getPetById` operation.
+ * Builds a minimal sample AST with one `Pet` schema and one `getPetById` operation.
  */
 export function buildSampleTree(): RootNode {
   const petSchema = createSchema({
@@ -33,8 +33,9 @@ export function buildSampleTree(): RootNode {
 }
 
 /**
- * PetStore-like tree: six named schemas (`Pet`, `NewPet`, `PetList`, `Error`, `PetOrError`, `FullPet`)
- * and two operations (`listPets`, `createPet`).
+ * Builds a PetStore-like fixture AST with:
+ * - six named schemas (`Pet`, `NewPet`, `PetList`, `Error`, `PetOrError`, `FullPet`)
+ * - two operations (`listPets`, `createPet`)
  */
 export function buildFixture(): RootNode {
   const refPet = createSchema({ type: 'ref', ref: 'Pet' })

@@ -1,5 +1,57 @@
 # @kubb/swagger
 
+## 5.0.0-alpha.18
+
+### Minor Changes
+
+- [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update to TypeScript v6
+
+### Patch Changes
+
+- Updated dependencies [[`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c)]:
+  - @kubb/core@5.0.0-alpha.18
+  - @kubb/oas@5.0.0-alpha.18
+
+## 5.0.0-alpha.17
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.17
+  - @kubb/oas@5.0.0-alpha.17
+
+## 5.0.0-alpha.16
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.16
+  - @kubb/oas@5.0.0-alpha.16
+
+## 5.0.0-alpha.15
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.15
+  - @kubb/oas@5.0.0-alpha.15
+
+## 5.0.0-alpha.14
+
+### Patch Changes
+
+- Updated dependencies [[`591977c`](https://github.com/kubb-labs/kubb/commit/591977c5c2f167736d6e43126ed0387a1e5e0ce5)]:
+  - @kubb/core@5.0.0-alpha.14
+  - @kubb/oas@5.0.0-alpha.14
+
+## 5.0.0-alpha.13
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.13
+  - @kubb/oas@5.0.0-alpha.13
+
 ## 5.0.0-alpha.12
 
 ### Patch Changes

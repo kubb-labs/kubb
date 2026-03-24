@@ -1,5 +1,77 @@
 # @kubb/plugin-mcp
 
+## 5.0.0-alpha.18
+
+### Patch Changes
+
+- Updated dependencies [[`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c)]:
+  - @kubb/plugin-client@5.0.0-alpha.18
+  - @kubb/plugin-oas@5.0.0-alpha.18
+  - @kubb/plugin-ts@5.0.0-alpha.18
+  - @kubb/core@5.0.0-alpha.18
+  - @kubb/oas@5.0.0-alpha.18
+  - @kubb/plugin-zod@5.0.0-alpha.18
+
+## 5.0.0-alpha.17
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.17
+  - @kubb/oas@5.0.0-alpha.17
+  - @kubb/plugin-ts@5.0.0-alpha.17
+  - @kubb/plugin-client@5.0.0-alpha.17
+  - @kubb/plugin-oas@5.0.0-alpha.17
+  - @kubb/plugin-zod@5.0.0-alpha.17
+
+## 5.0.0-alpha.16
+
+### Patch Changes
+
+- Updated dependencies [[`f1b2596`](https://github.com/kubb-labs/kubb/commit/f1b2596a36adc73de6aeea6f0843786dfc630426)]:
+  - @kubb/plugin-ts@5.0.0-alpha.16
+  - @kubb/plugin-client@5.0.0-alpha.16
+  - @kubb/plugin-zod@5.0.0-alpha.16
+  - @kubb/core@5.0.0-alpha.16
+  - @kubb/oas@5.0.0-alpha.16
+  - @kubb/plugin-oas@5.0.0-alpha.16
+
+## 5.0.0-alpha.15
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.15
+  - @kubb/oas@5.0.0-alpha.15
+  - @kubb/plugin-client@5.0.0-alpha.15
+  - @kubb/plugin-oas@5.0.0-alpha.15
+  - @kubb/plugin-ts@5.0.0-alpha.15
+  - @kubb/plugin-zod@5.0.0-alpha.15
+
+## 5.0.0-alpha.14
+
+### Patch Changes
+
+- Updated dependencies [[`591977c`](https://github.com/kubb-labs/kubb/commit/591977c5c2f167736d6e43126ed0387a1e5e0ce5)]:
+  - @kubb/core@5.0.0-alpha.14
+  - @kubb/plugin-ts@5.0.0-alpha.14
+  - @kubb/oas@5.0.0-alpha.14
+  - @kubb/plugin-client@5.0.0-alpha.14
+  - @kubb/plugin-oas@5.0.0-alpha.14
+  - @kubb/plugin-zod@5.0.0-alpha.14
+
+## 5.0.0-alpha.13
+
+### Patch Changes
+
+- Updated dependencies [[`975717e`](https://github.com/kubb-labs/kubb/commit/975717e2c8cf8d33f5d9d641be4bb164fd36f423), [`b5d83e2`](https://github.com/kubb-labs/kubb/commit/b5d83e2a2c8a325f953b9e353bdb1b730dbdd305), [`33d0507`](https://github.com/kubb-labs/kubb/commit/33d050714fa24ae6aa1042a8aa12fc4925399007), [`ed7a2cb`](https://github.com/kubb-labs/kubb/commit/ed7a2cb6d008e880a955e8fefc1eee6859c06240), [`68a3bdd`](https://github.com/kubb-labs/kubb/commit/68a3bdd2eb85b3bd78e278ba9e4a0b691b580c7e), [`9968516`](https://github.com/kubb-labs/kubb/commit/99685169dc85f4f23fae6af0872dbd2f13e8012e)]:
+  - @kubb/plugin-ts@5.0.0-alpha.13
+  - @kubb/core@5.0.0-alpha.13
+  - @kubb/oas@5.0.0-alpha.13
+  - @kubb/plugin-client@5.0.0-alpha.13
+  - @kubb/plugin-zod@5.0.0-alpha.13
+  - @kubb/plugin-oas@5.0.0-alpha.13
+
 ## 5.0.0-alpha.12
 
 ### Patch Changes

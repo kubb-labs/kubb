@@ -32,7 +32,7 @@ export default defineConfig(() => {
       }),
       pluginTs({
         output: { path: 'models/ts' },
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
       pluginZod({}),
       pluginMcp({

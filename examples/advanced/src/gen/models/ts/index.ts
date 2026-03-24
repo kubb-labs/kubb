@@ -1,12 +1,13 @@
 export type { AddPetRequest, AddPetRequestStatusEnum, AddPetRequestStatusEnumKey } from './AddPetRequest.ts'
 export { addPetRequestStatusEnum } from './AddPetRequest.ts'
 export type { Address } from './Address.ts'
-export type { Animal } from './Animal.ts'
+export type { Animal, AnimalTypeEnum, AnimalTypeEnumKey } from './Animal.ts'
+export { animalTypeEnum } from './Animal.ts'
 export type { ApiResponse } from './ApiResponse.ts'
 export type { Cat } from './Cat.ts'
 export type { Category } from './Category.ts'
-export type { Customer, ParamsStatusEnum2, ParamsStatusEnum2Key } from './Customer.ts'
-export { paramsStatusEnum2 } from './Customer.ts'
+export type { Customer, CustomerParamsStatusEnum, CustomerParamsStatusEnumKey } from './Customer.ts'
+export { customerParamsStatusEnum } from './Customer.ts'
 export type { Dog } from './Dog.ts'
 export type { Image } from './Image.ts'
 export type {
@@ -15,12 +16,12 @@ export type {
   OrderHttpStatusEnumKey,
   OrderOrderTypeEnum,
   OrderOrderTypeEnumKey,
+  OrderParamsStatusEnum,
+  OrderParamsStatusEnumKey,
   OrderStatusEnum,
   OrderStatusEnumKey,
-  ParamsStatusEnum,
-  ParamsStatusEnumKey,
 } from './Order.ts'
-export { orderHttpStatusEnum, orderOrderTypeEnum, orderStatusEnum, paramsStatusEnum } from './Order.ts'
+export { orderHttpStatusEnum, orderOrderTypeEnum, orderParamsStatusEnum, orderStatusEnum } from './Order.ts'
 export type { Pet, PetStatusEnum, PetStatusEnumKey } from './Pet.ts'
 export { petStatusEnum } from './Pet.ts'
 export type { PetNotFound } from './PetNotFound.ts'

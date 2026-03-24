@@ -24,7 +24,7 @@ export default defineConfig(() => {
         output: {
           path: 'models',
         },
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
       pluginCypress({
         output: {

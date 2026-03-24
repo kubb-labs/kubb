@@ -1,5 +1,128 @@
 # @kubb/plugin-ts
 
+## 5.0.0-alpha.18
+
+### Minor Changes
+
+- [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update to TypeScript v6
+
+### Patch Changes
+
+- Updated dependencies [[`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c)]:
+  - @kubb/plugin-oas@5.0.0-alpha.18
+  - @kubb/core@5.0.0-alpha.18
+  - @kubb/ast@5.0.0-alpha.18
+  - @kubb/oas@5.0.0-alpha.18
+
+## 5.0.0-alpha.17
+
+### Patch Changes
+
+- Updated dependencies [[`2546c05`](https://github.com/kubb-labs/kubb/commit/2546c051d81e490709df9d8a834402ef546a8f1c)]:
+  - @kubb/ast@5.0.0-alpha.17
+  - @kubb/core@5.0.0-alpha.17
+  - @kubb/oas@5.0.0-alpha.17
+  - @kubb/plugin-oas@5.0.0-alpha.17
+
+## 5.0.0-alpha.16
+
+### Major Changes
+
+- [#2881](https://github.com/kubb-labs/kubb/pull/2881) [`f1b2596`](https://github.com/kubb-labs/kubb/commit/f1b2596a36adc73de6aeea6f0843786dfc630426) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Replace `legacy` mode with `compatibilityPreset` in `@kubb/plugin-ts`.
+  - `'none'` (default)
+  - `'kubbV4'` (full v4 type-generation naming compatibility)
+
+  `legacy` is removed from plugin-ts options. Use `compatibilityPreset: 'kubbV4'` for v4-compatible output.
+
+  Resolver precedence:
+  - Base resolver comes from default + selected compatibility preset
+  - Explicit `resolvers` entries are composed after preset/base and override conflicting methods
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.16
+  - @kubb/core@5.0.0-alpha.16
+  - @kubb/oas@5.0.0-alpha.16
+  - @kubb/plugin-oas@5.0.0-alpha.16
+
+## 5.0.0-alpha.15
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.15
+  - @kubb/core@5.0.0-alpha.15
+  - @kubb/oas@5.0.0-alpha.15
+  - @kubb/plugin-oas@5.0.0-alpha.15
+
+## 5.0.0-alpha.14
+
+### Minor Changes
+
+- [#2872](https://github.com/kubb-labs/kubb/pull/2872) [`591977c`](https://github.com/kubb-labs/kubb/commit/591977c5c2f167736d6e43126ed0387a1e5e0ce5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/core`
+  - Add `name: string` to the `Resolver` base type. Every resolver now carries a name that identifies it.
+  - `defineResolver` build functions must return a `name` property.
+  - Add `mergeResolvers(...resolvers)` helper that merges multiple resolvers into one (last wins).
+
+  ### `@kubb/ast`
+  - Add `composeTransformers(...visitors)` helper that combines multiple `Visitor` objects into a single visitor. Each node kind is piped through all visitors sequentially (left to right).
+
+  ### `@kubb/plugin-ts`
+  - Add `resolvers` option — an array of named resolvers that control naming conventions. Later entries override earlier ones. Built-in resolvers: `resolverTs` (default) and `resolverTsLegacy`.
+  - Add `transformers` option — an array of AST `Visitor` objects applied to each `SchemaNode` before printing. Uses `composeTransformers` + `transform` from `@kubb/ast`.
+  - Export `resolverTs`, `resolverTsLegacy`, and `ResolverTs` from the package root.
+  - Remove the old `transformers: { name? }` object option. Use a custom resolver in `resolvers` instead.
+  - Deprecate `legacy` option in favor of `resolvers: [resolverTsLegacy]`.
+
+### Patch Changes
+
+- Updated dependencies [[`591977c`](https://github.com/kubb-labs/kubb/commit/591977c5c2f167736d6e43126ed0387a1e5e0ce5)]:
+  - @kubb/ast@5.0.0-alpha.14
+  - @kubb/core@5.0.0-alpha.14
+  - @kubb/oas@5.0.0-alpha.14
+  - @kubb/plugin-oas@5.0.0-alpha.14
+
+## 5.0.0-alpha.13
+
+### Patch Changes
+
+- [#2858](https://github.com/kubb-labs/kubb/pull/2858) [`975717e`](https://github.com/kubb-labs/kubb/commit/975717e2c8cf8d33f5d9d641be4bb164fd36f423) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix missing `@description` on request body type aliases.
+
+  The OAS `requestBody.description` field (top-level on the request body object, distinct from the schema's own description) was silently dropped. It is now:
+  - Added as `description?: string` to `OperationNode.requestBody` in `@kubb/ast`
+  - Populated by `@kubb/adapter-oas` parser from `operation.schema.requestBody.description`
+  - Used by `@kubb/plugin-ts` typeGenerator: `requestBody.description` takes precedence, falling back to `requestBody.schema.description`
+
+- [#2869](https://github.com/kubb-labs/kubb/pull/2869) [`b5d83e2`](https://github.com/kubb-labs/kubb/commit/b5d83e2a2c8a325f953b9e353bdb1b730dbdd305) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Suppress redundant `*Enum` type alias for `asConst` enums in legacy mode. Previously, v5 exported an extra `export type FooEnum = FooEnumKey` alias that v4 did not have. The alias is now only emitted in non-legacy mode.
+
+- [#2869](https://github.com/kubb-labs/kubb/pull/2869) [`33d0507`](https://github.com/kubb-labs/kubb/commit/33d050714fa24ae6aa1042a8aa12fc4925399007) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Include `QueryParams` in aggregated mutation types when the operation has query parameters. Previously, `QueryParams` was only added for GET operations, causing mutations like `UpdatePetWithFormMutation` and `UploadFileMutation` to be missing their `QueryParams` property in legacy mode.
+
+- [#2865](https://github.com/kubb-labs/kubb/pull/2865) [`ed7a2cb`](https://github.com/kubb-labs/kubb/commit/ed7a2cb6d008e880a955e8fefc1eee6859c06240) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - **`@kubb/plugin-ts`**: In v5 non-legacy mode, operations with query parameters now emit a grouped `<OperationId>QueryParams` type in addition to the individual parameter types.
+
+  Before this fix, only individual types were generated (e.g. `ListPetsQueryLimit`), so downstream plugins (`plugin-client`, `plugin-react-query`, etc.) that reference `ListPetsQueryParams` via `OperationGenerator.getSchemas()` would encounter a missing type.
+
+  ```ts
+  // Before — only individual param types
+  export type ListPetsQueryLimit = number;
+
+  // After — grouped type added
+  export type ListPetsQueryLimit = number;
+  export type ListPetsQueryParams = {
+    limit?: ListPetsQueryLimit;
+  };
+  ```
+
+- [#2854](https://github.com/kubb-labs/kubb/pull/2854) [`68a3bdd`](https://github.com/kubb-labs/kubb/commit/68a3bdd2eb85b3bd78e278ba9e4a0b691b580c7e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - minItems/maxItems on arrays should not be emitted as @minLength/@maxLength
+
+- [#2869](https://github.com/kubb-labs/kubb/pull/2869) [`9968516`](https://github.com/kubb-labs/kubb/commit/99685169dc85f4f23fae6af0872dbd2f13e8012e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix aggregated operation type naming order when using `transformers.name` with legacy mode. Previously, a transformer like `(name) => \`${name}Type\``produced`AddPetMutationType`instead of the v4-compatible`AddPetTypeMutation`. The `Query`/`Mutation` suffix is now appended after the transformer runs.
+
+- Updated dependencies [[`975717e`](https://github.com/kubb-labs/kubb/commit/975717e2c8cf8d33f5d9d641be4bb164fd36f423)]:
+  - @kubb/ast@5.0.0-alpha.13
+  - @kubb/core@5.0.0-alpha.13
+  - @kubb/oas@5.0.0-alpha.13
+  - @kubb/plugin-oas@5.0.0-alpha.13
+
 ## 5.0.0-alpha.12
 
 ### Major Changes

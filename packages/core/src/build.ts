@@ -17,16 +17,31 @@ type BuildOptions = {
   events?: AsyncEventEmitter<KubbEvents>
 }
 
+/**
+ * Full output produced by a successful or failed build.
+ */
 type BuildOutput = {
+  /**
+   * Plugins that threw during installation, paired with the caught error.
+   */
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
   fabric: FabricType
   files: Array<KubbFile.ResolvedFile>
   driver: PluginDriver
+  /**
+   * Elapsed time in milliseconds for each plugin, keyed by plugin name.
+   */
   pluginTimings: Map<string, number>
   error?: Error
+  /**
+   * Raw generated source, keyed by absolute file path.
+   */
   sources: Map<KubbFile.Path, string>
 }
 
+/**
+ * Intermediate result returned by {@link setup} and accepted by {@link safeBuild}.
+ */
 type SetupResult = {
   events: AsyncEventEmitter<KubbEvents>
   fabric: FabricType
@@ -34,6 +49,17 @@ type SetupResult = {
   sources: Map<KubbFile.Path, string>
 }
 
+/**
+ * Initializes all Kubb infrastructure for a build without executing any plugins.
+ *
+ * - Validates the input path (when applicable).
+ * - Applies config defaults (`root`, `output.*`, `devtools`).
+ * - Creates the Fabric instance and wires storage, format, and lint hooks.
+ * - Runs the adapter (if configured) to produce the universal `RootNode`.
+ *
+ * Pass the returned {@link SetupResult} directly to {@link safeBuild} or {@link build}
+ * via the `overrides` argument to reuse the same infrastructure across multiple runs.
+ */
 export async function setup(options: BuildOptions): Promise<SetupResult> {
   const { config: userConfig, events = new AsyncEventEmitter<KubbEvents>() } = options
 
@@ -199,6 +225,12 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   }
 }
 
+/**
+ * Runs a full Kubb build and throws on any error or plugin failure.
+ *
+ * Internally delegates to {@link safeBuild} and rethrows collected errors.
+ * Pass an existing {@link SetupResult} via `overrides` to skip the setup phase.
+ */
 export async function build(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
   const { fabric, files, driver, failedPlugins, pluginTimings, error, sources } = await safeBuild(options, overrides)
 
@@ -223,6 +255,16 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
   }
 }
 
+/**
+ * Runs a full Kubb build and captures errors instead of throwing.
+ *
+ * - Installs each plugin in order, recording failures in `failedPlugins`.
+ * - Generates the root barrel file when `output.barrelType` is set.
+ * - Writes all files through Fabric.
+ *
+ * Returns a {@link BuildOutput} even on failure — inspect `error` and
+ * `failedPlugins` to determine whether the build succeeded.
+ */
 export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
   const { fabric, driver, events, sources } = overrides ? overrides : await setup(options)
 

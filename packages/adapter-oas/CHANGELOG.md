@@ -1,5 +1,95 @@
 # @kubb/adapter-oas
 
+## 5.0.0-alpha.18
+
+### Minor Changes
+
+- [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update to TypeScript v6
+
+### Patch Changes
+
+- Updated dependencies [[`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c)]:
+  - @kubb/core@5.0.0-alpha.18
+  - @kubb/ast@5.0.0-alpha.18
+
+## 5.0.0-alpha.17
+
+### Patch Changes
+
+- [#2889](https://github.com/kubb-labs/kubb/pull/2889) [`2546c05`](https://github.com/kubb-labs/kubb/commit/2546c051d81e490709df9d8a834402ef546a8f1c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/ast`
+  - Reorganized schema helper modules into clearer categories:
+    - `transformers.ts` for schema transformation helpers
+    - `resolvers.ts` for lookup/derivation helpers
+    - `utils.ts` for generic helper utilities
+  - Renamed exported helper APIs to shorter names for consistency:
+    - resolvers: `findDiscriminator`, `childName`, `enumPropName`, `collectImports`
+    - transformers: `setDiscriminatorEnum`, `mergeAdjacentObjects`, `simplifyUnion`, `setEnumName`, `resolveNames`
+    - utils: `isStringType`, `caseParams`, `syncOptionality`
+  - Removed deprecated alias exports for old names.
+
+  ### `@kubb/adapter-oas`
+  - Fixed named import shape regression in adapter import resolution.
+  - `adapter.getImports(...)` now correctly returns `KubbFile.Import` entries with `name` as `string[]` (for example `['PetType']`), with added regression coverage.
+
+- Updated dependencies [[`2546c05`](https://github.com/kubb-labs/kubb/commit/2546c051d81e490709df9d8a834402ef546a8f1c)]:
+  - @kubb/ast@5.0.0-alpha.17
+  - @kubb/core@5.0.0-alpha.17
+
+## 5.0.0-alpha.16
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.16
+  - @kubb/core@5.0.0-alpha.16
+
+## 5.0.0-alpha.15
+
+### Major Changes
+
+- [#2879](https://github.com/kubb-labs/kubb/pull/2879) [`0b24fe1`](https://github.com/kubb-labs/kubb/commit/0b24fe1cce398e4b718e0a6828624c0500eadf37) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove the `collisionDetection` option from `adapterOas` and always use collision-safe schema/enum naming in v5.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.15
+  - @kubb/core@5.0.0-alpha.15
+
+## 5.0.0-alpha.14
+
+### Patch Changes
+
+- Updated dependencies [[`591977c`](https://github.com/kubb-labs/kubb/commit/591977c5c2f167736d6e43126ed0387a1e5e0ce5)]:
+  - @kubb/ast@5.0.0-alpha.14
+  - @kubb/core@5.0.0-alpha.14
+
+## 5.0.0-alpha.13
+
+### Patch Changes
+
+- [#2857](https://github.com/kubb-labs/kubb/pull/2857) [`0d40bdb`](https://github.com/kubb-labs/kubb/commit/0d40bdb2809c43f60bb52b95d12de28785dc03f0) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Discriminant values are now embedded into each union member when a discriminator mapping is present.
+
+  Previously, a discriminated `oneOf`/`anyOf` union without sibling `properties` would emit a plain union (`Cat | Dog`). Now each mapped member is intersected with its narrowed discriminant literal value, producing `(Cat & { type: 'cat' }) | (Dog & { type: 'dog' })`.
+
+  Child schemas that extend a discriminated parent via `allOf` now also carry the narrowed discriminant literal in their intersection type, even when the parent `$ref` is filtered to prevent circular type references.
+
+- [#2856](https://github.com/kubb-labs/kubb/pull/2856) [`7579443`](https://github.com/kubb-labs/kubb/commit/75794431daa28c1258f334b53ef7e62114a19bd7) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fixed `null | null` duplication for `const: null` schemas. `convertConst()` no longer propagates the `nullable` flag when the const value is `null`, and `convertObject()` now skips setting `nullable` on properties whose resolved type is already `null`.
+
+- [#2863](https://github.com/kubb-labs/kubb/pull/2863) [`de001b0`](https://github.com/kubb-labs/kubb/commit/de001b0f05acedf160b433878e8868a2e588a44c) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix path parameters with `$ref` schemas being typed as `any` instead of their named type.
+
+- [#2858](https://github.com/kubb-labs/kubb/pull/2858) [`975717e`](https://github.com/kubb-labs/kubb/commit/975717e2c8cf8d33f5d9d641be4bb164fd36f423) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix missing `@description` on request body type aliases.
+
+  The OAS `requestBody.description` field (top-level on the request body object, distinct from the schema's own description) was silently dropped. It is now:
+  - Added as `description?: string` to `OperationNode.requestBody` in `@kubb/ast`
+  - Populated by `@kubb/adapter-oas` parser from `operation.schema.requestBody.description`
+  - Used by `@kubb/plugin-ts` typeGenerator: `requestBody.description` takes precedence, falling back to `requestBody.schema.description`
+
+- [#2869](https://github.com/kubb-labs/kubb/pull/2869) [`b41a75d`](https://github.com/kubb-labs/kubb/commit/b41a75df4e48e6ae469a4d246f37405e4eb08c0e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Generate named enum declarations for enum elements inside tuples (`prefixItems`). Previously, enum values in tuple positions were inlined as literal unions. Now they emit standalone `as const` enum exports (e.g., `addressIdentifierEnum` / `AddressIdentifierEnumKey`) matching v4 behavior. Also restores `...any[]` rest element when `items` is absent alongside `prefixItems`.
+
+- Updated dependencies [[`975717e`](https://github.com/kubb-labs/kubb/commit/975717e2c8cf8d33f5d9d641be4bb164fd36f423)]:
+  - @kubb/ast@5.0.0-alpha.13
+  - @kubb/core@5.0.0-alpha.13
+
 ## 5.0.0-alpha.12
 
 ### Minor Changes

@@ -147,19 +147,24 @@ export const clackLogger = defineLogger({
         return
       }
 
-      clack.box(
-        `\`v${version}\` → \`v${latestVersion}\`
+      try {
+        clack.box(
+          `\`v${version}\` → \`v${latestVersion}\`
 Run \`npm install -g @kubb/cli\` to update`,
-        'Update available for `Kubb`',
-        {
-          width: 'auto',
-          formatBorder: (s: string) => styleText('yellow', s),
-          rounded: true,
-          withGuide: false,
-          contentAlign: 'center',
-          titleAlign: 'center',
-        },
-      )
+          'Update available for `Kubb`',
+          {
+            width: 'auto',
+            formatBorder: (s: string) => styleText('yellow', s),
+            rounded: true,
+            withGuide: false,
+            contentAlign: 'center',
+            titleAlign: 'center',
+          },
+        )
+      } catch {
+        console.log(`Update available for Kubb: v${version} → v${latestVersion}`)
+        console.log('Run `npm install -g @kubb/cli` to update')
+      }
     })
 
     context.on('lifecycle:start', async (version) => {
@@ -433,14 +438,18 @@ Run \`npm install -g @kubb/cli\` to update`,
       summary.push('\n')
 
       const borderColor = status === 'success' ? 'green' : 'red'
-      clack.box(summary.join('\n'), getMessage(title), {
-        width: 'auto',
-        formatBorder: (s: string) => styleText(borderColor, s),
-        rounded: true,
-        withGuide: false,
-        contentAlign: 'left',
-        titleAlign: 'center',
-      })
+      try {
+        clack.box(summary.join('\n'), getMessage(title), {
+          width: 'auto',
+          formatBorder: (s: string) => styleText(borderColor, s),
+          rounded: true,
+          withGuide: false,
+          contentAlign: 'left',
+          titleAlign: 'center',
+        })
+      } catch {
+        console.log(summary.join('\n'))
+      }
     })
 
     context.on('lifecycle:end', () => {

@@ -30,7 +30,6 @@
     "noErrorTruncation": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "baseUrl": ".",
     "types": ["bun-types"]
   },
   "exclude": ["**/node_modules", "**/types/**"]

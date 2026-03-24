@@ -1,6 +1,6 @@
 {
   "name": "@kubb/adapter-oas",
-  "version": "5.0.0-alpha.12",
+  "version": "5.0.0-alpha.18",
   "description": "OpenAPI / Swagger adapter for Kubb — converts OAS input into a @kubb/ast RootNode.",
   "keywords": [
     "openapi",
@@ -50,7 +50,7 @@
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/fabric-core": "catalog:",
-    "@redocly/openapi-core": "^2.24.1",
+    "@redocly/openapi-core": "^2.25.1",
     "@stoplight/yaml": "^4.3.0",
     "fflate": "^0.8.2",
     "jsonpointer": "^5.0.1",

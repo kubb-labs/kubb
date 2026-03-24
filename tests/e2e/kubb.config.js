@@ -51,7 +51,7 @@ const baseConfig = {
     lint: 'auto',
     format: 'auto',
   },
-  adapter: adapterOas({ collisionDetection: false }),
+  adapter: adapterOas(),
   plugins: [
     pluginOas({
       generators: [],
@@ -67,7 +67,7 @@ const baseConfig = {
         type: 'tag',
       },
       enumType: 'asConst',
-      legacy: true,
+      compatibilityPreset: 'kubbV4',
     }),
     pluginReactQuery({
       output: {

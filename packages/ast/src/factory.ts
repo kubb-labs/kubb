@@ -1,3 +1,4 @@
+import type { InferSchemaNode } from './infer.ts'
 import type {
   FunctionParameterNode,
   FunctionParametersNode,
@@ -10,14 +11,39 @@ import type {
   RootNode,
   SchemaNode,
 } from './nodes/index.ts'
+import { syncOptionality } from './utils.ts'
 
 /**
- * Distributive variant of `Omit` that preserves union members.
+ * Distributive `Omit` that preserves each member of a union.
+ *
+ * @example
+ * ```ts
+ * type A = { kind: 'a'; keep: string; drop: number }
+ * type B = { kind: 'b'; keep: boolean; drop: number }
+ * type Result = DistributiveOmit<A | B, 'drop'>
+ * // -> { kind: 'a'; keep: string } | { kind: 'b'; keep: boolean }
+ * ```
  */
 export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
 
+type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties'> & { properties?: Array<PropertyNode> }
+type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>
+type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & { kind: 'Schema' }
+
 /**
- * Creates a `RootNode`.
+ * Creates a `RootNode` with stable defaults for `schemas` and `operations`.
+ *
+ * @example
+ * ```ts
+ * const root = createRoot()
+ * // { kind: 'Root', schemas: [], operations: [] }
+ * ```
+ *
+ * @example
+ * ```ts
+ * const root = createRoot({ schemas: [petSchema] })
+ * // keeps default operations: []
+ * ```
  */
 export function createRoot(overrides: Partial<Omit<RootNode, 'kind'>> = {}): RootNode {
   return {
@@ -29,7 +55,27 @@ export function createRoot(overrides: Partial<Omit<RootNode, 'kind'>> = {}): Roo
 }
 
 /**
- * Creates an `OperationNode`.
+ * Creates an `OperationNode` with default empty arrays for `tags`, `parameters`, and `responses`.
+ *
+ * @example
+ * ```ts
+ * const operation = createOperation({
+ *   operationId: 'getPetById',
+ *   method: 'GET',
+ *   path: '/pet/{petId}',
+ * })
+ * // tags, parameters, and responses are []
+ * ```
+ *
+ * @example
+ * ```ts
+ * const operation = createOperation({
+ *   operationId: 'findPets',
+ *   method: 'GET',
+ *   path: '/pet/findByStatus',
+ *   tags: ['pet'],
+ * })
+ * ```
  */
 export function createOperation(
   props: Pick<OperationNode, 'operationId' | 'method' | 'path'> & Partial<Omit<OperationNode, 'kind' | 'operationId' | 'method' | 'path'>>,
@@ -45,47 +91,124 @@ export function createOperation(
 
 /**
  * Creates a `SchemaNode`, narrowed to the variant of `props.type`.
- * For object schemas, `properties` defaults to `[]` when not provided.
+ * For object schemas, `properties` defaults to an empty array.
+ *
+ * @example
+ * ```ts
+ * const scalar = createSchema({ type: 'string' })
+ * // { kind: 'Schema', type: 'string' }
+ * ```
+ *
+ * @example
+ * ```ts
+ * const object = createSchema({ type: 'object' })
+ * // { kind: 'Schema', type: 'object', properties: [] }
+ * ```
+ *
+ * @example
+ * ```ts
+ * const enumSchema = createSchema({
+ *   type: 'enum',
+ *   primitive: 'string',
+ *   enumValues: ['available', 'pending'],
+ * })
+ * ```
  */
-export function createSchema<T extends Omit<ObjectSchemaNode, 'kind' | 'properties'> & { properties?: Array<PropertyNode> }>(
-  props: T,
-): Omit<T, 'properties'> & { properties: Array<PropertyNode>; kind: 'Schema' }
-export function createSchema<T extends DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>>(props: T): T & { kind: 'Schema' }
-export function createSchema(props: DistributiveOmit<SchemaNode, 'kind'>): SchemaNode
-export function createSchema(props: Record<string, unknown>): Record<string, unknown> {
+export function createSchema<T extends CreateSchemaInput>(props: T): CreateSchemaOutput<T>
+export function createSchema(props: CreateSchemaInput): SchemaNode
+export function createSchema(props: CreateSchemaInput): SchemaNode {
   if (props['type'] === 'object') {
-    return { properties: [], ...props, kind: 'Schema' }
+    return { properties: [], ...props, kind: 'Schema' } as CreateSchemaOutput<typeof props>
   }
 
-  return { ...props, kind: 'Schema' }
+  return { ...props, kind: 'Schema' } as CreateSchemaOutput<typeof props>
 }
 
 /**
- * Creates a `PropertyNode`. `required` defaults to `false`.
+ * Creates a `PropertyNode`.
+ *
+ * `required` defaults to `false`.
+ * `schema.optional` and `schema.nullish` are derived from `required` and `schema.nullable`.
+ *
+ * @example
+ * ```ts
+ * const property = createProperty({
+ *   name: 'status',
+ *   schema: createSchema({ type: 'string' }),
+ * })
+ * // required=false, schema.optional=true
+ * ```
+ *
+ * @example
+ * ```ts
+ * const property = createProperty({
+ *   name: 'status',
+ *   required: true,
+ *   schema: createSchema({ type: 'string', nullable: true }),
+ * })
+ * // required=true, no optional/nullish
+ * ```
  */
 export function createProperty(props: Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<PropertyNode, 'kind' | 'name' | 'schema'>>): PropertyNode {
+  const required = props.required ?? false
+
   return {
-    required: false,
     ...props,
     kind: 'Property',
+    required,
+    schema: syncOptionality(required, props.schema),
   }
 }
 
 /**
- * Creates a `ParameterNode`. `required` defaults to `false`.
+ * Creates a `ParameterNode`.
+ *
+ * `required` defaults to `false`.
+ * Nested schema flags are set from `required` and `schema.nullable`.
+ *
+ * @example
+ * ```ts
+ * const param = createParameter({
+ *   name: 'petId',
+ *   in: 'path',
+ *   required: true,
+ *   schema: createSchema({ type: 'string' }),
+ * })
+ * ```
+ *
+ * @example
+ * ```ts
+ * const param = createParameter({
+ *   name: 'status',
+ *   in: 'query',
+ *   schema: createSchema({ type: 'string', nullable: true }),
+ * })
+ * // required=false, schema.nullish=true
+ * ```
  */
 export function createParameter(
   props: Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial<Omit<ParameterNode, 'kind' | 'name' | 'in' | 'schema'>>,
 ): ParameterNode {
+  const required = props.required ?? false
   return {
-    required: false,
     ...props,
     kind: 'Parameter',
+    required,
+    schema: syncOptionality(required, props.schema),
   }
 }
 
 /**
  * Creates a `ResponseNode`.
+ *
+ * @example
+ * ```ts
+ * const response = createResponse({
+ *   statusCode: '200',
+ *   description: 'Success',
+ *   schema: createSchema({ type: 'object', properties: [] }),
+ * })
+ * ```
  */
 export function createResponse(
   props: Pick<ResponseNode, 'statusCode' | 'schema'> & Partial<Omit<ResponseNode, 'kind' | 'statusCode' | 'schema'>>,
@@ -97,7 +220,36 @@ export function createResponse(
 }
 
 /**
- * Creates a `FunctionParameterNode`. `optional` defaults to `false`.
+ * Creates a single-property object schema used as a discriminator literal.
+ *
+ * @example
+ * ```ts
+ * createDiscriminantNode({ propertyName: 'type', value: 'dog' })
+ * // -> { type: 'object', properties: [{ name: 'type', required: true, schema: enum('dog') }] }
+ * ```
+ */
+export function createDiscriminantNode({ propertyName, value }: { propertyName: string; value: string }): SchemaNode {
+  return createSchema({
+    type: 'object',
+    primitive: 'object',
+    properties: [
+      createProperty({
+        name: propertyName,
+        schema: createSchema({
+          type: 'enum',
+          primitive: 'string',
+          enumValues: [value],
+        }),
+        required: true,
+      }),
+    ],
+  })
+}
+
+/**
+ * Creates a `FunctionParameterNode`.
+ *
+ * `optional` defaults to `false`.
  *
  * @example Required typed param
  * ```ts
@@ -111,7 +263,7 @@ export function createResponse(
  * // → params?: QueryParams
  * ```
  *
- * @example Param with default (implicitly optional — cannot combine with `optional: true`)
+ * @example Param with default (implicitly optional; cannot combine with `optional: true`)
  * ```ts
  * createFunctionParameter({ name: 'config', type: 'RequestConfig', default: '{}' })
  * // → config: RequestConfig = {}
@@ -128,7 +280,7 @@ export function createFunctionParameter(
 }
 
 /**
- * Creates an `ObjectBindingParameterNode` — an object-destructured parameter group.
+ * Creates an `ObjectBindingParameterNode` for object-destructured parameter groups.
  *
  * @example Destructured object param
  * ```ts
@@ -143,7 +295,7 @@ export function createFunctionParameter(
  * // call        → { id, name }
  * ```
  *
- * @example Inline — children emitted as individual top-level params
+ * @example Inline mode — children emitted as individual top-level parameters
  * ```ts
  * createObjectBindingParameter({
  *   properties: [createFunctionParameter({ name: 'petId', type: 'string', optional: false })],
@@ -163,7 +315,7 @@ export function createObjectBindingParameter(
 }
 
 /**
- * Creates a `FunctionParametersNode` from an ordered list of params.
+ * Creates a `FunctionParametersNode` from an ordered list of parameters.
  *
  * @example
  * ```ts
@@ -173,6 +325,12 @@ export function createObjectBindingParameter(
  *     createFunctionParameter({ name: 'config', type: 'RequestConfig', optional: false, default: '{}' }),
  *   ],
  * })
+ * ```
+ *
+ * @example
+ * ```ts
+ * const empty = createFunctionParameters()
+ * // { kind: 'FunctionParameters', params: [] }
  * ```
  */
 export function createFunctionParameters(props: Partial<Omit<FunctionParametersNode, 'kind'>> = {}): FunctionParametersNode {

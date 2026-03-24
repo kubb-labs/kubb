@@ -1,4 +1,4 @@
-import { collect } from '@kubb/ast'
+import { collect, narrowSchema, schemaTypes } from '@kubb/ast'
 import type { EnumSchemaNode, SchemaNode } from '@kubb/ast/types'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import { File } from '@kubb/react-fabric'
@@ -17,6 +17,7 @@ type Props = {
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
   resolver: PluginTs['resolvedOptions']['resolver']
+  legacy?: boolean
   description?: string
   keysToOmit?: string[]
 }
@@ -37,7 +38,8 @@ export function Type({
   const resolvedDescription = description || node?.description
   const enumSchemaNodes = collect<EnumSchemaNode>(node, {
     schema(n): EnumSchemaNode | undefined {
-      if (n.type === 'enum' && n.name) return n as EnumSchemaNode
+      const enumNode = narrowSchema(n, schemaTypes.enum)
+      if (enumNode?.name) return enumNode
     },
   })
 

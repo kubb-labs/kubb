@@ -39,10 +39,20 @@ export type {
 } from './schema.ts'
 
 /**
- * Discriminated union of every AST node.
+ * Union of all AST node types.
  *
- * Using a concrete union (instead of the bare `BaseNode` alias) lets
- * TypeScript narrow the type automatically inside `switch (node.kind)`
- * blocks, eliminating the need for manual `as TypeName` casts.
+ * This lets TypeScript narrow types in `switch (node.kind)` blocks.
+ *
+ * @example
+ * ```ts
+ * function getKind(node: Node): string {
+ *   switch (node.kind) {
+ *     case 'Root':
+ *       return 'root'
+ *     default:
+ *       return 'other'
+ *   }
+ * }
+ * ```
  */
 export type Node = RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode | FunctionNode

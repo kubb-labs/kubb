@@ -54,6 +54,6 @@ describe('detectLinter', () => {
     })
 
     const result = await detectLinter()
-    expect(result).toBeUndefined()
+    expect(result).toBeNull()
   })
 })

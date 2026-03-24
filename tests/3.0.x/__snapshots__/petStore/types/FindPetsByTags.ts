@@ -23,10 +23,10 @@ export type FindPetsByTags200 = Pet[];
 */
 export type FindPetsByTags400 = any;
 
+export type FindPetsByTagsQueryResponse = FindPetsByTags200;
+
 export type FindPetsByTagsQuery = {
     Response: FindPetsByTags200;
     QueryParams: FindPetsByTagsQueryParams;
     Errors: FindPetsByTags400;
 };
-
-export type FindPetsByTagsQueryResponse = FindPetsByTags200;

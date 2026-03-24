@@ -5,19 +5,19 @@
 
 import type { Vehicle } from "./Vehicle.ts";
 
-export const typeEnum3 = {
+export const electricCarTypeEnum = {
     ElectricCar: "ElectricCar"
 } as const;
 
-export type TypeEnum3Key = (typeof typeEnum3)[keyof typeof typeEnum3];
+export type ElectricCarTypeEnumKey = (typeof electricCarTypeEnum)[keyof typeof electricCarTypeEnum];
 
-export type TypeEnum3 = TypeEnum3Key
+export type ElectricCarTypeEnum = ElectricCarTypeEnumKey
 
 export type ElectricCar = (Vehicle & {
     /**
      * @type string | undefined
     */
-    type?: TypeEnum3Key;
+    type?: ElectricCarTypeEnumKey;
     /**
      * @description Battery capacity in kWh
      * @type number | undefined

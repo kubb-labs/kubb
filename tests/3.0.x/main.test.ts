@@ -23,7 +23,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       input: {
         path: '../../schemas/3.0.x/petStore.yaml',
       },
-      adapter: adapterOas({ collisionDetection: false, validate: false }),
+      adapter: adapterOas({ validate: false }),
       output: {
         path: './gen',
         barrelType: false,
@@ -37,7 +37,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
-          legacy: true,
+          compatibilityPreset: 'kubbV4',
         }),
       ],
     },
@@ -53,7 +53,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ collisionDetection: false, validate: false, discriminator: 'inherit' }),
+      adapter: adapterOas({ validate: false, discriminator: 'inherit' }),
       plugins: [
         pluginOas({
           generators: [],
@@ -63,7 +63,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
-          legacy: true,
+          compatibilityPreset: 'kubbV4',
         }),
       ],
     },
@@ -79,7 +79,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ collisionDetection: false, validate: false }),
+      adapter: adapterOas({ validate: false }),
       plugins: [
         pluginOas({
           generators: [],
@@ -89,7 +89,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
-          legacy: true,
+          compatibilityPreset: 'kubbV4',
         }),
       ],
     },
@@ -106,12 +106,12 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         clean: true,
         barrelType: false,
       },
-      adapter: adapterOas({ collisionDetection: false, validate: false }),
+      adapter: adapterOas({ validate: false }),
       plugins: [
         pluginOas({
           generators: [],
         }),
-        pluginTs({ legacy: true }),
+        pluginTs({ compatibilityPreset: 'kubbV4' }),
       ],
     },
   },
@@ -126,7 +126,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ collisionDetection: false, validate: false }),
+      adapter: adapterOas({ validate: false }),
       plugins: [
         pluginOas({
           generators: [],
@@ -136,7 +136,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
-          legacy: true,
+          compatibilityPreset: 'kubbV4',
         }),
       ],
     },
@@ -152,7 +152,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ collisionDetection: false, validate: false }),
+      adapter: adapterOas({ validate: false }),
       plugins: [
         pluginOas({
           generators: [],
@@ -162,7 +162,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
-          legacy: true,
+          compatibilityPreset: 'kubbV4',
         }),
       ],
     },
@@ -178,7 +178,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ collisionDetection: false, validate: false }),
+      adapter: adapterOas({ validate: false }),
       plugins: [
         pluginOas({
           generators: [],
@@ -188,7 +188,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
-          legacy: true,
+          compatibilityPreset: 'kubbV4',
         }),
       ],
     },
@@ -211,7 +211,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ collisionDetection: false, validate: false }),
+      adapter: adapterOas({ validate: false }),
       plugins: [
         pluginOas({
           generators: [],
@@ -245,7 +245,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ collisionDetection: false, validate: false }),
+      adapter: adapterOas({ validate: false }),
       plugins: [
         pluginOas({
           generators: [],
@@ -255,7 +255,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             path: './types',
             barrelType: false,
           },
-          legacy: true,
+          compatibilityPreset: 'kubbV4',
         }),
       ],
     },
@@ -276,7 +276,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ collisionDetection: false, validate: false }),
+      adapter: adapterOas({ validate: false }),
       plugins: [
         pluginOas({
           generators: [],
@@ -287,7 +287,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             barrelType: false,
           },
           enumType: 'asConst',
-          legacy: true,
+          compatibilityPreset: 'kubbV4',
         }),
       ],
     },
@@ -307,7 +307,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
-      adapter: adapterOas({ collisionDetection: false, validate: false }),
+      adapter: adapterOas({ validate: false }),
       plugins: [
         pluginOas({
           generators: [],
@@ -318,7 +318,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             barrelType: false,
           },
           group: { type: 'tag' },
-          legacy: true,
+          compatibilityPreset: 'kubbV4',
         }),
       ],
     },

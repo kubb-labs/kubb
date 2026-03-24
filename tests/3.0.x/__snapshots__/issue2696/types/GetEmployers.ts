@@ -10,9 +10,9 @@ import type { Employer } from "./Employer.ts";
 */
 export type GetEmployers200 = Employer[];
 
+export type GetEmployersQueryResponse = GetEmployers200;
+
 export type GetEmployersQuery = {
     Response: GetEmployers200;
     Errors: any;
 };
-
-export type GetEmployersQueryResponse = GetEmployers200;

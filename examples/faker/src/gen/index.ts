@@ -29,7 +29,12 @@ export type {
   AddPetMutationRequest,
   AddPetMutationResponse,
 } from './models/AddPet.ts'
-export type { Address } from './models/Address.ts'
+export type {
+  Address,
+  AddressIdentifierEnum,
+  AddressIdentifierEnumKey,
+} from './models/Address.ts'
+export { addressIdentifierEnum } from './models/Address.ts'
 export type { ApiResponse } from './models/ApiResponse.ts'
 export type { Category } from './models/Category.ts'
 export type {

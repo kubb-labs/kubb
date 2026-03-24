@@ -28,7 +28,7 @@ module.exports = defineConfig(() => {
           output: {
             path: 'models',
           },
-          legacy: true,
+          compatibilityPreset: 'kubbV4',
         }),
         pluginFaker({
           output: {
@@ -64,7 +64,7 @@ module.exports = defineConfig(() => {
           output: {
             path: 'models',
           },
-          legacy: true,
+          compatibilityPreset: 'kubbV4',
         }),
         pluginFaker({
           output: {

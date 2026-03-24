@@ -4,13 +4,4 @@
 */
 
 
-export type Order = {
-    /**
-     * @type string | undefined
-    */
-    userId?: string;
-    /**
-     * @type array | undefined
-    */
-    productIds?: string[];
-};
+export type Order = Order;

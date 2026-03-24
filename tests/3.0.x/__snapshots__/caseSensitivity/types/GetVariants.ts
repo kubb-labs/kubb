@@ -10,9 +10,9 @@ import type { Variant } from "./Variant.ts";
 */
 export type GetVariants200 = Variant;
 
+export type GetVariantsQueryResponse = GetVariants200;
+
 export type GetVariantsQuery = {
     Response: GetVariants200;
     Errors: any;
 };
-
-export type GetVariantsQueryResponse = GetVariants200;

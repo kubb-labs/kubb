@@ -6,12 +6,12 @@ packages:
 
 catalog:
   "@types/node": ^22.19.15
-  "@kubb/fabric-core": 0.14.0
-  "@kubb/react-fabric": 0.14.0
+  "@kubb/fabric-core": 0.15.1
+  "@kubb/react-fabric": 0.15.1
   "@size-limit/file": ^11.2.0
   "size-limit": ^11.2.0
   "tinyexec": ^1.0.4
   p-limit: ^7.3.0
   remeda: ^2.33.6
   tsdown: ^0.21.4
-  typescript: ^5.9.3
+  typescript: ^6.0.2

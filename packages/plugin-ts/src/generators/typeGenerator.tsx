@@ -1,4 +1,4 @@
-import { applyParamsCasing } from '@kubb/ast'
+import { caseParams, composeTransformers, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
 import { useKubb } from '@kubb/core/hooks'
@@ -11,6 +11,7 @@ import {
   buildGroupedParamsSchema,
   buildLegacyResponsesSchemaNode,
   buildLegacyResponseUnionSchemaNode,
+  buildParamsSchema,
   buildResponsesSchemaNode,
   buildResponseUnionSchemaNode,
   nameUnnamedEnums,
@@ -20,7 +21,20 @@ export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Operation({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver, legacy } = options
+    const {
+      enumType,
+      enumKeyCasing,
+      optionalType,
+      arrayType,
+      syntaxType,
+      paramsCasing,
+      group,
+      resolver,
+      baseResolver,
+      compatibilityPreset,
+      transformers = [],
+    } = options
+    const isKubbV4Compatibility = compatibilityPreset === 'kubbV4'
     const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     const file = getFile({
@@ -31,7 +45,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
         group: group ? (group.type === 'tag' ? { tag: node.tags[0] ?? 'default' } : { path: node.path }) : undefined,
       },
     })
-    const params = applyParamsCasing(node.parameters, paramsCasing)
+    const params = caseParams(node.parameters, paramsCasing)
 
     function renderSchemaType({
       node: schemaNode,
@@ -50,7 +64,9 @@ export const typeGenerator = defineGenerator<PluginTs>({
         return null
       }
 
-      const imports = adapter.getImports(schemaNode, (schemaName) => ({
+      const transformedNode = transform(schemaNode, composeTransformers(...transformers))
+
+      const imports = adapter.getImports(transformedNode, (schemaName) => ({
         name: resolver.default(schemaName, 'type'),
         path: getFile({ name: schemaName, extname: '.ts', mode }).path,
       }))
@@ -62,7 +78,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
           <Type
             name={name}
             typedName={typedName}
-            node={schemaNode}
+            node={transformedNode}
             description={description}
             enumType={enumType}
             enumKeyCasing={enumKeyCasing}
@@ -71,17 +87,19 @@ export const typeGenerator = defineGenerator<PluginTs>({
             syntaxType={syntaxType}
             resolver={resolver}
             keysToOmit={keysToOmit}
+            legacy={isKubbV4Compatibility}
           />
         </>
       )
     }
 
-    const responseTypes = legacy
+    const responseTypes = isKubbV4Compatibility
       ? node.responses.map((res) => {
           const responseName = resolver.resolveResponseStatusName(node, res.statusCode)
+          const baseResponseName = baseResolver.resolveResponseStatusName(node, res.statusCode)
 
           return renderSchemaType({
-            node: res.schema ? nameUnnamedEnums(res.schema, responseName) : res.schema,
+            node: res.schema ? nameUnnamedEnums(res.schema, baseResponseName) : res.schema,
             name: responseName,
             typedName: resolver.resolveResponseStatusTypedName(node, res.statusCode),
             description: res.description,
@@ -100,15 +118,15 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
     const requestType = node.requestBody?.schema
       ? renderSchemaType({
-          node: legacy ? nameUnnamedEnums(node.requestBody.schema, resolver.resolveDataName(node)) : node.requestBody.schema,
+          node: isKubbV4Compatibility ? nameUnnamedEnums(node.requestBody.schema, baseResolver.resolveDataName(node)) : node.requestBody.schema,
           name: resolver.resolveDataName(node),
           typedName: resolver.resolveDataTypedName(node),
-          description: node.requestBody.schema.description,
+          description: node.requestBody.description ?? node.requestBody.schema.description,
           keysToOmit: node.requestBody.keysToOmit,
         })
       : null
 
-    if (legacy) {
+    if (isKubbV4Compatibility) {
       const pathParams = params.filter((p) => p.in === 'path')
       const queryParams = params.filter((p) => p.in === 'query')
       const headerParams = params.filter((p) => p.in === 'header')
@@ -116,21 +134,21 @@ export const typeGenerator = defineGenerator<PluginTs>({
       const legacyParamTypes = [
         pathParams.length > 0
           ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: pathParams, parentName: resolver.resolvePathParamsName!(node) }),
+              node: buildGroupedParamsSchema({ params: pathParams, parentName: baseResolver.resolvePathParamsName!(node) }),
               name: resolver.resolvePathParamsName!(node),
               typedName: resolver.resolvePathParamsTypedName!(node),
             })
           : null,
         queryParams.length > 0
           ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: queryParams, parentName: resolver.resolveQueryParamsName!(node) }),
+              node: buildGroupedParamsSchema({ params: queryParams, parentName: baseResolver.resolveQueryParamsName!(node) }),
               name: resolver.resolveQueryParamsName!(node),
               typedName: resolver.resolveQueryParamsTypedName!(node),
             })
           : null,
         headerParams.length > 0
           ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: headerParams, parentName: resolver.resolveHeaderParamsName!(node) }),
+              node: buildGroupedParamsSchema({ params: headerParams, parentName: baseResolver.resolveHeaderParamsName!(node) }),
               name: resolver.resolveHeaderParamsName!(node),
               typedName: resolver.resolveHeaderParamsTypedName!(node),
             })
@@ -154,8 +172,8 @@ export const typeGenerator = defineGenerator<PluginTs>({
           {legacyParamTypes}
           {responseTypes}
           {requestType}
-          {legacyResponsesType}
           {legacyResponseType}
+          {legacyResponsesType}
         </File>
       )
     }
@@ -167,6 +185,16 @@ export const typeGenerator = defineGenerator<PluginTs>({
         typedName: resolver.resolveParamTypedName(node, param),
       }),
     )
+
+    const queryParamsList = params.filter((p) => p.in === 'query')
+    const queryParamsType =
+      queryParamsList.length > 0
+        ? renderSchemaType({
+            node: buildParamsSchema({ params: queryParamsList, node, resolver }),
+            name: resolver.resolveQueryParamsName!(node),
+            typedName: resolver.resolveQueryParamsTypedName!(node),
+          })
+        : null
 
     const dataType = renderSchemaType({
       node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolver }),
@@ -190,6 +218,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     return (
       <File baseName={file.baseName} path={file.path} meta={file.meta} banner={resolveBanner()} footer={resolveFooter()}>
         {paramTypes}
+        {queryParamsType}
         {responseTypes}
         {requestType}
         {dataType}
@@ -199,19 +228,22 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
   },
   Schema({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver } = options
+    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver, compatibilityPreset, transformers = [] } = options
+    const isKubbV4Compatibility = compatibilityPreset === 'kubbV4'
     const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     if (!node.name) {
       return
     }
 
-    const imports = adapter.getImports(node, (schemaName) => ({
+    const transformedNode = transform(node, composeTransformers(...transformers))
+
+    const imports = adapter.getImports(transformedNode, (schemaName) => ({
       name: resolver.default(schemaName, 'type'),
       path: getFile({ name: schemaName, extname: '.ts', mode }).path,
     }))
 
-    const isEnumSchema = node.type === 'enum'
+    const isEnumSchema = !!narrowSchema(node, schemaTypes.enum)
 
     const typedName = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyTypedName(node) : resolver.resolveTypedName(node.name)
 
@@ -230,13 +262,14 @@ export const typeGenerator = defineGenerator<PluginTs>({
         <Type
           name={type.name}
           typedName={type.typedName}
-          node={node}
+          node={transformedNode}
           enumType={enumType}
           enumKeyCasing={enumKeyCasing}
           optionalType={optionalType}
           arrayType={arrayType}
           syntaxType={syntaxType}
           resolver={resolver}
+          legacy={isKubbV4Compatibility}
         />
       </File>
     )

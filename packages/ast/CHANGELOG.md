@@ -1,5 +1,64 @@
 # @kubb/ast
 
+## 5.0.0-alpha.18
+
+### Minor Changes
+
+- [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update to TypeScript v6
+
+## 5.0.0-alpha.17
+
+### Minor Changes
+
+- [#2889](https://github.com/kubb-labs/kubb/pull/2889) [`2546c05`](https://github.com/kubb-labs/kubb/commit/2546c051d81e490709df9d8a834402ef546a8f1c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/ast`
+  - Reorganized schema helper modules into clearer categories:
+    - `transformers.ts` for schema transformation helpers
+    - `resolvers.ts` for lookup/derivation helpers
+    - `utils.ts` for generic helper utilities
+  - Renamed exported helper APIs to shorter names for consistency:
+    - resolvers: `findDiscriminator`, `childName`, `enumPropName`, `collectImports`
+    - transformers: `setDiscriminatorEnum`, `mergeAdjacentObjects`, `simplifyUnion`, `setEnumName`, `resolveNames`
+    - utils: `isStringType`, `caseParams`, `syncOptionality`
+  - Removed deprecated alias exports for old names.
+
+  ### `@kubb/adapter-oas`
+  - Fixed named import shape regression in adapter import resolution.
+  - `adapter.getImports(...)` now correctly returns `KubbFile.Import` entries with `name` as `string[]` (for example `['PetType']`), with added regression coverage.
+
+## 5.0.0-alpha.16
+
+## 5.0.0-alpha.15
+
+## 5.0.0-alpha.14
+
+### Minor Changes
+
+- [#2872](https://github.com/kubb-labs/kubb/pull/2872) [`591977c`](https://github.com/kubb-labs/kubb/commit/591977c5c2f167736d6e43126ed0387a1e5e0ce5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/core`
+  - Add `name: string` to the `Resolver` base type. Every resolver now carries a name that identifies it.
+  - `defineResolver` build functions must return a `name` property.
+  - Add `mergeResolvers(...resolvers)` helper that merges multiple resolvers into one (last wins).
+
+  ### `@kubb/ast`
+  - Add `composeTransformers(...visitors)` helper that combines multiple `Visitor` objects into a single visitor. Each node kind is piped through all visitors sequentially (left to right).
+
+  ### `@kubb/plugin-ts`
+  - Add `resolvers` option — an array of named resolvers that control naming conventions. Later entries override earlier ones. Built-in resolvers: `resolverTs` (default) and `resolverTsLegacy`.
+  - Add `transformers` option — an array of AST `Visitor` objects applied to each `SchemaNode` before printing. Uses `composeTransformers` + `transform` from `@kubb/ast`.
+  - Export `resolverTs`, `resolverTsLegacy`, and `ResolverTs` from the package root.
+  - Remove the old `transformers: { name? }` object option. Use a custom resolver in `resolvers` instead.
+  - Deprecate `legacy` option in favor of `resolvers: [resolverTsLegacy]`.
+
+## 5.0.0-alpha.13
+
+### Patch Changes
+
+- [#2858](https://github.com/kubb-labs/kubb/pull/2858) [`975717e`](https://github.com/kubb-labs/kubb/commit/975717e2c8cf8d33f5d9d641be4bb164fd36f423) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix missing `@description` on request body type aliases.
+
+  The OAS `requestBody.description` field (top-level on the request body object, distinct from the schema's own description) was silently dropped. It is now:
+  - Added as `description?: string` to `OperationNode.requestBody` in `@kubb/ast`
+  - Populated by `@kubb/adapter-oas` parser from `operation.schema.requestBody.description`
+  - Used by `@kubb/plugin-ts` typeGenerator: `requestBody.description` takes precedence, falling back to `requestBody.schema.description`
+
 ## 5.0.0-alpha.12
 
 ## 5.0.0-alpha.11

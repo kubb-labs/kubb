@@ -1,5 +1,5 @@
 import { jsStringEscape, stringify } from '@internals/utils'
-import { isPlainStringType } from '@kubb/ast'
+import { isStringType, narrowSchema, schemaTypes } from '@kubb/ast'
 import type { ArraySchemaNode, SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
@@ -134,11 +134,14 @@ function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalTy
  * Collects JSDoc annotation strings (description, deprecated, min/max, pattern, default, example, type) for a schema node.
  */
 function buildPropertyJSDocComments(schema: SchemaNode): Array<string | undefined> {
+  const isArray = schema.type === 'array'
+
   return [
     'description' in schema && schema.description ? `@description ${jsStringEscape(schema.description)}` : undefined,
     'deprecated' in schema && schema.deprecated ? '@deprecated' : undefined,
-    'min' in schema && schema.min !== undefined ? `@minLength ${schema.min}` : undefined,
-    'max' in schema && schema.max !== undefined ? `@maxLength ${schema.max}` : undefined,
+    // minItems/maxItems on arrays should not be emitted as @minLength/@maxLength
+    !isArray && 'min' in schema && schema.min !== undefined ? `@minLength ${schema.min}` : undefined,
+    !isArray && 'max' in schema && schema.max !== undefined ? `@maxLength ${schema.max}` : undefined,
     'pattern' in schema && schema.pattern ? `@pattern ${schema.pattern}` : undefined,
     'default' in schema && schema.default !== undefined
       ? `@default ${'primitive' in schema && schema.primitive === 'string' ? stringify(schema.default as string) : schema.default}`
@@ -268,13 +271,16 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
       union(node) {
         const members = node.members ?? []
 
-        const hasStringLiteral = members.some((m) => m.type === 'enum' && (m.enumType === 'string' || m.primitive === 'string'))
-        const hasPlainString = members.some((m) => isPlainStringType(m))
+        const hasStringLiteral = members.some((m) => {
+          const enumNode = narrowSchema(m, schemaTypes.enum)
+          return enumNode?.primitive === 'string'
+        })
+        const hasPlainString = members.some((m) => isStringType(m))
 
         if (hasStringLiteral && hasPlainString) {
           const memberNodes = members
             .map((m) => {
-              if (isPlainStringType(m)) {
+              if (isStringType(m)) {
                 return factory.createIntersectionDeclaration({
                   nodes: [factory.keywordTypeNodes.string, factory.createTypeLiteralNode([])],
                   withParentheses: true,

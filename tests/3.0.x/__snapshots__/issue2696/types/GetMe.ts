@@ -10,9 +10,9 @@ import type { User } from "./User.ts";
 */
 export type GetMe200 = User;
 
+export type GetMeQueryResponse = GetMe200;
+
 export type GetMeQuery = {
     Response: GetMe200;
     Errors: any;
 };
-
-export type GetMeQueryResponse = GetMe200;

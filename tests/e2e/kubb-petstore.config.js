@@ -16,7 +16,7 @@ export default defineConfig(() => {
     input: {
       path: 'https://petstore3.swagger.io/api/v3/openapi.json',
     },
-    adapter: adapterOas({ legacy: true }),
+    adapter: adapterOas({}),
     output: {
       path: './src/gen',
       clean: true,
@@ -38,7 +38,7 @@ export default defineConfig(() => {
           type: 'tag',
         },
         enumType: 'asConst',
-        legacy: true,
+        compatibilityPreset: 'kubbV4',
       }),
       pluginReactQuery({
         output: {
