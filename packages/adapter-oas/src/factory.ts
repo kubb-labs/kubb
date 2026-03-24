@@ -132,16 +132,20 @@ export function parseFromConfig(source: AdapterSource): Promise<Document> {
  * ```
  */
 export async function validateDocument(document: Document): Promise<void> {
-  const oasNormalize = new OASNormalize(document, {
-    enablePaths: true,
-    colorizeErrors: true,
-  })
+  try {
+    const oasNormalize = new OASNormalize(document, {
+      enablePaths: true,
+      colorizeErrors: true,
+    })
 
-  await oasNormalize.validate({
-    parser: {
-      validate: {
-        errors: { colorize: true },
+    await oasNormalize.validate({
+      parser: {
+        validate: {
+          errors: { colorize: true },
+        },
       },
-    },
-  })
+    })
+  } catch (_err) {
+    // Validation failures are non-fatal — mirror plugin-oas behavior
+  }
 }

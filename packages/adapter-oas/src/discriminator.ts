@@ -1,198 +1,98 @@
-import { isDiscriminator, isReference } from './guards.ts'
-import { extractRefKey, resolveRef, setRef } from './refs.ts'
-import type { DiscriminatorObject, Document, ReferenceObject, SchemaObject } from './types.ts'
+import { createProperty, createSchema, narrowSchema, transform } from '@kubb/ast'
+import type { RootNode } from '@kubb/ast/types'
 
 /**
- * Prefix used to create synthetic `$ref` values for anonymous (inline) discriminator schemas.
- * The suffix is the schema index within the discriminator's `oneOf`/`anyOf` array.
- * @example `#kubb-inline-0`
- */
-export const KUBB_INLINE_REF_PREFIX = '#kubb-inline-'
-
-/**
- * Returns a normalised discriminator object with a fully populated `mapping`.
+ * Injects discriminator enum values into child schemas so they know which value identifies them.
  *
- * Missing mapping entries are inferred from union members using (in order):
- * a vendor extension property, a `const` value, a single-value `enum`, then `title`.
+ * Finds every union schema in `root.schemas` that has a `discriminatorPropertyName`, collects the
+ * enum value each union member is mapped to, then adds (or replaces) that property on the matching
+ * child object schema.
+ *
+ * Returns a new `RootNode` — the original is never mutated.
  *
  * @example
  * ```ts
- * getDiscriminator(document, schema)
- * // { propertyName: 'type', mapping: { dog: '#/components/schemas/Dog', cat: '#/components/schemas/Cat' } }
+ * const { root } = parseOas(document, options)
+ * const next = applyDiscriminatorInheritance(root)
  * ```
  */
-export function getDiscriminator(document: Document, schema: SchemaObject | null): DiscriminatorObject | null {
-  if (!isDiscriminator(schema) || !schema) {
-    return null
-  }
+export function applyDiscriminatorInheritance(root: RootNode): RootNode {
+  type DiscriminatorTarget = { propertyName: string; enumValues: Array<string | number | boolean> }
+  const childMap = new Map<string, DiscriminatorTarget>()
 
-  const { mapping = {}, propertyName } = schema.discriminator
+  for (const schema of root.schemas) {
+    // Case 1: top-level schema is a union (oneOf/anyOf with discriminator)
+    // Case 2: top-level schema is an intersection wrapping a union (oneOf/anyOf + shared properties)
+    let unionNode = narrowSchema(schema, 'union')
 
-  const getDiscriminatorValue = (schema: SchemaObject | null): string | null => {
-    if (!schema) {
-      return null
-    }
-
-    if (propertyName.startsWith('x-')) {
-      const extensionValue = (schema as Record<string, unknown>)[propertyName]
-      if (extensionValue && typeof extensionValue === 'string') {
-        return extensionValue
+    if (!unionNode) {
+      const intersectionMembers = narrowSchema(schema, 'intersection')?.members
+      if (intersectionMembers) {
+        for (const m of intersectionMembers) {
+          const u = narrowSchema(m, 'union')
+          if (u) {
+            unionNode = u
+            break
+          }
+        }
       }
     }
 
-    const propertySchema = schema.properties?.[propertyName] as SchemaObject
-    if (propertySchema && 'const' in propertySchema && propertySchema.const !== undefined) {
-      return String(propertySchema.const)
-    }
+    if (!unionNode?.discriminatorPropertyName || !unionNode.members) continue
 
-    if (propertySchema && propertySchema.enum?.length === 1) {
-      return String(propertySchema.enum[0])
-    }
+    const { discriminatorPropertyName, members } = unionNode
 
-    return schema.title || null
-  }
+    for (const member of members) {
+      // Members with a discriminant value are intersections: [RefSchemaNode, ObjectSchemaNode]
+      const intersectionNode = narrowSchema(member, 'intersection')
+      if (!intersectionNode?.members) continue
 
-  const processSchemas = (schemas: Array<SchemaObject>, existingMapping: Record<string, string>) => {
-    schemas.forEach((schemaItem, index) => {
-      if (isReference(schemaItem)) {
-        const key = extractRefKey(schemaItem.$ref)
+      let refNode: ReturnType<typeof narrowSchema<'ref'>> | undefined
+      let objNode: ReturnType<typeof narrowSchema<'object'>> | undefined
 
-        try {
-          const refSchema = resolveRef<SchemaObject>(document, schemaItem.$ref)
-          const discriminatorValue = getDiscriminatorValue(refSchema)
-          const canAdd = key && !Object.values(existingMapping).includes(schemaItem.$ref)
+      for (const m of intersectionNode.members) {
+        refNode ??= narrowSchema(m, 'ref')
+        objNode ??= narrowSchema(m, 'object')
+      }
 
-          if (canAdd && discriminatorValue) {
-            existingMapping[discriminatorValue] = schemaItem.$ref
-          } else if (canAdd) {
-            existingMapping[key] = schemaItem.$ref
-          }
-        } catch (_error) {
-          if (key && !Object.values(existingMapping).includes(schemaItem.$ref)) {
-            existingMapping[key] = schemaItem.$ref
-          }
-        }
+      if (!refNode?.name || !objNode) continue
+
+      const prop = objNode.properties.find((p) => p.name === discriminatorPropertyName)
+      const enumNode = prop ? narrowSchema(prop.schema, 'enum') : undefined
+      if (!enumNode?.enumValues?.length) continue
+
+      const enumValues = enumNode.enumValues.filter((v): v is string | number | boolean => v !== null)
+      if (!enumValues.length) continue
+
+      const existing = childMap.get(refNode.name)
+      if (existing) {
+        existing.enumValues.push(...enumValues)
       } else {
-        const inlineSchema = schemaItem as SchemaObject
-        const discriminatorValue = getDiscriminatorValue(inlineSchema)
-
-        if (discriminatorValue) {
-          existingMapping[discriminatorValue] = `${KUBB_INLINE_REF_PREFIX}${index}`
-        }
-      }
-    })
-  }
-
-  if (schema.oneOf) {
-    processSchemas(schema.oneOf as Array<SchemaObject>, mapping)
-  }
-
-  if (schema.anyOf) {
-    processSchemas(schema.anyOf as Array<SchemaObject>, mapping)
-  }
-
-  return {
-    ...schema.discriminator,
-    mapping,
-  }
-}
-
-function setDiscriminatorOnChild(document: Document, schema: SchemaObject & { discriminator: DiscriminatorObject }): void {
-  const { mapping = {}, propertyName } = schema.discriminator
-
-  Object.entries(mapping).forEach(([mappingKey, mappingValue]) => {
-    if (mappingValue) {
-      const childSchema = resolveRef<any>(document, mappingValue)
-      if (!childSchema) {
-        return
-      }
-
-      if (!childSchema.properties) {
-        childSchema.properties = {}
-      }
-
-      const property = childSchema.properties[propertyName] as SchemaObject
-
-      if (childSchema.properties) {
-        childSchema.properties[propertyName] = {
-          ...((childSchema.properties ? childSchema.properties[propertyName] : {}) as SchemaObject),
-          enum: [...(property?.enum?.filter((value) => value !== mappingKey) ?? []), mappingKey],
-        }
-
-        childSchema.required = typeof childSchema.required === 'boolean' ? childSchema.required : [...new Set([...(childSchema.required ?? []), propertyName])]
-
-        setRef(document, mappingValue, childSchema)
+        childMap.set(refNode.name, { propertyName: discriminatorPropertyName, enumValues: [...enumValues] })
       }
     }
+  }
+
+  if (childMap.size === 0) return root
+
+  return transform(root, {
+    schema(node, { parent }) {
+      if (parent?.kind !== 'Root' || !node.name) return
+
+      const entry = childMap.get(node.name)
+      if (!entry) return
+
+      const objectNode = narrowSchema(node, 'object')
+      if (!objectNode) return
+
+      const { propertyName, enumValues } = entry
+      const enumSchema = createSchema({ type: 'enum', enumValues })
+      const newProp = createProperty({ name: propertyName, required: true, schema: enumSchema })
+
+      const existingIdx = objectNode.properties.findIndex((p) => p.name === propertyName)
+      const newProperties = existingIdx >= 0 ? objectNode.properties.map((p, i) => (i === existingIdx ? newProp : p)) : [...objectNode.properties, newProp]
+
+      return { ...objectNode, properties: newProperties }
+    },
   })
-}
-
-/**
- * Mutates `document` in-place so discriminator values are propagated into mapped child schemas.
- *
- * Performs a DFS over `components.schemas`, visiting every schema that carries a structured
- * `discriminator` object and applying the mapping values to each child schema.
- * Cycles are handled with a `WeakSet` guard.
- *
- * @example
- * ```ts
- * applyDiscriminatorInheritance(document)
- * // document.components.schemas children now carry their discriminator enum values
- * ```
- */
-export function applyDiscriminatorInheritance(document: Document): void {
-  const components = document.components
-  if (!components?.schemas) {
-    return
-  }
-
-  const visited = new WeakSet<object>()
-
-  const enqueue = (value: unknown) => {
-    if (!value) return
-    if (Array.isArray(value)) {
-      for (const item of value) enqueue(item)
-      return
-    }
-    if (typeof value === 'object') {
-      visit(value as SchemaObject)
-    }
-  }
-
-  const visit = (schema?: SchemaObject | ReferenceObject | null) => {
-    if (!schema || typeof schema !== 'object') return
-
-    if (isReference(schema)) {
-      visit(resolveRef<SchemaObject>(document, schema.$ref))
-      return
-    }
-
-    const schemaObject = schema as SchemaObject
-
-    if (visited.has(schemaObject as object)) return
-    visited.add(schemaObject as object)
-
-    if (isDiscriminator(schemaObject)) {
-      setDiscriminatorOnChild(document, schemaObject)
-    }
-
-    if ('allOf' in schemaObject) enqueue(schemaObject.allOf)
-    if ('oneOf' in schemaObject) enqueue(schemaObject.oneOf)
-    if ('anyOf' in schemaObject) enqueue(schemaObject.anyOf)
-    if ('not' in schemaObject) enqueue(schemaObject.not)
-    if ('items' in schemaObject) enqueue(schemaObject.items)
-    if ('prefixItems' in schemaObject) enqueue(schemaObject.prefixItems)
-
-    if (schemaObject.properties) {
-      enqueue(Object.values(schemaObject.properties))
-    }
-
-    if (schemaObject.additionalProperties && typeof schemaObject.additionalProperties === 'object') {
-      enqueue(schemaObject.additionalProperties)
-    }
-  }
-
-  for (const schema of Object.values(components.schemas)) {
-    visit(schema as SchemaObject)
-  }
 }

@@ -79,22 +79,14 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     async parse(source) {
       const document = await parseFromConfig(source)
 
-      if (discriminator === 'inherit') {
-        applyDiscriminatorInheritance(document)
-      }
-
       if (validate) {
-        try {
-          await validateDocument(document)
-        } catch (_err) {
-          // Validation failures are non-fatal — mirror plugin-oas behavior
-        }
+        await validateDocument(document)
       }
 
       const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
 
-      const { root, nameMapping: parsedNameMapping } = parseOas(document, {
+      const { root: parsedRoot, nameMapping: parsedNameMapping } = parseOas(document, {
         contentType,
         dateType,
         integerType,
@@ -102,6 +94,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         emptySchemaType,
         enumSuffix,
       })
+
+      const root = discriminator === 'inherit' ? applyDiscriminatorInheritance(parsedRoot) : parsedRoot
 
       // This must happen after parseOas() because legacy enum remapping is finalized there.
       nameMapping.clear()
