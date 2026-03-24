@@ -8,23 +8,27 @@ import { parseFromConfig } from './oas/utils.ts'
 import { createOasParser } from './parser.ts'
 import type { OasAdapter } from './types.ts'
 
+/**
+ * Stable string identifier for the OAS adapter used in Kubb's adapter registry.
+ */
 export const adapterOasName = 'oas' satisfies OasAdapter['name']
 
 /**
- * Creates an OpenAPI / Swagger adapter for Kubb.
+ * Creates the default OpenAPI / Swagger adapter for Kubb.
  *
- * This is the default adapter — you can omit it from your config when using
- * an OpenAPI spec, but supplying it explicitly lets you pass options.
+ * Parses the spec, optionally validates it, resolves the base URL, and converts
+ * everything into a `RootNode` that downstream plugins consume.
  *
  * @example
  * ```ts
  * import { defineConfig } from '@kubb/core'
  * import { adapterOas } from '@kubb/adapter-oas'
+ * import { pluginTs } from '@kubb/plugin-ts'
  *
  * export default defineConfig({
- *   adapter: adapterOas({ validate: true, dateType: 'date' }),
- *   input:   { path: './openapi.yaml' },
- *   plugins: [pluginTs(), pluginZod()],
+ *   adapter: adapterOas({ dateType: 'date', serverIndex: 0 }),
+ *   input: { path: './openapi.yaml' },
+ *   plugins: [pluginTs()],
  * })
  * ```
  */
@@ -113,7 +117,15 @@ export const adapterOas = createAdapter<OasAdapter>((options) => {
   }
 })
 
-// TODO: remove once parseFromConfig accepts AdapterSource directly
+/**
+ * Adapts an `AdapterSource` to the shape that `parseFromConfig` expects.
+ *
+ * @example
+ * ```ts
+ * const config = sourceToFakeConfig({ type: 'path', path: './openapi.yaml' })
+ * // { root: '.', input: { path: './openapi.yaml' } }
+ * ```
+ */
 function sourceToFakeConfig(source: AdapterSource): Parameters<typeof parseFromConfig>[0] {
   switch (source.type) {
     case 'path':

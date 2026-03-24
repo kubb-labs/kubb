@@ -13,23 +13,42 @@ import { Oas } from './Oas.ts'
 import type { contentType, Document, SchemaObject } from './types.ts'
 
 /**
- * Narrows `doc` to a Swagger 2.0 document.
- * Swagger 2.0 documents do not have an `openapi` version key.
+ * Returns `true` when `doc` is a Swagger 2.0 document (no `openapi` key).
+ *
+ * @example
+ * ```ts
+ * if (isOpenApiV2Document(doc)) {
+ *   // doc is OpenAPIV2.Document
+ * }
+ * ```
  */
 export function isOpenApiV2Document(doc: unknown): doc is OpenAPIV2.Document {
   return !!doc && isPlainObject(doc) && !('openapi' in doc)
 }
 
 /**
- * Narrows `doc` to an OpenAPI 3.x document.
- * Any document that has an `openapi` key is considered 3.x (including 3.1).
+ * Returns `true` when `doc` is an OpenAPI 3.x document (has an `openapi` key).
+ *
+ * @example
+ * ```ts
+ * if (isOpenApiV3Document(doc)) {
+ *   // doc is OpenAPIV3.Document
+ * }
+ * ```
  */
 export function isOpenApiV3Document(doc: unknown): doc is OpenAPIV3.Document {
   return !!doc && isPlainObject(doc) && 'openapi' in doc
 }
 
 /**
- * Narrows `doc` to an OpenAPI 3.1 document by checking the version prefix.
+ * Returns `true` when `doc` is an OpenAPI 3.1 document (version string starts with `'3.1'`).
+ *
+ * @example
+ * ```ts
+ * if (isOpenApiV3_1Document(doc)) {
+ *   // doc is OpenAPIV3_1.Document — use prefixItems, const, etc.
+ * }
+ * ```
  */
 export function isOpenApiV3_1Document(doc: unknown): doc is OpenAPIV3_1.Document {
   return !!doc && isPlainObject(doc) && 'openapi' in (doc as object) && (doc as { openapi: string }).openapi.startsWith('3.1')
@@ -38,9 +57,15 @@ export function isOpenApiV3_1Document(doc: unknown): doc is OpenAPIV3_1.Document
 /**
  * Returns `true` when a schema should be treated as nullable.
  *
- * Covers three nullable signals across OAS versions:
- * - OAS 3.0: `nullable: true` or the vendor extension `x-nullable: true`.
- * - OAS 3.1 / JSON Schema: `type: 'null'` or `type: ['null', ...]` (multi-type array).
+ * Recognises all nullable signals across OAS versions: `nullable: true` (OAS 3.0),
+ * `x-nullable: true` (vendor extension), `type: 'null'`, and `type: ['null', ...]` (OAS 3.1).
+ *
+ * @example
+ * ```ts
+ * isNullable({ type: 'string', nullable: true }) // true
+ * isNullable({ type: ['string', 'null'] })       // true
+ * isNullable({ type: 'string' })                 // false
+ * ```
  */
 export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): boolean {
   const explicitNullable = schema?.nullable ?? schema?.['x-nullable']
@@ -54,16 +79,26 @@ export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): 
 }
 
 /**
- * Narrows `obj` to an OpenAPI `$ref` pointer object.
- * Delegates to the `oas` package's own `isRef` helper.
+ * Returns `true` when `obj` is an OpenAPI `$ref` pointer object.
+ *
+ * @example
+ * ```ts
+ * isReference({ $ref: '#/components/schemas/Pet' }) // true
+ * isReference({ type: 'string' })                  // false
+ * ```
  */
 export function isReference(obj?: unknown): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
   return !!obj && isRef(obj as object)
 }
 
 /**
- * Returns `true` when `obj` is a schema that carries a structured OAS 3.x `discriminator`
- * object — as opposed to a plain-string discriminator found in some Swagger 2 specs.
+ * Returns `true` when `obj` is a schema with a structured OAS 3.x `discriminator` object.
+ *
+ * @example
+ * ```ts
+ * isDiscriminator({ discriminator: { propertyName: 'type', mapping: {} } }) // true
+ * isDiscriminator({ discriminator: 'type' })                                 // false (Swagger 2 string form)
+ * ```
  */
 export function isDiscriminator(obj?: unknown): obj is SchemaObject & { discriminator: OpenAPIV3.DiscriminatorObject } {
   const record = obj as Record<string, unknown>
@@ -71,11 +106,16 @@ export function isDiscriminator(obj?: unknown): obj is SchemaObject & { discrimi
 }
 
 /**
- * Loads, dereferences, and wraps a raw OpenAPI document into an `Oas` instance.
+ * Loads, dereferences, and wraps an OpenAPI document into an `Oas` instance.
  *
- * When given a file path string with `canBundle: true` (the default), Redocly's
- * bundler resolves all external `$ref`s first. Swagger 2.0 documents are
- * automatically up-converted to OpenAPI 3.0 via `swagger2openapi`.
+ * Accepts a file path or an already-parsed document object. File paths are bundled via Redocly
+ * to resolve external `$ref`s. Swagger 2.0 documents are automatically up-converted to OAS 3.0.
+ *
+ * @example
+ * ```ts
+ * const oas = await parse('./openapi.yaml')
+ * const oas = await parse(rawDocumentObject, { canBundle: false })
+ * ```
  */
 export async function parse(
   pathOrApi: string | Document,
@@ -108,11 +148,13 @@ export async function parse(
 /**
  * Deep-merges multiple OpenAPI documents into a single `Oas` instance.
  *
- * Each document is parsed independently (without path dereferencing) and then
- * recursively merged using `remeda`'s `mergeDeep`. The result is re-parsed so
- * the returned `Oas` instance is fully initialized.
+ * Each document is parsed independently then recursively merged with `remeda`'s `mergeDeep`.
+ * Throws when the input array is empty.
  *
- * Throws when the input array is empty — at least one document is required.
+ * @example
+ * ```ts
+ * const oas = await merge(['./pets.yaml', './orders.yaml'])
+ * ```
  */
 export async function merge(pathOrApi: Array<string | Document>, { oasClass = Oas }: { oasClass?: typeof Oas } = {}): Promise<Oas> {
   const instances = await Promise.all(pathOrApi.map((p) => parse(p, { oasClass, enablePaths: false, canBundle: false })))
@@ -134,12 +176,16 @@ export async function merge(pathOrApi: Array<string | Document>, { oasClass = Oa
 }
 
 /**
- * Constructs an `Oas` instance from a Kubb `Config` object.
+ * Creates an `Oas` instance from a Kubb `Config` object.
  *
- * Handles all three input forms supported by `Config`:
- * - `data` — an inline YAML string, JSON string, or pre-parsed object.
- * - Array — multiple file paths that are deep-merged via {@link merge}.
- * - `path` — a local file path or a remote URL.
+ * Handles all three input forms: an inline `data` string or object, an array of file paths
+ * (merged via `merge()`), or a single local path / remote URL.
+ *
+ * @example
+ * ```ts
+ * const oas = await parseFromConfig(config)
+ * const oas = await parseFromConfig(config, MyCustomOas)
+ * ```
  */
 export function parseFromConfig(config: Config, oasClass: typeof Oas = Oas): Promise<Oas> {
   if ('data' in config.input) {
@@ -170,14 +216,20 @@ export function parseFromConfig(config: Config, oasClass: typeof Oas = Oas): Pro
 }
 
 /**
- * Flattens a single-member or keyword-only `allOf` into its parent schema.
+ * Flattens a keyword-only `allOf` into its parent schema.
  *
- * Flattening is only performed when every `allOf` member is a "plain fragment" —
- * i.e. contains no structural composition keywords (see `structuralKeys`) and no
- * `$ref`. When any member carries structural meaning, the schema is returned unchanged.
+ * Only flattens when every member is a plain fragment — no `$ref` and no structural keywords
+ * (see `structuralKeys`). Outer schema values take precedence over fragment values.
+ * Returns `null` for a `null` input, and the original schema unchanged when flattening is unsafe.
  *
- * Keyword values from allOf members are merged into the parent on a first-write basis:
- * outer schema values always win over fragment values.
+ * @example
+ * ```ts
+ * flattenSchema({ allOf: [{ description: 'A pet' }], type: 'object', properties: {} })
+ * // { type: 'object', properties: {}, description: 'A pet' }
+ *
+ * flattenSchema({ allOf: [{ $ref: '#/components/schemas/Pet' }] })
+ * // returned unchanged — contains a $ref
+ * ```
  */
 export function flattenSchema(schema: SchemaObject | null): SchemaObject | null {
   if (!schema?.allOf || schema.allOf.length === 0) return schema ?? null
@@ -201,8 +253,12 @@ export function flattenSchema(schema: SchemaObject | null): SchemaObject | null 
 }
 
 /**
- * Validates an OpenAPI document using `oas-normalize`.
- * Enables path validation and colorized error output.
+ * Validates an OpenAPI document using `oas-normalize` with colorized error output.
+ *
+ * @example
+ * ```ts
+ * await validate(oas.api)
+ * ```
  */
 export async function validate(document: Document) {
   const oasNormalize = new OASNormalize(document, {
@@ -220,10 +276,15 @@ export async function validate(document: Document) {
 }
 
 /**
- * Discriminates the three component sources Kubb reads schemas from.
+ * The three component sections Kubb reads schemas from.
  */
 type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies'
 
+/**
+ * A schema annotated with the component section it came from and its original name.
+ *
+ * Used during cross-source name-collision resolution in `resolveCollisions`.
+ */
 export type SchemaWithMetadata = {
   schema: SchemaObject
   source: SchemaSourceMode
@@ -236,8 +297,7 @@ type GetSchemasResult = {
 }
 
 /**
- * Walks a schema tree and collects the names of all `#/components/schemas/<name>` refs.
- * Used by `sortSchemas` to build the dependency graph.
+ * Walks a schema tree and collects the names of all `#/components/schemas/<name>` `$ref`s.
  */
 function collectRefs(schema: unknown, refs = new Set<string>()): Set<string> {
   if (Array.isArray(schema)) {
@@ -262,11 +322,14 @@ function collectRefs(schema: unknown, refs = new Set<string>()): Set<string> {
 /**
  * Returns a copy of `schemas` topologically sorted by `$ref` dependency.
  *
- * Schemas with no references come first; schemas that are referenced by others
- * come before those that reference them. This ensures code generators emit
- * referenced types before the types that depend on them.
+ * Referenced schemas appear before the schemas that depend on them, so code generators
+ * can emit types in the correct order. Cycles are silently skipped.
  *
- * Cycles are silently skipped via the `stack` guard inside `visit`.
+ * @example
+ * ```ts
+ * const sorted = sortSchemas({ Order: orderSchema, Pet: petSchema })
+ * // Pet appears before Order when Order.$ref points at Pet
+ * ```
  */
 export function sortSchemas(schemas: Record<string, SchemaObject>): Record<string, SchemaObject> {
   const deps = new Map<string, string[]>()
@@ -301,11 +364,14 @@ export function sortSchemas(schemas: Record<string, SchemaObject>): Record<strin
 /**
  * Extracts the inline schema from a media-type `content` map.
  *
- * Prefers `preferredContentType` when provided; otherwise falls back to the
- * first key in the map. Returns `null` when:
- * - `content` is absent.
- * - The target content-type has no `schema` entry.
- * - The schema is a `$ref` (callers resolve refs separately).
+ * Prefers `preferredContentType` when given; otherwise uses the first key in the map.
+ * Returns `null` when `content` is absent, the schema is missing, or the schema is a `$ref`.
+ *
+ * @example
+ * ```ts
+ * extractSchemaFromContent(operation.content, 'application/json')
+ * // SchemaObject | null
+ * ```
  */
 export function extractSchemaFromContent(content: Record<string, unknown> | undefined, preferredContentType?: contentType): SchemaObject | null {
   if (!content) return null
@@ -334,9 +400,15 @@ function getSemanticSuffix(source: SchemaSourceMode): string {
 }
 
 /**
- * Builds `GetSchemasResult` without any collision detection.
- * Each schema is registered under its original component name and its full
- * `#/components/<source>/<name>` ref path.
+ * Registers schemas without collision detection, each under its original component name.
+ *
+ * Used in legacy mode where all schema names are preserved as-is.
+ *
+ * @example
+ * ```ts
+ * const { schemas, nameMapping } = legacyResolve(schemasWithMeta)
+ * nameMapping.get('#/components/schemas/Pet') // 'Pet'
+ * ```
  */
 export function legacyResolve(schemasWithMeta: SchemaWithMetadata[]): GetSchemasResult {
   const schemas: Record<string, SchemaObject> = {}
@@ -351,14 +423,16 @@ export function legacyResolve(schemasWithMeta: SchemaWithMetadata[]): GetSchemas
 }
 
 /**
- * Builds `GetSchemasResult` with automatic name-collision resolution.
+ * Registers schemas with automatic name-collision resolution.
  *
- * When two or more schemas normalize to the same PascalCase name:
- * - If they share the same source, a numeric suffix (`2`, `3`, …) is appended.
- * - If they come from different sources (schemas / responses / requestBodies),
- *   a semantic suffix (`Schema`, `Response`, `Request`) is appended.
+ * When two schemas normalise to the same PascalCase name, a suffix is appended:
+ * same source → numeric suffix (`2`, `3`, …); different sources → semantic suffix (`Schema`, `Response`, `Request`).
  *
- * Non-colliding schemas are left unchanged.
+ * @example
+ * ```ts
+ * const { schemas, nameMapping } = resolveCollisions(schemasWithMeta)
+ * // 'Order' (schemas) and 'Order' (responses) → 'OrderSchema' / 'OrderResponse'
+ * ```
  */
 export function resolveCollisions(schemasWithMeta: SchemaWithMetadata[]): GetSchemasResult {
   const schemas: Record<string, SchemaObject> = {}

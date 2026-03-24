@@ -3,6 +3,22 @@ import type { AdapterFactoryOptions } from '@kubb/core'
 import type { Oas as OasClass } from './oas/Oas.ts'
 import type { contentType } from './oas/types.ts'
 
+/**
+ * User-facing options for `adapterOas(...)`.
+ *
+ * Extends `ParserOptions` from `@kubb/ast` with adapter-specific controls
+ * like spec validation and server URL selection.
+ *
+ * @example
+ * ```ts
+ * adapterOas({
+ *   validate: false,
+ *   dateType: 'date',
+ *   serverIndex: 0,
+ *   serverVariables: { env: 'prod' },
+ * })
+ * ```
+ */
 export type OasAdapterOptions = {
   /**
    * Validate the OpenAPI spec before parsing.
@@ -10,18 +26,17 @@ export type OasAdapterOptions = {
    */
   validate?: boolean
   /**
-   * Override the `Oas` class (e.g. for custom subclass behavior).
+   * Override the `Oas` class, e.g. to inject custom behaviour via a subclass.
    */
   oasClass?: typeof OasClass
   /**
-   * Restrict which content-type is used when extracting request/response schemas.
-   * By default, the first valid JSON media type is used.
+   * Preferred content-type used when extracting request/response schemas.
+   * Defaults to the first valid JSON media type found in the spec.
    */
   contentType?: contentType
   /**
-   * Which server to use from `oas.api.servers` when computing `baseURL`.
-   * - `0` → first server, `1` → second server, etc.
-   * - When omitted, `baseURL` in the resulting `RootNode.meta` is `undefined`.
+   * Index into `oas.api.servers` for computing `baseURL`.
+   * `0` → first server, `1` → second server. Omit to leave `baseURL` undefined.
    */
   serverIndex?: number
   /**
@@ -29,27 +44,25 @@ export type OasAdapterOptions = {
    * Only used when `serverIndex` is set.
    *
    * @example
+   * ```ts
    * // spec server: "https://api.{env}.example.com"
    * serverVariables: { env: 'prod' }
    * // → baseURL: "https://api.prod.example.com"
+   * ```
    */
   serverVariables?: Record<string, string>
   /**
-   * How the discriminator field should be interpreted.
-   * - `'strict'`  — uses `oneOf` schemas as defined.
-   * - `'inherit'` — replaces `oneOf` with the schema from `discriminator.mapping`.
+   * How the discriminator field is interpreted.
+   * - `'strict'`  — uses `oneOf` schemas as written in the spec.
+   * - `'inherit'` — propagates discriminator values into child schemas from `discriminator.mapping`.
    * @default 'strict'
    */
   discriminator?: 'strict' | 'inherit'
-  /**
-   * How `format: 'date-time'` schemas are represented in the AST.
-   * - `'string'` maps to a `datetime` string node.
-   * - `'date'` maps to a JavaScript `Date` node.
-   * - `false` falls through to a plain `string` node.
-   * @default 'string'
-   */
 } & Partial<ParserOptions>
 
+/**
+ * Resolved adapter options available at runtime after defaults have been applied.
+ */
 export type OasAdapterResolvedOptions = {
   validate: boolean
   oasClass: OasAdapterOptions['oasClass']
@@ -64,10 +77,18 @@ export type OasAdapterResolvedOptions = {
   enumSuffix: OasAdapterOptions['enumSuffix']
   /**
    * Map from original `$ref` paths to their collision-resolved schema names.
-   * Populated by the adapter after each `parse()` call.
-   * e.g. `'#/components/schemas/Order'` → `'OrderSchema'`
+   * Populated after each `parse()` call.
+   *
+   * @example
+   * ```ts
+   * nameMapping.get('#/components/schemas/Order') // 'Order'
+   * nameMapping.get('#/components/responses/Order') // 'OrderResponse'
+   * ```
    */
   nameMapping: Map<string, string>
 }
 
+/**
+ * `@kubb/core` adapter factory type for the OpenAPI adapter.
+ */
 export type OasAdapter = AdapterFactoryOptions<'oas', OasAdapterOptions, OasAdapterResolvedOptions>

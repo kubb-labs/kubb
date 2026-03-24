@@ -1,5 +1,5 @@
 /**
- * Models one variable definition in an OpenAPI server object.
+ * One variable definition inside an OpenAPI server object.
  */
 type ServerVariable = {
   default?: string | number
@@ -7,7 +7,7 @@ type ServerVariable = {
 }
 
 /**
- * Minimal shape of an OpenAPI server object.
+ * Minimal shape of an OpenAPI server entry (`oas.api.servers[n]`).
  */
 type ServerObject = {
   url: string
@@ -15,14 +15,19 @@ type ServerObject = {
 }
 
 /**
- * Resolves an OpenAPI server URL by substituting `{variable}` placeholders.
+ * Resolves `{variable}` placeholders in an OpenAPI server URL.
  *
- * Resolution priority per variable:
- * 1. `overrides[key]` — caller-supplied value.
- * 2. `variable.default` — spec-defined default, coerced to `string`.
- * 3. Variable is left unreplaced when neither is available.
+ * Resolution order per variable: `overrides[key]` → `variable.default` → left unreplaced.
+ * Throws when an override value is not in the variable's allowed `enum` list.
  *
- * Throws when an `overrides` value is not present in the variable's `enum` list.
+ * @example
+ * ```ts
+ * resolveServerUrl(
+ *   { url: 'https://{env}.api.example.com', variables: { env: { default: 'dev', enum: ['dev', 'prod'] } } },
+ *   { env: 'prod' },
+ * )
+ * // 'https://prod.api.example.com'
+ * ```
  */
 export function resolveServerUrl(server: ServerObject, overrides?: Record<string, string>): string {
   if (!server.variables) {

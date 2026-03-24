@@ -44,25 +44,28 @@ import type { contentType, Operation, ReferenceObject, SchemaObject } from './oa
 import { flattenSchema, isDiscriminator, isNullable, isReference } from './oas/utils.ts'
 
 /**
- * Construction-time options for `createOasParser`.
+ * Construction-time options passed to `createOasParser`.
+ *
+ * @example
+ * ```ts
+ * const parser = createOasParser(oas, { contentType: 'application/xml' })
+ * ```
  */
 export type OasParserOptions = {
   contentType?: contentType
 }
 
 /**
- * Looks up the Kubb `SchemaType` for a given OAS `format` string.
- * Returns `undefined` for formats not in `formatMap` (e.g. `int64`, `date-time`),
- * which are handled separately because their output depends on parser options.
+ * Returns the Kubb `SchemaType` for an OAS `format` string, or `undefined` for formats
+ * handled separately because they depend on runtime options (`int64`, `date-time`, etc.).
  */
 function formatToSchemaType(format: string): SchemaType | undefined {
   return formatMap[format as keyof typeof formatMap]
 }
 
 /**
- * Maps an OAS primitive type string to its `PrimitiveSchemaType` equivalent.
- * Numeric types (`number`, `integer`, `bigint`) are returned unchanged;
- * `boolean` maps to `'boolean'`; everything else defaults to `'string'`.
+ * Maps an OAS `type` string to its `PrimitiveSchemaType`.
+ * Numeric types are returned unchanged; `boolean` maps to `'boolean'`; everything else defaults to `'string'`.
  */
 function getPrimitiveType(type: string | undefined): PrimitiveSchemaType {
   if (type === 'number' || type === 'integer' || type === 'bigint') return type
@@ -71,80 +74,98 @@ function getPrimitiveType(type: string | undefined): PrimitiveSchemaType {
 }
 
 /**
- * Narrows a raw content-type string to the `MediaType` union recognized by Kubb.
- * Returns `undefined` for content types not present in `KNOWN_MEDIA_TYPES`.
+ * Narrows a raw content-type string to the `MediaType` union Kubb recognises.
+ * Returns `undefined` for unknown content types.
  */
 function toMediaType(contentType: string): MediaType | undefined {
   return Object.values(mediaTypes).includes(contentType as MediaType) ? (contentType as MediaType) : undefined
 }
 
 /**
- * Pre-computed per-schema context passed to every `convert*` branch handler.
- * Grouping these values avoids repeating the same derivations across all branches.
+ * Pre-computed per-schema context bag passed to every `convert*` branch handler.
  */
 type SchemaContext = {
   schema: SchemaObject
   name: string | undefined
   nullable: true | undefined
   defaultValue: unknown
-  /**
-   * Normalized single type string (first element when OAS 3.1 multi-type array).
-   */
+  /** Normalised type string — first element when OAS 3.1 uses a multi-type array. */
   type: string | undefined
   rawOptions: Partial<ParserOptions> | undefined
   options: ParserOptions
 }
 
 /**
- * The public interface returned by `createOasParser`.
+ * Public interface returned by `createOasParser`.
+ *
+ * @example
+ * ```ts
+ * const parser = createOasParser(oas)
+ * const root = parser.parse({ dateType: 'date' })
+ * const schema = parser.convertSchema({ schema: petSchema, name: 'Pet' })
+ * ```
  */
 export type OasParser = {
   /**
-   * Converts an OpenAPI/Swagger spec (wrapped in a Kubb `Oas` instance) into
-   * a `RootNode` — the top-level node of the `@kubb/ast` tree.
+   * Converts the full OpenAPI spec into a `RootNode` (the top-level `@kubb/ast` tree).
    */
   parse: <TOptions extends Partial<ParserOptions> = object>(options?: TOptions) => RootNode
+  /**
+   * Converts a single `SchemaObject` into a typed `SchemaNode`.
+   *
+   * @example
+   * ```ts
+   * parser.convertSchema({ schema: { type: 'string', format: 'uuid' } })
+   * // UrlSchemaNode with type 'uuid'
+   * ```
+   */
   convertSchema: <TFormat extends string, TSchema extends SchemaObject & { format?: TFormat }, TOptions extends Partial<ParserOptions> = object>(
     params: { schema: TSchema; name?: string },
     options?: TOptions,
   ) => InferSchemaNode<TSchema, TOptions extends { dateType: ParserOptions['dateType'] } ? TOptions['dateType'] : 'string'>
   /**
-   * Walks `node` and replaces each `ref` value with the name returned by
-   * `resolveName`. The callback receives the full `$ref` path (e.g. `#/components/schemas/Order`)
-   * when available, falling back to the short name. Pass a no-op (`(n) => n`) to skip resolution.
+   * Walks `node` and replaces each `ref` name with the value returned by `resolveName`.
    *
-   * The optional `resolveEnumName` callback is called for inline `enum` nodes and should return
-   * the transformed name to use (e.g. with a plugin `transformers.name` applied).
+   * The callback receives the full `$ref` path when available, e.g. `'#/components/schemas/Order'`.
+   * The optional `resolveEnumName` callback handles inline `enum` nodes separately.
+   *
+   * @example
+   * ```ts
+   * parser.resolveRefs(schemaNode, (ref) => transformer.default(ref))
+   * ```
    */
   resolveRefs: (node: SchemaNode, resolveName: (ref: string) => string | undefined, resolveEnumName?: (name: string) => string | undefined) => SchemaNode
-
   /**
    * Map from original `$ref` paths to their collision-resolved schema names.
-   * e.g. `'#/components/schemas/Order'` → `'OrderSchema'`
    *
-   * Pass this to the standalone `collectImports()` to resolve imports without holding
-   * a reference to the full parser or OAS instance.
+   * Pass this to `collectImports()` to resolve imports without holding a reference to the parser.
+   *
+   * @example
+   * ```ts
+   * parser.nameMapping.get('#/components/schemas/Order') // 'Order'
+   * ```
    */
   nameMapping: Map<string, string>
 }
 
 /**
- * Creates an OAS parser that converts an OpenAPI/Swagger spec into
- * the `@kubb/ast` tree.
+ * Creates an OAS parser that converts an OpenAPI spec into the `@kubb/ast` tree.
  *
- * Options are passed per-call to `parse` or `convertSchema` rather than
- * at construction time, keeping the factory lightweight.
- *
- * This is the **kubb-parser** stage of the compilation lifecycle:
- *   OpenAPI / Swagger  →  Kubb AST
- *
- * No code is generated here; the resulting tree is spec-agnostic and can
- * be consumed by any downstream plugin (plugin-ts, plugin-zod, …).
+ * This is the **kubb-parser** compilation stage: `OpenAPI / Swagger → Kubb AST`.
+ * No code is generated here — the resulting tree is spec-agnostic and consumed by
+ * downstream plugins (`plugin-ts`, `plugin-zod`, …).
+ * Options are forwarded per-call to `parse` or `convertSchema`, keeping the factory lightweight.
  *
  * @example
  * ```ts
  * const parser = createOasParser(oas)
- * const root = parser.parse({ emptySchemaType: 'unknown' })
+ * const root = parser.parse({ dateType: 'date', emptySchemaType: 'unknown' })
+ * ```
+ *
+ * @example
+ * ```ts
+ * const parser = createOasParser(oas, { contentType: 'application/xml' })
+ * const schema = parser.convertSchema({ schema: petSchema, name: 'Pet' })
  * ```
  */
 export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}): OasParser {
@@ -166,6 +187,11 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
     return TYPE_OPTION_MAP[value]
   }
 
+  /**
+   * Normalises a malformed `{ type: 'array', enum: [...] }` schema by moving the
+   * enum values into the items subschema. This pattern is technically invalid OAS
+   * but appears in the wild and must be handled gracefully.
+   */
   function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
     const isItemsObject = typeof schema.items === 'object' && !Array.isArray(schema.items)
     const normalizedItems: SchemaObject = { ...(isItemsObject ? (schema.items as SchemaObject) : {}), enum: schema.enum }
@@ -174,8 +200,8 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   }
 
   /**
-   * Resolves the AST type and datetime modifiers for a date/time format, honoring the `dateType` option.
-   * Returns `undefined` when `dateType` is `false`, meaning the format should fall through to `string`.
+   * Resolves the AST type descriptor for a date/time format, honoring the `dateType` option.
+   * Returns `undefined` when `dateType: false`, signalling the format should fall through to `string`.
    */
   function getDateType(
     options: ParserOptions,
@@ -207,8 +233,7 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   }
 
   /**
-   * Shared metadata fields included in every `createSchema` call.
-   * Centralizes the common properties so sub-handlers don't repeat them.
+   * Collects the shared metadata fields passed to every `createSchema` call.
    */
   function renderSchemaBase(schema: SchemaObject, name: string | undefined, nullable: true | undefined, defaultValue: unknown) {
     return {
@@ -229,11 +254,10 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   // and `convertSchema` freely (JS hoisting).
 
   /**
-   * Converts a `$ref` schema pointer into a `RefSchemaNode`.
+   * Converts a `$ref` schema into a `RefSchemaNode`.
    *
-   * In OAS 3.0 siblings of `$ref` are technically ignored by the spec, but Kubb intentionally
-   * preserves them so that annotations like `pattern`, `description`, and `nullable` are
-   * reflected in generated JSDoc and type modifiers.
+   * OAS 3.0 technically ignores `$ref` siblings, but Kubb preserves annotations like
+   * `pattern`, `description`, and `nullable` so they appear in generated JSDoc and type modifiers.
    */
   function convertRef({ schema, nullable, defaultValue }: SchemaContext): SchemaNode {
     return createSchema({
@@ -252,19 +276,13 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   }
 
   /**
-   * Converts a `allOf` schema into either a flattened member node (single-member `allOf`)
-   * or an `IntersectionSchemaNode` (multi-member `allOf`).
+   * Converts an `allOf` schema into a flattened node or an `IntersectionSchemaNode`.
    *
-   * Single-member `allOf` without sibling structural keys is the common OAS 3.0 pattern for
-   * annotating a `$ref` or primitive with extra constraints; it is flattened to avoid
-   * producing needless intersection wrappers.
-   *
-   * The flatten path is skipped when the outer schema carries structural keys that cannot be
-   * merged into annotation fields: `properties`, `required`, or `additionalProperties`.
-   * Those cases must become an intersection so the constraints are preserved.
-   *
-   * Circular references through discriminator parents are detected and skipped to prevent
-   * infinite recursion during code generation.
+   * A single-member `allOf` with no sibling structural keys is flattened to avoid a needless
+   * intersection wrapper — this is the common OAS 3.0 pattern for annotating a `$ref`.
+   * Flattening is skipped when the outer schema has `properties`, `required`, or
+   * `additionalProperties`. Discriminator parent back-references are detected and skipped to
+   * prevent circular type references during code generation.
    */
   function convertAllOf({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): SchemaNode {
     if (
@@ -368,10 +386,10 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   /**
    * Converts a `oneOf` / `anyOf` schema into a `UnionSchemaNode`.
    *
-   * Both keywords are treated identically — their members are concatenated into a single union.
-   * When sibling `properties` are present alongside `oneOf`/`anyOf`, each union member is
-   * individually intersected with the shared properties node to match the OAS pattern of
-   * adding common fields next to a discriminated union.
+   * Both keywords are treated identically and their members are concatenated.
+   * When sibling `properties` are present, each union member is individually
+   * intersected with the shared properties node — the common OAS pattern for
+   * adding required fields next to a discriminated union.
    */
   function convertUnion({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): SchemaNode {
     function pickDiscriminatorPropertyNode(node: SchemaNode, propertyName: string): SchemaNode | undefined {
@@ -460,9 +478,8 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   }
 
   /**
-   * Converts an OAS 3.1 `const` schema into either a null scalar or a single-value `EnumSchemaNode`.
-   * `const: null` maps to a null scalar; any other value becomes a one-item enum so that generators
-   * can produce a precise literal type.
+   * Converts an OAS 3.1 `const` schema into a null scalar or a single-value `EnumSchemaNode`.
+   * `const: null` maps to a null scalar; any other value becomes a one-item enum for a precise literal type.
    */
   function convertConst({ schema, name, nullable, defaultValue }: SchemaContext): SchemaNode {
     const constValue = schema.const
@@ -490,9 +507,8 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   }
 
   /**
-   * Handles `format`-based special types (date/time, uuid, email, blob, etc.).
-   * Returns `undefined` when the format should fall through to string handling
-   * (i.e. `format: 'date-time'` with `dateType: false`).
+   * Converts a format-annotated schema into a special-type `SchemaNode` (date/time, uuid, email, blob, etc.).
+   * Returns `undefined` when the format should fall through to string handling (`dateType: false`).
    */
   function convertFormat({ schema, name, nullable, defaultValue, options }: SchemaContext): SchemaNode | undefined {
     const base = renderSchemaBase(schema, name, nullable, defaultValue)
@@ -539,12 +555,9 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   /**
    * Converts an `enum` schema into an `EnumSchemaNode`.
    *
-   * Handles several edge cases:
-   * - `{ type: 'array', enum }` (technically invalid OAS) — the enum is normalized into `items`.
-   * - `null` in enum values (OAS 3.0 nullable enum convention) — stripped and reflected as `nullable`.
-   * - `x-enumNames` / `x-enum-varnames` vendor extensions — produce named enum variants with explicit labels.
-   * - Numeric and boolean enums require a const-map representation because most generators cannot
-   *   use string-enum syntax for non-string values.
+   * Handles `{ type: 'array', enum }` by normalising the enum into `items`, strips `null` from
+   * enum values (OAS 3.0 nullable convention), and uses `x-enumNames` / `x-enum-varnames` extensions
+   * to produce named enum variants. Numeric and boolean enums always use the const-map form.
    */
   function convertEnum({ schema, name, nullable, type, rawOptions }: SchemaContext): SchemaNode {
     // Malformed schema: `{ type: 'array', enum: [...] }` — normalize by moving the enum into items.
@@ -603,18 +616,12 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   }
 
   /**
-   * Converts an object-like schema (`type: 'object'`, `properties`, `additionalProperties`,
-   * or `patternProperties`) into an `ObjectSchemaNode`.
+   * Converts an object-like schema into an `ObjectSchemaNode`.
    *
-   * When a `discriminator` is present, the discriminator property's schema is replaced with an
-   * enum of the mapping keys so generators can produce a precise literal-union type for it.
-   *
-   * Property optionality follows OAS semantics:
-   * - required + not nullable → `required: true`
-   * - not required + not nullable → `optional: true`
-   * - not required + nullable → `nullish: true`
+   * When a `discriminator` is present, the discriminator property is replaced with an enum of the
+   * mapping keys for a precise literal-union type. Property optionality follows OAS semantics:
+   * required → `required: true`; optional nullable → `nullish: true`; optional non-nullable → `optional: true`.
    */
-
   function convertObject({ schema, name, nullable, defaultValue, rawOptions, options }: SchemaContext): SchemaNode {
     const properties: Array<PropertyNode> = schema.properties
       ? Object.entries(schema.properties).map(([propName, propSchema]) => {
@@ -694,10 +701,8 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   /**
    * Converts an OAS 3.1 `prefixItems` tuple into a `TupleSchemaNode`.
    *
-   * Each `prefixItems` element maps to a positional tuple slot. When an explicit `items` schema
-   * is present alongside `prefixItems`, it becomes the rest element. When `items` is absent,
-   * a rest element of type `any` is emitted to match JSON Schema semantics (absent `items`
-   * means additional items are allowed).
+   * Each `prefixItems` element becomes a positional slot. A sibling `items` schema becomes the
+   * rest element; when absent, a rest `any` is emitted (JSON Schema: additional items are allowed).
    */
   function convertTuple({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): SchemaNode {
     const tupleItems = (schema.prefixItems ?? []).map((item) => convertSchema({ schema: item as SchemaObject }, rawOptions))
@@ -717,8 +722,8 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   /**
    * Converts a `type: 'array'` schema into an `ArraySchemaNode`.
    *
-   * When the items schema is an inline enum, a name derived from the parent array's name and
-   * `enumSuffix` is forwarded so generators can emit a named enum declaration.
+   * When the items schema is an inline enum, a name is derived from the parent array name +
+   * `enumSuffix` so generators can emit a standalone enum declaration.
    */
   function convertArray({ schema, name, nullable, defaultValue, rawOptions, options }: SchemaContext): SchemaNode {
     const rawItems = schema.items as SchemaObject | undefined
@@ -794,20 +799,11 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   }
 
   /**
-   * Central dispatcher: converts an OAS `SchemaObject` into a `SchemaNode`.
+   * Central dispatcher that converts an OAS `SchemaObject` into a `SchemaNode`.
    *
-   * Dispatch order (first match wins):
-   * 1. `$ref` pointer
-   * 2. `allOf` composition
-   * 3. `oneOf` / `anyOf` union
-   * 4. `const` literal (OAS 3.1)
-   * 5. `format`-based special type (date/time, uuid, blob, …)
-   * 6. OAS 3.1 `contentMediaType: 'application/octet-stream'` blob
-   * 7. OAS 3.1 multi-type array → union or fallthrough
-   * 8. Constraint-inferred type (minLength/maxLength → string; minimum/maximum → number)
-   * 9. `enum` values
-   * 10. Object / array / tuple / scalar by `type`
-   * 11. Empty schema fallback (`emptySchemaType` option)
+   * Dispatch order (first match wins): `$ref` → `allOf` → `oneOf`/`anyOf` → `const` → `format`
+   * → octet-stream blob → multi-type array → constraint-inferred type → `enum` → object/array/tuple/scalar
+   * → empty-schema fallback (`emptySchemaType` option).
    */
   function convertSchema({ schema, name }: { schema: SchemaObject; name?: string }, rawOptions?: Partial<ParserOptions>): SchemaNode {
     const options: ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...rawOptions }
@@ -895,8 +891,8 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   }
 
   /**
-   * Converts a single dereferenced OAS parameter object into a `ParameterNode`.
-   * When the parameter has no `schema`, falls back to `unknownType`; `$ref` schemas are resolved through `convertSchema` to produce a proper named type reference.
+   * Converts a dereferenced OAS parameter object into a `ParameterNode`.
+   * Falls back to `unknownType` when the parameter has no `schema`.
    */
   function parseParameter(options: ParserOptions, param: Record<string, unknown>): ParameterNode {
     const required = (param['required'] as boolean | undefined) ?? false
@@ -918,7 +914,7 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
 
   /**
    * Converts an OAS `Operation` into an `OperationNode`, resolving parameters,
-   * request body, and all response codes into their AST node equivalents.
+   * request body, and all response codes.
    */
   function parseOperation(options: ParserOptions, oas: Oas, operation: Operation): OperationNode {
     const parameters: Array<ParameterNode> = oas.getParameters(operation).map((param) => parseParameter(options, param as unknown as Record<string, unknown>))
@@ -993,8 +989,7 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
   }
 
   /**
-   * Converts an OpenAPI/Swagger spec (wrapped in a Kubb `Oas` instance) into
-   * a `RootNode` — the top-level node of the `@kubb/ast` tree.
+   * Converts the entire spec (wrapped in a `Oas` instance) into a `RootNode`.
    */
   function parse<TOptions extends Partial<ParserOptions> = object>(options?: TOptions): RootNode {
     const mergedOptions: ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...options }

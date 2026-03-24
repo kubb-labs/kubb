@@ -26,18 +26,50 @@ type OasOptions = {
   discriminator?: 'strict' | 'inherit'
 }
 
+/**
+ * OpenAPI wrapper around the `oas` package with Kubb-specific behaviour.
+ *
+ * Adds discriminator inheritance, JSON-pointer resolution, and normalised
+ * schema/parameter accessors used by the parser.
+ *
+ * @example
+ * ```ts
+ * const oas = new Oas(document)
+ * oas.setOptions({ discriminator: 'inherit', contentType: 'application/json' })
+ * const { schemas } = oas.getSchemas()
+ * ```
+ */
 export class Oas extends BaseOas {
   #options: OasOptions = {
     discriminator: 'strict',
   }
   document: Document
 
+  /**
+   * Creates an `Oas` wrapper around a normalised OpenAPI document.
+   *
+   * @example
+   * ```ts
+   * const oas = new Oas(document)
+   * ```
+   */
   constructor(document: Document) {
     super(document, undefined)
 
     this.document = document
   }
 
+  /**
+   * Updates runtime options.
+   *
+   * Setting `discriminator: 'inherit'` immediately mutates the in-memory document
+   * so discriminator values are propagated into mapped child schemas.
+   *
+   * @example
+   * ```ts
+   * oas.setOptions({ discriminator: 'inherit', contentType: 'application/xml' })
+   * ```
+   */
   setOptions(options: OasOptions) {
     this.#options = {
       ...this.#options,
@@ -49,10 +81,23 @@ export class Oas extends BaseOas {
     }
   }
 
+  /**
+   * Returns the current runtime options.
+   */
   get options(): OasOptions {
     return this.#options
   }
 
+  /**
+   * Resolves a local JSON pointer from `this.api`.
+   *
+   * Returns `null` for empty or non-local refs. Throws when the pointer cannot be resolved.
+   *
+   * @example
+   * ```ts
+   * oas.get<SchemaObject>('#/components/schemas/Pet') // SchemaObject | null
+   * ```
+   */
   get<T = unknown>($ref: string): T | null {
     const origRef = $ref
     $ref = $ref.trim()
@@ -72,10 +117,26 @@ export class Oas extends BaseOas {
     return current as T
   }
 
+  /**
+   * Returns the last path segment of a `$ref` string.
+   *
+   * @example
+   * ```ts
+   * oas.getKey('#/components/schemas/Pet') // 'Pet'
+   * ```
+   */
   getKey($ref: string) {
     const key = $ref.split('/').pop()
     return key === '' ? undefined : key
   }
+  /**
+   * Writes a value at a local JSON pointer path. Returns `false` for empty refs.
+   *
+   * @example
+   * ```ts
+   * oas.set('#/components/schemas/Pet', updatedSchema)
+   * ```
+   */
   set($ref: string, value: unknown) {
     $ref = $ref.trim()
     if ($ref === '') {
@@ -121,6 +182,18 @@ export class Oas extends BaseOas {
     }
   }
 
+  /**
+   * Returns a normalised discriminator object with a fully populated `mapping`.
+   *
+   * Missing mapping entries are inferred from union members using (in order):
+   * a vendor extension property, a `const` value, a single-value `enum`, then `title`.
+   *
+   * @example
+   * ```ts
+   * oas.getDiscriminator(schema)
+   * // { propertyName: 'type', mapping: { dog: '#/components/schemas/Dog', cat: '#/components/schemas/Cat' } }
+   * ```
+   */
   getDiscriminator(schema: SchemaObject | null): DiscriminatorObject | null {
     if (!isDiscriminator(schema) || !schema) {
       return null
@@ -221,7 +294,18 @@ export class Oas extends BaseOas {
     }
   }
 
-  // TODO add better typing
+  /**
+   * Resolves a `$ref` object while keeping the original `$ref` field intact.
+   *
+   * Useful when the parser needs both the dereferenced fields and the pointer
+   * string (for import resolution and naming).
+   *
+   * @example
+   * ```ts
+   * oas.dereferenceWithRef({ $ref: '#/components/schemas/Pet' })
+   * // { ...petSchema, $ref: '#/components/schemas/Pet' }
+   * ```
+   */
   dereferenceWithRef<T = unknown>(schema?: T): T {
     if (isReference(schema)) {
       return {
@@ -314,7 +398,13 @@ export class Oas extends BaseOas {
   }
 
   /**
-   * Oas does not have a getResponseBody(contentType)
+   * Builds a content-type-aware response-body accessor.
+   *
+   * The `oas` package exposes response access but not this exact helper shape.
+   * This function adds:
+   * - explicit content-type lookup
+   * - JSON-like media type preference fallback
+   * - optional response description passthrough
    */
   #getResponseBodyFactory(responseBody: boolean | ResponseObject): (contentType?: string) => MediaTypeObject | false | [string, MediaTypeObject, ...string[]] {
     function hasResponseBody(res = responseBody): res is ResponseObject {
@@ -370,6 +460,17 @@ export class Oas extends BaseOas {
     }
   }
 
+  /**
+   * Returns the response schema for a given operation and HTTP status code.
+   *
+   * Returns an empty object `{}` when no response body schema is available.
+   *
+   * @example
+   * ```ts
+   * oas.getResponseSchema(operation, 200) // SchemaObject
+   * oas.getResponseSchema(operation, '4XX') // {}
+   * ```
+   */
   getResponseSchema(operation: Operation, statusCode: string | number): SchemaObject {
     if (operation.schema.responses) {
       Object.keys(operation.schema.responses).forEach((key) => {
@@ -403,6 +504,14 @@ export class Oas extends BaseOas {
     return this.dereferenceWithRef(schema)
   }
 
+  /**
+   * Returns the request body schema for an operation, or `undefined` when absent.
+   *
+   * @example
+   * ```ts
+   * oas.getRequestSchema(operation) // SchemaObject | undefined
+   * ```
+   */
   getRequestSchema(operation: Operation): SchemaObject | undefined {
     const { contentType } = this.#options
 
@@ -426,12 +535,17 @@ export class Oas extends BaseOas {
   }
 
   /**
-   * Returns all resolved parameters for an operation, merging path-level and operation-level
-   * parameters and deduplicating by `in:name` (operation-level takes precedence).
+   * Returns all resolved parameters for an operation, merging path-level and operation-level entries.
    *
-   * oas v31+ filters out `$ref` parameters in `getParameters()`, so this method accesses the
-   * raw `operation.schema.parameters` and path-item parameters directly and resolves `$ref`
-   * pointers via `dereferenceWithRef` to preserve backward compatibility.
+   * Operation-level parameters take precedence over path-level ones with the same `in:name` key.
+   * `$ref` parameters are resolved via `dereferenceWithRef` to restore backward compatibility
+   * with `oas` v31+ which otherwise filters them out.
+   *
+   * @example
+   * ```ts
+   * oas.getParameters(operation)
+   * // [{ name: 'petId', in: 'path', required: true, schema: { type: 'integer' } }]
+   * ```
    */
   getParameters(operation: Operation): Array<ParameterObject> {
     const resolveParams = (params: unknown[]): Array<ParameterObject> =>
@@ -457,6 +571,18 @@ export class Oas extends BaseOas {
     return Array.from(paramMap.values())
   }
 
+  /**
+   * Builds a merged object schema from all parameters for a given location (`'path'`, `'query'`, or `'header'`).
+   *
+   * Query parameters with `style: form, explode: true` and only `additionalProperties` are flattened
+   * to the root level. Returns `null` when no parameters exist for the requested location.
+   *
+   * @example
+   * ```ts
+   * oas.getParametersSchema(operation, 'query')
+   * // { type: 'object', properties: { status: { type: 'string' } }, required: [] }
+   * ```
+   */
   getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): SchemaObject | null {
     const { contentType = operation.getContentType() } = this.#options
 
@@ -523,17 +649,45 @@ export class Oas extends BaseOas {
     )
   }
 
+  /**
+   * Validates the current OpenAPI document via `oas-normalize`.
+   *
+   * @example
+   * ```ts
+   * await oas.validate()
+   * ```
+   */
   async validate() {
     return validate(this.api)
   }
 
+  /**
+   * Flattens keyword-only `allOf` fragments into their parent schema.
+   *
+   * Delegates to the standalone `flattenSchema` utility.
+   *
+   * @example
+   * ```ts
+   * oas.flattenSchema({ allOf: [{ description: 'A pet' }], type: 'object' })
+   * // { type: 'object', description: 'A pet' }
+   * ```
+   */
   flattenSchema(schema: SchemaObject | null): SchemaObject | null {
     return flattenSchema(schema)
   }
 
   /**
-   * Get schemas from OpenAPI components (schemas, responses, requestBodies).
-   * Returns schemas in dependency order along with name mapping for collision resolution.
+   * Collects component schemas from one or more sources and resolves name collisions.
+   *
+   * Sources default to `['schemas', 'requestBodies', 'responses']`. Returned schemas are
+   * topologically sorted by `$ref` dependency so generators emit types in the correct order.
+   *
+   * @example
+   * ```ts
+   * const { schemas, nameMapping } = oas.getSchemas({ contentType: 'application/json' })
+   * // schemas: { Pet: {...}, Order: {...} }
+   * // nameMapping: Map { '#/components/schemas/Pet' => 'Pet' }
+   * ```
    */
   getSchemas(options: { contentType?: contentType; includes?: Array<'schemas' | 'responses' | 'requestBodies'> } = {}): {
     schemas: Record<string, SchemaObject>
