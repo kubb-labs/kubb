@@ -144,7 +144,7 @@ describe('resolveBanner', () => {
     })
     const { resolveBanner } = useKubb()
 
-    expect(resolveBanner()).toBeNull()
+    expect(resolveBanner()).toBeUndefined()
   })
 
   test('returns simple banner when defaultBanner is "simple"', () => {
@@ -200,7 +200,7 @@ describe('resolveFooter', () => {
     })
     const { resolveFooter } = useKubb()
 
-    expect(resolveFooter()).toBeNull()
+    expect(resolveFooter()).toBeUndefined()
   })
 
   test('returns static string footer when output.footer is a string', () => {
@@ -248,6 +248,6 @@ describe('resolveFooter', () => {
     const result = resolveFooter()
 
     expect(footerFn).not.toHaveBeenCalled()
-    expect(result).toBeNull()
+    expect(result).toBeUndefined()
   })
 })
