@@ -1,4 +1,4 @@
-import type { OpenAPIV2 } from 'openapi-types'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { isDiscriminator, isNullable, isOpenApiV2Document, isReference } from './guards.ts'
 import type { SchemaObject } from './types.ts'

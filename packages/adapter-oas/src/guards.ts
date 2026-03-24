@@ -1,4 +1,3 @@
-import { isRef } from 'oas/types'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { isPlainObject } from 'remeda'
 import type { DiscriminatorObject, SchemaObject } from './types.ts'
@@ -51,7 +50,7 @@ export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): 
  * ```
  */
 export function isReference(obj?: unknown): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
-  return !!obj && isRef(obj as object)
+  return !!obj && typeof obj === 'object' && '$ref' in obj
 }
 
 /**
