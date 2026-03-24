@@ -271,7 +271,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
       union(node) {
         const members = node.members ?? []
 
-        const hasStringLiteral = members.some((m) => m.type === 'enum' && (m.enumType === 'string' || m.primitive === 'string'))
+        const hasStringLiteral = members.some((m) => m.type === 'enum' && m.primitive === 'string')
         const hasPlainString = members.some((m) => isPlainStringType(m))
 
         if (hasStringLiteral && hasPlainString) {

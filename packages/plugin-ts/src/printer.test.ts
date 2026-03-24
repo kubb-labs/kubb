@@ -242,8 +242,8 @@ describe('printerTs', () => {
         createSchema({
           type: 'enum',
           namedEnumValues: [
-            { name: 'Active', value: 'active', format: 'string' },
-            { name: 'Inactive', value: 'inactive', format: 'string' },
+            { name: 'Active', value: 'active', primitive: 'string' },
+            { name: 'Inactive', value: 'inactive', primitive: 'string' },
           ],
         }),
       )
@@ -255,7 +255,7 @@ describe('printerTs', () => {
       const result = printer.print(
         createSchema({
           type: 'enum',
-          namedEnumValues: [{ name: 'Yes', value: 1, format: 'number' }],
+          namedEnumValues: [{ name: 'Yes', value: 1, primitive: 'number' }],
           enumValues: ['ignored'],
         }),
       )
@@ -294,7 +294,7 @@ describe('printerTs', () => {
       const result = printer.print(
         createSchema({
           type: 'union',
-          members: [createSchema({ type: 'enum', enumType: 'string', enumValues: ['test'] }), createSchema({ type: 'email' })],
+          members: [createSchema({ type: 'enum', primitive: 'string', enumValues: ['test'] }), createSchema({ type: 'email' })],
         }),
       )
 

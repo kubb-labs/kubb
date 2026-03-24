@@ -157,7 +157,7 @@ describe('simplifyUnionMembers', () => {
 
   it('removes string enum when a plain string is also present', () => {
     const members = [
-      createSchema({ type: 'enum', primitive: 'string', enumType: 'string', enumValues: ['placed', 'approved'] }),
+      createSchema({ type: 'enum', primitive: 'string', enumValues: ['placed', 'approved'] }),
       createSchema({ type: 'string' }),
     ]
 
@@ -177,14 +177,14 @@ describe('simplifyUnionMembers', () => {
   })
 
   it('removes number enum when a plain number is also present', () => {
-    const members = [createSchema({ type: 'enum', primitive: 'number', enumType: 'number', enumValues: [200, 400] }), createSchema({ type: 'number' })]
+    const members = [createSchema({ type: 'enum', primitive: 'number', enumValues: [200, 400] }), createSchema({ type: 'number' })]
 
     expect(simplifyUnionMembers(members)).toEqual([members[1]])
   })
 
   it('preserves ref members alongside scalar types', () => {
     const members = [
-      createSchema({ type: 'enum', primitive: 'string', enumType: 'string', enumValues: ['x'] }),
+      createSchema({ type: 'enum', primitive: 'string', enumValues: ['x', 'y'] }),
       createSchema({ type: 'string' }),
       createSchema({ type: 'ref', ref: '#/components/schemas/Bar', name: 'Bar' }),
     ]

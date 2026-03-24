@@ -573,7 +573,7 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
     // x-enumNames / x-enum-varnames: named variants with explicit labels take priority.
     const extensionKey = enumExtensionKeys.find((key) => key in schema)
     if (extensionKey || enumPrimitive === 'number' || enumPrimitive === 'integer' || enumPrimitive === 'boolean') {
-      const enumType = (enumPrimitive === 'number' || enumPrimitive === 'integer' ? 'number' : enumPrimitive === 'boolean' ? 'boolean' : 'string') as
+      const enumPrimitiveType = (enumPrimitive === 'number' || enumPrimitive === 'integer' ? 'number' : enumPrimitive === 'boolean' ? 'boolean' : 'string') as
         | 'number'
         | 'boolean'
         | 'string'
@@ -583,11 +583,11 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
 
       return createSchema({
         ...enumBase,
-        enumType,
+        primitive: enumPrimitiveType,
         namedEnumValues: sourceValues.map((label, index) => ({
           name: String(label),
           value: extensionKey ? (filteredValues[index] ?? label) : label,
-          format: enumType,
+          primitive: enumPrimitiveType,
         })),
       })
     }

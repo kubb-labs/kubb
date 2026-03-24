@@ -1,5 +1,10 @@
 /**
- * Kind discriminant for every AST node.
+ * `kind` values used by AST nodes.
+ *
+ * @example
+ * ```ts
+ * const kind: NodeKind = 'Schema'
+ * ```
  */
 export type NodeKind =
   | 'Root'
@@ -13,13 +18,26 @@ export type NodeKind =
   | 'FunctionParameters'
 
 /**
- * Common base for all AST nodes.
+ * Base shape shared by all AST nodes.
+ *
+ * @example
+ * ```ts
+ * const base: BaseNode = { kind: 'Root' }
+ * ```
  */
 export type BaseNode = {
+  /**
+   * Node discriminator.
+   */
   kind: NodeKind
 }
 
 /**
- * Any AST node.
+ * Minimal node type when only `kind` is needed.
+ *
+ * @example
+ * ```ts
+ * const node: Node = { kind: 'Operation' }
+ * ```
  */
 export type Node = BaseNode

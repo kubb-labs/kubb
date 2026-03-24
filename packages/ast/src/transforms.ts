@@ -4,8 +4,19 @@ import { narrowSchema } from './guards.ts'
 import type { SchemaNode } from './nodes/schema.ts'
 
 /**
- * Replaces the discriminator property's schema inside an object node with
- * an enum of the provided values.
+ * Replaces a discriminator property's schema with a string enum of allowed values.
+ *
+ * If `node` is not an object schema, or if the property does not exist, the input
+ * node is returned as-is.
+ *
+ * @example
+ * ```ts
+ * const schema = createSchema({
+ *   type: 'object',
+ *   properties: [createProperty({ name: 'type', required: true, schema: createSchema({ type: 'string' }) })],
+ * })
+ * const result = applyDiscriminatorEnum({ node: schema, propertyName: 'type', values: ['dog', 'cat'] })
+ * ```
  */
 export function applyDiscriminatorEnum({
   node,
@@ -51,7 +62,15 @@ export function applyDiscriminatorEnum({
 }
 
 /**
- * Merges adjacent anonymous object members into a single anonymous object.
+ * Merges adjacent anonymous object members into a single anonymous object member.
+ *
+ * @example
+ * ```ts
+ * const merged = mergeAdjacentAnonymousObjects([
+ *   createSchema({ type: 'object', properties: [createProperty({ name: 'a', schema: createSchema({ type: 'string' }) })] }),
+ *   createSchema({ type: 'object', properties: [createProperty({ name: 'b', schema: createSchema({ type: 'number' }) })] }),
+ * ])
+ * ```
  */
 export function mergeAdjacentAnonymousObjects(members: Array<SchemaNode>): Array<SchemaNode> {
   return members.reduce<Array<SchemaNode>>((acc, member) => {
@@ -75,7 +94,16 @@ export function mergeAdjacentAnonymousObjects(members: Array<SchemaNode>): Array
 }
 
 /**
- * Removes enum members subsumed by broader scalar members in the same union.
+ * Removes enum members that are covered by broader scalar primitives in the same union.
+ *
+ * @example
+ * ```ts
+ * const simplified = simplifyUnionMembers([
+ *   createSchema({ type: 'enum', primitive: 'string', enumValues: ['active'] }),
+ *   createSchema({ type: 'string' }),
+ * ])
+ * // keeps only string member
+ * ```
  */
 export function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNode> {
   const scalarPrimitives = new Set(
@@ -97,7 +125,8 @@ export function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNo
       return true
     }
 
-    if (!enumNode.enumType) {
+    const enumValueCount = enumNode.namedEnumValues?.length ?? enumNode.enumValues?.length ?? 0
+    if (enumValueCount <= 1) {
       return true
     }
 

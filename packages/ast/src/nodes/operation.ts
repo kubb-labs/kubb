@@ -6,43 +6,81 @@ import type { SchemaNode } from './schema.ts'
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE'
 
 /**
- * A spec-agnostic representation of a single API operation.
+ * AST node representing one API operation.
+ *
+ * @example
+ * ```ts
+ * const operation: OperationNode = {
+ *   kind: 'Operation',
+ *   operationId: 'listPets',
+ *   method: 'GET',
+ *   path: '/pets',
+ *   tags: [],
+ *   parameters: [],
+ *   responses: [],
+ * }
+ * ```
  */
 export type OperationNode = BaseNode & {
+  /**
+   * Node kind.
+   */
   kind: 'Operation'
   /**
-   * Unique operation identifier (maps to `operationId` in OAS).
+   * Operation identifier, usually from OpenAPI `operationId`.
    */
   operationId: string
+  /**
+   * HTTP Method like 'GET'
+   */
   method: HttpMethod
   /**
-   * Express-style path string, e.g. `/pets/:petId`.
-   * Derived from the OpenAPI path by converting `{param}` tokens to `:param`.
+   * Express-style path string, for example `/pets/:petId`.
+   * OpenAPI `{param}` parts are converted to `:param`.
    */
   path: string
+  /**
+   * Group labels for the operation.
+   * Usually copied from OpenAPI `tags`.
+   */
   tags: Array<string>
+  /**
+   * Short one-line operation summary.
+   */
   summary?: string
+  /**
+   * Full operation description.
+   */
   description?: string
+  /**
+   * Marks the operation as deprecated.
+   */
   deprecated?: boolean
+  /**
+   * Parameters that could be used, we have QueryParams, PathParams, HeaderParams and CookieParams
+   */
   parameters: Array<ParameterNode>
   /**
-   * Request body for OAS operations. Bundles the schema with optional keys to exclude.
+   * Request body metadata for the operation.
    */
   requestBody?: {
     /**
-     * Human-readable description of the request body (maps to `requestBody.description` in OAS).
+     * Human-readable request body description.
      */
     description?: string
     /**
-     * The request body schema. For OAS, this is the schema of the first content entry.
+     * Request body schema.
+     * For OpenAPI, this is the schema from the first `content` entry.
      */
     schema?: SchemaNode
     /**
      * Property keys to exclude from the generated request body type via `Omit<Type, Keys>`.
-     * Populated when the schema is a `$ref` and the referenced schema has `readOnly` properties
-     * that should not appear in request types.
+     * Set when a referenced schema has `readOnly` fields that should be omitted in request types.
      */
     keysToOmit?: Array<string>
   }
+  /**
+   * Operation responses.
+   */
   responses: Array<ResponseNode>
 }
