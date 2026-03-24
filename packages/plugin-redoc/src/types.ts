@@ -1,5 +1,4 @@
 import type { Output, PluginFactoryOptions } from '@kubb/core'
-import type { Oas } from '@kubb/oas'
 
 export type Options = {
   output?: {
@@ -12,7 +11,8 @@ export type Options = {
 }
 
 type ResolveOptions = {
-  output: Output<Oas>
+  output: Output<never>
+  name: string
 }
 
 export type PluginRedoc = PluginFactoryOptions<'plugin-redoc', Options, ResolveOptions, never>

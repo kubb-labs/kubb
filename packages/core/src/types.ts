@@ -65,11 +65,18 @@ export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; dat
  * - `TName` — unique string identifier (e.g. `'oas'`, `'asyncapi'`)
  * - `TOptions` — raw user-facing options passed to the adapter factory
  * - `TResolvedOptions` — defaults applied; what the adapter stores as `options`
+ * - `TDocument` — type of the raw source document exposed by the adapter after `parse()`
  */
-export type AdapterFactoryOptions<TName extends string = string, TOptions extends object = object, TResolvedOptions extends object = TOptions> = {
+export type AdapterFactoryOptions<
+  TName extends string = string,
+  TOptions extends object = object,
+  TResolvedOptions extends object = TOptions,
+  TDocument = unknown,
+> = {
   name: TName
   options: TOptions
   resolvedOptions: TResolvedOptions
+  document: TDocument
 }
 
 /**
@@ -99,6 +106,11 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * Resolved options (after defaults have been applied).
    */
   options: TOptions['resolvedOptions']
+  /**
+   * The raw source document produced after the first `parse()` call.
+   * `undefined` before parsing; typed by the adapter's `TDocument` generic.
+   */
+  document?: TOptions['document']
   /**
    * Convert the raw source into a universal `RootNode`.
    */

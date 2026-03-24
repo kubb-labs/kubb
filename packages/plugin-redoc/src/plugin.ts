@@ -1,6 +1,7 @@
 import path from 'node:path'
-import { createPlugin } from '@kubb/core'
-import { pluginOasName } from '@kubb/plugin-oas'
+import { type Adapter, createPlugin } from '@kubb/core'
+import { adapterOasName } from '@kubb/adapter-oas'
+import type { AdapterOas } from '@kubb/adapter-oas'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
 
@@ -19,13 +20,23 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
       output,
       name: trimExtName(output.path),
     },
-    pre: [pluginOasName],
     async install() {
-      const oas = await this.getOas()
-      await oas.dereference()
+      const adapter = this.adapter
+
+      if (adapter?.name !== adapterOasName) {
+        throw new Error(
+          `[${pluginRedocName}] plugin-redoc requires the OpenAPI adapter. Make sure you are using adapterOas (e.g. \`adapter: adapterOas()\`) in your Kubb config.`,
+        )
+      }
+
+      const document = (adapter as Adapter<AdapterOas>).document
+
+      if (!document) {
+        throw new Error(`[${pluginRedocName}] No OpenAPI document found. The adapterOas did not produce a document — ensure the adapter has run before this plugin.`)
+      }
 
       const root = path.resolve(this.config.root, this.config.output.path)
-      const pageHTML = await getPageHTML(oas.api)
+      const pageHTML = await getPageHTML(document)
 
       await this.addFile({
         baseName: 'docs.html',

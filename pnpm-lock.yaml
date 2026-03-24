@@ -1347,18 +1347,15 @@ importers:
 
   packages/plugin-redoc:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../adapter-oas
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
       '@kubb/fabric-core':
         specifier: 'catalog:'
         version: 0.15.1
-      '@kubb/oas':
-        specifier: workspace:*
-        version: link:../oas
-      '@kubb/plugin-oas':
-        specifier: workspace:*
-        version: link:../plugin-oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.15.1

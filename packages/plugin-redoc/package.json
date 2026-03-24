@@ -62,10 +62,9 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/fabric-core": "catalog:",
-    "@kubb/oas": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
     "@kubb/react-fabric": "catalog:",
     "handlebars": "^4.7.8"
   },

@@ -206,4 +206,4 @@ export type AdapterOasResolvedOptions = {
 /**
  * `@kubb/core` adapter factory type for the OpenAPI adapter.
  */
-export type AdapterOas = AdapterFactoryOptions<'oas', AdapterOasOptions, AdapterOasResolvedOptions>
+export type AdapterOas = AdapterFactoryOptions<'oas', AdapterOasOptions, AdapterOasResolvedOptions, Document>
