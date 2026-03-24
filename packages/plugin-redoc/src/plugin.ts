@@ -1,7 +1,7 @@
 import path from 'node:path'
-import { type Adapter, createPlugin } from '@kubb/core'
-import { adapterOasName } from '@kubb/adapter-oas'
 import type { AdapterOas } from '@kubb/adapter-oas'
+import { adapterOasName } from '@kubb/adapter-oas'
+import { type Adapter, createPlugin } from '@kubb/core'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
 
@@ -32,7 +32,9 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
       const document = (adapter as Adapter<AdapterOas>).document
 
       if (!document) {
-        throw new Error(`[${pluginRedocName}] No OpenAPI document found. The adapterOas did not produce a document — ensure the adapter has run before this plugin.`)
+        throw new Error(
+          `[${pluginRedocName}] No OpenAPI document found. The adapterOas did not produce a document — ensure the adapter has run before this plugin.`,
+        )
       }
 
       const root = path.resolve(this.config.root, this.config.output.path)
