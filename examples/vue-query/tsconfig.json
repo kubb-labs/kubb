@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2021",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "preserve",
@@ -10,7 +10,6 @@
     "outDir": "es",
     "experimentalDecorators": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,

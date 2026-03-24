@@ -22,7 +22,7 @@ describe('getSchemaType', () => {
     expect(getSchemaType('email')).toBe('email')
   })
 
-  it('returns undefined for an unknown format', () => {
+  it('returns null for an unknown format', () => {
     expect(getSchemaType('int64')).toBeNull()
     expect(getSchemaType('date-time')).toBeNull()
     expect(getSchemaType('not-a-format')).toBeNull()
@@ -53,7 +53,7 @@ describe('getMediaType', () => {
     expect(getMediaType('application/xml')).toBe('application/xml')
   })
 
-  it('returns undefined for unknown content-types', () => {
+  it('returns null for unknown content-types', () => {
     expect(getMediaType('application/x-unknown')).toBeNull()
     expect(getMediaType('application/msgpack')).toBeNull()
     expect(getMediaType('text/event-stream')).toBeNull()
@@ -63,7 +63,7 @@ describe('getMediaType', () => {
 describe('getDateType', () => {
   const base = DEFAULT_PARSER_OPTIONS
 
-  it('returns undefined when dateType is false', () => {
+  it('returns null when dateType is false', () => {
     expect(getDateType({ ...base, dateType: false }, 'date-time')).toBeNull()
   })
 

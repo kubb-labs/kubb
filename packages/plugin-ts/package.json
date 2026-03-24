@@ -95,7 +95,7 @@
     "typescript": "5.9.3"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.14.0"
+    "@kubb/react-fabric": "0.15.1"
   },
   "engines": {
     "node": ">=22"

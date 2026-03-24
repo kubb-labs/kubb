@@ -218,12 +218,12 @@ function createSchemaParser(ctx: OasParserContext) {
    * Converts a `oneOf` / `anyOf` schema into a `UnionSchemaNode`.
    */
   function convertUnion({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): SchemaNode {
-    function pickDiscriminatorPropertyNode(node: SchemaNode, propertyName: string): SchemaNode | undefined {
+    function pickDiscriminatorPropertyNode(node: SchemaNode, propertyName: string): SchemaNode | null {
       const objectNode = narrowSchema(node, 'object')
       const discriminatorProperty = objectNode?.properties?.find((property) => property.name === propertyName)
 
       if (!discriminatorProperty) {
-        return undefined
+        return null
       }
 
       return createSchema({
@@ -328,9 +328,9 @@ function createSchemaParser(ctx: OasParserContext) {
 
   /**
    * Converts a format-annotated schema into a special-type `SchemaNode`.
-   * Returns `undefined` when the format should fall through to string handling (`dateType: false`).
+   * Returns `null` when the format should fall through to string handling (`dateType: false`).
    */
-  function convertFormat({ schema, name, nullable, defaultValue, options }: SchemaContext): SchemaNode | undefined {
+  function convertFormat({ schema, name, nullable, defaultValue, options }: SchemaContext): SchemaNode | null {
     const base = buildSchemaNode(schema, name, nullable, defaultValue)
 
     if (schema.format === 'int64') {
@@ -347,7 +347,7 @@ function createSchemaParser(ctx: OasParserContext) {
 
     if (schema.format === 'date-time' || schema.format === 'date' || schema.format === 'time') {
       const dateType = getDateType(options, schema.format)
-      if (!dateType) return undefined
+      if (!dateType) return null
 
       if (dateType.type === 'datetime') {
         return createSchema({ ...base, primitive: 'string' as const, type: 'datetime', offset: dateType.offset, local: dateType.local })
@@ -356,7 +356,7 @@ function createSchemaParser(ctx: OasParserContext) {
     }
 
     const specialType = getSchemaType(schema.format!)
-    if (!specialType) return undefined
+    if (!specialType) return null
 
     const specialPrimitive: PrimitiveSchemaType = specialType === 'number' || specialType === 'integer' || specialType === 'bigint' ? specialType : 'string'
 

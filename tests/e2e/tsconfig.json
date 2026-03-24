@@ -1,26 +1,26 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "node",
+    "target": "ES2021",
+    /* If NOT transpiling with TypeScript: */
+    "module": "ES2020",
+    "moduleResolution": "Bundler",
+    "resolvePackageJsonExports": false,
     "sourceMap": true,
     "strictNullChecks": true,
-    "noUnusedLocals": false,
     "jsx": "react-jsx",
-    "outDir": "dist",
+    "outDir": "es",
     "experimentalDecorators": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,
-    "noEmit": true,
     "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
     "alwaysStrict": true,
-    "strict": false,
+    "strict": true,
     "types": ["cypress", "node"]
   },
-  "include": ["./**/*"],
+  "include": ["./src/**/*", "./templates/**/*"],
   "exclude": ["**/node_modules", "**/types/**", "**/mocks/**"]
 }

@@ -97,6 +97,22 @@ function buildDefaultBanner({ title, description, version, config }: { title?: s
   }
 }
 
+/**
+ * React-Fabric hook that exposes the current plugin context inside a generator component.
+ *
+ * Returns the active `plugin`, `mode`, `config`, and a set of resolver helpers
+ * (`getFile`, `resolveName`, `resolvePath`, `resolveBanner`, `resolveFooter`) that
+ * all default to the current plugin when no explicit `pluginName` is provided.
+ *
+ * @example
+ * ```ts
+ * function Operation({ node }: OperationProps) {
+ *   const { config, resolvePath } = useKubb()
+ *   const filePath = resolvePath({ baseName: node.operationId })
+ *   return <File path={filePath}>...</File>
+ * }
+ * ```
+ */
 export function useKubb<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(): UseKubbReturn<TOptions> {
   const { meta } = useFabric<{
     plugin: Plugin<TOptions>

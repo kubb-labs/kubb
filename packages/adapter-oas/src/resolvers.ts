@@ -191,10 +191,10 @@ export function getResponseSchema(document: Document, operation: Operation, stat
  *
  * @example
  * ```ts
- * getRequestSchema(document, operation) // SchemaObject | undefined
+ * getRequestSchema(document, operation) // SchemaObject | null
  * ```
  */
-export function getRequestSchema(document: Document, operation: Operation, options: OperationsOptions = {}): SchemaObject | undefined {
+export function getRequestSchema(document: Document, operation: Operation, options: OperationsOptions = {}): SchemaObject | null {
   if (operation.schema.requestBody) {
     operation.schema.requestBody = dereferenceWithRef(document, operation.schema.requestBody)
   }
@@ -202,13 +202,13 @@ export function getRequestSchema(document: Document, operation: Operation, optio
   const requestBody = operation.getRequestBody(options.contentType)
 
   if (requestBody === false) {
-    return undefined
+    return null
   }
 
   const schema = Array.isArray(requestBody) ? requestBody[1].schema : requestBody.schema
 
   if (!schema) {
-    return undefined
+    return null
   }
 
   return dereferenceWithRef(document, schema)
@@ -260,7 +260,9 @@ export function flattenSchema(schema: SchemaObject | null): SchemaObject | null 
   if (schema.allOf.some((item) => isRef(item))) return schema
 
   const isPlainFragment = (item: SchemaObject) => !Object.keys(item).some((key) => structuralKeys.has(key as 'properties'))
-  if (!schema.allOf.every((item) => isPlainFragment(item as SchemaObject))) return schema
+  if (!schema.allOf.every((item) => isPlainFragment(item as SchemaObject))) {
+    return schema
+  }
 
   const merged: SchemaObject = { ...schema }
   delete merged.allOf
@@ -439,7 +441,7 @@ export function getSchemas(document: Document, { contentType }: GetSchemasOption
 
 /**
  * Resolves the AST type descriptor for a date/time format, honoring the `dateType` option.
- * Returns `undefined` when `dateType: false`, signalling the format should fall through to `string`.
+ * Returns `null` when `dateType: false`, signalling the format should fall through to `string`.
  */
 export function getDateType(
   options: ParserOptions,
