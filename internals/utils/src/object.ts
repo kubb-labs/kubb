@@ -33,8 +33,13 @@ export function stringifyObject(value: Record<string, unknown>): string {
 }
 
 /**
- * Serializes plugin options for safe JSON transport.
- * Strips functions, symbols, and `undefined` values recursively.
+ * Strips functions, symbols, and `undefined` values from plugin options for safe JSON transport.
+ *
+ * @example
+ * ```ts
+ * serializePluginOptions({ output: './src', onWrite: () => {} })
+ * // { output: './src' }  (function stripped)
+ * ```
  */
 export function serializePluginOptions<TOptions extends object>(options: TOptions): TOptions {
   if (options === null || options === undefined) return {} as TOptions

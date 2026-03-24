@@ -1,9 +1,15 @@
 type Options = {
-  /** When `true`, dot-separated segments are split on `.` and joined with `/` after casing. */
+  /**
+   * When `true`, dot-separated segments are split on `.` and joined with `/` after casing.
+   */
   isFile?: boolean
-  /** Text prepended before casing is applied. */
+  /**
+   * Text prepended before casing is applied.
+   */
   prefix?: string
-  /** Text appended before casing is applied. */
+  /**
+   * Text appended before casing is applied.
+   */
   suffix?: string
 }
 

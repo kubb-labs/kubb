@@ -20,7 +20,14 @@ export function getUniqueName(originalName: string, data: Record<string, number>
 
 /**
  * Registers `originalName` in `data` without altering the returned name.
- * Use this when you need to track usage frequency but always emit the original identifier.
+ * Use when you need to track usage frequency but always emit the original identifier.
+ *
+ * @example
+ * ```ts
+ * const seen: Record<string, number> = {}
+ * setUniqueName('Foo', seen) // 'Foo'  (seen = { Foo: 1 })
+ * setUniqueName('Foo', seen) // 'Foo'  (seen = { Foo: 2 })
+ * ```
  */
 export function setUniqueName(originalName: string, data: Record<string, number>): string {
   let used = data[originalName] || 0
