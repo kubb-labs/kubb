@@ -1,24 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createFunctionParameter, createFunctionParameters, createObjectBindingParameter } from './factory.ts'
 import { defineFunctionPrinter, functionPrinter } from './functionPrinter.ts'
-import { isFunctionParameterNode, isFunctionParametersNode, isObjectBindingParameterNode } from './guards.ts'
-
-describe('type guards', () => {
-  it('isFunctionParameterNode', () => {
-    expect(isFunctionParameterNode(createFunctionParameter({ name: 'x', optional: false }))).toBe(true)
-    expect(isFunctionParameterNode(createFunctionParameters())).toBe(false)
-  })
-
-  it('isObjectBindingParameterNode', () => {
-    expect(isObjectBindingParameterNode(createObjectBindingParameter({ properties: [] }))).toBe(true)
-    expect(isObjectBindingParameterNode(createFunctionParameter({ name: 'x', optional: false }))).toBe(false)
-  })
-
-  it('isFunctionParametersNode', () => {
-    expect(isFunctionParametersNode(createFunctionParameters())).toBe(true)
-    expect(isFunctionParametersNode(createFunctionParameter({ name: 'x', optional: false }))).toBe(false)
-  })
-})
 
 describe('functionPrinter — declaration', () => {
   const printer = functionPrinter({ mode: 'declaration' })

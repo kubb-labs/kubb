@@ -1,6 +1,27 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from './factory.ts'
-import { isOperationNode, isParameterNode, isPropertyNode, isResponseNode, isRootNode, isSchemaNode, narrowSchema } from './guards.ts'
+import {
+  createFunctionParameter,
+  createFunctionParameters,
+  createObjectBindingParameter,
+  createOperation,
+  createParameter,
+  createProperty,
+  createResponse,
+  createRoot,
+  createSchema,
+} from './factory.ts'
+import {
+  isFunctionParameterNode,
+  isFunctionParametersNode,
+  isObjectBindingParameterNode,
+  isOperationNode,
+  isParameterNode,
+  isPropertyNode,
+  isResponseNode,
+  isRootNode,
+  isSchemaNode,
+  narrowSchema,
+} from './guards.ts'
 import type { Node } from './nodes/index.ts'
 import type { OperationNode } from './nodes/operation.ts'
 import type { ParameterNode } from './nodes/parameter.ts'
@@ -111,6 +132,23 @@ describe('isResponseNode', () => {
     if (isResponseNode(node)) {
       expectTypeOf(node).toEqualTypeOf<ResponseNode>()
     }
+  })
+})
+
+describe('type guards', () => {
+  it('isFunctionParameterNode', () => {
+    expect(isFunctionParameterNode(createFunctionParameter({ name: 'x', optional: false }))).toBe(true)
+    expect(isFunctionParameterNode(createFunctionParameters())).toBe(false)
+  })
+
+  it('isObjectBindingParameterNode', () => {
+    expect(isObjectBindingParameterNode(createObjectBindingParameter({ properties: [] }))).toBe(true)
+    expect(isObjectBindingParameterNode(createFunctionParameter({ name: 'x', optional: false }))).toBe(false)
+  })
+
+  it('isFunctionParametersNode', () => {
+    expect(isFunctionParametersNode(createFunctionParameters())).toBe(true)
+    expect(isFunctionParametersNode(createFunctionParameter({ name: 'x', optional: false }))).toBe(false)
   })
 })
 
