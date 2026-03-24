@@ -8,74 +8,65 @@ import type { Category } from './Category.ts'
 import type { Dog } from './Dog.ts'
 import type { Tag } from './Tag.ts'
 
-export const statusEnum = {
+export const petTypeEnum = {
+  dog: 'dog',
+  cat: 'cat',
+} as const
+
+export type PetTypeEnumKey = (typeof petTypeEnum)[keyof typeof petTypeEnum]
+
+export type PetTypeEnum = PetTypeEnumKey
+
+export const petStatusEnum = {
   available: 'available',
   pending: 'pending',
   sold: 'sold',
 } as const
 
-export type StatusEnumKey = (typeof statusEnum)[keyof typeof statusEnum]
+export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
 
-export type Pet =
+export type PetStatusEnum = PetStatusEnumKey
+
+export type Pet = (
   | (Dog & {
-      /**
-       * @type integer | undefined, int64
-       */
-      id?: number
       /**
        * @type string
        */
       readonly type: 'dog'
-      /**
-       * @type string
-       */
-      name: string
-      /**
-       * @type object | undefined
-       */
-      category?: Category
-      /**
-       * @type array
-       */
-      photoUrls: string[]
-      /**
-       * @type array | undefined
-       */
-      readonly tags?: Tag[]
-      /**
-       * @description pet status in the store
-       * @type string | undefined
-       */
-      status?: StatusEnumKey
     })
   | (Cat & {
-      /**
-       * @type integer | undefined, int64
-       */
-      id?: number
       /**
        * @type string
        */
       readonly type: 'cat'
-      /**
-       * @type string
-       */
-      name: string
-      /**
-       * @type object | undefined
-       */
-      category?: Category
-      /**
-       * @type array
-       */
-      photoUrls: string[]
-      /**
-       * @type array | undefined
-       */
-      readonly tags?: Tag[]
-      /**
-       * @description pet status in the store
-       * @type string | undefined
-       */
-      status?: StatusEnumKey
     })
+) & {
+  /**
+   * @example 10
+   * @type integer | undefined
+   */
+  id?: number
+  /**
+   * @type string
+   */
+  readonly type: PetTypeEnumKey
+  /**
+   * @example doggie
+   * @type string
+   */
+  name: string
+  category?: Category
+  /**
+   * @type array
+   */
+  photoUrls: string[]
+  /**
+   * @type array | undefined
+   */
+  readonly tags?: Tag[]
+  /**
+   * @description pet status in the store
+   * @type string | undefined
+   */
+  status?: PetStatusEnumKey
+}

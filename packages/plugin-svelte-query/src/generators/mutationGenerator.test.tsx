@@ -1,12 +1,12 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Config, Plugin } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
+import { OperationGenerator, renderOperation } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginSvelteQuery } from '../types.ts'
 import { mutationGenerator } from './mutationGenerator.tsx'
@@ -116,13 +116,13 @@ describe('mutationGenerator operation', async () => {
       group: undefined,
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginSvelteQuery>
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const plugin = createMockedPlugin<PluginSvelteQuery>({ name: 'plugin-svelte-query', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,
@@ -132,7 +132,7 @@ describe('mutationGenerator operation', async () => {
     })
 
     const operation = oas.operation(props.path, props.method)
-    await buildOperation(operation, {
+    await renderOperation(operation, {
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
@@ -140,6 +140,6 @@ describe('mutationGenerator operation', async () => {
       plugin,
     })
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })

@@ -5,17 +5,19 @@
 
 import type { Vehicle } from "./Vehicle.ts";
 
-export const SUVTypeEnum = {
+export const typeEnum = {
     SUV: "SUV"
 } as const;
 
-export type SUVTypeEnumKey = (typeof SUVTypeEnum)[keyof typeof SUVTypeEnum];
+export type TypeEnumKey = (typeof typeEnum)[keyof typeof typeEnum];
+
+export type TypeEnum = TypeEnumKey
 
 export type SUV = (Vehicle & {
     /**
      * @type string | undefined
     */
-    type?: SUVTypeEnumKey;
+    type?: TypeEnumKey;
     /**
      * @description Can handle offroad terrain
      * @type boolean | undefined

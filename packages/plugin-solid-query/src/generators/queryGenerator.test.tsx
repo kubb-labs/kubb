@@ -1,13 +1,13 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Config, Plugin } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
+import { OperationGenerator, renderOperation } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import { QueryKey } from '../components'
 import type { PluginSolidQuery } from '../types.ts'
 import { queryGenerator } from './queryGenerator.tsx'
@@ -155,13 +155,13 @@ describe('queryGenerator operation', async () => {
       group: undefined,
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginSolidQuery>
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const plugin = createMockedPlugin<PluginSolidQuery>({ name: 'plugin-solid-query', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,
@@ -172,7 +172,7 @@ describe('queryGenerator operation', async () => {
 
     const operation = oas.operation(props.path, props.method)
 
-    await buildOperation(operation, {
+    await renderOperation(operation, {
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
@@ -180,6 +180,6 @@ describe('queryGenerator operation', async () => {
       plugin,
     })
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })

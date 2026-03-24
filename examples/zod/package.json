@@ -13,11 +13,12 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "generate": "kubb --config kubb.config.js",
+    "generate": "KUBB_DISABLE_TELEMETRY=1 kubb --config kubb.config.js",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
@@ -31,7 +32,7 @@
   },
   "packageManager": "pnpm@10.30.1",
   "engines": {
-    "node": ">=20",
+    "node": ">=22",
     "pnpm": ">=10.0.0"
   }
 }

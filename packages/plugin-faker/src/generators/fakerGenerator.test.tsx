@@ -1,13 +1,13 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Config, Plugin } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import type { HttpMethod, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
+import { OperationGenerator, renderOperation, renderSchema, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import type { PluginFaker } from '../types.ts'
 import { fakerGenerator } from './fakerGenerator.tsx'
 
@@ -153,13 +153,13 @@ describe('fakerGenerator schema', async () => {
       ...props.options,
       paramsCasing: undefined,
     }
-    const plugin = { options } as Plugin<PluginFaker>
+    const plugin = createMockedPlugin<PluginFaker>({ name: 'plugin-faker', options })
 
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: 'application/json',
@@ -174,7 +174,7 @@ describe('fakerGenerator schema', async () => {
     const schema = schemas[name] as SchemaObject
     const tree = generator.parse({ schema, name, parentName: null })
 
-    await buildSchema(
+    await renderSchema(
       {
         name,
         tree,
@@ -189,7 +189,7 @@ describe('fakerGenerator schema', async () => {
       },
     )
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })
 
@@ -290,14 +290,14 @@ describe('fakerGenerator operation', async () => {
       ...props.options,
       paramsCasing: undefined,
     }
-    const plugin = { options } as Plugin<PluginFaker>
+    const plugin = createMockedPlugin<PluginFaker>({ name: 'plugin-faker', options })
 
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,
@@ -307,7 +307,7 @@ describe('fakerGenerator operation', async () => {
     })
     const operation = oas.operation(props.path, props.method)
 
-    await buildOperation(operation, {
+    await renderOperation(operation, {
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
@@ -315,6 +315,6 @@ describe('fakerGenerator operation', async () => {
       plugin,
     })
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })

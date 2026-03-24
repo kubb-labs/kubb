@@ -13,11 +13,12 @@
   "sideEffects": false,
   "scripts": {
     "clean": "npx rimraf ./dist",
-    "generate": "kubb generate --config kubb.config.ts",
+    "generate": "KUBB_DISABLE_TELEMETRY=1 kubb generate --config kubb.config.ts",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
@@ -30,7 +31,7 @@
   },
   "packageManager": "pnpm@10.30.1",
   "engines": {
-    "node": ">=20",
+    "node": ">=22",
     "pnpm": ">=10.0.0"
   }
 }

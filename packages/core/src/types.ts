@@ -1,11 +1,10 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { RootNode } from '@kubb/ast/types'
-import type { KubbFile } from '@kubb/fabric-core/types'
-import type { Fabric } from '@kubb/react-fabric/types'
+import type { Node, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
+import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
-import type { DefineStorage } from './defineStorage.ts'
+import type { Storage } from './createStorage.ts'
 import type { KubbEvents } from './Kubb.ts'
-import type { PluginManager } from './PluginManager.ts'
+import type { PluginDriver } from './PluginDriver.ts'
 
 export type { Printer, PrinterFactoryOptions } from '@kubb/ast/types'
 
@@ -33,7 +32,7 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
   /**
    * An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Refer to “pre” for more details.
    */
-  // inject needs to be omitted because else we have a clash with the PluginManager instance
+  // inject needs to be omitted because else we have a clash with the PluginDriver instance
   plugins?: Array<Omit<UnknownUserPlugin, 'inject'>>
 }
 
@@ -92,12 +91,26 @@ export type AdapterFactoryOptions<TName extends string = string, TOptions extend
  * ```
  */
 export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptions> = {
-  /** Human-readable identifier, e.g. `'oas'`, `'drizzle'`, `'asyncapi'`. */
+  /**
+   * Human-readable identifier, e.g. `'oas'`, `'drizzle'`, `'asyncapi'`.
+   */
   name: TOptions['name']
-  /** Resolved options (after defaults have been applied). */
+  /**
+   * Resolved options (after defaults have been applied).
+   */
   options: TOptions['resolvedOptions']
-  /** Convert the raw source into a universal `RootNode`. */
+  /**
+   * Convert the raw source into a universal `RootNode`.
+   */
   parse: (source: AdapterSource) => PossiblePromise<RootNode>
+  /**
+   * Extracts `KubbFile.Import` entries needed by a `SchemaNode` tree.
+   * Populated after the first `parse()` call. Returns an empty array before that.
+   *
+   * The `resolve` callback receives the collision-corrected schema name and must
+   * return the `{ name, path }` pair for the import, or `undefined` to skip it.
+   */
+  getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<KubbFile.Import>
 }
 
 export type BarrelType = 'all' | 'named' | 'propagate'
@@ -165,16 +178,16 @@ export type Config<TInput = Input> = {
     /**
      * Storage backend for generated files.
      * Defaults to `fsStorage()` — the built-in filesystem driver.
-     * Accepts any object implementing the {@link DefineStorage} interface.
+     * Accepts any object implementing the {@link Storage} interface.
      * Keys are root-relative paths (e.g. `src/gen/api/getPets.ts`).
      * @default fsStorage()
      * @example
      * ```ts
-     * import { defineStorage, fsStorage } from '@kubb/core'
-     * storage: defineStorage(fsStorage())
+     * import { memoryStorage } from '@kubb/core'
+     * storage: memoryStorage()
      * ```
      */
-    storage?: DefineStorage
+    storage?: Storage
     /**
      * Specifies the formatting tool to be used.
      * - 'auto' automatically detects and uses biome or prettier (in that order of preference).
@@ -253,9 +266,48 @@ export type Config<TInput = Input> = {
 
 // plugin
 
+type PatternFilter = {
+  type: string
+  pattern: string | RegExp
+}
+
+type PatternOverride<TOptions> = PatternFilter & {
+  options: Omit<Partial<TOptions>, 'override'>
+}
+
+export type ResolveOptionsContext<TOptions> = {
+  options: TOptions
+  exclude?: Array<PatternFilter>
+  include?: Array<PatternFilter>
+  override?: Array<PatternOverride<TOptions>>
+}
+
+/**
+ * Base constraint for all plugin resolver objects.
+ *
+ * `default` and `resolveOptions` are injected automatically by `defineResolver` — plugin
+ * authors may override them but never need to implement them from scratch.
+ * Concrete plugin resolver types extend this with their own helper methods.
+ */
+export type Resolver = {
+  name: string
+  default(name: ResolveNameParams['name'], type?: ResolveNameParams['type']): string
+  resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
+}
+
+/**
+ * The user-facing subset of a `Resolver` — everything except the methods injected by
+ * `defineResolver` (`default` and `resolveOptions`).
+ *
+ * When you pass a `UserResolver` to `defineResolver`, the standard `default` and
+ * `resolveOptions` implementations are injected automatically so plugin authors never
+ * need to define them by hand. Both can still be overridden by providing them explicitly.
+ */
+export type UserResolver = Omit<Resolver, 'default' | 'resolveOptions'>
+
 export type PluginFactoryOptions<
   /**
-   * Name to be used for the plugin, this will also be used for they key.
+   * Name to be used for the plugin.
    */
   TName extends string = string,
   /**
@@ -274,21 +326,19 @@ export type PluginFactoryOptions<
    * When calling `resolvePath` you can specify better types.
    */
   TResolvePathOptions extends object = object,
+  /**
+   * Resolver object that encapsulates the naming and path-resolution helpers used by this plugin.
+   * Use `defineResolver` to define the resolver object and export it alongside the plugin.
+   */
+  TResolver extends Resolver = Resolver,
 > = {
   name: TName
-  /**
-   * Same behavior like what has been done with `QueryKey` in `@tanstack/react-query`
-   */
-  key: PluginKey<TName | string>
   options: TOptions
   resolvedOptions: TResolvedOptions
   context: TContext
   resolvePathOptions: TResolvePathOptions
+  resolver: TResolver
 }
-
-export type PluginKey<TName> = [name: TName, identifier?: string | number]
-
-export type GetPluginFactoryOptions<TPlugin extends UserPlugin> = TPlugin extends UserPlugin<infer X> ? X : never
 
 export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
@@ -315,7 +365,7 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
 
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
 
-export type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<any, any, any, any, any>>
+type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<string, object, object, unknown, object>>
 
 export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
@@ -323,11 +373,6 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    * @example @kubb/typescript
    */
   name: TOptions['name']
-  /**
-   * Internal key used when a developer uses more than one of the same plugin
-   * @private
-   */
-  key: TOptions['key']
   /**
    * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin is executed after these plugins.
    * Can be used to validate dependent plugins.
@@ -344,7 +389,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
 
   install: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**
-   * Define a context that can be used by other plugins, see `PluginManager' where we convert from `UserPlugin` to `Plugin`(used when calling `definePlugin`).
+   * Defines a context that can be used by other plugins, see `PluginDriver` where we convert from `UserPlugin` to `Plugin` (used when calling `createPlugin`).
    */
   inject: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => TOptions['context']
 }
@@ -378,7 +423,7 @@ export type PluginLifecycleHooks = keyof PluginLifecycle
 export type PluginParameter<H extends PluginLifecycleHooks> = Parameters<Required<PluginLifecycle>[H]>
 
 export type ResolvePathParams<TOptions = object> = {
-  pluginKey?: Plugin['key']
+  pluginName?: string
   baseName: KubbFile.BaseName
   mode?: KubbFile.Mode
   /**
@@ -389,7 +434,7 @@ export type ResolvePathParams<TOptions = object> = {
 
 export type ResolveNameParams = {
   name: string
-  pluginKey?: Plugin['key']
+  pluginName?: string
   /**
    * Specifies the type of entity being named.
    * - 'file' customizes the name of the created file (uses camelCase).
@@ -402,9 +447,9 @@ export type ResolveNameParams = {
 }
 
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
-  fabric: Fabric
+  fabric: FabricType
   config: Config
-  pluginManager: PluginManager
+  driver: PluginDriver
   /**
    * Only add when the file does not exist yet
    */
@@ -419,18 +464,31 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * Current plugin
    */
   plugin: Plugin<TOptions>
-  /**
-   * Returns the universal `@kubb/ast` `RootNode` produced by the configured adapter.
-   * Returns `undefined` when no adapter was set (legacy OAS-only usage).
-   */
-  rootNode: RootNode | undefined
+
   /**
    * Opens the Kubb Studio URL for the current `rootNode` in the default browser.
    * Falls back to printing the URL if the browser cannot be launched.
    * No-ops silently when no adapter has set a `rootNode`.
    */
   openInStudio: (options?: DevtoolsOptions) => Promise<void>
-} & Kubb.PluginContext
+} & (
+  | {
+      /**
+       * Returns the universal `@kubb/ast` `RootNode` produced by the configured adapter.
+       * Returns `undefined` when no adapter was set (legacy OAS-only usage).
+       */
+      rootNode: RootNode
+      /**
+       * Return the adapter from `@kubb/ast`
+       */
+      adapter: Adapter
+    }
+  | {
+      rootNode?: never
+      adapter?: never
+    }
+) &
+  Kubb.PluginContext
 /**
  * Specify the export location for the files and define the behavior of the output
  */
@@ -459,10 +517,6 @@ export type Output<TOptions> = {
   override?: boolean
 }
 
-type GroupContext = {
-  group: string
-}
-
 export type Group = {
   /**
    * Defines the type where to group the files.
@@ -472,9 +526,9 @@ export type Group = {
    */
   type: 'tag' | 'path'
   /**
-   * Return the name of a group based on the group name, this used for the file and name generation
+   * Return the name of a group based on the group name, this is used for the file and name generation.
    */
-  name?: (context: GroupContext) => string
+  name?: (context: { group: string }) => string
 }
 
 export type LoggerOptions = {
@@ -487,16 +541,51 @@ export type LoggerOptions = {
 /**
  * Shared context passed to all plugins, parsers, and Fabric internals.
  */
-export interface LoggerContext extends AsyncEventEmitter<KubbEvents> {}
-
-type Install<TOptions = unknown> = (context: LoggerContext, options?: TOptions) => void | Promise<void>
+export type LoggerContext = AsyncEventEmitter<KubbEvents>
 
 export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
   name: string
-  install: Install<TOptions>
+  install: (context: LoggerContext, options?: TOptions) => void | Promise<void>
 }
 
-export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Omit<Logger<TOptions>, 'logLevel'>
+export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Logger<TOptions>
 
-export type { DefineStorage } from './defineStorage.ts'
+/**
+ * Compatibility preset for code generation tools.
+ * - `'default'` – no compatibility adjustments (default behavior).
+ * - `'kubbV4'` – align generated names and structures with Kubb v4 output.
+ */
+export type CompatibilityPreset = 'default' | 'kubbV4'
+
+export type { Storage } from './createStorage.ts'
+export type { CoreGeneratorV2, Generator, ReactGeneratorV2 } from './defineGenerator.ts'
 export type { KubbEvents } from './Kubb.ts'
+
+/**
+ * A preset bundles a name, one or more resolvers, and optional AST transformers
+ * into a single reusable configuration object.
+ *
+ * @template TResolver - The concrete resolver type for this preset.
+ */
+export type Preset<TResolver extends Resolver = Resolver> = {
+  /**
+   * Unique identifier for this preset.
+   */
+  name: string
+  /**
+   * Ordered list of resolvers applied by this preset (last entry wins on merge).
+   */
+  resolvers: Array<TResolver>
+  /**
+   * Optional AST visitors / transformers applied after resolving.
+   */
+  transformers?: Array<Visitor>
+}
+
+/**
+ * A named registry of presets, keyed by preset name.
+ *
+ * @template TResolver - The concrete resolver type shared by all presets in this registry.
+ * @template TName - The union of valid preset name keys.
+ */
+export type Presets<TResolver extends Resolver = Resolver> = Record<CompatibilityPreset, Preset<TResolver>>

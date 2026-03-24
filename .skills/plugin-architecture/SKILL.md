@@ -14,14 +14,14 @@ This skill instructs agents on how plugins are defined, registered, and how gene
 
 ## What It Does
 
-- Describes PluginManager and plugin hooks (`pre`, `post`, `resolvePath`, `resolveName`, `install`)
+- Describes PluginDriver and plugin hooks (`pre`, `post`, `resolvePath`, `resolveName`, `install`)
 - Shows a typical plugin factory shape
 - Lists common helper utilities used within generators and components
 
 ## Example Plugin Shape
 
 ```ts
-export const definePlugin = createPlugin<PluginOptions>((options) => ({
+export const pluginExample = createPlugin<PluginOptions>((options) => ({
   name: pluginName,
   options,
   pre: [],

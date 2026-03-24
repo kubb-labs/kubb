@@ -3,8 +3,6 @@ name: autofix.ci
 on:
   workflow_dispatch:
   pull_request:
-    branches:
-      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
@@ -27,7 +25,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Fix formatting
         run: pnpm run format

@@ -27,5 +27,5 @@ export type DeleteUserMutationResponse = any;
 export type DeleteUserMutation = {
     Response: any;
     PathParams: DeleteUserPathParams;
-    Errors: DeleteUser400 | DeleteUser404;
+    Errors: (DeleteUser400 | DeleteUser404);
 };

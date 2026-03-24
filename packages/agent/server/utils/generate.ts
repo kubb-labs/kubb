@@ -1,8 +1,7 @@
 import { createHash } from 'node:crypto'
 import path from 'node:path'
 import { styleText } from 'node:util'
-import type { AsyncEventEmitter } from '@internals/utils'
-import { type Config, detectFormatter, detectLinter, formatters, type KubbEvents, linters, safeBuild, setup } from '@kubb/core'
+import { type AsyncEventEmitter, type Config, detectFormatter, detectLinter, formatters, type KubbEvents, linters, safeBuild, setup } from '@kubb/core'
 import { executeHooks } from './executeHooks.ts'
 
 type GenerateProps = {
@@ -24,7 +23,7 @@ export async function generate({ config, events }: GenerateProps): Promise<void>
 
   await events.emit('info', config.name ? `Setup generation ${config.name}` : 'Setup generation')
 
-  const { sources, fabric, pluginManager } = await setup({
+  const { sources, fabric, driver } = await setup({
     config,
     events,
   })
@@ -36,7 +35,7 @@ export async function generate({ config, events }: GenerateProps): Promise<void>
       config,
       events,
     },
-    { pluginManager, fabric, events, sources },
+    { driver, fabric, events, sources },
   )
 
   await events.emit('info', 'Load summary')

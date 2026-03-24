@@ -1,4 +1,4 @@
-import { usePluginManager } from '@kubb/core/hooks'
+import { usePluginDriver } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -9,28 +9,28 @@ import type { PluginMsw } from '../types'
 export const handlersGenerator = createReactGenerator<PluginMsw>({
   name: 'plugin-msw',
   Operations({ operations, generator, plugin }) {
-    const pluginManager = usePluginManager()
+    const driver = usePluginDriver()
 
     const oas = useOas()
     const { getName, getFile } = useOperationManager(generator)
 
-    const file = pluginManager.getFile({ name: 'handlers', extname: '.ts', pluginKey: plugin.key })
+    const file = driver.getFile({ name: 'handlers', extname: '.ts', pluginName: plugin.name })
 
     const imports = operations.map((operation) => {
-      const operationFile = getFile(operation, { pluginKey: plugin.key })
-      const operationName = getName(operation, { pluginKey: plugin.key, type: 'function' })
+      const operationFile = getFile(operation, { pluginName: plugin.name })
+      const operationName = getName(operation, { pluginName: plugin.name, type: 'function' })
 
       return <File.Import key={operationFile.path} name={[operationName]} root={file.path} path={operationFile.path} />
     })
 
-    const handlers = operations.map((operation) => `${getName(operation, { type: 'function', pluginKey: plugin.key })}()`)
+    const handlers = operations.map((operation) => `${getName(operation, { type: 'function', pluginName: plugin.name })}()`)
 
     return (
       <File
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
+        banner={getBanner({ oas, output: plugin.options.output, config: driver.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
         {imports}

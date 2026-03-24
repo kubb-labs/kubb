@@ -29,5 +29,5 @@ export type UpdateUserMutation = {
     Response: any;
     Request: UpdateUserMutationRequest;
     PathParams: UpdateUserPathParams;
-    Errors: any;
+    Errors: UpdateUserError;
 };

@@ -22,5 +22,5 @@ export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput2
 export type CreateUsersWithListInputMutation = {
     Response: CreateUsersWithListInput200;
     Request: CreateUsersWithListInputMutationRequest;
-    Errors: any;
+    Errors: CreateUsersWithListInputError;
 };

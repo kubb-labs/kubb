@@ -1,3 +1,4 @@
+import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginCypress } from '@kubb/plugin-cypress'
@@ -14,8 +15,8 @@ const schemas = [
   { name: 'train-travel', path: './schemas/train-travel.yaml' },
   { name: 'discriminator', path: './schemas/discriminator.yaml' },
   { name: 'Figma', path: 'https://raw.githubusercontent.com/figma/rest-api-spec/refs/heads/main/openapi/openapi.yaml' },
-  //  { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },
-  // { name: 'atlassian.com', path: 'https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json', strict: false },
+  // { name: 'bunq.com', path: './schemas/bunq.com.json', strict: false },  // TS2300: duplicate barrel exports in hook index files
+  { name: 'atlassian.com', path: 'https://developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json', strict: false },
   { name: 'optionalParameters', path: './schemas/optionalParameters.json' },
   { name: 'allOf', path: './schemas/allOf.json' },
   { name: 'anyOf', path: './schemas/anyOf.json' },
@@ -44,6 +45,7 @@ const baseConfig = {
     lint: 'auto',
     format: 'auto',
   },
+  adapter: adapterOas(),
   plugins: [
     pluginOas({
       generators: [],
@@ -59,6 +61,7 @@ const baseConfig = {
         type: 'tag',
       },
       enumType: 'asConst',
+      compatibilityPreset: 'kubbV4',
     }),
     pluginReactQuery({
       output: {

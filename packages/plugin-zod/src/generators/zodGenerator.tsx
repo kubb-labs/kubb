@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { useMode, usePluginManager } from '@kubb/core/hooks'
+import { useMode, usePluginDriver } from '@kubb/core/hooks'
 import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
@@ -18,7 +18,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     } = plugin
 
     const mode = useMode()
-    const pluginManager = usePluginManager()
+    const driver = usePluginDriver()
 
     const oas = useOas()
     const { getSchemas, getFile, getGroup } = useOperationManager(generator)
@@ -30,7 +30,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       fabric: generator.context.fabric,
       oas,
       plugin,
-      pluginManager,
+      driver,
       events: generator.context.events,
       mode,
       override: options.override,
@@ -92,10 +92,10 @@ export const zodGenerator = createReactGenerator<PluginZod>({
       const type = {
         name: schemaManager.getName(name, {
           type: 'type',
-          pluginKey: [pluginTsName],
+          pluginName: pluginTsName,
         }),
         file: schemaManager.getFile(options.operationName || name, {
-          pluginKey: [pluginTsName],
+          pluginName: pluginTsName,
           group,
         }),
       }
@@ -133,7 +133,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
+        banner={getBanner({ oas, output: plugin.options.output, config: driver.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
         <File.Import name={isZodImport ? 'z' : ['z']} path={plugin.options.importPath} isNameSpace={isZodImport} />
@@ -147,7 +147,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     const {
       options: { output, emptySchemaType, coercion, inferred, typed, mapper, importPath, wrapOutput, version, guidType, mini },
     } = plugin
-    const pluginManager = usePluginManager()
+    const driver = usePluginDriver()
     const oas = useOas()
 
     const imports = getImports(schema.tree)
@@ -159,8 +159,8 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     }
 
     const type = {
-      name: getName(schema.name, { type: 'type', pluginKey: [pluginTsName] }),
-      file: getFile(schema.name, { pluginKey: [pluginTsName] }),
+      name: getName(schema.name, { type: 'type', pluginName: pluginTsName }),
+      file: getFile(schema.name, { pluginName: pluginTsName }),
     }
 
     const isZodImport = importPath === 'zod' || importPath === 'zod/mini'
@@ -171,7 +171,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
         baseName={zod.file.baseName}
         path={zod.file.path}
         meta={zod.file.meta}
-        banner={getBanner({ oas, output, config: pluginManager.config })}
+        banner={getBanner({ oas, output, config: driver.config })}
         footer={getFooter({ oas, output })}
       >
         <File.Import name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />

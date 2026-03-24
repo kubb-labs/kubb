@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { usePluginManager } from '@kubb/core/hooks'
+import { usePluginDriver } from '@kubb/core/hooks'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
@@ -19,7 +19,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
       options,
       options: { output },
     } = plugin
-    const pluginManager = usePluginManager()
+    const driver = usePluginDriver()
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)
@@ -38,20 +38,20 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
       file: getFile(operation, { prefix: 'use', suffix: 'infinite' }),
     }
 
-    const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
+    const hasClientPlugin = !!driver.getPluginByName(pluginClientName)
     // Class-based clients are not compatible with query hooks, so we generate inline clients
     const shouldUseClientPlugin = hasClientPlugin && options.client.clientType !== 'class'
     const client = {
       name: shouldUseClientPlugin
         ? getName(operation, {
             type: 'function',
-            pluginKey: [pluginClientName],
+            pluginName: pluginClientName,
           })
         : getName(operation, {
             type: 'function',
             suffix: 'infinite',
           }),
-      file: getFile(operation, { pluginKey: [pluginClientName] }),
+      file: getFile(operation, { pluginName: pluginClientName }),
     }
 
     const queryOptions = {
@@ -64,14 +64,14 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
     }
 
     const type = {
-      file: getFile(operation, { pluginKey: [pluginTsName] }),
+      file: getFile(operation, { pluginName: pluginTsName }),
       //todo remove type?
-      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+      schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
     }
 
     const zod = {
-      file: getFile(operation, { pluginKey: [pluginZodName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+      file: getFile(operation, { pluginName: pluginZodName }),
+      schemas: getSchemas(operation, { pluginName: pluginZodName, type: 'function' }),
     }
 
     if (!isQuery || isMutation || !infiniteOptions) {
@@ -96,7 +96,7 @@ export const infiniteQueryGenerator = createReactGenerator<PluginReactQuery>({
         baseName={query.file.baseName}
         path={query.file.path}
         meta={query.file.meta}
-        banner={getBanner({ oas, output, config: pluginManager.config })}
+        banner={getBanner({ oas, output, config: driver.config })}
         footer={getFooter({ oas, output })}
       >
         {options.parser === 'zod' && (

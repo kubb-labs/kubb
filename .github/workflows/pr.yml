@@ -3,8 +3,6 @@ name: PR
 on:
   workflow_dispatch:
   pull_request:
-    paths-ignore:
-      - "examples/**"
 
 permissions:
   contents: read
@@ -29,7 +27,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Build
         run: pnpm run build
@@ -49,7 +47,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Build
         run: pnpm run build
@@ -75,7 +73,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Build agent
         run: pnpm turbo run build --filter=@kubb/agent
@@ -104,7 +102,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Linting
         env:
@@ -126,7 +124,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Spell Check
         uses: streetsidesoftware/cspell-action@v8
@@ -151,7 +149,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Build
         run: pnpm run build
@@ -174,7 +172,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Build
         run: pnpm run build
@@ -220,7 +218,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Build
         run: pnpm run build
@@ -264,7 +262,7 @@ jobs:
       fail-fast: true
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node-version: [20]
+        node-version: [22]
 
     runs-on: ${{ matrix.os }}
 
@@ -277,7 +275,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Build
         run: pnpm run build

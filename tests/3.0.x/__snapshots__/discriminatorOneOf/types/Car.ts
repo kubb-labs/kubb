@@ -7,7 +7,13 @@ import type { SUV } from "./SUV.ts";
 import type { Sedan } from "./Sedan.ts";
 
 export type Car = ((Sedan & {
+    /**
+     * @type string
+    */
     type: "Sedan";
 }) | (SUV & {
+    /**
+     * @type string
+    */
     type: "SUV";
 }));

@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { usePluginManager } from '@kubb/core/hooks'
+import { usePluginDriver } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
@@ -31,21 +31,21 @@ type Controller = {
 export const staticClassClientGenerator = createReactGenerator<PluginClient>({
   name: 'staticClassClient',
   Operations({ operations, generator, plugin, config }) {
-    const { options, key: pluginKey } = plugin
-    const pluginManager = usePluginManager()
+    const { options, name: pluginName } = plugin
+    const driver = usePluginDriver()
 
     const oas = useOas()
     const { getName, getFile, getGroup, getSchemas } = useOperationManager(generator)
 
-    function buildOperationData(operation: Operation): OperationData {
+    function renderOperationData(operation: Operation): OperationData {
       const type = {
-        file: getFile(operation, { pluginKey: [pluginTsName] }),
-        schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+        file: getFile(operation, { pluginName: pluginTsName }),
+        schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
       }
 
       const zod = {
-        file: getFile(operation, { pluginKey: [pluginZodName] }),
-        schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+        file: getFile(operation, { pluginName: pluginZodName }),
+        schemas: getSchemas(operation, { pluginName: pluginZodName, type: 'function' }),
       }
 
       return {
@@ -67,13 +67,13 @@ export const staticClassClientGenerator = createReactGenerator<PluginClient>({
         if (!group?.tag && !options.group) {
           // If no grouping, put all operations in a single class
           const name = 'ApiClient'
-          const file = pluginManager.getFile({
+          const file = driver.getFile({
             name,
             extname: '.ts',
-            pluginKey,
+            pluginName,
           })
 
-          const operationData = buildOperationData(operation)
+          const operationData = renderOperationData(operation)
           const previousFile = acc.find((item) => item.file.path === file.path)
 
           if (previousFile) {
@@ -84,14 +84,14 @@ export const staticClassClientGenerator = createReactGenerator<PluginClient>({
         } else if (group?.tag) {
           // Group by tag
           const name = groupName
-          const file = pluginManager.getFile({
+          const file = driver.getFile({
             name,
             extname: '.ts',
-            pluginKey,
+            pluginName,
             options: { group },
           })
 
-          const operationData = buildOperationData(operation)
+          const operationData = renderOperationData(operation)
           const previousFile = acc.find((item) => item.file.path === file.path)
 
           if (previousFile) {
@@ -166,7 +166,7 @@ export const staticClassClientGenerator = createReactGenerator<PluginClient>({
           baseName={file.baseName}
           path={file.path}
           meta={file.meta}
-          banner={getBanner({ oas, output: options.output, config: pluginManager.config })}
+          banner={getBanner({ oas, output: options.output, config: driver.config })}
           footer={getFooter({ oas, output: options.output })}
         >
           {options.importPath ? (

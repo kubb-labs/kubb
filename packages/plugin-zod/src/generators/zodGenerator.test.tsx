@@ -1,14 +1,14 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { ZodOpenAPIMetadata } from '@asteasolutions/zod-to-openapi'
-import type { Config, Plugin } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import type { HttpMethod, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { buildOperation, buildSchema, OperationGenerator, SchemaGenerator } from '@kubb/plugin-oas'
+import { OperationGenerator, renderOperation, renderSchema, SchemaGenerator } from '@kubb/plugin-oas'
 import { getSchemas } from '@kubb/plugin-oas/utils'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, expect, test } from 'vitest'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import type { PluginZod } from '../types.ts'
 import { zodGenerator } from './zodGenerator.tsx'
 
@@ -331,12 +331,12 @@ describe('zodGenerator schema', async () => {
       mini: false,
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginZod>
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: 'application/json',
@@ -351,7 +351,7 @@ describe('zodGenerator schema', async () => {
     const schema = schemas[name] as SchemaObject
     const tree = generator.parse({ schema, name, parentName: null })
 
-    await buildSchema(
+    await renderSchema(
       {
         name,
         tree,
@@ -366,7 +366,7 @@ describe('zodGenerator schema', async () => {
       },
     )
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 
   test('typed schemas add ToZod once as a type-only import', async () => {
@@ -394,12 +394,12 @@ describe('zodGenerator schema', async () => {
       emptySchemaType: 'unknown',
       mini: false,
     }
-    const plugin = { options } as Plugin<PluginZod>
-    const mockedPluginManager = createMockedPluginManager('Pets')
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'Pets' })
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
       plugin,
       contentType: 'application/json',
       include: undefined,
@@ -412,7 +412,7 @@ describe('zodGenerator schema', async () => {
     const schema = schemas.Pets as SchemaObject
     const tree = generator.parse({ schema, name: 'Pets', parentName: null })
 
-    await buildSchema(
+    await renderSchema(
       {
         name: 'Pets',
         tree,
@@ -544,13 +544,13 @@ describe('zodGenerator operation', async () => {
       mini: false,
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginZod>
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,
@@ -559,7 +559,7 @@ describe('zodGenerator operation', async () => {
       exclude: [],
     })
     const operation = oas.operation(props.path, props.method)
-    await buildOperation(operation, {
+    await renderOperation(operation, {
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
@@ -567,7 +567,7 @@ describe('zodGenerator operation', async () => {
       plugin,
     })
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 
   test('typed operations add ToZod once per generated file', async () => {
@@ -595,13 +595,13 @@ describe('zodGenerator operation', async () => {
       emptySchemaType: 'unknown',
       mini: false,
     }
-    const plugin = { options } as Plugin<PluginZod>
-    const mockedPluginManager = createMockedPluginManager('createPets')
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'createPets' })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
       plugin,
       contentType: undefined,
       override: undefined,
@@ -610,7 +610,7 @@ describe('zodGenerator operation', async () => {
     })
     const operation = oas.operation('/pets', 'post')
 
-    await buildOperation(operation, {
+    await renderOperation(operation, {
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       generator,
@@ -678,13 +678,13 @@ describe('zodGenerator operation', async () => {
         mini: false,
         ...props.options,
       }
-      const plugin = { options } as Plugin<PluginZod>
-      const mockedPluginManager = createMockedPluginManager(props.name)
+      const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options })
+      const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
       const generator = new OperationGenerator(options, {
         fabric,
         oas,
         include: undefined,
-        pluginManager: mockedPluginManager,
+        driver: mockedPluginDriver,
 
         plugin,
         contentType: undefined,
@@ -694,7 +694,7 @@ describe('zodGenerator operation', async () => {
       })
       const operation = oas.operation(props.path, props.method)
 
-      await buildOperation(operation, {
+      await renderOperation(operation, {
         config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
         generator,
@@ -709,7 +709,7 @@ describe('zodGenerator operation', async () => {
         return file
       })
 
-      await matchFiles(files)
+      await matchFiles(files, ['wrapOutput', props.name].join('/'))
     })
 
     test('wraps the entire output', async () => {
@@ -773,13 +773,13 @@ describe('zodGenerator operation', async () => {
         mini: false,
         ...entry.options,
       }
-      const plugin = { options } as Plugin<PluginZod>
-      const mockedPluginManager = createMockedPluginManager(entry.name)
+      const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options })
+      const mockedPluginDriver = createMockedPluginDriver({ name: entry.name })
       const generator = new OperationGenerator(options, {
         fabric,
         oas,
         include: undefined,
-        pluginManager: mockedPluginManager,
+        driver: mockedPluginDriver,
 
         plugin,
         contentType: undefined,
@@ -789,7 +789,7 @@ describe('zodGenerator operation', async () => {
       })
       const operation = oas.operation(entry.path, entry.method)
 
-      await buildOperation(operation, {
+      await renderOperation(operation, {
         config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
         generator,
@@ -804,7 +804,7 @@ describe('zodGenerator operation', async () => {
         return file
       })
 
-      await matchFiles(files)
+      await matchFiles(files, ['wrapOutputAll', entry.name].join('/'))
     })
 
     test('ensures wrapOutput receives schema for all traversed nodes', async () => {
@@ -856,13 +856,13 @@ describe('zodGenerator operation', async () => {
         mini: false,
         ...entry.options,
       }
-      const plugin = { options } as Plugin<PluginZod>
-      const mockedPluginManager = createMockedPluginManager(entry.name)
+      const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options })
+      const mockedPluginDriver = createMockedPluginDriver({ name: entry.name })
       const generator = new OperationGenerator(options, {
         fabric,
         oas,
         include: undefined,
-        pluginManager: mockedPluginManager,
+        driver: mockedPluginDriver,
         plugin,
         contentType: undefined,
         override: undefined,
@@ -871,7 +871,7 @@ describe('zodGenerator operation', async () => {
       })
       const operation = oas.operation(entry.path, entry.method)
 
-      await buildOperation(operation, {
+      await renderOperation(operation, {
         config: { root: '.', output: { path: 'test' } } as Config,
         fabric,
         generator,
@@ -886,7 +886,7 @@ describe('zodGenerator operation', async () => {
         return file
       })
 
-      await matchFiles(files)
+      await matchFiles(files, ['wrapOutputQueryFilter', entry.name].join('/'))
     })
   })
 })

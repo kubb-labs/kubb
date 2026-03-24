@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
@@ -14,7 +14,7 @@ import type { PluginVueQuery } from './types.ts'
 
 export const pluginVueQueryName = 'plugin-vue-query' satisfies PluginVueQuery['name']
 
-export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
+export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,
@@ -150,7 +150,7 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
         this.plugin.options.client.baseURL = baseURL
       }
 
-      const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
+      const hasClientPlugin = !!this.driver.getPluginByName(pluginClientName)
 
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled
@@ -190,7 +190,7 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        pluginManager: this.pluginManager,
+        driver: this.driver,
         events: this.events,
         plugin: this.plugin,
         contentType,
@@ -208,7 +208,7 @@ export const pluginVueQuery = definePlugin<PluginVueQuery>((options) => {
         root,
         output,
         meta: {
-          pluginKey: this.plugin.key,
+          pluginName: this.plugin.name,
         },
       })
 

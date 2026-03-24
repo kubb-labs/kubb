@@ -1,26 +1,158 @@
-import type { AdapterFactoryOptions } from '@kubb/core'
-import type { Oas as OasClass } from './oas/Oas.ts'
-import type { contentType } from './oas/types.ts'
+// external packages
 
-export type OasAdapterOptions = {
+import { httpMethods } from '@kubb/ast'
+import type { HttpMethod as AstHttpMethod, ParserOptions } from '@kubb/ast/types'
+import type { AdapterFactoryOptions } from '@kubb/core'
+import type { Operation as OASOperation } from 'oas/operation'
+import type {
+  DiscriminatorObject as OASDiscriminatorObject,
+  OASDocument,
+  MediaTypeObject as OASMediaTypeObject,
+  ResponseObject as OASResponseObject,
+  SchemaObject as OASSchemaObject,
+} from 'oas/types'
+import type { OpenAPIV3 } from 'openapi-types'
+
+/**
+ * Re-exports of `openapi-types` for use by adapter consumers.
+ */
+export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+
+/**
+ * Content-type string used when selecting request/response schemas from a spec.
+ *
+ * Accepts `'application/json'` or any arbitrary media type string.
+ *
+ * @example
+ * ```ts
+ * const ct: contentType = 'application/vnd.api+json'
+ * ```
+ */
+export type contentType = 'application/json' | (string & {})
+
+/**
+ * Augments `oas`'s `SchemaObject` with OAS 3.1 / JSON Schema fields the parser needs.
+ *
+ * @example
+ * ```ts
+ * const schema: SchemaObject = {
+ *   type: 'string',
+ *   const: 'dog',
+ *   contentMediaType: 'application/octet-stream',
+ * }
+ * ```
+ */
+export type SchemaObject = OASSchemaObject & {
+  /**
+   * OAS 3.0 vendor extension: marks a schema as nullable without using `type: ['null', ...]`.
+   */
+  'x-nullable'?: boolean
+  /**
+   * OAS 3.1: constrains the schema to a single fixed value (equivalent to a one-item `enum`).
+   */
+  const?: string | number | boolean | null
+  /**
+   * OAS 3.1: media type of the schema content. `'application/octet-stream'` on a `string` schema maps to `blob`.
+   */
+  contentMediaType?: string
+  $ref?: string
+  /**
+   * OAS 3.1: positional tuple items, replacing the multi-item `items` array from OAS 3.0.
+   */
+  prefixItems?: Array<SchemaObject | ReferenceObject>
+  /**
+   * JSON Schema: maps regex patterns to sub-schemas for validating additional properties.
+   */
+  patternProperties?: Record<string, SchemaObject | boolean>
+  /**
+   * Single-schema form of `items`. Narrowed from the base type to take precedence over the tuple overload.
+   */
+  items?: SchemaObject | ReferenceObject
+  /**
+   * Enum values for this schema (narrowed from `unknown[]`).
+   */
+  enum?: Array<string | number | boolean | null>
+}
+
+/**
+ * Uppercase → lowercase HTTP method map, re-exported for backwards compatibility.
+ *
+ * @example
+ * ```ts
+ * HttpMethods['GET'] // 'get'
+ * HttpMethods['POST'] // 'post'
+ * ```
+ */
+export const HttpMethods = Object.fromEntries(Object.entries(httpMethods).map(([lower, upper]) => [upper, lower])) as Record<
+  Uppercase<AstHttpMethod>,
+  Lowercase<AstHttpMethod>
+>
+
+/**
+ * Lowercase HTTP method string as used by the `oas` package (`'get' | 'post' | ...`).
+ */
+export type HttpMethod = Lowercase<AstHttpMethod>
+
+/**
+ * Normalized OpenAPI document type used throughout the adapter.
+ */
+export type Document = OASDocument
+
+/**
+ * Operation wrapper type returned by the `oas` package.
+ */
+export type Operation = OASOperation
+
+/**
+ * OpenAPI `discriminator` object attached to a `oneOf`/`anyOf` schema.
+ */
+export type DiscriminatorObject = OASDiscriminatorObject
+
+/**
+ * OpenAPI `$ref` pointer object (`{ $ref: string }`).
+ */
+export type ReferenceObject = OpenAPIV3.ReferenceObject
+
+/**
+ * OpenAPI response object type (may contain `content`, `description`, `headers`).
+ */
+export type ResponseObject = OASResponseObject
+
+/**
+ * OpenAPI media type object that maps a content-type to a schema.
+ */
+export type MediaTypeObject = OASMediaTypeObject
+
+/**
+ * User-facing options for `adapterOas(...)`.
+ *
+ * Extends `ParserOptions` from `@kubb/ast` with adapter-specific controls
+ * like spec validation and server URL selection.
+ *
+ * @example
+ * ```ts
+ * adapterOas({
+ *   validate: false,
+ *   dateType: 'date',
+ *   serverIndex: 0,
+ *   serverVariables: { env: 'prod' },
+ * })
+ * ```
+ */
+export type AdapterOasOptions = {
   /**
    * Validate the OpenAPI spec before parsing.
    * @default true
    */
   validate?: boolean
   /**
-   * Override the `Oas` class (e.g. for custom subclass behavior).
-   */
-  oasClass?: typeof OasClass
-  /**
-   * Restrict which content-type is used when extracting request/response schemas.
-   * By default, the first valid JSON media type is used.
+   * Preferred content-type used when extracting request/response schemas.
+   * Defaults to the first valid JSON media type found in the spec.
    */
   contentType?: contentType
   /**
-   * Which server to use from `oas.api.servers` when computing `baseURL`.
-   * - `0` → first server, `1` → second server, etc.
-   * - When omitted, `baseURL` in the resulting `RootNode.meta` is `undefined`.
+   * Index into `oas.api.servers` for computing `baseURL`.
+   * `0` → first server, `1` → second server. Omit to leave `baseURL` undefined.
    */
   serverIndex?: number
   /**
@@ -28,60 +160,50 @@ export type OasAdapterOptions = {
    * Only used when `serverIndex` is set.
    *
    * @example
+   * ```ts
    * // spec server: "https://api.{env}.example.com"
    * serverVariables: { env: 'prod' }
    * // → baseURL: "https://api.prod.example.com"
+   * ```
    */
   serverVariables?: Record<string, string>
   /**
-   * How the discriminator field should be interpreted.
-   * - `'strict'`  — uses `oneOf` schemas as defined.
-   * - `'inherit'` — replaces `oneOf` with the schema from `discriminator.mapping`.
+   * How the discriminator field is interpreted.
+   * - `'strict'`  — uses `oneOf` schemas as written in the spec.
+   * - `'inherit'` — propagates discriminator values into child schemas from `discriminator.mapping`.
    * @default 'strict'
    */
   discriminator?: 'strict' | 'inherit'
-  /**
-   * Automatically resolve name collisions across schema components.
-   * @default false
-   */
-  collisionDetection?: boolean
-  /**
-   * How `format: 'date-time'` schemas are represented in the AST.
-   * - `'string'` maps to a `datetime` string node.
-   * - `'date'` maps to a JavaScript `Date` node.
-   * - `false` falls through to a plain `string` node.
-   * @default 'string'
-   */
-  dateType?: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
-  /**
-   * Whether `type: 'integer'` / `format: 'int64'` produces `number` or `bigint` nodes.
-   * @default 'number'
-   */
-  integerType?: 'number' | 'bigint'
-  /**
-   * AST type used when no schema type can be inferred.
-   * @default 'any'
-   */
-  unknownType?: 'any' | 'unknown' | 'void'
-  /**
-   * AST type used for completely empty schemas (`{}`).
-   * @default `unknownType`
-   */
-  emptySchemaType?: 'any' | 'unknown' | 'void'
-}
+} & Partial<ParserOptions>
 
-export type OasAdapterResolvedOptions = {
+/**
+ * Resolved adapter options available at runtime after defaults have been applied.
+ */
+export type AdapterOasResolvedOptions = {
   validate: boolean
-  oasClass: OasAdapterOptions['oasClass']
-  contentType: OasAdapterOptions['contentType']
-  serverIndex: OasAdapterOptions['serverIndex']
-  serverVariables: OasAdapterOptions['serverVariables']
-  discriminator: NonNullable<OasAdapterOptions['discriminator']>
-  collisionDetection: boolean
-  dateType: NonNullable<OasAdapterOptions['dateType']>
-  integerType: NonNullable<OasAdapterOptions['integerType']>
-  unknownType: NonNullable<OasAdapterOptions['unknownType']>
-  emptySchemaType: NonNullable<OasAdapterOptions['emptySchemaType']>
+  contentType: AdapterOasOptions['contentType']
+  serverIndex: AdapterOasOptions['serverIndex']
+  serverVariables: AdapterOasOptions['serverVariables']
+  discriminator: NonNullable<AdapterOasOptions['discriminator']>
+  dateType: NonNullable<AdapterOasOptions['dateType']>
+  integerType: NonNullable<AdapterOasOptions['integerType']>
+  unknownType: NonNullable<AdapterOasOptions['unknownType']>
+  emptySchemaType: NonNullable<AdapterOasOptions['emptySchemaType']>
+  enumSuffix: AdapterOasOptions['enumSuffix']
+  /**
+   * Map from original `$ref` paths to their collision-resolved schema names.
+   * Populated after each `parse()` call.
+   *
+   * @example
+   * ```ts
+   * nameMapping.get('#/components/schemas/Order') // 'Order'
+   * nameMapping.get('#/components/responses/Order') // 'OrderResponse'
+   * ```
+   */
+  nameMapping: Map<string, string>
 }
 
-export type OasAdapter = AdapterFactoryOptions<'oas', OasAdapterOptions, OasAdapterResolvedOptions>
+/**
+ * `@kubb/core` adapter factory type for the OpenAPI adapter.
+ */
+export type AdapterOas = AdapterFactoryOptions<'oas', AdapterOasOptions, AdapterOasResolvedOptions>

@@ -1,5 +1,12 @@
 /**
  * Returns `true` when running inside a GitHub Actions workflow.
+ *
+ * @example
+ * ```ts
+ * if (isGitHubActions()) {
+ *   core.setOutput('result', 'ok')
+ * }
+ * ```
  */
 export function isGitHubActions(): boolean {
   return !!process.env.GITHUB_ACTIONS
@@ -9,6 +16,13 @@ export function isGitHubActions(): boolean {
  * Returns `true` when the process is running in a CI environment.
  * Covers GitHub Actions, GitLab CI, CircleCI, Travis CI, Jenkins, Bitbucket,
  * TeamCity, Buildkite, and Azure Pipelines.
+ *
+ * @example
+ * ```ts
+ * if (isCIEnvironment()) {
+ *   logger.level = 'error'
+ * }
+ * ```
  */
 export function isCIEnvironment(): boolean {
   return !!(
@@ -37,7 +51,7 @@ export function isCIEnvironment(): boolean {
  * @example
  * ```ts
  * if (canUseTTY()) {
- *   // use clack interactive UI
+ *   renderProgressBar()
  * }
  * ```
  */

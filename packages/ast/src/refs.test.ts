@@ -1,7 +1,21 @@
 import { describe, expect, it } from 'vitest'
 import { createRoot, createSchema } from './factory.ts'
 import { buildFixture } from './mocks.ts'
-import { buildRefMap, refMapToObject, resolveRef } from './refs.ts'
+import { buildRefMap, extractRefName, refMapToObject, resolveRef } from './refs.ts'
+
+describe('extractRefName', () => {
+  it('extracts schema name from component schema refs', () => {
+    expect(extractRefName('#/components/schemas/Order')).toBe('Order')
+  })
+
+  it('extracts name from component response refs', () => {
+    expect(extractRefName('#/components/responses/NotFound')).toBe('NotFound')
+  })
+
+  it('falls back to the full string when no slash is present', () => {
+    expect(extractRefName('SomeName')).toBe('SomeName')
+  })
+})
 
 describe('buildRefMap', () => {
   it('indexes all named schemas', () => {
@@ -90,7 +104,9 @@ describe('refMapToObject', () => {
         {
           kind: 'Schema',
           type: 'object',
-          properties: [{ kind: 'Property', name: 'createdAt', required: false, schema: { kind: 'Schema', type: 'datetime' } }],
+          properties: [
+            { kind: 'Property', name: 'createdAt', required: false, schema: { kind: 'Schema', type: 'datetime', optional: true, nullish: undefined } },
+          ],
         },
       ],
     })

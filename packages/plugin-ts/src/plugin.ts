@@ -1,14 +1,14 @@
 import path from 'node:path'
-import { camelCase, pascalCase } from '@internals/utils'
+import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
-import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
-import { buildSchema, OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
-import { typeGenerator } from './generators'
+import { createPlugin, type Group, getBarrelFiles, getMode, renderOperation, renderSchema } from '@kubb/core'
+import { typeGenerator } from './generators/index.ts'
+import { getPreset } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
 
-export const pluginTs = definePlugin<PluginTs>((options) => {
+export const pluginTs = createPlugin<PluginTs>((options) => {
   const {
     output = { path: 'types', barrelType: 'named' },
     group,
@@ -17,47 +17,40 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
     override = [],
     enumType = 'asConst',
     enumKeyCasing = 'none',
-    enumSuffix = 'enum',
-    dateType = 'string',
-    integerType = 'number',
-    unknownType = 'any',
     optionalType = 'questionToken',
     arrayType = 'array',
-    emptySchemaType = unknownType,
     syntaxType = 'type',
-    transformers = {},
-    mapper = {},
     paramsCasing,
     generators = [typeGenerator].filter(Boolean),
-    contentType,
-    UNSTABLE_NAMING,
+    compatibilityPreset = 'default',
+    resolvers: userResolvers,
+    transformers: userTransformers = [],
   } = options
 
-  // @deprecated Will be removed in v5 when collisionDetection defaults to true
-  const usedEnumNames = {}
+  const { baseResolver, resolver, transformers } = getPreset(compatibilityPreset, {
+    resolvers: userResolvers,
+    transformers: userTransformers,
+  })
+
+  let resolveNameWarning = false
 
   return {
     name: pluginTsName,
     options: {
       output,
-      transformers,
-      dateType,
-      integerType,
       optionalType,
       arrayType,
       enumType,
       enumKeyCasing,
-      enumSuffix,
-      unknownType,
-      emptySchemaType,
       syntaxType,
       group,
       override,
-      mapper,
       paramsCasing,
-      usedEnumNames,
+      compatibilityPreset,
+      baseResolver,
+      resolver,
+      transformers,
     },
-    pre: [pluginOasName],
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = pathMode ?? getMode(path.resolve(root, output.path))
@@ -93,89 +86,83 @@ export const pluginTs = definePlugin<PluginTs>((options) => {
       return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
-      const resolvedName = pascalCase(name, { isFile: type === 'file' })
-
-      if (type) {
-        return transformers?.name?.(resolvedName, type) || resolvedName
+      if (!resolveNameWarning) {
+        this.driver.events.emit('warn', 'Do not use resolveName for pluginTs, use resolverTs instead')
+        resolveNameWarning = true
       }
 
-      return resolvedName
+      return resolver.default(name, type)
     },
     async install() {
-      const { config, fabric, plugin } = this
+      const { config, fabric, plugin, adapter, rootNode, driver, openInStudio } = this
 
       const root = path.resolve(config.root, config.output.path)
       const mode = getMode(path.resolve(root, output.path))
 
-      if (this.rootNode) {
-        await this.openInStudio({ ast: true })
-
-        await walk(
-          this.rootNode,
-          {
-            async schema(schemaNode) {
-              const writeTasks = generators.map(async (generator) => {
-                if (generator.type === 'react' && generator.version === '2') {
-                  await buildSchema(schemaNode, {
-                    config,
-                    fabric,
-                    Component: generator.Schema,
-                    plugin,
-                    version: generator.version,
-                  })
-                }
-              })
-
-              await writeTasks
-            },
-          },
-          { depth: 'shallow' },
-        )
-
-        return
+      if (!adapter) {
+        throw new Error('Plugin cannot work without adapter being set')
       }
 
-      const oas = await this.getOas()
+      await openInStudio({ ast: true })
 
-      const schemaGenerator = new SchemaGenerator(this.plugin.options, {
-        fabric: this.fabric,
-        oas,
-        pluginManager: this.pluginManager,
-        events: this.events,
-        plugin: this.plugin,
-        contentType,
-        include: undefined,
-        override,
-        mode,
-        output: output.path,
+      await walk(rootNode, {
+        depth: 'shallow',
+        async schema(schemaNode) {
+          const writeTasks = generators.map(async (generator) => {
+            if (generator.type === 'react' && generator.version === '2') {
+              const options = resolver.resolveOptions(schemaNode, { options: plugin.options, exclude, include, override })
+
+              if (options === null) {
+                return
+              }
+
+              await renderSchema(schemaNode, {
+                options,
+                adapter,
+                config,
+                fabric,
+                Component: generator.Schema,
+                plugin,
+                driver,
+                mode,
+              })
+            }
+          })
+
+          await Promise.all(writeTasks)
+        },
+        async operation(operationNode) {
+          const writeTasks = generators.map(async (generator) => {
+            if (generator.type === 'react' && generator.version === '2') {
+              const options = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
+
+              if (options === null) {
+                return
+              }
+
+              await renderOperation(operationNode, {
+                options,
+                adapter,
+                config,
+                fabric,
+                Component: generator.Operation,
+                plugin,
+                driver,
+                mode,
+              })
+            }
+          })
+
+          await Promise.all(writeTasks)
+        },
       })
-
-      const schemaFiles = await schemaGenerator.build(...generators)
-      await this.upsertFile(...schemaFiles)
-
-      const operationGenerator = new OperationGenerator(this.plugin.options, {
-        fabric: this.fabric,
-        oas,
-        pluginManager: this.pluginManager,
-        events: this.events,
-        plugin: this.plugin,
-        contentType,
-        exclude,
-        include,
-        override,
-        mode,
-        UNSTABLE_NAMING,
-      })
-
-      const operationFiles = await operationGenerator.build(...generators)
-      await this.upsertFile(...operationFiles)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
         root,
         output,
         meta: {
-          pluginKey: this.plugin.key,
+          pluginName: this.plugin.name,
         },
       })
 

@@ -2,7 +2,10 @@ import { version as nodeVersion } from 'node:process'
 import { version as KubbVersion } from '../../package.json'
 
 /**
- * Get diagnostic information for debugging
+ * Returns a snapshot of the current runtime environment.
+ *
+ * Useful for attaching context to debug logs and error reports so that
+ * issues can be reproduced without manual information gathering.
  */
 export function getDiagnosticInfo() {
   return {

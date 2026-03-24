@@ -6,10 +6,12 @@
 
 export type Category = {
     /**
-     * @type integer | undefined, int64
+     * @example 1
+     * @type integer | undefined
     */
     id?: number;
     /**
+     * @example Dogs
      * @type string | undefined
     */
     name?: string;

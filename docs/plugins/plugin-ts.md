@@ -184,13 +184,8 @@ export interface Pet {
 
 ### enumSuffix
 
-Set a suffix for the generated enums.
-
-|           |          |
-| --------: | :------- |
-|     Type: | `string` |
-| Required: | `false`  |
-|  Default: | `'enum'` |
+> [!WARNING]
+> This option has been moved to [`adapterOas`](/plugins/plugin-oas#enumSuffix). Use `adapterOas({ enumSuffix })` instead.
 
 ### enumKeyCasing
 
@@ -210,63 +205,13 @@ Choose the casing for enum key names.
 
 ### dateType
 
-Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
-
-|           |                      |
-| --------: | :------------------- |
-|     Type: | `'string' \| 'date'` |
-| Required: | `false`              |
-|  Default: | `'string'`           |
-
-::: code-group
-
-```typescript ['string']
-type Pet = {
-  date: string;
-};
-```
-
-```typescript ['date']
-type Pet = {
-  date: Date;
-};
-```
-
-:::
+> [!WARNING]
+> This option has been moved to [`adapterOas`](/plugins/plugin-oas#dateType). Use `adapterOas({ dateType })` instead.
 
 ### integerType
 
-Choose to use `number` or `bigint` for fields with `int64` format.
-
-`'bigint'` is accurate for values exceeding `Number.MAX_SAFE_INTEGER`, but note that `JSON.parse()` returns plain `number` at runtime — so `'number'` may be a better fit for most projects.
-
-|           |                          |
-| --------: | :----------------------- |
-|     Type: | `'number' \| 'bigint'`   |
-| Required: | `false`                  |
-|  Default: | `'bigint'`               |
-
-::: code-group
-
-```typescript ['bigint']
-type Pet = {
-  /**
-   * @type integer, int64
-   */
-  id: bigint
-};
-```
-
-```typescript ['number']
-type Pet = {
-  /**
-   * @type integer, int64
-   */
-  id: number
-};
-```
-
-:::
+> [!WARNING]
+> This option has been moved to [`adapterOas`](/plugins/plugin-oas#integerType). Use `adapterOas({ integerType })` instead.
 
 ### syntaxType
 
@@ -297,67 +242,13 @@ interface Pet {
 
 ### unknownType
 
-Which type to use when the Swagger/OpenAPI file is not providing more information.
-
-|           |                                |
-| --------: | :----------------------------- |
-|     Type: | `'any' \| 'unknown' \| 'void'` |
-| Required: | `false`                        |
-|  Default: | `'any'`                        |
-
-::: code-group
-
-```typescript ['any']
-type Pet = {
-  name: any;
-};
-```
-
-```typescript ['unknown']
-type Pet = {
-  name: unknown;
-};
-```
-
-```typescript ['void']
-type Pet = {
-  name: void;
-};
-```
-
-:::
+> [!WARNING]
+> This option has been moved to [`adapterOas`](/plugins/plugin-oas#unknownType). Use `adapterOas({ unknownType })` instead.
 
 ### emptySchemaType
 
-Which type to use for empty schema values.
-
-|           |                                |
-| --------: | :----------------------------- |
-|     Type: | `'any' \| 'unknown' \| 'void'` |
-| Required: | `false`                        |
-|  Default: | `unknownType`                  |
-
-::: code-group
-
-```typescript ['any']
-type Pet = {
-  name: any;
-};
-```
-
-```typescript ['unknown']
-type Pet = {
-  name: unknown;
-};
-```
-
-```typescript ['void']
-type Pet = {
-  name: void;
-};
-```
-
-:::
+> [!WARNING]
+> This option has been moved to [`adapterOas`](/plugins/plugin-oas#emptySchemaType). Use `adapterOas({ emptySchemaType })` instead.
 
 ### optionalType
 
@@ -469,6 +360,76 @@ type FindPetsByStatusHeaderParams = {
 
 :::
 
+### compatibilityPreset
+
+Apply close-compatible naming presets for ecosystems with established conventions.
+
+|           |                              |
+| --------: |:-----------------------------|
+|     Type: | `'none' \| 'kubbV4'`         |
+| Required: | `false`                      |
+|  Default: | `'none'`                     |
+
+- `'none'`: Use default `@kubb/plugin-ts` naming.
+- `'kubbV4'`: Reproduce Kubb v4 type-generation naming behavior.
+
+::: code-group
+
+```typescript [Default]
+pluginTs({
+  compatibilityPreset: "none",
+});
+```
+
+```typescript [Kubb v4 compatibility]
+pluginTs({
+  compatibilityPreset: "kubbV4",
+});
+```
+
+:::
+
+> [!NOTE]
+> Compatibility presets are close-compatible naming/output conventions, not strict 1:1 parity with other generators.
+
+### resolvers
+
+Use `resolvers` to compose naming behavior. Later resolvers override earlier ones.
+
+|           |                     |
+| --------: | :------------------ |
+|     Type: | `Array<ResolverTs>` |
+| Required: | `false`             |
+|  Default: | `[resolverTs]`      |
+
+Resolver precedence:
+
+1. Start with `resolverTs`.
+2. Apply `compatibilityPreset` resolver (`kubbV4`) when configured.
+3. Apply explicit `resolvers` overrides (last wins).
+
+::: code-group
+
+```typescript [v4 compatibility]
+import { pluginTs } from "@kubb/plugin-ts";
+
+pluginTs({
+  compatibilityPreset: "kubbV4",
+});
+```
+
+```typescript [Explicit resolver override]
+import { pluginTs } from "@kubb/plugin-ts";
+import { resolverTs } from "@kubb/plugin-ts/resolvers";
+
+pluginTs({
+  compatibilityPreset: "default",
+  resolvers: [resolverTs], // explicit resolvers take precedence
+});
+```
+
+:::
+
 ### include
 
 <!--@include: ./core/include.md-->
@@ -494,18 +455,8 @@ type FindPetsByStatusHeaderParams = {
 
 <!--@include: ./core/transformers.md-->
 
-#### transformers.name
-
-Customize the names based on the type that is provided by the plugin.
-
-|           |                                                |
-| --------: | :--------------------------------------------- |
-|     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                        |
-
-```typescript
-type ResolveType = "file" | "function" | "type" | "const";
-```
+`@kubb/plugin-ts` uses AST `Visitor` transformers for schema/operation node transforms.
+For naming customization, use `resolvers` instead of `transformers`.
 
 ## Example
 
@@ -538,9 +489,6 @@ export default defineConfig({
         name: ({ group }) => `${group}Controller`,
       },
       enumType: "asConst",
-      enumSuffix: "Enum",
-      dateType: "date",
-      unknownType: "unknown",
       optionalType: "questionTokenAndUndefined",
       paramsCasing: "camelcase", // Transform param names to camelCase
     }),

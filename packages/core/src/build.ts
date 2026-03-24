@@ -1,16 +1,14 @@
 import { dirname, relative, resolve } from 'node:path'
-import { AsyncEventEmitter, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
-import type { KubbFile } from '@kubb/fabric-core/types'
+import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
+import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
 import { createFabric } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
 import { fsPlugin } from '@kubb/react-fabric/plugins'
-import type { Fabric } from '@kubb/react-fabric/types'
 import { isInputPath } from './config.ts'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
-import { BuildError } from './errors.ts'
-import { PluginManager } from './PluginManager.ts'
+import { PluginDriver } from './PluginDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import type { AdapterSource, Config, DefineStorage, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
+import type { AdapterSource, Config, KubbEvents, Output, Plugin, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 
@@ -19,23 +17,49 @@ type BuildOptions = {
   events?: AsyncEventEmitter<KubbEvents>
 }
 
+/**
+ * Full output produced by a successful or failed build.
+ */
 type BuildOutput = {
+  /**
+   * Plugins that threw during installation, paired with the caught error.
+   */
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
-  fabric: Fabric
+  fabric: FabricType
   files: Array<KubbFile.ResolvedFile>
-  pluginManager: PluginManager
+  driver: PluginDriver
+  /**
+   * Elapsed time in milliseconds for each plugin, keyed by plugin name.
+   */
   pluginTimings: Map<string, number>
   error?: Error
+  /**
+   * Raw generated source, keyed by absolute file path.
+   */
   sources: Map<KubbFile.Path, string>
 }
 
+/**
+ * Intermediate result returned by {@link setup} and accepted by {@link safeBuild}.
+ */
 type SetupResult = {
   events: AsyncEventEmitter<KubbEvents>
-  fabric: Fabric
-  pluginManager: PluginManager
+  fabric: FabricType
+  driver: PluginDriver
   sources: Map<KubbFile.Path, string>
 }
 
+/**
+ * Initializes all Kubb infrastructure for a build without executing any plugins.
+ *
+ * - Validates the input path (when applicable).
+ * - Applies config defaults (`root`, `output.*`, `devtools`).
+ * - Creates the Fabric instance and wires storage, format, and lint hooks.
+ * - Runs the adapter (if configured) to produce the universal `RootNode`.
+ *
+ * Pass the returned {@link SetupResult} directly to {@link safeBuild} or {@link build}
+ * via the `overrides` argument to reuse the same infrastructure across multiple runs.
+ */
 export async function setup(options: BuildOptions): Promise<SetupResult> {
   const { config: userConfig, events = new AsyncEventEmitter<KubbEvents>() } = options
 
@@ -110,7 +134,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   // storage or fall back to fsStorage (backwards-compatible default).
   // Keys are root-relative (e.g. `src/gen/api/getPets.ts`) so fsStorage()
   // needs no configuration — it resolves them against process.cwd().
-  const storage: DefineStorage | null = definedConfig.output.write === false ? null : (definedConfig.output.storage ?? fsStorage())
+  const storage: Storage | null = definedConfig.output.write === false ? null : (definedConfig.output.storage ?? fsStorage())
 
   if (definedConfig.output.clean) {
     await events.emit('debug', {
@@ -165,7 +189,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     ],
   })
 
-  const pluginManager = new PluginManager(definedConfig, {
+  const pluginDriver = new PluginDriver(definedConfig, {
     fabric,
     events,
     concurrency: DEFAULT_CONCURRENCY,
@@ -180,14 +204,15 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
       logs: [`Running adapter: ${definedConfig.adapter.name}`],
     })
 
-    pluginManager.rootNode = await definedConfig.adapter.parse(source)
+    pluginDriver.adapter = definedConfig.adapter
+    pluginDriver.rootNode = await definedConfig.adapter.parse(source)
 
     await events.emit('debug', {
       date: new Date(),
       logs: [
         `✓ Adapter '${definedConfig.adapter.name}' resolved RootNode`,
-        `  • Schemas: ${pluginManager.rootNode.schemas.length}`,
-        `  • Operations: ${pluginManager.rootNode.operations.length}`,
+        `  • Schemas: ${pluginDriver.rootNode.schemas.length}`,
+        `  • Operations: ${pluginDriver.rootNode.operations.length}`,
       ],
     })
   }
@@ -195,13 +220,19 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   return {
     events,
     fabric,
-    pluginManager,
+    driver: pluginDriver,
     sources,
   }
 }
 
+/**
+ * Runs a full Kubb build and throws on any error or plugin failure.
+ *
+ * Internally delegates to {@link safeBuild} and rethrows collected errors.
+ * Pass an existing {@link SetupResult} via `overrides` to skip the setup phase.
+ */
 export async function build(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { fabric, files, pluginManager, failedPlugins, pluginTimings, error, sources } = await safeBuild(options, overrides)
+  const { fabric, files, driver, failedPlugins, pluginTimings, error, sources } = await safeBuild(options, overrides)
 
   if (error) {
     throw error
@@ -217,24 +248,34 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
     failedPlugins,
     fabric,
     files,
-    pluginManager,
+    driver,
     pluginTimings,
     error: undefined,
     sources,
   }
 }
 
+/**
+ * Runs a full Kubb build and captures errors instead of throwing.
+ *
+ * - Installs each plugin in order, recording failures in `failedPlugins`.
+ * - Generates the root barrel file when `output.barrelType` is set.
+ * - Writes all files through Fabric.
+ *
+ * Returns a {@link BuildOutput} even on failure — inspect `error` and
+ * `failedPlugins` to determine whether the build succeeded.
+ */
 export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { fabric, pluginManager, events, sources } = overrides ? overrides : await setup(options)
+  const { fabric, driver, events, sources } = overrides ? overrides : await setup(options)
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   // in ms
   const pluginTimings = new Map<string, number>()
-  const config = pluginManager.config
+  const config = driver.config
 
   try {
-    for (const plugin of pluginManager.plugins) {
-      const context = pluginManager.getContext(plugin)
+    for (const plugin of driver.plugins) {
+      const context = driver.getContext(plugin)
       const hrStart = process.hrtime()
 
       const installer = plugin.install.bind(context)
@@ -246,7 +287,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
         await events.emit('debug', {
           date: timestamp,
-          logs: ['Installing plugin...', `  • Plugin Key: [${plugin.key.join(', ')}]`],
+          logs: ['Installing plugin...', `  • Plugin Name: ${plugin.name}`],
         })
 
         await installer(context)
@@ -275,7 +316,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           date: errorTimestamp,
           logs: [
             '✗ Plugin installation failed',
-            `  • Plugin Key: ${JSON.stringify(plugin.key)}`,
+            `  • Plugin Name: ${plugin.name}`,
             `  • Error: ${error.constructor.name} - ${error.message}`,
             '  • Stack Trace:',
             error.stack || 'No stack trace available',
@@ -313,7 +354,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       const rootFile: KubbFile.File = {
         path: rootPath,
         baseName: BARREL_FILENAME,
-        exports: buildBarrelExports({ barrelFiles, rootDir, existingExports, config, pluginManager }),
+        exports: buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }),
         sources: [],
         imports: [],
         meta: {},
@@ -335,7 +376,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       failedPlugins,
       fabric,
       files,
-      pluginManager,
+      driver,
       pluginTimings,
       sources,
     }
@@ -344,7 +385,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       failedPlugins,
       fabric,
       files: [],
-      pluginManager,
+      driver,
       pluginTimings,
       error: error as Error,
       sources,
@@ -357,13 +398,13 @@ type BuildBarrelExportsParams = {
   rootDir: string
   existingExports: Set<string>
   config: Config
-  pluginManager: PluginManager
+  driver: PluginDriver
 }
 
-function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, pluginManager }: BuildBarrelExportsParams): KubbFile.Export[] {
-  const pluginKeyMap = new Map<string, Plugin>()
-  for (const plugin of pluginManager.plugins) {
-    pluginKeyMap.set(JSON.stringify(plugin.key), plugin)
+function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }: BuildBarrelExportsParams): KubbFile.Export[] {
+  const pluginNameMap = new Map<string, Plugin>()
+  for (const plugin of driver.plugins) {
+    pluginNameMap.set(plugin.name, plugin)
   }
 
   return barrelFiles.flatMap((file) => {
@@ -375,7 +416,7 @@ function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, plu
       }
 
       const meta = file.meta as FileMetaBase | undefined
-      const plugin = meta?.pluginKey ? pluginKeyMap.get(JSON.stringify(meta.pluginKey)) : undefined
+      const plugin = meta?.pluginName ? pluginNameMap.get(meta.pluginName) : undefined
       const pluginOptions = plugin?.options as { output?: Output<unknown> } | undefined
 
       if (!pluginOptions || pluginOptions.output?.barrelType === false) {
@@ -406,12 +447,16 @@ function inputToAdapterSource(config: Config): AdapterSource {
   if (Array.isArray(config.input)) {
     return {
       type: 'paths',
-      paths: config.input.map((i) => resolve(config.root, i.path)),
+      paths: config.input.map((i) => (new URLPath(i.path).isURL ? i.path : resolve(config.root, i.path))),
     }
   }
 
   if ('data' in config.input) {
     return { type: 'data', data: config.input.data }
+  }
+
+  if (new URLPath(config.input.path).isURL) {
+    return { type: 'path', path: config.input.path }
   }
 
   const resolved = resolve(config.root, config.input.path)

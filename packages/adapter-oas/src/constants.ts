@@ -1,41 +1,71 @@
-import type { MediaType, SchemaType } from '@kubb/ast/types'
-import type { HttpMethods as OASHttpMethods } from 'oas/types'
-
-// ─── Merge defaults ────────────────────────────────────────────────────────────
+import { schemaTypes } from '@kubb/ast'
+import type { ParserOptions, ScalarSchemaType, SchemaType } from '@kubb/ast/types'
 
 /**
- * OpenAPI version string written into merged document stubs.
+ * Default parser options applied when no explicit options are provided.
+ *
+ * @example
+ * ```ts
+ * import { DEFAULT_PARSER_OPTIONS } from '@kubb/adapter-oas'
+ *
+ * const parser = createOasParser(oas)
+ * const root = parser.parse({ ...DEFAULT_PARSER_OPTIONS, dateType: 'date' })
+ * ```
+ */
+export const DEFAULT_PARSER_OPTIONS = {
+  dateType: 'string',
+  integerType: 'number',
+  unknownType: 'any',
+  emptySchemaType: 'any',
+  enumSuffix: 'enum',
+} as const satisfies ParserOptions
+
+/**
+ * OpenAPI version string written into the stub document created during multi-spec merges.
  */
 export const MERGE_OPENAPI_VERSION = '3.0.0' as const
 
 /**
- * Fallback `info.title` used when merging multiple API documents.
+ * Fallback `info.title` placed in the stub document when merging multiple API files.
  */
 export const MERGE_DEFAULT_TITLE = 'Merged API' as const
 
 /**
- * Fallback `info.version` used when merging multiple API documents.
+ * Fallback `info.version` placed in the stub document when merging multiple API files.
  */
 export const MERGE_DEFAULT_VERSION = '1.0.0' as const
 
-// ─── Schema analysis ───────────────────────────────────────────────────────────
-
 /**
- * JSON Schema keywords that indicate structural composition.
- * A schema fragment containing any of these keys must not be inlined into its
- * parent during `allOf` flattening — it carries semantic meaning of its own.
+ * Set of JSON Schema keywords that prevent a schema fragment from being inlined during `allOf` flattening.
+ *
+ * A fragment that contains any of these keys carries structural meaning of its own and must stay as a separate
+ * intersection member rather than being merged into the parent.
+ *
+ * @example
+ * ```ts
+ * import { structuralKeys } from '@kubb/adapter-oas'
+ *
+ * const isStructural = Object.keys(fragment).some((key) => structuralKeys.has(key))
+ * // true when fragment has e.g. 'properties' or 'oneOf'
+ * ```
  */
-export const structuralKeys = new Set<string>(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'])
+export const structuralKeys = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'] as const)
 
 /**
- * Maps OAS/JSON Schema `format` strings to their Kubb `SchemaType` equivalents.
+ * Static map from OAS `format` strings to Kubb `SchemaType` values.
  *
- * Only formats that need a type different from the raw OAS `type` are listed.
- * `int64`, `date-time`, `date`, and `time` are handled separately because their
- * mapping depends on runtime parser options.
+ * Only formats whose AST type differs from the OAS `type` field appear here.
+ * Formats that depend on runtime options (`int64`, `date-time`, `date`, `time`) are handled separately
+ * in the parser. `ipv4`, `ipv6`, and `hostname` map to `'url'` as the closest supported scalar.
  *
- * Note: `ipv4`, `ipv6`, and `hostname` map to `'url'` — the closest supported
- * scalar type in the Kubb AST, even though these are not strictly URLs.
+ * @example
+ * ```ts
+ * import { formatMap } from '@kubb/adapter-oas'
+ *
+ * formatMap['uuid']   // 'uuid'
+ * formatMap['binary'] // 'blob'
+ * formatMap['float']  // 'number'
+ * ```
  */
 export const formatMap = {
   uuid: 'uuid',
@@ -58,53 +88,23 @@ export const formatMap = {
 } as const satisfies Record<string, SchemaType>
 
 /**
- * Exhaustive list of media types that Kubb recognizes.
- * Kept as a module-level constant to avoid re-allocating the array on every call.
- */
-export const knownMediaTypes = [
-  'application/json',
-  'application/xml',
-  'application/x-www-form-urlencoded',
-  'application/octet-stream',
-  'application/pdf',
-  'application/zip',
-  'application/graphql',
-  'multipart/form-data',
-  'text/plain',
-  'text/html',
-  'text/csv',
-  'text/xml',
-  'image/png',
-  'image/jpeg',
-  'image/gif',
-  'image/webp',
-  'image/svg+xml',
-  'audio/mpeg',
-  'video/mp4',
-] as const satisfies ReadonlyArray<MediaType>
-
-/**
- * Vendor extension keys used to attach human-readable labels to enum values.
- * Checked in priority order: the first key found wins.
+ * Vendor extension keys that attach human-readable labels to enum values, checked in priority order.
+ *
+ * @example
+ * ```ts
+ * import { enumExtensionKeys } from '@kubb/adapter-oas'
+ *
+ * const key = enumExtensionKeys.find((k) => k in schema) // 'x-enumNames' | 'x-enum-varnames' | undefined
+ * ```
  */
 export const enumExtensionKeys = ['x-enumNames', 'x-enum-varnames'] as const
 
-// ─── HTTP ──────────────────────────────────────────────────────────────────────
-
 /**
- * Canonical HTTP method names for the Kubb OAS layer.
- * Keys are uppercase (used in generated code); values are the lowercase strings
- * that the `oas` library uses internally.
- *
- * TODO(v5): remove — use `httpMethods` from `@kubb/ast`
+ * Maps `'any' | 'unknown' | 'void'` option strings to their `ScalarSchemaType` constant.
+ * Replaces a plain object lookup with a `Map` for explicit key membership testing via `.has()`.
  */
-export const httpMethods = {
-  GET: 'get',
-  POST: 'post',
-  PUT: 'put',
-  PATCH: 'patch',
-  DELETE: 'delete',
-  HEAD: 'head',
-  OPTIONS: 'options',
-  TRACE: 'trace',
-} as const satisfies Record<Uppercase<OASHttpMethods>, OASHttpMethods>
+export const typeOptionMap = new Map<'any' | 'unknown' | 'void', ScalarSchemaType>([
+  ['any', schemaTypes.any],
+  ['unknown', schemaTypes.unknown],
+  ['void', schemaTypes.void],
+])

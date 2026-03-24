@@ -1,3 +1,4 @@
+import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -18,17 +19,14 @@ export default defineConfig([
     hooks: {
       // done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
+    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({ generators: [] }),
       pluginTs({
         output: {
           path: './ts',
         },
-        transformers: {
-          name: (name, _type) => {
-            return `${name}Type`
-          },
-        },
+        compatibilityPreset: 'kubbV4',
       }),
       pluginZod({
         output: {

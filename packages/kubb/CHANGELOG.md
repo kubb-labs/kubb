@@ -1,34 +1,212 @@
 # kubb
 
-## 3.0.252
+## 4.0.0-alpha.19
 
 ### Patch Changes
 
-- Updated dependencies [[`647cc77`](https://github.com/kubb-labs/kubb/commit/647cc77580cc54af1cc540f2188651f36b134624)]:
-  - @kubb/cli@4.36.4
-  - @kubb/agent@4.36.4
-  - @kubb/core@4.36.4
-  - @kubb/mcp@4.36.4
+- Updated dependencies [[`520e0b6`](https://github.com/kubb-labs/kubb/commit/520e0b6ad04d14913feeb39d1546d22464857845)]:
+  - @kubb/cli@5.0.0-alpha.19
+  - @kubb/agent@5.0.0-alpha.19
+  - @kubb/core@5.0.0-alpha.19
+  - @kubb/mcp@5.0.0-alpha.19
 
-## 3.0.251
+## 4.0.0-alpha.18
 
-### Patch Changes
+### Minor Changes
 
-- Updated dependencies [[`ff16227`](https://github.com/kubb-labs/kubb/commit/ff162270a5695543cde5055345668bbf30aa14ce)]:
-  - @kubb/core@4.36.3
-  - @kubb/agent@4.36.3
-  - @kubb/cli@4.36.3
-  - @kubb/mcp@4.36.3
-
-## 3.0.250
+- [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update to TypeScript v6
 
 ### Patch Changes
 
-- Updated dependencies [[`9e3332e`](https://github.com/kubb-labs/kubb/commit/9e3332edd9d19f926519ad7b7bccb66ec4a78fc1)]:
-  - @kubb/agent@4.36.2
-  - @kubb/cli@4.36.2
-  - @kubb/core@4.36.2
-  - @kubb/mcp@4.36.2
+- Updated dependencies [[`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c)]:
+  - @kubb/agent@5.0.0-alpha.18
+  - @kubb/core@5.0.0-alpha.18
+  - @kubb/cli@5.0.0-alpha.18
+  - @kubb/mcp@5.0.0-alpha.18
+
+## 4.0.0-alpha.17
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.17
+  - @kubb/agent@5.0.0-alpha.17
+  - @kubb/cli@5.0.0-alpha.17
+  - @kubb/mcp@5.0.0-alpha.17
+
+## 4.0.0-alpha.16
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@5.0.0-alpha.16
+  - @kubb/cli@5.0.0-alpha.16
+  - @kubb/core@5.0.0-alpha.16
+  - @kubb/mcp@5.0.0-alpha.16
+
+## 4.0.0-alpha.15
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@5.0.0-alpha.15
+  - @kubb/cli@5.0.0-alpha.15
+  - @kubb/core@5.0.0-alpha.15
+  - @kubb/mcp@5.0.0-alpha.15
+
+## 4.0.0-alpha.14
+
+### Patch Changes
+
+- Updated dependencies [[`591977c`](https://github.com/kubb-labs/kubb/commit/591977c5c2f167736d6e43126ed0387a1e5e0ce5)]:
+  - @kubb/core@5.0.0-alpha.14
+  - @kubb/agent@5.0.0-alpha.14
+  - @kubb/cli@5.0.0-alpha.14
+  - @kubb/mcp@5.0.0-alpha.14
+
+## 4.0.0-alpha.13
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.13
+  - @kubb/agent@5.0.0-alpha.13
+  - @kubb/cli@5.0.0-alpha.13
+  - @kubb/mcp@5.0.0-alpha.13
+
+## 4.0.0-alpha.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@5.0.0-alpha.12
+  - @kubb/cli@5.0.0-alpha.12
+  - @kubb/core@5.0.0-alpha.12
+  - @kubb/mcp@5.0.0-alpha.12
+
+## 4.0.0-alpha.11
+
+### Patch Changes
+
+- Updated dependencies [[`4cfcb62`](https://github.com/kubb-labs/kubb/commit/4cfcb6290ffa11c93f19345c93906af65ec18339)]:
+  - @kubb/core@5.0.0-alpha.11
+  - @kubb/agent@5.0.0-alpha.11
+  - @kubb/cli@5.0.0-alpha.11
+  - @kubb/mcp@5.0.0-alpha.11
+
+## 4.0.0-alpha.10
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.10
+  - @kubb/agent@5.0.0-alpha.10
+  - @kubb/cli@5.0.0-alpha.10
+  - @kubb/mcp@5.0.0-alpha.10
+
+## 4.0.0-alpha.9
+
+### Patch Changes
+
+- Updated dependencies [[`617aa20`](https://github.com/kubb-labs/kubb/commit/617aa203608222aba2a022ab998ced16f4216ed3)]:
+  - @kubb/core@5.0.0-alpha.9
+  - @kubb/agent@5.0.0-alpha.9
+  - @kubb/cli@5.0.0-alpha.9
+  - @kubb/mcp@5.0.0-alpha.9
+
+## 4.0.0-alpha.8
+
+### Patch Changes
+
+- Updated dependencies [[`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517)]:
+  - @kubb/core@5.0.0-alpha.8
+  - @kubb/agent@5.0.0-alpha.8
+  - @kubb/cli@5.0.0-alpha.8
+  - @kubb/mcp@5.0.0-alpha.8
+
+## 4.0.0-alpha.7
+
+### Patch Changes
+
+- Updated dependencies [[`bf5f955`](https://github.com/kubb-labs/kubb/commit/bf5f955ec285badb0d99a3950b0a880622180ec2)]:
+  - @kubb/core@5.0.0-alpha.7
+  - @kubb/agent@5.0.0-alpha.7
+  - @kubb/cli@5.0.0-alpha.7
+  - @kubb/mcp@5.0.0-alpha.7
+
+## 4.0.0-alpha.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/agent@5.0.0-alpha.6
+  - @kubb/cli@5.0.0-alpha.6
+  - @kubb/core@5.0.0-alpha.6
+  - @kubb/mcp@5.0.0-alpha.6
+
+## 4.0.0-alpha.5
+
+### Patch Changes
+
+- Updated dependencies [[`f373168`](https://github.com/kubb-labs/kubb/commit/f37316845ef3f8753a93e04a946b333ee4e42073)]:
+  - @kubb/core@5.0.0-alpha.5
+  - @kubb/agent@5.0.0-alpha.5
+  - @kubb/cli@5.0.0-alpha.5
+  - @kubb/mcp@5.0.0-alpha.5
+
+## 4.0.0-alpha.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.4
+  - @kubb/agent@5.0.0-alpha.4
+  - @kubb/cli@5.0.0-alpha.4
+  - @kubb/mcp@5.0.0-alpha.4
+
+## 4.0.0-alpha.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.3
+  - @kubb/agent@5.0.0-alpha.3
+  - @kubb/cli@5.0.0-alpha.3
+  - @kubb/mcp@5.0.0-alpha.3
+
+## 4.0.0-alpha.2
+
+### Patch Changes
+
+- Updated dependencies [[`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b)]:
+  - @kubb/core@5.0.0-alpha.2
+  - @kubb/agent@5.0.0-alpha.2
+  - @kubb/cli@5.0.0-alpha.2
+  - @kubb/mcp@5.0.0-alpha.2
+
+## 4.0.0-alpha.1
+
+### Major Changes
+
+- [`a4682ea`](https://github.com/kubb-labs/kubb/commit/a4682ea8896ef7d9ccae1b6e9abd6ed7bcaac073) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - The minimum required Node.js version is 22.
+
+### Patch Changes
+
+- Updated dependencies [[`a4682ea`](https://github.com/kubb-labs/kubb/commit/a4682ea8896ef7d9ccae1b6e9abd6ed7bcaac073)]:
+  - @kubb/agent@5.0.0-alpha.1
+  - @kubb/core@5.0.0-alpha.1
+  - @kubb/cli@5.0.0-alpha.1
+  - @kubb/mcp@5.0.0-alpha.1
+
+## 3.0.250-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [[`2d474ef`](https://github.com/kubb-labs/kubb/commit/2d474ef68bad43e13ec34e762194048cd2a194d9)]:
+  - @kubb/core@5.0.0-alpha.0
+  - @kubb/agent@5.0.0-alpha.0
+  - @kubb/cli@5.0.0-alpha.0
+  - @kubb/mcp@5.0.0-alpha.0
 
 ## 3.0.249
 

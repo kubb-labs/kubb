@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-msw",
-  "version": "4.36.4",
+  "version": "5.0.0-alpha.19",
   "description": "Mock Service Worker (MSW) handlers generator plugin for Kubb, creating API mocks from OpenAPI specifications for frontend development and testing.",
   "keywords": [
     "msw",
@@ -98,7 +98,7 @@
     "@internals/utils": "workspace:*"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "publishConfig": {
     "access": "public",

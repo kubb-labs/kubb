@@ -62,11 +62,11 @@ Brevity is still valued, but never at the cost of clarity or correctness.
 
 ### Writing Patterns
 
-| Pattern       | Example                                                 |
-| ------------- |---------------------------------------------------------|
+| Pattern       | Example                                                    |
+| ------------- |------------------------------------------------------------|
 | Subject-first | "The `useFabric` composable handles Fabric related logic." |
-| Imperative    | "Add the following to `kubb.config.ts`."                |
-| Contextual    | "When relying on TypeScript, configure..."              |
+| Imperative    | "Add the following to `kubb.config.ts`."                   |
+| Contextual    | "When relying on TypeScript, configure..."                 |
 
 ### Modal Verbs
 

@@ -1,11 +1,11 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Plugin } from '@kubb/core'
+
 import { parse } from '@kubb/oas'
-import { OperationGenerator } from '@kubb/plugin-oas'
+import { OperationGenerator, renderOperations } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPluginManager, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import type { PluginClient } from '../types.ts'
 import { classClientGenerator } from './classClientGenerator.tsx'
 
@@ -64,13 +64,13 @@ describe('classClientGenerator operations', async () => {
       wrapper: undefined,
       ...props.options,
     }
-    const plugin = { options } as Plugin<PluginClient>
-    const mockedPluginManager = createMockedPluginManager(props.name)
+    const plugin = createMockedPlugin<PluginClient>({ name: 'plugin-client', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      pluginManager: mockedPluginManager,
+      driver: mockedPluginDriver,
 
       plugin,
       contentType: undefined,
@@ -81,7 +81,7 @@ describe('classClientGenerator operations', async () => {
 
     const operations = await generator.getOperations()
 
-    await (await import('@kubb/plugin-oas')).buildOperations(
+    await renderOperations(
       operations.map((item) => item.operation),
       {
         config: {
@@ -95,6 +95,6 @@ describe('classClientGenerator operations', async () => {
       },
     )
 
-    await matchFiles(fabric.files)
+    await matchFiles(fabric.files, props.name)
   })
 })

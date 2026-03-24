@@ -4,18 +4,13 @@ import type { formatters } from '../constants.ts'
 type Formatter = keyof typeof formatters
 
 /**
- * Check if a formatter command is available in the system.
+ * Returns `true` when the given formatter is installed and callable.
  *
- * @param formatter - The formatter to check ('biome', 'prettier', or 'oxfmt')
- * @returns Promise that resolves to true if the formatter is available, false otherwise
- *
- * @remarks
- * This function checks availability by running `<formatter> --version` command.
- * All supported formatters (biome, prettier, oxfmt) implement the --version flag.
+ * Availability is detected by running `<formatter> --version` and checking
+ * that the process exits without error.
  */
 async function isFormatterAvailable(formatter: Formatter): Promise<boolean> {
   try {
-    // Try to get the version of the formatter to check if it's installed
     await x(formatter, ['--version'], { nodeOptions: { stdio: 'ignore' } })
     return true
   } catch {
@@ -24,27 +19,21 @@ async function isFormatterAvailable(formatter: Formatter): Promise<boolean> {
 }
 
 /**
- * Detect which formatter is available in the system.
+ * Detects the first available code formatter on the current system.
  *
- * @returns Promise that resolves to the first available formatter or undefined if none are found
- *
- * @remarks
- * Checks in order of preference: biome, oxfmt, prettier.
- * Uses the `--version` flag to detect if each formatter command is available.
- * This is a reliable method as all supported formatters implement this flag.
+ * - Checks in preference order: `biome`, `oxfmt`, `prettier`.
+ * - Returns `null` when none are found.
  *
  * @example
- * ```typescript
+ * ```ts
  * const formatter = await detectFormatter()
  * if (formatter) {
  *   console.log(`Using ${formatter} for formatting`)
- * } else {
- *   console.log('No formatter found')
  * }
  * ```
  */
-export async function detectFormatter(): Promise<Formatter | undefined> {
-  const formatterNames: Formatter[] = ['biome', 'oxfmt', 'prettier']
+export async function detectFormatter(): Promise<Formatter | null> {
+  const formatterNames = new Set(['biome', 'oxfmt', 'prettier'] as const)
 
   for (const formatter of formatterNames) {
     if (await isFormatterAvailable(formatter)) {
@@ -52,5 +41,5 @@ export async function detectFormatter(): Promise<Formatter | undefined> {
     }
   }
 
-  return undefined
+  return null
 }

@@ -13,11 +13,12 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "generate": "kubb generate",
+    "generate": "KUBB_DISABLE_TELEMETRY=1 kubb generate",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-client": "workspace:*",

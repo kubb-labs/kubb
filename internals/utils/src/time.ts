@@ -1,6 +1,13 @@
 /**
- * Calculates elapsed time in milliseconds from a high-resolution start time.
- * Rounds to 2 decimal places to provide sub-millisecond precision without noise.
+ * Calculates elapsed time in milliseconds from a high-resolution `process.hrtime` start time.
+ * Rounds to 2 decimal places for sub-millisecond precision without noise.
+ *
+ * @example
+ * ```ts
+ * const start = process.hrtime()
+ * doWork()
+ * getElapsedMs(start) // 42.35
+ * ```
  */
 export function getElapsedMs(hrStart: [number, number]): number {
   const [seconds, nanoseconds] = process.hrtime(hrStart)
@@ -9,8 +16,14 @@ export function getElapsedMs(hrStart: [number, number]): number {
 }
 
 /**
- * Converts a millisecond duration into a human-readable string.
- * Adjusts units (ms, s, m s) based on the magnitude of the duration.
+ * Converts a millisecond duration into a human-readable string (`ms`, `s`, or `m s`).
+ *
+ * @example
+ * ```ts
+ * formatMs(250)   // '250ms'
+ * formatMs(1500)  // '1.50s'
+ * formatMs(90000) // '1m 30.0s'
+ * ```
  */
 export function formatMs(ms: number): string {
   if (ms >= 60000) {
@@ -26,7 +39,14 @@ export function formatMs(ms: number): string {
 }
 
 /**
- * Convenience helper: formats the elapsed time since `hrStart` in one step.
+ * Formats the elapsed time since `hrStart` as a human-readable string.
+ *
+ * @example
+ * ```ts
+ * const start = process.hrtime()
+ * doWork()
+ * formatHrtime(start) // '1.50s'
+ * ```
  */
 export function formatHrtime(hrStart: [number, number]): string {
   return formatMs(getElapsedMs(hrStart))

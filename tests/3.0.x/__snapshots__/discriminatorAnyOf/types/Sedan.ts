@@ -5,17 +5,19 @@
 
 import type { Vehicle } from "./Vehicle.ts";
 
-export const sedanTypeEnum = {
+export const typeEnum = {
     Sedan: "Sedan"
 } as const;
 
-export type SedanTypeEnumKey = (typeof sedanTypeEnum)[keyof typeof sedanTypeEnum];
+export type TypeEnumKey = (typeof typeEnum)[keyof typeof typeEnum];
+
+export type TypeEnum = TypeEnumKey
 
 export type Sedan = (Vehicle & {
     /**
      * @type string | undefined
     */
-    type?: SedanTypeEnumKey;
+    type?: TypeEnumKey;
     /**
      * @description Number of seats
      * @type integer | undefined

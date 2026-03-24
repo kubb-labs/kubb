@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { usePluginManager } from '@kubb/core/hooks'
+import { usePluginDriver } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -13,7 +13,7 @@ import type { PluginClient } from '../types'
 export const clientGenerator = createReactGenerator<PluginClient>({
   name: 'client',
   Operation({ config, plugin, operation, generator }) {
-    const pluginManager = usePluginManager()
+    const driver = usePluginDriver()
     const {
       options,
       options: { output, urlType },
@@ -33,13 +33,13 @@ export const clientGenerator = createReactGenerator<PluginClient>({
     }
 
     const type = {
-      file: getFile(operation, { pluginKey: [pluginTsName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+      file: getFile(operation, { pluginName: pluginTsName }),
+      schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
     }
 
     const zod = {
-      file: getFile(operation, { pluginKey: [pluginZodName] }),
-      schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+      file: getFile(operation, { pluginName: pluginZodName }),
+      schemas: getSchemas(operation, { pluginName: pluginZodName, type: 'function' }),
     }
 
     const isFormData = operation.getContentType() === 'multipart/form-data'
@@ -49,7 +49,7 @@ export const clientGenerator = createReactGenerator<PluginClient>({
         baseName={client.file.baseName}
         path={client.file.path}
         meta={client.file.meta}
-        banner={getBanner({ oas, output, config: pluginManager.config })}
+        banner={getBanner({ oas, output, config: driver.config })}
         footer={getFooter({ oas, output })}
       >
         {options.importPath ? (
