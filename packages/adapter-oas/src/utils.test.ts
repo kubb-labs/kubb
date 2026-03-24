@@ -189,6 +189,41 @@ describe('getSchemas', () => {
     expect(nameMapping.get('#/components/responses/PetList')).toBe('PetListResponse')
   })
 
+  it('collects enum schemas correctly', () => {
+    const document: Document = {
+      ...base,
+      components: {
+        schemas: {
+          Status: { type: 'string', enum: ['active', 'inactive', 'pending'] },
+        },
+      },
+    }
+
+    const { nameMapping } = getSchemas(document, {})
+    expect(nameMapping.get('#/components/schemas/Status')).toBe('Status')
+  })
+
+  it('resolves collision between enum schema and response with semantic suffixes', () => {
+    const document: Document = {
+      ...base,
+      components: {
+        schemas: {
+          Status: { type: 'string', enum: ['active', 'inactive'] },
+        },
+        responses: {
+          Status: {
+            description: 'ok',
+            content: { 'application/json': { schema: { type: 'object', properties: { code: { type: 'integer' } } } } },
+          },
+        },
+      },
+    }
+
+    const { nameMapping } = getSchemas(document, {})
+    expect(nameMapping.get('#/components/schemas/Status')).toBe('StatusSchema')
+    expect(nameMapping.get('#/components/responses/Status')).toBe('StatusResponse')
+  })
+
   it('sorts schemas by $ref dependency (referenced schema appears first)', () => {
     const document: Document = {
       ...base,
