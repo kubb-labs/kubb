@@ -64,8 +64,10 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         emptySchemaType,
         enumSuffix,
         nameMapping,
-        document: parsedDocument,
       }
+    },
+    get document() {
+      return parsedDocument
     },
     getImports(node, resolve) {
       return collectImports({

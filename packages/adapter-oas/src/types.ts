@@ -201,20 +201,9 @@ export type AdapterOasResolvedOptions = {
    * ```
    */
   nameMapping: Map<string, string>
-  /**
-   * The raw parsed OpenAPI document.
-   * Populated after the first `parse()` call; `undefined` before that.
-   *
-   * @example
-   * ```ts
-   * const doc = adapter.options.document
-   * // doc.info.title, doc.paths, doc.components, …
-   * ```
-   */
-  document: Document | undefined
 }
 
 /**
  * `@kubb/core` adapter factory type for the OpenAPI adapter.
  */
-export type AdapterOas = AdapterFactoryOptions<'oas', AdapterOasOptions, AdapterOasResolvedOptions>
+export type AdapterOas = AdapterFactoryOptions<'oas', AdapterOasOptions, AdapterOasResolvedOptions, Document>

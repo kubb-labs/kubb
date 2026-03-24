@@ -29,7 +29,7 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
         )
       }
 
-      const document = (adapter as Adapter<AdapterOas>).options.document
+      const document = (adapter as Adapter<AdapterOas>).document
 
       if (!document) {
         throw new Error(`[${pluginRedocName}] No OpenAPI document found. The adapterOas did not produce a document — ensure the adapter has run before this plugin.`)
