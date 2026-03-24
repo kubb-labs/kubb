@@ -26,8 +26,21 @@ export function isCIEnvironment(): boolean {
 }
 
 /**
- * Returns `true` when the process has an interactive TTY and is not running in CI.
+ * Returns `true` when the process has an interactive TTY with a valid terminal
+ * width and is not running in CI.
+ *
+ * Some IDE-embedded terminals report `isTTY = true` but set `columns` to `0`,
+ * which breaks clack's box-drawing helpers (they call `String.prototype.repeat`
+ * with a negative count and throw a `RangeError`).  We therefore require a
+ * positive column count before declaring the TTY usable.
+ *
+ * @example
+ * ```ts
+ * if (canUseTTY()) {
+ *   // use clack interactive UI
+ * }
+ * ```
  */
 export function canUseTTY(): boolean {
-  return !!process.stdout.isTTY && !isCIEnvironment()
+  return !!process.stdout.isTTY && (process.stdout.columns ?? 0) > 0 && !isCIEnvironment()
 }
