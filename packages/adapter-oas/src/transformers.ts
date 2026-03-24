@@ -15,7 +15,6 @@ import {
   mergeAdjacentObjects,
   narrowSchema,
   type ParserOptions,
-  resolveNames,
   schemaTypes,
   setDiscriminatorEnum,
   setEnumName,
@@ -890,9 +889,7 @@ export function parseOas(
 
   const { parseSchema: _parseSchema, parseOperation: _parseOperation } = buildConverters(ctx)
 
-  const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schemaObject]) =>
-    _parseSchema({ schema: schemaObject as SchemaObject, name }, mergedOptions),
-  )
+  const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, mergedOptions))
 
   const baseOas = new BaseOas(document)
   const paths = baseOas.getPaths()

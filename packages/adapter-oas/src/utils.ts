@@ -225,7 +225,7 @@ type SchemaSourceMode = 'schemas' | 'responses' | 'requestBodies'
 /**
  * A schema annotated with the component section it came from and its original name.
  *
- * Used during cross-source name-collision resolution in `resolveCollisions`.
+ * Used during cross-source name-collision resolution in `resolveNameCollisions`.
  */
 export type SchemaWithMetadata = {
   schema: SchemaObject
@@ -235,7 +235,6 @@ export type SchemaWithMetadata = {
 
 export type GetSchemasOptions = {
   contentType?: contentType
-  includes?: Array<'schemas' | 'responses' | 'requestBodies'>
 }
 
 export type GetSchemasResult = {
@@ -380,45 +379,23 @@ function getSemanticSuffix(source: SchemaSourceMode): string {
 }
 
 /**
- * Registers schemas without collision detection, each under its original component name.
- *
- * Used in legacy mode where all schema names are preserved as-is.
- *
- * @example
- * ```ts
- * const { schemas, nameMapping } = resolveLegacy(schemasWithMeta)
- * ```
- */
-export function resolveLegacy(schemasWithMeta: SchemaWithMetadata[]): GetSchemasResult {
-  const schemas: Record<string, SchemaObject> = {}
-  const nameMapping = new Map<string, string>()
-
-  for (const item of schemasWithMeta) {
-    schemas[item.originalName] = item.schema
-    nameMapping.set(`#/components/${item.source}/${item.originalName}`, item.originalName)
-  }
-
-  return { schemas, nameMapping }
-}
-
-/**
  * Builds `GetSchemasResult` with automatic name-collision resolution.
  *
- * When two or more schemas normalise to the same PascalCase name:
+ * When two or more schemas normalize to the same PascalCase name:
  * - Same source → numeric suffix (`2`, `3`, …).
  * - Different sources → semantic suffix (`Schema`, `Response`, `Request`).
  *
  * @example
  * ```ts
- * const { schemas, nameMapping } = resolveCollisions(schemasWithMeta)
+ * const { schemas, nameMapping } = resolveNameCollisions(schemasWithMeta)
  * ```
  */
-export function resolveCollisions(schemasWithMeta: SchemaWithMetadata[]): GetSchemasResult {
+export function resolveNameCollisions(schemasWithMeta: Map<string, SchemaWithMetadata>): GetSchemasResult {
   const schemas: Record<string, SchemaObject> = {}
   const nameMapping = new Map<string, string>()
   const normalizedNames = new Map<string, SchemaWithMetadata[]>()
 
-  for (const item of schemasWithMeta) {
+  for (const item of schemasWithMeta.values()) {
     const normalized = pascalCase(item.originalName)
     const bucket = normalizedNames.get(normalized) ?? []
     bucket.push(item)
@@ -464,63 +441,55 @@ export function resolveCollisions(schemasWithMeta: SchemaWithMetadata[]): GetSch
  * const { schemas, nameMapping } = getSchemas(document, { contentType: 'application/json' })
  * ```
  */
-export function getSchemas(document: Document, options: GetSchemasOptions = {}): GetSchemasResult {
-  const { contentType, includes = ['schemas', 'requestBodies', 'responses'] } = options
-
+export function getSchemas(document: Document, { contentType }: GetSchemasOptions): GetSchemasResult {
   const components = document.components
-  const schemasWithMeta: SchemaWithMetadata[] = []
+  const schemasWithMeta = new Map<string, SchemaWithMetadata>()
 
-  if (includes.includes('schemas')) {
-    const componentSchemas = (components?.schemas as Record<string, SchemaObject>) || {}
-    for (const [name, schemaObject] of Object.entries(componentSchemas)) {
-      let schema = schemaObject
-      if (isReference(schemaObject)) {
-        const resolved = resolveRef<SchemaObject>(document, schemaObject.$ref)
+  const componentSchemas = components?.schemas || {}
+  for (const [name, schemaObject] of Object.entries(componentSchemas)) {
+    let schema = schemaObject
+    if (isReference(schemaObject)) {
+      const resolved = resolveRef<SchemaObject>(document, schemaObject.$ref)
+      if (resolved && !isReference(resolved)) {
+        schema = resolved
+      }
+    }
+    schemasWithMeta.set(`schemas:${name}`, { schema, source: 'schemas', originalName: name })
+  }
+
+  const responses = components?.responses || {}
+  for (const [name, response] of Object.entries(responses)) {
+    const responseObject = response as ResponseObject
+    const schema = extractSchemaFromContent(responseObject.content, contentType)
+    if (schema) {
+      let resolvedSchema = schema
+      if (isReference(schema)) {
+        const resolved = resolveRef<SchemaObject>(document, schema.$ref)
         if (resolved && !isReference(resolved)) {
-          schema = resolved
+          resolvedSchema = resolved
         }
       }
-      schemasWithMeta.push({ schema, source: 'schemas', originalName: name })
+      schemasWithMeta.set(`responses:${name}`, { schema: resolvedSchema, source: 'responses', originalName: name })
     }
   }
 
-  if (includes.includes('responses')) {
-    const responses = components?.responses || {}
-    for (const [name, response] of Object.entries(responses)) {
-      const responseObject = response as ResponseObject
-      const schema = extractSchemaFromContent(responseObject.content, contentType)
-      if (schema) {
-        let resolvedSchema = schema
-        if (isReference(schema)) {
-          const resolved = resolveRef<SchemaObject>(document, schema.$ref)
-          if (resolved && !isReference(resolved)) {
-            resolvedSchema = resolved
-          }
+  const requestBodies = components?.requestBodies || {}
+  for (const [name, request] of Object.entries(requestBodies)) {
+    const requestObject = request as { content?: Record<string, unknown> }
+    const schema = extractSchemaFromContent(requestObject.content, contentType)
+    if (schema) {
+      let resolvedSchema = schema
+      if (isReference(schema)) {
+        const resolved = resolveRef<SchemaObject>(document, schema.$ref)
+        if (resolved && !isReference(resolved)) {
+          resolvedSchema = resolved
         }
-        schemasWithMeta.push({ schema: resolvedSchema, source: 'responses', originalName: name })
       }
+      schemasWithMeta.set(`requestBodies:${name}`, { schema: resolvedSchema, source: 'requestBodies', originalName: name })
     }
   }
 
-  if (includes.includes('requestBodies')) {
-    const requestBodies = components?.requestBodies || {}
-    for (const [name, request] of Object.entries(requestBodies)) {
-      const requestObject = request as { content?: Record<string, unknown> }
-      const schema = extractSchemaFromContent(requestObject.content, contentType)
-      if (schema) {
-        let resolvedSchema = schema
-        if (isReference(schema)) {
-          const resolved = resolveRef<SchemaObject>(document, schema.$ref)
-          if (resolved && !isReference(resolved)) {
-            resolvedSchema = resolved
-          }
-        }
-        schemasWithMeta.push({ schema: resolvedSchema, source: 'requestBodies', originalName: name })
-      }
-    }
-  }
-
-  const { schemas, nameMapping } = resolveCollisions(schemasWithMeta)
+  const { schemas, nameMapping } = resolveNameCollisions(schemasWithMeta)
 
   return {
     schemas: sortSchemas(schemas),
