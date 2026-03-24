@@ -706,9 +706,14 @@ describe('convertSchema oneOf / anyOf', () => {
       },
     })
 
-    expect(node.type).toBe('union')
-    expect(node.members).toHaveLength(2)
-    expect(node.members?.every((m) => m.type === 'intersection')).toBe(true)
+    expect(node.type).toBe('intersection')
+    const topIntersection = narrowSchema(node, 'intersection')!
+    const unionNode = narrowSchema(topIntersection.members?.[0], 'union')
+    const sharedNode = narrowSchema(topIntersection.members?.[1], 'object')
+
+    expect(unionNode?.members).toHaveLength(2)
+    expect(unionNode?.members?.every((m) => m.type === 'ref')).toBe(true)
+    expect(sharedNode?.properties?.some((p) => p.name === 'id')).toBe(true)
   })
 
   it('each intersection member contains the oneOf ref and the properties node', () => {
@@ -719,8 +724,10 @@ describe('convertSchema oneOf / anyOf', () => {
       },
     })
 
-    const intersection = narrowSchema(node.members?.[0], 'intersection')
-    const [refMember, propsMember] = intersection?.members ?? []
+    const topIntersection = narrowSchema(node, 'intersection')
+    const unionNode = narrowSchema(topIntersection?.members?.[0], 'union')
+    const [refMember] = unionNode?.members ?? []
+    const [, propsMember] = topIntersection?.members ?? []
     expect(refMember?.type).toBe('ref')
     expect(propsMember?.type).toBe('object')
   })
@@ -2524,19 +2531,28 @@ describe('convertSchema discriminator on union (oneOf/anyOf)', () => {
       },
     })
 
-    expect(node.type).toBe('union')
-    const { members } = narrowSchema(node, 'union')!
+    expect(node.type).toBe('intersection')
+    const topIntersection = narrowSchema(node, 'intersection')!
+    const unionNode = narrowSchema(topIntersection.members?.[0], 'union')!
+    const sharedPropertiesNode = narrowSchema(topIntersection.members?.[1], 'object')
+    const sharedTypeProp = sharedPropertiesNode?.properties?.find((p) => p.name === 'type')
 
-    // Dog member: intersection of Dog ref + properties narrowed to type='dog'
+    expect(narrowSchema(sharedTypeProp?.schema, 'enum')?.enumValues).toEqual(['dog', 'cat'])
+
+    const { members } = unionNode
+
+    // Dog member: intersection of Dog ref + synthetic discriminant object { type: 'dog' }
     const dogIntersection = narrowSchema(members![0], 'intersection')
-    const dogPropertiesNode = narrowSchema(dogIntersection!.members![1], 'object')
-    const dogTypeProp = dogPropertiesNode?.properties?.find((p) => p.name === 'type')
+    const dogDiscNode = narrowSchema(dogIntersection!.members![1], 'object')
+    const dogTypeProp = dogDiscNode?.properties?.find((p) => p.name === 'type')
+    expect(dogTypeProp?.schema.readOnly).toBe(true)
     expect(narrowSchema(dogTypeProp?.schema, 'enum')?.enumValues).toEqual(['dog'])
 
-    // Cat member: intersection of Cat ref + properties narrowed to type='cat'
+    // Cat member: intersection of Cat ref + synthetic discriminant object { type: 'cat' }
     const catIntersection = narrowSchema(members![1], 'intersection')
-    const catPropertiesNode = narrowSchema(catIntersection!.members![1], 'object')
-    const catTypeProp = catPropertiesNode?.properties?.find((p) => p.name === 'type')
+    const catDiscNode = narrowSchema(catIntersection!.members![1], 'object')
+    const catTypeProp = catDiscNode?.properties?.find((p) => p.name === 'type')
+    expect(catTypeProp?.schema.readOnly).toBe(true)
     expect(narrowSchema(catTypeProp?.schema, 'enum')?.enumValues).toEqual(['cat'])
   })
 
@@ -2560,9 +2576,10 @@ describe('convertSchema discriminator on union (oneOf/anyOf)', () => {
       },
     })
 
-    const { members } = narrowSchema(node, 'union')!
-    const dogPropertiesNode = narrowSchema(narrowSchema(members![0], 'intersection')!.members![1], 'object')
-    const statusProp = dogPropertiesNode?.properties?.find((p) => p.name === 'status')
+    expect(node.type).toBe('intersection')
+    const topIntersection = narrowSchema(node, 'intersection')!
+    const sharedPropertiesNode = narrowSchema(topIntersection.members?.[1], 'object')
+    const statusProp = sharedPropertiesNode?.properties?.find((p) => p.name === 'status')
     // The enum schema should carry a name derived from the parent union name
     expect(statusProp?.schema.name).toBe('PetStatusEnum')
   })
@@ -3090,9 +3107,8 @@ describe('enum naming', () => {
       { enumSuffix: 'enum' },
     )
 
-    const unionNode = narrowSchema(node, 'union')
-    const firstMember = narrowSchema(unionNode?.members?.[0], 'intersection')
-    const sharedObj = firstMember?.members?.find((m) => narrowSchema(m, 'object')?.properties?.some((p) => p.name === 'status'))
+    const topIntersection = narrowSchema(node, 'intersection')
+    const sharedObj = topIntersection?.members?.find((m) => narrowSchema(m, 'object')?.properties?.some((p) => p.name === 'status'))
     const statusProp = narrowSchema(sharedObj, 'object')?.properties?.find((p) => p.name === 'status')
     const enumNode = narrowSchema(statusProp?.schema, 'enum')
 

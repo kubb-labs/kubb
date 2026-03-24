@@ -228,69 +228,53 @@ export type Cat = {
   name?: string
 }
 
+export type PetTypeEnum = 'dog' | 'cat'
+
 export type PetStatusEnum = 'available' | 'pending' | 'sold'
 
-export type Pet =
+export type Pet = (
   | (Dog & {
-      /**
-       * @example 10
-       * @type integer | undefined
-       */
-      id?: number
       /**
        * @type string
        */
       readonly type: 'dog'
-      /**
-       * @example doggie
-       * @type string
-       */
-      name: string
-      category?: Category
-      /**
-       * @type array
-       */
-      photoUrls: string[]
-      /**
-       * @type array | undefined
-       */
-      readonly tags?: Tag[]
-      /**
-       * @description pet status in the store
-       * @type string | undefined
-       */
-      status?: PetStatusEnum
     })
   | (Cat & {
-      /**
-       * @example 10
-       * @type integer | undefined
-       */
-      id?: number
       /**
        * @type string
        */
       readonly type: 'cat'
-      /**
-       * @example doggie
-       * @type string
-       */
-      name: string
-      category?: Category
-      /**
-       * @type array
-       */
-      photoUrls: string[]
-      /**
-       * @type array | undefined
-       */
-      readonly tags?: Tag[]
-      /**
-       * @description pet status in the store
-       * @type string | undefined
-       */
-      status?: PetStatusEnum
     })
+) & {
+  /**
+   * @example 10
+   * @type integer | undefined
+   */
+  id?: number
+  /**
+   * @type string
+   */
+  readonly type: PetTypeEnum
+  /**
+   * @example doggie
+   * @type string
+   */
+  name: string
+  category?: Category
+  /**
+   * @type array
+   */
+  photoUrls: string[]
+  /**
+   * @type array | undefined
+   */
+  readonly tags?: Tag[]
+  /**
+   * @description pet status in the store
+   * @type string | undefined
+   */
+  status?: PetStatusEnum
+}
 
 export type FullAddress = Address & {
   /**

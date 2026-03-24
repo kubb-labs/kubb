@@ -128,8 +128,14 @@ export type {
   OrderParamsStatusEnumKey,
 } from './ts/models/Order.ts'
 export { orderHttpStatusEnum, orderParamsStatusEnum } from './ts/models/Order.ts'
-export type { Pet, PetStatusEnum, PetStatusEnumKey } from './ts/models/Pet.ts'
-export { petStatusEnum } from './ts/models/Pet.ts'
+export type {
+  Pet,
+  PetStatusEnum,
+  PetStatusEnumKey,
+  PetTypeEnum,
+  PetTypeEnumKey,
+} from './ts/models/Pet.ts'
+export { petStatusEnum, petTypeEnum } from './ts/models/Pet.ts'
 export type { PetNotFound } from './ts/models/PetNotFound.ts'
 export type {
   PlaceOrder200,

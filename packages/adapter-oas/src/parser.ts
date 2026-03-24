@@ -371,6 +371,21 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
    * adding common fields next to a discriminated union.
    */
   function convertUnion({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): SchemaNode {
+    function pickDiscriminatorPropertyNode(node: SchemaNode, propertyName: string): SchemaNode | undefined {
+      const objectNode = narrowSchema(node, 'object')
+      const discriminatorProperty = objectNode?.properties?.find((property) => property.name === propertyName)
+
+      if (!discriminatorProperty) {
+        return undefined
+      }
+
+      return createSchema({
+        type: 'object',
+        primitive: 'object',
+        properties: [discriminatorProperty],
+      })
+    }
+
     const unionMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
     const unionBase = {
       ...renderSchemaBase(schema, name, nullable, defaultValue),
@@ -391,37 +406,46 @@ export function createOasParser(oas: Oas, { contentType }: OasParserOptions = {}
       : undefined
 
     if (sharedPropertiesNode || discriminator?.mapping) {
-      return createSchema({
+      const members = unionMembers.map((s) => {
+        const ref = isReference(s) ? s.$ref : undefined
+        const discriminatorValue = resolveDiscriminatorValue(discriminator?.mapping, ref)
+        const memberNode = convertSchema({ schema: s as SchemaObject }, rawOptions)
+
+        if (!discriminatorValue || !discriminator) {
+          return memberNode
+        }
+
+        const narrowedDiscriminatorNode = sharedPropertiesNode
+          ? pickDiscriminatorPropertyNode(
+              applyDiscriminatorEnum({
+                node: sharedPropertiesNode,
+                propertyName: discriminator.propertyName,
+                values: [discriminatorValue],
+              }),
+              discriminator.propertyName,
+            )
+          : undefined
+
+        return createSchema({
+          type: 'intersection',
+          members: [memberNode, narrowedDiscriminatorNode ?? createDiscriminantNode(discriminator.propertyName, discriminatorValue)],
+        })
+      })
+
+      const unionNode = createSchema({
         type: 'union',
         ...unionBase,
-        members: unionMembers.map((s) => {
-          const ref = isReference(s) ? s.$ref : undefined
-          const discriminatorValue = resolveDiscriminatorValue(discriminator?.mapping, ref)
-          const memberNode = convertSchema({ schema: s as SchemaObject }, rawOptions)
+        members,
+      })
 
-          if (sharedPropertiesNode) {
-            const narrowedProperties =
-              discriminatorValue && discriminator
-                ? applyDiscriminatorEnum({
-                    node: sharedPropertiesNode,
-                    propertyName: discriminator.propertyName,
-                    values: [discriminatorValue],
-                  })
-                : sharedPropertiesNode
+      if (!sharedPropertiesNode) {
+        return unionNode
+      }
 
-            return createSchema({
-              type: 'intersection',
-              members: [memberNode, narrowedProperties],
-            })
-          }
-
-          if (!discriminatorValue || !discriminator) return memberNode
-
-          return createSchema({
-            type: 'intersection',
-            members: [memberNode, createDiscriminantNode(discriminator.propertyName, discriminatorValue)],
-          })
-        }),
+      return createSchema({
+        type: 'intersection',
+        ...renderSchemaBase(schema, name, nullable, defaultValue),
+        members: [unionNode, sharedPropertiesNode],
       })
     }
 

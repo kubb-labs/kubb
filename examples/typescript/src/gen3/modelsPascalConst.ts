@@ -252,6 +252,15 @@ export type Cat = {
   name?: string
 }
 
+export const PetTypeEnum = {
+  dog: 'dog',
+  cat: 'cat',
+} as const
+
+export type PetTypeEnumKey = (typeof PetTypeEnum)[keyof typeof PetTypeEnum]
+
+export type PetTypeEnum = PetTypeEnumKey
+
 export const PetStatusEnum = {
   available: 'available',
   pending: 'pending',
@@ -262,67 +271,49 @@ export type PetStatusEnumKey = (typeof PetStatusEnum)[keyof typeof PetStatusEnum
 
 export type PetStatusEnum = PetStatusEnumKey
 
-export type Pet =
+export type Pet = (
   | (Dog & {
-      /**
-       * @example 10
-       * @type integer | undefined
-       */
-      id?: number
       /**
        * @type string
        */
       readonly type: 'dog'
-      /**
-       * @example doggie
-       * @type string
-       */
-      name: string
-      category?: Category
-      /**
-       * @type array
-       */
-      photoUrls: string[]
-      /**
-       * @type array | undefined
-       */
-      readonly tags?: Tag[]
-      /**
-       * @description pet status in the store
-       * @type string | undefined
-       */
-      status?: PetStatusEnumKey
     })
   | (Cat & {
-      /**
-       * @example 10
-       * @type integer | undefined
-       */
-      id?: number
       /**
        * @type string
        */
       readonly type: 'cat'
-      /**
-       * @example doggie
-       * @type string
-       */
-      name: string
-      category?: Category
-      /**
-       * @type array
-       */
-      photoUrls: string[]
-      /**
-       * @type array | undefined
-       */
-      readonly tags?: Tag[]
-      /**
-       * @description pet status in the store
-       * @type string | undefined
-       */
-      status?: PetStatusEnumKey
     })
+) & {
+  /**
+   * @example 10
+   * @type integer | undefined
+   */
+  id?: number
+  /**
+   * @type string
+   */
+  readonly type: PetTypeEnumKey
+  /**
+   * @example doggie
+   * @type string
+   */
+  name: string
+  category?: Category
+  /**
+   * @type array
+   */
+  photoUrls: string[]
+  /**
+   * @type array | undefined
+   */
+  readonly tags?: Tag[]
+  /**
+   * @description pet status in the store
+   * @type string | undefined
+   */
+  status?: PetStatusEnumKey
+}
 
 export type FullAddress = Address & {
   /**
