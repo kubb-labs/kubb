@@ -38,7 +38,7 @@ type ToolMap = typeof formatters | typeof linters
 
 type RunToolPassOptions = {
   toolValue: string
-  detect: () => Promise<string | undefined>
+  detect: () => Promise<string | null>
   toolMap: ToolMap
   /** Short noun used in "Auto-detected <toolLabel>:" message, e.g. "formatter" or "linter". */
   toolLabel: string

@@ -91,11 +91,17 @@ export type AdapterFactoryOptions<TName extends string = string, TOptions extend
  * ```
  */
 export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptions> = {
-  /** Human-readable identifier, e.g. `'oas'`, `'drizzle'`, `'asyncapi'`. */
+  /**
+   * Human-readable identifier, e.g. `'oas'`, `'drizzle'`, `'asyncapi'`.
+   */
   name: TOptions['name']
-  /** Resolved options (after defaults have been applied). */
+  /**
+   * Resolved options (after defaults have been applied).
+   */
   options: TOptions['resolvedOptions']
-  /** Convert the raw source into a universal `RootNode`. */
+  /**
+   * Convert the raw source into a universal `RootNode`.
+   */
   parse: (source: AdapterSource) => PossiblePromise<RootNode>
   /**
    * Extracts `KubbFile.Import` entries needed by a `SchemaNode` tree.

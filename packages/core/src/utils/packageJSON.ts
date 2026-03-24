@@ -10,16 +10,16 @@ type PackageJSON = {
 type DependencyName = string
 type DependencyVersion = string
 
-function getPackageJSONSync(cwd?: string): PackageJSON | undefined {
+function getPackageJSONSync(cwd?: string): PackageJSON | null {
   const pkgPath = pkg.up({ cwd })
   if (!pkgPath) {
-    return undefined
+    return null
   }
 
   return JSON.parse(readSync(pkgPath)) as PackageJSON
 }
 
-function match(packageJSON: PackageJSON, dependency: DependencyName | RegExp): string | undefined {
+function match(packageJSON: PackageJSON, dependency: DependencyName | RegExp): string | null {
   const dependencies = {
     ...(packageJSON.dependencies || {}),
     ...(packageJSON.devDependencies || {}),
@@ -31,15 +31,30 @@ function match(packageJSON: PackageJSON, dependency: DependencyName | RegExp): s
 
   const matched = Object.keys(dependencies).find((dep) => dep.match(dependency))
 
-  return matched ? dependencies[matched] : undefined
+  return matched ? (dependencies[matched] ?? null) : null
 }
 
-function getVersionSync(dependency: DependencyName | RegExp, cwd?: string): DependencyVersion | undefined {
+function getVersionSync(dependency: DependencyName | RegExp, cwd?: string): DependencyVersion | null {
   const packageJSON = getPackageJSONSync(cwd)
 
-  return packageJSON ? match(packageJSON, dependency) : undefined
+  return packageJSON ? match(packageJSON, dependency) : null
 }
 
+/**
+ * Returns `true` when the nearest `package.json` declares a dependency that
+ * satisfies the given semver range.
+ *
+ * - Searches both `dependencies` and `devDependencies`.
+ * - Accepts a string package name or a `RegExp` to match scoped/pattern packages.
+ * - Uses `semver.satisfies` for range comparison; returns `false` when the
+ *   version string cannot be coerced into a valid semver.
+ *
+ * @example
+ * ```ts
+ * satisfiesDependency('react', '>=18')          // true when react@18.x is installed
+ * satisfiesDependency(/^@tanstack\//, '>=5')    // true when any @tanstack/* >=5 is found
+ * ```
+ */
 export function satisfiesDependency(dependency: DependencyName | RegExp, version: DependencyVersion, cwd?: string): boolean {
   const packageVersion = getVersionSync(dependency, cwd)
 
