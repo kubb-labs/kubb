@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { OasTypes } from '@kubb/oas'
+import type { Document } from '@kubb/adapter-oas'
 import pkg from 'handlebars'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -13,7 +13,7 @@ type BuildDocsOptions = {
   templateOptions?: any
 }
 
-export async function getPageHTML(api: OasTypes.OASDocument, { title, disableGoogleFont, templateOptions }: BuildDocsOptions = {}) {
+export async function getPageHTML(api: Document, { title, disableGoogleFont, templateOptions }: BuildDocsOptions = {}) {
   const templateFileName = path.join(__dirname, '../static/redoc.hbs')
   const template = pkg.compile(fs.readFileSync(templateFileName).toString())
   return template({

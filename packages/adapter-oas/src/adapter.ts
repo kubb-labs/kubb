@@ -5,7 +5,7 @@ import { applyDiscriminatorInheritance } from './discriminator.ts'
 import { parseFromConfig, validateDocument } from './factory.ts'
 import { parseOas } from './parser.ts'
 import { resolveServerUrl } from './resolvers.ts'
-import type { AdapterOas } from './types.ts'
+import type { AdapterOas, Document } from './types.ts'
 
 /**
  * Stable string identifier for the OAS adapter used in Kubb's adapter registry.
@@ -47,6 +47,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
   // Let-binding so parse() can replace it with a simple reassignment (no clear+loop).
   let nameMapping = new Map<string, string>()
+  let parsedDocument: Document | undefined = undefined
 
   return {
     name: adapterOasName,
@@ -63,6 +64,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         emptySchemaType,
         enumSuffix,
         nameMapping,
+        document: parsedDocument,
       }
     },
     getImports(node, resolve) {
@@ -100,6 +102,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
       // This must happen after parseOas() because legacy enum remapping is finalized there.
       nameMapping = parsedNameMapping
+      // Expose the raw document so consumers (e.g. plugin-redoc) can access it.
+      parsedDocument = document
 
       return createRoot({
         ...root,
