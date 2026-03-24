@@ -6,6 +6,39 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.20
+
+### ✨ Features
+
+#### [`@kubb/plugin-redoc`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-redoc)
+
+-   [#2902](https://github.com/kubb-labs/kubb/pull/2902) [`f596e47`](https://github.com/kubb-labs/kubb/commit/f596e47e353c18ef11c4531acd12641c52c00435) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - `plugin-redoc` now uses `adapterOas` directly instead of depending on `plugin-oas` at runtime.
+
+    ::: code-group
+    ```typescript [Before]
+    // Previous behavior
+    const adapterOas = pluginOas.useAdapter();
+    const document = adapterOas.getDocument();
+    ```
+    ```typescript [After]
+    // New behavior
+    const document = (adapter as Adapter<AdapterOas>).document;
+    if (!document) throw new Error('adapterOas must be configured');
+    ```
+    :::
+
+#### [`@kubb/core`](https://github.com/kubb-labs/kubb/tree/main/packages/core)
+
+-   Added `TDocument` as a 4th generic to `AdapterFactoryOptions`.
+-   Added `document?` as a first-class field on `Adapter<T>`, so any adapter can expose its raw source document in a typed way.
+
+#### [`@kubb/adapter-oas`](https://github.com/kubb-labs/kubb/tree/main/packages/adapter-oas)
+
+-   `AdapterOas` now carries the `Document` type as its fourth generic.
+-   The adapter exposes `document` directly (populated after `parse()`).
+-   Only `AdapterOas` is exported from the package index. Use `AdapterOas['document']` to reference the document type.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
