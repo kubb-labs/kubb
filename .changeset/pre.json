@@ -76,6 +76,7 @@
     "rename-define-to-create-factory-functions",
     "rename-plugin-manager-to-plugin-driver",
     "shaky-bobcats-rest",
+    "smooth-lions-cheat",
     "tuple-enum-inlined",
     "type-generator-v2-helpers",
     "zod-typed-name-order"

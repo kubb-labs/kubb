@@ -1,5 +1,30 @@
 # @kubb/agent
 
+## 5.0.0-alpha.18
+
+### Minor Changes
+
+- [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update to TypeScript v6
+
+### Patch Changes
+
+- Updated dependencies [[`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c)]:
+  - @kubb/plugin-svelte-query@5.0.0-alpha.18
+  - @kubb/plugin-react-query@5.0.0-alpha.18
+  - @kubb/plugin-solid-query@5.0.0-alpha.18
+  - @kubb/plugin-vue-query@5.0.0-alpha.18
+  - @kubb/plugin-client@5.0.0-alpha.18
+  - @kubb/plugin-redoc@5.0.0-alpha.18
+  - @kubb/plugin-oas@5.0.0-alpha.18
+  - @kubb/plugin-swr@5.0.0-alpha.18
+  - @kubb/plugin-ts@5.0.0-alpha.18
+  - @kubb/core@5.0.0-alpha.18
+  - @kubb/plugin-mcp@5.0.0-alpha.18
+  - @kubb/plugin-cypress@5.0.0-alpha.18
+  - @kubb/plugin-faker@5.0.0-alpha.18
+  - @kubb/plugin-msw@5.0.0-alpha.18
+  - @kubb/plugin-zod@5.0.0-alpha.18
+
 ## 5.0.0-alpha.17
 
 ### Patch Changes
