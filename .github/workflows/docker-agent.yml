@@ -38,7 +38,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@main
         with:
-          node-version: '22'
+          node-version: '20'
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

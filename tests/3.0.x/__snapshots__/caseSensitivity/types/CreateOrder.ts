@@ -3,16 +3,31 @@
 * Do not edit manually.
 */
 
-import type { Order } from "./Order.ts";
+import type { OrderSchema } from "./OrderSchema.ts";
 
 /**
  * @description Order created
 */
-export type CreateOrder201 = Order;
+export type CreateOrder201 = OrderSchema;
+
+/**
+ * @description Order request body
+*/
+export type CreateOrderMutationRequest = {
+    /**
+     * @type string | undefined
+    */
+    userId?: string;
+    /**
+     * @type array | undefined
+    */
+    productIds?: string[];
+};
 
 export type CreateOrderMutationResponse = CreateOrder201;
 
 export type CreateOrderMutation = {
     Response: CreateOrder201;
+    Request: CreateOrderMutationRequest;
     Errors: any;
 };

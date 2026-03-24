@@ -1,12 +1,12 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Config } from '@kubb/core'
+import type { Config, Plugin } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { OperationGenerator, renderOperations } from '@kubb/plugin-oas'
+import { buildOperations, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginMsw } from '../types.ts'
 import { handlersGenerator } from './handlersGenerator.tsx'
 
@@ -48,13 +48,13 @@ describe('handlersGenerator operations', async () => {
       group: undefined,
       ...props.options,
     }
-    const plugin = createMockedPlugin<PluginMsw>({ name: 'plugin-msw', options })
-    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
+    const plugin = { options } as Plugin<PluginMsw>
+    const mockedPluginManager = createMockedPluginManager(props.name)
     const generator = new OperationGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      driver: mockedPluginDriver,
+      pluginManager: mockedPluginManager,
 
       plugin,
       contentType: undefined,
@@ -65,7 +65,7 @@ describe('handlersGenerator operations', async () => {
 
     const operations = await generator.getOperations()
 
-    await renderOperations(
+    await buildOperations(
       operations.map((item) => item.operation),
       {
         config: { root: '.', output: { path: 'test' } } as Config,
@@ -76,6 +76,6 @@ describe('handlersGenerator operations', async () => {
       },
     )
 
-    await matchFiles(fabric.files, props.name)
+    await matchFiles(fabric.files)
   })
 })

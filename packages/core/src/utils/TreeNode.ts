@@ -1,6 +1,6 @@
 import path from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import { getMode } from '../PluginDriver.ts'
+import { getMode } from '../PluginManager.ts'
 
 type BarrelData = {
   file?: KubbFile.File
@@ -12,15 +12,6 @@ type BarrelData = {
   name: string
 }
 
-/**
- * Tree structure used to build per-directory barrel (`index.ts`) files from a
- * flat list of generated {@link KubbFile.File} entries.
- *
- * Each node represents either a directory or a file within the output tree.
- * Use {@link TreeNode.build} to construct a root node from a file list, then
- * traverse with {@link TreeNode.forEach}, {@link TreeNode.leaves}, or the
- * `*Deep` helpers.
- */
 export class TreeNode {
   data: BarrelData
   parent?: TreeNode
@@ -41,9 +32,6 @@ export class TreeNode {
     return child
   }
 
-  /**
-   * Returns the root ancestor of this node, walking up via `parent` links.
-   */
   get root(): TreeNode {
     if (!this.parent) {
       return this
@@ -51,11 +39,6 @@ export class TreeNode {
     return this.parent.root
   }
 
-  /**
-   * Returns all leaf descendants (nodes with no children) of this node.
-   *
-   * Results are cached after the first traversal.
-   */
   get leaves(): Array<TreeNode> {
     if (!this.children || this.children.length === 0) {
       // this is a leaf
@@ -122,12 +105,6 @@ export class TreeNode {
     return this.leaves.map(callback)
   }
 
-  /**
-   * Builds a {@link TreeNode} tree from a flat list of files.
-   *
-   * - Filters to files under `root` (when provided) and skips `.json` files.
-   * - Returns `null` when no files match.
-   */
   public static build(files: KubbFile.File[], root?: string): TreeNode | null {
     try {
       const filteredTree = buildDirectoryTree(files, root)

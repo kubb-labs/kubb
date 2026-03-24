@@ -1,6 +1,5 @@
 export type { VisitorDepth } from './constants.ts'
 export type { DistributiveOmit } from './factory.ts'
-export type { InferSchema, InferSchemaNode, ParserOptions } from './infer.ts'
 export type {
   ArraySchemaNode,
   BaseNode,
@@ -9,10 +8,6 @@ export type {
   DatetimeSchemaNode,
   EnumSchemaNode,
   EnumValueNode,
-  FunctionNode,
-  FunctionNodeType,
-  FunctionParameterNode,
-  FunctionParametersNode,
   HttpMethod,
   HttpStatusCode,
   IntersectionSchemaNode,
@@ -20,7 +15,6 @@ export type {
   Node,
   NodeKind,
   NumberSchemaNode,
-  ObjectBindingParameterNode,
   ObjectSchemaNode,
   OperationNode,
   ParameterLocation,
@@ -41,8 +35,7 @@ export type {
   StringSchemaNode,
   TimeSchemaNode,
   UnionSchemaNode,
-  UrlSchemaNode,
 } from './nodes/index.ts'
-export type { Printer, PrinterFactoryOptions } from './printers/printer.ts'
+export type { Printer, PrinterFactoryOptions, PrinterHandler, PrinterHandlerContext } from './printer.ts'
 export type { RefMap } from './refs.ts'
-export type { AsyncVisitor, CollectOptions, CollectVisitor, ParentOf, TransformOptions, Visitor, VisitorContext, WalkOptions } from './visitor.ts'
+export type { AsyncVisitor, CollectVisitor, Visitor } from './visitor.ts'

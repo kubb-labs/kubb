@@ -1,6 +1,6 @@
 /**
- * All supported HTTP status code literals as strings, as used in API specs
- * (for example, `"200"` and `"404"`).
+ * All IANA-registered HTTP status codes as string literals, matching how
+ * they appear as keys in API specifications (e.g. `"200"`, `"404"`).
  */
 export type HttpStatusCode =
   // 1xx Informational
@@ -72,25 +72,13 @@ export type HttpStatusCode =
   | '511'
 
 /**
- * Response status code literal used by operations.
- *
- * Includes specific HTTP status code strings and `"default"` for catch-all responses.
- *
- * @example
- * ```ts
- * const status: StatusCode = '200'
- * const fallback: StatusCode = 'default'
- * ```
+ * A status code as used in an operation response: a specific HTTP status
+ * code string or `"default"` as a catch-all fallback.
  */
 export type StatusCode = HttpStatusCode | 'default'
 
 /**
- * Supported media type strings used in request and response bodies.
- *
- * @example
- * ```ts
- * const mediaType: MediaType = 'application/json'
- * ```
+ * Common IANA media types used in API request/response bodies.
  */
 export type MediaType =
   // Application

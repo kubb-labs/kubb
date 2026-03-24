@@ -20,7 +20,6 @@
     "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@kubb/react-fabric",
     "declaration": true,
     "declarationMap": true,
     "noEmit": true,
@@ -30,6 +29,7 @@
     "noErrorTruncation": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "baseUrl": ".",
     "types": ["bun-types"]
   },
   "exclude": ["**/node_modules", "**/types/**"]

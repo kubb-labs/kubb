@@ -33,5 +33,5 @@ export type GetUserByNameQueryResponse = GetUserByName200;
 export type GetUserByNameQuery = {
     Response: GetUserByName200;
     PathParams: GetUserByNamePathParams;
-    Errors: (GetUserByName400 | GetUserByName404);
+    Errors: GetUserByName400 | GetUserByName404;
 };

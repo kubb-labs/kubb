@@ -2,7 +2,7 @@
  * JavaScript and Java reserved words.
  * @link https://github.com/jonschlinkert/reserved/blob/master/index.js
  */
-const reservedWords = new Set([
+const reservedWords = [
   'abstract',
   'arguments',
   'boolean',
@@ -84,21 +84,15 @@ const reservedWords = new Set([
   'toString',
   'undefined',
   'valueOf',
-] as const)
+]
 
 /**
- * Prefixes `word` with `_` when it is a reserved JavaScript/Java identifier or starts with a digit.
- *
- * @example
- * ```ts
- * transformReservedWord('class')  // '_class'
- * transformReservedWord('42foo')  // '_42foo'
- * transformReservedWord('status') // 'status'
- * ```
+ * Prefixes a word with `_` when it is a reserved JavaScript/Java identifier
+ * or starts with a digit.
  */
 export function transformReservedWord(word: string): string {
   const firstChar = word.charCodeAt(0)
-  if (word && (reservedWords.has(word as 'valueOf') || (firstChar >= 48 && firstChar <= 57))) {
+  if (word && (reservedWords.includes(word) || (firstChar >= 48 && firstChar <= 57))) {
     return `_${word}`
   }
   return word
@@ -106,13 +100,6 @@ export function transformReservedWord(word: string): string {
 
 /**
  * Returns `true` when `name` is a syntactically valid JavaScript variable name.
- *
- * @example
- * ```ts
- * isValidVarName('status')  // true
- * isValidVarName('class')   // false (reserved word)
- * isValidVarName('42foo')   // false (starts with digit)
- * ```
  */
 export function isValidVarName(name: string): boolean {
   try {

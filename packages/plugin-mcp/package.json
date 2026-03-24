@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-mcp",
-  "version": "5.0.0-alpha.19",
+  "version": "4.36.4",
   "description": "Model Context Protocol (MCP) plugin for Kubb, generating MCP-compatible tools and schemas from OpenAPI specifications for AI assistants.",
   "keywords": [
     "mcp",
@@ -96,7 +96,7 @@
     "@internals/utils": "workspace:*"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=20"
   },
   "publishConfig": {
     "access": "public",

@@ -12,26 +12,20 @@ export const addressIdentifierEnum = {
 
 export type AddressIdentifierEnumKey = (typeof addressIdentifierEnum)[keyof typeof addressIdentifierEnum]
 
-export type AddressIdentifierEnum = AddressIdentifierEnumKey
-
 export type Address = {
   /**
-   * @example 437 Lytton
    * @type string | undefined
    */
   street?: string
   /**
-   * @example Palo Alto
    * @type string | undefined
    */
   city?: string
   /**
-   * @example CA
    * @type string | undefined
    */
   state?: string
   /**
-   * @example 94301
    * @type string | undefined
    */
   zip?: string

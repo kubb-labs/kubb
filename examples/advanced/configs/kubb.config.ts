@@ -1,6 +1,5 @@
 // can devtools and ui work together, default port for devtools are 8097
 
-import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginCypress } from '@kubb/plugin-cypress'
@@ -31,7 +30,6 @@ export default defineConfig({
   hooks: {
     done: ['npm run typecheck'],
   },
-  adapter: adapterOas({ enumSuffix: 'enum', dateType: 'string' }),
   plugins: [
     pluginOas({
       validate: true,
@@ -48,6 +46,8 @@ export default defineConfig({
       },
       arrayType: 'generic',
       enumType: 'asConst',
+      enumSuffix: 'enum',
+      dateType: 'string',
       paramsCasing: 'camelcase', // make pathParams and queryParams camelCase to be in sync with client
       override: [
         {
@@ -58,7 +58,6 @@ export default defineConfig({
           },
         },
       ],
-      compatibilityPreset: 'kubbV4',
     }),
     pluginZod({
       output: {

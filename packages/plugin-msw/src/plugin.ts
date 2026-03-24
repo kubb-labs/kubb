@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -9,7 +9,7 @@ import type { PluginMsw } from './types.ts'
 
 export const pluginMswName = 'plugin-msw' satisfies PluginMsw['name']
 
-export const pluginMsw = createPlugin<PluginMsw>((options) => {
+export const pluginMsw = definePlugin<PluginMsw>((options) => {
   const {
     output = { path: 'handlers', barrelType: 'named' },
     group,
@@ -87,7 +87,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        driver: this.driver,
+        pluginManager: this.pluginManager,
         events: this.events,
         plugin: this.plugin,
         contentType,
@@ -105,7 +105,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
         root,
         output,
         meta: {
-          pluginName: this.plugin.name,
+          pluginKey: this.plugin.key,
         },
       })
 

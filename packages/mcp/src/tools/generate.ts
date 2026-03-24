@@ -138,7 +138,7 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
     // Setup and build
     await notify(NotifyTypes.SETUP_START, 'Setting up Kubb')
 
-    const { fabric, driver, sources } = await setup({
+    const { fabric, pluginManager, sources } = await setup({
       config,
       events,
     })
@@ -150,7 +150,7 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
         config,
         events,
       },
-      { driver, fabric, events, sources },
+      { pluginManager, fabric, events, sources },
     )
     await notify(NotifyTypes.BUILD_END, `Build complete - Generated ${files.length} files`)
 

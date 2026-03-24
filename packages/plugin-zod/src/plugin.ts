@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { createPlugin, type Group, getBarrelFiles, getMode, satisfiesDependency } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode, PackageManager } from '@kubb/core'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { operationsGenerator } from './generators'
@@ -10,7 +10,7 @@ import type { PluginZod } from './types.ts'
 
 export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']
 
-export const pluginZod = createPlugin<PluginZod>((options) => {
+export const pluginZod = definePlugin<PluginZod>((options) => {
   const {
     output = { path: 'zod', barrelType: 'named' },
     group,
@@ -26,7 +26,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     mapper = {},
     operations = false,
     mini = false,
-    version = mini ? '4' : satisfiesDependency('zod', '>=4') ? '4' : '3',
+    version = mini ? '4' : new PackageManager().isValidSync('zod', '>=4') ? '4' : '3',
     guidType = 'uuid',
     importPath = mini ? 'zod/mini' : version === '4' ? 'zod/v4' : 'zod',
     coercion = false,
@@ -139,7 +139,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        driver: this.driver,
+        pluginManager: this.pluginManager,
         events: this.events,
         plugin: this.plugin,
         contentType,
@@ -155,7 +155,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        driver: this.driver,
+        pluginManager: this.pluginManager,
         events: this.events,
         plugin: this.plugin,
         contentType,
@@ -173,7 +173,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         root,
         output,
         meta: {
-          pluginName: this.plugin.name,
+          pluginKey: this.plugin.key,
         },
       })
 

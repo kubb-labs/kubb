@@ -1,21 +1,22 @@
 import type { PluginFactoryOptions } from '@kubb/core'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import type { OperationProps, OperationsProps, SchemaProps } from './types.ts'
+import type { OperationProps, OperationsProps, SchemaProps, Version } from './types.ts'
 
-type UserGenerator<TOptions extends PluginFactoryOptions> = {
+type UserGenerator<TOptions extends PluginFactoryOptions, TVersion extends Version> = {
   name: string
-  Operations?: (props: OperationsProps<TOptions>) => FabricReactNode
-  Operation?: (props: OperationProps<TOptions>) => FabricReactNode
-  Schema?: (props: SchemaProps<TOptions>) => FabricReactNode
+  version?: TVersion
+  Operations?: (props: OperationsProps<TOptions, TVersion>) => FabricReactNode
+  Operation?: (props: OperationProps<TOptions, TVersion>) => FabricReactNode
+  Schema?: (props: SchemaProps<TOptions, TVersion>) => FabricReactNode
 }
 
-export type ReactGenerator<TOptions extends PluginFactoryOptions> = {
+export type ReactGenerator<TOptions extends PluginFactoryOptions, TVersion extends Version> = {
   name: string
   type: 'react'
-  version: '1'
-  Operations: (props: OperationsProps<TOptions>) => FabricReactNode
-  Operation: (props: OperationProps<TOptions>) => FabricReactNode
-  Schema: (props: SchemaProps<TOptions>) => FabricReactNode
+  version: TVersion
+  Operations: (props: OperationsProps<TOptions, TVersion>) => FabricReactNode
+  Operation: (props: OperationProps<TOptions, TVersion>) => FabricReactNode
+  Schema: (props: SchemaProps<TOptions, TVersion>) => FabricReactNode
 }
 
 /****
@@ -25,10 +26,12 @@ export type ReactGenerator<TOptions extends PluginFactoryOptions> = {
  *
  * @returns A generator object with async methods for operations, operation, and schema file generation.
  */
-export function createReactGenerator<TOptions extends PluginFactoryOptions>(generator: UserGenerator<TOptions>): ReactGenerator<TOptions> {
+export function createReactGenerator<TOptions extends PluginFactoryOptions, TVersion extends Version = '1'>(
+  generator: UserGenerator<TOptions, TVersion>,
+): ReactGenerator<TOptions, TVersion> {
   return {
     type: 'react',
-    version: '1',
+    version: (generator.version ?? '1') as TVersion,
     Operations() {
       return null
     },

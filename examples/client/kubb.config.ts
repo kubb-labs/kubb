@@ -1,4 +1,3 @@
-import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -19,7 +18,7 @@ const tsPlugin = pluginTs({
   output: { path: 'models/ts' },
   group: { type: 'tag' },
   enumType: 'asConst',
-  compatibilityPreset: 'kubbV4',
+  dateType: 'date',
 })
 
 export default defineConfig([
@@ -33,7 +32,6 @@ export default defineConfig([
         '.ts': '.js',
       },
     },
-    adapter: adapterOas({ collisionDetection: false, dateType: 'date' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
@@ -60,7 +58,6 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen2' },
-    adapter: adapterOas({ collisionDetection: false, dateType: 'date' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
@@ -88,7 +85,6 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen3', clean: true },
-    adapter: adapterOas({ collisionDetection: false, dateType: 'date' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
@@ -111,7 +107,6 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen4', clean: true },
-    adapter: adapterOas({ collisionDetection: false, dateType: 'date' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginClient({
@@ -127,7 +122,6 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen5', clean: true },
-    adapter: adapterOas({ collisionDetection: false, dateType: 'date' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginClient({
@@ -143,7 +137,6 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen6', clean: true },
-    adapter: adapterOas({ collisionDetection: false, dateType: 'date' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
@@ -175,7 +168,6 @@ export default defineConfig([
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
-    adapter: adapterOas({ collisionDetection: false, dateType: 'date' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,

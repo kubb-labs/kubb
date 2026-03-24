@@ -1,4 +1,3 @@
-import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -13,10 +12,6 @@ export default defineConfig([
       path: './src/legacy',
       clean: true,
     },
-    adapter: adapterOas({
-      validate: false,
-      collisionDetection: false,
-    }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
@@ -24,19 +19,8 @@ export default defineConfig([
           path: 'models.ts',
           barrelType: false,
         },
-        transformers: [
-          {
-            // Make all properties of the "Pet" schema required
-            property(node, { parent }) {
-              if (parent?.name === 'Address') {
-                return { ...node, required: false }
-              }
-            },
-          },
-        ],
         enumType: 'enum',
         syntaxType: 'interface',
-        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -47,10 +31,7 @@ export default defineConfig([
       path: './src/gen',
       clean: true,
     },
-    adapter: adapterOas({
-      validate: false,
-      collisionDetection: false,
-    }),
+
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
@@ -60,7 +41,6 @@ export default defineConfig([
         },
         enumType: 'enum',
         syntaxType: 'interface',
-        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -68,10 +48,6 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen2', clean: true },
-    adapter: adapterOas({
-      validate: false,
-      collisionDetection: false,
-    }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
@@ -80,7 +56,6 @@ export default defineConfig([
           barrelType: false,
         },
         enumType: 'asConst',
-        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -88,10 +63,6 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen3', clean: true },
-    adapter: adapterOas({
-      validate: false,
-      collisionDetection: false,
-    }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
@@ -100,7 +71,6 @@ export default defineConfig([
           barrelType: false,
         },
         enumType: 'asPascalConst',
-        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -108,10 +78,6 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen4', clean: true },
-    adapter: adapterOas({
-      validate: false,
-      collisionDetection: false,
-    }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
@@ -120,7 +86,6 @@ export default defineConfig([
           barrelType: false,
         },
         enumType: 'constEnum',
-        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -128,10 +93,6 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen5', clean: true },
-    adapter: adapterOas({
-      validate: false,
-      collisionDetection: false,
-    }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
@@ -140,7 +101,6 @@ export default defineConfig([
           barrelType: false,
         },
         enumType: 'literal',
-        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -151,17 +111,12 @@ export default defineConfig([
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
-    adapter: adapterOas({
-      validate: false,
-      collisionDetection: false,
-    }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'ts/models',
         },
-        compatibilityPreset: 'kubbV4',
       }),
     ],
   },

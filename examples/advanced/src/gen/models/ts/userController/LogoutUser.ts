@@ -7,5 +7,5 @@ export type LogoutUserQueryResponse = any
 
 export type LogoutUserQuery = {
   Response: any
-  Errors: LogoutUserError
+  Errors: any
 }

@@ -2,42 +2,26 @@ import { camelCase } from './casing.ts'
 import { isValidVarName } from './reserved.ts'
 
 export type URLObject = {
-  /**
-   * The resolved URL string (Express-style or template literal, depending on context).
-   */
+  /** The resolved URL string (Express-style or template literal, depending on context). */
   url: string
-  /**
-   * Extracted path parameters as a key-value map, or `undefined` when the path has none.
-   */
+  /** Extracted path parameters as a key-value map, or `undefined` when the path has none. */
   params?: Record<string, string>
 }
 
 type ObjectOptions = {
-  /**
-   * Controls whether the `url` is rendered as an Express path or a template literal.
-   * @default 'path'
-   */
+  /** Controls whether the `url` is rendered as an Express path or a template literal. Defaults to `'path'`. */
   type?: 'path' | 'template'
-  /**
-   * Optional transform applied to each extracted parameter name.
-   */
+  /** Optional transform applied to each extracted parameter name. */
   replacer?: (pathParam: string) => string
-  /**
-   * When `true`, the result is serialized to a string expression instead of a plain object.
-   */
+  /** When `true`, the result is serialized to a string expression instead of a plain object. */
   stringify?: boolean
 }
 
-/**
- * Supported identifier casing strategies for path parameters.
- */
+/** Supported identifier casing strategies for path parameters. */
 type PathCasing = 'camelcase'
 
 type Options = {
-  /**
-   * Casing strategy applied to path parameter names.
-   * @default undefined (original identifier preserved)
-   */
+  /** Casing strategy applied to path parameter names. Defaults to the original identifier. */
   casing?: PathCasing
 }
 
@@ -50,9 +34,7 @@ type Options = {
  * p.template // '`/pet/${petId}`'
  */
 export class URLPath {
-  /**
-   * The raw OpenAPI/Swagger path string, e.g. `/pet/{petId}`.
-   */
+  /** The raw OpenAPI/Swagger path string, e.g. `/pet/{petId}`. */
   path: string
 
   #options: Options
@@ -62,25 +44,12 @@ export class URLPath {
     this.#options = options
   }
 
-  /** Converts the OpenAPI path to Express-style colon syntax, e.g. `/pet/{petId}` → `/pet/:petId`.
-   *
-   * @example
-   * ```ts
-   * new URLPath('/pet/{petId}').URL // '/pet/:petId'
-   * ```
-   */
+  /** Converts the OpenAPI path to Express-style colon syntax, e.g. `/pet/{petId}` → `/pet/:petId`. */
   get URL(): string {
     return this.toURLPath()
   }
 
-  /** Returns `true` when `path` is a fully-qualified URL (e.g. starts with `https://`).
-   *
-   * @example
-   * ```ts
-   * new URLPath('https://petstore.swagger.io/v2/pet').isURL // true
-   * new URLPath('/pet/{petId}').isURL                       // false
-   * ```
-   */
+  /** Returns `true` when `path` is a fully-qualified URL (e.g. starts with `https://`). */
   get isURL(): boolean {
     try {
       return !!new URL(this.path).href
@@ -100,26 +69,12 @@ export class URLPath {
     return this.toTemplateString()
   }
 
-  /** Returns the path and its extracted params as a structured `URLObject`, or as a stringified expression when `stringify` is set.
-   *
-   * @example
-   * ```ts
-   * new URLPath('/pet/{petId}').object
-   * // { url: '/pet/:petId', params: { petId: 'petId' } }
-   * ```
-   */
+  /** Returns the path and its extracted params as a structured `URLObject`, or as a stringified expression when `stringify` is set. */
   get object(): URLObject | string {
     return this.toObject()
   }
 
-  /** Returns a map of path parameter names, or `undefined` when the path has no parameters.
-   *
-   * @example
-   * ```ts
-   * new URLPath('/pet/{petId}').params // { petId: 'petId' }
-   * new URLPath('/pet').params         // undefined
-   * ```
-   */
+  /** Returns a map of path parameter names, or `undefined` when the path has no parameters. */
   get params(): Record<string, string> | undefined {
     return this.getParams()
   }
@@ -129,9 +84,7 @@ export class URLPath {
     return this.#options.casing === 'camelcase' ? camelCase(param) : param
   }
 
-  /**
-   * Iterates over every `{param}` token in `path`, calling `fn` with the raw token and transformed name.
-   */
+  /** Iterates over every `{param}` token in `path`, calling `fn` with the raw token and transformed name. */
   #eachParam(fn: (raw: string, param: string) => void): void {
     for (const match of this.path.matchAll(/\{([^}]+)\}/g)) {
       const raw = match[1]!
@@ -184,12 +137,6 @@ export class URLPath {
    * Extracts all `{param}` segments from the path and returns them as a key-value map.
    * An optional `replacer` transforms each parameter name in both key and value positions.
    * Returns `undefined` when no path parameters are found.
-   *
-   * @example
-   * ```ts
-   * new URLPath('/pet/{petId}/tag/{tagId}').getParams()
-   * // { petId: 'petId', tagId: 'tagId' }
-   * ```
    */
   getParams(replacer?: (pathParam: string) => string): Record<string, string> | undefined {
     const params: Record<string, string> = {}
@@ -202,13 +149,7 @@ export class URLPath {
     return Object.keys(params).length > 0 ? params : undefined
   }
 
-  /** Converts the OpenAPI path to Express-style colon syntax.
-   *
-   * @example
-   * ```ts
-   * new URLPath('/pet/{petId}').toURLPath() // '/pet/:petId'
-   * ```
-   */
+  /** Converts the OpenAPI path to Express-style colon syntax, e.g. `/pet/{petId}` → `/pet/:petId`. */
   toURLPath(): string {
     return this.path.replace(/\{([^}]+)\}/g, ':$1')
   }

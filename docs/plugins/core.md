@@ -37,7 +37,7 @@ yarn add -D @kubb/core
 ```typescript
 import { build } from '@kubb/core'
 
-const { error, files, driver } = await build({
+const { error, files, pluginManager } = await build({
   config: {
     root: '.',
     input: {

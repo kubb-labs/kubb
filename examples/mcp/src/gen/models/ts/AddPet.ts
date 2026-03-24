@@ -16,7 +16,7 @@ export type AddPet200 = Omit<NonNullable<Pet>, 'name'>
  */
 export type AddPet405 = {
   /**
-   * @type integer | undefined
+   * @type integer | undefined, int32
    */
   code?: number
   /**

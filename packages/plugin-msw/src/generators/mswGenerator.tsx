@@ -1,4 +1,4 @@
-import { usePluginDriver } from '@kubb/core/hooks'
+import { usePluginManager } from '@kubb/core/hooks'
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -14,7 +14,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
     const {
       options: { output, parser, baseURL },
     } = plugin
-    const driver = usePluginDriver()
+    const pluginManager = usePluginManager()
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)
@@ -25,13 +25,13 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
     }
 
     const faker = {
-      file: getFile(operation, { pluginName: pluginFakerName }),
-      schemas: getSchemas(operation, { pluginName: pluginFakerName, type: 'function' }),
+      file: getFile(operation, { pluginKey: [pluginFakerName] }),
+      schemas: getSchemas(operation, { pluginKey: [pluginFakerName], type: 'function' }),
     }
 
     const type = {
-      file: getFile(operation, { pluginName: pluginTsName }),
-      schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
+      file: getFile(operation, { pluginKey: [pluginTsName] }),
+      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
     }
 
     const responseStatusCodes = operation.getResponseStatusCodes()
@@ -58,7 +58,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
         baseName={mock.file.baseName}
         path={mock.file.path}
         meta={mock.file.meta}
-        banner={getBanner({ oas, output, config: driver.config })}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
         <File.Import name={['http']} path="msw" />

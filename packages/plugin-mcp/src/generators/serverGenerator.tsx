@@ -1,4 +1,4 @@
-import { usePluginDriver } from '@kubb/core/hooks'
+import { usePluginManager } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -11,16 +11,16 @@ import type { PluginMcp } from '../types'
 export const serverGenerator = createReactGenerator<PluginMcp>({
   name: 'operations',
   Operations({ operations, generator, plugin }) {
-    const driver = usePluginDriver()
+    const pluginManager = usePluginManager()
     const { options } = plugin
 
     const oas = useOas()
     const { getFile, getName, getSchemas } = useOperationManager(generator)
 
     const name = 'server'
-    const file = driver.getFile({ name, extname: '.ts', pluginName: plugin.name })
+    const file = pluginManager.getFile({ name, extname: '.ts', pluginKey: plugin.key })
 
-    const jsonFile = driver.getFile({ name: '.mcp', extname: '.json', pluginName: plugin.name })
+    const jsonFile = pluginManager.getFile({ name: '.mcp', extname: '.json', pluginKey: plugin.key })
 
     const operationsMapped = operations.map((operation) => {
       return {
@@ -39,13 +39,13 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
         zod: {
           name: getName(operation, {
             type: 'function',
-            pluginName: pluginZodName,
+            pluginKey: [pluginZodName],
           }),
-          schemas: getSchemas(operation, { pluginName: pluginZodName, type: 'function' }),
-          file: getFile(operation, { pluginName: pluginZodName }),
+          schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
+          file: getFile(operation, { pluginKey: [pluginZodName] }),
         },
         type: {
-          schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
+          schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
         },
       }
     })
@@ -74,7 +74,7 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
           baseName={file.baseName}
           path={file.path}
           meta={file.meta}
-          banner={getBanner({ oas, output: options.output, config: driver.config })}
+          banner={getBanner({ oas, output: options.output, config: pluginManager.config })}
           footer={getFooter({ oas, output: options.output })}
         >
           <File.Import name={['McpServer']} path={'@modelcontextprotocol/sdk/server/mcp'} />

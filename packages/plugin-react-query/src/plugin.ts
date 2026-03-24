@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
@@ -23,7 +23,7 @@ import type { PluginReactQuery } from './types.ts'
 
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
 
-export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
+export const pluginReactQuery = definePlugin<PluginReactQuery>((options) => {
   const {
     output = { path: 'hooks', barrelType: 'named' },
     group,
@@ -171,7 +171,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         this.plugin.options.client.baseURL = baseURL
       }
 
-      const hasClientPlugin = !!this.driver.getPluginByName(pluginClientName)
+      const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
 
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled fetch
@@ -211,7 +211,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        driver: this.driver,
+        pluginManager: this.pluginManager,
         events: this.events,
         plugin: this.plugin,
         contentType,
@@ -229,7 +229,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
         root,
         output,
         meta: {
-          pluginName: this.plugin.name,
+          pluginKey: this.plugin.key,
         },
       })
 

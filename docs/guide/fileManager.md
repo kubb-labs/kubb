@@ -11,7 +11,7 @@ outline: deep
 The `FileManager` instance contains building blocks for writing files, combining excludes or includes, and creating barrel files.
 
 > [!TIP]
-> What has been written is managed by the [PluginDriver](/reference/pluginDriver/). The `FileManager` has no idea what has been processed and what not.
+> What has been written is managed by the [PluginManager](/reference/pluginManager/). The `FileManager` has no idea what has been processed and what not.
 
 ### fileManager.files
 

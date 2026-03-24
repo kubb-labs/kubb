@@ -6,7 +6,7 @@
 export type DeletePetPathParams = {
   /**
    * @description Pet id to delete
-   * @type integer
+   * @type integer, int64
    */
   petId: number
 }
@@ -25,8 +25,6 @@ export const deletePet200Enum = {
 } as const
 
 export type DeletePet200EnumKey = (typeof deletePet200Enum)[keyof typeof deletePet200Enum]
-
-export type DeletePet200Enum = DeletePet200EnumKey
 
 /**
  * @description items

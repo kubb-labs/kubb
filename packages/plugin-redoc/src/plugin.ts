@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { createPlugin } from '@kubb/core'
+import { definePlugin } from '@kubb/core'
 import { pluginOasName } from '@kubb/plugin-oas'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
@@ -10,7 +10,7 @@ function trimExtName(text: string): string {
 
 export const pluginRedocName = 'plugin-redoc' satisfies PluginRedoc['name']
 
-export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
+export const pluginRedoc = definePlugin<PluginRedoc>((options) => {
   const { output = { path: 'docs.html' } } = options
 
   return {

@@ -51,10 +51,10 @@ docs/.vitepress/graphs/**
 !__snapshots__
 kubb-files.json
 kubb.log
+.kubb
 hello
 .log
 .mcp.json
-!**/__snapshots__/**/.mcp.json
 examples/**/.mcp
 */mocks/hellowWorld.js
 #docs/api/**

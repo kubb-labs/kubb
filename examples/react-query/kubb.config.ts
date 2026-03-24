@@ -1,4 +1,3 @@
-import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
@@ -19,7 +18,6 @@ export const config = {
   hooks: {
     done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
   },
-  adapter: adapterOas({ collisionDetection: false }),
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({
@@ -29,7 +27,6 @@ export const config = {
           return `// version: ${oas.api.info.version}`
         },
       },
-      compatibilityPreset: 'kubbV4',
     }),
     pluginReactQuery({
       client: {

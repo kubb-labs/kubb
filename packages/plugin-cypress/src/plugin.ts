@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { cypressGenerator } from './generators'
@@ -8,7 +8,7 @@ import type { PluginCypress } from './types.ts'
 
 export const pluginCypressName = 'plugin-cypress' satisfies PluginCypress['name']
 
-export const pluginCypress = createPlugin<PluginCypress>((options) => {
+export const pluginCypress = definePlugin<PluginCypress>((options) => {
   const {
     output = { path: 'cypress', barrelType: 'named' },
     group,
@@ -91,7 +91,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        driver: this.driver,
+        pluginManager: this.pluginManager,
         events: this.events,
         plugin: this.plugin,
         contentType,
@@ -109,7 +109,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
         root,
         output,
         meta: {
-          pluginName: this.plugin.name,
+          pluginKey: this.plugin.key,
         },
       })
 

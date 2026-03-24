@@ -1,30 +1,15 @@
 /**
  * Builds a JSDoc comment block from an array of lines.
  * Returns `fallback` when `comments` is empty so callers always get a usable string.
- *
- * @example
- * ```ts
- * buildJSDoc(['@type string', '@example hello'])
- * // '/**\n   * @type string\n   * @example hello\n   *\/\n  '
- * ```
  */
 export function buildJSDoc(
   comments: Array<string>,
   options: {
-    /**
-     * String to use for indenting each line.
-     * @default '   * '
-     */
+    /** String to use for indenting each line. Defaults to `'   * '`. */
     indent?: string
-    /**
-     * String appended after the closing tag.
-     * @default '\n  '
-     */
+    /** String appended after the closing tag. Defaults to `'\n  '`. */
     suffix?: string
-    /**
-     * Returned as-is when `comments` is empty.
-     * @default '  '
-     */
+    /** Returned as-is when `comments` is empty. Defaults to `'  '`. */
     fallback?: string
   } = {},
 ): string {

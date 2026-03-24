@@ -5,44 +5,36 @@
 
 export type User = {
   /**
-   * @example 10
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   id?: number
   /**
-   * @example theUser
    * @type string | undefined
    */
   username?: string
   /**
-   * @example John
    * @type string | undefined
    */
   firstName?: string
   /**
-   * @example James
    * @type string | undefined
    */
   lastName?: string
   /**
-   * @example john@email.com
    * @type string | undefined
    */
   email?: string
   /**
-   * @example 12345
    * @type string | undefined
    */
   password?: string
   /**
-   * @example 12345
    * @type string | undefined
    */
   phone?: string
   /**
    * @description User Status
-   * @example 1
-   * @type integer | undefined
+   * @type integer | undefined, int32
    */
   userStatus?: number
 }

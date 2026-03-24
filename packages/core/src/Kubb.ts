@@ -1,32 +1,36 @@
 import type { KubbFile } from '@kubb/fabric-core/types'
-import type { Strategy } from './PluginDriver.ts'
+import type { Strategy } from './PluginManager.ts'
 import type { Config, Plugin, PluginLifecycleHooks } from './types'
 
-type DebugInfo = {
+type DebugEvent = {
   date: Date
-  logs: Array<string>
+  logs: string[]
   fileName?: string
 }
 
-type HookProgress<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
+type ProgressStartMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
   hookName: H
   plugins: Array<Plugin>
 }
 
-type HookExecution<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
+type ProgressStopMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
+  hookName: H
+}
+
+type ExecutingMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
   strategy: Strategy
   hookName: H
   plugin: Plugin
-  parameters?: Array<unknown>
+  parameters?: unknown[] | undefined
   output?: unknown
 }
 
-type HookResult<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
+type ExecutedMeta<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
   duration: number
   strategy: Strategy
   hookName: H
   plugin: Plugin
-  parameters?: Array<unknown>
+  parameters?: unknown[] | undefined
   output?: unknown
 }
 
@@ -36,7 +40,7 @@ type HookResult<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
  *
  * @example
  * ```typescript
- * import type { AsyncEventEmitter } from '@internals/utils'
+ * import type { AsyncEventEmitter } from '@kubb/core'
  * import type { KubbEvents } from '@kubb/core'
  *
  * const events: AsyncEventEmitter<KubbEvents> = new AsyncEventEmitter()
@@ -55,6 +59,7 @@ export interface KubbEvents {
    * Emitted at the beginning of the Kubb lifecycle, before any code generation starts.
    */
   'lifecycle:start': [version: string]
+
   /**
    * Emitted at the end of the Kubb lifecycle, after all code generation is complete.
    */
@@ -64,6 +69,7 @@ export interface KubbEvents {
    * Emitted when configuration loading starts.
    */
   'config:start': []
+
   /**
    * Emitted when configuration loading is complete.
    */
@@ -73,22 +79,24 @@ export interface KubbEvents {
    * Emitted when code generation phase starts.
    */
   'generation:start': [config: Config]
+
   /**
    * Emitted when code generation phase completes.
    */
-  'generation:end': [config: Config, files: Array<KubbFile.ResolvedFile>, sources: Map<KubbFile.Path, string>]
+  'generation:end': [Config: Config, files: Array<KubbFile.ResolvedFile>, sources: Map<KubbFile.Path, string>]
+
   /**
    * Emitted with a summary of the generation results.
    * Contains summary lines, title, and success status.
    */
   'generation:summary': [
-    config: Config,
+    Config: Config,
     {
       failedPlugins: Set<{ plugin: Plugin; error: Error }>
       status: 'success' | 'failed'
       hrStart: [number, number]
       filesCreated: number
-      pluginTimings?: Map<Plugin['name'], number>
+      pluginTimings?: Map<string, number>
     },
   ]
 
@@ -96,6 +104,7 @@ export interface KubbEvents {
    * Emitted when code formatting starts (e.g., running Biome or Prettier).
    */
   'format:start': []
+
   /**
    * Emitted when code formatting completes.
    */
@@ -105,6 +114,7 @@ export interface KubbEvents {
    * Emitted when linting starts.
    */
   'lint:start': []
+
   /**
    * Emitted when linting completes.
    */
@@ -114,20 +124,29 @@ export interface KubbEvents {
    * Emitted when plugin hooks execution starts.
    */
   'hooks:start': []
+
   /**
    * Emitted when plugin hooks execution completes.
    */
   'hooks:end': []
 
   /**
-   * Emitted when a single hook execution starts (e.g., format or lint).
+   * Emitted when a single hook execution starts. (e.g., format or lint).
    * The callback should be invoked when the command completes.
    */
   'hook:start': [{ id?: string; command: string; args?: readonly string[] }]
   /**
    * Emitted when a single hook execution completes.
    */
-  'hook:end': [{ id?: string; command: string; args?: readonly string[]; success: boolean; error: Error | null }]
+  'hook:end': [
+    {
+      id?: string
+      command: string
+      args?: readonly string[]
+      success: boolean
+      error: Error | null
+    },
+  ]
 
   /**
    * Emitted when a new version of Kubb is available.
@@ -138,54 +157,49 @@ export interface KubbEvents {
    * Informational message event.
    */
   info: [message: string, info?: string]
+
   /**
    * Error event. Emitted when an error occurs during code generation.
    */
   error: [error: Error, meta?: Record<string, unknown>]
+
   /**
    * Success message event.
    */
   success: [message: string, info?: string]
+
   /**
    * Warning message event.
    */
   warn: [message: string, info?: string]
+
   /**
    * Debug event for detailed logging.
    * Contains timestamp, log messages, and optional filename.
    */
-  debug: [info: DebugInfo]
+  debug: [meta: DebugEvent]
 
   /**
    * Emitted when file processing starts.
    * Contains the list of files to be processed.
    */
   'files:processing:start': [files: Array<KubbFile.ResolvedFile>]
+
   /**
    * Emitted for each file being processed, providing progress updates.
    * Contains processed count, total count, percentage, and file details.
    */
   'file:processing:update': [
     {
-      /**
-       * Number of files processed so far.
-       */
+      /** Number of files processed so far */
       processed: number
-      /**
-       * Total number of files to process.
-       */
+      /** Total number of files to process */
       total: number
-      /**
-       * Processing percentage (0–100).
-       */
+      /** Processing percentage (0-100) */
       percentage: number
-      /**
-       * Optional source identifier.
-       */
+      /** Optional source identifier */
       source?: string
-      /**
-       * The file being processed.
-       */
+      /** The file being processed */
       file: KubbFile.ResolvedFile
       /**
        * Kubb configuration (not present in Fabric).
@@ -194,41 +208,45 @@ export interface KubbEvents {
       config: Config
     },
   ]
+
   /**
    * Emitted when file processing completes.
    * Contains the list of processed files.
    */
-  'files:processing:end': [files: Array<KubbFile.ResolvedFile>]
+  'files:processing:end': [files: KubbFile.ResolvedFile[]]
 
   /**
    * Emitted when a plugin starts executing.
    */
   'plugin:start': [plugin: Plugin]
+
   /**
    * Emitted when a plugin completes execution.
-   * Duration in ms.
+   * Duration in ms
    */
-  'plugin:end': [plugin: Plugin, result: { duration: number; success: boolean; error?: Error }]
+  'plugin:end': [plugin: Plugin, meta: { duration: number; success: boolean; error?: Error }]
 
   /**
    * Emitted when plugin hook progress tracking starts.
    * Contains the hook name and list of plugins to execute.
    */
-  'plugins:hook:progress:start': [progress: HookProgress]
+  'plugins:hook:progress:start': [meta: ProgressStartMeta]
+
   /**
    * Emitted when plugin hook progress tracking ends.
    * Contains the hook name that completed.
    */
-  'plugins:hook:progress:end': [{ hookName: PluginLifecycleHooks }]
+  'plugins:hook:progress:end': [meta: ProgressStopMeta]
 
   /**
    * Emitted when a plugin hook starts processing.
    * Contains strategy, hook name, plugin, parameters, and output.
    */
-  'plugins:hook:processing:start': [execution: HookExecution]
+  'plugins:hook:processing:start': [meta: ExecutingMeta]
+
   /**
    * Emitted when a plugin hook completes processing.
    * Contains duration, strategy, hook name, plugin, parameters, and output.
    */
-  'plugins:hook:processing:end': [result: HookResult]
+  'plugins:hook:processing:end': [meta: ExecutedMeta]
 }

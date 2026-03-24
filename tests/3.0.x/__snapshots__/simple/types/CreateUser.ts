@@ -20,5 +20,5 @@ export type CreateUserMutationResponse = any;
 export type CreateUserMutation = {
     Response: any;
     Request: CreateUserMutationRequest;
-    Errors: CreateUserError;
+    Errors: any;
 };

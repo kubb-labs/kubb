@@ -1,275 +1,468 @@
-import { caseParams, composeTransformers, narrowSchema, schemaTypes, transform } from '@kubb/ast'
-import type { SchemaNode } from '@kubb/ast/types'
-import { defineGenerator } from '@kubb/core'
-import { useKubb } from '@kubb/core/hooks'
+import { pascalCase } from '@internals/utils'
+import type { PluginManager } from '@kubb/core'
+import { useMode, usePluginManager } from '@kubb/core/hooks'
+import { safePrint } from '@kubb/fabric-core/parsers/typescript'
+import type { Operation } from '@kubb/oas'
+import { isKeyword, type OperationSchemas, type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
+import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
+import { applyParamsCasing, getBanner, getFooter, getImports, isParameterSchema } from '@kubb/plugin-oas/utils'
 import { File } from '@kubb/react-fabric'
-import { Type } from '../components/Type.tsx'
-import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
+import ts from 'typescript'
+import { Type } from '../components'
+import * as factory from '../factory.ts'
+import { createUrlTemplateType, getUnknownType, keywordTypeNodes } from '../factory.ts'
+import { pluginTsName } from '../plugin.ts'
 import type { PluginTs } from '../types'
-import {
-  buildDataSchemaNode,
-  buildGroupedParamsSchema,
-  buildLegacyResponsesSchemaNode,
-  buildLegacyResponseUnionSchemaNode,
-  buildParamsSchema,
-  buildResponsesSchemaNode,
-  buildResponseUnionSchemaNode,
-  nameUnnamedEnums,
-} from './utils.ts'
 
-export const typeGenerator = defineGenerator<PluginTs>({
-  name: 'typescript',
-  type: 'react',
-  Operation({ node, adapter, options }) {
-    const {
-      enumType,
-      enumKeyCasing,
-      optionalType,
-      arrayType,
-      syntaxType,
-      paramsCasing,
-      group,
-      resolver,
-      baseResolver,
-      compatibilityPreset,
-      transformers = [],
-    } = options
-    const isKubbV4Compatibility = compatibilityPreset === 'kubbV4'
-    const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
+function printCombinedSchema({ name, schemas, pluginManager }: { name: string; schemas: OperationSchemas; pluginManager: PluginManager }): string {
+  const properties: Record<string, ts.TypeNode> = {}
 
-    const file = getFile({
-      name: node.operationId,
-      extname: '.ts',
-      mode,
-      options: {
-        group: group ? (group.type === 'tag' ? { tag: node.tags[0] ?? 'default' } : { path: node.path }) : undefined,
-      },
+  if (schemas.response) {
+    properties['response'] = factory.createUnionDeclaration({
+      nodes: schemas.responses.map((res) => {
+        const identifier = pluginManager.resolveName({
+          name: res.name,
+          pluginKey: [pluginTsName],
+          type: 'function',
+        })
+
+        return factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
+      }),
+    })!
+  }
+
+  if (schemas.request) {
+    const identifier = pluginManager.resolveName({
+      name: schemas.request.name,
+      pluginKey: [pluginTsName],
+      type: 'function',
     })
-    const params = caseParams(node.parameters, paramsCasing)
+    properties['request'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
+  }
 
-    function renderSchemaType({
-      node: schemaNode,
+  if (schemas.pathParams) {
+    const identifier = pluginManager.resolveName({
+      name: schemas.pathParams.name,
+      pluginKey: [pluginTsName],
+      type: 'function',
+    })
+    properties['pathParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
+  }
+
+  if (schemas.queryParams) {
+    const identifier = pluginManager.resolveName({
+      name: schemas.queryParams.name,
+      pluginKey: [pluginTsName],
+      type: 'function',
+    })
+    properties['queryParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
+  }
+
+  if (schemas.headerParams) {
+    const identifier = pluginManager.resolveName({
+      name: schemas.headerParams.name,
+      pluginKey: [pluginTsName],
+      type: 'function',
+    })
+    properties['headerParams'] = factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
+  }
+
+  if (schemas.errors) {
+    properties['errors'] = factory.createUnionDeclaration({
+      nodes: schemas.errors.map((error) => {
+        const identifier = pluginManager.resolveName({
+          name: error.name,
+          pluginKey: [pluginTsName],
+          type: 'function',
+        })
+
+        return factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined)
+      }),
+    })!
+  }
+
+  const namespaceNode = factory.createTypeAliasDeclaration({
+    name,
+    type: factory.createTypeLiteralNode(
+      Object.keys(properties)
+        .map((key) => {
+          const type = properties[key]
+          if (!type) {
+            return undefined
+          }
+
+          return factory.createPropertySignature({
+            name: pascalCase(key),
+            type,
+          })
+        })
+        .filter(Boolean),
+    ),
+    modifiers: [factory.modifiers.export],
+  })
+
+  return safePrint(namespaceNode)
+}
+
+function printRequestSchema({
+  baseName,
+  operation,
+  schemas,
+  pluginManager,
+}: {
+  baseName: string
+  operation: Operation
+  schemas: OperationSchemas
+  pluginManager: PluginManager
+}): string {
+  const name = pluginManager.resolveName({
+    name: `${baseName} Request`,
+    pluginKey: [pluginTsName],
+    type: 'type',
+  })
+
+  const results: string[] = []
+
+  // Generate DataRequest type
+  const dataRequestProperties: ts.PropertySignature[] = []
+
+  if (schemas.request) {
+    const identifier = pluginManager.resolveName({
+      name: schemas.request.name,
+      pluginKey: [pluginTsName],
+      type: 'type',
+    })
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'data',
+        questionToken: true,
+        type: factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined),
+      }),
+    )
+  } else {
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'data',
+        questionToken: true,
+        type: keywordTypeNodes.never,
+      }),
+    )
+  }
+
+  // Add pathParams property
+  if (schemas.pathParams) {
+    const identifier = pluginManager.resolveName({
+      name: schemas.pathParams.name,
+      pluginKey: [pluginTsName],
+      type: 'type',
+    })
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'pathParams',
+        type: factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined),
+      }),
+    )
+  } else {
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'pathParams',
+        questionToken: true,
+        type: keywordTypeNodes.never,
+      }),
+    )
+  }
+
+  // Add queryParams property
+  if (schemas.queryParams) {
+    const identifier = pluginManager.resolveName({
+      name: schemas.queryParams.name,
+      pluginKey: [pluginTsName],
+      type: 'type',
+    })
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'queryParams',
+        questionToken: true,
+        type: factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined),
+      }),
+    )
+  } else {
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'queryParams',
+        questionToken: true,
+        type: keywordTypeNodes.never,
+      }),
+    )
+  }
+
+  // Add headerParams property
+  if (schemas.headerParams) {
+    const identifier = pluginManager.resolveName({
+      name: schemas.headerParams.name,
+      pluginKey: [pluginTsName],
+      type: 'type',
+    })
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'headerParams',
+        questionToken: true,
+        type: factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined),
+      }),
+    )
+  } else {
+    dataRequestProperties.push(
+      factory.createPropertySignature({
+        name: 'headerParams',
+        questionToken: true,
+        type: keywordTypeNodes.never,
+      }),
+    )
+  }
+
+  // Add url property with template literal type
+  dataRequestProperties.push(
+    factory.createPropertySignature({
+      name: 'url',
+      type: createUrlTemplateType(operation.path),
+    }),
+  )
+
+  const dataRequestNode = factory.createTypeAliasDeclaration({
+    name,
+    type: factory.createTypeLiteralNode(dataRequestProperties),
+    modifiers: [factory.modifiers.export],
+  })
+
+  results.push(safePrint(dataRequestNode))
+
+  return results.join('\n\n')
+}
+
+function printResponseSchema({
+  baseName,
+  schemas,
+  pluginManager,
+  unknownType,
+}: {
+  baseName: string
+  schemas: OperationSchemas
+  pluginManager: PluginManager
+  unknownType: PluginTs['resolvedOptions']['unknownType']
+}): string {
+  const results: string[] = []
+
+  const name = pluginManager.resolveName({
+    name: `${baseName} ResponseData`,
+    pluginKey: [pluginTsName],
+    type: 'type',
+  })
+
+  // Generate Responses type (mapping status codes to response types)
+  if (schemas.responses && schemas.responses.length > 0) {
+    const responsesProperties: ts.PropertySignature[] = schemas.responses.map((res) => {
+      const identifier = pluginManager.resolveName({
+        name: res.name,
+        pluginKey: [pluginTsName],
+        type: 'type',
+      })
+
+      return factory.createPropertySignature({
+        name: res.statusCode?.toString() ?? 'default',
+        type: factory.createTypeReferenceNode(factory.createIdentifier(identifier), undefined),
+      })
+    })
+
+    const responsesNode = factory.createTypeAliasDeclaration({
+      name: `${baseName}Responses`,
+      type: factory.createTypeLiteralNode(responsesProperties),
+      modifiers: [factory.modifiers.export],
+    })
+
+    results.push(safePrint(responsesNode))
+
+    // Generate Response type (union via indexed access)
+    const responseNode = factory.createTypeAliasDeclaration({
       name,
-      typedName,
-      description,
-      keysToOmit,
-    }: {
-      node: SchemaNode | null
-      name: string
-      typedName: string
-      description?: string
-      keysToOmit?: Array<string>
-    }) {
-      if (!schemaNode) {
-        return null
+      type: factory.createIndexedAccessTypeNode(
+        factory.createTypeReferenceNode(factory.createIdentifier(`${baseName}Responses`), undefined),
+        factory.createTypeOperatorNode(
+          ts.SyntaxKind.KeyOfKeyword,
+          factory.createTypeReferenceNode(factory.createIdentifier(`${baseName}Responses`), undefined),
+        ),
+      ),
+      modifiers: [factory.modifiers.export],
+    })
+
+    results.push(safePrint(responseNode))
+  } else {
+    const responseNode = factory.createTypeAliasDeclaration({
+      name,
+      modifiers: [factory.modifiers.export],
+      type: getUnknownType(unknownType),
+    })
+
+    results.push(safePrint(responseNode))
+  }
+
+  return results.join('\n\n')
+}
+
+export const typeGenerator = createReactGenerator<PluginTs, '1'>({
+  name: 'typescript',
+  version: '1',
+  Operation({ operation, generator, plugin }) {
+    const {
+      options,
+      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing },
+    } = plugin
+
+    const mode = useMode()
+    const pluginManager = usePluginManager()
+
+    const oas = useOas()
+    const { getSchemas, getFile, getName, getGroup } = useOperationManager(generator)
+    const schemaManager = useSchemaManager()
+
+    const name = getName(operation, { type: 'type', pluginKey: [pluginTsName] })
+
+    const file = getFile(operation)
+    const schemas = getSchemas(operation)
+    const schemaGenerator = new SchemaGenerator(options, {
+      fabric: generator.context.fabric,
+      oas,
+      events: generator.context.events,
+      plugin,
+      pluginManager,
+      mode,
+      override: options.override,
+    })
+
+    const operationSchemas = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response]
+      .flat()
+      .filter(Boolean)
+
+    const mapOperationSchema = ({ name, schema, description, keysToOmit, ...options }: OperationSchemaType) => {
+      // Apply paramsCasing transformation to pathParams, queryParams, and headerParams (not response)
+      const shouldTransform = paramsCasing && isParameterSchema(name)
+      const transformedSchema = shouldTransform ? applyParamsCasing(schema, paramsCasing) : schema
+
+      const tree = schemaGenerator.parse({ schema: transformedSchema, name, parentName: null })
+      const imports = getImports(tree)
+      const group = options.operation ? getGroup(options.operation) : undefined
+
+      const type = {
+        name: schemaManager.getName(name, { type: 'type' }),
+        typedName: schemaManager.getName(name, { type: 'type' }),
+        file: schemaManager.getFile(options.operationName || name, { group }),
       }
-
-      const transformedNode = transform(schemaNode, composeTransformers(...transformers))
-
-      const imports = adapter.getImports(transformedNode, (schemaName) => ({
-        name: resolver.default(schemaName, 'type'),
-        path: getFile({ name: schemaName, extname: '.ts', mode }).path,
-      }))
 
       return (
         <>
           {mode === 'split' &&
-            imports.map((imp) => <File.Import key={[name, imp.path, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />)}
+            imports.map((imp) => (
+              <File.Import key={[name, imp.name, imp.path, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />
+            ))}
           <Type
-            name={name}
-            typedName={typedName}
-            node={transformedNode}
+            name={type.name}
+            typedName={type.typedName}
             description={description}
+            tree={tree}
+            schema={transformedSchema}
+            mapper={mapper}
             enumType={enumType}
             enumKeyCasing={enumKeyCasing}
             optionalType={optionalType}
             arrayType={arrayType}
-            syntaxType={syntaxType}
-            resolver={resolver}
             keysToOmit={keysToOmit}
-            legacy={isKubbV4Compatibility}
+            syntaxType={syntaxType}
           />
         </>
       )
     }
 
-    const responseTypes = isKubbV4Compatibility
-      ? node.responses.map((res) => {
-          const responseName = resolver.resolveResponseStatusName(node, res.statusCode)
-          const baseResponseName = baseResolver.resolveResponseStatusName(node, res.statusCode)
-
-          return renderSchemaType({
-            node: res.schema ? nameUnnamedEnums(res.schema, baseResponseName) : res.schema,
-            name: responseName,
-            typedName: resolver.resolveResponseStatusTypedName(node, res.statusCode),
-            description: res.description,
-            keysToOmit: res.keysToOmit,
-          })
-        })
-      : node.responses.map((res) =>
-          renderSchemaType({
-            node: res.schema,
-            name: resolver.resolveResponseStatusName(node, res.statusCode),
-            typedName: resolver.resolveResponseStatusTypedName(node, res.statusCode),
-            description: res.description,
-            keysToOmit: res.keysToOmit,
-          }),
-        )
-
-    const requestType = node.requestBody?.schema
-      ? renderSchemaType({
-          node: isKubbV4Compatibility ? nameUnnamedEnums(node.requestBody.schema, baseResolver.resolveDataName(node)) : node.requestBody.schema,
-          name: resolver.resolveDataName(node),
-          typedName: resolver.resolveDataTypedName(node),
-          description: node.requestBody.description ?? node.requestBody.schema.description,
-          keysToOmit: node.requestBody.keysToOmit,
-        })
-      : null
-
-    if (isKubbV4Compatibility) {
-      const pathParams = params.filter((p) => p.in === 'path')
-      const queryParams = params.filter((p) => p.in === 'query')
-      const headerParams = params.filter((p) => p.in === 'header')
-
-      const legacyParamTypes = [
-        pathParams.length > 0
-          ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: pathParams, parentName: baseResolver.resolvePathParamsName!(node) }),
-              name: resolver.resolvePathParamsName!(node),
-              typedName: resolver.resolvePathParamsTypedName!(node),
-            })
-          : null,
-        queryParams.length > 0
-          ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: queryParams, parentName: baseResolver.resolveQueryParamsName!(node) }),
-              name: resolver.resolveQueryParamsName!(node),
-              typedName: resolver.resolveQueryParamsTypedName!(node),
-            })
-          : null,
-        headerParams.length > 0
-          ? renderSchemaType({
-              node: buildGroupedParamsSchema({ params: headerParams, parentName: baseResolver.resolveHeaderParamsName!(node) }),
-              name: resolver.resolveHeaderParamsName!(node),
-              typedName: resolver.resolveHeaderParamsTypedName!(node),
-            })
-          : null,
-      ]
-
-      const legacyResponsesType = renderSchemaType({
-        node: buildLegacyResponsesSchemaNode({ node, resolver }),
-        name: resolver.resolveResponsesName(node),
-        typedName: resolver.resolveResponsesTypedName(node),
-      })
-
-      const legacyResponseType = renderSchemaType({
-        node: buildLegacyResponseUnionSchemaNode({ node, resolver }),
-        name: resolver.resolveResponseName(node),
-        typedName: resolver.resolveResponseTypedName(node),
-      })
-
-      return (
-        <File baseName={file.baseName} path={file.path} meta={file.meta} banner={resolveBanner()} footer={resolveFooter()}>
-          {legacyParamTypes}
-          {responseTypes}
-          {requestType}
-          {legacyResponseType}
-          {legacyResponsesType}
-        </File>
-      )
-    }
-
-    const paramTypes = params.map((param) =>
-      renderSchemaType({
-        node: param.schema,
-        name: resolver.resolveParamName(node, param),
-        typedName: resolver.resolveParamTypedName(node, param),
-      }),
-    )
-
-    const queryParamsList = params.filter((p) => p.in === 'query')
-    const queryParamsType =
-      queryParamsList.length > 0
-        ? renderSchemaType({
-            node: buildParamsSchema({ params: queryParamsList, node, resolver }),
-            name: resolver.resolveQueryParamsName!(node),
-            typedName: resolver.resolveQueryParamsTypedName!(node),
-          })
-        : null
-
-    const dataType = renderSchemaType({
-      node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolver }),
-      name: resolver.resolveRequestConfigName(node),
-      typedName: resolver.resolveRequestConfigTypedName(node),
+    const responseName = schemaManager.getName(schemas.response.name, {
+      type: 'type',
     })
-
-    const responsesType = renderSchemaType({
-      node: buildResponsesSchemaNode({ node, resolver }),
-      name: resolver.resolveResponsesName(node),
-      typedName: resolver.resolveResponsesTypedName(node),
-    })
-
-    const responseType = renderSchemaType({
-      node: buildResponseUnionSchemaNode({ node, resolver }),
-      name: resolver.resolveResponseName(node),
-      typedName: resolver.resolveResponseTypedName(node),
-      description: 'Union of all possible responses',
-    })
+    const combinedSchemaName = operation.method === 'get' ? `${name}Query` : `${name}Mutation`
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={resolveBanner()} footer={resolveFooter()}>
-        {paramTypes}
-        {queryParamsType}
-        {responseTypes}
-        {requestType}
-        {dataType}
-        {responsesType}
-        {responseType}
+      <File
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+        banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
+        footer={getFooter({ oas, output: plugin.options.output })}
+      >
+        {operationSchemas.map(mapOperationSchema)}
+
+        {generator.context.UNSTABLE_NAMING ? (
+          <>
+            <File.Source name={`${name}Request`} isExportable isIndexable isTypeOnly>
+              {printRequestSchema({ baseName: name, operation, schemas, pluginManager })}
+            </File.Source>
+            <File.Source name={responseName} isExportable isIndexable isTypeOnly>
+              {printResponseSchema({ baseName: name, schemas, pluginManager, unknownType })}
+            </File.Source>
+          </>
+        ) : (
+          <File.Source name={combinedSchemaName} isExportable isIndexable isTypeOnly>
+            {printCombinedSchema({ name: combinedSchemaName, schemas, pluginManager })}
+          </File.Source>
+        )}
       </File>
     )
   },
-  Schema({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver, compatibilityPreset, transformers = [] } = options
-    const isKubbV4Compatibility = compatibilityPreset === 'kubbV4'
-    const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
+  Schema({ schema, plugin }) {
+    const {
+      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
+    } = plugin
+    const mode = useMode()
 
-    if (!node.name) {
-      return
+    const oas = useOas()
+    const pluginManager = usePluginManager()
+
+    const { getName, getFile } = useSchemaManager()
+    const imports = getImports(schema.tree)
+    const schemaFromTree = schema.tree.find((item) => item.keyword === schemaKeywords.schema)
+
+    let typedName = getName(schema.name, { type: 'type' })
+
+    if (['asConst', 'asPascalConst'].includes(enumType) && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
+      typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
     }
 
-    const transformedNode = transform(node, composeTransformers(...transformers))
-
-    const imports = adapter.getImports(transformedNode, (schemaName) => ({
-      name: resolver.default(schemaName, 'type'),
-      path: getFile({ name: schemaName, extname: '.ts', mode }).path,
-    }))
-
-    const isEnumSchema = !!narrowSchema(node, schemaTypes.enum)
-
-    const typedName = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyTypedName(node) : resolver.resolveTypedName(node.name)
-
     const type = {
-      name: resolver.resolveName(node.name),
+      name: getName(schema.name, { type: 'function' }),
       typedName,
-      file: getFile({ name: node.name, extname: '.ts', mode }),
-    } as const
+      file: getFile(schema.name),
+    }
 
     return (
-      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta} banner={resolveBanner()} footer={resolveFooter()}>
+      <File
+        baseName={type.file.baseName}
+        path={type.file.path}
+        meta={type.file.meta}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
+        footer={getFooter({ oas, output })}
+      >
         {mode === 'split' &&
           imports.map((imp) => (
-            <File.Import key={[node.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
+            <File.Import key={[schema.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
           ))}
         <Type
           name={type.name}
           typedName={type.typedName}
-          node={transformedNode}
+          description={schema.value.description}
+          tree={schema.tree}
+          schema={schema.value}
+          mapper={mapper}
           enumType={enumType}
           enumKeyCasing={enumKeyCasing}
           optionalType={optionalType}
           arrayType={arrayType}
           syntaxType={syntaxType}
-          resolver={resolver}
-          legacy={isKubbV4Compatibility}
         />
       </File>
     )

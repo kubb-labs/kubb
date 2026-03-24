@@ -1,6 +1,6 @@
 {
   "name": "@kubb/agent",
-  "version": "5.0.0-alpha.19",
+  "version": "4.36.4",
   "description": "Agent server for Kubb, enabling HTTP-based access to code generation capabilities.",
   "keywords": [
     "agent",
@@ -67,17 +67,17 @@
     "remeda": "catalog:",
     "tinyexec": "catalog:",
     "unstorage": "^1.17.4",
-    "ws": "^8.20.0"
+    "ws": "^8.19.0"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@types/ws": "^8.18.1",
-    "msw": "^2.12.14",
+    "msw": "^2.12.13",
     "nitropack": "^2.13.2",
     "vite": "^7.3.1"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=20"
   },
   "publishConfig": {
     "access": "public",

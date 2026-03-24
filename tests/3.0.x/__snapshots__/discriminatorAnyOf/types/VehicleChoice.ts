@@ -8,18 +8,9 @@ import type { SUV } from "./SUV.ts";
 import type { Sedan } from "./Sedan.ts";
 
 export type VehicleChoice = ((Sedan & {
-    /**
-     * @type string
-    */
     type: "Sedan";
 }) | (SUV & {
-    /**
-     * @type string
-    */
     type: "SUV";
 }) | (ElectricCar & {
-    /**
-     * @type string
-    */
     type: "ElectricCar";
 }));

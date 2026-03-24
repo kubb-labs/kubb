@@ -1,18 +1,18 @@
-import type { AsyncEventEmitter } from '@internals/utils'
 import { getUniqueName, pascalCase, stringify } from '@internals/utils'
-import type { FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
+import type { AsyncEventEmitter, FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager, ResolveNameParams } from '@kubb/core'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'
+import type { Fabric } from '@kubb/react-fabric/types'
 import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import type { CoreGenerator } from './generators/createGenerator.ts'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
-import type { Generator } from './generators/types.ts'
+import type { Generator, Version } from './generators/types.ts'
 import { isKeyword, type Schema, type SchemaKeywordMapper, schemaKeywords } from './SchemaMapper.ts'
 import type { OperationSchema, Override, Refs } from './types.ts'
 import { getSchemaFactory } from './utils/getSchemaFactory.ts'
-import { renderSchema } from './utils.tsx'
+import { buildSchema } from './utils.tsx'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
@@ -24,9 +24,9 @@ const GENERATOR_CONCURRENCY = 3
 const SCHEMA_CONCURRENCY = 30
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
-  fabric: FabricType
+  fabric: Fabric
   oas: Oas
-  driver: PluginDriver
+  pluginManager: PluginManager
   events?: AsyncEventEmitter<KubbEvents>
   /**
    * Current plugin
@@ -524,20 +524,20 @@ export class SchemaGenerator<
     // Use the full $ref path to look up the collision-resolved name
     const resolvedName = this.#schemaNameMapping.get($ref) || originalName
 
-    const propertyName = this.context.driver.resolveName({
+    const propertyName = this.context.pluginManager.resolveName({
       name: resolvedName,
-      pluginName: this.context.plugin.name,
+      pluginKey: this.context.plugin.key,
       type: 'function',
     })
 
-    const fileName = this.context.driver.resolveName({
+    const fileName = this.context.pluginManager.resolveName({
       name: resolvedName,
-      pluginName: this.context.plugin.name,
+      pluginKey: this.context.plugin.key,
       type: 'file',
     })
-    const file = this.context.driver.getFile({
+    const file = this.context.pluginManager.getFile({
       name: fileName,
-      pluginName: this.context.plugin.name,
+      pluginKey: this.context.plugin.key,
       extname: '.ts',
     })
 
@@ -968,9 +968,9 @@ export class SchemaGenerator<
       const enumName = useCollisionDetection
         ? pascalCase(enumNameParts.join(' '))
         : getUniqueName(pascalCase(enumNameParts.join(' ')), this.options.usedEnumNames || {})
-      const typeName = this.context.driver.resolveName({
+      const typeName = this.context.pluginManager.resolveName({
         name: enumName,
-        pluginName: this.context.plugin.name,
+        pluginKey: this.context.plugin.key,
         type: 'type',
       })
 
@@ -1337,7 +1337,7 @@ export class SchemaGenerator<
     return [{ keyword: emptyType }, ...baseItems]
   }
 
-  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<TPluginOptions, Version>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
 
     // Initialize the name mapping if not already done
@@ -1360,7 +1360,10 @@ export class SchemaGenerator<
     return this.#doBuild(schemas, generators)
   }
 
-  async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async #doBuild(
+    schemas: Record<string, OasTypes.SchemaObject>,
+    generators: Array<Generator<TPluginOptions, Version>>,
+  ): Promise<Array<KubbFile.File<TFileMeta>>> {
     const schemaEntries = Object.entries(schemas)
 
     const generatorLimit = pLimit(GENERATOR_CONCURRENCY)
@@ -1373,7 +1376,7 @@ export class SchemaGenerator<
         }
 
         // After the v2 guard above, all generators here are v1
-        const v1Generator = generator as ReactGenerator<TPluginOptions> | CoreGenerator<TPluginOptions>
+        const v1Generator = generator as ReactGenerator<TPluginOptions, '1'> | CoreGenerator<TPluginOptions, '1'>
 
         const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
           schemaLimit(async () => {
@@ -1382,14 +1385,14 @@ export class SchemaGenerator<
             const tree = this.parse({ schema: schemaObject as SchemaObject, name, parentName: null, rootName: name })
 
             if (v1Generator.type === 'react') {
-              await renderSchema(
+              await buildSchema(
                 {
                   name,
                   value: schemaObject as SchemaObject,
                   tree,
                 },
                 {
-                  config: this.context.driver.config,
+                  config: this.context.pluginManager.config,
                   fabric: this.context.fabric,
                   Component: v1Generator.Schema,
                   generator: this,
@@ -1407,7 +1410,7 @@ export class SchemaGenerator<
             }
 
             const result = await v1Generator.schema?.({
-              config: this.context.driver.config,
+              config: this.context.pluginManager.config,
               generator: this,
               schema: {
                 name,

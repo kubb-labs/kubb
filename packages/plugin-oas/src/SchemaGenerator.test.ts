@@ -1,10 +1,10 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
+import type { Plugin } from '@kubb/core'
 import { parse, type SchemaObject } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, test } from 'vitest'
-import { createMockedPlugin, mockedPluginDriver } from '#mocks'
+import { mockedPluginManager } from '#mocks'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from './SchemaGenerator.ts'
 import { schemaKeywords } from './SchemaMapper.ts'
 
@@ -141,13 +141,13 @@ describe('SchemaGenerator core', async () => {
       emptySchemaType: 'unknown',
       ...props.options,
     }
-    const plugin = createMockedPlugin<any>({ name: 'plugin-oas', options })
+    const plugin = { options } as Plugin<any>
 
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      driver: mockedPluginDriver,
+      pluginManager: mockedPluginManager,
 
       plugin,
       contentType: undefined,
@@ -343,13 +343,13 @@ describe('SchemaGenerator core', async () => {
       transformers: {},
       unknownType: 'unknown',
     }
-    const plugin = createMockedPlugin<any>({ name: 'plugin-oas', options })
+    const plugin = { options } as Plugin<any>
 
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      driver: mockedPluginDriver,
+      pluginManager: mockedPluginManager,
       plugin,
       contentType: undefined,
       override: undefined,
@@ -423,13 +423,13 @@ describe('SchemaGenerator core', async () => {
       transformers: {},
       unknownType: 'unknown',
     }
-    const plugin = createMockedPlugin<any>({ name: 'plugin-oas', options })
+    const plugin = { options } as Plugin<any>
 
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      driver: mockedPluginDriver,
+      pluginManager: mockedPluginManager,
       plugin,
       contentType: undefined,
       override: undefined,

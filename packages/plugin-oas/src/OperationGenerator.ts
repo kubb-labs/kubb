@@ -1,26 +1,26 @@
-import type { AsyncEventEmitter } from '@internals/utils'
 import { pascalCase } from '@internals/utils'
-import type { FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
-import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
+import type { AsyncEventEmitter, FileMetaBase, KubbEvents, Plugin, PluginFactoryOptions, PluginManager } from '@kubb/core'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
+import type { Fabric } from '@kubb/react-fabric/types'
 import pLimit from 'p-limit'
 import type { CoreGenerator } from './generators/createGenerator.ts'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
-import type { Generator } from './generators/types.ts'
+import type { Generator, Version } from './generators/types.ts'
 import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
 import { withRequiredRequestBodySchema } from './utils/requestBody.ts'
-import { renderOperation, renderOperations } from './utils.tsx'
+import { buildOperation, buildOperations } from './utils.tsx'
 
 export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
-  fabric: FabricType
+  fabric: Fabric
   oas: Oas
   exclude: Array<Exclude> | undefined
   include: Array<Include> | undefined
   override: Array<Override<TOptions>> | undefined
   contentType: contentType | undefined
-  driver: PluginDriver
+  pluginManager: PluginManager
   events?: AsyncEventEmitter<KubbEvents>
   /**
    * Current plugin
@@ -206,7 +206,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
     )
   }
 
-  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<TPluginOptions, Version>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const operations = await this.getOperations()
 
     // Increased parallelism for better performance
@@ -227,15 +227,15 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
         }
 
         // After the v2 guard above, all generators here are v1
-        const v1Generator = generator as ReactGenerator<TPluginOptions> | CoreGenerator<TPluginOptions>
+        const v1Generator = generator as ReactGenerator<TPluginOptions, '1'> | CoreGenerator<TPluginOptions, '1'>
 
         const operationTasks = operations.map(({ operation, method }) =>
           operationLimit(async () => {
             const options = this.getOptions(operation, method)
 
             if (v1Generator.type === 'react') {
-              await renderOperation(operation, {
-                config: this.context.driver.config,
+              await buildOperation(operation, {
+                config: this.context.pluginManager.config,
                 fabric: this.context.fabric,
                 Component: v1Generator.Operation,
                 generator: this,
@@ -253,7 +253,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
 
             const result = await v1Generator.operation?.({
               generator: this,
-              config: this.context.driver.config,
+              config: this.context.pluginManager.config,
               operation,
               plugin: {
                 ...this.context.plugin,
@@ -272,11 +272,11 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
         const opResultsFlat = operationResults.flat()
 
         if (v1Generator.type === 'react') {
-          await renderOperations(
+          await buildOperations(
             operations.map((op) => op.operation),
             {
               fabric: this.context.fabric,
-              config: this.context.driver.config,
+              config: this.context.pluginManager.config,
               Component: v1Generator.Operations,
               generator: this,
               plugin: this.context.plugin,
@@ -288,7 +288,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
 
         const operationsResult = await v1Generator.operations?.({
           generator: this,
-          config: this.context.driver.config,
+          config: this.context.pluginManager.config,
           operations: operations.map((op) => op.operation),
           plugin: this.context.plugin,
         })

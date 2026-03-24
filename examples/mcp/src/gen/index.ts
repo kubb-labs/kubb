@@ -36,7 +36,6 @@ export type {
 } from './models/ts/AddPet.js'
 export type {
   AddPetRequest,
-  AddPetRequestStatusEnum,
   AddPetRequestStatusEnumKey,
 } from './models/ts/AddPetRequest.js'
 export { addPetRequestStatusEnum } from './models/ts/AddPetRequest.js'
@@ -47,7 +46,6 @@ export type {
   CreatePets201,
   CreatePetsError,
   CreatePetsHeaderParams,
-  CreatePetsHeaderParamsXEXAMPLEEnum,
   CreatePetsHeaderParamsXEXAMPLEEnumKey,
   CreatePetsMutation,
   CreatePetsMutationRequest,
@@ -102,7 +100,6 @@ export type {
   FindPetsByTags200,
   FindPetsByTags400,
   FindPetsByTagsHeaderParams,
-  FindPetsByTagsHeaderParamsXEXAMPLEEnum,
   FindPetsByTagsHeaderParamsXEXAMPLEEnumKey,
   FindPetsByTagsQuery,
   FindPetsByTagsQueryParams,
@@ -152,15 +149,12 @@ export type {
 } from './models/ts/LogoutUser.js'
 export type {
   Order,
-  OrderHttpStatusEnum,
   OrderHttpStatusEnumKey,
-  OrderOrderTypeEnum,
   OrderOrderTypeEnumKey,
-  OrderStatusEnum,
   OrderStatusEnumKey,
 } from './models/ts/Order.js'
 export { orderHttpStatusEnum, orderOrderTypeEnum, orderStatusEnum } from './models/ts/Order.js'
-export type { Pet, PetStatusEnum, PetStatusEnumKey } from './models/ts/Pet.js'
+export type { Pet, PetStatusEnumKey } from './models/ts/Pet.js'
 export { petStatusEnum } from './models/ts/Pet.js'
 export type { PetNotFound } from './models/ts/PetNotFound.js'
 export type {

@@ -42,6 +42,6 @@ describe('detectFormatter', () => {
     })
 
     const result = await detectFormatter()
-    expect(result).toBeNull()
+    expect(result).toBeUndefined()
   })
 })
