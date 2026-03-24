@@ -45,24 +45,25 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
   } = options
 
-  // Mutable Map shared between `options` and each `parse()` call.
-  // Populated (and replaced) on every parse so consumers always see the latest state.
-  const nameMapping = new Map<string, string>()
+  // Let-binding so parse() can replace it with a simple reassignment (no clear+loop).
+  let nameMapping = new Map<string, string>()
 
   return {
     name: adapterOasName,
-    options: {
-      validate,
-      contentType,
-      serverIndex,
-      serverVariables,
-      discriminator,
-      dateType,
-      integerType,
-      unknownType,
-      emptySchemaType,
-      enumSuffix,
-      nameMapping,
+    get options() {
+      return {
+        validate,
+        contentType,
+        serverIndex,
+        serverVariables,
+        discriminator,
+        dateType,
+        integerType,
+        unknownType,
+        emptySchemaType,
+        enumSuffix,
+        nameMapping,
+      }
     },
     getImports(node, resolve) {
       return collectImports({
@@ -98,10 +99,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       const root = discriminator === 'inherit' ? applyDiscriminatorInheritance(parsedRoot) : parsedRoot
 
       // This must happen after parseOas() because legacy enum remapping is finalized there.
-      nameMapping.clear()
-      for (const [key, value] of parsedNameMapping) {
-        nameMapping.set(key, value)
-      }
+      nameMapping = parsedNameMapping
 
       return createRoot({
         ...root,

@@ -1,11 +1,46 @@
 import { toSnapshot } from '@internals/utils'
 import { describe, expect, it } from 'vitest'
+import { getSchemas, resolveServerUrl } from './resolvers.ts'
 import type { Document } from './types.ts'
-import { getSchemas } from './utils.ts'
 
-const base: Document = { openapi: '3.0.3', info: { title: '', version: '' }, paths: {} } as Document
+describe('resolveServerUrl', () => {
+  it('returns the url unchanged when there are no variables', () => {
+    expect(resolveServerUrl({ url: 'https://api.example.com' })).toBe('https://api.example.com')
+  })
+
+  it('replaces a variable with the provided override', () => {
+    expect(resolveServerUrl({ url: 'https://{env}.api.example.com', variables: { env: { default: 'dev', enum: ['dev', 'prod'] } } }, { env: 'prod' })).toBe(
+      'https://prod.api.example.com',
+    )
+  })
+
+  it('falls back to the variable default when no override is given', () => {
+    expect(resolveServerUrl({ url: 'https://{env}.api.example.com', variables: { env: { default: 'dev' } } })).toBe('https://dev.api.example.com')
+  })
+
+  it('leaves the placeholder unreplaced when no override and no default', () => {
+    expect(resolveServerUrl({ url: 'https://{env}.api.example.com', variables: { env: { default: '' } } })).toBe('https://.api.example.com')
+  })
+
+  it('replaces multiple variables', () => {
+    expect(
+      resolveServerUrl(
+        { url: 'https://{env}.api.example.com/{version}', variables: { env: { default: 'dev' }, version: { default: 'v1' } } },
+        { env: 'prod', version: 'v2' },
+      ),
+    ).toBe('https://prod.api.example.com/v2')
+  })
+
+  it('throws when an override value is not in the allowed enum list', () => {
+    expect(() =>
+      resolveServerUrl({ url: 'https://{env}.api.example.com', variables: { env: { default: 'dev', enum: ['dev', 'prod'] } } }, { env: 'staging' }),
+    ).toThrow("Invalid server variable value 'staging' for 'env'")
+  })
+})
 
 describe('getSchemas', () => {
+  const base: Document = { openapi: '3.0.3', info: { title: '', version: '' }, paths: {} } as Document
+
   it('returns empty schemas when components is absent', () => {
     const { schemas, nameMapping } = getSchemas(base, {})
     expect(schemas).toEqual({})

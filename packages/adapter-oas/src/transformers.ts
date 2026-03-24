@@ -41,7 +41,7 @@ import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, formatMap } from './constant
 import { isDiscriminator, isNullable, isReference } from './guards.ts'
 import { resolveRef } from './refs.ts'
 import type { contentType, Document, Operation, ReferenceObject, SchemaObject } from './types.ts'
-import { flattenSchema, getParameters, getRequestSchema, getResponseSchema, getSchemas } from './utils.ts'
+import { flattenSchema, getParameters, getRequestSchema, getResponseSchema, getSchemas } from './resolvers.ts'
 
 /**
  * Construction-time context for the OAS parser.
