@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createFunctionParameter, createFunctionParameters, createObjectBindingParameter } from './factory.ts'
+import { createFunctionParameter, createFunctionParameters, createObjectBindingParameter } from '../factory.ts'
 import { defineFunctionPrinter, functionPrinter } from './functionPrinter.ts'
 
 describe('functionPrinter — declaration', () => {

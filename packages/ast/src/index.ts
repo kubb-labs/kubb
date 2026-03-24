@@ -11,7 +11,6 @@ export {
   createRoot,
   createSchema,
 } from './factory.ts'
-export { functionPrinter } from './functionPrinter.ts'
 export {
   isFunctionParameterNode,
   isFunctionParametersNode,
@@ -25,7 +24,7 @@ export {
   narrowSchema,
 } from './guards.ts'
 export type { InferSchema, InferSchemaNode, ParserOptions } from './infer.ts'
-export { definePrinter } from './printer.ts'
+export { defineFunctionPrinter, definePrinter, functionPrinter } from './printers/index.ts'
 export { buildRefMap, extractRefName, refMapToObject, resolveRef } from './refs.ts'
 export { childName, collectImports, enumPropName, findDiscriminator } from './resolvers.ts'
 export { mergeAdjacentObjects, resolveNames, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'

@@ -1,5 +1,5 @@
-import type { FunctionNode, FunctionNodeType } from './nodes/function.ts'
-import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode } from './nodes/index.ts'
+import type { FunctionNode, FunctionNodeType } from '../nodes/function.ts'
+import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode } from '../nodes/index.ts'
 import type { PrinterFactoryOptions } from './printer.ts'
 import { createPrinterFactory } from './printer.ts'
 
