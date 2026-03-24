@@ -1,5 +1,7 @@
 # @kubb/ast
 
+## 5.0.0-alpha.19
+
 ## 5.0.0-alpha.18
 
 ### Minor Changes

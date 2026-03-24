@@ -1,5 +1,15 @@
 # @kubb/plugin-ts
 
+## 5.0.0-alpha.19
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.19
+  - @kubb/core@5.0.0-alpha.19
+  - @kubb/oas@5.0.0-alpha.19
+  - @kubb/plugin-oas@5.0.0-alpha.19
+
 ## 5.0.0-alpha.18
 
 ### Minor Changes

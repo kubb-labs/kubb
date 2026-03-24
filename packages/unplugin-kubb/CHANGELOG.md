@@ -1,5 +1,12 @@
 # unplugin-kubb
 
+## 6.0.0-alpha.19
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.19
+
 ## 6.0.0-alpha.18
 
 ### Patch Changes

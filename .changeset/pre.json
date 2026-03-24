@@ -59,6 +59,7 @@
     "calm-rivers-yell",
     "core-url-input-resolve",
     "feat-resolve-options",
+    "fix-generation-summary-tty-columns",
     "legacy-extra-enum-alias",
     "missing-mutation-queryparams",
     "plugin-oas-operation-manager",
