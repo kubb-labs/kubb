@@ -1,5 +1,12 @@
 # @kubb/mcp
 
+## 5.0.0-alpha.19
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.19
+
 ## 5.0.0-alpha.18
 
 ### Minor Changes
