@@ -1,5 +1,15 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from './factory.ts'
+import {
+  createFunctionParameter,
+  createFunctionParameters,
+  createObjectBindingParameter,
+  createOperation,
+  createParameter,
+  createProperty,
+  createResponse,
+  createRoot,
+  createSchema,
+} from './factory.ts'
 import type { ObjectSchemaNode, StringSchemaNode } from './nodes/schema.ts'
 
 describe('createRoot', () => {
@@ -163,5 +173,67 @@ describe('createResponse', () => {
 
     expect(node.schema?.type).toBe('object')
     expect(node.description).toBe('Success')
+  })
+})
+
+describe('createFunctionParameter', () => {
+  it('defaults optional to false', () => {
+    const node = createFunctionParameter({ name: 'petId', type: 'string' })
+
+    expect(node.kind).toBe('FunctionParameter')
+    expect(node.name).toBe('petId')
+    expect(node.type).toBe('string')
+    expect(node.optional).toBe(false)
+  })
+
+  it('supports optional true without default', () => {
+    const node = createFunctionParameter({ name: 'query', type: 'Query', optional: true })
+
+    expect(node.optional).toBe(true)
+    expect(node.default).toBeUndefined()
+  })
+
+  it('supports default value with optional false/omitted', () => {
+    const node = createFunctionParameter({ name: 'config', type: 'RequestConfig', default: '{}' })
+
+    expect(node.optional).toBe(false)
+    expect(node.default).toBe('{}')
+  })
+})
+
+describe('createObjectBindingParameter', () => {
+  it('creates object binding parameter with properties', () => {
+    const props = [createFunctionParameter({ name: 'id', type: 'string' })]
+    const node = createObjectBindingParameter({ properties: props })
+
+    expect(node.kind).toBe('ObjectBindingParameter')
+    expect(node.properties).toEqual(props)
+  })
+
+  it('accepts inline and default options', () => {
+    const node = createObjectBindingParameter({
+      properties: [createFunctionParameter({ name: 'id', type: 'string' })],
+      inline: true,
+      default: '{}',
+    })
+
+    expect(node.inline).toBe(true)
+    expect(node.default).toBe('{}')
+  })
+})
+
+describe('createFunctionParameters', () => {
+  it('defaults params to empty array', () => {
+    const node = createFunctionParameters()
+
+    expect(node.kind).toBe('FunctionParameters')
+    expect(node.params).toEqual([])
+  })
+
+  it('accepts params override', () => {
+    const params = [createFunctionParameter({ name: 'petId', type: 'string' })]
+    const node = createFunctionParameters({ params })
+
+    expect(node.params).toEqual(params)
   })
 })
