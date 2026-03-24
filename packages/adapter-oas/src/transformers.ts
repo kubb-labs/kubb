@@ -866,23 +866,6 @@ export function parseSchema(ctx: OasParserContext, { schema, name }: { schema: S
 }
 
 /**
- * Resolves ref names in a `SchemaNode` using the provided mapping and resolve callbacks.
- *
- * @example
- * ```ts
- * resolveRefs(schemaNode, nameMapping, (ref) => transformer.default(ref))
- * ```
- */
-export function resolveRefs(
-  node: SchemaNode,
-  nameMapping: Map<string, string>,
-  resolveName: (ref: string) => string | undefined,
-  resolveEnumName?: (name: string) => string | undefined,
-): SchemaNode {
-  return resolveNames({ node, nameMapping, resolveName, resolveEnumName })
-}
-
-/**
  * Converts the entire OpenAPI spec into a `RootNode` (the top-level `@kubb/ast` tree).
  *
  * This is the main entry point: `OpenAPI / Swagger → Kubb AST`.

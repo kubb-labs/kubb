@@ -1,6 +1,8 @@
 import { createProperty, createSchema, narrowSchema, transform } from '@kubb/ast'
 import type { RootNode } from '@kubb/ast/types'
 
+type DiscriminatorTarget = { propertyName: string; enumValues: Array<string | number | boolean> }
+
 /**
  * Injects discriminator enum values into child schemas so they know which value identifies them.
  *
@@ -17,7 +19,6 @@ import type { RootNode } from '@kubb/ast/types'
  * ```
  */
 export function applyDiscriminatorInheritance(root: RootNode): RootNode {
-  type DiscriminatorTarget = { propertyName: string; enumValues: Array<string | number | boolean> }
   const childMap = new Map<string, DiscriminatorTarget>()
 
   for (const schema of root.schemas) {
