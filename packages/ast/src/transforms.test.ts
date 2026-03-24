@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/style/noUnusedTemplateLiteral: not needed */
 import { describe, expect, it } from 'vitest'
 import { createProperty, createSchema } from './factory.ts'
 import type { SchemaNode } from './nodes/schema.ts'
@@ -97,42 +98,117 @@ describe('mergeAdjacentAnonymousObjects', () => {
   }
 
   it('returns an empty array unchanged', () => {
-    expect(mergeAdjacentAnonymousObjects([])).toEqual([])
+    expect(mergeAdjacentAnonymousObjects([])).toMatchInlineSnapshot(`[]`)
   })
 
   it('passes through a single anonymous object unchanged', () => {
     const node = makeObject(['a'])
 
-    expect(mergeAdjacentAnonymousObjects([node])).toEqual([node])
+    expect(
+      mergeAdjacentAnonymousObjects([node]).map((n) =>
+        n.type === 'object' ? { type: n.type, name: n.name, props: n.properties.map((p) => p.name) } : { type: n.type },
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "name": undefined,
+          "props": [
+            "a",
+          ],
+          "type": "object",
+        },
+      ]
+    `)
   })
 
   it('merges two adjacent anonymous objects into one', () => {
     const result = mergeAdjacentAnonymousObjects([makeObject(['a']), makeObject(['b'])])
-    const merged = result[0]
 
-    expect(result).toHaveLength(1)
-    expect(merged?.type).toBe('object')
-    expect(merged?.type === 'object' ? merged.properties?.map((p) => p.name) : []).toEqual(['a', 'b'])
+    expect(result.map((n) => (n.type === 'object' ? { type: n.type, props: n.properties.map((p) => p.name) } : { type: n.type }))).toMatchInlineSnapshot(`
+      [
+        {
+          "props": [
+            "a",
+            "b",
+          ],
+          "type": "object",
+        },
+      ]
+    `)
   })
 
   it('merges three consecutive anonymous objects into one', () => {
     const result = mergeAdjacentAnonymousObjects([makeObject(['a']), makeObject(['b']), makeObject(['c'])])
-    const merged = result[0]
 
-    expect(result).toHaveLength(1)
-    expect(merged?.type === 'object' ? merged.properties?.map((p) => p.name) : []).toEqual(['a', 'b', 'c'])
+    expect(result.map((n) => (n.type === 'object' ? { type: n.type, props: n.properties.map((p) => p.name) } : { type: n.type }))).toMatchInlineSnapshot(`
+      [
+        {
+          "props": [
+            "a",
+            "b",
+            "c",
+          ],
+          "type": "object",
+        },
+      ]
+    `)
   })
 
   it('does not merge named objects', () => {
     const result = mergeAdjacentAnonymousObjects([makeObject(['a'], 'Foo'), makeObject(['b'], 'Bar')])
 
-    expect(result).toHaveLength(2)
+    expect(
+      result.map((n) => (n.type === 'object' ? { type: n.type, name: n.name, props: n.properties.map((p) => p.name) } : { type: n.type })),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "name": "Foo",
+          "props": [
+            "a",
+          ],
+          "type": "object",
+        },
+        {
+          "name": "Bar",
+          "props": [
+            "b",
+          ],
+          "type": "object",
+        },
+      ]
+    `)
   })
 
   it('does not merge across a named-object boundary', () => {
     const result = mergeAdjacentAnonymousObjects([makeObject(['a']), makeObject(['b'], 'Named'), makeObject(['c'])])
 
-    expect(result).toHaveLength(3)
+    expect(
+      result.map((n) => (n.type === 'object' ? { type: n.type, name: n.name, props: n.properties.map((p) => p.name) } : { type: n.type })),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "name": undefined,
+          "props": [
+            "a",
+          ],
+          "type": "object",
+        },
+        {
+          "name": "Named",
+          "props": [
+            "b",
+          ],
+          "type": "object",
+        },
+        {
+          "name": undefined,
+          "props": [
+            "c",
+          ],
+          "type": "object",
+        },
+      ]
+    `)
   })
 
   it('does not merge a ref node with an anonymous object', () => {
@@ -142,9 +218,31 @@ describe('mergeAdjacentAnonymousObjects', () => {
       makeObject(['streetName']),
     ])
 
-    expect(result).toHaveLength(2)
-    expect(result[0]?.type).toBe('ref')
-    expect(result[1]?.type === 'object' ? result[1].properties?.map((p) => p.name) : []).toEqual(['streetNumber', 'streetName'])
+    expect(
+      result.map((n) =>
+        n.type === 'object'
+          ? { type: n.type, name: n.name, props: n.properties.map((p) => p.name) }
+          : n.type === 'ref'
+            ? { type: n.type, name: n.name, ref: n.ref }
+            : { type: n.type },
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "name": "Address",
+          "ref": "#/components/schemas/Address",
+          "type": "ref",
+        },
+        {
+          "name": undefined,
+          "props": [
+            "streetNumber",
+            "streetName",
+          ],
+          "type": "object",
+        },
+      ]
+    `)
   })
 })
 
@@ -156,10 +254,7 @@ describe('simplifyUnionMembers', () => {
   })
 
   it('removes string enum when a plain string is also present', () => {
-    const members = [
-      createSchema({ type: 'enum', primitive: 'string', enumValues: ['placed', 'approved'] }),
-      createSchema({ type: 'string' }),
-    ]
+    const members = [createSchema({ type: 'enum', primitive: 'string', enumValues: ['placed', 'approved'] }), createSchema({ type: 'string' })]
 
     expect(simplifyUnionMembers(members)).toEqual([members[1]])
   })
