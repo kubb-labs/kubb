@@ -40,10 +40,9 @@ import type {
 import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, formatMap } from './constants.ts'
 import { isDiscriminator, isNullable, isReference } from './guards.ts'
-import { getParameters, getRequestSchema, getResponseSchema } from './utils.ts'
 import { resolveRef } from './refs.ts'
-import { flattenSchema, getSchemas } from './utils.ts'
 import type { contentType, Document, Operation, ReferenceObject, SchemaObject } from './types.ts'
+import { flattenSchema, getParameters, getRequestSchema, getResponseSchema, getSchemas } from './utils.ts'
 
 /**
  * Construction-time context for the OAS parser.
@@ -862,11 +861,7 @@ function buildConverters(ctx: OasParserContext) {
  * parseSchema(ctx, { schema: { type: 'string', format: 'uuid' } })
  * ```
  */
-export function parseSchema(
-  ctx: OasParserContext,
-  { schema, name }: { schema: SchemaObject; name?: string },
-  options?: Partial<ParserOptions>,
-): SchemaNode {
+export function parseSchema(ctx: OasParserContext, { schema, name }: { schema: SchemaObject; name?: string }, options?: Partial<ParserOptions>): SchemaNode {
   return buildConverters(ctx).parseSchema({ schema, name }, options)
 }
 

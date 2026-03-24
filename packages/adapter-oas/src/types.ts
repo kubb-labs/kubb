@@ -1,8 +1,7 @@
 // external packages
 
 import { httpMethods } from '@kubb/ast'
-import type { HttpMethod as AstHttpMethod } from '@kubb/ast/types'
-import type { ParserOptions } from '@kubb/ast/types'
+import type { HttpMethod as AstHttpMethod, ParserOptions } from '@kubb/ast/types'
 import type { AdapterFactoryOptions } from '@kubb/core'
 import type { Operation as OASOperation } from 'oas/operation'
 import type {

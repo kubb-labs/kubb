@@ -71,6 +71,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         resolve: (schemaName) => {
           const result = resolve(schemaName)
           if (!result) return
+
           return { name: [result.name], path: result.path }
         },
       })

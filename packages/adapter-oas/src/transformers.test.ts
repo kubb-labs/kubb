@@ -2,8 +2,8 @@ import { narrowSchema } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { parseDocument } from './factory.ts'
+import { parseOas, parseSchema } from './transformers.ts'
 import type { Document, SchemaObject } from './types.ts'
-import { parseSchema, parseOas } from './transformers.ts'
 
 const emptyDocument: Document = { openapi: '3.0.0', info: { title: '', version: '' }, paths: {} } as Document
 
@@ -3112,10 +3112,7 @@ describe('unknownType / emptySchemaType → SchemaNode type', () => {
   })
 
   it('unannotated additionalProperties produce type: unknown when unknownType is unknown', () => {
-    const node = narrowSchema(
-      parseSchema(ctx, { schema: { type: 'object', additionalProperties: {} } as SchemaObject }, { unknownType: 'unknown' }),
-      'object',
-    )
+    const node = narrowSchema(parseSchema(ctx, { schema: { type: 'object', additionalProperties: {} } as SchemaObject }, { unknownType: 'unknown' }), 'object')
 
     expect(node?.additionalProperties).toMatchObject({ type: 'unknown' })
   })
@@ -3197,11 +3194,15 @@ describe('enum naming', () => {
     )
 
     const orderEnum = narrowSchema(
-      narrowSchema(narrowSchema(orderNode, 'object')?.properties?.find((p) => p.name === 'params')?.schema, 'object')?.properties?.find((p) => p.name === 'status')?.schema,
+      narrowSchema(narrowSchema(orderNode, 'object')?.properties?.find((p) => p.name === 'params')?.schema, 'object')?.properties?.find(
+        (p) => p.name === 'status',
+      )?.schema,
       'enum',
     )
     const customerEnum = narrowSchema(
-      narrowSchema(narrowSchema(customerNode, 'object')?.properties?.find((p) => p.name === 'params')?.schema, 'object')?.properties?.find((p) => p.name === 'status')?.schema,
+      narrowSchema(narrowSchema(customerNode, 'object')?.properties?.find((p) => p.name === 'params')?.schema, 'object')?.properties?.find(
+        (p) => p.name === 'status',
+      )?.schema,
       'enum',
     )
 

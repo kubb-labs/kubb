@@ -1,6 +1,6 @@
 import { pascalCase } from '@internals/utils'
-import { isRef } from 'oas/types'
 import type { ParameterObject } from 'oas/types'
+import { isRef } from 'oas/types'
 import { matchesMimeType } from 'oas/utils'
 import { structuralKeys } from './constants.ts'
 import { isReference } from './guards.ts'
