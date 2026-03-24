@@ -122,6 +122,22 @@ describe('functionPrinter — declaration', () => {
 
     expect(printer.print(sig)).toBe('{ id, name }: { id: string; name?: string } = {}, config: RequestConfig = {}')
   })
+
+  it('handles default-only function parameter without type', () => {
+    const sig = createFunctionParameters({
+      params: [createFunctionParameter({ name: 'config', default: '{}' })],
+    })
+
+    expect(printer.print(sig)).toBe('config = {}')
+  })
+
+  it('prints object binding with no names as null (omitted by functionParameters)', () => {
+    const sig = createFunctionParameters({
+      params: [createObjectBindingParameter({ properties: [] })],
+    })
+
+    expect(printer.print(sig)).toBe('')
+  })
 })
 
 describe('functionPrinter — call', () => {
@@ -162,6 +178,14 @@ describe('functionPrinter — call', () => {
 
     expect(printer.print(sig)).toBe('petId')
   })
+
+  it('keeps rest prefix in call mode', () => {
+    const sig = createFunctionParameters({
+      params: [createFunctionParameter({ name: 'args', rest: true })],
+    })
+
+    expect(printer.print(sig)).toBe('...args')
+  })
 })
 
 describe('functionPrinter — keys', () => {
@@ -200,6 +224,18 @@ describe('functionPrinter — values', () => {
     })
 
     expect(printer.print(sig)).toBe('petId')
+  })
+
+  it('uses braces for object binding in values mode', () => {
+    const sig = createFunctionParameters({
+      params: [
+        createObjectBindingParameter({
+          properties: [createFunctionParameter({ name: 'id', optional: false }), createFunctionParameter({ name: 'name', optional: false })],
+        }),
+      ],
+    })
+
+    expect(printer.print(sig)).toBe('{ id, name }')
   })
 })
 

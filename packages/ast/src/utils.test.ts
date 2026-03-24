@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createParameter, createSchema } from './factory.ts'
-import { applyParamsCasing } from './utils.ts'
+import { applyParamsCasing, isPlainStringType } from './utils.ts'
 
 const param = (name: string) =>
   createParameter({
@@ -58,5 +58,26 @@ describe('applyParamsCasing', () => {
 
   it('handles an empty params array', () => {
     expect(applyParamsCasing([], 'camelcase')).toEqual([])
+  })
+})
+
+describe('isPlainStringType', () => {
+  it('returns true for plain string-like schema types', () => {
+    expect(isPlainStringType(createSchema({ type: 'string' }))).toBe(true)
+    expect(isPlainStringType(createSchema({ type: 'uuid' }))).toBe(true)
+    expect(isPlainStringType(createSchema({ type: 'email' }))).toBe(true)
+    expect(isPlainStringType(createSchema({ type: 'url' }))).toBe(true)
+    expect(isPlainStringType(createSchema({ type: 'datetime' }))).toBe(true)
+  })
+
+  it('returns true for date/time with string representation', () => {
+    expect(isPlainStringType(createSchema({ type: 'date', representation: 'string' }))).toBe(true)
+    expect(isPlainStringType(createSchema({ type: 'time', representation: 'string' }))).toBe(true)
+  })
+
+  it('returns false for date/time with date representation and non-string scalars', () => {
+    expect(isPlainStringType(createSchema({ type: 'date', representation: 'date' }))).toBe(false)
+    expect(isPlainStringType(createSchema({ type: 'time', representation: 'date' }))).toBe(false)
+    expect(isPlainStringType(createSchema({ type: 'number' }))).toBe(false)
   })
 })
