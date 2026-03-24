@@ -167,15 +167,25 @@ export interface KubbEvents {
    */
   'file:processing:update': [
     {
-      /** Number of files processed so far. */
+      /**
+       * Number of files processed so far.
+       */
       processed: number
-      /** Total number of files to process. */
+      /**
+       * Total number of files to process.
+       */
       total: number
-      /** Processing percentage (0–100). */
+      /**
+       * Processing percentage (0–100).
+       */
       percentage: number
-      /** Optional source identifier. */
+      /**
+       * Optional source identifier.
+       */
       source?: string
-      /** The file being processed. */
+      /**
+       * The file being processed.
+       */
       file: KubbFile.ResolvedFile
       /**
        * Kubb configuration (not present in Fabric).

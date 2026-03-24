@@ -105,6 +105,14 @@ function trimExtName(text: string): string {
   return text
 }
 
+/**
+ * Generates `index.ts` barrel files for all directories under `root/output.path`.
+ *
+ * - Returns an empty array when `type` is falsy or `'propagate'`.
+ * - Skips generation when the output path itself ends with `index` (already a barrel).
+ * - When `type` is `'all'`, strips named exports so every re-export becomes a wildcard (`export * from`).
+ * - Attaches `meta` to each barrel file for downstream plugin identification.
+ */
 export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type, meta = {}, root, output }: AddIndexesProps): Promise<Array<KubbFile.File>> {
   if (!type || type === 'propagate') {
     return []

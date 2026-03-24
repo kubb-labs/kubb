@@ -5,12 +5,14 @@ import type { InputPath, UserConfig } from './types.ts'
  * CLI options derived from command-line flags.
  */
 export type CLIOptions = {
-  /** Path to `kubb.config.js` */
+  /**
+   * Path to `kubb.config.js`.
+   */
   config?: string
-
-  /** Enable watch mode for input files */
+  /**
+   * Enable watch mode for input files.
+   */
   watch?: boolean
-
   /**
    * Logging verbosity for CLI usage.
    *
@@ -20,12 +22,11 @@ export type CLIOptions = {
    * @default 'silent'
    */
   logLevel?: 'silent' | 'info' | 'debug'
-
-  /** Run Kubb with Bun */
-  bun?: boolean
 }
 
-/** All accepted forms of a Kubb configuration. */
+/**
+ * All accepted forms of a Kubb configuration.
+ */
 export type ConfigInput = PossiblePromise<UserConfig | UserConfig[]> | ((cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>)
 
 /**

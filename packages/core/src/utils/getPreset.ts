@@ -16,6 +16,13 @@ type GetPresetResult<TResolver extends Resolver> = {
   preset: Preset<TResolver> | undefined
 }
 
+/**
+ * Resolves a named preset into merged resolvers and transformers.
+ *
+ * - Merges the preset's resolvers on top of the first (default) resolver to produce `baseResolver`.
+ * - Merges any additional user-supplied resolvers on top of that to produce the final `resolver`.
+ * - Concatenates preset transformers before user-supplied transformers.
+ */
 export function getPreset<TResolver extends Resolver = Resolver>(params: GetPresetParams<TResolver>): GetPresetResult<TResolver> {
   const { preset: presetName, presets, resolvers, transformers: userTransformers } = params
   const [defaultResolver, ...userResolvers] = resolvers
