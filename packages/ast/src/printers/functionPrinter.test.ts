@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { createFunctionParameter, createFunctionParameters, createObjectBindingParameter } from '../factory.ts'
 import { defineFunctionPrinter, functionPrinter } from './functionPrinter.ts'
 
-describe('functionPrinter — declaration', () => {
+describe('functionPrinter in declaration mode', () => {
   const printer = functionPrinter({ mode: 'declaration' })
 
-  it('renders a required typed param', () => {
+  it('prints required typed parameters as `name: type`', () => {
     const sig = createFunctionParameters({
       params: [createFunctionParameter({ name: 'petId', type: 'string', optional: false })],
     })
@@ -13,7 +13,7 @@ describe('functionPrinter — declaration', () => {
     expect(printer.print(sig)).toBe('petId: string')
   })
 
-  it('renders an optional typed param', () => {
+  it('prints optional typed parameters as `name?: type`', () => {
     const sig = createFunctionParameters({
       params: [createFunctionParameter({ name: 'params', type: 'QueryParams', optional: true })],
     })
@@ -21,7 +21,7 @@ describe('functionPrinter — declaration', () => {
     expect(printer.print(sig)).toBe('params?: QueryParams')
   })
 
-  it('renders a param with default', () => {
+  it('prints defaulted typed parameters as `name: type = default`', () => {
     const sig = createFunctionParameters({
       params: [createFunctionParameter({ name: 'config', type: 'RequestConfig', optional: false, default: '{}' })],
     })
@@ -29,7 +29,7 @@ describe('functionPrinter — declaration', () => {
     expect(printer.print(sig)).toBe('config: RequestConfig = {}')
   })
 
-  it('renders a spread param', () => {
+  it('prints rest parameters with spread syntax', () => {
     const sig = createFunctionParameters({
       params: [createFunctionParameter({ name: 'args', type: 'string[]', optional: false, rest: true })],
     })
@@ -37,7 +37,7 @@ describe('functionPrinter — declaration', () => {
     expect(printer.print(sig)).toBe('...args: string[]')
   })
 
-  it('sorts required → optional → has-default', () => {
+  it('orders parameters as required, optional, then defaulted', () => {
     const sig = createFunctionParameters({
       params: [
         createFunctionParameter({ name: 'config', type: 'Config', optional: false, default: '{}' }),
@@ -49,7 +49,7 @@ describe('functionPrinter — declaration', () => {
     expect(printer.print(sig)).toBe('petId: string, params?: Params, config: Config = {}')
   })
 
-  it('always sorts rest parameters last', () => {
+  it('always places rest parameters last', () => {
     const sig = createFunctionParameters({
       params: [
         createFunctionParameter({ name: 'args', type: 'string[]', rest: true }),
@@ -60,7 +60,7 @@ describe('functionPrinter — declaration', () => {
     expect(printer.print(sig)).toBe('petId: string, ...args: string[]')
   })
 
-  it('renders an object param with auto-computed type', () => {
+  it('prints object binding parameters with inferred inline object types', () => {
     const sig = createFunctionParameters({
       params: [
         createObjectBindingParameter({
@@ -76,7 +76,7 @@ describe('functionPrinter — declaration', () => {
     expect(printer.print(sig)).toBe('{ id, name }: { id: string; name?: string } = {}')
   })
 
-  it('renders an object param with explicit type override', () => {
+  it('prints object binding parameters with explicit type overrides', () => {
     const sig = createFunctionParameters({
       params: [
         createObjectBindingParameter({
@@ -90,7 +90,7 @@ describe('functionPrinter — declaration', () => {
     expect(printer.print(sig)).toBe('{ data }: PetData = {}')
   })
 
-  it('renders inline (spread) object param as top-level params', () => {
+  it('prints inline object binding parameters as top-level parameters', () => {
     const sig = createFunctionParameters({
       params: [
         createObjectBindingParameter({
@@ -106,7 +106,7 @@ describe('functionPrinter — declaration', () => {
     expect(printer.print(sig)).toBe('petId: string, ownerId: number')
   })
 
-  it('mixes object param and simple params correctly', () => {
+  it('prints mixed object and simple parameters in stable order', () => {
     const sig = createFunctionParameters({
       params: [
         createObjectBindingParameter({
@@ -123,7 +123,7 @@ describe('functionPrinter — declaration', () => {
     expect(printer.print(sig)).toBe('{ id, name }: { id: string; name?: string } = {}, config: RequestConfig = {}')
   })
 
-  it('handles default-only function parameter without type', () => {
+  it('prints default-only parameters without a type annotation', () => {
     const sig = createFunctionParameters({
       params: [createFunctionParameter({ name: 'config', default: '{}' })],
     })
@@ -131,7 +131,7 @@ describe('functionPrinter — declaration', () => {
     expect(printer.print(sig)).toBe('config = {}')
   })
 
-  it('prints object binding with no names as null (omitted by functionParameters)', () => {
+  it('omits empty object binding parameters from the final signature', () => {
     const sig = createFunctionParameters({
       params: [createObjectBindingParameter({ properties: [] })],
     })
@@ -140,10 +140,10 @@ describe('functionPrinter — declaration', () => {
   })
 })
 
-describe('functionPrinter — call', () => {
+describe('functionPrinter() in call mode', () => {
   const printer = functionPrinter({ mode: 'call' })
 
-  it('renders simple param names only', () => {
+  it('prints simple parameter names only', () => {
     const sig = createFunctionParameters({
       params: [
         createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
@@ -154,7 +154,7 @@ describe('functionPrinter — call', () => {
     expect(printer.print(sig)).toBe('petId, config')
   })
 
-  it('renders object param as { key1, key2 }', () => {
+  it('prints object binding parameters as `{ key1, key2 }`', () => {
     const sig = createFunctionParameters({
       params: [
         createObjectBindingParameter({
@@ -166,7 +166,7 @@ describe('functionPrinter — call', () => {
     expect(printer.print(sig)).toBe('{ method, url }')
   })
 
-  it('renders inline object param as individual args', () => {
+  it('prints inline object binding parameters as individual arguments', () => {
     const sig = createFunctionParameters({
       params: [
         createObjectBindingParameter({
@@ -179,7 +179,7 @@ describe('functionPrinter — call', () => {
     expect(printer.print(sig)).toBe('petId')
   })
 
-  it('keeps rest prefix in call mode', () => {
+  it('keeps spread syntax for rest parameters', () => {
     const sig = createFunctionParameters({
       params: [createFunctionParameter({ name: 'args', rest: true })],
     })
@@ -188,10 +188,10 @@ describe('functionPrinter — call', () => {
   })
 })
 
-describe('functionPrinter — keys', () => {
+describe('functionPrinter() in keys mode', () => {
   const printer = functionPrinter({ mode: 'keys' })
 
-  it('returns comma-separated names', () => {
+  it('prints comma-separated parameter names', () => {
     const sig = createFunctionParameters({
       params: [
         createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
@@ -202,7 +202,7 @@ describe('functionPrinter — keys', () => {
     expect(printer.print(sig)).toBe('petId, config')
   })
 
-  it('wraps object param keys in braces', () => {
+  it('wraps object binding parameter keys in braces', () => {
     const sig = createFunctionParameters({
       params: [
         createObjectBindingParameter({
@@ -215,10 +215,10 @@ describe('functionPrinter — keys', () => {
   })
 })
 
-describe('functionPrinter — values', () => {
+describe('functionPrinter() in values mode', () => {
   const printer = functionPrinter({ mode: 'values' })
 
-  it('returns names for simple params', () => {
+  it('prints names for simple parameters', () => {
     const sig = createFunctionParameters({
       params: [createFunctionParameter({ name: 'petId', type: 'string', optional: false })],
     })
@@ -226,7 +226,7 @@ describe('functionPrinter — values', () => {
     expect(printer.print(sig)).toBe('petId')
   })
 
-  it('uses braces for object binding in values mode', () => {
+  it('prints object binding parameters in braces', () => {
     const sig = createFunctionParameters({
       params: [
         createObjectBindingParameter({
@@ -239,34 +239,32 @@ describe('functionPrinter — values', () => {
   })
 })
 
-describe('functionPrinter — transform options', () => {
-  it('applies transformName in declaration mode', () => {
-    const printer = functionPrinter({
-      mode: 'declaration',
-      transformName: (n) => n.toUpperCase(),
-    })
+describe('functionPrinter() transform options', () => {
+  it.each([
+    {
+      label: 'transformName',
+      options: { mode: 'declaration' as const, transformName: (n: string) => n.toUpperCase() },
+      param: createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
+      expected: 'PETID: string',
+    },
+    {
+      label: 'transformType',
+      options: { mode: 'declaration' as const, transformType: (t: string) => `Partial<${t}>` },
+      param: createFunctionParameter({ name: 'config', type: 'Config', optional: false }),
+      expected: 'config: Partial<Config>',
+    },
+  ])('applies $label in declaration mode', ({ options, param, expected }) => {
+    const printer = functionPrinter(options)
     const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'petId', type: 'string', optional: false })],
+      params: [param],
     })
 
-    expect(printer.print(sig)).toBe('PETID: string')
-  })
-
-  it('applies transformType in declaration mode', () => {
-    const printer = functionPrinter({
-      mode: 'declaration',
-      transformType: (t) => `Partial<${t}>`,
-    })
-    const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'config', type: 'Config', optional: false })],
-    })
-
-    expect(printer.print(sig)).toBe('config: Partial<Config>')
+    expect(printer.print(sig)).toBe(expected)
   })
 })
 
-describe('defineFunctionPrinter', () => {
-  it('allows building a custom printer with defineFunctionPrinter', () => {
+describe('defineFunctionPrinter()', () => {
+  it('builds a custom function-node printer', () => {
     type UpperPrinter = { name: 'upper'; options: { mode: 'declaration' }; output: string; printOutput: string }
 
     const upperPrinter = defineFunctionPrinter<UpperPrinter>((options) => ({
@@ -301,7 +299,7 @@ describe('defineFunctionPrinter', () => {
     expect(printer.print(sig)).toBe('PETID | CONFIG')
   })
 
-  it('exposes this.print for recursive dispatch in handlers', () => {
+  it('exposes recursive dispatch via this.print inside handlers', () => {
     type RecursivePrinter = { name: 'rec'; options: object; output: string; printOutput: string }
 
     const recPrinter = defineFunctionPrinter<RecursivePrinter>((options) => ({

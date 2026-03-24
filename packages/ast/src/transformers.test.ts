@@ -15,27 +15,27 @@ describe('setDiscriminatorEnum', () => {
 
   const baseNode = makeObjectNode(['type', 'name'], 'Pet')
 
-  it('returns node unchanged when it is not an object', () => {
+  it('returns the original node when input is not an object schema', () => {
     const node = createSchema({ type: 'string' })
     const result = setDiscriminatorEnum({ node, propertyName: 'type', values: ['dog'] })
 
     expect(result).toBe(node)
   })
 
-  it('returns node unchanged when the target property does not exist', () => {
+  it('returns the original node when the target property is missing', () => {
     const result = setDiscriminatorEnum({ node: baseNode, propertyName: 'kind', values: ['dog'] })
 
     expect(result).toBe(baseNode)
   })
 
-  it('returns node unchanged when properties are empty', () => {
+  it('returns the original node when object properties are empty', () => {
     const node = createSchema({ type: 'object', properties: [] })
     const result = setDiscriminatorEnum({ node, propertyName: 'type', values: ['dog'] })
 
     expect(result).toBe(node)
   })
 
-  it('replaces discriminator property with unnamed enum for single value', () => {
+  it('replaces the discriminator property with an unnamed enum for a single value', () => {
     const result = setDiscriminatorEnum({ node: baseNode, propertyName: 'type', values: ['dog'] })
     const objectNode = result.type === 'object' ? result : undefined
     const typeProp = objectNode?.properties?.find((prop) => prop.name === 'type')
@@ -45,7 +45,7 @@ describe('setDiscriminatorEnum', () => {
     expect(enumNode?.name).toBeUndefined()
   })
 
-  it('replaces discriminator property with named enum for multiple values', () => {
+  it('replaces the discriminator property with a named enum for multiple values', () => {
     const result = setDiscriminatorEnum({ node: baseNode, propertyName: 'type', values: ['dog', 'cat'], enumName: 'PetTypeEnum' })
     const objectNode = result.type === 'object' ? result : undefined
     const typeProp = objectNode?.properties?.find((prop) => prop.name === 'type')
@@ -55,7 +55,7 @@ describe('setDiscriminatorEnum', () => {
     expect(enumNode?.name).toBe('PetTypeEnum')
   })
 
-  it('preserves other properties when replacing discriminator', () => {
+  it('preserves non-discriminator properties', () => {
     const result = setDiscriminatorEnum({ node: baseNode, propertyName: 'type', values: ['dog'] })
     const objectNode = result.type === 'object' ? result : undefined
     const nameProp = objectNode?.properties?.find((prop) => prop.name === 'name')
@@ -63,7 +63,7 @@ describe('setDiscriminatorEnum', () => {
     expect(nameProp?.schema.type).toBe('string')
   })
 
-  it('preserves readOnly from original property schema', () => {
+  it('preserves readOnly from the original discriminator property', () => {
     const node = createSchema({
       type: 'object',
       properties: [createProperty({ name: 'type', schema: createSchema({ type: 'string', readOnly: true }) })],
@@ -75,7 +75,7 @@ describe('setDiscriminatorEnum', () => {
     expect(typeProp?.schema.readOnly).toBe(true)
   })
 
-  it('preserves writeOnly from original property schema', () => {
+  it('preserves writeOnly from the original discriminator property', () => {
     const node = createSchema({
       type: 'object',
       properties: [createProperty({ name: 'type', schema: createSchema({ type: 'string', writeOnly: true }) })],
@@ -88,7 +88,7 @@ describe('setDiscriminatorEnum', () => {
   })
 })
 
-describe('mergeAdjacentObjects', () => {
+describe('mergeAdjacentObjects()', () => {
   function makeObject(props: Array<string>, name?: string): SchemaNode {
     return createSchema({
       type: 'object',
@@ -101,7 +101,7 @@ describe('mergeAdjacentObjects', () => {
     expect(mergeAdjacentObjects([])).toMatchInlineSnapshot(`[]`)
   })
 
-  it('passes through a single anonymous object unchanged', () => {
+  it('keeps a single anonymous object unchanged', () => {
     const node = makeObject(['a'])
 
     expect(
@@ -121,7 +121,7 @@ describe('mergeAdjacentObjects', () => {
     `)
   })
 
-  it('merges two adjacent anonymous objects into one', () => {
+  it('merges two adjacent anonymous objects into one object', () => {
     const result = mergeAdjacentObjects([makeObject(['a']), makeObject(['b'])])
 
     expect(result.map((n) => (n.type === 'object' ? { type: n.type, props: n.properties.map((p) => p.name) } : { type: n.type }))).toMatchInlineSnapshot(`
@@ -137,7 +137,7 @@ describe('mergeAdjacentObjects', () => {
     `)
   })
 
-  it('merges three consecutive anonymous objects into one', () => {
+  it('merges three adjacent anonymous objects into one object', () => {
     const result = mergeAdjacentObjects([makeObject(['a']), makeObject(['b']), makeObject(['c'])])
 
     expect(result.map((n) => (n.type === 'object' ? { type: n.type, props: n.properties.map((p) => p.name) } : { type: n.type }))).toMatchInlineSnapshot(`
@@ -179,7 +179,7 @@ describe('mergeAdjacentObjects', () => {
     `)
   })
 
-  it('does not merge across a named-object boundary', () => {
+  it('does not merge across named-object boundaries', () => {
     const result = mergeAdjacentObjects([makeObject(['a']), makeObject(['b'], 'Named'), makeObject(['c'])])
 
     expect(
@@ -211,7 +211,7 @@ describe('mergeAdjacentObjects', () => {
     `)
   })
 
-  it('does not merge a ref node with an anonymous object', () => {
+  it('does not merge ref nodes with anonymous objects', () => {
     const result = mergeAdjacentObjects([
       createSchema({ type: 'ref', ref: '#/components/schemas/Address', name: 'Address' }),
       makeObject(['streetNumber']),
@@ -246,38 +246,38 @@ describe('mergeAdjacentObjects', () => {
   })
 })
 
-describe('simplifyUnion', () => {
+describe('simplifyUnion()', () => {
   it('returns members unchanged when no scalar primitives are present', () => {
     const members = [createSchema({ type: 'ref', ref: '#/components/schemas/Foo', name: 'Foo' })]
 
     expect(simplifyUnion(members)).toEqual(members)
   })
 
-  it('removes string enum when a plain string is also present', () => {
+  it('removes a string enum when a broader string scalar is present', () => {
     const members = [createSchema({ type: 'enum', primitive: 'string', enumValues: ['placed', 'approved'] }), createSchema({ type: 'string' })]
 
     expect(simplifyUnion(members)).toEqual([members[1]])
   })
 
-  it('keeps const-derived string enum when plain string is also present', () => {
+  it('keeps a const-derived string enum when a broader string scalar is present', () => {
     const members = [createSchema({ type: 'enum', primitive: 'string', enumValues: ['accepted'] }), createSchema({ type: 'string' })]
 
     expect(simplifyUnion(members)).toEqual(members)
   })
 
-  it('keeps string enum when no broader string scalar is present', () => {
+  it('keeps a string enum when no broader string scalar is present', () => {
     const members = [createSchema({ type: 'enum', primitive: 'string', enumValues: ['placed'] })]
 
     expect(simplifyUnion(members)).toEqual(members)
   })
 
-  it('removes number enum when a plain number is also present', () => {
+  it('removes a number enum when a broader number scalar is present', () => {
     const members = [createSchema({ type: 'enum', primitive: 'number', enumValues: [200, 400] }), createSchema({ type: 'number' })]
 
     expect(simplifyUnion(members)).toEqual([members[1]])
   })
 
-  it('preserves ref members alongside scalar types', () => {
+  it('preserves ref members while simplifying scalar enum members', () => {
     const members = [
       createSchema({ type: 'enum', primitive: 'string', enumValues: ['x', 'y'] }),
       createSchema({ type: 'string' }),
@@ -289,15 +289,15 @@ describe('simplifyUnion', () => {
   })
 })
 
-describe('resolveNames', () => {
-  it('resolves ref node name via resolveName callback', () => {
+describe('resolveNames()', () => {
+  it('resolves ref node names via resolveName()', () => {
     const node = createSchema({ type: 'ref', ref: 'Pet', name: 'Pet' }) as SchemaNode
     const result = resolveNames({ node, nameMapping: new Map(), resolveName: (name) => `${name}Type` })
 
     expect(result.name).toBe('PetType')
   })
 
-  it('applies nameMapping before calling resolveName', () => {
+  it('applies nameMapping before resolveName()', () => {
     const node = createSchema({ type: 'ref', ref: 'Pet', name: 'Pet' }) as SchemaNode
     const result = resolveNames({
       node,
@@ -308,7 +308,7 @@ describe('resolveNames', () => {
     expect(result.name).toBe('OrderPetType')
   })
 
-  it('resolves enum node name via resolveEnumName callback', () => {
+  it('resolves enum node names via resolveEnumName() when provided', () => {
     const node = createSchema({ type: 'enum', name: 'Status', primitive: 'string', enumValues: ['a', 'b'] }) as SchemaNode
     const result = resolveNames({
       node,
@@ -320,7 +320,7 @@ describe('resolveNames', () => {
     expect(result.name).toBe('StatusEnum')
   })
 
-  it('falls back to resolveName when resolveEnumName is not provided', () => {
+  it('falls back to resolveName() when resolveEnumName() is not provided', () => {
     const node = createSchema({ type: 'enum', name: 'Status', primitive: 'string', enumValues: ['a', 'b'] }) as SchemaNode
     const result = resolveNames({
       node,
@@ -338,7 +338,7 @@ describe('resolveNames', () => {
     expect(result).toStrictEqual(node)
   })
 
-  it('handles nested refs inside object properties', () => {
+  it('resolves nested refs inside object properties', () => {
     const node = createSchema({
       type: 'object',
       properties: [createProperty({ name: 'pet', schema: createSchema({ type: 'ref', ref: 'Pet', name: 'Pet' }) })],
@@ -350,7 +350,7 @@ describe('resolveNames', () => {
     expect(refNode?.name).toBe('PetType')
   })
 
-  it('handles refs inside union members', () => {
+  it('resolves refs inside union members', () => {
     const node = createSchema({
       type: 'union',
       members: [createSchema({ type: 'ref', ref: 'Pet', name: 'Pet' }), createSchema({ type: 'ref', ref: 'Error', name: 'Error' })],
@@ -363,15 +363,15 @@ describe('resolveNames', () => {
   })
 })
 
-describe('setEnumName', () => {
-  it('assigns resolved name to enum node', () => {
+describe('setEnumName()', () => {
+  it('assigns the resolved name to enum nodes', () => {
     const node = createSchema({ type: 'enum', primitive: 'string', enumValues: ['a', 'b'] })
     const result = setEnumName(node, 'Order', 'status', 'enum')
 
     expect(result.name).toBe('OrderStatusEnum')
   })
 
-  it('strips name from boolean enum nodes', () => {
+  it('strips names from boolean enum nodes', () => {
     const node = createSchema({ type: 'enum', primitive: 'boolean', enumValues: [true], name: 'ShouldDrop' })
     const result = setEnumName(node, 'Order', 'enabled', 'enum')
 

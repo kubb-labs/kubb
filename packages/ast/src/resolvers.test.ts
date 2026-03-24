@@ -4,7 +4,7 @@ import type { SchemaNode } from './nodes/schema.ts'
 import { childName, collectImports, enumPropName, findDiscriminator } from './resolvers.ts'
 
 describe('findDiscriminator', () => {
-  it('returns the mapping key when ref matches a value', () => {
+  it('returns the mapping key for a matching discriminator ref', () => {
     const mapping = {
       cat: '#/components/schemas/Cat',
       dog: '#/components/schemas/Dog',
@@ -13,10 +13,12 @@ describe('findDiscriminator', () => {
     expect(findDiscriminator(mapping, '#/components/schemas/Dog')).toBe('dog')
   })
 
-  it('returns undefined for missing ref/mapping', () => {
-    expect(findDiscriminator(undefined, '#/components/schemas/Dog')).toBeUndefined()
-    expect(findDiscriminator({ cat: '#/components/schemas/Cat' }, undefined)).toBeUndefined()
-    expect(findDiscriminator({ cat: '#/components/schemas/Cat' }, '#/components/schemas/Dog')).toBeUndefined()
+  it.each([
+    { label: 'mapping is missing', mapping: undefined, ref: '#/components/schemas/Dog' as string | undefined },
+    { label: 'ref is missing', mapping: { cat: '#/components/schemas/Cat' }, ref: undefined },
+    { label: 'ref does not match any mapping entry', mapping: { cat: '#/components/schemas/Cat' }, ref: '#/components/schemas/Dog' },
+  ])('returns undefined when $label', ({ mapping, ref }) => {
+    expect(findDiscriminator(mapping, ref)).toBeUndefined()
   })
 })
 
@@ -25,24 +27,24 @@ describe('childName', () => {
     expect(childName(undefined, 'params')).toBeUndefined()
   })
 
-  it('returns PascalCase of parentName + propName', () => {
+  it('returns PascalCase of `parentName + propName`', () => {
     expect(childName('Order', 'params')).toBe('OrderParams')
     expect(childName('Order', 'shipping_address')).toBe('OrderShippingAddress')
   })
 })
 
 describe('enumPropName', () => {
-  it('combines parentName, propName and enumSuffix', () => {
+  it('combines parentName, propName, and enumSuffix', () => {
     expect(enumPropName('Order', 'status', 'enum')).toBe('OrderStatusEnum')
   })
 
-  it('works without parentName and with custom suffix', () => {
+  it('works without parentName and with a custom suffix', () => {
     expect(enumPropName(undefined, 'status', 'enum')).toBe('StatusEnum')
     expect(enumPropName('Order', 'status', 'Type')).toBe('OrderStatusType')
   })
 })
 
-describe('collectImports', () => {
+describe('collectImports()', () => {
   function makeRefNode(ref: string, name: string): SchemaNode {
     return createSchema({ type: 'ref', ref, name }) as SchemaNode
   }
@@ -53,7 +55,7 @@ describe('collectImports', () => {
 
   const nameMapping = new Map<string, string>()
 
-  it('returns an empty array for a non-ref node', () => {
+  it('returns an empty array for non-ref nodes', () => {
     const result = collectImports({
       node: makeStringNode(),
       nameMapping,
@@ -63,7 +65,7 @@ describe('collectImports', () => {
     expect(result).toEqual([])
   })
 
-  it('returns an import for a ref node when resolver returns a result', () => {
+  it('returns an import entry for ref nodes when resolve() returns a value', () => {
     const result = collectImports({
       node: makeRefNode('#/components/schemas/Pet', 'Pet'),
       nameMapping,
@@ -74,7 +76,7 @@ describe('collectImports', () => {
     expect(result[0]).toMatchObject({ name: 'PetType', path: './pet.ts' })
   })
 
-  it('applies nameMapping collision-resolved name before calling resolve', () => {
+  it('applies the collision-resolved name from nameMapping before resolve()', () => {
     const mapping = new Map([['Pet', 'PetRenamed']])
     let resolvedWith: string | undefined
 
@@ -90,7 +92,7 @@ describe('collectImports', () => {
     expect(resolvedWith).toBe('PetRenamed')
   })
 
-  it('returns empty when resolver returns undefined', () => {
+  it('returns an empty array when resolve() returns undefined', () => {
     const result = collectImports({
       node: makeRefNode('#/components/schemas/Pet', 'Pet'),
       nameMapping,
@@ -100,7 +102,7 @@ describe('collectImports', () => {
     expect(result).toEqual([])
   })
 
-  it('handles nested refs', () => {
+  it('collects nested ref imports', () => {
     const node = createSchema({
       type: 'object',
       properties: [createProperty({ name: 'pet', schema: createSchema({ type: 'ref', ref: '#/components/schemas/Pet', name: 'Pet' }) })],
