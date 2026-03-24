@@ -33,13 +33,8 @@ export function stringifyObject(value: Record<string, unknown>): string {
 }
 
 /**
- * Strips functions, symbols, and `undefined` values from plugin options for safe JSON transport.
- *
- * @example
- * ```ts
- * serializePluginOptions({ output: './src', onWrite: () => {} })
- * // { output: './src' }  (function stripped)
- * ```
+ * Serializes plugin options for safe JSON transport.
+ * Strips functions, symbols, and `undefined` values recursively.
  */
 export function serializePluginOptions<TOptions extends object>(options: TOptions): TOptions {
   if (options === null || options === undefined) return {} as TOptions
@@ -55,26 +50,14 @@ export function serializePluginOptions<TOptions extends object>(options: TOption
 }
 
 /**
- * Strips all `undefined` values from an object recursively by round-tripping through JSON.
- * Useful for clean inline snapshot assertions that only show fields with actual values.
- *
- * @example
- * toSnapshot({ kind: 'Schema', name: undefined, type: 'string' })
- * // { kind: 'Schema', type: 'string' }
- */
-export function toSnapshot<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value))
-}
-
-/**
  * Converts a dot-notation path or string array into an optional-chaining accessor expression.
  *
  * @example
  * getNestedAccessor('pagination.next.id', 'lastPage')
  * // → "lastPage?.['pagination']?.['next']?.['id']"
  */
-export function getNestedAccessor(param: string | string[], accessor: string): string | null {
+export function getNestedAccessor(param: string | string[], accessor: string): string | undefined {
   const parts = Array.isArray(param) ? param : param.split('.')
-  if (parts.length === 0 || (parts.length === 1 && parts[0] === '')) return null
+  if (parts.length === 0 || (parts.length === 1 && parts[0] === '')) return undefined
   return `${accessor}?.['${`${parts.join("']?.['")}']`}`
 }

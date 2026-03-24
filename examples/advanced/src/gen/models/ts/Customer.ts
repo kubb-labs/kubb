@@ -8,16 +8,12 @@ export const customerParamsStatusEnum = {
 
 export type CustomerParamsStatusEnumKey = (typeof customerParamsStatusEnum)[keyof typeof customerParamsStatusEnum]
 
-export type CustomerParamsStatusEnum = CustomerParamsStatusEnumKey
-
 export type Customer = {
   /**
-   * @example 100000
-   * @type integer | undefined
+   * @type integer | undefined, int64
    */
   id?: number
   /**
-   * @example fehguy
    * @type string | undefined
    */
   username?: string
@@ -27,7 +23,6 @@ export type Customer = {
   params?: {
     /**
      * @description Order Status
-     * @example approved
      * @type string
      */
     status: CustomerParamsStatusEnumKey

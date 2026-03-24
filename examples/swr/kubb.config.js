@@ -1,4 +1,3 @@
-import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSwr } from '@kubb/plugin-swr'
@@ -15,7 +14,6 @@ export default defineConfig([
       clean: true,
       barrelType: 'barrel',
     },
-    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({ generators: [] }),
       pluginTs({
@@ -23,7 +21,6 @@ export default defineConfig([
           path: 'models',
           barrelType: 'barrel',
         },
-        compatibilityPreset: 'kubbV4',
       }),
       pluginSwr({
         output: {
@@ -42,7 +39,6 @@ export default defineConfig([
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
-    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({ generators: [] }),
       pluginTs({
@@ -50,7 +46,6 @@ export default defineConfig([
           path: 'models',
           barrelType: 'barrel',
         },
-        compatibilityPreset: 'kubbV4',
       }),
       pluginSwr({
         output: {

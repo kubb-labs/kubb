@@ -1,4 +1,4 @@
-import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Group, Output, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/fabric-core/types'
 
 import type { contentType, HttpMethod, Oas, Operation, SchemaObject } from '@kubb/oas'
@@ -20,7 +20,7 @@ declare global {
 }
 
 export type ResolvePathOptions = {
-  pluginName?: string
+  pluginKey?: Plugin['key']
   group?: {
     tag?: string
     path?: string
@@ -136,14 +136,14 @@ export type Options = {
  *
  * `originalName` is the original name used(in PascalCase), only used to remove duplicates
  *
- * `pluginName` can be used to override the current plugin being used, handy when you want to import a type/schema out of another plugin
+ * `pluginKey` can be used to override the current plugin being used, handy when you want to import a type/schema out of another plugin
  * @example import a type(plugin-ts) for a mock file(swagger-faker)
  */
 export type Ref = {
   propertyName: string
   originalName: string
   path: KubbFile.Path
-  pluginName?: string
+  pluginKey?: Plugin['key']
 }
 export type Refs = Record<string, Ref>
 
@@ -220,11 +220,10 @@ type ByContentType = {
   pattern: string | RegExp
 }
 
-export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
-export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
+export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | ByContentType
+export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType
 
 export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName | ByContentType) & {
-  // should be options: Omit<Partial<TOptions>, 'override'>
   options: Partial<TOptions>
 }
 

@@ -1,5 +1,5 @@
 import { camelCase } from '@internals/utils'
-import { usePluginDriver } from '@kubb/core/hooks'
+import { usePluginManager } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -10,8 +10,8 @@ import type { PluginClient } from '../types'
 export const groupedClientGenerator = createReactGenerator<PluginClient>({
   name: 'groupedClient',
   Operations({ operations, generator, plugin }) {
-    const { options, name: pluginName } = plugin
-    const driver = usePluginDriver()
+    const { options, key: pluginKey } = plugin
+    const pluginManager = usePluginManager()
 
     const oas = useOas()
     const { getName, getFile, getGroup } = useOperationManager(generator)
@@ -26,10 +26,10 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
             return acc
           }
 
-          const file = driver.getFile({
+          const file = pluginManager.getFile({
             name,
             extname: '.ts',
-            pluginName,
+            pluginKey,
             options: { group },
           })
 
@@ -59,7 +59,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
           baseName={file.baseName}
           path={file.path}
           meta={file.meta}
-          banner={getBanner({ oas, output: options.output, config: driver.config })}
+          banner={getBanner({ oas, output: options.output, config: pluginManager.config })}
           footer={getFooter({ oas, output: options.output })}
         >
           {clients.map((client) => (

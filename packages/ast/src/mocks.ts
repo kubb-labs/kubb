@@ -2,7 +2,7 @@ import { createOperation, createParameter, createProperty, createResponse, creat
 import type { RootNode } from './nodes/root.ts'
 
 /**
- * Builds a minimal sample AST with one `Pet` schema and one `getPetById` operation.
+ * Minimal single-resource tree: one `Pet` schema and one `getPetById` operation.
  */
 export function buildSampleTree(): RootNode {
   const petSchema = createSchema({
@@ -20,22 +20,15 @@ export function buildSampleTree(): RootNode {
     path: '/pets/{petId}',
     tags: ['pets'],
     parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
-    responses: [
-      createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'Pet' }) }),
-      createResponse({
-        statusCode: '404',
-        schema: createSchema({ type: 'ref', name: 'Error' }),
-      }),
-    ],
+    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'Pet' }) }), createResponse({ statusCode: '404' })],
   })
 
   return createRoot({ schemas: [petSchema], operations: [operation] })
 }
 
 /**
- * Builds a PetStore-like fixture AST with:
- * - six named schemas (`Pet`, `NewPet`, `PetList`, `Error`, `PetOrError`, `FullPet`)
- * - two operations (`listPets`, `createPet`)
+ * PetStore-like tree: six named schemas (`Pet`, `NewPet`, `PetList`, `Error`, `PetOrError`, `FullPet`)
+ * and two operations (`listPets`, `createPet`).
  */
 export function buildFixture(): RootNode {
   const refPet = createSchema({ type: 'ref', ref: 'Pet' })
@@ -99,7 +92,7 @@ export function buildFixture(): RootNode {
         method: 'POST',
         path: '/pets',
         tags: ['pets'],
-        requestBody: { schema: createSchema({ type: 'ref', ref: 'NewPet' }) },
+        requestBody: createSchema({ type: 'ref', ref: 'NewPet' }),
         responses: [createResponse({ statusCode: '201', schema: refPet, mediaType: 'application/json' })],
       }),
     ],

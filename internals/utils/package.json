@@ -52,6 +52,6 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "engines": {
-    "node": ">=22"
+    "node": ">=20"
   }
 }

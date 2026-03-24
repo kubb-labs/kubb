@@ -2,7 +2,7 @@ import type { Dirent } from 'node:fs'
 import { access, readdir, readFile, rm } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { clean, write } from '@internals/utils'
-import { createStorage } from '../createStorage.ts'
+import { defineStorage } from '../defineStorage.ts'
 
 /**
  * Built-in filesystem storage driver.
@@ -27,7 +27,7 @@ import { createStorage } from '../createStorage.ts'
  * })
  * ```
  */
-export const fsStorage = createStorage(() => ({
+export const fsStorage = defineStorage(() => ({
   name: 'fs',
   async hasItem(key: string) {
     try {

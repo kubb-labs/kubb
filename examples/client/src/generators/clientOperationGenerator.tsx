@@ -6,20 +6,20 @@ const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
 export const clientOperationGenerator = createGenerator<PluginClient>({
   name: 'client-operation',
   async operation({ operation, generator }) {
-    const pluginName = generator.context.plugin.name
-    const name = generator.context.driver.resolveName({
+    const pluginKey = generator.context.plugin.key
+    const name = generator.context.pluginManager.resolveName({
       name: operation.getOperationId(),
-      pluginName,
+      pluginKey,
       type: 'function',
     })
 
     const client = {
       name,
-      file: generator.context.driver.getFile({
+      file: generator.context.pluginManager.getFile({
         name,
         extname: '.ts',
-        pluginName,
-        options: { type: 'file', pluginName },
+        pluginKey,
+        options: { type: 'file', pluginKey },
       }),
     }
 

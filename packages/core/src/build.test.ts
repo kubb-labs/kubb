@@ -6,7 +6,7 @@ import type { KubbFile } from '@kubb/fabric-core/types'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { build, safeBuild } from './build.ts'
 import { defineConfig } from './config.ts'
-import { createPlugin } from './createPlugin.ts'
+import { definePlugin } from './definePlugin.ts'
 import type { KubbEvents, Plugin, UserConfig } from './types.ts'
 
 describe('build', () => {
@@ -22,11 +22,12 @@ describe('build', () => {
     imports: [],
     exports: [],
   }
-  const plugin = createPlugin(() => {
+  const plugin = definePlugin(() => {
     return {
       name: 'plugin',
       options: undefined as any,
       context: undefined as never,
+      key: ['plugin'],
       async install(...params) {
         pluginMocks.install(...params)
 
@@ -126,7 +127,7 @@ describe('build', () => {
     }
 
     for (const config of JSONConfig) {
-      const { fabric, driver } = await build({
+      const { fabric, pluginManager } = await build({
         config,
         events: new AsyncEventEmitter<KubbEvents>(),
       })
@@ -134,15 +135,15 @@ describe('build', () => {
       await fabric.addFile(file)
 
       expect(fabric.files).toBeDefined()
-      expect(driver).toBeDefined()
+      expect(pluginManager).toBeDefined()
       expect(fabric.files.length).toBe(1)
 
-      driver.events.removeAll()
+      pluginManager.events.removeAll()
     }
   })
 
-  test('if build can run and return created files and the pluginDriver', async () => {
-    const { fabric, driver } = await build({
+  test('if build can run and return created files and the pluginManager', async () => {
+    const { fabric, pluginManager } = await build({
       config,
       events: new AsyncEventEmitter<KubbEvents>(),
     })
@@ -150,7 +151,7 @@ describe('build', () => {
     await fabric.addFile(file)
 
     expect(fabric.files).toBeDefined()
-    expect(driver).toBeDefined()
+    expect(pluginManager).toBeDefined()
     expect(fabric.files.length).toBe(1)
   })
 
@@ -186,11 +187,12 @@ describe('build', () => {
   })
 
   it('should handle plugin installation errors', async () => {
-    const errorPlugin = createPlugin(() => {
+    const errorPlugin = definePlugin(() => {
       return {
         name: 'errorPlugin',
         options: undefined as any,
         context: undefined as never,
+        key: ['errorPlugin'],
         async install() {
           throw new Error('Installation failed')
         },
@@ -249,11 +251,12 @@ describe('build', () => {
   it.todo('should handle "all" barrel type')
 
   test('safeBuild should return error instead of throwing', async () => {
-    const throwingPlugin = createPlugin(() => {
+    const throwingPlugin = definePlugin(() => {
       return {
         name: 'throwingPlugin',
         options: undefined as any,
         context: undefined as never,
+        key: ['throwingPlugin'],
         async install() {
           throw new Error('Critical error')
         },
@@ -316,14 +319,15 @@ describe('build', () => {
         ],
         imports: [],
         exports: [],
-        meta: { pluginName: 'excludedPlugin' },
+        meta: { pluginKey: ['excludedPlugin'] },
       }
 
-      const excludedPlugin = createPlugin(() => {
+      const excludedPlugin = definePlugin(() => {
         return {
           name: 'excludedPlugin',
           options: { output: { barrelType: false } } as any,
           context: undefined as never,
+          key: ['excludedPlugin'],
           async install() {
             await this.addFile(indexableFile)
           },

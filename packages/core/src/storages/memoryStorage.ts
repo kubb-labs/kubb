@@ -1,4 +1,4 @@
-import { createStorage } from '../createStorage.ts'
+import { defineStorage } from '../defineStorage.ts'
 
 /**
  * In-memory storage driver. Useful for testing and dry-run scenarios where
@@ -17,7 +17,7 @@ import { createStorage } from '../createStorage.ts'
  * })
  * ```
  */
-export const memoryStorage = createStorage(() => {
+export const memoryStorage = defineStorage(() => {
   const store = new Map<string, string>()
 
   return {

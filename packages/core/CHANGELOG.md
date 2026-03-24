@@ -1,205 +1,27 @@
 # @kubb/core
 
-## 5.0.0-alpha.19
+## 4.36.4
 
 ### Patch Changes
 
 - Updated dependencies []:
-  - @kubb/ast@5.0.0-alpha.19
+  - @kubb/ast@4.36.4
 
-## 5.0.0-alpha.18
-
-### Minor Changes
-
-- [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update to TypeScript v6
+## 4.36.3
 
 ### Patch Changes
 
-- Updated dependencies [[`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c)]:
-  - @kubb/ast@5.0.0-alpha.18
+- [`ff16227`](https://github.com/kubb-labs/kubb/commit/ff162270a5695543cde5055345668bbf30aa14ce) - Update Fabric
 
-## 5.0.0-alpha.17
+- Updated dependencies []:
+  - @kubb/ast@4.36.3
 
-### Patch Changes
-
-- Updated dependencies [[`2546c05`](https://github.com/kubb-labs/kubb/commit/2546c051d81e490709df9d8a834402ef546a8f1c)]:
-  - @kubb/ast@5.0.0-alpha.17
-
-## 5.0.0-alpha.16
+## 4.36.2
 
 ### Patch Changes
 
 - Updated dependencies []:
-  - @kubb/ast@5.0.0-alpha.16
-
-## 5.0.0-alpha.15
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @kubb/ast@5.0.0-alpha.15
-
-## 5.0.0-alpha.14
-
-### Minor Changes
-
-- [#2872](https://github.com/kubb-labs/kubb/pull/2872) [`591977c`](https://github.com/kubb-labs/kubb/commit/591977c5c2f167736d6e43126ed0387a1e5e0ce5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/core`
-  - Add `name: string` to the `Resolver` base type. Every resolver now carries a name that identifies it.
-  - `defineResolver` build functions must return a `name` property.
-  - Add `mergeResolvers(...resolvers)` helper that merges multiple resolvers into one (last wins).
-
-  ### `@kubb/ast`
-  - Add `composeTransformers(...visitors)` helper that combines multiple `Visitor` objects into a single visitor. Each node kind is piped through all visitors sequentially (left to right).
-
-  ### `@kubb/plugin-ts`
-  - Add `resolvers` option — an array of named resolvers that control naming conventions. Later entries override earlier ones. Built-in resolvers: `resolverTs` (default) and `resolverTsLegacy`.
-  - Add `transformers` option — an array of AST `Visitor` objects applied to each `SchemaNode` before printing. Uses `composeTransformers` + `transform` from `@kubb/ast`.
-  - Export `resolverTs`, `resolverTsLegacy`, and `ResolverTs` from the package root.
-  - Remove the old `transformers: { name? }` object option. Use a custom resolver in `resolvers` instead.
-  - Deprecate `legacy` option in favor of `resolvers: [resolverTsLegacy]`.
-
-### Patch Changes
-
-- Updated dependencies [[`591977c`](https://github.com/kubb-labs/kubb/commit/591977c5c2f167736d6e43126ed0387a1e5e0ce5)]:
-  - @kubb/ast@5.0.0-alpha.14
-
-## 5.0.0-alpha.13
-
-### Patch Changes
-
-- Updated dependencies [[`975717e`](https://github.com/kubb-labs/kubb/commit/975717e2c8cf8d33f5d9d641be4bb164fd36f423)]:
-  - @kubb/ast@5.0.0-alpha.13
-
-## 5.0.0-alpha.12
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @kubb/ast@5.0.0-alpha.12
-
-## 5.0.0-alpha.11
-
-### Patch Changes
-
-- [#2824](https://github.com/kubb-labs/kubb/pull/2824) [`4cfcb62`](https://github.com/kubb-labs/kubb/commit/4cfcb6290ffa11c93f19345c93906af65ec18339) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix URL inputs being incorrectly resolved through `path.resolve`. Deprecate `useKubb.resolveName`.
-
-- Updated dependencies [[`4cfcb62`](https://github.com/kubb-labs/kubb/commit/4cfcb6290ffa11c93f19345c93906af65ec18339)]:
-  - @kubb/ast@5.0.0-alpha.11
-
-## 5.0.0-alpha.10
-
-### Patch Changes
-
-- Updated dependencies [[`c8f203c`](https://github.com/kubb-labs/kubb/commit/c8f203c47cf3badef59e7fa382b98b011ead755d)]:
-  - @kubb/ast@5.0.0-alpha.10
-
-## 5.0.0-alpha.9
-
-### Patch Changes
-
-- [#2808](https://github.com/kubb-labs/kubb/pull/2808) [`617aa20`](https://github.com/kubb-labs/kubb/commit/617aa203608222aba2a022ab998ced16f4216ed3) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove deprecated runtime checks for object-style and JSON-style plugins in `getPlugins`.
-  These formats have not been supported for some time and the guards are no longer needed.
-- Updated dependencies []:
-  - @kubb/ast@5.0.0-alpha.9
-
-## 5.0.0-alpha.8
-
-### Major Changes
-
-- [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Rename factory functions from `define*` to `create*` to align with Vite ecosystem conventions.
-
-  **Rule:** `define*` is reserved for pure identity/type helpers (no runtime behavior — removing the call doesn't change the value, only loses type inference). `create*` is used for functions that produce instances, wrap builders, or apply logic.
-
-  `defineConfig` is unchanged — it is a pure identity helper.
-
-  | Before            | After             |
-  | ----------------- | ----------------- |
-  | `definePlugin`    | `createPlugin`    |
-  | `defineAdapter`   | `createAdapter`   |
-  | `defineGenerator` | `createGenerator` |
-  | `defineLogger`    | `createLogger`    |
-  | `defineStorage`   | `createStorage`   |
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @kubb/ast@5.0.0-alpha.8
-
-## 5.0.0-alpha.7
-
-### Major Changes
-
-- [#2794](https://github.com/kubb-labs/kubb/pull/2794) [`bf5f955`](https://github.com/kubb-labs/kubb/commit/bf5f955ec285badb0d99a3950b0a880622180ec2) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Rename `PluginManager` to `PluginDriver`. The `pluginManager` property in context/meta is now `driver`. The hook `usePluginManager` is now `usePluginDriver`.
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @kubb/ast@5.0.0-alpha.7
-
-## 5.0.0-alpha.6
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @kubb/ast@5.0.0-alpha.6
-
-## 5.0.0-alpha.5
-
-### Patch Changes
-
-- [#2782](https://github.com/kubb-labs/kubb/pull/2782) [`f373168`](https://github.com/kubb-labs/kubb/commit/f37316845ef3f8753a93e04a946b333ee4e42073) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - - **`@kubb/ast`**: Added `never` to `PrimitiveSchemaType` and `SchemaNodeByType`. Added `UrlSchemaNode` type with optional `path` field for Express-style template literal generation. Excluded `url` from `ScalarSchemaType`. Added `applyParamsCasing` helper to transform parameter names before schema building.
-  - **`@kubb/adapter-oas`**: Added `unknownType` and `emptySchemaType` options to `convertSchema` so callers can control the type emitted for empty or untyped schemas. Added `url` special-type handling in the parser.
-  - **`@kubb/core`**: `resolveOptions` now prevents recursive overrides by typing `OverrideItem.options` as `Omit<Partial<TOptions>, 'override'>`.
-  - **`@kubb/plugin-ts`**: New v2 schema-builder utilities — `buildDataSchemaNode`, `buildParamsSchema`, `buildResponsesSchemaNode`, and `buildResponseUnionSchemaNode` — for generating typed `Data`, `Responses`, and `Response` types from an `OperationNode`. The printer now handles the `never` schema type.
-- Updated dependencies [[`f373168`](https://github.com/kubb-labs/kubb/commit/f37316845ef3f8753a93e04a946b333ee4e42073)]:
-  - @kubb/ast@5.0.0-alpha.5
-
-## 5.0.0-alpha.4
-
-### Patch Changes
-
-- Updated dependencies [[`64e3d85`](https://github.com/kubb-labs/kubb/commit/64e3d8583c50c073bfe8945dcda5e700d262d9d9)]:
-  - @kubb/ast@5.0.0-alpha.4
-
-## 5.0.0-alpha.3
-
-### Patch Changes
-
-- Updated dependencies [[`827b444`](https://github.com/kubb-labs/kubb/commit/827b444e7c7c62d36ba9eaed7303ed0d18a7fa45)]:
-  - @kubb/ast@5.0.0-alpha.3
-
-## 5.0.0-alpha.2
-
-### Major Changes
-
-- [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, adding duplicate plugins throws an error.
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @kubb/ast@5.0.0-alpha.2
-
-## 5.0.0-alpha.1
-
-### Major Changes
-
-- [`a4682ea`](https://github.com/kubb-labs/kubb/commit/a4682ea8896ef7d9ccae1b6e9abd6ed7bcaac073) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - The minimum required Node.js version is 22.
-
-### Patch Changes
-
-- Updated dependencies [[`a4682ea`](https://github.com/kubb-labs/kubb/commit/a4682ea8896ef7d9ccae1b6e9abd6ed7bcaac073)]:
-  - @kubb/ast@5.0.0-alpha.1
-
-## 5.0.0-alpha.0
-
-### Major Changes
-
-- [`2d474ef`](https://github.com/kubb-labs/kubb/commit/2d474ef68bad43e13ec34e762194048cd2a194d9) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - First v5 alpha version
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @kubb/ast@5.0.0-alpha.0
+  - @kubb/ast@4.36.2
 
 ## 4.36.1
 

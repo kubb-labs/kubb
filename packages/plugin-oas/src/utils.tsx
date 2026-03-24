@@ -1,3 +1,4 @@
+import type { OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { Config, Plugin, PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import { createReactFabric, Fabric } from '@kubb/react-fabric'
@@ -7,101 +8,188 @@ import type { OperationGenerator } from './OperationGenerator.ts'
 import type { SchemaGenerator, SchemaGeneratorOptions } from './SchemaGenerator.ts'
 import type { Schema } from './SchemaMapper.ts'
 
-type BuildOperationsV1Options<TOptions extends PluginFactoryOptions> = {
+type BuildOperationsBaseOptions<TOptions extends PluginFactoryOptions> = {
   config: Config
   fabric: FabricType
   plugin: Plugin<TOptions>
-  Component: ReactGenerator<TOptions>['Operations']
+}
+
+type BuildOperationsV1Options<TOptions extends PluginFactoryOptions> = BuildOperationsBaseOptions<TOptions> & {
+  version?: '1'
+  Component: ReactGenerator<any, '1'>['Operations']
   generator: Omit<OperationGenerator<TOptions>, 'build'>
 }
 
-/**
- * Renders a React component for a list of operations (V1 generators).
- */
-export async function renderOperations<TOptions extends PluginFactoryOptions>(
+type BuildOperationsV2Options<TOptions extends PluginFactoryOptions> = BuildOperationsBaseOptions<TOptions> & {
+  version: '2'
+  Component: ReactGenerator<any, '2'>['Operations']
+}
+
+function isBuildOperationsV1Options<TOptions extends PluginFactoryOptions>(
+  options: BuildOperationsV1Options<TOptions> | BuildOperationsV2Options<TOptions>,
+): options is BuildOperationsV1Options<TOptions> {
+  return (options.version ?? '1') === '1'
+}
+
+export async function buildOperations<TOptions extends PluginFactoryOptions>(
   operations: Array<Operation>,
   options: BuildOperationsV1Options<TOptions>,
+): Promise<void>
+export async function buildOperations<TOptions extends PluginFactoryOptions>(
+  nodes: Array<OperationNode>,
+  options: BuildOperationsV2Options<TOptions>,
+): Promise<void>
+export async function buildOperations<TOptions extends PluginFactoryOptions>(
+  operationsOrNodes: Array<Operation> | Array<OperationNode>,
+  options: BuildOperationsV1Options<TOptions> | BuildOperationsV2Options<TOptions>,
 ): Promise<void> {
-  const { config, fabric, plugin, Component, generator } = options
+  const { config, fabric, plugin } = options
 
-  if (!Component) {
+  if (!options.Component) {
     return undefined
   }
 
-  const { driver, oas, mode } = generator.context
   const fabricChild = createReactFabric()
 
-  await fabricChild.render(
-    <Fabric meta={{ driver, plugin, mode, oas }}>
-      <Component config={config} operations={operations} generator={generator} plugin={plugin} />
-    </Fabric>,
-  )
+  if (isBuildOperationsV1Options(options)) {
+    const { generator, Component } = options
+    const { pluginManager, oas, mode } = generator.context
 
-  fabric.context.fileManager.upsert(...fabricChild.files)
+    await fabricChild.render(
+      <Fabric meta={{ pluginManager, plugin, mode, oas }}>
+        <Component config={config} operations={operationsOrNodes as Array<Operation>} generator={generator} plugin={plugin} />
+      </Fabric>,
+    )
+  } else {
+    const { Component } = options
+    await fabricChild.render(
+      <Fabric meta={{ plugin }}>
+        <Component config={config} nodes={operationsOrNodes as Array<OperationNode>} plugin={plugin} />
+      </Fabric>,
+    )
+  }
+
+  await fabric.context.fileManager.upsert(...fabricChild.files)
   fabricChild.unmount()
 }
 
-type BuildOperationV1Options<TOptions extends PluginFactoryOptions> = {
+type BuildOperationBaseOptions<TOptions extends PluginFactoryOptions> = {
   config: Config
   fabric: FabricType
   plugin: Plugin<TOptions>
-  Component: ReactGenerator<TOptions>['Operation']
+}
+
+type BuildOperationV1Options<TOptions extends PluginFactoryOptions> = BuildOperationBaseOptions<TOptions> & {
+  version?: '1'
+  Component: ReactGenerator<any, '1'>['Operation']
   generator: Omit<OperationGenerator<TOptions>, 'build'>
 }
 
-/**
- * Renders a React component for a single operation (V1 generators).
- */
-export async function renderOperation<TOptions extends PluginFactoryOptions>(operation: Operation, options: BuildOperationV1Options<TOptions>): Promise<void> {
-  const { config, fabric, plugin, Component, generator } = options
+type BuildOperationV2Options<TOptions extends PluginFactoryOptions> = BuildOperationBaseOptions<TOptions> & {
+  version: '2'
+  Component: ReactGenerator<any, '2'>['Operation']
+}
 
-  if (!Component) {
+function isBuildOperationV1Options<TOptions extends PluginFactoryOptions>(
+  options: BuildOperationV1Options<TOptions> | BuildOperationV2Options<TOptions>,
+): options is BuildOperationV1Options<TOptions> {
+  return (options.version ?? '1') === '1'
+}
+
+export async function buildOperation<TOptions extends PluginFactoryOptions>(operation: Operation, options: BuildOperationV1Options<TOptions>): Promise<void>
+export async function buildOperation<TOptions extends PluginFactoryOptions>(node: OperationNode, options: BuildOperationV2Options<TOptions>): Promise<void>
+export async function buildOperation<TOptions extends PluginFactoryOptions>(
+  operationOrNode: Operation | OperationNode,
+  options: BuildOperationV1Options<TOptions> | BuildOperationV2Options<TOptions>,
+): Promise<void> {
+  const { config, fabric, plugin } = options
+
+  if (!options.Component) {
     return undefined
   }
 
-  const { driver, oas, mode } = generator.context
   const fabricChild = createReactFabric()
 
-  await fabricChild.render(
-    <Fabric meta={{ driver, plugin, mode, oas }}>
-      <Component config={config} operation={operation} plugin={plugin} generator={generator} />
-    </Fabric>,
-  )
+  if (isBuildOperationV1Options(options)) {
+    const { generator, Component } = options
+    const { pluginManager, oas, mode } = generator.context
 
-  fabric.context.fileManager.upsert(...fabricChild.files)
+    await fabricChild.render(
+      <Fabric meta={{ pluginManager, plugin, mode, oas }}>
+        <Component config={config} operation={operationOrNode as Operation} plugin={plugin} generator={generator} />
+      </Fabric>,
+    )
+  } else {
+    const { Component } = options
+    await fabricChild.render(
+      <Fabric meta={{ plugin }}>
+        <Component config={config} node={operationOrNode as OperationNode} plugin={plugin} />
+      </Fabric>,
+    )
+  }
+
+  await fabric.context.fileManager.upsert(...fabricChild.files)
   fabricChild.unmount()
 }
 
-type BuildSchemaV1Options<TOptions extends PluginFactoryOptions> = {
+type BuildSchemaBaseOptions<TOptions extends PluginFactoryOptions> = {
   config: Config
   fabric: FabricType
   plugin: Plugin<TOptions>
-  Component: ReactGenerator<TOptions>['Schema']
+}
+
+type BuildSchemaV1Options<TOptions extends PluginFactoryOptions> = BuildSchemaBaseOptions<TOptions> & {
+  version?: '1'
+  Component: ReactGenerator<any, '1'>['Schema']
   generator: Omit<SchemaGenerator<SchemaGeneratorOptions, TOptions>, 'build'>
 }
 
-/**
- * Renders a React component for a single schema (V1 generators).
- */
-export async function renderSchema<TOptions extends PluginFactoryOptions>(
+type BuildSchemaV2Options<TOptions extends PluginFactoryOptions> = BuildSchemaBaseOptions<TOptions> & {
+  version: '2'
+  Component: ReactGenerator<any, '2'>['Schema']
+}
+
+function isBuildSchemaV1Options<TOptions extends PluginFactoryOptions>(
+  options: BuildSchemaV1Options<TOptions> | BuildSchemaV2Options<TOptions>,
+): options is BuildSchemaV1Options<TOptions> {
+  return (options.version ?? '1') === '1'
+}
+
+export async function buildSchema<TOptions extends PluginFactoryOptions>(
   schema: { name: string; tree: Array<Schema>; value: SchemaObject },
   options: BuildSchemaV1Options<TOptions>,
+): Promise<void>
+export async function buildSchema<TOptions extends PluginFactoryOptions>(schema: SchemaNode, options: BuildSchemaV2Options<TOptions>): Promise<void>
+export async function buildSchema<TOptions extends PluginFactoryOptions>(
+  schema: { name: string; tree: Array<Schema>; value: SchemaObject } | SchemaNode,
+  options: BuildSchemaV1Options<TOptions> | BuildSchemaV2Options<TOptions>,
 ): Promise<void> {
-  const { config, fabric, plugin, Component, generator } = options
+  const { config, fabric, plugin } = options
 
-  if (!Component) {
+  if (!options.Component) {
     return undefined
   }
 
-  const { driver, oas, mode } = generator.context
   const fabricChild = createReactFabric()
 
-  await fabricChild.render(
-    <Fabric meta={{ driver, plugin, mode, oas }}>
-      <Component config={config} schema={schema} plugin={plugin} generator={generator} />
-    </Fabric>,
-  )
+  if (isBuildSchemaV1Options(options)) {
+    const { generator, Component } = options
+    const { pluginManager, oas, mode } = generator.context
 
-  fabric.context.fileManager.upsert(...fabricChild.files)
+    await fabricChild.render(
+      <Fabric meta={{ pluginManager, plugin, mode, oas }}>
+        <Component config={config} schema={schema as { name: string; tree: Array<Schema>; value: SchemaObject }} plugin={plugin} generator={generator} />
+      </Fabric>,
+    )
+  } else {
+    const { Component } = options
+    await fabricChild.render(
+      <Fabric meta={{ plugin }}>
+        <Component config={config} node={schema as SchemaNode} plugin={plugin} />
+      </Fabric>,
+    )
+  }
+
+  await fabric.context.fileManager.upsert(...fabricChild.files)
   fabricChild.unmount()
 }

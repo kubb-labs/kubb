@@ -1,9 +1,10 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "ES2021",
     "module": "esnext",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "node",
     "paths": {},
     "types": ["bun-types", "../../reset.d.ts"]
   },

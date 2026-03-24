@@ -1,7 +1,7 @@
 import path from 'node:path'
-import type { AsyncEventEmitter } from '@internals/utils'
 import { camelCase } from '@internals/utils'
-import { type Config, createPlugin, type Group, getMode, type KubbEvents } from '@kubb/core'
+import type { AsyncEventEmitter } from '@kubb/core'
+import { type Config, definePlugin, type Group, getMode, type KubbEvents } from '@kubb/core'
 import type { Oas } from '@kubb/oas'
 import { parseFromConfig, resolveServerUrl } from '@kubb/oas'
 import { jsonGenerator } from './generators'
@@ -11,7 +11,7 @@ import type { PluginOas } from './types.ts'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 
-export const pluginOas = createPlugin<PluginOas>((options) => {
+export const pluginOas = definePlugin<PluginOas>((options) => {
   const {
     output = {
       path: 'schemas',
@@ -135,7 +135,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
     async install() {
       const oas = await this.getOas({ validate })
 
-      if (!output || generators.length === 0) {
+      if (!output) {
         return
       }
 
@@ -152,7 +152,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
         {
           fabric: this.fabric,
           oas,
-          driver: this.driver,
+          pluginManager: this.pluginManager,
           events: this.events,
           plugin: this.plugin,
           contentType,
@@ -169,7 +169,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        driver: this.driver,
+        pluginManager: this.pluginManager,
         events: this.events,
         plugin: this.plugin,
         contentType,

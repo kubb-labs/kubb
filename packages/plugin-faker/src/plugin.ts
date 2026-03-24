@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { fakerGenerator } from './generators/fakerGenerator.tsx'
@@ -8,7 +8,7 @@ import type { PluginFaker } from './types.ts'
 
 export const pluginFakerName = 'plugin-faker' satisfies PluginFaker['name']
 
-export const pluginFaker = createPlugin<PluginFaker>((options) => {
+export const pluginFaker = definePlugin<PluginFaker>((options) => {
   const {
     output = { path: 'mocks', barrelType: 'named' },
     seed,
@@ -105,7 +105,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        driver: this.driver,
+        pluginManager: this.pluginManager,
         events: this.events,
         plugin: this.plugin,
         contentType,
@@ -121,7 +121,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        driver: this.driver,
+        pluginManager: this.pluginManager,
         events: this.events,
         plugin: this.plugin,
         contentType,
@@ -139,7 +139,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
         root,
         output,
         meta: {
-          pluginName: this.plugin.name,
+          pluginKey: this.plugin.key,
         },
       })
 

@@ -1,9 +1,9 @@
-import type { FileMetaBase, ResolveNameParams } from '@kubb/core'
-import { usePlugin, usePluginDriver } from '@kubb/core/hooks'
+import type { FileMetaBase, Plugin, ResolveNameParams } from '@kubb/core'
+import { usePlugin, usePluginManager } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 
 type FileMeta = FileMetaBase & {
-  pluginName: string
+  pluginKey: Plugin['key']
   name: string
   group?: {
     tag?: string
@@ -12,11 +12,11 @@ type FileMeta = FileMetaBase & {
 }
 
 type UseSchemaManagerResult = {
-  getName: (name: string, params: { pluginName?: string; type: ResolveNameParams['type'] }) => string
+  getName: (name: string, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
   getFile: (
     name: string,
     params?: {
-      pluginName?: string
+      pluginKey?: Plugin['key']
       mode?: KubbFile.Mode
       extname?: KubbFile.Extname
       group?: {
@@ -29,28 +29,27 @@ type UseSchemaManagerResult = {
 
 /**
  * `useSchemaManager` returns helper functions to get the schema file and schema name.
- * @deprecated
  */
 export function useSchemaManager(): UseSchemaManagerResult {
   const plugin = usePlugin()
-  const driver = usePluginDriver()
+  const pluginManager = usePluginManager()
 
-  const getName: UseSchemaManagerResult['getName'] = (name, { pluginName = plugin.name, type }) => {
-    return driver.resolveName({
+  const getName: UseSchemaManagerResult['getName'] = (name, { pluginKey = plugin.key, type }) => {
+    return pluginManager.resolveName({
       name,
-      pluginName,
+      pluginKey,
       type,
     })
   }
 
-  const getFile: UseSchemaManagerResult['getFile'] = (name, { mode = 'split', pluginName = plugin.name, extname = '.ts', group } = {}) => {
-    const resolvedName = mode === 'single' ? '' : getName(name, { type: 'file', pluginName })
+  const getFile: UseSchemaManagerResult['getFile'] = (name, { mode = 'split', pluginKey = plugin.key, extname = '.ts', group } = {}) => {
+    const resolvedName = mode === 'single' ? '' : getName(name, { type: 'file', pluginKey })
 
-    const file = driver.getFile({
+    const file = pluginManager.getFile({
       name: resolvedName,
       extname,
-      pluginName,
-      options: { type: 'file', pluginName, group },
+      pluginKey,
+      options: { type: 'file', pluginKey, group },
     })
 
     return {
@@ -58,7 +57,7 @@ export function useSchemaManager(): UseSchemaManagerResult {
       meta: {
         ...file.meta,
         name: resolvedName,
-        pluginName,
+        pluginKey,
       },
     }
   }

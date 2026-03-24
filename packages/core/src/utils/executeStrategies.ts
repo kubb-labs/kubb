@@ -7,11 +7,7 @@ type ValueOfPromiseFuncArray<TInput extends Array<unknown>> = TInput extends Arr
 type SeqOutput<TInput extends Array<PromiseFunc<TValue, null>>, TValue> = Promise<Array<Awaited<ValueOfPromiseFuncArray<TInput>>>>
 
 /**
- * Runs promise functions in sequence, threading each result into the next call.
- *
- * - Each function receives the accumulated state from the previous call.
- * - Skips functions that return a falsy value (acts as a no-op for that step).
- * - Returns an array of all individual results.
+ * Chains promises
  */
 export function hookSeq<TInput extends Array<PromiseFunc<TValue, null>>, TValue, TOutput = SeqOutput<TInput, TValue>>(promises: TInput): TOutput {
   return promises.filter(Boolean).reduce(
@@ -37,10 +33,7 @@ export function hookSeq<TInput extends Array<PromiseFunc<TValue, null>>, TValue,
 type HookFirstOutput<TInput extends Array<PromiseFunc<TValue, null>>, TValue = unknown> = ValueOfPromiseFuncArray<TInput>
 
 /**
- * Runs promise functions in sequence and returns the first non-null result.
- *
- * - Stops as soon as `nullCheck` passes for a result (default: `!== null`).
- * - Subsequent functions are skipped once a match is found.
+ * Chains promises, first non-null result stops and returns
  */
 export function hookFirst<TInput extends Array<PromiseFunc<TValue, null>>, TValue = unknown, TOutput = HookFirstOutput<TInput, TValue>>(
   promises: TInput,
@@ -64,10 +57,7 @@ export function hookFirst<TInput extends Array<PromiseFunc<TValue, null>>, TValu
 type HookParallelOutput<TInput extends Array<PromiseFunc<TValue, null>>, TValue> = Promise<PromiseSettledResult<Awaited<ValueOfPromiseFuncArray<TInput>>>[]>
 
 /**
- * Runs promise functions concurrently and returns all settled results.
- *
- * - Limits simultaneous executions to `concurrency` (default: unlimited).
- * - Uses `Promise.allSettled` so individual failures do not cancel other tasks.
+ * Runs an array of promise functions with optional concurrency limit.
  */
 export function hookParallel<TInput extends Array<PromiseFunc<TValue, null>>, TValue = unknown, TOutput = HookParallelOutput<TInput, TValue>>(
   promises: TInput,
@@ -80,15 +70,12 @@ export function hookParallel<TInput extends Array<PromiseFunc<TValue, null>>, TV
   return Promise.allSettled(tasks) as TOutput
 }
 
-/**
- * Execution strategy used when dispatching plugin hook calls.
- */
 export type Strategy = 'seq' | 'first' | 'parallel'
 
-type StrategyOutputMap<TInput extends Array<PromiseFunc<TValue, null>>, TValue> = {
-  first: HookFirstOutput<TInput, TValue>
-  seq: SeqOutput<TInput, TValue>
-  parallel: HookParallelOutput<TInput, TValue>
-}
-
-export type StrategySwitch<TStrategy extends Strategy, TInput extends Array<PromiseFunc<TValue, null>>, TValue> = StrategyOutputMap<TInput, TValue>[TStrategy]
+export type StrategySwitch<TStrategy extends Strategy, TInput extends Array<PromiseFunc<TValue, null>>, TValue> = TStrategy extends 'first'
+  ? HookFirstOutput<TInput, TValue>
+  : TStrategy extends 'seq'
+    ? SeqOutput<TInput, TValue>
+    : TStrategy extends 'parallel'
+      ? HookParallelOutput<TInput, TValue>
+      : never

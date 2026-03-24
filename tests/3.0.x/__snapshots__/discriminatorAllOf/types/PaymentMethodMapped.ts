@@ -11,8 +11,6 @@ export const paymentMethodMappedTypeEnum = {
 
 export type PaymentMethodMappedTypeEnumKey = (typeof paymentMethodMappedTypeEnum)[keyof typeof paymentMethodMappedTypeEnum];
 
-export type PaymentMethodMappedTypeEnum = PaymentMethodMappedTypeEnumKey
-
 export type PaymentMethodMapped = {
     /**
      * @type string

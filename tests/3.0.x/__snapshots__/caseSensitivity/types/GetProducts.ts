@@ -4,6 +4,9 @@
 */
 
 
+/**
+ * @description Product response
+*/
 export type GetProducts200 = {
     /**
      * @type string | undefined

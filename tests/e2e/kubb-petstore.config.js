@@ -1,4 +1,3 @@
-import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginCypress } from '@kubb/plugin-cypress'
@@ -16,7 +15,6 @@ export default defineConfig(() => {
     input: {
       path: 'https://petstore3.swagger.io/api/v3/openapi.json',
     },
-    adapter: adapterOas({}),
     output: {
       path: './src/gen',
       clean: true,
@@ -24,10 +22,21 @@ export default defineConfig(() => {
       lint: 'biome',
     },
     plugins: [
+      pluginTs({
+        output: {
+          path: './types.ts',
+        },
+      }),
       pluginOas({
         generators: [],
         validate: false,
         docs: false,
+      }),
+      pluginOas({
+        output: {
+          path: 'schemas2',
+        },
+        validate: false,
       }),
       pluginTs({
         output: {
@@ -38,7 +47,6 @@ export default defineConfig(() => {
           type: 'tag',
         },
         enumType: 'asConst',
-        compatibilityPreset: 'kubbV4',
       }),
       pluginReactQuery({
         output: {
@@ -58,14 +66,26 @@ export default defineConfig(() => {
       }),
       pluginClient({
         output: {
-          path: './clients/axiosClass',
-          barrelType: false,
+          path: './clients/axios',
         },
         group: {
           type: 'tag',
           name({ group }) {
             return `${group}Service`
           },
+        },
+      }),
+      pluginClient({
+        output: {
+          path: './clients/axiosClass',
+          barrelType: false,
+        },
+        clientType: 'class',
+        group: {
+          type: 'tag',
+        },
+        wrapper: {
+          className: 'PetStoreClient',
         },
       }),
       pluginCypress({

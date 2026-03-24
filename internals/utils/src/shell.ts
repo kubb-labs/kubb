@@ -12,20 +12,14 @@ export function tokenize(command: string): string[] {
 }
 
 type SpawnOptions = {
-  /**
-   * Working directory for the child process.
-   * @default process.cwd()
-   */
+  /** Working directory for the child process. Defaults to `process.cwd()`. */
   cwd?: string
-  /**
-   * Environment variables passed to the child process.
-   * @default process.env
-   */
+  /** Environment variables passed to the child process. Defaults to the parent's `process.env`. */
   env?: NodeJS.ProcessEnv
   /**
    * When `true`, spawns a detached background process and resolves immediately.
    * The child is unref'd so the parent process can exit independently.
-   * @default false
+   * Defaults to `false` (foreground — inherits stdio and waits for exit).
    */
   detached?: boolean
 }
@@ -34,13 +28,8 @@ type SpawnOptions = {
  * Spawns `cmd` with `args` and returns a promise that settles when the child process finishes.
  *
  * Foreground mode (default) inherits the parent's stdio and rejects on non-zero exit or signal.
- * Detached mode spawns the child in its own process group, unref's it, and resolves immediately.
- *
- * @example
- * ```ts
- * await spawnAsync('pnpm', ['install'])
- * await spawnAsync('node', ['server.js'], { detached: true }) // fire-and-forget
- * ```
+ * Detached mode spawns the child in its own process group, unref's it, and resolves immediately —
+ * the parent can exit without waiting for the child.
  */
 export function spawnAsync(cmd: string, args: string[], options: SpawnOptions = {}): Promise<void> {
   const { cwd = process.cwd(), env, detached = false } = options

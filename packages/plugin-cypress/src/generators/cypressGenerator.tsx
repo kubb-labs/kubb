@@ -1,4 +1,4 @@
-import { usePluginDriver } from '@kubb/core/hooks'
+import { usePluginManager } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -13,7 +13,7 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
     const {
       options: { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType },
     } = plugin
-    const driver = usePluginDriver()
+    const pluginManager = usePluginManager()
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)
@@ -24,8 +24,8 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
     }
 
     const type = {
-      file: getFile(operation, { pluginName: pluginTsName }),
-      schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
+      file: getFile(operation, { pluginKey: [pluginTsName] }),
+      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
     }
 
     return (
@@ -33,7 +33,7 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
         baseName={request.file.baseName}
         path={request.file.path}
         meta={request.file.meta}
-        banner={getBanner({ oas, output, config: driver.config })}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
         <File.Import

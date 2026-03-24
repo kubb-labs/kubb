@@ -515,75 +515,36 @@ describe('Import/Export Sorting Consistency', () => {
 
   it('should create URL template type for path without parameters', () => {
     const result = createUrlTemplateType('/pets')
-
     expect(print(result).trim()).toBe('"/pets"')
   })
 
   it('should create URL template type for path with single parameter', () => {
     const result = createUrlTemplateType('/pets/{petId}')
-
     expect(print(result).trim()).toBe('`/pets/${string}`')
   })
 
   it('should create URL template type for path with multiple parameters', () => {
     const result = createUrlTemplateType('/pets/{petId}/owner/{ownerId}')
-
     expect(print(result).trim()).toBe('`/pets/${string}/owner/${string}`')
   })
 
   it('should create URL template type for path with parameter at start', () => {
     const result = createUrlTemplateType('/{category}/pets')
-
     expect(print(result).trim()).toBe('`/${string}/pets`')
   })
 
   it('should create URL template type for path with parameter at end', () => {
     const result = createUrlTemplateType('/user/{username}')
-
     expect(print(result).trim()).toBe('`/user/${string}`')
   })
 
   it('should create URL template type for complex path', () => {
     const result = createUrlTemplateType('/pet/findByStatus/{step_id}')
-
     expect(print(result).trim()).toBe('`/pet/findByStatus/${string}`')
   })
 
   it('should create URL template type for path with consecutive parameters', () => {
     const result = createUrlTemplateType('/api/{version}/{resource}')
-
-    expect(print(result).trim()).toBe('`/api/${string}/${string}`')
-  })
-})
-
-describe('createUrlTemplateType (Express-style paths)', () => {
-  it('returns a string literal for paths without params', () => {
-    const result = createUrlTemplateType('/pets')
-
-    expect(print(result).trim()).toBe('"/pets"')
-  })
-
-  it('converts a single Express path param to a template literal', () => {
-    const result = createUrlTemplateType('/pets/:petId')
-
-    expect(print(result).trim()).toBe('`/pets/${string}`')
-  })
-
-  it('converts multiple Express path params to a template literal', () => {
-    const result = createUrlTemplateType('/store/:storeId/order/:orderId')
-
-    expect(print(result).trim()).toBe('`/store/${string}/order/${string}`')
-  })
-
-  it('handles trailing static segments after params', () => {
-    const result = createUrlTemplateType('/pets/:petId/photos')
-
-    expect(print(result).trim()).toBe('`/pets/${string}/photos`')
-  })
-
-  it('handles consecutive params', () => {
-    const result = createUrlTemplateType('/api/:version/:resource')
-
     expect(print(result).trim()).toBe('`/api/${string}/${string}`')
   })
 })

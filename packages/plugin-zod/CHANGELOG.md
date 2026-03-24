@@ -1,232 +1,36 @@
 # @kubb/plugin-zod
 
-## 5.0.0-alpha.19
+## 4.36.4
 
 ### Patch Changes
 
 - Updated dependencies []:
-  - @kubb/core@5.0.0-alpha.19
-  - @kubb/oas@5.0.0-alpha.19
-  - @kubb/plugin-oas@5.0.0-alpha.19
-  - @kubb/plugin-ts@5.0.0-alpha.19
+  - @kubb/core@4.36.4
+  - @kubb/oas@4.36.4
+  - @kubb/plugin-oas@4.36.4
+  - @kubb/plugin-ts@4.36.4
 
-## 5.0.0-alpha.18
-
-### Patch Changes
-
-- Updated dependencies [[`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c)]:
-  - @kubb/plugin-oas@5.0.0-alpha.18
-  - @kubb/plugin-ts@5.0.0-alpha.18
-  - @kubb/core@5.0.0-alpha.18
-  - @kubb/oas@5.0.0-alpha.18
-
-## 5.0.0-alpha.17
+## 4.36.3
 
 ### Patch Changes
 
-- Updated dependencies []:
-  - @kubb/core@5.0.0-alpha.17
-  - @kubb/oas@5.0.0-alpha.17
-  - @kubb/plugin-ts@5.0.0-alpha.17
-  - @kubb/plugin-oas@5.0.0-alpha.17
+- Updated dependencies [[`ff16227`](https://github.com/kubb-labs/kubb/commit/ff162270a5695543cde5055345668bbf30aa14ce)]:
+  - @kubb/core@4.36.3
+  - @kubb/oas@4.36.3
+  - @kubb/plugin-oas@4.36.3
+  - @kubb/plugin-ts@4.36.3
 
-## 5.0.0-alpha.16
-
-### Patch Changes
-
-- Updated dependencies [[`f1b2596`](https://github.com/kubb-labs/kubb/commit/f1b2596a36adc73de6aeea6f0843786dfc630426)]:
-  - @kubb/plugin-ts@5.0.0-alpha.16
-  - @kubb/core@5.0.0-alpha.16
-  - @kubb/oas@5.0.0-alpha.16
-  - @kubb/plugin-oas@5.0.0-alpha.16
-
-## 5.0.0-alpha.15
+## 4.36.2
 
 ### Patch Changes
 
-- Updated dependencies []:
-  - @kubb/core@5.0.0-alpha.15
-  - @kubb/oas@5.0.0-alpha.15
-  - @kubb/plugin-oas@5.0.0-alpha.15
-  - @kubb/plugin-ts@5.0.0-alpha.15
+- [#2838](https://github.com/kubb-labs/kubb/pull/2838) [`9e3332e`](https://github.com/kubb-labs/kubb/commit/9e3332edd9d19f926519ad7b7bccb66ec4a78fc1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Upgrade packages
 
-## 5.0.0-alpha.14
-
-### Patch Changes
-
-- Updated dependencies [[`591977c`](https://github.com/kubb-labs/kubb/commit/591977c5c2f167736d6e43126ed0387a1e5e0ce5)]:
-  - @kubb/core@5.0.0-alpha.14
-  - @kubb/plugin-ts@5.0.0-alpha.14
-  - @kubb/oas@5.0.0-alpha.14
-  - @kubb/plugin-oas@5.0.0-alpha.14
-
-## 5.0.0-alpha.13
-
-### Patch Changes
-
-- Updated dependencies [[`975717e`](https://github.com/kubb-labs/kubb/commit/975717e2c8cf8d33f5d9d641be4bb164fd36f423), [`b5d83e2`](https://github.com/kubb-labs/kubb/commit/b5d83e2a2c8a325f953b9e353bdb1b730dbdd305), [`33d0507`](https://github.com/kubb-labs/kubb/commit/33d050714fa24ae6aa1042a8aa12fc4925399007), [`ed7a2cb`](https://github.com/kubb-labs/kubb/commit/ed7a2cb6d008e880a955e8fefc1eee6859c06240), [`68a3bdd`](https://github.com/kubb-labs/kubb/commit/68a3bdd2eb85b3bd78e278ba9e4a0b691b580c7e), [`9968516`](https://github.com/kubb-labs/kubb/commit/99685169dc85f4f23fae6af0872dbd2f13e8012e)]:
-  - @kubb/plugin-ts@5.0.0-alpha.13
-  - @kubb/core@5.0.0-alpha.13
-  - @kubb/oas@5.0.0-alpha.13
-  - @kubb/plugin-oas@5.0.0-alpha.13
-
-## 5.0.0-alpha.12
-
-### Patch Changes
-
-- Updated dependencies [[`d97bf00`](https://github.com/kubb-labs/kubb/commit/d97bf007db4fa3a5341463dab0e891afeaf82fff), [`ebe0774`](https://github.com/kubb-labs/kubb/commit/ebe07749c5e3ef16d0e53daf11dd3954a582216b), [`f4105fe`](https://github.com/kubb-labs/kubb/commit/f4105fe44e46ec2846e665fd6079290e6d6ce6c6), [`ebe0774`](https://github.com/kubb-labs/kubb/commit/ebe07749c5e3ef16d0e53daf11dd3954a582216b)]:
-  - @kubb/plugin-ts@5.0.0-alpha.12
-  - @kubb/core@5.0.0-alpha.12
-  - @kubb/oas@5.0.0-alpha.12
-  - @kubb/plugin-oas@5.0.0-alpha.12
-
-## 5.0.0-alpha.11
-
-### Patch Changes
-
-- Updated dependencies [[`4cfcb62`](https://github.com/kubb-labs/kubb/commit/4cfcb6290ffa11c93f19345c93906af65ec18339), [`4cfcb62`](https://github.com/kubb-labs/kubb/commit/4cfcb6290ffa11c93f19345c93906af65ec18339)]:
-  - @kubb/core@5.0.0-alpha.11
-  - @kubb/plugin-oas@5.0.0-alpha.11
-  - @kubb/oas@5.0.0-alpha.11
-  - @kubb/plugin-ts@5.0.0-alpha.11
-
-## 5.0.0-alpha.10
-
-### Patch Changes
-
-- Updated dependencies []:
-  - @kubb/core@5.0.0-alpha.10
-  - @kubb/oas@5.0.0-alpha.10
-  - @kubb/plugin-ts@5.0.0-alpha.10
-  - @kubb/plugin-oas@5.0.0-alpha.10
-
-## 5.0.0-alpha.9
-
-### Patch Changes
-
-- Updated dependencies [[`617aa20`](https://github.com/kubb-labs/kubb/commit/617aa203608222aba2a022ab998ced16f4216ed3)]:
-  - @kubb/core@5.0.0-alpha.9
-  - @kubb/oas@5.0.0-alpha.9
-  - @kubb/plugin-oas@5.0.0-alpha.9
-  - @kubb/plugin-ts@5.0.0-alpha.9
-
-## 5.0.0-alpha.8
-
-### Major Changes
-
-- [#2803](https://github.com/kubb-labs/kubb/pull/2803) [`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Rename factory functions from `define*` to `create*` to align with Vite ecosystem conventions.
-
-  **Rule:** `define*` is reserved for pure identity/type helpers (no runtime behavior — removing the call doesn't change the value, only loses type inference). `create*` is used for functions that produce instances, wrap builders, or apply logic.
-
-  `defineConfig` is unchanged — it is a pure identity helper.
-
-  | Before            | After             |
-  | ----------------- | ----------------- |
-  | `definePlugin`    | `createPlugin`    |
-  | `defineAdapter`   | `createAdapter`   |
-  | `defineGenerator` | `createGenerator` |
-  | `defineLogger`    | `createLogger`    |
-  | `defineStorage`   | `createStorage`   |
-
-### Patch Changes
-
-- Updated dependencies [[`978b0d1`](https://github.com/kubb-labs/kubb/commit/978b0d1cb6fadcb08dd71b65bbd1542a02a7a517)]:
-  - @kubb/core@5.0.0-alpha.8
-  - @kubb/plugin-oas@5.0.0-alpha.8
-  - @kubb/plugin-ts@5.0.0-alpha.8
-  - @kubb/oas@5.0.0-alpha.8
-
-## 5.0.0-alpha.7
-
-### Major Changes
-
-- [#2794](https://github.com/kubb-labs/kubb/pull/2794) [`bf5f955`](https://github.com/kubb-labs/kubb/commit/bf5f955ec285badb0d99a3950b0a880622180ec2) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Rename `PluginManager` to `PluginDriver`. The `pluginManager` property in context/meta is now `driver`. The hook `usePluginManager` is now `usePluginDriver`.
-
-### Patch Changes
-
-- Updated dependencies [[`bf5f955`](https://github.com/kubb-labs/kubb/commit/bf5f955ec285badb0d99a3950b0a880622180ec2)]:
-  - @kubb/core@5.0.0-alpha.7
-  - @kubb/plugin-oas@5.0.0-alpha.7
-  - @kubb/plugin-ts@5.0.0-alpha.7
-  - @kubb/oas@5.0.0-alpha.7
-
-## 5.0.0-alpha.6
-
-### Patch Changes
-
-- Updated dependencies [[`0aba63f`](https://github.com/kubb-labs/kubb/commit/0aba63f026e7e93bf1057b7a3740bbfe9ee07c00)]:
-  - @kubb/plugin-ts@5.0.0-alpha.6
-  - @kubb/core@5.0.0-alpha.6
-  - @kubb/oas@5.0.0-alpha.6
-  - @kubb/plugin-oas@5.0.0-alpha.6
-
-## 5.0.0-alpha.5
-
-### Patch Changes
-
-- Updated dependencies [[`f373168`](https://github.com/kubb-labs/kubb/commit/f37316845ef3f8753a93e04a946b333ee4e42073)]:
-  - @kubb/core@5.0.0-alpha.5
-  - @kubb/plugin-ts@5.0.0-alpha.5
-  - @kubb/oas@5.0.0-alpha.5
-  - @kubb/plugin-oas@5.0.0-alpha.5
-
-## 5.0.0-alpha.4
-
-### Patch Changes
-
-- Updated dependencies [[`64e3d85`](https://github.com/kubb-labs/kubb/commit/64e3d8583c50c073bfe8945dcda5e700d262d9d9)]:
-  - @kubb/plugin-oas@5.0.0-alpha.4
-  - @kubb/plugin-ts@5.0.0-alpha.4
-  - @kubb/core@5.0.0-alpha.4
-  - @kubb/oas@5.0.0-alpha.4
-
-## 5.0.0-alpha.3
-
-### Patch Changes
-
-- Updated dependencies [[`827b444`](https://github.com/kubb-labs/kubb/commit/827b444e7c7c62d36ba9eaed7303ed0d18a7fa45)]:
-  - @kubb/plugin-ts@5.0.0-alpha.3
-  - @kubb/core@5.0.0-alpha.3
-  - @kubb/oas@5.0.0-alpha.3
-  - @kubb/plugin-oas@5.0.0-alpha.3
-
-## 5.0.0-alpha.2
-
-### Major Changes
-
-- [#2768](https://github.com/kubb-labs/kubb/pull/2768) [`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Remove `pluginKey` in favour of `pluginName`. Each plugin can now only be used once, adding duplicate plugins throws an error.
-
-### Patch Changes
-
-- Updated dependencies [[`4f5a4ef`](https://github.com/kubb-labs/kubb/commit/4f5a4efc6169e9e5ef2cfd629a8ed7ff5714727b)]:
-  - @kubb/core@5.0.0-alpha.2
-  - @kubb/plugin-oas@5.0.0-alpha.2
-  - @kubb/plugin-ts@5.0.0-alpha.2
-  - @kubb/oas@5.0.0-alpha.2
-
-## 5.0.0-alpha.1
-
-### Major Changes
-
-- [`a4682ea`](https://github.com/kubb-labs/kubb/commit/a4682ea8896ef7d9ccae1b6e9abd6ed7bcaac073) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - The minimum required Node.js version is 22.
-
-### Patch Changes
-
-- Updated dependencies [[`a4682ea`](https://github.com/kubb-labs/kubb/commit/a4682ea8896ef7d9ccae1b6e9abd6ed7bcaac073)]:
-  - @kubb/plugin-oas@5.0.0-alpha.1
-  - @kubb/plugin-ts@5.0.0-alpha.1
-  - @kubb/core@5.0.0-alpha.1
-  - @kubb/oas@5.0.0-alpha.1
-
-## 5.0.0-alpha.0
-
-### Patch Changes
-
-- Updated dependencies [[`2d474ef`](https://github.com/kubb-labs/kubb/commit/2d474ef68bad43e13ec34e762194048cd2a194d9)]:
-  - @kubb/core@5.0.0-alpha.0
-  - @kubb/oas@5.0.0-alpha.0
-  - @kubb/plugin-oas@5.0.0-alpha.0
-  - @kubb/plugin-ts@5.0.0-alpha.0
+- Updated dependencies [[`9e3332e`](https://github.com/kubb-labs/kubb/commit/9e3332edd9d19f926519ad7b7bccb66ec4a78fc1)]:
+  - @kubb/oas@4.36.2
+  - @kubb/plugin-oas@4.36.2
+  - @kubb/plugin-ts@4.36.2
+  - @kubb/core@4.36.2
 
 ## 4.36.1
 

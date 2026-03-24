@@ -14,16 +14,12 @@ export const petStatusEnum = {
 
 export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum];
 
-export type PetStatusEnum = PetStatusEnumKey
-
 export type Pet = {
     /**
-     * @example 10
-     * @type integer | undefined
+     * @type integer | undefined, int64
     */
     id?: number;
     /**
-     * @example doggie
      * @type string
     */
     name: string;
@@ -31,10 +27,12 @@ export type Pet = {
      * @minLength 2
      * @maxLength 42
      * @pattern ^[A-Za-z0-9()\[\]'"][-A-Za-z0-9_. \/()\[\]]{0,40}[A-Za-z0-9()\[\]'"]$
-     * @example my_log_destination
      * @type string | undefined
     */
     log?: string;
+    /**
+     * @type object | undefined
+    */
     category?: Category;
     /**
      * @type array

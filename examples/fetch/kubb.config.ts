@@ -1,4 +1,3 @@
-import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -17,7 +16,6 @@ export default defineConfig(() => {
       path: './src/gen',
       clean: true,
     },
-    adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({
         validate: false,
@@ -26,7 +24,6 @@ export default defineConfig(() => {
       }),
       pluginTs({
         output: { path: 'models.ts' },
-        compatibilityPreset: 'kubbV4',
       }),
       pluginClient({
         output: {

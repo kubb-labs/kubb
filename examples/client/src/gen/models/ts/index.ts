@@ -1,6 +1,5 @@
 export type {
   AddPetRequest,
-  AddPetRequestStatusEnum,
   AddPetRequestStatusEnumKey,
 } from './AddPetRequest.js'
 export { addPetRequestStatusEnum } from './AddPetRequest.js'
@@ -10,13 +9,11 @@ export type { Category } from './Category.js'
 export type { Customer } from './Customer.js'
 export type {
   Order,
-  OrderHttpStatusEnum,
   OrderHttpStatusEnumKey,
-  OrderStatusEnum,
   OrderStatusEnumKey,
 } from './Order.js'
 export { orderHttpStatusEnum, orderStatusEnum } from './Order.js'
-export type { Pet, PetStatusEnum, PetStatusEnumKey } from './Pet.js'
+export type { Pet, PetStatusEnumKey } from './Pet.js'
 export { petStatusEnum } from './Pet.js'
 export type { PetNotFound } from './PetNotFound.js'
 export type {
@@ -38,7 +35,6 @@ export type {
   FindPetsByStatus400,
   FindPetsByStatusQuery,
   FindPetsByStatusQueryParams,
-  FindPetsByStatusQueryParamsStatusEnum,
   FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
 } from './petController/FindPetsByStatus.js'

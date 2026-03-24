@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { classClientGenerator, operationsGenerator } from './generators'
@@ -14,7 +14,7 @@ import type { PluginClient } from './types.ts'
 
 export const pluginClientName = 'plugin-client' satisfies PluginClient['name']
 
-export const pluginClient = createPlugin<PluginClient>((options) => {
+export const pluginClient = definePlugin<PluginClient>((options) => {
   const {
     output = { path: 'clients', barrelType: 'named' },
     group,
@@ -159,7 +159,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         {
           fabric: this.fabric,
           oas,
-          driver: this.driver,
+          pluginManager: this.pluginManager,
           events: this.events,
           plugin: this.plugin,
           contentType,
@@ -179,7 +179,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         root,
         output,
         meta: {
-          pluginName: this.plugin.name,
+          pluginKey: this.plugin.key,
         },
       })
 

@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { usePluginDriver } from '@kubb/core/hooks'
+import { usePluginManager } from '@kubb/core/hooks'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
@@ -19,7 +19,7 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
       options,
       options: { output },
     } = plugin
-    const driver = usePluginDriver()
+    const pluginManager = usePluginManager()
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)
@@ -39,29 +39,29 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
     }
 
     const type = {
-      file: getFile(operation, { pluginName: pluginTsName }),
+      file: getFile(operation, { pluginKey: [pluginTsName] }),
       //todo remove type?
-      schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
+      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
     }
 
     const zod = {
-      file: getFile(operation, { pluginName: pluginZodName }),
-      schemas: getSchemas(operation, { pluginName: pluginZodName, type: 'function' }),
+      file: getFile(operation, { pluginKey: [pluginZodName] }),
+      schemas: getSchemas(operation, { pluginKey: [pluginZodName], type: 'function' }),
     }
 
-    const hasClientPlugin = !!driver.getPluginByName(pluginClientName)
+    const hasClientPlugin = !!pluginManager.getPluginByKey([pluginClientName])
     // Class-based clients are not compatible with query hooks, so we generate inline clients
     const shouldUseClientPlugin = hasClientPlugin && options.client.clientType !== 'class'
     const client = {
       name: shouldUseClientPlugin
         ? getName(operation, {
             type: 'function',
-            pluginName: pluginClientName,
+            pluginKey: [pluginClientName],
           })
         : getName(operation, {
             type: 'function',
           }),
-      file: getFile(operation, { pluginName: pluginClientName }),
+      file: getFile(operation, { pluginKey: [pluginClientName] }),
     }
 
     const mutationKey = {
@@ -78,7 +78,7 @@ export const mutationGenerator = createReactGenerator<PluginVueQuery>({
         baseName={mutation.file.baseName}
         path={mutation.file.path}
         meta={mutation.file.meta}
-        banner={getBanner({ oas, output, config: driver.config })}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
         {options.parser === 'zod' && (

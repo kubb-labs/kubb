@@ -110,14 +110,14 @@ export default defineConfig({
 
 Options that describe **how to interpret the spec** are now on the adapter. Options that describe **how to generate code** remain on the individual plugins.
 
-### `createAdapter` factory
+### `defineAdapter` factory
 
-New adapters are created with the `createAdapter` factory from `@kubb/core`:
+New adapters are created with the `defineAdapter` factory from `@kubb/core`:
 
 ```ts
-import { createAdapter } from '@kubb/core'
+import { defineAdapter } from '@kubb/core'
 
-export const adapterOas = createAdapter<OasAdapter>((options) => ({
+export const adapterOas = defineAdapter<OasAdapter>((options) => ({
   name: 'oas',
   options: { /* resolved options with defaults */ },
   async parse(source) {
@@ -154,7 +154,7 @@ This pattern makes it straightforward to add adapters for other spec formats —
 
 - **Learning curve.** Users who are familiar with putting `dateType` on `plugin-ts()` need to learn to move it to the adapter. A deprecation warning in `plugin-ts` and a migration guide entry are required to make this smooth.
 
-- **Adapter is a new concept.** Plugin authors who want to ship a custom input format now need to understand both `createAdapter` and `@kubb/ast`. This is offset by the fact that the interface is small (one `parse` method) and the result type is the same `RootNode` all plugins already consume.
+- **Adapter is a new concept.** Plugin authors who want to ship a custom input format now need to understand both `defineAdapter` and `@kubb/ast`. This is offset by the fact that the interface is small (one `parse` method) and the result type is the same `RootNode` all plugins already consume.
 
 ## Alternatives considered
 

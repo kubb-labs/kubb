@@ -45,14 +45,12 @@ describe('read / write', () => {
   test('write creates a file and read returns its content', async () => {
     const text = `export const hallo = 'world'`
     await write(rwFilePath, text)
-
     expect(await read(rwFilePath)).toBe(text)
   })
 
   test('readSync reads file synchronously', async () => {
     const text = `export const hallo = 'world sync'`
     await write(rwFilePath, text)
-
     expect(readSync(rwFilePath)).toBe(text)
   })
 
@@ -60,24 +58,21 @@ describe('read / write', () => {
     const text = `export const hallo = 'world'`
     await write(rwFilePath, text)
     const result = await write(rwFilePath, text)
-
-    expect(result).toBeNull()
+    expect(result).toBeUndefined()
   })
 
   it('write returns undefined for empty/whitespace data', async () => {
-    expect(await write(rwFilePath, '   ')).toBeNull()
+    expect(await write(rwFilePath, '   ')).toBeUndefined()
   })
 
   it('write performs sanity check when enabled', async () => {
     const text = `export const hallo = 'world with sanity'`
-
     expect(await write(rwFilePath, text, { sanity: true })).toBe(text)
   })
 
   it('write trims data before saving', async () => {
     const text = `  export const hallo = 'world'  `
     await write(rwFilePath, text)
-
     expect(await read(rwFilePath)).toBe(text.trim())
   })
 })
@@ -89,7 +84,6 @@ describe('clean', () => {
     await mkdir(cleanDir, { recursive: true })
     await write(path.join(cleanDir, 'file.ts'), 'export {}')
     await clean(cleanDir)
-
     expect(await exists(cleanDir)).toBe(false)
   })
 
@@ -113,10 +107,8 @@ describe('getRelativePath', () => {
   test('returns correct relative path (POSIX)', async () => {
     const testFile = path.join(folderPath, 'test.js')
     await write(testFile, 'test')
-
     expect(getRelativePath(relTestDir, testFile)).toBe('./folder/test.js')
     expect(getRelativePath(folderPath, relTestDir)).toBe('./..')
-
     await clean(testFile)
   })
 
@@ -124,7 +116,6 @@ describe('getRelativePath', () => {
     const winMocks = 'C:\\Users\\user\\project\\mocks'
     const winFolder = 'C:\\Users\\user\\project\\mocks\\folder'
     const winFile = 'C:\\Users\\user\\project\\mocks\\folder\\test.js'
-
     expect(getRelativePath(winMocks, winFile)).toBe('./folder/test.js')
     expect(getRelativePath(winFolder, winMocks)).toBe('./..')
     expect(getRelativePath(winMocks, winFolder)).toBe('./folder')

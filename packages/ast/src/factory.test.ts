@@ -1,16 +1,5 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import {
-  createDiscriminantNode,
-  createFunctionParameter,
-  createFunctionParameters,
-  createObjectBindingParameter,
-  createOperation,
-  createParameter,
-  createProperty,
-  createResponse,
-  createRoot,
-  createSchema,
-} from './factory.ts'
+import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from './factory.ts'
 import type { ObjectSchemaNode, StringSchemaNode } from './nodes/schema.ts'
 
 describe('createRoot', () => {
@@ -121,9 +110,6 @@ describe('createProperty', () => {
     })
 
     expect(node.required).toBe(true)
-    expect(node.schema.optional).toBeFalsy()
-    expect(node.schema.nullable).toBeFalsy()
-    expect(node.schema.nullish).toBeFalsy()
   })
 })
 
@@ -154,15 +140,11 @@ describe('createParameter', () => {
 
 describe('createResponse', () => {
   it('creates a response with just a status code', () => {
-    const node = createResponse({
-      statusCode: '200',
-      schema: createSchema({
-        type: 'string',
-      }),
-    })
+    const node = createResponse({ statusCode: '200' })
 
     expect(node.kind).toBe('Response')
     expect(node.statusCode).toBe('200')
+    expect(node.schema).toBeUndefined()
   })
 
   it('accepts a schema and description', () => {
@@ -174,89 +156,5 @@ describe('createResponse', () => {
 
     expect(node.schema?.type).toBe('object')
     expect(node.description).toBe('Success')
-  })
-})
-
-describe('createDiscriminantNode', () => {
-  it('creates an object with a single required enum property', () => {
-    const node = createDiscriminantNode({ propertyName: 'type', value: 'cat' })
-
-    expect(node.type).toBe('object')
-    if (node.type !== 'object') return
-    expect(node.properties).toHaveLength(1)
-    expect(node.properties?.[0]?.name).toBe('type')
-    expect(node.properties?.[0]?.required).toBe(true)
-    expect(node.properties?.[0]?.schema.type).toBe('enum')
-  })
-
-  it('enum has exactly one value matching the input', () => {
-    const node = createDiscriminantNode({ propertyName: 'kind', value: 'dog' })
-
-    if (node.type !== 'object') return
-    const enumNode = node.properties?.[0]?.schema
-    if (!enumNode || enumNode.type !== 'enum') return
-    expect(enumNode.enumValues).toEqual(['dog'])
-  })
-})
-
-describe('createFunctionParameter', () => {
-  it('defaults optional to false', () => {
-    const node = createFunctionParameter({ name: 'petId', type: 'string' })
-
-    expect(node.kind).toBe('FunctionParameter')
-    expect(node.name).toBe('petId')
-    expect(node.type).toBe('string')
-    expect(node.optional).toBe(false)
-  })
-
-  it('supports optional true without default', () => {
-    const node = createFunctionParameter({ name: 'query', type: 'Query', optional: true })
-
-    expect(node.optional).toBe(true)
-    expect(node.default).toBeUndefined()
-  })
-
-  it('supports default value with optional false/omitted', () => {
-    const node = createFunctionParameter({ name: 'config', type: 'RequestConfig', default: '{}' })
-
-    expect(node.optional).toBe(false)
-    expect(node.default).toBe('{}')
-  })
-})
-
-describe('createObjectBindingParameter', () => {
-  it('creates object binding parameter with properties', () => {
-    const props = [createFunctionParameter({ name: 'id', type: 'string' })]
-    const node = createObjectBindingParameter({ properties: props })
-
-    expect(node.kind).toBe('ObjectBindingParameter')
-    expect(node.properties).toEqual(props)
-  })
-
-  it('accepts inline and default options', () => {
-    const node = createObjectBindingParameter({
-      properties: [createFunctionParameter({ name: 'id', type: 'string' })],
-      inline: true,
-      default: '{}',
-    })
-
-    expect(node.inline).toBe(true)
-    expect(node.default).toBe('{}')
-  })
-})
-
-describe('createFunctionParameters', () => {
-  it('defaults params to empty array', () => {
-    const node = createFunctionParameters()
-
-    expect(node.kind).toBe('FunctionParameters')
-    expect(node.params).toEqual([])
-  })
-
-  it('accepts params override', () => {
-    const params = [createFunctionParameter({ name: 'petId', type: 'string' })]
-    const node = createFunctionParameters({ params })
-
-    expect(node.params).toEqual(params)
   })
 })

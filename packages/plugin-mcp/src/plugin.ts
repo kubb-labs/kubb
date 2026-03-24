@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { definePlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
@@ -13,7 +13,7 @@ import type { PluginMcp } from './types.ts'
 
 export const pluginMcpName = 'plugin-mcp' satisfies PluginMcp['name']
 
-export const pluginMcp = createPlugin<PluginMcp>((options) => {
+export const pluginMcp = definePlugin<PluginMcp>((options) => {
   const {
     output = { path: 'mcp', barrelType: 'named' },
     group,
@@ -102,7 +102,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
         this.plugin.options.client.baseURL = baseURL
       }
 
-      const hasClientPlugin = !!this.driver.getPluginByName(pluginClientName)
+      const hasClientPlugin = !!this.pluginManager.getPluginByKey([pluginClientName])
 
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled fetch
@@ -142,7 +142,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
       const operationGenerator = new OperationGenerator(this.plugin.options, {
         fabric: this.fabric,
         oas,
-        driver: this.driver,
+        pluginManager: this.pluginManager,
         events: this.events,
         plugin: this.plugin,
         contentType,
@@ -160,7 +160,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
         root,
         output,
         meta: {
-          pluginName: this.plugin.name,
+          pluginKey: this.plugin.key,
         },
       })
 

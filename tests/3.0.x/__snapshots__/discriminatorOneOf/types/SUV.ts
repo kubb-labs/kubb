@@ -11,8 +11,6 @@ export const SUVTypeEnum = {
 
 export type SUVTypeEnumKey = (typeof SUVTypeEnum)[keyof typeof SUVTypeEnum];
 
-export type SUVTypeEnum = SUVTypeEnumKey
-
 export type SUV = (Vehicle & {
     /**
      * @type string | undefined

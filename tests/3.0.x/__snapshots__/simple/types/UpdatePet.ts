@@ -35,5 +35,5 @@ export type UpdatePetMutationResponse = UpdatePet200;
 export type UpdatePetMutation = {
     Response: UpdatePet200;
     Request: UpdatePetMutationRequest;
-    Errors: (UpdatePet400 | UpdatePet404 | UpdatePet405);
+    Errors: UpdatePet400 | UpdatePet404 | UpdatePet405;
 };

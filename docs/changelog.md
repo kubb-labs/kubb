@@ -14,7 +14,6 @@ outline: deep
 
 -   [#2897](https://github.com/kubb-labs/kubb/pull/2897) [`647cc77`](https://github.com/kubb-labs/kubb/commit/647cc77580cc54af1cc540f2188651f36b134624) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fixed `Error in async listener for "generation:summary"` that occurred in IDE-embedded terminals (e.g. JetBrains, VS Code integrated terminal) where `process.stdout.isTTY === true` but `process.stdout.columns === 0`. The clack interactive renderer was selected for these environments and called `String.prototype.repeat()` with a negative count when computing box widths, throwing a `RangeError`. `canUseTTY()` now requires a positive column count, and `clack.box()` calls have a plain-text fallback in case rendering still fails.
 
-
 ## 4.36.2
 
 ### 📦 Dependencies
@@ -435,7 +434,7 @@ export type MyEnumKey = never;  // ✅ No unused constant
 
 **Fix named array type aliases no longer wrapped in `Partial<>`**
 
-Named array type aliases are no longer erroneously wrapped with the `Partial<>` TypeScript utility type, ensuring the correct type generation. 
+Named array type aliases are no longer erroneously wrapped with the `Partial<>` TypeScript utility type, ensuring the correct type generation.
 
 ---
 

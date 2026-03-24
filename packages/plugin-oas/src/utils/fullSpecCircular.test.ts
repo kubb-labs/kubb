@@ -1,14 +1,13 @@
 import { camelCase, pascalCase } from '@internals/utils'
-import type { PluginDriver } from '@kubb/core'
+import type { Plugin, PluginManager } from '@kubb/core'
 import type { OasTypes, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, it } from 'vitest'
-import { createMockedPlugin } from '#mocks'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from '../SchemaGenerator.ts'
 
 // Simple mocked plugin manager for testing
-const createMockedPluginDriver = () =>
+const createMockedPluginManager = () =>
   ({
     resolveName: (result: { name: string; type: string }) => {
       if (result.type === 'file') {
@@ -29,12 +28,12 @@ const createMockedPluginDriver = () =>
       on() {},
       logLevel: 3,
     },
-    getPluginByName: () => undefined,
-    getFile: ({ name, extname, pluginName }: { name: string; extname: string; pluginName: string | undefined }) => {
+    getPluginByKey: () => undefined,
+    getFile: ({ name, extname, pluginKey }: { name: string; extname: string; pluginKey: Plugin['key'] | undefined }) => {
       const baseName = `${name}${extname}`
-      return { path: baseName, baseName, meta: { pluginName } }
+      return { path: baseName, baseName, meta: { pluginKey } }
     },
-  }) as unknown as PluginDriver
+  }) as unknown as PluginManager
 
 describe('Full Spec Circular Discriminator References', () => {
   const fabric = createReactFabric()
@@ -148,14 +147,14 @@ describe('Full Spec Circular Discriminator References', () => {
       emptySchemaType: 'unknown',
       transformers: {},
     }
-    const plugin = createMockedPlugin<any>({ name: 'plugin-oas', options })
-    const mockedPluginDriver = createMockedPluginDriver()
+    const plugin = { options } as Plugin<any>
+    const mockedPluginManager = createMockedPluginManager()
 
     const generator = new SchemaGenerator(options, {
       fabric,
       oas,
       include: undefined,
-      driver: mockedPluginDriver,
+      pluginManager: mockedPluginManager,
 
       plugin,
       contentType: undefined,

@@ -4,16 +4,15 @@ import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 import { format } from '#mocks'
 import { printerTs } from './printer.ts'
-import { resolverTs } from './resolvers/resolverTs.ts'
 
 /**
  * Wraps a `ts.TypeNode` in `type _ = <node>` so prettier can parse it as a
  * valid TypeScript statement, then strips the wrapper from the result.
  */
-const formatTS = async (node: ts.Node | null | undefined): Promise<string> => {
+const formatTS = async (node: ts.TypeNode | null | undefined): Promise<string> => {
   if (!node) return ''
 
-  const alias = ts.factory.createTypeAliasDeclaration(undefined, '_', undefined, node as ts.TypeNode)
+  const alias = ts.factory.createTypeAliasDeclaration(undefined, '_', undefined, node)
   const source = print(alias)
   const formatted = await format(source)
 
@@ -24,7 +23,11 @@ const formatTS = async (node: ts.Node | null | undefined): Promise<string> => {
 }
 
 describe('printerTs', () => {
-  const printer = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'inlineLiteral' })
+  const printer = printerTs({
+    optionalType: 'questionToken',
+    arrayType: 'array',
+    enumType: 'inlineLiteral',
+  })
 
   describe('scalar types', () => {
     it('any', async () => {
@@ -150,36 +153,6 @@ describe('printerTs', () => {
 
       expect(result).toBeUndefined()
     })
-
-    it('ref with $ref path uses canonical name from path, not node.name (Bug 1: allOf name override)', async () => {
-      // When allOf flatten overrides node.name to the property name ("content"),
-      // the printer should still resolve to the $ref target name ("TestContent").
-      const result = printer.print(createSchema({ type: 'ref', name: 'content', ref: '#/components/schemas/TestContent' }))
-
-      expect(await formatTS(result)).toBe('TestContent')
-    })
-
-    it('ref with $ref path resolves discriminator child to parent (Bug 2: circular discriminator)', async () => {
-      // ClientDisconnectedProblem allOf $ref -> Problem. The node.name is overridden
-      // to "ClientDisconnectedProblem" by the flatten, but the ref points to Problem.
-      const result = printer.print(createSchema({ type: 'ref', name: 'ClientDisconnectedProblem', ref: '#/components/schemas/Problem' }))
-
-      expect(await formatTS(result)).toBe('Problem')
-    })
-
-    it('ref without $ref path (inline ref) uses node.name directly', async () => {
-      // Inline refs from getImports/utils don't carry a $ref path — node.name is the resolved type.
-      const result = printer.print(createSchema({ type: 'ref', name: 'ResolvedType' }))
-
-      expect(await formatTS(result)).toBe('ResolvedType')
-    })
-
-    it('ref with $ref path falls back to node.name when path segment missing', async () => {
-      // Defensive: if $ref path has no segments, fall back to node.name
-      const result = printer.print(createSchema({ type: 'ref', name: 'FallbackType', ref: '' }))
-
-      expect(await formatTS(result)).toBe('FallbackType')
-    })
   })
 
   describe('enum', () => {
@@ -196,42 +169,42 @@ describe('printerTs', () => {
     })
 
     it('enum without name still renders inline literal even when enumType is not inlineLiteral', async () => {
-      const p = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'enum' })
+      const p = printerTs({ optionalType: 'questionToken', arrayType: 'array', enumType: 'enum' })
       const result = p.print(createSchema({ type: 'enum', enumValues: ['a', 'b'] }))
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`"'a' | 'b'"`)
     })
 
     it('enum with name and enumType=enum renders reference', async () => {
-      const p = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'enum' })
+      const p = printerTs({ optionalType: 'questionToken', arrayType: 'array', enumType: 'enum' })
       const result = p.print(createSchema({ type: 'enum', name: 'Status', enumValues: ['active', 'inactive'] }))
 
       expect(await formatTS(result)).toBe('Status')
     })
 
     it('enum with name and enumType=asConst renders reference with Key suffix', async () => {
-      const p = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'asConst' })
+      const p = printerTs({ optionalType: 'questionToken', arrayType: 'array', enumType: 'asConst' })
       const result = p.print(createSchema({ type: 'enum', name: 'Status', enumValues: ['active', 'inactive'] }))
 
       expect(await formatTS(result)).toBe('StatusKey')
     })
 
     it('enum with name and enumType=asPascalConst renders reference with Key suffix', async () => {
-      const p = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'asPascalConst' })
+      const p = printerTs({ optionalType: 'questionToken', arrayType: 'array', enumType: 'asPascalConst' })
       const result = p.print(createSchema({ type: 'enum', name: 'Status', enumValues: ['active', 'inactive'] }))
 
       expect(await formatTS(result)).toBe('StatusKey')
     })
 
     it('enum with name and enumType=literal renders reference', async () => {
-      const p = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'literal' })
+      const p = printerTs({ optionalType: 'questionToken', arrayType: 'array', enumType: 'literal' })
       const result = p.print(createSchema({ type: 'enum', name: 'Status', enumValues: ['active', 'inactive'] }))
 
       expect(await formatTS(result)).toBe('Status')
     })
 
     it('enum with name and enumType=constEnum renders reference without Key suffix', async () => {
-      const p = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'constEnum' })
+      const p = printerTs({ optionalType: 'questionToken', arrayType: 'array', enumType: 'constEnum' })
       const result = p.print(createSchema({ type: 'enum', name: 'Status', enumValues: ['active', 'inactive'] }))
 
       expect(await formatTS(result)).toBe('Status')
@@ -242,8 +215,8 @@ describe('printerTs', () => {
         createSchema({
           type: 'enum',
           namedEnumValues: [
-            { name: 'Active', value: 'active', primitive: 'string' },
-            { name: 'Inactive', value: 'inactive', primitive: 'string' },
+            { name: 'Active', value: 'active', format: 'string' },
+            { name: 'Inactive', value: 'inactive', format: 'string' },
           ],
         }),
       )
@@ -255,7 +228,7 @@ describe('printerTs', () => {
       const result = printer.print(
         createSchema({
           type: 'enum',
-          namedEnumValues: [{ name: 'Yes', value: 1, primitive: 'number' }],
+          namedEnumValues: [{ name: 'Yes', value: 1, format: 'number' }],
           enumValues: ['ignored'],
         }),
       )
@@ -289,28 +262,6 @@ describe('printerTs', () => {
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`"string | (number | boolean)"`)
     })
-
-    it('renders string & {} when union has string literal and plain string', async () => {
-      const result = printer.print(
-        createSchema({
-          type: 'union',
-          members: [createSchema({ type: 'enum', primitive: 'string', enumValues: ['test'] }), createSchema({ type: 'email' })],
-        }),
-      )
-
-      expect(await formatTS(result)).toMatchInlineSnapshot(`"'test' | (string & {})"`)
-    })
-
-    it('renders string & {} when union has const-derived string enum (primitive only) and plain string', async () => {
-      const result = printer.print(
-        createSchema({
-          type: 'union',
-          members: [createSchema({ type: 'enum', primitive: 'string', enumValues: ['accepted'] }), createSchema({ type: 'string' })],
-        }),
-      )
-
-      expect(await formatTS(result)).toMatchInlineSnapshot(`"'accepted' | (string & {})"`)
-    })
   })
 
   describe('intersection', () => {
@@ -319,8 +270,8 @@ describe('printerTs', () => {
         createSchema({
           type: 'intersection',
           members: [
-            createSchema({ type: 'object', properties: [createProperty({ name: 'a', required: true, schema: createSchema({ type: 'string' }) })] }),
-            createSchema({ type: 'object', properties: [createProperty({ name: 'b', required: true, schema: createSchema({ type: 'number' }) })] }),
+            createSchema({ type: 'object', properties: [createProperty({ name: 'a', schema: createSchema({ type: 'string' }) })] }),
+            createSchema({ type: 'object', properties: [createProperty({ name: 'b', schema: createSchema({ type: 'number' }) })] }),
           ],
         }),
       )
@@ -348,7 +299,7 @@ describe('printerTs', () => {
     })
 
     it('arrayType=generic renders Array<T>', async () => {
-      const p = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'generic', enumType: 'inlineLiteral' })
+      const p = printerTs({ optionalType: 'questionToken', arrayType: 'generic', enumType: 'inlineLiteral' })
       const result = p.print(
         createSchema({
           type: 'array',
@@ -445,8 +396,8 @@ describe('printerTs', () => {
         createSchema({
           type: 'object',
           properties: [
-            createProperty({ name: 'id', required: true, schema: createSchema({ type: 'number' }) }),
-            createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
+            createProperty({ name: 'id', schema: createSchema({ type: 'number' }) }),
+            createProperty({ name: 'name', schema: createSchema({ type: 'string' }) }),
           ],
         }),
       )
@@ -475,7 +426,7 @@ describe('printerTs', () => {
     })
 
     it('optional property with optionalType=undefined adds | undefined', async () => {
-      const p = printerTs({ resolver: resolverTs, optionalType: 'undefined', arrayType: 'array', enumType: 'inlineLiteral' })
+      const p = printerTs({ optionalType: 'undefined', arrayType: 'array', enumType: 'inlineLiteral' })
       const result = p.print(
         createSchema({
           type: 'object',
@@ -491,7 +442,7 @@ describe('printerTs', () => {
     })
 
     it('optional property with optionalType=questionTokenAndUndefined adds both', async () => {
-      const p = printerTs({ resolver: resolverTs, optionalType: 'questionTokenAndUndefined', arrayType: 'array', enumType: 'inlineLiteral' })
+      const p = printerTs({ optionalType: 'questionTokenAndUndefined', arrayType: 'array', enumType: 'inlineLiteral' })
       const result = p.print(
         createSchema({
           type: 'object',
@@ -510,7 +461,7 @@ describe('printerTs', () => {
       const result = printer.print(
         createSchema({
           type: 'object',
-          properties: [createProperty({ name: 'value', required: true, schema: createSchema({ type: 'string', nullable: true }) })],
+          properties: [createProperty({ name: 'value', schema: createSchema({ type: 'string', nullable: true }) })],
         }),
       )
 
@@ -525,7 +476,7 @@ describe('printerTs', () => {
       const result = printer.print(
         createSchema({
           type: 'object',
-          properties: [createProperty({ name: 'id', required: true, schema: createSchema({ type: 'number', readOnly: true }) })],
+          properties: [createProperty({ name: 'id', schema: createSchema({ type: 'number', readOnly: true }) })],
         }),
       )
 
@@ -572,7 +523,7 @@ describe('printerTs', () => {
       const result = printer.print(
         createSchema({
           type: 'object',
-          properties: [createProperty({ name: 'id', required: true, schema: createSchema({ type: 'number' }) })],
+          properties: [createProperty({ name: 'id', schema: createSchema({ type: 'number' }) })],
           additionalProperties: createSchema({ type: 'string' }),
         }),
       )
@@ -633,7 +584,7 @@ describe('printerTs', () => {
     })
 
     it('nullish property with optionalType=undefined adds | undefined', async () => {
-      const p = printerTs({ resolver: resolverTs, optionalType: 'undefined', arrayType: 'array', enumType: 'inlineLiteral' })
+      const p = printerTs({ optionalType: 'undefined', arrayType: 'array', enumType: 'inlineLiteral' })
       const result = p.print(
         createSchema({
           type: 'object',

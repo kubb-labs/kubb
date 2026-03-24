@@ -3,61 +3,30 @@ import type { OperationNode } from './operation.ts'
 import type { SchemaNode } from './schema.ts'
 
 /**
- * Basic metadata for an API document.
- * Adapters fill fields that exist in their source format.
- *
- * @example
- * ```ts
- * const meta: RootMeta = { title: 'Pet API', version: '1.0.0' }
- * ```
+ * Format-agnostic metadata about the API document.
+ * Adapters populate whichever fields are available in their source format.
  */
 export type RootMeta = {
-  /**
-   * API title (from `info.title` in OAS/AsyncAPI).
-   */
+  /** API title (from `info.title` in OAS/AsyncAPI). */
   title?: string
-  /**
-   * API description (from `info.description` in OAS/AsyncAPI).
-   */
-  description?: string
-  /**
-   * API version string (from `info.version` in OAS/AsyncAPI).
-   */
+  /** API version string (from `info.version` in OAS/AsyncAPI). */
   version?: string
   /**
-   * Resolved API base URL.
-   * For OpenAPI and AsyncAPI, this comes from the selected server URL.
+   * Resolved base URL for the API.
+   * OAS: derived from `servers[serverIndex].url` with variable substitution.
+   * AsyncAPI: derived from `servers[serverIndex].url`.
+   * Drizzle / schema-only formats: not set.
    */
   baseURL?: string
 }
 
 /**
- * Root AST node that contains all schemas and operations for one API document.
- *
- * @example
- * ```ts
- * const root: RootNode = {
- *   kind: 'Root',
- *   schemas: [],
- *   operations: [],
- * }
- * ```
+ * Top-level container for all schemas and operations in a single API document.
  */
 export type RootNode = BaseNode & {
-  /**
-   * Node kind.
-   */
   kind: 'Root'
-  /**
-   * All schema nodes in the document.
-   */
   schemas: Array<SchemaNode>
-  /**
-   * All operation nodes in the document.
-   */
   operations: Array<OperationNode>
-  /**
-   * Optional document metadata populated by the adapter.
-   */
+  /** Format-agnostic document metadata populated by the adapter. */
   meta?: RootMeta
 }

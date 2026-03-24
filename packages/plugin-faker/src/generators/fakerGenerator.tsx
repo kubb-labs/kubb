@@ -1,4 +1,4 @@
-import { useMode, usePluginDriver } from '@kubb/core/hooks'
+import { useMode, usePluginManager } from '@kubb/core/hooks'
 import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
@@ -16,7 +16,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       options: { dateParser, regexGenerator, seed, mapper },
     } = plugin
     const mode = useMode()
-    const driver = usePluginDriver()
+    const pluginManager = usePluginManager()
 
     const oas = useOas()
     const { getSchemas, getFile, getGroup } = useOperationManager(generator)
@@ -29,7 +29,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       oas,
       plugin,
       events: generator.context.events,
-      driver,
+      pluginManager,
       mode,
       override: options.override,
     })
@@ -53,8 +53,8 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       }
 
       const type = {
-        name: schemaManager.getName(name, { type: 'type', pluginName: pluginTsName }),
-        file: schemaManager.getFile(options.operationName || name, { pluginName: pluginTsName, group }),
+        name: schemaManager.getName(name, { type: 'type', pluginKey: [pluginTsName] }),
+        file: schemaManager.getFile(options.operationName || name, { pluginKey: [pluginTsName], group }),
       }
 
       const canOverride = tree.some(
@@ -94,7 +94,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output: plugin.options.output, config: driver.config })}
+        banner={getBanner({ oas, output: plugin.options.output, config: pluginManager.config })}
         footer={getFooter({ oas, output: plugin.options.output })}
       >
         <File.Import name={['faker']} path="@faker-js/faker" />
@@ -109,7 +109,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     const {
       options: { output, dateParser, regexGenerator, seed, mapper },
     } = plugin
-    const driver = usePluginDriver()
+    const pluginManager = usePluginManager()
     const oas = useOas()
     const imports = getImports(schema.tree)
 
@@ -119,8 +119,8 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     }
 
     const type = {
-      name: getName(schema.name, { type: 'type', pluginName: pluginTsName }),
-      file: getFile(schema.name, { pluginName: pluginTsName }),
+      name: getName(schema.name, { type: 'type', pluginKey: [pluginTsName] }),
+      file: getFile(schema.name, { pluginKey: [pluginTsName] }),
     }
 
     const canOverride = schema.tree.some(
@@ -142,7 +142,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
         baseName={faker.file.baseName}
         path={faker.file.path}
         meta={faker.file.meta}
-        banner={getBanner({ oas, output, config: driver.config })}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
         footer={getFooter({ oas, output })}
       >
         <File.Import name={['faker']} path="@faker-js/faker" />

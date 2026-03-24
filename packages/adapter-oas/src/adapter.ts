@@ -1,115 +1,105 @@
-import { collectImports, createRoot } from '@kubb/ast'
-import { createAdapter } from '@kubb/core'
-import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { applyDiscriminatorInheritance } from './discriminator.ts'
-import { parseFromConfig, validateDocument } from './factory.ts'
-import { parseOas } from './parser.ts'
-import { resolveServerUrl } from './resolvers.ts'
-import type { AdapterOas } from './types.ts'
+import path from 'node:path'
+import { createRoot } from '@kubb/ast'
+import type { AdapterSource } from '@kubb/core'
+import { defineAdapter } from '@kubb/core'
+import { resolveServerUrl } from './oas/resolveServerUrl.ts'
+import { parseFromConfig } from './oas/utils.ts'
+import { createOasParser } from './parser.ts'
+import type { OasAdapter } from './types.ts'
+
+export const adapterOasName = 'oas' satisfies OasAdapter['name']
 
 /**
- * Stable string identifier for the OAS adapter used in Kubb's adapter registry.
- */
-export const adapterOasName = 'oas' satisfies AdapterOas['name']
-
-/**
- * Creates the default OpenAPI / Swagger adapter for Kubb.
+ * Creates an OpenAPI / Swagger adapter for Kubb.
  *
- * Parses the spec, optionally validates it, resolves the base URL, and converts
- * everything into a `RootNode` that downstream plugins consume.
+ * This is the default adapter — you can omit it from your config when using
+ * an OpenAPI spec, but supplying it explicitly lets you pass options.
  *
  * @example
  * ```ts
  * import { defineConfig } from '@kubb/core'
  * import { adapterOas } from '@kubb/adapter-oas'
- * import { pluginTs } from '@kubb/plugin-ts'
  *
  * export default defineConfig({
- *   adapter: adapterOas({ dateType: 'date', serverIndex: 0 }),
- *   input: { path: './openapi.yaml' },
- *   plugins: [pluginTs()],
+ *   adapter: adapterOas({ validate: true, dateType: 'date' }),
+ *   input:   { path: './openapi.yaml' },
+ *   plugins: [pluginTs(), pluginZod()],
  * })
  * ```
  */
-export const adapterOas = createAdapter<AdapterOas>((options) => {
+export const adapterOas = defineAdapter<OasAdapter>((options) => {
   const {
     validate = true,
+    oasClass,
     contentType,
     serverIndex,
     serverVariables,
     discriminator = 'strict',
-    dateType = DEFAULT_PARSER_OPTIONS.dateType,
-    integerType = DEFAULT_PARSER_OPTIONS.integerType,
-    unknownType = DEFAULT_PARSER_OPTIONS.unknownType,
-    enumSuffix = DEFAULT_PARSER_OPTIONS.enumSuffix,
-    emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
+    collisionDetection = false,
+    dateType = 'string',
+    integerType = 'number',
+    unknownType = 'any',
+    emptySchemaType = unknownType,
   } = options
-
-  // Let-binding so parse() can replace it with a simple reassignment (no clear+loop).
-  let nameMapping = new Map<string, string>()
 
   return {
     name: adapterOasName,
-    get options() {
-      return {
-        validate,
-        contentType,
-        serverIndex,
-        serverVariables,
-        discriminator,
-        dateType,
-        integerType,
-        unknownType,
-        emptySchemaType,
-        enumSuffix,
-        nameMapping,
-      }
-    },
-    getImports(node, resolve) {
-      return collectImports({
-        node,
-        nameMapping,
-        resolve: (schemaName) => {
-          const result = resolve(schemaName)
-          if (!result) return
-
-          return { name: [result.name], path: result.path }
-        },
-      })
+    options: {
+      validate,
+      oasClass,
+      contentType,
+      serverIndex,
+      serverVariables,
+      discriminator,
+      collisionDetection,
+      dateType,
+      integerType,
+      unknownType,
+      emptySchemaType,
     },
     async parse(source) {
-      const document = await parseFromConfig(source)
+      const fakeConfig = sourceToFakeConfig(source)
+      const oas = await parseFromConfig(fakeConfig, oasClass)
+
+      oas.setOptions({ contentType, discriminator, collisionDetection })
 
       if (validate) {
-        await validateDocument(document)
+        try {
+          await oas.validate()
+        } catch (_err) {
+          // Validation failures are non-fatal — mirror plugin-oas behavior
+        }
       }
 
-      const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
+      const server = serverIndex !== undefined ? oas.api.servers?.at(serverIndex) : undefined
       const baseURL = server?.url ? resolveServerUrl(server, serverVariables) : undefined
 
-      const { root: parsedRoot, nameMapping: parsedNameMapping } = parseOas(document, {
-        contentType,
-        dateType,
-        integerType,
-        unknownType,
-        emptySchemaType,
-        enumSuffix,
-      })
-
-      const root = discriminator === 'inherit' ? applyDiscriminatorInheritance(parsedRoot) : parsedRoot
-
-      // This must happen after parseOas() because legacy enum remapping is finalized there.
-      nameMapping = parsedNameMapping
+      const parser = createOasParser(oas, { contentType, collisionDetection })
+      const root = parser.parse({ dateType, integerType, unknownType, emptySchemaType })
 
       return createRoot({
         ...root,
         meta: {
-          title: document.info?.title,
-          description: document.info?.description,
-          version: document.info?.version,
+          title: oas.api.info?.title,
+          version: oas.api.info?.version,
           baseURL,
         },
       })
     },
   }
 })
+
+// TODO: remove once parseFromConfig accepts AdapterSource directly
+function sourceToFakeConfig(source: AdapterSource): Parameters<typeof parseFromConfig>[0] {
+  switch (source.type) {
+    case 'path':
+      return { root: path.dirname(source.path), input: { path: source.path } } as Parameters<typeof parseFromConfig>[0]
+    case 'data':
+      return { root: process.cwd(), input: { data: source.data } } as Parameters<typeof parseFromConfig>[0]
+    case 'paths':
+      return {
+        root: source.paths[0] ? path.dirname(source.paths[0]) : process.cwd(),
+        input: source.paths.map((p) => ({ path: p })),
+      } as Parameters<typeof parseFromConfig>[0]
+  }
+}

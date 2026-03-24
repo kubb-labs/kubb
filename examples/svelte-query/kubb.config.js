@@ -1,4 +1,3 @@
-import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
@@ -17,7 +16,6 @@ export default defineConfig({
   hooks: {
     done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
   },
-  adapter: adapterOas({ collisionDetection: false }),
   plugins: [
     pluginOas({
       generators: [],
@@ -25,7 +23,6 @@ export default defineConfig({
     pluginTs({
       output: { path: 'models' },
       paramsCasing: 'camelcase',
-      compatibilityPreset: 'kubbV4',
     }),
     pluginSvelteQuery({
       client: {

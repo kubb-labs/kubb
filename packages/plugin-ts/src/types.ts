@@ -1,193 +1,8 @@
-import type { OperationNode, ParameterNode, SchemaNode, StatusCode, Visitor } from '@kubb/ast/types'
-import type { CompatibilityPreset, Group, Output, PluginFactoryOptions, Resolver } from '@kubb/core'
+import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { contentType, Oas } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
 import type { Generator } from '@kubb/plugin-oas/generators'
-
-/**
- * The concrete resolver type for `@kubb/plugin-ts`.
- * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
- * plugin-specific naming helpers for operations, parameters, responses, and schemas.
- */
-export type ResolverTs = Resolver & {
-  /**
-   * Resolves the variable/function name for a given raw name (equivalent to `default(name, 'function')`).
-   * Use this shorthand when matching the `name` field produced by the v2 TypeGenerator,
-   * so call-sites don't need to repeat the `'function'` type literal.
-   *
-   * @example
-   * resolver.resolveName('list pets status 200') // → 'listPetsStatus200'
-   */
-  resolveName(name: string): string
-  /**
-   * Resolves the TypeScript type name for a given raw name (equivalent to `default(name, 'type')`).
-   * Use this shorthand when matching the `typedName` field produced by the v2 TypeGenerator,
-   * so call-sites don't need to repeat the `'type'` type literal.
-   *
-   * @example
-   * resolver.resolveTypedName('list pets status 200') // → 'ListPetsStatus200'
-   */
-  resolveTypedName(name: string): string
-  /**
-   * Resolves the file/path name for a given identifier using PascalCase.
-   *
-   * @example
-   * resolver.resolvePathName('list pets', 'file') // → 'ListPets'
-   */
-  resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
-  /**
-   * Resolves the variable/function name for an operation parameter.
-   * Encapsulates the `<operationId> <PascalCase(paramIn)> <paramName>` naming convention.
-   *
-   * @example
-   * resolver.resolveParamName(node, param) // → 'ListPetsQueryLimit'
-   */
-  resolveParamName(node: OperationNode, param: ParameterNode): string
-  /**
-   * Resolves the TypeScript type alias name for an operation parameter
-   * (equivalent to `resolveParamName` with `type: 'type'`).
-   * In the default implementation both return the same PascalCase string;
-   * the distinction is preserved so overrides can diverge the two forms.
-   *
-   * @example
-   * resolver.resolveParamTypedName(node, param) // → 'ListPetsQueryLimit'
-   */
-  resolveParamTypedName(node: OperationNode, param: ParameterNode): string
-  /**
-   * Resolves the variable/function name for an operation response by status code.
-   * Encapsulates the `<operationId> Status <statusCode>` template with PascalCase applied to the result.
-   *
-   * @example
-   * resolver.resolveResponseStatusName(node, 200) // → 'ListPetsStatus200'
-   */
-  resolveResponseStatusName(node: OperationNode, statusCode: StatusCode): string
-  /**
-   * Resolves the TypeScript type alias name for an operation response by status code.
-   * Encapsulates the `<operationId> Status <statusCode>` template with PascalCase applied to the result.
-   *
-   * @example
-   * resolver.resolveResponseStatusTypedName(node, 200) // → 'ListPetsStatus200'
-   */
-  resolveResponseStatusTypedName(node: OperationNode, statusCode: StatusCode): string
-  /**
-   * Resolves the variable/function name for an operation's request body (`Data`).
-   *
-   * @example
-   * resolver.resolveDataName(node) // → 'ListPetsData'
-   */
-  resolveDataName(node: OperationNode): string
-  /**
-   * Resolves the TypeScript type alias name for an operation's request body (`Data`).
-   *
-   * @example
-   * resolver.resolveDataTypedName(node) // → 'ListPetsData'
-   */
-  resolveDataTypedName(node: OperationNode): string
-  /**
-   * Resolves the variable/function name for an operation's request config (`RequestConfig`).
-   *
-   * @example
-   * resolver.resolveRequestConfigName(node) // → 'ListPetsRequestConfig'
-   */
-  resolveRequestConfigName(node: OperationNode): string
-  /**
-   * Resolves the TypeScript type alias name for an operation's request config (`RequestConfig`).
-   *
-   * @example
-   * resolver.resolveRequestConfigTypedName(node) // → 'ListPetsRequestConfig'
-   */
-  resolveRequestConfigTypedName(node: OperationNode): string
-  /**
-   * Resolves the variable/function name for the collection of all operation responses (`Responses`).
-   *
-   * @example
-   * resolver.resolveResponsesName(node) // → 'ListPetsResponses'
-   */
-  resolveResponsesName(node: OperationNode): string
-  /**
-   * Resolves the TypeScript type alias name for the collection of all operation responses.
-   *
-   * @example
-   * resolver.resolveResponsesTypedName(node) // → 'ListPetsResponses'
-   */
-  resolveResponsesTypedName(node: OperationNode): string
-  /**
-   * Resolves the variable/function name for the union of all operation responses (`Response`).
-   *
-   * @example
-   * resolver.resolveResponseName(node) // → 'ListPetsResponse'
-   */
-  resolveResponseName(node: OperationNode): string
-  /**
-   * Resolves the TypeScript type alias name for the union of all operation responses.
-   *
-   * @example
-   * resolver.resolveResponseTypedName(node) // → 'ListPetsResponse'
-   */
-  resolveResponseTypedName(node: OperationNode): string
-  /**
-   * Resolves the TypeScript type alias name for an enum schema's key variant.
-   * Appends the `Key` suffix after applying the default naming convention.
-   *
-   * @example
-   * resolver.resolveEnumKeyTypedName(node) // → 'PetStatusKey'
-   */
-  resolveEnumKeyTypedName(node: SchemaNode): string
-  /**
-   * Resolves the variable/function name for an operation's grouped path parameters type.
-   * Only available with `compatibilityPreset: 'kubbV4'`.
-   *
-   * @deprecated Kubb v4 compatibility only — use `resolveParamName` per individual parameter instead.
-   * @example
-   * resolver.resolvePathParamsName(node) // → 'GetPetByIdPathParams'
-   */
-  resolvePathParamsName?(node: OperationNode): string
-  /**
-   * Resolves the TypeScript type alias name for an operation's grouped path parameters type.
-   * Only available with `compatibilityPreset: 'kubbV4'`.
-   *
-   * @deprecated Kubb v4 compatibility only — use `resolveParamTypedName` per individual parameter instead.
-   * @example
-   * resolver.resolvePathParamsTypedName(node) // → 'GetPetByIdPathParams'
-   */
-  resolvePathParamsTypedName?(node: OperationNode): string
-  /**
-   * Resolves the variable/function name for an operation's grouped query parameters type.
-   * Only available with `compatibilityPreset: 'kubbV4'`.
-   *
-   * @deprecated Kubb v4 compatibility only — use `resolveParamName` per individual parameter instead.
-   * @example
-   * resolver.resolveQueryParamsName(node) // → 'FindPetsByStatusQueryParams'
-   */
-  resolveQueryParamsName?(node: OperationNode): string
-  /**
-   * Resolves the TypeScript type alias name for an operation's grouped query parameters type.
-   * Only available with `compatibilityPreset: 'kubbV4'`.
-   *
-   * @deprecated Kubb v4 compatibility only — use `resolveParamTypedName` per individual parameter instead.
-   * @example
-   * resolver.resolveQueryParamsTypedName(node) // → 'FindPetsByStatusQueryParams'
-   */
-  resolveQueryParamsTypedName?(node: OperationNode): string
-  /**
-   * Resolves the variable/function name for an operation's grouped header parameters type.
-   * Only available with `compatibilityPreset: 'kubbV4'`.
-   *
-   * @deprecated Kubb v4 compatibility only — use `resolveParamName` per individual parameter instead.
-   * @example
-   * resolver.resolveHeaderParamsName(node) // → 'DeletePetHeaderParams'
-   */
-  resolveHeaderParamsName?(node: OperationNode): string
-  /**
-   * Resolves the TypeScript type alias name for an operation's grouped header parameters type.
-   * Only available with `compatibilityPreset: 'kubbV4'`.
-   *
-   * @deprecated Kubb v4 compatibility only — use `resolveParamTypedName` per individual parameter instead.
-   * @example
-   * resolver.resolveHeaderParamsTypedName(node) // → 'DeletePetHeaderParams'
-   */
-  resolveHeaderParamsTypedName?(node: OperationNode): string
-}
+import type ts from 'typescript'
 
 export type Options = {
   /**
@@ -246,6 +61,42 @@ export type Options = {
    */
   syntaxType?: 'type' | 'interface'
   /**
+   * Set a suffix for the generated enums.
+   * @default 'enum'
+   */
+  enumSuffix?: string
+  /**
+   * Choose to use date or datetime as JavaScript Date instead of string.
+   * - 'string' represents dates as string values.
+   * - 'date' represents dates as JavaScript Date objects.
+   * @default 'string'
+   */
+  dateType?: 'string' | 'date'
+  /**
+   * Choose to use `number` or `bigint` for integer fields with `int64` format.
+   * - 'number' uses the TypeScript `number` type (matches JSON.parse() runtime behavior).
+   * - 'bigint' uses the TypeScript `bigint` type (accurate for values exceeding Number.MAX_SAFE_INTEGER).
+   * @note in v5 of Kubb 'bigint' will become the default to better align with OpenAPI's int64 specification.
+   * @default 'number'
+   */
+  integerType?: 'number' | 'bigint'
+  /**
+   * Which type to use when the Swagger/OpenAPI file is not providing more information.
+   * - 'any' allows any value.
+   * - 'unknown' requires type narrowing before use.
+   * - 'void' represents no value.
+   * @default 'any'
+   */
+  unknownType?: 'any' | 'unknown' | 'void'
+  /**
+   * Which type to use for empty schema values.
+   * - 'any' allows any value.
+   * - 'unknown' requires type narrowing before use.
+   * - 'void' represents no value.
+   * @default `unknownType`
+   */
+  emptySchemaType?: 'any' | 'unknown' | 'void'
+  /**
    * Choose what to use as mode for an optional value.
    * - 'questionToken' marks the property as optional with ? (e.g., type?: string).
    * - 'undefined' adds undefined to the type union (e.g., type: string | undefined).
@@ -260,6 +111,23 @@ export type Options = {
    * @default 'array'
    */
   arrayType?: 'generic' | 'array'
+  transformers?: {
+    /**
+     * Customize the names based on the type that is provided by the plugin.
+     */
+    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
+  }
+  /**
+   * @example
+   * Use https://ts-ast-viewer.com to generate factory code(see createPropertySignature)
+   * category: factory.createPropertySignature(
+   *   undefined,
+   *   factory.createIdentifier("category"),
+   *   factory.createToken(ts.SyntaxKind.QuestionToken),
+   *   factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)
+   * )
+   */
+  mapper?: Record<string, ts.PropertySignature>
   /**
    * How to style your params, by default no casing is applied
    * - 'camelcase' uses camelCase for pathParams, queryParams and headerParams property names
@@ -275,43 +143,6 @@ export type Options = {
    * Unstable naming for v5
    */
   UNSTABLE_NAMING?: true
-  /**
-   * Apply a compatibility naming preset.
-   * Use `kubbV4` for strict v4 type-generation compatibility.
-   * You can further customize naming with `resolvers`.
-   * @default 'default'
-   */
-  compatibilityPreset?: CompatibilityPreset
-  /**
-   * Array of named resolvers that control naming conventions.
-   * Later entries override earlier ones (last wins).
-   * Built-in: `resolverTs` (default), `resolverTsLegacy`.
-   * @default [resolverTs]
-   */
-  resolvers?: Array<ResolverTs>
-  /**
-   * Array of AST visitors applied to each SchemaNode/OperationNode before printing.
-   * Uses `transform()` from `@kubb/ast` — visitors can modify, replace, or annotate nodes.
-   *
-   * @example Remove writeOnly properties from response types
-   * ```ts
-   * transformers: [{
-   *   property(node) {
-   *     if (node.schema.writeOnly) return undefined
-   *   }
-   * }]
-   * ```
-   *
-   * @example Force all dates to plain strings
-   * ```ts
-   * transformers: [{
-   *   schema(node) {
-   *     if (node.type === 'date') return { ...node, type: 'string' }
-   *   }
-   * }]
-   * ```
-   */
-  transformers?: Array<Visitor>
 }
 
 type ResolvedOptions = {
@@ -320,19 +151,17 @@ type ResolvedOptions = {
   override: NonNullable<Options['override']>
   enumType: NonNullable<Options['enumType']>
   enumKeyCasing: NonNullable<Options['enumKeyCasing']>
+  enumSuffix: NonNullable<Options['enumSuffix']>
+  dateType: NonNullable<Options['dateType']>
+  integerType: NonNullable<Options['integerType']>
+  unknownType: NonNullable<Options['unknownType']>
+  emptySchemaType: NonNullable<Options['emptySchemaType']>
   optionalType: NonNullable<Options['optionalType']>
   arrayType: NonNullable<Options['arrayType']>
+  transformers: NonNullable<Options['transformers']>
   syntaxType: NonNullable<Options['syntaxType']>
+  mapper: Record<string, any>
   paramsCasing: Options['paramsCasing']
-  compatibilityPreset: NonNullable<CompatibilityPreset>
-  resolver: ResolverTs
-  /**
-   * The resolver without user naming overrides applied.
-   * Used internally to derive stable names for unnamed enums and grouped params
-   * so that the schema tree stays consistent regardless of `transformers.name` / custom resolvers.
-   */
-  baseResolver: ResolverTs
-  transformers: Array<Visitor>
 }
 
-export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>
+export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions>

@@ -1,0 +1,68 @@
+[
+  {
+    "path": "src/test.ts",
+    "baseName": "test.ts",
+    "sources": [],
+    "id": "f8e2d98f76d6e33f21aa686d674544b5c7d6fa3e",
+    "name": "test",
+    "extname": ".ts",
+    "imports": [],
+    "exports": [],
+    "meta": {}
+  },
+  {
+    "path": "src/axios/file2.ts",
+    "baseName": "file2.ts",
+    "sources": [],
+    "id": "6af477de6b602aafbb2e1ce0011b1f411a7ab3a5",
+    "name": "file2",
+    "extname": ".ts",
+    "imports": [],
+    "exports": [],
+    "meta": {}
+  },
+  {
+    "path": "src/axios/file1.ts",
+    "baseName": "file2.ts",
+    "sources": [],
+    "id": "a9679944d24c174b2f2fd5b1f19c9861f1d35d0e",
+    "name": "file2",
+    "extname": ".ts",
+    "imports": [],
+    "exports": [],
+    "meta": {}
+  },
+  {
+    "path": "src/axios/index.ts",
+    "baseName": "index.ts",
+    "sources": [],
+    "id": "b077038b83c1ef4050649be406937a73c1f41ad3",
+    "name": "index",
+    "extname": ".ts",
+    "imports": [],
+    "exports": [],
+    "meta": {}
+  },
+  {
+    "path": "src/controller/test.ts",
+    "baseName": "test.ts",
+    "sources": [],
+    "id": "a2d277093a81a74c56c0d094071195302d6bb484",
+    "name": "test",
+    "extname": ".ts",
+    "imports": [],
+    "exports": [],
+    "meta": {}
+  },
+  {
+    "path": "src/axios/controller/pet.ts",
+    "baseName": "pet.ts",
+    "sources": [],
+    "id": "8beaaf5e1b1a6b89a11589c2e3dc5fd7f5eb5e8c",
+    "name": "pet",
+    "extname": ".ts",
+    "imports": [],
+    "exports": [],
+    "meta": {}
+  }
+]

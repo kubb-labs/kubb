@@ -21,7 +21,6 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/adapter-oas": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
@@ -42,7 +41,7 @@
   },
   "packageManager": "pnpm@10.30.1",
   "engines": {
-    "node": ">=22",
+    "node": ">=20",
     "pnpm": ">=10.0.0"
   }
 }
