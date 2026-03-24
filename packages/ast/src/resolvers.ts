@@ -4,13 +4,13 @@ import type { SchemaNode } from './nodes/schema.ts'
 import { extractRefName } from './refs.ts'
 import { collect } from './visitor.ts'
 
-export function findDiscriminator(mapping: Record<string, string> | undefined, ref: string | undefined): string | undefined {
-  if (!mapping || !ref) return undefined
-  return Object.entries(mapping).find(([, value]) => value === ref)?.[0]
+export function findDiscriminator(mapping: Record<string, string> | undefined, ref: string | undefined): string | null {
+  if (!mapping || !ref) return null
+  return Object.entries(mapping).find(([, value]) => value === ref)?.[0] ?? null
 }
 
-export function childName(parentName: string | undefined, propName: string): string | undefined {
-  return parentName ? pascalCase([parentName, propName].join(' ')) : undefined
+export function childName(parentName: string | undefined, propName: string): string | null {
+  return parentName ? pascalCase([parentName, propName].join(' ')) : null
 }
 
 export function enumPropName(parentName: string | undefined, propName: string, enumSuffix: string): string {
