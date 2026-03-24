@@ -95,6 +95,25 @@ describe('getSchemas', () => {
     expect(nameMapping.get('#/components/requestBodies/CreatePet')).toBe('CreatePet')
   })
 
+  it('resolves same-source collisions with numeric suffixes', () => {
+    const document: Document = {
+      ...base,
+      components: {
+        schemas: {
+          pet: { type: 'object', properties: { id: { type: 'integer' } } },
+          Pet: { type: 'object', properties: { name: { type: 'string' } } },
+        },
+      },
+    }
+
+    const { schemas, nameMapping } = getSchemas(document, {})
+
+    // first entry keeps original name, second gets numeric suffix
+    expect(Object.keys(schemas).sort()).toEqual(['Pet2', 'pet'])
+    expect(nameMapping.get('#/components/schemas/pet')).toBe('pet')
+    expect(nameMapping.get('#/components/schemas/Pet')).toBe('Pet2')
+  })
+
   it('resolves name collisions across sources with semantic suffixes (Schema, Response)', () => {
     const document: Document = {
       ...base,
@@ -116,6 +135,58 @@ describe('getSchemas', () => {
     expect(Object.keys(schemas).sort()).toEqual(['PetResponse', 'PetSchema'])
     expect(nameMapping.get('#/components/schemas/Pet')).toBe('PetSchema')
     expect(nameMapping.get('#/components/responses/Pet')).toBe('PetResponse')
+  })
+
+  it('resolves three-way collision across all sources with semantic suffixes', () => {
+    const document: Document = {
+      ...base,
+      components: {
+        schemas: {
+          Pet: { type: 'object' },
+        },
+        responses: {
+          Pet: {
+            description: 'Pet response',
+            content: { 'application/json': { schema: { type: 'object', properties: { id: { type: 'integer' } } } } },
+          },
+        },
+        requestBodies: {
+          Pet: {
+            content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } } } } },
+          },
+        },
+      },
+    }
+
+    const { schemas, nameMapping } = getSchemas(document, {})
+
+    expect(Object.keys(schemas).sort()).toEqual(['PetRequest', 'PetResponse', 'PetSchema'])
+    expect(nameMapping.get('#/components/schemas/Pet')).toBe('PetSchema')
+    expect(nameMapping.get('#/components/responses/Pet')).toBe('PetResponse')
+    expect(nameMapping.get('#/components/requestBodies/Pet')).toBe('PetRequest')
+  })
+
+  it('detects collisions from different casing that normalizes to the same PascalCase', () => {
+    const document: Document = {
+      ...base,
+      components: {
+        schemas: {
+          pet_list: { type: 'object', properties: { a: { type: 'string' } } },
+        },
+        responses: {
+          PetList: {
+            description: 'ok',
+            content: { 'application/json': { schema: { type: 'object', properties: { b: { type: 'string' } } } } },
+          },
+        },
+      },
+    }
+
+    const { nameMapping } = getSchemas(document, {})
+
+    // both normalize to PetList → semantic suffixes applied
+    expect(nameMapping.get('#/components/schemas/pet_list')).toBe('pet_listSchema')
+    expect(nameMapping.get('#/components/responses/PetList')).toBe('PetListResponse')
   })
 
   it('sorts schemas by $ref dependency (referenced schema appears first)', () => {
