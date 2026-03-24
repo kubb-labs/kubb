@@ -1,6 +1,5 @@
 import type { ParserOptions } from '@kubb/ast/types'
 import type { AdapterFactoryOptions } from '@kubb/core'
-import type { Oas as OasClass } from './oas/Oas.ts'
 import type { contentType } from './oas/types.ts'
 
 /**
@@ -25,10 +24,6 @@ export type OasAdapterOptions = {
    * @default true
    */
   validate?: boolean
-  /**
-   * Override the `Oas` class, e.g. to inject custom behaviour via a subclass.
-   */
-  oasClass?: typeof OasClass
   /**
    * Preferred content-type used when extracting request/response schemas.
    * Defaults to the first valid JSON media type found in the spec.
@@ -65,7 +60,6 @@ export type OasAdapterOptions = {
  */
 export type OasAdapterResolvedOptions = {
   validate: boolean
-  oasClass: OasAdapterOptions['oasClass']
   contentType: OasAdapterOptions['contentType']
   serverIndex: OasAdapterOptions['serverIndex']
   serverVariables: OasAdapterOptions['serverVariables']
