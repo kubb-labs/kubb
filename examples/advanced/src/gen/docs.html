@@ -148,22 +148,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "content": {
-                    "application/json": {
-                      "schema": {
-                        "properties": {
-                          "code": {
-                            "format": "int32",
-                            "type": "integer"
-                          },
-                          "message": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "description": "Pet not found"
+                  "$ref": "#/components/responses/PetNotFound"
                 }
               }
             }
@@ -264,92 +249,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "required": [
-                  "name",
-                  "photoUrls"
-                ],
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
-                  },
-                  "name": {
-                    "type": "string",
-                    "example": "doggie"
-                  },
-                  "category": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "example": 1
-                      },
-                      "name": {
-                        "type": "string",
-                        "example": "Dogs"
-                      }
-                    },
-                    "xml": {
-                      "name": "category"
-                    },
-                    "x-readme-ref-name": "Category"
-                  },
-                  "photoUrls": {
-                    "type": "array",
-                    "xml": {
-                      "wrapped": true
-                    },
-                    "items": {
-                      "type": "string",
-                      "xml": {
-                        "name": "photoUrl"
-                      }
-                    }
-                  },
-                  "tags": {
-                    "type": "array",
-                    "xml": {
-                      "wrapped": true
-                    },
-                    "items": {
-                      "deprecated": true,
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "format": "int64",
-                          "minLength": 5,
-                          "maxLength": 7,
-                          "default": 1,
-                          "deprecated": true
-                        },
-                        "name": {
-                          "type": "string"
-                        }
-                      },
-                      "xml": {
-                        "name": "tag"
-                      },
-                      "x-readme-ref-name": "tag.Tag"
-                    }
-                  },
-                  "status": {
-                    "type": "string",
-                    "description": "pet status in the store",
-                    "enum": [
-                      "available",
-                      "pending",
-                      "sold"
-                    ]
-                  }
-                },
-                "xml": {
-                  "name": "pet"
-                },
-                "x-readme-ref-name": "AddPetRequest"
+                "$ref": "#/components/schemas/AddPetRequest"
               }
             },
             "application/xml": {
@@ -382,7 +282,7 @@
                 }
               }
             },
-            "description": "Invalid input"
+            "description": "Pet not found"
           },
           "default": {
             "description": "Successful operation",
@@ -490,22 +390,10 @@
             }
           },
           {
-            "description": "to request with required page number or pagination",
-            "in": "query",
-            "name": "page",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/page"
           },
           {
-            "description": "to request with required page size",
-            "in": "query",
-            "name": "pageSize",
-            "required": false,
-            "schema": {
-              "type": "number"
-            }
+            "$ref": "#/components/parameters/pageSize"
           },
           {
             "description": "Header parameters",
@@ -784,23 +672,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "code": {
-                      "type": "integer",
-                      "format": "int32"
-                    },
-                    "type": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  },
-                  "xml": {
-                    "name": "##default"
-                  },
-                  "x-readme-ref-name": "ApiResponse"
+                  "$ref": "#/components/schemas/ApiResponse"
                 }
               }
             }
@@ -859,281 +731,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10,
-                    "minLength": 3,
-                    "maxLength": 100
-                  },
-                  "petId": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 198772
-                  },
-                  "params": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string",
-                        "description": "Order Status",
-                        "example": "approved",
-                        "enum": [
-                          "placed",
-                          "approved",
-                          "delivered"
-                        ]
-                      },
-                      "type": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "status",
-                      "type"
-                    ]
-                  },
-                  "quantity": {
-                    "type": "integer",
-                    "format": "int32",
-                    "example": 7
-                  },
-                  "orderType": {
-                    "type": "string",
-                    "enum": [
-                      "foo",
-                      "bar"
-                    ]
-                  },
-                  "type": {
-                    "type": "string",
-                    "description": "Order Status",
-                    "example": "approved"
-                  },
-                  "shipDate": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "status": {
-                    "type": "string",
-                    "description": "Order Status",
-                    "example": "approved",
-                    "enum": [
-                      "placed",
-                      "approved",
-                      "delivered"
-                    ]
-                  },
-                  "http_status": {
-                    "type": "number",
-                    "description": "HTTP Status",
-                    "example": 200,
-                    "enum": [
-                      200,
-                      400,
-                      500
-                    ],
-                    "x-enumNames": [
-                      "ok",
-                      "not_found"
-                    ]
-                  },
-                  "complete": {
-                    "type": "boolean"
-                  }
-                },
-                "xml": {
-                  "name": "order"
-                },
-                "x-readme-ref-name": "Order"
+                "$ref": "#/components/schemas/Order"
               }
             },
             "application/xml": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10,
-                    "minLength": 3,
-                    "maxLength": 100
-                  },
-                  "petId": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 198772
-                  },
-                  "params": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string",
-                        "description": "Order Status",
-                        "example": "approved",
-                        "enum": [
-                          "placed",
-                          "approved",
-                          "delivered"
-                        ]
-                      },
-                      "type": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "status",
-                      "type"
-                    ]
-                  },
-                  "quantity": {
-                    "type": "integer",
-                    "format": "int32",
-                    "example": 7
-                  },
-                  "orderType": {
-                    "type": "string",
-                    "enum": [
-                      "foo",
-                      "bar"
-                    ]
-                  },
-                  "type": {
-                    "type": "string",
-                    "description": "Order Status",
-                    "example": "approved"
-                  },
-                  "shipDate": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "status": {
-                    "type": "string",
-                    "description": "Order Status",
-                    "example": "approved",
-                    "enum": [
-                      "placed",
-                      "approved",
-                      "delivered"
-                    ]
-                  },
-                  "http_status": {
-                    "type": "number",
-                    "description": "HTTP Status",
-                    "example": 200,
-                    "enum": [
-                      200,
-                      400,
-                      500
-                    ],
-                    "x-enumNames": [
-                      "ok",
-                      "not_found"
-                    ]
-                  },
-                  "complete": {
-                    "type": "boolean"
-                  }
-                },
-                "xml": {
-                  "name": "order"
-                },
-                "x-readme-ref-name": "Order"
+                "$ref": "#/components/schemas/Order"
               }
             },
             "application/x-www-form-urlencoded": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10,
-                    "minLength": 3,
-                    "maxLength": 100
-                  },
-                  "petId": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 198772
-                  },
-                  "params": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string",
-                        "description": "Order Status",
-                        "example": "approved",
-                        "enum": [
-                          "placed",
-                          "approved",
-                          "delivered"
-                        ]
-                      },
-                      "type": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "status",
-                      "type"
-                    ]
-                  },
-                  "quantity": {
-                    "type": "integer",
-                    "format": "int32",
-                    "example": 7
-                  },
-                  "orderType": {
-                    "type": "string",
-                    "enum": [
-                      "foo",
-                      "bar"
-                    ]
-                  },
-                  "type": {
-                    "type": "string",
-                    "description": "Order Status",
-                    "example": "approved"
-                  },
-                  "shipDate": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "status": {
-                    "type": "string",
-                    "description": "Order Status",
-                    "example": "approved",
-                    "enum": [
-                      "placed",
-                      "approved",
-                      "delivered"
-                    ]
-                  },
-                  "http_status": {
-                    "type": "number",
-                    "description": "HTTP Status",
-                    "example": 200,
-                    "enum": [
-                      200,
-                      400,
-                      500
-                    ],
-                    "x-enumNames": [
-                      "ok",
-                      "not_found"
-                    ]
-                  },
-                  "complete": {
-                    "type": "boolean"
-                  }
-                },
-                "xml": {
-                  "name": "order"
-                },
-                "x-readme-ref-name": "Order"
+                "$ref": "#/components/schemas/Order"
               }
             }
           }
@@ -1144,95 +752,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10,
-                      "minLength": 3,
-                      "maxLength": 100
-                    },
-                    "petId": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 198772
-                    },
-                    "params": {
-                      "type": "object",
-                      "properties": {
-                        "status": {
-                          "type": "string",
-                          "description": "Order Status",
-                          "example": "approved",
-                          "enum": [
-                            "placed",
-                            "approved",
-                            "delivered"
-                          ]
-                        },
-                        "type": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "status",
-                        "type"
-                      ]
-                    },
-                    "quantity": {
-                      "type": "integer",
-                      "format": "int32",
-                      "example": 7
-                    },
-                    "orderType": {
-                      "type": "string",
-                      "enum": [
-                        "foo",
-                        "bar"
-                      ]
-                    },
-                    "type": {
-                      "type": "string",
-                      "description": "Order Status",
-                      "example": "approved"
-                    },
-                    "shipDate": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "status": {
-                      "type": "string",
-                      "description": "Order Status",
-                      "example": "approved",
-                      "enum": [
-                        "placed",
-                        "approved",
-                        "delivered"
-                      ]
-                    },
-                    "http_status": {
-                      "type": "number",
-                      "description": "HTTP Status",
-                      "example": 200,
-                      "enum": [
-                        200,
-                        400,
-                        500
-                      ],
-                      "x-enumNames": [
-                        "ok",
-                        "not_found"
-                      ]
-                    },
-                    "complete": {
-                      "type": "boolean"
-                    }
-                  },
-                  "xml": {
-                    "name": "order"
-                  },
-                  "x-readme-ref-name": "Order"
+                  "$ref": "#/components/schemas/Order"
                 }
               }
             }
@@ -1253,281 +773,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10,
-                    "minLength": 3,
-                    "maxLength": 100
-                  },
-                  "petId": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 198772
-                  },
-                  "params": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string",
-                        "description": "Order Status",
-                        "example": "approved",
-                        "enum": [
-                          "placed",
-                          "approved",
-                          "delivered"
-                        ]
-                      },
-                      "type": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "status",
-                      "type"
-                    ]
-                  },
-                  "quantity": {
-                    "type": "integer",
-                    "format": "int32",
-                    "example": 7
-                  },
-                  "orderType": {
-                    "type": "string",
-                    "enum": [
-                      "foo",
-                      "bar"
-                    ]
-                  },
-                  "type": {
-                    "type": "string",
-                    "description": "Order Status",
-                    "example": "approved"
-                  },
-                  "shipDate": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "status": {
-                    "type": "string",
-                    "description": "Order Status",
-                    "example": "approved",
-                    "enum": [
-                      "placed",
-                      "approved",
-                      "delivered"
-                    ]
-                  },
-                  "http_status": {
-                    "type": "number",
-                    "description": "HTTP Status",
-                    "example": 200,
-                    "enum": [
-                      200,
-                      400,
-                      500
-                    ],
-                    "x-enumNames": [
-                      "ok",
-                      "not_found"
-                    ]
-                  },
-                  "complete": {
-                    "type": "boolean"
-                  }
-                },
-                "xml": {
-                  "name": "order"
-                },
-                "x-readme-ref-name": "Order"
+                "$ref": "#/components/schemas/Order"
               }
             },
             "application/xml": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10,
-                    "minLength": 3,
-                    "maxLength": 100
-                  },
-                  "petId": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 198772
-                  },
-                  "params": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string",
-                        "description": "Order Status",
-                        "example": "approved",
-                        "enum": [
-                          "placed",
-                          "approved",
-                          "delivered"
-                        ]
-                      },
-                      "type": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "status",
-                      "type"
-                    ]
-                  },
-                  "quantity": {
-                    "type": "integer",
-                    "format": "int32",
-                    "example": 7
-                  },
-                  "orderType": {
-                    "type": "string",
-                    "enum": [
-                      "foo",
-                      "bar"
-                    ]
-                  },
-                  "type": {
-                    "type": "string",
-                    "description": "Order Status",
-                    "example": "approved"
-                  },
-                  "shipDate": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "status": {
-                    "type": "string",
-                    "description": "Order Status",
-                    "example": "approved",
-                    "enum": [
-                      "placed",
-                      "approved",
-                      "delivered"
-                    ]
-                  },
-                  "http_status": {
-                    "type": "number",
-                    "description": "HTTP Status",
-                    "example": 200,
-                    "enum": [
-                      200,
-                      400,
-                      500
-                    ],
-                    "x-enumNames": [
-                      "ok",
-                      "not_found"
-                    ]
-                  },
-                  "complete": {
-                    "type": "boolean"
-                  }
-                },
-                "xml": {
-                  "name": "order"
-                },
-                "x-readme-ref-name": "Order"
+                "$ref": "#/components/schemas/Order"
               }
             },
             "application/x-www-form-urlencoded": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10,
-                    "minLength": 3,
-                    "maxLength": 100
-                  },
-                  "petId": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 198772
-                  },
-                  "params": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string",
-                        "description": "Order Status",
-                        "example": "approved",
-                        "enum": [
-                          "placed",
-                          "approved",
-                          "delivered"
-                        ]
-                      },
-                      "type": {
-                        "type": "string"
-                      }
-                    },
-                    "required": [
-                      "status",
-                      "type"
-                    ]
-                  },
-                  "quantity": {
-                    "type": "integer",
-                    "format": "int32",
-                    "example": 7
-                  },
-                  "orderType": {
-                    "type": "string",
-                    "enum": [
-                      "foo",
-                      "bar"
-                    ]
-                  },
-                  "type": {
-                    "type": "string",
-                    "description": "Order Status",
-                    "example": "approved"
-                  },
-                  "shipDate": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "status": {
-                    "type": "string",
-                    "description": "Order Status",
-                    "example": "approved",
-                    "enum": [
-                      "placed",
-                      "approved",
-                      "delivered"
-                    ]
-                  },
-                  "http_status": {
-                    "type": "number",
-                    "description": "HTTP Status",
-                    "example": 200,
-                    "enum": [
-                      200,
-                      400,
-                      500
-                    ],
-                    "x-enumNames": [
-                      "ok",
-                      "not_found"
-                    ]
-                  },
-                  "complete": {
-                    "type": "boolean"
-                  }
-                },
-                "xml": {
-                  "name": "order"
-                },
-                "x-readme-ref-name": "Order"
+                "$ref": "#/components/schemas/Order"
               }
             }
           }
@@ -1538,95 +794,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10,
-                      "minLength": 3,
-                      "maxLength": 100
-                    },
-                    "petId": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 198772
-                    },
-                    "params": {
-                      "type": "object",
-                      "properties": {
-                        "status": {
-                          "type": "string",
-                          "description": "Order Status",
-                          "example": "approved",
-                          "enum": [
-                            "placed",
-                            "approved",
-                            "delivered"
-                          ]
-                        },
-                        "type": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "status",
-                        "type"
-                      ]
-                    },
-                    "quantity": {
-                      "type": "integer",
-                      "format": "int32",
-                      "example": 7
-                    },
-                    "orderType": {
-                      "type": "string",
-                      "enum": [
-                        "foo",
-                        "bar"
-                      ]
-                    },
-                    "type": {
-                      "type": "string",
-                      "description": "Order Status",
-                      "example": "approved"
-                    },
-                    "shipDate": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "status": {
-                      "type": "string",
-                      "description": "Order Status",
-                      "example": "approved",
-                      "enum": [
-                        "placed",
-                        "approved",
-                        "delivered"
-                      ]
-                    },
-                    "http_status": {
-                      "type": "number",
-                      "description": "HTTP Status",
-                      "example": 200,
-                      "enum": [
-                        200,
-                        400,
-                        500
-                      ],
-                      "x-enumNames": [
-                        "ok",
-                        "not_found"
-                      ]
-                    },
-                    "complete": {
-                      "type": "boolean"
-                    }
-                  },
-                  "xml": {
-                    "name": "order"
-                  },
-                  "x-readme-ref-name": "Order"
+                  "$ref": "#/components/schemas/Order"
                 }
               }
             }
@@ -1663,188 +831,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10,
-                      "minLength": 3,
-                      "maxLength": 100
-                    },
-                    "petId": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 198772
-                    },
-                    "params": {
-                      "type": "object",
-                      "properties": {
-                        "status": {
-                          "type": "string",
-                          "description": "Order Status",
-                          "example": "approved",
-                          "enum": [
-                            "placed",
-                            "approved",
-                            "delivered"
-                          ]
-                        },
-                        "type": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "status",
-                        "type"
-                      ]
-                    },
-                    "quantity": {
-                      "type": "integer",
-                      "format": "int32",
-                      "example": 7
-                    },
-                    "orderType": {
-                      "type": "string",
-                      "enum": [
-                        "foo",
-                        "bar"
-                      ]
-                    },
-                    "type": {
-                      "type": "string",
-                      "description": "Order Status",
-                      "example": "approved"
-                    },
-                    "shipDate": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "status": {
-                      "type": "string",
-                      "description": "Order Status",
-                      "example": "approved",
-                      "enum": [
-                        "placed",
-                        "approved",
-                        "delivered"
-                      ]
-                    },
-                    "http_status": {
-                      "type": "number",
-                      "description": "HTTP Status",
-                      "example": 200,
-                      "enum": [
-                        200,
-                        400,
-                        500
-                      ],
-                      "x-enumNames": [
-                        "ok",
-                        "not_found"
-                      ]
-                    },
-                    "complete": {
-                      "type": "boolean"
-                    }
-                  },
-                  "xml": {
-                    "name": "order"
-                  },
-                  "x-readme-ref-name": "Order"
+                  "$ref": "#/components/schemas/Order"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10,
-                      "minLength": 3,
-                      "maxLength": 100
-                    },
-                    "petId": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 198772
-                    },
-                    "params": {
-                      "type": "object",
-                      "properties": {
-                        "status": {
-                          "type": "string",
-                          "description": "Order Status",
-                          "example": "approved",
-                          "enum": [
-                            "placed",
-                            "approved",
-                            "delivered"
-                          ]
-                        },
-                        "type": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "status",
-                        "type"
-                      ]
-                    },
-                    "quantity": {
-                      "type": "integer",
-                      "format": "int32",
-                      "example": 7
-                    },
-                    "orderType": {
-                      "type": "string",
-                      "enum": [
-                        "foo",
-                        "bar"
-                      ]
-                    },
-                    "type": {
-                      "type": "string",
-                      "description": "Order Status",
-                      "example": "approved"
-                    },
-                    "shipDate": {
-                      "type": "string",
-                      "format": "date-time"
-                    },
-                    "status": {
-                      "type": "string",
-                      "description": "Order Status",
-                      "example": "approved",
-                      "enum": [
-                        "placed",
-                        "approved",
-                        "delivered"
-                      ]
-                    },
-                    "http_status": {
-                      "type": "number",
-                      "description": "HTTP Status",
-                      "example": 200,
-                      "enum": [
-                        200,
-                        400,
-                        500
-                      ],
-                      "x-enumNames": [
-                        "ok",
-                        "not_found"
-                      ]
-                    },
-                    "complete": {
-                      "type": "boolean"
-                    }
-                  },
-                  "xml": {
-                    "name": "order"
-                  },
-                  "x-readme-ref-name": "Order"
+                  "$ref": "#/components/schemas/Order"
                 }
               }
             }
@@ -1899,227 +891,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
-                  },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "uuid": {
-                    "type": "string",
-                    "format": "uuid",
-                    "deprecated": true
-                  },
-                  "tag": {
-                    "deprecated": true,
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "minLength": 5,
-                        "maxLength": 7,
-                        "default": 1,
-                        "deprecated": true
-                      },
-                      "name": {
-                        "type": "string"
-                      }
-                    },
-                    "xml": {
-                      "name": "tag"
-                    },
-                    "x-readme-ref-name": "tag.Tag",
-                    "description": "The active tag",
-                    "readOnly": true
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
-                  }
-                },
-                "xml": {
-                  "name": "user"
-                },
-                "x-readme-ref-name": "User"
+                "$ref": "#/components/schemas/User"
               }
             },
             "application/xml": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
-                  },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "uuid": {
-                    "type": "string",
-                    "format": "uuid",
-                    "deprecated": true
-                  },
-                  "tag": {
-                    "deprecated": true,
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "minLength": 5,
-                        "maxLength": 7,
-                        "default": 1,
-                        "deprecated": true
-                      },
-                      "name": {
-                        "type": "string"
-                      }
-                    },
-                    "xml": {
-                      "name": "tag"
-                    },
-                    "x-readme-ref-name": "tag.Tag",
-                    "description": "The active tag",
-                    "readOnly": true
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
-                  }
-                },
-                "xml": {
-                  "name": "user"
-                },
-                "x-readme-ref-name": "User"
+                "$ref": "#/components/schemas/User"
               }
             },
             "application/x-www-form-urlencoded": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
-                  },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "uuid": {
-                    "type": "string",
-                    "format": "uuid",
-                    "deprecated": true
-                  },
-                  "tag": {
-                    "deprecated": true,
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "minLength": 5,
-                        "maxLength": 7,
-                        "default": 1,
-                        "deprecated": true
-                      },
-                      "name": {
-                        "type": "string"
-                      }
-                    },
-                    "xml": {
-                      "name": "tag"
-                    },
-                    "x-readme-ref-name": "tag.Tag",
-                    "description": "The active tag",
-                    "readOnly": true
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
-                  }
-                },
-                "xml": {
-                  "name": "user"
-                },
-                "x-readme-ref-name": "User"
+                "$ref": "#/components/schemas/User"
               }
             }
           }
@@ -2130,152 +912,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10
-                    },
-                    "username": {
-                      "type": "string",
-                      "example": "theUser"
-                    },
-                    "uuid": {
-                      "type": "string",
-                      "format": "uuid",
-                      "deprecated": true
-                    },
-                    "tag": {
-                      "deprecated": true,
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "format": "int64",
-                          "minLength": 5,
-                          "maxLength": 7,
-                          "default": 1,
-                          "deprecated": true
-                        },
-                        "name": {
-                          "type": "string"
-                        }
-                      },
-                      "xml": {
-                        "name": "tag"
-                      },
-                      "x-readme-ref-name": "tag.Tag",
-                      "description": "The active tag",
-                      "readOnly": true
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "James"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email",
-                      "example": "john@email.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "userStatus": {
-                      "type": "integer",
-                      "description": "User Status",
-                      "format": "int32",
-                      "example": 1
-                    }
-                  },
-                  "xml": {
-                    "name": "user"
-                  },
-                  "x-readme-ref-name": "User"
+                  "$ref": "#/components/schemas/User"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10
-                    },
-                    "username": {
-                      "type": "string",
-                      "example": "theUser"
-                    },
-                    "uuid": {
-                      "type": "string",
-                      "format": "uuid",
-                      "deprecated": true
-                    },
-                    "tag": {
-                      "deprecated": true,
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "format": "int64",
-                          "minLength": 5,
-                          "maxLength": 7,
-                          "default": 1,
-                          "deprecated": true
-                        },
-                        "name": {
-                          "type": "string"
-                        }
-                      },
-                      "xml": {
-                        "name": "tag"
-                      },
-                      "x-readme-ref-name": "tag.Tag",
-                      "description": "The active tag",
-                      "readOnly": true
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "James"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email",
-                      "example": "john@email.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "userStatus": {
-                      "type": "integer",
-                      "description": "User Status",
-                      "format": "int32",
-                      "example": 1
-                    }
-                  },
-                  "xml": {
-                    "name": "user"
-                  },
-                  "x-readme-ref-name": "User"
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
@@ -2297,77 +939,7 @@
               "schema": {
                 "type": "array",
                 "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10
-                    },
-                    "username": {
-                      "type": "string",
-                      "example": "theUser"
-                    },
-                    "uuid": {
-                      "type": "string",
-                      "format": "uuid",
-                      "deprecated": true
-                    },
-                    "tag": {
-                      "deprecated": true,
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "format": "int64",
-                          "minLength": 5,
-                          "maxLength": 7,
-                          "default": 1,
-                          "deprecated": true
-                        },
-                        "name": {
-                          "type": "string"
-                        }
-                      },
-                      "xml": {
-                        "name": "tag"
-                      },
-                      "x-readme-ref-name": "tag.Tag",
-                      "description": "The active tag",
-                      "readOnly": true
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "James"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email",
-                      "example": "john@email.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "userStatus": {
-                      "type": "integer",
-                      "description": "User Status",
-                      "format": "int32",
-                      "example": 1
-                    }
-                  },
-                  "xml": {
-                    "name": "user"
-                  },
-                  "x-readme-ref-name": "User"
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
@@ -2379,152 +951,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10
-                    },
-                    "username": {
-                      "type": "string",
-                      "example": "theUser"
-                    },
-                    "uuid": {
-                      "type": "string",
-                      "format": "uuid",
-                      "deprecated": true
-                    },
-                    "tag": {
-                      "deprecated": true,
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "format": "int64",
-                          "minLength": 5,
-                          "maxLength": 7,
-                          "default": 1,
-                          "deprecated": true
-                        },
-                        "name": {
-                          "type": "string"
-                        }
-                      },
-                      "xml": {
-                        "name": "tag"
-                      },
-                      "x-readme-ref-name": "tag.Tag",
-                      "description": "The active tag",
-                      "readOnly": true
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "James"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email",
-                      "example": "john@email.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "userStatus": {
-                      "type": "integer",
-                      "description": "User Status",
-                      "format": "int32",
-                      "example": 1
-                    }
-                  },
-                  "xml": {
-                    "name": "user"
-                  },
-                  "x-readme-ref-name": "User"
+                  "$ref": "#/components/schemas/User"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10
-                    },
-                    "username": {
-                      "type": "string",
-                      "example": "theUser"
-                    },
-                    "uuid": {
-                      "type": "string",
-                      "format": "uuid",
-                      "deprecated": true
-                    },
-                    "tag": {
-                      "deprecated": true,
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "format": "int64",
-                          "minLength": 5,
-                          "maxLength": 7,
-                          "default": 1,
-                          "deprecated": true
-                        },
-                        "name": {
-                          "type": "string"
-                        }
-                      },
-                      "xml": {
-                        "name": "tag"
-                      },
-                      "x-readme-ref-name": "tag.Tag",
-                      "description": "The active tag",
-                      "readOnly": true
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "James"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email",
-                      "example": "john@email.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "userStatus": {
-                      "type": "integer",
-                      "description": "User Status",
-                      "format": "int32",
-                      "example": 1
-                    }
-                  },
-                  "xml": {
-                    "name": "user"
-                  },
-                  "x-readme-ref-name": "User"
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
@@ -2642,152 +1074,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10
-                    },
-                    "username": {
-                      "type": "string",
-                      "example": "theUser"
-                    },
-                    "uuid": {
-                      "type": "string",
-                      "format": "uuid",
-                      "deprecated": true
-                    },
-                    "tag": {
-                      "deprecated": true,
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "format": "int64",
-                          "minLength": 5,
-                          "maxLength": 7,
-                          "default": 1,
-                          "deprecated": true
-                        },
-                        "name": {
-                          "type": "string"
-                        }
-                      },
-                      "xml": {
-                        "name": "tag"
-                      },
-                      "x-readme-ref-name": "tag.Tag",
-                      "description": "The active tag",
-                      "readOnly": true
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "James"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email",
-                      "example": "john@email.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "userStatus": {
-                      "type": "integer",
-                      "description": "User Status",
-                      "format": "int32",
-                      "example": 1
-                    }
-                  },
-                  "xml": {
-                    "name": "user"
-                  },
-                  "x-readme-ref-name": "User"
+                  "$ref": "#/components/schemas/User"
                 }
               },
               "application/xml": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer",
-                      "format": "int64",
-                      "example": 10
-                    },
-                    "username": {
-                      "type": "string",
-                      "example": "theUser"
-                    },
-                    "uuid": {
-                      "type": "string",
-                      "format": "uuid",
-                      "deprecated": true
-                    },
-                    "tag": {
-                      "deprecated": true,
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "integer",
-                          "format": "int64",
-                          "minLength": 5,
-                          "maxLength": 7,
-                          "default": 1,
-                          "deprecated": true
-                        },
-                        "name": {
-                          "type": "string"
-                        }
-                      },
-                      "xml": {
-                        "name": "tag"
-                      },
-                      "x-readme-ref-name": "tag.Tag",
-                      "description": "The active tag",
-                      "readOnly": true
-                    },
-                    "firstName": {
-                      "type": "string",
-                      "example": "John"
-                    },
-                    "lastName": {
-                      "type": "string",
-                      "example": "James"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email",
-                      "example": "john@email.com"
-                    },
-                    "password": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "phone": {
-                      "type": "string",
-                      "example": "12345"
-                    },
-                    "userStatus": {
-                      "type": "integer",
-                      "description": "User Status",
-                      "format": "int32",
-                      "example": 1
-                    }
-                  },
-                  "xml": {
-                    "name": "user"
-                  },
-                  "x-readme-ref-name": "User"
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
@@ -2823,227 +1115,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
-                  },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "uuid": {
-                    "type": "string",
-                    "format": "uuid",
-                    "deprecated": true
-                  },
-                  "tag": {
-                    "deprecated": true,
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "minLength": 5,
-                        "maxLength": 7,
-                        "default": 1,
-                        "deprecated": true
-                      },
-                      "name": {
-                        "type": "string"
-                      }
-                    },
-                    "xml": {
-                      "name": "tag"
-                    },
-                    "x-readme-ref-name": "tag.Tag",
-                    "description": "The active tag",
-                    "readOnly": true
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
-                  }
-                },
-                "xml": {
-                  "name": "user"
-                },
-                "x-readme-ref-name": "User"
+                "$ref": "#/components/schemas/User"
               }
             },
             "application/xml": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
-                  },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "uuid": {
-                    "type": "string",
-                    "format": "uuid",
-                    "deprecated": true
-                  },
-                  "tag": {
-                    "deprecated": true,
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "minLength": 5,
-                        "maxLength": 7,
-                        "default": 1,
-                        "deprecated": true
-                      },
-                      "name": {
-                        "type": "string"
-                      }
-                    },
-                    "xml": {
-                      "name": "tag"
-                    },
-                    "x-readme-ref-name": "tag.Tag",
-                    "description": "The active tag",
-                    "readOnly": true
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
-                  }
-                },
-                "xml": {
-                  "name": "user"
-                },
-                "x-readme-ref-name": "User"
+                "$ref": "#/components/schemas/User"
               }
             },
             "application/x-www-form-urlencoded": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
-                  },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "uuid": {
-                    "type": "string",
-                    "format": "uuid",
-                    "deprecated": true
-                  },
-                  "tag": {
-                    "deprecated": true,
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "minLength": 5,
-                        "maxLength": 7,
-                        "default": 1,
-                        "deprecated": true
-                      },
-                      "name": {
-                        "type": "string"
-                      }
-                    },
-                    "xml": {
-                      "name": "tag"
-                    },
-                    "x-readme-ref-name": "tag.Tag",
-                    "description": "The active tag",
-                    "readOnly": true
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
-                  }
-                },
-                "xml": {
-                  "name": "user"
-                },
-                "x-readme-ref-name": "User"
+                "$ref": "#/components/schemas/User"
               }
             }
           }
@@ -3173,8 +1255,7 @@
         },
         "xml": {
           "name": "order"
-        },
-        "x-readme-ref-name": "Order"
+        }
       },
       "Customer": {
         "type": "object",
@@ -3217,36 +1298,13 @@
               "wrapped": true
             },
             "items": {
-              "type": "object",
-              "properties": {
-                "street": {
-                  "type": "string",
-                  "example": "437 Lytton"
-                },
-                "city": {
-                  "type": "string",
-                  "example": "Palo Alto"
-                },
-                "state": {
-                  "type": "string",
-                  "example": "CA"
-                },
-                "zip": {
-                  "type": "string",
-                  "example": "94301"
-                }
-              },
-              "xml": {
-                "name": "address"
-              },
-              "x-readme-ref-name": "Address"
+              "$ref": "#/components/schemas/Address"
             }
           }
         },
         "xml": {
           "name": "customer"
-        },
-        "x-readme-ref-name": "Customer"
+        }
       },
       "Address": {
         "type": "object",
@@ -3270,8 +1328,7 @@
         },
         "xml": {
           "name": "address"
-        },
-        "x-readme-ref-name": "Address"
+        }
       },
       "Category": {
         "type": "object",
@@ -3288,8 +1345,7 @@
         },
         "xml": {
           "name": "category"
-        },
-        "x-readme-ref-name": "Category"
+        }
       },
       "User": {
         "type": "object",
@@ -3309,27 +1365,10 @@
             "deprecated": true
           },
           "tag": {
-            "deprecated": true,
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer",
-                "format": "int64",
-                "minLength": 5,
-                "maxLength": 7,
-                "default": 1,
-                "deprecated": true
-              },
-              "name": {
-                "type": "string"
-              }
-            },
-            "xml": {
-              "name": "tag"
-            },
-            "x-readme-ref-name": "tag.Tag",
             "description": "The active tag",
-            "readOnly": true
+            "readOnly": true,
+            "type": "object",
+            "$ref": "#/components/schemas/tag.Tag"
           },
           "firstName": {
             "type": "string",
@@ -3361,8 +1400,7 @@
         },
         "xml": {
           "name": "user"
-        },
-        "x-readme-ref-name": "User"
+        }
       },
       "tag.Tag": {
         "deprecated": true,
@@ -3382,8 +1420,7 @@
         },
         "xml": {
           "name": "tag"
-        },
-        "x-readme-ref-name": "tag.Tag"
+        }
       },
       "Pet": {
         "required": [
@@ -3419,22 +1456,7 @@
             "maxLength": 255
           },
           "category": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer",
-                "format": "int64",
-                "example": 1
-              },
-              "name": {
-                "type": "string",
-                "example": "Dogs"
-              }
-            },
-            "xml": {
-              "name": "category"
-            },
-            "x-readme-ref-name": "Category"
+            "$ref": "#/components/schemas/Category"
           },
           "photoUrls": {
             "type": "array",
@@ -3454,25 +1476,7 @@
               "wrapped": true
             },
             "items": {
-              "deprecated": true,
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "integer",
-                  "format": "int64",
-                  "minLength": 5,
-                  "maxLength": 7,
-                  "default": 1,
-                  "deprecated": true
-                },
-                "name": {
-                  "type": "string"
-                }
-              },
-              "xml": {
-                "name": "tag"
-              },
-              "x-readme-ref-name": "tag.Tag"
+              "$ref": "#/components/schemas/tag.Tag"
             }
           },
           "status": {
@@ -3487,8 +1491,7 @@
         },
         "xml": {
           "name": "pet"
-        },
-        "x-readme-ref-name": "Pet"
+        }
       },
       "AddPetRequest": {
         "required": [
@@ -3507,22 +1510,7 @@
             "example": "doggie"
           },
           "category": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer",
-                "format": "int64",
-                "example": 1
-              },
-              "name": {
-                "type": "string",
-                "example": "Dogs"
-              }
-            },
-            "xml": {
-              "name": "category"
-            },
-            "x-readme-ref-name": "Category"
+            "$ref": "#/components/schemas/Category"
           },
           "photoUrls": {
             "type": "array",
@@ -3542,25 +1530,7 @@
               "wrapped": true
             },
             "items": {
-              "deprecated": true,
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "integer",
-                  "format": "int64",
-                  "minLength": 5,
-                  "maxLength": 7,
-                  "default": 1,
-                  "deprecated": true
-                },
-                "name": {
-                  "type": "string"
-                }
-              },
-              "xml": {
-                "name": "tag"
-              },
-              "x-readme-ref-name": "tag.Tag"
+              "$ref": "#/components/schemas/tag.Tag"
             }
           },
           "status": {
@@ -3575,8 +1545,7 @@
         },
         "xml": {
           "name": "pet"
-        },
-        "x-readme-ref-name": "AddPetRequest"
+        }
       },
       "ApiResponse": {
         "type": "object",
@@ -3594,8 +1563,7 @@
         },
         "xml": {
           "name": "##default"
-        },
-        "x-readme-ref-name": "ApiResponse"
+        }
       },
       "Animal": {
         "title": "Animal",
@@ -3605,58 +1573,10 @@
         "type": "object",
         "oneOf": [
           {
-            "title": "Cat",
-            "type": "object",
-            "required": [
-              "indoor",
-              "type"
-            ],
-            "properties": {
-              "type": {
-                "type": "string",
-                "minLength": 1,
-                "readOnly": true
-              },
-              "name": {
-                "type": "string"
-              },
-              "indoor": {
-                "type": "boolean"
-              }
-            },
-            "additionalProperties": false,
-            "x-readme-ref-name": "Cat"
+            "$ref": "#/components/schemas/Cat"
           },
           {
-            "title": "Dog",
-            "type": "object",
-            "required": [
-              "name",
-              "type"
-            ],
-            "properties": {
-              "type": {
-                "type": "string",
-                "minLength": 1,
-                "readOnly": true
-              },
-              "name": {
-                "type": "string"
-              },
-              "image": {
-                "example": "linode/debian10",
-                "readOnly": true,
-                "allOf": [
-                  {
-                    "type": "string",
-                    "nullable": true
-                  }
-                ],
-                "x-readme-ref-name": "Image"
-              }
-            },
-            "additionalProperties": false,
-            "x-readme-ref-name": "Dog"
+            "$ref": "#/components/schemas/Dog"
           }
         ],
         "properties": {
@@ -3677,8 +1597,7 @@
             "cat": "#/components/schemas/Cat",
             "dog": "#/components/schemas/Dog"
           }
-        },
-        "x-readme-ref-name": "Animal"
+        }
       },
       "Cat": {
         "title": "Cat",
@@ -3700,8 +1619,7 @@
             "type": "boolean"
           }
         },
-        "additionalProperties": false,
-        "x-readme-ref-name": "Cat"
+        "additionalProperties": false
       },
       "Image": {
         "example": "linode/debian10",
@@ -3711,8 +1629,7 @@
             "type": "string",
             "nullable": true
           }
-        ],
-        "x-readme-ref-name": "Image"
+        ]
       },
       "Dog": {
         "title": "Dog",
@@ -3731,19 +1648,10 @@
             "type": "string"
           },
           "image": {
-            "example": "linode/debian10",
-            "readOnly": true,
-            "allOf": [
-              {
-                "type": "string",
-                "nullable": true
-              }
-            ],
-            "x-readme-ref-name": "Image"
+            "$ref": "#/components/schemas/Image"
           }
         },
-        "additionalProperties": false,
-        "x-readme-ref-name": "Dog"
+        "additionalProperties": false
       }
     },
     "requestBodies": {
@@ -3769,77 +1677,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "format": "int64",
-                    "example": 10
-                  },
-                  "username": {
-                    "type": "string",
-                    "example": "theUser"
-                  },
-                  "uuid": {
-                    "type": "string",
-                    "format": "uuid",
-                    "deprecated": true
-                  },
-                  "tag": {
-                    "deprecated": true,
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "minLength": 5,
-                        "maxLength": 7,
-                        "default": 1,
-                        "deprecated": true
-                      },
-                      "name": {
-                        "type": "string"
-                      }
-                    },
-                    "xml": {
-                      "name": "tag"
-                    },
-                    "x-readme-ref-name": "tag.Tag",
-                    "description": "The active tag",
-                    "readOnly": true
-                  },
-                  "firstName": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "example": "James"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "john@email.com"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "userStatus": {
-                    "type": "integer",
-                    "description": "User Status",
-                    "format": "int32",
-                    "example": 1
-                  }
-                },
-                "xml": {
-                  "name": "user"
-                },
-                "x-readme-ref-name": "User"
+                "$ref": "#/components/schemas/User"
               }
             }
           }

@@ -47,7 +47,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
   // Let-binding so parse() can replace it with a simple reassignment (no clear+loop).
   let nameMapping = new Map<string, string>()
-  let parsedDocument: Document | undefined = undefined
+  let parsedDocument: Document | undefined
 
   return {
     name: adapterOasName,
