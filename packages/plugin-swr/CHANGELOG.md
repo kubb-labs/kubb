@@ -1,5 +1,21 @@
 # @kubb/plugin-swr
 
+## 5.0.0-alpha.18
+
+### Minor Changes
+
+- [#2893](https://github.com/kubb-labs/kubb/pull/2893) [`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Update to TypeScript v6
+
+### Patch Changes
+
+- Updated dependencies [[`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c)]:
+  - @kubb/plugin-client@5.0.0-alpha.18
+  - @kubb/plugin-oas@5.0.0-alpha.18
+  - @kubb/plugin-ts@5.0.0-alpha.18
+  - @kubb/core@5.0.0-alpha.18
+  - @kubb/oas@5.0.0-alpha.18
+  - @kubb/plugin-zod@5.0.0-alpha.18
+
 ## 5.0.0-alpha.17
 
 ### Patch Changes

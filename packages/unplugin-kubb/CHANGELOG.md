@@ -1,5 +1,12 @@
 # unplugin-kubb
 
+## 6.0.0-alpha.18
+
+### Patch Changes
+
+- Updated dependencies [[`fa7f554`](https://github.com/kubb-labs/kubb/commit/fa7f55423e9d81773a2f168954bf682a866de65c)]:
+  - @kubb/core@5.0.0-alpha.18
+
 ## 6.0.0-alpha.17
 
 ### Patch Changes
