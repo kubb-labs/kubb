@@ -97,27 +97,27 @@ type WriteOptions = {
  * @example
  * ```ts
  * await write('./src/Pet.ts', source)         // writes and returns trimmed content
- * await write('./src/Pet.ts', source)         // undefined — file unchanged
- * await write('./src/Pet.ts', '  ')           // undefined — empty content skipped
+ * await write('./src/Pet.ts', source)         // null — file unchanged
+ * await write('./src/Pet.ts', '  ')           // null — empty content skipped
  * ```
  */
-export async function write(path: string, data: string, options: WriteOptions = {}): Promise<string | undefined> {
+export async function write(path: string, data: string, options: WriteOptions = {}): Promise<string | null> {
   const trimmed = data.trim()
-  if (trimmed === '') return undefined
+  if (trimmed === '') return null
 
   const resolved = resolve(path)
 
   if (typeof Bun !== 'undefined') {
     const file = Bun.file(resolved)
     const oldContent = (await file.exists()) ? await file.text() : null
-    if (oldContent === trimmed) return undefined
+    if (oldContent === trimmed) return null
     await Bun.write(resolved, trimmed)
     return trimmed
   }
 
   try {
     const oldContent = await readFile(resolved, { encoding: 'utf-8' })
-    if (oldContent === trimmed) return undefined
+    if (oldContent === trimmed) return null
   } catch {
     /* file doesn't exist yet */
   }

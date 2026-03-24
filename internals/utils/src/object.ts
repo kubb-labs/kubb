@@ -73,8 +73,8 @@ export function toSnapshot<T>(value: T): T {
  * getNestedAccessor('pagination.next.id', 'lastPage')
  * // → "lastPage?.['pagination']?.['next']?.['id']"
  */
-export function getNestedAccessor(param: string | string[], accessor: string): string | undefined {
+export function getNestedAccessor(param: string | string[], accessor: string): string | null {
   const parts = Array.isArray(param) ? param : param.split('.')
-  if (parts.length === 0 || (parts.length === 1 && parts[0] === '')) return undefined
+  if (parts.length === 0 || (parts.length === 1 && parts[0] === '')) return null
   return `${accessor}?.['${`${parts.join("']?.['")}']`}`
 }
