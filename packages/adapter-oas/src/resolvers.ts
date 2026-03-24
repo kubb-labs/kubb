@@ -1,8 +1,10 @@
 import { pascalCase } from '@internals/utils'
+import { mediaTypes } from '@kubb/ast'
+import type { MediaType, ParserOptions, PrimitiveSchemaType, SchemaType } from '@kubb/ast/types'
 import type { ParameterObject, ServerObject } from 'oas/types'
 import { isRef } from 'oas/types'
 import { matchesMimeType } from 'oas/utils'
-import { structuralKeys } from './constants.ts'
+import { formatMap, structuralKeys } from './constants.ts'
 import { isReference } from './guards.ts'
 import { dereferenceWithRef, resolveRef } from './refs.ts'
 import type { contentType, Document, MediaTypeObject, Operation, ResponseObject, SchemaObject } from './types.ts'
@@ -42,6 +44,35 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
   }
 
   return url
+}
+
+/**
+ * Looks up the Kubb `SchemaType` for a given OAS `format` string.
+ * Returns `undefined` for formats not in `formatMap` (e.g. `int64`, `date-time`),
+ * which are handled separately because their output depends on parser options.
+ */
+export function getSchemaType(format: string): SchemaType | null {
+  return formatMap[format as keyof typeof formatMap] ?? null
+}
+
+/**
+ * Maps an OAS primitive type string to its `PrimitiveSchemaType` equivalent.
+ * Numeric types (`number`, `integer`, `bigint`) are returned unchanged;
+ * `boolean` maps to `'boolean'`; everything else defaults to `'string'`.
+ */
+export function getPrimitiveType(type: string | undefined): PrimitiveSchemaType {
+  if (type === 'number' || type === 'integer' || type === 'bigint') return type
+  if (type === 'boolean') return 'boolean'
+
+  return 'string'
+}
+
+/**
+ * Narrows a raw content-type string to the `MediaType` union recognized by Kubb.
+ * Returns `undefined` for content types not present in `KNOWN_MEDIA_TYPES`.
+ */
+export function getMediaType(contentType: string): MediaType | null {
+  return Object.values(mediaTypes).includes(contentType as MediaType) ? (contentType as MediaType) : null
 }
 
 export type OperationsOptions = {
@@ -404,4 +435,54 @@ export function getSchemas(document: Document, { contentType }: GetSchemasOption
   }
 
   return { schemas: sortSchemas(schemas), nameMapping }
+}
+
+/**
+ * Resolves the AST type descriptor for a date/time format, honoring the `dateType` option.
+ * Returns `undefined` when `dateType: false`, signalling the format should fall through to `string`.
+ */
+export function getDateType(
+  options: ParserOptions,
+  format: 'date-time' | 'date' | 'time',
+): { type: 'datetime'; offset?: boolean; local?: boolean } | { type: 'date' | 'time'; representation: 'date' | 'string' } | null {
+  if (!options.dateType) {
+    return null
+  }
+
+  if (format === 'date-time') {
+    if (options.dateType === 'date') {
+      return { type: 'date', representation: 'date' }
+    }
+    if (options.dateType === 'stringOffset') {
+      return { type: 'datetime', offset: true }
+    }
+    if (options.dateType === 'stringLocal') {
+      return { type: 'datetime', local: true }
+    }
+    return { type: 'datetime', offset: false }
+  }
+
+  if (format === 'date') {
+    return { type: 'date', representation: options.dateType === 'date' ? 'date' : 'string' }
+  }
+
+  // time
+  return { type: 'time', representation: options.dateType === 'date' ? 'date' : 'string' }
+}
+
+/**
+ * Collects the shared metadata fields passed to every `createSchema` call.
+ */
+export function buildSchemaNode(schema: SchemaObject, name: string | null | undefined, nullable: true | undefined, defaultValue: unknown) {
+  return {
+    name,
+    nullable,
+    title: schema.title,
+    description: schema.description,
+    deprecated: schema.deprecated,
+    readOnly: schema.readOnly,
+    writeOnly: schema.writeOnly,
+    default: defaultValue,
+    example: schema.example,
+  } as const
 }

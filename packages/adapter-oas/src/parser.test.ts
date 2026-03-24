@@ -2,7 +2,7 @@ import { narrowSchema } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { parseDocument } from './factory.ts'
-import { parseOas, parseSchema } from './transformers.ts'
+import { parseOas, parseSchema } from './parser.ts'
 import type { Document, SchemaObject } from './types.ts'
 
 const emptyDocument: Document = { openapi: '3.0.0', info: { title: '', version: '' }, paths: {} } as Document

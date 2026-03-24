@@ -18,7 +18,7 @@ describe('definePrinter', () => {
   })
 
   it('returns undefined when no node handler matches', () => {
-    expect(zodPrinter().print(createSchema({ type: 'string' }))).toBeUndefined()
+    expect(zodPrinter().print(createSchema({ type: 'string' }))).toBeNull()
   })
 
   it('dispatches print() to the matching node handler', () => {
@@ -38,7 +38,7 @@ describe('definePrinter', () => {
 
     expect(printer.print(createSchema({ type: 'string', min: 2 }))).toBe('z.string().min(2)')
     expect(printer.print(createSchema({ type: 'string' }))).toBe('z.string()')
-    expect(printer.print(createSchema({ type: 'number' }))).toBeUndefined()
+    expect(printer.print(createSchema({ type: 'number' }))).toBeNull()
   })
 
   it('exposes resolved options on this.options inside handlers', () => {

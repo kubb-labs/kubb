@@ -18,13 +18,13 @@ describe('findDiscriminator', () => {
     { label: 'ref is missing', mapping: { cat: '#/components/schemas/Cat' }, ref: undefined },
     { label: 'ref does not match any mapping entry', mapping: { cat: '#/components/schemas/Cat' }, ref: '#/components/schemas/Dog' },
   ])('returns undefined when $label', ({ mapping, ref }) => {
-    expect(findDiscriminator(mapping, ref)).toBeUndefined()
+    expect(findDiscriminator(mapping, ref)).toBeNull()
   })
 })
 
 describe('childName', () => {
   it('returns undefined when parentName is undefined', () => {
-    expect(childName(undefined, 'params')).toBeUndefined()
+    expect(childName(undefined, 'params')).toBeNull()
   })
 
   it('returns PascalCase of `parentName + propName`', () => {

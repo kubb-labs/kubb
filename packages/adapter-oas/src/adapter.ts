@@ -3,8 +3,8 @@ import { createAdapter } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { applyDiscriminatorInheritance } from './discriminator.ts'
 import { parseFromConfig, validateDocument } from './factory.ts'
+import { parseOas } from './parser.ts'
 import { resolveServerUrl } from './resolvers.ts'
-import { parseOas } from './transformers.ts'
 import type { AdapterOas } from './types.ts'
 
 /**

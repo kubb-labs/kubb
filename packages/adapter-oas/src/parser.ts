@@ -11,11 +11,9 @@ import {
   enumPropName,
   extractRefName,
   findDiscriminator,
-  mediaTypes,
   mergeAdjacentObjects,
   narrowSchema,
   type ParserOptions,
-  schemaTypes,
   setDiscriminatorEnum,
   setEnumName,
   simplifyUnion,
@@ -23,7 +21,6 @@ import {
 import type {
   DistributiveOmit,
   HttpMethod,
-  MediaType,
   OperationNode,
   ParameterLocation,
   ParameterNode,
@@ -33,14 +30,24 @@ import type {
   RootNode,
   ScalarSchemaType,
   SchemaNode,
-  SchemaType,
   StatusCode,
 } from '@kubb/ast/types'
 import BaseOas from 'oas'
-import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, formatMap } from './constants.ts'
+import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, typeOptionMap } from './constants.ts'
 import { isDiscriminator, isNullable, isReference } from './guards.ts'
 import { resolveRef } from './refs.ts'
-import { flattenSchema, getParameters, getRequestSchema, getResponseSchema, getSchemas } from './resolvers.ts'
+import {
+  buildSchemaNode,
+  flattenSchema,
+  getDateType,
+  getMediaType,
+  getParameters,
+  getPrimitiveType,
+  getRequestSchema,
+  getResponseSchema,
+  getSchemas,
+  getSchemaType,
+} from './resolvers.ts'
 import type { contentType, Document, Operation, ReferenceObject, SchemaObject } from './types.ts'
 
 /**
@@ -55,40 +62,12 @@ export type OasParserContext = {
 }
 
 /**
- * Looks up the Kubb `SchemaType` for a given OAS `format` string.
- * Returns `undefined` for formats not in `formatMap` (e.g. `int64`, `date-time`),
- * which are handled separately because their output depends on parser options.
- */
-export function getSchemaType(format: string): SchemaType | undefined {
-  return formatMap[format as keyof typeof formatMap]
-}
-
-/**
- * Maps an OAS primitive type string to its `PrimitiveSchemaType` equivalent.
- * Numeric types (`number`, `integer`, `bigint`) are returned unchanged;
- * `boolean` maps to `'boolean'`; everything else defaults to `'string'`.
- */
-export function getPrimitiveType(type: string | undefined): PrimitiveSchemaType {
-  if (type === 'number' || type === 'integer' || type === 'bigint') return type
-  if (type === 'boolean') return 'boolean'
-  return 'string'
-}
-
-/**
- * Narrows a raw content-type string to the `MediaType` union recognized by Kubb.
- * Returns `undefined` for content types not present in `KNOWN_MEDIA_TYPES`.
- */
-export function getMediaType(contentType: string): MediaType | undefined {
-  return Object.values(mediaTypes).includes(contentType as MediaType) ? (contentType as MediaType) : undefined
-}
-
-/**
  * Pre-computed per-schema context passed to every `convert*` branch handler.
  * Grouping these values avoids repeating the same derivations across all branches.
  */
 type SchemaContext = {
   schema: SchemaObject
-  name: string | undefined
+  name: string | null | undefined
   nullable: true | undefined
   defaultValue: unknown
   /**
@@ -99,79 +78,17 @@ type SchemaContext = {
   options: ParserOptions
 }
 
-const TYPE_OPTION_MAP: Record<'any' | 'unknown' | 'void', ScalarSchemaType> = {
-  any: schemaTypes.any,
-  unknown: schemaTypes.unknown,
-  void: schemaTypes.void,
-}
-
-/**
- * Maps an `'any' | 'unknown' | 'void'` option string to the corresponding `SchemaType` constant.
- */
-function resolveTypeOption(value: 'any' | 'unknown' | 'void'): ScalarSchemaType {
-  return TYPE_OPTION_MAP[value]
-}
-
 /**
  * Normalize a malformed `{ type: 'array', enum: [...] }` schema by moving the
- * enum values into the items subschema. This pattern is technically invalid OAS
+ * enum values into the items sub-schema. This pattern is technically invalid OAS
  * but appears in the wild and must be handled gracefully.
  */
 function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
   const isItemsObject = typeof schema.items === 'object' && !Array.isArray(schema.items)
   const normalizedItems: SchemaObject = { ...(isItemsObject ? (schema.items as SchemaObject) : {}), enum: schema.enum }
   const { enum: _enum, ...schemaWithoutEnum } = schema
+
   return { ...schemaWithoutEnum, items: normalizedItems } as SchemaObject
-}
-
-/**
- * Resolves the AST type descriptor for a date/time format, honoring the `dateType` option.
- * Returns `undefined` when `dateType: false`, signalling the format should fall through to `string`.
- */
-function getDateType(
-  options: ParserOptions,
-  format: 'date-time' | 'date' | 'time',
-): { type: 'datetime'; offset?: boolean; local?: boolean } | { type: 'date' | 'time'; representation: 'date' | 'string' } | undefined {
-  if (!options.dateType) {
-    return undefined
-  }
-
-  if (format === 'date-time') {
-    if (options.dateType === 'date') {
-      return { type: 'date', representation: 'date' }
-    }
-    if (options.dateType === 'stringOffset') {
-      return { type: 'datetime', offset: true }
-    }
-    if (options.dateType === 'stringLocal') {
-      return { type: 'datetime', local: true }
-    }
-    return { type: 'datetime', offset: false }
-  }
-
-  if (format === 'date') {
-    return { type: 'date', representation: options.dateType === 'date' ? 'date' : 'string' }
-  }
-
-  // time
-  return { type: 'time', representation: options.dateType === 'date' ? 'date' : 'string' }
-}
-
-/**
- * Collects the shared metadata fields passed to every `createSchema` call.
- */
-function renderSchemaBase(schema: SchemaObject, name: string | undefined, nullable: true | undefined, defaultValue: unknown) {
-  return {
-    name,
-    nullable,
-    title: schema.title,
-    description: schema.description,
-    deprecated: schema.deprecated,
-    readOnly: schema.readOnly,
-    writeOnly: schema.writeOnly,
-    default: defaultValue,
-    example: schema.example,
-  } as const
 }
 
 /**
@@ -180,7 +97,7 @@ function renderSchemaBase(schema: SchemaObject, name: string | undefined, nullab
  * All `convert*` functions are defined as function declarations so they can freely
  * reference each other and `parseSchema` via JS hoisting (mutual recursion).
  */
-function buildConverters(ctx: OasParserContext) {
+function createSchemaParser(ctx: OasParserContext) {
   const document = ctx.document
 
   // Branch handlers — each converts one OAS schema pattern to a SchemaNode.
@@ -215,7 +132,7 @@ function buildConverters(ctx: OasParserContext) {
       schema.additionalProperties === undefined
     ) {
       const [memberSchema] = schema.allOf as Array<SchemaObject | ReferenceObject>
-      const memberNode = parseSchema({ schema: memberSchema! as SchemaObject }, rawOptions)
+      const memberNode = parseSchema({ schema: memberSchema! as SchemaObject, name: null }, rawOptions)
       const { kind: _kind, ...memberNodeProps } = memberNode
       const mergedNullable = nullable || memberNode.nullable || undefined
       const mergedDefault = schema.default === null && mergedNullable ? undefined : (schema.default ?? memberNode.default)
@@ -293,7 +210,7 @@ function buildConverters(ctx: OasParserContext) {
     return createSchema({
       type: 'intersection',
       members: [...mergeAdjacentObjects(allOfMembers.slice(0, syntheticStart)), ...mergeAdjacentObjects(allOfMembers.slice(syntheticStart))],
-      ...renderSchemaBase(schema, name, nullable, defaultValue),
+      ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
   }
 
@@ -318,7 +235,7 @@ function buildConverters(ctx: OasParserContext) {
 
     const unionMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
     const unionBase = {
-      ...renderSchemaBase(schema, name, nullable, defaultValue),
+      ...buildSchemaNode(schema, name, nullable, defaultValue),
       discriminatorPropertyName: isDiscriminator(schema) ? schema.discriminator.propertyName : undefined,
     }
     const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
@@ -371,7 +288,7 @@ function buildConverters(ctx: OasParserContext) {
 
       return createSchema({
         type: 'intersection',
-        ...renderSchemaBase(schema, name, nullable, defaultValue),
+        ...buildSchemaNode(schema, name, nullable, defaultValue),
         members: [unionNode, sharedPropertiesNode],
       })
     }
@@ -405,7 +322,7 @@ function buildConverters(ctx: OasParserContext) {
       type: 'enum',
       primitive: constPrimitive,
       enumValues: [constValue as string | number | boolean],
-      ...renderSchemaBase(schema, name, nullable, defaultValue),
+      ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
   }
 
@@ -414,7 +331,7 @@ function buildConverters(ctx: OasParserContext) {
    * Returns `undefined` when the format should fall through to string handling (`dateType: false`).
    */
   function convertFormat({ schema, name, nullable, defaultValue, options }: SchemaContext): SchemaNode | undefined {
-    const base = renderSchemaBase(schema, name, nullable, defaultValue)
+    const base = buildSchemaNode(schema, name, nullable, defaultValue)
 
     if (schema.format === 'int64') {
       return createSchema({
@@ -550,7 +467,7 @@ function buildConverters(ctx: OasParserContext) {
     } else if (additionalProperties === false) {
       additionalPropertiesNode = undefined
     } else if (additionalProperties) {
-      additionalPropertiesNode = createSchema({ type: resolveTypeOption(options.unknownType) })
+      additionalPropertiesNode = createSchema({ type: typeOptionMap.get(options.unknownType)! })
     }
 
     const rawPatternProperties = 'patternProperties' in schema ? schema.patternProperties : undefined
@@ -560,7 +477,7 @@ function buildConverters(ctx: OasParserContext) {
           Object.entries(rawPatternProperties).map(([pattern, patternSchema]) => [
             pattern,
             patternSchema === true || (typeof patternSchema === 'object' && Object.keys(patternSchema).length === 0)
-              ? createSchema({ type: resolveTypeOption(options.unknownType) })
+              ? createSchema({ type: typeOptionMap.get(options.unknownType)! })
               : parseSchema({ schema: patternSchema as SchemaObject }, rawOptions),
           ]),
         )
@@ -572,7 +489,7 @@ function buildConverters(ctx: OasParserContext) {
       properties,
       additionalProperties: additionalPropertiesNode,
       patternProperties,
-      ...renderSchemaBase(schema, name, nullable, defaultValue),
+      ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
 
     if (isDiscriminator(schema) && schema.discriminator.mapping) {
@@ -599,7 +516,7 @@ function buildConverters(ctx: OasParserContext) {
       rest,
       min: schema.minItems,
       max: schema.maxItems,
-      ...renderSchemaBase(schema, name, nullable, defaultValue),
+      ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
   }
 
@@ -618,7 +535,7 @@ function buildConverters(ctx: OasParserContext) {
       min: schema.minItems,
       max: schema.maxItems,
       unique: schema.uniqueItems ?? undefined,
-      ...renderSchemaBase(schema, name, nullable, defaultValue),
+      ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
   }
 
@@ -632,7 +549,7 @@ function buildConverters(ctx: OasParserContext) {
       min: schema.minLength,
       max: schema.maxLength,
       pattern: schema.pattern,
-      ...renderSchemaBase(schema, name, nullable, defaultValue),
+      ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
   }
 
@@ -647,7 +564,7 @@ function buildConverters(ctx: OasParserContext) {
       max: schema.maximum,
       exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
       exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
-      ...renderSchemaBase(schema, name, nullable, defaultValue),
+      ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
   }
 
@@ -658,7 +575,7 @@ function buildConverters(ctx: OasParserContext) {
     return createSchema({
       type: 'boolean',
       primitive: 'boolean',
-      ...renderSchemaBase(schema, name, nullable, defaultValue),
+      ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
   }
 
@@ -684,7 +601,7 @@ function buildConverters(ctx: OasParserContext) {
    * → octet-stream blob → multi-type array → constraint-inferred type → `enum` → object/array/tuple/scalar
    * → empty-schema fallback (`emptySchemaType` option).
    */
-  function parseSchema({ schema, name }: { schema: SchemaObject; name?: string }, rawOptions?: Partial<ParserOptions>): SchemaNode {
+  function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }, rawOptions?: Partial<ParserOptions>): SchemaNode {
     const options: ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...rawOptions }
     const flattenedSchema = flattenSchema(schema)
     if (flattenedSchema && flattenedSchema !== schema) {
@@ -711,7 +628,7 @@ function buildConverters(ctx: OasParserContext) {
     }
 
     if (schema.type === 'string' && schema.contentMediaType === 'application/octet-stream') {
-      return createSchema({ type: 'blob', primitive: 'string', ...renderSchemaBase(schema, name, nullable, defaultValue) })
+      return createSchema({ type: 'blob', primitive: 'string', ...buildSchemaNode(schema, name, nullable, defaultValue) })
     }
 
     if (Array.isArray(schema.type) && schema.type.length > 1) {
@@ -722,7 +639,7 @@ function buildConverters(ctx: OasParserContext) {
         return createSchema({
           type: 'union',
           members: nonNullTypes.map((t) => parseSchema({ schema: { ...schema, type: t } as SchemaObject, name }, rawOptions)),
-          ...renderSchemaBase(schema, name, arrayNullable, defaultValue),
+          ...buildSchemaNode(schema, name, arrayNullable, defaultValue),
         })
       }
     }
@@ -746,7 +663,7 @@ function buildConverters(ctx: OasParserContext) {
     if (type === 'boolean') return convertBoolean(ctx)
     if (type === 'null') return convertNull(ctx)
 
-    const emptyType = resolveTypeOption(options.emptySchemaType)
+    const emptyType = typeOptionMap.get(options.emptySchemaType)!
     return createSchema({ type: emptyType as ScalarSchemaType, name, title: schema.title, description: schema.description })
   }
 
@@ -758,7 +675,7 @@ function buildConverters(ctx: OasParserContext) {
 
     const schema: SchemaNode = param['schema']
       ? parseSchema({ schema: param['schema'] as SchemaObject }, options)
-      : createSchema({ type: resolveTypeOption(options.unknownType) })
+      : createSchema({ type: typeOptionMap.get(options.unknownType)! })
 
     return createParameter({
       name: param['name'] as string,
@@ -808,7 +725,7 @@ function buildConverters(ctx: OasParserContext) {
       const schema =
         responseSchema && Object.keys(responseSchema).length > 0
           ? parseSchema({ schema: responseSchema }, options)
-          : createSchema({ type: resolveTypeOption(options.emptySchemaType) })
+          : createSchema({ type: typeOptionMap.get(options.emptySchemaType)! })
 
       const description = typeof responseObj === 'object' && responseObj !== null && !Array.isArray(responseObj) ? responseObj.description : undefined
 
@@ -861,7 +778,7 @@ function buildConverters(ctx: OasParserContext) {
  * ```
  */
 export function parseSchema(ctx: OasParserContext, { schema, name }: { schema: SchemaObject; name?: string }, options?: Partial<ParserOptions>): SchemaNode {
-  return buildConverters(ctx).parseSchema({ schema, name }, options)
+  return createSchemaParser(ctx).parseSchema({ schema, name }, options)
 }
 
 /**
@@ -885,7 +802,7 @@ export function parseOas(
   const mergedOptions: ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...parserOptions }
 
   const { schemas: schemaObjects, nameMapping } = getSchemas(document, { contentType })
-  const { parseSchema: _parseSchema, parseOperation: _parseOperation } = buildConverters({ document, contentType })
+  const { parseSchema: _parseSchema, parseOperation: _parseOperation } = createSchemaParser({ document, contentType })
 
   const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, mergedOptions))
 

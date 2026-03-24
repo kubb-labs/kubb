@@ -9,11 +9,11 @@ export function findDiscriminator(mapping: Record<string, string> | undefined, r
   return Object.entries(mapping).find(([, value]) => value === ref)?.[0] ?? null
 }
 
-export function childName(parentName: string | undefined, propName: string): string | null {
+export function childName(parentName: string | null | undefined, propName: string): string | null {
   return parentName ? pascalCase([parentName, propName].join(' ')) : null
 }
 
-export function enumPropName(parentName: string | undefined, propName: string, enumSuffix: string): string {
+export function enumPropName(parentName: string | null | undefined, propName: string, enumSuffix: string): string {
   return pascalCase([parentName, propName, enumSuffix].filter(Boolean).join(' '))
 }
 

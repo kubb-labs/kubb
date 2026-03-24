@@ -1,7 +1,273 @@
 import { toSnapshot } from '@internals/utils'
-import { describe, expect, it } from 'vitest'
-import { getSchemas, resolveServerUrl } from './resolvers.ts'
+import { describe, expect, expectTypeOf, it } from 'vitest'
+import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
+import {
+  buildSchemaNode,
+  extractSchemaFromContent,
+  flattenSchema,
+  getDateType,
+  getMediaType,
+  getPrimitiveType,
+  getSchemas,
+  getSchemaType,
+  resolveServerUrl,
+  sortSchemas,
+} from './resolvers.ts'
 import type { Document } from './types.ts'
+
+describe('getSchemaType', () => {
+  it('returns the SchemaType for a known format', () => {
+    expect(getSchemaType('uuid')).toBe('uuid')
+    expect(getSchemaType('uri')).toBe('url')
+    expect(getSchemaType('email')).toBe('email')
+  })
+
+  it('returns undefined for an unknown format', () => {
+    expect(getSchemaType('int64')).toBeNull()
+    expect(getSchemaType('date-time')).toBeNull()
+    expect(getSchemaType('not-a-format')).toBeNull()
+  })
+})
+
+describe('getPrimitiveType', () => {
+  it('returns numeric types unchanged', () => {
+    expect(getPrimitiveType('number')).toBe('number')
+    expect(getPrimitiveType('integer')).toBe('integer')
+    expect(getPrimitiveType('bigint')).toBe('bigint')
+  })
+
+  it('maps boolean to boolean', () => {
+    expect(getPrimitiveType('boolean')).toBe('boolean')
+  })
+
+  it('defaults everything else to string', () => {
+    expect(getPrimitiveType('string')).toBe('string')
+    expect(getPrimitiveType('object')).toBe('string')
+    expect(getPrimitiveType(undefined)).toBe('string')
+  })
+})
+
+describe('getMediaType', () => {
+  it('returns the media type for known content-types', () => {
+    expect(getMediaType('application/json')).toBe('application/json')
+    expect(getMediaType('application/xml')).toBe('application/xml')
+  })
+
+  it('returns undefined for unknown content-types', () => {
+    expect(getMediaType('application/x-unknown')).toBeNull()
+    expect(getMediaType('application/msgpack')).toBeNull()
+    expect(getMediaType('text/event-stream')).toBeNull()
+  })
+})
+
+describe('getDateType', () => {
+  const base = DEFAULT_PARSER_OPTIONS
+
+  it('returns undefined when dateType is false', () => {
+    expect(getDateType({ ...base, dateType: false }, 'date-time')).toBeNull()
+  })
+
+  it('resolves date-time with dateType string to datetime without offset', () => {
+    expect(getDateType({ ...base, dateType: 'string' }, 'date-time')).toEqual({ type: 'datetime', offset: false })
+  })
+
+  it('resolves date-time with dateType date', () => {
+    expect(getDateType({ ...base, dateType: 'date' }, 'date-time')).toEqual({ type: 'date', representation: 'date' })
+  })
+
+  it('resolves date-time with dateType stringOffset', () => {
+    expect(getDateType({ ...base, dateType: 'stringOffset' }, 'date-time')).toEqual({ type: 'datetime', offset: true })
+  })
+
+  it('resolves date-time with dateType stringLocal', () => {
+    expect(getDateType({ ...base, dateType: 'stringLocal' }, 'date-time')).toEqual({ type: 'datetime', local: true })
+  })
+
+  it('resolves date format', () => {
+    expect(getDateType({ ...base, dateType: 'string' }, 'date')).toEqual({ type: 'date', representation: 'string' })
+    expect(getDateType({ ...base, dateType: 'date' }, 'date')).toEqual({ type: 'date', representation: 'date' })
+  })
+
+  it('resolves time format', () => {
+    expect(getDateType({ ...base, dateType: 'string' }, 'time')).toEqual({ type: 'time', representation: 'string' })
+    expect(getDateType({ ...base, dateType: 'date' }, 'time')).toEqual({ type: 'time', representation: 'date' })
+  })
+})
+
+describe('buildSchemaNode', () => {
+  it('builds a node with all metadata fields', () => {
+    const schema = {
+      title: 'My Schema',
+      description: 'A description',
+      deprecated: true,
+      readOnly: true,
+      writeOnly: false,
+      example: 42,
+    }
+    const node = buildSchemaNode(schema, 'myName', true, 'defaultVal')
+
+    expect(node).toEqual({
+      name: 'myName',
+      nullable: true,
+      title: 'My Schema',
+      description: 'A description',
+      deprecated: true,
+      readOnly: true,
+      writeOnly: false,
+      default: 'defaultVal',
+      example: 42,
+    })
+  })
+
+  it('passes through undefined fields as undefined', () => {
+    const node = buildSchemaNode({}, undefined, undefined, undefined)
+
+    expect(node.name).toBeUndefined()
+    expect(node.nullable).toBeUndefined()
+    expect(node.title).toBeUndefined()
+    expect(node.default).toBeUndefined()
+  })
+
+  it('return type has name and nullable fields', () => {
+    const node = buildSchemaNode({}, 'x', undefined, null)
+
+    expectTypeOf(node.name).toEqualTypeOf<string | null | undefined>()
+    expectTypeOf(node.nullable).toEqualTypeOf<true | undefined>()
+  })
+})
+
+describe('flattenSchema', () => {
+  it('returns null for null input', () => {
+    expect(flattenSchema(null)).toBeNull()
+  })
+
+  it('returns schema unchanged when there is no allOf', () => {
+    const schema = { type: 'string' as const }
+
+    expect(flattenSchema(schema)).toBe(schema)
+  })
+
+  it('returns schema unchanged when allOf is empty', () => {
+    const schema = { allOf: [] }
+
+    expect(flattenSchema(schema)).toBe(schema)
+  })
+
+  it('returns schema unchanged when allOf contains a $ref', () => {
+    const schema = { allOf: [{ $ref: '#/components/schemas/Pet' }] }
+
+    expect(flattenSchema(schema)).toBe(schema)
+  })
+
+  it('returns schema unchanged when allOf contains structural keys', () => {
+    const schema = { allOf: [{ properties: { id: { type: 'integer' as const } } }] }
+
+    expect(flattenSchema(schema)).toBe(schema)
+  })
+
+  it('merges plain allOf fragments into the parent schema', () => {
+    const schema = {
+      type: 'object' as const,
+      allOf: [{ description: 'A pet' }, { example: 'Fido' }],
+    }
+    const result = flattenSchema(schema)
+
+    expect(result).not.toHaveProperty('allOf')
+    expect(result).toMatchObject({ type: 'object', description: 'A pet', example: 'Fido' })
+  })
+
+  it('does not overwrite existing keys during merge', () => {
+    const schema = {
+      description: 'existing',
+      allOf: [{ description: 'from allOf' }],
+    }
+    const result = flattenSchema(schema)
+
+    expect(result?.description).toBe('existing')
+  })
+})
+
+describe('extractSchemaFromContent', () => {
+  it('returns null when content is undefined', () => {
+    expect(extractSchemaFromContent(undefined)).toBeNull()
+  })
+
+  it('returns null when content is empty', () => {
+    expect(extractSchemaFromContent({})).toBeNull()
+  })
+
+  it('returns the schema for the preferred content type', () => {
+    const schema = { type: 'object' as const }
+    const content = { 'application/json': { schema }, 'application/xml': { schema: { type: 'string' as const } } }
+
+    expect(extractSchemaFromContent(content, 'application/json')).toBe(schema)
+  })
+
+  it('falls back to the first content type when no preference is given', () => {
+    const schema = { type: 'object' as const }
+    const content = { 'application/json': { schema } }
+
+    expect(extractSchemaFromContent(content)).toBe(schema)
+  })
+
+  it('returns null when the schema is a $ref', () => {
+    const content = { 'application/json': { schema: { $ref: '#/components/schemas/Pet' } } }
+
+    expect(extractSchemaFromContent(content, 'application/json')).toBeNull()
+  })
+
+  it('returns null when the preferred content type is absent', () => {
+    const content = { 'application/xml': { schema: { type: 'string' as const } } }
+
+    expect(extractSchemaFromContent(content, 'application/json')).toBeNull()
+  })
+})
+
+describe('sortSchemas', () => {
+  it('returns an empty object for empty input', () => {
+    expect(sortSchemas({})).toEqual({})
+  })
+
+  it('preserves order when there are no dependencies', () => {
+    const schemas = { A: { type: 'string' as const }, B: { type: 'integer' as const } }
+    const result = sortSchemas(schemas)
+
+    expect(Object.keys(result)).toEqual(['A', 'B'])
+  })
+
+  it('places referenced schemas before their dependents', () => {
+    const schemas = {
+      Order: { type: 'object' as const, properties: { pet: { $ref: '#/components/schemas/Pet' } } },
+      Pet: { type: 'object' as const },
+    }
+    const result = sortSchemas(schemas)
+    const keys = Object.keys(result)
+
+    expect(keys.indexOf('Pet')).toBeLessThan(keys.indexOf('Order'))
+  })
+
+  it('handles chains: C depends on B, B depends on A', () => {
+    const schemas = {
+      C: { properties: { b: { $ref: '#/components/schemas/B' } } },
+      B: { properties: { a: { $ref: '#/components/schemas/A' } } },
+      A: { type: 'string' as const },
+    }
+    const result = sortSchemas(schemas)
+    const keys = Object.keys(result)
+
+    expect(keys.indexOf('A')).toBeLessThan(keys.indexOf('B'))
+    expect(keys.indexOf('B')).toBeLessThan(keys.indexOf('C'))
+  })
+
+  it('handles cycles without throwing', () => {
+    const schemas = {
+      A: { properties: { b: { $ref: '#/components/schemas/B' } } },
+      B: { properties: { a: { $ref: '#/components/schemas/A' } } },
+    }
+
+    expect(() => sortSchemas(schemas)).not.toThrow()
+  })
+})
 
 describe('resolveServerUrl', () => {
   it('returns the url unchanged when there are no variables', () => {

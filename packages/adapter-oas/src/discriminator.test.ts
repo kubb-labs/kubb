@@ -3,7 +3,7 @@ import { narrowSchema } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { applyDiscriminatorInheritance } from './discriminator.ts'
 import { parseDocument } from './factory.ts'
-import { parseOas } from './transformers.ts'
+import { parseOas } from './parser.ts'
 
 describe('applyDiscriminatorInheritance', () => {
   it('returns the same root when no discriminators are present', async () => {

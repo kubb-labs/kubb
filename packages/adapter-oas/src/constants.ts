@@ -1,4 +1,5 @@
-import type { ParserOptions, SchemaType } from '@kubb/ast/types'
+import { schemaTypes } from '@kubb/ast'
+import type { ParserOptions, ScalarSchemaType, SchemaType } from '@kubb/ast/types'
 
 /**
  * Default parser options applied when no explicit options are provided.
@@ -97,3 +98,13 @@ export const formatMap = {
  * ```
  */
 export const enumExtensionKeys = ['x-enumNames', 'x-enum-varnames'] as const
+
+/**
+ * Maps `'any' | 'unknown' | 'void'` option strings to their `ScalarSchemaType` constant.
+ * Replaces a plain object lookup with a `Map` for explicit key membership testing via `.has()`.
+ */
+export const typeOptionMap = new Map<'any' | 'unknown' | 'void', ScalarSchemaType>([
+  ['any', schemaTypes.any],
+  ['unknown', schemaTypes.unknown],
+  ['void', schemaTypes.void],
+])

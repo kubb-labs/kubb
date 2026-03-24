@@ -19,7 +19,7 @@ export function isOpenApiV2Document(doc: unknown): doc is OpenAPIV2.Document {
 /**
  * Returns `true` when a schema should be treated as nullable.
  *
- * Recognises all nullable signals across OAS versions: `nullable: true` (OAS 3.0),
+ * Recognizes all nullable signals across OAS versions: `nullable: true` (OAS 3.0),
  * `x-nullable: true` (vendor extension), `type: 'null'`, and `type: ['null', ...]` (OAS 3.1).
  *
  * @example
