@@ -40,8 +40,8 @@ import BaseOas from 'oas'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, formatMap } from './constants.ts'
 import { isDiscriminator, isNullable, isReference } from './guards.ts'
 import { resolveRef } from './refs.ts'
-import type { contentType, Document, Operation, ReferenceObject, SchemaObject } from './types.ts'
 import { flattenSchema, getParameters, getRequestSchema, getResponseSchema, getSchemas } from './resolvers.ts'
+import type { contentType, Document, Operation, ReferenceObject, SchemaObject } from './types.ts'
 
 /**
  * Construction-time context for the OAS parser.
@@ -113,7 +113,7 @@ function resolveTypeOption(value: 'any' | 'unknown' | 'void'): ScalarSchemaType 
 }
 
 /**
- * Normalises a malformed `{ type: 'array', enum: [...] }` schema by moving the
+ * Normalize a malformed `{ type: 'array', enum: [...] }` schema by moving the
  * enum values into the items subschema. This pattern is technically invalid OAS
  * but appears in the wild and must be handled gracefully.
  */
@@ -884,10 +884,8 @@ export function parseOas(
   const { contentType, ...parserOptions } = options
   const mergedOptions: ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...parserOptions }
 
-  const ctx: OasParserContext = { document, contentType }
   const { schemas: schemaObjects, nameMapping } = getSchemas(document, { contentType })
-
-  const { parseSchema: _parseSchema, parseOperation: _parseOperation } = buildConverters(ctx)
+  const { parseSchema: _parseSchema, parseOperation: _parseOperation } = buildConverters({ document, contentType })
 
   const schemas: Array<SchemaNode> = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, mergedOptions))
 

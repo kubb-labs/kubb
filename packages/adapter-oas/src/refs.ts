@@ -33,41 +33,6 @@ export function resolveRef<T = unknown>(document: Document, $ref: string): T | n
 }
 
 /**
- * Writes a value at a local JSON pointer path in the document.
- * Returns `false` for empty refs; `true` after a successful write.
- *
- * @example
- * ```ts
- * setRef(document, '#/components/schemas/Pet', updatedSchema)
- * ```
- */
-export function setRef(document: Document, $ref: string, value: unknown): boolean {
-  $ref = $ref.trim()
-  if ($ref === '') {
-    return false
-  }
-  if ($ref.startsWith('#')) {
-    $ref = globalThis.decodeURIComponent($ref.substring(1))
-    jsonpointer.set(document, $ref, value)
-    return true
-  }
-  return false
-}
-
-/**
- * Returns the trailing segment of a `$ref` path.
- *
- * @example
- * ```ts
- * extractRefKey('#/components/schemas/Pet') // 'Pet'
- * ```
- */
-export function extractRefKey($ref: string): string | undefined {
-  const key = $ref.split('/').pop()
-  return key === '' ? undefined : key
-}
-
-/**
  * Resolves a `$ref` object while preserving the original `$ref` field on the result.
  *
  * Useful for parser flows that need both dereferenced fields and pointer
