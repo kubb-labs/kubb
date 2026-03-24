@@ -867,8 +867,8 @@ importers:
         specifier: 'catalog:'
         version: 0.14.0
       '@redocly/openapi-core':
-        specifier: ^2.24.1
-        version: 2.24.1
+        specifier: ^2.25.1
+        version: 2.25.1
       '@stoplight/yaml':
         specifier: ^4.3.0
         version: 4.3.0
@@ -1124,8 +1124,8 @@ importers:
         specifier: 'catalog:'
         version: 0.14.0
       '@redocly/openapi-core':
-        specifier: ^2.24.1
-        version: 2.24.1
+        specifier: ^2.25.1
+        version: 2.25.1
       '@stoplight/yaml':
         specifier: ^4.3.0
         version: 4.3.0
@@ -3126,11 +3126,11 @@ packages:
   '@redocly/ajv@8.18.0':
     resolution: {integrity: sha512-F+LMD2IDIXuHxgpLJh3nkLj9+tSaEzoUWd+7fONGq5pe2169FUDjpEkOfEpoGLz1sbZni/69p07OsecNfAOpqA==}
 
-  '@redocly/config@0.44.1':
-    resolution: {integrity: sha512-l6/ZE+/RBfNDdhzltau6cbW8+k5PgJbJBMqaBrlQlZQlmGBHMxqGyDaon4dPLj0jdi37gsMQ3yf95JBY/vaDSg==}
+  '@redocly/config@0.44.2':
+    resolution: {integrity: sha512-/77Y/C4aDCa0XkRYffISHH1K816KDmmFY1LX3TwODJ4Li+DFhvyWiMm7ofFCEssKwNjs3fzGW/ISKOsDFdirJw==}
 
-  '@redocly/openapi-core@2.24.1':
-    resolution: {integrity: sha512-Iqc/4DI/CIQkKys8HRHkX+bpF/UosVUE7lc7tuxIOKzVIOk5QhQMglbd2yzbAYgJF7YAtCDDAKWosvXnvTTWsA==}
+  '@redocly/openapi-core@2.25.1':
+    resolution: {integrity: sha512-6n1gkzvqLhU1/rCSDvLqSrceiXHMw5YTqrao63nb/SLxPzbhBEW61D9VAvu2dn5HGsanYc9QH0j73W/D3eYsVw==}
     engines: {node: '>=22.12.0 || >=20.19.0 <21.0.0', npm: '>=10'}
 
   '@rolldown/binding-android-arm64@1.0.0-rc.11':
@@ -9687,14 +9687,14 @@ snapshots:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
-  '@redocly/config@0.44.1':
+  '@redocly/config@0.44.2':
     dependencies:
       json-schema-to-ts: 2.7.2
 
-  '@redocly/openapi-core@2.24.1':
+  '@redocly/openapi-core@2.25.1':
     dependencies:
       '@redocly/ajv': 8.18.0
-      '@redocly/config': 0.44.1
+      '@redocly/config': 0.44.2
       ajv: '@redocly/ajv@8.18.0'
       ajv-formats: 3.0.1(@redocly/ajv@8.18.0)
       colorette: 1.4.0
