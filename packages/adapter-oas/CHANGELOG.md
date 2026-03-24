@@ -1,5 +1,23 @@
 # @kubb/adapter-oas
 
+## 5.0.0-alpha.20
+
+### Minor Changes
+
+- [#2902](https://github.com/kubb-labs/kubb/pull/2902) [`f596e47`](https://github.com/kubb-labs/kubb/commit/f596e47e353c18ef11c4531acd12641c52c00435) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - `plugin-redoc` now uses `adapterOas` directly instead of depending on `plugin-oas` at runtime.
+
+  **`@kubb/core`**: Added `TDocument` as a 4th generic to `AdapterFactoryOptions` and `document?` as a first-class field on `Adapter<T>`, so any adapter can expose its raw source document in a typed way.
+
+  **`@kubb/adapter-oas`**: `AdapterOas` now carries the `Document` type as its 4th generic. The adapter exposes `document` directly (populated after `parse()`). Only `AdapterOas` is exported from the package index; use `AdapterOas['document']` to reference the document type.
+
+  **`@kubb/plugin-redoc`**: Removed the `pre: [pluginOasName]` dependency. The plugin now reads the document via `(adapter as Adapter<AdapterOas>).document`, with a name-guard that gives a clear error when `adapterOas` is not configured.
+
+### Patch Changes
+
+- Updated dependencies [[`f596e47`](https://github.com/kubb-labs/kubb/commit/f596e47e353c18ef11c4531acd12641c52c00435)]:
+  - @kubb/core@5.0.0-alpha.20
+  - @kubb/ast@5.0.0-alpha.20
+
 ## 5.0.0-alpha.19
 
 ### Patch Changes
