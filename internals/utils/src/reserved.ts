@@ -87,8 +87,14 @@ const reservedWords = new Set([
 ] as const)
 
 /**
- * Prefixes a word with `_` when it is a reserved JavaScript/Java identifier
- * or starts with a digit.
+ * Prefixes `word` with `_` when it is a reserved JavaScript/Java identifier or starts with a digit.
+ *
+ * @example
+ * ```ts
+ * transformReservedWord('class')  // '_class'
+ * transformReservedWord('42foo')  // '_42foo'
+ * transformReservedWord('status') // 'status'
+ * ```
  */
 export function transformReservedWord(word: string): string {
   const firstChar = word.charCodeAt(0)
@@ -100,6 +106,13 @@ export function transformReservedWord(word: string): string {
 
 /**
  * Returns `true` when `name` is a syntactically valid JavaScript variable name.
+ *
+ * @example
+ * ```ts
+ * isValidVarName('status')  // true
+ * isValidVarName('class')   // false (reserved word)
+ * isValidVarName('42foo')   // false (starts with digit)
+ * ```
  */
 export function isValidVarName(name: string): boolean {
   try {

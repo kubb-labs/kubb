@@ -1,5 +1,28 @@
 # @kubb/adapter-oas
 
+## 5.0.0-alpha.17
+
+### Patch Changes
+
+- [#2889](https://github.com/kubb-labs/kubb/pull/2889) [`2546c05`](https://github.com/kubb-labs/kubb/commit/2546c051d81e490709df9d8a834402ef546a8f1c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/ast`
+  - Reorganized schema helper modules into clearer categories:
+    - `transformers.ts` for schema transformation helpers
+    - `resolvers.ts` for lookup/derivation helpers
+    - `utils.ts` for generic helper utilities
+  - Renamed exported helper APIs to shorter names for consistency:
+    - resolvers: `findDiscriminator`, `childName`, `enumPropName`, `collectImports`
+    - transformers: `setDiscriminatorEnum`, `mergeAdjacentObjects`, `simplifyUnion`, `setEnumName`, `resolveNames`
+    - utils: `isStringType`, `caseParams`, `syncOptionality`
+  - Removed deprecated alias exports for old names.
+
+  ### `@kubb/adapter-oas`
+  - Fixed named import shape regression in adapter import resolution.
+  - `adapter.getImports(...)` now correctly returns `KubbFile.Import` entries with `name` as `string[]` (for example `['PetType']`), with added regression coverage.
+
+- Updated dependencies [[`2546c05`](https://github.com/kubb-labs/kubb/commit/2546c051d81e490709df9d8a834402ef546a8f1c)]:
+  - @kubb/ast@5.0.0-alpha.17
+  - @kubb/core@5.0.0-alpha.17
+
 ## 5.0.0-alpha.16
 
 ### Patch Changes

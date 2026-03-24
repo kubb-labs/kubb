@@ -2,7 +2,9 @@ import { createHash } from 'node:crypto'
 import { styleText } from 'node:util'
 import { formatMs } from './time.ts'
 
-/** Parsed RGB channels from a hex color string. */
+/**
+ * Parsed RGB channels from a CSS hex color string.
+ */
 type RGB = { r: number; g: number; b: number }
 
 /**
@@ -40,26 +42,47 @@ function gradient(colorStops: string[], text: string): string {
     .join('')
 }
 
-/** ANSI color functions for each part of the Kubb mascot illustration. */
+/**
+ * ANSI color functions for each part of the Kubb mascot illustration.
+ */
 const palette = {
-  /** Top cap of the skittle. */
+  /**
+   * Top cap of the skittle.
+   */
   lid: hex('#F55A17'),
-  /** Upper wood body. */
+  /**
+   * Upper wood body.
+   */
   woodTop: hex('#F5A217'),
-  /** Middle wood body. */
+  /**
+   * Middle wood body.
+   */
   woodMid: hex('#F58517'),
-  /** Base wood body. */
+  /**
+   * Base wood body.
+   */
   woodBase: hex('#B45309'),
-  /** Eye whites. */
+  /**
+   * Eye whites.
+   */
   eye: hex('#FFFFFF'),
-  /** Highlight accent. */
+  /**
+   * Highlight accent.
+   */
   highlight: hex('#adadc6'),
-  /** Cheek blush. */
+  /**
+   * Cheek blush.
+   */
   blush: hex('#FDA4AF'),
 }
 
 /**
- * Generates the Kubb mascot welcome banner.
+ * Generates the Kubb mascot welcome banner as an ANSI-colored string.
+ *
+ * @example
+ * ```ts
+ * console.log(getIntro({ title: 'kubb.config.ts', description: 'generating…', version: '5.0.0', areEyesOpen: true }))
+ * ```
  */
 export function getIntro({
   title,
@@ -67,13 +90,21 @@ export function getIntro({
   version,
   areEyesOpen,
 }: {
-  /** Name of the active configuration or tool being started. */
+  /**
+   * Name of the active configuration or tool being started.
+   */
   title: string
-  /** Short subtitle shown next to the arrow prompt. */
+  /**
+   * Short subtitle shown next to the arrow prompt.
+   */
   description: string
-  /** Kubb version string rendered in the gradient header. */
+  /**
+   * Kubb version string rendered in the gradient header.
+   */
   version: string
-  /** When `false` the eyes are shown as closed dashes instead of open blocks. */
+  /**
+   * When `false` the eyes are shown as closed dashes instead of open blocks.
+   */
   areEyesOpen: boolean
 }): string {
   const kubbVersion = gradient(['#F58517', '#F5A217', '#F55A17'], `KUBB v${version}`)
@@ -90,11 +121,22 @@ export function getIntro({
 `
 }
 
-/** ANSI color names available for terminal output. */
+/** ANSI color names available for deterministic terminal coloring.
+ *
+ * @example
+ * ```ts
+ * const color = randomColors[2] // 'green'
+ * ```
+ */
 export const randomColors = ['black', 'red', 'green', 'yellow', 'blue', 'white', 'magenta', 'cyan', 'gray'] as const
 
 /**
- * Returns the text wrapped in a deterministic ANSI color derived from the text's SHA-256 hash.
+ * Wraps `text` in a deterministic ANSI color derived from the text's SHA-256 hash.
+ *
+ * @example
+ * ```ts
+ * randomCliColor('petstore') // '\x1b[33mpetstore\x1b[39m' (always the same color for 'petstore')
+ * ```
  */
 export function randomCliColor(text?: string): string {
   if (!text) return ''
@@ -104,8 +146,15 @@ export function randomCliColor(text?: string): string {
 }
 
 /**
- * Formats a millisecond duration with an ANSI color based on thresholds:
- * green ≤ 500 ms · yellow ≤ 1 000 ms · red > 1 000 ms
+ * Formats a millisecond duration with a threshold-based ANSI color.
+ * `≤ 500 ms` → green · `≤ 1 000 ms` → yellow · `> 1 000 ms` → red.
+ *
+ * @example
+ * ```ts
+ * formatMsWithColor(200)  // '\x1b[32m200ms\x1b[39m'
+ * formatMsWithColor(800)  // '\x1b[33m800ms\x1b[39m'
+ * formatMsWithColor(1500) // '\x1b[31m1.50s\x1b[39m'
+ * ```
  */
 export function formatMsWithColor(ms: number): string {
   const formatted = formatMs(ms)

@@ -3,6 +3,12 @@ import type { CommandDefinition, CommandSchema, OptionDefinition, OptionSchema }
 /**
  * Serializes `CommandDefinition[]` to a plain, JSON-serializable structure.
  * Use to expose CLI capabilities to AI agents or MCP tools.
+ *
+ * @example
+ * ```ts
+ * getCommandSchema([generateCommand, agentCommand])
+ * // [{ name: 'generate', options: [...], subCommands: [] }, ...]
+ * ```
  */
 export function getCommandSchema(defs: CommandDefinition[]): CommandSchema[] {
   return defs.map(serializeCommand)

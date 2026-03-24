@@ -22,6 +22,11 @@ export function trimQuotes(text: string): string {
  * Handles quotes, backslashes, and Unicode line terminators (U+2028 / U+2029).
  *
  * @see http://www.ecma-international.org/ecma-262/5.1/#sec-7.8.4
+ *
+ * @example
+ * ```ts
+ * jsStringEscape('say "hi"\nbye') // 'say \\"hi\\"\\nbye'
+ * ```
  */
 export function jsStringEscape(input: unknown): string {
   return `${input}`.replace(/["'\\\n\r\u2028\u2029]/g, (character) => {
