@@ -35,7 +35,7 @@ const schemas = [
   { name: 'dataset_api', path: './schemas/dataset_api.yaml' },
   { name: 'petStoreV3', path: 'https://petstore3.swagger.io/api/v3/openapi.json' },
   { name: 'stripe', path: 'https://raw.githubusercontent.com/stripe/openapi/master/openapi/spec3.json', strict: false, typecheck: false }, // RangeError: Maximum call stack size exceeded — deeply recursive types overflow tsc
-  // { name: 'openai', path: 'https://app.stainless.com/api/spec/documented/openai/openapi.documented.yml', strict: false }, // generates zod schemas biome cannot parse (format hook error is swallowed, CI appears green despite failures)
+  { name: 'openai', path: 'https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.yaml', strict: false },
   { name: 'vercel', path: 'https://openapi.vercel.sh/', strict: false },
 ]
 
