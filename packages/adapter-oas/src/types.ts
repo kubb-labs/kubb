@@ -1,32 +1,7 @@
 import type { AdapterFactoryOptions } from '@kubb/core'
+import type { ParserOptions } from '@kubb/ast/types'
 import type { Oas as OasClass } from './oas/Oas.ts'
 import type { contentType } from './oas/types.ts'
-
-/**
- * Controls how various OAS constructs are mapped to Kubb AST nodes.
- */
-export type ParserOptions = {
-  /**
-   * How `format: 'date-time'` schemas are represented. `false` falls through to a plain string.
-   */
-  dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
-  /**
-   * Whether `type: 'integer'` and `format: 'int64'` produce `number` or `bigint` nodes.
-   */
-  integerType?: 'number' | 'bigint'
-  /**
-   * AST type used when no schema type can be inferred.
-   */
-  unknownType: 'any' | 'unknown' | 'void'
-  /**
-   * AST type used for completely empty schemas (`{}`).
-   */
-  emptySchemaType: 'any' | 'unknown' | 'void'
-  /**
-   * Suffix appended to derived enum names when building property schema names.
-   */
-  enumSuffix: 'enum' | (string & {})
-}
 
 export type OasAdapterOptions = {
   /**

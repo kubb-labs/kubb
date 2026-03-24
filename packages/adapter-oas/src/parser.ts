@@ -8,9 +8,11 @@ import {
   createRoot,
   createSchema,
   extractRefName,
+  type InferSchemaNode,
   mediaTypes,
   mergeAdjacentAnonymousObjects,
   narrowSchema,
+  type ParserOptions,
   schemaTypes,
   simplifyUnionMembers,
 } from '@kubb/ast'
@@ -32,13 +34,11 @@ import type {
 } from '@kubb/ast/types'
 import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, formatMap } from './constants.ts'
 import { createDiscriminantNode, resolveDiscriminatorValue } from './discriminator.ts'
-import type { InferSchemaNode } from './infer.ts'
 import { applyEnumName, resolveChildName, resolveEnumPropName } from './naming.ts'
 import type { Oas } from './oas/Oas.ts'
 import type { contentType, Operation, ReferenceObject, SchemaObject } from './oas/types.ts'
 import { flattenSchema, isDiscriminator, isNullable, isReference } from './oas/utils.ts'
 import { resolveRefs as resolveRefsNode } from './refResolver.ts'
-import type { ParserOptions } from './types.ts'
 
 /**
  * Construction-time options for `createOasParser`.

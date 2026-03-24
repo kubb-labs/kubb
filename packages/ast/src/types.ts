@@ -1,5 +1,6 @@
 export type { VisitorDepth } from './constants.ts'
 export type { DistributiveOmit } from './factory.ts'
+export type { InferSchema, InferSchemaNode, ParserOptions } from './infer.ts'
 export type {
   ArraySchemaNode,
   BaseNode,

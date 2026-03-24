@@ -12,9 +12,34 @@ import type {
   StringSchemaNode,
   TimeSchemaNode,
   UnionSchemaNode,
-} from '@kubb/ast/types'
-import type { SchemaObject } from './oas/types.ts'
-import type { ParserOptions } from './types.ts'
+  UrlSchemaNode,
+} from './nodes/index.ts'
+
+/**
+ * Shared parser options used by OAS-to-AST inference and parser flows.
+ */
+export type ParserOptions = {
+  /**
+   * How `format: 'date-time'` schemas are represented. `false` falls through to a plain string.
+   */
+  dateType: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
+  /**
+   * Whether `type: 'integer'` and `format: 'int64'` produce `number` or `bigint` nodes.
+   */
+  integerType?: 'number' | 'bigint'
+  /**
+   * AST type used when no schema type can be inferred.
+   */
+  unknownType: 'any' | 'unknown' | 'void'
+  /**
+   * AST type used for completely empty schemas (`{}`).
+   */
+  emptySchemaType: 'any' | 'unknown' | 'void'
+  /**
+   * Suffix appended to derived enum names when building property schema names.
+   */
+  enumSuffix: 'enum' | (string & {})
+}
 
 /**
  * Maps each `dateType` option value to the AST node produced by `format: 'date-time'`.
@@ -35,9 +60,8 @@ type ResolveDateTimeNode<TDateType extends ParserOptions['dateType']> = DateTime
   : 'string']
 
 /**
- * Single source of truth: ordered list of `[shape, SchemaNode]` pairs.
- * `InferSchemaNode` walks this tuple in order and returns the node type of the first matching entry.
- * Parameterized over `TDateType` so `format: 'date-time'` resolves to the correct node based on the option.
+ * Ordered list of `[schema-shape, SchemaNode]` pairs.
+ * `InferSchemaNode` walks this tuple in order and returns the first matching node type.
  */
 type SchemaNodeMap<TDateType extends ParserOptions['dateType'] = 'string'> = [
   [{ $ref: string }, RefSchemaNode],
@@ -51,6 +75,15 @@ type SchemaNodeMap<TDateType extends ParserOptions['dateType'] = 'string'> = [
   [{ type: ReadonlyArray<string> }, UnionSchemaNode],
   [{ type: 'array'; enum: ReadonlyArray<unknown> }, ArraySchemaNode],
   [{ enum: ReadonlyArray<unknown> }, EnumSchemaNode],
+  [{ type: 'enum' }, EnumSchemaNode],
+  [{ type: 'union' }, UnionSchemaNode],
+  [{ type: 'intersection' }, IntersectionSchemaNode],
+  [{ type: 'tuple' }, ArraySchemaNode],
+  [{ type: 'ref' }, RefSchemaNode],
+  [{ type: 'datetime' }, DatetimeSchemaNode],
+  [{ type: 'date' }, DateSchemaNode],
+  [{ type: 'time' }, TimeSchemaNode],
+  [{ type: 'url' }, UrlSchemaNode],
   [{ type: 'object' }, ObjectSchemaNode],
   [{ additionalProperties: boolean | {} }, ObjectSchemaNode],
   [{ type: 'array' }, ArraySchemaNode],
@@ -74,8 +107,11 @@ type SchemaNodeMap<TDateType extends ParserOptions['dateType'] = 'string'> = [
   [{ maximum: number }, NumberSchemaNode],
 ]
 
+/**
+ * Infers the matching AST `SchemaNode` type from an input schema shape.
+ */
 export type InferSchemaNode<
-  TSchema extends SchemaObject,
+  TSchema extends object,
   TDateType extends ParserOptions['dateType'] = 'string',
   TEntries extends ReadonlyArray<[object, SchemaNode]> = SchemaNodeMap<TDateType>,
 > = TEntries extends [infer TEntry extends [object, SchemaNode], ...infer TRest extends ReadonlyArray<[object, SchemaNode]>]
@@ -83,3 +119,12 @@ export type InferSchemaNode<
     ? TEntry[1]
     : InferSchemaNode<TSchema, TDateType, TRest>
   : SchemaNode
+
+/**
+ * Backward-compatible alias for `InferSchemaNode`.
+ */
+export type InferSchema<
+  TSchema extends object,
+  TDateType extends ParserOptions['dateType'] = 'string',
+  TEntries extends ReadonlyArray<[object, SchemaNode]> = SchemaNodeMap<TDateType>,
+> = InferSchemaNode<TSchema, TDateType, TEntries>

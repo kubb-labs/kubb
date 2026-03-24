@@ -1,4 +1,5 @@
 export { httpMethods, mediaTypes, nodeKinds, SCALAR_PRIMITIVE_TYPES, schemaTypes } from './constants.ts'
+export type { InferSchema, InferSchemaNode, ParserOptions } from './infer.ts'
 export {
   createFunctionParameter,
   createFunctionParameters,

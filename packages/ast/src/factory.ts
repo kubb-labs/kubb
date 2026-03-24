@@ -1,3 +1,4 @@
+import type { InferSchemaNode } from './infer.ts'
 import type {
   FunctionParameterNode,
   FunctionParametersNode,
@@ -23,6 +24,10 @@ import type {
  * ```
  */
 export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+
+type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties'> & { properties?: Array<PropertyNode> }
+type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>
+type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & { kind: 'Schema' }
 
 /**
  * Creates a `RootNode` with stable defaults for `schemas` and `operations`.
@@ -108,17 +113,14 @@ export function createOperation(
  * })
  * ```
  */
-export function createSchema<T extends Omit<ObjectSchemaNode, 'kind' | 'properties'> & { properties?: Array<PropertyNode> }>(
-  props: T,
-): Omit<T, 'properties'> & { properties: Array<PropertyNode>; kind: 'Schema' }
-export function createSchema<T extends DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>>(props: T): T & { kind: 'Schema' }
-export function createSchema(props: DistributiveOmit<SchemaNode, 'kind'>): SchemaNode
-export function createSchema(props: Record<string, unknown>): Record<string, unknown> {
+export function createSchema<T extends CreateSchemaInput>(props: T): CreateSchemaOutput<T>
+export function createSchema(props: CreateSchemaInput): SchemaNode
+export function createSchema(props: CreateSchemaInput): SchemaNode {
   if (props['type'] === 'object') {
-    return { properties: [], ...props, kind: 'Schema' }
+    return { properties: [], ...props, kind: 'Schema' } as CreateSchemaOutput<typeof props>
   }
 
-  return { ...props, kind: 'Schema' }
+  return { ...props, kind: 'Schema' } as CreateSchemaOutput<typeof props>
 }
 
 /**

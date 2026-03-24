@@ -110,6 +110,9 @@ describe('createProperty', () => {
     })
 
     expect(node.required).toBe(true)
+    expect(node.schema.optional).toBeFalsy()
+    expect(node.schema.nullable).toBeFalsy()
+    expect(node.schema.nullish).toBeFalsy()
   })
 })
 
