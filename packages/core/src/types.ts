@@ -596,7 +596,7 @@ export type Preset<TResolver extends Resolver = Resolver> = {
    * Optional generators used by this preset. Plugin implementations cast this
    * to their concrete generator type.
    */
-  generators?: Array<unknown>
+  generators?: Array<Generator>
 }
 
 /**

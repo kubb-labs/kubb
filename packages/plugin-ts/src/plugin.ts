@@ -32,15 +32,10 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     transformers: userTransformers,
   })
 
-  const generators: Array<Generator<PluginTs>> = (() => {
-    if (options.generators) {
-      return options.generators
-    }
-    if (presetGenerators.length > 0) {
-      return presetGenerators as Array<Generator<PluginTs>>
-    }
-    return [typeGenerator]
-  })()
+  const generators: Array<Generator<PluginTs>> =
+    presetGenerators.length > 0 || options.generators?.length
+      ? [...(presetGenerators as Array<Generator<PluginTs>>), ...(options.generators ?? [])]
+      : [typeGenerator]
 
   let resolveNameWarning = false
 

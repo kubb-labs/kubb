@@ -1,5 +1,5 @@
 import type { Visitor } from '@kubb/ast/types'
-import type { Preset, Resolver } from './types.ts'
+import type { Generator, Preset, Resolver } from './types.ts'
 
 /**
  * Creates a typed preset object that bundles a name, resolvers, optional
@@ -21,7 +21,7 @@ import type { Preset, Resolver } from './types.ts'
  */
 export function definePreset<TResolver extends Resolver = Resolver, TName extends string = string>(
   name: TName,
-  { resolvers, transformers, generators }: { resolvers: Array<TResolver>; transformers?: Array<Visitor>; generators?: Array<unknown> },
+  { resolvers, transformers, generators }: { resolvers: Array<TResolver>; transformers?: Array<Visitor>; generators?: Array<Generator> },
 ): Preset<TResolver> & { name: TName } {
   return { name, resolvers, transformers, generators }
 }

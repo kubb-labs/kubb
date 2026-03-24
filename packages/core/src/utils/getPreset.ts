@@ -1,5 +1,5 @@
 import type { Visitor } from '@kubb/ast/types'
-import type { CompatibilityPreset, Preset, Presets, Resolver } from '../types.ts'
+import type { CompatibilityPreset, Generator, Preset, Presets, Resolver } from '../types.ts'
 import { mergeResolvers } from './mergeResolvers.ts'
 
 type GetPresetParams<TResolver extends Resolver> = {
@@ -13,7 +13,7 @@ type GetPresetResult<TResolver extends Resolver> = {
   baseResolver: TResolver
   resolver: TResolver
   transformers: Array<Visitor>
-  generators: Array<unknown>
+  generators: Array<Generator>
   preset: Preset<TResolver> | undefined
 }
 
