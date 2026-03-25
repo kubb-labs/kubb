@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { defaultResolveFile, defaultResolvePath, defaultResolveBanner, defaultResolveFooter, defineResolver } from './defineResolver.ts'
+import { defaultResolveBanner, defaultResolveFile, defaultResolveFooter, defaultResolvePath, defineResolver } from './defineResolver.ts'
 import type { Builder, Config, Resolver, ResolverContext } from './types.ts'
 
 type TestResolver = Resolver & {

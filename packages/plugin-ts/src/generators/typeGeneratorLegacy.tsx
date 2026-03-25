@@ -162,10 +162,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
 
-    const file = resolver.resolveFile(
-      { name: node.operationId, extname: '.ts', mode, tag: node.tags[0] ?? 'default', path: node.path },
-      { root, output, group },
-    )
+    const file = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
     const params = caseParams(node.parameters, paramsCasing)
 
     function renderSchemaType({
@@ -189,7 +186,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
 
       const imports = adapter.getImports(transformedNode, (schemaName) => ({
         name: resolver.default(schemaName, 'type'),
-        path: resolver.resolveFile({ name: schemaName, extname: '.ts', mode }, { root, output, group }).path,
+        path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
       }))
 
       return (
@@ -306,7 +303,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
 
     const imports = adapter.getImports(transformedNode, (schemaName) => ({
       name: resolver.default(schemaName, 'type'),
-      path: resolver.resolveFile({ name: schemaName, extname: '.ts', mode }, { root, output, group }).path,
+      path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
     }))
 
     const isEnumSchema = !!narrowSchema(node, schemaTypes.enum)
@@ -316,7 +313,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
     const type = {
       name: resolver.resolveName(node.name),
       typedName,
-      file: resolver.resolveFile({ name: node.name, extname: '.ts', mode }, { root, output, group }),
+      file: resolver.resolveFile({ name: node.name, extname: '.ts' }, { root, output, group }),
     } as const
 
     return (

@@ -764,7 +764,6 @@ export type ResolverContext = {
 export type ResolverFileParams = {
   name: string
   extname: KubbFile.Extname
-  mode?: KubbFile.Mode
   /** Tag value used when `group.type === 'tag'`. */
   tag?: string
   /** Path value used when `group.type === 'path'`. */

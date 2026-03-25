@@ -242,11 +242,8 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
  * // → { baseName: 'listPets.ts', path: '/src/types/petsController/listPets.ts', ... }
  * ```
  */
-export function defaultResolveFile(
-  this: Resolver,
-  { name, extname, mode: pathMode, tag, path: groupPath }: ResolverFileParams,
-  context: ResolverContext,
-): KubbFile.File {
+export function defaultResolveFile(this: Resolver, { name, extname, tag, path: groupPath }: ResolverFileParams, context: ResolverContext): KubbFile.File {
+  const pathMode = getMode(path.resolve(context.root, context.output.path))
   const resolvedName = pathMode === 'single' ? '' : this.default(name, 'file')
   const baseName = `${resolvedName}${extname}` as KubbFile.BaseName
   const filePath = this.resolvePath({ baseName, pathMode, tag, path: groupPath }, context)

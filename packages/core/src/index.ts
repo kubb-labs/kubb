@@ -11,7 +11,15 @@ export { defineGenerator } from './defineGenerator.ts'
 export { defineLogger } from './defineLogger.ts'
 export { definePreset } from './definePreset.ts'
 export { definePresets } from './definePresets.ts'
-export { buildDefaultBanner, defaultResolveFile, defaultResolveFooter, defaultResolveBanner, defaultResolveOptions, defaultResolvePath, defineResolver } from './defineResolver.ts'
+export {
+  buildDefaultBanner,
+  defaultResolveBanner,
+  defaultResolveFile,
+  defaultResolveFooter,
+  defaultResolveOptions,
+  defaultResolvePath,
+  defineResolver,
+} from './defineResolver.ts'
 export { getMode, PluginDriver } from './PluginDriver.ts'
 export { renderOperation, renderOperations, renderSchema } from './renderNode.tsx'
 export { fsStorage } from './storages/fsStorage.ts'
