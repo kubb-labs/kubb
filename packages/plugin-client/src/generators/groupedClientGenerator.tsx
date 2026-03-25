@@ -1,5 +1,5 @@
 import { camelCase } from '@internals/utils'
-import { usePluginDriver } from '@kubb/core/hooks'
+import { useDriver } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -11,7 +11,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
   name: 'groupedClient',
   Operations({ operations, generator, plugin }) {
     const { options, name: pluginName } = plugin
-    const driver = usePluginDriver()
+    const driver = useDriver()
 
     const oas = useOas()
     const { getName, getFile, getGroup } = useOperationManager(generator)

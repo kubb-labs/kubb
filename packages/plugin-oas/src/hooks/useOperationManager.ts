@@ -1,5 +1,5 @@
 import type { FileMetaBase, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import { usePlugin, usePluginDriver } from '@kubb/core/hooks'
+import { useDriver, usePlugin } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation, Operation as OperationType } from '@kubb/oas'
 import type { OperationGenerator } from '../OperationGenerator.ts'
@@ -66,7 +66,7 @@ export function useOperationManager<TPluginOptions extends PluginFactoryOptions 
   generator: Omit<OperationGenerator<TPluginOptions>, 'build'>,
 ): UseOperationManagerResult {
   const plugin = usePlugin()
-  const driver = usePluginDriver()
+  const driver = useDriver()
   const defaultPluginName = plugin.name
 
   const getName: UseOperationManagerResult['getName'] = (operation, { prefix = '', suffix = '', pluginName = defaultPluginName, type }) => {

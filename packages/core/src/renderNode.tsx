@@ -1,5 +1,4 @@
 import type { OperationNode, SchemaNode } from '@kubb/ast/types'
-import type { KubbFile } from '@kubb/fabric-core/types'
 import { createReactFabric, Fabric } from '@kubb/react-fabric'
 import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import type { PluginDriver } from './PluginDriver.ts'
@@ -86,7 +85,7 @@ type BuildSchemaV2Options<TOptions extends PluginFactoryOptions> = {
  * Renders a React component for a single schema node (V2 generators).
  */
 export async function renderSchema<TOptions extends PluginFactoryOptions>(node: SchemaNode, options: BuildSchemaV2Options<TOptions>): Promise<void> {
-  const { config, fabric, plugin, Component, adapter, driver, mode } = options
+  const { config, fabric, plugin, Component, adapter, driver } = options
 
   if (!Component) {
     return undefined
@@ -95,7 +94,7 @@ export async function renderSchema<TOptions extends PluginFactoryOptions>(node: 
   const fabricChild = createReactFabric()
 
   await fabricChild.render(
-    <Fabric meta={{ plugin, driver, mode }}>
+    <Fabric meta={{ plugin, driver }}>
       <Component config={config} plugin={plugin} adapter={adapter} node={node} options={options.options} />
     </Fabric>,
   )

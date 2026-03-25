@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { usePluginDriver } from '@kubb/core/hooks'
+import { useDriver } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -13,7 +13,7 @@ import type { PluginClient } from '../types'
 export const clientGenerator = createReactGenerator<PluginClient>({
   name: 'client',
   Operation({ config, plugin, operation, generator }) {
-    const driver = usePluginDriver()
+    const driver = useDriver()
     const {
       options,
       options: { output, urlType },

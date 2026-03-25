@@ -1,4 +1,4 @@
-import { useMode, usePluginDriver } from '@kubb/core/hooks'
+import { useDriver, useMode } from '@kubb/core/hooks'
 import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
@@ -16,7 +16,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
       options: { dateParser, regexGenerator, seed, mapper },
     } = plugin
     const mode = useMode()
-    const driver = usePluginDriver()
+    const driver = useDriver()
 
     const oas = useOas()
     const { getSchemas, getFile, getGroup } = useOperationManager(generator)
@@ -109,7 +109,7 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     const {
       options: { output, dateParser, regexGenerator, seed, mapper },
     } = plugin
-    const driver = usePluginDriver()
+    const driver = useDriver()
     const oas = useOas()
     const imports = getImports(schema.tree)
 
