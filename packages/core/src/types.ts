@@ -299,25 +299,27 @@ export type ResolveOptionsContext<TOptions> = {
 /**
  * Base constraint for all plugin resolver objects.
  *
- * `default` and `resolveOptions` are injected automatically by `defineResolver` — plugin
- * authors may override them but never need to implement them from scratch.
- * Concrete plugin resolver types extend this with their own helper methods.
+ * `default`, `resolveOptions`, `resolvePath`, and `resolveFile` are injected automatically
+ * by `defineResolver` — plugin authors may override them but never need to implement them
+ * from scratch. Concrete plugin resolver types extend this with their own helper methods.
  */
 export type Resolver = {
   name: string
   default(name: ResolveNameParams['name'], type?: ResolveNameParams['type']): string
   resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
+  resolvePath(params: ResolverPathParams): KubbFile.Path
+  resolveFile(params: ResolverFileParams): KubbFile.File
 }
 
 /**
  * The user-facing subset of a `Resolver` — everything except the methods injected by
- * `defineResolver` (`default` and `resolveOptions`).
+ * `defineResolver` (`default`, `resolveOptions`, `resolvePath`, and `resolveFile`).
  *
- * When you pass a `UserResolver` to `defineResolver`, the standard `default` and
- * `resolveOptions` implementations are injected automatically so plugin authors never
- * need to define them by hand. Both can still be overridden by providing them explicitly.
+ * When you pass a `UserResolver` to `defineResolver`, the standard implementations are
+ * injected automatically so plugin authors never need to define them by hand. All can
+ * still be overridden by providing them explicitly.
  */
-export type UserResolver = Omit<Resolver, 'default' | 'resolveOptions'>
+export type UserResolver = Omit<Resolver, 'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile'>
 
 /**
  * Base type for plugin builder objects.
@@ -676,4 +678,31 @@ export type ResolvePathOptions = {
     path?: string
   }
   type?: ResolveNameParams['type']
+}
+
+/**
+ * Parameters for `Resolver.resolvePath` — a single object instead of positional args.
+ */
+export type ResolverPathParams = {
+  baseName: KubbFile.BaseName
+  pathMode?: KubbFile.Mode
+  /** Per-file group value (tag or path segment). */
+  options?: ResolvePathOptions
+  root: string
+  output: Output
+  group?: Group
+}
+
+/**
+ * Parameters for `Resolver.resolveFile` — a single object instead of positional args.
+ */
+export type ResolverFileParams = {
+  name: string
+  extname: KubbFile.Extname
+  mode?: KubbFile.Mode
+  /** Per-file group value (tag or path segment). */
+  options?: ResolvePathOptions
+  root: string
+  output: Output
+  group?: Group
 }

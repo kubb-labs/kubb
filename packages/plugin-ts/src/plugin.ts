@@ -39,14 +39,12 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     options: {
       output,
       optionalType,
+      group,
       arrayType,
       enumType,
       enumKeyCasing,
       syntaxType,
-      group,
-      override,
       paramsCasing,
-      compatibilityPreset,
       resolver,
       transformers,
     },
@@ -56,7 +54,10 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         resolvePathWarning = true
       }
 
-      return resolver.resolvePath(baseName, pathMode, options, {
+      return resolver.resolvePath({
+        baseName,
+        pathMode,
+        options,
         root: path.resolve(this.config.root, this.config.output.path),
         output,
         group,

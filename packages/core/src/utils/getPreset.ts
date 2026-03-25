@@ -15,7 +15,6 @@ type GetPresetParams<TResolver extends Resolver> = {
 
 type GetPresetResult<TResolver extends Resolver> = {
   resolver: TResolver
-  baseResolver: TResolver
   transformers: Array<Visitor>
   generators: Array<Generator<any>>
   preset: Preset<TResolver> | undefined
@@ -24,7 +23,7 @@ type GetPresetResult<TResolver extends Resolver> = {
 /**
  * Resolves a named preset into merged resolvers, transformers, and generators.
  *
- * - Merges the preset's resolvers on top of the first (default) resolver to produce `baseResolver`.
+ * - Merges the preset's resolvers on top of the first (default)
  * - Merges any additional user-supplied resolvers on top of that to produce the final `resolver`.
  * - Concatenates preset transformers before user-supplied transformers.
  * - Combines preset generators with user-supplied generators; falls back to the `default` preset's generators when neither provides any.
@@ -46,7 +45,6 @@ export function getPreset<TResolver extends Resolver = Resolver>(params: GetPres
 
   return {
     resolver,
-    baseResolver,
     transformers,
     generators,
     preset,

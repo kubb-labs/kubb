@@ -12,7 +12,6 @@ import type {
   ResolvePathOptions,
   Resolver,
 } from '@kubb/core'
-import type { KubbFile } from '@kubb/fabric-core/types'
 /**
  * The concrete resolver type for `@kubb/plugin-ts`.
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
@@ -196,30 +195,6 @@ export type ResolverTs = Resolver & {
    * resolver.resolveHeaderParamsTypedName(node) // → 'DeletePetHeaderParams'
    */
   resolveHeaderParamsTypedName?(node: OperationNode): string
-  /**
-   * Resolves the output file path for a generated file.
-   * Called from the `resolvePath` plugin lifecycle hook.
-   */
-  resolvePath(
-    baseName: KubbFile.BaseName,
-    pathMode: KubbFile.Mode | undefined,
-    options: ResolvePathOptions | undefined,
-    context: { root: string; output: Output; group: Group | undefined },
-  ): KubbFile.Path
-  /**
-   * Resolves a complete `KubbFile.File` for a generated file.
-   * Combines name resolution, path resolution, and file object construction
-   *
-   * @example
-   * const file = resolver.resolveFile(
-   *   { name: node.operationId, extname: '.ts', mode },
-   *   { root, output, group },
-   * )
-   */
-  resolveFile(
-    params: { name: string; extname: KubbFile.Extname; mode?: KubbFile.Mode; options?: ResolvePathOptions },
-    context: { root: string; output: Output; group: Group | undefined },
-  ): KubbFile.File
 }
 
 type BuildParamsSchemaOptions = {
@@ -368,14 +343,12 @@ export type Options = {
 type ResolvedOptions = {
   output: Output
   group: Options['group']
-  override: NonNullable<Options['override']>
   enumType: NonNullable<Options['enumType']>
   enumKeyCasing: NonNullable<Options['enumKeyCasing']>
   optionalType: NonNullable<Options['optionalType']>
   arrayType: NonNullable<Options['arrayType']>
   syntaxType: NonNullable<Options['syntaxType']>
   paramsCasing: Options['paramsCasing']
-  compatibilityPreset: NonNullable<CompatibilityPreset>
   resolver: ResolverTs
   transformers: Array<Visitor>
 }

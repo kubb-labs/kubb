@@ -1,14 +1,18 @@
+import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
 import { isOperationNode, isSchemaNode } from '@kubb/ast'
 import type { Node, OperationNode, SchemaNode } from '@kubb/ast/types'
-import type { PluginFactoryOptions, ResolveNameParams, ResolveOptionsContext } from './types.ts'
+import type { KubbFile } from '@kubb/fabric-core/types'
+import { getMode } from './PluginDriver.ts'
+import type { PluginFactoryOptions, ResolverFileParams, ResolverPathParams, ResolveNameParams, ResolveOptionsContext } from './types.ts'
 
 /**
  * Builder type for the plugin-specific resolver fields.
- * `default`, `resolveOptions`, and `name` are optional — built-in fallbacks are used when omitted.
+ * `default`, `resolveOptions`, `resolvePath`, and `resolveFile` are optional — built-in
+ * fallbacks are used when omitted.
  */
-type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<T['resolver'], 'default' | 'resolveOptions' | 'name'> &
-  Partial<Pick<T['resolver'], 'default' | 'resolveOptions'>> & { name: string } & ThisType<T['resolver']>
+type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<T['resolver'], 'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile' | 'name'> &
+  Partial<Pick<T['resolver'], 'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile'>> & { name: string } & ThisType<T['resolver']>
 
 /**
  * Checks if an operation matches a pattern for a given filter type (`tag`, `operationId`, `path`, `method`).
@@ -105,8 +109,43 @@ export function defaultResolveOptions<TOptions>(
 }
 
 /**
- * Defines a resolver for a plugin, with built-in defaults for name casing and include/exclude/override filtering.
- * Override `default` or `resolveOptions` in the builder to customize the behavior.
+ * Default path resolver — handles single-file mode, grouped paths (tag or path-based),
+ * and flat output. Used as the built-in `resolvePath` in `defineResolver`.
+ */
+export function defaultResolvePath({ baseName, pathMode, options, root, output, group }: ResolverPathParams): KubbFile.Path {
+  const mode = pathMode ?? getMode(path.resolve(root, output.path))
+
+  if (mode === 'single') {
+    return path.resolve(root, output.path) as KubbFile.Path
+  }
+
+  if (group && (options?.group?.path || options?.group?.tag)) {
+    const groupName = group.name
+      ? group.name
+      : (ctx: { group: string }) => {
+          if (group.type === 'path') {
+            return `${ctx.group.split('/')[1]}`
+          }
+          return `${camelCase(ctx.group)}Controller`
+        }
+
+    return path.resolve(
+      root,
+      output.path,
+      groupName({
+        group: group.type === 'path' ? options!.group!.path! : options!.group!.tag!,
+      }),
+      baseName,
+    ) as KubbFile.Path
+  }
+
+  return path.resolve(root, output.path, baseName) as KubbFile.Path
+}
+
+/**
+ * Defines a resolver for a plugin, with built-in defaults for name casing, include/exclude/override
+ * filtering, path resolution, and file object construction.
+ * Override `default`, `resolveOptions`, `resolvePath`, or `resolveFile` in the builder to customize.
  *
  * @example
  * export const resolver = defineResolver<PluginTs>(() => ({
@@ -126,6 +165,20 @@ export function defineResolver<T extends PluginFactoryOptions>(build: ResolverBu
   return {
     default: defaultResolver,
     resolveOptions: defaultResolveOptions,
+    resolvePath: defaultResolvePath,
+    resolveFile(this: T['resolver'], { name, extname, mode, options, root, output, group }: ResolverFileParams): KubbFile.File {
+      const resolvedName = mode === 'single' ? '' : this.default(name, 'file')
+      const baseName = `${resolvedName}${extname}` as KubbFile.BaseName
+      const filePath = this.resolvePath({ baseName, pathMode: mode, options, root, output, group })
+
+      return {
+        path: filePath,
+        baseName: path.basename(filePath) as KubbFile.BaseName,
+        sources: [],
+        imports: [],
+        exports: [],
+      }
+    },
     ...build(),
   } as T['resolver']
 }
