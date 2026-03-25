@@ -201,6 +201,17 @@ describe('typeGenerator schema', async () => {
       },
     },
     {
+      name: 'EnumNamesAsConstEmptyTypeSuffix',
+      input: '../../mocks/enums.yaml',
+      path: 'enumNames.Type',
+      options: {
+        enumType: 'asConst',
+        enumSuffix: '',
+        enumTypeSuffix: '',
+        optionalType: 'questionToken',
+      },
+    },
+    {
       name: 'EnumItems',
       input: '../../mocks/enums.yaml',
       path: 'enum.Items',
@@ -283,6 +294,17 @@ describe('typeGenerator schema', async () => {
       path: 'enumNames.Type',
       options: {
         enumType: 'asPascalConst',
+        optionalType: 'questionToken',
+      },
+    },
+    {
+      name: 'EnumNamesPascalConstEmptyTypeSuffix',
+      input: '../../mocks/enums.yaml',
+      path: 'enumNames.Type',
+      options: {
+        enumType: 'asPascalConst',
+        enumSuffix: '',
+        enumTypeSuffix: '',
         optionalType: 'questionToken',
       },
     },
@@ -625,6 +647,7 @@ describe('typeGenerator schema', async () => {
 
     const options: PluginTs['resolvedOptions'] = {
       enumType: 'asConst',
+      enumTypeSuffix: 'Key',
       enumKeyCasing: 'none',
       enumSuffix: 'enum',
       dateType: 'string',
@@ -787,6 +810,7 @@ describe('typeGenerator operation', async () => {
 
     const options: PluginTs['resolvedOptions'] = {
       enumType: 'asConst',
+      enumTypeSuffix: 'Key',
       enumKeyCasing: 'none',
       enumSuffix: '',
       dateType: 'string',

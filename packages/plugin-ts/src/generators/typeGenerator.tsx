@@ -315,7 +315,7 @@ export const typeGenerator = createReactGenerator<PluginTs, '1'>({
   Operation({ operation, generator, plugin }) {
     const {
       options,
-      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing },
+      options: { mapper, enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, unknownType, paramsCasing },
     } = plugin
 
     const mode = useMode()
@@ -372,6 +372,7 @@ export const typeGenerator = createReactGenerator<PluginTs, '1'>({
             schema={transformedSchema}
             mapper={mapper}
             enumType={enumType}
+            enumTypeSuffix={enumTypeSuffix}
             enumKeyCasing={enumKeyCasing}
             optionalType={optionalType}
             arrayType={arrayType}
@@ -416,7 +417,7 @@ export const typeGenerator = createReactGenerator<PluginTs, '1'>({
   },
   Schema({ schema, plugin }) {
     const {
-      options: { mapper, enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output },
+      options: { mapper, enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output },
     } = plugin
     const mode = useMode()
 
@@ -430,7 +431,7 @@ export const typeGenerator = createReactGenerator<PluginTs, '1'>({
     let typedName = getName(schema.name, { type: 'type' })
 
     if (['asConst', 'asPascalConst'].includes(enumType) && schemaFromTree && isKeyword(schemaFromTree, schemaKeywords.enum)) {
-      typedName = typedName += 'Key' //Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
+      typedName += enumTypeSuffix // Suffix for avoiding collisions (https://github.com/kubb-labs/kubb/issues/1873)
     }
 
     const type = {
@@ -459,6 +460,7 @@ export const typeGenerator = createReactGenerator<PluginTs, '1'>({
           schema={schema.value}
           mapper={mapper}
           enumType={enumType}
+          enumTypeSuffix={enumTypeSuffix}
           enumKeyCasing={enumKeyCasing}
           optionalType={optionalType}
           arrayType={arrayType}

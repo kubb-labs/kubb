@@ -17,6 +17,7 @@ type Props = {
   optionalType: PluginTs['resolvedOptions']['optionalType']
   arrayType: PluginTs['resolvedOptions']['arrayType']
   enumType: PluginTs['resolvedOptions']['enumType']
+  enumTypeSuffix: PluginTs['resolvedOptions']['enumTypeSuffix']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
   mapper: PluginTs['resolvedOptions']['mapper']
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
@@ -34,6 +35,7 @@ export function Type({
   arrayType,
   syntaxType,
   enumType,
+  enumTypeSuffix,
   enumKeyCasing,
   mapper,
   description,
@@ -56,6 +58,7 @@ export function Type({
             optionalType,
             arrayType,
             enumType,
+            enumTypeSuffix,
             mapper,
           },
         ),
@@ -63,14 +66,14 @@ export function Type({
       .filter(Boolean)
       .at(0) as ts.TypeNode) || typeKeywordMapper.undefined()
 
-  // Add a "Key" suffix to avoid collisions where necessary
+  // Add a configurable suffix to avoid collisions where necessary
   if (['asConst', 'asPascalConst'].includes(enumType) && enumSchemas.length > 0) {
     const isDirectEnum = schema.type === 'array' && schema.items !== undefined
     const isEnumOnly = 'enum' in schema && schema.enum
 
     if (isDirectEnum || isEnumOnly) {
       const enumSchema = enumSchemas[0]!
-      const typeNameWithKey = `${enumSchema.args.typeName}Key`
+      const typeNameWithKey = `${enumSchema.args.typeName}${enumTypeSuffix}`
 
       type = factory.createTypeReferenceNode(typeNameWithKey)
 
@@ -137,7 +140,7 @@ export function Type({
 
   const enums = [...new Set(enumSchemas)].map((enumSchema) => {
     const name = enumType === 'asPascalConst' ? pascalCase(enumSchema.args.name) : camelCase(enumSchema.args.name)
-    const typeName = ['asConst', 'asPascalConst'].includes(enumType) ? `${enumSchema.args.typeName}Key` : enumSchema.args.typeName
+    const typeName = ['asConst', 'asPascalConst'].includes(enumType) ? `${enumSchema.args.typeName}${enumTypeSuffix}` : enumSchema.args.typeName
 
     const [nameNode, typeNode] = factory.createEnumDeclaration({
       name,

@@ -1,4 +1,5 @@
 import { schemas } from '@kubb/plugin-oas/mocks'
+import ts from 'typescript'
 import { describe, expect, it, test } from 'vitest'
 import * as parserType from './parser.ts'
 
@@ -92,5 +93,26 @@ describe('type parse', () => {
       expect(result).toBeTruthy()
       expect(result).toMatchSnapshot()
     })
+  })
+
+  it('should use custom enumTypeSuffix for asConst enum references', () => {
+    const schema = {
+      keyword: 'enum',
+      args: {
+        typeName: 'Status',
+        items: [
+          { name: 'A', value: 'a', format: 'string' },
+          { name: 'B', value: 'b', format: 'string' },
+        ],
+      },
+    }
+
+    const result = parserType.parse(
+      { name: 'status', schema: {}, parent: undefined, current: schema, siblings: [schema] },
+      { optionalType: 'questionToken', arrayType: 'array', enumType: 'asConst', enumTypeSuffix: 'Value' },
+    )
+
+    expect(result).toBeTruthy()
+    expect(result && ts.isTypeReferenceNode(result) && ts.isIdentifier(result.typeName) ? result.typeName.text : '').toBe('StatusValue')
   })
 })
