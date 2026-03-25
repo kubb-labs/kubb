@@ -15,6 +15,15 @@ outline: deep
 -   [`ff16227`](https://github.com/kubb-labs/kubb/commit/ff162270a5695543cde5055345668bbf30aa14ce) - Updated internal Fabric setup to address minor compatibility issues, ensuring smoother integration with all plugins.
 
 
+
+## 4.36.5
+
+### ✨ Features
+
+#### [`@kubb/cli`](/packages/cli) [`@kubb/mcp`](/packages/mcp)
+
+- Support `kubb.config.mts` and `kubb.config.cts` config file extensions. Users migrating to `"moduleResolution": "bundler"` (e.g. TypeScript 6) can now use `.mts` or `.cts` extensions for their Kubb config file.
+
 ## 4.36.2
 
 ### 📦 Dependencies
