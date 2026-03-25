@@ -1,5 +1,36 @@
 # @kubb/plugin-ts
 
+## 4.37.0
+
+### Minor Changes
+
+- [#2916](https://github.com/kubb-labs/kubb/pull/2916) [`117fe78`](https://github.com/kubb-labs/kubb/commit/117fe785edcbf584042c98aea7cf35f60c0d9228) Thanks [@julian99m](https://github.com/julian99m)! - New config param `enumTypeSuffix` to speficy a custom type name suffix when using `enumType: asConst|asPascalConst`.
+  Default value `Key` for backwards compatibility.
+
+  **Before/Default:**
+
+  ```typescript
+  export const GetPetsQueryParamsStatusEnum = { ... }
+  export type GetPetsQueryParamsStatusEnumKey = ...
+  ```
+
+  **After:**
+
+  ```typescript
+  export const GetPetsQueryParamsStatusEnum = { ... }
+  export type GetPetsQueryParamsStatusEnumCustomSuffix = ... // enumTypeSuffix=CustomSuffix
+  ```
+
+  This change restores compatibility with the behavior before PR #2467 as well as maintaining the default behavior after said PR.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@4.37.0
+  - @kubb/core@4.37.0
+  - @kubb/oas@4.37.0
+  - @kubb/plugin-oas@4.37.0
+
 ## 4.36.5
 
 ### Patch Changes
