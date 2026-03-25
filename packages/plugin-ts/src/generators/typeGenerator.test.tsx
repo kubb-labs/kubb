@@ -8,6 +8,7 @@ import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matc
 import { resolverTs, resolverTsLegacy } from '../resolvers'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
+import { typeGeneratorLegacy } from './typeGeneratorLegacy.tsx'
 
 describe('typeGenerator v2 — Operation', () => {
   const fabric = createReactFabric()
@@ -447,7 +448,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
       fabric,
       adapter: createMockedAdapter(),
       driver: mockedPluginDriver,
-      Component: typeGenerator.Operation,
+      Component: typeGeneratorLegacy.Operation,
       plugin,
       mode: 'split',
       options: legacyOptions,
@@ -496,7 +497,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
       fabric,
       adapter: createMockedAdapter(),
       driver: mockedPluginDriver,
-      Component: typeGenerator.Operation,
+      Component: typeGeneratorLegacy.Operation,
       plugin,
       mode: 'split',
       options,
@@ -540,7 +541,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
       fabric,
       adapter: createMockedAdapter(),
       driver: mockedPluginDriver,
-      Component: typeGenerator.Operation,
+      Component: typeGeneratorLegacy.Operation,
       plugin,
       mode: 'split',
       options,
@@ -586,7 +587,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
       fabric,
       adapter: createMockedAdapter(),
       driver: mockedPluginDriver,
-      Component: typeGenerator.Operation,
+      Component: typeGeneratorLegacy.Operation,
       plugin,
       mode: 'split',
       options,

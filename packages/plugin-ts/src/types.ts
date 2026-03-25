@@ -1,9 +1,5 @@
 import type { OperationNode, ParameterNode, SchemaNode, StatusCode, Visitor } from '@kubb/ast/types'
-import type { CompatibilityPreset, Group, Output, PluginFactoryOptions, Resolver } from '@kubb/core'
-import type { contentType, Oas } from '@kubb/oas'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { Generator } from '@kubb/plugin-oas/generators'
-
+import type { CompatibilityPreset, Exclude, Generator, Group, Include, Output, Override, PluginFactoryOptions, ResolvePathOptions, Resolver } from '@kubb/core'
 /**
  * The concrete resolver type for `@kubb/plugin-ts`.
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
@@ -194,12 +190,12 @@ export type Options = {
    * Specify the export location for the files and define the behavior of the output
    * @default { path: 'types', barrelType: 'named' }
    */
-  output?: Output<Oas>
+  output?: Output
   /**
    * Define which contentType should be used.
    * By default, uses the first valid JSON media type.
    */
-  contentType?: contentType
+  contentType?: 'application/json' | (string & {})
   /**
    * Group the clients based on the provided name.
    */
@@ -315,7 +311,7 @@ export type Options = {
 }
 
 type ResolvedOptions = {
-  output: Output<Oas>
+  output: Output
   group: Options['group']
   override: NonNullable<Options['override']>
   enumType: NonNullable<Options['enumType']>

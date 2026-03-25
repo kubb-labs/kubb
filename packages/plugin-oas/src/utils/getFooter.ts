@@ -13,7 +13,7 @@ export function getFooter<TOas extends Oas>({ output, oas }: Props<TOas>) {
   }
 
   if (isFunction(output.footer)) {
-    return output.footer(oas)
+    return output.footer(oas as any)
   }
 
   return output.footer
