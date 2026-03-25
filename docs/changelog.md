@@ -6,6 +6,14 @@ outline: deep
 
 # Changelog
 
+## 4.36.5
+
+### ✨ Features
+
+#### [`@kubb/cli`](/packages/cli) [`@kubb/mcp`](/packages/mcp)
+
+- Support `kubb.config.mts` and `kubb.config.cts` config file extensions. Users migrating to `"moduleResolution": "bundler"` (e.g. TypeScript 6) can now use `.mts` or `.cts` extensions for their Kubb config file.
+
 ## 4.36.2
 
 ### 📦 Dependencies
