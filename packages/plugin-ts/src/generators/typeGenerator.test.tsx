@@ -174,7 +174,6 @@ describe('typeGenerator v2 — Operation', () => {
       driver: mockedPluginDriver,
       Component: typeGenerator.Operation,
       plugin,
-      mode: 'split',
       options: options,
     })
 
@@ -230,7 +229,6 @@ describe('typeGenerator v2 — Operation — group', () => {
       driver: mockedPluginDriver,
       Component: typeGenerator.Operation,
       plugin,
-      mode: 'split',
       options,
     })
 
@@ -261,7 +259,6 @@ describe('typeGenerator v2 — Operation — group', () => {
       driver: mockedPluginDriver,
       Component: typeGenerator.Operation,
       plugin,
-      mode: 'split',
       options,
     })
 
@@ -318,7 +315,6 @@ describe('typeGenerator v2 — Schema (enum)', () => {
       driver: mockedPluginDriver,
       Component: typeGenerator.Schema,
       plugin,
-      mode: 'split',
       options,
     })
 
@@ -444,7 +440,6 @@ describe('typeGenerator v2 — Operation — legacy', () => {
       driver: mockedPluginDriver,
       Component: typeGeneratorLegacy.Operation,
       plugin,
-      mode: 'split',
       options: legacyOptions,
     })
 
@@ -492,7 +487,6 @@ describe('typeGenerator v2 — Operation — legacy', () => {
       driver: mockedPluginDriver,
       Component: typeGeneratorLegacy.Operation,
       plugin,
-      mode: 'split',
       options,
     })
 
@@ -535,7 +529,6 @@ describe('typeGenerator v2 — Operation — legacy', () => {
       driver: mockedPluginDriver,
       Component: typeGeneratorLegacy.Operation,
       plugin,
-      mode: 'split',
       options,
     })
 
@@ -580,7 +573,6 @@ describe('typeGenerator v2 — Operation — legacy', () => {
       driver: mockedPluginDriver,
       Component: typeGeneratorLegacy.Operation,
       plugin,
-      mode: 'split',
       options,
     })
 

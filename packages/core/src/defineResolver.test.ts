@@ -122,7 +122,7 @@ describe('defaultResolveFile', () => {
   })
 
   it('returns output dir path in single mode', () => {
-    const file = defaultResolveFile.call(resolver, { name: 'pet', extname: '.ts', mode: 'single' }, context)
+    const file = defaultResolveFile.call(resolver, { name: 'pet', extname: '.ts' }, context)
 
     expect(file.path).toBe('/root/types')
     expect(file.baseName).toBe('types')
