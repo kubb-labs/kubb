@@ -625,6 +625,7 @@ describe('typeGenerator schema', async () => {
 
     const options: PluginTs['resolvedOptions'] = {
       enumType: 'asConst',
+      enumTypeSuffix: 'Key',
       enumKeyCasing: 'none',
       enumSuffix: 'enum',
       dateType: 'string',
@@ -787,6 +788,7 @@ describe('typeGenerator operation', async () => {
 
     const options: PluginTs['resolvedOptions'] = {
       enumType: 'asConst',
+      enumTypeSuffix: 'Key',
       enumKeyCasing: 'none',
       enumSuffix: '',
       dateType: 'string',

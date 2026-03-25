@@ -196,6 +196,13 @@ describe('printerTs', () => {
       expect(await formatTS(result)).toBe('StatusKey')
     })
 
+    it('enum with name and enumType=asConst uses custom enumTypeSuffix', async () => {
+      const p = printerTs({ optionalType: 'questionToken', arrayType: 'array', enumType: 'asConst', enumTypeSuffix: 'Value' })
+      const result = p.print(createSchema({ type: 'enum', name: 'Status', enumValues: ['active', 'inactive'] }))
+
+      expect(await formatTS(result)).toBe('StatusValue')
+    })
+
     it('enum with name and enumType=literal renders reference', async () => {
       const p = printerTs({ optionalType: 'questionToken', arrayType: 'array', enumType: 'literal' })
       const result = p.print(createSchema({ type: 'enum', name: 'Status', enumValues: ['active', 'inactive'] }))

@@ -18,6 +18,10 @@ type TsOptions = {
    * @default `'inlineLiteral'`
    */
   enumType: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
+  /**
+   * @default `'Key'`
+   */
+  enumTypeSuffix?: string
 }
 
 type TsPrinter = PrinterFactoryOptions<'typescript', TsOptions, ts.TypeNode>
@@ -173,7 +177,8 @@ export const printerTs = definePrinter<TsPrinter>((options) => ({
         return factory.createUnionDeclaration({ withParentheses: true, nodes: literalNodes }) ?? undefined
       }
 
-      const typeName = ['asConst', 'asPascalConst'].includes(this.options.enumType) ? `${node.name}Key` : node.name
+      const enumTypeSuffix = this.options.enumTypeSuffix ?? 'Key'
+      const typeName = ['asConst', 'asPascalConst'].includes(this.options.enumType) ? `${node.name}${enumTypeSuffix}` : node.name
 
       return factory.createTypeReferenceNode(typeName, undefined)
     },

@@ -44,6 +44,11 @@ export type Options = {
    */
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   /**
+   * Set a suffix for generated enum type aliases when `enumType` is `asConst` or `asPascalConst`.
+   * @default 'Key'
+   */
+  enumTypeSuffix?: string
+  /**
    * Choose the casing for enum key names.
    * - 'screamingSnakeCase' generates keys in SCREAMING_SNAKE_CASE format.
    * - 'snakeCase' generates keys in snake_case format.
@@ -150,6 +155,7 @@ type ResolvedOptions = {
   group: Options['group']
   override: NonNullable<Options['override']>
   enumType: NonNullable<Options['enumType']>
+  enumTypeSuffix: NonNullable<Options['enumTypeSuffix']>
   enumKeyCasing: NonNullable<Options['enumKeyCasing']>
   enumSuffix: NonNullable<Options['enumSuffix']>
   dateType: NonNullable<Options['dateType']>
