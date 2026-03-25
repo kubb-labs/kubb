@@ -5,10 +5,6 @@
 
 export type ListPetsQueryLimit = number
 
-export type ListPetsQueryParams = {
-  limit?: ListPetsQueryLimit
-}
-
 /**
  * @description A paged array of pets
  */

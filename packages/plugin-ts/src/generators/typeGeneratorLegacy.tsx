@@ -6,6 +6,7 @@ import { useKubb } from '@kubb/core/hooks'
 import { File } from '@kubb/react-fabric'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
+import { resolverTsLegacy } from '../resolvers/resolverTsLegacy.ts'
 import type { PluginTs, ResolverTs } from '../types'
 
 type BuildGroupedParamsSchemaOptions = {
@@ -156,7 +157,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
   name: 'typescript-legacy',
   type: 'react',
   Operation({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver, baseResolver, transformers = [] } = options
+    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver, transformers = [] } = options
     const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     const file = getFile({
@@ -220,7 +221,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
 
     const responseTypes = node.responses.map((res) => {
       const responseName = resolver.resolveResponseStatusName(node, res.statusCode)
-      const baseResponseName = baseResolver.resolveResponseStatusName(node, res.statusCode)
+      const baseResponseName = resolverTsLegacy.resolveResponseStatusName(node, res.statusCode)
 
       return renderSchemaType({
         node: res.schema ? nameUnnamedEnums(res.schema, baseResponseName) : res.schema,
@@ -233,7 +234,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
 
     const requestType = node.requestBody?.schema
       ? renderSchemaType({
-          node: nameUnnamedEnums(node.requestBody.schema, baseResolver.resolveDataName(node)),
+          node: nameUnnamedEnums(node.requestBody.schema, resolverTsLegacy.resolveDataName(node)),
           name: resolver.resolveDataName(node),
           typedName: resolver.resolveDataTypedName(node),
           description: node.requestBody.description ?? node.requestBody.schema.description,
@@ -244,21 +245,21 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
     const legacyParamTypes = [
       pathParams.length > 0
         ? renderSchemaType({
-            node: buildGroupedParamsSchema({ params: pathParams, parentName: baseResolver.resolvePathParamsName!(node) }),
+            node: buildGroupedParamsSchema({ params: pathParams, parentName: resolverTsLegacy.resolvePathParamsName!(node) }),
             name: resolver.resolvePathParamsName!(node),
             typedName: resolver.resolvePathParamsTypedName!(node),
           })
         : null,
       queryParams.length > 0
         ? renderSchemaType({
-            node: buildGroupedParamsSchema({ params: queryParams, parentName: baseResolver.resolveQueryParamsName!(node) }),
+            node: buildGroupedParamsSchema({ params: queryParams, parentName: resolverTsLegacy.resolveQueryParamsName!(node) }),
             name: resolver.resolveQueryParamsName!(node),
             typedName: resolver.resolveQueryParamsTypedName!(node),
           })
         : null,
       headerParams.length > 0
         ? renderSchemaType({
-            node: buildGroupedParamsSchema({ params: headerParams, parentName: baseResolver.resolveHeaderParamsName!(node) }),
+            node: buildGroupedParamsSchema({ params: headerParams, parentName: resolverTsLegacy.resolveHeaderParamsName!(node) }),
             name: resolver.resolveHeaderParamsName!(node),
             typedName: resolver.resolveHeaderParamsTypedName!(node),
           })

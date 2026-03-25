@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { definePreset } from '../definePreset.ts'
 import { definePresets } from '../definePresets.ts'
 import { defineResolver } from '../defineResolver.ts'
-import type { Resolver } from '../types.ts'
+import type { Builder, Resolver } from '../types.ts'
 import { getPreset } from './getPreset.ts'
 
 type TestResolver = Resolver & {
@@ -18,6 +18,7 @@ type TestPluginFactory = {
   context: never
   resolvePathOptions: object
   resolver: TestResolver
+  builder: Builder
 }
 
 const baseResolver = defineResolver<TestPluginFactory>(() => ({

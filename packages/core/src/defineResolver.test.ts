@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { defineResolver } from './defineResolver.ts'
-import type { Resolver } from './types.ts'
+import type { Builder, Resolver } from './types.ts'
 
 type TestResolver = Resolver & {
   greet(name: string): string
@@ -14,6 +14,7 @@ type TestPluginFactory = {
   context: never
   resolvePathOptions: object
   resolver: TestResolver
+  builder: Builder
 }
 
 describe('defineResolver', () => {

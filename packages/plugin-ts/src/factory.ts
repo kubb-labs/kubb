@@ -19,16 +19,6 @@ export const syntaxKind = {
   stringLiteral: SyntaxKind.StringLiteral,
 } as const
 
-export function getUnknownType(unknownType: 'any' | 'unknown' | 'void' | undefined) {
-  if (unknownType === 'any') {
-    return keywordTypeNodes.any
-  }
-  if (unknownType === 'void') {
-    return keywordTypeNodes.void
-  }
-
-  return keywordTypeNodes.unknown
-}
 function isValidIdentifier(str: string): boolean {
   if (!str.length || str.trim() !== str) {
     return false
@@ -68,28 +58,6 @@ export function createIntersectionDeclaration({ nodes, withParentheses }: { node
   }
 
   const node = factory.createIntersectionTypeNode(nodes)
-
-  if (withParentheses) {
-    return factory.createParenthesizedType(node)
-  }
-
-  return node
-}
-
-/**
- * Minimum nodes length of 2
- * @example `string & number`
- */
-export function createTupleDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
-  if (!nodes.length) {
-    return null
-  }
-
-  if (nodes.length === 1) {
-    return nodes[0] || null
-  }
-
-  const node = factory.createTupleTypeNode(nodes)
 
   if (withParentheses) {
     return factory.createParenthesizedType(node)

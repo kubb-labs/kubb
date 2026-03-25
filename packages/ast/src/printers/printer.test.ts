@@ -62,7 +62,7 @@ describe('definePrinter', () => {
     expect(zodPrinter().print(createSchema({ type: 'string' }))).toBe('z.string()')
   })
 
-  it('supports recursive this.print() for object properties', () => {
+  it('supports recursive this.transform() for object properties', () => {
     type P = PrinterFactoryOptions<'zod', object, string>
 
     const zodPrinter = definePrinter<P>(() => ({
@@ -76,7 +76,7 @@ describe('definePrinter', () => {
           return 'z.number()'
         },
         object(node) {
-          const props = node.properties.map((p) => `${p.name}: ${this.print(p.schema)}`).join(', ')
+          const props = node.properties.map((p) => `${p.name}: ${this.transform(p.schema)}`).join(', ')
           return `z.object({ ${props} })`
         },
       },
@@ -93,7 +93,7 @@ describe('definePrinter', () => {
     expect(zodPrinter().print(node)).toBe('z.object({ id: z.number(), label: z.string() })')
   })
 
-  it('supports recursive this.print() for union members', () => {
+  it('supports recursive this.transform() for union members', () => {
     type P = PrinterFactoryOptions<'zod', object, string>
 
     const zodPrinter = definePrinter<P>(() => ({
@@ -107,7 +107,7 @@ describe('definePrinter', () => {
           return 'z.number()'
         },
         union(node) {
-          const members = node.members?.map((m) => this.print(m)).filter(Boolean) ?? []
+          const members = node.members?.map((m) => this.transform(m)).filter(Boolean) ?? []
           return `z.union([${members.join(', ')}])`
         },
       },

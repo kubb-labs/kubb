@@ -10,12 +10,12 @@ export const presets = definePresets<ResolverTs>({
 })
 
 type GetPresetOptions = {
-  resolvers?: Array<ResolverTs>
-  transformers?: Array<Visitor>
-  generators?: Array<Generator<PluginTs>>
+  resolvers: Array<ResolverTs>
+  transformers: Array<Visitor>
+  generators: Array<Generator<PluginTs>>
 }
 
-export function getPreset(preset: CompatibilityPreset, { resolvers, transformers, generators }: GetPresetOptions = {}) {
+export function getPreset(preset: CompatibilityPreset, { resolvers, transformers, generators }: GetPresetOptions) {
   return getCorePreset({
     preset,
     presets,

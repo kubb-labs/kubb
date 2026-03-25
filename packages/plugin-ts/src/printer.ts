@@ -3,6 +3,7 @@ import { isStringType, narrowSchema, schemaTypes } from '@kubb/ast'
 import type { ArraySchemaNode, SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
+import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type ts from 'typescript'
 import { ENUM_TYPES_WITH_KEY_SUFFIX, OPTIONAL_ADDS_QUESTION_TOKEN, OPTIONAL_ADDS_UNDEFINED } from './constants.ts'
 import * as factory from './factory.ts'
@@ -50,7 +51,7 @@ type TsOptions = {
 /**
  * TypeScript printer factory options: maps `SchemaNode` → `ts.TypeNode` (raw) or `ts.Node` (full declaration).
  */
-type TsPrinter = PrinterFactoryOptions<'typescript', TsOptions, ts.TypeNode, ts.Node>
+type TsPrinter = PrinterFactoryOptions<'typescript', TsOptions, ts.TypeNode, string>
 
 /**
  * Converts a primitive const value to a TypeScript literal type node.
@@ -287,32 +288,33 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
                 })
               }
 
-              return this.print(m)
+              return this.transform(m)
             })
             .filter(Boolean)
 
           return factory.createUnionDeclaration({ withParentheses: true, nodes: memberNodes }) ?? undefined
         }
 
-        return factory.createUnionDeclaration({ withParentheses: true, nodes: buildMemberNodes(members, this.print) }) ?? undefined
+        return factory.createUnionDeclaration({ withParentheses: true, nodes: buildMemberNodes(members, this.transform) }) ?? undefined
       },
       intersection(node) {
-        return factory.createIntersectionDeclaration({ withParentheses: true, nodes: buildMemberNodes(node.members, this.print) }) ?? undefined
+        return factory.createIntersectionDeclaration({ withParentheses: true, nodes: buildMemberNodes(node.members, this.transform) }) ?? undefined
       },
       array(node) {
-        const itemNodes = (node.items ?? []).map((item) => this.print(item)).filter(Boolean)
+        const itemNodes = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
 
         return factory.createArrayDeclaration({ nodes: itemNodes, arrayType: this.options.arrayType }) ?? undefined
       },
       tuple(node) {
-        return buildTupleNode(node, this.print)
+        return buildTupleNode(node, this.transform)
       },
       object(node) {
-        const { print, options } = this
+        const { transform, options } = this
+
         const addsQuestionToken = OPTIONAL_ADDS_QUESTION_TOKEN.has(options.optionalType)
 
         const propertyNodes: Array<ts.TypeElement> = node.properties.map((prop) => {
-          const baseType = print(prop.schema) ?? factory.keywordTypeNodes.unknown
+          const baseType = transform(prop.schema) ?? factory.keywordTypeNodes.unknown
           const type = buildPropertyType(prop.schema, baseType, options.optionalType)
 
           const propertyNode = factory.createPropertySignature({
@@ -325,7 +327,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
           return factory.appendJSDocToNode({ node: propertyNode, comments: buildPropertyJSDocComments(prop.schema) })
         })
 
-        const allElements = [...propertyNodes, ...buildIndexSignatures(node, propertyNodes.length, print)]
+        const allElements = [...propertyNodes, ...buildIndexSignatures(node, propertyNodes.length, transform)]
 
         if (!allElements.length) {
           return factory.keywordTypeNodes.object
@@ -335,10 +337,10 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
       },
     },
     print(node) {
-      let type = this.print(node)
+      let type = this.transform(node)
 
       if (!type) {
-        return undefined
+        return null
       }
 
       // Apply top-level nullable / optional union modifiers.
@@ -353,12 +355,12 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
       // Without typeName, return the type node as-is (no declaration wrapping).
       const { typeName, syntaxType = 'type', description, keysToOmit } = this.options
       if (!typeName) {
-        return type
+        return safePrint(type)
       }
 
       const useTypeGeneration = syntaxType === 'type' || type.kind === factory.syntaxKind.union || !!keysToOmit?.length
 
-      return factory.createTypeDeclaration({
+      const typeNode = factory.createTypeDeclaration({
         name: typeName,
         isExportable: true,
         type: keysToOmit?.length
@@ -380,6 +382,8 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
           node?.example ? `@example ${node.example}` : undefined,
         ],
       })
+
+      return safePrint(typeNode)
     },
   }
 })

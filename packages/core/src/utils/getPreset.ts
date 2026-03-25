@@ -14,8 +14,8 @@ type GetPresetParams<TResolver extends Resolver> = {
 }
 
 type GetPresetResult<TResolver extends Resolver> = {
-  baseResolver: TResolver
   resolver: TResolver
+  baseResolver: TResolver
   transformers: Array<Visitor>
   generators: Array<Generator<any>>
   preset: Preset<TResolver> | undefined
@@ -45,8 +45,8 @@ export function getPreset<TResolver extends Resolver = Resolver>(params: GetPres
     : defaultPresetGenerators) as unknown as Array<Generator<any>>
 
   return {
-    baseResolver,
     resolver,
+    baseResolver,
     transformers,
     generators,
     preset,

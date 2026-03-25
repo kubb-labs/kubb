@@ -9,12 +9,6 @@ export type FindArtifactsQueryLimit = number
 
 export type FindArtifactsQuerySort = string
 
-export type FindArtifactsQueryParams = {
-  page?: FindArtifactsQueryPage
-  limit?: FindArtifactsQueryLimit
-  sort?: FindArtifactsQuerySort
-}
-
 /**
  * @description Results
  */

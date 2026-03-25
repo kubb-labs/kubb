@@ -21,12 +21,12 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     syntaxType = 'type',
     paramsCasing,
     compatibilityPreset = 'default',
-    resolvers: userResolvers,
+    resolvers: userResolvers = [],
     transformers: userTransformers = [],
     generators: userGenerators = [],
   } = options
 
-  const { baseResolver, resolver, transformers, generators } = getPreset(compatibilityPreset, {
+  const { resolver, transformers, generators } = getPreset(compatibilityPreset, {
     resolvers: userResolvers,
     transformers: userTransformers,
     generators: userGenerators,
@@ -47,7 +47,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       override,
       paramsCasing,
       compatibilityPreset,
-      baseResolver,
       resolver,
       transformers,
     },

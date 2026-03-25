@@ -1,5 +1,17 @@
 import type { OperationNode, ParameterNode, SchemaNode, StatusCode, Visitor } from '@kubb/ast/types'
-import type { CompatibilityPreset, Exclude, Generator, Group, Include, Output, Override, PluginFactoryOptions, ResolvePathOptions, Resolver } from '@kubb/core'
+import type {
+  Builder,
+  CompatibilityPreset,
+  Exclude,
+  Generator,
+  Group,
+  Include,
+  Output,
+  Override,
+  PluginFactoryOptions,
+  ResolvePathOptions,
+  Resolver,
+} from '@kubb/core'
 /**
  * The concrete resolver type for `@kubb/plugin-ts`.
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
@@ -185,6 +197,28 @@ export type ResolverTs = Resolver & {
   resolveHeaderParamsTypedName?(node: OperationNode): string
 }
 
+type BuildParamsSchemaOptions = {
+  params: Array<ParameterNode>
+  node: OperationNode
+  resolver: ResolverTs
+}
+
+type BuildOperationSchemaOptions = {
+  node: OperationNode
+  resolver: ResolverTs
+}
+
+/**
+ * The concrete builder type for `@kubb/plugin-ts`.
+ * Extends the base `Builder` with schema-building helpers used by the v5 type generator.
+ */
+export type BuilderTs = Builder & {
+  buildParams(options: BuildParamsSchemaOptions): SchemaNode
+  buildData(options: BuildOperationSchemaOptions): SchemaNode
+  buildResponses(options: BuildOperationSchemaOptions): SchemaNode | null
+  buildResponseUnion(options: BuildOperationSchemaOptions): SchemaNode | null
+}
+
 export type Options = {
   /**
    * Specify the export location for the files and define the behavior of the output
@@ -268,10 +302,6 @@ export type Options = {
    */
   generators?: Array<Generator<PluginTs>>
   /**
-   * Unstable naming for v5
-   */
-  UNSTABLE_NAMING?: true
-  /**
    * Apply a compatibility naming preset.
    * Use `kubbV4` for strict v4 type-generation compatibility.
    * You can further customize naming with `resolvers`.
@@ -322,13 +352,7 @@ type ResolvedOptions = {
   paramsCasing: Options['paramsCasing']
   compatibilityPreset: NonNullable<CompatibilityPreset>
   resolver: ResolverTs
-  /**
-   * The resolver without user naming overrides applied.
-   * Used internally to derive stable names for unnamed enums and grouped params
-   * so that the schema tree stays consistent regardless of `transformers.name` / custom resolvers.
-   */
-  baseResolver: ResolverTs
   transformers: Array<Visitor>
 }
 
-export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>
+export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs, BuilderTs>
