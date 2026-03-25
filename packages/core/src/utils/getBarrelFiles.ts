@@ -33,7 +33,7 @@ function getBarrelFilesByRoot(root: string | undefined, files: Array<KubbFile.Re
   const cachedFiles = new Map<KubbFile.Path, KubbFile.File>()
 
   TreeNode.build(files, root)?.forEach((treeNode) => {
-    if (!treeNode || !treeNode.children || !treeNode.parent?.data.path) {
+    if (!treeNode?.children || !treeNode.parent?.data.path) {
       return
     }
 

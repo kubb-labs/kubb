@@ -26,7 +26,6 @@ export const config = {
       output: {
         path: 'models',
         banner(oas) {
-          console.log(oas)
           return `// version: ${oas.meta?.version || 'unknown'}`
         },
       },
