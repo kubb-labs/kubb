@@ -15,6 +15,7 @@ type Props = {
   arrayType: PluginTs['resolvedOptions']['arrayType']
   enumType: PluginTs['resolvedOptions']['enumType']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
+  enumTypeSuffix: PluginTs['resolvedOptions']['enumTypeSuffix']
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
   resolver: PluginTs['resolvedOptions']['resolver']
   legacy?: boolean
@@ -32,6 +33,7 @@ export function Type({
   syntaxType,
   enumType,
   enumKeyCasing,
+  enumTypeSuffix,
   description,
   resolver,
 }: Props): FabricReactNode {
@@ -53,7 +55,7 @@ export function Type({
   const enums = [...new Map(enumSchemaNodes.map((n) => [n.name, n])).values()].map((node) => {
     return {
       node,
-      ...getEnumNames({ node, enumType, resolver }),
+      ...getEnumNames({ node, enumType, enumTypeSuffix, resolver }),
     }
   })
 
@@ -63,7 +65,7 @@ export function Type({
 
   return (
     <>
-      {shouldExportEnums && enums.map(({ node }) => <Enum node={node} enumType={enumType} enumKeyCasing={enumKeyCasing} resolver={resolver} />)}
+      {shouldExportEnums && enums.map(({ node }) => <Enum node={node} enumType={enumType} enumKeyCasing={enumKeyCasing} enumTypeSuffix={enumTypeSuffix} resolver={resolver} />)}
       {shouldExportType && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
           {safePrint(typeNode)}

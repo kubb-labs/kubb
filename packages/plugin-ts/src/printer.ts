@@ -4,7 +4,7 @@ import type { ArraySchemaNode, SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import type ts from 'typescript'
-import { ENUM_TYPES_WITH_KEY_SUFFIX, OPTIONAL_ADDS_QUESTION_TOKEN, OPTIONAL_ADDS_UNDEFINED } from './constants.ts'
+import { ENUM_TYPES_WITH_SUFFIX, OPTIONAL_ADDS_QUESTION_TOKEN, OPTIONAL_ADDS_UNDEFINED } from './constants.ts'
 import * as factory from './factory.ts'
 import type { PluginTs, ResolverTs } from './types.ts'
 
@@ -21,6 +21,11 @@ type TsOptions = {
    * @default `'inlineLiteral'`
    */
   enumType: PluginTs['resolvedOptions']['enumType']
+  /**
+   * Suffix to append to enum type names when `enumType` is in `ENUM_TYPES_WITH_SUFFIX`.
+   * @default `'Key'`
+   */
+  enumTypeSuffix: string
   /**
    * Controls whether a `type` alias or `interface` declaration is emitted.
    * @default `'type'`
@@ -264,7 +269,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         }
 
         const resolvedName = this.options.resolver.default(node.name, 'type')
-        const typeName = ENUM_TYPES_WITH_KEY_SUFFIX.has(this.options.enumType) ? `${resolvedName}Key` : resolvedName
+        const typeName = ENUM_TYPES_WITH_SUFFIX.has(this.options.enumType) ? `${resolvedName}${options.enumTypeSuffix}` : resolvedName
 
         return factory.createTypeReferenceNode(typeName, undefined)
       },

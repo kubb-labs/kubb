@@ -16,7 +16,7 @@ export const OPTIONAL_ADDS_QUESTION_TOKEN = new Set<OptionalType>(['questionToke
 /**
  * `enumType` values that append a `Key` suffix to the generated enum type alias.
  */
-export const ENUM_TYPES_WITH_KEY_SUFFIX = new Set<EnumType>(['asConst', 'asPascalConst'] as const)
+export const ENUM_TYPES_WITH_SUFFIX = new Set<EnumType>(['asConst', 'asPascalConst'] as const)
 
 /**
  * `enumType` values that require a runtime value declaration (object, enum, or literal).
