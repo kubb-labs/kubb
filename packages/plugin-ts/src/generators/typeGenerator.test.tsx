@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { EnumSchemaNode, OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
@@ -218,15 +219,16 @@ describe('typeGenerator v2 — Operation — group', () => {
   })
 
   test.each([
-    { group: { type: 'tag' as const }, expectedPath: 'pets/listPets.ts' },
-    { group: undefined, expectedPath: 'listPets.ts' },
-  ])('group=$group.type — file path is $expectedPath', async ({ group, expectedPath }) => {
+    { group: { type: 'tag' as const }, expectedBaseName: 'ListPets.ts', expectedDir: 'petsController' },
+    { group: undefined, expectedBaseName: 'ListPets.ts', expectedDir: undefined },
+  ])('group=$group.type — file path is computed correctly', async ({ group, expectedBaseName, expectedDir }) => {
     const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group }
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
-    const mockedPluginDriver = createMockedPluginDriver({ name: 'listPets' })
+    const driverConfig = { root: '.', output: { path: 'test' } } as Config
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'listPets', config: driverConfig })
 
     await renderOperation(node, {
-      config: { root: '.', output: { path: 'test' } } as Config,
+      config: driverConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver: mockedPluginDriver,
@@ -236,8 +238,10 @@ describe('typeGenerator v2 — Operation — group', () => {
       options,
     })
 
-    const file = fabric.files.find((f) => f.baseName === 'listPets.ts')
+    const file = fabric.files.find((f) => f.baseName === expectedBaseName)
     expect(file).toBeDefined()
+    const root = path.resolve(driverConfig.root, driverConfig.output.path)
+    const expectedPath = expectedDir ? path.resolve(root, expectedDir, expectedBaseName) : path.resolve(root, expectedBaseName)
     expect(file!.path).toBe(expectedPath)
   })
 
@@ -251,10 +255,11 @@ describe('typeGenerator v2 — Operation — group', () => {
     })
     const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group: { type: 'tag' } }
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
-    const mockedPluginDriver = createMockedPluginDriver({ name: 'getConfig' })
+    const driverConfig = { root: '.', output: { path: 'test' } } as Config
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'getConfig', config: driverConfig })
 
     await renderOperation(noTagNode, {
-      config: { root: '.', output: { path: 'test' } } as Config,
+      config: driverConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver: mockedPluginDriver,
@@ -264,9 +269,10 @@ describe('typeGenerator v2 — Operation — group', () => {
       options,
     })
 
-    const file = fabric.files.find((f) => f.baseName === 'getConfig.ts')
+    const file = fabric.files.find((f) => f.baseName === 'GetConfig.ts')
     expect(file).toBeDefined()
-    expect(file!.path).toBe('default/getConfig.ts')
+    const root = path.resolve(driverConfig.root, driverConfig.output.path)
+    expect(file!.path).toBe(path.resolve(root, 'defaultController', 'GetConfig.ts'))
   })
 })
 
