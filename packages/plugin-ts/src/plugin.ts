@@ -2,8 +2,6 @@ import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
 import { createPlugin, type Group, getBarrelFiles, getMode, renderOperation, renderSchema } from '@kubb/core'
-import type { Generator } from '@kubb/plugin-oas/generators'
-import { typeGenerator } from './generators/index.ts'
 import { getPreset } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
@@ -27,15 +25,11 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     transformers: userTransformers = [],
   } = options
 
-  const { baseResolver, resolver, transformers, generators: presetGenerators } = getPreset(compatibilityPreset, {
+  const { baseResolver, resolver, transformers, generators } = getPreset(compatibilityPreset, {
     resolvers: userResolvers,
     transformers: userTransformers,
+    generators: options.generators,
   })
-
-  const generators: Array<Generator<PluginTs>> =
-    presetGenerators.length > 0 || options.generators?.length
-      ? [...(presetGenerators as Array<Generator<PluginTs>>), ...(options.generators ?? [])]
-      : [typeGenerator]
 
   let resolveNameWarning = false
 
