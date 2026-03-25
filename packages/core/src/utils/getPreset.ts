@@ -10,7 +10,7 @@ type GetPresetParams<TResolver extends Resolver> = {
   /**
    * User-supplied generators to append after the preset's generators.
    */
-  generators?: Array<Generator>
+  generators: Array<Generator>
 }
 
 type GetPresetResult<TResolver extends Resolver> = {
@@ -40,7 +40,7 @@ export function getPreset<TResolver extends Resolver = Resolver>(params: GetPres
 
   const presetGenerators = preset?.generators ?? []
   const defaultPresetGenerators = presets['default']?.generators ?? []
-  const generators = presetGenerators.length > 0 || userGenerators?.length ? [...presetGenerators, ...(userGenerators ?? [])] : defaultPresetGenerators
+  const generators = presetGenerators.length > 0 || userGenerators.length ? [...presetGenerators, ...userGenerators] : defaultPresetGenerators
 
   return {
     baseResolver,

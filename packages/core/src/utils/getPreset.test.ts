@@ -74,6 +74,7 @@ describe('getPreset', () => {
       preset: 'default',
       presets,
       resolvers: [baseResolver],
+      generators: [],
     })
 
     expect(result.preset?.name).toBe('default')
@@ -87,6 +88,7 @@ describe('getPreset', () => {
       preset: 'kubbV4',
       presets,
       resolvers: [baseResolver],
+      generators: [],
     })
 
     expect(result.preset?.name).toBe('kubbV4')
@@ -99,6 +101,7 @@ describe('getPreset', () => {
       preset: 'kubbV4',
       presets,
       resolvers: [baseResolver, customResolver],
+      generators: [],
     })
 
     expect(result.baseResolver.schemaName({ name: 'Pet' })).toBe('LegacyPet')
@@ -120,6 +123,7 @@ describe('getPreset', () => {
       presets,
       resolvers: [baseResolver],
       transformers: [userTransformer],
+      generators: [],
     })
 
     expect(result.transformers).toEqual([...(presets.kubbV4.transformers ?? []), userTransformer])
@@ -130,6 +134,7 @@ describe('getPreset', () => {
       preset: 'kubbV4',
       presets,
       resolvers: [baseResolver],
+      generators: [],
     })
 
     expect(result.generators).toEqual([mockGenerator])
@@ -156,6 +161,7 @@ describe('getPreset', () => {
       preset: 'kubbV4',
       presets: presetsWithoutKubbV4Generators,
       resolvers: [baseResolver],
+      generators: [],
     })
 
     expect(result.generators).toEqual([mockDefaultGenerator])

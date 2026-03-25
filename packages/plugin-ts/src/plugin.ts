@@ -23,12 +23,13 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     compatibilityPreset = 'default',
     resolvers: userResolvers,
     transformers: userTransformers = [],
+    generators: userGenerators = [],
   } = options
 
   const { baseResolver, resolver, transformers, generators } = getPreset(compatibilityPreset, {
     resolvers: userResolvers,
     transformers: userTransformers,
-    generators: options.generators,
+    generators: userGenerators,
   })
 
   let resolveNameWarning = false
