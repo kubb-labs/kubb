@@ -314,6 +314,7 @@ export type ResolveOptionsContext<TOptions> = {
  */
 export type Resolver = {
   name: string
+  pluginName: Plugin['name']
   default(name: ResolveNameParams['name'], type?: ResolveNameParams['type']): string
   resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
   resolvePath(params: ResolverPathParams, context: ResolverContext): KubbFile.Path
@@ -744,6 +745,8 @@ export type ResolverContext = {
   root: string
   output: Output
   group?: Group
+  /** Plugin name used to populate `meta.pluginName` on the resolved file. */
+  pluginName?: string
 }
 
 /**

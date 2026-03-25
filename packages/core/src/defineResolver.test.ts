@@ -122,10 +122,20 @@ describe('defaultResolveFile', () => {
   })
 
   it('returns output dir path in single mode', () => {
-    const file = defaultResolveFile.call(resolver, { name: 'pet', extname: '.ts' }, context)
+    const file = defaultResolveFile.call(
+      resolver,
+      { name: 'pet', extname: '.ts' },
+      {
+        ...context,
+        output: {
+          ...context.output,
+          path: 'types' as const,
+        },
+      },
+    )
 
-    expect(file.path).toBe('/root/types')
-    expect(file.baseName).toBe('types')
+    expect(file.path).toBe('/root/types/pet.ts')
+    expect(file.baseName).toBe('pet.ts')
   })
 
   it('groups by tag when resolver is tag-grouped', () => {

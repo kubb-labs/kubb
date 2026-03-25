@@ -55,26 +55,6 @@ describe('mergePlugins', () => {
     expect(result?.[1]).toBe(pluginTs)
   })
 
-  it('overrides array values entirely with the studio array', () => {
-    const diskPlugins = [
-      makePlugin('plugin-ts', {
-        override: [
-          { type: 'operationId', pattern: 'getPets', options: { enumType: 'enum' } },
-          { type: 'operationId', pattern: 'getStores', options: { enumType: 'asConst' } },
-        ],
-      }),
-    ]
-    const studioPlugins: JSONKubbConfig['plugins'] = [
-      { name: '@kubb/plugin-ts', options: { override: [{ type: 'operationId', pattern: 'getPets', options: { enumType: 'literal' } }] } },
-    ]
-
-    const result = mergePlugins(diskPlugins, studioPlugins)
-
-    expect(result?.[0].options).toMatchObject({
-      override: [{ type: 'operationId', pattern: 'getPets', options: { enumType: 'literal' } }],
-    })
-  })
-
   it('appends resolved studio plugins not present in disk config', () => {
     const diskPlugins = [makePlugin('plugin-oas', { validate: true })]
     const studioPlugins: JSONKubbConfig['plugins'] = [

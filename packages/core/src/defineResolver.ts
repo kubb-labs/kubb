@@ -24,10 +24,11 @@ import type {
  */
 type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<
   T['resolver'],
-  'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile' | 'resolveBanner' | 'resolveFooter' | 'name'
+  'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile' | 'resolveBanner' | 'resolveFooter' | 'name' | 'pluginName'
 > &
   Partial<Pick<T['resolver'], 'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile' | 'resolveBanner' | 'resolveFooter'>> & {
     name: string
+    pluginName: T['name']
   } & ThisType<T['resolver']>
 
 /**
@@ -251,6 +252,9 @@ export function defaultResolveFile(this: Resolver, { name, extname, tag, path: g
   return {
     path: filePath,
     baseName: path.basename(filePath) as KubbFile.BaseName,
+    meta: {
+      pluginName: this.pluginName,
+    },
     sources: [],
     imports: [],
     exports: [],

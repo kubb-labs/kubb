@@ -15,7 +15,6 @@ export default defineConfig([
     },
     adapter: adapterOas({
       validate: false,
-      collisionDetection: false,
     }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -49,7 +48,6 @@ export default defineConfig([
     },
     adapter: adapterOas({
       validate: false,
-      collisionDetection: false,
     }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -70,7 +68,6 @@ export default defineConfig([
     output: { path: './src/gen2', clean: true },
     adapter: adapterOas({
       validate: false,
-      collisionDetection: false,
     }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -90,7 +87,6 @@ export default defineConfig([
     output: { path: './src/gen3', clean: true },
     adapter: adapterOas({
       validate: false,
-      collisionDetection: false,
     }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -110,7 +106,6 @@ export default defineConfig([
     output: { path: './src/gen4', clean: true },
     adapter: adapterOas({
       validate: false,
-      collisionDetection: false,
     }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -130,7 +125,6 @@ export default defineConfig([
     output: { path: './src/gen5', clean: true },
     adapter: adapterOas({
       validate: false,
-      collisionDetection: false,
     }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -153,7 +147,6 @@ export default defineConfig([
     },
     adapter: adapterOas({
       validate: false,
-      collisionDetection: false,
     }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
