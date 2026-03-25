@@ -31,7 +31,7 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
   } else {
     // Look for kubb.config in current directory with various extensions
     cwd = process.cwd()
-    const configFileNames = ['kubb.config.ts', 'kubb.config.js', 'kubb.config.cjs']
+    const configFileNames = ['kubb.config.ts', 'kubb.config.mts', 'kubb.config.cts', 'kubb.config.js', 'kubb.config.cjs']
 
     for (const configFileName of configFileNames) {
       try {
