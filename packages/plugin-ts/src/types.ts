@@ -135,12 +135,14 @@ export type ResolverTs = Resolver & {
   resolveResponseTypedName(node: OperationNode): string
   /**
    * Resolves the TypeScript type alias name for an enum schema's key variant.
-   * Appends the `Key` suffix after applying the default naming convention.
+   * Appends `enumTypeSuffix` (default `'Key'`) after applying the default naming convention.
    *
    * @example
-   * resolver.resolveEnumKeyTypedName(node) // → 'PetStatusKey'
+   * resolver.resolveEnumKeyTypedName(node, 'Key')   // → 'PetStatusKey'
+   * resolver.resolveEnumKeyTypedName(node, 'Value') // → 'PetStatusValue'
+   * resolver.resolveEnumKeyTypedName(node, '')      // → 'PetStatus'
    */
-  resolveEnumKeyTypedName(node: SchemaNode): string
+  resolveEnumKeyTypedName(node: SchemaNode, enumTypeSuffix: string): string
   /**
    * Resolves the variable/function name for an operation's grouped path parameters type.
    * Only available with `compatibilityPreset: 'kubbV4'`.
@@ -277,6 +279,15 @@ export type Options = {
    */
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal' | 'inlineLiteral'
   /**
+   * Suffix appended to the generated type alias name when `enumType` is `asConst` or `asPascalConst`.
+   *
+   * Only affects the type alias — the const object name is unchanged.
+   *
+   * @default 'Key'
+   * @example enumTypeSuffix: 'Value' → `export type PetStatusValue = …`
+   */
+  enumTypeSuffix?: string
+  /**
    * Choose the casing for enum key names.
    * - 'screamingSnakeCase' generates keys in SCREAMING_SNAKE_CASE format.
    * - 'snakeCase' generates keys in snake_case format.
@@ -362,6 +373,7 @@ type ResolvedOptions = {
   output: Output
   group: Options['group']
   enumType: NonNullable<Options['enumType']>
+  enumTypeSuffix: NonNullable<Options['enumTypeSuffix']>
   enumKeyCasing: NonNullable<Options['enumKeyCasing']>
   optionalType: NonNullable<Options['optionalType']>
   arrayType: NonNullable<Options['arrayType']>

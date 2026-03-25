@@ -187,6 +187,51 @@ export interface Pet {
 > [!WARNING]
 > This option has been moved to [`adapterOas`](/plugins/plugin-oas#enumSuffix). Use `adapterOas({ enumSuffix })` instead.
 
+### enumTypeSuffix
+
+Suffix appended to the generated type alias name when `enumType` is `asConst` or `asPascalConst`.
+
+Only the type alias is affected — the const object name stays unchanged.
+
+|           |          |
+| --------: | :------- |
+|     Type: | `string` |
+| Required: | `false`  |
+|  Default: | `'Key'`  |
+
+::: code-group
+
+```typescript ['Key' (default)]
+const petType = {
+  Dog: "dog",
+  Cat: "cat",
+} as const;
+
+export type PetTypeKey = (typeof petType)[keyof typeof petType];
+```
+
+```typescript ['Value']
+// enumTypeSuffix: 'Value'
+const petType = {
+  Dog: "dog",
+  Cat: "cat",
+} as const;
+
+export type PetTypeValue = (typeof petType)[keyof typeof petType];
+```
+
+```typescript ['' (no suffix)]
+// enumTypeSuffix: ''
+const petType = {
+  Dog: "dog",
+  Cat: "cat",
+} as const;
+
+export type PetType = (typeof petType)[keyof typeof petType];
+```
+
+:::
+
 ### enumKeyCasing
 
 Choose the casing for enum key names.

@@ -23,6 +23,12 @@ type TsOptions = {
    */
   enumType: PluginTs['resolvedOptions']['enumType']
   /**
+   * Suffix appended to the generated type alias name when `enumType` is `asConst` or `asPascalConst`.
+   *
+   * @default `'Key'`
+   */
+  enumTypeSuffix?: PluginTs['resolvedOptions']['enumTypeSuffix']
+  /**
    * Controls whether a `type` alias or `interface` declaration is emitted.
    * @default `'type'`
    */
@@ -264,10 +270,12 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
           return factory.createUnionDeclaration({ withParentheses: true, nodes: literalNodes }) ?? undefined
         }
 
-        const resolvedName = this.options.resolver.default(node.name, 'type')
-        const typeName = ENUM_TYPES_WITH_KEY_SUFFIX.has(this.options.enumType) ? `${resolvedName}Key` : resolvedName
+        const resolvedName =
+          ENUM_TYPES_WITH_KEY_SUFFIX.has(this.options.enumType) && this.options.enumTypeSuffix
+            ? this.options.resolver.resolveEnumKeyTypedName(node as unknown as SchemaNode, this.options.enumTypeSuffix)
+            : this.options.resolver.default(node.name, 'type')
 
-        return factory.createTypeReferenceNode(typeName, undefined)
+        return factory.createTypeReferenceNode(resolvedName, undefined)
       },
       union(node) {
         const members = node.members ?? []

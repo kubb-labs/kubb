@@ -10,6 +10,7 @@ import type { PluginTs, ResolverTs } from '../types.ts'
 type Props = {
   node: EnumSchemaNode
   enumType: PluginTs['resolvedOptions']['enumType']
+  enumTypeSuffix: PluginTs['resolvedOptions']['enumTypeSuffix']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
   resolver: ResolverTs
 }
@@ -21,7 +22,17 @@ type Props = {
  * valid TypeScript identifier. The resolver normalizes it; for inline enum
  * properties the adapter already emits a PascalCase+suffix name so resolution is typically a no-op.
  */
-export function getEnumNames({ node, enumType, resolver }: { node: EnumSchemaNode; enumType: PluginTs['resolvedOptions']['enumType']; resolver: ResolverTs }): {
+export function getEnumNames({
+  node,
+  enumType,
+  enumTypeSuffix,
+  resolver,
+}: {
+  node: EnumSchemaNode
+  enumType: PluginTs['resolvedOptions']['enumType']
+  enumTypeSuffix: PluginTs['resolvedOptions']['enumTypeSuffix']
+  resolver: ResolverTs
+}): {
   enumName: string
   typeName: string
   /**
@@ -32,7 +43,7 @@ export function getEnumNames({ node, enumType, resolver }: { node: EnumSchemaNod
 } {
   const resolved = resolver.default(node.name!, 'type')
   const enumName = enumType === 'asPascalConst' ? resolved : camelCase(node.name!)
-  const typeName = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) ? `${resolved}Key` : resolved
+  const typeName = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) ? resolver.resolveEnumKeyTypedName(node, enumTypeSuffix) : resolved
 
   return { enumName, typeName, refName: resolved }
 }
@@ -48,8 +59,8 @@ export function getEnumNames({ node, enumType, resolver }: { node: EnumSchemaNod
  * The emitted `File.Source` nodes carry the resolved names so that the barrel
  * index picks up the correct export identifiers.
  */
-export function Enum({ node, enumType, enumKeyCasing, resolver }: Props): FabricReactNode {
-  const { enumName, typeName, refName } = getEnumNames({ node, enumType, resolver })
+export function Enum({ node, enumType, enumTypeSuffix, enumKeyCasing, resolver }: Props): FabricReactNode {
+  const { enumName, typeName, refName } = getEnumNames({ node, enumType, enumTypeSuffix, resolver })
 
   const [nameNode, typeNode] = factory.createEnumDeclaration({
     name: enumName,

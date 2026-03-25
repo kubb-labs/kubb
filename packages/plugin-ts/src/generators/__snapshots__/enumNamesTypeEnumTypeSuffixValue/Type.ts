@@ -9,6 +9,6 @@ export const enumNamesType = {
   sold: 'sold',
 } as const
 
-export type EnumNamesTypeEnumKey = (typeof enumNamesType)[keyof typeof enumNamesType]
+export type EnumNamesTypeValue = (typeof enumNamesType)[keyof typeof enumNamesType]
 
-export type EnumNamesType = EnumNamesTypeEnumKey
+export type EnumNamesType = EnumNamesTypeValue

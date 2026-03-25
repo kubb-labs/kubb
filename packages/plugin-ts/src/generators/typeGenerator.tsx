@@ -12,7 +12,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Operation({ node, adapter, options, config }) {
-    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, resolver, transformers = [] } = options
+    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, resolver, transformers = [] } = options
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
@@ -55,6 +55,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
             node={transformedNode}
             description={description}
             enumType={enumType}
+            enumTypeSuffix={enumTypeSuffix}
             enumKeyCasing={enumKeyCasing}
             optionalType={optionalType}
             arrayType={arrayType}
@@ -131,7 +132,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
   },
   Schema({ node, adapter, options, config }) {
-    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, resolver, transformers = [] } = options
+    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, resolver, transformers = [] } = options
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
@@ -149,7 +150,8 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
     const isEnumSchema = !!narrowSchema(node, schemaTypes.enum)
 
-    const typedName = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyTypedName(node) : resolver.resolveTypedName(node.name)
+    const typedName =
+      ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyTypedName(node, enumTypeSuffix) : resolver.resolveTypedName(node.name)
 
     const type = {
       name: resolver.resolveName(node.name),
@@ -174,6 +176,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
           typedName={type.typedName}
           node={transformedNode}
           enumType={enumType}
+          enumTypeSuffix={enumTypeSuffix}
           enumKeyCasing={enumKeyCasing}
           optionalType={optionalType}
           arrayType={arrayType}

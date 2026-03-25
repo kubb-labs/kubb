@@ -1,7 +1,7 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
+import type { EnumSchemaNode, OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import { renderOperation } from '@kubb/core'
+import { renderOperation, renderSchema } from '@kubb/core'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
@@ -18,6 +18,7 @@ describe('typeGeneratorLegacy — Operation', () => {
 
   const legacyOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
+    enumTypeSuffix: 'Key',
     enumKeyCasing: 'none',
     optionalType: 'questionToken',
     arrayType: 'array',
@@ -277,5 +278,88 @@ describe('typeGeneratorLegacy — Operation', () => {
     })
 
     await matchFiles(fabric.files, 'legacy — addPet POST with name transformer')
+  })
+})
+
+describe('typeGeneratorLegacy — Schema (enum)', () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
+  const enumSchemaNode = createSchema({
+    type: 'enum',
+    name: 'petStatus',
+    primitive: 'string',
+    enumValues: ['available', 'pending', 'sold'],
+  }) as EnumSchemaNode
+
+  const defaultSchemaOptions: PluginTs['resolvedOptions'] = {
+    enumType: 'asConst',
+    enumTypeSuffix: 'Key',
+    enumKeyCasing: 'none',
+    optionalType: 'questionToken',
+    arrayType: 'array',
+    syntaxType: 'type',
+    paramsCasing: undefined,
+    output: { path: '.' },
+    group: undefined,
+    resolver: resolverTsLegacy,
+    transformers: [],
+  }
+
+  test('enumTypeSuffix=Key (default) — asConst type alias uses Key suffix', async () => {
+    const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumTypeSuffix: 'Key' }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'legacy — petStatus enumTypeSuffix Key' })
+
+    await renderSchema(enumSchemaNode, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver: mockedPluginDriver,
+      Component: typeGeneratorLegacy.Schema,
+      plugin,
+      options,
+    })
+
+    await matchFiles(fabric.files, 'legacy — petStatus enumTypeSuffix Key')
+  })
+
+  test('enumTypeSuffix=Value — asConst type alias uses custom suffix', async () => {
+    const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumTypeSuffix: 'Value' }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'legacy — petStatus enumTypeSuffix Value' })
+
+    await renderSchema(enumSchemaNode, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver: mockedPluginDriver,
+      Component: typeGeneratorLegacy.Schema,
+      plugin,
+      options,
+    })
+
+    await matchFiles(fabric.files, 'legacy — petStatus enumTypeSuffix Value')
+  })
+
+  test('enumTypeSuffix empty string — asConst type alias has no suffix', async () => {
+    const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumTypeSuffix: '' }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'legacy — petStatus enumTypeSuffix empty' })
+
+    await renderSchema(enumSchemaNode, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver: mockedPluginDriver,
+      Component: typeGeneratorLegacy.Schema,
+      plugin,
+      options,
+    })
+
+    await matchFiles(fabric.files, 'legacy — petStatus enumTypeSuffix empty')
   })
 })

@@ -13,6 +13,7 @@ type Props = {
   optionalType: PluginTs['resolvedOptions']['optionalType']
   arrayType: PluginTs['resolvedOptions']['arrayType']
   enumType: PluginTs['resolvedOptions']['enumType']
+  enumTypeSuffix: PluginTs['resolvedOptions']['enumTypeSuffix']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
   resolver: PluginTs['resolvedOptions']['resolver']
@@ -29,6 +30,7 @@ export function Type({
   arrayType,
   syntaxType,
   enumType,
+  enumTypeSuffix,
   enumKeyCasing,
   description,
   resolver,
@@ -41,7 +43,17 @@ export function Type({
     },
   })
 
-  const printer = printerTs({ optionalType, arrayType, enumType, typeName: name, syntaxType, description: resolvedDescription, keysToOmit, resolver })
+  const printer = printerTs({
+    optionalType,
+    arrayType,
+    enumType,
+    enumTypeSuffix,
+    typeName: name,
+    syntaxType,
+    description: resolvedDescription,
+    keysToOmit,
+    resolver,
+  })
   const output = printer.print(node)
 
   if (!output) {
@@ -51,7 +63,7 @@ export function Type({
   const enums = [...new Map(enumSchemaNodes.map((n) => [n.name, n])).values()].map((node) => {
     return {
       node,
-      ...getEnumNames({ node, enumType, resolver }),
+      ...getEnumNames({ node, enumType, enumTypeSuffix, resolver }),
     }
   })
 
@@ -61,7 +73,8 @@ export function Type({
 
   return (
     <>
-      {shouldExportEnums && enums.map(({ node }) => <Enum node={node} enumType={enumType} enumKeyCasing={enumKeyCasing} resolver={resolver} />)}
+      {shouldExportEnums &&
+        enums.map(({ node }) => <Enum node={node} enumType={enumType} enumTypeSuffix={enumTypeSuffix} enumKeyCasing={enumKeyCasing} resolver={resolver} />)}
       {shouldExportType && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
           {output}

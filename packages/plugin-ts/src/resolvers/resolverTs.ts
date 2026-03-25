@@ -76,8 +76,8 @@ export const resolverTs = defineResolver<PluginTs>(() => {
     resolveResponseTypedName(node) {
       return this.resolveTypedName(`${node.operationId} Response`)
     },
-    resolveEnumKeyTypedName(node) {
-      return `${this.resolveTypedName(node.name ?? '')}Key`
+    resolveEnumKeyTypedName(node, enumTypeSuffix = 'key') {
+      return `${this.resolveTypedName(node.name ?? '')}${enumTypeSuffix}`
     },
     resolvePathParamsName(_node) {
       throw new Error("resolvePathParamsName is only available with compatibilityPreset: 'kubbV4'. Use resolveParamName per individual parameter instead.")

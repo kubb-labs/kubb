@@ -77,7 +77,7 @@ export default defineConfig([
           barrelType: false,
         },
         enumType: 'asConst',
-        compatibilityPreset: 'kubbV4',
+        enumTypeSuffix: 'enumType',
       }),
     ],
   },

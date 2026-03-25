@@ -147,6 +147,7 @@ describe('typeGenerator — Operation', () => {
 
   const defaultOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
+    enumTypeSuffix: 'Key',
     enumKeyCasing: 'none',
     optionalType: 'questionToken',
     arrayType: 'array',
@@ -189,6 +190,7 @@ describe('typeGenerator — Operation — group', () => {
 
   const defaultOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
+    enumTypeSuffix: 'Key',
     enumKeyCasing: 'none',
     optionalType: 'questionToken',
     arrayType: 'array',
@@ -289,6 +291,7 @@ describe('typeGenerator — Schema (enum)', () => {
 
   const defaultSchemaOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
+    enumTypeSuffix: 'EnumKey',
     enumKeyCasing: 'none',
     optionalType: 'questionToken',
     arrayType: 'array',
@@ -318,5 +321,41 @@ describe('typeGenerator — Schema (enum)', () => {
     })
 
     await matchFiles(fabric.files, `enumNames.Type — ${enumType}`)
+  })
+
+  test('enumTypeSuffix=Value — asConst type alias uses custom suffix', async () => {
+    const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumType: 'asConst', enumTypeSuffix: 'Value' }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'enumNames.Type — enumTypeSuffix Value' })
+
+    await renderSchema(enumSchemaNode, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver: mockedPluginDriver,
+      Component: typeGenerator.Schema,
+      plugin,
+      options,
+    })
+
+    await matchFiles(fabric.files, 'enumNames.Type — enumTypeSuffix Value')
+  })
+
+  test('enumTypeSuffix empty string — asConst type alias has no suffix', async () => {
+    const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumType: 'asConst', enumTypeSuffix: '' }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: 'enumNames.Type — enumTypeSuffix empty' })
+
+    await renderSchema(enumSchemaNode, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver: mockedPluginDriver,
+      Component: typeGenerator.Schema,
+      plugin,
+      options,
+    })
+
+    await matchFiles(fabric.files, 'enumNames.Type — enumTypeSuffix empty')
   })
 })
