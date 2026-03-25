@@ -66,6 +66,7 @@
     "plugin-oas-operation-manager",
     "plugin-redoc-adapter-oas-migration",
     "plugin-ts-compatibility-presets",
+    "plugin-ts-enum-type-suffix",
     "plugin-ts-keys-to-omit",
     "plugin-ts-legacy-flag",
     "plugin-ts-legacy-naming-parity",
