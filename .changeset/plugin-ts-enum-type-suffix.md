@@ -1,5 +1,5 @@
 ---
-'@kubb/plugin-ts': patch
+'@kubb/plugin-ts': minor
 ---
 
 New config param `enumTypeSuffix` to speficy a custom type name suffix when using `enumType: asConst|asPascalConst`.
