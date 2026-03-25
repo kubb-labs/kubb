@@ -1,5 +1,30 @@
 # @kubb/plugin-ts
 
+## 5.0.0-alpha.22
+
+### Minor Changes
+
+- [`1792af2`](https://github.com/kubb-labs/kubb/commit/1792af257ef9c7399959319aa4be28a46cb730fe) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add `enumTypeSuffix` option to control the suffix appended to the generated type alias when `enumType` is `asConst` or `asPascalConst`.
+
+  Previously, the type alias was always suffixed with `Key` (e.g. `PetTypeKey`). With `enumTypeSuffix` you can change or remove that suffix:
+
+  ```typescript
+  pluginTs({
+    enumType: "asConst",
+    enumTypeSuffix: "Value", // → export type PetTypeValue = …
+  });
+  ```
+
+  Set `enumTypeSuffix: ''` to suppress the suffix entirely and use only the base type name.
+
+  Defaults to `'Key'` for full backwards compatibility.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.22
+  - @kubb/core@5.0.0-alpha.22
+
 ## 5.0.0-alpha.21
 
 ### Patch Changes

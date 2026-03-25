@@ -1,5 +1,13 @@
 # @kubb/plugin-redoc
 
+## 5.0.0-alpha.22
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/adapter-oas@5.0.0-alpha.22
+  - @kubb/core@5.0.0-alpha.22
+
 ## 5.0.0-alpha.21
 
 ### Patch Changes
