@@ -88,8 +88,6 @@
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/fabric-core": "catalog:",
-    "@kubb/oas": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
     "@kubb/react-fabric": "catalog:",
     "remeda": "catalog:",
     "typescript": "5.9.3"

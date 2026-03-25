@@ -80,6 +80,8 @@ async function runToolPass({
     }
   }
 
+  let toolError: Error | undefined
+
   if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in toolMap) {
     const toolConfig = toolMap[resolvedTool as keyof ToolMap]
 
@@ -124,10 +126,15 @@ async function runToolPass({
       const err = new Error(toolConfig.errorMessage)
       err.cause = caughtError
       await events.emit('error', err)
+      toolError = err
     }
   }
 
   await onEnd()
+
+  if (toolError) {
+    throw toolError
+  }
 }
 
 async function generate({ input, config: userConfig, events, logLevel }: GenerateProps): Promise<void> {

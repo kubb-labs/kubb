@@ -7,7 +7,7 @@ import { matchesMimeType } from 'oas/utils'
 import { formatMap, structuralKeys } from './constants.ts'
 import { isReference } from './guards.ts'
 import { dereferenceWithRef, resolveRef } from './refs.ts'
-import type { contentType, Document, MediaTypeObject, Operation, ResponseObject, SchemaObject } from './types.ts'
+import type { ContentType, Document, MediaTypeObject, Operation, ResponseObject, SchemaObject } from './types.ts'
 
 /**
  * Resolves `{variable}` placeholders in an OpenAPI server URL.
@@ -76,7 +76,7 @@ export function getMediaType(contentType: string): MediaType | null {
 }
 
 export type OperationsOptions = {
-  contentType?: contentType
+  contentType?: ContentType
 }
 
 /**
@@ -231,7 +231,7 @@ export type SchemaWithMetadata = {
 }
 
 export type GetSchemasOptions = {
-  contentType?: contentType
+  contentType?: ContentType
 }
 
 export type GetSchemasResult = {
@@ -290,7 +290,7 @@ export function flattenSchema(schema: SchemaObject | null): SchemaObject | null 
  * // SchemaObject | null
  * ```
  */
-export function extractSchemaFromContent(content: Record<string, unknown> | undefined, preferredContentType?: contentType): SchemaObject | null {
+export function extractSchemaFromContent(content: Record<string, unknown> | undefined, preferredContentType?: ContentType): SchemaObject | null {
   if (!content) return null
 
   const firstContentType = Object.keys(content)[0] ?? 'application/json'

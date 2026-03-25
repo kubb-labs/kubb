@@ -41,7 +41,7 @@ describe('getFooter', () => {
       },
     } as OasTypes.OASDocument)
 
-    const footerFn = (o: typeof oas) => `// Generated for ${o.api?.info?.title}`
+    const footerFn = (o: any) => `// Generated for ${o.api?.info?.title}`
     const result = getFooter({
       oas,
       output: { path: './output', footer: footerFn },

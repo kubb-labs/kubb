@@ -157,7 +157,7 @@ importers:
         version: 5.95.2(react@19.2.4)
       '@tanstack/solid-query':
         specifier: ^5.95.2
-        version: 5.95.2(solid-js@1.9.11)
+        version: 5.95.2(solid-js@1.9.12)
       '@tanstack/svelte-query':
         specifier: ^5.90.2
         version: 5.90.2(svelte@4.2.20)
@@ -180,8 +180,8 @@ importers:
         specifier: ^19.2.4
         version: 19.2.4
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.11
+        specifier: ^1.9.12
+        version: 1.9.12
       svelte:
         specifier: ^4.2.20
         version: 4.2.20
@@ -619,13 +619,13 @@ importers:
         version: link:../../packages/plugin-zod
       '@tanstack/solid-query':
         specifier: ^5.95.2
-        version: 5.95.2(solid-js@1.9.11)
+        version: 5.95.2(solid-js@1.9.12)
       axios:
         specifier: ^1.13.6
         version: 1.13.6
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.11
+        specifier: ^1.9.12
+        version: 1.9.12
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -1485,12 +1485,6 @@ importers:
       '@kubb/fabric-core':
         specifier: 'catalog:'
         version: 0.15.1
-      '@kubb/oas':
-        specifier: workspace:*
-        version: link:../oas
-      '@kubb/plugin-oas':
-        specifier: workspace:*
-        version: link:../plugin-oas
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.15.1
@@ -1659,7 +1653,7 @@ importers:
         version: 5.95.2(react@18.3.1)
       '@tanstack/solid-query':
         specifier: ^5.95.2
-        version: 5.95.2(solid-js@1.9.11)
+        version: 5.95.2(solid-js@1.9.12)
       '@tanstack/svelte-query':
         specifier: ^5.90.2
         version: 5.90.2(svelte@4.2.20)
@@ -1679,8 +1673,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       solid-js:
-        specifier: ^1.9.11
-        version: 1.9.11
+        specifier: ^1.9.12
+        version: 1.9.12
       svelte:
         specifier: ^4.2.20
         version: 4.2.20
@@ -7263,8 +7257,8 @@ packages:
     resolution: {integrity: sha512-4zemZi0HvTnYwLfrpk/CF9LOd9Lt87kAt50GnqhMpyF9U3poDAP2+iukq2bZsO/ufegbYehBkqINbsWxj4l4cw==}
     engines: {node: '>= 18'}
 
-  solid-js@1.9.11:
-    resolution: {integrity: sha512-WEJtcc5mkh/BnHA6Yrg4whlF8g6QwpmXXRg4P2ztPmcKeHHlH4+djYecBLhSpecZY2RRECXYUwIc/C2r3yzQ4Q==}
+  solid-js@1.9.12:
+    resolution: {integrity: sha512-QzKaSJq2/iDrWR1As6MHZQ8fQkdOBf8GReYb7L5iKwMGceg7HxDcaOHk0at66tNgn9U2U7dXo8ZZpLIAmGMzgw==}
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -10083,10 +10077,10 @@ snapshots:
       '@tanstack/query-core': 5.95.2
       react: 19.2.4
 
-  '@tanstack/solid-query@5.95.2(solid-js@1.9.11)':
+  '@tanstack/solid-query@5.95.2(solid-js@1.9.12)':
     dependencies:
       '@tanstack/query-core': 5.95.2
-      solid-js: 1.9.11
+      solid-js: 1.9.12
 
   '@tanstack/svelte-query@5.62.7(svelte@4.2.20)':
     dependencies:
@@ -14259,7 +14253,7 @@ snapshots:
 
   smol-toml@1.6.0: {}
 
-  solid-js@1.9.11:
+  solid-js@1.9.12:
     dependencies:
       csstype: 3.2.3
       seroval: 1.5.0

@@ -28,7 +28,7 @@ export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
  * const ct: contentType = 'application/vnd.api+json'
  * ```
  */
-export type contentType = 'application/json' | (string & {})
+export type ContentType = 'application/json' | (string & {})
 
 /**
  * Augments `oas`'s `SchemaObject` with OAS 3.1 / JSON Schema fields the parser needs.
@@ -149,7 +149,7 @@ export type AdapterOasOptions = {
    * Preferred content-type used when extracting request/response schemas.
    * Defaults to the first valid JSON media type found in the spec.
    */
-  contentType?: contentType
+  contentType?: ContentType
   /**
    * Index into `oas.api.servers` for computing `baseURL`.
    * `0` → first server, `1` → second server. Omit to leave `baseURL` undefined.
