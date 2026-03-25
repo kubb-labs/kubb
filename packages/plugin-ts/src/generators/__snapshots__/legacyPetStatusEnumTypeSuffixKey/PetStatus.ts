@@ -10,5 +10,3 @@ export const petStatus = {
 } as const
 
 export type PetStatusKey = (typeof petStatus)[keyof typeof petStatus]
-
-export type PetStatus = PetStatusKey

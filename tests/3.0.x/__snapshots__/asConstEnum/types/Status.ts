@@ -11,5 +11,3 @@ export const status = {
 } as const;
 
 export type StatusKey = (typeof status)[keyof typeof status];
-
-export type Status = StatusKey

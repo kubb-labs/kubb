@@ -8,8 +8,6 @@ export const customerParamsStatusEnum = {
 
 export type CustomerParamsStatusEnumKey = (typeof customerParamsStatusEnum)[keyof typeof customerParamsStatusEnum]
 
-export type CustomerParamsStatusEnum = CustomerParamsStatusEnumKey
-
 export type Customer = {
   /**
    * @example 100000

@@ -12,8 +12,6 @@ export const addressIdentifierEnum = {
 
 export type AddressIdentifierEnumKey = (typeof addressIdentifierEnum)[keyof typeof addressIdentifierEnum]
 
-export type AddressIdentifierEnum = AddressIdentifierEnumKey
-
 export type Address = {
   /**
    * @example 437 Lytton

@@ -37,7 +37,7 @@ export { updateUser, updateUserMutationKey, useUpdateUser } from './hooks/useUpd
 export type { UploadFileMutationKey } from './hooks/useUploadFile.ts'
 export { uploadFile, uploadFileMutationKey, useUploadFile } from './hooks/useUploadFile.ts'
 export type { AddPet200, AddPet405, AddPetMutation, AddPetMutationRequest, AddPetMutationResponse } from './models/AddPet.ts'
-export type { Address, AddressIdentifierEnum, AddressIdentifierEnumKey } from './models/Address.ts'
+export type { Address, AddressIdentifierEnumKey } from './models/Address.ts'
 export { addressIdentifierEnum } from './models/Address.ts'
 export type { ApiResponse } from './models/ApiResponse.ts'
 export type { Category } from './models/Category.ts'
@@ -58,7 +58,6 @@ export type {
   FindPetsByStatus400,
   FindPetsByStatusQuery,
   FindPetsByStatusQueryParams,
-  FindPetsByStatusQueryParamsStatusEnum,
   FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
 } from './models/FindPetsByStatus.ts'
@@ -90,9 +89,9 @@ export type {
 } from './models/GetUserByName.ts'
 export type { LoginUser200, LoginUser400, LoginUserQuery, LoginUserQueryParams, LoginUserQueryResponse } from './models/LoginUser.ts'
 export type { LogoutUserError, LogoutUserQuery, LogoutUserQueryResponse } from './models/LogoutUser.ts'
-export type { Order, OrderStatusEnum, OrderStatusEnumKey } from './models/Order.ts'
+export type { Order, OrderStatusEnumKey } from './models/Order.ts'
 export { orderStatusEnum } from './models/Order.ts'
-export type { Pet, PetStatusEnum, PetStatusEnumKey } from './models/Pet.ts'
+export type { Pet, PetStatusEnumKey } from './models/Pet.ts'
 export { petStatusEnum } from './models/Pet.ts'
 export type { PlaceOrder200, PlaceOrder405, PlaceOrderMutation, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from './models/PlaceOrder.ts'
 export type { Tag } from './models/Tag.ts'

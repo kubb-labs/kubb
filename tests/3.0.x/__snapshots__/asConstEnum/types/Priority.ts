@@ -12,5 +12,3 @@ export const priority = {
 } as const;
 
 export type PriorityKey = (typeof priority)[keyof typeof priority];
-
-export type Priority = PriorityKey

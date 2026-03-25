@@ -60,7 +60,7 @@ export function getEnumNames({
  * index picks up the correct export identifiers.
  */
 export function Enum({ node, enumType, enumTypeSuffix, enumKeyCasing, resolver }: Props): FabricReactNode {
-  const { enumName, typeName, refName } = getEnumNames({ node, enumType, enumTypeSuffix, resolver })
+  const { enumName, typeName } = getEnumNames({ node, enumType, enumTypeSuffix, resolver })
 
   const [nameNode, typeNode] = factory.createEnumDeclaration({
     name: enumName,
@@ -72,8 +72,6 @@ export function Enum({ node, enumType, enumTypeSuffix, enumKeyCasing, resolver }
     enumKeyCasing,
   })
 
-  const needsRefAlias = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && refName !== typeName
-
   return (
     <>
       {nameNode && (
@@ -84,11 +82,6 @@ export function Enum({ node, enumType, enumTypeSuffix, enumKeyCasing, resolver }
       <File.Source name={typeName} isIndexable isExportable={ENUM_TYPES_WITH_RUNTIME_VALUE.has(enumType)} isTypeOnly={ENUM_TYPES_WITH_TYPE_ONLY.has(enumType)}>
         {safePrint(typeNode)}
       </File.Source>
-      {needsRefAlias && (
-        <File.Source name={refName} isExportable isIndexable isTypeOnly>
-          {`export type ${refName} = ${typeName}`}
-        </File.Source>
-      )}
     </>
   )
 }

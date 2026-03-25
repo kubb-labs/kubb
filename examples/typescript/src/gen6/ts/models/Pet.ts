@@ -15,8 +15,6 @@ export const petTypeEnum = {
 
 export type PetTypeEnumKey = (typeof petTypeEnum)[keyof typeof petTypeEnum]
 
-export type PetTypeEnum = PetTypeEnumKey
-
 export const petStatusEnum = {
   available: 'available',
   pending: 'pending',
@@ -24,8 +22,6 @@ export const petStatusEnum = {
 } as const
 
 export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
-
-export type PetStatusEnum = PetStatusEnumKey
 
 export type Pet = (
   | (Dog & {

@@ -18,7 +18,6 @@ export { updateUser } from './clients/axios/userService/updateUser.js'
 export { userService } from './clients/axios/userService/userService.js'
 export type {
   AddPetRequest,
-  AddPetRequestStatusEnum,
   AddPetRequestStatusEnumKey,
 } from './models/ts/AddPetRequest.js'
 export { addPetRequestStatusEnum } from './models/ts/AddPetRequest.js'
@@ -28,13 +27,11 @@ export type { Category } from './models/ts/Category.js'
 export type { Customer } from './models/ts/Customer.js'
 export type {
   Order,
-  OrderHttpStatusEnum,
   OrderHttpStatusEnumKey,
-  OrderStatusEnum,
   OrderStatusEnumKey,
 } from './models/ts/Order.js'
 export { orderHttpStatusEnum, orderStatusEnum } from './models/ts/Order.js'
-export type { Pet, PetStatusEnum, PetStatusEnumKey } from './models/ts/Pet.js'
+export type { Pet, PetStatusEnumKey } from './models/ts/Pet.js'
 export { petStatusEnum } from './models/ts/Pet.js'
 export type { PetNotFound } from './models/ts/PetNotFound.js'
 export type {
@@ -56,7 +53,6 @@ export type {
   FindPetsByStatus400,
   FindPetsByStatusQuery,
   FindPetsByStatusQueryParams,
-  FindPetsByStatusQueryParamsStatusEnum,
   FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
 } from './models/ts/petController/FindPetsByStatus.js'
