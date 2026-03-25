@@ -1,5 +1,11 @@
 # @kubb/cli
 
+## 4.36.5
+
+### Patch Changes
+
+- Support `kubb.config.mts` and `kubb.config.cts` config file extensions
+
 ## 4.36.4
 
 ### Patch Changes
