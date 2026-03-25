@@ -43,10 +43,7 @@ export function getPreset<TResolver extends Resolver = Resolver>(params: GetPres
   const transformers = [...(preset?.transformers ?? []), ...(userTransformers ?? [])]
 
   const presetGenerators = preset?.generators ?? []
-  const generators =
-    presetGenerators.length > 0 || userGenerators?.length
-      ? [...presetGenerators, ...(userGenerators ?? [])]
-      : (defaultGenerators ?? [])
+  const generators = presetGenerators.length > 0 || userGenerators?.length ? [...presetGenerators, ...(userGenerators ?? [])] : (defaultGenerators ?? [])
 
   return {
     baseResolver,

@@ -123,17 +123,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Operation({ node, adapter, options }) {
-    const {
-      enumType,
-      enumKeyCasing,
-      optionalType,
-      arrayType,
-      syntaxType,
-      paramsCasing,
-      group,
-      resolver,
-      transformers = [],
-    } = options
+    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver, transformers = [] } = options
     const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     const file = getFile({
