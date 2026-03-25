@@ -1,9 +1,8 @@
 import { collect, narrowSchema, schemaTypes } from '@kubb/ast'
 import type { EnumSchemaNode, SchemaNode } from '@kubb/ast/types'
-import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import { File } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import { printerTs } from '../printer.ts'
+import { printerTs } from '../printers/printerTs.ts'
 import type { PluginTs } from '../types.ts'
 import { Enum, getEnumNames } from './Enum.tsx'
 
@@ -43,9 +42,9 @@ export function Type({
   })
 
   const printer = printerTs({ optionalType, arrayType, enumType, typeName: name, syntaxType, description: resolvedDescription, keysToOmit, resolver })
-  const typeNode = printer.print(node)
+  const output = printer.print(node)
 
-  if (!typeNode) {
+  if (!output) {
     return
   }
 
@@ -65,7 +64,7 @@ export function Type({
       {shouldExportEnums && enums.map(({ node }) => <Enum node={node} enumType={enumType} enumKeyCasing={enumKeyCasing} resolver={resolver} />)}
       {shouldExportType && (
         <File.Source name={typedName} isTypeOnly isExportable isIndexable>
-          {safePrint(typeNode)}
+          {output}
         </File.Source>
       )}
     </>

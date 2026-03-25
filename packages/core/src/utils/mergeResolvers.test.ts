@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { defineResolver } from '../defineResolver.ts'
-import type { Resolver } from '../types.ts'
+import type { Builder, Resolver } from '../types.ts'
 import { mergeResolvers } from './mergeResolvers.ts'
 
 type TestResolver = Resolver & {
@@ -15,10 +15,12 @@ type TestPluginFactory = {
   context: never
   resolvePathOptions: object
   resolver: TestResolver
+  builder: Builder
 }
 
 describe('mergeResolvers', () => {
   const base = defineResolver<TestPluginFactory>(() => ({
+    pluginName: 'test',
     name: 'base',
     greet(name) {
       return `Hi ${name}`
@@ -38,6 +40,7 @@ describe('mergeResolvers', () => {
   it('later resolver overrides earlier methods', () => {
     const override = defineResolver<TestPluginFactory>(() => ({
       ...base,
+      pluginName: 'test',
       name: 'override',
       greet(name) {
         return `Hey ${name}!`
@@ -54,6 +57,7 @@ describe('mergeResolvers', () => {
   it('three resolvers — last wins for conflicting methods', () => {
     const a = defineResolver<TestPluginFactory>(() => ({
       ...base,
+      pluginName: 'test',
       name: 'a',
       greet() {
         return 'A'
@@ -61,6 +65,7 @@ describe('mergeResolvers', () => {
     }))
     const b = defineResolver<TestPluginFactory>(() => ({
       ...base,
+      pluginName: 'test',
       name: 'b',
       greet() {
         return 'B'
@@ -76,6 +81,7 @@ describe('mergeResolvers', () => {
   it('last resolver wins entirely — earlier overrides are replaced', () => {
     const withGreet = defineResolver<TestPluginFactory>(() => ({
       ...base,
+      pluginName: 'test',
       name: 'greeter',
       greet() {
         return 'custom greet'
@@ -83,6 +89,7 @@ describe('mergeResolvers', () => {
     }))
     const withGoodBye = defineResolver<TestPluginFactory>(() => ({
       ...base,
+      pluginName: 'test',
       name: 'goodbye',
       goodbye() {
         return 'custom goodbye'

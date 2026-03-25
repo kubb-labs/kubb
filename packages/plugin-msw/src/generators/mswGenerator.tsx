@@ -1,4 +1,4 @@
-import { usePluginDriver } from '@kubb/core/hooks'
+import { useDriver } from '@kubb/core/hooks'
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -14,7 +14,7 @@ export const mswGenerator = createReactGenerator<PluginMsw>({
     const {
       options: { output, parser, baseURL },
     } = plugin
-    const driver = usePluginDriver()
+    const driver = useDriver()
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)

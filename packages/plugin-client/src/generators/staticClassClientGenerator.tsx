@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { usePluginDriver } from '@kubb/core/hooks'
+import { useDriver } from '@kubb/core/hooks'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
@@ -32,7 +32,7 @@ export const staticClassClientGenerator = createReactGenerator<PluginClient>({
   name: 'staticClassClient',
   Operations({ operations, generator, plugin, config }) {
     const { options, name: pluginName } = plugin
-    const driver = usePluginDriver()
+    const driver = useDriver()
 
     const oas = useOas()
     const { getName, getFile, getGroup, getSchemas } = useOperationManager(generator)

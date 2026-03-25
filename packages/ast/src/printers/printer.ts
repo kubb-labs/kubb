@@ -3,21 +3,22 @@ import type { SchemaNode, SchemaNodeByType, SchemaType } from '../nodes/index.ts
 /**
  * Runtime context passed as `this` to printer handlers.
  *
- * `this.print` always dispatches to node-level handlers from `nodes`.
+ * `this.transform` dispatches to node-level handlers from `nodes`.
  *
  * @example
  * ```ts
  * const context: PrinterHandlerContext<string, {}> = {
  *   options: {},
- *   print: () => 'value',
+ *   transform: () => 'value',
  * }
  * ```
  */
 export type PrinterHandlerContext<TOutput, TOptions extends object> = {
   /**
-   * Recursively print a nested `SchemaNode` using the node-level handlers.
+   * Recursively transform a nested `SchemaNode` to `TOutput` using the node-level handlers.
+   * Use `this.transform` inside `nodes` handlers and inside the `print` override.
    */
-  print: (node: SchemaNode) => TOutput | null | undefined
+  transform: (node: SchemaNode) => TOutput | null | undefined
   /**
    * Options for this printer instance.
    */
@@ -79,6 +80,12 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
    */
   options: T['options']
   /**
+   * Node-level dispatcher — converts a `SchemaNode` directly to `TOutput` using the `nodes` handlers.
+   * Always dispatches through the `nodes` map; never calls the `print` override.
+   * Use this when you need the raw output (e.g. `ts.TypeNode`) without declaration wrapping.
+   */
+  transform: (node: SchemaNode) => T['output'] | null | undefined
+  /**
    * Public printer. If the builder provides a root-level `print`, this calls that
    * higher-level function (which may produce full declarations).
    * Otherwise, falls back to the node-level dispatcher.
@@ -111,10 +118,10 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
   }>
   /**
    * Optional root-level print override. When provided, becomes the public `printer.print`.
-   * `this.print(node)` inside this function calls the node-level dispatcher (`nodes` handlers),
+   * Use `this.transform(node)` inside this function to dispatch to the node-level handlers (`nodes`),
    * not the override itself — so recursion is safe.
    */
-  print?: (this: PrinterHandlerContext<T['output'], T['options']>, node: SchemaNode) => T['printOutput'] | null | undefined
+  print?: (this: PrinterHandlerContext<T['output'], T['options']>, node: SchemaNode) => T['printOutput'] | null
 }
 
 /**
@@ -127,10 +134,10 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  * - `options` — options stored on the returned printer instance
  * - `nodes` — a map of `SchemaType` → handler functions that convert a `SchemaNode` to `TOutput`
  * - `print` _(optional)_ — top-level override exposed as `printer.print`
- *   - Inside this function, `this.print(node)` still dispatches to the `nodes` map
+ *   - Inside this function, use `this.transform(node)` to dispatch to the `nodes` map
  *   - This keeps recursion safe and avoids self-calls
  *
- * When no `print` override is provided, `printer.print` is the node-level dispatcher directly.
+ * When no `print` override is provided, `printer.print` falls back to `printer.transform` (the node-level dispatcher).
  *
  * @example Basic usage — Zod schema printer
  * ```ts
@@ -142,7 +149,7 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  *   nodes: {
  *     string: () => 'z.string()',
  *     object(node) {
- *       const props = node.properties.map(p => `${p.name}: ${this.print(p.schema)}`).join(', ')
+ *       const props = node.properties.map(p => `${p.name}: ${this.transform(p.schema)}`).join(', ')
  *       return `z.object({ ${props} })`
  *     },
  *   },
@@ -170,19 +177,24 @@ export function createPrinterFactory<TNode, TKey extends string, TNodeByKey exte
       options: T['options']
       nodes: Partial<{
         [K in TKey]: (
-          this: { print: (node: TNode) => T['output'] | null | undefined; options: T['options'] },
+          this: { transform: (node: TNode) => T['output'] | null | undefined; options: T['options'] },
           node: TNodeByKey[K],
         ) => T['output'] | null | undefined
       }>
-      print?: (this: { print: (node: TNode) => T['output'] | null | undefined; options: T['options'] }, node: TNode) => T['printOutput'] | null | undefined
+      print?: (this: { transform: (node: TNode) => T['output'] | null | undefined; options: T['options'] }, node: TNode) => T['printOutput'] | null | undefined
     },
-  ): (options?: T['options']) => { name: T['name']; options: T['options']; print: (node: TNode) => T['printOutput'] | null | undefined } {
+  ): (options?: T['options']) => {
+    name: T['name']
+    options: T['options']
+    transform: (node: TNode) => T['output'] | null | undefined
+    print: (node: TNode) => T['printOutput'] | null | undefined
+  } {
     return (options) => {
       const { name, options: resolvedOptions, nodes, print: printOverride } = build(options ?? ({} as T['options']))
 
       const context = {
         options: resolvedOptions,
-        print: (node: TNode): T['output'] | null | undefined => {
+        transform: (node: TNode): T['output'] | null | undefined => {
           const key = getKey(node)
           if (key === undefined) return null
 
@@ -197,7 +209,8 @@ export function createPrinterFactory<TNode, TKey extends string, TNodeByKey exte
       return {
         name,
         options: resolvedOptions,
-        print: (printOverride ? printOverride.bind(context) : context.print) as (node: TNode) => T['printOutput'] | null | undefined,
+        transform: context.transform,
+        print: (printOverride ? printOverride.bind(context) : context.transform) as (node: TNode) => T['printOutput'] | null | undefined,
       }
     }
   }

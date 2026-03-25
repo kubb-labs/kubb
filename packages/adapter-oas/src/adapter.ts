@@ -1,4 +1,5 @@
 import { collectImports, createRoot } from '@kubb/ast'
+import type { RootNode } from '@kubb/ast/types'
 import { createAdapter } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { applyDiscriminatorInheritance } from './discriminator.ts'
@@ -47,7 +48,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
   // Let-binding so parse() can replace it with a simple reassignment (no clear+loop).
   let nameMapping = new Map<string, string>()
-  let parsedDocument: Document | undefined
+  let parsedDocument: Document | null
+  let rootNode: RootNode | null
 
   return {
     name: adapterOasName,
@@ -68,6 +70,9 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     },
     get document() {
       return parsedDocument
+    },
+    get rootNode() {
+      return rootNode
     },
     getImports(node, resolve) {
       return collectImports({
@@ -100,15 +105,15 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         enumSuffix,
       })
 
-      const root = discriminator === 'inherit' ? applyDiscriminatorInheritance(parsedRoot) : parsedRoot
+      const node = discriminator === 'inherit' ? applyDiscriminatorInheritance(parsedRoot) : parsedRoot
 
       // This must happen after parseOas() because legacy enum remapping is finalized there.
       nameMapping = parsedNameMapping
       // Expose the raw document so consumers (e.g. plugin-redoc) can access it.
       parsedDocument = document
 
-      return createRoot({
-        ...root,
+      rootNode = createRoot({
+        ...node,
         meta: {
           title: document.info?.title,
           description: document.info?.description,
@@ -116,6 +121,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
           baseURL,
         },
       })
+
+      return rootNode
     },
   }
 })

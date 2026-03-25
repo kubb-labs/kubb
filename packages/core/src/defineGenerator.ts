@@ -10,6 +10,7 @@ export type Version = '1' | '2'
  */
 export type OperationsV2Props<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
   config: Config
+  plugin: Plugin<TPlugin>
   adapter: Adapter
   options: Plugin<TPlugin>['options']
   nodes: Array<OperationNode>
@@ -21,6 +22,7 @@ export type OperationsV2Props<TPlugin extends PluginFactoryOptions = PluginFacto
 export type OperationV2Props<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
   config: Config
   adapter: Adapter
+  plugin: Plugin<TPlugin>
   options: Plugin<TPlugin>['options']
   node: OperationNode
 }
@@ -31,6 +33,7 @@ export type OperationV2Props<TPlugin extends PluginFactoryOptions = PluginFactor
 export type SchemaV2Props<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
   config: Config
   adapter: Adapter
+  plugin: Plugin<TPlugin>
   options: Plugin<TPlugin>['options']
   node: SchemaNode
 }

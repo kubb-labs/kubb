@@ -1,4 +1,4 @@
-import { usePluginDriver } from '@kubb/core/hooks'
+import { useDriver } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -9,7 +9,7 @@ import type { PluginMsw } from '../types'
 export const handlersGenerator = createReactGenerator<PluginMsw>({
   name: 'plugin-msw',
   Operations({ operations, generator, plugin }) {
-    const driver = usePluginDriver()
+    const driver = useDriver()
 
     const oas = useOas()
     const { getName, getFile } = useOperationManager(generator)

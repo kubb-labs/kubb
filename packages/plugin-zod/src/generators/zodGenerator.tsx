@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { useMode, usePluginDriver } from '@kubb/core/hooks'
+import { useDriver, useMode } from '@kubb/core/hooks'
 import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
@@ -18,7 +18,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     } = plugin
 
     const mode = useMode()
-    const driver = usePluginDriver()
+    const driver = useDriver()
 
     const oas = useOas()
     const { getSchemas, getFile, getGroup } = useOperationManager(generator)
@@ -147,7 +147,7 @@ export const zodGenerator = createReactGenerator<PluginZod>({
     const {
       options: { output, emptySchemaType, coercion, inferred, typed, mapper, importPath, wrapOutput, version, guidType, mini },
     } = plugin
-    const driver = usePluginDriver()
+    const driver = useDriver()
     const oas = useOas()
 
     const imports = getImports(schema.tree)

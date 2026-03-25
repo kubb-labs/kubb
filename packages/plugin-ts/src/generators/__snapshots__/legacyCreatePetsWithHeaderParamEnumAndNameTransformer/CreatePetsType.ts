@@ -3,21 +3,21 @@
  * Do not edit manually.
  */
 
-export const createPetsHeaderParamsTypeXEXAMPLEEnum = {
+export const createPetsHeaderParamsXEXAMPLEEnum = {
   ONE: 'ONE',
   TWO: 'TWO',
   THREE: 'THREE',
 } as const
 
-export type CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey = (typeof createPetsHeaderParamsTypeXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsTypeXEXAMPLEEnum]
+export type CreatePetsHeaderParamsXEXAMPLEEnumTypeKey = (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum]
 
-export type CreatePetsHeaderParamsTypeXEXAMPLEEnumType = CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey
+export type CreatePetsHeaderParamsXEXAMPLEEnumType = CreatePetsHeaderParamsXEXAMPLEEnumTypeKey
 
 export type CreatePetsHeaderParamsType = {
   /**
    * @type string
    */
-  'X-EXAMPLE': CreatePetsHeaderParamsTypeXEXAMPLEEnumTypeKey
+  'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnumTypeKey
 }
 
 /**

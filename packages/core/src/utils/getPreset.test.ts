@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { definePreset } from '../definePreset.ts'
 import { definePresets } from '../definePresets.ts'
 import { defineResolver } from '../defineResolver.ts'
-import type { Resolver } from '../types.ts'
+import type { Builder, Resolver } from '../types.ts'
 import { getPreset } from './getPreset.ts'
 
 type TestResolver = Resolver & {
@@ -18,10 +18,12 @@ type TestPluginFactory = {
   context: never
   resolvePathOptions: object
   resolver: TestResolver
+  builder: Builder
 }
 
 const baseResolver = defineResolver<TestPluginFactory>(() => ({
   name: 'base',
+  pluginName: 'test',
   schemaName(node) {
     return `Base${node.name}`
   },
@@ -29,6 +31,7 @@ const baseResolver = defineResolver<TestPluginFactory>(() => ({
 
 const legacyResolver = defineResolver<TestPluginFactory>(() => ({
   ...baseResolver,
+  pluginName: 'test',
   name: 'legacy',
   schemaName(node) {
     return `Legacy${node.name}`
@@ -37,6 +40,7 @@ const legacyResolver = defineResolver<TestPluginFactory>(() => ({
 
 const customResolver = defineResolver<TestPluginFactory>(() => ({
   ...baseResolver,
+  pluginName: 'test',
   name: 'custom',
   schemaName(node) {
     return `Custom${node.name}`
@@ -78,7 +82,6 @@ describe('getPreset', () => {
     })
 
     expect(result.preset?.name).toBe('default')
-    expect(result.baseResolver.schemaName({ name: 'Pet' })).toBe('BasePet')
     expect(result.resolver.schemaName({ name: 'Pet' })).toBe('BasePet')
     expect(result.transformers).toEqual([])
   })
@@ -92,7 +95,6 @@ describe('getPreset', () => {
     })
 
     expect(result.preset?.name).toBe('kubbV4')
-    expect(result.baseResolver.schemaName({ name: 'Pet' })).toBe('LegacyPet')
     expect(result.resolver.schemaName({ name: 'Pet' })).toBe('LegacyPet')
   })
 
@@ -104,7 +106,6 @@ describe('getPreset', () => {
       generators: [],
     })
 
-    expect(result.baseResolver.schemaName({ name: 'Pet' })).toBe('LegacyPet')
     expect(result.resolver.schemaName({ name: 'Pet' })).toBe('CustomPet')
   })
 

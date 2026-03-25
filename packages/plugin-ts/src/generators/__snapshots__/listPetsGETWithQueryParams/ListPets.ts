@@ -3,11 +3,7 @@
  * Do not edit manually.
  */
 
-export type ListPetsQueryMyLimit = number
-
-export type ListPetsQueryParams = {
-  myLimit?: ListPetsQueryMyLimit
-}
+export type ListPetsQueryLimit = number
 
 /**
  * @description A paged array of pets
@@ -23,7 +19,7 @@ export type ListPetsRequestConfig = {
   data?: never
   pathParams?: never
   queryParams?: {
-    myLimit?: ListPetsQueryMyLimit
+    limit?: ListPetsQueryLimit
   }
   headerParams?: never
   url: '/pets'

@@ -1,7 +1,6 @@
 import path from 'node:path'
-import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
-import { createPlugin, type Group, getBarrelFiles, getMode, renderOperation, renderSchema } from '@kubb/core'
+import { createPlugin, getBarrelFiles, renderOperation, renderSchema } from '@kubb/core'
 import { getPreset } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
@@ -21,73 +20,48 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     syntaxType = 'type',
     paramsCasing,
     compatibilityPreset = 'default',
-    resolvers: userResolvers,
+    resolvers: userResolvers = [],
     transformers: userTransformers = [],
     generators: userGenerators = [],
   } = options
 
-  const { baseResolver, resolver, transformers, generators } = getPreset(compatibilityPreset, {
+  const { resolver, transformers, generators } = getPreset(compatibilityPreset, {
     resolvers: userResolvers,
     transformers: userTransformers,
     generators: userGenerators,
   })
 
   let resolveNameWarning = false
+  let resolvePathWarning = false
 
   return {
     name: pluginTsName,
     options: {
       output,
       optionalType,
+      group,
       arrayType,
       enumType,
       enumKeyCasing,
       syntaxType,
-      group,
-      override,
       paramsCasing,
-      compatibilityPreset,
-      baseResolver,
       resolver,
       transformers,
     },
     resolvePath(baseName, pathMode, options) {
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = pathMode ?? getMode(path.resolve(root, output.path))
-
-      if (mode === 'single') {
-        /**
-         * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
-         * Other plugins then need to call addOrAppend instead of just add from the fileManager class
-         */
-        return path.resolve(root, output.path)
+      if (!resolvePathWarning) {
+        this.driver.events.emit('warn', 'Do not use resolvePath for pluginTs, use resolverTs.resolvePath instead')
+        resolvePathWarning = true
       }
 
-      if (group && (options?.group?.path || options?.group?.tag)) {
-        const groupName: Group['name'] = group?.name
-          ? group.name
-          : (ctx) => {
-              if (group?.type === 'path') {
-                return `${ctx.group.split('/')[1]}`
-              }
-              return `${camelCase(ctx.group)}Controller`
-            }
-
-        return path.resolve(
-          root,
-          output.path,
-          groupName({
-            group: group.type === 'path' ? options.group.path! : options.group.tag!,
-          }),
-          baseName,
-        )
-      }
-
-      return path.resolve(root, output.path, baseName)
+      return resolver.resolvePath(
+        { baseName, pathMode, tag: options?.group?.tag, path: options?.group?.path },
+        { root: path.resolve(this.config.root, this.config.output.path), output, group },
+      )
     },
     resolveName(name, type) {
       if (!resolveNameWarning) {
-        this.driver.events.emit('warn', 'Do not use resolveName for pluginTs, use resolverTs instead')
+        this.driver.events.emit('warn', 'Do not use resolveName for pluginTs, use resolverTs.default instead')
         resolveNameWarning = true
       }
 
@@ -97,7 +71,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       const { config, fabric, plugin, adapter, rootNode, driver, openInStudio } = this
 
       const root = path.resolve(config.root, config.output.path)
-      const mode = getMode(path.resolve(root, output.path))
 
       if (!adapter) {
         throw new Error('Plugin cannot work without adapter being set')
@@ -124,7 +97,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
                 Component: generator.Schema,
                 plugin,
                 driver,
-                mode,
               })
             }
           })
@@ -148,7 +120,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
                 Component: generator.Operation,
                 plugin,
                 driver,
-                mode,
               })
             }
           })

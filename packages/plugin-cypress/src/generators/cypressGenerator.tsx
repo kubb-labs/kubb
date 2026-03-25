@@ -1,4 +1,4 @@
-import { usePluginDriver } from '@kubb/core/hooks'
+import { useDriver } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -13,7 +13,7 @@ export const cypressGenerator = createReactGenerator<PluginCypress>({
     const {
       options: { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType },
     } = plugin
-    const driver = usePluginDriver()
+    const driver = useDriver()
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)

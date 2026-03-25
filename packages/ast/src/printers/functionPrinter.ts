@@ -36,11 +36,11 @@ const kindToHandlerKey = {
  *       return options.mode === 'declaration' && node.type ? `${node.name}: ${node.type}` : node.name
  *     },
  *     objectBindingParameter(node) {
- *       const inner = node.properties.map(p => this.print(p)).filter(Boolean).join(', ')
+ *       const inner = node.properties.map(p => this.transform(p)).filter(Boolean).join(', ')
  *       return `{ ${inner} }`
  *     },
  *     functionParameters(node) {
- *       return node.params.map(p => this.print(p)).filter(Boolean).join(', ')
+ *       return node.params.map(p => this.transform(p)).filter(Boolean).join(', ')
  *     },
  *   },
  * }))
@@ -142,7 +142,7 @@ export const functionPrinter = defineFunctionPrinter<DefaultPrinter>((options) =
 
       if (node.inline) {
         return sorted
-          .map((p) => this.print(p))
+          .map((p) => this.transform(p))
           .filter(Boolean)
           .join(', ')
       }
@@ -188,7 +188,7 @@ export const functionPrinter = defineFunctionPrinter<DefaultPrinter>((options) =
       const sorted = sortParams(node.params)
 
       return sorted
-        .map((p) => this.print(p))
+        .map((p) => this.transform(p))
         .filter(Boolean)
         .join(', ')
     },

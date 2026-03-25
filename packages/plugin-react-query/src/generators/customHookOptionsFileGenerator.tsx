@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { usePluginDriver } from '@kubb/core/hooks'
+import { useDriver } from '@kubb/core/hooks'
 import type { Operation } from '@kubb/oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -15,7 +15,7 @@ export const customHookOptionsFileGenerator = createReactGenerator<PluginReactQu
       options: { output },
       name: pluginName,
     } = plugin
-    const driver = usePluginDriver()
+    const driver = useDriver()
 
     const { getFile } = useOperationManager(generator)
 

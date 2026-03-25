@@ -19,14 +19,15 @@ export const config = {
   hooks: {
     done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
   },
-  adapter: adapterOas({ collisionDetection: false }),
+  adapter: adapterOas({}),
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({
       output: {
         path: 'models',
         banner(oas) {
-          return `// version: ${oas.api.info.version}`
+          console.log(oas)
+          return `// version: ${oas.meta?.version || 'unknown'}`
         },
       },
       compatibilityPreset: 'kubbV4',

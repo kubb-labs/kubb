@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { usePluginDriver } from '@kubb/core/hooks'
+import { useDriver } from '@kubb/core/hooks'
 import { pluginClientName } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client/components'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
@@ -19,7 +19,7 @@ export const queryGenerator = createReactGenerator<PluginSolidQuery>({
       options,
       options: { output },
     } = plugin
-    const driver = usePluginDriver()
+    const driver = useDriver()
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)

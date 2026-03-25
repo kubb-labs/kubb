@@ -1,139 +1,24 @@
-import { caseParams, composeTransformers, createProperty, createSchema, narrowSchema, schemaTypes, transform } from '@kubb/ast'
-import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
-import { defineGenerator } from '@kubb/core'
-import { useKubb } from '@kubb/core/hooks'
+import path from 'node:path'
+import { caseParams, composeTransformers, narrowSchema, schemaTypes, transform } from '@kubb/ast'
+import type { SchemaNode } from '@kubb/ast/types'
+import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
+import { builderTs } from '../builders/builderTs.ts'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
-import type { PluginTs, ResolverTs } from '../types'
-
-type BuildParamsSchemaOptions = {
-  params: Array<ParameterNode>
-  node: OperationNode
-  resolver: ResolverTs
-}
-
-function buildParamsSchema({ params, node, resolver }: BuildParamsSchemaOptions): SchemaNode {
-  return createSchema({
-    type: 'object',
-    properties: params.map((param) =>
-      createProperty({
-        name: param.name,
-        required: param.required,
-        schema: createSchema({
-          type: 'ref',
-          name: resolver.resolveParamName(node, param),
-        }),
-      }),
-    ),
-  })
-}
-
-type BuildOperationSchemaOptions = {
-  node: OperationNode
-  resolver: ResolverTs
-}
-
-function buildDataSchemaNode({ node, resolver }: BuildOperationSchemaOptions): SchemaNode {
-  const pathParams = node.parameters.filter((p) => p.in === 'path')
-  const queryParams = node.parameters.filter((p) => p.in === 'query')
-  const headerParams = node.parameters.filter((p) => p.in === 'header')
-
-  return createSchema({
-    type: 'object',
-    deprecated: node.deprecated,
-    properties: [
-      createProperty({
-        name: 'data',
-        schema: node.requestBody?.schema
-          ? createSchema({
-              type: 'ref',
-              name: resolver.resolveDataTypedName(node),
-              optional: true,
-            })
-          : createSchema({ type: 'never', optional: true }),
-      }),
-      createProperty({
-        name: 'pathParams',
-        required: pathParams.length > 0,
-        schema: pathParams.length > 0 ? buildParamsSchema({ params: pathParams, node, resolver }) : createSchema({ type: 'never' }),
-      }),
-      createProperty({
-        name: 'queryParams',
-        schema:
-          queryParams.length > 0
-            ? createSchema({ ...buildParamsSchema({ params: queryParams, node, resolver }), optional: true })
-            : createSchema({ type: 'never', optional: true }),
-      }),
-      createProperty({
-        name: 'headerParams',
-        schema:
-          headerParams.length > 0
-            ? createSchema({ ...buildParamsSchema({ params: headerParams, node, resolver }), optional: true })
-            : createSchema({ type: 'never', optional: true }),
-      }),
-      createProperty({
-        name: 'url',
-        required: true,
-        schema: createSchema({ type: 'url', path: node.path }),
-      }),
-    ],
-  })
-}
-
-function buildResponsesSchemaNode({ node, resolver }: BuildOperationSchemaOptions): SchemaNode | null {
-  if (node.responses.length === 0) {
-    return null
-  }
-
-  return createSchema({
-    type: 'object',
-    properties: node.responses.map((res) =>
-      createProperty({
-        name: String(res.statusCode),
-        required: true,
-        schema: createSchema({
-          type: 'ref',
-          name: resolver.resolveResponseStatusTypedName(node, res.statusCode),
-        }),
-      }),
-    ),
-  })
-}
-
-function buildResponseUnionSchemaNode({ node, resolver }: BuildOperationSchemaOptions): SchemaNode | null {
-  const responsesWithSchema = node.responses.filter((res) => res.schema)
-
-  if (responsesWithSchema.length === 0) {
-    return null
-  }
-
-  return createSchema({
-    type: 'union',
-    members: responsesWithSchema.map((res) =>
-      createSchema({
-        type: 'ref',
-        name: resolver.resolveResponseStatusTypedName(node, res.statusCode),
-      }),
-    ),
-  })
-}
+import type { PluginTs } from '../types'
 
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
-  Operation({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver, transformers = [] } = options
-    const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
+  Operation({ node, adapter, options, config }) {
+    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, resolver, transformers = [] } = options
 
-    const file = getFile({
-      name: node.operationId,
-      extname: '.ts',
-      mode,
-      options: {
-        group: group ? (group.type === 'tag' ? { tag: node.tags[0] ?? 'default' } : { path: node.path }) : undefined,
-      },
-    })
+    const root = path.resolve(config.root, config.output.path)
+    const mode = getMode(path.resolve(root, output.path))
+
+    const file = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
+
     const params = caseParams(node.parameters, paramsCasing)
 
     function renderSchemaType({
@@ -157,7 +42,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
       const imports = adapter.getImports(transformedNode, (schemaName) => ({
         name: resolver.default(schemaName, 'type'),
-        path: getFile({ name: schemaName, extname: '.ts', mode }).path,
+        path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
       }))
 
       return (
@@ -189,16 +74,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
       }),
     )
 
-    const queryParamsList = params.filter((p) => p.in === 'query')
-    const queryParamsType =
-      queryParamsList.length > 0
-        ? renderSchemaType({
-            node: buildParamsSchema({ params: queryParamsList, node, resolver }),
-            name: resolver.resolveQueryParamsName!(node),
-            typedName: resolver.resolveQueryParamsTypedName!(node),
-          })
-        : null
-
     const requestType = node.requestBody?.schema
       ? renderSchemaType({
           node: node.requestBody.schema,
@@ -220,28 +95,33 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
 
     const dataType = renderSchemaType({
-      node: buildDataSchemaNode({ node: { ...node, parameters: params }, resolver }),
+      node: builderTs.buildData({ node: { ...node, parameters: params }, resolver }),
       name: resolver.resolveRequestConfigName(node),
       typedName: resolver.resolveRequestConfigTypedName(node),
     })
 
     const responsesType = renderSchemaType({
-      node: buildResponsesSchemaNode({ node, resolver }),
+      node: builderTs.buildResponses({ node, resolver }),
       name: resolver.resolveResponsesName(node),
       typedName: resolver.resolveResponsesTypedName(node),
     })
 
     const responseType = renderSchemaType({
-      node: buildResponseUnionSchemaNode({ node, resolver }),
+      node: builderTs.buildResponseUnion({ node, resolver }),
       name: resolver.resolveResponseName(node),
       typedName: resolver.resolveResponseTypedName(node),
       description: 'Union of all possible responses',
     })
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={resolveBanner()} footer={resolveFooter()}>
+      <File
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+      >
         {paramTypes}
-        {queryParamsType}
         {responseTypes}
         {requestType}
         {dataType}
@@ -250,9 +130,11 @@ export const typeGenerator = defineGenerator<PluginTs>({
       </File>
     )
   },
-  Schema({ node, adapter, options }) {
-    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, resolver, transformers = [] } = options
-    const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
+  Schema({ node, adapter, options, config }) {
+    const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, resolver, transformers = [] } = options
+
+    const root = path.resolve(config.root, config.output.path)
+    const mode = getMode(path.resolve(root, output.path))
 
     if (!node.name) {
       return
@@ -262,7 +144,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
     const imports = adapter.getImports(transformedNode, (schemaName) => ({
       name: resolver.default(schemaName, 'type'),
-      path: getFile({ name: schemaName, extname: '.ts', mode }).path,
+      path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
     }))
 
     const isEnumSchema = !!narrowSchema(node, schemaTypes.enum)
@@ -272,11 +154,17 @@ export const typeGenerator = defineGenerator<PluginTs>({
     const type = {
       name: resolver.resolveName(node.name),
       typedName,
-      file: getFile({ name: node.name, extname: '.ts', mode }),
+      file: resolver.resolveFile({ name: node.name, extname: '.ts' }, { root, output, group }),
     } as const
 
     return (
-      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta} banner={resolveBanner()} footer={resolveFooter()}>
+      <File
+        baseName={type.file.baseName}
+        path={type.file.path}
+        meta={type.file.meta}
+        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+      >
         {mode === 'split' &&
           imports.map((imp) => (
             <File.Import key={[node.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />

@@ -27,6 +27,7 @@ function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'
 export const resolverTs = defineResolver<PluginTs>(() => {
   return {
     name: 'default',
+    pluginName: 'plugin-ts',
     default(name, type) {
       return resolveName(name, type)
     },
@@ -86,11 +87,13 @@ export const resolverTs = defineResolver<PluginTs>(() => {
         "resolvePathParamsTypedName is only available with compatibilityPreset: 'kubbV4'. Use resolveParamTypedName per individual parameter instead.",
       )
     },
-    resolveQueryParamsName(node) {
-      return this.resolveName(`${node.operationId} QueryParams`)
+    resolveQueryParamsName(_node) {
+      throw new Error("resolveQueryParamsName is only available with compatibilityPreset: 'kubbV4'. Use resolveParamName per individual parameter instead.")
     },
-    resolveQueryParamsTypedName(node) {
-      return this.resolveTypedName(`${node.operationId} QueryParams`)
+    resolveQueryParamsTypedName(_node) {
+      throw new Error(
+        "resolveQueryParamsTypedName is only available with compatibilityPreset: 'kubbV4'. Use resolveParamTypedName per individual parameter instead.",
+      )
     },
     resolveHeaderParamsName(_node) {
       throw new Error("resolveHeaderParamsName is only available with compatibilityPreset: 'kubbV4'. Use resolveParamName per individual parameter instead.")

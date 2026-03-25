@@ -6,11 +6,20 @@ export { formatters, linters, logLevel } from './constants.ts'
 export { createAdapter } from './createAdapter.ts'
 export { createPlugin } from './createPlugin.ts'
 export { createStorage } from './createStorage.ts'
+export { defineBuilder } from './defineBuilder.ts'
 export { defineGenerator } from './defineGenerator.ts'
 export { defineLogger } from './defineLogger.ts'
 export { definePreset } from './definePreset.ts'
 export { definePresets } from './definePresets.ts'
-export { defaultResolveOptions, defineResolver } from './defineResolver.ts'
+export {
+  buildDefaultBanner,
+  defaultResolveBanner,
+  defaultResolveFile,
+  defaultResolveFooter,
+  defaultResolveOptions,
+  defaultResolvePath,
+  defineResolver,
+} from './defineResolver.ts'
 export { getMode, PluginDriver } from './PluginDriver.ts'
 export { renderOperation, renderOperations, renderSchema } from './renderNode.tsx'
 export { fsStorage } from './storages/fsStorage.ts'

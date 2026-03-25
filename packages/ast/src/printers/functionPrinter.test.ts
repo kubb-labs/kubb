@@ -279,7 +279,7 @@ describe('defineFunctionPrinter()', () => {
         },
         functionParameters(node) {
           return node.params
-            .map((p) => this.print(p))
+            .map((p) => this.transform(p))
             .filter(Boolean)
             .join(' | ')
         },
@@ -311,11 +311,11 @@ describe('defineFunctionPrinter()', () => {
         },
         objectBindingParameter(node) {
           // Use this.print to recurse into child params
-          return `{${node.properties.map((p) => this.print(p)).join('+')}}`
+          return `{${node.properties.map((p) => this.transform(p)).join('+')}}`
         },
         functionParameters(node) {
           return node.params
-            .map((p) => this.print(p))
+            .map((p) => this.transform(p))
             .filter(Boolean)
             .join('-')
         },

@@ -1,4 +1,4 @@
-import { usePluginDriver } from '@kubb/core/hooks'
+import { useDriver } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -11,7 +11,7 @@ import type { PluginMcp } from '../types'
 export const serverGenerator = createReactGenerator<PluginMcp>({
   name: 'operations',
   Operations({ operations, generator, plugin }) {
-    const driver = usePluginDriver()
+    const driver = useDriver()
     const { options } = plugin
 
     const oas = useOas()
