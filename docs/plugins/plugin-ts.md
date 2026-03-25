@@ -182,6 +182,41 @@ export interface Pet {
 
 :::
 
+### enumTypeSuffix
+
+Set a suffix for generated enum type aliases when `enumType` is `asConst` or `asPascalConst`.
+
+|           |          |
+| --------: | :------- |
+|     Type: | `string` |
+| Required: | `false`  |
+|  Default: | `'Key'`  |
+
+> [!TIP]
+> This option only affects type aliases generated for `asConst` and `asPascalConst`. It does not affect `enum`, `constEnum`, `literal`, or `inlineLiteral`.
+
+::: code-group
+
+```typescript [enumTypeSuffix: 'Key']
+const petStatus = {
+  Available: 'available',
+  Sold: 'sold',
+} as const;
+
+type PetStatusKey = typeof petStatus[keyof typeof petStatus];
+```
+
+```typescript [enumTypeSuffix: 'Value']
+const petStatus = {
+  Available: 'available',
+  Sold: 'sold',
+} as const;
+
+type PetStatusValue = typeof petStatus[keyof typeof petStatus];
+```
+
+:::
+
 ### enumSuffix
 
 Set a suffix for the generated enums.
@@ -538,6 +573,7 @@ export default defineConfig({
         name: ({ group }) => `${group}Controller`,
       },
       enumType: "asConst",
+      enumTypeSuffix: "Value",
       enumSuffix: "Enum",
       dateType: "date",
       unknownType: "unknown",
