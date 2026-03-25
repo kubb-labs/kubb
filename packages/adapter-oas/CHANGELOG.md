@@ -1,5 +1,13 @@
 # @kubb/adapter-oas
 
+## 5.0.0-alpha.21
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.21
+  - @kubb/core@5.0.0-alpha.21
+
 ## 5.0.0-alpha.20
 
 ### Minor Changes
