@@ -11,10 +11,6 @@ type GetPresetParams<TResolver extends Resolver> = {
    * User-supplied generators to append after the preset's generators.
    */
   generators?: Array<Generator>
-  /**
-   * Fallback generators used when neither the preset nor the user supplies any generators.
-   */
-  defaultGenerators?: Array<Generator>
 }
 
 type GetPresetResult<TResolver extends Resolver> = {
@@ -31,10 +27,10 @@ type GetPresetResult<TResolver extends Resolver> = {
  * - Merges the preset's resolvers on top of the first (default) resolver to produce `baseResolver`.
  * - Merges any additional user-supplied resolvers on top of that to produce the final `resolver`.
  * - Concatenates preset transformers before user-supplied transformers.
- * - Combines preset generators with user-supplied generators; falls back to `defaultGenerators` when neither provides any.
+ * - Combines preset generators with user-supplied generators; falls back to the `default` preset's generators when neither provides any.
  */
 export function getPreset<TResolver extends Resolver = Resolver>(params: GetPresetParams<TResolver>): GetPresetResult<TResolver> {
-  const { preset: presetName, presets, resolvers, transformers: userTransformers, generators: userGenerators, defaultGenerators } = params
+  const { preset: presetName, presets, resolvers, transformers: userTransformers, generators: userGenerators } = params
   const [defaultResolver, ...userResolvers] = resolvers
   const preset = presets[presetName]
 
@@ -43,7 +39,8 @@ export function getPreset<TResolver extends Resolver = Resolver>(params: GetPres
   const transformers = [...(preset?.transformers ?? []), ...(userTransformers ?? [])]
 
   const presetGenerators = preset?.generators ?? []
-  const generators = presetGenerators.length > 0 || userGenerators?.length ? [...presetGenerators, ...(userGenerators ?? [])] : (defaultGenerators ?? [])
+  const defaultPresetGenerators = presets['default']?.generators ?? []
+  const generators = presetGenerators.length > 0 || userGenerators?.length ? [...presetGenerators, ...(userGenerators ?? [])] : defaultPresetGenerators
 
   return {
     baseResolver,

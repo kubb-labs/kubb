@@ -6,7 +6,7 @@ import { resolverTs, resolverTsLegacy } from './resolvers/index.ts'
 import type { PluginTs, ResolverTs } from './types.ts'
 
 export const presets = definePresets<ResolverTs>({
-  default: definePreset('default', { resolvers: [resolverTs] }),
+  default: definePreset('default', { resolvers: [resolverTs], generators: [typeGenerator] }),
   kubbV4: definePreset('kubbV4', { resolvers: [resolverTsLegacy], generators: [typeGeneratorLegacy] }),
 })
 
@@ -23,6 +23,5 @@ export function getPreset(preset: CompatibilityPreset, { resolvers, transformers
     resolvers: [resolverTs, ...(resolvers ?? [])],
     transformers,
     generators,
-    defaultGenerators: [typeGenerator],
   })
 }

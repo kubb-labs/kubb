@@ -50,6 +50,7 @@ const mockDefaultGenerator = { type: 'react', version: '2', name: 'default' } as
 const presets = definePresets<TestResolver>({
   default: definePreset('default', {
     resolvers: [],
+    generators: [mockDefaultGenerator],
   }),
   kubbV4: definePreset('kubbV4', {
     resolvers: [legacyResolver],
@@ -145,24 +146,32 @@ describe('getPreset', () => {
     expect(result.generators).toEqual([mockGenerator, mockUserGenerator])
   })
 
-  it('falls back to defaultGenerators when preset and user supply none', () => {
+  it('falls back to default preset generators when preset has no generators and user provides none', () => {
+    const presetsWithoutKubbV4Generators = definePresets<TestResolver>({
+      default: definePreset('default', { resolvers: [], generators: [mockDefaultGenerator] }),
+      kubbV4: definePreset('kubbV4', { resolvers: [legacyResolver] }),
+    })
+
     const result = getPreset({
-      preset: 'default',
-      presets,
+      preset: 'kubbV4',
+      presets: presetsWithoutKubbV4Generators,
       resolvers: [baseResolver],
-      defaultGenerators: [mockDefaultGenerator],
     })
 
     expect(result.generators).toEqual([mockDefaultGenerator])
   })
 
-  it('uses user generators over defaultGenerators when preset has none', () => {
+  it('uses user generators (appended after preset) when preset has none', () => {
+    const presetsWithoutKubbV4Generators = definePresets<TestResolver>({
+      default: definePreset('default', { resolvers: [], generators: [mockDefaultGenerator] }),
+      kubbV4: definePreset('kubbV4', { resolvers: [legacyResolver] }),
+    })
+
     const result = getPreset({
-      preset: 'default',
-      presets,
+      preset: 'kubbV4',
+      presets: presetsWithoutKubbV4Generators,
       resolvers: [baseResolver],
       generators: [mockUserGenerator],
-      defaultGenerators: [mockDefaultGenerator],
     })
 
     expect(result.generators).toEqual([mockUserGenerator])
