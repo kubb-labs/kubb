@@ -24,10 +24,12 @@ Kubb uses [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) to automat
 
 **Kubb automatically searches for config files in this order:**
 1. `kubb.config.ts` (recommended - TypeScript with type safety)
-2. `kubb.config.js` (JavaScript ES modules)
-3. `kubb.config.mjs` (JavaScript ES modules explicit)
-4. `kubb.config.cjs` (CommonJS format)
-5. `.kubbrc` (JavaScript format)
+2. `kubb.config.mts` (TypeScript ES modules explicit)
+3. `kubb.config.cts` (TypeScript CommonJS explicit)
+4. `kubb.config.js` (JavaScript ES modules)
+5. `kubb.config.mjs` (JavaScript ES modules explicit)
+6. `kubb.config.cjs` (CommonJS format)
+7. `.kubbrc` (JavaScript format)
 
 **Alternative locations:**
 - `configs/kubb.config.ts` (in a configs directory)
@@ -523,7 +525,7 @@ export default defineConfig({
 
 > [!TIP]
 > When using an `import` statement you need to set `"type": "module"` in your `package.json`.
-> You can also rename your file to `kubb.config.mjs` to use ESM or `kubb.config.cjs` for CJS.
+> You can also rename your file to `kubb.config.mts` or `kubb.config.mjs` to use ESM, or `kubb.config.cts` / `kubb.config.cjs` for CJS. Users migrating to `"moduleResolution": "bundler"` (e.g. TypeScript 6) can use `.mts` or `.cts` extensions.
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'

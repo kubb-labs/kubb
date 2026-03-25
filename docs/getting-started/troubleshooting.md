@@ -74,6 +74,8 @@ yarn install
 
 **Solution**: Ensure your config file exists in the project root with one of these names:
 - `kubb.config.ts` - TypeScript (recommended)
+- `kubb.config.mts` - TypeScript ES modules explicit
+- `kubb.config.cts` - TypeScript CommonJS explicit
 - `kubb.config.js` - JavaScript (requires `"type": "module"` in `package.json`)
 - `kubb.config.mjs` - ESM JavaScript
 - `kubb.config.cjs` - CommonJS JavaScript

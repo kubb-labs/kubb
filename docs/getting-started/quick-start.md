@@ -145,9 +145,11 @@ yarn run generate
 
 Kubb automatically detects configuration files in this order:
 1. `kubb.config.ts` (recommended)
-2. `kubb.config.js`
-3. `kubb.config.mjs`
-4. `kubb.config.cjs`
+2. `kubb.config.mts`
+3. `kubb.config.cts`
+4. `kubb.config.js`
+5. `kubb.config.mjs`
+6. `kubb.config.cjs`
 
 > [!TIP]
 > Use `--config <path>` to specify a custom config file location:
@@ -156,7 +158,7 @@ Kubb automatically detects configuration files in this order:
 > ```
 
 > [!NOTE]
-> **Using ESM**: If using `import` statements, add `"type": "module"` to `package.json`, or use the `.mjs` extension for your config file.
+> **Using ESM**: If using `import` statements, add `"type": "module"` to `package.json`, or use the `.mjs` / `.mts` extension for your config file. Users migrating to `"moduleResolution": "bundler"` (e.g. TypeScript 6) can use `.mts` or `.cts` extensions.
 
 ![CLI in action](../public/screenshots/cli.gif)
 

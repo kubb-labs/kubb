@@ -318,7 +318,7 @@ z.guid()
 
 :::
 
-### mini <Badge type="tip" text="beta" /> <span class="new">new in 4.8.0</span>
+### mini <Badge type="tip" text="beta" />
 
 Use Zod Mini's functional API for better tree-shaking support.
 
