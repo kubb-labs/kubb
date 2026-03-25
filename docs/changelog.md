@@ -6,6 +6,15 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.21
+
+### ✨ Features
+
+#### [`@kubb/mcp`](https://github.com/kubb-labs/kubb/tree/main/packages/mcp)
+
+-   [`56df74d`](https://github.com/kubb-labs/kubb/commit/56df74d32e767f98930987934a3d2236707e582d) - Added support for `resolveFile` as part of resolvers, enabling better file resolution workflows.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
