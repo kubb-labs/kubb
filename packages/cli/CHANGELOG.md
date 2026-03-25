@@ -4,6 +4,15 @@
 
 ### Patch Changes
 
+- [#2909](https://github.com/kubb-labs/kubb/pull/2909) [`07416fd`](https://github.com/kubb-labs/kubb/commit/07416fdc31534251c195d4b5aa47bcfe7abcddf1) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Support `kubb.config.mts` and `kubb.config.cts` config file extensions
+
+- Updated dependencies []:
+  - @kubb/core@4.36.5
+
+## 4.36.5
+
+### Patch Changes
+
 - Support `kubb.config.mts` and `kubb.config.cts` config file extensions
 
 ## 4.36.4
