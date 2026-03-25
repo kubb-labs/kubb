@@ -105,15 +105,15 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         enumSuffix,
       })
 
-      rootNode = discriminator === 'inherit' ? applyDiscriminatorInheritance(parsedRoot) : parsedRoot
+      const node = discriminator === 'inherit' ? applyDiscriminatorInheritance(parsedRoot) : parsedRoot
 
       // This must happen after parseOas() because legacy enum remapping is finalized there.
       nameMapping = parsedNameMapping
       // Expose the raw document so consumers (e.g. plugin-redoc) can access it.
       parsedDocument = document
 
-      return createRoot({
-        ...rootNode,
+      rootNode = createRoot({
+        ...node,
         meta: {
           title: document.info?.title,
           description: document.info?.description,
@@ -121,6 +121,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
           baseURL,
         },
       })
+
+      return rootNode
     },
   }
 })

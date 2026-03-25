@@ -23,6 +23,7 @@ type TestPluginFactory = {
 
 const baseResolver = defineResolver<TestPluginFactory>(() => ({
   name: 'base',
+  pluginName: 'test',
   schemaName(node) {
     return `Base${node.name}`
   },
@@ -30,6 +31,7 @@ const baseResolver = defineResolver<TestPluginFactory>(() => ({
 
 const legacyResolver = defineResolver<TestPluginFactory>(() => ({
   ...baseResolver,
+  pluginName: 'test',
   name: 'legacy',
   schemaName(node) {
     return `Legacy${node.name}`
@@ -38,6 +40,7 @@ const legacyResolver = defineResolver<TestPluginFactory>(() => ({
 
 const customResolver = defineResolver<TestPluginFactory>(() => ({
   ...baseResolver,
+  pluginName: 'test',
   name: 'custom',
   schemaName(node) {
     return `Custom${node.name}`

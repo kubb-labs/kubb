@@ -1,4 +1,4 @@
-// version: unknown
+// version: 1.0.11
 import type { Category } from './Category.ts'
 import type { Tag } from './Tag.ts'
 
