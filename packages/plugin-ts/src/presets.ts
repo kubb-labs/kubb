@@ -21,6 +21,6 @@ export function getPreset(preset: CompatibilityPreset, { resolvers, transformers
     presets,
     resolvers: [resolverTs, ...(resolvers ?? [])],
     transformers,
-    generators: generators ?? [],
+    generators,
   })
 }

@@ -2,7 +2,7 @@ import { collect, narrowSchema, schemaTypes } from '@kubb/ast'
 import type { EnumSchemaNode, SchemaNode } from '@kubb/ast/types'
 import { File } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import { printerTs } from '../printer.ts'
+import { printerTs } from '../printers/printerTs.ts'
 import type { PluginTs } from '../types.ts'
 import { Enum, getEnumNames } from './Enum.tsx'
 

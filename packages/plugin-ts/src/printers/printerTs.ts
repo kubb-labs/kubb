@@ -5,9 +5,9 @@ import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
 import type ts from 'typescript'
-import { ENUM_TYPES_WITH_KEY_SUFFIX, OPTIONAL_ADDS_QUESTION_TOKEN, OPTIONAL_ADDS_UNDEFINED } from './constants.ts'
-import * as factory from './factory.ts'
-import type { PluginTs, ResolverTs } from './types.ts'
+import { ENUM_TYPES_WITH_KEY_SUFFIX, OPTIONAL_ADDS_QUESTION_TOKEN, OPTIONAL_ADDS_UNDEFINED } from '../constants.ts'
+import * as factory from '../factory.ts'
+import type { PluginTs, ResolverTs } from '../types.ts'
 
 type TsOptions = {
   /**

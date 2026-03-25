@@ -1,7 +1,7 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
-import { printerTs } from '../printer.ts'
+import { printerTs } from '../printers/printerTs.ts'
 import { resolverTs } from '../resolvers/index.ts'
 import { builderTs } from './builderTs.ts'
 
