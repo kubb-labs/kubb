@@ -19,6 +19,7 @@ describe('transformers — integration with typeGenerator Schema', () => {
   const defaultOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
     enumKeyCasing: 'none',
+    enumTypeSuffix: 'Key',
     optionalType: 'questionToken',
     arrayType: 'array',
     syntaxType: 'type',
@@ -114,6 +115,7 @@ describe('transformers — property requiredness auto-sync', () => {
   const defaultOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
     enumKeyCasing: 'none',
+    enumTypeSuffix: 'Key',
     optionalType: 'questionToken',
     arrayType: 'array',
     syntaxType: 'type',
@@ -184,6 +186,7 @@ describe('transformers — integration with typeGenerator Operation', () => {
   const defaultOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
     enumKeyCasing: 'none',
+    enumTypeSuffix: 'Key',
     optionalType: 'questionToken',
     arrayType: 'array',
     syntaxType: 'type',
