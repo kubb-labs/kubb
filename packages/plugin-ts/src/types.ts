@@ -12,6 +12,7 @@ import type {
   ResolvePathOptions,
   Resolver,
 } from '@kubb/core'
+import type { KubbFile } from '@kubb/fabric-core/types'
 /**
  * The concrete resolver type for `@kubb/plugin-ts`.
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
@@ -195,6 +196,17 @@ export type ResolverTs = Resolver & {
    * resolver.resolveHeaderParamsTypedName(node) // → 'DeletePetHeaderParams'
    */
   resolveHeaderParamsTypedName?(node: OperationNode): string
+  /**
+   * Resolves the output file path for a generated file.
+   * Called from the `resolvePath` plugin lifecycle hook.
+   *
+   */
+  resolvePath(
+    baseName: KubbFile.BaseName,
+    pathMode: KubbFile.Mode | undefined,
+    options: ResolvePathOptions | undefined,
+    context: { root: string; output: Output; group: Group | undefined },
+  ): KubbFile.Path
 }
 
 type BuildParamsSchemaOptions = {

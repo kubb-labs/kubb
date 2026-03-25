@@ -1,5 +1,7 @@
-import { pascalCase } from '@internals/utils'
-import { defineResolver } from '@kubb/core'
+import path from 'node:path'
+import { camelCase, pascalCase } from '@internals/utils'
+import { defineResolver, getMode } from '@kubb/core'
+import type { Group } from '@kubb/core'
 import type { PluginTs } from '../types.ts'
 
 function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
@@ -101,6 +103,35 @@ export const resolverTs = defineResolver<PluginTs>(() => {
       throw new Error(
         "resolveHeaderParamsTypedName is only available with compatibilityPreset: 'kubbV4'. Use resolveParamTypedName per individual parameter instead.",
       )
+    },
+    resolvePath(baseName, pathMode, options, { root, output, group }) {
+      const mode = pathMode ?? getMode(path.resolve(root, output.path))
+
+      if (mode === 'single') {
+        return path.resolve(root, output.path)
+      }
+
+      if (group && (options?.group?.path || options?.group?.tag)) {
+        const groupName: Group['name'] = group?.name
+          ? group.name
+          : (ctx) => {
+              if (group?.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
+              }
+              return `${camelCase(ctx.group)}Controller`
+            }
+
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
+      }
+
+      return path.resolve(root, output.path, baseName)
     },
   }
 })
