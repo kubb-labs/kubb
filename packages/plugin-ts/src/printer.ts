@@ -25,7 +25,7 @@ type TsOptions = {
    * Suffix to append to enum type names when `enumType` is in `ENUM_TYPES_WITH_SUFFIX`.
    * @default `'Key'`
    */
-  enumTypeSuffix: string
+  enumTypeSuffix: PluginTs['resolvedOptions']['enumTypeSuffix']
   /**
    * Controls whether a `type` alias or `interface` declaration is emitted.
    * @default `'type'`

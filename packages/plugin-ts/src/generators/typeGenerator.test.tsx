@@ -147,6 +147,7 @@ describe('typeGenerator v2 — Operation', () => {
   const defaultOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
     enumKeyCasing: 'none',
+    enumTypeSuffix: 'Key',
     optionalType: 'questionToken',
     arrayType: 'array',
     syntaxType: 'type',
@@ -193,6 +194,7 @@ describe('typeGenerator v2 — Operation — group', () => {
   const defaultOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
     enumKeyCasing: 'none',
+    enumTypeSuffix: 'Key',
     optionalType: 'questionToken',
     arrayType: 'array',
     syntaxType: 'type',
@@ -293,6 +295,7 @@ describe('typeGenerator v2 — Schema (enum)', () => {
   const defaultSchemaOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
     enumKeyCasing: 'none',
+    enumTypeSuffix: 'Key',
     optionalType: 'questionToken',
     arrayType: 'array',
     syntaxType: 'type',
@@ -338,6 +341,7 @@ describe('typeGenerator v2 — Operation — legacy', () => {
   const legacyOptions: PluginTs['resolvedOptions'] = {
     enumType: 'asConst',
     enumKeyCasing: 'none',
+    enumTypeSuffix: 'Key',
     optionalType: 'questionToken',
     arrayType: 'array',
     syntaxType: 'type',

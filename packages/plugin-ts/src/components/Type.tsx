@@ -45,7 +45,7 @@ export function Type({
     },
   })
 
-  const printer = printerTs({ optionalType, arrayType, enumType, typeName: name, syntaxType, description: resolvedDescription, keysToOmit, resolver })
+  const printer = printerTs({ optionalType, arrayType, enumType, typeName: name, syntaxType, description: resolvedDescription, keysToOmit, resolver, enumTypeSuffix })
   const typeNode = printer.print(node)
 
   if (!typeNode) {
