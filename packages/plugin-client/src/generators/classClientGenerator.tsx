@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
 import { useDriver } from '@kubb/core/hooks'
-import type { KubbFile } from '@kubb/fabric-core/types'
+import type { FabricFile } from '@kubb/fabric-core/types'
 import type { Operation } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
@@ -19,13 +19,13 @@ type OperationData = {
   name: string
   typeSchemas: OperationSchemas
   zodSchemas: OperationSchemas | undefined
-  typeFile: KubbFile.File
-  zodFile: KubbFile.File
+  typeFile: FabricFile.File
+  zodFile: FabricFile.File
 }
 
 type Controller = {
   name: string
-  file: KubbFile.File
+  file: FabricFile.File
   operations: Array<OperationData>
 }
 
@@ -109,7 +109,7 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
 
     function collectTypeImports(ops: Array<OperationData>) {
       const typeImportsByFile = new Map<string, Set<string>>()
-      const typeFilesByPath = new Map<string, KubbFile.File>()
+      const typeFilesByPath = new Map<string, FabricFile.File>()
 
       ops.forEach((op) => {
         const { typeSchemas, typeFile } = op
@@ -135,7 +135,7 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
 
     function collectZodImports(ops: Array<OperationData>) {
       const zodImportsByFile = new Map<string, Set<string>>()
-      const zodFilesByPath = new Map<string, KubbFile.File>()
+      const zodFilesByPath = new Map<string, FabricFile.File>()
 
       ops.forEach((op) => {
         const { zodSchemas, zodFile } = op
@@ -158,7 +158,7 @@ export const classClientGenerator = createReactGenerator<PluginClient>({
       const { zodImportsByFile, zodFilesByPath } =
         options.parser === 'zod'
           ? collectZodImports(ops)
-          : { zodImportsByFile: new Map<string, Set<string>>(), zodFilesByPath: new Map<string, KubbFile.File>() }
+          : { zodImportsByFile: new Map<string, Set<string>>(), zodFilesByPath: new Map<string, FabricFile.File>() }
       const hasFormData = ops.some((op) => op.operation.getContentType() === 'multipart/form-data')
 
       return (

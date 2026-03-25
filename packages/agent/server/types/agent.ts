@@ -9,7 +9,7 @@
  */
 
 import type { Config } from '@kubb/core'
-import type { KubbFile } from '@kubb/fabric-core/types'
+import type { FabricFile } from '@kubb/fabric-core/types'
 
 export type JSONKubbConfig = {
   plugins?: Array<{
@@ -45,7 +45,7 @@ export type KubbEvents = {
   warn: [message: string, info?: string]
   error: [error: { message: string; stack?: string }]
   'generation:start': [config: { name?: string; plugins: number }]
-  'generation:end': [Config: Config, files: Array<KubbFile.ResolvedFile>, sources: Record<KubbFile.Path, string>]
+  'generation:end': [Config: Config, files: Array<FabricFile.ResolvedFile>, sources: Record<FabricFile.Path, string>]
   'lifecycle:end': []
 }
 

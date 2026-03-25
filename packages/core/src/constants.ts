@@ -1,4 +1,4 @@
-import type { KubbFile } from '@kubb/fabric-core/types'
+import type { FabricFile } from '@kubb/fabric-core/types'
 
 /**
  * Base URL for the Kubb Studio web app.
@@ -33,7 +33,7 @@ export const DEFAULT_BANNER = 'simple' as const
 /**
  * Default file-extension mapping used when no explicit mapping is configured.
  */
-export const DEFAULT_EXTENSION: Record<KubbFile.Extname, KubbFile.Extname | ''> = { '.ts': '.ts' }
+export const DEFAULT_EXTENSION: Record<FabricFile.Extname, FabricFile.Extname | ''> = { '.ts': '.ts' }
 
 /**
  * Characters recognized as path separators on both POSIX and Windows.

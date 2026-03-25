@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { KubbFile } from '@kubb/fabric-core/types'
+import type { FabricFile } from '@kubb/fabric-core/types'
 import { FileManager } from '@kubb/react-fabric'
 import { describe, expect, it, test } from 'vitest'
 import { getBarrelFiles } from './getBarrelFiles.ts'
@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename)
 describe('getBarrelFiles', () => {
   it('should generate barrel files correctly', async () => {
     const fileManager = new FileManager()
-    const files: KubbFile.File[] = [
+    const files: FabricFile.File[] = [
       {
         path: 'src/test.ts',
         baseName: 'test.ts',
@@ -99,7 +99,7 @@ describe('getBarrelFiles', () => {
   })
 
   it(`should return 'index.ts' barrel files`, async () => {
-    const files: KubbFile.ResolvedFile[] = [
+    const files: FabricFile.ResolvedFile[] = [
       {
         id: 'src/test.ts',
         name: 'test',
@@ -162,7 +162,7 @@ describe('getBarrelFiles', () => {
   })
 
   test('should generate barrel files for subdirectories that contain existing index files', async () => {
-    const files: KubbFile.ResolvedFile[] = [
+    const files: FabricFile.ResolvedFile[] = [
       {
         id: 'src/test.ts',
         name: 'test',

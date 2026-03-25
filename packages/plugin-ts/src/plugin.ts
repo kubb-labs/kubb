@@ -4,8 +4,27 @@ import { createPlugin, getBarrelFiles, renderOperation, renderSchema } from '@ku
 import { getPreset } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
+/**
+ * Canonical plugin name for `@kubb/plugin-ts`, used to identify the plugin in driver lookups and warnings.
+ */
 export const pluginTsName = 'plugin-ts' satisfies PluginTs['name']
 
+/**
+ * The `@kubb/plugin-ts` plugin factory.
+ *
+ * Generates TypeScript type declarations from an OpenAPI/AST `RootNode`.
+ * Walks schemas and operations, delegates rendering to the active generators,
+ * and writes barrel files based on `output.barrelType`.
+ *
+ * @example
+ * ```ts
+ * import { pluginTs } from '@kubb/plugin-ts'
+ *
+ * export default defineConfig({
+ *   plugins: [pluginTs({ output: { path: 'types' }, enumType: 'asConst' })],
+ * })
+ * ```
+ */
 export const pluginTs = createPlugin<PluginTs>((options) => {
   const {
     output = { path: 'types', barrelType: 'named' },

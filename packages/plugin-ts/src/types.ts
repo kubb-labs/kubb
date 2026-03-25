@@ -197,12 +197,18 @@ export type ResolverTs = Resolver & {
   resolveHeaderParamsTypedName?(node: OperationNode): string
 }
 
+/**
+ * Options for building a grouped parameter schema (`pathParams`, `queryParams`, `headerParams`).
+ */
 type BuildParamsSchemaOptions = {
   params: Array<ParameterNode>
   node: OperationNode
   resolver: ResolverTs
 }
 
+/**
+ * Options for building an operation-level schema (`data`, `responses`, `responseUnion`).
+ */
 type BuildOperationSchemaOptions = {
   node: OperationNode
   resolver: ResolverTs
@@ -213,9 +219,21 @@ type BuildOperationSchemaOptions = {
  * Extends the base `Builder` with schema-building helpers used by the v5 type generator.
  */
 export type BuilderTs = Builder & {
+  /**
+   * Builds an object schema that groups the given parameters by name.
+   */
   buildParams(options: BuildParamsSchemaOptions): SchemaNode
+  /**
+   * Builds the combined data schema containing `pathParams`, `queryParams`, `headerParams`, `data`, and `url`.
+   */
   buildData(options: BuildOperationSchemaOptions): SchemaNode
+  /**
+   * Builds an object schema that maps each response status code to its type reference, or `null` when there are no responses.
+   */
   buildResponses(options: BuildOperationSchemaOptions): SchemaNode | null
+  /**
+   * Builds a union schema of all response status types, or `null` when no responses have a schema.
+   */
   buildResponseUnion(options: BuildOperationSchemaOptions): SchemaNode | null
 }
 

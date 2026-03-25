@@ -1,21 +1,21 @@
 import type { PluginFactoryOptions } from '@kubb/core'
-import type { KubbFile } from '@kubb/fabric-core/types'
+import type { FabricFile } from '@kubb/fabric-core/types'
 import type { OperationProps, OperationsProps, SchemaProps } from './types.ts'
 
 type UserGenerator<TOptions extends PluginFactoryOptions> = {
   name: string
-  operations?: (props: OperationsProps<TOptions>) => Promise<KubbFile.File[]>
-  operation?: (props: OperationProps<TOptions>) => Promise<KubbFile.File[]>
-  schema?: (props: SchemaProps<TOptions>) => Promise<KubbFile.File[]>
+  operations?: (props: OperationsProps<TOptions>) => Promise<FabricFile.File[]>
+  operation?: (props: OperationProps<TOptions>) => Promise<FabricFile.File[]>
+  schema?: (props: SchemaProps<TOptions>) => Promise<FabricFile.File[]>
 }
 
 export type CoreGenerator<TOptions extends PluginFactoryOptions> = {
   name: string
   type: 'core'
   version: '1'
-  operations: (props: OperationsProps<TOptions>) => Promise<KubbFile.File[]>
-  operation: (props: OperationProps<TOptions>) => Promise<KubbFile.File[]>
-  schema: (props: SchemaProps<TOptions>) => Promise<KubbFile.File[]>
+  operations: (props: OperationsProps<TOptions>) => Promise<FabricFile.File[]>
+  operation: (props: OperationProps<TOptions>) => Promise<FabricFile.File[]>
+  schema: (props: SchemaProps<TOptions>) => Promise<FabricFile.File[]>
 }
 
 export function createGenerator<TOptions extends PluginFactoryOptions>(generator: UserGenerator<TOptions>): CoreGenerator<TOptions> {

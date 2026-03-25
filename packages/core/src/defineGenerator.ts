@@ -1,5 +1,5 @@
 import type { OperationNode, SchemaNode } from '@kubb/ast/types'
-import type { KubbFile } from '@kubb/fabric-core/types'
+import type { FabricFile } from '@kubb/fabric-core/types'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { Adapter, Config, Plugin, PluginFactoryOptions } from './types.ts'
 
@@ -38,15 +38,21 @@ export type SchemaV2Props<TPlugin extends PluginFactoryOptions = PluginFactoryOp
   node: SchemaNode
 }
 
+/**
+ * Input shape for a core v2 async generator — lifecycle methods are optional.
+ */
 type UserCoreGeneratorV2<TPlugin extends PluginFactoryOptions> = {
   name: string
   type: 'core'
   version?: '2'
-  operations?(props: OperationsV2Props<TPlugin>): Promise<Array<KubbFile.File>>
-  operation?(props: OperationV2Props<TPlugin>): Promise<Array<KubbFile.File>>
-  schema?(props: SchemaV2Props<TPlugin>): Promise<Array<KubbFile.File>>
+  operations?(props: OperationsV2Props<TPlugin>): Promise<Array<FabricFile.File>>
+  operation?(props: OperationV2Props<TPlugin>): Promise<Array<FabricFile.File>>
+  schema?(props: SchemaV2Props<TPlugin>): Promise<Array<FabricFile.File>>
 }
 
+/**
+ * Input shape for a React v2 generator — component methods are optional.
+ */
 type UserReactGeneratorV2<TPlugin extends PluginFactoryOptions> = {
   name: string
   type: 'react'
@@ -56,15 +62,21 @@ type UserReactGeneratorV2<TPlugin extends PluginFactoryOptions> = {
   Schema?(props: SchemaV2Props<TPlugin>): FabricReactNode
 }
 
+/**
+ * A fully resolved core v2 generator with `version: '2'` and guaranteed async lifecycle methods.
+ */
 export type CoreGeneratorV2<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
   name: string
   type: 'core'
   version: '2'
-  operations(props: OperationsV2Props<TPlugin>): Promise<Array<KubbFile.File>>
-  operation(props: OperationV2Props<TPlugin>): Promise<Array<KubbFile.File>>
-  schema(props: SchemaV2Props<TPlugin>): Promise<Array<KubbFile.File>>
+  operations(props: OperationsV2Props<TPlugin>): Promise<Array<FabricFile.File>>
+  operation(props: OperationV2Props<TPlugin>): Promise<Array<FabricFile.File>>
+  schema(props: SchemaV2Props<TPlugin>): Promise<Array<FabricFile.File>>
 }
 
+/**
+ * A fully resolved React v2 generator with `version: '2'` and guaranteed component methods.
+ */
 export type ReactGeneratorV2<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
   name: string
   type: 'react'
@@ -74,6 +86,9 @@ export type ReactGeneratorV2<TPlugin extends PluginFactoryOptions = PluginFactor
   Schema(props: SchemaV2Props<TPlugin>): FabricReactNode
 }
 
+/**
+ * Union of all v2 generator shapes accepted by the plugin system.
+ */
 export type Generator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = UserCoreGeneratorV2<TPlugin> | UserReactGeneratorV2<TPlugin>
 
 /**

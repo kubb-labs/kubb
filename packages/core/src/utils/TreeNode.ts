@@ -1,20 +1,20 @@
 import path from 'node:path'
-import type { KubbFile } from '@kubb/fabric-core/types'
+import type { FabricFile } from '@kubb/fabric-core/types'
 import { getMode } from '../PluginDriver.ts'
 
 type BarrelData = {
-  file?: KubbFile.File
+  file?: FabricFile.File
   /**
    * @deprecated use file instead
    */
-  type: KubbFile.Mode
+  type: FabricFile.Mode
   path: string
   name: string
 }
 
 /**
  * Tree structure used to build per-directory barrel (`index.ts`) files from a
- * flat list of generated {@link KubbFile.File} entries.
+ * flat list of generated {@link FabricFile.File} entries.
  *
  * Each node represents either a directory or a file within the output tree.
  * Use {@link TreeNode.build} to construct a root node from a file list, then
@@ -76,6 +76,9 @@ export class TreeNode {
     return leaves
   }
 
+  /**
+   * Visits this node and every descendant in depth-first order.
+   */
   forEach(callback: (treeNode: TreeNode) => void): this {
     if (typeof callback !== 'function') {
       throw new TypeError('forEach() callback must be a function')
@@ -90,6 +93,9 @@ export class TreeNode {
     return this
   }
 
+  /**
+   * Finds the first leaf that satisfies `predicate`, or `undefined` when none match.
+   */
   findDeep(predicate?: (value: TreeNode, index: number, obj: TreeNode[]) => boolean): TreeNode | undefined {
     if (typeof predicate !== 'function') {
       throw new TypeError('find() predicate must be a function')
@@ -98,6 +104,9 @@ export class TreeNode {
     return this.leaves.find(predicate)
   }
 
+  /**
+   * Calls `callback` for every leaf of this node.
+   */
   forEachDeep(callback: (treeNode: TreeNode) => void): void {
     if (typeof callback !== 'function') {
       throw new TypeError('forEach() callback must be a function')
@@ -106,6 +115,9 @@ export class TreeNode {
     this.leaves.forEach(callback)
   }
 
+  /**
+   * Returns all leaves that satisfy `callback`.
+   */
   filterDeep(callback: (treeNode: TreeNode) => boolean): Array<TreeNode> {
     if (typeof callback !== 'function') {
       throw new TypeError('filter() callback must be a function')
@@ -114,6 +126,9 @@ export class TreeNode {
     return this.leaves.filter(callback)
   }
 
+  /**
+   * Maps every leaf through `callback` and returns the resulting array.
+   */
   mapDeep<T>(callback: (treeNode: TreeNode) => T): Array<T> {
     if (typeof callback !== 'function') {
       throw new TypeError('map() callback must be a function')
@@ -128,7 +143,7 @@ export class TreeNode {
    * - Filters to files under `root` (when provided) and skips `.json` files.
    * - Returns `null` when no files match.
    */
-  public static build(files: KubbFile.File[], root?: string): TreeNode | null {
+  public static build(files: FabricFile.File[], root?: string): TreeNode | null {
     try {
       const filteredTree = buildDirectoryTree(files, root)
 
@@ -172,13 +187,13 @@ export class TreeNode {
 type DirectoryTree = {
   name: string
   path: string
-  file?: KubbFile.File
+  file?: FabricFile.File
   children: Array<DirectoryTree>
 }
 
 const normalizePath = (p: string): string => p.replaceAll('\\', '/')
 
-function buildDirectoryTree(files: Array<KubbFile.File>, rootFolder = ''): DirectoryTree | null {
+function buildDirectoryTree(files: Array<FabricFile.File>, rootFolder = ''): DirectoryTree | null {
   const normalizedRootFolder = normalizePath(rootFolder)
   const rootPrefix = normalizedRootFolder.endsWith('/') ? normalizedRootFolder : `${normalizedRootFolder}/`
 

@@ -1,6 +1,6 @@
 import { camelCase } from '@internals/utils'
 import { useDriver } from '@kubb/core/hooks'
-import type { KubbFile } from '@kubb/fabric-core/types'
+import type { FabricFile } from '@kubb/fabric-core/types'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
@@ -49,7 +49,7 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
 
         return acc
       },
-      [] as Array<{ name: string; file: KubbFile.File; clients: Array<{ name: string; file: KubbFile.File }> }>,
+      [] as Array<{ name: string; file: FabricFile.File; clients: Array<{ name: string; file: FabricFile.File }> }>,
     )
 
     return controllers.map(({ name, file, clients }) => {

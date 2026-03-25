@@ -1,7 +1,7 @@
 import type { AsyncEventEmitter } from '@internals/utils'
 import { getUniqueName, pascalCase, stringify } from '@internals/utils'
 import type { FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
+import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'
 import pLimit from 'p-limit'
@@ -16,11 +16,15 @@ import { renderSchema } from './utils.tsx'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
-export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
+export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<FabricFile.File<TFileMeta> | Array<FabricFile.File<TFileMeta>> | null>
 
-/** Max concurrent generator tasks (across generators). */
+/**
+ * Max concurrent generator tasks (across generators).
+ */
 const GENERATOR_CONCURRENCY = 3
-/** Max concurrent schema parsing tasks (per generator). */
+/**
+ * Max concurrent schema parsing tasks (per generator).
+ */
 const SCHEMA_CONCURRENCY = 30
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
@@ -32,7 +36,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
    * Current plugin
    */
   plugin: Plugin<TPluginOptions>
-  mode: KubbFile.Mode
+  mode: FabricFile.Mode
   include?: Array<'schemas' | 'responses' | 'requestBodies'>
   override: Array<Override<TOptions>> | undefined
   contentType?: contentType
@@ -1337,7 +1341,7 @@ export class SchemaGenerator<
     return [{ keyword: emptyType }, ...baseItems]
   }
 
-  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<FabricFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
 
     // Initialize the name mapping if not already done
@@ -1360,7 +1364,7 @@ export class SchemaGenerator<
     return this.#doBuild(schemas, generators)
   }
 
-  async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<FabricFile.File<TFileMeta>>> {
     const schemaEntries = Object.entries(schemas)
 
     const generatorLimit = pLimit(GENERATOR_CONCURRENCY)
@@ -1428,7 +1432,7 @@ export class SchemaGenerator<
         )
 
         const schemaResults = await Promise.all(schemaTasks)
-        return schemaResults.flat() as unknown as KubbFile.File<TFileMeta>
+        return schemaResults.flat() as unknown as FabricFile.File<TFileMeta>
       }),
     )
 

@@ -1,7 +1,7 @@
 import type { AsyncEventEmitter } from '@internals/utils'
 import { pascalCase } from '@internals/utils'
 import type { FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
-import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
+import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
 import pLimit from 'p-limit'
 import type { CoreGenerator } from './generators/createGenerator.ts'
@@ -11,7 +11,7 @@ import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
 import { withRequiredRequestBodySchema } from './utils/requestBody.ts'
 import { renderOperation, renderOperations } from './utils.tsx'
 
-export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
+export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<FabricFile.File<TFileMeta> | Array<FabricFile.File<TFileMeta>> | null>
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   fabric: FabricType
@@ -26,7 +26,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
    * Current plugin
    */
   plugin: Plugin<TPluginOptions>
-  mode: KubbFile.Mode
+  mode: FabricFile.Mode
   UNSTABLE_NAMING?: true
 }
 
@@ -206,7 +206,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
     )
   }
 
-  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<FabricFile.File<TFileMeta>>> {
     const operations = await this.getOperations()
 
     // Increased parallelism for better performance
@@ -293,7 +293,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
           plugin: this.context.plugin,
         })
 
-        return [...opResultsFlat, ...(operationsResult ?? [])] as unknown as KubbFile.File<TFileMeta>
+        return [...opResultsFlat, ...(operationsResult ?? [])] as unknown as FabricFile.File<TFileMeta>
       }),
     )
 

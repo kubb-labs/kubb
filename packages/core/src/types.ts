@@ -1,6 +1,6 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
 import type { Node, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
-import type { Fabric as FabricType, KubbFile } from '@kubb/fabric-core/types'
+import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
 import type { HttpMethod } from '@kubb/oas'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { Storage } from './createStorage.ts'
@@ -119,13 +119,13 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    */
   parse: (source: AdapterSource) => PossiblePromise<RootNode>
   /**
-   * Extracts `KubbFile.Import` entries needed by a `SchemaNode` tree.
+   * Extracts `FabricFile.Import` entries needed by a `SchemaNode` tree.
    * Populated after the first `parse()` call. Returns an empty array before that.
    *
    * The `resolve` callback receives the collision-corrected schema name and must
    * return the `{ name, path }` pair for the import, or `undefined` to skip it.
    */
-  getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<KubbFile.Import>
+  getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<FabricFile.Import>
 }
 
 export type BarrelType = 'all' | 'named' | 'propagate'
@@ -227,7 +227,7 @@ export type Config<TInput = Input> = {
      * Overrides the extension for generated imports and exports. By default, each plugin adds an extension.
      * @default { '.ts': '.ts'}
      */
-    extension?: Record<KubbFile.Extname, KubbFile.Extname | ''>
+    extension?: Record<FabricFile.Extname, FabricFile.Extname | ''>
     /**
      * Configures how `index.ts` files are created, including disabling barrel file generation. Each plugin has its own `barrelType` option; this setting controls the root barrel file (e.g., `src/gen/index.ts`).
      * @default 'named'
@@ -281,15 +281,25 @@ export type Config<TInput = Input> = {
 
 // plugin
 
+/**
+ * A type/string-pattern filter used for `include`, `exclude`, and `override` matching.
+ */
 type PatternFilter = {
   type: string
   pattern: string | RegExp
 }
 
+/**
+ * A pattern filter paired with partial option overrides to apply when the pattern matches.
+ */
 type PatternOverride<TOptions> = PatternFilter & {
   options: Omit<Partial<TOptions>, 'override'>
 }
 
+/**
+ * Context passed to `resolver.resolveOptions` to apply include/exclude/override filtering
+ * for a given operation or schema node.
+ */
 export type ResolveOptionsContext<TOptions> = {
   options: TOptions
   exclude?: Array<PatternFilter>
@@ -317,8 +327,8 @@ export type Resolver = {
   pluginName: Plugin['name']
   default(name: ResolveNameParams['name'], type?: ResolveNameParams['type']): string
   resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
-  resolvePath(params: ResolverPathParams, context: ResolverContext): KubbFile.Path
-  resolveFile(params: ResolverFileParams, context: ResolverContext): KubbFile.File
+  resolvePath(params: ResolverPathParams, context: ResolverContext): FabricFile.Path
+  resolveFile(params: ResolverFileParams, context: ResolverContext): FabricFile.File
   resolveBanner(node: RootNode | null, context: ResolveBannerContext): string | undefined
   resolveFooter(node: RootNode | null, context: ResolveBannerContext): string | undefined
 }
@@ -458,7 +468,12 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * @example ('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'
    * @deprecated this will be replaced by resolvers
    */
-  resolvePath?: (this: PluginContext<TOptions>, baseName: KubbFile.BaseName, mode?: KubbFile.Mode, options?: TOptions['resolvePathOptions']) => KubbFile.Path
+  resolvePath?: (
+    this: PluginContext<TOptions>,
+    baseName: FabricFile.BaseName,
+    mode?: FabricFile.Mode,
+    options?: TOptions['resolvePathOptions'],
+  ) => FabricFile.Path
   /**
    * Resolve to a name based on a string.
    * Useful when converting to PascalCase or camelCase.
@@ -475,8 +490,8 @@ export type PluginParameter<H extends PluginLifecycleHooks> = Parameters<Require
 
 export type ResolvePathParams<TOptions = object> = {
   pluginName?: string
-  baseName: KubbFile.BaseName
-  mode?: KubbFile.Mode
+  baseName: FabricFile.BaseName
+  mode?: FabricFile.Mode
   /**
    * Options to be passed to 'resolvePath' 3th parameter
    */
@@ -504,13 +519,13 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   /**
    * Only add when the file does not exist yet
    */
-  addFile: (...file: Array<KubbFile.File>) => Promise<void>
+  addFile: (...file: Array<FabricFile.File>) => Promise<void>
   /**
    * merging multiple sources into the same output file
    */
-  upsertFile: (...file: Array<KubbFile.File>) => Promise<void>
+  upsertFile: (...file: Array<FabricFile.File>) => Promise<void>
   events: AsyncEventEmitter<KubbEvents>
-  mode: KubbFile.Mode
+  mode: FabricFile.Mode
   /**
    * Current plugin
    */
@@ -714,8 +729,8 @@ export type ResolvePathOptions = {
  * ```
  */
 export type ResolverPathParams = {
-  baseName: KubbFile.BaseName
-  pathMode?: KubbFile.Mode
+  baseName: FabricFile.BaseName
+  pathMode?: FabricFile.Mode
   /**
    * Tag value used when `group.type === 'tag'`.
    */
@@ -745,7 +760,9 @@ export type ResolverContext = {
   root: string
   output: Output
   group?: Group
-  /** Plugin name used to populate `meta.pluginName` on the resolved file. */
+  /**
+   * Plugin name used to populate `meta.pluginName` on the resolved file.
+   */
   pluginName?: string
 }
 
@@ -766,10 +783,14 @@ export type ResolverContext = {
  */
 export type ResolverFileParams = {
   name: string
-  extname: KubbFile.Extname
-  /** Tag value used when `group.type === 'tag'`. */
+  extname: FabricFile.Extname
+  /**
+   * Tag value used when `group.type === 'tag'`.
+   */
   tag?: string
-  /** Path value used when `group.type === 'path'`. */
+  /**
+   * Path value used when `group.type === 'path'`.
+   */
   path?: string
 }
 

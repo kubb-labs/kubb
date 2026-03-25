@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { AsyncEventEmitter, isPromise } from '@internals/utils'
-import type { KubbFile } from '@kubb/fabric-core/types'
+import type { FabricFile } from '@kubb/fabric-core/types'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { build, safeBuild } from './build.ts'
 import { defineConfig } from './config.ts'
@@ -15,7 +15,7 @@ describe('build', () => {
     resolvePath: vi.fn(),
   } as const
 
-  const file: KubbFile.File = {
+  const file: FabricFile.File = {
     path: 'hello/world.json',
     baseName: 'world.json',
     sources: [{ value: `{ "hello": "world" }` }],
@@ -304,7 +304,7 @@ describe('build', () => {
     const tmpDir = mkdtempSync(join(tmpdir(), 'kubb-test-excluded-'))
 
     try {
-      const indexableFile: KubbFile.File = {
+      const indexableFile: FabricFile.File = {
         path: join(tmpDir, 'mocks/excluded.ts'),
         baseName: 'excluded.ts',
         sources: [

@@ -1,6 +1,6 @@
 import type { FileMetaBase, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import { useDriver, usePlugin } from '@kubb/core/hooks'
-import type { KubbFile } from '@kubb/fabric-core/types'
+import type { FabricFile } from '@kubb/fabric-core/types'
 import type { Operation, Operation as OperationType } from '@kubb/oas'
 import type { OperationGenerator } from '../OperationGenerator.ts'
 import type { OperationSchemas } from '../types.ts'
@@ -41,13 +41,13 @@ type UseOperationManagerResult = {
       prefix?: string
       suffix?: string
       pluginName?: string
-      extname?: KubbFile.Extname
+      extname?: FabricFile.Extname
       group?: {
         tag?: string
         path?: string
       }
     },
-  ) => KubbFile.File<FileMeta>
+  ) => FabricFile.File<FileMeta>
   groupSchemasByName: (
     operation: OperationType,
     params: {

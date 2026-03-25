@@ -1,5 +1,5 @@
 import { camelCase, isValidVarName } from '@internals/utils'
-import type { KubbFile } from '@kubb/fabric-core/types'
+import type { FabricFile } from '@kubb/fabric-core/types'
 import type { SchemaObject } from '@kubb/oas'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { isOptional } from '@kubb/plugin-oas/utils'
@@ -19,11 +19,11 @@ type Props = {
     }
     mcp: {
       name: string
-      file: KubbFile.File
+      file: FabricFile.File
     }
     zod: {
       name: string
-      file: KubbFile.File
+      file: FabricFile.File
       schemas: OperationSchemas
     }
     type: {

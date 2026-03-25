@@ -2,6 +2,21 @@ import { createProperty, createSchema } from '@kubb/ast'
 import { defineBuilder } from '@kubb/core'
 import type { PluginTs } from '../types.ts'
 
+/**
+ * Default schema builder for `@kubb/plugin-ts`.
+ *
+ * Implements the `buildParams`, `buildData`, `buildResponses`, and `buildResponseUnion` helpers
+ * used by the TypeScript type generator to construct AST schema nodes for operation parameters,
+ * request bodies, and responses.
+ *
+ * @example
+ * ```ts
+ * import { builderTs } from '@kubb/plugin-ts'
+ *
+ * builderTs.buildData({ node, resolver })
+ * // → object schema with pathParams, queryParams, headerParams, data, url properties
+ * ```
+ */
 export const builderTs = defineBuilder<PluginTs>(() => ({
   name: 'default',
   buildParams({ params, node, resolver }) {
