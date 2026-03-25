@@ -1,8 +1,8 @@
+import { pascalCase } from '@internals/utils'
 import { caseParams, composeTransformers, createProperty, createSchema, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
 import { useKubb } from '@kubb/core/hooks'
-import { pascalCase } from '@internals/utils'
 import { File } from '@kubb/react-fabric'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
@@ -156,18 +156,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
   name: 'typescript-legacy',
   type: 'react',
   Operation({ node, adapter, options }) {
-    const {
-      enumType,
-      enumKeyCasing,
-      optionalType,
-      arrayType,
-      syntaxType,
-      paramsCasing,
-      group,
-      resolver,
-      baseResolver,
-      transformers = [],
-    } = options
+    const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, resolver, baseResolver, transformers = [] } = options
     const { mode, getFile, resolveBanner, resolveFooter } = useKubb<PluginTs>()
 
     const file = getFile({
