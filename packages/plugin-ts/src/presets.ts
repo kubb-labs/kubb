@@ -16,18 +16,13 @@ type GetPresetOptions = {
   generators?: Array<Generator<PluginTs>>
 }
 
-export function getPreset(preset: CompatibilityPreset, { resolvers, transformers, generators: userGenerators }: GetPresetOptions = {}) {
-  const result = getCorePreset({
+export function getPreset(preset: CompatibilityPreset, { resolvers, transformers, generators }: GetPresetOptions = {}) {
+  return getCorePreset({
     preset,
     presets,
     resolvers: [resolverTs, ...(resolvers ?? [])],
     transformers,
+    generators,
+    defaultGenerators: [typeGenerator],
   })
-
-  const generators: Array<Generator<PluginTs>> =
-    result.generators.length > 0 || userGenerators?.length
-      ? [...(result.generators as Array<Generator<PluginTs>>), ...(userGenerators ?? [])]
-      : [typeGenerator]
-
-  return { ...result, generators }
 }
