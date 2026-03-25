@@ -3,8 +3,8 @@ import { print } from '@kubb/fabric-core/parsers/typescript'
 import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 import { format } from '#mocks'
-import { printerTs } from './printerTs.ts'
 import { resolverTs } from '../resolvers/resolverTs.ts'
+import { printerTs } from './printerTs.ts'
 
 /**
  * Wraps a `ts.TypeNode` in `type _ = <node>` so prettier can parse it as a

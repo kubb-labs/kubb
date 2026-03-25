@@ -436,6 +436,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Options can als be included.
    * @type hookFirst
    * @example ('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'
+   * @deprecated this will be replaced by resolvers
    */
   resolvePath?: (this: PluginContext<TOptions>, baseName: KubbFile.BaseName, mode?: KubbFile.Mode, options?: TOptions['resolvePathOptions']) => KubbFile.Path
   /**
@@ -443,6 +444,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Useful when converting to PascalCase or camelCase.
    * @type hookFirst
    * @example ('pet') => 'Pet'
+   * @deprecated this will be replaced by resolvers
    */
   resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
 }
