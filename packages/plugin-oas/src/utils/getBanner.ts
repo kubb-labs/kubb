@@ -67,7 +67,7 @@ export function getBanner<TOas extends Oas>({ output, oas, config }: Props<TOas>
   }
 
   if (isFunction(output.banner)) {
-    return `${output.banner(oas)}\n${banner}`
+    return `${output.banner(oas as any)}\n${banner}`
   }
 
   return `${output.banner}\n${banner}`

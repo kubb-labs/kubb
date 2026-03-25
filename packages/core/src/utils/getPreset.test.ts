@@ -43,7 +43,7 @@ const customResolver = defineResolver<TestPluginFactory>(() => ({
   },
 }))
 
-const mockGenerator = { type: 'react', version: '2' } as const
+const mockGenerator = { name: 'test', type: 'react', version: '2' } as const
 const mockUserGenerator = { type: 'react', version: '2', name: 'user' } as const
 const mockDefaultGenerator = { type: 'react', version: '2', name: 'default' } as const
 

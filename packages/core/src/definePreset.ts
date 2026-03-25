@@ -21,7 +21,7 @@ import type { Generator, Preset, Resolver } from './types.ts'
  */
 export function definePreset<TResolver extends Resolver = Resolver, TName extends string = string>(
   name: TName,
-  { resolvers, transformers, generators }: { resolvers: Array<TResolver>; transformers?: Array<Visitor>; generators?: Array<Generator> },
+  { resolvers, transformers, generators }: { resolvers: Array<TResolver>; transformers?: Array<Visitor>; generators?: Array<Generator<any>> },
 ): Preset<TResolver> & { name: TName } {
   return { name, resolvers, transformers, generators }
 }

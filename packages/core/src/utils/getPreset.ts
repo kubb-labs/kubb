@@ -6,18 +6,18 @@ type GetPresetParams<TResolver extends Resolver> = {
   preset: CompatibilityPreset
   presets: Presets<TResolver>
   resolvers: Array<TResolver>
-  transformers?: Array<Visitor>
   /**
    * User-supplied generators to append after the preset's generators.
    */
-  generators: Array<Generator>
+  generators: Array<Generator<any>>
+  transformers?: Array<Visitor>
 }
 
 type GetPresetResult<TResolver extends Resolver> = {
   baseResolver: TResolver
   resolver: TResolver
   transformers: Array<Visitor>
-  generators: Array<Generator>
+  generators: Array<Generator<any>>
   preset: Preset<TResolver> | undefined
 }
 
@@ -40,7 +40,9 @@ export function getPreset<TResolver extends Resolver = Resolver>(params: GetPres
 
   const presetGenerators = preset?.generators ?? []
   const defaultPresetGenerators = presets['default']?.generators ?? []
-  const generators = presetGenerators.length > 0 || userGenerators.length ? [...presetGenerators, ...userGenerators] : defaultPresetGenerators
+  const generators = (presetGenerators.length > 0 || userGenerators.length
+    ? [...presetGenerators, ...userGenerators]
+    : defaultPresetGenerators) as unknown as Array<Generator<any>>
 
   return {
     baseResolver,

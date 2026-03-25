@@ -48,7 +48,7 @@ import {
   getSchemas,
   getSchemaType,
 } from './resolvers.ts'
-import type { contentType, Document, Operation, ReferenceObject, SchemaObject } from './types.ts'
+import type { ContentType, Document, Operation, ReferenceObject, SchemaObject } from './types.ts'
 
 /**
  * Construction-time context for the OAS parser.
@@ -58,7 +58,7 @@ import type { contentType, Document, Operation, ReferenceObject, SchemaObject } 
  */
 export type OasParserContext = {
   document: Document
-  contentType?: contentType
+  contentType?: ContentType
 }
 
 /**
@@ -796,7 +796,7 @@ export function parseSchema(ctx: OasParserContext, { schema, name }: { schema: S
  */
 export function parseOas(
   document: Document,
-  options: Partial<ParserOptions> & { contentType?: contentType } = {},
+  options: Partial<ParserOptions> & { contentType?: ContentType } = {},
 ): { root: RootNode; nameMapping: Map<string, string> } {
   const { contentType, ...parserOptions } = options
   const mergedOptions: ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...parserOptions }
