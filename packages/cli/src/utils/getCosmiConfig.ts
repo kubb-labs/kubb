@@ -32,11 +32,15 @@ export async function getCosmiConfig(moduleName: string, config?: string): Promi
     `.${moduleName}rc.yml`,
 
     `.${moduleName}rc.ts`,
+    `.${moduleName}rc.mts`,
+    `.${moduleName}rc.cts`,
     `.${moduleName}rc.js`,
     `.${moduleName}rc.mjs`,
     `.${moduleName}rc.cjs`,
 
     `${moduleName}.config.ts`,
+    `${moduleName}.config.mts`,
+    `${moduleName}.config.cts`,
     `${moduleName}.config.js`,
     `${moduleName}.config.mjs`,
     `${moduleName}.config.cjs`,
@@ -54,6 +58,8 @@ export async function getCosmiConfig(moduleName: string, config?: string): Promi
     ],
     loaders: {
       '.ts': tsLoader,
+      '.mts': tsLoader,
+      '.cts': tsLoader,
     },
   })
 
