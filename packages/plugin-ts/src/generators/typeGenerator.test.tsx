@@ -329,6 +329,26 @@ describe('typeGenerator v2 — Schema (enum)', () => {
 
     await matchFiles(fabric.files, `enumNames.Type — ${enumType}`)
   })
+
+  test ('enumType=asConst with empty typeSuffix', async () => {
+    const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumTypeSuffix: '' }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const mockedPluginDriver = createMockedPluginDriver({ name: `enumNames.Type — asConst with empty typeSuffix` })
+
+    await renderSchema(enumSchemaNode, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver: mockedPluginDriver,
+      Component: typeGenerator.Schema,
+      plugin,
+      mode: 'split',
+      options,
+    })
+
+    await matchFiles(fabric.files, `enumNames.Type — asConst with empty typeSuffix`)
+  })
+
 })
 
 describe('typeGenerator v2 — Operation — legacy', () => {
