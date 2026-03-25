@@ -1,7 +1,9 @@
 import path from 'node:path'
+import { basename } from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
 import { defineResolver, getMode } from '@kubb/core'
 import type { Group } from '@kubb/core'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import type { PluginTs } from '../types.ts'
 
 function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
@@ -132,6 +134,19 @@ export const resolverTs = defineResolver<PluginTs>(() => {
       }
 
       return path.resolve(root, output.path, baseName)
+    },
+    resolveFile({ name, extname, mode, options }, context) {
+      const resolvedName = mode === 'single' ? '' : this.default(name, 'file')
+      const baseName = `${resolvedName}${extname}` as const
+      const filePath = this.resolvePath(baseName, mode, options, context)
+
+      return {
+        path: filePath,
+        baseName: basename(filePath) as KubbFile.BaseName,
+        sources: [],
+        imports: [],
+        exports: [],
+      }
     },
   }
 })

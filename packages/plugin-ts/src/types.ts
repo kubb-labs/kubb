@@ -199,7 +199,6 @@ export type ResolverTs = Resolver & {
   /**
    * Resolves the output file path for a generated file.
    * Called from the `resolvePath` plugin lifecycle hook.
-   *
    */
   resolvePath(
     baseName: KubbFile.BaseName,
@@ -207,6 +206,20 @@ export type ResolverTs = Resolver & {
     options: ResolvePathOptions | undefined,
     context: { root: string; output: Output; group: Group | undefined },
   ): KubbFile.Path
+  /**
+   * Resolves a complete `KubbFile.File` for a generated file.
+   * Combines name resolution, path resolution, and file object construction
+   *
+   * @example
+   * const file = resolver.resolveFile(
+   *   { name: node.operationId, extname: '.ts', mode },
+   *   { root, output, group },
+   * )
+   */
+  resolveFile(
+    params: { name: string; extname: KubbFile.Extname; mode?: KubbFile.Mode; options?: ResolvePathOptions },
+    context: { root: string; output: Output; group: Group | undefined },
+  ): KubbFile.File
 }
 
 type BuildParamsSchemaOptions = {
