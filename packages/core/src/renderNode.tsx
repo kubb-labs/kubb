@@ -12,7 +12,6 @@ type BuildOperationsV2Options<TOptions extends PluginFactoryOptions> = {
   Component: ReactGeneratorV2<TOptions>['Operations'] | undefined
   adapter: Adapter
   driver: PluginDriver
-  mode: KubbFile.Mode
   options: TOptions['resolvedOptions']
 }
 
@@ -23,7 +22,7 @@ export async function renderOperations<TOptions extends PluginFactoryOptions>(
   nodes: Array<OperationNode>,
   options: BuildOperationsV2Options<TOptions>,
 ): Promise<void> {
-  const { config, fabric, plugin, Component, adapter } = options
+  const { config, fabric, plugin, Component, driver, adapter } = options
 
   if (!Component) {
     return undefined
@@ -32,8 +31,8 @@ export async function renderOperations<TOptions extends PluginFactoryOptions>(
   const fabricChild = createReactFabric()
 
   await fabricChild.render(
-    <Fabric meta={{ plugin }}>
-      <Component config={config} adapter={adapter} nodes={nodes} options={options.options} />
+    <Fabric meta={{ plugin, driver }}>
+      <Component config={config} plugin={plugin} adapter={adapter} nodes={nodes} options={options.options} />
     </Fabric>,
   )
 
@@ -48,7 +47,6 @@ type BuildOperationV2Options<TOptions extends PluginFactoryOptions> = {
   Component: ReactGeneratorV2<TOptions>['Operation'] | undefined
   adapter: Adapter
   driver: PluginDriver
-  mode: KubbFile.Mode
   options: TOptions['resolvedOptions']
 }
 
@@ -56,7 +54,7 @@ type BuildOperationV2Options<TOptions extends PluginFactoryOptions> = {
  * Renders a React component for a single operation node (V2 generators).
  */
 export async function renderOperation<TOptions extends PluginFactoryOptions>(node: OperationNode, options: BuildOperationV2Options<TOptions>): Promise<void> {
-  const { config, fabric, plugin, Component, adapter, driver, mode } = options
+  const { config, fabric, plugin, Component, adapter, driver } = options
 
   if (!Component) {
     return undefined
@@ -65,8 +63,8 @@ export async function renderOperation<TOptions extends PluginFactoryOptions>(nod
   const fabricChild = createReactFabric()
 
   await fabricChild.render(
-    <Fabric meta={{ plugin, driver, mode }}>
-      <Component config={config} adapter={adapter} node={node} options={options.options} />
+    <Fabric meta={{ plugin, driver }}>
+      <Component config={config} plugin={plugin} adapter={adapter} node={node} options={options.options} />
     </Fabric>,
   )
 
@@ -81,7 +79,6 @@ type BuildSchemaV2Options<TOptions extends PluginFactoryOptions> = {
   Component: ReactGeneratorV2<TOptions>['Schema'] | undefined
   adapter: Adapter
   driver: PluginDriver
-  mode: KubbFile.Mode
   options: TOptions['resolvedOptions']
 }
 
@@ -99,10 +96,11 @@ export async function renderSchema<TOptions extends PluginFactoryOptions>(node: 
 
   await fabricChild.render(
     <Fabric meta={{ plugin, driver, mode }}>
-      <Component config={config} adapter={adapter} node={node} options={options.options} />
+      <Component config={config} plugin={plugin} adapter={adapter} node={node} options={options.options} />
     </Fabric>,
   )
 
   fabric.context.fileManager.upsert(...fabricChild.files)
+
   fabricChild.unmount()
 }

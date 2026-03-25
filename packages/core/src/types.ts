@@ -112,7 +112,8 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * The raw source document produced after the first `parse()` call.
    * `undefined` before parsing; typed by the adapter's `TDocument` generic.
    */
-  document?: TOptions['document']
+  document: TOptions['document'] | null
+  rootNode: RootNode | null
   /**
    * Convert the raw source into a universal `RootNode`.
    */
@@ -301,25 +302,41 @@ export type ResolveOptionsContext<TOptions> = {
  *
  * `default`, `resolveOptions`, `resolvePath`, and `resolveFile` are injected automatically
  * by `defineResolver` — plugin authors may override them but never need to implement them
- * from scratch. Concrete plugin resolver types extend this with their own helper methods.
+ * from scratch.
+ *
+ * @example
+ * ```ts
+ * type MyResolver = Resolver & {
+ *   resolveName(node: SchemaNode): string
+ *   resolveTypedName(node: SchemaNode): string
+ * }
+ * ```
  */
 export type Resolver = {
   name: string
   default(name: ResolveNameParams['name'], type?: ResolveNameParams['type']): string
   resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
-  resolvePath(params: ResolverPathParams): KubbFile.Path
-  resolveFile(params: ResolverFileParams): KubbFile.File
+  resolvePath(params: ResolverPathParams, context: ResolverContext): KubbFile.Path
+  resolveFile(params: ResolverFileParams, context: ResolverContext): KubbFile.File
+  resolveBanner(node: RootNode | null, context: ResolveBannerContext): string | undefined
+  resolveFooter(node: RootNode | null, context: ResolveBannerContext): string | undefined
 }
 
 /**
- * The user-facing subset of a `Resolver` — everything except the methods injected by
+ * The user-facing subset of a `Resolver` — everything except the four methods injected by
  * `defineResolver` (`default`, `resolveOptions`, `resolvePath`, and `resolveFile`).
  *
- * When you pass a `UserResolver` to `defineResolver`, the standard implementations are
- * injected automatically so plugin authors never need to define them by hand. All can
- * still be overridden by providing them explicitly.
+ * All four injected methods can still be overridden by providing them explicitly in the builder.
+ *
+ * @example
+ * ```ts
+ * export const resolver = defineResolver<PluginTs>(() => ({
+ *   name: 'default',
+ *   resolveName(node) { return this.default(node.name, 'function') },
+ * }))
+ * ```
  */
-export type UserResolver = Omit<Resolver, 'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile'>
+export type UserResolver = Omit<Resolver, 'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile' | 'resolveBanner' | 'resolveFooter'>
 
 /**
  * Base type for plugin builder objects.
@@ -667,7 +684,7 @@ export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | ByContentType 
 export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
 
 export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName | ByContentType) & {
-  // should be options: Omit<Partial<TOptions>, 'override'>
+  //TODO should be options: Omit<Partial<TOptions>, 'override'>
   options: Partial<TOptions>
 }
 
@@ -681,28 +698,92 @@ export type ResolvePathOptions = {
 }
 
 /**
- * Parameters for `Resolver.resolvePath` — a single object instead of positional args.
+ * File-specific parameters for `Resolver.resolvePath`.
+ *
+ * Pass alongside a `ResolverContext` to identify which file to resolve.
+ * Provide `tag` for tag-based grouping or `path` for path-based grouping.
+ *
+ * @example
+ * ```ts
+ * resolver.resolvePath(
+ *   { baseName: 'petTypes.ts', tag: 'pets' },
+ *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
+ * )
+ * // → '/src/types/petsController/petTypes.ts'
+ * ```
  */
 export type ResolverPathParams = {
   baseName: KubbFile.BaseName
   pathMode?: KubbFile.Mode
-  /** Per-file group value (tag or path segment). */
-  options?: ResolvePathOptions
+  /**
+   * Tag value used when `group.type === 'tag'`.
+   */
+  tag?: string
+  /**
+   * Path value used when `group.type === 'path'`.
+   */
+  path?: string
+}
+
+/**
+ * Shared context passed as the second argument to `Resolver.resolvePath` and `Resolver.resolveFile`.
+ *
+ * Describes where on disk output is rooted, which output config is active, and the optional
+ * grouping strategy that controls subdirectory layout.
+ *
+ * @example
+ * ```ts
+ * const context: ResolverContext = {
+ *   root: config.root,
+ *   output,
+ *   group,
+ * }
+ * ```
+ */
+export type ResolverContext = {
   root: string
   output: Output
   group?: Group
 }
 
 /**
- * Parameters for `Resolver.resolveFile` — a single object instead of positional args.
+ * File-specific parameters for `Resolver.resolveFile`.
+ *
+ * Pass alongside a `ResolverContext` to fully describe the file to resolve.
+ * `tag` and `path` are used only when a matching `group` is present in the context.
+ *
+ * @example
+ * ```ts
+ * resolver.resolveFile(
+ *   { name: 'listPets', extname: '.ts', tag: 'pets' },
+ *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
+ * )
+ * // → { baseName: 'listPets.ts', path: '/src/types/petsController/listPets.ts', ... }
+ * ```
  */
 export type ResolverFileParams = {
   name: string
   extname: KubbFile.Extname
   mode?: KubbFile.Mode
-  /** Per-file group value (tag or path segment). */
-  options?: ResolvePathOptions
-  root: string
-  output: Output
-  group?: Group
+  /** Tag value used when `group.type === 'tag'`. */
+  tag?: string
+  /** Path value used when `group.type === 'path'`. */
+  path?: string
+}
+
+/**
+ * Context passed to `Resolver.resolveBanner` and `Resolver.resolveFooter`.
+ *
+ * `output` is optional — not every plugin configures a banner/footer.
+ * `config` carries the global Kubb config, used to derive the default Kubb banner.
+ *
+ * @example
+ * ```ts
+ * resolver.resolveBanner(rootNode, { output: { banner: '// generated' }, config })
+ * // → '// generated'
+ * ```
+ */
+export type ResolveBannerContext = {
+  output?: Pick<Output, 'banner' | 'footer'>
+  config: Config
 }

@@ -152,12 +152,10 @@ describe('typeGenerator v2 — Operation', () => {
     optionalType: 'questionToken',
     arrayType: 'array',
     syntaxType: 'type',
-    override: [],
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,
     resolver: resolverTs,
-    compatibilityPreset: 'default',
     transformers: [],
   }
 
@@ -197,12 +195,10 @@ describe('typeGenerator v2 — Operation — group', () => {
     optionalType: 'questionToken',
     arrayType: 'array',
     syntaxType: 'type',
-    override: [],
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,
     resolver: resolverTs,
-    compatibilityPreset: 'default',
     transformers: [],
   }
 
@@ -301,12 +297,10 @@ describe('typeGenerator v2 — Schema (enum)', () => {
     optionalType: 'questionToken',
     arrayType: 'array',
     syntaxType: 'type',
-    override: [],
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,
     resolver: resolverTs,
-    compatibilityPreset: 'default',
     transformers: [],
   }
 
@@ -345,12 +339,10 @@ describe('typeGenerator v2 — Operation — legacy', () => {
     optionalType: 'questionToken',
     arrayType: 'array',
     syntaxType: 'type',
-    override: [],
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,
     resolver: resolverTsLegacy,
-    compatibilityPreset: 'kubbV4',
     transformers: [],
   }
 

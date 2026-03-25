@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { walk } from '@kubb/ast'
-import { createPlugin, getBarrelFiles, getMode, renderOperation, renderSchema } from '@kubb/core'
+import { createPlugin, getBarrelFiles, renderOperation, renderSchema } from '@kubb/core'
 import { getPreset } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
@@ -54,18 +54,14 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         resolvePathWarning = true
       }
 
-      return resolver.resolvePath({
-        baseName,
-        pathMode,
-        options,
-        root: path.resolve(this.config.root, this.config.output.path),
-        output,
-        group,
-      })
+      return resolver.resolvePath(
+        { baseName, pathMode, tag: options?.group?.tag, path: options?.group?.path },
+        { root: path.resolve(this.config.root, this.config.output.path), output, group },
+      )
     },
     resolveName(name, type) {
       if (!resolveNameWarning) {
-        this.driver.events.emit('warn', 'Do not use resolveName for pluginTs, use resolverTs instead')
+        this.driver.events.emit('warn', 'Do not use resolveName for pluginTs, use resolverTs.default instead')
         resolveNameWarning = true
       }
 
@@ -75,7 +71,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       const { config, fabric, plugin, adapter, rootNode, driver, openInStudio } = this
 
       const root = path.resolve(config.root, config.output.path)
-      const mode = getMode(path.resolve(root, output.path))
 
       if (!adapter) {
         throw new Error('Plugin cannot work without adapter being set')
@@ -102,7 +97,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
                 Component: generator.Schema,
                 plugin,
                 driver,
-                mode,
               })
             }
           })
@@ -126,7 +120,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
                 Component: generator.Operation,
                 plugin,
                 driver,
-                mode,
               })
             }
           })

@@ -79,7 +79,6 @@ describe('getPreset', () => {
     })
 
     expect(result.preset?.name).toBe('default')
-    expect(result.baseResolver.schemaName({ name: 'Pet' })).toBe('BasePet')
     expect(result.resolver.schemaName({ name: 'Pet' })).toBe('BasePet')
     expect(result.transformers).toEqual([])
   })
@@ -93,7 +92,6 @@ describe('getPreset', () => {
     })
 
     expect(result.preset?.name).toBe('kubbV4')
-    expect(result.baseResolver.schemaName({ name: 'Pet' })).toBe('LegacyPet')
     expect(result.resolver.schemaName({ name: 'Pet' })).toBe('LegacyPet')
   })
 
@@ -105,7 +103,6 @@ describe('getPreset', () => {
       generators: [],
     })
 
-    expect(result.baseResolver.schemaName({ name: 'Pet' })).toBe('LegacyPet')
     expect(result.resolver.schemaName({ name: 'Pet' })).toBe('CustomPet')
   })
 

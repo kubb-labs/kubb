@@ -1,8 +1,7 @@
 import path from 'node:path'
 import { caseParams, composeTransformers, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
-import { defineGenerator } from '@kubb/core'
-import { useKubb } from '@kubb/core/hooks'
+import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
 import { builderTs } from '../builders/builderTs.ts'
 import { Type } from '../components/Type.tsx'
@@ -12,22 +11,17 @@ import type { PluginTs } from '../types'
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
-  Operation({ node, adapter, options }) {
+  Operation({ node, adapter, options, config }) {
     const { enumType, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, resolver, transformers = [] } = options
-    const { mode, config, resolveBanner, resolveFooter } = useKubb<PluginTs>()
-    const root = path.resolve(config.root, config.output.path)
 
-    const file = resolver.resolveFile({
-      name: node.operationId,
-      extname: '.ts',
-      mode,
-      options: {
-        group: group ? (group.type === 'tag' ? { tag: node.tags[0] ?? 'default' } : { path: node.path }) : undefined,
-      },
-      root,
-      output,
-      group,
-    })
+    const root = path.resolve(config.root, config.output.path)
+    const mode = getMode(path.resolve(root, output.path))
+
+    const file = resolver.resolveFile(
+      { name: node.operationId, extname: '.ts', mode, tag: node.tags[0] ?? 'default', path: node.path },
+      { root, output, group },
+    )
+
     const params = caseParams(node.parameters, paramsCasing)
 
     function renderSchemaType({
@@ -51,7 +45,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
       const imports = adapter.getImports(transformedNode, (schemaName) => ({
         name: resolver.default(schemaName, 'type'),
-        path: resolver.resolveFile({ name: schemaName, extname: '.ts', mode, root, output, group }).path,
+        path: resolver.resolveFile({ name: schemaName, extname: '.ts', mode }, { root, output, group }).path,
       }))
 
       return (
@@ -123,7 +117,13 @@ export const typeGenerator = defineGenerator<PluginTs>({
     })
 
     return (
-      <File baseName={file.baseName} path={file.path} meta={file.meta} banner={resolveBanner()} footer={resolveFooter()}>
+      <File
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+      >
         {paramTypes}
         {responseTypes}
         {requestType}
@@ -133,10 +133,11 @@ export const typeGenerator = defineGenerator<PluginTs>({
       </File>
     )
   },
-  Schema({ node, adapter, options }) {
+  Schema({ node, adapter, options, config }) {
     const { enumType, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, resolver, transformers = [] } = options
-    const { mode, config, resolveBanner, resolveFooter } = useKubb<PluginTs>()
+
     const root = path.resolve(config.root, config.output.path)
+    const mode = getMode(path.resolve(root, output.path))
 
     if (!node.name) {
       return
@@ -146,7 +147,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
     const imports = adapter.getImports(transformedNode, (schemaName) => ({
       name: resolver.default(schemaName, 'type'),
-      path: resolver.resolveFile({ name: schemaName, extname: '.ts', mode, root, output, group }).path,
+      path: resolver.resolveFile({ name: schemaName, extname: '.ts', mode }, { root, output, group }).path,
     }))
 
     const isEnumSchema = !!narrowSchema(node, schemaTypes.enum)
@@ -156,11 +157,17 @@ export const typeGenerator = defineGenerator<PluginTs>({
     const type = {
       name: resolver.resolveName(node.name),
       typedName,
-      file: resolver.resolveFile({ name: node.name, extname: '.ts', mode, root, output, group }),
+      file: resolver.resolveFile({ name: node.name, extname: '.ts', mode }, { root, output, group }),
     } as const
 
     return (
-      <File baseName={type.file.baseName} path={type.file.path} meta={type.file.meta} banner={resolveBanner()} footer={resolveFooter()}>
+      <File
+        baseName={type.file.baseName}
+        path={type.file.path}
+        meta={type.file.meta}
+        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+      >
         {mode === 'split' &&
           imports.map((imp) => (
             <File.Import key={[node.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
