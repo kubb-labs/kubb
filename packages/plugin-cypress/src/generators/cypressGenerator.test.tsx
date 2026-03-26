@@ -140,13 +140,12 @@ describe('cypressGenerator operation', () => {
     }
 
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options: defaultOptions })
-    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
 
     await renderOperation(props.node, {
       config: { root: '.', output: { path: 'test' } } as Config,
       fabric,
       adapter: createMockedAdapter(),
-      driver: mockedPluginDriver,
+      driver: createMockedPluginDriver(),
       Component: cypressGenerator.Operation,
       plugin,
       options: defaultOptions,

@@ -1,61 +1,10 @@
 import path from 'node:path'
-import { caseParams } from '@kubb/ast'
-import type { OperationNode, ParameterNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
-import { useDriver } from '@kubb/core/hooks'
-import { pluginTsName } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts/resolvers'
 import { File } from '@kubb/react-fabric'
-import { Request, type TypeNames } from '../components'
+import { builderCypress } from '../builders/index.ts'
+import { Request } from '../components'
 import type { PluginCypress } from '../types'
-
-/**
- * Computes the pre-resolved type name info for a given operation node,
- * delegating to the plugin-ts resolver for type names.
- */
-function buildTypeNames(node: OperationNode, paramsCasing: PluginCypress['resolvedOptions']['paramsCasing']): TypeNames {
-  // Filter originals once per location, then apply casing
-  const originalPathParams = node.parameters.filter((p): p is ParameterNode & { in: 'path' } => p.in === 'path')
-  const originalQueryParams = node.parameters.filter((p): p is ParameterNode & { in: 'query' } => p.in === 'query')
-  const originalHeaderParams = node.parameters.filter((p): p is ParameterNode & { in: 'header' } => p.in === 'header')
-
-  const casedPathParams = caseParams(originalPathParams, paramsCasing)
-  const casedQueryParams = caseParams(originalQueryParams, paramsCasing)
-  const casedHeaderParams = caseParams(originalHeaderParams, paramsCasing)
-
-  const pathParams = casedPathParams.map((casedParam, i) => ({
-    name: casedParam.name,
-    originalName: originalPathParams[i]!.name,
-    typedName: resolverTs.resolveParamTypedName(node, originalPathParams[i]!),
-    required: casedParam.required,
-  }))
-
-  const queryParams = casedQueryParams.map((casedParam, i) => ({
-    name: casedParam.name,
-    originalName: originalQueryParams[i]!.name,
-    typedName: resolverTs.resolveParamTypedName(node, originalQueryParams[i]!),
-    required: casedParam.required,
-  }))
-
-  const headerParams = casedHeaderParams.map((casedParam, i) => ({
-    name: casedParam.name,
-    originalName: originalHeaderParams[i]!.name,
-    typedName: resolverTs.resolveParamTypedName(node, originalHeaderParams[i]!),
-    required: casedParam.required,
-  }))
-
-  const requestBody = node.requestBody?.schema
-    ? {
-        typedName: resolverTs.resolveDataTypedName(node),
-      }
-    : undefined
-
-  const response = {
-    typedName: resolverTs.resolveResponseTypedName(node),
-  }
-
-  return { pathParams, queryParams, headerParams, requestBody, response }
-}
 
 /**
  * Default Cypress generator for `@kubb/plugin-cypress`.
@@ -67,7 +16,6 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
   type: 'react',
   Operation({ node, adapter, options, config }) {
     const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group, resolver } = options
-    const driver = useDriver()
 
     const root = path.resolve(config.root, config.output.path)
 
@@ -75,7 +23,7 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
 
     const name = resolver.resolveName(node.operationId)
 
-    const typeNames = buildTypeNames(node, paramsCasing)
+    const typeNames = builderCypress.buildTypeNames({ node, paramsCasing })
 
     // Collect all type names that need to be imported from plugin-ts
     const importedTypeNames = [
@@ -86,14 +34,8 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
       typeNames.response.typedName,
     ].filter((n): n is string => Boolean(n))
 
-    // Get the plugin-ts file path via the driver (cross-plugin file reference)
-    const tsFileName = driver.resolveName({ name: node.operationId, pluginName: pluginTsName, type: 'file' })
-    const tsFile = driver.getFile({
-      name: tsFileName,
-      extname: '.ts',
-      pluginName: pluginTsName,
-      options: { group: { tag: node.tags[0], path: node.path } },
-    })
+    // Get the plugin-ts file path via the resolver (deterministic, no driver needed)
+    const tsFile = resolverTs.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
 
     return (
       <File
