@@ -1,7 +1,7 @@
 import { basename, extname, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { AsyncEventEmitter } from '@internals/utils'
-import { isPromiseRejectedResult, transformReservedWord, ValidationPluginError } from '@internals/utils'
+import { isPromiseRejectedResult, transformReservedWord } from '@internals/utils'
 import type { RootNode } from '@kubb/ast/types'
 import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
@@ -162,7 +162,7 @@ export class PluginDriver {
 
     const mergedExtras: Record<string, unknown> = {}
 
-    for (const [_pluginName, plugin] of this.plugins) {
+    for (const plugin of this.plugins.values()) {
       if (typeof plugin.inject === 'function') {
         const result = (plugin.inject as (this: PluginContext, context: PluginContext) => unknown).call(
           baseContext as unknown as PluginContext,
@@ -324,9 +324,10 @@ export class PluginDriver {
     parameters: PluginParameter<H>
     skipped?: ReadonlySet<Plugin> | null
   }): Promise<SafeParseResult<H>> {
-    const plugins = this.#getSortedPlugins(hookName).filter((plugin) => {
-      return skipped ? !skipped.has(plugin) : true
-    })
+    const plugins: Array<Plugin> = []
+    for (const plugin of this.plugins.values()) {
+      if ((hookName in plugin) && (skipped ? !skipped.has(plugin) : true)) plugins.push(plugin)
+    }
 
     this.events.emit('plugins:hook:progress:start', { hookName, plugins })
 
@@ -366,9 +367,10 @@ export class PluginDriver {
     skipped?: ReadonlySet<Plugin> | null
   }): SafeParseResult<H> | null {
     let parseResult: SafeParseResult<H> | null = null
-    const plugins = this.#getSortedPlugins(hookName).filter((plugin) => {
-      return skipped ? !skipped.has(plugin) : true
-    })
+    const plugins: Array<Plugin> = []
+    for (const plugin of this.plugins.values()) {
+      if ((hookName in plugin) && (skipped ? !skipped.has(plugin) : true)) plugins.push(plugin)
+    }
 
     for (const plugin of plugins) {
       parseResult = {
@@ -399,7 +401,10 @@ export class PluginDriver {
     hookName: H
     parameters?: Parameters<RequiredPluginLifecycle[H]> | undefined
   }): Promise<Awaited<TOutput>[]> {
-    const plugins = this.#getSortedPlugins(hookName)
+    const plugins: Array<Plugin> = []
+    for (const plugin of this.plugins.values()) {
+      if (hookName in plugin) plugins.push(plugin)
+    }
     this.events.emit('plugins:hook:progress:start', { hookName, plugins })
 
     const pluginStartTimes = new Map<Plugin, number>()
@@ -420,7 +425,7 @@ export class PluginDriver {
 
     results.forEach((result, index) => {
       if (isPromiseRejectedResult<Error>(result)) {
-        const plugin = this.#getSortedPlugins(hookName)[index]
+        const plugin = plugins[index]
 
         if (plugin) {
           const startTime = pluginStartTimes.get(plugin) ?? performance.now()
@@ -449,7 +454,10 @@ export class PluginDriver {
    * Chains plugins
    */
   async hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
-    const plugins = this.#getSortedPlugins(hookName)
+    const plugins: Array<Plugin> = []
+    for (const plugin of this.plugins.values()) {
+      if (hookName in plugin) plugins.push(plugin)
+    }
     this.events.emit('plugins:hook:progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
@@ -467,29 +475,6 @@ export class PluginDriver {
     this.events.emit('plugins:hook:progress:end', { hookName })
   }
 
-  #getSortedPlugins(hookName?: keyof PluginLifecycle): Array<Plugin> {
-    if (hookName) {
-      return [...this.plugins.values()].filter((plugin) => hookName in plugin)
-    }
-
-    // Validate pre dependencies at runtime (adapter may be set after construction)
-    for (const [_pluginName, plugin] of this.plugins) {
-      if (plugin.pre) {
-        let missingPlugins = plugin.pre.filter((pluginName) => !this.plugins.has(pluginName))
-
-        // when adapter is set, we can ignore the depends on plugin-oas, in v5 this will not be needed anymore
-        if (missingPlugins.includes('plugin-oas') && this.adapter) {
-          missingPlugins = missingPlugins.filter((pluginName) => pluginName !== 'plugin-oas')
-        }
-
-        if (missingPlugins.length > 0) {
-          throw new ValidationPluginError(`The plugin '${plugin.name}' has a pre set that references missing plugins for '${missingPlugins.join(', ')}'`)
-        }
-      }
-    }
-
-    return [...this.plugins.values()]
-  }
 
   getPluginByName<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): Plugin<TOptions> | undefined {
     return this.plugins.get(pluginName) as Plugin<TOptions> | undefined
