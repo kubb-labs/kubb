@@ -50,10 +50,10 @@ The `useDriver` hook removal in the guide refers specifically to removing its us
 
 ## Two plugin categories
 
-Operation plugins (walk operations only, no builders/printers needed):
+Operation plugins (walk operations only, no printers needed):
 - `plugin-cypress`, `plugin-client`, `plugin-react-query`, `plugin-swr`, `plugin-solid-query`, `plugin-svelte-query`, `plugin-vue-query`, `plugin-msw`
 
-Schema plugins (walk both schemas and operations, need builders + printers):
+Schema plugins (walk both schemas and operations, need printers):
 - `plugin-ts`, `plugin-zod`, `plugin-faker`
 
 The plan covers both. Sections marked "(schema plugins only)" can be skipped for operation plugins.
@@ -67,7 +67,7 @@ New files to create:
 - `src/resolvers/resolverPLUGIN_PASCAL.ts` -- `defineResolver` with naming helpers
 - `src/resolvers/index.ts` -- barrel export
 - `src/presets.ts` -- `definePresets` registry and `getPreset` helper
-- `src/builders/` -- (schema plugins only) `defineBuilder` usage
+- `src/utils.ts` -- (schema plugins only) standalone schema-building helper functions
 - `src/printers/` -- (schema plugins only) `definePrinter` usage
 
 Files to rewrite:
@@ -115,14 +115,15 @@ Core infrastructure:
 - `packages/core/src/definePreset.ts` -- preset factory
 - `packages/core/src/definePresets.ts` -- preset registry factory
 - `packages/core/src/utils/getPreset.ts` -- preset merging (resolvers merge, transformers concat, generators concat)
-- `packages/core/src/types.ts` -- `Resolver`, `Builder`, `PluginFactoryOptions` (7 type params), `ResolverPathParams`, `ResolverContext`, `ResolverFileParams`
+- `packages/core/src/types.ts` -- `Resolver`, `PluginFactoryOptions` (6 type params), `ResolverPathParams`, `ResolverContext`, `ResolverFileParams`
 
 Reference implementation (plugin-ts):
-- `packages/plugin-ts/src/types.ts` -- `ResolverTs` type with methods + JSDoc, `BuilderTs` type, `Options` with all v5 fields, `PluginFactoryOptions` generic
+- `packages/plugin-ts/src/types.ts` -- `ResolverTs` type with methods + JSDoc, `Options` with all v5 fields, `PluginFactoryOptions` generic
 - `packages/plugin-ts/src/constants.ts` -- SCREAMING_SNAKE_CASE `Set` constants
 - `packages/plugin-ts/src/resolvers/resolverTs.ts` -- `defineResolver` with `default`, `resolveName`, `resolveTypedName`, etc.
 - `packages/plugin-ts/src/resolvers/resolverTsLegacy.ts` -- legacy resolver extending base for `kubbV4` preset
 - `packages/plugin-ts/src/presets.ts` -- `definePresets`, `definePreset`, `getPreset`
+- `packages/plugin-ts/src/utils.ts` -- standalone schema-building helpers: `buildParams`, `buildData`, `buildResponses`, `buildResponseUnion`
 - `packages/plugin-ts/src/generators/typeGenerator.tsx` -- `defineGenerator` with `Operation` and `Schema` methods
 - `packages/plugin-ts/src/generators/typeGenerator.test.tsx` -- v5 test pattern
 - `packages/plugin-ts/src/plugin.ts` -- `walk()`, `renderOperation()`, `renderSchema()`, resolver delegation with warnings
@@ -130,9 +131,7 @@ Reference implementation (plugin-ts):
 - `packages/plugin-ts/package.json` -- `exports` and `typesVersions`
 
 Schema plugins only:
-- `packages/plugin-ts/src/builders/builderTs.ts` -- `defineBuilder`
 - `packages/plugin-ts/src/printers/printerTs.ts` -- `definePrinter`
-- `packages/core/src/defineBuilder.ts` -- builder factory
 - `packages/ast/src/printers/printer.ts` -- printer factory
 
 Test mocks:
@@ -158,7 +157,7 @@ Remove these imports:
 - `Generator` from `@kubb/plugin-oas/generators`
 
 Add these imports:
-- `Resolver`, `Builder`, `Generator`, `CompatibilityPreset`, `Output`, `Group`, `Exclude`, `Include`, `Override`, `PluginFactoryOptions`, `ResolvePathOptions` from `@kubb/core`
+- `Resolver`, `Generator`, `CompatibilityPreset`, `Output`, `Group`, `Exclude`, `Include`, `Override`, `PluginFactoryOptions`, `ResolvePathOptions` from `@kubb/core`
 - `Visitor` from `@kubb/ast/types`
 
 Define resolver type (example for plugin-cypress):
@@ -219,8 +218,8 @@ Update `PluginFactoryOptions` generic -- add resolver type as 6th param:
 // Operation plugin:
 export type PluginCypress = PluginFactoryOptions<'plugin-cypress', Options, ResolvedOptions, never, ResolvePathOptions, ResolverCypress>
 
-// Schema plugin (add builder as 7th param):
-// export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions, ResolverZod, BuilderZod>
+// Schema plugin (same, no 7th param needed):
+// export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions, ResolverZod>
 ```
 
 ### Step 2: Create src/constants.ts
@@ -357,7 +356,7 @@ In `typesVersions`, add:
 
 Remove stale entries from `typesVersions` (e.g. `"utils"`, `"hooks"`) if those sub-paths no longer exist.
 
-For schema plugins, also add `"./builders"` and `"./printers"` entries in both `exports` and `typesVersions`.
+For schema plugins, also add a `"./printers"` entry in both `exports` and `typesVersions`.
 
 ### Step 7: Update tsdown.config.ts
 
@@ -372,7 +371,7 @@ const entry = {
 }
 ```
 
-For schema plugins, also add `builders: 'src/builders/index.ts'` and `printers: 'src/printers/index.ts'`.
+For schema plugins, also add `printers: 'src/printers/index.ts'`.
 
 ### Step 8: Verify barrel exports
 
@@ -800,9 +799,9 @@ Run `pnpm test -u` in the plugin package directory.
 ### plugin-zod, plugin-faker (schema plugins)
 
 - Walk both `schema` and `operation` nodes
-- Need `defineBuilder` for composing AST subtrees
+- Need `src/utils.ts` with standalone schema-building helper functions (e.g. `buildParams`, `buildData`) — see `plugin-ts/src/utils.ts` as reference
 - Need `definePrinter` for converting schemas to target output
 - Has `parser.ts` for schema-to-code conversion
-- Model builders on `plugin-ts/src/builders/builderTs.ts`
+- Model utils on `plugin-ts/src/utils.ts`
 - Model printers on `plugin-ts/src/printers/printerTs.ts`
-- Add `builders` and `printers` entries to `tsdown.config.ts`, `package.json` exports, and `typesVersions`
+- Add a `printers` entry to `tsdown.config.ts`, `package.json` exports, and `typesVersions`

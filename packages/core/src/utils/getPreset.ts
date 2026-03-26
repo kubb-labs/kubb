@@ -5,11 +5,11 @@ import { mergeResolvers } from './mergeResolvers.ts'
 type GetPresetParams<TResolver extends Resolver> = {
   preset: CompatibilityPreset
   presets: Presets<TResolver>
-  resolvers: Array<TResolver>
+  resolvers?: Array<TResolver>
   /**
    * User-supplied generators to append after the preset's generators.
    */
-  generators: Array<Generator<any>>
+  generators?: Array<Generator<any>>
   transformers?: Array<Visitor>
 }
 
@@ -29,7 +29,7 @@ type GetPresetResult<TResolver extends Resolver> = {
  * - Combines preset generators with user-supplied generators; falls back to the `default` preset's generators when neither provides any.
  */
 export function getPreset<TResolver extends Resolver = Resolver>(params: GetPresetParams<TResolver>): GetPresetResult<TResolver> {
-  const { preset: presetName, presets, resolvers, transformers: userTransformers, generators: userGenerators } = params
+  const { preset: presetName, presets, resolvers = [], transformers: userTransformers = [], generators: userGenerators = [] } = params
   const [defaultResolver, ...userResolvers] = resolvers
   const preset = presets[presetName]
 

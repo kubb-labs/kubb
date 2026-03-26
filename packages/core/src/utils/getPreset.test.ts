@@ -1,7 +1,6 @@
 import { createSchema } from '@kubb/ast'
 import type { Visitor } from '@kubb/ast/types'
 import { describe, expect, it } from 'vitest'
-import { definePreset } from '../definePreset.ts'
 import { definePresets } from '../definePresets.ts'
 import { defineResolver } from '../defineResolver.ts'
 import type { Resolver } from '../types.ts'
@@ -51,11 +50,13 @@ const mockUserGenerator = { type: 'react', version: '2', name: 'user' } as const
 const mockDefaultGenerator = { type: 'react', version: '2', name: 'default' } as const
 
 const presets = definePresets<TestResolver>({
-  default: definePreset('default', {
+  default: {
+    name: 'default',
     resolvers: [],
     generators: [mockDefaultGenerator],
-  }),
-  kubbV4: definePreset('kubbV4', {
+  },
+  kubbV4: {
+    name: 'kubbV4',
     resolvers: [legacyResolver],
     generators: [mockGenerator],
     transformers: [
@@ -68,7 +69,7 @@ const presets = definePresets<TestResolver>({
         },
       },
     ],
-  }),
+  },
 })
 
 describe('getPreset', () => {
@@ -153,8 +154,15 @@ describe('getPreset', () => {
 
   it('falls back to default preset generators when preset has no generators and user provides none', () => {
     const presetsWithoutKubbV4Generators = definePresets<TestResolver>({
-      default: definePreset('default', { resolvers: [], generators: [mockDefaultGenerator] }),
-      kubbV4: definePreset('kubbV4', { resolvers: [legacyResolver] }),
+      default: {
+        name: 'default',
+        resolvers: [],
+        generators: [mockDefaultGenerator],
+      },
+      kubbV4: {
+        name: 'kubbV4',
+        resolvers: [legacyResolver],
+      },
     })
 
     const result = getPreset({
@@ -169,8 +177,15 @@ describe('getPreset', () => {
 
   it('uses user generators (appended after preset) when preset has none', () => {
     const presetsWithoutKubbV4Generators = definePresets<TestResolver>({
-      default: definePreset('default', { resolvers: [], generators: [mockDefaultGenerator] }),
-      kubbV4: definePreset('kubbV4', { resolvers: [legacyResolver] }),
+      default: {
+        name: 'default',
+        resolvers: [],
+        generators: [mockDefaultGenerator],
+      },
+      kubbV4: {
+        name: 'kubbV4',
+        resolvers: [legacyResolver],
+      },
     })
 
     const result = getPreset({

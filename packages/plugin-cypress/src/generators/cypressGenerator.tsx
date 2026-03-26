@@ -1,8 +1,7 @@
 import path from 'node:path'
 import { defineGenerator } from '@kubb/core'
-import { resolverTs } from '@kubb/plugin-ts/resolvers'
 import { File } from '@kubb/react-fabric'
-import { Request } from '../components'
+import { Request } from '../components/Request.tsx'
 import type { PluginCypress } from '../types'
 import { buildTypeNames } from '../utils.ts'
 
@@ -15,7 +14,7 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
   name: 'cypress',
   type: 'react',
   Operation({ node, adapter, options, config }) {
-    const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group, resolver } = options
+    const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group, resolver, resolverTs } = options
 
     const root = path.resolve(config.root, config.output.path)
 
@@ -23,7 +22,7 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
 
     const name = resolver.resolveName(node.operationId)
 
-    const typeNames = buildTypeNames({ node, paramsCasing })
+    const typeNames = buildTypeNames({ node, paramsCasing, resolver: resolverTs })
 
     // Collect all type names that need to be imported from plugin-ts
     const importedTypeNames = [
@@ -34,7 +33,7 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
       typeNames.response.typedName,
     ].filter((n): n is string => Boolean(n))
 
-    // Get the plugin-ts file path via the resolver (deterministic, no driver needed)
+    // Get the plugin-ts file path via the ts resolver (deterministic, no driver needed)
     const tsFile = resolverTs.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
 
     return (

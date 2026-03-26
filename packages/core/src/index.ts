@@ -8,7 +8,6 @@ export { createPlugin } from './createPlugin.ts'
 export { createStorage } from './createStorage.ts'
 export { defineGenerator } from './defineGenerator.ts'
 export { defineLogger } from './defineLogger.ts'
-export { definePreset } from './definePreset.ts'
 export { definePresets } from './definePresets.ts'
 export {
   buildDefaultBanner,

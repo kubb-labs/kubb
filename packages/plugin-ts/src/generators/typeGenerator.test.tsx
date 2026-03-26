@@ -6,7 +6,7 @@ import { renderOperation, renderSchema } from '@kubb/core'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
-import { resolverTs } from '../resolvers'
+import { resolverTs } from '../resolvers/resolverTs.ts'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
 

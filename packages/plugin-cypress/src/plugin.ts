@@ -1,8 +1,9 @@
 import path from 'node:path'
 import { walk } from '@kubb/ast'
-import { createPlugin, getBarrelFiles, renderOperation } from '@kubb/core'
-import { pluginTsName } from '@kubb/plugin-ts'
-import { getPreset } from './presets.ts'
+import { createPlugin, getBarrelFiles, getPreset, renderOperation } from '@kubb/core'
+import { pluginTsName, presetsTs } from '@kubb/plugin-ts'
+import { presetsCypress } from './presets.ts'
+import { resolverCypress } from './resolvers/resolverCypress.ts'
 import type { PluginCypress } from './types.ts'
 
 /**
@@ -45,8 +46,15 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     generators: userGenerators = [],
   } = options
 
-  const { resolver, transformers, generators } = getPreset(compatibilityPreset, {
-    resolvers: userResolvers,
+  const { resolver: resolverTs } = getPreset({
+    preset: compatibilityPreset,
+    presets: presetsTs,
+  })
+
+  const { resolver, transformers, generators } = getPreset({
+    preset: compatibilityPreset,
+    presets: presetsCypress,
+    resolvers: [resolverCypress, ...userResolvers],
     transformers: userTransformers,
     generators: userGenerators,
   })
@@ -65,6 +73,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
       paramsType,
       pathParamsType,
       resolver,
+      resolverTs,
       transformers,
     },
     pre: [pluginTsName].filter(Boolean),

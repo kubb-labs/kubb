@@ -1,5 +1,6 @@
 import type { Visitor } from '@kubb/ast/types'
 import type { CompatibilityPreset, Exclude, Generator, Group, Include, Output, Override, PluginFactoryOptions, ResolvePathOptions, Resolver } from '@kubb/core'
+import type { ResolverTs } from '@kubb/plugin-ts'
 
 /**
  * The concrete resolver type for `@kubb/plugin-cypress`.
@@ -98,6 +99,7 @@ export type ResolvedOptions = {
   paramsType: NonNullable<Options['paramsType']>
   paramsCasing: Options['paramsCasing']
   resolver: ResolverCypress
+  resolverTs: ResolverTs
   transformers: Array<Visitor>
 }
 

@@ -5,7 +5,7 @@ import { renderOperation, renderSchema } from '@kubb/core'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
-import { resolverTsLegacy } from '../resolvers'
+import { resolverTsLegacy } from '../resolvers/resolverTsLegacy.ts'
 import type { PluginTs } from '../types.ts'
 import { typeGeneratorLegacy } from './typeGeneratorLegacy.tsx'
 

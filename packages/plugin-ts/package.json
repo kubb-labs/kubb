@@ -31,41 +31,9 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./components": {
-      "import": "./dist/components.js",
-      "require": "./dist/components.cjs"
-    },
-    "./generators": {
-      "import": "./dist/generators.js",
-      "require": "./dist/generators.cjs"
-    },
-    "./printers": {
-      "import": "./dist/printers.js",
-      "require": "./dist/printers.cjs"
-    },
-    "./resolvers": {
-      "import": "./dist/resolvers.js",
-      "require": "./dist/resolvers.cjs"
-    },
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "components": [
-        "./dist/components.d.ts"
-      ],
-      "generators": [
-        "./dist/generators.d.ts"
-      ],
-      "resolvers": [
-        "./dist/resolvers.d.ts"
-      ],
-      "printers": [
-        "./dist/printers.d.ts"
-      ]
-    }
-  },
   "files": [
     "src",
     "dist",

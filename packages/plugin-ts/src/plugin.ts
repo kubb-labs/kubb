@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { walk } from '@kubb/ast'
-import { createPlugin, getBarrelFiles, renderOperation, renderSchema } from '@kubb/core'
-import { getPreset } from './presets.ts'
+import { createPlugin, getBarrelFiles, getPreset, renderOperation, renderSchema } from '@kubb/core'
+import { presetsTs } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
 /**
@@ -45,7 +45,9 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     generators: userGenerators = [],
   } = options
 
-  const { resolver, transformers, generators } = getPreset(compatibilityPreset, {
+  const { resolver, transformers, generators } = getPreset({
+    preset: compatibilityPreset,
+    presets: presetsTs,
     resolvers: userResolvers,
     transformers: userTransformers,
     generators: userGenerators,
