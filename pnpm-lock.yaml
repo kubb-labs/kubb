@@ -1188,12 +1188,15 @@ importers:
 
   packages/plugin-cypress:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/oas':
+        specifier: workspace:*
+        version: link:../oas
+      '@kubb/plugin-oas':
+        specifier: workspace:*
+        version: link:../plugin-oas
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../plugin-ts
@@ -1357,8 +1360,8 @@ importers:
         specifier: 'catalog:'
         version: 0.15.1
       handlebars:
-        specifier: ^4.7.8
-        version: 4.7.8
+        specifier: ^4.7.9
+        version: 4.7.9
 
   packages/plugin-solid-query:
     dependencies:
@@ -5598,8 +5601,8 @@ packages:
   h3@1.15.9:
     resolution: {integrity: sha512-H7UPnyIupUOYUQu7f2x7ABVeMyF/IbJjqn20WSXpMdnQB260luADUkSgJU7QTWLutq8h3tUayMQ1DdbSYX5LkA==}
 
-  handlebars@4.7.8:
-    resolution: {integrity: sha512-vafaFqs8MZkRrSX7sFVUdo3ap/eNiLnb4IakshzvP56X5Nr1iGKAIqdX6tMlm6HcNRIkr6AxO5jFEoJzzpT8aQ==}
+  handlebars@4.7.9:
+    resolution: {integrity: sha512-4E71E0rpOaQuJR2A3xDZ+GM1HyWYv1clR58tC8emQNeQe3RH7MAzSbat+V0wG78LQBo6m6bzSG/L4pBuCsgnUQ==}
     engines: {node: '>=0.4.7'}
     hasBin: true
 
@@ -12279,7 +12282,7 @@ snapshots:
       ufo: 1.6.3
       uncrypto: 0.1.3
 
-  handlebars@4.7.8:
+  handlebars@4.7.9:
     dependencies:
       minimist: 1.2.8
       neo-async: 2.6.2
