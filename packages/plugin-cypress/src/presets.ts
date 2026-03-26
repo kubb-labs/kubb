@@ -8,9 +8,11 @@ import type { PluginCypress, ResolverCypress } from './types.ts'
  * Built-in preset registry for `@kubb/plugin-cypress`.
  *
  * - `default` — uses `resolverCypress` and `cypressGenerator`.
+ * - `kubbV4`  — uses `resolverCypress` and `cypressGenerator` (same conventions as `default` for cypress).
  */
 export const presets = definePresets<ResolverCypress>({
   default: definePreset('default', { resolvers: [resolverCypress], generators: [cypressGenerator] }),
+  kubbV4: definePreset('kubbV4', { resolvers: [resolverCypress], generators: [cypressGenerator] }),
 })
 
 type GetPresetOptions = {

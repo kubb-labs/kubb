@@ -69,7 +69,7 @@ function buildInlineObjectType(params: Array<TypeParamInfo>): string {
 function getParams({ paramsType, pathParamsType, typeNames }: GetParamsProps) {
   const { pathParams, queryParams, headerParams, requestBody } = typeNames
 
-  const pathParamChildren = Object.fromEntries(pathParams.map((p) => [p.name, { type: p.typedName, required: p.required }]))
+  const pathParamChildren = Object.fromEntries(pathParams.map((p) => [p.name, { type: p.typedName, optional: !p.required }]))
   const allPathOptional = pathParams.every((p) => !p.required)
 
   if (paramsType === 'object') {
@@ -80,7 +80,7 @@ function getParams({ paramsType, pathParamsType, typeNames }: GetParamsProps) {
       headers: headerParams.length > 0 ? { type: buildInlineObjectType(headerParams), optional: headerParams.every((p) => !p.required) } : undefined,
     }
 
-    const allChildrenOptional = Object.values(children).every((child) => !child || ('optional' in child ? child.optional : !child.required))
+    const allChildrenOptional = Object.values(children).every((child) => !child || child.optional !== false)
 
     return FunctionParams.factory({
       data: {
