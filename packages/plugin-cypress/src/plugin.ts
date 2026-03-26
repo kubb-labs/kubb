@@ -1,33 +1,13 @@
 import path from 'node:path'
-import { walk } from '@kubb/ast'
-import { createPlugin, getBarrelFiles, getPreset, renderOperation } from '@kubb/core'
+import { camelCase } from '@internals/utils'
+import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
-import { presets } from './presets.ts'
-import { resolverCypress } from './resolvers/resolverCypress.ts'
+import { cypressGenerator } from './generators'
 import type { PluginCypress } from './types.ts'
 
-/**
- * Canonical plugin name for `@kubb/plugin-cypress`, used to identify the plugin
- * in driver lookups and warnings.
- */
 export const pluginCypressName = 'plugin-cypress' satisfies PluginCypress['name']
 
-/**
- * The `@kubb/plugin-cypress` plugin factory.
- *
- * Generates Cypress `cy.request()` test functions from an OpenAPI/AST `RootNode`.
- * Walks operations, delegates rendering to the active generators,
- * and writes barrel files based on `output.barrelType`.
- *
- * @example
- * ```ts
- * import { pluginCypress } from '@kubb/plugin-cypress'
- *
- * export default defineConfig({
- *   plugins: [pluginCypress({ output: { path: 'cypress' } })],
- * })
- * ```
- */
 export const pluginCypress = createPlugin<PluginCypress>((options) => {
   const {
     output = { path: 'cypress', barrelType: 'named' },
@@ -36,101 +16,93 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     exclude = [],
     include,
     override = [],
+    transformers = {},
+    generators = [cypressGenerator].filter(Boolean),
+    contentType,
     baseURL,
     paramsCasing,
     paramsType = 'inline',
     pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
-    compatibilityPreset = 'default',
-    resolvers: userResolvers = [],
-    transformers: userTransformers = [],
-    generators: userGenerators = [],
   } = options
-
-  const { resolver, transformers, generators } = getPreset({
-    preset: compatibilityPreset,
-    presets: presets,
-    resolvers: [resolverCypress, ...userResolvers],
-    transformers: userTransformers,
-    generators: userGenerators,
-  })
-
-  let resolveNameWarning = false
-  let resolvePathWarning = false
 
   return {
     name: pluginCypressName,
-    resolver,
     options: {
       output,
       dataReturnType,
       group,
       baseURL,
+
       paramsCasing,
       paramsType,
       pathParamsType,
-      transformers,
     },
-    pre: [pluginTsName].filter(Boolean),
+    pre: [pluginOasName, pluginTsName].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
-      if (!resolvePathWarning) {
-        this.events.emit('warn', 'Do not use resolvePath for pluginCypress, use resolverCypress.resolvePath instead')
-        resolvePathWarning = true
+      const root = path.resolve(this.config.root, this.config.output.path)
+      const mode = pathMode ?? getMode(path.resolve(root, output.path))
+
+      if (mode === 'single') {
+        /**
+         * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
+         * Other plugins then need to call addOrAppend instead of just add from the fileManager class
+         */
+        return path.resolve(root, output.path)
       }
 
-      return resolver.resolvePath(
-        { baseName, pathMode, tag: options?.group?.tag, path: options?.group?.path },
-        { root: path.resolve(this.config.root, this.config.output.path), output, group },
-      )
+      if (group && (options?.group?.path || options?.group?.tag)) {
+        const groupName: Group['name'] = group?.name
+          ? group.name
+          : (ctx) => {
+              if (group?.type === 'path') {
+                return `${ctx.group.split('/')[1]}`
+              }
+              return `${camelCase(ctx.group)}Requests`
+            }
+
+        return path.resolve(
+          root,
+          output.path,
+          groupName({
+            group: group.type === 'path' ? options.group.path! : options.group.tag!,
+          }),
+          baseName,
+        )
+      }
+
+      return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
-      if (!resolveNameWarning) {
-        this.events.emit('warn', 'Do not use resolveName for pluginCypress, use resolverCypress.default instead')
-        resolveNameWarning = true
+      const resolvedName = camelCase(name, {
+        isFile: type === 'file',
+      })
+
+      if (type) {
+        return transformers?.name?.(resolvedName, type) || resolvedName
       }
 
-      return resolver.default(name, type)
+      return resolvedName
     },
     async install() {
-      const { config, fabric, plugin, adapter, rootNode, driver, resolver } = this
+      const root = path.resolve(this.config.root, this.config.output.path)
+      const mode = getMode(path.resolve(root, output.path))
+      const oas = await this.getOas()
 
-      const root = path.resolve(config.root, config.output.path)
-
-      if (!adapter) {
-        throw new Error('Plugin cannot work without adapter being set')
-      }
-
-      await walk(rootNode, {
-        depth: 'shallow',
-        async operation(operationNode) {
-          const writeTasks = generators.map(async (generator) => {
-            if (generator.type === 'react' && generator.version === '2') {
-              const resolvedOptions = resolver.resolveOptions(operationNode, {
-                options: plugin.options,
-                exclude,
-                include,
-                override,
-              })
-
-              if (resolvedOptions === null) {
-                return
-              }
-
-              await renderOperation(operationNode, {
-                options: resolvedOptions,
-                resolver,
-                adapter,
-                config,
-                fabric,
-                Component: generator.Operation,
-                plugin,
-                driver,
-              })
-            }
-          })
-
-          await Promise.all(writeTasks)
-        },
+      const operationGenerator = new OperationGenerator(this.plugin.options, {
+        fabric: this.fabric,
+        oas,
+        driver: this.driver,
+        events: this.events,
+        plugin: this.plugin,
+        contentType,
+        exclude,
+        include,
+        override,
+        mode,
       })
+
+      const files = await operationGenerator.build(...generators)
+      await this.upsertFile(...files)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
