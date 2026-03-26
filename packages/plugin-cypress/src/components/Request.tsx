@@ -154,9 +154,7 @@ export function Request({ baseURL, name, dataReturnType, typeNames, node, params
   const urlTemplate = buildUrlTemplate(node.path, typeNames.pathParams, baseURL)
 
   const returnType =
-    dataReturnType === 'data'
-      ? `Cypress.Chainable<${typeNames.response.typedName}>`
-      : `Cypress.Chainable<Cypress.Response<${typeNames.response.typedName}>>`
+    dataReturnType === 'data' ? `Cypress.Chainable<${typeNames.response.typedName}>` : `Cypress.Chainable<Cypress.Response<${typeNames.response.typedName}>>`
 
   // Build the request options object
   const requestOptions: string[] = [`method: '${node.method.toLowerCase()}'`, `url: ${urlTemplate}`]
