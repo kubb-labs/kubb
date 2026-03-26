@@ -7,7 +7,7 @@ import type {
 } from '../../models/ts/petsController/CreatePets.ts'
 
 export function createPets(
-  uuid: CreatePetsPathParams['uuid'],
+  { uuid }: CreatePetsPathParams,
   data: CreatePetsMutationRequest,
   headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,

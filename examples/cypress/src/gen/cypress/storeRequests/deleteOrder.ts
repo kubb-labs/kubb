@@ -5,10 +5,7 @@
 
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../models/DeleteOrder.ts'
 
-export function deleteOrder(
-  orderId: DeleteOrderPathParams['orderId'],
-  options: Partial<Cypress.RequestOptions> = {},
-): Cypress.Chainable<DeleteOrderMutationResponse> {
+export function deleteOrder({ orderId }: DeleteOrderPathParams, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<DeleteOrderMutationResponse> {
   return cy
     .request<DeleteOrderMutationResponse>({
       method: 'delete',

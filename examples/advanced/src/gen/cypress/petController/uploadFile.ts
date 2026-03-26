@@ -6,8 +6,8 @@ import type {
 } from '../../models/ts/petController/UploadFile.ts'
 
 export function uploadFile(
-  petId: UploadFilePathParams['petId'],
-  data?: UploadFileMutationRequest,
+  { petId }: UploadFilePathParams,
+  data: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
   options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<UploadFileMutationResponse> {

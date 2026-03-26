@@ -6,7 +6,7 @@
 import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../../models/PlaceOrderPatch.ts'
 
 export function placeOrderPatch(
-  data?: PlaceOrderPatchMutationRequest,
+  data: PlaceOrderPatchMutationRequest,
   options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<PlaceOrderPatchMutationResponse> {
   return cy
