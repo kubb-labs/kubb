@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
-import { pluginClientName } from '@kubb/plugin-client'
+import { type PluginClient, pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
 import { source as configSource } from '@kubb/plugin-client/templates/config.source'
@@ -102,7 +102,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
         this.plugin.options.client.baseURL = baseURL
       }
 
-      const hasClientPlugin = !!this.driver.getPluginByName(pluginClientName)
+      const hasClientPlugin = !!this.getPlugin<PluginClient>(pluginClientName)
 
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled fetch

@@ -127,12 +127,14 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
 export function createMockedPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(params: {
   name: TOptions['name']
   options: TOptions['resolvedOptions']
+  resolver?: TOptions['resolver']
   pre?: Array<string>
   post?: Array<string>
 }): Plugin<TOptions> {
   return {
     name: params.name,
     options: params.options,
+    resolver: params.resolver,
     pre: params.pre,
     post: params.post,
     install: () => {},

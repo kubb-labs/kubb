@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { walk } from '@kubb/ast'
 import { createPlugin, getBarrelFiles, getPreset, renderOperation, renderSchema } from '@kubb/core'
-import { presetsTs } from './presets.ts'
+import { presets } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
 /**
@@ -47,7 +47,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
   const { resolver, transformers, generators } = getPreset({
     preset: compatibilityPreset,
-    presets: presetsTs,
+    presets: presets,
     resolvers: userResolvers,
     transformers: userTransformers,
     generators: userGenerators,
@@ -58,6 +58,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
   return {
     name: pluginTsName,
+    resolver,
     options: {
       output,
       optionalType,
@@ -68,12 +69,11 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       enumKeyCasing,
       syntaxType,
       paramsCasing,
-      resolver,
       transformers,
     },
     resolvePath(baseName, pathMode, options) {
       if (!resolvePathWarning) {
-        this.driver.events.emit('warn', 'Do not use resolvePath for pluginTs, use resolverTs.resolvePath instead')
+        this.events.emit('warn', 'Do not use resolvePath for pluginTs, use resolverTs.resolvePath instead')
         resolvePathWarning = true
       }
 
@@ -84,14 +84,14 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     },
     resolveName(name, type) {
       if (!resolveNameWarning) {
-        this.driver.events.emit('warn', 'Do not use resolveName for pluginTs, use resolverTs.default instead')
+        this.events.emit('warn', 'Do not use resolveName for pluginTs, use resolverTs.default instead')
         resolveNameWarning = true
       }
 
       return resolver.default(name, type)
     },
     async install() {
-      const { config, fabric, plugin, adapter, rootNode, driver, openInStudio } = this
+      const { config, fabric, plugin, adapter, rootNode, driver, openInStudio, resolver } = this
 
       const root = path.resolve(config.root, config.output.path)
 
@@ -114,6 +114,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
               await renderSchema(schemaNode, {
                 options,
+                resolver,
                 adapter,
                 config,
                 fabric,
@@ -137,6 +138,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
               await renderOperation(operationNode, {
                 options,
+                resolver,
                 adapter,
                 config,
                 fabric,

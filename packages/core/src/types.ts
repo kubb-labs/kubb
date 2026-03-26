@@ -396,6 +396,10 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    */
   options: TOptions['resolvedOptions']
   /**
+   * The resolver for this plugin, accessible via `driver.getPluginByName(name)?.resolver`.
+   */
+  resolver?: TOptions['resolver']
+  /**
    * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin is executed after these plugins.
    * Can be used to validate dependent plugins.
    */
@@ -430,6 +434,10 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    * Options set for a specific plugin(see kubb.config.js), passthrough of options.
    */
   options: TOptions['resolvedOptions']
+  /**
+   * The resolver for this plugin, accessible via `driver.getPluginByName(name)?.resolver`.
+   */
+  resolver?: TOptions['resolver']
 
   install: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**
@@ -501,6 +509,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   fabric: FabricType
   config: Config
   driver: PluginDriver
+  getPlugin: PluginDriver['getPlugin']
   /**
    * Only add when the file does not exist yet
    */
@@ -510,11 +519,14 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    */
   upsertFile: (...file: Array<FabricFile.File>) => Promise<void>
   events: AsyncEventEmitter<KubbEvents>
-  mode: FabricFile.Mode
   /**
    * Current plugin
    */
   plugin: Plugin<TOptions>
+  /**
+   * Resolver for the current plugin. Shorthand for `plugin.resolver`.
+   */
+  resolver: TOptions['resolver']
 
   /**
    * Opens the Kubb Studio URL for the current `rootNode` in the default browser.

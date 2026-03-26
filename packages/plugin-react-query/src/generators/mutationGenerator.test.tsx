@@ -158,7 +158,7 @@ describe('mutationGenerator operation', async () => {
     const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
 
     if ('mockClientPlugin' in props && props.mockClientPlugin) {
-      mockedPluginDriver.getPluginByName = (pluginName) => {
+      mockedPluginDriver.getPlugin = (pluginName) => {
         if (pluginName === 'plugin-client') {
           return { name: 'plugin-client' } as any
         }

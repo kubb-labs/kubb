@@ -11,7 +11,7 @@ import type { ResolverTs } from './types.ts'
  * - `default` — uses `resolverTs` and `typeGenerator` (current naming conventions).
  * - `kubbV4` — uses `resolverTsLegacy` and `typeGeneratorLegacy` (Kubb v4 naming conventions).
  */
-export const presetsTs = definePresets<ResolverTs>({
+export const presets = definePresets<ResolverTs>({
   default: {
     name: 'default',
     resolvers: [resolverTs],

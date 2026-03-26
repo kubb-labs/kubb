@@ -150,7 +150,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
         this.plugin.options.client.baseURL = baseURL
       }
 
-      const hasClientPlugin = !!this.driver.getPluginByName(pluginClientName)
+      const hasClientPlugin = !!this.getPlugin(pluginClientName)
 
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled

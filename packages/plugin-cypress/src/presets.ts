@@ -9,7 +9,7 @@ import type { ResolverCypress } from './types.ts'
  * - `default` — uses `resolverCypress` and `cypressGenerator`.
  * - `kubbV4`  — uses `resolverCypress` and `cypressGenerator` (same conventions as `default` for cypress).
  */
-export const presetsCypress = definePresets<ResolverCypress>({
+export const presets = definePresets<ResolverCypress>({
   default: {
     name: 'default',
     resolvers: [resolverCypress],

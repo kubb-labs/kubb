@@ -5,8 +5,6 @@ export { typeGenerator } from './generators/typeGenerator.tsx'
 
 export { pluginTs, pluginTsName } from './plugin.ts'
 
-export { presetsTs } from './presets.ts'
-
 export { printerTs } from './printers/printerTs.ts'
 
 export { resolverTs } from './resolvers/resolverTs.ts'

@@ -327,7 +327,6 @@ type ResolvedOptions = {
   arrayType: NonNullable<Options['arrayType']>
   syntaxType: NonNullable<Options['syntaxType']>
   paramsCasing: Options['paramsCasing']
-  resolver: ResolverTs
   transformers: Array<Visitor>
 }
 

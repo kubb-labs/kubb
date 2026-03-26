@@ -26,7 +26,6 @@ describe('typeGeneratorLegacy — Operation', () => {
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,
-    resolver: resolverTsLegacy,
     transformers: [],
   }
 
@@ -132,7 +131,7 @@ describe('typeGeneratorLegacy — Operation', () => {
   ] as const satisfies Array<{ name: string; node: OperationNode }>
 
   test.each(testData)('$name', async (props) => {
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options: legacyOptions })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options: legacyOptions, resolver: resolverTsLegacy })
     const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
 
     await renderOperation(props.node, {
@@ -143,6 +142,7 @@ describe('typeGeneratorLegacy — Operation', () => {
       Component: typeGeneratorLegacy.Operation,
       plugin,
       options: legacyOptions,
+      resolver: resolverTsLegacy,
     })
 
     await matchFiles(fabric.files, props.name)
@@ -159,7 +159,6 @@ describe('typeGeneratorLegacy — Operation', () => {
 
     const options: PluginTs['resolvedOptions'] = {
       ...legacyOptions,
-      resolver: wrappedResolver,
     }
 
     const node = createOperation({
@@ -178,7 +177,7 @@ describe('typeGeneratorLegacy — Operation', () => {
       responses: [createResponse({ statusCode: '201', schema: createSchema({ type: 'void' }), description: 'Null response' })],
     })
 
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: wrappedResolver })
     const mockedPluginDriver = createMockedPluginDriver({ name: 'legacy createPets header param enum transformer' })
 
     await renderOperation(node, {
@@ -189,6 +188,7 @@ describe('typeGeneratorLegacy — Operation', () => {
       Component: typeGeneratorLegacy.Operation,
       plugin,
       options,
+      resolver: plugin.resolver!,
     })
 
     await matchFiles(fabric.files, 'legacy — createPets with header param enum and name transformer')
@@ -205,7 +205,6 @@ describe('typeGeneratorLegacy — Operation', () => {
 
     const options: PluginTs['resolvedOptions'] = {
       ...legacyOptions,
-      resolver: wrappedResolver,
     }
 
     const node = createOperation({
@@ -220,7 +219,7 @@ describe('typeGeneratorLegacy — Operation', () => {
       ],
     })
 
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: wrappedResolver })
     const mockedPluginDriver = createMockedPluginDriver({ name: 'legacy listPets GET name transformer' })
 
     await renderOperation(node, {
@@ -231,6 +230,7 @@ describe('typeGeneratorLegacy — Operation', () => {
       Component: typeGeneratorLegacy.Operation,
       plugin,
       options,
+      resolver: plugin.resolver!,
     })
 
     await matchFiles(fabric.files, 'legacy — listPets GET with name transformer')
@@ -247,7 +247,6 @@ describe('typeGeneratorLegacy — Operation', () => {
 
     const options: PluginTs['resolvedOptions'] = {
       ...legacyOptions,
-      resolver: wrappedResolver,
     }
 
     const node = createOperation({
@@ -264,7 +263,7 @@ describe('typeGeneratorLegacy — Operation', () => {
       ],
     })
 
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: wrappedResolver })
     const mockedPluginDriver = createMockedPluginDriver({ name: 'legacy addPet POST name transformer' })
 
     await renderOperation(node, {
@@ -275,6 +274,7 @@ describe('typeGeneratorLegacy — Operation', () => {
       Component: typeGeneratorLegacy.Operation,
       plugin,
       options,
+      resolver: plugin.resolver!,
     })
 
     await matchFiles(fabric.files, 'legacy — addPet POST with name transformer')
@@ -305,13 +305,12 @@ describe('typeGeneratorLegacy — Schema (enum)', () => {
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,
-    resolver: resolverTsLegacy,
     transformers: [],
   }
 
   test('enumTypeSuffix=Key (default) — asConst type alias uses Key suffix', async () => {
     const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumTypeSuffix: 'Key' }
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTsLegacy })
     const mockedPluginDriver = createMockedPluginDriver({ name: 'legacy — petStatus enumTypeSuffix Key' })
 
     await renderSchema(enumSchemaNode, {
@@ -322,6 +321,7 @@ describe('typeGeneratorLegacy — Schema (enum)', () => {
       Component: typeGeneratorLegacy.Schema,
       plugin,
       options,
+      resolver: resolverTsLegacy,
     })
 
     await matchFiles(fabric.files, 'legacy — petStatus enumTypeSuffix Key')
@@ -329,7 +329,7 @@ describe('typeGeneratorLegacy — Schema (enum)', () => {
 
   test('enumTypeSuffix=Value — asConst type alias uses custom suffix', async () => {
     const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumTypeSuffix: 'Value' }
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTsLegacy })
     const mockedPluginDriver = createMockedPluginDriver({ name: 'legacy — petStatus enumTypeSuffix Value' })
 
     await renderSchema(enumSchemaNode, {
@@ -340,6 +340,7 @@ describe('typeGeneratorLegacy — Schema (enum)', () => {
       Component: typeGeneratorLegacy.Schema,
       plugin,
       options,
+      resolver: resolverTsLegacy,
     })
 
     await matchFiles(fabric.files, 'legacy — petStatus enumTypeSuffix Value')
@@ -347,7 +348,7 @@ describe('typeGeneratorLegacy — Schema (enum)', () => {
 
   test('enumTypeSuffix empty string — asConst type alias has no suffix', async () => {
     const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumTypeSuffix: '' }
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTsLegacy })
     const mockedPluginDriver = createMockedPluginDriver({ name: 'legacy — petStatus enumTypeSuffix empty' })
 
     await renderSchema(enumSchemaNode, {
@@ -358,6 +359,7 @@ describe('typeGeneratorLegacy — Schema (enum)', () => {
       Component: typeGeneratorLegacy.Schema,
       plugin,
       options,
+      resolver: resolverTsLegacy,
     })
 
     await matchFiles(fabric.files, 'legacy — petStatus enumTypeSuffix empty')

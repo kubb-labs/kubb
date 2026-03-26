@@ -3,7 +3,6 @@ import { createOperation, createParameter, createResponse, createSchema } from '
 import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
 import { renderOperation } from '@kubb/core'
-import { resolverTs } from '@kubb/plugin-ts'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
@@ -135,13 +134,11 @@ describe('cypressGenerator operation', () => {
       paramsCasing: 'camelcase',
       paramsType: 'inline',
       pathParamsType: 'inline',
-      resolver: resolverCypress,
-      resolverTs: resolverTs,
       transformers: [],
       ...props.options,
     }
 
-    const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options: defaultOptions })
+    const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options: defaultOptions, resolver: resolverCypress })
 
     await renderOperation(props.node, {
       config: { root: '.', output: { path: 'test' } } as Config,
@@ -151,6 +148,7 @@ describe('cypressGenerator operation', () => {
       Component: cypressGenerator.Operation,
       plugin,
       options: defaultOptions,
+      resolver: resolverCypress,
     })
 
     await matchFiles(fabric.files, props.name)

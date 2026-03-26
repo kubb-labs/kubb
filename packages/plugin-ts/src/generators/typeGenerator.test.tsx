@@ -155,7 +155,6 @@ describe('typeGenerator — Operation', () => {
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,
-    resolver: resolverTs,
     transformers: [],
   }
 
@@ -164,7 +163,7 @@ describe('typeGenerator — Operation', () => {
       ...defaultOptions,
       ...('options' in props ? props.options : {}),
     }
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
     const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
 
     await renderOperation(props.node, {
@@ -175,6 +174,7 @@ describe('typeGenerator — Operation', () => {
       Component: typeGenerator.Operation,
       plugin,
       options: options,
+      resolver: resolverTs,
     })
 
     await matchFiles(fabric.files, props.name)
@@ -198,7 +198,6 @@ describe('typeGenerator — Operation — group', () => {
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,
-    resolver: resolverTs,
     transformers: [],
   }
 
@@ -219,7 +218,7 @@ describe('typeGenerator — Operation — group', () => {
     { group: undefined, expectedBaseName: 'ListPets.ts', expectedDir: undefined },
   ])('group=$group.type — file path is computed correctly', async ({ group, expectedBaseName, expectedDir }) => {
     const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group }
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
     const driverConfig = { root: '.', output: { path: 'test' } } as Config
     const mockedPluginDriver = createMockedPluginDriver({ name: 'listPets', config: driverConfig })
 
@@ -231,6 +230,7 @@ describe('typeGenerator — Operation — group', () => {
       Component: typeGenerator.Operation,
       plugin,
       options,
+      resolver: resolverTs,
     })
 
     const file = fabric.files.find((f) => f.baseName === expectedBaseName)
@@ -249,7 +249,7 @@ describe('typeGenerator — Operation — group', () => {
       responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Config' })],
     })
     const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group: { type: 'tag' } }
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
     const driverConfig = { root: '.', output: { path: 'test' } } as Config
     const mockedPluginDriver = createMockedPluginDriver({ name: 'getConfig', config: driverConfig })
 
@@ -261,6 +261,7 @@ describe('typeGenerator — Operation — group', () => {
       Component: typeGenerator.Operation,
       plugin,
       options,
+      resolver: resolverTs,
     })
 
     const file = fabric.files.find((f) => f.baseName === 'GetConfig.ts')
@@ -299,7 +300,6 @@ describe('typeGenerator — Schema (enum)', () => {
     paramsCasing: undefined,
     output: { path: '.' },
     group: undefined,
-    resolver: resolverTs,
     transformers: [],
   }
 
@@ -307,7 +307,7 @@ describe('typeGenerator — Schema (enum)', () => {
 
   test.each(enumTypes.map((et) => ({ enumType: et })))('enumType=$enumType — top-level enum with dotted name', async ({ enumType }) => {
     const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumType }
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
     const mockedPluginDriver = createMockedPluginDriver({ name: `enumNames.Type — ${enumType}` })
 
     await renderSchema(enumSchemaNode, {
@@ -318,6 +318,7 @@ describe('typeGenerator — Schema (enum)', () => {
       Component: typeGenerator.Schema,
       plugin,
       options,
+      resolver: resolverTs,
     })
 
     await matchFiles(fabric.files, `enumNames.Type — ${enumType}`)
@@ -325,7 +326,7 @@ describe('typeGenerator — Schema (enum)', () => {
 
   test('enumTypeSuffix=Value — asConst type alias uses custom suffix', async () => {
     const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumType: 'asConst', enumTypeSuffix: 'Value' }
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
     const mockedPluginDriver = createMockedPluginDriver({ name: 'enumNames.Type — enumTypeSuffix Value' })
 
     await renderSchema(enumSchemaNode, {
@@ -336,6 +337,7 @@ describe('typeGenerator — Schema (enum)', () => {
       Component: typeGenerator.Schema,
       plugin,
       options,
+      resolver: resolverTs,
     })
 
     await matchFiles(fabric.files, 'enumNames.Type — enumTypeSuffix Value')
@@ -343,7 +345,7 @@ describe('typeGenerator — Schema (enum)', () => {
 
   test('enumTypeSuffix empty string — asConst type alias has no suffix', async () => {
     const options: PluginTs['resolvedOptions'] = { ...defaultSchemaOptions, enumType: 'asConst', enumTypeSuffix: '' }
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
     const mockedPluginDriver = createMockedPluginDriver({ name: 'enumNames.Type — enumTypeSuffix empty' })
 
     await renderSchema(enumSchemaNode, {
@@ -354,6 +356,7 @@ describe('typeGenerator — Schema (enum)', () => {
       Component: typeGenerator.Schema,
       plugin,
       options,
+      resolver: resolverTs,
     })
 
     await matchFiles(fabric.files, 'enumNames.Type — enumTypeSuffix empty')

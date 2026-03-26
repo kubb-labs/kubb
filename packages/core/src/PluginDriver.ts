@@ -123,9 +123,9 @@ export class PluginDriver {
       fabric: driver.options.fabric,
       config: driver.config,
       plugin,
+      getPlugin: driver.getPlugin.bind(driver),
       events: driver.options.events,
       driver: driver,
-      mode: getMode(resolve(this.config.root, this.config.output.path)),
       addFile: async (...files: Array<FabricFile.File>) => {
         await this.options.fabric.addFile(...files)
       },
@@ -137,6 +137,9 @@ export class PluginDriver {
       },
       get adapter(): Adapter | undefined {
         return driver.adapter
+      },
+      get resolver() {
+        return plugin.resolver
       },
       openInStudio(options?: DevtoolsOptions) {
         if (!driver.config.devtools || driver.#studioIsOpen) {
@@ -476,7 +479,7 @@ export class PluginDriver {
     this.events.emit('plugins:hook:progress:end', { hookName })
   }
 
-  getPluginByName<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): Plugin<TOptions> | undefined {
+  getPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): Plugin<TOptions> | undefined {
     return this.plugins.get(pluginName) as Plugin<TOptions> | undefined
   }
 

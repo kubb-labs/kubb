@@ -11,8 +11,8 @@ import { buildData, buildResponses, buildResponseUnion } from '../utils.ts'
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
-  Operation({ node, adapter, options, config }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, resolver, transformers = [] } = options
+  Operation({ node, adapter, options, config, resolver }) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, transformers = [] } = options
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
@@ -131,8 +131,8 @@ export const typeGenerator = defineGenerator<PluginTs>({
       </File>
     )
   },
-  Schema({ node, adapter, options, config }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, resolver, transformers = [] } = options
+  Schema({ node, adapter, options, config, resolver }) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, transformers = [] } = options
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))

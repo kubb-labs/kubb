@@ -1,8 +1,8 @@
 import path from 'node:path'
 import { walk } from '@kubb/ast'
 import { createPlugin, getBarrelFiles, getPreset, renderOperation } from '@kubb/core'
-import { pluginTsName, presetsTs } from '@kubb/plugin-ts'
-import { presetsCypress } from './presets.ts'
+import { pluginTsName } from '@kubb/plugin-ts'
+import { presets } from './presets.ts'
 import { resolverCypress } from './resolvers/resolverCypress.ts'
 import type { PluginCypress } from './types.ts'
 
@@ -46,14 +46,9 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     generators: userGenerators = [],
   } = options
 
-  const { resolver: resolverTs } = getPreset({
-    preset: compatibilityPreset,
-    presets: presetsTs,
-  })
-
   const { resolver, transformers, generators } = getPreset({
     preset: compatibilityPreset,
-    presets: presetsCypress,
+    presets: presets,
     resolvers: [resolverCypress, ...userResolvers],
     transformers: userTransformers,
     generators: userGenerators,
@@ -64,6 +59,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
 
   return {
     name: pluginCypressName,
+    resolver,
     options: {
       output,
       dataReturnType,
@@ -72,14 +68,12 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
       paramsCasing,
       paramsType,
       pathParamsType,
-      resolver,
-      resolverTs,
       transformers,
     },
     pre: [pluginTsName].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       if (!resolvePathWarning) {
-        this.driver.events.emit('warn', 'Do not use resolvePath for pluginCypress, use resolverCypress.resolvePath instead')
+        this.events.emit('warn', 'Do not use resolvePath for pluginCypress, use resolverCypress.resolvePath instead')
         resolvePathWarning = true
       }
 
@@ -90,14 +84,14 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     },
     resolveName(name, type) {
       if (!resolveNameWarning) {
-        this.driver.events.emit('warn', 'Do not use resolveName for pluginCypress, use resolverCypress.default instead')
+        this.events.emit('warn', 'Do not use resolveName for pluginCypress, use resolverCypress.default instead')
         resolveNameWarning = true
       }
 
       return resolver.default(name, type)
     },
     async install() {
-      const { config, fabric, plugin, adapter, rootNode, driver } = this
+      const { config, fabric, plugin, adapter, rootNode, driver, resolver } = this
 
       const root = path.resolve(config.root, config.output.path)
 
@@ -123,6 +117,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
 
               await renderOperation(operationNode, {
                 options: resolvedOptions,
+                resolver,
                 adapter,
                 config,
                 fabric,

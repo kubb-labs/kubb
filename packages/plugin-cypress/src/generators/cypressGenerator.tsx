@@ -13,8 +13,11 @@ import { buildTypeNames } from '../utils.ts'
 export const cypressGenerator = defineGenerator<PluginCypress>({
   name: 'cypress',
   type: 'react',
-  Operation({ node, adapter, options, config }) {
-    const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group, resolver, resolverTs } = options
+  Operation({ node, adapter, options, config, resolver }) {
+    const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group } = options
+
+    // TODO use of driver.getPlugin(pluginTsName).resolver
+    const resolverTs = resolver as any
 
     const root = path.resolve(config.root, config.output.path)
 

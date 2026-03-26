@@ -16,7 +16,7 @@ type Props = {
   enumTypeSuffix: PluginTs['resolvedOptions']['enumTypeSuffix']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
   syntaxType: PluginTs['resolvedOptions']['syntaxType']
-  resolver: PluginTs['resolvedOptions']['resolver']
+  resolver: PluginTs['resolver']
   description?: string
   keysToOmit?: string[]
 }

@@ -50,7 +50,7 @@ export const mutationGenerator = createReactGenerator<PluginReactQuery>({
       schemas: getSchemas(operation, { pluginName: pluginZodName, type: 'function' }),
     }
 
-    const hasClientPlugin = !!driver.getPluginByName(pluginClientName)
+    const hasClientPlugin = !!driver.getPlugin(pluginClientName)
     // Class-based clients are not compatible with query hooks, so we generate inline clients
     const shouldUseClientPlugin = hasClientPlugin && options.client.clientType !== 'class'
     const client = {
