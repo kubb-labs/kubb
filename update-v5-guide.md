@@ -24,7 +24,7 @@ v4 (remove):
 - `@kubb/plugin-oas/utils` -- `getBanner`, `getFooter`, `getPathParams`
 - `@kubb/plugin-oas/generators` -- `Generator` type
 - `@kubb/oas` -- `HttpMethod`, `isOptional`, `isAllOptional`, `contentType`, `Oas`, `parse`
-- `@kubb/core/hooks` -- `useDriver` (except when needed for cross-plugin file path resolution — see below)
+- `@kubb/core/hooks` -- `useDriver` (removed; no longer needed for cross-plugin resolution)
 
 v5 (add):
 - `@kubb/core` -- `defineGenerator`, `defineResolver`, `definePreset`, `definePresets`, `getPreset`, `renderOperation`, `renderSchema`, `getMode`
@@ -33,20 +33,20 @@ v5 (add):
 
 ### Cross-plugin file references (operation plugins that import from plugin-ts)
 
-Operation plugins that generate code importing types from `plugin-ts` (e.g. `plugin-cypress`) need to know the file path that `plugin-ts` generates for each operation. In v4, this was done via `useOperationManager(generator).getFile(operation, { pluginName: pluginTsName })`.
+Operation plugins that generate code importing types from `plugin-ts` (e.g. `plugin-cypress`) need to:
+1. Know the file path that `plugin-ts` generates for each operation
+2. Use the same TypeScript type naming that respects the user's `compatibilityPreset`
 
-In v5, the correct approach is to use `useDriver()` from `@kubb/core/hooks` (which IS still accessible via Fabric context, even though `useOas`/`useOperationManager` are removed) to:
-1. Resolve the plugin-ts file name: `driver.resolveName({ name: node.operationId, pluginName: pluginTsName, type: 'file' })`
-2. Get the plugin-ts file: `driver.getFile({ name: tsFileName, extname: '.ts', pluginName: pluginTsName, options: { group: { tag: node.tags[0] } } })`
+In v5, both are solved without `useDriver()`:
 
-Use the result path in `File.Import` as the source path. Use the dependency plugin's resolver (e.g. `resolverTs` from `@kubb/plugin-ts/resolvers`) to compute type names.
+**For the TS file path** — call `tsResolver.resolveFile(...)` where `tsResolver` is the preset-aware TypeScript resolver retrieved in `plugin.ts` via `getPreset({ preset: compatibilityPreset, presets: tsPresets, resolvers: [resolverTs], ... })` and stored in `options.tsResolver`.
 
-For type names from plugin-ts, import `resolverTs` from `@kubb/plugin-ts/resolvers` and call:
-- `resolverTs.resolveParamTypedName(node, param)` for individual parameter types
-- `resolverTs.resolveDataTypedName(node)` for request body type
-- `resolverTs.resolveResponseTypedName(node)` for the response union type
+**For type names** — use a `buildTypeNames({ node, paramsCasing, resolver: tsResolver })` helper in `utils.ts` (see `plugin-cypress/src/utils.ts` as reference). It calls `tsResolver.resolveName`, `tsResolver.resolveParamName`, `tsResolver.resolveDataName`, etc. and returns a structured `TypeNames` object that components can use directly.
 
-The `useDriver` hook removal in the guide refers specifically to removing its usage for `driver.config` (replaced by the `config` prop) and OAS hooks. Using `useDriver()` for cross-plugin file path resolution is still valid in v5.
+This means:
+- `@kubb/core/hooks` / `useDriver()` is **not** needed
+- `resolverTs` is **not** imported directly in the generator — it comes from `options.tsResolver`
+- Type naming automatically tracks the preset (e.g. `kubbV4` uses legacy names)
 
 ## Two plugin categories
 
@@ -441,9 +441,10 @@ Remove these imports:
 Add these imports:
 - `defineGenerator`, `getMode` from `@kubb/core`
 
-**For plugins that import types from plugin-ts** (e.g. `plugin-cypress`), also keep:
-- `useDriver` from `@kubb/core/hooks` (for cross-plugin file path resolution — see the note in "What changes and why" above)
-- `resolverTs` from `@kubb/plugin-ts/resolvers` (for resolving plugin-ts type names)
+**For plugins that import types from plugin-ts** (e.g. `plugin-cypress`):
+- Do **not** import `useDriver` or `resolverTs` directly in the generator
+- Instead, receive `tsResolver` from `options` (set in `plugin.ts` via the two-`getPreset` pattern)
+- Use `buildTypeNames({ node, paramsCasing, resolver: tsResolver })` from `./utils.ts`
 
 Change the generator definition.
 
@@ -521,7 +522,6 @@ Key differences:
 - `resolver.resolveBanner()` / `resolver.resolveFooter()` replaces `getBanner()` / `getFooter()`
 - Use `buildTypeNames({ node, paramsCasing, resolver: tsResolver })` (from `./utils.ts`) for pre-computing TypeScript type names — `tsResolver` is the preset-aware TypeScript resolver passed through `options`
 - Use `tsResolver.resolveFile()` (not `resolver.resolveFile()`) to get the plugin-ts output file path
-- For cross-plugin type imports: use `useDriver()` + `resolverTs` (not `getSchemas()`)
 - Schema plugins also implement `Schema({ node, adapter, options, config })`
 
 ---
@@ -800,8 +800,8 @@ Run `pnpm test -u` in the plugin package directory.
 - Generator: `cypressGenerator` with `Operation` only (no `Schema`)
 - Plugin walks `operation` nodes only
 - Component: `Request.tsx` builds `cy.request()` calls using pre-computed `TypeNames`
-- Type names for imports/params: use `resolverTs` from `@kubb/plugin-ts/resolvers` in the generator
-- Cross-plugin file path: use `useDriver()` + `driver.getFile(...)` in the generator (see note in "What changes and why")
+- Type names for imports/params: passed via `options.tsResolver` (preset-aware `ResolverTs`) → `buildTypeNames({ node, paramsCasing, resolver: tsResolver })` in the generator
+- Cross-plugin file path: use `tsResolver.resolveFile(...)` (no `useDriver()` needed)
 - Remove deps: `@kubb/oas`, `@kubb/plugin-oas`
 - Add deps: `@kubb/ast`
 - Keep deps: `@kubb/core`, `@kubb/plugin-ts`, `@kubb/react-fabric`
