@@ -6,6 +6,8 @@ function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'
   return pascalCase(name, { isFile: type === 'file' })
 }
 
+//TODO should be resolverTs({}).resolveName so we can pass options like output: tsPlugin.options.output, group: tsPlugin.options.group
+
 /**
  * Resolver for `@kubb/plugin-ts` that provides the default naming and path-resolution
  * helpers used by the plugin. Import this in other plugins to resolve the exact names and
