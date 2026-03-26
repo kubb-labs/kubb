@@ -63,6 +63,9 @@
       ],
       "resolvers": [
         "./dist/resolvers.d.ts"
+      ],
+      "builders": [
+        "./dist/builders.d.ts"
       ]
     }
   },
