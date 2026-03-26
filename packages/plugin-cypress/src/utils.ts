@@ -4,13 +4,7 @@ import { resolverTs } from '@kubb/plugin-ts/resolvers'
 import type { TypeNames } from './components/Request.tsx'
 import type { ResolvedOptions } from './types.ts'
 
-export function buildTypeNames({
-  node,
-  paramsCasing,
-}: {
-  node: OperationNode
-  paramsCasing: ResolvedOptions['paramsCasing']
-}): TypeNames {
+export function buildTypeNames({ node, paramsCasing }: { node: OperationNode; paramsCasing: ResolvedOptions['paramsCasing'] }): TypeNames {
   const originalPathParams = node.parameters.filter((p) => p.in === 'path')
   const originalQueryParams = node.parameters.filter((p) => p.in === 'query')
   const originalHeaderParams = node.parameters.filter((p) => p.in === 'header')

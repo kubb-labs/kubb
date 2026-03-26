@@ -3,10 +3,10 @@ import { caseParams, composeTransformers, narrowSchema, schemaTypes, transform }
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
-import { buildData, buildResponseUnion, buildResponses } from '../utils.ts'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
 import type { PluginTs } from '../types'
+import { buildData, buildResponses, buildResponseUnion } from '../utils.ts'
 
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',

@@ -1,6 +1,5 @@
 import { createProperty, createSchema } from '@kubb/ast'
-import type { ParameterNode, SchemaNode } from '@kubb/ast/types'
-import type { OperationNode } from '@kubb/ast/types'
+import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import type { ResolverTs } from './types.ts'
 
 type BuildParamsSchemaOptions = {

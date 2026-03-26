@@ -2,9 +2,9 @@ import path from 'node:path'
 import { defineGenerator } from '@kubb/core'
 import { resolverTs } from '@kubb/plugin-ts/resolvers'
 import { File } from '@kubb/react-fabric'
-import { buildTypeNames } from '../utils.ts'
 import { Request } from '../components'
 import type { PluginCypress } from '../types'
+import { buildTypeNames } from '../utils.ts'
 
 /**
  * Default Cypress generator for `@kubb/plugin-cypress`.

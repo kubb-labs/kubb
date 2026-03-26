@@ -1,16 +1,5 @@
 import type { OperationNode, ParameterNode, SchemaNode, StatusCode, Visitor } from '@kubb/ast/types'
-import type {
-  CompatibilityPreset,
-  Exclude,
-  Generator,
-  Group,
-  Include,
-  Output,
-  Override,
-  PluginFactoryOptions,
-  ResolvePathOptions,
-  Resolver,
-} from '@kubb/core'
+import type { CompatibilityPreset, Exclude, Generator, Group, Include, Output, Override, PluginFactoryOptions, ResolvePathOptions, Resolver } from '@kubb/core'
 /**
  * The concrete resolver type for `@kubb/plugin-ts`.
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with

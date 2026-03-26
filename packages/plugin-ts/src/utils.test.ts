@@ -3,7 +3,7 @@ import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 import { printerTs } from './printers/printerTs.ts'
 import { resolverTs } from './resolvers/index.ts'
-import { buildData, buildParams, buildResponseUnion, buildResponses } from './utils.ts'
+import { buildData, buildParams, buildResponses, buildResponseUnion } from './utils.ts'
 
 const printer = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'inlineLiteral' })
 const tsPrinter = ts.createPrinter()
