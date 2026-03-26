@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { defaultResolveBanner, defaultResolveFile, defaultResolveFooter, defaultResolvePath, defineResolver } from './defineResolver.ts'
-import type { Builder, Config, Resolver, ResolverContext } from './types.ts'
+import type { Config, Resolver, ResolverContext } from './types.ts'
 
 type TestResolver = Resolver & {
   greet(name: string): string
@@ -14,7 +14,6 @@ type TestPluginFactory = {
   context: never
   resolvePathOptions: object
   resolver: TestResolver
-  builder: Builder
 }
 
 const context: ResolverContext = {

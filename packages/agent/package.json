@@ -66,7 +66,7 @@
     "jiti": "2.5.1",
     "remeda": "catalog:",
     "tinyexec": "catalog:",
-    "unstorage": "^1.17.4",
+    "unstorage": "^1.17.5",
     "ws": "^8.20.0"
   },
   "devDependencies": {

@@ -349,15 +349,6 @@ export type Resolver = {
  */
 export type UserResolver = Omit<Resolver, 'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile' | 'resolveBanner' | 'resolveFooter'>
 
-/**
- * Base type for plugin builder objects.
- * Concrete plugin builder types extend this with their own schema-building helpers.
- * Use `defineBuilder` to define a builder object and export it alongside the plugin.
- */
-export type Builder = {
-  name: string
-}
-
 export type PluginFactoryOptions<
   /**
    * Name to be used for the plugin.
@@ -384,11 +375,6 @@ export type PluginFactoryOptions<
    * Use `defineResolver` to define the resolver object and export it alongside the plugin.
    */
   TResolver extends Resolver = Resolver,
-  /**
-   * Builder object that encapsulates the schema-building helpers used by this plugin.
-   * Use `defineBuilder` to define the builder object and export it alongside the plugin.
-   */
-  TBuilder extends Builder = Builder,
 > = {
   name: TName
   options: TOptions
@@ -396,7 +382,6 @@ export type PluginFactoryOptions<
   context: TContext
   resolvePathOptions: TResolvePathOptions
   resolver: TResolver
-  builder: TBuilder
 }
 
 export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {

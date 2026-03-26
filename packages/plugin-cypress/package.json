@@ -34,10 +34,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./builders": {
-      "import": "./dist/builders.js",
-      "require": "./dist/builders.cjs"
-    },
     "./components": {
       "import": "./dist/components.js",
       "require": "./dist/components.cjs"
@@ -63,9 +59,6 @@
       ],
       "resolvers": [
         "./dist/resolvers.d.ts"
-      ],
-      "builders": [
-        "./dist/builders.d.ts"
       ]
     }
   },

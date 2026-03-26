@@ -3,7 +3,7 @@ import { caseParams, composeTransformers, narrowSchema, schemaTypes, transform }
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
-import { builderTs } from '../builders/builderTs.ts'
+import { buildData, buildResponseUnion, buildResponses } from '../utils.ts'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
 import type { PluginTs } from '../types'
@@ -96,19 +96,19 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
 
     const dataType = renderSchemaType({
-      node: builderTs.buildData({ node: { ...node, parameters: params }, resolver }),
+      node: buildData({ node: { ...node, parameters: params }, resolver }),
       name: resolver.resolveRequestConfigName(node),
       typedName: resolver.resolveRequestConfigTypedName(node),
     })
 
     const responsesType = renderSchemaType({
-      node: builderTs.buildResponses({ node, resolver }),
+      node: buildResponses({ node, resolver }),
       name: resolver.resolveResponsesName(node),
       typedName: resolver.resolveResponsesTypedName(node),
     })
 
     const responseType = renderSchemaType({
-      node: builderTs.buildResponseUnion({ node, resolver }),
+      node: buildResponseUnion({ node, resolver }),
       name: resolver.resolveResponseName(node),
       typedName: resolver.resolveResponseTypedName(node),
       description: 'Union of all possible responses',

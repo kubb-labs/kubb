@@ -1,6 +1,5 @@
-import type { OperationNode, Visitor } from '@kubb/ast/types'
-import type { Builder, CompatibilityPreset, Exclude, Generator, Group, Include, Output, Override, PluginFactoryOptions, ResolvePathOptions, Resolver } from '@kubb/core'
-import type { TypeNames } from './components/Request.tsx'
+import type { Visitor } from '@kubb/ast/types'
+import type { CompatibilityPreset, Exclude, Generator, Group, Include, Output, Override, PluginFactoryOptions, ResolvePathOptions, Resolver } from '@kubb/core'
 
 /**
  * The concrete resolver type for `@kubb/plugin-cypress`.
@@ -90,7 +89,7 @@ export type Options = {
   generators?: Array<Generator<PluginCypress>>
 }
 
-type ResolvedOptions = {
+export type ResolvedOptions = {
   output: Output
   group: Options['group']
   baseURL: Options['baseURL'] | undefined
@@ -102,16 +101,4 @@ type ResolvedOptions = {
   transformers: Array<Visitor>
 }
 
-export type PluginCypress = PluginFactoryOptions<'plugin-cypress', Options, ResolvedOptions, never, ResolvePathOptions, ResolverCypress, BuilderCypress>
-
-/**
- * The concrete builder type for `@kubb/plugin-cypress`.
- * Provides helpers used by the Cypress generator to pre-compute type name information.
- */
-export type BuilderCypress = Builder & {
-  /**
-   * Builds pre-computed type name information for a given operation node,
-   * delegating naming conventions to the plugin-ts resolver.
-   */
-  buildTypeNames(options: { node: OperationNode; paramsCasing: ResolvedOptions['paramsCasing'] }): TypeNames
-}
+export type PluginCypress = PluginFactoryOptions<'plugin-cypress', Options, ResolvedOptions, never, ResolvePathOptions, ResolverCypress>

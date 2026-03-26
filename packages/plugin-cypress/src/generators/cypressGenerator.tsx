@@ -2,7 +2,7 @@ import path from 'node:path'
 import { defineGenerator } from '@kubb/core'
 import { resolverTs } from '@kubb/plugin-ts/resolvers'
 import { File } from '@kubb/react-fabric'
-import { builderCypress } from '../builders/index.ts'
+import { buildTypeNames } from '../utils.ts'
 import { Request } from '../components'
 import type { PluginCypress } from '../types'
 
@@ -23,7 +23,7 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
 
     const name = resolver.resolveName(node.operationId)
 
-    const typeNames = builderCypress.buildTypeNames({ node, paramsCasing })
+    const typeNames = buildTypeNames({ node, paramsCasing })
 
     // Collect all type names that need to be imported from plugin-ts
     const importedTypeNames = [
