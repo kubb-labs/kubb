@@ -14,40 +14,35 @@ import type { PluginCypress } from '../types'
  * delegating to the plugin-ts resolver for type names.
  */
 function buildTypeNames(node: OperationNode, paramsCasing: PluginCypress['resolvedOptions']['paramsCasing']): TypeNames {
-  const casedParams = caseParams(node.parameters, paramsCasing)
+  // Filter originals once per location, then apply casing
+  const originalPathParams = node.parameters.filter((p): p is ParameterNode & { in: 'path' } => p.in === 'path')
+  const originalQueryParams = node.parameters.filter((p): p is ParameterNode & { in: 'query' } => p.in === 'query')
+  const originalHeaderParams = node.parameters.filter((p): p is ParameterNode & { in: 'header' } => p.in === 'header')
 
-  const pathParams = casedParams
-    .filter((p): p is ParameterNode & { in: 'path' } => p.in === 'path')
-    .map((param, i) => {
-      const originalParam = node.parameters.filter((p) => p.in === 'path')[i]!
-      return {
-        name: param.name,
-        typedName: resolverTs.resolveParamTypedName(node, originalParam),
-        required: param.required,
-      }
-    })
+  const casedPathParams = caseParams(originalPathParams, paramsCasing)
+  const casedQueryParams = caseParams(originalQueryParams, paramsCasing)
+  const casedHeaderParams = caseParams(originalHeaderParams, paramsCasing)
 
-  const queryParams = casedParams
-    .filter((p): p is ParameterNode & { in: 'query' } => p.in === 'query')
-    .map((param, i) => {
-      const originalParam = node.parameters.filter((p) => p.in === 'query')[i]!
-      return {
-        name: param.name,
-        typedName: resolverTs.resolveParamTypedName(node, originalParam),
-        required: param.required,
-      }
-    })
+  const pathParams = casedPathParams.map((casedParam, i) => ({
+    name: casedParam.name,
+    originalName: originalPathParams[i]!.name,
+    typedName: resolverTs.resolveParamTypedName(node, originalPathParams[i]!),
+    required: casedParam.required,
+  }))
 
-  const headerParams = casedParams
-    .filter((p): p is ParameterNode & { in: 'header' } => p.in === 'header')
-    .map((param, i) => {
-      const originalParam = node.parameters.filter((p) => p.in === 'header')[i]!
-      return {
-        name: param.name,
-        typedName: resolverTs.resolveParamTypedName(node, originalParam),
-        required: param.required,
-      }
-    })
+  const queryParams = casedQueryParams.map((casedParam, i) => ({
+    name: casedParam.name,
+    originalName: originalQueryParams[i]!.name,
+    typedName: resolverTs.resolveParamTypedName(node, originalQueryParams[i]!),
+    required: casedParam.required,
+  }))
+
+  const headerParams = casedHeaderParams.map((casedParam, i) => ({
+    name: casedParam.name,
+    originalName: originalHeaderParams[i]!.name,
+    typedName: resolverTs.resolveParamTypedName(node, originalHeaderParams[i]!),
+    required: casedParam.required,
+  }))
 
   const requestBody = node.requestBody?.schema
     ? {

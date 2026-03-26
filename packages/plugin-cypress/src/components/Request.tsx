@@ -9,6 +9,8 @@ import type { PluginCypress } from '../types.ts'
 type TypeParamInfo = {
   /** Parameter name (after casing applied). */
   name: string
+  /** Original parameter name from the AST node (before casing). Used for URL path segment matching. */
+  originalName: string
   /** Resolved TypeScript type name from plugin-ts's resolver. */
   typedName: string
   /** Whether the parameter is required. */
@@ -134,17 +136,15 @@ function getParams({ paramsType, pathParamsType, typeNames }: GetParamsProps) {
  * Applies casing to parameter names if `paramsCasing` is set.
  *
  * @example
- * buildUrlTemplate('/pets/:petId', [{ name: 'petId', ... }], undefined, 'https://api.example.com')
+ * buildUrlTemplate('/pets/:petId', [{ name: 'petId', originalName: 'petId', ... }], undefined, 'https://api.example.com')
  * // → '`https://api.example.com/pets/${petId}`'
  */
 function buildUrlTemplate(expressPath: string, pathParams: Array<TypeParamInfo>, baseURL: string | undefined): string {
-  // Replace each :paramName with ${casedName} using the already-cased param names
-  let result = expressPath
-  for (const param of pathParams) {
-    // The param.name is already cased; find the original colon-prefixed segment
-    // We match `:word` patterns and replace by index order of path params
-    result = result.replace(/:(\w+)/, `\${${param.name}}`)
-  }
+  // Replace each :originalName segment using the matching cased param name
+  const result = expressPath.replace(/:(\w+)/g, (_, originalName) => {
+    const param = pathParams.find((p) => p.originalName === originalName)
+    return param ? `\${${param.name}}` : `:${originalName}`
+  })
   return `\`${baseURL ?? ''}${result}\``
 }
 
