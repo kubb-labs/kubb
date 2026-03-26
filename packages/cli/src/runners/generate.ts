@@ -212,7 +212,7 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
       buildTelemetryEvent({
         command: 'generate',
         kubbVersion: version,
-        plugins: driver.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
+        plugins: [...driver.plugins.values()].map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
         hrStart,
         filesCreated: files.length,
         status: 'failed',
@@ -280,7 +280,7 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
   const telemetryEvent = buildTelemetryEvent({
     command: 'generate',
     kubbVersion: version,
-    plugins: driver.plugins.map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
+    plugins: [...driver.plugins.values()].map((p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
     hrStart,
     filesCreated: files.length,
     status: 'success',

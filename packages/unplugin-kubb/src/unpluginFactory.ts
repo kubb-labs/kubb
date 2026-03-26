@@ -64,7 +64,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     })
 
     events.on('generation:summary', (config, { status, failedPlugins }) => {
-      const pluginsCount = config.plugins?.length || 0
+      const pluginsCount = config.plugins.length
       const successCount = pluginsCount - failedPlugins.size
 
       console.log(

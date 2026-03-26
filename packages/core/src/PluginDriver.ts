@@ -1,10 +1,10 @@
 import { basename, extname, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { AsyncEventEmitter } from '@internals/utils'
-import { isPromiseRejectedResult, setUniqueName, transformReservedWord, ValidationPluginError } from '@internals/utils'
+import { isPromiseRejectedResult, transformReservedWord, ValidationPluginError } from '@internals/utils'
 import type { RootNode } from '@kubb/ast/types'
 import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
-import { CORE_PLUGIN_NAME, DEFAULT_STUDIO_URL } from './constants.ts'
+import { DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 
 import type {
@@ -96,17 +96,21 @@ export class PluginDriver {
   adapter: Adapter | undefined = undefined
   #studioIsOpen = false
 
-  readonly #plugins = new Set<Plugin>()
-  readonly #usedPluginNames: Record<string, number> = {}
+  readonly plugins = new Map<string, Plugin>()
 
   constructor(config: Config, options: Options) {
     this.config = config
     this.options = options
-    ;[...(config.plugins || [])].forEach((plugin) => {
-      const parsedPlugin = this.#parse(plugin as UserPlugin)
-
-      this.#plugins.add(parsedPlugin)
-    })
+    ;[...config.plugins]
+      .map((plugin) => this.#parse(plugin as UserPlugin))
+      .sort((a, b) => {
+        if (b.pre?.includes(a.name)) return 1
+        if (b.post?.includes(a.name)) return -1
+        return 0
+      })
+      .forEach((plugin) => {
+        this.plugins.set(plugin.name, plugin)
+      })
   }
 
   get events() {
@@ -114,7 +118,6 @@ export class PluginDriver {
   }
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
-    const plugins = [...this.#plugins]
     const driver = this
 
     const baseContext = {
@@ -158,9 +161,10 @@ export class PluginDriver {
     } as unknown as PluginContext<TOptions>
 
     const mergedExtras: Record<string, unknown> = {}
-    for (const p of plugins) {
-      if (typeof p.inject === 'function') {
-        const result = (p.inject as (this: PluginContext, context: PluginContext) => unknown).call(
+
+    for (const [_pluginName, plugin] of this.plugins) {
+      if (typeof plugin.inject === 'function') {
+        const result = (plugin.inject as (this: PluginContext, context: PluginContext) => unknown).call(
           baseContext as unknown as PluginContext,
           baseContext as unknown as PluginContext,
         )
@@ -174,10 +178,6 @@ export class PluginDriver {
       ...baseContext,
       ...mergedExtras,
     }
-  }
-
-  get plugins(): Array<Plugin> {
-    return this.#getSortedPlugins()
   }
 
   getFile<TOptions = object>({ name, mode, extname, pluginName, options }: GetFileOptions<TOptions>): FabricFile.File<{ pluginName: string }> {
@@ -261,31 +261,27 @@ export class PluginDriver {
     hookName: H
     parameters: PluginParameter<H>
   }): Promise<Array<ReturnType<ParseResult<H>> | null>> {
-    const plugins = this.getPluginsByName(hookName, pluginName)
+    const plugin = this.plugins.get(pluginName)
+
+    if (!plugin) {
+      throw new Error(`Plugin "${pluginName}" not found.`)
+    }
 
     this.events.emit('plugins:hook:progress:start', {
       hookName,
-      plugins,
+      plugins: [plugin],
     })
 
-    const items: Array<ReturnType<ParseResult<H>>> = []
-
-    for (const plugin of plugins) {
-      const result = await this.#execute<H>({
-        strategy: 'hookFirst',
-        hookName,
-        parameters,
-        plugin,
-      })
-
-      if (result !== undefined && result !== null) {
-        items.push(result)
-      }
-    }
+    const result = await this.#execute<H>({
+      strategy: 'hookFirst',
+      hookName,
+      parameters,
+      plugin,
+    })
 
     this.events.emit('plugins:hook:progress:end', { hookName })
 
-    return items
+    return [result]
   }
   /**
    * Run a specific hookName for plugin x.
@@ -300,20 +296,20 @@ export class PluginDriver {
     hookName: H
     parameters: PluginParameter<H>
   }): Array<ReturnType<ParseResult<H>>> | null {
-    const plugins = this.getPluginsByName(hookName, pluginName)
+    const plugin = this.plugins.get(pluginName)
 
-    const result = plugins
-      .map((plugin) => {
-        return this.#executeSync<H>({
-          strategy: 'hookFirst',
-          hookName,
-          parameters,
-          plugin,
-        })
-      })
-      .filter((x): x is NonNullable<typeof x> => x !== null)
+    if (!plugin) {
+      throw new Error(`Plugin "${pluginName}" not found.`)
+    }
 
-    return result
+    const result = this.#executeSync<H>({
+      strategy: 'hookFirst',
+      hookName,
+      parameters,
+      plugin,
+    })
+
+    return [result].filter(Boolean)
   }
 
   /**
@@ -472,61 +468,31 @@ export class PluginDriver {
   }
 
   #getSortedPlugins(hookName?: keyof PluginLifecycle): Array<Plugin> {
-    const plugins = [...this.#plugins]
-
     if (hookName) {
-      return plugins.filter((plugin) => hookName in plugin)
-    }
-    // TODO add test case for sorting with pre/post
-
-    return plugins
-      .map((plugin) => {
-        if (plugin.pre) {
-          let missingPlugins = plugin.pre.filter((pluginName) => !plugins.find((pluginToFind) => pluginToFind.name === pluginName))
-
-          // when adapter is set, we can ignore the depends on plugin-oas, in v5 this will not be needed anymore
-          if (missingPlugins.includes('plugin-oas') && this.adapter) {
-            missingPlugins = missingPlugins.filter((pluginName) => pluginName !== 'plugin-oas')
-          }
-
-          if (missingPlugins.length > 0) {
-            throw new ValidationPluginError(`The plugin '${plugin.name}' has a pre set that references missing plugins for '${missingPlugins.join(', ')}'`)
-          }
-        }
-
-        return plugin
-      })
-      .sort((a, b) => {
-        if (b.pre?.includes(a.name)) {
-          return 1
-        }
-        if (b.post?.includes(a.name)) {
-          return -1
-        }
-        return 0
-      })
-  }
-
-  getPluginByName(pluginName: string): Plugin | undefined {
-    const plugins = [...this.#plugins]
-
-    return plugins.find((item) => item.name === pluginName)
-  }
-
-  getPluginsByName(hookName: keyof PluginWithLifeCycle, pluginName: string): Plugin[] {
-    const plugins = [...this.plugins]
-
-    const pluginByPluginName = plugins.filter((plugin) => hookName in plugin).filter((item) => item.name === pluginName)
-
-    if (!pluginByPluginName?.length) {
-      // fallback on the core plugin when there is no match
-
-      const corePlugin = plugins.find((plugin) => plugin.name === CORE_PLUGIN_NAME && hookName in plugin)
-
-      return corePlugin ? [corePlugin] : []
+      return [...this.plugins.values()].filter((plugin) => hookName in plugin)
     }
 
-    return pluginByPluginName
+    // Validate pre dependencies at runtime (adapter may be set after construction)
+    for (const [_pluginName, plugin] of this.plugins) {
+      if (plugin.pre) {
+        let missingPlugins = plugin.pre.filter((pluginName) => !this.plugins.has(pluginName))
+
+        // when adapter is set, we can ignore the depends on plugin-oas, in v5 this will not be needed anymore
+        if (missingPlugins.includes('plugin-oas') && this.adapter) {
+          missingPlugins = missingPlugins.filter((pluginName) => pluginName !== 'plugin-oas')
+        }
+
+        if (missingPlugins.length > 0) {
+          throw new ValidationPluginError(`The plugin '${plugin.name}' has a pre set that references missing plugins for '${missingPlugins.join(', ')}'`)
+        }
+      }
+    }
+
+    return [...this.plugins.values()]
+  }
+
+  getPluginByName<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): Plugin<TOptions> | undefined {
+    return this.plugins.get(pluginName) as Plugin<TOptions> | undefined
   }
 
   /**
@@ -664,17 +630,6 @@ export class PluginDriver {
   }
 
   #parse(plugin: UserPlugin): Plugin {
-    const usedPluginNames = this.#usedPluginNames
-
-    setUniqueName(plugin.name, usedPluginNames)
-
-    const usageCount = usedPluginNames[plugin.name]
-    if (usageCount && usageCount > 1) {
-      throw new ValidationPluginError(
-        `Duplicate plugin "${plugin.name}" detected. Each plugin can only be used once. Use a different configuration instead of adding multiple instances of the same plugin.`,
-      )
-    }
-
     return {
       install() {},
       ...plugin,

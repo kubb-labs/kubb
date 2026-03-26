@@ -126,7 +126,7 @@ export function setupEventsStream(ws: WebSocket, events: AsyncEventEmitter<KubbE
       data: [
         {
           name: config.name,
-          plugins: config.plugins?.length || 0,
+          plugins: config.plugins.length,
         },
       ],
       timestamp: Date.now(),

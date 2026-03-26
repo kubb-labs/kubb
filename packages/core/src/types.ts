@@ -254,7 +254,7 @@ export type Config<TInput = Input> = {
    * Each plugin may include additional configurable options(defined in the plugin itself).
    * If a plugin depends on another plugin, an error is returned if the required dependency is missing. See pre for more details.
    */
-  plugins?: Array<Plugin>
+  plugins: Array<Plugin>
   /**
    * Devtools configuration for Kubb Studio integration.
    */
