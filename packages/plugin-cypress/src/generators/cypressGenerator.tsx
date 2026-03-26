@@ -17,9 +17,10 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
   Operation({ node, adapter, options, config, driver, resolver }) {
     const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group } = options
 
-    const resolverTs = driver.getPlugin<PluginTs>(pluginTsName)?.resolver
+    const tsPlugin = driver.getPlugin<PluginTs>(pluginTsName)
+    const resolverTs = tsPlugin?.resolver
 
-    if (!resolverTs) {
+    if (!resolverTs || !tsPlugin) {
       throw new Error(`Plugin ${pluginTsName} is not defined`)
     }
 
@@ -31,16 +32,22 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
 
     const typeNames = buildTypeNames({ node, paramsCasing, resolver: resolverTs })
 
-    // Collect all type names that need to be imported from plugin-ts
+    // Collect all type names that need to be imported from plugin-ts.
+    // In legacy/kubbV4 mode use the grouped param types; otherwise use per-param types.
     const importedTypeNames = [
-      ...typeNames.pathParams.map((p) => p.typedName),
-      ...typeNames.queryParams.map((p) => p.typedName),
-      ...typeNames.headerParams.map((p) => p.typedName),
+      ...(typeNames.grouped?.pathParams ? [typeNames.grouped.pathParams] : typeNames.pathParams.map((p) => p.typedName)),
+      ...(typeNames.grouped?.queryParams ? [typeNames.grouped.queryParams] : typeNames.queryParams.map((p) => p.typedName)),
+      ...(typeNames.grouped?.headerParams ? [typeNames.grouped.headerParams] : typeNames.headerParams.map((p) => p.typedName)),
       typeNames.requestBody?.typedName,
       typeNames.response.typedName,
     ].filter(Boolean)
 
-    const tsFile = resolverTs.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
+    // Resolve the plugin-ts file using plugin-ts's own output/group context so the path points to
+    // where plugin-ts actually writes its types (not the cypress output directory).
+    const tsFile = resolverTs.resolveFile(
+      { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+      { root, output: tsPlugin.options.output, group: tsPlugin.options.group },
+    )
 
     return (
       <File

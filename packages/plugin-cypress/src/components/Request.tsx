@@ -27,6 +27,15 @@ export type TypeNames = {
   headerParams: Array<TypeParamInfo>
   requestBody?: { typedName: string }
   response: { typedName: string }
+  /**
+   * Grouped param type names — set when the plugin-ts resolver uses the kubbV4 compatibility preset.
+   * When present, these types replace the per-param `typedName` entries for imports and function parameters.
+   */
+  grouped?: {
+    pathParams?: string
+    queryParams?: string
+    headerParams?: string
+  }
 }
 
 type Props = {
@@ -67,17 +76,27 @@ function buildInlineObjectType(params: Array<TypeParamInfo>): string {
 }
 
 function getParams({ paramsType, pathParamsType, typeNames }: GetParamsProps) {
-  const { pathParams, queryParams, headerParams, requestBody } = typeNames
+  const { pathParams, queryParams, headerParams, requestBody, grouped } = typeNames
 
-  const pathParamChildren = Object.fromEntries(pathParams.map((p) => [p.name, { type: p.typedName, optional: !p.required }]))
+  // Children without type annotations — used when the outer grouped type provides the type.
+  const pathParamChildrenUntyped = Object.fromEntries(pathParams.map((p) => [p.name, { optional: !p.required }]))
+  const pathParamChildrenTyped = Object.fromEntries(pathParams.map((p) => [p.name, { type: p.typedName, optional: !p.required }]))
   const allPathOptional = pathParams.every((p) => !p.required)
+
+  // When grouped types are available (kubbV4 compatibility preset), use them for the params type.
+  const queryParamsType = grouped?.queryParams ?? (queryParams.length > 0 ? buildInlineObjectType(queryParams) : undefined)
+  const headerParamsType = grouped?.headerParams ?? (headerParams.length > 0 ? buildInlineObjectType(headerParams) : undefined)
+  const queryParamsOptional = queryParams.every((p) => !p.required)
+  const headerParamsOptional = headerParams.every((p) => !p.required)
 
   if (paramsType === 'object') {
     const children = {
-      ...pathParamChildren,
+      ...(grouped?.pathParams
+        ? { pathParams: { mode: 'object' as const, type: grouped.pathParams, children: pathParamChildrenUntyped, optional: allPathOptional } }
+        : pathParamChildrenTyped),
       data: requestBody ? { type: requestBody.typedName, optional: false } : undefined,
-      params: queryParams.length > 0 ? { type: buildInlineObjectType(queryParams), optional: queryParams.every((p) => !p.required) } : undefined,
-      headers: headerParams.length > 0 ? { type: buildInlineObjectType(headerParams), optional: headerParams.every((p) => !p.required) } : undefined,
+      params: queryParamsType ? { type: queryParamsType, optional: queryParamsOptional } : undefined,
+      headers: headerParamsType ? { type: headerParamsType, optional: headerParamsOptional } : undefined,
     }
 
     const allChildrenOptional = Object.values(children).every((child) => !child || child.optional !== false)
@@ -99,8 +118,9 @@ function getParams({ paramsType, pathParamsType, typeNames }: GetParamsProps) {
     pathParams:
       pathParams.length > 0
         ? {
-            mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-            children: pathParamChildren,
+            mode: grouped?.pathParams ? 'object' : pathParamsType === 'object' ? 'object' : 'inlineSpread',
+            type: grouped?.pathParams,
+            children: grouped?.pathParams ? pathParamChildrenUntyped : pathParamChildrenTyped,
             default: allPathOptional ? '{}' : undefined,
           }
         : undefined,
@@ -110,20 +130,18 @@ function getParams({ paramsType, pathParamsType, typeNames }: GetParamsProps) {
           optional: false,
         }
       : undefined,
-    params:
-      queryParams.length > 0
-        ? {
-            type: buildInlineObjectType(queryParams),
-            optional: queryParams.every((p) => !p.required),
-          }
-        : undefined,
-    headers:
-      headerParams.length > 0
-        ? {
-            type: buildInlineObjectType(headerParams),
-            optional: headerParams.every((p) => !p.required),
-          }
-        : undefined,
+    params: queryParamsType
+      ? {
+          type: queryParamsType,
+          optional: queryParamsOptional,
+        }
+      : undefined,
+    headers: headerParamsType
+      ? {
+          type: headerParamsType,
+          optional: headerParamsOptional,
+        }
+      : undefined,
     options: {
       type: 'Partial<Cypress.RequestOptions>',
       default: '{}',
