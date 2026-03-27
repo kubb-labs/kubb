@@ -7,7 +7,7 @@ export function listPets(params?: ListPetsQueryParams, options: Partial<Cypress.
   return cy
     .request<ListPetsQueryResponse>({
       method: 'get',
-      url: `/pets`,
+      url: `${123456}/pets`,
       qs: params,
       ...options,
     })

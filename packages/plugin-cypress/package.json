@@ -34,10 +34,33 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./components": {
+      "import": "./dist/components.js",
+      "require": "./dist/components.cjs"
+    },
+    "./generators": {
+      "import": "./dist/generators.js",
+      "require": "./dist/generators.cjs"
+    },
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
-  "typesVersions": {},
+  "typesVersions": {
+    "*": {
+      "utils": [
+        "./dist/utils.d.ts"
+      ],
+      "hooks": [
+        "./dist/hooks.d.ts"
+      ],
+      "components": [
+        "./dist/components.d.ts"
+      ],
+      "generators": [
+        "./dist/generators.d.ts"
+      ]
+    }
+  },
   "files": [
     "src",
     "dist",
@@ -64,8 +87,9 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
+    "@kubb/oas": "workspace:*",
+    "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/react-fabric": "catalog:"
   },
