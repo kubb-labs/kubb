@@ -24,7 +24,7 @@ export type TypeNode = BaseNode & {
         /**
          * Properties of the struct type.
          */
-        properties: Array<{ name: string; optional: boolean; type: string }>
+        properties: Array<{ name: string; optional: boolean; type: string | TypeNode }>
       }
     | {
         /**

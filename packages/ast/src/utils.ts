@@ -427,21 +427,6 @@ function toStructType({
 }): TypeNode {
   return createTypeNode({
     variant: 'struct',
-    properties: params.map((p) => ({ name: p.name, optional: !p.required, type: typeToString(resolveType({ node, param: p, resolver })) })),
+    properties: params.map((p) => ({ name: p.name, optional: !p.required, type: resolveType({ node, param: p, resolver }) })),
   })
-}
-
-/**
- * Serializes a `string | TypeNode` to a plain string for use inside struct type properties.
- * A member TypeNode becomes `Base['key']`; strings are passed through unchanged.
- */
-function typeToString(type: string | TypeNode): string {
-  if (typeof type === 'string') {
-    return type
-  }
-  if (type.variant === 'member') {
-    return `${type.base}['${type.key}']`
-  }
-  const parts = type.properties.map((p) => `${p.name}${p.optional ? '?' : ''}: ${p.type}`)
-  return `{ ${parts.join('; ')} }`
 }

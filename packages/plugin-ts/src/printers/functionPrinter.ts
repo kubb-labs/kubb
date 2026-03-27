@@ -96,7 +96,10 @@ export const functionPrinter = defineFunctionPrinter<DefaultPrinter>((options) =
       if (node.variant === 'member') {
         return `${node.base}['${node.key}']`
       }
-      const parts = (node as TypeNode & { variant: 'struct' }).properties.map((p) => (p.optional ? `${p.name}?: ${p.type}` : `${p.name}: ${p.type}`))
+      const parts = (node as TypeNode & { variant: 'struct' }).properties.map((p) => {
+        const typeStr = typeof p.type === 'string' ? p.type : this.transform(p.type)
+        return p.optional ? `${p.name}?: ${typeStr}` : `${p.name}: ${typeStr}`
+      })
       return `{ ${parts.join('; ')} }`
     },
     functionParameter(node) {
