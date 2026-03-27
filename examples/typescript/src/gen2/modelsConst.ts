@@ -9,7 +9,7 @@ export const orderParamsStatusEnum = {
   delivered: 'delivered',
 } as const
 
-export type OrderParamsStatusEnumenumType = (typeof orderParamsStatusEnum)[keyof typeof orderParamsStatusEnum]
+export type OrderParamsStatusEnumEnumType = (typeof orderParamsStatusEnum)[keyof typeof orderParamsStatusEnum]
 
 export const orderHttpStatusEnum = {
   '200': 200,
@@ -17,7 +17,7 @@ export const orderHttpStatusEnum = {
   '500': 500,
 } as const
 
-export type OrderHttpStatusEnumenumType = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
+export type OrderHttpStatusEnumEnumType = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
 
 export type Order = {
   /**
@@ -39,7 +39,7 @@ export type Order = {
      * @example approved
      * @type string
      */
-    status: OrderParamsStatusEnumenumType
+    status: OrderParamsStatusEnumEnumType
     /**
      * @type string
      */
@@ -63,7 +63,7 @@ export type Order = {
    * @example 200
    * @type number | undefined
    */
-  http_status?: OrderHttpStatusEnumenumType
+  http_status?: OrderHttpStatusEnumEnumType
   /**
    * @type boolean | undefined
    */
@@ -102,7 +102,7 @@ export const customerParamsStatusEnum = {
   delivered: 'delivered',
 } as const
 
-export type CustomerParamsStatusEnumenumType = (typeof customerParamsStatusEnum)[keyof typeof customerParamsStatusEnum]
+export type CustomerParamsStatusEnumEnumType = (typeof customerParamsStatusEnum)[keyof typeof customerParamsStatusEnum]
 
 export type Customer = {
   /**
@@ -119,7 +119,7 @@ export type Customer = {
      * @example approved
      * @type string
      */
-    status: CustomerParamsStatusEnumenumType
+    status: CustomerParamsStatusEnumEnumType
     /**
      * @type string
      */
@@ -251,7 +251,7 @@ export const petTypeEnum = {
   cat: 'cat',
 } as const
 
-export type PetTypeEnumenumType = (typeof petTypeEnum)[keyof typeof petTypeEnum]
+export type PetTypeEnumEnumType = (typeof petTypeEnum)[keyof typeof petTypeEnum]
 
 export const petStatusEnum = {
   available: 'available',
@@ -259,7 +259,7 @@ export const petStatusEnum = {
   sold: 'sold',
 } as const
 
-export type PetStatusEnumenumType = (typeof petStatusEnum)[keyof typeof petStatusEnum]
+export type PetStatusEnumEnumType = (typeof petStatusEnum)[keyof typeof petStatusEnum]
 
 export type Pet = (
   | (Dog & {
@@ -283,7 +283,7 @@ export type Pet = (
   /**
    * @type string
    */
-  readonly type: PetTypeEnumenumType
+  readonly type: PetTypeEnumEnumType
   /**
    * @example doggie
    * @type string
@@ -302,7 +302,7 @@ export type Pet = (
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: PetStatusEnumenumType
+  status?: PetStatusEnumEnumType
 }
 
 export type FullAddress = Address & {
@@ -323,7 +323,7 @@ export const addPetRequestStatusEnum = {
   'in store': 'in store',
 } as const
 
-export type AddPetRequestStatusEnumenumType = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
+export type AddPetRequestStatusEnumEnumType = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
 
 export type AddPetRequest = {
   /**
@@ -349,7 +349,7 @@ export type AddPetRequest = {
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: AddPetRequestStatusEnumenumType
+  status?: AddPetRequestStatusEnumEnumType
 }
 
 export type ApiResponse = {
