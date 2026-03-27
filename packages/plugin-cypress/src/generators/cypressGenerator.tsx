@@ -17,20 +17,25 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
   Operation({ node, adapter, options, config, driver, resolver }) {
     const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group } = options
 
-    const tsPlugin = driver.getPlugin<PluginTs>(pluginTsName)
-    const resolverTs = tsPlugin?.resolver
+    const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
 
-    if (!resolverTs || !tsPlugin) {
+    if (!pluginTs) {
       throw new Error(`Plugin ${pluginTsName} is not defined`)
     }
 
     const root = path.resolve(config.root, config.output.path)
 
     const file = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
+    // Resolve the plugin-ts file using plugin-ts's own output/group context so the path points to
+    // where plugin-ts actually writes its types (not the cypress output directory).
+    const tsFile = pluginTs.resolver.resolveFile(
+      { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+      { root, output: pluginTs.options.output, group: pluginTs.options.group },
+    )
 
     const name = resolver.resolveName(node.operationId)
 
-    const typeNames = buildTypeNames({ node, paramsCasing, resolver: resolverTs })
+    const typeNames = buildTypeNames({ node, paramsCasing, resolver: pluginTs.resolver })
 
     // Collect all type names that need to be imported from plugin-ts.
     // In legacy/kubbV4 mode use the grouped param types; otherwise use per-param types.
@@ -41,13 +46,6 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
       typeNames.requestBody?.typedName,
       typeNames.response.typedName,
     ].filter(Boolean)
-
-    // Resolve the plugin-ts file using plugin-ts's own output/group context so the path points to
-    // where plugin-ts actually writes its types (not the cypress output directory).
-    const tsFile = resolverTs.resolveFile(
-      { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
-      { root, output: tsPlugin.options.output, group: tsPlugin.options.group },
-    )
 
     return (
       <File
@@ -61,7 +59,7 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
         <Request
           name={name}
           node={node}
-          resolver={resolverTs}
+          resolver={pluginTs.resolver}
           typeNames={typeNames}
           dataReturnType={dataReturnType}
           paramsCasing={paramsCasing}

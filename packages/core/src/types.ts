@@ -437,7 +437,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
   /**
    * The resolver for this plugin, accessible via `driver.getPluginByName(name)?.resolver`.
    */
-  resolver?: TOptions['resolver']
+  resolver: TOptions['resolver']
 
   install: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**
