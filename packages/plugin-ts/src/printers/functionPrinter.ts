@@ -163,7 +163,7 @@ export const functionPrinter = defineFunctionPrinter<DefaultPrinter>((options) =
       const nameStr = names.length ? `{ ${names.join(', ')} }` : undefined
       if (!nameStr) return null
 
-      let typeAnnotation: string | undefined = node.type ? this.transform(node.type) : undefined
+      let typeAnnotation: string | undefined = node.type ? (this.transform(node.type) ?? undefined) : undefined
       if (!typeAnnotation) {
         const typeParts = sorted
           .filter((p) => p.type)
