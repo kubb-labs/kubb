@@ -1,8 +1,10 @@
+import { createFunctionParameter, createOperationParams } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import type { ResolverTs } from '@kubb/plugin-ts'
+import { functionPrinter } from '@kubb/plugin-ts'
+import { File, Function } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginCypress } from '../types.ts'
-import type { TypeNames } from '../utils.ts'
 
 type Props = {
   /**
@@ -14,9 +16,9 @@ type Props = {
    */
   node: OperationNode
   /**
-   * Pre-computed type names from plugin-ts resolver
+   * TypeScript resolver for resolving param/data/response type names
    */
-  typeNames: TypeNames
+  resolver: ResolverTs
   baseURL: string | undefined
   dataReturnType: PluginCypress['resolvedOptions']['dataReturnType']
   paramsCasing: PluginCypress['resolvedOptions']['paramsCasing']
@@ -24,87 +26,30 @@ type Props = {
   pathParamsType: PluginCypress['resolvedOptions']['pathParamsType']
 }
 
-type GetParamsProps = {
+const declarationPrinter = functionPrinter({ mode: 'declaration' })
+
+function getParams({
+  paramsType,
+  pathParamsType,
+  paramsCasing,
+  resolver,
+  node,
+}: {
   paramsType: PluginCypress['resolvedOptions']['paramsType']
   pathParamsType: PluginCypress['resolvedOptions']['pathParamsType']
-  typeNames: TypeNames
-}
-
-function getParams({ paramsType, pathParamsType, typeNames }: GetParamsProps) {
-  if (paramsType === 'object') {
-    const pathParamsChildren: Record<string, { type: string; optional?: boolean }> = {}
-    for (const p of typeNames.pathParams) {
-      pathParamsChildren[p.name] = { type: p.typedName, optional: !p.required }
-    }
-
-    return FunctionParams.factory({
-      data: {
-        mode: 'object',
-        children: {
-          ...pathParamsChildren,
-          data: typeNames.requestBody
-            ? {
-                type: typeNames.requestBody.typedName,
-                optional: !typeNames.requestBody.required,
-              }
-            : undefined,
-          params: typeNames.queryParams.length
-            ? {
-                type: typeNames.queryParams.map((p) => `${p.name}${!p.required ? '?' : ''}: ${p.typedName}`).join('; '),
-                optional: typeNames.queryParams.every((p) => !p.required),
-              }
-            : undefined,
-          headers: typeNames.headerParams.length
-            ? {
-                type: typeNames.headerParams.map((p) => `${p.name}${!p.required ? '?' : ''}: ${p.typedName}`).join('; '),
-                optional: typeNames.headerParams.every((p) => !p.required),
-              }
-            : undefined,
-        },
-      },
-      options: {
-        type: 'Partial<Cypress.RequestOptions>',
-        default: '{}',
-      },
-    })
-  }
-
-  const pathParamsChildren: Record<string, { type: string; optional?: boolean }> = {}
-  for (const p of typeNames.pathParams) {
-    pathParamsChildren[p.name] = { type: p.typedName, optional: !p.required }
-  }
-
-  return FunctionParams.factory({
-    pathParams: typeNames.pathParams.length
-      ? {
-          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: pathParamsChildren,
-          default: typeNames.pathParams.every((p) => !p.required) ? '{}' : undefined,
-        }
-      : undefined,
-    data: typeNames.requestBody
-      ? {
-          type: typeNames.requestBody.typedName,
-          optional: !typeNames.requestBody.required,
-        }
-      : undefined,
-    params: typeNames.queryParams.length
-      ? {
-          type: `{ ${typeNames.queryParams.map((p) => `${p.name}${!p.required ? '?' : ''}: ${p.typedName}`).join('; ')} }`,
-          optional: typeNames.queryParams.every((p) => !p.required),
-        }
-      : undefined,
-    headers: typeNames.headerParams.length
-      ? {
-          type: `{ ${typeNames.headerParams.map((p) => `${p.name}${!p.required ? '?' : ''}: ${p.typedName}`).join('; ')} }`,
-          optional: typeNames.headerParams.every((p) => !p.required),
-        }
-      : undefined,
-    options: {
-      type: 'Partial<Cypress.RequestOptions>',
-      default: '{}',
-    },
+  paramsCasing: PluginCypress['resolvedOptions']['paramsCasing']
+  resolver: ResolverTs
+  node: OperationNode
+}): string {
+  const paramsNode = createOperationParams(node, {
+    paramsType,
+    pathParamsType,
+    paramsCasing,
+    resolver,
+    extraParams: [createFunctionParameter({ name: 'options', type: 'Partial<Cypress.RequestOptions>', default: '{}' })],
   })
+
+  return declarationPrinter.print(paramsNode) ?? ''
 }
 
 /**
@@ -119,25 +64,25 @@ function buildUrlTemplate(operationPath: string, baseURL: string): string {
   return `\`${template}\``
 }
 
-export function Request({ baseURL = '', name, dataReturnType, typeNames, node, paramsType, pathParamsType }: Props): FabricReactNode {
-  const params = getParams({ paramsType, pathParamsType, typeNames })
+export function Request({ baseURL = '', name, dataReturnType, resolver, node, paramsType, pathParamsType, paramsCasing }: Props): FabricReactNode {
+  const paramsSignature = getParams({ paramsType, pathParamsType, paramsCasing, resolver, node })
 
-  const returnType =
-    dataReturnType === 'data' ? `Cypress.Chainable<${typeNames.response.typedName}>` : `Cypress.Chainable<Cypress.Response<${typeNames.response.typedName}>>`
+  const responseType = resolver.resolveResponseName(node)
+  const returnType = dataReturnType === 'data' ? `Cypress.Chainable<${responseType}>` : `Cypress.Chainable<Cypress.Response<${responseType}>>`
 
   const urlTemplate = buildUrlTemplate(node.path, baseURL)
 
   const requestOptions: string[] = [`method: '${node.method}'`, `url: ${urlTemplate}`]
 
-  if (typeNames.queryParams.length) {
+  if (node.parameters.some((p) => p.in === 'query')) {
     requestOptions.push('qs: params')
   }
 
-  if (typeNames.headerParams.length) {
+  if (node.parameters.some((p) => p.in === 'header')) {
     requestOptions.push('headers')
   }
 
-  if (typeNames.requestBody) {
+  if (node.requestBody?.schema) {
     requestOptions.push('body: data')
   }
 
@@ -145,12 +90,12 @@ export function Request({ baseURL = '', name, dataReturnType, typeNames, node, p
 
   return (
     <File.Source name={name} isIndexable isExportable>
-      <Function name={name} export params={params.toConstructor()} returnType={returnType}>
+      <Function name={name} export params={paramsSignature} returnType={returnType}>
         {dataReturnType === 'data'
-          ? `return cy.request<${typeNames.response.typedName}>({
+          ? `return cy.request<${responseType}>({
   ${requestOptions.join(',\n  ')}
 }).then((res) => res.body)`
-          : `return cy.request<${typeNames.response.typedName}>({
+          : `return cy.request<${responseType}>({
   ${requestOptions.join(',\n  ')}
 })`}
       </Function>

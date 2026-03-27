@@ -1,3 +1,4 @@
+import type { OperationParamsResolver } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode, StatusCode, Visitor } from '@kubb/ast/types'
 import type {
   CompatibilityPreset,
@@ -17,98 +18,85 @@ import type {
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
  * plugin-specific naming helpers for operations, parameters, responses, and schemas.
  */
-export type ResolverTs = Resolver & {
-  /**
-   * Resolves the name for a given raw name (equivalent to `default(name, 'function')`).
-   * Since TypeScript only emits types, this is the canonical naming method.
-   *
-   * @example
-   * resolver.resolveName('list pets status 200') // → 'ListPetsStatus200'
-   */
-  resolveName(name: string): string
-  /**
-   * Resolves the file/path name for a given identifier using PascalCase.
-   *
-   * @example
-   * resolver.resolvePathName('list pets', 'file') // → 'ListPets'
-   */
-  resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
-  /**
-   * Resolves the name for an operation parameter.
-   * Encapsulates the `<operationId> <PascalCase(paramIn)> <paramName>` naming convention.
-   *
-   * @example
-   * resolver.resolveParamName(node, param) // → 'ListPetsQueryLimit'
-   */
-  resolveParamName(node: OperationNode, param: ParameterNode): string
-  /**
-   * Resolves the name for an operation response by status code.
-   * Encapsulates the `<operationId> Status <statusCode>` template with PascalCase applied to the result.
-   *
-   * @example
-   * resolver.resolveResponseStatusName(node, 200) // → 'ListPetsStatus200'
-   */
-  resolveResponseStatusName(node: OperationNode, statusCode: StatusCode): string
-  /**
-   * Resolves the name for an operation's request body (`Data`).
-   *
-   * @example
-   * resolver.resolveDataName(node) // → 'ListPetsData'
-   */
-  resolveDataName(node: OperationNode): string
-  /**
-   * Resolves the name for an operation's request config (`RequestConfig`).
-   *
-   * @example
-   * resolver.resolveRequestConfigName(node) // → 'ListPetsRequestConfig'
-   */
-  resolveRequestConfigName(node: OperationNode): string
-  /**
-   * Resolves the name for the collection of all operation responses (`Responses`).
-   *
-   * @example
-   * resolver.resolveResponsesName(node) // → 'ListPetsResponses'
-   */
-  resolveResponsesName(node: OperationNode): string
-  /**
-   * Resolves the name for the union of all operation responses (`Response`).
-   *
-   * @example
-   * resolver.resolveResponseName(node) // → 'ListPetsResponse'
-   */
-  resolveResponseName(node: OperationNode): string
-  /**
-   * Resolves the TypeScript type alias name for an enum schema's key variant.
-   * Appends `enumTypeSuffix` (default `'Key'`) after applying the default naming convention.
-   *
-   * @example
-   * resolver.resolveEnumKeyName(node, 'Key')   // → 'PetStatusKey'
-   * resolver.resolveEnumKeyName(node, 'Value') // → 'PetStatusValue'
-   * resolver.resolveEnumKeyName(node, '')      // → 'PetStatus'
-   */
-  resolveEnumKeyName(node: SchemaNode, enumTypeSuffix: string): string
-  /**
-   * Resolves the name for an operation's grouped path parameters type.
-   *
-   * @example
-   * resolver.resolvePathParamsName(node, param) // → 'GetPetByIdPathParams'
-   */
-  resolvePathParamsName(node: OperationNode, param: ParameterNode): string
-  /**
-   * Resolves the name for an operation's grouped query parameters type.
-   *
-   * @example
-   * resolver.resolveQueryParamsName(node, param) // → 'FindPetsByStatusQueryParams'
-   */
-  resolveQueryParamsName(node: OperationNode, param: ParameterNode): string
-  /**
-   * Resolves the name for an operation's grouped header parameters type.
-   *
-   * @example
-   * resolver.resolveHeaderParamsName(node, param) // → 'DeletePetHeaderParams'
-   */
-  resolveHeaderParamsName(node: OperationNode, param: ParameterNode): string
-}
+export type ResolverTs = Resolver &
+  OperationParamsResolver & {
+    /**
+     * Resolves the name for a given raw name (equivalent to `default(name, 'function')`).
+     * Since TypeScript only emits types, this is the canonical naming method.
+     *
+     * @example
+     * resolver.resolveName('list pets status 200') // → 'ListPetsStatus200'
+     */
+    resolveName(name: string): string
+    /**
+     * Resolves the file/path name for a given identifier using PascalCase.
+     *
+     * @example
+     * resolver.resolvePathName('list pets', 'file') // → 'ListPets'
+     */
+    resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+
+    /**
+     * Resolves the name for an operation response by status code.
+     * Encapsulates the `<operationId> Status <statusCode>` template with PascalCase applied to the result.
+     *
+     * @example
+     * resolver.resolveResponseStatusName(node, 200) // → 'ListPetsStatus200'
+     */
+    resolveResponseStatusName(node: OperationNode, statusCode: StatusCode): string
+    /**
+     * Resolves the name for an operation's request config (`RequestConfig`).
+     *
+     * @example
+     * resolver.resolveRequestConfigName(node) // → 'ListPetsRequestConfig'
+     */
+    resolveRequestConfigName(node: OperationNode): string
+    /**
+     * Resolves the name for the collection of all operation responses (`Responses`).
+     *
+     * @example
+     * resolver.resolveResponsesName(node) // → 'ListPetsResponses'
+     */
+    resolveResponsesName(node: OperationNode): string
+    /**
+     * Resolves the name for the union of all operation responses (`Response`).
+     *
+     * @example
+     * resolver.resolveResponseName(node) // → 'ListPetsResponse'
+     */
+    resolveResponseName(node: OperationNode): string
+    /**
+     * Resolves the TypeScript type alias name for an enum schema's key variant.
+     * Appends `enumTypeSuffix` (default `'Key'`) after applying the default naming convention.
+     *
+     * @example
+     * resolver.resolveEnumKeyName(node, 'Key')   // → 'PetStatusKey'
+     * resolver.resolveEnumKeyName(node, 'Value') // → 'PetStatusValue'
+     * resolver.resolveEnumKeyName(node, '')      // → 'PetStatus'
+     */
+    resolveEnumKeyName(node: SchemaNode, enumTypeSuffix: string): string
+    /**
+     * Resolves the name for an operation's grouped path parameters type.
+     *
+     * @example
+     * resolver.resolvePathParamsName(node, param) // → 'GetPetByIdPathParams'
+     */
+    resolvePathParamsName(node: OperationNode, param: ParameterNode): string
+    /**
+     * Resolves the name for an operation's grouped query parameters type.
+     *
+     * @example
+     * resolver.resolveQueryParamsName(node, param) // → 'FindPetsByStatusQueryParams'
+     */
+    resolveQueryParamsName(node: OperationNode, param: ParameterNode): string
+    /**
+     * Resolves the name for an operation's grouped header parameters type.
+     *
+     * @example
+     * resolver.resolveHeaderParamsName(node, param) // → 'DeletePetHeaderParams'
+     */
+    resolveHeaderParamsName(node: OperationNode, param: ParameterNode): string
+  }
 
 export type Options = {
   /**

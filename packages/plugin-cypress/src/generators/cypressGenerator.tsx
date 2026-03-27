@@ -1,11 +1,11 @@
 import path from 'node:path'
+import { caseParams } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
-import type { PluginTs, ResolverTs } from '@kubb/plugin-ts'
+import type { PluginTs } from '@kubb/plugin-ts'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File } from '@kubb/react-fabric'
 import { Request } from '../components/Request.tsx'
 import type { PluginCypress } from '../types.ts'
-import { buildTypeNames } from '../utils.ts'
 
 export const cypressGenerator = defineGenerator<PluginCypress>({
   name: 'cypress',
@@ -15,37 +15,44 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
     const root = path.resolve(config.root, config.output.path)
 
     const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
-    const tsResolver = pluginTs?.resolver as ResolverTs | undefined
+
+    if (!pluginTs) {
+      return null
+    }
 
     const file = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
+    const tsFile = pluginTs.resolver.resolveFile(
+      { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+      {
+        root,
+        output: pluginTs.options?.output ?? output,
+        group: pluginTs.options?.group,
+      },
+    )
 
     const name = resolver.resolveName(node.operationId)
 
-    const typeNames = tsResolver
-      ? buildTypeNames({ node, paramsCasing, resolver: tsResolver })
-      : {
-          pathParams: [],
-          queryParams: [],
-          headerParams: [],
-          response: { typedName: 'unknown' },
-        }
+    const casedParams = caseParams(node.parameters, paramsCasing)
+    const tsResolver = pluginTs.resolver
+
+    const pathParams = casedParams.filter((p) => p.in === 'path')
+    const queryParams = casedParams.filter((p) => p.in === 'query')
+    const headerParams = casedParams.filter((p) => p.in === 'header')
 
     const importedTypeNames = [
-      ...typeNames.pathParams.map((p) => p.typedName),
-      ...typeNames.queryParams.map((p) => p.typedName),
-      ...typeNames.headerParams.map((p) => p.typedName),
-      typeNames.requestBody?.typedName,
-      typeNames.response.typedName,
-    ].filter((n): n is string => Boolean(n) && n !== 'unknown')
-
-    const tsFile = tsResolver?.resolveFile(
-      { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
-      {
-        root: pluginTs ? path.resolve(config.root, config.output.path) : root,
-        output: pluginTs?.options?.output ?? output,
-        group: pluginTs?.options?.group,
-      },
-    )
+      // Use group names when the resolver provides them, otherwise individual names
+      ...(pathParams.length && tsResolver.resolvePathParamsName
+        ? [tsResolver.resolvePathParamsName(node, pathParams[0]!)]
+        : pathParams.map((p) => tsResolver.resolveParamName(node, p))),
+      ...(queryParams.length && tsResolver.resolveQueryParamsName
+        ? [tsResolver.resolveQueryParamsName(node, queryParams[0]!)]
+        : queryParams.map((p) => tsResolver.resolveParamName(node, p))),
+      ...(headerParams.length && tsResolver.resolveHeaderParamsName
+        ? [tsResolver.resolveHeaderParamsName(node, headerParams[0]!)]
+        : headerParams.map((p) => tsResolver.resolveParamName(node, p))),
+      node.requestBody?.schema ? tsResolver.resolveDataName(node) : undefined,
+      tsResolver.resolveResponseName(node),
+    ].filter(Boolean)
 
     return (
       <File
@@ -59,7 +66,7 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
         <Request
           name={name}
           node={node}
-          typeNames={typeNames}
+          resolver={tsResolver}
           dataReturnType={dataReturnType}
           paramsCasing={paramsCasing}
           paramsType={paramsType}

@@ -55,9 +55,6 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     generators: userGenerators,
   })
 
-  let resolveNameWarning = false
-  let resolvePathWarning = false
-
   return {
     name: pluginCypressName,
     get resolver() {
@@ -89,25 +86,6 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
       }
     },
     pre: [pluginTsName].filter(Boolean),
-    resolvePath(baseName, pathMode, options) {
-      if (!resolvePathWarning) {
-        this.events.emit('warn', 'Do not use resolvePath for pluginCypress, use resolverCypress.resolvePath instead')
-        resolvePathWarning = true
-      }
-
-      return this.plugin.resolver.resolvePath(
-        { baseName, pathMode, tag: options?.group?.tag, path: options?.group?.path },
-        { root: path.resolve(this.config.root, this.config.output.path), output, group: this.plugin.options.group },
-      )
-    },
-    resolveName(name, type) {
-      if (!resolveNameWarning) {
-        this.events.emit('warn', 'Do not use resolveName for pluginCypress, use resolverCypress.default instead')
-        resolveNameWarning = true
-      }
-
-      return this.plugin.resolver.default(name, type)
-    },
     async install() {
       const { config, fabric, plugin, adapter, rootNode, driver } = this
       const root = path.resolve(config.root, config.output.path)
