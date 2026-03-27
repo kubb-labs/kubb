@@ -88,11 +88,10 @@ export type FunctionParameterNode = BaseNode & {
    * `...name: Type[]`
    */
   rest?: boolean
-} & (
-    /**
-     * Optional parameter — rendered with `?` and may be omitted by the caller.
-     * Cannot be combined with `default` because a defaulted parameter is already optional.
-     */
+} /**
+ * Optional parameter — rendered with `?` and may be omitted by the caller.
+ * Cannot be combined with `default` because a defaulted parameter is already optional.
+ */ & (
     | { optional: true; default?: never }
     /**
      * Required parameter, or a parameter with a default value.
