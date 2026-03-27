@@ -62,7 +62,7 @@ function rank(param: FunctionParameterNode | ParameterGroupNode): number {
   return param.optional ? 1 : 0
 }
 
-function sortParams(params: Array<FunctionParameterNode | ParameterGroupNode>): Array<FunctionParameterNode | ParameterGroupNode> {
+function sortParams(params: ReadonlyArray<FunctionParameterNode | ParameterGroupNode>): Array<FunctionParameterNode | ParameterGroupNode> {
   return [...params].sort((a, b) => rank(a) - rank(b))
 }
 
