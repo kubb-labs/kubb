@@ -1,17 +1,15 @@
 export { httpMethods, mediaTypes, nodeKinds, SCALAR_PRIMITIVE_TYPES, schemaTypes } from './constants.ts'
-export type { CreateOperationParamsOptions, DistributiveOmit, OperationParamsResolver } from './factory.ts'
 export {
-  createDiscriminantNode,
   createFunctionParameter,
   createFunctionParameters,
   createObjectBindingParameter,
   createOperation,
-  createOperationParams,
   createParameter,
   createProperty,
   createResponse,
   createRoot,
   createSchema,
+  syncOptionality,
 } from './factory.ts'
 export {
   isFunctionParameterNode,
@@ -31,5 +29,6 @@ export { createPrinterFactory, definePrinter } from './printer.ts'
 export { buildRefMap, extractRefName, refMapToObject, resolveRef } from './refs.ts'
 export { childName, collectImports, enumPropName, findDiscriminator } from './resolvers.ts'
 export { mergeAdjacentObjects, resolveNames, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
-export { caseParams, isStringType, syncOptionality } from './utils.ts'
+export type { CreateOperationParamsOptions, OperationParamsResolver } from './utils.ts'
+export { caseParams, createDiscriminantNode, createOperationParams, isStringType } from './utils.ts'
 export { collect, composeTransformers, transform, walk } from './visitor.ts'
