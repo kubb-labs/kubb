@@ -91,8 +91,7 @@ describe('PluginDriver', () => {
   })
 
   test('if pluginDriver can be created', () => {
-    expect(pluginDriver.plugins.length).toBe(config.plugins.length)
-    expect(pluginDriver.getPluginsByName('install', 'pluginB')?.[0]?.name).toBe('pluginB')
+    expect(pluginDriver.plugins.size).toBe(config.plugins.length)
   })
 
   test('hookFirst', async () => {
@@ -322,42 +321,5 @@ describe('PluginDriver', () => {
     expect(file).toBeDefined()
     // in single mode resolvedName is '', so the plugin receives '.ts' as baseName
     expect(file.baseName).toBe('.ts')
-  })
-
-  test('getPluginsByName should return correct plugins', () => {
-    const plugins = pluginDriver.getPluginsByName('install', 'pluginB')
-
-    expect(plugins).toBeDefined()
-    expect(plugins?.length).toBeGreaterThan(0)
-    expect(plugins?.[0]?.name).toBe('pluginB')
-  })
-
-  test('getPluginsByName should return empty array for non-existent plugin', () => {
-    const plugins = pluginDriver.getPluginsByName('install', 'nonExistent')
-
-    expect(plugins).toEqual([])
-  })
-
-  test('should throw when multiple instances of the same plugin are used', () => {
-    const duplicatePlugin = createPlugin(() => {
-      return {
-        name: 'duplicatePlugin',
-        options: undefined as any,
-        context: undefined as never,
-      }
-    })
-
-    const duplicateConfig = {
-      ...config,
-      plugins: [duplicatePlugin({}), duplicatePlugin({})] as Plugin[],
-    } satisfies Config
-
-    expect(
-      () =>
-        new PluginDriver(duplicateConfig, {
-          fabric: createFabric(),
-          events: new AsyncEventEmitter<KubbEvents>(),
-        }),
-    ).toThrow('Duplicate plugin "duplicatePlugin" detected')
   })
 })

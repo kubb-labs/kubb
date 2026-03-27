@@ -224,7 +224,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 configPath,
                 permissions: { allowAll: effectiveAllowAll, allowWrite: effectiveWrite, allowPublish: effectivePublish },
                 config: {
-                  plugins: config.plugins?.map((plugin) => ({
+                  plugins: config.plugins.map((plugin) => ({
                     name: `@kubb/${plugin.name}`,
                     options: serializePluginOptions(plugin.options),
                   })),

@@ -12,5 +12,5 @@ export async function getConfigs(config: ConfigInput | UserConfig, args: CLIOpti
   const resolved = await (typeof config === 'function' ? config(args as CLIOptions) : config)
   const userConfigs = Array.isArray(resolved) ? resolved : [resolved]
 
-  return userConfigs.map((item) => ({ ...item }) as Config)
+  return userConfigs.map((item) => ({ plugins: [], ...item }) as Config)
 }

@@ -1,10 +1,10 @@
 import { basename, extname, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { AsyncEventEmitter } from '@internals/utils'
-import { isPromiseRejectedResult, setUniqueName, transformReservedWord, ValidationPluginError } from '@internals/utils'
+import { isPromiseRejectedResult, transformReservedWord } from '@internals/utils'
 import type { RootNode } from '@kubb/ast/types'
 import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
-import { CORE_PLUGIN_NAME, DEFAULT_STUDIO_URL } from './constants.ts'
+import { DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 
 import type {
@@ -21,7 +21,6 @@ import type {
   PluginWithLifeCycle,
   ResolveNameParams,
   ResolvePathParams,
-  UserPlugin,
 } from './types.ts'
 import { hookFirst, hookParallel, hookSeq } from './utils/executeStrategies.ts'
 
@@ -96,17 +95,21 @@ export class PluginDriver {
   adapter: Adapter | undefined = undefined
   #studioIsOpen = false
 
-  readonly #plugins = new Set<Plugin>()
-  readonly #usedPluginNames: Record<string, number> = {}
+  readonly plugins = new Map<string, Plugin>()
 
   constructor(config: Config, options: Options) {
     this.config = config
     this.options = options
-    ;[...(config.plugins || [])].forEach((plugin) => {
-      const parsedPlugin = this.#parse(plugin as UserPlugin)
-
-      this.#plugins.add(parsedPlugin)
-    })
+    config.plugins
+      .map((plugin) => Object.assign({ install() {} }, plugin) as unknown as Plugin)
+      .sort((a, b) => {
+        if (b.pre?.includes(a.name)) return 1
+        if (b.post?.includes(a.name)) return -1
+        return 0
+      })
+      .forEach((plugin) => {
+        this.plugins.set(plugin.name, plugin)
+      })
   }
 
   get events() {
@@ -114,16 +117,15 @@ export class PluginDriver {
   }
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
-    const plugins = [...this.#plugins]
     const driver = this
 
     const baseContext = {
-      fabric: this.options.fabric,
-      config: this.config,
+      fabric: driver.options.fabric,
+      config: driver.config,
       plugin,
-      events: this.options.events,
-      driver: this,
-      mode: getMode(resolve(this.config.root, this.config.output.path)),
+      getPlugin: driver.getPlugin.bind(driver),
+      events: driver.options.events,
+      driver: driver,
       addFile: async (...files: Array<FabricFile.File>) => {
         await this.options.fabric.addFile(...files)
       },
@@ -135,6 +137,9 @@ export class PluginDriver {
       },
       get adapter(): Adapter | undefined {
         return driver.adapter
+      },
+      get resolver() {
+        return plugin.resolver
       },
       openInStudio(options?: DevtoolsOptions) {
         if (!driver.config.devtools || driver.#studioIsOpen) {
@@ -158,9 +163,10 @@ export class PluginDriver {
     } as unknown as PluginContext<TOptions>
 
     const mergedExtras: Record<string, unknown> = {}
-    for (const p of plugins) {
-      if (typeof p.inject === 'function') {
-        const result = (p.inject as (this: PluginContext, context: PluginContext) => unknown).call(
+
+    for (const plugin of this.plugins.values()) {
+      if (typeof plugin.inject === 'function') {
+        const result = (plugin.inject as (this: PluginContext, context: PluginContext) => unknown).call(
           baseContext as unknown as PluginContext,
           baseContext as unknown as PluginContext,
         )
@@ -175,11 +181,9 @@ export class PluginDriver {
       ...mergedExtras,
     }
   }
-
-  get plugins(): Array<Plugin> {
-    return this.#getSortedPlugins()
-  }
-
+  /**
+   * @deprecated use resolvers context instead
+   */
   getFile<TOptions = object>({ name, mode, extname, pluginName, options }: GetFileOptions<TOptions>): FabricFile.File<{ pluginName: string }> {
     const resolvedName = mode ? (mode === 'single' ? '' : this.resolveName({ name, pluginName, type: 'file' })) : name
 
@@ -206,6 +210,9 @@ export class PluginDriver {
     }
   }
 
+  /**
+   * @deprecated use resolvers context instead
+   */
   resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): FabricFile.Path => {
     const root = resolve(this.config.root, this.config.output.path)
     const defaultPath = resolve(root, params.baseName)
@@ -227,7 +234,9 @@ export class PluginDriver {
 
     return firstResult?.result || defaultPath
   }
-  //TODO refactor by using the order of plugins and the cache of the fileManager instead of guessing and recreating the name/path
+  /**
+   * @deprecated use resolvers context instead
+   */
   resolveName = (params: ResolveNameParams): string => {
     if (params.pluginName) {
       const names = this.hookForPluginSync({
@@ -236,9 +245,7 @@ export class PluginDriver {
         parameters: [params.name.trim(), params.type],
       })
 
-      const uniqueNames = new Set(names)
-
-      return transformReservedWord([...uniqueNames].at(0) || params.name)
+      return transformReservedWord(names?.at(0) ?? params.name)
     }
 
     const name = this.hookFirstSync({
@@ -261,36 +268,32 @@ export class PluginDriver {
     hookName: H
     parameters: PluginParameter<H>
   }): Promise<Array<ReturnType<ParseResult<H>> | null>> {
-    const plugins = this.getPluginsByName(hookName, pluginName)
+    const plugin = this.plugins.get(pluginName)
+
+    if (!plugin) {
+      return [null]
+    }
 
     this.events.emit('plugins:hook:progress:start', {
       hookName,
-      plugins,
+      plugins: [plugin],
     })
 
-    const items: Array<ReturnType<ParseResult<H>>> = []
-
-    for (const plugin of plugins) {
-      const result = await this.#execute<H>({
-        strategy: 'hookFirst',
-        hookName,
-        parameters,
-        plugin,
-      })
-
-      if (result !== undefined && result !== null) {
-        items.push(result)
-      }
-    }
+    const result = await this.#execute<H>({
+      strategy: 'hookFirst',
+      hookName,
+      parameters,
+      plugin,
+    })
 
     this.events.emit('plugins:hook:progress:end', { hookName })
 
-    return items
+    return [result]
   }
+
   /**
    * Run a specific hookName for plugin x.
    */
-
   hookForPluginSync<H extends PluginLifecycleHooks>({
     pluginName,
     hookName,
@@ -300,20 +303,20 @@ export class PluginDriver {
     hookName: H
     parameters: PluginParameter<H>
   }): Array<ReturnType<ParseResult<H>>> | null {
-    const plugins = this.getPluginsByName(hookName, pluginName)
+    const plugin = this.plugins.get(pluginName)
 
-    const result = plugins
-      .map((plugin) => {
-        return this.#executeSync<H>({
-          strategy: 'hookFirst',
-          hookName,
-          parameters,
-          plugin,
-        })
-      })
-      .filter((x): x is NonNullable<typeof x> => x !== null)
+    if (!plugin) {
+      return null
+    }
 
-    return result
+    const result = this.#executeSync<H>({
+      strategy: 'hookFirst',
+      hookName,
+      parameters,
+      plugin,
+    })
+
+    return result !== null ? [result] : []
   }
 
   /**
@@ -328,9 +331,10 @@ export class PluginDriver {
     parameters: PluginParameter<H>
     skipped?: ReadonlySet<Plugin> | null
   }): Promise<SafeParseResult<H>> {
-    const plugins = this.#getSortedPlugins(hookName).filter((plugin) => {
-      return skipped ? !skipped.has(plugin) : true
-    })
+    const plugins: Array<Plugin> = []
+    for (const plugin of this.plugins.values()) {
+      if (hookName in plugin && (skipped ? !skipped.has(plugin) : true)) plugins.push(plugin)
+    }
 
     this.events.emit('plugins:hook:progress:start', { hookName, plugins })
 
@@ -370,11 +374,11 @@ export class PluginDriver {
     skipped?: ReadonlySet<Plugin> | null
   }): SafeParseResult<H> | null {
     let parseResult: SafeParseResult<H> | null = null
-    const plugins = this.#getSortedPlugins(hookName).filter((plugin) => {
-      return skipped ? !skipped.has(plugin) : true
-    })
 
-    for (const plugin of plugins) {
+    for (const plugin of this.plugins.values()) {
+      if (!(hookName in plugin)) continue
+      if (skipped?.has(plugin)) continue
+
       parseResult = {
         result: this.#executeSync<H>({
           strategy: 'hookFirst',
@@ -385,9 +389,7 @@ export class PluginDriver {
         plugin,
       } as SafeParseResult<H>
 
-      if (parseResult?.result != null) {
-        break
-      }
+      if (parseResult.result != null) break
     }
 
     return parseResult
@@ -403,7 +405,10 @@ export class PluginDriver {
     hookName: H
     parameters?: Parameters<RequiredPluginLifecycle[H]> | undefined
   }): Promise<Awaited<TOutput>[]> {
-    const plugins = this.#getSortedPlugins(hookName)
+    const plugins: Array<Plugin> = []
+    for (const plugin of this.plugins.values()) {
+      if (hookName in plugin) plugins.push(plugin)
+    }
     this.events.emit('plugins:hook:progress:start', { hookName, plugins })
 
     const pluginStartTimes = new Map<Plugin, number>()
@@ -424,7 +429,7 @@ export class PluginDriver {
 
     results.forEach((result, index) => {
       if (isPromiseRejectedResult<Error>(result)) {
-        const plugin = this.#getSortedPlugins(hookName)[index]
+        const plugin = plugins[index]
 
         if (plugin) {
           const startTime = pluginStartTimes.get(plugin) ?? performance.now()
@@ -453,7 +458,10 @@ export class PluginDriver {
    * Chains plugins
    */
   async hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
-    const plugins = this.#getSortedPlugins(hookName)
+    const plugins: Array<Plugin> = []
+    for (const plugin of this.plugins.values()) {
+      if (hookName in plugin) plugins.push(plugin)
+    }
     this.events.emit('plugins:hook:progress:start', { hookName, plugins })
 
     const promises = plugins.map((plugin) => {
@@ -471,62 +479,8 @@ export class PluginDriver {
     this.events.emit('plugins:hook:progress:end', { hookName })
   }
 
-  #getSortedPlugins(hookName?: keyof PluginLifecycle): Array<Plugin> {
-    const plugins = [...this.#plugins]
-
-    if (hookName) {
-      return plugins.filter((plugin) => hookName in plugin)
-    }
-    // TODO add test case for sorting with pre/post
-
-    return plugins
-      .map((plugin) => {
-        if (plugin.pre) {
-          let missingPlugins = plugin.pre.filter((pluginName) => !plugins.find((pluginToFind) => pluginToFind.name === pluginName))
-
-          // when adapter is set, we can ignore the depends on plugin-oas, in v5 this will not be needed anymore
-          if (missingPlugins.includes('plugin-oas') && this.adapter) {
-            missingPlugins = missingPlugins.filter((pluginName) => pluginName !== 'plugin-oas')
-          }
-
-          if (missingPlugins.length > 0) {
-            throw new ValidationPluginError(`The plugin '${plugin.name}' has a pre set that references missing plugins for '${missingPlugins.join(', ')}'`)
-          }
-        }
-
-        return plugin
-      })
-      .sort((a, b) => {
-        if (b.pre?.includes(a.name)) {
-          return 1
-        }
-        if (b.post?.includes(a.name)) {
-          return -1
-        }
-        return 0
-      })
-  }
-
-  getPluginByName(pluginName: string): Plugin | undefined {
-    const plugins = [...this.#plugins]
-
-    return plugins.find((item) => item.name === pluginName)
-  }
-
-  getPluginsByName(hookName: keyof PluginWithLifeCycle, pluginName: string): Plugin[] {
-    const plugins = [...this.plugins]
-
-    const pluginByPluginName = plugins.filter((plugin) => hookName in plugin).filter((item) => item.name === pluginName)
-
-    if (!pluginByPluginName?.length) {
-      // fallback on the core plugin when there is no match
-
-      const corePlugin = plugins.find((plugin) => plugin.name === CORE_PLUGIN_NAME && hookName in plugin)
-
-      return corePlugin ? [corePlugin] : []
-    }
-
-    return pluginByPluginName
+  getPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): Plugin<TOptions> | undefined {
+    return this.plugins.get(pluginName) as Plugin<TOptions> | undefined
   }
 
   /**
@@ -661,23 +615,5 @@ export class PluginDriver {
 
       return null
     }
-  }
-
-  #parse(plugin: UserPlugin): Plugin {
-    const usedPluginNames = this.#usedPluginNames
-
-    setUniqueName(plugin.name, usedPluginNames)
-
-    const usageCount = usedPluginNames[plugin.name]
-    if (usageCount && usageCount > 1) {
-      throw new ValidationPluginError(
-        `Duplicate plugin "${plugin.name}" detected. Each plugin can only be used once. Use a different configuration instead of adding multiple instances of the same plugin.`,
-      )
-    }
-
-    return {
-      install() {},
-      ...plugin,
-    } as unknown as Plugin
   }
 }

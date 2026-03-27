@@ -24,6 +24,7 @@
       "@kubb/plugin-oas": ["./packages/plugin-oas/src/index.ts"],
       "@kubb/adapter-oas": ["./packages/adapter-oas/src/index.ts"],
       "@kubb/plugin-ts/components": ["./packages/plugin-ts/src/components/index.ts"],
+      "@kubb/plugin-ts/presets": ["./packages/plugin-ts/src/presets.ts"],
       "@kubb/plugin-ts/resolvers": ["./packages/plugin-ts/src/resolvers/index.ts"],
       "@kubb/plugin-ts/hooks": ["./packages/plugin-ts/src/hooks/index.ts"],
       "@kubb/plugin-ts": ["./packages/plugin-ts/src/index.ts"],

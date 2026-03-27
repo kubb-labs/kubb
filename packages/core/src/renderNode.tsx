@@ -12,6 +12,7 @@ type BuildOperationsV2Options<TOptions extends PluginFactoryOptions> = {
   adapter: Adapter
   driver: PluginDriver
   options: TOptions['resolvedOptions']
+  resolver: TOptions['resolver']
 }
 
 /**
@@ -30,8 +31,8 @@ export async function renderOperations<TOptions extends PluginFactoryOptions>(
   const fabricChild = createReactFabric()
 
   await fabricChild.render(
-    <Fabric meta={{ plugin, driver }}>
-      <Component config={config} plugin={plugin} adapter={adapter} nodes={nodes} options={options.options} />
+    <Fabric>
+      <Component config={config} plugin={plugin} driver={driver} adapter={adapter} nodes={nodes} options={options.options} resolver={options.resolver} />
     </Fabric>,
   )
 
@@ -47,6 +48,7 @@ type BuildOperationV2Options<TOptions extends PluginFactoryOptions> = {
   adapter: Adapter
   driver: PluginDriver
   options: TOptions['resolvedOptions']
+  resolver: TOptions['resolver']
 }
 
 /**
@@ -62,8 +64,8 @@ export async function renderOperation<TOptions extends PluginFactoryOptions>(nod
   const fabricChild = createReactFabric()
 
   await fabricChild.render(
-    <Fabric meta={{ plugin, driver }}>
-      <Component config={config} plugin={plugin} adapter={adapter} node={node} options={options.options} />
+    <Fabric>
+      <Component config={config} plugin={plugin} driver={driver} adapter={adapter} node={node} options={options.options} resolver={options.resolver} />
     </Fabric>,
   )
 
@@ -79,6 +81,7 @@ type BuildSchemaV2Options<TOptions extends PluginFactoryOptions> = {
   adapter: Adapter
   driver: PluginDriver
   options: TOptions['resolvedOptions']
+  resolver: TOptions['resolver']
 }
 
 /**
@@ -94,8 +97,8 @@ export async function renderSchema<TOptions extends PluginFactoryOptions>(node: 
   const fabricChild = createReactFabric()
 
   await fabricChild.render(
-    <Fabric meta={{ plugin, driver }}>
-      <Component config={config} plugin={plugin} adapter={adapter} node={node} options={options.options} />
+    <Fabric>
+      <Component config={config} plugin={plugin} driver={driver} adapter={adapter} node={node} options={options.options} resolver={options.resolver} />
     </Fabric>,
   )
 

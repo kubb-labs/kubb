@@ -3,16 +3,16 @@ import { caseParams, composeTransformers, narrowSchema, schemaTypes, transform }
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
-import { builderTs } from '../builders/builderTs.ts'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
 import type { PluginTs } from '../types'
+import { buildData, buildResponses, buildResponseUnion } from '../utils.ts'
 
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
-  Operation({ node, adapter, options, config }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, resolver, transformers = [] } = options
+  Operation({ node, adapter, options, config, resolver }) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, transformers = [] } = options
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
@@ -96,19 +96,19 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
 
     const dataType = renderSchemaType({
-      node: builderTs.buildData({ node: { ...node, parameters: params }, resolver }),
+      node: buildData({ node: { ...node, parameters: params }, resolver }),
       name: resolver.resolveRequestConfigName(node),
       typedName: resolver.resolveRequestConfigTypedName(node),
     })
 
     const responsesType = renderSchemaType({
-      node: builderTs.buildResponses({ node, resolver }),
+      node: buildResponses({ node, resolver }),
       name: resolver.resolveResponsesName(node),
       typedName: resolver.resolveResponsesTypedName(node),
     })
 
     const responseType = renderSchemaType({
-      node: builderTs.buildResponseUnion({ node, resolver }),
+      node: buildResponseUnion({ node, resolver }),
       name: resolver.resolveResponseName(node),
       typedName: resolver.resolveResponseTypedName(node),
       description: 'Union of all possible responses',
@@ -131,8 +131,8 @@ export const typeGenerator = defineGenerator<PluginTs>({
       </File>
     )
   },
-  Schema({ node, adapter, options, config }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, resolver, transformers = [] } = options
+  Schema({ node, adapter, options, config, resolver }) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, transformers = [] } = options
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))

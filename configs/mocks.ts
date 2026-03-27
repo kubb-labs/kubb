@@ -54,9 +54,6 @@ export const createMockedPluginDriver = (options: { name?: string; plugin?: Plug
       },
     },
     resolvePath: ({ baseName }: ResolvePathParams) => baseName,
-    getPluginByName: (_pluginName: string) => {
-      return options?.plugin
-    },
     getFile: ({
       name,
       extname,
@@ -80,17 +77,8 @@ export const createMockedPluginDriver = (options: { name?: string; plugin?: Plug
         meta: { pluginName },
       }
     },
-    getPlugin(pluginName: Plugin['name']): Plugin | undefined {
-      if (options?.plugin && options.plugin.name === pluginName) {
-        return options.plugin
-      }
-      return (
-        options.plugin ||
-        ({
-          name: pluginName,
-          resolvers: [],
-        } as unknown as Plugin)
-      )
+    getPlugin(_pluginName: Plugin['name']): Plugin | undefined {
+      return options?.plugin
     },
   }) as unknown as PluginDriver
 
@@ -127,12 +115,14 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
 export function createMockedPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(params: {
   name: TOptions['name']
   options: TOptions['resolvedOptions']
+  resolver?: TOptions['resolver']
   pre?: Array<string>
   post?: Array<string>
 }): Plugin<TOptions> {
   return {
     name: params.name,
     options: params.options,
+    resolver: params.resolver,
     pre: params.pre,
     post: params.post,
     install: () => {},

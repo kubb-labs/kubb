@@ -6,16 +6,6 @@ import type { FabricFile } from '@kubb/fabric-core/types'
 export const DEFAULT_STUDIO_URL = 'https://studio.kubb.dev' as const
 
 /**
- * Internal plugin name used to identify the core Kubb runtime.
- */
-export const CORE_PLUGIN_NAME = 'core' as const
-
-/**
- * Maximum number of event-emitter listeners before Node.js emits a warning.
- */
-export const DEFAULT_MAX_LISTENERS = 100
-
-/**
  * Default number of plugins that may run concurrently during a build.
  */
 export const DEFAULT_CONCURRENCY = 15

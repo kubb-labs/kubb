@@ -24,19 +24,36 @@ v4 (remove):
 - `@kubb/plugin-oas/utils` -- `getBanner`, `getFooter`, `getPathParams`
 - `@kubb/plugin-oas/generators` -- `Generator` type
 - `@kubb/oas` -- `HttpMethod`, `isOptional`, `isAllOptional`, `contentType`, `Oas`, `parse`
-- `@kubb/core/hooks` -- `useDriver`
+- `@kubb/core/hooks` -- `useDriver` (removed; no longer needed for cross-plugin resolution)
 
 v5 (add):
 - `@kubb/core` -- `defineGenerator`, `defineResolver`, `definePreset`, `definePresets`, `getPreset`, `renderOperation`, `renderSchema`, `getMode`
-- `@kubb/ast` -- `walk`, `transform`, `createOperation`, `createParameter`, `createResponse`, `createSchema`
+- `@kubb/ast` -- `walk`, `transform`, `createOperation`, `createParameter`, `createResponse`, `createSchema`, `caseParams`
 - `@kubb/ast/types` -- `OperationNode`, `SchemaNode`, `ParameterNode`, `Visitor`
+
+### Cross-plugin file references (operation plugins that import from plugin-ts)
+
+Operation plugins that generate code importing types from `plugin-ts` (e.g. `plugin-cypress`) need to:
+1. Know the file path that `plugin-ts` generates for each operation
+2. Use the same TypeScript type naming that respects the user's `compatibilityPreset`
+
+In v5, both are solved without `useDriver()`:
+
+**For the TS file path** — call `tsResolver.resolveFile(...)` where `tsResolver` is the preset-aware TypeScript resolver retrieved in `plugin.ts` via `getPreset({ preset: compatibilityPreset, presets: tsPresets, resolvers: [resolverTs], ... })` and stored in `options.tsResolver`.
+
+**For type names** — use a `buildTypeNames({ node, paramsCasing, resolver: tsResolver })` helper in `utils.ts` (see `plugin-cypress/src/utils.ts` as reference). It calls `tsResolver.resolveName`, `tsResolver.resolveParamName`, `tsResolver.resolveDataName`, etc. and returns a structured `TypeNames` object that components can use directly.
+
+This means:
+- `@kubb/core/hooks` / `useDriver()` is **not** needed
+- `resolverTs` is **not** imported directly in the generator — it comes from `options.tsResolver`
+- Type naming automatically tracks the preset (e.g. `kubbV4` uses legacy names)
 
 ## Two plugin categories
 
-Operation plugins (walk operations only, no builders/printers needed):
+Operation plugins (walk operations only, no printers needed):
 - `plugin-cypress`, `plugin-client`, `plugin-react-query`, `plugin-swr`, `plugin-solid-query`, `plugin-svelte-query`, `plugin-vue-query`, `plugin-msw`
 
-Schema plugins (walk both schemas and operations, need builders + printers):
+Schema plugins (walk both schemas and operations, need printers):
 - `plugin-ts`, `plugin-zod`, `plugin-faker`
 
 The plan covers both. Sections marked "(schema plugins only)" can be skipped for operation plugins.
@@ -49,8 +66,8 @@ New files to create:
 - `src/constants.ts` -- typed `Set` as const constants in SCREAMING_SNAKE_CASE or consts with `as const` named in camelCase
 - `src/resolvers/resolverPLUGIN_PASCAL.ts` -- `defineResolver` with naming helpers
 - `src/resolvers/index.ts` -- barrel export
-- `src/presets.ts` -- `definePresets` registry and `getPreset` helper
-- `src/builders/` -- (schema plugins only) `defineBuilder` usage
+- `src/presets.ts` -- `definePresets` registry (no `getPreset` wrapper; call `@kubb/core`'s `getPreset` directly in `plugin.ts`)
+- `src/utils.ts` -- (schema plugins only) standalone schema-building helper functions; for operation plugins that depend on plugin-ts, add a `buildTypeNames({ node, paramsCasing, resolver })` helper that accepts the preset-aware `ResolverTs`
 - `src/printers/` -- (schema plugins only) `definePrinter` usage
 
 Files to rewrite:
@@ -98,14 +115,15 @@ Core infrastructure:
 - `packages/core/src/definePreset.ts` -- preset factory
 - `packages/core/src/definePresets.ts` -- preset registry factory
 - `packages/core/src/utils/getPreset.ts` -- preset merging (resolvers merge, transformers concat, generators concat)
-- `packages/core/src/types.ts` -- `Resolver`, `Builder`, `PluginFactoryOptions` (7 type params), `ResolverPathParams`, `ResolverContext`, `ResolverFileParams`
+- `packages/core/src/types.ts` -- `Resolver`, `PluginFactoryOptions` (6 type params), `ResolverPathParams`, `ResolverContext`, `ResolverFileParams`
 
 Reference implementation (plugin-ts):
-- `packages/plugin-ts/src/types.ts` -- `ResolverTs` type with methods + JSDoc, `BuilderTs` type, `Options` with all v5 fields, `PluginFactoryOptions` generic
+- `packages/plugin-ts/src/types.ts` -- `ResolverTs` type with methods + JSDoc, `Options` with all v5 fields, `PluginFactoryOptions` generic
 - `packages/plugin-ts/src/constants.ts` -- SCREAMING_SNAKE_CASE `Set` constants
 - `packages/plugin-ts/src/resolvers/resolverTs.ts` -- `defineResolver` with `default`, `resolveName`, `resolveTypedName`, etc.
 - `packages/plugin-ts/src/resolvers/resolverTsLegacy.ts` -- legacy resolver extending base for `kubbV4` preset
-- `packages/plugin-ts/src/presets.ts` -- `definePresets`, `definePreset`, `getPreset`
+- `packages/plugin-ts/src/presets.ts` -- `definePresets`, `definePreset` (no wrapper `getPreset`; use `@kubb/core`'s `getPreset` directly in `plugin.ts`)
+- `packages/plugin-ts/src/utils.ts` -- standalone schema-building helpers: `buildParams`, `buildData`, `buildResponses`, `buildResponseUnion`
 - `packages/plugin-ts/src/generators/typeGenerator.tsx` -- `defineGenerator` with `Operation` and `Schema` methods
 - `packages/plugin-ts/src/generators/typeGenerator.test.tsx` -- v5 test pattern
 - `packages/plugin-ts/src/plugin.ts` -- `walk()`, `renderOperation()`, `renderSchema()`, resolver delegation with warnings
@@ -113,9 +131,7 @@ Reference implementation (plugin-ts):
 - `packages/plugin-ts/package.json` -- `exports` and `typesVersions`
 
 Schema plugins only:
-- `packages/plugin-ts/src/builders/builderTs.ts` -- `defineBuilder`
 - `packages/plugin-ts/src/printers/printerTs.ts` -- `definePrinter`
-- `packages/core/src/defineBuilder.ts` -- builder factory
 - `packages/ast/src/printers/printer.ts` -- printer factory
 
 Test mocks:
@@ -141,7 +157,7 @@ Remove these imports:
 - `Generator` from `@kubb/plugin-oas/generators`
 
 Add these imports:
-- `Resolver`, `Builder`, `Generator`, `CompatibilityPreset`, `Output`, `Group`, `Exclude`, `Include`, `Override`, `PluginFactoryOptions`, `ResolvePathOptions` from `@kubb/core`
+- `Resolver`, `Generator`, `CompatibilityPreset`, `Output`, `Group`, `Exclude`, `Include`, `Override`, `PluginFactoryOptions`, `ResolvePathOptions` from `@kubb/core`
 - `Visitor` from `@kubb/ast/types`
 
 Define resolver type (example for plugin-cypress):
@@ -193,6 +209,13 @@ Update `ResolvedOptions` type -- add:
 
 ```typescript
 resolver: ResolverCypress
+/**
+ * Preset-aware TypeScript resolver (default or legacy), resolved from
+ * `@kubb/plugin-ts`'s preset registry based on `compatibilityPreset`.
+ * Used for type name resolution (buildTypeNames) so naming follows the
+ * same convention as the plugin-ts output.
+ */
+tsResolver: ResolverTs
 transformers: Array<Visitor>
 ```
 
@@ -202,8 +225,8 @@ Update `PluginFactoryOptions` generic -- add resolver type as 6th param:
 // Operation plugin:
 export type PluginCypress = PluginFactoryOptions<'plugin-cypress', Options, ResolvedOptions, never, ResolvePathOptions, ResolverCypress>
 
-// Schema plugin (add builder as 7th param):
-// export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions, ResolverZod, BuilderZod>
+// Schema plugin (same, no 7th param needed):
+// export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions, ResolverZod>
 ```
 
 ### Step 2: Create src/constants.ts
@@ -275,46 +298,24 @@ export { resolverCypress } from './resolverCypress.ts'
 
 Read `packages/plugin-ts/src/presets.ts` first.
 
+The presets file only exports a `presets` registry — **no `getPreset` wrapper**. Use `getPreset` from `@kubb/core` directly in `plugin.ts`.
+
 ```typescript
-import type { Visitor } from '@kubb/ast/types'
-import { type CompatibilityPreset, definePreset, definePresets, type Generator, getPreset as getCorePreset } from '@kubb/core'
+import { definePreset, definePresets } from '@kubb/core'
 import { cypressGenerator } from './generators/index.ts'
 import { resolverCypress } from './resolvers/index.ts'
-import type { PluginCypress, ResolverCypress } from './types.ts'
+import type { ResolverCypress } from './types.ts'
 
 /**
  * Built-in preset registry for `@kubb/plugin-cypress`.
  *
  * - `default` -- uses `resolverCypress` and `cypressGenerator`.
+ * - `kubbV4`  -- uses `resolverCypress` and `cypressGenerator`.
  */
 export const presets = definePresets<ResolverCypress>({
   default: definePreset('default', { resolvers: [resolverCypress], generators: [cypressGenerator] }),
+  kubbV4: definePreset('kubbV4', { resolvers: [resolverCypress], generators: [cypressGenerator] }),
 })
-
-type GetPresetOptions = {
-  resolvers: Array<ResolverCypress>
-  transformers: Array<Visitor>
-  generators: Array<Generator<PluginCypress>>
-}
-
-/**
- * Resolves a compatibility preset for `plugin-cypress`, merging user-supplied
- * resolvers, transformers, and generators on top of the built-in preset defaults.
- *
- * @example
- * ```ts
- * const preset = getPreset('default', { resolvers: [], transformers: [], generators: [] })
- * ```
- */
-export function getPreset(preset: CompatibilityPreset, { resolvers, transformers, generators }: GetPresetOptions) {
-  return getCorePreset({
-    preset,
-    presets,
-    resolvers: [resolverCypress, ...(resolvers ?? [])],
-    transformers,
-    generators,
-  })
-}
 ```
 
 ### Step 6: Update package.json
@@ -329,33 +330,49 @@ In `exports`, add:
 "./resolvers": {
   "import": "./dist/resolvers.js",
   "require": "./dist/resolvers.cjs"
+},
+"./presets": {
+  "import": "./dist/presets.js",
+  "require": "./dist/presets.cjs"
 }
 ```
 
 In `typesVersions`, add:
 
 ```json
-"resolvers": ["./dist/resolvers.d.ts"]
+"resolvers": ["./dist/resolvers.d.ts"],
+"presets": ["./dist/presets.d.ts"]
 ```
 
 Remove stale entries from `typesVersions` (e.g. `"utils"`, `"hooks"`) if those sub-paths no longer exist.
 
-For schema plugins, also add `"./builders"` and `"./printers"` entries in both `exports` and `typesVersions`.
+For schema plugins, also add a `"./printers"` entry in both `exports` and `typesVersions`.
+
+> **Note:** The `./presets` export is especially important for plugins that other plugins depend on (like `plugin-ts`), since downstream plugins import `presets` from it to call `getPreset` with the correct preset registry.
 
 ### Step 7: Update tsdown.config.ts
 
-Add `resolvers` to the entry map:
+Add `resolvers` and `presets` to the entry map:
 
 ```typescript
 const entry = {
   index: 'src/index.ts',
+  presets: 'src/presets.ts',
   components: 'src/components/index.ts',
   generators: 'src/generators/index.ts',
   resolvers: 'src/resolvers/index.ts',
 }
 ```
 
-For schema plugins, also add `builders: 'src/builders/index.ts'` and `printers: 'src/printers/index.ts'`.
+For schema plugins, also add `printers: 'src/printers/index.ts'`.
+
+### Step 7b: Add tsconfig.json path alias (root tsconfig)
+
+If another plugin imports from your plugin's subpath (e.g. `@kubb/plugin-ts/presets`), add a path alias to the **root** `tsconfig.json` so TypeScript can resolve the source file during development:
+
+```json
+"@kubb/plugin-ts/presets": ["./packages/plugin-ts/src/presets.ts"],
+```
 
 ### Step 8: Verify barrel exports
 
@@ -385,31 +402,49 @@ Add these imports:
 - `OperationNode`, `ParameterNode` from `@kubb/ast/types`
 
 Change the Props type:
-- Replace `typeSchemas: OperationSchemas` with `node: OperationNode`
-- Replace `url: string` and `method: HttpMethod` -- get these from `node.path` and `node.method`
-- Add `resolver: ResolverCypress` for name resolution
+- Replace `typeSchemas: OperationSchemas` with a `typeNames` object containing pre-computed type name strings (computed in the generator using `resolverTs`)
+- Replace `url: string` and `method: HttpMethod` with `node: OperationNode` — get `node.path` and `node.method.toLowerCase()` directly
 - Keep plugin-specific props like `dataReturnType`, `paramsCasing`, etc.
 
 Change the implementation:
-- Extract path/query/header parameters by filtering `node.parameters` on `param.in`
-- Build URL template string from `node.path` directly (replace `URLPath` usage)
-- Use `DATA_RETURN_TYPE_DATA.has(dataReturnType)` instead of `dataReturnType === 'data'`
-- Use `node.method` (uppercase from AST) and lowercase it for output
-- Use `resolver.resolveName()` for resolving type/function names
+- Extract path/query/header parameters from `typeNames.pathParams`, `typeNames.queryParams`, `typeNames.headerParams`
+- Build URL template string from `node.path` directly: replace `:paramName` with `${paramName}` using already-cased param names
+- Use `DATA_RETURN_TYPE_DATA.has(dataReturnType)` instead of `dataReturnType === 'data'` (or keep `=== 'data'` for simplicity)
+- Use `node.method.toLowerCase()` for the HTTP method string
+- Replace `isOptional(schema)` with `!param.required` on individual `ParameterNode`s
+- Replace `isAllOptional(schema)` with `params.every(p => !p.required)`
+- Replace `getPathParams(typeSchemas.pathParams, { typed: true })` with `Object.fromEntries(typeNames.pathParams.map(p => [p.name, { type: p.typedName, required: p.required }]))`
+- For query/header params with no grouped type: use an inline object type string like `{ limit?: ListPetsQueryLimit }` built from `typeNames.queryParams`
 - Add JSDoc to the `Props` type and any helper functions
+
+The `TypeNames` type should be exported from the component so the generator can import and use it:
+
+```typescript
+export type TypeNames = {
+  pathParams: Array<{ name: string; typedName: string; required: boolean }>
+  queryParams: Array<{ name: string; typedName: string; required: boolean }>
+  headerParams: Array<{ name: string; typedName: string; required: boolean }>
+  requestBody?: { typedName: string }
+  response: { typedName: string }
+}
+```
 
 ### Step 2: Rewrite generators
 
 Read `packages/plugin-ts/src/generators/typeGenerator.tsx` first.
 
 Remove these imports:
-- `useDriver` from `@kubb/core/hooks`
 - `createReactGenerator` from `@kubb/plugin-oas/generators`
 - `useOas`, `useOperationManager` from `@kubb/plugin-oas/hooks`
 - `getBanner`, `getFooter` from `@kubb/plugin-oas/utils`
 
 Add these imports:
 - `defineGenerator`, `getMode` from `@kubb/core`
+
+**For plugins that import types from plugin-ts** (e.g. `plugin-cypress`):
+- Do **not** import `useDriver` or `resolverTs` directly in the generator
+- Instead, receive `tsResolver` from `options` (set in `plugin.ts` via the two-`getPreset` pattern)
+- Use `buildTypeNames({ node, paramsCasing, resolver: tsResolver })` from `./utils.ts`
 
 Change the generator definition.
 
@@ -434,7 +469,7 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
   name: 'cypress',
   type: 'react',
   Operation({ node, adapter, options, config }) {
-    const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group, resolver } = options
+    const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group, resolver, tsResolver } = options
     const root = path.resolve(config.root, config.output.path)
 
     const file = resolver.resolveFile(
@@ -444,6 +479,23 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
 
     const name = resolver.resolveName(node.operationId)
 
+    // buildTypeNames uses tsResolver so naming respects compatibilityPreset
+    const typeNames = buildTypeNames({ node, paramsCasing, resolver: tsResolver })
+
+    const importedTypeNames = [
+      ...typeNames.pathParams.map((p) => p.typedName),
+      ...typeNames.queryParams.map((p) => p.typedName),
+      ...typeNames.headerParams.map((p) => p.typedName),
+      typeNames.requestBody?.typedName,
+      typeNames.response.typedName,
+    ].filter((n): n is string => Boolean(n))
+
+    // tsResolver.resolveFile gives the correct plugin-ts output path (respects preset)
+    const tsFile = tsResolver.resolveFile(
+      { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+      { root, output, group },
+    )
+
     return (
       <File
         baseName={file.baseName}
@@ -452,8 +504,8 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
         banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
         footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
       >
-        {/* File.Import for type imports from plugin-ts */}
-        <Request name={name} node={node} resolver={resolver} /* ...other props */ />
+        <File.Import name={Array.from(new Set(importedTypeNames))} root={file.path} path={tsFile.path} isTypeOnly />
+        <Request name={name} node={node} typeNames={typeNames} /* ...other props */ />
       </File>
     )
   },
@@ -464,10 +516,12 @@ Key differences:
 - `defineGenerator` instead of `createReactGenerator`
 - Must include `type: 'react'` in the definition
 - Props are `{ node, adapter, options, config }` not `{ operation, generator, plugin }`
-- No hooks -- all data comes from `options` and `node`
+- No OAS hooks — all data comes from `options` and `node`
 - `resolver.resolveFile()` replaces `getFile()`
 - `resolver.resolveName()` replaces `getName()`
 - `resolver.resolveBanner()` / `resolver.resolveFooter()` replaces `getBanner()` / `getFooter()`
+- Use `buildTypeNames({ node, paramsCasing, resolver: tsResolver })` (from `./utils.ts`) for pre-computing TypeScript type names — `tsResolver` is the preset-aware TypeScript resolver passed through `options`
+- Use `tsResolver.resolveFile()` (not `resolver.resolveFile()`) to get the plugin-ts output file path
 - Schema plugins also implement `Schema({ node, adapter, options, config })`
 
 ---
@@ -487,8 +541,11 @@ Remove these imports:
 
 Add these imports:
 - `walk` from `@kubb/ast`
-- `renderOperation` from `@kubb/core` (and `renderSchema` for schema plugins)
-- `getPreset` from `./presets.ts`
+- `renderOperation`, `getPreset` from `@kubb/core` (and `renderSchema` for schema plugins)
+- `presets as tsPresets` from `@kubb/plugin-ts/presets` *(only for plugins that depend on plugin-ts)*
+- `resolverTs` from `@kubb/plugin-ts/resolvers` *(only for plugins that depend on plugin-ts)*
+- `presets` from `./presets.ts`
+- the plugin's default resolver (e.g. `resolverCypress`) from `./resolvers/index.ts`
 
 Change the options destructuring to include v5 fields:
 
@@ -506,18 +563,34 @@ const {
   generators: userGenerators = [],
 } = options
 
-const { resolver, transformers, generators } = getPreset(compatibilityPreset, {
-  resolvers: userResolvers,
+// For plugins that depend on plugin-ts: get the preset-aware TypeScript resolver
+// so type naming (e.g. buildTypeNames) respects the user's compatibilityPreset.
+const { resolver: tsResolver } = getPreset({
+  preset: compatibilityPreset,
+  presets: tsPresets,
+  resolvers: [resolverTs],
+  generators: [],
+})
+
+// Get the plugin's own resolver, transformers, and generators from its preset registry.
+const { resolver, transformers, generators } = getPreset({
+  preset: compatibilityPreset,
+  presets,
+  resolvers: [resolverCypress, ...userResolvers],
   transformers: userTransformers,
   generators: userGenerators,
 })
 ```
 
+> **Note:** Always pass the plugin's default resolver (e.g. `resolverCypress`) as the first element of `resolvers`. It acts as the base that preset and user resolvers are merged on top of.
+>
+> For plugins that **do not** depend on plugin-ts, omit the `tsResolver` call and just use the single `getPreset` call with the plugin's own `presets`.
+
 Change the plugin return object:
 
 `pre` array: Remove `pluginOasName`. Keep other dependencies like `pluginTsName`.
 
-`options` object: Add `resolver` and `transformers` to the resolved options.
+`options` object: Add `resolver`, `tsResolver` (for plugins depending on plugin-ts), and `transformers` to the resolved options.
 
 `resolvePath`: Delegate to resolver with a deprecation warning:
 
@@ -726,10 +799,13 @@ Run `pnpm test -u` in the plugin package directory.
 - Constants: `DATA_RETURN_TYPE_FULL`, `DATA_RETURN_TYPE_DATA`
 - Generator: `cypressGenerator` with `Operation` only (no `Schema`)
 - Plugin walks `operation` nodes only
-- Component: `Request.tsx` builds `cy.request()` calls
+- Component: `Request.tsx` builds `cy.request()` calls using pre-computed `TypeNames`
+- Type names for imports/params: passed via `options.tsResolver` (preset-aware `ResolverTs`) → `buildTypeNames({ node, paramsCasing, resolver: tsResolver })` in the generator
+- Cross-plugin file path: use `tsResolver.resolveFile(...)` (no `useDriver()` needed)
 - Remove deps: `@kubb/oas`, `@kubb/plugin-oas`
-- Add deps: `@kubb/ast`, `@kubb/fabric-core`
+- Add deps: `@kubb/ast`
 - Keep deps: `@kubb/core`, `@kubb/plugin-ts`, `@kubb/react-fabric`
+- Vitest config: add `vite-tsconfig-paths` plugin so monorepo path aliases resolve correctly
 
 ### plugin-client (operation plugin)
 
@@ -745,9 +821,9 @@ Run `pnpm test -u` in the plugin package directory.
 ### plugin-zod, plugin-faker (schema plugins)
 
 - Walk both `schema` and `operation` nodes
-- Need `defineBuilder` for composing AST subtrees
+- Need `src/utils.ts` with standalone schema-building helper functions (e.g. `buildParams`, `buildData`) — see `plugin-ts/src/utils.ts` as reference
 - Need `definePrinter` for converting schemas to target output
 - Has `parser.ts` for schema-to-code conversion
-- Model builders on `plugin-ts/src/builders/builderTs.ts`
+- Model utils on `plugin-ts/src/utils.ts`
 - Model printers on `plugin-ts/src/printers/printerTs.ts`
-- Add `builders` and `printers` entries to `tsdown.config.ts`, `package.json` exports, and `typesVersions`
+- Add a `printers` entry to `tsdown.config.ts`, `package.json` exports, and `typesVersions`

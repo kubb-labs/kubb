@@ -1,17 +1,5 @@
 import type { OperationNode, ParameterNode, SchemaNode, StatusCode, Visitor } from '@kubb/ast/types'
-import type {
-  Builder,
-  CompatibilityPreset,
-  Exclude,
-  Generator,
-  Group,
-  Include,
-  Output,
-  Override,
-  PluginFactoryOptions,
-  ResolvePathOptions,
-  Resolver,
-} from '@kubb/core'
+import type { CompatibilityPreset, Exclude, Generator, Group, Include, Output, Override, PluginFactoryOptions, ResolvePathOptions, Resolver } from '@kubb/core'
 /**
  * The concrete resolver type for `@kubb/plugin-ts`.
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
@@ -199,46 +187,6 @@ export type ResolverTs = Resolver & {
   resolveHeaderParamsTypedName?(node: OperationNode): string
 }
 
-/**
- * Options for building a grouped parameter schema (`pathParams`, `queryParams`, `headerParams`).
- */
-type BuildParamsSchemaOptions = {
-  params: Array<ParameterNode>
-  node: OperationNode
-  resolver: ResolverTs
-}
-
-/**
- * Options for building an operation-level schema (`data`, `responses`, `responseUnion`).
- */
-type BuildOperationSchemaOptions = {
-  node: OperationNode
-  resolver: ResolverTs
-}
-
-/**
- * The concrete builder type for `@kubb/plugin-ts`.
- * Extends the base `Builder` with schema-building helpers used by the v5 type generator.
- */
-export type BuilderTs = Builder & {
-  /**
-   * Builds an object schema that groups the given parameters by name.
-   */
-  buildParams(options: BuildParamsSchemaOptions): SchemaNode
-  /**
-   * Builds the combined data schema containing `pathParams`, `queryParams`, `headerParams`, `data`, and `url`.
-   */
-  buildData(options: BuildOperationSchemaOptions): SchemaNode
-  /**
-   * Builds an object schema that maps each response status code to its type reference, or `null` when there are no responses.
-   */
-  buildResponses(options: BuildOperationSchemaOptions): SchemaNode | null
-  /**
-   * Builds a union schema of all response status types, or `null` when no responses have a schema.
-   */
-  buildResponseUnion(options: BuildOperationSchemaOptions): SchemaNode | null
-}
-
 export type Options = {
   /**
    * Specify the export location for the files and define the behavior of the output
@@ -379,8 +327,7 @@ type ResolvedOptions = {
   arrayType: NonNullable<Options['arrayType']>
   syntaxType: NonNullable<Options['syntaxType']>
   paramsCasing: Options['paramsCasing']
-  resolver: ResolverTs
   transformers: Array<Visitor>
 }
 
-export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs, BuilderTs>
+export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>

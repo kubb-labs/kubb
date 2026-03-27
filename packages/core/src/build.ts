@@ -274,7 +274,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
   const config = driver.config
 
   try {
-    for (const plugin of driver.plugins) {
+    for (const plugin of driver.plugins.values()) {
       const context = driver.getContext(plugin)
       const hrStart = process.hrtime()
 
@@ -403,7 +403,7 @@ type BuildBarrelExportsParams = {
 
 function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }: BuildBarrelExportsParams): FabricFile.Export[] {
   const pluginNameMap = new Map<string, Plugin>()
-  for (const plugin of driver.plugins) {
+  for (const plugin of driver.plugins.values()) {
     pluginNameMap.set(plugin.name, plugin)
   }
 

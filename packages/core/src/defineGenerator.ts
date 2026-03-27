@@ -1,6 +1,7 @@
 import type { OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { FabricFile } from '@kubb/fabric-core/types'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
+import type { PluginDriver } from './PluginDriver.ts'
 import type { Adapter, Config, Plugin, PluginFactoryOptions } from './types.ts'
 
 export type Version = '1' | '2'
@@ -12,7 +13,9 @@ export type OperationsV2Props<TPlugin extends PluginFactoryOptions = PluginFacto
   config: Config
   plugin: Plugin<TPlugin>
   adapter: Adapter
+  driver: PluginDriver
   options: Plugin<TPlugin>['options']
+  resolver: TPlugin['resolver']
   nodes: Array<OperationNode>
 }
 
@@ -22,8 +25,10 @@ export type OperationsV2Props<TPlugin extends PluginFactoryOptions = PluginFacto
 export type OperationV2Props<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
   config: Config
   adapter: Adapter
+  driver: PluginDriver
   plugin: Plugin<TPlugin>
   options: Plugin<TPlugin>['options']
+  resolver: TPlugin['resolver']
   node: OperationNode
 }
 
@@ -33,8 +38,10 @@ export type OperationV2Props<TPlugin extends PluginFactoryOptions = PluginFactor
 export type SchemaV2Props<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
   config: Config
   adapter: Adapter
+  driver: PluginDriver
   plugin: Plugin<TPlugin>
   options: Plugin<TPlugin>['options']
+  resolver: TPlugin['resolver']
   node: SchemaNode
 }
 

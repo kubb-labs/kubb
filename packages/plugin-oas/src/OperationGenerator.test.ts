@@ -15,6 +15,7 @@ describe('OperationGenerator core', async () => {
     root: './',
     output: { path: 'test', clean: true },
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
+    plugins: [],
   })
   const fabric = createReactFabric()
 
@@ -116,6 +117,7 @@ describe('OperationGenerator exclude', async () => {
     root: './',
     output: { path: 'test', clean: true },
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
+    plugins: [],
   })
   const fabric = createReactFabric()
   test('if exclude is filtered out for tag', async () => {
@@ -258,6 +260,7 @@ describe('OperationGenerator include', async () => {
     root: './',
     output: { path: 'test', clean: true },
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
+    plugins: [],
   })
   const fabric = createReactFabric()
 
@@ -401,6 +404,7 @@ describe('OperationGenerator include and exclude', async () => {
     root: './',
     output: { path: 'test', clean: true },
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
+    plugins: [],
   })
   const fabric = createReactFabric()
 
