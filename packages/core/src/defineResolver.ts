@@ -203,7 +203,7 @@ export function defaultResolvePath(
     return path.resolve(root, output.path) as FabricFile.Path
   }
 
-  if (group) {
+  if (group && (groupPath || tag)) {
     return path.resolve(root, output.path, group.name({ group: group.type === 'path' ? groupPath! : tag! }), baseName) as FabricFile.Path
   }
 

@@ -8,11 +8,17 @@ import type { ResolvedOptions } from './types.ts'
  * Returns true when the resolver is using the kubbV4 compatibility preset (legacy mode).
  * In legacy mode the resolver provides grouped param types (`DeletePetPathParams`) rather
  * than per-parameter types (`DeletePetPathPetId`).
+ *
+ * Detection: the non-legacy resolver defines `resolvePathParamsTypedName` as a function that throws.
+ * So legacy = the method exists AND does not throw.
  */
 function isLegacyResolver(resolver: ResolverTs, node: OperationNode): boolean {
+  if (typeof resolver.resolvePathParamsTypedName !== 'function') {
+    return false
+  }
   try {
-    resolver.resolvePathParamsTypedName?.(node)
-    return typeof resolver.resolvePathParamsTypedName === 'function'
+    resolver.resolvePathParamsTypedName(node)
+    return true
   } catch {
     return false
   }
