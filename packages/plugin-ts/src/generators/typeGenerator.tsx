@@ -24,13 +24,11 @@ export const typeGenerator = defineGenerator<PluginTs>({
     function renderSchemaType({
       node: schemaNode,
       name,
-      typedName,
       description,
       keysToOmit,
     }: {
       node: SchemaNode | null
       name: string
-      typedName: string
       description?: string
       keysToOmit?: Array<string>
     }) {
@@ -51,7 +49,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
             imports.map((imp) => <File.Import key={[name, imp.path, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />)}
           <Type
             name={name}
-            typedName={typedName}
             node={transformedNode}
             description={description}
             enumType={enumType}
@@ -71,7 +68,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
       renderSchemaType({
         node: param.schema,
         name: resolver.resolveParamName(node, param),
-        typedName: resolver.resolveParamTypedName(node, param),
       }),
     )
 
@@ -79,7 +75,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
       ? renderSchemaType({
           node: node.requestBody.schema,
           name: resolver.resolveDataName(node),
-          typedName: resolver.resolveDataTypedName(node),
           description: node.requestBody.description ?? node.requestBody.schema.description,
           keysToOmit: node.requestBody.keysToOmit,
         })
@@ -89,7 +84,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
       renderSchemaType({
         node: res.schema,
         name: resolver.resolveResponseStatusName(node, res.statusCode),
-        typedName: resolver.resolveResponseStatusTypedName(node, res.statusCode),
         description: res.description,
         keysToOmit: res.keysToOmit,
       }),
@@ -98,19 +92,16 @@ export const typeGenerator = defineGenerator<PluginTs>({
     const dataType = renderSchemaType({
       node: buildData({ node: { ...node, parameters: params }, resolver }),
       name: resolver.resolveRequestConfigName(node),
-      typedName: resolver.resolveRequestConfigTypedName(node),
     })
 
     const responsesType = renderSchemaType({
       node: buildResponses({ node, resolver }),
       name: resolver.resolveResponsesName(node),
-      typedName: resolver.resolveResponsesTypedName(node),
     })
 
     const responseType = renderSchemaType({
       node: buildResponseUnion({ node, resolver }),
       name: resolver.resolveResponseName(node),
-      typedName: resolver.resolveResponseTypedName(node),
       description: 'Union of all possible responses',
     })
 
@@ -150,12 +141,10 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
     const isEnumSchema = !!narrowSchema(node, schemaTypes.enum)
 
-    const typedName =
-      ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyTypedName(node, enumTypeSuffix) : resolver.resolveTypedName(node.name)
+    const name = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyName(node, enumTypeSuffix) : resolver.resolveName(node.name)
 
     const type = {
-      name: resolver.resolveName(node.name),
-      typedName,
+      name,
       file: resolver.resolveFile({ name: node.name, extname: '.ts' }, { root, output, group }),
     } as const
 
@@ -173,7 +162,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
           ))}
         <Type
           name={type.name}
-          typedName={type.typedName}
           node={transformedNode}
           enumType={enumType}
           enumTypeSuffix={enumTypeSuffix}

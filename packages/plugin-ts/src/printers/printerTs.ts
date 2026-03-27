@@ -37,7 +37,7 @@ type TsOptions = {
    * When set, `printer.print(node)` produces a full `type Name = …` declaration.
    * When omitted, `printer.print(node)` returns the raw type node.
    */
-  typeName?: string
+  name?: string
 
   /**
    * JSDoc `@description` comment added to the generated type or interface declaration.
@@ -272,7 +272,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
 
         const resolvedName =
           ENUM_TYPES_WITH_KEY_SUFFIX.has(this.options.enumType) && this.options.enumTypeSuffix
-            ? this.options.resolver.resolveEnumKeyTypedName(node as unknown as SchemaNode, this.options.enumTypeSuffix)
+            ? this.options.resolver.resolveEnumKeyName(node as unknown as SchemaNode, this.options.enumTypeSuffix)
             : this.options.resolver.default(node.name, 'type')
 
         return factory.createTypeReferenceNode(resolvedName, undefined)
@@ -360,16 +360,16 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] })
       }
 
-      // Without typeName, return the type node as-is (no declaration wrapping).
-      const { typeName, syntaxType = 'type', description, keysToOmit } = this.options
-      if (!typeName) {
+      // Without name, return the type node as-is (no declaration wrapping).
+      const { name, syntaxType = 'type', description, keysToOmit } = this.options
+      if (!name) {
         return safePrint(type)
       }
 
       const useTypeGeneration = syntaxType === 'type' || type.kind === factory.syntaxKind.union || !!keysToOmit?.length
 
       const typeNode = factory.createTypeDeclaration({
-        name: typeName,
+        name,
         isExportable: true,
         type: keysToOmit?.length
           ? factory.createOmitDeclaration({

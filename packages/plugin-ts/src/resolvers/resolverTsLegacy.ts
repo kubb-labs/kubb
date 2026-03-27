@@ -35,53 +35,26 @@ export const resolverTsLegacy = defineResolver<PluginTs>(() => {
       }
       return this.resolveName(`${node.operationId} ${statusCode}`)
     },
-    resolveResponseStatusTypedName(node, statusCode) {
-      if (statusCode === 'default') {
-        return this.resolveTypedName(`${node.operationId} Error`)
-      }
-      return this.resolveTypedName(`${node.operationId} ${statusCode}`)
-    },
     resolveDataName(node) {
       const suffix = node.method === 'GET' ? 'QueryRequest' : 'MutationRequest'
       return this.resolveName(`${node.operationId} ${suffix}`)
-    },
-    resolveDataTypedName(node) {
-      const suffix = node.method === 'GET' ? 'QueryRequest' : 'MutationRequest'
-      return this.resolveTypedName(`${node.operationId} ${suffix}`)
     },
     resolveResponsesName(node) {
       const suffix = node.method === 'GET' ? 'Query' : 'Mutation'
       return `${this.default(node.operationId, 'function')}${suffix}`
     },
-    resolveResponsesTypedName(node) {
-      const suffix = node.method === 'GET' ? 'Query' : 'Mutation'
-      return `${this.default(node.operationId, 'type')}${suffix}`
-    },
     resolveResponseName(node) {
       const suffix = node.method === 'GET' ? 'QueryResponse' : 'MutationResponse'
       return this.resolveName(`${node.operationId} ${suffix}`)
     },
-    resolveResponseTypedName(node) {
-      const suffix = node.method === 'GET' ? 'QueryResponse' : 'MutationResponse'
-      return this.resolveTypedName(`${node.operationId} ${suffix}`)
-    },
-    resolvePathParamsName(node) {
+    resolvePathParamsName(node, _param) {
       return this.resolveName(`${node.operationId} PathParams`)
     },
-    resolvePathParamsTypedName(node) {
-      return this.resolveTypedName(`${node.operationId} PathParams`)
-    },
-    resolveQueryParamsName(node) {
+    resolveQueryParamsName(node, _param) {
       return this.resolveName(`${node.operationId} QueryParams`)
     },
-    resolveQueryParamsTypedName(node) {
-      return this.resolveTypedName(`${node.operationId} QueryParams`)
-    },
-    resolveHeaderParamsName(node) {
+    resolveHeaderParamsName(node, _param) {
       return this.resolveName(`${node.operationId} HeaderParams`)
-    },
-    resolveHeaderParamsTypedName(node) {
-      return this.resolveTypedName(`${node.operationId} HeaderParams`)
     },
   }
 })

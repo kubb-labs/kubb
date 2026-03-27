@@ -286,16 +286,16 @@ import type { PluginCypress } from '../types.ts'
  * resolverCypress.default('list pets', 'function') // -> 'listPets'
  * resolverCypress.resolveName('show pet by id')    // -> 'showPetById'
  * ```
- */
+*/
 export const resolverCypress = defineResolver<PluginCypress>(() => ({
-  name: 'default',
-  pluginName: 'plugin-cypress',
-  default(name, type) {
-    return camelCase(name, { isFile: type === 'file' })
-  },
-  resolveName(name) {
-    return this.default(name, 'function')
-  },
+name: 'default',
+pluginName: 'plugin-cypress',
+default(name, type) {
+return camelCase(name, { isFile: type === 'file' })
+},
+resolveName(name) {
+return this.default(name, 'function')
+},
 }))
 
 ### Step 4: Create src/presets.ts
@@ -707,9 +707,9 @@ export const pluginCypressName = 'plugin-cypress' satisfies PluginCypress['name'
  *   plugins: [pluginCypress({ output: { path: 'cypress' } })],
  * })
  * ```
- */
+*/
 export const pluginCypress = createPlugin<PluginCypress>((options) => {
-  // ...
+// ...
 })
 ```
 

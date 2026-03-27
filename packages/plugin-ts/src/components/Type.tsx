@@ -8,7 +8,6 @@ import { Enum, getEnumNames } from './Enum.tsx'
 
 type Props = {
   name: string
-  typedName: string
   node: SchemaNode
   optionalType: PluginTs['resolvedOptions']['optionalType']
   arrayType: PluginTs['resolvedOptions']['arrayType']
@@ -23,7 +22,6 @@ type Props = {
 
 export function Type({
   name,
-  typedName,
   node,
   keysToOmit,
   optionalType,
@@ -48,7 +46,7 @@ export function Type({
     arrayType,
     enumType,
     enumTypeSuffix,
-    typeName: name,
+    name,
     syntaxType,
     description: resolvedDescription,
     keysToOmit,
@@ -76,7 +74,7 @@ export function Type({
       {shouldExportEnums &&
         enums.map(({ node }) => <Enum node={node} enumType={enumType} enumTypeSuffix={enumTypeSuffix} enumKeyCasing={enumKeyCasing} resolver={resolver} />)}
       {shouldExportType && (
-        <File.Source name={typedName} isTypeOnly isExportable isIndexable>
+        <File.Source name={name} isTypeOnly isExportable isIndexable>
           {output}
         </File.Source>
       )}

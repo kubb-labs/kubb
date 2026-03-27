@@ -714,7 +714,7 @@ describe('printerTs', () => {
     })
 
     it('with typeName wraps in export type declaration', async () => {
-      const p = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'inlineLiteral', typeName: 'MyType' })
+      const p = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'inlineLiteral', name: 'MyType' })
       const result = p.print(createSchema({ type: 'string' }))
 
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
@@ -724,7 +724,7 @@ describe('printerTs', () => {
     })
 
     it('with typeName and object uses interface syntax by default', async () => {
-      const p = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'inlineLiteral', typeName: 'MyObject' })
+      const p = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'inlineLiteral', name: 'MyObject' })
       const result = p.print(
         createSchema({
           type: 'object',
@@ -746,7 +746,7 @@ describe('printerTs', () => {
         optionalType: 'questionToken',
         arrayType: 'array',
         enumType: 'inlineLiteral',
-        typeName: 'MyObject',
+        name: 'MyObject',
         syntaxType: 'type',
       })
       const result = p.print(
@@ -765,7 +765,7 @@ describe('printerTs', () => {
     })
 
     it('nullable node adds | null to the declaration', async () => {
-      const p = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'inlineLiteral', typeName: 'Status' })
+      const p = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'inlineLiteral', name: 'Status' })
       const result = p.print(createSchema({ type: 'string', nullable: true }))
 
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
@@ -780,7 +780,7 @@ describe('printerTs', () => {
         optionalType: 'undefined',
         arrayType: 'array',
         enumType: 'inlineLiteral',
-        typeName: 'MaybeValue',
+        name: 'MaybeValue',
       })
       const result = p.print(createSchema({ type: 'string', optional: true }))
 
@@ -796,7 +796,7 @@ describe('printerTs', () => {
         optionalType: 'questionToken',
         arrayType: 'array',
         enumType: 'inlineLiteral',
-        typeName: 'Described',
+        name: 'Described',
         description: 'A well-described type',
       })
       const result = p.print(createSchema({ type: 'string' }))
@@ -810,7 +810,7 @@ describe('printerTs', () => {
         optionalType: 'questionToken',
         arrayType: 'array',
         enumType: 'inlineLiteral',
-        typeName: 'Partial',
+        name: 'Partial',
         keysToOmit: ['id', 'createdAt'],
       })
       const result = p.print(
