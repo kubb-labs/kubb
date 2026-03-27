@@ -809,4 +809,215 @@ describe('createOperationParams', () => {
       `)
     })
   })
+
+  describe('paramsCasing with query and header params', () => {
+    it('applies camelCase to query param names', () => {
+      const node = makeOperation({
+        parameters: [makeQueryParam('order_status'), makeQueryParam('pet_category')],
+      })
+
+      const params = createOperationParams(node, {
+        paramsType: 'inline',
+        pathParamsType: 'inline',
+        paramsCasing: 'camelcase',
+        resolver: makeResolver({
+          resolveParamName: (_node, param) => `Types["${param.name}"]`,
+        }),
+      })
+
+      expect(params).toMatchInlineSnapshot(`
+        {
+          "kind": "FunctionParameters",
+          "params": [
+            {
+              "kind": "FunctionParameter",
+              "name": "params",
+              "optional": true,
+              "type": "{ orderStatus?: Types["orderStatus"]; petCategory?: Types["petCategory"] }",
+            },
+          ],
+        }
+      `)
+    })
+
+    it('applies camelCase to path params with object path params type', () => {
+      const node = makeOperation({
+        parameters: [makePathParam('pet_id'), makePathParam('store_name')],
+      })
+
+      const params = createOperationParams(node, {
+        paramsType: 'inline',
+        pathParamsType: 'object',
+        paramsCasing: 'camelcase',
+        resolver: makeResolver({ resolveParamName: () => 'string' }),
+      })
+
+      const pathGroup = params.params[0]
+      expect(pathGroup).toBeDefined()
+      if (pathGroup && pathGroup.kind === 'ObjectBindingParameter') {
+        expect(pathGroup.properties.map((p) => p.name)).toEqual(['petId', 'storeName'])
+      }
+    })
+  })
+
+  describe('client-plugin style (inline path + named query/header groups)', () => {
+    it('covers the common client plugin scenario: path inline, query + header as named groups', () => {
+      const node = makeOperation({
+        parameters: [makePathParam('petId'), makeQueryParam('status'), makeHeaderParam('x-api-key')],
+        requestBody: {
+          schema: createSchema({ type: 'object' }),
+          required: true,
+        },
+      })
+
+      const params = createOperationParams(node, {
+        paramsType: 'inline',
+        pathParamsType: 'inline',
+        resolver: makeResolver({
+          resolveParamName: (_node, param) => `Types["${param.name}"]`,
+          resolveDataName: () => 'CreatePetRequest',
+          resolveQueryParamsName: () => 'GetPetQueryParams',
+          resolveHeaderParamsName: () => 'GetPetHeaderParams',
+        }),
+      })
+
+      expect(params).toMatchInlineSnapshot(`
+        {
+          "kind": "FunctionParameters",
+          "params": [
+            {
+              "default": undefined,
+              "inline": true,
+              "kind": "ObjectBindingParameter",
+              "properties": [
+                {
+                  "kind": "FunctionParameter",
+                  "name": "petId",
+                  "optional": false,
+                  "type": "Types["petId"]",
+                },
+              ],
+            },
+            {
+              "kind": "FunctionParameter",
+              "name": "data",
+              "optional": false,
+              "type": "CreatePetRequest",
+            },
+            {
+              "kind": "FunctionParameter",
+              "name": "params",
+              "optional": true,
+              "type": "GetPetQueryParams",
+            },
+            {
+              "kind": "FunctionParameter",
+              "name": "headers",
+              "optional": true,
+              "type": "GetPetHeaderParams",
+            },
+          ],
+        }
+      `)
+    })
+
+    it('covers object paramsType with all param types: path + query + header + body', () => {
+      const node = makeOperation({
+        parameters: [makePathParam('petId'), makeQueryParam('status', { required: true }), makeHeaderParam('x-api-key', { required: true })],
+        requestBody: {
+          schema: createSchema({ type: 'object' }),
+          required: false,
+        },
+      })
+
+      const params = createOperationParams(node, {
+        paramsType: 'object',
+        pathParamsType: 'inline',
+        resolver: makeResolver({
+          resolveParamName: (_node, param) => `Types["${param.name}"]`,
+          resolveDataName: () => 'CreatePetRequest',
+          resolveQueryParamsName: () => 'GetPetQueryParams',
+          resolveHeaderParamsName: () => 'GetPetHeaderParams',
+        }),
+      })
+
+      const objParam = params.params[0]
+      expect(objParam?.kind).toBe('ObjectBindingParameter')
+      if (objParam && objParam.kind === 'ObjectBindingParameter') {
+        const names = objParam.properties.map((p) => p.name)
+        expect(names).toContain('petId')
+        expect(names).toContain('data')
+        expect(names).toContain('params')
+        expect(names).toContain('headers')
+      }
+    })
+  })
+
+  describe('react-query / solid-query / svelte-query style', () => {
+    it('inline paramsType with object path params and named query group (QueryOptions style)', () => {
+      const node = makeOperation({
+        parameters: [makePathParam('petId', { required: true }), makeQueryParam('limit'), makeQueryParam('offset')],
+      })
+
+      const params = createOperationParams(node, {
+        paramsType: 'inline',
+        pathParamsType: 'object',
+        resolver: makeResolver({
+          resolveParamName: (_node, param) => `GetPetByIdPathParams["${param.name}"]`,
+          resolvePathParamsName: () => 'GetPetByIdPathParams',
+          resolveQueryParamsName: () => 'GetPetByIdQueryParams',
+        }),
+      })
+
+      expect(params).toMatchInlineSnapshot(`
+        {
+          "kind": "FunctionParameters",
+          "params": [
+            {
+              "default": undefined,
+              "inline": false,
+              "kind": "ObjectBindingParameter",
+              "properties": [
+                {
+                  "kind": "FunctionParameter",
+                  "name": "petId",
+                  "optional": false,
+                  "type": "GetPetByIdPathParams['petId']",
+                },
+              ],
+            },
+            {
+              "kind": "FunctionParameter",
+              "name": "params",
+              "optional": true,
+              "type": "GetPetByIdQueryParams",
+            },
+          ],
+        }
+      `)
+    })
+
+    it('inline paramsType with paramsCasing and named query group', () => {
+      const node = makeOperation({
+        parameters: [makePathParam('pet_id', { required: true }), makeQueryParam('sort_order')],
+      })
+
+      const params = createOperationParams(node, {
+        paramsType: 'inline',
+        pathParamsType: 'inline',
+        paramsCasing: 'camelcase',
+        resolver: makeResolver({
+          resolveParamName: (_node, param) => `Types["${param.name}"]`,
+          resolveQueryParamsName: () => 'ListPetsQueryParams',
+        }),
+      })
+
+      const pathGroup = params.params[0]
+      if (pathGroup && pathGroup.kind === 'ObjectBindingParameter') {
+        expect(pathGroup.properties[0]?.name).toBe('petId')
+      }
+      const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
+      expect(queryParam?.type).toBe('ListPetsQueryParams')
+    })
+  })
 })
