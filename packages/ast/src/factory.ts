@@ -341,39 +341,56 @@ export function createFunctionParameters(props: Partial<Omit<FunctionParametersN
   }
 }
 
-/**
- * A named type for a group of parameters (query or header).
- *
- * When provided, the group is emitted as a single typed parameter
- * instead of individual per-param inline types.
- */
+/** Named type for a group of parameters (query or header) emitted as a single typed parameter. */
 export type ParamGroupType = {
-  /**
-   * The TypeScript type string, e.g. `'FindPetsQueryParams'`.
-   */
+  /** TypeScript type string, e.g. `'FindPetsQueryParams'`. */
   type: string
-  /**
-   * Whether the parameter is optional.
-   */
+  /** Whether the parameter group is optional. */
   optional: boolean
 }
 
 /**
- * Minimal resolver interface for {@link createOperationParams}.
+ * Resolver interface for {@link createOperationParams}.
  *
- * `ResolverTs` from `@kubb/plugin-ts` satisfies this interface,
- * so it can be passed directly as `resolver`.
+ * `ResolverTs` from `@kubb/plugin-ts` satisfies this interface and can be passed directly.
+ *
+ * @example
+ * resolver.resolveParamName(node, param) // → 'DeletePetPathPetId'
+ * resolver.resolvePathParamsName(node, param) // → 'DeletePetPathParams' (legacy) or 'DeletePetPathPetId' (default)
  */
 export type OperationParamsResolver = {
-  /** Resolves the TypeScript type for an individual parameter (e.g. `'DeletePetPathPetId'`). */
+  /**
+   * Resolves the TypeScript type name for an individual parameter.
+   * @example
+   * resolver.resolveParamName(node, param) // → 'DeletePetPathPetId'
+   */
   resolveParamName(node: OperationNode, param: ParameterNode): string
-  /** Resolves the request body type name (e.g. `'CreatePetData'`). */
+  /**
+   * Resolves the request body type name.
+   * @example
+   * resolver.resolveDataName(node) // → 'CreatePetData'
+   */
   resolveDataName(node: OperationNode): string
-  /** Resolves the grouped path parameters type name (e.g. `'DeletePetPathParams'`). */
+  /**
+   * Resolves the grouped path parameters type name.
+   * When equal to `resolveParamName`, no indexed access is emitted.
+   * @example
+   * resolver.resolvePathParamsName(node, param) // → 'DeletePetPathParams'
+   */
   resolvePathParamsName(node: OperationNode, param: ParameterNode): string
-  /** Resolves the grouped query parameters type name (e.g. `'FindPetsQueryParams'`). */
+  /**
+   * Resolves the grouped query parameters type name.
+   * When equal to `resolveParamName`, falls back to inline object type.
+   * @example
+   * resolver.resolveQueryParamsName(node, param) // → 'FindPetsByStatusQueryParams'
+   */
   resolveQueryParamsName(node: OperationNode, param: ParameterNode): string
-  /** Resolves the grouped header parameters type name (e.g. `'DeletePetHeaderParams'`). */
+  /**
+   * Resolves the grouped header parameters type name.
+   * When equal to `resolveParamName`, falls back to inline object type.
+   * @example
+   * resolver.resolveHeaderParamsName(node, param) // → 'DeletePetHeaderParams'
+   */
   resolveHeaderParamsName(node: OperationNode, param: ParameterNode): string
 }
 
@@ -382,55 +399,46 @@ export type OperationParamsResolver = {
  */
 export type CreateOperationParamsOptions = {
   /**
-   * How to group all parameters:
-   * - `'object'` — wrap into a single destructured object `{ petId, data, params }: { … }`
-   * - `'inline'` — emit each category as a separate top-level parameter
+   * How all operation parameters are grouped in the function signature.
+   * - `'object'` wraps all params into a single destructured object `{ petId, data, params }`
+   * - `'inline'` emits each param category as a separate top-level parameter
    */
   paramsType: 'object' | 'inline'
   /**
-   * How to emit path parameters when `paramsType` is `'inline'`:
-   * - `'object'` — group into `{ petId, storeId }: { petId: string; storeId: string }`
-   * - `'inline'` — emit as individual top-level parameters `petId: string, storeId: string`
+   * How path parameters are emitted when `paramsType` is `'inline'`.
+   * - `'object'` groups them as `{ petId, storeId }: PathParams`
+   * - `'inline'` spreads them as individual parameters `petId: string, storeId: string`
    */
   pathParamsType: 'object' | 'inline'
   /**
-   * When `'camelcase'`, parameter names are converted to camelCase.
+   * Converts parameter names to camelCase before output.
+   * @default undefined
    */
   paramsCasing?: 'camelcase'
   /**
-   * Resolver for parameter and request body types.
-   *
-   * `ResolverTs` from `@kubb/plugin-ts` can be passed directly.
-   * When omitted, falls back to the parameter's schema primitive or `'unknown'`.
-   *
+   * Resolver for parameter and request body type names.
+   * Pass `ResolverTs` from `@kubb/plugin-ts` directly.
+   * When omitted, falls back to the schema primitive or `'unknown'`.
    * @example
-   * ```ts
    * resolver: tsResolver
-   * ```
    */
   resolver?: OperationParamsResolver
   /**
-   * Default value expression for the path parameters group.
-   *
-   * Only used when `pathParamsType` is `'object'`.
-   * When omitted, defaults to `'{}'` if all path params are optional.
+   * Default value for the path parameters binding when `pathParamsType` is `'object'`.
+   * Falls back to `'{}'` when all path params are optional.
+   * @example
+   * pathParamsDefault: '{}'
    */
   pathParamsDefault?: string
   /**
-   * Additional parameters appended after the standard operation parameters.
-   *
+   * Extra parameters appended after the standard operation parameters.
    * @example
-   * ```ts
-   * [createFunctionParameter({ name: 'options', type: 'Partial<RequestOptions>', default: '{}' })]
-   * ```
+   * extraParams: [createFunctionParameter({ name: 'options', type: 'Partial<RequestOptions>', default: '{}' })]
    */
   extraParams?: Array<FunctionParameterNode | ObjectBindingParameterNode>
 }
 
-/**
- * Creates a {@link FunctionParameterNode} without type casts
- * by branching on the `required` discriminant.
- */
+/** Builds a {@link FunctionParameterNode} without type casts by branching on `required`. */
 function toFunctionParam(name: string, type: string, required: boolean): FunctionParameterNode {
   if (required) {
     return { kind: 'FunctionParameter', name, type, optional: false }
@@ -464,21 +472,16 @@ function resolveType(node: OperationNode, param: ParameterNode, resolver: Operat
 /**
  * Converts an {@link OperationNode} into a {@link FunctionParametersNode}.
  *
- * Centralises the per-plugin `getParams()` pattern into a single AST-level
- * converter. Callers supply a `resolver` for type resolution and
- * `extraParams` for plugin-specific trailing parameters.
+ * Centralises the per-plugin `getParams()` pattern. Provide a `resolver` for
+ * type resolution and `extraParams` for plugin-specific trailing parameters.
  *
  * @example
- * ```ts
- * const params = createOperationParams(operationNode, {
+ * const params = createOperationParams(node, {
  *   paramsType: 'inline',
  *   pathParamsType: 'inline',
  *   resolver: tsResolver,
- *   extraParams: [
- *     createFunctionParameter({ name: 'options', type: 'Partial<RequestOptions>', default: '{}' }),
- *   ],
+ *   extraParams: [createFunctionParameter({ name: 'options', type: 'Partial<RequestOptions>', default: '{}' })],
  * })
- * ```
  */
 export function createOperationParams(node: OperationNode, options: CreateOperationParamsOptions): FunctionParametersNode {
   const { paramsType, pathParamsType, paramsCasing, resolver, pathParamsDefault, extraParams = [] } = options
@@ -528,7 +531,8 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
 }
 
 /**
- * Derives a {@link ParamGroupType} from the resolver's group method when available.
+ * Derives a {@link ParamGroupType} from the resolver's group method.
+ * Returns `undefined` when the group name equals the individual param name (no real group).
  */
 function resolveGroupType(
   node: OperationNode,
@@ -561,9 +565,7 @@ type CollectParamsContext = {
   extraParams: Array<FunctionParameterNode | ObjectBindingParameterNode>
 }
 
-/**
- * `paramsType: 'object'` — wraps all operation params into a single destructured object.
- */
+/** `paramsType: 'object'` — wraps all operation params into a single destructured object. */
 function collectObjectParams({
   node,
   pathParams,
@@ -612,9 +614,7 @@ type CollectInlineParamsContext = CollectParamsContext & {
   pathParamsDefault: string | undefined
 }
 
-/**
- * `paramsType: 'inline'` — each param category is a separate top-level parameter.
- */
+/** `paramsType: 'inline'` — each param category is a separate top-level parameter. */
 function collectInlineParams({
   node,
   pathParams,
@@ -666,9 +666,7 @@ function collectInlineParams({
   return createFunctionParameters({ params })
 }
 
-/**
- * Appends a grouped param (named type) or individual inline params to `target`.
- */
+/** Appends a group param (named type) or individual inline params to `target`. */
 function appendGroupOrInline(
   target: Array<FunctionParameterNode>,
   name: string,
@@ -685,7 +683,8 @@ function appendGroupOrInline(
 }
 
 /**
- * Builds an inline object type string: `{ petId: string; name?: string }`.
+ * Builds an inline object type string.
+ * @example toInlineObjectType(...) // → '{ petId: string; name?: string }'
  */
 function toInlineObjectType(node: OperationNode, params: Array<ParameterNode>, resolver: OperationParamsResolver | undefined): string {
   const parts = params.map((p) => `${p.name}${!p.required ? '?' : ''}: ${resolveType(node, p, resolver)}`)

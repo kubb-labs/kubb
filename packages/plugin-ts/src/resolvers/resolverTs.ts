@@ -6,8 +6,6 @@ function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'
   return pascalCase(name, { isFile: type === 'file' })
 }
 
-//TODO should be resolverTs({}).resolveName so we can pass options like output: tsPlugin.options.output, group: tsPlugin.options.group
-
 /**
  * Resolver for `@kubb/plugin-ts` that provides the default naming and path-resolution
  * helpers used by the plugin. Import this in other plugins to resolve the exact names and
@@ -33,13 +31,13 @@ export const resolverTs = defineResolver<PluginTs>(() => {
       return resolveName(name, type)
     },
     resolveName(name) {
-      return this.default(name, 'function')
+      return this.default(name, 'type')
     },
     resolvePathName(name, type) {
       return this.default(name, type)
     },
     resolveParamName(node, param) {
-      return this.resolveName(`${node.operationId} ${this.default(param.in)} ${param.name}`)
+      return this.resolveName(`${node.operationId} ${param.in} ${param.name}`)
     },
     resolveResponseStatusName(node, statusCode) {
       return this.resolveName(`${node.operationId} Status ${statusCode}`)
@@ -57,7 +55,7 @@ export const resolverTs = defineResolver<PluginTs>(() => {
       return this.resolveName(`${node.operationId} Response`)
     },
     resolveEnumKeyName(node, enumTypeSuffix = 'key') {
-      return `${this.resolveName(node.name ?? '')}${enumTypeSuffix}`
+      return this.resolveName([node.name, enumTypeSuffix].filter(Boolean).join(' '))
     },
     resolvePathParamsName(node, param) {
       return this.resolveParamName(node, param)
