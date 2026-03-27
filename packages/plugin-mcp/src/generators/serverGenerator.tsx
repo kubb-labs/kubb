@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { useDriver } from '@kubb/core/hooks'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
@@ -99,7 +100,7 @@ export const serverGenerator = createReactGenerator<PluginMcp>({
               "${oas.api.info?.title || 'server'}": {
                 "type": "stdio",
                 "command": "npx",
-                "args": ["tsx", "${file.path}"]
+                "args": ["tsx", "${path.relative(path.dirname(jsonFile.path), file.path)}"]
               }
             }
           }

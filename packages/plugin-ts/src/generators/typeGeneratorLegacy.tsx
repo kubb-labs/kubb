@@ -76,7 +76,7 @@ function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperationSchema
     )
   }
 
-  if (node.parameters.some((p) => p.in === 'query') && resolver.resolveQueryParamsName) {
+  if (node.parameters.some((p) => p.in === 'query')) {
     properties.push(
       createProperty({
         name: 'QueryParams',
@@ -86,7 +86,7 @@ function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperationSchema
     )
   }
 
-  if (node.parameters.some((p) => p.in === 'path') && resolver.resolvePathParamsName) {
+  if (node.parameters.some((p) => p.in === 'path')) {
     properties.push(
       createProperty({
         name: 'PathParams',
@@ -96,7 +96,7 @@ function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperationSchema
     )
   }
 
-  if (node.parameters.some((p) => p.in === 'header') && resolver.resolveHeaderParamsName) {
+  if (node.parameters.some((p) => p.in === 'header')) {
     properties.push(
       createProperty({
         name: 'HeaderParams',
@@ -236,20 +236,20 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
     const legacyParamTypes = [
       pathParams.length > 0
         ? renderSchemaType({
-            node: buildGroupedParamsSchema({ params: pathParams, parentName: resolverTsLegacy.resolvePathParamsName!(node) }),
-            name: resolver.resolvePathParamsName!(node),
+            node: buildGroupedParamsSchema({ params: pathParams, parentName: resolverTsLegacy.resolvePathParamsName(node) }),
+            name: resolver.resolvePathParamsName(node),
           })
         : null,
       queryParams.length > 0
         ? renderSchemaType({
-            node: buildGroupedParamsSchema({ params: queryParams, parentName: resolverTsLegacy.resolveQueryParamsName!(node) }),
-            name: resolver.resolveQueryParamsName!(node),
+            node: buildGroupedParamsSchema({ params: queryParams, parentName: resolverTsLegacy.resolveQueryParamsName(node) }),
+            name: resolver.resolveQueryParamsName(node),
           })
         : null,
       headerParams.length > 0
         ? renderSchemaType({
-            node: buildGroupedParamsSchema({ params: headerParams, parentName: resolverTsLegacy.resolveHeaderParamsName!(node) }),
-            name: resolver.resolveHeaderParamsName!(node),
+            node: buildGroupedParamsSchema({ params: headerParams, parentName: resolverTsLegacy.resolveHeaderParamsName(node) }),
+            name: resolver.resolveHeaderParamsName(node),
           })
         : null,
     ]

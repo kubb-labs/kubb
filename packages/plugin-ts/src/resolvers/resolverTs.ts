@@ -59,14 +59,14 @@ export const resolverTs = defineResolver<PluginTs>(() => {
     resolveEnumKeyName(node, enumTypeSuffix = 'key') {
       return `${this.resolveName(node.name ?? '')}${enumTypeSuffix}`
     },
-    resolvePathParamsName(_node) {
-      throw new Error("resolvePathParamsName is only available with compatibilityPreset: 'kubbV4'. Use resolveParamName per individual parameter instead.")
+    resolvePathParamsName(node) {
+      return this.resolveName(`${node.operationId} PathParams`)
     },
-    resolveQueryParamsName(_node) {
-      throw new Error("resolveQueryParamsName is only available with compatibilityPreset: 'kubbV4'. Use resolveParamName per individual parameter instead.")
+    resolveQueryParamsName(node) {
+      return this.resolveName(`${node.operationId} QueryParams`)
     },
-    resolveHeaderParamsName(_node) {
-      throw new Error("resolveHeaderParamsName is only available with compatibilityPreset: 'kubbV4'. Use resolveParamName per individual parameter instead.")
+    resolveHeaderParamsName(node) {
+      return this.resolveName(`${node.operationId} HeaderParams`)
     },
   }
 })

@@ -89,31 +89,25 @@ export type ResolverTs = Resolver & {
   resolveEnumKeyName(node: SchemaNode, enumTypeSuffix: string): string
   /**
    * Resolves the name for an operation's grouped path parameters type.
-   * Only available with `compatibilityPreset: 'kubbV4'`.
    *
-   * @deprecated Kubb v4 compatibility only — use `resolveParamName` per individual parameter instead.
    * @example
    * resolver.resolvePathParamsName(node) // → 'GetPetByIdPathParams'
    */
-  resolvePathParamsName?(node: OperationNode): string
+  resolvePathParamsName(node: OperationNode): string
   /**
    * Resolves the name for an operation's grouped query parameters type.
-   * Only available with `compatibilityPreset: 'kubbV4'`.
    *
-   * @deprecated Kubb v4 compatibility only — use `resolveParamName` per individual parameter instead.
    * @example
    * resolver.resolveQueryParamsName(node) // → 'FindPetsByStatusQueryParams'
    */
-  resolveQueryParamsName?(node: OperationNode): string
+  resolveQueryParamsName(node: OperationNode): string
   /**
    * Resolves the name for an operation's grouped header parameters type.
-   * Only available with `compatibilityPreset: 'kubbV4'`.
    *
-   * @deprecated Kubb v4 compatibility only — use `resolveParamName` per individual parameter instead.
    * @example
    * resolver.resolveHeaderParamsName(node) // → 'DeletePetHeaderParams'
    */
-  resolveHeaderParamsName?(node: OperationNode): string
+  resolveHeaderParamsName(node: OperationNode): string
 }
 
 export type Options = {
