@@ -1,21 +1,8 @@
 import { camelCase, isValidVarName } from '@internals/utils'
 
-import {
-  createFunctionParameter,
-  createFunctionParameters,
-  createObjectBindingParameter,
-  createProperty,
-  createSchema,
-} from './factory.ts'
+import { createFunctionParameter, createFunctionParameters, createObjectBindingParameter, createProperty, createSchema } from './factory.ts'
 import { narrowSchema } from './guards.ts'
-import type {
-  FunctionParameterNode,
-  FunctionParametersNode,
-  ObjectBindingParameterNode,
-  OperationNode,
-  ParameterNode,
-  SchemaNode,
-} from './nodes/index.ts'
+import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode, OperationNode, ParameterNode, SchemaNode } from './nodes/index.ts'
 import type { SchemaType } from './nodes/schema.ts'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
@@ -259,13 +246,25 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
     if (queryGroupType) {
       children.push(createFunctionParameter({ name: 'params', type: queryGroupType.type, optional: queryGroupType.optional }))
     } else if (queryParams.length) {
-      children.push(createFunctionParameter({ name: 'params', type: toInlineObjectType({ node, params: queryParams, resolver }), optional: queryParams.every((p) => !p.required) }))
+      children.push(
+        createFunctionParameter({
+          name: 'params',
+          type: toInlineObjectType({ node, params: queryParams, resolver }),
+          optional: queryParams.every((p) => !p.required),
+        }),
+      )
     }
 
     if (headerGroupType) {
       children.push(createFunctionParameter({ name: 'headers', type: headerGroupType.type, optional: headerGroupType.optional }))
     } else if (headerParams.length) {
-      children.push(createFunctionParameter({ name: 'headers', type: toInlineObjectType({ node, params: headerParams, resolver }), optional: headerParams.every((p) => !p.required) }))
+      children.push(
+        createFunctionParameter({
+          name: 'headers',
+          type: toInlineObjectType({ node, params: headerParams, resolver }),
+          optional: headerParams.every((p) => !p.required),
+        }),
+      )
     }
 
     if (children.length) {
@@ -273,12 +272,16 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
     }
   } else {
     if (pathParams.length) {
-      const pathChildren = pathParams.map((p) => createFunctionParameter({ name: p.name, type: resolveType({ node, param: p, resolver }), optional: !p.required }))
-      params.push(createObjectBindingParameter({
-        properties: pathChildren,
-        inline: pathParamsType === 'inline',
-        default: pathParamsDefault ?? (pathChildren.every((c) => c.optional) ? '{}' : undefined),
-      }))
+      const pathChildren = pathParams.map((p) =>
+        createFunctionParameter({ name: p.name, type: resolveType({ node, param: p, resolver }), optional: !p.required }),
+      )
+      params.push(
+        createObjectBindingParameter({
+          properties: pathChildren,
+          inline: pathParamsType === 'inline',
+          default: pathParamsDefault ?? (pathChildren.every((c) => c.optional) ? '{}' : undefined),
+        }),
+      )
     }
 
     if (bodyType) {
@@ -288,13 +291,25 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
     if (queryGroupType) {
       params.push(createFunctionParameter({ name: 'params', type: queryGroupType.type, optional: queryGroupType.optional }))
     } else if (queryParams.length) {
-      params.push(createFunctionParameter({ name: 'params', type: toInlineObjectType({ node, params: queryParams, resolver }), optional: queryParams.every((p) => !p.required) }))
+      params.push(
+        createFunctionParameter({
+          name: 'params',
+          type: toInlineObjectType({ node, params: queryParams, resolver }),
+          optional: queryParams.every((p) => !p.required),
+        }),
+      )
     }
 
     if (headerGroupType) {
       params.push(createFunctionParameter({ name: 'headers', type: headerGroupType.type, optional: headerGroupType.optional }))
     } else if (headerParams.length) {
-      params.push(createFunctionParameter({ name: 'headers', type: toInlineObjectType({ node, params: headerParams, resolver }), optional: headerParams.every((p) => !p.required) }))
+      params.push(
+        createFunctionParameter({
+          name: 'headers',
+          type: toInlineObjectType({ node, params: headerParams, resolver }),
+          optional: headerParams.every((p) => !p.required),
+        }),
+      )
     }
   }
 
@@ -307,7 +322,12 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
  * Derives a {@link ParamGroupType} from the resolver's group method.
  * Returns `undefined` when the group name equals the individual param name (no real group).
  */
-function resolveGroupType({ node, params, groupMethod, resolver }: {
+function resolveGroupType({
+  node,
+  params,
+  groupMethod,
+  resolver,
+}: {
   node: OperationNode
   params: Array<ParameterNode>
   groupMethod: (_node: OperationNode, _param: ParameterNode) => string
@@ -329,7 +349,15 @@ function resolveGroupType({ node, params, groupMethod, resolver }: {
  * Builds an inline object type string.
  * @example toInlineObjectType(...) // → '{ petId: string; name?: string }'
  */
-function toInlineObjectType({ node, params, resolver }: { node: OperationNode; params: Array<ParameterNode>; resolver: OperationParamsResolver | undefined }): string {
+function toInlineObjectType({
+  node,
+  params,
+  resolver,
+}: {
+  node: OperationNode
+  params: Array<ParameterNode>
+  resolver: OperationParamsResolver | undefined
+}): string {
   const parts = params.map((p) => `${p.name}${!p.required ? '?' : ''}: ${resolveType({ node, param: p, resolver })}`)
   return `{ ${parts.join('; ')} }`
 }

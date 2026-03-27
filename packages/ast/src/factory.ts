@@ -328,4 +328,3 @@ export function createFunctionParameters(props: Partial<Omit<FunctionParametersN
     kind: 'FunctionParameters',
   }
 }
-

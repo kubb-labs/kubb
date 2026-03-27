@@ -1,18 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import {
-  createFunctionParameter,
-  createOperation,
-  createParameter,
-  createSchema,
-} from './factory.ts'
+import { createFunctionParameter, createOperation, createParameter, createSchema } from './factory.ts'
 import type { OperationNode, ParameterNode } from './types.ts'
-import {
-  caseParams,
-  createDiscriminantNode,
-  createOperationParams,
-  isStringType,
-} from './utils.ts'
 import type { OperationParamsResolver } from './utils.ts'
+import { caseParams, createDiscriminantNode, createOperationParams, isStringType } from './utils.ts'
 
 const param = (name: string) =>
   createParameter({
