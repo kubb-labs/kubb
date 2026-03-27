@@ -136,12 +136,12 @@ export const schemaTypes = {
   never: 'never',
 } as const satisfies Record<SchemaType, SchemaType>
 
+export type ScalarPrimitive = 'string' | 'number' | 'integer' | 'bigint' | 'boolean'
+
 /**
  * Primitive scalar schema types used when simplifying union members.
  */
-export const SCALAR_PRIMITIVE_TYPES = new Set(['string', 'number', 'integer', 'bigint', 'boolean'] as const)
-
-export type ScalarPrimitive = typeof SCALAR_PRIMITIVE_TYPES extends Set<infer T> ? T : never
+export const SCALAR_PRIMITIVE_TYPES = new Set<ScalarPrimitive>(['string', 'number', 'integer', 'bigint', 'boolean'])
 
 /** Returns `true` when `type` is a scalar primitive schema type. */
 export function isScalarPrimitive(type: string): type is ScalarPrimitive {
