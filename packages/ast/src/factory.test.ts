@@ -1,3 +1,4 @@
+import type { OperationParamsResolver } from './factory.ts'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   createDiscriminantNode,
@@ -297,6 +298,17 @@ function makeHeaderParam(name: string, opts: { required?: boolean } = {}) {
   })
 }
 
+function makeResolver(overrides: Partial<OperationParamsResolver> = {}): OperationParamsResolver {
+  return {
+    resolveParamName: (_node, param) => param.name,
+    resolveDataName: () => 'unknown',
+    resolvePathParamsName: (_node, param) => param.name,
+    resolveQueryParamsName: (_node, param) => param.name,
+    resolveHeaderParamsName: (_node, param) => param.name,
+    ...overrides,
+  }
+}
+
 describe('createOperationParams', () => {
   describe('inline mode with inline path params', () => {
     it('produces inline path params', () => {
@@ -307,7 +319,7 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: { resolveParamName: (_node, param) => `GetPetById["${param.name}"]` },
+        resolver: makeResolver({ resolveParamName: (_node, param) => `GetPetById["${param.name}"]` }),
       })
 
       expect(params).toMatchInlineSnapshot(`
@@ -344,7 +356,7 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: { resolveParamName: (_node, param) => `Types["${param.name}"]`, resolveDataName: () => 'CreatePetRequest' },
+        resolver: makeResolver({ resolveParamName: (_node, param) => `Types["${param.name}"]`, resolveDataName: () => 'CreatePetRequest' }),
         extraParams: [createFunctionParameter({ name: 'options', type: 'Partial<Cypress.RequestOptions>', default: '{}' })],
       })
 
@@ -400,7 +412,7 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: { resolveParamName: () => 'string' },
+        resolver: makeResolver({ resolveParamName: () => 'string' }),
       })
 
       expect(params).toMatchInlineSnapshot(`
@@ -435,7 +447,7 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'object',
-        resolver: { resolveParamName: () => 'string' },
+        resolver: makeResolver({ resolveParamName: () => 'string' }),
       })
 
       expect(params).toMatchInlineSnapshot(`
@@ -480,7 +492,7 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'object',
         pathParamsType: 'inline',
-        resolver: { resolveParamName: (_node, param) => `Types["${param.name}"]`, resolveDataName: () => 'UpdatePetBody' },
+        resolver: makeResolver({ resolveParamName: (_node, param) => `Types["${param.name}"]`, resolveDataName: () => 'UpdatePetBody' }),
         extraParams: [createFunctionParameter({ name: 'options', type: 'Options', default: '{}' })],
       })
 
@@ -532,7 +544,7 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'object',
         pathParamsType: 'inline',
-        resolver: { resolveParamName: () => 'string' },
+        resolver: makeResolver({ resolveParamName: () => 'string' }),
       })
 
       expect(params).toMatchInlineSnapshot(`
@@ -567,7 +579,7 @@ describe('createOperationParams', () => {
         paramsType: 'inline',
         pathParamsType: 'inline',
         paramsCasing: 'camelcase',
-        resolver: { resolveParamName: () => 'string' },
+        resolver: makeResolver({ resolveParamName: () => 'string' }),
       })
 
       const pathParam = params.params[0]
@@ -651,7 +663,7 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: { resolveParamName: () => 'unknown', resolveDataName: () => 'CreatePetRequest' },
+        resolver: makeResolver({ resolveParamName: () => 'unknown', resolveDataName: () => 'CreatePetRequest' }),
       })
 
       expect(params).toMatchInlineSnapshot(`
@@ -680,7 +692,7 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: { resolveParamName: () => 'unknown', resolveDataName: () => 'UpdatePetRequest' },
+        resolver: makeResolver({ resolveParamName: () => 'unknown', resolveDataName: () => 'UpdatePetRequest' }),
       })
 
       expect(params).toMatchInlineSnapshot(`
@@ -708,10 +720,10 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: {
+        resolver: makeResolver({
           resolveParamName: (_node, param) => `Types["${param.name}"]`,
           resolveQueryParamsName: () => 'FindPetsQueryParams',
-        },
+        }),
       })
 
       const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
@@ -733,10 +745,10 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'object',
         pathParamsType: 'inline',
-        resolver: {
+        resolver: makeResolver({
           resolveParamName: (_node, param) => `Types["${param.name}"]`,
           resolveQueryParamsName: () => 'FindPetsQueryParams',
-        },
+        }),
       })
 
       const objParam = params.params[0]
@@ -761,7 +773,7 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: { resolveParamName: (_node, param) => `Types["${param.name}"]` },
+        resolver: makeResolver({ resolveParamName: (_node, param) => `Types["${param.name}"]` }),
       })
 
       const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
@@ -776,10 +788,10 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: {
+        resolver: makeResolver({
           resolveParamName: () => 'string',
           resolveHeaderParamsName: () => 'FindPetsHeaderParams',
-        },
+        }),
       })
 
       expect(params).toMatchInlineSnapshot(`
@@ -805,10 +817,10 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'object',
         pathParamsType: 'inline',
-        resolver: {
+        resolver: makeResolver({
           resolveParamName: () => 'string',
           resolveHeaderParamsName: () => 'HeaderParams',
-        },
+        }),
       })
 
       const objParam = params.params[0]
@@ -833,10 +845,10 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: {
+        resolver: makeResolver({
           resolveParamName: (_node, param) => `DeletePetPath${param.name}`,
           resolvePathParamsName: () => 'DeletePetPathParams',
-        },
+        }),
       })
 
       const pathGroup = params.params[0]
@@ -870,7 +882,7 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'object',
-        resolver: { resolveParamName: () => 'string' },
+        resolver: makeResolver({ resolveParamName: () => 'string' }),
         pathParamsDefault: '[]',
       })
 
@@ -889,7 +901,7 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'object',
-        resolver: { resolveParamName: () => 'string' },
+        resolver: makeResolver({ resolveParamName: () => 'string' }),
         pathParamsDefault: undefined,
       })
 
@@ -914,11 +926,11 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        resolver: {
+        resolver: makeResolver({
           resolveParamName: (_node, param) => `MaybeRefOrGetter<Types["${param.name}"]>`,
           resolveDataName: () => 'MaybeRefOrGetter<CreatePetRequest>',
           resolveQueryParamsName: () => 'MaybeRefOrGetter<FindPetsQueryParams>',
-        },
+        }),
       })
 
       expect(params.params).toMatchInlineSnapshot(`

@@ -1,3 +1,4 @@
+import { URLPath } from '@internals/utils'
 import { createFunctionParameter, createOperationParams } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { ResolverTs } from '@kubb/plugin-ts'
@@ -52,25 +53,14 @@ function getParams({
   return declarationPrinter.print(paramsNode) ?? ''
 }
 
-/**
- * Builds the URL template string from the operation path (OpenAPI `{param}` style).
- * Replaces `{paramName}` with `${paramName}`.
- */
-function buildUrlTemplate(operationPath: string, baseURL: string): string {
-  const template = operationPath.replace(/\{([^}]+)\}/g, (_, name: string) => `\${${name}}`)
-  if (baseURL) {
-    return `\`${baseURL}${template}\``
-  }
-  return `\`${template}\``
-}
-
 export function Request({ baseURL = '', name, dataReturnType, resolver, node, paramsType, pathParamsType, paramsCasing }: Props): FabricReactNode {
   const paramsSignature = getParams({ paramsType, pathParamsType, paramsCasing, resolver, node })
 
   const responseType = resolver.resolveResponseName(node)
   const returnType = dataReturnType === 'data' ? `Cypress.Chainable<${responseType}>` : `Cypress.Chainable<Cypress.Response<${responseType}>>`
 
-  const urlTemplate = buildUrlTemplate(node.path, baseURL)
+  const urlPath = new URLPath(node.path, { casing: paramsCasing })
+  const urlTemplate = urlPath.toTemplateString({ prefix: baseURL })
 
   const requestOptions: string[] = [`method: '${node.method}'`, `url: ${urlTemplate}`]
 

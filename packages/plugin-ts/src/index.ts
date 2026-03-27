@@ -12,5 +12,3 @@ export { resolverTs } from './resolvers/resolverTs.ts'
 export { resolverTsLegacy } from './resolvers/resolverTsLegacy.ts'
 
 export type { PluginTs, ResolverTs } from './types.ts'
-
-// 427 KB

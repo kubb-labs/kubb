@@ -443,21 +443,22 @@ function resolveType(node: OperationNode, param: ParameterNode, resolver: Operat
     return param.schema.primitive ?? 'unknown'
   }
 
-  const groupResolver =
+  const individualName = resolver.resolveParamName(node, param)
+
+  const groupName =
     param.in === 'path'
-      ? resolver.resolvePathParamsName
+      ? resolver.resolvePathParamsName(node, param)
       : param.in === 'query'
-        ? resolver.resolveQueryParamsName
+        ? resolver.resolveQueryParamsName(node, param)
         : param.in === 'header'
-          ? resolver.resolveHeaderParamsName
+          ? resolver.resolveHeaderParamsName(node, param)
           : undefined
 
-  if (groupResolver) {
-    const groupName = groupResolver.call(resolver, node, param)
+  if (groupName && groupName !== individualName) {
     return `${groupName}['${param.name}']`
   }
 
-  return resolver.resolveParamName(node, param)
+  return individualName
 }
 
 /**
@@ -488,12 +489,12 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   const queryParams = casedParams.filter((p) => p.in === 'query')
   const headerParams = casedParams.filter((p) => p.in === 'header')
 
-  const bodyType = node.requestBody?.schema ? (resolver?.resolveDataName?.(node) ?? 'unknown') : undefined
+  const bodyType = node.requestBody?.schema ? (resolver?.resolveDataName(node) ?? 'unknown') : undefined
   const bodyRequired = node.requestBody?.required ?? false
 
   // Derive group types from resolver when available
-  const queryGroupType = resolveGroupType(node, queryParams, resolver?.resolveQueryParamsName, resolver)
-  const headerGroupType = resolveGroupType(node, headerParams, resolver?.resolveHeaderParamsName, resolver)
+  const queryGroupType = resolver ? resolveGroupType(node, queryParams, resolver.resolveQueryParamsName, resolver) : undefined
+  const headerGroupType = resolver ? resolveGroupType(node, headerParams, resolver.resolveHeaderParamsName, resolver) : undefined
 
   if (paramsType === 'object') {
     return collectObjectParams({
@@ -532,14 +533,19 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
 function resolveGroupType(
   node: OperationNode,
   params: Array<ParameterNode>,
-  groupMethod: ((node: OperationNode, param: ParameterNode) => string) | undefined,
-  resolver: OperationParamsResolver | undefined,
+  groupMethod: (node: OperationNode, param: ParameterNode) => string,
+  resolver: OperationParamsResolver,
 ): ParamGroupType | undefined {
-  if (!groupMethod || !params.length || !resolver) {
+  if (!params.length) {
+    return undefined
+  }
+  const firstParam = params[0]!
+  const groupName = groupMethod.call(resolver, node, firstParam)
+  if (groupName === resolver.resolveParamName(node, firstParam)) {
     return undefined
   }
   const allOptional = params.every((p) => !p.required)
-  return { type: groupMethod.call(resolver, node, params[0]!), optional: allOptional }
+  return { type: groupName, optional: allOptional }
 }
 
 type CollectParamsContext = {

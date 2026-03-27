@@ -1,9 +1,9 @@
 export { Request } from './components/Request.tsx'
-export { DATA_RETURN_TYPE_DATA, DATA_RETURN_TYPE_FULL } from './constants.ts'
+
 export { cypressGenerator } from './generators/cypressGenerator.tsx'
+
 export { pluginCypress, pluginCypressName } from './plugin.ts'
-export { presets } from './presets.ts'
+
 export { resolverCypress } from './resolvers/resolverCypress.ts'
+
 export type { PluginCypress, ResolverCypress } from './types.ts'
-export type { TypeNames } from './utils.ts'
-export { buildTypeNames } from './utils.ts'

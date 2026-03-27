@@ -35,6 +35,8 @@ export type ResolverTs = Resolver &
      * resolver.resolvePathName('list pets', 'file') // → 'ListPets'
      */
     resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+    /** Resolves the request body type name (required on ResolverTs). */
+    resolveDataName(node: OperationNode): string
 
     /**
      * Resolves the name for an operation response by status code.
