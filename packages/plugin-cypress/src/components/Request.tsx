@@ -1,6 +1,9 @@
-import type { OperationNode } from '@kubb/ast/types'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import { createFunctionParameter, createFunctionParameters, createObjectBindingParameter, functionPrinter } from '@kubb/ast'
+import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode, OperationNode } from '@kubb/ast/types'
+import type { ResolverTs } from '@kubb/plugin-ts'
+import { File, Function } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { buildTypeNames } from '../utils.ts'
 import type { PluginCypress } from '../types.ts'
 
 /**
@@ -48,7 +51,11 @@ type Props = {
    */
   node: OperationNode
   /**
-   * Pre-computed type names resolved from the plugin-ts resolver.
+   * The plugin-ts resolver — used by `getParams` to derive TypeScript type names.
+   */
+  resolver: ResolverTs
+  /**
+   * Pre-computed type names from the generator (used for urlTemplate, returnType, requestOptions).
    */
   typeNames: TypeNames
   baseURL: string | undefined
@@ -59,10 +66,11 @@ type Props = {
 }
 
 type GetParamsProps = {
+  node: OperationNode
+  resolver: ResolverTs
   paramsCasing: PluginCypress['resolvedOptions']['paramsCasing']
   paramsType: PluginCypress['resolvedOptions']['paramsType']
   pathParamsType: PluginCypress['resolvedOptions']['pathParamsType']
-  typeNames: TypeNames
 }
 
 /**
@@ -75,12 +83,9 @@ function buildInlineObjectType(params: Array<TypeParamInfo>): string {
   return `{ ${props} }`
 }
 
-function getParams({ paramsType, pathParamsType, typeNames }: GetParamsProps) {
-  const { pathParams, queryParams, headerParams, requestBody, grouped } = typeNames
+function getParams({ node, resolver, paramsType, paramsCasing, pathParamsType }: GetParamsProps): FunctionParametersNode {
+  const { pathParams, queryParams, headerParams, requestBody, grouped } = buildTypeNames({ node, paramsCasing, resolver })
 
-  // Children without type annotations — used when the outer grouped type provides the type.
-  const pathParamChildrenUntyped = Object.fromEntries(pathParams.map((p) => [p.name, { optional: !p.required }]))
-  const pathParamChildrenTyped = Object.fromEntries(pathParams.map((p) => [p.name, { type: p.typedName, optional: !p.required }]))
   const allPathOptional = pathParams.every((p) => !p.required)
 
   // When grouped types are available (kubbV4 compatibility preset), use them for the params type.
@@ -90,63 +95,65 @@ function getParams({ paramsType, pathParamsType, typeNames }: GetParamsProps) {
   const headerParamsOptional = headerParams.every((p) => !p.required)
 
   if (paramsType === 'object') {
-    const children = {
+    // Single destructured object wrapping all inputs (except options).
+    // For grouped path params, individual param names are used untyped (the outer object provides no combined type).
+    const innerParams = [
       ...(grouped?.pathParams
-        ? { pathParams: { mode: 'object' as const, type: grouped.pathParams, children: pathParamChildrenUntyped, optional: allPathOptional } }
-        : pathParamChildrenTyped),
-      data: requestBody ? { type: requestBody.typedName, optional: false } : undefined,
-      params: queryParamsType ? { type: queryParamsType, optional: queryParamsOptional } : undefined,
-      headers: headerParamsType ? { type: headerParamsType, optional: headerParamsOptional } : undefined,
-    }
+        ? pathParams.map((p) => createFunctionParameter({ name: p.name, optional: !p.required }))
+        : pathParams.map((p) => createFunctionParameter({ name: p.name, type: p.typedName, optional: !p.required }))),
+      requestBody ? createFunctionParameter({ name: 'data', type: requestBody.typedName, optional: false }) : null,
+      queryParamsType ? createFunctionParameter({ name: 'params', type: queryParamsType, optional: queryParamsOptional }) : null,
+      headerParamsType ? createFunctionParameter({ name: 'headers', type: headerParamsType, optional: headerParamsOptional }) : null,
+    ].filter((p): p is FunctionParameterNode => p !== null)
 
-    const allChildrenOptional = Object.values(children).every((child) => !child || child.optional !== false)
+    const allChildrenOptional = innerParams.every((p) => p.optional || p.default !== undefined)
 
-    return FunctionParams.factory({
-      data: {
-        mode: 'object',
-        children,
-        default: allChildrenOptional ? '{}' : undefined,
-      },
-      options: {
-        type: 'Partial<Cypress.RequestOptions>',
-        default: '{}',
-      },
+    return createFunctionParameters({
+      params: [
+        createObjectBindingParameter({
+          properties: innerParams,
+          default: allChildrenOptional ? '{}' : undefined,
+        }),
+        createFunctionParameter({ name: 'options', type: 'Partial<Cypress.RequestOptions>', optional: false, default: '{}' }),
+      ],
     })
   }
 
-  return FunctionParams.factory({
-    pathParams:
-      pathParams.length > 0
-        ? {
-            mode: grouped?.pathParams ? 'object' : pathParamsType === 'object' ? 'object' : 'inlineSpread',
-            type: grouped?.pathParams,
-            children: grouped?.pathParams ? pathParamChildrenUntyped : pathParamChildrenTyped,
-            default: allPathOptional ? '{}' : undefined,
-          }
-        : undefined,
-    data: requestBody
-      ? {
-          type: requestBody.typedName,
-          optional: false,
-        }
-      : undefined,
-    params: queryParamsType
-      ? {
-          type: queryParamsType,
-          optional: queryParamsOptional,
-        }
-      : undefined,
-    headers: headerParamsType
-      ? {
-          type: headerParamsType,
-          optional: headerParamsOptional,
-        }
-      : undefined,
-    options: {
-      type: 'Partial<Cypress.RequestOptions>',
-      default: '{}',
-    },
-  })
+  // Inline mode: path params come first, then scalar params.
+  let pathParamNodes: Array<FunctionParameterNode | ObjectBindingParameterNode> = []
+
+  if (pathParams.length > 0) {
+    if (grouped?.pathParams) {
+      // Legacy (kubbV4): { petId }: DeletePetPathParams
+      pathParamNodes = [
+        createObjectBindingParameter({
+          properties: pathParams.map((p) => createFunctionParameter({ name: p.name, optional: !p.required })),
+          type: grouped.pathParams,
+          default: allPathOptional ? '{}' : undefined,
+        }),
+      ]
+    } else if (pathParamsType === 'object') {
+      // Object mode: { petId }: { petId: ShowPetByIdPathPetId }
+      pathParamNodes = [
+        createObjectBindingParameter({
+          properties: pathParams.map((p) => createFunctionParameter({ name: p.name, type: p.typedName, optional: !p.required })),
+          default: allPathOptional ? '{}' : undefined,
+        }),
+      ]
+    } else {
+      // Inline: petId: ShowPetByIdPathPetId, ...
+      pathParamNodes = pathParams.map((p) => createFunctionParameter({ name: p.name, type: p.typedName, optional: !p.required }))
+    }
+  }
+
+  const scalarParams = [
+    requestBody ? createFunctionParameter({ name: 'data', type: requestBody.typedName, optional: false }) : null,
+    queryParamsType ? createFunctionParameter({ name: 'params', type: queryParamsType, optional: queryParamsOptional }) : null,
+    headerParamsType ? createFunctionParameter({ name: 'headers', type: headerParamsType, optional: headerParamsOptional }) : null,
+    createFunctionParameter({ name: 'options', type: 'Partial<Cypress.RequestOptions>', optional: false, default: '{}' }),
+  ].filter((p): p is FunctionParameterNode => p !== null)
+
+  return createFunctionParameters({ params: [...pathParamNodes, ...scalarParams] })
 }
 
 /**
@@ -166,8 +173,8 @@ function buildUrlTemplate(expressPath: string, pathParams: Array<TypeParamInfo>,
   return `\`${baseURL ?? ''}${result}\``
 }
 
-export function Request({ baseURL, name, dataReturnType, typeNames, node, paramsType, paramsCasing, pathParamsType }: Props): FabricReactNode {
-  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeNames })
+export function Request({ baseURL, name, dataReturnType, typeNames, resolver, node, paramsType, paramsCasing, pathParamsType }: Props): FabricReactNode {
+  const params = getParams({ node, resolver, paramsType, paramsCasing, pathParamsType })
 
   const urlTemplate = buildUrlTemplate(node.path, typeNames.pathParams, baseURL)
 
@@ -193,7 +200,7 @@ export function Request({ baseURL, name, dataReturnType, typeNames, node, params
 
   return (
     <File.Source name={name} isIndexable isExportable>
-      <Function name={name} export params={params.toConstructor()} returnType={returnType}>
+      <Function name={name} export params={functionPrinter({ mode: 'declaration' }).print(params) ?? undefined} returnType={returnType}>
         {dataReturnType === 'data'
           ? `return cy.request<${typeNames.response.typedName}>({
   ${requestOptions.join(',\n  ')}

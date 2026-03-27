@@ -61,6 +61,7 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
         <Request
           name={name}
           node={node}
+          resolver={resolverTs}
           typeNames={typeNames}
           dataReturnType={dataReturnType}
           paramsCasing={paramsCasing}

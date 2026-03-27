@@ -13,5 +13,5 @@ catalog:
   "tinyexec": ^1.0.4
   p-limit: ^7.3.0
   remeda: ^2.33.6
-  tsdown: ^0.21.5
+  tsdown: ^0.21.6
   typescript: ^6.0.2
