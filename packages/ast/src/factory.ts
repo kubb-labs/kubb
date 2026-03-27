@@ -2,16 +2,32 @@ import type { InferSchemaNode } from './infer.ts'
 import type {
   FunctionParameterNode,
   FunctionParametersNode,
-  ObjectBindingParameterNode,
   ObjectSchemaNode,
   OperationNode,
+  ParameterGroupNode,
   ParameterNode,
   PropertyNode,
   ResponseNode,
   RootNode,
   SchemaNode,
+  TypeNode,
 } from './nodes/index.ts'
-import { syncOptionality } from './utils.ts'
+
+/**
+ * Syncs property/parameter schema optionality flags from `required` and `schema.nullable`.
+ *
+ * - `optional` is set for non-required, non-nullable schemas.
+ * - `nullish` is set for non-required, nullable schemas.
+ */
+export function syncOptionality(schema: SchemaNode, required: boolean): SchemaNode {
+  const nullable = schema.nullable ?? false
+
+  return {
+    ...schema,
+    optional: !required && !nullable ? true : undefined,
+    nullish: !required && nullable ? true : undefined,
+  }
+}
 
 /**
  * Distributive `Omit` that preserves each member of a union.
@@ -220,57 +236,30 @@ export function createResponse(
 }
 
 /**
- * Creates a single-property object schema used as a discriminator literal.
- *
- * @example
- * ```ts
- * createDiscriminantNode({ propertyName: 'type', value: 'dog' })
- * // -> { type: 'object', properties: [{ name: 'type', required: true, schema: enum('dog') }] }
- * ```
- */
-export function createDiscriminantNode({ propertyName, value }: { propertyName: string; value: string }): SchemaNode {
-  return createSchema({
-    type: 'object',
-    primitive: 'object',
-    properties: [
-      createProperty({
-        name: propertyName,
-        schema: createSchema({
-          type: 'enum',
-          primitive: 'string',
-          enumValues: [value],
-        }),
-        required: true,
-      }),
-    ],
-  })
-}
-
-/**
  * Creates a `FunctionParameterNode`.
  *
  * `optional` defaults to `false`.
  *
  * @example Required typed param
  * ```ts
- * createFunctionParameter({ name: 'petId', type: 'string' })
+ * createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }) })
  * // → petId: string
  * ```
  *
  * @example Optional param
  * ```ts
- * createFunctionParameter({ name: 'params', type: 'QueryParams', optional: true })
+ * createFunctionParameter({ name: 'params', type: createTypeNode({ variant: 'reference', name: 'QueryParams' }), optional: true })
  * // → params?: QueryParams
  * ```
  *
  * @example Param with default (implicitly optional; cannot combine with `optional: true`)
  * ```ts
- * createFunctionParameter({ name: 'config', type: 'RequestConfig', default: '{}' })
+ * createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), default: '{}' })
  * // → config: RequestConfig = {}
  * ```
  */
 export function createFunctionParameter(
-  props: { name: string; type?: string; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string }),
+  props: { name: string; type?: TypeNode; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string }),
 ): FunctionParameterNode {
   return {
     optional: false,
@@ -280,14 +269,45 @@ export function createFunctionParameter(
 }
 
 /**
- * Creates an `ObjectBindingParameterNode` for object-destructured parameter groups.
+ * Creates a {@link TypeNode} representing a language-agnostic structured type expression.
  *
- * @example Destructured object param
+ * Use `variant: 'struct'` for inline anonymous types and `variant: 'member'` for a single
+ * named field accessed from a group type. Each language's printer renders the variant
+ * into its own syntax (TypeScript, Python, C#, Kotlin, …).
+ *
+ * @example Reference type (TypeScript: `QueryParams`)
  * ```ts
- * createObjectBindingParameter({
+ * createTypeNode({ variant: 'reference', name: 'QueryParams' })
+ * ```
+ *
+ * @example Struct type (TypeScript: `{ petId: string }`)
+ * ```ts
+ * createTypeNode({ variant: 'struct', properties: [{ name: 'petId', optional: false, type: createTypeNode({ variant: 'reference', name: 'string' }) }] })
+ * ```
+ *
+ * @example Member type (TypeScript: `DeletePetPathParams['petId']`)
+ * ```ts
+ * createTypeNode({ variant: 'member', base: 'DeletePetPathParams', key: 'petId' })
+ * ```
+ */
+export function createTypeNode(
+  props:
+    | { variant: 'reference'; name: string }
+    | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: TypeNode }> }
+    | { variant: 'member'; base: string; key: string },
+): TypeNode {
+  return { ...props, kind: 'Type' } as TypeNode
+}
+
+/**
+ * Creates a `ParameterGroupNode` representing a group of related parameters treated as a unit.
+ *
+ * @example Grouped param (TypeScript declaration)
+ * ```ts
+ * createParameterGroup({
  *   properties: [
- *     createFunctionParameter({ name: 'id', type: 'string', optional: false }),
- *     createFunctionParameter({ name: 'name', type: 'string', optional: true }),
+ *     createFunctionParameter({ name: 'id', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
+ *     createFunctionParameter({ name: 'name', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: true }),
  *   ],
  *   default: '{}',
  * })
@@ -295,22 +315,22 @@ export function createFunctionParameter(
  * // call        → { id, name }
  * ```
  *
- * @example Inline mode — children emitted as individual top-level parameters
+ * @example Inline (spread) — children emitted as individual top-level parameters
  * ```ts
- * createObjectBindingParameter({
- *   properties: [createFunctionParameter({ name: 'petId', type: 'string', optional: false })],
+ * createParameterGroup({
+ *   properties: [createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false })],
  *   inline: true,
  * })
  * // declaration → petId: string
  * // call        → petId
  * ```
  */
-export function createObjectBindingParameter(
-  props: Pick<ObjectBindingParameterNode, 'properties'> & Partial<Omit<ObjectBindingParameterNode, 'kind' | 'properties'>>,
-): ObjectBindingParameterNode {
+export function createParameterGroup(
+  props: Pick<ParameterGroupNode, 'properties'> & Partial<Omit<ParameterGroupNode, 'kind' | 'properties'>>,
+): ParameterGroupNode {
   return {
     ...props,
-    kind: 'ObjectBindingParameter',
+    kind: 'ParameterGroup',
   }
 }
 
@@ -321,8 +341,8 @@ export function createObjectBindingParameter(
  * ```ts
  * createFunctionParameters({
  *   params: [
- *     createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
- *     createFunctionParameter({ name: 'config', type: 'RequestConfig', optional: false, default: '{}' }),
+ *     createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
+ *     createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
  *   ],
  * })
  * ```

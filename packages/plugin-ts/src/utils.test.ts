@@ -20,7 +20,7 @@ function printSchema(schema: ReturnType<typeof buildParams>): string {
 describe('buildParams', () => {
   it('builds required params as non-optional properties', () => {
     const params = [createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })]
-    const node = createOperation({ operationId: 'showPetById', method: 'GET', path: '/pets/:petId' })
+    const node = createOperation({ operationId: 'showPetById', method: 'GET', path: '/pets/{petId}' })
 
     expect(printSchema(buildParams({ params, node, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
@@ -76,7 +76,7 @@ describe('buildData', () => {
     const node = createOperation({
       operationId: 'showPetById',
       method: 'GET',
-      path: '/pets/:petId',
+      path: '/pets/{petId}',
       parameters: [createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })],
     })
 

@@ -20,9 +20,9 @@ export type {
   Node,
   NodeKind,
   NumberSchemaNode,
-  ObjectBindingParameterNode,
   ObjectSchemaNode,
   OperationNode,
+  ParameterGroupNode,
   ParameterLocation,
   ParameterNode,
   PrimitiveSchemaType,
@@ -40,9 +40,10 @@ export type {
   StatusCode,
   StringSchemaNode,
   TimeSchemaNode,
+  TypeNode,
   UnionSchemaNode,
   UrlSchemaNode,
 } from './nodes/index.ts'
-export type { Printer, PrinterFactoryOptions } from './printers/printer.ts'
+export type { Printer, PrinterFactoryOptions } from './printer.ts'
 export type { RefMap } from './refs.ts'
 export type { AsyncVisitor, CollectOptions, CollectVisitor, ParentOf, TransformOptions, Visitor, VisitorContext, WalkOptions } from './visitor.ts'

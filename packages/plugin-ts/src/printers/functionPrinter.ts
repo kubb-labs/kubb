@@ -1,50 +1,29 @@
-import type { FunctionNode, FunctionNodeType } from '../nodes/function.ts'
-import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode } from '../nodes/index.ts'
-import type { PrinterFactoryOptions } from './printer.ts'
-import { createPrinterFactory } from './printer.ts'
+import type { PrinterFactoryOptions } from '@kubb/ast'
+import { createPrinterFactory } from '@kubb/ast'
+import type { FunctionNode, FunctionNodeType, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, TypeNode } from '@kubb/ast/types'
 
 /**
  * Maps each function-printer handler key to its concrete node type.
  */
 export type FunctionNodeByType = {
   functionParameter: FunctionParameterNode
-  objectBindingParameter: ObjectBindingParameterNode
+  parameterGroup: ParameterGroupNode
   functionParameters: FunctionParametersNode
+  type: TypeNode
 }
 
 const kindToHandlerKey = {
   FunctionParameter: 'functionParameter',
-  ObjectBindingParameter: 'objectBindingParameter',
+  ParameterGroup: 'parameterGroup',
   FunctionParameters: 'functionParameters',
+  Type: 'type',
 } satisfies Record<string, FunctionNodeType>
 
 /**
  * Creates a function-parameter printer factory.
  *
- * This wrapper uses `createPrinterFactory` and dispatches handlers by `node.kind`
+ * Uses `createPrinterFactory` and dispatches handlers by `node.kind`
  * (for function nodes) rather than by `node.type` (for schema nodes).
- *
- * @example
- * ```ts
- * type MyPrinter = PrinterFactoryOptions<'my', { mode: 'declaration' | 'call' }, string>
- *
- * export const myPrinter = defineFunctionPrinter<MyPrinter>((options) => ({
- *   name: 'my',
- *   options,
- *   nodes: {
- *     functionParameter(node) {
- *       return options.mode === 'declaration' && node.type ? `${node.name}: ${node.type}` : node.name
- *     },
- *     objectBindingParameter(node) {
- *       const inner = node.properties.map(p => this.transform(p)).filter(Boolean).join(', ')
- *       return `{ ${inner} }`
- *     },
- *     functionParameters(node) {
- *       return node.params.map(p => this.transform(p)).filter(Boolean).join(', ')
- *     },
- *   },
- * }))
- * ```
  */
 export const defineFunctionPrinter = createPrinterFactory<FunctionNode, FunctionNodeType, FunctionNodeByType>((node) => kindToHandlerKey[node.kind])
 
@@ -72,8 +51,8 @@ export type FunctionPrinterOptions = {
 
 type DefaultPrinter = PrinterFactoryOptions<'functionParameters', FunctionPrinterOptions, string>
 
-function rank(param: FunctionParameterNode | ObjectBindingParameterNode): number {
-  if (param.kind === 'ObjectBindingParameter') {
+function rank(param: FunctionParameterNode | ParameterGroupNode): number {
+  if (param.kind === 'ParameterGroup') {
     if (param.default) return 2
     const isOptional = param.optional ?? param.properties.every((p) => p.optional || p.default !== undefined)
     return isOptional ? 1 : 0
@@ -83,7 +62,7 @@ function rank(param: FunctionParameterNode | ObjectBindingParameterNode): number
   return param.optional ? 1 : 0
 }
 
-function sortParams(params: Array<FunctionParameterNode | ObjectBindingParameterNode>): Array<FunctionParameterNode | ObjectBindingParameterNode> {
+function sortParams(params: ReadonlyArray<FunctionParameterNode | ParameterGroupNode>): Array<FunctionParameterNode | ParameterGroupNode> {
   return [...params].sort((a, b) => rank(a) - rank(b))
 }
 
@@ -113,10 +92,28 @@ export const functionPrinter = defineFunctionPrinter<DefaultPrinter>((options) =
   name: 'functionParameters',
   options,
   nodes: {
+    type(node) {
+      if (node.variant === 'member') {
+        return `${node.base}['${node.key}']`
+      }
+      if (node.variant === 'struct') {
+        const parts = node.properties.map((p) => {
+          const typeStr = this.transform(p.type)
+          return p.optional ? `${p.name}?: ${typeStr}` : `${p.name}: ${typeStr}`
+        })
+        return `{ ${parts.join('; ')} }`
+      }
+      if (node.variant === 'reference') {
+        return node.name
+      }
+      return null
+    },
     functionParameter(node) {
       const { mode, transformName, transformType } = this.options
       const name = transformName ? transformName(node.name) : node.name
-      const type = node.type && transformType ? transformType(node.type) : node.type
+
+      const rawType = node.type ? this.transform(node.type) : undefined
+      const type = rawType != null && transformType ? transformType(rawType) : rawType
 
       if (mode === 'keys' || mode === 'values') {
         return node.rest ? `...${name}` : name
@@ -135,7 +132,7 @@ export const functionPrinter = defineFunctionPrinter<DefaultPrinter>((options) =
       }
       return node.default ? `${name} = ${node.default}` : name
     },
-    objectBindingParameter(node) {
+    parameterGroup(node) {
       const { mode, transformName, transformType } = this.options
       const sorted = sortChildParams(node.properties)
       const isOptional = node.optional ?? sorted.every((p) => p.optional || p.default !== undefined)
@@ -166,12 +163,13 @@ export const functionPrinter = defineFunctionPrinter<DefaultPrinter>((options) =
       const nameStr = names.length ? `{ ${names.join(', ')} }` : undefined
       if (!nameStr) return null
 
-      let typeAnnotation = node.type
+      let typeAnnotation: string | undefined = node.type ? (this.transform(node.type) ?? undefined) : undefined
       if (!typeAnnotation) {
         const typeParts = sorted
           .filter((p) => p.type)
           .map((p) => {
-            const t = transformType && p.type ? transformType(p.type) : p.type!
+            const rawT = p.type ? this.transform(p.type) : undefined
+            const t = rawT != null && transformType ? transformType(rawT) : rawT
             return p.optional || p.default !== undefined ? `${p.name}?: ${t}` : `${p.name}: ${t}`
           })
         typeAnnotation = typeParts.length ? `{ ${typeParts.join('; ')} }` : undefined

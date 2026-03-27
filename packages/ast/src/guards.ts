@@ -3,8 +3,8 @@ import type {
   FunctionParametersNode,
   Node,
   NodeKind,
-  ObjectBindingParameterNode,
   OperationNode,
+  ParameterGroupNode,
   ParameterNode,
   PropertyNode,
   ResponseNode,
@@ -87,9 +87,9 @@ export const isResponseNode = isKind<ResponseNode>('Response')
 export const isFunctionParameterNode = isKind<FunctionParameterNode>('FunctionParameter')
 
 /**
- * Returns `true` when the input is an `ObjectBindingParameterNode`.
+ * Returns `true` when the input is a `ParameterGroupNode`.
  */
-export const isObjectBindingParameterNode = isKind<ObjectBindingParameterNode>('ObjectBindingParameter')
+export const isParameterGroupNode = isKind<ParameterGroupNode>('ParameterGroup')
 
 /**
  * Returns `true` when the input is a `FunctionParametersNode`.

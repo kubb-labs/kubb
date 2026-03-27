@@ -38,7 +38,7 @@ describe('typeGenerator — Operation', () => {
       node: createOperation({
         operationId: 'showPetById',
         method: 'GET',
-        path: '/pets/:petId',
+        path: '/pets/{petId}',
         tags: ['pets'],
         parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
         responses: [
@@ -87,7 +87,7 @@ describe('typeGenerator — Operation', () => {
       node: createOperation({
         operationId: 'deletePet',
         method: 'DELETE',
-        path: '/pets/:petId',
+        path: '/pets/{petId}',
         tags: ['pets'],
         parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
         responses: [

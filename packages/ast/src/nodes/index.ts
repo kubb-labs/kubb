@@ -7,7 +7,7 @@ import type { RootNode } from './root.ts'
 import type { SchemaNode } from './schema.ts'
 
 export type { BaseNode, NodeKind } from './base.ts'
-export type { FunctionNode, FunctionNodeType, FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode } from './function.ts'
+export type { FunctionNode, FunctionNodeType, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, TypeNode } from './function.ts'
 export type { HttpStatusCode, MediaType, StatusCode } from './http.ts'
 export type { HttpMethod, OperationNode } from './operation.ts'
 export type { ParameterLocation, ParameterNode } from './parameter.ts'

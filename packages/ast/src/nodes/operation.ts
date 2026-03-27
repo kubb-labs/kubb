@@ -35,8 +35,8 @@ export type OperationNode = BaseNode & {
    */
   method: HttpMethod
   /**
-   * Express-style path string, for example `/pets/:petId`.
-   * OpenAPI `{param}` parts are converted to `:param`.
+   * OpenAPI-style path string, for example `/pets/{petId}`.
+   * Path parameters retain the `{param}` notation from the original spec.
    */
   path: string
   /**

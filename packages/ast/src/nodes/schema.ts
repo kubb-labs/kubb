@@ -475,11 +475,11 @@ export type ScalarSchemaNode = SchemaNodeBase & {
 
 /**
  * URL schema node.
- * Can include an Express-style path template for template literal types.
+ * Can include an OpenAPI-style path template for template literal types.
  *
  * @example
  * ```ts
- * const urlSchema: UrlSchemaNode = { kind: 'Schema', type: 'url', path: '/pets/:petId' }
+ * const urlSchema: UrlSchemaNode = { kind: 'Schema', type: 'url', path: '/pets/{petId}' }
  * ```
  */
 export type UrlSchemaNode = SchemaNodeBase & {
@@ -488,7 +488,7 @@ export type UrlSchemaNode = SchemaNodeBase & {
    */
   type: 'url'
   /**
-   * Express-style path template, for example, `'/pets/:petId'`.
+   * OpenAPI-style path template, for example, `'/pets/{petId}'`.
    */
   path?: string
 }

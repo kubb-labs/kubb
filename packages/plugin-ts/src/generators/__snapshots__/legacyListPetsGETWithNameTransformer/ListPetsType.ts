@@ -19,7 +19,7 @@ export type ListPetsErrorType = object
 
 export type ListPetsQueryResponseType = ListPets200Type
 
-export type ListPetsTypeQuery = {
+export type ListPetsQueryType = {
   Response: ListPets200Type
   QueryParams: ListPetsQueryParamsType
   Errors: ListPetsErrorType

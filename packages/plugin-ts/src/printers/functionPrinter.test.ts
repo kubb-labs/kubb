@@ -1,5 +1,5 @@
+import { createFunctionParameter, createFunctionParameters, createParameterGroup, createTypeNode } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import { createFunctionParameter, createFunctionParameters, createObjectBindingParameter } from '../factory.ts'
 import { defineFunctionPrinter, functionPrinter } from './functionPrinter.ts'
 
 describe('functionPrinter in declaration mode', () => {
@@ -7,7 +7,7 @@ describe('functionPrinter in declaration mode', () => {
 
   it('prints required typed parameters as `name: type`', () => {
     const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'petId', type: 'string', optional: false })],
+      params: [createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false })],
     })
 
     expect(printer.print(sig)).toBe('petId: string')
@@ -15,7 +15,7 @@ describe('functionPrinter in declaration mode', () => {
 
   it('prints optional typed parameters as `name?: type`', () => {
     const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'params', type: 'QueryParams', optional: true })],
+      params: [createFunctionParameter({ name: 'params', type: createTypeNode({ variant: 'reference', name: 'QueryParams' }), optional: true })],
     })
 
     expect(printer.print(sig)).toBe('params?: QueryParams')
@@ -23,7 +23,9 @@ describe('functionPrinter in declaration mode', () => {
 
   it('prints defaulted typed parameters as `name: type = default`', () => {
     const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'config', type: 'RequestConfig', optional: false, default: '{}' })],
+      params: [
+        createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
+      ],
     })
 
     expect(printer.print(sig)).toBe('config: RequestConfig = {}')
@@ -31,7 +33,7 @@ describe('functionPrinter in declaration mode', () => {
 
   it('prints rest parameters with spread syntax', () => {
     const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'args', type: 'string[]', optional: false, rest: true })],
+      params: [createFunctionParameter({ name: 'args', type: createTypeNode({ variant: 'reference', name: 'string[]' }), optional: false, rest: true })],
     })
 
     expect(printer.print(sig)).toBe('...args: string[]')
@@ -40,9 +42,9 @@ describe('functionPrinter in declaration mode', () => {
   it('orders parameters as required, optional, then defaulted', () => {
     const sig = createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'config', type: 'Config', optional: false, default: '{}' }),
-        createFunctionParameter({ name: 'params', type: 'Params', optional: true }),
-        createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
+        createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'Config' }), optional: false, default: '{}' }),
+        createFunctionParameter({ name: 'params', type: createTypeNode({ variant: 'reference', name: 'Params' }), optional: true }),
+        createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
       ],
     })
 
@@ -52,8 +54,8 @@ describe('functionPrinter in declaration mode', () => {
   it('always places rest parameters last', () => {
     const sig = createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'args', type: 'string[]', rest: true }),
-        createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
+        createFunctionParameter({ name: 'args', type: createTypeNode({ variant: 'reference', name: 'string[]' }), rest: true }),
+        createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
       ],
     })
 
@@ -63,10 +65,10 @@ describe('functionPrinter in declaration mode', () => {
   it('prints object binding parameters with inferred inline object types', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [
-            createFunctionParameter({ name: 'id', type: 'string', optional: false }),
-            createFunctionParameter({ name: 'name', type: 'string', optional: true }),
+            createFunctionParameter({ name: 'id', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
+            createFunctionParameter({ name: 'name', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: true }),
           ],
           default: '{}',
         }),
@@ -79,9 +81,9 @@ describe('functionPrinter in declaration mode', () => {
   it('prints object binding parameters with explicit type overrides', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [createFunctionParameter({ name: 'data', optional: false })],
-          type: 'PetData',
+          type: createTypeNode({ variant: 'reference', name: 'PetData' }),
           default: '{}',
         }),
       ],
@@ -93,10 +95,10 @@ describe('functionPrinter in declaration mode', () => {
   it('prints inline object binding parameters as top-level parameters', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [
-            createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
-            createFunctionParameter({ name: 'ownerId', type: 'number', optional: false }),
+            createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
+            createFunctionParameter({ name: 'ownerId', type: createTypeNode({ variant: 'reference', name: 'number' }), optional: false }),
           ],
           inline: true,
         }),
@@ -109,14 +111,14 @@ describe('functionPrinter in declaration mode', () => {
   it('prints mixed object and simple parameters in stable order', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [
-            createFunctionParameter({ name: 'id', type: 'string', optional: false }),
-            createFunctionParameter({ name: 'name', type: 'string', optional: true }),
+            createFunctionParameter({ name: 'id', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
+            createFunctionParameter({ name: 'name', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: true }),
           ],
           default: '{}',
         }),
-        createFunctionParameter({ name: 'config', type: 'RequestConfig', optional: false, default: '{}' }),
+        createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
       ],
     })
 
@@ -133,7 +135,7 @@ describe('functionPrinter in declaration mode', () => {
 
   it('omits empty object binding parameters from the final signature', () => {
     const sig = createFunctionParameters({
-      params: [createObjectBindingParameter({ properties: [] })],
+      params: [createParameterGroup({ properties: [] })],
     })
 
     expect(printer.print(sig)).toBe('')
@@ -146,8 +148,8 @@ describe('functionPrinter() in call mode', () => {
   it('prints simple parameter names only', () => {
     const sig = createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
-        createFunctionParameter({ name: 'config', type: 'RequestConfig', optional: false, default: '{}' }),
+        createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
+        createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
       ],
     })
 
@@ -157,7 +159,7 @@ describe('functionPrinter() in call mode', () => {
   it('prints object binding parameters as `{ key1, key2 }`', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [createFunctionParameter({ name: 'method', optional: false }), createFunctionParameter({ name: 'url', optional: false })],
         }),
       ],
@@ -169,7 +171,7 @@ describe('functionPrinter() in call mode', () => {
   it('prints inline object binding parameters as individual arguments', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [createFunctionParameter({ name: 'petId', optional: false })],
           inline: true,
         }),
@@ -194,8 +196,8 @@ describe('functionPrinter() in keys mode', () => {
   it('prints comma-separated parameter names', () => {
     const sig = createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
-        createFunctionParameter({ name: 'config', type: 'Config', optional: false }),
+        createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
+        createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'Config' }), optional: false }),
       ],
     })
 
@@ -205,7 +207,7 @@ describe('functionPrinter() in keys mode', () => {
   it('wraps object binding parameter keys in braces', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [createFunctionParameter({ name: 'id', optional: false }), createFunctionParameter({ name: 'name', optional: false })],
         }),
       ],
@@ -220,7 +222,7 @@ describe('functionPrinter() in values mode', () => {
 
   it('prints names for simple parameters', () => {
     const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'petId', type: 'string', optional: false })],
+      params: [createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false })],
     })
 
     expect(printer.print(sig)).toBe('petId')
@@ -229,7 +231,7 @@ describe('functionPrinter() in values mode', () => {
   it('prints object binding parameters in braces', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [createFunctionParameter({ name: 'id', optional: false }), createFunctionParameter({ name: 'name', optional: false })],
         }),
       ],
@@ -244,13 +246,13 @@ describe('functionPrinter() transform options', () => {
     {
       label: 'transformName',
       options: { mode: 'declaration' as const, transformName: (n: string) => n.toUpperCase() },
-      param: createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
+      param: createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
       expected: 'PETID: string',
     },
     {
       label: 'transformType',
       options: { mode: 'declaration' as const, transformType: (t: string) => `Partial<${t}>` },
-      param: createFunctionParameter({ name: 'config', type: 'Config', optional: false }),
+      param: createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'Config' }), optional: false }),
       expected: 'config: Partial<Config>',
     },
   ])('applies $label in declaration mode', ({ options, param, expected }) => {
@@ -274,7 +276,7 @@ describe('defineFunctionPrinter()', () => {
         functionParameter(node) {
           return node.name.toUpperCase()
         },
-        objectBindingParameter(node) {
+        parameterGroup(node) {
           return `{ ${node.properties.map((p) => p.name.toUpperCase()).join(', ')} }`
         },
         functionParameters(node) {
@@ -288,8 +290,8 @@ describe('defineFunctionPrinter()', () => {
 
     const sig = createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
-        createFunctionParameter({ name: 'config', type: 'Config', optional: false }),
+        createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
+        createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'Config' }), optional: false }),
       ],
     })
 
@@ -309,8 +311,7 @@ describe('defineFunctionPrinter()', () => {
         functionParameter(node) {
           return `[${node.name}]`
         },
-        objectBindingParameter(node) {
-          // Use this.print to recurse into child params
+        parameterGroup(node) {
           return `{${node.properties.map((p) => this.transform(p)).join('+')}}`
         },
         functionParameters(node) {
@@ -325,7 +326,7 @@ describe('defineFunctionPrinter()', () => {
     const sig = createFunctionParameters({
       params: [
         createFunctionParameter({ name: 'a', optional: false }),
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [createFunctionParameter({ name: 'b', optional: false }), createFunctionParameter({ name: 'c', optional: false })],
         }),
       ],

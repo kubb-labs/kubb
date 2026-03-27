@@ -25,6 +25,19 @@ describe('URLPath', () => {
     expect(simplePath.params).toStrictEqual({ userID: 'userID' })
     expect(simplePath.getParams()).toStrictEqual({ userID: 'userID' })
   })
+  test('if colon-suffix custom method (e.g. :search) is preserved', () => {
+    // OpenAPI supports Google-style custom methods: /pet/{petId}:search
+    // The :search suffix must NOT be treated as a route parameter
+    const colonSuffixPath = new URLPath('/pet/{petId}:search')
+    expect(colonSuffixPath.template).toBe('`/pet/${petId}:search`')
+    expect(colonSuffixPath.URL).toBe('/pet/:petId:search')
+    expect(colonSuffixPath.params).toStrictEqual({ petId: 'petId' })
+    expect(colonSuffixPath.toObject()).toStrictEqual({
+      url: '/pet/:petId:search',
+      params: { petId: 'petId' },
+    })
+  })
+
   test('if object is getting returned', () => {
     expect(simplePath.object).toStrictEqual({
       url: '/user/:userID',

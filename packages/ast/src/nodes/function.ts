@@ -1,15 +1,69 @@
 import type { BaseNode } from './base.ts'
 
 /**
+ * AST node representing a language-agnostic type expression produced during parameter resolution.
+ * Each language printer renders the variant into its own syntax.
+ *
+ * - `struct` — an inline anonymous type grouping named fields.
+ *   TypeScript renders as `{ petId: string; name?: string }`, Python as a `TypedDict` reference.
+ * - `member` — a single named field accessed from a named group type.
+ *   TypeScript renders as `PathParams['petId']`, C# as `PathParams.PetId`.
+ */
+export type TypeNode = BaseNode & {
+  /**
+   * Node kind.
+   */
+  kind: 'Type'
+} & (
+    | {
+        /**
+         * Reference variant — a plain type name or identifier.
+         * TypeScript renders as-is, e.g. `string`, `QueryParams`, `Partial<Config>`.
+         */
+        variant: 'reference'
+        /**
+         * The full type name string, e.g. `'string'`, `'QueryParams'`, `'Partial<Config>'`.
+         */
+        name: string
+      }
+    | {
+        /**
+         * Struct variant — an inline anonymous type grouping named fields.
+         * TypeScript renders as `{ key: Type; other?: OtherType }`.
+         */
+        variant: 'struct'
+        /**
+         * Properties of the struct type.
+         */
+        properties: Array<{ name: string; optional: boolean; type: TypeNode }>
+      }
+    | {
+        /**
+         * Member variant — a single named field accessed from a group type.
+         * TypeScript renders as `Base['key']`.
+         */
+        variant: 'member'
+        /**
+         * Base type name, e.g. `'DeletePetPathParams'`.
+         */
+        base: string
+        /**
+         * The field name to access, e.g. `'petId'`.
+         */
+        key: string
+      }
+  )
+
+/**
  * AST node for one function parameter.
  *
  * @example Required parameter
  * `name: Type`
  *
- * @example Optional param
+ * @example Optional parameter
  * `name?: Type`
  *
- * @example Parameter with default
+ * @example Parameter with default value
  * `name: Type = defaultValue`
  *
  * @example Rest parameter
@@ -25,73 +79,89 @@ export type FunctionParameterNode = BaseNode & {
    */
   name: string
   /**
-   * TypeScript type text, for example, `"string"` or `"Pet[]"`.
-   * Omit for untyped JavaScript output.
+   * Type annotation as a structured {@link TypeNode}.
+   * Omit for untyped output.
+   *
+   * @example Reference type node
+   * `{ kind: 'Type', variant: 'reference', name: 'string' }` → `petId: string`
+   *
+   * @example Struct type node
+   * `{ kind: 'Type', variant: 'struct', properties: [...] }` → `{ key: Type; other?: OtherType }`
+   *
+   * @example Member type node
+   * `{ kind: 'Type', variant: 'member', base: 'PathParams', key: 'petId' }` → `PathParams['petId']`
    */
-  type?: string
+  type?: TypeNode
   /**
-   * When `true` the parameter is emitted as a rest parameter (`...name`).
-   * @default false
+   * When `true` the parameter is emitted as a rest parameter.
+   *
+   * @example Rest parameter
+   * `...name: Type[]`
    */
   rest?: boolean
 } /**
- * Optional parameter, rendered with `?` in declarations.
- * Cannot be combined with `default` because defaulted parameters are already optional.
- * @example `name?: Type`
+ * Optional parameter — rendered with `?` and may be omitted by the caller.
+ * Cannot be combined with `default` because a defaulted parameter is already optional.
  */ & (
     | { optional: true; default?: never }
     /**
-     * Required parameter, or parameter with a default value.
-     * @example Required: `name: Type`
-     * @example With default: `name: Type = default`
+     * Required parameter, or a parameter with a default value.
+     *
+     * @example Required
+     * `name: Type`
+     *
+     * @example With default
+     * `name: Type = default`
      */
     | { optional?: false; default?: string }
   )
 
 /**
- * AST node for object-destructured function parameters.
+ * AST node for a group of related function parameters treated as a single unit.
  *
- * This node renders as `{ key1, key2 }: { key1: Type1; key2: Type2 } = {}` in declarations,
- * or as individual top-level parameters when `inline` is `true`.
+ * Each language printer decides how to render this group:
+ * - TypeScript/JS: destructured object `{ key1, key2 }: { key1: Type1; key2: Type2 } = {}`
+ * - Python: keyword-only args or a typed dict parameter
+ * - C# / Kotlin: named record / data-class parameter
  *
- * This replaces `mode: 'object'` and `mode: 'inlineSpread'` from the old `FunctionParams` API.
+ * When `inline` is `true`, the group is spread as individual top-level parameters
+ * rather than wrapped in a single grouped construct.
  *
- * @example Object destructuring with auto-computed type (declaration)
+ * @example Grouped destructuring
  * `{ id, name }: { id: string; name: string } = {}`
  *
- * @example Inline (spread) — children emitted as individual top-level params
+ * @example Inline (spread as individual parameters)
  * `id: string, name: string`
  */
-export type ObjectBindingParameterNode = BaseNode & {
+export type ParameterGroupNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'ObjectBindingParameter'
+  kind: 'ParameterGroup'
   /**
-   * The individual parameters that form the destructured object.
-   * Rendered as `{ key1, key2 }` in declarations, or spread inline when `inline` is `true`.
+   * The individual parameters that form the group.
+   * Rendered as a destructured object or spread inline when `inline` is `true`.
    */
   properties: Array<FunctionParameterNode>
   /**
-   * Optional type text for the full object parameter.
-   * When absent, the printer auto-computes `{ key1: Type1; key2: Type2 }` from `properties`.
+   * Optional explicit type annotation for the whole group.
+   * When absent, printers auto-compute it from `properties`.
    */
-  type?: string
+  type?: TypeNode
   /**
    * When `true`, `properties` are emitted as individual top-level parameters instead of
-   * being wrapped in a destructuring pattern (`{ key1, key2 }`).
+   * being wrapped in a single grouped construct.
    *
-   * Equivalent to `mode: 'inlineSpread'` in the legacy `FunctionParams` API.
    * @default false
    */
   inline?: boolean
   /**
-   * Whether the full object binding is optional.
+   * Whether the group as a whole is optional.
    * If omitted, printers infer this from child properties.
    */
   optional?: boolean
   /**
-   * Default value for the object group, written verbatim after `=`.
+   * Default value for the group, written verbatim after `=`.
    * Commonly `'{}'` to allow omitting the argument entirely.
    */
   default?: string
@@ -117,15 +187,15 @@ export type FunctionParametersNode = BaseNode & {
   /**
    * Ordered parameter nodes.
    */
-  params: Array<FunctionParameterNode | ObjectBindingParameterNode>
+  params: ReadonlyArray<FunctionParameterNode | ParameterGroupNode>
 }
 
 /**
- * The three function-signature AST node variants.
+ * The four function-signature AST node variants.
  */
-export type FunctionNode = FunctionParameterNode | ObjectBindingParameterNode | FunctionParametersNode
+export type FunctionNode = FunctionParameterNode | ParameterGroupNode | FunctionParametersNode | TypeNode
 
 /**
  * Handler map keys — one per `FunctionNode` kind.
  */
-export type FunctionNodeType = 'functionParameter' | 'objectBindingParameter' | 'functionParameters'
+export type FunctionNodeType = 'functionParameter' | 'parameterGroup' | 'functionParameters' | 'type'

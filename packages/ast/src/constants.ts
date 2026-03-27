@@ -22,7 +22,7 @@ export const nodeKinds = {
   parameter: 'Parameter',
   response: 'Response',
   functionParameter: 'FunctionParameter',
-  objectBindingParameter: 'ObjectBindingParameter',
+  parameterGroup: 'ParameterGroup',
   functionParameters: 'FunctionParameters',
 } as const satisfies Record<string, NodeKind>
 
@@ -136,10 +136,19 @@ export const schemaTypes = {
   never: 'never',
 } as const satisfies Record<SchemaType, SchemaType>
 
+export type ScalarPrimitive = 'string' | 'number' | 'integer' | 'bigint' | 'boolean'
+
 /**
  * Primitive scalar schema types used when simplifying union members.
  */
-export const SCALAR_PRIMITIVE_TYPES = new Set(['string', 'number', 'integer', 'bigint', 'boolean'] as const)
+export const SCALAR_PRIMITIVE_TYPES = new Set<ScalarPrimitive>(['string', 'number', 'integer', 'bigint', 'boolean'])
+
+/**
+ * Returns `true` when `type` is a scalar primitive schema type.
+ */
+export function isScalarPrimitive(type: string): type is ScalarPrimitive {
+  return SCALAR_PRIMITIVE_TYPES.has(type as ScalarPrimitive)
+}
 
 export const httpMethods = {
   get: 'GET',
@@ -161,6 +170,10 @@ export const parameterLocations = {
 
 /**
  * Default maximum number of concurrent callbacks used by `walk`.
+ *
+ * 30 is chosen to allow enough parallelism to overlap I/O-bound resolver calls
+ * without overwhelming the event loop or causing excessive memory pressure during
+ * large spec traversals.
  *
  * @example
  * ```ts

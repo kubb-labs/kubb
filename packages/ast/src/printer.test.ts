@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { createProperty, createSchema } from '../factory.ts'
+import { createProperty, createSchema } from './factory.ts'
 import type { PrinterFactoryOptions } from './printer.ts'
 import { definePrinter } from './printer.ts'
 
