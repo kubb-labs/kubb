@@ -3,7 +3,7 @@ import type { GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models
 export function getPetById(petId: GetPetByIdPathParams['petId'], options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<GetPetByIdQueryResponse> {
   return cy
     .request<GetPetByIdQueryResponse>({
-      method: 'get',
+      method: 'GET',
       url: `/pet/${petId}:search`,
       ...options,
     })

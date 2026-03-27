@@ -1,5 +1,5 @@
-import type { OperationParamsResolver } from './factory.ts'
 import { describe, expect, expectTypeOf, it } from 'vitest'
+import type { OperationParamsResolver } from './factory.ts'
 import {
   createDiscriminantNode,
   createFunctionParameter,
@@ -14,6 +14,7 @@ import {
   createSchema,
 } from './factory.ts'
 import type { ObjectSchemaNode, StringSchemaNode } from './nodes/schema.ts'
+import type { OperationNode, ParameterNode } from './types.ts'
 
 describe('createRoot', () => {
   it('creates a RootNode with default empty arrays', () => {
@@ -299,12 +300,13 @@ function makeHeaderParam(name: string, opts: { required?: boolean } = {}) {
 }
 
 function makeResolver(overrides: Partial<OperationParamsResolver> = {}): OperationParamsResolver {
+  const resolveParamName = overrides.resolveParamName ?? ((_node: OperationNode, param: ParameterNode) => param.name)
   return {
-    resolveParamName: (_node, param) => param.name,
+    resolveParamName,
     resolveDataName: () => 'unknown',
-    resolvePathParamsName: (_node, param) => param.name,
-    resolveQueryParamsName: (_node, param) => param.name,
-    resolveHeaderParamsName: (_node, param) => param.name,
+    resolvePathParamsName: resolveParamName,
+    resolveQueryParamsName: resolveParamName,
+    resolveHeaderParamsName: resolveParamName,
     ...overrides,
   }
 }

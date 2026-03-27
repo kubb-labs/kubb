@@ -11,7 +11,7 @@ export function placeOrderPatch(
 ): Cypress.Chainable<PlaceOrderPatchMutationResponse> {
   return cy
     .request<PlaceOrderPatchMutationResponse>({
-      method: 'patch',
+      method: 'PATCH',
       url: 'http://localhost:3000/store/order',
       body: data,
       ...options,

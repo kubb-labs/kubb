@@ -6,7 +6,7 @@ export function getUserByName(
 ): Cypress.Chainable<GetUserByNameQueryResponse> {
   return cy
     .request<GetUserByNameQueryResponse>({
-      method: 'get',
+      method: 'GET',
       url: `/user/${username}`,
       ...options,
     })

@@ -7,7 +7,7 @@ export function updateUser(
 ): Cypress.Chainable<UpdateUserMutationResponse> {
   return cy
     .request<UpdateUserMutationResponse>({
-      method: 'put',
+      method: 'PUT',
       url: `/user/${username}`,
       body: data,
       ...options,
