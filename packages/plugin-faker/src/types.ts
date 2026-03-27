@@ -1,4 +1,4 @@
-import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Output, PluginFactoryOptions, ResolveNameParams, UserGroup } from '@kubb/core'
 
 import type { contentType, Oas, SchemaObject } from '@kubb/oas'
 import type { Exclude, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
@@ -18,7 +18,7 @@ export type Options = {
   /**
    * Group the Faker mocks based on the provided name.
    */
-  group?: Group
+  group?: UserGroup
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */

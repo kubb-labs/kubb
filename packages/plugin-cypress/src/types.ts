@@ -1,5 +1,17 @@
 import type { Visitor } from '@kubb/ast/types'
-import type { CompatibilityPreset, Exclude, Generator, Group, Include, Output, Override, PluginFactoryOptions, ResolvePathOptions, Resolver } from '@kubb/core'
+import type {
+  CompatibilityPreset,
+  Exclude,
+  Generator,
+  Group,
+  Include,
+  Output,
+  Override,
+  PluginFactoryOptions,
+  ResolvePathOptions,
+  Resolver,
+  UserGroup,
+} from '@kubb/core'
 
 /**
  * The concrete resolver type for `@kubb/plugin-cypress`.
@@ -54,7 +66,7 @@ export type Options = {
   /**
    * Group the Cypress requests based on the provided name.
    */
-  group?: Group
+  group?: UserGroup
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
@@ -91,7 +103,7 @@ export type Options = {
 
 export type ResolvedOptions = {
   output: Output
-  group: Options['group']
+  group: Group | undefined
   baseURL: Options['baseURL'] | undefined
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>

@@ -1,5 +1,17 @@
 import type { OperationNode, ParameterNode, SchemaNode, StatusCode, Visitor } from '@kubb/ast/types'
-import type { CompatibilityPreset, Exclude, Generator, Group, Include, Output, Override, PluginFactoryOptions, ResolvePathOptions, Resolver } from '@kubb/core'
+import type {
+  CompatibilityPreset,
+  Exclude,
+  Generator,
+  Group,
+  Include,
+  Output,
+  Override,
+  PluginFactoryOptions,
+  ResolvePathOptions,
+  Resolver,
+  UserGroup,
+} from '@kubb/core'
 /**
  * The concrete resolver type for `@kubb/plugin-ts`.
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
@@ -201,7 +213,7 @@ export type Options = {
   /**
    * Group the clients based on the provided name.
    */
-  group?: Group
+  group?: UserGroup
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
@@ -319,7 +331,7 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output
-  group: Options['group']
+  group: Group | undefined
   enumType: NonNullable<Options['enumType']>
   enumTypeSuffix: NonNullable<Options['enumTypeSuffix']>
   enumKeyCasing: NonNullable<Options['enumKeyCasing']>

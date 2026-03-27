@@ -1,5 +1,5 @@
 import type { Transformer } from '@internals/tanstack-query'
-import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Output, PluginFactoryOptions, ResolveNameParams, UserGroup } from '@kubb/core'
 import type { contentType, HttpMethod, Oas } from '@kubb/oas'
 import type { ClientImportPath, PluginClient } from '@kubb/plugin-client'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
@@ -70,7 +70,7 @@ export type Options = {
   /**
    * Group the SWR hooks based on the provided name.
    */
-  group?: Group
+  group?: UserGroup
   /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */

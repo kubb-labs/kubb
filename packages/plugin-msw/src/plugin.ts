@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { createPlugin, getBarrelFiles, getMode, type UserGroup } from '@kubb/core'
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -46,7 +46,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
       }
 
       if (group && (options?.group?.path || options?.group?.tag)) {
-        const groupName: Group['name'] = group?.name
+        const groupName: UserGroup['name'] = group?.name
           ? group.name
           : (ctx) => {
               if (group?.type === 'path') {

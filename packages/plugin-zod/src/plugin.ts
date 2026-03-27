@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { createPlugin, type Group, getBarrelFiles, getMode, satisfiesDependency } from '@kubb/core'
+import { createPlugin, getBarrelFiles, getMode, satisfiesDependency, type UserGroup } from '@kubb/core'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { operationsGenerator } from './generators'
@@ -78,7 +78,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       }
 
       if (group && (options?.group?.path || options?.group?.tag)) {
-        const groupName: Group['name'] = group?.name
+        const groupName: UserGroup['name'] = group?.name
           ? group.name
           : (ctx) => {
               if (group?.type === 'path') {

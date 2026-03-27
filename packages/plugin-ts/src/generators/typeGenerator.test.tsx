@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { camelCase } from '@internals/utils'
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { EnumSchemaNode, OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
@@ -214,7 +215,16 @@ describe('typeGenerator — Operation — group', () => {
   })
 
   test.each([
-    { group: { type: 'tag' as const }, expectedBaseName: 'ListPets.ts', expectedDir: 'petsController' },
+    {
+      group: {
+        type: 'tag' as const,
+        name: (ctx: { group: string }) => {
+          return `${camelCase(ctx.group)}Controller`
+        },
+      },
+      expectedBaseName: 'ListPets.ts',
+      expectedDir: 'petsController',
+    },
     { group: undefined, expectedBaseName: 'ListPets.ts', expectedDir: undefined },
   ])('group=$group.type — file path is computed correctly', async ({ group, expectedBaseName, expectedDir }) => {
     const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group }
@@ -248,7 +258,15 @@ describe('typeGenerator — Operation — group', () => {
       tags: [],
       responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Config' })],
     })
-    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, group: { type: 'tag' } }
+    const options: PluginTs['resolvedOptions'] = {
+      ...defaultOptions,
+      group: {
+        type: 'tag',
+        name: (ctx: { group: string }) => {
+          return `${camelCase(ctx.group)}Controller`
+        },
+      },
+    }
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
     const driverConfig = { root: '.', output: { path: 'test' } } as Config
     const mockedPluginDriver = createMockedPluginDriver({ name: 'getConfig', config: driverConfig })

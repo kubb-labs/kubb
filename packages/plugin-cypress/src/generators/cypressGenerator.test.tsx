@@ -3,8 +3,8 @@ import { createOperation, createParameter, createResponse, createSchema } from '
 import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
 import { renderOperation } from '@kubb/core'
-import { createReactFabric } from '@kubb/react-fabric'
 import { type PluginTs, pluginTsName, resolverTs, resolverTsLegacy } from '@kubb/plugin-ts'
+import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import { resolverCypress } from '../resolvers/resolverCypress.ts'
@@ -196,4 +196,3 @@ describe('cypressGenerator operation', () => {
     })
   })
 })
-

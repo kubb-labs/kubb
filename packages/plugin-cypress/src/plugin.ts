@@ -1,6 +1,7 @@
 import path from 'node:path'
+import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
-import { createPlugin, getBarrelFiles, getPreset, renderOperation } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getPreset, renderOperation } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { presets } from './presets.ts'
 import { resolverCypress } from './resolvers/resolverCypress.ts'
@@ -31,8 +32,8 @@ export const pluginCypressName = 'plugin-cypress' satisfies PluginCypress['name'
 export const pluginCypress = createPlugin<PluginCypress>((options) => {
   const {
     output = { path: 'cypress', barrelType: 'named' },
-    group,
     dataReturnType = 'data',
+    group,
     exclude = [],
     include,
     override = [],
@@ -46,7 +47,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     generators: userGenerators = [],
   } = options
 
-  const { resolver, transformers, generators } = getPreset({
+  const preset = getPreset({
     preset: compatibilityPreset,
     presets: presets,
     resolvers: [resolverCypress, ...userResolvers],
@@ -59,27 +60,41 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
 
   return {
     name: pluginCypressName,
-    resolver,
-    options: {
-      output,
-      dataReturnType,
-      group,
-      baseURL,
-      paramsCasing,
-      paramsType,
-      pathParamsType,
-      transformers,
+    get resolver() {
+      return preset.resolver
     },
-    pre: [pluginTsName].filter(Boolean),
+    get options() {
+      return {
+        output,
+        dataReturnType,
+        group: group
+          ? ({
+              ...options.group,
+              name: (ctx) => {
+                if (options.group?.type === 'path') {
+                  return `${ctx.group.split('/')[1]}`
+                }
+                return `${camelCase(ctx.group)}Requests`
+              },
+            } as Group)
+          : undefined,
+        baseURL,
+        paramsCasing,
+        paramsType,
+        pathParamsType,
+        transformers: preset.transformers,
+      }
+    },
+    pre: [pluginTsName],
     resolvePath(baseName, pathMode, options) {
       if (!resolvePathWarning) {
         this.events.emit('warn', 'Do not use resolvePath for pluginCypress, use resolverCypress.resolvePath instead')
         resolvePathWarning = true
       }
 
-      return resolver.resolvePath(
+      return this.plugin.resolver.resolvePath(
         { baseName, pathMode, tag: options?.group?.tag, path: options?.group?.path },
-        { root: path.resolve(this.config.root, this.config.output.path), output, group },
+        { root: path.resolve(this.config.root, this.config.output.path), output, group: this.plugin.options.group },
       )
     },
     resolveName(name, type) {
@@ -88,7 +103,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
         resolveNameWarning = true
       }
 
-      return resolver.default(name, type)
+      return this.plugin.resolver.default(name, type)
     },
     async install() {
       const { config, fabric, plugin, adapter, rootNode, driver, resolver } = this
@@ -102,7 +117,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
       await walk(rootNode, {
         depth: 'shallow',
         async operation(operationNode) {
-          const writeTasks = generators.map(async (generator) => {
+          const writeTasks = preset.generators.map(async (generator) => {
             if (generator.type === 'react' && generator.version === '2') {
               const resolvedOptions = resolver.resolveOptions(operationNode, {
                 options: plugin.options,

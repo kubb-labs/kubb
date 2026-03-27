@@ -3,8 +3,8 @@ import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingParame
 import type { ResolverTs } from '@kubb/plugin-ts'
 import { File, Function } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import { buildTypeNames } from '../utils.ts'
 import type { PluginCypress } from '../types.ts'
+import { buildTypeNames } from '../utils.ts'
 
 /**
  * Pre-computed type name information for a single parameter or request/response node.

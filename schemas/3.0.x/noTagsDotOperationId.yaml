@@ -28,7 +28,7 @@ paths:
     post:
       operationId: create_config_v2025.0
       summary: Create configuration
-      tags: []
+      tags: ['config']
       requestBody:
         required: true
         content:

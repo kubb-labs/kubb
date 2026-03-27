@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getBarrelFiles, getMode } from '@kubb/core'
+import { createPlugin, getBarrelFiles, getMode, type UserGroup } from '@kubb/core'
 import { type PluginClient, pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
@@ -60,7 +60,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
       }
 
       if (group && (options?.group?.path || options?.group?.tag)) {
-        const groupName: Group['name'] = group?.name
+        const groupName: UserGroup['name'] = group?.name
           ? group.name
           : (ctx) => {
               if (group?.type === 'path') {
