@@ -66,7 +66,6 @@ Every file that needs to change, grouped by action:
 New files to create:
 - `src/constants.ts` -- typed `Set` as const constants in SCREAMING_SNAKE_CASE or consts with `as const` named in camelCase
 - `src/resolvers/resolverPLUGIN_PASCAL.ts` -- `defineResolver` with naming helpers
-- `src/resolvers/index.ts` -- barrel export
 - `src/presets.ts` -- `definePresets` registry (no `getPreset` wrapper; call `@kubb/core`'s `getPreset` directly in `plugin.ts`)
 - `src/utils.ts` -- (schema plugins only) standalone schema-building helper functions; for operation plugins that depend on plugin-ts, add a `buildTypeNames({ node, paramsCasing, resolver })` helper that accepts the preset-aware `ResolverTs`
 - `src/printers/` -- (schema plugins only) `definePrinter` usage
@@ -146,7 +145,7 @@ Test mocks:
 
 Goal: Create the type system, constants, resolver, presets, and build config. No dependencies on other phases.
 
-Files to create: `src/types.ts`, `src/constants.ts`, `src/resolvers/resolverPLUGIN_PASCAL.ts`, `src/resolvers/index.ts`, `src/presets.ts`
+Files to create: `src/types.ts`, `src/constants.ts`, `src/resolvers/resolverPLUGIN_PASCAL.ts`, `src/presets.ts`
 
 Files to update: `package.json`, `tsdown.config.ts`
 
@@ -308,7 +307,7 @@ The presets file only exports a `presets` registry — **no `getPreset` wrapper*
 ```typescript
 import { definePresets } from '@kubb/core'
 import { cypressGenerator } from './generators/index.ts'
-import { resolverCypress } from './resolvers/index.ts'
+import { resolverCypress } from './resolvers/resolverCypress.ts'
 import type { ResolverCypress } from './types.ts'
 
 /**
@@ -538,7 +537,7 @@ Add these imports:
 - `walk` from `@kubb/ast`
 - `renderOperation`, `getPreset` from `@kubb/core` (and `renderSchema` for schema plugins)
 - `presets` from `./presets.ts`
-- the plugin's default resolver (e.g. `resolverCypress`) from `./resolvers/index.ts`
+- the plugin's default resolver (e.g. `resolverCypress`) from `./resolvers/resolverPLUGIN_PASCAL.ts`
 
 For plugins that depend on `plugin-ts`, the TypeScript resolver is **not** imported at build time — it is retrieved at render time in the generator via `driver.getPlugin(pluginTsName)?.resolver`. No second `getPreset` call is needed in `plugin.ts`.
 
