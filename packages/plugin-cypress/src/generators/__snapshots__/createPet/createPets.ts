@@ -4,7 +4,7 @@
  */
 import type { CreatePetsData, CreatePetsResponse } from './models/CreatePets'
 
-export function createPets(data: CreatePetsData, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<CreatePetsResponse> {
+export function createPets(data?: CreatePetsData, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<CreatePetsResponse> {
   return cy
     .request<CreatePetsResponse>({
       method: 'post',

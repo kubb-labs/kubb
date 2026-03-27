@@ -66,7 +66,7 @@ export function caseParams(params: Array<ParameterNode>, casing: 'camelcase' | u
  * - `optional` is set for non-required, non-nullable schemas.
  * - `nullish` is set for non-required, nullable schemas.
  */
-export function syncOptionality(required: boolean, schema: SchemaNode): SchemaNode {
+export function syncOptionality(schema: SchemaNode, required: boolean): SchemaNode {
   const nullable = schema.nullable ?? false
 
   return {

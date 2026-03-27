@@ -46,7 +46,8 @@ export function buildTypeNames({
   const pathParams = casedPathParams.map((casedParam, i) => ({
     name: casedParam.name,
     originalName: originalPathParams[i]!.name,
-    typedName: legacy ? resolver.resolvePathParamsTypedName!(node) : resolver.resolveParamTypedName(node, originalPathParams[i]!),
+    // In legacy mode, use indexed access syntax: DeletePetPathParams['petId']
+    typedName: legacy ? `${resolver.resolvePathParamsTypedName!(node)}['${casedParam.name}']` : resolver.resolveParamTypedName(node, originalPathParams[i]!),
     required: casedParam.required,
   }))
 
@@ -67,6 +68,7 @@ export function buildTypeNames({
   const requestBody = node.requestBody?.schema
     ? {
         typedName: resolver.resolveDataTypedName(node),
+        required: node.requestBody.required ?? false,
       }
     : undefined
 

@@ -86,6 +86,36 @@ export async function buildMinimalOas() {
             '404': { description: 'Not found' },
           },
         },
+        patch: {
+          operationId: 'patchPet',
+          tags: ['pets'],
+          parameters: [
+            {
+              name: 'petId',
+              in: 'path',
+              required: true,
+              schema: { type: 'integer' },
+            },
+          ],
+          requestBody: {
+            description: 'Optional pet fields to update',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/NewPet' },
+              },
+            },
+          },
+          responses: {
+            '200': {
+              description: 'Pet updated',
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/Pet' },
+                },
+              },
+            },
+          },
+        },
       },
     },
     components: {

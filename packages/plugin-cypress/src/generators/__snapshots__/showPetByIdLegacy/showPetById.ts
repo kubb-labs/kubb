@@ -4,7 +4,7 @@
  */
 import type { ShowPetByIdPathParams, ShowPetByIdQueryResponse } from './models/ShowPetById'
 
-export function showPetById({ petId }: ShowPetByIdPathParams, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<ShowPetByIdQueryResponse> {
+export function showPetById(petId: ShowPetByIdPathParams['petId'], options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<ShowPetByIdQueryResponse> {
   return cy
     .request<ShowPetByIdQueryResponse>({
       method: 'get',

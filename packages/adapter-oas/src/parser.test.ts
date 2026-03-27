@@ -166,7 +166,7 @@ describe('buildAst', () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root
 
-      expect(root.operations).toHaveLength(3)
+      expect(root.operations).toHaveLength(4)
     })
 
     it('sets operationId, method, path, tags', async () => {
@@ -267,6 +267,25 @@ describe('buildAst', () => {
       const createPet = root.operations.find((op) => op.operationId === 'createPet')
 
       expect(createPet?.requestBody?.description).toBe('New pet to create')
+    })
+
+    it('sets requestBody.required to true when spec has required: true', async () => {
+      const oas = await buildMinimalOas()
+      const root = parseOas(oas).root
+      const createPet = root.operations.find((op) => op.operationId === 'createPet')
+
+      expect(createPet?.requestBody?.required).toBe(true)
+      expect(createPet?.requestBody?.schema?.optional).toBeFalsy()
+    })
+
+    it('leaves requestBody.required undefined when spec omits required', async () => {
+      const oas = await buildMinimalOas()
+      const root = parseOas(oas).root
+      const patchPet = root.operations.find((op) => op.operationId === 'patchPet')
+
+      expect(patchPet?.requestBody).toBeDefined()
+      expect(patchPet?.requestBody?.required).toBeUndefined()
+      expect(patchPet?.requestBody?.schema?.optional).toBe(true)
     })
 
     it('converts responses with statusCode and schema', async () => {

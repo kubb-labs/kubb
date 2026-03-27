@@ -78,6 +78,11 @@ export type OperationNode = BaseNode & {
      * Set when a referenced schema has `readOnly` fields that should be omitted in request types.
      */
     keysToOmit?: Array<string>
+    /**
+     * Whether the request body is required (`requestBody.required: true` in the spec).
+     * When `false` or absent, the generated `data` parameter should be optional.
+     */
+    required?: boolean
   }
   /**
    * Operation responses.

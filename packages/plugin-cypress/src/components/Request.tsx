@@ -28,7 +28,7 @@ export type TypeNames = {
   pathParams: Array<TypeParamInfo>
   queryParams: Array<TypeParamInfo>
   headerParams: Array<TypeParamInfo>
-  requestBody?: { typedName: string }
+  requestBody?: { typedName: string; required: boolean }
   response: { typedName: string }
   /**
    * Grouped param type names — set when the plugin-ts resolver uses the kubbV4 compatibility preset.
@@ -101,7 +101,7 @@ function getParams({ node, resolver, paramsType, paramsCasing, pathParamsType }:
       ...(grouped?.pathParams
         ? pathParams.map((p) => createFunctionParameter({ name: p.name, optional: !p.required }))
         : pathParams.map((p) => createFunctionParameter({ name: p.name, type: p.typedName, optional: !p.required }))),
-      requestBody ? createFunctionParameter({ name: 'data', type: requestBody.typedName, optional: false }) : null,
+      requestBody ? createFunctionParameter({ name: 'data', type: requestBody.typedName, optional: !requestBody.required }) : null,
       queryParamsType ? createFunctionParameter({ name: 'params', type: queryParamsType, optional: queryParamsOptional }) : null,
       headerParamsType ? createFunctionParameter({ name: 'headers', type: headerParamsType, optional: headerParamsOptional }) : null,
     ].filter((p): p is FunctionParameterNode => p !== null)
@@ -124,14 +124,8 @@ function getParams({ node, resolver, paramsType, paramsCasing, pathParamsType }:
 
   if (pathParams.length > 0) {
     if (grouped?.pathParams) {
-      // Legacy (kubbV4): { petId }: DeletePetPathParams
-      pathParamNodes = [
-        createObjectBindingParameter({
-          properties: pathParams.map((p) => createFunctionParameter({ name: p.name, optional: !p.required })),
-          type: grouped.pathParams,
-          default: allPathOptional ? '{}' : undefined,
-        }),
-      ]
+      // Legacy (kubbV4): petId: DeletePetPathParams['petId'] (indexed access per-param)
+      pathParamNodes = pathParams.map((p) => createFunctionParameter({ name: p.name, type: p.typedName, optional: !p.required }))
     } else if (pathParamsType === 'object') {
       // Object mode: { petId }: { petId: ShowPetByIdPathPetId }
       pathParamNodes = [
@@ -147,7 +141,7 @@ function getParams({ node, resolver, paramsType, paramsCasing, pathParamsType }:
   }
 
   const scalarParams = [
-    requestBody ? createFunctionParameter({ name: 'data', type: requestBody.typedName, optional: false }) : null,
+    requestBody ? createFunctionParameter({ name: 'data', type: requestBody.typedName, optional: !requestBody.required }) : null,
     queryParamsType ? createFunctionParameter({ name: 'params', type: queryParamsType, optional: queryParamsOptional }) : null,
     headerParamsType ? createFunctionParameter({ name: 'headers', type: headerParamsType, optional: headerParamsOptional }) : null,
     createFunctionParameter({ name: 'options', type: 'Partial<Cypress.RequestOptions>', optional: false, default: '{}' }),

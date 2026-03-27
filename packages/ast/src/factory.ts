@@ -156,7 +156,7 @@ export function createProperty(props: Pick<PropertyNode, 'name' | 'schema'> & Pa
     ...props,
     kind: 'Property',
     required,
-    schema: syncOptionality(required, props.schema),
+    schema: syncOptionality(props.schema, required),
   }
 }
 
@@ -194,7 +194,7 @@ export function createParameter(
     ...props,
     kind: 'Parameter',
     required,
-    schema: syncOptionality(required, props.schema),
+    schema: syncOptionality(props.schema, required),
   }
 }
 
