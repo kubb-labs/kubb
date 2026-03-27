@@ -2,9 +2,9 @@ import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   createFunctionParameter,
   createFunctionParameters,
-  createParameterGroup,
   createOperation,
   createParameter,
+  createParameterGroup,
   createProperty,
   createResponse,
   createRoot,
@@ -13,8 +13,8 @@ import {
 import {
   isFunctionParameterNode,
   isFunctionParametersNode,
-  isParameterGroupNode,
   isOperationNode,
+  isParameterGroupNode,
   isParameterNode,
   isPropertyNode,
   isResponseNode,

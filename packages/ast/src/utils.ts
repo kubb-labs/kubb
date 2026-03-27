@@ -2,7 +2,7 @@ import { camelCase, isValidVarName } from '@internals/utils'
 
 import { createFunctionParameter, createFunctionParameters, createParameterGroup, createProperty, createSchema, createTypeNode } from './factory.ts'
 import { narrowSchema } from './guards.ts'
-import type { FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, OperationNode, ParameterNode, SchemaNode, TypeNode } from './nodes/index.ts'
+import type { FunctionParameterNode, FunctionParametersNode, OperationNode, ParameterGroupNode, ParameterNode, SchemaNode, TypeNode } from './nodes/index.ts'
 import type { SchemaType } from './nodes/schema.ts'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
@@ -183,14 +183,34 @@ export type CreateOperationParamsOptions = {
    * extraParams: [createFunctionParameter({ name: 'options', type: 'Partial<RequestOptions>', default: '{}' })]
    */
   extraParams?: Array<FunctionParameterNode | ParameterGroupNode>
+  /**
+   * Override the default parameter names used for body, query, and header groups.
+   * Useful when targeting languages or frameworks with different conventions.
+   * @default { data: 'data', params: 'params', headers: 'headers' }
+   */
+  paramNames?: {
+    data?: string
+    params?: string
+    headers?: string
+  }
 }
 
-function resolveType({ node, param, resolver }: { node: OperationNode; param: ParameterNode; resolver: OperationParamsResolver | undefined }): string | TypeNode {
+function resolveType({
+  node,
+  param,
+  resolver,
+}: {
+  node: OperationNode
+  param: ParameterNode
+  resolver: OperationParamsResolver | undefined
+}): string | TypeNode {
   if (!resolver) {
     return param.schema.primitive ?? 'unknown'
   }
 
   const individualName = resolver.resolveParamName(node, param)
+
+  const groupLocation = param.in === 'path' || param.in === 'query' || param.in === 'header' ? param.in : undefined
 
   const groupResolvers = {
     path: resolver.resolvePathParamsName,
@@ -198,7 +218,7 @@ function resolveType({ node, param, resolver }: { node: OperationNode; param: Pa
     header: resolver.resolveHeaderParamsName,
   } as const
 
-  const groupName = groupResolvers[param.in as keyof typeof groupResolvers]?.call(resolver, node, param)
+  const groupName = groupLocation ? groupResolvers[groupLocation].call(resolver, node, param) : undefined
 
   if (groupName && groupName !== individualName) {
     return createTypeNode({ variant: 'member', base: groupName, key: param.name })
@@ -222,7 +242,11 @@ function resolveType({ node, param, resolver }: { node: OperationNode; param: Pa
  * })
  */
 export function createOperationParams(node: OperationNode, options: CreateOperationParamsOptions): FunctionParametersNode {
-  const { paramsType, pathParamsType, paramsCasing, resolver, pathParamsDefault, extraParams = [] } = options
+  const { paramsType, pathParamsType, paramsCasing, resolver, pathParamsDefault, extraParams = [], paramNames } = options
+
+  const dataName = paramNames?.data ?? 'data'
+  const paramsName = paramNames?.params ?? 'params'
+  const headersName = paramNames?.headers ?? 'headers'
 
   const casedParams = caseParams(node.parameters, paramsCasing)
   const pathParams = casedParams.filter((p) => p.in === 'path')
@@ -240,32 +264,10 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   if (paramsType === 'object') {
     const children: Array<FunctionParameterNode> = [
       ...pathParams.map((p) => createFunctionParameter({ name: p.name, type: resolveType({ node, param: p, resolver }), optional: !p.required })),
-      ...(bodyType ? [createFunctionParameter({ name: 'data', type: bodyType, optional: !bodyRequired })] : []),
+      ...(bodyType ? [createFunctionParameter({ name: dataName, type: bodyType, optional: !bodyRequired })] : []),
+      ...buildGroupParam({ name: paramsName, node, params: queryParams, groupType: queryGroupType, resolver }),
+      ...buildGroupParam({ name: headersName, node, params: headerParams, groupType: headerGroupType, resolver }),
     ]
-
-    if (queryGroupType) {
-      children.push(createFunctionParameter({ name: 'params', type: queryGroupType.type, optional: queryGroupType.optional }))
-    } else if (queryParams.length) {
-      children.push(
-        createFunctionParameter({
-          name: 'params',
-          type: toStructType({ node, params: queryParams, resolver }),
-          optional: queryParams.every((p) => !p.required),
-        }),
-      )
-    }
-
-    if (headerGroupType) {
-      children.push(createFunctionParameter({ name: 'headers', type: headerGroupType.type, optional: headerGroupType.optional }))
-    } else if (headerParams.length) {
-      children.push(
-        createFunctionParameter({
-          name: 'headers',
-          type: toStructType({ node, params: headerParams, resolver }),
-          optional: headerParams.every((p) => !p.required),
-        }),
-      )
-    }
 
     if (children.length) {
       params.push(createParameterGroup({ properties: children, default: children.every((c) => c.optional) ? '{}' : undefined }))
@@ -285,37 +287,51 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
     }
 
     if (bodyType) {
-      params.push(createFunctionParameter({ name: 'data', type: bodyType, optional: !bodyRequired }))
+      params.push(createFunctionParameter({ name: dataName, type: bodyType, optional: !bodyRequired }))
     }
 
-    if (queryGroupType) {
-      params.push(createFunctionParameter({ name: 'params', type: queryGroupType.type, optional: queryGroupType.optional }))
-    } else if (queryParams.length) {
-      params.push(
-        createFunctionParameter({
-          name: 'params',
-          type: toStructType({ node, params: queryParams, resolver }),
-          optional: queryParams.every((p) => !p.required),
-        }),
-      )
-    }
-
-    if (headerGroupType) {
-      params.push(createFunctionParameter({ name: 'headers', type: headerGroupType.type, optional: headerGroupType.optional }))
-    } else if (headerParams.length) {
-      params.push(
-        createFunctionParameter({
-          name: 'headers',
-          type: toStructType({ node, params: headerParams, resolver }),
-          optional: headerParams.every((p) => !p.required),
-        }),
-      )
-    }
+    params.push(...buildGroupParam({ name: paramsName, node, params: queryParams, groupType: queryGroupType, resolver }))
+    params.push(...buildGroupParam({ name: headersName, node, params: headerParams, groupType: headerGroupType, resolver }))
   }
 
   params.push(...extraParams)
 
   return createFunctionParameters({ params })
+}
+
+/**
+ * Builds a single {@link FunctionParameterNode} for a query or header group.
+ * Returns an empty array when there are no params to emit.
+ *
+ * If a pre-resolved `groupType` is provided it emits `name: GroupType`.
+ * Otherwise, it builds an inline struct from the individual params.
+ */
+function buildGroupParam({
+  name,
+  node,
+  params,
+  groupType,
+  resolver,
+}: {
+  name: string
+  node: OperationNode
+  params: Array<ParameterNode>
+  groupType: ParamGroupType | undefined
+  resolver: OperationParamsResolver | undefined
+}): Array<FunctionParameterNode> {
+  if (groupType) {
+    return [createFunctionParameter({ name, type: groupType.type, optional: groupType.optional })]
+  }
+  if (params.length) {
+    return [
+      createFunctionParameter({
+        name,
+        type: toStructType({ node, params, resolver }),
+        optional: params.every((p) => !p.required),
+      }),
+    ]
+  }
+  return []
 }
 
 /**

@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import { createProperty, createSchema } from './factory.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { mergeAdjacentObjects, resolveNames, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
+import { mergeAdjacentObjects, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
 
 describe('setDiscriminatorEnum', () => {
   function makeObjectNode(propNames: Array<string>, name?: string): SchemaNode {
@@ -286,80 +286,6 @@ describe('simplifyUnion()', () => {
     const result = simplifyUnion(members)
 
     expect(result).toEqual([members[1], members[2]])
-  })
-})
-
-describe('resolveNames()', () => {
-  it('resolves ref node names via resolveName()', () => {
-    const node = createSchema({ type: 'ref', ref: 'Pet', name: 'Pet' }) as SchemaNode
-    const result = resolveNames({ node, nameMapping: new Map(), resolveName: (name) => `${name}Type` })
-
-    expect(result.name).toBe('PetType')
-  })
-
-  it('applies nameMapping before resolveName()', () => {
-    const node = createSchema({ type: 'ref', ref: 'Pet', name: 'Pet' }) as SchemaNode
-    const result = resolveNames({
-      node,
-      nameMapping: new Map([['Pet', 'OrderPet']]),
-      resolveName: (name) => `${name}Type`,
-    })
-
-    expect(result.name).toBe('OrderPetType')
-  })
-
-  it('resolves enum node names via resolveEnumName() when provided', () => {
-    const node = createSchema({ type: 'enum', name: 'Status', primitive: 'string', enumValues: ['a', 'b'] }) as SchemaNode
-    const result = resolveNames({
-      node,
-      nameMapping: new Map(),
-      resolveName: (name) => `${name}Type`,
-      resolveEnumName: (name) => `${name}Enum`,
-    })
-
-    expect(result.name).toBe('StatusEnum')
-  })
-
-  it('falls back to resolveName() when resolveEnumName() is not provided', () => {
-    const node = createSchema({ type: 'enum', name: 'Status', primitive: 'string', enumValues: ['a', 'b'] }) as SchemaNode
-    const result = resolveNames({
-      node,
-      nameMapping: new Map(),
-      resolveName: (name) => `${name}Type`,
-    })
-
-    expect(result.name).toBe('StatusType')
-  })
-
-  it('leaves non-ref and non-enum nodes unchanged', () => {
-    const node = createSchema({ type: 'string' }) as SchemaNode
-    const result = resolveNames({ node, nameMapping: new Map(), resolveName: (name) => `${name}Type` })
-
-    expect(result).toStrictEqual(node)
-  })
-
-  it('resolves nested refs inside object properties', () => {
-    const node = createSchema({
-      type: 'object',
-      properties: [createProperty({ name: 'pet', schema: createSchema({ type: 'ref', ref: 'Pet', name: 'Pet' }) })],
-    }) as SchemaNode
-    const result = resolveNames({ node, nameMapping: new Map(), resolveName: (name) => `${name}Type` })
-    const objectNode = result.type === 'object' ? result : undefined
-    const refNode = objectNode?.properties?.[0]?.schema
-
-    expect(refNode?.name).toBe('PetType')
-  })
-
-  it('resolves refs inside union members', () => {
-    const node = createSchema({
-      type: 'union',
-      members: [createSchema({ type: 'ref', ref: 'Pet', name: 'Pet' }), createSchema({ type: 'ref', ref: 'Error', name: 'Error' })],
-    }) as SchemaNode
-    const result = resolveNames({ node, nameMapping: new Map(), resolveName: (name) => `${name}Type` })
-    const unionNode = result.type === 'union' ? result : undefined
-
-    expect(unionNode?.members?.[0]?.name).toBe('PetType')
-    expect(unionNode?.members?.[1]?.name).toBe('ErrorType')
   })
 })
 

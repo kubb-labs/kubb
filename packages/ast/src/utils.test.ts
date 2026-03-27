@@ -662,7 +662,11 @@ describe('createOperationParams', () => {
       })
 
       const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
-      expect(queryParam?.type).toMatchObject({ kind: 'Type', variant: 'struct', properties: expect.arrayContaining([expect.objectContaining({ name: 'filter' })]) })
+      expect(queryParam?.type).toMatchObject({
+        kind: 'Type',
+        variant: 'struct',
+        properties: expect.arrayContaining([expect.objectContaining({ name: 'filter' })]),
+      })
     })
 
     it('uses resolveHeaderParamsName for header params in inline mode', () => {

@@ -141,6 +141,13 @@ export const schemaTypes = {
  */
 export const SCALAR_PRIMITIVE_TYPES = new Set(['string', 'number', 'integer', 'bigint', 'boolean'] as const)
 
+export type ScalarPrimitive = typeof SCALAR_PRIMITIVE_TYPES extends Set<infer T> ? T : never
+
+/** Returns `true` when `type` is a scalar primitive schema type. */
+export function isScalarPrimitive(type: string): type is ScalarPrimitive {
+  return SCALAR_PRIMITIVE_TYPES.has(type as ScalarPrimitive)
+}
+
 export const httpMethods = {
   get: 'GET',
   post: 'POST',
@@ -161,6 +168,10 @@ export const parameterLocations = {
 
 /**
  * Default maximum number of concurrent callbacks used by `walk`.
+ *
+ * 30 is chosen to allow enough parallelism to overlap I/O-bound resolver calls
+ * without overwhelming the event loop or causing excessive memory pressure during
+ * large spec traversals.
  *
  * @example
  * ```ts

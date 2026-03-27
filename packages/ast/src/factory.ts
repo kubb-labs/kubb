@@ -2,9 +2,9 @@ import type { InferSchemaNode } from './infer.ts'
 import type {
   FunctionParameterNode,
   FunctionParametersNode,
-  ParameterGroupNode,
   ObjectSchemaNode,
   OperationNode,
+  ParameterGroupNode,
   ParameterNode,
   PropertyNode,
   ResponseNode,
@@ -286,9 +286,7 @@ export function createFunctionParameter(
  * ```
  */
 export function createTypeNode(
-  props:
-    | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: string }> }
-    | { variant: 'member'; base: string; key: string },
+  props: { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: string }> } | { variant: 'member'; base: string; key: string },
 ): TypeNode {
   return { ...props, kind: 'Type' } as TypeNode
 }

@@ -1,9 +1,8 @@
-import { SCALAR_PRIMITIVE_TYPES } from './constants.ts'
+import { isScalarPrimitive } from './constants.ts'
 import { createProperty, createSchema } from './factory.ts'
 import { narrowSchema } from './guards.ts'
 import type { SchemaNode } from './nodes/schema.ts'
 import { enumPropName } from './resolvers.ts'
-import { transform } from './visitor.ts'
 
 /**
  * Replaces a discriminator property's schema with a string enum of allowed values.
@@ -108,9 +107,7 @@ export function mergeAdjacentObjects(members: Array<SchemaNode>): Array<SchemaNo
  * ```
  */
 export function simplifyUnion(members: Array<SchemaNode>): Array<SchemaNode> {
-  const scalarPrimitives = new Set(
-    members.filter((member) => SCALAR_PRIMITIVE_TYPES.has(member.type as typeof SCALAR_PRIMITIVE_TYPES extends Set<infer T> ? T : never)).map((m) => m.type),
-  )
+  const scalarPrimitives = new Set(members.filter((member) => isScalarPrimitive(member.type)).map((m) => m.type))
 
   if (!scalarPrimitives.size) {
     return members
@@ -156,41 +153,4 @@ export function setEnumName(propNode: SchemaNode, parentName: string | null | un
   }
 
   return propNode
-}
-
-/**
- * Walks a schema tree and resolves `ref`/`enum` names through callbacks.
- */
-export function resolveNames({
-  node,
-  nameMapping,
-  resolveName,
-  resolveEnumName,
-}: {
-  node: SchemaNode
-  nameMapping: Map<string, string>
-  resolveName: (ref: string) => string | undefined
-  resolveEnumName?: (name: string) => string | undefined
-}): SchemaNode {
-  return transform(node, {
-    schema(schemaNode) {
-      const schemaRef = narrowSchema(schemaNode, 'ref')
-
-      if (schemaRef && (schemaRef.ref || schemaRef.name)) {
-        const rawRef = schemaRef.ref ?? schemaRef.name!
-        const resolved = resolveName(nameMapping.get(rawRef) ?? rawRef)
-        if (resolved) {
-          return { ...schemaNode, name: resolved }
-        }
-      }
-
-      const schemaEnum = narrowSchema(schemaNode, 'enum')
-      if (schemaEnum?.name) {
-        const resolved = (resolveEnumName ?? resolveName)(schemaEnum.name)
-        if (resolved) {
-          return { ...schemaNode, name: resolved }
-        }
-      }
-    },
-  }) as SchemaNode
 }

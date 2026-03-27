@@ -1,10 +1,11 @@
-export { httpMethods, mediaTypes, schemaTypes } from './constants.ts'
+export type { ScalarPrimitive } from './constants.ts'
+export { httpMethods, isScalarPrimitive, mediaTypes, schemaTypes } from './constants.ts'
 export {
   createFunctionParameter,
   createFunctionParameters,
-  createParameterGroup,
   createOperation,
   createParameter,
+  createParameterGroup,
   createProperty,
   createResponse,
   createRoot,

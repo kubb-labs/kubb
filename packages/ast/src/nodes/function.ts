@@ -171,7 +171,7 @@ export type FunctionParametersNode = BaseNode & {
   /**
    * Ordered parameter nodes.
    */
-  params: Array<FunctionParameterNode | ParameterGroupNode>
+  params: ReadonlyArray<FunctionParameterNode | ParameterGroupNode>
 }
 
 /**
