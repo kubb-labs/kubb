@@ -47,13 +47,13 @@ export const resolverTsLegacy = defineResolver<PluginTs>(() => {
       const suffix = node.method === 'GET' ? 'QueryResponse' : 'MutationResponse'
       return this.resolveName(`${node.operationId} ${suffix}`)
     },
-    resolvePathParamsName(node) {
+    resolvePathParamsName(node, _param) {
       return this.resolveName(`${node.operationId} PathParams`)
     },
-    resolveQueryParamsName(node) {
+    resolveQueryParamsName(node, _param) {
       return this.resolveName(`${node.operationId} QueryParams`)
     },
-    resolveHeaderParamsName(node) {
+    resolveHeaderParamsName(node, _param) {
       return this.resolveName(`${node.operationId} HeaderParams`)
     },
   }

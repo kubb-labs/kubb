@@ -59,14 +59,14 @@ export const resolverTs = defineResolver<PluginTs>(() => {
     resolveEnumKeyName(node, enumTypeSuffix = 'key') {
       return `${this.resolveName(node.name ?? '')}${enumTypeSuffix}`
     },
-    resolvePathParamsName(node) {
-      return this.resolveName(`${node.operationId} PathParams`)
+    resolvePathParamsName(node, param) {
+      return this.resolveParamName(node, param)
     },
-    resolveQueryParamsName(node) {
-      return this.resolveName(`${node.operationId} QueryParams`)
+    resolveQueryParamsName(node, param) {
+      return this.resolveParamName(node, param)
     },
-    resolveHeaderParamsName(node) {
-      return this.resolveName(`${node.operationId} HeaderParams`)
+    resolveHeaderParamsName(node, param) {
+      return this.resolveParamName(node, param)
     },
   }
 })

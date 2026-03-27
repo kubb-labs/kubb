@@ -91,23 +91,23 @@ export type ResolverTs = Resolver & {
    * Resolves the name for an operation's grouped path parameters type.
    *
    * @example
-   * resolver.resolvePathParamsName(node) // → 'GetPetByIdPathParams'
+   * resolver.resolvePathParamsName(node, param) // → 'GetPetByIdPathParams'
    */
-  resolvePathParamsName(node: OperationNode): string
+  resolvePathParamsName(node: OperationNode, param: ParameterNode): string
   /**
    * Resolves the name for an operation's grouped query parameters type.
    *
    * @example
-   * resolver.resolveQueryParamsName(node) // → 'FindPetsByStatusQueryParams'
+   * resolver.resolveQueryParamsName(node, param) // → 'FindPetsByStatusQueryParams'
    */
-  resolveQueryParamsName(node: OperationNode): string
+  resolveQueryParamsName(node: OperationNode, param: ParameterNode): string
   /**
    * Resolves the name for an operation's grouped header parameters type.
    *
    * @example
-   * resolver.resolveHeaderParamsName(node) // → 'DeletePetHeaderParams'
+   * resolver.resolveHeaderParamsName(node, param) // → 'DeletePetHeaderParams'
    */
-  resolveHeaderParamsName(node: OperationNode): string
+  resolveHeaderParamsName(node: OperationNode, param: ParameterNode): string
 }
 
 export type Options = {
