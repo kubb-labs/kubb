@@ -15,7 +15,7 @@ export function createPets(
 ): Cypress.Chainable<CreatePetsMutationResponse> {
   return cy
     .request<CreatePetsMutationResponse>({
-      method: 'POST',
+      method: 'post',
       url: `/pets/${uuid}`,
       qs: params,
       headers,

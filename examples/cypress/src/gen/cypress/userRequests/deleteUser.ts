@@ -11,7 +11,7 @@ export function deleteUser(
 ): Cypress.Chainable<DeleteUserMutationResponse> {
   return cy
     .request<DeleteUserMutationResponse>({
-      method: 'DELETE',
+      method: 'delete',
       url: `http://localhost:3000/user/${username}`,
       ...options,
     })

@@ -8,7 +8,7 @@ import type { AddPetMutationRequest, AddPetMutationResponse } from '../../models
 export function addPet(data: AddPetMutationRequest, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<AddPetMutationResponse> {
   return cy
     .request<AddPetMutationResponse>({
-      method: 'POST',
+      method: 'post',
       url: 'http://localhost:3000/pet',
       body: data,
       ...options,

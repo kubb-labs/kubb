@@ -8,7 +8,7 @@ import type { LoginUserQueryParams, LoginUserQueryResponse } from '../../models/
 export function loginUser(params?: LoginUserQueryParams, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<LoginUserQueryResponse> {
   return cy
     .request<LoginUserQueryResponse>({
-      method: 'GET',
+      method: 'get',
       url: 'http://localhost:3000/user/login',
       qs: params,
       ...options,

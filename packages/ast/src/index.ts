@@ -26,8 +26,8 @@ export {
   narrowSchema,
 } from './guards.ts'
 export type { InferSchema, InferSchemaNode, ParserOptions } from './infer.ts'
-export type { Printer, PrinterFactoryOptions } from './printers/index.ts'
-export { createPrinterFactory, definePrinter } from './printers/index.ts'
+export type { Printer, PrinterFactoryOptions } from './printer.ts'
+export { createPrinterFactory, definePrinter } from './printer.ts'
 export { buildRefMap, extractRefName, refMapToObject, resolveRef } from './refs.ts'
 export { childName, collectImports, enumPropName, findDiscriminator } from './resolvers.ts'
 export { mergeAdjacentObjects, resolveNames, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'

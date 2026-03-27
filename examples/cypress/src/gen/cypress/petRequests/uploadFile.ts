@@ -13,7 +13,7 @@ export function uploadFile(
 ): Cypress.Chainable<UploadFileMutationResponse> {
   return cy
     .request<UploadFileMutationResponse>({
-      method: 'POST',
+      method: 'post',
       url: `http://localhost:3000/pet/${petId}/uploadImage`,
       qs: params,
       body: data,

@@ -7,7 +7,7 @@ export function deletePet(
 ): Cypress.Chainable<DeletePetMutationResponse> {
   return cy
     .request<DeletePetMutationResponse>({
-      method: 'DELETE',
+      method: 'delete',
       url: `/pet/${petId}:search`,
       headers,
       ...options,

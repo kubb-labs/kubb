@@ -11,7 +11,7 @@ export function createUsersWithListInput(
 ): Cypress.Chainable<CreateUsersWithListInputMutationResponse> {
   return cy
     .request<CreateUsersWithListInputMutationResponse>({
-      method: 'POST',
+      method: 'post',
       url: 'http://localhost:3000/user/createWithList',
       body: data,
       ...options,

@@ -9,7 +9,7 @@ export function createUsersWithListInput(
 ): Cypress.Chainable<CreateUsersWithListInputMutationResponse> {
   return cy
     .request<CreateUsersWithListInputMutationResponse>({
-      method: 'POST',
+      method: 'post',
       url: '/user/createWithList',
       body: data,
       ...options,

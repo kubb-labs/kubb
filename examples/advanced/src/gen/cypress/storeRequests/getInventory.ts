@@ -3,7 +3,7 @@ import type { GetInventoryQueryResponse } from '../../models/ts/storeController/
 export function getInventory(options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<GetInventoryQueryResponse> {
   return cy
     .request<GetInventoryQueryResponse>({
-      method: 'GET',
+      method: 'get',
       url: '/store/inventory',
       ...options,
     })

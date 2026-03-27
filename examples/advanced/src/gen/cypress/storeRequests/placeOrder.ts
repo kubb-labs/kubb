@@ -3,7 +3,7 @@ import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../.
 export function placeOrder(data?: PlaceOrderMutationRequest, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<PlaceOrderMutationResponse> {
   return cy
     .request<PlaceOrderMutationResponse>({
-      method: 'POST',
+      method: 'post',
       url: '/store/order',
       body: data,
       ...options,

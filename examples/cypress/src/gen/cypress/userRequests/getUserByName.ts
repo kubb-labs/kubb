@@ -11,7 +11,7 @@ export function getUserByName(
 ): Cypress.Chainable<GetUserByNameQueryResponse> {
   return cy
     .request<GetUserByNameQueryResponse>({
-      method: 'GET',
+      method: 'get',
       url: `http://localhost:3000/user/${username}`,
       ...options,
     })

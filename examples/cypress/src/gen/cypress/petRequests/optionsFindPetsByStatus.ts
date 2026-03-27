@@ -8,7 +8,7 @@ import type { OptionsFindPetsByStatusMutationResponse } from '../../models/Optio
 export function optionsFindPetsByStatus(options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<OptionsFindPetsByStatusMutationResponse> {
   return cy
     .request<OptionsFindPetsByStatusMutationResponse>({
-      method: 'OPTIONS',
+      method: 'options',
       url: 'http://localhost:3000/pet/findByStatus',
       ...options,
     })

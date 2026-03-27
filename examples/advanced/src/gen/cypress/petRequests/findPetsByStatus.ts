@@ -6,7 +6,7 @@ export function findPetsByStatus(
 ): Cypress.Chainable<FindPetsByStatusQueryResponse> {
   return cy
     .request<FindPetsByStatusQueryResponse>({
-      method: 'GET',
+      method: 'get',
       url: `/pet/findByStatus/${stepId}`,
       ...options,
     })

@@ -11,7 +11,7 @@ export function updatePetWithForm(
 ): Cypress.Chainable<UpdatePetWithFormMutationResponse> {
   return cy
     .request<UpdatePetWithFormMutationResponse>({
-      method: 'POST',
+      method: 'post',
       url: `/pet/${petId}:search`,
       qs: params,
       ...options,
