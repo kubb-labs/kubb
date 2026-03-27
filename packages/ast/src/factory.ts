@@ -438,15 +438,12 @@ export type CreateOperationParamsOptions = {
   extraParams?: Array<FunctionParameterNode | ObjectBindingParameterNode>
 }
 
-/** Builds a {@link FunctionParameterNode} without type casts by branching on `required`. */
-function toFunctionParam(name: string, type: string, required: boolean): FunctionParameterNode {
-  if (required) {
-    return { kind: 'FunctionParameter', name, type, optional: false }
-  }
-  return { kind: 'FunctionParameter', name, type, optional: true }
+/** Builds a {@link FunctionParameterNode} from `required` (maps to `!optional`). */
+function toFunctionParam({ name, type, required }: { name: string; type: string; required: boolean }): FunctionParameterNode {
+  return createFunctionParameter({ name, type, optional: !required })
 }
 
-function resolveType(node: OperationNode, param: ParameterNode, resolver: OperationParamsResolver | undefined): string {
+function resolveType({ node, param, resolver }: { node: OperationNode; param: ParameterNode; resolver: OperationParamsResolver | undefined }): string {
   if (!resolver) {
     return param.schema.primitive ?? 'unknown'
   }
@@ -496,8 +493,8 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   const bodyRequired = node.requestBody?.required ?? false
 
   // Derive group types from resolver when available
-  const queryGroupType = resolver ? resolveGroupType(node, queryParams, resolver.resolveQueryParamsName, resolver) : undefined
-  const headerGroupType = resolver ? resolveGroupType(node, headerParams, resolver.resolveHeaderParamsName, resolver) : undefined
+  const queryGroupType = resolver ? resolveGroupType({ node, params: queryParams, groupMethod: resolver.resolveQueryParamsName, resolver }) : undefined
+  const headerGroupType = resolver ? resolveGroupType({ node, params: headerParams, groupMethod: resolver.resolveHeaderParamsName, resolver }) : undefined
 
   if (paramsType === 'object') {
     return collectObjectParams({
@@ -534,12 +531,12 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
  * Derives a {@link ParamGroupType} from the resolver's group method.
  * Returns `undefined` when the group name equals the individual param name (no real group).
  */
-function resolveGroupType(
-  node: OperationNode,
-  params: Array<ParameterNode>,
-  groupMethod: (node: OperationNode, param: ParameterNode) => string,
-  resolver: OperationParamsResolver,
-): ParamGroupType | undefined {
+function resolveGroupType({ node, params, groupMethod, resolver }: {
+  node: OperationNode
+  params: Array<ParameterNode>
+  groupMethod: (node: OperationNode, param: ParameterNode) => string
+  resolver: OperationParamsResolver
+}): ParamGroupType | undefined {
   if (!params.length) {
     return undefined
   }
@@ -581,15 +578,15 @@ function collectObjectParams({
   const children: Array<FunctionParameterNode> = []
 
   for (const p of pathParams) {
-    children.push(toFunctionParam(p.name, resolveType(node, p, resolver), p.required))
+    children.push(toFunctionParam({ name: p.name, type: resolveType({ node, param: p, resolver }), required: p.required }))
   }
 
   if (bodyType) {
-    children.push(toFunctionParam('data', bodyType, bodyRequired))
+    children.push(toFunctionParam({ name: 'data', type: bodyType, required: bodyRequired }))
   }
 
-  appendGroupOrInline(children, 'params', node, queryParams, queryGroupType, resolver)
-  appendGroupOrInline(children, 'headers', node, headerParams, headerGroupType, resolver)
+  appendGroupOrInline({ target: children, name: 'params', node, params: queryParams, groupType: queryGroupType, resolver })
+  appendGroupOrInline({ target: children, name: 'headers', node, params: headerParams, groupType: headerGroupType, resolver })
 
   const allOptional = children.every((c) => c.optional)
 
@@ -632,7 +629,7 @@ function collectInlineParams({
   const params: Array<FunctionParameterNode | ObjectBindingParameterNode> = []
 
   if (pathParams.length) {
-    const pathChildren = pathParams.map((p) => toFunctionParam(p.name, resolveType(node, p, resolver), p.required))
+    const pathChildren = pathParams.map((p) => toFunctionParam({ name: p.name, type: resolveType({ node, param: p, resolver }), required: p.required }))
     const allPathOptional = pathChildren.every((c) => c.optional)
     const defaultValue = pathParamsDefault ?? (allPathOptional ? '{}' : undefined)
 
@@ -646,19 +643,19 @@ function collectInlineParams({
   }
 
   if (bodyType) {
-    params.push(toFunctionParam('data', bodyType, bodyRequired))
+    params.push(toFunctionParam({ name: 'data', type: bodyType, required: bodyRequired }))
   }
 
   if (queryGroupType) {
-    params.push(toFunctionParam('params', queryGroupType.type, !queryGroupType.optional))
+    params.push(toFunctionParam({ name: 'params', type: queryGroupType.type, required: !queryGroupType.optional }))
   } else if (queryParams.length) {
-    params.push(toFunctionParam('params', toInlineObjectType(node, queryParams, resolver), !queryParams.every((p) => !p.required)))
+    params.push(toFunctionParam({ name: 'params', type: toInlineObjectType({ node, params: queryParams, resolver }), required: !queryParams.every((p) => !p.required) }))
   }
 
   if (headerGroupType) {
-    params.push(toFunctionParam('headers', headerGroupType.type, !headerGroupType.optional))
+    params.push(toFunctionParam({ name: 'headers', type: headerGroupType.type, required: !headerGroupType.optional }))
   } else if (headerParams.length) {
-    params.push(toFunctionParam('headers', toInlineObjectType(node, headerParams, resolver), !headerParams.every((p) => !p.required)))
+    params.push(toFunctionParam({ name: 'headers', type: toInlineObjectType({ node, params: headerParams, resolver }), required: !headerParams.every((p) => !p.required) }))
   }
 
   params.push(...extraParams)
@@ -667,18 +664,18 @@ function collectInlineParams({
 }
 
 /** Appends a group param (named type) or individual inline params to `target`. */
-function appendGroupOrInline(
-  target: Array<FunctionParameterNode>,
-  name: string,
-  node: OperationNode,
-  params: Array<ParameterNode>,
-  groupType: ParamGroupType | undefined,
-  resolver: OperationParamsResolver | undefined,
-): void {
+function appendGroupOrInline({ target, name, node, params, groupType, resolver }: {
+  target: Array<FunctionParameterNode>
+  name: string
+  node: OperationNode
+  params: Array<ParameterNode>
+  groupType: ParamGroupType | undefined
+  resolver: OperationParamsResolver | undefined
+}): void {
   if (groupType) {
-    target.push(toFunctionParam(name, groupType.type, !groupType.optional))
+    target.push(toFunctionParam({ name, type: groupType.type, required: !groupType.optional }))
   } else if (params.length) {
-    target.push(toFunctionParam(name, toInlineObjectType(node, params, resolver), !params.every((p) => !p.required)))
+    target.push(toFunctionParam({ name, type: toInlineObjectType({ node, params, resolver }), required: !params.every((p) => !p.required) }))
   }
 }
 
@@ -686,7 +683,7 @@ function appendGroupOrInline(
  * Builds an inline object type string.
  * @example toInlineObjectType(...) // → '{ petId: string; name?: string }'
  */
-function toInlineObjectType(node: OperationNode, params: Array<ParameterNode>, resolver: OperationParamsResolver | undefined): string {
-  const parts = params.map((p) => `${p.name}${!p.required ? '?' : ''}: ${resolveType(node, p, resolver)}`)
+function toInlineObjectType({ node, params, resolver }: { node: OperationNode; params: Array<ParameterNode>; resolver: OperationParamsResolver | undefined }): string {
+  const parts = params.map((p) => `${p.name}${!p.required ? '?' : ''}: ${resolveType({ node, param: p, resolver })}`)
   return `{ ${parts.join('; ')} }`
 }

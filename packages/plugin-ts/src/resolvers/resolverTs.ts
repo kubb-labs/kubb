@@ -31,7 +31,7 @@ export const resolverTs = defineResolver<PluginTs>(() => {
       return resolveName(name, type)
     },
     resolveName(name) {
-      return this.default(name, 'type')
+      return this.default(name, 'function')
     },
     resolvePathName(name, type) {
       return this.default(name, type)
