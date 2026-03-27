@@ -41,7 +41,7 @@ export function buildData({ node, resolver }: BuildOperationSchemaOptions): Sche
       createProperty({
         name: 'data',
         schema: node.requestBody?.schema
-          ? createSchema({ type: 'ref', name: resolver.resolveDataTypedName(node), optional: true })
+          ? createSchema({ type: 'ref', name: resolver.resolveDataName(node), optional: true })
           : createSchema({ type: 'never', optional: true }),
       }),
       createProperty({
@@ -83,7 +83,7 @@ export function buildResponses({ node, resolver }: BuildOperationSchemaOptions):
       createProperty({
         name: String(res.statusCode),
         required: true,
-        schema: createSchema({ type: 'ref', name: resolver.resolveResponseStatusTypedName(node, res.statusCode) }),
+        schema: createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) }),
       }),
     ),
   })
@@ -98,6 +98,6 @@ export function buildResponseUnion({ node, resolver }: BuildOperationSchemaOptio
 
   return createSchema({
     type: 'union',
-    members: responsesWithSchema.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusTypedName(node, res.statusCode) })),
+    members: responsesWithSchema.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
   })
 }

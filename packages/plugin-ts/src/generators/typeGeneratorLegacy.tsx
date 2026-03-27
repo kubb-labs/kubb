@@ -47,20 +47,20 @@ function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperationSchema
   const responseSchema =
     successResponses.length > 0
       ? successResponses.length === 1
-        ? createSchema({ type: 'ref', name: resolver.resolveResponseStatusTypedName(node, successResponses[0]!.statusCode) })
+        ? createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, successResponses[0]!.statusCode) })
         : createSchema({
             type: 'union',
-            members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusTypedName(node, res.statusCode) })),
+            members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
           })
       : createSchema({ type: 'any' })
 
   const errorsSchema =
     errorResponses.length > 0
       ? errorResponses.length === 1
-        ? createSchema({ type: 'ref', name: resolver.resolveResponseStatusTypedName(node, errorResponses[0]!.statusCode) })
+        ? createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, errorResponses[0]!.statusCode) })
         : createSchema({
             type: 'union',
-            members: errorResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusTypedName(node, res.statusCode) })),
+            members: errorResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
           })
       : createSchema({ type: 'any' })
 
@@ -71,37 +71,37 @@ function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperationSchema
       createProperty({
         name: 'Request',
         required: true,
-        schema: createSchema({ type: 'ref', name: resolver.resolveDataTypedName(node) }),
+        schema: createSchema({ type: 'ref', name: resolver.resolveDataName(node) }),
       }),
     )
   }
 
-  if (node.parameters.some((p) => p.in === 'query') && resolver.resolveQueryParamsTypedName) {
+  if (node.parameters.some((p) => p.in === 'query') && resolver.resolveQueryParamsName) {
     properties.push(
       createProperty({
         name: 'QueryParams',
         required: true,
-        schema: createSchema({ type: 'ref', name: resolver.resolveQueryParamsTypedName(node) }),
+        schema: createSchema({ type: 'ref', name: resolver.resolveQueryParamsName(node) }),
       }),
     )
   }
 
-  if (node.parameters.some((p) => p.in === 'path') && resolver.resolvePathParamsTypedName) {
+  if (node.parameters.some((p) => p.in === 'path') && resolver.resolvePathParamsName) {
     properties.push(
       createProperty({
         name: 'PathParams',
         required: true,
-        schema: createSchema({ type: 'ref', name: resolver.resolvePathParamsTypedName(node) }),
+        schema: createSchema({ type: 'ref', name: resolver.resolvePathParamsName(node) }),
       }),
     )
   }
 
-  if (node.parameters.some((p) => p.in === 'header') && resolver.resolveHeaderParamsTypedName) {
+  if (node.parameters.some((p) => p.in === 'header') && resolver.resolveHeaderParamsName) {
     properties.push(
       createProperty({
         name: 'HeaderParams',
         required: true,
-        schema: createSchema({ type: 'ref', name: resolver.resolveHeaderParamsTypedName(node) }),
+        schema: createSchema({ type: 'ref', name: resolver.resolveHeaderParamsName(node) }),
       }),
     )
   }
@@ -122,12 +122,12 @@ function buildLegacyResponseUnionSchemaNode({ node, resolver }: BuildOperationSc
   }
 
   if (successResponses.length === 1) {
-    return createSchema({ type: 'ref', name: resolver.resolveResponseStatusTypedName(node, successResponses[0]!.statusCode) })
+    return createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, successResponses[0]!.statusCode) })
   }
 
   return createSchema({
     type: 'union',
-    members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusTypedName(node, res.statusCode) })),
+    members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
   })
 }
 
@@ -168,13 +168,11 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
     function renderSchemaType({
       node: schemaNode,
       name,
-      typedName,
       description,
       keysToOmit,
     }: {
       node: SchemaNode | null
       name: string
-      typedName: string
       description?: string
       keysToOmit?: Array<string>
     }) {
@@ -195,7 +193,6 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
             imports.map((imp) => <File.Import key={[name, imp.path, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />)}
           <Type
             name={name}
-            typedName={typedName}
             node={transformedNode}
             description={description}
             enumType={enumType}
@@ -222,7 +219,6 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
       return renderSchemaType({
         node: res.schema ? nameUnnamedEnums(res.schema, baseResponseName) : res.schema,
         name: responseName,
-        typedName: resolver.resolveResponseStatusTypedName(node, res.statusCode),
         description: res.description,
         keysToOmit: res.keysToOmit,
       })
@@ -232,7 +228,6 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
       ? renderSchemaType({
           node: nameUnnamedEnums(node.requestBody.schema, resolverTsLegacy.resolveDataName(node)),
           name: resolver.resolveDataName(node),
-          typedName: resolver.resolveDataTypedName(node),
           description: node.requestBody.description ?? node.requestBody.schema.description,
           keysToOmit: node.requestBody.keysToOmit,
         })
@@ -243,21 +238,18 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
         ? renderSchemaType({
             node: buildGroupedParamsSchema({ params: pathParams, parentName: resolverTsLegacy.resolvePathParamsName!(node) }),
             name: resolver.resolvePathParamsName!(node),
-            typedName: resolver.resolvePathParamsTypedName!(node),
           })
         : null,
       queryParams.length > 0
         ? renderSchemaType({
             node: buildGroupedParamsSchema({ params: queryParams, parentName: resolverTsLegacy.resolveQueryParamsName!(node) }),
             name: resolver.resolveQueryParamsName!(node),
-            typedName: resolver.resolveQueryParamsTypedName!(node),
           })
         : null,
       headerParams.length > 0
         ? renderSchemaType({
             node: buildGroupedParamsSchema({ params: headerParams, parentName: resolverTsLegacy.resolveHeaderParamsName!(node) }),
             name: resolver.resolveHeaderParamsName!(node),
-            typedName: resolver.resolveHeaderParamsTypedName!(node),
           })
         : null,
     ]
@@ -265,13 +257,11 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
     const legacyResponsesType = renderSchemaType({
       node: buildLegacyResponsesSchemaNode({ node, resolver }),
       name: resolver.resolveResponsesName(node),
-      typedName: resolver.resolveResponsesTypedName(node),
     })
 
     const legacyResponseType = renderSchemaType({
       node: buildLegacyResponseUnionSchemaNode({ node, resolver }),
       name: resolver.resolveResponseName(node),
-      typedName: resolver.resolveResponseTypedName(node),
     })
 
     return (
@@ -309,12 +299,10 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
 
     const isEnumSchema = !!narrowSchema(node, schemaTypes.enum)
 
-    const typedName =
-      ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyTypedName(node, enumTypeSuffix) : resolver.resolveTypedName(node.name)
+    const name = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyName(node, enumTypeSuffix) : resolver.resolveName(node.name)
 
     const type = {
-      name: resolver.resolveName(node.name),
-      typedName,
+      name,
       file: resolver.resolveFile({ name: node.name, extname: '.ts' }, { root, output, group }),
     } as const
 
@@ -332,7 +320,6 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
           ))}
         <Type
           name={type.name}
-          typedName={type.typedName}
           node={transformedNode}
           enumType={enumType}
           enumTypeSuffix={enumTypeSuffix}
