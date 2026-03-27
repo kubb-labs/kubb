@@ -5,7 +5,7 @@ import type {
 } from '../../models/ts/petController/UpdatePetWithForm.ts'
 
 export function updatePetWithForm(
-  petId: UpdatePetWithFormPathParams['petId'],
+  { petId }: UpdatePetWithFormPathParams,
   params?: UpdatePetWithFormQueryParams,
   options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<UpdatePetWithFormMutationResponse> {

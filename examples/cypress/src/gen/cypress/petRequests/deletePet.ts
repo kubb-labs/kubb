@@ -6,7 +6,7 @@
 import type { DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../models/DeletePet.ts'
 
 export function deletePet(
-  petId: DeletePetPathParams['petId'],
+  { petId }: DeletePetPathParams,
   headers?: DeletePetHeaderParams,
   options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<DeletePetMutationResponse> {

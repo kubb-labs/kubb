@@ -6,7 +6,7 @@
 import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../../models/UpdatePetWithForm.ts'
 
 export function updatePetWithForm(
-  petId: UpdatePetWithFormPathParams['petId'],
+  { petId }: UpdatePetWithFormPathParams,
   params?: UpdatePetWithFormQueryParams,
   options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<UpdatePetWithFormMutationResponse> {

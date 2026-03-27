@@ -4,7 +4,7 @@ import type {
 } from '../../models/ts/userController/CreateUsersWithListInput.ts'
 
 export function createUsersWithListInput(
-  data?: CreateUsersWithListInputMutationRequest,
+  data: CreateUsersWithListInputMutationRequest,
   options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<CreateUsersWithListInputMutationResponse> {
   return cy
