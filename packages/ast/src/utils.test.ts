@@ -206,7 +206,9 @@ describe('createOperationParams', () => {
         paramsType: 'inline',
         pathParamsType: 'inline',
         resolver: makeResolver({ resolveParamName: (_node, param) => `Types["${param.name}"]`, resolveDataName: () => 'CreatePetRequest' }),
-        extraParams: [createFunctionParameter({ name: 'options', type: createTypeNode({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }), default: '{}' })],
+        extraParams: [
+          createFunctionParameter({ name: 'options', type: createTypeNode({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }), default: '{}' }),
+        ],
       })
 
       expect(params.params).toMatchInlineSnapshot(`

@@ -23,7 +23,9 @@ describe('functionPrinter in declaration mode', () => {
 
   it('prints defaulted typed parameters as `name: type = default`', () => {
     const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' })],
+      params: [
+        createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
+      ],
     })
 
     expect(printer.print(sig)).toBe('config: RequestConfig = {}')

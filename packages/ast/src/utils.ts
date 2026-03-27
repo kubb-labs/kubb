@@ -228,15 +228,7 @@ export type CreateOperationParamsOptions = {
   typeWrapper?: (type: string) => string
 }
 
-function resolveType({
-  node,
-  param,
-  resolver,
-}: {
-  node: OperationNode
-  param: ParameterNode
-  resolver: OperationParamsResolver | undefined
-}): TypeNode {
+function resolveType({ node, param, resolver }: { node: OperationNode; param: ParameterNode; resolver: OperationParamsResolver | undefined }): TypeNode {
   if (!resolver) {
     return createTypeNode({ variant: 'reference', name: param.schema.primitive ?? 'unknown' })
   }
