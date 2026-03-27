@@ -143,7 +143,9 @@ export type ScalarPrimitive = 'string' | 'number' | 'integer' | 'bigint' | 'bool
  */
 export const SCALAR_PRIMITIVE_TYPES = new Set<ScalarPrimitive>(['string', 'number', 'integer', 'bigint', 'boolean'])
 
-/** Returns `true` when `type` is a scalar primitive schema type. */
+/**
+ * Returns `true` when `type` is a scalar primitive schema type.
+ */
 export function isScalarPrimitive(type: string): type is ScalarPrimitive {
   return SCALAR_PRIMITIVE_TYPES.has(type as ScalarPrimitive)
 }

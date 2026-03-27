@@ -4,11 +4,10 @@ import type { BaseNode } from './base.ts'
  * AST node representing a language-agnostic type expression produced during parameter resolution.
  * Each language printer renders the variant into its own syntax.
  *
- * @example Struct (inline object type) — TypeScript: `{ petId: string; name?: string }`
- * @example Struct (inline object type) — Python: `TypedDict` / `dict[str, Any]`
- *
- * @example Member (single field of a group type) — TypeScript: `PathParams['petId']`
- * @example Member (single field of a group type) — C#: `PathParams.PetId`
+ * - `struct` — an inline anonymous type grouping named fields.
+ *   TypeScript renders as `{ petId: string; name?: string }`, Python as a `TypedDict` reference.
+ * - `member` — a single named field accessed from a named group type.
+ *   TypeScript renders as `PathParams['petId']`, C# as `PathParams.PetId`.
  */
 export type TypeNode = BaseNode & {
   /**
@@ -50,10 +49,10 @@ export type TypeNode = BaseNode & {
  * @example Required parameter
  * `name: Type`
  *
- * @example Optional param
+ * @example Optional parameter
  * `name?: Type`
  *
- * @example Parameter with default
+ * @example Parameter with default value
  * `name: Type = defaultValue`
  *
  * @example Rest parameter
@@ -72,31 +71,37 @@ export type FunctionParameterNode = BaseNode & {
    * Type annotation — either a plain string or a {@link TypeNode} for structured type expressions.
    * Omit for untyped output.
    *
-   * @example Plain string
+   * @example Plain string type
    * `"string"` → `petId: string`
    *
-   * @example Struct type node (TypeScript)
+   * @example Struct type node
    * `{ kind: 'Type', variant: 'struct', properties: [...] }` → `{ key: Type; other?: OtherType }`
    *
-   * @example Member type node (TypeScript)
+   * @example Member type node
    * `{ kind: 'Type', variant: 'member', base: 'PathParams', key: 'petId' }` → `PathParams['petId']`
    */
   type?: string | TypeNode
   /**
-   * When `true` the parameter is emitted as a rest parameter (`...name`).
-   * @default false
+   * When `true` the parameter is emitted as a rest parameter.
+   *
+   * @example Rest parameter
+   * `...name: Type[]`
    */
   rest?: boolean
-} /**
- * Optional parameter, rendered with `?` in declarations.
- * Cannot be combined with `default` because defaulted parameters are already optional.
- * @example `name?: Type`
- */ & (
+} & (
+    /**
+     * Optional parameter — rendered with `?` and may be omitted by the caller.
+     * Cannot be combined with `default` because a defaulted parameter is already optional.
+     */
     | { optional: true; default?: never }
     /**
-     * Required parameter, or parameter with a default value.
-     * @example Required: `name: Type`
-     * @example With default: `name: Type = default`
+     * Required parameter, or a parameter with a default value.
+     *
+     * @example Required
+     * `name: Type`
+     *
+     * @example With default
+     * `name: Type = default`
      */
     | { optional?: false; default?: string }
   )
@@ -109,13 +114,13 @@ export type FunctionParameterNode = BaseNode & {
  * - Python: keyword-only args or a typed dict parameter
  * - C# / Kotlin: named record / data-class parameter
  *
- * When `inline` is `true`, the group is "spread" as individual top-level parameters
+ * When `inline` is `true`, the group is spread as individual top-level parameters
  * rather than wrapped in a single grouped construct.
  *
- * @example Grouped (TypeScript declaration)
+ * @example Grouped destructuring
  * `{ id, name }: { id: string; name: string } = {}`
  *
- * @example Inline (spread) — children emitted as individual top-level params
+ * @example Inline (spread as individual parameters)
  * `id: string, name: string`
  */
 export type ParameterGroupNode = BaseNode & {
@@ -136,6 +141,7 @@ export type ParameterGroupNode = BaseNode & {
   /**
    * When `true`, `properties` are emitted as individual top-level parameters instead of
    * being wrapped in a single grouped construct.
+   *
    * @default false
    */
   inline?: boolean

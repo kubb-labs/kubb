@@ -8,15 +8,15 @@ import type { SchemaType } from './nodes/schema.ts'
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
 
 /**
- * Returns `true` when a schema is emitted as a plain TypeScript `string`.
+ * Returns `true` when a schema is emitted as a plain `string` type.
  *
  * - `string`, `uuid`, `email`, `url`, `datetime` are always plain strings.
  * - `date` and `time` are plain strings when their `representation` is `'string'` rather than `'date'`.
  *
  * @example
  * ```ts
- * isStringType(createSchema({ type: 'uuid' })) // true
- * isStringType(createSchema({ type: 'date', representation: 'date' })) // false
+ * isStringType(createSchema({ type: 'uuid' }))                          // true
+ * isStringType(createSchema({ type: 'date', representation: 'date' }))  // false
  * ```
  */
 export function isStringType(node: SchemaNode): boolean {
@@ -88,11 +88,17 @@ export function createDiscriminantNode({ propertyName, value }: { propertyName: 
   })
 }
 
-/** Named type for a group of parameters (query or header) emitted as a single typed parameter. */
+/**
+ * Named type for a group of parameters (query or header) emitted as a single typed parameter.
+ */
 export type ParamGroupType = {
-  /** TypeScript type string, e.g. `'FindPetsQueryParams'`. */
+  /**
+   * Type string for the group, e.g. `'FindPetsQueryParams'`.
+   */
   type: string
-  /** Whether the parameter group is optional. */
+  /**
+   * Whether the parameter group is optional.
+   */
   optional: boolean
 }
 
@@ -100,43 +106,44 @@ export type ParamGroupType = {
  * Resolver interface for {@link createOperationParams}.
  *
  * `ResolverTs` from `@kubb/plugin-ts` satisfies this interface and can be passed directly.
- *
- * @example
- * resolver.resolveParamName(node, param) // → 'DeletePetPathPetId'
- * resolver.resolvePathParamsName(node, param) // → 'DeletePetPathParams' (legacy) or 'DeletePetPathPetId' (default)
  */
 export type OperationParamsResolver = {
   /**
-   * Resolves the TypeScript type name for an individual parameter.
-   * @example
-   * resolver.resolveParamName(node, param) // → 'DeletePetPathPetId'
+   * Resolves the type name for an individual parameter.
+   *
+   * @example Individual path parameter name
+   * `resolver.resolveParamName(node, param) // → 'DeletePetPathPetId'`
    */
   resolveParamName(node: OperationNode, param: ParameterNode): string
   /**
    * Resolves the request body type name.
-   * @example
-   * resolver.resolveDataName(node) // → 'CreatePetData'
+   *
+   * @example Request body type name
+   * `resolver.resolveDataName(node) // → 'CreatePetData'`
    */
   resolveDataName(node: OperationNode): string
   /**
    * Resolves the grouped path parameters type name.
-   * When equal to `resolveParamName`, no indexed access is emitted.
-   * @example
-   * resolver.resolvePathParamsName(node, param) // → 'DeletePetPathParams'
+   * When the return value equals `resolveParamName`, no indexed access is emitted.
+   *
+   * @example Grouped path params type name
+   * `resolver.resolvePathParamsName(node, param) // → 'DeletePetPathParams'`
    */
   resolvePathParamsName(node: OperationNode, param: ParameterNode): string
   /**
    * Resolves the grouped query parameters type name.
-   * When equal to `resolveParamName`, falls back to inline object type.
-   * @example
-   * resolver.resolveQueryParamsName(node, param) // → 'FindPetsByStatusQueryParams'
+   * When the return value equals `resolveParamName`, an inline struct type is emitted instead.
+   *
+   * @example Grouped query params type name
+   * `resolver.resolveQueryParamsName(node, param) // → 'FindPetsByStatusQueryParams'`
    */
   resolveQueryParamsName(node: OperationNode, param: ParameterNode): string
   /**
    * Resolves the grouped header parameters type name.
-   * When equal to `resolveParamName`, falls back to inline object type.
-   * @example
-   * resolver.resolveHeaderParamsName(node, param) // → 'DeletePetHeaderParams'
+   * When the return value equals `resolveParamName`, an inline struct type is emitted instead.
+   *
+   * @example Grouped header params type name
+   * `resolver.resolveHeaderParamsName(node, param) // → 'DeletePetHeaderParams'`
    */
   resolveHeaderParamsName(node: OperationNode, param: ParameterNode): string
 }
@@ -155,44 +162,70 @@ export type CreateOperationParamsOptions = {
    * How path parameters are emitted when `paramsType` is `'inline'`.
    * - `'object'` groups them as `{ petId, storeId }: PathParams`
    * - `'inline'` spreads them as individual parameters `petId: string, storeId: string`
+   * - `'inlineSpread'` emits a single rest parameter `...pathParams: PathParams`
    */
-  pathParamsType: 'object' | 'inline'
+  pathParamsType: 'object' | 'inline' | 'inlineSpread'
   /**
    * Converts parameter names to camelCase before output.
-   * @default undefined
    */
   paramsCasing?: 'camelcase'
   /**
    * Resolver for parameter and request body type names.
    * Pass `ResolverTs` from `@kubb/plugin-ts` directly.
    * When omitted, falls back to the schema primitive or `'unknown'`.
-   * @example
-   * resolver: tsResolver
    */
   resolver?: OperationParamsResolver
   /**
    * Default value for the path parameters binding when `pathParamsType` is `'object'`.
    * Falls back to `'{}'` when all path params are optional.
-   * @example
-   * pathParamsDefault: '{}'
    */
   pathParamsDefault?: string
   /**
    * Extra parameters appended after the standard operation parameters.
-   * @example
+   *
+   * @example Plugin-specific trailing parameter
+   * ```ts
    * extraParams: [createFunctionParameter({ name: 'options', type: 'Partial<RequestOptions>', default: '{}' })]
+   * ```
    */
   extraParams?: Array<FunctionParameterNode | ParameterGroupNode>
   /**
-   * Override the default parameter names used for body, query, and header groups.
-   * Useful when targeting languages or frameworks with different conventions.
-   * @default { data: 'data', params: 'params', headers: 'headers' }
+   * Override the default parameter names used for body, query, header, and rest-path groups.
+   *
+   * Useful when targeting languages or frameworks with different naming conventions.
+   *
+   * @default { data: 'data', params: 'params', headers: 'headers', path: 'pathParams' }
    */
   paramNames?: {
+    /**
+     * Name for the request body parameter.
+     * @default 'data'
+     */
     data?: string
+    /**
+     * Name for the query parameters group parameter.
+     * @default 'params'
+     */
     params?: string
+    /**
+     * Name for the header parameters group parameter.
+     * @default 'headers'
+     */
     headers?: string
+    /**
+     * Name for the rest path-parameters parameter when `pathParamsType` is `'inlineSpread'`.
+     * @default 'pathParams'
+     */
+    path?: string
   }
+  /**
+   * Applies a uniform transformation to every resolved type string before it is used
+   * in a parameter node. Use this for framework-level type wrappers.
+   *
+   * @example Vue Query — wrap every parameter type with `MaybeRefOrGetter`
+   * `typeWrapper: (t) => \`MaybeRefOrGetter<${t}>\``
+   */
+  typeWrapper?: (type: string) => string
 }
 
 function resolveType({
@@ -234,26 +267,31 @@ function resolveType({
  * type resolution and `extraParams` for plugin-specific trailing parameters.
  *
  * @example
+ * ```ts
  * const params = createOperationParams(node, {
  *   paramsType: 'inline',
  *   pathParamsType: 'inline',
  *   resolver: tsResolver,
  *   extraParams: [createFunctionParameter({ name: 'options', type: 'Partial<RequestOptions>', default: '{}' })],
  * })
+ * ```
  */
 export function createOperationParams(node: OperationNode, options: CreateOperationParamsOptions): FunctionParametersNode {
-  const { paramsType, pathParamsType, paramsCasing, resolver, pathParamsDefault, extraParams = [], paramNames } = options
+  const { paramsType, pathParamsType, paramsCasing, resolver, pathParamsDefault, extraParams = [], paramNames, typeWrapper } = options
 
   const dataName = paramNames?.data ?? 'data'
   const paramsName = paramNames?.params ?? 'params'
   const headersName = paramNames?.headers ?? 'headers'
+  const pathName = paramNames?.path ?? 'pathParams'
+
+  const wrapType = (type: string): string => (typeWrapper ? typeWrapper(type) : type)
 
   const casedParams = caseParams(node.parameters, paramsCasing)
   const pathParams = casedParams.filter((p) => p.in === 'path')
   const queryParams = casedParams.filter((p) => p.in === 'query')
   const headerParams = casedParams.filter((p) => p.in === 'header')
 
-  const bodyType = node.requestBody?.schema ? (resolver?.resolveDataName(node) ?? 'unknown') : undefined
+  const bodyType = node.requestBody?.schema ? wrapType(resolver?.resolveDataName(node) ?? 'unknown') : undefined
   const bodyRequired = node.requestBody?.required ?? false
 
   const queryGroupType = resolver ? resolveGroupType({ node, params: queryParams, groupMethod: resolver.resolveQueryParamsName, resolver }) : undefined
@@ -263,10 +301,13 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
 
   if (paramsType === 'object') {
     const children: Array<FunctionParameterNode> = [
-      ...pathParams.map((p) => createFunctionParameter({ name: p.name, type: resolveType({ node, param: p, resolver }), optional: !p.required })),
+      ...pathParams.map((p) => {
+        const type = resolveType({ node, param: p, resolver })
+        return createFunctionParameter({ name: p.name, type: typeof type === 'string' ? wrapType(type) : type, optional: !p.required })
+      }),
       ...(bodyType ? [createFunctionParameter({ name: dataName, type: bodyType, optional: !bodyRequired })] : []),
-      ...buildGroupParam({ name: paramsName, node, params: queryParams, groupType: queryGroupType, resolver }),
-      ...buildGroupParam({ name: headersName, node, params: headerParams, groupType: headerGroupType, resolver }),
+      ...buildGroupParam({ name: paramsName, node, params: queryParams, groupType: queryGroupType, resolver, wrapType }),
+      ...buildGroupParam({ name: headersName, node, params: headerParams, groupType: headerGroupType, resolver, wrapType }),
     ]
 
     if (children.length) {
@@ -274,24 +315,30 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
     }
   } else {
     if (pathParams.length) {
-      const pathChildren = pathParams.map((p) =>
-        createFunctionParameter({ name: p.name, type: resolveType({ node, param: p, resolver }), optional: !p.required }),
-      )
-      params.push(
-        createParameterGroup({
-          properties: pathChildren,
-          inline: pathParamsType === 'inline',
-          default: pathParamsDefault ?? (pathChildren.every((c) => c.optional) ? '{}' : undefined),
-        }),
-      )
+      if (pathParamsType === 'inlineSpread') {
+        const spreadType = resolver?.resolvePathParamsName(node, pathParams[0]!) ?? undefined
+        params.push(createFunctionParameter({ name: pathName, type: spreadType ? wrapType(spreadType) : undefined, rest: true }))
+      } else {
+        const pathChildren = pathParams.map((p) => {
+          const type = resolveType({ node, param: p, resolver })
+          return createFunctionParameter({ name: p.name, type: typeof type === 'string' ? wrapType(type) : type, optional: !p.required })
+        })
+        params.push(
+          createParameterGroup({
+            properties: pathChildren,
+            inline: pathParamsType === 'inline',
+            default: pathParamsDefault ?? (pathChildren.every((c) => c.optional) ? '{}' : undefined),
+          }),
+        )
+      }
     }
 
     if (bodyType) {
       params.push(createFunctionParameter({ name: dataName, type: bodyType, optional: !bodyRequired }))
     }
 
-    params.push(...buildGroupParam({ name: paramsName, node, params: queryParams, groupType: queryGroupType, resolver }))
-    params.push(...buildGroupParam({ name: headersName, node, params: headerParams, groupType: headerGroupType, resolver }))
+    params.push(...buildGroupParam({ name: paramsName, node, params: queryParams, groupType: queryGroupType, resolver, wrapType }))
+    params.push(...buildGroupParam({ name: headersName, node, params: headerParams, groupType: headerGroupType, resolver, wrapType }))
   }
 
   params.push(...extraParams)
@@ -312,15 +359,17 @@ function buildGroupParam({
   params,
   groupType,
   resolver,
+  wrapType,
 }: {
   name: string
   node: OperationNode
   params: Array<ParameterNode>
   groupType: ParamGroupType | undefined
   resolver: OperationParamsResolver | undefined
+  wrapType: (type: string) => string
 }): Array<FunctionParameterNode> {
   if (groupType) {
-    return [createFunctionParameter({ name, type: groupType.type, optional: groupType.optional })]
+    return [createFunctionParameter({ name, type: wrapType(groupType.type), optional: groupType.optional })]
   }
   if (params.length) {
     return [

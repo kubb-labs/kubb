@@ -1095,3 +1095,146 @@ describe('createOperationParams', () => {
     })
   })
 })
+
+describe('typeWrapper option', () => {
+  it('wraps path param types with the provided function', () => {
+    const node = makeOperation({
+      parameters: [makePathParam('petId')],
+    })
+
+    const params = createOperationParams(node, {
+      paramsType: 'inline',
+      pathParamsType: 'inline',
+      resolver: makeResolver({ resolveParamName: () => 'string' }),
+      typeWrapper: (t) => `MaybeRefOrGetter<${t}>`,
+    })
+
+    const group = params.params[0]
+    if (group?.kind === 'ParameterGroup') {
+      expect(group.properties[0]?.type).toBe('MaybeRefOrGetter<string>')
+    }
+  })
+
+  it('wraps body type with the provided function', () => {
+    const node = makeOperation({
+      requestBody: { schema: createSchema({ type: 'object' }), required: true },
+    })
+
+    const params = createOperationParams(node, {
+      paramsType: 'inline',
+      pathParamsType: 'inline',
+      resolver: makeResolver({ resolveDataName: () => 'CreatePetRequest' }),
+      typeWrapper: (t) => `MaybeRefOrGetter<${t}>`,
+    })
+
+    const bodyParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'data')
+    expect(bodyParam?.type).toBe('MaybeRefOrGetter<CreatePetRequest>')
+  })
+
+  it('wraps query group type with the provided function', () => {
+    const node = makeOperation({
+      parameters: [makeQueryParam('status')],
+    })
+
+    const params = createOperationParams(node, {
+      paramsType: 'inline',
+      pathParamsType: 'inline',
+      resolver: makeResolver({ resolveQueryParamsName: () => 'ListPetsQueryParams' }),
+      typeWrapper: (t) => `MaybeRefOrGetter<${t}>`,
+    })
+
+    const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
+    expect(queryParam?.type).toBe('MaybeRefOrGetter<ListPetsQueryParams>')
+  })
+
+  it('identity when typeWrapper is not provided', () => {
+    const node = makeOperation({
+      parameters: [makePathParam('petId')],
+    })
+
+    const params = createOperationParams(node, {
+      paramsType: 'inline',
+      pathParamsType: 'inline',
+      resolver: makeResolver({ resolveParamName: () => 'string' }),
+    })
+
+    const group = params.params[0]
+    if (group?.kind === 'ParameterGroup') {
+      expect(group.properties[0]?.type).toBe('string')
+    }
+  })
+})
+
+describe('pathParamsType: inlineSpread', () => {
+  it('emits a single rest parameter for path params', () => {
+    const node = makeOperation({
+      parameters: [makePathParam('petId'), makePathParam('storeId')],
+    })
+
+    const params = createOperationParams(node, {
+      paramsType: 'inline',
+      pathParamsType: 'inlineSpread',
+      resolver: makeResolver({ resolvePathParamsName: () => 'GetPetByIdPathParams' }),
+    })
+
+    expect(params.params).toHaveLength(1)
+    const restParam = params.params[0]
+    expect(restParam?.kind).toBe('FunctionParameter')
+    if (restParam?.kind === 'FunctionParameter') {
+      expect(restParam.rest).toBe(true)
+      expect(restParam.name).toBe('pathParams')
+      expect(restParam.type).toBe('GetPetByIdPathParams')
+    }
+  })
+
+  it('respects custom path param name via paramNames.path', () => {
+    const node = makeOperation({
+      parameters: [makePathParam('petId')],
+    })
+
+    const params = createOperationParams(node, {
+      paramsType: 'inline',
+      pathParamsType: 'inlineSpread',
+      paramNames: { path: 'args' },
+      resolver: makeResolver({ resolvePathParamsName: () => 'GetPetByIdPathParams' }),
+    })
+
+    const restParam = params.params[0]
+    if (restParam?.kind === 'FunctionParameter') {
+      expect(restParam.name).toBe('args')
+    }
+  })
+
+  it('applies typeWrapper to the spread type', () => {
+    const node = makeOperation({
+      parameters: [makePathParam('petId')],
+    })
+
+    const params = createOperationParams(node, {
+      paramsType: 'inline',
+      pathParamsType: 'inlineSpread',
+      resolver: makeResolver({ resolvePathParamsName: () => 'GetPetByIdPathParams' }),
+      typeWrapper: (t) => `MaybeRefOrGetter<${t}>`,
+    })
+
+    const restParam = params.params[0]
+    if (restParam?.kind === 'FunctionParameter') {
+      expect(restParam.type).toBe('MaybeRefOrGetter<GetPetByIdPathParams>')
+    }
+  })
+
+  it('emits no path param when operation has no path parameters', () => {
+    const node = makeOperation({
+      parameters: [makeQueryParam('status')],
+    })
+
+    const params = createOperationParams(node, {
+      paramsType: 'inline',
+      pathParamsType: 'inlineSpread',
+      resolver: makeResolver({}),
+    })
+
+    const restParam = params.params.find((p) => p.kind === 'FunctionParameter' && (p as { rest?: boolean }).rest)
+    expect(restParam).toBeUndefined()
+  })
+})
