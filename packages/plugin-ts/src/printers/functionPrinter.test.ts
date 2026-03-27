@@ -1,5 +1,5 @@
+import { createFunctionParameter, createFunctionParameters, createObjectBindingParameter } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import { createFunctionParameter, createFunctionParameters, createObjectBindingParameter } from '../factory.ts'
 import { defineFunctionPrinter, functionPrinter } from './functionPrinter.ts'
 
 describe('functionPrinter in declaration mode', () => {
@@ -310,7 +310,6 @@ describe('defineFunctionPrinter()', () => {
           return `[${node.name}]`
         },
         objectBindingParameter(node) {
-          // Use this.print to recurse into child params
           return `{${node.properties.map((p) => this.transform(p)).join('+')}}`
         },
         functionParameters(node) {

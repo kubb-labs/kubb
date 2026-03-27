@@ -1,7 +1,6 @@
-import type { FunctionNode, FunctionNodeType } from '../nodes/function.ts'
-import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode } from '../nodes/index.ts'
-import type { PrinterFactoryOptions } from './printer.ts'
-import { createPrinterFactory } from './printer.ts'
+import type { PrinterFactoryOptions } from '@kubb/ast'
+import { createPrinterFactory } from '@kubb/ast'
+import type { FunctionNode, FunctionNodeType, FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode } from '@kubb/ast/types'
 
 /**
  * Maps each function-printer handler key to its concrete node type.
@@ -21,30 +20,8 @@ const kindToHandlerKey = {
 /**
  * Creates a function-parameter printer factory.
  *
- * This wrapper uses `createPrinterFactory` and dispatches handlers by `node.kind`
+ * Uses `createPrinterFactory` and dispatches handlers by `node.kind`
  * (for function nodes) rather than by `node.type` (for schema nodes).
- *
- * @example
- * ```ts
- * type MyPrinter = PrinterFactoryOptions<'my', { mode: 'declaration' | 'call' }, string>
- *
- * export const myPrinter = defineFunctionPrinter<MyPrinter>((options) => ({
- *   name: 'my',
- *   options,
- *   nodes: {
- *     functionParameter(node) {
- *       return options.mode === 'declaration' && node.type ? `${node.name}: ${node.type}` : node.name
- *     },
- *     objectBindingParameter(node) {
- *       const inner = node.properties.map(p => this.transform(p)).filter(Boolean).join(', ')
- *       return `{ ${inner} }`
- *     },
- *     functionParameters(node) {
- *       return node.params.map(p => this.transform(p)).filter(Boolean).join(', ')
- *     },
- *   },
- * }))
- * ```
  */
 export const defineFunctionPrinter = createPrinterFactory<FunctionNode, FunctionNodeType, FunctionNodeByType>((node) => kindToHandlerKey[node.kind])
 
