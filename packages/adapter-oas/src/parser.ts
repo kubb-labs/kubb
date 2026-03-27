@@ -758,10 +758,12 @@ function createSchemaParser(ctx: OasParserContext) {
       })
     })
 
+    const urlPath = new URLPath(operation.path)
+
     return createOperation({
       operationId: operation.getOperationId(),
       method: operation.method.toUpperCase() as HttpMethod,
-      path: new URLPath(operation.path).URL,
+      path: urlPath.path,
       tags: operation.getTags().map((tag) => tag.name),
       summary: operation.getSummary() || undefined,
       description: operation.getDescription() || undefined,

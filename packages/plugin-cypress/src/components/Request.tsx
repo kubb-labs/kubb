@@ -108,11 +108,11 @@ function getParams({ paramsType, pathParamsType, typeNames }: GetParamsProps) {
 }
 
 /**
- * Builds the URL template string from the operation path.
- * Replaces `:paramName` with `${paramName}`.
+ * Builds the URL template string from the operation path (OpenAPI `{param}` style).
+ * Replaces `{paramName}` with `${paramName}`.
  */
 function buildUrlTemplate(operationPath: string, baseURL: string): string {
-  const template = operationPath.replace(/:(\w+)/g, '${$1}')
+  const template = operationPath.replace(/\{([^}]+)\}/g, (_, name: string) => `\${${name}}`)
   if (baseURL) {
     return `\`${baseURL}${template}\``
   }

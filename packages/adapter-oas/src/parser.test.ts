@@ -2911,7 +2911,7 @@ describe('buildAst', async () => {
       const op = root.operations.find((o) => o.operationId === 'getPetById')
       expect(op).toBeDefined()
       expect(op!.method).toBe('GET')
-      expect(op!.path).toBe('/pets/:petId')
+      expect(op!.path).toBe('/pets/{petId}')
       expect(op!.parameters.some((p) => p.name === 'petId' && p.in === 'path')).toBe(true)
     })
   })

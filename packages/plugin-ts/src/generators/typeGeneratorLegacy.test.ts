@@ -35,7 +35,7 @@ describe('typeGeneratorLegacy — Operation', () => {
       node: createOperation({
         operationId: 'showPetById',
         method: 'GET',
-        path: '/pets/:petId',
+        path: '/pets/{petId}',
         tags: ['pets'],
         parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
         responses: [
@@ -66,7 +66,7 @@ describe('typeGeneratorLegacy — Operation', () => {
       node: createOperation({
         operationId: 'deletePet',
         method: 'DELETE',
-        path: '/pet/:petId',
+        path: '/pet/{petId}',
         tags: ['pet'],
         parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
         responses: [
@@ -100,7 +100,7 @@ describe('typeGeneratorLegacy — Operation', () => {
       node: createOperation({
         operationId: 'updatePetWithForm',
         method: 'POST',
-        path: '/pet/:petId',
+        path: '/pet/{petId}',
         tags: ['pet'],
         parameters: [
           createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true }),
@@ -118,7 +118,7 @@ describe('typeGeneratorLegacy — Operation', () => {
       node: createOperation({
         operationId: 'uploadFile',
         method: 'POST',
-        path: '/pet/:petId/uploadImage',
+        path: '/pet/{petId}/uploadImage',
         tags: ['pet'],
         parameters: [
           createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true }),

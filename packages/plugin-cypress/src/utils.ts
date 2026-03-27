@@ -35,10 +35,9 @@ export function buildTypeNames({
     .map((p) => ({
       name: p.name,
       originalName:
-        node.parameters.find(
-          (op) => op.in === 'path' && (op.name === p.name || resolver.resolvePathParamsName(node, op) === resolver.resolvePathParamsName(node, p)),
-        )?.name ?? p.name,
-      typedName: resolver.resolvePathParamsName(node, p),
+        node.parameters.find((op) => op.in === 'path' && (op.name === p.name || resolver.resolveParamName(node, op) === resolver.resolveParamName(node, p)))
+          ?.name ?? p.name,
+      typedName: resolver.resolveParamName(node, p),
       required: p.required ?? false,
     }))
 
@@ -47,10 +46,9 @@ export function buildTypeNames({
     .map((p) => ({
       name: p.name,
       originalName:
-        node.parameters.find(
-          (op) => op.in === 'query' && (op.name === p.name || resolver.resolveQueryParamsName(node, op) === resolver.resolveQueryParamsName(node, p)),
-        )?.name ?? p.name,
-      typedName: resolver.resolveQueryParamsName(node, p),
+        node.parameters.find((op) => op.in === 'query' && (op.name === p.name || resolver.resolveParamName(node, op) === resolver.resolveParamName(node, p)))
+          ?.name ?? p.name,
+      typedName: resolver.resolveParamName(node, p),
       required: p.required ?? false,
     }))
 
@@ -59,10 +57,9 @@ export function buildTypeNames({
     .map((p) => ({
       name: p.name,
       originalName:
-        node.parameters.find(
-          (op) => op.in === 'header' && (op.name === p.name || resolver.resolveHeaderParamsName(node, op) === resolver.resolveHeaderParamsName(node, p)),
-        )?.name ?? p.name,
-      typedName: resolver.resolveHeaderParamsName(node, p),
+        node.parameters.find((op) => op.in === 'header' && (op.name === p.name || resolver.resolveParamName(node, op) === resolver.resolveParamName(node, p)))
+          ?.name ?? p.name,
+      typedName: resolver.resolveParamName(node, p),
       required: p.required ?? false,
     }))
 

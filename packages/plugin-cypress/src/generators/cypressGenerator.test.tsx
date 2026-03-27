@@ -31,7 +31,7 @@ describe('cypressGenerator operation', async () => {
       node: createOperation({
         operationId: 'showPetById',
         method: 'GET',
-        path: '/pets/:petId',
+        path: '/pets/{petId}',
         tags: ['pets'],
         parameters: [
           createParameter({
@@ -124,7 +124,7 @@ describe('cypressGenerator operation', async () => {
       node: createOperation({
         operationId: 'updatePet',
         method: 'PUT',
-        path: '/pets/:petId',
+        path: '/pets/{petId}',
         tags: ['pets'],
         parameters: [
           createParameter({
@@ -151,7 +151,7 @@ describe('cypressGenerator operation', async () => {
       node: createOperation({
         operationId: 'deletePet',
         method: 'DELETE',
-        path: '/pets/:petId',
+        path: '/pets/{petId}',
         tags: ['pets'],
         parameters: [
           createParameter({
