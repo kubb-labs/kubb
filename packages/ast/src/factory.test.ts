@@ -9,6 +9,7 @@ import {
   createResponse,
   createRoot,
   createSchema,
+  createTypeNode,
 } from './factory.ts'
 import type { ObjectSchemaNode, StringSchemaNode } from './nodes/schema.ts'
 
@@ -178,23 +179,23 @@ describe('createResponse', () => {
 
 describe('createFunctionParameter', () => {
   it('defaults optional to false', () => {
-    const node = createFunctionParameter({ name: 'petId', type: 'string' })
+    const node = createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }) })
 
     expect(node.kind).toBe('FunctionParameter')
     expect(node.name).toBe('petId')
-    expect(node.type).toBe('string')
+    expect(node.type).toEqual({ kind: 'Type', variant: 'reference', name: 'string' })
     expect(node.optional).toBe(false)
   })
 
   it('supports optional true without default', () => {
-    const node = createFunctionParameter({ name: 'query', type: 'Query', optional: true })
+    const node = createFunctionParameter({ name: 'query', type: createTypeNode({ variant: 'reference', name: 'Query' }), optional: true })
 
     expect(node.optional).toBe(true)
     expect(node.default).toBeUndefined()
   })
 
   it('supports default value with optional false/omitted', () => {
-    const node = createFunctionParameter({ name: 'config', type: 'RequestConfig', default: '{}' })
+    const node = createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), default: '{}' })
 
     expect(node.optional).toBe(false)
     expect(node.default).toBe('{}')
@@ -203,7 +204,7 @@ describe('createFunctionParameter', () => {
 
 describe('createParameterGroup', () => {
   it('creates object binding parameter with properties', () => {
-    const props = [createFunctionParameter({ name: 'id', type: 'string' })]
+    const props = [createFunctionParameter({ name: 'id', type: createTypeNode({ variant: 'reference', name: 'string' }) })]
     const node = createParameterGroup({ properties: props })
 
     expect(node.kind).toBe('ParameterGroup')
@@ -212,7 +213,7 @@ describe('createParameterGroup', () => {
 
   it('accepts inline and default options', () => {
     const node = createParameterGroup({
-      properties: [createFunctionParameter({ name: 'id', type: 'string' })],
+      properties: [createFunctionParameter({ name: 'id', type: createTypeNode({ variant: 'reference', name: 'string' }) })],
       inline: true,
       default: '{}',
     })
@@ -231,7 +232,7 @@ describe('createFunctionParameters', () => {
   })
 
   it('accepts params override', () => {
-    const params = [createFunctionParameter({ name: 'petId', type: 'string' })]
+    const params = [createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }) })]
     const node = createFunctionParameters({ params })
 
     expect(node.params).toEqual(params)

@@ -242,24 +242,24 @@ export function createResponse(
  *
  * @example Required typed param
  * ```ts
- * createFunctionParameter({ name: 'petId', type: 'string' })
+ * createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }) })
  * // → petId: string
  * ```
  *
  * @example Optional param
  * ```ts
- * createFunctionParameter({ name: 'params', type: 'QueryParams', optional: true })
+ * createFunctionParameter({ name: 'params', type: createTypeNode({ variant: 'reference', name: 'QueryParams' }), optional: true })
  * // → params?: QueryParams
  * ```
  *
  * @example Param with default (implicitly optional; cannot combine with `optional: true`)
  * ```ts
- * createFunctionParameter({ name: 'config', type: 'RequestConfig', default: '{}' })
+ * createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), default: '{}' })
  * // → config: RequestConfig = {}
  * ```
  */
 export function createFunctionParameter(
-  props: { name: string; type?: string | TypeNode; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string }),
+  props: { name: string; type?: TypeNode; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string }),
 ): FunctionParameterNode {
   return {
     optional: false,
@@ -275,9 +275,14 @@ export function createFunctionParameter(
  * named field accessed from a group type. Each language's printer renders the variant
  * into its own syntax (TypeScript, Python, C#, Kotlin, …).
  *
+ * @example Reference type (TypeScript: `QueryParams`)
+ * ```ts
+ * createTypeNode({ variant: 'reference', name: 'QueryParams' })
+ * ```
+ *
  * @example Struct type (TypeScript: `{ petId: string }`)
  * ```ts
- * createTypeNode({ variant: 'struct', properties: [{ name: 'petId', optional: false, type: 'string' }] })
+ * createTypeNode({ variant: 'struct', properties: [{ name: 'petId', optional: false, type: createTypeNode({ variant: 'reference', name: 'string' }) }] })
  * ```
  *
  * @example Member type (TypeScript: `DeletePetPathParams['petId']`)
@@ -287,7 +292,8 @@ export function createFunctionParameter(
  */
 export function createTypeNode(
   props:
-    | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: string | TypeNode }> }
+    | { variant: 'reference'; name: string }
+    | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: TypeNode }> }
     | { variant: 'member'; base: string; key: string },
 ): TypeNode {
   return { ...props, kind: 'Type' } as TypeNode
@@ -300,8 +306,8 @@ export function createTypeNode(
  * ```ts
  * createParameterGroup({
  *   properties: [
- *     createFunctionParameter({ name: 'id', type: 'string', optional: false }),
- *     createFunctionParameter({ name: 'name', type: 'string', optional: true }),
+ *     createFunctionParameter({ name: 'id', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
+ *     createFunctionParameter({ name: 'name', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: true }),
  *   ],
  *   default: '{}',
  * })
@@ -312,7 +318,7 @@ export function createTypeNode(
  * @example Inline (spread) — children emitted as individual top-level parameters
  * ```ts
  * createParameterGroup({
- *   properties: [createFunctionParameter({ name: 'petId', type: 'string', optional: false })],
+ *   properties: [createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false })],
  *   inline: true,
  * })
  * // declaration → petId: string
@@ -335,8 +341,8 @@ export function createParameterGroup(
  * ```ts
  * createFunctionParameters({
  *   params: [
- *     createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
- *     createFunctionParameter({ name: 'config', type: 'RequestConfig', optional: false, default: '{}' }),
+ *     createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
+ *     createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
  *   ],
  * })
  * ```

@@ -17,6 +17,17 @@ export type TypeNode = BaseNode & {
 } & (
     | {
         /**
+         * Reference variant — a plain type name or identifier.
+         * TypeScript renders as-is, e.g. `string`, `QueryParams`, `Partial<Config>`.
+         */
+        variant: 'reference'
+        /**
+         * The full type name string, e.g. `'string'`, `'QueryParams'`, `'Partial<Config>'`.
+         */
+        name: string
+      }
+    | {
+        /**
          * Struct variant — an inline anonymous type grouping named fields.
          * TypeScript renders as `{ key: Type; other?: OtherType }`.
          */
@@ -24,7 +35,7 @@ export type TypeNode = BaseNode & {
         /**
          * Properties of the struct type.
          */
-        properties: Array<{ name: string; optional: boolean; type: string | TypeNode }>
+        properties: Array<{ name: string; optional: boolean; type: TypeNode }>
       }
     | {
         /**
@@ -68,11 +79,11 @@ export type FunctionParameterNode = BaseNode & {
    */
   name: string
   /**
-   * Type annotation — either a plain string or a {@link TypeNode} for structured type expressions.
+   * Type annotation as a structured {@link TypeNode}.
    * Omit for untyped output.
    *
-   * @example Plain string type
-   * `"string"` → `petId: string`
+   * @example Reference type node
+   * `{ kind: 'Type', variant: 'reference', name: 'string' }` → `petId: string`
    *
    * @example Struct type node
    * `{ kind: 'Type', variant: 'struct', properties: [...] }` → `{ key: Type; other?: OtherType }`
@@ -80,7 +91,7 @@ export type FunctionParameterNode = BaseNode & {
    * @example Member type node
    * `{ kind: 'Type', variant: 'member', base: 'PathParams', key: 'petId' }` → `PathParams['petId']`
    */
-  type?: string | TypeNode
+  type?: TypeNode
   /**
    * When `true` the parameter is emitted as a rest parameter.
    *
@@ -136,7 +147,7 @@ export type ParameterGroupNode = BaseNode & {
    * Optional explicit type annotation for the whole group.
    * When absent, printers auto-compute it from `properties`.
    */
-  type?: string
+  type?: TypeNode
   /**
    * When `true`, `properties` are emitted as individual top-level parameters instead of
    * being wrapped in a single grouped construct.

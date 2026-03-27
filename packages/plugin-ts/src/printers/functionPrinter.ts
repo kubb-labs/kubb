@@ -96,17 +96,23 @@ export const functionPrinter = defineFunctionPrinter<DefaultPrinter>((options) =
       if (node.variant === 'member') {
         return `${node.base}['${node.key}']`
       }
-      const parts = (node as TypeNode & { variant: 'struct' }).properties.map((p) => {
-        const typeStr = typeof p.type === 'string' ? p.type : this.transform(p.type)
-        return p.optional ? `${p.name}?: ${typeStr}` : `${p.name}: ${typeStr}`
-      })
-      return `{ ${parts.join('; ')} }`
+      if (node.variant === 'struct') {
+        const parts = node.properties.map((p) => {
+          const typeStr = this.transform(p.type)
+          return p.optional ? `${p.name}?: ${typeStr}` : `${p.name}: ${typeStr}`
+        })
+        return `{ ${parts.join('; ')} }`
+      }
+      if (node.variant === 'reference') {
+        return node.name
+      }
+      return null
     },
     functionParameter(node) {
       const { mode, transformName, transformType } = this.options
       const name = transformName ? transformName(node.name) : node.name
 
-      const rawType = node.type && typeof node.type === 'object' ? this.transform(node.type) : node.type
+      const rawType = node.type ? this.transform(node.type) : undefined
       const type = rawType != null && transformType ? transformType(rawType) : rawType
 
       if (mode === 'keys' || mode === 'values') {
@@ -157,12 +163,12 @@ export const functionPrinter = defineFunctionPrinter<DefaultPrinter>((options) =
       const nameStr = names.length ? `{ ${names.join(', ')} }` : undefined
       if (!nameStr) return null
 
-      let typeAnnotation: string | undefined = typeof node.type === 'string' ? node.type : undefined
+      let typeAnnotation: string | undefined = node.type ? this.transform(node.type) : undefined
       if (!typeAnnotation) {
         const typeParts = sorted
           .filter((p) => p.type)
           .map((p) => {
-            const rawT = p.type && typeof p.type === 'object' ? this.transform(p.type) : p.type
+            const rawT = p.type ? this.transform(p.type) : undefined
             const t = rawT != null && transformType ? transformType(rawT) : rawT
             return p.optional || p.default !== undefined ? `${p.name}?: ${t}` : `${p.name}: ${t}`
           })
