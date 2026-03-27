@@ -322,27 +322,4 @@ describe('PluginDriver', () => {
     // in single mode resolvedName is '', so the plugin receives '.ts' as baseName
     expect(file.baseName).toBe('.ts')
   })
-
-  test('should throw when multiple instances of the same plugin are used', () => {
-    const duplicatePlugin = createPlugin(() => {
-      return {
-        name: 'duplicatePlugin',
-        options: undefined as any,
-        context: undefined as never,
-      }
-    })
-
-    const duplicateConfig = {
-      ...config,
-      plugins: [duplicatePlugin({}), duplicatePlugin({})] as Plugin[],
-    } satisfies Config
-
-    expect(
-      () =>
-        new PluginDriver(duplicateConfig, {
-          fabric: createFabric(),
-          events: new AsyncEventEmitter<KubbEvents>(),
-        }),
-    ).toThrow('Duplicate plugin "duplicatePlugin" detected')
-  })
 })

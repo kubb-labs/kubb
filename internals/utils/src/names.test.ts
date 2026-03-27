@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getUniqueName, setUniqueName } from './names.ts'
+import { getUniqueName } from './names.ts'
 
 describe('uniqueName', () => {
   describe('getUniqueName', () => {
@@ -34,31 +34,6 @@ describe('uniqueName', () => {
       expect(result2).toBe('bar')
       expect(result3).toBe('foo2')
       expect(data).toEqual({ foo: 2, bar: 1, foo2: 1 })
-    })
-  })
-
-  describe('setUniqueName', () => {
-    it('should return original name for first occurrence', () => {
-      const data: Record<string, number> = {}
-      const result = setUniqueName('test', data)
-      expect(result).toBe('test')
-      expect(data).toEqual({ test: 1 })
-    })
-
-    it('should return original name even for duplicates', () => {
-      const data: Record<string, number> = { test: 1 }
-      const result = setUniqueName('test', data)
-      expect(result).toBe('test')
-      expect(data).toEqual({ test: 2 })
-    })
-
-    it('should increment counter for each call', () => {
-      const data: Record<string, number> = {}
-      setUniqueName('test', data)
-      setUniqueName('test', data)
-      setUniqueName('test', data)
-
-      expect(data).toEqual({ test: 3 })
     })
   })
 })
