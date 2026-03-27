@@ -36,9 +36,9 @@ export function buildTypeNames({
       name: p.name,
       originalName:
         node.parameters.find(
-          (op) => op.in === 'path' && (op.name === p.name || resolver.resolveParamTypedName(node, op) === resolver.resolveParamTypedName(node, p)),
+          (op) => op.in === 'path' && (op.name === p.name || resolver.resolvePathParamsName(node, op) === resolver.resolvePathParamsName(node, p)),
         )?.name ?? p.name,
-      typedName: resolver.resolveParamTypedName(node, p),
+      typedName: resolver.resolvePathParamsName(node, p),
       required: p.required ?? false,
     }))
 
@@ -48,9 +48,9 @@ export function buildTypeNames({
       name: p.name,
       originalName:
         node.parameters.find(
-          (op) => op.in === 'query' && (op.name === p.name || resolver.resolveParamTypedName(node, op) === resolver.resolveParamTypedName(node, p)),
+          (op) => op.in === 'query' && (op.name === p.name || resolver.resolveQueryParamsName(node, op) === resolver.resolveQueryParamsName(node, p)),
         )?.name ?? p.name,
-      typedName: resolver.resolveParamTypedName(node, p),
+      typedName: resolver.resolveQueryParamsName(node, p),
       required: p.required ?? false,
     }))
 
@@ -60,21 +60,21 @@ export function buildTypeNames({
       name: p.name,
       originalName:
         node.parameters.find(
-          (op) => op.in === 'header' && (op.name === p.name || resolver.resolveParamTypedName(node, op) === resolver.resolveParamTypedName(node, p)),
+          (op) => op.in === 'header' && (op.name === p.name || resolver.resolveHeaderParamsName(node, op) === resolver.resolveHeaderParamsName(node, p)),
         )?.name ?? p.name,
-      typedName: resolver.resolveParamTypedName(node, p),
+      typedName: resolver.resolveHeaderParamsName(node, p),
       required: p.required ?? false,
     }))
 
   const requestBody = node.requestBody?.schema
     ? {
-        typedName: resolver.resolveDataTypedName(node),
+        typedName: resolver.resolveDataName(node),
         required: node.requestBody.required ?? false,
       }
     : undefined
 
   const response = {
-    typedName: resolver.resolveResponseTypedName(node),
+    typedName: resolver.resolveResponseName(node),
   }
 
   return { pathParams, queryParams, headerParams, requestBody, response }
