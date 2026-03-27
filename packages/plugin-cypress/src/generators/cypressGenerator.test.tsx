@@ -1,198 +1,120 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
-import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
-import type { Config } from '@kubb/core'
-import { renderOperation } from '@kubb/core'
-import { type PluginTs, pluginTsName, resolverTs, resolverTsLegacy } from '@kubb/plugin-ts'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import type { Config, Plugin } from '@kubb/core'
+import type { HttpMethod } from '@kubb/oas'
+import { parse } from '@kubb/oas'
+import { buildOperation, OperationGenerator } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
-import { resolverCypress } from '../resolvers/resolverCypress.ts'
+import { createMockedPluginManager, matchFiles } from '#mocks'
 import type { PluginCypress } from '../types.ts'
 import { cypressGenerator } from './cypressGenerator.tsx'
 
-const testData = [
-  {
-    name: 'showPetById',
-    node: createOperation({
-      operationId: 'showPetById',
-      method: 'GET',
-      path: '/pets/:petId',
-      tags: ['pets'],
-      parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
-      responses: [
-        createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Expected response to a valid request' }),
-        createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
-      ],
-    }),
-    options: {},
-  },
-  {
-    name: 'getPets',
-    node: createOperation({
-      operationId: 'listPets',
-      method: 'GET',
-      path: '/pets',
-      tags: ['pets'],
-      parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'string' }) })],
-      responses: [
-        createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
-        createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
-      ],
-    }),
-    options: {},
-  },
-  {
-    name: 'getPetsWithTemplateString',
-    node: createOperation({
-      operationId: 'listPets',
-      method: 'GET',
-      path: '/pets',
-      tags: ['pets'],
-      parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'string' }) })],
-      responses: [
-        createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
-        createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
-      ],
-    }),
-    options: {
-      baseURL: '${123456}',
-    },
-  },
-  {
-    name: 'createPet',
-    node: createOperation({
-      operationId: 'createPets',
-      method: 'POST',
-      path: '/pets',
-      tags: ['pets'],
-      requestBody: {
-        description: 'Pet to create',
-        schema: createSchema({ type: 'object', properties: [] }),
-      },
-      responses: [
-        createResponse({ statusCode: '201', schema: createSchema({ type: 'void' }), description: 'Null response' }),
-        createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
-      ],
-    }),
-    options: {},
-  },
-  {
-    name: 'updatePet',
-    node: createOperation({
-      operationId: 'updatePet',
-      method: 'PUT',
-      path: '/pets/:petId',
-      tags: ['pets'],
-      parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
-      requestBody: {
-        description: 'Pet to update',
-        schema: createSchema({ type: 'object', properties: [] }),
-      },
-      responses: [
-        createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Pet updated successfully' }),
-        createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
-      ],
-    }),
-    options: {},
-  },
-  {
-    name: 'deletePet',
-    node: createOperation({
-      operationId: 'deletePet',
-      method: 'DELETE',
-      path: '/pets/:petId',
-      tags: ['pets'],
-      parameters: [
-        createParameter({ name: 'api_key', in: 'header', schema: createSchema({ type: 'string' }), required: false }),
-        createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'integer' }), required: true }),
-      ],
-      responses: [createResponse({ statusCode: '400', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid pet value' })],
-    }),
-    options: {},
-  },
-] as const satisfies Array<{
-  name: string
-  node: OperationNode
-  options: Partial<PluginCypress['resolvedOptions']>
-}>
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-describe('cypressGenerator operation', () => {
+describe('cypressGenerator operation', async () => {
   const fabric = createReactFabric()
 
   beforeEach(() => {
     fabric.context.fileManager.clear()
   })
 
-  describe('with resolverTs (default — per-param types)', () => {
-    test.each(testData)('$name', async (props) => {
-      const defaultOptions: PluginCypress['resolvedOptions'] = {
-        output: { path: '.' },
-        baseURL: undefined,
-        group: undefined,
-        dataReturnType: 'data',
-        paramsCasing: 'camelcase',
-        paramsType: 'inline',
-        pathParamsType: 'inline',
-        transformers: [],
-        ...props.options,
-      }
+  const testData = [
+    {
+      name: 'showPetById',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'get',
+      options: {},
+    },
+    {
+      name: 'getPets',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
+      options: {},
+    },
+    {
+      name: 'getPetsWithTemplateString',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'get',
+      options: {
+        baseURL: '${123456}',
+      },
+    },
+    {
+      name: 'createPet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets',
+      method: 'post',
+      options: {},
+    },
+    {
+      name: 'updatePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'put',
+      options: {},
+    },
+    {
+      name: 'deletePet',
+      input: '../../mocks/petStore.yaml',
+      path: '/pets/{petId}',
+      method: 'delete',
+      options: {},
+    },
+  ] as const satisfies Array<{
+    input: string
+    name: string
+    path: string
+    method: HttpMethod
+    options: Partial<PluginCypress['resolvedOptions']>
+  }>
 
-      const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options: defaultOptions, resolver: resolverCypress })
-      const tsPlugin = createMockedPlugin<PluginTs>({
-        name: pluginTsName,
-        options: { output: { path: 'models' } } as PluginTs['resolvedOptions'],
-        resolver: resolverTs,
-      })
+  test.each(testData)('$name', async (props) => {
+    const oas = await parse(path.resolve(__dirname, props.input))
 
-      await renderOperation(props.node, {
-        config: { root: '.', output: { path: 'test' } } as Config,
-        fabric,
-        adapter: createMockedAdapter(),
-        driver: createMockedPluginDriver({ plugin: tsPlugin }),
-        Component: cypressGenerator.Operation,
-        plugin,
-        options: defaultOptions,
-        resolver: resolverCypress,
-      })
+    const options: PluginCypress['resolvedOptions'] = {
+      output: {
+        path: '.',
+      },
+      baseURL: undefined,
+      group: undefined,
+      dataReturnType: 'data',
+      paramsCasing: 'camelcase',
+      paramsType: 'inline',
+      pathParamsType: 'inline',
+      ...props.options,
+    }
+    const plugin = { options } as Plugin<PluginCypress>
 
-      await matchFiles(fabric.files, props.name)
+    const mockedPluginManager = createMockedPluginManager(props.name)
+    const generator = new OperationGenerator(options, {
+      fabric,
+      oas,
+      include: undefined,
+      pluginManager: mockedPluginManager,
+
+      plugin,
+      contentType: undefined,
+      override: undefined,
+      mode: 'split',
+      exclude: [],
     })
-  })
 
-  describe('with resolverTsLegacy (kubbV4 — grouped param types)', () => {
-    test.each(testData)('$name', async (props) => {
-      const defaultOptions: PluginCypress['resolvedOptions'] = {
-        output: { path: '.' },
-        baseURL: undefined,
-        group: undefined,
-        dataReturnType: 'data',
-        paramsCasing: 'camelcase',
-        paramsType: 'inline',
-        pathParamsType: 'inline',
-        transformers: [],
-        ...props.options,
-      }
+    const operation = oas.operation(props.path, props.method)
 
-      const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options: defaultOptions, resolver: resolverCypress })
-      const tsPlugin = createMockedPlugin<PluginTs>({
-        name: pluginTsName,
-        options: { output: { path: 'models' } } as PluginTs['resolvedOptions'],
-        resolver: resolverTsLegacy,
-      })
-
-      await renderOperation(props.node, {
-        config: { root: '.', output: { path: 'test' } } as Config,
-        fabric,
-        adapter: createMockedAdapter(),
-        driver: createMockedPluginDriver({ plugin: tsPlugin }),
-        Component: cypressGenerator.Operation,
-        plugin,
-        options: defaultOptions,
-        resolver: resolverCypress,
-      })
-
-      await matchFiles(fabric.files, `${props.name}Legacy`)
+    await buildOperation(operation, {
+      config: { root: '.', output: { path: 'test' } } as Config,
+      fabric,
+      generator,
+      Component: cypressGenerator.Operation,
+      plugin,
     })
+
+    await matchFiles(fabric.files)
   })
 })

@@ -1,71 +1,64 @@
-import path from 'node:path'
-import { defineGenerator } from '@kubb/core'
-import { type PluginTs, pluginTsName } from '@kubb/plugin-ts'
+import { usePluginManager } from '@kubb/core/hooks'
+import { createReactGenerator } from '@kubb/plugin-oas/generators'
+import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
+import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
+import { pluginTsName } from '@kubb/plugin-ts'
 import { File } from '@kubb/react-fabric'
-import { Request } from '../components/Request.tsx'
+import { Request } from '../components'
 import type { PluginCypress } from '../types'
-import { buildTypeNames } from '../utils.ts'
 
-/**
- * Default Cypress generator for `@kubb/plugin-cypress`.
- *
- * Generates `cy.request()` helper functions for each API operation.
- */
-export const cypressGenerator = defineGenerator<PluginCypress>({
+export const cypressGenerator = createReactGenerator<PluginCypress>({
   name: 'cypress',
-  type: 'react',
-  Operation({ node, adapter, options, config, driver, resolver }) {
-    const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group } = options
+  Operation({ operation, generator, plugin }) {
+    const {
+      options: { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType },
+    } = plugin
+    const pluginManager = usePluginManager()
 
-    const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
+    const oas = useOas()
+    const { getSchemas, getName, getFile } = useOperationManager(generator)
 
-    if (!pluginTs) {
-      throw new Error(`Plugin ${pluginTsName} is not defined`)
+    const request = {
+      name: getName(operation, { type: 'function' }),
+      file: getFile(operation),
     }
 
-    const root = path.resolve(config.root, config.output.path)
-
-    const file = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
-    // Resolve the plugin-ts file using plugin-ts's own output/group context so the path points to
-    // where plugin-ts actually writes its types (not the cypress output directory).
-    const tsFile = pluginTs.resolver.resolveFile(
-      { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
-      { root, output: pluginTs.options.output, group: pluginTs.options.group },
-    )
-
-    const name = resolver.resolveName(node.operationId)
-
-    const typeNames = buildTypeNames({ node, paramsCasing, resolver: pluginTs.resolver })
-
-    // Collect all type names that need to be imported from plugin-ts.
-    // In legacy/kubbV4 mode use the grouped param types; otherwise use per-param types.
-    const importedTypeNames = [
-      ...(typeNames.grouped?.pathParams ? [typeNames.grouped.pathParams] : typeNames.pathParams.map((p) => p.typedName)),
-      ...(typeNames.grouped?.queryParams ? [typeNames.grouped.queryParams] : typeNames.queryParams.map((p) => p.typedName)),
-      ...(typeNames.grouped?.headerParams ? [typeNames.grouped.headerParams] : typeNames.headerParams.map((p) => p.typedName)),
-      typeNames.requestBody?.typedName,
-      typeNames.response.typedName,
-    ].filter(Boolean)
+    const type = {
+      file: getFile(operation, { pluginKey: [pluginTsName] }),
+      schemas: getSchemas(operation, { pluginKey: [pluginTsName], type: 'type' }),
+    }
 
     return (
       <File
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
-        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+        baseName={request.file.baseName}
+        path={request.file.path}
+        meta={request.file.meta}
+        banner={getBanner({ oas, output, config: pluginManager.config })}
+        footer={getFooter({ oas, output })}
       >
-        <File.Import name={Array.from(new Set(importedTypeNames))} root={file.path} path={tsFile.path} isTypeOnly />
+        <File.Import
+          name={[
+            type.schemas.request?.name,
+            type.schemas.response.name,
+            type.schemas.pathParams?.name,
+            type.schemas.queryParams?.name,
+            type.schemas.headerParams?.name,
+            ...(type.schemas.statusCodes?.map((item) => item.name) || []),
+          ].filter(Boolean)}
+          root={request.file.path}
+          path={type.file.path}
+          isTypeOnly
+        />
         <Request
-          name={name}
-          node={node}
-          resolver={pluginTs.resolver}
-          typeNames={typeNames}
+          name={request.name}
           dataReturnType={dataReturnType}
           paramsCasing={paramsCasing}
           paramsType={paramsType}
           pathParamsType={pathParamsType}
+          typeSchemas={type.schemas}
+          method={operation.method}
           baseURL={baseURL}
+          url={operation.path}
         />
       </File>
     )
