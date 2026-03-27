@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { camelCase } from '@internals/utils'
-import { type Config, createPlugin, type Group, getMode, type KubbEvents } from '@kubb/core'
+import { type Config, createPlugin, getMode, type KubbEvents, type UserGroup } from '@kubb/core'
 import type { Oas } from '@kubb/oas'
 import { parseFromConfig, resolveServerUrl } from '@kubb/oas'
 import { jsonGenerator } from './generators'
@@ -111,7 +111,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       }
 
       if (group && (options?.group?.path || options?.group?.tag)) {
-        const groupName: Group['name'] = group?.name
+        const groupName: UserGroup['name'] = group?.name
           ? group.name
           : (ctx) => {
               if (group?.type === 'path') {

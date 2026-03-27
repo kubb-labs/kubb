@@ -437,7 +437,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
   /**
    * The resolver for this plugin, accessible via `driver.getPluginByName(name)?.resolver`.
    */
-  resolver?: TOptions['resolver']
+  resolver: TOptions['resolver']
 
   install: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**
@@ -580,7 +580,7 @@ export type Output<_TOptions = unknown> = {
   override?: boolean
 }
 
-export type Group = {
+export type UserGroup = {
   /**
    * Defines the type where to group the files.
    * - 'tag' groups files by OpenAPI tags.
@@ -592,6 +592,20 @@ export type Group = {
    * Return the name of a group based on the group name, this is used for the file and name generation.
    */
   name?: (context: { group: string }) => string
+}
+
+export type Group = {
+  /**
+   * Defines the type where to group the files.
+   * - 'tag' groups files by OpenAPI tags.
+   * - 'path' groups files by OpenAPI paths.
+   * @default undefined
+   */
+  type: 'tag' | 'path'
+  /**
+   * Return the name of a group based on the group name, this is used for the file and name generation.
+   */
+  name: (context: { group: string }) => string
 }
 
 export type LoggerOptions = {

@@ -1,3 +1,4 @@
+import { camelCase } from '@internals/utils'
 import { describe, expect, it } from 'vitest'
 import { defaultResolveBanner, defaultResolveFile, defaultResolveFooter, defaultResolvePath, defineResolver } from './defineResolver.ts'
 import type { Config, Resolver, ResolverContext } from './types.ts'
@@ -76,15 +77,39 @@ describe('defaultResolvePath', () => {
   })
 
   it('groups by tag when group.type is tag', () => {
-    const result = defaultResolvePath({ baseName: 'petTypes.ts', tag: 'pets' }, { root: '/root', output: { path: 'types' }, group: { type: 'tag' } })
+    const result = defaultResolvePath(
+      { baseName: 'petTypes.ts', tag: 'pets' },
+      {
+        root: '/root',
+        output: { path: 'types' },
+        group: {
+          type: 'tag',
+          name: (ctx: { group: string }) => {
+            return `${camelCase(ctx.group)}Controller`
+          },
+        },
+      },
+    )
 
     expect(result).toBe('/root/types/petsController/petTypes.ts')
   })
 
   it('groups by path when group.type is path', () => {
-    const result = defaultResolvePath({ baseName: 'petTypes.ts', path: '/pets/list' }, { root: '/root', output: { path: 'types' }, group: { type: 'path' } })
+    const result = defaultResolvePath(
+      { baseName: 'petTypes.ts', path: '/pets/list' },
+      {
+        root: '/root',
+        output: { path: 'types' },
+        group: {
+          type: 'path',
+          name: (ctx: { group: string }) => {
+            return `${camelCase(ctx.group)}Controller`
+          },
+        },
+      },
+    )
 
-    expect(result).toBe('/root/types/pets/petTypes.ts')
+    expect(result).toBe('/root/types/petsListController/petTypes.ts')
   })
 
   it('uses custom group.name when provided', () => {
@@ -97,9 +122,21 @@ describe('defaultResolvePath', () => {
   })
 
   it('falls back to flat path when group present but no tag or path given', () => {
-    const result = defaultResolvePath({ baseName: 'petTypes.ts' }, { root: '/root', output: { path: 'types' }, group: { type: 'tag' } })
+    const result = defaultResolvePath(
+      { baseName: 'petTypes.ts', tag: 'pets' },
+      {
+        root: '/root',
+        output: { path: 'types' },
+        group: {
+          type: 'tag',
+          name: (ctx: { group: string }) => {
+            return `${camelCase(ctx.group)}Controller`
+          },
+        },
+      },
+    )
 
-    expect(result).toBe('/root/types/petTypes.ts')
+    expect(result).toBe('/root/types/petsController/petTypes.ts')
   })
 })
 
@@ -143,7 +180,16 @@ describe('defaultResolveFile', () => {
     const file = defaultResolveFile.call(
       resolver,
       { name: 'pet', extname: '.ts', tag: 'pets' },
-      { root: '/root', output: { path: 'types' }, group: { type: 'tag' } },
+      {
+        root: '/root',
+        output: { path: 'types' },
+        group: {
+          type: 'tag',
+          name: (ctx: { group: string }) => {
+            return `${camelCase(ctx.group)}Controller`
+          },
+        },
+      },
     )
 
     expect(file.path).toBe('/root/types/petsController/pet.ts')

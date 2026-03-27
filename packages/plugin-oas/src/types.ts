@@ -1,4 +1,4 @@
-import type { Group, Output, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Output, PluginFactoryOptions, ResolveNameParams, UserGroup } from '@kubb/core'
 import type { FabricFile } from '@kubb/fabric-core/types'
 
 import type { contentType, HttpMethod, Oas, Operation, SchemaObject } from '@kubb/oas'
@@ -42,7 +42,7 @@ export type Options = {
   /**
    * Group the JSON files based on the provided name.
    */
-  group?: Group
+  group?: UserGroup
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
    * @example

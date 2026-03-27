@@ -1,6 +1,7 @@
 import path from 'node:path'
+import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
-import { createPlugin, getBarrelFiles, getPreset, renderOperation, renderSchema } from '@kubb/core'
+import { createPlugin, type Group, getBarrelFiles, getPreset, renderOperation, renderSchema } from '@kubb/core'
 import { presets } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
@@ -45,7 +46,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     generators: userGenerators = [],
   } = options
 
-  const { resolver, transformers, generators } = getPreset({
+  const preset = getPreset({
     preset: compatibilityPreset,
     presets: presets,
     resolvers: userResolvers,
@@ -58,18 +59,32 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
   return {
     name: pluginTsName,
-    resolver,
-    options: {
-      output,
-      optionalType,
-      group,
-      arrayType,
-      enumType,
-      enumTypeSuffix,
-      enumKeyCasing,
-      syntaxType,
-      paramsCasing,
-      transformers,
+    get resolver() {
+      return preset.resolver
+    },
+    get options() {
+      return {
+        output,
+        optionalType,
+        group: group
+          ? ({
+              ...options.group,
+              name: (ctx) => {
+                if (options.group?.type === 'path') {
+                  return `${ctx.group.split('/')[1]}`
+                }
+                return `${camelCase(ctx.group)}Controller`
+              },
+            } as Group)
+          : undefined,
+        arrayType,
+        enumType,
+        enumTypeSuffix,
+        enumKeyCasing,
+        syntaxType,
+        paramsCasing,
+        transformers: preset.transformers,
+      }
     },
     resolvePath(baseName, pathMode, options) {
       if (!resolvePathWarning) {
@@ -77,9 +92,9 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         resolvePathWarning = true
       }
 
-      return resolver.resolvePath(
+      return this.plugin.resolver.resolvePath(
         { baseName, pathMode, tag: options?.group?.tag, path: options?.group?.path },
-        { root: path.resolve(this.config.root, this.config.output.path), output, group },
+        { root: path.resolve(this.config.root, this.config.output.path), output, group: this.plugin.options.group },
       )
     },
     resolveName(name, type) {
@@ -88,7 +103,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         resolveNameWarning = true
       }
 
-      return resolver.default(name, type)
+      return this.plugin.resolver.default(name, type)
     },
     async install() {
       const { config, fabric, plugin, adapter, rootNode, driver, openInStudio, resolver } = this
@@ -104,7 +119,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       await walk(rootNode, {
         depth: 'shallow',
         async schema(schemaNode) {
-          const writeTasks = generators.map(async (generator) => {
+          const writeTasks = preset.generators.map(async (generator) => {
             if (generator.type === 'react' && generator.version === '2') {
               const options = resolver.resolveOptions(schemaNode, { options: plugin.options, exclude, include, override })
 
@@ -128,7 +143,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
           await Promise.all(writeTasks)
         },
         async operation(operationNode) {
-          const writeTasks = generators.map(async (generator) => {
+          const writeTasks = preset.generators.map(async (generator) => {
             if (generator.type === 'react' && generator.version === '2') {
               const options = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
 

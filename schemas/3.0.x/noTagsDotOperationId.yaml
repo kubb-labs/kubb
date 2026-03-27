@@ -8,9 +8,12 @@ info:
   version: 1.0.0
 paths:
   /config/{config_id}:
+
     get:
       operationId: get_config_id_v2025.0
       summary: Get configuration
+      tags:
+        - config
       parameters:
         - name: config_id
           in: path
@@ -28,7 +31,8 @@ paths:
     post:
       operationId: create_config_v2025.0
       summary: Create configuration
-      tags: []
+      tags:
+        - config
       requestBody:
         required: true
         content:

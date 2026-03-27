@@ -204,16 +204,7 @@ export function defaultResolvePath(
   }
 
   if (group && (groupPath || tag)) {
-    const groupName = group.name
-      ? group.name
-      : (ctx: { group: string }) => {
-          if (group.type === 'path') {
-            return `${ctx.group.split('/')[1]}`
-          }
-          return `${camelCase(ctx.group)}Controller`
-        }
-
-    return path.resolve(root, output.path, groupName({ group: group.type === 'path' ? groupPath! : tag! }), baseName) as FabricFile.Path
+    return path.resolve(root, output.path, group.name({ group: group.type === 'path' ? groupPath! : tag! }), baseName) as FabricFile.Path
   }
 
   return path.resolve(root, output.path, baseName) as FabricFile.Path

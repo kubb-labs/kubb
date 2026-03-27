@@ -17,6 +17,7 @@ import {
   setDiscriminatorEnum,
   setEnumName,
   simplifyUnion,
+  syncOptionality,
 } from '@kubb/ast'
 import type {
   DistributiveOmit,
@@ -710,11 +711,17 @@ function createSchemaParser(ctx: OasParserContext) {
           .map(([key]) => key)
       : undefined
 
+    const requestBodyRequired =
+      operation.schema.requestBody && !isReference(operation.schema.requestBody)
+        ? (operation.schema.requestBody as { required?: boolean }).required === true
+        : false
+
     const requestBody = requestBodySchemaNode
       ? {
           description: requestBodyDescription,
-          schema: requestBodySchemaNode,
+          schema: syncOptionality(requestBodySchemaNode, requestBodyRequired),
           keysToOmit: requestBodyKeysToOmit?.length ? requestBodyKeysToOmit : undefined,
+          required: requestBodyRequired || undefined,
         }
       : undefined
 
