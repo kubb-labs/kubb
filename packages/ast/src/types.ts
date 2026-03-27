@@ -20,7 +20,7 @@ export type {
   Node,
   NodeKind,
   NumberSchemaNode,
-  ObjectBindingParameterNode,
+  ParameterGroupNode,
   ObjectSchemaNode,
   OperationNode,
   ParameterLocation,
@@ -40,6 +40,7 @@ export type {
   StatusCode,
   StringSchemaNode,
   TimeSchemaNode,
+  TypeNode,
   UnionSchemaNode,
   UrlSchemaNode,
 } from './nodes/index.ts'

@@ -1,4 +1,4 @@
-import { createFunctionParameter, createFunctionParameters, createObjectBindingParameter } from '@kubb/ast'
+import { createFunctionParameter, createFunctionParameters, createParameterGroup } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { defineFunctionPrinter, functionPrinter } from './functionPrinter.ts'
 
@@ -63,7 +63,7 @@ describe('functionPrinter in declaration mode', () => {
   it('prints object binding parameters with inferred inline object types', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [
             createFunctionParameter({ name: 'id', type: 'string', optional: false }),
             createFunctionParameter({ name: 'name', type: 'string', optional: true }),
@@ -79,7 +79,7 @@ describe('functionPrinter in declaration mode', () => {
   it('prints object binding parameters with explicit type overrides', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [createFunctionParameter({ name: 'data', optional: false })],
           type: 'PetData',
           default: '{}',
@@ -93,7 +93,7 @@ describe('functionPrinter in declaration mode', () => {
   it('prints inline object binding parameters as top-level parameters', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [
             createFunctionParameter({ name: 'petId', type: 'string', optional: false }),
             createFunctionParameter({ name: 'ownerId', type: 'number', optional: false }),
@@ -109,7 +109,7 @@ describe('functionPrinter in declaration mode', () => {
   it('prints mixed object and simple parameters in stable order', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [
             createFunctionParameter({ name: 'id', type: 'string', optional: false }),
             createFunctionParameter({ name: 'name', type: 'string', optional: true }),
@@ -133,7 +133,7 @@ describe('functionPrinter in declaration mode', () => {
 
   it('omits empty object binding parameters from the final signature', () => {
     const sig = createFunctionParameters({
-      params: [createObjectBindingParameter({ properties: [] })],
+      params: [createParameterGroup({ properties: [] })],
     })
 
     expect(printer.print(sig)).toBe('')
@@ -157,7 +157,7 @@ describe('functionPrinter() in call mode', () => {
   it('prints object binding parameters as `{ key1, key2 }`', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [createFunctionParameter({ name: 'method', optional: false }), createFunctionParameter({ name: 'url', optional: false })],
         }),
       ],
@@ -169,7 +169,7 @@ describe('functionPrinter() in call mode', () => {
   it('prints inline object binding parameters as individual arguments', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [createFunctionParameter({ name: 'petId', optional: false })],
           inline: true,
         }),
@@ -205,7 +205,7 @@ describe('functionPrinter() in keys mode', () => {
   it('wraps object binding parameter keys in braces', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [createFunctionParameter({ name: 'id', optional: false }), createFunctionParameter({ name: 'name', optional: false })],
         }),
       ],
@@ -229,7 +229,7 @@ describe('functionPrinter() in values mode', () => {
   it('prints object binding parameters in braces', () => {
     const sig = createFunctionParameters({
       params: [
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [createFunctionParameter({ name: 'id', optional: false }), createFunctionParameter({ name: 'name', optional: false })],
         }),
       ],
@@ -274,7 +274,7 @@ describe('defineFunctionPrinter()', () => {
         functionParameter(node) {
           return node.name.toUpperCase()
         },
-        objectBindingParameter(node) {
+        parameterGroup(node) {
           return `{ ${node.properties.map((p) => p.name.toUpperCase()).join(', ')} }`
         },
         functionParameters(node) {
@@ -309,7 +309,7 @@ describe('defineFunctionPrinter()', () => {
         functionParameter(node) {
           return `[${node.name}]`
         },
-        objectBindingParameter(node) {
+        parameterGroup(node) {
           return `{${node.properties.map((p) => this.transform(p)).join('+')}}`
         },
         functionParameters(node) {
@@ -324,7 +324,7 @@ describe('defineFunctionPrinter()', () => {
     const sig = createFunctionParameters({
       params: [
         createFunctionParameter({ name: 'a', optional: false }),
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: [createFunctionParameter({ name: 'b', optional: false }), createFunctionParameter({ name: 'c', optional: false })],
         }),
       ],

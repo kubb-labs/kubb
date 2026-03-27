@@ -174,7 +174,7 @@ describe('createOperationParams', () => {
             {
               "default": undefined,
               "inline": true,
-              "kind": "ObjectBindingParameter",
+              "kind": "ParameterGroup",
               "properties": [
                 {
                   "kind": "FunctionParameter",
@@ -210,7 +210,7 @@ describe('createOperationParams', () => {
           {
             "default": undefined,
             "inline": true,
-            "kind": "ObjectBindingParameter",
+            "kind": "ParameterGroup",
             "properties": [
               {
                 "kind": "FunctionParameter",
@@ -230,13 +230,33 @@ describe('createOperationParams', () => {
             "kind": "FunctionParameter",
             "name": "params",
             "optional": true,
-            "type": "{ filter?: Types["filter"] }",
+            "type": {
+              "kind": "Type",
+              "properties": [
+                {
+                  "name": "filter",
+                  "optional": true,
+                  "type": "Types["filter"]",
+                },
+              ],
+              "variant": "struct",
+            },
           },
           {
             "kind": "FunctionParameter",
             "name": "headers",
             "optional": true,
-            "type": "{ x-api-key?: Types["x-api-key"] }",
+            "type": {
+              "kind": "Type",
+              "properties": [
+                {
+                  "name": "x-api-key",
+                  "optional": true,
+                  "type": "Types["x-api-key"]",
+                },
+              ],
+              "variant": "struct",
+            },
           },
           {
             "default": "{}",
@@ -267,7 +287,7 @@ describe('createOperationParams', () => {
             {
               "default": "{}",
               "inline": true,
-              "kind": "ObjectBindingParameter",
+              "kind": "ParameterGroup",
               "properties": [
                 {
                   "kind": "FunctionParameter",
@@ -302,7 +322,7 @@ describe('createOperationParams', () => {
             {
               "default": undefined,
               "inline": false,
-              "kind": "ObjectBindingParameter",
+              "kind": "ParameterGroup",
               "properties": [
                 {
                   "kind": "FunctionParameter",
@@ -347,7 +367,7 @@ describe('createOperationParams', () => {
           "params": [
             {
               "default": undefined,
-              "kind": "ObjectBindingParameter",
+              "kind": "ParameterGroup",
               "properties": [
                 {
                   "kind": "FunctionParameter",
@@ -365,7 +385,17 @@ describe('createOperationParams', () => {
                   "kind": "FunctionParameter",
                   "name": "params",
                   "optional": false,
-                  "type": "{ status: Types["status"] }",
+                  "type": {
+                    "kind": "Type",
+                    "properties": [
+                      {
+                        "name": "status",
+                        "optional": false,
+                        "type": "Types["status"]",
+                      },
+                    ],
+                    "variant": "struct",
+                  },
                 },
               ],
             },
@@ -398,13 +428,23 @@ describe('createOperationParams', () => {
           "params": [
             {
               "default": "{}",
-              "kind": "ObjectBindingParameter",
+              "kind": "ParameterGroup",
               "properties": [
                 {
                   "kind": "FunctionParameter",
                   "name": "params",
                   "optional": true,
-                  "type": "{ filter?: string }",
+                  "type": {
+                    "kind": "Type",
+                    "properties": [
+                      {
+                        "name": "filter",
+                        "optional": true,
+                        "type": "string",
+                      },
+                    ],
+                    "variant": "struct",
+                  },
                 },
               ],
             },
@@ -429,7 +469,7 @@ describe('createOperationParams', () => {
 
       const pathParam = params.params[0]
       expect(pathParam).toBeDefined()
-      if (pathParam && pathParam.kind === 'ObjectBindingParameter') {
+      if (pathParam && pathParam.kind === 'ParameterGroup') {
         expect(pathParam.properties[0]?.name).toBe('petId')
       }
     })
@@ -490,7 +530,7 @@ describe('createOperationParams', () => {
       })
 
       const pathGroup = params.params[0]
-      if (pathGroup && pathGroup.kind === 'ObjectBindingParameter') {
+      if (pathGroup && pathGroup.kind === 'ParameterGroup') {
         expect(pathGroup.properties[0]?.type).toBe('unknown')
       }
     })
@@ -597,7 +637,7 @@ describe('createOperationParams', () => {
       })
 
       const objParam = params.params[0]
-      if (objParam && objParam.kind === 'ObjectBindingParameter') {
+      if (objParam && objParam.kind === 'ParameterGroup') {
         const queryChild = objParam.properties.find((p) => p.name === 'params')
         expect(queryChild).toMatchInlineSnapshot(`
           {
@@ -622,7 +662,7 @@ describe('createOperationParams', () => {
       })
 
       const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')
-      expect(queryParam?.type).toContain('filter')
+      expect(queryParam?.type).toMatchObject({ kind: 'Type', variant: 'struct', properties: expect.arrayContaining([expect.objectContaining({ name: 'filter' })]) })
     })
 
     it('uses resolveHeaderParamsName for header params in inline mode', () => {
@@ -669,7 +709,7 @@ describe('createOperationParams', () => {
       })
 
       const objParam = params.params[0]
-      if (objParam && objParam.kind === 'ObjectBindingParameter') {
+      if (objParam && objParam.kind === 'ParameterGroup') {
         const headerChild = objParam.properties.find((p) => p.name === 'headers')
         expect(headerChild).toMatchInlineSnapshot(`
           {
@@ -697,20 +737,30 @@ describe('createOperationParams', () => {
       })
 
       const pathGroup = params.params[0]
-      if (pathGroup && pathGroup.kind === 'ObjectBindingParameter') {
+      if (pathGroup && pathGroup.kind === 'ParameterGroup') {
         expect(pathGroup.properties).toMatchInlineSnapshot(`
           [
             {
               "kind": "FunctionParameter",
               "name": "petId",
               "optional": false,
-              "type": "DeletePetPathParams['petId']",
+              "type": {
+                "base": "DeletePetPathParams",
+                "key": "petId",
+                "kind": "Type",
+                "variant": "member",
+              },
             },
             {
               "kind": "FunctionParameter",
               "name": "name",
               "optional": true,
-              "type": "DeletePetPathParams['name']",
+              "type": {
+                "base": "DeletePetPathParams",
+                "key": "name",
+                "kind": "Type",
+                "variant": "member",
+              },
             },
           ]
         `)
@@ -733,7 +783,7 @@ describe('createOperationParams', () => {
 
       const pathGroup = params.params[0]
       expect(pathGroup).toBeDefined()
-      if (pathGroup && pathGroup.kind === 'ObjectBindingParameter') {
+      if (pathGroup && pathGroup.kind === 'ParameterGroup') {
         expect(pathGroup.default).toBe('[]')
       }
     })
@@ -752,7 +802,7 @@ describe('createOperationParams', () => {
 
       const pathGroup = params.params[0]
       expect(pathGroup).toBeDefined()
-      if (pathGroup && pathGroup.kind === 'ObjectBindingParameter') {
+      if (pathGroup && pathGroup.kind === 'ParameterGroup') {
         expect(pathGroup.default).toBe('{}')
       }
     })
@@ -783,7 +833,7 @@ describe('createOperationParams', () => {
           {
             "default": undefined,
             "inline": true,
-            "kind": "ObjectBindingParameter",
+            "kind": "ParameterGroup",
             "properties": [
               {
                 "kind": "FunctionParameter",
@@ -833,7 +883,22 @@ describe('createOperationParams', () => {
               "kind": "FunctionParameter",
               "name": "params",
               "optional": true,
-              "type": "{ orderStatus?: Types["orderStatus"]; petCategory?: Types["petCategory"] }",
+              "type": {
+                "kind": "Type",
+                "properties": [
+                  {
+                    "name": "orderStatus",
+                    "optional": true,
+                    "type": "Types["orderStatus"]",
+                  },
+                  {
+                    "name": "petCategory",
+                    "optional": true,
+                    "type": "Types["petCategory"]",
+                  },
+                ],
+                "variant": "struct",
+              },
             },
           ],
         }
@@ -854,7 +919,7 @@ describe('createOperationParams', () => {
 
       const pathGroup = params.params[0]
       expect(pathGroup).toBeDefined()
-      if (pathGroup && pathGroup.kind === 'ObjectBindingParameter') {
+      if (pathGroup && pathGroup.kind === 'ParameterGroup') {
         expect(pathGroup.properties.map((p) => p.name)).toEqual(['petId', 'storeName'])
       }
     })
@@ -888,7 +953,7 @@ describe('createOperationParams', () => {
             {
               "default": undefined,
               "inline": true,
-              "kind": "ObjectBindingParameter",
+              "kind": "ParameterGroup",
               "properties": [
                 {
                   "kind": "FunctionParameter",
@@ -942,8 +1007,8 @@ describe('createOperationParams', () => {
       })
 
       const objParam = params.params[0]
-      expect(objParam?.kind).toBe('ObjectBindingParameter')
-      if (objParam && objParam.kind === 'ObjectBindingParameter') {
+      expect(objParam?.kind).toBe('ParameterGroup')
+      if (objParam && objParam.kind === 'ParameterGroup') {
         const names = objParam.properties.map((p) => p.name)
         expect(names).toContain('petId')
         expect(names).toContain('data')
@@ -976,13 +1041,18 @@ describe('createOperationParams', () => {
             {
               "default": undefined,
               "inline": false,
-              "kind": "ObjectBindingParameter",
+              "kind": "ParameterGroup",
               "properties": [
                 {
                   "kind": "FunctionParameter",
                   "name": "petId",
                   "optional": false,
-                  "type": "GetPetByIdPathParams['petId']",
+                  "type": {
+                    "base": "GetPetByIdPathParams",
+                    "key": "petId",
+                    "kind": "Type",
+                    "variant": "member",
+                  },
                 },
               ],
             },
@@ -1013,7 +1083,7 @@ describe('createOperationParams', () => {
       })
 
       const pathGroup = params.params[0]
-      if (pathGroup && pathGroup.kind === 'ObjectBindingParameter') {
+      if (pathGroup && pathGroup.kind === 'ParameterGroup') {
         expect(pathGroup.properties[0]?.name).toBe('petId')
       }
       const queryParam = params.params.find((p) => p.kind === 'FunctionParameter' && p.name === 'params')

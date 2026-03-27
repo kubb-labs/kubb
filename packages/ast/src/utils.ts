@@ -1,8 +1,8 @@
 import { camelCase, isValidVarName } from '@internals/utils'
 
-import { createFunctionParameter, createFunctionParameters, createObjectBindingParameter, createProperty, createSchema } from './factory.ts'
+import { createFunctionParameter, createFunctionParameters, createParameterGroup, createProperty, createSchema, createTypeNode } from './factory.ts'
 import { narrowSchema } from './guards.ts'
-import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingParameterNode, OperationNode, ParameterNode, SchemaNode } from './nodes/index.ts'
+import type { FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, OperationNode, ParameterNode, SchemaNode, TypeNode } from './nodes/index.ts'
 import type { SchemaType } from './nodes/schema.ts'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
@@ -182,10 +182,10 @@ export type CreateOperationParamsOptions = {
    * @example
    * extraParams: [createFunctionParameter({ name: 'options', type: 'Partial<RequestOptions>', default: '{}' })]
    */
-  extraParams?: Array<FunctionParameterNode | ObjectBindingParameterNode>
+  extraParams?: Array<FunctionParameterNode | ParameterGroupNode>
 }
 
-function resolveType({ node, param, resolver }: { node: OperationNode; param: ParameterNode; resolver: OperationParamsResolver | undefined }): string {
+function resolveType({ node, param, resolver }: { node: OperationNode; param: ParameterNode; resolver: OperationParamsResolver | undefined }): string | TypeNode {
   if (!resolver) {
     return param.schema.primitive ?? 'unknown'
   }
@@ -201,7 +201,7 @@ function resolveType({ node, param, resolver }: { node: OperationNode; param: Pa
   const groupName = groupResolvers[param.in as keyof typeof groupResolvers]?.call(resolver, node, param)
 
   if (groupName && groupName !== individualName) {
-    return `${groupName}['${param.name}']`
+    return createTypeNode({ variant: 'member', base: groupName, key: param.name })
   }
 
   return individualName
@@ -235,7 +235,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   const queryGroupType = resolver ? resolveGroupType({ node, params: queryParams, groupMethod: resolver.resolveQueryParamsName, resolver }) : undefined
   const headerGroupType = resolver ? resolveGroupType({ node, params: headerParams, groupMethod: resolver.resolveHeaderParamsName, resolver }) : undefined
 
-  const params: Array<FunctionParameterNode | ObjectBindingParameterNode> = []
+  const params: Array<FunctionParameterNode | ParameterGroupNode> = []
 
   if (paramsType === 'object') {
     const children: Array<FunctionParameterNode> = [
@@ -249,7 +249,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
       children.push(
         createFunctionParameter({
           name: 'params',
-          type: toInlineObjectType({ node, params: queryParams, resolver }),
+          type: toStructType({ node, params: queryParams, resolver }),
           optional: queryParams.every((p) => !p.required),
         }),
       )
@@ -261,14 +261,14 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
       children.push(
         createFunctionParameter({
           name: 'headers',
-          type: toInlineObjectType({ node, params: headerParams, resolver }),
+          type: toStructType({ node, params: headerParams, resolver }),
           optional: headerParams.every((p) => !p.required),
         }),
       )
     }
 
     if (children.length) {
-      params.push(createObjectBindingParameter({ properties: children, default: children.every((c) => c.optional) ? '{}' : undefined }))
+      params.push(createParameterGroup({ properties: children, default: children.every((c) => c.optional) ? '{}' : undefined }))
     }
   } else {
     if (pathParams.length) {
@@ -276,7 +276,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
         createFunctionParameter({ name: p.name, type: resolveType({ node, param: p, resolver }), optional: !p.required }),
       )
       params.push(
-        createObjectBindingParameter({
+        createParameterGroup({
           properties: pathChildren,
           inline: pathParamsType === 'inline',
           default: pathParamsDefault ?? (pathChildren.every((c) => c.optional) ? '{}' : undefined),
@@ -294,7 +294,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
       params.push(
         createFunctionParameter({
           name: 'params',
-          type: toInlineObjectType({ node, params: queryParams, resolver }),
+          type: toStructType({ node, params: queryParams, resolver }),
           optional: queryParams.every((p) => !p.required),
         }),
       )
@@ -306,7 +306,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
       params.push(
         createFunctionParameter({
           name: 'headers',
-          type: toInlineObjectType({ node, params: headerParams, resolver }),
+          type: toStructType({ node, params: headerParams, resolver }),
           optional: headerParams.every((p) => !p.required),
         }),
       )
@@ -346,10 +346,12 @@ function resolveGroupType({
 }
 
 /**
- * Builds an inline object type string.
- * @example toInlineObjectType(...) // → '{ petId: string; name?: string }'
+ * Builds a {@link TypeNode} with `variant: 'struct'` for an inline anonymous type grouping named fields.
+ *
+ * Used when query or header parameters have no dedicated group type name.
+ * Each language printer renders this appropriately (TypeScript: `{ petId: string; name?: string }`).
  */
-function toInlineObjectType({
+function toStructType({
   node,
   params,
   resolver,
@@ -357,7 +359,24 @@ function toInlineObjectType({
   node: OperationNode
   params: Array<ParameterNode>
   resolver: OperationParamsResolver | undefined
-}): string {
-  const parts = params.map((p) => `${p.name}${!p.required ? '?' : ''}: ${resolveType({ node, param: p, resolver })}`)
+}): TypeNode {
+  return createTypeNode({
+    variant: 'struct',
+    properties: params.map((p) => ({ name: p.name, optional: !p.required, type: typeToString(resolveType({ node, param: p, resolver })) })),
+  })
+}
+
+/**
+ * Serializes a `string | TypeNode` to a plain string for use inside struct type properties.
+ * A member TypeNode becomes `Base['key']`; strings are passed through unchanged.
+ */
+function typeToString(type: string | TypeNode): string {
+  if (typeof type === 'string') {
+    return type
+  }
+  if (type.variant === 'member') {
+    return `${type.base}['${type.key}']`
+  }
+  const parts = type.properties.map((p) => `${p.name}${p.optional ? '?' : ''}: ${p.type}`)
   return `{ ${parts.join('; ')} }`
 }

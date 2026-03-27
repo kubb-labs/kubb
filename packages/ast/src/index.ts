@@ -2,13 +2,14 @@ export { httpMethods, mediaTypes, schemaTypes } from './constants.ts'
 export {
   createFunctionParameter,
   createFunctionParameters,
-  createObjectBindingParameter,
+  createParameterGroup,
   createOperation,
   createParameter,
   createProperty,
   createResponse,
   createRoot,
   createSchema,
+  createTypeNode,
   syncOptionality,
 } from './factory.ts'
 export { isOperationNode, isSchemaNode, narrowSchema } from './guards.ts'

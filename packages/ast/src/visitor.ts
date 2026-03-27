@@ -288,8 +288,9 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
     case 'Response':
       return node.schema ? [node.schema] : []
     case 'FunctionParameter':
-    case 'ObjectBindingParameter':
+    case 'ParameterGroup':
     case 'FunctionParameters':
+    case 'Type':
       return []
   }
 }
@@ -342,7 +343,7 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
       await limit(() => visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> }))
       break
     case 'FunctionParameter':
-    case 'ObjectBindingParameter':
+    case 'ParameterGroup':
     case 'FunctionParameters':
       break
   }
@@ -457,8 +458,9 @@ export function transform(node: Node, options: TransformOptions): Node {
       }
     }
     case 'FunctionParameter':
-    case 'ObjectBindingParameter':
+    case 'ParameterGroup':
     case 'FunctionParameters':
+    case 'Type':
       return node
   }
 }
@@ -546,7 +548,7 @@ export function collect<T>(node: Node, options: CollectOptions<T>): Array<T> {
       v = visitor.response?.(node, { parent: parent as ParentOf<ResponseNode> })
       break
     case 'FunctionParameter':
-    case 'ObjectBindingParameter':
+    case 'ParameterGroup':
     case 'FunctionParameters':
       break
   }

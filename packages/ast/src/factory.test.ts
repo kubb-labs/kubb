@@ -2,7 +2,7 @@ import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   createFunctionParameter,
   createFunctionParameters,
-  createObjectBindingParameter,
+  createParameterGroup,
   createOperation,
   createParameter,
   createProperty,
@@ -201,17 +201,17 @@ describe('createFunctionParameter', () => {
   })
 })
 
-describe('createObjectBindingParameter', () => {
+describe('createParameterGroup', () => {
   it('creates object binding parameter with properties', () => {
     const props = [createFunctionParameter({ name: 'id', type: 'string' })]
-    const node = createObjectBindingParameter({ properties: props })
+    const node = createParameterGroup({ properties: props })
 
-    expect(node.kind).toBe('ObjectBindingParameter')
+    expect(node.kind).toBe('ParameterGroup')
     expect(node.properties).toEqual(props)
   })
 
   it('accepts inline and default options', () => {
-    const node = createObjectBindingParameter({
+    const node = createParameterGroup({
       properties: [createFunctionParameter({ name: 'id', type: 'string' })],
       inline: true,
       default: '{}',

@@ -2,7 +2,7 @@ import type { InferSchemaNode } from './infer.ts'
 import type {
   FunctionParameterNode,
   FunctionParametersNode,
-  ObjectBindingParameterNode,
+  ParameterGroupNode,
   ObjectSchemaNode,
   OperationNode,
   ParameterNode,
@@ -10,6 +10,7 @@ import type {
   ResponseNode,
   RootNode,
   SchemaNode,
+  TypeNode,
 } from './nodes/index.ts'
 
 /**
@@ -258,7 +259,7 @@ export function createResponse(
  * ```
  */
 export function createFunctionParameter(
-  props: { name: string; type?: string; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string }),
+  props: { name: string; type?: string | TypeNode; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string }),
 ): FunctionParameterNode {
   return {
     optional: false,
@@ -268,11 +269,36 @@ export function createFunctionParameter(
 }
 
 /**
- * Creates an `ObjectBindingParameterNode` for object-destructured parameter groups.
+ * Creates a {@link TypeNode} representing a language-agnostic structured type expression.
  *
- * @example Destructured object param
+ * Use `variant: 'struct'` for inline anonymous types and `variant: 'member'` for a single
+ * named field accessed from a group type. Each language's printer renders the variant
+ * into its own syntax (TypeScript, Python, C#, Kotlin, …).
+ *
+ * @example Struct type (TypeScript: `{ petId: string }`)
  * ```ts
- * createObjectBindingParameter({
+ * createTypeNode({ variant: 'struct', properties: [{ name: 'petId', optional: false, type: 'string' }] })
+ * ```
+ *
+ * @example Member type (TypeScript: `DeletePetPathParams['petId']`)
+ * ```ts
+ * createTypeNode({ variant: 'member', base: 'DeletePetPathParams', key: 'petId' })
+ * ```
+ */
+export function createTypeNode(
+  props:
+    | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: string }> }
+    | { variant: 'member'; base: string; key: string },
+): TypeNode {
+  return { ...props, kind: 'Type' } as TypeNode
+}
+
+/**
+ * Creates a `ParameterGroupNode` representing a group of related parameters treated as a unit.
+ *
+ * @example Grouped param (TypeScript declaration)
+ * ```ts
+ * createParameterGroup({
  *   properties: [
  *     createFunctionParameter({ name: 'id', type: 'string', optional: false }),
  *     createFunctionParameter({ name: 'name', type: 'string', optional: true }),
@@ -283,9 +309,9 @@ export function createFunctionParameter(
  * // call        → { id, name }
  * ```
  *
- * @example Inline mode — children emitted as individual top-level parameters
+ * @example Inline (spread) — children emitted as individual top-level parameters
  * ```ts
- * createObjectBindingParameter({
+ * createParameterGroup({
  *   properties: [createFunctionParameter({ name: 'petId', type: 'string', optional: false })],
  *   inline: true,
  * })
@@ -293,12 +319,12 @@ export function createFunctionParameter(
  * // call        → petId
  * ```
  */
-export function createObjectBindingParameter(
-  props: Pick<ObjectBindingParameterNode, 'properties'> & Partial<Omit<ObjectBindingParameterNode, 'kind' | 'properties'>>,
-): ObjectBindingParameterNode {
+export function createParameterGroup(
+  props: Pick<ParameterGroupNode, 'properties'> & Partial<Omit<ParameterGroupNode, 'kind' | 'properties'>>,
+): ParameterGroupNode {
   return {
     ...props,
-    kind: 'ObjectBindingParameter',
+    kind: 'ParameterGroup',
   }
 }
 

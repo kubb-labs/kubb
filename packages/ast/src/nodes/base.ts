@@ -14,8 +14,9 @@ export type NodeKind =
   | 'Parameter'
   | 'Response'
   | 'FunctionParameter'
-  | 'ObjectBindingParameter'
+  | 'ParameterGroup'
   | 'FunctionParameters'
+  | 'Type'
 
 /**
  * Base shape shared by all AST nodes.

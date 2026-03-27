@@ -22,7 +22,7 @@ export const nodeKinds = {
   parameter: 'Parameter',
   response: 'Response',
   functionParameter: 'FunctionParameter',
-  objectBindingParameter: 'ObjectBindingParameter',
+  parameterGroup: 'ParameterGroup',
   functionParameters: 'FunctionParameters',
 } as const satisfies Record<string, NodeKind>
 

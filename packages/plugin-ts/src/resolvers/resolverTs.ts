@@ -55,7 +55,7 @@ export const resolverTs = defineResolver<PluginTs>(() => {
       return this.resolveName(`${node.operationId} Response`)
     },
     resolveEnumKeyName(node, enumTypeSuffix = 'key') {
-      return this.resolveName([node.name, enumTypeSuffix].filter(Boolean).join(' '))
+      return `${this.resolveName(node.name ?? '')}${enumTypeSuffix}`
     },
     resolvePathParamsName(node, param) {
       return this.resolveParamName(node, param)

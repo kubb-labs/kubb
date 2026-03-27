@@ -2,7 +2,7 @@ import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   createFunctionParameter,
   createFunctionParameters,
-  createObjectBindingParameter,
+  createParameterGroup,
   createOperation,
   createParameter,
   createProperty,
@@ -13,7 +13,7 @@ import {
 import {
   isFunctionParameterNode,
   isFunctionParametersNode,
-  isObjectBindingParameterNode,
+  isParameterGroupNode,
   isOperationNode,
   isParameterNode,
   isPropertyNode,
@@ -141,9 +141,9 @@ describe('type guards', () => {
     expect(isFunctionParameterNode(createFunctionParameters())).toBe(false)
   })
 
-  it('isObjectBindingParameterNode', () => {
-    expect(isObjectBindingParameterNode(createObjectBindingParameter({ properties: [] }))).toBe(true)
-    expect(isObjectBindingParameterNode(createFunctionParameter({ name: 'x', optional: false }))).toBe(false)
+  it('isParameterGroupNode', () => {
+    expect(isParameterGroupNode(createParameterGroup({ properties: [] }))).toBe(true)
+    expect(isParameterGroupNode(createFunctionParameter({ name: 'x', optional: false }))).toBe(false)
   })
 
   it('isFunctionParametersNode', () => {
