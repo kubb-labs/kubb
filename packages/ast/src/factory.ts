@@ -286,7 +286,9 @@ export function createFunctionParameter(
  * ```
  */
 export function createTypeNode(
-  props: { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: string | TypeNode }> } | { variant: 'member'; base: string; key: string },
+  props:
+    | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: string | TypeNode }> }
+    | { variant: 'member'; base: string; key: string },
 ): TypeNode {
   return { ...props, kind: 'Type' } as TypeNode
 }
