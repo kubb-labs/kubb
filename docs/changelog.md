@@ -6,6 +6,26 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.23
+
+### ✨ Features
+
+#### [`@kubb/ast`](https://github.com/kubb-labs/kubb/tree/main/packages/ast)
+
+-   [#2931](https://github.com/kubb-labs/kubb/pull/2931) [`8cfa19a`](https://github.com/kubb-labs/kubb/commit/8cfa19adbe681d4466f0ff97a8c14ece8ba1e5d8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)!
+
+    -   Added `createOperationParams(node, options)` utility that converts an `OperationNode` into a `FunctionParametersNode`.
+    -   Added `reference` variant to `TypeNode` for plain type name strings (e.g. `'string'`, `'QueryParams'`), so all type annotations in the AST are always `TypeNode` — never raw strings.
+    -   Changed `FunctionParameterNode.type` from `string | TypeNode` to `TypeNode`.
+    -   Changed `ParameterGroupNode.type` from `string | undefined` to `TypeNode | undefined`.
+    -   Updated `createTypeNode`, `createFunctionParameter`, and `createParameterGroup` factories to accept `TypeNode` only.
+    -   Removed `typeToString` helper from `utils.ts`; `resolveType` now returns `TypeNode` directly.
+
+#### [`@kubb/plugin-ts`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-ts)
+
+-   Updated `functionPrinter` to handle all three `TypeNode` variants (`member`, `struct`, `reference`) explicitly; removed all `typeof … === 'string'` checks.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
