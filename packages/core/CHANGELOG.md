@@ -1,5 +1,12 @@
 # @kubb/core
 
+## 5.0.0-alpha.23
+
+### Patch Changes
+
+- Updated dependencies [[`8cfa19a`](https://github.com/kubb-labs/kubb/commit/8cfa19adbe681d4466f0ff97a8c14ece8ba1e5d8)]:
+  - @kubb/ast@5.0.0-alpha.23
+
 ## 5.0.0-alpha.22
 
 ### Patch Changes
