@@ -192,15 +192,16 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         }
 
         if (generator.type === 'core' && generator.version === '2') {
-          const files = await generator.operations?.({
-            nodes: collectedOperations,
-            options: plugin.options,
-            resolver,
-            adapter,
-            config,
-            plugin,
-            driver,
-          }) ?? []
+          const files =
+            (await generator.operations?.({
+              nodes: collectedOperations,
+              options: plugin.options,
+              resolver,
+              adapter,
+              config,
+              plugin,
+              driver,
+            })) ?? []
           await this.upsertFile(...files)
         }
       })
