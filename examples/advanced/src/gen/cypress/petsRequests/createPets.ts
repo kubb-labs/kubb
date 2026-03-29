@@ -17,8 +17,8 @@ export function createPets(
     .request<CreatePetsMutationResponse>({
       method: 'POST',
       url: `/pets/${uuid}`,
-      qs: params,
-      headers,
+      qs: params ? { bool_param: params.boolParam, offset: params.offset } : undefined,
+      headers: headers ? { 'X-EXAMPLE': headers.xEXAMPLE } : undefined,
       body: data,
       ...options,
     })

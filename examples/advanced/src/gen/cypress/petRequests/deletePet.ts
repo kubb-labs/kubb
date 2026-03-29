@@ -9,7 +9,7 @@ export function deletePet(
     .request<DeletePetMutationResponse>({
       method: 'DELETE',
       url: `/pet/${petId}:search`,
-      headers,
+      headers: headers ? { api_key: headers.apiKey } : undefined,
       ...options,
     })
     .then((res) => res.body)

@@ -92,8 +92,18 @@ export function Request({ baseURL = '', name, dataReturnType, resolver, node, pa
     }
   }
 
-  if (node.parameters.some((p) => p.in === 'header')) {
-    requestOptions.push('headers')
+  const headerParams = node.parameters.filter((p) => p.in === 'header')
+  if (headerParams.length > 0) {
+    const casedHeaderParams = caseParams(headerParams, paramsCasing)
+    // When paramsCasing renames header params (e.g. x-api-key → xApiKey), we must remap
+    // the camelCase keys back to the original API names before passing them to `headers`.
+    const needsHeaderTransform = casedHeaderParams.some((p, i) => p.name !== headerParams[i]!.name)
+    if (needsHeaderTransform) {
+      const pairs = headerParams.map((orig, i) => `'${orig.name}': headers.${casedHeaderParams[i]!.name}`).join(', ')
+      requestOptions.push(`headers: headers ? { ${pairs} } : undefined`)
+    } else {
+      requestOptions.push('headers')
+    }
   }
 
   if (node.requestBody?.schema) {

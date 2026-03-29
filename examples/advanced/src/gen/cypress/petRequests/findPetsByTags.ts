@@ -10,7 +10,7 @@ export function findPetsByTags(
       method: 'GET',
       url: '/pet/findByTags',
       qs: params,
-      headers,
+      headers: headers ? { 'X-EXAMPLE': headers.xEXAMPLE } : undefined,
       ...options,
     })
     .then((res) => res.body)
