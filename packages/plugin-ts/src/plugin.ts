@@ -141,6 +141,17 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
                 driver,
               })
             }
+
+            if (generator.type === 'core' && generator.version === '2') {
+              const options = resolver.resolveOptions(schemaNode, { options: plugin.options, exclude, include, override })
+
+              if (options === null) {
+                return
+              }
+
+              const files = (await generator.schema?.({ node: schemaNode, options, resolver, adapter, config, plugin, driver })) ?? []
+              await fabric.upsertFile(...files)
+            }
           })
 
           await Promise.all(writeTasks)
@@ -170,6 +181,17 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
                 plugin,
                 driver,
               })
+            }
+
+            if (generator.type === 'core' && generator.version === '2') {
+              const options = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
+
+              if (options === null) {
+                return
+              }
+
+              const files = (await generator.operation?.({ node: operationNode, options, resolver, adapter, config, plugin, driver })) ?? []
+              await fabric.upsertFile(...files)
             }
           })
 
