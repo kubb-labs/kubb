@@ -911,4 +911,18 @@ Run `pnpm test -u` in the plugin package directory.
 - Has `parser.ts` for schema-to-code conversion
 - Model utils on `plugin-ts/src/utils.ts`
 - Model printers on `plugin-ts/src/printers/printerTs.ts`
-- Add a `printers` entry to `tsdown.config.ts`, `package.json` exports, and `typesVersions`
+
+#### plugin-zod (completed)
+
+Migrated to v5 architecture:
+- Created `src/types.ts` — `ResolverZod` type extending `Resolver & OperationParamsResolver`, updated `Options` with `compatibilityPreset`, `resolvers: Array<ResolverZod>`, `transformers: Array<Visitor>`, removed `version` (dropped zod v3), removed `contentType` (moved to adapter)
+- Created `src/constants.ts` — `ZOD_NAMESPACE_IMPORTS` Set for zod import path handling
+- Created `src/resolvers/resolverZod.ts` — v5 resolver using `defineResolver` with camelCase+Schema suffix naming
+- Created `src/presets.ts` — Preset registry with `default` and `kubbV4` presets
+- Created `src/printers/printerZod.ts` — v5 printer using `definePrinter` that converts `SchemaNode` to Zod v4 code strings (supports all schema types, mini mode, coercion, mapper, wrapOutput)
+- Rewrote `src/generators/zodGenerator.tsx` — Uses `defineGenerator` with `Schema` and `Operation` handlers
+- Rewrote `src/plugin.ts` — Uses `walk` from `@kubb/ast`, `renderSchema`/`renderOperation` from `@kubb/core`, `getPreset` for preset resolution
+- Updated `package.json` — Replaced `@kubb/plugin-oas`/`@kubb/oas`/`@kubb/plugin-ts` deps with `@kubb/ast`/`@kubb/core`
+- Updated `vitest.config.ts` — Added `tsconfigPaths()` plugin for workspace resolution
+- Updated `tsdown.config.ts` — Simplified to single `index` entry
+- All 193 tests passing (34 printer tests, 26 generator tests, 132 legacy parser tests, 1 operations test)

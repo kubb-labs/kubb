@@ -480,3 +480,69 @@ export type GetPetByIdPathParams = {
 :::
 
 This is a correctness fix. If you were relying on the `any` type for path parameters that reference a `$ref` schema, update your code to use the referenced type.
+
+### `@kubb/plugin-zod` drops Zod v3 support
+
+Kubb v5 only supports **Zod v4** and **Zod v4 Mini**. If you are using Zod v3, upgrade to Zod v4 before migrating to Kubb v5.
+
+::: code-group
+```typescript [Before (v4 — Zod v3)]
+import { pluginZod } from '@kubb/plugin-zod'
+
+pluginZod({
+  version: '3',
+  importPath: 'zod',
+})
+```
+
+```typescript [After (v5 — Zod v4)]
+import { pluginZod } from '@kubb/plugin-zod'
+
+pluginZod({
+  importPath: 'zod',
+})
+```
+:::
+
+Key changes:
+- The `version` option has been removed. Kubb v5 always generates Zod v4 code.
+- The `typed` option no longer generates `ToZod<T>` helper types. For typed schemas, use `z.ZodType<T>` directly (Zod v4's built-in type assertion).
+- The default `importPath` is `'zod'` (for Zod v4) or `'zod/mini'` (when `mini: true`).
+- Generated schemas use Zod v4 APIs: `z.int()`, `z.iso.datetime()`, `z.iso.date()`, `z.iso.time()`, `z.uuid()`, `z.email()`, `z.url()`, `z.strictObject()`.
+
+### `@kubb/plugin-zod` — `transformers` option changed
+
+The `transformers: { name, schema }` callbacks have been replaced with AST `Visitor` array transformers, matching the `@kubb/plugin-ts` pattern.
+
+::: code-group
+```typescript [Before (v4)]
+import { pluginZod } from '@kubb/plugin-zod'
+
+pluginZod({
+  transformers: {
+    name: (name, type) => type === 'function' ? `${name}Validator` : name,
+  },
+})
+```
+
+```typescript [After (v5)]
+import { pluginZod } from '@kubb/plugin-zod'
+
+// Use resolvers for name transformations
+pluginZod({
+  // transformers is now Array<Visitor> for AST transformations
+  transformers: [],
+})
+```
+:::
+
+### `@kubb/plugin-zod` — removed options
+
+The following options have been removed from `@kubb/plugin-zod`:
+
+| Removed option | Replacement |
+|---|---|
+| `version` | Always Zod v4 (removed) |
+| `contentType` | Moved to `adapterOas(...)` |
+| `transformers.name` | Use `resolvers` array for name customization |
+| `transformers.schema` | Use `transformers` array (AST `Visitor` objects) |

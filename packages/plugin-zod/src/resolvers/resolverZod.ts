@@ -1,12 +1,18 @@
-import { camelCase } from '@internals/utils'
+import { camelCase, pascalCase } from '@internals/utils'
 import { defineResolver } from '@kubb/core'
 import type { PluginZod } from '../types.ts'
 
 function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
-  return camelCase(name, {
+  const resolved = camelCase(name, {
     suffix: type ? 'schema' : undefined,
     isFile: type === 'file',
   })
+
+  if (type === 'type') {
+    return pascalCase(resolved)
+  }
+
+  return resolved
 }
 
 /**
