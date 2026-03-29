@@ -78,8 +78,18 @@ export function Request({ baseURL = '', name, dataReturnType, resolver, node, pa
 
   const requestOptions: string[] = [`method: '${node.method}'`, `url: ${urlTemplate}`]
 
-  if (node.parameters.some((p) => p.in === 'query')) {
-    requestOptions.push('qs: params')
+  const queryParams = node.parameters.filter((p) => p.in === 'query')
+  if (queryParams.length > 0) {
+    const casedQueryParams = caseParams(queryParams, paramsCasing)
+    // When paramsCasing renames query params (e.g. page_size → pageSize), we must remap
+    // the camelCase keys back to the original API names before passing them to `qs`.
+    const needsQsTransform = casedQueryParams.some((p, i) => p.name !== queryParams[i]!.name)
+    if (needsQsTransform) {
+      const pairs = queryParams.map((orig, i) => `${orig.name}: params.${casedQueryParams[i]!.name}`).join(', ')
+      requestOptions.push(`qs: params ? { ${pairs} } : undefined`)
+    } else {
+      requestOptions.push('qs: params')
+    }
   }
 
   if (node.parameters.some((p) => p.in === 'header')) {

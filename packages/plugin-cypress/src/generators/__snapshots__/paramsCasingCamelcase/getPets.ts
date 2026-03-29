@@ -10,7 +10,7 @@ export function getPets(params?: { pageSize?: GetPetsQueryPageSize }, options: P
     .request<GetPetsResponse>({
       method: 'GET',
       url: `/pets`,
-      qs: params,
+      qs: params ? { page_size: params.pageSize } : undefined,
       ...options,
     })
     .then((res) => res.body)
