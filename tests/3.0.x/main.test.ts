@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url'
 import { AsyncEventEmitter, getRelativePath } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
 import { type KubbEvents, safeBuild, type UserConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 import { describe, expect, test } from 'vitest'
@@ -29,9 +28,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         barrelType: false,
       },
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -55,9 +51,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false, discriminator: 'inherit' }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -81,9 +74,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -107,12 +97,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         barrelType: false,
       },
       adapter: adapterOas({ validate: false }),
-      plugins: [
-        pluginOas({
-          generators: [],
-        }),
-        pluginTs({ compatibilityPreset: 'kubbV4' }),
-      ],
+      plugins: [pluginTs({ compatibilityPreset: 'kubbV4' })],
     },
   },
   {
@@ -128,9 +113,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -154,9 +136,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -180,9 +159,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -213,9 +189,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginZod({
           output: {
             path: './zod',
@@ -247,9 +220,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -278,9 +248,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -309,9 +276,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
