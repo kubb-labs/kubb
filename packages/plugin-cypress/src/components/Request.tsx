@@ -1,8 +1,9 @@
-import { URLPath } from '@internals/utils'
-import { type HttpMethod, isAllOptional, isOptional } from '@kubb/oas'
-import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getPathParams } from '@kubb/plugin-oas/utils'
-import { File, Function, FunctionParams } from '@kubb/react-fabric'
+import { camelCase, URLPath } from '@internals/utils'
+import { caseParams, createFunctionParameter, createOperationParams, createTypeNode } from '@kubb/ast'
+import type { OperationNode } from '@kubb/ast/types'
+import type { ResolverTs } from '@kubb/plugin-ts'
+import { functionPrinter } from '@kubb/plugin-ts'
+import { File, Function } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginCypress } from '../types.ts'
 
@@ -11,132 +12,114 @@ type Props = {
    * Name of the function
    */
   name: string
-  typeSchemas: OperationSchemas
-  url: string
+  /**
+   * AST operation node
+   */
+  node: OperationNode
+  /**
+   * TypeScript resolver for resolving param/data/response type names
+   */
+  resolver: ResolverTs
   baseURL: string | undefined
   dataReturnType: PluginCypress['resolvedOptions']['dataReturnType']
   paramsCasing: PluginCypress['resolvedOptions']['paramsCasing']
   paramsType: PluginCypress['resolvedOptions']['paramsType']
   pathParamsType: PluginCypress['resolvedOptions']['pathParamsType']
-  method: HttpMethod
 }
 
-type GetParamsProps = {
-  paramsCasing: PluginCypress['resolvedOptions']['paramsCasing']
+const declarationPrinter = functionPrinter({ mode: 'declaration' })
+
+function getParams({
+  paramsType,
+  pathParamsType,
+  paramsCasing,
+  resolver,
+  node,
+}: {
   paramsType: PluginCypress['resolvedOptions']['paramsType']
   pathParamsType: PluginCypress['resolvedOptions']['pathParamsType']
-  typeSchemas: OperationSchemas
-}
-
-function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
-  if (paramsType === 'object') {
-    const pathParams = getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing })
-
-    return FunctionParams.factory({
-      data: {
-        mode: 'object',
-        children: {
-          ...pathParams,
-          data: typeSchemas.request?.name
-            ? {
-                type: typeSchemas.request?.name,
-                optional: isOptional(typeSchemas.request?.schema),
-              }
-            : undefined,
-          params: typeSchemas.queryParams?.name
-            ? {
-                type: typeSchemas.queryParams?.name,
-                optional: isOptional(typeSchemas.queryParams?.schema),
-              }
-            : undefined,
-          headers: typeSchemas.headerParams?.name
-            ? {
-                type: typeSchemas.headerParams?.name,
-                optional: isOptional(typeSchemas.headerParams?.schema),
-              }
-            : undefined,
-        },
-      },
-      options: {
-        type: 'Partial<Cypress.RequestOptions>',
-        default: '{}',
-      },
-    })
-  }
-
-  return FunctionParams.factory({
-    pathParams: typeSchemas.pathParams?.name
-      ? {
-          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, { typed: true, casing: paramsCasing }),
-          default: isAllOptional(typeSchemas.pathParams?.schema) ? '{}' : undefined,
-        }
-      : undefined,
-    data: typeSchemas.request?.name
-      ? {
-          type: typeSchemas.request?.name,
-          optional: isOptional(typeSchemas.request?.schema),
-        }
-      : undefined,
-    params: typeSchemas.queryParams?.name
-      ? {
-          type: typeSchemas.queryParams?.name,
-          optional: isOptional(typeSchemas.queryParams?.schema),
-        }
-      : undefined,
-    headers: typeSchemas.headerParams?.name
-      ? {
-          type: typeSchemas.headerParams?.name,
-          optional: isOptional(typeSchemas.headerParams?.schema),
-        }
-      : undefined,
-    options: {
-      type: 'Partial<Cypress.RequestOptions>',
-      default: '{}',
-    },
+  paramsCasing: PluginCypress['resolvedOptions']['paramsCasing']
+  resolver: ResolverTs
+  node: OperationNode
+}): string {
+  const paramsNode = createOperationParams(node, {
+    paramsType,
+    pathParamsType,
+    paramsCasing,
+    resolver,
+    extraParams: [
+      createFunctionParameter({ name: 'options', type: createTypeNode({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }), default: '{}' }),
+    ],
   })
+
+  return declarationPrinter.print(paramsNode) ?? ''
 }
 
-export function Request({ baseURL = '', name, dataReturnType, typeSchemas, url, method, paramsType, paramsCasing, pathParamsType }: Props): FabricReactNode {
-  const path = new URLPath(url, { casing: paramsCasing })
+export function Request({ baseURL = '', name, dataReturnType, resolver, node, paramsType, pathParamsType, paramsCasing }: Props): FabricReactNode {
+  const paramsSignature = getParams({ paramsType, pathParamsType, paramsCasing, resolver, node })
 
-  const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
+  const responseType = resolver.resolveResponseName(node)
+  const returnType = dataReturnType === 'data' ? `Cypress.Chainable<${responseType}>` : `Cypress.Chainable<Cypress.Response<${responseType}>>`
 
-  const returnType =
-    dataReturnType === 'data' ? `Cypress.Chainable<${typeSchemas.response.name}>` : `Cypress.Chainable<Cypress.Response<${typeSchemas.response.name}>>`
+  const casedPathParams = caseParams(
+    node.parameters.filter((p) => p.in === 'path'),
+    paramsCasing,
+  )
+  // Build a lookup keyed by camelCase-normalized name so that path-template names
+  // (e.g. `{pet_id}`) correctly resolve to the function-parameter name (`petId`)
+  // even when the OpenAPI spec has inconsistent casing between the two.
+  const pathParamNameMap = new Map(casedPathParams.map((p) => [camelCase(p.name), p.name]))
 
-  // Build the URL template string - this will convert /pets/:petId to /pets/${petId}
-  const urlTemplate = path.toTemplateString({ prefix: baseURL })
+  const urlPath = new URLPath(node.path, { casing: paramsCasing })
+  const urlTemplate = urlPath.toTemplateString({
+    prefix: baseURL,
+    replacer: (param) => pathParamNameMap.get(camelCase(param)) ?? param,
+  })
 
-  // Build request options object
-  const requestOptions: string[] = [`method: '${method}'`, `url: ${urlTemplate}`]
+  const requestOptions: string[] = [`method: '${node.method}'`, `url: ${urlTemplate}`]
 
-  // Add query params if they exist
-  if (typeSchemas.queryParams?.name) {
-    requestOptions.push('qs: params')
+  const queryParams = node.parameters.filter((p) => p.in === 'query')
+  if (queryParams.length > 0) {
+    const casedQueryParams = caseParams(queryParams, paramsCasing)
+    // When paramsCasing renames query params (e.g. page_size → pageSize), we must remap
+    // the camelCase keys back to the original API names before passing them to `qs`.
+    const needsQsTransform = casedQueryParams.some((p, i) => p.name !== queryParams[i]!.name)
+    if (needsQsTransform) {
+      const pairs = queryParams.map((orig, i) => `${orig.name}: params.${casedQueryParams[i]!.name}`).join(', ')
+      requestOptions.push(`qs: params ? { ${pairs} } : undefined`)
+    } else {
+      requestOptions.push('qs: params')
+    }
   }
 
-  // Add headers if they exist
-  if (typeSchemas.headerParams?.name) {
-    requestOptions.push('headers')
+  const headerParams = node.parameters.filter((p) => p.in === 'header')
+  if (headerParams.length > 0) {
+    const casedHeaderParams = caseParams(headerParams, paramsCasing)
+    // When paramsCasing renames header params (e.g. x-api-key → xApiKey), we must remap
+    // the camelCase keys back to the original API names before passing them to `headers`.
+    const needsHeaderTransform = casedHeaderParams.some((p, i) => p.name !== headerParams[i]!.name)
+    if (needsHeaderTransform) {
+      const pairs = headerParams.map((orig, i) => `'${orig.name}': headers.${casedHeaderParams[i]!.name}`).join(', ')
+      requestOptions.push(`headers: headers ? { ${pairs} } : undefined`)
+    } else {
+      requestOptions.push('headers')
+    }
   }
 
-  // Add body if request schema exists
-  if (typeSchemas.request?.name) {
+  if (node.requestBody?.schema) {
     requestOptions.push('body: data')
   }
 
-  // Spread additional Cypress options
   requestOptions.push('...options')
 
   return (
     <File.Source name={name} isIndexable isExportable>
-      <Function name={name} export params={params.toConstructor()} returnType={returnType}>
+      <Function name={name} export params={paramsSignature} returnType={returnType}>
         {dataReturnType === 'data'
-          ? `return cy.request<${typeSchemas.response.name}>({
+          ? `return cy.request<${responseType}>({
   ${requestOptions.join(',\n  ')}
 }).then((res) => res.body)`
-          : `return cy.request<${typeSchemas.response.name}>({
+          : `return cy.request<${responseType}>({
   ${requestOptions.join(',\n  ')}
 })`}
       </Function>

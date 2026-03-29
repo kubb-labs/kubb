@@ -3,15 +3,12 @@
  * Do not edit manually.
  */
 
-import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../../models.ts'
+import type { PlaceOrderPatchData, PlaceOrderPatchResponse } from '../../models.ts'
 
-export function placeOrderPatch(
-  data?: PlaceOrderPatchMutationRequest,
-  options: Partial<Cypress.RequestOptions> = {},
-): Cypress.Chainable<PlaceOrderPatchMutationResponse> {
+export function placeOrderPatch(data?: PlaceOrderPatchData, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<PlaceOrderPatchResponse> {
   return cy
-    .request<PlaceOrderPatchMutationResponse>({
-      method: 'patch',
+    .request<PlaceOrderPatchResponse>({
+      method: 'PATCH',
       url: 'http://localhost:3000/store/order',
       body: data,
       ...options,

@@ -15,10 +15,10 @@ export function createPets(
 ): Cypress.Chainable<CreatePetsMutationResponse> {
   return cy
     .request<CreatePetsMutationResponse>({
-      method: 'post',
+      method: 'POST',
       url: `/pets/${uuid}`,
-      qs: params,
-      headers,
+      qs: params ? { bool_param: params.boolParam, offset: params.offset } : undefined,
+      headers: headers ? { 'X-EXAMPLE': headers.xEXAMPLE } : undefined,
       body: data,
       ...options,
     })

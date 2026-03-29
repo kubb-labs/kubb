@@ -3,15 +3,15 @@
  * Do not edit manually.
  */
 
-import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../../models.ts'
+import type { CreateUsersWithListInputData, CreateUsersWithListInputResponse } from '../../models.ts'
 
 export function createUsersWithListInput(
-  data?: CreateUsersWithListInputMutationRequest,
+  data?: CreateUsersWithListInputData,
   options: Partial<Cypress.RequestOptions> = {},
-): Cypress.Chainable<CreateUsersWithListInputMutationResponse> {
+): Cypress.Chainable<CreateUsersWithListInputResponse> {
   return cy
-    .request<CreateUsersWithListInputMutationResponse>({
-      method: 'post',
+    .request<CreateUsersWithListInputResponse>({
+      method: 'POST',
       url: 'http://localhost:3000/user/createWithList',
       body: data,
       ...options,

@@ -3,16 +3,16 @@
  * Do not edit manually.
  */
 
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../models.ts'
+import type { UpdateUserData, UpdateUserPathUsername, UpdateUserResponse } from '../../models.ts'
 
 export function updateUser(
-  username: UpdateUserPathParams['username'],
-  data?: UpdateUserMutationRequest,
+  username: UpdateUserPathUsername,
+  data?: UpdateUserData,
   options: Partial<Cypress.RequestOptions> = {},
-): Cypress.Chainable<UpdateUserMutationResponse> {
+): Cypress.Chainable<UpdateUserResponse> {
   return cy
-    .request<UpdateUserMutationResponse>({
-      method: 'put',
+    .request<UpdateUserResponse>({
+      method: 'PUT',
       url: `http://localhost:3000/user/${username}`,
       body: data,
       ...options,

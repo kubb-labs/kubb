@@ -3,15 +3,15 @@
  * Do not edit manually.
  */
 
-import type { FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../models.ts'
+import type { FindPetsByStatusQueryStatus, FindPetsByStatusResponse } from '../../models.ts'
 
 export function findPetsByStatus(
-  params?: FindPetsByStatusQueryParams,
+  params?: { status?: FindPetsByStatusQueryStatus },
   options: Partial<Cypress.RequestOptions> = {},
-): Cypress.Chainable<FindPetsByStatusQueryResponse> {
+): Cypress.Chainable<FindPetsByStatusResponse> {
   return cy
-    .request<FindPetsByStatusQueryResponse>({
-      method: 'get',
+    .request<FindPetsByStatusResponse>({
+      method: 'GET',
       url: 'http://localhost:3000/pet/findByStatus',
       qs: params,
       ...options,

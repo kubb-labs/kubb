@@ -26,7 +26,6 @@
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/plugin-cypress": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "react": "^18.3.1"
   },

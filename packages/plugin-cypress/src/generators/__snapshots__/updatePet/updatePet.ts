@@ -3,14 +3,16 @@
  * Do not edit manually.
  */
 
+import type { UpdatePetPathPetId, UpdatePetData, UpdatePetResponse } from './UpdatePet'
+
 export function updatePet(
-  petId: UpdatePetPathParams['petId'],
-  data: UpdatePetMutationRequest,
+  petId: UpdatePetPathPetId,
+  data?: UpdatePetData,
   options: Partial<Cypress.RequestOptions> = {},
-): Cypress.Chainable<UpdatePetMutationResponse> {
+): Cypress.Chainable<UpdatePetResponse> {
   return cy
-    .request<UpdatePetMutationResponse>({
-      method: 'put',
+    .request<UpdatePetResponse>({
+      method: 'PUT',
       url: `/pets/${petId}`,
       body: data,
       ...options,

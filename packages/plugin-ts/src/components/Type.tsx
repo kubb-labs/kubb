@@ -18,6 +18,12 @@ type Props = {
   resolver: PluginTs['resolver']
   description?: string
   keysToOmit?: string[]
+  /**
+   * Names of top-level schemas that are enums.
+   * Used so the printer's `ref` handler can use the suffixed type name (e.g. `StatusKey`)
+   * instead of the plain PascalCase name (e.g. `Status`) when resolving `$ref` enum targets.
+   */
+  enumSchemaNames?: Set<string>
 }
 
 export function Type({
@@ -32,6 +38,7 @@ export function Type({
   enumKeyCasing,
   description,
   resolver,
+  enumSchemaNames,
 }: Props): FabricReactNode {
   const resolvedDescription = description || node?.description
   const enumSchemaNodes = collect<EnumSchemaNode>(node, {
@@ -51,6 +58,7 @@ export function Type({
     description: resolvedDescription,
     keysToOmit,
     resolver,
+    enumSchemaNames,
   })
   const output = printer.print(node)
 

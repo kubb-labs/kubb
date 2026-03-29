@@ -29,9 +29,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         barrelType: false,
       },
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -55,9 +52,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false, discriminator: 'inherit' }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -81,9 +75,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -107,12 +98,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         barrelType: false,
       },
       adapter: adapterOas({ validate: false }),
-      plugins: [
-        pluginOas({
-          generators: [],
-        }),
-        pluginTs({ compatibilityPreset: 'kubbV4' }),
-      ],
+      plugins: [pluginTs({ compatibilityPreset: 'kubbV4' })],
     },
   },
   {
@@ -128,9 +114,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -154,9 +137,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -180,9 +160,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -247,9 +224,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -278,9 +252,6 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
-        pluginOas({
-          generators: [],
-        }),
         pluginTs({
           output: {
             path: './types',
@@ -347,7 +318,7 @@ describe(`Main OpenAPI ${version}`, () => {
     await Promise.all(
       files.map(async (file) => {
         const fileContent = await fs.readFile(file.path, 'utf-8')
-        await expect(fileContent).toMatchFileSnapshot(path.join(__dirname, '__snapshots__', name, getRelativePath(output, file.path)))
+        await expect(fileContent).toMatchFileSnapshot(path.join(__dirname, '__snapshots__', 'main', name, getRelativePath(output, file.path)))
       }),
     )
 

@@ -21,6 +21,17 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
     const params = caseParams(node.parameters, paramsCasing)
 
+    // Build a set of schema names that are enums so the ref handler and getImports
+    // callback can use the suffixed type name (e.g. `StatusKey`) for those refs.
+    const enumSchemaNames = new Set((adapter.rootNode?.schemas ?? []).filter((s) => narrowSchema(s, schemaTypes.enum) && s.name).map((s) => s.name!))
+
+    function resolveImportName(schemaName: string): string {
+      if (ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && enumTypeSuffix && enumSchemaNames.has(schemaName)) {
+        return resolver.resolveEnumKeyName({ name: schemaName } as SchemaNode, enumTypeSuffix)
+      }
+      return resolver.default(schemaName, 'type')
+    }
+
     function renderSchemaType({
       node: schemaNode,
       name,
@@ -39,7 +50,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
       const transformedNode = transform(schemaNode, composeTransformers(...transformers))
 
       const imports = adapter.getImports(transformedNode, (schemaName) => ({
-        name: resolver.default(schemaName, 'type'),
+        name: resolveImportName(schemaName),
         path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
       }))
 
@@ -59,6 +70,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
             syntaxType={syntaxType}
             resolver={resolver}
             keysToOmit={keysToOmit}
+            enumSchemaNames={enumSchemaNames}
           />
         </>
       )
@@ -134,8 +146,19 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
     const transformedNode = transform(node, composeTransformers(...transformers))
 
+    // Build a set of schema names that are enums so the ref handler and getImports
+    // callback can use the suffixed type name (e.g. `StatusKey`) for those refs.
+    const enumSchemaNames = new Set((adapter.rootNode?.schemas ?? []).filter((s) => narrowSchema(s, schemaTypes.enum) && s.name).map((s) => s.name!))
+
+    function resolveImportName(schemaName: string): string {
+      if (ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && enumTypeSuffix && enumSchemaNames.has(schemaName)) {
+        return resolver.resolveEnumKeyName({ name: schemaName } as SchemaNode, enumTypeSuffix)
+      }
+      return resolver.default(schemaName, 'type')
+    }
+
     const imports = adapter.getImports(transformedNode, (schemaName) => ({
-      name: resolver.default(schemaName, 'type'),
+      name: resolveImportName(schemaName),
       path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
     }))
 
@@ -170,6 +193,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
           arrayType={arrayType}
           syntaxType={syntaxType}
           resolver={resolver}
+          enumSchemaNames={enumSchemaNames}
         />
       </File>
     )
