@@ -39,7 +39,7 @@
     "@tanstack/solid-query": "^5.95.2",
     "@tanstack/svelte-query": "^5.90.2",
     "@tanstack/vue-query": "^5.95.2",
-    "axios": "^1.13.6",
+    "axios": "^1.14.0",
     "cypress": "~14.2.1",
     "msw": "^2.12.14",
     "react": "^18.3.1",
