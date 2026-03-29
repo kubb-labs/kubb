@@ -43,8 +43,26 @@ export const resolverZod = defineResolver<PluginZod>(() => {
     resolveParamName(node, param) {
       return this.resolveName(`${node.operationId} ${param.in} ${param.name}`)
     },
+    resolveResponseStatusName(node, statusCode) {
+      return this.resolveName(`${node.operationId} Status ${statusCode}`)
+    },
+    resolveDataName(node) {
+      return this.resolveName(`${node.operationId} Data`)
+    },
+    resolveResponsesName(node) {
+      return this.resolveName(`${node.operationId} Responses`)
+    },
     resolveResponseName(node) {
       return this.resolveName(`${node.operationId} Response`)
+    },
+    resolvePathParamsName(node, param) {
+      return this.resolveParamName(node, param)
+    },
+    resolveQueryParamsName(node, param) {
+      return this.resolveParamName(node, param)
+    },
+    resolveHeaderParamsName(node, param) {
+      return this.resolveParamName(node, param)
     },
   }
 })

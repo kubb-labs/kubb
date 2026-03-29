@@ -25,6 +25,7 @@ const defaultOptions: PluginZod['resolvedOptions'] = {
   guidType: 'uuid',
   mini: false,
   wrapOutput: undefined,
+  paramsCasing: undefined,
   output: { path: '.' },
   group: undefined,
   transformers: [],

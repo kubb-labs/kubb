@@ -1,13 +1,15 @@
 import { definePresets } from '@kubb/core'
 import { zodGenerator } from './generators/zodGenerator.tsx'
+import { zodGeneratorLegacy } from './generators/zodGeneratorLegacy.tsx'
 import { resolverZod } from './resolvers/resolverZod.ts'
+import { resolverZodLegacy } from './resolvers/resolverZodLegacy.ts'
 import type { ResolverZod } from './types.ts'
 
 /**
  * Built-in preset registry for `@kubb/plugin-zod`.
  *
  * - `default` — uses `resolverZod` and `zodGenerator` (current naming conventions).
- * - `kubbV4` — uses `resolverZod` and `zodGenerator` (same defaults; no legacy naming needed for zod).
+ * - `kubbV4` — uses `resolverZodLegacy` and `zodGeneratorLegacy` (Kubb v4 naming conventions).
  */
 export const presets = definePresets<ResolverZod>({
   default: {
@@ -17,7 +19,7 @@ export const presets = definePresets<ResolverZod>({
   },
   kubbV4: {
     name: 'kubbV4',
-    resolvers: [resolverZod],
-    generators: [zodGenerator],
+    resolvers: [resolverZodLegacy],
+    generators: [zodGeneratorLegacy],
   },
 })

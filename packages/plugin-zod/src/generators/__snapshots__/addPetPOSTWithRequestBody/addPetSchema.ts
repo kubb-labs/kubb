@@ -8,11 +8,11 @@ import * as z from 'zod'
 /**
  * @description Successful operation
  */
-export const addPetStatus200Schema = z.object({})
+export const addPetStatus200SchemaSchema = z.object({})
 
 /**
  * @description Invalid input
  */
-export const addPetStatus405Schema = z.object({})
+export const addPetStatus405SchemaSchema = z.object({})
 
-export const addPetDataSchema = z.object({})
+export const addPetDataSchemaSchema = z.object({})

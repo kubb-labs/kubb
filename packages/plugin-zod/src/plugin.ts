@@ -45,6 +45,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     coercion = false,
     inferred = false,
     wrapOutput = undefined,
+    paramsCasing,
     compatibilityPreset = 'default',
     resolvers: userResolvers = [],
     transformers: userTransformers = [],
@@ -93,6 +94,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         guidType,
         mini,
         wrapOutput,
+        paramsCasing,
         transformers: preset.transformers,
       }
     },

@@ -1,5 +1,5 @@
 import type { OperationParamsResolver } from '@kubb/ast'
-import type { OperationNode, SchemaNode, Visitor } from '@kubb/ast/types'
+import type { OperationNode, ParameterNode, SchemaNode, StatusCode, Visitor } from '@kubb/ast/types'
 import type {
   CompatibilityPreset,
   Exclude,
@@ -24,8 +24,48 @@ export type ResolverZod = Resolver &
     resolveName(name: string): string
     /** Resolve a path/file name for the generated output. */
     resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
-    /** Resolve the response schema name for an operation. */
+    /**
+     * Resolves the name for an operation response by status code.
+     *
+     * @example
+     * resolver.resolveResponseStatusName(node, 200) // → 'listPetsStatus200Schema'
+     */
+    resolveResponseStatusName(node: OperationNode, statusCode: StatusCode): string
+    /**
+     * Resolves the name for the collection of all operation responses.
+     *
+     * @example
+     * resolver.resolveResponsesName(node) // → 'listPetsResponsesSchema'
+     */
+    resolveResponsesName(node: OperationNode): string
+    /**
+     * Resolves the name for the union of all operation responses.
+     *
+     * @example
+     * resolver.resolveResponseName(node) // → 'listPetsResponseSchema'
+     */
     resolveResponseName(node: OperationNode): string
+    /**
+     * Resolves the name for an operation's grouped path parameters type.
+     *
+     * @example
+     * resolver.resolvePathParamsName(node, param) // → 'deletePetPathPetIdSchema'
+     */
+    resolvePathParamsName(node: OperationNode, param: ParameterNode): string
+    /**
+     * Resolves the name for an operation's grouped query parameters type.
+     *
+     * @example
+     * resolver.resolveQueryParamsName(node, param) // → 'findPetsByStatusQueryStatusSchema'
+     */
+    resolveQueryParamsName(node: OperationNode, param: ParameterNode): string
+    /**
+     * Resolves the name for an operation's grouped header parameters type.
+     *
+     * @example
+     * resolver.resolveHeaderParamsName(node, param) // → 'deletePetHeaderApiKeySchema'
+     */
+    resolveHeaderParamsName(node: OperationNode, param: ParameterNode): string
   }
 
 export type Options = {
@@ -130,6 +170,12 @@ export type Options = {
    */
   wrapOutput?: (arg: { output: string; schema: SchemaNode }) => string | undefined
   /**
+   * How to style your params, by default no casing is applied
+   * - 'camelcase' uses camelCase for pathParams, queryParams and headerParams property names
+   * @default undefined
+   */
+  paramsCasing?: 'camelcase'
+  /**
    * Define additional generators next to the zod generators.
    */
   generators?: Array<Generator<PluginZod>>
@@ -162,6 +208,7 @@ type ResolvedOptions = {
   guidType: NonNullable<Options['guidType']>
   mini: NonNullable<Options['mini']>
   wrapOutput: Options['wrapOutput']
+  paramsCasing: Options['paramsCasing']
   transformers: Array<Visitor>
 }
 

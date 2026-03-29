@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { caseParams } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
@@ -68,13 +69,15 @@ export const zodGenerator = defineGenerator<PluginZod>({
     )
   },
   Operation({ node, adapter, options, config, resolver }) {
-    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group } = options
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing } = options
 
     const root = path.resolve(config.root, config.output.path)
 
     const file = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
 
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
+
+    const params = caseParams(node.parameters, paramsCasing)
 
     function renderSchemaEntry({
       schema,
@@ -125,10 +128,10 @@ export const zodGenerator = defineGenerator<PluginZod>({
     }
 
     // Render parameter schemas
-    const paramSchemas = node.parameters.map((param) =>
+    const paramSchemas = params.map((param) =>
       renderSchemaEntry({
         schema: param.schema,
-        name: `${node.operationId} ${param.in} ${param.name}`,
+        name: resolver.resolveParamName(node, param),
       }),
     )
 
@@ -136,7 +139,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
     const responseSchemas = node.responses.map((res) =>
       renderSchemaEntry({
         schema: res.schema,
-        name: `${node.operationId} Status ${res.statusCode}`,
+        name: resolver.resolveResponseStatusName(node, res.statusCode),
         description: res.description,
       }),
     )
@@ -145,7 +148,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
     const requestSchema = node.requestBody?.schema
       ? renderSchemaEntry({
           schema: node.requestBody.schema,
-          name: `${node.operationId} Data`,
+          name: resolver.resolveDataName(node),
           description: node.requestBody.description,
         })
       : null
