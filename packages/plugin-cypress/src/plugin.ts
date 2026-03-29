@@ -122,6 +122,23 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
                 resolver,
               })
             }
+
+            if (generator.type === 'core' && generator.version === '2') {
+              const resolvedOptions = resolver.resolveOptions(operationNode, {
+                options: plugin.options,
+                exclude,
+                include,
+                override,
+              })
+
+              if (resolvedOptions === null) {
+                return
+              }
+
+              const files =
+                (await generator.operation?.({ node: operationNode, options: resolvedOptions, resolver, adapter, config, plugin, driver })) ?? []
+              await fabric.upsertFile(...files)
+            }
           })
 
           await Promise.all(writeTasks)
