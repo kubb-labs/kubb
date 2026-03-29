@@ -27,7 +27,7 @@ v4 (remove):
 - `@kubb/core/hooks` -- `useDriver` (removed; no longer needed for cross-plugin resolution)
 
 v5 (add):
-- `@kubb/core` -- `defineGenerator`, `defineResolver`, `definePresets`, `getPreset`, `renderOperation`, `renderSchema`, `getMode`
+- `@kubb/core` -- `defineGenerator`, `defineResolver`, `definePresets`, `getPreset`, `renderOperation`, `renderSchema`, `renderOperations`, `runGeneratorSchema`, `runGeneratorOperation`, `runGeneratorOperations`, `getMode`
 - `@kubb/ast` -- `walk`, `transform`, `createOperation`, `createParameter`, `createResponse`, `createSchema`, `caseParams`
 - `@kubb/ast/types` -- `OperationNode`, `SchemaNode`, `ParameterNode`, `Visitor`
 
@@ -602,7 +602,7 @@ Remove these imports:
 
 Add these imports:
 - `walk` from `@kubb/ast`
-- `renderOperation`, `getPreset` from `@kubb/core` (and `renderSchema` for schema plugins)
+- `runGeneratorSchema`, `runGeneratorOperation`, `runGeneratorOperations`, `getPreset` from `@kubb/core`
 - `presets` from `./presets.ts`
 - the plugin's default resolver (e.g. `resolverCypress`) from `./resolvers/resolverPLUGIN_PASCAL.ts`
 
@@ -694,50 +694,39 @@ resolvePath(baseName, pathMode, options) {
 
 `resolveName`: Same pattern with deprecation warning, delegating to `resolver.default(name, type)`.
 
-`install()`: Replace `OperationGenerator` with `walk` + `renderOperation`:
+`install()`: Replace `OperationGenerator` with `walk` + the `runGenerator*` helpers:
 
 ```typescript
 async install() {
   const { config, fabric, plugin, adapter, rootNode, driver } = this
   const root = path.resolve(config.root, config.output.path)
+  const resolver = preset.resolver
 
   if (!adapter) {
     throw new Error('Plugin cannot work without adapter being set')
   }
 
+  const collectedOperations: Array<OperationNode> = []
+  const generatorContext = { generators: preset.generators, plugin, resolver, exclude, include, override, fabric, adapter, config, driver }
+
   await walk(rootNode, {
     depth: 'shallow',
-    async operation(operationNode) {
-      const writeTasks = generators.map(async (generator) => {
-        if (generator.type === 'react' && generator.version === '2') {
-          const resolvedOptions = resolver.resolveOptions(operationNode, {
-            options: plugin.options,
-            exclude,
-            include,
-            override,
-          })
-
-          if (resolvedOptions === null) {
-            return
-          }
-
-          await renderOperation(operationNode, {
-            options: resolvedOptions,
-            adapter,
-            config,
-            fabric,
-            Component: generator.Operation,
-            plugin,
-            driver,
-          })
-        }
-      })
-
-      await Promise.all(writeTasks)
+    async schema(schemaNode) {
+      // Schema plugins only — operation-only plugins can omit this callback.
+      await runGeneratorSchema(schemaNode, generatorContext)
     },
-    // Schema plugins also add:
-    // async schema(schemaNode) { ... renderSchema(schemaNode, { ... }) }
+    async operation(operationNode) {
+      const baseOptions = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
+
+      if (baseOptions !== null) {
+        collectedOperations.push(operationNode)
+      }
+
+      await runGeneratorOperation(operationNode, generatorContext)
+    },
   })
+
+  await runGeneratorOperations(collectedOperations, generatorContext)
 
   const barrelFiles = await getBarrelFiles(this.fabric.files, {
     type: output.barrelType ?? 'named',
@@ -749,6 +738,8 @@ async install() {
   await this.upsertFile(...barrelFiles)
 },
 ```
+
+The three helpers from `@kubb/core` handle option resolution, null-filtering, and react/core generator dispatch internally — no manual `if (generator.type === 'react')` / `if (generator.type === 'core')` blocks are needed. Operation-only plugins (e.g. `plugin-cypress`) can omit the `schema` callback entirely.
 
 Add JSDoc to exports:
 
