@@ -1,0 +1,62 @@
+openapi: 3.0.3
+info:
+  title: Params Casing Test
+  description: |
+    Minimal spec to test the paramsCasing option.
+    The POST endpoint has snake_case path and query params
+    so that 'camelcase' conversion can be verified.
+  version: 1.0.0
+paths:
+  /pets/{pet_id}:
+    post:
+      operationId: updatePet
+      parameters:
+        - name: pet_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: include_deleted
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: request_source
+          in: query
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetUpdate'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    PetUpdate:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        description:
+          type: string

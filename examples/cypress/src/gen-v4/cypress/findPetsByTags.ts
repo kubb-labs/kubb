@@ -3,10 +3,7 @@
  * Do not edit manually.
  */
 
-import type {
-  FindPetsByTagsQueryParams,
-  FindPetsByTagsQueryResponse,
-} from "../models.ts";
+import type { FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models.ts'
 
 export function findPetsByTags(
   params?: FindPetsByTagsQueryParams,
@@ -14,10 +11,10 @@ export function findPetsByTags(
 ): Cypress.Chainable<FindPetsByTagsQueryResponse> {
   return cy
     .request<FindPetsByTagsQueryResponse>({
-      method: "GET",
-      url: `http://localhost:3000/pet/findByTags`,
+      method: 'GET',
+      url: 'http://localhost:3000/pet/findByTags',
       qs: params,
       ...options,
     })
-    .then((res) => res.body);
+    .then((res) => res.body)
 }

@@ -3,12 +3,7 @@
  * Do not edit manually.
  */
 
-import type {
-  UploadFilePathPetId,
-  UploadFileQueryAdditionalMetadata,
-  UploadFileData,
-  UploadFileResponse,
-} from "../../models.ts";
+import type { UploadFileData, UploadFilePathPetId, UploadFileQueryAdditionalMetadata, UploadFileResponse } from '../../models.ts'
 
 export function uploadFile(
   petId: UploadFilePathPetId,
@@ -18,11 +13,11 @@ export function uploadFile(
 ): Cypress.Chainable<UploadFileResponse> {
   return cy
     .request<UploadFileResponse>({
-      method: "POST",
-      url: `http://localhost:3000/pet/${pet_id}/uploadImage`,
+      method: 'POST',
+      url: `http://localhost:3000/pet/${petId}/uploadImage`,
       qs: params,
       body: data,
       ...options,
     })
-    .then((res) => res.body);
+    .then((res) => res.body)
 }

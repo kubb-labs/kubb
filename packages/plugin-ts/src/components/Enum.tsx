@@ -35,17 +35,12 @@ export function getEnumNames({
 }): {
   enumName: string
   typeName: string
-  /**
-   * The PascalCase name that `$ref` importers will use to reference this enum type.
-   * For `asConst`/`asPascalConst` this differs from `typeName` (which has a `Key` suffix).
-   */
-  refName: string
 } {
   const resolved = resolver.default(node.name!, 'type')
   const enumName = enumType === 'asPascalConst' ? resolved : camelCase(node.name!)
   const typeName = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) ? resolver.resolveEnumKeyName(node, enumTypeSuffix) : resolved
 
-  return { enumName, typeName, refName: resolved }
+  return { enumName, typeName }
 }
 
 /**

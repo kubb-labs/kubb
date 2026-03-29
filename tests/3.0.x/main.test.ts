@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { AsyncEventEmitter, getRelativePath } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
 import { type KubbEvents, safeBuild, type UserConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 import { describe, expect, test } from 'vitest'
@@ -189,6 +190,9 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
+        pluginOas({
+          generators: [],
+        }),
         pluginZod({
           output: {
             path: './zod',
@@ -276,6 +280,9 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       },
       adapter: adapterOas({ validate: false }),
       plugins: [
+        pluginOas({
+          generators: [],
+        }),
         pluginTs({
           output: {
             path: './types',
@@ -311,7 +318,7 @@ describe(`Main OpenAPI ${version}`, () => {
     await Promise.all(
       files.map(async (file) => {
         const fileContent = await fs.readFile(file.path, 'utf-8')
-        await expect(fileContent).toMatchFileSnapshot(path.join(__dirname, '__snapshots__', name, getRelativePath(output, file.path)))
+        await expect(fileContent).toMatchFileSnapshot(path.join(__dirname, '__snapshots__', 'main', name, getRelativePath(output, file.path)))
       }),
     )
 

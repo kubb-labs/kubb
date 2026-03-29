@@ -1,5 +1,5 @@
-import { URLPath } from '@internals/utils'
-import { createFunctionParameter, createOperationParams, createTypeNode } from '@kubb/ast'
+import { camelCase, URLPath } from '@internals/utils'
+import { caseParams, createFunctionParameter, createOperationParams, createTypeNode } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { ResolverTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
@@ -61,8 +61,20 @@ export function Request({ baseURL = '', name, dataReturnType, resolver, node, pa
   const responseType = resolver.resolveResponseName(node)
   const returnType = dataReturnType === 'data' ? `Cypress.Chainable<${responseType}>` : `Cypress.Chainable<Cypress.Response<${responseType}>>`
 
+  const casedPathParams = caseParams(
+    node.parameters.filter((p) => p.in === 'path'),
+    paramsCasing,
+  )
+  // Build a lookup keyed by camelCase-normalized name so that path-template names
+  // (e.g. `{pet_id}`) correctly resolve to the function-parameter name (`petId`)
+  // even when the OpenAPI spec has inconsistent casing between the two.
+  const pathParamNameMap = new Map(casedPathParams.map((p) => [camelCase(p.name), p.name]))
+
   const urlPath = new URLPath(node.path, { casing: paramsCasing })
-  const urlTemplate = urlPath.toTemplateString({ prefix: baseURL })
+  const urlTemplate = urlPath.toTemplateString({
+    prefix: baseURL,
+    replacer: (param) => pathParamNameMap.get(camelCase(param)) ?? param,
+  })
 
   const requestOptions: string[] = [`method: '${node.method}'`, `url: ${urlTemplate}`]
 

@@ -52,6 +52,12 @@ type TsOptions = {
    * Resolver used to transform raw schema names into valid TypeScript identifiers.
    */
   resolver: ResolverTs
+  /**
+   * Names of top-level schemas that are enums.
+   * When set, the `ref` handler uses the suffixed type name (e.g. `StatusKey`) for enum refs
+   * instead of the plain PascalCase name, so imports align with what the enum file actually exports.
+   */
+  enumSchemaNames?: Set<string>
 }
 
 /**
@@ -254,7 +260,17 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         // (e.g. by single-member allOf flatten using the property-derived child name).
         // Inline refs (without $ref) from utils already carry resolved type names.
         const refName = node.ref ? (node.ref.split('/').at(-1) ?? node.name) : node.name
-        const name = node.ref ? this.options.resolver.default(refName, 'type') : refName
+
+        // When a Key suffix is configured, enum refs must use the suffixed name (e.g. `StatusKey`)
+        // so the reference matches what the enum file actually exports.
+        const isEnumRef =
+          node.ref && ENUM_TYPES_WITH_KEY_SUFFIX.has(this.options.enumType) && this.options.enumTypeSuffix && this.options.enumSchemaNames?.has(refName)
+
+        const name = isEnumRef
+          ? this.options.resolver.resolveEnumKeyName({ name: refName } as SchemaNode, this.options.enumTypeSuffix!)
+          : node.ref
+            ? this.options.resolver.default(refName, 'type')
+            : refName
 
         return factory.createTypeReferenceNode(name, undefined)
       },

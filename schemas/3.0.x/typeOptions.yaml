@@ -1,0 +1,69 @@
+openapi: 3.0.3
+info:
+  title: Type Options Test
+  description: |
+    Minimal spec to test syntaxType, optionalType, and arrayType options.
+    Has objects with required/optional fields and array properties.
+  version: 1.0.0
+paths:
+  /items:
+    get:
+      operationId: listItems
+      responses:
+        '200':
+          description: List of items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+  /items/{itemId}:
+    get:
+      operationId: getItem
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Single item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+components:
+  schemas:
+    Item:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        scores:
+          type: array
+          items:
+            type: number
+        nested:
+          $ref: '#/components/schemas/NestedItem'
+    NestedItem:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+        extra:
+          type: string

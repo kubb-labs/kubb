@@ -3,20 +3,17 @@
  * Do not edit manually.
  */
 
-import type {
-  DeleteUserPathParams,
-  DeleteUserMutationResponse,
-} from "../models.ts";
+import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../models.ts'
 
 export function deleteUser(
-  username: DeleteUserPathParams["username"],
+  username: DeleteUserPathParams['username'],
   options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<DeleteUserMutationResponse> {
   return cy
     .request<DeleteUserMutationResponse>({
-      method: "DELETE",
+      method: 'DELETE',
       url: `http://localhost:3000/user/${username}`,
       ...options,
     })
-    .then((res) => res.body);
+    .then((res) => res.body)
 }
