@@ -9,7 +9,7 @@ export function getPets(params?: { limit?: GetPetsQueryLimit }, options: Partial
   return cy
     .request<GetPetsResponse>({
       method: 'GET',
-      url: `/pets`,
+      url: `https://api.example.com/pets`,
       qs: params,
       ...options,
     })

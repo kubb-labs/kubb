@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { GetPetsQueryLimit, GetPetsResponse } from './GetPets'
+import type { GetPetsQueryPageSize, GetPetsResponse } from './GetPets'
 
-export function getPets(params?: { limit?: GetPetsQueryLimit }, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<GetPetsResponse> {
+export function getPets(params?: { pageSize?: GetPetsQueryPageSize }, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<GetPetsResponse> {
   return cy
     .request<GetPetsResponse>({
       method: 'GET',
