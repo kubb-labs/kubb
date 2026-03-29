@@ -6,6 +6,23 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.24
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/plugin-cypress`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-cypress)
+
+-   [#2936](https://github.com/kubb-labs/kubb/pull/2936) [`1813534`](https://github.com/kubb-labs/kubb/commit/1813534973ef7fe257d86b01f2223a765cd7c83f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Upgrade `@kubb/plugin-cypress` to v5 architecture.
+    -   Replaces `@kubb/plugin-oas` / `@kubb/oas` with `@kubb/ast` + `@kubb/core` — no more OAS hook coupling
+    -   Uses `defineGenerator` with `type: 'react'` instead of `createReactGenerator`
+    -   Generator receives `{ node, adapter, options, config, driver, resolver }` props
+    -   Cross-plugin TS file path resolved via `driver.getPlugin(pluginTsName)?.resolver.resolveFile(...)`
+    -   Component `Request` receives `resolver: ResolverTs` directly; uses `createOperationParams` from `@kubb/ast` for typed function signatures, printed by `functionPrinter` from `@kubb/plugin-ts`
+    -   `paramsCasing` now consistently applied to path, query, and header parameters (including `qs` and `headers` key remapping when param names are renamed)
+    -   Adds `compatibilityPreset`, `resolvers`, `transformers`, and `generators` options
+    -   Test helpers updated to use `createOperation`, `createParameter`, `createResponse`, `createSchema` from `@kubb/ast`
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
