@@ -1,7 +1,8 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
-import { createPlugin, type Group, getBarrelFiles, getPreset, renderOperation, renderSchema } from '@kubb/core'
+import type { OperationNode } from '@kubb/ast/types'
+import { createPlugin, type Group, getBarrelFiles, getPreset, renderOperation, renderOperations, renderSchema } from '@kubb/core'
 import { presets } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
@@ -116,6 +117,8 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
       await openInStudio({ ast: true })
 
+      const collectedOperations: Array<OperationNode> = []
+
       await walk(rootNode, {
         depth: 'shallow',
         async schema(schemaNode) {
@@ -143,6 +146,12 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
           await Promise.all(writeTasks)
         },
         async operation(operationNode) {
+          const baseOptions = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
+
+          if (baseOptions !== null) {
+            collectedOperations.push(operationNode)
+          }
+
           const writeTasks = preset.generators.map(async (generator) => {
             if (generator.type === 'react' && generator.version === '2') {
               const options = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
@@ -167,6 +176,36 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
           await Promise.all(writeTasks)
         },
       })
+
+      const batchTasks = preset.generators.map(async (generator) => {
+        if (generator.type === 'react' && generator.version === '2') {
+          await renderOperations(collectedOperations, {
+            options: plugin.options,
+            resolver,
+            adapter,
+            config,
+            fabric,
+            Component: generator.Operations,
+            plugin,
+            driver,
+          })
+        }
+
+        if (generator.type === 'core' && generator.version === '2') {
+          const files = await generator.operations?.({
+            nodes: collectedOperations,
+            options: plugin.options,
+            resolver,
+            adapter,
+            config,
+            plugin,
+            driver,
+          }) ?? []
+          await this.upsertFile(...files)
+        }
+      })
+
+      await Promise.all(batchTasks)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
