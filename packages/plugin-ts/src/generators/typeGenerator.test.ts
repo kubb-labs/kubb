@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { createOperation, createParameter, createProperty, createResponse, createSchema } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
+import type { OperationNode, Visitor } from '@kubb/ast/types'
 import type { Config, Group } from '@kubb/core'
 import { renderOperation, renderSchema } from '@kubb/core'
 import { createReactFabric } from '@kubb/react-fabric'
@@ -31,6 +31,13 @@ const enumSchema = createSchema({
   name: 'petStatus',
   primitive: 'string',
   enumValues: ['available', 'pending', 'sold'],
+})
+
+const multiWordEnumSchema = createSchema({
+  type: 'enum',
+  name: 'orderStatus',
+  primitive: 'string',
+  enumValues: ['in_progress', 'awaiting_payment', 'fully_shipped'],
 })
 
 const objectSchema = createSchema({
@@ -441,7 +448,7 @@ describe('typeGenerator — enumKeyCasing', () => {
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
     const driver = createMockedPluginDriver({ name: `enumKeyCasing ${enumKeyCasing}` })
 
-    await renderSchema(enumSchema, {
+    await renderSchema(multiWordEnumSchema, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
@@ -624,5 +631,75 @@ describe('typeGenerator — arrayType', () => {
     })
 
     await matchFiles(fabric.files, `arrayType ${arrayType}`)
+  })
+})
+
+describe('typeGenerator — transformers', () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
+  test('schema transformer — removes optional properties from object', async () => {
+    const removeOptionalProperties: Visitor = {
+      schema(node) {
+        if ('properties' in node) {
+          return { ...node, properties: node.properties.filter((p) => p.required) }
+        }
+        return node
+      },
+    }
+    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, transformers: [removeOptionalProperties] }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
+    const driver = createMockedPluginDriver({ name: 'transformers removeOptionalProperties' })
+
+    await renderSchema(objectSchema, {
+      config: testConfig,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver,
+      Component: typeGenerator.Schema,
+      plugin,
+      options,
+      resolver: resolverTs,
+    })
+
+    await matchFiles(fabric.files, 'transformers removeOptionalProperties')
+  })
+
+  test('schema transformer — maps integer type to string', async () => {
+    const integerToString: Visitor = {
+      schema(node) {
+        if (node.type === 'integer') return { ...node, type: 'string' }
+        return node
+      },
+    }
+    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, transformers: [integerToString] }
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
+    const driver = createMockedPluginDriver({ name: 'transformers integerToString' })
+
+    const schemaWithInteger = createSchema({
+      type: 'object',
+      name: 'Order',
+      properties: [
+        createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) }),
+        createProperty({ name: 'quantity', schema: createSchema({ type: 'integer', optional: true }) }),
+        createProperty({ name: 'status', required: true, schema: createSchema({ type: 'string' }) }),
+      ],
+    })
+
+    await renderSchema(schemaWithInteger, {
+      config: testConfig,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver,
+      Component: typeGenerator.Schema,
+      plugin,
+      options,
+      resolver: resolverTs,
+    })
+
+    await matchFiles(fabric.files, 'transformers integerToString')
   })
 })
