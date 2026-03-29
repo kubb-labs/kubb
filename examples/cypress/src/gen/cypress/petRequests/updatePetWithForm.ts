@@ -3,15 +3,18 @@
  * Do not edit manually.
  */
 
-import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../../models.ts'
+import type { UpdatePetWithFormPathPetId, UpdatePetWithFormQueryName, UpdatePetWithFormQueryStatus, UpdatePetWithFormResponse } from '../../models.ts'
 
 export function updatePetWithForm(
-  petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatePetWithFormQueryParams,
+  petId: UpdatePetWithFormPathPetId,
+  params?: {
+    name?: UpdatePetWithFormQueryName
+    status?: UpdatePetWithFormQueryStatus
+  },
   options: Partial<Cypress.RequestOptions> = {},
-): Cypress.Chainable<UpdatePetWithFormMutationResponse> {
+): Cypress.Chainable<UpdatePetWithFormResponse> {
   return cy
-    .request<UpdatePetWithFormMutationResponse>({
+    .request<UpdatePetWithFormResponse>({
       method: 'POST',
       url: `http://localhost:3000/pet/${petId}`,
       qs: params,
