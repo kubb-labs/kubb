@@ -5,7 +5,7 @@
 
 import * as z from 'zod'
 
-export const listPetsQueryLimitSchemaSchema = z.int().optional()
+export const listPetsQueryLimitSchema = z.int().optional()
 
 /**
  * @description A paged array of pets

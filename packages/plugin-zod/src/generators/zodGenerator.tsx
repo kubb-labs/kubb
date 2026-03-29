@@ -1,4 +1,5 @@
 import path from 'node:path'
+import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
 import { Const, File, Type } from '@kubb/react-fabric'
 import { ZOD_NAMESPACE_IMPORTS } from '../constants.ts'
@@ -87,7 +88,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
       name,
       description,
     }: {
-      schema: any
+      schema: SchemaNode | null | undefined
       name: string
       description?: string
     }) {
@@ -135,7 +136,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
     const paramSchemas = node.parameters.map((param) =>
       renderSchemaEntry({
         schema: param.schema,
-        name: resolver.resolveParamName(node, param),
+        name: `${node.operationId} ${param.in} ${param.name}`,
       }),
     )
 

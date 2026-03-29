@@ -5,7 +5,7 @@
 
 import * as z from 'zod'
 
-export const showPetByIdPathPetIdSchemaSchema = z.string()
+export const showPetByIdPathPetIdSchema = z.string()
 
 /**
  * @description Expected response
