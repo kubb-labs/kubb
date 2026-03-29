@@ -19,7 +19,6 @@ const defaultOptions: PluginZod['resolvedOptions'] = {
   integerType: 'bigint',
   typed: false,
   inferred: false,
-  mapper: {},
   importPath: 'zod',
   coercion: false,
   operations: false,
@@ -111,18 +110,6 @@ describe('zodGenerator — Schema', () => {
     { name: 'coercion strings', node: stringSchema, options: { coercion: { strings: true } } },
     { name: 'coercion numbers', node: numberSchema, options: { coercion: { numbers: true } } },
     { name: 'coercion dates', node: createSchema({ type: 'date', name: 'DateField', representation: 'date' }), options: { coercion: { dates: true } } },
-    // mapper
-    {
-      name: 'mapper',
-      node: createSchema({
-        type: 'object',
-        name: 'MappedPet',
-        properties: [
-          createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
-        ],
-      }),
-      options: { mapper: { name: 'z.string().email()' } },
-    },
     // inferred
     { name: 'inferred', node: stringSchema, options: { inferred: true } },
     // mini mode

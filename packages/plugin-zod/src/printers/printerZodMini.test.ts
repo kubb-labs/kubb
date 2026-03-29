@@ -1,9 +1,9 @@
 import { createSchema } from '@kubb/ast'
 import { describe, expect, test } from 'vitest'
-import { printerZod } from './printerZod.ts'
+import { printerZodMini } from './printerZodMini.ts'
 
-describe('printerZod', () => {
-  const printer = printerZod({})
+describe('printerZodMini', () => {
+  const printer = printerZodMini({})
 
   describe('scalar types', () => {
     test('any', () => {
@@ -32,9 +32,8 @@ describe('printerZod', () => {
       expect(printer.print(createSchema({ type: 'string' }))).toBe('z.string()')
     })
 
-    test('string with coercion', () => {
-      const p = printerZod({ coercion: { strings: true } })
-      expect(p.print(createSchema({ type: 'string' }))).toBe('z.coerce.string()')
+    test('string with length checks', () => {
+      expect(printer.print(createSchema({ type: 'string', min: 1, max: 10 }))).toBe('z.string().check(z.minLength(1), z.maxLength(10))')
     })
   })
 
@@ -43,9 +42,8 @@ describe('printerZod', () => {
       expect(printer.print(createSchema({ type: 'number' }))).toBe('z.number()')
     })
 
-    test('number with coercion', () => {
-      const p = printerZod({ coercion: { numbers: true } })
-      expect(p.print(createSchema({ type: 'number' }))).toBe('z.coerce.number()')
+    test('number with numeric checks', () => {
+      expect(printer.print(createSchema({ type: 'number', min: 0, max: 100 }))).toBe('z.number().check(z.minimum(0), z.maximum(100))')
     })
   })
 
@@ -53,21 +51,11 @@ describe('printerZod', () => {
     test('basic integer', () => {
       expect(printer.print(createSchema({ type: 'integer' }))).toBe('z.int()')
     })
-
-    test('integer with coercion', () => {
-      const p = printerZod({ coercion: { numbers: true } })
-      expect(p.print(createSchema({ type: 'integer' }))).toBe('z.coerce.number().int()')
-    })
   })
 
   describe('bigint', () => {
-    test('basic bigint', () => {
+    test('basic bigint (no coercion in mini)', () => {
       expect(printer.print(createSchema({ type: 'bigint' }))).toBe('z.bigint()')
-    })
-
-    test('bigint with coercion', () => {
-      const p = printerZod({ coercion: { numbers: true } })
-      expect(p.print(createSchema({ type: 'bigint' }))).toBe('z.coerce.bigint()')
     })
   })
 
@@ -80,8 +68,8 @@ describe('printerZod', () => {
       expect(printer.print(createSchema({ type: 'date', representation: 'string' }))).toBe('z.iso.date()')
     })
 
-    test('datetime', () => {
-      expect(printer.print(createSchema({ type: 'datetime' }))).toBe('z.iso.datetime()')
+    test('datetime falls back to z.string()', () => {
+      expect(printer.print(createSchema({ type: 'datetime' }))).toBe('z.string()')
     })
 
     test('time (ISO string)', () => {
@@ -95,7 +83,7 @@ describe('printerZod', () => {
     })
 
     test('guid', () => {
-      const p = printerZod({ guidType: 'guid' })
+      const p = printerZodMini({ guidType: 'guid' })
       expect(p.print(createSchema({ type: 'uuid' }))).toBe('z.guid()')
     })
 
@@ -141,52 +129,47 @@ describe('printerZod', () => {
     })
   })
 
-  describe('union', () => {
-    test('basic union', () => {
-      const node = createSchema({
-        type: 'union',
-        members: [createSchema({ type: 'string' }), createSchema({ type: 'number' })],
-      })
-      expect(printer.print(node)).toBe('z.union([z.string(), z.number()])')
-    })
-
-    test('single member union', () => {
-      const node = createSchema({
-        type: 'union',
-        members: [createSchema({ type: 'string' })],
-      })
-      expect(printer.print(node)).toBe('z.string()')
-    })
-  })
-
-  describe('modifiers', () => {
+  describe('modifiers (functional syntax)', () => {
     test('nullable', () => {
       const node = createSchema({ type: 'string', nullable: true })
-      expect(printer.print(node)).toBe('z.string().nullable()')
+      expect(printer.print(node)).toBe('z.nullable(z.string())')
     })
 
     test('optional', () => {
       const node = createSchema({ type: 'string', optional: true })
-      expect(printer.print(node)).toBe('z.string().optional()')
+      expect(printer.print(node)).toBe('z.optional(z.string())')
     })
 
     test('nullish', () => {
       const node = createSchema({ type: 'string', nullish: true })
-      expect(printer.print(node)).toBe('z.string().nullish()')
+      expect(printer.print(node)).toBe('z.nullish(z.string())')
+    })
+
+    test('nullable and optional wraps both', () => {
+      const node = createSchema({ type: 'string', nullable: true, optional: true })
+      expect(printer.print(node)).toBe('z.optional(z.nullable(z.string()))')
     })
   })
 
-  describe('coercion', () => {
-    test('boolean coercion enables all', () => {
-      const p = printerZod({ coercion: true })
-      expect(p.print(createSchema({ type: 'string' }))).toBe('z.coerce.string()')
-      expect(p.print(createSchema({ type: 'number' }))).toBe('z.coerce.number()')
+  describe('default (functional syntax)', () => {
+    test('string default', () => {
+      const node = createSchema({ type: 'string', default: 'hello' })
+      expect(printer.print(node)).toBe('z._default(z.string(), "hello")')
     })
 
-    test('granular coercion', () => {
-      const p = printerZod({ coercion: { strings: true, numbers: false } })
-      expect(p.print(createSchema({ type: 'string' }))).toBe('z.coerce.string()')
-      expect(p.print(createSchema({ type: 'number' }))).toBe('z.number()')
+    test('number default', () => {
+      const node = createSchema({ type: 'number', default: 42 })
+      expect(printer.print(node)).toBe('z._default(z.number(), 42)')
+    })
+  })
+
+  describe('intersection', () => {
+    test('returns first member only (no .and() in mini)', () => {
+      const node = createSchema({
+        type: 'intersection',
+        members: [createSchema({ type: 'string' }), createSchema({ type: 'number' })],
+      })
+      expect(printer.print(node)).toBe('z.string()')
     })
   })
 })

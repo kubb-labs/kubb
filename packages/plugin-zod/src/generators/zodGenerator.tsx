@@ -1,16 +1,17 @@
 import path from 'node:path'
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
-import { Const, File, Type } from '@kubb/react-fabric'
+import { File } from '@kubb/react-fabric'
+import { Zod } from '../components/Zod.tsx'
+import { ZodMini } from '../components/ZodMini.tsx'
 import { ZOD_NAMESPACE_IMPORTS } from '../constants.ts'
-import { printerZod } from '../printers/printerZod.ts'
 import type { PluginZod } from '../types'
 
 export const zodGenerator = defineGenerator<PluginZod>({
   name: 'zod',
   type: 'react',
   Schema({ node, adapter, options, config, resolver }) {
-    const { output, coercion, mapper, guidType, mini, wrapOutput, inferred, importPath, group } = options
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group } = options
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
@@ -22,13 +23,6 @@ export const zodGenerator = defineGenerator<PluginZod>({
     const zodName = resolver.default(node.name, 'function')
     const file = resolver.resolveFile({ name: node.name, extname: '.ts' }, { root, output, group })
 
-    const printer = printerZod({ coercion, mapper, guidType, mini, wrapOutput })
-    const code = printer.print(node)
-
-    if (!code) {
-      return
-    }
-
     // Resolve imports for $ref schemas
     const imports = adapter.getImports(node, (schemaName) => ({
       name: resolver.default(schemaName, 'function'),
@@ -36,7 +30,6 @@ export const zodGenerator = defineGenerator<PluginZod>({
     }))
 
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
-
     const inferTypeName = inferred ? resolver.default(node.name, 'type') : undefined
 
     return (
@@ -51,35 +44,35 @@ export const zodGenerator = defineGenerator<PluginZod>({
         {mode === 'split' &&
           imports.map((imp) => <File.Import key={[node.name, imp.path].join('-')} root={file.path} path={imp.path} name={imp.name} />)}
 
-        <File.Source name={zodName} isExportable isIndexable>
-          <Const
-            export
+        {mini ? (
+          <ZodMini
             name={zodName}
-            JSDoc={{
-              comments: [node.description ? `@description ${node.description}` : undefined].filter(Boolean),
-            }}
-          >
-            {code}
-          </Const>
-        </File.Source>
-        {inferTypeName && (
-          <File.Source name={inferTypeName} isExportable isIndexable isTypeOnly>
-            <Type export name={inferTypeName}>
-              {`z.infer<typeof ${zodName}>`}
-            </Type>
-          </File.Source>
+            node={node}
+            guidType={guidType}
+            wrapOutput={wrapOutput}
+            description={node.description}
+            inferTypeName={inferTypeName}
+          />
+        ) : (
+          <Zod
+            name={zodName}
+            node={node}
+            coercion={coercion}
+            guidType={guidType}
+            wrapOutput={wrapOutput}
+            description={node.description}
+            inferTypeName={inferTypeName}
+          />
         )}
       </File>
     )
   },
   Operation({ node, adapter, options, config, resolver }) {
-    const { output, coercion: globalCoercion, mapper, guidType, mini, wrapOutput, inferred, importPath, group } = options
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group } = options
 
     const root = path.resolve(config.root, config.output.path)
 
     const file = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
-
-    const printer = printerZod({ coercion: globalCoercion, mapper, guidType, mini, wrapOutput })
 
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
@@ -94,9 +87,6 @@ export const zodGenerator = defineGenerator<PluginZod>({
     }) {
       if (!schema) return null
 
-      const code = printer.print(schema)
-      if (!code) return null
-
       const zodName = resolver.default(name, 'function')
       const inferTypeName = inferred ? resolver.default(name, 'type') : undefined
 
@@ -110,23 +100,25 @@ export const zodGenerator = defineGenerator<PluginZod>({
           {imports.map((imp) => (
             <File.Import key={[name, imp.path, imp.name].join('-')} root={file.path} path={imp.path} name={imp.name} />
           ))}
-          <File.Source name={zodName} isExportable isIndexable>
-            <Const
-              export
+          {mini ? (
+            <ZodMini
               name={zodName}
-              JSDoc={{
-                comments: [description ? `@description ${description}` : undefined].filter(Boolean),
-              }}
-            >
-              {code}
-            </Const>
-          </File.Source>
-          {inferTypeName && (
-            <File.Source name={inferTypeName} isExportable isIndexable isTypeOnly>
-              <Type export name={inferTypeName}>
-                {`z.infer<typeof ${zodName}>`}
-              </Type>
-            </File.Source>
+              node={schema}
+              guidType={guidType}
+              wrapOutput={wrapOutput}
+              description={description}
+              inferTypeName={inferTypeName}
+            />
+          ) : (
+            <Zod
+              name={zodName}
+              node={schema}
+              coercion={coercion}
+              guidType={guidType}
+              wrapOutput={wrapOutput}
+              description={description}
+              inferTypeName={inferTypeName}
+            />
           )}
         </>
       )

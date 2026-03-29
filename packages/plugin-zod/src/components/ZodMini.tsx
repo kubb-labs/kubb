@@ -1,29 +1,27 @@
 import type { SchemaNode } from '@kubb/ast/types'
 import { Const, File, Type } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import { printerZod } from '../printers/printerZod.ts'
+import { printerZodMini } from '../printers/printerZodMini.ts'
 import type { PluginZod } from '../types.ts'
 
 type Props = {
   name: string
   node: SchemaNode
-  coercion: PluginZod['resolvedOptions']['coercion']
   guidType: PluginZod['resolvedOptions']['guidType']
   wrapOutput: PluginZod['resolvedOptions']['wrapOutput']
   description?: string
   inferTypeName?: string
 }
 
-export function Zod({
+export function ZodMini({
   name,
   node,
-  coercion,
   guidType,
   wrapOutput,
   description,
   inferTypeName,
 }: Props): FabricReactNode {
-  const printer = printerZod({ coercion, guidType, wrapOutput })
+  const printer = printerZodMini({ guidType, wrapOutput })
   const output = printer.print(node)
 
   if (!output) {

@@ -13,27 +13,13 @@ describe('zod parse', () => {
         current: schema,
         siblings: [schema],
       },
-      { version: '3' },
+      {},
     )
     expect(text).toMatchSnapshot()
   })
 
-  test.each(schemas.basic)('$name v4', ({ name, schema }) => {
-    const text = parserZod.parse(
-      {
-        name,
-        schema: {},
-        parent: undefined,
-        current: schema,
-        siblings: [schema],
-      },
-      { version: '4' },
-    )
-    expect(text).toMatchSnapshot()
-  })
-
-  describe('coercion with version 4', () => {
-    test('uuid with coercion=true and version=4 should skip coercion', () => {
+  describe('coercion', () => {
+    test('uuid with coercion=true should use z.uuid()', () => {
       const schema = { keyword: schemaKeywords.uuid, args: undefined }
       const text = parserZod.parse(
         {
@@ -43,27 +29,12 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', coercion: true },
+        { coercion: true },
       )
       expect(text).toBe('z.uuid()')
     })
 
-    test('uuid with coercion=true and version=3 should use z.coerce.string().uuid()', () => {
-      const schema = { keyword: schemaKeywords.uuid, args: undefined }
-      const text = parserZod.parse(
-        {
-          name: 'test',
-          schema: {},
-          parent: undefined,
-          current: schema,
-          siblings: [schema],
-        },
-        { version: '3', coercion: true },
-      )
-      expect(text).toBe('z.coerce.string().uuid()')
-    })
-
-    test('url with coercion=true and version=4 should skip coercion', () => {
+    test('url with coercion=true should use z.url()', () => {
       const schema = { keyword: schemaKeywords.url, args: undefined }
       const text = parserZod.parse(
         {
@@ -73,27 +44,12 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', coercion: true },
+        { coercion: true },
       )
       expect(text).toBe('z.url()')
     })
 
-    test('url with coercion=true and version=3 should use z.coerce.string().url()', () => {
-      const schema = { keyword: schemaKeywords.url, args: undefined }
-      const text = parserZod.parse(
-        {
-          name: 'test',
-          schema: {},
-          parent: undefined,
-          current: schema,
-          siblings: [schema],
-        },
-        { version: '3', coercion: true },
-      )
-      expect(text).toBe('z.coerce.string().url()')
-    })
-
-    test('email with coercion=true and version=4 should skip coercion', () => {
+    test('email with coercion=true should use z.email()', () => {
       const schema = { keyword: schemaKeywords.email, args: undefined }
       const text = parserZod.parse(
         {
@@ -103,27 +59,12 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', coercion: true },
+        { coercion: true },
       )
       expect(text).toBe('z.email()')
     })
 
-    test('email with coercion=true and version=3 should use z.coerce.string().email()', () => {
-      const schema = { keyword: schemaKeywords.email, args: undefined }
-      const text = parserZod.parse(
-        {
-          name: 'test',
-          schema: {},
-          parent: undefined,
-          current: schema,
-          siblings: [schema],
-        },
-        { version: '3', coercion: true },
-      )
-      expect(text).toBe('z.coerce.string().email()')
-    })
-
-    test('uuid without coercion and version=4 should use z.uuid()', () => {
+    test('uuid without coercion should use z.uuid()', () => {
       const schema = { keyword: schemaKeywords.uuid, args: undefined }
       const text = parserZod.parse(
         {
@@ -133,12 +74,12 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', coercion: false },
+        { coercion: false },
       )
       expect(text).toBe('z.uuid()')
     })
 
-    test('uuid without coercion and version=3 should use z.string().uuid()', () => {
+    test('uuid with guidType=guid should use z.guid()', () => {
       const schema = { keyword: schemaKeywords.uuid, args: undefined }
       const text = parserZod.parse(
         {
@@ -148,39 +89,9 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '3', coercion: false },
-      )
-      expect(text).toBe('z.string().uuid()')
-    })
-
-    test('uuid with guidType=guid and version=4 should use z.guid()', () => {
-      const schema = { keyword: schemaKeywords.uuid, args: undefined }
-      const text = parserZod.parse(
-        {
-          name: 'test',
-          schema: {},
-          parent: undefined,
-          current: schema,
-          siblings: [schema],
-        },
-        { version: '4', guidType: 'guid' },
+        { guidType: 'guid' },
       )
       expect(text).toBe('z.guid()')
-    })
-
-    test('uuid with guidType=guid and version=3 should fallback to z.string().uuid()', () => {
-      const schema = { keyword: schemaKeywords.uuid, args: undefined }
-      const text = parserZod.parse(
-        {
-          name: 'test',
-          schema: {},
-          parent: undefined,
-          current: schema,
-          siblings: [schema],
-        },
-        { version: '3', guidType: 'guid' },
-      )
-      expect(text).toBe('z.string().uuid()')
     })
   })
 
@@ -197,7 +108,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema, minSchema, maxSchema],
         },
-        { version: '4', mini: true },
+        { mini: true },
       )
       expect(text).toBe('z.string().check(z.minLength(5), z.maxLength(100))')
     })
@@ -212,7 +123,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', mini: true },
+        { mini: true },
       )
       expect(text).toBe('z.string()')
     })
@@ -229,7 +140,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema, minSchema, maxSchema],
         },
-        { version: '4', mini: true },
+        { mini: true },
       )
       expect(text).toBe('z.number().check(z.minimum(0), z.maximum(100))')
     })
@@ -244,7 +155,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', mini: true },
+        { mini: true },
       )
       expect(text).toBe('z.int()')
     })
@@ -266,7 +177,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', mini: true },
+        { mini: true },
       )
       expect(text).toBe('z.array(z.string()).check(z.minLength(1), z.maxLength(10))')
     })
@@ -281,7 +192,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', mini: true },
+        { mini: true },
       )
       expect(text).toBe('z.email()')
     })
@@ -296,7 +207,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', mini: true },
+        { mini: true },
       )
       expect(text).toBe('z.url()')
     })
@@ -311,7 +222,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', mini: true },
+        { mini: true },
       )
       expect(text).toBe('z.uuid()')
     })
@@ -326,7 +237,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', mini: true, guidType: 'guid' },
+        { mini: true, guidType: 'guid' },
       )
       expect(text).toBe('z.guid()')
     })
@@ -341,7 +252,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', mini: true },
+        { mini: true },
       )
       expect(text).toBe('z.string().check(z.regex(/^test$/))')
     })
@@ -364,7 +275,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema, exclusiveMinSchema, exclusiveMaxSchema],
         },
-        { version: '4', mini: true },
+        { mini: true },
       )
       expect(text).toBe('z.int().check(z.minimum(0, { exclusive: true }), z.maximum(100, { exclusive: true }))')
     })
@@ -389,7 +300,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', mini: true },
+        { mini: true },
       )
       expect(text).toContain('z.nullish(z.string())')
       expect(text).not.toContain('.nullish()')
@@ -415,7 +326,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', mini: true },
+        { mini: true },
       )
       expect(text).toContain('z.optional(z.string())')
       expect(text).not.toContain('.optional()')
@@ -441,7 +352,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4', mini: true },
+        { mini: true },
       )
       expect(text).toContain('z.nullable(z.number())')
       expect(text).not.toContain('.nullable()')
@@ -449,7 +360,7 @@ describe('zod parse', () => {
   })
 
   describe('pattern with length constraints', () => {
-    test('matches with min/max should include length constraints (version 3)', () => {
+    test('matches with min/max should include length constraints', () => {
       const schema = {
         keyword: schemaKeywords.matches,
         args: '^[A-Za-z0-9]+$',
@@ -464,27 +375,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema, minSchema, maxSchema],
         },
-        { version: '3' },
-      )
-      expect(text).toBe('z.string().min(5).max(19).regex(/^[A-Za-z0-9]+$/)')
-    })
-
-    test('matches with min/max should include length constraints (version 4)', () => {
-      const schema = {
-        keyword: schemaKeywords.matches,
-        args: '^[A-Za-z0-9]+$',
-      }
-      const minSchema = { keyword: schemaKeywords.min, args: 5 }
-      const maxSchema = { keyword: schemaKeywords.max, args: 19 }
-      const text = parserZod.parse(
-        {
-          name: 'test',
-          schema: {},
-          parent: undefined,
-          current: schema,
-          siblings: [schema, minSchema, maxSchema],
-        },
-        { version: '4' },
+        {},
       )
       expect(text).toBe('z.string().min(5).max(19).regex(/^[A-Za-z0-9]+$/)')
     })
@@ -504,7 +395,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema, minSchema, maxSchema],
         },
-        { version: '4', mini: true },
+        { mini: true },
       )
       expect(text).toBe('z.string().check(z.minLength(5), z.maxLength(19), z.regex(/^[A-Za-z0-9]+$/))')
     })
@@ -520,7 +411,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema, minSchema],
         },
-        { version: '4' },
+        { },
       )
       expect(text).toBe('z.string().min(3).regex(/^[A-Z]+$/)')
     })
@@ -536,7 +427,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema, maxSchema],
         },
-        { version: '4' },
+        { },
       )
       expect(text).toBe('z.string().max(10).regex(/^[0-9]+$/)')
     })
@@ -551,7 +442,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4' },
+        { },
       )
       expect(text).toBe('z.string().regex(/^test$/)')
     })
@@ -568,7 +459,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4' },
+        { },
       )
       expect(text).toBe('.default(0)')
     })
@@ -583,7 +474,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4' },
+        { },
       )
       expect(text).toBe('.default(false)')
     })
@@ -598,7 +489,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4' },
+        { },
       )
       expect(text).toBe(".default('')")
     })
@@ -613,7 +504,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4' },
+        { },
       )
       expect(text).toBe('.default(test)')
     })
@@ -628,7 +519,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '4' },
+        { },
       )
       expect(text).toBe('.default()')
     })
@@ -665,7 +556,7 @@ describe('zod parse', () => {
           current: schema,
           siblings: [schema],
         },
-        { version: '3' },
+        { },
       )
       expect(text).toBe('z.array(z.enum(["foo", "bar", "baz"]))')
     })

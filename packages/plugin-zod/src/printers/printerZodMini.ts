@@ -2,23 +2,16 @@ import { stringify } from '@internals/utils'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 
-export type ZodOptions = {
-  coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
+export type ZodMiniOptions = {
   guidType?: 'uuid' | 'guid'
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
 }
 
-type ZodPrinterFactory = PrinterFactoryOptions<'zod', ZodOptions, string, string>
+type ZodMiniPrinterFactory = PrinterFactoryOptions<'zod-mini', ZodMiniOptions, string, string>
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-function shouldCoerce(coercion: ZodOptions['coercion'], type: 'dates' | 'strings' | 'numbers'): boolean {
-  if (coercion === undefined || coercion === false) return false
-  if (coercion === true) return true
-  return !!coercion[type]
-}
 
 /** Format a default value as a code-level literal. */
 function formatDefault(value: unknown): string {
@@ -27,24 +20,27 @@ function formatDefault(value: unknown): string {
   return String(value ?? '')
 }
 
-/** Build `.min()` / `.max()` / `.gt()` / `.lt()` constraint chains for numbers. */
-function numberConstraints(
+/** Build `.check(z.minimum(), z.maximum())` for mini-mode numeric constraints. */
+function numberChecksMini(
   min?: number,
   max?: number,
   exclusiveMinimum?: number,
   exclusiveMaximum?: number,
 ): string {
-  return [
-    min !== undefined ? `.min(${min})` : '',
-    max !== undefined ? `.max(${max})` : '',
-    exclusiveMinimum !== undefined ? `.gt(${exclusiveMinimum})` : '',
-    exclusiveMaximum !== undefined ? `.lt(${exclusiveMaximum})` : '',
-  ].join('')
+  const checks: string[] = []
+  if (min !== undefined) checks.push(`z.minimum(${min})`)
+  if (max !== undefined) checks.push(`z.maximum(${max})`)
+  if (exclusiveMinimum !== undefined) checks.push(`z.minimum(${exclusiveMinimum}, { exclusive: true })`)
+  if (exclusiveMaximum !== undefined) checks.push(`z.maximum(${exclusiveMaximum}, { exclusive: true })`)
+  return checks.length ? `.check(${checks.join(', ')})` : ''
 }
 
-/** Build `.min()` / `.max()` chains for strings/arrays. */
-function lengthConstraints(min?: number, max?: number): string {
-  return [min !== undefined ? `.min(${min})` : '', max !== undefined ? `.max(${max})` : ''].join('')
+/** Build `.check(z.minLength(), z.maxLength())` for mini-mode length constraints. */
+function lengthChecksMini(min?: number, max?: number): string {
+  const checks: string[] = []
+  if (min !== undefined) checks.push(`z.minLength(${min})`)
+  if (max !== undefined) checks.push(`z.maxLength(${max})`)
+  return checks.length ? `.check(${checks.join(', ')})` : ''
 }
 
 // ---------------------------------------------------------------------------
@@ -52,27 +48,27 @@ function lengthConstraints(min?: number, max?: number): string {
 // ---------------------------------------------------------------------------
 
 /**
- * Zod v4 printer built with `definePrinter`.
+ * Zod v4 **Mini** printer built with `definePrinter`.
  *
- * Converts a `SchemaNode` AST into a **standard** Zod v4 code string
- * using the chainable method API (`.optional()`, `.nullable()`, etc.).
+ * Converts a `SchemaNode` AST into a Zod v4 Mini code string using the
+ * functional API (`z.optional(z.string())`) for better tree-shaking.
  *
- * For the `zod/mini` functional API, see {@link printerZodMini}.
+ * For the standard chainable API, see {@link printerZod}.
  *
  * @example
  * ```ts
- * const printer = printerZod({ coercion: false })
- * const code = printer.print(stringSchemaNode) // "z.string()"
+ * const printer = printerZodMini({})
+ * const code = printer.print(optionalStringNode) // "z.optional(z.string())"
  * ```
  */
-export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
-  const opts: Required<Pick<ZodOptions, 'guidType'>> & ZodOptions = {
+export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => {
+  const opts: Required<Pick<ZodMiniOptions, 'guidType'>> & ZodMiniOptions = {
     guidType: 'uuid',
     ...options,
   }
 
   return {
-    name: 'zod',
+    name: 'zod-mini',
     options: opts,
 
     nodes: {
@@ -86,23 +82,20 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
 
       // -- String ----------------------------------------------------------
       string(node) {
-        const base = shouldCoerce(this.options.coercion, 'strings') ? 'z.coerce.string()' : 'z.string()'
-        return `${base}${lengthConstraints(node.min, node.max)}`
+        return `z.string()${lengthChecksMini(node.min, node.max)}`
       },
 
       // -- Number / Integer / BigInt ---------------------------------------
       number(node) {
-        const base = shouldCoerce(this.options.coercion, 'numbers') ? 'z.coerce.number()' : 'z.number()'
-        return `${base}${numberConstraints(node.min, node.max, node.exclusiveMinimum, node.exclusiveMaximum)}`
+        return `z.number()${numberChecksMini(node.min, node.max, node.exclusiveMinimum, node.exclusiveMaximum)}`
       },
 
       integer(node) {
-        const base = shouldCoerce(this.options.coercion, 'numbers') ? 'z.coerce.number().int()' : 'z.int()'
-        return `${base}${numberConstraints(node.min, node.max, node.exclusiveMinimum, node.exclusiveMaximum)}`
+        return `z.int()${numberChecksMini(node.min, node.max, node.exclusiveMinimum, node.exclusiveMaximum)}`
       },
 
       bigint() {
-        return shouldCoerce(this.options.coercion, 'numbers') ? 'z.coerce.bigint()' : 'z.bigint()'
+        return 'z.bigint()'
       },
 
       // -- Date / Time / Datetime ------------------------------------------
@@ -110,20 +103,19 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         if (node.representation === 'string') {
           return 'z.iso.date()'
         }
-        return shouldCoerce(this.options.coercion, 'dates') ? 'z.coerce.date()' : 'z.date()'
+        return 'z.date()'
       },
 
-      datetime(node) {
-        if (node.offset) return `z.iso.datetime({ offset: true })`
-        if (node.local) return `z.iso.datetime({ local: true })`
-        return 'z.iso.datetime()'
+      datetime() {
+        // Mini mode: datetime validation via z.string() (z.iso.datetime not available in mini)
+        return 'z.string()'
       },
 
       time(node) {
         if (node.representation === 'string') {
           return 'z.iso.time()'
         }
-        return shouldCoerce(this.options.coercion, 'dates') ? 'z.coerce.date()' : 'z.date()'
+        return 'z.date()'
       },
 
       // -- Special string formats ------------------------------------------
@@ -184,35 +176,23 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
             // For v4 refs, use getter syntax (lazy evaluation without z.lazy wrapper)
             if (hasRef && schema.type === 'ref') {
               const refName = schema.name ?? baseOutput
-              const value = applyModifiers(refName, isNullable, isOptional, isNullish)
+              const value = applyMiniModifiers(refName, isNullable, isOptional, isNullish)
               return `get "${propName}"() { return ${value} }`
             }
 
-            const value = applyModifiers(wrappedOutput, isNullable, isOptional, isNullish)
+            const value = applyMiniModifiers(wrappedOutput, isNullable, isOptional, isNullish)
             return `"${propName}": ${value}`
           })
           .join(',\n    ')
 
-        let result = `z.object({\n    ${properties}\n    })`
-
-        // Handle additionalProperties as .catchall()
-        if (node.additionalProperties && node.additionalProperties !== true) {
-          const catchallType = this.transform(node.additionalProperties)
-          if (catchallType) {
-            result += `.catchall(${catchallType})`
-          }
-        } else if (node.additionalProperties === true) {
-          result += `.catchall(z.unknown())`
-        }
-
-        return result
+        return `z.object({\n    ${properties}\n    })`
       },
 
       // -- Array -----------------------------------------------------------
       array(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
         const inner = items.join(', ') || 'z.unknown()'
-        return `z.array(${inner})${lengthConstraints(node.min, node.max)}`
+        return `z.array(${inner})${lengthChecksMini(node.min, node.max)}`
       },
 
       // -- Tuple -----------------------------------------------------------
@@ -234,7 +214,8 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         const members = (node.members ?? []).map((m) => this.transform(m)).filter(Boolean)
         if (members.length === 0) return ''
         if (members.length === 1) return members[0]!
-        return members.reduce((acc, m) => `${acc}.and(${m})`)
+        // Mini mode doesn't support .and()
+        return members[0]!
       },
     },
 
@@ -244,27 +225,24 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
 
       let output = base
 
-      // Apply nullable / optional / nullish modifiers
+      // Apply nullable / optional / nullish modifiers (functional syntax)
       if (node.nullish) {
-        output = `${output}.nullish()`
+        output = `z.nullish(${output})`
       } else {
         if (node.nullable) {
-          output = `${output}.nullable()`
+          output = `z.nullable(${output})`
         }
         if (node.optional) {
-          output = `${output}.optional()`
+          output = `z.optional(${output})`
         }
       }
 
-      // Apply default
+      // Apply default (functional syntax)
       if (node.default !== undefined) {
-        output = `${output}.default(${formatDefault(node.default)})`
+        output = `z._default(${output}, ${formatDefault(node.default)})`
       }
 
-      // Apply describe
-      if (node.description) {
-        output = `${output}.describe(${stringify(node.description)})`
-      }
+      // describe not supported in mini
 
       return output
     },
@@ -275,24 +253,24 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
 // Internal helper
 // ---------------------------------------------------------------------------
 
-/** Apply nullable / optional / nullish modifiers to a property value string (chainable API). */
-function applyModifiers(
+/** Apply nullable / optional / nullish modifiers to a property value string (functional API). */
+function applyMiniModifiers(
   value: string,
   nullable?: boolean,
   optional?: boolean,
   nullish?: boolean,
 ): string {
   if (nullish) {
-    return `${value}.nullish()`
+    return `z.nullish(${value})`
   }
   if (nullable && optional) {
-    return `${value}.nullish()`
+    return `z.nullish(${value})`
   }
   if (optional) {
-    return `${value}.optional()`
+    return `z.optional(${value})`
   }
   if (nullable) {
-    return `${value}.nullable()`
+    return `z.nullable(${value})`
   }
   return value
 }

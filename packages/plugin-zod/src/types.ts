@@ -108,10 +108,6 @@ export type Options = {
    */
   operations?: boolean
   /**
-   * Map schema names to custom Zod expressions.
-   */
-  mapper?: Record<string, string>
-  /**
    * Which Zod GUID validator to use for OpenAPI `format: uuid`.
    * - 'uuid' uses UUID validation.
    * - 'guid' uses GUID validation.
@@ -160,7 +156,6 @@ type ResolvedOptions = {
   emptySchemaType: NonNullable<Options['emptySchemaType']>
   typed: NonNullable<Options['typed']>
   inferred: NonNullable<Options['inferred']>
-  mapper: NonNullable<Options['mapper']>
   importPath: NonNullable<Options['importPath']>
   coercion: NonNullable<Options['coercion']>
   operations: NonNullable<Options['operations']>

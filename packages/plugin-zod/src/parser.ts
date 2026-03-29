@@ -42,7 +42,7 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  integer: (coercion?: boolean, min?: number, max?: number, version: '3' | '4' = '3', exclusiveMinimum?: number, exclusiveMaximum?: number, mini?: boolean) => {
+  integer: (coercion?: boolean, min?: number, max?: number, _version?: string, exclusiveMinimum?: number, exclusiveMaximum?: number, mini?: boolean) => {
     if (mini) {
       const checks: string[] = []
       if (min !== undefined) checks.push(`z.minimum(${min})`)
@@ -55,7 +55,7 @@ const zodKeywordMapper = {
       return 'z.int()'
     }
     return [
-      coercion ? 'z.coerce.number().int()' : version === '4' ? 'z.int()' : 'z.number().int()',
+      coercion ? 'z.coerce.number().int()' : 'z.int()',
       min !== undefined ? `.min(${min})` : undefined,
       max !== undefined ? `.max(${max})` : undefined,
       exclusiveMinimum !== undefined ? `.gt(${exclusiveMinimum})` : undefined,
@@ -75,17 +75,11 @@ const zodKeywordMapper = {
     ${value}
     })`
   },
-  object: (value?: string, strict?: boolean, version: '3' | '4' = '3') => {
-    if (version === '4' && strict) {
+  object: (value?: string, strict?: boolean) => {
+    if (strict) {
       return `z.strictObject({
     ${value}
     })`
-    }
-
-    if (strict) {
-      return `z.object({
-    ${value}
-    }).strict()`
     }
 
     return `z.object({
@@ -145,30 +139,30 @@ const zodKeywordMapper = {
   /**
    * ISO 8601
    */
-  datetime: (offset = false, local = false, version: '3' | '4' = '3', mini?: boolean) => {
+  datetime: (offset = false, local = false, _version?: string, mini?: boolean) => {
     // Zod Mini doesn't support .datetime() method, use plain string
     if (mini) {
       return 'z.string()'
     }
 
     if (offset) {
-      return version === '4' ? `z.iso.datetime({ offset: ${offset} })` : `z.string().datetime({ offset: ${offset} })`
+      return `z.iso.datetime({ offset: ${offset} })`
     }
 
     if (local) {
-      return version === '4' ? `z.iso.datetime({ local: ${local} })` : `z.string().datetime({ local: ${local} })`
+      return `z.iso.datetime({ local: ${local} })`
     }
 
-    return version === '4' ? 'z.iso.datetime()' : 'z.string().datetime()'
+    return 'z.iso.datetime()'
   },
   /**
    * Type `'date'` Date
    * Type `'string'` ISO date format (YYYY-MM-DD)
    * @default ISO date format (YYYY-MM-DD)
    */
-  date: (type: 'date' | 'string' = 'string', coercion?: boolean, version: '3' | '4' = '3') => {
+  date: (type: 'date' | 'string' = 'string', coercion?: boolean) => {
     if (type === 'string') {
-      return version === '4' ? 'z.iso.date()' : 'z.string().date()'
+      return 'z.iso.date()'
     }
 
     if (coercion) {
@@ -182,9 +176,9 @@ const zodKeywordMapper = {
    * Type `'string'` ISO time format (HH:mm:ss[.SSSSSS])
    * @default ISO time format (HH:mm:ss[.SSSSSS])
    */
-  time: (type: 'date' | 'string' = 'string', coercion?: boolean, version: '3' | '4' = '3') => {
+  time: (type: 'date' | 'string' = 'string', coercion?: boolean) => {
     if (type === 'string') {
-      return version === '4' ? 'z.iso.time()' : 'z.string().time()'
+      return 'z.iso.time()'
     }
 
     if (coercion) {
@@ -195,20 +189,18 @@ const zodKeywordMapper = {
   },
   uuid: ({
     coercion,
-    version = '3',
     guidType = 'uuid',
     min,
     max,
     mini,
   }: {
     coercion?: boolean
-    version?: '3' | '4'
     guidType?: 'uuid' | 'guid'
     min?: number
     max?: number
     mini?: boolean
   } = {}) => {
-    const zodGuidType = version === '4' && guidType === 'guid' ? 'guid' : 'uuid'
+    const zodGuidType = guidType === 'guid' ? 'guid' : 'uuid'
 
     if (mini) {
       const checks = buildLengthChecks(min, max)
@@ -218,17 +210,17 @@ const zodKeywordMapper = {
       return `z.${zodGuidType}()`
     }
 
-    const zodV4UuidSchema = `z.${zodGuidType}()`
+    const zodUuidSchema = `z.${zodGuidType}()`
 
     return [
-      coercion ? (version === '4' ? zodV4UuidSchema : 'z.coerce.string().uuid()') : version === '4' ? zodV4UuidSchema : 'z.string().uuid()',
+      coercion ? zodUuidSchema : zodUuidSchema,
       min !== undefined ? `.min(${min})` : undefined,
       max !== undefined ? `.max(${max})` : undefined,
     ]
       .filter(Boolean)
       .join('')
   },
-  url: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number, mini?: boolean) => {
+  url: (coercion?: boolean, _version?: string, min?: number, max?: number, mini?: boolean) => {
     if (mini) {
       const checks = buildLengthChecks(min, max)
       if (checks.length > 0) {
@@ -237,7 +229,7 @@ const zodKeywordMapper = {
       return 'z.url()'
     }
     return [
-      coercion ? (version === '4' ? 'z.url()' : 'z.coerce.string().url()') : version === '4' ? 'z.url()' : 'z.string().url()',
+      coercion ? 'z.url()' : 'z.url()',
       min !== undefined ? `.min(${min})` : undefined,
       max !== undefined ? `.max(${max})` : undefined,
     ]
@@ -344,7 +336,7 @@ const zodKeywordMapper = {
       .filter(Boolean)
       .join('')
   },
-  email: (coercion?: boolean, version: '3' | '4' = '3', min?: number, max?: number, mini?: boolean) => {
+  email: (coercion?: boolean, _version?: string, min?: number, max?: number, mini?: boolean) => {
     if (mini) {
       const checks = buildLengthChecks(min, max)
       if (checks.length > 0) {
@@ -353,7 +345,7 @@ const zodKeywordMapper = {
       return 'z.email()'
     }
     return [
-      coercion ? (version === '4' ? 'z.email()' : 'z.coerce.string().email()') : version === '4' ? 'z.email()' : 'z.string().email()',
+      coercion ? 'z.email()' : 'z.email()',
       min !== undefined ? `.min(${min})` : undefined,
       max !== undefined ? `.max(${max})` : undefined,
     ]
@@ -534,7 +526,6 @@ type ParserOptions = {
   mapper?: Record<string, string>
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
-  version: '3' | '4'
   guidType?: 'uuid' | 'guid'
   skipLazyForRefs?: boolean
   mini?: boolean
@@ -665,7 +656,7 @@ export const parse = createParser<string, ParserOptions>({
             })
             .map((it) => {
               // For v4 with refs, skip z.lazy wrapper since the getter provides lazy evaluation
-              const skipLazyForRefs = options.version === '4' && hasRef
+              const skipLazyForRefs = hasRef
               return this.parse({ schema, parent: current, name, current: it, siblings: schemas }, { ...options, skipLazyForRefs })
             })
             .filter(Boolean)
@@ -675,7 +666,7 @@ export const parse = createParser<string, ParserOptions>({
             ? options.wrapOutput({ output: baseSchemaOutput, schema: schema?.properties?.[propertyName] }) || baseSchemaOutput
             : baseSchemaOutput
 
-          if (options.version === '4' && hasRef) {
+          if (hasRef) {
             // In mini mode, use functional wrappers instead of chainable methods
             if (options.mini) {
               // both optional and nullable
@@ -762,7 +753,7 @@ export const parse = createParser<string, ParserOptions>({
         : undefined
 
       const text = [
-        zodKeywordMapper.object(properties, current.args?.strict, options.version),
+        zodKeywordMapper.object(properties, current.args?.strict),
         additionalProperties ? zodKeywordMapper.catchall(additionalProperties, options.mini) : undefined,
       ].filter(Boolean)
 
@@ -872,7 +863,6 @@ export const parse = createParser<string, ParserOptions>({
 
       return zodKeywordMapper.uuid({
         coercion: shouldCoerce(options.coercion, 'strings'),
-        version: options.version,
         guidType: options.guidType,
         min: minSchema?.args,
         max: maxSchema?.args,
@@ -885,7 +875,7 @@ export const parse = createParser<string, ParserOptions>({
       const minSchema = findSchemaKeyword(siblings, 'min')
       const maxSchema = findSchemaKeyword(siblings, 'max')
 
-      return zodKeywordMapper.email(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
+      return zodKeywordMapper.email(shouldCoerce(options.coercion, 'strings'), undefined, minSchema?.args, maxSchema?.args, options.mini)
     },
     url(tree, options) {
       const { siblings } = tree
@@ -893,7 +883,7 @@ export const parse = createParser<string, ParserOptions>({
       const minSchema = findSchemaKeyword(siblings, 'min')
       const maxSchema = findSchemaKeyword(siblings, 'max')
 
-      return zodKeywordMapper.url(shouldCoerce(options.coercion, 'strings'), options.version, minSchema?.args, maxSchema?.args, options.mini)
+      return zodKeywordMapper.url(shouldCoerce(options.coercion, 'strings'), undefined, minSchema?.args, maxSchema?.args, options.mini)
     },
     number(tree, options) {
       const { siblings } = tree
@@ -924,7 +914,7 @@ export const parse = createParser<string, ParserOptions>({
         shouldCoerce(options.coercion, 'numbers'),
         minSchema?.args,
         maxSchema?.args,
-        options.version,
+        undefined,
         exclusiveMinimumSchema?.args,
         exclusiveMaximumSchema?.args,
         options.mini,
@@ -936,17 +926,17 @@ export const parse = createParser<string, ParserOptions>({
     datetime(tree, options) {
       const { current } = tree
 
-      return zodKeywordMapper.datetime(current.args.offset, current.args.local, options.version, options.mini)
+      return zodKeywordMapper.datetime(current.args.offset, current.args.local, undefined, options.mini)
     },
     date(tree, options) {
       const { current } = tree
 
-      return zodKeywordMapper.date(current.args.type, shouldCoerce(options.coercion, 'dates'), options.version)
+      return zodKeywordMapper.date(current.args.type, shouldCoerce(options.coercion, 'dates'))
     },
     time(tree, options) {
       const { current } = tree
 
-      return zodKeywordMapper.time(current.args.type, shouldCoerce(options.coercion, 'dates'), options.version)
+      return zodKeywordMapper.time(current.args.type, shouldCoerce(options.coercion, 'dates'))
     },
   },
 })
