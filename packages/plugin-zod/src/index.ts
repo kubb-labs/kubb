@@ -1,2 +1,9 @@
+export { zodGenerator } from './generators/zodGenerator.tsx'
+
 export { pluginZod, pluginZodName } from './plugin.ts'
-export type { PluginZod } from './types.ts'
+
+export { printerZod } from './printers/printerZod.ts'
+
+export { resolverZod } from './resolvers/resolverZod.ts'
+
+export type { PluginZod, ResolverZod } from './types.ts'
