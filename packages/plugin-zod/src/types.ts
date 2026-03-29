@@ -1,18 +1,38 @@
-import type { Output, PluginFactoryOptions, ResolveNameParams, UserGroup } from '@kubb/core'
-import type { contentType, Oas, SchemaObject } from '@kubb/oas'
-import type { Exclude, Include, Override, ResolvePathOptions, Schema } from '@kubb/plugin-oas'
-import type { Generator } from '@kubb/plugin-oas/generators'
+import type { OperationParamsResolver } from '@kubb/ast'
+import type { OperationNode, SchemaNode, Visitor } from '@kubb/ast/types'
+import type {
+  CompatibilityPreset,
+  Exclude,
+  Generator,
+  Group,
+  Include,
+  Output,
+  Override,
+  PluginFactoryOptions,
+  ResolvePathOptions,
+  Resolver,
+  UserGroup,
+} from '@kubb/core'
+
+/**
+ * The concrete resolver type for `@kubb/plugin-zod`.
+ * Extends the base `Resolver` with zod-specific naming helpers.
+ */
+export type ResolverZod = Resolver &
+  OperationParamsResolver & {
+    /** Resolve a camelCase schema name with 'Schema' suffix. */
+    resolveName(name: string): string
+    /** Resolve a path/file name for the generated output. */
+    resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+    /** Resolve the response schema name for an operation. */
+    resolveResponseName(node: OperationNode): string
+  }
 
 export type Options = {
   /**
    * @default 'zod'
    */
-  output?: Output<Oas>
-  /**
-   * Define which contentType should be used.
-   * By default, the first JSON valid mediaType is used
-   */
-  contentType?: contentType
+  output?: Output
   /**
    * Group the Zod schemas based on the provided name.
    */
@@ -37,7 +57,6 @@ export type Options = {
    * @default 'zod'
    */
   importPath?: string
-
   /**
    * Choose to use date or datetime as JavaScript Date instead of string.
    * - false falls back to a simple z.string() format.
@@ -46,15 +65,13 @@ export type Options = {
    * - 'stringLocal' uses z.string().datetime({ local: true }) for local datetime validation.
    * - 'date' uses z.date() for JavaScript Date objects.
    * @default 'string'
-   * @note 'stringOffset' will become the default in Kubb v3.
    */
   dateType?: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   /**
    * Choose to use `number` or `bigint` for integer fields with `int64` format.
    * - 'number' uses the JavaScript `number` type (matches JSON.parse() runtime behavior).
    * - 'bigint' uses the JavaScript `bigint` type (accurate for values exceeding Number.MAX_SAFE_INTEGER).
-   * @note in v5 of Kubb 'bigint' will become the default to better align with OpenAPI's int64 specification.
-   * @default 'number'
+   * @default 'bigint'
    */
   integerType?: 'number' | 'bigint'
   /**
@@ -82,77 +99,61 @@ export type Options = {
    */
   inferred?: boolean
   /**
-   * Use of z.coerce.string() instead of z.string()
-   * can also be an object to enable coercion for dates, strings, and numbers
+   * Use of z.coerce.string() instead of z.string().
+   * Can also be an object to enable coercion for dates, strings, and numbers.
    */
-  coercion?:
-    | boolean
-    | {
-        dates?: boolean
-        strings?: boolean
-        numbers?: boolean
-      }
-  operations?: boolean
-  mapper?: Record<string, string>
-  transformers?: {
-    /**
-     * Customize the names based on the type that is provided by the plugin.
-     */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
-    /**
-     * Receive schema and baseName(propertyName) and return FakerMeta array
-     * TODO TODO add docs
-     * @beta
-     */
-    schema?: (
-      props: {
-        schema: SchemaObject | null
-        name: string | null
-        parentName: string | null
-      },
-      defaultSchemas: Schema[],
-    ) => Schema[] | undefined
-  }
+  coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
   /**
-   * Which version of Zod should be used.
-   * - '3' uses Zod v3.x syntax and features.
-   * - '4' uses Zod v4.x syntax and features.
-   * @default '3'
+   * Generate operation-level schemas (grouped by operationId).
    */
-  version?: '3' | '4'
+  operations?: boolean
+  /**
+   * Map schema names to custom Zod expressions.
+   */
+  mapper?: Record<string, string>
   /**
    * Which Zod GUID validator to use for OpenAPI `format: uuid`.
    * - 'uuid' uses UUID validation.
-   * - 'guid' uses GUID validation (Zod v4 only).
+   * - 'guid' uses GUID validation.
    * @default 'uuid'
    */
   guidType?: 'uuid' | 'guid'
   /**
    * Use Zod Mini's functional API for better tree-shaking support.
-   * When enabled, generates functional syntax (e.g., `z.optional(z.string())`) instead of chainable methods (e.g., `z.string().optional()`).
-   * Requires Zod v4 or later. When `mini: true`, `version` is set to '4' and `importPath` will default to 'zod/mini'.
+   * When enabled, generates functional syntax (e.g., `z.optional(z.string())`)
+   * instead of chainable methods (e.g., `z.string().optional()`).
+   * When `mini: true`, `importPath` will default to 'zod/mini'.
    * @default false
    */
   mini?: boolean
   /**
-   * Callback function to wrap the output of the generated zod schema
+   * Callback function to wrap the output of the generated zod schema.
    *
-   * This is useful for edge case scenarios where you might leverage something like `z.object({ ... }).openapi({ example: { some: "complex-example" }})`
-   * or `extendApi(z.object({ ... }), { example: { some: "complex-example", ...otherOpenApiProperties }})`
-   * while going from openapi -> zod -> openapi
+   * Useful for edge cases like adding `.openapi()` metadata or wrapping
+   * schemas with extension helpers (openapi -> zod -> openapi round-trips).
    */
-  wrapOutput?: (arg: { output: string; schema: SchemaObject }) => string | undefined
+  wrapOutput?: (arg: { output: string; schema: SchemaNode }) => string | undefined
   /**
-   * Define some generators next to the zod generators
+   * Define additional generators next to the zod generators.
    */
   generators?: Array<Generator<PluginZod>>
+  /**
+   * Compatibility preset to ease migration from previous Kubb versions.
+   */
+  compatibilityPreset?: CompatibilityPreset
+  /**
+   * Custom resolver instances for zod-specific name resolution.
+   */
+  resolvers?: Array<ResolverZod>
+  /**
+   * AST visitor transformers applied during code generation.
+   */
+  transformers?: Array<Visitor>
 }
 
 type ResolvedOptions = {
-  output: Output<Oas>
-  group: Options['group']
-  override: NonNullable<Options['override']>
-  transformers: NonNullable<Options['transformers']>
+  output: Output
+  group: Group | undefined
   dateType: NonNullable<Options['dateType']>
   integerType: NonNullable<Options['integerType']>
   unknownType: NonNullable<Options['unknownType']>
@@ -163,10 +164,10 @@ type ResolvedOptions = {
   importPath: NonNullable<Options['importPath']>
   coercion: NonNullable<Options['coercion']>
   operations: NonNullable<Options['operations']>
-  wrapOutput: Options['wrapOutput']
-  version: NonNullable<Options['version']>
   guidType: NonNullable<Options['guidType']>
   mini: NonNullable<Options['mini']>
+  wrapOutput: Options['wrapOutput']
+  transformers: Array<Visitor>
 }
 
-export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions, ResolverZod>
