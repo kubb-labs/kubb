@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { pascalCase } from '@internals/utils'
 import { caseParams, createProperty, createSchema } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
@@ -6,7 +7,6 @@ import { File } from '@kubb/react-fabric'
 import { Zod } from '../components/Zod.tsx'
 import { ZodMini } from '../components/ZodMini.tsx'
 import { ZOD_NAMESPACE_IMPORTS } from '../constants.ts'
-import { resolverZodLegacy } from '../resolvers/resolverZodLegacy.ts'
 import type { PluginZod, ResolverZod } from '../types'
 
 type BuildGroupedParamsSchemaOptions = {
@@ -211,8 +211,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     }) {
       if (!schema) return null
 
-      const zodName = resolver.default(name, 'function')
-      const inferTypeName = inferred ? resolver.default(name, 'type') : undefined
+      const inferTypeName = inferred ? pascalCase(name) : undefined
 
       const imports = adapter.getImports(schema, (schemaName) => ({
         name: resolver.default(schemaName, 'function'),
@@ -225,7 +224,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
             imports.map((imp) => <File.Import key={[name, imp.path, imp.name].join('-')} root={file.path} path={imp.path} name={imp.name} />)}
           {mini ? (
             <ZodMini
-              name={zodName}
+              name={name}
               node={schema}
               guidType={guidType}
               wrapOutput={wrapOutput}
@@ -234,7 +233,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
             />
           ) : (
             <Zod
-              name={zodName}
+              name={name}
               node={schema}
               coercion={coercion}
               guidType={guidType}

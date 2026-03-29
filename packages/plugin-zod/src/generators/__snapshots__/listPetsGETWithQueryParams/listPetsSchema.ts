@@ -5,14 +5,14 @@
 
 import * as z from 'zod'
 
-export const listPetsQueryLimitSchemaSchema = z.int().optional()
+export const listPetsQueryLimitSchema = z.int().optional()
 
 /**
  * @description A paged array of pets
  */
-export const listPetsStatus200SchemaSchema = z.object({})
+export const listPetsStatus200Schema = z.object({})
 
 /**
  * @description Unexpected error
  */
-export const listPetsStatusDefaultSchemaSchema = z.object({})
+export const listPetsStatusDefaultSchema = z.object({})

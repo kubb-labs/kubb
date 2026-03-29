@@ -5,14 +5,14 @@
 
 import * as z from 'zod'
 
-export const showPetByIdPathPetIdSchemaSchema = z.string()
+export const showPetByIdPathPetIdSchema = z.string()
 
 /**
  * @description Expected response
  */
-export const showPetByIdStatus200SchemaSchema = z.object({})
+export const showPetByIdStatus200Schema = z.object({})
 
 /**
  * @description Unexpected error
  */
-export const showPetByIdStatusDefaultSchemaSchema = z.object({})
+export const showPetByIdStatusDefaultSchema = z.object({})

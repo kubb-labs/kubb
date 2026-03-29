@@ -5,9 +5,9 @@
 
 import * as z from 'zod'
 
-export const deletePetPathPetIdSchemaSchema = z.string()
+export const deletePetPathPetIdSchema = z.string()
 
 /**
  * @description No content
  */
-export const deletePetStatus204SchemaSchema = z.void()
+export const deletePetStatus204Schema = z.void()
