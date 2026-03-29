@@ -64,6 +64,7 @@
     "legacy-extra-enum-alias",
     "long-memes-lose",
     "missing-mutation-queryparams",
+    "plugin-cypress-v5-upgrade",
     "plugin-oas-operation-manager",
     "plugin-redoc-adapter-oas-migration",
     "plugin-ts-compatibility-presets",
