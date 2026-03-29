@@ -6,7 +6,7 @@ export function getOrderById(
 ): Cypress.Chainable<GetOrderByIdQueryResponse> {
   return cy
     .request<GetOrderByIdQueryResponse>({
-      method: 'get',
+      method: 'GET',
       url: `/store/order/${orderId}`,
       ...options,
     })

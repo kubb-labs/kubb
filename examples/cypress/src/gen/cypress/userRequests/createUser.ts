@@ -8,7 +8,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
 export function createUser(data?: CreateUserMutationRequest, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<CreateUserMutationResponse> {
   return cy
     .request<CreateUserMutationResponse>({
-      method: 'post',
+      method: 'POST',
       url: 'http://localhost:3000/user',
       body: data,
       ...options,

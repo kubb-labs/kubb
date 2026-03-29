@@ -8,7 +8,7 @@ import type { LogoutUserQueryResponse } from '../../models.ts'
 export function logoutUser(options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<LogoutUserQueryResponse> {
   return cy
     .request<LogoutUserQueryResponse>({
-      method: 'get',
+      method: 'GET',
       url: 'http://localhost:3000/user/logout',
       ...options,
     })

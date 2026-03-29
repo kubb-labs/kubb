@@ -12,7 +12,7 @@ export function deletePet(
 ): Cypress.Chainable<DeletePetMutationResponse> {
   return cy
     .request<DeletePetMutationResponse>({
-      method: 'delete',
+      method: 'DELETE',
       url: `http://localhost:3000/pet/${petId}`,
       headers,
       ...options,

@@ -7,7 +7,7 @@ export function findPetsByTags(
 ): Cypress.Chainable<FindPetsByTagsQueryResponse> {
   return cy
     .request<FindPetsByTagsQueryResponse>({
-      method: 'get',
+      method: 'GET',
       url: '/pet/findByTags',
       qs: params,
       headers,

@@ -11,7 +11,7 @@ export function getOrderById(
 ): Cypress.Chainable<GetOrderByIdQueryResponse> {
   return cy
     .request<GetOrderByIdQueryResponse>({
-      method: 'get',
+      method: 'GET',
       url: `http://localhost:3000/store/order/${orderId}`,
       ...options,
     })

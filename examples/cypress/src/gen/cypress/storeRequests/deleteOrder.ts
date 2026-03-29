@@ -11,7 +11,7 @@ export function deleteOrder(
 ): Cypress.Chainable<DeleteOrderMutationResponse> {
   return cy
     .request<DeleteOrderMutationResponse>({
-      method: 'delete',
+      method: 'DELETE',
       url: `http://localhost:3000/store/order/${orderId}`,
       ...options,
     })
