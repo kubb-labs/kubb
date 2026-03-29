@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../../models/UpdatePetWithForm.ts'
+import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../../models.ts'
 
 export function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],

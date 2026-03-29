@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../models/UpdateUser.ts'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../models.ts'
 
 export function updateUser(
   username: UpdateUserPathParams['username'],

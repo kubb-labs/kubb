@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../models/GetOrderById.ts'
+import type { GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../models.ts'
 
 export function getOrderById(
   orderId: GetOrderByIdPathParams['orderId'],

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../../models/CreateUsersWithListInput.ts'
+import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../../models.ts'
 
 export function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../models/DeleteOrder.ts'
+import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../models.ts'
 
 export function deleteOrder(
   orderId: DeleteOrderPathParams['orderId'],

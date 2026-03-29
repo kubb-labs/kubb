@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../models/DeleteUser.ts'
+import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../models.ts'
 
 export function deleteUser(
   username: DeleteUserPathParams['username'],

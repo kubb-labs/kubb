@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags.ts'
+import type { FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../models.ts'
 
 export function findPetsByTags(
   params?: FindPetsByTagsQueryParams,

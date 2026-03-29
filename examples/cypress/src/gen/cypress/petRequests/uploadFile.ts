@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../../models/UploadFile.ts'
+import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../../models.ts'
 
 export function uploadFile(
   petId: UploadFilePathParams['petId'],

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../../models/PlaceOrderPatch.ts'
+import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../../models.ts'
 
 export function placeOrderPatch(
   data?: PlaceOrderPatchMutationRequest,

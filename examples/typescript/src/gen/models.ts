@@ -3,17 +3,21 @@
  * Do not edit manually.
  */
 
-export enum OrderParamsStatusEnum {
-  placed = 'placed',
-  approved = 'approved',
-  delivered = 'delivered',
-}
+export const orderParamsStatusEnum = {
+  PLACED: 'placed',
+  APPROVED: 'approved',
+  DELIVERED: 'delivered',
+} as const
 
-export enum OrderHttpStatusEnum {
-  OrderHttpStatusEnum_200 = 200,
-  OrderHttpStatusEnum_400 = 400,
-  OrderHttpStatusEnum_500 = 500,
-}
+export type OrderParamsStatusEnumKey = (typeof orderParamsStatusEnum)[keyof typeof orderParamsStatusEnum]
+
+export const orderHttpStatusEnum = {
+  '200': 200,
+  '400': 400,
+  '500': 500,
+} as const
+
+export type OrderHttpStatusEnumKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
 
 export interface Order {
   /**
@@ -35,7 +39,7 @@ export interface Order {
      * @example approved
      * @type string
      */
-    status: OrderParamsStatusEnum
+    status: OrderParamsStatusEnumKey
     /**
      * @type string
      */
@@ -59,7 +63,7 @@ export interface Order {
    * @example 200
    * @type number | undefined
    */
-  http_status?: OrderHttpStatusEnum
+  http_status?: OrderHttpStatusEnumKey
   /**
    * @type boolean | undefined
    */
@@ -92,11 +96,13 @@ export interface Address {
   zip?: string
 }
 
-export enum CustomerParamsStatusEnum {
-  placed = 'placed',
-  approved = 'approved',
-  delivered = 'delivered',
-}
+export const customerParamsStatusEnum = {
+  PLACED: 'placed',
+  APPROVED: 'approved',
+  DELIVERED: 'delivered',
+} as const
+
+export type CustomerParamsStatusEnumKey = (typeof customerParamsStatusEnum)[keyof typeof customerParamsStatusEnum]
 
 export interface Customer {
   /**
@@ -113,7 +119,7 @@ export interface Customer {
      * @example approved
      * @type string
      */
-    status: CustomerParamsStatusEnum
+    status: CustomerParamsStatusEnumKey
     /**
      * @type string
      */
@@ -127,7 +133,7 @@ export interface Customer {
   /**
    * @type array | undefined
    */
-  address?: Address[]
+  address?: Array<Address>
 }
 
 export type HappyCustomer = Customer & {
@@ -240,16 +246,20 @@ export interface Cat {
   name?: string
 }
 
-export enum PetTypeEnum {
-  dog = 'dog',
-  cat = 'cat',
-}
+export const petTypeEnum = {
+  DOG: 'dog',
+  CAT: 'cat',
+} as const
 
-export enum PetStatusEnum {
-  available = 'available',
-  pending = 'pending',
-  sold = 'sold',
-}
+export type PetTypeEnumKey = (typeof petTypeEnum)[keyof typeof petTypeEnum]
+
+export const petStatusEnum = {
+  AVAILABLE: 'available',
+  PENDING: 'pending',
+  SOLD: 'sold',
+} as const
+
+export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
 
 export type Pet = (
   | (Dog & {
@@ -273,7 +283,7 @@ export type Pet = (
   /**
    * @type string
    */
-  readonly type: PetTypeEnum
+  readonly type: PetTypeEnumKey
   /**
    * @example doggie
    * @type string
@@ -283,16 +293,16 @@ export type Pet = (
   /**
    * @type array
    */
-  photoUrls: string[]
+  photoUrls: Array<string>
   /**
    * @type array | undefined
    */
-  readonly tags?: Tag[]
+  readonly tags?: Array<Tag>
   /**
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: PetStatusEnum
+  status?: PetStatusEnumKey
 }
 
 export type FullAddress = Address & {
@@ -306,12 +316,14 @@ export type FullAddress = Address & {
   streetName: string
 }
 
-export enum AddPetRequestStatusEnum {
-  available = 'available',
-  pending = 'pending',
-  sold = 'sold',
-  'in store' = 'in store',
-}
+export const addPetRequestStatusEnum = {
+  AVAILABLE: 'available',
+  PENDING: 'pending',
+  SOLD: 'sold',
+  IN_STORE: 'in store',
+} as const
+
+export type AddPetRequestStatusEnumKey = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
 
 export interface AddPetRequest {
   /**
@@ -328,16 +340,16 @@ export interface AddPetRequest {
   /**
    * @type array
    */
-  photoUrls: string[]
+  photoUrls: Array<string>
   /**
    * @type array | undefined
    */
-  tags?: Tag[]
+  tags?: Array<Tag>
   /**
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: AddPetRequestStatusEnum
+  status?: AddPetRequestStatusEnumKey
 }
 
 export interface ApiResponse {
@@ -366,7 +378,7 @@ export interface PetNotFound {
   message?: string
 }
 
-export type UserArray = User[]
+export type UserArray = Array<User>
 
 /**
  * @description Successful operation
@@ -433,11 +445,13 @@ export interface AddPetMutation {
   Errors: AddPet405
 }
 
-export enum FindPetsByStatusQueryParamsStatusEnum {
-  available = 'available',
-  pending = 'pending',
-  sold = 'sold',
-}
+export const findPetsByStatusQueryParamsStatusEnum = {
+  AVAILABLE: 'available',
+  PENDING: 'pending',
+  SOLD: 'sold',
+} as const
+
+export type FindPetsByStatusQueryParamsStatusEnumKey = (typeof findPetsByStatusQueryParamsStatusEnum)[keyof typeof findPetsByStatusQueryParamsStatusEnum]
 
 export interface FindPetsByStatusQueryParams {
   /**
@@ -445,13 +459,13 @@ export interface FindPetsByStatusQueryParams {
    * @default "available"
    * @type string | undefined
    */
-  status?: FindPetsByStatusQueryParamsStatusEnum
+  status?: FindPetsByStatusQueryParamsStatusEnumKey
 }
 
 /**
  * @description successful operation
  */
-export type FindPetsByStatus200 = Pet[]
+export type FindPetsByStatus200 = Array<Pet>
 
 /**
  * @description Invalid status value
@@ -471,7 +485,7 @@ export interface FindPetsByTagsQueryParams {
    * @description Tags to filter by
    * @type array | undefined
    */
-  tags?: string[]
+  tags?: Array<string>
   /**
    * @description to request with required page number or pagination
    * @type string | undefined
@@ -487,7 +501,7 @@ export interface FindPetsByTagsQueryParams {
 /**
  * @description successful operation
  */
-export type FindPetsByTags200 = Pet[]
+export type FindPetsByTags200 = Array<Pet>
 
 /**
  * @description Invalid tag value
@@ -583,16 +597,18 @@ export interface DeletePetHeaderParams {
   api_key?: string
 }
 
-export enum DeletePet200Enum {
-  TYPE1 = 'TYPE1',
-  TYPE2 = 'TYPE2',
-  TYPE3 = 'TYPE3',
-}
+export const deletePet200Enum = {
+  TYPE1: 'TYPE1',
+  TYPE2: 'TYPE2',
+  TYPE3: 'TYPE3',
+} as const
+
+export type DeletePet200EnumKey = (typeof deletePet200Enum)[keyof typeof deletePet200Enum]
 
 /**
  * @description items
  */
-export type DeletePet200 = DeletePet200Enum[]
+export type DeletePet200 = Array<DeletePet200EnumKey>
 
 /**
  * @description Invalid pet value
@@ -783,7 +799,7 @@ export type CreateUsersWithListInput200 = User
  */
 export type CreateUsersWithListInputError = any
 
-export type CreateUsersWithListInputMutationRequest = User[]
+export type CreateUsersWithListInputMutationRequest = Array<User>
 
 export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200
 

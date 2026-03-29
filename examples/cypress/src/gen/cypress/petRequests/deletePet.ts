@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../models/DeletePet.ts'
+import type { DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../models.ts'
 
 export function deletePet(
   petId: DeletePetPathParams['petId'],

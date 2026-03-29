@@ -22,7 +22,7 @@ export default defineConfig(() => {
       pluginOas({ generators: [] }),
       pluginTs({
         output: {
-          path: 'models',
+          path: 'models.ts',
         },
         compatibilityPreset: 'kubbV4',
       }),

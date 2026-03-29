@@ -12,6 +12,8 @@ export default defineConfig([
     output: {
       path: './src/legacy',
       clean: true,
+      format: 'biome',
+      lint: 'biome',
     },
     adapter: adapterOas({
       validate: false,
@@ -45,6 +47,8 @@ export default defineConfig([
     output: {
       path: './src/gen',
       clean: true,
+      format: 'biome',
+      lint: 'biome',
     },
     adapter: adapterOas({
       validate: false,
@@ -56,7 +60,9 @@ export default defineConfig([
           path: 'models.ts',
           barrelType: false,
         },
-        enumType: 'enum',
+        enumType: 'asConst',
+        arrayType: 'generic',
+        enumKeyCasing: 'screamingSnakeCase',
         syntaxType: 'interface',
         compatibilityPreset: 'kubbV4',
       }),
@@ -65,7 +71,7 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen2', clean: true },
+    output: { path: './src/gen2', clean: true, format: 'biome', lint: 'biome' },
     adapter: adapterOas({
       validate: false,
     }),
@@ -84,7 +90,7 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen3', clean: true },
+    output: { path: './src/gen3', clean: true, format: 'biome', lint: 'biome' },
     adapter: adapterOas({
       validate: false,
     }),
@@ -103,7 +109,7 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen4', clean: true },
+    output: { path: './src/gen4', clean: true, format: 'biome', lint: 'biome' },
     adapter: adapterOas({
       validate: false,
     }),
@@ -122,7 +128,7 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen5', clean: true },
+    output: { path: './src/gen5', clean: true, format: 'biome', lint: 'biome' },
     adapter: adapterOas({
       validate: false,
     }),
@@ -141,9 +147,9 @@ export default defineConfig([
   {
     root: '.',
     input,
-    output: { path: './src/gen6', clean: true },
+    output: { path: './src/gen6', clean: true, format: 'biome', lint: 'biome' },
     hooks: {
-      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
+      done: ['npm run typecheck'],
     },
     adapter: adapterOas({
       validate: false,
@@ -155,6 +161,93 @@ export default defineConfig([
           path: 'ts/models',
         },
         compatibilityPreset: 'kubbV4',
+      }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen7', clean: true, format: 'biome', lint: 'biome' },
+    adapter: adapterOas({ validate: false }),
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
+      pluginTs({
+        output: { path: 'modelsInlineLiteral.ts', barrelType: false },
+        enumType: 'inlineLiteral',
+      }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen8', clean: true, format: 'biome', lint: 'biome' },
+    adapter: adapterOas({ validate: false }),
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
+      pluginTs({
+        output: { path: 'modelsOptionalUndefined.ts', barrelType: false },
+        enumType: 'inlineLiteral',
+        optionalType: 'undefined',
+      }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen9', clean: true, format: 'biome', lint: 'biome' },
+    adapter: adapterOas({ validate: false }),
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
+      pluginTs({
+        output: { path: 'modelsOptionalBoth.ts', barrelType: false },
+        enumType: 'inlineLiteral',
+        optionalType: 'questionTokenAndUndefined',
+      }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen10', clean: true, format: 'biome', lint: 'biome' },
+    adapter: adapterOas({ validate: false }),
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
+      pluginTs({
+        output: { path: 'models' },
+        enumType: 'inlineLiteral',
+        paramsCasing: 'camelcase',
+        group: { type: 'tag' },
+      }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen11', clean: true, format: 'biome', lint: 'biome' },
+    adapter: adapterOas({ validate: false }),
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
+      pluginTs({
+        output: { path: 'modelsPascalCaseKeys.ts', barrelType: false },
+        enumType: 'asConst',
+        enumKeyCasing: 'pascalCase',
+      }),
+    ],
+  },
+  {
+    root: '.',
+    input,
+    output: { path: './src/gen12', clean: true, format: 'biome', lint: 'biome' },
+    hooks: {
+      done: ['npm run typecheck'],
+    },
+    adapter: adapterOas({ validate: false }),
+    plugins: [
+      pluginOas({ validate: false, generators: [] }),
+      pluginTs({
+        output: { path: 'modelsCamelCaseKeys.ts', barrelType: false },
+        enumType: 'asConst',
+        enumKeyCasing: 'camelCase',
       }),
     ],
   },
