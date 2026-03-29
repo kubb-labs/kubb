@@ -3,14 +3,16 @@
  * Do not edit manually.
  */
 
-import type { OptionsFindPetsByStatusResponse } from '../../models.ts'
+import type { OptionsFindPetsByStatusResponse } from "../../models.ts";
 
-export function optionsFindPetsByStatus(options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<OptionsFindPetsByStatusResponse> {
+export function optionsFindPetsByStatus(
+  options: Partial<Cypress.RequestOptions> = {},
+): Cypress.Chainable<OptionsFindPetsByStatusResponse> {
   return cy
     .request<OptionsFindPetsByStatusResponse>({
-      method: 'OPTIONS',
-      url: 'http://localhost:3000/pet/findByStatus',
+      method: "OPTIONS",
+      url: `http://localhost:3000/pet/findByStatus`,
       ...options,
     })
-    .then((res) => res.body)
+    .then((res) => res.body);
 }

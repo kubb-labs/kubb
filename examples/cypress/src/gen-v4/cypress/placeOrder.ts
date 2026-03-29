@@ -3,15 +3,21 @@
  * Do not edit manually.
  */
 
-import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../models.ts'
+import type {
+  PlaceOrderMutationRequest,
+  PlaceOrderMutationResponse,
+} from "../models.ts";
 
-export function placeOrder(data?: PlaceOrderMutationRequest, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<PlaceOrderMutationResponse> {
+export function placeOrder(
+  data?: PlaceOrderMutationRequest,
+  options: Partial<Cypress.RequestOptions> = {},
+): Cypress.Chainable<PlaceOrderMutationResponse> {
   return cy
     .request<PlaceOrderMutationResponse>({
-      method: 'POST',
-      url: 'http://localhost:3000/store/order',
+      method: "POST",
+      url: `http://localhost:3000/store/order`,
       body: data,
       ...options,
     })
-    .then((res) => res.body)
+    .then((res) => res.body);
 }

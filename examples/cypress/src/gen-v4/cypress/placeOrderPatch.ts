@@ -3,7 +3,10 @@
  * Do not edit manually.
  */
 
-import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../models.ts'
+import type {
+  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchMutationResponse,
+} from "../models.ts";
 
 export function placeOrderPatch(
   data?: PlaceOrderPatchMutationRequest,
@@ -11,10 +14,10 @@ export function placeOrderPatch(
 ): Cypress.Chainable<PlaceOrderPatchMutationResponse> {
   return cy
     .request<PlaceOrderPatchMutationResponse>({
-      method: 'PATCH',
-      url: 'http://localhost:3000/store/order',
+      method: "PATCH",
+      url: `http://localhost:3000/store/order`,
       body: data,
       ...options,
     })
-    .then((res) => res.body)
+    .then((res) => res.body);
 }

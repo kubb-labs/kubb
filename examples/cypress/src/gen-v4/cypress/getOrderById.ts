@@ -3,17 +3,20 @@
  * Do not edit manually.
  */
 
-import type { GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models.ts'
+import type {
+  GetOrderByIdPathParams,
+  GetOrderByIdQueryResponse,
+} from "../models.ts";
 
 export function getOrderById(
-  orderId: GetOrderByIdPathParams['orderId'],
+  orderId: GetOrderByIdPathParams["orderId"],
   options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<GetOrderByIdQueryResponse> {
   return cy
     .request<GetOrderByIdQueryResponse>({
-      method: 'GET',
+      method: "GET",
       url: `http://localhost:3000/store/order/${orderId}`,
       ...options,
     })
-    .then((res) => res.body)
+    .then((res) => res.body);
 }
