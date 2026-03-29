@@ -1,7 +1,8 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
-import { createPlugin, type Group, getBarrelFiles, getPreset, renderOperation } from '@kubb/core'
+import type { OperationNode } from '@kubb/ast/types'
+import { createPlugin, type Group, getBarrelFiles, getPreset, renderOperation, renderOperations, renderSchema } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { presets } from './presets.ts'
 import { resolverCypress } from './resolvers/resolverCypress.ts'
@@ -95,9 +96,62 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
         throw new Error('Plugin cannot work without adapter being set')
       }
 
+      const collectedOperations: Array<OperationNode> = []
+
       await walk(rootNode, {
         depth: 'shallow',
+        async schema(schemaNode) {
+          const writeTasks = preset.generators.map(async (generator) => {
+            if (generator.type === 'react' && generator.version === '2') {
+              const resolvedOptions = resolver.resolveOptions(schemaNode, {
+                options: plugin.options,
+                exclude,
+                include,
+                override,
+              })
+
+              if (resolvedOptions === null) {
+                return
+              }
+
+              await renderSchema(schemaNode, {
+                options: resolvedOptions,
+                resolver,
+                adapter,
+                config,
+                fabric,
+                Component: generator.Schema,
+                plugin,
+                driver,
+              })
+            }
+
+            if (generator.type === 'core' && generator.version === '2') {
+              const resolvedOptions = resolver.resolveOptions(schemaNode, {
+                options: plugin.options,
+                exclude,
+                include,
+                override,
+              })
+
+              if (resolvedOptions === null) {
+                return
+              }
+
+              const files = (await generator.schema?.({ node: schemaNode, options: resolvedOptions, resolver, adapter, config, plugin, driver })) ?? []
+              await fabric.upsertFile(...files)
+            }
+          })
+
+          await Promise.all(writeTasks)
+        },
         async operation(operationNode) {
+          const baseOptions = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
+
+          if (baseOptions !== null) {
+            collectedOperations.push(operationNode)
+          }
+
           const writeTasks = preset.generators.map(async (generator) => {
             if (generator.type === 'react' && generator.version === '2') {
               const resolvedOptions = resolver.resolveOptions(operationNode, {
@@ -144,6 +198,37 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
           await Promise.all(writeTasks)
         },
       })
+
+      const batchTasks = preset.generators.map(async (generator) => {
+        if (generator.type === 'react' && generator.version === '2') {
+          await renderOperations(collectedOperations, {
+            options: plugin.options,
+            resolver,
+            adapter,
+            config,
+            fabric,
+            Component: generator.Operations,
+            plugin,
+            driver,
+          })
+        }
+
+        if (generator.type === 'core' && generator.version === '2') {
+          const files =
+            (await generator.operations?.({
+              nodes: collectedOperations,
+              options: plugin.options,
+              resolver,
+              adapter,
+              config,
+              plugin,
+              driver,
+            })) ?? []
+          await this.upsertFile(...files)
+        }
+      })
+
+      await Promise.all(batchTasks)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',
