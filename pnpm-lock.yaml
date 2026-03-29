@@ -268,9 +268,6 @@ importers:
       '@kubb/plugin-cypress':
         specifier: workspace:*
         version: link:../../packages/plugin-cypress
-      '@kubb/plugin-oas':
-        specifier: workspace:*
-        version: link:../../packages/plugin-oas
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts
@@ -725,9 +722,6 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../../packages/oas
-      '@kubb/plugin-oas':
-        specifier: workspace:*
-        version: link:../../packages/plugin-oas
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts

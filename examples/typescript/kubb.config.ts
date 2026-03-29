@@ -1,6 +1,5 @@
 import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
 const input = { path: './petStore.yaml' } as const
@@ -19,7 +18,6 @@ export default defineConfig([
       validate: false,
     }),
     plugins: [
-      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'models.ts',
@@ -54,7 +52,6 @@ export default defineConfig([
       validate: false,
     }),
     plugins: [
-      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'models.ts',
@@ -76,7 +73,6 @@ export default defineConfig([
       validate: false,
     }),
     plugins: [
-      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'modelsConst.ts',
@@ -95,7 +91,6 @@ export default defineConfig([
       validate: false,
     }),
     plugins: [
-      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'modelsPascalConst.ts',
@@ -114,7 +109,6 @@ export default defineConfig([
       validate: false,
     }),
     plugins: [
-      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'modelsConstEnum.ts',
@@ -133,7 +127,6 @@ export default defineConfig([
       validate: false,
     }),
     plugins: [
-      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'modelsLiteral.ts',
@@ -155,7 +148,6 @@ export default defineConfig([
       validate: false,
     }),
     plugins: [
-      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: {
           path: 'ts/models',
@@ -170,7 +162,6 @@ export default defineConfig([
     output: { path: './src/gen7', clean: true, format: 'biome', lint: 'biome' },
     adapter: adapterOas({ validate: false }),
     plugins: [
-      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: { path: 'modelsInlineLiteral.ts', barrelType: false },
         enumType: 'inlineLiteral',
@@ -183,7 +174,6 @@ export default defineConfig([
     output: { path: './src/gen8', clean: true, format: 'biome', lint: 'biome' },
     adapter: adapterOas({ validate: false }),
     plugins: [
-      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: { path: 'modelsOptionalUndefined.ts', barrelType: false },
         enumType: 'inlineLiteral',
@@ -197,7 +187,6 @@ export default defineConfig([
     output: { path: './src/gen9', clean: true, format: 'biome', lint: 'biome' },
     adapter: adapterOas({ validate: false }),
     plugins: [
-      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: { path: 'modelsOptionalBoth.ts', barrelType: false },
         enumType: 'inlineLiteral',
@@ -211,7 +200,6 @@ export default defineConfig([
     output: { path: './src/gen10', clean: true, format: 'biome', lint: 'biome' },
     adapter: adapterOas({ validate: false }),
     plugins: [
-      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: { path: 'models' },
         enumType: 'inlineLiteral',
@@ -226,7 +214,6 @@ export default defineConfig([
     output: { path: './src/gen11', clean: true, format: 'biome', lint: 'biome' },
     adapter: adapterOas({ validate: false }),
     plugins: [
-      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: { path: 'modelsPascalCaseKeys.ts', barrelType: false },
         enumType: 'asConst',
@@ -243,7 +230,6 @@ export default defineConfig([
     },
     adapter: adapterOas({ validate: false }),
     plugins: [
-      pluginOas({ validate: false, generators: [] }),
       pluginTs({
         output: { path: 'modelsCamelCaseKeys.ts', barrelType: false },
         enumType: 'asConst',

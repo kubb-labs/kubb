@@ -40,15 +40,14 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
     const headerParams = casedParams.filter((p) => p.in === 'header')
 
     const importedTypeNames = [
-      // Use group names when the resolver provides them, otherwise individual names
       ...(pathParams.length && tsResolver.resolvePathParamsName
-        ? [tsResolver.resolvePathParamsName(node, pathParams[0]!)]
+        ? pathParams.map((p) => tsResolver.resolvePathParamsName!(node, p))
         : pathParams.map((p) => tsResolver.resolveParamName(node, p))),
       ...(queryParams.length && tsResolver.resolveQueryParamsName
-        ? [tsResolver.resolveQueryParamsName(node, queryParams[0]!)]
+        ? queryParams.map((p) => tsResolver.resolveQueryParamsName!(node, p))
         : queryParams.map((p) => tsResolver.resolveParamName(node, p))),
       ...(headerParams.length && tsResolver.resolveHeaderParamsName
-        ? [tsResolver.resolveHeaderParamsName(node, headerParams[0]!)]
+        ? headerParams.map((p) => tsResolver.resolveHeaderParamsName!(node, p))
         : headerParams.map((p) => tsResolver.resolveParamName(node, p))),
       node.requestBody?.schema ? tsResolver.resolveDataName(node) : undefined,
       tsResolver.resolveResponseName(node),
