@@ -593,7 +593,7 @@ describe('createOperationParams', () => {
 
       const pathGroup = params.params[0]
       if (pathGroup && pathGroup.kind === 'ParameterGroup') {
-        expect(pathGroup.properties[0]?.type).toEqual({ kind: 'Type', variant: 'reference', name: 'unknown' })
+        expect(pathGroup.properties[0]?.type).toEqual({ kind: 'Type', variant: 'reference', name: 'string' })
       }
     })
   })
