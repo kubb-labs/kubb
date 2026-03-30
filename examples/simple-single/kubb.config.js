@@ -51,6 +51,7 @@ export default defineConfig([
           path: './zod.ts',
         },
         operations: false,
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   },

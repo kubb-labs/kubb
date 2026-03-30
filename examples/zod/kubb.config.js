@@ -38,6 +38,7 @@ export default defineConfig([
         },
         importPath: '../../zod.ts',
         inferred: true,
+        compatibilityPreset: 'kubbV4',
       }),
       pluginClient({
         output: {
@@ -92,6 +93,7 @@ export default defineConfig([
         output: {
           path: './zod',
         },
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   },

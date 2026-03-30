@@ -75,7 +75,7 @@ export default defineConfig({
       inferred: true,
       typed: true,
       operations: false,
-      version: '3',
+      compatibilityPreset: 'kubbV4',
     }),
     pluginReactQuery({
       output: {
