@@ -181,40 +181,57 @@ describe('printerZod', () => {
   })
 
   describe('ref', () => {
-    test('ref uses ref path name over node name', () => {
+    test('cross-file ref returns bare name', () => {
       const node = createSchema({ type: 'ref', name: 'UnsupportedAuthenticationProblem', ref: '#/components/schemas/Problem' })
 
       expect(printer.print(node)).toBe('Problem')
     })
 
-    test('ref with resolver uses ref path name', () => {
+    test('cross-file ref with resolver returns resolved bare name', () => {
       const p = printerZod({ resolver: { default: (name: string) => `${name.charAt(0).toLowerCase()}${name.slice(1)}Schema` } as any })
       const node = createSchema({ type: 'ref', name: 'UnsupportedAuthenticationProblem', ref: '#/components/schemas/Problem' })
 
       expect(p.print(node)).toBe('problemSchema')
     })
 
-    test('ref without $ref path returns bare name (used for intersection constraint chaining)', () => {
+    test('ref without $ref path (intersection chaining) returns bare name', () => {
       const node = createSchema({ type: 'ref', name: 'PhoneNumber' })
 
       expect(printer.print(node)).toBe('PhoneNumber')
     })
 
-    test('self-referential ref is wrapped in z.lazy()', () => {
+    test('self-ref wraps in z.lazy()', () => {
       const p = printerZod({ schemaName: 'TreeNode' })
       const node = createSchema({ type: 'ref', name: 'TreeNode', ref: '#/components/schemas/TreeNode' })
 
       expect(p.print(node)).toBe('z.lazy(() => TreeNode)')
     })
 
-    test('self-referential ref with resolver is wrapped in z.lazy()', () => {
-      const p = printerZod({
-        schemaName: 'treeNodeSchema',
-        resolver: { default: (name: string) => `${name.charAt(0).toLowerCase()}${name.slice(1)}Schema` } as any,
+    test('object cross-file ref property uses bare name (no getter)', () => {
+      const node = createSchema({
+        type: 'object',
+        primitive: 'object',
+        properties: [
+          createProperty({ name: 'category', required: false, schema: createSchema({ type: 'ref', name: 'Category', ref: '#/components/schemas/Category' }) }),
+          createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
+        ],
       })
-      const node = createSchema({ type: 'ref', name: 'TreeNode', ref: '#/components/schemas/TreeNode' })
 
-      expect(p.print(node)).toBe('z.lazy(() => treeNodeSchema)')
+      expect(printer.print(node)).toBe('z.object({\n    "category": Category.optional(),\n    "name": z.string()\n    })')
+    })
+
+    test('object self-ref property uses getter with bare name', () => {
+      const p = printerZod({ schemaName: 'TreeNode' })
+      const node = createSchema({
+        type: 'object',
+        primitive: 'object',
+        properties: [
+          createProperty({ name: 'children', required: false, schema: createSchema({ type: 'ref', name: 'TreeNode', ref: '#/components/schemas/TreeNode' }) }),
+          createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
+        ],
+      })
+
+      expect(p.print(node)).toBe('z.object({\n    get "children"() { return TreeNode.optional() },\n    "name": z.string()\n    })')
     })
   })
 

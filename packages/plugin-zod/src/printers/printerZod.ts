@@ -19,7 +19,6 @@ export type ZodOptions = {
 
 type ZodPrinterFactory = PrinterFactoryOptions<'zod', ZodOptions, string, string>
 
-
 function shouldCoerce(coercion: ZodOptions['coercion'], type: 'dates' | 'strings' | 'numbers'): boolean {
   if (coercion === undefined || coercion === false) return false
   if (coercion === true) return true
@@ -99,6 +98,29 @@ function applyModifiers({
     result = `${result}.describe(${stringify(description)})`
   }
   return result
+}
+
+/** Returns true when the schema tree contains a self-referential `$ref` (resolved name matches schemaName). */
+function containsSelfRef(node: SchemaNode, schemaName: string, resolver: ResolverZod | undefined): boolean {
+  if (node.type === 'ref' && node.ref) {
+    const rawName = extractRefName(node.ref) ?? node.name
+    const resolved = rawName ? (resolver?.default(rawName, 'function') ?? rawName) : node.name
+    return resolved === schemaName
+  }
+  if (node.type === 'object') {
+    if (node.properties?.some((p) => containsSelfRef(p.schema, schemaName, resolver))) return true
+    if (node.additionalProperties && node.additionalProperties !== true) {
+      return containsSelfRef(node.additionalProperties, schemaName, resolver)
+    }
+    return false
+  }
+  if (node.type === 'array' || node.type === 'tuple') {
+    return node.items?.some((item) => containsSelfRef(item, schemaName, resolver)) ?? false
+  }
+  if (node.type === 'union' || node.type === 'intersection') {
+    return node.members?.some((m) => containsSelfRef(m, schemaName, resolver)) ?? false
+  }
+  return false
 }
 
 /**
@@ -194,7 +216,8 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         if (!node.name) return undefined
         const refName = node.ref ? (extractRefName(node.ref) ?? node.name) : node.name
         const resolvedName = node.ref ? (this.options.resolver?.default(refName, 'function') ?? refName) : node.name
-        if (node.ref && resolvedName === this.options.schemaName) {
+        const isSelfRef = node.ref && this.options.schemaName != null && resolvedName === this.options.schemaName
+        if (isSelfRef) {
           return `z.lazy(() => ${resolvedName})`
         }
         return resolvedName
@@ -204,16 +227,18 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
           .map((prop) => {
             const { name: propName, schema } = prop
 
-            // For ref schemas, structural metadata lives on schema.schema rather than the ref node itself.
             const meta = syncSchemaRef(schema)
 
             const isNullable = meta?.nullable
             const isOptional = schema.optional
             const isNullish = schema.nullish
 
+            const hasSelfRef = this.options.schemaName != null && containsSelfRef(schema, this.options.schemaName, this.options.resolver)
             const baseOutput = this.transform(schema) ?? 'z.unknown()'
+            // Strip z.lazy() wrappers inside object getters — the getter itself provides deferred evaluation
+            const resolvedOutput = hasSelfRef ? baseOutput.replaceAll(`z.lazy(() => ${this.options.schemaName})`, this.options.schemaName!) : baseOutput
 
-            const wrappedOutput = this.options.wrapOutput ? this.options.wrapOutput({ output: baseOutput, schema }) || baseOutput : baseOutput
+            const wrappedOutput = this.options.wrapOutput ? this.options.wrapOutput({ output: resolvedOutput, schema }) || resolvedOutput : resolvedOutput
 
             const value = applyModifiers({
               value: wrappedOutput,
@@ -224,6 +249,9 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
               description: meta?.description,
             })
 
+            if (hasSelfRef) {
+              return `get "${propName}"() { return ${value} }`
+            }
             return `"${propName}": ${value}`
           })
           .join(',\n    ')
