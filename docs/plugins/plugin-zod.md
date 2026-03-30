@@ -10,8 +10,7 @@ outline: deep
 
 Generate [Zod](https://zod.dev/) validation schemas from your OpenAPI schema.
 
-> [!TIP]
-> Support for Zod v4 when using Kubb `v3.8.1`, see [Zod 4 migration guide](https://v4.zod.dev/v4/changelog)
+Kubb v5 always generates **Zod v4** schemas. Zod v3 is no longer supported.
 
 ## Installation
 
@@ -72,26 +71,30 @@ Specify what to export and optionally disable barrel file generation.
 
 Add a banner comment at the top of every generated file.
 
-|           |                                  |
-|----------:|:--------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                          |
+|           |                                              |
+|----------:|:---------------------------------------------|
+|     Type: | `string \| ((node: RootNode) => string)`     |
+| Required: | `false`                                      |
 
 #### output.footer
 
 Add a footer comment at the end of every generated file.
 
-|           |                                  |
-|----------:|:--------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                          |
+|           |                                              |
+|----------:|:---------------------------------------------|
+|     Type: | `string \| ((node: RootNode) => string)`     |
+| Required: | `false`                                      |
 
 #### output.override
 <!--@include: ./core/outputOverride.md-->
 
-### contentType
+### compatibilityPreset
 
-<!--@include: ./core/contentType.md-->
+<!--@include: ./core/compatibilityPreset.md-->
+
+### resolvers
+
+<!--@include: ./core/resolvers.md-->
 
 ### group
 
@@ -229,35 +232,24 @@ z.coerce.number();
 | Required: | `false`   |
 |  Default: | `false`   |
 
-### mapper
+### paramsCasing
 
-|           |                          |
-| --------: | :----------------------- |
-|     Type: | `Record<string, string>` |
-| Required: | `false`                  |
+How to style your params, by default no casing is applied.
 
-### version
-
-Which version of Zod should be used.
-
-|           |              |
-| --------: | :----------- |
-|     Type: | `'3' \| '4'` |
-| Required: | `false`      |
-|  Default: | `'3'`        |
+|           |                |
+| --------: | :------------- |
+|     Type: | `'camelcase'`  |
+| Required: | `false`        |
 
 ### guidType
 
 Which validator to use for OpenAPI `format: uuid`.
 
-|           |                   |
-| --------: | :---------------- |
+|           |                    |
+| --------: | :----------------- |
 |     Type: | `'uuid' \| 'guid'` |
-| Required: | `false`           |
-|  Default: | `'uuid'`          |
-
-> [!NOTE]
-> `guid` is only used with `version: '4'`. With `version: '3'`, Kubb falls back to `uuid`.
+| Required: | `false`            |
+|  Default: | `'uuid'`           |
 
 ::: code-group
 
@@ -265,7 +257,7 @@ Which validator to use for OpenAPI `format: uuid`.
 z.uuid()
 ```
 
-```typescript ['guid' + version: '4']
+```typescript ['guid']
 z.guid()
 ```
 
@@ -277,7 +269,7 @@ Use Zod Mini's functional API for better tree-shaking support.
 
 When enabled, generates functional syntax (e.g., `z.optional(z.string())`) instead of chainable methods (e.g., `z.string().optional()`).
 
-Requires Zod v4 or later. When `mini: true`, `version` will be set to `'4'` and `importPath` will default to `'zod/mini'`.
+When `mini: true`, `importPath` will default to `'zod/mini'`.
 
 > [!WARNING]
 > This feature is currently in beta. The API may change in future releases.
@@ -338,29 +330,12 @@ z.array(z.string()).min(1).max(10)
 
 ### transformers
 
-<!--@include: ./core/transformers.md-->
+Array of AST visitors applied to each node before printing. See [`transform()`](https://github.com/kubb-labs/kubb/blob/main/packages/ast/src/transform.ts) from `@kubb/ast`.
 
-#### transformers.name
-
-Customize the names based on the type that is provided by the plugin.
-
-|           |                                                |
-| --------: | :--------------------------------------------- |
-|     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                        |
-
-```typescript
-type ResolveType = "file" | "function" | "type" | "const";
-```
-
-#### transformers.schema
-
-Customize the schema based on the type that is provided by the plugin.
-
-|           |                                                                                                                             |
-| --------: | :-------------------------------------------------------------------------------------------------------------------------- |
-|     Type: | `(props: { schema?: SchemaObject; name?: string; parentName?: string}, defaultSchemas: Schema[],) => Schema[] \| undefined` |
-| Required: | `false`                                                                                                                     |
+|           |                     |
+| --------: | :------------------ |
+|     Type: | `Array<Visitor>`    |
+| Required: | `false`             |
 
 ### wrapOutput
 
@@ -371,10 +346,10 @@ Modify the generated zod schema.
 
 ```typescript [Conditionally append .openapi() to the generated schema]
 wrapOutput: ({ output, schema }) => {
-  const metadata: ZodOpenAPIMetadata = {};
+  const metadata: Record<string, unknown> = {};
 
-  if (schema.example) {
-    metadata.example = schema.example;
+  if (schema.keywords?.includes('example')) {
+    // access SchemaNode properties
   }
 
   if (Object.keys(metadata).length > 0) {
@@ -383,16 +358,16 @@ wrapOutput: ({ output, schema }) => {
 };
 ```
 
-|           |                                                                          |
-| --------: | :----------------------------------------------------------------------- |
-|     Type: | `(arg: { output: string; schema: SchemaObject }) => string \| undefined` |
-| Required: | `false`                                                                  |
+|           |                                                                         |
+| --------: | :---------------------------------------------------------------------- |
+|     Type: | `(arg: { output: string; schema: SchemaNode }) => string \| undefined`  |
+| Required: | `false`                                                                 |
 
 ## Example
 
 ```typescript twoslash
+import { adapterOas } from "@kubb/adapter-oas";
 import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
 import { pluginTs } from "@kubb/plugin-ts";
 import { pluginZod } from "@kubb/plugin-zod";
 
@@ -403,8 +378,8 @@ export default defineConfig({
   output: {
     path: "./src/gen",
   },
+  adapter: adapterOas(),
   plugins: [
-    pluginOas(),
     pluginTs(),
     pluginZod({
       output: {
@@ -414,8 +389,6 @@ export default defineConfig({
       typed: true,
       dateType: "stringOffset",
       importPath: "zod",
-      wrapOutput: ({ output, schema }) =>
-        `${output}.openapi({ description: 'This is a custom extension' })`,
     }),
   ],
 });

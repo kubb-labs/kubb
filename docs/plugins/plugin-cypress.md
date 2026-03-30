@@ -66,26 +66,33 @@ Specify what to export and optionally disable barrel file generation.
 <!--@include: ./core/barrelTypes.md-->
 
 #### output.banner
+
 Add a banner comment at the top of every generated file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                               |
+|           |                                              |
+|----------:|:---------------------------------------------|
+|     Type: | `string \| ((node: RootNode) => string)`     |
+| Required: | `false`                                      |
 
 #### output.footer
+
 Add a footer comment at the end of every generated file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                               |
+|           |                                              |
+|----------:|:---------------------------------------------|
+|     Type: | `string \| ((node: RootNode) => string)`     |
+| Required: | `false`                                      |
 
 #### output.override
 <!--@include: ./core/outputOverride.md-->
 
-### contentType
-<!--@include: ./core/contentType.md-->
+### compatibilityPreset
+
+<!--@include: ./core/compatibilityPreset.md-->
+
+### resolvers
+
+<!--@include: ./core/resolvers.md-->
 
 ### paramsType
 <!--@include: ./plugin-client/paramsType.md-->
@@ -134,32 +141,24 @@ Return the name of a group based on the group name, this will be used for the fi
 ### generators <img src="../public/icons/experimental.svg"/>
 <!--@include: ./core/generators.md-->
 
-|           |                               |
-|----------:|:------------------------------|
-|     Type: | `Array<Generator<PluginMsw>>` |
-| Required: | `false`                       |
-
+|           |                                    |
+|----------:|:-----------------------------------|
+|     Type: | `Array<Generator<PluginCypress>>`  |
+| Required: | `false`                            |
 
 ### transformers
-<!--@include: ./core/transformers.md-->
 
-#### transformers.name
-Customize the names based on the type that is provided by the plugin.
+Array of AST visitors applied to each node before printing. See [`transform()`](https://github.com/kubb-labs/kubb/blob/main/packages/ast/src/transform.ts) from `@kubb/ast`.
 
-|           |                                                                               |
-|----------:|:------------------------------------------------------------------------------|
-|     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                                                       |
-
-```typescript
-type ResolveType = 'file' | 'function' | 'type' | 'const'
-```
+|           |                  |
+| --------: | :--------------- |
+|     Type: | `Array<Visitor>` |
+| Required: | `false`          |
 
 ## Example
 
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginCypress } from '@kubb/plugin-cypress'
 
@@ -171,14 +170,12 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    pluginOas(),
     pluginTs(),
     pluginCypress({
       output: {
         path: './cypress',
         barrelType: 'named',
         banner: '/* eslint-disable no-alert, no-console */',
-        footer: ''
       },
       group: {
         type: 'tag',

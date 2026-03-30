@@ -70,19 +70,19 @@ Specify what to export and optionally disable barrel file generation.
 
 Add a banner comment at the top of every generated file.
 
-|           |                                  |
-| --------: | :------------------------------- |
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                          |
+|           |                                              |
+| --------: | :------------------------------------------- |
+|     Type: | `string \| ((node: RootNode) => string)`     |
+| Required: | `false`                                      |
 
 #### output.footer
 
-Add a footer text at the end of every file.
+Add a footer comment at the end of every generated file.
 
-|           |                                  |
-| --------: | :------------------------------- |
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                          |
+|           |                                              |
+| --------: | :------------------------------------------- |
+|     Type: | `string \| ((node: RootNode) => string)`     |
+| Required: | `false`                                      |
 
 #### output.override
 
@@ -506,8 +506,8 @@ For naming customization, use `resolvers` instead of `transformers`.
 ## Example
 
 ```typescript twoslash
+import { adapterOas } from "@kubb/adapter-oas";
 import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
 import { pluginTs } from "@kubb/plugin-ts";
 
 export default defineConfig({
@@ -517,8 +517,8 @@ export default defineConfig({
   output: {
     path: "./src/gen",
   },
+  adapter: adapterOas(),
   plugins: [
-    pluginOas(),
     pluginTs({
       output: {
         path: "./types",
@@ -535,7 +535,7 @@ export default defineConfig({
       },
       enumType: "asConst",
       optionalType: "questionTokenAndUndefined",
-      paramsCasing: "camelcase", // Transform param names to camelCase
+      paramsCasing: "camelcase",
     }),
   ],
 });
