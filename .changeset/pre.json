@@ -81,6 +81,7 @@
     "remove-plugin-key",
     "rename-define-to-create-factory-functions",
     "rename-plugin-manager-to-plugin-driver",
+    "run-generator-helpers",
     "shaky-bobcats-rest",
     "smooth-lions-cheat",
     "tuple-enum-inlined",
