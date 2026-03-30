@@ -4,6 +4,7 @@
 */
 
 import * as z from "zod";
+import { userSchema } from "./userSchema.ts";
 
 export const updateUserPathUsernameSchema = z.string().describe("name that need to be deleted")
 
@@ -15,4 +16,4 @@ export const updateUserStatusDefaultSchema = z.any()
 /**
  * @description Update an existent user in the store
  */
-export const updateUserDataSchema = z.lazy(() => User).optional()
+export const updateUserDataSchema = userSchema.optional()

@@ -28,13 +28,7 @@ export type PlaceOrderPatchRequestConfig = {
   pathParams: {
     orderId: PlaceOrderPatchPathOrderId
   }
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string

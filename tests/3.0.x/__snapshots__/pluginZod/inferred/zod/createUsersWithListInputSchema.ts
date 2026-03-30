@@ -4,11 +4,12 @@
 */
 
 import * as z from "zod";
+import { userSchema } from "./userSchema.ts";
 
 /**
  * @description Successful operation
  */
-export const createUsersWithListInputStatus200Schema = z.lazy(() => User)
+export const createUsersWithListInputStatus200Schema = userSchema
 
 export type CreateUsersWithListInputStatus200Schema = z.infer<typeof createUsersWithListInputStatus200Schema>
 
@@ -19,6 +20,6 @@ export const createUsersWithListInputStatusDefaultSchema = z.any()
 
 export type CreateUsersWithListInputStatusDefaultSchema = z.infer<typeof createUsersWithListInputStatusDefaultSchema>
 
-export const createUsersWithListInputDataSchema = z.array(z.lazy(() => User)).optional()
+export const createUsersWithListInputDataSchema = z.array(userSchema).optional()
 
 export type CreateUsersWithListInputDataSchema = z.infer<typeof createUsersWithListInputDataSchema>

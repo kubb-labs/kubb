@@ -4,17 +4,18 @@
 */
 
 import * as z from "zod";
+import { userSchema } from "./userSchema.ts";
 
 /**
  * @description successful operation
  */
-export const createUserStatusDefaultSchema = z.lazy(() => User)
+export const createUserStatusDefaultSchema = userSchema
 
 export type CreateUserStatusDefaultSchema = z.infer<typeof createUserStatusDefaultSchema>
 
 /**
  * @description Created user object
  */
-export const createUserDataSchema = z.lazy(() => User).optional()
+export const createUserDataSchema = userSchema.optional()
 
 export type CreateUserDataSchema = z.infer<typeof createUserDataSchema>

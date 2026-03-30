@@ -19,17 +19,8 @@ export type CreateUsersWithListInputData = User[]
 
 export type CreateUsersWithListInputRequestConfig = {
   data?: CreateUsersWithListInputData
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string

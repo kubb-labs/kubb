@@ -31,13 +31,7 @@ export type FindPetsByTagsStatus200 = Pet[]
 export type FindPetsByTagsStatus400 = any
 
 export type FindPetsByTagsRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
   /**
    * @type object | undefined
@@ -47,9 +41,6 @@ export type FindPetsByTagsRequestConfig = {
     page?: FindPetsByTagsQueryPage
     pageSize?: FindPetsByTagsQueryPageSize
   }
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string

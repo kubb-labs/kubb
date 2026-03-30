@@ -4,6 +4,7 @@
 */
 
 import * as z from "zod";
+import { apiResponseSchema } from "./apiResponseSchema.ts";
 
 export const uploadFilePathPetIdSchema = z.int().describe("ID of pet to update")
 
@@ -12,6 +13,6 @@ export const uploadFileQueryAdditionalMetadataSchema = z.string().optional().des
 /**
  * @description successful operation
  */
-export const uploadFileStatus200Schema = z.lazy(() => ApiResponse)
+export const uploadFileStatus200Schema = apiResponseSchema
 
 export const uploadFileDataSchema = z.instanceof(File).optional()

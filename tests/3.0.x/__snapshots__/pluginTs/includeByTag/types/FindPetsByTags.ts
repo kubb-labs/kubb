@@ -23,10 +23,16 @@ export type FindPetsByTagsStatus400 = any;
 export type FindPetsByTagsRequestConfig = {
     data?: never;
     pathParams?: never;
+    /**
+     * @type object | undefined
+    */
     queryParams?: {
         tags?: FindPetsByTagsQueryTags;
     };
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: "/pet/findByTags";
 };
 

@@ -4,11 +4,13 @@
 */
 
 import * as z from "zod";
+import { addPetRequestSchema } from "./addPetRequestSchema.ts";
+import { petSchema } from "./petSchema.ts";
 
 /**
  * @description Successful operation
  */
-export const addPetStatus200Schema = z.lazy(() => Pet)
+export const addPetStatus200Schema = petSchema
 
 /**
  * @description Invalid input
@@ -18,4 +20,4 @@ export const addPetStatus405Schema = z.any()
 /**
  * @description Create a new pet in the store
  */
-export const addPetDataSchema = z.lazy(() => AddPetRequest)
+export const addPetDataSchema = addPetRequestSchema

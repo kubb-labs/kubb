@@ -24,13 +24,7 @@ export type LoginUserStatus200 = string
 export type LoginUserStatus400 = any
 
 export type LoginUserRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
   /**
    * @type object | undefined
@@ -39,9 +33,6 @@ export type LoginUserRequestConfig = {
     username?: LoginUserQueryUsername
     password?: LoginUserQueryPassword
   }
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string

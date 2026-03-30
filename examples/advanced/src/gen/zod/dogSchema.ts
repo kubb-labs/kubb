@@ -4,7 +4,7 @@ import { imageSchema } from './imageSchema.ts'
 export const dogSchema = z.object({
   type: z.string().min(1),
   name: z.string(),
-  image: imageSchema.optional(),
+  image: imageSchema.nullish(),
 })
 
 export type DogSchema = z.infer<typeof dogSchema>

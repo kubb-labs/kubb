@@ -4,6 +4,7 @@
 */
 
 import * as z from "zod";
+import { userSchema } from "./userSchema.ts";
 
 export const getUserByNamePathUsernameSchema = z.string().describe("The name that needs to be fetched. Use user1 for testing. ")
 
@@ -12,7 +13,7 @@ export type GetUserByNamePathUsernameSchema = z.infer<typeof getUserByNamePathUs
 /**
  * @description successful operation
  */
-export const getUserByNameStatus200Schema = z.lazy(() => User)
+export const getUserByNameStatus200Schema = userSchema
 
 export type GetUserByNameStatus200Schema = z.infer<typeof getUserByNameStatus200Schema>
 

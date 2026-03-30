@@ -289,6 +289,9 @@ export type Pet = (
    * @type string
    */
   name: string
+  /**
+   * @type object | undefined
+   */
   category?: Category
   /**
    * @type array
@@ -336,6 +339,9 @@ export type AddPetRequest = {
    * @type string
    */
   name: string
+  /**
+   * @type object | undefined
+   */
   category?: Category
   /**
    * @type array
@@ -407,17 +413,8 @@ export type UpdatePetData = Omit<NonNullable<Pet>, 'type' | 'tags'>
 
 export type UpdatePetRequestConfig = {
   data?: UpdatePetData
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -463,17 +460,8 @@ export type AddPetData = AddPetRequest
 
 export type AddPetRequestConfig = {
   data?: AddPetData
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -508,13 +496,7 @@ export type FindPetsByStatusStatus200 = Pet[]
 export type FindPetsByStatusStatus400 = any
 
 export type FindPetsByStatusRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
   /**
    * @type object | undefined
@@ -522,9 +504,6 @@ export type FindPetsByStatusRequestConfig = {
   queryParams?: {
     status?: FindPetsByStatusQueryStatus
   }
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -568,13 +547,7 @@ export type FindPetsByTagsStatus200 = Pet[]
 export type FindPetsByTagsStatus400 = any
 
 export type FindPetsByTagsRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
   /**
    * @type object | undefined
@@ -584,9 +557,6 @@ export type FindPetsByTagsRequestConfig = {
     page?: FindPetsByTagsQueryPage
     pageSize?: FindPetsByTagsQueryPageSize
   }
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -625,9 +595,6 @@ export type GetPetByIdStatus400 = any
 export type GetPetByIdStatus404 = any
 
 export type GetPetByIdRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
   /**
    * @type object
@@ -635,13 +602,7 @@ export type GetPetByIdRequestConfig = {
   pathParams: {
     petId: GetPetByIdPathPetId
   }
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -681,9 +642,6 @@ export type UpdatePetWithFormQueryStatus = string
 export type UpdatePetWithFormStatus405 = any
 
 export type UpdatePetWithFormRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
   /**
    * @type object
@@ -698,9 +656,6 @@ export type UpdatePetWithFormRequestConfig = {
     name?: UpdatePetWithFormQueryName
     status?: UpdatePetWithFormQueryStatus
   }
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -735,9 +690,6 @@ export type DeletePetStatus200 = ('TYPE1' | 'TYPE2' | 'TYPE3')[]
 export type DeletePetStatus400 = any
 
 export type DeletePetRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
   /**
    * @type object
@@ -745,9 +697,6 @@ export type DeletePetRequestConfig = {
   pathParams: {
     petId: DeletePetPathPetId
   }
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
   /**
    * @type object | undefined
@@ -802,9 +751,6 @@ export type UploadFileRequestConfig = {
   queryParams?: {
     additionalMetadata?: UploadFileQueryAdditionalMetadata
   }
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -829,21 +775,9 @@ export type GetInventoryStatus200 = {
 }
 
 export type GetInventoryRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -877,17 +811,8 @@ export type PlaceOrderData = Order
 
 export type PlaceOrderRequestConfig = {
   data?: PlaceOrderData
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -919,17 +844,8 @@ export type PlaceOrderPatchData = Order
 
 export type PlaceOrderPatchRequestConfig = {
   data?: PlaceOrderPatchData
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -968,9 +884,6 @@ export type GetOrderByIdStatus400 = any
 export type GetOrderByIdStatus404 = any
 
 export type GetOrderByIdRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
   /**
    * @type object
@@ -978,13 +891,7 @@ export type GetOrderByIdRequestConfig = {
   pathParams: {
     orderId: GetOrderByIdPathOrderId
   }
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -1019,9 +926,6 @@ export type DeleteOrderStatus400 = any
 export type DeleteOrderStatus404 = any
 
 export type DeleteOrderRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
   /**
    * @type object
@@ -1029,13 +933,7 @@ export type DeleteOrderRequestConfig = {
   pathParams: {
     orderId: DeleteOrderPathOrderId
   }
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -1065,17 +963,8 @@ export type CreateUserData = User
 
 export type CreateUserRequestConfig = {
   data?: CreateUserData
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -1106,17 +995,8 @@ export type CreateUsersWithListInputData = User[]
 
 export type CreateUsersWithListInputRequestConfig = {
   data?: CreateUsersWithListInputData
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -1155,13 +1035,7 @@ export type LoginUserStatus200 = string
 export type LoginUserStatus400 = any
 
 export type LoginUserRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
   /**
    * @type object | undefined
@@ -1170,9 +1044,6 @@ export type LoginUserRequestConfig = {
     username?: LoginUserQueryUsername
     password?: LoginUserQueryPassword
   }
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -1196,21 +1067,9 @@ export type LoginUserResponse = LoginUserStatus200 | LoginUserStatus400
 export type LogoutUserStatusDefault = any
 
 export type LogoutUserRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -1248,9 +1107,6 @@ export type GetUserByNameStatus400 = any
 export type GetUserByNameStatus404 = any
 
 export type GetUserByNameRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
   /**
    * @type object
@@ -1258,13 +1114,7 @@ export type GetUserByNameRequestConfig = {
   pathParams: {
     username: GetUserByNamePathUsername
   }
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -1306,13 +1156,7 @@ export type UpdateUserRequestConfig = {
   pathParams: {
     username: UpdateUserPathUsername
   }
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string
@@ -1345,9 +1189,6 @@ export type DeleteUserStatus400 = any
 export type DeleteUserStatus404 = any
 
 export type DeleteUserRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
   /**
    * @type object
@@ -1355,13 +1196,7 @@ export type DeleteUserRequestConfig = {
   pathParams: {
     username: DeleteUserPathUsername
   }
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string

@@ -4,11 +4,12 @@
 */
 
 import * as z from "zod";
+import { petSchema } from "./petSchema.ts";
 
 /**
  * @description Successful operation
  */
-export const updatePetStatus200Schema = z.lazy(() => Pet)
+export const updatePetStatus200Schema = petSchema
 
 export type UpdatePetStatus200Schema = z.infer<typeof updatePetStatus200Schema>
 
@@ -36,6 +37,6 @@ export type UpdatePetStatus405Schema = z.infer<typeof updatePetStatus405Schema>
 /**
  * @description Update an existent pet in the store
  */
-export const updatePetDataSchema = z.lazy(() => Pet)
+export const updatePetDataSchema = petSchema
 
 export type UpdatePetDataSchema = z.infer<typeof updatePetDataSchema>

@@ -27,11 +27,17 @@ export type GetUserByNameStatus404 = any;
 
 export type GetUserByNameRequestConfig = {
     data?: never;
+    /**
+     * @type object
+    */
     pathParams: {
         username: GetUserByNamePathUsername;
     };
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: `/user/${string}`;
 };
 

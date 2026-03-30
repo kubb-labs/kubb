@@ -15,13 +15,7 @@ export type FindArtifactsQuerySort = string
 export type FindArtifactsStatus200 = object
 
 export type FindArtifactsRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
   /**
    * @type object | undefined
@@ -31,9 +25,6 @@ export type FindArtifactsRequestConfig = {
     limit?: FindArtifactsQueryLimit
     sort?: FindArtifactsQuerySort
   }
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string

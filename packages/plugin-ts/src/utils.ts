@@ -42,26 +42,26 @@ export function buildData({ node, resolver }: BuildOperationSchemaOptions): Sche
         name: 'data',
         schema: node.requestBody?.schema
           ? createSchema({ type: 'ref', name: resolver.resolveDataName(node), optional: true })
-          : createSchema({ type: 'never', optional: true }),
+          : createSchema({ type: 'never', primitive: undefined, optional: true }),
       }),
       createProperty({
         name: 'pathParams',
         required: pathParams.length > 0,
-        schema: pathParams.length > 0 ? buildParams({ params: pathParams, node, resolver }) : createSchema({ type: 'never' }),
+        schema: pathParams.length > 0 ? buildParams({ params: pathParams, node, resolver }) : createSchema({ type: 'never', primitive: undefined }),
       }),
       createProperty({
         name: 'queryParams',
         schema:
           queryParams.length > 0
             ? createSchema({ ...buildParams({ params: queryParams, node, resolver }), optional: true })
-            : createSchema({ type: 'never', optional: true }),
+            : createSchema({ type: 'never', primitive: undefined, optional: true }),
       }),
       createProperty({
         name: 'headerParams',
         schema:
           headerParams.length > 0
             ? createSchema({ ...buildParams({ params: headerParams, node, resolver }), optional: true })
-            : createSchema({ type: 'never', optional: true }),
+            : createSchema({ type: 'never', primitive: undefined, optional: true }),
       }),
       createProperty({
         name: 'url',

@@ -9,6 +9,6 @@ import { productDetailsSchema } from "./productDetailsSchema.ts";
 
 export const typeARequestSchema = z.object({
     "actorId": z.string(),
-"contactDetails": z.lazy(() => contactDetailsTypeSchema),
-"productDetails": z.lazy(() => productDetailsSchema)
+    "contactDetails": contactDetailsTypeSchema,
+    "productDetails": productDetailsSchema
     })

@@ -5,13 +5,5 @@
 
 import * as z from "zod";
 import { resultSchema } from "./resultSchema.ts";
-import { typeBRequestSchema } from "./typeBRequestSchema.ts";
 
-/**
- * @description Shared create-return response.
- */
-export const createReturnTypeB200Schema = z.lazy(() => resultSchema)
-
-export const createReturnTypeBMutationRequestSchema = z.lazy(() => typeBRequestSchema)
-
-export const createReturnTypeBMutationResponseSchema = z.lazy(() => createReturnTypeB200Schema)
+export const createReturnTypeBStatus200Schema = resultSchema

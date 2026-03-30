@@ -4,13 +4,14 @@
 */
 
 import * as z from "zod";
+import { petSchema } from "../petSchema.ts";
 
 export const getPetByIdPathPetIdSchema = z.int().describe("ID of pet to return")
 
 /**
  * @description successful operation
  */
-export const getPetByIdStatus200Schema = z.lazy(() => Pet)
+export const getPetByIdStatus200Schema = petSchema
 
 /**
  * @description Invalid ID supplied

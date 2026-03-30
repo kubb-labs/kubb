@@ -4,11 +4,13 @@
 */
 
 import * as z from "zod";
+import { addPetRequestSchema } from "./addPetRequestSchema.ts";
+import { petSchema } from "./petSchema.ts";
 
 /**
  * @description Successful operation
  */
-export const addPetStatus200Schema = z.lazy(() => Pet)
+export const addPetStatus200Schema = petSchema
 
 export type AddPetStatus200Schema = z.infer<typeof addPetStatus200Schema>
 
@@ -22,6 +24,6 @@ export type AddPetStatus405Schema = z.infer<typeof addPetStatus405Schema>
 /**
  * @description Create a new pet in the store
  */
-export const addPetDataSchema = z.lazy(() => AddPetRequest)
+export const addPetDataSchema = addPetRequestSchema
 
 export type AddPetDataSchema = z.infer<typeof addPetDataSchema>

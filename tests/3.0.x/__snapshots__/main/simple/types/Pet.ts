@@ -33,6 +33,9 @@ export type Pet = {
      * @type string | undefined
     */
     log?: string;
+    /**
+     * @type object | undefined
+    */
     category?: Category;
     /**
      * @type array

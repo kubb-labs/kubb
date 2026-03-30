@@ -4,13 +4,14 @@
 */
 
 import * as z from "zod";
+import { userSchema } from "./userSchema.ts";
 
 export const getUserByNamePathUsernameSchema = z.string().describe("The name that needs to be fetched. Use user1 for testing. ")
 
 /**
  * @description successful operation
  */
-export const getUserByNameStatus200Schema = z.lazy(() => User)
+export const getUserByNameStatus200Schema = userSchema
 
 /**
  * @description Invalid username supplied

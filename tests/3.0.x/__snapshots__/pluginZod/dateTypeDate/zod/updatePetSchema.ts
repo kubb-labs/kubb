@@ -4,11 +4,12 @@
 */
 
 import * as z from "zod";
+import { petSchema } from "./petSchema.ts";
 
 /**
  * @description Successful operation
  */
-export const updatePetStatus200Schema = z.lazy(() => Pet)
+export const updatePetStatus200Schema = petSchema
 
 /**
  * @description Invalid ID supplied
@@ -28,4 +29,4 @@ export const updatePetStatus405Schema = z.any()
 /**
  * @description Update an existent pet in the store
  */
-export const updatePetDataSchema = z.lazy(() => Pet)
+export const updatePetDataSchema = petSchema

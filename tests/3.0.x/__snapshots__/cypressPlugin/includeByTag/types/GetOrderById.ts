@@ -27,11 +27,17 @@ export type GetOrderByIdStatus404 = any;
 
 export type GetOrderByIdRequestConfig = {
     data?: never;
+    /**
+     * @type object
+    */
     pathParams: {
         orderId: GetOrderByIdPathOrderId;
     };
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: `/store/order/${string}`;
 };
 

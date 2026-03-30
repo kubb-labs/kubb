@@ -1,12 +1,12 @@
 import { stringify, toRegExpString } from '@internals/utils'
-import { narrowSchema } from '@kubb/ast'
+import { narrowSchema, syncSchemaRef } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
-import type { ResolverZod } from '../types.ts'
+import type { PluginZod, ResolverZod } from '../types.ts'
 
 export type ZodMiniOptions = {
-  guidType?: 'uuid' | 'guid'
+  guidType?: PluginZod['resolvedOptions']['guidType']
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
   resolver?: ResolverZod
   schemaName?: string
@@ -75,6 +75,37 @@ function lengthChecksMini({ min, max, pattern }: { min?: number; max?: number; p
   if (max !== undefined) checks.push(`z.maxLength(${max})`)
   if (pattern !== undefined) checks.push(`z.regex(${toRegExpString(pattern, null)})`)
   return checks.length ? `.check(${checks.join(', ')})` : ''
+}
+
+/** Apply nullable / optional / nullish modifiers and optional description to a property value string (functional API). */
+function applyMiniModifiers({
+  value,
+  nullable,
+  optional,
+  nullish,
+  defaultValue,
+}: {
+  value: string
+  nullable?: boolean
+  optional?: boolean
+  nullish?: boolean
+  defaultValue?: unknown
+}): string {
+  let result = value
+  if (nullish) {
+    result = `z.nullish(${result})`
+  } else {
+    if (nullable) {
+      result = `z.nullable(${result})`
+    }
+    if (optional) {
+      result = `z.optional(${result})`
+    }
+  }
+  if (defaultValue !== undefined) {
+    result = `z._default(${result}, ${formatDefault(defaultValue)})`
+  }
+  return result
 }
 
 /**
@@ -173,7 +204,10 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
           .map((prop) => {
             const { name: propName, schema } = prop
 
-            const isNullable = schema.nullable
+            // For ref schemas, structural metadata lives on schema.schema rather than the ref node itself.
+            const meta = syncSchemaRef(schema)
+
+            const isNullable = meta?.nullable
             const isOptional = schema.optional
             const isNullish = schema.nullish
 
@@ -186,7 +220,7 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
               nullable: isNullable,
               optional: isOptional,
               nullish: isNullish,
-              defaultValue: schema.default,
+              defaultValue: meta?.default,
             })
 
             const isSelfRef = this.options.schemaName != null && containsRef(schema, this.options.schemaName, this.options.resolver)
@@ -260,45 +294,17 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
       if (!base) return null
 
       const { keysToOmit } = this.options
-      if (keysToOmit?.length && (node.primitive === 'object' || node.type === 'ref')) {
+      const meta = syncSchemaRef(node)
+
+      if (keysToOmit?.length && meta?.primitive === 'object' && !(meta.type === 'union' && meta.discriminatorPropertyName)) {
         // Mirror printerTs `nonNullable: true`: when omitting keys, the resulting
         // schema is a new non-nullable object type — skip optional/nullable/nullish.
-        // Also allow refs: a $ref request body is parsed as a ref node but resolves to an object.
+        // Discriminated unions (z.discriminatedUnion) do not support .omit(), so skip them.
         return `${base}.omit({ ${keysToOmit.map((k) => `"${k}": true`).join(', ')} })`
       }
 
-      return applyMiniModifiers({ value: base, nullable: node.nullable, optional: node.optional, nullish: node.nullish, defaultValue: node.default })
+      const schema = syncSchemaRef(node)
+      return applyMiniModifiers({ value: base, nullable: schema?.nullable, optional: node.optional, nullish: node.nullish, defaultValue: schema?.default })
     },
   }
 })
-
-/** Apply nullable / optional / nullish modifiers and optional description to a property value string (functional API). */
-function applyMiniModifiers({
-  value,
-  nullable,
-  optional,
-  nullish,
-  defaultValue,
-}: {
-  value: string
-  nullable?: boolean
-  optional?: boolean
-  nullish?: boolean
-  defaultValue?: unknown
-}): string {
-  let result = value
-  if (nullish) {
-    result = `z.nullish(${result})`
-  } else {
-    if (nullable) {
-      result = `z.nullable(${result})`
-    }
-    if (optional) {
-      result = `z.optional(${result})`
-    }
-  }
-  if (defaultValue !== undefined) {
-    result = `z._default(${result}, ${formatDefault(defaultValue)})`
-  }
-  return result
-}

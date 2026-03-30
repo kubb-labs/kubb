@@ -345,6 +345,15 @@ export type RefSchemaNode = SchemaNodeBase & {
    * Pattern copied from a sibling `pattern` field.
    */
   pattern?: string
+  /**
+   * The fully-parsed schema that this ref resolves to.
+   * Populated during OAS parsing when the referenced definition can be resolved.
+   * `undefined` when the ref cannot be resolved or is part of a circular chain.
+   *
+   * Useful for inspecting the referenced schema's structure (e.g. `primitive`, `properties`)
+   * without following the reference manually.
+   */
+  schema?: SchemaNode
 }
 
 /**

@@ -22,6 +22,9 @@ export type CreateUsersWithListInputRequestConfig = {
     pathParams?: never;
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: "/user/createWithList";
 };
 

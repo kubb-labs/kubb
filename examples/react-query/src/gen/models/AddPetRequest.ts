@@ -21,6 +21,9 @@ export type AddPetRequest = {
    * @type string
    */
   name: string
+  /**
+   * @type object | undefined
+   */
   category?: Category
   /**
    * @type array

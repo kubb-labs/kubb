@@ -28,8 +28,5 @@ export type DeletePetMutationResponse = DeletePet200
 export type DeletePetMutation = {
   Response: DeletePet200
   PathParams: DeletePetPathParams
-  /**
-   * @type any
-   */
   Errors: any
 }

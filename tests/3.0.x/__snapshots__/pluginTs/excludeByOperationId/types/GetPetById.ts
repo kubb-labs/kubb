@@ -27,11 +27,17 @@ export type GetPetByIdStatus404 = any;
 
 export type GetPetByIdRequestConfig = {
     data?: never;
+    /**
+     * @type object
+    */
     pathParams: {
         petId: GetPetByIdPathPetId;
     };
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: `/pet/${string}`;
 };
 

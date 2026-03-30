@@ -18,6 +18,8 @@ export type User = {
   uuid?: string
   /**
    * @description The active tag
+   * @deprecated
+   * @type object | undefined
    */
   readonly tag?: TagTag
   /**

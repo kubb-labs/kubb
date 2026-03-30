@@ -20,6 +20,9 @@ export type CreateUserRequestConfig = {
     pathParams?: never;
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: "/user";
 };
 

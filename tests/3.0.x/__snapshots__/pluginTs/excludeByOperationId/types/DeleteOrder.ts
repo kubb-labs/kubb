@@ -21,11 +21,17 @@ export type DeleteOrderStatus404 = any;
 
 export type DeleteOrderRequestConfig = {
     data?: never;
+    /**
+     * @type object
+    */
     pathParams: {
         orderId: DeleteOrderPathOrderId;
     };
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: `/store/order/${string}`;
 };
 

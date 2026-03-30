@@ -14,11 +14,17 @@ export type GetConfigIdV20250Status200 = Config;
 
 export type GetConfigIdV20250RequestConfig = {
     data?: never;
+    /**
+     * @type object
+    */
     pathParams: {
         config_id: GetConfigIdV20250PathConfigId;
     };
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: `/config/${string}`;
 };
 

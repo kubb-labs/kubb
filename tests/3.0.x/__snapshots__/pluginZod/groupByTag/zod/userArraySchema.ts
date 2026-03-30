@@ -4,5 +4,6 @@
 */
 
 import * as z from "zod";
+import { userSchema } from "./userSchema.ts";
 
-export const userArraySchema = z.array(z.lazy(() => User))
+export const userArraySchema = z.array(userSchema)

@@ -14,6 +14,9 @@ export type LogoutUserRequestConfig = {
     pathParams?: never;
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: "/user/logout";
 };
 

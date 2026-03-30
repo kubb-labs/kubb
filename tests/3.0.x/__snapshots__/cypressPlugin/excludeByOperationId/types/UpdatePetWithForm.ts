@@ -26,14 +26,23 @@ export type UpdatePetWithFormStatus405 = any;
 
 export type UpdatePetWithFormRequestConfig = {
     data?: never;
+    /**
+     * @type object
+    */
     pathParams: {
         petId: UpdatePetWithFormPathPetId;
     };
+    /**
+     * @type object | undefined
+    */
     queryParams?: {
         name?: UpdatePetWithFormQueryName;
         status?: UpdatePetWithFormQueryStatus;
     };
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: `/pet/${string}`;
 };
 

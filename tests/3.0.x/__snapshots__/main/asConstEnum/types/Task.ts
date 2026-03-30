@@ -11,7 +11,13 @@ export type Task = {
      * @type string
     */
     id: string;
+    /**
+     * @type string
+    */
     status: Status;
+    /**
+     * @type string | undefined
+    */
     priority?: Priority;
     /**
      * @type string | undefined

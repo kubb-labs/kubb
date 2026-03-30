@@ -8,6 +8,6 @@ import { parcelSchema } from "./parcelSchema.ts";
 
 export const resultSchema = z.object({
     "returnId": z.string(),
-"state": z.enum(["ACCEPTED", "REJECTED"]),
-"parcels": z.optional(z.array(z.lazy(() => parcelSchema)))
+    "state": z.enum(["ACCEPTED", "REJECTED"]),
+    "parcels": z.array(parcelSchema).optional()
     })

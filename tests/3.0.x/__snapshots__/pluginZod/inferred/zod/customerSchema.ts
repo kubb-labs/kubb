@@ -4,11 +4,12 @@
 */
 
 import * as z from "zod";
+import { addressSchema } from "./addressSchema.ts";
 
 export const customerSchema = z.object({
     "id": z.int().optional(),
     "username": z.string().optional(),
-    "address": z.array(z.lazy(() => Address)).optional()
+    "address": z.array(addressSchema).optional()
     })
 
 export type CustomerSchema = z.infer<typeof customerSchema>

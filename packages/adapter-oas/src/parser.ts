@@ -104,21 +104,41 @@ function createSchemaParser(ctx: OasParserContext) {
   // Branch handlers — each converts one OAS schema pattern to a SchemaNode.
 
   /**
-   * Converts a `$ref` schema into a `RefSchemaNode`.
+   * Tracks `$ref` paths that are currently being resolved to prevent infinite
+   * recursion when schemas contain circular references (e.g. `Pet → parent → Pet`).
    */
-  function convertRef({ schema, nullable, defaultValue }: SchemaContext): SchemaNode {
+  const resolvingRefs = new Set<string>()
+
+  /**
+   * Converts a `$ref` schema into a `RefSchemaNode`.
+   *
+   * The resolved schema is stored in `node.schema`. Usage-site sibling fields
+   * (description, readOnly, nullable, etc.) are stored directly on the ref node.
+   * Use `syncSchemaRef(node)` in printers to get a merged view of both.
+   * Circular refs are detected via `resolvingRefs` and leave `schema` as `undefined`.
+   */
+  function convertRef({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): SchemaNode {
+    let resolvedSchema: SchemaNode | undefined
+    const refPath = schema.$ref
+    if (refPath && !resolvingRefs.has(refPath)) {
+      try {
+        const referenced = resolveRef<SchemaObject>(document, refPath)
+        if (referenced) {
+          resolvingRefs.add(refPath)
+          resolvedSchema = parseSchema({ schema: referenced }, rawOptions)
+          resolvingRefs.delete(refPath)
+        }
+      } catch {
+        // Ref cannot be resolved in this document (e.g. unit tests with minimal documents).
+      }
+    }
+
     return createSchema({
+      ...buildSchemaNode(schema, name, nullable, defaultValue),
       type: 'ref',
       name: extractRefName(schema.$ref!),
       ref: schema.$ref,
-      nullable,
-      description: schema.description,
-      deprecated: schema.deprecated,
-      readOnly: schema.readOnly,
-      writeOnly: schema.writeOnly,
-      pattern: schema.type === 'string' ? schema.pattern : undefined,
-      example: schema.example,
-      default: defaultValue,
+      schema: resolvedSchema,
     })
   }
 

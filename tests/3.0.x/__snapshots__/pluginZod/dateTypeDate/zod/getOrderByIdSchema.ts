@@ -4,13 +4,14 @@
 */
 
 import * as z from "zod";
+import { orderSchema } from "./orderSchema.ts";
 
 export const getOrderByIdPathOrderIdSchema = z.int().describe("ID of order that needs to be fetched")
 
 /**
  * @description successful operation
  */
-export const getOrderByIdStatus200Schema = z.lazy(() => Order)
+export const getOrderByIdStatus200Schema = orderSchema
 
 /**
  * @description Invalid ID supplied

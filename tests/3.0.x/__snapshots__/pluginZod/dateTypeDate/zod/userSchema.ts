@@ -13,5 +13,5 @@ export const userSchema = z.object({
     "email": z.string().optional(),
     "password": z.string().optional(),
     "phone": z.string().optional(),
-    "userStatus": z.int().optional()
+    "userStatus": z.int().optional().describe("User Status")
     })

@@ -24,9 +24,6 @@ export type UpdatePetWithFormQueryStatus = string
 export type UpdatePetWithFormStatus405 = any
 
 export type UpdatePetWithFormRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
   /**
    * @type object
@@ -41,9 +38,6 @@ export type UpdatePetWithFormRequestConfig = {
     name?: UpdatePetWithFormQueryName
     status?: UpdatePetWithFormQueryStatus
   }
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string

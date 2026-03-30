@@ -28,13 +28,7 @@ export type UpdateUserRequestConfig = {
   pathParams: {
     username: UpdateUserPathUsername
   }
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string

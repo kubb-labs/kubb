@@ -4,15 +4,16 @@
 */
 
 import * as z from "zod";
+import { orderSchema } from "../orderSchema.ts";
 
 /**
  * @description successful operation
  */
-export const placeOrderStatus200Schema = z.lazy(() => Order)
+export const placeOrderStatus200Schema = orderSchema
 
 /**
  * @description Invalid input
  */
 export const placeOrderStatus405Schema = z.any()
 
-export const placeOrderDataSchema = z.lazy(() => Order).optional()
+export const placeOrderDataSchema = orderSchema.optional()

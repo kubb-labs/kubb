@@ -18,13 +18,22 @@ export type DeletePetStatus400 = any;
 
 export type DeletePetRequestConfig = {
     data?: never;
+    /**
+     * @type object
+    */
     pathParams: {
         petId: DeletePetPathPetId;
     };
     queryParams?: never;
+    /**
+     * @type object | undefined
+    */
     headerParams?: {
         api_key?: DeletePetHeaderApiKey;
     };
+    /**
+     * @type string
+    */
     url: `/pet/${string}`;
 };
 

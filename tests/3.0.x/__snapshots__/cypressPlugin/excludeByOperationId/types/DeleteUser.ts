@@ -21,11 +21,17 @@ export type DeleteUserStatus404 = any;
 
 export type DeleteUserRequestConfig = {
     data?: never;
+    /**
+     * @type object
+    */
     pathParams: {
         username: DeleteUserPathUsername;
     };
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: `/user/${string}`;
 };
 

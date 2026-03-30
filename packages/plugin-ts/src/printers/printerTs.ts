@@ -1,5 +1,5 @@
 import { jsStringEscape, stringify } from '@internals/utils'
-import { isStringType, narrowSchema, schemaTypes } from '@kubb/ast'
+import { isStringType, narrowSchema, schemaTypes, syncSchemaRef } from '@kubb/ast'
 import type { ArraySchemaNode, SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
@@ -129,10 +129,11 @@ function buildTupleNode(node: ArraySchemaNode, print: (node: SchemaNode) => ts.T
  */
 function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalType: TsOptions['optionalType']): ts.TypeNode {
   const addsUndefined = OPTIONAL_ADDS_UNDEFINED.has(optionalType)
+  const meta = syncSchemaRef(schema)
 
   let type = baseType
 
-  if (schema.nullable) {
+  if (meta?.nullable) {
     type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.null] })
   }
 
@@ -147,21 +148,22 @@ function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalTy
  * Collects JSDoc annotation strings (description, deprecated, min/max, pattern, default, example, type) for a schema node.
  */
 function buildPropertyJSDocComments(schema: SchemaNode): Array<string | undefined> {
-  const isArray = schema.primitive === 'array'
+  const meta = syncSchemaRef(schema)
+  const isArray = meta?.primitive === 'array'
 
   return [
-    'description' in schema && schema.description ? `@description ${jsStringEscape(schema.description)}` : undefined,
-    'deprecated' in schema && schema.deprecated ? '@deprecated' : undefined,
+    meta && 'description' in meta && meta.description ? `@description ${jsStringEscape(meta.description)}` : undefined,
+    meta && 'deprecated' in meta && meta.deprecated ? '@deprecated' : undefined,
     // minItems/maxItems on arrays should not be emitted as @minLength/@maxLength
-    !isArray && 'min' in schema && schema.min !== undefined ? `@minLength ${schema.min}` : undefined,
-    !isArray && 'max' in schema && schema.max !== undefined ? `@maxLength ${schema.max}` : undefined,
-    'pattern' in schema && schema.pattern ? `@pattern ${schema.pattern}` : undefined,
-    'default' in schema && schema.default !== undefined
-      ? `@default ${'primitive' in schema && schema.primitive === 'string' ? stringify(schema.default as string) : schema.default}`
+    !isArray && meta && 'min' in meta && meta.min !== undefined ? `@minLength ${meta.min}` : undefined,
+    !isArray && meta && 'max' in meta && meta.max !== undefined ? `@maxLength ${meta.max}` : undefined,
+    meta && 'pattern' in meta && meta.pattern ? `@pattern ${meta.pattern}` : undefined,
+    meta && 'default' in meta && meta.default !== undefined
+      ? `@default ${'primitive' in meta && meta.primitive === 'string' ? stringify(meta.default as string) : meta.default}`
       : undefined,
-    'example' in schema && schema.example !== undefined ? `@example ${schema.example}` : undefined,
-    'primitive' in schema && schema.primitive
-      ? [`@type ${schema.primitive}`, 'optional' in schema && schema.optional ? ' | undefined' : undefined].filter(Boolean).join('')
+    meta && 'example' in meta && meta.example !== undefined ? `@example ${meta.example}` : undefined,
+    meta && 'primitive' in meta && meta.primitive
+      ? [`@type ${meta.primitive}`, 'optional' in schema && schema.optional ? ' | undefined' : undefined].filter(Boolean).join('')
       : undefined,
   ]
 }
@@ -340,12 +342,13 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         const propertyNodes: Array<ts.TypeElement> = node.properties.map((prop) => {
           const baseType = transform(prop.schema) ?? factory.keywordTypeNodes.unknown
           const type = buildPropertyType(prop.schema, baseType, options.optionalType)
+          const propMeta = syncSchemaRef(prop.schema)
 
           const propertyNode = factory.createPropertySignature({
             questionToken: prop.schema.optional || prop.schema.nullish ? addsQuestionToken : false,
             name: prop.name,
             type,
-            readOnly: prop.schema.readOnly,
+            readOnly: propMeta?.readOnly,
           })
 
           return factory.appendJSDocToNode({ node: propertyNode, comments: buildPropertyJSDocComments(prop.schema) })
@@ -367,8 +370,11 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         return null
       }
 
+      // For ref nodes, structural metadata lives on node.schema rather than the ref node itself.
+      const meta = syncSchemaRef(node)
+
       // Apply top-level nullable / optional union modifiers.
-      if (node.nullable) {
+      if (meta?.nullable) {
         type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.null] })
       }
 
@@ -396,14 +402,14 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
           : type,
         syntax: useTypeGeneration ? 'type' : 'interface',
         comments: [
-          node?.title ? jsStringEscape(node.title) : undefined,
+          meta?.title ? jsStringEscape(meta.title) : undefined,
           description ? `@description ${jsStringEscape(description)}` : undefined,
-          node?.deprecated ? '@deprecated' : undefined,
-          node && 'min' in node && node.min !== undefined ? `@minLength ${node.min}` : undefined,
-          node && 'max' in node && node.max !== undefined ? `@maxLength ${node.max}` : undefined,
-          node && 'pattern' in node && node.pattern ? `@pattern ${node.pattern}` : undefined,
-          node?.default ? `@default ${node.default}` : undefined,
-          node?.example ? `@example ${node.example}` : undefined,
+          meta?.deprecated ? '@deprecated' : undefined,
+          meta && 'min' in meta && meta.min !== undefined ? `@minLength ${meta.min}` : undefined,
+          meta && 'max' in meta && meta.max !== undefined ? `@maxLength ${meta.max}` : undefined,
+          meta && 'pattern' in meta && meta.pattern ? `@pattern ${meta.pattern}` : undefined,
+          meta?.default ? `@default ${meta.default}` : undefined,
+          meta?.example ? `@example ${meta.example}` : undefined,
         ],
       })
 

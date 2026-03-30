@@ -22,6 +22,9 @@ export type PlaceOrderRequestConfig = {
     pathParams?: never;
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: "/store/order";
 };
 

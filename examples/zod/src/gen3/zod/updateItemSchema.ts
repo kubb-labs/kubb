@@ -14,11 +14,7 @@ export const updateItem200Schema = itemSchema
 /**
  * @description Item to update
  */
-export const updateItemMutationRequestSchema = itemSchema.omit({
-  id: true,
-  type: true,
-  createdAt: true,
-})
+export const updateItemMutationRequestSchema = itemSchema
 
 export const updateItemMutationResponseSchema = updateItem200Schema
 

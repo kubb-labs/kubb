@@ -4,6 +4,7 @@
 */
 
 import * as z from "zod";
+import { petSchema } from "./petSchema.ts";
 
 export const getPetByIdPathPetIdSchema = z.int().describe("ID of pet to return")
 
@@ -12,7 +13,7 @@ export type GetPetByIdPathPetIdSchema = z.infer<typeof getPetByIdPathPetIdSchema
 /**
  * @description successful operation
  */
-export const getPetByIdStatus200Schema = z.lazy(() => Pet)
+export const getPetByIdStatus200Schema = petSchema
 
 export type GetPetByIdStatus200Schema = z.infer<typeof getPetByIdStatus200Schema>
 

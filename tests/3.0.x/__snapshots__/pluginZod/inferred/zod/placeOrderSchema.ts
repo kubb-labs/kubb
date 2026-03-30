@@ -4,11 +4,12 @@
 */
 
 import * as z from "zod";
+import { orderSchema } from "./orderSchema.ts";
 
 /**
  * @description successful operation
  */
-export const placeOrderStatus200Schema = z.lazy(() => Order)
+export const placeOrderStatus200Schema = orderSchema
 
 export type PlaceOrderStatus200Schema = z.infer<typeof placeOrderStatus200Schema>
 
@@ -19,6 +20,6 @@ export const placeOrderStatus405Schema = z.any()
 
 export type PlaceOrderStatus405Schema = z.infer<typeof placeOrderStatus405Schema>
 
-export const placeOrderDataSchema = z.lazy(() => Order).optional()
+export const placeOrderDataSchema = orderSchema.optional()
 
 export type PlaceOrderDataSchema = z.infer<typeof placeOrderDataSchema>

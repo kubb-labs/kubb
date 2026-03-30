@@ -35,6 +35,9 @@ export type UpdatePetRequestConfig = {
     pathParams?: never;
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: "/pet";
 };
 

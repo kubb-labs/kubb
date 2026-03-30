@@ -16,13 +16,7 @@ export type ListPetsStatus200 = object
 export type ListPetsStatusDefault = object
 
 export type ListPetsRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
   /**
    * @type object | undefined
@@ -30,9 +24,6 @@ export type ListPetsRequestConfig = {
   queryParams?: {
     limit?: ListPetsQueryLimit
   }
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string

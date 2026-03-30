@@ -36,9 +36,6 @@ export type UpdatePetRequestConfig = {
     includeDeleted?: UpdatePetQueryIncludeDeleted
     requestSource?: UpdatePetQueryRequestSource
   }
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string

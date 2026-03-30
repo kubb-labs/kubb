@@ -16,9 +16,6 @@ export type ShowPetByIdStatus200 = object
 export type ShowPetByIdStatusDefault = object
 
 export type ShowPetByIdRequestConfig = {
-  /**
-   * @type never | undefined
-   */
   data?: never
   /**
    * @type object
@@ -26,13 +23,7 @@ export type ShowPetByIdRequestConfig = {
   pathParams: {
     petId: ShowPetByIdPathPetId
   }
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string

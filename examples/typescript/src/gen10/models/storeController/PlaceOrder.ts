@@ -22,17 +22,8 @@ export type PlaceOrderData = Order
 
 export type PlaceOrderRequestConfig = {
   data?: PlaceOrderData
-  /**
-   * @type never | undefined
-   */
   pathParams?: never
-  /**
-   * @type never | undefined
-   */
   queryParams?: never
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string

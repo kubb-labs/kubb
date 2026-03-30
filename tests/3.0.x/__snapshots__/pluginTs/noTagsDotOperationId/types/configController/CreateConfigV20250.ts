@@ -18,6 +18,9 @@ export type CreateConfigV20250RequestConfig = {
     pathParams?: never;
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: "/config";
 };
 

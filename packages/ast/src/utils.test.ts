@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createFunctionParameter, createOperation, createParameter, createSchema, createTypeNode } from './factory.ts'
 import type { OperationNode, ParameterNode } from './types.ts'
 import type { OperationParamsResolver } from './utils.ts'
-import { caseParams, createDiscriminantNode, createOperationParams, isStringType } from './utils.ts'
+import { caseParams, createDiscriminantNode, createOperationParams, isStringType, syncSchemaRef } from './utils.ts'
 
 const param = (name: string) =>
   createParameter({
@@ -81,6 +81,33 @@ describe('isStringType', () => {
     expect(isStringType(createSchema({ type: 'date', representation: 'date' }))).toBe(false)
     expect(isStringType(createSchema({ type: 'time', representation: 'date' }))).toBe(false)
     expect(isStringType(createSchema({ type: 'number' }))).toBe(false)
+  })
+})
+
+describe('syncSchemaRef', () => {
+  it('returns a merged schema for a ref node that has a resolved schema', () => {
+    const resolved = createSchema({ type: 'object' })
+    const ref = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet', schema: resolved })
+
+    const merged = syncSchemaRef(ref)
+    expect(merged).not.toBeNull()
+    expect(merged?.type).toBe('object')
+  })
+
+  it('returns a merged schema with sibling overrides applied over the resolved schema', () => {
+    const resolved = createSchema({ type: 'object', description: 'Original' })
+    const ref = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet', schema: resolved, description: 'Override', readOnly: true })
+
+    const merged = syncSchemaRef(ref)
+    expect(merged?.description).toBe('Override')
+    expect(merged?.readOnly).toBe(true)
+    expect(merged?.type).toBe('object')
+  })
+
+  it('returns null for a ref node without a resolved schema', () => {
+    const ref = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })
+
+    expect(syncSchemaRef(ref)).toBeNull()
   })
 })
 

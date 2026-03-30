@@ -36,9 +36,6 @@ export type UploadFileRequestConfig = {
   queryParams?: {
     additionalMetadata?: UploadFileQueryAdditionalMetadata
   }
-  /**
-   * @type never | undefined
-   */
   headerParams?: never
   /**
    * @type string

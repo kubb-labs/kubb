@@ -6,6 +6,6 @@
 import * as z from "zod";
 
 export const parcelSchema = z.object({
-    "parcelNo": z.optional(z.string()),
-"trackingNumber": z.optional(z.string())
+    "parcelNo": z.string().optional(),
+    "trackingNumber": z.string().optional()
     })

@@ -4,6 +4,8 @@
 */
 
 import * as z from "zod";
+import { petSchema } from "./petSchema.ts";
+import { petUpdateSchema } from "./petUpdateSchema.ts";
 
 export const updatePetPathPetIdSchema = z.string()
 
@@ -14,6 +16,6 @@ export const updatePetQueryRequestSourceSchema = z.string().optional()
 /**
  * @description Success
  */
-export const updatePetStatus200Schema = z.lazy(() => Pet)
+export const updatePetStatus200Schema = petSchema
 
-export const updatePetDataSchema = z.lazy(() => PetUpdate)
+export const updatePetDataSchema = petUpdateSchema

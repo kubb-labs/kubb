@@ -27,11 +27,17 @@ export type LoginUserStatus400 = any;
 export type LoginUserRequestConfig = {
     data?: never;
     pathParams?: never;
+    /**
+     * @type object | undefined
+    */
     queryParams?: {
         username?: LoginUserQueryUsername;
         password?: LoginUserQueryPassword;
     };
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: "/user/login";
 };
 

@@ -16,6 +16,9 @@ export type GetInventoryRequestConfig = {
     pathParams?: never;
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: "/store/inventory";
 };
 

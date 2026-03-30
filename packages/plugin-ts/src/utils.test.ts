@@ -49,21 +49,9 @@ describe('buildData', () => {
 
     expect(printSchema(buildData({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
-          /**
-           * @type never | undefined
-          */
           data?: never;
-          /**
-           * @type never | undefined
-          */
           pathParams?: never;
-          /**
-           * @type never | undefined
-          */
           queryParams?: never;
-          /**
-           * @type never | undefined
-          */
           headerParams?: never;
           /**
            * @type string
@@ -79,17 +67,8 @@ describe('buildData', () => {
     expect(printSchema(buildData({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
           data?: CreatePetData;
-          /**
-           * @type never | undefined
-          */
           pathParams?: never;
-          /**
-           * @type never | undefined
-          */
           queryParams?: never;
-          /**
-           * @type never | undefined
-          */
           headerParams?: never;
           /**
            * @type string
@@ -109,9 +88,6 @@ describe('buildData', () => {
 
     expect(printSchema(buildData({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
-          /**
-           * @type never | undefined
-          */
           data?: never;
           /**
            * @type object
@@ -119,13 +95,7 @@ describe('buildData', () => {
           pathParams: {
               petId: ShowPetByIdPathPetId;
           };
-          /**
-           * @type never | undefined
-          */
           queryParams?: never;
-          /**
-           * @type never | undefined
-          */
           headerParams?: never;
           /**
            * @type string
@@ -144,13 +114,7 @@ describe('buildData', () => {
 
     expect(printSchema(buildData({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
-          /**
-           * @type never | undefined
-          */
           data?: never;
-          /**
-           * @type never | undefined
-          */
           pathParams?: never;
           /**
            * @type object | undefined
@@ -158,9 +122,6 @@ describe('buildData', () => {
           queryParams?: {
               limit?: ListPetsQueryLimit;
           };
-          /**
-           * @type never | undefined
-          */
           headerParams?: never;
           /**
            * @type string
@@ -181,13 +142,7 @@ describe('buildData', () => {
 
     expect(printSchema(buildData({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
-          /**
-           * @type never | undefined
-          */
           data?: never;
-          /**
-           * @type never | undefined
-          */
           pathParams?: never;
           /**
            * @type object | undefined
@@ -195,9 +150,6 @@ describe('buildData', () => {
           queryParams?: {
               limit?: ListPetsQueryLimit;
           };
-          /**
-           * @type never | undefined
-          */
           headerParams?: never;
           /**
            * @type string

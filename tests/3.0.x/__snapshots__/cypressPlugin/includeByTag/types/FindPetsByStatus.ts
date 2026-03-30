@@ -24,10 +24,16 @@ export type FindPetsByStatusStatus400 = any;
 export type FindPetsByStatusRequestConfig = {
     data?: never;
     pathParams?: never;
+    /**
+     * @type object | undefined
+    */
     queryParams?: {
         status?: FindPetsByStatusQueryStatus;
     };
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: "/pet/findByStatus";
 };
 

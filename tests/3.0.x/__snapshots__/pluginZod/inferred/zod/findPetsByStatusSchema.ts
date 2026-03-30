@@ -4,6 +4,7 @@
 */
 
 import * as z from "zod";
+import { petSchema } from "./petSchema.ts";
 
 export const findPetsByStatusQueryStatusSchema = z.enum(["available", "pending", "sold"]).optional().default("available").describe("Status values that need to be considered for filter")
 
@@ -12,7 +13,7 @@ export type FindPetsByStatusQueryStatusSchema = z.infer<typeof findPetsByStatusQ
 /**
  * @description successful operation
  */
-export const findPetsByStatusStatus200Schema = z.array(z.lazy(() => Pet))
+export const findPetsByStatusStatus200Schema = z.array(petSchema)
 
 export type FindPetsByStatusStatus200Schema = z.infer<typeof findPetsByStatusStatus200Schema>
 
