@@ -8,6 +8,4 @@ import * as z from 'zod'
 export const petSchema = z.object({
   id: z.int(),
   name: z.string(),
-  status: z.string().optional(),
-  tags: z.array(z.string()).optional(),
 })

@@ -6,7 +6,7 @@
 import * as z from 'zod'
 
 export const orderSchema = z.object({
-  id: z.int(),
-  quantity: z.int().optional(),
+  id: z.string(),
+  quantity: z.string().optional(),
   status: z.string(),
 })

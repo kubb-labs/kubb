@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { pascalCase } from '@internals/utils'
-import { caseParams, createProperty, createSchema } from '@kubb/ast'
+import { caseParams, composeTransformers, createProperty, createSchema, transform } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
@@ -133,7 +133,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
   name: 'zod-legacy',
   type: 'react',
   Schema({ node, adapter, options, config, resolver }) {
-    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group } = options
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, transformers = [] } = options
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
@@ -142,10 +142,11 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
       return
     }
 
-    const zodName = resolver.default(node.name, 'function')
+    const schemaNode = transform(node, composeTransformers(...transformers))
+    const zodName = resolver.default(schemaNode.name!, 'function')
     const file = resolver.resolveFile({ name: node.name, extname: '.ts' }, { root, output, group })
 
-    const imports = adapter.getImports(node, (schemaName) => ({
+    const imports = adapter.getImports(schemaNode, (schemaName) => ({
       name: resolver.default(schemaName, 'function'),
       path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
     }))
@@ -168,20 +169,20 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
         {mini ? (
           <ZodMini
             name={zodName}
-            node={node}
+            node={schemaNode}
             guidType={guidType}
             wrapOutput={wrapOutput}
-            description={node.description}
+            description={schemaNode.description}
             inferTypeName={inferTypeName}
           />
         ) : (
           <Zod
             name={zodName}
-            node={node}
+            node={schemaNode}
             coercion={coercion}
             guidType={guidType}
             wrapOutput={wrapOutput}
-            description={node.description}
+            description={schemaNode.description}
             inferTypeName={inferTypeName}
           />
         )}

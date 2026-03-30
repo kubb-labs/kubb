@@ -145,11 +145,18 @@ describe('zodGenerator — Schema', () => {
     { name: 'integerType number', node: integerSchema, options: { integerType: 'number' } },
     // importPath custom
     { name: 'importPath custom', node: stringSchema, options: { importPath: '@acme/zod' } },
-    // wrapOutput
+    // wrapOutput (applied to object property values)
     {
       name: 'wrapOutput',
-      node: stringSchema,
-      options: { wrapOutput: ({ output }) => `${output}.openapi('PetName')` },
+      node: createSchema({
+        type: 'object',
+        name: 'WrappedPet',
+        properties: [
+          createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
+          createProperty({ name: 'age', schema: createSchema({ type: 'integer', optional: true }) }),
+        ],
+      }),
+      options: { wrapOutput: ({ output }) => `${output}.openapi('WrappedPet')` },
     },
   ]
 
