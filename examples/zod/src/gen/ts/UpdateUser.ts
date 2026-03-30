@@ -26,6 +26,9 @@ export type UpdateUserMutationRequest = User
 export type UpdateUserMutationResponse = any
 
 export type UpdateUserMutation = {
+  /**
+   * @type any
+   */
   Response: any
   Request: UpdateUserMutationRequest
   PathParams: UpdateUserPathParams

@@ -327,8 +327,14 @@ describe('printerTs', () => {
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
+          /**
+           * @type string
+           */
           a: string
         } & {
+          /**
+           * @type number
+           */
           b: number
         }"
       `)
@@ -453,7 +459,13 @@ describe('printerTs', () => {
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
+          /**
+           * @type number
+           */
           id: number
+          /**
+           * @type string
+           */
           name: string
         }"
       `)
@@ -469,6 +481,9 @@ describe('printerTs', () => {
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
+          /**
+           * @type string | undefined
+           */
           tag?: string
         }"
       `)
@@ -485,6 +500,9 @@ describe('printerTs', () => {
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
+          /**
+           * @type string | undefined
+           */
           tag: string | undefined
         }"
       `)
@@ -501,6 +519,9 @@ describe('printerTs', () => {
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
+          /**
+           * @type string | undefined
+           */
           tag?: string | undefined
         }"
       `)
@@ -516,6 +537,9 @@ describe('printerTs', () => {
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
+          /**
+           * @type string
+           */
           value: string | null
         }"
       `)
@@ -531,6 +555,9 @@ describe('printerTs', () => {
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
+          /**
+           * @type number
+           */
           readonly id: number
         }"
       `)
@@ -579,6 +606,9 @@ describe('printerTs', () => {
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
+          /**
+           * @type number
+           */
           id: number
           [key: string]: unknown
         }"
@@ -627,6 +657,9 @@ describe('printerTs', () => {
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
+          /**
+           * @type string | undefined
+           */
           tag?: string
         }"
       `)
@@ -643,6 +676,9 @@ describe('printerTs', () => {
 
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
+          /**
+           * @type string | undefined
+           */
           tag: string | undefined
         }"
       `)
@@ -734,6 +770,9 @@ describe('printerTs', () => {
 
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
         "export type MyObject = {
+          /**
+           * @type number | undefined
+           */
           id?: number
         }
         "
@@ -758,6 +797,9 @@ describe('printerTs', () => {
 
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
         "export type MyObject = {
+          /**
+           * @type number | undefined
+           */
           id?: number
         }
         "
@@ -827,8 +869,17 @@ describe('printerTs', () => {
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
         "export type Partial = Omit<
           NonNullable<{
+            /**
+             * @type number | undefined
+             */
             id?: number
+            /**
+             * @type string | undefined
+             */
             name?: string
+            /**
+             * @type string | undefined
+             */
             createdAt?: string
           }>,
           'id' | 'createdAt'

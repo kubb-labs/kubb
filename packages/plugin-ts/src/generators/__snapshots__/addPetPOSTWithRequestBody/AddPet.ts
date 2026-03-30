@@ -17,9 +17,21 @@ export type AddPetData = object
 
 export type AddPetRequestConfig = {
   data?: AddPetData
+  /**
+   * @type never | undefined
+   */
   pathParams?: never
+  /**
+   * @type never | undefined
+   */
   queryParams?: never
+  /**
+   * @type never | undefined
+   */
   headerParams?: never
+  /**
+   * @type string
+   */
   url: '/pet'
 }
 

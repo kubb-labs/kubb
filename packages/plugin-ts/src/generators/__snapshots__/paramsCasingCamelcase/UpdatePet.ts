@@ -15,19 +15,34 @@ export type UpdatePetQueryRequestSource = string
 export type UpdatePetStatus200 = object
 
 export type UpdatePetData = {
+  /**
+   * @type string
+   */
   name: string
 }
 
 export type UpdatePetRequestConfig = {
   data?: UpdatePetData
+  /**
+   * @type object
+   */
   pathParams: {
     petId: UpdatePetPathPetId
   }
+  /**
+   * @type object | undefined
+   */
   queryParams?: {
     includeDeleted?: UpdatePetQueryIncludeDeleted
     requestSource?: UpdatePetQueryRequestSource
   }
+  /**
+   * @type never | undefined
+   */
   headerParams?: never
+  /**
+   * @type string
+   */
   url: `/pets/${string}`
 }
 

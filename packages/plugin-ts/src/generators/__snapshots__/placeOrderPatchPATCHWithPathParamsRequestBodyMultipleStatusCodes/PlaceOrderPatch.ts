@@ -22,11 +22,23 @@ export type PlaceOrderPatchData = object
 
 export type PlaceOrderPatchRequestConfig = {
   data?: PlaceOrderPatchData
+  /**
+   * @type object
+   */
   pathParams: {
     orderId: PlaceOrderPatchPathOrderId
   }
+  /**
+   * @type never | undefined
+   */
   queryParams?: never
+  /**
+   * @type never | undefined
+   */
   headerParams?: never
+  /**
+   * @type string
+   */
   url: `/store/order/${string}`
 }
 

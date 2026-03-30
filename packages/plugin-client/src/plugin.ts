@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createPlugin, getBarrelFiles, getMode, type UserGroup } from '@kubb/core'
+import { createPlugin, getBarrelFiles, getMode, renderOperations, type UserGroup } from '@kubb/core'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { classClientGenerator, operationsGenerator } from './generators'
@@ -170,9 +170,35 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         },
       )
 
-      const files = await operationGenerator.build(...generators)
+      // v1 generators are handled by OperationGenerator; v2 generators (defineGenerator) are dispatched separately
+      const v1Generators = generators.filter((g) => g.version !== '2')
+      const v2Generators = generators.filter((g) => g.version === '2')
+
+      const files = await operationGenerator.build(...v1Generators)
 
       await this.upsertFile(...files)
+
+      // Dispatch Operations lifecycle for each v2 generator using the filtered operation nodes
+      if (v2Generators.length > 0 && this.adapter) {
+        const filteredOps = await operationGenerator.getOperations()
+        const filteredIds = new Set(filteredOps.map(({ operation }) => operation.getOperationId()))
+        const operationNodes = (this.adapter.rootNode?.operations ?? []).filter((node) => filteredIds.has(node.operationId))
+
+        for (const gen of v2Generators) {
+          if (gen.type === 'react') {
+            await renderOperations(operationNodes, {
+              options: this.plugin.options,
+              resolver: undefined as never,
+              adapter: this.adapter,
+              config: this.config,
+              fabric: this.fabric,
+              Component: gen.Operations,
+              plugin: this.plugin,
+              driver: this.driver,
+            })
+          }
+        }
+      }
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',

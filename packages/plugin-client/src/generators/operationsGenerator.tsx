@@ -1,34 +1,25 @@
-import { useDriver } from '@kubb/core/hooks'
-import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
+import { defaultResolveBanner, defaultResolveFooter, defineGenerator } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
 import { Operations } from '../components/Operations'
 import type { PluginClient } from '../types'
 
-export const operationsGenerator = createReactGenerator<PluginClient>({
+export const operationsGenerator = defineGenerator<PluginClient>({
   name: 'client',
-  Operations({ operations, plugin }) {
-    const {
-      name: pluginName,
-      options: { output },
-    } = plugin
-    const driver = useDriver()
-
-    const oas = useOas()
-
+  type: 'react',
+  Operations({ nodes, config, options, plugin, driver, adapter }) {
+    const { output } = options
     const name = 'operations'
-    const file = driver.getFile({ name, extname: '.ts', pluginName })
+    const file = driver.getFile({ name, extname: '.ts', pluginName: plugin.name })
 
     return (
       <File
         baseName={file.baseName}
         path={file.path}
         meta={file.meta}
-        banner={getBanner({ oas, output, config: driver.config })}
-        footer={getFooter({ oas, output })}
+        banner={defaultResolveBanner(adapter.rootNode ?? undefined, { output, config })}
+        footer={defaultResolveFooter(adapter.rootNode ?? undefined, { output })}
       >
-        <Operations name={name} operations={operations} />
+        <Operations name={name} nodes={nodes} />
       </File>
     )
   },

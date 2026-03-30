@@ -207,10 +207,50 @@ describe('printerZodMini', () => {
   })
 
   describe('intersection', () => {
-    test('returns first member only (no .and() in mini)', () => {
+    test('ref with string maxLength constraint', () => {
+      const node = createSchema({
+        type: 'intersection',
+        members: [createSchema({ type: 'ref', name: 'PhoneNumber' }), createSchema({ type: 'string', max: 15 })],
+      })
+      expect(printer.print(node)).toBe('PhoneNumber.check(z.maxLength(15))')
+    })
+
+    test('ref with string min and max constraints', () => {
+      const node = createSchema({
+        type: 'intersection',
+        members: [createSchema({ type: 'ref', name: 'PhoneNumber' }), createSchema({ type: 'string', min: 10, max: 15 })],
+      })
+      expect(printer.print(node)).toBe('PhoneNumber.check(z.minLength(10), z.maxLength(15))')
+    })
+
+    test('ref with string pattern constraint', () => {
+      const node = createSchema({
+        type: 'intersection',
+        members: [createSchema({ type: 'ref', name: 'Token' }), createSchema({ type: 'string', pattern: '^[A-Z]+$' })],
+      })
+      expect(printer.print(node)).toBe('Token.check(z.regex(new RegExp("^[A-Z]+$")))')
+    })
+
+    test('ref with number min/max constraints', () => {
+      const node = createSchema({
+        type: 'intersection',
+        members: [createSchema({ type: 'ref', name: 'Score' }), createSchema({ type: 'number', min: 0, max: 100 })],
+      })
+      expect(printer.print(node)).toBe('Score.check(z.minimum(0), z.maximum(100))')
+    })
+
+    test('two complex members fall back to z.intersection()', () => {
       const node = createSchema({
         type: 'intersection',
         members: [createSchema({ type: 'string' }), createSchema({ type: 'number' })],
+      })
+      expect(printer.print(node)).toBe('z.intersection(z.string(), z.number())')
+    })
+
+    test('single member', () => {
+      const node = createSchema({
+        type: 'intersection',
+        members: [createSchema({ type: 'string' })],
       })
       expect(printer.print(node)).toBe('z.string()')
     })

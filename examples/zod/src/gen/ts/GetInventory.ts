@@ -14,5 +14,8 @@ export type GetInventoryQueryResponse = GetInventory200
 
 export type GetInventoryQuery = {
   Response: GetInventory200
+  /**
+   * @type any
+   */
   Errors: any
 }

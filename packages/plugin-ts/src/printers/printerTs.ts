@@ -147,7 +147,7 @@ function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalTy
  * Collects JSDoc annotation strings (description, deprecated, min/max, pattern, default, example, type) for a schema node.
  */
 function buildPropertyJSDocComments(schema: SchemaNode): Array<string | undefined> {
-  const isArray = schema.type === 'array'
+  const isArray = schema.primitive === 'array'
 
   return [
     'description' in schema && schema.description ? `@description ${jsStringEscape(schema.description)}` : undefined,

@@ -28,5 +28,8 @@ export type CreatePetsMutationResponse = CreatePets201
 export type CreatePetsMutation = {
   Response: CreatePets201
   HeaderParams: CreatePetsHeaderParams
+  /**
+   * @type any
+   */
   Errors: any
 }

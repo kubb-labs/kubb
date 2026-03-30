@@ -4,8 +4,20 @@
  */
 
 export type Pet = {
+  /**
+   * @type string
+   */
   id: string
+  /**
+   * @type string
+   */
   name: string
+  /**
+   * @type string | undefined
+   */
   description?: string
+  /**
+   * @type array | undefined
+   */
   tags?: string[]
 }

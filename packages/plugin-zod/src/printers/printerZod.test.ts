@@ -184,6 +184,56 @@ describe('printerZod', () => {
     })
   })
 
+  describe('intersection', () => {
+    test('ref with string maxLength constraint', () => {
+      const node = createSchema({
+        type: 'intersection',
+        members: [createSchema({ type: 'ref', name: 'PhoneNumber' }), createSchema({ type: 'string', max: 15 })],
+      })
+      expect(printer.print(node)).toBe('PhoneNumber.max(15)')
+    })
+
+    test('ref with string min and max constraints', () => {
+      const node = createSchema({
+        type: 'intersection',
+        members: [createSchema({ type: 'ref', name: 'PhoneNumber' }), createSchema({ type: 'string', min: 10, max: 15 })],
+      })
+      expect(printer.print(node)).toBe('PhoneNumber.min(10).max(15)')
+    })
+
+    test('ref with string pattern constraint', () => {
+      const node = createSchema({
+        type: 'intersection',
+        members: [createSchema({ type: 'ref', name: 'Token' }), createSchema({ type: 'string', pattern: '^[A-Z]+$' })],
+      })
+      expect(printer.print(node)).toBe('Token.regex(new RegExp("^[A-Z]+$"))')
+    })
+
+    test('ref with number min/max constraints', () => {
+      const node = createSchema({
+        type: 'intersection',
+        members: [createSchema({ type: 'ref', name: 'Score' }), createSchema({ type: 'number', min: 0, max: 100 })],
+      })
+      expect(printer.print(node)).toBe('Score.min(0).max(100)')
+    })
+
+    test('two complex members fall back to .and()', () => {
+      const node = createSchema({
+        type: 'intersection',
+        members: [createSchema({ type: 'string' }), createSchema({ type: 'number' })],
+      })
+      expect(printer.print(node)).toBe('z.string().and(z.number())')
+    })
+
+    test('single member', () => {
+      const node = createSchema({
+        type: 'intersection',
+        members: [createSchema({ type: 'string' })],
+      })
+      expect(printer.print(node)).toBe('z.string()')
+    })
+  })
+
   describe('union', () => {
     test('basic union', () => {
       const node = createSchema({

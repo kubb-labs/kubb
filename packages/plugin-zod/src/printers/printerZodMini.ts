@@ -1,4 +1,5 @@
 import { stringify } from '@internals/utils'
+import { narrowSchema } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
@@ -218,11 +219,43 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
       },
 
       intersection(node) {
-        const members = (node.members ?? []).map((m) => this.transform(m)).filter(Boolean)
+        const members = node.members ?? []
         if (members.length === 0) return ''
-        if (members.length === 1) return members[0]!
-        // Mini mode doesn't support .and()
-        return members[0]!
+
+        const [first, ...rest] = members
+        if (!first) return ''
+
+        let base = this.transform(first)
+        if (!base) return ''
+
+        for (const member of rest) {
+          if (member.primitive === 'string') {
+            const s = narrowSchema(member, 'string')
+            const c = lengthChecksMini(s?.min, s?.max, s?.pattern)
+            if (c) {
+              base += c
+              continue
+            }
+          } else if (member.primitive === 'number' || member.primitive === 'integer') {
+            const n = narrowSchema(member, 'number') ?? narrowSchema(member, 'integer')
+            const c = numberChecksMini(n?.min, n?.max, n?.exclusiveMinimum, n?.exclusiveMaximum)
+            if (c) {
+              base += c
+              continue
+            }
+          } else if (member.primitive === 'array') {
+            const a = narrowSchema(member, 'array')
+            const c = lengthChecksMini(a?.min, a?.max)
+            if (c) {
+              base += c
+              continue
+            }
+          }
+          const transformed = this.transform(member)
+          if (transformed) base = `z.intersection(${base}, ${transformed})`
+        }
+
+        return base
       },
     },
 
