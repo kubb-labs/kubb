@@ -114,9 +114,5 @@
     "p-limit": "catalog:"
   },
   "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "inlinedDependencies": {
-    "p-limit": "7.3.0",
-    "yocto-queue": "1.2.2"
-  }
+  "module": "./dist/index.js"
 }

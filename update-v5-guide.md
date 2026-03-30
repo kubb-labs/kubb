@@ -192,13 +192,13 @@ Update `Options` type:
 - Remove `contentType` (adapter responsibility)
 - Remove old `transformers` object with `name` callback
 - Change `Output<Oas>` to plain `Output`
-- Use `UserGroup` for the user-facing `group` option (allows omitting `name`); use `Group | undefined` in `ResolvedOptions` (always has `name`, normalised in `plugin.ts`):
+- Use `UserGroup` for the user-facing `group` option (allows omitting `name`); use `Group | undefined` in `ResolvedOptions` (always has `name`, normalized in `plugin.ts`):
 
 ```typescript
 // In Options (user-facing):
 group?: UserGroup
 
-// In ResolvedOptions (after normalisation in plugin.ts):
+// In ResolvedOptions (after normalization in plugin.ts):
 group: Group | undefined
 ```
 - Add these new options with JSDoc:
@@ -232,7 +232,7 @@ Update `ResolvedOptions` type -- add:
 resolver: ResolverCypress
 transformers: Array<Visitor>
 /**
- * Fully resolved group: always has a `name` function (normalised in `plugin.ts`
+ * Fully resolved group: always has a `name` function (normalized in `plugin.ts`
  * from the user-supplied `UserGroup` which may omit `name`).
  */
 group: Group | undefined
@@ -400,7 +400,7 @@ Add or keep these imports:
 - `caseParams`, `createOperationParams`, `createFunctionParameter`, `createTypeNode` from `@kubb/ast`
 - `OperationNode` from `@kubb/ast/types`
 - `ResolverTs`, `functionPrinter` from `@kubb/plugin-ts` (for printing function-parameter signatures)
-- `URLPath`, `camelCase` from `@internals/utils` (still needed for URL template generation and path-param key normalisation)
+- `URLPath`, `camelCase` from `@internals/utils` (still needed for URL template generation and path-param key normalization)
 
 Change the Props type:
 - Replace `typeSchemas: OperationSchemas` with `resolver: ResolverTs` — the component resolves type names itself via `resolver.resolveXxxName(node)`
@@ -640,7 +640,7 @@ Change the plugin return object:
 
 `pre` array: Remove `pluginOasName`. Keep other dependencies like `pluginTsName`.
 
-Use **getter syntax** for `resolver` and `options` so values always reflect the latest preset state. The `options` getter is also where `group` is normalised from the user-supplied `UserGroup` (which may omit `name`) into the resolved `Group` (which always has `name`):
+Use **getter syntax** for `resolver` and `options` so values always reflect the latest preset state. The `options` getter is also where `group` is normalized from the user-supplied `UserGroup` (which may omit `name`) into the resolved `Group` (which always has `name`):
 
 ```typescript
 return {
@@ -651,7 +651,7 @@ return {
   get options() {
     return {
       output,
-      // Normalise UserGroup → Group: inject a default name function if the user
+      // Normalize UserGroup → Group: inject a default name function if the user
       // did not provide one, so downstream code can always call group.name().
       group: group
         ? ({
@@ -872,7 +872,7 @@ Run `pnpm test -u` in the plugin package directory.
 ### plugin-cypress (operation plugin)
 
 - Resolver: `ResolverCypress` with `resolveName` only
-- No `constants.ts` needed (no option values share branching behaviour); schema plugins do need one
+- No `constants.ts` needed (no option values share branching behavior); schema plugins do need one
 - Generator: `cypressGenerator` with `Operation` only (no `Schema`)
 - Plugin walks `operation` nodes only
 - Component: `Request.tsx` receives `resolver: ResolverTs` directly; uses `createOperationParams` from `@kubb/ast` for typed function signatures and `functionPrinter({ mode: 'declaration' })` from `@kubb/plugin-ts` to print them
