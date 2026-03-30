@@ -42,8 +42,8 @@ const baseConfig = {
   output: {
     path: './gen',
     clean: true,
-    lint: 'auto',
-    format: 'auto',
+    lint: false,
+    format: false,
   },
   adapter: adapterOas(),
   plugins: [
