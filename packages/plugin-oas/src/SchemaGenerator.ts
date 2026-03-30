@@ -4,7 +4,6 @@ import type { FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptio
 import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'
-import pLimit from 'p-limit'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import type { CoreGenerator } from './generators/createGenerator.ts'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
@@ -18,14 +17,6 @@ export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> 
 
 export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<FabricFile.File<TFileMeta> | Array<FabricFile.File<TFileMeta>> | null>
 
-/**
- * Max concurrent generator tasks (across generators).
- */
-const GENERATOR_CONCURRENCY = 3
-/**
- * Max concurrent schema parsing tasks (per generator).
- */
-const SCHEMA_CONCURRENCY = 30
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   fabric: FabricType
@@ -1367,57 +1358,33 @@ export class SchemaGenerator<
   async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<FabricFile.File<TFileMeta>>> {
     const schemaEntries = Object.entries(schemas)
 
-    const generatorLimit = pLimit(GENERATOR_CONCURRENCY)
-    const schemaLimit = pLimit(SCHEMA_CONCURRENCY)
+    const results: Array<FabricFile.File<TFileMeta>> = []
 
-    const writeTasks = generators.map((generator) =>
-      generatorLimit(async () => {
-        if (generator.version === '2') {
-          return []
-        }
+    for (const generator of generators) {
+      if (generator.version === '2') {
+        continue
+      }
 
-        // After the v2 guard above, all generators here are v1
-        const v1Generator = generator as ReactGenerator<TPluginOptions> | CoreGenerator<TPluginOptions>
+      // After the v2 guard above, all generators here are v1
+      const v1Generator = generator as ReactGenerator<TPluginOptions> | CoreGenerator<TPluginOptions>
 
-        const schemaTasks = schemaEntries.map(([name, schemaObject]) =>
-          schemaLimit(async () => {
-            const options = this.#getOptions(name)
+      for (const [name, schemaObject] of schemaEntries) {
+        const options = this.#getOptions(name)
 
-            const tree = this.parse({ schema: schemaObject as SchemaObject, name, parentName: null, rootName: name })
+        const tree = this.parse({ schema: schemaObject as SchemaObject, name, parentName: null, rootName: name })
 
-            if (v1Generator.type === 'react') {
-              await renderSchema(
-                {
-                  name,
-                  value: schemaObject as SchemaObject,
-                  tree,
-                },
-                {
-                  config: this.context.driver.config,
-                  fabric: this.context.fabric,
-                  Component: v1Generator.Schema,
-                  generator: this,
-                  plugin: {
-                    ...this.context.plugin,
-                    options: {
-                      ...this.options,
-                      ...options,
-                    },
-                  },
-                },
-              )
-
-              return []
-            }
-
-            const result = await v1Generator.schema?.({
+        if (v1Generator.type === 'react') {
+          await renderSchema(
+            {
+              name,
+              value: schemaObject as SchemaObject,
+              tree,
+            },
+            {
               config: this.context.driver.config,
+              fabric: this.context.fabric,
+              Component: v1Generator.Schema,
               generator: this,
-              schema: {
-                name,
-                value: schemaObject as SchemaObject,
-                tree,
-              },
               plugin: {
                 ...this.context.plugin,
                 options: {
@@ -1425,19 +1392,31 @@ export class SchemaGenerator<
                   ...options,
                 },
               },
-            })
+            },
+          )
+        } else {
+          const result = await v1Generator.schema?.({
+            config: this.context.driver.config,
+            generator: this,
+            schema: {
+              name,
+              value: schemaObject as SchemaObject,
+              tree,
+            },
+            plugin: {
+              ...this.context.plugin,
+              options: {
+                ...this.options,
+                ...options,
+              },
+            },
+          })
 
-            return result ?? []
-          }),
-        )
+          results.push(...([result ?? []].flat() as Array<FabricFile.File<TFileMeta>>))
+        }
+      }
+    }
 
-        const schemaResults = await Promise.all(schemaTasks)
-        return schemaResults.flat() as unknown as FabricFile.File<TFileMeta>
-      }),
-    )
-
-    const nestedResults = await Promise.all(writeTasks)
-
-    return nestedResults.flat()
+    return results
   }
 }

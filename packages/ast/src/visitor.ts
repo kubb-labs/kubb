@@ -11,11 +11,9 @@ import type { Node, OperationNode, ParameterNode, PropertyNode, ResponseNode, Ro
  * @example
  * ```ts
  * const limit = createLimit(2)
- * await Promise.all([
- *   limit(() => taskA()),
- *   limit(() => taskB()),
- *   limit(() => taskC()),
- * ])
+ * for (const task of [taskA, taskB, taskC]) {
+ *   await limit(() => task())
+ * }
  * // only 2 tasks run at the same time
  * ```
  */
@@ -349,7 +347,9 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
   }
 
   const children = getChildren(node, recurse)
-  await Promise.all(children.map((child) => _walk(child, visitor, recurse, limit, node)))
+  for (const child of children) {
+    await _walk(child, visitor, recurse, limit, node)
+  }
 }
 
 /**

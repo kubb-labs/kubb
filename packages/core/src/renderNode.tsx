@@ -131,24 +131,22 @@ type RunGeneratorContext<TOptions extends PluginFactoryOptions> = {
 export async function runGeneratorSchema<TOptions extends PluginFactoryOptions>(node: SchemaNode, ctx: RunGeneratorContext<TOptions>): Promise<void> {
   const { generators, plugin, resolver, exclude, include, override, fabric, adapter, config, driver } = ctx
 
-  await Promise.all(
-    generators.map(async (generator) => {
-      const options = resolver.resolveOptions(node, { options: plugin.options, exclude, include, override })
+  for (const generator of generators) {
+    const options = resolver.resolveOptions(node, { options: plugin.options, exclude, include, override })
 
-      if (options === null) {
-        return
-      }
+    if (options === null) {
+      continue
+    }
 
-      if (generator.type === 'react' && generator.version === '2') {
-        await renderSchema(node, { options, resolver, adapter, config, fabric, Component: generator.Schema, plugin, driver })
-      }
+    if (generator.type === 'react' && generator.version === '2') {
+      await renderSchema(node, { options, resolver, adapter, config, fabric, Component: generator.Schema, plugin, driver })
+    }
 
-      if (generator.type === 'core' && generator.version === '2') {
-        const files = (await generator.schema?.({ node, options, resolver, adapter, config, plugin, driver })) ?? []
-        await fabric.upsertFile(...files)
-      }
-    }),
-  )
+    if (generator.type === 'core' && generator.version === '2') {
+      const files = (await generator.schema?.({ node, options, resolver, adapter, config, plugin, driver })) ?? []
+      await fabric.upsertFile(...files)
+    }
+  }
 }
 
 /**
@@ -158,24 +156,22 @@ export async function runGeneratorSchema<TOptions extends PluginFactoryOptions>(
 export async function runGeneratorOperation<TOptions extends PluginFactoryOptions>(node: OperationNode, ctx: RunGeneratorContext<TOptions>): Promise<void> {
   const { generators, plugin, resolver, exclude, include, override, fabric, adapter, config, driver } = ctx
 
-  await Promise.all(
-    generators.map(async (generator) => {
-      const options = resolver.resolveOptions(node, { options: plugin.options, exclude, include, override })
+  for (const generator of generators) {
+    const options = resolver.resolveOptions(node, { options: plugin.options, exclude, include, override })
 
-      if (options === null) {
-        return
-      }
+    if (options === null) {
+      continue
+    }
 
-      if (generator.type === 'react' && generator.version === '2') {
-        await renderOperation(node, { options, resolver, adapter, config, fabric, Component: generator.Operation, plugin, driver })
-      }
+    if (generator.type === 'react' && generator.version === '2') {
+      await renderOperation(node, { options, resolver, adapter, config, fabric, Component: generator.Operation, plugin, driver })
+    }
 
-      if (generator.type === 'core' && generator.version === '2') {
-        const files = (await generator.operation?.({ node, options, resolver, adapter, config, plugin, driver })) ?? []
-        await fabric.upsertFile(...files)
-      }
-    }),
-  )
+    if (generator.type === 'core' && generator.version === '2') {
+      const files = (await generator.operation?.({ node, options, resolver, adapter, config, plugin, driver })) ?? []
+      await fabric.upsertFile(...files)
+    }
+  }
 }
 
 /**
@@ -188,16 +184,14 @@ export async function runGeneratorOperations<TOptions extends PluginFactoryOptio
 ): Promise<void> {
   const { generators, plugin, resolver, fabric, adapter, config, driver } = ctx
 
-  await Promise.all(
-    generators.map(async (generator) => {
-      if (generator.type === 'react' && generator.version === '2') {
-        await renderOperations(nodes, { options: plugin.options, resolver, adapter, config, fabric, Component: generator.Operations, plugin, driver })
-      }
+  for (const generator of generators) {
+    if (generator.type === 'react' && generator.version === '2') {
+      await renderOperations(nodes, { options: plugin.options, resolver, adapter, config, fabric, Component: generator.Operations, plugin, driver })
+    }
 
-      if (generator.type === 'core' && generator.version === '2') {
-        const files = (await generator.operations?.({ nodes, options: plugin.options, resolver, adapter, config, plugin, driver })) ?? []
-        await fabric.upsertFile(...files)
-      }
-    }),
-  )
+    if (generator.type === 'core' && generator.version === '2') {
+      const files = (await generator.operations?.({ nodes, options: plugin.options, resolver, adapter, config, plugin, driver })) ?? []
+      await fabric.upsertFile(...files)
+    }
+  }
 }
