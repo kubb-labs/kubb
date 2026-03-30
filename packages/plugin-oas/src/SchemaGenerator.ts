@@ -17,7 +17,6 @@ export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> 
 
 export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<FabricFile.File<TFileMeta> | Array<FabricFile.File<TFileMeta>> | null>
 
-
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   fabric: FabricType
   oas: Oas
