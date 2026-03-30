@@ -1,5 +1,5 @@
 import { stringify, toRegExpString } from '@internals/utils'
-import { narrowSchema, syncSchemaRef } from '@kubb/ast'
+import { extractRefName, narrowSchema, syncSchemaRef } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
@@ -20,7 +20,8 @@ type ZodMiniPrinterFactory = PrinterFactoryOptions<'zod-mini', ZodMiniOptions, s
 
 function containsRef(schema: SchemaNode, schemaName: string, resolver: ResolverZod | undefined): boolean {
   if (schema.type === 'ref') {
-    const resolvedName = schema.ref ? (resolver?.default(schema.name ?? '', 'function') ?? schema.name ?? '') : (schema.name ?? '')
+    const refName = schema.ref ? (extractRefName(schema.ref) ?? schema.name ?? '') : (schema.name ?? '')
+    const resolvedName = schema.ref ? (resolver?.default(refName, 'function') ?? refName) : refName
     return resolvedName === schemaName
   }
   if ('items' in schema && Array.isArray(schema.items)) {
@@ -196,7 +197,8 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
 
       ref(node) {
         if (!node.name) return undefined
-        const resolvedName = node.ref ? (this.options.resolver?.default(node.name, 'function') ?? node.name) : node.name
+        const refName = node.ref ? (extractRefName(node.ref) ?? node.name) : node.name
+        const resolvedName = node.ref ? (this.options.resolver?.default(refName, 'function') ?? refName) : node.name
         return resolvedName
       },
       object(node) {

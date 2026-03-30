@@ -1,5 +1,5 @@
 import { jsStringEscape, stringify } from '@internals/utils'
-import { isStringType, narrowSchema, schemaTypes, syncSchemaRef } from '@kubb/ast'
+import { extractRefName, isStringType, narrowSchema, schemaTypes, syncSchemaRef } from '@kubb/ast'
 import type { ArraySchemaNode, SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
@@ -261,7 +261,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         // Use the canonical name from the $ref path — node.name may have been overridden
         // (e.g. by single-member allOf flatten using the property-derived child name).
         // Inline refs (without $ref) from utils already carry resolved type names.
-        const refName = node.ref ? (node.ref.split('/').at(-1) ?? node.name) : node.name
+        const refName = node.ref ? (extractRefName(node.ref) ?? node.name) : node.name
 
         // When a Key suffix is configured, enum refs must use the suffixed name (e.g. `StatusKey`)
         // so the reference matches what the enum file actually exports.

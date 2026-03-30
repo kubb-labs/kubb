@@ -205,6 +205,21 @@ describe('printerZodMini', () => {
     })
   })
 
+  describe('ref', () => {
+    test('ref uses ref path name over node name', () => {
+      const node = createSchema({ type: 'ref', name: 'UnsupportedAuthenticationProblem', ref: '#/components/schemas/Problem' })
+
+      expect(printer.print(node)).toBe('Problem')
+    })
+
+    test('ref with resolver uses ref path name', () => {
+      const p = printerZodMini({ resolver: { default: (name: string) => `${name.charAt(0).toLowerCase()}${name.slice(1)}Schema` } as any })
+      const node = createSchema({ type: 'ref', name: 'UnsupportedAuthenticationProblem', ref: '#/components/schemas/Problem' })
+
+      expect(p.print(node)).toBe('problemSchema')
+    })
+  })
+
   describe('intersection', () => {
     test('ref with string maxLength constraint', () => {
       const node = createSchema({
