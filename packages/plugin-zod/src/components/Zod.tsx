@@ -13,10 +13,11 @@ type Props = {
   description?: string
   inferTypeName?: string
   resolver?: ResolverZod
+  keysToOmit?: Array<string>
 }
 
-export function Zod({ name, node, coercion, guidType, wrapOutput, description, inferTypeName, resolver }: Props): FabricReactNode {
-  const printer = printerZod({ coercion, guidType, wrapOutput, resolver, schemaName: name })
+export function Zod({ name, node, coercion, guidType, wrapOutput, description, inferTypeName, resolver, keysToOmit }: Props): FabricReactNode {
+  const printer = printerZod({ coercion, guidType, wrapOutput, resolver, schemaName: name, keysToOmit })
   const output = printer.print(node)
 
   if (!output) {

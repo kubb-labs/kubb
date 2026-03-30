@@ -10,6 +10,10 @@ export type ZodMiniOptions = {
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
   resolver?: ResolverZod
   schemaName?: string
+  /**
+   * Property keys to exclude from the generated object schema via `.omit({ key: true })`.
+   */
+  keysToOmit?: Array<string>
 }
 
 type ZodMiniPrinterFactory = PrinterFactoryOptions<'zod-mini', ZodMiniOptions, string, string>
@@ -263,7 +267,12 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
       const base = this.transform(node)
       if (!base) return null
 
-      return applyMiniModifiers({ value: base, nullable: node.nullable, optional: node.optional, nullish: node.nullish, defaultValue: node.default })
+      const { keysToOmit } = this.options
+      const omitted = keysToOmit?.length
+        ? `${base}.omit({ ${keysToOmit.map((k) => `"${k}": true`).join(', ')} })`
+        : base
+
+      return applyMiniModifiers({ value: omitted, nullable: node.nullable, optional: node.optional, nullish: node.nullish, defaultValue: node.default })
     },
   }
 })

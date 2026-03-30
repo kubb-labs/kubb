@@ -156,9 +156,7 @@ describe('printerZodMini', () => {
         ],
       })
       const result = printer.print(node)
-      expect(result).toContain('z.object(')
-      expect(result).toContain('"id": z.int()')
-      expect(result).toContain('"name": z.string()')
+      expect(result).toBe('z.object({\n    "id": z.int(),\n    "name": z.string()\n    })')
     })
   })
 
@@ -253,6 +251,39 @@ describe('printerZodMini', () => {
         members: [createSchema({ type: 'string' })],
       })
       expect(printer.print(node)).toBe('z.string()')
+    })
+  })
+
+  describe('keysToOmit', () => {
+    test('omits single key from object schema', () => {
+      const p = printerZodMini({ keysToOmit: ['id'] })
+      const node = createSchema({
+        type: 'object',
+        properties: [
+          { name: 'id', required: true, schema: createSchema({ type: 'integer' }) },
+          { name: 'name', required: true, schema: createSchema({ type: 'string' }) },
+        ],
+      })
+      expect(p.print(node)).toBe('z.object({\n    "id": z.int(),\n    "name": z.string()\n    }).omit({ "id": true })')
+    })
+
+    test('omits multiple keys from object schema', () => {
+      const p = printerZodMini({ keysToOmit: ['id', 'createdAt'] })
+      const node = createSchema({
+        type: 'object',
+        properties: [
+          { name: 'id', required: true, schema: createSchema({ type: 'integer' }) },
+          { name: 'createdAt', required: true, schema: createSchema({ type: 'string' }) },
+          { name: 'name', required: true, schema: createSchema({ type: 'string' }) },
+        ],
+      })
+      expect(p.print(node)).toBe('z.object({\n    "id": z.int(),\n    "createdAt": z.string(),\n    "name": z.string()\n    }).omit({ "id": true, "createdAt": true })')
+    })
+
+    test('no omit when keysToOmit is empty', () => {
+      const p = printerZodMini({ keysToOmit: [] })
+      const node = createSchema({ type: 'string' })
+      expect(p.print(node)).toBe('z.string()')
     })
   })
 })

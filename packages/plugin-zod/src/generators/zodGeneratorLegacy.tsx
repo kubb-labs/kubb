@@ -202,7 +202,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
 
     const params = caseParams(node.parameters, paramsCasing)
 
-    function renderSchemaEntry({ schema, name, description }: { schema: SchemaNode | null | undefined; name: string; description?: string }) {
+    function renderSchemaEntry({ schema, name, description, keysToOmit }: { schema: SchemaNode | null | undefined; name: string; description?: string; keysToOmit?: Array<string> }) {
       if (!schema) return null
 
       const inferTypeName = inferred ? resolver.resolveInferName(name) : undefined
@@ -225,6 +225,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
               description={description}
               inferTypeName={inferTypeName}
               resolver={resolver}
+              keysToOmit={keysToOmit}
             />
           ) : (
             <Zod
@@ -236,6 +237,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
               description={description}
               inferTypeName={inferTypeName}
               resolver={resolver}
+              keysToOmit={keysToOmit}
             />
           )}
         </>
@@ -253,6 +255,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
         schema: res.schema,
         name: responseName,
         description: res.description,
+        keysToOmit: res.keysToOmit,
       })
     })
 
@@ -262,6 +265,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
           schema: node.requestBody.schema,
           name: resolver.resolveDataName(node),
           description: node.requestBody.description,
+          keysToOmit: node.requestBody.keysToOmit,
         })
       : null
 
