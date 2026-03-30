@@ -37,6 +37,9 @@ export const resolverZod = defineResolver<PluginZod>(() => {
     resolveName(name) {
       return this.default(name, 'function')
     },
+    resolveInferName(name) {
+      return pascalCase(name)
+    },
     resolvePathName(name, type) {
       return this.default(name, type)
     },

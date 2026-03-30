@@ -7,7 +7,7 @@ import { z } from '../../zod.ts'
 import { petSchema } from './petSchema.ts'
 
 export const getPetByIdPathParamsSchema = z.object({
-  petId: z.coerce.number().int().describe('ID of pet to return'),
+  petId: z.int().describe('ID of pet to return'),
 })
 
 export type GetPetByIdPathParamsSchema = z.infer<typeof getPetByIdPathParamsSchema>
@@ -15,7 +15,7 @@ export type GetPetByIdPathParamsSchema = z.infer<typeof getPetByIdPathParamsSche
 /**
  * @description successful operation
  */
-export const getPetById200Schema = z.lazy(() => petSchema)
+export const getPetById200Schema = petSchema
 
 export type GetPetById200Schema = z.infer<typeof getPetById200Schema>
 
@@ -33,6 +33,14 @@ export const getPetById404Schema = z.any()
 
 export type GetPetById404Schema = z.infer<typeof getPetById404Schema>
 
-export const getPetByIdQueryResponseSchema = z.lazy(() => getPetById200Schema)
+export const getPetByIdQueryResponseSchema = getPetById200Schema
 
 export type GetPetByIdQueryResponseSchema = z.infer<typeof getPetByIdQueryResponseSchema>
+
+export const getPetByIdQuerySchema = z.object({
+  Response: getPetById200Schema,
+  PathParams: getPetByIdPathParamsSchema,
+  Errors: z.union([getPetById400Schema, getPetById404Schema]),
+})
+
+export type GetPetByIdQuerySchema = z.infer<typeof getPetByIdQuerySchema>

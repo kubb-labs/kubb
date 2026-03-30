@@ -5,9 +5,11 @@
 
 import * as z from 'zod'
 
-export const listPetsQueryParamsSchema = z.object({
-  limit: z.int().optional(),
-})
+export const listPetsQueryParamsSchema = z
+  .object({
+    limit: z.int().optional(),
+  })
+  .optional()
 
 /**
  * @description A paged array of pets
@@ -19,16 +21,10 @@ export const listPets200Schema = z.object({})
  */
 export const listPetsErrorSchema = z.object({})
 
-export const listPetsQueryResponseSchema = z.lazy(() => listPets200Schema)
+export const listPetsQueryResponseSchema = listPets200Schema
 
 export const listPetsQuerySchema = z.object({
-  get Response() {
-    return listPets200Schema
-  },
-  get QueryParams() {
-    return listPetsQueryParamsSchema
-  },
-  get Errors() {
-    return listPetsErrorSchema
-  },
+  Response: listPets200Schema,
+  QueryParams: listPetsQueryParamsSchema,
+  Errors: listPetsErrorSchema,
 })

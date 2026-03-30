@@ -7,14 +7,14 @@ import { z } from '../../zod.ts'
 import { apiResponseSchema } from './apiResponseSchema.ts'
 
 export const uploadFilePathParamsSchema = z.object({
-  petId: z.coerce.number().int().describe('ID of pet to update'),
+  petId: z.int().describe('ID of pet to update'),
 })
 
 export type UploadFilePathParamsSchema = z.infer<typeof uploadFilePathParamsSchema>
 
 export const uploadFileQueryParamsSchema = z
   .object({
-    additionalMetadata: z.optional(z.string().describe('Additional Metadata')),
+    additionalMetadata: z.string().optional().describe('Additional Metadata'),
   })
   .optional()
 
@@ -23,14 +23,24 @@ export type UploadFileQueryParamsSchema = z.infer<typeof uploadFileQueryParamsSc
 /**
  * @description successful operation
  */
-export const uploadFile200Schema = z.lazy(() => apiResponseSchema)
+export const uploadFile200Schema = apiResponseSchema
 
 export type UploadFile200Schema = z.infer<typeof uploadFile200Schema>
 
-export const uploadFileMutationRequestSchema = z.instanceof(File)
+export const uploadFileMutationRequestSchema = z.instanceof(File).optional()
 
 export type UploadFileMutationRequestSchema = z.infer<typeof uploadFileMutationRequestSchema>
 
-export const uploadFileMutationResponseSchema = z.lazy(() => uploadFile200Schema)
+export const uploadFileMutationResponseSchema = uploadFile200Schema
 
 export type UploadFileMutationResponseSchema = z.infer<typeof uploadFileMutationResponseSchema>
+
+export const uploadFileMutationSchema = z.object({
+  Response: uploadFile200Schema,
+  Request: uploadFileMutationRequestSchema,
+  QueryParams: uploadFileQueryParamsSchema,
+  PathParams: uploadFilePathParamsSchema,
+  Errors: z.any(),
+})
+
+export type UploadFileMutationSchema = z.infer<typeof uploadFileMutationSchema>

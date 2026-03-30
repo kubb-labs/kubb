@@ -17,16 +17,10 @@ export const addPet405Schema = z.object({})
 
 export const addPetMutationRequestSchema = z.object({})
 
-export const addPetMutationResponseSchema = z.lazy(() => addPet200Schema)
+export const addPetMutationResponseSchema = addPet200Schema
 
 export const addPetMutationSchema = z.object({
-  get Response() {
-    return addPet200Schema
-  },
-  get Request() {
-    return addPetMutationRequestSchema
-  },
-  get Errors() {
-    return addPet405Schema
-  },
+  Response: addPet200Schema,
+  Request: addPetMutationRequestSchema,
+  Errors: addPet405Schema,
 })

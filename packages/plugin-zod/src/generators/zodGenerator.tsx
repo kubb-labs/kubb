@@ -1,5 +1,4 @@
 import path from 'node:path'
-import { pascalCase } from '@internals/utils'
 import { caseParams, composeTransformers, transform } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
@@ -33,7 +32,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
     }))
 
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
-    const inferTypeName = inferred ? resolver.default(node.name, 'type') : undefined
+    const inferTypeName = inferred ? resolver.resolveInferName(resolver.resolveName(node.name)) : undefined
 
     return (
       <File
@@ -54,6 +53,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
             wrapOutput={wrapOutput}
             description={schemaNode.description}
             inferTypeName={inferTypeName}
+            resolver={resolver}
           />
         ) : (
           <Zod
@@ -64,6 +64,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
             wrapOutput={wrapOutput}
             description={schemaNode.description}
             inferTypeName={inferTypeName}
+            resolver={resolver}
           />
         )}
       </File>
@@ -73,6 +74,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
     const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing } = options
 
     const root = path.resolve(config.root, config.output.path)
+    const mode = getMode(path.resolve(root, output.path))
 
     const file = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
 
@@ -83,7 +85,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
     function renderSchemaEntry({ schema, name, description }: { schema: SchemaNode | null | undefined; name: string; description?: string }) {
       if (!schema) return null
 
-      const inferTypeName = inferred ? pascalCase(name) : undefined
+      const inferTypeName = inferred ? resolver.resolveInferName(name) : undefined
 
       const imports = adapter.getImports(schema, (schemaName) => ({
         name: resolver.default(schemaName, 'function'),
@@ -92,11 +94,18 @@ export const zodGenerator = defineGenerator<PluginZod>({
 
       return (
         <>
-          {imports.map((imp) => (
-            <File.Import key={[name, imp.path, imp.name].join('-')} root={file.path} path={imp.path} name={imp.name} />
-          ))}
+          {mode === 'split' &&
+            imports.map((imp) => <File.Import key={[name, imp.path, imp.name].join('-')} root={file.path} path={imp.path} name={imp.name} />)}
           {mini ? (
-            <ZodMini name={name} node={schema} guidType={guidType} wrapOutput={wrapOutput} description={description} inferTypeName={inferTypeName} />
+            <ZodMini
+              name={name}
+              node={schema}
+              guidType={guidType}
+              wrapOutput={wrapOutput}
+              description={description}
+              inferTypeName={inferTypeName}
+              resolver={resolver}
+            />
           ) : (
             <Zod
               name={name}
@@ -106,6 +115,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
               wrapOutput={wrapOutput}
               description={description}
               inferTypeName={inferTypeName}
+              resolver={resolver}
             />
           )}
         </>

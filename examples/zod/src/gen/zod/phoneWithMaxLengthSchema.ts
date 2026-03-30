@@ -6,6 +6,6 @@
 import { z } from '../../zod.ts'
 import { phoneNumberSchema } from './phoneNumberSchema.ts'
 
-export const phoneWithMaxLengthSchema = z.lazy(() => phoneNumberSchema).and(z.string().max(15))
+export const phoneWithMaxLengthSchema = phoneNumberSchema.and(z.string().max(15))
 
 export type PhoneWithMaxLengthSchema = z.infer<typeof phoneWithMaxLengthSchema>

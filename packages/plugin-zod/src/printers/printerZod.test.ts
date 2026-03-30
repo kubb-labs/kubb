@@ -36,6 +36,16 @@ describe('printerZod', () => {
       const p = printerZod({ coercion: { strings: true } })
       expect(p.print(createSchema({ type: 'string' }))).toBe('z.coerce.string()')
     })
+
+    test('string with pattern', () => {
+      expect(printer.print(createSchema({ type: 'string', pattern: '^\\d+$' }))).toBe('z.string().regex(new RegExp("^\\\\d+$"))')
+    })
+
+    test('string with min, max, and pattern', () => {
+      expect(printer.print(createSchema({ type: 'string', min: 1, max: 10, pattern: '^[a-z]+$' }))).toBe(
+        'z.string().min(1).max(10).regex(new RegExp("^[a-z]+$"))',
+      )
+    })
   })
 
   describe('number', () => {
@@ -112,6 +122,39 @@ describe('printerZod', () => {
     test('string enum', () => {
       const result = printer.print(createSchema({ type: 'enum', enumValues: ['a', 'b', 'c'] }))
       expect(result).toBe(`z.enum(["a", "b", "c"])`)
+    })
+
+    test('number enum', () => {
+      const result = printer.print(createSchema({ type: 'enum', enumValues: [200, 400, 500] }))
+      expect(result).toBe('z.enum([200, 400, 500])')
+    })
+
+    test('boolean enum', () => {
+      const result = printer.print(createSchema({ type: 'enum', enumValues: [true, false] }))
+      expect(result).toBe('z.enum([true, false])')
+    })
+
+    test('number literals (namedEnumValues)', () => {
+      const result = printer.print(
+        createSchema({
+          type: 'enum',
+          namedEnumValues: [
+            { name: 'Ok', value: 200, primitive: 'number' },
+            { name: 'BadRequest', value: 400, primitive: 'number' },
+          ],
+        }),
+      )
+      expect(result).toBe('z.union([z.literal(200), z.literal(400)])')
+    })
+
+    test('boolean literal (namedEnumValues)', () => {
+      const result = printer.print(
+        createSchema({
+          type: 'enum',
+          namedEnumValues: [{ name: 'Active', value: true, primitive: 'boolean' }],
+        }),
+      )
+      expect(result).toBe('z.literal(true)')
     })
   })
 

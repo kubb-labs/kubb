@@ -1,5 +1,4 @@
 import path from 'node:path'
-import { pascalCase } from '@internals/utils'
 import { caseParams, composeTransformers, createProperty, createSchema, transform } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
@@ -13,9 +12,10 @@ type BuildGroupedParamsSchemaOptions = {
   params: Array<ParameterNode>
 }
 
-function buildGroupedParamsSchema({ params }: BuildGroupedParamsSchemaOptions): SchemaNode {
+function buildGroupedParamsSchema({ params, optional }: BuildGroupedParamsSchemaOptions & { optional?: boolean }): SchemaNode {
   return createSchema({
     type: 'object',
+    optional,
     properties: params.map((param) => {
       return createProperty({
         name: param.name,
@@ -152,7 +152,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     }))
 
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
-    const inferTypeName = inferred ? resolver.default(node.name, 'type') : undefined
+    const inferTypeName = inferred ? resolver.resolveInferName(resolver.resolveName(node.name)) : undefined
 
     return (
       <File
@@ -173,6 +173,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
             wrapOutput={wrapOutput}
             description={schemaNode.description}
             inferTypeName={inferTypeName}
+            resolver={resolver}
           />
         ) : (
           <Zod
@@ -183,6 +184,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
             wrapOutput={wrapOutput}
             description={schemaNode.description}
             inferTypeName={inferTypeName}
+            resolver={resolver}
           />
         )}
       </File>
@@ -203,7 +205,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     function renderSchemaEntry({ schema, name, description }: { schema: SchemaNode | null | undefined; name: string; description?: string }) {
       if (!schema) return null
 
-      const inferTypeName = inferred ? pascalCase(name) : undefined
+      const inferTypeName = inferred ? resolver.resolveInferName(name) : undefined
 
       const imports = adapter.getImports(schema, (schemaName) => ({
         name: resolver.default(schemaName, 'function'),
@@ -215,7 +217,15 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
           {mode === 'split' &&
             imports.map((imp) => <File.Import key={[name, imp.path, imp.name].join('-')} root={file.path} path={imp.path} name={imp.name} />)}
           {mini ? (
-            <ZodMini name={name} node={schema} guidType={guidType} wrapOutput={wrapOutput} description={description} inferTypeName={inferTypeName} />
+            <ZodMini
+              name={name}
+              node={schema}
+              guidType={guidType}
+              wrapOutput={wrapOutput}
+              description={description}
+              inferTypeName={inferTypeName}
+              resolver={resolver}
+            />
           ) : (
             <Zod
               name={name}
@@ -225,6 +235,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
               wrapOutput={wrapOutput}
               description={description}
               inferTypeName={inferTypeName}
+              resolver={resolver}
             />
           )}
         </>
@@ -258,19 +269,19 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     const legacyParamTypes = [
       pathParams.length > 0
         ? renderSchemaEntry({
-            schema: buildGroupedParamsSchema({ params: pathParams }),
+            schema: buildGroupedParamsSchema({ params: pathParams, optional: pathParams.every((p) => !p.required) }),
             name: resolver.resolvePathParamsName(node, pathParams[0]!),
           })
         : null,
       queryParams.length > 0
         ? renderSchemaEntry({
-            schema: buildGroupedParamsSchema({ params: queryParams }),
+            schema: buildGroupedParamsSchema({ params: queryParams, optional: queryParams.every((p) => !p.required) }),
             name: resolver.resolveQueryParamsName(node, queryParams[0]!),
           })
         : null,
       headerParams.length > 0
         ? renderSchemaEntry({
-            schema: buildGroupedParamsSchema({ params: headerParams }),
+            schema: buildGroupedParamsSchema({ params: headerParams, optional: headerParams.every((p) => !p.required) }),
             name: resolver.resolveHeaderParamsName(node, headerParams[0]!),
           })
         : null,

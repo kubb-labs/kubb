@@ -22,10 +22,19 @@ export type UpdateUserErrorSchema = z.infer<typeof updateUserErrorSchema>
 /**
  * @description Update an existent user in the store
  */
-export const updateUserMutationRequestSchema = z.lazy(() => userSchema)
+export const updateUserMutationRequestSchema = userSchema.optional()
 
 export type UpdateUserMutationRequestSchema = z.infer<typeof updateUserMutationRequestSchema>
 
 export const updateUserMutationResponseSchema = z.any()
 
 export type UpdateUserMutationResponseSchema = z.infer<typeof updateUserMutationResponseSchema>
+
+export const updateUserMutationSchema = z.object({
+  Response: z.any(),
+  Request: updateUserMutationRequestSchema,
+  PathParams: updateUserPathParamsSchema,
+  Errors: updateUserErrorSchema,
+})
+
+export type UpdateUserMutationSchema = z.infer<typeof updateUserMutationSchema>

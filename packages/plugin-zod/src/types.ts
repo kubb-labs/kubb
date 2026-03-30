@@ -22,6 +22,14 @@ export type ResolverZod = Resolver &
   OperationParamsResolver & {
     /** Resolve a camelCase schema name with 'Schema' suffix. */
     resolveName(name: string): string
+    /**
+     * Resolves the name for a `z.infer<typeof ...>` type export from an already-resolved function name.
+     *
+     * @example
+     * resolver.resolveInferName('petSchema') // → 'PetSchema'
+     * resolver.resolveInferName('addPet200Schema') // → 'AddPet200Schema'
+     */
+    resolveInferName(name: string): string
     /** Resolve a path/file name for the generated output. */
     resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
     /**

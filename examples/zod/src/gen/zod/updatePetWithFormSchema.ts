@@ -6,15 +6,15 @@
 import { z } from '../../zod.ts'
 
 export const updatePetWithFormPathParamsSchema = z.object({
-  petId: z.coerce.number().int().describe('ID of pet that needs to be updated'),
+  petId: z.int().describe('ID of pet that needs to be updated'),
 })
 
 export type UpdatePetWithFormPathParamsSchema = z.infer<typeof updatePetWithFormPathParamsSchema>
 
 export const updatePetWithFormQueryParamsSchema = z
   .object({
-    name: z.optional(z.string().describe('Name of pet that needs to be updated')),
-    status: z.optional(z.string().describe('Status of pet that needs to be updated')),
+    name: z.string().optional().describe('Name of pet that needs to be updated'),
+    status: z.string().optional().describe('Status of pet that needs to be updated'),
   })
   .optional()
 
@@ -30,3 +30,12 @@ export type UpdatePetWithForm405Schema = z.infer<typeof updatePetWithForm405Sche
 export const updatePetWithFormMutationResponseSchema = z.any()
 
 export type UpdatePetWithFormMutationResponseSchema = z.infer<typeof updatePetWithFormMutationResponseSchema>
+
+export const updatePetWithFormMutationSchema = z.object({
+  Response: z.any(),
+  QueryParams: updatePetWithFormQueryParamsSchema,
+  PathParams: updatePetWithFormPathParamsSchema,
+  Errors: updatePetWithForm405Schema,
+})
+
+export type UpdatePetWithFormMutationSchema = z.infer<typeof updatePetWithFormMutationSchema>

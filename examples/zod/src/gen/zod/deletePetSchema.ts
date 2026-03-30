@@ -6,14 +6,14 @@
 import { z } from '../../zod.ts'
 
 export const deletePetPathParamsSchema = z.object({
-  petId: z.coerce.number().int().describe('Pet id to delete'),
+  petId: z.int().describe('Pet id to delete'),
 })
 
 export type DeletePetPathParamsSchema = z.infer<typeof deletePetPathParamsSchema>
 
 export const deletePetHeaderParamsSchema = z
   .object({
-    api_key: z.optional(z.string()),
+    api_key: z.string().optional(),
   })
   .optional()
 
@@ -29,3 +29,12 @@ export type DeletePet400Schema = z.infer<typeof deletePet400Schema>
 export const deletePetMutationResponseSchema = z.any()
 
 export type DeletePetMutationResponseSchema = z.infer<typeof deletePetMutationResponseSchema>
+
+export const deletePetMutationSchema = z.object({
+  Response: z.any(),
+  PathParams: deletePetPathParamsSchema,
+  HeaderParams: deletePetHeaderParamsSchema,
+  Errors: deletePet400Schema,
+})
+
+export type DeletePetMutationSchema = z.infer<typeof deletePetMutationSchema>

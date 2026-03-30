@@ -11,3 +11,8 @@ import * as z from 'zod/mini'
 export const logoutUserErrorSchema = z.any()
 
 export const logoutUserQueryResponseSchema = z.any()
+
+export const logoutUserQuerySchema = z.object({
+  Response: z.any(),
+  Errors: logoutUserErrorSchema,
+})

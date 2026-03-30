@@ -12,6 +12,13 @@ export const getInventory200Schema = z.object({}).catchall(z.int())
 
 export type GetInventory200Schema = z.infer<typeof getInventory200Schema>
 
-export const getInventoryQueryResponseSchema = z.lazy(() => getInventory200Schema)
+export const getInventoryQueryResponseSchema = getInventory200Schema
 
 export type GetInventoryQueryResponseSchema = z.infer<typeof getInventoryQueryResponseSchema>
+
+export const getInventoryQuerySchema = z.object({
+  Response: getInventory200Schema,
+  Errors: z.any(),
+})
+
+export type GetInventoryQuerySchema = z.infer<typeof getInventoryQuerySchema>

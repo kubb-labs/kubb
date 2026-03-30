@@ -6,10 +6,12 @@
 import * as z from 'zod/mini'
 import { petNotFoundSchema } from './petNotFoundSchema.ts'
 
-export const getThingsQueryParamsSchema = z.object({
-  limit: z.int().check(z.minimum(1), z.maximum(100)),
-  skip: z.int().check(z.minimum(0)),
-})
+export const getThingsQueryParamsSchema = z.optional(
+  z.object({
+    limit: z._default(z.optional(z.int().check(z.minimum(1), z.maximum(100))), 100),
+    skip: z._default(z.optional(z.int().check(z.minimum(0))), 0),
+  }),
+)
 
 /**
  * @description Null response
@@ -19,6 +21,12 @@ export const getThings201Schema = z.any()
 /**
  * @description unexpected error
  */
-export const getThingsErrorSchema = z.lazy(() => petNotFoundSchema)
+export const getThingsErrorSchema = petNotFoundSchema
 
-export const getThingsQueryResponseSchema = z.lazy(() => getThings201Schema)
+export const getThingsQueryResponseSchema = getThings201Schema
+
+export const getThingsQuerySchema = z.object({
+  Response: getThings201Schema,
+  QueryParams: getThingsQueryParamsSchema,
+  Errors: getThingsErrorSchema,
+})

@@ -78,6 +78,48 @@ const optionalSchema = createSchema({
 
 const unknownSchema = createSchema({ type: 'unknown', name: 'UnknownField' })
 
+const nullishSchema = createSchema({ type: 'string', name: 'NullishString', nullable: true, optional: true })
+
+const unionSchema = createSchema({
+  type: 'union',
+  name: 'PetOrCat',
+  members: [createSchema({ type: 'string' }), createSchema({ type: 'number' })],
+})
+
+const intersectionSchema = createSchema({
+  type: 'intersection',
+  name: 'PetAndOwner',
+  members: [
+    createSchema({ type: 'object', properties: [createProperty({ name: 'petName', required: true, schema: createSchema({ type: 'string' }) })] }),
+    createSchema({ type: 'object', properties: [createProperty({ name: 'ownerName', required: true, schema: createSchema({ type: 'string' }) })] }),
+  ],
+})
+
+const schemaWithDescription = createSchema({
+  type: 'string',
+  name: 'LabelField',
+  description: 'A human-readable label',
+})
+
+const schemaWithDefault = createSchema({
+  type: 'string',
+  name: 'StatusField',
+  default: 'active',
+})
+
+const schemaWithPattern = createSchema({
+  type: 'string',
+  name: 'SlugField',
+  pattern: '^[a-z0-9-]+$',
+})
+
+const additionalPropertiesObjectSchema = createSchema({
+  type: 'object',
+  name: 'MetaMap',
+  properties: [createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) })],
+  additionalProperties: createSchema({ type: 'string' }),
+})
+
 const _emptyObjectSchema = createSchema({ type: 'object', name: 'EmptyModel', properties: [] })
 
 const operationWithSnakeCaseParams: OperationNode = createOperation({
@@ -132,6 +174,7 @@ describe('zodGenerator — Schema', () => {
     { name: 'mini inferred', node: stringSchema, options: { mini: true, importPath: 'zod/mini', inferred: true } },
     // unknownType — adapter-level option; here we test that each AST node type renders correctly
     { name: 'unknownType any', node: unknownSchema },
+    { name: 'unknownType unknown', node: createSchema({ type: 'unknown', name: 'UnknownField2' }) },
     { name: 'unknownType void', node: createSchema({ type: 'void', name: 'VoidField' }) },
     // integerType options
     { name: 'integerType bigint', node: integerSchema, options: { integerType: 'bigint' } },
@@ -153,6 +196,25 @@ describe('zodGenerator — Schema', () => {
       }),
       options: { wrapOutput: ({ output }) => `${output}.openapi('WrappedPet')` },
     },
+    // nullish (nullable + optional)
+    { name: 'nullish', node: nullishSchema },
+    // composite schemas
+    { name: 'union', node: unionSchema },
+    { name: 'intersection', node: intersectionSchema },
+    // schema with description
+    { name: 'description', node: schemaWithDescription },
+    // schema with default value
+    { name: 'default', node: schemaWithDefault },
+    // schema with pattern/regex
+    { name: 'pattern', node: schemaWithPattern },
+    // object with additionalProperties
+    { name: 'additionalProperties', node: additionalPropertiesObjectSchema },
+    // datetime variants
+    { name: 'dateType stringOffset', node: createSchema({ type: 'datetime', name: 'DatetimeOffset', offset: true }) },
+    { name: 'dateType stringLocal', node: createSchema({ type: 'datetime', name: 'DatetimeLocal', local: true }) },
+    // mini — additional schema types
+    { name: 'mini union', node: unionSchema, options: { mini: true, importPath: 'zod/mini' } },
+    { name: 'mini wrapOutput', node: stringSchema, options: { mini: true, importPath: 'zod/mini', wrapOutput: ({ output }) => `${output}.openapi('test')` } },
   ]
 
   test.each(schemas)('$name', async (props) => {
@@ -277,6 +339,64 @@ describe('zodGenerator — Operation', () => {
         tags: [],
         responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Config' })],
       }),
+    },
+    {
+      name: 'getPets — GET with header params',
+      node: createOperation({
+        operationId: 'getPets',
+        method: 'GET',
+        path: '/pets',
+        tags: ['pets'],
+        parameters: [
+          createParameter({ name: 'X-Request-Id', in: 'header', schema: createSchema({ type: 'string' }), required: true }),
+          createParameter({ name: 'X-Correlation-Id', in: 'header', schema: createSchema({ type: 'string' }) }),
+        ],
+        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Pets' })],
+      }),
+    },
+    {
+      name: 'addPet — POST mini mode',
+      node: createOperation({
+        operationId: 'addPetMini',
+        method: 'POST',
+        path: '/pet',
+        tags: ['pet'],
+        requestBody: { schema: createSchema({ type: 'object', properties: [createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) })] }) },
+        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Created' })],
+      }),
+      options: { mini: true, importPath: 'zod/mini' },
+    },
+    {
+      name: 'listPets — GET inferred',
+      node: createOperation({
+        operationId: 'listPetsInferred',
+        method: 'GET',
+        path: '/pets',
+        tags: ['pets'],
+        parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Pets list' })],
+      }),
+      options: { inferred: true },
+    },
+    {
+      name: 'createPet — POST with coercion',
+      node: createOperation({
+        operationId: 'createPet',
+        method: 'POST',
+        path: '/pets',
+        tags: ['pets'],
+        requestBody: {
+          schema: createSchema({
+            type: 'object',
+            properties: [
+              createProperty({ name: 'age', required: true, schema: createSchema({ type: 'number' }) }),
+              createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
+            ],
+          }),
+        },
+        responses: [createResponse({ statusCode: '201', schema: createSchema({ type: 'object', properties: [] }), description: 'Created' })],
+      }),
+      options: { coercion: true },
     },
   ]
 

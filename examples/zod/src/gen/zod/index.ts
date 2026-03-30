@@ -5,8 +5,9 @@ export type {
   AddPet405Schema,
   AddPetMutationRequestSchema,
   AddPetMutationResponseSchema,
+  AddPetMutationSchema,
 } from './addPetSchema.ts'
-export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './addPetSchema.ts'
+export { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema, addPetMutationSchema } from './addPetSchema.ts'
 export type { AddressSchema } from './addressSchema.ts'
 export { addressSchema } from './addressSchema.ts'
 export type { ApiResponseSchema } from './apiResponseSchema.ts'
@@ -19,6 +20,7 @@ export type {
   CreatePetsHeaderParamsSchema,
   CreatePetsMutationRequestSchema,
   CreatePetsMutationResponseSchema,
+  CreatePetsMutationSchema,
   CreatePetsPathParamsSchema,
   CreatePetsQueryParamsSchema,
 } from './createPetsSchema.ts'
@@ -28,6 +30,7 @@ export {
   createPetsHeaderParamsSchema,
   createPetsMutationRequestSchema,
   createPetsMutationResponseSchema,
+  createPetsMutationSchema,
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
 } from './createPetsSchema.ts'
@@ -35,19 +38,22 @@ export type {
   CreateUserErrorSchema,
   CreateUserMutationRequestSchema,
   CreateUserMutationResponseSchema,
+  CreateUserMutationSchema,
 } from './createUserSchema.ts'
-export { createUserErrorSchema, createUserMutationRequestSchema, createUserMutationResponseSchema } from './createUserSchema.ts'
+export { createUserErrorSchema, createUserMutationRequestSchema, createUserMutationResponseSchema, createUserMutationSchema } from './createUserSchema.ts'
 export type {
   CreateUsersWithListInput200Schema,
   CreateUsersWithListInputErrorSchema,
   CreateUsersWithListInputMutationRequestSchema,
   CreateUsersWithListInputMutationResponseSchema,
+  CreateUsersWithListInputMutationSchema,
 } from './createUsersWithListInputSchema.ts'
 export {
   createUsersWithListInput200Schema,
   createUsersWithListInputErrorSchema,
   createUsersWithListInputMutationRequestSchema,
   createUsersWithListInputMutationResponseSchema,
+  createUsersWithListInputMutationSchema,
 } from './createUsersWithListInputSchema.ts'
 export type { CustomerSchema } from './customerSchema.ts'
 export { customerSchema } from './customerSchema.ts'
@@ -55,34 +61,57 @@ export type {
   DeleteOrder400Schema,
   DeleteOrder404Schema,
   DeleteOrderMutationResponseSchema,
+  DeleteOrderMutationSchema,
   DeleteOrderPathParamsSchema,
 } from './deleteOrderSchema.ts'
-export { deleteOrder400Schema, deleteOrder404Schema, deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema } from './deleteOrderSchema.ts'
+export {
+  deleteOrder400Schema,
+  deleteOrder404Schema,
+  deleteOrderMutationResponseSchema,
+  deleteOrderMutationSchema,
+  deleteOrderPathParamsSchema,
+} from './deleteOrderSchema.ts'
 export type {
   DeletePet400Schema,
   DeletePetHeaderParamsSchema,
   DeletePetMutationResponseSchema,
+  DeletePetMutationSchema,
   DeletePetPathParamsSchema,
 } from './deletePetSchema.ts'
-export { deletePet400Schema, deletePetHeaderParamsSchema, deletePetMutationResponseSchema, deletePetPathParamsSchema } from './deletePetSchema.ts'
+export {
+  deletePet400Schema,
+  deletePetHeaderParamsSchema,
+  deletePetMutationResponseSchema,
+  deletePetMutationSchema,
+  deletePetPathParamsSchema,
+} from './deletePetSchema.ts'
 export type {
   DeleteUser400Schema,
   DeleteUser404Schema,
   DeleteUserMutationResponseSchema,
+  DeleteUserMutationSchema,
   DeleteUserPathParamsSchema,
 } from './deleteUserSchema.ts'
-export { deleteUser400Schema, deleteUser404Schema, deleteUserMutationResponseSchema, deleteUserPathParamsSchema } from './deleteUserSchema.ts'
+export {
+  deleteUser400Schema,
+  deleteUser404Schema,
+  deleteUserMutationResponseSchema,
+  deleteUserMutationSchema,
+  deleteUserPathParamsSchema,
+} from './deleteUserSchema.ts'
 export type {
   FindPetsByStatus200Schema,
   FindPetsByStatus400Schema,
   FindPetsByStatusQueryParamsSchema,
   FindPetsByStatusQueryResponseSchema,
+  FindPetsByStatusQuerySchema,
 } from './findPetsByStatusSchema.ts'
 export {
   findPetsByStatus200Schema,
   findPetsByStatus400Schema,
   findPetsByStatusQueryParamsSchema,
   findPetsByStatusQueryResponseSchema,
+  findPetsByStatusQuerySchema,
 } from './findPetsByStatusSchema.ts'
 export type {
   FindPetsByTags200Schema,
@@ -90,6 +119,7 @@ export type {
   FindPetsByTagsHeaderParamsSchema,
   FindPetsByTagsQueryParamsSchema,
   FindPetsByTagsQueryResponseSchema,
+  FindPetsByTagsQuerySchema,
 } from './findPetsByTagsSchema.ts'
 export {
   findPetsByTags200Schema,
@@ -97,18 +127,21 @@ export {
   findPetsByTagsHeaderParamsSchema,
   findPetsByTagsQueryParamsSchema,
   findPetsByTagsQueryResponseSchema,
+  findPetsByTagsQuerySchema,
 } from './findPetsByTagsSchema.ts'
 export type {
   GetInventory200Schema,
   GetInventoryQueryResponseSchema,
+  GetInventoryQuerySchema,
 } from './getInventorySchema.ts'
-export { getInventory200Schema, getInventoryQueryResponseSchema } from './getInventorySchema.ts'
+export { getInventory200Schema, getInventoryQueryResponseSchema, getInventoryQuerySchema } from './getInventorySchema.ts'
 export type {
   GetOrderById200Schema,
   GetOrderById400Schema,
   GetOrderById404Schema,
   GetOrderByIdPathParamsSchema,
   GetOrderByIdQueryResponseSchema,
+  GetOrderByIdQuerySchema,
 } from './getOrderByIdSchema.ts'
 export {
   getOrderById200Schema,
@@ -116,6 +149,7 @@ export {
   getOrderById404Schema,
   getOrderByIdPathParamsSchema,
   getOrderByIdQueryResponseSchema,
+  getOrderByIdQuerySchema,
 } from './getOrderByIdSchema.ts'
 export type {
   GetPetById200Schema,
@@ -123,21 +157,31 @@ export type {
   GetPetById404Schema,
   GetPetByIdPathParamsSchema,
   GetPetByIdQueryResponseSchema,
+  GetPetByIdQuerySchema,
 } from './getPetByIdSchema.ts'
-export { getPetById200Schema, getPetById400Schema, getPetById404Schema, getPetByIdPathParamsSchema, getPetByIdQueryResponseSchema } from './getPetByIdSchema.ts'
+export {
+  getPetById200Schema,
+  getPetById400Schema,
+  getPetById404Schema,
+  getPetByIdPathParamsSchema,
+  getPetByIdQueryResponseSchema,
+  getPetByIdQuerySchema,
+} from './getPetByIdSchema.ts'
 export type {
   GetThings201Schema,
   GetThingsErrorSchema,
   GetThingsQueryParamsSchema,
   GetThingsQueryResponseSchema,
+  GetThingsQuerySchema,
 } from './getThingsSchema.ts'
-export { getThings201Schema, getThingsErrorSchema, getThingsQueryParamsSchema, getThingsQueryResponseSchema } from './getThingsSchema.ts'
+export { getThings201Schema, getThingsErrorSchema, getThingsQueryParamsSchema, getThingsQueryResponseSchema, getThingsQuerySchema } from './getThingsSchema.ts'
 export type {
   GetUserByName200Schema,
   GetUserByName400Schema,
   GetUserByName404Schema,
   GetUserByNamePathParamsSchema,
   GetUserByNameQueryResponseSchema,
+  GetUserByNameQuerySchema,
 } from './getUserByNameSchema.ts'
 export {
   getUserByName200Schema,
@@ -145,25 +189,22 @@ export {
   getUserByName404Schema,
   getUserByNamePathParamsSchema,
   getUserByNameQueryResponseSchema,
+  getUserByNameQuerySchema,
 } from './getUserByNameSchema.ts'
 export type {
   LoginUser200Schema,
   LoginUser400Schema,
   LoginUserQueryParamsSchema,
   LoginUserQueryResponseSchema,
+  LoginUserQuerySchema,
 } from './loginUserSchema.ts'
-export { loginUser200Schema, loginUser400Schema, loginUserQueryParamsSchema, loginUserQueryResponseSchema } from './loginUserSchema.ts'
+export { loginUser200Schema, loginUser400Schema, loginUserQueryParamsSchema, loginUserQueryResponseSchema, loginUserQuerySchema } from './loginUserSchema.ts'
 export type {
   LogoutUserErrorSchema,
   LogoutUserQueryResponseSchema,
+  LogoutUserQuerySchema,
 } from './logoutUserSchema.ts'
-export { logoutUserErrorSchema, logoutUserQueryResponseSchema } from './logoutUserSchema.ts'
-export {
-  OperationSchema,
-  OperationsMap,
-  operations,
-  paths,
-} from './operations.ts'
+export { logoutUserErrorSchema, logoutUserQueryResponseSchema, logoutUserQuerySchema } from './logoutUserSchema.ts'
 export type { OrderSchema } from './orderSchema.ts'
 export { orderSchema } from './orderSchema.ts'
 export type { PetNotFoundSchema } from './petNotFoundSchema.ts'
@@ -181,20 +222,29 @@ export type {
   PlaceOrderPatch405Schema,
   PlaceOrderPatchMutationRequestSchema,
   PlaceOrderPatchMutationResponseSchema,
+  PlaceOrderPatchMutationSchema,
 } from './placeOrderPatchSchema.ts'
 export {
   placeOrderPatch200Schema,
   placeOrderPatch405Schema,
   placeOrderPatchMutationRequestSchema,
   placeOrderPatchMutationResponseSchema,
+  placeOrderPatchMutationSchema,
 } from './placeOrderPatchSchema.ts'
 export type {
   PlaceOrder200Schema,
   PlaceOrder405Schema,
   PlaceOrderMutationRequestSchema,
   PlaceOrderMutationResponseSchema,
+  PlaceOrderMutationSchema,
 } from './placeOrderSchema.ts'
-export { placeOrder200Schema, placeOrder405Schema, placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from './placeOrderSchema.ts'
+export {
+  placeOrder200Schema,
+  placeOrder405Schema,
+  placeOrderMutationRequestSchema,
+  placeOrderMutationResponseSchema,
+  placeOrderMutationSchema,
+} from './placeOrderSchema.ts'
 export type { TagSchema } from './tagSchema.ts'
 export { tagSchema } from './tagSchema.ts'
 export type {
@@ -204,6 +254,7 @@ export type {
   UpdatePet405Schema,
   UpdatePetMutationRequestSchema,
   UpdatePetMutationResponseSchema,
+  UpdatePetMutationSchema,
 } from './updatePetSchema.ts'
 export {
   updatePet200Schema,
@@ -212,16 +263,19 @@ export {
   updatePet405Schema,
   updatePetMutationRequestSchema,
   updatePetMutationResponseSchema,
+  updatePetMutationSchema,
 } from './updatePetSchema.ts'
 export type {
   UpdatePetWithForm405Schema,
   UpdatePetWithFormMutationResponseSchema,
+  UpdatePetWithFormMutationSchema,
   UpdatePetWithFormPathParamsSchema,
   UpdatePetWithFormQueryParamsSchema,
 } from './updatePetWithFormSchema.ts'
 export {
   updatePetWithForm405Schema,
   updatePetWithFormMutationResponseSchema,
+  updatePetWithFormMutationSchema,
   updatePetWithFormPathParamsSchema,
   updatePetWithFormQueryParamsSchema,
 } from './updatePetWithFormSchema.ts'
@@ -229,13 +283,21 @@ export type {
   UpdateUserErrorSchema,
   UpdateUserMutationRequestSchema,
   UpdateUserMutationResponseSchema,
+  UpdateUserMutationSchema,
   UpdateUserPathParamsSchema,
 } from './updateUserSchema.ts'
-export { updateUserErrorSchema, updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from './updateUserSchema.ts'
+export {
+  updateUserErrorSchema,
+  updateUserMutationRequestSchema,
+  updateUserMutationResponseSchema,
+  updateUserMutationSchema,
+  updateUserPathParamsSchema,
+} from './updateUserSchema.ts'
 export type {
   UploadFile200Schema,
   UploadFileMutationRequestSchema,
   UploadFileMutationResponseSchema,
+  UploadFileMutationSchema,
   UploadFilePathParamsSchema,
   UploadFileQueryParamsSchema,
 } from './uploadFileSchema.ts'
@@ -243,6 +305,7 @@ export {
   uploadFile200Schema,
   uploadFileMutationRequestSchema,
   uploadFileMutationResponseSchema,
+  uploadFileMutationSchema,
   uploadFilePathParamsSchema,
   uploadFileQueryParamsSchema,
 } from './uploadFileSchema.ts'

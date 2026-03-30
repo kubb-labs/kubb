@@ -1,18 +1,35 @@
 import { stringify } from '@internals/utils'
+import type { SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
+import type { ResolverZod } from '../types.ts'
 
 export type ZodOptions = {
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
   guidType?: 'uuid' | 'guid'
   wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
+  resolver?: ResolverZod
+  schemaName?: string
 }
 
 type ZodPrinterFactory = PrinterFactoryOptions<'zod', ZodOptions, string, string>
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+function containsRef(schema: SchemaNode, schemaName: string, resolver: ResolverZod | undefined): boolean {
+  if (schema.type === 'ref') {
+    const resolvedName = schema.ref ? (resolver?.default(schema.name ?? '', 'function') ?? schema.name ?? '') : (schema.name ?? '')
+    return resolvedName === schemaName
+  }
+  if ('items' in schema && Array.isArray(schema.items)) {
+    return schema.items.some((item) => containsRef(item, schemaName, resolver))
+  }
+  if ('members' in schema && Array.isArray(schema.members)) {
+    return schema.members.some((member) => containsRef(member, schemaName, resolver))
+  }
+  if ('properties' in schema && Array.isArray(schema.properties)) {
+    return schema.properties.some((prop) => containsRef(prop.schema, schemaName, resolver))
+  }
+  return false
+}
 
 function shouldCoerce(coercion: ZodOptions['coercion'], type: 'dates' | 'strings' | 'numbers'): boolean {
   if (coercion === undefined || coercion === false) return false
@@ -27,6 +44,12 @@ function formatDefault(value: unknown): string {
   return String(value ?? '')
 }
 
+/** Format a primitive enum/literal value: strings are quoted, numbers and booleans are raw. */
+function formatLiteral(v: string | number | boolean): string {
+  if (typeof v === 'string') return stringify(v)
+  return String(v)
+}
+
 /** Build `.min()` / `.max()` / `.gt()` / `.lt()` constraint chains for numbers. */
 function numberConstraints(min?: number, max?: number, exclusiveMinimum?: number, exclusiveMaximum?: number): string {
   return [
@@ -38,13 +61,13 @@ function numberConstraints(min?: number, max?: number, exclusiveMinimum?: number
 }
 
 /** Build `.min()` / `.max()` chains for strings/arrays. */
-function lengthConstraints(min?: number, max?: number): string {
-  return [min !== undefined ? `.min(${min})` : '', max !== undefined ? `.max(${max})` : ''].join('')
+function lengthConstraints(min?: number, max?: number, pattern?: string): string {
+  return [
+    min !== undefined ? `.min(${min})` : '',
+    max !== undefined ? `.max(${max})` : '',
+    pattern !== undefined ? `.regex(new RegExp(${stringify(pattern)}))` : '',
+  ].join('')
 }
-
-// ---------------------------------------------------------------------------
-// Printer
-// ---------------------------------------------------------------------------
 
 /**
  * Zod v4 printer built with `definePrinter`.
@@ -71,7 +94,6 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
     options: opts,
 
     nodes: {
-      // -- Scalars ---------------------------------------------------------
       any: () => 'z.any()',
       unknown: () => 'z.unknown()',
       void: () => 'z.void()',
@@ -79,13 +101,11 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
       boolean: () => 'z.boolean()',
       null: () => 'z.null()',
 
-      // -- String ----------------------------------------------------------
       string(node) {
         const base = shouldCoerce(this.options.coercion, 'strings') ? 'z.coerce.string()' : 'z.string()'
-        return `${base}${lengthConstraints(node.min, node.max)}`
+        return `${base}${lengthConstraints(node.min, node.max, node.pattern)}`
       },
 
-      // -- Number / Integer / BigInt ---------------------------------------
       number(node) {
         const base = shouldCoerce(this.options.coercion, 'numbers') ? 'z.coerce.number()' : 'z.number()'
         return `${base}${numberConstraints(node.min, node.max, node.exclusiveMinimum, node.exclusiveMaximum)}`
@@ -100,7 +120,6 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         return shouldCoerce(this.options.coercion, 'numbers') ? 'z.coerce.bigint()' : 'z.bigint()'
       },
 
-      // -- Date / Time / Datetime ------------------------------------------
       date(node) {
         if (node.representation === 'string') {
           return 'z.iso.date()'
@@ -121,7 +140,6 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         return shouldCoerce(this.options.coercion, 'dates') ? 'z.coerce.date()' : 'z.date()'
       },
 
-      // -- Special string formats ------------------------------------------
       uuid() {
         return this.options.guidType === 'guid' ? 'z.guid()' : 'z.uuid()'
       },
@@ -136,7 +154,6 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
 
       blob: () => 'z.instanceof(File)',
 
-      // -- Enum ------------------------------------------------------------
       enum(node) {
         const values = node.namedEnumValues?.map((v) => v.value) ?? node.enumValues ?? []
 
@@ -145,29 +162,27 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         if (hasNamedValues) {
           const literals = values
             .filter((v): v is string | number | boolean => v !== null)
-            .map((v) => `z.literal(${stringify(v as string | number | boolean)})`)
+            .map((v) => `z.literal(${formatLiteral(v as string | number | boolean)})`)
           if (literals.length === 1) return literals[0]!
           return `z.union([${literals.join(', ')}])`
         }
 
         // Regular enum: use z.enum([…])
-        const items = values.filter((v): v is string | number | boolean => v !== null).map((v) => stringify(v as string | number | boolean))
+        const items = values.filter((v): v is string | number | boolean => v !== null).map((v) => formatLiteral(v as string | number | boolean))
         return `z.enum([${items.join(', ')}])`
       },
 
-      // -- Ref -------------------------------------------------------------
       ref(node) {
         if (!node.name) return undefined
-        return `z.lazy(() => ${node.name})`
+        const resolvedName = node.ref ? (this.options.resolver?.default(node.name, 'function') ?? node.name) : node.name
+        return resolvedName
       },
 
-      // -- Object ----------------------------------------------------------
       object(node) {
         const properties = node.properties
           .map((prop) => {
             const { name: propName, schema } = prop
 
-            const hasRef = schema.type === 'ref'
             const isNullable = schema.nullable
             const isOptional = schema.optional
             const isNullish = schema.nullish
@@ -176,14 +191,19 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
 
             const wrappedOutput = this.options.wrapOutput ? this.options.wrapOutput({ output: baseOutput, schema }) || baseOutput : baseOutput
 
-            // For v4 refs, use getter syntax (lazy evaluation without z.lazy wrapper)
-            if (hasRef && schema.type === 'ref') {
-              const refName = schema.name ?? baseOutput
-              const value = applyModifiers(refName, isNullable, isOptional, isNullish)
+            const value = applyModifiers({
+              value: wrappedOutput,
+              nullable: isNullable,
+              optional: isOptional,
+              nullish: isNullish,
+              defaultValue: schema.default,
+              description: schema.description,
+            })
+
+            const isSelfRef = this.options.schemaName != null && containsRef(schema, this.options.schemaName, this.options.resolver)
+            if (isSelfRef) {
               return `get "${propName}"() { return ${value} }`
             }
-
-            const value = applyModifiers(wrappedOutput, isNullable, isOptional, isNullish)
             return `"${propName}": ${value}`
           })
           .join(',\n    ')
@@ -203,20 +223,17 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         return result
       },
 
-      // -- Array -----------------------------------------------------------
       array(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
         const inner = items.join(', ') || 'z.unknown()'
         return `z.array(${inner})${lengthConstraints(node.min, node.max)}`
       },
 
-      // -- Tuple -----------------------------------------------------------
       tuple(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
         return `z.tuple([${items.join(', ')}])`
       },
 
-      // -- Union -----------------------------------------------------------
       union(node) {
         const members = (node.members ?? []).map((m) => this.transform(m)).filter(Boolean)
         if (members.length === 0) return ''
@@ -224,7 +241,6 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         return `z.union([${members.join(', ')}])`
       },
 
-      // -- Intersection ----------------------------------------------------
       intersection(node) {
         const members = (node.members ?? []).map((m) => this.transform(m)).filter(Boolean)
         if (members.length === 0) return ''
@@ -237,52 +253,47 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
       const base = this.transform(node)
       if (!base) return null
 
-      let output = base
-
-      // Apply nullable / optional / nullish modifiers
-      if (node.nullish) {
-        output = `${output}.nullish()`
-      } else {
-        if (node.nullable) {
-          output = `${output}.nullable()`
-        }
-        if (node.optional) {
-          output = `${output}.optional()`
-        }
-      }
-
-      // Apply default
-      if (node.default !== undefined) {
-        output = `${output}.default(${formatDefault(node.default)})`
-      }
-
-      // Apply describe
-      if (node.description) {
-        output = `${output}.describe(${stringify(node.description)})`
-      }
-
-      return output
+      return applyModifiers({
+        value: base,
+        nullable: node.nullable,
+        optional: node.optional,
+        nullish: node.nullish,
+        defaultValue: node.default,
+        description: node.description,
+      })
     },
   }
 })
 
-// ---------------------------------------------------------------------------
-// Internal helper
-// ---------------------------------------------------------------------------
-
-/** Apply nullable / optional / nullish modifiers to a property value string (chainable API). */
-function applyModifiers(value: string, nullable?: boolean, optional?: boolean, nullish?: boolean): string {
-  if (nullish) {
-    return `${value}.nullish()`
+/** Apply nullable / optional / nullish modifiers and optional description to a property value string (chainable API). */
+function applyModifiers({
+  value,
+  nullable,
+  optional,
+  nullish,
+  defaultValue,
+  description,
+}: {
+  value: string
+  nullable?: boolean
+  optional?: boolean
+  nullish?: boolean
+  defaultValue?: unknown
+  description?: string
+}): string {
+  let result = value
+  if (nullish || (nullable && optional)) {
+    result = `${result}.nullish()`
+  } else if (optional) {
+    result = `${result}.optional()`
+  } else if (nullable) {
+    result = `${result}.nullable()`
   }
-  if (nullable && optional) {
-    return `${value}.nullish()`
+  if (defaultValue !== undefined) {
+    result = `${result}.default(${formatDefault(defaultValue)})`
   }
-  if (optional) {
-    return `${value}.optional()`
+  if (description) {
+    result = `${result}.describe(${stringify(description)})`
   }
-  if (nullable) {
-    return `${value}.nullable()`
-  }
-  return value
+  return result
 }

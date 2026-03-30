@@ -6,10 +6,10 @@
 import { z } from '../../zod.ts'
 
 export const addressSchema = z.object({
-  street: z.optional(z.string()),
-  city: z.optional(z.string()),
-  state: z.optional(z.string()),
-  zip: z.optional(z.string()),
+  street: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zip: z.string().optional(),
 })
 
 export type AddressSchema = z.infer<typeof addressSchema>

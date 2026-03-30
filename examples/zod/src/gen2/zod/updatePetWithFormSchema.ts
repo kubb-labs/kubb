@@ -22,3 +22,10 @@ export const updatePetWithFormQueryParamsSchema = z.optional(
 export const updatePetWithForm405Schema = z.any()
 
 export const updatePetWithFormMutationResponseSchema = z.any()
+
+export const updatePetWithFormMutationSchema = z.object({
+  Response: z.any(),
+  QueryParams: updatePetWithFormQueryParamsSchema,
+  PathParams: updatePetWithFormPathParamsSchema,
+  Errors: updatePetWithForm405Schema,
+})

@@ -2,7 +2,7 @@ import type { SchemaNode } from '@kubb/ast/types'
 import { Const, File, Type } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import { printerZodMini } from '../printers/printerZodMini.ts'
-import type { PluginZod } from '../types.ts'
+import type { PluginZod, ResolverZod } from '../types.ts'
 
 type Props = {
   name: string
@@ -11,10 +11,11 @@ type Props = {
   wrapOutput: PluginZod['resolvedOptions']['wrapOutput']
   description?: string
   inferTypeName?: string
+  resolver?: ResolverZod
 }
 
-export function ZodMini({ name, node, guidType, wrapOutput, description, inferTypeName }: Props): FabricReactNode {
-  const printer = printerZodMini({ guidType, wrapOutput })
+export function ZodMini({ name, node, guidType, wrapOutput, description, inferTypeName, resolver }: Props): FabricReactNode {
+  const printer = printerZodMini({ guidType, wrapOutput, resolver, schemaName: name })
   const output = printer.print(node)
 
   if (!output) {

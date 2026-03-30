@@ -6,7 +6,7 @@
 import { z } from '../../zod.ts'
 
 export const deleteOrderPathParamsSchema = z.object({
-  orderId: z.coerce.number().int().describe('ID of the order that needs to be deleted'),
+  orderId: z.int().describe('ID of the order that needs to be deleted'),
 })
 
 export type DeleteOrderPathParamsSchema = z.infer<typeof deleteOrderPathParamsSchema>
@@ -28,3 +28,11 @@ export type DeleteOrder404Schema = z.infer<typeof deleteOrder404Schema>
 export const deleteOrderMutationResponseSchema = z.any()
 
 export type DeleteOrderMutationResponseSchema = z.infer<typeof deleteOrderMutationResponseSchema>
+
+export const deleteOrderMutationSchema = z.object({
+  Response: z.any(),
+  PathParams: deleteOrderPathParamsSchema,
+  Errors: z.union([deleteOrder400Schema, deleteOrder404Schema]),
+})
+
+export type DeleteOrderMutationSchema = z.infer<typeof deleteOrderMutationSchema>

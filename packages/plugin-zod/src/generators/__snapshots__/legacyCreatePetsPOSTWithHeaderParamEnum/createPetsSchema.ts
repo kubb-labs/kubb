@@ -14,14 +14,10 @@ export const createPetsHeaderParamsSchema = z.object({
  */
 export const createPets201Schema = z.void()
 
-export const createPetsMutationResponseSchema = z.lazy(() => createPets201Schema)
+export const createPetsMutationResponseSchema = createPets201Schema
 
 export const createPetsMutationSchema = z.object({
-  get Response() {
-    return createPets201Schema
-  },
-  get HeaderParams() {
-    return createPetsHeaderParamsSchema
-  },
+  Response: createPets201Schema,
+  HeaderParams: createPetsHeaderParamsSchema,
   Errors: z.any(),
 })

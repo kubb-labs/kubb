@@ -14,14 +14,10 @@ export const deletePetPathParamsSchema = z.object({
  */
 export const deletePet200Schema = z.array(z.enum(['TYPE1', 'TYPE2', 'TYPE3']))
 
-export const deletePetMutationResponseSchema = z.lazy(() => deletePet200Schema)
+export const deletePetMutationResponseSchema = deletePet200Schema
 
 export const deletePetMutationSchema = z.object({
-  get Response() {
-    return deletePet200Schema
-  },
-  get PathParams() {
-    return deletePetPathParamsSchema
-  },
+  Response: deletePet200Schema,
+  PathParams: deletePetPathParamsSchema,
   Errors: z.any(),
 })

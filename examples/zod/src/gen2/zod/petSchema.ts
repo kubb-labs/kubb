@@ -14,12 +14,8 @@ export const petSchema = z.object({
   },
   internalId: z.optional(z.string().check(z.regex(/^[0-9]{1,19}$/))),
   name: z.string(),
-  get category() {
-    return z.optional(categorySchema)
-  },
+  category: z.optional(categorySchema),
   photoUrls: z.array(z.string()),
-  get tags() {
-    return z.optional(z.array(tagSchema))
-  },
+  tags: z.optional(z.array(tagSchema)),
   status: z.optional(z.enum(['available', 'pending', 'sold'])),
 })

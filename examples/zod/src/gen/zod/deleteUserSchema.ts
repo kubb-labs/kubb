@@ -28,3 +28,11 @@ export type DeleteUser404Schema = z.infer<typeof deleteUser404Schema>
 export const deleteUserMutationResponseSchema = z.any()
 
 export type DeleteUserMutationResponseSchema = z.infer<typeof deleteUserMutationResponseSchema>
+
+export const deleteUserMutationSchema = z.object({
+  Response: z.any(),
+  PathParams: deleteUserPathParamsSchema,
+  Errors: z.union([deleteUser400Schema, deleteUser404Schema]),
+})
+
+export type DeleteUserMutationSchema = z.infer<typeof deleteUserMutationSchema>
