@@ -1,10 +1,11 @@
 import path from 'node:path'
+import { camelCase } from '@internals/utils'
 import { createOperation, createParameter, createProperty, createResponse, createSchema } from '@kubb/ast'
-import type { OperationNode, SchemaNode } from '@kubb/ast/types'
-import type { Config } from '@kubb/core'
+import type { OperationNode, SchemaNode, Visitor } from '@kubb/ast/types'
+import type { Config, Group } from '@kubb/core'
 import { renderOperation, renderSchema } from '@kubb/core'
 import { createReactFabric } from '@kubb/react-fabric'
-import { beforeEach, describe, test } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import { resolverZod } from '../resolvers/resolverZod.ts'
 import type { PluginZod } from '../types.ts'
@@ -79,6 +80,25 @@ const optionalSchema = createSchema({
   optional: true,
 })
 
+const unknownSchema = createSchema({ type: 'unknown', name: 'UnknownField' })
+
+const emptyObjectSchema = createSchema({ type: 'object', name: 'EmptyModel', properties: [] })
+
+const operationWithSnakeCaseParams: OperationNode = createOperation({
+  operationId: 'updatePet',
+  method: 'POST',
+  path: '/pets/{pet_id}',
+  tags: ['pets'],
+  parameters: [
+    createParameter({ name: 'pet_id', in: 'path', schema: createSchema({ type: 'string' }), required: true }),
+    createParameter({ name: 'include_deleted', in: 'query', schema: createSchema({ type: 'boolean' }) }),
+  ],
+  requestBody: {
+    schema: createSchema({ type: 'object', properties: [createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) })] }),
+  },
+  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Success' })],
+})
+
 // ---------------------------------------------------------------------------
 // Schema tests
 // ---------------------------------------------------------------------------
@@ -117,6 +137,20 @@ describe('zodGenerator — Schema', () => {
     { name: 'mini', node: objectSchema, options: { mini: true, importPath: 'zod/mini' } },
     { name: 'mini nullable', node: nullableSchema, options: { mini: true, importPath: 'zod/mini' } },
     { name: 'mini optional', node: optionalSchema, options: { mini: true, importPath: 'zod/mini' } },
+    // unknownType options
+    { name: 'unknownType any', node: unknownSchema, options: { unknownType: 'any' } },
+    { name: 'unknownType unknown', node: unknownSchema, options: { unknownType: 'unknown' } },
+    // integerType options
+    { name: 'integerType bigint', node: integerSchema, options: { integerType: 'bigint' } },
+    { name: 'integerType number', node: integerSchema, options: { integerType: 'number' } },
+    // importPath custom
+    { name: 'importPath custom', node: stringSchema, options: { importPath: '@acme/zod' } },
+    // wrapOutput
+    {
+      name: 'wrapOutput',
+      node: stringSchema,
+      options: { wrapOutput: ({ output }) => `${output}.openapi('PetName')` },
+    },
   ]
 
   test.each(schemas)('$name', async (props) => {
@@ -204,6 +238,48 @@ describe('zodGenerator — Operation', () => {
         responses: [createResponse({ statusCode: '204', description: 'No content', schema: createSchema({ type: 'void' }) })],
       }),
     },
+    {
+      name: 'findPetsByStatus — GET with query param enum',
+      node: createOperation({
+        operationId: 'findPetsByStatus',
+        method: 'GET',
+        path: '/pet/findByStatus',
+        tags: ['pet'],
+        parameters: [
+          createParameter({
+            name: 'status',
+            in: 'query',
+            schema: createSchema({ type: 'enum', primitive: 'string', enumValues: ['available', 'pending', 'sold'] }),
+          }),
+        ],
+        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' })],
+      }),
+    },
+    {
+      name: 'placeOrderPatch — PATCH with path params + request body + multiple status codes',
+      node: createOperation({
+        operationId: 'placeOrderPatch',
+        method: 'PATCH',
+        path: '/store/order/:orderId',
+        tags: ['store'],
+        parameters: [createParameter({ name: 'orderId', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
+        requestBody: { schema: createSchema({ type: 'object', properties: [], description: 'Order payload' }) },
+        responses: [
+          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
+          createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+        ],
+      }),
+    },
+    {
+      name: 'noTagsOperation — GET with no tags',
+      node: createOperation({
+        operationId: 'getConfig',
+        method: 'GET',
+        path: '/config',
+        tags: [],
+        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Config' })],
+      }),
+    },
   ]
 
   test.each(operations)('$name', async (props) => {
@@ -223,5 +299,190 @@ describe('zodGenerator — Operation', () => {
     })
 
     await matchFiles(fabric.files, props.name)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Operation — group
+// ---------------------------------------------------------------------------
+
+describe('zodGenerator — Operation — group', () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
+  const node = createOperation({
+    operationId: 'listPets',
+    method: 'GET',
+    path: '/pets',
+    tags: ['pets'],
+    parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+    responses: [
+      createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
+      createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+    ],
+  })
+
+  test.each([
+    {
+      group: {
+        type: 'tag',
+        name: (ctx: { group: string }) => `${camelCase(ctx.group)}Controller`,
+      } satisfies Group,
+      expectedBaseName: 'listPetsSchema.ts',
+      expectedDir: 'petsController',
+    },
+    { group: undefined, expectedBaseName: 'listPetsSchema.ts', expectedDir: undefined },
+  ] satisfies Array<{
+    group: Group | undefined
+    expectedBaseName: string
+    expectedDir: string | undefined
+  }>)('group=$group.type — file path is computed correctly', async ({ group, expectedBaseName, expectedDir }) => {
+    const options: PluginZod['resolvedOptions'] = { ...defaultOptions, group }
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
+    const driver = createMockedPluginDriver({ name: 'listPets', config: testConfig })
+
+    await renderOperation(node, {
+      config: testConfig,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver,
+      Component: zodGenerator.Operation,
+      plugin,
+      options,
+      resolver: resolverZod,
+    })
+
+    const file = fabric.files.find((f) => f.baseName === expectedBaseName)
+    expect(file).toBeDefined()
+    const root = path.resolve(testConfig.root, testConfig.output.path)
+    const expectedPath = expectedDir ? path.resolve(root, expectedDir, expectedBaseName) : path.resolve(root, expectedBaseName)
+    expect(file!.path).toBe(expectedPath)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// paramsCasing
+// ---------------------------------------------------------------------------
+
+describe('zodGenerator — paramsCasing', () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
+  test('paramsCasing undefined — snake_case params kept as-is', async () => {
+    const options: PluginZod['resolvedOptions'] = { ...defaultOptions, paramsCasing: undefined }
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
+    const driver = createMockedPluginDriver({ name: 'paramsCasing undefined' })
+
+    await renderOperation(operationWithSnakeCaseParams, {
+      config: testConfig,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver,
+      Component: zodGenerator.Operation,
+      plugin,
+      options,
+      resolver: resolverZod,
+    })
+
+    await matchFiles(fabric.files, 'paramsCasing undefined')
+  })
+
+  test('paramsCasing camelcase — snake_case params converted to camelCase', async () => {
+    const options: PluginZod['resolvedOptions'] = { ...defaultOptions, paramsCasing: 'camelcase' }
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
+    const driver = createMockedPluginDriver({ name: 'paramsCasing camelcase' })
+
+    await renderOperation(operationWithSnakeCaseParams, {
+      config: testConfig,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver,
+      Component: zodGenerator.Operation,
+      plugin,
+      options,
+      resolver: resolverZod,
+    })
+
+    await matchFiles(fabric.files, 'paramsCasing camelcase')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// transformers
+// ---------------------------------------------------------------------------
+
+describe('zodGenerator — transformers', () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
+  test('schema transformer — removes optional properties from object', async () => {
+    const removeOptionalProperties: Visitor = {
+      schema(node) {
+        if ('properties' in node) {
+          return { ...node, properties: node.properties.filter((p) => p.required) }
+        }
+        return node
+      },
+    }
+    const options: PluginZod['resolvedOptions'] = { ...defaultOptions, transformers: [removeOptionalProperties] }
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
+    const driver = createMockedPluginDriver({ name: 'transformers removeOptionalProperties' })
+
+    await renderSchema(objectSchema, {
+      config: testConfig,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver,
+      Component: zodGenerator.Schema,
+      plugin,
+      options,
+      resolver: resolverZod,
+    })
+
+    await matchFiles(fabric.files, 'transformers removeOptionalProperties')
+  })
+
+  test('schema transformer — maps integer type to string', async () => {
+    const integerToString: Visitor = {
+      schema(node) {
+        if (node.type === 'integer') return { ...node, type: 'string' }
+        return node
+      },
+    }
+    const options: PluginZod['resolvedOptions'] = { ...defaultOptions, transformers: [integerToString] }
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
+    const driver = createMockedPluginDriver({ name: 'transformers integerToString' })
+
+    const schemaWithInteger = createSchema({
+      type: 'object',
+      name: 'Order',
+      properties: [
+        createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) }),
+        createProperty({ name: 'quantity', schema: createSchema({ type: 'integer', optional: true }) }),
+        createProperty({ name: 'status', required: true, schema: createSchema({ type: 'string' }) }),
+      ],
+    })
+
+    await renderSchema(schemaWithInteger, {
+      config: testConfig,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver,
+      Component: zodGenerator.Schema,
+      plugin,
+      options,
+      resolver: resolverZod,
+    })
+
+    await matchFiles(fabric.files, 'transformers integerToString')
   })
 })
