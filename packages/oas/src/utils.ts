@@ -207,7 +207,10 @@ export async function parse(
 }
 
 export async function merge(pathOrApi: Array<string | Document>, { oasClass = Oas }: { oasClass?: typeof Oas } = {}): Promise<Oas> {
-  const instances = await Promise.all(pathOrApi.map((p) => parse(p, { oasClass, enablePaths: false, canBundle: false })))
+  const instances: Oas[] = []
+  for (const p of pathOrApi) {
+    instances.push(await parse(p, { oasClass, enablePaths: false, canBundle: false }))
+  }
 
   if (instances.length === 0) {
     throw new Error('No OAS instances provided for merging.')

@@ -315,12 +315,10 @@ describe(`Main OpenAPI ${version}`, () => {
     expect(failedPlugins.size).toBe(0)
     expect(error).toBeUndefined()
 
-    await Promise.all(
-      files.map(async (file) => {
-        const fileContent = await fs.readFile(file.path, 'utf-8')
-        await expect(fileContent).toMatchFileSnapshot(path.join(__dirname, '__snapshots__', 'main', name, getRelativePath(output, file.path)))
-      }),
-    )
+    for (const file of files) {
+      const fileContent = await fs.readFile(file.path, 'utf-8')
+      await expect(fileContent).toMatchFileSnapshot(path.join(__dirname, '__snapshots__', 'main', name, getRelativePath(output, file.path)))
+    }
 
     await fs.rm(tmpDir, { recursive: true, force: true })
   })

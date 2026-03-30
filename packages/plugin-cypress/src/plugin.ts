@@ -1,7 +1,8 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
-import { createPlugin, type Group, getBarrelFiles, getPreset, renderOperation } from '@kubb/core'
+import type { OperationNode } from '@kubb/ast/types'
+import { createPlugin, type Group, getBarrelFiles, getPreset, runGeneratorOperation, runGeneratorOperations, runGeneratorSchema } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { presets } from './presets.ts'
 import { resolverCypress } from './resolvers/resolverCypress.ts'
@@ -95,38 +96,26 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
         throw new Error('Plugin cannot work without adapter being set')
       }
 
+      const collectedOperations: Array<OperationNode> = []
+      const generatorContext = { generators: preset.generators, plugin, resolver, exclude, include, override, fabric, adapter, config, driver }
+
       await walk(rootNode, {
         depth: 'shallow',
+        async schema(schemaNode) {
+          await runGeneratorSchema(schemaNode, generatorContext)
+        },
         async operation(operationNode) {
-          const writeTasks = preset.generators.map(async (generator) => {
-            if (generator.type === 'react' && generator.version === '2') {
-              const resolvedOptions = resolver.resolveOptions(operationNode, {
-                options: plugin.options,
-                exclude,
-                include,
-                override,
-              })
+          const baseOptions = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
 
-              if (resolvedOptions === null) {
-                return
-              }
+          if (baseOptions !== null) {
+            collectedOperations.push(operationNode)
+          }
 
-              await renderOperation(operationNode, {
-                options: resolvedOptions,
-                adapter,
-                config,
-                fabric,
-                Component: generator.Operation,
-                plugin,
-                driver,
-                resolver,
-              })
-            }
-          })
-
-          await Promise.all(writeTasks)
+          await runGeneratorOperation(operationNode, generatorContext)
         },
       })
+
+      await runGeneratorOperations(collectedOperations, generatorContext)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',

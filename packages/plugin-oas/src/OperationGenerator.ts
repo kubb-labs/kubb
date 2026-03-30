@@ -3,7 +3,6 @@ import { pascalCase } from '@internals/utils'
 import type { FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
 import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
-import pLimit from 'p-limit'
 import type { CoreGenerator } from './generators/createGenerator.ts'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
 import type { Generator } from './generators/types.ts'
@@ -209,96 +208,83 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
   async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<FabricFile.File<TFileMeta>>> {
     const operations = await this.getOperations()
 
-    // Increased parallelism for better performance
-    // - generatorLimit increased from 1 to 3 to allow parallel generator processing
-    // - operationLimit increased from 10 to 30 to process more operations concurrently
-    const generatorLimit = pLimit(3)
-    const operationLimit = pLimit(30)
-
     this.context.events?.emit('debug', {
       date: new Date(),
       logs: [`Building ${operations.length} operations`, `  • Generators: ${generators.length}`],
     })
 
-    const writeTasks = generators.map((generator) =>
-      generatorLimit(async () => {
-        if (generator.version === '2') {
-          return []
-        }
+    const results: Array<FabricFile.File<TFileMeta>> = []
 
-        // After the v2 guard above, all generators here are v1
-        const v1Generator = generator as ReactGenerator<TPluginOptions> | CoreGenerator<TPluginOptions>
+    for (const generator of generators) {
+      if (generator.version === '2') {
+        continue
+      }
 
-        const operationTasks = operations.map(({ operation, method }) =>
-          operationLimit(async () => {
-            const options = this.getOptions(operation, method)
+      // After the v2 guard above, all generators here are v1
+      const v1Generator = generator as ReactGenerator<TPluginOptions> | CoreGenerator<TPluginOptions>
 
-            if (v1Generator.type === 'react') {
-              await renderOperation(operation, {
-                config: this.context.driver.config,
-                fabric: this.context.fabric,
-                Component: v1Generator.Operation,
-                generator: this,
-                plugin: {
-                  ...this.context.plugin,
-                  options: {
-                    ...this.options,
-                    ...options,
-                  },
-                },
-              })
+      const opResultsFlat: Array<FabricFile.File<TFileMeta>> = []
 
-              return []
-            }
-
-            const result = await v1Generator.operation?.({
-              generator: this,
-              config: this.context.driver.config,
-              operation,
-              plugin: {
-                ...this.context.plugin,
-                options: {
-                  ...this.options,
-                  ...options,
-                },
-              },
-            })
-
-            return result ?? []
-          }),
-        )
-
-        const operationResults = await Promise.all(operationTasks)
-        const opResultsFlat = operationResults.flat()
+      for (const { operation, method } of operations) {
+        const options = this.getOptions(operation, method)
 
         if (v1Generator.type === 'react') {
-          await renderOperations(
-            operations.map((op) => op.operation),
-            {
-              fabric: this.context.fabric,
-              config: this.context.driver.config,
-              Component: v1Generator.Operations,
-              generator: this,
-              plugin: this.context.plugin,
+          await renderOperation(operation, {
+            config: this.context.driver.config,
+            fabric: this.context.fabric,
+            Component: v1Generator.Operation,
+            generator: this,
+            plugin: {
+              ...this.context.plugin,
+              options: {
+                ...this.options,
+                ...options,
+              },
             },
-          )
+          })
+        } else {
+          const result = await v1Generator.operation?.({
+            generator: this,
+            config: this.context.driver.config,
+            operation,
+            plugin: {
+              ...this.context.plugin,
+              options: {
+                ...this.options,
+                ...options,
+              },
+            },
+          })
 
-          return []
+          opResultsFlat.push(...([result ?? []].flat() as Array<FabricFile.File<TFileMeta>>))
         }
+      }
 
-        const operationsResult = await v1Generator.operations?.({
-          generator: this,
-          config: this.context.driver.config,
-          operations: operations.map((op) => op.operation),
-          plugin: this.context.plugin,
-        })
+      if (v1Generator.type === 'react') {
+        await renderOperations(
+          operations.map((op) => op.operation),
+          {
+            fabric: this.context.fabric,
+            config: this.context.driver.config,
+            Component: v1Generator.Operations,
+            generator: this,
+            plugin: this.context.plugin,
+          },
+        )
 
-        return [...opResultsFlat, ...(operationsResult ?? [])] as unknown as FabricFile.File<TFileMeta>
-      }),
-    )
+        continue
+      }
 
-    const nestedResults = await Promise.all(writeTasks)
+      const operationsResult = await v1Generator.operations?.({
+        generator: this,
+        config: this.context.driver.config,
+        operations: operations.map((op) => op.operation),
+        plugin: this.context.plugin,
+      })
 
-    return nestedResults.flat()
+      results.push(...opResultsFlat, ...((operationsResult ?? []) as unknown as Array<FabricFile.File<TFileMeta>>))
+    }
+
+    return results
   }
 }
