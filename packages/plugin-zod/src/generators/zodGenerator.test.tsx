@@ -120,12 +120,9 @@ describe('zodGenerator — Schema', () => {
     { name: 'array', node: arraySchema },
     { name: 'nullable', node: nullableSchema },
     { name: 'optional', node: optionalSchema },
-    // dateType options
+    // dateType — printer renders based on representation, integration tests cover adapter-level dateType option
     { name: 'dateType string', node: createSchema({ type: 'date', name: 'DateField', representation: 'string' }) },
     { name: 'dateType date', node: createSchema({ type: 'date', name: 'DateField', representation: 'date' }) },
-    { name: 'dateType false', node: createSchema({ type: 'date', name: 'DateField', representation: 'string' }), options: { dateType: false } },
-    { name: 'dateType stringOffset', node: createSchema({ type: 'date', name: 'DateField', representation: 'string' }), options: { dateType: 'stringOffset' } },
-    { name: 'dateType stringLocal', node: createSchema({ type: 'date', name: 'DateField', representation: 'string' }), options: { dateType: 'stringLocal' } },
     // guidType options
     { name: 'guidType uuid', node: createSchema({ type: 'uuid', name: 'UuidField' }), options: { guidType: 'uuid' } },
     { name: 'guidType guid', node: createSchema({ type: 'uuid', name: 'GuidField' }), options: { guidType: 'guid' } },
@@ -141,14 +138,9 @@ describe('zodGenerator — Schema', () => {
     { name: 'mini nullable', node: nullableSchema, options: { mini: true, importPath: 'zod/mini' } },
     { name: 'mini optional', node: optionalSchema, options: { mini: true, importPath: 'zod/mini' } },
     { name: 'mini inferred', node: stringSchema, options: { mini: true, importPath: 'zod/mini', inferred: true } },
-    // unknownType options
-    { name: 'unknownType any', node: unknownSchema, options: { unknownType: 'any' } },
-    { name: 'unknownType unknown', node: unknownSchema, options: { unknownType: 'unknown' } },
-    { name: 'unknownType void', node: unknownSchema, options: { unknownType: 'void' } },
-    // emptySchemaType options
-    { name: 'emptySchemaType any', node: emptyObjectSchema, options: { emptySchemaType: 'any' } },
-    { name: 'emptySchemaType unknown', node: emptyObjectSchema, options: { emptySchemaType: 'unknown' } },
-    { name: 'emptySchemaType void', node: emptyObjectSchema, options: { emptySchemaType: 'void' } },
+    // unknownType — adapter-level option; here we test that each AST node type renders correctly
+    { name: 'unknownType any', node: unknownSchema },
+    { name: 'unknownType void', node: createSchema({ type: 'void', name: 'VoidField' }) },
     // integerType options
     { name: 'integerType bigint', node: integerSchema, options: { integerType: 'bigint' } },
     { name: 'integerType number', node: integerSchema, options: { integerType: 'number' } },

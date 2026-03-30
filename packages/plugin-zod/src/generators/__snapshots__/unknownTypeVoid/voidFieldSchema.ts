@@ -5,4 +5,4 @@
 
 import * as z from 'zod'
 
-export const unknownFieldSchema = z.unknown()
+export const voidFieldSchema = z.void()
