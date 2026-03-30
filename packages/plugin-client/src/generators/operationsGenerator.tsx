@@ -17,7 +17,7 @@ export const operationsGenerator = defineGenerator<PluginClient>({
         path={file.path}
         meta={file.meta}
         banner={defaultResolveBanner(adapter.rootNode ?? undefined, { output, config })}
-        footer={defaultResolveFooter(adapter.rootNode ?? undefined, { output })}
+        footer={defaultResolveFooter(adapter.rootNode ?? undefined, { output, config })}
       >
         <Operations name={name} nodes={nodes} />
       </File>
