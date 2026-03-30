@@ -18,23 +18,6 @@ export type ZodMiniOptions = {
 
 type ZodMiniPrinterFactory = PrinterFactoryOptions<'zod-mini', ZodMiniOptions, string, string>
 
-function containsRef(schema: SchemaNode, schemaName: string, resolver: ResolverZod | undefined): boolean {
-  if (schema.type === 'ref') {
-    const refName = schema.ref ? (extractRefName(schema.ref) ?? schema.name ?? '') : (schema.name ?? '')
-    const resolvedName = schema.ref ? (resolver?.default(refName, 'function') ?? refName) : refName
-    return resolvedName === schemaName
-  }
-  if ('items' in schema && Array.isArray(schema.items)) {
-    return schema.items.some((item) => containsRef(item, schemaName, resolver))
-  }
-  if ('members' in schema && Array.isArray(schema.members)) {
-    return schema.members.some((member) => containsRef(member, schemaName, resolver))
-  }
-  if ('properties' in schema && Array.isArray(schema.properties)) {
-    return schema.properties.some((prop) => containsRef(prop.schema, schemaName, resolver))
-  }
-  return false
-}
 
 /** Format a default value as a code-level literal. */
 function formatDefault(value: unknown): string {
@@ -199,6 +182,9 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
         if (!node.name) return undefined
         const refName = node.ref ? (extractRefName(node.ref) ?? node.name) : node.name
         const resolvedName = node.ref ? (this.options.resolver?.default(refName, 'function') ?? refName) : node.name
+        if (node.ref && resolvedName === this.options.schemaName) {
+          return `z.lazy(() => ${resolvedName})`
+        }
         return resolvedName
       },
       object(node) {
@@ -225,10 +211,6 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
               defaultValue: meta?.default,
             })
 
-            const isSelfRef = this.options.schemaName != null && containsRef(schema, this.options.schemaName, this.options.resolver)
-            if (isSelfRef) {
-              return `get "${propName}"() { return ${value} }`
-            }
             return `"${propName}": ${value}`
           })
           .join(',\n    ')

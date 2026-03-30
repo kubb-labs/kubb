@@ -193,6 +193,29 @@ describe('printerZod', () => {
 
       expect(p.print(node)).toBe('problemSchema')
     })
+
+    test('ref without $ref path returns bare name (used for intersection constraint chaining)', () => {
+      const node = createSchema({ type: 'ref', name: 'PhoneNumber' })
+
+      expect(printer.print(node)).toBe('PhoneNumber')
+    })
+
+    test('self-referential ref is wrapped in z.lazy()', () => {
+      const p = printerZod({ schemaName: 'TreeNode' })
+      const node = createSchema({ type: 'ref', name: 'TreeNode', ref: '#/components/schemas/TreeNode' })
+
+      expect(p.print(node)).toBe('z.lazy(() => TreeNode)')
+    })
+
+    test('self-referential ref with resolver is wrapped in z.lazy()', () => {
+      const p = printerZod({
+        schemaName: 'treeNodeSchema',
+        resolver: { default: (name: string) => `${name.charAt(0).toLowerCase()}${name.slice(1)}Schema` } as any,
+      })
+      const node = createSchema({ type: 'ref', name: 'TreeNode', ref: '#/components/schemas/TreeNode' })
+
+      expect(p.print(node)).toBe('z.lazy(() => treeNodeSchema)')
+    })
   })
 
   describe('intersection', () => {
