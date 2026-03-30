@@ -143,40 +143,40 @@ Choose to use `enum` or `as const` for enums.
 
 ```typescript ['enum']
 enum PetType {
-  Dog = "dog",
-  Cat = "cat",
+  Dog = 'dog',
+  Cat = 'cat',
 }
 ```
 
 ```typescript ['asConst']
 const petType = {
-  Dog: "dog",
-  Cat: "cat",
+  Dog: 'dog',
+  Cat: 'cat',
 } as const;
 ```
 
 ```typescript ['asPascalConst']
 const PetType = {
-  Dog: "dog",
-  Cat: "cat",
+  Dog: 'dog',
+  Cat: 'cat',
 } as const;
 ```
 
 ```typescript ['constEnum']
 const enum PetType {
-  Dog = "dog",
-  Cat = "cat",
+  Dog = 'dog',
+  Cat = 'cat',
 }
 ```
 
 ```typescript ['literal']
-type PetType = "dog" | "cat";
+type PetType = 'dog' | 'cat';
 ```
 
 ```typescript ['inlineLiteral']
 // Enum values are inlined directly into the type
 export interface Pet {
-  status?: "available" | "pending" | "sold";
+  status?: 'available' | 'pending' | 'sold';
 }
 ```
 
@@ -203,8 +203,8 @@ Only the type alias is affected — the const object name stays unchanged.
 
 ```typescript ['Key' (default)]
 const petType = {
-  Dog: "dog",
-  Cat: "cat",
+  Dog: 'dog',
+  Cat: 'cat',
 } as const;
 
 export type PetTypeKey = (typeof petType)[keyof typeof petType];
@@ -213,8 +213,8 @@ export type PetTypeKey = (typeof petType)[keyof typeof petType];
 ```typescript ['Value']
 // enumTypeSuffix: 'Value'
 const petType = {
-  Dog: "dog",
-  Cat: "cat",
+  Dog: 'dog',
+  Cat: 'cat',
 } as const;
 
 export type PetTypeValue = (typeof petType)[keyof typeof petType];
@@ -223,8 +223,8 @@ export type PetTypeValue = (typeof petType)[keyof typeof petType];
 ```typescript ['' (no suffix)]
 // enumTypeSuffix: ''
 const petType = {
-  Dog: "dog",
-  Cat: "cat",
+  Dog: 'dog',
+  Cat: 'cat',
 } as const;
 
 export type PetType = (typeof petType)[keyof typeof petType];
@@ -383,7 +383,7 @@ type FindPetsByStatusQueryParams = {
 };
 
 type FindPetsByStatusHeaderParams = {
-  "X-Custom-Header"?: string;
+  'X-Custom-Header'?: string;
 };
 ```
 
@@ -422,13 +422,13 @@ Apply close-compatible naming presets for ecosystems with established convention
 
 ```typescript [Default]
 pluginTs({
-  compatibilityPreset: "none",
+  compatibilityPreset: 'none',
 });
 ```
 
 ```typescript [Kubb v4 compatibility]
 pluginTs({
-  compatibilityPreset: "kubbV4",
+  compatibilityPreset: 'kubbV4',
 });
 ```
 
@@ -456,19 +456,19 @@ Resolver precedence:
 ::: code-group
 
 ```typescript [v4 compatibility]
-import { pluginTs } from "@kubb/plugin-ts";
+import { pluginTs } from '@kubb/plugin-ts';
 
 pluginTs({
-  compatibilityPreset: "kubbV4",
+  compatibilityPreset: 'kubbV4',
 });
 ```
 
 ```typescript [Explicit resolver override]
-import { pluginTs } from "@kubb/plugin-ts";
-import { resolverTs } from "@kubb/plugin-ts/resolvers";
+import { pluginTs } from '@kubb/plugin-ts';
+import { resolverTs } from '@kubb/plugin-ts/resolvers';
 
 pluginTs({
-  compatibilityPreset: "default",
+  compatibilityPreset: 'default',
   resolvers: [resolverTs], // explicit resolvers take precedence
 });
 ```
@@ -506,36 +506,36 @@ For naming customization, use `resolvers` instead of `transformers`.
 ## Example
 
 ```typescript twoslash
-import { adapterOas } from "@kubb/adapter-oas";
-import { defineConfig } from "@kubb/core";
-import { pluginTs } from "@kubb/plugin-ts";
+import { adapterOas } from '@kubb/adapter-oas';
+import { defineConfig } from '@kubb/core';
+import { pluginTs } from '@kubb/plugin-ts';
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   adapter: adapterOas(),
   plugins: [
     pluginTs({
       output: {
-        path: "./types",
+        path: './types',
       },
       exclude: [
         {
-          type: "tag",
-          pattern: "store",
+          type: 'tag',
+          pattern: 'store',
         },
       ],
       group: {
-        type: "tag",
+        type: 'tag',
         name: ({ group }) => `${group}Controller`,
       },
-      enumType: "asConst",
-      optionalType: "questionTokenAndUndefined",
-      paramsCasing: "camelcase",
+      enumType: 'asConst',
+      optionalType: 'questionTokenAndUndefined',
+      paramsCasing: 'camelcase',
     }),
   ],
 });

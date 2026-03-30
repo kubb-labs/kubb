@@ -21,7 +21,7 @@ const myResolver = defineResolver<PluginTs>(() => ({
   ...resolverTs,
   name: 'my-resolver',
   resolveName(node) {
-    // prefix every type name with "Api"
+    // prefix every type name with 'Api'
     return `Api${this.default(node.name, 'type')}`
   },
 }))

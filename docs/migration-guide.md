@@ -120,7 +120,7 @@ export default defineConfig({
   plugins: [
     pluginTs({
       mapper: {
-        // Override the "category" property to always be a string
+        // Override the 'category' property to always be a string
         category: factory.createPropertySignature(
           undefined,
           factory.createIdentifier('category'),
@@ -142,7 +142,7 @@ export default defineConfig({
     pluginTs({
       transformers: [
         {
-          // Override the "category" property to use a string schema and make it optional
+          // Override the 'category' property to use a string schema and make it optional
           property(node) {
             if (node.name === 'category') {
               return {
@@ -214,7 +214,7 @@ The `parent` type is automatically narrowed based on the visitor callback:
 pluginTs({
   transformers: [
     {
-      // Make all properties of the "Pet" schema optional
+      // Make all properties of the 'Pet' schema optional
       property(node, { parent }) {
         if (parent?.name === 'Pet') {
           return { ...node, required: false }

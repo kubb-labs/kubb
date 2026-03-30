@@ -366,29 +366,29 @@ wrapOutput: ({ output, schema }) => {
 ## Example
 
 ```typescript twoslash
-import { adapterOas } from "@kubb/adapter-oas";
-import { defineConfig } from "@kubb/core";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginZod } from "@kubb/plugin-zod";
+import { adapterOas } from '@kubb/adapter-oas';
+import { defineConfig } from '@kubb/core';
+import { pluginTs } from '@kubb/plugin-ts';
+import { pluginZod } from '@kubb/plugin-zod';
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
   adapter: adapterOas(),
   plugins: [
     pluginTs(),
     pluginZod({
       output: {
-        path: "./zod",
+        path: './zod',
       },
-      group: { type: "tag", name: ({ group }) => `${group}Schemas` },
+      group: { type: 'tag', name: ({ group }) => `${group}Schemas` },
       typed: true,
-      dateType: "stringOffset",
-      importPath: "zod",
+      dateType: 'stringOffset',
+      importPath: 'zod',
     }),
   ],
 });

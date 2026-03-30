@@ -33,12 +33,12 @@ outline: deep
 
     ::: code-group
     ```typescript [Example Usage]
-    import { URLPath } from "@kubb/core";
+    import { URLPath } from '@kubb/core';
 
-    const path = new URLPath("api/v1");
-    path.append("users");
-    path.replace("v1", "v2");
-    console.log(path.toString()); // Outputs "api/v2/users"
+    const path = new URLPath('api/v1');
+    path.append('users');
+    path.replace('v1', 'v2');
+    console.log(path.toString()); // Outputs 'api/v2/users'
     ```
     :::
 
@@ -64,23 +64,23 @@ outline: deep
 
     ::: code-group
     ```typescript [Example Usage]
-    import { defineConfig, defineStorage, fsStorage } from "@kubb/core";
+    import { defineConfig, defineStorage, fsStorage } from '@kubb/core';
 
     // Default (no change needed for existing configs)
     export default defineConfig({
-      output: { path: "./src/gen" },
+      output: { path: './src/gen' },
     });
 
     // Explicit filesystem storage
     export default defineConfig({
-      output: { path: "./src/gen", storage: fsStorage() },
+      output: { path: './src/gen', storage: fsStorage() },
     });
 
     // Custom in-memory storage
     export const memoryStorage = defineStorage((_options) => {
       const store = new Map<string, string>();
       return {
-        name: "memory",
+        name: 'memory',
         async hasItem(key) {
           return store.has(key);
         },
@@ -423,7 +423,7 @@ export const MyEnum = { } as const;  // ❌ Unused constant
 ```
 
 ```typescript [After]
-// Correctly generates "type" alias for empty enum
+// Correctly generates 'type' alias for empty enum
 export type MyEnumKey = never;  // ✅ No unused constant
 ```
 
@@ -1355,14 +1355,14 @@ components:
 // ❌ Both files export the same enum - collision!
 // NotificationTypeA.ts
 export const paramsChannelEnum = {
-  public: "public",
-  collaborators: "collaborators"
+  public: 'public',
+  collaborators: 'collaborators'
 } as const
 
 // NotificationTypeB.ts
 export const paramsChannelEnum = {  // Duplicate!
-  public: "public",
-  collaborators: "collaborators"
+  public: 'public',
+  collaborators: 'collaborators'
 } as const
 ```
 
@@ -1370,14 +1370,14 @@ export const paramsChannelEnum = {  // Duplicate!
 // ✅ Unique enum names - no collision
 // NotificationTypeA.ts
 export const notificationTypeAParamsChannelEnum = {
-  public: "public",
-  collaborators: "collaborators"
+  public: 'public',
+  collaborators: 'collaborators'
 } as const
 
 // NotificationTypeB.ts
 export const notificationTypeBParamsChannelEnum = {
-  public: "public",
-  collaborators: "collaborators"
+  public: 'public',
+  collaborators: 'collaborators'
 } as const
 ```
 
@@ -2044,7 +2044,7 @@ export interface Pet {
 
 ```typescript [After (inlineLiteral)]
 export interface Pet {
-  status?: "available" | "pending" | "sold"
+  status?: 'available' | 'pending' | 'sold'
 }
 ```
 
@@ -2302,11 +2302,11 @@ components:
 ```typescript [Generated]
 export type Response =
   | {
-      status?: "success"
+      status?: 'success'
       data?: object
     }
   | {
-      status?: "error"
+      status?: 'error'
       message?: string
     }
 ```
@@ -2571,7 +2571,7 @@ Uses backticks so that the baseUrl can be set to a dynamic value (like an enviro
 
 ```typescript [Before]
 // Generated with single quotes - static string
-const baseUrl = "https://api.example.com";
+const baseUrl = 'https://api.example.com';
 ```
 
 ```typescript [After]
@@ -2604,26 +2604,26 @@ Replace cli-progress and consola with @clack/prompts for modern interactive prog
 ::: code-group
 
 ```typescript [Custom Logger]
-import { defineLogger, LogLevel } from "@kubb/core";
+import { defineLogger, LogLevel } from '@kubb/core';
 
 export const customLogger = defineLogger({
-  name: "custom",
+  name: 'custom',
   install(context, options) {
     const logLevel = options?.logLevel || LogLevel.info;
 
-    context.on("lifecycle:start", (version) => {
+    context.on('lifecycle:start', (version) => {
       console.log(`Starting Kubb ${version}`);
     });
 
-    context.on("plugin:start", (plugin) => {
+    context.on('plugin:start', (plugin) => {
       console.log(`Generating ${plugin.name}`);
     });
 
-    context.on("plugin:end", (plugin, { duration }) => {
+    context.on('plugin:end', (plugin, { duration }) => {
       console.log(`${plugin.name} completed in ${duration}ms`);
     });
 
-    context.on("error", (error) => {
+    context.on('error', (error) => {
       console.error(error.message);
     });
   },
@@ -2678,10 +2678,10 @@ Fixed issue with uninitialized `oasClass` causing errors during OpenAPI schema p
     mapper: zodKeywordMapper,
     handlers: {
       string(tree, options) {
-        const minSchema = findSchemaKeyword(tree.siblings, "min");
-        const maxSchema = findSchemaKeyword(tree.siblings, "max");
+        const minSchema = findSchemaKeyword(tree.siblings, 'min');
+        const maxSchema = findSchemaKeyword(tree.siblings, 'max');
         return zodKeywordMapper.string(
-          shouldCoerce(options.coercion, "strings"),
+          shouldCoerce(options.coercion, 'strings'),
           minSchema?.args,
           maxSchema?.args,
           options.mini,
@@ -2725,8 +2725,8 @@ Upgrade tsdown.
 
   ```typescript [asConst (default)]
   const petType = {
-    Dog: "dog",
-    Cat: "cat",
+    Dog: 'dog',
+    Cat: 'cat',
   } as const;
 
   type PetTypeKey = (typeof petType)[keyof typeof petType];
@@ -2734,8 +2734,8 @@ Upgrade tsdown.
 
   ```typescript [asPascalConst]
   const PetType = {
-    Dog: "dog",
-    Cat: "cat",
+    Dog: 'dog',
+    Cat: 'cat',
   } as const;
 
   type PetType = (typeof PetType)[keyof typeof PetType];
@@ -2800,8 +2800,8 @@ Upgrade tsdown.
   ::: code-group
 
   ```typescript [Before - Not Working]
-  import { defineConfig } from "@kubb/core";
-  import { pluginReactQuery } from "@kubb/plugin-react-query";
+  import { defineConfig } from '@kubb/core';
+  import { pluginReactQuery } from '@kubb/plugin-react-query';
 
   export default defineConfig({
     plugins: [
@@ -2813,8 +2813,8 @@ Upgrade tsdown.
   ```
 
   ```typescript [After - Working]
-  import { defineConfig } from "@kubb/core";
-  import { pluginReactQuery } from "@kubb/plugin-react-query";
+  import { defineConfig } from '@kubb/core';
+  import { pluginReactQuery } from '@kubb/plugin-react-query';
 
   export default defineConfig({
     plugins: [
@@ -2862,18 +2862,18 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
   ::: code-group
 
   ```typescript [Configuration]
-  import { defineConfig } from "@kubb/core";
-  import { pluginClient } from "@kubb/plugin-client";
-  import { pluginOas } from "@kubb/plugin-oas";
-  import { pluginReactQuery } from "@kubb/plugin-react-query";
-  import { pluginTs } from "@kubb/plugin-ts";
+  import { defineConfig } from '@kubb/core';
+  import { pluginClient } from '@kubb/plugin-client';
+  import { pluginOas } from '@kubb/plugin-oas';
+  import { pluginReactQuery } from '@kubb/plugin-react-query';
+  import { pluginTs } from '@kubb/plugin-ts';
 
   export default defineConfig({
     input: {
-      path: "./petStore.yaml",
+      path: './petStore.yaml',
     },
     output: {
-      path: "./src/gen",
+      path: './src/gen',
     },
     plugins: [
       pluginOas(),
@@ -2881,15 +2881,15 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
       // Class-based clients for direct usage
       pluginClient({
         output: {
-          path: "./clients/class",
+          path: './clients/class',
         },
-        clientType: "class",
-        group: { type: "tag" },
+        clientType: 'class',
+        group: { type: 'tag' },
       }),
       // Query hooks work with inline function-based clients
       pluginReactQuery({
         output: {
-          path: "./hooks",
+          path: './hooks',
         },
       }),
     ],
@@ -2914,28 +2914,28 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
   ::: code-group
 
   ```typescript [Configuration]
-  import { defineConfig } from "@kubb/core";
-  import { pluginClient } from "@kubb/plugin-client";
-  import { pluginOas } from "@kubb/plugin-oas";
-  import { pluginTs } from "@kubb/plugin-ts";
+  import { defineConfig } from '@kubb/core';
+  import { pluginClient } from '@kubb/plugin-client';
+  import { pluginOas } from '@kubb/plugin-oas';
+  import { pluginTs } from '@kubb/plugin-ts';
 
   export default defineConfig({
     input: {
-      path: "./petStore.yaml",
+      path: './petStore.yaml',
     },
     output: {
-      path: "./src/gen",
+      path: './src/gen',
     },
     plugins: [
       pluginOas(),
       pluginTs(),
       pluginClient({
         output: {
-          path: "./clients",
+          path: './clients',
         },
-        clientType: "class",
+        clientType: 'class',
         group: {
-          type: "tag",
+          type: 'tag',
         },
       }),
     ],
@@ -2959,7 +2959,7 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
         ResponseErrorConfig<GetPetById400>,
         unknown
       >({
-        method: "GET",
+        method: 'GET',
         url: `/pet/${petId}`,
         ...requestConfig,
       });
@@ -2974,8 +2974,8 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
         ResponseErrorConfig<AddPet405>,
         AddPetMutationRequest
       >({
-        method: "POST",
-        url: "/pet",
+        method: 'POST',
+        url: '/pet',
         data: requestData,
         ...requestConfig,
       });
@@ -2985,7 +2985,7 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
   ```
 
   ```typescript [Usage]
-  import { Pet } from "./gen/clients/Pet";
+  import { Pet } from './gen/clients/Pet';
 
   const petClient = new Pet();
 
@@ -2994,8 +2994,8 @@ This will become the default behavior in v5. Set `mutation.paramsToTrigger: true
 
   // Add a new pet
   const newPet = await petClient.addPet({
-    name: "Fluffy",
-    status: "available",
+    name: 'Fluffy',
+    status: 'available',
   });
   ```
 
@@ -3338,11 +3338,11 @@ Update Fabric packages.
   ::: code-group
 
   ```typescript [Before]
-  import { client } from "@kubb/plugin-client";
+  import { client } from '@kubb/plugin-client';
   ```
 
   ```typescript [After]
-  import { client } from "./.kubb/client";
+  import { client } from './.kubb/client';
   ```
 
   :::
@@ -3512,15 +3512,15 @@ Upgrade internal packages.
 
 ```typescript [After]
 const StatusKey = {
-  Active: "active",
-  Inactive: "inactive",
+  Active: 'active',
+  Inactive: 'inactive',
 } as const;
 ```
 
 ```typescript [Before]
 const Status = {
-  Active: "active",
-  Inactive: "inactive",
+  Active: 'active',
+  Inactive: 'inactive',
 } as const;
 ```
 
@@ -4154,7 +4154,7 @@ Reduce any's being used:
 ::: code-group
 
 ```typescript [Example with @hono/zod-openapi]
-import { z } from "@hono/zod-openapi";
+import { z } from '@hono/zod-openapi';
 
 export const showPetByIdError = z
   .lazy(() => error)
@@ -4162,14 +4162,14 @@ export const showPetByIdError = z
     examples: [
       {
         sample: {
-          summary: "A sample error",
-          value: { code: 1, message: "A sample error message" },
+          summary: 'A sample error',
+          value: { code: 1, message: 'A sample error message' },
         },
       },
       {
         other_example: {
-          summary: "Another sample error",
-          value: { code: 2, message: "A totally specific message" },
+          summary: 'Another sample error',
+          value: { code: 2, message: 'A totally specific message' },
         },
       },
     ],
@@ -4198,7 +4198,7 @@ export type FooBase = {
   /**
    * @type string
    */
-  $type: "type-string" | "type-number";
+  $type: 'type-string' | 'type-number';
 };
 ```
 
@@ -4220,7 +4220,7 @@ export type FooNumber = FooBase & {
   /**
    * @type string
    */
-  $type: "type-number";
+  $type: 'type-number';
 
   /**
    * @type number
@@ -4419,11 +4419,11 @@ group: {
 findPetsByStatusHandler((info) => {
   const { params } = info;
   if (params.someKey) {
-    return new Response(JSON.stringify({ error: "some error response" }), {
+    return new Response(JSON.stringify({ error: 'some error response' }), {
       status: 400,
     });
   }
-  return new Response(JSON.stringify({ newData: "new data" }), { status: 200 });
+  return new Response(JSON.stringify({ newData: 'new data' }), { status: 200 });
 });
 ```
 
@@ -4569,28 +4569,28 @@ type coercion =
 - [`plugin-core`](/plugins/core/): Removal of `group.output` in favour of `group.name`(no need to specify the output/root)
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginClient } from "@kubb/plugin-client";
+import { defineConfig } from '@kubb/core';
+import { pluginOas } from '@kubb/plugin-oas';
+import { pluginTs } from '@kubb/plugin-ts';
+import { pluginClient } from '@kubb/plugin-client';
 
 export default defineConfig({
-  root: ".",
+  root: '.',
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginClient({
       output: {
-        path: "./clients/axios",
+        path: './clients/axios',
       },
       // group: { type: 'tag', output: './clients/axios/{{tag}}Service' }, // [!code --]
-      group: { type: "tag", name: ({ group }) => `${group}Service` }, // [!code ++]
+      group: { type: 'tag', name: ({ group }) => `${group}Service` }, // [!code ++]
     }),
   ],
 });
@@ -4659,7 +4659,7 @@ enum:
 ```
 
 ```typescript [output]
-z.enum(["true", "false"]); // [!code --]
+z.enum(['true', 'false']); // [!code --]
 z.union([z.literal(true), z.literal(false)]); // [!code ++]
 ```
 
@@ -4677,31 +4677,31 @@ z.union([z.literal(true), z.literal(false)]); // [!code ++]
 - Separate plugin/package for Solid-Query: `@kubb/plugin-solid-query`
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginSolidQuery } from "@kubb/plugin-solid-query"; // [!code ++]
-import { pluginTanstackQuery } from "@kubb/plugin-tanstack-query"; // [!code --]
+import { defineConfig } from '@kubb/core';
+import { pluginOas } from '@kubb/plugin-oas';
+import { pluginTs } from '@kubb/plugin-ts';
+import { pluginSolidQuery } from '@kubb/plugin-solid-query'; // [!code ++]
+import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'; // [!code --]
 
 export default defineConfig({
-  root: ".",
+  root: '.',
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({
       output: {
-        path: "models",
+        path: 'models',
       },
     }),
     pluginSolidQuery({
       output: {
-        path: "./hooks",
+        path: './hooks',
       },
     }),
   ],
@@ -4711,31 +4711,31 @@ export default defineConfig({
 - Separate plugin/package for Svelte-Query: `@kubb/plugin-svelte-query`
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginSvelteQuery } from "@kubb/plugin-svelte-query"; // [!code ++]
-import { pluginTanstackQuery } from "@kubb/plugin-tanstack-query"; // [!code --]
+import { defineConfig } from '@kubb/core';
+import { pluginOas } from '@kubb/plugin-oas';
+import { pluginTs } from '@kubb/plugin-ts';
+import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'; // [!code ++]
+import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'; // [!code --]
 
 export default defineConfig({
-  root: ".",
+  root: '.',
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({
       output: {
-        path: "models",
+        path: 'models',
       },
     }),
     pluginSvelteQuery({
       output: {
-        path: "./hooks",
+        path: './hooks',
       },
     }),
   ],
@@ -4745,31 +4745,31 @@ export default defineConfig({
 - Separate plugin/package for Vue-Query: `@kubb/plugin-vue-query`
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginVueQuery } from "@kubb/plugin-vue-query"; // [!code ++]
-import { pluginTanstackQuery } from "@kubb/plugin-tanstack-query"; // [!code --]
+import { defineConfig } from '@kubb/core';
+import { pluginOas } from '@kubb/plugin-oas';
+import { pluginTs } from '@kubb/plugin-ts';
+import { pluginVueQuery } from '@kubb/plugin-vue-query'; // [!code ++]
+import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'; // [!code --]
 
 export default defineConfig({
-  root: ".",
+  root: '.',
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({
       output: {
-        path: "models",
+        path: 'models',
       },
     }),
     pluginVueQuery({
       output: {
-        path: "./hooks",
+        path: './hooks',
       },
     }),
   ],
@@ -4781,31 +4781,31 @@ export default defineConfig({
 - Separate plugin/package for React-Query: `@kubb/plugin-react-query`
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginReactQuery } from "@kubb/plugin-react-query"; // [!code ++]
-import { pluginTanstackQuery } from "@kubb/plugin-tanstack-query"; // [!code --]
+import { defineConfig } from '@kubb/core';
+import { pluginOas } from '@kubb/plugin-oas';
+import { pluginTs } from '@kubb/plugin-ts';
+import { pluginReactQuery } from '@kubb/plugin-react-query'; // [!code ++]
+import { pluginTanstackQuery } from '@kubb/plugin-tanstack-query'; // [!code --]
 
 export default defineConfig({
-  root: ".",
+  root: '.',
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
     clean: true,
   },
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({
       output: {
-        path: "models",
+        path: 'models',
       },
     }),
     pluginReactQuery({
       output: {
-        path: "./hooks",
+        path: './hooks',
       },
     }),
   ],

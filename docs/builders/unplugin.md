@@ -45,7 +45,7 @@ Define the options for Kubb.
 
 ::: code-group
 ```typescript [Options]
-import type { UserConfig } from "@kubb/core"
+import type { UserConfig } from '@kubb/core'
 
 type Options = {
   config: UserConfig

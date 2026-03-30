@@ -157,19 +157,19 @@ faker.date.anytime().toISOString().substring(11, 19)
 
 ```typescript ['dayjs']
 // schema with format set to 'date'
-dayjs(faker.date.anytime()).format("YYYY-MM-DD")
+dayjs(faker.date.anytime()).format('YYYY-MM-DD')
 
 // schema with format set to 'time'
-dayjs(faker.date.anytime()).format("HH:mm:ss")
+dayjs(faker.date.anytime()).format('HH:mm:ss')
 
 ```
 
 ```typescript ['moment']
 // schema with format set to 'date'
-moment(faker.date.anytime()).format("YYYY-MM-DD")
+moment(faker.date.anytime()).format('YYYY-MM-DD')
 
 // schema with format set to 'time'
-moment(faker.date.anytime()).format("HH:mm:ss")
+moment(faker.date.anytime()).format('HH:mm:ss')
 ```
 :::
 
