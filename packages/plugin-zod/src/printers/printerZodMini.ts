@@ -45,7 +45,7 @@ function formatLiteral(v: string | number | boolean): string {
 }
 
 /** Build `.check(z.minimum(), z.maximum())` for mini-mode numeric constraints. */
-function numberChecksMini(min?: number, max?: number, exclusiveMinimum?: number, exclusiveMaximum?: number): string {
+function numberChecksMini({ min, max, exclusiveMinimum, exclusiveMaximum }: { min?: number; max?: number; exclusiveMinimum?: number; exclusiveMaximum?: number }): string {
   const checks: string[] = []
   if (min !== undefined) checks.push(`z.minimum(${min})`)
   if (max !== undefined) checks.push(`z.maximum(${max})`)
@@ -55,7 +55,7 @@ function numberChecksMini(min?: number, max?: number, exclusiveMinimum?: number,
 }
 
 /** Build `.check(z.minLength(), z.maxLength())` for mini-mode length constraints. */
-function lengthChecksMini(min?: number, max?: number, pattern?: string): string {
+function lengthChecksMini({ min, max, pattern }: { min?: number; max?: number; pattern?: string }): string {
   const checks: string[] = []
   if (min !== undefined) checks.push(`z.minLength(${min})`)
   if (max !== undefined) checks.push(`z.maxLength(${max})`)
@@ -96,15 +96,15 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
       null: () => 'z.null()',
 
       string(node) {
-        return `z.string()${lengthChecksMini(node.min, node.max, node.pattern)}`
+        return `z.string()${lengthChecksMini(node)}`
       },
 
       number(node) {
-        return `z.number()${numberChecksMini(node.min, node.max, node.exclusiveMinimum, node.exclusiveMaximum)}`
+        return `z.number()${numberChecksMini(node)}`
       },
 
       integer(node) {
-        return `z.int()${numberChecksMini(node.min, node.max, node.exclusiveMinimum, node.exclusiveMaximum)}`
+        return `z.int()${numberChecksMini(node)}`
       },
 
       bigint() {
@@ -203,7 +203,7 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
       array(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
         const inner = items.join(', ') || 'z.unknown()'
-        return `z.array(${inner})${lengthChecksMini(node.min, node.max)}`
+        return `z.array(${inner})${lengthChecksMini(node)}`
       },
 
       tuple(node) {
@@ -231,21 +231,21 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
         for (const member of rest) {
           if (member.primitive === 'string') {
             const s = narrowSchema(member, 'string')
-            const c = lengthChecksMini(s?.min, s?.max, s?.pattern)
+            const c = lengthChecksMini(s ?? {})
             if (c) {
               base += c
               continue
             }
           } else if (member.primitive === 'number' || member.primitive === 'integer') {
             const n = narrowSchema(member, 'number') ?? narrowSchema(member, 'integer')
-            const c = numberChecksMini(n?.min, n?.max, n?.exclusiveMinimum, n?.exclusiveMaximum)
+            const c = numberChecksMini(n ?? {})
             if (c) {
               base += c
               continue
             }
           } else if (member.primitive === 'array') {
             const a = narrowSchema(member, 'array')
-            const c = lengthChecksMini(a?.min, a?.max)
+            const c = lengthChecksMini(a ?? {})
             if (c) {
               base += c
               continue

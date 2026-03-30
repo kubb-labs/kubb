@@ -52,7 +52,7 @@ function formatLiteral(v: string | number | boolean): string {
 }
 
 /** Build `.min()` / `.max()` / `.gt()` / `.lt()` constraint chains for numbers. */
-function numberConstraints(min?: number, max?: number, exclusiveMinimum?: number, exclusiveMaximum?: number): string {
+function numberConstraints({ min, max, exclusiveMinimum, exclusiveMaximum }: { min?: number; max?: number; exclusiveMinimum?: number; exclusiveMaximum?: number }): string {
   return [
     min !== undefined ? `.min(${min})` : '',
     max !== undefined ? `.max(${max})` : '',
@@ -62,7 +62,7 @@ function numberConstraints(min?: number, max?: number, exclusiveMinimum?: number
 }
 
 /** Build `.min()` / `.max()` chains for strings/arrays. */
-function lengthConstraints(min?: number, max?: number, pattern?: string): string {
+function lengthConstraints({ min, max, pattern }: { min?: number; max?: number; pattern?: string }): string {
   return [
     min !== undefined ? `.min(${min})` : '',
     max !== undefined ? `.max(${max})` : '',
@@ -104,17 +104,17 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
 
       string(node) {
         const base = shouldCoerce(this.options.coercion, 'strings') ? 'z.coerce.string()' : 'z.string()'
-        return `${base}${lengthConstraints(node.min, node.max, node.pattern)}`
+        return `${base}${lengthConstraints(node)}`
       },
 
       number(node) {
         const base = shouldCoerce(this.options.coercion, 'numbers') ? 'z.coerce.number()' : 'z.number()'
-        return `${base}${numberConstraints(node.min, node.max, node.exclusiveMinimum, node.exclusiveMaximum)}`
+        return `${base}${numberConstraints(node)}`
       },
 
       integer(node) {
         const base = shouldCoerce(this.options.coercion, 'numbers') ? 'z.coerce.number().int()' : 'z.int()'
-        return `${base}${numberConstraints(node.min, node.max, node.exclusiveMinimum, node.exclusiveMaximum)}`
+        return `${base}${numberConstraints(node)}`
       },
 
       bigint() {
@@ -227,7 +227,7 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
       array(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
         const inner = items.join(', ') || 'z.unknown()'
-        return `z.array(${inner})${lengthConstraints(node.min, node.max)}`
+        return `z.array(${inner})${lengthConstraints(node)}`
       },
 
       tuple(node) {
@@ -255,21 +255,21 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         for (const member of rest) {
           if (member.primitive === 'string') {
             const s = narrowSchema(member, 'string')
-            const c = lengthConstraints(s?.min, s?.max, s?.pattern)
+            const c = lengthConstraints(s ?? {})
             if (c) {
               base += c
               continue
             }
           } else if (member.primitive === 'number' || member.primitive === 'integer') {
             const n = narrowSchema(member, 'number') ?? narrowSchema(member, 'integer')
-            const c = numberConstraints(n?.min, n?.max, n?.exclusiveMinimum, n?.exclusiveMaximum)
+            const c = numberConstraints(n ?? {})
             if (c) {
               base += c
               continue
             }
           } else if (member.primitive === 'array') {
             const a = narrowSchema(member, 'array')
-            const c = lengthConstraints(a?.min, a?.max)
+            const c = lengthConstraints(a ?? {})
             if (c) {
               base += c
               continue
