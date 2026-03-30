@@ -19,7 +19,7 @@ export {
   defineResolver,
 } from './defineResolver.ts'
 export { getMode, PluginDriver } from './PluginDriver.ts'
-export { renderOperation, renderOperations, renderSchema } from './renderNode.tsx'
+export { renderOperation, renderOperations, renderSchema, runGeneratorOperation, runGeneratorOperations, runGeneratorSchema } from './renderNode.tsx'
 export { fsStorage } from './storages/fsStorage.ts'
 export { memoryStorage } from './storages/memoryStorage.ts'
 export * from './types.ts'

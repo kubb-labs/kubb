@@ -1,7 +1,8 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { walk } from '@kubb/ast'
-import { createPlugin, type Group, getBarrelFiles, getPreset, renderOperation, renderSchema } from '@kubb/core'
+import type { OperationNode } from '@kubb/ast/types'
+import { createPlugin, type Group, getBarrelFiles, getPreset, runGeneratorOperation, runGeneratorOperations, runGeneratorSchema } from '@kubb/core'
 import { presets } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
@@ -116,57 +117,26 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
       await openInStudio({ ast: true })
 
+      const collectedOperations: Array<OperationNode> = []
+      const generatorContext = { generators: preset.generators, plugin, resolver, exclude, include, override, fabric, adapter, config, driver }
+
       await walk(rootNode, {
         depth: 'shallow',
         async schema(schemaNode) {
-          const writeTasks = preset.generators.map(async (generator) => {
-            if (generator.type === 'react' && generator.version === '2') {
-              const options = resolver.resolveOptions(schemaNode, { options: plugin.options, exclude, include, override })
-
-              if (options === null) {
-                return
-              }
-
-              await renderSchema(schemaNode, {
-                options,
-                resolver,
-                adapter,
-                config,
-                fabric,
-                Component: generator.Schema,
-                plugin,
-                driver,
-              })
-            }
-          })
-
-          await Promise.all(writeTasks)
+          await runGeneratorSchema(schemaNode, generatorContext)
         },
         async operation(operationNode) {
-          const writeTasks = preset.generators.map(async (generator) => {
-            if (generator.type === 'react' && generator.version === '2') {
-              const options = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
+          const baseOptions = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
 
-              if (options === null) {
-                return
-              }
+          if (baseOptions !== null) {
+            collectedOperations.push(operationNode)
+          }
 
-              await renderOperation(operationNode, {
-                options,
-                resolver,
-                adapter,
-                config,
-                fabric,
-                Component: generator.Operation,
-                plugin,
-                driver,
-              })
-            }
-          })
-
-          await Promise.all(writeTasks)
+          await runGeneratorOperation(operationNode, generatorContext)
         },
       })
+
+      await runGeneratorOperations(collectedOperations, generatorContext)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',

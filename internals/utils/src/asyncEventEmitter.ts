@@ -29,7 +29,7 @@ export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: unknown[]
   #emitter = new NodeEventEmitter()
 
   /**
-   * Emits `eventName` and awaits all registered listeners in parallel.
+   * Emits `eventName` and awaits all registered listeners sequentially.
    * Throws if any listener rejects, wrapping the cause with the event name and serialized arguments.
    *
    * @example
@@ -44,21 +44,19 @@ export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: unknown[]
       return
     }
 
-    await Promise.all(
-      listeners.map(async (listener) => {
+    for (const listener of listeners) {
+      try {
+        await listener(...eventArgs)
+      } catch (err) {
+        let serializedArgs: string
         try {
-          return await listener(...eventArgs)
-        } catch (err) {
-          let serializedArgs: string
-          try {
-            serializedArgs = JSON.stringify(eventArgs)
-          } catch {
-            serializedArgs = String(eventArgs)
-          }
-          throw new Error(`Error in async listener for "${eventName}" with eventArgs ${serializedArgs}`, { cause: toError(err) })
+          serializedArgs = JSON.stringify(eventArgs)
+        } catch {
+          serializedArgs = String(eventArgs)
         }
-      }),
-    )
+        throw new Error(`Error in async listener for "${eventName}" with eventArgs ${serializedArgs}`, { cause: toError(err) })
+      }
+    }
   }
 
   /**

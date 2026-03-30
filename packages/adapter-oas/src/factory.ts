@@ -65,7 +65,10 @@ export async function parseDocument(pathOrApi: string | Document, { canBundle = 
  * ```
  */
 export async function mergeDocuments(pathOrApi: Array<string | Document>): Promise<Document> {
-  const documents = await Promise.all(pathOrApi.map((p) => parseDocument(p, { enablePaths: false, canBundle: false })))
+  const documents: Document[] = []
+  for (const p of pathOrApi) {
+    documents.push(await parseDocument(p, { enablePaths: false, canBundle: false }))
+  }
 
   if (documents.length === 0) {
     throw new Error('No OAS documents provided for merging.')
