@@ -361,7 +361,9 @@ describe('zodGenerator — Operation', () => {
         method: 'POST',
         path: '/pet',
         tags: ['pet'],
-        requestBody: { schema: createSchema({ type: 'object', properties: [createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) })] }) },
+        requestBody: {
+          schema: createSchema({ type: 'object', properties: [createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) })] }),
+        },
         responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Created' })],
       }),
       options: { mini: true, importPath: 'zod/mini' },
