@@ -13,14 +13,7 @@ type Props = {
   inferTypeName?: string
 }
 
-export function ZodMini({
-  name,
-  node,
-  guidType,
-  wrapOutput,
-  description,
-  inferTypeName,
-}: Props): FabricReactNode {
+export function ZodMini({ name, node, guidType, wrapOutput, description, inferTypeName }: Props): FabricReactNode {
   const printer = printerZodMini({ guidType, wrapOutput })
   const output = printer.print(node)
 

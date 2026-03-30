@@ -163,8 +163,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
         footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
       >
         <File.Import name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
-        {mode === 'split' &&
-          imports.map((imp) => <File.Import key={[node.name, imp.path].join('-')} root={file.path} path={imp.path} name={imp.name} />)}
+        {mode === 'split' && imports.map((imp) => <File.Import key={[node.name, imp.path].join('-')} root={file.path} path={imp.path} name={imp.name} />)}
 
         {mini ? (
           <ZodMini
@@ -201,15 +200,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
 
     const params = caseParams(node.parameters, paramsCasing)
 
-    function renderSchemaEntry({
-      schema,
-      name,
-      description,
-    }: {
-      schema: SchemaNode | null | undefined
-      name: string
-      description?: string
-    }) {
+    function renderSchemaEntry({ schema, name, description }: { schema: SchemaNode | null | undefined; name: string; description?: string }) {
       if (!schema) return null
 
       const inferTypeName = inferred ? pascalCase(name) : undefined
@@ -224,14 +215,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
           {mode === 'split' &&
             imports.map((imp) => <File.Import key={[name, imp.path, imp.name].join('-')} root={file.path} path={imp.path} name={imp.name} />)}
           {mini ? (
-            <ZodMini
-              name={name}
-              node={schema}
-              guidType={guidType}
-              wrapOutput={wrapOutput}
-              description={description}
-              inferTypeName={inferTypeName}
-            />
+            <ZodMini name={name} node={schema} guidType={guidType} wrapOutput={wrapOutput} description={description} inferTypeName={inferTypeName} />
           ) : (
             <Zod
               name={name}

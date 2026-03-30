@@ -21,12 +21,7 @@ function formatDefault(value: unknown): string {
 }
 
 /** Build `.check(z.minimum(), z.maximum())` for mini-mode numeric constraints. */
-function numberChecksMini(
-  min?: number,
-  max?: number,
-  exclusiveMinimum?: number,
-  exclusiveMaximum?: number,
-): string {
+function numberChecksMini(min?: number, max?: number, exclusiveMinimum?: number, exclusiveMaximum?: number): string {
   const checks: string[] = []
   if (min !== undefined) checks.push(`z.minimum(${min})`)
   if (max !== undefined) checks.push(`z.maximum(${max})`)
@@ -140,7 +135,9 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
         // asConst-style enum: use z.union([z.literal(…), …])
         const hasNamedValues = !!node.namedEnumValues?.length
         if (hasNamedValues) {
-          const literals = values.filter((v): v is string | number | boolean => v !== null).map((v) => `z.literal(${stringify(v as string | number | boolean)})`)
+          const literals = values
+            .filter((v): v is string | number | boolean => v !== null)
+            .map((v) => `z.literal(${stringify(v as string | number | boolean)})`)
           if (literals.length === 1) return literals[0]!
           return `z.union([${literals.join(', ')}])`
         }
@@ -169,9 +166,7 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
 
             const baseOutput = this.transform(schema) ?? 'z.unknown()'
 
-            const wrappedOutput = this.options.wrapOutput
-              ? this.options.wrapOutput({ output: baseOutput, schema }) || baseOutput
-              : baseOutput
+            const wrappedOutput = this.options.wrapOutput ? this.options.wrapOutput({ output: baseOutput, schema }) || baseOutput : baseOutput
 
             // For v4 refs, use getter syntax (lazy evaluation without z.lazy wrapper)
             if (hasRef && schema.type === 'ref') {
@@ -254,12 +249,7 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
 // ---------------------------------------------------------------------------
 
 /** Apply nullable / optional / nullish modifiers to a property value string (functional API). */
-function applyMiniModifiers(
-  value: string,
-  nullable?: boolean,
-  optional?: boolean,
-  nullish?: boolean,
-): string {
+function applyMiniModifiers(value: string, nullable?: boolean, optional?: boolean, nullish?: boolean): string {
   if (nullish) {
     return `z.nullish(${value})`
   }

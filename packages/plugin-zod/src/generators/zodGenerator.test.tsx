@@ -78,7 +78,7 @@ const optionalSchema = createSchema({
 
 const unknownSchema = createSchema({ type: 'unknown', name: 'UnknownField' })
 
-const emptyObjectSchema = createSchema({ type: 'object', name: 'EmptyModel', properties: [] })
+const _emptyObjectSchema = createSchema({ type: 'object', name: 'EmptyModel', properties: [] })
 
 const operationWithSnakeCaseParams: OperationNode = createOperation({
   operationId: 'updatePet',

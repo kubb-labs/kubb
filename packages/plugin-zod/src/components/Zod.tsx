@@ -14,15 +14,7 @@ type Props = {
   inferTypeName?: string
 }
 
-export function Zod({
-  name,
-  node,
-  coercion,
-  guidType,
-  wrapOutput,
-  description,
-  inferTypeName,
-}: Props): FabricReactNode {
+export function Zod({ name, node, coercion, guidType, wrapOutput, description, inferTypeName }: Props): FabricReactNode {
   const printer = printerZod({ coercion, guidType, wrapOutput })
   const output = printer.print(node)
 

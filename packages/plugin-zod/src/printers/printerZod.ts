@@ -28,12 +28,7 @@ function formatDefault(value: unknown): string {
 }
 
 /** Build `.min()` / `.max()` / `.gt()` / `.lt()` constraint chains for numbers. */
-function numberConstraints(
-  min?: number,
-  max?: number,
-  exclusiveMinimum?: number,
-  exclusiveMaximum?: number,
-): string {
+function numberConstraints(min?: number, max?: number, exclusiveMinimum?: number, exclusiveMaximum?: number): string {
   return [
     min !== undefined ? `.min(${min})` : '',
     max !== undefined ? `.max(${max})` : '',
@@ -114,8 +109,8 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
       },
 
       datetime(node) {
-        if (node.offset) return `z.iso.datetime({ offset: true })`
-        if (node.local) return `z.iso.datetime({ local: true })`
+        if (node.offset) return 'z.iso.datetime({ offset: true })'
+        if (node.local) return 'z.iso.datetime({ local: true })'
         return 'z.iso.datetime()'
       },
 
@@ -148,7 +143,9 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         // asConst-style enum: use z.union([z.literal(…), …])
         const hasNamedValues = !!node.namedEnumValues?.length
         if (hasNamedValues) {
-          const literals = values.filter((v): v is string | number | boolean => v !== null).map((v) => `z.literal(${stringify(v as string | number | boolean)})`)
+          const literals = values
+            .filter((v): v is string | number | boolean => v !== null)
+            .map((v) => `z.literal(${stringify(v as string | number | boolean)})`)
           if (literals.length === 1) return literals[0]!
           return `z.union([${literals.join(', ')}])`
         }
@@ -177,9 +174,7 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
 
             const baseOutput = this.transform(schema) ?? 'z.unknown()'
 
-            const wrappedOutput = this.options.wrapOutput
-              ? this.options.wrapOutput({ output: baseOutput, schema }) || baseOutput
-              : baseOutput
+            const wrappedOutput = this.options.wrapOutput ? this.options.wrapOutput({ output: baseOutput, schema }) || baseOutput : baseOutput
 
             // For v4 refs, use getter syntax (lazy evaluation without z.lazy wrapper)
             if (hasRef && schema.type === 'ref') {
@@ -202,7 +197,7 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
             result += `.catchall(${catchallType})`
           }
         } else if (node.additionalProperties === true) {
-          result += `.catchall(z.unknown())`
+          result += '.catchall(z.unknown())'
         }
 
         return result
@@ -276,12 +271,7 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
 // ---------------------------------------------------------------------------
 
 /** Apply nullable / optional / nullish modifiers to a property value string (chainable API). */
-function applyModifiers(
-  value: string,
-  nullable?: boolean,
-  optional?: boolean,
-  nullish?: boolean,
-): string {
+function applyModifiers(value: string, nullable?: boolean, optional?: boolean, nullish?: boolean): string {
   if (nullish) {
     return `${value}.nullish()`
   }
