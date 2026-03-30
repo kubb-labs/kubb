@@ -1,4 +1,4 @@
-import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
+import { createOperation, createParameter, createProperty, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
 import { renderOperation, renderSchema } from '@kubb/core'
@@ -59,6 +59,33 @@ describe('zodGeneratorLegacy — Schema', () => {
     })
 
     await matchFiles(fabric.files, 'legacy — enum schema')
+  })
+
+  test('legacy — object schema', async () => {
+    const objectSchema = createSchema({
+      type: 'object',
+      name: 'Pet',
+      properties: [
+        createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) }),
+        createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
+        createProperty({ name: 'status', schema: createSchema({ type: 'string', optional: true }) }),
+      ],
+    })
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options: defaultOptions, resolver: resolverZodLegacy })
+    const driver = createMockedPluginDriver({ name: 'legacy — object schema' })
+
+    await renderSchema(objectSchema, {
+      config: testConfig,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver,
+      Component: zodGeneratorLegacy.Schema,
+      plugin,
+      options: defaultOptions,
+      resolver: resolverZodLegacy,
+    })
+
+    await matchFiles(fabric.files, 'legacy — object schema')
   })
 })
 
@@ -151,5 +178,41 @@ describe('zodGeneratorLegacy — Operation', () => {
     })
 
     await matchFiles(fabric.files, props.name)
+  })
+
+  test('legacy — custom resolver — name transformer adds Zod suffix', async () => {
+    const wrappedResolver: typeof resolverZodLegacy = {
+      ...resolverZodLegacy,
+      default(name, type) {
+        return `${resolverZodLegacy.default(name, type)}Zod`
+      },
+    }
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options: defaultOptions, resolver: wrappedResolver })
+    const driver = createMockedPluginDriver({ name: 'legacy — addPet — name transformer' })
+
+    const node = createOperation({
+      operationId: 'addPet',
+      method: 'POST',
+      path: '/pet',
+      tags: ['pet'],
+      requestBody: { schema: createSchema({ type: 'object', properties: [] }) },
+      responses: [
+        createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
+        createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+      ],
+    })
+
+    await renderOperation(node, {
+      config: testConfig,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver,
+      Component: zodGeneratorLegacy.Operation,
+      plugin,
+      options: defaultOptions,
+      resolver: wrappedResolver,
+    })
+
+    await matchFiles(fabric.files, 'legacy — addPet — name transformer')
   })
 })

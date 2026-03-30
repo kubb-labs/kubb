@@ -63,6 +63,86 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       ],
     },
   },
+  // ─── group ──────────────────────────────────────────────────────────────
+  {
+    name: 'groupByTag',
+    config: {
+      root: __dirname,
+      input: { path: '../../schemas/3.0.x/petStore.yaml' },
+      output: { path: './gen', barrelType: false },
+      adapter: adapterOas({ validate: false }),
+      plugins: [
+        pluginZod({
+          output: { path: './zod', barrelType: false },
+          group: { type: 'tag' },
+        }),
+      ],
+    },
+  },
+  // ─── inferred ───────────────────────────────────────────────────────────
+  {
+    name: 'inferred',
+    config: {
+      root: __dirname,
+      input: { path: '../../schemas/3.0.x/petStore.yaml' },
+      output: { path: './gen', barrelType: false },
+      adapter: adapterOas({ validate: false }),
+      plugins: [
+        pluginZod({
+          output: { path: './zod', barrelType: false },
+          inferred: true,
+        }),
+      ],
+    },
+  },
+  // ─── coercion ───────────────────────────────────────────────────────────
+  {
+    name: 'coercion',
+    config: {
+      root: __dirname,
+      input: { path: '../../schemas/3.0.x/petStore.yaml' },
+      output: { path: './gen', barrelType: false },
+      adapter: adapterOas({ validate: false }),
+      plugins: [
+        pluginZod({
+          output: { path: './zod', barrelType: false },
+          coercion: true,
+        }),
+      ],
+    },
+  },
+  // ─── dateType ───────────────────────────────────────────────────────────
+  {
+    name: 'dateTypeDate',
+    config: {
+      root: __dirname,
+      input: { path: '../../schemas/3.0.x/petStore.yaml' },
+      output: { path: './gen', barrelType: false },
+      adapter: adapterOas({ validate: false }),
+      plugins: [
+        pluginZod({
+          output: { path: './zod', barrelType: false },
+          dateType: 'date',
+        }),
+      ],
+    },
+  },
+  // ─── paramsCasing ──────────────────────────────────────────────────────
+  {
+    name: 'paramsCasing',
+    config: {
+      root: __dirname,
+      input: { path: '../../schemas/3.0.x/paramsCasing.yaml' },
+      output: { path: './gen', barrelType: false },
+      adapter: adapterOas({ validate: false }),
+      plugins: [
+        pluginZod({
+          output: { path: './zod', barrelType: false },
+          paramsCasing: 'camelcase',
+        }),
+      ],
+    },
+  },
 ]
 
 describe(`plugin-zod options ${version}`, () => {
@@ -84,12 +164,10 @@ describe(`plugin-zod options ${version}`, () => {
     expect(failedPlugins.size).toBe(0)
     expect(error).toBeUndefined()
 
-    await Promise.all(
-      files.map(async (file) => {
-        const fileContent = await fs.readFile(file.path, 'utf-8')
-        await expect(fileContent).toMatchFileSnapshot(path.join(__dirname, '__snapshots__', 'pluginZod', name, getRelativePath(output, file.path)))
-      }),
-    )
+    for (const file of files) {
+      const fileContent = await fs.readFile(file.path, 'utf-8')
+      await expect(fileContent).toMatchFileSnapshot(path.join(__dirname, '__snapshots__', 'pluginZod', name, getRelativePath(output, file.path)))
+    }
 
     await fs.rm(tmpDir, { recursive: true, force: true })
   })
