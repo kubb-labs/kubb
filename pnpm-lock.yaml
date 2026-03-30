@@ -192,8 +192,8 @@ importers:
         specifier: ^3.5.31
         version: 3.5.31(typescript@5.9.3)
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@kubb/agent':
         specifier: workspace:*
@@ -423,8 +423,8 @@ importers:
         specifier: ^1.14.0
         version: 1.14.0
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -585,8 +585,8 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       zod:
-        specifier: ^3.25.76
-        version: 3.25.76
+        specifier: ^4.3.6
+        version: 4.3.6
 
   examples/solid-query:
     dependencies:

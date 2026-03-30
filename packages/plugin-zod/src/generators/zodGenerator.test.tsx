@@ -32,10 +32,6 @@ const defaultOptions: PluginZod['resolvedOptions'] = {
   transformers: [],
 }
 
-// ---------------------------------------------------------------------------
-// Schema test data
-// ---------------------------------------------------------------------------
-
 const stringSchema = createSchema({ type: 'string', name: 'PetName' })
 
 const numberSchema = createSchema({ type: 'number', name: 'PetAge' })
@@ -98,10 +94,6 @@ const operationWithSnakeCaseParams: OperationNode = createOperation({
   },
   responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Success' })],
 })
-
-// ---------------------------------------------------------------------------
-// Schema tests
-// ---------------------------------------------------------------------------
 
 describe('zodGenerator — Schema', () => {
   const fabric = createReactFabric()
@@ -182,10 +174,6 @@ describe('zodGenerator — Schema', () => {
     await matchFiles(fabric.files, props.name)
   })
 })
-
-// ---------------------------------------------------------------------------
-// Operation tests
-// ---------------------------------------------------------------------------
 
 describe('zodGenerator — Operation', () => {
   const fabric = createReactFabric()
@@ -312,10 +300,6 @@ describe('zodGenerator — Operation', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Operation — group
-// ---------------------------------------------------------------------------
-
 describe('zodGenerator — Operation — group', () => {
   const fabric = createReactFabric()
 
@@ -373,10 +357,6 @@ describe('zodGenerator — Operation — group', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// paramsCasing
-// ---------------------------------------------------------------------------
-
 describe('zodGenerator — paramsCasing', () => {
   const fabric = createReactFabric()
 
@@ -422,10 +402,6 @@ describe('zodGenerator — paramsCasing', () => {
     await matchFiles(fabric.files, 'paramsCasing camelcase')
   })
 })
-
-// ---------------------------------------------------------------------------
-// transformers
-// ---------------------------------------------------------------------------
 
 describe('zodGenerator — transformers', () => {
   const fabric = createReactFabric()
