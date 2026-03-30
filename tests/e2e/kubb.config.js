@@ -137,7 +137,7 @@ const baseConfig = {
  */
 
 export default defineConfig(() => {
-  return schemas.map(({ name, path, strict }) => {
+  return schemas.map(({ name, path, strict, typecheck }) => {
     return {
       ...baseConfig,
       name,
@@ -145,7 +145,7 @@ export default defineConfig(() => {
         path,
       },
       hooks: {
-        done: [strict ? 'npm run typecheck -- --strict' : 'npm run typecheck'],
+        done: [typecheck ? (strict ? 'npm run typecheck -- --strict' : 'npm run typecheck') : undefined].filter(Boolean),
       },
     }
   })

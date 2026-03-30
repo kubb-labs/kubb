@@ -283,7 +283,7 @@ jobs:
       - name: Run single E2E test for petStore
         working-directory: ./tests/e2e
         env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
+          NODE_OPTIONS: "--max_old_space_size=3000"
           KUBB_DISABLE_TELEMETRY: "1"
         run: |
           pnpm run generate:petstore
@@ -291,7 +291,7 @@ jobs:
       - name: Run E2E tests
         working-directory: ./tests/e2e
         env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
+          NODE_OPTIONS: "--max_old_space_size=3000"
           KUBB_DISABLE_TELEMETRY: "1"
         run: |
           pnpm run generate --debug
