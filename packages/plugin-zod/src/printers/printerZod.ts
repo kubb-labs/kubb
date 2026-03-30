@@ -292,12 +292,14 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
       if (!base) return null
 
       const { keysToOmit } = this.options
-      const omitted = keysToOmit?.length
-        ? `${base}.omit({ ${keysToOmit.map((k) => `"${k}": true`).join(', ')} })`
-        : base
+      if (keysToOmit?.length) {
+        // Mirror printerTs `nonNullable: true`: when omitting keys, the resulting
+        // schema is a new non-nullable object type — skip optional/nullable/nullish.
+        return `${base}.omit({ ${keysToOmit.map((k) => `"${k}": true`).join(', ')} })`
+      }
 
       return applyModifiers({
-        value: omitted,
+        value: base,
         nullable: node.nullable,
         optional: node.optional,
         nullish: node.nullish,
