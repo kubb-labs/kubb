@@ -1,4 +1,4 @@
-import { createSchema } from '@kubb/ast'
+import { createProperty, createSchema } from '@kubb/ast'
 import { describe, expect, test } from 'vitest'
 import { printerZodMini } from './printerZodMini.ts'
 
@@ -37,12 +37,12 @@ describe('printerZodMini', () => {
     })
 
     test('string with pattern', () => {
-      expect(printer.print(createSchema({ type: 'string', pattern: '^\\d+$' }))).toBe('z.string().check(z.regex(new RegExp("^\\\\d+$")))')
+      expect(printer.print(createSchema({ type: 'string', pattern: '^\\d+$' }))).toBe('z.string().check(z.regex(/^\\d+$/))')
     })
 
     test('string with min, max, and pattern', () => {
       expect(printer.print(createSchema({ type: 'string', min: 1, max: 10, pattern: '^[a-z]+$' }))).toBe(
-        'z.string().check(z.minLength(1), z.maxLength(10), z.regex(new RegExp("^[a-z]+$")))',
+        'z.string().check(z.minLength(1), z.maxLength(10), z.regex(/^[a-z]+$/))',
       )
     })
   })
@@ -150,9 +150,10 @@ describe('printerZodMini', () => {
     test('basic object', () => {
       const node = createSchema({
         type: 'object',
+        primitive: 'object',
         properties: [
-          { name: 'id', required: true, schema: createSchema({ type: 'integer' }) },
-          { name: 'name', required: true, schema: createSchema({ type: 'string' }) },
+          createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) }),
+          createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
         ],
       })
       const result = printer.print(node)
@@ -226,7 +227,7 @@ describe('printerZodMini', () => {
         type: 'intersection',
         members: [createSchema({ type: 'ref', name: 'Token' }), createSchema({ type: 'string', pattern: '^[A-Z]+$' })],
       })
-      expect(printer.print(node)).toBe('Token.check(z.regex(new RegExp("^[A-Z]+$")))')
+      expect(printer.print(node)).toBe('Token.check(z.regex(/^[A-Z]+$/))')
     })
 
     test('ref with number min/max constraints', () => {
@@ -259,9 +260,10 @@ describe('printerZodMini', () => {
       const p = printerZodMini({ keysToOmit: ['id'] })
       const node = createSchema({
         type: 'object',
+        primitive: 'object',
         properties: [
-          { name: 'id', required: true, schema: createSchema({ type: 'integer' }) },
-          { name: 'name', required: true, schema: createSchema({ type: 'string' }) },
+          createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) }),
+          createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
         ],
       })
       expect(p.print(node)).toBe('z.object({\n    "id": z.int(),\n    "name": z.string()\n    }).omit({ "id": true })')
@@ -271,13 +273,16 @@ describe('printerZodMini', () => {
       const p = printerZodMini({ keysToOmit: ['id', 'createdAt'] })
       const node = createSchema({
         type: 'object',
+        primitive: 'object',
         properties: [
-          { name: 'id', required: true, schema: createSchema({ type: 'integer' }) },
-          { name: 'createdAt', required: true, schema: createSchema({ type: 'string' }) },
-          { name: 'name', required: true, schema: createSchema({ type: 'string' }) },
+          createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) }),
+          createProperty({ name: 'createdAt', required: true, schema: createSchema({ type: 'string' }) }),
+          createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
         ],
       })
-      expect(p.print(node)).toBe('z.object({\n    "id": z.int(),\n    "createdAt": z.string(),\n    "name": z.string()\n    }).omit({ "id": true, "createdAt": true })')
+      expect(p.print(node)).toBe(
+        'z.object({\n    "id": z.int(),\n    "createdAt": z.string(),\n    "name": z.string()\n    }).omit({ "id": true, "createdAt": true })',
+      )
     })
 
     test('no omit when keysToOmit is empty', () => {

@@ -6,13 +6,13 @@
 import * as z from 'zod'
 
 export const updatePetWithFormPathParamsSchema = z.object({
-  petId: z.coerce.number().int().describe('ID of pet that needs to be updated'),
+  petId: z.int().describe('ID of pet that needs to be updated'),
 })
 
 export const updatePetWithFormQueryParamsSchema = z
   .object({
-    name: z.optional(z.string().describe('Name of pet that needs to be updated')),
-    status: z.optional(z.string().describe('Status of pet that needs to be updated')),
+    name: z.string().optional().describe('Name of pet that needs to be updated'),
+    status: z.string().optional().describe('Status of pet that needs to be updated'),
   })
   .optional()
 
@@ -22,3 +22,10 @@ export const updatePetWithFormQueryParamsSchema = z
 export const updatePetWithForm405Schema = z.any()
 
 export const updatePetWithFormMutationResponseSchema = z.any()
+
+export const updatePetWithFormMutationSchema = z.object({
+  Response: z.any(),
+  QueryParams: updatePetWithFormQueryParamsSchema,
+  PathParams: updatePetWithFormPathParamsSchema,
+  Errors: updatePetWithForm405Schema,
+})

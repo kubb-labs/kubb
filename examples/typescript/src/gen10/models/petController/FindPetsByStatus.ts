@@ -22,12 +22,27 @@ export type FindPetsByStatusStatus200 = Pet[]
 export type FindPetsByStatusStatus400 = any
 
 export type FindPetsByStatusRequestConfig = {
+  /**
+   * @type never | undefined
+   */
   data?: never
+  /**
+   * @type never | undefined
+   */
   pathParams?: never
+  /**
+   * @type object | undefined
+   */
   queryParams?: {
     status?: FindPetsByStatusQueryStatus
   }
+  /**
+   * @type never | undefined
+   */
   headerParams?: never
+  /**
+   * @type string
+   */
   url: '/pet/findByStatus'
 }
 

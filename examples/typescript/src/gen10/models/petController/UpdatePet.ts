@@ -32,9 +32,21 @@ export type UpdatePetData = Omit<NonNullable<Pet>, 'type' | 'tags'>
 
 export type UpdatePetRequestConfig = {
   data?: UpdatePetData
+  /**
+   * @type never | undefined
+   */
   pathParams?: never
+  /**
+   * @type never | undefined
+   */
   queryParams?: never
+  /**
+   * @type never | undefined
+   */
   headerParams?: never
+  /**
+   * @type string
+   */
   url: '/pet'
 }
 

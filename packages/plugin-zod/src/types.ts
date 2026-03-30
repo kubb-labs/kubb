@@ -116,29 +116,6 @@ export type Options = {
    */
   dateType?: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   /**
-   * Choose to use `number` or `bigint` for integer fields with `int64` format.
-   * - 'number' uses the JavaScript `number` type (matches JSON.parse() runtime behavior).
-   * - 'bigint' uses the JavaScript `bigint` type (accurate for values exceeding Number.MAX_SAFE_INTEGER).
-   * @default 'bigint'
-   */
-  integerType?: 'number' | 'bigint'
-  /**
-   * Which type to use when the Swagger/OpenAPI file is not providing more information.
-   * - 'any' allows any value.
-   * - 'unknown' requires type narrowing before use.
-   * - 'void' represents no value.
-   * @default 'any'
-   */
-  unknownType?: 'any' | 'unknown' | 'void'
-  /**
-   * Which type to use for empty schema values.
-   * - 'any' allows any value.
-   * - 'unknown' requires type narrowing before use.
-   * - 'void' represents no value.
-   * @default `unknownType`
-   */
-  emptySchemaType?: 'any' | 'unknown' | 'void'
-  /**
    * Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
    */
   typed?: boolean
@@ -205,9 +182,6 @@ type ResolvedOptions = {
   output: Output
   group: Group | undefined
   dateType: NonNullable<Options['dateType']>
-  integerType: NonNullable<Options['integerType']>
-  unknownType: NonNullable<Options['unknownType']>
-  emptySchemaType: NonNullable<Options['emptySchemaType']>
   typed: NonNullable<Options['typed']>
   inferred: NonNullable<Options['inferred']>
   importPath: NonNullable<Options['importPath']>

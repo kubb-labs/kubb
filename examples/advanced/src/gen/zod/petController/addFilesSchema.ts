@@ -1,26 +1,32 @@
 import * as z from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
-import type { AddFiles200, AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../models/ts/petController/AddFiles.ts'
 import { petSchema } from '../petSchema.ts'
 
 /**
  * @description successful operation
  */
-export const addFiles200Schema = z.lazy(() => petSchema).schema.omit({ name: true }) as unknown as ToZod<AddFiles200>
+export const addFiles200Schema = petSchema.omit({ name: true })
 
-export type AddFiles200Schema = AddFiles200
+export type AddFiles200Schema = z.infer<typeof addFiles200Schema>
 
 /**
  * @description Invalid input
  */
-export const addFiles405Schema = z.any() as unknown as ToZod<AddFiles405>
+export const addFiles405Schema = z.any()
 
-export type AddFiles405Schema = AddFiles405
+export type AddFiles405Schema = z.infer<typeof addFiles405Schema>
 
-export const addFilesMutationRequestSchema = z.lazy(() => petSchema).schema.omit({ id: true }) as unknown as ToZod<AddFilesMutationRequest>
+export const addFilesMutationRequestSchema = petSchema.omit({ id: true })
 
-export type AddFilesMutationRequestSchema = AddFilesMutationRequest
+export type AddFilesMutationRequestSchema = z.infer<typeof addFilesMutationRequestSchema>
 
-export const addFilesMutationResponseSchema = z.lazy(() => addFiles200Schema) as unknown as ToZod<AddFilesMutationResponse>
+export const addFilesMutationResponseSchema = addFiles200Schema
 
-export type AddFilesMutationResponseSchema = AddFilesMutationResponse
+export type AddFilesMutationResponseSchema = z.infer<typeof addFilesMutationResponseSchema>
+
+export const addFilesMutationSchema = z.object({
+  Response: addFiles200Schema,
+  Request: addFilesMutationRequestSchema,
+  Errors: addFiles405Schema,
+})
+
+export type AddFilesMutationSchema = z.infer<typeof addFilesMutationSchema>

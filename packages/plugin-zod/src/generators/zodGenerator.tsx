@@ -82,7 +82,17 @@ export const zodGenerator = defineGenerator<PluginZod>({
 
     const params = caseParams(node.parameters, paramsCasing)
 
-    function renderSchemaEntry({ schema, name, description, keysToOmit }: { schema: SchemaNode | null | undefined; name: string; description?: string; keysToOmit?: Array<string> }) {
+    function renderSchemaEntry({
+      schema,
+      name,
+      description,
+      keysToOmit,
+    }: {
+      schema: SchemaNode | null | undefined
+      name: string
+      description?: string
+      keysToOmit?: Array<string>
+    }) {
       if (!schema) return null
 
       const inferTypeName = inferred ? resolver.resolveInferName(name) : undefined

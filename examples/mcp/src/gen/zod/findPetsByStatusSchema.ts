@@ -13,17 +13,17 @@ export const findPetsByStatusPathParamsSchema = z.object({
 /**
  * @description successful operation
  */
-export const findPetsByStatus200Schema = z
-  .array(z.lazy(() => petSchema))
-  .min(1)
-  .max(3)
-  .refine((items) => new Set(items).size === items.length, {
-    message: 'Array entries must be unique',
-  })
+export const findPetsByStatus200Schema = z.array(petSchema).min(1).max(3)
 
 /**
  * @description Invalid status value
  */
 export const findPetsByStatus400Schema = z.any()
 
-export const findPetsByStatusQueryResponseSchema = z.lazy(() => findPetsByStatus200Schema)
+export const findPetsByStatusQueryResponseSchema = findPetsByStatus200Schema
+
+export const findPetsByStatusQuerySchema = z.object({
+  Response: findPetsByStatus200Schema,
+  PathParams: findPetsByStatusPathParamsSchema,
+  Errors: findPetsByStatus400Schema,
+})

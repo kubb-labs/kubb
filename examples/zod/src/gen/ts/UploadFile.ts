@@ -35,8 +35,5 @@ export type UploadFileMutation = {
   Request: UploadFileMutationRequest
   QueryParams: UploadFileQueryParams
   PathParams: UploadFilePathParams
-  /**
-   * @type any
-   */
   Errors: any
 }

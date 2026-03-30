@@ -22,11 +22,23 @@ export type UpdateUserData = User
 
 export type UpdateUserRequestConfig = {
   data?: UpdateUserData
+  /**
+   * @type object
+   */
   pathParams: {
     username: UpdateUserPathUsername
   }
+  /**
+   * @type never | undefined
+   */
   queryParams?: never
+  /**
+   * @type never | undefined
+   */
   headerParams?: never
+  /**
+   * @type string
+   */
   url: `/user/${string}`
 }
 

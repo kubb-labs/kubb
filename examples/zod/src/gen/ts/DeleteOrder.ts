@@ -24,9 +24,6 @@ export type DeleteOrder404 = any
 export type DeleteOrderMutationResponse = any
 
 export type DeleteOrderMutation = {
-  /**
-   * @type any
-   */
   Response: any
   PathParams: DeleteOrderPathParams
   Errors: DeleteOrder400 | DeleteOrder404

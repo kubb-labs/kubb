@@ -1,4 +1,4 @@
-import { createSchema } from '@kubb/ast'
+import { createProperty, createSchema } from '@kubb/ast'
 import { describe, expect, test } from 'vitest'
 import { printerZod } from './printerZod.ts'
 
@@ -38,13 +38,11 @@ describe('printerZod', () => {
     })
 
     test('string with pattern', () => {
-      expect(printer.print(createSchema({ type: 'string', pattern: '^\\d+$' }))).toBe('z.string().regex(new RegExp("^\\\\d+$"))')
+      expect(printer.print(createSchema({ type: 'string', pattern: '^\\d+$' }))).toBe('z.string().regex(/^\\d+$/)')
     })
 
     test('string with min, max, and pattern', () => {
-      expect(printer.print(createSchema({ type: 'string', min: 1, max: 10, pattern: '^[a-z]+$' }))).toBe(
-        'z.string().min(1).max(10).regex(new RegExp("^[a-z]+$"))',
-      )
+      expect(printer.print(createSchema({ type: 'string', min: 1, max: 10, pattern: '^[a-z]+$' }))).toBe('z.string().min(1).max(10).regex(/^[a-z]+$/)')
     })
   })
 
@@ -162,9 +160,10 @@ describe('printerZod', () => {
     test('basic object', () => {
       const node = createSchema({
         type: 'object',
+        primitive: 'object',
         properties: [
-          { name: 'id', required: true, schema: createSchema({ type: 'integer' }) },
-          { name: 'name', required: true, schema: createSchema({ type: 'string' }) },
+          createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) }),
+          createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
         ],
       })
       expect(printer.print(node)).toBe('z.object({\n    "id": z.int(),\n    "name": z.string()\n    })')
@@ -203,7 +202,7 @@ describe('printerZod', () => {
         type: 'intersection',
         members: [createSchema({ type: 'ref', name: 'Token' }), createSchema({ type: 'string', pattern: '^[A-Z]+$' })],
       })
-      expect(printer.print(node)).toBe('Token.regex(new RegExp("^[A-Z]+$"))')
+      expect(printer.print(node)).toBe('Token.regex(/^[A-Z]+$/)')
     })
 
     test('ref with number min/max constraints', () => {
@@ -285,9 +284,10 @@ describe('printerZod', () => {
       const p = printerZod({ keysToOmit: ['id'] })
       const node = createSchema({
         type: 'object',
+        primitive: 'object',
         properties: [
-          { name: 'id', required: true, schema: createSchema({ type: 'integer' }) },
-          { name: 'name', required: true, schema: createSchema({ type: 'string' }) },
+          createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) }),
+          createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
         ],
       })
       expect(p.print(node)).toBe('z.object({\n    "id": z.int(),\n    "name": z.string()\n    }).omit({ "id": true })')
@@ -297,13 +297,16 @@ describe('printerZod', () => {
       const p = printerZod({ keysToOmit: ['id', 'createdAt'] })
       const node = createSchema({
         type: 'object',
+        primitive: 'object',
         properties: [
-          { name: 'id', required: true, schema: createSchema({ type: 'integer' }) },
-          { name: 'createdAt', required: true, schema: createSchema({ type: 'string' }) },
-          { name: 'name', required: true, schema: createSchema({ type: 'string' }) },
+          createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) }),
+          createProperty({ name: 'createdAt', required: true, schema: createSchema({ type: 'string' }) }),
+          createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
         ],
       })
-      expect(p.print(node)).toBe('z.object({\n    "id": z.int(),\n    "createdAt": z.string(),\n    "name": z.string()\n    }).omit({ "id": true, "createdAt": true })')
+      expect(p.print(node)).toBe(
+        'z.object({\n    "id": z.int(),\n    "createdAt": z.string(),\n    "name": z.string()\n    }).omit({ "id": true, "createdAt": true })',
+      )
     })
 
     test('no omit when keysToOmit is empty', () => {

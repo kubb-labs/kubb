@@ -16,6 +16,7 @@ function buildGroupedParamsSchema({ params, optional }: BuildGroupedParamsSchema
   return createSchema({
     type: 'object',
     optional,
+    primitive: 'object',
     properties: params.map((param) => {
       return createProperty({
         name: param.name,
@@ -106,7 +107,7 @@ function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperationSchema
 
   properties.push(createProperty({ name: 'Errors', required: true, schema: errorsSchema }))
 
-  return createSchema({ type: 'object', properties })
+  return createSchema({ type: 'object', primitive: 'object', properties })
 }
 
 function buildLegacyResponseUnionSchemaNode({ node, resolver }: BuildOperationSchemaOptions): SchemaNode {
@@ -202,7 +203,17 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
 
     const params = caseParams(node.parameters, paramsCasing)
 
-    function renderSchemaEntry({ schema, name, description, keysToOmit }: { schema: SchemaNode | null | undefined; name: string; description?: string; keysToOmit?: Array<string> }) {
+    function renderSchemaEntry({
+      schema,
+      name,
+      description,
+      keysToOmit,
+    }: {
+      schema: SchemaNode | null | undefined
+      name: string
+      description?: string
+      keysToOmit?: Array<string>
+    }) {
       if (!schema) return null
 
       const inferTypeName = inferred ? resolver.resolveInferName(name) : undefined

@@ -7,8 +7,8 @@ import * as z from 'zod'
 
 export const loginUserQueryParamsSchema = z
   .object({
-    username: z.optional(z.string().describe('The user name for login')),
-    password: z.optional(z.string().describe('The password for login in clear text')),
+    username: z.string().optional().describe('The user name for login'),
+    password: z.string().optional().describe('The password for login in clear text'),
   })
   .optional()
 
@@ -22,4 +22,10 @@ export const loginUser200Schema = z.string()
  */
 export const loginUser400Schema = z.any()
 
-export const loginUserQueryResponseSchema = z.lazy(() => loginUser200Schema)
+export const loginUserQueryResponseSchema = loginUser200Schema
+
+export const loginUserQuerySchema = z.object({
+  Response: loginUser200Schema,
+  QueryParams: loginUserQueryParamsSchema,
+  Errors: loginUser400Schema,
+})

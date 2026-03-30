@@ -161,7 +161,7 @@ function buildPropertyJSDocComments(schema: SchemaNode): Array<string | undefine
       : undefined,
     'example' in schema && schema.example !== undefined ? `@example ${schema.example}` : undefined,
     'primitive' in schema && schema.primitive
-      ? [`@type ${schema.primitive || 'unknown'}`, 'optional' in schema && schema.optional ? ' | undefined' : undefined].filter(Boolean).join('')
+      ? [`@type ${schema.primitive}`, 'optional' in schema && schema.optional ? ' | undefined' : undefined].filter(Boolean).join('')
       : undefined,
   ]
 }

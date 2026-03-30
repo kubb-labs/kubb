@@ -1,4 +1,4 @@
-import { stringify } from '@internals/utils'
+import { stringify, toRegExpString } from '@internals/utils'
 import { narrowSchema } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
@@ -56,7 +56,17 @@ function formatLiteral(v: string | number | boolean): string {
 }
 
 /** Build `.min()` / `.max()` / `.gt()` / `.lt()` constraint chains for numbers. */
-function numberConstraints({ min, max, exclusiveMinimum, exclusiveMaximum }: { min?: number; max?: number; exclusiveMinimum?: number; exclusiveMaximum?: number }): string {
+function numberConstraints({
+  min,
+  max,
+  exclusiveMinimum,
+  exclusiveMaximum,
+}: {
+  min?: number
+  max?: number
+  exclusiveMinimum?: number
+  exclusiveMaximum?: number
+}): string {
   return [
     min !== undefined ? `.min(${min})` : '',
     max !== undefined ? `.max(${max})` : '',
@@ -70,7 +80,7 @@ function lengthConstraints({ min, max, pattern }: { min?: number; max?: number; 
   return [
     min !== undefined ? `.min(${min})` : '',
     max !== undefined ? `.max(${max})` : '',
-    pattern !== undefined ? `.regex(new RegExp(${stringify(pattern)}))` : '',
+    pattern !== undefined ? `.regex(${toRegExpString(pattern, null)})` : '',
   ].join('')
 }
 
@@ -97,7 +107,6 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
   return {
     name: 'zod',
     options: opts,
-
     nodes: {
       any: () => 'z.any()',
       unknown: () => 'z.unknown()',
@@ -105,60 +114,48 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
       never: () => 'z.never()',
       boolean: () => 'z.boolean()',
       null: () => 'z.null()',
-
       string(node) {
         const base = shouldCoerce(this.options.coercion, 'strings') ? 'z.coerce.string()' : 'z.string()'
         return `${base}${lengthConstraints(node)}`
       },
-
       number(node) {
         const base = shouldCoerce(this.options.coercion, 'numbers') ? 'z.coerce.number()' : 'z.number()'
         return `${base}${numberConstraints(node)}`
       },
-
       integer(node) {
         const base = shouldCoerce(this.options.coercion, 'numbers') ? 'z.coerce.number().int()' : 'z.int()'
         return `${base}${numberConstraints(node)}`
       },
-
       bigint() {
         return shouldCoerce(this.options.coercion, 'numbers') ? 'z.coerce.bigint()' : 'z.bigint()'
       },
-
       date(node) {
         if (node.representation === 'string') {
           return 'z.iso.date()'
         }
         return shouldCoerce(this.options.coercion, 'dates') ? 'z.coerce.date()' : 'z.date()'
       },
-
       datetime(node) {
         if (node.offset) return 'z.iso.datetime({ offset: true })'
         if (node.local) return 'z.iso.datetime({ local: true })'
         return 'z.iso.datetime()'
       },
-
       time(node) {
         if (node.representation === 'string') {
           return 'z.iso.time()'
         }
         return shouldCoerce(this.options.coercion, 'dates') ? 'z.coerce.date()' : 'z.date()'
       },
-
       uuid() {
         return this.options.guidType === 'guid' ? 'z.guid()' : 'z.uuid()'
       },
-
       email() {
         return 'z.email()'
       },
-
       url() {
         return 'z.url()'
       },
-
       blob: () => 'z.instanceof(File)',
-
       enum(node) {
         const values = node.namedEnumValues?.map((v) => v.value) ?? node.enumValues ?? []
 
@@ -176,13 +173,11 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         const items = values.filter((v): v is string | number | boolean => v !== null).map((v) => formatLiteral(v as string | number | boolean))
         return `z.enum([${items.join(', ')}])`
       },
-
       ref(node) {
         if (!node.name) return undefined
         const resolvedName = node.ref ? (this.options.resolver?.default(node.name, 'function') ?? node.name) : node.name
         return resolvedName
       },
-
       object(node) {
         const properties = node.properties
           .map((prop) => {
@@ -227,25 +222,21 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
 
         return result
       },
-
       array(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
         const inner = items.join(', ') || 'z.unknown()'
         return `z.array(${inner})${lengthConstraints(node)}`
       },
-
       tuple(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
         return `z.tuple([${items.join(', ')}])`
       },
-
       union(node) {
         const members = (node.members ?? []).map((m) => this.transform(m)).filter(Boolean)
         if (members.length === 0) return ''
         if (members.length === 1) return members[0]!
         return `z.union([${members.join(', ')}])`
       },
-
       intersection(node) {
         const members = node.members ?? []
         if (members.length === 0) return ''
@@ -286,15 +277,15 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         return base
       },
     },
-
     print(node) {
       const base = this.transform(node)
       if (!base) return null
 
       const { keysToOmit } = this.options
-      if (keysToOmit?.length) {
+      if (keysToOmit?.length && (node.primitive === 'object' || node.type === 'ref')) {
         // Mirror printerTs `nonNullable: true`: when omitting keys, the resulting
         // schema is a new non-nullable object type — skip optional/nullable/nullish.
+        // Also allow refs: a $ref request body is parsed as a ref node but resolves to an object.
         return `${base}.omit({ ${keysToOmit.map((k) => `"${k}": true`).join(', ')} })`
       }
 

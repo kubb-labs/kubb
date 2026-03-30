@@ -4,6 +4,7 @@ export type {
   CreatePetsHeaderParamsSchema,
   CreatePetsMutationRequestSchema,
   CreatePetsMutationResponseSchema,
+  CreatePetsMutationSchema,
   CreatePetsPathParamsSchema,
   CreatePetsQueryParamsSchema,
 } from './createPetsSchema.ts'
@@ -13,6 +14,7 @@ export {
   createPetsHeaderParamsSchema,
   createPetsMutationRequestSchema,
   createPetsMutationResponseSchema,
+  createPetsMutationSchema,
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
 } from './createPetsSchema.ts'

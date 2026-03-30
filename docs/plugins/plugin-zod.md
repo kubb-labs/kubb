@@ -188,53 +188,6 @@ z.date();
 
 :::
 
-### unknownType
-
-Which type to use when the Swagger/OpenAPI file is not providing more information.
-
-|           |                                |
-| --------: | :----------------------------- |
-|     Type: | `'any' \| 'unknown' \| 'void'` |
-| Required: | `false`                        |
-|  Default: | `'any'`                        |
-
-::: code-group
-
-```typescript ['any']
-z.any();
-```
-
-```typescript ['unknown']
-z.unknown();
-```
-
-```typescript ['void']
-z.void()
-```
-:::
-
-### emptySchemaType
-
-Which type to use for empty schema values.
-
-|           |                                |
-|----------:|:-------------------------------|
-|     Type: | `'any' \| 'unknown' \| 'void'` |
-| Required: | `false`                        |
-|  Default: | `unknownType`                  |
-
-::: code-group
-```typescript ['any']
-z.any()
-```
-```typescript ['unknown']
-z.unknown()
-```
-```typescript ['void']
-z.void()
-```
-:::
-
 ### coercion
 
 Use of z.coerce.string() instead of z.string().
@@ -460,7 +413,6 @@ export default defineConfig({
       group: { type: "tag", name: ({ group }) => `${group}Schemas` },
       typed: true,
       dateType: "stringOffset",
-      unknownType: "unknown",
       importPath: "zod",
       wrapOutput: ({ output, schema }) =>
         `${output}.openapi({ description: 'This is a custom extension' })`,

@@ -20,3 +20,9 @@ export const deleteUser400Schema = z.any()
 export const deleteUser404Schema = z.any()
 
 export const deleteUserMutationResponseSchema = z.any()
+
+export const deleteUserMutationSchema = z.object({
+  Response: z.any(),
+  PathParams: deleteUserPathParamsSchema,
+  Errors: z.union([deleteUser400Schema, deleteUser404Schema]),
+})

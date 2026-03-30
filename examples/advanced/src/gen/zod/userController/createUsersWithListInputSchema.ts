@@ -1,33 +1,32 @@
 import * as z from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
-import type {
-  CreateUsersWithListInput200,
-  CreateUsersWithListInputError,
-  CreateUsersWithListInputMutationRequest,
-  CreateUsersWithListInputMutationResponse,
-} from '../../models/ts/userController/CreateUsersWithListInput.ts'
 import { userSchema } from '../userSchema.ts'
 
 /**
  * @description Successful operation
  */
-export const createUsersWithListInput200Schema = z.lazy(() => userSchema) as unknown as ToZod<CreateUsersWithListInput200>
+export const createUsersWithListInput200Schema = userSchema
 
-export type CreateUsersWithListInput200Schema = CreateUsersWithListInput200
+export type CreateUsersWithListInput200Schema = z.infer<typeof createUsersWithListInput200Schema>
 
 /**
  * @description successful operation
  */
-export const createUsersWithListInputErrorSchema = z.any() as unknown as ToZod<CreateUsersWithListInputError>
+export const createUsersWithListInputErrorSchema = z.any()
 
-export type CreateUsersWithListInputErrorSchema = CreateUsersWithListInputError
+export type CreateUsersWithListInputErrorSchema = z.infer<typeof createUsersWithListInputErrorSchema>
 
-export const createUsersWithListInputMutationRequestSchema = z.array(z.lazy(() => userSchema)) as unknown as ToZod<CreateUsersWithListInputMutationRequest>
+export const createUsersWithListInputMutationRequestSchema = z.array(userSchema).optional()
 
-export type CreateUsersWithListInputMutationRequestSchema = CreateUsersWithListInputMutationRequest
+export type CreateUsersWithListInputMutationRequestSchema = z.infer<typeof createUsersWithListInputMutationRequestSchema>
 
-export const createUsersWithListInputMutationResponseSchema = z.lazy(
-  () => createUsersWithListInput200Schema,
-) as unknown as ToZod<CreateUsersWithListInputMutationResponse>
+export const createUsersWithListInputMutationResponseSchema = createUsersWithListInput200Schema
 
-export type CreateUsersWithListInputMutationResponseSchema = CreateUsersWithListInputMutationResponse
+export type CreateUsersWithListInputMutationResponseSchema = z.infer<typeof createUsersWithListInputMutationResponseSchema>
+
+export const createUsersWithListInputMutationSchema = z.object({
+  Response: createUsersWithListInput200Schema,
+  Request: createUsersWithListInputMutationRequestSchema,
+  Errors: createUsersWithListInputErrorSchema,
+})
+
+export type CreateUsersWithListInputMutationSchema = z.infer<typeof createUsersWithListInputMutationSchema>

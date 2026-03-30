@@ -9,10 +9,25 @@
 export type LogoutUserStatusDefault = any
 
 export type LogoutUserRequestConfig = {
+  /**
+   * @type never | undefined
+   */
   data?: never
+  /**
+   * @type never | undefined
+   */
   pathParams?: never
+  /**
+   * @type never | undefined
+   */
   queryParams?: never
+  /**
+   * @type never | undefined
+   */
   headerParams?: never
+  /**
+   * @type string
+   */
   url: '/user/logout'
 }
 

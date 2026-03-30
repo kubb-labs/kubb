@@ -18,9 +18,6 @@ export type CreateUserMutationRequest = User
 export type CreateUserMutationResponse = any
 
 export type CreateUserMutation = {
-  /**
-   * @type any
-   */
   Response: any
   Request: CreateUserMutationRequest
   Errors: CreateUserError

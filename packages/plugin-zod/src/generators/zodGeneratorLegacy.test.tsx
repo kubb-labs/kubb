@@ -13,9 +13,6 @@ const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'te
 
 const defaultOptions: PluginZod['resolvedOptions'] = {
   dateType: 'string',
-  unknownType: 'any',
-  emptySchemaType: 'any',
-  integerType: 'bigint',
   typed: false,
   inferred: false,
   importPath: 'zod',
@@ -64,6 +61,7 @@ describe('zodGeneratorLegacy — Schema', () => {
   test('legacy — object schema', async () => {
     const objectSchema = createSchema({
       type: 'object',
+      primitive: 'object',
       name: 'Pet',
       properties: [
         createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) }),
@@ -106,8 +104,16 @@ describe('zodGeneratorLegacy — Operation', () => {
         tags: ['pets'],
         parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
         responses: [
-          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
-          createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+          createResponse({
+            statusCode: '200',
+            schema: createSchema({ type: 'object', primitive: 'object', properties: [] }),
+            description: 'A paged array of pets',
+          }),
+          createResponse({
+            statusCode: 'default',
+            schema: createSchema({ type: 'object', primitive: 'object', properties: [] }),
+            description: 'Unexpected error',
+          }),
         ],
       }),
     },
@@ -118,10 +124,14 @@ describe('zodGeneratorLegacy — Operation', () => {
         method: 'POST',
         path: '/pet',
         tags: ['pet'],
-        requestBody: { schema: createSchema({ type: 'object', properties: [] }) },
+        requestBody: { schema: createSchema({ type: 'object', primitive: 'object', properties: [] }) },
         responses: [
-          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
-          createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+          createResponse({
+            statusCode: '200',
+            schema: createSchema({ type: 'object', primitive: 'object', properties: [] }),
+            description: 'Successful operation',
+          }),
+          createResponse({ statusCode: '405', schema: createSchema({ type: 'object', primitive: 'object', properties: [] }), description: 'Invalid input' }),
         ],
       }),
     },
@@ -195,10 +205,14 @@ describe('zodGeneratorLegacy — Operation', () => {
       method: 'POST',
       path: '/pet',
       tags: ['pet'],
-      requestBody: { schema: createSchema({ type: 'object', properties: [] }) },
+      requestBody: { schema: createSchema({ type: 'object', primitive: 'object', properties: [] }) },
       responses: [
-        createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
-        createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+        createResponse({
+          statusCode: '200',
+          schema: createSchema({ type: 'object', primitive: 'object', properties: [] }),
+          description: 'Successful operation',
+        }),
+        createResponse({ statusCode: '405', schema: createSchema({ type: 'object', primitive: 'object', properties: [] }), description: 'Invalid input' }),
       ],
     })
 
@@ -214,5 +228,69 @@ describe('zodGeneratorLegacy — Operation', () => {
     })
 
     await matchFiles(fabric.files, 'legacy — addPet — name transformer')
+  })
+})
+
+describe('zodGeneratorLegacy — paramsCasing', () => {
+  const fabric = createReactFabric()
+
+  beforeEach(() => {
+    fabric.context.fileManager.clear()
+  })
+
+  const operationWithMixedParams = createOperation({
+    operationId: 'createPets',
+    method: 'POST',
+    path: '/pets/{pet_id}',
+    tags: ['pets'],
+    parameters: [
+      createParameter({ name: 'pet_id', in: 'path', required: true, schema: createSchema({ type: 'string' }) }),
+      createParameter({
+        name: 'X-EXAMPLE',
+        in: 'header',
+        required: true,
+        schema: createSchema({ type: 'enum', primitive: 'string', enumValues: ['ONE', 'TWO', 'THREE'] }),
+      }),
+      createParameter({ name: 'include_deleted', in: 'query', schema: createSchema({ type: 'boolean' }) }),
+    ],
+    responses: [createResponse({ statusCode: '201', schema: createSchema({ type: 'void' }), description: 'Null response' })],
+  })
+
+  test('paramsCasing undefined — param names kept as-is', async () => {
+    const options: PluginZod['resolvedOptions'] = { ...defaultOptions, paramsCasing: undefined }
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZodLegacy })
+    const driver = createMockedPluginDriver({ name: 'legacy — paramsCasing undefined' })
+
+    await renderOperation(operationWithMixedParams, {
+      config: testConfig,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver,
+      Component: zodGeneratorLegacy.Operation,
+      plugin,
+      options,
+      resolver: resolverZodLegacy,
+    })
+
+    await matchFiles(fabric.files, 'legacy — paramsCasing undefined')
+  })
+
+  test('paramsCasing camelcase — param names converted to camelCase in property keys', async () => {
+    const options: PluginZod['resolvedOptions'] = { ...defaultOptions, paramsCasing: 'camelcase' }
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZodLegacy })
+    const driver = createMockedPluginDriver({ name: 'legacy — paramsCasing camelcase' })
+
+    await renderOperation(operationWithMixedParams, {
+      config: testConfig,
+      fabric,
+      adapter: createMockedAdapter(),
+      driver,
+      Component: zodGeneratorLegacy.Operation,
+      plugin,
+      options,
+      resolver: resolverZodLegacy,
+    })
+
+    await matchFiles(fabric.files, 'legacy — paramsCasing camelcase')
   })
 })

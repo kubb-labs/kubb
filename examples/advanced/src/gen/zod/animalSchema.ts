@@ -1,24 +1,24 @@
 import * as z from 'zod'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import type { Animal } from '../models/ts/Animal.ts'
 import { catSchema } from './catSchema.ts'
 import { dogSchema } from './dogSchema.ts'
 
-export const animalSchema = z.union([
-  z
-    .lazy(() => catSchema)
-    .and(
+export const animalSchema = z
+  .union([
+    catSchema.and(
       z.object({
-        type: z.literal('cat'),
+        type: z.enum(['cat']),
       }),
     ),
-  z
-    .lazy(() => dogSchema)
-    .and(
+    dogSchema.and(
       z.object({
-        type: z.literal('dog'),
+        type: z.enum(['dog']),
       }),
     ),
-]) as unknown as ToZod<Animal>
+  ])
+  .and(
+    z.object({
+      type: z.enum(['cat', 'dog']),
+    }),
+  )
 
-export type AnimalSchema = Animal
+export type AnimalSchema = z.infer<typeof animalSchema>

@@ -17,9 +17,21 @@ export type CreateUserData = User
 
 export type CreateUserRequestConfig = {
   data?: CreateUserData
+  /**
+   * @type never | undefined
+   */
   pathParams?: never
+  /**
+   * @type never | undefined
+   */
   queryParams?: never
+  /**
+   * @type never | undefined
+   */
   headerParams?: never
+  /**
+   * @type string
+   */
   url: '/user'
 }
 

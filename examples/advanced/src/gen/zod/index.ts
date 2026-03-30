@@ -18,28 +18,61 @@ export type { ImageSchema } from './imageSchema.ts'
 export { imageSchema } from './imageSchema.ts'
 export type { OrderSchema } from './orderSchema.ts'
 export { orderSchema } from './orderSchema.ts'
-export type { AddFiles200Schema, AddFiles405Schema, AddFilesMutationRequestSchema, AddFilesMutationResponseSchema } from './petController/addFilesSchema.ts'
-export { addFiles200Schema, addFiles405Schema, addFilesMutationRequestSchema, addFilesMutationResponseSchema } from './petController/addFilesSchema.ts'
-export type { AddPet405Schema, AddPetErrorSchema, AddPetMutationRequestSchema, AddPetMutationResponseSchema } from './petController/addPetSchema.ts'
-export { addPet405Schema, addPetErrorSchema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './petController/addPetSchema.ts'
+export type {
+  AddFiles200Schema,
+  AddFiles405Schema,
+  AddFilesMutationRequestSchema,
+  AddFilesMutationResponseSchema,
+  AddFilesMutationSchema,
+} from './petController/addFilesSchema.ts'
+export {
+  addFiles200Schema,
+  addFiles405Schema,
+  addFilesMutationRequestSchema,
+  addFilesMutationResponseSchema,
+  addFilesMutationSchema,
+} from './petController/addFilesSchema.ts'
+export type {
+  AddPet405Schema,
+  AddPetErrorSchema,
+  AddPetMutationRequestSchema,
+  AddPetMutationResponseSchema,
+  AddPetMutationSchema,
+} from './petController/addPetSchema.ts'
+export {
+  addPet405Schema,
+  addPetErrorSchema,
+  addPetMutationRequestSchema,
+  addPetMutationResponseSchema,
+  addPetMutationSchema,
+} from './petController/addPetSchema.ts'
 export type {
   DeletePet400Schema,
   DeletePetHeaderParamsSchema,
   DeletePetMutationResponseSchema,
+  DeletePetMutationSchema,
   DeletePetPathParamsSchema,
 } from './petController/deletePetSchema.ts'
-export { deletePet400Schema, deletePetHeaderParamsSchema, deletePetMutationResponseSchema, deletePetPathParamsSchema } from './petController/deletePetSchema.ts'
+export {
+  deletePet400Schema,
+  deletePetHeaderParamsSchema,
+  deletePetMutationResponseSchema,
+  deletePetMutationSchema,
+  deletePetPathParamsSchema,
+} from './petController/deletePetSchema.ts'
 export type {
   FindPetsByStatus200Schema,
   FindPetsByStatus400Schema,
   FindPetsByStatusPathParamsSchema,
   FindPetsByStatusQueryResponseSchema,
+  FindPetsByStatusQuerySchema,
 } from './petController/findPetsByStatusSchema.ts'
 export {
   findPetsByStatus200Schema,
   findPetsByStatus400Schema,
   findPetsByStatusPathParamsSchema,
   findPetsByStatusQueryResponseSchema,
+  findPetsByStatusQuerySchema,
 } from './petController/findPetsByStatusSchema.ts'
 export type {
   FindPetsByTags200Schema,
@@ -47,6 +80,7 @@ export type {
   FindPetsByTagsHeaderParamsSchema,
   FindPetsByTagsQueryParamsSchema,
   FindPetsByTagsQueryResponseSchema,
+  FindPetsByTagsQuerySchema,
 } from './petController/findPetsByTagsSchema.ts'
 export {
   findPetsByTags200Schema,
@@ -54,6 +88,7 @@ export {
   findPetsByTagsHeaderParamsSchema,
   findPetsByTagsQueryParamsSchema,
   findPetsByTagsQueryResponseSchema,
+  findPetsByTagsQuerySchema,
 } from './petController/findPetsByTagsSchema.ts'
 export type {
   GetPetById200Schema,
@@ -61,6 +96,7 @@ export type {
   GetPetById404Schema,
   GetPetByIdPathParamsSchema,
   GetPetByIdQueryResponseSchema,
+  GetPetByIdQuerySchema,
 } from './petController/getPetByIdSchema.ts'
 export {
   getPetById200Schema,
@@ -68,6 +104,7 @@ export {
   getPetById404Schema,
   getPetByIdPathParamsSchema,
   getPetByIdQueryResponseSchema,
+  getPetByIdQuerySchema,
 } from './petController/getPetByIdSchema.ts'
 export type {
   UpdatePet200Schema,
@@ -77,6 +114,7 @@ export type {
   UpdatePet405Schema,
   UpdatePetMutationRequestSchema,
   UpdatePetMutationResponseSchema,
+  UpdatePetMutationSchema,
 } from './petController/updatePetSchema.ts'
 export {
   updatePet200Schema,
@@ -86,16 +124,19 @@ export {
   updatePet405Schema,
   updatePetMutationRequestSchema,
   updatePetMutationResponseSchema,
+  updatePetMutationSchema,
 } from './petController/updatePetSchema.ts'
 export type {
   UpdatePetWithForm405Schema,
   UpdatePetWithFormMutationResponseSchema,
+  UpdatePetWithFormMutationSchema,
   UpdatePetWithFormPathParamsSchema,
   UpdatePetWithFormQueryParamsSchema,
 } from './petController/updatePetWithFormSchema.ts'
 export {
   updatePetWithForm405Schema,
   updatePetWithFormMutationResponseSchema,
+  updatePetWithFormMutationSchema,
   updatePetWithFormPathParamsSchema,
   updatePetWithFormQueryParamsSchema,
 } from './petController/updatePetWithFormSchema.ts'
@@ -103,6 +144,7 @@ export type {
   UploadFile200Schema,
   UploadFileMutationRequestSchema,
   UploadFileMutationResponseSchema,
+  UploadFileMutationSchema,
   UploadFilePathParamsSchema,
   UploadFileQueryParamsSchema,
 } from './petController/uploadFileSchema.ts'
@@ -110,6 +152,7 @@ export {
   uploadFile200Schema,
   uploadFileMutationRequestSchema,
   uploadFileMutationResponseSchema,
+  uploadFileMutationSchema,
   uploadFilePathParamsSchema,
   uploadFileQueryParamsSchema,
 } from './petController/uploadFileSchema.ts'
@@ -123,6 +166,7 @@ export type {
   CreatePetsHeaderParamsSchema,
   CreatePetsMutationRequestSchema,
   CreatePetsMutationResponseSchema,
+  CreatePetsMutationSchema,
   CreatePetsPathParamsSchema,
   CreatePetsQueryParamsSchema,
 } from './petsController/createPetsSchema.ts'
@@ -132,6 +176,7 @@ export {
   createPetsHeaderParamsSchema,
   createPetsMutationRequestSchema,
   createPetsMutationResponseSchema,
+  createPetsMutationSchema,
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
 } from './petsController/createPetsSchema.ts'
@@ -139,33 +184,53 @@ export type { TagTagSchema } from './tag/tagSchema.ts'
 export { tagTagSchema } from './tag/tagSchema.ts'
 export type { UserArraySchema } from './userArraySchema.ts'
 export { userArraySchema } from './userArraySchema.ts'
-export type { CreateUserErrorSchema, CreateUserMutationRequestSchema, CreateUserMutationResponseSchema } from './userController/createUserSchema.ts'
-export { createUserErrorSchema, createUserMutationRequestSchema, createUserMutationResponseSchema } from './userController/createUserSchema.ts'
+export type {
+  CreateUserErrorSchema,
+  CreateUserMutationRequestSchema,
+  CreateUserMutationResponseSchema,
+  CreateUserMutationSchema,
+} from './userController/createUserSchema.ts'
+export {
+  createUserErrorSchema,
+  createUserMutationRequestSchema,
+  createUserMutationResponseSchema,
+  createUserMutationSchema,
+} from './userController/createUserSchema.ts'
 export type {
   CreateUsersWithListInput200Schema,
   CreateUsersWithListInputErrorSchema,
   CreateUsersWithListInputMutationRequestSchema,
   CreateUsersWithListInputMutationResponseSchema,
+  CreateUsersWithListInputMutationSchema,
 } from './userController/createUsersWithListInputSchema.ts'
 export {
   createUsersWithListInput200Schema,
   createUsersWithListInputErrorSchema,
   createUsersWithListInputMutationRequestSchema,
   createUsersWithListInputMutationResponseSchema,
+  createUsersWithListInputMutationSchema,
 } from './userController/createUsersWithListInputSchema.ts'
 export type {
   DeleteUser400Schema,
   DeleteUser404Schema,
   DeleteUserMutationResponseSchema,
+  DeleteUserMutationSchema,
   DeleteUserPathParamsSchema,
 } from './userController/deleteUserSchema.ts'
-export { deleteUser400Schema, deleteUser404Schema, deleteUserMutationResponseSchema, deleteUserPathParamsSchema } from './userController/deleteUserSchema.ts'
+export {
+  deleteUser400Schema,
+  deleteUser404Schema,
+  deleteUserMutationResponseSchema,
+  deleteUserMutationSchema,
+  deleteUserPathParamsSchema,
+} from './userController/deleteUserSchema.ts'
 export type {
   GetUserByName200Schema,
   GetUserByName400Schema,
   GetUserByName404Schema,
   GetUserByNamePathParamsSchema,
   GetUserByNameQueryResponseSchema,
+  GetUserByNameQuerySchema,
 } from './userController/getUserByNameSchema.ts'
 export {
   getUserByName200Schema,
@@ -173,21 +238,36 @@ export {
   getUserByName404Schema,
   getUserByNamePathParamsSchema,
   getUserByNameQueryResponseSchema,
+  getUserByNameQuerySchema,
 } from './userController/getUserByNameSchema.ts'
-export type { LoginUser200Schema, LoginUser400Schema, LoginUserQueryParamsSchema, LoginUserQueryResponseSchema } from './userController/loginUserSchema.ts'
-export { loginUser200Schema, loginUser400Schema, loginUserQueryParamsSchema, loginUserQueryResponseSchema } from './userController/loginUserSchema.ts'
-export type { LogoutUserErrorSchema, LogoutUserQueryResponseSchema } from './userController/logoutUserSchema.ts'
-export { logoutUserErrorSchema, logoutUserQueryResponseSchema } from './userController/logoutUserSchema.ts'
+export type {
+  LoginUser200Schema,
+  LoginUser400Schema,
+  LoginUserQueryParamsSchema,
+  LoginUserQueryResponseSchema,
+  LoginUserQuerySchema,
+} from './userController/loginUserSchema.ts'
+export {
+  loginUser200Schema,
+  loginUser400Schema,
+  loginUserQueryParamsSchema,
+  loginUserQueryResponseSchema,
+  loginUserQuerySchema,
+} from './userController/loginUserSchema.ts'
+export type { LogoutUserErrorSchema, LogoutUserQueryResponseSchema, LogoutUserQuerySchema } from './userController/logoutUserSchema.ts'
+export { logoutUserErrorSchema, logoutUserQueryResponseSchema, logoutUserQuerySchema } from './userController/logoutUserSchema.ts'
 export type {
   UpdateUserErrorSchema,
   UpdateUserMutationRequestSchema,
   UpdateUserMutationResponseSchema,
+  UpdateUserMutationSchema,
   UpdateUserPathParamsSchema,
 } from './userController/updateUserSchema.ts'
 export {
   updateUserErrorSchema,
   updateUserMutationRequestSchema,
   updateUserMutationResponseSchema,
+  updateUserMutationSchema,
   updateUserPathParamsSchema,
 } from './userController/updateUserSchema.ts'
 export type { UserSchema } from './userSchema.ts'

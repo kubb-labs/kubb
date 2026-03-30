@@ -15,9 +15,6 @@ const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'te
 
 const defaultOptions: PluginZod['resolvedOptions'] = {
   dateType: 'string',
-  unknownType: 'any',
-  emptySchemaType: 'any',
-  integerType: 'bigint',
   typed: false,
   inferred: false,
   importPath: 'zod',
@@ -49,6 +46,7 @@ const enumSchema = createSchema({
 
 const objectSchema = createSchema({
   type: 'object',
+  primitive: 'object',
   name: 'Pet',
   properties: [
     createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) }),
@@ -90,8 +88,16 @@ const intersectionSchema = createSchema({
   type: 'intersection',
   name: 'PetAndOwner',
   members: [
-    createSchema({ type: 'object', properties: [createProperty({ name: 'petName', required: true, schema: createSchema({ type: 'string' }) })] }),
-    createSchema({ type: 'object', properties: [createProperty({ name: 'ownerName', required: true, schema: createSchema({ type: 'string' }) })] }),
+    createSchema({
+      type: 'object',
+      primitive: 'object',
+      properties: [createProperty({ name: 'petName', required: true, schema: createSchema({ type: 'string' }) })],
+    }),
+    createSchema({
+      type: 'object',
+      primitive: 'object',
+      properties: [createProperty({ name: 'ownerName', required: true, schema: createSchema({ type: 'string' }) })],
+    }),
   ],
 })
 
@@ -115,12 +121,11 @@ const schemaWithPattern = createSchema({
 
 const additionalPropertiesObjectSchema = createSchema({
   type: 'object',
+  primitive: 'object',
   name: 'MetaMap',
   properties: [createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) })],
   additionalProperties: createSchema({ type: 'string' }),
 })
-
-const _emptyObjectSchema = createSchema({ type: 'object', name: 'EmptyModel', properties: [] })
 
 const operationWithSnakeCaseParams: OperationNode = createOperation({
   operationId: 'updatePet',
@@ -132,9 +137,13 @@ const operationWithSnakeCaseParams: OperationNode = createOperation({
     createParameter({ name: 'include_deleted', in: 'query', schema: createSchema({ type: 'boolean' }) }),
   ],
   requestBody: {
-    schema: createSchema({ type: 'object', properties: [createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) })] }),
+    schema: createSchema({
+      type: 'object',
+      primitive: 'object',
+      properties: [createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) })],
+    }),
   },
-  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Success' })],
+  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', primitive: 'object', properties: [] }), description: 'Success' })],
 })
 
 describe('zodGenerator — Schema', () => {
@@ -176,9 +185,8 @@ describe('zodGenerator — Schema', () => {
     { name: 'unknownType any', node: unknownSchema },
     { name: 'unknownType unknown', node: createSchema({ type: 'unknown', name: 'UnknownField2' }) },
     { name: 'unknownType void', node: createSchema({ type: 'void', name: 'VoidField' }) },
-    // integerType options
-    { name: 'integerType bigint', node: integerSchema, options: { integerType: 'bigint' } },
-    { name: 'integerType number', node: integerSchema, options: { integerType: 'number' } },
+    // integerType is an adapter-level option; the AST node type is already resolved to 'integer' or 'bigint'
+    { name: 'bigint', node: createSchema({ type: 'bigint', name: 'PetId', primitive: 'integer' }) },
     // importPath custom
     { name: 'importPath custom', node: stringSchema, options: { importPath: '@acme/zod' } },
     // typed
@@ -188,6 +196,7 @@ describe('zodGenerator — Schema', () => {
       name: 'wrapOutput',
       node: createSchema({
         type: 'object',
+        primitive: 'object',
         name: 'WrappedPet',
         properties: [
           createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
@@ -254,8 +263,16 @@ describe('zodGenerator — Operation', () => {
         tags: ['pets'],
         parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
         responses: [
-          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
-          createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+          createResponse({
+            statusCode: '200',
+            schema: createSchema({ type: 'object', primitive: 'object', properties: [] }),
+            description: 'A paged array of pets',
+          }),
+          createResponse({
+            statusCode: 'default',
+            schema: createSchema({ type: 'object', primitive: 'object', properties: [] }),
+            description: 'Unexpected error',
+          }),
         ],
       }),
     },
@@ -268,8 +285,16 @@ describe('zodGenerator — Operation', () => {
         tags: ['pets'],
         parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
         responses: [
-          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Expected response' }),
-          createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+          createResponse({
+            statusCode: '200',
+            schema: createSchema({ type: 'object', primitive: 'object', properties: [] }),
+            description: 'Expected response',
+          }),
+          createResponse({
+            statusCode: 'default',
+            schema: createSchema({ type: 'object', primitive: 'object', properties: [] }),
+            description: 'Unexpected error',
+          }),
         ],
       }),
     },
@@ -280,10 +305,14 @@ describe('zodGenerator — Operation', () => {
         method: 'POST',
         path: '/pet',
         tags: ['pet'],
-        requestBody: { schema: createSchema({ type: 'object', properties: [] }) },
+        requestBody: { schema: createSchema({ type: 'object', primitive: 'object', properties: [] }) },
         responses: [
-          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
-          createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+          createResponse({
+            statusCode: '200',
+            schema: createSchema({ type: 'object', primitive: 'object', properties: [] }),
+            description: 'Successful operation',
+          }),
+          createResponse({ statusCode: '405', schema: createSchema({ type: 'object', primitive: 'object', properties: [] }), description: 'Invalid input' }),
         ],
       }),
     },
@@ -312,7 +341,13 @@ describe('zodGenerator — Operation', () => {
             schema: createSchema({ type: 'enum', primitive: 'string', enumValues: ['available', 'pending', 'sold'] }),
           }),
         ],
-        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' })],
+        responses: [
+          createResponse({
+            statusCode: '200',
+            schema: createSchema({ type: 'object', primitive: 'object', properties: [] }),
+            description: 'Successful operation',
+          }),
+        ],
       }),
     },
     {
@@ -323,10 +358,14 @@ describe('zodGenerator — Operation', () => {
         path: '/store/order/:orderId',
         tags: ['store'],
         parameters: [createParameter({ name: 'orderId', in: 'path', schema: createSchema({ type: 'integer' }), required: true })],
-        requestBody: { schema: createSchema({ type: 'object', properties: [], description: 'Order payload' }) },
+        requestBody: { schema: createSchema({ type: 'object', primitive: 'object', properties: [], description: 'Order payload' }) },
         responses: [
-          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Successful operation' }),
-          createResponse({ statusCode: '405', schema: createSchema({ type: 'object', properties: [] }), description: 'Invalid input' }),
+          createResponse({
+            statusCode: '200',
+            schema: createSchema({ type: 'object', primitive: 'object', properties: [] }),
+            description: 'Successful operation',
+          }),
+          createResponse({ statusCode: '405', schema: createSchema({ type: 'object', primitive: 'object', properties: [] }), description: 'Invalid input' }),
         ],
       }),
     },
@@ -337,7 +376,9 @@ describe('zodGenerator — Operation', () => {
         method: 'GET',
         path: '/config',
         tags: [],
-        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Config' })],
+        responses: [
+          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', primitive: 'object', properties: [] }), description: 'Config' }),
+        ],
       }),
     },
     {
@@ -351,7 +392,7 @@ describe('zodGenerator — Operation', () => {
           createParameter({ name: 'X-Request-Id', in: 'header', schema: createSchema({ type: 'string' }), required: true }),
           createParameter({ name: 'X-Correlation-Id', in: 'header', schema: createSchema({ type: 'string' }) }),
         ],
-        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Pets' })],
+        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', primitive: 'object', properties: [] }), description: 'Pets' })],
       }),
     },
     {
@@ -362,9 +403,15 @@ describe('zodGenerator — Operation', () => {
         path: '/pet',
         tags: ['pet'],
         requestBody: {
-          schema: createSchema({ type: 'object', properties: [createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) })] }),
+          schema: createSchema({
+            type: 'object',
+            primitive: 'object',
+            properties: [createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) })],
+          }),
         },
-        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Created' })],
+        responses: [
+          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', primitive: 'object', properties: [] }), description: 'Created' }),
+        ],
       }),
       options: { mini: true, importPath: 'zod/mini' },
     },
@@ -376,7 +423,9 @@ describe('zodGenerator — Operation', () => {
         path: '/pets',
         tags: ['pets'],
         parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
-        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Pets list' })],
+        responses: [
+          createResponse({ statusCode: '200', schema: createSchema({ type: 'object', primitive: 'object', properties: [] }), description: 'Pets list' }),
+        ],
       }),
       options: { inferred: true },
     },
@@ -390,13 +439,16 @@ describe('zodGenerator — Operation', () => {
         requestBody: {
           schema: createSchema({
             type: 'object',
+            primitive: 'object',
             properties: [
               createProperty({ name: 'age', required: true, schema: createSchema({ type: 'number' }) }),
               createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
             ],
           }),
         },
-        responses: [createResponse({ statusCode: '201', schema: createSchema({ type: 'object', properties: [] }), description: 'Created' })],
+        responses: [
+          createResponse({ statusCode: '201', schema: createSchema({ type: 'object', primitive: 'object', properties: [] }), description: 'Created' }),
+        ],
       }),
       options: { coercion: true },
     },
@@ -436,8 +488,12 @@ describe('zodGenerator — Operation — group', () => {
     tags: ['pets'],
     parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
     responses: [
-      createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' }),
-      createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', properties: [] }), description: 'Unexpected error' }),
+      createResponse({
+        statusCode: '200',
+        schema: createSchema({ type: 'object', primitive: 'object', properties: [] }),
+        description: 'A paged array of pets',
+      }),
+      createResponse({ statusCode: 'default', schema: createSchema({ type: 'object', primitive: 'object', properties: [] }), description: 'Unexpected error' }),
     ],
   })
 
@@ -572,6 +628,7 @@ describe('zodGenerator — transformers', () => {
 
     const schemaWithInteger = createSchema({
       type: 'object',
+      primitive: 'object',
       name: 'Order',
       properties: [
         createProperty({ name: 'id', required: true, schema: createSchema({ type: 'integer' }) }),

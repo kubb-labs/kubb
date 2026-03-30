@@ -1,12 +1,12 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { OperationNode } from '@kubb/ast/types'
-import { renderOperations } from '@kubb/core'
+import type { Config } from '@kubb/core'
+import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { OperationGenerator } from '@kubb/plugin-oas'
+import { OperationGenerator, renderOperations } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import type { PluginClient } from '../types.ts'
 import { operationsGenerator } from './operationsGenerator.tsx'
 
@@ -24,11 +24,15 @@ describe('operationsGenerator operations', async () => {
     {
       name: 'findByTags',
       input: '../../mocks/petStore.yaml',
+      path: '/pet/findByTags',
+      method: 'get',
       options: {},
     },
   ] as const satisfies Array<{
     input: string
     name: string
+    path: string
+    method: HttpMethod
     options: Partial<PluginClient['resolvedOptions']>
   }>
 
@@ -61,6 +65,7 @@ describe('operationsGenerator operations', async () => {
       oas,
       include: undefined,
       driver: mockedPluginDriver,
+
       plugin,
       contentType: undefined,
       override: undefined,
@@ -68,31 +73,18 @@ describe('operationsGenerator operations', async () => {
       exclude: [],
     })
 
-    const oasOperations = await generator.getOperations()
+    const operations = await generator.getOperations()
 
-    // Map OAS operations to OperationNode for the v2 generator
-    const operationNodes: Array<OperationNode> = oasOperations.map(({ operation }) => ({
-      kind: 'Operation',
-      operationId: operation.getOperationId(),
-      method: operation.method.toUpperCase() as OperationNode['method'],
-      path: operation.path,
-      tags: operation.getTags().map((t) => t.name),
-      parameters: [],
-      responses: [],
-    }))
-
-    const adapter = createMockedAdapter()
-
-    await renderOperations(operationNodes, {
-      options: plugin.options,
-      resolver: undefined as never,
-      adapter,
-      config: { root: '.', output: { path: 'test' } } as Parameters<typeof renderOperations>[1]['config'],
-      fabric,
-      Component: operationsGenerator.Operations,
-      plugin,
-      driver: mockedPluginDriver,
-    })
+    await renderOperations(
+      operations.map((item) => item.operation),
+      {
+        config: { root: '.', output: { path: 'test' } } as Config,
+        fabric,
+        generator,
+        Component: operationsGenerator.Operations,
+        plugin,
+      },
+    )
 
     await matchFiles(fabric.files, props.name)
   })

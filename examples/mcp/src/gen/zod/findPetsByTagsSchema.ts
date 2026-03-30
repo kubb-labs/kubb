@@ -8,9 +8,9 @@ import { petSchema } from './petSchema.js'
 
 export const findPetsByTagsQueryParamsSchema = z
   .object({
-    tags: z.optional(z.array(z.string()).describe('Tags to filter by')),
-    page: z.optional(z.string().describe('to request with required page number or pagination')),
-    pageSize: z.optional(z.string().describe('to request with required page size')),
+    tags: z.array(z.string()).optional().describe('Tags to filter by'),
+    page: z.string().optional().describe('to request with required page number or pagination'),
+    pageSize: z.string().optional().describe('to request with required page size'),
   })
   .optional()
 
@@ -21,11 +21,18 @@ export const findPetsByTagsHeaderParamsSchema = z.object({
 /**
  * @description successful operation
  */
-export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema))
+export const findPetsByTags200Schema = z.array(petSchema)
 
 /**
  * @description Invalid tag value
  */
 export const findPetsByTags400Schema = z.any()
 
-export const findPetsByTagsQueryResponseSchema = z.lazy(() => findPetsByTags200Schema)
+export const findPetsByTagsQueryResponseSchema = findPetsByTags200Schema
+
+export const findPetsByTagsQuerySchema = z.object({
+  Response: findPetsByTags200Schema,
+  QueryParams: findPetsByTagsQueryParamsSchema,
+  HeaderParams: findPetsByTagsHeaderParamsSchema,
+  Errors: findPetsByTags400Schema,
+})

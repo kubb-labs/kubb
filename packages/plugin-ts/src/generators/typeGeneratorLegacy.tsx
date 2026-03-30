@@ -52,7 +52,7 @@ function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperationSchema
             type: 'union',
             members: successResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
           })
-      : createSchema({ type: 'any' })
+      : createSchema({ type: 'any', primitive: undefined })
 
   const errorsSchema =
     errorResponses.length > 0
@@ -62,7 +62,7 @@ function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperationSchema
             type: 'union',
             members: errorResponses.map((res) => createSchema({ type: 'ref', name: resolver.resolveResponseStatusName(node, res.statusCode) })),
           })
-      : createSchema({ type: 'any' })
+      : createSchema({ type: 'any', primitive: undefined })
 
   const properties = [createProperty({ name: 'Response', required: true, schema: responseSchema })]
 
@@ -121,7 +121,7 @@ function buildLegacyResponseUnionSchemaNode({ node, resolver }: BuildOperationSc
   })
 
   if (successResponses.length === 0) {
-    return createSchema({ type: 'any' })
+    return createSchema({ type: 'any', primitive: undefined })
   }
 
   if (successResponses.length === 1) {

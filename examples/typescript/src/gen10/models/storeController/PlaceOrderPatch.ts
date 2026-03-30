@@ -19,9 +19,21 @@ export type PlaceOrderPatchData = Order
 
 export type PlaceOrderPatchRequestConfig = {
   data?: PlaceOrderPatchData
+  /**
+   * @type never | undefined
+   */
   pathParams?: never
+  /**
+   * @type never | undefined
+   */
   queryParams?: never
+  /**
+   * @type never | undefined
+   */
   headerParams?: never
+  /**
+   * @type string
+   */
   url: '/store/order'
 }
 

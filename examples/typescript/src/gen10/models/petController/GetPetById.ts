@@ -26,12 +26,27 @@ export type GetPetByIdStatus400 = any
 export type GetPetByIdStatus404 = any
 
 export type GetPetByIdRequestConfig = {
+  /**
+   * @type never | undefined
+   */
   data?: never
+  /**
+   * @type object
+   */
   pathParams: {
     petId: GetPetByIdPathPetId
   }
+  /**
+   * @type never | undefined
+   */
   queryParams?: never
+  /**
+   * @type never | undefined
+   */
   headerParams?: never
+  /**
+   * @type string
+   */
   url: `/pet/${string}`
 }
 

@@ -9,11 +9,17 @@ import { userSchema } from './userSchema.js'
 /**
  * @description successful operation
  */
-export const createUserErrorSchema = z.lazy(() => userSchema)
+export const createUserErrorSchema = userSchema
 
 /**
  * @description Created user object
  */
-export const createUserMutationRequestSchema = z.lazy(() => userSchema)
+export const createUserMutationRequestSchema = userSchema.optional()
 
 export const createUserMutationResponseSchema = z.any()
+
+export const createUserMutationSchema = z.object({
+  Response: z.any(),
+  Request: createUserMutationRequestSchema,
+  Errors: createUserErrorSchema,
+})

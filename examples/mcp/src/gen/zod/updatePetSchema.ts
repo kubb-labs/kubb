@@ -9,13 +9,13 @@ import { petSchema } from './petSchema.js'
 /**
  * @description Successful operation
  */
-export const updatePet200Schema = z.lazy(() => petSchema).schema.omit({ name: true })
+export const updatePet200Schema = petSchema.omit({ name: true })
 
 /**
  * @description accepted operation
  */
 export const updatePet202Schema = z.object({
-  id: z.optional(z.number().int()),
+  id: z.int().optional(),
 })
 
 /**
@@ -36,6 +36,12 @@ export const updatePet405Schema = z.any()
 /**
  * @description Update an existent pet in the store
  */
-export const updatePetMutationRequestSchema = z.lazy(() => petSchema).schema.omit({ id: true })
+export const updatePetMutationRequestSchema = petSchema.omit({ id: true })
 
-export const updatePetMutationResponseSchema = z.union([z.lazy(() => updatePet200Schema), z.lazy(() => updatePet202Schema)])
+export const updatePetMutationResponseSchema = z.union([updatePet200Schema, updatePet202Schema])
+
+export const updatePetMutationSchema = z.object({
+  Response: z.union([updatePet200Schema, updatePet202Schema]),
+  Request: updatePetMutationRequestSchema,
+  Errors: z.union([updatePet400Schema, updatePet404Schema, updatePet405Schema]),
+})

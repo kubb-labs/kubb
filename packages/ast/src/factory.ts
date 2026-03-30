@@ -43,7 +43,7 @@ export function syncOptionality(schema: SchemaNode, required: boolean): SchemaNo
  */
 export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
 
-type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties'> & { properties?: Array<PropertyNode> }
+type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties' | 'primitive'> & { properties?: Array<PropertyNode>; primitive?: 'object' }
 type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>
 type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & { kind: 'Schema' }
 
@@ -170,7 +170,7 @@ export function createSchema(props: CreateSchemaInput): SchemaNode {
   const inferredPrimitive = TYPE_TO_PRIMITIVE[props.type as keyof typeof TYPE_TO_PRIMITIVE]
 
   if (props['type'] === 'object') {
-    return { properties: [], primitive: inferredPrimitive, ...props, kind: 'Schema' } as CreateSchemaOutput<typeof props>
+    return { properties: [], primitive: 'object', ...props, kind: 'Schema' } as CreateSchemaOutput<typeof props>
   }
 
   return { primitive: inferredPrimitive, ...props, kind: 'Schema' } as CreateSchemaOutput<typeof props>

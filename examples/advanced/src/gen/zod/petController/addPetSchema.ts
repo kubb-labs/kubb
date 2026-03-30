@@ -1,33 +1,36 @@
 import * as z from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
-import type { AddPet405, AddPetError, AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/petController/AddPet.ts'
 import { addPetRequestSchema } from '../addPetRequestSchema.ts'
 import { petSchema } from '../petSchema.ts'
 
-/**
- * @description Pet not found
- */
 export const addPet405Schema = z.object({
-  code: z.optional(z.number().int()),
-  message: z.optional(z.string()),
-}) as unknown as ToZod<AddPet405>
+  code: z.int().optional(),
+  message: z.string().optional(),
+})
 
-export type AddPet405Schema = AddPet405
+export type AddPet405Schema = z.infer<typeof addPet405Schema>
 
 /**
  * @description Successful operation
  */
-export const addPetErrorSchema = z.lazy(() => petSchema).schema.omit({ name: true }) as unknown as ToZod<AddPetError>
+export const addPetErrorSchema = petSchema.omit({ name: true })
 
-export type AddPetErrorSchema = AddPetError
+export type AddPetErrorSchema = z.infer<typeof addPetErrorSchema>
 
 /**
  * @description Create a new pet in the store
  */
-export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema) as unknown as ToZod<AddPetMutationRequest>
+export const addPetMutationRequestSchema = addPetRequestSchema
 
-export type AddPetMutationRequestSchema = AddPetMutationRequest
+export type AddPetMutationRequestSchema = z.infer<typeof addPetMutationRequestSchema>
 
-export const addPetMutationResponseSchema = z.any() as unknown as ToZod<AddPetMutationResponse>
+export const addPetMutationResponseSchema = z.any()
 
-export type AddPetMutationResponseSchema = AddPetMutationResponse
+export type AddPetMutationResponseSchema = z.infer<typeof addPetMutationResponseSchema>
+
+export const addPetMutationSchema = z.object({
+  Response: z.any(),
+  Request: addPetMutationRequestSchema,
+  Errors: z.union([addPet405Schema, addPetErrorSchema]),
+})
+
+export type AddPetMutationSchema = z.infer<typeof addPetMutationSchema>

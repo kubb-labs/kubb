@@ -26,12 +26,27 @@ export type GetUserByNameStatus400 = any
 export type GetUserByNameStatus404 = any
 
 export type GetUserByNameRequestConfig = {
+  /**
+   * @type never | undefined
+   */
   data?: never
+  /**
+   * @type object
+   */
   pathParams: {
     username: GetUserByNamePathUsername
   }
+  /**
+   * @type never | undefined
+   */
   queryParams?: never
+  /**
+   * @type never | undefined
+   */
   headerParams?: never
+  /**
+   * @type string
+   */
   url: `/user/${string}`
 }
 

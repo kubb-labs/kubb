@@ -19,12 +19,27 @@ export type DeleteOrderStatus400 = any
 export type DeleteOrderStatus404 = any
 
 export type DeleteOrderRequestConfig = {
+  /**
+   * @type never | undefined
+   */
   data?: never
+  /**
+   * @type object
+   */
   pathParams: {
     orderId: DeleteOrderPathOrderId
   }
+  /**
+   * @type never | undefined
+   */
   queryParams?: never
+  /**
+   * @type never | undefined
+   */
   headerParams?: never
+  /**
+   * @type string
+   */
   url: `/store/order/${string}`
 }
 

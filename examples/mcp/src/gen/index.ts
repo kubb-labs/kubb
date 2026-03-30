@@ -203,6 +203,7 @@ export {
   addFiles405Schema,
   addFilesMutationRequestSchema,
   addFilesMutationResponseSchema,
+  addFilesMutationSchema,
 } from './zod/addFilesSchema.js'
 export { addPetRequestSchema } from './zod/addPetRequestSchema.js'
 export {
@@ -210,6 +211,7 @@ export {
   addPet405Schema,
   addPetMutationRequestSchema,
   addPetMutationResponseSchema,
+  addPetMutationSchema,
 } from './zod/addPetSchema.js'
 export { addressSchema } from './zod/addressSchema.js'
 export { apiResponseSchema } from './zod/apiResponseSchema.js'
@@ -220,6 +222,7 @@ export {
   createPetsHeaderParamsSchema,
   createPetsMutationRequestSchema,
   createPetsMutationResponseSchema,
+  createPetsMutationSchema,
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
 } from './zod/createPetsSchema.js'
@@ -227,30 +230,35 @@ export {
   createUserErrorSchema,
   createUserMutationRequestSchema,
   createUserMutationResponseSchema,
+  createUserMutationSchema,
 } from './zod/createUserSchema.js'
 export {
   createUsersWithListInput200Schema,
   createUsersWithListInputErrorSchema,
   createUsersWithListInputMutationRequestSchema,
   createUsersWithListInputMutationResponseSchema,
+  createUsersWithListInputMutationSchema,
 } from './zod/createUsersWithListInputSchema.js'
 export { customerSchema } from './zod/customerSchema.js'
 export {
   deleteOrder400Schema,
   deleteOrder404Schema,
   deleteOrderMutationResponseSchema,
+  deleteOrderMutationSchema,
   deleteOrderPathParamsSchema,
 } from './zod/deleteOrderSchema.js'
 export {
   deletePet400Schema,
   deletePetHeaderParamsSchema,
   deletePetMutationResponseSchema,
+  deletePetMutationSchema,
   deletePetPathParamsSchema,
 } from './zod/deletePetSchema.js'
 export {
   deleteUser400Schema,
   deleteUser404Schema,
   deleteUserMutationResponseSchema,
+  deleteUserMutationSchema,
   deleteUserPathParamsSchema,
 } from './zod/deleteUserSchema.js'
 export {
@@ -258,6 +266,7 @@ export {
   findPetsByStatus400Schema,
   findPetsByStatusPathParamsSchema,
   findPetsByStatusQueryResponseSchema,
+  findPetsByStatusQuerySchema,
 } from './zod/findPetsByStatusSchema.js'
 export {
   findPetsByTags200Schema,
@@ -265,10 +274,12 @@ export {
   findPetsByTagsHeaderParamsSchema,
   findPetsByTagsQueryParamsSchema,
   findPetsByTagsQueryResponseSchema,
+  findPetsByTagsQuerySchema,
 } from './zod/findPetsByTagsSchema.js'
 export {
   getInventory200Schema,
   getInventoryQueryResponseSchema,
+  getInventoryQuerySchema,
 } from './zod/getInventorySchema.js'
 export {
   getOrderById200Schema,
@@ -276,6 +287,7 @@ export {
   getOrderById404Schema,
   getOrderByIdPathParamsSchema,
   getOrderByIdQueryResponseSchema,
+  getOrderByIdQuerySchema,
 } from './zod/getOrderByIdSchema.js'
 export {
   getPetById200Schema,
@@ -283,6 +295,7 @@ export {
   getPetById404Schema,
   getPetByIdPathParamsSchema,
   getPetByIdQueryResponseSchema,
+  getPetByIdQuerySchema,
 } from './zod/getPetByIdSchema.js'
 export {
   getUserByName200Schema,
@@ -290,16 +303,19 @@ export {
   getUserByName404Schema,
   getUserByNamePathParamsSchema,
   getUserByNameQueryResponseSchema,
+  getUserByNameQuerySchema,
 } from './zod/getUserByNameSchema.js'
 export {
   loginUser200Schema,
   loginUser400Schema,
   loginUserQueryParamsSchema,
   loginUserQueryResponseSchema,
+  loginUserQuerySchema,
 } from './zod/loginUserSchema.js'
 export {
   logoutUserErrorSchema,
   logoutUserQueryResponseSchema,
+  logoutUserQuerySchema,
 } from './zod/logoutUserSchema.js'
 export { orderSchema } from './zod/orderSchema.js'
 export { petNotFoundSchema } from './zod/petNotFoundSchema.js'
@@ -309,12 +325,14 @@ export {
   placeOrderPatch405Schema,
   placeOrderPatchMutationRequestSchema,
   placeOrderPatchMutationResponseSchema,
+  placeOrderPatchMutationSchema,
 } from './zod/placeOrderPatchSchema.js'
 export {
   placeOrder200Schema,
   placeOrder405Schema,
   placeOrderMutationRequestSchema,
   placeOrderMutationResponseSchema,
+  placeOrderMutationSchema,
 } from './zod/placeOrderSchema.js'
 export { tagTagSchema } from './zod/tag/tagSchema.js'
 export {
@@ -325,10 +343,12 @@ export {
   updatePet405Schema,
   updatePetMutationRequestSchema,
   updatePetMutationResponseSchema,
+  updatePetMutationSchema,
 } from './zod/updatePetSchema.js'
 export {
   updatePetWithForm405Schema,
   updatePetWithFormMutationResponseSchema,
+  updatePetWithFormMutationSchema,
   updatePetWithFormPathParamsSchema,
   updatePetWithFormQueryParamsSchema,
 } from './zod/updatePetWithFormSchema.js'
@@ -336,6 +356,7 @@ export {
   updateUserErrorSchema,
   updateUserMutationRequestSchema,
   updateUserMutationResponseSchema,
+  updateUserMutationSchema,
   updateUserPathParamsSchema,
 } from './zod/updateUserSchema.js'
 export { userArraySchema } from './zod/userArraySchema.js'

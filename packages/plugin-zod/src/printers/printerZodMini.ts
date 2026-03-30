@@ -1,4 +1,4 @@
-import { stringify } from '@internals/utils'
+import { stringify, toRegExpString } from '@internals/utils'
 import { narrowSchema } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
@@ -49,7 +49,17 @@ function formatLiteral(v: string | number | boolean): string {
 }
 
 /** Build `.check(z.minimum(), z.maximum())` for mini-mode numeric constraints. */
-function numberChecksMini({ min, max, exclusiveMinimum, exclusiveMaximum }: { min?: number; max?: number; exclusiveMinimum?: number; exclusiveMaximum?: number }): string {
+function numberChecksMini({
+  min,
+  max,
+  exclusiveMinimum,
+  exclusiveMaximum,
+}: {
+  min?: number
+  max?: number
+  exclusiveMinimum?: number
+  exclusiveMaximum?: number
+}): string {
   const checks: string[] = []
   if (min !== undefined) checks.push(`z.minimum(${min})`)
   if (max !== undefined) checks.push(`z.maximum(${max})`)
@@ -63,7 +73,7 @@ function lengthChecksMini({ min, max, pattern }: { min?: number; max?: number; p
   const checks: string[] = []
   if (min !== undefined) checks.push(`z.minLength(${min})`)
   if (max !== undefined) checks.push(`z.maxLength(${max})`)
-  if (pattern !== undefined) checks.push(`z.regex(new RegExp(${stringify(pattern)}))`)
+  if (pattern !== undefined) checks.push(`z.regex(${toRegExpString(pattern, null)})`)
   return checks.length ? `.check(${checks.join(', ')})` : ''
 }
 
@@ -90,7 +100,6 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
   return {
     name: 'zod-mini',
     options: opts,
-
     nodes: {
       any: () => 'z.any()',
       unknown: () => 'z.unknown()',
@@ -98,56 +107,44 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
       never: () => 'z.never()',
       boolean: () => 'z.boolean()',
       null: () => 'z.null()',
-
       string(node) {
         return `z.string()${lengthChecksMini(node)}`
       },
-
       number(node) {
         return `z.number()${numberChecksMini(node)}`
       },
-
       integer(node) {
         return `z.int()${numberChecksMini(node)}`
       },
-
       bigint() {
         return 'z.bigint()'
       },
-
       date(node) {
         if (node.representation === 'string') {
           return 'z.iso.date()'
         }
         return 'z.date()'
       },
-
       datetime() {
         // Mini mode: datetime validation via z.string() (z.iso.datetime not available in mini)
         return 'z.string()'
       },
-
       time(node) {
         if (node.representation === 'string') {
           return 'z.iso.time()'
         }
         return 'z.date()'
       },
-
       uuid() {
         return this.options.guidType === 'guid' ? 'z.guid()' : 'z.uuid()'
       },
-
       email() {
         return 'z.email()'
       },
-
       url() {
         return 'z.url()'
       },
-
       blob: () => 'z.instanceof(File)',
-
       enum(node) {
         const values = node.namedEnumValues?.map((v) => v.value) ?? node.enumValues ?? []
 
@@ -171,7 +168,6 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
         const resolvedName = node.ref ? (this.options.resolver?.default(node.name, 'function') ?? node.name) : node.name
         return resolvedName
       },
-
       object(node) {
         const properties = node.properties
           .map((prop) => {
@@ -203,25 +199,21 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
 
         return `z.object({\n    ${properties}\n    })`
       },
-
       array(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
         const inner = items.join(', ') || 'z.unknown()'
         return `z.array(${inner})${lengthChecksMini(node)}`
       },
-
       tuple(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
         return `z.tuple([${items.join(', ')}])`
       },
-
       union(node) {
         const members = (node.members ?? []).map((m) => this.transform(m)).filter(Boolean)
         if (members.length === 0) return ''
         if (members.length === 1) return members[0]!
         return `z.union([${members.join(', ')}])`
       },
-
       intersection(node) {
         const members = node.members ?? []
         if (members.length === 0) return ''
@@ -268,9 +260,10 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
       if (!base) return null
 
       const { keysToOmit } = this.options
-      if (keysToOmit?.length) {
+      if (keysToOmit?.length && (node.primitive === 'object' || node.type === 'ref')) {
         // Mirror printerTs `nonNullable: true`: when omitting keys, the resulting
         // schema is a new non-nullable object type — skip optional/nullable/nullish.
+        // Also allow refs: a $ref request body is parsed as a ref node but resolves to an object.
         return `${base}.omit({ ${keysToOmit.map((k) => `"${k}": true`).join(', ')} })`
       }
 
