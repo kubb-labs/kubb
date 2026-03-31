@@ -69,21 +69,11 @@ Specify what to export and optionally disable barrel file generation.
 
 #### output.banner
 
-Add a banner comment at the top of every generated file.
-
-|           |                                              |
-|----------:|:---------------------------------------------|
-|     Type: | `string \| ((node: RootNode) => string)`     |
-| Required: | `false`                                      |
+<!--@include: ./core/outputBanner.md-->
 
 #### output.footer
 
-Add a footer comment at the end of every generated file.
-
-|           |                                              |
-|----------:|:---------------------------------------------|
-|     Type: | `string \| ((node: RootNode) => string)`     |
-| Required: | `false`                                      |
+<!--@include: ./core/outputFooter.md-->
 
 #### output.override
 <!--@include: ./core/outputOverride.md-->
@@ -105,7 +95,7 @@ Add a footer comment at the end of every generated file.
 Specify the property to group files by. Required when `group` is defined.
 
 |           |         |
-|----------:|:--------|
+| --------: |:--------|
 |     Type: | `'tag'` |
 | Required: | `true*` |
 
@@ -378,6 +368,11 @@ z.array(z.string()).min(1).max(10)
 
 Wrap the generated Zod schema string with additional validation or metadata. The callback receives the schema's output string and the `SchemaNode` AST node, and returns the modified schema string.
 
+|           |                                                                         |
+| --------: | :---------------------------------------------------------------------- |
+|     Type: | `(arg: { output: string; schema: SchemaNode }) => string \| undefined`  |
+| Required: | `false`                                                                 |
+
 > [!TIP]
 > This is useful for cases where you need to extend the generated zod output with additional properties from an OpenAPI schema. E.g. in the case of `OpenAPI -> Zod -> OpenAPI`, you could include the examples from the schema for a given property and then ultimately provide a modified schema to a router that supports zod and OpenAPI spec generation.
 
@@ -394,11 +389,6 @@ wrapOutput: ({ output, schema }) => {
   }
 };
 ```
-
-|           |                                                                         |
-| --------: | :---------------------------------------------------------------------- |
-|     Type: | `(arg: { output: string; schema: SchemaNode }) => string \| undefined`  |
-| Required: | `false`                                                                 |
 
 ## Example
 

@@ -45,7 +45,7 @@ Path to the output folder or file that contains the generated code.
 > if `output.path` is a file, `group` cannot be used.
 
 |           |           |
-|----------:|:----------|
+| --------: |:----------|
 |     Type: | `string`  |
 | Required: | `true`    |
 |  Default: | `'cypress'` |
@@ -58,7 +58,7 @@ Specify what to export and optionally disable barrel file generation.
 > Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
 
 |           |                                 |
-|----------:|:--------------------------------|
+| --------: |:--------------------------------|
 |     Type: | `'all' \| 'named' \| 'propagate' \| false` |
 | Required: | `false`                         |
 |  Default: | `'named'`                       |
@@ -67,21 +67,11 @@ Specify what to export and optionally disable barrel file generation.
 
 #### output.banner
 
-Add a banner comment at the top of every generated file.
-
-|           |                                              |
-|----------:|:---------------------------------------------|
-|     Type: | `string \| ((node: RootNode) => string)`     |
-| Required: | `false`                                      |
+<!--@include: ./core/outputBanner.md-->
 
 #### output.footer
 
-Add a footer comment at the end of every generated file.
-
-|           |                                              |
-|----------:|:---------------------------------------------|
-|     Type: | `string \| ((node: RootNode) => string)`     |
-| Required: | `false`                                      |
+<!--@include: ./core/outputFooter.md-->
 
 #### output.override
 <!--@include: ./core/outputOverride.md-->
@@ -116,7 +106,7 @@ Add a footer comment at the end of every generated file.
 Specify the property to group files by.
 
 |           |          |
-|----------:|:---------|
+| --------: |:---------|
 |     Type: | `'tag'`  |
 | Required: | `true*`  |
 
@@ -130,7 +120,7 @@ Specify the property to group files by.
 Return the name of a group based on the group name, this will be used for the file and name generation.
 
 |           |                                     |
-|----------:|:------------------------------------|
+| --------: |:------------------------------------|
 |     Type: | `(context: GroupContext) => string` |
 | Required: | `false`                             |
 |  Default: | `(ctx) => '${ctx.group}Requests'`   |
@@ -148,7 +138,7 @@ Return the name of a group based on the group name, this will be used for the fi
 <!--@include: ./core/generators.md-->
 
 |           |                                    |
-|----------:|:-----------------------------------|
+| --------: |:-----------------------------------|
 |     Type: | `Array<Generator<PluginCypress>>`  |
 | Required: | `false`                            |
 

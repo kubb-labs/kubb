@@ -68,21 +68,11 @@ Specify what to export and optionally disable barrel file generation.
 
 #### output.banner
 
-Add a banner comment at the top of every generated file.
-
-|           |                                              |
-| --------: | :------------------------------------------- |
-|     Type: | `string \| ((node: RootNode) => string)`     |
-| Required: | `false`                                      |
+<!--@include: ./core/outputBanner.md-->
 
 #### output.footer
 
-Add a footer comment at the end of every generated file.
-
-|           |                                              |
-| --------: | :------------------------------------------- |
-|     Type: | `string \| ((node: RootNode) => string)`     |
-| Required: | `false`                                      |
+<!--@include: ./core/outputFooter.md-->
 
 #### output.override
 
@@ -407,16 +397,7 @@ type FindPetsByStatusHeaderParams = {
 
 ### compatibilityPreset
 
-Apply a naming preset to match a previous Kubb version's output conventions. Use `'kubbV4'` when migrating from Kubb v4 to preserve existing generated file and symbol names.
-
-|           |                                |
-| --------: |:-------------------------------|
-|     Type: | `'default' \| 'kubbV4'`        |
-| Required: | `false`                        |
-|  Default: | `'default'`                    |
-
-- `'default'`: Use default `@kubb/plugin-ts` naming.
-- `'kubbV4'`: Reproduce Kubb v4 type-generation naming behavior.
+<!--@include: ./core/compatibilityPreset.md-->
 
 ::: code-group
 
@@ -434,24 +415,21 @@ pluginTs({
 
 :::
 
-> [!NOTE]
-> Compatibility presets are close-compatible naming/output conventions, not strict 1:1 parity with other generators.
-
 ### resolvers
 
-Compose custom name-resolution behavior by providing one or more resolver instances. Each resolver can override how file names, function names, and type names are derived. Later entries in the array take precedence.
+<!--@include: ./core/resolvers.md-->
+
+Resolver precedence for `@kubb/plugin-ts`:
+
+1. Start with `resolverTs`.
+2. Apply `compatibilityPreset` resolver (`kubbV4`) when configured.
+3. Apply explicit `resolvers` overrides (last wins).
 
 |           |                     |
 | --------: | :------------------ |
 |     Type: | `Array<ResolverTs>` |
 | Required: | `false`             |
 |  Default: | `[resolverTs]`      |
-
-Resolver precedence:
-
-1. Start with `resolverTs`.
-2. Apply `compatibilityPreset` resolver (`kubbV4`) when configured.
-3. Apply explicit `resolvers` overrides (last wins).
 
 ::: code-group
 
