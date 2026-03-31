@@ -62,7 +62,7 @@ export function Enum({ node, enumType, enumTypeSuffix, enumKeyCasing, resolver }
     typeName,
     enums: (node.namedEnumValues?.map((v) => [trimQuotes(v.name.toString()), v.value]) ??
       node.enumValues?.filter((v): v is NonNullable<typeof v> => v !== null && v !== undefined).map((v) => [trimQuotes(v.toString()), v]) ??
-      []) as unknown as Array<[string, string]>,
+      []) as Array<[string | number, string | number | boolean]>,
     type: enumType,
     enumKeyCasing,
   })

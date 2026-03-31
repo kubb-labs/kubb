@@ -306,18 +306,32 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     })
 
     const requestSchema = node.requestBody?.schema
-      ? renderSchemaEntry({ schema: node.requestBody.schema, name: resolver.resolveDataName(node), description: node.requestBody.description, keysToOmit: node.requestBody.keysToOmit })
+      ? renderSchemaEntry({
+          schema: node.requestBody.schema,
+          name: resolver.resolveDataName(node),
+          description: node.requestBody.description,
+          keysToOmit: node.requestBody.keysToOmit,
+        })
       : null
 
     const legacyParamTypes = [
       pathParams.length > 0
-        ? renderSchemaEntry({ schema: buildGroupedParamsSchema({ params: pathParams, optional: pathParams.every((p) => !p.required) }), name: resolver.resolvePathParamsName(node, pathParams[0]!) })
+        ? renderSchemaEntry({
+            schema: buildGroupedParamsSchema({ params: pathParams, optional: pathParams.every((p) => !p.required) }),
+            name: resolver.resolvePathParamsName(node, pathParams[0]!),
+          })
         : null,
       queryParams.length > 0
-        ? renderSchemaEntry({ schema: buildGroupedParamsSchema({ params: queryParams, optional: queryParams.every((p) => !p.required) }), name: resolver.resolveQueryParamsName(node, queryParams[0]!) })
+        ? renderSchemaEntry({
+            schema: buildGroupedParamsSchema({ params: queryParams, optional: queryParams.every((p) => !p.required) }),
+            name: resolver.resolveQueryParamsName(node, queryParams[0]!),
+          })
         : null,
       headerParams.length > 0
-        ? renderSchemaEntry({ schema: buildGroupedParamsSchema({ params: headerParams, optional: headerParams.every((p) => !p.required) }), name: resolver.resolveHeaderParamsName(node, headerParams[0]!) })
+        ? renderSchemaEntry({
+            schema: buildGroupedParamsSchema({ params: headerParams, optional: headerParams.every((p) => !p.required) }),
+            name: resolver.resolveHeaderParamsName(node, headerParams[0]!),
+          })
         : null,
     ]
 
@@ -342,7 +356,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
       </File>
     )
   },
-  Operations({ nodes, options, config, adapter, resolver }) {
+  Operations({ nodes, adapter, options, config, resolver }) {
     const { output, importPath, group, operations, paramsCasing } = options
 
     if (!operations) {
@@ -355,14 +369,14 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
       resolver.resolveFile({ name, extname: '.ts', tag, path: opPath }, { root, output, group })
 
     const filePath = resolver.resolvePath({ baseName: OPERATIONS_FILENAME, pathMode: getMode(path.resolve(root, output.path)) }, { root, output, group })
-    const file = {
+    const file: KubbFile.File = {
       path: filePath,
-      baseName: path.basename(filePath),
+      baseName: OPERATIONS_FILENAME,
       meta: { pluginName: resolver.pluginName },
-      sources: [] as Array<unknown>,
-      imports: [] as Array<unknown>,
-      exports: [] as Array<unknown>,
-    } as KubbFile.File
+      sources: [],
+      imports: [],
+      exports: [],
+    }
 
     const transformedOperations = nodes.map((node) => {
       const params = caseParams(node.parameters, paramsCasing)

@@ -249,7 +249,7 @@ export function createTypeDeclaration({
 }) {
   if (syntax === 'interface' && 'members' in type) {
     const node = createInterfaceDeclaration({
-      members: type.members as Array<ts.TypeElement>,
+      members: [...(type as ts.TypeLiteralNode).members],
       modifiers: isExportable ? [modifiers.export] : [],
       name,
       typeParameters: undefined,

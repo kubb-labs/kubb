@@ -174,16 +174,24 @@ export const zodGenerator = defineGenerator<PluginZod>({
       )
     }
 
-    const paramSchemas = params.map((param) =>
-      renderSchemaEntry({ schema: param.schema, name: resolver.resolveParamName(node, param) }),
-    )
+    const paramSchemas = params.map((param) => renderSchemaEntry({ schema: param.schema, name: resolver.resolveParamName(node, param) }))
 
     const responseSchemas = node.responses.map((res) =>
-      renderSchemaEntry({ schema: res.schema, name: resolver.resolveResponseStatusName(node, res.statusCode), description: res.description, keysToOmit: res.keysToOmit }),
+      renderSchemaEntry({
+        schema: res.schema,
+        name: resolver.resolveResponseStatusName(node, res.statusCode),
+        description: res.description,
+        keysToOmit: res.keysToOmit,
+      }),
     )
 
     const requestSchema = node.requestBody?.schema
-      ? renderSchemaEntry({ schema: node.requestBody.schema, name: resolver.resolveDataName(node), description: node.requestBody.description, keysToOmit: node.requestBody.keysToOmit })
+      ? renderSchemaEntry({
+          schema: node.requestBody.schema,
+          name: resolver.resolveDataName(node),
+          description: node.requestBody.description,
+          keysToOmit: node.requestBody.keysToOmit,
+        })
       : null
 
     return (
@@ -201,7 +209,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
       </File>
     )
   },
-  Operations({ nodes, options, config, adapter, resolver }) {
+  Operations({ nodes, adapter, options, config, resolver }) {
     const { output, importPath, group, operations, paramsCasing } = options
 
     if (!operations) {
@@ -214,14 +222,14 @@ export const zodGenerator = defineGenerator<PluginZod>({
       resolver.resolveFile({ name, extname: '.ts', tag, path: opPath }, { root, output, group })
 
     const filePath = resolver.resolvePath({ baseName: OPERATIONS_FILENAME, pathMode: getMode(path.resolve(root, output.path)) }, { root, output, group })
-    const file = {
+    const file: KubbFile.File = {
       path: filePath,
-      baseName: path.basename(filePath),
+      baseName: OPERATIONS_FILENAME,
       meta: { pluginName: resolver.pluginName },
-      sources: [] as Array<unknown>,
-      imports: [] as Array<unknown>,
-      exports: [] as Array<unknown>,
-    } as KubbFile.File
+      sources: [],
+      imports: [],
+      exports: [],
+    }
 
     const transformedOperations = nodes.map((node) => {
       const params = caseParams(node.parameters, paramsCasing)

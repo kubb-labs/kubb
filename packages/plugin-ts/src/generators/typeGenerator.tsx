@@ -11,6 +11,70 @@ import { buildData, buildResponses, buildResponseUnion } from '../utils.ts'
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
+  Schema({ node, adapter, options, config, resolver }) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, transformers = [] } = options
+
+    const root = path.resolve(config.root, config.output.path)
+    const mode = getMode(path.resolve(root, output.path))
+
+    if (!node.name) {
+      return
+    }
+
+    const transformedNode = transform(node, composeTransformers(...transformers))
+
+    // Build a set of schema names that are enums so the ref handler and getImports
+    // callback can use the suffixed type name (e.g. `StatusKey`) for those refs.
+    const enumSchemaNames = new Set((adapter.rootNode?.schemas ?? []).filter((s) => narrowSchema(s, schemaTypes.enum) && s.name).map((s) => s.name!))
+
+    function resolveImportName(schemaName: string): string {
+      if (ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && enumTypeSuffix && enumSchemaNames.has(schemaName)) {
+        return resolver.resolveEnumKeyName({ name: schemaName }, enumTypeSuffix)
+      }
+      return resolver.default(schemaName, 'type')
+    }
+
+    const imports = adapter.getImports(transformedNode, (schemaName) => ({
+      name: resolveImportName(schemaName),
+      path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
+    }))
+
+    const isEnumSchema = !!narrowSchema(node, schemaTypes.enum)
+
+    const name = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyName(node, enumTypeSuffix) : resolver.resolveName(node.name)
+
+    const type = {
+      name,
+      file: resolver.resolveFile({ name: node.name, extname: '.ts' }, { root, output, group }),
+    } as const
+
+    return (
+      <File
+        baseName={type.file.baseName}
+        path={type.file.path}
+        meta={type.file.meta}
+        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+      >
+        {mode === 'split' &&
+          imports.map((imp) => (
+            <File.Import key={[node.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
+          ))}
+        <Type
+          name={type.name}
+          node={transformedNode}
+          enumType={enumType}
+          enumTypeSuffix={enumTypeSuffix}
+          enumKeyCasing={enumKeyCasing}
+          optionalType={optionalType}
+          arrayType={arrayType}
+          syntaxType={syntaxType}
+          resolver={resolver}
+          enumSchemaNames={enumSchemaNames}
+        />
+      </File>
+    )
+  },
   Operation({ node, adapter, options, config, resolver }) {
     const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, transformers = [] } = options
 
@@ -27,7 +91,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
     function resolveImportName(schemaName: string): string {
       if (ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && enumTypeSuffix && enumSchemaNames.has(schemaName)) {
-        return resolver.resolveEnumKeyName({ name: schemaName } as SchemaNode, enumTypeSuffix)
+        return resolver.resolveEnumKeyName({ name: schemaName }, enumTypeSuffix)
       }
       return resolver.default(schemaName, 'type')
     }
@@ -131,70 +195,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
         {dataType}
         {responsesType}
         {responseType}
-      </File>
-    )
-  },
-  Schema({ node, adapter, options, config, resolver }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, transformers = [] } = options
-
-    const root = path.resolve(config.root, config.output.path)
-    const mode = getMode(path.resolve(root, output.path))
-
-    if (!node.name) {
-      return
-    }
-
-    const transformedNode = transform(node, composeTransformers(...transformers))
-
-    // Build a set of schema names that are enums so the ref handler and getImports
-    // callback can use the suffixed type name (e.g. `StatusKey`) for those refs.
-    const enumSchemaNames = new Set((adapter.rootNode?.schemas ?? []).filter((s) => narrowSchema(s, schemaTypes.enum) && s.name).map((s) => s.name!))
-
-    function resolveImportName(schemaName: string): string {
-      if (ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && enumTypeSuffix && enumSchemaNames.has(schemaName)) {
-        return resolver.resolveEnumKeyName({ name: schemaName } as SchemaNode, enumTypeSuffix)
-      }
-      return resolver.default(schemaName, 'type')
-    }
-
-    const imports = adapter.getImports(transformedNode, (schemaName) => ({
-      name: resolveImportName(schemaName),
-      path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
-    }))
-
-    const isEnumSchema = !!narrowSchema(node, schemaTypes.enum)
-
-    const name = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyName(node, enumTypeSuffix) : resolver.resolveName(node.name)
-
-    const type = {
-      name,
-      file: resolver.resolveFile({ name: node.name, extname: '.ts' }, { root, output, group }),
-    } as const
-
-    return (
-      <File
-        baseName={type.file.baseName}
-        path={type.file.path}
-        meta={type.file.meta}
-        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
-        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
-      >
-        {mode === 'split' &&
-          imports.map((imp) => (
-            <File.Import key={[node.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
-          ))}
-        <Type
-          name={type.name}
-          node={transformedNode}
-          enumType={enumType}
-          enumTypeSuffix={enumTypeSuffix}
-          enumKeyCasing={enumKeyCasing}
-          optionalType={optionalType}
-          arrayType={arrayType}
-          syntaxType={syntaxType}
-          resolver={resolver}
-          enumSchemaNames={enumSchemaNames}
-        />
       </File>
     )
   },

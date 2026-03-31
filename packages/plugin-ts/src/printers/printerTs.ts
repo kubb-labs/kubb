@@ -269,7 +269,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
           node.ref && ENUM_TYPES_WITH_KEY_SUFFIX.has(this.options.enumType) && this.options.enumTypeSuffix && this.options.enumSchemaNames?.has(refName)
 
         const name = isEnumRef
-          ? this.options.resolver.resolveEnumKeyName({ name: refName } as SchemaNode, this.options.enumTypeSuffix!)
+          ? this.options.resolver.resolveEnumKeyName({ name: refName }, this.options.enumTypeSuffix!)
           : node.ref
             ? this.options.resolver.default(refName, 'type')
             : refName
@@ -290,7 +290,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
 
         const resolvedName =
           ENUM_TYPES_WITH_KEY_SUFFIX.has(this.options.enumType) && this.options.enumTypeSuffix
-            ? this.options.resolver.resolveEnumKeyName(node as unknown as SchemaNode, this.options.enumTypeSuffix)
+            ? this.options.resolver.resolveEnumKeyName(node, this.options.enumTypeSuffix)
             : this.options.resolver.default(node.name, 'type')
 
         return factory.createTypeReferenceNode(resolvedName, undefined)

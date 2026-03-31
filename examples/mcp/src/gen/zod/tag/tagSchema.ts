@@ -6,6 +6,6 @@
 import * as z from 'zod'
 
 export const tagTagSchema = z.object({
-  id: z.int().min(5).max(7).optional().default(1),
+  id: z.int().optional().default(1),
   name: z.string().optional(),
 })

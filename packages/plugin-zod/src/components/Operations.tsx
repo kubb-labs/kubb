@@ -20,7 +20,7 @@ type Props = {
 }
 
 export function Operations({ name, operations }: Props): FabricReactNode {
-  const operationsJSON = operations.reduce(
+  const operationsJSON = operations.reduce<Record<string, unknown>>(
     (prev, acc) => {
       prev[`"${acc.node.operationId}"`] = acc.data
 
@@ -29,17 +29,14 @@ export function Operations({ name, operations }: Props): FabricReactNode {
     {} as Record<string, unknown>,
   )
 
-  const pathsJSON = operations.reduce(
-    (prev, acc) => {
-      prev[`"${acc.node.path}"`] = {
-        ...(prev[`"${acc.node.path}"`] || ({} as Record<string, string>)),
-        [acc.node.method]: `operations["${acc.node.operationId}"]`,
-      }
+  const pathsJSON = operations.reduce<Record<string, Record<string, string>>>((prev, acc) => {
+    prev[`"${acc.node.path}"`] = {
+      ...(prev[`"${acc.node.path}"`] ?? {}),
+      [acc.node.method]: `operations["${acc.node.operationId}"]`,
+    }
 
-      return prev
-    },
-    {} as Record<string, Record<string, string>>,
-  )
+    return prev
+  }, {})
 
   return (
     <>

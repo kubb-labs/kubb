@@ -1,5 +1,5 @@
 import type { OperationParamsResolver } from '@kubb/ast'
-import type { OperationNode, ParameterNode, SchemaNode, StatusCode, Visitor } from '@kubb/ast/types'
+import type { OperationNode, ParameterNode, StatusCode, Visitor } from '@kubb/ast/types'
 import type {
   CompatibilityPreset,
   Exclude,
@@ -78,7 +78,7 @@ export type ResolverTs = Resolver &
      * resolver.resolveEnumKeyName(node, 'Value') // → 'PetStatusValue'
      * resolver.resolveEnumKeyName(node, '')      // → 'PetStatus'
      */
-    resolveEnumKeyName(node: SchemaNode, enumTypeSuffix: string): string
+    resolveEnumKeyName(node: { name?: string | null }, enumTypeSuffix: string): string
     /**
      * Resolves the name for an operation's grouped path parameters type.
      *

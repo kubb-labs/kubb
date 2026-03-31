@@ -1,5 +1,4 @@
-import { createSchema } from '@kubb/ast'
-import type { SchemaNode } from '@kubb/ast/types'
+import { createProperty, createSchema } from '@kubb/ast'
 import { describe, expect, test } from 'vitest'
 import {
   applyMiniModifiers,
@@ -254,20 +253,20 @@ describe('containsSelfRef', () => {
   })
 
   test('returns true when ref name matches schema name', () => {
-    const node: SchemaNode = { type: 'ref', ref: '#/components/schemas/Node', name: 'Node' }
+    const node = createSchema({ type: 'ref', ref: '#/components/schemas/Node', name: 'Node' })
     expect(containsSelfRef(node, 'Node', resolver)).toBe(true)
   })
 
   test('returns false when ref name does not match', () => {
-    const node: SchemaNode = { type: 'ref', ref: '#/components/schemas/Other', name: 'Other' }
+    const node = createSchema({ type: 'ref', ref: '#/components/schemas/Other', name: 'Other' })
     expect(containsSelfRef(node, 'Node', resolver)).toBe(false)
   })
 
   test('finds self-ref inside object property', () => {
-    const refNode: SchemaNode = { type: 'ref', ref: '#/components/schemas/Tree', name: 'Tree' }
+    const refNode = createSchema({ type: 'ref', ref: '#/components/schemas/Tree', name: 'Tree' })
     const node = createSchema({
       type: 'object',
-      properties: [{ name: 'child', required: false, schema: refNode }],
+      properties: [createProperty({ name: 'child', required: false, schema: refNode })],
     })
     expect(containsSelfRef(node, 'Tree', resolver)).toBe(true)
   })
@@ -275,32 +274,32 @@ describe('containsSelfRef', () => {
   test('returns false when object has no self-ref', () => {
     const node = createSchema({
       type: 'object',
-      properties: [{ name: 'label', required: true, schema: createSchema({ type: 'string' }) }],
+      properties: [createProperty({ name: 'label', required: true, schema: createSchema({ type: 'string' }) })],
     })
     expect(containsSelfRef(node, 'Tree', resolver)).toBe(false)
   })
 
   test('finds self-ref inside array items', () => {
-    const refNode: SchemaNode = { type: 'ref', ref: '#/components/schemas/List', name: 'List' }
+    const refNode = createSchema({ type: 'ref', ref: '#/components/schemas/List', name: 'List' })
     const node = createSchema({ type: 'array', items: [refNode] })
     expect(containsSelfRef(node, 'List', resolver)).toBe(true)
   })
 
   test('finds self-ref inside union member', () => {
-    const refNode: SchemaNode = { type: 'ref', ref: '#/components/schemas/Value', name: 'Value' }
-    const node: SchemaNode = { type: 'union', members: [createSchema({ type: 'string' }), refNode] }
+    const refNode = createSchema({ type: 'ref', ref: '#/components/schemas/Value', name: 'Value' })
+    const node = createSchema({ type: 'union', members: [createSchema({ type: 'string' }), refNode] })
     expect(containsSelfRef(node, 'Value', resolver)).toBe(true)
   })
 
   test('finds self-ref inside intersection member', () => {
-    const refNode: SchemaNode = { type: 'ref', ref: '#/components/schemas/Base', name: 'Base' }
-    const node: SchemaNode = { type: 'intersection', members: [createSchema({ type: 'object' }), refNode] }
+    const refNode = createSchema({ type: 'ref', ref: '#/components/schemas/Base', name: 'Base' })
+    const node = createSchema({ type: 'intersection', members: [createSchema({ type: 'object' }), refNode] })
     expect(containsSelfRef(node, 'Base', resolver)).toBe(true)
   })
 
   test('does not infinitely recurse on circular graph', () => {
-    const node: SchemaNode = { type: 'object', name: 'Circular' } as SchemaNode
-    const visited = new Set<SchemaNode>([node])
+    const node = createSchema({ type: 'object', name: 'Circular' })
+    const visited = new Set([node])
     expect(containsSelfRef(node, 'Circular', resolver, visited)).toBe(false)
   })
 })
