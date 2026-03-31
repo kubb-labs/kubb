@@ -350,6 +350,46 @@ describe('printerZod', () => {
         'z.discriminatedUnion("status", [z.object({\n    "status": z.enum(["active"]),\n    "name": z.string()\n    }), z.object({\n    "status": z.enum(["inactive"]),\n    "reason": z.string()\n    })])',
       )
     })
+
+    test('falls back to z.union when a member is an intersection', () => {
+      const node = createSchema({
+        type: 'union',
+        discriminatorPropertyName: 'petType',
+        members: [
+          createSchema({ type: 'ref', name: 'Cat', ref: '#/components/schemas/Cat' }),
+          createSchema({
+            type: 'intersection',
+            members: [
+              createSchema({ type: 'ref', name: 'BasePet', ref: '#/components/schemas/BasePet' }),
+              createSchema({ type: 'object', primitive: 'object', properties: [createProperty({ name: 'petType', required: true, schema: createSchema({ type: 'string' }) })] }),
+            ],
+          }),
+        ],
+      })
+      expect(printer.print(node)).toBe('z.union([Cat, BasePet.and(z.object({\n    "petType": z.string()\n    }))])')
+    })
+
+    test('discriminated union with three or more ref members', () => {
+      const node = createSchema({
+        type: 'union',
+        discriminatorPropertyName: 'type',
+        members: [
+          createSchema({ type: 'ref', name: 'Cat', ref: '#/components/schemas/Cat' }),
+          createSchema({ type: 'ref', name: 'Dog', ref: '#/components/schemas/Dog' }),
+          createSchema({ type: 'ref', name: 'Bird', ref: '#/components/schemas/Bird' }),
+        ],
+      })
+      expect(printer.print(node)).toBe('z.discriminatedUnion("type", [Cat, Dog, Bird])')
+    })
+
+    test('empty discriminated union returns empty string', () => {
+      const node = createSchema({
+        type: 'union',
+        discriminatorPropertyName: 'type',
+        members: [],
+      })
+      expect(printer.print(node)).toBeNull()
+    })
   })
 
   describe('modifiers', () => {
