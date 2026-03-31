@@ -193,7 +193,7 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         if (members.length === 1) return members[0]!
         if (node.discriminatorPropertyName) {
           // z.discriminatedUnion requires ZodObject members; intersections (ZodIntersection) are not
-          // assignable to $ZodTypeDiscriminable, so fall back to z.union when any member is an intersection.
+          // assignable to $ZodDiscriminable, so fall back to z.union when any member is an intersection.
           const hasIntersectionMembers = (node.members ?? []).some((m) => m.type === 'intersection')
           if (!hasIntersectionMembers) {
             return `z.discriminatedUnion(${stringify(node.discriminatorPropertyName)}, [${members.join(', ')}])`

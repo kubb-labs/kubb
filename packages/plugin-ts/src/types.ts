@@ -171,7 +171,7 @@ type EnumTypeOptions =
       /**
        * Choose to use enum, asConst, asPascalConst, constEnum, literal, or inlineLiteral for enums.
        * - 'literal' generates literal union types.
-       * - 'inlineLiteral' inlines enum values directly into the type (default in v5).
+       * - 'inlineLiteral' will inline enum values directly into the type (default in v5).
        * @default 'asConst'
        * @note In Kubb v5, 'inlineLiteral' becomes the default.
        */
