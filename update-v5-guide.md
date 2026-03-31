@@ -372,9 +372,16 @@ Key rules for printers:
 - `this.transform(child)` dispatches to the correct `nodes.*` handler recursively — use it for all nested nodes
 - Modifiers (`.nullable()`, `.optional()`, `.nullish()`, `.default()`, `.describe()`) are applied in `print()`, not inside `nodes.*`; property-level modifiers are applied inside `nodes.object` when building each property value
 - `keysToOmit` is always applied at the top level in `print()`, not inside `nodes.object`, so it interacts with the fully-built object schema
+- **`print()` modifier ordering**: apply `keysToOmit` (`.omit()`) FIRST, then apply nullable/optional/nullish modifiers on the result; skip `.omit()` entirely for discriminated union schemas (e.g. `node.type === 'union' && node.discriminatorPropertyName`) since Zod's `z.discriminatedUnion` does not support `.omit()`
 - Self-referencing properties inside objects must use lazy getter syntax (`get "key"() { return ... }`) to avoid circular evaluation; detect them with a `containsRef()` helper that walks the property's `SchemaNode`
-- `additionalProperties` on objects → `.catchall(type)` (or `.catchall(z.unknown())` when `additionalProperties === true`)
+- `additionalProperties` on objects → `.catchall(type)` (or `.catchall(z.unknown())` when `additionalProperties === true`); `additionalProperties === false` → `.strict()`
 - Intersection handling: try to extract numeric/string/array constraints via `narrowSchema()` from `@kubb/ast` and chain them directly instead of emitting a full `.and()`; fall back to `.and()` for structural members
+- **`syncSchemaRef(schema)`** from `@kubb/ast` — use this inside `nodes.object` (per-property) and `print()` to read nullable/optional/readOnly/default metadata; for `ref` nodes the metadata lives on `schema.schema` not on the top-level node, and `syncSchemaRef` resolves that transparently
+- **`extractRefName(node.ref)`** from `@kubb/ast` — use this instead of `node.ref.split('/').at(-1)` to parse the last segment of a `$ref` string; handles edge cases in ref paths
+- **`ipv4` / `ipv6` node types** must be handled explicitly; map them to the appropriate string/IP type in the target library (e.g. `z.ipv4()`, `z.ipv6()` in Zod v4; `factory.keywordTypeNodes.string` in TypeScript)
+- **Unique arrays**: check `node.unique` on array nodes and append a `.refine(items => new Set(items).size === items.length, { message: "Array entries must be unique" })` constraint
+- **Discriminated unions**: when `node.discriminatorPropertyName` is set on a `union` node, emit `z.discriminatedUnion(discriminatorPropertyName, [...])` instead of `z.union([...])`, unless any member is an `intersection` type (which is not compatible with `z.discriminatedUnion`'s `$ZodDiscriminable` constraint) — fall back to `z.union` in that case
+- **`buildPropertyJSDocComments`** is a shared utility that belongs in `utils.ts` (not inlined in the printer) so it can be reused by both the printer and the generator's `Type` component
 
 ### Step 3: Create src/resolvers/resolverPLUGIN_PASCAL.ts
 
@@ -853,39 +860,44 @@ Schema({ node, adapter, options, config, resolver }) {
   const root = path.resolve(config.root, config.output.path)
   const mode = getMode(path.resolve(root, output.path))
 
-  if (!node.name) return
-
   // 1. Apply user transformers before printing
-  const schemaNode = transform(node, composeTransformers(...transformers))
-  const schemaName = resolver.default(schemaNode.name!, 'function')
-  const file = resolver.resolveFile({ name: node.name, extname: '.ts' }, { root, output, group })
+  const transformedNode = transform(node, composeTransformers(...transformers))
 
-  // 2. Resolve $ref imports — adapter provides the list of referenced schema names
-  const imports = adapter.getImports(schemaNode, (refName) => ({
+  if (!transformedNode.name) return
+
+  // 2. Use `meta` as const for name + file — keeps them co-located and type-safe
+  const meta = {
+    name: resolver.default(transformedNode.name, 'function'),
+    file: resolver.resolveFile({ name: transformedNode.name, extname: '.ts' }, { root, output, group }),
+  } as const
+
+  // 3. Resolve $ref imports — adapter provides the list of referenced schema names
+  const imports = adapter.getImports(transformedNode, (refName) => ({
     name: resolver.default(refName, 'function'),
     path: resolver.resolveFile({ name: refName, extname: '.ts' }, { root, output, group }).path,
   }))
 
-  const inferTypeName = inferred ? resolver.resolveInferName(schemaName) : undefined
+  const inferTypeName = inferred ? resolver.resolveInferName(meta.name) : undefined
+  const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
   return (
     <File
-      baseName={file.baseName}
-      path={file.path}
-      meta={file.meta}
+      baseName={meta.file.baseName}
+      path={meta.file.path}
+      meta={meta.file.meta}
       banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
       footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
     >
       {/* Namespace or named import — determined by a constants Set */}
-      <File.Import name={isNamespaceImport ? 'z' : ['z']} path={importPath} isNameSpace={isNamespaceImport} />
+      <File.Import name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
       {/* Split mode only: emit import for each $ref dependency */}
       {mode === 'split' && imports.map((imp) => (
-        <File.Import key={[node.name, imp.path].join('-')} root={file.path} path={imp.path} name={imp.name} />
+        <File.Import key={[transformedNode.name, imp.path].join('-')} root={meta.file.path} path={imp.path} name={imp.name} />
       ))}
       {mini ? (
-        <FooMiniComponent name={schemaName} node={schemaNode} inferTypeName={inferTypeName} resolver={resolver} />
+        <FooMiniComponent name={meta.name} node={transformedNode} inferTypeName={inferTypeName} resolver={resolver} />
       ) : (
-        <FooComponent name={schemaName} node={schemaNode} inferTypeName={inferTypeName} resolver={resolver} />
+        <FooComponent name={meta.name} node={transformedNode} inferTypeName={inferTypeName} resolver={resolver} />
       )}
     </File>
   )
@@ -894,28 +906,37 @@ Schema({ node, adapter, options, config, resolver }) {
 
 Key rules for the Schema handler:
 - Always call `transform(node, composeTransformers(...transformers))` before passing the node to the component — this applies any user-supplied AST transformers
-- `adapter.getImports(schemaNode, cb)` walks the transformed node and collects all `$ref` dependencies; the callback maps each referenced schema name to its generated file path
+- Guard on `transformedNode.name` (not `node.name`) — the transformer may rename the node
+- Use `const meta = { name, file } as const` to co-locate the resolved name and file (pattern from `typeGenerator` and `zodGenerator`)
+- `adapter.getImports(transformedNode, cb)` walks the transformed node and collects all `$ref` dependencies; the callback maps each referenced schema name to its generated file path
 - Only emit `$ref` imports when `mode === 'split'` (one file per schema); in `export` mode all schemas are in one file and imports are not needed
-- `resolver.resolveInferName(schemaName)` gives the PascalCase type-alias name for `z.infer<typeof schemaName>` exports when `inferred: true`
+- `resolver.resolveInferName(meta.name)` gives the PascalCase type-alias name for `z.infer<typeof schemaName>` exports when `inferred: true`
+- **plugin-ts**: The `Schema` handler follows the same pattern. For enum schemas, apply the `enumTypeSuffix` naming via `resolver.resolveEnumKeyName()` and collect the full set of enum schema names (via `adapter.rootNode?.schemas`) so that `$ref` imports for enum types use the suffixed name
 
 **Operation handler** for schema plugins — uses internal `buildGroupedParamsSchema` + `renderSchemaEntry` helpers:
 
 ```typescript
 Operation({ node, adapter, options, config, resolver }) {
-  const { output, group, mini, inferred, importPath, paramsCasing, coercion, guidType, wrapOutput } = options
+  const { output, group, mini, inferred, importPath, paramsCasing, coercion, guidType, wrapOutput, transformers = [] } = options
+
+  // Apply transformers to the OperationNode at the top level — do NOT apply them
+  // inside renderSchemaEntry; each schema entry should receive the already-cased params.
+  const transformedNode = transform(node, composeTransformers(...transformers))
 
   const root = path.resolve(config.root, config.output.path)
   const mode = getMode(path.resolve(root, output.path))
 
-  const file = resolver.resolveFile(
-    { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
-    { root, output, group },
-  )
+  const meta = {
+    file: resolver.resolveFile(
+      { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+      { root, output, group },
+    ),
+  } as const
 
-  const isNamespaceImport = NAMESPACE_IMPORTS.has(importPath)
+  const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
   // Apply paramsCasing before grouping
-  const params = caseParams(node.parameters, paramsCasing)
+  const params = caseParams(transformedNode.parameters, paramsCasing)
   const pathParams  = params.filter((p) => p.in === 'path')
   const queryParams = params.filter((p) => p.in === 'query')
   const headerParams = params.filter((p) => p.in === 'header')
@@ -925,15 +946,16 @@ Operation({ node, adapter, options, config, resolver }) {
     return createSchema({
       type: 'object',
       optional,
+      primitive: 'object',
       properties: params.map((p) => createProperty({ name: p.name, required: p.required, schema: p.schema })),
     })
   }
 
-  // Renders a single named schema entry (imports + component)
-  function renderSchemaEntry({ schema, name, description, keysToOmit }: {
+  // Renders a single named schema entry (imports + component).
+  // `schema` is already transformed — do not re-transform inside this helper.
+  function renderSchemaEntry({ schema, name, keysToOmit }: {
     schema: SchemaNode | null | undefined
     name: string
-    description?: string
     keysToOmit?: Array<string>
   }) {
     if (!schema) return null
@@ -947,13 +969,13 @@ Operation({ node, adapter, options, config, resolver }) {
     return (
       <>
         {mode === 'split' && imports.map((imp) => (
-          <File.Import key={[name, imp.path, imp.name].join('-')} root={file.path} path={imp.path} name={imp.name} />
+          <File.Import key={[name, imp.path, imp.name].join('-')} root={meta.file.path} path={imp.path} name={imp.name} />
         ))}
         {mini ? (
-          <FooMiniComponent name={name} node={schema} description={description} inferTypeName={inferTypeName} resolver={resolver} keysToOmit={keysToOmit} />
+          <FooMiniComponent name={name} node={schema} inferTypeName={inferTypeName} resolver={resolver} keysToOmit={keysToOmit} />
         ) : (
           <FooComponent name={name} node={schema} coercion={coercion} guidType={guidType} wrapOutput={wrapOutput}
-            description={description} inferTypeName={inferTypeName} resolver={resolver} keysToOmit={keysToOmit} />
+            inferTypeName={inferTypeName} resolver={resolver} keysToOmit={keysToOmit} />
         )}
       </>
     )
@@ -964,37 +986,38 @@ Operation({ node, adapter, options, config, resolver }) {
   const allHeaderOptional = headerParams.every((p) => !p.required)
 
   return (
-    <File baseName={file.baseName} path={file.path} meta={file.meta}
+    <File baseName={meta.file.baseName} path={meta.file.path} meta={meta.file.meta}
       banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
       footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
     >
-      <File.Import name={isNamespaceImport ? 'z' : ['z']} path={importPath} isNameSpace={isNamespaceImport} />
+      <File.Import name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
 
       {pathParams.length > 0 && renderSchemaEntry({
         schema: buildGroupedParamsSchema({ params: pathParams }),
-        name: resolver.resolvePathParamsName(node, pathParams[0]!),
+        name: resolver.resolvePathParamsName(transformedNode, pathParams[0]!),
       })}
       {queryParams.length > 0 && renderSchemaEntry({
         schema: buildGroupedParamsSchema({ params: queryParams, optional: allQueryOptional }),
-        name: resolver.resolveQueryParamsName(node, queryParams[0]!),
+        name: resolver.resolveQueryParamsName(transformedNode, queryParams[0]!),
       })}
       {headerParams.length > 0 && renderSchemaEntry({
         schema: buildGroupedParamsSchema({ params: headerParams, optional: allHeaderOptional }),
-        name: resolver.resolveHeaderParamsName(node, headerParams[0]!),
+        name: resolver.resolveHeaderParamsName(transformedNode, headerParams[0]!),
       })}
 
-      {node.responses.map((res) => renderSchemaEntry({
+      {transformedNode.responses.map((res) => renderSchemaEntry({
         schema: res.schema,
-        name: resolver.resolveResponseStatusName(node, res.statusCode),
-        description: res.description,
+        name: resolver.resolveResponseStatusName(transformedNode, res.statusCode),
         keysToOmit: res.keysToOmit,   // keysToOmit from OperationNode flows through to printer
       }))}
 
-      {node.requestBody?.schema && renderSchemaEntry({
-        schema: node.requestBody.schema,
-        name: resolver.resolveDataName(node),
-        description: node.requestBody.description,
-        keysToOmit: node.requestBody.keysToOmit,
+      {transformedNode.requestBody?.schema && renderSchemaEntry({
+        schema: {
+          ...transformedNode.requestBody.schema,
+          description: transformedNode.requestBody.description ?? transformedNode.requestBody.schema.description,
+        },
+        name: resolver.resolveDataName(transformedNode),
+        keysToOmit: transformedNode.requestBody.keysToOmit,
       })}
     </File>
   )
@@ -1002,10 +1025,13 @@ Operation({ node, adapter, options, config, resolver }) {
 ```
 
 Key rules for the Operation handler (schema plugins):
-- `buildGroupedParamsSchema` is a local helper — **not** in a `utils.ts` file; keep it inside the generator file
+- Apply `transform(node, composeTransformers(...transformers))` to the `OperationNode` at the TOP of `Operation` (not inside `renderSchemaEntry`) — the result is `transformedNode`; pass `transformedNode` to all resolver calls and schema access
+- `buildGroupedParamsSchema` is a local helper — **not** in a `utils.ts` file; keep it inside the generator file; set `primitive: 'object'` alongside `type: 'object'` so downstream consumers can distinguish object schemas
+- `renderSchemaEntry` takes a `schema` param (not `node`) — the description is NOT passed as a separate prop; instead merge it into the schema inline: `{ ...res.schema, description: res.description ?? res.schema.description }`
+- Use `const meta = { file: resolver.resolveFile(...) } as const` for the operation file (same `meta` pattern as the Schema handler)
 - `optional` on the grouped object schema is `true` only when all params in that group are optional (so the entire params object can be omitted); path params are never optional
-- `keysToOmit` comes from `res.keysToOmit` / `node.requestBody.keysToOmit` on the `OperationNode` — pass it through to the component, which passes it to the printer; the printer applies `.omit({...})` to the output
-- Each response status code gets its own named schema via `resolver.resolveResponseStatusName(node, statusCode)` — do not merge responses into a union in the Operation handler
+- `keysToOmit` comes from `res.keysToOmit` / `transformedNode.requestBody.keysToOmit` on the `OperationNode` — pass it through to the component, which passes it to the printer; the printer applies `.omit({...})` to the output
+- Each response status code gets its own named schema via `resolver.resolveResponseStatusName(transformedNode, statusCode)` — do not merge responses into a union in the Operation handler
 
 ---
 
@@ -1316,6 +1342,17 @@ Run `pnpm test -u` in the plugin package directory.
 - Multiple generators for queries, mutations, suspense, infinite queries
 - Depends on `plugin-ts` for types and optionally `plugin-client` for client functions
 
+### plugin-ts (schema plugin — completed)
+
+Migrated to v5 architecture. Key specifics:
+- Generators (`typeGenerator.tsx`, `typeGeneratorLegacy.tsx`) now implement **both** `Schema` and `Operation` handlers; the `Schema` handler mirrors the zodGenerator pattern but handles enum naming via `resolver.resolveEnumKeyName()` and uses TypeScript-specific `Type` component
+- Generators apply `transform(node, composeTransformers(...transformers))` at the top of **both** handlers; for `Operation`, `caseParams` is applied to the `transformedNode.parameters`
+- `renderSchemaType` helper renamed parameter from `node` to `schema`; description is no longer passed as a separate prop but merged inline: `{ ...res.schema, description: res.description ?? res.schema.description }`
+- `meta = { file: resolver.resolveFile(...) } as const` pattern used in both generators
+- `printerTs.ts` updated: uses `syncSchemaRef(schema)` from `@kubb/ast` for nullable/optional/readOnly metadata (handles `ref` nodes where metadata lives on `schema.schema`); `extractRefName(node.ref)` replaces `.split('/').at(-1)`; added `ipv4`/`ipv6` node handlers → `factory.keywordTypeNodes.string`; `buildPropertyJSDocComments` moved to `utils.ts`
+- `print()` method fix: applies nullable/optional AFTER `Omit` wrapping so modifiers are not swallowed; named type declarations always emit `| undefined` for optional/nullish regardless of `optionalType` (the `?` questionToken only applies to object properties, not top-level type aliases)
+- `typeGeneratorLegacy.tsx`: uses `createSchema({ type: 'any', primitive: undefined })` for empty response/error fallback schemas (avoids conflicting with the default `primitive` inference)
+
 ### plugin-zod, plugin-faker (schema plugins)
 
 - Walk both `schema` and `operation` nodes
@@ -1333,10 +1370,10 @@ Migrated to v5 architecture:
 - Created `src/resolvers/resolverZod.ts` — default resolver using `defineResolver` with camelCase+`Schema` suffix naming; all operation-level naming methods implemented
 - Created `src/resolvers/resolverZodLegacy.ts` — `kubbV4`-compat resolver that spreads `resolverZod` and overrides status-code, request-body, and response-union naming to match Kubb v4 conventions
 - Created `src/presets.ts` — Preset registry: `default` → `resolverZod` + `zodGenerator`; `kubbV4` → `resolverZodLegacy` + `zodGeneratorLegacy`
-- Created `src/printers/printerZod.ts` — standard Zod v4 chainable-API printer (`z.string().optional()`) supporting all schema types, coercion, `wrapOutput`, `keysToOmit`, self-referencing lazy getters, and `additionalProperties` as `.catchall()`
-- Created `src/printers/printerZodMini.ts` — Zod v4 Mini functional-API printer (`z.optional(z.string())`) for better tree-shaking; uses `.check(z.minLength(...))` for constraints instead of chainable methods; no coercion support
-- Rewrote `src/generators/zodGenerator.tsx` — `defineGenerator` with `Schema` handler (applies transformers, resolves imports via `adapter.getImports()`, renders `<Zod|ZodMini>`) and `Operation` handler (groups params by location, builds `SchemaNode` objects via `createSchema/createProperty`, renders per-parameter-group + per-response + request body)
-- Rewrote `src/generators/zodGeneratorLegacy.tsx` — `kubbV4` generator that groups all responses into a legacy `{ Response, Errors, QueryParams, PathParams, HeaderParams }` schema and emits response-union + all-responses schemas
+- Created `src/printers/printerZod.ts` — standard Zod v4 chainable-API printer (`z.string().optional()`) supporting all schema types including `ipv4`/`ipv6` (`z.ipv4()`, `z.ipv6()`), coercion, `wrapOutput`, `keysToOmit`, self-referencing lazy getters, `additionalProperties` as `.catchall()`/`.strict()`, discriminated unions (`z.discriminatedUnion`) with intersection fallback, unique array `.refine()`, `syncSchemaRef()` for metadata and `extractRefName()` for ref parsing
+- Created `src/printers/printerZodMini.ts` — Zod v4 Mini functional-API printer (`z.optional(z.string())`) for better tree-shaking; uses `.check(z.minLength(...))` for constraints instead of chainable methods; no coercion support; same `syncSchemaRef`/`extractRefName` patterns
+- Rewrote `src/generators/zodGenerator.tsx` — `defineGenerator` with `Schema` handler (applies transformers to `SchemaNode`, uses `meta = { name, file } as const`, resolves imports via `adapter.getImports()`, renders `<Zod|ZodMini>`) and `Operation` handler (applies transformers to `OperationNode` once at top level, groups params by location, builds `SchemaNode` objects via `createSchema/createProperty` with `primitive: 'object'`, description merged inline into schema, renders per-parameter-group + per-response + request body)
+- Rewrote `src/generators/zodGeneratorLegacy.tsx` — `kubbV4` generator that groups all responses into a legacy `{ Response, Errors, QueryParams, PathParams, HeaderParams }` schema and emits response-union + all-responses schemas; uses `createSchema({ type: 'any', primitive: undefined })` for empty response fallbacks
 - Rewrote `src/plugin.ts` — Uses `walk` + `runGeneratorSchema`, `runGeneratorOperation`, `runGeneratorOperations` from `@kubb/core`; `getPreset` for preset resolution
 - Updated `package.json` — Replaced `@kubb/plugin-oas`/`@kubb/oas`/`@kubb/plugin-ts` deps with `@kubb/ast` and `@kubb/core`
 - Updated `vitest.config.ts` — Added `tsconfigPaths()` for workspace alias resolution in tests
