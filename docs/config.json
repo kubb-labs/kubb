@@ -90,12 +90,12 @@
               "activeMatch": "^/plugins/plugin-oas/?$"
             },
             {
-              "text": "@kubb/plugin-cypress <span class=\"new\">new in 3.7.0</span>",
+              "text": "@kubb/plugin-cypress",
               "link": "/plugins/plugin-cypress",
               "activeMatch": "^/plugins/plugin-cypress/?$"
             },
             {
-              "text": "@kubb/plugin-mcp <span class=\"new\">new in 3.9.0</span>",
+              "text": "@kubb/plugin-mcp",
               "link": "/plugins/plugin-mcp",
               "activeMatch": "^/plugins/plugin-mcp/?$"
             },
@@ -189,7 +189,7 @@
               "activeMatch": "^/helpers/cli/?$"
             },
             {
-              "text": "@kubb/mcp <span class=\"new\">new in 4.16.0</span>",
+              "text": "@kubb/mcp",
               "link": "/helpers/mcp",
               "activeMatch": "^/helpers/mcp/?$"
             },
@@ -233,7 +233,7 @@
                   "activeMatch": "^/examples/fetch/?$"
                 },
                 {
-                  "text": "Cypress <span class=\"new\">new in 3.7.0</span>",
+                  "text": "Cypress",
                   "link": "/examples/cypress",
                   "activeMatch": "^/examples/cypress/?$"
                 }
@@ -298,7 +298,7 @@
               "text": "AI & Extensions",
               "items": [
                 {
-                  "text": "MCP (Claude) <span class=\"new\">new in 3.9.0</span>",
+                  "text": "MCP (Claude)",
                   "link": "/examples/mcp",
                   "activeMatch": "^/examples/mcp/?$"
                 }
@@ -308,7 +308,7 @@
               "text": "Advanced",
               "items": [
                 {
-                  "text": "Custom Generators <span class=\"new\">new</span>",
+                  "text": "Custom Generators",
                   "link": "/examples/generators",
                   "activeMatch": "^/examples/generators/?$"
                 },
@@ -423,6 +423,7 @@
   "sidebar": {
     "/getting-started": "default",
     "/plugins": "default",
+    "/adapters": "default",
     "/helpers": "default",
     "/build": "default",
     "/changelog": "default",
