@@ -1,14 +1,15 @@
-import { stringify, toRegExpString } from '@internals/utils'
+import { stringify } from '@internals/utils'
 import { extractRefName, narrowSchema, syncSchemaRef } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import type { ResolverZod } from '../types.ts'
+import { applyModifiers, containsSelfRef, formatLiteral, lengthConstraints, numberConstraints } from '../utils.ts'
 
 export type ZodOptions = {
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
   guidType?: 'uuid' | 'guid'
-  wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
+  wrapOutput?: (opts: { output: string; schema: SchemaNode }) => string | undefined
   resolver?: ResolverZod
   schemaName?: string
   /**
@@ -23,106 +24,6 @@ function shouldCoerce(coercion: ZodOptions['coercion'], type: 'dates' | 'strings
   if (coercion === undefined || coercion === false) return false
   if (coercion === true) return true
   return !!coercion[type]
-}
-
-/** Format a default value as a code-level literal. */
-function formatDefault(value: unknown): string {
-  if (typeof value === 'string') return stringify(value)
-  if (typeof value === 'boolean') return String(value)
-  if (typeof value === 'number') return String(value)
-  if (typeof value === 'object' && value !== null) return '{}'
-  return String(value ?? '')
-}
-
-/** Format a primitive enum/literal value: strings are quoted, numbers and booleans are raw. */
-function formatLiteral(v: string | number | boolean): string {
-  if (typeof v === 'string') return stringify(v)
-  return String(v)
-}
-
-/** Build `.min()` / `.max()` / `.gt()` / `.lt()` constraint chains for numbers. */
-function numberConstraints({
-  min,
-  max,
-  exclusiveMinimum,
-  exclusiveMaximum,
-}: {
-  min?: number
-  max?: number
-  exclusiveMinimum?: number
-  exclusiveMaximum?: number
-}): string {
-  return [
-    min !== undefined ? `.min(${min})` : '',
-    max !== undefined ? `.max(${max})` : '',
-    exclusiveMinimum !== undefined ? `.gt(${exclusiveMinimum})` : '',
-    exclusiveMaximum !== undefined ? `.lt(${exclusiveMaximum})` : '',
-  ].join('')
-}
-
-/** Build `.min()` / `.max()` chains for strings/arrays. */
-function lengthConstraints({ min, max, pattern }: { min?: number; max?: number; pattern?: string }): string {
-  return [
-    min !== undefined ? `.min(${min})` : '',
-    max !== undefined ? `.max(${max})` : '',
-    pattern !== undefined ? `.regex(${toRegExpString(pattern, null)})` : '',
-  ].join('')
-}
-
-/** Apply nullable / optional / nullish modifiers and optional description to a property value string (chainable API). */
-function applyModifiers({
-  value,
-  nullable,
-  optional,
-  nullish,
-  defaultValue,
-  description,
-}: {
-  value: string
-  nullable?: boolean
-  optional?: boolean
-  nullish?: boolean
-  defaultValue?: unknown
-  description?: string
-}): string {
-  let result = value
-  if (nullish || (nullable && optional)) {
-    result = `${result}.nullish()`
-  } else if (optional) {
-    result = `${result}.optional()`
-  } else if (nullable) {
-    result = `${result}.nullable()`
-  }
-  if (defaultValue !== undefined) {
-    result = `${result}.default(${formatDefault(defaultValue)})`
-  }
-  if (description) {
-    result = `${result}.describe(${stringify(description)})`
-  }
-  return result
-}
-
-/** Returns true when the schema tree contains a self-referential `$ref` (resolved name matches schemaName). */
-function containsSelfRef(node: SchemaNode, schemaName: string, resolver: ResolverZod | undefined): boolean {
-  if (node.type === 'ref' && node.ref) {
-    const rawName = extractRefName(node.ref) ?? node.name
-    const resolved = rawName ? (resolver?.default(rawName, 'function') ?? rawName) : node.name
-    return resolved === schemaName
-  }
-  if (node.type === 'object') {
-    if (node.properties?.some((p) => containsSelfRef(p.schema, schemaName, resolver))) return true
-    if (node.additionalProperties && node.additionalProperties !== true) {
-      return containsSelfRef(node.additionalProperties, schemaName, resolver)
-    }
-    return false
-  }
-  if (node.type === 'array' || node.type === 'tuple') {
-    return node.items?.some((item) => containsSelfRef(item, schemaName, resolver)) ?? false
-  }
-  if (node.type === 'union' || node.type === 'intersection') {
-    return node.members?.some((m) => containsSelfRef(m, schemaName, resolver)) ?? false
-  }
-  return false
 }
 
 /**

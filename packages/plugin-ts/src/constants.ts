@@ -27,3 +27,13 @@ export const ENUM_TYPES_WITH_RUNTIME_VALUE = new Set<EnumType | undefined>(['enu
  * `enumType` values whose type declaration is type-only (no runtime value emitted for the type alias).
  */
 export const ENUM_TYPES_WITH_TYPE_ONLY = new Set<EnumType | undefined>(['asConst', 'asPascalConst', 'literal', undefined] as const)
+
+/**
+ * Ordering priority for function parameters: lower = sorted earlier.
+ */
+export const PARAM_RANK = {
+  required: 0,
+  optional: 1,
+  withDefault: 2,
+  rest: 3,
+} as const

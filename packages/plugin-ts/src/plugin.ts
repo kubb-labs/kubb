@@ -112,7 +112,9 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
       const root = path.resolve(config.root, config.output.path)
 
       if (!adapter) {
-        throw new Error('Plugin cannot work without adapter being set')
+        throw new Error(
+          `[${pluginTsName}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`,
+        )
       }
 
       await openInStudio({ ast: true })

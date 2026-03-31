@@ -1,6 +1,7 @@
 import type { PrinterFactoryOptions } from '@kubb/ast'
 import { createPrinterFactory } from '@kubb/ast'
 import type { FunctionNode, FunctionNodeType, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, TypeNode } from '@kubb/ast/types'
+import { PARAM_RANK } from '../constants.ts'
 
 /**
  * Maps each function-printer handler key to its concrete node type.
@@ -53,13 +54,13 @@ type DefaultPrinter = PrinterFactoryOptions<'functionParameters', FunctionPrinte
 
 function rank(param: FunctionParameterNode | ParameterGroupNode): number {
   if (param.kind === 'ParameterGroup') {
-    if (param.default) return 2
+    if (param.default) return PARAM_RANK.withDefault
     const isOptional = param.optional ?? param.properties.every((p) => p.optional || p.default !== undefined)
-    return isOptional ? 1 : 0
+    return isOptional ? PARAM_RANK.optional : PARAM_RANK.required
   }
-  if (param.rest) return 3
-  if (param.default) return 2
-  return param.optional ? 1 : 0
+  if (param.rest) return PARAM_RANK.rest
+  if (param.default) return PARAM_RANK.withDefault
+  return param.optional ? PARAM_RANK.optional : PARAM_RANK.required
 }
 
 function sortParams(params: ReadonlyArray<FunctionParameterNode | ParameterGroupNode>): Array<FunctionParameterNode | ParameterGroupNode> {

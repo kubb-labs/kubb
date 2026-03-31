@@ -118,7 +118,9 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       const root = path.resolve(config.root, config.output.path)
 
       if (!adapter) {
-        throw new Error('Plugin cannot work without adapter being set')
+        throw new Error(
+          `[${pluginZodName}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`,
+        )
       }
 
       await openInStudio({ ast: true })

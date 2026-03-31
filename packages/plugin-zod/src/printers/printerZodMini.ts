@@ -1,13 +1,14 @@
-import { stringify, toRegExpString } from '@internals/utils'
+import { stringify } from '@internals/utils'
 import { extractRefName, narrowSchema, syncSchemaRef } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import type { PluginZod, ResolverZod } from '../types.ts'
+import { applyMiniModifiers, containsSelfRef, formatLiteral, lengthChecksMini, numberChecksMini } from '../utils.ts'
 
 export type ZodMiniOptions = {
   guidType?: PluginZod['resolvedOptions']['guidType']
-  wrapOutput?: (opts: { output: string; schema: any }) => string | undefined
+  wrapOutput?: (opts: { output: string; schema: SchemaNode }) => string | undefined
   resolver?: ResolverZod
   schemaName?: string
   /**
@@ -17,104 +18,6 @@ export type ZodMiniOptions = {
 }
 
 type ZodMiniPrinterFactory = PrinterFactoryOptions<'zod-mini', ZodMiniOptions, string, string>
-
-/** Format a default value as a code-level literal. */
-function formatDefault(value: unknown): string {
-  if (typeof value === 'string') return stringify(value)
-  if (typeof value === 'boolean') return String(value)
-  if (typeof value === 'number') return String(value)
-  if (typeof value === 'object' && value !== null) return '{}'
-  return String(value ?? '')
-}
-
-/** Format a primitive enum/literal value: strings are quoted, numbers and booleans are raw. */
-function formatLiteral(v: string | number | boolean): string {
-  if (typeof v === 'string') return stringify(v)
-  return String(v)
-}
-
-/** Build `.check(z.minimum(), z.maximum())` for mini-mode numeric constraints. */
-function numberChecksMini({
-  min,
-  max,
-  exclusiveMinimum,
-  exclusiveMaximum,
-}: {
-  min?: number
-  max?: number
-  exclusiveMinimum?: number
-  exclusiveMaximum?: number
-}): string {
-  const checks: string[] = []
-  if (min !== undefined) checks.push(`z.minimum(${min})`)
-  if (max !== undefined) checks.push(`z.maximum(${max})`)
-  if (exclusiveMinimum !== undefined) checks.push(`z.minimum(${exclusiveMinimum}, { exclusive: true })`)
-  if (exclusiveMaximum !== undefined) checks.push(`z.maximum(${exclusiveMaximum}, { exclusive: true })`)
-  return checks.length ? `.check(${checks.join(', ')})` : ''
-}
-
-/** Build `.check(z.minLength(), z.maxLength())` for mini-mode length constraints. */
-function lengthChecksMini({ min, max, pattern }: { min?: number; max?: number; pattern?: string }): string {
-  const checks: string[] = []
-  if (min !== undefined) checks.push(`z.minLength(${min})`)
-  if (max !== undefined) checks.push(`z.maxLength(${max})`)
-  if (pattern !== undefined) checks.push(`z.regex(${toRegExpString(pattern, null)})`)
-  return checks.length ? `.check(${checks.join(', ')})` : ''
-}
-
-/** Apply nullable / optional / nullish modifiers and optional description to a property value string (functional API). */
-function applyMiniModifiers({
-  value,
-  nullable,
-  optional,
-  nullish,
-  defaultValue,
-}: {
-  value: string
-  nullable?: boolean
-  optional?: boolean
-  nullish?: boolean
-  defaultValue?: unknown
-}): string {
-  let result = value
-  if (nullish) {
-    result = `z.nullish(${result})`
-  } else {
-    if (nullable) {
-      result = `z.nullable(${result})`
-    }
-    if (optional) {
-      result = `z.optional(${result})`
-    }
-  }
-  if (defaultValue !== undefined) {
-    result = `z._default(${result}, ${formatDefault(defaultValue)})`
-  }
-  return result
-}
-
-/** Returns true when the schema tree contains a self-referential `$ref` (resolved name matches schemaName). */
-function containsSelfRef(node: SchemaNode, schemaName: string, resolver: ResolverZod | undefined): boolean {
-  if (node.type === 'ref' && node.ref) {
-    const rawName = extractRefName(node.ref) ?? node.name
-    const resolved = rawName ? (resolver?.default(rawName, 'function') ?? rawName) : node.name
-    return resolved === schemaName
-  }
-  if (node.type === 'object') {
-    if (node.properties?.some((p) => containsSelfRef(p.schema, schemaName, resolver))) return true
-    if (node.additionalProperties && node.additionalProperties !== true) {
-      return containsSelfRef(node.additionalProperties, schemaName, resolver)
-    }
-    return false
-  }
-  if (node.type === 'array' || node.type === 'tuple') {
-    return node.items?.some((item) => containsSelfRef(item, schemaName, resolver)) ?? false
-  }
-  if (node.type === 'union' || node.type === 'intersection') {
-    return node.members?.some((m) => containsSelfRef(m, schemaName, resolver)) ?? false
-  }
-  return false
-}
 /**
  * Zod v4 **Mini** printer built with `definePrinter`.
  *

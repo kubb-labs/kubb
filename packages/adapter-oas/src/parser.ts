@@ -359,8 +359,8 @@ function createSchemaParser(ctx: OasParserContext) {
         type: options.integerType === 'bigint' ? 'bigint' : 'integer',
         primitive: 'integer',
         ...base,
-        min: schema.minimum ?? schema.minLength,
-        max: schema.maximum ?? schema.maxLength,
+        min: schema.minimum,
+        max: schema.maximum,
         exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
         exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
       })
@@ -584,8 +584,8 @@ function createSchemaParser(ctx: OasParserContext) {
     return createSchema({
       type,
       primitive: type,
-      min: schema.minimum ?? schema.minLength,
-      max: schema.maximum ?? schema.maxLength,
+      min: schema.minimum,
+      max: schema.maximum,
       exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
       exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
       ...buildSchemaNode(schema, name, nullable, defaultValue),

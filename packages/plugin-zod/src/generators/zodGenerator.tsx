@@ -7,7 +7,7 @@ import { File } from '@kubb/react-fabric'
 import { Operations } from '../components/Operations.tsx'
 import { Zod } from '../components/Zod.tsx'
 import { ZodMini } from '../components/ZodMini.tsx'
-import { ZOD_NAMESPACE_IMPORTS } from '../constants.ts'
+import { OPERATIONS_FILENAME, ZOD_NAMESPACE_IMPORTS } from '../constants.ts'
 import type { PluginZod, ResolverZod } from '../types'
 
 function buildSchemaNames(node: OperationNode, params: Array<ParameterNode>, resolver: ResolverZod) {
@@ -52,22 +52,25 @@ export const zodGenerator = defineGenerator<PluginZod>({
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
+    const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
     if (!node.name) {
       return
     }
 
+    const resolveZodFile = (name: string, tag?: string, opPath?: string) =>
+      resolver.resolveFile({ name, extname: '.ts', tag, path: opPath }, { root, output, group })
+
     const schemaNode = transform(node, composeTransformers(...transformers))
     const zodName = resolver.default(schemaNode.name!, 'function')
-    const file = resolver.resolveFile({ name: node.name, extname: '.ts' }, { root, output, group })
+    const file = resolveZodFile(node.name)
 
     // Resolve imports for $ref schemas
     const imports = adapter.getImports(schemaNode, (schemaName) => ({
       name: resolver.default(schemaName, 'function'),
-      path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
+      path: resolveZodFile(schemaName).path,
     }))
 
-    const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
     const inferTypeName = inferred ? resolver.resolveInferName(resolver.resolveName(node.name)) : undefined
 
     return (
@@ -111,11 +114,12 @@ export const zodGenerator = defineGenerator<PluginZod>({
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
-
-    const file = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
-
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
+    const resolveZodFile = (name: string, tag?: string, opPath?: string) =>
+      resolver.resolveFile({ name, extname: '.ts', tag, path: opPath }, { root, output, group })
+
+    const file = resolveZodFile(node.operationId, node.tags[0] ?? 'default', node.path)
     const params = caseParams(node.parameters, paramsCasing)
 
     function renderSchemaEntry({
@@ -135,7 +139,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
 
       const imports = adapter.getImports(schema, (schemaName) => ({
         name: resolver.default(schemaName, 'function'),
-        path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
+        path: resolveZodFile(schemaName).path,
       }))
 
       return (
@@ -170,32 +174,16 @@ export const zodGenerator = defineGenerator<PluginZod>({
       )
     }
 
-    // Render parameter schemas
     const paramSchemas = params.map((param) =>
-      renderSchemaEntry({
-        schema: param.schema,
-        name: resolver.resolveParamName(node, param),
-      }),
+      renderSchemaEntry({ schema: param.schema, name: resolver.resolveParamName(node, param) }),
     )
 
-    // Render response schemas
     const responseSchemas = node.responses.map((res) =>
-      renderSchemaEntry({
-        schema: res.schema,
-        name: resolver.resolveResponseStatusName(node, res.statusCode),
-        description: res.description,
-        keysToOmit: res.keysToOmit,
-      }),
+      renderSchemaEntry({ schema: res.schema, name: resolver.resolveResponseStatusName(node, res.statusCode), description: res.description, keysToOmit: res.keysToOmit }),
     )
 
-    // Render request body schema
     const requestSchema = node.requestBody?.schema
-      ? renderSchemaEntry({
-          schema: node.requestBody.schema,
-          name: resolver.resolveDataName(node),
-          description: node.requestBody.description,
-          keysToOmit: node.requestBody.keysToOmit,
-        })
+      ? renderSchemaEntry({ schema: node.requestBody.schema, name: resolver.resolveDataName(node), description: node.requestBody.description, keysToOmit: node.requestBody.keysToOmit })
       : null
 
     return (
@@ -221,8 +209,11 @@ export const zodGenerator = defineGenerator<PluginZod>({
     }
 
     const root = path.resolve(config.root, config.output.path)
-    const baseName = 'operations.ts' as const
-    const filePath = resolver.resolvePath({ baseName, pathMode: getMode(path.resolve(root, output.path)) }, { root, output, group })
+    const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
+    const resolveZodFile = (name: string, tag?: string, opPath?: string) =>
+      resolver.resolveFile({ name, extname: '.ts', tag, path: opPath }, { root, output, group })
+
+    const filePath = resolver.resolvePath({ baseName: OPERATIONS_FILENAME, pathMode: getMode(path.resolve(root, output.path)) }, { root, output, group })
     const file = {
       path: filePath,
       baseName: path.basename(filePath),
@@ -231,7 +222,6 @@ export const zodGenerator = defineGenerator<PluginZod>({
       imports: [] as Array<unknown>,
       exports: [] as Array<unknown>,
     } as KubbFile.File
-    const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
     const transformedOperations = nodes.map((node) => {
       const params = caseParams(node.parameters, paramsCasing)
@@ -241,9 +231,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
       }
     })
 
-    const operationFiles = nodes.map((node) =>
-      resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }),
-    )
+    const operationFiles = nodes.map((node) => resolveZodFile(node.operationId, node.tags[0] ?? 'default', node.path))
 
     const imports = transformedOperations.flatMap(({ data }, index) => {
       const names = [data.request, ...Object.values(data.responses), ...Object.values(data.parameters)].filter(Boolean) as string[]
