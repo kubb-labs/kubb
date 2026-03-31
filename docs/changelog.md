@@ -6,6 +6,17 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.26
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-client`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-client)
+
+-   [#2943](https://github.com/kubb-labs/kubb/pull/2943) [`035a2ea`](https://github.com/kubb-labs/kubb/commit/035a2ea01b88246c8642fead92029a955599f9cd) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix unused variable when `paramsCasing` is set with `urlType: 'export'`.
+
+    When a path parameter contained an underscore (e.g. `item_id`) and `paramsCasing: 'camelcase'` was combined with `urlType: 'export'`, the generated client function contained an unused `const item_id = itemId` declaration, causing TypeScript `noUnusedLocals` errors. The mapping variable is now only emitted when the URL is built inline (i.e. when no exported URL function is used).
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
