@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-ts",
-  "version": "5.0.0-alpha.25",
+  "version": "5.0.0-alpha.26",
   "description": "TypeScript code generation plugin for Kubb, transforming OpenAPI schemas into TypeScript interfaces, types, and utility functions.",
   "keywords": [
     "typescript",
