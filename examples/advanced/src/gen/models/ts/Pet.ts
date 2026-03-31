@@ -9,6 +9,9 @@ export const petStatusEnum = {
 
 export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
 
+/**
+ * @type object
+ */
 export type Pet = {
   /**
    * @example 10
@@ -30,6 +33,7 @@ export type Pet = {
    */
   name: string
   /**
+   * @maxLength 255
    * @type string | undefined
    */
   url?: string

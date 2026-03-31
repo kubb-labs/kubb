@@ -10,9 +10,6 @@ export const uploadFilePathPetIdSchema = z.int().describe("ID of pet to update")
 
 export const uploadFileQueryAdditionalMetadataSchema = z.string().optional().describe("Additional Metadata")
 
-/**
- * @description successful operation
- */
 export const uploadFileStatus200Schema = apiResponseSchema
 
 export const uploadFileDataSchema = z.instanceof(File).optional()

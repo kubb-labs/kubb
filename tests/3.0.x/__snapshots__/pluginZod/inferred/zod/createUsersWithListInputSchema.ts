@@ -6,16 +6,10 @@
 import * as z from "zod";
 import { userSchema } from "./userSchema.ts";
 
-/**
- * @description Successful operation
- */
 export const createUsersWithListInputStatus200Schema = userSchema
 
 export type CreateUsersWithListInputStatus200Schema = z.infer<typeof createUsersWithListInputStatus200Schema>
 
-/**
- * @description successful operation
- */
 export const createUsersWithListInputStatusDefaultSchema = z.any()
 
 export type CreateUsersWithListInputStatusDefaultSchema = z.infer<typeof createUsersWithListInputStatusDefaultSchema>

@@ -16,11 +16,11 @@ const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 
  *
  * For non-ref nodes the node itself is returned unchanged.
  */
-export function syncSchemaRef(node: SchemaNode): SchemaNode | null {
+export function syncSchemaRef(node: SchemaNode): SchemaNode {
   const ref = narrowSchema(node, 'ref')
 
   if (!ref) return node
-  if (!ref.schema) return null
+  if (!ref.schema) return node
 
   const { kind: _kind, type: _type, name: _name, ref: _ref, schema: _schema, ...overrides } = ref
 

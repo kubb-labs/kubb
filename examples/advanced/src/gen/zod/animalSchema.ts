@@ -16,9 +16,11 @@ export const animalSchema = z
     ),
   ])
   .and(
-    z.object({
-      type: z.enum(['cat', 'dog']),
-    }),
+    z
+      .object({
+        type: z.enum(['cat', 'dog']),
+      })
+      .strict(),
   )
 
 export type AnimalSchema = z.infer<typeof animalSchema>

@@ -381,7 +381,19 @@ describe('parseSchema email', () => {
 describe('parseSchema url', () => {
   const ctx = { document: emptyDocument }
 
-  it.each(['uri', 'uri-reference', 'url', 'ipv4', 'ipv6', 'hostname', 'idn-hostname'])('maps format %s to url', (format) => {
+  it('maps format ipv4 to ipv4', () => {
+    const node = parseSchema(ctx, { schema: { format: 'ipv4' } })
+
+    expect(node.type).toBe('ipv4')
+  })
+
+  it('maps format ipv6 to ipv6', () => {
+    const node = parseSchema(ctx, { schema: { format: 'ipv6' } })
+
+    expect(node.type).toBe('ipv6')
+  })
+
+  it.each(['uri', 'uri-reference', 'url', 'hostname', 'idn-hostname'])('maps format %s to url', (format) => {
     const node = parseSchema(ctx, { schema: { type: 'string', format } })
 
     expect(node.type).toBe('url')
@@ -1141,7 +1153,7 @@ describe('parseSchema object additionalProperties', () => {
     })
     const narrowed = narrowSchema(node, 'object')
 
-    expect(narrowed?.additionalProperties).toBeUndefined()
+    expect(narrowed?.additionalProperties).toBeFalsy()
   })
 
   it('no additionalProperties → additionalProperties is undefined', () => {

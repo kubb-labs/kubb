@@ -5,6 +5,7 @@
 
 /**
  * @description successful operation
+ * @type object
  */
 export type GetInventory200 = {
   [key: string]: number
@@ -12,6 +13,9 @@ export type GetInventory200 = {
 
 export type GetInventoryQueryResponse = GetInventory200
 
+/**
+ * @type object
+ */
 export type GetInventoryQuery = {
   Response: GetInventory200
   Errors: any

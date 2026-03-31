@@ -20,15 +20,9 @@ export const createPetsHeaderParamsSchema = z.object({
   'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters'),
 })
 
-/**
- * @description Null response
- */
-export const createPets201Schema = z.any()
+export const createPets201Schema = z.any().describe('Null response')
 
-/**
- * @description unexpected error
- */
-export const createPetsErrorSchema = petNotFoundSchema.describe('Pet not found')
+export const createPetsErrorSchema = petNotFoundSchema.describe('unexpected error')
 
 export const createPetsMutationRequestSchema = z.object({
   name: z.string(),

@@ -7,23 +7,16 @@ import * as z from 'zod'
 import { addPetRequestSchema } from './addPetRequestSchema.js'
 import { petSchema } from './petSchema.js'
 
-/**
- * @description Successful operation
- */
-export const addPet200Schema = petSchema.omit({ name: true })
+export const addPet200Schema = petSchema.omit({ name: true }).describe('Successful operation')
 
-/**
- * @description Pet not found
- */
-export const addPet405Schema = z.object({
-  code: z.int().optional(),
-  message: z.string().optional(),
-})
+export const addPet405Schema = z
+  .object({
+    code: z.int().optional(),
+    message: z.string().optional(),
+  })
+  .describe('Pet not found')
 
-/**
- * @description Create a new pet in the store
- */
-export const addPetMutationRequestSchema = addPetRequestSchema
+export const addPetMutationRequestSchema = addPetRequestSchema.describe('Create a new pet in the store')
 
 export const addPetMutationResponseSchema = addPet200Schema
 

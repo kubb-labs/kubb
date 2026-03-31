@@ -5,9 +5,6 @@
 
 import * as z from 'zod'
 
-/**
- * @description Created
- */
 export const createPetStatus201Schema = z.object({})
 
 export const createPetDataSchema = z.object({

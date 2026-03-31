@@ -5,10 +5,7 @@
 
 import * as z from 'zod'
 
-/**
- * @description successful operation
- */
-export const getInventory200Schema = z.object({}).catchall(z.int())
+export const getInventory200Schema = z.object({}).catchall(z.int()).describe('successful operation')
 
 export const getInventoryQueryResponseSchema = getInventory200Schema
 

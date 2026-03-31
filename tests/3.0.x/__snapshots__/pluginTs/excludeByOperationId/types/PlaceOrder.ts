@@ -6,17 +6,23 @@
 import type { Order } from "./Order.ts";
 
 /**
- * @description successful operation
+ * @type object
 */
 export type PlaceOrderStatus200 = Order;
 
 /**
- * @description Invalid input
+ * @type any
 */
 export type PlaceOrderStatus405 = any;
 
-export type PlaceOrderData = Order;
+/**
+ * @type object | undefined
+*/
+export type PlaceOrderData = Order | undefined;
 
+/**
+ * @type object
+*/
 export type PlaceOrderRequestConfig = {
     data?: PlaceOrderData;
     pathParams?: never;
@@ -28,6 +34,9 @@ export type PlaceOrderRequestConfig = {
     url: "/store/order";
 };
 
+/**
+ * @type object
+*/
 export type PlaceOrderResponses = {
     "200": PlaceOrderStatus200;
     "405": PlaceOrderStatus405;

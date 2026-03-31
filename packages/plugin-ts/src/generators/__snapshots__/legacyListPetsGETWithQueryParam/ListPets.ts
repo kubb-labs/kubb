@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * @type object
+ */
 export type ListPetsQueryParams = {
   /**
    * @type integer | undefined
@@ -12,16 +15,21 @@ export type ListPetsQueryParams = {
 
 /**
  * @description A paged array of pets
+ * @type object
  */
 export type ListPets200 = object
 
 /**
  * @description Unexpected error
+ * @type object
  */
 export type ListPetsError = object
 
 export type ListPetsQueryResponse = ListPets200
 
+/**
+ * @type object
+ */
 export type ListPetsQuery = {
   Response: ListPets200
   QueryParams: ListPetsQueryParams

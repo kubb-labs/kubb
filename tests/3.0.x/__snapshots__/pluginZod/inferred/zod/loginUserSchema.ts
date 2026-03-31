@@ -13,16 +13,10 @@ export const loginUserQueryPasswordSchema = z.string().optional().describe("The 
 
 export type LoginUserQueryPasswordSchema = z.infer<typeof loginUserQueryPasswordSchema>
 
-/**
- * @description successful operation
- */
 export const loginUserStatus200Schema = z.string()
 
 export type LoginUserStatus200Schema = z.infer<typeof loginUserStatus200Schema>
 
-/**
- * @description Invalid username/password supplied
- */
 export const loginUserStatus400Schema = z.any()
 
 export type LoginUserStatus400Schema = z.infer<typeof loginUserStatus400Schema>

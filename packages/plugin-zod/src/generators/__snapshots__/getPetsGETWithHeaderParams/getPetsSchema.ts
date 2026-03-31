@@ -9,7 +9,4 @@ export const getPetsHeaderXRequestIdSchema = z.string()
 
 export const getPetsHeaderXCorrelationIdSchema = z.string().optional()
 
-/**
- * @description Pets
- */
 export const getPetsStatus200Schema = z.object({})

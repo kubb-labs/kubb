@@ -71,14 +71,14 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         output,
         group: group
           ? ({
-              ...options.group,
+              ...group,
               name: (ctx) => {
-                if (options.group?.type === 'path') {
+                if (group.type === 'path') {
                   return `${ctx.group.split('/')[1]}`
                 }
                 return `${camelCase(ctx.group)}Controller`
               },
-            } as Group)
+            } satisfies Group)
           : undefined,
         dateType,
         typed,
@@ -118,7 +118,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
       const root = path.resolve(config.root, config.output.path)
 
       if (!adapter) {
-        throw new Error('Plugin cannot work without adapter being set')
+        throw new Error(`[${pluginZodName}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`)
       }
 
       await openInStudio({ ast: true })

@@ -6,14 +6,8 @@
 import * as z from 'zod/mini'
 import { userSchema } from './userSchema.ts'
 
-/**
- * @description successful operation
- */
 export const createUserErrorSchema = userSchema
 
-/**
- * @description Created user object
- */
 export const createUserMutationRequestSchema = z.optional(userSchema)
 
 export const createUserMutationResponseSchema = z.any()

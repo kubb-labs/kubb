@@ -1,5 +1,8 @@
 // version: 1.0.11
 
+/**
+ * @type object
+ */
 export type Address = {
   /**
    * @example 437 Lytton

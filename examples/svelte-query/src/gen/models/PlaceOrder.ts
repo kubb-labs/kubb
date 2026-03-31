@@ -8,18 +8,26 @@ import type { Order } from './Order.ts'
 
 /**
  * @description successful operation
+ * @type object
  */
 export type PlaceOrder200 = Order
 
 /**
  * @description Invalid input
+ * @type any
  */
 export type PlaceOrder405 = any
 
-export type PlaceOrderMutationRequest = Order
+/**
+ * @type object | undefined
+ */
+export type PlaceOrderMutationRequest = Order | undefined
 
 export type PlaceOrderMutationResponse = PlaceOrder200
 
+/**
+ * @type object
+ */
 export type PlaceOrderMutation = {
   Response: PlaceOrder200
   Request: PlaceOrderMutationRequest

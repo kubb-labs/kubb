@@ -8,17 +8,8 @@ import { userSchema } from "./userSchema.ts";
 
 export const getUserByNamePathUsernameSchema = z.string().describe("The name that needs to be fetched. Use user1 for testing. ")
 
-/**
- * @description successful operation
- */
 export const getUserByNameStatus200Schema = userSchema
 
-/**
- * @description Invalid username supplied
- */
 export const getUserByNameStatus400Schema = z.any()
 
-/**
- * @description User not found
- */
 export const getUserByNameStatus404Schema = z.any()

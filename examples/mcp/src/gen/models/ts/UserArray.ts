@@ -5,4 +5,7 @@
 
 import type { User } from './User.js'
 
+/**
+ * @type array
+ */
 export type UserArray = User[]

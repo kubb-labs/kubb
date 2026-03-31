@@ -5,14 +5,8 @@
 
 import * as z from 'zod'
 
-/**
- * @description Successful operation
- */
 export const addPetStatus200Schema = z.object({})
 
-/**
- * @description Invalid input
- */
 export const addPetStatus405Schema = z.object({})
 
 export const addPetDataSchema = z.object({})

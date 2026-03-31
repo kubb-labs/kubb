@@ -3,13 +3,19 @@
  * Do not edit manually.
  */
 
-export type FindPetsByStatusQueryStatus = 'available' | 'pending' | 'sold'
+/**
+ * @type string | undefined
+ */
+export type FindPetsByStatusQueryStatus = ('available' | 'pending' | 'sold') | undefined
 
 /**
- * @description Successful operation
+ * @type object
  */
 export type FindPetsByStatusStatus200 = object
 
+/**
+ * @type object
+ */
 export type FindPetsByStatusRequestConfig = {
   data?: never
   pathParams?: never
@@ -26,6 +32,9 @@ export type FindPetsByStatusRequestConfig = {
   url: '/pet/findByStatus'
 }
 
+/**
+ * @type object
+ */
 export type FindPetsByStatusResponses = {
   '200': FindPetsByStatusStatus200
 }

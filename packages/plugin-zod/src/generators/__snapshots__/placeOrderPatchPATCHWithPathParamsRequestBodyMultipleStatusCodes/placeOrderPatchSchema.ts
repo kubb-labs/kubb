@@ -7,14 +7,8 @@ import * as z from 'zod'
 
 export const placeOrderPatchPathOrderIdSchema = z.int()
 
-/**
- * @description Successful operation
- */
 export const placeOrderPatchStatus200Schema = z.object({})
 
-/**
- * @description Invalid input
- */
 export const placeOrderPatchStatus405Schema = z.object({})
 
 export const placeOrderPatchDataSchema = z.object({}).describe('Order payload')

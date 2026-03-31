@@ -6,38 +6,23 @@
 import { z } from '../../zod.ts'
 import { petSchema } from './petSchema.ts'
 
-/**
- * @description Successful operation
- */
-export const updatePet200Schema = petSchema
+export const updatePet200Schema = petSchema.describe('Successful operation')
 
 export type UpdatePet200Schema = z.infer<typeof updatePet200Schema>
 
-/**
- * @description Invalid ID supplied
- */
-export const updatePet400Schema = z.any()
+export const updatePet400Schema = z.any().describe('Invalid ID supplied')
 
 export type UpdatePet400Schema = z.infer<typeof updatePet400Schema>
 
-/**
- * @description Pet not found
- */
-export const updatePet404Schema = z.any()
+export const updatePet404Schema = z.any().describe('Pet not found')
 
 export type UpdatePet404Schema = z.infer<typeof updatePet404Schema>
 
-/**
- * @description Validation exception
- */
-export const updatePet405Schema = z.any()
+export const updatePet405Schema = z.any().describe('Validation exception')
 
 export type UpdatePet405Schema = z.infer<typeof updatePet405Schema>
 
-/**
- * @description Update an existent pet in the store
- */
-export const updatePetMutationRequestSchema = petSchema
+export const updatePetMutationRequestSchema = petSchema.describe('Update an existent pet in the store')
 
 export type UpdatePetMutationRequestSchema = z.infer<typeof updatePetMutationRequestSchema>
 

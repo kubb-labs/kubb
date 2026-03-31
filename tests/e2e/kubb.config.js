@@ -34,8 +34,7 @@ const schemas = [
   { name: 'enums', path: './schemas/enums.yaml' },
   { name: 'dataset_api', path: './schemas/dataset_api.yaml' },
   { name: 'petStoreV3', path: 'https://petstore3.swagger.io/api/v3/openapi.json' },
-  { name: 'stripe', path: 'https://raw.githubusercontent.com/stripe/openapi/master/openapi/spec3.json', strict: false, typecheck: false }, // RangeError: Maximum call stack size exceeded — deeply recursive types overflow tsc
-  { name: 'openai', path: 'https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.yaml', strict: false },
+  { name: 'openai', path: 'https://raw.githubusercontent.com/openai/openai-openapi/refs/heads/manual_spec/openapi.yaml', strict: false },
   { name: 'vercel', path: 'https://openapi.vercel.sh/', strict: false },
 ]
 
@@ -134,10 +133,17 @@ const baseConfig = {
 
 /**
  * @link https://apis.guru/
+ *
+ * Set KUBB_SCHEMA to a comma-separated list of schema names to only run those schemas.
+ * Useful for running large schemas (e.g. stripe, openai) in isolation to avoid OOM.
+ * Example: KUBB_SCHEMA=stripe kubb generate
  */
+const schemaFilter = process.env.KUBB_SCHEMA?.split(',').map((s) => s.trim())
 
 export default defineConfig(() => {
-  return schemas.map(({ name, path, strict, typecheck }) => {
+  const filtered = schemaFilter ? schemas.filter(({ name }) => schemaFilter.includes(name)) : schemas
+
+  return filtered.map(({ name, path, strict, typecheck }) => {
     return {
       ...baseConfig,
       name,

@@ -6,17 +6,11 @@
 import { z } from '../../zod.ts'
 import { userSchema } from './userSchema.ts'
 
-/**
- * @description Successful operation
- */
-export const createUsersWithListInput200Schema = userSchema
+export const createUsersWithListInput200Schema = userSchema.describe('Successful operation')
 
 export type CreateUsersWithListInput200Schema = z.infer<typeof createUsersWithListInput200Schema>
 
-/**
- * @description successful operation
- */
-export const createUsersWithListInputErrorSchema = z.any()
+export const createUsersWithListInputErrorSchema = z.any().describe('successful operation')
 
 export type CreateUsersWithListInputErrorSchema = z.infer<typeof createUsersWithListInputErrorSchema>
 

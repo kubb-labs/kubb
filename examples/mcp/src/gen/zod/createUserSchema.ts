@@ -6,15 +6,9 @@
 import * as z from 'zod'
 import { userSchema } from './userSchema.js'
 
-/**
- * @description successful operation
- */
-export const createUserErrorSchema = userSchema
+export const createUserErrorSchema = userSchema.describe('successful operation')
 
-/**
- * @description Created user object
- */
-export const createUserMutationRequestSchema = userSchema.optional()
+export const createUserMutationRequestSchema = userSchema.optional().describe('Created user object')
 
 export const createUserMutationResponseSchema = z.any()
 

@@ -407,6 +407,12 @@ export type {
   LogoutUserQuerySchema,
 } from './zod/logoutUserSchema.ts'
 export { logoutUserErrorSchema, logoutUserQueryResponseSchema, logoutUserQuerySchema } from './zod/logoutUserSchema.ts'
+export {
+  OperationSchema,
+  OperationsMap,
+  operations,
+  paths,
+} from './zod/operationsSchema.ts'
 export type { OrderSchema } from './zod/orderSchema.ts'
 export { orderSchema } from './zod/orderSchema.ts'
 export type { PetNotFoundSchema } from './zod/petNotFoundSchema.ts'

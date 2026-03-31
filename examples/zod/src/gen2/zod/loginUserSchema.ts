@@ -12,14 +12,8 @@ export const loginUserQueryParamsSchema = z.optional(
   }),
 )
 
-/**
- * @description successful operation
- */
 export const loginUser200Schema = z.string()
 
-/**
- * @description Invalid username/password supplied
- */
 export const loginUser400Schema = z.any()
 
 export const loginUserQueryResponseSchema = loginUser200Schema

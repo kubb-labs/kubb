@@ -6,15 +6,19 @@
 import type { User } from '../User.ts'
 
 /**
- * @description successful operation
+ * @type object
  */
 export type CreateUserStatusDefault = User
 
 /**
  * @description Created user object
+ * @type object | undefined
  */
-export type CreateUserData = User
+export type CreateUserData = User | undefined
 
+/**
+ * @type object
+ */
 export type CreateUserRequestConfig = {
   data?: CreateUserData
   pathParams?: never
@@ -26,6 +30,9 @@ export type CreateUserRequestConfig = {
   url: '/user'
 }
 
+/**
+ * @type object
+ */
 export type CreateUserResponses = {
   default: CreateUserStatusDefault
 }

@@ -8,12 +8,6 @@ import { petSchema } from "./petSchema.ts";
 
 export const findPetsByStatusQueryStatusSchema = z.enum(["available", "pending", "sold"]).optional().default("available").describe("Status values that need to be considered for filter")
 
-/**
- * @description successful operation
- */
 export const findPetsByStatusStatus200Schema = z.array(petSchema)
 
-/**
- * @description Invalid status value
- */
 export const findPetsByStatusStatus400Schema = z.any()

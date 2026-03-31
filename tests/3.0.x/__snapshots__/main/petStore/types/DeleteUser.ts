@@ -4,6 +4,9 @@
 */
 
 
+/**
+ * @type object
+*/
 export type DeleteUserPathParams = {
     /**
      * @description The name that needs to be deleted
@@ -14,16 +17,21 @@ export type DeleteUserPathParams = {
 
 /**
  * @description Invalid username supplied
+ * @type any
 */
 export type DeleteUser400 = any;
 
 /**
  * @description User not found
+ * @type any
 */
 export type DeleteUser404 = any;
 
 export type DeleteUserMutationResponse = any;
 
+/**
+ * @type object
+*/
 export type DeleteUserMutation = {
     Response: any;
     PathParams: DeleteUserPathParams;

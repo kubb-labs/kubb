@@ -14,10 +14,7 @@ export const deletePetHeaderParamsSchema = z
 
 export type DeletePetHeaderParamsSchema = z.infer<typeof deletePetHeaderParamsSchema>
 
-/**
- * @description Invalid pet value
- */
-export const deletePet400Schema = z.any()
+export const deletePet400Schema = z.any().describe('Invalid pet value')
 
 export type DeletePet400Schema = z.infer<typeof deletePet400Schema>
 

@@ -12,24 +12,15 @@ export const getOrderByIdPathParamsSchema = z.object({
 
 export type GetOrderByIdPathParamsSchema = z.infer<typeof getOrderByIdPathParamsSchema>
 
-/**
- * @description successful operation
- */
-export const getOrderById200Schema = orderSchema
+export const getOrderById200Schema = orderSchema.describe('successful operation')
 
 export type GetOrderById200Schema = z.infer<typeof getOrderById200Schema>
 
-/**
- * @description Invalid ID supplied
- */
-export const getOrderById400Schema = z.any()
+export const getOrderById400Schema = z.any().describe('Invalid ID supplied')
 
 export type GetOrderById400Schema = z.infer<typeof getOrderById400Schema>
 
-/**
- * @description Order not found
- */
-export const getOrderById404Schema = z.any()
+export const getOrderById404Schema = z.any().describe('Order not found')
 
 export type GetOrderById404Schema = z.infer<typeof getOrderById404Schema>
 

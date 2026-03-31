@@ -22,17 +22,11 @@ export const createPetsHeaderParamsSchema = z.object({
 
 export type CreatePetsHeaderParamsSchema = z.infer<typeof createPetsHeaderParamsSchema>
 
-/**
- * @description Null response
- */
-export const createPets201Schema = z.any()
+export const createPets201Schema = z.any().describe('Null response')
 
 export type CreatePets201Schema = z.infer<typeof createPets201Schema>
 
-/**
- * @description unexpected error
- */
-export const createPetsErrorSchema = petNotFoundSchema.describe('Pet not found')
+export const createPetsErrorSchema = petNotFoundSchema.describe('unexpected error')
 
 export type CreatePetsErrorSchema = z.infer<typeof createPetsErrorSchema>
 

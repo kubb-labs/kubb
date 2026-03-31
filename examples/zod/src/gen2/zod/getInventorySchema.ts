@@ -5,9 +5,6 @@
 
 import * as z from 'zod/mini'
 
-/**
- * @description successful operation
- */
 export const getInventory200Schema = z.object({})
 
 export const getInventoryQueryResponseSchema = getInventory200Schema

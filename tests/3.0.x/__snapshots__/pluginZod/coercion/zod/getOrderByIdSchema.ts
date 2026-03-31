@@ -8,17 +8,8 @@ import { orderSchema } from "./orderSchema.ts";
 
 export const getOrderByIdPathOrderIdSchema = z.coerce.number().int().describe("ID of order that needs to be fetched")
 
-/**
- * @description successful operation
- */
 export const getOrderByIdStatus200Schema = orderSchema
 
-/**
- * @description Invalid ID supplied
- */
 export const getOrderByIdStatus400Schema = z.any()
 
-/**
- * @description Order not found
- */
 export const getOrderByIdStatus404Schema = z.any()

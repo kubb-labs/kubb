@@ -8,12 +8,6 @@ import { petSchema } from "./petSchema.ts";
 
 export const findPetsByTagsQueryTagsSchema = z.array(z.coerce.string()).optional().describe("Tags to filter by")
 
-/**
- * @description successful operation
- */
 export const findPetsByTagsStatus200Schema = z.array(petSchema)
 
-/**
- * @description Invalid tag value
- */
 export const findPetsByTagsStatus400Schema = z.any()

@@ -3,13 +3,19 @@
  * Do not edit manually.
  */
 
+/**
+ * @type string
+ */
 export type GetEnterpriseConfigurationsIdV20250PathEnterpriseId = string
 
 /**
- * @description Enterprise config
+ * @type object
  */
 export type GetEnterpriseConfigurationsIdV20250Status200 = object
 
+/**
+ * @type object
+ */
 export type GetEnterpriseConfigurationsIdV20250RequestConfig = {
   data?: never
   /**
@@ -26,6 +32,9 @@ export type GetEnterpriseConfigurationsIdV20250RequestConfig = {
   url: `/enterprise_configurations/${string}`
 }
 
+/**
+ * @type object
+ */
 export type GetEnterpriseConfigurationsIdV20250Responses = {
   '200': GetEnterpriseConfigurationsIdV20250Status200
 }

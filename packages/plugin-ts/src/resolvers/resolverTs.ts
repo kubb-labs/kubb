@@ -2,7 +2,7 @@ import { pascalCase } from '@internals/utils'
 import { defineResolver } from '@kubb/core'
 import type { PluginTs } from '../types.ts'
 
-function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
+function toTypeName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
   return pascalCase(name, { isFile: type === 'file' })
 }
 
@@ -28,7 +28,7 @@ export const resolverTs = defineResolver<PluginTs>(() => {
     name: 'default',
     pluginName: 'plugin-ts',
     default(name, type) {
-      return resolveName(name, type)
+      return toTypeName(name, type)
     },
     resolveName(name) {
       return this.default(name, 'function')

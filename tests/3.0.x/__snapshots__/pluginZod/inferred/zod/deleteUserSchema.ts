@@ -9,16 +9,10 @@ export const deleteUserPathUsernameSchema = z.string().describe("The name that n
 
 export type DeleteUserPathUsernameSchema = z.infer<typeof deleteUserPathUsernameSchema>
 
-/**
- * @description Invalid username supplied
- */
 export const deleteUserStatus400Schema = z.any()
 
 export type DeleteUserStatus400Schema = z.infer<typeof deleteUserStatus400Schema>
 
-/**
- * @description User not found
- */
 export const deleteUserStatus404Schema = z.any()
 
 export type DeleteUserStatus404Schema = z.infer<typeof deleteUserStatus404Schema>

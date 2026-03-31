@@ -15,17 +15,11 @@ export const getThingsQueryParamsSchema = z
 
 export type GetThingsQueryParamsSchema = z.infer<typeof getThingsQueryParamsSchema>
 
-/**
- * @description Null response
- */
-export const getThings201Schema = z.any()
+export const getThings201Schema = z.any().describe('Null response')
 
 export type GetThings201Schema = z.infer<typeof getThings201Schema>
 
-/**
- * @description unexpected error
- */
-export const getThingsErrorSchema = petNotFoundSchema.describe('Pet not found')
+export const getThingsErrorSchema = petNotFoundSchema.describe('unexpected error')
 
 export type GetThingsErrorSchema = z.infer<typeof getThingsErrorSchema>
 

@@ -16,9 +16,6 @@ export const uploadFileQueryParamsSchema = z.optional(
   }),
 )
 
-/**
- * @description successful operation
- */
 export const uploadFile200Schema = apiResponseSchema
 
 export const uploadFileMutationRequestSchema = z.optional(z.instanceof(File))

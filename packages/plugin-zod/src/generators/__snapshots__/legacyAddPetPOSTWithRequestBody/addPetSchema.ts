@@ -5,15 +5,9 @@
 
 import * as z from 'zod'
 
-/**
- * @description Successful operation
- */
-export const addPet200Schema = z.object({})
+export const addPet200Schema = z.object({}).describe('Successful operation')
 
-/**
- * @description Invalid input
- */
-export const addPet405Schema = z.object({})
+export const addPet405Schema = z.object({}).describe('Invalid input')
 
 export const addPetMutationRequestSchema = z.object({})
 

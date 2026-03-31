@@ -1,17 +1,11 @@
 import * as z from 'zod'
 import { userSchema } from '../userSchema.ts'
 
-/**
- * @description successful operation
- */
-export const createUserErrorSchema = userSchema
+export const createUserErrorSchema = userSchema.describe('successful operation')
 
 export type CreateUserErrorSchema = z.infer<typeof createUserErrorSchema>
 
-/**
- * @description Created user object
- */
-export const createUserMutationRequestSchema = userSchema.optional()
+export const createUserMutationRequestSchema = userSchema.optional().describe('Created user object')
 
 export type CreateUserMutationRequestSchema = z.infer<typeof createUserMutationRequestSchema>
 

@@ -9,9 +9,6 @@ export const listPetsInferredQueryLimitSchema = z.int().optional()
 
 export type ListPetsInferredQueryLimitSchema = z.infer<typeof listPetsInferredQueryLimitSchema>
 
-/**
- * @description Pets list
- */
 export const listPetsInferredStatus200Schema = z.object({})
 
 export type ListPetsInferredStatus200Schema = z.infer<typeof listPetsInferredStatus200Schema>

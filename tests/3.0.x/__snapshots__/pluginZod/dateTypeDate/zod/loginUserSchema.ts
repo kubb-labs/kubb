@@ -9,12 +9,6 @@ export const loginUserQueryUsernameSchema = z.string().optional().describe("The 
 
 export const loginUserQueryPasswordSchema = z.string().optional().describe("The password for login in clear text")
 
-/**
- * @description successful operation
- */
 export const loginUserStatus200Schema = z.string()
 
-/**
- * @description Invalid username/password supplied
- */
 export const loginUserStatus400Schema = z.any()

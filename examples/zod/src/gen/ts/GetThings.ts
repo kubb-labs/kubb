@@ -5,6 +5,9 @@
 
 import type { PetNotFound } from './PetNotFound.ts'
 
+/**
+ * @type object
+ */
 export type GetThingsQueryParams = {
   /**
    * @description Maximum number of things to return
@@ -25,16 +28,21 @@ export type GetThingsQueryParams = {
 
 /**
  * @description Null response
+ * @type any
  */
 export type GetThings201 = any
 
 /**
  * @description unexpected error
+ * @type any
  */
 export type GetThingsError = PetNotFound
 
 export type GetThingsQueryResponse = GetThings201
 
+/**
+ * @type object
+ */
 export type GetThingsQuery = {
   Response: GetThings201
   QueryParams: GetThingsQueryParams

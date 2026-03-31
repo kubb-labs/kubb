@@ -4,6 +4,9 @@
 */
 
 
+/**
+ * @type object
+*/
 export type Tag = {
     /**
      * @type integer | undefined

@@ -7,24 +7,28 @@ import type { Order } from "./Order.ts";
 
 /**
  * @description ID of order that needs to be fetched
+ * @type integer
 */
 export type GetOrderByIdPathOrderId = number;
 
 /**
- * @description successful operation
+ * @type object
 */
 export type GetOrderByIdStatus200 = Order;
 
 /**
- * @description Invalid ID supplied
+ * @type any
 */
 export type GetOrderByIdStatus400 = any;
 
 /**
- * @description Order not found
+ * @type any
 */
 export type GetOrderByIdStatus404 = any;
 
+/**
+ * @type object
+*/
 export type GetOrderByIdRequestConfig = {
     data?: never;
     /**
@@ -41,6 +45,9 @@ export type GetOrderByIdRequestConfig = {
     url: `/store/order/${string}`;
 };
 
+/**
+ * @type object
+*/
 export type GetOrderByIdResponses = {
     "200": GetOrderByIdStatus200;
     "400": GetOrderByIdStatus400;

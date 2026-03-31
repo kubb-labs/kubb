@@ -18,14 +18,8 @@ export const findPetsByTagsHeaderParamsSchema = z.object({
   'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']),
 })
 
-/**
- * @description successful operation
- */
 export const findPetsByTags200Schema = z.array(petSchema)
 
-/**
- * @description Invalid tag value
- */
 export const findPetsByTags400Schema = z.any()
 
 export const findPetsByTagsQueryResponseSchema = findPetsByTags200Schema

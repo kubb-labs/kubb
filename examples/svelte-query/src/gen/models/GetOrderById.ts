@@ -6,6 +6,9 @@
 
 import type { Order } from './Order.ts'
 
+/**
+ * @type object
+ */
 export type GetOrderByIdPathParams = {
   /**
    * @description ID of order that needs to be fetched
@@ -16,21 +19,27 @@ export type GetOrderByIdPathParams = {
 
 /**
  * @description successful operation
+ * @type object
  */
 export type GetOrderById200 = Order
 
 /**
  * @description Invalid ID supplied
+ * @type any
  */
 export type GetOrderById400 = any
 
 /**
  * @description Order not found
+ * @type any
  */
 export type GetOrderById404 = any
 
 export type GetOrderByIdQueryResponse = GetOrderById200
 
+/**
+ * @type object
+ */
 export type GetOrderByIdQuery = {
   Response: GetOrderById200
   PathParams: GetOrderByIdPathParams

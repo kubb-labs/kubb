@@ -385,7 +385,16 @@ function createSchemaParser(ctx: OasParserContext) {
       return createSchema({ ...base, primitive: specialPrimitive, type: specialType })
     }
     if (specialType === 'url') {
-      return createSchema({ ...base, primitive: 'string' as const, type: 'url' })
+      return createSchema({ ...base, primitive: 'string' as const, type: 'url', min: schema.minLength, max: schema.maxLength })
+    }
+    if (specialType === 'ipv4') {
+      return createSchema({ ...base, primitive: 'string' as const, type: 'ipv4' })
+    }
+    if (specialType === 'ipv6') {
+      return createSchema({ ...base, primitive: 'string' as const, type: 'ipv6' })
+    }
+    if (specialType === 'uuid' || specialType === 'email') {
+      return createSchema({ ...base, primitive: 'string' as const, type: specialType, min: schema.minLength, max: schema.maxLength })
     }
 
     return createSchema({ ...base, primitive: specialPrimitive, type: specialType as ScalarSchemaType })
@@ -480,13 +489,13 @@ function createSchemaParser(ctx: OasParserContext) {
       : []
 
     const additionalProperties = schema.additionalProperties
-    let additionalPropertiesNode: SchemaNode | true | undefined
+    let additionalPropertiesNode: SchemaNode | boolean | undefined
     if (additionalProperties === true) {
       additionalPropertiesNode = true
     } else if (additionalProperties && Object.keys(additionalProperties).length > 0) {
       additionalPropertiesNode = parseSchema({ schema: additionalProperties as SchemaObject }, rawOptions)
     } else if (additionalProperties === false) {
-      additionalPropertiesNode = undefined
+      additionalPropertiesNode = false
     } else if (additionalProperties) {
       additionalPropertiesNode = createSchema({ type: typeOptionMap.get(options.unknownType)! })
     }
@@ -510,6 +519,8 @@ function createSchemaParser(ctx: OasParserContext) {
       properties,
       additionalProperties: additionalPropertiesNode,
       patternProperties,
+      minProperties: schema.minProperties,
+      maxProperties: schema.maxProperties,
       ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
 
@@ -585,6 +596,7 @@ function createSchemaParser(ctx: OasParserContext) {
       max: schema.maximum,
       exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
       exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
+      multipleOf: schema.multipleOf,
       ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
   }

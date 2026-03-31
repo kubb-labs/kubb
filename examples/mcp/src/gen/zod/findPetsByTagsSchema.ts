@@ -18,15 +18,9 @@ export const findPetsByTagsHeaderParamsSchema = z.object({
   'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters'),
 })
 
-/**
- * @description successful operation
- */
-export const findPetsByTags200Schema = z.array(petSchema)
+export const findPetsByTags200Schema = z.array(petSchema).describe('successful operation')
 
-/**
- * @description Invalid tag value
- */
-export const findPetsByTags400Schema = z.any()
+export const findPetsByTags400Schema = z.any().describe('Invalid tag value')
 
 export const findPetsByTagsQueryResponseSchema = findPetsByTags200Schema
 

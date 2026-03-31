@@ -8,11 +8,15 @@ import type { NotificationTypeB } from "./NotificationTypeB.ts";
 
 /**
  * @description Success
+ * @type array
 */
 export type GetNotifications200 = (NotificationTypeA | NotificationTypeB)[];
 
 export type GetNotificationsQueryResponse = GetNotifications200;
 
+/**
+ * @type object
+*/
 export type GetNotificationsQuery = {
     Response: GetNotifications200;
     Errors: any;

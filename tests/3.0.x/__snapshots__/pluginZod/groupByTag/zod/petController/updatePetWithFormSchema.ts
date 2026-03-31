@@ -11,7 +11,4 @@ export const updatePetWithFormQueryNameSchema = z.string().optional().describe("
 
 export const updatePetWithFormQueryStatusSchema = z.string().optional().describe("Status of pet that needs to be updated")
 
-/**
- * @description Invalid input
- */
 export const updatePetWithFormStatus405Schema = z.any()

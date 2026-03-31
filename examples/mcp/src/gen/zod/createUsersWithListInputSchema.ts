@@ -6,15 +6,9 @@
 import * as z from 'zod'
 import { userSchema } from './userSchema.js'
 
-/**
- * @description Successful operation
- */
-export const createUsersWithListInput200Schema = userSchema
+export const createUsersWithListInput200Schema = userSchema.describe('Successful operation')
 
-/**
- * @description successful operation
- */
-export const createUsersWithListInputErrorSchema = z.any()
+export const createUsersWithListInputErrorSchema = z.any().describe('successful operation')
 
 export const createUsersWithListInputMutationRequestSchema = z.array(userSchema).optional()
 

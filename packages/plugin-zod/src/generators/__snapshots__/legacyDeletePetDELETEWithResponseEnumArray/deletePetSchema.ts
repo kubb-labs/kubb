@@ -9,10 +9,7 @@ export const deletePetPathParamsSchema = z.object({
   petId: z.string(),
 })
 
-/**
- * @description Successful deletion
- */
-export const deletePet200Schema = z.array(z.enum(['TYPE1', 'TYPE2', 'TYPE3']))
+export const deletePet200Schema = z.array(z.enum(['TYPE1', 'TYPE2', 'TYPE3'])).describe('Successful deletion')
 
 export const deletePetMutationResponseSchema = deletePet200Schema
 

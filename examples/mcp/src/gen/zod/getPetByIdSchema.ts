@@ -10,20 +10,11 @@ export const getPetByIdPathParamsSchema = z.object({
   petId: z.int().describe('ID of pet to return'),
 })
 
-/**
- * @description successful operation
- */
-export const getPetById200Schema = petSchema.omit({ name: true })
+export const getPetById200Schema = petSchema.omit({ name: true }).describe('successful operation')
 
-/**
- * @description Invalid ID supplied
- */
-export const getPetById400Schema = z.any()
+export const getPetById400Schema = z.any().describe('Invalid ID supplied')
 
-/**
- * @description Pet not found
- */
-export const getPetById404Schema = z.any()
+export const getPetById404Schema = z.any().describe('Pet not found')
 
 export const getPetByIdQueryResponseSchema = getPetById200Schema
 

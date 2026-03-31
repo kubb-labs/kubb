@@ -1,3 +1,6 @@
+/**
+ * @type object
+ */
 export type ApiResponse = {
   /**
    * @type integer | undefined

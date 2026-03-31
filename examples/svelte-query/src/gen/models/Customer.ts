@@ -6,6 +6,9 @@
 
 import type { Address } from './Address.ts'
 
+/**
+ * @type object
+ */
 export type Customer = {
   /**
    * @example 100000

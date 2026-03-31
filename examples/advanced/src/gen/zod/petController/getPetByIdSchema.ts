@@ -7,24 +7,15 @@ export const getPetByIdPathParamsSchema = z.object({
 
 export type GetPetByIdPathParamsSchema = z.infer<typeof getPetByIdPathParamsSchema>
 
-/**
- * @description successful operation
- */
-export const getPetById200Schema = petSchema.omit({ name: true })
+export const getPetById200Schema = petSchema.omit({ name: true }).describe('successful operation')
 
 export type GetPetById200Schema = z.infer<typeof getPetById200Schema>
 
-/**
- * @description Invalid ID supplied
- */
-export const getPetById400Schema = z.any()
+export const getPetById400Schema = z.any().describe('Invalid ID supplied')
 
 export type GetPetById400Schema = z.infer<typeof getPetById400Schema>
 
-/**
- * @description Pet not found
- */
-export const getPetById404Schema = z.any()
+export const getPetById404Schema = z.any().describe('Pet not found')
 
 export type GetPetById404Schema = z.infer<typeof getPetById404Schema>
 

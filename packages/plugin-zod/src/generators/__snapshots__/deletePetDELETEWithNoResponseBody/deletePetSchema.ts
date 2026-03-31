@@ -7,7 +7,4 @@ import * as z from 'zod'
 
 export const deletePetPathPetIdSchema = z.string()
 
-/**
- * @description No content
- */
 export const deletePetStatus204Schema = z.void()

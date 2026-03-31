@@ -7,12 +7,6 @@ import * as z from 'zod'
 
 export const listPetsQueryLimitSchema = z.int().optional()
 
-/**
- * @description A paged array of pets
- */
 export const listPetsStatus200Schema = z.object({})
 
-/**
- * @description Unexpected error
- */
 export const listPetsStatusDefaultSchema = z.object({})

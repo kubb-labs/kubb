@@ -9,13 +9,12 @@ type Props = {
   node: SchemaNode
   guidType: PluginZod['resolvedOptions']['guidType']
   wrapOutput: PluginZod['resolvedOptions']['wrapOutput']
-  description?: string
   inferTypeName?: string
   resolver?: ResolverZod
   keysToOmit?: Array<string>
 }
 
-export function ZodMini({ name, node, guidType, wrapOutput, description, inferTypeName, resolver, keysToOmit }: Props): FabricReactNode {
+export function ZodMini({ name, node, guidType, wrapOutput, inferTypeName, resolver, keysToOmit }: Props): FabricReactNode {
   const printer = printerZodMini({ guidType, wrapOutput, resolver, schemaName: name, keysToOmit })
   const output = printer.print(node)
 
@@ -26,13 +25,7 @@ export function ZodMini({ name, node, guidType, wrapOutput, description, inferTy
   return (
     <>
       <File.Source name={name} isExportable isIndexable>
-        <Const
-          export
-          name={name}
-          JSDoc={{
-            comments: [description ? `@description ${description}` : undefined].filter(Boolean),
-          }}
-        >
+        <Const export name={name}>
           {output}
         </Const>
       </File.Source>

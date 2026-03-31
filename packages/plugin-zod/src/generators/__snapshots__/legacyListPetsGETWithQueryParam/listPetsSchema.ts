@@ -11,15 +11,9 @@ export const listPetsQueryParamsSchema = z
   })
   .optional()
 
-/**
- * @description A paged array of pets
- */
-export const listPets200Schema = z.object({})
+export const listPets200Schema = z.object({}).describe('A paged array of pets')
 
-/**
- * @description Unexpected error
- */
-export const listPetsErrorSchema = z.object({})
+export const listPetsErrorSchema = z.object({}).describe('Unexpected error')
 
 export const listPetsQueryResponseSchema = listPets200Schema
 

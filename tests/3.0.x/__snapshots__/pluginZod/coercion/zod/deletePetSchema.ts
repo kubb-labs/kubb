@@ -9,7 +9,4 @@ export const deletePetHeaderApiKeySchema = z.coerce.string().optional()
 
 export const deletePetPathPetIdSchema = z.coerce.number().int().describe("Pet id to delete")
 
-/**
- * @description Invalid pet value
- */
 export const deletePetStatus400Schema = z.any()

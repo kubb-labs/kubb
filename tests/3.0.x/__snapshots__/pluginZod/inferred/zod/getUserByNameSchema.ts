@@ -10,23 +10,14 @@ export const getUserByNamePathUsernameSchema = z.string().describe("The name tha
 
 export type GetUserByNamePathUsernameSchema = z.infer<typeof getUserByNamePathUsernameSchema>
 
-/**
- * @description successful operation
- */
 export const getUserByNameStatus200Schema = userSchema
 
 export type GetUserByNameStatus200Schema = z.infer<typeof getUserByNameStatus200Schema>
 
-/**
- * @description Invalid username supplied
- */
 export const getUserByNameStatus400Schema = z.any()
 
 export type GetUserByNameStatus400Schema = z.infer<typeof getUserByNameStatus400Schema>
 
-/**
- * @description User not found
- */
 export const getUserByNameStatus404Schema = z.any()
 
 export type GetUserByNameStatus404Schema = z.infer<typeof getUserByNameStatus404Schema>

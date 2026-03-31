@@ -6,14 +6,8 @@
 import * as z from "zod";
 import { userSchema } from "./userSchema.ts";
 
-/**
- * @description Successful operation
- */
 export const createUsersWithListInputStatus200Schema = userSchema
 
-/**
- * @description successful operation
- */
 export const createUsersWithListInputStatusDefaultSchema = z.any()
 
 export const createUsersWithListInputDataSchema = z.array(userSchema).optional()

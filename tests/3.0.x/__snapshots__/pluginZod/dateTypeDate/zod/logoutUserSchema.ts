@@ -5,7 +5,4 @@
 
 import * as z from "zod";
 
-/**
- * @description successful operation
- */
 export const logoutUserStatusDefaultSchema = z.any()

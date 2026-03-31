@@ -5,18 +5,26 @@
 
 /**
  * @description Successful operation
+ * @type object
  */
 export type AddPet200Type = object
 
 /**
  * @description Invalid input
+ * @type object
  */
 export type AddPet405Type = object
 
+/**
+ * @type object
+ */
 export type AddPetMutationRequestType = object
 
 export type AddPetMutationResponseType = AddPet200Type
 
+/**
+ * @type object
+ */
 export type AddPetMutationType = {
   Response: AddPet200Type
   Request: AddPetMutationRequestType

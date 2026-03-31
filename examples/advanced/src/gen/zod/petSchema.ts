@@ -12,7 +12,7 @@ export const petSchema = z.object({
     .regex(/^data:image\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$/)
     .optional(),
   name: z.string(),
-  url: z.url().optional(),
+  url: z.url().max(255).optional(),
   category: categorySchema.optional(),
   photoUrls: z.array(z.string()),
   tags: z.array(tagTagSchema).optional(),

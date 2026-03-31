@@ -7,18 +7,26 @@ import type { User } from '../User.js'
 
 /**
  * @description Successful operation
+ * @type object
  */
 export type CreateUsersWithListInput200 = User
 
 /**
  * @description successful operation
+ * @type any
  */
 export type CreateUsersWithListInputError = any
 
-export type CreateUsersWithListInputMutationRequest = User[]
+/**
+ * @type array | undefined
+ */
+export type CreateUsersWithListInputMutationRequest = User[] | undefined
 
 export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200
 
+/**
+ * @type object
+ */
 export type CreateUsersWithListInputMutation = {
   Response: CreateUsersWithListInput200
   Request: CreateUsersWithListInputMutationRequest

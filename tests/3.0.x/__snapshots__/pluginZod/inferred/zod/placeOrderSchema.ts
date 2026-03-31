@@ -6,16 +6,10 @@
 import * as z from "zod";
 import { orderSchema } from "./orderSchema.ts";
 
-/**
- * @description successful operation
- */
 export const placeOrderStatus200Schema = orderSchema
 
 export type PlaceOrderStatus200Schema = z.infer<typeof placeOrderStatus200Schema>
 
-/**
- * @description Invalid input
- */
 export const placeOrderStatus405Schema = z.any()
 
 export type PlaceOrderStatus405Schema = z.infer<typeof placeOrderStatus405Schema>

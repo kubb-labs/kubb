@@ -692,9 +692,15 @@ describe('printerTs', () => {
         }),
       )
 
-      const output = await formatTS(result)
-
-      expect(output).toContain('@description The user name')
+      expect(await formatTS(result)).toMatchInlineSnapshot(`
+        "{
+          /**
+           * @description The user name
+           * @type string | undefined
+           */
+          name?: string
+        }"
+      `)
     })
 
     it('property with deprecated flag adds @deprecated JSDoc comment', async () => {
@@ -705,12 +711,18 @@ describe('printerTs', () => {
         }),
       )
 
-      const output = await formatTS(result)
-
-      expect(output).toContain('@deprecated')
+      expect(await formatTS(result)).toMatchInlineSnapshot(`
+        "{
+          /**
+           * @deprecated
+           * @type string | undefined
+           */
+          oldField?: string
+        }"
+      `)
     })
 
-    it('property with min/max adds @minLength/@maxLength JSDoc comments', async () => {
+    it('property with min/max adds Minimum/Maximum length JSDoc comments', async () => {
       const result = printer.transform(
         createSchema({
           type: 'object',
@@ -718,10 +730,16 @@ describe('printerTs', () => {
         }),
       )
 
-      const output = await formatTS(result)
-
-      expect(output).toContain('@minLength 2')
-      expect(output).toContain('@maxLength 10')
+      expect(await formatTS(result)).toMatchInlineSnapshot(`
+        "{
+          /**
+           * @minLength 2
+           * @maxLength 10
+           * @type string | undefined
+           */
+          code?: string
+        }"
+      `)
     })
 
     it('property with default adds @default JSDoc comment', async () => {
@@ -732,9 +750,15 @@ describe('printerTs', () => {
         }),
       )
 
-      const output = await formatTS(result)
-
-      expect(output).toContain('@default 0')
+      expect(await formatTS(result)).toMatchInlineSnapshot(`
+        "{
+          /**
+           * @default 0
+           * @type number | undefined
+           */
+          count?: number
+        }"
+      `)
     })
   })
 
@@ -754,7 +778,10 @@ describe('printerTs', () => {
       const result = p.print(createSchema({ type: 'string' }))
 
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
-        "export type MyType = string
+        "/**
+         * @type string
+         */
+        export type MyType = string
         "
       `)
     })
@@ -769,7 +796,10 @@ describe('printerTs', () => {
       )
 
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
-        "export type MyObject = {
+        "/**
+         * @type object
+         */
+        export type MyObject = {
           /**
            * @type number | undefined
            */
@@ -796,7 +826,10 @@ describe('printerTs', () => {
       )
 
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
-        "export type MyObject = {
+        "/**
+         * @type object
+         */
+        export type MyObject = {
           /**
            * @type number | undefined
            */
@@ -811,7 +844,10 @@ describe('printerTs', () => {
       const result = p.print(createSchema({ type: 'string', nullable: true }))
 
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
-        "export type Status = string | null
+        "/**
+         * @type string
+         */
+        export type Status = string | null
         "
       `)
     })
@@ -827,7 +863,10 @@ describe('printerTs', () => {
       const result = p.print(createSchema({ type: 'string', optional: true }))
 
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
-        "export type MaybeValue = string | undefined
+        "/**
+         * @type string | undefined
+         */
+        export type MaybeValue = string | undefined
         "
       `)
     })
@@ -843,7 +882,14 @@ describe('printerTs', () => {
       })
       const result = p.print(createSchema({ type: 'string' }))
 
-      expect(result).toContain('@description A well-described type')
+      expect(await format(result ?? '')).toMatchInlineSnapshot(`
+        "/**
+         * @description A well-described type
+         * @type string
+         */
+        export type Described = string
+        "
+      `)
     })
 
     it('with keysToOmit wraps in Omit<Type, Keys>', async () => {
@@ -867,7 +913,10 @@ describe('printerTs', () => {
       )
 
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
-        "export type Partial = Omit<
+        "/**
+         * @type object
+         */
+        export type Partial = Omit<
           NonNullable<{
             /**
              * @type number | undefined
@@ -884,6 +933,56 @@ describe('printerTs', () => {
           }>,
           'id' | 'createdAt'
         >
+        "
+      `)
+    })
+
+    it('with keysToOmit and optional ref appends | undefined after Omit', async () => {
+      const p = printerTs({
+        resolver: resolverTs,
+        optionalType: 'questionToken',
+        arrayType: 'array',
+        enumType: 'inlineLiteral',
+        name: 'AddFiles200',
+        keysToOmit: ['name'],
+      })
+      const result = p.print(createSchema({ type: 'ref', name: 'Pet', optional: true }))
+
+      expect(await format(result ?? '')).toMatchInlineSnapshot(`
+        "export type AddFiles200 = Omit<NonNullable<Pet>, 'name'> | undefined
+        "
+      `)
+    })
+
+    it('with keysToOmit and nullable ref appends | null after Omit', async () => {
+      const p = printerTs({
+        resolver: resolverTs,
+        optionalType: 'questionToken',
+        arrayType: 'array',
+        enumType: 'inlineLiteral',
+        name: 'AddFiles200',
+        keysToOmit: ['name'],
+      })
+      const result = p.print(createSchema({ type: 'ref', name: 'Pet', nullable: true }))
+
+      expect(await format(result ?? '')).toMatchInlineSnapshot(`
+        "export type AddFiles200 = Omit<NonNullable<Pet>, 'name'> | null
+        "
+      `)
+    })
+
+    it('named optional ref always adds | undefined regardless of optionalType', async () => {
+      const p = printerTs({
+        resolver: resolverTs,
+        optionalType: 'questionToken',
+        arrayType: 'array',
+        enumType: 'inlineLiteral',
+        name: 'AddFilesMutationRequest',
+      })
+      const result = p.print(createSchema({ type: 'ref', name: 'Pet', optional: true }))
+
+      expect(await format(result ?? '')).toMatchInlineSnapshot(`
+        "export type AddFilesMutationRequest = Pet | undefined
         "
       `)
     })

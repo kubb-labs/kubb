@@ -5,10 +5,13 @@
 
 
 /**
- * @description successful operation
+ * @type any
 */
 export type LogoutUserStatusDefault = any;
 
+/**
+ * @type object
+*/
 export type LogoutUserRequestConfig = {
     data?: never;
     pathParams?: never;
@@ -20,6 +23,9 @@ export type LogoutUserRequestConfig = {
     url: "/user/logout";
 };
 
+/**
+ * @type object
+*/
 export type LogoutUserResponses = {
     default: LogoutUserStatusDefault;
 };

@@ -6,6 +6,9 @@
 import type { Priority } from "./Priority.ts";
 import type { Status } from "./Status.ts";
 
+/**
+ * @type object
+*/
 export type Task = {
     /**
      * @type string

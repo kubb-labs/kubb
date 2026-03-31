@@ -6,12 +6,6 @@
 import * as z from "zod";
 import { userSchema } from "../userSchema.ts";
 
-/**
- * @description successful operation
- */
 export const createUserStatusDefaultSchema = userSchema
 
-/**
- * @description Created user object
- */
-export const createUserDataSchema = userSchema.optional()
+export const createUserDataSchema = userSchema.optional().describe("Created user object")

@@ -7,27 +7,20 @@ import { z } from '../../zod.ts'
 import { addPetRequestSchema } from './addPetRequestSchema.ts'
 import { petSchema } from './petSchema.ts'
 
-/**
- * @description Successful operation
- */
-export const addPet200Schema = petSchema
+export const addPet200Schema = petSchema.describe('Successful operation')
 
 export type AddPet200Schema = z.infer<typeof addPet200Schema>
 
-/**
- * @description Pet not found
- */
-export const addPet405Schema = z.object({
-  code: z.int().optional(),
-  message: z.string().optional(),
-})
+export const addPet405Schema = z
+  .object({
+    code: z.int().optional(),
+    message: z.string().optional(),
+  })
+  .describe('Pet not found')
 
 export type AddPet405Schema = z.infer<typeof addPet405Schema>
 
-/**
- * @description Create a new pet in the store
- */
-export const addPetMutationRequestSchema = addPetRequestSchema
+export const addPetMutationRequestSchema = addPetRequestSchema.describe('Create a new pet in the store')
 
 export type AddPetMutationRequestSchema = z.infer<typeof addPetMutationRequestSchema>
 

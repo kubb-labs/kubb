@@ -9,16 +9,10 @@ export const deleteOrderPathOrderIdSchema = z.int().describe("ID of the order th
 
 export type DeleteOrderPathOrderIdSchema = z.infer<typeof deleteOrderPathOrderIdSchema>
 
-/**
- * @description Invalid ID supplied
- */
 export const deleteOrderStatus400Schema = z.any()
 
 export type DeleteOrderStatus400Schema = z.infer<typeof deleteOrderStatus400Schema>
 
-/**
- * @description Order not found
- */
 export const deleteOrderStatus404Schema = z.any()
 
 export type DeleteOrderStatus404Schema = z.infer<typeof deleteOrderStatus404Schema>

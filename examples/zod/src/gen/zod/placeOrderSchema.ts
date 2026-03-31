@@ -6,17 +6,11 @@
 import { z } from '../../zod.ts'
 import { orderSchema } from './orderSchema.ts'
 
-/**
- * @description successful operation
- */
-export const placeOrder200Schema = orderSchema
+export const placeOrder200Schema = orderSchema.describe('successful operation')
 
 export type PlaceOrder200Schema = z.infer<typeof placeOrder200Schema>
 
-/**
- * @description Invalid input
- */
-export const placeOrder405Schema = z.any()
+export const placeOrder405Schema = z.any().describe('Invalid input')
 
 export type PlaceOrder405Schema = z.infer<typeof placeOrder405Schema>
 

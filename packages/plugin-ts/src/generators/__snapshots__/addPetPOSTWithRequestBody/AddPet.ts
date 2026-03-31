@@ -4,17 +4,23 @@
  */
 
 /**
- * @description Successful operation
+ * @type object
  */
 export type AddPetStatus200 = object
 
 /**
- * @description Invalid input
+ * @type object
  */
 export type AddPetStatus405 = object
 
+/**
+ * @type object
+ */
 export type AddPetData = object
 
+/**
+ * @type object
+ */
 export type AddPetRequestConfig = {
   data?: AddPetData
   pathParams?: never
@@ -26,6 +32,9 @@ export type AddPetRequestConfig = {
   url: '/pet'
 }
 
+/**
+ * @type object
+ */
 export type AddPetResponses = {
   '200': AddPetStatus200
   '405': AddPetStatus405

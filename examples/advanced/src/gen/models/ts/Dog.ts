@@ -1,7 +1,7 @@
 import type { Image } from './Image.ts'
 
 /**
- * Dog
+ * @type object
  */
 export type Dog = {
   /**

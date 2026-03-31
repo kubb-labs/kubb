@@ -10,20 +10,11 @@ export const getOrderByIdPathParamsSchema = z.object({
   orderId: z.int().describe('ID of order that needs to be fetched'),
 })
 
-/**
- * @description successful operation
- */
-export const getOrderById200Schema = orderSchema
+export const getOrderById200Schema = orderSchema.describe('successful operation')
 
-/**
- * @description Invalid ID supplied
- */
-export const getOrderById400Schema = z.any()
+export const getOrderById400Schema = z.any().describe('Invalid ID supplied')
 
-/**
- * @description Order not found
- */
-export const getOrderById404Schema = z.any()
+export const getOrderById404Schema = z.any().describe('Order not found')
 
 export const getOrderByIdQueryResponseSchema = getOrderById200Schema
 

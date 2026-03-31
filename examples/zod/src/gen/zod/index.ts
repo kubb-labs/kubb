@@ -205,6 +205,12 @@ export type {
   LogoutUserQuerySchema,
 } from './logoutUserSchema.ts'
 export { logoutUserErrorSchema, logoutUserQueryResponseSchema, logoutUserQuerySchema } from './logoutUserSchema.ts'
+export {
+  OperationSchema,
+  OperationsMap,
+  operations,
+  paths,
+} from './operationsSchema.ts'
 export type { OrderSchema } from './orderSchema.ts'
 export { orderSchema } from './orderSchema.ts'
 export type { PetNotFoundSchema } from './petNotFoundSchema.ts'

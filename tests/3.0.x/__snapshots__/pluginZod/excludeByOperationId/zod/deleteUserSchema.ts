@@ -7,12 +7,6 @@ import * as z from "zod";
 
 export const deleteUserPathUsernameSchema = z.string().describe("The name that needs to be deleted")
 
-/**
- * @description Invalid username supplied
- */
 export const deleteUserStatus400Schema = z.any()
 
-/**
- * @description User not found
- */
 export const deleteUserStatus404Schema = z.any()

@@ -2,7 +2,7 @@ import { camelCase, pascalCase } from '@internals/utils'
 import { defineResolver } from '@kubb/core'
 import type { PluginZod } from '../types.ts'
 
-function resolveName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
+function toSchemaName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
   const resolved = camelCase(name, {
     suffix: type ? 'schema' : undefined,
     isFile: type === 'file',
@@ -32,7 +32,7 @@ export const resolverZod = defineResolver<PluginZod>(() => {
     name: 'default',
     pluginName: 'plugin-zod',
     default(name, type) {
-      return resolveName(name, type)
+      return toSchemaName(name, type)
     },
     resolveName(name) {
       return this.default(name, 'function')

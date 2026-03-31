@@ -9,17 +9,11 @@ export const addPet405Schema = z.object({
 
 export type AddPet405Schema = z.infer<typeof addPet405Schema>
 
-/**
- * @description Successful operation
- */
-export const addPetErrorSchema = petSchema.omit({ name: true })
+export const addPetErrorSchema = petSchema.omit({ name: true }).describe('Successful operation')
 
 export type AddPetErrorSchema = z.infer<typeof addPetErrorSchema>
 
-/**
- * @description Create a new pet in the store
- */
-export const addPetMutationRequestSchema = addPetRequestSchema
+export const addPetMutationRequestSchema = addPetRequestSchema.describe('Create a new pet in the store')
 
 export type AddPetMutationRequestSchema = z.infer<typeof addPetMutationRequestSchema>
 

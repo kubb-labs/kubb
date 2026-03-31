@@ -14,6 +14,9 @@ export const petStatusEnum = {
 
 export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
 
+/**
+ * @type object
+ */
 export type Pet = {
   /**
    * @example 10

@@ -67,16 +67,16 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
         dataReturnType,
         group: group
           ? ({
-              ...options.group,
-              name: options.group?.name
-                ? options.group.name
+              ...group,
+              name: group.name
+                ? group.name
                 : (ctx: { group: string }) => {
                     if (group.type === 'path') {
                       return `${ctx.group.split('/')[1]}`
                     }
                     return `${camelCase(ctx.group)}Requests`
                   },
-            } as Group)
+            } satisfies Group)
           : undefined,
         baseURL,
         paramsCasing,

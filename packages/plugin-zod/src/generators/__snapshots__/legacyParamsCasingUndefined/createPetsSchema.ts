@@ -19,10 +19,7 @@ export const createPetsHeaderParamsSchema = z.object({
   'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']),
 })
 
-/**
- * @description Null response
- */
-export const createPets201Schema = z.void()
+export const createPets201Schema = z.void().describe('Null response')
 
 export const createPetsMutationResponseSchema = createPets201Schema
 

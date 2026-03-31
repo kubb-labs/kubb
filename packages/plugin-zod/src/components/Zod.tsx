@@ -10,13 +10,12 @@ type Props = {
   coercion: PluginZod['resolvedOptions']['coercion']
   guidType: PluginZod['resolvedOptions']['guidType']
   wrapOutput: PluginZod['resolvedOptions']['wrapOutput']
-  description?: string
   inferTypeName?: string
   resolver?: ResolverZod
   keysToOmit?: Array<string>
 }
 
-export function Zod({ name, node, coercion, guidType, wrapOutput, description, inferTypeName, resolver, keysToOmit }: Props): FabricReactNode {
+export function Zod({ name, node, coercion, guidType, wrapOutput, inferTypeName, resolver, keysToOmit }: Props): FabricReactNode {
   const printer = printerZod({ coercion, guidType, wrapOutput, resolver, schemaName: name, keysToOmit })
   const output = printer.print(node)
 
@@ -27,13 +26,7 @@ export function Zod({ name, node, coercion, guidType, wrapOutput, description, i
   return (
     <>
       <File.Source name={name} isExportable isIndexable>
-        <Const
-          export
-          name={name}
-          JSDoc={{
-            comments: [description ? `@description ${description}` : undefined].filter(Boolean),
-          }}
-        >
+        <Const export name={name}>
           {output}
         </Const>
       </File.Source>

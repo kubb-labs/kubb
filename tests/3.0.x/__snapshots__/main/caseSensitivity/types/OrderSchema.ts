@@ -4,6 +4,9 @@
 */
 
 
+/**
+ * @type object
+*/
 export type OrderSchema = {
     /**
      * @type string | undefined

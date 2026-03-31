@@ -3,17 +3,29 @@
  * Do not edit manually.
  */
 
+/**
+ * @type string
+ */
 export type UpdatePetPathPetId = string
 
-export type UpdatePetQueryIncludeDeleted = boolean
-
-export type UpdatePetQueryRequestSource = string
+/**
+ * @type boolean | undefined
+ */
+export type UpdatePetQueryIncludeDeleted = boolean | undefined
 
 /**
- * @description Success
+ * @type string | undefined
+ */
+export type UpdatePetQueryRequestSource = string | undefined
+
+/**
+ * @type object
  */
 export type UpdatePetStatus200 = object
 
+/**
+ * @type object
+ */
 export type UpdatePetData = {
   /**
    * @type string
@@ -21,6 +33,9 @@ export type UpdatePetData = {
   name: string
 }
 
+/**
+ * @type object
+ */
 export type UpdatePetRequestConfig = {
   data?: UpdatePetData
   /**
@@ -43,6 +58,9 @@ export type UpdatePetRequestConfig = {
   url: `/pets/${string}`
 }
 
+/**
+ * @type object
+ */
 export type UpdatePetResponses = {
   '200': UpdatePetStatus200
 }

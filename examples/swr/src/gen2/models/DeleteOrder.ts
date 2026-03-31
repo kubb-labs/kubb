@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * @type object
+ */
 export type DeleteOrderPathParams = {
   /**
    * @description ID of the order that needs to be deleted
@@ -13,16 +16,21 @@ export type DeleteOrderPathParams = {
 
 /**
  * @description Invalid ID supplied
+ * @type any
  */
 export type DeleteOrder400 = any
 
 /**
  * @description Order not found
+ * @type any
  */
 export type DeleteOrder404 = any
 
 export type DeleteOrderMutationResponse = any
 
+/**
+ * @type object
+ */
 export type DeleteOrderMutation = {
   Response: any
   PathParams: DeleteOrderPathParams

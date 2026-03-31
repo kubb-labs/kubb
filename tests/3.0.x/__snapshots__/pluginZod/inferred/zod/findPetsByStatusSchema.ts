@@ -10,16 +10,10 @@ export const findPetsByStatusQueryStatusSchema = z.enum(["available", "pending",
 
 export type FindPetsByStatusQueryStatusSchema = z.infer<typeof findPetsByStatusQueryStatusSchema>
 
-/**
- * @description successful operation
- */
 export const findPetsByStatusStatus200Schema = z.array(petSchema)
 
 export type FindPetsByStatusStatus200Schema = z.infer<typeof findPetsByStatusStatus200Schema>
 
-/**
- * @description Invalid status value
- */
 export const findPetsByStatusStatus400Schema = z.any()
 
 export type FindPetsByStatusStatus400Schema = z.infer<typeof findPetsByStatusStatus400Schema>

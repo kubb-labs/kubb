@@ -13,9 +13,6 @@ export const updatePetQueryIncludeDeletedSchema = z.boolean().optional()
 
 export const updatePetQueryRequestSourceSchema = z.string().optional()
 
-/**
- * @description Success
- */
 export const updatePetStatus200Schema = petSchema
 
 export const updatePetDataSchema = petUpdateSchema

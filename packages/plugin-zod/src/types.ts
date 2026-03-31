@@ -20,7 +20,9 @@ import type {
  */
 export type ResolverZod = Resolver &
   OperationParamsResolver & {
-    /** Resolve a camelCase schema name with 'Schema' suffix. */
+    /**
+     * Resolves a camelCase schema function name with a `Schema` suffix.
+     */
     resolveName(name: string): string
     /**
      * Resolves the name for a `z.infer<typeof ...>` type export from an already-resolved function name.
@@ -30,7 +32,9 @@ export type ResolverZod = Resolver &
      * resolver.resolveInferName('addPet200Schema') // → 'AddPet200Schema'
      */
     resolveInferName(name: string): string
-    /** Resolve a path/file name for the generated output. */
+    /**
+     * Resolves a PascalCase path/file name for the generated output.
+     */
     resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
     /**
      * Resolves the name for an operation response by status code.
@@ -104,7 +108,7 @@ export type Options = {
    * Path is used as-is; relative paths are based on the generated file location.
    * @default 'zod'
    */
-  importPath?: string
+  importPath?: 'zod' | 'zod/mini' | (string & {})
   /**
    * Choose to use date or datetime as JavaScript Date instead of string.
    * - false falls back to a simple z.string() format.

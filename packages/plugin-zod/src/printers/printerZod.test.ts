@@ -55,6 +55,14 @@ describe('printerZod', () => {
       const p = printerZod({ coercion: { numbers: true } })
       expect(p.print(createSchema({ type: 'number' }))).toBe('z.coerce.number()')
     })
+
+    test('number with multipleOf', () => {
+      expect(printer.print(createSchema({ type: 'number', multipleOf: 5 }))).toBe('z.number().multipleOf(5)')
+    })
+
+    test('integer with min, max, and multipleOf', () => {
+      expect(printer.print(createSchema({ type: 'integer', min: 0, max: 100, multipleOf: 10 }))).toBe('z.int().min(0).max(100).multipleOf(10)')
+    })
   })
 
   describe('integer', () => {
@@ -114,6 +122,14 @@ describe('printerZod', () => {
     test('url', () => {
       expect(printer.print(createSchema({ type: 'url' }))).toBe('z.url()')
     })
+
+    test('ipv4', () => {
+      expect(printer.print(createSchema({ type: 'ipv4' }))).toBe('z.ipv4()')
+    })
+
+    test('ipv6', () => {
+      expect(printer.print(createSchema({ type: 'ipv6' }))).toBe('z.ipv6()')
+    })
   })
 
   describe('enum', () => {
@@ -168,6 +184,26 @@ describe('printerZod', () => {
       })
       expect(printer.print(node)).toBe('z.object({\n    "id": z.int(),\n    "name": z.string()\n    })')
     })
+
+    test('object with additionalProperties: true → .catchall(z.unknown())', () => {
+      const node = createSchema({ type: 'object', primitive: 'object', properties: [], additionalProperties: true })
+      expect(printer.print(node)).toBe('z.object({\n    \n    }).catchall(z.unknown())')
+    })
+
+    test('object with additionalProperties: false → .strict()', () => {
+      const node = createSchema({ type: 'object', primitive: 'object', properties: [], additionalProperties: false })
+      expect(printer.print(node)).toBe('z.object({\n    \n    }).strict()')
+    })
+
+    test('object with additionalProperties schema → .catchall(schema)', () => {
+      const node = createSchema({
+        type: 'object',
+        primitive: 'object',
+        properties: [],
+        additionalProperties: createSchema({ type: 'string' }),
+      })
+      expect(printer.print(node)).toBe('z.object({\n    \n    }).catchall(z.string())')
+    })
   })
 
   describe('array', () => {
@@ -181,17 +217,57 @@ describe('printerZod', () => {
   })
 
   describe('ref', () => {
-    test('ref uses ref path name over node name', () => {
+    test('cross-file ref returns bare name', () => {
       const node = createSchema({ type: 'ref', name: 'UnsupportedAuthenticationProblem', ref: '#/components/schemas/Problem' })
 
       expect(printer.print(node)).toBe('Problem')
     })
 
-    test('ref with resolver uses ref path name', () => {
+    test('cross-file ref with resolver returns resolved bare name', () => {
       const p = printerZod({ resolver: { default: (name: string) => `${name.charAt(0).toLowerCase()}${name.slice(1)}Schema` } as any })
       const node = createSchema({ type: 'ref', name: 'UnsupportedAuthenticationProblem', ref: '#/components/schemas/Problem' })
 
       expect(p.print(node)).toBe('problemSchema')
+    })
+
+    test('ref without $ref path (intersection chaining) returns bare name', () => {
+      const node = createSchema({ type: 'ref', name: 'PhoneNumber' })
+
+      expect(printer.print(node)).toBe('PhoneNumber')
+    })
+
+    test('self-ref wraps in z.lazy()', () => {
+      const p = printerZod({ schemaName: 'TreeNode' })
+      const node = createSchema({ type: 'ref', name: 'TreeNode', ref: '#/components/schemas/TreeNode' })
+
+      expect(p.print(node)).toBe('z.lazy(() => TreeNode)')
+    })
+
+    test('object cross-file ref property uses bare name (no getter)', () => {
+      const node = createSchema({
+        type: 'object',
+        primitive: 'object',
+        properties: [
+          createProperty({ name: 'category', required: false, schema: createSchema({ type: 'ref', name: 'Category', ref: '#/components/schemas/Category' }) }),
+          createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
+        ],
+      })
+
+      expect(printer.print(node)).toBe('z.object({\n    "category": Category.optional(),\n    "name": z.string()\n    })')
+    })
+
+    test('object self-ref property uses getter with bare name', () => {
+      const p = printerZod({ schemaName: 'TreeNode' })
+      const node = createSchema({
+        type: 'object',
+        primitive: 'object',
+        properties: [
+          createProperty({ name: 'children', required: false, schema: createSchema({ type: 'ref', name: 'TreeNode', ref: '#/components/schemas/TreeNode' }) }),
+          createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
+        ],
+      })
+
+      expect(p.print(node)).toBe('z.object({\n    get "children"() { return TreeNode.optional() },\n    "name": z.string()\n    })')
     })
   })
 
@@ -261,6 +337,99 @@ describe('printerZod', () => {
       })
       expect(printer.print(node)).toBe('z.string()')
     })
+
+    test('discriminated union', () => {
+      const node = createSchema({
+        type: 'union',
+        discriminatorPropertyName: 'petType',
+        members: [
+          createSchema({ type: 'ref', name: 'Cat', ref: '#/components/schemas/Cat' }),
+          createSchema({ type: 'ref', name: 'Dog', ref: '#/components/schemas/Dog' }),
+        ],
+      })
+      expect(printer.print(node)).toBe('z.discriminatedUnion("petType", [Cat, Dog])')
+    })
+
+    test('discriminated union with single member', () => {
+      const node = createSchema({
+        type: 'union',
+        discriminatorPropertyName: 'type',
+        members: [createSchema({ type: 'ref', name: 'Cat', ref: '#/components/schemas/Cat' })],
+      })
+      expect(printer.print(node)).toBe('Cat')
+    })
+
+    test('discriminated union with object members', () => {
+      const node = createSchema({
+        type: 'union',
+        discriminatorPropertyName: 'status',
+        members: [
+          createSchema({
+            type: 'object',
+            primitive: 'object',
+            properties: [
+              createProperty({ name: 'status', required: true, schema: createSchema({ type: 'enum', enumValues: ['active'] }) }),
+              createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
+            ],
+          }),
+          createSchema({
+            type: 'object',
+            primitive: 'object',
+            properties: [
+              createProperty({ name: 'status', required: true, schema: createSchema({ type: 'enum', enumValues: ['inactive'] }) }),
+              createProperty({ name: 'reason', required: true, schema: createSchema({ type: 'string' }) }),
+            ],
+          }),
+        ],
+      })
+      expect(printer.print(node)).toBe(
+        'z.discriminatedUnion("status", [z.object({\n    "status": z.enum(["active"]),\n    "name": z.string()\n    }), z.object({\n    "status": z.enum(["inactive"]),\n    "reason": z.string()\n    })])',
+      )
+    })
+
+    test('falls back to z.union when a member is an intersection', () => {
+      const node = createSchema({
+        type: 'union',
+        discriminatorPropertyName: 'petType',
+        members: [
+          createSchema({ type: 'ref', name: 'Cat', ref: '#/components/schemas/Cat' }),
+          createSchema({
+            type: 'intersection',
+            members: [
+              createSchema({ type: 'ref', name: 'BasePet', ref: '#/components/schemas/BasePet' }),
+              createSchema({
+                type: 'object',
+                primitive: 'object',
+                properties: [createProperty({ name: 'petType', required: true, schema: createSchema({ type: 'string' }) })],
+              }),
+            ],
+          }),
+        ],
+      })
+      expect(printer.print(node)).toBe('z.union([Cat, BasePet.and(z.object({\n    "petType": z.string()\n    }))])')
+    })
+
+    test('discriminated union with three or more ref members', () => {
+      const node = createSchema({
+        type: 'union',
+        discriminatorPropertyName: 'type',
+        members: [
+          createSchema({ type: 'ref', name: 'Cat', ref: '#/components/schemas/Cat' }),
+          createSchema({ type: 'ref', name: 'Dog', ref: '#/components/schemas/Dog' }),
+          createSchema({ type: 'ref', name: 'Bird', ref: '#/components/schemas/Bird' }),
+        ],
+      })
+      expect(printer.print(node)).toBe('z.discriminatedUnion("type", [Cat, Dog, Bird])')
+    })
+
+    test('empty discriminated union returns empty string', () => {
+      const node = createSchema({
+        type: 'union',
+        discriminatorPropertyName: 'type',
+        members: [],
+      })
+      expect(printer.print(node)).toBeNull()
+    })
   })
 
   describe('modifiers', () => {
@@ -328,6 +497,20 @@ describe('printerZod', () => {
       const p = printerZod({ keysToOmit: [] })
       const node = createSchema({ type: 'string' })
       expect(p.print(node)).toBe('z.string()')
+    })
+
+    test('skips omit for discriminated union', () => {
+      const p = printerZod({ keysToOmit: ['petType'] })
+      const node = createSchema({
+        type: 'union',
+        primitive: 'object',
+        discriminatorPropertyName: 'petType',
+        members: [
+          createSchema({ type: 'ref', name: 'Cat', ref: '#/components/schemas/Cat' }),
+          createSchema({ type: 'ref', name: 'Dog', ref: '#/components/schemas/Dog' }),
+        ],
+      })
+      expect(p.print(node)).toBe('z.discriminatedUnion("petType", [Cat, Dog])')
     })
   })
 })

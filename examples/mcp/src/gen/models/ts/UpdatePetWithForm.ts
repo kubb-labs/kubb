@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * @type object
+ */
 export type UpdatePetWithFormPathParams = {
   /**
    * @description ID of pet that needs to be updated
@@ -11,6 +14,9 @@ export type UpdatePetWithFormPathParams = {
   petId: number
 }
 
+/**
+ * @type object
+ */
 export type UpdatePetWithFormQueryParams = {
   /**
    * @description Name of pet that needs to be updated
@@ -26,11 +32,15 @@ export type UpdatePetWithFormQueryParams = {
 
 /**
  * @description Invalid input
+ * @type any
  */
 export type UpdatePetWithForm405 = any
 
 export type UpdatePetWithFormMutationResponse = any
 
+/**
+ * @type object
+ */
 export type UpdatePetWithFormMutation = {
   Response: any
   QueryParams: UpdatePetWithFormQueryParams

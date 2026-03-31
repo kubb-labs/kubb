@@ -10,9 +10,6 @@ export const uploadFilePathPetIdSchema = z.coerce.number().int().describe("ID of
 
 export const uploadFileQueryAdditionalMetadataSchema = z.coerce.string().optional().describe("Additional Metadata")
 
-/**
- * @description successful operation
- */
 export const uploadFileStatus200Schema = apiResponseSchema
 
 export const uploadFileDataSchema = z.instanceof(File).optional()

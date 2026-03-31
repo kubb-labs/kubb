@@ -9,9 +9,6 @@ export const updatePetPathPetIdSchema = z.string()
 
 export const updatePetQueryIncludeDeletedSchema = z.boolean().optional()
 
-/**
- * @description Success
- */
 export const updatePetStatus200Schema = z.object({})
 
 export const updatePetDataSchema = z.object({

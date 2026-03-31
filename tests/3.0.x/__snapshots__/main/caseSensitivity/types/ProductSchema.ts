@@ -4,6 +4,9 @@
 */
 
 
+/**
+ * @type object
+*/
 export type ProductSchema = {
     /**
      * @type string | undefined
