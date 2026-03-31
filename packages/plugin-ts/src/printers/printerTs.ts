@@ -1,4 +1,3 @@
-import { jsStringEscape } from '@internals/utils'
 import { extractRefName, isStringType, narrowSchema, schemaTypes, syncSchemaRef } from '@kubb/ast'
 import type { ArraySchemaNode, SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
@@ -134,11 +133,11 @@ function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalTy
 
   let type = baseType
 
-  if (meta?.nullable) {
+  if (meta.nullable) {
     type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.null] })
   }
 
-  if ((schema.nullish || schema.optional) && addsUndefined) {
+  if ((meta.nullish || meta.optional) && addsUndefined) {
     type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] })
   }
 
@@ -343,31 +342,29 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
       },
     },
     print(node) {
-      let type = this.transform(node)
+      const { name, syntaxType = 'type', description, keysToOmit } = this.options
 
-      if (!type) {
-        return null
-      }
+      let base = this.transform(node)
+      if (!base) return null
 
       // For ref nodes, structural metadata lives on node.schema rather than the ref node itself.
       const meta = syncSchemaRef(node)
 
       // Apply top-level nullable / optional union modifiers.
-      if (meta?.nullable) {
-        type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.null] })
+      if (meta.nullable) {
+        base = factory.createUnionDeclaration({ nodes: [base, factory.keywordTypeNodes.null] })
       }
 
-      if ((node.nullish || node.optional) && addsUndefined) {
-        type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] })
+      if ((meta.nullish || meta.optional) && addsUndefined) {
+        base = factory.createUnionDeclaration({ nodes: [base, factory.keywordTypeNodes.undefined] })
       }
 
       // Without name, return the type node as-is (no declaration wrapping).
-      const { name, syntaxType = 'type', description, keysToOmit } = this.options
       if (!name) {
-        return safePrint(type)
+        return safePrint(base)
       }
 
-      const useTypeGeneration = syntaxType === 'type' || type.kind === factory.syntaxKind.union || !!keysToOmit?.length
+      const useTypeGeneration = syntaxType === 'type' || base.kind === factory.syntaxKind.union || !!keysToOmit?.length
 
       const typeNode = factory.createTypeDeclaration({
         name,
@@ -375,21 +372,15 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         type: keysToOmit?.length
           ? factory.createOmitDeclaration({
               keys: keysToOmit,
-              type,
+              type: base,
               nonNullable: true,
             })
-          : type,
+          : base,
         syntax: useTypeGeneration ? 'type' : 'interface',
-        comments: [
-          meta?.title ? jsStringEscape(meta.title) : undefined,
-          description ? `@description ${jsStringEscape(description)}` : undefined,
-          meta?.deprecated ? '@deprecated' : undefined,
-          meta && 'min' in meta && meta.min !== undefined ? `Minimum length: ${meta.min}` : undefined,
-          meta && 'max' in meta && meta.max !== undefined ? `Maximum length: ${meta.max}` : undefined,
-          meta && 'pattern' in meta && meta.pattern ? `Pattern: ${meta.pattern}` : undefined,
-          meta?.default ? `@default ${meta.default}` : undefined,
-          meta?.example ? `@example ${meta.example}` : undefined,
-        ],
+        comments: buildPropertyJSDocComments({
+          ...meta,
+          description,
+        }),
       })
 
       return safePrint(typeNode)

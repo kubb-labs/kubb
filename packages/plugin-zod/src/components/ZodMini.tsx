@@ -1,5 +1,4 @@
 import type { SchemaNode } from '@kubb/ast/types'
-import { buildPropertyJSDocComments } from '@kubb/plugin-ts'
 import { Const, File, Type } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import { printerZodMini } from '../printers/printerZodMini.ts'
@@ -26,13 +25,7 @@ export function ZodMini({ name, node, guidType, wrapOutput, inferTypeName, resol
   return (
     <>
       <File.Source name={name} isExportable isIndexable>
-        <Const
-          export
-          name={name}
-          JSDoc={{
-            comments: buildPropertyJSDocComments(node),
-          }}
-        >
+        <Const export name={name}>
           {output}
         </Const>
       </File.Source>

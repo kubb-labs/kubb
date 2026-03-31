@@ -37,7 +37,6 @@ export function buildSchemaNames(node: OperationNode, params: Array<ParameterNod
   }
 }
 
-
 /**
  * Format a default value as a code-level literal.
  * Objects become `{}`, primitives become their string representation, strings are quoted.

@@ -6,7 +6,7 @@ import { File } from '@kubb/react-fabric'
 import { Operations } from '../components/Operations.tsx'
 import { Zod } from '../components/Zod.tsx'
 import { ZodMini } from '../components/ZodMini.tsx'
-import { OPERATIONS_FILENAME, ZOD_NAMESPACE_IMPORTS } from '../constants.ts'
+import { ZOD_NAMESPACE_IMPORTS } from '../constants.ts'
 import type { PluginZod } from '../types'
 import { buildSchemaNames } from '../utils.ts'
 
@@ -91,10 +91,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
 
       const imports = adapter.getImports(schema, (schemaName) => ({
         name: resolver.default(schemaName, 'function'),
-        path: resolver.resolveFile(
-          { name: schemaName, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
-          { root, output, group },
-        ).path,
+        path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
       }))
 
       return (
@@ -174,7 +171,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
     const meta = {
-      file: resolver.resolveFile({ name: OPERATIONS_FILENAME, extname: '.ts' }, { root, output, group }),
+      file: resolver.resolveFile({ name: 'operations', extname: '.ts' }, { root, output, group }),
     } as const
 
     const transformedOperations = nodes.map((node) => {

@@ -124,7 +124,7 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
 
             const meta = syncSchemaRef(schema)
 
-            const isNullable = meta?.nullable
+            const isNullable = meta.nullable
             const isOptional = schema.optional
             const isNullish = schema.nullish
 
@@ -140,7 +140,7 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
               nullable: isNullable,
               optional: isOptional,
               nullish: isNullish,
-              defaultValue: meta?.default,
+              defaultValue: meta.default,
             })
 
             if (hasSelfRef) {
@@ -235,21 +235,27 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
     },
 
     print(node) {
-      const base = this.transform(node)
+      const { keysToOmit } = this.options
+
+      let base = this.transform(node)
       if (!base) return null
 
-      const { keysToOmit } = this.options
       const meta = syncSchemaRef(node)
 
-      if (keysToOmit?.length && meta?.primitive === 'object' && !(meta.type === 'union' && meta.discriminatorPropertyName)) {
+      if (keysToOmit?.length && meta.primitive === 'object' && !(meta.type === 'union' && meta.discriminatorPropertyName)) {
         // Mirror printerTs `nonNullable: true`: when omitting keys, the resulting
         // schema is a new non-nullable object type — skip optional/nullable/nullish.
         // Discriminated unions (z.discriminatedUnion) do not support .omit(), so skip them.
-        return `${base}.omit({ ${keysToOmit.map((k) => `"${k}": true`).join(', ')} })`
+        base = `${base}.omit({ ${keysToOmit.map((k) => `"${k}": true`).join(', ')} })`
       }
 
-      const schema = syncSchemaRef(node)
-      return applyMiniModifiers({ value: base, nullable: schema?.nullable, optional: node.optional, nullish: node.nullish, defaultValue: schema?.default })
+      return applyMiniModifiers({
+        value: base,
+        nullable: meta.nullable,
+        optional: meta.optional,
+        nullish: meta.nullish,
+        defaultValue: meta.default,
+      })
     },
   }
 })
