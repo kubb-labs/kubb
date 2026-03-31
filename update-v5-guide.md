@@ -380,7 +380,7 @@ Key rules for printers:
 - **`extractRefName(node.ref)`** from `@kubb/ast` — use this instead of `node.ref.split('/').at(-1)` to parse the last segment of a `$ref` string; handles edge cases in ref paths
 - **`ipv4` / `ipv6` node types** must be handled explicitly; map them to the appropriate string/IP type in the target library (e.g. `z.ipv4()`, `z.ipv6()` in Zod v4; `factory.keywordTypeNodes.string` in TypeScript)
 - **Unique arrays**: check `node.unique` on array nodes and append a `.refine(items => new Set(items).size === items.length, { message: "Array entries must be unique" })` constraint
-- **Discriminated unions**: when `node.discriminatorPropertyName` is set on a `union` node, emit `z.discriminatedUnion(discriminatorPropertyName, [...])` instead of `z.union([...])`, unless any member is an `intersection` type (which is not compatible with `z.discriminatedUnion`'s `$ZodDiscriminable` constraint) — fall back to `z.union` in that case
+- **Discriminated unions**: when `node.discriminatorPropertyName` is set on a `union` node, emit `z.discriminatedUnion(discriminatorPropertyName, [...])` instead of `z.union([...])`, unless any member is an `intersection` type (which is not compatible with `z.discriminatedUnion`'s `$ZodDiscriminant` constraint) — fall back to `z.union` in that case
 - **`buildPropertyJSDocComments`** is a shared utility that belongs in `utils.ts` (not inlined in the printer) so it can be reused by both the printer and the generator's `Type` component
 
 ### Step 3: Create src/resolvers/resolverPLUGIN_PASCAL.ts
