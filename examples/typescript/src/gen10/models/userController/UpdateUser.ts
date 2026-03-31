@@ -7,19 +7,24 @@ import type { User } from '../User.ts'
 
 /**
  * @description name that need to be deleted
+ * @type string
  */
 export type UpdateUserPathUsername = string
 
 /**
- * @description successful operation
+ * @type any
  */
 export type UpdateUserStatusDefault = any
 
 /**
  * @description Update an existent user in the store
+ * @type object | undefined
  */
 export type UpdateUserData = User
 
+/**
+ * @type object
+ */
 export type UpdateUserRequestConfig = {
   data?: UpdateUserData
   /**
@@ -36,6 +41,9 @@ export type UpdateUserRequestConfig = {
   url: `/user/${string}`
 }
 
+/**
+ * @type object
+ */
 export type UpdateUserResponses = {
   default: UpdateUserStatusDefault
 }

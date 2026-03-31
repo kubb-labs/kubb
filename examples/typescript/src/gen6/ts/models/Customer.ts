@@ -13,6 +13,9 @@ export const customerParamsStatusEnum = {
 
 export type CustomerParamsStatusEnumKey = (typeof customerParamsStatusEnum)[keyof typeof customerParamsStatusEnum]
 
+/**
+ * @type object
+ */
 export type Customer = {
   /**
    * @example 100000

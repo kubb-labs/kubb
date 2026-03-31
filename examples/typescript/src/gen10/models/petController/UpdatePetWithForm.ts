@@ -5,24 +5,30 @@
 
 /**
  * @description ID of pet that needs to be updated
+ * @type integer
  */
 export type UpdatePetWithFormPathPetId = number
 
 /**
  * @description Name of pet that needs to be updated
+ * @type string | undefined
  */
 export type UpdatePetWithFormQueryName = string
 
 /**
  * @description Status of pet that needs to be updated
+ * @type string | undefined
  */
 export type UpdatePetWithFormQueryStatus = string
 
 /**
- * @description Invalid input
+ * @type any
  */
 export type UpdatePetWithFormStatus405 = any
 
+/**
+ * @type object
+ */
 export type UpdatePetWithFormRequestConfig = {
   data?: never
   /**
@@ -45,6 +51,9 @@ export type UpdatePetWithFormRequestConfig = {
   url: `/pet/${string}`
 }
 
+/**
+ * @type object
+ */
 export type UpdatePetWithFormResponses = {
   '405': UpdatePetWithFormStatus405
 }

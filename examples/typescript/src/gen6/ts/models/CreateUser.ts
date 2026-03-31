@@ -7,16 +7,21 @@ import type { User } from './User.ts'
 
 /**
  * @description successful operation
+ * @type object
  */
 export type CreateUserError = User
 
 /**
  * @description Created user object
+ * @type object | undefined
  */
 export type CreateUserMutationRequest = User
 
 export type CreateUserMutationResponse = any
 
+/**
+ * @type object
+ */
 export type CreateUserMutation = {
   Response: any
   Request: CreateUserMutationRequest

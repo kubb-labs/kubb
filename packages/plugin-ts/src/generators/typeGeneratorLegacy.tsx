@@ -243,10 +243,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
 
       const imports = adapter.getImports(schema, (schemaName) => ({
         name: resolver.default(schemaName, 'type'),
-        path: resolver.resolveFile(
-          { name: schemaName, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
-          { root, output, group },
-        ).path,
+        path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
       }))
 
       return (

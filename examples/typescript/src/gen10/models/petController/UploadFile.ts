@@ -7,21 +7,29 @@ import type { ApiResponse } from '../ApiResponse.ts'
 
 /**
  * @description ID of pet to update
+ * @type integer
  */
 export type UploadFilePathPetId = number
 
 /**
  * @description Additional Metadata
+ * @type string | undefined
  */
 export type UploadFileQueryAdditionalMetadata = string
 
 /**
- * @description successful operation
+ * @type object
  */
 export type UploadFileStatus200 = ApiResponse
 
+/**
+ * @type string | undefined
+ */
 export type UploadFileData = Blob
 
+/**
+ * @type object
+ */
 export type UploadFileRequestConfig = {
   data?: UploadFileData
   /**
@@ -43,6 +51,9 @@ export type UploadFileRequestConfig = {
   url: `/pet/${string}/uploadImage`
 }
 
+/**
+ * @type object
+ */
 export type UploadFileResponses = {
   '200': UploadFileStatus200
 }

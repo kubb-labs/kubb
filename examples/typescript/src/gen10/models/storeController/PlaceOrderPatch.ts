@@ -6,17 +6,23 @@
 import type { Order } from '../Order.ts'
 
 /**
- * @description successful operation
+ * @type object
  */
 export type PlaceOrderPatchStatus200 = Order
 
 /**
- * @description Invalid input
+ * @type any
  */
 export type PlaceOrderPatchStatus405 = any
 
+/**
+ * @type object | undefined
+ */
 export type PlaceOrderPatchData = Order
 
+/**
+ * @type object
+ */
 export type PlaceOrderPatchRequestConfig = {
   data?: PlaceOrderPatchData
   pathParams?: never
@@ -28,6 +34,9 @@ export type PlaceOrderPatchRequestConfig = {
   url: '/store/order'
 }
 
+/**
+ * @type object
+ */
 export type PlaceOrderPatchResponses = {
   '200': PlaceOrderPatchStatus200
   '405': PlaceOrderPatchStatus405

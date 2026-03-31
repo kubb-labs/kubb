@@ -3,23 +3,30 @@
  * Do not edit manually.
  */
 
+/**
+ * @type string | undefined
+ */
 export type DeletePetHeaderApiKey = string
 
 /**
  * @description Pet id to delete
+ * @type integer
  */
 export type DeletePetPathPetId = number
 
 /**
- * @description items
+ * @type array
  */
 export type DeletePetStatus200 = ('TYPE1' | 'TYPE2' | 'TYPE3')[]
 
 /**
- * @description Invalid pet value
+ * @type any
  */
 export type DeletePetStatus400 = any
 
+/**
+ * @type object
+ */
 export type DeletePetRequestConfig = {
   data?: never
   /**
@@ -41,6 +48,9 @@ export type DeletePetRequestConfig = {
   url: `/pet/${string}`
 }
 
+/**
+ * @type object
+ */
 export type DeletePetResponses = {
   '200': DeletePetStatus200
   '400': DeletePetStatus400
