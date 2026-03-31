@@ -1,5 +1,5 @@
 import { stringify } from '@internals/utils'
-import { extractRefName, createSchema, narrowSchema, syncSchemaRef } from '@kubb/ast'
+import { createSchema, extractRefName, narrowSchema, syncSchemaRef } from '@kubb/ast'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import type { PluginZod, ResolverZod } from '../types.ts'
