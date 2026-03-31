@@ -1,22 +1,22 @@
 import * as z from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
-import type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/ts/userController/CreateUser.ts'
 import { userSchema } from '../userSchema.ts'
 
-/**
- * @description successful operation
- */
-export const createUserErrorSchema = z.lazy(() => userSchema) as unknown as ToZod<CreateUserError>
+export const createUserErrorSchema = userSchema.describe('successful operation')
 
-export type CreateUserErrorSchema = CreateUserError
+export type CreateUserErrorSchema = z.infer<typeof createUserErrorSchema>
 
-/**
- * @description Created user object
- */
-export const createUserMutationRequestSchema = z.lazy(() => userSchema).schema.omit({ tag: true }) as unknown as ToZod<CreateUserMutationRequest>
+export const createUserMutationRequestSchema = userSchema.optional().describe('Created user object')
 
-export type CreateUserMutationRequestSchema = CreateUserMutationRequest
+export type CreateUserMutationRequestSchema = z.infer<typeof createUserMutationRequestSchema>
 
-export const createUserMutationResponseSchema = z.any() as unknown as ToZod<CreateUserMutationResponse>
+export const createUserMutationResponseSchema = z.any()
 
-export type CreateUserMutationResponseSchema = CreateUserMutationResponse
+export type CreateUserMutationResponseSchema = z.infer<typeof createUserMutationResponseSchema>
+
+export const createUserMutationSchema = z.object({
+  Response: z.any(),
+  Request: createUserMutationRequestSchema,
+  Errors: createUserErrorSchema,
+})
+
+export type CreateUserMutationSchema = z.infer<typeof createUserMutationSchema>

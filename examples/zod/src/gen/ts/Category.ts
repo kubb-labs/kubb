@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * @type object
+ */
 export type Category = {
   /**
    * @example 1
@@ -14,5 +17,8 @@ export type Category = {
    * @type string | undefined
    */
   name?: string
+  /**
+   * @type object | undefined
+   */
   parent?: Category
 }

@@ -1,5 +1,8 @@
 import type { TagTag } from './tag/Tag.ts'
 
+/**
+ * @type object
+ */
 export type User = {
   /**
    * @example 10
@@ -18,6 +21,8 @@ export type User = {
   uuid?: string
   /**
    * @description The active tag
+   * @deprecated
+   * @type object | undefined
    */
   readonly tag?: TagTag
   /**

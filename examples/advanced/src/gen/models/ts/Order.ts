@@ -28,6 +28,9 @@ export const orderHttpStatusEnum = {
 
 export type OrderHttpStatusEnumKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
 
+/**
+ * @type object
+ */
 export type Order = {
   /**
    * @example 10

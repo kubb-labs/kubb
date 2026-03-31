@@ -1,6 +1,9 @@
 import { camelCase, pascalCase, screamingSnakeCase, snakeCase } from '@internals/utils'
+import { syncSchemaRef } from '@kubb/ast'
+import type { ArraySchemaNode, SchemaNode } from '@kubb/ast/types'
 import { isNumber, sortBy } from 'remeda'
 import ts from 'typescript'
+import { OPTIONAL_ADDS_UNDEFINED } from './constants.ts'
 
 const { SyntaxKind, factory } = ts
 
@@ -249,7 +252,7 @@ export function createTypeDeclaration({
 }) {
   if (syntax === 'interface' && 'members' in type) {
     const node = createInterfaceDeclaration({
-      members: type.members as Array<ts.TypeElement>,
+      members: [...(type as ts.TypeLiteralNode).members],
       modifiers: isExportable ? [modifiers.export] : [],
       name,
       typeParameters: undefined,
@@ -692,3 +695,121 @@ export const createTypeOperatorNode = factory.createTypeOperatorNode
 export const createPrefixUnaryExpression = factory.createPrefixUnaryExpression
 
 export { SyntaxKind }
+
+// ─── Printer helpers ──────────────────────────────────────────────────────────
+
+/**
+ * Converts a primitive const value to a TypeScript literal type node.
+ * Handles negative numbers via a prefix unary expression.
+ */
+export function constToTypeNode(value: string | number | boolean, format: 'string' | 'number' | 'boolean'): ts.TypeNode | undefined {
+  if (format === 'boolean') {
+    return createLiteralTypeNode(value === true ? createTrue() : createFalse())
+  }
+  if (format === 'number' && typeof value === 'number') {
+    if (value < 0) {
+      return createLiteralTypeNode(createPrefixUnaryExpression(SyntaxKind.MinusToken, createNumericLiteral(Math.abs(value))))
+    }
+    return createLiteralTypeNode(createNumericLiteral(value))
+  }
+  return createLiteralTypeNode(createStringLiteral(String(value)))
+}
+
+/**
+ * Returns a `Date` reference type node when `representation` is `'date'`, otherwise falls back to `string`.
+ */
+export function dateOrStringNode(node: { representation?: string }): ts.TypeNode {
+  return node.representation === 'date' ? createTypeReferenceNode(createIdentifier('Date')) : keywordTypeNodes.string
+}
+
+/**
+ * Maps an array of `SchemaNode`s through the printer, filtering out `null` and `undefined` results.
+ */
+export function buildMemberNodes(members: Array<SchemaNode> | undefined, print: (node: SchemaNode) => ts.TypeNode | null | undefined): Array<ts.TypeNode> {
+  return (members ?? []).map(print).filter(Boolean)
+}
+
+/**
+ * Builds a TypeScript tuple type node from an array schema's `items`,
+ * applying min/max slice and optional/rest element rules.
+ */
+export function buildTupleNode(node: ArraySchemaNode, print: (node: SchemaNode) => ts.TypeNode | null | undefined): ts.TypeNode | undefined {
+  let items = (node.items ?? []).map(print).filter(Boolean)
+
+  const restNode = node.rest ? (print(node.rest) ?? undefined) : undefined
+  const { min, max } = node
+
+  if (max !== undefined) {
+    items = items.slice(0, max)
+    if (items.length < max && restNode) {
+      items = [...items, ...Array(max - items.length).fill(restNode)]
+    }
+  }
+
+  if (min !== undefined) {
+    items = items.map((item, i) => (i >= min ? createOptionalTypeNode(item) : item))
+  }
+
+  if (max === undefined && restNode) {
+    items.push(createRestTypeNode(createArrayTypeNode(restNode)))
+  }
+
+  return createTupleTypeNode(items)
+}
+
+/**
+ * Applies `nullable` and optional/nullish `| undefined` union modifiers to a property's resolved base type.
+ */
+export function buildPropertyType(
+  schema: SchemaNode,
+  baseType: ts.TypeNode,
+  optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined',
+): ts.TypeNode {
+  const addsUndefined = OPTIONAL_ADDS_UNDEFINED.has(optionalType)
+  const meta = syncSchemaRef(schema)
+
+  let type = baseType
+
+  if (meta.nullable) {
+    type = createUnionDeclaration({ nodes: [type, keywordTypeNodes.null] })
+  }
+
+  if ((meta.nullish || meta.optional) && addsUndefined) {
+    type = createUnionDeclaration({ nodes: [type, keywordTypeNodes.undefined] })
+  }
+
+  return type
+}
+
+/**
+ * Creates TypeScript index signatures for `additionalProperties` and `patternProperties` on an object schema node.
+ */
+export function buildIndexSignatures(
+  node: { additionalProperties?: SchemaNode | boolean; patternProperties?: Record<string, SchemaNode> },
+  propertyCount: number,
+  print: (node: SchemaNode) => ts.TypeNode | null | undefined,
+): Array<ts.TypeElement> {
+  const elements: Array<ts.TypeElement> = []
+
+  if (node.additionalProperties && node.additionalProperties !== true) {
+    const additionalType = print(node.additionalProperties) ?? keywordTypeNodes.unknown
+
+    elements.push(createIndexSignature(propertyCount > 0 ? keywordTypeNodes.unknown : additionalType))
+  } else if (node.additionalProperties === true) {
+    elements.push(createIndexSignature(keywordTypeNodes.unknown))
+  }
+
+  if (node.patternProperties) {
+    const first = Object.values(node.patternProperties)[0]
+    if (first) {
+      let patternType = print(first) ?? keywordTypeNodes.unknown
+
+      if (first.nullable) {
+        patternType = createUnionDeclaration({ nodes: [patternType, keywordTypeNodes.null] })
+      }
+      elements.push(createIndexSignature(patternType))
+    }
+  }
+
+  return elements
+}

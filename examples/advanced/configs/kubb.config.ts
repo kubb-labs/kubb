@@ -75,7 +75,8 @@ export default defineConfig({
       inferred: true,
       typed: true,
       operations: false,
-      version: '3',
+      paramsCasing: 'camelcase', // make pathParams and queryParams camelCase to be in sync with client
+      compatibilityPreset: 'kubbV4',
     }),
     pluginReactQuery({
       output: {
@@ -185,7 +186,7 @@ export default defineConfig({
         },
       ],
       group: { type: 'tag' },
-      paramsCasing: 'camelcase',
+      paramsCasing: 'camelcase', // make pathParams and queryParams camelCase to be in sync with client
       client: {
         baseURL: 'https://petstore.swagger.io/v2',
       },

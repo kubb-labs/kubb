@@ -6,18 +6,22 @@
 import * as z from 'zod'
 
 export const deletePetPathParamsSchema = z.object({
-  petId: z.coerce.number().int().describe('Pet id to delete'),
+  petId: z.int().describe('Pet id to delete'),
 })
 
 export const deletePetHeaderParamsSchema = z
   .object({
-    api_key: z.optional(z.string()),
+    api_key: z.string().optional(),
   })
   .optional()
 
-/**
- * @description Invalid pet value
- */
-export const deletePet400Schema = z.any()
+export const deletePet400Schema = z.any().describe('Invalid pet value')
 
 export const deletePetMutationResponseSchema = z.any()
+
+export const deletePetMutationSchema = z.object({
+  Response: z.any(),
+  PathParams: deletePetPathParamsSchema,
+  HeaderParams: deletePetHeaderParamsSchema,
+  Errors: deletePet400Schema,
+})

@@ -1,11 +1,11 @@
 import * as z from 'zod'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import type { Cat } from '../models/ts/Cat.ts'
 
-export const catSchema = z.object({
-  type: z.string().min(1),
-  name: z.optional(z.string()),
-  indoor: z.boolean(),
-}) as unknown as ToZod<Cat>
+export const catSchema = z
+  .object({
+    type: z.string().min(1),
+    name: z.string().optional(),
+    indoor: z.boolean(),
+  })
+  .strict()
 
-export type CatSchema = Cat
+export type CatSchema = z.infer<typeof catSchema>

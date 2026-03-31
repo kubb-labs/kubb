@@ -8,20 +8,19 @@ import { categorySchema } from './categorySchema.ts'
 import { tagSchema } from './tagSchema.ts'
 
 export const petSchema = z.object({
-  id: z.optional(z.int()),
+  id: z.int().optional(),
   get parent() {
     return z.array(petSchema).optional()
   },
-  internalId: z.optional(z.string().regex(/^[0-9]{1,19}$/)),
+  internalId: z
+    .string()
+    .regex(/^[0-9]{1,19}$/)
+    .optional(),
   name: z.string(),
-  get category() {
-    return categorySchema.optional()
-  },
+  category: categorySchema.optional(),
   photoUrls: z.array(z.string()),
-  get tags() {
-    return z.array(tagSchema).optional()
-  },
-  status: z.optional(z.enum(['available', 'pending', 'sold']).describe('pet status in the store')),
+  tags: z.array(tagSchema).optional(),
+  status: z.enum(['available', 'pending', 'sold']).optional().describe('pet status in the store'),
 })
 
 export type PetSchema = z.infer<typeof petSchema>

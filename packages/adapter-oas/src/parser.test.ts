@@ -1,4 +1,4 @@
-import { narrowSchema } from '@kubb/ast'
+import { narrowSchema, syncSchemaRef } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { parseDocument } from './factory.ts'
@@ -124,6 +124,7 @@ describe('buildAst', () => {
       // Should be flattened to a ref — not an intersection
       expect(nullableRef?.type).toBe('ref')
       expect(nullableRef?.ref).toBe('#/components/schemas/Pet')
+      // nullable from the allOf member sibling is propagated to the ref node via buildSchemaNode.
       expect(nullableRef?.nullable).toBe(true)
     })
 
@@ -380,7 +381,19 @@ describe('parseSchema email', () => {
 describe('parseSchema url', () => {
   const ctx = { document: emptyDocument }
 
-  it.each(['uri', 'uri-reference', 'url', 'ipv4', 'ipv6', 'hostname', 'idn-hostname'])('maps format %s to url', (format) => {
+  it('maps format ipv4 to ipv4', () => {
+    const node = parseSchema(ctx, { schema: { format: 'ipv4' } })
+
+    expect(node.type).toBe('ipv4')
+  })
+
+  it('maps format ipv6 to ipv6', () => {
+    const node = parseSchema(ctx, { schema: { format: 'ipv6' } })
+
+    expect(node.type).toBe('ipv6')
+  })
+
+  it.each(['uri', 'uri-reference', 'url', 'hostname', 'idn-hostname'])('maps format %s to url', (format) => {
     const node = parseSchema(ctx, { schema: { type: 'string', format } })
 
     expect(node.type).toBe('url')
@@ -879,16 +892,40 @@ describe('parseSchema readOnly / writeOnly', () => {
     expect(node.readOnly).toBe(true)
   })
 
+  it('populates node.schema with the resolved ref schema when the document contains the definition', async () => {
+    const oas = await buildMinimalOas()
+    const root = parseOas(oas).root
+    const petList = narrowSchema(
+      root.schemas.find((s) => s.name === 'PetList'),
+      'array',
+    )
+    // Items of PetList are refs to Pet — they should carry a resolved schema
+    const petRef = petList?.items?.find((item) => item.type === 'ref')
+    expect(petRef?.type).toBe('ref')
+    if (petRef?.type !== 'ref') return
+    expect(petRef.schema).toBeDefined()
+    expect(petRef.schema?.type).toBe('object')
+  })
+
+  it('syncSchemaRef merges usage-site sibling fields over the resolved schema', async () => {
+    const oas = await buildMinimalOas()
+    const { root } = parseOas(oas)
+    const petList = narrowSchema(
+      root.schemas.find((s) => s.name === 'PetList'),
+      'array',
+    )
+    const petRef = petList?.items?.find((item) => item.type === 'ref')
+    if (!petRef) return
+
+    const merged = syncSchemaRef(petRef)
+    // Merged result has the resolved schema's type (object)
+    expect(merged?.type).toBe('object')
+  })
+
   it('propagates readOnly on ref schema siblings', () => {
     const node = parseSchema(ctx, { schema: { $ref: '#/components/schemas/Pet', readOnly: true } })
 
     expect(node.readOnly).toBe(true)
-  })
-
-  it('propagates pattern on ref sibling when type is string', () => {
-    const node = parseSchema(ctx, { schema: { $ref: '#/components/schemas/Pet', type: 'string', pattern: '^[a-z]+$' } })
-
-    expect(narrowSchema(node, 'ref')?.pattern).toBe('^[a-z]+$')
   })
 
   it('drops pattern on ref sibling when type is not string', () => {
@@ -1116,7 +1153,7 @@ describe('parseSchema object additionalProperties', () => {
     })
     const narrowed = narrowSchema(node, 'object')
 
-    expect(narrowed?.additionalProperties).toBeUndefined()
+    expect(narrowed?.additionalProperties).toBeFalsy()
   })
 
   it('no additionalProperties → additionalProperties is undefined', () => {

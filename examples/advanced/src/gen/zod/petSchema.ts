@@ -1,19 +1,22 @@
 import * as z from 'zod'
-import type { ToZod } from '../.kubb/ToZod.ts'
-import type { Pet } from '../models/ts/Pet.ts'
 import { categorySchema } from './categorySchema.ts'
 import { tagTagSchema } from './tag/tagSchema.ts'
 
 export const petSchema = z.object({
-  id: z.optional(z.number().int()),
-  parent: z.optional(z.array(z.lazy(() => petSchema))),
-  signature: z.optional(z.string().regex(/^data:image\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$/)),
+  id: z.int().optional(),
+  get parent() {
+    return z.array(petSchema).optional()
+  },
+  signature: z
+    .string()
+    .regex(/^data:image\/(png|jpeg|gif|webp);base64,([A-Za-z0-9+/]+={0,2})$/)
+    .optional(),
   name: z.string(),
-  url: z.optional(z.string().url().max(255)),
-  category: z.optional(z.lazy(() => categorySchema)),
+  url: z.url().max(255).optional(),
+  category: categorySchema.optional(),
   photoUrls: z.array(z.string()),
-  tags: z.optional(z.array(z.lazy(() => tagTagSchema))),
-  status: z.optional(z.enum(['available', 'pending', 'sold']).describe('pet status in the store')),
-}) as unknown as ToZod<Pet>
+  tags: z.array(tagTagSchema).optional(),
+  status: z.enum(['available', 'pending', 'sold']).optional().describe('pet status in the store'),
+})
 
-export type PetSchema = Pet
+export type PetSchema = z.infer<typeof petSchema>

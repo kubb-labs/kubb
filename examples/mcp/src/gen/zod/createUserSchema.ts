@@ -6,14 +6,14 @@
 import * as z from 'zod'
 import { userSchema } from './userSchema.js'
 
-/**
- * @description successful operation
- */
-export const createUserErrorSchema = z.lazy(() => userSchema)
+export const createUserErrorSchema = userSchema.describe('successful operation')
 
-/**
- * @description Created user object
- */
-export const createUserMutationRequestSchema = z.lazy(() => userSchema)
+export const createUserMutationRequestSchema = userSchema.optional().describe('Created user object')
 
 export const createUserMutationResponseSchema = z.any()
+
+export const createUserMutationSchema = z.object({
+  Response: z.any(),
+  Request: createUserMutationRequestSchema,
+  Errors: createUserErrorSchema,
+})

@@ -7,22 +7,19 @@ import * as z from 'zod'
 import { orderSchema } from './orderSchema.js'
 
 export const getOrderByIdPathParamsSchema = z.object({
-  orderId: z.coerce.number().int().describe('ID of order that needs to be fetched'),
+  orderId: z.int().describe('ID of order that needs to be fetched'),
 })
 
-/**
- * @description successful operation
- */
-export const getOrderById200Schema = z.lazy(() => orderSchema)
+export const getOrderById200Schema = orderSchema.describe('successful operation')
 
-/**
- * @description Invalid ID supplied
- */
-export const getOrderById400Schema = z.any()
+export const getOrderById400Schema = z.any().describe('Invalid ID supplied')
 
-/**
- * @description Order not found
- */
-export const getOrderById404Schema = z.any()
+export const getOrderById404Schema = z.any().describe('Order not found')
 
-export const getOrderByIdQueryResponseSchema = z.lazy(() => getOrderById200Schema)
+export const getOrderByIdQueryResponseSchema = getOrderById200Schema
+
+export const getOrderByIdQuerySchema = z.object({
+  Response: getOrderById200Schema,
+  PathParams: getOrderByIdPathParamsSchema,
+  Errors: z.union([getOrderById400Schema, getOrderById404Schema]),
+})

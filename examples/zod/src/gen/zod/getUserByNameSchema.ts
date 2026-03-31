@@ -12,27 +12,26 @@ export const getUserByNamePathParamsSchema = z.object({
 
 export type GetUserByNamePathParamsSchema = z.infer<typeof getUserByNamePathParamsSchema>
 
-/**
- * @description successful operation
- */
-export const getUserByName200Schema = z.lazy(() => userSchema)
+export const getUserByName200Schema = userSchema.describe('successful operation')
 
 export type GetUserByName200Schema = z.infer<typeof getUserByName200Schema>
 
-/**
- * @description Invalid username supplied
- */
-export const getUserByName400Schema = z.any()
+export const getUserByName400Schema = z.any().describe('Invalid username supplied')
 
 export type GetUserByName400Schema = z.infer<typeof getUserByName400Schema>
 
-/**
- * @description User not found
- */
-export const getUserByName404Schema = z.any()
+export const getUserByName404Schema = z.any().describe('User not found')
 
 export type GetUserByName404Schema = z.infer<typeof getUserByName404Schema>
 
-export const getUserByNameQueryResponseSchema = z.lazy(() => getUserByName200Schema)
+export const getUserByNameQueryResponseSchema = getUserByName200Schema
 
 export type GetUserByNameQueryResponseSchema = z.infer<typeof getUserByNameQueryResponseSchema>
+
+export const getUserByNameQuerySchema = z.object({
+  Response: getUserByName200Schema,
+  PathParams: getUserByNamePathParamsSchema,
+  Errors: z.union([getUserByName400Schema, getUserByName404Schema]),
+})
+
+export type GetUserByNameQuerySchema = z.infer<typeof getUserByNameQuerySchema>

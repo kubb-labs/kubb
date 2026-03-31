@@ -14,7 +14,7 @@ export type CreatePetsPathParamsSchema = z.infer<typeof createPetsPathParamsSche
 
 export const createPetsQueryParamsSchema = z
   .object({
-    offset: z.optional(z.coerce.number().int().describe('Offset')),
+    offset: z.int().optional().describe('Offset'),
   })
   .optional()
 
@@ -26,17 +26,11 @@ export const createPetsHeaderParamsSchema = z.object({
 
 export type CreatePetsHeaderParamsSchema = z.infer<typeof createPetsHeaderParamsSchema>
 
-/**
- * @description Null response
- */
-export const createPets201Schema = z.any()
+export const createPets201Schema = z.any().describe('Null response')
 
 export type CreatePets201Schema = z.infer<typeof createPets201Schema>
 
-/**
- * @description unexpected error
- */
-export const createPetsErrorSchema = z.lazy(() => petNotFoundSchema).describe('Pet not found')
+export const createPetsErrorSchema = petNotFoundSchema.describe('unexpected error')
 
 export type CreatePetsErrorSchema = z.infer<typeof createPetsErrorSchema>
 
@@ -47,6 +41,17 @@ export const createPetsMutationRequestSchema = z.object({
 
 export type CreatePetsMutationRequestSchema = z.infer<typeof createPetsMutationRequestSchema>
 
-export const createPetsMutationResponseSchema = z.lazy(() => createPets201Schema)
+export const createPetsMutationResponseSchema = createPets201Schema
 
 export type CreatePetsMutationResponseSchema = z.infer<typeof createPetsMutationResponseSchema>
+
+export const createPetsMutationSchema = z.object({
+  Response: createPets201Schema,
+  Request: createPetsMutationRequestSchema,
+  QueryParams: createPetsQueryParamsSchema,
+  PathParams: createPetsPathParamsSchema,
+  HeaderParams: createPetsHeaderParamsSchema,
+  Errors: createPetsErrorSchema,
+})
+
+export type CreatePetsMutationSchema = z.infer<typeof createPetsMutationSchema>

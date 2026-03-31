@@ -3,28 +3,43 @@
  * Do not edit manually.
  */
 
+/**
+ * @type string
+ */
 export type ShowPetByIdPathPetId = string
 
 /**
- * @description Expected response
+ * @type object
  */
 export type ShowPetByIdStatus200 = object
 
 /**
- * @description Unexpected error
+ * @type object
  */
 export type ShowPetByIdStatusDefault = object
 
+/**
+ * @type object
+ */
 export type ShowPetByIdRequestConfig = {
   data?: never
+  /**
+   * @type object
+   */
   pathParams: {
     petId: ShowPetByIdPathPetId
   }
   queryParams?: never
   headerParams?: never
+  /**
+   * @type string
+   */
   url: `/pets/${string}`
 }
 
+/**
+ * @type object
+ */
 export type ShowPetByIdResponses = {
   '200': ShowPetByIdStatus200
   default: ShowPetByIdStatusDefault

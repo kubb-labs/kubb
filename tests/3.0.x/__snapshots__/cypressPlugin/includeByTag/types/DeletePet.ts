@@ -4,30 +4,49 @@
 */
 
 
-export type DeletePetHeaderApiKey = string;
+/**
+ * @type string | undefined
+*/
+export type DeletePetHeaderApiKey = string | undefined;
 
 /**
  * @description Pet id to delete
+ * @type integer
 */
 export type DeletePetPathPetId = number;
 
 /**
- * @description Invalid pet value
+ * @type any
 */
 export type DeletePetStatus400 = any;
 
+/**
+ * @type object
+*/
 export type DeletePetRequestConfig = {
     data?: never;
+    /**
+     * @type object
+    */
     pathParams: {
         petId: DeletePetPathPetId;
     };
     queryParams?: never;
+    /**
+     * @type object | undefined
+    */
     headerParams?: {
         api_key?: DeletePetHeaderApiKey;
     };
+    /**
+     * @type string
+    */
     url: `/pet/${string}`;
 };
 
+/**
+ * @type object
+*/
 export type DeletePetResponses = {
     "400": DeletePetStatus400;
 };

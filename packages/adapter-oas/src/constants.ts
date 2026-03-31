@@ -56,7 +56,8 @@ export const structuralKeys = new Set(['properties', 'items', 'additionalPropert
  *
  * Only formats whose AST type differs from the OAS `type` field appear here.
  * Formats that depend on runtime options (`int64`, `date-time`, `date`, `time`) are handled separately
- * in the parser. `ipv4`, `ipv6`, and `hostname` map to `'url'` as the closest supported scalar.
+ * in the parser. `ipv4` and `ipv6` map to their own dedicated schema types; `hostname` and
+ * `idn-hostname` map to `'url'` as the closest generic string-format type.
  *
  * @example
  * ```ts
@@ -74,8 +75,8 @@ export const formatMap = {
   uri: 'url',
   'uri-reference': 'url',
   url: 'url',
-  ipv4: 'url',
-  ipv6: 'url',
+  ipv4: 'ipv4',
+  ipv6: 'ipv6',
   hostname: 'url',
   'idn-hostname': 'url',
   binary: 'blob',

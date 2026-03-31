@@ -6,16 +6,16 @@
 import * as z from 'zod/mini'
 import { userSchema } from './userSchema.ts'
 
-/**
- * @description Successful operation
- */
-export const createUsersWithListInput200Schema = z.lazy(() => userSchema)
+export const createUsersWithListInput200Schema = userSchema
 
-/**
- * @description successful operation
- */
 export const createUsersWithListInputErrorSchema = z.any()
 
-export const createUsersWithListInputMutationRequestSchema = z.array(z.lazy(() => userSchema))
+export const createUsersWithListInputMutationRequestSchema = z.optional(z.array(userSchema))
 
-export const createUsersWithListInputMutationResponseSchema = z.lazy(() => createUsersWithListInput200Schema)
+export const createUsersWithListInputMutationResponseSchema = createUsersWithListInput200Schema
+
+export const createUsersWithListInputMutationSchema = z.object({
+  Response: createUsersWithListInput200Schema,
+  Request: createUsersWithListInputMutationRequestSchema,
+  Errors: createUsersWithListInputErrorSchema,
+})

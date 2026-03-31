@@ -6,36 +6,26 @@
 import * as z from 'zod'
 import { petSchema } from './petSchema.js'
 
-/**
- * @description Successful operation
- */
-export const updatePet200Schema = z.lazy(() => petSchema).schema.omit({ name: true })
+export const updatePet200Schema = petSchema.omit({ name: true }).describe('Successful operation')
 
-/**
- * @description accepted operation
- */
-export const updatePet202Schema = z.object({
-  id: z.optional(z.number().int()),
+export const updatePet202Schema = z
+  .object({
+    id: z.int().optional(),
+  })
+  .describe('accepted operation')
+
+export const updatePet400Schema = z.any().describe('Invalid ID supplied')
+
+export const updatePet404Schema = z.any().describe('Pet not found')
+
+export const updatePet405Schema = z.any().describe('Validation exception')
+
+export const updatePetMutationRequestSchema = petSchema.omit({ id: true }).describe('Update an existent pet in the store')
+
+export const updatePetMutationResponseSchema = z.union([updatePet200Schema, updatePet202Schema])
+
+export const updatePetMutationSchema = z.object({
+  Response: z.union([updatePet200Schema, updatePet202Schema]),
+  Request: updatePetMutationRequestSchema,
+  Errors: z.union([updatePet400Schema, updatePet404Schema, updatePet405Schema]),
 })
-
-/**
- * @description Invalid ID supplied
- */
-export const updatePet400Schema = z.any()
-
-/**
- * @description Pet not found
- */
-export const updatePet404Schema = z.any()
-
-/**
- * @description Validation exception
- */
-export const updatePet405Schema = z.any()
-
-/**
- * @description Update an existent pet in the store
- */
-export const updatePetMutationRequestSchema = z.lazy(() => petSchema).schema.omit({ id: true })
-
-export const updatePetMutationResponseSchema = z.union([z.lazy(() => updatePet200Schema), z.lazy(() => updatePet202Schema)])

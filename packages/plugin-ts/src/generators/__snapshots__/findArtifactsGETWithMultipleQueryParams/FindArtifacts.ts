@@ -3,29 +3,50 @@
  * Do not edit manually.
  */
 
-export type FindArtifactsQueryPage = number
-
-export type FindArtifactsQueryLimit = number
-
-export type FindArtifactsQuerySort = string
+/**
+ * @type integer | undefined
+ */
+export type FindArtifactsQueryPage = number | undefined
 
 /**
- * @description Results
+ * @type integer | undefined
+ */
+export type FindArtifactsQueryLimit = number | undefined
+
+/**
+ * @type string | undefined
+ */
+export type FindArtifactsQuerySort = string | undefined
+
+/**
+ * @type object
  */
 export type FindArtifactsStatus200 = object
 
+/**
+ * @type object
+ */
 export type FindArtifactsRequestConfig = {
   data?: never
   pathParams?: never
+  /**
+   * @type object | undefined
+   */
   queryParams?: {
     page?: FindArtifactsQueryPage
     limit?: FindArtifactsQueryLimit
     sort?: FindArtifactsQuerySort
   }
   headerParams?: never
+  /**
+   * @type string
+   */
   url: '/artifacts'
 }
 
+/**
+ * @type object
+ */
 export type FindArtifactsResponses = {
   '200': FindArtifactsStatus200
 }

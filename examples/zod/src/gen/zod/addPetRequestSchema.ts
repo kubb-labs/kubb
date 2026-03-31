@@ -8,16 +8,12 @@ import { categorySchema } from './categorySchema.ts'
 import { tagSchema } from './tagSchema.ts'
 
 export const addPetRequestSchema = z.object({
-  id: z.optional(z.int()),
+  id: z.int().optional(),
   name: z.string(),
-  get category() {
-    return categorySchema.optional()
-  },
+  category: categorySchema.optional(),
   photoUrls: z.array(z.string()),
-  get tags() {
-    return z.array(tagSchema).optional()
-  },
-  status: z.optional(z.enum(['available', 'pending', 'sold']).describe('pet status in the store')),
+  tags: z.array(tagSchema).optional(),
+  status: z.enum(['available', 'pending', 'sold']).optional().describe('pet status in the store'),
 })
 
 export type AddPetRequestSchema = z.infer<typeof addPetRequestSchema>

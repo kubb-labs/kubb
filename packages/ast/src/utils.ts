@@ -8,6 +8,29 @@ import type { SchemaType } from './nodes/schema.ts'
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
 
 /**
+ * Returns a merged schema view for a ref node, combining the resolved `node.schema`
+ * (base from the referenced definition) with any usage-site sibling fields set directly
+ * on the ref node (description, readOnly, nullable, deprecated, etc.).
+ *
+ * Usage-site fields take precedence over the resolved schema's own fields when both are defined.
+ *
+ * For non-ref nodes the node itself is returned unchanged.
+ */
+export function syncSchemaRef(node: SchemaNode): SchemaNode {
+  const ref = narrowSchema(node, 'ref')
+
+  if (!ref) return node
+  if (!ref.schema) return node
+
+  const { kind: _kind, type: _type, name: _name, ref: _ref, schema: _schema, ...overrides } = ref
+
+  // Filter out undefined override values so they don't shadow the resolved schema's fields.
+  const definedOverrides = Object.fromEntries(Object.entries(overrides).filter(([, v]) => v !== undefined))
+
+  return createSchema({ ...ref.schema, ...definedOverrides })
+}
+
+/**
  * Returns `true` when a schema is emitted as a plain `string` type.
  *
  * - `string`, `uuid`, `email`, `url`, `datetime` are always plain strings.

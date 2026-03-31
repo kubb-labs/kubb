@@ -6,24 +6,26 @@
 import { z } from '../../zod.ts'
 import { userSchema } from './userSchema.ts'
 
-/**
- * @description Successful operation
- */
-export const createUsersWithListInput200Schema = z.lazy(() => userSchema)
+export const createUsersWithListInput200Schema = userSchema.describe('Successful operation')
 
 export type CreateUsersWithListInput200Schema = z.infer<typeof createUsersWithListInput200Schema>
 
-/**
- * @description successful operation
- */
-export const createUsersWithListInputErrorSchema = z.any()
+export const createUsersWithListInputErrorSchema = z.any().describe('successful operation')
 
 export type CreateUsersWithListInputErrorSchema = z.infer<typeof createUsersWithListInputErrorSchema>
 
-export const createUsersWithListInputMutationRequestSchema = z.array(z.lazy(() => userSchema))
+export const createUsersWithListInputMutationRequestSchema = z.array(userSchema).optional()
 
 export type CreateUsersWithListInputMutationRequestSchema = z.infer<typeof createUsersWithListInputMutationRequestSchema>
 
-export const createUsersWithListInputMutationResponseSchema = z.lazy(() => createUsersWithListInput200Schema)
+export const createUsersWithListInputMutationResponseSchema = createUsersWithListInput200Schema
 
 export type CreateUsersWithListInputMutationResponseSchema = z.infer<typeof createUsersWithListInputMutationResponseSchema>
+
+export const createUsersWithListInputMutationSchema = z.object({
+  Response: createUsersWithListInput200Schema,
+  Request: createUsersWithListInputMutationRequestSchema,
+  Errors: createUsersWithListInputErrorSchema,
+})
+
+export type CreateUsersWithListInputMutationSchema = z.infer<typeof createUsersWithListInputMutationSchema>

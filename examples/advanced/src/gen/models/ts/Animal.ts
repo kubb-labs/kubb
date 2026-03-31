@@ -8,9 +8,6 @@ export const animalTypeEnum = {
 
 export type AnimalTypeEnumKey = (typeof animalTypeEnum)[keyof typeof animalTypeEnum]
 
-/**
- * Animal
- */
 export type Animal = (
   | (Cat & {
       /**

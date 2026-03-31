@@ -6,13 +6,16 @@
 import * as z from 'zod'
 
 export const orderSchema = z.object({
-  id: z.optional(z.number().int().min(3).max(100)),
-  petId: z.optional(z.number().int()),
-  quantity: z.optional(z.number().int()),
-  orderType: z.optional(z.enum(['foo', 'bar'])),
-  type: z.optional(z.string().describe('Order Status')),
-  shipDate: z.optional(z.string().datetime()),
-  status: z.optional(z.enum(['placed', 'approved', 'delivered']).describe('Order Status')),
-  http_status: z.optional(z.union([z.literal(200), z.literal(400)]).describe('HTTP Status')),
-  complete: z.optional(z.boolean()),
+  id: z.int().optional(),
+  petId: z.int().optional(),
+  quantity: z.int().optional(),
+  orderType: z.enum(['foo', 'bar']).optional(),
+  type: z.string().optional().describe('Order Status'),
+  shipDate: z.iso.datetime().optional(),
+  status: z.enum(['placed', 'approved', 'delivered']).optional().describe('Order Status'),
+  http_status: z
+    .union([z.literal(200), z.literal(400)])
+    .optional()
+    .describe('HTTP Status'),
+  complete: z.boolean().optional(),
 })

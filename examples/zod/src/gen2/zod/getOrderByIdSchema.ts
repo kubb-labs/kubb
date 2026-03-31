@@ -10,19 +10,16 @@ export const getOrderByIdPathParamsSchema = z.object({
   orderId: z.int(),
 })
 
-/**
- * @description successful operation
- */
-export const getOrderById200Schema = z.lazy(() => orderSchema)
+export const getOrderById200Schema = orderSchema
 
-/**
- * @description Invalid ID supplied
- */
 export const getOrderById400Schema = z.any()
 
-/**
- * @description Order not found
- */
 export const getOrderById404Schema = z.any()
 
-export const getOrderByIdQueryResponseSchema = z.lazy(() => getOrderById200Schema)
+export const getOrderByIdQueryResponseSchema = getOrderById200Schema
+
+export const getOrderByIdQuerySchema = z.object({
+  Response: getOrderById200Schema,
+  PathParams: getOrderByIdPathParamsSchema,
+  Errors: z.union([getOrderById400Schema, getOrderById404Schema]),
+})

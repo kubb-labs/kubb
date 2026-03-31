@@ -3,35 +3,59 @@
  * Do not edit manually.
  */
 
+/**
+ * @type integer
+ */
 export type UpdatePetWithFormPathPetId = number
 
-export type UpdatePetWithFormQueryName = string
-
-export type UpdatePetWithFormQueryStatus = string
+/**
+ * @type string | undefined
+ */
+export type UpdatePetWithFormQueryName = string | undefined
 
 /**
- * @description Success
+ * @type string | undefined
+ */
+export type UpdatePetWithFormQueryStatus = string | undefined
+
+/**
+ * @type void
  */
 export type UpdatePetWithFormStatus200 = void
 
 /**
- * @description Invalid input
+ * @type object
  */
 export type UpdatePetWithFormStatus405 = object
 
+/**
+ * @type object
+ */
 export type UpdatePetWithFormRequestConfig = {
   data?: never
+  /**
+   * @type object
+   */
   pathParams: {
     petId: UpdatePetWithFormPathPetId
   }
+  /**
+   * @type object | undefined
+   */
   queryParams?: {
     name?: UpdatePetWithFormQueryName
     status?: UpdatePetWithFormQueryStatus
   }
   headerParams?: never
+  /**
+   * @type string
+   */
   url: `/pet/${string}`
 }
 
+/**
+ * @type object
+ */
 export type UpdatePetWithFormResponses = {
   '200': UpdatePetWithFormStatus200
   '405': UpdatePetWithFormStatus405

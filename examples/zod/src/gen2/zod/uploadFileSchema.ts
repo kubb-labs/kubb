@@ -16,11 +16,16 @@ export const uploadFileQueryParamsSchema = z.optional(
   }),
 )
 
-/**
- * @description successful operation
- */
-export const uploadFile200Schema = z.lazy(() => apiResponseSchema)
+export const uploadFile200Schema = apiResponseSchema
 
-export const uploadFileMutationRequestSchema = z.instanceof(File)
+export const uploadFileMutationRequestSchema = z.optional(z.instanceof(File))
 
-export const uploadFileMutationResponseSchema = z.lazy(() => uploadFile200Schema)
+export const uploadFileMutationResponseSchema = uploadFile200Schema
+
+export const uploadFileMutationSchema = z.object({
+  Response: uploadFile200Schema,
+  Request: uploadFileMutationRequestSchema,
+  QueryParams: uploadFileQueryParamsSchema,
+  PathParams: uploadFilePathParamsSchema,
+  Errors: z.any(),
+})

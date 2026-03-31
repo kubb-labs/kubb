@@ -63,7 +63,7 @@ export type ComplexSchemaType = 'tuple' | 'union' | 'intersection' | 'enum'
 /**
  * Schema types that need special handling in generators.
  */
-export type SpecialSchemaType = 'ref' | 'datetime' | 'time' | 'uuid' | 'email' | 'url' | 'blob'
+export type SpecialSchemaType = 'ref' | 'datetime' | 'time' | 'uuid' | 'email' | 'url' | 'ipv4' | 'ipv6' | 'blob'
 
 /**
  * All schema type strings.
@@ -75,7 +75,23 @@ export type SchemaType = PrimitiveSchemaType | ComplexSchemaType | SpecialSchema
  */
 export type ScalarSchemaType = Exclude<
   SchemaType,
-  'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum' | 'ref' | 'datetime' | 'date' | 'time' | 'string' | 'number' | 'integer' | 'bigint' | 'url'
+  | 'object'
+  | 'array'
+  | 'tuple'
+  | 'union'
+  | 'intersection'
+  | 'enum'
+  | 'ref'
+  | 'datetime'
+  | 'date'
+  | 'time'
+  | 'string'
+  | 'number'
+  | 'integer'
+  | 'bigint'
+  | 'url'
+  | 'uuid'
+  | 'email'
 >
 
 /**
@@ -158,20 +174,33 @@ export type ObjectSchemaNode = SchemaNodeBase & {
    */
   type: 'object'
   /**
+   * Primitive type — always `'object'` for object schemas.
+   */
+  primitive: 'object'
+  /**
    * Ordered object properties.
    */
   properties: Array<PropertyNode>
   /**
    * Additional object properties behavior:
    * - `true`: allow any value
+   * - `false`: reject unknown properties (maps to `.strict()` in Zod)
    * - `SchemaNode`: allow values that match that schema
-   * - `undefined`: no additional properties
+   * - `undefined`: no additional properties constraint (open object)
    */
-  additionalProperties?: SchemaNode | true
+  additionalProperties?: SchemaNode | boolean
   /**
    * Pattern-based property schemas.
    */
   patternProperties?: Record<string, SchemaNode>
+  /**
+   * Minimum number of properties allowed.
+   */
+  minProperties?: number
+  /**
+   * Maximum number of properties allowed.
+   */
+  maxProperties?: number
 }
 
 /**
@@ -341,6 +370,15 @@ export type RefSchemaNode = SchemaNodeBase & {
    * Pattern copied from a sibling `pattern` field.
    */
   pattern?: string
+  /**
+   * The fully-parsed schema that this ref resolves to.
+   * Populated during OAS parsing when the referenced definition can be resolved.
+   * `undefined` when the ref cannot be resolved or is part of a circular chain.
+   *
+   * Useful for inspecting the referenced schema's structure (e.g. `primitive`, `properties`)
+   * without following the reference manually.
+   */
+  schema?: SchemaNode
 }
 
 /**
@@ -456,6 +494,10 @@ export type NumberSchemaNode = SchemaNodeBase & {
    * Exclusive maximum value.
    */
   exclusiveMaximum?: number
+  /**
+   * The value must be a multiple of this number.
+   */
+  multipleOf?: number
 }
 
 /**
@@ -491,6 +533,67 @@ export type UrlSchemaNode = SchemaNodeBase & {
    * OpenAPI-style path template, for example, `'/pets/{petId}'`.
    */
   path?: string
+  /**
+   * Minimum string length.
+   */
+  min?: number
+  /**
+   * Maximum string length.
+   */
+  max?: number
+}
+
+/**
+ * Format-string schema for string-based formats that support length constraints.
+ *
+ * @example
+ * ```ts
+ * const uuidSchema: FormatStringSchemaNode = { kind: 'Schema', type: 'uuid', min: 36, max: 36 }
+ * ```
+ */
+export type FormatStringSchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
+  type: 'uuid' | 'email'
+  /**
+   * Minimum string length.
+   */
+  min?: number
+  /**
+   * Maximum string length.
+   */
+  max?: number
+}
+
+/**
+ * IPv4 address schema node.
+ *
+ * @example
+ * ```ts
+ * const ipv4Schema: Ipv4SchemaNode = { kind: 'Schema', type: 'ipv4' }
+ * ```
+ */
+export type Ipv4SchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
+  type: 'ipv4'
+}
+
+/**
+ * IPv6 address schema node.
+ *
+ * @example
+ * ```ts
+ * const ipv6Schema: Ipv6SchemaNode = { kind: 'Schema', type: 'ipv6' }
+ * ```
+ */
+export type Ipv6SchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
+  type: 'ipv6'
 }
 
 /**
@@ -518,9 +621,11 @@ export type SchemaNodeByType = {
   unknown: ScalarSchemaNode
   void: ScalarSchemaNode
   never: ScalarSchemaNode
-  uuid: ScalarSchemaNode
-  email: ScalarSchemaNode
+  uuid: FormatStringSchemaNode
+  email: FormatStringSchemaNode
   url: UrlSchemaNode
+  ipv4: Ipv4SchemaNode
+  ipv6: Ipv6SchemaNode
   blob: ScalarSchemaNode
 }
 
@@ -540,4 +645,7 @@ export type SchemaNode =
   | StringSchemaNode
   | NumberSchemaNode
   | UrlSchemaNode
+  | FormatStringSchemaNode
+  | Ipv4SchemaNode
+  | Ipv6SchemaNode
   | ScalarSchemaNode

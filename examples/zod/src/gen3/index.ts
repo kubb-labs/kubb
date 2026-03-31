@@ -2,6 +2,7 @@ export {
   createItem200Schema,
   createItemMutationRequestSchema,
   createItemMutationResponseSchema,
+  createItemMutationSchema,
 } from './zod/createItemSchema.ts'
 export { itemSchema } from './zod/itemSchema.ts'
 export { itemTypeASchema } from './zod/itemTypeASchema.ts'
@@ -10,4 +11,5 @@ export {
   updateItem200Schema,
   updateItemMutationRequestSchema,
   updateItemMutationResponseSchema,
+  updateItemMutationSchema,
 } from './zod/updateItemSchema.ts'

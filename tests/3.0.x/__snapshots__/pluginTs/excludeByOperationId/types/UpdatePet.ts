@@ -6,38 +6,48 @@
 import type { Pet } from "./Pet.ts";
 
 /**
- * @description Successful operation
+ * @type object
 */
 export type UpdatePetStatus200 = Pet;
 
 /**
- * @description Invalid ID supplied
+ * @type any
 */
 export type UpdatePetStatus400 = any;
 
 /**
- * @description Pet not found
+ * @type any
 */
 export type UpdatePetStatus404 = any;
 
 /**
- * @description Validation exception
+ * @type any
 */
 export type UpdatePetStatus405 = any;
 
 /**
  * @description Update an existent pet in the store
+ * @type object
 */
 export type UpdatePetData = Pet;
 
+/**
+ * @type object
+*/
 export type UpdatePetRequestConfig = {
     data?: UpdatePetData;
     pathParams?: never;
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: "/pet";
 };
 
+/**
+ * @type object
+*/
 export type UpdatePetResponses = {
     "200": UpdatePetStatus200;
     "400": UpdatePetStatus400;

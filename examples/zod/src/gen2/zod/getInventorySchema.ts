@@ -5,9 +5,11 @@
 
 import * as z from 'zod/mini'
 
-/**
- * @description successful operation
- */
 export const getInventory200Schema = z.object({})
 
-export const getInventoryQueryResponseSchema = z.lazy(() => getInventory200Schema)
+export const getInventoryQueryResponseSchema = getInventory200Schema
+
+export const getInventoryQuerySchema = z.object({
+  Response: getInventory200Schema,
+  Errors: z.any(),
+})

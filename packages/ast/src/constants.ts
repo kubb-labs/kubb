@@ -127,6 +127,14 @@ export const schemaTypes = {
    */
   url: 'url',
   /**
+   * IPv4 address value.
+   */
+  ipv4: 'ipv4',
+  /**
+   * IPv6 address value.
+   */
+  ipv6: 'ipv6',
+  /**
    * Binary/blob value.
    */
   blob: 'blob',

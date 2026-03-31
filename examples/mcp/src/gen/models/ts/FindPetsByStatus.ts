@@ -5,6 +5,9 @@
 
 import type { Pet } from './Pet.js'
 
+/**
+ * @type object
+ */
 export type FindPetsByStatusPathParams = {
   /**
    * @type string
@@ -14,18 +17,21 @@ export type FindPetsByStatusPathParams = {
 
 /**
  * @description successful operation
- * @minLength 1
- * @maxLength 3
+ * @type array
  */
 export type FindPetsByStatus200 = Pet[]
 
 /**
  * @description Invalid status value
+ * @type any
  */
 export type FindPetsByStatus400 = any
 
 export type FindPetsByStatusQueryResponse = FindPetsByStatus200
 
+/**
+ * @type object
+ */
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatus200
   PathParams: FindPetsByStatusPathParams

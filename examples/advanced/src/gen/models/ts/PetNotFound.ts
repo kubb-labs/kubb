@@ -1,3 +1,6 @@
+/**
+ * @type object
+ */
 export type PetNotFound = {
   /**
    * @type integer | undefined

@@ -1,201 +1,208 @@
 import path from 'node:path'
-import { useDriver, useMode } from '@kubb/core/hooks'
-import { type OperationSchema as OperationSchemaType, SchemaGenerator, schemaKeywords } from '@kubb/plugin-oas'
-import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas, useOperationManager, useSchemaManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter, getImports } from '@kubb/plugin-oas/utils'
-import { pluginTsName } from '@kubb/plugin-ts'
+import { caseParams, composeTransformers, transform } from '@kubb/ast'
+import type { SchemaNode } from '@kubb/ast/types'
+import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
-import { Zod } from '../components'
+import { Operations } from '../components/Operations.tsx'
+import { Zod } from '../components/Zod.tsx'
+import { ZodMini } from '../components/ZodMini.tsx'
+import { ZOD_NAMESPACE_IMPORTS } from '../constants.ts'
 import type { PluginZod } from '../types'
+import { buildSchemaNames } from '../utils.ts'
 
-export const zodGenerator = createReactGenerator<PluginZod>({
+export const zodGenerator = defineGenerator<PluginZod>({
   name: 'zod',
-  Operation({ config, operation, generator, plugin }) {
-    const {
-      options,
-      options: { coercion: globalCoercion, inferred, typed, mapper, wrapOutput, version, guidType, mini },
-    } = plugin
+  type: 'react',
+  Schema({ node, adapter, options, config, resolver }) {
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, transformers = [] } = options
 
-    const mode = useMode()
-    const driver = useDriver()
+    const transformedNode = transform(node, composeTransformers(...transformers))
 
-    const oas = useOas()
-    const { getSchemas, getFile, getGroup } = useOperationManager(generator)
-    const schemaManager = useSchemaManager()
+    if (!transformedNode.name) {
+      return
+    }
 
-    const file = getFile(operation)
-    const schemas = getSchemas(operation)
-    const schemaGenerator = new SchemaGenerator(options, {
-      fabric: generator.context.fabric,
-      oas,
-      plugin,
-      driver,
-      events: generator.context.events,
-      mode,
-      override: options.override,
-    })
+    const root = path.resolve(config.root, config.output.path)
+    const mode = getMode(path.resolve(root, output.path))
+    const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
-    const operationSchemas = [schemas.pathParams, schemas.queryParams, schemas.headerParams, schemas.statusCodes, schemas.request, schemas.response]
-      .flat()
-      .filter(Boolean)
-    const toZodPath = path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')
+    const imports = adapter.getImports(transformedNode, (schemaName) => ({
+      name: resolver.default(schemaName, 'function'),
+      path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
+    }))
 
-    const mapOperationSchema = ({ name, schema: schemaOriginal, description, keysToOmit: keysToOmitOriginal, ...options }: OperationSchemaType) => {
-      let schemaObject = schemaOriginal
-      let keysToOmit = keysToOmitOriginal
+    const inferTypeName = inferred ? resolver.resolveInferName(resolver.resolveName(transformedNode.name)) : undefined
 
-      if ((schemaOriginal.anyOf || schemaOriginal.oneOf) && keysToOmitOriginal && keysToOmitOriginal.length > 0) {
-        schemaObject = structuredClone(schemaOriginal)
+    const meta = {
+      name: resolver.default(transformedNode.name, 'function'),
+      file: resolver.resolveFile({ name: transformedNode.name, extname: '.ts' }, { root, output, group }),
+    } as const
 
-        // Remove $ref so the schema parser generates inline schema instead of a reference
-        delete schemaObject.$ref
+    return (
+      <File
+        baseName={meta.file.baseName}
+        path={meta.file.path}
+        meta={meta.file.meta}
+        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+      >
+        <File.Import name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
+        {mode === 'split' &&
+          imports.map((imp) => <File.Import key={[transformedNode.name, imp.path].join('-')} root={meta.file.path} path={imp.path} name={imp.name} />)}
 
-        for (const key of keysToOmitOriginal) {
-          delete schemaObject.properties?.[key]
-        }
+        {mini ? (
+          <ZodMini name={meta.name} node={transformedNode} guidType={guidType} wrapOutput={wrapOutput} inferTypeName={inferTypeName} resolver={resolver} />
+        ) : (
+          <Zod
+            name={meta.name}
+            node={transformedNode}
+            coercion={coercion}
+            guidType={guidType}
+            wrapOutput={wrapOutput}
+            inferTypeName={inferTypeName}
+            resolver={resolver}
+          />
+        )}
+      </File>
+    )
+  },
+  Operation({ node, adapter, options, config, resolver }) {
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, transformers } = options
 
-        if (Array.isArray(schemaObject.required)) {
-          schemaObject.required = schemaObject.required.filter((key) => !keysToOmitOriginal.includes(key))
-        }
+    const transformedNode = transform(node, composeTransformers(...transformers))
 
-        keysToOmit = undefined
-      }
+    const root = path.resolve(config.root, config.output.path)
+    const mode = getMode(path.resolve(root, output.path))
+    const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
-      const hasProperties = Object.keys(schemaObject || {}).length > 0
-      const hasDefaults = Object.values(schemaObject.properties || {}).some((prop) => prop && Object.hasOwn(prop, 'default'))
+    const params = caseParams(transformedNode.parameters, paramsCasing)
 
-      const required = Array.isArray(schemaObject?.required) ? schemaObject.required.length > 0 : !!schemaObject?.required
-      const optional = !required && !hasDefaults && hasProperties && name.includes('Params')
+    const meta = {
+      file: resolver.resolveFile(
+        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+        { root, output, group },
+      ),
+    } as const
 
-      if (!optional && Array.isArray(schemaObject.required) && !schemaObject.required.length) {
-        schemaObject.required = Object.entries(schemaObject.properties || {})
-          .filter(([_key, value]) => value && Object.hasOwn(value, 'default'))
-          .map(([key]) => key)
-      }
+    function renderSchemaEntry({ schema, name, keysToOmit }: { schema: SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
+      if (!schema) return null
 
-      const tree = [
-        ...schemaGenerator.parse({ schema: schemaObject, name, parentName: null }),
-        optional ? { keyword: schemaKeywords.optional } : undefined,
-      ].filter(Boolean)
-      const imports = getImports(tree)
-      const group = options.operation ? getGroup(options.operation) : undefined
+      const inferTypeName = inferred ? resolver.resolveInferName(name) : undefined
 
-      const coercion = name.includes('Params') ? { numbers: true, strings: false, dates: true } : globalCoercion
-
-      const zod = {
-        name: schemaManager.getName(name, { type: 'function' }),
-        inferTypeName: schemaManager.getName(name, { type: 'type' }),
-        file: schemaManager.getFile(name),
-      }
-
-      const type = {
-        name: schemaManager.getName(name, {
-          type: 'type',
-          pluginName: pluginTsName,
-        }),
-        file: schemaManager.getFile(options.operationName || name, {
-          pluginName: pluginTsName,
-          group,
-        }),
-      }
+      const imports = adapter.getImports(schema, (schemaName) => ({
+        name: resolver.default(schemaName, 'function'),
+        path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
+      }))
 
       return (
         <>
-          {typed && <File.Import isTypeOnly root={file.path} path={type.file.path} name={[type.name]} />}
-          {imports.map((imp) => (
-            <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} />
-          ))}
-          <Zod
-            name={zod.name}
-            typeName={typed ? type.name : undefined}
-            inferTypeName={inferred ? zod.inferTypeName : undefined}
-            description={description}
-            tree={tree}
-            schema={schemaObject}
-            mapper={mapper}
-            coercion={coercion}
-            keysToOmit={keysToOmit}
-            wrapOutput={wrapOutput}
-            version={plugin.options.version}
-            guidType={guidType}
-            emptySchemaType={plugin.options.emptySchemaType}
-            mini={mini}
-          />
+          {mode === 'split' &&
+            imports.map((imp) => <File.Import key={[name, imp.path, imp.name].join('-')} root={meta.file.path} path={imp.path} name={imp.name} />)}
+          {mini ? (
+            <ZodMini
+              name={name}
+              node={schema}
+              guidType={guidType}
+              wrapOutput={wrapOutput}
+              inferTypeName={inferTypeName}
+              resolver={resolver}
+              keysToOmit={keysToOmit}
+            />
+          ) : (
+            <Zod
+              name={name}
+              node={schema}
+              coercion={coercion}
+              guidType={guidType}
+              wrapOutput={wrapOutput}
+              inferTypeName={inferTypeName}
+              resolver={resolver}
+              keysToOmit={keysToOmit}
+            />
+          )}
         </>
       )
     }
 
-    const isZodImport = plugin.options.importPath === 'zod' || plugin.options.importPath === 'zod/mini'
+    const paramSchemas = params.map((param) => renderSchemaEntry({ schema: param.schema, name: resolver.resolveParamName(node, param) }))
+
+    const responseSchemas = transformedNode.responses.map((res) =>
+      renderSchemaEntry({
+        schema: res.schema,
+        name: resolver.resolveResponseStatusName(transformedNode, res.statusCode),
+        keysToOmit: res.keysToOmit,
+      }),
+    )
+
+    const requestSchema = transformedNode.requestBody?.schema
+      ? renderSchemaEntry({
+          schema: {
+            ...transformedNode.requestBody.schema,
+            description: transformedNode.requestBody.description ?? transformedNode.requestBody.schema.description,
+          },
+          name: resolver.resolveDataName(transformedNode),
+          keysToOmit: transformedNode.requestBody.keysToOmit,
+        })
+      : null
 
     return (
       <File
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-        banner={getBanner({ oas, output: plugin.options.output, config: driver.config })}
-        footer={getFooter({ oas, output: plugin.options.output })}
+        baseName={meta.file.baseName}
+        path={meta.file.path}
+        meta={meta.file.meta}
+        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
       >
-        <File.Import name={isZodImport ? 'z' : ['z']} path={plugin.options.importPath} isNameSpace={isZodImport} />
-        {typed && version === '3' && <File.Import name={['ToZod']} isTypeOnly root={file.path} path={toZodPath} />}
-        {operationSchemas.map(mapOperationSchema)}
+        <File.Import name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
+        {paramSchemas}
+        {responseSchemas}
+        {requestSchema}
       </File>
     )
   },
-  Schema({ config, schema, plugin }) {
-    const { getName, getFile } = useSchemaManager()
-    const {
-      options: { output, emptySchemaType, coercion, inferred, typed, mapper, importPath, wrapOutput, version, guidType, mini },
-    } = plugin
-    const driver = useDriver()
-    const oas = useOas()
+  Operations({ nodes, adapter, options, config, resolver }) {
+    const { output, importPath, group, operations, paramsCasing, transformers } = options
 
-    const imports = getImports(schema.tree)
-
-    const zod = {
-      name: getName(schema.name, { type: 'function' }),
-      inferTypeName: getName(schema.name, { type: 'type' }),
-      file: getFile(schema.name),
+    if (!operations) {
+      return
     }
 
-    const type = {
-      name: getName(schema.name, { type: 'type', pluginName: pluginTsName }),
-      file: getFile(schema.name, { pluginName: pluginTsName }),
-    }
+    const root = path.resolve(config.root, config.output.path)
+    const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
-    const isZodImport = importPath === 'zod' || importPath === 'zod/mini'
-    const toZodPath = path.resolve(config.root, config.output.path, '.kubb/ToZod.ts')
+    const meta = {
+      file: resolver.resolveFile({ name: 'operations', extname: '.ts' }, { root, output, group }),
+    } as const
+
+    const transformedOperations = nodes.map((node) => {
+      const transformedNode = transform(node, composeTransformers(...transformers))
+
+      const params = caseParams(transformedNode.parameters, paramsCasing)
+
+      return {
+        node: transformedNode,
+        data: buildSchemaNames(transformedNode, { params, resolver }),
+      }
+    })
+
+    const imports = transformedOperations.flatMap(({ node, data }) => {
+      const names = [data.request, ...Object.values(data.responses), ...Object.values(data.parameters)].filter(Boolean) as string[]
+      const opFile = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
+
+      return names.map((name) => <File.Import key={[name, opFile.path].join('-')} name={[name]} root={meta.file.path} path={opFile.path} />)
+    })
 
     return (
       <File
-        baseName={zod.file.baseName}
-        path={zod.file.path}
-        meta={zod.file.meta}
-        banner={getBanner({ oas, output, config: driver.config })}
-        footer={getFooter({ oas, output })}
+        baseName={meta.file.baseName}
+        path={meta.file.path}
+        meta={meta.file.meta}
+        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
       >
-        <File.Import name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
-        {typed && <File.Import isTypeOnly root={zod.file.path} path={type.file.path} name={[type.name]} />}
-        {typed && version === '3' && <File.Import name={['ToZod']} isTypeOnly root={zod.file.path} path={toZodPath} />}
-        {imports.map((imp) => (
-          <File.Import key={[imp.path, imp.name, imp.isTypeOnly].join('-')} root={zod.file.path} path={imp.path} name={imp.name} />
-        ))}
-
-        <Zod
-          name={zod.name}
-          typeName={typed ? type.name : undefined}
-          inferTypeName={inferred ? zod.inferTypeName : undefined}
-          description={schema.value.description}
-          tree={schema.tree}
-          schema={schema.value}
-          mapper={mapper}
-          coercion={coercion}
-          wrapOutput={wrapOutput}
-          version={version}
-          guidType={guidType}
-          emptySchemaType={emptySchemaType}
-          mini={mini}
-        />
+        <File.Import isTypeOnly name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
+        {imports}
+        <Operations name="operations" operations={transformedOperations} />
       </File>
     )
   },

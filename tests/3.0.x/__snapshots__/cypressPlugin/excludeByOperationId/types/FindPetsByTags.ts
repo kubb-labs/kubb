@@ -7,29 +7,42 @@ import type { Pet } from "./Pet.ts";
 
 /**
  * @description Tags to filter by
+ * @type array | undefined
 */
-export type FindPetsByTagsQueryTags = string[];
+export type FindPetsByTagsQueryTags = string[] | undefined;
 
 /**
- * @description successful operation
+ * @type array
 */
 export type FindPetsByTagsStatus200 = Pet[];
 
 /**
- * @description Invalid tag value
+ * @type any
 */
 export type FindPetsByTagsStatus400 = any;
 
+/**
+ * @type object
+*/
 export type FindPetsByTagsRequestConfig = {
     data?: never;
     pathParams?: never;
+    /**
+     * @type object | undefined
+    */
     queryParams?: {
         tags?: FindPetsByTagsQueryTags;
     };
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: "/pet/findByTags";
 };
 
+/**
+ * @type object
+*/
 export type FindPetsByTagsResponses = {
     "200": FindPetsByTagsStatus200;
     "400": FindPetsByTagsStatus400;

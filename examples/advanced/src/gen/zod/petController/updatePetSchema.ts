@@ -1,63 +1,42 @@
 import * as z from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
-import type {
-  UpdatePet200,
-  UpdatePet202,
-  UpdatePet400,
-  UpdatePet404,
-  UpdatePet405,
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
-} from '../../models/ts/petController/UpdatePet.ts'
 import { petSchema } from '../petSchema.ts'
 
-/**
- * @description Successful operation
- */
-export const updatePet200Schema = z.lazy(() => petSchema).schema.omit({ name: true }) as unknown as ToZod<UpdatePet200>
+export const updatePet200Schema = petSchema.omit({ name: true }).describe('Successful operation')
 
-export type UpdatePet200Schema = UpdatePet200
+export type UpdatePet200Schema = z.infer<typeof updatePet200Schema>
 
-/**
- * @description accepted operation
- */
-export const updatePet202Schema = z.object({
-  id: z.optional(z.number().int()),
-}) as unknown as ToZod<UpdatePet202>
+export const updatePet202Schema = z
+  .object({
+    id: z.int().optional(),
+  })
+  .describe('accepted operation')
 
-export type UpdatePet202Schema = UpdatePet202
+export type UpdatePet202Schema = z.infer<typeof updatePet202Schema>
 
-/**
- * @description Invalid ID supplied
- */
-export const updatePet400Schema = z.any() as unknown as ToZod<UpdatePet400>
+export const updatePet400Schema = z.any().describe('Invalid ID supplied')
 
-export type UpdatePet400Schema = UpdatePet400
+export type UpdatePet400Schema = z.infer<typeof updatePet400Schema>
 
-/**
- * @description Pet not found
- */
-export const updatePet404Schema = z.any() as unknown as ToZod<UpdatePet404>
+export const updatePet404Schema = z.any().describe('Pet not found')
 
-export type UpdatePet404Schema = UpdatePet404
+export type UpdatePet404Schema = z.infer<typeof updatePet404Schema>
 
-/**
- * @description Validation exception
- */
-export const updatePet405Schema = z.any() as unknown as ToZod<UpdatePet405>
+export const updatePet405Schema = z.any().describe('Validation exception')
 
-export type UpdatePet405Schema = UpdatePet405
+export type UpdatePet405Schema = z.infer<typeof updatePet405Schema>
 
-/**
- * @description Update an existent pet in the store
- */
-export const updatePetMutationRequestSchema = z.lazy(() => petSchema).schema.omit({ id: true }) as unknown as ToZod<UpdatePetMutationRequest>
+export const updatePetMutationRequestSchema = petSchema.omit({ id: true }).describe('Update an existent pet in the store')
 
-export type UpdatePetMutationRequestSchema = UpdatePetMutationRequest
+export type UpdatePetMutationRequestSchema = z.infer<typeof updatePetMutationRequestSchema>
 
-export const updatePetMutationResponseSchema = z.union([
-  z.lazy(() => updatePet200Schema),
-  z.lazy(() => updatePet202Schema),
-]) as unknown as ToZod<UpdatePetMutationResponse>
+export const updatePetMutationResponseSchema = z.union([updatePet200Schema, updatePet202Schema])
 
-export type UpdatePetMutationResponseSchema = UpdatePetMutationResponse
+export type UpdatePetMutationResponseSchema = z.infer<typeof updatePetMutationResponseSchema>
+
+export const updatePetMutationSchema = z.object({
+  Response: z.union([updatePet200Schema, updatePet202Schema]),
+  Request: updatePetMutationRequestSchema,
+  Errors: z.union([updatePet400Schema, updatePet404Schema, updatePet405Schema]),
+})
+
+export type UpdatePetMutationSchema = z.infer<typeof updatePetMutationSchema>

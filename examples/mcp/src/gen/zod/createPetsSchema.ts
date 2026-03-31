@@ -12,7 +12,7 @@ export const createPetsPathParamsSchema = z.object({
 
 export const createPetsQueryParamsSchema = z
   .object({
-    offset: z.optional(z.coerce.number().int().describe('Offset */')),
+    offset: z.int().optional().describe('Offset */'),
   })
   .optional()
 
@@ -20,19 +20,22 @@ export const createPetsHeaderParamsSchema = z.object({
   'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']).describe('Header parameters'),
 })
 
-/**
- * @description Null response
- */
-export const createPets201Schema = z.any()
+export const createPets201Schema = z.any().describe('Null response')
 
-/**
- * @description unexpected error
- */
-export const createPetsErrorSchema = z.lazy(() => petNotFoundSchema).describe('Pet not found')
+export const createPetsErrorSchema = petNotFoundSchema.describe('unexpected error')
 
 export const createPetsMutationRequestSchema = z.object({
   name: z.string(),
   tag: z.string(),
 })
 
-export const createPetsMutationResponseSchema = z.lazy(() => createPets201Schema)
+export const createPetsMutationResponseSchema = createPets201Schema
+
+export const createPetsMutationSchema = z.object({
+  Response: createPets201Schema,
+  Request: createPetsMutationRequestSchema,
+  QueryParams: createPetsQueryParamsSchema,
+  PathParams: createPetsPathParamsSchema,
+  HeaderParams: createPetsHeaderParamsSchema,
+  Errors: createPetsErrorSchema,
+})

@@ -24,7 +24,7 @@ export default defineConfig(() => {
         '.ts': '.js',
       },
     },
-    adapter: adapterOas({ collisionDetection: false }),
+    adapter: adapterOas({}),
     plugins: [
       pluginOas({
         validate: false,
@@ -34,7 +34,9 @@ export default defineConfig(() => {
         output: { path: 'models/ts' },
         compatibilityPreset: 'kubbV4',
       }),
-      pluginZod({}),
+      pluginZod({
+        compatibilityPreset: 'kubbV4',
+      }),
       pluginMcp({
         client: {
           baseURL: 'https://petstore.swagger.io/v2',

@@ -3,33 +3,49 @@
  * Do not edit manually.
  */
 
+/**
+ * @type integer
+ */
 export type PlaceOrderPatchPathOrderId = number
 
 /**
- * @description Successful operation
+ * @type object
  */
 export type PlaceOrderPatchStatus200 = object
 
 /**
- * @description Invalid input
+ * @type object
  */
 export type PlaceOrderPatchStatus405 = object
 
 /**
  * @description Order payload
+ * @type object
  */
 export type PlaceOrderPatchData = object
 
+/**
+ * @type object
+ */
 export type PlaceOrderPatchRequestConfig = {
   data?: PlaceOrderPatchData
+  /**
+   * @type object
+   */
   pathParams: {
     orderId: PlaceOrderPatchPathOrderId
   }
   queryParams?: never
   headerParams?: never
+  /**
+   * @type string
+   */
   url: `/store/order/${string}`
 }
 
+/**
+ * @type object
+ */
 export type PlaceOrderPatchResponses = {
   '200': PlaceOrderPatchStatus200
   '405': PlaceOrderPatchStatus405

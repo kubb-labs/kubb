@@ -9,14 +9,14 @@ export const deleteUserPathParamsSchema = z.object({
   username: z.string(),
 })
 
-/**
- * @description Invalid username supplied
- */
 export const deleteUser400Schema = z.any()
 
-/**
- * @description User not found
- */
 export const deleteUser404Schema = z.any()
 
 export const deleteUserMutationResponseSchema = z.any()
+
+export const deleteUserMutationSchema = z.object({
+  Response: z.any(),
+  PathParams: deleteUserPathParamsSchema,
+  Errors: z.union([deleteUser400Schema, deleteUser404Schema]),
+})

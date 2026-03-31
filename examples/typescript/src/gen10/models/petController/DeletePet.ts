@@ -3,35 +3,54 @@
  * Do not edit manually.
  */
 
-export type DeletePetHeaderApiKey = string
+/**
+ * @type string | undefined
+ */
+export type DeletePetHeaderApiKey = string | undefined
 
 /**
  * @description Pet id to delete
+ * @type integer
  */
 export type DeletePetPathPetId = number
 
 /**
- * @description items
+ * @type array
  */
 export type DeletePetStatus200 = ('TYPE1' | 'TYPE2' | 'TYPE3')[]
 
 /**
- * @description Invalid pet value
+ * @type any
  */
 export type DeletePetStatus400 = any
 
+/**
+ * @type object
+ */
 export type DeletePetRequestConfig = {
   data?: never
+  /**
+   * @type object
+   */
   pathParams: {
     petId: DeletePetPathPetId
   }
   queryParams?: never
+  /**
+   * @type object | undefined
+   */
   headerParams?: {
     apiKey?: DeletePetHeaderApiKey
   }
+  /**
+   * @type string
+   */
   url: `/pet/${string}`
 }
 
+/**
+ * @type object
+ */
 export type DeletePetResponses = {
   '200': DeletePetStatus200
   '400': DeletePetStatus400

@@ -3,4 +3,7 @@
  * Do not edit manually.
  */
 
+/**
+ * @type string
+ */
 export type PetStatus = 'available' | 'pending' | 'sold'

@@ -7,29 +7,43 @@ import type { User } from "./User.ts";
 
 /**
  * @description name that need to be deleted
+ * @type string
 */
 export type UpdateUserPathUsername = string;
 
 /**
- * @description successful operation
+ * @type any
 */
 export type UpdateUserStatusDefault = any;
 
 /**
  * @description Update an existent user in the store
+ * @type object | undefined
 */
-export type UpdateUserData = User;
+export type UpdateUserData = User | undefined;
 
+/**
+ * @type object
+*/
 export type UpdateUserRequestConfig = {
     data?: UpdateUserData;
+    /**
+     * @type object
+    */
     pathParams: {
         username: UpdateUserPathUsername;
     };
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: `/user/${string}`;
 };
 
+/**
+ * @type object
+*/
 export type UpdateUserResponses = {
     default: UpdateUserStatusDefault;
 };

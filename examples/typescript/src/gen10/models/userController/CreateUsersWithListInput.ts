@@ -6,25 +6,37 @@
 import type { User } from '../User.ts'
 
 /**
- * @description Successful operation
+ * @type object
  */
 export type CreateUsersWithListInputStatus200 = User
 
 /**
- * @description successful operation
+ * @type any
  */
 export type CreateUsersWithListInputStatusDefault = any
 
-export type CreateUsersWithListInputData = User[]
+/**
+ * @type array | undefined
+ */
+export type CreateUsersWithListInputData = User[] | undefined
 
+/**
+ * @type object
+ */
 export type CreateUsersWithListInputRequestConfig = {
   data?: CreateUsersWithListInputData
   pathParams?: never
   queryParams?: never
   headerParams?: never
+  /**
+   * @type string
+   */
   url: '/user/createWithList'
 }
 
+/**
+ * @type object
+ */
 export type CreateUsersWithListInputResponses = {
   '200': CreateUsersWithListInputStatus200
   default: CreateUsersWithListInputStatusDefault

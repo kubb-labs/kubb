@@ -1,0 +1,41 @@
+import type { SchemaNode } from '@kubb/ast/types'
+import { Const, File, Type } from '@kubb/react-fabric'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { printerZodMini } from '../printers/printerZodMini.ts'
+import type { PluginZod, ResolverZod } from '../types.ts'
+
+type Props = {
+  name: string
+  node: SchemaNode
+  guidType: PluginZod['resolvedOptions']['guidType']
+  wrapOutput: PluginZod['resolvedOptions']['wrapOutput']
+  inferTypeName?: string
+  resolver?: ResolverZod
+  keysToOmit?: Array<string>
+}
+
+export function ZodMini({ name, node, guidType, wrapOutput, inferTypeName, resolver, keysToOmit }: Props): FabricReactNode {
+  const printer = printerZodMini({ guidType, wrapOutput, resolver, schemaName: name, keysToOmit })
+  const output = printer.print(node)
+
+  if (!output) {
+    return
+  }
+
+  return (
+    <>
+      <File.Source name={name} isExportable isIndexable>
+        <Const export name={name}>
+          {output}
+        </Const>
+      </File.Source>
+      {inferTypeName && (
+        <File.Source name={inferTypeName} isExportable isIndexable isTypeOnly>
+          <Type export name={inferTypeName}>
+            {`z.infer<typeof ${name}>`}
+          </Type>
+        </File.Source>
+      )}
+    </>
+  )
+}

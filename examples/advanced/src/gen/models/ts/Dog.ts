@@ -1,7 +1,7 @@
 import type { Image } from './Image.ts'
 
 /**
- * Dog
+ * @type object
  */
 export type Dog = {
   /**
@@ -13,5 +13,9 @@ export type Dog = {
    * @type string
    */
   name: string
-  image?: Image
+  /**
+   * @example linode/debian10
+   * @type string | undefined
+   */
+  readonly image?: Image | null
 }

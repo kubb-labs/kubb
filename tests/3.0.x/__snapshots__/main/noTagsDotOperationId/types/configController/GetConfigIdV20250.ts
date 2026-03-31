@@ -5,6 +5,9 @@
 
 import type { Config } from "../Config.ts";
 
+/**
+ * @type object
+*/
 export type GetConfigIdV20250PathParams = {
     /**
      * @type string
@@ -14,11 +17,15 @@ export type GetConfigIdV20250PathParams = {
 
 /**
  * @description Configuration response
+ * @type object
 */
 export type GetConfigIdV20250200 = Config;
 
 export type GetConfigIdV20250QueryResponse = GetConfigIdV20250200;
 
+/**
+ * @type object
+*/
 export type GetConfigIdV20250Query = {
     Response: GetConfigIdV20250200;
     PathParams: GetConfigIdV20250PathParams;

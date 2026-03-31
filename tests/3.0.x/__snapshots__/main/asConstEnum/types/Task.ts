@@ -6,12 +6,21 @@
 import type { Priority } from "./Priority.ts";
 import type { Status } from "./Status.ts";
 
+/**
+ * @type object
+*/
 export type Task = {
     /**
      * @type string
     */
     id: string;
+    /**
+     * @type string
+    */
     status: Status;
+    /**
+     * @type string | undefined
+    */
     priority?: Priority;
     /**
      * @type string | undefined

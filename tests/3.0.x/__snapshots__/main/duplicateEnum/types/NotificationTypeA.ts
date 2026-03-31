@@ -11,6 +11,9 @@ export const notificationTypeAParamsChannelEnum = {
 
 export type NotificationTypeAParamsChannelEnumKey = (typeof notificationTypeAParamsChannelEnum)[keyof typeof notificationTypeAParamsChannelEnum];
 
+/**
+ * @type object
+*/
 export type NotificationTypeA = {
     /**
      * @type string

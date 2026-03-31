@@ -12,16 +12,19 @@ export type UpdatePet200 = Pet
 
 /**
  * @description Invalid ID supplied
+ * @type any
  */
 export type UpdatePet400 = any
 
 /**
  * @description Pet not found
+ * @type any
  */
 export type UpdatePet404 = any
 
 /**
  * @description Validation exception
+ * @type any
  */
 export type UpdatePet405 = any
 
@@ -32,6 +35,9 @@ export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'type' | 'tags'>
 
 export type UpdatePetMutationResponse = UpdatePet200
 
+/**
+ * @type object
+ */
 export type UpdatePetMutation = {
   Response: UpdatePet200
   Request: UpdatePetMutationRequest

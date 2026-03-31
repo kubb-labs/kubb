@@ -7,34 +7,47 @@ import type { Pet } from "./Pet.ts";
 
 /**
  * @description ID of pet to return
+ * @type integer
 */
 export type GetPetByIdPathPetId = number;
 
 /**
- * @description successful operation
+ * @type object
 */
 export type GetPetByIdStatus200 = Pet;
 
 /**
- * @description Invalid ID supplied
+ * @type any
 */
 export type GetPetByIdStatus400 = any;
 
 /**
- * @description Pet not found
+ * @type any
 */
 export type GetPetByIdStatus404 = any;
 
+/**
+ * @type object
+*/
 export type GetPetByIdRequestConfig = {
     data?: never;
+    /**
+     * @type object
+    */
     pathParams: {
         petId: GetPetByIdPathPetId;
     };
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: `/pet/${string}`;
 };
 
+/**
+ * @type object
+*/
 export type GetPetByIdResponses = {
     "200": GetPetByIdStatus200;
     "400": GetPetByIdStatus400;

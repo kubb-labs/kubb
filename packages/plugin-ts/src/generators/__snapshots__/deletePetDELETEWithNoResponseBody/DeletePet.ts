@@ -3,23 +3,38 @@
  * Do not edit manually.
  */
 
+/**
+ * @type string
+ */
 export type DeletePetPathPetId = string
 
 /**
- * @description No content
+ * @type void
  */
 export type DeletePetStatus204 = void
 
+/**
+ * @type object
+ */
 export type DeletePetRequestConfig = {
   data?: never
+  /**
+   * @type object
+   */
   pathParams: {
     petId: DeletePetPathPetId
   }
   queryParams?: never
   headerParams?: never
+  /**
+   * @type string
+   */
   url: `/pets/${string}`
 }
 
+/**
+ * @type object
+ */
 export type DeletePetResponses = {
   '204': DeletePetStatus204
 }

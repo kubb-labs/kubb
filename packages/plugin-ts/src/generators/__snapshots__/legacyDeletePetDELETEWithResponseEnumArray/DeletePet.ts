@@ -3,7 +3,13 @@
  * Do not edit manually.
  */
 
+/**
+ * @type object
+ */
 export type DeletePetPathParams = {
+  /**
+   * @type string
+   */
   petId: string
 }
 
@@ -17,11 +23,15 @@ export type DeletePet200EnumKey = (typeof deletePet200Enum)[keyof typeof deleteP
 
 /**
  * @description Successful deletion
+ * @type array
  */
 export type DeletePet200 = DeletePet200EnumKey[]
 
 export type DeletePetMutationResponse = DeletePet200
 
+/**
+ * @type object
+ */
 export type DeletePetMutation = {
   Response: DeletePet200
   PathParams: DeletePetPathParams

@@ -8,9 +8,9 @@ import { petSchema } from './petSchema.ts'
 
 export const findPetsByTagsQueryParamsSchema = z
   .object({
-    tags: z.optional(z.array(z.string()).describe('Tags to filter by')),
-    page: z.optional(z.string().describe('to request with required page number or pagination')),
-    pageSize: z.optional(z.string().describe('to request with required page size')),
+    tags: z.array(z.string()).optional().describe('Tags to filter by'),
+    page: z.string().optional().describe('to request with required page number or pagination'),
+    pageSize: z.string().optional().describe('to request with required page size'),
   })
   .optional()
 
@@ -22,20 +22,23 @@ export const findPetsByTagsHeaderParamsSchema = z.object({
 
 export type FindPetsByTagsHeaderParamsSchema = z.infer<typeof findPetsByTagsHeaderParamsSchema>
 
-/**
- * @description successful operation
- */
-export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema))
+export const findPetsByTags200Schema = z.array(petSchema).describe('successful operation')
 
 export type FindPetsByTags200Schema = z.infer<typeof findPetsByTags200Schema>
 
-/**
- * @description Invalid tag value
- */
-export const findPetsByTags400Schema = z.any()
+export const findPetsByTags400Schema = z.any().describe('Invalid tag value')
 
 export type FindPetsByTags400Schema = z.infer<typeof findPetsByTags400Schema>
 
-export const findPetsByTagsQueryResponseSchema = z.lazy(() => findPetsByTags200Schema)
+export const findPetsByTagsQueryResponseSchema = findPetsByTags200Schema
 
 export type FindPetsByTagsQueryResponseSchema = z.infer<typeof findPetsByTagsQueryResponseSchema>
+
+export const findPetsByTagsQuerySchema = z.object({
+  Response: findPetsByTags200Schema,
+  QueryParams: findPetsByTagsQueryParamsSchema,
+  HeaderParams: findPetsByTagsHeaderParamsSchema,
+  Errors: findPetsByTags400Schema,
+})
+
+export type FindPetsByTagsQuerySchema = z.infer<typeof findPetsByTagsQuerySchema>

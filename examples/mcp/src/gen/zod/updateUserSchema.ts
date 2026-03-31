@@ -10,14 +10,15 @@ export const updateUserPathParamsSchema = z.object({
   username: z.string().describe('name that need to be deleted'),
 })
 
-/**
- * @description successful operation
- */
-export const updateUserErrorSchema = z.any()
+export const updateUserErrorSchema = z.any().describe('successful operation')
 
-/**
- * @description Update an existent user in the store
- */
-export const updateUserMutationRequestSchema = z.lazy(() => userSchema)
+export const updateUserMutationRequestSchema = userSchema.optional().describe('Update an existent user in the store')
 
 export const updateUserMutationResponseSchema = z.any()
+
+export const updateUserMutationSchema = z.object({
+  Response: z.any(),
+  Request: updateUserMutationRequestSchema,
+  PathParams: updateUserPathParamsSchema,
+  Errors: updateUserErrorSchema,
+})

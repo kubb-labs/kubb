@@ -11,6 +11,9 @@ export const orderStatusEnum = {
 
 export type OrderStatusEnumKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
 
+/**
+ * @type object
+ */
 export type Order = {
   /**
    * @example 10

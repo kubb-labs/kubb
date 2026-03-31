@@ -4,6 +4,9 @@
  * Source: petStore.yaml
  */
 
+/**
+ * @type object
+ */
 export type Tag = {
   /**
    * @type integer | undefined

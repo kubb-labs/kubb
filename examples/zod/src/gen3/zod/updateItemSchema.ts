@@ -3,36 +3,17 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod/v4'
+import * as z from 'zod'
 import { itemSchema } from './itemSchema.ts'
-import { itemTypeASchema } from './itemTypeASchema.ts'
-import { itemTypeBSchema } from './itemTypeBSchema.ts'
 
-/**
- * @description Success
- */
-export const updateItem200Schema = z.lazy(() => itemSchema)
+export const updateItem200Schema = itemSchema.describe('Success')
 
-/**
- * @description Item to update
- */
-export const updateItemMutationRequestSchema = z.union([
-  z
-    .lazy(() => itemTypeASchema)
-    .and(
-      z.object({
-        name: z.string(),
-        type: z.literal('typeA'),
-      }),
-    ),
-  z
-    .lazy(() => itemTypeBSchema)
-    .and(
-      z.object({
-        name: z.string(),
-        type: z.literal('typeB'),
-      }),
-    ),
-])
+export const updateItemMutationRequestSchema = itemSchema.describe('Item to update')
 
-export const updateItemMutationResponseSchema = z.lazy(() => updateItem200Schema)
+export const updateItemMutationResponseSchema = updateItem200Schema
+
+export const updateItemMutationSchema = z.object({
+  Response: updateItem200Schema,
+  Request: updateItemMutationRequestSchema,
+  Errors: z.any(),
+})

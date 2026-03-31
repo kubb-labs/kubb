@@ -7,20 +7,32 @@ import type { Config } from "../Config.ts";
 import type { ConfigCreate } from "../ConfigCreate.ts";
 
 /**
- * @description Created
+ * @type object
 */
 export type CreateConfigV20250Status201 = Config;
 
+/**
+ * @type object
+*/
 export type CreateConfigV20250Data = ConfigCreate;
 
+/**
+ * @type object
+*/
 export type CreateConfigV20250RequestConfig = {
     data?: CreateConfigV20250Data;
     pathParams?: never;
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: "/config";
 };
 
+/**
+ * @type object
+*/
 export type CreateConfigV20250Responses = {
     "201": CreateConfigV20250Status201;
 };

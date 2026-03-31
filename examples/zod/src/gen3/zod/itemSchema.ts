@@ -3,29 +3,28 @@
  * Do not edit manually.
  */
 
-import { z } from 'zod/v4'
+import * as z from 'zod'
 import { itemTypeASchema } from './itemTypeASchema.ts'
 import { itemTypeBSchema } from './itemTypeBSchema.ts'
 
-export const itemSchema = z.union([
-  z
-    .lazy(() => itemTypeASchema)
-    .and(
+export const itemSchema = z
+  .union([
+    itemTypeASchema.and(
       z.object({
-        id: z.optional(z.int()),
-        type: z.literal('typeA'),
-        name: z.string(),
-        createdAt: z.optional(z.iso.datetime()),
+        type: z.enum(['typeA']),
       }),
     ),
-  z
-    .lazy(() => itemTypeBSchema)
-    .and(
+    itemTypeBSchema.and(
       z.object({
-        id: z.optional(z.int()),
-        type: z.literal('typeB'),
-        name: z.string(),
-        createdAt: z.optional(z.iso.datetime()),
+        type: z.enum(['typeB']),
       }),
     ),
-])
+  ])
+  .and(
+    z.object({
+      id: z.int().optional(),
+      type: z.enum(['typeA', 'typeB']),
+      name: z.string(),
+      createdAt: z.iso.datetime().optional(),
+    }),
+  )

@@ -7,5 +7,5 @@ import * as z from "zod";
 
 export const contactDetailsTypeSchema = z.object({
     "fullName": z.string(),
-"emailAddress": z.string()
+    "emailAddress": z.string()
     })

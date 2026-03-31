@@ -72,9 +72,10 @@ describe('refMapToObject', () => {
       kind: 'Schema',
       name: 'Pet',
       type: 'object',
+      primitive: 'object',
       properties: [
-        { kind: 'Property', name: 'id', required: true, schema: { kind: 'Schema', type: 'integer' } },
-        { kind: 'Property', name: 'name', required: true, schema: { kind: 'Schema', type: 'string' } },
+        { kind: 'Property', name: 'id', required: true, schema: { kind: 'Schema', type: 'integer', primitive: 'integer' } },
+        { kind: 'Property', name: 'name', required: true, schema: { kind: 'Schema', type: 'string', primitive: 'string' } },
       ],
     })
 
@@ -82,6 +83,7 @@ describe('refMapToObject', () => {
       kind: 'Schema',
       name: 'PetList',
       type: 'array',
+      primitive: 'array',
       items: [{ kind: 'Schema', type: 'ref', ref: 'Pet' }],
     })
 
@@ -104,8 +106,14 @@ describe('refMapToObject', () => {
         {
           kind: 'Schema',
           type: 'object',
+          primitive: 'object',
           properties: [
-            { kind: 'Property', name: 'createdAt', required: false, schema: { kind: 'Schema', type: 'datetime', optional: true, nullish: undefined } },
+            {
+              kind: 'Property',
+              name: 'createdAt',
+              required: false,
+              schema: { kind: 'Schema', type: 'datetime', primitive: 'string', optional: true, nullish: undefined },
+            },
           ],
         },
       ],

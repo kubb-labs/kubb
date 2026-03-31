@@ -6,24 +6,26 @@
 import { z } from '../../zod.ts'
 import { orderSchema } from './orderSchema.ts'
 
-/**
- * @description successful operation
- */
-export const placeOrder200Schema = z.lazy(() => orderSchema)
+export const placeOrder200Schema = orderSchema.describe('successful operation')
 
 export type PlaceOrder200Schema = z.infer<typeof placeOrder200Schema>
 
-/**
- * @description Invalid input
- */
-export const placeOrder405Schema = z.any()
+export const placeOrder405Schema = z.any().describe('Invalid input')
 
 export type PlaceOrder405Schema = z.infer<typeof placeOrder405Schema>
 
-export const placeOrderMutationRequestSchema = z.lazy(() => orderSchema)
+export const placeOrderMutationRequestSchema = orderSchema.optional()
 
 export type PlaceOrderMutationRequestSchema = z.infer<typeof placeOrderMutationRequestSchema>
 
-export const placeOrderMutationResponseSchema = z.lazy(() => placeOrder200Schema)
+export const placeOrderMutationResponseSchema = placeOrder200Schema
 
 export type PlaceOrderMutationResponseSchema = z.infer<typeof placeOrderMutationResponseSchema>
+
+export const placeOrderMutationSchema = z.object({
+  Response: placeOrder200Schema,
+  Request: placeOrderMutationRequestSchema,
+  Errors: placeOrder405Schema,
+})
+
+export type PlaceOrderMutationSchema = z.infer<typeof placeOrderMutationSchema>

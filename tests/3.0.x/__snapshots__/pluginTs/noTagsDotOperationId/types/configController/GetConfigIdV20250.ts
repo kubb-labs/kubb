@@ -5,23 +5,38 @@
 
 import type { Config } from "../Config.ts";
 
+/**
+ * @type string
+*/
 export type GetConfigIdV20250PathConfigId = string;
 
 /**
- * @description Configuration response
+ * @type object
 */
 export type GetConfigIdV20250Status200 = Config;
 
+/**
+ * @type object
+*/
 export type GetConfigIdV20250RequestConfig = {
     data?: never;
+    /**
+     * @type object
+    */
     pathParams: {
         config_id: GetConfigIdV20250PathConfigId;
     };
     queryParams?: never;
     headerParams?: never;
+    /**
+     * @type string
+    */
     url: `/config/${string}`;
 };
 
+/**
+ * @type object
+*/
 export type GetConfigIdV20250Responses = {
     "200": GetConfigIdV20250Status200;
 };

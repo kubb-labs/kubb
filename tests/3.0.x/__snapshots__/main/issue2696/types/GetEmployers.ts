@@ -7,11 +7,15 @@ import type { Employer } from "./Employer.ts";
 
 /**
  * @description List of employers
+ * @type array
 */
 export type GetEmployers200 = Employer[];
 
 export type GetEmployersQueryResponse = GetEmployers200;
 
+/**
+ * @type object
+*/
 export type GetEmployersQuery = {
     Response: GetEmployers200;
     Errors: any;

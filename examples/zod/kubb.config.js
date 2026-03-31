@@ -1,7 +1,5 @@
 import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
-import { pluginClient } from '@kubb/plugin-client'
-import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 
@@ -19,9 +17,8 @@ export default defineConfig([
     hooks: {
       // done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
-    adapter: adapterOas({ collisionDetection: false }),
+    adapter: adapterOas({}),
     plugins: [
-      pluginOas({ generators: [] }),
       pluginTs({
         output: {
           path: './ts',
@@ -33,26 +30,9 @@ export default defineConfig([
           path: './zod',
         },
         operations: true,
-        mapper: {
-          productName: 'z.string().uuid()',
-        },
         importPath: '../../zod.ts',
         inferred: true,
-      }),
-      pluginClient({
-        output: {
-          path: './zodClients.ts',
-          barrelType: false,
-        },
-        include: [
-          {
-            type: 'tag',
-            pattern: 'store',
-          },
-        ],
-        parser: 'zod',
-        dataReturnType: 'data',
-        pathParamsType: 'object',
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -66,13 +46,14 @@ export default defineConfig([
       path: './src/gen2',
       clean: true,
     },
+    adapter: adapterOas({}),
     plugins: [
-      pluginOas({ generators: [] }),
       pluginZod({
         output: {
           path: './zod',
         },
         mini: true,
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   },
@@ -86,12 +67,13 @@ export default defineConfig([
       path: './src/gen3',
       clean: true,
     },
+    adapter: adapterOas({}),
     plugins: [
-      pluginOas({ generators: [] }),
       pluginZod({
         output: {
           path: './zod',
         },
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   },

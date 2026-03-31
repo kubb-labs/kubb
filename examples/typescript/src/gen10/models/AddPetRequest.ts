@@ -6,6 +6,9 @@
 import type { Category } from './Category.ts'
 import type { Tag } from './Tag.ts'
 
+/**
+ * @type object
+ */
 export type AddPetRequest = {
   /**
    * @example 10
@@ -17,6 +20,9 @@ export type AddPetRequest = {
    * @type string
    */
   name: string
+  /**
+   * @type object | undefined
+   */
   category?: Category
   /**
    * @type array

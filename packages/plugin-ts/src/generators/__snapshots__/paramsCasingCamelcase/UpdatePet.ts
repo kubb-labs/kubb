@@ -3,34 +3,64 @@
  * Do not edit manually.
  */
 
+/**
+ * @type string
+ */
 export type UpdatePetPathPetId = string
 
-export type UpdatePetQueryIncludeDeleted = boolean
-
-export type UpdatePetQueryRequestSource = string
+/**
+ * @type boolean | undefined
+ */
+export type UpdatePetQueryIncludeDeleted = boolean | undefined
 
 /**
- * @description Success
+ * @type string | undefined
+ */
+export type UpdatePetQueryRequestSource = string | undefined
+
+/**
+ * @type object
  */
 export type UpdatePetStatus200 = object
 
+/**
+ * @type object
+ */
 export type UpdatePetData = {
+  /**
+   * @type string
+   */
   name: string
 }
 
+/**
+ * @type object
+ */
 export type UpdatePetRequestConfig = {
   data?: UpdatePetData
+  /**
+   * @type object
+   */
   pathParams: {
     petId: UpdatePetPathPetId
   }
+  /**
+   * @type object | undefined
+   */
   queryParams?: {
     includeDeleted?: UpdatePetQueryIncludeDeleted
     requestSource?: UpdatePetQueryRequestSource
   }
   headerParams?: never
+  /**
+   * @type string
+   */
   url: `/pets/${string}`
 }
 
+/**
+ * @type object
+ */
 export type UpdatePetResponses = {
   '200': UpdatePetStatus200
 }

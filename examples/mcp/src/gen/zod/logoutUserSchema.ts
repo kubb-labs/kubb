@@ -5,9 +5,11 @@
 
 import * as z from 'zod'
 
-/**
- * @description successful operation
- */
-export const logoutUserErrorSchema = z.any()
+export const logoutUserErrorSchema = z.any().describe('successful operation')
 
 export const logoutUserQueryResponseSchema = z.any()
+
+export const logoutUserQuerySchema = z.object({
+  Response: z.any(),
+  Errors: logoutUserErrorSchema,
+})

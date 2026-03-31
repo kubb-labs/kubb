@@ -33,34 +33,9 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./components": {
-      "import": "./dist/components.js",
-      "require": "./dist/components.cjs"
-    },
-    "./generators": {
-      "import": "./dist/generators.js",
-      "require": "./dist/generators.cjs"
-    },
-    "./templates/ToZod.source": {
-      "import": "./dist/templates/ToZod.source.js",
-      "require": "./dist/templates/ToZod.source.cjs"
-    },
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "components": [
-        "./dist/components.d.ts"
-      ],
-      "generators": [
-        "./dist/generators.d.ts"
-      ],
-      "templates/ToZod.source": [
-        "./dist/templates/ToZod.source.d.ts"
-      ]
-    }
-  },
   "files": [
     "src",
     "templates",
@@ -88,17 +63,14 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/oas": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
-    "@kubb/plugin-ts": "workspace:*",
+    "@kubb/fabric-core": "catalog:",
     "@kubb/react-fabric": "catalog:",
     "remeda": "catalog:"
   },
   "devDependencies": {
-    "@asteasolutions/zod-to-openapi": "^8.5.0",
-    "@internals/utils": "workspace:*",
-    "zod": "^3.25.76"
+    "@internals/utils": "workspace:*"
   },
   "engines": {
     "node": ">=22"

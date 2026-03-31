@@ -1,28 +1,32 @@
 import * as z from 'zod'
-import type { ToZod } from '../../.kubb/ToZod.ts'
-import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../models/ts/petController/DeletePet.ts'
 
 export const deletePetPathParamsSchema = z.object({
-  petId: z.coerce.number().int().describe('Pet id to delete'),
-}) as unknown as ToZod<DeletePetPathParams>
+  petId: z.int().describe('Pet id to delete'),
+})
 
-export type DeletePetPathParamsSchema = DeletePetPathParams
+export type DeletePetPathParamsSchema = z.infer<typeof deletePetPathParamsSchema>
 
 export const deletePetHeaderParamsSchema = z
   .object({
-    api_key: z.optional(z.string()),
+    apiKey: z.string().optional(),
   })
-  .optional() as unknown as ToZod<DeletePetHeaderParams>
+  .optional()
 
-export type DeletePetHeaderParamsSchema = DeletePetHeaderParams
+export type DeletePetHeaderParamsSchema = z.infer<typeof deletePetHeaderParamsSchema>
 
-/**
- * @description Invalid pet value
- */
-export const deletePet400Schema = z.any() as unknown as ToZod<DeletePet400>
+export const deletePet400Schema = z.any().describe('Invalid pet value')
 
-export type DeletePet400Schema = DeletePet400
+export type DeletePet400Schema = z.infer<typeof deletePet400Schema>
 
-export const deletePetMutationResponseSchema = z.any() as unknown as ToZod<DeletePetMutationResponse>
+export const deletePetMutationResponseSchema = z.any()
 
-export type DeletePetMutationResponseSchema = DeletePetMutationResponse
+export type DeletePetMutationResponseSchema = z.infer<typeof deletePetMutationResponseSchema>
+
+export const deletePetMutationSchema = z.object({
+  Response: z.any(),
+  PathParams: deletePetPathParamsSchema,
+  HeaderParams: deletePetHeaderParamsSchema,
+  Errors: deletePet400Schema,
+})
+
+export type DeletePetMutationSchema = z.infer<typeof deletePetMutationSchema>

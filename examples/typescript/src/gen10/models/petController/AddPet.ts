@@ -6,13 +6,10 @@
 import type { AddPetRequest } from '../AddPetRequest.ts'
 import type { Pet } from '../Pet.ts'
 
-/**
- * @description Successful operation
- */
 export type AddPetStatus200 = Pet
 
 /**
- * @description Pet not found
+ * @type object
  */
 export type AddPetStatus405 = {
   /**
@@ -27,17 +24,27 @@ export type AddPetStatus405 = {
 
 /**
  * @description Create a new pet in the store
+ * @type object
  */
 export type AddPetData = AddPetRequest
 
+/**
+ * @type object
+ */
 export type AddPetRequestConfig = {
   data?: AddPetData
   pathParams?: never
   queryParams?: never
   headerParams?: never
+  /**
+   * @type string
+   */
   url: '/pet'
 }
 
+/**
+ * @type object
+ */
 export type AddPetResponses = {
   '200': AddPetStatus200
   '405': AddPetStatus405

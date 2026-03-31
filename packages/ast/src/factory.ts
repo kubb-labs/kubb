@@ -6,6 +6,7 @@ import type {
   OperationNode,
   ParameterGroupNode,
   ParameterNode,
+  PrimitiveSchemaType,
   PropertyNode,
   ResponseNode,
   RootNode,
@@ -42,7 +43,7 @@ export function syncOptionality(schema: SchemaNode, required: boolean): SchemaNo
  */
 export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
 
-type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties'> & { properties?: Array<PropertyNode> }
+type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties' | 'primitive'> & { properties?: Array<PropertyNode>; primitive?: 'object' }
 type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>
 type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & { kind: 'Schema' }
 
@@ -106,19 +107,52 @@ export function createOperation(
 }
 
 /**
+ * Maps schema `type` to its underlying `primitive`.
+ * Primitive types map to themselves; special string formats map to `'string'`.
+ * Complex types (`ref`, `enum`, `union`, `intersection`, `tuple`, `blob`) are left unset.
+ */
+const TYPE_TO_PRIMITIVE: Partial<Record<SchemaNode['type'], PrimitiveSchemaType>> = {
+  string: 'string',
+  number: 'number',
+  integer: 'integer',
+  bigint: 'bigint',
+  boolean: 'boolean',
+  null: 'null',
+  any: 'any',
+  unknown: 'unknown',
+  void: 'void',
+  never: 'never',
+  object: 'object',
+  array: 'array',
+  date: 'date',
+  uuid: 'string',
+  email: 'string',
+  url: 'string',
+  datetime: 'string',
+  time: 'string',
+}
+
+/**
  * Creates a `SchemaNode`, narrowed to the variant of `props.type`.
  * For object schemas, `properties` defaults to an empty array.
+ * `primitive` is automatically inferred from `type` when not explicitly provided.
  *
  * @example
  * ```ts
  * const scalar = createSchema({ type: 'string' })
- * // { kind: 'Schema', type: 'string' }
+ * // { kind: 'Schema', type: 'string', primitive: 'string' }
+ * ```
+ *
+ * @example
+ * ```ts
+ * const uuid = createSchema({ type: 'uuid' })
+ * // { kind: 'Schema', type: 'uuid', primitive: 'string' }
  * ```
  *
  * @example
  * ```ts
  * const object = createSchema({ type: 'object' })
- * // { kind: 'Schema', type: 'object', properties: [] }
+ * // { kind: 'Schema', type: 'object', primitive: 'object', properties: [] }
  * ```
  *
  * @example
@@ -133,11 +167,13 @@ export function createOperation(
 export function createSchema<T extends CreateSchemaInput>(props: T): CreateSchemaOutput<T>
 export function createSchema(props: CreateSchemaInput): SchemaNode
 export function createSchema(props: CreateSchemaInput): SchemaNode {
+  const inferredPrimitive = TYPE_TO_PRIMITIVE[props.type as keyof typeof TYPE_TO_PRIMITIVE]
+
   if (props['type'] === 'object') {
-    return { properties: [], ...props, kind: 'Schema' } as CreateSchemaOutput<typeof props>
+    return { properties: [], primitive: 'object', ...props, kind: 'Schema' } as CreateSchemaOutput<typeof props>
   }
 
-  return { ...props, kind: 'Schema' } as CreateSchemaOutput<typeof props>
+  return { primitive: inferredPrimitive, ...props, kind: 'Schema' } as CreateSchemaOutput<typeof props>
 }
 
 /**

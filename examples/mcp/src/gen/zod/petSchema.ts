@@ -8,10 +8,10 @@ import { categorySchema } from './categorySchema.js'
 import { tagTagSchema } from './tag/tagSchema.js'
 
 export const petSchema = z.object({
-  id: z.optional(z.number().int()),
+  id: z.int().optional(),
   name: z.string(),
-  category: z.optional(z.lazy(() => categorySchema)),
+  category: categorySchema.optional(),
   photoUrls: z.array(z.string()),
-  tags: z.optional(z.array(z.lazy(() => tagTagSchema))),
-  status: z.optional(z.enum(['available', 'pending', 'sold']).describe('pet status in the store')),
+  tags: z.array(tagTagSchema).optional(),
+  status: z.enum(['available', 'pending', 'sold']).optional().describe('pet status in the store'),
 })

@@ -5,6 +5,9 @@
 
 import type { ApiResponse } from "./ApiResponse.ts";
 
+/**
+ * @type object
+*/
 export type UploadFilePathParams = {
     /**
      * @description ID of pet to update
@@ -13,6 +16,9 @@ export type UploadFilePathParams = {
     petId: number;
 };
 
+/**
+ * @type object
+*/
 export type UploadFileQueryParams = {
     /**
      * @description Additional Metadata
@@ -23,13 +29,20 @@ export type UploadFileQueryParams = {
 
 /**
  * @description successful operation
+ * @type object
 */
 export type UploadFile200 = ApiResponse;
 
-export type UploadFileMutationRequest = Blob;
+/**
+ * @type string | undefined
+*/
+export type UploadFileMutationRequest = Blob | undefined;
 
 export type UploadFileMutationResponse = UploadFile200;
 
+/**
+ * @type object
+*/
 export type UploadFileMutation = {
     Response: UploadFile200;
     Request: UploadFileMutationRequest;
