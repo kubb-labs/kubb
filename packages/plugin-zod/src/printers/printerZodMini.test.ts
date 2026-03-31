@@ -310,6 +310,73 @@ describe('printerZodMini', () => {
     })
   })
 
+  describe('union', () => {
+    test('basic union', () => {
+      const node = createSchema({
+        type: 'union',
+        members: [createSchema({ type: 'string' }), createSchema({ type: 'number' })],
+      })
+      expect(printer.print(node)).toBe('z.union([z.string(), z.number()])')
+    })
+
+    test('single member union', () => {
+      const node = createSchema({
+        type: 'union',
+        members: [createSchema({ type: 'string' })],
+      })
+      expect(printer.print(node)).toBe('z.string()')
+    })
+
+    test('discriminated union', () => {
+      const node = createSchema({
+        type: 'union',
+        discriminatorPropertyName: 'petType',
+        members: [
+          createSchema({ type: 'ref', name: 'Cat', ref: '#/components/schemas/Cat' }),
+          createSchema({ type: 'ref', name: 'Dog', ref: '#/components/schemas/Dog' }),
+        ],
+      })
+      expect(printer.print(node)).toBe('z.discriminatedUnion("petType", [Cat, Dog])')
+    })
+
+    test('discriminated union with single member', () => {
+      const node = createSchema({
+        type: 'union',
+        discriminatorPropertyName: 'type',
+        members: [createSchema({ type: 'ref', name: 'Cat', ref: '#/components/schemas/Cat' })],
+      })
+      expect(printer.print(node)).toBe('Cat')
+    })
+
+    test('discriminated union with object members', () => {
+      const node = createSchema({
+        type: 'union',
+        discriminatorPropertyName: 'status',
+        members: [
+          createSchema({
+            type: 'object',
+            primitive: 'object',
+            properties: [
+              createProperty({ name: 'status', required: true, schema: createSchema({ type: 'enum', enumValues: ['active'] }) }),
+              createProperty({ name: 'name', required: true, schema: createSchema({ type: 'string' }) }),
+            ],
+          }),
+          createSchema({
+            type: 'object',
+            primitive: 'object',
+            properties: [
+              createProperty({ name: 'status', required: true, schema: createSchema({ type: 'enum', enumValues: ['inactive'] }) }),
+              createProperty({ name: 'reason', required: true, schema: createSchema({ type: 'string' }) }),
+            ],
+          }),
+        ],
+      })
+      expect(printer.print(node)).toBe(
+        'z.discriminatedUnion("status", [z.object({\n    "status": z.enum(["active"]),\n    "name": z.string()\n    }), z.object({\n    "status": z.enum(["inactive"]),\n    "reason": z.string()\n    })])',
+      )
+    })
+  })
+
   describe('keysToOmit', () => {
     test('omits single key from object schema', () => {
       const p = printerZodMini({ keysToOmit: ['id'] })
@@ -344,6 +411,20 @@ describe('printerZodMini', () => {
       const p = printerZodMini({ keysToOmit: [] })
       const node = createSchema({ type: 'string' })
       expect(p.print(node)).toBe('z.string()')
+    })
+
+    test('skips omit for discriminated union', () => {
+      const p = printerZodMini({ keysToOmit: ['petType'] })
+      const node = createSchema({
+        type: 'union',
+        primitive: 'object',
+        discriminatorPropertyName: 'petType',
+        members: [
+          createSchema({ type: 'ref', name: 'Cat', ref: '#/components/schemas/Cat' }),
+          createSchema({ type: 'ref', name: 'Dog', ref: '#/components/schemas/Dog' }),
+        ],
+      })
+      expect(p.print(node)).toBe('z.discriminatedUnion("petType", [Cat, Dog])')
     })
   })
 })

@@ -290,6 +290,9 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         const members = (node.members ?? []).map((m) => this.transform(m)).filter(Boolean)
         if (members.length === 0) return ''
         if (members.length === 1) return members[0]!
+        if (node.discriminatorPropertyName) {
+          return `z.discriminatedUnion(${stringify(node.discriminatorPropertyName)}, [${members.join(', ')}])`
+        }
         return `z.union([${members.join(', ')}])`
       },
       intersection(node) {
