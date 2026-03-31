@@ -1,5 +1,27 @@
 # @kubb/core
 
+## 5.0.0-alpha.25
+
+### Minor Changes
+
+- [#2940](https://github.com/kubb-labs/kubb/pull/2940) [`c1e9257`](https://github.com/kubb-labs/kubb/commit/c1e92572c04cf82ddb4df2e9e72e1551287a21fa) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ### `@kubb/core`
+
+  Add three generic helper functions to `renderNode.tsx` that encapsulate the repeated react + core generator dispatch boilerplate:
+  - `runGeneratorSchema(node, ctx)` — dispatches a single schema node to all generators (react + core), resolving and null-checking options per generator.
+  - `runGeneratorOperation(node, ctx)` — dispatches a single operation node to all generators (react + core), resolving and null-checking options per generator.
+  - `runGeneratorOperations(nodes, ctx)` — batch-dispatches a list of collected operation nodes to all generators using `plugin.options` directly (no per-node filtering).
+
+  All three accept a shared `RunGeneratorContext<TOptions>` and are exported from `@kubb/core`.
+
+  ### `@kubb/plugin-ts` / `@kubb/plugin-cypress`
+
+  Refactored `install()` to use the new `runGeneratorSchema`, `runGeneratorOperation`, and `runGeneratorOperations` helpers from `@kubb/core`, eliminating the repeated resolve → null-check → dispatch boilerplate. Both `schema` and `operation` lifecycles now support both `react` and `core` generators.
+
+### Patch Changes
+
+- Updated dependencies [[`7b34c72`](https://github.com/kubb-labs/kubb/commit/7b34c7255a51ea0ababe6ca285703287193e702c)]:
+  - @kubb/ast@5.0.0-alpha.25
+
 ## 5.0.0-alpha.24
 
 ### Patch Changes

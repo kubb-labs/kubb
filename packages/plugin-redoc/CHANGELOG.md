@@ -1,5 +1,13 @@
 # @kubb/plugin-redoc
 
+## 5.0.0-alpha.25
+
+### Patch Changes
+
+- Updated dependencies [[`c1e9257`](https://github.com/kubb-labs/kubb/commit/c1e92572c04cf82ddb4df2e9e72e1551287a21fa)]:
+  - @kubb/core@5.0.0-alpha.25
+  - @kubb/adapter-oas@5.0.0-alpha.25
+
 ## 5.0.0-alpha.24
 
 ### Patch Changes
