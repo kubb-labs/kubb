@@ -1,5 +1,17 @@
 # @kubb/plugin-react-query
 
+## 5.0.0-alpha.26
+
+### Patch Changes
+
+- Updated dependencies [[`035a2ea`](https://github.com/kubb-labs/kubb/commit/035a2ea01b88246c8642fead92029a955599f9cd)]:
+  - @kubb/plugin-client@5.0.0-alpha.26
+  - @kubb/core@5.0.0-alpha.26
+  - @kubb/oas@5.0.0-alpha.26
+  - @kubb/plugin-oas@5.0.0-alpha.26
+  - @kubb/plugin-ts@5.0.0-alpha.26
+  - @kubb/plugin-zod@5.0.0-alpha.26
+
 ## 5.0.0-alpha.25
 
 ### Patch Changes

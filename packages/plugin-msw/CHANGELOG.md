@@ -1,5 +1,16 @@
 # @kubb/plugin-msw
 
+## 5.0.0-alpha.26
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.26
+  - @kubb/oas@5.0.0-alpha.26
+  - @kubb/plugin-faker@5.0.0-alpha.26
+  - @kubb/plugin-oas@5.0.0-alpha.26
+  - @kubb/plugin-ts@5.0.0-alpha.26
+
 ## 5.0.0-alpha.25
 
 ### Patch Changes
