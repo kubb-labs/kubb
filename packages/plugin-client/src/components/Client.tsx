@@ -150,8 +150,9 @@ export function Client({
   const isFormData = contentType === 'multipart/form-data'
 
   // Generate parameter mappings when paramsCasing is used
-  // Apply to pathParams, queryParams and headerParams
-  const pathParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
+  // pathParamsMapping is only needed when building the URL inline (no urlName);
+  // when urlName is set the Url component handles the mapping internally.
+  const pathParamsMapping = paramsCasing && !urlName ? getParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
   const queryParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.queryParams, { casing: paramsCasing }) : undefined
   const headerParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.headerParams, { casing: paramsCasing }) : undefined
 
