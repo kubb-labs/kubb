@@ -9,6 +9,7 @@ import type { PluginZod, ResolverZod } from './types.ts'
 export function shouldCoerce(coercion: PluginZod['resolvedOptions']['coercion'] | undefined, type: 'dates' | 'strings' | 'numbers'): boolean {
   if (coercion === undefined || coercion === false) return false
   if (coercion === true) return true
+
   return !!coercion[type]
 }
 
@@ -53,6 +54,7 @@ export function buildSchemaNames(node: OperationNode, params: Array<ParameterNod
 export function formatDefault(value: unknown): string {
   if (typeof value === 'string') return stringify(value)
   if (typeof value === 'object' && value !== null) return '{}'
+
   return String(value ?? '')
 }
 
@@ -62,6 +64,7 @@ export function formatDefault(value: unknown): string {
  */
 export function formatLiteral(v: string | number | boolean): string {
   if (typeof v === 'string') return stringify(v)
+
   return String(v)
 }
 

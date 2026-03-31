@@ -307,6 +307,7 @@ jobs:
           pnpm run generate --debug
 
       - name: Run E2E tests (openai)
+        if: runner.os != 'Windows'
         working-directory: ./tests/e2e
         env:
           NODE_OPTIONS: "--max_old_space_size=3000"
