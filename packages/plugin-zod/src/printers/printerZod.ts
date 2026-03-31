@@ -1,5 +1,5 @@
 import { stringify } from '@internals/utils'
-import { extractRefName, narrowSchema, syncSchemaRef } from '@kubb/ast'
+import { extractRefName, createSchema, narrowSchema, syncSchemaRef } from '@kubb/ast'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import type { PluginZod, ResolverZod } from '../types.ts'
@@ -98,21 +98,18 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
       blob: () => 'z.instanceof(File)',
       enum(node) {
         const values = node.namedEnumValues?.map((v) => v.value) ?? node.enumValues ?? []
+        const nonNullValues = values.filter((v): v is string | number | boolean => v !== null)
 
         // asConst-style enum: use z.union([z.literal(…), …])
-        const hasNamedValues = !!node.namedEnumValues?.length
-        if (hasNamedValues) {
-          const literals = values
-            .filter((v): v is string | number | boolean => v !== null)
-            .map((v) => `z.literal(${formatLiteral(v as string | number | boolean)})`)
+        if (node.namedEnumValues?.length) {
+          const literals = nonNullValues.map((v) => `z.literal(${formatLiteral(v)})`)
+
           if (literals.length === 1) return literals[0]!
           return `z.union([${literals.join(', ')}])`
         }
 
         // Regular enum: use z.enum([…])
-        const items = values.filter((v): v is string | number | boolean => v !== null).map((v) => formatLiteral(v as string | number | boolean))
-
-        return `z.enum([${items.join(', ')}])`
+        return `z.enum([${nonNullValues.map(formatLiteral).join(', ')}])`
       },
       ref(node) {
         if (!node.name) return undefined
@@ -138,7 +135,7 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
             const isNullish = schema.nullish
 
             const hasSelfRef = this.options.schemaName != null && containsSelfRef(schema, this.options.schemaName, this.options.resolver)
-            const baseOutput = this.transform(schema) ?? 'z.unknown()'
+            const baseOutput = this.transform(schema) ?? this.transform(createSchema({ type: 'unknown' }))!
             // Strip z.lazy() wrappers inside object getters — the getter itself provides deferred evaluation
             const resolvedOutput = hasSelfRef ? baseOutput.replaceAll(`z.lazy(() => ${this.options.schemaName})`, this.options.schemaName!) : baseOutput
 
@@ -178,7 +175,7 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
       },
       array(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
-        const inner = items.join(', ') || 'z.unknown()'
+        const inner = items.join(', ') || this.transform(createSchema({ type: 'unknown' }))!
         let result = `z.array(${inner})${lengthConstraints(node)}`
 
         if (node.unique) {
@@ -193,16 +190,14 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         return `z.tuple([${items.join(', ')}])`
       },
       union(node) {
-        const members = (node.members ?? []).map((m) => this.transform(m)).filter(Boolean)
+        const nodeMembers = node.members ?? []
+        const members = nodeMembers.map((m) => this.transform(m)).filter(Boolean)
         if (members.length === 0) return ''
         if (members.length === 1) return members[0]!
-        if (node.discriminatorPropertyName) {
+        if (node.discriminatorPropertyName && !nodeMembers.some((m) => m.type === 'intersection')) {
           // z.discriminatedUnion requires ZodObject members; intersections (ZodIntersection) are not
           // assignable to $ZodDiscriminant, so fall back to z.union when any member is an intersection.
-          const hasIntersectionMembers = (node.members ?? []).some((m) => m.type === 'intersection')
-          if (!hasIntersectionMembers) {
-            return `z.discriminatedUnion(${stringify(node.discriminatorPropertyName)}, [${members.join(', ')}])`
-          }
+          return `z.discriminatedUnion(${stringify(node.discriminatorPropertyName)}, [${members.join(', ')}])`
         }
 
         return `z.union([${members.join(', ')}])`
