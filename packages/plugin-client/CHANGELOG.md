@@ -1,5 +1,20 @@
 # @kubb/plugin-client
 
+## 4.37.1
+
+### Patch Changes
+
+- [#2951](https://github.com/kubb-labs/kubb/pull/2951) [`926e3d7`](https://github.com/kubb-labs/kubb/commit/926e3d79898857bf3f7ee54fcff3d57383ddb1e3) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fix unused variable when `paramsCasing` is set with `urlType: 'export'`.
+
+  When a path parameter contained an underscore (e.g. `item_id`) and `paramsCasing: 'camelcase'` was set, the generated client function contained an unused `const item_id = itemId` declaration, causing TypeScript `noUnusedLocals` errors. The mapping variable is now only emitted when the URL is built inline (i.e. when no exported URL function is used).
+
+- Updated dependencies []:
+  - @kubb/core@4.37.1
+  - @kubb/oas@4.37.1
+  - @kubb/plugin-oas@4.37.1
+  - @kubb/plugin-ts@4.37.1
+  - @kubb/plugin-zod@4.37.1
+
 ## 4.37.0
 
 ### Patch Changes
