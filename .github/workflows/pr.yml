@@ -304,7 +304,7 @@ jobs:
           KUBB_DISABLE_TELEMETRY: "1"
           KUBB_SCHEMA: "stripe"
         run: |
-          pnpm run generate
+          pnpm run generate --debug
 
       - name: Run E2E tests (openai)
         working-directory: ./tests/e2e
@@ -313,4 +313,4 @@ jobs:
           KUBB_DISABLE_TELEMETRY: "1"
           KUBB_SCHEMA: "openai"
         run: |
-          pnpm run generate
+          pnpm run generate --debug
