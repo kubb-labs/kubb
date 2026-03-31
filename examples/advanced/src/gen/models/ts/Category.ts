@@ -1,3 +1,6 @@
+/**
+ * @type object
+ */
 export type Category = {
   /**
    * @example 1

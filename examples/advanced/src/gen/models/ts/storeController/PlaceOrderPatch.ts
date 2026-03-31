@@ -2,18 +2,26 @@ import type { Order } from '../Order.ts'
 
 /**
  * @description successful operation
+ * @type object
  */
 export type PlaceOrderPatch200 = Order
 
 /**
  * @description Invalid input
+ * @type any
  */
 export type PlaceOrderPatch405 = any
 
-export type PlaceOrderPatchMutationRequest = Order
+/**
+ * @type object | undefined
+ */
+export type PlaceOrderPatchMutationRequest = Order | undefined
 
 export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
 
+/**
+ * @type object
+ */
 export type PlaceOrderPatchMutation = {
   Response: PlaceOrderPatch200
   Request: PlaceOrderPatchMutationRequest

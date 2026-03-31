@@ -1,5 +1,6 @@
 /**
  * @deprecated
+ * @type object
  */
 export type TagTag = {
   /**

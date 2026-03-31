@@ -371,7 +371,9 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         inner = factory.createUnionDeclaration({ nodes: [inner, factory.keywordTypeNodes.null] })
       }
 
-      if ((meta.nullish || meta.optional) && addsUndefined) {
+      // For named type declarations (type aliases), optional/nullish always produces | undefined
+      // regardless of optionalType — the questionToken ? modifier only applies to object properties.
+      if (meta.nullish || meta.optional) {
         inner = factory.createUnionDeclaration({ nodes: [inner, factory.keywordTypeNodes.undefined] })
       }
 

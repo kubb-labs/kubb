@@ -1,5 +1,5 @@
 /**
- * Cat
+ * @type object
  */
 export type Cat = {
   /**

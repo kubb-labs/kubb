@@ -17,17 +17,11 @@ export const findPetsByTagsHeaderParamsSchema = z.object({
 
 export type FindPetsByTagsHeaderParamsSchema = z.infer<typeof findPetsByTagsHeaderParamsSchema>
 
-/**
- * @description successful operation
- */
-export const findPetsByTags200Schema = z.array(petSchema)
+export const findPetsByTags200Schema = z.array(petSchema).describe('successful operation')
 
 export type FindPetsByTags200Schema = z.infer<typeof findPetsByTags200Schema>
 
-/**
- * @description Invalid tag value
- */
-export const findPetsByTags400Schema = z.any()
+export const findPetsByTags400Schema = z.any().describe('Invalid tag value')
 
 export type FindPetsByTags400Schema = z.infer<typeof findPetsByTags400Schema>
 

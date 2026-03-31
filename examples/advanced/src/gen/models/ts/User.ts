@@ -1,5 +1,8 @@
 import type { TagTag } from './tag/Tag.ts'
 
+/**
+ * @type object
+ */
 export type User = {
   /**
    * @example 10

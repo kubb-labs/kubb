@@ -924,7 +924,7 @@ describe('printerTs', () => {
     it('with keysToOmit and optional ref appends | undefined after Omit', async () => {
       const p = printerTs({
         resolver: resolverTs,
-        optionalType: 'questionTokenAndUndefined',
+        optionalType: 'questionToken',
         arrayType: 'array',
         enumType: 'inlineLiteral',
         name: 'AddFiles200',
@@ -955,6 +955,24 @@ describe('printerTs', () => {
 
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
         "export type AddFiles200 = Omit<NonNullable<Pet>, 'name'> | null
+        "
+      `)
+    })
+
+    it('named optional ref always adds | undefined regardless of optionalType', async () => {
+      const p = printerTs({
+        resolver: resolverTs,
+        optionalType: 'questionToken',
+        arrayType: 'array',
+        enumType: 'inlineLiteral',
+        name: 'AddFilesMutationRequest',
+      })
+      const result = p.print(
+        createSchema({ type: 'ref', name: 'Pet', optional: true }),
+      )
+
+      expect(await format(result ?? '')).toMatchInlineSnapshot(`
+        "export type AddFilesMutationRequest = Pet | undefined
         "
       `)
     })

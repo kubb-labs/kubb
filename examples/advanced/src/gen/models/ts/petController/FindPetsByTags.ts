@@ -1,5 +1,8 @@
 import type { Pet } from '../Pet.ts'
 
+/**
+ * @type object
+ */
 export type FindPetsByTagsQueryParams = {
   /**
    * @description Tags to filter by
@@ -26,6 +29,9 @@ export const findPetsByTagsHeaderParamsXEXAMPLEEnum = {
 
 export type FindPetsByTagsHeaderParamsXEXAMPLEEnumKey = (typeof findPetsByTagsHeaderParamsXEXAMPLEEnum)[keyof typeof findPetsByTagsHeaderParamsXEXAMPLEEnum]
 
+/**
+ * @type object
+ */
 export type FindPetsByTagsHeaderParams = {
   /**
    * @description Header parameters
@@ -36,16 +42,21 @@ export type FindPetsByTagsHeaderParams = {
 
 /**
  * @description successful operation
+ * @type array
  */
 export type FindPetsByTags200 = Array<Pet>
 
 /**
  * @description Invalid tag value
+ * @type any
  */
 export type FindPetsByTags400 = any
 
 export type FindPetsByTagsQueryResponse = FindPetsByTags200
 
+/**
+ * @type object
+ */
 export type FindPetsByTagsQuery = {
   Response: FindPetsByTags200
   QueryParams: FindPetsByTagsQueryParams

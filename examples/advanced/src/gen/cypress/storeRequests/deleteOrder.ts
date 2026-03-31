@@ -1,4 +1,4 @@
-import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../models/ts/storeController/DeleteOrder.ts'
+import type { DeleteOrderPathParams, DeleteOrderMutationResponse } from '../../models/ts/storeController/DeleteOrder.ts'
 
 export function deleteOrder(
   orderId: DeleteOrderPathParams['orderId'],
