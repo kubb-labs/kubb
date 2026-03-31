@@ -1,0 +1,41 @@
+import type { Pet } from '../Pet.ts'
+
+/**
+ * @type object
+ */
+export type GetPetByIdPathParams = {
+  /**
+   * @description ID of pet to return
+   * @type integer
+   */
+  petId: number
+}
+
+/**
+ * @description successful operation
+ * @type object
+ */
+export type GetPetById200 = Omit<NonNullable<Pet>, 'name'>
+
+/**
+ * @description Invalid ID supplied
+ * @type any
+ */
+export type GetPetById400 = any
+
+/**
+ * @description Pet not found
+ * @type any
+ */
+export type GetPetById404 = any
+
+export type GetPetByIdQueryResponse = GetPetById200
+
+/**
+ * @type object
+ */
+export type GetPetByIdQuery = {
+  Response: GetPetById200
+  PathParams: GetPetByIdPathParams
+  Errors: GetPetById400 | GetPetById404
+}

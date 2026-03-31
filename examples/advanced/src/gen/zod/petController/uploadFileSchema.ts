@@ -1,0 +1,38 @@
+import * as z from 'zod'
+import { apiResponseSchema } from '../apiResponseSchema.ts'
+
+export const uploadFilePathParamsSchema = z.object({
+  petId: z.int().describe('ID of pet to update'),
+})
+
+export type UploadFilePathParamsSchema = z.infer<typeof uploadFilePathParamsSchema>
+
+export const uploadFileQueryParamsSchema = z
+  .object({
+    additionalMetadata: z.string().optional().describe('Additional Metadata'),
+  })
+  .optional()
+
+export type UploadFileQueryParamsSchema = z.infer<typeof uploadFileQueryParamsSchema>
+
+export const uploadFile200Schema = apiResponseSchema.describe('successful operation')
+
+export type UploadFile200Schema = z.infer<typeof uploadFile200Schema>
+
+export const uploadFileMutationRequestSchema = z.instanceof(File).optional()
+
+export type UploadFileMutationRequestSchema = z.infer<typeof uploadFileMutationRequestSchema>
+
+export const uploadFileMutationResponseSchema = uploadFile200Schema
+
+export type UploadFileMutationResponseSchema = z.infer<typeof uploadFileMutationResponseSchema>
+
+export const uploadFileMutationSchema = z.object({
+  Response: uploadFile200Schema,
+  Request: uploadFileMutationRequestSchema,
+  QueryParams: uploadFileQueryParamsSchema,
+  PathParams: uploadFilePathParamsSchema,
+  Errors: z.any(),
+})
+
+export type UploadFileMutationSchema = z.infer<typeof uploadFileMutationSchema>

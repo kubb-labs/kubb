@@ -1,0 +1,65 @@
+import type { Pet } from '../Pet.ts'
+
+/**
+ * @type object
+ */
+export type FindPetsByTagsQueryParams = {
+  /**
+   * @description Tags to filter by
+   * @type array | undefined
+   */
+  tags?: Array<string>
+  /**
+   * @description to request with required page number or pagination
+   * @type string | undefined
+   */
+  page?: string
+  /**
+   * @description to request with required page size
+   * @type number | undefined
+   */
+  pageSize?: number
+}
+
+export const findPetsByTagsHeaderParamsXEXAMPLEEnum = {
+  ONE: 'ONE',
+  TWO: 'TWO',
+  THREE: 'THREE',
+} as const
+
+export type FindPetsByTagsHeaderParamsXEXAMPLEEnumKey = (typeof findPetsByTagsHeaderParamsXEXAMPLEEnum)[keyof typeof findPetsByTagsHeaderParamsXEXAMPLEEnum]
+
+/**
+ * @type object
+ */
+export type FindPetsByTagsHeaderParams = {
+  /**
+   * @description Header parameters
+   * @type string
+   */
+  xEXAMPLE: FindPetsByTagsHeaderParamsXEXAMPLEEnumKey
+}
+
+/**
+ * @description successful operation
+ * @type array
+ */
+export type FindPetsByTags200 = Array<Pet>
+
+/**
+ * @description Invalid tag value
+ * @type any
+ */
+export type FindPetsByTags400 = any
+
+export type FindPetsByTagsQueryResponse = FindPetsByTags200
+
+/**
+ * @type object
+ */
+export type FindPetsByTagsQuery = {
+  Response: FindPetsByTags200
+  QueryParams: FindPetsByTagsQueryParams
+  HeaderParams: FindPetsByTagsHeaderParams
+  Errors: FindPetsByTags400
+}
