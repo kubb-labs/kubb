@@ -28,6 +28,8 @@ function shouldCoerce(coercion: ZodOptions['coercion'], type: 'dates' | 'strings
 /** Format a default value as a code-level literal. */
 function formatDefault(value: unknown): string {
   if (typeof value === 'string') return stringify(value)
+  if (typeof value === 'boolean') return String(value)
+  if (typeof value === 'number') return String(value)
   if (typeof value === 'object' && value !== null) return '{}'
   return String(value ?? '')
 }
@@ -185,14 +187,15 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         }
         return shouldCoerce(this.options.coercion, 'dates') ? 'z.coerce.date()' : 'z.date()'
       },
-      uuid() {
-        return this.options.guidType === 'guid' ? 'z.guid()' : 'z.uuid()'
+      uuid(node) {
+        const base = this.options.guidType === 'guid' ? 'z.guid()' : 'z.uuid()'
+        return `${base}${lengthConstraints(node)}`
       },
-      email() {
-        return 'z.email()'
+      email(node) {
+        return `z.email()${lengthConstraints(node)}`
       },
-      url() {
-        return 'z.url()'
+      url(node) {
+        return `z.url()${lengthConstraints(node)}`
       },
       blob: () => 'z.instanceof(File)',
       enum(node) {

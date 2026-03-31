@@ -9,6 +9,7 @@ export type {
   DatetimeSchemaNode,
   EnumSchemaNode,
   EnumValueNode,
+  FormatStringSchemaNode,
   FunctionNode,
   FunctionNodeType,
   FunctionParameterNode,

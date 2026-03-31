@@ -385,7 +385,10 @@ function createSchemaParser(ctx: OasParserContext) {
       return createSchema({ ...base, primitive: specialPrimitive, type: specialType })
     }
     if (specialType === 'url') {
-      return createSchema({ ...base, primitive: 'string' as const, type: 'url' })
+      return createSchema({ ...base, primitive: 'string' as const, type: 'url', min: schema.minLength, max: schema.maxLength })
+    }
+    if (specialType === 'uuid' || specialType === 'email') {
+      return createSchema({ ...base, primitive: 'string' as const, type: specialType, min: schema.minLength, max: schema.maxLength })
     }
 
     return createSchema({ ...base, primitive: specialPrimitive, type: specialType as ScalarSchemaType })

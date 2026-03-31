@@ -21,6 +21,7 @@ export type {
   DatetimeSchemaNode,
   EnumSchemaNode,
   EnumValueNode,
+  FormatStringSchemaNode,
   IntersectionSchemaNode,
   NumberSchemaNode,
   ObjectSchemaNode,

@@ -75,7 +75,7 @@ export type SchemaType = PrimitiveSchemaType | ComplexSchemaType | SpecialSchema
  */
 export type ScalarSchemaType = Exclude<
   SchemaType,
-  'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum' | 'ref' | 'datetime' | 'date' | 'time' | 'string' | 'number' | 'integer' | 'bigint' | 'url'
+  'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum' | 'ref' | 'datetime' | 'date' | 'time' | 'string' | 'number' | 'integer' | 'bigint' | 'url' | 'uuid' | 'email'
 >
 
 /**
@@ -504,6 +504,37 @@ export type UrlSchemaNode = SchemaNodeBase & {
    * OpenAPI-style path template, for example, `'/pets/{petId}'`.
    */
   path?: string
+  /**
+   * Minimum string length.
+   */
+  min?: number
+  /**
+   * Maximum string length.
+   */
+  max?: number
+}
+
+/**
+ * Format-string schema for string-based formats that support length constraints.
+ *
+ * @example
+ * ```ts
+ * const uuidSchema: FormatStringSchemaNode = { kind: 'Schema', type: 'uuid', min: 36, max: 36 }
+ * ```
+ */
+export type FormatStringSchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
+  type: 'uuid' | 'email'
+  /**
+   * Minimum string length.
+   */
+  min?: number
+  /**
+   * Maximum string length.
+   */
+  max?: number
 }
 
 /**
@@ -531,8 +562,8 @@ export type SchemaNodeByType = {
   unknown: ScalarSchemaNode
   void: ScalarSchemaNode
   never: ScalarSchemaNode
-  uuid: ScalarSchemaNode
-  email: ScalarSchemaNode
+  uuid: FormatStringSchemaNode
+  email: FormatStringSchemaNode
   url: UrlSchemaNode
   blob: ScalarSchemaNode
 }
@@ -553,4 +584,5 @@ export type SchemaNode =
   | StringSchemaNode
   | NumberSchemaNode
   | UrlSchemaNode
+  | FormatStringSchemaNode
   | ScalarSchemaNode
