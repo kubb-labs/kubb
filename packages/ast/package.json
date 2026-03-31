@@ -1,6 +1,6 @@
 {
   "name": "@kubb/ast",
-  "version": "4.37.0",
+  "version": "4.37.1",
   "description": "Spec-agnostic AST layer for Kubb. Defines nodes, visitor pattern, and factory functions used across codegen plugins.",
   "keywords": [
     "kubb",
