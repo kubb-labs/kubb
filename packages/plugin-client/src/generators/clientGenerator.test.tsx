@@ -180,6 +180,26 @@ describe('clientGenerator operation', async () => {
         pathParamsType: 'inline',
       },
     },
+    {
+      name: 'underscoredPathParams',
+      input: '../../mocks/underscoredPathParams.yaml',
+      path: '/v1/items/{item_id}',
+      method: 'get',
+      options: {
+        paramsCasing: 'camelcase',
+        pathParamsType: 'object',
+      },
+    },
+    {
+      name: 'underscoredPathParamsInline',
+      input: '../../mocks/underscoredPathParams.yaml',
+      path: '/v1/items/{item_id}',
+      method: 'get',
+      options: {
+        paramsCasing: 'camelcase',
+        pathParamsType: 'inline',
+      },
+    },
   ] as const satisfies Array<{
     input: string
     name: string

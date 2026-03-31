@@ -1,0 +1,27 @@
+openapi: 3.0.3
+info:
+  title: Example spec
+  version: 1.0.0
+paths:
+  /v1/items/{item_id}:
+    get:
+      summary: Get Item
+      tags:
+        - Items
+      operationId: get_item
+      description: Retrieves an item by ID.
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            title: Item Id
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object

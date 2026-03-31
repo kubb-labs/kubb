@@ -242,12 +242,13 @@ export function Client({
           {isConfigurable ? 'const { client: request = fetch, ...requestConfig } = config' : ''}
           <br />
           <br />
-          {pathParamsMapping &&
+          {!urlName &&
+            pathParamsMapping &&
             Object.entries(pathParamsMapping)
               .filter(([originalName, camelCaseName]) => originalName !== camelCaseName && isValidVarName(originalName))
               .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
               .join('\n')}
-          {pathParamsMapping && (
+          {!urlName && pathParamsMapping && (
             <>
               <br />
               <br />
