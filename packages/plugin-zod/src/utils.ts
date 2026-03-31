@@ -1,7 +1,16 @@
 import { stringify, toRegExpString } from '@internals/utils'
 import { extractRefName } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
-import type { ResolverZod } from './types.ts'
+import type { PluginZod, ResolverZod } from './types.ts'
+
+/**
+ * Returns `true` when the given coercion option enables coercion for the specified type.
+ */
+export function shouldCoerce(coercion: PluginZod['resolvedOptions']['coercion'], type: 'dates' | 'strings' | 'numbers'): boolean {
+  if (coercion === undefined || coercion === false) return false
+  if (coercion === true) return true
+  return !!coercion[type]
+}
 
 export function buildSchemaNames(node: OperationNode, params: Array<ParameterNode>, resolver: ResolverZod) {
   const pathParam = params.find((p) => p.in === 'path')

@@ -4,7 +4,7 @@ import type { SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import type { ResolverZod } from '../types.ts'
-import { applyModifiers, containsSelfRef, formatLiteral, lengthConstraints, numberConstraints } from '../utils.ts'
+import { applyModifiers, containsSelfRef, formatLiteral, lengthConstraints, numberConstraints, shouldCoerce } from '../utils.ts'
 
 export type ZodOptions = {
   coercion?: boolean | { dates?: boolean; strings?: boolean; numbers?: boolean }
@@ -19,12 +19,6 @@ export type ZodOptions = {
 }
 
 type ZodPrinterFactory = PrinterFactoryOptions<'zod', ZodOptions, string, string>
-
-function shouldCoerce(coercion: ZodOptions['coercion'], type: 'dates' | 'strings' | 'numbers'): boolean {
-  if (coercion === undefined || coercion === false) return false
-  if (coercion === true) return true
-  return !!coercion[type]
-}
 
 /**
  * Zod v4 printer built with `definePrinter`.
