@@ -1,8 +1,11 @@
-import { createProperty, createSchema } from '@kubb/ast'
+import { createOperation, createParameter, createProperty, createResponse, createSchema, narrowSchema } from '@kubb/ast'
 import { describe, expect, test } from 'vitest'
+import { resolverZod } from './resolvers/resolverZod.ts'
 import {
   applyMiniModifiers,
   applyModifiers,
+  buildGroupedParamsSchema,
+  buildSchemaNames,
   containsSelfRef,
   formatDefault,
   formatLiteral,
@@ -10,6 +13,7 @@ import {
   lengthConstraints,
   numberChecksMini,
   numberConstraints,
+  shouldCoerce,
 } from './utils.ts'
 
 describe('formatDefault', () => {
@@ -265,17 +269,20 @@ describe('containsSelfRef', () => {
 
   test('returns false for non-ref node', () => {
     const node = createSchema({ type: 'string' })
-    expect(containsSelfRef(node, 'mySchema', resolver)).toBe(false)
+
+    expect(containsSelfRef(node, { schemaName: 'mySchema', resolver })).toBe(false)
   })
 
   test('returns true when ref name matches schema name', () => {
     const node = createSchema({ type: 'ref', ref: '#/components/schemas/Node', name: 'Node' })
-    expect(containsSelfRef(node, 'Node', resolver)).toBe(true)
+
+    expect(containsSelfRef(node, { schemaName: 'Node', resolver })).toBe(true)
   })
 
   test('returns false when ref name does not match', () => {
     const node = createSchema({ type: 'ref', ref: '#/components/schemas/Other', name: 'Other' })
-    expect(containsSelfRef(node, 'Node', resolver)).toBe(false)
+
+    expect(containsSelfRef(node, { schemaName: 'Node', resolver })).toBe(false)
   })
 
   test('finds self-ref inside object property', () => {
@@ -284,7 +291,8 @@ describe('containsSelfRef', () => {
       type: 'object',
       properties: [createProperty({ name: 'child', required: false, schema: refNode })],
     })
-    expect(containsSelfRef(node, 'Tree', resolver)).toBe(true)
+
+    expect(containsSelfRef(node, { schemaName: 'Tree', resolver })).toBe(true)
   })
 
   test('returns false when object has no self-ref', () => {
@@ -292,30 +300,140 @@ describe('containsSelfRef', () => {
       type: 'object',
       properties: [createProperty({ name: 'label', required: true, schema: createSchema({ type: 'string' }) })],
     })
-    expect(containsSelfRef(node, 'Tree', resolver)).toBe(false)
+
+    expect(containsSelfRef(node, { schemaName: 'Tree', resolver })).toBe(false)
   })
 
   test('finds self-ref inside array items', () => {
     const refNode = createSchema({ type: 'ref', ref: '#/components/schemas/List', name: 'List' })
     const node = createSchema({ type: 'array', items: [refNode] })
-    expect(containsSelfRef(node, 'List', resolver)).toBe(true)
+
+    expect(containsSelfRef(node, { schemaName: 'List', resolver })).toBe(true)
   })
 
   test('finds self-ref inside union member', () => {
     const refNode = createSchema({ type: 'ref', ref: '#/components/schemas/Value', name: 'Value' })
     const node = createSchema({ type: 'union', members: [createSchema({ type: 'string' }), refNode] })
-    expect(containsSelfRef(node, 'Value', resolver)).toBe(true)
+
+    expect(containsSelfRef(node, { schemaName: 'Value', resolver })).toBe(true)
   })
 
   test('finds self-ref inside intersection member', () => {
     const refNode = createSchema({ type: 'ref', ref: '#/components/schemas/Base', name: 'Base' })
     const node = createSchema({ type: 'intersection', members: [createSchema({ type: 'object' }), refNode] })
-    expect(containsSelfRef(node, 'Base', resolver)).toBe(true)
+
+    expect(containsSelfRef(node, { schemaName: 'Base', resolver })).toBe(true)
   })
 
   test('does not infinitely recurse on circular graph', () => {
     const node = createSchema({ type: 'object', name: 'Circular' })
     const visited = new Set([node])
-    expect(containsSelfRef(node, 'Circular', resolver, visited)).toBe(false)
+
+    expect(containsSelfRef(node, { schemaName: 'Circular', resolver, visited })).toBe(false)
+  })
+})
+
+describe('shouldCoerce', () => {
+  test('returns false when coercion is undefined', () => {
+    expect(shouldCoerce(undefined, 'strings')).toBe(false)
+  })
+
+  test('returns false when coercion is false', () => {
+    expect(shouldCoerce(false, 'numbers')).toBe(false)
+  })
+
+  test('returns true when coercion is true', () => {
+    expect(shouldCoerce(true, 'dates')).toBe(true)
+  })
+
+  test('returns true for a specific type that is enabled', () => {
+    expect(shouldCoerce({ strings: true, numbers: false, dates: false }, 'strings')).toBe(true)
+  })
+
+  test('returns false for a specific type that is disabled', () => {
+    expect(shouldCoerce({ strings: true, numbers: false, dates: false }, 'numbers')).toBe(false)
+  })
+})
+
+describe('buildSchemaNames', () => {
+  const node = createOperation({
+    operationId: 'listPets',
+    method: 'GET',
+    path: '/pets',
+    responses: [
+      createResponse({ statusCode: '200', description: 'OK', schema: createSchema({ type: 'object' }) }),
+      createResponse({ statusCode: '400', description: 'Bad Request', schema: createSchema({ type: 'object' }) }),
+    ],
+  })
+
+  test('resolves response and error names by status code', () => {
+    const result = buildSchemaNames(node, { params: [], resolver: resolverZod })
+
+    expect(result.responses[200]).toBe('listPetsStatus200Schema')
+    expect(result.errors[400]).toBe('listPetsStatus400Schema')
+    expect(result.responses['default']).toBe('listPetsResponseSchema')
+  })
+
+  test('returns undefined for request when no request body', () => {
+    const result = buildSchemaNames(node, { params: [], resolver: resolverZod })
+
+    expect(result.request).toBeUndefined()
+  })
+
+  test('resolves request name when request body exists', () => {
+    const nodeWithBody = createOperation({
+      operationId: 'createPet',
+      method: 'POST',
+      path: '/pets',
+      requestBody: { schema: createSchema({ type: 'object' }) },
+    })
+    const result = buildSchemaNames(nodeWithBody, { params: [], resolver: resolverZod })
+
+    expect(result.request).toBe('createPetDataSchema')
+  })
+
+  test('resolves path and query parameter names', () => {
+    const params = [
+      createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true }),
+      createParameter({ name: 'limit', schema: createSchema({ type: 'integer' }), in: 'query', required: false }),
+    ]
+    const result = buildSchemaNames(node, { params, resolver: resolverZod })
+
+    expect(result.parameters.path).toBe('listPetsPathPetIdSchema')
+    expect(result.parameters.query).toBe('listPetsQueryLimitSchema')
+    expect(result.parameters.header).toBeUndefined()
+  })
+})
+
+describe('buildGroupedParamsSchema', () => {
+  test('creates an object schema with primitive: object', () => {
+    const params = [createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })]
+    const result = buildGroupedParamsSchema({ params })
+
+    expect(result.type).toBe('object')
+    expect(result.primitive).toBe('object')
+    expect(result.optional).toBeUndefined()
+  })
+
+  test('propagates optional flag', () => {
+    const params = [createParameter({ name: 'limit', schema: createSchema({ type: 'integer' }), in: 'query', required: false })]
+    const result = buildGroupedParamsSchema({ params, optional: true })
+
+    expect(result.optional).toBe(true)
+  })
+
+  test('maps each parameter to a property with matching name and required', () => {
+    const params = [
+      createParameter({ name: 'id', schema: createSchema({ type: 'string' }), in: 'path', required: true }),
+      createParameter({ name: 'q', schema: createSchema({ type: 'string' }), in: 'query', required: false }),
+    ]
+    const result = buildGroupedParamsSchema({ params })
+    const obj = narrowSchema(result, 'object')!
+
+    expect(obj.properties).toHaveLength(2)
+    expect(obj.properties![0]!.name).toBe('id')
+    expect(obj.properties![0]!.required).toBe(true)
+    expect(obj.properties![1]!.name).toBe('q')
+    expect(obj.properties![1]!.required).toBe(false)
   })
 })

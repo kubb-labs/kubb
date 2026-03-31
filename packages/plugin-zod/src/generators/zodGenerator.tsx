@@ -181,7 +181,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
 
       return {
         node: transformedNode,
-        data: buildSchemaNames(transformedNode, params, resolver),
+        data: buildSchemaNames(transformedNode, { params, resolver }),
       }
     })
 

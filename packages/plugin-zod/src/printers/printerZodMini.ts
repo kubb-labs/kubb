@@ -124,7 +124,7 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
             const isOptional = schema.optional
             const isNullish = schema.nullish
 
-            const hasSelfRef = this.options.schemaName != null && containsSelfRef(schema, this.options.schemaName, this.options.resolver)
+            const hasSelfRef = this.options.schemaName != null && containsSelfRef(schema, { schemaName: this.options.schemaName, resolver: this.options.resolver })
             const baseOutput = this.transform(schema) ?? this.transform(createSchema({ type: 'unknown' }))!
             // Strip z.lazy() wrappers inside object getters — the getter itself provides deferred evaluation
             const resolvedOutput = hasSelfRef ? baseOutput.replaceAll(`z.lazy(() => ${this.options.schemaName})`, this.options.schemaName!) : baseOutput

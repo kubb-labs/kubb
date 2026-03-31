@@ -1,5 +1,5 @@
 import { stringify, toRegExpString } from '@internals/utils'
-import { extractRefName } from '@kubb/ast'
+import { createProperty, createSchema, extractRefName } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import type { PluginZod, ResolverZod } from './types.ts'
 
@@ -13,7 +13,11 @@ export function shouldCoerce(coercion: PluginZod['resolvedOptions']['coercion'] 
   return !!coercion[type]
 }
 
-export function buildSchemaNames(node: OperationNode, params: Array<ParameterNode>, resolver: ResolverZod) {
+/**
+ * Collects all resolved schema names for an operation's parameters and responses
+ * into a single lookup object, useful for building imports and type references.
+ */
+export function buildSchemaNames(node: OperationNode, { params, resolver }: { params: Array<ParameterNode>; resolver: ResolverZod }) {
   const pathParam = params.find((p) => p.in === 'path')
   const queryParam = params.find((p) => p.in === 'query')
   const headerParam = params.find((p) => p.in === 'header')
@@ -191,7 +195,10 @@ export function applyMiniModifiers({ value, nullable, optional, nullish, default
  *
  * A `visited` set prevents infinite recursion on circular schema graphs.
  */
-export function containsSelfRef(node: SchemaNode, schemaName: string, resolver: ResolverZod | undefined, visited: Set<SchemaNode> = new Set()): boolean {
+export function containsSelfRef(
+  node: SchemaNode,
+  { schemaName, resolver, visited = new Set() }: { schemaName: string; resolver: ResolverZod | undefined; visited?: Set<SchemaNode> },
+): boolean {
   if (visited.has(node)) return false
   visited.add(node)
 
@@ -201,17 +208,41 @@ export function containsSelfRef(node: SchemaNode, schemaName: string, resolver: 
     return resolved === schemaName
   }
   if (node.type === 'object') {
-    if (node.properties?.some((p) => containsSelfRef(p.schema, schemaName, resolver, visited))) return true
+    if (node.properties?.some((p) => containsSelfRef(p.schema, { schemaName, resolver, visited }))) return true
     if (node.additionalProperties && node.additionalProperties !== true) {
-      return containsSelfRef(node.additionalProperties, schemaName, resolver, visited)
+      return containsSelfRef(node.additionalProperties, { schemaName, resolver, visited })
     }
     return false
   }
   if (node.type === 'array' || node.type === 'tuple') {
-    return node.items?.some((item) => containsSelfRef(item, schemaName, resolver, visited)) ?? false
+    return node.items?.some((item) => containsSelfRef(item, { schemaName, resolver, visited })) ?? false
   }
   if (node.type === 'union' || node.type === 'intersection') {
-    return node.members?.some((m) => containsSelfRef(m, schemaName, resolver, visited)) ?? false
+    return node.members?.some((m) => containsSelfRef(m, { schemaName, resolver, visited })) ?? false
   }
   return false
+}
+
+type BuildGroupedParamsSchemaOptions = {
+  params: Array<ParameterNode>
+  optional?: boolean
+}
+
+/**
+ * Builds an `object` schema node grouping the given parameter nodes.
+ * The `primitive: 'object'` marker ensures the Zod printer emits `z.object(…)` rather than a record.
+ */
+export function buildGroupedParamsSchema({ params, optional }: BuildGroupedParamsSchemaOptions): SchemaNode {
+  return createSchema({
+    type: 'object',
+    optional,
+    primitive: 'object',
+    properties: params.map((param) =>
+      createProperty({
+        name: param.name,
+        required: param.required,
+        schema: param.schema,
+      }),
+    ),
+  })
 }

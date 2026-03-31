@@ -3,7 +3,7 @@ import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 import { printerTs } from './printers/printerTs.ts'
 import { resolverTs } from './resolvers/resolverTs.ts'
-import { buildData, buildParams, buildResponses, buildResponseUnion } from './utils.ts'
+import { buildData, buildParams, buildPropertyJSDocComments, buildResponses, buildResponseUnion } from './utils.ts'
 
 const printer = printerTs({ resolver: resolverTs, optionalType: 'questionToken', arrayType: 'array', enumType: 'inlineLiteral' })
 const tsPrinter = ts.createPrinter()
@@ -194,5 +194,24 @@ describe('buildResponseUnion', () => {
     })
 
     expect(printSchema(buildResponseUnion(node, { resolver: resolverTs })!)).toMatchInlineSnapshot(`"(ListPetsStatus200 | ListPetsStatus405)"`)
+  })
+})
+
+describe('buildPropertyJSDocComments', () => {
+  it('emits @description, @deprecated and @default for a richly annotated schema', () => {
+    const schema = createSchema({ type: 'string', description: 'A pet name', deprecated: true, default: 'Fluffy' })
+    const comments = buildPropertyJSDocComments(schema)
+
+    expect(comments).toContain('@description A pet name')
+    expect(comments).toContain('@deprecated')
+    expect(comments).toContain('@default "Fluffy"')
+  })
+
+  it('does not emit @minLength/@maxLength for array schemas', () => {
+    const schema = createSchema({ type: 'array', primitive: 'array', min: 1, max: 10 })
+    const comments = buildPropertyJSDocComments(schema)
+
+    expect(comments).not.toContain('@minLength 1')
+    expect(comments).not.toContain('@maxLength 10')
   })
 })
