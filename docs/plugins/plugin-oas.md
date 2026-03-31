@@ -37,83 +37,53 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that contains the generated code.
+<!--@include: ./core/outputPath.md-->
 
-> [!TIP]
-> if `output.path` is a file, `group` cannot be used.
-
-|           |             |
-|----------:|:------------|
-|     Type: | `string`    |
-| Required: | `true`      |
+|           |           |
+| --------: | :-------- |
+|     Type: | `string`  |
+| Required: | `true`    |
 |  Default: | `'schemas'` |
 
 #### output.barrelType
 
-Specify what to export and optionally disable barrel file generation.
-
-> [!TIP]
-> Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
-
-|           |                                 |
-|----------:|:--------------------------------|
-|     Type: | `'all' \| 'named' \| 'propagate' \| false` |
-| Required: | `false`                         |
-|  Default: | `'named'`                       |
-
-<!--@include: ./core/barrelTypes.md-->
+<!--@include: ./core/outputBarrelType.md-->
 
 #### output.banner
-Add a banner comment at the top of every generated file.
 
-|           |                                  |
-|----------:|:---------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                          |
+<!--@include: ./core/outputBanner.md-->
 
 #### output.footer
-Add a footer text at the end of every file.
 
-|           |         |
-|----------:|:--------|
-|     Type: | `string \| (oas: Oas) => string`        |
-| Required: | `false` |
+<!--@include: ./core/outputFooter.md-->
 
 #### output.override
+
 <!--@include: ./core/outputOverride.md-->
 
 ### group
 <!--@include: ./core/group.md-->
 
 #### group.type
-Specify the property to group files by. Required when `group` is defined.
 
-|           |         |
-|----------:|:--------|
-|     Type: | `'tag'` |
-| Required: | `true*` |
-
-> [!NOTE]
-> `Required: true*` means this is required only when the `group` option is used. The `group` option itself is optional.
-
-<!--@include: ./core/groupTypes.md-->
+<!--@include: ./core/groupType.md-->
 
 #### group.name
 
 Return the name of a group based on the group name, this will be used for the file and name generation.
 
 |           |                                     |
-|----------:|:------------------------------------|
+| --------: | :---------------------------------- |
 |     Type: | `(context: GroupContext) => string` |
 | Required: | `false`                             |
-|  Default: | `(ctx) => '${ctx.group}Controller'`  |
+|  Default: | `(ctx) => '${ctx.group}Controller'` |
 
 ### validate
 
 Validate your [`input`](/getting-started/configure#input) based on `@readme/openapi-parser`.
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `boolean` |
 | Required: | `false`   |
 |  Default: | `true`    |
@@ -126,7 +96,7 @@ Which server to use from the array of `servers.url[serverIndex]`
 > Defining the server here will make it possible to use that endpoint as `baseURL` in other plugins.
 
 |           |          |
-|----------:|:---------|
+| --------: | :-------- |
 |     Type: | `number` |
 | Required: | `false`  |
 
@@ -167,7 +137,7 @@ const plugin = pluginOas({ serverIndex: 1 })
 Override OpenAPI server variables when resolving the base URL. When `serverIndex` is set and the selected server URL contains `{variable}` placeholders (as defined in the OpenAPI `servers[].variables` object), these values will be substituted. Any variable not provided falls back to its `default` value from the specification. If a variable has an `enum`, the provided value is validated at generation time.
 
 |           |                              |
-|----------:|:-----------------------------|
+| --------: | :-------- |
 |     Type: | `Record<string, string>`     |
 | Required: | `false`                      |
 
@@ -209,7 +179,7 @@ Kubb provides comprehensive support for OpenAPI discriminators in both **OpenAPI
 See [Discriminators](/guide/oas#discriminators) in the knowledge base for detailed examples and supported patterns.
 
 |           |                          |
-|----------:|:-------------------------|
+| --------: | :-------- |
 |     Type: | ` 'strict' \| 'inherit'` |
 | Required: | `false`                  |
 |  Default: | `'strict'`               |
@@ -337,7 +307,7 @@ When enabled, Kubb automatically detects and resolves collisions using intellige
 > This will be the default behavior in Kubb v5.
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `boolean` |
 | Required: | `false`   |
 |  Default: | `false`   |
@@ -369,7 +339,7 @@ If you have "params.channel" enum in both "NotificationTypeA" and "NotificationT
 Override some behavior of the Oas class instance, see `@kubb/oas`.
 
 |           |                                |
-|----------:|:-------------------------------|
+| --------: | :-------- |
 |     Type: | `typeof Oas`                             |
 | Required: | `false`                        |
 

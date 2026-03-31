@@ -41,7 +41,7 @@ The output location for the generated documentation.
 This plugin uses [Redocly](https://redocly.com/) for HTML generation.
 
 |           |                |
-|----------:|:---------------|
+| --------: | :-------- |
 |     Type: | `string`       |
 | Required: | `false`        |
 |  Default: | `'docs.html'`  |

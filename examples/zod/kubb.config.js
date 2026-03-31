@@ -11,7 +11,7 @@ export default defineConfig([
       path: './petStore.yaml',
     },
     output: {
-      path: './src/gen',
+      path: './src/zod',
       clean: true,
     },
     hooks: {
@@ -43,7 +43,7 @@ export default defineConfig([
       path: './petStore.yaml',
     },
     output: {
-      path: './src/gen2',
+      path: './src/mini',
       clean: true,
     },
     adapter: adapterOas({}),

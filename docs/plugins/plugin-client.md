@@ -39,49 +39,28 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that contains the generated code.
+<!--@include: ./core/outputPath.md-->
 
-> [!TIP]
-> if `output.path` is a file, `group` cannot be used.
-
-|           |             |
-|----------:|:----------|
-|     Type: | `string`    |
-| Required: | `true`      |
+|           |           |
+| --------: | :-------- |
+|     Type: | `string`  |
+| Required: | `true`    |
 |  Default: | `'clients'` |
 
 #### output.barrelType
 
-Specify what to export and optionally disable barrel file generation.
-
-> [!TIP]
-> Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
-
-|           |                                            |
-|----------:|:------------------------------------------|
-|     Type: | `'all' \| 'named' \| 'propagate' \| false` |
-| Required: | `false`                                    |
-|  Default: | `'named'`                                  |
-
-<!--@include: ./core/barrelTypes.md-->
+<!--@include: ./core/outputBarrelType.md-->
 
 #### output.banner
-Add a banner comment at the top of every generated file.
 
-|           |                                  |
-|----------:|:--------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                          |
+<!--@include: ./core/outputBanner.md-->
 
 #### output.footer
-Add a footer comment at the end of every generated file.
 
-|           |                                  |
-|----------:|:--------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                          |
+<!--@include: ./core/outputFooter.md-->
 
 #### output.override
+
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
@@ -91,14 +70,8 @@ Add a footer comment at the end of every generated file.
 <!--@include: ./core/group.md-->
 
 #### group.type
-Specify the property to group files by.
 
-|           |         |
-|----------:|:--------|
-|     Type: | `'tag'` |
-| Required: | `true`  |
-
-<!--@include: ./core/groupTypes.md-->
+<!--@include: ./core/groupType.md-->
 
 #### group.name
 
@@ -245,7 +218,7 @@ export default defineConfig({
           pattern: 'store',
         },
       ],
-      pathParamsType: "object",
+      pathParamsType: 'object',
       dataReturnType: 'full',
       client: 'axios'
     }),

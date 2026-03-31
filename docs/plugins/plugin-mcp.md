@@ -52,49 +52,28 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that contains the generated code.
+<!--@include: ./core/outputPath.md-->
 
-> [!TIP]
-> if `output.path` is a file, `group` cannot be used.
-
-|           |          |
-|----------:|:---------|
-|     Type: | `string` |
-| Required: | `true`   |
-|  Default: | `'ncp'`  |
+|           |           |
+| --------: | :-------- |
+|     Type: | `string`  |
+| Required: | `true`    |
+|  Default: | `'ncp'` |
 
 #### output.barrelType
 
-Specify what to export and optionally disable barrel file generation.
-
-> [!TIP]
-> Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
-
-|           |                                 |
-|----------:|:--------------------------------|
-|     Type: | `'all' \| 'named' \| 'propagate' \| false` |
-| Required: | `false`                         |
-|  Default: | `'named'`                       |
-
-<!--@include: ./core/barrelTypes.md-->
+<!--@include: ./core/outputBarrelType.md-->
 
 #### output.banner
-Add a banner comment at the top of every generated file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                               |
+<!--@include: ./core/outputBanner.md-->
 
 #### output.footer
-Add a footer comment at the end of every generated file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                               |
+<!--@include: ./core/outputFooter.md-->
 
 #### output.override
+
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
@@ -104,25 +83,18 @@ Add a footer comment at the end of every generated file.
 <!--@include: ./core/group.md-->
 
 #### group.type
-Specify the property to group files by.
 
-|           |         |
-|----------:|:--------|
-|     Type: | `'tag'` |
-| Required: | `true`  |
-
-<!--@include: ./core/groupTypes.md-->
+<!--@include: ./core/groupType.md-->
 
 #### group.name
 
 Return the name of a group based on the group name, this will be used for the file and name generation.
 
 |           |                                     |
-|----------:|:------------------------------------|
+| --------: | :---------------------------------- |
 |     Type: | `(context: GroupContext) => string` |
 | Required: | `false`                             |
 |  Default: | `(ctx) => '${ctx.group}Requests'`   |
-
 
 ### paramsCasing
 
@@ -132,7 +104,7 @@ Transform parameter names to a specific casing format for path, query, and heade
 > When using `paramsCasing`, ensure that `@kubb/plugin-ts` also has the same `paramsCasing` setting. This option automatically maps transformed parameter names back to their original API names in HTTP requests.
 
 |           |                |
-|----------:|:---------------|
+| --------: | :-------- |
 |     Type: | `'camelcase'`  |
 | Required: | `false`        |
 |  Default: | `undefined`    |
@@ -179,12 +151,15 @@ export async function findPetsByStatusHandler({
 ### client
 
 #### client.importPath
+
 <!--@include: ./plugin-client/importPath.md-->
 
 #### client.dataReturnType
+
 <!--@include: ./plugin-client/dataReturnType.md-->
 
 #### client.baseURL
+
 <!--@include: ./plugin-client/baseURL.md-->
 
 
@@ -201,7 +176,7 @@ export async function findPetsByStatusHandler({
 <!--@include: ./core/generators.md-->
 
 |           |                               |
-|----------:|:------------------------------|
+| --------: | :-------- |
 |     Type: | `Array<Generator<PluginMsw>>` |
 | Required: | `false`                       |
 
@@ -213,7 +188,7 @@ export async function findPetsByStatusHandler({
 Customize the names based on the type that is provided by the plugin.
 
 |           |                                                                               |
-|----------:|:------------------------------------------------------------------------------|
+| --------: | :-------- |
 |     Type: | `(name: string, type?: ResolveType) => string` |
 | Required: | `false`                                                                       |
 

@@ -10,8 +10,7 @@ outline: deep
 
 Generate [Zod](https://zod.dev/) validation schemas from your OpenAPI schema.
 
-> [!TIP]
-> Support for Zod v4 when using Kubb `v3.8.1`, see [Zod 4 migration guide](https://v4.zod.dev/v4/changelog)
+Kubb v5 always generates **Zod v4** schemas. Zod v3 is no longer supported.
 
 ## Installation
 
@@ -42,56 +41,37 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that contains the generated code.
+<!--@include: ./core/outputPath.md-->
 
-> [!TIP]
-> if `output.path` is a file, `group` cannot be used.
-
-|           |          |
-| --------: | :------- |
-|     Type: | `string` |
-| Required: | `true`   |
-|  Default: | `'zod'`  |
+|           |           |
+| --------: | :-------- |
+|     Type: | `string`  |
+| Required: | `true`    |
+|  Default: | `'zod'` |
 
 #### output.barrelType
 
-Specify what to export and optionally disable barrel file generation.
-
-> [!TIP]
-> Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
-
-|           |                                            |
-| --------: | :----------------------------------------- |
-|     Type: | `'all' \| 'named' \| 'propagate' \| false` |
-| Required: | `false`                                    |
-|  Default: | `'named'`                                  |
-
-<!--@include: ./core/barrelTypes.md-->
+<!--@include: ./core/outputBarrelType.md-->
 
 #### output.banner
 
-Add a banner comment at the top of every generated file.
-
-|           |                                  |
-|----------:|:--------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                          |
+<!--@include: ./core/outputBanner.md-->
 
 #### output.footer
 
-Add a footer comment at the end of every generated file.
-
-|           |                                  |
-|----------:|:--------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                          |
+<!--@include: ./core/outputFooter.md-->
 
 #### output.override
+
 <!--@include: ./core/outputOverride.md-->
 
-### contentType
+### compatibilityPreset
 
-<!--@include: ./core/contentType.md-->
+<!--@include: ./core/compatibilityPreset.md-->
+
+### resolvers
+
+<!--@include: ./core/resolvers.md-->
 
 ### group
 
@@ -99,17 +79,7 @@ Add a footer comment at the end of every generated file.
 
 #### group.type
 
-Specify the property to group files by. Required when `group` is defined.
-
-|           |         |
-|----------:|:--------|
-|     Type: | `'tag'` |
-| Required: | `true*` |
-
-> [!NOTE]
-> `Required: true*` means this is required only when the `group` option is used. The `group` option itself is optional.
-
-<!--@include: ./core/groupTypes.md-->
+<!--@include: ./core/groupType.md-->
 
 #### group.name
 
@@ -123,6 +93,8 @@ Return the name of a group based on the group name, this will be used for the fi
 
 ### importPath
 
+Path to the Zod package used in generated import statements. Accepts a package name or a relative path. Set to `'zod/mini'` when using `mini: true`.
+
 |           |          |
 | --------: | :------- |
 |     Type: | `string` |
@@ -131,7 +103,7 @@ Return the name of a group based on the group name, this will be used for the fi
 
 ### typed
 
-Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
+Annotate each generated schema with its inferred TypeScript type, using `@kubb/plugin-ts` output as the source. Requires `@kubb/plugin-ts` to be configured in the same `plugins` array.
 
 > [!IMPORTANT]
 > We rely on [`ToZod`](https://github.com/colinhacks/tozod) from the creator of Zod to create a schema based on a type.
@@ -145,13 +117,25 @@ Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
 
 ### inferred
 
-Return Zod generated schema as type with z.infer.
+Export a `z.infer<typeof schema>` type alias alongside each generated schema. This gives you a TypeScript type that always stays in sync with the schema's runtime validation.
 
 |           |           |
 | --------: | :-------- |
 |     Type: | `boolean` |
 | Required: | `false`   |
 |  Default: | `false`   |
+
+```typescript [inferred: true]
+import { z } from 'zod'
+
+export const petSchema = z.object({
+  name: z.string(),
+  status: z.enum(['available', 'pending', 'sold']).optional(),
+})
+
+// Inferred type export
+export type Pet = z.infer<typeof petSchema>
+```
 
 ### dateType
 
@@ -188,16 +172,30 @@ z.date();
 
 :::
 
+### integerType
+
+> [!WARNING]
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#integerType). Use `adapterOas({ integerType })` instead.
+
+### unknownType
+
+> [!WARNING]
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#unknownType). Use `adapterOas({ unknownType })` instead.
+
+### emptySchemaType
+
+> [!WARNING]
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#emptySchemaType). Use `adapterOas({ emptySchemaType })` instead.
+
 ### coercion
 
-Use of z.coerce.string() instead of z.string().
-[Coercion for primitives](https://zod.dev/?id=coercion-for-primitives)
+Apply `z.coerce` to automatically convert input values to the expected type before validation. Pass `true` to coerce all primitives, or an object to selectively enable coercion for `dates`, `strings`, and `numbers`. See [Coercion for primitives](https://zod.dev/?id=coercion-for-primitives).
 
 |           |                                                                       |
 | --------: | :-------------------------------------------------------------------- |
 |     Type: | `boolean \| { dates?: boolean, strings?: boolean, numbers?: boolean}` |
 | Required: | `false`                                                               |
-|  Default: | `false'`                                                              |
+|  Default: | `false`                                                               |
 
 ::: code-group
 
@@ -223,41 +221,44 @@ z.coerce.number();
 
 ### operations
 
+Generate a combined `operations.ts` file that exports all operation-level schemas grouped by `operationId`. When enabled, each operation gets its own schema that includes the request body, path params, query params, and response schemas.
+
 |           |           |
 | --------: | :-------- |
 |     Type: | `boolean` |
 | Required: | `false`   |
 |  Default: | `false`   |
 
-### mapper
+### paramsCasing
 
-|           |                          |
-| --------: | :----------------------- |
-|     Type: | `Record<string, string>` |
-| Required: | `false`                  |
+Transform property names in path, query, and header parameter types to camelCase.
 
-### version
+|           |                |
+| --------: | :------------- |
+|     Type: | `'camelcase'`  |
+| Required: | `false`        |
 
-Which version of Zod should be used.
+```typescript ['camelcase']
+// OpenAPI spec uses: pet_id, X-Api-Key
 
-|           |              |
-| --------: | :----------- |
-|     Type: | `'3' \| '4'` |
-| Required: | `false`      |
-|  Default: | `'3'`        |
+type GetPetPathParams = {
+  petId: string   // ✓ camelCase
+}
+
+type GetPetHeaderParams = {
+  xApiKey?: string  // ✓ camelCase
+}
+```
 
 ### guidType
 
-Which validator to use for OpenAPI `format: uuid`.
+Validator to use for OpenAPI properties with `format: uuid`. Use `'guid'` to generate `.guid()` validation instead of the default `.uuid()`.
 
-|           |                   |
-| --------: | :---------------- |
+|           |                    |
+| --------: | :----------------- |
 |     Type: | `'uuid' \| 'guid'` |
-| Required: | `false`           |
-|  Default: | `'uuid'`          |
-
-> [!NOTE]
-> `guid` is only used with `version: '4'`. With `version: '3'`, Kubb falls back to `uuid`.
+| Required: | `false`            |
+|  Default: | `'uuid'`           |
 
 ::: code-group
 
@@ -265,7 +266,7 @@ Which validator to use for OpenAPI `format: uuid`.
 z.uuid()
 ```
 
-```typescript ['guid' + version: '4']
+```typescript ['guid']
 z.guid()
 ```
 
@@ -277,7 +278,7 @@ Use Zod Mini's functional API for better tree-shaking support.
 
 When enabled, generates functional syntax (e.g., `z.optional(z.string())`) instead of chainable methods (e.g., `z.string().optional()`).
 
-Requires Zod v4 or later. When `mini: true`, `version` will be set to `'4'` and `importPath` will default to `'zod/mini'`.
+When `mini: true`, `importPath` will default to `'zod/mini'`.
 
 > [!WARNING]
 > This feature is currently in beta. The API may change in future releases.
@@ -340,41 +341,24 @@ z.array(z.string()).min(1).max(10)
 
 <!--@include: ./core/transformers.md-->
 
-#### transformers.name
-
-Customize the names based on the type that is provided by the plugin.
-
-|           |                                                |
-| --------: | :--------------------------------------------- |
-|     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                        |
-
-```typescript
-type ResolveType = "file" | "function" | "type" | "const";
-```
-
-#### transformers.schema
-
-Customize the schema based on the type that is provided by the plugin.
-
-|           |                                                                                                                             |
-| --------: | :-------------------------------------------------------------------------------------------------------------------------- |
-|     Type: | `(props: { schema?: SchemaObject; name?: string; parentName?: string}, defaultSchemas: Schema[],) => Schema[] \| undefined` |
-| Required: | `false`                                                                                                                     |
-
 ### wrapOutput
 
-Modify the generated zod schema.
+Wrap the generated Zod schema string with additional validation or metadata. The callback receives the schema's output string and the `SchemaNode` AST node, and returns the modified schema string.
+
+|           |                                                                         |
+| --------: | :---------------------------------------------------------------------- |
+|     Type: | `(arg: { output: string; schema: SchemaNode }) => string \| undefined`  |
+| Required: | `false`                                                                 |
 
 > [!TIP]
 > This is useful for cases where you need to extend the generated zod output with additional properties from an OpenAPI schema. E.g. in the case of `OpenAPI -> Zod -> OpenAPI`, you could include the examples from the schema for a given property and then ultimately provide a modified schema to a router that supports zod and OpenAPI spec generation.
 
 ```typescript [Conditionally append .openapi() to the generated schema]
 wrapOutput: ({ output, schema }) => {
-  const metadata: ZodOpenAPIMetadata = {};
+  const metadata: Record<string, unknown> = {};
 
-  if (schema.example) {
-    metadata.example = schema.example;
+  if (schema.keywords?.includes('example')) {
+    // access SchemaNode properties
   }
 
   if (Object.keys(metadata).length > 0) {
@@ -383,39 +367,32 @@ wrapOutput: ({ output, schema }) => {
 };
 ```
 
-|           |                                                                          |
-| --------: | :----------------------------------------------------------------------- |
-|     Type: | `(arg: { output: string; schema: SchemaObject }) => string \| undefined` |
-| Required: | `false`                                                                  |
-
 ## Example
 
 ```typescript twoslash
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
-import { pluginZod } from "@kubb/plugin-zod";
+import { adapterOas } from '@kubb/adapter-oas';
+import { defineConfig } from '@kubb/core';
+import { pluginTs } from '@kubb/plugin-ts';
+import { pluginZod } from '@kubb/plugin-zod';
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
+  adapter: adapterOas(),
   plugins: [
-    pluginOas(),
     pluginTs(),
     pluginZod({
       output: {
-        path: "./zod",
+        path: './zod',
       },
-      group: { type: "tag", name: ({ group }) => `${group}Schemas` },
+      group: { type: 'tag', name: ({ group }) => `${group}Schemas` },
       typed: true,
-      dateType: "stringOffset",
-      importPath: "zod",
-      wrapOutput: ({ output, schema }) =>
-        `${output}.openapi({ description: 'This is a custom extension' })`,
+      dateType: 'stringOffset',
+      importPath: 'zod',
     }),
   ],
 });

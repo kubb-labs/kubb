@@ -39,49 +39,28 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that contains the generated code.
-
-> [!TIP]
-> if `output.path` is a file, `group` cannot be used.
+<!--@include: ./core/outputPath.md-->
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `string`  |
 | Required: | `true`    |
 |  Default: | `'hooks'` |
 
 #### output.barrelType
 
-Specify what to export and optionally disable barrel file generation.
-
-> [!TIP]
-> Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
-
-|           |                                 |
-|----------:|:--------------------------------|
-|     Type: | `'all' \| 'named' \| 'propagate' \| false` |
-| Required: | `false`                         |
-|  Default: | `'named'`                       |
-
-<!--@include: ./core/barrelTypes.md-->
+<!--@include: ./core/outputBarrelType.md-->
 
 #### output.banner
-Add a banner comment at the top of every generated file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                               |
+<!--@include: ./core/outputBanner.md-->
 
 #### output.footer
-Add a footer comment at the end of every generated file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                               |
+<!--@include: ./core/outputFooter.md-->
 
 #### output.override
+
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
@@ -91,54 +70,39 @@ Add a footer comment at the end of every generated file.
 <!--@include: ./core/group.md-->
 
 #### group.type
-Specify the property to group files by. Required when `group` is defined.
 
-|           |         |
-|----------:|:--------|
-|     Type: | `'tag'` |
-| Required: | `true*` |
-
-> [!NOTE]
-> `Required: true*` means this is required only when the `group` option is used. The `group` option itself is optional.
-
-<!--@include: ./core/groupTypes.md-->
+<!--@include: ./core/groupType.md-->
 
 #### group.name
 
 Return the name of a group based on the group name, this will be used for the file and name generation.
 
 |           |                                     |
-|----------:|:------------------------------------|
+| --------: | :---------------------------------- |
 |     Type: | `(context: GroupContext) => string` |
 | Required: | `false`                             |
-|  Default: | `(ctx) => '${ctx.group}Controller'`  |
+|  Default: | `(ctx) => '${ctx.group}Controller'` |
 
 ### client
 
 #### client.importPath
+
 <!--@include: ./plugin-client/importPath.md-->
 
 #### client.dataReturnType
+
 <!--@include: ./plugin-client/dataReturnType.md-->
 
 #### client.baseURL
+
 <!--@include: ./plugin-client/baseURL.md-->
 
 #### client.clientType
 
-Specify whether to use function-based or class-based clients.
-
-|           |                         |
-|----------:|:------------------------|
-|     Type: | `'function' \| 'class'` |
-| Required: | `false`                 |
-|  Default: | `'function'`            |
-
-::: warning
-The `@kubb/plugin-react-query` plugin is only compatible with `clientType: 'function'` (the default). If `clientType: 'class'` is detected, the plugin will automatically generate its own inline function-based client instead of importing from `@kubb/plugin-client`.
-:::
+<!--@include: ./core/clientClientType.md-->
 
 #### client.bundle
+
 <!--@include: ./plugin-client/bundle.md-->
 
 ### paramsType
@@ -159,7 +123,7 @@ When set, an 'infiniteQuery' hook will be added. <br/>
 To disable infinite queries pass `false`.
 
 |           |                     |
-|----------:|:--------------------|
+| --------: | :-------- |
 |     Type: | `Infinite \| false` |
 | Required: | `false`             |
 |  Default: | `false`             |
@@ -199,7 +163,7 @@ type Infinite = {
 Specify the params key used for `pageParam`.
 
 |           |          |
-|----------:|:---------|
+| --------: | :-------- |
 |     Type: | `string` |
 | Required: | `false`  |
 |  Default: | `'id'`   |
@@ -210,7 +174,7 @@ Specify the params key used for `pageParam`.
 Specify the initial page param value.
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `unknown` |
 | Required: | `false`   |
 |  Default: | `0`       |
@@ -224,7 +188,7 @@ Which field of the data will be used, set it to undefined when no cursor is know
 > `cursorParam` is deprecated. Use `nextParam` and `previousParam` instead for more flexible pagination handling.
 
 |           |                      |
-|----------:|:---------------------|
+| --------: | :-------- |
 |     Type: | `string \| undefined` |
 | Required: | `false`              |
 
@@ -234,7 +198,7 @@ Which field of the data will be used to get the cursor for the next page. <br/>
 Supports dot notation (e.g. 'pagination.next.id') or array path (e.g. ['pagination', 'next', 'id']) to access nested fields.
 
 |           |                                 |
-|----------:|:--------------------------------|
+| --------: | :-------- |
 |     Type: | `string \| string[] \| undefined` |
 | Required: | `false`                         |
 
@@ -244,7 +208,7 @@ Which field of the data will be used to get the cursor for the previous page. <b
 Supports dot notation (e.g. 'pagination.prev.id') or array path (e.g. ['pagination', 'prev', 'id']) to access nested fields.
 
 |           |                                 |
-|----------:|:--------------------------------|
+| --------: | :-------- |
 |     Type: | `string \| string[] \| undefined` |
 | Required: | `false`                         |
 
@@ -255,7 +219,7 @@ To disable the creation of hooks pass `false`, this will result in only creating
 
 
 |           |         |
-|----------:|:--------|
+| --------: | :-------- |
 |     Type: | `Query` |
 | Required: | `false` |
 
@@ -268,13 +232,7 @@ type Query = {
 
 #### query.methods
 
-Define which HttpMethods can be used for queries
-
-|           |                     |
-|----------:|:--------------------|
-|     Type: | `Array<HttpMethod>` |
-| Required: | `['get']`           |
-
+<!--@include: ./core/queryMethods.md-->
 
 #### query.importPath
 
@@ -284,7 +242,7 @@ It allows both relative and absolute path.
 the path will be applied as is, so relative path should be based on the file being generated.
 
 |           |                           |
-|----------:|:--------------------------|
+| --------: | :-------- |
 |     Type: | `string`                  |
 | Required: | `false`                   |
 |  Default: | `'@tanstack/react-query'` |
@@ -302,7 +260,7 @@ When using a string you need to use `JSON.stringify`.
 :::
 
 |           |                                                                             |
-|----------:|:----------------------------------------------------------------------------|
+| --------: | :-------- |
 |     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
 | Required: | `false`                                                                     |
 
@@ -333,7 +291,7 @@ export default defineConfig({
 For a GET operation with tags `["user"]` and path parameter `username`, this generates:
 ```typescript
 export const getUserByNameQueryKey = ({ username }: { username: GetUserByNamePathParams["username"] }) =>
-  ["user", username] as const
+  ['user', username] as const
 ```
 
 **Using the default transformer**
@@ -360,7 +318,7 @@ export default defineConfig({
 This prepends a version to the default queryKey:
 ```typescript
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) =>
-  ["v5", { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+  ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 ```
 
 **Using operation ID**
@@ -418,7 +376,7 @@ export default defineConfig({
 When set, a suspenseQuery hook will be added. This will only work for v5 and react.
 
 |           |                           |
-|----------:|:--------------------------|
+| --------: | :-------- |
 |     Type: | `object \| false`         |
 | Required: | `false`                   |
 
@@ -428,7 +386,7 @@ Override some useMutation behaviors. <br/>
 To disable queries pass `false`.
 
 |           |            |
-|----------:|:-----------|
+| --------: | :-------- |
 |     Type: | `Mutation` |
 | Required: | `false`    |
 
@@ -441,14 +399,7 @@ type Mutation = {
 
 #### mutation.methods
 
-Define which HttpMethods can be used for mutations
-
-|           |                     |
-|----------:|:--------------------|
-|     Type: | `Array<HttpMethod>` |
-| Required: | `false`             |
-|  Default: | `['post', 'put', 'delete']` |
-
+<!--@include: ./core/mutationMethods.md-->
 
 #### mutation.importPath
 
@@ -458,7 +409,7 @@ It allows both relative and absolute path.
 the path will be applied as is, so relative path should be based on the file being generated.
 
 |           |                           |
-|----------:|:--------------------------|
+| --------: | :-------- |
 |     Type: | `string`                  |
 | Required: | `false`                   |
 |  Default: | `'@tanstack/react-query'` |
@@ -472,7 +423,7 @@ When using a string you need to use `JSON.stringify`.
 :::
 
 |           |                                                                             |
-|----------:|:----------------------------------------------------------------------------|
+| --------: | :-------- |
 |     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
 | Required: | `false`                                                                     |
 
@@ -483,7 +434,7 @@ When set, a custom hook will be used to customize the options of the generated h
 It will also generate a `HookOptions` type that can be used to type the custom options of each hook for type-safety.
 
 |           |                 |
-|----------:|:----------------|
+| --------: | :-------- |
 |     Type: | `CustomOptions` |
 | Required: | `false`         |
 
@@ -497,7 +448,7 @@ type CustomOptions = {
 #### importPath
 
 |           |          |
-|----------:|:---------|
+| --------: | :-------- |
 |     Type: | `string` |
 | Required: | `true`   |
 
@@ -509,7 +460,7 @@ However, the path will be applied as is, so relative paths should be based on th
 #### name
 
 |           |                        |
-|----------:|:-----------------------|
+| --------: | :-------- |
 |     Type: | `string`               |
 | Required: | `false`                |
 |  Default: | `useCustomHookOptions` |
@@ -574,7 +525,7 @@ function getCustomHookOptions({queryClient}: { queryClient: QueryClient }): Part
     useUpdateUserHook: {
       onError: (_error, variables, _onMutateResult, _context) => {
         // Post the error to a custom analytics service
-        postEvent("user_updated_failed", { username: variables.username, message: error.message, date: Date.now() })
+        postEvent('user_updated_failed', { username: variables.username, message: error.message, date: Date.now() })
       },
     },
     // Add more custom hook options here...
@@ -601,7 +552,7 @@ export function useCustomHookOptions<T extends keyof HookOptions>({ hookName, op
 <!--@include: ./core/generators.md-->
 
 |           |                                      |
-|----------:|:-------------------------------------|
+| --------: | :-------- |
 |     Type: | `Array<Generator<PluginReactQuery>>` |
 | Required: | `false`                              |
 
@@ -613,7 +564,7 @@ export function useCustomHookOptions<T extends keyof HookOptions>({ hookName, op
 Customize the names based on the type that is provided by the plugin.
 
 |           |                                                                               |
-|----------:|:------------------------------------------------------------------------------|
+| --------: | :-------- |
 |     Type: | `(name: string, type?: ResolveType) => string` |
 | Required: | `false`                                                                       |
 
@@ -661,7 +612,7 @@ export default defineConfig({
       },
       query: {
         methods: [ 'get' ],
-        importPath: "@tanstack/react-query"
+        importPath: '@tanstack/react-query'
       },
       suspense: {},
     }),

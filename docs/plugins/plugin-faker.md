@@ -39,49 +39,28 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that contains the generated code.
-
-> [!TIP]
-> if `output.path` is a file, `group` cannot be used.
+<!--@include: ./core/outputPath.md-->
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `string`  |
 | Required: | `true`    |
 |  Default: | `'mocks'` |
 
 #### output.barrelType
 
-Specify what to export and optionally disable barrel file generation.
-
-> [!TIP]
-> Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
-
-|           |                                 |
-|----------:|:--------------------------------|
-|     Type: | `'all' \| 'named' \| 'propagate' \| false` |
-| Required: | `false`                         |
-|  Default: | `'named'`                       |
-
-<!--@include: ./core/barrelTypes.md-->
+<!--@include: ./core/outputBarrelType.md-->
 
 #### output.banner
-Add a banner comment at the top of every generated file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                               |
+<!--@include: ./core/outputBanner.md-->
 
 #### output.footer
-Add a footer comment at the end of every generated file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                               |
+<!--@include: ./core/outputFooter.md-->
 
 #### output.override
+
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
@@ -91,31 +70,25 @@ Add a footer comment at the end of every generated file.
 <!--@include: ./core/group.md-->
 
 #### group.type
-Specify the property to group files by.
 
-|           |         |
-|----------:|:--------|
-|     Type: | `'tag'` |
-| Required: | `true`  |
-
-<!--@include: ./core/groupTypes.md-->
+<!--@include: ./core/groupType.md-->
 
 #### group.name
 
 Return the name of a group based on the group name, this will be used for the file and name generation.
 
 |           |                                     |
-|----------:|:------------------------------------|
+| --------: | :---------------------------------- |
 |     Type: | `(context: GroupContext) => string` |
 | Required: | `false`                             |
-|  Default: | `(ctx) => '${ctx.group}Controller'`  |
+|  Default: | `(ctx) => '${ctx.group}Controller'` |
 
 ### dateType
 
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
 |           |                      |
-|----------:|:---------------------|
+| --------: | :-------- |
 |     Type: | `'string' \| 'date'` |
 | Required: | `false`              |
 |  Default: | `'string'`           |
@@ -135,7 +108,7 @@ faker.date.anytime()
 Which parser should be used when dateType is set to 'string'.
 
 |           |                                            |
-|----------:|:-------------------------------------------|
+| --------: | :-------- |
 |     Type: | `'faker' \| 'dayjs' \| 'moment' \| string` |
 | Required: | `false`                                    |
 |  Default: | `'faker'`                                  |
@@ -157,26 +130,26 @@ faker.date.anytime().toISOString().substring(11, 19)
 
 ```typescript ['dayjs']
 // schema with format set to 'date'
-dayjs(faker.date.anytime()).format("YYYY-MM-DD")
+dayjs(faker.date.anytime()).format('YYYY-MM-DD')
 
 // schema with format set to 'time'
-dayjs(faker.date.anytime()).format("HH:mm:ss")
+dayjs(faker.date.anytime()).format('HH:mm:ss')
 
 ```
 
 ```typescript ['moment']
 // schema with format set to 'date'
-moment(faker.date.anytime()).format("YYYY-MM-DD")
+moment(faker.date.anytime()).format('YYYY-MM-DD')
 
 // schema with format set to 'time'
-moment(faker.date.anytime()).format("HH:mm:ss")
+moment(faker.date.anytime()).format('HH:mm:ss')
 ```
 :::
 
 ### mapper
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `Record<string, string>` |
 | Required: | `false`   |
 
@@ -185,7 +158,7 @@ moment(faker.date.anytime()).format("HH:mm:ss")
 Which type to use when the Swagger/OpenAPI file is not providing more information.
 
 |           |                               |
-|----------:|:------------------------------|
+| --------: | :-------- |
 |     Type: | `'any' \| 'unknown' \| 'void'` |
 | Required: | `false`                       |
 |  Default: | `'any'`                       |
@@ -196,7 +169,7 @@ Which type to use when the Swagger/OpenAPI file is not providing more informatio
 Which type to use for empty schema values.
 
 |           |                                |
-|----------:|:-------------------------------|
+| --------: | :-------- |
 |     Type: | `'any' \| 'unknown' \| 'void'` |
 | Required: | `false`                        |
 |  Default: | `unknownType`                  |
@@ -209,7 +182,7 @@ Transform parameter names to a specific casing format for path, query, and heade
 > When using `paramsCasing`, ensure that `@kubb/plugin-ts` also has the same `paramsCasing` setting. This option transforms property names in mock objects to match the TypeScript types.
 
 |           |                |
-|----------:|:---------------|
+| --------: | :-------- |
 |     Type: | `'camelcase'`  |
 | Required: | `false`        |
 |  Default: | `undefined`    |
@@ -248,7 +221,7 @@ Choose which generator to use when using Regexp.
 
 
 |           |                        |
-|----------:|:-----------------------|
+| --------: | :-------- |
 |     Type: | `'faker' \| 'randexp'` |
 | Required: | `false`                |
 |  Default: | `'faker'`                |
@@ -268,7 +241,7 @@ new RandExp(/test/).gen()
 The use of Seed is intended to allow for consistent values in a test.
 
 |           |         |
-|----------:|:--------|
+| --------: | :-------- |
 |     Type: | `number | number[]` |
 | Required: | `false` |
 
@@ -286,7 +259,7 @@ The use of Seed is intended to allow for consistent values in a test.
 <!--@include: ./core/generators.md-->
 
 |           |                                 |
-|----------:|:--------------------------------|
+| --------: | :-------- |
 |     Type: | `Array<Generator<PluginFaker>>` |
 | Required: | `false`                         |
 
@@ -298,7 +271,7 @@ The use of Seed is intended to allow for consistent values in a test.
 Customize the names based on the type that is provided by the plugin.
 
 |           |                                                                               |
-|----------:|:------------------------------------------------------------------------------|
+| --------: | :-------- |
 |     Type: | `(name: string, type?: ResolveType) => string` |
 | Required: | `false`                                                                       |
 

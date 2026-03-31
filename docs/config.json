@@ -158,6 +158,22 @@
           ]
         },
         {
+          "text": "Adapters",
+          "collapsed": false,
+          "items": [
+            {
+              "text": "Overview",
+              "link": "/adapters",
+              "activeMatch": "^/adapters/?$"
+            },
+            {
+              "text": "@kubb/adapter-oas",
+              "link": "/adapters/adapter-oas",
+              "activeMatch": "^/adapters/adapter-oas/?$"
+            }
+          ]
+        },
+        {
           "text": "Build tools",
           "collapsed": false,
           "items": [

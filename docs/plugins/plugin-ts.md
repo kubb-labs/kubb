@@ -8,7 +8,7 @@ outline: deep
 
 # @kubb/plugin-ts
 
-Generate TypeScript types from your OpenAPI schema.
+Generate TypeScript types from your OpenAPI schema. Use this plugin to produce type-safe representations of your API's request and response shapes, giving your TypeScript project compile-time guarantees over every API interaction.
 
 ## Installation
 
@@ -40,10 +40,7 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that contains the generated code.
-
-> [!TIP]
-> if `output.path` is a file, `group` cannot be used.
+<!--@include: ./core/outputPath.md-->
 
 |           |           |
 | --------: | :-------- |
@@ -53,36 +50,15 @@ Path to the output folder or file that contains the generated code.
 
 #### output.barrelType
 
-Specify what to export and optionally disable barrel file generation.
-
-> [!TIP]
-> Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
-
-|           |                                            |
-| --------: | :----------------------------------------- |
-|     Type: | `'all' \| 'named' \| 'propagate' \| false` |
-| Required: | `false`                                    |
-|  Default: | `'named'`                                  |
-
-<!--@include: ./core/barrelTypes.md-->
+<!--@include: ./core/outputBarrelType.md-->
 
 #### output.banner
 
-Add a banner comment at the top of every generated file.
-
-|           |                                  |
-| --------: | :------------------------------- |
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                          |
+<!--@include: ./core/outputBanner.md-->
 
 #### output.footer
 
-Add a footer text at the end of every file.
-
-|           |                                  |
-| --------: | :------------------------------- |
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                          |
+<!--@include: ./core/outputFooter.md-->
 
 #### output.override
 
@@ -98,17 +74,7 @@ Add a footer text at the end of every file.
 
 #### group.type
 
-Specify the property to group files by. Required when `group` is defined.
-
-|           |         |
-| --------: | :------ |
-|     Type: | `'tag'` |
-| Required: | `true*` |
-
-> [!NOTE]
-> `Required: true*` means this is required only when the `group` option is used. The `group` option itself is optional.
-
-<!--@include: ./core/groupTypes.md-->
+<!--@include: ./core/groupType.md-->
 
 #### group.name
 
@@ -136,47 +102,47 @@ Choose to use `enum` or `as const` for enums.
 > - `asConst`: generates a camelCase constant name (e.g., `petType`)
 > - `asPascalConst`: generates a PascalCase constant name (e.g., `PetType`)
 
-> [!NOTE]
-> In Kubb v5, `inlineLiteral` will become the default.
+> [!TIP]
+> Consider `'inlineLiteral'` for the most idiomatic output — enum values are inlined directly into the property type instead of creating a separate named type.
 
 ::: code-group
 
 ```typescript ['enum']
 enum PetType {
-  Dog = "dog",
-  Cat = "cat",
+  Dog = 'dog',
+  Cat = 'cat',
 }
 ```
 
 ```typescript ['asConst']
 const petType = {
-  Dog: "dog",
-  Cat: "cat",
+  Dog: 'dog',
+  Cat: 'cat',
 } as const;
 ```
 
 ```typescript ['asPascalConst']
 const PetType = {
-  Dog: "dog",
-  Cat: "cat",
+  Dog: 'dog',
+  Cat: 'cat',
 } as const;
 ```
 
 ```typescript ['constEnum']
 const enum PetType {
-  Dog = "dog",
-  Cat = "cat",
+  Dog = 'dog',
+  Cat = 'cat',
 }
 ```
 
 ```typescript ['literal']
-type PetType = "dog" | "cat";
+type PetType = 'dog' | 'cat';
 ```
 
 ```typescript ['inlineLiteral']
 // Enum values are inlined directly into the type
 export interface Pet {
-  status?: "available" | "pending" | "sold";
+  status?: 'available' | 'pending' | 'sold';
 }
 ```
 
@@ -185,7 +151,7 @@ export interface Pet {
 ### enumSuffix
 
 > [!WARNING]
-> This option has been moved to [`adapterOas`](/plugins/plugin-oas#enumSuffix). Use `adapterOas({ enumSuffix })` instead.
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#enumSuffix). Use `adapterOas({ enumSuffix })` instead.
 
 ### enumTypeSuffix
 
@@ -203,8 +169,8 @@ Only the type alias is affected — the const object name stays unchanged.
 
 ```typescript ['Key' (default)]
 const petType = {
-  Dog: "dog",
-  Cat: "cat",
+  Dog: 'dog',
+  Cat: 'cat',
 } as const;
 
 export type PetTypeKey = (typeof petType)[keyof typeof petType];
@@ -213,8 +179,8 @@ export type PetTypeKey = (typeof petType)[keyof typeof petType];
 ```typescript ['Value']
 // enumTypeSuffix: 'Value'
 const petType = {
-  Dog: "dog",
-  Cat: "cat",
+  Dog: 'dog',
+  Cat: 'cat',
 } as const;
 
 export type PetTypeValue = (typeof petType)[keyof typeof petType];
@@ -223,8 +189,8 @@ export type PetTypeValue = (typeof petType)[keyof typeof petType];
 ```typescript ['' (no suffix)]
 // enumTypeSuffix: ''
 const petType = {
-  Dog: "dog",
-  Cat: "cat",
+  Dog: 'dog',
+  Cat: 'cat',
 } as const;
 
 export type PetType = (typeof petType)[keyof typeof petType];
@@ -234,7 +200,7 @@ export type PetType = (typeof petType)[keyof typeof petType];
 
 ### enumKeyCasing
 
-Choose the casing for enum key names.
+Control the casing applied to enum key names in generated TypeScript. Use this to align generated enum keys with your project's naming conventions.
 
 |           |                                                                                |
 | --------: | :----------------------------------------------------------------------------- |
@@ -251,16 +217,16 @@ Choose the casing for enum key names.
 ### dateType
 
 > [!WARNING]
-> This option has been moved to [`adapterOas`](/plugins/plugin-oas#dateType). Use `adapterOas({ dateType })` instead.
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#dateType). Use `adapterOas({ dateType })` instead.
 
 ### integerType
 
 > [!WARNING]
-> This option has been moved to [`adapterOas`](/plugins/plugin-oas#integerType). Use `adapterOas({ integerType })` instead.
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#integerType). Use `adapterOas({ integerType })` instead.
 
 ### syntaxType
 
-Switch between type or interface for creating TypeScript types.
+Control whether the TypeScript generator emits `type` aliases or `interface` declarations for object schemas.
 See [Type vs Interface: Which Should You Use](https://www.totaltypescript.com/type-vs-interface-which-should-you-use).
 
 |           |                         |
@@ -288,16 +254,16 @@ interface Pet {
 ### unknownType
 
 > [!WARNING]
-> This option has been moved to [`adapterOas`](/plugins/plugin-oas#unknownType). Use `adapterOas({ unknownType })` instead.
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#unknownType). Use `adapterOas({ unknownType })` instead.
 
 ### emptySchemaType
 
 > [!WARNING]
-> This option has been moved to [`adapterOas`](/plugins/plugin-oas#emptySchemaType). Use `adapterOas({ emptySchemaType })` instead.
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#emptySchemaType). Use `adapterOas({ emptySchemaType })` instead.
 
 ### optionalType
 
-Choose what to use as mode for an optional value.
+Control how optional properties are represented in generated TypeScript types.
 
 |           |                                                                 |
 | --------: | :-------------------------------------------------------------- |
@@ -383,7 +349,7 @@ type FindPetsByStatusQueryParams = {
 };
 
 type FindPetsByStatusHeaderParams = {
-  "X-Custom-Header"?: string;
+  'X-Custom-Header'?: string;
 };
 ```
 
@@ -407,39 +373,33 @@ type FindPetsByStatusHeaderParams = {
 
 ### compatibilityPreset
 
-Apply close-compatible naming presets for ecosystems with established conventions.
-
-|           |                              |
-| --------: |:-----------------------------|
-|     Type: | `'none' \| 'kubbV4'`         |
-| Required: | `false`                      |
-|  Default: | `'none'`                     |
-
-- `'none'`: Use default `@kubb/plugin-ts` naming.
-- `'kubbV4'`: Reproduce Kubb v4 type-generation naming behavior.
+<!--@include: ./core/compatibilityPreset.md-->
 
 ::: code-group
 
 ```typescript [Default]
 pluginTs({
-  compatibilityPreset: "none",
+  compatibilityPreset: 'default',
 });
 ```
 
 ```typescript [Kubb v4 compatibility]
 pluginTs({
-  compatibilityPreset: "kubbV4",
+  compatibilityPreset: 'kubbV4',
 });
 ```
 
 :::
 
-> [!NOTE]
-> Compatibility presets are close-compatible naming/output conventions, not strict 1:1 parity with other generators.
-
 ### resolvers
 
-Use `resolvers` to compose naming behavior. Later resolvers override earlier ones.
+<!--@include: ./core/resolvers.md-->
+
+Resolver precedence for `@kubb/plugin-ts`:
+
+1. Start with `resolverTs`.
+2. Apply `compatibilityPreset` resolver (`kubbV4`) when configured.
+3. Apply explicit `resolvers` overrides (last wins).
 
 |           |                     |
 | --------: | :------------------ |
@@ -447,28 +407,22 @@ Use `resolvers` to compose naming behavior. Later resolvers override earlier one
 | Required: | `false`             |
 |  Default: | `[resolverTs]`      |
 
-Resolver precedence:
-
-1. Start with `resolverTs`.
-2. Apply `compatibilityPreset` resolver (`kubbV4`) when configured.
-3. Apply explicit `resolvers` overrides (last wins).
-
 ::: code-group
 
 ```typescript [v4 compatibility]
-import { pluginTs } from "@kubb/plugin-ts";
+import { pluginTs } from '@kubb/plugin-ts';
 
 pluginTs({
-  compatibilityPreset: "kubbV4",
+  compatibilityPreset: 'kubbV4',
 });
 ```
 
 ```typescript [Explicit resolver override]
-import { pluginTs } from "@kubb/plugin-ts";
-import { resolverTs } from "@kubb/plugin-ts/resolvers";
+import { pluginTs } from '@kubb/plugin-ts';
+import { resolverTs } from '@kubb/plugin-ts/resolvers';
 
 pluginTs({
-  compatibilityPreset: "default",
+  compatibilityPreset: 'default',
   resolvers: [resolverTs], // explicit resolvers take precedence
 });
 ```
@@ -500,42 +454,42 @@ pluginTs({
 
 <!--@include: ./core/transformers.md-->
 
-`@kubb/plugin-ts` uses AST `Visitor` transformers for schema/operation node transforms.
-For naming customization, use `resolvers` instead of `transformers`.
+> [!NOTE]
+> `@kubb/plugin-ts` uses AST `Visitor` transformers for schema/operation node transforms. For output naming customization, use `resolvers` instead of `transformers`.
 
 ## Example
 
 ```typescript twoslash
-import { defineConfig } from "@kubb/core";
-import { pluginOas } from "@kubb/plugin-oas";
-import { pluginTs } from "@kubb/plugin-ts";
+import { adapterOas } from '@kubb/adapter-oas';
+import { defineConfig } from '@kubb/core';
+import { pluginTs } from '@kubb/plugin-ts';
 
 export default defineConfig({
   input: {
-    path: "./petStore.yaml",
+    path: './petStore.yaml',
   },
   output: {
-    path: "./src/gen",
+    path: './src/gen',
   },
+  adapter: adapterOas(),
   plugins: [
-    pluginOas(),
     pluginTs({
       output: {
-        path: "./types",
+        path: './types',
       },
       exclude: [
         {
-          type: "tag",
-          pattern: "store",
+          type: 'tag',
+          pattern: 'store',
         },
       ],
       group: {
-        type: "tag",
+        type: 'tag',
         name: ({ group }) => `${group}Controller`,
       },
-      enumType: "asConst",
-      optionalType: "questionTokenAndUndefined",
-      paramsCasing: "camelcase", // Transform param names to camelCase
+      enumType: 'asConst',
+      optionalType: 'questionTokenAndUndefined',
+      paramsCasing: 'camelcase',
     }),
   ],
 });

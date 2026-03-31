@@ -39,49 +39,28 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that contains the generated code.
-
-> [!TIP]
-> if `output.path` is a file, `group` cannot be used.
+<!--@include: ./core/outputPath.md-->
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `string`  |
 | Required: | `true`    |
 |  Default: | `'hooks'` |
 
 #### output.barrelType
 
-Specify what to export and optionally disable barrel file generation.
-
-> [!TIP]
-> Using propagate will prevent a plugin from creating a barrel file, but it will still propagate, allowing [`output.barrelType`](/getting-started/configure#output-barreltype) to export the specific function or type.
-
-|           |                                 |
-|----------:|:--------------------------------|
-|     Type: | `'all' \| 'named' \| 'propagate' \| false` |
-| Required: | `false`                         |
-|  Default: | `'named'`                       |
-
-<!--@include: ./core/barrelTypes.md-->
+<!--@include: ./core/outputBarrelType.md-->
 
 #### output.banner
-Add a banner comment at the top of every generated file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                               |
+<!--@include: ./core/outputBanner.md-->
 
 #### output.footer
-Add a footer comment at the end of every generated file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                               |
+<!--@include: ./core/outputFooter.md-->
 
 #### output.override
+
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
@@ -91,51 +70,39 @@ Add a footer comment at the end of every generated file.
 <!--@include: ./core/group.md-->
 
 #### group.type
-Specify the property to group files by.
 
-|           |         |
-|----------:|:--------|
-|     Type: | `'tag'` |
-| Required: | `true`  |
-
-<!--@include: ./core/groupTypes.md-->
+<!--@include: ./core/groupType.md-->
 
 #### group.name
 
 Return the name of a group based on the group name, this will be used for the file and name generation.
 
 |           |                                     |
-|----------:|:------------------------------------|
+| --------: | :---------------------------------- |
 |     Type: | `(context: GroupContext) => string` |
 | Required: | `false`                             |
-|  Default: | `(ctx) => '${ctx.group}Controller'`  |
+|  Default: | `(ctx) => '${ctx.group}Controller'` |
 
 ### client
 
 #### client.importPath
+
 <!--@include: ./plugin-client/importPath.md-->
 
 #### client.dataReturnType
+
 <!--@include: ./plugin-client/dataReturnType.md-->
 
 #### client.baseURL
+
 <!--@include: ./plugin-client/baseURL.md-->
 
 #### client.clientType
 
-Specify whether to use function-based or class-based clients.
-
-|           |                         |
-|----------:|:------------------------|
-|     Type: | `'function' \| 'class'` |
-| Required: | `false`                 |
-|  Default: | `'function'`            |
-
-::: warning
-This plugin is only compatible with `clientType: 'function'` (the default). If `clientType: 'class'` is detected, the plugin will automatically generate its own inline function-based client instead of importing from `@kubb/plugin-client`.
-:::
+<!--@include: ./core/clientClientType.md-->
 
 #### client.bundle
+
 <!--@include: ./plugin-client/bundle.md-->
 
 ### paramsType
@@ -159,21 +126,18 @@ When using a string you need to use `JSON.stringify`.
 :::
 
 |           |                                                                             |
-|----------:|:----------------------------------------------------------------------------|
+| --------: | :-------- |
 |     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
 | Required: | `false`                                                                     |
 
 ### query
 #### query.methods
-|           |                     |
-|----------:|:--------------------|
-|     Type: | `Array<HttpMethod>` |
-| Required: | `false`             |
 
+<!--@include: ./core/queryMethods.md-->
 
 #### query.importPath
 |           |          |
-|----------:|:---------|
+| --------: | :-------- |
 |     Type: | `string` |
 | Required: | `false`  |
 |  Default: | `'swr'`  |
@@ -183,16 +147,11 @@ When using a string you need to use `JSON.stringify`.
 
 #### mutation.methods
 
-|           |                     |
-|----------:|:--------------------|
-|     Type: | `Array<HttpMethod>` |
-| Required: | `false`             |
-|  Default: | `['post', 'put', 'delete']` |
-
+<!--@include: ./core/mutationMethods.md-->
 
 #### mutation.importPath
 |           |                           |
-|----------:|:--------------------------|
+| --------: | :-------- |
 |     Type: | `string`                  |
 | Required: | `false`                   |
 |  Default: | `'swr/mutation'` |
@@ -206,7 +165,7 @@ When `true`, mutation parameters (path params, query params, headers, request bo
 > This will become the default behavior in v5. Set `mutation.paramsToTrigger: true` to opt-in early.
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `boolean` |
 | Required: | `false`   |
 |  Default: | `false`   |
@@ -235,7 +194,7 @@ When using a string you need to use `JSON.stringify`.
 :::
 
 |           |                                                                             |
-|----------:|:----------------------------------------------------------------------------|
+| --------: | :-------- |
 |     Type: | `(props: { operation: Operation; schemas: OperationSchemas }) => unknown[]` |
 | Required: | `false`                                                                     |
 
@@ -253,7 +212,7 @@ When using a string you need to use `JSON.stringify`.
 <!--@include: ./core/generators.md-->
 
 |           |                               |
-|----------:|:------------------------------|
+| --------: | :-------- |
 |     Type: | `Array<Generator<PluginSwr>>` |
 | Required: | `false`                       |
 
@@ -265,7 +224,7 @@ When using a string you need to use `JSON.stringify`.
 Customize the names based on the type that is provided by the plugin.
 
 |           |                                                                               |
-|----------:|:------------------------------------------------------------------------------|
+| --------: | :-------- |
 |     Type: | `(name: string, type?: ResolveType) => string` |
 | Required: | `false`                                                                       |
 
