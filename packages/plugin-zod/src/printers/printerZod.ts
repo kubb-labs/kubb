@@ -167,7 +167,7 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
             result += `.catchall(${catchallType})`
           }
         } else if (node.additionalProperties === true) {
-          result += '.catchall(z.unknown())'
+          result += `.catchall(${this.transform(createSchema({ type: 'unknown' }))})`
         } else if (node.additionalProperties === false) {
           result += '.strict()'
         }
