@@ -1,3 +1,4 @@
+import { jsStringEscape } from '@internals/utils'
 import type { SchemaNode } from '@kubb/ast/types'
 import { Const, File, Type } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
@@ -30,7 +31,7 @@ export function ZodMini({ name, node, guidType, wrapOutput, description, inferTy
           export
           name={name}
           JSDoc={{
-            comments: [description ? `@description ${description}` : undefined].filter(Boolean),
+            comments: [description ? `@description ${jsStringEscape(description)}` : undefined].filter(Boolean),
           }}
         >
           {output}

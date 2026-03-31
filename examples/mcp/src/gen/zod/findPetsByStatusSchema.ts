@@ -13,7 +13,13 @@ export const findPetsByStatusPathParamsSchema = z.object({
 /**
  * @description successful operation
  */
-export const findPetsByStatus200Schema = z.array(petSchema).min(1).max(3)
+export const findPetsByStatus200Schema = z
+  .array(petSchema)
+  .min(1)
+  .max(3)
+  .refine((items) => new Set(items).size === items.length, {
+    message: 'Array entries must be unique',
+  })
 
 /**
  * @description Invalid status value

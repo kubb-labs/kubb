@@ -3,36 +3,42 @@
  * Do not edit manually.
  */
 
-import { z } from '../../zod.ts'
+import { z } from "../../zod.ts";
 
 export const deleteOrderPathParamsSchema = z.object({
-  orderId: z.int().describe('ID of the order that needs to be deleted'),
-})
+  orderId: z.int().describe("ID of the order that needs to be deleted"),
+});
 
-export type DeleteOrderPathParamsSchema = z.infer<typeof deleteOrderPathParamsSchema>
+export type DeleteOrderPathParamsSchema = z.infer<
+  typeof deleteOrderPathParamsSchema
+>;
 
 /**
  * @description Invalid ID supplied
  */
-export const deleteOrder400Schema = z.any()
+export const deleteOrder400Schema = z.any();
 
-export type DeleteOrder400Schema = z.infer<typeof deleteOrder400Schema>
+export type DeleteOrder400Schema = z.infer<typeof deleteOrder400Schema>;
 
 /**
  * @description Order not found
  */
-export const deleteOrder404Schema = z.any()
+export const deleteOrder404Schema = z.any();
 
-export type DeleteOrder404Schema = z.infer<typeof deleteOrder404Schema>
+export type DeleteOrder404Schema = z.infer<typeof deleteOrder404Schema>;
 
-export const deleteOrderMutationResponseSchema = z.any()
+export const deleteOrderMutationResponseSchema = z.any();
 
-export type DeleteOrderMutationResponseSchema = z.infer<typeof deleteOrderMutationResponseSchema>
+export type DeleteOrderMutationResponseSchema = z.infer<
+  typeof deleteOrderMutationResponseSchema
+>;
 
 export const deleteOrderMutationSchema = z.object({
   Response: z.any(),
   PathParams: deleteOrderPathParamsSchema,
   Errors: z.union([deleteOrder400Schema, deleteOrder404Schema]),
-})
+});
 
-export type DeleteOrderMutationSchema = z.infer<typeof deleteOrderMutationSchema>
+export type DeleteOrderMutationSchema = z.infer<
+  typeof deleteOrderMutationSchema
+>;

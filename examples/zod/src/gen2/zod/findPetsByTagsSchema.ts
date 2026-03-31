@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import * as z from 'zod/mini'
-import { petSchema } from './petSchema.ts'
+import * as z from "zod/mini";
+import { petSchema } from "./petSchema.ts";
 
 export const findPetsByTagsQueryParamsSchema = z.optional(
   z.object({
@@ -12,27 +12,27 @@ export const findPetsByTagsQueryParamsSchema = z.optional(
     page: z.optional(z.string()),
     pageSize: z.optional(z.string()),
   }),
-)
+);
 
 export const findPetsByTagsHeaderParamsSchema = z.object({
-  'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']),
-})
+  "X-EXAMPLE": z.enum(["ONE", "TWO", "THREE"]),
+});
 
 /**
  * @description successful operation
  */
-export const findPetsByTags200Schema = z.array(petSchema)
+export const findPetsByTags200Schema = z.array(petSchema);
 
 /**
  * @description Invalid tag value
  */
-export const findPetsByTags400Schema = z.any()
+export const findPetsByTags400Schema = z.any();
 
-export const findPetsByTagsQueryResponseSchema = findPetsByTags200Schema
+export const findPetsByTagsQueryResponseSchema = findPetsByTags200Schema;
 
 export const findPetsByTagsQuerySchema = z.object({
   Response: findPetsByTags200Schema,
   QueryParams: findPetsByTagsQueryParamsSchema,
   HeaderParams: findPetsByTagsHeaderParamsSchema,
   Errors: findPetsByTags400Schema,
-})
+});

@@ -3,29 +3,29 @@
  * Do not edit manually.
  */
 
-import * as z from 'zod/mini'
+import * as z from "zod/mini";
 
 export const loginUserQueryParamsSchema = z.optional(
   z.object({
     username: z.optional(z.string()),
     password: z.optional(z.string()),
   }),
-)
+);
 
 /**
  * @description successful operation
  */
-export const loginUser200Schema = z.string()
+export const loginUser200Schema = z.string();
 
 /**
  * @description Invalid username/password supplied
  */
-export const loginUser400Schema = z.any()
+export const loginUser400Schema = z.any();
 
-export const loginUserQueryResponseSchema = loginUser200Schema
+export const loginUserQueryResponseSchema = loginUser200Schema;
 
 export const loginUserQuerySchema = z.object({
   Response: loginUser200Schema,
   QueryParams: loginUserQueryParamsSchema,
   Errors: loginUser400Schema,
-})
+});

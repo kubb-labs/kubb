@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import * as z from 'zod/mini'
-import { categorySchema } from './categorySchema.ts'
-import { tagSchema } from './tagSchema.ts'
+import * as z from "zod/mini";
+import { categorySchema } from "./categorySchema.ts";
+import { tagSchema } from "./tagSchema.ts";
 
 export const addPetRequestSchema = z.object({
   id: z.optional(z.int()),
@@ -13,5 +13,5 @@ export const addPetRequestSchema = z.object({
   category: z.optional(categorySchema),
   photoUrls: z.array(z.string()),
   tags: z.optional(z.array(tagSchema)),
-  status: z.optional(z.enum(['available', 'pending', 'sold'])),
-})
+  status: z.optional(z.enum(["available", "pending", "sold"])),
+});

@@ -247,7 +247,11 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
       array(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
         const inner = items.join(', ') || 'z.unknown()'
-        return `z.array(${inner})${lengthChecksMini(node)}`
+        let result = `z.array(${inner})${lengthChecksMini(node)}`
+        if (node.unique) {
+          result += `.refine(items => new Set(items).size === items.length, { message: "Array entries must be unique" })`
+        }
+        return result
       },
       tuple(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)

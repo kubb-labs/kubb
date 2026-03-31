@@ -3,29 +3,29 @@
  * Do not edit manually.
  */
 
-import * as z from 'zod/mini'
+import * as z from "zod/mini";
 
 export const updatePetWithFormPathParamsSchema = z.object({
   petId: z.int(),
-})
+});
 
 export const updatePetWithFormQueryParamsSchema = z.optional(
   z.object({
     name: z.optional(z.string()),
     status: z.optional(z.string()),
   }),
-)
+);
 
 /**
  * @description Invalid input
  */
-export const updatePetWithForm405Schema = z.any()
+export const updatePetWithForm405Schema = z.any();
 
-export const updatePetWithFormMutationResponseSchema = z.any()
+export const updatePetWithFormMutationResponseSchema = z.any();
 
 export const updatePetWithFormMutationSchema = z.object({
   Response: z.any(),
   QueryParams: updatePetWithFormQueryParamsSchema,
   PathParams: updatePetWithFormPathParamsSchema,
   Errors: updatePetWithForm405Schema,
-})
+});

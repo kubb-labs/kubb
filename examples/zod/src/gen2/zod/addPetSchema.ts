@@ -3,14 +3,14 @@
  * Do not edit manually.
  */
 
-import * as z from 'zod/mini'
-import { addPetRequestSchema } from './addPetRequestSchema.ts'
-import { petSchema } from './petSchema.ts'
+import * as z from "zod/mini";
+import { addPetRequestSchema } from "./addPetRequestSchema.ts";
+import { petSchema } from "./petSchema.ts";
 
 /**
  * @description Successful operation
  */
-export const addPet200Schema = petSchema
+export const addPet200Schema = petSchema;
 
 /**
  * @description Pet not found
@@ -18,17 +18,17 @@ export const addPet200Schema = petSchema
 export const addPet405Schema = z.object({
   code: z.optional(z.int()),
   message: z.optional(z.string()),
-})
+});
 
 /**
  * @description Create a new pet in the store
  */
-export const addPetMutationRequestSchema = addPetRequestSchema
+export const addPetMutationRequestSchema = addPetRequestSchema;
 
-export const addPetMutationResponseSchema = addPet200Schema
+export const addPetMutationResponseSchema = addPet200Schema;
 
 export const addPetMutationSchema = z.object({
   Response: addPet200Schema,
   Request: addPetMutationRequestSchema,
   Errors: addPet405Schema,
-})
+});

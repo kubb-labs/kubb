@@ -1,18 +1,28 @@
 import { stringifyObject } from '@internals/utils'
-import type { HttpMethod, Operation } from '@kubb/oas'
-import type { SchemaNames } from '@kubb/plugin-oas/hooks'
+import type { OperationNode } from '@kubb/ast/types'
 import { Const, File, Type } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 
+type SchemaNames = {
+  request: string | undefined
+  parameters: {
+    path: string | undefined
+    query: string | undefined
+    header: string | undefined
+  }
+  responses: { default?: string } & Record<number | string, string>
+  errors: Record<number | string, string>
+}
+
 type Props = {
   name: string
-  operations: Array<{ operation: Operation; data: SchemaNames }>
+  operations: Array<{ node: OperationNode; data: SchemaNames }>
 }
 
 export function Operations({ name, operations }: Props): FabricReactNode {
   const operationsJSON = operations.reduce(
     (prev, acc) => {
-      prev[`"${acc.operation.getOperationId()}"`] = acc.data
+      prev[`"${acc.node.operationId}"`] = acc.data
 
       return prev
     },
@@ -21,14 +31,14 @@ export function Operations({ name, operations }: Props): FabricReactNode {
 
   const pathsJSON = operations.reduce(
     (prev, acc) => {
-      prev[`"${acc.operation.path}"`] = {
-        ...(prev[`"${acc.operation.path}"`] || ({} as Record<HttpMethod, string>)),
-        [acc.operation.method]: `operations["${acc.operation.getOperationId()}"]`,
+      prev[`"${acc.node.path}"`] = {
+        ...(prev[`"${acc.node.path}"`] || ({} as Record<string, string>)),
+        [acc.node.method]: `operations["${acc.node.operationId}"]`,
       }
 
       return prev
     },
-    {} as Record<string, Record<HttpMethod, string>>,
+    {} as Record<string, Record<string, string>>,
   )
 
   return (

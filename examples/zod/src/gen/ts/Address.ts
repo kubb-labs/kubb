@@ -8,20 +8,20 @@ export type Address = {
    * @example 437 Lytton
    * @type string | undefined
    */
-  street?: string
+  street?: string;
   /**
    * @example Palo Alto
    * @type string | undefined
    */
-  city?: string
+  city?: string;
   /**
    * @example CA
    * @type string | undefined
    */
-  state?: string
+  state?: string;
   /**
    * @example 94301
    * @type string | undefined
    */
-  zip?: string
-}
+  zip?: string;
+};

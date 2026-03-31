@@ -10,7 +10,11 @@ export type FindPetsByStatusPathParamsSchema = z.infer<typeof findPetsByStatusPa
 /**
  * @description successful operation
  */
-export const findPetsByStatus200Schema = z.array(petSchema).min(1).max(3)
+export const findPetsByStatus200Schema = z
+  .array(petSchema)
+  .min(1)
+  .max(3)
+  .refine((items) => new Set(items).size === items.length, { message: 'Array entries must be unique' })
 
 export type FindPetsByStatus200Schema = z.infer<typeof findPetsByStatus200Schema>
 

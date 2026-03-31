@@ -1,12 +1,47 @@
 import path from 'node:path'
 import { caseParams, composeTransformers, transform } from '@kubb/ast'
-import type { SchemaNode } from '@kubb/ast/types'
+import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
+import { Operations } from '../components/Operations.tsx'
 import { Zod } from '../components/Zod.tsx'
 import { ZodMini } from '../components/ZodMini.tsx'
 import { ZOD_NAMESPACE_IMPORTS } from '../constants.ts'
-import type { PluginZod } from '../types'
+import type { PluginZod, ResolverZod } from '../types'
+
+function buildSchemaNames(node: OperationNode, params: Array<ParameterNode>, resolver: ResolverZod) {
+  const pathParam = params.find((p) => p.in === 'path')
+  const queryParam = params.find((p) => p.in === 'query')
+  const headerParam = params.find((p) => p.in === 'header')
+
+  const responses: Record<number | string, string> = {}
+  const errors: Record<number | string, string> = {}
+
+  for (const res of node.responses) {
+    const name = resolver.resolveResponseStatusName(node, res.statusCode)
+    const statusNum = Number(res.statusCode)
+
+    if (!Number.isNaN(statusNum)) {
+      responses[statusNum] = name
+      if (statusNum >= 400) {
+        errors[statusNum] = name
+      }
+    }
+  }
+
+  responses['default'] = resolver.resolveResponseName(node)
+
+  return {
+    request: node.requestBody?.schema ? resolver.resolveDataName(node) : undefined,
+    parameters: {
+      path: pathParam ? resolver.resolvePathParamsName(node, pathParam) : undefined,
+      query: queryParam ? resolver.resolveQueryParamsName(node, queryParam) : undefined,
+      header: headerParam ? resolver.resolveHeaderParamsName(node, headerParam) : undefined,
+    },
+    responses,
+    errors,
+  }
+}
 
 export const zodGenerator = defineGenerator<PluginZod>({
   name: 'zod',
@@ -174,6 +209,56 @@ export const zodGenerator = defineGenerator<PluginZod>({
         {paramSchemas}
         {responseSchemas}
         {requestSchema}
+      </File>
+    )
+  },
+  Operations({ nodes, options, config, adapter, resolver }) {
+    const { output, importPath, group, operations, paramsCasing } = options
+
+    if (!operations) {
+      return
+    }
+
+    const root = path.resolve(config.root, config.output.path)
+    const baseName = 'operations.ts' as const
+    const filePath = resolver.resolvePath({ baseName, pathMode: getMode(path.resolve(root, output.path)) }, { root, output, group })
+    const file = {
+      path: filePath,
+      baseName: path.basename(filePath),
+      meta: { pluginName: resolver.pluginName },
+      sources: [] as Array<unknown>,
+      imports: [] as Array<unknown>,
+      exports: [] as Array<unknown>,
+    }
+    const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
+
+    const transformedOperations = nodes.map((node) => {
+      const params = caseParams(node.parameters, paramsCasing)
+      return {
+        node,
+        data: buildSchemaNames(node, params, resolver),
+      }
+    })
+
+    const operationFiles = nodes.map((node) => resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }))
+
+    const imports = transformedOperations.flatMap(({ data }, index) => {
+      const names = [data.request, ...Object.values(data.responses), ...Object.values(data.parameters)].filter(Boolean) as string[]
+      const opFile = operationFiles[index]!
+      return names.map((name) => <File.Import key={[name, opFile.path].join('-')} name={name} root={file.path} path={opFile.path} />)
+    })
+
+    return (
+      <File
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+      >
+        <File.Import isTypeOnly name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
+        {imports}
+        <Operations name="operations" operations={transformedOperations} />
       </File>
     )
   },

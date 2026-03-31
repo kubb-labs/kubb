@@ -3,37 +3,37 @@
  * Do not edit manually.
  */
 
-import type { ApiResponse } from './ApiResponse.ts'
+import type { ApiResponse } from "./ApiResponse.ts";
 
 export type UploadFilePathParams = {
   /**
    * @description ID of pet to update
    * @type integer
    */
-  petId: number
-}
+  petId: number;
+};
 
 export type UploadFileQueryParams = {
   /**
    * @description Additional Metadata
    * @type string | undefined
    */
-  additionalMetadata?: string
-}
+  additionalMetadata?: string;
+};
 
 /**
  * @description successful operation
  */
-export type UploadFile200 = ApiResponse
+export type UploadFile200 = ApiResponse;
 
-export type UploadFileMutationRequest = Blob
+export type UploadFileMutationRequest = Blob;
 
-export type UploadFileMutationResponse = UploadFile200
+export type UploadFileMutationResponse = UploadFile200;
 
 export type UploadFileMutation = {
-  Response: UploadFile200
-  Request: UploadFileMutationRequest
-  QueryParams: UploadFileQueryParams
-  PathParams: UploadFilePathParams
-  Errors: any
-}
+  Response: UploadFile200;
+  Request: UploadFileMutationRequest;
+  QueryParams: UploadFileQueryParams;
+  PathParams: UploadFilePathParams;
+  Errors: any;
+};

@@ -8,41 +8,41 @@ export type User = {
    * @example 10
    * @type integer | undefined
    */
-  id?: number
+  id?: number;
   /**
    * @example theUser
    * @type string | undefined
    */
-  username?: string
+  username?: string;
   /**
    * @example John
    * @type string | undefined
    */
-  firstName?: string
+  firstName?: string;
   /**
    * @example James
    * @type string | undefined
    */
-  lastName?: string
+  lastName?: string;
   /**
    * @example john@email.com
    * @type string | undefined
    */
-  email?: string
+  email?: string;
   /**
    * @example 12345
    * @type string | undefined
    */
-  password?: string
+  password?: string;
   /**
    * @example 12345
    * @type string | undefined
    */
-  phone?: string
+  phone?: string;
   /**
    * @description User Status
    * @example 1
    * @type integer | undefined
    */
-  userStatus?: number
-}
+  userStatus?: number;
+};

@@ -3,44 +3,48 @@
  * Do not edit manually.
  */
 
-import { z } from '../../zod.ts'
-import { orderSchema } from './orderSchema.ts'
+import { z } from "../../zod.ts";
+import { orderSchema } from "./orderSchema.ts";
 
 export const getOrderByIdPathParamsSchema = z.object({
-  orderId: z.int().describe('ID of order that needs to be fetched'),
-})
+  orderId: z.int().describe("ID of order that needs to be fetched"),
+});
 
-export type GetOrderByIdPathParamsSchema = z.infer<typeof getOrderByIdPathParamsSchema>
+export type GetOrderByIdPathParamsSchema = z.infer<
+  typeof getOrderByIdPathParamsSchema
+>;
 
 /**
  * @description successful operation
  */
-export const getOrderById200Schema = orderSchema
+export const getOrderById200Schema = orderSchema;
 
-export type GetOrderById200Schema = z.infer<typeof getOrderById200Schema>
+export type GetOrderById200Schema = z.infer<typeof getOrderById200Schema>;
 
 /**
  * @description Invalid ID supplied
  */
-export const getOrderById400Schema = z.any()
+export const getOrderById400Schema = z.any();
 
-export type GetOrderById400Schema = z.infer<typeof getOrderById400Schema>
+export type GetOrderById400Schema = z.infer<typeof getOrderById400Schema>;
 
 /**
  * @description Order not found
  */
-export const getOrderById404Schema = z.any()
+export const getOrderById404Schema = z.any();
 
-export type GetOrderById404Schema = z.infer<typeof getOrderById404Schema>
+export type GetOrderById404Schema = z.infer<typeof getOrderById404Schema>;
 
-export const getOrderByIdQueryResponseSchema = getOrderById200Schema
+export const getOrderByIdQueryResponseSchema = getOrderById200Schema;
 
-export type GetOrderByIdQueryResponseSchema = z.infer<typeof getOrderByIdQueryResponseSchema>
+export type GetOrderByIdQueryResponseSchema = z.infer<
+  typeof getOrderByIdQueryResponseSchema
+>;
 
 export const getOrderByIdQuerySchema = z.object({
   Response: getOrderById200Schema,
   PathParams: getOrderByIdPathParamsSchema,
   Errors: z.union([getOrderById400Schema, getOrderById404Schema]),
-})
+});
 
-export type GetOrderByIdQuerySchema = z.infer<typeof getOrderByIdQuerySchema>
+export type GetOrderByIdQuerySchema = z.infer<typeof getOrderByIdQuerySchema>;

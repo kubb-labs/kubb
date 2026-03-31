@@ -3,31 +3,35 @@
  * Do not edit manually.
  */
 
-import { z } from '../../zod.ts'
-import { userSchema } from './userSchema.ts'
+import { z } from "../../zod.ts";
+import { userSchema } from "./userSchema.ts";
 
 /**
  * @description successful operation
  */
-export const createUserErrorSchema = userSchema
+export const createUserErrorSchema = userSchema;
 
-export type CreateUserErrorSchema = z.infer<typeof createUserErrorSchema>
+export type CreateUserErrorSchema = z.infer<typeof createUserErrorSchema>;
 
 /**
  * @description Created user object
  */
-export const createUserMutationRequestSchema = userSchema.optional()
+export const createUserMutationRequestSchema = userSchema.optional();
 
-export type CreateUserMutationRequestSchema = z.infer<typeof createUserMutationRequestSchema>
+export type CreateUserMutationRequestSchema = z.infer<
+  typeof createUserMutationRequestSchema
+>;
 
-export const createUserMutationResponseSchema = z.any()
+export const createUserMutationResponseSchema = z.any();
 
-export type CreateUserMutationResponseSchema = z.infer<typeof createUserMutationResponseSchema>
+export type CreateUserMutationResponseSchema = z.infer<
+  typeof createUserMutationResponseSchema
+>;
 
 export const createUserMutationSchema = z.object({
   Response: z.any(),
   Request: createUserMutationRequestSchema,
   Errors: createUserErrorSchema,
-})
+});
 
-export type CreateUserMutationSchema = z.infer<typeof createUserMutationSchema>
+export type CreateUserMutationSchema = z.infer<typeof createUserMutationSchema>;

@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import { z } from '../../zod.ts'
-import { categorySchema } from './categorySchema.ts'
-import { tagSchema } from './tagSchema.ts'
+import { z } from "../../zod.ts";
+import { categorySchema } from "./categorySchema.ts";
+import { tagSchema } from "./tagSchema.ts";
 
 export const addPetRequestSchema = z.object({
   id: z.int().optional(),
@@ -13,7 +13,10 @@ export const addPetRequestSchema = z.object({
   category: categorySchema.optional(),
   photoUrls: z.array(z.string()),
   tags: z.array(tagSchema).optional(),
-  status: z.enum(['available', 'pending', 'sold']).optional().describe('pet status in the store'),
-})
+  status: z
+    .enum(["available", "pending", "sold"])
+    .optional()
+    .describe("pet status in the store"),
+});
 
-export type AddPetRequestSchema = z.infer<typeof addPetRequestSchema>
+export type AddPetRequestSchema = z.infer<typeof addPetRequestSchema>;
