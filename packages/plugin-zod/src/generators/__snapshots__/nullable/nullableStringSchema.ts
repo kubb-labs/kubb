@@ -5,4 +5,7 @@
 
 import * as z from 'zod'
 
+/**
+ * @type {string}
+ */
 export const nullableStringSchema = z.string().nullable()

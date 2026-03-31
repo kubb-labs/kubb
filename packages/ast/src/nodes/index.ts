@@ -23,6 +23,8 @@ export type {
   EnumValueNode,
   FormatStringSchemaNode,
   IntersectionSchemaNode,
+  Ipv4SchemaNode,
+  Ipv6SchemaNode,
   NumberSchemaNode,
   ObjectSchemaNode,
   PrimitiveSchemaType,

@@ -6,6 +6,6 @@
 import * as z from 'zod'
 
 /**
- * @description Config
+ * @type {object}
  */
 export const getConfigStatus200Schema = z.object({})

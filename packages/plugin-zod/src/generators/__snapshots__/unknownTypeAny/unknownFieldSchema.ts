@@ -5,4 +5,7 @@
 
 import * as z from 'zod'
 
+/**
+ * @type {unknown}
+ */
 export const unknownFieldSchema = z.unknown()

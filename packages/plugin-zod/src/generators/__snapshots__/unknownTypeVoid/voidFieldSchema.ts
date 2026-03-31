@@ -5,4 +5,7 @@
 
 import * as z from 'zod'
 
+/**
+ * @type {void}
+ */
 export const voidFieldSchema = z.void()

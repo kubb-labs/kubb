@@ -98,6 +98,8 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
       url(node) {
         return `z.url()${lengthConstraints(node)}`
       },
+      ipv4: () => 'z.ipv4()',
+      ipv6: () => 'z.ipv6()',
       blob: () => 'z.instanceof(File)',
       enum(node) {
         const values = node.namedEnumValues?.map((v) => v.value) ?? node.enumValues ?? []
@@ -162,7 +164,7 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
 
         let result = `z.object({\n    ${properties}\n    })`
 
-        // Handle additionalProperties as .catchall()
+        // Handle additionalProperties as .catchall() or .strict()
         if (node.additionalProperties && node.additionalProperties !== true) {
           const catchallType = this.transform(node.additionalProperties)
           if (catchallType) {
@@ -170,6 +172,8 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
           }
         } else if (node.additionalProperties === true) {
           result += '.catchall(z.unknown())'
+        } else if (node.additionalProperties === false) {
+          result += '.strict()'
         }
 
         return result

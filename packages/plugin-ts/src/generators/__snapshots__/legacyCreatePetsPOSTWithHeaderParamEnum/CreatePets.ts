@@ -13,7 +13,7 @@ export type CreatePetsHeaderParamsXEXAMPLEEnumKey = (typeof createPetsHeaderPara
 
 export type CreatePetsHeaderParams = {
   /**
-   * @type string
+   * @type {string}
    */
   'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnumKey
 }

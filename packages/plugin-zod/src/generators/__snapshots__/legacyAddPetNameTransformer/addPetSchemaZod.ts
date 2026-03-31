@@ -6,19 +6,25 @@
 import * as z from 'zod'
 
 /**
- * @description Successful operation
+ * @type {object}
  */
 export const addPet200SchemaZod = z.object({})
 
 /**
- * @description Invalid input
+ * @type {object}
  */
 export const addPet405SchemaZod = z.object({})
 
+/**
+ * @type {object}
+ */
 export const addPetMutationRequestSchemaZod = z.object({})
 
 export const addPetMutationResponseSchemaZod = addPet200SchemaZod
 
+/**
+ * @type {object}
+ */
 export const addPetMutationSchemaZod = z.object({
   Response: addPet200SchemaZod,
   Request: addPetMutationRequestSchemaZod,

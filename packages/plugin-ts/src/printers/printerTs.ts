@@ -1,4 +1,4 @@
-import { jsStringEscape, stringify } from '@internals/utils'
+import { jsStringEscape } from '@internals/utils'
 import { extractRefName, isStringType, narrowSchema, schemaTypes, syncSchemaRef } from '@kubb/ast'
 import type { ArraySchemaNode, SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
@@ -8,6 +8,7 @@ import type ts from 'typescript'
 import { ENUM_TYPES_WITH_KEY_SUFFIX, OPTIONAL_ADDS_QUESTION_TOKEN, OPTIONAL_ADDS_UNDEFINED } from '../constants.ts'
 import * as factory from '../factory.ts'
 import type { PluginTs, ResolverTs } from '../types.ts'
+import { buildPropertyJSDocComments } from '../utils.ts'
 
 type TsOptions = {
   /**
@@ -145,30 +146,6 @@ function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalTy
 }
 
 /**
- * Collects JSDoc annotation strings (description, deprecated, min/max, pattern, default, example, type) for a schema node.
- */
-function buildPropertyJSDocComments(schema: SchemaNode): Array<string | undefined> {
-  const meta = syncSchemaRef(schema)
-  const isArray = meta?.primitive === 'array'
-
-  return [
-    meta && 'description' in meta && meta.description ? `@description ${jsStringEscape(meta.description)}` : undefined,
-    meta && 'deprecated' in meta && meta.deprecated ? '@deprecated' : undefined,
-    // minItems/maxItems on arrays should not be emitted as @minLength/@maxLength
-    !isArray && meta && 'min' in meta && meta.min !== undefined ? `@minLength ${meta.min}` : undefined,
-    !isArray && meta && 'max' in meta && meta.max !== undefined ? `@maxLength ${meta.max}` : undefined,
-    meta && 'pattern' in meta && meta.pattern ? `@pattern ${meta.pattern}` : undefined,
-    meta && 'default' in meta && meta.default !== undefined
-      ? `@default ${'primitive' in meta && meta.primitive === 'string' ? stringify(meta.default as string) : meta.default}`
-      : undefined,
-    meta && 'example' in meta && meta.example !== undefined ? `@example ${meta.example}` : undefined,
-    meta && 'primitive' in meta && meta.primitive
-      ? [`@type ${meta.primitive}`, 'optional' in schema && schema.optional ? ' | undefined' : undefined].filter(Boolean).join('')
-      : undefined,
-  ]
-}
-
-/**
  * Creates TypeScript index signatures for `additionalProperties` and `patternProperties` on an object schema node.
  */
 function buildIndexSignatures(
@@ -247,6 +224,8 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
         }
         return factory.keywordTypeNodes.string
       },
+      ipv4: () => factory.keywordTypeNodes.string,
+      ipv6: () => factory.keywordTypeNodes.string,
       datetime: () => factory.keywordTypeNodes.string,
       number: () => factory.keywordTypeNodes.number,
       integer: () => factory.keywordTypeNodes.number,
@@ -405,9 +384,9 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
           meta?.title ? jsStringEscape(meta.title) : undefined,
           description ? `@description ${jsStringEscape(description)}` : undefined,
           meta?.deprecated ? '@deprecated' : undefined,
-          meta && 'min' in meta && meta.min !== undefined ? `@minLength ${meta.min}` : undefined,
-          meta && 'max' in meta && meta.max !== undefined ? `@maxLength ${meta.max}` : undefined,
-          meta && 'pattern' in meta && meta.pattern ? `@pattern ${meta.pattern}` : undefined,
+          meta && 'min' in meta && meta.min !== undefined ? `Minimum length: ${meta.min}` : undefined,
+          meta && 'max' in meta && meta.max !== undefined ? `Maximum length: ${meta.max}` : undefined,
+          meta && 'pattern' in meta && meta.pattern ? `Pattern: ${meta.pattern}` : undefined,
           meta?.default ? `@default ${meta.default}` : undefined,
           meta?.example ? `@example ${meta.example}` : undefined,
         ],

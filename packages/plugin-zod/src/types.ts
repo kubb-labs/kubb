@@ -108,7 +108,7 @@ export type Options = {
    * Path is used as-is; relative paths are based on the generated file location.
    * @default 'zod'
    */
-  importPath?: string
+  importPath?: 'zod' | 'zod/mini' | (string & {})
   /**
    * Choose to use date or datetime as JavaScript Date instead of string.
    * - false falls back to a simple z.string() format.

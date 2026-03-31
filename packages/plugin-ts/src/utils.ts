@@ -1,6 +1,36 @@
-import { createProperty, createSchema } from '@kubb/ast'
+import { jsStringEscape, stringify } from '@internals/utils'
+import { createProperty, createSchema, syncSchemaRef } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import type { ResolverTs } from './types.ts'
+
+/**
+ * Collects JSDoc annotation strings for a schema node.
+ *
+ * Only uses official JSDoc tags from https://jsdoc.app/: `@description`, `@deprecated`, `@default`, `@example`, `@type`.
+ * Constraint metadata (min/max length, pattern, multipleOf, min/maxProperties) is emitted as plain-text lines.
+
+ */
+export function buildPropertyJSDocComments(schema: SchemaNode): Array<string | undefined> {
+  const meta = syncSchemaRef(schema)
+
+  const isArray = meta?.primitive === 'array'
+
+  return [
+    meta && 'description' in meta && meta.description ? `@description ${jsStringEscape(meta.description)}` : undefined,
+    meta && 'deprecated' in meta && meta.deprecated ? '@deprecated' : undefined,
+    // minItems/maxItems on arrays should not be emitted as @minLength/@maxLength
+    !isArray && meta && 'min' in meta && meta.min !== undefined ? `@minLength ${meta.min}` : undefined,
+    !isArray && meta && 'max' in meta && meta.max !== undefined ? `@maxLength ${meta.max}` : undefined,
+    meta && 'pattern' in meta && meta.pattern ? `@pattern ${meta.pattern}` : undefined,
+    meta && 'default' in meta && meta.default !== undefined
+      ? `@default ${'primitive' in meta && meta.primitive === 'string' ? stringify(meta.default as string) : meta.default}`
+      : undefined,
+    meta && 'example' in meta && meta.example !== undefined ? `@example ${meta.example}` : undefined,
+    meta && 'primitive' in meta && meta.primitive
+      ? [`@type ${meta.primitive}`, 'optional' in schema && schema.optional ? ' | undefined' : undefined].filter(Boolean).join('')
+      : undefined,
+  ].filter(Boolean)
+}
 
 type BuildParamsSchemaOptions = {
   params: Array<ParameterNode>

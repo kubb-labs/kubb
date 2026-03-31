@@ -13,7 +13,7 @@ export type GetEnterpriseConfigurationsIdV20250Status200 = object
 export type GetEnterpriseConfigurationsIdV20250RequestConfig = {
   data?: never
   /**
-   * @type object
+   * @type {object}
    */
   pathParams: {
     enterprise_id: GetEnterpriseConfigurationsIdV20250PathEnterpriseId
@@ -21,7 +21,7 @@ export type GetEnterpriseConfigurationsIdV20250RequestConfig = {
   queryParams?: never
   headerParams?: never
   /**
-   * @type string
+   * @type {string}
    */
   url: `/enterprise_configurations/${string}`
 }

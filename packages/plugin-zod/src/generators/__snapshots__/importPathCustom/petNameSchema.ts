@@ -5,4 +5,7 @@
 
 import { z } from '@acme/zod'
 
+/**
+ * @type {string}
+ */
 export const petNameSchema = z.string()

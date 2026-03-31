@@ -5,6 +5,9 @@
 
 import * as z from 'zod/mini'
 
+/**
+ * @type {object}
+ */
 export const petSchema = z.object({
   id: z.int(),
   name: z.string(),

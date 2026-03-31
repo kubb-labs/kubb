@@ -55,6 +55,14 @@ describe('printerZod', () => {
       const p = printerZod({ coercion: { numbers: true } })
       expect(p.print(createSchema({ type: 'number' }))).toBe('z.coerce.number()')
     })
+
+    test('number with multipleOf', () => {
+      expect(printer.print(createSchema({ type: 'number', multipleOf: 5 }))).toBe('z.number().multipleOf(5)')
+    })
+
+    test('integer with min, max, and multipleOf', () => {
+      expect(printer.print(createSchema({ type: 'integer', min: 0, max: 100, multipleOf: 10 }))).toBe('z.int().min(0).max(100).multipleOf(10)')
+    })
   })
 
   describe('integer', () => {
@@ -114,6 +122,14 @@ describe('printerZod', () => {
     test('url', () => {
       expect(printer.print(createSchema({ type: 'url' }))).toBe('z.url()')
     })
+
+    test('ipv4', () => {
+      expect(printer.print(createSchema({ type: 'ipv4' }))).toBe('z.ipv4()')
+    })
+
+    test('ipv6', () => {
+      expect(printer.print(createSchema({ type: 'ipv6' }))).toBe('z.ipv6()')
+    })
   })
 
   describe('enum', () => {
@@ -167,6 +183,26 @@ describe('printerZod', () => {
         ],
       })
       expect(printer.print(node)).toBe('z.object({\n    "id": z.int(),\n    "name": z.string()\n    })')
+    })
+
+    test('object with additionalProperties: true → .catchall(z.unknown())', () => {
+      const node = createSchema({ type: 'object', primitive: 'object', properties: [], additionalProperties: true })
+      expect(printer.print(node)).toBe('z.object({\n    \n    }).catchall(z.unknown())')
+    })
+
+    test('object with additionalProperties: false → .strict()', () => {
+      const node = createSchema({ type: 'object', primitive: 'object', properties: [], additionalProperties: false })
+      expect(printer.print(node)).toBe('z.object({\n    \n    }).strict()')
+    })
+
+    test('object with additionalProperties schema → .catchall(schema)', () => {
+      const node = createSchema({
+        type: 'object',
+        primitive: 'object',
+        properties: [],
+        additionalProperties: createSchema({ type: 'string' }),
+      })
+      expect(printer.print(node)).toBe('z.object({\n    \n    }).catchall(z.string())')
     })
   })
 

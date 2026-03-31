@@ -1,3 +1,5 @@
+export { buildPropertyJSDocComments, buildData, buildParams, buildResponseUnion, buildResponses } from './utils.ts'
+
 export { Enum } from './components/Enum.tsx'
 export { Type } from './components/Type.tsx'
 

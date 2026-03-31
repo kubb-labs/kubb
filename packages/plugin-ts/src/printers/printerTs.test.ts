@@ -328,12 +328,12 @@ describe('printerTs', () => {
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
           /**
-           * @type string
+           * @type {string}
            */
           a: string
         } & {
           /**
-           * @type number
+           * @type {number}
            */
           b: number
         }"
@@ -460,11 +460,11 @@ describe('printerTs', () => {
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
           /**
-           * @type number
+           * @type {number}
            */
           id: number
           /**
-           * @type string
+           * @type {string}
            */
           name: string
         }"
@@ -482,7 +482,7 @@ describe('printerTs', () => {
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
           /**
-           * @type string | undefined
+           * @type {string | undefined}
            */
           tag?: string
         }"
@@ -501,7 +501,7 @@ describe('printerTs', () => {
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
           /**
-           * @type string | undefined
+           * @type {string | undefined}
            */
           tag: string | undefined
         }"
@@ -520,7 +520,7 @@ describe('printerTs', () => {
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
           /**
-           * @type string | undefined
+           * @type {string | undefined}
            */
           tag?: string | undefined
         }"
@@ -538,7 +538,7 @@ describe('printerTs', () => {
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
           /**
-           * @type string
+           * @type {string}
            */
           value: string | null
         }"
@@ -556,7 +556,7 @@ describe('printerTs', () => {
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
           /**
-           * @type number
+           * @type {number}
            */
           readonly id: number
         }"
@@ -607,7 +607,7 @@ describe('printerTs', () => {
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
           /**
-           * @type number
+           * @type {number}
            */
           id: number
           [key: string]: unknown
@@ -658,7 +658,7 @@ describe('printerTs', () => {
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
           /**
-           * @type string | undefined
+           * @type {string | undefined}
            */
           tag?: string
         }"
@@ -677,7 +677,7 @@ describe('printerTs', () => {
       expect(await formatTS(result)).toMatchInlineSnapshot(`
         "{
           /**
-           * @type string | undefined
+           * @type {string | undefined}
            */
           tag: string | undefined
         }"
@@ -692,9 +692,15 @@ describe('printerTs', () => {
         }),
       )
 
-      const output = await formatTS(result)
-
-      expect(output).toContain('@description The user name')
+      expect(await formatTS(result)).toMatchInlineSnapshot(`
+        "{
+          /**
+           * @description The user name
+           * @type {string | undefined}
+           */
+          name?: string
+        }"
+      `)
     })
 
     it('property with deprecated flag adds @deprecated JSDoc comment', async () => {
@@ -705,12 +711,18 @@ describe('printerTs', () => {
         }),
       )
 
-      const output = await formatTS(result)
-
-      expect(output).toContain('@deprecated')
+      expect(await formatTS(result)).toMatchInlineSnapshot(`
+        "{
+          /**
+           * @deprecated
+           * @type {string | undefined}
+           */
+          oldField?: string
+        }"
+      `)
     })
 
-    it('property with min/max adds @minLength/@maxLength JSDoc comments', async () => {
+    it('property with min/max adds Minimum/Maximum length JSDoc comments', async () => {
       const result = printer.transform(
         createSchema({
           type: 'object',
@@ -718,10 +730,16 @@ describe('printerTs', () => {
         }),
       )
 
-      const output = await formatTS(result)
-
-      expect(output).toContain('@minLength 2')
-      expect(output).toContain('@maxLength 10')
+      expect(await formatTS(result)).toMatchInlineSnapshot(`
+        "{
+          /**
+           * Minimum length: 2
+           * Maximum length: 10
+           * @type {string | undefined}
+           */
+          code?: string
+        }"
+      `)
     })
 
     it('property with default adds @default JSDoc comment', async () => {
@@ -732,9 +750,15 @@ describe('printerTs', () => {
         }),
       )
 
-      const output = await formatTS(result)
-
-      expect(output).toContain('@default 0')
+      expect(await formatTS(result)).toMatchInlineSnapshot(`
+        "{
+          /**
+           * @default 0
+           * @type {number | undefined}
+           */
+          count?: number
+        }"
+      `)
     })
   })
 
@@ -771,7 +795,7 @@ describe('printerTs', () => {
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
         "export type MyObject = {
           /**
-           * @type number | undefined
+           * @type {number | undefined}
            */
           id?: number
         }
@@ -798,7 +822,7 @@ describe('printerTs', () => {
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
         "export type MyObject = {
           /**
-           * @type number | undefined
+           * @type {number | undefined}
            */
           id?: number
         }
@@ -843,7 +867,13 @@ describe('printerTs', () => {
       })
       const result = p.print(createSchema({ type: 'string' }))
 
-      expect(result).toContain('@description A well-described type')
+      expect(await format(result ?? '')).toMatchInlineSnapshot(`
+        "/**
+         * @description A well-described type
+         */
+        export type Described = string
+        "
+      `)
     })
 
     it('with keysToOmit wraps in Omit<Type, Keys>', async () => {
@@ -870,15 +900,15 @@ describe('printerTs', () => {
         "export type Partial = Omit<
           NonNullable<{
             /**
-             * @type number | undefined
+             * @type {number | undefined}
              */
             id?: number
             /**
-             * @type string | undefined
+             * @type {string | undefined}
              */
             name?: string
             /**
-             * @type string | undefined
+             * @type {string | undefined}
              */
             createdAt?: string
           }>,

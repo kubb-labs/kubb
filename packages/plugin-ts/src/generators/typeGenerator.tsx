@@ -14,15 +14,14 @@ export const typeGenerator = defineGenerator<PluginTs>({
   Schema({ node, adapter, options, config, resolver }) {
     const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, transformers = [] } = options
 
-    const root = path.resolve(config.root, config.output.path)
-    const mode = getMode(path.resolve(root, output.path))
+    const transformedNode = transform(node, composeTransformers(...transformers))
 
-    if (!node.name) {
+    if (!transformedNode.name) {
       return
     }
 
-    const transformedNode = transform(node, composeTransformers(...transformers))
-
+    const root = path.resolve(config.root, config.output.path)
+    const mode = getMode(path.resolve(root, output.path))
     // Build a set of schema names that are enums so the ref handler and getImports
     // callback can use the suffixed type name (e.g. `StatusKey`) for those refs.
     const enumSchemaNames = new Set((adapter.rootNode?.schemas ?? []).filter((s) => narrowSchema(s, schemaTypes.enum) && s.name).map((s) => s.name!))
@@ -39,29 +38,30 @@ export const typeGenerator = defineGenerator<PluginTs>({
       path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
     }))
 
-    const isEnumSchema = !!narrowSchema(node, schemaTypes.enum)
+    const isEnumSchema = !!narrowSchema(transformedNode, schemaTypes.enum)
 
-    const name = ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyName(node, enumTypeSuffix) : resolver.resolveName(node.name)
-
-    const type = {
-      name,
-      file: resolver.resolveFile({ name: node.name, extname: '.ts' }, { root, output, group }),
+    const meta = {
+      name:
+        ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema
+          ? resolver.resolveEnumKeyName(transformedNode, enumTypeSuffix)
+          : resolver.resolveName(transformedNode.name),
+      file: resolver.resolveFile({ name: transformedNode.name, extname: '.ts' }, { root, output, group }),
     } as const
 
     return (
       <File
-        baseName={type.file.baseName}
-        path={type.file.path}
-        meta={type.file.meta}
+        baseName={meta.file.baseName}
+        path={meta.file.path}
+        meta={meta.file.meta}
         banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
         footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
       >
         {mode === 'split' &&
           imports.map((imp) => (
-            <File.Import key={[node.name, imp.path, imp.isTypeOnly].join('-')} root={type.file.path} path={imp.path} name={imp.name} isTypeOnly />
+            <File.Import key={[transformedNode.name, imp.path, imp.isTypeOnly].join('-')} root={meta.file.path} path={imp.path} name={imp.name} isTypeOnly />
           ))}
         <Type
-          name={type.name}
+          name={meta.name}
           node={transformedNode}
           enumType={enumType}
           enumTypeSuffix={enumTypeSuffix}
@@ -78,12 +78,19 @@ export const typeGenerator = defineGenerator<PluginTs>({
   Operation({ node, adapter, options, config, resolver }) {
     const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, transformers = [] } = options
 
+    const transformedNode = transform(node, composeTransformers(...transformers))
+
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
 
-    const file = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
+    const params = caseParams(transformedNode.parameters, paramsCasing)
 
-    const params = caseParams(node.parameters, paramsCasing)
+    const meta = {
+      file: resolver.resolveFile(
+        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+        { root, output, group },
+      ),
+    } as const
 
     // Build a set of schema names that are enums so the ref handler and getImports
     // callback can use the suffixed type name (e.g. `StatusKey`) for those refs.
@@ -96,36 +103,26 @@ export const typeGenerator = defineGenerator<PluginTs>({
       return resolver.default(schemaName, 'type')
     }
 
-    function renderSchemaType({
-      node: schemaNode,
-      name,
-      description,
-      keysToOmit,
-    }: {
-      node: SchemaNode | null
-      name: string
-      description?: string
-      keysToOmit?: Array<string>
-    }) {
-      if (!schemaNode) {
-        return null
-      }
+    function renderSchemaType({ schema, name, keysToOmit }: { schema: SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
+      if (!schema) return null
 
-      const transformedNode = transform(schemaNode, composeTransformers(...transformers))
-
-      const imports = adapter.getImports(transformedNode, (schemaName) => ({
+      const imports = adapter.getImports(schema, (schemaName) => ({
         name: resolveImportName(schemaName),
-        path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
+        path: resolver.resolveFile(
+          { name: schemaName, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+          { root, output, group },
+        ).path,
       }))
 
       return (
         <>
           {mode === 'split' &&
-            imports.map((imp) => <File.Import key={[name, imp.path, imp.isTypeOnly].join('-')} root={file.path} path={imp.path} name={imp.name} isTypeOnly />)}
+            imports.map((imp) => (
+              <File.Import key={[name, imp.path, imp.isTypeOnly].join('-')} root={meta.file.path} path={imp.path} name={imp.name} isTypeOnly />
+            ))}
           <Type
             name={name}
-            node={transformedNode}
-            description={description}
+            node={schema}
             enumType={enumType}
             enumTypeSuffix={enumTypeSuffix}
             enumKeyCasing={enumKeyCasing}
@@ -142,50 +139,55 @@ export const typeGenerator = defineGenerator<PluginTs>({
 
     const paramTypes = params.map((param) =>
       renderSchemaType({
-        node: param.schema,
-        name: resolver.resolveParamName(node, param),
+        schema: param.schema,
+        name: resolver.resolveParamName(transformedNode, param),
       }),
     )
 
-    const requestType = node.requestBody?.schema
+    const requestType = transformedNode.requestBody?.schema
       ? renderSchemaType({
-          node: node.requestBody.schema,
-          name: resolver.resolveDataName(node),
-          description: node.requestBody.description ?? node.requestBody.schema.description,
-          keysToOmit: node.requestBody.keysToOmit,
+          schema: {
+            ...transformedNode.requestBody.schema,
+            description: transformedNode.requestBody.description ?? transformedNode.requestBody.schema.description,
+          },
+          name: resolver.resolveDataName(transformedNode),
+          keysToOmit: transformedNode.requestBody.keysToOmit,
         })
       : null
 
-    const responseTypes = node.responses.map((res) =>
+    const responseTypes = transformedNode.responses.map((res) =>
       renderSchemaType({
-        node: res.schema,
-        name: resolver.resolveResponseStatusName(node, res.statusCode),
-        description: res.description,
+        schema: res.schema,
+        name: resolver.resolveResponseStatusName(transformedNode, res.statusCode),
         keysToOmit: res.keysToOmit,
       }),
     )
 
     const dataType = renderSchemaType({
-      node: buildData({ node: { ...node, parameters: params }, resolver }),
-      name: resolver.resolveRequestConfigName(node),
+      schema: buildData({ node: { ...transformedNode, parameters: params }, resolver }),
+      name: resolver.resolveRequestConfigName(transformedNode),
     })
 
     const responsesType = renderSchemaType({
-      node: buildResponses({ node, resolver }),
-      name: resolver.resolveResponsesName(node),
+      schema: buildResponses({ node: transformedNode, resolver }),
+      name: resolver.resolveResponsesName(transformedNode),
     })
 
     const responseType = renderSchemaType({
-      node: buildResponseUnion({ node, resolver }),
-      name: resolver.resolveResponseName(node),
-      description: 'Union of all possible responses',
+      schema: transformedNode.responses.some((res) => res.schema)
+        ? {
+            ...buildResponseUnion({ node: transformedNode, resolver })!,
+            description: 'Union of all possible responses',
+          }
+        : null,
+      name: resolver.resolveResponseName(transformedNode),
     })
 
     return (
       <File
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
+        baseName={meta.file.baseName}
+        path={meta.file.path}
+        meta={meta.file.meta}
         banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
         footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
       >

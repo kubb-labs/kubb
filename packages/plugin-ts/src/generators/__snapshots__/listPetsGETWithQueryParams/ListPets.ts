@@ -19,14 +19,14 @@ export type ListPetsRequestConfig = {
   data?: never
   pathParams?: never
   /**
-   * @type object | undefined
+   * @type {object | undefined}
    */
   queryParams?: {
     limit?: ListPetsQueryLimit
   }
   headerParams?: never
   /**
-   * @type string
+   * @type {string}
    */
   url: '/pets'
 }

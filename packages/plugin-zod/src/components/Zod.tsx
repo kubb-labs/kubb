@@ -1,5 +1,5 @@
-import { jsStringEscape } from '@internals/utils'
 import type { SchemaNode } from '@kubb/ast/types'
+import { buildPropertyJSDocComments } from '@kubb/plugin-ts'
 import { Const, File, Type } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import { printerZod } from '../printers/printerZod.ts'
@@ -11,13 +11,12 @@ type Props = {
   coercion: PluginZod['resolvedOptions']['coercion']
   guidType: PluginZod['resolvedOptions']['guidType']
   wrapOutput: PluginZod['resolvedOptions']['wrapOutput']
-  description?: string
   inferTypeName?: string
   resolver?: ResolverZod
   keysToOmit?: Array<string>
 }
 
-export function Zod({ name, node, coercion, guidType, wrapOutput, description, inferTypeName, resolver, keysToOmit }: Props): FabricReactNode {
+export function Zod({ name, node, coercion, guidType, wrapOutput, inferTypeName, resolver, keysToOmit }: Props): FabricReactNode {
   const printer = printerZod({ coercion, guidType, wrapOutput, resolver, schemaName: name, keysToOmit })
   const output = printer.print(node)
 
@@ -32,7 +31,7 @@ export function Zod({ name, node, coercion, guidType, wrapOutput, description, i
           export
           name={name}
           JSDoc={{
-            comments: [description ? `@description ${jsStringEscape(description)}` : undefined].filter(Boolean),
+            comments: buildPropertyJSDocComments(node),
           }}
         >
           {output}

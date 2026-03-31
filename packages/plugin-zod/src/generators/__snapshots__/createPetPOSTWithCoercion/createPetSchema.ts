@@ -6,10 +6,13 @@
 import * as z from 'zod'
 
 /**
- * @description Created
+ * @type {object}
  */
 export const createPetStatus201Schema = z.object({})
 
+/**
+ * @type {object}
+ */
 export const createPetDataSchema = z.object({
   age: z.coerce.number(),
   name: z.coerce.string(),

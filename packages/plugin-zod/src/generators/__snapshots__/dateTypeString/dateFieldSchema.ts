@@ -5,4 +5,7 @@
 
 import * as z from 'zod'
 
+/**
+ * @type {date}
+ */
 export const dateFieldSchema = z.iso.date()

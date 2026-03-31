@@ -54,7 +54,7 @@ describe('buildData', () => {
           queryParams?: never;
           headerParams?: never;
           /**
-           * @type string
+           * @type {string}
           */
           url: "/pets";
       }"
@@ -71,7 +71,7 @@ describe('buildData', () => {
           queryParams?: never;
           headerParams?: never;
           /**
-           * @type string
+           * @type {string}
           */
           url: "/pets";
       }"
@@ -90,7 +90,7 @@ describe('buildData', () => {
       "{
           data?: never;
           /**
-           * @type object
+           * @type {object}
           */
           pathParams: {
               petId: ShowPetByIdPathPetId;
@@ -98,7 +98,7 @@ describe('buildData', () => {
           queryParams?: never;
           headerParams?: never;
           /**
-           * @type string
+           * @type {string}
           */
           url: \`/pets/\${string}\`;
       }"
@@ -117,14 +117,14 @@ describe('buildData', () => {
           data?: never;
           pathParams?: never;
           /**
-           * @type object | undefined
+           * @type {object | undefined}
           */
           queryParams?: {
               limit?: ListPetsQueryLimit;
           };
           headerParams?: never;
           /**
-           * @type string
+           * @type {string}
           */
           url: "/pets";
       }"
@@ -145,14 +145,14 @@ describe('buildData', () => {
           data?: never;
           pathParams?: never;
           /**
-           * @type object | undefined
+           * @type {object | undefined}
           */
           queryParams?: {
               limit?: ListPetsQueryLimit;
           };
           headerParams?: never;
           /**
-           * @type string
+           * @type {string}
           */
           url: "/pets";
       }"

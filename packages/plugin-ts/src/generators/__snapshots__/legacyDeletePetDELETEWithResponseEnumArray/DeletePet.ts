@@ -5,7 +5,7 @@
 
 export type DeletePetPathParams = {
   /**
-   * @type string
+   * @type {string}
    */
   petId: string
 }

@@ -5,4 +5,7 @@
 
 import * as z from 'zod'
 
+/**
+ * @type {number}
+ */
 export const petAgeSchema = z.number()

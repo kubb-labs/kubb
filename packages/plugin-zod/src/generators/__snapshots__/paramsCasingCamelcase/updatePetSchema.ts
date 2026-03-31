@@ -5,15 +5,24 @@
 
 import * as z from 'zod'
 
+/**
+ * @type {string}
+ */
 export const updatePetPathPetIdSchema = z.string()
 
+/**
+ * @type {boolean | undefined}
+ */
 export const updatePetQueryIncludeDeletedSchema = z.boolean().optional()
 
 /**
- * @description Success
+ * @type {object}
  */
 export const updatePetStatus200Schema = z.object({})
 
+/**
+ * @type {object}
+ */
 export const updatePetDataSchema = z.object({
   name: z.string(),
 })

@@ -21,7 +21,7 @@ export type AddPetRequestConfig = {
   queryParams?: never
   headerParams?: never
   /**
-   * @type string
+   * @type {string}
    */
   url: '/pet'
 }

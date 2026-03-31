@@ -84,6 +84,14 @@ describe('numberConstraints', () => {
   test('all constraints combined', () => {
     expect(numberConstraints({ min: 1, max: 99, exclusiveMinimum: 0, exclusiveMaximum: 100 })).toBe('.min(1).max(99).gt(0).lt(100)')
   })
+
+  test('multipleOf only', () => {
+    expect(numberConstraints({ multipleOf: 5 })).toBe('.multipleOf(5)')
+  })
+
+  test('min, max, and multipleOf combined', () => {
+    expect(numberConstraints({ min: 0, max: 100, multipleOf: 10 })).toBe('.min(0).max(100).multipleOf(10)')
+  })
 })
 
 describe('lengthConstraints', () => {
@@ -141,6 +149,14 @@ describe('numberChecksMini', () => {
     expect(numberChecksMini({ min: 1, max: 99, exclusiveMinimum: 0, exclusiveMaximum: 100 })).toBe(
       '.check(z.minimum(1), z.maximum(99), z.minimum(0, { exclusive: true }), z.maximum(100, { exclusive: true }))',
     )
+  })
+
+  test('multipleOf only', () => {
+    expect(numberChecksMini({ multipleOf: 5 })).toBe('.check(z.multipleOf(5))')
+  })
+
+  test('min, max, and multipleOf combined', () => {
+    expect(numberChecksMini({ min: 0, max: 100, multipleOf: 10 })).toBe('.check(z.minimum(0), z.maximum(100), z.multipleOf(10))')
   })
 })
 

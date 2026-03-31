@@ -6,13 +6,16 @@
 import * as z from 'zod'
 
 /**
- * @description Successful operation
+ * @type {object}
  */
 export const addPetStatus200Schema = z.object({})
 
 /**
- * @description Invalid input
+ * @type {object}
  */
 export const addPetStatus405Schema = z.object({})
 
+/**
+ * @type {object}
+ */
 export const addPetDataSchema = z.object({})

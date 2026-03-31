@@ -1,7 +1,42 @@
 import { stringify, toRegExpString } from '@internals/utils'
 import { extractRefName } from '@kubb/ast'
-import type { SchemaNode } from '@kubb/ast/types'
+import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import type { ResolverZod } from './types.ts'
+
+export function buildSchemaNames(node: OperationNode, params: Array<ParameterNode>, resolver: ResolverZod) {
+  const pathParam = params.find((p) => p.in === 'path')
+  const queryParam = params.find((p) => p.in === 'query')
+  const headerParam = params.find((p) => p.in === 'header')
+
+  const responses: Record<number | string, string> = {}
+  const errors: Record<number | string, string> = {}
+
+  for (const res of node.responses) {
+    const name = resolver.resolveResponseStatusName(node, res.statusCode)
+    const statusNum = Number(res.statusCode)
+
+    if (!Number.isNaN(statusNum)) {
+      responses[statusNum] = name
+      if (statusNum >= 400) {
+        errors[statusNum] = name
+      }
+    }
+  }
+
+  responses['default'] = resolver.resolveResponseName(node)
+
+  return {
+    request: node.requestBody?.schema ? resolver.resolveDataName(node) : undefined,
+    parameters: {
+      path: pathParam ? resolver.resolvePathParamsName(node, pathParam) : undefined,
+      query: queryParam ? resolver.resolveQueryParamsName(node, queryParam) : undefined,
+      header: headerParam ? resolver.resolveHeaderParamsName(node, headerParam) : undefined,
+    },
+    responses,
+    errors,
+  }
+}
+
 
 /**
  * Format a default value as a code-level literal.
@@ -27,6 +62,7 @@ export type NumericConstraints = {
   max?: number
   exclusiveMinimum?: number
   exclusiveMaximum?: number
+  multipleOf?: number
 }
 
 export type LengthConstraints = {
@@ -48,12 +84,13 @@ export type ModifierOptions = {
  * Build `.min()` / `.max()` / `.gt()` / `.lt()` constraint chains for numbers
  * using the standard chainable Zod v4 API.
  */
-export function numberConstraints({ min, max, exclusiveMinimum, exclusiveMaximum }: NumericConstraints): string {
+export function numberConstraints({ min, max, exclusiveMinimum, exclusiveMaximum, multipleOf }: NumericConstraints): string {
   return [
     min !== undefined ? `.min(${min})` : '',
     max !== undefined ? `.max(${max})` : '',
     exclusiveMinimum !== undefined ? `.gt(${exclusiveMinimum})` : '',
     exclusiveMaximum !== undefined ? `.lt(${exclusiveMaximum})` : '',
+    multipleOf !== undefined ? `.multipleOf(${multipleOf})` : '',
   ].join('')
 }
 
@@ -72,12 +109,13 @@ export function lengthConstraints({ min, max, pattern }: LengthConstraints): str
 /**
  * Build `.check(z.minimum(), z.maximum())` for `zod/mini` numeric constraints.
  */
-export function numberChecksMini({ min, max, exclusiveMinimum, exclusiveMaximum }: NumericConstraints): string {
+export function numberChecksMini({ min, max, exclusiveMinimum, exclusiveMaximum, multipleOf }: NumericConstraints): string {
   const checks: string[] = []
   if (min !== undefined) checks.push(`z.minimum(${min})`)
   if (max !== undefined) checks.push(`z.maximum(${max})`)
   if (exclusiveMinimum !== undefined) checks.push(`z.minimum(${exclusiveMinimum}, { exclusive: true })`)
   if (exclusiveMaximum !== undefined) checks.push(`z.maximum(${exclusiveMaximum}, { exclusive: true })`)
+  if (multipleOf !== undefined) checks.push(`z.multipleOf(${multipleOf})`)
   return checks.length ? `.check(${checks.join(', ')})` : ''
 }
 

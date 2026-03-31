@@ -5,7 +5,7 @@
 
 export type ListPetsQueryParams = {
   /**
-   * @type integer | undefined
+   * @type {integer | undefined}
    */
   limit?: number
 }

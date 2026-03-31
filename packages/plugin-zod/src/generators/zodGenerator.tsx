@@ -1,48 +1,14 @@
 import path from 'node:path'
 import { caseParams, composeTransformers, transform } from '@kubb/ast'
-import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
+import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
-import type { KubbFile } from '@kubb/fabric-core/types'
 import { File } from '@kubb/react-fabric'
 import { Operations } from '../components/Operations.tsx'
 import { Zod } from '../components/Zod.tsx'
 import { ZodMini } from '../components/ZodMini.tsx'
 import { OPERATIONS_FILENAME, ZOD_NAMESPACE_IMPORTS } from '../constants.ts'
-import type { PluginZod, ResolverZod } from '../types'
-
-function buildSchemaNames(node: OperationNode, params: Array<ParameterNode>, resolver: ResolverZod) {
-  const pathParam = params.find((p) => p.in === 'path')
-  const queryParam = params.find((p) => p.in === 'query')
-  const headerParam = params.find((p) => p.in === 'header')
-
-  const responses: Record<number | string, string> = {}
-  const errors: Record<number | string, string> = {}
-
-  for (const res of node.responses) {
-    const name = resolver.resolveResponseStatusName(node, res.statusCode)
-    const statusNum = Number(res.statusCode)
-
-    if (!Number.isNaN(statusNum)) {
-      responses[statusNum] = name
-      if (statusNum >= 400) {
-        errors[statusNum] = name
-      }
-    }
-  }
-
-  responses['default'] = resolver.resolveResponseName(node)
-
-  return {
-    request: node.requestBody?.schema ? resolver.resolveDataName(node) : undefined,
-    parameters: {
-      path: pathParam ? resolver.resolvePathParamsName(node, pathParam) : undefined,
-      query: queryParam ? resolver.resolveQueryParamsName(node, queryParam) : undefined,
-      header: headerParam ? resolver.resolveHeaderParamsName(node, headerParam) : undefined,
-    },
-    responses,
-    errors,
-  }
-}
+import type { PluginZod } from '../types'
+import { buildSchemaNames } from '../utils.ts'
 
 export const zodGenerator = defineGenerator<PluginZod>({
   name: 'zod',
@@ -50,58 +16,49 @@ export const zodGenerator = defineGenerator<PluginZod>({
   Schema({ node, adapter, options, config, resolver }) {
     const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, transformers = [] } = options
 
+    const transformedNode = transform(node, composeTransformers(...transformers))
+
+    if (!transformedNode.name) {
+      return
+    }
+
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
-    if (!node.name) {
-      return
-    }
-
-    const resolveZodFile = (name: string, tag?: string, opPath?: string) =>
-      resolver.resolveFile({ name, extname: '.ts', tag, path: opPath }, { root, output, group })
-
-    const schemaNode = transform(node, composeTransformers(...transformers))
-    const zodName = resolver.default(schemaNode.name!, 'function')
-    const file = resolveZodFile(node.name)
-
-    // Resolve imports for $ref schemas
-    const imports = adapter.getImports(schemaNode, (schemaName) => ({
+    const imports = adapter.getImports(transformedNode, (schemaName) => ({
       name: resolver.default(schemaName, 'function'),
-      path: resolveZodFile(schemaName).path,
+      path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
     }))
 
-    const inferTypeName = inferred ? resolver.resolveInferName(resolver.resolveName(node.name)) : undefined
+    const inferTypeName = inferred ? resolver.resolveInferName(resolver.resolveName(transformedNode.name)) : undefined
+
+    const meta = {
+      name: resolver.default(transformedNode.name, 'function'),
+      file: resolver.resolveFile({ name: transformedNode.name, extname: '.ts' }, { root, output, group }),
+    } as const
 
     return (
       <File
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
+        baseName={meta.file.baseName}
+        path={meta.file.path}
+        meta={meta.file.meta}
         banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
         footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
       >
         <File.Import name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
-        {mode === 'split' && imports.map((imp) => <File.Import key={[node.name, imp.path].join('-')} root={file.path} path={imp.path} name={imp.name} />)}
+        {mode === 'split' &&
+          imports.map((imp) => <File.Import key={[transformedNode.name, imp.path].join('-')} root={meta.file.path} path={imp.path} name={imp.name} />)}
 
         {mini ? (
-          <ZodMini
-            name={zodName}
-            node={schemaNode}
-            guidType={guidType}
-            wrapOutput={wrapOutput}
-            description={schemaNode.description}
-            inferTypeName={inferTypeName}
-            resolver={resolver}
-          />
+          <ZodMini name={meta.name} node={transformedNode} guidType={guidType} wrapOutput={wrapOutput} inferTypeName={inferTypeName} resolver={resolver} />
         ) : (
           <Zod
-            name={zodName}
-            node={schemaNode}
+            name={meta.name}
+            node={transformedNode}
             coercion={coercion}
             guidType={guidType}
             wrapOutput={wrapOutput}
-            description={schemaNode.description}
             inferTypeName={inferTypeName}
             resolver={resolver}
           />
@@ -110,49 +67,46 @@ export const zodGenerator = defineGenerator<PluginZod>({
     )
   },
   Operation({ node, adapter, options, config, resolver }) {
-    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing } = options
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, transformers } = options
+
+    const transformedNode = transform(node, composeTransformers(...transformers))
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
-    const resolveZodFile = (name: string, tag?: string, opPath?: string) =>
-      resolver.resolveFile({ name, extname: '.ts', tag, path: opPath }, { root, output, group })
+    const params = caseParams(transformedNode.parameters, paramsCasing)
 
-    const file = resolveZodFile(node.operationId, node.tags[0] ?? 'default', node.path)
-    const params = caseParams(node.parameters, paramsCasing)
+    const meta = {
+      file: resolver.resolveFile(
+        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+        { root, output, group },
+      ),
+    } as const
 
-    function renderSchemaEntry({
-      schema,
-      name,
-      description,
-      keysToOmit,
-    }: {
-      schema: SchemaNode | null | undefined
-      name: string
-      description?: string
-      keysToOmit?: Array<string>
-    }) {
+    function renderSchemaEntry({ schema, name, keysToOmit }: { schema: SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
       if (!schema) return null
 
       const inferTypeName = inferred ? resolver.resolveInferName(name) : undefined
 
       const imports = adapter.getImports(schema, (schemaName) => ({
         name: resolver.default(schemaName, 'function'),
-        path: resolveZodFile(schemaName).path,
+        path: resolver.resolveFile(
+          { name: schemaName, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+          { root, output, group },
+        ).path,
       }))
 
       return (
         <>
           {mode === 'split' &&
-            imports.map((imp) => <File.Import key={[name, imp.path, imp.name].join('-')} root={file.path} path={imp.path} name={imp.name} />)}
+            imports.map((imp) => <File.Import key={[name, imp.path, imp.name].join('-')} root={meta.file.path} path={imp.path} name={imp.name} />)}
           {mini ? (
             <ZodMini
               name={name}
               node={schema}
               guidType={guidType}
               wrapOutput={wrapOutput}
-              description={description}
               inferTypeName={inferTypeName}
               resolver={resolver}
               keysToOmit={keysToOmit}
@@ -164,7 +118,6 @@ export const zodGenerator = defineGenerator<PluginZod>({
               coercion={coercion}
               guidType={guidType}
               wrapOutput={wrapOutput}
-              description={description}
               inferTypeName={inferTypeName}
               resolver={resolver}
               keysToOmit={keysToOmit}
@@ -176,29 +129,30 @@ export const zodGenerator = defineGenerator<PluginZod>({
 
     const paramSchemas = params.map((param) => renderSchemaEntry({ schema: param.schema, name: resolver.resolveParamName(node, param) }))
 
-    const responseSchemas = node.responses.map((res) =>
+    const responseSchemas = transformedNode.responses.map((res) =>
       renderSchemaEntry({
         schema: res.schema,
-        name: resolver.resolveResponseStatusName(node, res.statusCode),
-        description: res.description,
+        name: resolver.resolveResponseStatusName(transformedNode, res.statusCode),
         keysToOmit: res.keysToOmit,
       }),
     )
 
-    const requestSchema = node.requestBody?.schema
+    const requestSchema = transformedNode.requestBody?.schema
       ? renderSchemaEntry({
-          schema: node.requestBody.schema,
-          name: resolver.resolveDataName(node),
-          description: node.requestBody.description,
-          keysToOmit: node.requestBody.keysToOmit,
+          schema: {
+            ...transformedNode.requestBody.schema,
+            description: transformedNode.requestBody.description ?? transformedNode.requestBody.schema.description,
+          },
+          name: resolver.resolveDataName(transformedNode),
+          keysToOmit: transformedNode.requestBody.keysToOmit,
         })
       : null
 
     return (
       <File
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
+        baseName={meta.file.baseName}
+        path={meta.file.path}
+        meta={meta.file.meta}
         banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
         footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
       >
@@ -210,7 +164,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
     )
   },
   Operations({ nodes, adapter, options, config, resolver }) {
-    const { output, importPath, group, operations, paramsCasing } = options
+    const { output, importPath, group, operations, paramsCasing, transformers } = options
 
     if (!operations) {
       return
@@ -218,40 +172,34 @@ export const zodGenerator = defineGenerator<PluginZod>({
 
     const root = path.resolve(config.root, config.output.path)
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
-    const resolveZodFile = (name: string, tag?: string, opPath?: string) =>
-      resolver.resolveFile({ name, extname: '.ts', tag, path: opPath }, { root, output, group })
 
-    const filePath = resolver.resolvePath({ baseName: OPERATIONS_FILENAME, pathMode: getMode(path.resolve(root, output.path)) }, { root, output, group })
-    const file: KubbFile.File = {
-      path: filePath,
-      baseName: OPERATIONS_FILENAME,
-      meta: { pluginName: resolver.pluginName },
-      sources: [],
-      imports: [],
-      exports: [],
-    }
+    const meta = {
+      file: resolver.resolveFile({ name: OPERATIONS_FILENAME, extname: '.ts' }, { root, output, group }),
+    } as const
 
     const transformedOperations = nodes.map((node) => {
-      const params = caseParams(node.parameters, paramsCasing)
+      const transformedNode = transform(node, composeTransformers(...transformers))
+
+      const params = caseParams(transformedNode.parameters, paramsCasing)
+
       return {
-        node,
-        data: buildSchemaNames(node, params, resolver),
+        node: transformedNode,
+        data: buildSchemaNames(transformedNode, params, resolver),
       }
     })
 
-    const operationFiles = nodes.map((node) => resolveZodFile(node.operationId, node.tags[0] ?? 'default', node.path))
-
-    const imports = transformedOperations.flatMap(({ data }, index) => {
+    const imports = transformedOperations.flatMap(({ node, data }) => {
       const names = [data.request, ...Object.values(data.responses), ...Object.values(data.parameters)].filter(Boolean) as string[]
-      const opFile = operationFiles[index]!
-      return names.map((name) => <File.Import key={[name, opFile.path].join('-')} name={[name]} root={file.path} path={opFile.path} />)
+      const opFile = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
+
+      return names.map((name) => <File.Import key={[name, opFile.path].join('-')} name={[name]} root={meta.file.path} path={opFile.path} />)
     })
 
     return (
       <File
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
+        baseName={meta.file.baseName}
+        path={meta.file.path}
+        meta={meta.file.meta}
         banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
         footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
       >

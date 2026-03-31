@@ -5,6 +5,9 @@
 
 import * as z from 'zod'
 
+/**
+ * @type {object}
+ */
 export const orderSchema = z.object({
   id: z.string(),
   quantity: z.string().optional(),

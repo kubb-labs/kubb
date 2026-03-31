@@ -63,7 +63,7 @@ export type ComplexSchemaType = 'tuple' | 'union' | 'intersection' | 'enum'
 /**
  * Schema types that need special handling in generators.
  */
-export type SpecialSchemaType = 'ref' | 'datetime' | 'time' | 'uuid' | 'email' | 'url' | 'blob'
+export type SpecialSchemaType = 'ref' | 'datetime' | 'time' | 'uuid' | 'email' | 'url' | 'ipv4' | 'ipv6' | 'blob'
 
 /**
  * All schema type strings.
@@ -184,14 +184,23 @@ export type ObjectSchemaNode = SchemaNodeBase & {
   /**
    * Additional object properties behavior:
    * - `true`: allow any value
+   * - `false`: reject unknown properties (maps to `.strict()` in Zod)
    * - `SchemaNode`: allow values that match that schema
-   * - `undefined`: no additional properties
+   * - `undefined`: no additional properties constraint (open object)
    */
-  additionalProperties?: SchemaNode | true
+  additionalProperties?: SchemaNode | boolean
   /**
    * Pattern-based property schemas.
    */
   patternProperties?: Record<string, SchemaNode>
+  /**
+   * Minimum number of properties allowed.
+   */
+  minProperties?: number
+  /**
+   * Maximum number of properties allowed.
+   */
+  maxProperties?: number
 }
 
 /**
@@ -485,6 +494,10 @@ export type NumberSchemaNode = SchemaNodeBase & {
    * Exclusive maximum value.
    */
   exclusiveMaximum?: number
+  /**
+   * The value must be a multiple of this number.
+   */
+  multipleOf?: number
 }
 
 /**
@@ -554,6 +567,36 @@ export type FormatStringSchemaNode = SchemaNodeBase & {
 }
 
 /**
+ * IPv4 address schema node.
+ *
+ * @example
+ * ```ts
+ * const ipv4Schema: Ipv4SchemaNode = { kind: 'Schema', type: 'ipv4' }
+ * ```
+ */
+export type Ipv4SchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
+  type: 'ipv4'
+}
+
+/**
+ * IPv6 address schema node.
+ *
+ * @example
+ * ```ts
+ * const ipv6Schema: Ipv6SchemaNode = { kind: 'Schema', type: 'ipv6' }
+ * ```
+ */
+export type Ipv6SchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
+  type: 'ipv6'
+}
+
+/**
  * Mapping from schema type literals to concrete schema node types.
  * Used by `narrowSchema`.
  */
@@ -581,6 +624,8 @@ export type SchemaNodeByType = {
   uuid: FormatStringSchemaNode
   email: FormatStringSchemaNode
   url: UrlSchemaNode
+  ipv4: Ipv4SchemaNode
+  ipv6: Ipv6SchemaNode
   blob: ScalarSchemaNode
 }
 
@@ -601,4 +646,6 @@ export type SchemaNode =
   | NumberSchemaNode
   | UrlSchemaNode
   | FormatStringSchemaNode
+  | Ipv4SchemaNode
+  | Ipv6SchemaNode
   | ScalarSchemaNode

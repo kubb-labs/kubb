@@ -5,4 +5,7 @@
 
 import * as z from 'zod'
 
+/**
+ * @type {string}
+ */
 export const datetimeOffsetSchema = z.iso.datetime({ offset: true })

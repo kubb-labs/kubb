@@ -18,7 +18,7 @@ export type ShowPetByIdStatusDefault = object
 export type ShowPetByIdRequestConfig = {
   data?: never
   /**
-   * @type object
+   * @type {object}
    */
   pathParams: {
     petId: ShowPetByIdPathPetId
@@ -26,7 +26,7 @@ export type ShowPetByIdRequestConfig = {
   queryParams?: never
   headerParams?: never
   /**
-   * @type string
+   * @type {string}
    */
   url: `/pets/${string}`
 }

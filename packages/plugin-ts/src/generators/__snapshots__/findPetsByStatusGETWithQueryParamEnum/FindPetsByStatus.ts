@@ -14,14 +14,14 @@ export type FindPetsByStatusRequestConfig = {
   data?: never
   pathParams?: never
   /**
-   * @type object | undefined
+   * @type {object | undefined}
    */
   queryParams?: {
     status?: FindPetsByStatusQueryStatus
   }
   headerParams?: never
   /**
-   * @type string
+   * @type {string}
    */
   url: '/pet/findByStatus'
 }

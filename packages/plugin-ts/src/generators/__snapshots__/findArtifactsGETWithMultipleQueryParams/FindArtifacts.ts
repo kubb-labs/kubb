@@ -18,7 +18,7 @@ export type FindArtifactsRequestConfig = {
   data?: never
   pathParams?: never
   /**
-   * @type object | undefined
+   * @type {object | undefined}
    */
   queryParams?: {
     page?: FindArtifactsQueryPage
@@ -27,7 +27,7 @@ export type FindArtifactsRequestConfig = {
   }
   headerParams?: never
   /**
-   * @type string
+   * @type {string}
    */
   url: '/artifacts'
 }

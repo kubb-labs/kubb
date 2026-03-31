@@ -17,6 +17,8 @@ export type {
   HttpMethod,
   HttpStatusCode,
   IntersectionSchemaNode,
+  Ipv4SchemaNode,
+  Ipv6SchemaNode,
   MediaType,
   Node,
   NodeKind,

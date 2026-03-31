@@ -5,9 +5,12 @@
 
 import * as z from 'zod'
 
+/**
+ * @type {string | undefined}
+ */
 export const findPetsByStatusQueryStatusSchema = z.enum(['available', 'pending', 'sold']).optional()
 
 /**
- * @description Successful operation
+ * @type {object}
  */
 export const findPetsByStatusStatus200Schema = z.object({})

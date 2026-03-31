@@ -5,14 +5,17 @@
 
 import * as z from 'zod'
 
+/**
+ * @type {string}
+ */
 export const showPetByIdPathPetIdSchema = z.string()
 
 /**
- * @description Expected response
+ * @type {object}
  */
 export const showPetByIdStatus200Schema = z.object({})
 
 /**
- * @description Unexpected error
+ * @type {object}
  */
 export const showPetByIdStatusDefaultSchema = z.object({})

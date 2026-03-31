@@ -5,4 +5,8 @@
 
 import * as z from 'zod'
 
+/**
+ * Pattern: ^[a-z0-9-]+$
+ * @type {string}
+ */
 export const slugFieldSchema = z.string().regex(/^[a-z0-9-]+$/)

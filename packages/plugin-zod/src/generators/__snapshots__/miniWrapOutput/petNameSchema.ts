@@ -5,4 +5,7 @@
 
 import * as z from 'zod/mini'
 
+/**
+ * @type {string}
+ */
 export const petNameSchema = z.string()

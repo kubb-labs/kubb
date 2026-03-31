@@ -5,17 +5,23 @@
 
 import * as z from 'zod'
 
+/**
+ * @type {object}
+ */
 export const createPetsHeaderParamsSchema = z.object({
   'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']),
 })
 
 /**
- * @description Null response
+ * @type {void}
  */
 export const createPets201Schema = z.void()
 
 export const createPetsMutationResponseSchema = createPets201Schema
 
+/**
+ * @type {object}
+ */
 export const createPetsMutationSchema = z.object({
   Response: createPets201Schema,
   HeaderParams: createPetsHeaderParamsSchema,
