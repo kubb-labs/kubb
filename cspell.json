@@ -16,6 +16,7 @@
     "README.md",
     "examples/**/src/gen*/**",
     "examples/**/kubb-gen/**",
+    "examples/zod/src/zod/**",
     "tests/**/gen/**",
     "tests/e2e/schemas/**",
     "schemas/**",
