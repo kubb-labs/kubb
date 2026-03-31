@@ -8,7 +8,7 @@ outline: deep
 
 # @kubb/plugin-cypress
 
-Generate Cypress request definitions from your OpenAPI schema.
+The `@kubb/plugin-cypress` plugin generates typed `cy.request()` wrappers from your OpenAPI schema. Each API operation becomes a reusable function that you can call inside Cypress tests, with full TypeScript support.
 
 ## Installation
 
@@ -115,10 +115,13 @@ Add a footer comment at the end of every generated file.
 #### group.type
 Specify the property to group files by.
 
-|           |         |
-|----------:|:--------|
-|     Type: | `'tag'` |
-| Required: | `true`  |
+|           |          |
+|----------:|:---------|
+|     Type: | `'tag'`  |
+| Required: | `true*`  |
+
+> [!NOTE]
+> `Required: true*` means this is required only when the `group` option is used. The `group` option itself is optional.
 
 <!--@include: ./core/groupTypes.md-->
 
@@ -151,17 +154,13 @@ Return the name of a group based on the group name, this will be used for the fi
 
 ### transformers
 
-Array of AST visitors applied to each node before printing. See [`transform()`](https://github.com/kubb-labs/kubb/blob/main/packages/ast/src/transform.ts) from `@kubb/ast`.
-
-|           |                  |
-| --------: | :--------------- |
-|     Type: | `Array<Visitor>` |
-| Required: | `false`          |
+<!--@include: ./core/transformers.md-->
 
 ## Example
 
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginCypress } from '@kubb/plugin-cypress'
 
@@ -172,6 +171,7 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
+  adapter: adapterOas(),
   plugins: [
     pluginTs(),
     pluginCypress({

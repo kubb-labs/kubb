@@ -8,7 +8,7 @@ outline: deep
 
 # @kubb/plugin-ts
 
-Generate TypeScript types from your OpenAPI schema.
+Generate TypeScript types from your OpenAPI schema. Use this plugin to produce type-safe representations of your API's request and response shapes, giving your TypeScript project compile-time guarantees over every API interaction.
 
 ## Installation
 
@@ -136,8 +136,8 @@ Choose to use `enum` or `as const` for enums.
 > - `asConst`: generates a camelCase constant name (e.g., `petType`)
 > - `asPascalConst`: generates a PascalCase constant name (e.g., `PetType`)
 
-> [!NOTE]
-> In Kubb v5, `inlineLiteral` will become the default.
+> [!TIP]
+> Consider `'inlineLiteral'` for the most idiomatic output — enum values are inlined directly into the property type instead of creating a separate named type.
 
 ::: code-group
 
@@ -234,7 +234,7 @@ export type PetType = (typeof petType)[keyof typeof petType];
 
 ### enumKeyCasing
 
-Choose the casing for enum key names.
+Control the casing applied to enum key names in generated TypeScript. Use this to align generated enum keys with your project's naming conventions.
 
 |           |                                                                                |
 | --------: | :----------------------------------------------------------------------------- |
@@ -260,7 +260,7 @@ Choose the casing for enum key names.
 
 ### syntaxType
 
-Switch between type or interface for creating TypeScript types.
+Control whether the TypeScript generator emits `type` aliases or `interface` declarations for object schemas.
 See [Type vs Interface: Which Should You Use](https://www.totaltypescript.com/type-vs-interface-which-should-you-use).
 
 |           |                         |
@@ -297,7 +297,7 @@ interface Pet {
 
 ### optionalType
 
-Choose what to use as mode for an optional value.
+Control how optional properties are represented in generated TypeScript types.
 
 |           |                                                                 |
 | --------: | :-------------------------------------------------------------- |
@@ -407,7 +407,7 @@ type FindPetsByStatusHeaderParams = {
 
 ### compatibilityPreset
 
-Apply close-compatible naming presets for ecosystems with established conventions.
+Apply a naming preset to match a previous Kubb version's output conventions. Use `'kubbV4'` when migrating from Kubb v4 to preserve existing generated file and symbol names.
 
 |           |                                |
 | --------: |:-------------------------------|
@@ -439,7 +439,7 @@ pluginTs({
 
 ### resolvers
 
-Use `resolvers` to compose naming behavior. Later resolvers override earlier ones.
+Compose custom name-resolution behavior by providing one or more resolver instances. Each resolver can override how file names, function names, and type names are derived. Later entries in the array take precedence.
 
 |           |                     |
 | --------: | :------------------ |
@@ -500,8 +500,8 @@ pluginTs({
 
 <!--@include: ./core/transformers.md-->
 
-`@kubb/plugin-ts` uses AST `Visitor` transformers for schema/operation node transforms.
-For naming customization, use `resolvers` instead of `transformers`.
+> [!NOTE]
+> `@kubb/plugin-ts` uses AST `Visitor` transformers for schema/operation node transforms. For output naming customization, use `resolvers` instead of `transformers`.
 
 ## Example
 

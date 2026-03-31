@@ -126,6 +126,8 @@ Return the name of a group based on the group name, this will be used for the fi
 
 ### importPath
 
+Path to the Zod package used in generated import statements. Accepts a package name or a relative path. Set to `'zod/mini'` when using `mini: true`.
+
 |           |          |
 | --------: | :------- |
 |     Type: | `string` |
@@ -134,7 +136,7 @@ Return the name of a group based on the group name, this will be used for the fi
 
 ### typed
 
-Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
+Annotate each generated schema with its inferred TypeScript type, using `@kubb/plugin-ts` output as the source. Requires `@kubb/plugin-ts` to be configured in the same `plugins` array.
 
 > [!IMPORTANT]
 > We rely on [`ToZod`](https://github.com/colinhacks/tozod) from the creator of Zod to create a schema based on a type.
@@ -148,13 +150,25 @@ Use TypeScript(`@kubb/plugin-ts`) to add type annotation.
 
 ### inferred
 
-Return Zod generated schema as type with z.infer.
+Export a `z.infer<typeof schema>` type alias alongside each generated schema. This gives you a TypeScript type that always stays in sync with the schema's runtime validation.
 
 |           |           |
 | --------: | :-------- |
 |     Type: | `boolean` |
 | Required: | `false`   |
 |  Default: | `false`   |
+
+```typescript [inferred: true]
+import { z } from 'zod'
+
+export const petSchema = z.object({
+  name: z.string(),
+  status: z.enum(['available', 'pending', 'sold']).optional(),
+})
+
+// Inferred type export
+export type Pet = z.infer<typeof petSchema>
+```
 
 ### dateType
 
@@ -208,14 +222,13 @@ z.date();
 
 ### coercion
 
-Use of z.coerce.string() instead of z.string().
-[Coercion for primitives](https://zod.dev/?id=coercion-for-primitives)
+Apply `z.coerce` to automatically convert input values to the expected type before validation. Pass `true` to coerce all primitives, or an object to selectively enable coercion for `dates`, `strings`, and `numbers`. See [Coercion for primitives](https://zod.dev/?id=coercion-for-primitives).
 
 |           |                                                                       |
 | --------: | :-------------------------------------------------------------------- |
 |     Type: | `boolean \| { dates?: boolean, strings?: boolean, numbers?: boolean}` |
 | Required: | `false`                                                               |
-|  Default: | `false'`                                                              |
+|  Default: | `false`                                                               |
 
 ::: code-group
 
@@ -241,6 +254,8 @@ z.coerce.number();
 
 ### operations
 
+Generate a combined `operations.ts` file that exports all operation-level schemas grouped by `operationId`. When enabled, each operation gets its own schema that includes the request body, path params, query params, and response schemas.
+
 |           |           |
 | --------: | :-------- |
 |     Type: | `boolean` |
@@ -249,16 +264,28 @@ z.coerce.number();
 
 ### paramsCasing
 
-How to style your params, by default no casing is applied.
+Transform property names in path, query, and header parameter types to camelCase.
 
 |           |                |
 | --------: | :------------- |
 |     Type: | `'camelcase'`  |
 | Required: | `false`        |
 
+```typescript ['camelcase']
+// OpenAPI spec uses: pet_id, X-Api-Key
+
+type GetPetPathParams = {
+  petId: string   // ✓ camelCase
+}
+
+type GetPetHeaderParams = {
+  xApiKey?: string  // ✓ camelCase
+}
+```
+
 ### guidType
 
-Which validator to use for OpenAPI `format: uuid`.
+Validator to use for OpenAPI properties with `format: uuid`. Use `'guid'` to generate `.guid()` validation instead of the default `.uuid()`.
 
 |           |                    |
 | --------: | :----------------- |
@@ -345,16 +372,11 @@ z.array(z.string()).min(1).max(10)
 
 ### transformers
 
-Array of AST visitors applied to each node before printing. See [`transform()`](https://github.com/kubb-labs/kubb/blob/main/packages/ast/src/transform.ts) from `@kubb/ast`.
-
-|           |                     |
-| --------: | :------------------ |
-|     Type: | `Array<Visitor>`    |
-| Required: | `false`             |
+<!--@include: ./core/transformers.md-->
 
 ### wrapOutput
 
-Modify the generated zod schema.
+Wrap the generated Zod schema string with additional validation or metadata. The callback receives the schema's output string and the `SchemaNode` AST node, and returns the modified schema string.
 
 > [!TIP]
 > This is useful for cases where you need to extend the generated zod output with additional properties from an OpenAPI schema. E.g. in the case of `OpenAPI -> Zod -> OpenAPI`, you could include the examples from the schema for a given property and then ultimately provide a modified schema to a router that supports zod and OpenAPI spec generation.
