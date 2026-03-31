@@ -7,13 +7,13 @@ export type ApiResponse = {
   /**
    * @type integer | undefined
    */
-  code?: number;
+  code?: number
   /**
    * @type string | undefined
    */
-  type?: string;
+  type?: string
   /**
    * @type string | undefined
    */
-  message?: string;
-};
+  message?: string
+}

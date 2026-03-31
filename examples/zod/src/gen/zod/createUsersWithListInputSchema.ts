@@ -3,48 +3,35 @@
  * Do not edit manually.
  */
 
-import { z } from "../../zod.ts";
-import { userSchema } from "./userSchema.ts";
+import { z } from '../../zod.ts'
+import { userSchema } from './userSchema.ts'
 
 /**
  * @description Successful operation
  */
-export const createUsersWithListInput200Schema = userSchema;
+export const createUsersWithListInput200Schema = userSchema
 
-export type CreateUsersWithListInput200Schema = z.infer<
-  typeof createUsersWithListInput200Schema
->;
+export type CreateUsersWithListInput200Schema = z.infer<typeof createUsersWithListInput200Schema>
 
 /**
  * @description successful operation
  */
-export const createUsersWithListInputErrorSchema = z.any();
+export const createUsersWithListInputErrorSchema = z.any()
 
-export type CreateUsersWithListInputErrorSchema = z.infer<
-  typeof createUsersWithListInputErrorSchema
->;
+export type CreateUsersWithListInputErrorSchema = z.infer<typeof createUsersWithListInputErrorSchema>
 
-export const createUsersWithListInputMutationRequestSchema = z
-  .array(userSchema)
-  .optional();
+export const createUsersWithListInputMutationRequestSchema = z.array(userSchema).optional()
 
-export type CreateUsersWithListInputMutationRequestSchema = z.infer<
-  typeof createUsersWithListInputMutationRequestSchema
->;
+export type CreateUsersWithListInputMutationRequestSchema = z.infer<typeof createUsersWithListInputMutationRequestSchema>
 
-export const createUsersWithListInputMutationResponseSchema =
-  createUsersWithListInput200Schema;
+export const createUsersWithListInputMutationResponseSchema = createUsersWithListInput200Schema
 
-export type CreateUsersWithListInputMutationResponseSchema = z.infer<
-  typeof createUsersWithListInputMutationResponseSchema
->;
+export type CreateUsersWithListInputMutationResponseSchema = z.infer<typeof createUsersWithListInputMutationResponseSchema>
 
 export const createUsersWithListInputMutationSchema = z.object({
   Response: createUsersWithListInput200Schema,
   Request: createUsersWithListInputMutationRequestSchema,
   Errors: createUsersWithListInputErrorSchema,
-});
+})
 
-export type CreateUsersWithListInputMutationSchema = z.infer<
-  typeof createUsersWithListInputMutationSchema
->;
+export type CreateUsersWithListInputMutationSchema = z.infer<typeof createUsersWithListInputMutationSchema>

@@ -3,69 +3,68 @@
  * Do not edit manually.
  */
 
-import type { PetNotFound } from "./PetNotFound.ts";
+import type { PetNotFound } from './PetNotFound.ts'
 
 export type CreatePetsPathParams = {
   /**
    * @description UUID
    * @type string
    */
-  uuid: string;
-};
+  uuid: string
+}
 
 export type CreatePetsQueryParams = {
   /**
    * @description Offset
    * @type integer | undefined
    */
-  offset?: number;
-};
+  offset?: number
+}
 
 export const createPetsHeaderParamsXEXAMPLEEnum = {
-  ONE: "ONE",
-  TWO: "TWO",
-  THREE: "THREE",
-} as const;
+  ONE: 'ONE',
+  TWO: 'TWO',
+  THREE: 'THREE',
+} as const
 
-export type CreatePetsHeaderParamsXEXAMPLEEnumKey =
-  (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum];
+export type CreatePetsHeaderParamsXEXAMPLEEnumKey = (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum]
 
 export type CreatePetsHeaderParams = {
   /**
    * @description Header parameters
    * @type string
    */
-  "X-EXAMPLE": CreatePetsHeaderParamsXEXAMPLEEnumKey;
-};
+  'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnumKey
+}
 
 /**
  * @description Null response
  */
-export type CreatePets201 = any;
+export type CreatePets201 = any
 
 /**
  * @description unexpected error
  */
-export type CreatePetsError = PetNotFound;
+export type CreatePetsError = PetNotFound
 
 export type CreatePetsMutationRequest = {
   /**
    * @type string
    */
-  name: string;
+  name: string
   /**
    * @type string
    */
-  tag: string;
-};
+  tag: string
+}
 
-export type CreatePetsMutationResponse = CreatePets201;
+export type CreatePetsMutationResponse = CreatePets201
 
 export type CreatePetsMutation = {
-  Response: CreatePets201;
-  Request: CreatePetsMutationRequest;
-  QueryParams: CreatePetsQueryParams;
-  PathParams: CreatePetsPathParams;
-  HeaderParams: CreatePetsHeaderParams;
-  Errors: CreatePetsError;
-};
+  Response: CreatePets201
+  Request: CreatePetsMutationRequest
+  QueryParams: CreatePetsQueryParams
+  PathParams: CreatePetsPathParams
+  HeaderParams: CreatePetsHeaderParams
+  Errors: CreatePetsError
+}

@@ -3,14 +3,14 @@
  * Do not edit manually.
  */
 
-import { z } from "../../zod.ts";
-import { categorySchema } from "./categorySchema.ts";
-import { tagSchema } from "./tagSchema.ts";
+import { z } from '../../zod.ts'
+import { categorySchema } from './categorySchema.ts'
+import { tagSchema } from './tagSchema.ts'
 
 export const petSchema = z.object({
   id: z.int().optional(),
   get parent() {
-    return z.array(petSchema).optional();
+    return z.array(petSchema).optional()
   },
   internalId: z
     .string()
@@ -20,10 +20,7 @@ export const petSchema = z.object({
   category: categorySchema.optional(),
   photoUrls: z.array(z.string()),
   tags: z.array(tagSchema).optional(),
-  status: z
-    .enum(["available", "pending", "sold"])
-    .optional()
-    .describe("pet status in the store"),
-});
+  status: z.enum(['available', 'pending', 'sold']).optional().describe('pet status in the store'),
+})
 
-export type PetSchema = z.infer<typeof petSchema>;
+export type PetSchema = z.infer<typeof petSchema>

@@ -3,41 +3,35 @@
  * Do not edit manually.
  */
 
-import { z } from "../../zod.ts";
-import { orderSchema } from "./orderSchema.ts";
+import { z } from '../../zod.ts'
+import { orderSchema } from './orderSchema.ts'
 
 /**
  * @description successful operation
  */
-export const placeOrderPatch200Schema = orderSchema;
+export const placeOrderPatch200Schema = orderSchema
 
-export type PlaceOrderPatch200Schema = z.infer<typeof placeOrderPatch200Schema>;
+export type PlaceOrderPatch200Schema = z.infer<typeof placeOrderPatch200Schema>
 
 /**
  * @description Invalid input
  */
-export const placeOrderPatch405Schema = z.any();
+export const placeOrderPatch405Schema = z.any()
 
-export type PlaceOrderPatch405Schema = z.infer<typeof placeOrderPatch405Schema>;
+export type PlaceOrderPatch405Schema = z.infer<typeof placeOrderPatch405Schema>
 
-export const placeOrderPatchMutationRequestSchema = orderSchema.optional();
+export const placeOrderPatchMutationRequestSchema = orderSchema.optional()
 
-export type PlaceOrderPatchMutationRequestSchema = z.infer<
-  typeof placeOrderPatchMutationRequestSchema
->;
+export type PlaceOrderPatchMutationRequestSchema = z.infer<typeof placeOrderPatchMutationRequestSchema>
 
-export const placeOrderPatchMutationResponseSchema = placeOrderPatch200Schema;
+export const placeOrderPatchMutationResponseSchema = placeOrderPatch200Schema
 
-export type PlaceOrderPatchMutationResponseSchema = z.infer<
-  typeof placeOrderPatchMutationResponseSchema
->;
+export type PlaceOrderPatchMutationResponseSchema = z.infer<typeof placeOrderPatchMutationResponseSchema>
 
 export const placeOrderPatchMutationSchema = z.object({
   Response: placeOrderPatch200Schema,
   Request: placeOrderPatchMutationRequestSchema,
   Errors: placeOrderPatch405Schema,
-});
+})
 
-export type PlaceOrderPatchMutationSchema = z.infer<
-  typeof placeOrderPatchMutationSchema
->;
+export type PlaceOrderPatchMutationSchema = z.infer<typeof placeOrderPatchMutationSchema>

@@ -3,38 +3,38 @@
  * Do not edit manually.
  */
 
-import * as z from "zod/mini";
-import { petSchema } from "./petSchema.ts";
+import * as z from 'zod/mini'
+import { petSchema } from './petSchema.ts'
 
 /**
  * @description Successful operation
  */
-export const updatePet200Schema = petSchema;
+export const updatePet200Schema = petSchema
 
 /**
  * @description Invalid ID supplied
  */
-export const updatePet400Schema = z.any();
+export const updatePet400Schema = z.any()
 
 /**
  * @description Pet not found
  */
-export const updatePet404Schema = z.any();
+export const updatePet404Schema = z.any()
 
 /**
  * @description Validation exception
  */
-export const updatePet405Schema = z.any();
+export const updatePet405Schema = z.any()
 
 /**
  * @description Update an existent pet in the store
  */
-export const updatePetMutationRequestSchema = petSchema;
+export const updatePetMutationRequestSchema = petSchema
 
-export const updatePetMutationResponseSchema = updatePet200Schema;
+export const updatePetMutationResponseSchema = updatePet200Schema
 
 export const updatePetMutationSchema = z.object({
   Response: updatePet200Schema,
   Request: updatePetMutationRequestSchema,
   Errors: z.union([updatePet400Schema, updatePet404Schema, updatePet405Schema]),
-});
+})

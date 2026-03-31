@@ -3,16 +3,16 @@
  * Do not edit manually.
  */
 
-import { z } from "../../zod.ts";
-import { addPetRequestSchema } from "./addPetRequestSchema.ts";
-import { petSchema } from "./petSchema.ts";
+import { z } from '../../zod.ts'
+import { addPetRequestSchema } from './addPetRequestSchema.ts'
+import { petSchema } from './petSchema.ts'
 
 /**
  * @description Successful operation
  */
-export const addPet200Schema = petSchema;
+export const addPet200Schema = petSchema
 
-export type AddPet200Schema = z.infer<typeof addPet200Schema>;
+export type AddPet200Schema = z.infer<typeof addPet200Schema>
 
 /**
  * @description Pet not found
@@ -20,29 +20,25 @@ export type AddPet200Schema = z.infer<typeof addPet200Schema>;
 export const addPet405Schema = z.object({
   code: z.int().optional(),
   message: z.string().optional(),
-});
+})
 
-export type AddPet405Schema = z.infer<typeof addPet405Schema>;
+export type AddPet405Schema = z.infer<typeof addPet405Schema>
 
 /**
  * @description Create a new pet in the store
  */
-export const addPetMutationRequestSchema = addPetRequestSchema;
+export const addPetMutationRequestSchema = addPetRequestSchema
 
-export type AddPetMutationRequestSchema = z.infer<
-  typeof addPetMutationRequestSchema
->;
+export type AddPetMutationRequestSchema = z.infer<typeof addPetMutationRequestSchema>
 
-export const addPetMutationResponseSchema = addPet200Schema;
+export const addPetMutationResponseSchema = addPet200Schema
 
-export type AddPetMutationResponseSchema = z.infer<
-  typeof addPetMutationResponseSchema
->;
+export type AddPetMutationResponseSchema = z.infer<typeof addPetMutationResponseSchema>
 
 export const addPetMutationSchema = z.object({
   Response: addPet200Schema,
   Request: addPetMutationRequestSchema,
   Errors: addPet405Schema,
-});
+})
 
-export type AddPetMutationSchema = z.infer<typeof addPetMutationSchema>;
+export type AddPetMutationSchema = z.infer<typeof addPetMutationSchema>

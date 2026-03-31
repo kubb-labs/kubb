@@ -3,23 +3,23 @@
  * Do not edit manually.
  */
 
-import * as z from "zod";
-import { itemSchema } from "./itemSchema.ts";
+import * as z from 'zod'
+import { itemSchema } from './itemSchema.ts'
 
 /**
  * @description Success
  */
-export const updateItem200Schema = itemSchema;
+export const updateItem200Schema = itemSchema
 
 /**
  * @description Item to update
  */
-export const updateItemMutationRequestSchema = itemSchema;
+export const updateItemMutationRequestSchema = itemSchema
 
-export const updateItemMutationResponseSchema = updateItem200Schema;
+export const updateItemMutationResponseSchema = updateItem200Schema
 
 export const updateItemMutationSchema = z.object({
   Response: updateItem200Schema,
   Request: updateItemMutationRequestSchema,
   Errors: z.any(),
-});
+})

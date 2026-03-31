@@ -3,9 +3,7 @@
  * Do not edit manually.
  */
 
-import * as z from "zod/mini";
-import { phoneNumberSchema } from "./phoneNumberSchema.ts";
+import * as z from 'zod/mini'
+import { phoneNumberSchema } from './phoneNumberSchema.ts'
 
-export const phoneWithMaxLengthExplicitSchema = phoneNumberSchema.check(
-  z.maxLength(15),
-);
+export const phoneWithMaxLengthExplicitSchema = phoneNumberSchema.check(z.maxLength(15))
