@@ -140,7 +140,7 @@ export type UnhappyCustomer = Customer & {
   /**
    * @type boolean | undefined
    */
-  isHappy?: false | undefined
+  isHappy?: any | undefined
 }
 
 /**
