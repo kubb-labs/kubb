@@ -6,6 +6,37 @@ outline: deep
 
 # Changelog
 
+## 4.37.1
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-client`](/plugins/plugin-client)
+
+- [#2951](https://github.com/kubb-labs/kubb/pull/2951) [`926e3d7`](https://github.com/kubb-labs/kubb/commit/926e3d79898857bf3f7ee54fcff3d57383ddb1e3) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fixed an issue causing unused variable declarations when `paramsCasing` was set with `urlType: 'export'`.
+
+  **Issue**: A `const` variable for mapping path parameters containing underscores (e.g., `item_id`) to camelcase (e.g., `itemId`) was emitted unnecessarily, resulting in TypeScript `noUnusedLocals` errors.
+
+  **Fix**: The mapping variable is now only emitted when the URL is built inline (i.e., when no exported URL function is used). This eliminates the unused variable error for exported URL functions.
+
+  **Before:**
+  ::: code-group
+  ```typescript
+  function getItem(itemId: string) {
+    const item_id = itemId; // unused variable
+    return fetch(`/api/v1/items/${item_id}`);
+  }
+  ```
+  :::
+
+  **After:**
+  ::: code-group
+  ```typescript
+  function getItem(itemId: string) {
+    return fetch(`/api/v1/items/${itemId}`);
+  }
+  ```
+  :::
+
 ## 4.37.0
 
 ### ✨ Features
