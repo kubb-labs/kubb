@@ -146,7 +146,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
 
         if (this.options.enumType === 'inlineLiteral' || !node.name) {
           const literalNodes = values
-            .filter(Boolean)
+            .filter((v): v is string | number | boolean => v !== null && v !== undefined)
             .map((value) => factory.constToTypeNode(value, typeof value as 'string' | 'number' | 'boolean'))
             .filter(Boolean)
 
