@@ -350,32 +350,37 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
       // For ref nodes, structural metadata lives on node.schema rather than the ref node itself.
       const meta = syncSchemaRef(node)
 
-      // Apply top-level nullable / optional union modifiers.
-      if (meta.nullable) {
-        base = factory.createUnionDeclaration({ nodes: [base, factory.keywordTypeNodes.null] })
-      }
-
-      if ((meta.nullish || meta.optional) && addsUndefined) {
-        base = factory.createUnionDeclaration({ nodes: [base, factory.keywordTypeNodes.undefined] })
-      }
-
-      // Without name, return the type node as-is (no declaration wrapping).
+      // Without name, apply modifiers inline and return.
       if (!name) {
+        if (meta.nullable) {
+          base = factory.createUnionDeclaration({ nodes: [base, factory.keywordTypeNodes.null] })
+        }
+        if ((meta.nullish || meta.optional) && addsUndefined) {
+          base = factory.createUnionDeclaration({ nodes: [base, factory.keywordTypeNodes.undefined] })
+        }
         return safePrint(base)
       }
 
-      const useTypeGeneration = syntaxType === 'type' || base.kind === factory.syntaxKind.union || !!keysToOmit?.length
+      // When keysToOmit is present, wrap with Omit first, then apply nullable/optional
+      // modifiers so they are not swallowed by NonNullable inside createOmitDeclaration.
+      let inner: ts.TypeNode = keysToOmit?.length
+        ? factory.createOmitDeclaration({ keys: keysToOmit, type: base, nonNullable: true })
+        : base
+
+      if (meta.nullable) {
+        inner = factory.createUnionDeclaration({ nodes: [inner, factory.keywordTypeNodes.null] })
+      }
+
+      if ((meta.nullish || meta.optional) && addsUndefined) {
+        inner = factory.createUnionDeclaration({ nodes: [inner, factory.keywordTypeNodes.undefined] })
+      }
+
+      const useTypeGeneration = syntaxType === 'type' || inner.kind === factory.syntaxKind.union || !!keysToOmit?.length
 
       const typeNode = factory.createTypeDeclaration({
         name,
         isExportable: true,
-        type: keysToOmit?.length
-          ? factory.createOmitDeclaration({
-              keys: keysToOmit,
-              type: base,
-              nonNullable: true,
-            })
-          : base,
+        type: inner,
         syntax: useTypeGeneration ? 'type' : 'interface',
         comments: buildPropertyJSDocComments({
           ...meta,

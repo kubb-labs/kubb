@@ -897,23 +897,64 @@ describe('printerTs', () => {
       )
 
       expect(await format(result ?? '')).toMatchInlineSnapshot(`
-        "export type Partial = Omit<
+        "/**
+         * @type object
+         */
+        export type Partial = Omit<
           NonNullable<{
             /**
-             * @type {number | undefined}
+             * @type number | undefined
              */
             id?: number
             /**
-             * @type {string | undefined}
+             * @type string | undefined
              */
             name?: string
             /**
-             * @type {string | undefined}
+             * @type string | undefined
              */
             createdAt?: string
           }>,
           'id' | 'createdAt'
         >
+        "
+      `)
+    })
+
+    it('with keysToOmit and optional ref appends | undefined after Omit', async () => {
+      const p = printerTs({
+        resolver: resolverTs,
+        optionalType: 'questionTokenAndUndefined',
+        arrayType: 'array',
+        enumType: 'inlineLiteral',
+        name: 'AddFiles200',
+        keysToOmit: ['name'],
+      })
+      const result = p.print(
+        createSchema({ type: 'ref', name: 'Pet', optional: true }),
+      )
+
+      expect(await format(result ?? '')).toMatchInlineSnapshot(`
+        "export type AddFiles200 = Omit<NonNullable<Pet>, 'name'> | undefined
+        "
+      `)
+    })
+
+    it('with keysToOmit and nullable ref appends | null after Omit', async () => {
+      const p = printerTs({
+        resolver: resolverTs,
+        optionalType: 'questionToken',
+        arrayType: 'array',
+        enumType: 'inlineLiteral',
+        name: 'AddFiles200',
+        keysToOmit: ['name'],
+      })
+      const result = p.print(
+        createSchema({ type: 'ref', name: 'Pet', nullable: true }),
+      )
+
+      expect(await format(result ?? '')).toMatchInlineSnapshot(`
+        "export type AddFiles200 = Omit<NonNullable<Pet>, 'name'> | null
         "
       `)
     })
