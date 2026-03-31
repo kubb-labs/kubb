@@ -361,7 +361,11 @@ describe('printerZod', () => {
             type: 'intersection',
             members: [
               createSchema({ type: 'ref', name: 'BasePet', ref: '#/components/schemas/BasePet' }),
-              createSchema({ type: 'object', primitive: 'object', properties: [createProperty({ name: 'petType', required: true, schema: createSchema({ type: 'string' }) })] }),
+              createSchema({
+                type: 'object',
+                primitive: 'object',
+                properties: [createProperty({ name: 'petType', required: true, schema: createSchema({ type: 'string' }) })],
+              }),
             ],
           }),
         ],
