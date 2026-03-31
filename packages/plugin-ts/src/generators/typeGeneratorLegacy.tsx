@@ -32,11 +32,10 @@ function buildGroupedParamsSchema({ params, parentName }: BuildGroupedParamsSche
 }
 
 type BuildOperationSchemaOptions = {
-  node: OperationNode
   resolver: ResolverTs
 }
 
-function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperationSchemaOptions): SchemaNode | null {
+function buildLegacyResponsesSchemaNode(node: OperationNode, { resolver }: BuildOperationSchemaOptions): SchemaNode | null {
   const isGet = node.method.toLowerCase() === 'get'
   const successResponses = node.responses.filter((res) => {
     const code = Number(res.statusCode)
@@ -114,7 +113,7 @@ function buildLegacyResponsesSchemaNode({ node, resolver }: BuildOperationSchema
   return createSchema({ type: 'object', properties })
 }
 
-function buildLegacyResponseUnionSchemaNode({ node, resolver }: BuildOperationSchemaOptions): SchemaNode {
+function buildLegacyResponseUnionSchemaNode(node: OperationNode, { resolver }: BuildOperationSchemaOptions): SchemaNode {
   const successResponses = node.responses.filter((res) => {
     const code = Number(res.statusCode)
     return !Number.isNaN(code) && code >= 200 && code < 300
@@ -316,12 +315,12 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
     ]
 
     const legacyResponsesType = renderSchemaType({
-      schema: buildLegacyResponsesSchemaNode({ node, resolver }),
+      schema: buildLegacyResponsesSchemaNode(node, { resolver }),
       name: resolver.resolveResponsesName(node),
     })
 
     const legacyResponseType = renderSchemaType({
-      schema: buildLegacyResponseUnionSchemaNode({ node, resolver }),
+      schema: buildLegacyResponseUnionSchemaNode(node, { resolver }),
       name: resolver.resolveResponseName(node),
     })
 

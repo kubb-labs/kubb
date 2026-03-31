@@ -1,6 +1,5 @@
 import { stringify } from '@internals/utils'
 import { extractRefName, narrowSchema, syncSchemaRef } from '@kubb/ast'
-import type { SchemaNode } from '@kubb/ast/types'
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import type { PluginZod, ResolverZod } from '../types.ts'
@@ -8,7 +7,7 @@ import { applyMiniModifiers, containsSelfRef, formatLiteral, lengthChecksMini, n
 
 export type ZodMiniOptions = {
   guidType?: PluginZod['resolvedOptions']['guidType']
-  wrapOutput?: (opts: { output: string; schema: SchemaNode }) => string | undefined
+  wrapOutput?: PluginZod['resolvedOptions']['wrapOutput']
   resolver?: ResolverZod
   schemaName?: string
   /**
@@ -33,14 +32,9 @@ type ZodMiniPrinterFactory = PrinterFactoryOptions<'zod-mini', ZodMiniOptions, s
  * ```
  */
 export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => {
-  const opts: Required<Pick<ZodMiniOptions, 'guidType'>> & ZodMiniOptions = {
-    guidType: 'uuid',
-    ...options,
-  }
-
   return {
     name: 'zod-mini',
-    options: opts,
+    options,
     nodes: {
       any: () => 'z.any()',
       unknown: () => 'z.unknown()',
@@ -180,7 +174,7 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
         if (members.length === 1) return members[0]!
         if (node.discriminatorPropertyName) {
           // z.discriminatedUnion requires ZodObject members; intersections (ZodIntersection) are not
-          // assignable to $ZodDiscriminable, so fall back to z.union when any member is an intersection.
+          // assignable to $ZodDiscriminant, so fall back to z.union when any member is an intersection.
           const hasIntersectionMembers = (node.members ?? []).some((m) => m.type === 'intersection')
           if (!hasIntersectionMembers) {
             return `z.discriminatedUnion(${stringify(node.discriminatorPropertyName)}, [${members.join(', ')}])`

@@ -34,16 +34,14 @@ export function buildPropertyJSDocComments(schema: SchemaNode): Array<string | u
 
 type BuildParamsSchemaOptions = {
   params: Array<ParameterNode>
-  node: OperationNode
   resolver: ResolverTs
 }
 
 type BuildOperationSchemaOptions = {
-  node: OperationNode
   resolver: ResolverTs
 }
 
-export function buildParams({ params, node, resolver }: BuildParamsSchemaOptions): SchemaNode {
+export function buildParams(node: OperationNode, { params, resolver }: BuildParamsSchemaOptions): SchemaNode {
   return createSchema({
     type: 'object',
     properties: params.map((param) =>
@@ -59,7 +57,7 @@ export function buildParams({ params, node, resolver }: BuildParamsSchemaOptions
   })
 }
 
-export function buildData({ node, resolver }: BuildOperationSchemaOptions): SchemaNode {
+export function buildData(node: OperationNode, { resolver }: BuildOperationSchemaOptions): SchemaNode {
   const pathParams = node.parameters.filter((p) => p.in === 'path')
   const queryParams = node.parameters.filter((p) => p.in === 'query')
   const headerParams = node.parameters.filter((p) => p.in === 'header')
@@ -77,20 +75,20 @@ export function buildData({ node, resolver }: BuildOperationSchemaOptions): Sche
       createProperty({
         name: 'pathParams',
         required: pathParams.length > 0,
-        schema: pathParams.length > 0 ? buildParams({ params: pathParams, node, resolver }) : createSchema({ type: 'never', primitive: undefined }),
+        schema: pathParams.length > 0 ? buildParams(node, { params: pathParams, resolver }) : createSchema({ type: 'never', primitive: undefined }),
       }),
       createProperty({
         name: 'queryParams',
         schema:
           queryParams.length > 0
-            ? createSchema({ ...buildParams({ params: queryParams, node, resolver }), optional: true })
+            ? createSchema({ ...buildParams(node, { params: queryParams, resolver }), optional: true })
             : createSchema({ type: 'never', primitive: undefined, optional: true }),
       }),
       createProperty({
         name: 'headerParams',
         schema:
           headerParams.length > 0
-            ? createSchema({ ...buildParams({ params: headerParams, node, resolver }), optional: true })
+            ? createSchema({ ...buildParams(node, { params: headerParams, resolver }), optional: true })
             : createSchema({ type: 'never', primitive: undefined, optional: true }),
       }),
       createProperty({
@@ -102,7 +100,7 @@ export function buildData({ node, resolver }: BuildOperationSchemaOptions): Sche
   })
 }
 
-export function buildResponses({ node, resolver }: BuildOperationSchemaOptions): SchemaNode | null {
+export function buildResponses(node: OperationNode, { resolver }: BuildOperationSchemaOptions): SchemaNode | null {
   if (node.responses.length === 0) {
     return null
   }
@@ -119,7 +117,7 @@ export function buildResponses({ node, resolver }: BuildOperationSchemaOptions):
   })
 }
 
-export function buildResponseUnion({ node, resolver }: BuildOperationSchemaOptions): SchemaNode | null {
+export function buildResponseUnion(node: OperationNode, { resolver }: BuildOperationSchemaOptions): SchemaNode | null {
   const responsesWithSchema = node.responses.filter((res) => res.schema)
 
   if (responsesWithSchema.length === 0) {

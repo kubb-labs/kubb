@@ -760,7 +760,11 @@ export function buildTupleNode(node: ArraySchemaNode, print: (node: SchemaNode) 
 /**
  * Applies `nullable` and optional/nullish `| undefined` union modifiers to a property's resolved base type.
  */
-export function buildPropertyType(schema: SchemaNode, baseType: ts.TypeNode, optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'): ts.TypeNode {
+export function buildPropertyType(
+  schema: SchemaNode,
+  baseType: ts.TypeNode,
+  optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined',
+): ts.TypeNode {
   const addsUndefined = OPTIONAL_ADDS_UNDEFINED.has(optionalType)
   const meta = syncSchemaRef(schema)
 

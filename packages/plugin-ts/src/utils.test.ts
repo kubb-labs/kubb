@@ -22,7 +22,7 @@ describe('buildParams', () => {
     const params = [createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })]
     const node = createOperation({ operationId: 'showPetById', method: 'GET', path: '/pets/{petId}' })
 
-    expect(printSchema(buildParams({ params, node, resolver: resolverTs }))).toMatchInlineSnapshot(`
+    expect(printSchema(buildParams(node, { params, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
           petId: ShowPetByIdPathPetId;
       }"
@@ -33,7 +33,7 @@ describe('buildParams', () => {
     const params = [createParameter({ name: 'limit', schema: createSchema({ type: 'integer' }), in: 'query', required: false })]
     const node = createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
 
-    expect(printSchema(buildParams({ params, node, resolver: resolverTs }))).toMatchInlineSnapshot(`
+    expect(printSchema(buildParams(node, { params, resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
           limit?: ListPetsQueryLimit;
       }"
@@ -47,7 +47,7 @@ describe('buildData', () => {
   it('emits data?: never when no request body', () => {
     const node = createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })
 
-    expect(printSchema(buildData({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
+    expect(printSchema(buildData(node, { resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
           data?: never;
           pathParams?: never;
@@ -64,7 +64,7 @@ describe('buildData', () => {
   it('emits data? referencing the Data type when body exists', () => {
     const node = createOperation({ operationId: 'createPet', method: 'POST', path: '/pets', requestBody: { schema: createSchema({ type: 'object' }) } })
 
-    expect(printSchema(buildData({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
+    expect(printSchema(buildData(node, { resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
           data?: CreatePetData;
           pathParams?: never;
@@ -86,7 +86,7 @@ describe('buildData', () => {
       parameters: [createParameter({ name: 'petId', schema: createSchema({ type: 'string' }), in: 'path', required: true })],
     })
 
-    expect(printSchema(buildData({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
+    expect(printSchema(buildData(node, { resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
           data?: never;
           /**
@@ -112,7 +112,7 @@ describe('buildData', () => {
       parameters: [createParameter({ name: 'limit', schema: createSchema({ type: 'integer' }), in: 'query', required: false })],
     })
 
-    expect(printSchema(buildData({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
+    expect(printSchema(buildData(node, { resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
           data?: never;
           pathParams?: never;
@@ -140,7 +140,7 @@ describe('buildData', () => {
       ],
     })
 
-    expect(printSchema(buildData({ node, resolver: resolverTs }))).toMatchInlineSnapshot(`
+    expect(printSchema(buildData(node, { resolver: resolverTs }))).toMatchInlineSnapshot(`
       "{
           data?: never;
           pathParams?: never;
@@ -172,7 +172,7 @@ describe('buildResponses', () => {
       ],
     })
 
-    expect(printSchema(buildResponses({ node, resolver: resolverTs })!)).toMatchInlineSnapshot(`
+    expect(printSchema(buildResponses(node, { resolver: resolverTs })!)).toMatchInlineSnapshot(`
       "{
           "200": ListPetsStatus200;
           default: ListPetsStatusDefault;
@@ -193,6 +193,6 @@ describe('buildResponseUnion', () => {
       ],
     })
 
-    expect(printSchema(buildResponseUnion({ node, resolver: resolverTs })!)).toMatchInlineSnapshot(`"(ListPetsStatus200 | ListPetsStatus405)"`)
+    expect(printSchema(buildResponseUnion(node, { resolver: resolverTs })!)).toMatchInlineSnapshot(`"(ListPetsStatus200 | ListPetsStatus405)"`)
   })
 })

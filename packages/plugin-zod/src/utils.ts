@@ -6,7 +6,7 @@ import type { PluginZod, ResolverZod } from './types.ts'
 /**
  * Returns `true` when the given coercion option enables coercion for the specified type.
  */
-export function shouldCoerce(coercion: PluginZod['resolvedOptions']['coercion'], type: 'dates' | 'strings' | 'numbers'): boolean {
+export function shouldCoerce(coercion: PluginZod['resolvedOptions']['coercion'] | undefined, type: 'dates' | 'strings' | 'numbers'): boolean {
   if (coercion === undefined || coercion === false) return false
   if (coercion === true) return true
   return !!coercion[type]
