@@ -4,93 +4,85 @@
  */
 
 import type { z } from '../../zod.ts'
-import addPet200Schema from './addPetSchema.ts'
-import addPet405Schema from './addPetSchema.ts'
-import addPetMutationRequestSchema from './addPetSchema.ts'
-import addPetMutationResponseSchema from './addPetSchema.ts'
-import createPets201Schema from './createPetsSchema.ts'
-import createPetsHeaderParamsSchema from './createPetsSchema.ts'
-import createPetsMutationRequestSchema from './createPetsSchema.ts'
-import createPetsMutationResponseSchema from './createPetsSchema.ts'
-import createPetsPathParamsSchema from './createPetsSchema.ts'
-import createPetsQueryParamsSchema from './createPetsSchema.ts'
-import createUserMutationRequestSchema from './createUserSchema.ts'
-import createUserMutationResponseSchema from './createUserSchema.ts'
-import createUsersWithListInput200Schema from './createUsersWithListInputSchema.ts'
-import createUsersWithListInputMutationRequestSchema from './createUsersWithListInputSchema.ts'
-import createUsersWithListInputMutationResponseSchema from './createUsersWithListInputSchema.ts'
-import deleteOrder400Schema from './deleteOrderSchema.ts'
-import deleteOrder404Schema from './deleteOrderSchema.ts'
-import deleteOrderMutationResponseSchema from './deleteOrderSchema.ts'
-import deleteOrderPathParamsSchema from './deleteOrderSchema.ts'
-import deletePet400Schema from './deletePetSchema.ts'
-import deletePetHeaderParamsSchema from './deletePetSchema.ts'
-import deletePetMutationResponseSchema from './deletePetSchema.ts'
-import deletePetPathParamsSchema from './deletePetSchema.ts'
-import deleteUser400Schema from './deleteUserSchema.ts'
-import deleteUser404Schema from './deleteUserSchema.ts'
-import deleteUserMutationResponseSchema from './deleteUserSchema.ts'
-import deleteUserPathParamsSchema from './deleteUserSchema.ts'
-import findPetsByStatus200Schema from './findPetsByStatusSchema.ts'
-import findPetsByStatus400Schema from './findPetsByStatusSchema.ts'
-import findPetsByStatusQueryParamsSchema from './findPetsByStatusSchema.ts'
-import findPetsByStatusQueryResponseSchema from './findPetsByStatusSchema.ts'
-import findPetsByTags200Schema from './findPetsByTagsSchema.ts'
-import findPetsByTags400Schema from './findPetsByTagsSchema.ts'
-import findPetsByTagsHeaderParamsSchema from './findPetsByTagsSchema.ts'
-import findPetsByTagsQueryParamsSchema from './findPetsByTagsSchema.ts'
-import findPetsByTagsQueryResponseSchema from './findPetsByTagsSchema.ts'
-import getInventory200Schema from './getInventorySchema.ts'
-import getInventoryQueryResponseSchema from './getInventorySchema.ts'
-import getOrderById200Schema from './getOrderByIdSchema.ts'
-import getOrderById400Schema from './getOrderByIdSchema.ts'
-import getOrderById404Schema from './getOrderByIdSchema.ts'
-import getOrderByIdPathParamsSchema from './getOrderByIdSchema.ts'
-import getOrderByIdQueryResponseSchema from './getOrderByIdSchema.ts'
-import getPetById200Schema from './getPetByIdSchema.ts'
-import getPetById400Schema from './getPetByIdSchema.ts'
-import getPetById404Schema from './getPetByIdSchema.ts'
-import getPetByIdPathParamsSchema from './getPetByIdSchema.ts'
-import getPetByIdQueryResponseSchema from './getPetByIdSchema.ts'
-import getThings201Schema from './getThingsSchema.ts'
-import getThingsQueryParamsSchema from './getThingsSchema.ts'
-import getThingsQueryResponseSchema from './getThingsSchema.ts'
-import getUserByName200Schema from './getUserByNameSchema.ts'
-import getUserByName400Schema from './getUserByNameSchema.ts'
-import getUserByName404Schema from './getUserByNameSchema.ts'
-import getUserByNamePathParamsSchema from './getUserByNameSchema.ts'
-import getUserByNameQueryResponseSchema from './getUserByNameSchema.ts'
-import loginUser200Schema from './loginUserSchema.ts'
-import loginUser400Schema from './loginUserSchema.ts'
-import loginUserQueryParamsSchema from './loginUserSchema.ts'
-import loginUserQueryResponseSchema from './loginUserSchema.ts'
-import logoutUserQueryResponseSchema from './logoutUserSchema.ts'
-import placeOrderPatch200Schema from './placeOrderPatchSchema.ts'
-import placeOrderPatch405Schema from './placeOrderPatchSchema.ts'
-import placeOrderPatchMutationRequestSchema from './placeOrderPatchSchema.ts'
-import placeOrderPatchMutationResponseSchema from './placeOrderPatchSchema.ts'
-import placeOrder200Schema from './placeOrderSchema.ts'
-import placeOrder405Schema from './placeOrderSchema.ts'
-import placeOrderMutationRequestSchema from './placeOrderSchema.ts'
-import placeOrderMutationResponseSchema from './placeOrderSchema.ts'
-import updatePet200Schema from './updatePetSchema.ts'
-import updatePet400Schema from './updatePetSchema.ts'
-import updatePet404Schema from './updatePetSchema.ts'
-import updatePet405Schema from './updatePetSchema.ts'
-import updatePetMutationRequestSchema from './updatePetSchema.ts'
-import updatePetMutationResponseSchema from './updatePetSchema.ts'
-import updatePetWithForm405Schema from './updatePetWithFormSchema.ts'
-import updatePetWithFormMutationResponseSchema from './updatePetWithFormSchema.ts'
-import updatePetWithFormPathParamsSchema from './updatePetWithFormSchema.ts'
-import updatePetWithFormQueryParamsSchema from './updatePetWithFormSchema.ts'
-import updateUserMutationRequestSchema from './updateUserSchema.ts'
-import updateUserMutationResponseSchema from './updateUserSchema.ts'
-import updateUserPathParamsSchema from './updateUserSchema.ts'
-import uploadFile200Schema from './uploadFileSchema.ts'
-import uploadFileMutationRequestSchema from './uploadFileSchema.ts'
-import uploadFileMutationResponseSchema from './uploadFileSchema.ts'
-import uploadFilePathParamsSchema from './uploadFileSchema.ts'
-import uploadFileQueryParamsSchema from './uploadFileSchema.ts'
+import { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './addPetSchema.ts'
+import {
+  createPets201Schema,
+  createPetsHeaderParamsSchema,
+  createPetsMutationRequestSchema,
+  createPetsMutationResponseSchema,
+  createPetsPathParamsSchema,
+  createPetsQueryParamsSchema,
+} from './createPetsSchema.ts'
+import { createUserMutationRequestSchema, createUserMutationResponseSchema } from './createUserSchema.ts'
+import {
+  createUsersWithListInput200Schema,
+  createUsersWithListInputMutationRequestSchema,
+  createUsersWithListInputMutationResponseSchema,
+} from './createUsersWithListInputSchema.ts'
+import { deleteOrder400Schema, deleteOrder404Schema, deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema } from './deleteOrderSchema.ts'
+import { deletePet400Schema, deletePetHeaderParamsSchema, deletePetMutationResponseSchema, deletePetPathParamsSchema } from './deletePetSchema.ts'
+import { deleteUser400Schema, deleteUser404Schema, deleteUserMutationResponseSchema, deleteUserPathParamsSchema } from './deleteUserSchema.ts'
+import {
+  findPetsByStatus200Schema,
+  findPetsByStatus400Schema,
+  findPetsByStatusQueryParamsSchema,
+  findPetsByStatusQueryResponseSchema,
+} from './findPetsByStatusSchema.ts'
+import {
+  findPetsByTags200Schema,
+  findPetsByTags400Schema,
+  findPetsByTagsHeaderParamsSchema,
+  findPetsByTagsQueryParamsSchema,
+  findPetsByTagsQueryResponseSchema,
+} from './findPetsByTagsSchema.ts'
+import { getInventory200Schema, getInventoryQueryResponseSchema } from './getInventorySchema.ts'
+import {
+  getOrderById200Schema,
+  getOrderById400Schema,
+  getOrderById404Schema,
+  getOrderByIdPathParamsSchema,
+  getOrderByIdQueryResponseSchema,
+} from './getOrderByIdSchema.ts'
+import { getPetById200Schema, getPetById400Schema, getPetById404Schema, getPetByIdPathParamsSchema, getPetByIdQueryResponseSchema } from './getPetByIdSchema.ts'
+import { getThings201Schema, getThingsQueryParamsSchema, getThingsQueryResponseSchema } from './getThingsSchema.ts'
+import {
+  getUserByName200Schema,
+  getUserByName400Schema,
+  getUserByName404Schema,
+  getUserByNamePathParamsSchema,
+  getUserByNameQueryResponseSchema,
+} from './getUserByNameSchema.ts'
+import { loginUser200Schema, loginUser400Schema, loginUserQueryParamsSchema, loginUserQueryResponseSchema } from './loginUserSchema.ts'
+import { logoutUserQueryResponseSchema } from './logoutUserSchema.ts'
+import {
+  placeOrderPatch200Schema,
+  placeOrderPatch405Schema,
+  placeOrderPatchMutationRequestSchema,
+  placeOrderPatchMutationResponseSchema,
+} from './placeOrderPatchSchema.ts'
+import { placeOrder200Schema, placeOrder405Schema, placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from './placeOrderSchema.ts'
+import {
+  updatePet200Schema,
+  updatePet400Schema,
+  updatePet404Schema,
+  updatePet405Schema,
+  updatePetMutationRequestSchema,
+  updatePetMutationResponseSchema,
+} from './updatePetSchema.ts'
+import {
+  updatePetWithForm405Schema,
+  updatePetWithFormMutationResponseSchema,
+  updatePetWithFormPathParamsSchema,
+  updatePetWithFormQueryParamsSchema,
+} from './updatePetWithFormSchema.ts'
+import { updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from './updateUserSchema.ts'
+import {
+  uploadFile200Schema,
+  uploadFileMutationRequestSchema,
+  uploadFileMutationResponseSchema,
+  uploadFilePathParamsSchema,
+  uploadFileQueryParamsSchema,
+} from './uploadFileSchema.ts'
 
 export type OperationSchema = {
   readonly request: z.ZodTypeAny | undefined

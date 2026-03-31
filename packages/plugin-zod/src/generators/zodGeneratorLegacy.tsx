@@ -401,7 +401,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     const imports = transformedOperations.flatMap(({ data }, index) => {
       const names = [data.request, ...Object.values(data.responses), ...Object.values(data.parameters)].filter(Boolean) as string[]
       const opFile = operationFiles[index]!
-      return names.map((name) => <File.Import key={[name, opFile.path].join('-')} name={name} root={file.path} path={opFile.path} />)
+      return names.map((name) => <File.Import key={[name, opFile.path].join('-')} name={[name]} root={file.path} path={opFile.path} />)
     })
 
     return (
