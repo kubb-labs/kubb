@@ -5,17 +5,8 @@
 
 import * as z from 'zod'
 
-/**
- * @type {string}
- */
 export const getPetsHeaderXRequestIdSchema = z.string()
 
-/**
- * @type {string | undefined}
- */
 export const getPetsHeaderXCorrelationIdSchema = z.string().optional()
 
-/**
- * @type {object}
- */
 export const getPetsStatus200Schema = z.object({})

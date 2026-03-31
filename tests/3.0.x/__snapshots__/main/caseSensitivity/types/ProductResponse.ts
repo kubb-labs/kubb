@@ -4,6 +4,9 @@
 */
 
 
+/**
+ * @type object
+*/
 export type ProductResponse = {
     /**
      * @type string | undefined

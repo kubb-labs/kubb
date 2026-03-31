@@ -5,10 +5,7 @@
 
 import { z } from '../../zod.ts'
 
-/**
- * @description successful operation
- */
-export const getInventory200Schema = z.object({}).catchall(z.int())
+export const getInventory200Schema = z.object({}).catchall(z.int()).describe('successful operation')
 
 export type GetInventory200Schema = z.infer<typeof getInventory200Schema>
 

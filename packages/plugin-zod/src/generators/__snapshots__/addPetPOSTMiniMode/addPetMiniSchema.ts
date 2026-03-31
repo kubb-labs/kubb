@@ -5,14 +5,8 @@
 
 import * as z from 'zod/mini'
 
-/**
- * @type {object}
- */
 export const addPetMiniStatus200Schema = z.object({})
 
-/**
- * @type {object}
- */
 export const addPetMiniDataSchema = z.object({
   name: z.string(),
 })

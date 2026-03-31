@@ -5,7 +5,4 @@
 
 import * as z from 'zod'
 
-/**
- * @type {string}
- */
 export const datetimeLocalSchema = z.iso.datetime({ local: true })

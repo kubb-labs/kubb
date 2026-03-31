@@ -20,7 +20,7 @@ export type UpdateUserStatusDefault = any
  * @description Update an existent user in the store
  * @type object | undefined
  */
-export type UpdateUserData = User
+export type UpdateUserData = User | undefined
 
 /**
  * @type object

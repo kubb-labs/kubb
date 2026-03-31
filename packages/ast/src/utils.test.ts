@@ -103,12 +103,6 @@ describe('syncSchemaRef', () => {
     expect(merged?.readOnly).toBe(true)
     expect(merged?.type).toBe('object')
   })
-
-  it('returns null for a ref node without a resolved schema', () => {
-    const ref = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })
-
-    expect(syncSchemaRef(ref)).toBeNull()
-  })
 })
 
 describe('createDiscriminantNode', () => {

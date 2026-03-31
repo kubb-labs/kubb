@@ -5,12 +5,6 @@
 
 import * as z from 'zod'
 
-/**
- * @type {string}
- */
 export const deletePetPathPetIdSchema = z.string()
 
-/**
- * @type {void}
- */
 export const deletePetStatus204Schema = z.void()

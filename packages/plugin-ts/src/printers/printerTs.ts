@@ -363,9 +363,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
 
       // When keysToOmit is present, wrap with Omit first, then apply nullable/optional
       // modifiers so they are not swallowed by NonNullable inside createOmitDeclaration.
-      let inner: ts.TypeNode = keysToOmit?.length
-        ? factory.createOmitDeclaration({ keys: keysToOmit, type: base, nonNullable: true })
-        : base
+      let inner: ts.TypeNode = keysToOmit?.length ? factory.createOmitDeclaration({ keys: keysToOmit, type: base, nonNullable: true }) : base
 
       if (meta.nullable) {
         inner = factory.createUnionDeclaration({ nodes: [inner, factory.keywordTypeNodes.null] })

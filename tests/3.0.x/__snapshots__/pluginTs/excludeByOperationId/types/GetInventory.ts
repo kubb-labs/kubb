@@ -5,12 +5,15 @@
 
 
 /**
- * @description successful operation
+ * @type object
 */
 export type GetInventoryStatus200 = {
     [key: string]: number;
 };
 
+/**
+ * @type object
+*/
 export type GetInventoryRequestConfig = {
     data?: never;
     pathParams?: never;
@@ -22,6 +25,9 @@ export type GetInventoryRequestConfig = {
     url: "/store/inventory";
 };
 
+/**
+ * @type object
+*/
 export type GetInventoryResponses = {
     "200": GetInventoryStatus200;
 };

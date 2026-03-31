@@ -4,6 +4,9 @@
 */
 
 
+/**
+ * @type object
+*/
 export type GetProducts200 = {
     /**
      * @type string | undefined
@@ -21,6 +24,9 @@ export type GetProducts200 = {
 
 export type GetProductsQueryResponse = GetProducts200;
 
+/**
+ * @type object
+*/
 export type GetProductsQuery = {
     Response: GetProducts200;
     Errors: any;

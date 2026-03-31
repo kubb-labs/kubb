@@ -4,6 +4,9 @@
  * Source: petStore.yaml
  */
 
+/**
+ * @type object
+ */
 export type DeletePetPathParams = {
   /**
    * @description Pet id to delete
@@ -12,6 +15,9 @@ export type DeletePetPathParams = {
   petId: number
 }
 
+/**
+ * @type object
+ */
 export type DeletePetHeaderParams = {
   /**
    * @type string | undefined
@@ -21,11 +27,15 @@ export type DeletePetHeaderParams = {
 
 /**
  * @description Invalid pet value
+ * @type any
  */
 export type DeletePet400 = any
 
 export type DeletePetMutationResponse = any
 
+/**
+ * @type object
+ */
 export type DeletePetMutation = {
   Response: any
   PathParams: DeletePetPathParams

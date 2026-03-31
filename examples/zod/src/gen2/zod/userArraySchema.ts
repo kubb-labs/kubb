@@ -5,7 +5,4 @@
 
 import * as z from 'zod/mini'
 
-/**
- * @description List of user object
- */
 export const userArraySchema = z.any()

@@ -6,37 +6,22 @@
 import * as z from "zod";
 import { petSchema } from "./petSchema.ts";
 
-/**
- * @description Successful operation
- */
 export const updatePetStatus200Schema = petSchema
 
 export type UpdatePetStatus200Schema = z.infer<typeof updatePetStatus200Schema>
 
-/**
- * @description Invalid ID supplied
- */
 export const updatePetStatus400Schema = z.any()
 
 export type UpdatePetStatus400Schema = z.infer<typeof updatePetStatus400Schema>
 
-/**
- * @description Pet not found
- */
 export const updatePetStatus404Schema = z.any()
 
 export type UpdatePetStatus404Schema = z.infer<typeof updatePetStatus404Schema>
 
-/**
- * @description Validation exception
- */
 export const updatePetStatus405Schema = z.any()
 
 export type UpdatePetStatus405Schema = z.infer<typeof updatePetStatus405Schema>
 
-/**
- * @description Update an existent pet in the store
- */
-export const updatePetDataSchema = petSchema
+export const updatePetDataSchema = petSchema.describe("Update an existent pet in the store")
 
 export type UpdatePetDataSchema = z.infer<typeof updatePetDataSchema>

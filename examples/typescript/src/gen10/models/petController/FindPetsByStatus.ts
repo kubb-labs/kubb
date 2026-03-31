@@ -10,7 +10,7 @@ import type { Pet } from '../Pet.ts'
  * @default "available"
  * @type string | undefined
  */
-export type FindPetsByStatusQueryStatus = 'available' | 'pending' | 'sold'
+export type FindPetsByStatusQueryStatus = ('available' | 'pending' | 'sold') | undefined
 
 /**
  * @type array

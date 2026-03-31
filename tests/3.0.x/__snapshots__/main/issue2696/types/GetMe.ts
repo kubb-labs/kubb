@@ -7,11 +7,15 @@ import type { User } from "./User.ts";
 
 /**
  * @description Current user
+ * @type object
 */
 export type GetMe200 = User;
 
 export type GetMeQueryResponse = GetMe200;
 
+/**
+ * @type object
+*/
 export type GetMeQuery = {
     Response: GetMe200;
     Errors: any;

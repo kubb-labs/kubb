@@ -20,7 +20,7 @@ export type PlaceOrderPatch405 = any
 /**
  * @type object | undefined
  */
-export type PlaceOrderPatchMutationRequest = Order
+export type PlaceOrderPatchMutationRequest = Order | undefined
 
 export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
 

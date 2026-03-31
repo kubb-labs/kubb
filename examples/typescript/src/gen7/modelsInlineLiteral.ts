@@ -479,7 +479,7 @@ export type AddPetResponse = AddPetStatus200 | AddPetStatus405
  * @default "available"
  * @type string | undefined
  */
-export type FindPetsByStatusQueryStatus = 'available' | 'pending' | 'sold'
+export type FindPetsByStatusQueryStatus = ('available' | 'pending' | 'sold') | undefined
 
 /**
  * @type array
@@ -527,19 +527,19 @@ export type FindPetsByStatusResponse = FindPetsByStatusStatus200 | FindPetsBySta
  * @description Tags to filter by
  * @type array | undefined
  */
-export type FindPetsByTagsQueryTags = string[]
+export type FindPetsByTagsQueryTags = string[] | undefined
 
 /**
  * @description to request with required page number or pagination
  * @type string | undefined
  */
-export type FindPetsByTagsQueryPage = string
+export type FindPetsByTagsQueryPage = string | undefined
 
 /**
  * @description to request with required page size
  * @type string | undefined
  */
-export type FindPetsByTagsQueryPageSize = string
+export type FindPetsByTagsQueryPageSize = string | undefined
 
 /**
  * @type array
@@ -646,13 +646,13 @@ export type UpdatePetWithFormPathPetId = number
  * @description Name of pet that needs to be updated
  * @type string | undefined
  */
-export type UpdatePetWithFormQueryName = string
+export type UpdatePetWithFormQueryName = string | undefined
 
 /**
  * @description Status of pet that needs to be updated
  * @type string | undefined
  */
-export type UpdatePetWithFormQueryStatus = string
+export type UpdatePetWithFormQueryStatus = string | undefined
 
 /**
  * @type any
@@ -699,7 +699,7 @@ export type UpdatePetWithFormResponse = UpdatePetWithFormStatus405
 /**
  * @type string | undefined
  */
-export type DeletePetHeaderApiKey = string
+export type DeletePetHeaderApiKey = string | undefined
 
 /**
  * @description Pet id to delete
@@ -764,7 +764,7 @@ export type UploadFilePathPetId = number
  * @description Additional Metadata
  * @type string | undefined
  */
-export type UploadFileQueryAdditionalMetadata = string
+export type UploadFileQueryAdditionalMetadata = string | undefined
 
 /**
  * @type object
@@ -774,7 +774,7 @@ export type UploadFileStatus200 = ApiResponse
 /**
  * @type string | undefined
  */
-export type UploadFileData = Blob
+export type UploadFileData = Blob | undefined
 
 /**
  * @type object
@@ -859,7 +859,7 @@ export type PlaceOrderStatus405 = any
  * @description Order description
  * @type object | undefined
  */
-export type PlaceOrderData = Order
+export type PlaceOrderData = Order | undefined
 
 /**
  * @type object
@@ -901,7 +901,7 @@ export type PlaceOrderPatchStatus405 = any
 /**
  * @type object | undefined
  */
-export type PlaceOrderPatchData = Order
+export type PlaceOrderPatchData = Order | undefined
 
 /**
  * @type object
@@ -1041,7 +1041,7 @@ export type CreateUserStatusDefault = User
  * @description Created user object
  * @type object | undefined
  */
-export type CreateUserData = User
+export type CreateUserData = User | undefined
 
 /**
  * @type object
@@ -1082,7 +1082,7 @@ export type CreateUsersWithListInputStatusDefault = any
 /**
  * @type array | undefined
  */
-export type CreateUsersWithListInputData = User[]
+export type CreateUsersWithListInputData = User[] | undefined
 
 /**
  * @type object
@@ -1115,13 +1115,13 @@ export type CreateUsersWithListInputResponse = CreateUsersWithListInputStatus200
  * @description The user name for login
  * @type string | undefined
  */
-export type LoginUserQueryUsername = string
+export type LoginUserQueryUsername = string | undefined
 
 /**
  * @description The password for login in clear text
  * @type string | undefined
  */
-export type LoginUserQueryPassword = string
+export type LoginUserQueryPassword = string | undefined
 
 /**
  * @type string
@@ -1266,7 +1266,7 @@ export type UpdateUserStatusDefault = any
  * @description Update an existent user in the store
  * @type object | undefined
  */
-export type UpdateUserData = User
+export type UpdateUserData = User | undefined
 
 /**
  * @type object

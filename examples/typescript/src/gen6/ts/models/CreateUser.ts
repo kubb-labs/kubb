@@ -15,7 +15,7 @@ export type CreateUserError = User
  * @description Created user object
  * @type object | undefined
  */
-export type CreateUserMutationRequest = User
+export type CreateUserMutationRequest = User | undefined
 
 export type CreateUserMutationResponse = any
 

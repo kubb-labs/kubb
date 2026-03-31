@@ -9,12 +9,6 @@ export const loginUserQueryUsernameSchema = z.coerce.string().optional().describ
 
 export const loginUserQueryPasswordSchema = z.coerce.string().optional().describe("The password for login in clear text")
 
-/**
- * @description successful operation
- */
 export const loginUserStatus200Schema = z.coerce.string()
 
-/**
- * @description Invalid username/password supplied
- */
 export const loginUserStatus400Schema = z.any()

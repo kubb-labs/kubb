@@ -20,10 +20,7 @@ export const uploadFileQueryParamsSchema = z
 
 export type UploadFileQueryParamsSchema = z.infer<typeof uploadFileQueryParamsSchema>
 
-/**
- * @description successful operation
- */
-export const uploadFile200Schema = apiResponseSchema
+export const uploadFile200Schema = apiResponseSchema.describe('successful operation')
 
 export type UploadFile200Schema = z.infer<typeof uploadFile200Schema>
 

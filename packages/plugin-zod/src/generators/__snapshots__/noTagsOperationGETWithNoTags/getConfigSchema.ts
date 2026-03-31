@@ -5,7 +5,4 @@
 
 import * as z from 'zod'
 
-/**
- * @type {object}
- */
 export const getConfigStatus200Schema = z.object({})

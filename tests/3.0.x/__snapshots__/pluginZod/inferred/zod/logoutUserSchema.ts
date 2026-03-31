@@ -5,9 +5,6 @@
 
 import * as z from "zod";
 
-/**
- * @description successful operation
- */
 export const logoutUserStatusDefaultSchema = z.any()
 
 export type LogoutUserStatusDefaultSchema = z.infer<typeof logoutUserStatusDefaultSchema>

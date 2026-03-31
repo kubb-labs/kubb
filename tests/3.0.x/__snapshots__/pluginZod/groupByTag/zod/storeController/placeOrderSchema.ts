@@ -6,14 +6,8 @@
 import * as z from "zod";
 import { orderSchema } from "../orderSchema.ts";
 
-/**
- * @description successful operation
- */
 export const placeOrderStatus200Schema = orderSchema
 
-/**
- * @description Invalid input
- */
 export const placeOrderStatus405Schema = z.any()
 
 export const placeOrderDataSchema = orderSchema.optional()

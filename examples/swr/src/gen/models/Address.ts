@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * @type object
+ */
 export type Address = {
   /**
    * @example 437 Lytton

@@ -5,30 +5,18 @@
 
 import * as z from 'zod'
 
-/**
- * @type {object | undefined}
- */
 export const listPetsQueryParamsSchema = z
   .object({
     limit: z.int().optional(),
   })
   .optional()
 
-/**
- * @type {object}
- */
-export const listPets200Schema = z.object({})
+export const listPets200Schema = z.object({}).describe('A paged array of pets')
 
-/**
- * @type {object}
- */
-export const listPetsErrorSchema = z.object({})
+export const listPetsErrorSchema = z.object({}).describe('Unexpected error')
 
 export const listPetsQueryResponseSchema = listPets200Schema
 
-/**
- * @type {object}
- */
 export const listPetsQuerySchema = z.object({
   Response: listPets200Schema,
   QueryParams: listPetsQueryParamsSchema,

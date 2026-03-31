@@ -12,17 +12,11 @@ export const updateUserPathParamsSchema = z.object({
 
 export type UpdateUserPathParamsSchema = z.infer<typeof updateUserPathParamsSchema>
 
-/**
- * @description successful operation
- */
-export const updateUserErrorSchema = z.any()
+export const updateUserErrorSchema = z.any().describe('successful operation')
 
 export type UpdateUserErrorSchema = z.infer<typeof updateUserErrorSchema>
 
-/**
- * @description Update an existent user in the store
- */
-export const updateUserMutationRequestSchema = userSchema.optional()
+export const updateUserMutationRequestSchema = userSchema.optional().describe('Update an existent user in the store')
 
 export type UpdateUserMutationRequestSchema = z.infer<typeof updateUserMutationRequestSchema>
 

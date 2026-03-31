@@ -58,14 +58,17 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
       null: () => 'z.null()',
       string(node) {
         const base = shouldCoerce(this.options.coercion, 'strings') ? 'z.coerce.string()' : 'z.string()'
+
         return `${base}${lengthConstraints(node)}`
       },
       number(node) {
         const base = shouldCoerce(this.options.coercion, 'numbers') ? 'z.coerce.number()' : 'z.number()'
+
         return `${base}${numberConstraints(node)}`
       },
       integer(node) {
         const base = shouldCoerce(this.options.coercion, 'numbers') ? 'z.coerce.number().int()' : 'z.int()'
+
         return `${base}${numberConstraints(node)}`
       },
       bigint() {
@@ -75,21 +78,25 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         if (node.representation === 'string') {
           return 'z.iso.date()'
         }
+
         return shouldCoerce(this.options.coercion, 'dates') ? 'z.coerce.date()' : 'z.date()'
       },
       datetime(node) {
         if (node.offset) return 'z.iso.datetime({ offset: true })'
         if (node.local) return 'z.iso.datetime({ local: true })'
+
         return 'z.iso.datetime()'
       },
       time(node) {
         if (node.representation === 'string') {
           return 'z.iso.time()'
         }
+
         return shouldCoerce(this.options.coercion, 'dates') ? 'z.coerce.date()' : 'z.date()'
       },
       uuid(node) {
         const base = this.options.guidType === 'guid' ? 'z.guid()' : 'z.uuid()'
+
         return `${base}${lengthConstraints(node)}`
       },
       email(node) {
@@ -116,6 +123,7 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
 
         // Regular enum: use z.enum([…])
         const items = values.filter((v): v is string | number | boolean => v !== null).map((v) => formatLiteral(v as string | number | boolean))
+
         return `z.enum([${items.join(', ')}])`
       },
       ref(node) {
@@ -123,9 +131,11 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         const refName = node.ref ? (extractRefName(node.ref) ?? node.name) : node.name
         const resolvedName = node.ref ? (this.options.resolver?.default(refName, 'function') ?? refName) : node.name
         const isSelfRef = node.ref && this.options.schemaName != null && resolvedName === this.options.schemaName
+
         if (isSelfRef) {
           return `z.lazy(() => ${resolvedName})`
         }
+
         return resolvedName
       },
       object(node) {
@@ -182,13 +192,16 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
         const inner = items.join(', ') || 'z.unknown()'
         let result = `z.array(${inner})${lengthConstraints(node)}`
+
         if (node.unique) {
           result += `.refine(items => new Set(items).size === items.length, { message: "Array entries must be unique" })`
         }
+
         return result
       },
       tuple(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
+
         return `z.tuple([${items.join(', ')}])`
       },
       union(node) {
@@ -203,6 +216,7 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
             return `z.discriminatedUnion(${stringify(node.discriminatorPropertyName)}, [${members.join(', ')}])`
           }
         }
+
         return `z.union([${members.join(', ')}])`
       },
       intersection(node) {

@@ -19,7 +19,7 @@ export type PlaceOrderStatus405 = any
  * @description Order description
  * @type object | undefined
  */
-export type PlaceOrderData = Order
+export type PlaceOrderData = Order | undefined
 
 /**
  * @type object

@@ -4,4 +4,7 @@
 */
 
 
+/**
+ * @type object
+*/
 export type Order = Order;

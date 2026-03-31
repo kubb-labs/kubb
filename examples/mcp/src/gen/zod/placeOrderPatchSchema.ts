@@ -6,15 +6,9 @@
 import * as z from 'zod'
 import { orderSchema } from './orderSchema.js'
 
-/**
- * @description successful operation
- */
-export const placeOrderPatch200Schema = orderSchema
+export const placeOrderPatch200Schema = orderSchema.describe('successful operation')
 
-/**
- * @description Invalid input
- */
-export const placeOrderPatch405Schema = z.any()
+export const placeOrderPatch405Schema = z.any().describe('Invalid input')
 
 export const placeOrderPatchMutationRequestSchema = orderSchema.optional()
 

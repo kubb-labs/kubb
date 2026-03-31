@@ -5,7 +5,4 @@
 
 import * as z from 'zod'
 
-/**
- * @type {integer}
- */
 export const petIdSchema = z.int()

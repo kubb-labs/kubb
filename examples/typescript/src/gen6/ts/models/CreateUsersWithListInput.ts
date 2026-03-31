@@ -20,7 +20,7 @@ export type CreateUsersWithListInputError = any
 /**
  * @type array | undefined
  */
-export type CreateUsersWithListInputMutationRequest = User[]
+export type CreateUsersWithListInputMutationRequest = User[] | undefined
 
 export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200
 

@@ -4,6 +4,9 @@
  * Source: petStore.yaml
  */
 
+/**
+ * @type object
+ */
 export type ApiResponse = {
   /**
    * @type integer | undefined

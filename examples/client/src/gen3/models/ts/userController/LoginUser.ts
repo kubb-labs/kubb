@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * @type object
+ */
 export type LoginUserQueryParams = {
   /**
    * @description The user name for login
@@ -18,16 +21,21 @@ export type LoginUserQueryParams = {
 
 /**
  * @description successful operation
+ * @type string
  */
 export type LoginUser200 = string
 
 /**
  * @description Invalid username/password supplied
+ * @type any
  */
 export type LoginUser400 = any
 
 export type LoginUserQueryResponse = LoginUser200
 
+/**
+ * @type object
+ */
 export type LoginUserQuery = {
   Response: LoginUser200
   QueryParams: LoginUserQueryParams

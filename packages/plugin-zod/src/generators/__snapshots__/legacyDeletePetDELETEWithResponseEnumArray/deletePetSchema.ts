@@ -5,23 +5,14 @@
 
 import * as z from 'zod'
 
-/**
- * @type {object}
- */
 export const deletePetPathParamsSchema = z.object({
   petId: z.string(),
 })
 
-/**
- * @type {array}
- */
-export const deletePet200Schema = z.array(z.enum(['TYPE1', 'TYPE2', 'TYPE3']))
+export const deletePet200Schema = z.array(z.enum(['TYPE1', 'TYPE2', 'TYPE3'])).describe('Successful deletion')
 
 export const deletePetMutationResponseSchema = deletePet200Schema
 
-/**
- * @type {object}
- */
 export const deletePetMutationSchema = z.object({
   Response: deletePet200Schema,
   PathParams: deletePetPathParamsSchema,

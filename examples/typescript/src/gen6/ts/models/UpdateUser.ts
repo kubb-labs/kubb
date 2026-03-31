@@ -26,7 +26,7 @@ export type UpdateUserError = any
  * @description Update an existent user in the store
  * @type object | undefined
  */
-export type UpdateUserMutationRequest = User
+export type UpdateUserMutationRequest = User | undefined
 
 export type UpdateUserMutationResponse = any
 

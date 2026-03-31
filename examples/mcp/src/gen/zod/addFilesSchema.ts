@@ -6,17 +6,11 @@
 import * as z from 'zod'
 import { petSchema } from './petSchema.js'
 
-/**
- * @description successful operation
- */
-export const addFiles200Schema = petSchema.omit({ name: true })
+export const addFiles200Schema = petSchema.omit({ name: true }).describe('successful operation')
 
-/**
- * @description Invalid input
- */
-export const addFiles405Schema = z.any()
+export const addFiles405Schema = z.any().describe('Invalid input')
 
-export const addFilesMutationRequestSchema = petSchema.omit({ id: true })
+export const addFilesMutationRequestSchema = petSchema.omit({ id: true }).optional()
 
 export const addFilesMutationResponseSchema = addFiles200Schema
 

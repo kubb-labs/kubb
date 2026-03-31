@@ -36,7 +36,7 @@ export type UploadFile200 = ApiResponse
 /**
  * @type string | undefined
  */
-export type UploadFileMutationRequest = Blob
+export type UploadFileMutationRequest = Blob | undefined
 
 export type UploadFileMutationResponse = UploadFile200
 

@@ -705,7 +705,7 @@ export type UploadFile200 = ApiResponse
 /**
  * @type string | undefined
  */
-export type UploadFileMutationRequest = Blob
+export type UploadFileMutationRequest = Blob | undefined
 
 export type UploadFileMutationResponse = UploadFile200
 
@@ -754,7 +754,7 @@ export type PlaceOrder405 = any
  * @description Order description
  * @type object | undefined
  */
-export type PlaceOrderMutationRequest = Order
+export type PlaceOrderMutationRequest = Order | undefined
 
 export type PlaceOrderMutationResponse = PlaceOrder200
 
@@ -782,7 +782,7 @@ export type PlaceOrderPatch405 = any
 /**
  * @type object | undefined
  */
-export type PlaceOrderPatchMutationRequest = Order
+export type PlaceOrderPatchMutationRequest = Order | undefined
 
 export type PlaceOrderPatchMutationResponse = PlaceOrderPatch200
 
@@ -879,7 +879,7 @@ export type CreateUserError = User
  * @description Created user object
  * @type object | undefined
  */
-export type CreateUserMutationRequest = User
+export type CreateUserMutationRequest = User | undefined
 
 export type CreateUserMutationResponse = any
 
@@ -907,7 +907,7 @@ export type CreateUsersWithListInputError = any
 /**
  * @type array | undefined
  */
-export type CreateUsersWithListInputMutationRequest = User[]
+export type CreateUsersWithListInputMutationRequest = User[] | undefined
 
 export type CreateUsersWithListInputMutationResponse = CreateUsersWithListInput200
 
@@ -1036,7 +1036,7 @@ export type UpdateUserError = any
  * @description Update an existent user in the store
  * @type object | undefined
  */
-export type UpdateUserMutationRequest = User
+export type UpdateUserMutationRequest = User | undefined
 
 export type UpdateUserMutationResponse = any
 

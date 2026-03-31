@@ -1,4 +1,4 @@
-import type { DeleteUserPathParams, DeleteUserMutationResponse } from '../../models/ts/userController/DeleteUser.ts'
+import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../models/ts/userController/DeleteUser.ts'
 
 export function deleteUser(
   username: DeleteUserPathParams['username'],

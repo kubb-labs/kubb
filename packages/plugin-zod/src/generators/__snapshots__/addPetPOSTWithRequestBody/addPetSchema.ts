@@ -5,17 +5,8 @@
 
 import * as z from 'zod'
 
-/**
- * @type {object}
- */
 export const addPetStatus200Schema = z.object({})
 
-/**
- * @type {object}
- */
 export const addPetStatus405Schema = z.object({})
 
-/**
- * @type {object}
- */
 export const addPetDataSchema = z.object({})

@@ -10,16 +10,10 @@ export const updateUserPathUsernameSchema = z.string().describe("name that need 
 
 export type UpdateUserPathUsernameSchema = z.infer<typeof updateUserPathUsernameSchema>
 
-/**
- * @description successful operation
- */
 export const updateUserStatusDefaultSchema = z.any()
 
 export type UpdateUserStatusDefaultSchema = z.infer<typeof updateUserStatusDefaultSchema>
 
-/**
- * @description Update an existent user in the store
- */
-export const updateUserDataSchema = userSchema.optional()
+export const updateUserDataSchema = userSchema.optional().describe("Update an existent user in the store")
 
 export type UpdateUserDataSchema = z.infer<typeof updateUserDataSchema>

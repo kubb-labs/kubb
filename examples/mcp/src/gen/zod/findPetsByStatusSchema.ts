@@ -10,9 +10,6 @@ export const findPetsByStatusPathParamsSchema = z.object({
   step_id: z.string(),
 })
 
-/**
- * @description successful operation
- */
 export const findPetsByStatus200Schema = z
   .array(petSchema)
   .min(1)
@@ -20,11 +17,9 @@ export const findPetsByStatus200Schema = z
   .refine((items) => new Set(items).size === items.length, {
     message: 'Array entries must be unique',
   })
+  .describe('successful operation')
 
-/**
- * @description Invalid status value
- */
-export const findPetsByStatus400Schema = z.any()
+export const findPetsByStatus400Schema = z.any().describe('Invalid status value')
 
 export const findPetsByStatusQueryResponseSchema = findPetsByStatus200Schema
 

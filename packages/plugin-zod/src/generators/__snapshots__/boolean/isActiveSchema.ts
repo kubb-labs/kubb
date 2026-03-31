@@ -5,7 +5,4 @@
 
 import * as z from 'zod'
 
-/**
- * @type {boolean}
- */
 export const isActiveSchema = z.boolean()

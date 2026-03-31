@@ -3,34 +3,43 @@
  * Do not edit manually.
  */
 
-export type ListPetsQueryLimit = number
+/**
+ * @type integer | undefined
+ */
+export type ListPetsQueryLimit = number | undefined
 
 /**
- * @description A paged array of pets
+ * @type object
  */
 export type ListPetsStatus200 = object
 
 /**
- * @description Unexpected error
+ * @type object
  */
 export type ListPetsStatusDefault = object
 
+/**
+ * @type object
+ */
 export type ListPetsRequestConfig = {
   data?: never
   pathParams?: never
   /**
-   * @type {object | undefined}
+   * @type object | undefined
    */
   queryParams?: {
     limit?: ListPetsQueryLimit
   }
   headerParams?: never
   /**
-   * @type {string}
+   * @type string
    */
   url: '/pets'
 }
 
+/**
+ * @type object
+ */
 export type ListPetsResponses = {
   '200': ListPetsStatus200
   default: ListPetsStatusDefault

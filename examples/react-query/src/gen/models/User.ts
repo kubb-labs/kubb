@@ -1,5 +1,8 @@
 // version: 1.0.11
 
+/**
+ * @type object
+ */
 export type User = {
   /**
    * @example 10

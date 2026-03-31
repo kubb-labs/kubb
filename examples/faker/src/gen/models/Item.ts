@@ -3,6 +3,9 @@
  * Do not edit manually.
  */
 
+/**
+ * @type object
+ */
 export type Item = {
   /**
    * @minLength 3

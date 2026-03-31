@@ -15,7 +15,7 @@ export type UploadFilePathPetId = number
  * @description Additional Metadata
  * @type string | undefined
  */
-export type UploadFileQueryAdditionalMetadata = string
+export type UploadFileQueryAdditionalMetadata = string | undefined
 
 /**
  * @type object
@@ -25,7 +25,7 @@ export type UploadFileStatus200 = ApiResponse
 /**
  * @type string | undefined
  */
-export type UploadFileData = Blob
+export type UploadFileData = Blob | undefined
 
 /**
  * @type object

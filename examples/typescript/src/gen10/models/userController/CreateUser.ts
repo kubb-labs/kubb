@@ -14,7 +14,7 @@ export type CreateUserStatusDefault = User
  * @description Created user object
  * @type object | undefined
  */
-export type CreateUserData = User
+export type CreateUserData = User | undefined
 
 /**
  * @type object

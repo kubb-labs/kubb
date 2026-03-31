@@ -13,9 +13,6 @@ export const deletePetPathPetIdSchema = z.int().describe("Pet id to delete")
 
 export type DeletePetPathPetIdSchema = z.infer<typeof deletePetPathPetIdSchema>
 
-/**
- * @description Invalid pet value
- */
 export const deletePetStatus400Schema = z.any()
 
 export type DeletePetStatus400Schema = z.infer<typeof deletePetStatus400Schema>

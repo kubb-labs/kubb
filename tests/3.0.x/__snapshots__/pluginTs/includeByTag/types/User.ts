@@ -4,6 +4,9 @@
 */
 
 
+/**
+ * @type object
+*/
 export type User = {
     /**
      * @example 10

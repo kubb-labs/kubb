@@ -6,15 +6,9 @@
 import * as z from 'zod'
 import { itemSchema } from './itemSchema.ts'
 
-/**
- * @description Success
- */
-export const updateItem200Schema = itemSchema
+export const updateItem200Schema = itemSchema.describe('Success')
 
-/**
- * @description Item to update
- */
-export const updateItemMutationRequestSchema = itemSchema
+export const updateItemMutationRequestSchema = itemSchema.describe('Item to update')
 
 export const updateItemMutationResponseSchema = updateItem200Schema
 

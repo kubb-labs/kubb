@@ -57,13 +57,14 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
       integer(node) {
         return `z.int()${numberChecksMini(node)}`
       },
-      bigint() {
-        return 'z.bigint()'
+      bigint(node) {
+        return `z.bigint()${numberChecksMini(node)}`
       },
       date(node) {
         if (node.representation === 'string') {
           return 'z.iso.date()'
         }
+
         return 'z.date()'
       },
       datetime() {
@@ -74,10 +75,12 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
         if (node.representation === 'string') {
           return 'z.iso.time()'
         }
+
         return 'z.date()'
       },
       uuid(node) {
         const base = this.options.guidType === 'guid' ? 'z.guid()' : 'z.uuid()'
+
         return `${base}${lengthChecksMini(node)}`
       },
       email(node) {
@@ -104,6 +107,7 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
 
         // Regular enum: use z.enum([…])
         const items = values.filter((v): v is string | number | boolean => v !== null).map((v) => formatLiteral(v as string | number | boolean))
+
         return `z.enum([${items.join(', ')}])`
       },
 
@@ -112,9 +116,11 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
         const refName = node.ref ? (extractRefName(node.ref) ?? node.name) : node.name
         const resolvedName = node.ref ? (this.options.resolver?.default(refName, 'function') ?? refName) : node.name
         const isSelfRef = node.ref && this.options.schemaName != null && resolvedName === this.options.schemaName
+
         if (isSelfRef) {
           return `z.lazy(() => ${resolvedName})`
         }
+
         return resolvedName
       },
       object(node) {
@@ -150,33 +156,22 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
           })
           .join(',\n    ')
 
-        let result = `z.object({\n    ${properties}\n    })`
-
-        // Handle additionalProperties as .catchall() or .strict()
-        if (node.additionalProperties && node.additionalProperties !== true) {
-          const catchallType = this.transform(node.additionalProperties)
-          if (catchallType) {
-            result += `.catchall(${catchallType})`
-          }
-        } else if (node.additionalProperties === true) {
-          result += '.catchall(z.unknown())'
-        } else if (node.additionalProperties === false) {
-          result += '.strict()'
-        }
-
-        return result
+        return `z.object({\n    ${properties}\n    })`
       },
       array(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
         const inner = items.join(', ') || 'z.unknown()'
         let result = `z.array(${inner})${lengthChecksMini(node)}`
+
         if (node.unique) {
           result += `.refine(items => new Set(items).size === items.length, { message: "Array entries must be unique" })`
         }
+
         return result
       },
       tuple(node) {
         const items = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean)
+
         return `z.tuple([${items.join(', ')}])`
       },
       union(node) {
@@ -191,6 +186,7 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
             return `z.discriminatedUnion(${stringify(node.discriminatorPropertyName)}, [${members.join(', ')}])`
           }
         }
+
         return `z.union([${members.join(', ')}])`
       },
       intersection(node) {

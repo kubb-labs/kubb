@@ -5,39 +5,24 @@
 
 import * as z from 'zod'
 
-/**
- * @type {object}
- */
 export const createPetsPathParamsSchema = z.object({
   pet_id: z.string(),
 })
 
-/**
- * @type {object | undefined}
- */
 export const createPetsQueryParamsSchema = z
   .object({
     include_deleted: z.boolean().optional(),
   })
   .optional()
 
-/**
- * @type {object}
- */
 export const createPetsHeaderParamsSchema = z.object({
   'X-EXAMPLE': z.enum(['ONE', 'TWO', 'THREE']),
 })
 
-/**
- * @type {void}
- */
-export const createPets201Schema = z.void()
+export const createPets201Schema = z.void().describe('Null response')
 
 export const createPetsMutationResponseSchema = createPets201Schema
 
-/**
- * @type {object}
- */
 export const createPetsMutationSchema = z.object({
   Response: createPets201Schema,
   QueryParams: createPetsQueryParamsSchema,

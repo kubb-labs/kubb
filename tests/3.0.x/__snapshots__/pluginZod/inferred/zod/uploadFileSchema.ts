@@ -14,9 +14,6 @@ export const uploadFileQueryAdditionalMetadataSchema = z.string().optional().des
 
 export type UploadFileQueryAdditionalMetadataSchema = z.infer<typeof uploadFileQueryAdditionalMetadataSchema>
 
-/**
- * @description successful operation
- */
 export const uploadFileStatus200Schema = apiResponseSchema
 
 export type UploadFileStatus200Schema = z.infer<typeof uploadFileStatus200Schema>

@@ -7,11 +7,15 @@ import type { Variant } from "./Variant.ts";
 
 /**
  * @description Get variants
+ * @type object
 */
 export type GetVariants200 = Variant;
 
 export type GetVariantsQueryResponse = GetVariants200;
 
+/**
+ * @type object
+*/
 export type GetVariantsQuery = {
     Response: GetVariants200;
     Errors: any;

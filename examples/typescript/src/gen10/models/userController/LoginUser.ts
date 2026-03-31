@@ -7,13 +7,13 @@
  * @description The user name for login
  * @type string | undefined
  */
-export type LoginUserQueryUsername = string
+export type LoginUserQueryUsername = string | undefined
 
 /**
  * @description The password for login in clear text
  * @type string | undefined
  */
-export type LoginUserQueryPassword = string
+export type LoginUserQueryPassword = string | undefined
 
 /**
  * @type string

@@ -5,17 +5,8 @@
 
 import * as z from 'zod'
 
-/**
- * @type {integer | undefined}
- */
 export const listPetsQueryLimitSchema = z.int().optional()
 
-/**
- * @type {object}
- */
 export const listPetsStatus200Schema = z.object({})
 
-/**
- * @type {object}
- */
 export const listPetsStatusDefaultSchema = z.object({})

@@ -5,8 +5,4 @@
 
 import * as z from 'zod'
 
-/**
- * @description A human-readable label
- * @type {string}
- */
 export const labelFieldSchema = z.string().describe('A human-readable label')

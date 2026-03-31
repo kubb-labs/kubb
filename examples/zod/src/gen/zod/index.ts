@@ -210,7 +210,7 @@ export {
   OperationsMap,
   operations,
   paths,
-} from './operations.ts'
+} from './operationsSchema.ts'
 export type { OrderSchema } from './orderSchema.ts'
 export { orderSchema } from './orderSchema.ts'
 export type { PetNotFoundSchema } from './petNotFoundSchema.ts'

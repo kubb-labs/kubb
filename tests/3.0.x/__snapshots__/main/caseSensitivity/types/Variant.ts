@@ -10,6 +10,9 @@ export const variantTypeEnum = {
 
 export type VariantTypeEnumKey = (typeof variantTypeEnum)[keyof typeof variantTypeEnum];
 
+/**
+ * @type object
+*/
 export type Variant = {
     /**
      * @type string | undefined

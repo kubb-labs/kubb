@@ -5,9 +5,6 @@
 
 import * as z from 'zod'
 
-/**
- * @type {object}
- */
 export const petSchema = z.object({
   id: z.int(),
   name: z.string(),

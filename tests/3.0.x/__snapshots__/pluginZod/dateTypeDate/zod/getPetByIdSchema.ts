@@ -8,17 +8,8 @@ import { petSchema } from "./petSchema.ts";
 
 export const getPetByIdPathPetIdSchema = z.int().describe("ID of pet to return")
 
-/**
- * @description successful operation
- */
 export const getPetByIdStatus200Schema = petSchema
 
-/**
- * @description Invalid ID supplied
- */
 export const getPetByIdStatus400Schema = z.any()
 
-/**
- * @description Pet not found
- */
 export const getPetByIdStatus404Schema = z.any()

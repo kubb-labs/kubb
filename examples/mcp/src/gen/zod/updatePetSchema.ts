@@ -6,37 +6,21 @@
 import * as z from 'zod'
 import { petSchema } from './petSchema.js'
 
-/**
- * @description Successful operation
- */
-export const updatePet200Schema = petSchema.omit({ name: true })
+export const updatePet200Schema = petSchema.omit({ name: true }).describe('Successful operation')
 
-/**
- * @description accepted operation
- */
-export const updatePet202Schema = z.object({
-  id: z.int().optional(),
-})
+export const updatePet202Schema = z
+  .object({
+    id: z.int().optional(),
+  })
+  .describe('accepted operation')
 
-/**
- * @description Invalid ID supplied
- */
-export const updatePet400Schema = z.any()
+export const updatePet400Schema = z.any().describe('Invalid ID supplied')
 
-/**
- * @description Pet not found
- */
-export const updatePet404Schema = z.any()
+export const updatePet404Schema = z.any().describe('Pet not found')
 
-/**
- * @description Validation exception
- */
-export const updatePet405Schema = z.any()
+export const updatePet405Schema = z.any().describe('Validation exception')
 
-/**
- * @description Update an existent pet in the store
- */
-export const updatePetMutationRequestSchema = petSchema.omit({ id: true })
+export const updatePetMutationRequestSchema = petSchema.omit({ id: true }).describe('Update an existent pet in the store')
 
 export const updatePetMutationResponseSchema = z.union([updatePet200Schema, updatePet202Schema])
 

@@ -21,7 +21,7 @@ export type PlaceOrder405 = any
  * @description Order description
  * @type object | undefined
  */
-export type PlaceOrderMutationRequest = Order
+export type PlaceOrderMutationRequest = Order | undefined
 
 export type PlaceOrderMutationResponse = PlaceOrder200
 

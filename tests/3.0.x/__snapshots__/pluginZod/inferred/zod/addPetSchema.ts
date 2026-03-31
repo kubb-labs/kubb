@@ -7,23 +7,14 @@ import * as z from "zod";
 import { addPetRequestSchema } from "./addPetRequestSchema.ts";
 import { petSchema } from "./petSchema.ts";
 
-/**
- * @description Successful operation
- */
 export const addPetStatus200Schema = petSchema
 
 export type AddPetStatus200Schema = z.infer<typeof addPetStatus200Schema>
 
-/**
- * @description Invalid input
- */
 export const addPetStatus405Schema = z.any()
 
 export type AddPetStatus405Schema = z.infer<typeof addPetStatus405Schema>
 
-/**
- * @description Create a new pet in the store
- */
-export const addPetDataSchema = addPetRequestSchema
+export const addPetDataSchema = addPetRequestSchema.describe("Create a new pet in the store")
 
 export type AddPetDataSchema = z.infer<typeof addPetDataSchema>

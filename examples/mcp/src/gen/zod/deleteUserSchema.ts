@@ -9,15 +9,9 @@ export const deleteUserPathParamsSchema = z.object({
   username: z.string().describe('The name that needs to be deleted'),
 })
 
-/**
- * @description Invalid username supplied
- */
-export const deleteUser400Schema = z.any()
+export const deleteUser400Schema = z.any().describe('Invalid username supplied')
 
-/**
- * @description User not found
- */
-export const deleteUser404Schema = z.any()
+export const deleteUser404Schema = z.any().describe('User not found')
 
 export const deleteUserMutationResponseSchema = z.any()
 

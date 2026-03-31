@@ -3,21 +3,24 @@
  * Do not edit manually.
  */
 
+/**
+ * @type object
+ */
 export type Pet = {
   /**
-   * @type {string}
+   * @type string
    */
   id: string
   /**
-   * @type {string}
+   * @type string
    */
   name: string
   /**
-   * @type {string | undefined}
+   * @type string | undefined
    */
   description?: string
   /**
-   * @type {array | undefined}
+   * @type array | undefined
    */
   tags?: Array<string>
 }

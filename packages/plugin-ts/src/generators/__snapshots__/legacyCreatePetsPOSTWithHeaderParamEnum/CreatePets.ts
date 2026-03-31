@@ -11,20 +11,27 @@ export const createPetsHeaderParamsXEXAMPLEEnum = {
 
 export type CreatePetsHeaderParamsXEXAMPLEEnumKey = (typeof createPetsHeaderParamsXEXAMPLEEnum)[keyof typeof createPetsHeaderParamsXEXAMPLEEnum]
 
+/**
+ * @type object
+ */
 export type CreatePetsHeaderParams = {
   /**
-   * @type {string}
+   * @type string
    */
   'X-EXAMPLE': CreatePetsHeaderParamsXEXAMPLEEnumKey
 }
 
 /**
  * @description Null response
+ * @type void
  */
 export type CreatePets201 = void
 
 export type CreatePetsMutationResponse = CreatePets201
 
+/**
+ * @type object
+ */
 export type CreatePetsMutation = {
   Response: CreatePets201
   HeaderParams: CreatePetsHeaderParams

@@ -10,16 +10,10 @@ export const findPetsByTagsQueryTagsSchema = z.array(z.string()).optional().desc
 
 export type FindPetsByTagsQueryTagsSchema = z.infer<typeof findPetsByTagsQueryTagsSchema>
 
-/**
- * @description successful operation
- */
 export const findPetsByTagsStatus200Schema = z.array(petSchema)
 
 export type FindPetsByTagsStatus200Schema = z.infer<typeof findPetsByTagsStatus200Schema>
 
-/**
- * @description Invalid tag value
- */
 export const findPetsByTagsStatus400Schema = z.any()
 
 export type FindPetsByTagsStatus400Schema = z.infer<typeof findPetsByTagsStatus400Schema>

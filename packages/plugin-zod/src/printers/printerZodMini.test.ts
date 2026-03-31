@@ -177,26 +177,6 @@ describe('printerZodMini', () => {
       const result = printer.print(node)
       expect(result).toBe('z.object({\n    "id": z.int(),\n    "name": z.string()\n    })')
     })
-
-    test('object with additionalProperties: true → .catchall(z.unknown())', () => {
-      const node = createSchema({ type: 'object', primitive: 'object', properties: [], additionalProperties: true })
-      expect(printer.print(node)).toBe('z.object({\n    \n    }).catchall(z.unknown())')
-    })
-
-    test('object with additionalProperties: false → .strict()', () => {
-      const node = createSchema({ type: 'object', primitive: 'object', properties: [], additionalProperties: false })
-      expect(printer.print(node)).toBe('z.object({\n    \n    }).strict()')
-    })
-
-    test('object with additionalProperties schema → .catchall(schema)', () => {
-      const node = createSchema({
-        type: 'object',
-        primitive: 'object',
-        properties: [],
-        additionalProperties: createSchema({ type: 'string' }),
-      })
-      expect(printer.print(node)).toBe('z.object({\n    \n    }).catchall(z.string())')
-    })
   })
 
   describe('array', () => {

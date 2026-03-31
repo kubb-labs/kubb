@@ -6,27 +6,12 @@
 import * as z from "zod";
 import { petSchema } from "./petSchema.ts";
 
-/**
- * @description Successful operation
- */
 export const updatePetStatus200Schema = petSchema
 
-/**
- * @description Invalid ID supplied
- */
 export const updatePetStatus400Schema = z.any()
 
-/**
- * @description Pet not found
- */
 export const updatePetStatus404Schema = z.any()
 
-/**
- * @description Validation exception
- */
 export const updatePetStatus405Schema = z.any()
 
-/**
- * @description Update an existent pet in the store
- */
-export const updatePetDataSchema = petSchema
+export const updatePetDataSchema = petSchema.describe("Update an existent pet in the store")

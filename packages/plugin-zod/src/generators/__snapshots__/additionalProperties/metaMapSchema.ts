@@ -5,9 +5,6 @@
 
 import * as z from 'zod'
 
-/**
- * @type {object}
- */
 export const metaMapSchema = z
   .object({
     id: z.int(),

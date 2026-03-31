@@ -5,9 +5,6 @@
 
 import * as z from 'zod'
 
-/**
- * @type {string}
- */
 export const petNameSchema = z.string()
 
 export type PetNameSchema = z.infer<typeof petNameSchema>

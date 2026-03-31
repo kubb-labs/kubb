@@ -412,7 +412,7 @@ export {
   OperationsMap,
   operations,
   paths,
-} from './zod/operations.ts'
+} from './zod/operationsSchema.ts'
 export type { OrderSchema } from './zod/orderSchema.ts'
 export { orderSchema } from './zod/orderSchema.ts'
 export type { PetNotFoundSchema } from './zod/petNotFoundSchema.ts'

@@ -6,24 +6,29 @@
 
 /**
  * @description The user name for login
+ * @type string | undefined
 */
-export type LoginUserQueryUsername = string;
+export type LoginUserQueryUsername = string | undefined;
 
 /**
  * @description The password for login in clear text
+ * @type string | undefined
 */
-export type LoginUserQueryPassword = string;
+export type LoginUserQueryPassword = string | undefined;
 
 /**
- * @description successful operation
+ * @type string
 */
 export type LoginUserStatus200 = string;
 
 /**
- * @description Invalid username/password supplied
+ * @type any
 */
 export type LoginUserStatus400 = any;
 
+/**
+ * @type object
+*/
 export type LoginUserRequestConfig = {
     data?: never;
     pathParams?: never;
@@ -41,6 +46,9 @@ export type LoginUserRequestConfig = {
     url: "/user/login";
 };
 
+/**
+ * @type object
+*/
 export type LoginUserResponses = {
     "200": LoginUserStatus200;
     "400": LoginUserStatus400;

@@ -13,14 +13,8 @@ export const getThingsQueryParamsSchema = z.optional(
   }),
 )
 
-/**
- * @description Null response
- */
 export const getThings201Schema = z.any()
 
-/**
- * @description unexpected error
- */
 export const getThingsErrorSchema = petNotFoundSchema
 
 export const getThingsQueryResponseSchema = getThings201Schema

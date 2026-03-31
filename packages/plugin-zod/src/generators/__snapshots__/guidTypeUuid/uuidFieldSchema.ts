@@ -5,7 +5,4 @@
 
 import * as z from 'zod'
 
-/**
- * @type {string}
- */
 export const uuidFieldSchema = z.uuid()

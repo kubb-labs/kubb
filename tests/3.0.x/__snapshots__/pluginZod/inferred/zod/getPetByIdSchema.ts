@@ -10,23 +10,14 @@ export const getPetByIdPathPetIdSchema = z.int().describe("ID of pet to return")
 
 export type GetPetByIdPathPetIdSchema = z.infer<typeof getPetByIdPathPetIdSchema>
 
-/**
- * @description successful operation
- */
 export const getPetByIdStatus200Schema = petSchema
 
 export type GetPetByIdStatus200Schema = z.infer<typeof getPetByIdStatus200Schema>
 
-/**
- * @description Invalid ID supplied
- */
 export const getPetByIdStatus400Schema = z.any()
 
 export type GetPetByIdStatus400Schema = z.infer<typeof getPetByIdStatus400Schema>
 
-/**
- * @description Pet not found
- */
 export const getPetByIdStatus404Schema = z.any()
 
 export type GetPetByIdStatus404Schema = z.infer<typeof getPetByIdStatus404Schema>

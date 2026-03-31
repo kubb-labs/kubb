@@ -5,23 +5,10 @@
 
 import * as z from 'zod'
 
-/**
- * @type {integer}
- */
 export const placeOrderPatchPathOrderIdSchema = z.int()
 
-/**
- * @type {object}
- */
 export const placeOrderPatchStatus200Schema = z.object({})
 
-/**
- * @type {object}
- */
 export const placeOrderPatchStatus405Schema = z.object({})
 
-/**
- * @description Order payload
- * @type {object}
- */
 export const placeOrderPatchDataSchema = z.object({}).describe('Order payload')

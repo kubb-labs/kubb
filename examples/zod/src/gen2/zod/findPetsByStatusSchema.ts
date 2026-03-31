@@ -12,14 +12,8 @@ export const findPetsByStatusQueryParamsSchema = z.optional(
   }),
 )
 
-/**
- * @description successful operation
- */
 export const findPetsByStatus200Schema = z.array(petSchema)
 
-/**
- * @description Invalid status value
- */
 export const findPetsByStatus400Schema = z.any()
 
 export const findPetsByStatusQueryResponseSchema = findPetsByStatus200Schema

@@ -18,7 +18,7 @@ export type PlaceOrderPatchStatus405 = any
 /**
  * @type object | undefined
  */
-export type PlaceOrderPatchData = Order
+export type PlaceOrderPatchData = Order | undefined
 
 /**
  * @type object

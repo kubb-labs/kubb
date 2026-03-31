@@ -6,14 +6,8 @@
 import * as z from 'zod/mini'
 import { orderSchema } from './orderSchema.ts'
 
-/**
- * @description successful operation
- */
 export const placeOrderPatch200Schema = orderSchema
 
-/**
- * @description Invalid input
- */
 export const placeOrderPatch405Schema = z.any()
 
 export const placeOrderPatchMutationRequestSchema = z.optional(orderSchema)

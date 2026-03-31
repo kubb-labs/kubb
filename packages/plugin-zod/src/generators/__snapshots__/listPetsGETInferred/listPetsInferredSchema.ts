@@ -5,16 +5,10 @@
 
 import * as z from 'zod'
 
-/**
- * @type {integer | undefined}
- */
 export const listPetsInferredQueryLimitSchema = z.int().optional()
 
 export type ListPetsInferredQueryLimitSchema = z.infer<typeof listPetsInferredQueryLimitSchema>
 
-/**
- * @type {object}
- */
 export const listPetsInferredStatus200Schema = z.object({})
 
 export type ListPetsInferredStatus200Schema = z.infer<typeof listPetsInferredStatus200Schema>

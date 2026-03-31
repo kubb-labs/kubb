@@ -6,7 +6,7 @@
 /**
  * @type string | undefined
  */
-export type DeletePetHeaderApiKey = string
+export type DeletePetHeaderApiKey = string | undefined
 
 /**
  * @description Pet id to delete

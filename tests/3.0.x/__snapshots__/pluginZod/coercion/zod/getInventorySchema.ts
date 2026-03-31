@@ -5,9 +5,6 @@
 
 import * as z from "zod";
 
-/**
- * @description successful operation
- */
 export const getInventoryStatus200Schema = z.object({
     
     }).catchall(z.coerce.number().int())

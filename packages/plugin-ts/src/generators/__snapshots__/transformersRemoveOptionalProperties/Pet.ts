@@ -3,13 +3,16 @@
  * Do not edit manually.
  */
 
+/**
+ * @type object
+ */
 export type Pet = {
   /**
-   * @type {string}
+   * @type string
    */
   id: string
   /**
-   * @type {string}
+   * @type string
    */
   name: string
 }

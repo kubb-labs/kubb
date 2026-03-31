@@ -15,10 +15,7 @@ export const deletePetHeaderParamsSchema = z
   })
   .optional()
 
-/**
- * @description Invalid pet value
- */
-export const deletePet400Schema = z.any()
+export const deletePet400Schema = z.any().describe('Invalid pet value')
 
 export const deletePetMutationResponseSchema = z.any()
 

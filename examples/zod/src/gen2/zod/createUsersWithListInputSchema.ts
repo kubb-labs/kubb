@@ -6,14 +6,8 @@
 import * as z from 'zod/mini'
 import { userSchema } from './userSchema.ts'
 
-/**
- * @description Successful operation
- */
 export const createUsersWithListInput200Schema = userSchema
 
-/**
- * @description successful operation
- */
 export const createUsersWithListInputErrorSchema = z.any()
 
 export const createUsersWithListInputMutationRequestSchema = z.optional(z.array(userSchema))

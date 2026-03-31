@@ -5,8 +5,4 @@
 
 import * as z from 'zod'
 
-/**
- * @default "active"
- * @type {string}
- */
 export const statusFieldSchema = z.string().default('active')

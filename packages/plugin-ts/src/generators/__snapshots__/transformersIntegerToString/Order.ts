@@ -3,17 +3,20 @@
  * Do not edit manually.
  */
 
+/**
+ * @type object
+ */
 export type Order = {
   /**
-   * @type {integer}
+   * @type integer
    */
   id: string
   /**
-   * @type {integer | undefined}
+   * @type integer | undefined
    */
   quantity?: string
   /**
-   * @type {string}
+   * @type string
    */
   status: string
 }

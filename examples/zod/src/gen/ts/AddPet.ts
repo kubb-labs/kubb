@@ -8,11 +8,13 @@ import type { Pet } from './Pet.ts'
 
 /**
  * @description Successful operation
+ * @type object
  */
 export type AddPet200 = Pet
 
 /**
  * @description Pet not found
+ * @type object
  */
 export type AddPet405 = {
   /**
@@ -27,11 +29,15 @@ export type AddPet405 = {
 
 /**
  * @description Create a new pet in the store
+ * @type object
  */
 export type AddPetMutationRequest = AddPetRequest
 
 export type AddPetMutationResponse = AddPet200
 
+/**
+ * @type object
+ */
 export type AddPetMutation = {
   Response: AddPet200
   Request: AddPetMutationRequest

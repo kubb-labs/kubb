@@ -14,17 +14,11 @@ export const findPetsByStatusQueryParamsSchema = z
 
 export type FindPetsByStatusQueryParamsSchema = z.infer<typeof findPetsByStatusQueryParamsSchema>
 
-/**
- * @description successful operation
- */
-export const findPetsByStatus200Schema = z.array(petSchema)
+export const findPetsByStatus200Schema = z.array(petSchema).describe('successful operation')
 
 export type FindPetsByStatus200Schema = z.infer<typeof findPetsByStatus200Schema>
 
-/**
- * @description Invalid status value
- */
-export const findPetsByStatus400Schema = z.any()
+export const findPetsByStatus400Schema = z.any().describe('Invalid status value')
 
 export type FindPetsByStatus400Schema = z.infer<typeof findPetsByStatus400Schema>
 

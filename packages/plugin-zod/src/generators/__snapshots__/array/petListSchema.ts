@@ -5,7 +5,4 @@
 
 import * as z from 'zod'
 
-/**
- * @type {array}
- */
 export const petListSchema = z.array(z.string())

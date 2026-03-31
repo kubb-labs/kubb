@@ -5,7 +5,4 @@
 
 import * as z from 'zod/mini'
 
-/**
- * @type {string | undefined}
- */
 export const optionalStringSchema = z.optional(z.string())
