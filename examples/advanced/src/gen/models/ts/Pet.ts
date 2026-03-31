@@ -30,6 +30,7 @@ export type Pet = {
    */
   name: string
   /**
+   * @maxLength 255
    * @type string | undefined
    */
   url?: string
