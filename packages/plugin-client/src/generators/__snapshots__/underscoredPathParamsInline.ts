@@ -6,7 +6,7 @@
 import type { Client, RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
 import { fetch } from './test/.kubb/fetch'
 
-function getGetItemUrl(itemId: GetItemPathParams['itemId']) {
+export function getGetItemUrl(itemId: GetItemPathParams['itemId']) {
   const item_id = itemId
   const res = { method: 'GET', url: `/v1/items/${item_id}` as const }
   return res

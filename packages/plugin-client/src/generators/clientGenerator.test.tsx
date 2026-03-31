@@ -187,7 +187,7 @@ describe('clientGenerator operation', async () => {
       method: 'get',
       options: {
         paramsCasing: 'camelcase',
-        pathParamsType: 'inline',
+        pathParamsType: 'object',
       },
     },
     {
@@ -198,7 +198,6 @@ describe('clientGenerator operation', async () => {
       options: {
         paramsCasing: 'camelcase',
         pathParamsType: 'inline',
-        urlType: false,
       },
     },
   ] as const satisfies Array<{

@@ -6,7 +6,7 @@
 import type { Client, RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
 import { fetch } from './test/.kubb/fetch'
 
-export function getGetItemUrl(itemId: GetItemPathParams['itemId']) {
+export function getGetItemUrl({ itemId }: { itemId: GetItemPathParams['itemId'] }) {
   const item_id = itemId
   const res = { method: 'GET', url: `/v1/items/${item_id}` as const }
   return res
@@ -17,12 +17,12 @@ export function getGetItemUrl(itemId: GetItemPathParams['itemId']) {
  * @summary Get Item
  * {@link /v1/items/:item_id}
  */
-export async function getItem(itemId: GetItemPathParams['itemId'], config: Partial<RequestConfig> & { client?: Client } = {}) {
+export async function getItem({ itemId }: { itemId: GetItemPathParams['itemId'] }, config: Partial<RequestConfig> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const res = await request<GetItemQueryResponse, ResponseErrorConfig<Error>, unknown>({
     method: 'GET',
-    url: getGetItemUrl(itemId).url.toString(),
+    url: getGetItemUrl({ itemId }).url.toString(),
     ...requestConfig,
   })
   return res.data
