@@ -103,6 +103,9 @@ Add a footer comment at the end of every generated file.
 ### pathParamsType
 <!--@include: ./plugin-client/pathParamsType.md-->
 
+### dataReturnType
+<!--@include: ./plugin-client/dataReturnType.md-->
+
 ### baseURL
 <!--@include: ./plugin-client/baseURL.md-->
 

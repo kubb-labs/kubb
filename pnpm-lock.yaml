@@ -150,19 +150,19 @@ importers:
         specifier: 1.26.0
         version: 1.26.0(zod@4.3.6)
       '@tanstack/query-core':
-        specifier: ^5.95.2
+        specifier: ^5.96.0
         version: 5.96.0
       '@tanstack/react-query':
-        specifier: ^5.95.2
+        specifier: ^5.96.0
         version: 5.96.0(react@19.2.4)
       '@tanstack/solid-query':
-        specifier: ^5.95.2
+        specifier: ^5.96.0
         version: 5.96.0(solid-js@1.9.12)
       '@tanstack/svelte-query':
         specifier: ^5.90.2
         version: 5.90.2(svelte@4.2.20)
       '@tanstack/vue-query':
-        specifier: ^5.95.2
+        specifier: ^5.96.0
         version: 5.96.0(vue@3.5.31(typescript@5.9.3))
       '@types/react':
         specifier: ^19.2.14
@@ -506,10 +506,10 @@ importers:
         specifier: 0.15.1
         version: 0.15.1
       '@tanstack/react-query':
-        specifier: ^5.95.2
+        specifier: ^5.96.0
         version: 5.96.0(react@19.2.4)
       '@tanstack/react-query-devtools':
-        specifier: ^5.95.2
+        specifier: ^5.96.0
         version: 5.96.0(@tanstack/react-query@5.96.0(react@19.2.4))(react@19.2.4)
       axios:
         specifier: ^1.14.0
@@ -573,7 +573,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/react-query':
-        specifier: ^5.95.2
+        specifier: ^5.96.0
         version: 5.96.0(react@18.3.1)
       axios:
         specifier: ^1.14.0
@@ -615,7 +615,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/plugin-zod
       '@tanstack/solid-query':
-        specifier: ^5.95.2
+        specifier: ^5.96.0
         version: 5.96.0(solid-js@1.9.12)
       axios:
         specifier: ^1.14.0

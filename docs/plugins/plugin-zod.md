@@ -191,6 +191,21 @@ z.date();
 
 :::
 
+### integerType
+
+> [!WARNING]
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#integerType). Use `adapterOas({ integerType })` instead.
+
+### unknownType
+
+> [!WARNING]
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#unknownType). Use `adapterOas({ unknownType })` instead.
+
+### emptySchemaType
+
+> [!WARNING]
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#emptySchemaType). Use `adapterOas({ emptySchemaType })` instead.
+
 ### coercion
 
 Use of z.coerce.string() instead of z.string().

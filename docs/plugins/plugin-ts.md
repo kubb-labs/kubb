@@ -185,7 +185,7 @@ export interface Pet {
 ### enumSuffix
 
 > [!WARNING]
-> This option has been moved to [`adapterOas`](/plugins/plugin-oas#enumSuffix). Use `adapterOas({ enumSuffix })` instead.
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#enumSuffix). Use `adapterOas({ enumSuffix })` instead.
 
 ### enumTypeSuffix
 
@@ -251,12 +251,12 @@ Choose the casing for enum key names.
 ### dateType
 
 > [!WARNING]
-> This option has been moved to [`adapterOas`](/plugins/plugin-oas#dateType). Use `adapterOas({ dateType })` instead.
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#dateType). Use `adapterOas({ dateType })` instead.
 
 ### integerType
 
 > [!WARNING]
-> This option has been moved to [`adapterOas`](/plugins/plugin-oas#integerType). Use `adapterOas({ integerType })` instead.
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#integerType). Use `adapterOas({ integerType })` instead.
 
 ### syntaxType
 
@@ -288,12 +288,12 @@ interface Pet {
 ### unknownType
 
 > [!WARNING]
-> This option has been moved to [`adapterOas`](/plugins/plugin-oas#unknownType). Use `adapterOas({ unknownType })` instead.
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#unknownType). Use `adapterOas({ unknownType })` instead.
 
 ### emptySchemaType
 
 > [!WARNING]
-> This option has been moved to [`adapterOas`](/plugins/plugin-oas#emptySchemaType). Use `adapterOas({ emptySchemaType })` instead.
+> This option has been moved to [`adapterOas`](/adapters/adapter-oas#emptySchemaType). Use `adapterOas({ emptySchemaType })` instead.
 
 ### optionalType
 
