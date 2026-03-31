@@ -39,15 +39,12 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that contains the generated code.
+<!--@include: ./core/outputPath.md-->
 
-> [!TIP]
-> if `output.path` is a file, `group` cannot be used.
-
-|           |             |
-|----------:|:----------|
-|     Type: | `string`    |
-| Required: | `true`      |
+|           |           |
+| --------: | :-------- |
+|     Type: | `string`  |
+| Required: | `true`    |
 |  Default: | `'clients'` |
 
 #### output.barrelType
@@ -55,22 +52,15 @@ Path to the output folder or file that contains the generated code.
 <!--@include: ./core/outputBarrelType.md-->
 
 #### output.banner
-Add a banner comment at the top of every generated file.
 
-|           |                                  |
-|----------:|:--------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                          |
+<!--@include: ./core/outputBanner.md-->
 
 #### output.footer
-Add a footer comment at the end of every generated file.
 
-|           |                                  |
-|----------:|:--------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                          |
+<!--@include: ./core/outputFooter.md-->
 
 #### output.override
+
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
@@ -80,14 +70,8 @@ Add a footer comment at the end of every generated file.
 <!--@include: ./core/group.md-->
 
 #### group.type
-Specify the property to group files by.
 
-|           |         |
-|----------:|:--------|
-|     Type: | `'tag'` |
-| Required: | `true`  |
-
-<!--@include: ./core/groupTypes.md-->
+<!--@include: ./core/groupType.md-->
 
 #### group.name
 

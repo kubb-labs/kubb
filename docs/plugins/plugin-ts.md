@@ -40,10 +40,7 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that contains the generated code.
-
-> [!TIP]
-> if `output.path` is a file, `group` cannot be used.
+<!--@include: ./core/outputPath.md-->
 
 |           |           |
 | --------: | :-------- |
@@ -77,17 +74,7 @@ Path to the output folder or file that contains the generated code.
 
 #### group.type
 
-Specify the property to group files by. Required when `group` is defined.
-
-|           |         |
-| --------: | :------ |
-|     Type: | `'tag'` |
-| Required: | `true*` |
-
-> [!NOTE]
-> `Required: true*` means this is required only when the `group` option is used. The `group` option itself is optional.
-
-<!--@include: ./core/groupTypes.md-->
+<!--@include: ./core/groupType.md-->
 
 #### group.name
 

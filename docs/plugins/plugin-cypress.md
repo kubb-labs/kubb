@@ -39,13 +39,10 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that contains the generated code.
-
-> [!TIP]
-> if `output.path` is a file, `group` cannot be used.
+<!--@include: ./core/outputPath.md-->
 
 |           |           |
-| --------: |:----------|
+| --------: | :-------- |
 |     Type: | `string`  |
 | Required: | `true`    |
 |  Default: | `'cypress'` |
@@ -63,6 +60,7 @@ Path to the output folder or file that contains the generated code.
 <!--@include: ./core/outputFooter.md-->
 
 #### output.override
+
 <!--@include: ./core/outputOverride.md-->
 
 ### compatibilityPreset
@@ -92,24 +90,15 @@ Path to the output folder or file that contains the generated code.
 <!--@include: ./core/group.md-->
 
 #### group.type
-Specify the property to group files by.
 
-|           |          |
-| --------: |:---------|
-|     Type: | `'tag'`  |
-| Required: | `true*`  |
-
-> [!NOTE]
-> `Required: true*` means this is required only when the `group` option is used. The `group` option itself is optional.
-
-<!--@include: ./core/groupTypes.md-->
+<!--@include: ./core/groupType.md-->
 
 #### group.name
 
 Return the name of a group based on the group name, this will be used for the file and name generation.
 
 |           |                                     |
-| --------: |:------------------------------------|
+| --------: | :---------------------------------- |
 |     Type: | `(context: GroupContext) => string` |
 | Required: | `false`                             |
 |  Default: | `(ctx) => '${ctx.group}Requests'`   |

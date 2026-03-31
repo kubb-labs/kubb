@@ -39,13 +39,10 @@ Specify the export location for the files and define the behavior of the output.
 
 #### output.path
 
-Path to the output folder or file that contains the generated code.
-
-> [!TIP]
-> if `output.path` is a file, `group` cannot be used.
+<!--@include: ./core/outputPath.md-->
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `string`  |
 | Required: | `true`    |
 |  Default: | `'handlers'` |
@@ -55,31 +52,24 @@ Path to the output folder or file that contains the generated code.
 <!--@include: ./core/outputBarrelType.md-->
 
 #### output.banner
-Add a banner comment at the top of every generated file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                               |
+<!--@include: ./core/outputBanner.md-->
 
 #### output.footer
-Add a footer comment at the end of every generated file.
 
-|           |                                       |
-|----------:|:--------------------------------------|
-|     Type: | `string \| (oas: Oas) => string` |
-| Required: | `false`                               |
+<!--@include: ./core/outputFooter.md-->
 
 ### handlers
 Create `handlers.ts` file with all handlers grouped by methods.
 
 |           |           |
-|----------:|:----------|
+| --------: | :-------- |
 |     Type: | `boolean` |
 | Required: | `false`   |
 |  Default: | `false`   |
 
 #### output.override
+
 <!--@include: ./core/outputOverride.md-->
 
 ### contentType
@@ -92,30 +82,24 @@ Create `handlers.ts` file with all handlers grouped by methods.
 <!--@include: ./core/group.md-->
 
 #### group.type
-Specify the property to group files by.
 
-|           |         |
-|----------:|:--------|
-|     Type: | `'tag'` |
-| Required: | `true`  |
-
-<!--@include: ./core/groupTypes.md-->
+<!--@include: ./core/groupType.md-->
 
 #### group.name
 
 Return the name of a group based on the group name, this will be used for the file and name generation.
 
 |           |                                     |
-|----------:|:------------------------------------|
+| --------: | :---------------------------------- |
 |     Type: | `(context: GroupContext) => string` |
 | Required: | `false`                             |
-|  Default: | `(ctx) => '${ctx.group}Controller'`  |
+|  Default: | `(ctx) => '${ctx.group}Controller'` |
 
 ### parser
 Which parser should be used before returning the data to the `Response` of MSW.
 
 |           |                     |
-|----------:|:--------------------|
+| --------: | :-------- |
 |     Type: | `'data' \| 'faker'` |
 | Required: | `false`             |
 |  Default: | `'data'`            |
@@ -136,7 +120,7 @@ Which parser should be used before returning the data to the `Response` of MSW.
 <!--@include: ./core/generators.md-->
 
 |           |                               |
-|----------:|:------------------------------|
+| --------: | :-------- |
 |     Type: | `Array<Generator<PluginMsw>>` |
 | Required: | `false`                       |
 
@@ -148,7 +132,7 @@ Which parser should be used before returning the data to the `Response` of MSW.
 Customize the names based on the type that is provided by the plugin.
 
 |           |                                                                               |
-|----------:|:------------------------------------------------------------------------------|
+| --------: | :-------- |
 |     Type: | `(name: string, type?: ResolveType) => string` |
 | Required: | `false`                                                                       |
 
