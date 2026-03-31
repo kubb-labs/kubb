@@ -409,20 +409,20 @@ type FindPetsByStatusHeaderParams = {
 
 Apply close-compatible naming presets for ecosystems with established conventions.
 
-|           |                              |
-| --------: |:-----------------------------|
-|     Type: | `'none' \| 'kubbV4'`         |
-| Required: | `false`                      |
-|  Default: | `'none'`                     |
+|           |                                |
+| --------: |:-------------------------------|
+|     Type: | `'default' \| 'kubbV4'`        |
+| Required: | `false`                        |
+|  Default: | `'default'`                    |
 
-- `'none'`: Use default `@kubb/plugin-ts` naming.
+- `'default'`: Use default `@kubb/plugin-ts` naming.
 - `'kubbV4'`: Reproduce Kubb v4 type-generation naming behavior.
 
 ::: code-group
 
 ```typescript [Default]
 pluginTs({
-  compatibilityPreset: 'none',
+  compatibilityPreset: 'default',
 });
 ```
 
