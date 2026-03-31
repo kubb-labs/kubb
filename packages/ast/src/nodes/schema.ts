@@ -75,7 +75,23 @@ export type SchemaType = PrimitiveSchemaType | ComplexSchemaType | SpecialSchema
  */
 export type ScalarSchemaType = Exclude<
   SchemaType,
-  'object' | 'array' | 'tuple' | 'union' | 'intersection' | 'enum' | 'ref' | 'datetime' | 'date' | 'time' | 'string' | 'number' | 'integer' | 'bigint' | 'url' | 'uuid' | 'email'
+  | 'object'
+  | 'array'
+  | 'tuple'
+  | 'union'
+  | 'intersection'
+  | 'enum'
+  | 'ref'
+  | 'datetime'
+  | 'date'
+  | 'time'
+  | 'string'
+  | 'number'
+  | 'integer'
+  | 'bigint'
+  | 'url'
+  | 'uuid'
+  | 'email'
 >
 
 /**

@@ -2,6 +2,7 @@ import path from 'node:path'
 import { caseParams, composeTransformers, createProperty, createSchema, transform } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
+import type { KubbFile } from '@kubb/fabric-core/types'
 import { File } from '@kubb/react-fabric'
 import { Operations } from '../components/Operations.tsx'
 import { Zod } from '../components/Zod.tsx'
@@ -382,7 +383,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
       sources: [] as Array<unknown>,
       imports: [] as Array<unknown>,
       exports: [] as Array<unknown>,
-    }
+    } as KubbFile.File
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
     const transformedOperations = nodes.map((node) => {
