@@ -13,8 +13,8 @@ import type {
   Resolver,
   UserGroup,
 } from '@kubb/core'
-import type {ZodPrinterNodes} from "./printers/printerZod.ts";
-import type {ZodMiniPrinterNodes} from "./printers/printerZodMini.ts";
+import type { ZodPrinterNodes } from './printers/printerZod.ts'
+import type { ZodMiniPrinterNodes } from './printers/printerZodMini.ts'
 
 /**
  * The concrete resolver type for `@kubb/plugin-zod`.

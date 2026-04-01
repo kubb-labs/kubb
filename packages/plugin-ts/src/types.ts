@@ -13,7 +13,7 @@ import type {
   Resolver,
   UserGroup,
 } from '@kubb/core'
-import type {TsPrinterNodes} from "./printers/printerTs.ts";
+import type { TsPrinterNodes } from './printers/printerTs.ts'
 /**
  * The concrete resolver type for `@kubb/plugin-ts`.
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with

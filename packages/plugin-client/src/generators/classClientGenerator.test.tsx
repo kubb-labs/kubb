@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
+import type { Config } from '@kubb/core'
 import { parse } from '@kubb/oas'
 import { OperationGenerator, renderOperations } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
@@ -8,7 +8,6 @@ import { beforeEach, describe, test } from 'vitest'
 import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import type { PluginClient } from '../types.ts'
 import { classClientGenerator } from './classClientGenerator.tsx'
-import type {Config} from "@kubb/core";
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
