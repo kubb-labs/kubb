@@ -1020,9 +1020,7 @@ describe('printerTs', () => {
         nodes: {
           array(node) {
             const itemNodes = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean) as ts.TypeNode[]
-            return ts.factory.createTypeReferenceNode('Set', [
-              ts.factory.createUnionTypeNode(itemNodes),
-            ])
+            return ts.factory.createTypeReferenceNode('Set', [ts.factory.createUnionTypeNode(itemNodes)])
           },
         },
       })
