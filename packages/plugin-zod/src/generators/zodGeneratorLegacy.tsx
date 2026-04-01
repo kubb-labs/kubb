@@ -185,7 +185,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
       path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
     }))
 
-    const inferTypeName = inferred ? resolver.resolveTypeName(transformedNode.name) : undefined
+    const inferTypeName = inferred ? resolver.resolveSchemaTypeName(transformedNode.name) : undefined
 
     const meta = {
       name: resolver.resolveSchemaName(transformedNode.name),

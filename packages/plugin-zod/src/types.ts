@@ -27,11 +27,23 @@ export type ResolverZod = Resolver &
      */
     resolveSchemaName(this: ResolverZod, name: string): string
     /**
-     * Resolves the name for a `z.infer<typeof ...>` type export from an already-resolved function name.
+     * Resolves the name for a `z.infer<typeof ...>` type export.
+     * Strips the trailing `Schema` suffix (added by `resolveSchemaName`) before PascalCasing.
      *
      * @example
-     * resolver.resolveInferName('petSchema') // → 'PetSchema'
-     * resolver.resolveInferName('addPet200Schema') // → 'AddPet200Schema'
+     * resolver.resolveSchemaTypeName('pet) // → 'PetSchema'
+     * resolver.resolveSchemaTypeName('addPet200') // → 'AddPet200Schema'
+     * resolver.resolveSchemaTypeName('PetName') // → 'PetNameSchema'
+     */
+    resolveSchemaTypeName(this: ResolverZod, name: string): string
+    /**
+     * Resolves the name for a `z.infer<typeof ...>` type export.
+     * Strips the trailing `Schema` suffix (added by `resolveSchemaName`) before PascalCasing.
+     *
+     * @example
+     * resolver.resolveTypeName('pet') // → 'Pet'
+     * resolver.resolveTypeName('addPet200') // → 'AddPet200'
+     * resolver.resolveTypeName('PetName') // → 'PetName'
      */
     resolveTypeName(this: ResolverZod, name: string): string
     /**

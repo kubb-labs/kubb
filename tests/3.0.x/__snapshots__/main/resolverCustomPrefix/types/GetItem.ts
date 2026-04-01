@@ -1,5 +1,4 @@
 // Custom banner
-import type { Item } from "./Item.ts";
 
 /**
  * @type integer

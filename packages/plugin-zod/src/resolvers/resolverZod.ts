@@ -24,8 +24,11 @@ export const resolverZod = defineResolver<PluginZod>(() => {
     resolveSchemaName(name) {
       return camelCase(name, { suffix: 'schema' })
     },
-    resolveTypeName(name) {
+    resolveSchemaTypeName(name) {
       return pascalCase(name, { suffix: 'schema' })
+    },
+    resolveTypeName(name) {
+      return pascalCase(name)
     },
     resolvePathName(name, type) {
       return this.default(name, type)

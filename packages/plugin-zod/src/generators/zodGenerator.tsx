@@ -37,7 +37,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
       file: resolver.resolveFile({ name: transformedNode.name, extname: '.ts' }, { root, output, group }),
     } as const
 
-    const inferTypeName = inferred ? resolver.resolveTypeName(transformedNode.name) : undefined
+    const inferTypeName = inferred ? resolver.resolveSchemaTypeName(transformedNode.name) : undefined
 
     const schemaPrinter = mini
       ? printerZodMini({ guidType, wrapOutput, resolver, schemaName: meta.name, nodes: printer?.nodes })

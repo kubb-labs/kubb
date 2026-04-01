@@ -7,8 +7,8 @@ import * as z from 'zod'
 
 export const listPetsInferredQueryLimitSchema = z.int().optional()
 
-export type ListPetsInferredQueryLimitSchemaSchema = z.infer<typeof listPetsInferredQueryLimitSchema>
+export type ListPetsInferredQueryLimitSchema = z.infer<typeof listPetsInferredQueryLimitSchema>
 
 export const listPetsInferredStatus200Schema = z.object({})
 
-export type ListPetsInferredStatus200SchemaSchema = z.infer<typeof listPetsInferredStatus200Schema>
+export type ListPetsInferredStatus200Schema = z.infer<typeof listPetsInferredStatus200Schema>

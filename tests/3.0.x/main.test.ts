@@ -314,7 +314,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
             resolveBanner() {
               return '// Custom banner'
             },
-            resolveName(name) {
+            resolveTypeName(name) {
               return `Custom${this.default(name, 'function')}`
             },
           },
