@@ -312,7 +312,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
           output: { path: './types', barrelType: false },
           resolver: {
             resolveBanner() {
-              return `// Custom banner`
+              return '// Custom banner'
             },
             resolveName(name) {
               return `Custom${this.default(name, 'function')}`
