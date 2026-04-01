@@ -15,8 +15,7 @@ function withFallback<T extends object>(defaults: T, userOverrides: Partial<T>):
     const defaultVal = defaults[key]
 
     if (typeof userVal === 'function' && typeof defaultVal === 'function') {
-      ;(merged as any)[key] = (...args: any[]) =>
-        (userVal as Function).apply(merged, args) ?? (defaultVal as Function).apply(merged, args)
+      ;(merged as any)[key] = (...args: any[]) => (userVal as Function).apply(merged, args) ?? (defaultVal as Function).apply(merged, args)
     } else if (userVal !== undefined) {
       merged[key] = userVal as T[typeof key]
     }
@@ -67,14 +66,13 @@ export function getPreset<TResolver extends Resolver = Resolver>(params: GetPres
 
   const presetTransformers = preset?.transformers ?? []
   const presetTransformer = presetTransformers.length > 0 ? composeTransformers(...presetTransformers) : undefined
-  const transformer =
-    presetTransformer && userTransformer ? withFallback(presetTransformer, userTransformer) : userTransformer ?? presetTransformer
+  const transformer = presetTransformer && userTransformer ? withFallback(presetTransformer, userTransformer) : (userTransformer ?? presetTransformer)
 
   const presetGenerators = preset?.generators ?? []
   const defaultGenerators = presets['default']?.generators ?? []
-  const generators = (presetGenerators.length > 0 || userGenerators.length > 0
-    ? [...presetGenerators, ...userGenerators]
-    : defaultGenerators) as Array<Generator<any>>
+  const generators = (presetGenerators.length > 0 || userGenerators.length > 0 ? [...presetGenerators, ...userGenerators] : defaultGenerators) as Array<
+    Generator<any>
+  >
 
   return { resolver, transformer, generators, preset }
 }
