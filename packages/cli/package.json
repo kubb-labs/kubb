@@ -64,7 +64,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@clack/prompts": "^1.1.0",
+    "@clack/prompts": "^1.2.0",
     "@kubb/core": "workspace:*",
     "chokidar": "^5.0.0",
     "cosmiconfig": "^9.0.1",
