@@ -3,59 +3,26 @@ import type { Visitor } from '@kubb/ast/types'
 import type { CompatibilityPreset, Generator, Preset, Presets, Resolver } from '../types.ts'
 
 /**
- * Wraps a resolver so that any method returning `null` or `undefined` falls back
- * to the corresponding method on `defaultResolver`.
- *
- * Non-function overrides (e.g. `name`, `pluginName`) are applied directly.
- * All wrapped methods are called with `wrapper` as `this`, preserving resolver
- * cross-method calls (e.g. `this.default(...)` inside `resolveName`).
+ * Returns a copy of `defaults` where each function in `userOverrides` is wrapped
+ * so a `null`/`undefined` return falls back to the original. Non-function values
+ * are assigned directly. All calls use the merged object as `this`.
  */
-function withFallback<T extends Resolver>(defaultResolver: T, userOverrides: Partial<T>): T {
-  const wrapper = { ...defaultResolver } as T
+function withFallback<T extends object>(defaults: T, userOverrides: Partial<T>): T {
+  const merged = { ...defaults } as T
 
   for (const key of Object.keys(userOverrides) as Array<keyof T>) {
-    const userFn = userOverrides[key]
-    const defaultFn = defaultResolver[key]
+    const userVal = userOverrides[key]
+    const defaultVal = defaults[key]
 
-    if (typeof userFn === 'function' && typeof defaultFn === 'function') {
-      ;(wrapper as any)[key] = (...args: any[]) => {
-        const result = (userFn as Function).apply(wrapper, args)
-        if (result == null) {
-          return (defaultFn as Function).apply(wrapper, args)
-        }
-        return result
-      }
-    } else if (userFn !== undefined) {
-      wrapper[key] = userFn as T[typeof key]
+    if (typeof userVal === 'function' && typeof defaultVal === 'function') {
+      ;(merged as any)[key] = (...args: any[]) =>
+        (userVal as Function).apply(merged, args) ?? (defaultVal as Function).apply(merged, args)
+    } else if (userVal !== undefined) {
+      merged[key] = userVal as T[typeof key]
     }
   }
 
-  return wrapper
-}
-
-/**
- * Wraps a composed preset transformer so that any visitor method returning
- * `null` or `undefined` falls back to the corresponding preset method.
- */
-function withTransformerFallback(presetTransformer: Visitor, userTransformer: Visitor): Visitor {
-  const result = { ...presetTransformer } as Visitor
-
-  for (const key of Object.keys(userTransformer) as Array<keyof Visitor>) {
-    const userFn = userTransformer[key]
-    const presetFn = presetTransformer[key]
-
-    if (typeof userFn === 'function') {
-      ;(result as any)[key] = (...args: any[]) => {
-        const val = (userFn as Function)(...args)
-        if (val == null) {
-          return typeof presetFn === 'function' ? (presetFn as Function)(...args) : undefined
-        }
-        return val
-      }
-    }
-  }
-
-  return result
+  return merged
 }
 
 type GetPresetParams<TResolver extends Resolver> = {
@@ -100,18 +67,14 @@ export function getPreset<TResolver extends Resolver = Resolver>(params: GetPres
 
   const presetTransformers = preset?.transformers ?? []
   const presetTransformer = presetTransformers.length > 0 ? composeTransformers(...presetTransformers) : undefined
-  const transformer = userTransformer ? (presetTransformer ? withTransformerFallback(presetTransformer, userTransformer) : userTransformer) : presetTransformer
+  const transformer =
+    presetTransformer && userTransformer ? withFallback(presetTransformer, userTransformer) : userTransformer ?? presetTransformer
 
   const presetGenerators = preset?.generators ?? []
-  const defaultPresetGenerators = presets['default']?.generators ?? []
-  const generators = (presetGenerators.length > 0 || userGenerators.length
+  const defaultGenerators = presets['default']?.generators ?? []
+  const generators = (presetGenerators.length > 0 || userGenerators.length > 0
     ? [...presetGenerators, ...userGenerators]
-    : defaultPresetGenerators) as unknown as Array<Generator<any>>
+    : defaultGenerators) as Array<Generator<any>>
 
-  return {
-    resolver,
-    transformer,
-    generators,
-    preset,
-  }
+  return { resolver, transformer, generators, preset }
 }
