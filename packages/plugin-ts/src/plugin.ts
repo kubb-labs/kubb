@@ -64,6 +64,9 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     get resolver() {
       return preset.resolver
     },
+    get transformer() {
+      return preset.transformer
+    },
     get options() {
       return {
         output,
@@ -86,7 +89,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         syntaxType,
         paramsCasing,
         printer,
-        transformer: preset.transformer,
       }
     },
     resolvePath(baseName, pathMode, options) {

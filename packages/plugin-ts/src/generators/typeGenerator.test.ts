@@ -24,7 +24,6 @@ const defaultOptions: PluginTs['resolvedOptions'] = {
   output: { path: '.' },
   group: undefined,
   printer: undefined,
-  transformer: undefined,
 }
 
 const enumSchema = createSchema({
@@ -651,8 +650,7 @@ describe('typeGenerator — transformers', () => {
         return node
       },
     }
-    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, transformer: removeOptionalProperties }
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options: defaultOptions, resolver: resolverTs, transformer: removeOptionalProperties })
     const driver = createMockedPluginDriver({ name: 'transformers removeOptionalProperties' })
 
     await renderSchema(objectSchema, {
@@ -662,7 +660,7 @@ describe('typeGenerator — transformers', () => {
       driver,
       Component: typeGenerator.Schema,
       plugin,
-      options,
+      options: defaultOptions,
       resolver: resolverTs,
     })
 
@@ -676,8 +674,7 @@ describe('typeGenerator — transformers', () => {
         return node
       },
     }
-    const options: PluginTs['resolvedOptions'] = { ...defaultOptions, transformer: integerToString }
-    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
+    const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options: defaultOptions, resolver: resolverTs, transformer: integerToString })
     const driver = createMockedPluginDriver({ name: 'transformers integerToString' })
 
     const schemaWithInteger = createSchema({
@@ -697,7 +694,7 @@ describe('typeGenerator — transformers', () => {
       driver,
       Component: typeGenerator.Schema,
       plugin,
-      options,
+      options: defaultOptions,
       resolver: resolverTs,
     })
 

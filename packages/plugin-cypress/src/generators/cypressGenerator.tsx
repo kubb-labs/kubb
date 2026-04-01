@@ -10,8 +10,8 @@ import type { PluginCypress } from '../types.ts'
 export const cypressGenerator = defineGenerator<PluginCypress>({
   name: 'cypress',
   type: 'react',
-  Operation({ node, adapter, options, config, driver, resolver }) {
-    const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group, transformer } = options
+  Operation({ node, adapter, options, config, driver, resolver, plugin }) {
+    const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group } = options
     const root = path.resolve(config.root, config.output.path)
 
     const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
@@ -20,7 +20,7 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
       return null
     }
 
-    const transformedNode = transformer ? transform(node, transformer) : node
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
     const casedParams = caseParams(transformedNode.parameters, paramsCasing)
 

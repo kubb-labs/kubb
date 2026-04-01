@@ -400,6 +400,11 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    */
   resolver?: TOptions['resolver']
   /**
+   * The composed transformer for this plugin.
+   * Set by `getPreset` from the preset's built-in transformers and the user's `transformer` option.
+   */
+  transformer?: Visitor
+  /**
    * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin is executed after these plugins.
    * Can be used to validate dependent plugins.
    */
@@ -438,6 +443,11 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    * The resolver for this plugin, accessible via `driver.getPluginByName(name)?.resolver`.
    */
   resolver: TOptions['resolver']
+  /**
+   * The composed transformer for this plugin, accessible via `context.transformer`.
+   * Set by `getPreset` from the preset's built-in transformers and the user's `transformer` option.
+   */
+  transformer?: Visitor
 
   install: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**
@@ -527,6 +537,11 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * Resolver for the current plugin. Shorthand for `plugin.resolver`.
    */
   resolver: TOptions['resolver']
+  /**
+   * The composed transformer for the current plugin. Shorthand for `plugin.transformer`.
+   * When set, apply it with `transform(node, context.transformer)` to pre-process AST nodes.
+   */
+  transformer: Visitor | undefined
 
   /**
    * Opens the Kubb Studio URL for the current `rootNode` in the default browser.

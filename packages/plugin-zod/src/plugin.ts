@@ -67,6 +67,9 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     get resolver() {
       return preset.resolver
     },
+    get transformer() {
+      return preset.transformer
+    },
     get options() {
       return {
         output,
@@ -92,7 +95,6 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         wrapOutput,
         paramsCasing,
         printer,
-        transformer: preset.transformer,
       }
     },
     resolvePath(baseName, pathMode, options) {

@@ -23,7 +23,6 @@ const defaultOptions: PluginCypress['resolvedOptions'] = {
   paramsType: 'inline',
   pathParamsType: 'inline',
   resolver: resolverCypress,
-  transformer: undefined,
 }
 
 const mockedTsPlugin = createMockedPlugin<PluginTs>({
@@ -444,8 +443,7 @@ describe('cypressGenerator — transformers', () => {
       },
     }
 
-    const options: PluginCypress['resolvedOptions'] = { ...defaultOptions, transformer: transformer }
-    const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options, resolver: resolverCypress })
+    const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options: defaultOptions, resolver: resolverCypress, transformer })
     const driver = createMockedPluginDriver({ name: 'transformers schema visitor', plugin: mockedTsPlugin })
 
     const node = createOperation({
@@ -464,7 +462,7 @@ describe('cypressGenerator — transformers', () => {
       driver,
       Component: cypressGenerator.Operation,
       plugin,
-      options,
+      options: defaultOptions,
       resolver: resolverCypress,
     })
     await matchFiles(fabric.files, 'transformers schema visitor')

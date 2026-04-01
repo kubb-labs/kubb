@@ -134,7 +134,6 @@ type ResolvedOptions = {
   paramsType: NonNullable<Options['paramsType']>
   paramsCasing: Options['paramsCasing']
   resolver: ResolverCypress
-  transformer?: Visitor
 }
 
 export type PluginCypress = PluginFactoryOptions<'plugin-cypress', Options, ResolvedOptions, never, ResolvePathOptions, ResolverCypress>

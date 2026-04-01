@@ -60,6 +60,9 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     get resolver() {
       return preset.resolver
     },
+    get transformer() {
+      return preset.transformer
+    },
     get options() {
       return {
         output,
@@ -82,7 +85,6 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
         paramsType,
         pathParamsType,
         resolver: preset.resolver,
-        transformer: preset.transformer,
       }
     },
     pre: [pluginTsName].filter(Boolean),

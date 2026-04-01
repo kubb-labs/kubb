@@ -12,10 +12,10 @@ import { buildData, buildResponses, buildResponseUnion } from '../utils.ts'
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
-  Schema({ node, adapter, options, config, resolver }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, printer, transformer } = options
+  Schema({ node, adapter, options, config, resolver, plugin }) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, printer } = options
 
-    const transformedNode = transformer ? transform(node, transformer) : node
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
     if (!transformedNode.name) {
       return
@@ -86,10 +86,10 @@ export const typeGenerator = defineGenerator<PluginTs>({
       </File>
     )
   },
-  Operation({ node, adapter, options, config, resolver }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, printer, transformer } = options
+  Operation({ node, adapter, options, config, resolver, plugin }) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, printer } = options
 
-    const transformedNode = transformer ? transform(node, transformer) : node
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))

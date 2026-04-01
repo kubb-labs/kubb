@@ -14,10 +14,10 @@ import { buildSchemaNames } from '../utils.ts'
 export const zodGenerator = defineGenerator<PluginZod>({
   name: 'zod',
   type: 'react',
-  Schema({ node, adapter, options, config, resolver }) {
-    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, printer, transformer } = options
+  Schema({ node, adapter, options, config, resolver, plugin }) {
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, printer } = options
 
-    const transformedNode = transformer ? transform(node, transformer) : node
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
     if (!transformedNode.name) {
       return
@@ -59,10 +59,10 @@ export const zodGenerator = defineGenerator<PluginZod>({
       </File>
     )
   },
-  Operation({ node, adapter, options, config, resolver }) {
-    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, printer, transformer } = options
+  Operation({ node, adapter, options, config, resolver, plugin }) {
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, printer } = options
 
-    const transformedNode = transformer ? transform(node, transformer) : node
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
@@ -136,8 +136,8 @@ export const zodGenerator = defineGenerator<PluginZod>({
       </File>
     )
   },
-  Operations({ nodes, adapter, options, config, resolver }) {
-    const { output, importPath, group, operations, paramsCasing, transformer } = options
+  Operations({ nodes, adapter, options, config, resolver, plugin }) {
+    const { output, importPath, group, operations, paramsCasing } = options
 
     if (!operations) {
       return
@@ -151,7 +151,7 @@ export const zodGenerator = defineGenerator<PluginZod>({
     } as const
 
     const transformedOperations = nodes.map((node) => {
-      const transformedNode = transformer ? transform(node, transformer) : node
+      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
       const params = caseParams(transformedNode.parameters, paramsCasing)
 

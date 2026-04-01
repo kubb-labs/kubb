@@ -221,7 +221,6 @@ type ResolvedOptions = {
   wrapOutput: Options['wrapOutput']
   paramsCasing: Options['paramsCasing']
   printer: Options['printer']
-  transformer?: Visitor
 }
 
 export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions, ResolverZod>

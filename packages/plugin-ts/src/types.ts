@@ -312,7 +312,6 @@ type ResolvedOptions = {
   syntaxType: NonNullable<Options['syntaxType']>
   paramsCasing: Options['paramsCasing']
   printer: Options['printer']
-  transformer?: Visitor
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>

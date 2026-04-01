@@ -159,10 +159,10 @@ function nameUnnamedEnums(node: SchemaNode, parentName: string): SchemaNode {
 export const typeGeneratorLegacy = defineGenerator<PluginTs>({
   name: 'typescript-legacy',
   type: 'react',
-  Schema({ node, adapter, options, config, resolver }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, transformer } = options
+  Schema({ node, adapter, options, config, resolver, plugin }) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group } = options
 
-    const transformedNode = transformer ? transform(node, transformer) : node
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
     if (!transformedNode.name) {
       return
@@ -221,10 +221,10 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
       </File>
     )
   },
-  Operation({ node, adapter, options, config, resolver }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, transformer } = options
+  Operation({ node, adapter, options, config, resolver, plugin }) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output } = options
 
-    const transformedNode = transformer ? transform(node, transformer) : node
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
