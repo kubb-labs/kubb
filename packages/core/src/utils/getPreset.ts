@@ -100,11 +100,7 @@ export function getPreset<TResolver extends Resolver = Resolver>(params: GetPres
 
   const presetTransformers = preset?.transformers ?? []
   const presetTransformer = presetTransformers.length > 0 ? composeTransformers(...presetTransformers) : undefined
-  const transformer = userTransformer
-    ? presetTransformer
-      ? withTransformerFallback(presetTransformer, userTransformer)
-      : userTransformer
-    : presetTransformer
+  const transformer = userTransformer ? (presetTransformer ? withTransformerFallback(presetTransformer, userTransformer) : userTransformer) : presetTransformer
 
   const presetGenerators = preset?.generators ?? []
   const defaultPresetGenerators = presets['default']?.generators ?? []
