@@ -3,7 +3,7 @@ import { collect, narrowSchema, schemaTypes } from '@kubb/ast'
 import type { EnumSchemaNode, SchemaNode } from '@kubb/ast/types'
 import { File } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import type { TsPrinterFactory } from '../printers/printerTs.ts'
+import type { PrinterTsFactory } from '../printers/printerTs.ts'
 import type { PluginTs } from '../types.ts'
 import { Enum, getEnumNames } from './Enum.tsx'
 
@@ -14,7 +14,7 @@ type Props = {
    * Pre-configured printer instance created by the generator.
    * Created with `printerTs({ ..., nodes: options.printer?.nodes })`.
    */
-  printer: Printer<TsPrinterFactory>
+  printer: Printer<PrinterTsFactory>
   enumType: PluginTs['resolvedOptions']['enumType']
   enumTypeSuffix: PluginTs['resolvedOptions']['enumTypeSuffix']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']

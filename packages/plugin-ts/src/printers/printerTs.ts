@@ -28,9 +28,9 @@ import { buildPropertyJSDocComments } from '../utils.ts'
  * })
  * ```
  */
-export type TsPrinterNodes = PrinterPartial<ts.TypeNode, TsPrinterOptions>
+export type PrinterTsNodes = PrinterPartial<ts.TypeNode, PrinterTsOptions>
 
-export type TsPrinterOptions = {
+export type PrinterTsOptions = {
   /**
    * @default `'questionToken'`
    */
@@ -82,15 +82,15 @@ export type TsPrinterOptions = {
   /**
    * Partial map of node-type overrides. Each entry replaces the built-in handler for that node type.
    */
-  nodes?: TsPrinterNodes
+  nodes?: PrinterTsNodes
 }
 
 /**
  * TypeScript printer factory options: maps `SchemaNode` → `ts.TypeNode` (raw) or `ts.Node` (full declaration).
  */
-export type TsPrinterFactory = PrinterFactoryOptions<'typescript', TsPrinterOptions, ts.TypeNode, string>
+export type PrinterTsFactory = PrinterFactoryOptions<'typescript', PrinterTsOptions, ts.TypeNode, string>
 
-type TsPrinter = TsPrinterFactory
+type PrinterTs = PrinterTsFactory
 
 /**
  * TypeScript type printer built with `definePrinter`.
@@ -115,7 +115,7 @@ type TsPrinter = TsPrinterFactory
  * const declaration = printer.print(schemaNode) // ts.TypeAliasDeclaration | ts.InterfaceDeclaration
  * ```
  */
-export const printerTs = definePrinter<TsPrinter>((options) => {
+export const printerTs = definePrinter<PrinterTs>((options) => {
   const addsUndefined = OPTIONAL_ADDS_UNDEFINED.has(options.optionalType)
 
   return {

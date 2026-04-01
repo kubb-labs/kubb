@@ -26,9 +26,9 @@ import { applyMiniModifiers, containsSelfRef, formatLiteral, lengthChecksMini, n
  * })
  * ```
  */
-export type ZodMiniPrinterNodes = PrinterPartial<string, ZodMiniPrinterOptions>
+export type PrinterZodMiniNodes = PrinterPartial<string, PrinterZodMiniOptions>
 
-export type ZodMiniPrinterOptions = {
+export type PrinterZodMiniOptions = {
   guidType?: PluginZod['resolvedOptions']['guidType']
   wrapOutput?: PluginZod['resolvedOptions']['wrapOutput']
   resolver?: ResolverZod
@@ -40,10 +40,10 @@ export type ZodMiniPrinterOptions = {
   /**
    * Partial map of node-type overrides. Each entry replaces the built-in handler for that node type.
    */
-  nodes?: ZodMiniPrinterNodes
+  nodes?: PrinterZodMiniNodes
 }
 
-export type ZodMiniPrinterFactory = PrinterFactoryOptions<'zod-mini', ZodMiniPrinterOptions, string, string>
+export type PrinterZodMiniFactory = PrinterFactoryOptions<'zod-mini', PrinterZodMiniOptions, string, string>
 /**
  * Zod v4 **Mini** printer built with `definePrinter`.
  *
@@ -58,7 +58,7 @@ export type ZodMiniPrinterFactory = PrinterFactoryOptions<'zod-mini', ZodMiniPri
  * const code = printer.print(optionalStringNode) // "z.optional(z.string())"
  * ```
  */
-export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => {
+export const printerZodMini = definePrinter<PrinterZodMiniFactory>((options) => {
   return {
     name: 'zod-mini',
     options,

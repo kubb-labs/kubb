@@ -13,7 +13,7 @@ import type {
   Resolver,
   UserGroup,
 } from '@kubb/core'
-import type {TsPrinterNodes} from "./printers/printerTs.ts";
+import type {PrinterTsNodes} from "./printers/printerTs.ts";
 /**
  * The concrete resolver type for `@kubb/plugin-ts`.
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
@@ -257,15 +257,13 @@ export type Options = {
    */
   compatibilityPreset?: CompatibilityPreset
   /**
-   * A single resolver whose methods override the default resolver's naming conventions.
-   * When a method returns `null` or `undefined`, the default resolver's result is used instead.
-   * Built-in defaults: `resolverTs` (default preset), `resolverTsLegacy` (kubbV4 preset).
+   * Override naming conventions. When a method returns `null` or `undefined`, the preset
+   * resolver (`resolverTs` / `resolverTsLegacy`) is used as fallback.
    */
   resolver?: Partial<ResolverTs>
   /**
-   * A single AST visitor applied to each SchemaNode/OperationNode before printing.
-   * Uses `transform()` from `@kubb/ast` — the visitor can modify, replace, or annotate nodes.
-   * When a visitor method returns `null` or `undefined`, the preset transformer's result is used instead.
+   * AST visitor applied to each schema/operation node before printing.
+   * Returning `null` or `undefined` from a visitor method falls back to the preset transformer.
    *
    * @example Remove writeOnly properties from response types
    * ```ts
@@ -298,7 +296,7 @@ export type Options = {
    * ```
    */
   printer?: {
-    nodes?: TsPrinterNodes
+    nodes?: PrinterTsNodes
   }
 } & EnumTypeOptions
 

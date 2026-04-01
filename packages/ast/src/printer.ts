@@ -57,7 +57,7 @@ export type PrinterHandler<TOutput, TOptions extends object, T extends SchemaTyp
  *       date(): string {
  *         return 'z.string().date()'
  *       },
- *     } satisfies PrinterPartial<string, ZodPrinterOptions>,
+ *     } satisfies PrinterPartial<string, PrinterZodOptions>,
  *   },
  * })
  * ```
@@ -165,9 +165,9 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  *
  * @example Basic usage — Zod schema printer
  * ```ts
- * type ZodPrinter = PrinterFactoryOptions<'zod', { strict?: boolean }, string>
+ * type PrinterZod = PrinterFactoryOptions<'zod', { strict?: boolean }, string>
  *
- * export const zodPrinter = definePrinter<ZodPrinter>((options) => ({
+ * export const zodPrinter = definePrinter<PrinterZod>((options) => ({
  *   name: 'zod',
  *   options: { strict: options.strict ?? true },
  *   nodes: {

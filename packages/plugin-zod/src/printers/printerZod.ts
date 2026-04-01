@@ -25,9 +25,9 @@ import { applyModifiers, containsSelfRef, formatLiteral, lengthConstraints, numb
  * })
  * ```
  */
-export type ZodPrinterNodes = PrinterPartial<string, ZodPrinterOptions>
+export type PrinterZodNodes = PrinterPartial<string, PrinterZodOptions>
 
-export type ZodPrinterOptions = {
+export type PrinterZodOptions = {
   coercion?: PluginZod['resolvedOptions']['coercion']
   guidType?: PluginZod['resolvedOptions']['guidType']
   wrapOutput?: PluginZod['resolvedOptions']['wrapOutput']
@@ -40,10 +40,10 @@ export type ZodPrinterOptions = {
   /**
    * Partial map of node-type overrides. Each entry replaces the built-in handler for that node type.
    */
-  nodes?: ZodPrinterNodes
+  nodes?: PrinterZodNodes
 }
 
-export type ZodPrinterFactory = PrinterFactoryOptions<'zod', ZodPrinterOptions, string, string>
+export type PrinterZodFactory = PrinterFactoryOptions<'zod', PrinterZodOptions, string, string>
 
 /**
  * Zod v4 printer built with `definePrinter`.
@@ -59,7 +59,7 @@ export type ZodPrinterFactory = PrinterFactoryOptions<'zod', ZodPrinterOptions, 
  * const code = printer.print(stringSchemaNode) // "z.string()"
  * ```
  */
-export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
+export const printerZod = definePrinter<PrinterZodFactory>((options) => {
   return {
     name: 'zod',
     options,

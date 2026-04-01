@@ -396,12 +396,14 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    */
   options: TOptions['resolvedOptions']
   /**
-   * The resolver for this plugin, accessible via `driver.getPluginByName(name)?.resolver`.
+   * The resolver for this plugin.
+   * Composed by `getPreset` from the preset resolver and the user's `resolver` partial override.
    */
   resolver?: TOptions['resolver']
   /**
    * The composed transformer for this plugin.
-   * Set by `getPreset` from the preset's built-in transformers and the user's `transformer` option.
+   * Composed by `getPreset` from the preset's transformers and the user's `transformer` visitor.
+   * When a visitor method returns `null`/`undefined`, the preset transformer's result is used instead.
    */
   transformer?: Visitor
   /**
@@ -440,12 +442,14 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    */
   options: TOptions['resolvedOptions']
   /**
-   * The resolver for this plugin, accessible via `driver.getPluginByName(name)?.resolver`.
+   * The resolver for this plugin.
+   * Composed by `getPreset` from the preset resolver and the user's `resolver` partial override.
    */
   resolver: TOptions['resolver']
   /**
-   * The composed transformer for this plugin, accessible via `context.transformer`.
-   * Set by `getPreset` from the preset's built-in transformers and the user's `transformer` option.
+   * The composed transformer for this plugin. Accessible via `context.transformer`.
+   * Composed by `getPreset` from the preset's transformers and the user's `transformer` visitor.
+   * When a visitor method returns `null`/`undefined`, the preset transformer's result is used instead.
    */
   transformer?: Visitor
 
@@ -538,8 +542,8 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    */
   resolver: TOptions['resolver']
   /**
-   * The composed transformer for the current plugin. Shorthand for `plugin.transformer`.
-   * When set, apply it with `transform(node, context.transformer)` to pre-process AST nodes.
+   * Composed transformer for the current plugin. Shorthand for `plugin.transformer`.
+   * Apply with `transform(node, context.transformer)` to pre-process AST nodes before printing.
    */
   transformer: Visitor | undefined
 

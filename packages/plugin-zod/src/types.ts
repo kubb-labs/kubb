@@ -13,8 +13,8 @@ import type {
   Resolver,
   UserGroup,
 } from '@kubb/core'
-import type {ZodPrinterNodes} from "./printers/printerZod.ts";
-import type {ZodMiniPrinterNodes} from "./printers/printerZodMini.ts";
+import type {PrinterZodNodes} from "./printers/printerZod.ts";
+import type {PrinterZodMiniNodes} from "./printers/printerZodMini.ts";
 
 /**
  * The concrete resolver type for `@kubb/plugin-zod`.
@@ -200,7 +200,7 @@ export type Options = {
    * ```
    */
   printer?: {
-    nodes?: ZodPrinterNodes | ZodMiniPrinterNodes
+    nodes?: PrinterZodNodes | PrinterZodMiniNodes
   }
   /**
    * A single AST visitor applied to each SchemaNode/OperationNode before printing.
