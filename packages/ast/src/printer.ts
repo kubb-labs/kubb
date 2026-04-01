@@ -49,9 +49,6 @@ export type PrinterHandler<TOutput, TOptions extends object, T extends SchemaTyp
  * Supply only the handlers you want to replace; the printer's built-in
  * defaults fill in the rest.
  *
- * @template TOutput  - The value type the handler returns (e.g. `string` for Zod, `ts.TypeNode` for TypeScript).
- * @template TOptions - The options object closed over by the printer instance.
- *
  * @example
  * ```ts
  * pluginZod({

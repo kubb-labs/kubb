@@ -8,6 +8,7 @@ import { beforeEach, describe, test } from 'vitest'
 import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import type { PluginClient } from '../types.ts'
 import { classClientGenerator } from './classClientGenerator.tsx'
+import type {Config} from "@kubb/core";
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -87,7 +88,7 @@ describe('classClientGenerator operations', async () => {
         config: {
           root: '.',
           output: { path: 'test' },
-        } as import('@kubb/core').Config,
+        } as Config,
         fabric,
         generator,
         Component: classClientGenerator.Operations,
