@@ -31,7 +31,7 @@ type GetPresetParams<TResolver extends Resolver> = {
    * Optional single resolver whose methods override the preset resolver.
    * When a method returns `null` or `undefined` the preset resolver's method is used instead.
    */
-  resolver?: Partial<TResolver>
+  resolver?: Partial<TResolver> & ThisType<TResolver>
   /**
    * User-supplied generators to append after the preset's generators.
    */

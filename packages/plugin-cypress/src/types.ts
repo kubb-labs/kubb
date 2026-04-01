@@ -23,7 +23,7 @@ export type ResolverCypress = Resolver & {
    * @example
    * resolver.resolveName('show pet by id') // -> 'showPetById'
    */
-  resolveName(name: string): string
+  resolveName(this: ResolverCypress, name: string): string
 }
 
 /**
@@ -113,7 +113,7 @@ export type Options = {
    * A single resolver whose methods override the default resolver's naming conventions.
    * When a method returns `null` or `undefined`, the default resolver's result is used instead.
    */
-  resolver?: Partial<ResolverCypress>
+  resolver?: Partial<ResolverCypress> & ThisType<ResolverCypress>
   /**
    * A single AST visitor applied before printing.
    * When a visitor method returns `null` or `undefined`, the preset transformer's result is used instead.

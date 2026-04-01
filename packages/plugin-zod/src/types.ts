@@ -25,7 +25,7 @@ export type ResolverZod = Resolver &
     /**
      * Resolves a camelCase schema function name with a `Schema` suffix.
      */
-    resolveName(name: string): string
+    resolveName(this: ResolverZod,name: string): string
     /**
      * Resolves the name for a `z.infer<typeof ...>` type export from an already-resolved function name.
      *
@@ -33,53 +33,53 @@ export type ResolverZod = Resolver &
      * resolver.resolveInferName('petSchema') // → 'PetSchema'
      * resolver.resolveInferName('addPet200Schema') // → 'AddPet200Schema'
      */
-    resolveInferName(name: string): string
+    resolveInferName(this: ResolverZod,name: string): string
     /**
      * Resolves a PascalCase path/file name for the generated output.
      */
-    resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+    resolvePathName(this: ResolverZod,name: string, type?: 'file' | 'function' | 'type' | 'const'): string
     /**
      * Resolves the name for an operation response by status code.
      *
      * @example
      * resolver.resolveResponseStatusName(node, 200) // → 'listPetsStatus200Schema'
      */
-    resolveResponseStatusName(node: OperationNode, statusCode: StatusCode): string
+    resolveResponseStatusName(this: ResolverZod,node: OperationNode, statusCode: StatusCode): string
     /**
      * Resolves the name for the collection of all operation responses.
      *
      * @example
      * resolver.resolveResponsesName(node) // → 'listPetsResponsesSchema'
      */
-    resolveResponsesName(node: OperationNode): string
+    resolveResponsesName(this: ResolverZod,node: OperationNode): string
     /**
      * Resolves the name for the union of all operation responses.
      *
      * @example
      * resolver.resolveResponseName(node) // → 'listPetsResponseSchema'
      */
-    resolveResponseName(node: OperationNode): string
+    resolveResponseName(this: ResolverZod,node: OperationNode): string
     /**
      * Resolves the name for an operation's grouped path parameters type.
      *
      * @example
      * resolver.resolvePathParamsName(node, param) // → 'deletePetPathPetIdSchema'
      */
-    resolvePathParamsName(node: OperationNode, param: ParameterNode): string
+    resolvePathParamsName(this: ResolverZod,node: OperationNode, param: ParameterNode): string
     /**
      * Resolves the name for an operation's grouped query parameters type.
      *
      * @example
      * resolver.resolveQueryParamsName(node, param) // → 'findPetsByStatusQueryStatusSchema'
      */
-    resolveQueryParamsName(node: OperationNode, param: ParameterNode): string
+    resolveQueryParamsName(this: ResolverZod,node: OperationNode, param: ParameterNode): string
     /**
      * Resolves the name for an operation's grouped header parameters type.
      *
      * @example
      * resolver.resolveHeaderParamsName(node, param) // → 'deletePetHeaderApiKeySchema'
      */
-    resolveHeaderParamsName(node: OperationNode, param: ParameterNode): string
+    resolveHeaderParamsName(this: ResolverZod,node: OperationNode, param: ParameterNode): string
   }
 
 export type Options = {
@@ -178,7 +178,7 @@ export type Options = {
    * A single resolver whose methods override the default resolver's naming conventions.
    * When a method returns `null` or `undefined`, the default resolver's result is used instead.
    */
-  resolver?: Partial<ResolverZod>
+  resolver?: Partial<ResolverZod> & ThisType<ResolverZod>
   /**
    * Override individual printer node handlers to customise rendering of specific schema types.
    *

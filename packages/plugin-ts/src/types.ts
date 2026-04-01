@@ -260,7 +260,7 @@ export type Options = {
    * Override naming conventions. When a method returns `null` or `undefined`, the preset
    * resolver (`resolverTs` / `resolverTsLegacy`) is used as fallback.
    */
-  resolver?: Partial<ResolverTs>
+  resolver?: Partial<ResolverTs> & ThisType<ResolverTs>
   /**
    * AST visitor applied to each schema/operation node before printing.
    * Returning `null` or `undefined` from a visitor method falls back to the preset transformer.

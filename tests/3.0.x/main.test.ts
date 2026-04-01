@@ -294,6 +294,84 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       ],
     },
   },
+  {
+    /**
+     * Verifies that `resolver.resolveName` override is applied.
+     * Every operation-derived name (params, responses, etc.) gets a `Custom` prefix
+     * while schema type names (which use `default(name, 'type')`) are unaffected.
+     * Returning `null`/`undefined` from any method falls back to the preset resolver.
+     */
+    name: 'resolverCustomPrefix',
+    config: {
+      root: __dirname,
+      input: { path: '../../schemas/3.0.x/simple.yaml' },
+      output: { path: './gen', barrelType: false },
+      adapter: adapterOas({ validate: false }),
+      plugins: [
+        pluginTs({
+          output: { path: './types', barrelType: false },
+          resolver: {
+            resolveBanner() {
+              return `// Custom banner`
+            },
+            resolveName(name) {
+              return `Custom${this.default(name, 'function')}`
+            },
+          },
+        }),
+      ],
+    },
+  },
+  {
+    /**
+     * Verifies that `printer.nodes` overrides are applied in pluginZod.
+     * The `integer` handler is replaced so all integer fields produce `z.number()`
+     * instead of the default `z.int()`.
+     */
+    name: 'printerNodesZod',
+    config: {
+      root: __dirname,
+      input: { path: '../../schemas/3.0.x/simple.yaml' },
+      output: { path: './gen', barrelType: false },
+      adapter: adapterOas({ validate: false }),
+      plugins: [
+        pluginZod({
+          output: { path: './zod', barrelType: false },
+          printer: {
+            nodes: {
+              integer() {
+                return 'z.number()'
+              },
+            },
+          },
+        }),
+      ],
+    },
+  },
+  {
+    /**
+     * Verifies that `transformer` is applied to each SchemaNode before printing.
+     * The visitor strips `description` from every node, so generated type files
+     * contain no `@description` JSDoc tags.
+     */
+    name: 'transformerStripDescriptions',
+    config: {
+      root: __dirname,
+      input: { path: '../../schemas/3.0.x/simple.yaml' },
+      output: { path: './gen', barrelType: false },
+      adapter: adapterOas({ validate: false }),
+      plugins: [
+        pluginTs({
+          output: { path: './types', barrelType: false },
+          transformer: {
+            schema(node) {
+              return { ...node, example: 'test', description: undefined }
+            },
+          },
+        }),
+      ],
+    },
+  },
 ]
 
 describe(`Main OpenAPI ${version}`, () => {
