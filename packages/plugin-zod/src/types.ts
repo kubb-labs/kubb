@@ -25,7 +25,7 @@ export type ResolverZod = Resolver &
     /**
      * Resolves a camelCase schema function name with a `Schema` suffix.
      */
-    resolveName(this: ResolverZod, name: string): string
+    resolveSchemaName(this: ResolverZod, name: string): string
     /**
      * Resolves the name for a `z.infer<typeof ...>` type export from an already-resolved function name.
      *
@@ -33,7 +33,7 @@ export type ResolverZod = Resolver &
      * resolver.resolveInferName('petSchema') // → 'PetSchema'
      * resolver.resolveInferName('addPet200Schema') // → 'AddPet200Schema'
      */
-    resolveInferName(this: ResolverZod, name: string): string
+    resolveTypeName(this: ResolverZod, name: string): string
     /**
      * Resolves a PascalCase path/file name for the generated output.
      */

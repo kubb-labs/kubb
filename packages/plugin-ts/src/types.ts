@@ -28,7 +28,7 @@ export type ResolverTs = Resolver &
      * @example
      * resolver.resolveName('list pets status 200') // → 'ListPetsStatus200'
      */
-    resolveName(name: string): string
+    resolveTypeName(name: string): string
     /**
      * Resolves the file/path name for a given identifier using PascalCase.
      *

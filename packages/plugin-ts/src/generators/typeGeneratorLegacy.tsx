@@ -172,7 +172,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
     const mode = getMode(path.resolve(root, output.path))
 
     const imports = adapter.getImports(transformedNode, (schemaName) => ({
-      name: resolver.default(schemaName, 'type'),
+      name: resolver.resolveTypeName(schemaName),
       path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
     }))
 
@@ -182,7 +182,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
       name:
         ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema
           ? resolver.resolveEnumKeyName(transformedNode, enumTypeSuffix)
-          : resolver.resolveName(transformedNode.name),
+          : resolver.resolveTypeName(transformedNode.name),
       file: resolver.resolveFile({ name: transformedNode.name, extname: '.ts' }, { root, output, group }),
     } as const
 
@@ -251,7 +251,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
       if (!schema) return null
 
       const imports = adapter.getImports(schema, (schemaName) => ({
-        name: resolver.default(schemaName, 'type'),
+        name: resolver.resolveTypeName(schemaName),
         path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
       }))
 

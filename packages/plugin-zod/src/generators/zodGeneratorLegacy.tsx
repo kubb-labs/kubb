@@ -181,14 +181,14 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
     const imports = adapter.getImports(transformedNode, (schemaName) => ({
-      name: resolver.default(schemaName, 'function'),
+      name: resolver.resolveSchemaName(schemaName),
       path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
     }))
 
-    const inferTypeName = inferred ? resolver.resolveInferName(resolver.resolveName(transformedNode.name)) : undefined
+    const inferTypeName = inferred ? resolver.resolveTypeName(transformedNode.name) : undefined
 
     const meta = {
-      name: resolver.default(transformedNode.name, 'function'),
+      name: resolver.resolveSchemaName(transformedNode.name),
       file: resolver.resolveFile({ name: transformedNode.name, extname: '.ts' }, { root, output, group }),
     } as const
 
@@ -233,10 +233,10 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     function renderSchemaEntry({ schema, name, keysToOmit }: { schema: SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
       if (!schema) return null
 
-      const inferTypeName = inferred ? resolver.resolveInferName(name) : undefined
+      const inferTypeName = inferred ? resolver.resolveTypeName(name) : undefined
 
       const imports = adapter.getImports(schema, (schemaName) => ({
-        name: resolver.default(schemaName, 'function'),
+        name: resolver.resolveSchemaName(schemaName),
         path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
       }))
 
