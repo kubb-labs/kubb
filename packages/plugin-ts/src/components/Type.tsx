@@ -1,46 +1,27 @@
+import type { Printer } from '@kubb/ast'
 import { collect, narrowSchema, schemaTypes } from '@kubb/ast'
 import type { EnumSchemaNode, SchemaNode } from '@kubb/ast/types'
 import { File } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import { printerTs } from '../printers/printerTs.ts'
+import type { PrinterTsFactory } from '../printers/printerTs.ts'
 import type { PluginTs } from '../types.ts'
 import { Enum, getEnumNames } from './Enum.tsx'
 
 type Props = {
   name: string
   node: SchemaNode
-  optionalType: PluginTs['resolvedOptions']['optionalType']
-  arrayType: PluginTs['resolvedOptions']['arrayType']
+  /**
+   * Pre-configured printer instance created by the generator.
+   * Created with `printerTs({ ..., nodes: options.printer?.nodes })`.
+   */
+  printer: Printer<PrinterTsFactory>
   enumType: PluginTs['resolvedOptions']['enumType']
   enumTypeSuffix: PluginTs['resolvedOptions']['enumTypeSuffix']
   enumKeyCasing: PluginTs['resolvedOptions']['enumKeyCasing']
-  syntaxType: PluginTs['resolvedOptions']['syntaxType']
   resolver: PluginTs['resolver']
-  description?: string
-  keysToOmit?: string[]
-  /**
-   * Names of top-level schemas that are enums.
-   * Used so the printer's `ref` handler can use the suffixed type name (e.g. `StatusKey`)
-   * instead of the plain PascalCase name (e.g. `Status`) when resolving `$ref` enum targets.
-   */
-  enumSchemaNames?: Set<string>
 }
 
-export function Type({
-  name,
-  node,
-  keysToOmit,
-  optionalType,
-  arrayType,
-  syntaxType,
-  enumType,
-  enumTypeSuffix,
-  enumKeyCasing,
-  description,
-  resolver,
-  enumSchemaNames,
-}: Props): FabricReactNode {
-  const resolvedDescription = description || node?.description
+export function Type({ name, node, printer, enumType, enumTypeSuffix, enumKeyCasing, resolver }: Props): FabricReactNode {
   const enumSchemaNodes = collect<EnumSchemaNode>(node, {
     schema(n): EnumSchemaNode | undefined {
       const enumNode = narrowSchema(n, schemaTypes.enum)
@@ -48,18 +29,6 @@ export function Type({
     },
   })
 
-  const printer = printerTs({
-    optionalType,
-    arrayType,
-    enumType,
-    enumTypeSuffix,
-    name,
-    syntaxType,
-    description: resolvedDescription,
-    keysToOmit,
-    resolver,
-    enumSchemaNames,
-  })
   const output = printer.print(node)
 
   if (!output) {

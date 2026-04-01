@@ -1,11 +1,33 @@
 import { stringify } from '@internals/utils'
 import { createSchema, extractRefName, narrowSchema, syncSchemaRef } from '@kubb/ast'
-import type { PrinterFactoryOptions } from '@kubb/core'
+import type { PrinterFactoryOptions, PrinterPartial } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import type { PluginZod, ResolverZod } from '../types.ts'
 import { applyModifiers, containsSelfRef, formatLiteral, lengthConstraints, numberConstraints, shouldCoerce } from '../utils.ts'
 
-export type ZodOptions = {
+/**
+ * Partial map of node-type overrides for the Zod printer.
+ *
+ * Each key is a `SchemaType` string (e.g. `'date'`, `'string'`). The function
+ * replaces the built-in handler for that node type. Use `this.transform` to
+ * recurse into nested schema nodes, and `this.options` to read printer options.
+ *
+ * @example Override the `date` handler
+ * ```ts
+ * pluginZod({
+ *   printer: {
+ *     nodes: {
+ *       date(node) {
+ *         return 'z.string().date()'
+ *       },
+ *     },
+ *   },
+ * })
+ * ```
+ */
+export type PrinterZodNodes = PrinterPartial<string, PrinterZodOptions>
+
+export type PrinterZodOptions = {
   coercion?: PluginZod['resolvedOptions']['coercion']
   guidType?: PluginZod['resolvedOptions']['guidType']
   wrapOutput?: PluginZod['resolvedOptions']['wrapOutput']
@@ -15,9 +37,13 @@ export type ZodOptions = {
    * Property keys to exclude from the generated object schema via `.omit({ key: true })`.
    */
   keysToOmit?: Array<string>
+  /**
+   * Partial map of node-type overrides. Each entry replaces the built-in handler for that node type.
+   */
+  nodes?: PrinterZodNodes
 }
 
-type ZodPrinterFactory = PrinterFactoryOptions<'zod', ZodOptions, string, string>
+export type PrinterZodFactory = PrinterFactoryOptions<'zod', PrinterZodOptions, string, string>
 
 /**
  * Zod v4 printer built with `definePrinter`.
@@ -33,7 +59,7 @@ type ZodPrinterFactory = PrinterFactoryOptions<'zod', ZodOptions, string, string
  * const code = printer.print(stringSchemaNode) // "z.string()"
  * ```
  */
-export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
+export const printerZod = definePrinter<PrinterZodFactory>((options) => {
   return {
     name: 'zod',
     options,
@@ -242,6 +268,7 @@ export const printerZod = definePrinter<ZodPrinterFactory>((options) => {
 
         return base
       },
+      ...options.nodes,
     },
     print(node) {
       const { keysToOmit } = this.options

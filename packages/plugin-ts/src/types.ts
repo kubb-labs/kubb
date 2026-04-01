@@ -13,6 +13,7 @@ import type {
   Resolver,
   UserGroup,
 } from '@kubb/core'
+import type { PrinterTsNodes } from './printers/printerTs.ts'
 /**
  * The concrete resolver type for `@kubb/plugin-ts`.
  * Extends the base `Resolver` (which provides `default` and `resolveOptions`) with
@@ -27,7 +28,7 @@ export type ResolverTs = Resolver &
      * @example
      * resolver.resolveName('list pets status 200') // → 'ListPetsStatus200'
      */
-    resolveName(name: string): string
+    resolveTypeName(name: string): string
     /**
      * Resolves the file/path name for a given identifier using PascalCase.
      *
@@ -256,35 +257,47 @@ export type Options = {
    */
   compatibilityPreset?: CompatibilityPreset
   /**
-   * Array of named resolvers that control naming conventions.
-   * Later entries override earlier ones (last wins).
-   * Built-in: `resolverTs` (default), `resolverTsLegacy`.
-   * @default [resolverTs]
+   * Override naming conventions. When a method returns `null` or `undefined`, the preset
+   * resolver (`resolverTs` / `resolverTsLegacy`) is used as fallback.
    */
-  resolvers?: Array<ResolverTs>
+  resolver?: Partial<ResolverTs> & ThisType<ResolverTs>
   /**
-   * Array of AST visitors applied to each SchemaNode/OperationNode before printing.
-   * Uses `transform()` from `@kubb/ast` — visitors can modify, replace, or annotate nodes.
+   * AST visitor applied to each schema/operation node before printing.
+   * Returning `null` or `undefined` from a visitor method falls back to the preset transformer.
    *
    * @example Remove writeOnly properties from response types
    * ```ts
-   * transformers: [{
+   * transformer: {
    *   property(node) {
    *     if (node.schema.writeOnly) return undefined
    *   }
-   * }]
-   * ```
-   *
-   * @example Force all dates to plain strings
-   * ```ts
-   * transformers: [{
-   *   schema(node) {
-   *     if (node.type === 'date') return { ...node, type: 'string' }
-   *   }
-   * }]
+   * }
    * ```
    */
-  transformers?: Array<Visitor>
+  transformer?: Visitor
+  /**
+   * Override individual printer node handlers to customise rendering of specific schema types.
+   *
+   * Each key is a `SchemaType` (e.g. `'date'`, `'string'`). The function replaces the
+   * built-in handler for that type. Use `this.transform` to recurse into nested schema nodes.
+   *
+   * @example Override the `date` node to use the `Date` object type
+   * ```ts
+   * import ts from 'typescript'
+   * pluginTs({
+   *   printer: {
+   *     nodes: {
+   *       date(node) {
+   *         return ts.factory.createTypeReferenceNode('Date', [])
+   *       },
+   *     },
+   *   },
+   * })
+   * ```
+   */
+  printer?: {
+    nodes?: PrinterTsNodes
+  }
 } & EnumTypeOptions
 
 type ResolvedOptions = {
@@ -297,7 +310,7 @@ type ResolvedOptions = {
   arrayType: NonNullable<Options['arrayType']>
   syntaxType: NonNullable<Options['syntaxType']>
   paramsCasing: Options['paramsCasing']
-  transformers: Array<Visitor>
+  printer: Options['printer']
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>

@@ -31,30 +31,30 @@ export const resolverZodLegacy = defineResolver<PluginZod>(() => {
     pluginName: 'plugin-zod',
     resolveResponseStatusName(node, statusCode) {
       if (statusCode === 'default') {
-        return this.resolveName(`${node.operationId} Error`)
+        return this.resolveSchemaName(`${node.operationId} Error`)
       }
-      return this.resolveName(`${node.operationId} ${statusCode}`)
+      return this.resolveSchemaName(`${node.operationId} ${statusCode}`)
     },
     resolveDataName(node) {
       const suffix = node.method === 'GET' ? 'QueryRequest' : 'MutationRequest'
-      return this.resolveName(`${node.operationId} ${suffix}`)
+      return this.resolveSchemaName(`${node.operationId} ${suffix}`)
     },
     resolveResponsesName(node) {
       const suffix = node.method === 'GET' ? 'Query' : 'Mutation'
-      return this.resolveName(`${node.operationId} ${suffix}`)
+      return this.resolveSchemaName(`${node.operationId} ${suffix}`)
     },
     resolveResponseName(node) {
       const suffix = node.method === 'GET' ? 'QueryResponse' : 'MutationResponse'
-      return this.resolveName(`${node.operationId} ${suffix}`)
+      return this.resolveSchemaName(`${node.operationId} ${suffix}`)
     },
     resolvePathParamsName(node, _param) {
-      return this.resolveName(`${node.operationId} PathParams`)
+      return this.resolveSchemaName(`${node.operationId} PathParams`)
     },
     resolveQueryParamsName(node, _param) {
-      return this.resolveName(`${node.operationId} QueryParams`)
+      return this.resolveSchemaName(`${node.operationId} QueryParams`)
     },
     resolveHeaderParamsName(node, _param) {
-      return this.resolveName(`${node.operationId} HeaderParams`)
+      return this.resolveSchemaName(`${node.operationId} HeaderParams`)
     },
   }
 })

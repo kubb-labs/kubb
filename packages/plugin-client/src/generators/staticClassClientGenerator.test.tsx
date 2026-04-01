@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
+import type { Config } from '@kubb/core'
 import { parse } from '@kubb/oas'
 import { OperationGenerator, renderOperations } from '@kubb/plugin-oas'
 import { createReactFabric } from '@kubb/react-fabric'
@@ -83,7 +83,7 @@ describe('staticClassClientGenerator operations', async () => {
         config: {
           root: '.',
           output: { path: 'test' },
-        } as import('@kubb/core').Config,
+        } as Config,
         fabric,
         generator,
         Component: staticClassClientGenerator.Operations,

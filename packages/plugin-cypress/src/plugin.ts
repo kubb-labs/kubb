@@ -5,7 +5,6 @@ import type { OperationNode } from '@kubb/ast/types'
 import { createPlugin, type Group, getBarrelFiles, getPreset, runGeneratorOperation, runGeneratorOperations, runGeneratorSchema } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { presets } from './presets.ts'
-import { resolverCypress } from './resolvers/resolverCypress.ts'
 import type { PluginCypress } from './types.ts'
 
 /**
@@ -43,16 +42,16 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     paramsType = 'inline',
     pathParamsType = paramsType === 'object' ? 'object' : options.pathParamsType || 'inline',
     compatibilityPreset = 'default',
-    resolvers: userResolvers = [],
-    transformers: userTransformers = [],
+    resolver: userResolver,
+    transformer: userTransformer,
     generators: userGenerators = [],
   } = options
 
   const preset = getPreset({
     preset: compatibilityPreset,
     presets,
-    resolvers: [resolverCypress, ...userResolvers],
-    transformers: userTransformers,
+    resolver: userResolver,
+    transformer: userTransformer,
     generators: userGenerators,
   })
 
@@ -60,6 +59,9 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     name: pluginCypressName,
     get resolver() {
       return preset.resolver
+    },
+    get transformer() {
+      return preset.transformer
     },
     get options() {
       return {
@@ -83,7 +85,6 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
         paramsType,
         pathParamsType,
         resolver: preset.resolver,
-        transformers: preset.transformers,
       }
     },
     pre: [pluginTsName].filter(Boolean),

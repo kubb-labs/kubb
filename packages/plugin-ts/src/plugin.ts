@@ -41,17 +41,18 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     arrayType = 'array',
     syntaxType = 'type',
     paramsCasing,
+    printer,
     compatibilityPreset = 'default',
-    resolvers: userResolvers = [],
-    transformers: userTransformers = [],
+    resolver: userResolver,
+    transformer: userTransformer,
     generators: userGenerators = [],
   } = options
 
   const preset = getPreset({
     preset: compatibilityPreset,
     presets: presets,
-    resolvers: userResolvers,
-    transformers: userTransformers,
+    resolver: userResolver,
+    transformer: userTransformer,
     generators: userGenerators,
   })
 
@@ -62,6 +63,9 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     name: pluginTsName,
     get resolver() {
       return preset.resolver
+    },
+    get transformer() {
+      return preset.transformer
     },
     get options() {
       return {
@@ -84,7 +88,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         enumKeyCasing,
         syntaxType,
         paramsCasing,
-        transformers: preset.transformers,
+        printer,
       }
     },
     resolvePath(baseName, pathMode, options) {

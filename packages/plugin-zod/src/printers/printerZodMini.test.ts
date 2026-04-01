@@ -489,4 +489,41 @@ describe('printerZodMini', () => {
       expect(p.print(node)).toBe('z.discriminatedUnion("petType", [Cat, Dog])')
     })
   })
+
+  describe('nodes override', () => {
+    test('overrides a single node type', () => {
+      const p = printerZodMini({ nodes: { date: () => 'z.iso.date()' } })
+      expect(p.print(createSchema({ type: 'date', representation: 'string' }))).toBe('z.iso.date()')
+    })
+
+    test('override does not affect other node types', () => {
+      const p = printerZodMini({ nodes: { date: () => 'z.iso.date()' } })
+      expect(p.print(createSchema({ type: 'string' }))).toBe('z.string()')
+    })
+
+    test('override can call this.transform for nested nodes', () => {
+      const p = printerZodMini({
+        nodes: {
+          array(node) {
+            const inner = node.items?.map((item) => this.transform(item)).join(', ') ?? 'z.unknown()'
+            return `z.set(${inner})`
+          },
+        },
+      })
+      const node = createSchema({ type: 'array', items: [createSchema({ type: 'string' })] })
+      expect(p.print(node)).toBe('z.set(z.string())')
+    })
+
+    test('override can read this.options', () => {
+      const p = printerZodMini({
+        guidType: 'guid',
+        nodes: {
+          uuid() {
+            return this.options.guidType === 'guid' ? 'z.guid().custom()' : 'z.uuid()'
+          },
+        },
+      })
+      expect(p.print(createSchema({ type: 'uuid' }))).toBe('z.guid().custom()')
+    })
+  })
 })

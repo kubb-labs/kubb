@@ -391,40 +391,41 @@ pluginTs({
 
 :::
 
-### resolvers
+### resolver
 
 <!--@include: ./core/resolvers.md-->
 
 Resolver precedence for `@kubb/plugin-ts`:
 
-1. Start with `resolverTs`.
-2. Apply `compatibilityPreset` resolver (`kubbV4`) when configured.
-3. Apply explicit `resolvers` overrides (last wins).
+1. Start with the preset resolver (`resolverTs` or `resolverTsLegacy`).
+2. Apply `compatibilityPreset` to select the active preset.
+3. Apply explicit `resolver` overrides on top (method-level, with `null`/`undefined` fallback).
 
-|           |                     |
-| --------: | :------------------ |
-|     Type: | `Array<ResolverTs>` |
-| Required: | `false`             |
-|  Default: | `[resolverTs]`      |
+|           |                                                          |
+| --------: | :------------------------------------------------------- |
+|     Type: | `Partial<ResolverTs> & ThisType<ResolverTs>`             |
+| Required: | `false`                                                  |
 
 ::: code-group
 
 ```typescript [v4 compatibility]
-import { pluginTs } from '@kubb/plugin-ts';
+import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({
   compatibilityPreset: 'kubbV4',
-});
+})
 ```
 
-```typescript [Explicit resolver override]
-import { pluginTs } from '@kubb/plugin-ts';
-import { resolverTs } from '@kubb/plugin-ts/resolvers';
+```typescript [Custom prefix for operation names]
+import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({
-  compatibilityPreset: 'default',
-  resolvers: [resolverTs], // explicit resolvers take precedence
-});
+  resolver: {
+    resolveName(name) {
+      return `Custom${this.default(name, 'function')}`
+    },
+  },
+})
 ```
 
 :::
@@ -450,12 +451,57 @@ pluginTs({
 |     Type: | `Array<Generator<PluginTs>>` |
 | Required: | `false`                      |
 
-### transformers
+### transformer
 
 <!--@include: ./core/transformers.md-->
 
 > [!NOTE]
-> `@kubb/plugin-ts` uses AST `Visitor` transformers for schema/operation node transforms. For output naming customization, use `resolvers` instead of `transformers`.
+> `@kubb/plugin-ts` uses AST `Visitor` transformers for schema/operation node transforms. For output naming customization, use `resolver` instead.
+
+### printer
+
+Override individual printer node handlers to customise how specific schema types are rendered.
+
+Each key is a `SchemaType` (e.g. `'integer'`, `'date'`). The function you provide replaces the built-in handler for that type. Use `this.transform` to recurse into nested schema nodes and `this.options` to read printer options.
+
+|           |                   |
+| --------: | :---------------- |
+|     Type: | `{ nodes?: PrinterTsNodes }` |
+| Required: | `false`           |
+
+::: code-group
+
+```typescript [Override the date node to use the Date object]
+import ts from 'typescript'
+import { pluginTs } from '@kubb/plugin-ts'
+
+pluginTs({
+  printer: {
+    nodes: {
+      date(node) {
+        return ts.factory.createTypeReferenceNode('Date', [])
+      },
+    },
+  },
+})
+```
+
+```typescript [Override integer to bigint]
+import ts from 'typescript'
+import { pluginTs } from '@kubb/plugin-ts'
+
+pluginTs({
+  printer: {
+    nodes: {
+      integer() {
+        return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BigIntKeyword)
+      },
+    },
+  },
+})
+```
+
+:::
 
 ## Example
 

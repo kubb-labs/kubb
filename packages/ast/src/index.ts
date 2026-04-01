@@ -15,7 +15,7 @@ export {
 } from './factory.ts'
 export { isOperationNode, isSchemaNode, narrowSchema } from './guards.ts'
 export type { ParserOptions } from './infer.ts'
-export type { PrinterFactoryOptions } from './printer.ts'
+export type { Printer, PrinterFactoryOptions, PrinterPartial } from './printer.ts'
 export { createPrinterFactory, definePrinter } from './printer.ts'
 export { extractRefName } from './refs.ts'
 export { childName, collectImports, enumPropName, findDiscriminator } from './resolvers.ts'

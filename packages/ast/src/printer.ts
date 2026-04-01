@@ -43,6 +43,30 @@ export type PrinterHandler<TOutput, TOptions extends object, T extends SchemaTyp
 ) => TOutput | null | undefined
 
 /**
+ * Partial map of per-node-type handler overrides for a printer.
+ *
+ * Each key is a `SchemaType` string (e.g. `'date'`, `'string'`).
+ * Supply only the handlers you want to replace; the printer's built-in
+ * defaults fill in the rest.
+ *
+ * @example
+ * ```ts
+ * pluginZod({
+ *   printer: {
+ *     nodes: {
+ *       date(): string {
+ *         return 'z.string().date()'
+ *       },
+ *     } satisfies PrinterPartial<string, PrinterZodOptions>,
+ *   },
+ * })
+ * ```
+ */
+export type PrinterPartial<TOutput, TOptions extends object> = Partial<{
+  [K in SchemaType]: PrinterHandler<TOutput, TOptions, K>
+}>
+
+/**
  * Generic shape used by `definePrinter`.
  *
  * - `TName`        — unique string identifier (e.g. `'zod'`, `'ts'`)
@@ -141,9 +165,9 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  *
  * @example Basic usage — Zod schema printer
  * ```ts
- * type ZodPrinter = PrinterFactoryOptions<'zod', { strict?: boolean }, string>
+ * type PrinterZod = PrinterFactoryOptions<'zod', { strict?: boolean }, string>
  *
- * export const zodPrinter = definePrinter<ZodPrinter>((options) => ({
+ * export const zodPrinter = definePrinter<PrinterZod>((options) => ({
  *   name: 'zod',
  *   options: { strict: options.strict ?? true },
  *   nodes: {

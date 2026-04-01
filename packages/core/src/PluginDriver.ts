@@ -141,6 +141,9 @@ export class PluginDriver {
       get resolver() {
         return plugin.resolver
       },
+      get transformer() {
+        return plugin.transformer
+      },
       openInStudio(options?: DevtoolsOptions) {
         if (!driver.config.devtools || driver.#studioIsOpen) {
           return

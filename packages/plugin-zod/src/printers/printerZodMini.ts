@@ -1,11 +1,34 @@
 import { stringify } from '@internals/utils'
 import { createSchema, extractRefName, narrowSchema, syncSchemaRef } from '@kubb/ast'
-import type { PrinterFactoryOptions } from '@kubb/core'
+import type { PrinterFactoryOptions, PrinterPartial } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import type { PluginZod, ResolverZod } from '../types.ts'
 import { applyMiniModifiers, containsSelfRef, formatLiteral, lengthChecksMini, numberChecksMini } from '../utils.ts'
 
-export type ZodMiniOptions = {
+/**
+ * Partial map of node-type overrides for the Zod Mini printer.
+ *
+ * Each key is a `SchemaType` string (e.g. `'date'`, `'string'`). The function
+ * replaces the built-in handler for that node type. Use `this.transform` to
+ * recurse into nested schema nodes, and `this.options` to read printer options.
+ *
+ * @example Override the `date` handler
+ * ```ts
+ * pluginZod({
+ *   mini: true,
+ *   printer: {
+ *     nodes: {
+ *       date(node) {
+ *         return 'z.iso.date()'
+ *       },
+ *     },
+ *   },
+ * })
+ * ```
+ */
+export type PrinterZodMiniNodes = PrinterPartial<string, PrinterZodMiniOptions>
+
+export type PrinterZodMiniOptions = {
   guidType?: PluginZod['resolvedOptions']['guidType']
   wrapOutput?: PluginZod['resolvedOptions']['wrapOutput']
   resolver?: ResolverZod
@@ -14,9 +37,13 @@ export type ZodMiniOptions = {
    * Property keys to exclude from the generated object schema via `.omit({ key: true })`.
    */
   keysToOmit?: Array<string>
+  /**
+   * Partial map of node-type overrides. Each entry replaces the built-in handler for that node type.
+   */
+  nodes?: PrinterZodMiniNodes
 }
 
-type ZodMiniPrinterFactory = PrinterFactoryOptions<'zod-mini', ZodMiniOptions, string, string>
+export type PrinterZodMiniFactory = PrinterFactoryOptions<'zod-mini', PrinterZodMiniOptions, string, string>
 /**
  * Zod v4 **Mini** printer built with `definePrinter`.
  *
@@ -31,7 +58,7 @@ type ZodMiniPrinterFactory = PrinterFactoryOptions<'zod-mini', ZodMiniOptions, s
  * const code = printer.print(optionalStringNode) // "z.optional(z.string())"
  * ```
  */
-export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => {
+export const printerZodMini = definePrinter<PrinterZodMiniFactory>((options) => {
   return {
     name: 'zod-mini',
     options,
@@ -217,8 +244,8 @@ export const printerZodMini = definePrinter<ZodMiniPrinterFactory>((options) => 
 
         return base
       },
+      ...options.nodes,
     },
-
     print(node) {
       const { keysToOmit } = this.options
 

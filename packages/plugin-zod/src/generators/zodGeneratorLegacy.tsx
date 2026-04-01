@@ -1,12 +1,13 @@
 import path from 'node:path'
-import { caseParams, composeTransformers, createProperty, createSchema, transform } from '@kubb/ast'
+import { caseParams, createProperty, createSchema, transform } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
 import { Operations } from '../components/Operations.tsx'
 import { Zod } from '../components/Zod.tsx'
-import { ZodMini } from '../components/ZodMini.tsx'
 import { ZOD_NAMESPACE_IMPORTS } from '../constants.ts'
+import { printerZod } from '../printers/printerZod.ts'
+import { printerZodMini } from '../printers/printerZodMini.ts'
 import type { PluginZod, ResolverZod } from '../types'
 
 type BuildGroupedParamsSchemaOptions = {
@@ -167,9 +168,9 @@ function buildLegacySchemaNames(node: OperationNode, params: Array<ParameterNode
 export const zodGeneratorLegacy = defineGenerator<PluginZod>({
   name: 'zod-legacy',
   type: 'react',
-  Schema({ node, adapter, options, config, resolver }) {
-    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, transformers = [] } = options
-    const transformedNode = transform(node, composeTransformers(...transformers))
+  Schema({ node, adapter, options, config, resolver, plugin }) {
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, printer } = options
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
     if (!transformedNode.name) {
       return
@@ -180,16 +181,20 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
     const imports = adapter.getImports(transformedNode, (schemaName) => ({
-      name: resolver.default(schemaName, 'function'),
+      name: resolver.resolveSchemaName(schemaName),
       path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
     }))
 
-    const inferTypeName = inferred ? resolver.resolveInferName(resolver.resolveName(transformedNode.name)) : undefined
+    const inferTypeName = inferred ? resolver.resolveSchemaTypeName(transformedNode.name) : undefined
 
     const meta = {
-      name: resolver.default(transformedNode.name, 'function'),
+      name: resolver.resolveSchemaName(transformedNode.name),
       file: resolver.resolveFile({ name: transformedNode.name, extname: '.ts' }, { root, output, group }),
     } as const
+
+    const schemaPrinter = mini
+      ? printerZodMini({ guidType, wrapOutput, resolver, schemaName: meta.name, nodes: printer?.nodes })
+      : printerZod({ coercion, guidType, wrapOutput, resolver, schemaName: meta.name, nodes: printer?.nodes })
 
     return (
       <File
@@ -203,26 +208,14 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
         {mode === 'split' &&
           imports.map((imp) => <File.Import key={[transformedNode.name, imp.path].join('-')} root={meta.file.path} path={imp.path} name={imp.name} />)}
 
-        {mini ? (
-          <ZodMini name={meta.name} node={transformedNode} guidType={guidType} wrapOutput={wrapOutput} inferTypeName={inferTypeName} resolver={resolver} />
-        ) : (
-          <Zod
-            name={meta.name}
-            node={transformedNode}
-            coercion={coercion}
-            guidType={guidType}
-            wrapOutput={wrapOutput}
-            inferTypeName={inferTypeName}
-            resolver={resolver}
-          />
-        )}
+        <Zod name={meta.name} node={transformedNode} printer={schemaPrinter} inferTypeName={inferTypeName} />
       </File>
     )
   },
-  Operation({ node, adapter, options, config, resolver }) {
-    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, transformers } = options
+  Operation({ node, adapter, options, config, resolver, plugin }) {
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, printer } = options
 
-    const transformedNode = transform(node, composeTransformers(...transformers))
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
@@ -240,39 +233,22 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     function renderSchemaEntry({ schema, name, keysToOmit }: { schema: SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
       if (!schema) return null
 
-      const inferTypeName = inferred ? resolver.resolveInferName(name) : undefined
+      const inferTypeName = inferred ? resolver.resolveTypeName(name) : undefined
 
       const imports = adapter.getImports(schema, (schemaName) => ({
-        name: resolver.default(schemaName, 'function'),
+        name: resolver.resolveSchemaName(schemaName),
         path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
       }))
+
+      const schemaPrinter = mini
+        ? printerZodMini({ guidType, wrapOutput, resolver, schemaName: name, keysToOmit, nodes: printer?.nodes })
+        : printerZod({ coercion, guidType, wrapOutput, resolver, schemaName: name, keysToOmit, nodes: printer?.nodes })
 
       return (
         <>
           {mode === 'split' &&
             imports.map((imp) => <File.Import key={[name, imp.path, imp.name].join('-')} root={meta.file.path} path={imp.path} name={imp.name} />)}
-          {mini ? (
-            <ZodMini
-              name={name}
-              node={schema}
-              guidType={guidType}
-              wrapOutput={wrapOutput}
-              inferTypeName={inferTypeName}
-              resolver={resolver}
-              keysToOmit={keysToOmit}
-            />
-          ) : (
-            <Zod
-              name={name}
-              node={schema}
-              coercion={coercion}
-              guidType={guidType}
-              wrapOutput={wrapOutput}
-              inferTypeName={inferTypeName}
-              resolver={resolver}
-              keysToOmit={keysToOmit}
-            />
-          )}
+          <Zod name={name} node={schema} printer={schemaPrinter} inferTypeName={inferTypeName} />
         </>
       )
     }
@@ -352,8 +328,8 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
       </File>
     )
   },
-  Operations({ nodes, adapter, options, config, resolver }) {
-    const { output, importPath, group, operations, paramsCasing, transformers } = options
+  Operations({ nodes, adapter, options, config, resolver, plugin }) {
+    const { output, importPath, group, operations, paramsCasing } = options
 
     if (!operations) {
       return
@@ -367,7 +343,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     } as const
 
     const transformedOperations = nodes.map((node) => {
-      const transformedNode = transform(node, composeTransformers(...transformers))
+      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
       const params = caseParams(transformedNode.parameters, paramsCasing)
 

@@ -24,7 +24,7 @@ const defaultOptions: PluginZod['resolvedOptions'] = {
   paramsCasing: undefined,
   output: { path: '.' },
   group: undefined,
-  transformers: [],
+  printer: undefined,
 }
 
 describe('zodGeneratorLegacy — Schema', () => {
@@ -193,8 +193,8 @@ describe('zodGeneratorLegacy — Operation', () => {
   test('legacy — custom resolver — name transformer adds Zod suffix', async () => {
     const wrappedResolver: typeof resolverZodLegacy = {
       ...resolverZodLegacy,
-      default(name, type) {
-        return `${resolverZodLegacy.default(name, type)}Zod`
+      resolveSchemaName(name) {
+        return `${resolverZodLegacy.resolveSchemaName(name)}Zod`
       },
     }
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options: defaultOptions, resolver: wrappedResolver })

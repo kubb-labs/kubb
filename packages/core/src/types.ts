@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { Node, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
+import type { Node, Printer, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
 import type { HttpMethod } from '@kubb/oas'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
@@ -8,7 +8,7 @@ import type { Generator } from './defineGenerator.ts'
 import type { KubbEvents } from './Kubb.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
-export type { Printer, PrinterFactoryOptions } from '@kubb/ast/types'
+export type { Printer, PrinterFactoryOptions, PrinterPartial } from '@kubb/ast/types'
 
 declare global {
   namespace Kubb {
@@ -396,9 +396,16 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    */
   options: TOptions['resolvedOptions']
   /**
-   * The resolver for this plugin, accessible via `driver.getPluginByName(name)?.resolver`.
+   * The resolver for this plugin.
+   * Composed by `getPreset` from the preset resolver and the user's `resolver` partial override.
    */
   resolver?: TOptions['resolver']
+  /**
+   * The composed transformer for this plugin.
+   * Composed by `getPreset` from the preset's transformers and the user's `transformer` visitor.
+   * When a visitor method returns `null`/`undefined`, the preset transformer's result is used instead.
+   */
+  transformer?: Visitor
   /**
    * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin is executed after these plugins.
    * Can be used to validate dependent plugins.
@@ -435,9 +442,16 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    */
   options: TOptions['resolvedOptions']
   /**
-   * The resolver for this plugin, accessible via `driver.getPluginByName(name)?.resolver`.
+   * The resolver for this plugin.
+   * Composed by `getPreset` from the preset resolver and the user's `resolver` partial override.
    */
   resolver: TOptions['resolver']
+  /**
+   * The composed transformer for this plugin. Accessible via `context.transformer`.
+   * Composed by `getPreset` from the preset's transformers and the user's `transformer` visitor.
+   * When a visitor method returns `null`/`undefined`, the preset transformer's result is used instead.
+   */
+  transformer?: Visitor
 
   install: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**
@@ -527,6 +541,11 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * Resolver for the current plugin. Shorthand for `plugin.resolver`.
    */
   resolver: TOptions['resolver']
+  /**
+   * Composed transformer for the current plugin. Shorthand for `plugin.transformer`.
+   * Apply with `transform(node, context.transformer)` to pre-process AST nodes before printing.
+   */
+  transformer: Visitor | undefined
 
   /**
    * Opens the Kubb Studio URL for the current `rootNode` in the default browser.
@@ -639,7 +658,7 @@ export type { CoreGeneratorV2, Generator, ReactGeneratorV2 } from './defineGener
 export type { KubbEvents } from './Kubb.ts'
 
 /**
- * A preset bundles a name, one or more resolvers, optional AST transformers,
+ * A preset bundles a name, a resolver, optional AST transformers,
  * and optional generators into a single reusable configuration object.
  *
  * @template TResolver - The concrete resolver type for this preset.
@@ -650,9 +669,9 @@ export type Preset<TResolver extends Resolver = Resolver> = {
    */
   name: string
   /**
-   * Ordered list of resolvers applied by this preset (last entry wins on merge).
+   * The resolver used by this preset.
    */
-  resolvers: Array<TResolver>
+  resolver: TResolver
   /**
    * Optional AST visitors / transformers applied after resolving.
    */
@@ -662,6 +681,11 @@ export type Preset<TResolver extends Resolver = Resolver> = {
    * to their concrete generator type.
    */
   generators?: Array<Generator<any>>
+  /**
+   * Optional printer factory used by this preset.
+   * The generator calls this function at render-time to produce a configured printer instance.
+   */
+  printer?: (options: any) => Printer
 }
 
 /**

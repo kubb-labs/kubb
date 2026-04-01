@@ -2,10 +2,6 @@ import { pascalCase } from '@internals/utils'
 import { defineResolver } from '@kubb/core'
 import type { PluginTs } from '../types.ts'
 
-function toTypeName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
-  return pascalCase(name, { isFile: type === 'file' })
-}
-
 /**
  * Resolver for `@kubb/plugin-ts` that provides the default naming and path-resolution
  * helpers used by the plugin. Import this in other plugins to resolve the exact names and
@@ -28,34 +24,34 @@ export const resolverTs = defineResolver<PluginTs>(() => {
     name: 'default',
     pluginName: 'plugin-ts',
     default(name, type) {
-      return toTypeName(name, type)
+      return pascalCase(name, { isFile: type === 'file' })
     },
-    resolveName(name) {
-      return this.default(name, 'function')
+    resolveTypeName(name) {
+      return pascalCase(name)
     },
     resolvePathName(name, type) {
-      return this.default(name, type)
+      return pascalCase(name, { isFile: type === 'file' })
     },
     resolveParamName(node, param) {
-      return this.resolveName(`${node.operationId} ${param.in} ${param.name}`)
+      return this.resolveTypeName(`${node.operationId} ${param.in} ${param.name}`)
     },
     resolveResponseStatusName(node, statusCode) {
-      return this.resolveName(`${node.operationId} Status ${statusCode}`)
+      return this.resolveTypeName(`${node.operationId} Status ${statusCode}`)
     },
     resolveDataName(node) {
-      return this.resolveName(`${node.operationId} Data`)
+      return this.resolveTypeName(`${node.operationId} Data`)
     },
     resolveRequestConfigName(node) {
-      return this.resolveName(`${node.operationId} RequestConfig`)
+      return this.resolveTypeName(`${node.operationId} RequestConfig`)
     },
     resolveResponsesName(node) {
-      return this.resolveName(`${node.operationId} Responses`)
+      return this.resolveTypeName(`${node.operationId} Responses`)
     },
     resolveResponseName(node) {
-      return this.resolveName(`${node.operationId} Response`)
+      return this.resolveTypeName(`${node.operationId} Response`)
     },
     resolveEnumKeyName(node, enumTypeSuffix = 'key') {
-      return `${this.resolveName(node.name ?? '')}${enumTypeSuffix}`
+      return `${this.resolveTypeName(node.name ?? '')}${enumTypeSuffix}`
     },
     resolvePathParamsName(node, param) {
       return this.resolveParamName(node, param)

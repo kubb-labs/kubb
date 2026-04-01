@@ -119,7 +119,7 @@ Core infrastructure:
 - `packages/core/src/defineGenerator.ts` -- generator factory, `ReactGeneratorV2` type, no-op defaults
 - `packages/core/src/defineResolver.ts` -- resolver factory, built-in defaults for path/file/banner/footer/options resolution
 - `packages/core/src/definePresets.ts` -- preset registry factory (`definePresets`); entries are plain `{ name, resolvers, generators? }` objects — no separate `definePreset` helper
-- `packages/core/src/utils/getPreset.ts` -- preset merging (resolvers merge, transformers concat, generators concat)
+- `packages/core/src/utils/getPreset.ts` -- preset merging: resolvers merge (user `resolver` partial overrides preset via `withFallback`), single `transformer` visitor passed through, generators concat
 - `packages/core/src/types.ts` -- `Resolver`, `PluginFactoryOptions` (6 type params), `ResolverPathParams`, `ResolverContext`, `ResolverFileParams`, `UserGroup` (user-facing, `name` optional) vs `Group` (resolved, `name` always present)
 - `packages/ast/src/utils.ts` -- `syncOptionality(schema, required)`: sets `schema.optional` / `schema.nullish` based on `required`; note param order is `(schema, required)` not `(required, schema)`
 - `packages/ast/src/nodes/operation.ts` -- `OperationNode.requestBody.required?: boolean` — `true` when spec has `required: true`, `undefined` when absent
@@ -217,16 +217,15 @@ group: Group | undefined
  */
 compatibilityPreset?: CompatibilityPreset
 /**
- * Array of named resolvers that control naming conventions.
- * Later entries override earlier ones (last wins).
- * @default [resolverCypress]
+ * Override individual resolver methods. Any method you omit falls back to the
+ * preset resolver's implementation. Use `this.default(...)` to call it.
  */
-resolvers?: Array<ResolverCypress>
+resolver?: Partial<ResolverCypress> & ThisType<ResolverCypress>
 /**
- * Array of AST visitors applied to each node before printing.
- * Uses `transform()` from `@kubb/ast`.
+ * Single AST visitor applied to each node before printing.
+ * Return `null` or `undefined` from a method to leave the node unchanged.
  */
-transformers?: Array<Visitor>
+transformer?: Visitor
 /**
  * Define some generators next to the default generators.
  */
@@ -237,7 +236,7 @@ Update `ResolvedOptions` type -- add:
 
 ```typescript
 resolver: ResolverCypress
-transformers: Array<Visitor>
+transformer: Visitor
 /**
  * Fully resolved group: always has a `name` function (normalized in `plugin.ts`
  * from the user-supplied `UserGroup` which may omit `name`).
@@ -855,13 +854,13 @@ Key differences:
 
 ```typescript
 Schema({ node, adapter, options, config, resolver }) {
-  const { output, group, mini, inferred, importPath, transformers = [] } = options
+  const { output, group, mini, inferred, importPath, transformer } = options
 
   const root = path.resolve(config.root, config.output.path)
   const mode = getMode(path.resolve(root, output.path))
 
-  // 1. Apply user transformers before printing
-  const transformedNode = transform(node, composeTransformers(...transformers))
+  // 1. Apply user transformer before printing
+  const transformedNode = transform(node, transformer ?? {})
 
   if (!transformedNode.name) return
 
@@ -905,7 +904,7 @@ Schema({ node, adapter, options, config, resolver }) {
 ```
 
 Key rules for the Schema handler:
-- Always call `transform(node, composeTransformers(...transformers))` before passing the node to the component — this applies any user-supplied AST transformers
+- Always call `transform(node, transformer ?? {})` before passing the node to the component — this applies any user-supplied AST transformer
 - Guard on `transformedNode.name` (not `node.name`) — the transformer may rename the node
 - Use `const meta = { name, file } as const` to co-locate the resolved name and file (pattern from `typeGenerator` and `zodGenerator`)
 - `adapter.getImports(transformedNode, cb)` walks the transformed node and collects all `$ref` dependencies; the callback maps each referenced schema name to its generated file path
@@ -917,11 +916,11 @@ Key rules for the Schema handler:
 
 ```typescript
 Operation({ node, adapter, options, config, resolver }) {
-  const { output, group, mini, inferred, importPath, paramsCasing, coercion, guidType, wrapOutput, transformers = [] } = options
+  const { output, group, mini, inferred, importPath, paramsCasing, coercion, guidType, wrapOutput, transformer } = options
 
-  // Apply transformers to the OperationNode at the top level — do NOT apply them
+  // Apply transformer to the OperationNode at the top level — do NOT apply it
   // inside renderSchemaEntry; each schema entry should receive the already-cased params.
-  const transformedNode = transform(node, composeTransformers(...transformers))
+  const transformedNode = transform(node, transformer ?? {})
 
   const root = path.resolve(config.root, config.output.path)
   const mode = getMode(path.resolve(root, output.path))
@@ -1025,7 +1024,7 @@ Operation({ node, adapter, options, config, resolver }) {
 ```
 
 Key rules for the Operation handler (schema plugins):
-- Apply `transform(node, composeTransformers(...transformers))` to the `OperationNode` at the TOP of `Operation` (not inside `renderSchemaEntry`) — the result is `transformedNode`; pass `transformedNode` to all resolver calls and schema access
+- Apply `transform(node, transformer ?? {})` to the `OperationNode` at the TOP of `Operation` (not inside `renderSchemaEntry`) — the result is `transformedNode`; pass `transformedNode` to all resolver calls and schema access
 - `buildGroupedParamsSchema` is a local helper — **not** in a `utils.ts` file; keep it inside the generator file; set `primitive: 'object'` alongside `type: 'object'` so downstream consumers can distinguish object schemas
 - `renderSchemaEntry` takes a `schema` param (not `node`) — the description is NOT passed as a separate prop; instead merge it into the schema inline: `{ ...res.schema, description: res.description ?? res.schema.description }`
 - Use `const meta = { file: resolver.resolveFile(...) } as const` for the operation file (same `meta` pattern as the Schema handler)
@@ -1346,7 +1345,7 @@ Run `pnpm test -u` in the plugin package directory.
 
 Migrated to v5 architecture. Key specifics:
 - Generators (`typeGenerator.tsx`, `typeGeneratorLegacy.tsx`) now implement **both** `Schema` and `Operation` handlers; the `Schema` handler mirrors the zodGenerator pattern but handles enum naming via `resolver.resolveEnumKeyName()` and uses TypeScript-specific `Type` component
-- Generators apply `transform(node, composeTransformers(...transformers))` at the top of **both** handlers; for `Operation`, `caseParams` is applied to the `transformedNode.parameters`
+- Generators apply `transform(node, transformer ?? {})` at the top of **both** handlers; for `Operation`, `caseParams` is applied to the `transformedNode.parameters`
 - `renderSchemaType` helper renamed parameter from `node` to `schema`; description is no longer passed as a separate prop but merged inline: `{ ...res.schema, description: res.description ?? res.schema.description }`
 - `meta = { file: resolver.resolveFile(...) } as const` pattern used in both generators
 - `printerTs.ts` updated: uses `syncSchemaRef(schema)` from `@kubb/ast` for nullable/optional/readOnly metadata (handles `ref` nodes where metadata lives on `schema.schema`); `extractRefName(node.ref)` replaces `.split('/').at(-1)`; added `ipv4`/`ipv6` node handlers → `factory.keywordTypeNodes.string`; `buildPropertyJSDocComments` moved to `utils.ts`
@@ -1365,7 +1364,7 @@ Migrated to v5 architecture. Key specifics:
 #### plugin-zod (completed)
 
 Migrated to v5 architecture:
-- Created `src/types.ts` — `ResolverZod` extends `Resolver & OperationParamsResolver`, updated `Options` with `compatibilityPreset`, `resolvers: Array<ResolverZod>`, `transformers: Array<Visitor>`; removed `version` (dropped Zod v3 support), removed `contentType` (moved to adapter)
+- Created `src/types.ts` — `ResolverZod` extends `Resolver & OperationParamsResolver`, updated `Options` with `compatibilityPreset`, `resolver?: Partial<ResolverZod> & ThisType<ResolverZod>`, `transformer?: Visitor`; removed `version` (dropped Zod v3 support), removed `contentType` (moved to adapter)
 - Created `src/constants.ts` — `ZOD_NAMESPACE_IMPORTS = new Set(['zod', 'zod/mini'])` for namespace vs named import detection
 - Created `src/resolvers/resolverZod.ts` — default resolver using `defineResolver` with camelCase+`Schema` suffix naming; all operation-level naming methods implemented
 - Created `src/resolvers/resolverZodLegacy.ts` — `kubbV4`-compat resolver that spreads `resolverZod` and overrides status-code, request-body, and response-union naming to match Kubb v4 conventions

@@ -28,7 +28,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/svelte-query": "5.62.7",
     "axios": "^1.14.0",
-    "svelte": "^5.53.5"
+    "svelte": "^5.55.1"
   },
   "devDependencies": {
     "typescript": "catalog:"

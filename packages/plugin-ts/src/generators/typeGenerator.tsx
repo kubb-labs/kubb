@@ -1,20 +1,21 @@
 import path from 'node:path'
-import { caseParams, composeTransformers, narrowSchema, schemaTypes, transform } from '@kubb/ast'
+import { caseParams, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
+import { printerTs } from '../printers/printerTs.ts'
 import type { PluginTs } from '../types'
 import { buildData, buildResponses, buildResponseUnion } from '../utils.ts'
 
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
-  Schema({ node, adapter, options, config, resolver }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, transformers = [] } = options
+  Schema({ node, adapter, options, config, resolver, plugin }) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, printer } = options
 
-    const transformedNode = transform(node, composeTransformers(...transformers))
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
     if (!transformedNode.name) {
       return
@@ -30,7 +31,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
       if (ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && enumTypeSuffix && enumSchemaNames.has(schemaName)) {
         return resolver.resolveEnumKeyName({ name: schemaName }, enumTypeSuffix)
       }
-      return resolver.default(schemaName, 'type')
+      return resolver.resolveTypeName(schemaName)
     }
 
     const imports = adapter.getImports(transformedNode, (schemaName) => ({
@@ -44,9 +45,22 @@ export const typeGenerator = defineGenerator<PluginTs>({
       name:
         ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema
           ? resolver.resolveEnumKeyName(transformedNode, enumTypeSuffix)
-          : resolver.resolveName(transformedNode.name),
+          : resolver.resolveTypeName(transformedNode.name),
       file: resolver.resolveFile({ name: transformedNode.name, extname: '.ts' }, { root, output, group }),
     } as const
+
+    const schemaPrinter = printerTs({
+      optionalType,
+      arrayType,
+      enumType,
+      enumTypeSuffix,
+      name: meta.name,
+      syntaxType,
+      description: transformedNode.description,
+      resolver,
+      enumSchemaNames,
+      nodes: printer?.nodes,
+    })
 
     return (
       <File
@@ -66,19 +80,16 @@ export const typeGenerator = defineGenerator<PluginTs>({
           enumType={enumType}
           enumTypeSuffix={enumTypeSuffix}
           enumKeyCasing={enumKeyCasing}
-          optionalType={optionalType}
-          arrayType={arrayType}
-          syntaxType={syntaxType}
           resolver={resolver}
-          enumSchemaNames={enumSchemaNames}
+          printer={schemaPrinter}
         />
       </File>
     )
   },
-  Operation({ node, adapter, options, config, resolver }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, transformers = [] } = options
+  Operation({ node, adapter, options, config, resolver, plugin }) {
+    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, printer } = options
 
-    const transformedNode = transform(node, composeTransformers(...transformers))
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
@@ -100,7 +111,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
       if (ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && enumTypeSuffix && enumSchemaNames.has(schemaName)) {
         return resolver.resolveEnumKeyName({ name: schemaName }, enumTypeSuffix)
       }
-      return resolver.default(schemaName, 'type')
+      return resolver.resolveTypeName(schemaName)
     }
 
     function renderSchemaType({ schema, name, keysToOmit }: { schema: SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
@@ -110,6 +121,20 @@ export const typeGenerator = defineGenerator<PluginTs>({
         name: resolveImportName(schemaName),
         path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
       }))
+
+      const schemaPrinter = printerTs({
+        optionalType,
+        arrayType,
+        enumType,
+        enumTypeSuffix,
+        name,
+        syntaxType,
+        description: schema.description,
+        keysToOmit,
+        resolver,
+        enumSchemaNames,
+        nodes: printer?.nodes,
+      })
 
       return (
         <>
@@ -123,12 +148,8 @@ export const typeGenerator = defineGenerator<PluginTs>({
             enumType={enumType}
             enumTypeSuffix={enumTypeSuffix}
             enumKeyCasing={enumKeyCasing}
-            optionalType={optionalType}
-            arrayType={arrayType}
-            syntaxType={syntaxType}
             resolver={resolver}
-            keysToOmit={keysToOmit}
-            enumSchemaNames={enumSchemaNames}
+            printer={schemaPrinter}
           />
         </>
       )

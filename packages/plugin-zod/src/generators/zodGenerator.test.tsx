@@ -26,7 +26,7 @@ const defaultOptions: PluginZod['resolvedOptions'] = {
   paramsCasing: undefined,
   output: { path: '.' },
   group: undefined,
-  transformers: [],
+  printer: undefined,
 }
 
 const stringSchema = createSchema({ type: 'string', name: 'PetName' })
@@ -597,8 +597,7 @@ describe('zodGenerator — transformers', () => {
         return node
       },
     }
-    const options: PluginZod['resolvedOptions'] = { ...defaultOptions, transformers: [removeOptionalProperties] }
-    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options: defaultOptions, resolver: resolverZod, transformer: removeOptionalProperties })
     const driver = createMockedPluginDriver({ name: 'transformers removeOptionalProperties' })
 
     await renderSchema(objectSchema, {
@@ -608,7 +607,7 @@ describe('zodGenerator — transformers', () => {
       driver,
       Component: zodGenerator.Schema,
       plugin,
-      options,
+      options: defaultOptions,
       resolver: resolverZod,
     })
 
@@ -622,8 +621,7 @@ describe('zodGenerator — transformers', () => {
         return node
       },
     }
-    const options: PluginZod['resolvedOptions'] = { ...defaultOptions, transformers: [integerToString] }
-    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
+    const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options: defaultOptions, resolver: resolverZod, transformer: integerToString })
     const driver = createMockedPluginDriver({ name: 'transformers integerToString' })
 
     const schemaWithInteger = createSchema({
@@ -644,7 +642,7 @@ describe('zodGenerator — transformers', () => {
       driver,
       Component: zodGenerator.Schema,
       plugin,
-      options,
+      options: defaultOptions,
       resolver: resolverZod,
     })
 

@@ -2,19 +2,6 @@ import { camelCase, pascalCase } from '@internals/utils'
 import { defineResolver } from '@kubb/core'
 import type { PluginZod } from '../types.ts'
 
-function toSchemaName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string {
-  const resolved = camelCase(name, {
-    suffix: type ? 'schema' : undefined,
-    isFile: type === 'file',
-  })
-
-  if (type === 'type') {
-    return pascalCase(resolved)
-  }
-
-  return resolved
-}
-
 /**
  * Default resolver for `@kubb/plugin-zod`.
  *
@@ -32,31 +19,34 @@ export const resolverZod = defineResolver<PluginZod>(() => {
     name: 'default',
     pluginName: 'plugin-zod',
     default(name, type) {
-      return toSchemaName(name, type)
+      return camelCase(name, { isFile: type === 'file', suffix: type ? 'schema' : undefined })
     },
-    resolveName(name) {
-      return this.default(name, 'function')
+    resolveSchemaName(name) {
+      return camelCase(name, { suffix: 'schema' })
     },
-    resolveInferName(name) {
+    resolveSchemaTypeName(name) {
+      return pascalCase(name, { suffix: 'schema' })
+    },
+    resolveTypeName(name) {
       return pascalCase(name)
     },
     resolvePathName(name, type) {
       return this.default(name, type)
     },
     resolveParamName(node, param) {
-      return this.resolveName(`${node.operationId} ${param.in} ${param.name}`)
+      return this.resolveSchemaName(`${node.operationId} ${param.in} ${param.name}`)
     },
     resolveResponseStatusName(node, statusCode) {
-      return this.resolveName(`${node.operationId} Status ${statusCode}`)
+      return this.resolveSchemaName(`${node.operationId} Status ${statusCode}`)
     },
     resolveDataName(node) {
-      return this.resolveName(`${node.operationId} Data`)
+      return this.resolveSchemaName(`${node.operationId} Data`)
     },
     resolveResponsesName(node) {
-      return this.resolveName(`${node.operationId} Responses`)
+      return this.resolveSchemaName(`${node.operationId} Responses`)
     },
     resolveResponseName(node) {
-      return this.resolveName(`${node.operationId} Response`)
+      return this.resolveSchemaName(`${node.operationId} Response`)
     },
     resolvePathParamsName(node, param) {
       return this.resolveParamName(node, param)

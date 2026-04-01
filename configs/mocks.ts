@@ -7,7 +7,7 @@ import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
 import { expect } from 'vitest'
 import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
-import type { SchemaNode } from '../packages/ast/src/types.ts'
+import type { SchemaNode, Visitor } from '../packages/ast/src/types.ts'
 import type { Adapter, AdapterFactoryOptions, Plugin, PluginDriver, PluginFactoryOptions, ResolveNameParams, ResolvePathParams } from '../packages/core/src'
 
 const formatOptions: Options = {
@@ -116,6 +116,7 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
   name: TOptions['name']
   options: TOptions['resolvedOptions']
   resolver?: TOptions['resolver']
+  transformer?: Visitor
   pre?: Array<string>
   post?: Array<string>
 }): Plugin<TOptions> {
@@ -123,6 +124,7 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
     name: params.name,
     options: params.options,
     resolver: params.resolver,
+    transformer: params.transformer,
     pre: params.pre,
     post: params.post,
     install: () => {},

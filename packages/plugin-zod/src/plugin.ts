@@ -44,17 +44,18 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     inferred = false,
     wrapOutput = undefined,
     paramsCasing,
+    printer,
     compatibilityPreset = 'default',
-    resolvers: userResolvers = [],
-    transformers: userTransformers = [],
+    resolver: userResolver,
+    transformer: userTransformer,
     generators: userGenerators = [],
   } = options
 
   const preset = getPreset({
     preset: compatibilityPreset,
     presets: presets,
-    resolvers: userResolvers,
-    transformers: userTransformers,
+    resolver: userResolver,
+    transformer: userTransformer,
     generators: userGenerators,
   })
 
@@ -65,6 +66,9 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     name: pluginZodName,
     get resolver() {
       return preset.resolver
+    },
+    get transformer() {
+      return preset.transformer
     },
     get options() {
       return {
@@ -90,7 +94,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         mini,
         wrapOutput,
         paramsCasing,
-        transformers: preset.transformers,
+        printer,
       }
     },
     resolvePath(baseName, pathMode, options) {

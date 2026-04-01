@@ -36,15 +36,6 @@ const legacyResolver = defineResolver<TestPluginFactory>(() => ({
   },
 }))
 
-const customResolver = defineResolver<TestPluginFactory>(() => ({
-  ...baseResolver,
-  pluginName: 'test',
-  name: 'custom',
-  schemaName(node) {
-    return `Custom${node.name}`
-  },
-}))
-
 const mockGenerator = { name: 'test', type: 'react', version: '2' } as const
 const mockUserGenerator = { type: 'react', version: '2', name: 'user' } as const
 const mockDefaultGenerator = { type: 'react', version: '2', name: 'default' } as const
@@ -52,12 +43,12 @@ const mockDefaultGenerator = { type: 'react', version: '2', name: 'default' } as
 const presets = definePresets<TestResolver>({
   default: {
     name: 'default',
-    resolvers: [],
+    resolver: baseResolver,
     generators: [mockDefaultGenerator],
   },
   kubbV4: {
     name: 'kubbV4',
-    resolvers: [legacyResolver],
+    resolver: legacyResolver,
     generators: [mockGenerator],
     transformers: [
       {
@@ -73,127 +64,140 @@ const presets = definePresets<TestResolver>({
 })
 
 describe('getPreset', () => {
-  it('returns default resolver and default preset for preset: default', () => {
-    const result = getPreset({
-      preset: 'default',
-      presets,
-      resolvers: [baseResolver],
-      generators: [],
-    })
+  it('returns preset resolver when no user resolver provided', () => {
+    const result = getPreset({ preset: 'default', presets, generators: [] })
 
     expect(result.preset?.name).toBe('default')
     expect(result.resolver.schemaName({ name: 'Pet' })).toBe('BasePet')
-    expect(result.transformers).toEqual([])
+    expect(result.transformer).toBeUndefined()
   })
 
-  it('applies preset resolver and returns matching preset', () => {
-    const result = getPreset({
-      preset: 'kubbV4',
-      presets,
-      resolvers: [baseResolver],
-      generators: [],
-    })
+  it('applies kubbV4 preset resolver', () => {
+    const result = getPreset({ preset: 'kubbV4', presets, generators: [] })
 
     expect(result.preset?.name).toBe('kubbV4')
     expect(result.resolver.schemaName({ name: 'Pet' })).toBe('LegacyPet')
   })
 
-  it('applies user resolvers after preset resolver', () => {
+  it('user resolver method overrides preset when it returns a non-null value', () => {
     const result = getPreset({
-      preset: 'kubbV4',
+      preset: 'default',
       presets,
-      resolvers: [baseResolver, customResolver],
+      resolver: { schemaName: () => 'Overridden' },
       generators: [],
     })
 
-    expect(result.resolver.schemaName({ name: 'Pet' })).toBe('CustomPet')
+    expect(result.resolver.schemaName({ name: 'Pet' })).toBe('Overridden')
   })
 
-  it('orders transformers as preset first, then user transformers', () => {
+  it('user resolver method falls back to preset when it returns null', () => {
+    const result = getPreset({
+      preset: 'default',
+      presets,
+      resolver: { schemaName: () => null as unknown as string },
+      generators: [],
+    })
+
+    expect(result.resolver.schemaName({ name: 'Pet' })).toBe('BasePet')
+  })
+
+  it('user resolver method falls back to preset when it returns undefined', () => {
+    const result = getPreset({
+      preset: 'default',
+      presets,
+      resolver: { schemaName: () => undefined as unknown as string },
+      generators: [],
+    })
+
+    expect(result.resolver.schemaName({ name: 'Pet' })).toBe('BasePet')
+  })
+
+  it('user transformer method overrides preset transformer when non-null', () => {
     const userTransformer: Visitor = {
       schema(node) {
-        if (node.name === 'PetFromPreset') {
-          return createSchema({ ...node, name: 'PetFromUser' })
-        }
-        return undefined
+        return createSchema({ ...node, name: 'UserOverride' })
       },
     }
 
-    const result = getPreset({
-      preset: 'kubbV4',
-      presets,
-      resolvers: [baseResolver],
-      transformers: [userTransformer],
-      generators: [],
-    })
+    const result = getPreset({ preset: 'kubbV4', presets, transformer: userTransformer, generators: [] })
 
-    expect(result.transformers).toEqual([...(presets.kubbV4.transformers ?? []), userTransformer])
+    const input = createSchema({ name: 'Pet', type: 'string' })
+    const output = result.transformer!.schema!(input, {} as any)
+    expect(output?.name).toBe('UserOverride')
   })
 
-  it('returns preset generators when no user generators are provided', () => {
-    const result = getPreset({
-      preset: 'kubbV4',
-      presets,
-      resolvers: [baseResolver],
-      generators: [],
-    })
+  it('user transformer method falls back to preset transformer when it returns null', () => {
+    const userTransformer: Visitor = {
+      schema() {
+        return null as any
+      },
+    }
+
+    const result = getPreset({ preset: 'kubbV4', presets, transformer: userTransformer, generators: [] })
+
+    const input = createSchema({ name: 'Pet', type: 'string' })
+    const output = result.transformer!.schema!(input, {} as any)
+    expect(output?.name).toBe('PetFromPreset')
+  })
+
+  it('returns preset transformer without wrapping when no user transformer provided', () => {
+    const result = getPreset({ preset: 'kubbV4', presets, generators: [] })
+
+    const input = createSchema({ name: 'Pet', type: 'string' })
+    const output = result.transformer!.schema!(input, {} as any)
+    expect(output?.name).toBe('PetFromPreset')
+  })
+
+  it('returns undefined transformer when preset has no transformers and no user transformer', () => {
+    const result = getPreset({ preset: 'default', presets, generators: [] })
+
+    expect(result.transformer).toBeUndefined()
+  })
+
+  it('returns preset generators', () => {
+    const result = getPreset({ preset: 'kubbV4', presets, generators: [] })
 
     expect(result.generators).toEqual([mockGenerator])
   })
 
   it('appends user generators after preset generators', () => {
-    const result = getPreset({
-      preset: 'kubbV4',
-      presets,
-      resolvers: [baseResolver],
-      generators: [mockUserGenerator],
-    })
+    const result = getPreset({ preset: 'kubbV4', presets, generators: [mockUserGenerator] })
 
     expect(result.generators).toEqual([mockGenerator, mockUserGenerator])
   })
 
-  it('falls back to default preset generators when preset has no generators and user provides none', () => {
+  it('falls back to default preset generators when preset has none and user provides none', () => {
     const presetsWithoutKubbV4Generators = definePresets<TestResolver>({
       default: {
         name: 'default',
-        resolvers: [],
+        resolver: baseResolver,
         generators: [mockDefaultGenerator],
       },
       kubbV4: {
         name: 'kubbV4',
-        resolvers: [legacyResolver],
+        resolver: legacyResolver,
       },
     })
 
-    const result = getPreset({
-      preset: 'kubbV4',
-      presets: presetsWithoutKubbV4Generators,
-      resolvers: [baseResolver],
-      generators: [],
-    })
+    const result = getPreset({ preset: 'kubbV4', presets: presetsWithoutKubbV4Generators, generators: [] })
 
     expect(result.generators).toEqual([mockDefaultGenerator])
   })
 
-  it('uses user generators (appended after preset) when preset has none', () => {
+  it('uses user generators when preset has none', () => {
     const presetsWithoutKubbV4Generators = definePresets<TestResolver>({
       default: {
         name: 'default',
-        resolvers: [],
+        resolver: baseResolver,
         generators: [mockDefaultGenerator],
       },
       kubbV4: {
         name: 'kubbV4',
-        resolvers: [legacyResolver],
+        resolver: legacyResolver,
       },
     })
 
-    const result = getPreset({
-      preset: 'kubbV4',
-      presets: presetsWithoutKubbV4Generators,
-      resolvers: [baseResolver],
-      generators: [mockUserGenerator],
-    })
+    const result = getPreset({ preset: 'kubbV4', presets: presetsWithoutKubbV4Generators, generators: [mockUserGenerator] })
 
     expect(result.generators).toEqual([mockUserGenerator])
   })

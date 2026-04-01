@@ -1,6 +1,8 @@
-Array of named resolvers that control naming and path-resolution conventions. Later entries override earlier ones (last wins).
+A single resolver that overrides the preset's naming and path-resolution conventions. Each method you provide replaces the corresponding built-in one. When a method returns `null` or `undefined`, the preset resolver's result is used as the fallback, so you only need to supply the methods you want to change.
 
-Each plugin ships a default resolver and a legacy resolver for Kubb v4 compatibility:
+`this` inside each method is bound to the **full** resolver, so you can call other resolver methods (e.g. `this.default(name, 'function')`) without losing context.
+
+Each plugin ships a built-in resolver (and a legacy one for Kubb v4 compatibility):
 
 | Plugin | Default resolver | Legacy resolver |
 | --- | --- | --- |
@@ -8,28 +10,24 @@ Each plugin ships a default resolver and a legacy resolver for Kubb v4 compatibi
 | `@kubb/plugin-zod` | `resolverZod` | `resolverZodLegacy` |
 | `@kubb/plugin-cypress` | `resolverCypress` | — |
 
-|           |                   |
-| --------: | :---------------- |
-|     Type: | `Array<Resolver>` |
-| Required: | `false`           |
+|           |                                                      |
+| --------: | :--------------------------------------------------- |
+|     Type: | `Partial<Resolver> & ThisType<Resolver>`             |
+| Required: | `false`                                              |
 
 ```typescript [Custom resolver (plugin-ts example)]
-import { pluginTs, resolverTs } from '@kubb/plugin-ts'
-import { defineResolver } from '@kubb/core'
-
-const myResolver = defineResolver<PluginTs>(() => ({
-  ...resolverTs,
-  name: 'my-resolver',
-  resolveName(node) {
-    // prefix every type name with 'Api'
-    return `Api${this.default(node.name, 'type')}`
-  },
-}))
+import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({
-  resolvers: [resolverTs, myResolver],
+  resolver: {
+    resolveName(name) {
+      // Prefix every operation-derived name; falls back for names where
+      // this returns null/undefined.
+      return `Api${this.default(name, 'function')}`
+    },
+  },
 })
 ```
 
 > [!TIP]
-> `compatibilityPreset: 'kubbV4'` is a shorthand for swapping in the legacy resolver. Use `resolvers` directly when you need fine-grained control beyond what a preset offers.
+> `compatibilityPreset: 'kubbV4'` is a shorthand for switching to the legacy resolver. Use `resolver` for fine-grained control on top of the active preset.

@@ -13,6 +13,8 @@ import type {
   Resolver,
   UserGroup,
 } from '@kubb/core'
+import type { PrinterZodNodes } from './printers/printerZod.ts'
+import type { PrinterZodMiniNodes } from './printers/printerZodMini.ts'
 
 /**
  * The concrete resolver type for `@kubb/plugin-zod`.
@@ -23,61 +25,73 @@ export type ResolverZod = Resolver &
     /**
      * Resolves a camelCase schema function name with a `Schema` suffix.
      */
-    resolveName(name: string): string
+    resolveSchemaName(this: ResolverZod, name: string): string
     /**
-     * Resolves the name for a `z.infer<typeof ...>` type export from an already-resolved function name.
+     * Resolves the name for a `z.infer<typeof ...>` type export.
+     * Strips the trailing `Schema` suffix (added by `resolveSchemaName`) before PascalCasing.
      *
      * @example
-     * resolver.resolveInferName('petSchema') // → 'PetSchema'
-     * resolver.resolveInferName('addPet200Schema') // → 'AddPet200Schema'
+     * resolver.resolveSchemaTypeName('pet) // → 'PetSchema'
+     * resolver.resolveSchemaTypeName('addPet200') // → 'AddPet200Schema'
+     * resolver.resolveSchemaTypeName('PetName') // → 'PetNameSchema'
      */
-    resolveInferName(name: string): string
+    resolveSchemaTypeName(this: ResolverZod, name: string): string
+    /**
+     * Resolves the name for a `z.infer<typeof ...>` type export.
+     * Strips the trailing `Schema` suffix (added by `resolveSchemaName`) before PascalCasing.
+     *
+     * @example
+     * resolver.resolveTypeName('pet') // → 'Pet'
+     * resolver.resolveTypeName('addPet200') // → 'AddPet200'
+     * resolver.resolveTypeName('PetName') // → 'PetName'
+     */
+    resolveTypeName(this: ResolverZod, name: string): string
     /**
      * Resolves a PascalCase path/file name for the generated output.
      */
-    resolvePathName(name: string, type?: 'file' | 'function' | 'type' | 'const'): string
+    resolvePathName(this: ResolverZod, name: string, type?: 'file' | 'function' | 'type' | 'const'): string
     /**
      * Resolves the name for an operation response by status code.
      *
      * @example
      * resolver.resolveResponseStatusName(node, 200) // → 'listPetsStatus200Schema'
      */
-    resolveResponseStatusName(node: OperationNode, statusCode: StatusCode): string
+    resolveResponseStatusName(this: ResolverZod, node: OperationNode, statusCode: StatusCode): string
     /**
      * Resolves the name for the collection of all operation responses.
      *
      * @example
      * resolver.resolveResponsesName(node) // → 'listPetsResponsesSchema'
      */
-    resolveResponsesName(node: OperationNode): string
+    resolveResponsesName(this: ResolverZod, node: OperationNode): string
     /**
      * Resolves the name for the union of all operation responses.
      *
      * @example
      * resolver.resolveResponseName(node) // → 'listPetsResponseSchema'
      */
-    resolveResponseName(node: OperationNode): string
+    resolveResponseName(this: ResolverZod, node: OperationNode): string
     /**
      * Resolves the name for an operation's grouped path parameters type.
      *
      * @example
      * resolver.resolvePathParamsName(node, param) // → 'deletePetPathPetIdSchema'
      */
-    resolvePathParamsName(node: OperationNode, param: ParameterNode): string
+    resolvePathParamsName(this: ResolverZod, node: OperationNode, param: ParameterNode): string
     /**
      * Resolves the name for an operation's grouped query parameters type.
      *
      * @example
      * resolver.resolveQueryParamsName(node, param) // → 'findPetsByStatusQueryStatusSchema'
      */
-    resolveQueryParamsName(node: OperationNode, param: ParameterNode): string
+    resolveQueryParamsName(this: ResolverZod, node: OperationNode, param: ParameterNode): string
     /**
      * Resolves the name for an operation's grouped header parameters type.
      *
      * @example
      * resolver.resolveHeaderParamsName(node, param) // → 'deletePetHeaderApiKeySchema'
      */
-    resolveHeaderParamsName(node: OperationNode, param: ParameterNode): string
+    resolveHeaderParamsName(this: ResolverZod, node: OperationNode, param: ParameterNode): string
   }
 
 export type Options = {
@@ -173,13 +187,38 @@ export type Options = {
    */
   compatibilityPreset?: CompatibilityPreset
   /**
-   * Custom resolver instances for zod-specific name resolution.
+   * A single resolver whose methods override the default resolver's naming conventions.
+   * When a method returns `null` or `undefined`, the default resolver's result is used instead.
    */
-  resolvers?: Array<ResolverZod>
+  resolver?: Partial<ResolverZod> & ThisType<ResolverZod>
   /**
-   * AST visitor transformers applied during code generation.
+   * Override individual printer node handlers to customise rendering of specific schema types.
+   *
+   * Each key is a `SchemaType` (e.g. `'date'`, `'string'`). The function replaces the
+   * built-in handler for that type. Use `this.transform` to recurse into nested schema nodes.
+   * When `mini: true`, the overrides apply to the Zod Mini printer.
+   *
+   * @example Override the `date` node to use `z.string().date()`
+   * ```ts
+   * pluginZod({
+   *   printer: {
+   *     nodes: {
+   *       date(node) {
+   *         return 'z.string().date()'
+   *       },
+   *     },
+   *   },
+   * })
+   * ```
    */
-  transformers?: Array<Visitor>
+  printer?: {
+    nodes?: PrinterZodNodes | PrinterZodMiniNodes
+  }
+  /**
+   * A single AST visitor applied to each SchemaNode/OperationNode before printing.
+   * When a visitor method returns `null` or `undefined`, the preset transformer's result is used instead.
+   */
+  transformer?: Visitor
 }
 
 type ResolvedOptions = {
@@ -195,7 +234,7 @@ type ResolvedOptions = {
   mini: NonNullable<Options['mini']>
   wrapOutput: Options['wrapOutput']
   paramsCasing: Options['paramsCasing']
-  transformers: Array<Visitor>
+  printer: Options['printer']
 }
 
 export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions, ResolverZod>
