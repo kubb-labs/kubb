@@ -987,4 +987,65 @@ describe('printerTs', () => {
       `)
     })
   })
+
+  describe('nodes override', () => {
+    it('overrides a single node type', async () => {
+      const p = printerTs({
+        resolver: resolverTs,
+        optionalType: 'questionToken',
+        arrayType: 'array',
+        enumType: 'inlineLiteral',
+        nodes: { date: () => ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword) },
+      })
+      expect(await formatTS(p.transform(createSchema({ type: 'date' })))).toBe('string')
+    })
+
+    it('override does not affect other node types', async () => {
+      const p = printerTs({
+        resolver: resolverTs,
+        optionalType: 'questionToken',
+        arrayType: 'array',
+        enumType: 'inlineLiteral',
+        nodes: { date: () => ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword) },
+      })
+      expect(await formatTS(p.transform(createSchema({ type: 'number' })))).toBe('number')
+    })
+
+    it('override can call this.transform for nested nodes', async () => {
+      const p = printerTs({
+        resolver: resolverTs,
+        optionalType: 'questionToken',
+        arrayType: 'array',
+        enumType: 'inlineLiteral',
+        nodes: {
+          array(node) {
+            const itemNodes = (node.items ?? []).map((item) => this.transform(item)).filter(Boolean) as ts.TypeNode[]
+            return ts.factory.createTypeReferenceNode('Set', [
+              ts.factory.createUnionTypeNode(itemNodes),
+            ])
+          },
+        },
+      })
+      const node = createSchema({ type: 'array', items: [createSchema({ type: 'string' })] })
+      expect(await formatTS(p.transform(node))).toBe('Set<string>')
+    })
+
+    it('override can read this.options', async () => {
+      const p = printerTs({
+        resolver: resolverTs,
+        optionalType: 'questionToken',
+        arrayType: 'array',
+        enumType: 'inlineLiteral',
+        syntaxType: 'type',
+        nodes: {
+          string() {
+            return this.options.syntaxType === 'interface'
+              ? ts.factory.createKeywordTypeNode(ts.SyntaxKind.NeverKeyword)
+              : ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)
+          },
+        },
+      })
+      expect(await formatTS(p.transform(createSchema({ type: 'string' })))).toBe('string')
+    })
+  })
 })

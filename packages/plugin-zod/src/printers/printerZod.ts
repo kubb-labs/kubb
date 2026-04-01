@@ -1,8 +1,7 @@
 import { stringify } from '@internals/utils'
 import { createSchema, extractRefName, narrowSchema, syncSchemaRef } from '@kubb/ast'
-import type { PrinterFactoryOptions } from '@kubb/core'
+import type { PrinterFactoryOptions, PrinterPartial } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
-import type { SchemaNodeByType, SchemaType } from '@kubb/ast/types'
 import type { PluginZod, ResolverZod } from '../types.ts'
 import { applyModifiers, containsSelfRef, formatLiteral, lengthConstraints, numberConstraints, shouldCoerce } from '../utils.ts'
 
@@ -26,12 +25,7 @@ import { applyModifiers, containsSelfRef, formatLiteral, lengthConstraints, numb
  * })
  * ```
  */
-export type ZodPrinterNodes = Partial<{
-  [K in SchemaType]: (
-    this: { transform: (node: SchemaNodeByType[SchemaType]) => string | null | undefined; options: ZodPrinterOptions },
-    node: SchemaNodeByType[K],
-  ) => string | null | undefined
-}>
+export type ZodPrinterNodes = PrinterPartial<string, ZodPrinterOptions>
 
 export type ZodPrinterOptions = {
   coercion?: PluginZod['resolvedOptions']['coercion']

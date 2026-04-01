@@ -1,8 +1,7 @@
 import { extractRefName, isStringType, narrowSchema, schemaTypes, syncSchemaRef } from '@kubb/ast'
-import type { PrinterFactoryOptions } from '@kubb/core'
+import type { PrinterFactoryOptions, PrinterPartial } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
-import type { SchemaNodeByType, SchemaType } from '@kubb/ast/types'
 import type ts from 'typescript'
 import { ENUM_TYPES_WITH_KEY_SUFFIX, OPTIONAL_ADDS_QUESTION_TOKEN, OPTIONAL_ADDS_UNDEFINED } from '../constants.ts'
 import * as factory from '../factory.ts'
@@ -29,12 +28,7 @@ import { buildPropertyJSDocComments } from '../utils.ts'
  * })
  * ```
  */
-export type TsPrinterNodes = Partial<{
-  [K in SchemaType]: (
-    this: { transform: (node: SchemaNodeByType[SchemaType]) => ts.TypeNode | null | undefined; options: TsPrinterOptions },
-    node: SchemaNodeByType[K],
-  ) => ts.TypeNode | null | undefined
-}>
+export type TsPrinterNodes = PrinterPartial<ts.TypeNode, TsPrinterOptions>
 
 export type TsPrinterOptions = {
   /**
