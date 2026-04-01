@@ -1,5 +1,15 @@
 # kubb
 
+## 4.0.0-alpha.27
+
+### Patch Changes
+
+- Updated dependencies [[`795cac8`](https://github.com/kubb-labs/kubb/commit/795cac8edd6dd456185b7da90db9fd422c2b8330)]:
+  - @kubb/core@5.0.0-alpha.27
+  - @kubb/agent@5.0.0-alpha.27
+  - @kubb/cli@5.0.0-alpha.27
+  - @kubb/mcp@5.0.0-alpha.27
+
 ## 4.0.0-alpha.26
 
 ### Patch Changes
