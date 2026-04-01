@@ -1,28 +1,35 @@
-Apply AST visitor transformers to modify nodes before code is printed. Each transformer is a `Visitor` object with optional methods for `root`, `operation`, `schema`, `property`, `parameter`, and `response` nodes.
-Returning a node from a visitor method replaces the current node; returning `undefined` or `void` leaves it unchanged.
+A single AST visitor applied to every node before code is printed. Each method you provide replaces the corresponding built-in one. When a method returns `null` or `undefined`, the preset transformer's result is used as the fallback — so you only need to supply the methods you want to change.
 
-Transformers run depth-first. Later entries in the array run after earlier ones.
+Visitor methods receive the node and a context object. Return a modified node to replace it, or return `undefined`/`void` to leave it unchanged.
 
-> [!TIP]
-> Use `transformers` to rewrite node properties (like renaming an `operationId` or adding a keyword) without touching the resolver or generator.
-> For output naming customization, use `resolvers` instead.
+|           |            |
+| --------: | :--------- |
+|     Type: | `Visitor`  |
+| Required: | `false`    |
 
-|           |                  |
-| --------: | :--------------- |
-|     Type: | `Array<Visitor>` |
-| Required: | `false`          |
+```typescript [Strip descriptions before printing]
+import { pluginTs } from '@kubb/plugin-ts'
+
+pluginTs({
+  transformer: {
+    schema(node) {
+      return { ...node, description: undefined }
+    },
+  },
+})
+```
 
 ```typescript [Prefix every operationId]
 import { pluginTs } from '@kubb/plugin-ts'
-import type { Visitor } from '@kubb/ast/types'
-
-const prefixOperations: Visitor = {
-  operation(node) {
-    return { ...node, operationId: `api_${node.operationId}` }
-  },
-}
 
 pluginTs({
-  transformers: [prefixOperations],
+  transformer: {
+    operation(node) {
+      return { ...node, operationId: `api_${node.operationId}` }
+    },
+  },
 })
 ```
+
+> [!TIP]
+> Use `transformer` to rewrite node properties before printing. For output naming customisation, use `resolver` instead.

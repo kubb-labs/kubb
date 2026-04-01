@@ -67,9 +67,14 @@ Specify the export location for the files and define the behavior of the output.
 
 <!--@include: ./core/compatibilityPreset.md-->
 
-### resolvers
+### resolver
 
 <!--@include: ./core/resolvers.md-->
+
+|           |                                                                  |
+| --------: | :--------------------------------------------------------------- |
+|     Type: | `Partial<ResolverCypress> & ThisType<ResolverCypress>`           |
+| Required: | `false`                                                          |
 
 ### paramsType
 <!--@include: ./plugin-client/paramsType.md-->
@@ -120,7 +125,7 @@ Return the name of a group based on the group name, this will be used for the fi
 |     Type: | `Array<Generator<PluginCypress>>`  |
 | Required: | `false`                            |
 
-### transformers
+### transformer
 
 <!--@include: ./core/transformers.md-->
 

@@ -322,7 +322,7 @@ export default defineConfig({
 
 ### `transformers.name` removed from `@kubb/plugin-ts`
 
-The `transformers: { name }` callback has been removed. Use a custom resolver in the new `resolvers` array instead.
+The `transformers: { name }` callback has been removed. Use the `resolver` option instead.
 
 ::: code-group
 ```typescript [Before (v4)]
@@ -342,45 +342,42 @@ export default defineConfig({
 
 ```typescript [After (v5)]
 import { defineConfig } from '@kubb/core'
-import { defineResolver } from '@kubb/core'
 import { pluginTs } from '@kubb/plugin-ts'
-import { resolverTs } from '@kubb/plugin-ts/resolvers'
 
 export default defineConfig({
   plugins: [
     pluginTs({
-      resolvers: [
-        resolverTs,
-        defineResolver(() => ({
-          ...resolverTs,
-          name: 'custom',
-          default(name, type) {
-            const resolved = resolverTs.default(name, type)
-            return type === 'type' ? `${resolved}Type` : resolved
-          },
-        })),
-      ],
+      resolver: {
+        resolveName(name, type) {
+          const resolved = this.default(name, type)
+          return type === 'type' ? `${resolved}Type` : resolved
+        },
+      },
     }),
   ],
 })
 ```
 :::
 
-### Composable resolvers for `@kubb/plugin-ts`
+### Resolver option for `@kubb/plugin-ts`
 
-The `resolvers` option accepts an array of named resolvers that control naming conventions. Later entries override earlier ones.
+The `resolver` option accepts a partial resolver object that controls naming conventions. Any method you omit falls back to the preset resolver. Use `this.default(...)` to call the preset's implementation.
 
 ```typescript
 import { pluginTs, resolverTs, resolverTsLegacy } from '@kubb/plugin-ts'
 
 // Use legacy naming conventions
-pluginTs({ resolvers: [resolverTsLegacy] })
+pluginTs({ compatibilityPreset: 'kubbV4' })
 
-// Use default naming (equivalent to omitting the option)
-pluginTs({ resolvers: [resolverTs] })
+// Override a single method
+pluginTs({
+  resolver: {
+    resolveName(name) {
+      return `Custom${this.default(name, 'function')}`
+    },
+  },
+})
 ```
-
-The `mergeResolvers` helper from `@kubb/core` merges multiple resolvers into a single resolver where later entries override earlier ones.
 
 ### Compatibility preset for Kubb v4 naming
 
@@ -392,41 +389,51 @@ import { pluginTs } from '@kubb/plugin-ts'
 pluginTs({ compatibilityPreset: 'kubbV4' })
 ```
 
-For custom naming, compose your own `resolvers`.
+For custom naming, use the `resolver` option.
 
 > [!NOTE]
-> If `resolvers` is explicitly provided, it overrides preset resolver behavior.
+> If `resolver` is explicitly provided, its methods override the active preset resolver.
 
-### AST transformers for `@kubb/plugin-ts`
+### AST transformer for `@kubb/plugin-ts`
 
-The `transformers` option accepts an array of AST `Visitor` objects. These visitors modify `SchemaNode` trees before they are printed to TypeScript. Use this to customize the generated types without writing a custom generator.
+The `transformer` option accepts a single AST `Visitor` object. The visitor modifies `SchemaNode` trees before they are printed to TypeScript. Use this to customize the generated types without writing a custom generator.
 
 ```typescript
 import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({
-  transformers: [
-    {
-      // Force all date types to plain strings
-      schema(node) {
-        if (node.type === 'date') {
-          return { ...node, type: 'string' }
-        }
-      },
+  transformer: {
+    // Force all date types to plain strings
+    schema(node) {
+      if (node.type === 'date') {
+        return { ...node, type: 'string' }
+      }
     },
-    {
-      // Make specific properties optional
-      property(node) {
-        if (node.name === 'metadata') {
-          return { ...node, required: false }
-        }
-      },
-    },
-  ],
+  },
 })
 ```
 
-The `composeTransformers` helper from `@kubb/ast` combines multiple `Visitor` objects into a single visitor that pipes each node through all visitors sequentially.
+Returning `undefined` or `void` from a visitor method leaves the node unchanged.
+
+### Printer node overrides for `@kubb/plugin-ts`
+
+The new `printer.nodes` option lets you override the rendering of specific schema types without replacing the whole printer.
+
+```typescript
+import ts from 'typescript'
+import { pluginTs } from '@kubb/plugin-ts'
+
+pluginTs({
+  printer: {
+    nodes: {
+      date(node) {
+        // Render date as the native Date object
+        return ts.factory.createTypeReferenceNode('Date', [])
+      },
+    },
+  },
+})
+```
 
 ### `defineResolver` now requires a `name` property
 
@@ -512,7 +519,7 @@ Key changes:
 
 ### `@kubb/plugin-zod` — `transformers` option changed
 
-The `transformers: { name, schema }` callbacks have been replaced with AST `Visitor` array transformers, matching the `@kubb/plugin-ts` pattern.
+The `transformers: { name, schema }` callbacks have been replaced with a single AST `Visitor` `transformer` option, matching the `@kubb/plugin-ts` pattern.
 
 ::: code-group
 ```typescript [Before (v4)]
@@ -528,10 +535,23 @@ pluginZod({
 ```typescript [After (v5)]
 import { pluginZod } from '@kubb/plugin-zod'
 
-// Use resolvers for name transformations
+// Use resolver for name transformations
 pluginZod({
-  // transformers is now Array<Visitor> for AST transformations
-  transformers: [],
+  resolver: {
+    resolveName(name, type) {
+      const resolved = this.default(name, type)
+      return type === 'function' ? `${resolved}Validator` : resolved
+    },
+  },
+})
+
+// Use transformer for AST node transformations
+pluginZod({
+  transformer: {
+    schema(node) {
+      return { ...node, description: undefined }
+    },
+  },
 })
 ```
 :::
@@ -544,9 +564,9 @@ The following options have been removed from `@kubb/plugin-zod`:
 |---|---|
 | `version` | Always Zod v4 (removed) |
 | `contentType` | Moved to `adapterOas(...)` |
-| `mapper` | Use `resolvers` for name overrides |
-| `transformers.name` | Use `resolvers` array for name customization |
-| `transformers.schema` | Use `transformers: Array<Visitor>` for AST transformations |
+| `mapper` | Use `resolver` for name overrides |
+| `transformers.name` | Use `resolver` for name customization |
+| `transformers.schema` | Use `transformer: Visitor` for AST transformations |
 | `integerType` | Moved to `adapterOas({ integerType })` |
 | `emptySchemaType` | Moved to `adapterOas({ emptySchemaType })` |
 | `unknownType` | Moved to `adapterOas({ unknownType })` |
@@ -631,5 +651,7 @@ pluginZod({
 |---|---|---|---|
 | `paramsCasing` | `'camelcase'` | `undefined` | Apply camelCase to path/query/header param names |
 | `compatibilityPreset` | `'default' \| 'kubbV4'` | `'default'` | Naming convention preset |
-| `resolvers` | `Array<ResolverZod>` | `[]` | Custom resolver instances |
+| `resolver` | `Partial<ResolverZod> & ThisType<ResolverZod>` | — | Override individual resolver methods (with `this.default` fallback) |
+| `transformer` | `Visitor` | — | Single AST visitor applied before printing |
+| `printer.nodes` | `PrinterZodNodes \| PrinterZodMiniNodes` | — | Override per-type code generation handlers |
 | `inferred` | `boolean` | `false` | Export `z.infer<typeof ...>` type aliases |

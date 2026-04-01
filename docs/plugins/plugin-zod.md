@@ -69,9 +69,14 @@ Specify the export location for the files and define the behavior of the output.
 
 <!--@include: ./core/compatibilityPreset.md-->
 
-### resolvers
+### resolver
 
 <!--@include: ./core/resolvers.md-->
+
+|           |                                                          |
+| --------: | :------------------------------------------------------- |
+|     Type: | `Partial<ResolverZod> & ThisType<ResolverZod>`           |
+| Required: | `false`                                                  |
 
 ### group
 
@@ -337,9 +342,52 @@ z.array(z.string()).min(1).max(10)
 |     Type: | `Array<Generator<PluginZod>>` |
 | Required: | `false`                       |
 
-### transformers
+### transformer
 
 <!--@include: ./core/transformers.md-->
+
+### printer
+
+Override individual printer node handlers to customise how specific schema types are rendered. When `mini: true` the overrides apply to the Zod Mini printer.
+
+Each key is a `SchemaType` (e.g. `'integer'`, `'date'`). The function you provide replaces the built-in handler for that type. Use `this.transform` to recurse into nested schema nodes.
+
+|           |                                                               |
+| --------: | :------------------------------------------------------------ |
+|     Type: | `{ nodes?: PrinterZodNodes \| PrinterZodMiniNodes }`          |
+| Required: | `false`                                                       |
+
+::: code-group
+
+```typescript [Override integer to z.number()]
+import { pluginZod } from '@kubb/plugin-zod'
+
+pluginZod({
+  printer: {
+    nodes: {
+      integer() {
+        return 'z.number()'
+      },
+    },
+  },
+})
+```
+
+```typescript [Override date to z.string().date()]
+import { pluginZod } from '@kubb/plugin-zod'
+
+pluginZod({
+  printer: {
+    nodes: {
+      date(node) {
+        return 'z.string().date()'
+      },
+    },
+  },
+})
+```
+
+:::
 
 ### wrapOutput
 
