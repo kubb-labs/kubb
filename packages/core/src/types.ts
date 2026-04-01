@@ -639,7 +639,7 @@ export type { CoreGeneratorV2, Generator, ReactGeneratorV2 } from './defineGener
 export type { KubbEvents } from './Kubb.ts'
 
 /**
- * A preset bundles a name, one or more resolvers, optional AST transformers,
+ * A preset bundles a name, a resolver, optional AST transformers,
  * and optional generators into a single reusable configuration object.
  *
  * @template TResolver - The concrete resolver type for this preset.
@@ -650,9 +650,9 @@ export type Preset<TResolver extends Resolver = Resolver> = {
    */
   name: string
   /**
-   * Ordered list of resolvers applied by this preset (last entry wins on merge).
+   * The resolver used by this preset.
    */
-  resolvers: Array<TResolver>
+  resolver: TResolver
   /**
    * Optional AST visitors / transformers applied after resolving.
    */

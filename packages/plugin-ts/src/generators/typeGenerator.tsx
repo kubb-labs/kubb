@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { caseParams, composeTransformers, narrowSchema, schemaTypes, transform } from '@kubb/ast'
+import { caseParams, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
@@ -13,9 +13,9 @@ export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   type: 'react',
   Schema({ node, adapter, options, config, resolver }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, printer, transformers = [] } = options
+    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, printer, transformer } = options
 
-    const transformedNode = transform(node, composeTransformers(...transformers))
+    const transformedNode = transformer ? transform(node, transformer) : node
 
     if (!transformedNode.name) {
       return
@@ -87,9 +87,9 @@ export const typeGenerator = defineGenerator<PluginTs>({
     )
   },
   Operation({ node, adapter, options, config, resolver }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, printer, transformers = [] } = options
+    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, printer, transformer } = options
 
-    const transformedNode = transform(node, composeTransformers(...transformers))
+    const transformedNode = transformer ? transform(node, transformer) : node
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))

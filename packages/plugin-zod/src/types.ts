@@ -173,9 +173,10 @@ export type Options = {
    */
   compatibilityPreset?: CompatibilityPreset
   /**
-   * Custom resolver instances for zod-specific name resolution.
+   * A single resolver whose methods override the default resolver's naming conventions.
+   * When a method returns `null` or `undefined`, the default resolver's result is used instead.
    */
-  resolvers?: Array<ResolverZod>
+  resolver?: Partial<ResolverZod>
   /**
    * Override individual printer node handlers to customise rendering of specific schema types.
    *
@@ -200,9 +201,10 @@ export type Options = {
     nodes?: import('./printers/printerZod.ts').ZodPrinterNodes | import('./printers/printerZodMini.ts').ZodMiniPrinterNodes
   }
   /**
-   * AST visitor transformers applied during code generation.
+   * A single AST visitor applied to each SchemaNode/OperationNode before printing.
+   * When a visitor method returns `null` or `undefined`, the preset transformer's result is used instead.
    */
-  transformers?: Array<Visitor>
+  transformer?: Visitor
 }
 
 type ResolvedOptions = {
@@ -219,7 +221,7 @@ type ResolvedOptions = {
   wrapOutput: Options['wrapOutput']
   paramsCasing: Options['paramsCasing']
   printer: Options['printer']
-  transformers: Array<Visitor>
+  transformer?: Visitor
 }
 
 export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions, ResolverZod>

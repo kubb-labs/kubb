@@ -256,34 +256,26 @@ export type Options = {
    */
   compatibilityPreset?: CompatibilityPreset
   /**
-   * Array of named resolvers that control naming conventions.
-   * Later entries override earlier ones (last wins).
-   * Built-in: `resolverTs` (default), `resolverTsLegacy`.
-   * @default [resolverTs]
+   * A single resolver whose methods override the default resolver's naming conventions.
+   * When a method returns `null` or `undefined`, the default resolver's result is used instead.
+   * Built-in defaults: `resolverTs` (default preset), `resolverTsLegacy` (kubbV4 preset).
    */
-  resolvers?: Array<ResolverTs>
+  resolver?: Partial<ResolverTs>
   /**
-   * Array of AST visitors applied to each SchemaNode/OperationNode before printing.
-   * Uses `transform()` from `@kubb/ast` — visitors can modify, replace, or annotate nodes.
+   * A single AST visitor applied to each SchemaNode/OperationNode before printing.
+   * Uses `transform()` from `@kubb/ast` — the visitor can modify, replace, or annotate nodes.
+   * When a visitor method returns `null` or `undefined`, the preset transformer's result is used instead.
    *
    * @example Remove writeOnly properties from response types
    * ```ts
-   * transformers: [{
+   * transformer: {
    *   property(node) {
    *     if (node.schema.writeOnly) return undefined
    *   }
-   * }]
-   * ```
-   *
-   * @example Force all dates to plain strings
-   * ```ts
-   * transformers: [{
-   *   schema(node) {
-   *     if (node.type === 'date') return { ...node, type: 'string' }
-   *   }
-   * }]
+   * }
    * ```
    */
+  transformer?: Visitor
   /**
    * Override individual printer node handlers to customise rendering of specific schema types.
    *
@@ -307,7 +299,6 @@ export type Options = {
   printer?: {
     nodes?: import('./printers/printerTs.ts').TsPrinterNodes
   }
-  transformers?: Array<Visitor>
 } & EnumTypeOptions
 
 type ResolvedOptions = {
@@ -321,7 +312,7 @@ type ResolvedOptions = {
   syntaxType: NonNullable<Options['syntaxType']>
   paramsCasing: Options['paramsCasing']
   printer: Options['printer']
-  transformers: Array<Visitor>
+  transformer?: Visitor
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>

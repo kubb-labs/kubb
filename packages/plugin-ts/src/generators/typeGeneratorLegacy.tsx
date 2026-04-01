@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { pascalCase } from '@internals/utils'
-import { caseParams, composeTransformers, createProperty, createSchema, narrowSchema, schemaTypes, transform } from '@kubb/ast'
+import { caseParams, createProperty, createSchema, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
@@ -160,9 +160,9 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
   name: 'typescript-legacy',
   type: 'react',
   Schema({ node, adapter, options, config, resolver }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, transformers = [] } = options
+    const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, transformer } = options
 
-    const transformedNode = transform(node, composeTransformers(...transformers))
+    const transformedNode = transformer ? transform(node, transformer) : node
 
     if (!transformedNode.name) {
       return
@@ -222,9 +222,9 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
     )
   },
   Operation({ node, adapter, options, config, resolver }) {
-    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, transformers = [] } = options
+    const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, transformer } = options
 
-    const transformedNode = transform(node, composeTransformers(...transformers))
+    const transformedNode = transformer ? transform(node, transformer) : node
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))

@@ -25,7 +25,7 @@ const defaultOptions: PluginZod['resolvedOptions'] = {
   output: { path: '.' },
   group: undefined,
   printer: undefined,
-  transformers: [],
+  transformer: undefined,
 }
 
 describe('zodGeneratorLegacy — Schema', () => {

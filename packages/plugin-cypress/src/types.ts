@@ -110,16 +110,15 @@ export type Options = {
    */
   compatibilityPreset?: CompatibilityPreset
   /**
-   * Array of named resolvers that control naming conventions.
-   * Later entries override earlier ones (last wins).
-   * @default [resolverCypress]
+   * A single resolver whose methods override the default resolver's naming conventions.
+   * When a method returns `null` or `undefined`, the default resolver's result is used instead.
    */
-  resolvers?: Array<ResolverCypress>
+  resolver?: Partial<ResolverCypress>
   /**
-   * Array of AST visitors applied to each node before printing.
-   * Uses `transform()` from `@kubb/ast`.
+   * A single AST visitor applied before printing.
+   * When a visitor method returns `null` or `undefined`, the preset transformer's result is used instead.
    */
-  transformers?: Array<Visitor>
+  transformer?: Visitor
   /**
    * Define some generators next to the default generators.
    */
@@ -135,7 +134,7 @@ type ResolvedOptions = {
   paramsType: NonNullable<Options['paramsType']>
   paramsCasing: Options['paramsCasing']
   resolver: ResolverCypress
-  transformers: Array<Visitor>
+  transformer?: Visitor
 }
 
 export type PluginCypress = PluginFactoryOptions<'plugin-cypress', Options, ResolvedOptions, never, ResolvePathOptions, ResolverCypress>

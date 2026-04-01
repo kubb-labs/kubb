@@ -15,13 +15,13 @@ import type { ResolverTs } from './types.ts'
 export const presets = definePresets<ResolverTs>({
   default: {
     name: 'default',
-    resolvers: [resolverTs],
+    resolver: resolverTs,
     generators: [typeGenerator],
     printer: printerTs,
   },
   kubbV4: {
     name: 'kubbV4',
-    resolvers: [resolverTsLegacy],
+    resolver: resolverTsLegacy,
     generators: [typeGeneratorLegacy],
     printer: printerTs,
   },

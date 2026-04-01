@@ -493,7 +493,7 @@ describe('printerZodMini', () => {
   describe('nodes override', () => {
     test('overrides a single node type', () => {
       const p = printerZodMini({ nodes: { date: () => 'z.iso.date()' } })
-      expect(p.print(createSchema({ type: 'date' }))).toBe('z.iso.date()')
+      expect(p.print(createSchema({ type: 'date', representation: 'string' }))).toBe('z.iso.date()')
     })
 
     test('override does not affect other node types', () => {

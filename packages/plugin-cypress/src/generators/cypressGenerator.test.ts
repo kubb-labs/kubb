@@ -23,7 +23,7 @@ const defaultOptions: PluginCypress['resolvedOptions'] = {
   paramsType: 'inline',
   pathParamsType: 'inline',
   resolver: resolverCypress,
-  transformers: [],
+  transformer: undefined,
 }
 
 const mockedTsPlugin = createMockedPlugin<PluginTs>({
@@ -444,7 +444,7 @@ describe('cypressGenerator — transformers', () => {
       },
     }
 
-    const options: PluginCypress['resolvedOptions'] = { ...defaultOptions, transformers: [transformer] }
+    const options: PluginCypress['resolvedOptions'] = { ...defaultOptions, transformer: transformer }
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options, resolver: resolverCypress })
     const driver = createMockedPluginDriver({ name: 'transformers schema visitor', plugin: mockedTsPlugin })
 

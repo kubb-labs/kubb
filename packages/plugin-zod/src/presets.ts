@@ -17,13 +17,13 @@ import type { ResolverZod } from './types.ts'
 export const presets = definePresets<ResolverZod>({
   default: {
     name: 'default',
-    resolvers: [resolverZod],
+    resolver: resolverZod,
     generators: [zodGenerator],
     printer: printerZod,
   },
   kubbV4: {
     name: 'kubbV4',
-    resolvers: [resolverZodLegacy],
+    resolver: resolverZodLegacy,
     generators: [zodGeneratorLegacy],
     printer: printerZod,
   },

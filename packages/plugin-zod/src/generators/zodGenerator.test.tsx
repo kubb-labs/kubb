@@ -27,7 +27,7 @@ const defaultOptions: PluginZod['resolvedOptions'] = {
   output: { path: '.' },
   group: undefined,
   printer: undefined,
-  transformers: [],
+  transformer: undefined,
 }
 
 const stringSchema = createSchema({ type: 'string', name: 'PetName' })
@@ -598,7 +598,7 @@ describe('zodGenerator — transformers', () => {
         return node
       },
     }
-    const options: PluginZod['resolvedOptions'] = { ...defaultOptions, transformers: [removeOptionalProperties] }
+    const options: PluginZod['resolvedOptions'] = { ...defaultOptions, transformer: removeOptionalProperties }
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
     const driver = createMockedPluginDriver({ name: 'transformers removeOptionalProperties' })
 
@@ -623,7 +623,7 @@ describe('zodGenerator — transformers', () => {
         return node
       },
     }
-    const options: PluginZod['resolvedOptions'] = { ...defaultOptions, transformers: [integerToString] }
+    const options: PluginZod['resolvedOptions'] = { ...defaultOptions, transformer: integerToString }
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
     const driver = createMockedPluginDriver({ name: 'transformers integerToString' })
 

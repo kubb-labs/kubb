@@ -517,7 +517,7 @@ describe('printerZod', () => {
   describe('nodes override', () => {
     test('overrides a single node type', () => {
       const p = printerZod({ nodes: { date: () => 'z.string().date()' } })
-      expect(p.print(createSchema({ type: 'date' }))).toBe('z.string().date()')
+      expect(p.print(createSchema({ type: 'date', representation: 'string' }))).toBe('z.string().date()')
     })
 
     test('override does not affect other node types', () => {

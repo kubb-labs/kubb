@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { caseParams, composeTransformers, createProperty, createSchema, transform } from '@kubb/ast'
+import { caseParams, createProperty, createSchema, transform } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
 import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
@@ -169,8 +169,8 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
   name: 'zod-legacy',
   type: 'react',
   Schema({ node, adapter, options, config, resolver }) {
-    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, printer, transformers = [] } = options
-    const transformedNode = transform(node, composeTransformers(...transformers))
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, printer, transformer } = options
+    const transformedNode = transformer ? transform(node, transformer) : node
 
     if (!transformedNode.name) {
       return
@@ -213,9 +213,9 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     )
   },
   Operation({ node, adapter, options, config, resolver }) {
-    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, printer, transformers } = options
+    const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, printer, transformer } = options
 
-    const transformedNode = transform(node, composeTransformers(...transformers))
+    const transformedNode = transformer ? transform(node, transformer) : node
 
     const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
@@ -329,7 +329,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     )
   },
   Operations({ nodes, adapter, options, config, resolver }) {
-    const { output, importPath, group, operations, paramsCasing, transformers } = options
+    const { output, importPath, group, operations, paramsCasing, transformer } = options
 
     if (!operations) {
       return
@@ -343,7 +343,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     } as const
 
     const transformedOperations = nodes.map((node) => {
-      const transformedNode = transform(node, composeTransformers(...transformers))
+      const transformedNode = transformer ? transform(node, transformer) : node
 
       const params = caseParams(transformedNode.parameters, paramsCasing)
 

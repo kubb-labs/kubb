@@ -22,7 +22,7 @@ const defaultOptions: PluginTs['resolvedOptions'] = {
   output: { path: '.' },
   group: undefined,
   printer: undefined,
-  transformers: [],
+  transformer: undefined,
 }
 
 describe('typeGeneratorLegacy — Operation', () => {

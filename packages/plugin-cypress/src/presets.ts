@@ -12,12 +12,12 @@ import type { ResolverCypress } from './types.ts'
 export const presets = definePresets<ResolverCypress>({
   default: {
     name: 'default',
-    resolvers: [resolverCypress],
+    resolver: resolverCypress,
     generators: [cypressGenerator],
   },
   kubbV4: {
     name: 'kubbV4',
-    resolvers: [resolverCypress],
+    resolver: resolverCypress,
     generators: [cypressGenerator],
   },
 })

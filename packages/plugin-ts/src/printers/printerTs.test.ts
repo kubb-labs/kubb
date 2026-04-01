@@ -997,7 +997,7 @@ describe('printerTs', () => {
         enumType: 'inlineLiteral',
         nodes: { date: () => ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword) },
       })
-      expect(await formatTS(p.transform(createSchema({ type: 'date' })))).toBe('string')
+      expect(await formatTS(p.transform(createSchema({ type: 'date', representation: 'string' })))).toBe('string')
     })
 
     it('override does not affect other node types', async () => {
