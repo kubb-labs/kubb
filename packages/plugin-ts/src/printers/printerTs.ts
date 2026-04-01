@@ -2,13 +2,41 @@ import { extractRefName, isStringType, narrowSchema, schemaTypes, syncSchemaRef 
 import type { PrinterFactoryOptions } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
 import { safePrint } from '@kubb/fabric-core/parsers/typescript'
+import type { SchemaNodeByType, SchemaType } from '@kubb/ast/types'
 import type ts from 'typescript'
 import { ENUM_TYPES_WITH_KEY_SUFFIX, OPTIONAL_ADDS_QUESTION_TOKEN, OPTIONAL_ADDS_UNDEFINED } from '../constants.ts'
 import * as factory from '../factory.ts'
 import type { PluginTs, ResolverTs } from '../types.ts'
 import { buildPropertyJSDocComments } from '../utils.ts'
 
-type TsOptions = {
+/**
+ * Partial map of node-type overrides for the TypeScript printer.
+ *
+ * Each key is a `SchemaType` string (e.g. `'date'`, `'string'`). The function
+ * replaces the built-in handler for that node type. Use `this.transform` to
+ * recurse into nested schema nodes, and `this.options` to read printer options.
+ *
+ * @example Override the `date` handler
+ * ```ts
+ * pluginTs({
+ *   printer: {
+ *     nodes: {
+ *       date(node) {
+ *         return ts.factory.createTypeReferenceNode('Date', [])
+ *       },
+ *     },
+ *   },
+ * })
+ * ```
+ */
+export type TsPrinterNodes = Partial<{
+  [K in SchemaType]: (
+    this: { transform: (node: SchemaNodeByType[SchemaType]) => ts.TypeNode | null | undefined; options: TsPrinterOptions },
+    node: SchemaNodeByType[K],
+  ) => ts.TypeNode | null | undefined
+}>
+
+export type TsPrinterOptions = {
   /**
    * @default `'questionToken'`
    */
@@ -57,12 +85,18 @@ type TsOptions = {
    * instead of the plain PascalCase name, so imports align with what the enum file actually exports.
    */
   enumSchemaNames?: Set<string>
+  /**
+   * Partial map of node-type overrides. Each entry replaces the built-in handler for that node type.
+   */
+  nodes?: TsPrinterNodes
 }
 
 /**
  * TypeScript printer factory options: maps `SchemaNode` → `ts.TypeNode` (raw) or `ts.Node` (full declaration).
  */
-type TsPrinter = PrinterFactoryOptions<'typescript', TsOptions, ts.TypeNode, string>
+export type TsPrinterFactory = PrinterFactoryOptions<'typescript', TsPrinterOptions, ts.TypeNode, string>
+
+type TsPrinter = TsPrinterFactory
 
 /**
  * TypeScript type printer built with `definePrinter`.
@@ -227,6 +261,7 @@ export const printerTs = definePrinter<TsPrinter>((options) => {
 
         return factory.createTypeLiteralNode(allElements)
       },
+      ...options.nodes,
     },
     print(node) {
       const { name, syntaxType = 'type', description, keysToOmit } = this.options

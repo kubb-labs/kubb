@@ -6,6 +6,7 @@ import { defineGenerator, getMode } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
+import { printerTs } from '../printers/printerTs.ts'
 import { resolverTsLegacy } from '../resolvers/resolverTsLegacy.ts'
 import type { PluginTs, ResolverTs } from '../types'
 
@@ -185,6 +186,17 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
       file: resolver.resolveFile({ name: transformedNode.name, extname: '.ts' }, { root, output, group }),
     } as const
 
+    const schemaPrinter = printerTs({
+      optionalType,
+      arrayType,
+      enumType,
+      enumTypeSuffix,
+      name: meta.name,
+      syntaxType,
+      description: transformedNode.description,
+      resolver,
+    })
+
     return (
       <File
         baseName={meta.file.baseName}
@@ -203,10 +215,8 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
           enumType={enumType}
           enumTypeSuffix={enumTypeSuffix}
           enumKeyCasing={enumKeyCasing}
-          optionalType={optionalType}
-          arrayType={arrayType}
-          syntaxType={syntaxType}
           resolver={resolver}
+          printer={schemaPrinter}
         />
       </File>
     )
@@ -245,6 +255,18 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
         path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
       }))
 
+      const opPrinter = printerTs({
+        optionalType,
+        arrayType,
+        enumType,
+        enumTypeSuffix,
+        name,
+        syntaxType,
+        description,
+        keysToOmit,
+        resolver,
+      })
+
       return (
         <>
           {mode === 'split' &&
@@ -254,15 +276,11 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
           <Type
             name={name}
             node={schema}
-            description={description}
             enumType={enumType}
             enumTypeSuffix={enumTypeSuffix}
             enumKeyCasing={enumKeyCasing}
-            optionalType={optionalType}
-            arrayType={arrayType}
-            syntaxType={syntaxType}
             resolver={resolver}
-            keysToOmit={keysToOmit}
+            printer={opPrinter}
           />
         </>
       )

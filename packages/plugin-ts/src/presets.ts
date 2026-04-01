@@ -1,6 +1,7 @@
 import { definePresets } from '@kubb/core'
 import { typeGenerator } from './generators/typeGenerator.tsx'
 import { typeGeneratorLegacy } from './generators/typeGeneratorLegacy.tsx'
+import { printerTs } from './printers/printerTs.ts'
 import { resolverTs } from './resolvers/resolverTs.ts'
 import { resolverTsLegacy } from './resolvers/resolverTsLegacy.ts'
 import type { ResolverTs } from './types.ts'
@@ -16,10 +17,12 @@ export const presets = definePresets<ResolverTs>({
     name: 'default',
     resolvers: [resolverTs],
     generators: [typeGenerator],
+    printer: printerTs,
   },
   kubbV4: {
     name: 'kubbV4',
     resolvers: [resolverTsLegacy],
     generators: [typeGeneratorLegacy],
+    printer: printerTs,
   },
 })

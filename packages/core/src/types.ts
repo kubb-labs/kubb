@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { Node, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
+import type { Node, Printer, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
 import type { HttpMethod } from '@kubb/oas'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
@@ -662,6 +662,11 @@ export type Preset<TResolver extends Resolver = Resolver> = {
    * to their concrete generator type.
    */
   generators?: Array<Generator<any>>
+  /**
+   * Optional printer factory used by this preset.
+   * The generator calls this function at render-time to produce a configured printer instance.
+   */
+  printer?: (options: any) => Printer
 }
 
 /**

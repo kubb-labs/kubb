@@ -284,6 +284,29 @@ export type Options = {
    * }]
    * ```
    */
+  /**
+   * Override individual printer node handlers to customise rendering of specific schema types.
+   *
+   * Each key is a `SchemaType` (e.g. `'date'`, `'string'`). The function replaces the
+   * built-in handler for that type. Use `this.transform` to recurse into nested schema nodes.
+   *
+   * @example Override the `date` node to use the `Date` object type
+   * ```ts
+   * import ts from 'typescript'
+   * pluginTs({
+   *   printer: {
+   *     nodes: {
+   *       date(node) {
+   *         return ts.factory.createTypeReferenceNode('Date', [])
+   *       },
+   *     },
+   *   },
+   * })
+   * ```
+   */
+  printer?: {
+    nodes?: import('./printers/printerTs.ts').TsPrinterNodes
+  }
   transformers?: Array<Visitor>
 } & EnumTypeOptions
 
@@ -297,6 +320,7 @@ type ResolvedOptions = {
   arrayType: NonNullable<Options['arrayType']>
   syntaxType: NonNullable<Options['syntaxType']>
   paramsCasing: Options['paramsCasing']
+  printer: Options['printer']
   transformers: Array<Visitor>
 }
 

@@ -177,6 +177,29 @@ export type Options = {
    */
   resolvers?: Array<ResolverZod>
   /**
+   * Override individual printer node handlers to customise rendering of specific schema types.
+   *
+   * Each key is a `SchemaType` (e.g. `'date'`, `'string'`). The function replaces the
+   * built-in handler for that type. Use `this.transform` to recurse into nested schema nodes.
+   * When `mini: true`, the overrides apply to the Zod Mini printer.
+   *
+   * @example Override the `date` node to use `z.string().date()`
+   * ```ts
+   * pluginZod({
+   *   printer: {
+   *     nodes: {
+   *       date(node) {
+   *         return 'z.string().date()'
+   *       },
+   *     },
+   *   },
+   * })
+   * ```
+   */
+  printer?: {
+    nodes?: import('./printers/printerZod.ts').ZodPrinterNodes | import('./printers/printerZodMini.ts').ZodMiniPrinterNodes
+  }
+  /**
    * AST visitor transformers applied during code generation.
    */
   transformers?: Array<Visitor>
@@ -195,6 +218,7 @@ type ResolvedOptions = {
   mini: NonNullable<Options['mini']>
   wrapOutput: Options['wrapOutput']
   paramsCasing: Options['paramsCasing']
+  printer: Options['printer']
   transformers: Array<Visitor>
 }
 

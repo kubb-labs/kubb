@@ -1,22 +1,23 @@
+import type { Printer } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast/types'
 import { Const, File, Type } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import { printerZod } from '../printers/printerZod.ts'
-import type { PluginZod, ResolverZod } from '../types.ts'
+import type { ZodPrinterFactory } from '../printers/printerZod.ts'
+import type { ZodMiniPrinterFactory } from '../printers/printerZodMini.ts'
 
 type Props = {
   name: string
   node: SchemaNode
-  coercion: PluginZod['resolvedOptions']['coercion']
-  guidType: PluginZod['resolvedOptions']['guidType']
-  wrapOutput: PluginZod['resolvedOptions']['wrapOutput']
+  /**
+   * Pre-configured printer instance created by the generator.
+   * The generator selects `printerZod` or `printerZodMini` based on the `mini` option,
+   * then merges in any user-supplied `printer.nodes` overrides.
+   */
+  printer: Printer<ZodPrinterFactory> | Printer<ZodMiniPrinterFactory>
   inferTypeName?: string
-  resolver?: ResolverZod
-  keysToOmit?: Array<string>
 }
 
-export function Zod({ name, node, coercion, guidType, wrapOutput, inferTypeName, resolver, keysToOmit }: Props): FabricReactNode {
-  const printer = printerZod({ coercion, guidType, wrapOutput, resolver, schemaName: name, keysToOmit })
+export function Zod({ name, node, printer, inferTypeName }: Props): FabricReactNode {
   const output = printer.print(node)
 
   if (!output) {

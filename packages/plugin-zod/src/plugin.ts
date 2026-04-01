@@ -44,6 +44,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     inferred = false,
     wrapOutput = undefined,
     paramsCasing,
+    printer,
     compatibilityPreset = 'default',
     resolvers: userResolvers = [],
     transformers: userTransformers = [],
@@ -90,6 +91,7 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
         mini,
         wrapOutput,
         paramsCasing,
+        printer,
         transformers: preset.transformers,
       }
     },

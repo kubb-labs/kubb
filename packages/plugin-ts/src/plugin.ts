@@ -41,6 +41,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     arrayType = 'array',
     syntaxType = 'type',
     paramsCasing,
+    printer,
     compatibilityPreset = 'default',
     resolvers: userResolvers = [],
     transformers: userTransformers = [],
@@ -84,6 +85,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
         enumKeyCasing,
         syntaxType,
         paramsCasing,
+        printer,
         transformers: preset.transformers,
       }
     },

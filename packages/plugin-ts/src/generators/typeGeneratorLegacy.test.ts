@@ -21,6 +21,7 @@ const defaultOptions: PluginTs['resolvedOptions'] = {
   paramsCasing: undefined,
   output: { path: '.' },
   group: undefined,
+  printer: undefined,
   transformers: [],
 }
 
