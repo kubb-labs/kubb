@@ -1,16 +1,32 @@
-import { camelCase, isValidVarName } from '@internals/utils'
+import { caseParams } from '@kubb/ast'
+import type { OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { FabricFile } from '@kubb/fabric-core/types'
-import type { SchemaObject } from '@kubb/oas'
-import type { OperationSchemas } from '@kubb/plugin-oas'
-import { isOptional } from '@kubb/plugin-oas/utils'
-import { Const, File, FunctionParams } from '@kubb/react-fabric'
+import { Const, File, Function } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { zodGroupExpr } from '../utils.ts'
+import type { ZodParam } from '../utils.ts'
 
 type Props = {
+  /**
+   * Variable name for the MCP server instance (e.g. 'server').
+   */
   name: string
+  /**
+   * Human-readable server name passed to `new McpServer({ name })`.
+   */
   serverName: string
+  /**
+   * Semantic version string passed to `new McpServer({ version })`.
+   */
   serverVersion: string
+  /**
+   * How to style your params.
+   */
   paramsCasing?: 'camelcase'
+  /**
+   * Operations to register as MCP tools, each carrying its handler,
+   * zod schema, and AST node metadata.
+   */
   operations: Array<{
     tool: {
       name: string
@@ -22,25 +38,30 @@ type Props = {
       file: FabricFile.File
     }
     zod: {
-      name: string
-      file: FabricFile.File
-      schemas: OperationSchemas
+      pathParams: Array<ZodParam>
+      /**
+       * Query params — either a group schema name (kubbV4) or individual schemas to compose (v5).
+       */
+      queryParams?: string | Array<ZodParam>
+      /**
+       * Header params — either a group schema name (kubbV4) or individual schemas to compose (v5).
+       */
+      headerParams?: string | Array<ZodParam>
+      requestName?: string
+      responseName?: string
     }
-    type: {
-      schemas: OperationSchemas
-    }
+    node: OperationNode
   }>
 }
 
 type GetParamsProps = {
-  schemas: OperationSchemas
+  node: OperationNode
+  zod: Props['operations'][number]['zod']
   paramsCasing?: 'camelcase'
 }
 
-function zodExprFromOasSchema(schema: SchemaObject): string {
-  const types = Array.isArray(schema.type) ? schema.type : [schema.type]
-  const baseType = types.find((t) => t && t !== 'null')
-  const isNullableType = types.includes('null')
+function zodExprFromSchemaNode(schema: SchemaNode): string {
+  const baseType = schema.type
 
   let expr: string
   switch (baseType) {
@@ -60,55 +81,47 @@ function zodExprFromOasSchema(schema: SchemaObject): string {
       expr = 'z.string()'
   }
 
-  if (isNullableType) {
+  if (schema.nullable) {
     expr = `${expr}.nullable()`
   }
 
   return expr
 }
 
-function getParams({ schemas, paramsCasing }: GetParamsProps) {
-  const pathParamProperties = schemas.pathParams?.schema?.properties ?? {}
-  const requiredFields = Array.isArray(schemas.pathParams?.schema?.required) ? schemas.pathParams.schema.required : []
+function getParams({ node, zod, paramsCasing }: GetParamsProps) {
+  const casedParams = caseParams(node.parameters, paramsCasing)
+  const pathParams = casedParams.filter((p) => p.in === 'path')
 
-  const pathParamEntries = Object.entries(pathParamProperties).reduce<Record<string, { value: string; optional: boolean }>>(
-    (acc, [originalKey, propSchema]) => {
-      const key = paramsCasing === 'camelcase' || !isValidVarName(originalKey) ? camelCase(originalKey) : originalKey
-      acc[key] = {
-        value: zodExprFromOasSchema(propSchema as SchemaObject),
-        optional: !requiredFields.includes(originalKey),
-      }
-      return acc
-    },
-    {},
-  )
+  const pathEntries: Array<{ key: string; value: string }> = []
+  const otherEntries: Array<{ key: string; value: string }> = []
 
-  return FunctionParams.factory({
-    data: {
-      mode: 'object',
-      children: {
-        ...pathParamEntries,
-        data: schemas.request?.name
-          ? {
-              value: schemas.request?.name,
-              optional: isOptional(schemas.request?.schema),
-            }
-          : undefined,
-        params: schemas.queryParams?.name
-          ? {
-              value: schemas.queryParams?.name,
-              optional: isOptional(schemas.queryParams?.schema),
-            }
-          : undefined,
-        headers: schemas.headerParams?.name
-          ? {
-              value: schemas.headerParams?.name,
-              optional: isOptional(schemas.headerParams?.schema),
-            }
-          : undefined,
-      },
-    },
-  })
+  for (const p of pathParams) {
+    const zodParam = zod.pathParams.find((zp) => zp.name === p.name)
+    pathEntries.push({ key: p.name, value: zodParam ? zodParam.schemaName : zodExprFromSchemaNode(p.schema) })
+  }
+
+  if (zod.requestName) {
+    otherEntries.push({ key: 'data', value: zod.requestName })
+  }
+
+  if (zod.queryParams) {
+    otherEntries.push({ key: 'params', value: zodGroupExpr(zod.queryParams) })
+  }
+
+  if (zod.headerParams) {
+    otherEntries.push({ key: 'headers', value: zodGroupExpr(zod.headerParams) })
+  }
+
+  otherEntries.sort((a, b) => a.key.localeCompare(b.key))
+  const entries = [...pathEntries, ...otherEntries]
+
+  const hasInputSchema = entries.length > 0
+
+  return {
+    hasInputSchema,
+    toInputSchema: () => (hasInputSchema ? `{ ${entries.map((e) => `${e.key}: ${e.value}`).join(', ')} }` : '{}'),
+    toDestructured: () => (hasInputSchema ? `{ ${entries.map((e) => e.key).join(', ')} }` : ''),
+  }
 }
 
 export function Server({ name, serverName, serverVersion, paramsCasing, operations }: Props): FabricReactNode {
@@ -124,9 +137,13 @@ export function Server({ name, serverName, serverVersion, paramsCasing, operatio
       </Const>
 
       {operations
-        .map(({ tool, mcp, zod }) => {
-          const paramsClient = getParams({ schemas: zod.schemas, paramsCasing })
-          const outputSchema = zod.schemas.response?.name
+        .map(({ tool, mcp, zod, node }) => {
+          const paramsClient = getParams({
+            node,
+            zod,
+            paramsCasing,
+          })
+          const outputSchema = zod.responseName
 
           const config = [
             tool.title ? `title: ${JSON.stringify(tool.title)}` : null,
@@ -136,13 +153,13 @@ export function Server({ name, serverName, serverVersion, paramsCasing, operatio
             .filter(Boolean)
             .join(',\n  ')
 
-          if (zod.schemas.request?.name || zod.schemas.headerParams?.name || zod.schemas.queryParams?.name || zod.schemas.pathParams?.name) {
+          if (paramsClient.hasInputSchema) {
             return `
 server.registerTool(${JSON.stringify(tool.name)}, {
   ${config},
-  inputSchema: ${paramsClient.toObjectValue()},
-}, async (${paramsClient.toObject()}) => {
-  return ${mcp.name}(${paramsClient.toObject()})
+  inputSchema: ${paramsClient.toInputSchema()},
+}, async (${paramsClient.toDestructured()}) => {
+  return ${mcp.name}(${paramsClient.toDestructured()})
 })
           `
           }
@@ -151,24 +168,22 @@ server.registerTool(${JSON.stringify(tool.name)}, {
 server.registerTool(${JSON.stringify(tool.name)}, {
   ${config},
 }, async () => {
-  return ${mcp.name}(${paramsClient.toObject()})
+  return ${mcp.name}(${paramsClient.toDestructured()})
 })
           `
         })
         .filter(Boolean)}
 
-      {`
-export async function startServer() {
-  try {
+      <Function name="startServer" async export>
+        {`try {
     const transport = new StdioServerTransport()
     await server.connect(transport)
 
   } catch (error) {
     console.error('Failed to start server:', error)
     process.exit(1)
-  }
-}
-`}
+  }`}
+      </Function>
     </File.Source>
   )
 }

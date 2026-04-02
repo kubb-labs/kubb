@@ -6,16 +6,15 @@ import { pluginZodName } from '@kubb/plugin-zod'
 import { File } from '@kubb/react-fabric'
 import { Server } from '../components/Server.tsx'
 import type { PluginMcp } from '../types.ts'
-import { findSuccessStatusCode } from '../utils.ts'
 
 /**
- * Default server generator for `compatibilityPreset: 'default'` (v5).
+ * Legacy server generator for `compatibilityPreset: 'kubbV4'`.
  *
- * Uses individual zod schemas for each param (e.g. `createPetsPathUuidSchema`, `createPetsQueryOffsetSchema`)
- * and `resolveResponseStatusName` for per-status response schemas.
- * Query and header params are composed into `z.object({ ... })` from individual schemas.
+ * Uses grouped zod schemas for query/header params (e.g. `createPetsQueryParamsSchema`)
+ * and `resolveResponseName` for the combined response schema.
+ * Path params are always rendered inline (no named imports).
  */
-export const serverGenerator = defineGenerator<PluginMcp>({
+export const serverGeneratorLegacy = defineGenerator<PluginMcp>({
   name: 'operations',
   type: 'react',
   Operations({ nodes, adapter, options, config, driver, resolver, plugin }) {
@@ -23,12 +22,7 @@ export const serverGenerator = defineGenerator<PluginMcp>({
     const root = path.resolve(config.root, config.output.path)
 
     const pluginZod = driver.getPlugin<PluginZod>(pluginZodName)
-
-    if (!pluginZod) {
-      return
-    }
-
-    const zodResolver = pluginZod.resolver
+    const zodResolver = pluginZod?.resolver
 
     const name = 'server'
     const serverFilePath = path.resolve(root, output.path, 'server.ts')
@@ -47,9 +41,7 @@ export const serverGenerator = defineGenerator<PluginMcp>({
 
     const operationsMapped = nodes.map((node) => {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-
       const casedParams = caseParams(transformedNode.parameters, paramsCasing)
-      const pathParams = casedParams.filter((p) => p.in === 'path')
       const queryParams = casedParams.filter((p) => p.in === 'query')
       const headerParams = casedParams.filter((p) => p.in === 'header')
 
@@ -58,21 +50,25 @@ export const serverGenerator = defineGenerator<PluginMcp>({
         { root, output, group },
       )
 
-      const zodFile = zodResolver.resolveFile(
-        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
-        {
-          root,
-          output: pluginZod.options?.output ?? output,
-          group: pluginZod.options?.group,
-        },
-      )
+      const zodFile = zodResolver
+        ? zodResolver.resolveFile(
+            { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+            {
+              root,
+              output: pluginZod?.options?.output ?? output,
+              group: pluginZod?.options?.group,
+            },
+          )
+        : undefined
 
-      const requestName = transformedNode.requestBody?.schema ? zodResolver.resolveDataName(transformedNode) : undefined
-      const successStatus = findSuccessStatusCode(transformedNode.responses)
-      const responseName = successStatus ? zodResolver.resolveResponseStatusName(transformedNode, successStatus) : undefined
+      const requestName = zodResolver && transformedNode.requestBody?.schema ? zodResolver.resolveDataName(transformedNode) : undefined
+      const responseName = zodResolver ? zodResolver.resolveResponseName(transformedNode) : undefined
 
-      const resolveParams = (params: typeof pathParams) =>
-        params.map((p) => ({ name: p.name, schemaName: zodResolver.resolveParamName(transformedNode, p) }))
+      const zodQueryParams =
+        zodResolver && queryParams.length ? zodResolver.resolveQueryParamsName(transformedNode, queryParams[0]!) : undefined
+
+      const zodHeaderParams =
+        zodResolver && headerParams.length ? zodResolver.resolveHeaderParamsName(transformedNode, headerParams[0]!) : undefined
 
       return {
         tool: {
@@ -85,9 +81,9 @@ export const serverGenerator = defineGenerator<PluginMcp>({
           file: mcpFile,
         },
         zod: {
-          pathParams: resolveParams(pathParams),
-          queryParams: queryParams.length ? resolveParams(queryParams) : undefined,
-          headerParams: headerParams.length ? resolveParams(headerParams) : undefined,
+          pathParams: [],
+          queryParams: zodQueryParams,
+          headerParams: zodHeaderParams,
           requestName,
           responseName,
           file: zodFile,
@@ -97,19 +93,11 @@ export const serverGenerator = defineGenerator<PluginMcp>({
     })
 
     const imports = operationsMapped.flatMap(({ mcp, zod }) => {
-      const zodNames = [
-        ...zod.pathParams.map((p) => p.schemaName),
-        ...(zod.queryParams ?? []).map((p) => p.schemaName),
-        ...(zod.headerParams ?? []).map((p) => p.schemaName),
-        zod.requestName,
-        zod.responseName,
-      ].filter(Boolean)
-
-      const uniqueNames = [...new Set(zodNames)].sort()
+      const zodNames = [zod.queryParams, zod.headerParams, zod.requestName, zod.responseName].filter(Boolean) as string[]
 
       return [
         <File.Import key={mcp.name} name={[mcp.name]} root={serverFile.path} path={mcp.file.path} />,
-        uniqueNames.length > 0 && <File.Import key={`zod-${mcp.name}`} name={uniqueNames} root={serverFile.path} path={zod.file.path} />,
+        zod.file && zodNames.length > 0 && <File.Import key={`zod-${mcp.name}`} name={zodNames.sort()} root={serverFile.path} path={zod.file.path} />,
       ].filter(Boolean)
     })
 
@@ -130,7 +118,7 @@ export const serverGenerator = defineGenerator<PluginMcp>({
           <Server
             name={name}
             serverName={adapter.rootNode?.meta?.title ?? 'server'}
-            serverVersion={adapter.rootNode?.meta?.version ?? '0.0.0'}
+            serverVersion={(adapter.document as { openapi?: string })?.openapi ?? adapter.rootNode?.meta?.version ?? '0.0.0'}
             paramsCasing={paramsCasing}
             operations={operationsMapped}
           />

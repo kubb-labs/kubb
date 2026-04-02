@@ -100,7 +100,8 @@ export const functionPrinter = defineFunctionPrinter<DefaultPrinter>((options) =
       if (node.variant === 'struct') {
         const parts = node.properties.map((p) => {
           const typeStr = this.transform(p.type)
-          return p.optional ? `${p.name}?: ${typeStr}` : `${p.name}: ${typeStr}`
+          const key = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(p.name) ? p.name : JSON.stringify(p.name)
+          return p.optional ? `${key}?: ${typeStr}` : `${key}: ${typeStr}`
         })
         return `{ ${parts.join('; ')} }`
       }

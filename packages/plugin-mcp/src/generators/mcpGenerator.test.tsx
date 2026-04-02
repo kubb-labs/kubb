@@ -1,46 +1,77 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
+import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas'
-import { OperationGenerator, renderOperation } from '@kubb/plugin-oas'
+import { renderOperation } from '@kubb/core'
+import type { PluginTs } from '@kubb/plugin-ts'
+import { resolverTs } from '@kubb/plugin-ts'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { resolverMcp } from '../resolvers/resolverMcp.ts'
 import type { PluginMcp } from '../types.ts'
 import { mcpGenerator } from './mcpGenerator.tsx'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [] }
 
-describe('mcpGenerator operation', async () => {
+const defaultOptions: PluginMcp['resolvedOptions'] = {
+  output: { path: '.' },
+  client: {
+    client: 'axios',
+    baseURL: '',
+    dataReturnType: 'data',
+  },
+  paramsCasing: undefined,
+  group: undefined,
+  resolver: resolverMcp,
+}
+
+const mockedTsPlugin = createMockedPlugin<PluginTs>({
+  name: 'plugin-ts',
+  options: { output: { path: '.' }, group: undefined } as PluginTs['resolvedOptions'],
+  resolver: resolverTs,
+})
+
+describe('mcpGenerator — Operation', () => {
   const fabric = createReactFabric()
 
   beforeEach(() => {
     fabric.context.fileManager.clear()
   })
 
-  const testData = [
+  const operations = [
     {
       name: 'showPetById',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets/{petId}',
-      method: 'get',
-      options: {},
+      node: createOperation({
+        operationId: 'showPetById',
+        method: 'GET',
+        path: '/pets/{petId}',
+        tags: ['pets'],
+        parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
+        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'Expected response' })],
+      }),
     },
     {
       name: 'getPets',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'get',
-      options: {},
+      node: createOperation({
+        operationId: 'getPets',
+        method: 'GET',
+        path: '/pets',
+        tags: ['pets'],
+        parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' })],
+      }),
     },
     {
       name: 'getPetsTemplateString',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'get',
+      node: createOperation({
+        operationId: 'getPets',
+        method: 'GET',
+        path: '/pets',
+        tags: ['pets'],
+        parameters: [createParameter({ name: 'limit', in: 'query', schema: createSchema({ type: 'integer' }) })],
+        responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'A paged array of pets' })],
+      }),
       options: {
         client: {
           baseURL: '${123456}',
@@ -49,66 +80,45 @@ describe('mcpGenerator operation', async () => {
     },
     {
       name: 'createPet',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets',
-      method: 'post',
-      options: {},
+      node: createOperation({
+        operationId: 'createPets',
+        method: 'POST',
+        path: '/pets',
+        tags: ['pets'],
+        requestBody: { description: 'Pet to add', schema: createSchema({ type: 'object', properties: [] }) },
+        responses: [createResponse({ statusCode: '201', schema: createSchema({ type: 'object', properties: [] }), description: 'Null response' })],
+      }),
     },
     {
       name: 'deletePet',
-      input: '../../mocks/petStore.yaml',
-      path: '/pets/{petId}',
-      method: 'delete',
-      options: {},
+      node: createOperation({
+        operationId: 'deletePet',
+        method: 'DELETE',
+        path: '/pets/{petId}',
+        tags: ['pets'],
+        parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
+        responses: [createResponse({ statusCode: '204', description: 'No content', schema: createSchema({ type: 'void' }) })],
+      }),
     },
-  ] as const satisfies Array<{
-    input: string
-    name: string
-    path: string
-    method: HttpMethod
-    options: Partial<PluginMcp['resolvedOptions']>
-  }>
+  ] as const satisfies Array<{ name: string; node: OperationNode; options?: Partial<PluginMcp['resolvedOptions']> }>
 
-  test.each(testData)('$name', async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input))
-
+  test.each(operations)('$name', async (props) => {
     const options: PluginMcp['resolvedOptions'] = {
-      output: {
-        path: '.',
-      },
-      paramsCasing: undefined,
-      client: {
-        client: 'axios',
-        baseURL: '',
-        dataReturnType: 'data',
-      },
-      group: undefined,
-      ...props.options,
+      ...defaultOptions,
+      ...('options' in props ? props.options : {}),
     }
-    const plugin = createMockedPlugin<PluginMcp>({ name: 'plugin-mcp', options })
+    const plugin = createMockedPlugin<PluginMcp>({ name: 'plugin-mcp', options, resolver: resolverMcp })
+    const driver = createMockedPluginDriver({ name: props.name, plugin: mockedTsPlugin })
 
-    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
-    const generator = new OperationGenerator(options, {
+    await renderOperation(props.node, {
+      config: testConfig,
       fabric,
-      oas,
-      include: undefined,
-      driver: mockedPluginDriver,
-
-      plugin,
-      contentType: undefined,
-      override: undefined,
-      mode: 'split',
-      exclude: [],
-    })
-
-    const operation = oas.operation(props.path, props.method)
-
-    await renderOperation(operation, {
-      config: { root: '.', output: { path: 'test' } } as Config,
-      fabric,
-      generator,
+      adapter: createMockedAdapter(),
+      driver,
       Component: mcpGenerator.Operation,
       plugin,
+      options,
+      resolver: resolverMcp,
     })
 
     await matchFiles(fabric.files, props.name)
