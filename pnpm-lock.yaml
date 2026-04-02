@@ -1220,18 +1220,15 @@ importers:
 
   packages/plugin-mcp:
     dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/oas':
-        specifier: workspace:*
-        version: link:../oas
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../plugin-client
-      '@kubb/plugin-oas':
-        specifier: workspace:*
-        version: link:../plugin-oas
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../plugin-ts

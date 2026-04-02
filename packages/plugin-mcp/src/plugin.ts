@@ -1,14 +1,15 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createPlugin, getBarrelFiles, getMode, type UserGroup } from '@kubb/core'
+import { walk } from '@kubb/ast'
+import type { OperationNode } from '@kubb/ast/types'
+import { createPlugin, type Group, getBarrelFiles, getPreset, runGeneratorOperation, runGeneratorOperations, runGeneratorSchema } from '@kubb/core'
 import { type PluginClient, pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
 import { source as configSource } from '@kubb/plugin-client/templates/config.source'
-import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
-import { mcpGenerator, serverGenerator } from './generators'
+import { presets } from './presets.ts'
 import type { PluginMcp } from './types.ts'
 
 export const pluginMcpName = 'plugin-mcp' satisfies PluginMcp['name']
@@ -20,92 +21,80 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
     exclude = [],
     include,
     override = [],
-    transformers = {},
-    generators = [mcpGenerator, serverGenerator].filter(Boolean),
-    contentType,
     paramsCasing,
     client,
+    compatibilityPreset = 'default',
+    resolver: userResolver,
+    transformer: userTransformer,
+    generators: userGenerators = [],
   } = options
 
   const clientName = client?.client ?? 'axios'
   const clientImportPath = client?.importPath ?? (!client?.bundle ? `@kubb/plugin-client/clients/${clientName}` : undefined)
 
+  const preset = getPreset({
+    preset: compatibilityPreset,
+    presets,
+    resolver: userResolver,
+    transformer: userTransformer,
+    generators: userGenerators,
+  })
+
   return {
     name: pluginMcpName,
-    options: {
-      output,
-      group,
-      paramsCasing,
-      client: {
-        client: clientName,
-        clientType: client?.clientType ?? 'function',
-        importPath: clientImportPath,
-        dataReturnType: client?.dataReturnType ?? 'data',
-        bundle: client?.bundle,
-        baseURL: client?.baseURL,
-        paramsCasing: client?.paramsCasing,
-      },
+    get resolver() {
+      return preset.resolver
     },
-    pre: [pluginOasName, pluginTsName, pluginZodName].filter(Boolean),
-    resolvePath(baseName, pathMode, options) {
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = pathMode ?? getMode(path.resolve(root, output.path))
-
-      if (mode === 'single') {
-        /**
-         * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
-         * Other plugins then need to call addOrAppend instead of just add from the fileManager class
-         */
-        return path.resolve(root, output.path)
-      }
-
-      if (group && (options?.group?.path || options?.group?.tag)) {
-        const groupName: UserGroup['name'] = group?.name
-          ? group.name
-          : (ctx) => {
-              if (group?.type === 'path') {
-                return `${ctx.group.split('/')[1]}`
-              }
-              return `${camelCase(ctx.group)}Requests`
-            }
-
-        return path.resolve(
-          root,
-          output.path,
-          groupName({
-            group: group.type === 'path' ? options.group.path! : options.group.tag!,
-          }),
-          baseName,
-        )
-      }
-
-      return path.resolve(root, output.path, baseName)
+    get transformer() {
+      return preset.transformer
     },
-    resolveName(name, type) {
-      const resolvedName = camelCase(name, {
-        isFile: type === 'file',
-      })
-
-      if (type) {
-        return transformers?.name?.(resolvedName, type) || resolvedName
+    get options() {
+      return {
+        output,
+        group: group
+          ? ({
+              ...group,
+              name: group.name
+                ? group.name
+                : (ctx: { group: string }) => {
+                    if (group.type === 'path') {
+                      return `${ctx.group.split('/')[1]}`
+                    }
+                    return `${camelCase(ctx.group)}Requests`
+                  },
+            } satisfies Group)
+          : undefined,
+        paramsCasing,
+        client: {
+          client: clientName,
+          clientType: client?.clientType ?? 'function',
+          importPath: clientImportPath,
+          dataReturnType: client?.dataReturnType ?? 'data',
+          bundle: client?.bundle,
+          baseURL: client?.baseURL,
+          paramsCasing: client?.paramsCasing,
+        },
+        resolver: preset.resolver,
       }
-
-      return resolvedName
     },
+    pre: [pluginTsName, pluginZodName].filter(Boolean),
     async install() {
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = getMode(path.resolve(root, output.path))
-      const oas = await this.getOas()
-      const baseURL = await this.getBaseURL()
+      const { config, fabric, plugin, adapter, rootNode, driver } = this
+      const root = path.resolve(config.root, config.output.path)
+      const resolver = preset.resolver
 
-      if (baseURL) {
-        this.plugin.options.client.baseURL = baseURL
+      if (!adapter) {
+        throw new Error('Plugin cannot work without adapter being set')
       }
 
-      const hasClientPlugin = !!this.getPlugin<PluginClient>(pluginClientName)
+      const baseURL = adapter.rootNode?.meta?.baseURL
+      if (baseURL) {
+        this.plugin.options.client.baseURL = this.plugin.options.client.baseURL || baseURL
+      }
+
+      const hasClientPlugin = !!driver.getPlugin<PluginClient>(pluginClientName)
 
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
-        // pre add bundled fetch
         await this.addFile({
           baseName: 'fetch.ts',
           path: path.resolve(root, '.kubb/fetch.ts'),
@@ -139,21 +128,26 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
         })
       }
 
-      const operationGenerator = new OperationGenerator(this.plugin.options, {
-        fabric: this.fabric,
-        oas,
-        driver: this.driver,
-        events: this.events,
-        plugin: this.plugin,
-        contentType,
-        exclude,
-        include,
-        override,
-        mode,
+      const collectedOperations: Array<OperationNode> = []
+      const generatorContext = { generators: preset.generators, plugin, resolver, exclude, include, override, fabric, adapter, config, driver }
+
+      await walk(rootNode, {
+        depth: 'shallow',
+        async schema(schemaNode) {
+          await runGeneratorSchema(schemaNode, generatorContext)
+        },
+        async operation(operationNode) {
+          const baseOptions = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
+
+          if (baseOptions !== null) {
+            collectedOperations.push(operationNode)
+          }
+
+          await runGeneratorOperation(operationNode, generatorContext)
+        },
       })
 
-      const files = await operationGenerator.build(...generators)
-      await this.upsertFile(...files)
+      await runGeneratorOperations(collectedOperations, generatorContext)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
         type: output.barrelType ?? 'named',

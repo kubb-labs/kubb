@@ -655,3 +655,132 @@ pluginZod({
 | `transformer` | `Visitor` | — | Single AST visitor applied before printing |
 | `printer.nodes` | `PrinterZodNodes \| PrinterZodMiniNodes` | — | Override per-type code generation handlers |
 | `inferred` | `boolean` | `false` | Export `z.infer<typeof ...>` type aliases |
+
+### `@kubb/plugin-mcp` — v5 migration
+
+The MCP plugin has been updated to use the v5 architecture. The following changes are required when migrating from v4.
+
+#### `pluginOas()` no longer required
+
+In v5, `@kubb/plugin-mcp` no longer depends on `@kubb/plugin-oas`. Use `adapterOas()` in the `adapter` field instead. `pluginOas()` is still available for validation but is no longer a prerequisite.
+
+::: code-group
+```typescript [Before (v4)]
+import { defineConfig } from '@kubb/core'
+import { pluginOas } from '@kubb/plugin-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
+import { pluginMcp } from '@kubb/plugin-mcp'
+
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: { path: './src/gen' },
+  plugins: [
+    pluginOas(),
+    pluginTs(),
+    pluginZod(),
+    pluginMcp({
+      output: { path: './mcp' },
+      client: { baseURL: 'https://petstore.swagger.io/v2' },
+    }),
+  ],
+})
+```
+
+```typescript [After (v5)]
+import { defineConfig } from '@kubb/core'
+import { adapterOas } from '@kubb/adapter-oas'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
+import { pluginMcp } from '@kubb/plugin-mcp'
+
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: { path: './src/gen' },
+  adapter: adapterOas(),
+  plugins: [
+    pluginTs(),
+    pluginZod(),
+    pluginMcp({
+      output: { path: './mcp' },
+      client: { baseURL: 'https://petstore.swagger.io/v2' },
+    }),
+  ],
+})
+```
+:::
+
+#### `contentType` moved to adapter
+
+The `contentType` option has been removed from `@kubb/plugin-mcp`. Content type filtering is now handled by `adapterOas(...)`.
+
+::: code-group
+```typescript [Before (v4)]
+pluginMcp({
+  contentType: 'application/json',
+})
+```
+
+```typescript [After (v5)]
+adapterOas({
+  contentType: 'application/json',
+})
+```
+:::
+
+#### `transformers.name` replaced by `resolver`
+
+The `transformers: { name }` callback has been removed. Use the `resolver` option instead.
+
+::: code-group
+```typescript [Before (v4)]
+pluginMcp({
+  transformers: {
+    name: (name, type) => type === 'function' ? `${name}Fn` : name,
+  },
+})
+```
+
+```typescript [After (v5)]
+pluginMcp({
+  resolver: {
+    resolveName(name) {
+      return `${this.default(name)}Fn`
+    },
+  },
+})
+```
+:::
+
+#### `transformers` replaced by `transformer`
+
+The `transformers` object has been replaced by a single `transformer` option that accepts an AST `Visitor`, matching the pattern used by `@kubb/plugin-ts` and `@kubb/plugin-zod`.
+
+```typescript
+pluginMcp({
+  transformer: {
+    operation(node) {
+      return { ...node, operationId: `api_${node.operationId}` }
+    },
+  },
+})
+```
+
+#### New `compatibilityPreset` option
+
+Use `compatibilityPreset: 'kubbV4'` to preserve v4 naming conventions while migrating.
+
+```typescript
+pluginMcp({
+  compatibilityPreset: 'kubbV4',
+})
+```
+
+### `@kubb/plugin-mcp` — new options in v5
+
+| New option | Type | Default | Description |
+|---|---|---|---|
+| `compatibilityPreset` | `'default' \| 'kubbV4'` | `'default'` | Naming convention preset |
+| `resolver` | `Partial<ResolverMcp> & ThisType<ResolverMcp>` | — | Override individual resolver methods |
+| `transformer` | `Visitor` | — | Single AST visitor applied before printing |
+| `paramsCasing` | `'camelcase'` | `undefined` | Apply camelCase to parameter names |

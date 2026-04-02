@@ -1,109 +1,96 @@
 import path from 'node:path'
-import { Client } from '@kubb/plugin-client/components'
-import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
+import { caseParams, transform } from '@kubb/ast'
+import { defineGenerator } from '@kubb/core'
+import type { PluginTs } from '@kubb/plugin-ts'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File } from '@kubb/react-fabric'
-import type { PluginMcp } from '../types'
+import { McpHandler } from '../components/McpHandler.tsx'
+import type { PluginMcp } from '../types.ts'
 
-export const mcpGenerator = createReactGenerator<PluginMcp>({
+export const mcpGenerator = defineGenerator<PluginMcp>({
   name: 'mcp',
-  Operation({ config, operation, generator, plugin }) {
-    const { options } = plugin
-    const oas = useOas()
+  type: 'react',
+  Operation({ node, options, config, driver, resolver, plugin }) {
+    const { output, client, paramsCasing, group } = options
+    const root = path.resolve(config.root, config.output.path)
 
-    const { getSchemas, getName, getFile } = useOperationManager(generator)
+    const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
 
-    const mcp = {
-      name: getName(operation, { type: 'function', suffix: 'handler' }),
-      file: getFile(operation),
+    if (!pluginTs?.resolver) {
+      return null
     }
 
-    const type = {
-      file: getFile(operation, { pluginName: pluginTsName }),
-      schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
-    }
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
+
+    const casedParams = caseParams(transformedNode.parameters, paramsCasing)
+
+    const pathParams = casedParams.filter((p) => p.in === 'path')
+    const queryParams = casedParams.filter((p) => p.in === 'query')
+    const headerParams = casedParams.filter((p) => p.in === 'header')
+
+    const importedTypeNames = [
+      ...pathParams.map((p) => pluginTs.resolver.resolvePathParamsName(transformedNode, p)),
+      ...queryParams.map((p) => pluginTs.resolver.resolveQueryParamsName(transformedNode, p)),
+      ...headerParams.map((p) => pluginTs.resolver.resolveHeaderParamsName(transformedNode, p)),
+      transformedNode.requestBody?.schema ? pluginTs.resolver.resolveDataName(transformedNode) : undefined,
+      pluginTs.resolver.resolveResponseName(transformedNode),
+      ...transformedNode.responses
+        .filter((r) => Number(r.statusCode) >= 400)
+        .map((r) => pluginTs.resolver.resolveResponseStatusName(transformedNode, r.statusCode)),
+    ].filter(Boolean)
+
+    const meta = {
+      name: resolver.resolveName(transformedNode.operationId),
+      file: resolver.resolveFile(
+        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+        { root, output, group },
+      ),
+      fileTs: pluginTs.resolver.resolveFile(
+        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+        {
+          root,
+          output: pluginTs.options?.output ?? output,
+          group: pluginTs.options?.group,
+        },
+      ),
+    } as const
 
     return (
-      <File
-        baseName={mcp.file.baseName}
-        path={mcp.file.path}
-        meta={mcp.file.meta}
-        banner={getBanner({ oas, output: options.output })}
-        footer={getFooter({ oas, output: options.output })}
-      >
-        {options.client.importPath ? (
+      <File baseName={meta.file.baseName} path={meta.file.path} meta={meta.file.meta}>
+        {meta.fileTs && importedTypeNames.length > 0 && (
+          <File.Import name={Array.from(new Set(importedTypeNames)).sort()} root={meta.file.path} path={meta.fileTs.path} isTypeOnly />
+        )}
+        <File.Import name={['CallToolResult']} path={'@modelcontextprotocol/sdk/types'} isTypeOnly />
+        <File.Import name={['buildFormData']} root={meta.file.path} path={path.resolve(root, '.kubb/config.ts')} />
+        {client.importPath ? (
           <>
-            <File.Import name={'fetch'} path={options.client.importPath} />
-            <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={options.client.importPath} isTypeOnly />
-            {options.client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={options.client.importPath} isTypeOnly />}
+            <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={client.importPath} isTypeOnly />
+            <File.Import name={'fetch'} path={client.importPath} />
+            {client.dataReturnType === 'full' && <File.Import name={['ResponseConfig']} path={client.importPath} isTypeOnly />}
           </>
         ) : (
           <>
-            <File.Import name={['fetch']} root={mcp.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
             <File.Import
               name={['Client', 'RequestConfig', 'ResponseErrorConfig']}
-              root={mcp.file.path}
-              path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
+              root={meta.file.path}
+              path={path.resolve(root, '.kubb/fetch.ts')}
               isTypeOnly
             />
-            {options.client.dataReturnType === 'full' && (
-              <File.Import name={['ResponseConfig']} root={mcp.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} isTypeOnly />
+            <File.Import name={['fetch']} root={meta.file.path} path={path.resolve(root, '.kubb/fetch.ts')} />
+            {client.dataReturnType === 'full' && (
+              <File.Import name={['ResponseConfig']} root={meta.file.path} path={path.resolve(root, '.kubb/fetch.ts')} isTypeOnly />
             )}
           </>
         )}
-        <File.Import name={['buildFormData']} root={mcp.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
-        <File.Import name={['CallToolResult']} path={'@modelcontextprotocol/sdk/types'} isTypeOnly />
-        <File.Import
-          name={[
-            type.schemas.request?.name,
-            type.schemas.response.name,
-            type.schemas.pathParams?.name,
-            type.schemas.queryParams?.name,
-            type.schemas.headerParams?.name,
-            ...(type.schemas.statusCodes?.map((item) => item.name) || []),
-          ].filter(Boolean)}
-          root={mcp.file.path}
-          path={type.file.path}
-          isTypeOnly
-        />
 
-        <Client
-          name={mcp.name}
-          isConfigurable={false}
-          returnType={'Promise<CallToolResult>'}
-          baseURL={options.client.baseURL}
-          operation={operation}
-          typeSchemas={type.schemas}
-          zodSchemas={undefined}
-          dataReturnType={options.client.dataReturnType || 'data'}
-          paramsType={'object'}
-          paramsCasing={options.client?.paramsCasing || options.paramsCasing}
-          pathParamsType={'object'}
-          parser={'client'}
-        >
-          {options.client.dataReturnType === 'data' &&
-            `return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify(res.data)
-              }
-            ],
-            structuredContent: { data: res.data }
-           }`}
-          {options.client.dataReturnType === 'full' &&
-            `return {
-            content: [
-              {
-                type: 'text',
-                text: JSON.stringify(res)
-              }
-            ],
-            structuredContent: { data: res.data }
-           }`}
-        </Client>
+        <McpHandler
+          name={meta.name}
+          node={transformedNode}
+          resolver={pluginTs.resolver}
+          baseURL={client.baseURL}
+          dataReturnType={client.dataReturnType || 'data'}
+          paramsCasing={paramsCasing}
+        />
       </File>
     )
   },

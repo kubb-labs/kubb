@@ -1,21 +1,41 @@
-import type { Output, PluginFactoryOptions, ResolveNameParams, UserGroup } from '@kubb/core'
-
-import type { contentType, Oas } from '@kubb/oas'
+import type { Visitor } from '@kubb/ast/types'
+import type {
+  CompatibilityPreset,
+  Exclude,
+  Generator,
+  Group,
+  Include,
+  Output,
+  Override,
+  PluginFactoryOptions,
+  ResolvePathOptions,
+  Resolver,
+  UserGroup,
+} from '@kubb/core'
 import type { ClientImportPath, PluginClient } from '@kubb/plugin-client'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { Generator } from '@kubb/plugin-oas/generators'
+
+/**
+ * The concrete resolver type for `@kubb/plugin-mcp`.
+ * Extends the base `Resolver` with a `resolveName` helper for MCP handler function names.
+ */
+export type ResolverMcp = Resolver & {
+  /**
+   * Resolves the handler function name for a given raw operation name.
+   * @example
+   * resolver.resolveName('show pet by id') // -> 'showPetByIdHandler'
+   */
+  resolveName(this: ResolverMcp, name: string): string
+}
 
 export type Options = {
   /**
-   * Specify the export location for the files and define the behavior of the output
+   * Specify the export location for the files and define the behavior of the output.
    * @default { path: 'mcp', barrelType: 'named' }
    */
-  output?: Output<Oas>
+  output?: Output
   /**
-   * Define which contentType should be used.
-   * By default, the first JSON valid mediaType is used
+   * Client configuration for HTTP request generation.
    */
-  contentType?: contentType
   client?: ClientImportPath & Pick<PluginClient['options'], 'clientType' | 'dataReturnType' | 'baseURL' | 'bundle' | 'paramsCasing'>
   /**
    * Transform parameter names to a specific casing format.
@@ -25,7 +45,7 @@ export type Options = {
    */
   paramsCasing?: 'camelcase'
   /**
-   * Group the mcp requests based on the provided name.
+   * Group the MCP requests based on the provided name.
    */
   group?: UserGroup
   /**
@@ -40,23 +60,33 @@ export type Options = {
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
-  transformers?: {
-    /**
-     * Customize the names based on the type that is provided by the plugin.
-     */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
-  }
   /**
-   * Define some generators next to the Mcp generators.
+   * Apply a compatibility naming preset.
+   * @default 'default'
+   */
+  compatibilityPreset?: CompatibilityPreset
+  /**
+   * A single resolver whose methods override the default resolver's naming conventions.
+   * When a method returns `null` or `undefined`, the default resolver's result is used instead.
+   */
+  resolver?: Partial<ResolverMcp> & ThisType<ResolverMcp>
+  /**
+   * A single AST visitor applied before printing.
+   * When a visitor method returns `null` or `undefined`, the preset transformer's result is used instead.
+   */
+  transformer?: Visitor
+  /**
+   * Define some generators next to the default MCP generators.
    */
   generators?: Array<Generator<PluginMcp>>
 }
 
 type ResolvedOptions = {
-  output: Output<Oas>
-  group: Options['group']
+  output: Output
+  group: Group | undefined
   client: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle' | 'paramsCasing'>
   paramsCasing: Options['paramsCasing']
+  resolver: ResolverMcp
 }
 
-export type PluginMcp = PluginFactoryOptions<'plugin-mcp', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginMcp = PluginFactoryOptions<'plugin-mcp', Options, ResolvedOptions, never, ResolvePathOptions, ResolverMcp>

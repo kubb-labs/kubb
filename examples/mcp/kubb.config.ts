@@ -15,7 +15,7 @@ export default defineConfig(() => {
       path: './petStore.yaml',
     },
     hooks: {
-      done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
+      done: ['npm run typecheck', 'biome format --write ./', 'biome check --fix --unsafe ./src'],
     },
     output: {
       path: './src/gen',
@@ -38,6 +38,7 @@ export default defineConfig(() => {
         compatibilityPreset: 'kubbV4',
       }),
       pluginMcp({
+        compatibilityPreset: 'kubbV4',
         client: {
           baseURL: 'https://petstore.swagger.io/v2',
           importPath: '../../client.ts',

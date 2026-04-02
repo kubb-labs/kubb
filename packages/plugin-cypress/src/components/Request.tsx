@@ -29,19 +29,7 @@ type Props = {
 
 const declarationPrinter = functionPrinter({ mode: 'declaration' })
 
-function getParams({
-  paramsType,
-  pathParamsType,
-  paramsCasing,
-  resolver,
-  node,
-}: {
-  paramsType: PluginCypress['resolvedOptions']['paramsType']
-  pathParamsType: PluginCypress['resolvedOptions']['pathParamsType']
-  paramsCasing: PluginCypress['resolvedOptions']['paramsCasing']
-  resolver: ResolverTs
-  node: OperationNode
-}): string {
+export function Request({ baseURL = '', name, dataReturnType, resolver, node, paramsType, pathParamsType, paramsCasing }: Props): FabricReactNode {
   const paramsNode = createOperationParams(node, {
     paramsType,
     pathParamsType,
@@ -51,12 +39,7 @@ function getParams({
       createFunctionParameter({ name: 'options', type: createTypeNode({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }), default: '{}' }),
     ],
   })
-
-  return declarationPrinter.print(paramsNode) ?? ''
-}
-
-export function Request({ baseURL = '', name, dataReturnType, resolver, node, paramsType, pathParamsType, paramsCasing }: Props): FabricReactNode {
-  const paramsSignature = getParams({ paramsType, pathParamsType, paramsCasing, resolver, node })
+  const paramsSignature = declarationPrinter.print(paramsNode) ?? ''
 
   const responseType = resolver.resolveResponseName(node)
   const returnType = dataReturnType === 'data' ? `Cypress.Chainable<${responseType}>` : `Cypress.Chainable<Cypress.Response<${responseType}>>`
@@ -126,5 +109,3 @@ export function Request({ baseURL = '', name, dataReturnType, resolver, node, pa
     </File.Source>
   )
 }
-
-Request.getParams = getParams

@@ -16,7 +16,7 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
 
     const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
 
-    if (!pluginTs) {
+    if (!pluginTs?.resolver) {
       return null
     }
 

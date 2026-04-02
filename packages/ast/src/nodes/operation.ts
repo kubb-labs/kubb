@@ -83,6 +83,11 @@ export type OperationNode = BaseNode & {
      * When `false` or absent, the generated `data` parameter should be optional.
      */
     required?: boolean
+    /**
+     * Media type of the request body (e.g. `'application/json'`, `'multipart/form-data'`).
+     * Extracted from the first `content` entry of the OpenAPI `requestBody`.
+     */
+    contentType?: string
   }
   /**
    * Operation responses.

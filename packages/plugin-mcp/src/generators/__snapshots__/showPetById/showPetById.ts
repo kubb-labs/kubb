@@ -1,19 +1,13 @@
-import type { ResponseErrorConfig } from '../test/.kubb/fetch'
+import type { ResponseErrorConfig } from './.kubb/fetch'
+import type { ShowPetByIdPathPetId, ShowPetByIdResponse } from './ShowPetById'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import { fetch } from '../test/.kubb/fetch'
+import { fetch } from './.kubb/fetch'
 
 /**
- * @summary Info for a specific pet
  * {@link /pets/:petId}
  */
-export async function showPetByIdHandler({
-  petId,
-  testId,
-}: {
-  petId: ShowPetByIdPathParams['petId']
-  testId: ShowPetByIdPathParams['testId']
-}): Promise<Promise<CallToolResult>> {
-  const res = await fetch<ShowPetByIdQueryResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/pets/${petId}` })
+export async function showPetByIdHandler({ petId }: { petId: ShowPetByIdPathPetId }): Promise<Promise<CallToolResult>> {
+  const res = await fetch<ShowPetByIdResponse, ResponseErrorConfig<Error>, unknown>({ method: 'GET', url: `/pets/${petId}` })
   return {
     content: [
       {

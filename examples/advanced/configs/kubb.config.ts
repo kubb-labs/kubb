@@ -186,6 +186,7 @@ export default defineConfig({
         },
       ],
       group: { type: 'tag' },
+      compatibilityPreset: 'kubbV4',
       paramsCasing: 'camelcase', // make pathParams and queryParams camelCase to be in sync with client
       client: {
         baseURL: 'https://petstore.swagger.io/v2',
