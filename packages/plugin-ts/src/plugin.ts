@@ -108,9 +108,15 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
       return this.plugin.resolver.default(name, type)
     },
-    schema: mergedGenerator.schema,
-    operation: mergedGenerator.operation,
-    operations: mergedGenerator.operations,
+    async schema(node, options) {
+      return mergedGenerator.schema?.call(this, node, options)
+    },
+    async operation(node, options) {
+      return mergedGenerator.operation?.call(this, node, options)
+    },
+    async operations(nodes, options) {
+      return mergedGenerator.operations?.call(this, nodes, options)
+    },
     async install() {
       await this.openInStudio({ ast: true })
     },
