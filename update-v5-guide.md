@@ -54,6 +54,30 @@ This means:
 - `tsResolver` is **not** stored in `ResolvedOptions` — it is resolved lazily from the driver
 - A `buildTypeNames` helper in `utils.ts` is **not** needed for operation plugins
 
+**IMPORTANT — always guard with `?.resolver`:** When using another plugin's resolver, always check that both the plugin and its resolver exist before proceeding. The plugin may not be configured by the user:
+
+```ts
+const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
+
+if (!pluginTs?.resolver) {
+  return null
+}
+
+// Safe to use pluginTs.resolver from here
+```
+
+The same pattern applies for any cross-plugin resolver lookup (e.g. `pluginZod`):
+
+```ts
+const pluginZod = driver.getPlugin<PluginZod>(pluginZodName)
+
+if (!pluginZod?.resolver) {
+  return
+}
+
+// Safe to use pluginZod.resolver from here
+```
+
 ## Two plugin categories
 
 Operation plugins (walk operations only, no printers needed):
