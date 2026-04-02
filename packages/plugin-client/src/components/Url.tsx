@@ -78,7 +78,7 @@ export function Url({
       <Function name={name} export={isExportable} params={paramsSignature}>
         {pathParamsMapping &&
           Object.entries(pathParamsMapping)
-            .filter(([originalName, _camelCaseName]) => isValidVarName(originalName))
+            .filter(([originalName, camelCaseName]) => isValidVarName(originalName) && originalName !== camelCaseName)
             .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
             .join('\n')}
         {pathParamsMapping && Object.keys(pathParamsMapping).length > 0 && <br />}

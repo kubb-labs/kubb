@@ -207,7 +207,7 @@ export function Client({
           <br />
           {pathParamsMapping &&
             Object.entries(pathParamsMapping)
-              .filter(([originalName, _camelCaseName]) => isValidVarName(originalName))
+              .filter(([originalName, camelCaseName]) => isValidVarName(originalName) && originalName !== camelCaseName)
               .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
               .join('\n')}
           {pathParamsMapping && (
