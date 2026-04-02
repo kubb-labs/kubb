@@ -34,16 +34,14 @@ export type UploadFileQueryParams = {
 export type UploadFile200 = ApiResponse
 
 /**
- * @type object | undefined
+ * @type object
  */
-export type UploadFileMutationRequest =
-  | {
-      /**
-       * @type string
-       */
-      file: Blob
-    }
-  | undefined
+export type UploadFileMutationRequest = {
+  /**
+   * @type string
+   */
+  file: Blob
+}
 
 export type UploadFileMutationResponse = UploadFile200
 

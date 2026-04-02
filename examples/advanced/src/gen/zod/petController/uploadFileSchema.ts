@@ -19,7 +19,7 @@ export const uploadFile200Schema = apiResponseSchema.describe('successful operat
 
 export type UploadFile200Schema = z.infer<typeof uploadFile200Schema>
 
-export const uploadFileMutationRequestSchema = z.instanceof(File).optional()
+export const uploadFileMutationRequestSchema = z.instanceof(File)
 
 export type UploadFileMutationRequestSchema = z.infer<typeof uploadFileMutationRequestSchema>
 

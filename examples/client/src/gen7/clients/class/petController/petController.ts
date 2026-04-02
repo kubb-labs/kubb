@@ -175,7 +175,7 @@ export class petController {
    */
   async uploadFile(
     { petId }: { petId: UploadFilePathParams['petId'] },
-    data?: UploadFileMutationRequest,
+    data: UploadFileMutationRequest,
     params?: UploadFileQueryParams,
     config: Partial<RequestConfig<UploadFileMutationRequest>> & {
       client?: Client

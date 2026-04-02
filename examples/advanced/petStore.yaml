@@ -378,6 +378,7 @@ paths:
       description: Place a new file in the store
       operationId: addFiles
       requestBody:
+        required: true
         content:
           multipart/form-data:
             schema:
@@ -413,6 +414,7 @@ paths:
           schema:
             type: string
       requestBody:
+        required: true
         content:
           application/octet-stream:
             schema:

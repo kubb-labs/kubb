@@ -14,7 +14,7 @@ export function getAddFilesUrl() {
  * {@link /pet/files}
  */
 export async function addFiles(
-  { data }: { data?: AddFilesMutationRequest } = {},
+  { data }: { data: AddFilesMutationRequest },
   config: Partial<RequestConfig<AddFilesMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config

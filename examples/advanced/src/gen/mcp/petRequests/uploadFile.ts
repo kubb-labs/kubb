@@ -18,7 +18,7 @@ export async function uploadFileHandler({
   params,
 }: {
   petId: UploadFilePathParams['petId']
-  data?: UploadFileMutationRequest
+  data: UploadFileMutationRequest
   params?: UploadFileQueryParams
 }): Promise<Promise<CallToolResult>> {
   const requestData = data
