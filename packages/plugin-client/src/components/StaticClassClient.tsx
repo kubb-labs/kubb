@@ -1,22 +1,25 @@
 import { buildJSDoc, URLPath } from '@internals/utils'
-import type { Operation } from '@kubb/oas'
-import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getComments } from '@kubb/plugin-oas/utils'
+import type { OperationNode } from '@kubb/ast/types'
+import type { PluginTs } from '@kubb/plugin-ts'
+import { functionPrinter } from '@kubb/plugin-ts'
+import type { PluginZod } from '@kubb/plugin-zod'
 import { File, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
 import { Client } from './Client.tsx'
 
+type OperationData = {
+  node: OperationNode
+  name: string
+  tsResolver: PluginTs['resolver']
+  zodResolver?: PluginZod['resolver']
+}
+
 type Props = {
   name: string
   isExportable?: boolean
   isIndexable?: boolean
-  operations: Array<{
-    operation: Operation
-    name: string
-    typeSchemas: OperationSchemas
-    zodSchemas: OperationSchemas | undefined
-  }>
+  operations: Array<OperationData>
   baseURL: string | undefined
   dataReturnType: PluginClient['resolvedOptions']['dataReturnType']
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
@@ -27,16 +30,28 @@ type Props = {
 }
 
 type GenerateMethodProps = {
-  operation: Operation
+  node: OperationNode
   name: string
-  typeSchemas: OperationSchemas
-  zodSchemas: OperationSchemas | undefined
+  tsResolver: PluginTs['resolver']
+  zodResolver?: PluginZod['resolver']
   baseURL: string | undefined
   dataReturnType: PluginClient['resolvedOptions']['dataReturnType']
   parser: PluginClient['resolvedOptions']['parser'] | undefined
   paramsType: PluginClient['resolvedOptions']['paramsType']
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
+}
+
+function getComments(node: OperationNode): Array<string> {
+  return [
+    node.description && `@description ${node.description}`,
+    node.summary && `@summary ${node.summary}`,
+    node.path && `{@link ${new URLPath(node.path).URL}}`,
+    node.deprecated && '@deprecated',
+  ]
+    .filter((x): x is string => Boolean(x))
+    .flatMap((text) => text.split(/\r?\n/).map((line) => line.trim()))
+    .filter((x): x is string => Boolean(x))
 }
 
 function buildHeaders(contentType: string, hasHeaderParams: boolean): Array<string> {
@@ -46,26 +61,35 @@ function buildHeaders(contentType: string, hasHeaderParams: boolean): Array<stri
   ].filter(Boolean) as Array<string>
 }
 
-function buildGenerics(typeSchemas: OperationSchemas): Array<string> {
-  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
-  return [typeSchemas.response.name, TError, typeSchemas.request?.name || 'unknown'].filter(Boolean)
+function buildGenerics(node: OperationNode, tsResolver: PluginTs['resolver']): Array<string> {
+  const responseName = tsResolver.resolveResponseName(node)
+  const requestName = node.requestBody?.schema ? tsResolver.resolveDataName(node) : undefined
+  const errorNames = node.responses.filter((r) => Number.parseInt(r.statusCode, 10) >= 400).map((r) => tsResolver.resolveResponseStatusName(node, r.statusCode))
+  const TError = `ResponseErrorConfig<${errorNames.length > 0 ? errorNames.join(' | ') : 'Error'}>`
+  return [responseName, TError, requestName || 'unknown'].filter(Boolean)
 }
 
 function buildClientParams({
-  operation,
+  node,
   path,
   baseURL,
-  typeSchemas,
+  tsResolver,
   isFormData,
   headers,
 }: {
-  operation: Operation
+  node: OperationNode
   path: URLPath
   baseURL: string | undefined
-  typeSchemas: OperationSchemas
+  tsResolver: PluginTs['resolver']
   isFormData: boolean
   headers: Array<string>
 }) {
+  const queryParamsName =
+    node.parameters.filter((p) => p.in === 'query').length > 0
+      ? tsResolver.resolveQueryParamsName(node, node.parameters.filter((p) => p.in === 'query')[0]!)
+      : undefined
+  const requestName = node.requestBody?.schema ? tsResolver.resolveDataName(node) : undefined
+
   return FunctionParams.factory({
     config: {
       mode: 'object',
@@ -74,7 +98,7 @@ function buildClientParams({
           mode: 'inlineSpread',
         },
         method: {
-          value: JSON.stringify(operation.method.toUpperCase()),
+          value: JSON.stringify(node.method.toUpperCase()),
         },
         url: {
           value: path.template,
@@ -84,8 +108,8 @@ function buildClientParams({
               value: JSON.stringify(baseURL),
             }
           : undefined,
-        params: typeSchemas.queryParams?.name ? {} : undefined,
-        data: typeSchemas.request?.name
+        params: queryParamsName ? {} : undefined,
+        data: requestName
           ? {
               value: isFormData ? 'formData as FormData' : 'requestData',
             }
@@ -102,17 +126,18 @@ function buildClientParams({
 
 function buildRequestDataLine({
   parser,
-  zodSchemas,
-  typeSchemas,
+  node,
+  zodResolver,
 }: {
   parser: PluginClient['resolvedOptions']['parser'] | undefined
-  zodSchemas: OperationSchemas | undefined
-  typeSchemas: OperationSchemas
+  node: OperationNode
+  zodResolver?: PluginZod['resolver']
 }): string {
-  if (parser === 'zod' && zodSchemas?.request?.name) {
-    return `const requestData = ${zodSchemas.request.name}.parse(data)`
+  const zodRequestName = zodResolver && parser === 'zod' && node.requestBody?.schema ? zodResolver.resolveDataName?.(node) : undefined
+  if (parser === 'zod' && zodRequestName) {
+    return `const requestData = ${zodRequestName}.parse(data)`
   }
-  if (typeSchemas?.request?.name) {
+  if (node.requestBody?.schema) {
     return 'const requestData = data'
   }
   return ''
@@ -125,17 +150,20 @@ function buildFormDataLine(isFormData: boolean, hasRequest: boolean): string {
 function buildReturnStatement({
   dataReturnType,
   parser,
-  zodSchemas,
+  node,
+  zodResolver,
 }: {
   dataReturnType: PluginClient['resolvedOptions']['dataReturnType']
   parser: PluginClient['resolvedOptions']['parser'] | undefined
-  zodSchemas: OperationSchemas | undefined
+  node: OperationNode
+  zodResolver?: PluginZod['resolver']
 }): string {
-  if (dataReturnType === 'full' && parser === 'zod' && zodSchemas) {
-    return `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}`
+  const zodResponseName = zodResolver && parser === 'zod' ? zodResolver.resolveResponseName?.(node) : undefined
+  if (dataReturnType === 'full' && parser === 'zod' && zodResponseName) {
+    return `return {...res, data: ${zodResponseName}.parse(res.data)}`
   }
-  if (dataReturnType === 'data' && parser === 'zod' && zodSchemas) {
-    return `return ${zodSchemas.response.name}.parse(res.data)`
+  if (dataReturnType === 'data' && parser === 'zod' && zodResponseName) {
+    return `return ${zodResponseName}.parse(res.data)`
   }
   if (dataReturnType === 'full' && parser === 'client') {
     return 'return res'
@@ -143,11 +171,13 @@ function buildReturnStatement({
   return 'return res.data'
 }
 
+const declarationPrinter = functionPrinter({ mode: 'declaration' })
+
 function generateMethod({
-  operation,
+  node,
   name,
-  typeSchemas,
-  zodSchemas,
+  tsResolver,
+  zodResolver,
   baseURL,
   dataReturnType,
   parser,
@@ -155,18 +185,23 @@ function generateMethod({
   paramsCasing,
   pathParamsType,
 }: GenerateMethodProps): string {
-  const path = new URLPath(operation.path, { casing: paramsCasing })
-  const contentType = operation.getContentType()
+  const path = new URLPath(node.path, { casing: paramsCasing })
+  const contentType = node.requestBody?.contentType ?? 'application/json'
   const isFormData = contentType === 'multipart/form-data'
-  const headers = buildHeaders(contentType, !!typeSchemas.headerParams?.name)
-  const generics = buildGenerics(typeSchemas)
-  const params = Client.getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable: true })
-  const clientParams = buildClientParams({ operation, path, baseURL, typeSchemas, isFormData, headers })
-  const jsdoc = buildJSDoc(getComments(operation))
+  const headerParamsName =
+    node.parameters.filter((p) => p.in === 'header').length > 0
+      ? tsResolver.resolveHeaderParamsName(node, node.parameters.filter((p) => p.in === 'header')[0]!)
+      : undefined
+  const headers = buildHeaders(contentType, !!headerParamsName)
+  const generics = buildGenerics(node, tsResolver)
+  const paramsNode = Client.getParams({ paramsType, paramsCasing, pathParamsType, node, tsResolver, isConfigurable: true })
+  const paramsSignature = declarationPrinter.print(paramsNode) ?? ''
+  const clientParams = buildClientParams({ node, path, baseURL, tsResolver, isFormData, headers })
+  const jsdoc = buildJSDoc(getComments(node))
 
-  const requestDataLine = buildRequestDataLine({ parser, zodSchemas, typeSchemas })
-  const formDataLine = buildFormDataLine(isFormData, !!typeSchemas?.request?.name)
-  const returnStatement = buildReturnStatement({ dataReturnType, parser, zodSchemas })
+  const requestDataLine = buildRequestDataLine({ parser, node, zodResolver })
+  const formDataLine = buildFormDataLine(isFormData, !!node.requestBody?.schema)
+  const returnStatement = buildReturnStatement({ dataReturnType, parser, node, zodResolver })
 
   const methodBody = [
     'const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)',
@@ -180,8 +215,7 @@ function generateMethod({
     .map((line) => `    ${line}`)
     .join('\n')
 
-  // Indent static method by 2 spaces, body by 4 spaces (matching snapshot)
-  return `${jsdoc}  static async ${name}(${params.toConstructor()}) {\n${methodBody}\n  }`
+  return `${jsdoc}  static async ${name}(${paramsSignature}) {\n${methodBody}\n  }`
 }
 
 export function StaticClassClient({
@@ -197,12 +231,12 @@ export function StaticClassClient({
   pathParamsType,
   children,
 }: Props): FabricReactNode {
-  const methods = operations.map(({ operation, name: methodName, typeSchemas, zodSchemas }) =>
+  const methods = operations.map(({ node, name: methodName, tsResolver, zodResolver }) =>
     generateMethod({
-      operation,
+      node,
       name: methodName,
-      typeSchemas,
-      zodSchemas,
+      tsResolver,
+      zodResolver,
       baseURL,
       dataReturnType,
       parser,

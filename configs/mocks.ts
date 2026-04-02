@@ -7,7 +7,7 @@ import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
 import { expect } from 'vitest'
 import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
-import type { SchemaNode, Visitor } from '../packages/ast/src/types.ts'
+import type { RootNode, SchemaNode, Visitor } from '../packages/ast/src/types.ts'
 import type { Adapter, AdapterFactoryOptions, Plugin, PluginDriver, PluginFactoryOptions, ResolveNameParams, ResolvePathParams } from '../packages/core/src'
 
 const formatOptions: Options = {
@@ -96,11 +96,14 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
     resolvedOptions?: TOptions['resolvedOptions']
     parse?: Adapter<TOptions>['parse']
     getImports?: Adapter<TOptions>['getImports']
+    rootNode?: RootNode
   } = {},
 ): Adapter<TOptions> {
   return {
     name: (options.name ?? 'oas') as TOptions['name'],
     options: (options.resolvedOptions ?? {}) as TOptions['resolvedOptions'],
+    rootNode: options.rootNode ?? null,
+    document: null,
     parse: options.parse ?? (async () => ({ kind: 'Root' as const, schemas: [], operations: [] })),
     getImports: options.getImports ?? ((_node: SchemaNode, _resolve: (schemaName: string) => { name: string; path: string }) => []),
   } as Adapter<TOptions>

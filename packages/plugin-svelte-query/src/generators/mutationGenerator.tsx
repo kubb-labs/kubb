@@ -1,7 +1,6 @@
 import path from 'node:path'
 import { useDriver } from '@kubb/core/hooks'
-import { pluginClientName } from '@kubb/plugin-client'
-import { Client } from '@kubb/plugin-client/components'
+import { ClientLegacy as Client, pluginClientName } from '@kubb/plugin-client'
 import { createReactGenerator } from '@kubb/plugin-oas/generators'
 import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
 import { getBanner, getFooter } from '@kubb/plugin-oas/utils'

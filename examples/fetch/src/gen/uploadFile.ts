@@ -22,7 +22,7 @@ function getUploadFileUrl(petId: UploadFilePathParams['petId']) {
  */
 export async function uploadFile(
   petId: UploadFilePathParams['petId'],
-  data: UploadFileMutationRequest,
+  data?: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
   config: Partial<RequestConfig<UploadFileMutationRequest>> & {
     client?: Client

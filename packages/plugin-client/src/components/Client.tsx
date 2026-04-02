@@ -1,16 +1,15 @@
 import { isValidVarName, URLPath } from '@internals/utils'
-import { getDefaultValue, isOptional, type Operation } from '@kubb/oas'
-import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getComments, getParamsMapping, getPathParams } from '@kubb/plugin-oas/utils'
+import { caseParams, createFunctionParameter, createOperationParams, createTypeNode } from '@kubb/ast'
+import type { FunctionParametersNode, OperationNode, ParameterNode } from '@kubb/ast/types'
+import type { PluginTs } from '@kubb/plugin-ts'
+import { functionPrinter } from '@kubb/plugin-ts'
+import type { PluginZod } from '@kubb/plugin-zod'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
 import { Url } from './Url.tsx'
 
 type Props = {
-  /**
-   * Name of the function
-   */
   name: string
   urlName?: string
   isExportable?: boolean
@@ -24,9 +23,9 @@ type Props = {
   paramsType: PluginClient['resolvedOptions']['pathParamsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
   parser: PluginClient['resolvedOptions']['parser'] | undefined
-  typeSchemas: OperationSchemas
-  zodSchemas: OperationSchemas | undefined
-  operation: Operation
+  node: OperationNode
+  tsResolver: PluginTs['resolver']
+  zodResolver?: PluginZod['resolver']
   children?: FabricReactNode
 }
 
@@ -34,96 +33,58 @@ type GetParamsProps = {
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
   paramsType: PluginClient['resolvedOptions']['paramsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
-  typeSchemas: OperationSchemas
+  node: OperationNode
+  tsResolver: PluginTs['resolver']
   isConfigurable: boolean
 }
 
-function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas, isConfigurable }: GetParamsProps) {
-  if (paramsType === 'object') {
-    const pathParams = getPathParams(typeSchemas.pathParams, {
-      typed: true,
-      casing: paramsCasing,
-    })
+const declarationPrinter = functionPrinter({ mode: 'declaration' })
 
-    const children = {
-      ...pathParams,
-      data: typeSchemas.request?.name
-        ? {
-            type: typeSchemas.request?.name,
-            optional: isOptional(typeSchemas.request?.schema),
-          }
-        : undefined,
-      params: typeSchemas.queryParams?.name
-        ? {
-            type: typeSchemas.queryParams?.name,
-            optional: isOptional(typeSchemas.queryParams?.schema),
-          }
-        : undefined,
-      headers: typeSchemas.headerParams?.name
-        ? {
-            type: typeSchemas.headerParams?.name,
-            optional: isOptional(typeSchemas.headerParams?.schema),
-          }
-        : undefined,
+function buildParamsMapping(originalParams: Array<ParameterNode>, casedParams: Array<ParameterNode>): Record<string, string> | undefined {
+  const mapping: Record<string, string> = {}
+  let hasChanged = false
+  originalParams.forEach((param, i) => {
+    const casedName = casedParams[i]?.name ?? param.name
+    mapping[param.name] = casedName
+    if (param.name !== casedName) {
+      hasChanged = true
     }
+  })
+  return hasChanged ? mapping : undefined
+}
 
-    // Check if all children are optional or undefined
-    const allChildrenAreOptional = Object.values(children).every((child) => !child || child.optional)
+function getComments(node: OperationNode): Array<string> {
+  return [
+    node.description && `@description ${node.description}`,
+    node.summary && `@summary ${node.summary}`,
+    node.path && `{@link ${new URLPath(node.path).URL}}`,
+    node.deprecated && '@deprecated',
+  ]
+    .filter((x): x is string => Boolean(x))
+    .flatMap((text) => text.split(/\r?\n/).map((line) => line.trim()))
+    .filter((x): x is string => Boolean(x))
+}
 
-    return FunctionParams.factory({
-      data: {
-        mode: 'object',
-        children,
-        default: allChildrenAreOptional ? '{}' : undefined,
-      },
-      config: isConfigurable
-        ? {
-            type: typeSchemas.request?.name
-              ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: Client }`
-              : 'Partial<RequestConfig> & { client?: Client }',
+function getParams({ paramsType, paramsCasing, pathParamsType, node, tsResolver, isConfigurable }: GetParamsProps): FunctionParametersNode {
+  const requestName = node.requestBody?.schema ? tsResolver.resolveDataName(node) : undefined
+
+  return createOperationParams(node, {
+    paramsType,
+    pathParamsType: paramsType === 'object' ? 'object' : pathParamsType === 'object' ? 'object' : 'inline',
+    paramsCasing,
+    resolver: tsResolver,
+    extraParams: isConfigurable
+      ? [
+          createFunctionParameter({
+            name: 'config',
+            type: createTypeNode({
+              variant: 'reference',
+              name: requestName ? `Partial<RequestConfig<${requestName}>> & { client?: Client }` : 'Partial<RequestConfig> & { client?: Client }',
+            }),
             default: '{}',
-          }
-        : undefined,
-    })
-  }
-
-  return FunctionParams.factory({
-    pathParams: typeSchemas.pathParams?.name
-      ? {
-          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, {
-            typed: true,
-            casing: paramsCasing,
           }),
-          default: getDefaultValue(typeSchemas.pathParams?.schema),
-        }
-      : undefined,
-    data: typeSchemas.request?.name
-      ? {
-          type: typeSchemas.request?.name,
-          optional: isOptional(typeSchemas.request?.schema),
-        }
-      : undefined,
-    params: typeSchemas.queryParams?.name
-      ? {
-          type: typeSchemas.queryParams?.name,
-          optional: isOptional(typeSchemas.queryParams?.schema),
-        }
-      : undefined,
-    headers: typeSchemas.headerParams?.name
-      ? {
-          type: typeSchemas.headerParams?.name,
-          optional: isOptional(typeSchemas.headerParams?.schema),
-        }
-      : undefined,
-    config: isConfigurable
-      ? {
-          type: typeSchemas.request?.name
-            ? `Partial<RequestConfig<${typeSchemas.request?.name}>> & { client?: Client }`
-            : 'Partial<RequestConfig> & { client?: Client }',
-          default: '{}',
-        }
-      : undefined,
+        ]
+      : [],
   })
 }
 
@@ -132,61 +93,86 @@ export function Client({
   isExportable = true,
   isIndexable = true,
   returnType,
-  typeSchemas,
   baseURL,
   dataReturnType,
   parser,
-  zodSchemas,
   paramsType,
   paramsCasing,
   pathParamsType,
-  operation,
+  node,
+  tsResolver,
+  zodResolver,
   urlName,
   children,
   isConfigurable = true,
 }: Props): FabricReactNode {
-  const path = new URLPath(operation.path)
-  const contentType = operation.getContentType()
+  const path = new URLPath(node.path)
+  const contentType = node.requestBody?.contentType ?? 'application/json'
   const isFormData = contentType === 'multipart/form-data'
 
-  // Generate parameter mappings when paramsCasing is used
-  // pathParamsMapping is only needed when building the URL inline (no urlName);
-  // when urlName is set the Url component handles the mapping internally.
-  const pathParamsMapping = paramsCasing && !urlName ? getParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
-  const queryParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.queryParams, { casing: paramsCasing }) : undefined
-  const headerParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.headerParams, { casing: paramsCasing }) : undefined
+  const originalPathParams = node.parameters.filter((p) => p.in === 'path')
+  const casedPathParams = caseParams(originalPathParams, paramsCasing)
+  const originalQueryParams = node.parameters.filter((p) => p.in === 'query')
+  const casedQueryParams = caseParams(originalQueryParams, paramsCasing)
+  const originalHeaderParams = node.parameters.filter((p) => p.in === 'header')
+  const casedHeaderParams = caseParams(originalHeaderParams, paramsCasing)
+
+  const pathParamsMapping = paramsCasing && !urlName ? buildParamsMapping(originalPathParams, casedPathParams) : undefined
+  const queryParamsMapping = paramsCasing ? buildParamsMapping(originalQueryParams, casedQueryParams) : undefined
+  const headerParamsMapping = paramsCasing ? buildParamsMapping(originalHeaderParams, casedHeaderParams) : undefined
+
+  const requestName = node.requestBody?.schema ? tsResolver.resolveDataName(node) : undefined
+  const responseName = tsResolver.resolveResponseName(node)
+  const queryParamsName = originalQueryParams.length > 0 ? tsResolver.resolveQueryParamsName(node, originalQueryParams[0]!) : undefined
+  const headerParamsName = originalHeaderParams.length > 0 ? tsResolver.resolveHeaderParamsName(node, originalHeaderParams[0]!) : undefined
+
+  const zodResponseName = zodResolver && parser === 'zod' ? zodResolver.resolveResponseName?.(node) : undefined
+  const zodRequestName = zodResolver && parser === 'zod' && node.requestBody?.schema ? zodResolver.resolveDataName?.(node) : undefined
+
+  const errorNames = node.responses
+    .filter((r) => {
+      const code = Number.parseInt(r.statusCode, 10)
+      return code >= 400
+    })
+    .map((r) => tsResolver.resolveResponseStatusName(node, r.statusCode))
 
   const headers = [
     contentType !== 'application/json' && contentType !== 'multipart/form-data' ? `'Content-Type': '${contentType}'` : undefined,
-    typeSchemas.headerParams?.name ? (headerParamsMapping ? '...mappedHeaders' : '...headers') : undefined,
+    headerParamsName ? (headerParamsMapping ? '...mappedHeaders' : '...headers') : undefined,
   ].filter(Boolean)
 
-  const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  const TError = `ResponseErrorConfig<${errorNames.length > 0 ? errorNames.join(' | ') : 'Error'}>`
 
-  const generics = [typeSchemas.response.name, TError, typeSchemas.request?.name || 'unknown'].filter(Boolean)
-  const params = getParams({
+  const generics = [responseName, TError, requestName || 'unknown'].filter(Boolean)
+  const paramsNode = getParams({
     paramsType,
     paramsCasing,
     pathParamsType,
-    typeSchemas,
+    node,
+    tsResolver,
     isConfigurable,
   })
-  const urlParams = Url.getParams({
+  const paramsSignature = declarationPrinter.print(paramsNode) ?? ''
+
+  const urlParamsNode = Url.getParams({
     paramsType,
     paramsCasing,
     pathParamsType,
-    typeSchemas,
+    node,
+    tsResolver,
   })
+  const callPrinter = functionPrinter({ mode: 'call' })
+  const urlParamsCall = callPrinter.print(urlParamsNode) ?? ''
 
   const clientParams = FunctionParams.factory({
     config: {
       mode: 'object',
       children: {
         method: {
-          value: JSON.stringify(operation.method.toUpperCase()),
+          value: JSON.stringify(node.method.toUpperCase()),
         },
         url: {
-          value: urlName ? `${urlName}(${urlParams.toCall()}).url.toString()` : path.template,
+          value: urlName ? `${urlName}(${urlParamsCall}).url.toString()` : path.template,
         },
         baseURL:
           baseURL && !urlName
@@ -194,8 +180,8 @@ export function Client({
                 value: `\`${baseURL}\``,
               }
             : undefined,
-        params: typeSchemas.queryParams?.name ? (queryParamsMapping ? { value: 'mappedParams' } : {}) : undefined,
-        data: typeSchemas.request?.name
+        params: queryParamsName ? (queryParamsMapping ? { value: 'mappedParams' } : {}) : undefined,
+        data: requestName
           ? {
               value: isFormData ? 'formData as FormData' : 'requestData',
             }
@@ -218,8 +204,8 @@ export function Client({
     children
   ) : (
     <>
-      {dataReturnType === 'full' && parser === 'zod' && zodSchemas && `return {...res, data: ${zodSchemas.response.name}.parse(res.data)}`}
-      {dataReturnType === 'data' && parser === 'zod' && zodSchemas && `return ${zodSchemas.response.name}.parse(res.data)`}
+      {dataReturnType === 'full' && parser === 'zod' && zodResponseName && `return {...res, data: ${zodResponseName}.parse(res.data)}`}
+      {dataReturnType === 'data' && parser === 'zod' && zodResponseName && `return ${zodResponseName}.parse(res.data)`}
       {dataReturnType === 'full' && parser === 'client' && 'return res'}
       {dataReturnType === 'data' && parser === 'client' && 'return res.data'}
     </>
@@ -234,9 +220,9 @@ export function Client({
           name={name}
           async
           export={isExportable}
-          params={params.toConstructor()}
+          params={paramsSignature}
           JSDoc={{
-            comments: getComments(operation),
+            comments: getComments(node),
           }}
           returnType={returnType}
         >
@@ -245,7 +231,7 @@ export function Client({
           <br />
           {pathParamsMapping &&
             Object.entries(pathParamsMapping)
-              .filter(([originalName, camelCaseName]) => originalName !== camelCaseName && isValidVarName(originalName))
+              .filter(([originalName, _camelCaseName]) => isValidVarName(originalName))
               .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
               .join('\n')}
           {pathParamsMapping && (
@@ -254,7 +240,7 @@ export function Client({
               <br />
             </>
           )}
-          {queryParamsMapping && typeSchemas.queryParams?.name && (
+          {queryParamsMapping && queryParamsName && (
             <>
               {`const mappedParams = params ? { ${Object.entries(queryParamsMapping)
                 .map(([originalName, camelCaseName]) => `"${originalName}": params.${camelCaseName}`)
@@ -263,7 +249,7 @@ export function Client({
               <br />
             </>
           )}
-          {headerParamsMapping && typeSchemas.headerParams?.name && (
+          {headerParamsMapping && headerParamsName && (
             <>
               {`const mappedHeaders = headers ? { ${Object.entries(headerParamsMapping)
                 .map(([originalName, camelCaseName]) => `"${originalName}": headers.${camelCaseName}`)
@@ -272,11 +258,9 @@ export function Client({
               <br />
             </>
           )}
-          {parser === 'zod' && zodSchemas?.request?.name
-            ? `const requestData = ${zodSchemas.request.name}.parse(data)`
-            : typeSchemas?.request?.name && 'const requestData = data'}
+          {parser === 'zod' && zodRequestName ? `const requestData = ${zodRequestName}.parse(data)` : requestName && 'const requestData = data'}
           <br />
-          {isFormData && typeSchemas?.request?.name && 'const formData = buildFormData(requestData)'}
+          {isFormData && requestName && 'const formData = buildFormData(requestData)'}
           <br />
           {isConfigurable
             ? `const res = await request<${generics.join(', ')}>(${clientParams.toCall()})`

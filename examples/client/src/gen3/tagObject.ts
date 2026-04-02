@@ -23,7 +23,7 @@ export async function getInventory(config: Partial<RequestConfig> & { client?: C
   return res
 }
 
-getInventory.method = 'get' as const
+getInventory.method = 'GET' as const
 getInventory.url = '/store/inventory' as const
 getInventory.operationId = 'getInventory' as const
 getInventory.request = {} as never
@@ -55,7 +55,7 @@ export async function placeOrder(
   return res
 }
 
-placeOrder.method = 'post' as const
+placeOrder.method = 'POST' as const
 placeOrder.url = '/store/order' as const
 placeOrder.operationId = 'placeOrder' as const
 placeOrder.request = {} as PlaceOrderMutationRequest
@@ -87,7 +87,7 @@ export async function placeOrderPatch(
   return res
 }
 
-placeOrderPatch.method = 'patch' as const
+placeOrderPatch.method = 'PATCH' as const
 placeOrderPatch.url = '/store/order' as const
 placeOrderPatch.operationId = 'placeOrderPatch' as const
 placeOrderPatch.request = {} as PlaceOrderPatchMutationRequest
@@ -111,7 +111,7 @@ export async function getOrderById({ orderId }: { orderId: GetOrderByIdPathParam
   return res
 }
 
-getOrderById.method = 'get' as const
+getOrderById.method = 'GET' as const
 getOrderById.url = '/store/order/:orderId' as const
 getOrderById.operationId = 'getOrderById' as const
 getOrderById.request = {} as never
@@ -135,7 +135,7 @@ export async function deleteOrder({ orderId }: { orderId: DeleteOrderPathParams[
   return res
 }
 
-deleteOrder.method = 'delete' as const
+deleteOrder.method = 'DELETE' as const
 deleteOrder.url = '/store/order/:orderId' as const
 deleteOrder.operationId = 'deleteOrder' as const
 deleteOrder.request = {} as never

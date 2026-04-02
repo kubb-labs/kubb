@@ -1,39 +1,28 @@
+import { defineGenerator } from '@kubb/core'
 import type { PluginClient } from '@kubb/plugin-client'
-import { createGenerator } from '@kubb/plugin-oas/generators'
 
 const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
 
-export const clientOperationGenerator = createGenerator<PluginClient>({
+export const clientOperationGenerator = defineGenerator<PluginClient>({
   name: 'client-operation',
-  async operation({ operation, generator }) {
-    const pluginName = generator.context.plugin.name
-    const name = generator.context.driver.resolveName({
-      name: operation.getOperationId(),
-      pluginName,
-      type: 'function',
-    })
-
-    const client = {
-      name,
-      file: generator.context.driver.getFile({
-        name,
-        extname: '.ts',
-        pluginName,
-        options: { type: 'file', pluginName },
-      }),
-    }
+  type: 'core',
+  async operation({ node, resolver, config }) {
+    const file = resolver.resolveFile(
+      { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
+      { root: config.root, output: { path: config.output.path } },
+    )
 
     return [
       {
-        baseName: client.file.baseName,
-        path: client.file.path,
-        meta: client.file.meta,
+        baseName: file.baseName,
+        path: file.path,
+        meta: file.meta,
         sources: [
           {
             value: `
-          export const ${operation.getOperationId()} = {
-            method: '${operation.method}',
-            url: '${toURL(operation.path)}'
+          export const ${node.operationId} = {
+            method: '${node.method}',
+            url: '${toURL(node.path)}'
           }
         `,
           },

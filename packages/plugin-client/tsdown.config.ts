@@ -3,8 +3,6 @@ import { importAttributeTextPlugin } from '../../configs/importAttributeTextPlug
 
 const entry = {
   index: 'src/index.ts',
-  components: 'src/components/index.ts',
-  generators: 'src/generators/index.ts',
   'clients/axios': 'src/clients/axios.ts',
   'clients/fetch': 'src/clients/fetch.ts',
   'templates/config.source': 'src/templates/config.source.ts',

@@ -1,5 +1,0 @@
-export { classClientGenerator } from './classClientGenerator.tsx'
-export { clientGenerator } from './clientGenerator.tsx'
-export { groupedClientGenerator } from './groupedClientGenerator.tsx'
-export { operationsGenerator } from './operationsGenerator.tsx'
-export { staticClassClientGenerator } from './staticClassClientGenerator.tsx'

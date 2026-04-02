@@ -1,25 +1,24 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { useDriver } from '@kubb/core/hooks'
+import { transform } from '@kubb/ast'
+import type { OperationNode } from '@kubb/ast/types'
+import { defineGenerator } from '@kubb/core'
 import type { FabricFile } from '@kubb/fabric-core/types'
-import type { Operation } from '@kubb/oas'
-import type { OperationSchemas } from '@kubb/plugin-oas'
-import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
+import type { PluginTs } from '@kubb/plugin-ts'
 import { pluginTsName } from '@kubb/plugin-ts'
+import type { PluginZod } from '@kubb/plugin-zod'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File } from '@kubb/react-fabric'
 import { StaticClassClient } from '../components/StaticClassClient'
 import type { PluginClient } from '../types'
 
 type OperationData = {
-  operation: Operation
+  node: OperationNode
   name: string
-  typeSchemas: OperationSchemas
-  zodSchemas: OperationSchemas | undefined
+  tsResolver: PluginTs['resolver']
+  zodResolver: PluginZod['resolver'] | undefined
   typeFile: FabricFile.File
-  zodFile: FabricFile.File
+  zodFile: FabricFile.File | undefined
 }
 
 type Controller = {
@@ -28,74 +27,87 @@ type Controller = {
   operations: Array<OperationData>
 }
 
-export const staticClassClientGenerator = createReactGenerator<PluginClient>({
+function resolveTypeImportNames(node: OperationNode, tsResolver: PluginTs['resolver']): Array<string> {
+  const names: Array<string | undefined> = [
+    node.requestBody?.schema ? tsResolver.resolveDataName(node) : undefined,
+    tsResolver.resolveResponseName(node),
+    ...node.parameters.filter((p) => p.in === 'path').map((p) => tsResolver.resolvePathParamsName(node, p)),
+    ...node.parameters.filter((p) => p.in === 'query').map((p) => tsResolver.resolveQueryParamsName(node, p)),
+    ...node.parameters.filter((p) => p.in === 'header').map((p) => tsResolver.resolveHeaderParamsName(node, p)),
+    ...node.responses.map((res) => tsResolver.resolveResponseStatusName(node, res.statusCode)),
+  ]
+  return names.filter((n): n is string => Boolean(n))
+}
+
+function resolveZodImportNames(node: OperationNode, zodResolver: PluginZod['resolver']): Array<string> {
+  const names: Array<string | undefined> = [zodResolver.resolveResponseName?.(node), node.requestBody?.schema ? zodResolver.resolveDataName?.(node) : undefined]
+  return names.filter((n): n is string => Boolean(n))
+}
+
+export const staticClassClientGenerator = defineGenerator<PluginClient>({
   name: 'staticClassClient',
-  Operations({ operations, generator, plugin, config }) {
-    const { options, name: pluginName } = plugin
-    const driver = useDriver()
+  type: 'react',
+  Operations({ nodes, options, config, driver, resolver, adapter, plugin }) {
+    const { output, group, dataReturnType, paramsCasing, paramsType, pathParamsType, parser, importPath } = options
+    const baseURL = options.baseURL ?? adapter.rootNode?.meta?.baseURL
+    const root = path.resolve(config.root, config.output.path)
 
-    const oas = useOas()
-    const { getName, getFile, getGroup, getSchemas } = useOperationManager(generator)
+    const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
+    if (!pluginTs?.resolver) return null
 
-    function renderOperationData(operation: Operation): OperationData {
-      const type = {
-        file: getFile(operation, { pluginName: pluginTsName }),
-        schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
-      }
+    const tsResolver = pluginTs.resolver
+    const tsPluginOptions = pluginTs.options
+    const pluginZod = parser === 'zod' ? driver.getPlugin<PluginZod>(pluginZodName) : undefined
+    const zodResolver = pluginZod?.resolver
 
-      const zod = {
-        file: getFile(operation, { pluginName: pluginZodName }),
-        schemas: getSchemas(operation, { pluginName: pluginZodName, type: 'function' }),
-      }
+    function buildOperationData(node: OperationNode): OperationData {
+      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
+      const typeFile = tsResolver.resolveFile(
+        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+        { root, output: tsPluginOptions?.output ?? output, group: tsPluginOptions?.group },
+      )
+      const zodFile =
+        zodResolver && pluginZod?.options
+          ? zodResolver.resolveFile(
+              { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+              { root, output: pluginZod.options.output ?? output, group: pluginZod.options.group },
+            )
+          : undefined
 
       return {
-        operation,
-        name: getName(operation, { type: 'function' }),
-        typeSchemas: type.schemas,
-        zodSchemas: zod.schemas,
-        typeFile: type.file,
-        zodFile: zod.file,
+        node: transformedNode,
+        name: resolver.resolveName(transformedNode.operationId),
+        tsResolver,
+        zodResolver,
+        typeFile,
+        zodFile,
       }
     }
 
-    // Group operations by tag
-    const controllers = operations.reduce(
-      (acc, operation) => {
-        const group = getGroup(operation)
-        const groupName = group?.tag ? (options.group?.name?.({ group: camelCase(group.tag) }) ?? pascalCase(group.tag)) : 'Client'
+    const controllers = nodes.reduce(
+      (acc, operationNode) => {
+        const tag = operationNode.tags[0]
+        const groupName = tag ? (group?.name?.({ group: camelCase(tag) }) ?? pascalCase(tag)) : 'Client'
 
-        if (!group?.tag && !options.group) {
-          // If no grouping, put all operations in a single class
+        if (!tag && !group) {
           const name = 'ApiClient'
-          const file = driver.getFile({
-            name,
-            extname: '.ts',
-            pluginName,
-          })
+          const file = resolver.resolveFile({ name, extname: '.ts' }, { root, output, group })
+          const operationData = buildOperationData(operationNode)
+          const previous = acc.find((item) => item.file.path === file.path)
 
-          const operationData = renderOperationData(operation)
-          const previousFile = acc.find((item) => item.file.path === file.path)
-
-          if (previousFile) {
-            previousFile.operations.push(operationData)
+          if (previous) {
+            previous.operations.push(operationData)
           } else {
             acc.push({ name, file, operations: [operationData] })
           }
-        } else if (group?.tag) {
-          // Group by tag
+        } else if (tag) {
           const name = groupName
-          const file = driver.getFile({
-            name,
-            extname: '.ts',
-            pluginName,
-            options: { group },
-          })
+          const file = resolver.resolveFile({ name, extname: '.ts', tag }, { root, output, group })
+          const operationData = buildOperationData(operationNode)
+          const previous = acc.find((item) => item.file.path === file.path)
 
-          const operationData = renderOperationData(operation)
-          const previousFile = acc.find((item) => item.file.path === file.path)
-
-          if (previousFile) {
-            previousFile.operations.push(operationData)
+          if (previous) {
+            previous.operations.push(operationData)
           } else {
             acc.push({ name, file, operations: [operationData] })
           }
@@ -111,22 +123,15 @@ export const staticClassClientGenerator = createReactGenerator<PluginClient>({
       const typeFilesByPath = new Map<string, FabricFile.File>()
 
       ops.forEach((op) => {
-        const { typeSchemas, typeFile } = op
-
-        if (!typeImportsByFile.has(typeFile.path)) {
-          typeImportsByFile.set(typeFile.path, new Set())
+        const names = resolveTypeImportNames(op.node, tsResolver)
+        if (!typeImportsByFile.has(op.typeFile.path)) {
+          typeImportsByFile.set(op.typeFile.path, new Set())
         }
-        const typeImports = typeImportsByFile.get(typeFile.path)!
-
-        if (typeSchemas.request?.name) typeImports.add(typeSchemas.request.name)
-        if (typeSchemas.response?.name) typeImports.add(typeSchemas.response.name)
-        if (typeSchemas.pathParams?.name) typeImports.add(typeSchemas.pathParams.name)
-        if (typeSchemas.queryParams?.name) typeImports.add(typeSchemas.queryParams.name)
-        if (typeSchemas.headerParams?.name) typeImports.add(typeSchemas.headerParams.name)
-        typeSchemas.statusCodes?.forEach((item) => {
-          if (item?.name) typeImports.add(item.name)
+        const imports = typeImportsByFile.get(op.typeFile.path)!
+        names.forEach((n) => {
+          imports.add(n)
         })
-        typeFilesByPath.set(typeFile.path, typeFile)
+        typeFilesByPath.set(op.typeFile.path, op.typeFile)
       })
 
       return { typeImportsByFile, typeFilesByPath }
@@ -137,16 +142,16 @@ export const staticClassClientGenerator = createReactGenerator<PluginClient>({
       const zodFilesByPath = new Map<string, FabricFile.File>()
 
       ops.forEach((op) => {
-        const { zodSchemas, zodFile } = op
-
-        if (!zodImportsByFile.has(zodFile.path)) {
-          zodImportsByFile.set(zodFile.path, new Set())
+        if (!op.zodFile || !zodResolver) return
+        const names = resolveZodImportNames(op.node, zodResolver)
+        if (!zodImportsByFile.has(op.zodFile.path)) {
+          zodImportsByFile.set(op.zodFile.path, new Set())
         }
-        const zodImports = zodImportsByFile.get(zodFile.path)!
-
-        if (zodSchemas?.response?.name) zodImports.add(zodSchemas.response.name)
-        if (zodSchemas?.request?.name) zodImports.add(zodSchemas.request.name)
-        zodFilesByPath.set(zodFile.path, zodFile)
+        const imports = zodImportsByFile.get(op.zodFile.path)!
+        names.forEach((n) => {
+          imports.add(n)
+        })
+        zodFilesByPath.set(op.zodFile.path, op.zodFile)
       })
 
       return { zodImportsByFile, zodFilesByPath }
@@ -155,10 +160,8 @@ export const staticClassClientGenerator = createReactGenerator<PluginClient>({
     return controllers.map(({ name, file, operations: ops }) => {
       const { typeImportsByFile, typeFilesByPath } = collectTypeImports(ops)
       const { zodImportsByFile, zodFilesByPath } =
-        options.parser === 'zod'
-          ? collectZodImports(ops)
-          : { zodImportsByFile: new Map<string, Set<string>>(), zodFilesByPath: new Map<string, FabricFile.File>() }
-      const hasFormData = ops.some((op) => op.operation.getContentType() === 'multipart/form-data')
+        parser === 'zod' ? collectZodImports(ops) : { zodImportsByFile: new Map<string, Set<string>>(), zodFilesByPath: new Map<string, FabricFile.File>() }
+      const hasFormData = ops.some((op) => op.node.requestBody?.contentType === 'multipart/form-data')
 
       return (
         <File
@@ -166,14 +169,14 @@ export const staticClassClientGenerator = createReactGenerator<PluginClient>({
           baseName={file.baseName}
           path={file.path}
           meta={file.meta}
-          banner={getBanner({ oas, output: options.output, config: driver.config })}
-          footer={getFooter({ oas, output: options.output })}
+          banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
+          footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
         >
-          {options.importPath ? (
+          {importPath ? (
             <>
-              <File.Import name={'fetch'} path={options.importPath} />
-              <File.Import name={['mergeConfig']} path={options.importPath} />
-              <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
+              <File.Import name={'fetch'} path={importPath} />
+              <File.Import name={['mergeConfig']} path={importPath} />
+              <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={importPath} isTypeOnly />
             </>
           ) : (
             <>
@@ -190,41 +193,32 @@ export const staticClassClientGenerator = createReactGenerator<PluginClient>({
 
           {hasFormData && <File.Import name={['buildFormData']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />}
 
-          {Array.from(typeImportsByFile.entries()).map(([filePath, imports]) => {
+          {Array.from(typeImportsByFile.entries()).map(([filePath, importSet]) => {
             const typeFile = typeFilesByPath.get(filePath)
-            if (!typeFile) {
-              return null
-            }
-            const importNames = Array.from(imports).filter(Boolean)
-            if (importNames.length === 0) {
-              return null
-            }
+            if (!typeFile) return null
+            const importNames = Array.from(importSet).filter(Boolean)
+            if (importNames.length === 0) return null
             return <File.Import key={filePath} name={importNames} root={file.path} path={typeFile.path} isTypeOnly />
           })}
 
-          {options.parser === 'zod' &&
-            Array.from(zodImportsByFile.entries()).map(([filePath, imports]) => {
+          {parser === 'zod' &&
+            Array.from(zodImportsByFile.entries()).map(([filePath, importSet]) => {
               const zodFile = zodFilesByPath.get(filePath)
-              if (!zodFile) {
-                return null
-              }
-              const importNames = Array.from(imports).filter(Boolean)
-              if (importNames.length === 0) {
-                return null
-              }
-
+              if (!zodFile) return null
+              const importNames = Array.from(importSet).filter(Boolean)
+              if (importNames.length === 0) return null
               return <File.Import key={filePath} name={importNames} root={file.path} path={zodFile.path} />
             })}
 
           <StaticClassClient
             name={name}
             operations={ops}
-            baseURL={options.baseURL}
-            dataReturnType={options.dataReturnType}
-            pathParamsType={options.pathParamsType}
-            paramsCasing={options.paramsCasing}
-            paramsType={options.paramsType}
-            parser={options.parser}
+            baseURL={baseURL}
+            dataReturnType={dataReturnType}
+            pathParamsType={pathParamsType}
+            paramsCasing={paramsCasing}
+            paramsType={paramsType}
+            parser={parser}
           />
         </File>
       )
