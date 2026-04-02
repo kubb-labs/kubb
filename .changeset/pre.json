@@ -66,6 +66,7 @@
     "missing-mutation-queryparams",
     "plugin-client-params-casing-unused-var",
     "plugin-cypress-v5-upgrade",
+    "plugin-mcp-v5-migration",
     "plugin-oas-operation-manager",
     "plugin-redoc-adapter-oas-migration",
     "plugin-ts-compatibility-presets",

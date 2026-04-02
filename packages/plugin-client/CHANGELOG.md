@@ -1,5 +1,16 @@
 # @kubb/plugin-client
 
+## 5.0.0-alpha.28
+
+### Patch Changes
+
+- Updated dependencies [[`d46e725`](https://github.com/kubb-labs/kubb/commit/d46e7255c2419e412ace2e090205d552a885c6ca)]:
+  - @kubb/plugin-ts@5.0.0-alpha.28
+  - @kubb/core@5.0.0-alpha.28
+  - @kubb/oas@5.0.0-alpha.28
+  - @kubb/plugin-oas@5.0.0-alpha.28
+  - @kubb/plugin-zod@5.0.0-alpha.28
+
 ## 5.0.0-alpha.27
 
 ### Patch Changes
