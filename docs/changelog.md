@@ -6,6 +6,95 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.29
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/plugin-client`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-client)
+
+-   [#2965](https://github.com/kubb-labs/kubb/pull/2965) [`62551ae`](https://github.com/kubb-labs/kubb/commit/62551ae7de327e2a502e5365d5bf56ecb8f21b47) - ### `@kubb/plugin-client` — v5 architecture rewrite
+
+    `@kubb/plugin-client` has been rewritten to align with the v5 plugin architecture, consistent with `@kubb/plugin-ts`, `@kubb/plugin-zod`, and `@kubb/plugin-mcp`.
+
+    #### New `compatibilityPreset` option
+
+    Use `compatibilityPreset: 'kubbV4'` to maintain v4 naming conventions during migration. The default `'default'` preset employs the updated v5 naming conventions.
+
+    ```typescript
+    pluginClient({ compatibilityPreset: "kubbV4" });
+    ```
+
+    #### New `resolver` option
+
+    Customize individual resolver methods to adjust generated names without replacing the entire naming strategy. Omitting any method will default to the preset resolver. Use `this.default(...)` to leverage the preset's implementation.
+
+    ```typescript
+    pluginClient({
+      resolver: {
+        resolveName(name) {
+          return `${this.default(name)}Client`;
+        },
+      },
+    });
+    ```
+
+    #### New `transformer` option
+
+    Apply an AST `Visitor` to transform schema and operation nodes prior to rendering. This modern approach replaces the old `transformers` callback method.
+
+    ```typescript
+    import { pluginClient } from "@kubb/plugin-client";
+
+    pluginClient({
+      transformer: {
+        operation(node) {
+          return { ...node, operationId: `api_${node.operationId}` };
+        },
+      },
+    });
+    ```
+
+    #### `transformers.name` replaced by `resolver`
+
+    The `transformers: { name }` callback has been deprecated. Use the `resolver` option instead.
+
+    ::: code-group
+
+    ```typescript [Before (v4)]
+    pluginClient({
+      transformers: {
+        name: (name, type) => (type === "function" ? `${name}Client` : name),
+      },
+    });
+    ```
+
+    ```typescript [After (v5)]
+    pluginClient({
+      resolver: {
+        resolveName(name) {
+          return `${this.default(name)}Client`;
+        },
+      },
+    });
+    ```
+
+    :::
+
+    #### `baseURL` defaults to the adapter baseURL
+
+    The `baseURL` option now automatically inherits from the OAS spec's base URL (defined via the adapter). Explicitly setting `baseURL` still overrides this value.
+
+    #### `contentType` override matching fixed
+
+    Content type overrides now properly filter operations by their request body content type. Previously, `{ type: 'contentType', pattern: 'multipart/form-data' }` ignored overrides, an issue now resolved in `@kubb/core`.
+
+### ✨ Features
+
+#### [`@kubb/plugin-client`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-client)
+
+-   Rewritten to support v5 architecture, adding enhanced flexibility with `resolver` and `transformer` options and improved default behaviors.
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
