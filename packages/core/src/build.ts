@@ -1,5 +1,7 @@
 import { dirname, relative, resolve } from 'node:path'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
+import type { OperationNode } from '@kubb/ast/types'
+import { walk } from '@kubb/ast'
 import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
 import { createFabric } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
@@ -8,9 +10,11 @@ import { isInputPath } from './config.ts'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import type { AdapterSource, Config, KubbEvents, Output, Plugin, Storage, UserConfig } from './types.ts'
+import type { AdapterSource, BarrelType, Config, KubbEvents, Output, Plugin, PluginContext, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
+import { getBarrelFiles } from './utils/getBarrelFiles.ts'
+import { applyHookResult } from './renderNode.tsx'
 
 type BuildOptions = {
   config: UserConfig
@@ -256,6 +260,71 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
 }
 
 /**
+ * Walks the AST and dispatches nodes to a plugin's direct AST hooks
+ * (`schema`, `operation`, `operations`).
+ *
+ * - Each hook accepts a single handler **or an array** — all entries are called in sequence.
+ * - Nodes that are excluded by `exclude`/`include` plugin options are skipped automatically.
+ * - Return values are handled via `applyHookResult`: React elements are rendered,
+ *   `FabricFile.File[]` are upserted, and `void` is a no-op (manual handling).
+ * - Barrel files are generated automatically when `output.barrelType` is set.
+ */
+async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promise<void> {
+  const { adapter, rootNode, resolver, fabric, config } = context
+
+  if (!adapter || !rootNode) {
+    throw new Error(
+      `[${plugin.name}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`,
+    )
+  }
+
+  const pluginOptions = plugin.options as Record<string, unknown>
+  const output = pluginOptions['output'] as { path: string; barrelType?: string } | undefined
+  const root = resolve(config.root, config.output.path)
+  const exclude = (pluginOptions['exclude'] as [] | undefined) ?? []
+  const include = pluginOptions['include'] as [] | undefined
+  const override = (pluginOptions['override'] as [] | undefined) ?? []
+
+  const collectedOperations: Array<OperationNode> = []
+
+  await walk(rootNode, {
+    depth: 'shallow',
+    async schema(node) {
+      if (!plugin.schema) return
+      const options = resolver.resolveOptions(node, { options: plugin.options, exclude, include, override })
+      if (options === null) return
+      const result = await plugin.schema.call(context, node, options)
+      await applyHookResult(result, fabric)
+    },
+    async operation(node) {
+      const options = resolver.resolveOptions(node, { options: plugin.options, exclude, include, override })
+      if (options !== null) {
+        collectedOperations.push(node)
+        if (plugin.operation) {
+          const result = await plugin.operation.call(context, node, options)
+          await applyHookResult(result, fabric)
+        }
+      }
+    },
+  })
+
+  if (plugin.operations && collectedOperations.length > 0) {
+    const result = await plugin.operations.call(context, collectedOperations, plugin.options)
+    await applyHookResult(result, fabric)
+  }
+
+  if (output?.barrelType) {
+    const barrelFiles = await getBarrelFiles(fabric.files, {
+      type: output.barrelType as BarrelType | false | undefined,
+      root,
+      output: output as { path: string; barrelType?: string },
+      meta: { pluginName: plugin.name },
+    })
+    await context.upsertFile(...barrelFiles)
+  }
+}
+
+/**
  * Runs a full Kubb build and captures errors instead of throwing.
  *
  * - Installs each plugin in order, recording failures in `failedPlugins`.
@@ -278,8 +347,6 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       const context = driver.getContext(plugin)
       const hrStart = process.hrtime()
 
-      const installer = plugin.install.bind(context)
-
       try {
         const timestamp = new Date()
 
@@ -290,7 +357,13 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           logs: ['Installing plugin...', `  • Plugin Name: ${plugin.name}`],
         })
 
-        await installer(context)
+        // Dispatch schema/operation/operations hooks (direct hooks or composed via composeGenerators)
+        if (plugin.schema || plugin.operation || plugin.operations) {
+          await runPluginAstHooks(plugin, context)
+        }
+
+        // Call install() for any custom plugin logic
+        await plugin.install.call(context)
 
         const duration = getElapsedMs(hrStart)
         pluginTimings.set(plugin.name, duration)

@@ -1,6 +1,7 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { Node, Printer, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
+import type { Node, OperationNode, Printer, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { HttpMethod } from '@kubb/oas'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { Storage } from './createStorage.ts'
@@ -13,6 +14,24 @@ export type { Printer, PrinterFactoryOptions, PrinterPartial } from '@kubb/ast/t
 declare global {
   namespace Kubb {
     interface PluginContext {}
+    /**
+     * Registry that maps plugin names to their `PluginFactoryOptions`.
+     * Augment this interface in each plugin's `types.ts` to enable automatic
+     * typing for `getPlugin` and `requirePlugin`.
+     *
+     * @example
+     * ```ts
+     * // packages/plugin-ts/src/types.ts
+     * declare global {
+     *   namespace Kubb {
+     *     interface PluginRegistry {
+     *       'plugin-ts': PluginTs
+     *     }
+     *   }
+     * }
+     * ```
+     */
+    interface PluginRegistry {}
   }
 }
 
@@ -415,12 +434,63 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin is executed before these plugins.
    */
   post?: Array<string>
-  inject?: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => TOptions['context']
+  /**
+   * When `apply` is defined, the plugin is only activated when `apply(config)` returns `true`.
+   * Inspired by Vite's `apply` option.
+   *
+   * @example
+   * ```ts
+   * apply: (config) => config.output.path !== 'disabled'
+   * ```
+   */
+  apply?: (config: Config) => boolean
+  /**
+   * Expose shared helpers or data to all other plugins via `PluginContext`.
+   * The object returned is merged into the context that every plugin receives.
+   * Use the `declare global { namespace Kubb { interface PluginContext { … } } }` pattern
+   * to make the injected properties type-safe.
+   *
+   * @example
+   * ```ts
+   * inject() {
+   *   return { getOas: () => parseSpec(this.config) }
+   * }
+   * // Other plugins can then call `this.getOas()` inside install()
+   * ```
+   */
+  inject?: (this: PluginContext<TOptions>) => TOptions['context']
 }
 
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
 
 type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<string, object, object, unknown, object>>
+
+/**
+ * Handler for a single schema node. Used by the `schema` hook on a plugin.
+ */
+export type SchemaHook<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = (
+  this: PluginContext<TOptions>,
+  node: SchemaNode,
+  options: TOptions['resolvedOptions'],
+) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
+
+/**
+ * Handler for a single operation node. Used by the `operation` hook on a plugin.
+ */
+export type OperationHook<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = (
+  this: PluginContext<TOptions>,
+  node: OperationNode,
+  options: TOptions['resolvedOptions'],
+) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
+
+/**
+ * Handler for all collected operation nodes. Used by the `operations` hook on a plugin.
+ */
+export type OperationsHook<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = (
+  this: PluginContext<TOptions>,
+  nodes: Array<OperationNode>,
+  options: TOptions['resolvedOptions'],
+) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
 
 export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
@@ -453,11 +523,44 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    */
   transformer?: Visitor
 
-  install: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
   /**
-   * Defines a context that can be used by other plugins, see `PluginDriver` where we convert from `UserPlugin` to `Plugin` (used when calling `createPlugin`).
+   * When `apply` is defined, the plugin is only activated when `apply(config)` returns `true`.
+   * Inspired by Vite's `apply` option.
    */
-  inject: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => TOptions['context']
+  apply?: (config: Config) => boolean
+  /**
+   * Optional semver version string for this plugin, e.g. `"1.2.3"`.
+   * Used in diagnostic messages and version-conflict detection.
+   */
+  version?: string
+
+  install: (this: PluginContext<TOptions>) => PossiblePromise<void>
+  /**
+   * Called for each schema node during the AST walk.
+   * Return a React element, an array of `FabricFile.File`, or `void` for manual handling.
+   * Nodes matching `exclude`/`include` filters are skipped automatically.
+   *
+   * For multiple generators, use `composeGenerators` inside the plugin factory.
+   */
+  schema?: SchemaHook<TOptions>
+  /**
+   * Called for each operation node during the AST walk.
+   * Return a React element, an array of `FabricFile.File`, or `void` for manual handling.
+   *
+   * For multiple generators, use `composeGenerators` inside the plugin factory.
+   */
+  operation?: OperationHook<TOptions>
+  /**
+   * Called once after all operations have been walked, with the full collected set.
+   *
+   * For multiple generators, use `composeGenerators` inside the plugin factory.
+   */
+  operations?: OperationsHook<TOptions>
+  /**
+   * Expose shared helpers or data to all other plugins via `PluginContext`.
+   * The returned object is merged into the context received by every plugin.
+   */
+  inject: (this: PluginContext<TOptions>) => TOptions['context']
 }
 
 export type PluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Plugin<TOptions> & PluginLifecycle<TOptions>
@@ -467,8 +570,32 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Start of the lifecycle of a plugin.
    * @type hookParallel
    */
-  install?: (this: PluginContext<TOptions>, context: PluginContext<TOptions>) => PossiblePromise<void>
+  install?: (this: PluginContext<TOptions>) => PossiblePromise<void>
   /**
+   * Called for each schema node during the AST walk.
+   * Return a React element (`<File>...</File>`), an array of `FabricFile.File` objects,
+   * or `void` to handle file writing manually via `this.upsertFile`.
+   * Nodes matching `exclude` / `include` filters are skipped automatically.
+   *
+   * For multiple generators, use `composeGenerators` inside the plugin factory.
+   */
+  schema?: SchemaHook<TOptions>
+  /**
+   * Called for each operation node during the AST walk.
+   * Return a React element (`<File>...</File>`), an array of `FabricFile.File` objects,
+   * or `void` to handle file writing manually via `this.upsertFile`.
+   *
+   * For multiple generators, use `composeGenerators` inside the plugin factory.
+   */
+  operation?: OperationHook<TOptions>
+  /**
+   * Called once after all operation nodes have been walked, with the full collection.
+   * Useful for generating index/barrel files per group or aggregate operation handlers.
+   *
+   * For multiple generators, use `composeGenerators` inside the plugin factory.
+   */
+  operations?: OperationsHook<TOptions>
+ /**
    * Resolve to a Path based on a baseName(example: `./Pet.ts`) and directory(example: `./models`).
    * Options can als be included.
    * @type hookFirst
@@ -523,7 +650,18 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   fabric: FabricType
   config: Config
   driver: PluginDriver
-  getPlugin: PluginDriver['getPlugin']
+  /**
+   * Get a plugin by name. Returns the plugin typed via `Kubb.PluginRegistry` when
+   * the name is a registered key, otherwise returns the generic `Plugin`.
+   */
+  getPlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
+  getPlugin(name: string): Plugin | undefined
+  /**
+   * Like `getPlugin` but throws a descriptive error when the plugin is not found.
+   * Useful for enforcing dependencies inside `install()`.
+   */
+  requirePlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]>
+  requirePlugin(name: string): Plugin
   /**
    * Only add when the file does not exist yet
    */
@@ -547,6 +685,21 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    */
   transformer: Visitor | undefined
 
+  /**
+   * Emit a warning via the build event system.
+   * Shorthand for `this.events.emit('warn', message)`.
+   */
+  warn: (message: string) => void
+  /**
+   * Emit an error via the build event system.
+   * Shorthand for `this.events.emit('error', error)`.
+   */
+  error: (error: string | Error) => void
+  /**
+   * Emit an info message via the build event system.
+   * Shorthand for `this.events.emit('info', message)`.
+   */
+  info: (message: string) => void
   /**
    * Opens the Kubb Studio URL for the current `rootNode` in the default browser.
    * Falls back to printing the URL if the browser cannot be launched.
@@ -654,7 +807,7 @@ export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Logger<
 export type CompatibilityPreset = 'default' | 'kubbV4'
 
 export type { Storage } from './createStorage.ts'
-export type { CoreGeneratorV2, Generator, ReactGeneratorV2 } from './defineGenerator.ts'
+export type { Generator } from './defineGenerator.ts'
 export type { KubbEvents } from './Kubb.ts'
 
 /**

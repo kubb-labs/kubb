@@ -1,10 +1,9 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import { renderOperation, renderSchema } from '@kubb/core'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation, renderGeneratorSchema } from '#mocks'
 import { resolverTsLegacy } from '../resolvers/resolverTsLegacy.ts'
 import type { PluginTs } from '../types.ts'
 import { typeGeneratorLegacy } from './typeGeneratorLegacy.tsx'
@@ -101,12 +100,11 @@ describe('typeGeneratorLegacy — Operation', () => {
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options: defaultOptions, resolver: resolverTsLegacy })
     const driver = createMockedPluginDriver({ name: props.name })
 
-    await renderOperation(props.node, {
+    await renderGeneratorOperation(typeGeneratorLegacy, props.node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: typeGeneratorLegacy.Operation,
       plugin,
       options: defaultOptions,
       resolver: resolverTsLegacy,
@@ -137,12 +135,11 @@ describe('typeGeneratorLegacy — Operation', () => {
       ],
     })
 
-    await renderOperation(node, {
+    await renderGeneratorOperation(typeGeneratorLegacy, node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: typeGeneratorLegacy.Operation,
       plugin,
       options: defaultOptions,
       resolver: wrappedResolver,
@@ -171,12 +168,11 @@ describe('typeGeneratorLegacy — enumTypeSuffix', () => {
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTsLegacy })
     const driver = createMockedPluginDriver({ name: 'legacy — enumTypeSuffix Key' })
 
-    await renderSchema(enumSchema, {
+    await renderGeneratorSchema(typeGeneratorLegacy, enumSchema, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: typeGeneratorLegacy.Schema,
       plugin,
       options,
       resolver: resolverTsLegacy,
@@ -190,12 +186,11 @@ describe('typeGeneratorLegacy — enumTypeSuffix', () => {
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTsLegacy })
     const driver = createMockedPluginDriver({ name: 'legacy — enumTypeSuffix Value' })
 
-    await renderSchema(enumSchema, {
+    await renderGeneratorSchema(typeGeneratorLegacy, enumSchema, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: typeGeneratorLegacy.Schema,
       plugin,
       options,
       resolver: resolverTsLegacy,
@@ -209,12 +204,11 @@ describe('typeGeneratorLegacy — enumTypeSuffix', () => {
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTsLegacy })
     const driver = createMockedPluginDriver({ name: 'legacy — enumTypeSuffix empty' })
 
-    await renderSchema(enumSchema, {
+    await renderGeneratorSchema(typeGeneratorLegacy, enumSchema, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: typeGeneratorLegacy.Schema,
       plugin,
       options,
       resolver: resolverTsLegacy,

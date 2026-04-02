@@ -44,7 +44,7 @@ describe('build', () => {
       path: './src/gen',
       clean: true,
     },
-    plugins: [plugin({})] as Plugin[],
+    plugins: [plugin({})] as Array<Plugin>,
   }
 
   const configs = [
@@ -64,7 +64,7 @@ describe('build', () => {
             path: './src/gen',
             clean: true,
           },
-          plugins: [plugin({})] as Plugin[],
+          plugins: [plugin({})] as Array<Plugin>,
         },
       ]),
     },
@@ -79,7 +79,7 @@ describe('build', () => {
           path: './src/gen',
           clean: true,
         },
-        plugins: [plugin({})] as Plugin[],
+        plugins: [plugin({})] as Array<Plugin>,
       })),
     },
     {
@@ -94,7 +94,7 @@ describe('build', () => {
             path: './src/gen',
             clean: true,
           },
-          plugins: [plugin({})] as Plugin[],
+          plugins: [plugin({})] as Array<Plugin>,
         },
       ]),
     },
@@ -199,7 +199,7 @@ describe('build', () => {
 
     const errorConfig = {
       ...config,
-      plugins: [errorPlugin({})] as Plugin[],
+      plugins: [errorPlugin({})] as Array<Plugin>,
     }
 
     const { failedPlugins } = await safeBuild({
@@ -262,7 +262,7 @@ describe('build', () => {
 
     const throwingConfig = {
       ...config,
-      plugins: [throwingPlugin({})] as Plugin[],
+      plugins: [throwingPlugin({})] as Array<Plugin>,
     }
 
     const result = await safeBuild({
@@ -338,7 +338,7 @@ describe('build', () => {
           barrelType: 'named' as const,
           write: false,
         },
-        plugins: [excludedPlugin({})] as Plugin[],
+        plugins: [excludedPlugin({})] as Array<Plugin>,
       }
 
       const { fabric } = await build({

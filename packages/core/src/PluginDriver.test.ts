@@ -78,7 +78,7 @@ describe('PluginDriver', () => {
       path: './src/gen',
       clean: true,
     },
-    plugins: [pluginA({}), pluginB({}), pluginC({})] as Plugin[],
+    plugins: [pluginA({}), pluginB({}), pluginC({})] as Array<Plugin>,
   } satisfies Config
   const pluginDriver = new PluginDriver(config, {
     fabric: createFabric(),
@@ -195,7 +195,7 @@ describe('PluginDriver', () => {
 
     const staticConfig = {
       ...config,
-      plugins: [staticPlugin({})] as Plugin[],
+      plugins: [staticPlugin({})] as Array<Plugin>,
     } satisfies Config
 
     const staticPluginDriver = new PluginDriver(staticConfig, {
@@ -226,7 +226,7 @@ describe('PluginDriver', () => {
 
     const errorConfig = {
       ...config,
-      plugins: [errorPlugin({})] as Plugin[],
+      plugins: [errorPlugin({})] as Array<Plugin>,
     } satisfies Config
 
     const errorPluginDriver = new PluginDriver(errorConfig, {
@@ -257,7 +257,7 @@ describe('PluginDriver', () => {
 
     const noResolveConfig = {
       ...config,
-      plugins: [noResolvePlugin({})] as Plugin[],
+      plugins: [noResolvePlugin({})] as Array<Plugin>,
     } satisfies Config
 
     const noResolvePluginDriver = new PluginDriver(noResolveConfig, {
@@ -282,7 +282,7 @@ describe('PluginDriver', () => {
       },
     }))
     const localPluginDriver = new PluginDriver(
-      { ...config, plugins: [pluginWithPath({})] as Plugin[] },
+      { ...config, plugins: [pluginWithPath({})] as Array<Plugin> },
       { fabric: createFabric(), events: new AsyncEventEmitter<KubbEvents>() },
     )
 
@@ -307,7 +307,7 @@ describe('PluginDriver', () => {
       },
     }))
     const localPluginDriver = new PluginDriver(
-      { ...config, plugins: [pluginWithPath({})] as Plugin[] },
+      { ...config, plugins: [pluginWithPath({})] as Array<Plugin> },
       { fabric: createFabric(), events: new AsyncEventEmitter<KubbEvents>() },
     )
 

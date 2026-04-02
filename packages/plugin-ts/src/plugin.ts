@@ -1,8 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { walk } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
-import { createPlugin, type Group, getBarrelFiles, getPreset, runGeneratorOperation, runGeneratorOperations, runGeneratorSchema } from '@kubb/core'
+import { createPlugin, type Group, getPreset, applyHookResult } from '@kubb/core'
 import { presets } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
@@ -31,9 +29,6 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
   const {
     output = { path: 'types', barrelType: 'named' },
     group,
-    exclude = [],
-    include,
-    override = [],
     enumType = 'asConst',
     enumTypeSuffix = 'Key',
     enumKeyCasing = 'none',
@@ -55,6 +50,8 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     transformer: userTransformer,
     generators: userGenerators,
   })
+
+  const generators = preset.generators ?? []
 
   let resolveNameWarning = false
   let resolvePathWarning = false
@@ -110,48 +107,29 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
       return this.plugin.resolver.default(name, type)
     },
-    async install() {
-      const { config, fabric, plugin, adapter, rootNode, driver, openInStudio, resolver } = this
-
-      const root = path.resolve(config.root, config.output.path)
-
-      if (!adapter) {
-        throw new Error(`[${pluginTsName}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`)
+    async schema(node, opts) {
+      for (const gen of generators) {
+        if (!gen.schema) continue
+        const result = await gen.schema.call(this, node, opts)
+        await applyHookResult(result, this.fabric)
       }
-
-      await openInStudio({ ast: true })
-
-      const collectedOperations: Array<OperationNode> = []
-      const generatorContext = { generators: preset.generators, plugin, resolver, exclude, include, override, fabric, adapter, config, driver }
-
-      await walk(rootNode, {
-        depth: 'shallow',
-        async schema(schemaNode) {
-          await runGeneratorSchema(schemaNode, generatorContext)
-        },
-        async operation(operationNode) {
-          const baseOptions = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
-
-          if (baseOptions !== null) {
-            collectedOperations.push(operationNode)
-          }
-
-          await runGeneratorOperation(operationNode, generatorContext)
-        },
-      })
-
-      await runGeneratorOperations(collectedOperations, generatorContext)
-
-      const barrelFiles = await getBarrelFiles(this.fabric.files, {
-        type: output.barrelType ?? 'named',
-        root,
-        output,
-        meta: {
-          pluginName: this.plugin.name,
-        },
-      })
-
-      await this.upsertFile(...barrelFiles)
+    },
+    async operation(node, opts) {
+      for (const gen of generators) {
+        if (!gen.operation) continue
+        const result = await gen.operation.call(this, node, opts)
+        await applyHookResult(result, this.fabric)
+      }
+    },
+    async operations(nodes, opts) {
+      for (const gen of generators) {
+        if (!gen.operations) continue
+        const result = await gen.operations.call(this, nodes, opts)
+        await applyHookResult(result, this.fabric)
+      }
+    },
+    async install() {
+      await this.openInStudio({ ast: true })
     },
   }
 })

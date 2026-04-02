@@ -11,9 +11,9 @@ import { buildData, buildResponses, buildResponseUnion } from '../utils.ts'
 
 export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
-  type: 'react',
-  Schema({ node, adapter, options, config, resolver, plugin }) {
+  schema(node, options) {
     const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, printer } = options
+    const { adapter, config, resolver, plugin } = this as Required<typeof this>
 
     const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
@@ -86,8 +86,9 @@ export const typeGenerator = defineGenerator<PluginTs>({
       </File>
     )
   },
-  Operation({ node, adapter, options, config, resolver, plugin }) {
+  operation(node, options) {
     const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, printer } = options
+    const { adapter, config, resolver, plugin } = this as Required<typeof this>
 
     const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
