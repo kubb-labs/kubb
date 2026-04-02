@@ -58,7 +58,7 @@ Specify the export location for the files and define the behavior of the output.
 | --------: | :-------- |
 |     Type: | `string`  |
 | Required: | `true`    |
-|  Default: | `'ncp'` |
+|  Default: | `'mcp'`   |
 
 #### output.barrelType
 
@@ -76,8 +76,18 @@ Specify the export location for the files and define the behavior of the output.
 
 <!--@include: ./core/outputOverride.md-->
 
-### contentType
-<!--@include: ./core/contentType.md-->
+### compatibilityPreset
+
+<!--@include: ./core/compatibilityPreset.md-->
+
+### resolver
+
+<!--@include: ./core/resolvers.md-->
+
+|           |                                                          |
+| --------: | :------------------------------------------------------- |
+|     Type: | `Partial<ResolverMcp> & ThisType<ResolverMcp>`           |
+| Required: | `false`                                                  |
 
 ### group
 <!--@include: ./core/group.md-->
@@ -104,7 +114,7 @@ Transform parameter names to a specific casing format for path, query, and heade
 > When using `paramsCasing`, ensure that `@kubb/plugin-ts` also has the same `paramsCasing` setting. This option automatically maps transformed parameter names back to their original API names in HTTP requests.
 
 |           |                |
-| --------: | :-------- |
+| --------: | :------------- |
 |     Type: | `'camelcase'`  |
 | Required: | `false`        |
 |  Default: | `undefined`    |
@@ -176,34 +186,22 @@ export async function findPetsByStatusHandler({
 <!--@include: ./core/generators.md-->
 
 |           |                               |
-| --------: | :-------- |
-|     Type: | `Array<Generator<PluginMsw>>` |
+| --------: | :---------------------------- |
+|     Type: | `Array<Generator<PluginMcp>>` |
 | Required: | `false`                       |
 
+### transformer
 
-### transformers
 <!--@include: ./core/transformers.md-->
-
-#### transformers.name
-Customize the names based on the type that is provided by the plugin.
-
-|           |                                                                               |
-| --------: | :-------- |
-|     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                                                       |
-
-```typescript
-type ResolveType = 'file' | 'function' | 'type' | 'const'
-```
 
 ## Example
 
 ```typescript twoslash
 import { defineConfig } from '@kubb/core'
-import { pluginOas } from '@kubb/plugin-oas'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginTs } from '@kubb/plugin-ts'
-import { pluginMcp } from '@kubb/plugin-mcp'
 import { pluginZod } from '@kubb/plugin-zod'
+import { pluginMcp } from '@kubb/plugin-mcp'
 
 export default defineConfig({
   input: {
@@ -212,8 +210,8 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
+  adapter: adapterOas(),
   plugins: [
-    pluginOas(),
     pluginTs(),
     pluginZod(),
     pluginMcp({

@@ -9,6 +9,7 @@ Each plugin ships a built-in resolver (and a legacy one for Kubb v4 compatibilit
 | `@kubb/plugin-ts` | `resolverTs` | `resolverTsLegacy` |
 | `@kubb/plugin-zod` | `resolverZod` | `resolverZodLegacy` |
 | `@kubb/plugin-cypress` | `resolverCypress` | — |
+| `@kubb/plugin-mcp` | `resolverMcp` | — |
 
 |           |                                                      |
 | --------: | :--------------------------------------------------- |
