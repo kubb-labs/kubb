@@ -164,16 +164,63 @@ export function getGetPetByIdUrl(petId: GetPetByIdPathParams['petId']) {
 ### transformers
 <!--@include: ./core/transformers.md-->
 
-#### transformers.name
-Customize the names based on the type that is provided by the plugin.
+### compatibilityPreset
 
-|           |                                                |
-| --------: | :--------------------------------------------- |
-|     Type: | `(name: string, type?: ResolveType) => string` |
-| Required: | `false`                                        |
+Use `compatibilityPreset` to control which naming convention is used for generated files and functions.
+
+|           |                              |
+| --------: | :--------------------------- |
+|     Type: | `'default' \| 'kubbV4'`      |
+| Required: | `false`                      |
+|  Default: | `'default'`                  |
+
+- `'default'` — v5 naming conventions (recommended)
+- `'kubbV4'` — v4 naming conventions for backwards compatibility
 
 ```typescript
-type ResolveType = 'file' | 'function' | 'type' | 'const'
+pluginClient({ compatibilityPreset: 'kubbV4' })
+```
+
+### resolver
+
+Override individual resolver methods to customise generated names. Any method you omit falls back to the preset resolver. Use `this.default(...)` to call the preset's implementation.
+
+|           |                                                                  |
+| --------: | :--------------------------------------------------------------- |
+|     Type: | `Partial<ResolverClient> & ThisType<ResolverClient>`             |
+| Required: | `false`                                                          |
+
+```typescript
+import { pluginClient } from '@kubb/plugin-client'
+
+pluginClient({
+  resolver: {
+    resolveName(name) {
+      return `${this.default(name)}Client`
+    },
+  },
+})
+```
+
+### transformer <img src="../public/icons/experimental.svg"/>
+
+Apply an AST `Visitor` to transform operation nodes before they are printed.
+
+|           |           |
+| --------: | :-------- |
+|     Type: | `Visitor` |
+| Required: | `false`   |
+
+```typescript
+import { pluginClient } from '@kubb/plugin-client'
+
+pluginClient({
+  transformer: {
+    operation(node) {
+      return { ...node, operationId: `api_${node.operationId}` }
+    },
+  },
+})
 ```
 
 ## Example
@@ -205,9 +252,9 @@ export default defineConfig({
         type: 'tag',
         name: ({ group }) => `${group}Service`,
       },
-      transformers: {
-        name: (name, type) => {
-          return `${name}Client`
+      resolver: {
+        resolveName(name) {
+          return `${this.default(name)}Client`
         },
       },
       operations: true,

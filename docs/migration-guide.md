@@ -784,3 +784,75 @@ pluginMcp({
 | `resolver` | `Partial<ResolverMcp> & ThisType<ResolverMcp>` | — | Override individual resolver methods |
 | `transformer` | `Visitor` | — | Single AST visitor applied before printing |
 | `paramsCasing` | `'camelcase'` | `undefined` | Apply camelCase to parameter names |
+
+### `@kubb/plugin-client` — v5 migration
+
+`@kubb/plugin-client` has been rewritten to match the v5 plugin architecture. Most options are unchanged, but naming customisation and transformation have moved to a new `resolver`/`transformer` pattern.
+
+#### `transformers.name` replaced by `resolver`
+
+The `transformers: { name }` callback has been removed. Use the `resolver` option instead.
+
+::: code-group
+```typescript [Before (v4)]
+pluginClient({
+  transformers: {
+    name: (name, type) => type === 'function' ? `${name}Client` : name,
+  },
+})
+```
+
+```typescript [After (v5)]
+import { pluginClient } from '@kubb/plugin-client'
+
+pluginClient({
+  resolver: {
+    resolveName(name) {
+      return `${this.default(name)}Client`
+    },
+  },
+})
+```
+:::
+
+#### New `compatibilityPreset` option
+
+Use `compatibilityPreset: 'kubbV4'` to preserve v4 naming conventions while migrating.
+
+```typescript
+import { pluginClient } from '@kubb/plugin-client'
+
+pluginClient({ compatibilityPreset: 'kubbV4' })
+```
+
+#### New `transformer` option
+
+Apply an AST `Visitor` to transform operation nodes before they are printed. This replaces the old `transformers` callback approach for structural modifications.
+
+```typescript
+import { pluginClient } from '@kubb/plugin-client'
+
+pluginClient({
+  transformer: {
+    operation(node) {
+      return { ...node, operationId: `api_${node.operationId}` }
+    },
+  },
+})
+```
+
+#### `baseURL` now defaults to the adapter baseURL
+
+In v4, `baseURL` had to be set explicitly. In v5, it automatically falls back to the base URL from the OAS spec. Explicitly setting `baseURL` in plugin options still takes precedence.
+
+#### `contentType` override matching fixed
+
+The `{ type: 'contentType', pattern: '...' }` override form now correctly filters operations by their request body content type. Previously these overrides were silently ignored.
+
+### `@kubb/plugin-client` — new options in v5
+
+| New option | Type | Default | Description |
+|---|---|---|---|
+| `compatibilityPreset` | `'default' \| 'kubbV4'` | `'default'` | Naming convention preset |
+| `resolver` | `Partial<ResolverClient> & ThisType<ResolverClient>` | — | Override individual resolver methods |
+| `transformer` | `Visitor` | — | Single AST visitor applied before printing |
