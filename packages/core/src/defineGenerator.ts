@@ -2,6 +2,7 @@ import type { PossiblePromise } from '@internals/utils'
 import type { OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { FabricFile } from '@kubb/fabric-core/types'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
+import { applyHookResult } from './renderNode.tsx'
 import type { PluginContext, PluginFactoryOptions } from './types.ts'
 
 /**
@@ -68,4 +69,53 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
  */
 export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(generator: Generator<TOptions>): Generator<TOptions> {
   return generator
+}
+
+/**
+ * Merges an array of generators into a single generator.
+ *
+ * The merged generator's `schema`, `operation`, and `operations` methods run
+ * the corresponding method from each input generator in sequence, applying each
+ * result via `applyHookResult`. This eliminates the need to write the loop
+ * manually in each plugin.
+ *
+ * @param generators - Array of generators to merge into a single generator.
+ *
+ * @example
+ * ```ts
+ * const merged = mergeGenerators(generators)
+ *
+ * return {
+ *   name: pluginName,
+ *   schema: merged.schema,
+ *   operation: merged.operation,
+ *   operations: merged.operations,
+ * }
+ * ```
+ */
+export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(generators: Array<Generator<TOptions>>): Generator<TOptions> {
+  return {
+    name: generators.length > 0 ? generators.map((g) => g.name).join('+') : 'merged',
+    async schema(node, options) {
+      for (const gen of generators) {
+        if (!gen.schema) continue
+        const result = await gen.schema.call(this, node, options)
+        await applyHookResult(result, this.fabric)
+      }
+    },
+    async operation(node, options) {
+      for (const gen of generators) {
+        if (!gen.operation) continue
+        const result = await gen.operation.call(this, node, options)
+        await applyHookResult(result, this.fabric)
+      }
+    },
+    async operations(nodes, options) {
+      for (const gen of generators) {
+        if (!gen.operations) continue
+        const result = await gen.operations.call(this, nodes, options)
+        await applyHookResult(result, this.fabric)
+      }
+    },
+  }
 }

@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { applyHookResult, createPlugin, type Group, getPreset } from '@kubb/core'
+import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
 import { presets } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
@@ -52,6 +52,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
   })
 
   const generators = preset.generators ?? []
+  const mergedGenerator = mergeGenerators(generators)
 
   let resolveNameWarning = false
   let resolvePathWarning = false
@@ -107,27 +108,9 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
       return this.plugin.resolver.default(name, type)
     },
-    async schema(node, opts) {
-      for (const gen of generators) {
-        if (!gen.schema) continue
-        const result = await gen.schema.call(this, node, opts)
-        await applyHookResult(result, this.fabric)
-      }
-    },
-    async operation(node, opts) {
-      for (const gen of generators) {
-        if (!gen.operation) continue
-        const result = await gen.operation.call(this, node, opts)
-        await applyHookResult(result, this.fabric)
-      }
-    },
-    async operations(nodes, opts) {
-      for (const gen of generators) {
-        if (!gen.operations) continue
-        const result = await gen.operations.call(this, nodes, opts)
-        await applyHookResult(result, this.fabric)
-      }
-    },
+    schema: mergedGenerator.schema,
+    operation: mergedGenerator.operation,
+    operations: mergedGenerator.operations,
     async install() {
       await this.openInStudio({ ast: true })
     },
