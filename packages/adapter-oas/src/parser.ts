@@ -748,12 +748,21 @@ function createSchemaParser(ctx: OasParserContext) {
         ? (operation.schema.requestBody as { required?: boolean }).required === true
         : false
 
+    const requestBodyContentType = (() => {
+      if (!operation.schema.requestBody || isReference(operation.schema.requestBody)) {
+        return undefined
+      }
+      const content = (operation.schema.requestBody as { content?: Record<string, unknown> }).content
+      return content ? Object.keys(content)[0] : undefined
+    })()
+
     const requestBody = requestBodySchemaNode
       ? {
           description: requestBodyDescription,
           schema: syncOptionality(requestBodySchemaNode, requestBodyRequired),
           keysToOmit: requestBodyKeysToOmit?.length ? requestBodyKeysToOmit : undefined,
           required: requestBodyRequired || undefined,
+          contentType: requestBodyContentType,
         }
       : undefined
 
