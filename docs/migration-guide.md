@@ -787,7 +787,7 @@ pluginMcp({
 
 ### `@kubb/plugin-client` — v5 migration
 
-`@kubb/plugin-client` has been rewritten to match the v5 plugin architecture. Most options are unchanged, but naming customisation and transformation have moved to a new `resolver`/`transformer` pattern.
+`@kubb/plugin-client` has been rewritten to match the v5 plugin architecture. Most options are unchanged, but naming customization and transformation have moved to a new `resolver`/`transformer` pattern.
 
 #### `transformers.name` replaced by `resolver`
 

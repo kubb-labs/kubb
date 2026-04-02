@@ -183,7 +183,7 @@ pluginClient({ compatibilityPreset: 'kubbV4' })
 
 ### resolver
 
-Override individual resolver methods to customise generated names. Any method you omit falls back to the preset resolver. Use `this.default(...)` to call the preset's implementation.
+Override individual resolver methods to customize generated names. Any method you omit falls back to the preset resolver. Use `this.default(...)` to call the preset's implementation.
 
 |           |                                                                  |
 | --------: | :--------------------------------------------------------------- |
