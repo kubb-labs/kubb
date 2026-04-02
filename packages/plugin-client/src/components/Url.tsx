@@ -6,6 +6,7 @@ import { functionPrinter } from '@kubb/plugin-ts'
 import { Const, File, Function } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
+import { buildParamsMapping } from '../utils.ts'
 
 type Props = {
   name: string
@@ -70,18 +71,7 @@ export function Url({
 
   const originalPathParams = node.parameters.filter((p) => p.in === 'path')
   const casedPathParams = caseParams(originalPathParams, paramsCasing)
-  const pathParamsMapping = paramsCasing
-    ? originalPathParams.reduce(
-        (acc, param, i) => {
-          const casedName = casedPathParams[i]?.name ?? param.name
-          if (param.name !== casedName) {
-            acc[param.name] = casedName
-          }
-          return acc
-        },
-        {} as Record<string, string>,
-      )
-    : undefined
+  const pathParamsMapping = paramsCasing ? buildParamsMapping(originalPathParams, casedPathParams) : undefined
 
   return (
     <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>

@@ -1,12 +1,13 @@
 import { isValidVarName, URLPath } from '@internals/utils'
 import { caseParams, createFunctionParameter, createOperationParams, createTypeNode } from '@kubb/ast'
-import type { FunctionParametersNode, OperationNode, ParameterNode } from '@kubb/ast/types'
+import type { FunctionParametersNode, OperationNode } from '@kubb/ast/types'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
 import type { PluginZod } from '@kubb/plugin-zod'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
+import { buildParamsMapping, getComments } from '../utils.ts'
 import { Url } from './Url.tsx'
 
 type Props = {
@@ -39,31 +40,6 @@ type GetParamsProps = {
 }
 
 const declarationPrinter = functionPrinter({ mode: 'declaration' })
-
-function buildParamsMapping(originalParams: Array<ParameterNode>, casedParams: Array<ParameterNode>): Record<string, string> | undefined {
-  const mapping: Record<string, string> = {}
-  let hasChanged = false
-  originalParams.forEach((param, i) => {
-    const casedName = casedParams[i]?.name ?? param.name
-    mapping[param.name] = casedName
-    if (param.name !== casedName) {
-      hasChanged = true
-    }
-  })
-  return hasChanged ? mapping : undefined
-}
-
-function getComments(node: OperationNode): Array<string> {
-  return [
-    node.description && `@description ${node.description}`,
-    node.summary && `@summary ${node.summary}`,
-    node.path && `{@link ${new URLPath(node.path).URL}}`,
-    node.deprecated && '@deprecated',
-  ]
-    .filter((x): x is string => Boolean(x))
-    .flatMap((text) => text.split(/\r?\n/).map((line) => line.trim()))
-    .filter((x): x is string => Boolean(x))
-}
 
 function getParams({ paramsType, paramsCasing, pathParamsType, node, tsResolver, isConfigurable }: GetParamsProps): FunctionParametersNode {
   const requestName = node.requestBody?.schema ? tsResolver.resolveDataName(node) : undefined

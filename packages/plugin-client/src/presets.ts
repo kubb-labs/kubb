@@ -8,16 +8,18 @@ import type { ResolverClient } from './types.ts'
  *
  * - `default` — uses `resolverClient` with v5 naming conventions.
  * - `kubbV4`  — uses `resolverClientLegacy` with backward-compatible naming.
+ *
+ * Note: Unlike plugin-ts/plugin-zod, generators are not defined here because
+ * plugin-client selects generators dynamically based on `clientType`, `group`,
+ * and `operations` options. Generator selection happens in `plugin.ts`.
  */
 export const presets = definePresets<ResolverClient>({
   default: {
     name: 'default',
     resolver: resolverClient,
-    generators: [],
   },
   kubbV4: {
     name: 'kubbV4',
     resolver: resolverClientLegacy,
-    generators: [],
   },
 })
