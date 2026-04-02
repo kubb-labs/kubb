@@ -1,123 +1,147 @@
 import path from 'node:path'
-import { useDriver } from '@kubb/core/hooks'
-import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
+import { caseParams, transform } from '@kubb/ast'
+import { defineGenerator } from '@kubb/core'
+import type { PluginTs } from '@kubb/plugin-ts'
 import { pluginTsName } from '@kubb/plugin-ts'
+import type { PluginZod } from '@kubb/plugin-zod'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File } from '@kubb/react-fabric'
 import { Client } from '../components/Client'
 import { Url } from '../components/Url.tsx'
 import type { PluginClient } from '../types'
 
-export const clientGenerator = createReactGenerator<PluginClient>({
+export const clientGenerator = defineGenerator<PluginClient>({
   name: 'client',
-  Operation({ config, plugin, operation, generator }) {
-    const driver = useDriver()
-    const {
-      options,
-      options: { output, urlType },
-    } = plugin
+  type: 'react',
+  Operation({ node, adapter, options, config, driver, resolver, plugin }) {
+    const { output, urlType, dataReturnType, paramsCasing, paramsType, pathParamsType, parser, importPath, group } = options
+    const baseURL = options.baseURL ?? adapter.rootNode?.meta?.baseURL
+    const root = path.resolve(config.root, config.output.path)
 
-    const oas = useOas()
-    const { getSchemas, getName, getFile } = useOperationManager(generator)
+    const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
 
-    const client = {
-      name: getName(operation, { type: 'function' }),
-      file: getFile(operation),
+    if (!pluginTs?.resolver) {
+      return null
     }
 
-    const url = {
-      name: getName(operation, { type: 'function', suffix: 'url', prefix: 'get' }),
-      file: getFile(operation),
-    }
+    const tsResolver = pluginTs.resolver
 
-    const type = {
-      file: getFile(operation, { pluginName: pluginTsName }),
-      schemas: getSchemas(operation, { pluginName: pluginTsName, type: 'type' }),
-    }
+    const pluginZod = parser === 'zod' ? driver.getPlugin<PluginZod>(pluginZodName) : undefined
+    const zodResolver = pluginZod?.resolver
 
-    const zod = {
-      file: getFile(operation, { pluginName: pluginZodName }),
-      schemas: getSchemas(operation, { pluginName: pluginZodName, type: 'function' }),
-    }
+    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
-    const isFormData = operation.getContentType() === 'multipart/form-data'
+    const casedParams = caseParams(transformedNode.parameters, paramsCasing)
+    const pathParams = casedParams.filter((p) => p.in === 'path')
+    const queryParams = casedParams.filter((p) => p.in === 'query')
+    const headerParams = casedParams.filter((p) => p.in === 'header')
+
+    const importedTypeNames = [
+      ...pathParams.map((p) => tsResolver.resolvePathParamsName(transformedNode, p)),
+      ...queryParams.map((p) => tsResolver.resolveQueryParamsName(transformedNode, p)),
+      ...headerParams.map((p) => tsResolver.resolveHeaderParamsName(transformedNode, p)),
+      transformedNode.requestBody?.schema ? tsResolver.resolveDataName(transformedNode) : undefined,
+      tsResolver.resolveResponseName(transformedNode),
+      ...transformedNode.responses.map((res) => tsResolver.resolveResponseStatusName(transformedNode, res.statusCode)),
+    ].filter(Boolean)
+
+    const importedZodNames =
+      zodResolver && parser === 'zod'
+        ? [
+            zodResolver.resolveResponseName?.(transformedNode),
+            transformedNode.requestBody?.schema ? zodResolver.resolveDataName?.(transformedNode) : undefined,
+          ].filter(Boolean)
+        : []
+
+    const meta = {
+      name: resolver.resolveName(transformedNode.operationId),
+      urlName: `get${resolver.resolveName(transformedNode.operationId).charAt(0).toUpperCase()}${resolver.resolveName(transformedNode.operationId).slice(1)}Url`,
+      file: resolver.resolveFile(
+        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+        { root, output, group },
+      ),
+      fileTs: tsResolver.resolveFile(
+        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+        {
+          root,
+          output: pluginTs.options?.output ?? output,
+          group: pluginTs.options?.group,
+        },
+      ),
+      fileZod:
+        zodResolver && pluginZod?.options
+          ? zodResolver.resolveFile(
+              { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+              {
+                root,
+                output: pluginZod.options.output ?? output,
+                group: pluginZod.options.group,
+              },
+            )
+          : undefined,
+    } as const
+
+    const isFormData = transformedNode.requestBody?.contentType === 'multipart/form-data'
 
     return (
       <File
-        baseName={client.file.baseName}
-        path={client.file.path}
-        meta={client.file.meta}
-        banner={getBanner({ oas, output, config: driver.config })}
-        footer={getFooter({ oas, output })}
+        baseName={meta.file.baseName}
+        path={meta.file.path}
+        meta={meta.file.meta}
+        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
       >
-        {options.importPath ? (
+        {importPath ? (
           <>
-            <File.Import name={'fetch'} path={options.importPath} />
-            <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={options.importPath} isTypeOnly />
+            <File.Import name={'fetch'} path={importPath} />
+            <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={importPath} isTypeOnly />
           </>
         ) : (
           <>
-            <File.Import name={['fetch']} root={client.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
+            <File.Import name={['fetch']} root={meta.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
             <File.Import
               name={['Client', 'RequestConfig', 'ResponseErrorConfig']}
-              root={client.file.path}
+              root={meta.file.path}
               path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
               isTypeOnly
             />
           </>
         )}
 
-        {isFormData && type.schemas.request?.name && (
-          <File.Import name={['buildFormData']} root={client.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
+        {isFormData && transformedNode.requestBody?.schema && (
+          <File.Import name={['buildFormData']} root={meta.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
         )}
 
-        {options.parser === 'zod' && (
-          <File.Import
-            name={[zod.schemas.response.name, zod.schemas.request?.name].filter((x): x is string => Boolean(x))}
-            root={client.file.path}
-            path={zod.file.path}
-          />
+        {meta.fileZod && importedZodNames.length > 0 && <File.Import name={importedZodNames as string[]} root={meta.file.path} path={meta.fileZod.path} />}
+
+        {meta.fileTs && importedTypeNames.length > 0 && (
+          <File.Import name={Array.from(new Set(importedTypeNames))} root={meta.file.path} path={meta.fileTs.path} isTypeOnly />
         )}
-        <File.Import
-          name={[
-            type.schemas.request?.name,
-            type.schemas.response.name,
-            type.schemas.pathParams?.name,
-            type.schemas.queryParams?.name,
-            type.schemas.headerParams?.name,
-            ...(type.schemas.statusCodes?.map((item) => item.name) || []),
-          ].filter((x): x is string => Boolean(x))}
-          root={client.file.path}
-          path={type.file.path}
-          isTypeOnly
-        />
 
         <Url
-          name={url.name}
-          baseURL={options.baseURL}
-          pathParamsType={options.pathParamsType}
-          paramsCasing={options.paramsCasing}
-          paramsType={options.paramsType}
-          typeSchemas={type.schemas}
-          operation={operation}
+          name={meta.urlName}
+          baseURL={baseURL}
+          pathParamsType={pathParamsType}
+          paramsCasing={paramsCasing}
+          paramsType={paramsType}
+          node={transformedNode}
+          tsResolver={tsResolver}
           isIndexable={urlType === 'export'}
           isExportable={urlType === 'export'}
         />
 
         <Client
-          name={client.name}
-          urlName={url.name}
-          baseURL={options.baseURL}
-          dataReturnType={options.dataReturnType}
-          pathParamsType={options.pathParamsType}
-          paramsCasing={options.paramsCasing}
-          paramsType={options.paramsType}
-          typeSchemas={type.schemas}
-          operation={operation}
-          parser={options.parser}
-          zodSchemas={zod.schemas}
+          name={meta.name}
+          urlName={meta.urlName}
+          baseURL={baseURL}
+          dataReturnType={dataReturnType}
+          pathParamsType={pathParamsType}
+          paramsCasing={paramsCasing}
+          paramsType={paramsType}
+          node={transformedNode}
+          tsResolver={tsResolver}
+          zodResolver={zodResolver}
+          parser={parser}
         />
       </File>
     )

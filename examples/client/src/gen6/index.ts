@@ -163,10 +163,10 @@ export type {
   UpdateUserPathParams,
 } from './models/ts/userController/UpdateUser.ts'
 export {
-  deleteOrderController,
-  getInventoryController,
-  getOrderByIdController,
-  placeOrderController,
-  placeOrderPatchController,
+  deleteOrder,
+  getInventory,
+  getOrderById,
+  placeOrder,
+  placeOrderPatch,
   storeController,
 } from './tag.ts'

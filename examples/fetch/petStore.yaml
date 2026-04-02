@@ -306,6 +306,7 @@ paths:
           schema:
             type: string
       requestBody:
+        required: true
         content:
           multipart/form-data:
             schema:

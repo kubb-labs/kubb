@@ -7,12 +7,6 @@ import { clientOperationGenerator } from './src/generators/clientOperationGenera
 import { clientOperationReactGenerator } from './src/generators/clientOperationReactGenerator'
 import { clientStaticGenerator } from './src/generators/clientStaticGenerator'
 
-const camelCase = (str: string) =>
-  str
-    .split(/[\s_-]+/)
-    .map((w, i) => (i === 0 ? w.charAt(0).toLowerCase() + w.slice(1) : w.charAt(0).toUpperCase() + w.slice(1)))
-    .join('')
-
 const input = { path: './petStore.yaml' } as const
 
 const tsPlugin = pluginTs({
@@ -38,6 +32,7 @@ export default defineConfig([
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
       pluginClient({
+        compatibilityPreset: 'kubbV4',
         output: {
           path: './clients/axios',
           barrelType: 'propagate',
@@ -60,26 +55,18 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen2' },
-    adapter: adapterOas({ dateType: 'date' }),
+    adapter: adapterOas({ dateType: 'date', contentType: 'application/xml' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
       pluginClient({
+        compatibilityPreset: 'kubbV4',
         output: {
           path: './clients/axios/xml',
           barrelType: 'propagate',
           banner: '/* eslint-disable no-alert, no-console */',
         },
-        contentType: 'application/xml',
         include: [{ type: 'operationId', pattern: 'uploadFile' }],
-        transformers: {
-          name(name, type) {
-            if (type === 'function') {
-              return `${name}XML`
-            }
-            return name
-          },
-        },
         pathParamsType: 'object',
       }),
     ],
@@ -93,6 +80,7 @@ export default defineConfig([
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
       pluginClient({
+        compatibilityPreset: 'kubbV4',
         output: { path: './tagObject.ts' },
         generators: [clientStaticGenerator],
         include: [{ type: 'tag', pattern: 'store' }],
@@ -115,6 +103,7 @@ export default defineConfig([
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginClient({
+        compatibilityPreset: 'kubbV4',
         output: { path: './tagClientOperation.ts' },
         generators: [clientOperationGenerator],
         include: [{ type: 'tag', pattern: 'store' }],
@@ -131,6 +120,7 @@ export default defineConfig([
     plugins: [
       pluginOas({ validate: false, generators: [] }),
       pluginClient({
+        compatibilityPreset: 'kubbV4',
         output: { path: './tagClientOperationReact.ts' },
         generators: [clientOperationReactGenerator],
         include: [{ type: 'tag', pattern: 'store' }],
@@ -148,6 +138,7 @@ export default defineConfig([
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
       pluginClient({
+        compatibilityPreset: 'kubbV4',
         output: { path: './tag.ts' },
         parser: 'client',
         include: [{ type: 'tag', pattern: 'store' }],
@@ -155,14 +146,6 @@ export default defineConfig([
           type: 'tag',
           name({ group }) {
             return `${group}Controller`
-          },
-        },
-        transformers: {
-          name(name, type) {
-            if (type === 'function') {
-              return camelCase(`${name} controller`)
-            }
-            return name
           },
         },
       }),
@@ -180,6 +163,7 @@ export default defineConfig([
       pluginOas({ validate: false, generators: [] }),
       tsPlugin,
       pluginClient({
+        compatibilityPreset: 'kubbV4',
         output: {
           path: './clients/class',
           barrelType: false,

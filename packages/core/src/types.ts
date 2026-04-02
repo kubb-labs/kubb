@@ -587,11 +587,11 @@ export type Output<_TOptions = unknown> = {
   /**
    * Add a banner text in the beginning of every file
    */
-  banner?: string | ((node: RootNode) => string)
+  banner?: string | ((node?: RootNode) => string)
   /**
    * Add a footer text in the beginning of every file
    */
-  footer?: string | ((node: RootNode) => string)
+  footer?: string | ((node?: RootNode) => string)
   /**
    * Whether to override existing external files if they already exist.
    * @default false

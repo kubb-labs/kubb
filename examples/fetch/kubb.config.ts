@@ -17,7 +17,7 @@ export default defineConfig(() => {
       path: './src/gen',
       clean: true,
     },
-    adapter: adapterOas({ collisionDetection: false }),
+    adapter: adapterOas({ serverIndex: 0 }),
     plugins: [
       pluginOas({
         validate: false,

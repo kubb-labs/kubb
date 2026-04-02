@@ -1,47 +1,45 @@
+import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { useDriver } from '@kubb/core/hooks'
+import { transform } from '@kubb/ast'
+import { defineGenerator } from '@kubb/core'
 import type { FabricFile } from '@kubb/fabric-core/types'
-import { createReactGenerator } from '@kubb/plugin-oas/generators'
-import { useOas, useOperationManager } from '@kubb/plugin-oas/hooks'
-import { getBanner, getFooter } from '@kubb/plugin-oas/utils'
 import { File, Function } from '@kubb/react-fabric'
 import type { PluginClient } from '../types'
 
-export const groupedClientGenerator = createReactGenerator<PluginClient>({
+export const groupedClientGenerator = defineGenerator<PluginClient>({
   name: 'groupedClient',
-  Operations({ operations, generator, plugin }) {
-    const { options, name: pluginName } = plugin
-    const driver = useDriver()
+  type: 'react',
+  Operations({ nodes, options, config, resolver, adapter, plugin }) {
+    const { output, group } = options
+    const root = path.resolve(config.root, config.output.path)
 
-    const oas = useOas()
-    const { getName, getFile, getGroup } = useOperationManager(generator)
+    const controllers = nodes.reduce(
+      (acc, operationNode) => {
+        if (group?.type === 'tag') {
+          const tag = operationNode.tags[0]
+          const name = tag ? group?.name?.({ group: camelCase(tag) }) : undefined
 
-    const controllers = operations.reduce(
-      (acc, operation) => {
-        if (options.group?.type === 'tag') {
-          const group = getGroup(operation)
-          const name = group?.tag ? options.group?.name?.({ group: camelCase(group.tag) }) : undefined
-
-          if (!group?.tag || !name) {
+          if (!tag || !name) {
             return acc
           }
 
-          const file = driver.getFile({
-            name,
-            extname: '.ts',
-            pluginName,
-            options: { group },
-          })
+          const transformedNode = plugin.transformer ? transform(operationNode, plugin.transformer) : operationNode
+
+          const file = resolver.resolveFile({ name, extname: '.ts', tag }, { root, output, group })
+          const clientFile = resolver.resolveFile(
+            { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+            { root, output, group },
+          )
 
           const client = {
-            name: getName(operation, { type: 'function' }),
-            file: getFile(operation),
+            name: resolver.resolveName(transformedNode.operationId),
+            file: clientFile,
           }
 
-          const previousFile = acc.find((item) => item.file.path === file.path)
+          const previous = acc.find((item) => item.file.path === file.path)
 
-          if (previousFile) {
-            previousFile.clients.push(client)
+          if (previous) {
+            previous.clients.push(client)
           } else {
             acc.push({ name, file, clients: [client] })
           }
@@ -59,8 +57,8 @@ export const groupedClientGenerator = createReactGenerator<PluginClient>({
           baseName={file.baseName}
           path={file.path}
           meta={file.meta}
-          banner={getBanner({ oas, output: options.output, config: driver.config })}
-          footer={getFooter({ oas, output: options.output })}
+          banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
+          footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
         >
           {clients.map((client) => (
             <File.Import key={client.name} name={[client.name]} root={file.path} path={client.file.path} />

@@ -1,15 +1,14 @@
 import { isValidVarName, URLPath } from '@internals/utils'
-import { getDefaultValue, type Operation } from '@kubb/oas'
-import type { OperationSchemas } from '@kubb/plugin-oas'
-import { getParamsMapping, getPathParams } from '@kubb/plugin-oas/utils'
-import { Const, File, Function, FunctionParams } from '@kubb/react-fabric'
+import { caseParams, createOperationParams } from '@kubb/ast'
+import type { FunctionParametersNode, OperationNode } from '@kubb/ast/types'
+import type { PluginTs } from '@kubb/plugin-ts'
+import { functionPrinter } from '@kubb/plugin-ts'
+import { Const, File, Function } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginClient } from '../types.ts'
+import { buildParamsMapping } from '../utils.ts'
 
 type Props = {
-  /**
-   * Name of the function
-   */
   name: string
   isExportable?: boolean
   isIndexable?: boolean
@@ -18,45 +17,33 @@ type Props = {
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
   paramsType: PluginClient['resolvedOptions']['pathParamsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
-  typeSchemas: OperationSchemas
-  operation: Operation
+  node: OperationNode
+  tsResolver: PluginTs['resolver']
 }
 
 type GetParamsProps = {
   paramsCasing: PluginClient['resolvedOptions']['paramsCasing']
   paramsType: PluginClient['resolvedOptions']['paramsType']
   pathParamsType: PluginClient['resolvedOptions']['pathParamsType']
-  typeSchemas: OperationSchemas
+  node: OperationNode
+  tsResolver: PluginTs['resolver']
 }
 
-function getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas }: GetParamsProps) {
-  if (paramsType === 'object') {
-    const pathParams = getPathParams(typeSchemas.pathParams, {
-      typed: true,
-      casing: paramsCasing,
-    })
+const declarationPrinter = functionPrinter({ mode: 'declaration' })
 
-    return FunctionParams.factory({
-      data: {
-        mode: 'object',
-        children: {
-          ...pathParams,
-        },
-      },
-    })
+function getParams({ paramsType, paramsCasing, pathParamsType, node, tsResolver }: GetParamsProps): FunctionParametersNode {
+  // Build a URL-only node with only path params (no body, query, header)
+  const urlNode: OperationNode = {
+    ...node,
+    parameters: node.parameters.filter((p) => p.in === 'path'),
+    requestBody: undefined,
   }
 
-  return FunctionParams.factory({
-    pathParams: typeSchemas.pathParams?.name
-      ? {
-          mode: pathParamsType === 'object' ? 'object' : 'inlineSpread',
-          children: getPathParams(typeSchemas.pathParams, {
-            typed: true,
-            casing: paramsCasing,
-          }),
-          default: getDefaultValue(typeSchemas.pathParams?.schema),
-        }
-      : undefined,
+  return createOperationParams(urlNode, {
+    paramsType: paramsType === 'object' ? 'object' : 'inline',
+    pathParamsType: paramsType === 'object' ? 'object' : pathParamsType === 'object' ? 'object' : 'inline',
+    paramsCasing,
+    resolver: tsResolver,
   })
 }
 
@@ -64,34 +51,38 @@ export function Url({
   name,
   isExportable = true,
   isIndexable = true,
-  typeSchemas,
   baseURL,
   paramsType,
   paramsCasing,
   pathParamsType,
-  operation,
+  node,
+  tsResolver,
 }: Props): FabricReactNode {
-  const path = new URLPath(operation.path)
-  const params = getParams({
+  const path = new URLPath(node.path)
+
+  const paramsNode = getParams({
     paramsType,
     paramsCasing,
     pathParamsType,
-    typeSchemas,
+    node,
+    tsResolver,
   })
+  const paramsSignature = declarationPrinter.print(paramsNode) ?? ''
 
-  // Generate pathParams mapping when paramsCasing is used
-  const pathParamsMapping = paramsCasing ? getParamsMapping(typeSchemas.pathParams, { casing: paramsCasing }) : undefined
+  const originalPathParams = node.parameters.filter((p) => p.in === 'path')
+  const casedPathParams = caseParams(originalPathParams, paramsCasing)
+  const pathParamsMapping = paramsCasing ? buildParamsMapping(originalPathParams, casedPathParams) : undefined
 
   return (
     <File.Source name={name} isExportable={isExportable} isIndexable={isIndexable}>
-      <Function name={name} export={isExportable} params={params.toConstructor()}>
+      <Function name={name} export={isExportable} params={paramsSignature}>
         {pathParamsMapping &&
           Object.entries(pathParamsMapping)
-            .filter(([originalName, camelCaseName]) => originalName !== camelCaseName && isValidVarName(originalName))
+            .filter(([originalName, camelCaseName]) => isValidVarName(originalName) && originalName !== camelCaseName)
             .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
             .join('\n')}
-        {pathParamsMapping && <br />}
-        <Const name={'res'}>{`{ method: '${operation.method.toUpperCase()}', url: ${path.toTemplateString({ prefix: baseURL })} as const }`}</Const>
+        {pathParamsMapping && Object.keys(pathParamsMapping).length > 0 && <br />}
+        <Const name={'res'}>{`{ method: '${node.method.toUpperCase()}', url: ${path.toTemplateString({ prefix: baseURL })} as const }`}</Const>
         <br />
         return res
       </Function>

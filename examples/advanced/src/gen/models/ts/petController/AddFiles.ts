@@ -13,9 +13,9 @@ export type AddFiles200 = Omit<NonNullable<Pet>, 'name'>
 export type AddFiles405 = any
 
 /**
- * @type object | undefined
+ * @type object
  */
-export type AddFilesMutationRequest = Omit<NonNullable<Pet>, 'id'> | undefined
+export type AddFilesMutationRequest = Omit<NonNullable<Pet>, 'id'>
 
 export type AddFilesMutationResponse = AddFiles200
 

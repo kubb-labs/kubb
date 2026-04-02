@@ -1,20 +1,131 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: for test case */
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
+import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import type { HttpMethod } from '@kubb/oas'
-import { parse } from '@kubb/oas'
-import { OperationGenerator, renderOperation } from '@kubb/plugin-oas'
+import { renderOperation } from '@kubb/core'
+import type { PluginTs } from '@kubb/plugin-ts'
+import { resolverTs } from '@kubb/plugin-ts'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { resolverClient } from '../resolvers/resolverClient.ts'
 import type { PluginClient } from '../types.ts'
 import { clientGenerator } from './clientGenerator.tsx'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [] }
 
-describe('clientGenerator operation', async () => {
+const defaultOptions: PluginClient['resolvedOptions'] = {
+  dataReturnType: 'data',
+  paramsCasing: undefined,
+  paramsType: 'inline',
+  pathParamsType: 'inline',
+  client: 'axios',
+  clientType: 'function',
+  importPath: undefined,
+  bundle: false,
+  parser: 'client',
+  output: {
+    path: '.',
+    banner: '/* eslint-disable no-alert, no-console */',
+  },
+  group: undefined,
+  urlType: 'export',
+  wrapper: undefined,
+  baseURL: undefined,
+  resolver: resolverClient,
+}
+
+const mockedTsPlugin = createMockedPlugin<PluginTs>({
+  name: 'plugin-ts',
+  options: { output: { path: '.' }, group: undefined } as PluginTs['resolvedOptions'],
+  resolver: resolverTs,
+})
+
+// Shared operation nodes
+const findByTagsNode = createOperation({
+  operationId: 'findPetsByTags',
+  method: 'GET',
+  path: '/pet/findByTags',
+  tags: ['pet'],
+  parameters: [
+    createParameter({ name: 'tags', in: 'query', schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }), required: true }),
+    createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
+  ],
+  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+})
+
+const updatePetByIdNode = createOperation({
+  operationId: 'updatePetWithForm',
+  method: 'POST',
+  path: '/pet/{petId}',
+  tags: ['pet'],
+  parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
+  requestBody: { schema: createSchema({ type: 'object', properties: [] }) },
+  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+})
+
+const deletePetNode = createOperation({
+  operationId: 'deletePet',
+  method: 'DELETE',
+  path: '/pet/{petId}',
+  tags: ['pet'],
+  parameters: [
+    createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true }),
+    createParameter({ name: 'api_key', in: 'header', schema: createSchema({ type: 'string' }) }),
+  ],
+  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'void' }), description: 'successful operation' })],
+})
+
+const uploadFileNode = createOperation({
+  operationId: 'uploadFile',
+  method: 'POST',
+  path: '/pet/{petId}/uploadImage',
+  tags: ['pet'],
+  parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
+  requestBody: { contentType: 'multipart/form-data', schema: createSchema({ type: 'object', properties: [] }) },
+  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+})
+
+const findByStatusNode = createOperation({
+  operationId: 'findPetsByStatus',
+  method: 'GET',
+  path: '/pet/findByStatus',
+  tags: ['pet'],
+  parameters: [createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) })],
+  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+})
+
+const requiredOneOfRequestBodyNode = createOperation({
+  operationId: 'createOrder',
+  method: 'POST',
+  path: '/orders',
+  tags: ['store'],
+  requestBody: {
+    required: true,
+    schema: createSchema({ type: 'union', schemas: [createSchema({ type: 'object', properties: [] }), createSchema({ type: 'string' })] }),
+  },
+  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+})
+
+const dashedPathParamsNode = createOperation({
+  operationId: 'getOrganization',
+  method: 'GET',
+  path: '/organizations/{organization-id}',
+  tags: ['organizations'],
+  parameters: [createParameter({ name: 'organization-id', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
+  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+})
+
+const underscoredPathParamsNode = createOperation({
+  operationId: 'getItem',
+  method: 'GET',
+  path: '/v1/items/{item_id}',
+  tags: ['items'],
+  parameters: [createParameter({ name: 'item_id', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
+  responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+})
+
+describe('clientGenerator operation', () => {
   const fabric = createReactFabric()
 
   beforeEach(() => {
@@ -22,238 +133,51 @@ describe('clientGenerator operation', async () => {
   })
 
   const testData = [
-    {
-      name: 'findByTags',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
-      options: {},
-    },
-    {
-      name: 'findByTagsWithTemplateString',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
-      options: {
-        baseURL: '${123456}',
-      },
-    },
-    {
-      name: 'findByTagsWithZod',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
-      options: {
-        parser: 'zod',
-      },
-    },
-    {
-      name: 'findByTagsFull',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
-      options: {
-        dataReturnType: 'full',
-      },
-    },
-    {
-      name: 'findByTagsWithZodFull',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
-      options: {
-        parser: 'zod',
-        dataReturnType: 'full',
-      },
-    },
-    {
-      name: 'importPath',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
-      options: {
-        importPath: 'axios',
-      },
-    },
-    {
-      name: 'findByTagsObject',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
-      options: {
-        paramsType: 'object',
-        pathParamsType: 'object',
-      },
-    },
-    {
-      name: 'updatePetById',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
-      method: 'post',
-      options: {},
-    },
-    {
-      name: 'deletePet',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
-      method: 'delete',
-      options: {},
-    },
-    {
-      name: 'deletePetObject',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
-      method: 'delete',
-      options: {
-        pathParamsType: 'object',
-      },
-    },
-    {
-      name: 'updatePetByIdClean',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}',
-      method: 'post',
-      options: {
-        urlType: false,
-      },
-    },
-    {
-      name: 'uploadFile',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/{petId}/uploadImage',
-      method: 'post',
-      options: {},
-    },
-    {
-      name: 'findByTagsWithBaseURL',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get',
-      options: {
-        baseURL: 'https://petstore3.swagger.io/api/v3',
-      },
-    },
-    {
-      name: 'findByStatusAllOptional',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByStatus',
-      method: 'get',
-      options: {
-        paramsType: 'object',
-        pathParamsType: 'object',
-      },
-    },
-    {
-      name: 'findByStatusAllOptionalInline',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByStatus',
-      method: 'get',
-      options: {
-        paramsType: 'inline',
-        pathParamsType: 'inline',
-      },
-    },
-    {
-      name: 'requiredOneOfRequestBody',
-      input: '../../mocks/requiredOneOfRequestBody.yaml',
-      path: '/orders',
-      method: 'post',
-      options: {},
-    },
-    {
-      name: 'dashedPathParams',
-      input: '../../mocks/dashedPathParams.yaml',
-      path: '/organizations/{organization-id}',
-      method: 'get',
-      options: {
-        paramsCasing: 'camelcase',
-        pathParamsType: 'object',
-      },
-    },
-    {
-      name: 'dashedPathParamsInline',
-      input: '../../mocks/dashedPathParams.yaml',
-      path: '/organizations/{organization-id}',
-      method: 'get',
-      options: {
-        paramsCasing: 'camelcase',
-        pathParamsType: 'inline',
-      },
-    },
-    {
-      name: 'underscoredPathParams',
-      input: '../../mocks/underscoredPathParams.yaml',
-      path: '/v1/items/{item_id}',
-      method: 'get',
-      options: {
-        paramsCasing: 'camelcase',
-        pathParamsType: 'object',
-      },
-    },
+    { name: 'findByTags', node: findByTagsNode, options: {} },
+    { name: 'findByTagsWithTemplateString', node: findByTagsNode, options: {}, baseURL: '${123456}' },
+    { name: 'findByTagsWithZod', node: findByTagsNode, options: { parser: 'zod' as const } },
+    { name: 'findByTagsFull', node: findByTagsNode, options: { dataReturnType: 'full' as const } },
+    { name: 'findByTagsWithZodFull', node: findByTagsNode, options: { parser: 'zod' as const, dataReturnType: 'full' as const } },
+    { name: 'importPath', node: findByTagsNode, options: { importPath: 'axios' as const } },
+    { name: 'findByTagsObject', node: findByTagsNode, options: { paramsType: 'object' as const, pathParamsType: 'object' as const } },
+    { name: 'updatePetById', node: updatePetByIdNode, options: {} },
+    { name: 'deletePet', node: deletePetNode, options: {} },
+    { name: 'deletePetObject', node: deletePetNode, options: { pathParamsType: 'object' as const } },
+    { name: 'updatePetByIdClean', node: updatePetByIdNode, options: { urlType: false as const } },
+    { name: 'uploadFile', node: uploadFileNode, options: {} },
+    { name: 'findByTagsWithBaseURL', node: findByTagsNode, options: {}, baseURL: 'https://petstore3.swagger.io/api/v3' },
+    { name: 'findByStatusAllOptional', node: findByStatusNode, options: { paramsType: 'object' as const, pathParamsType: 'object' as const } },
+    { name: 'findByStatusAllOptionalInline', node: findByStatusNode, options: { paramsType: 'inline' as const, pathParamsType: 'inline' as const } },
+    { name: 'requiredOneOfRequestBody', node: requiredOneOfRequestBodyNode, options: {} },
+    { name: 'dashedPathParams', node: dashedPathParamsNode, options: { paramsCasing: 'camelcase' as const, pathParamsType: 'object' as const } },
+    { name: 'dashedPathParamsInline', node: dashedPathParamsNode, options: { paramsCasing: 'camelcase' as const, pathParamsType: 'inline' as const } },
+    { name: 'underscoredPathParams', node: underscoredPathParamsNode, options: { paramsCasing: 'camelcase' as const, pathParamsType: 'object' as const } },
     {
       name: 'underscoredPathParamsInline',
-      input: '../../mocks/underscoredPathParams.yaml',
-      path: '/v1/items/{item_id}',
-      method: 'get',
-      options: {
-        paramsCasing: 'camelcase',
-        pathParamsType: 'inline',
-      },
+      node: underscoredPathParamsNode,
+      options: { paramsCasing: 'camelcase' as const, pathParamsType: 'inline' as const },
     },
-  ] as const satisfies Array<{
-    input: string
-    name: string
-    path: string
-    method: HttpMethod
-    options: Partial<PluginClient['resolvedOptions']>
-  }>
+  ] as const satisfies Array<{ name: string; node: OperationNode; options: Partial<PluginClient['resolvedOptions']>; baseURL?: string }>
 
   test.each(testData)('$name', async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input))
-
     const options: PluginClient['resolvedOptions'] = {
-      dataReturnType: 'data',
-      paramsCasing: undefined,
-      paramsType: 'inline',
-      pathParamsType: 'inline',
-      client: 'axios',
-      clientType: 'function',
-      importPath: undefined,
-      bundle: false,
-      baseURL: '',
-      parser: 'client',
-      output: {
-        path: '.',
-        banner: '/* eslint-disable no-alert, no-console */',
-      },
-      group: undefined,
-      urlType: 'export',
-      wrapper: undefined,
+      ...defaultOptions,
       ...props.options,
     }
-    const plugin = createMockedPlugin<PluginClient>({ name: 'plugin-client', options })
-    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
-    const generator = new OperationGenerator(options, {
+    const plugin = createMockedPlugin<PluginClient>({ name: 'plugin-client', options, resolver: resolverClient })
+    const driver = createMockedPluginDriver({ name: props.name, plugin: mockedTsPlugin })
+
+    await renderOperation(props.node, {
+      config: testConfig,
       fabric,
-      oas,
-      include: undefined,
-      driver: mockedPluginDriver,
-
-      plugin,
-      contentType: undefined,
-      override: undefined,
-      mode: 'split',
-      exclude: [],
-    })
-
-    const operation = oas.operation(props.path, props.method)
-
-    await renderOperation(operation, {
-      config: { root: '.', output: { path: 'test' } } as Config,
-      fabric,
-      generator,
+      adapter: createMockedAdapter({
+        rootNode: { kind: 'Root', schemas: [], operations: [], meta: { baseURL: 'baseURL' in props ? props.baseURL : undefined } },
+      }),
+      driver,
       Component: clientGenerator.Operation,
       plugin,
+      options,
+      resolver: resolverClient,
     })
 
     await matchFiles(fabric.files, props.name)
