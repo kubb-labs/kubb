@@ -22,7 +22,10 @@ export const serverGeneratorLegacy = defineGenerator<PluginMcp>({
     const root = path.resolve(config.root, config.output.path)
 
     const pluginZod = driver.getPlugin<PluginZod>(pluginZodName)
-    const zodResolver = pluginZod?.resolver
+
+    if (!pluginZod?.resolver) {
+      return
+    }
 
     const name = 'server'
     const serverFilePath = path.resolve(root, output.path, 'server.ts')
@@ -50,25 +53,21 @@ export const serverGeneratorLegacy = defineGenerator<PluginMcp>({
         { root, output, group },
       )
 
-      const zodFile = zodResolver
-        ? zodResolver.resolveFile(
-            { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
-            {
-              root,
-              output: pluginZod?.options?.output ?? output,
-              group: pluginZod?.options?.group,
-            },
-          )
-        : undefined
+      const zodFile = pluginZod?.resolver.resolveFile(
+        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+        {
+          root,
+          output: pluginZod?.options?.output ?? output,
+          group: pluginZod?.options?.group,
+        },
+      )
 
-      const requestName = zodResolver && transformedNode.requestBody?.schema ? zodResolver.resolveDataName(transformedNode) : undefined
-      const responseName = zodResolver ? zodResolver.resolveResponseName(transformedNode) : undefined
+      const requestName = transformedNode.requestBody?.schema ? pluginZod?.resolver.resolveDataName(transformedNode) : undefined
+      const responseName = pluginZod?.resolver.resolveResponseName(transformedNode)
 
-      const zodQueryParams =
-        zodResolver && queryParams.length ? zodResolver.resolveQueryParamsName(transformedNode, queryParams[0]!) : undefined
+      const zodQueryParams = queryParams.length ? pluginZod?.resolver.resolveQueryParamsName(transformedNode, queryParams[0]!) : undefined
 
-      const zodHeaderParams =
-        zodResolver && headerParams.length ? zodResolver.resolveHeaderParamsName(transformedNode, headerParams[0]!) : undefined
+      const zodHeaderParams = headerParams.length ? pluginZod?.resolver.resolveHeaderParamsName(transformedNode, headerParams[0]!) : undefined
 
       return {
         tool: {

@@ -9,7 +9,7 @@ import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } f
  * @summary Place an file for a pet
  * {@link /pet/files}
  */
-export async function addFilesHandler({ data }: { data: AddFilesMutationRequest }): Promise<Promise<CallToolResult>> {
+export async function addFilesHandler({ data }: { data?: AddFilesMutationRequest } = {}): Promise<Promise<CallToolResult>> {
   const requestData = data
   const formData = buildFormData(requestData)
   const res = await fetch<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationRequest>({

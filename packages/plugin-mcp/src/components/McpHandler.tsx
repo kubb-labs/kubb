@@ -1,10 +1,12 @@
-import { camelCase, isValidVarName, URLPath } from '@internals/utils'
+import { isValidVarName, URLPath } from '@internals/utils'
 import { caseParams, createOperationParams } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { ResolverTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
 import { File, Function } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
+import type { PluginMcp } from '../types.ts'
+import { getComments, getParamsMapping } from '../utils.ts'
 
 type Props = {
   /**
@@ -29,62 +31,24 @@ type Props = {
    * - 'full' returns the full response object.
    * @default 'data'
    */
-  dataReturnType: 'data' | 'full'
+  dataReturnType: PluginMcp['resolvedOptions']['client']['dataReturnType']
   /**
    * How to style your params.
    */
-  paramsCasing?: 'camelcase'
+  paramsCasing?: PluginMcp['resolvedOptions']['paramsCasing']
 }
 
-function getComments(node: OperationNode): Array<string> {
-  const comments: Array<string | undefined> = []
-
-  if (node.description) {
-    comments.push(`@description ${node.description}`)
-  }
-  if (node.summary) {
-    comments.push(`@summary ${node.summary}`)
-  }
-  if (node.deprecated) {
-    comments.push('@deprecated')
-  }
-
-  comments.push(`{@link ${node.path.replaceAll('{', ':').replaceAll('}', '')}}`)
-
-  return comments.filter(Boolean) as Array<string>
-}
-
-function getParamsMapping(params: Array<{ name: string }>, _options: { casing: 'camelcase' }): Record<string, string> | undefined {
-  if (!params.length) {
-    return undefined
-  }
-
-  const mapping: Record<string, string> = {}
-  let hasDifference = false
-
-  for (const p of params) {
-    const camelName = camelCase(p.name)
-    mapping[p.name] = camelName
-    if (p.name !== camelName) {
-      hasDifference = true
-    }
-  }
-
-  return hasDifference ? mapping : undefined
+/**
+ * Generate a remapping statement: `const mappedX = x ? { "orig": x.camel, ... } : undefined`
+ */
+function buildRemappingCode(mapping: Record<string, string>, varName: string, sourceName: string): string {
+  const pairs = Object.entries(mapping)
+    .map(([orig, camel]) => `"${orig}": ${sourceName}.${camel}`)
+    .join(', ')
+  return `const ${varName} = ${sourceName} ? { ${pairs} } : undefined`
 }
 
 const declarationPrinter = functionPrinter({ mode: 'declaration' })
-
-function getParams({ node, resolver, paramsCasing }: { node: OperationNode; resolver: ResolverTs; paramsCasing?: 'camelcase' }): string {
-  const paramsNode = createOperationParams(node, {
-    paramsType: 'object',
-    pathParamsType: 'inline',
-    resolver,
-    paramsCasing,
-  })
-
-  return declarationPrinter.print(paramsNode) ?? ''
-}
 
 export function McpHandler({ name, node, resolver, baseURL, dataReturnType, paramsCasing }: Props): FabricReactNode {
   const urlPath = new URLPath(node.path)
@@ -109,11 +73,17 @@ export function McpHandler({ name, node, resolver, baseURL, dataReturnType, para
   const TError = `ResponseErrorConfig<${errorType}>`
   const generics = [responseName, TError, requestName || 'unknown'].filter(Boolean)
 
-  const paramsSignature = getParams({ node, resolver, paramsCasing })
+  const paramsNode = createOperationParams(node, {
+    paramsType: 'object',
+    pathParamsType: 'inline',
+    resolver,
+    paramsCasing,
+  })
+  const paramsSignature = declarationPrinter.print(paramsNode) ?? ''
 
-  const pathParamsMapping = paramsCasing ? getParamsMapping(originalPathParams, { casing: paramsCasing }) : undefined
-  const queryParamsMapping = paramsCasing ? getParamsMapping(originalQueryParams, { casing: paramsCasing }) : undefined
-  const headerParamsMapping = paramsCasing ? getParamsMapping(originalHeaderParams, { casing: paramsCasing }) : undefined
+  const pathParamsMapping = paramsCasing ? getParamsMapping(originalPathParams) : undefined
+  const queryParamsMapping = paramsCasing ? getParamsMapping(originalQueryParams) : undefined
+  const headerParamsMapping = paramsCasing ? getParamsMapping(originalHeaderParams) : undefined
 
   const contentTypeHeader =
     contentType && contentType !== 'application/json' && contentType !== 'multipart/form-data' ? `'Content-Type': '${contentType}'` : undefined
@@ -149,63 +119,53 @@ export function McpHandler({ name, node, resolver, baseURL, dataReturnType, para
            }`
 
   return (
-    <>
-      <br />
-
-      <File.Source name={name} isExportable isIndexable>
-        <Function
-          name={name}
-          async
-          export
-          params={paramsSignature}
-          JSDoc={{
-            comments: getComments(node),
-          }}
-          returnType={'Promise<CallToolResult>'}
-        >
-          {''}
-          <br />
-          <br />
-          {pathParamsMapping &&
-            Object.entries(pathParamsMapping)
-              .filter(([originalName, camelCaseName]) => originalName !== camelCaseName && isValidVarName(originalName))
-              .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
-              .join('\n')}
-          {pathParamsMapping && (
-            <>
-              <br />
-              <br />
-            </>
-          )}
-          {queryParamsMapping && queryParams.length > 0 && (
-            <>
-              {`const mappedParams = params ? { ${Object.entries(queryParamsMapping)
-                .map(([originalName, camelCaseName]) => `"${originalName}": params.${camelCaseName}`)
-                .join(', ')} } : undefined`}
-              <br />
-              <br />
-            </>
-          )}
-          {headerParamsMapping && headerParams.length > 0 && (
-            <>
-              {`const mappedHeaders = headers ? { ${Object.entries(headerParamsMapping)
-                .map(([originalName, camelCaseName]) => `"${originalName}": headers.${camelCaseName}`)
-                .join(', ')} } : undefined`}
-              <br />
-              <br />
-            </>
-          )}
-          {requestName && 'const requestData = data'}
-          <br />
-          {isFormData && requestName && 'const formData = buildFormData(requestData)'}
-          <br />
-          {`const res = await fetch<${generics.join(', ')}>({ ${fetchConfig.join(', ')} })`}
-          <br />
-          {callToolResult}
-        </Function>
-      </File.Source>
-    </>
+    <File.Source name={name} isExportable isIndexable>
+      <Function
+        name={name}
+        async
+        export
+        params={paramsSignature}
+        JSDoc={{
+          comments: getComments(node),
+        }}
+        returnType={'Promise<CallToolResult>'}
+      >
+        {''}
+        <br />
+        <br />
+        {pathParamsMapping &&
+          Object.entries(pathParamsMapping)
+            .filter(([originalName, camelCaseName]) => originalName !== camelCaseName && isValidVarName(originalName))
+            .map(([originalName, camelCaseName]) => `const ${originalName} = ${camelCaseName}`)
+            .join('\n')}
+        {pathParamsMapping && (
+          <>
+            <br />
+            <br />
+          </>
+        )}
+        {queryParamsMapping && queryParams.length > 0 && (
+          <>
+            {buildRemappingCode(queryParamsMapping, 'mappedParams', 'params')}
+            <br />
+            <br />
+          </>
+        )}
+        {headerParamsMapping && headerParams.length > 0 && (
+          <>
+            {buildRemappingCode(headerParamsMapping, 'mappedHeaders', 'headers')}
+            <br />
+            <br />
+          </>
+        )}
+        {requestName && 'const requestData = data'}
+        <br />
+        {isFormData && requestName && 'const formData = buildFormData(requestData)'}
+        <br />
+        {`const res = await fetch<${generics.join(', ')}>({ ${fetchConfig.join(', ')} })`}
+        <br />
+        {callToolResult}
+      </Function>
+    </File.Source>
   )
 }
-
-McpHandler.getParams = getParams

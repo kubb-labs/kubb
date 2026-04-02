@@ -24,11 +24,9 @@ export const serverGenerator = defineGenerator<PluginMcp>({
 
     const pluginZod = driver.getPlugin<PluginZod>(pluginZodName)
 
-    if (!pluginZod) {
+    if (!pluginZod?.resolver) {
       return
     }
-
-    const zodResolver = pluginZod.resolver
 
     const name = 'server'
     const serverFilePath = path.resolve(root, output.path, 'server.ts')
@@ -58,7 +56,7 @@ export const serverGenerator = defineGenerator<PluginMcp>({
         { root, output, group },
       )
 
-      const zodFile = zodResolver.resolveFile(
+      const zodFile = pluginZod.resolver.resolveFile(
         { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
         {
           root,
@@ -67,12 +65,12 @@ export const serverGenerator = defineGenerator<PluginMcp>({
         },
       )
 
-      const requestName = transformedNode.requestBody?.schema ? zodResolver.resolveDataName(transformedNode) : undefined
+      const requestName = transformedNode.requestBody?.schema ? pluginZod.resolver.resolveDataName(transformedNode) : undefined
       const successStatus = findSuccessStatusCode(transformedNode.responses)
-      const responseName = successStatus ? zodResolver.resolveResponseStatusName(transformedNode, successStatus) : undefined
+      const responseName = successStatus ? pluginZod.resolver.resolveResponseStatusName(transformedNode, successStatus) : undefined
 
       const resolveParams = (params: typeof pathParams) =>
-        params.map((p) => ({ name: p.name, schemaName: zodResolver.resolveParamName(transformedNode, p) }))
+        params.map((p) => ({ name: p.name, schemaName: pluginZod.resolver.resolveParamName(transformedNode, p) }))
 
       return {
         tool: {

@@ -1,10 +1,12 @@
-import { caseParams } from '@kubb/ast'
-import type { OperationNode, SchemaNode } from '@kubb/ast/types'
+import { caseParams, createFunctionParameter, createFunctionParameters, createParameterGroup } from '@kubb/ast'
+import type { OperationNode } from '@kubb/ast/types'
 import type { FabricFile } from '@kubb/fabric-core/types'
+import { functionPrinter } from '@kubb/plugin-ts'
 import { Const, File, Function } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import { zodGroupExpr } from '../utils.ts'
+import type { PluginMcp } from '../types.ts'
 import type { ZodParam } from '../utils.ts'
+import { zodExprFromSchemaNode, zodGroupExpr } from '../utils.ts'
 
 type Props = {
   /**
@@ -22,7 +24,7 @@ type Props = {
   /**
    * How to style your params.
    */
-  paramsCasing?: 'camelcase'
+  paramsCasing?: PluginMcp['resolvedOptions']['paramsCasing']
   /**
    * Operations to register as MCP tools, each carrying its handler,
    * zod schema, and AST node metadata.
@@ -54,75 +56,7 @@ type Props = {
   }>
 }
 
-type GetParamsProps = {
-  node: OperationNode
-  zod: Props['operations'][number]['zod']
-  paramsCasing?: 'camelcase'
-}
-
-function zodExprFromSchemaNode(schema: SchemaNode): string {
-  const baseType = schema.type
-
-  let expr: string
-  switch (baseType) {
-    case 'integer':
-      expr = 'z.coerce.number()'
-      break
-    case 'number':
-      expr = 'z.number()'
-      break
-    case 'boolean':
-      expr = 'z.boolean()'
-      break
-    case 'array':
-      expr = 'z.array(z.unknown())'
-      break
-    default:
-      expr = 'z.string()'
-  }
-
-  if (schema.nullable) {
-    expr = `${expr}.nullable()`
-  }
-
-  return expr
-}
-
-function getParams({ node, zod, paramsCasing }: GetParamsProps) {
-  const casedParams = caseParams(node.parameters, paramsCasing)
-  const pathParams = casedParams.filter((p) => p.in === 'path')
-
-  const pathEntries: Array<{ key: string; value: string }> = []
-  const otherEntries: Array<{ key: string; value: string }> = []
-
-  for (const p of pathParams) {
-    const zodParam = zod.pathParams.find((zp) => zp.name === p.name)
-    pathEntries.push({ key: p.name, value: zodParam ? zodParam.schemaName : zodExprFromSchemaNode(p.schema) })
-  }
-
-  if (zod.requestName) {
-    otherEntries.push({ key: 'data', value: zod.requestName })
-  }
-
-  if (zod.queryParams) {
-    otherEntries.push({ key: 'params', value: zodGroupExpr(zod.queryParams) })
-  }
-
-  if (zod.headerParams) {
-    otherEntries.push({ key: 'headers', value: zodGroupExpr(zod.headerParams) })
-  }
-
-  otherEntries.sort((a, b) => a.key.localeCompare(b.key))
-  const entries = [...pathEntries, ...otherEntries]
-
-  const hasInputSchema = entries.length > 0
-
-  return {
-    hasInputSchema,
-    toInputSchema: () => (hasInputSchema ? `{ ${entries.map((e) => `${e.key}: ${e.value}`).join(', ')} }` : '{}'),
-    toDestructured: () => (hasInputSchema ? `{ ${entries.map((e) => e.key).join(', ')} }` : ''),
-  }
-}
+const keysPrinter = functionPrinter({ mode: 'keys' })
 
 export function Server({ name, serverName, serverVersion, paramsCasing, operations }: Props): FabricReactNode {
   return (
@@ -138,11 +72,44 @@ export function Server({ name, serverName, serverVersion, paramsCasing, operatio
 
       {operations
         .map(({ tool, mcp, zod, node }) => {
-          const paramsClient = getParams({
-            node,
-            zod,
-            paramsCasing,
-          })
+          const casedParams = caseParams(node.parameters, paramsCasing)
+          const pathParams = casedParams.filter((p) => p.in === 'path')
+
+          const pathEntries: Array<{ key: string; value: string }> = []
+          const otherEntries: Array<{ key: string; value: string }> = []
+
+          for (const p of pathParams) {
+            const zodParam = zod.pathParams.find((zp) => zp.name === p.name)
+            pathEntries.push({ key: p.name, value: zodParam ? zodParam.schemaName : zodExprFromSchemaNode(p.schema) })
+          }
+
+          if (zod.requestName) {
+            otherEntries.push({ key: 'data', value: zod.requestName })
+          }
+
+          if (zod.queryParams) {
+            otherEntries.push({ key: 'params', value: zodGroupExpr(zod.queryParams) })
+          }
+
+          if (zod.headerParams) {
+            otherEntries.push({ key: 'headers', value: zodGroupExpr(zod.headerParams) })
+          }
+
+          otherEntries.sort((a, b) => a.key.localeCompare(b.key))
+          const entries = [...pathEntries, ...otherEntries]
+
+          const paramsNode = entries.length
+            ? createFunctionParameters({
+                params: [
+                  createParameterGroup({
+                    properties: entries.map((e) => createFunctionParameter({ name: e.key, optional: false })),
+                  }),
+                ],
+              })
+            : undefined
+
+          const destructured = paramsNode ? (keysPrinter.print(paramsNode) ?? '') : ''
+          const inputSchema = entries.length ? `{ ${entries.map((e) => `${e.key}: ${e.value}`).join(', ')} }` : undefined
           const outputSchema = zod.responseName
 
           const config = [
@@ -153,13 +120,13 @@ export function Server({ name, serverName, serverVersion, paramsCasing, operatio
             .filter(Boolean)
             .join(',\n  ')
 
-          if (paramsClient.hasInputSchema) {
+          if (inputSchema) {
             return `
 server.registerTool(${JSON.stringify(tool.name)}, {
   ${config},
-  inputSchema: ${paramsClient.toInputSchema()},
-}, async (${paramsClient.toDestructured()}) => {
-  return ${mcp.name}(${paramsClient.toDestructured()})
+  inputSchema: ${inputSchema},
+}, async (${destructured}) => {
+  return ${mcp.name}(${destructured})
 })
           `
           }
@@ -168,7 +135,7 @@ server.registerTool(${JSON.stringify(tool.name)}, {
 server.registerTool(${JSON.stringify(tool.name)}, {
   ${config},
 }, async () => {
-  return ${mcp.name}(${paramsClient.toDestructured()})
+  return ${mcp.name}()
 })
           `
         })
