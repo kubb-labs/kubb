@@ -6,6 +6,51 @@ outline: deep
 
 # Changelog
 
+## 5.0.0-alpha.28
+
+### ✨ Features
+
+#### [`@kubb/plugin-mcp`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-mcp)
+
+-   Migrate to v5 architecture with `defineResolver`, `definePresets`, and `defineGenerator`.
+-   Add `compatibilityPreset` support: `'default'` (v5) and `'kubbV4'` (legacy naming).
+-   Add `McpHandler` component using `createOperationParams` from `@kubb/ast` for automatic v5/v4 param handling.
+-   Add `Server` component for MCP tool registration with zod schema validation.
+-   Add `serverGeneratorLegacy` for kubbV4 preset using grouped zod schemas (`QueryParamsSchema`, `HeaderParamsSchema`, `ResponseSchema`).
+-   Default preset uses individual zod schemas (`createPetsPathUuidSchema`, `createPetsQueryOffsetSchema`) composed into `z.object()`.
+-   Add `resolverMcp` with `Handler` suffix naming convention.
+-   Add `resolver`, `transformer`, and `printer` options following the v5 plugin pattern.
+
+### 🚀 Breaking Changes
+
+#### [`@kubb/plugin-mcp`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-mcp)
+
+-   Replace `resolvers?: Array<ResolverMcp>` with `resolver?: Partial<ResolverMcp> & ThisType<ResolverMcp>`.
+-   Replace `transformers?: Array<Visitor>` with `transformer?: Visitor`.
+
+### 🐛 Bug Fixes
+
+#### [`@kubb/plugin-ts`](https://github.com/kubb-labs/kubb/tree/main/packages/plugin-ts)
+
+-   Fix `functionPrinter` struct property name quoting: property names with special characters (e.g., `X-EXAMPLE`) are now properly quoted in the output.
+
+::: code-group
+```typescript [Before]
+// Incorrect formatting for property with special characters
+type Headers = {
+  X-EXAMPLE: string;
+};
+```
+
+```typescript [After]
+// Correct formatting with proper quoting
+type Headers = {
+  "X-EXAMPLE": string;
+};
+```
+:::
+
+
 ## 4.36.3
 
 ### 🐛 Bug Fixes
