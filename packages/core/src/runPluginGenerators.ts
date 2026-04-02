@@ -1,10 +1,10 @@
 import path from 'node:path'
 import { walk } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
-import { getBarrelFiles } from './utils/getBarrelFiles.ts'
-import { renderHookResult } from './renderNode.tsx'
-import type { PluginContext, Plugin } from './types.ts'
 import type { PluginDriver } from './PluginDriver.ts'
+import { renderHookResult } from './renderNode.tsx'
+import type { Plugin, PluginContext } from './types.ts'
+import { getBarrelFiles } from './utils/getBarrelFiles.ts'
 
 /**
  * Centralized AST walk + generator dispatch + barrel file generation.
@@ -14,17 +14,11 @@ import type { PluginDriver } from './PluginDriver.ts'
  * `this = PluginContext`, giving generators full access to `this.resolver`,
  * `this.config`, `this.adapter`, `this.fabric`, etc.
  */
-export async function runPluginGenerators(
-  plugin: Plugin,
-  context: PluginContext,
-  driver: PluginDriver,
-): Promise<void> {
+export async function runPluginGenerators(plugin: Plugin, context: PluginContext, _driver: PluginDriver): Promise<void> {
   const { config, fabric, adapter, rootNode, resolver } = context
 
   if (!adapter || !rootNode) {
-    throw new Error(
-      `[${plugin.name}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`,
-    )
+    throw new Error(`[${plugin.name}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`)
   }
 
   const pluginOptions = plugin.options as Record<string, unknown>
@@ -81,4 +75,3 @@ export async function runPluginGenerators(
     await context.upsertFile(...barrelFiles)
   }
 }
-
