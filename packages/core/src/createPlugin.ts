@@ -28,4 +28,3 @@ export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptio
 ): (options?: T['options']) => UserPluginWithLifeCycle<T> {
   return (options) => build(options ?? ({} as T['options']))
 }
-

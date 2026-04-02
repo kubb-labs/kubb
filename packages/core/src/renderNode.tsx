@@ -1,6 +1,6 @@
-import { createReactFabric, Fabric } from '@kubb/react-fabric'
-import type { Fabric as FabricType, FabricReactNode } from '@kubb/react-fabric/types'
 import type { FabricFile } from '@kubb/fabric-core/types'
+import { createReactFabric, Fabric } from '@kubb/react-fabric'
+import type { FabricReactNode, Fabric as FabricType } from '@kubb/react-fabric/types'
 
 /**
  * Handles the return value of a plugin AST hook or generator method.
@@ -9,10 +9,7 @@ import type { FabricFile } from '@kubb/fabric-core/types'
  * - `Array<FabricFile.File>` → upserted directly into `fabric`
  * - `void` / `null` / `undefined` → no-op (plugin handled it via `this.upsertFile`)
  */
-export async function applyHookResult(
-  result: FabricReactNode | Array<FabricFile.File> | void,
-  fabric: FabricType,
-): Promise<void> {
+export async function applyHookResult(result: FabricReactNode | Array<FabricFile.File> | void, fabric: FabricType): Promise<void> {
   if (!result) return
 
   if (Array.isArray(result)) {
@@ -26,4 +23,3 @@ export async function applyHookResult(
   fabric.context.fileManager.upsert(...fabricChild.files)
   fabricChild.unmount()
 }
-

@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createPlugin, type Group, getPreset, applyHookResult } from '@kubb/core'
+import { applyHookResult, createPlugin, type Group, getPreset } from '@kubb/core'
 import { presets } from './presets.ts'
 import type { PluginTs } from './types.ts'
 

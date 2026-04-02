@@ -1,8 +1,8 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
 import type { Node, OperationNode, Printer, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { HttpMethod } from '@kubb/oas'
+import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -595,7 +595,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * For multiple generators, use `composeGenerators` inside the plugin factory.
    */
   operations?: OperationsHook<TOptions>
- /**
+  /**
    * Resolve to a Path based on a baseName(example: `./Pet.ts`) and directory(example: `./models`).
    * Options can als be included.
    * @type hookFirst

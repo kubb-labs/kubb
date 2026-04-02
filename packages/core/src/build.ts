@@ -1,7 +1,7 @@
 import { dirname, relative, resolve } from 'node:path'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
-import type { OperationNode } from '@kubb/ast/types'
 import { walk } from '@kubb/ast'
+import type { OperationNode } from '@kubb/ast/types'
 import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
 import { createFabric } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
@@ -9,12 +9,12 @@ import { fsPlugin } from '@kubb/react-fabric/plugins'
 import { isInputPath } from './config.ts'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import { PluginDriver } from './PluginDriver.ts'
+import { applyHookResult } from './renderNode.tsx'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { AdapterSource, BarrelType, Config, KubbEvents, Output, Plugin, PluginContext, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
-import { applyHookResult } from './renderNode.tsx'
 
 type BuildOptions = {
   config: UserConfig
@@ -273,9 +273,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
   const { adapter, rootNode, resolver, fabric, config } = context
 
   if (!adapter || !rootNode) {
-    throw new Error(
-      `[${plugin.name}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`,
-    )
+    throw new Error(`[${plugin.name}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`)
   }
 
   const pluginOptions = plugin.options as Record<string, unknown>

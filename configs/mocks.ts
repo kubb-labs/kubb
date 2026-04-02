@@ -1,7 +1,6 @@
 import path from 'node:path'
-import type { OperationNode, SchemaNode, Visitor } from '../packages/ast/src/types.ts'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import { createFile, createReactFabric, FileProcessor } from '@kubb/react-fabric'
+import { createFile, type createReactFabric, FileProcessor } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
 import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import type { Options } from 'prettier'
@@ -9,7 +8,18 @@ import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
 import { expect } from 'vitest'
 import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
-import type { Adapter, AdapterFactoryOptions, Generator, Plugin, PluginContext, PluginDriver, PluginFactoryOptions, ResolveNameParams, ResolvePathParams } from '../packages/core/src'
+import type { OperationNode, SchemaNode, Visitor } from '../packages/ast/src/types.ts'
+import type {
+  Adapter,
+  AdapterFactoryOptions,
+  Generator,
+  Plugin,
+  PluginContext,
+  PluginDriver,
+  PluginFactoryOptions,
+  ResolveNameParams,
+  ResolvePathParams,
+} from '../packages/core/src'
 import { applyHookResult } from '../packages/core/src'
 
 const formatOptions: Options = {

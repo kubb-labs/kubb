@@ -1,7 +1,7 @@
+import type { PossiblePromise } from '@internals/utils'
 import type { OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { FabricFile } from '@kubb/fabric-core/types'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import type { PossiblePromise } from '@internals/utils'
 import type { PluginContext, PluginFactoryOptions } from './types.ts'
 
 /**
@@ -66,8 +66,6 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
  * No type discrimination (`type: 'react' | 'core'`) needed — `applyHookResult`
  * handles React elements and `File[]` uniformly.
  */
-export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(
-  generator: Generator<TOptions>,
-): Generator<TOptions> {
+export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(generator: Generator<TOptions>): Generator<TOptions> {
   return generator
 }
