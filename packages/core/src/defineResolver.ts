@@ -44,6 +44,8 @@ function matchesOperationPattern(node: OperationNode, type: string, pattern: str
       return !!node.path.match(pattern)
     case 'method':
       return !!(node.method.toLowerCase() as string).match(pattern)
+    case 'contentType':
+      return !!node.requestBody?.contentType?.match(pattern)
     default:
       return false
   }

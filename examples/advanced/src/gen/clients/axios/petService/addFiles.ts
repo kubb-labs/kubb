@@ -2,7 +2,6 @@ import type { Client, RequestConfig, ResponseErrorConfig } from '../../../../axi
 import fetch from '../../../../axios-client.ts'
 import { buildFormData } from '../../../.kubb/config.ts'
 import type { AddFiles405, AddFilesMutationRequest, AddFilesMutationResponse } from '../../../models/ts/petController/AddFiles.ts'
-import { addFilesMutationRequestSchema, addFilesMutationResponseSchema } from '../../../zod/petController/addFilesSchema.ts'
 
 export function getAddFilesUrl() {
   const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/pet/files' as const }
@@ -20,7 +19,7 @@ export async function addFiles(
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
-  const requestData = addFilesMutationRequestSchema.parse(data)
+  const requestData = data
   const formData = buildFormData(requestData)
   const res = await request<AddFilesMutationResponse, ResponseErrorConfig<AddFiles405>, AddFilesMutationRequest>({
     method: 'POST',
@@ -28,5 +27,5 @@ export async function addFiles(
     data: formData as FormData,
     ...requestConfig,
   })
-  return { ...res, data: addFilesMutationResponseSchema.parse(res.data) }
+  return res
 }
