@@ -1,6 +1,6 @@
 {
   "name": "@kubb/agent",
-  "version": "5.0.0-alpha.28",
+  "version": "5.0.0-alpha.29",
   "description": "Agent server for Kubb, enabling HTTP-based access to code generation capabilities.",
   "keywords": [
     "agent",

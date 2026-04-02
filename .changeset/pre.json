@@ -65,6 +65,7 @@
     "long-memes-lose",
     "missing-mutation-queryparams",
     "plugin-client-params-casing-unused-var",
+    "plugin-client-v5-migration",
     "plugin-cypress-v5-upgrade",
     "plugin-mcp-v5-migration",
     "plugin-oas-operation-manager",

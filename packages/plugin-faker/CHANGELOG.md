@@ -1,5 +1,15 @@
 # @kubb/plugin-faker
 
+## 5.0.0-alpha.29
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@5.0.0-alpha.29
+  - @kubb/oas@5.0.0-alpha.29
+  - @kubb/plugin-oas@5.0.0-alpha.29
+  - @kubb/plugin-ts@5.0.0-alpha.29
+
 ## 5.0.0-alpha.28
 
 ### Patch Changes
