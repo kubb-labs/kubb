@@ -47,6 +47,8 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       dateParser,
       mapper,
       override,
+      exclude,
+      include,
       regexGenerator,
       paramsCasing,
       group,

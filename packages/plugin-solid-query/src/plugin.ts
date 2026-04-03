@@ -77,6 +77,9 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
       parser,
       group,
       paramsCasing,
+      exclude,
+      include,
+      override,
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {

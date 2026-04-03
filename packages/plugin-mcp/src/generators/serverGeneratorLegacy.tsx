@@ -1,7 +1,6 @@
 import path from 'node:path'
 import { caseParams, transform } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
-import type { PluginZod } from '@kubb/plugin-zod'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File } from '@kubb/react-fabric'
 import { Server } from '../components/Server.tsx'
@@ -21,7 +20,7 @@ export const serverGeneratorLegacy = defineGenerator<PluginMcp>({
     const { output, paramsCasing, group } = options
     const root = path.resolve(config.root, config.output.path)
 
-    const pluginZod = driver.getPlugin<PluginZod>(pluginZodName)
+    const pluginZod = driver.getPlugin(pluginZodName)
 
     if (!pluginZod?.resolver) {
       return

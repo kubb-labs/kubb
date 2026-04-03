@@ -1,9 +1,7 @@
 import path from 'node:path'
 import { caseParams, transform } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
-import type { PluginTs } from '@kubb/plugin-ts'
 import { pluginTsName } from '@kubb/plugin-ts'
-import type { PluginZod } from '@kubb/plugin-zod'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File } from '@kubb/react-fabric'
 import { Client } from '../components/Client'
@@ -18,7 +16,7 @@ export const clientGenerator = defineGenerator<PluginClient>({
     const baseURL = options.baseURL ?? adapter.rootNode?.meta?.baseURL
     const root = path.resolve(config.root, config.output.path)
 
-    const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
+    const pluginTs = driver.getPlugin(pluginTsName)
 
     if (!pluginTs?.resolver) {
       return null
@@ -26,7 +24,7 @@ export const clientGenerator = defineGenerator<PluginClient>({
 
     const tsResolver = pluginTs.resolver
 
-    const pluginZod = parser === 'zod' ? driver.getPlugin<PluginZod>(pluginZodName) : undefined
+    const pluginZod = parser === 'zod' ? driver.getPlugin(pluginZodName) : undefined
     const zodResolver = pluginZod?.resolver
 
     const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node

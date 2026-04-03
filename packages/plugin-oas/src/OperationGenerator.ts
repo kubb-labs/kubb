@@ -216,7 +216,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
     const results: Array<FabricFile.File<TFileMeta>> = []
 
     for (const generator of generators) {
-      if (generator.version === '2') {
+      if (!('type' in generator)) {
         continue
       }
 
@@ -239,7 +239,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
               options: {
                 ...this.options,
                 ...options,
-              },
+              } as Plugin<TPluginOptions>['options'],
             },
           })
         } else {
@@ -252,7 +252,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
               options: {
                 ...this.options,
                 ...options,
-              },
+              } as Plugin<TPluginOptions>['options'],
             },
           })
 

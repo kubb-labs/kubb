@@ -33,6 +33,9 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
       parser,
       group,
       baseURL,
+      exclude,
+      include,
+      override,
     },
     pre: [pluginOasName, pluginTsName, parser === 'faker' ? pluginFakerName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {

@@ -1,7 +1,6 @@
 import path from 'node:path'
 import { caseParams, transform } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
-import type { PluginTs } from '@kubb/plugin-ts'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File } from '@kubb/react-fabric'
 import { Request } from '../components/Request.tsx'
@@ -15,7 +14,7 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
     const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group } = options
     const root = path.resolve(config.root, config.output.path)
 
-    const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
+    const pluginTs = driver.getPlugin(pluginTsName)
 
     if (!pluginTs?.resolver) {
       return null

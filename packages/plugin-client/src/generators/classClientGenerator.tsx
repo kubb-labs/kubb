@@ -53,12 +53,12 @@ export const classClientGenerator = defineGenerator<PluginClient>({
     const baseURL = options.baseURL ?? adapter.rootNode?.meta?.baseURL
     const root = path.resolve(config.root, config.output.path)
 
-    const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
+    const pluginTs = driver.getPlugin(pluginTsName)
     if (!pluginTs?.resolver) return null
 
     const tsResolver = pluginTs.resolver
     const tsPluginOptions = pluginTs.options
-    const pluginZod = parser === 'zod' ? driver.getPlugin<PluginZod>(pluginZodName) : undefined
+    const pluginZod = parser === 'zod' ? driver.getPlugin(pluginZodName) : undefined
     const zodResolver = pluginZod?.resolver
 
     function buildOperationData(node: OperationNode): OperationData {

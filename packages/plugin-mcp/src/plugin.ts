@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
-import { type PluginClient, pluginClientName } from '@kubb/plugin-client'
+import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
 import { source as configSource } from '@kubb/plugin-client/templates/config.source'
@@ -102,7 +102,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
         this.plugin.options.client.baseURL = this.plugin.options.client.baseURL || baseURL
       }
 
-      const hasClientPlugin = !!driver.getPlugin<PluginClient>(pluginClientName)
+      const hasClientPlugin = !!driver.getPlugin(pluginClientName)
 
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         await this.addFile({

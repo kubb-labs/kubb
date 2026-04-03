@@ -14,7 +14,7 @@ export const mcpGenerator = defineGenerator<PluginMcp>({
     const { output, client, paramsCasing, group } = options
     const root = path.resolve(config.root, config.output.path)
 
-    const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
+    const pluginTs = driver.getPlugin(pluginTsName)
 
     if (!pluginTs?.resolver) {
       return null

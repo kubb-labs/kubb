@@ -77,6 +77,9 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
       parser,
       paramsCasing,
       group,
+      exclude,
+      include,
+      override,
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {

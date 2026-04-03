@@ -67,6 +67,8 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       validate,
       discriminator,
       ...options,
+      exclude: [],
+      override: [],
     },
     inject() {
       const config = this.config
