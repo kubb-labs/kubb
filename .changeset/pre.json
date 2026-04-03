@@ -43,7 +43,8 @@
     "@kubb/plugin-vue-query": "4.36.1",
     "@kubb/plugin-zod": "4.36.1",
     "unplugin-kubb": "5.0.7",
-    "e2e": "0.0.0"
+    "e2e": "0.0.0",
+    "@kubb/parser-ts": "5.0.0-alpha.30"
   },
   "changesets": [
     "adapter-oas-boolean-const-inline",
@@ -59,6 +60,7 @@
     "ast-utils-operation-path",
     "calm-rivers-yell",
     "core-url-input-resolve",
+    "defineconfig-adapter-parser-defaults",
     "feat-resolve-options",
     "fix-generation-summary-tty-columns",
     "generator-api-v5",
