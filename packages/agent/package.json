@@ -45,8 +45,10 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "kubb": "workspace:*",
+    "@kubb/adapter-oas": "workspace:*",
+    "@kubb/core": "workspace:*",
     "@kubb/fabric-core": "catalog:",
+    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-cypress": "workspace:*",
     "@kubb/plugin-faker": "workspace:*",

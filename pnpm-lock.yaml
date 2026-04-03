@@ -822,9 +822,18 @@ importers:
 
   packages/agent:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../adapter-oas
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
       '@kubb/fabric-core':
         specifier: 'catalog:'
         version: 0.15.1
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../plugin-client
@@ -876,9 +885,6 @@ importers:
       jiti:
         specifier: 2.5.1
         version: 2.5.1
-      kubb:
-        specifier: workspace:*
-        version: link:../kubb
       remeda:
         specifier: 'catalog:'
         version: 2.33.7

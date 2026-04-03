@@ -3,11 +3,12 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { AsyncEventEmitter, isPromise } from '@internals/utils'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
+import { createMockedAdapter } from '#mocks'
 import { build, safeBuild } from './build.ts'
 import { createPlugin } from './createPlugin.ts'
 import { defineConfig } from './defineConfig.ts'
 import type * as KubbFile from './KubbFile.ts'
-import type { KubbEvents, Plugin, UserConfig } from './types.ts'
+import type { Config, KubbEvents, Plugin, UserConfig } from './types.ts'
 
 describe('build', () => {
   const pluginMocks = {
@@ -44,8 +45,10 @@ describe('build', () => {
       path: './src/gen',
       clean: true,
     },
+    parsers: [],
+    adapter: createMockedAdapter(),
     plugins: [plugin({})] as Array<Plugin>,
-  }
+  } satisfies Config
 
   const configs = [
     {
@@ -64,6 +67,8 @@ describe('build', () => {
             path: './src/gen',
             clean: true,
           },
+          parsers: [],
+          adapter: createMockedAdapter(),
           plugins: [plugin({})] as Array<Plugin>,
         },
       ]),
@@ -79,6 +84,8 @@ describe('build', () => {
           path: './src/gen',
           clean: true,
         },
+        parsers: [],
+        adapter: createMockedAdapter(),
         plugins: [plugin({})] as Array<Plugin>,
       })),
     },
@@ -94,6 +101,8 @@ describe('build', () => {
             path: './src/gen',
             clean: true,
           },
+          parsers: [],
+          adapter: createMockedAdapter(),
           plugins: [plugin({})] as Array<Plugin>,
         },
       ]),

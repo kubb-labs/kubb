@@ -14,7 +14,6 @@ import { serverGenerator } from './serverGenerator.tsx'
 
 const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [], parsers: [], adapter: createMockedAdapter() }
 
-
 const defaultOptions: PluginMcp['resolvedOptions'] = {
   output: { path: '.' },
   exclude: [],
