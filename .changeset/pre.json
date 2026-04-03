@@ -61,6 +61,7 @@
     "core-url-input-resolve",
     "feat-resolve-options",
     "fix-generation-summary-tty-columns",
+    "generator-api-v5",
     "legacy-extra-enum-alias",
     "long-memes-lose",
     "missing-mutation-queryparams",
