@@ -300,7 +300,6 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       if (options !== null) {
         collectedOperations.push(node)
         if (plugin.operation) {
-
           const result = await plugin.operation.call(context, node, options)
           await applyHookResult(result, fabric)
         }

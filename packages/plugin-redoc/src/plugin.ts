@@ -2,9 +2,9 @@ import path from 'node:path'
 import type { AdapterOas } from '@kubb/adapter-oas'
 import { adapterOasName } from '@kubb/adapter-oas'
 import { type Adapter, createPlugin } from '@kubb/core'
+import { version } from '../package.json'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
-import { version } from '../package.json'
 
 function trimExtName(text: string): string {
   return text.replace(/\.[^/.]+$/, '')

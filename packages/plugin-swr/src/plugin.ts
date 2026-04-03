@@ -8,10 +8,10 @@ import { source as configSource } from '@kubb/plugin-client/templates/config.sou
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
+import { version } from '../package.json'
 import { MutationKey, QueryKey } from './components'
 import { mutationGenerator, queryGenerator } from './generators'
 import type { PluginSwr } from './types.ts'
-import { version } from '../package.json'
 
 export const pluginSwrName = 'plugin-swr' satisfies PluginSwr['name']
 

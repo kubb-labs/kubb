@@ -50,27 +50,31 @@ export const groupedClientGenerator = defineGenerator<PluginClient>({
       [] as Array<{ name: string; file: FabricFile.File; clients: Array<{ name: string; file: FabricFile.File }> }>,
     )
 
-    return <>{controllers.map(({ name, file, clients }) => {
-      return (
-        <File
-          key={file.path}
-          baseName={file.baseName}
-          path={file.path}
-          meta={file.meta}
-          banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
-          footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
-        >
-          {clients.map((client) => (
-            <File.Import key={client.name} name={[client.name]} root={file.path} path={client.file.path} />
-          ))}
+    return (
+      <>
+        {controllers.map(({ name, file, clients }) => {
+          return (
+            <File
+              key={file.path}
+              baseName={file.baseName}
+              path={file.path}
+              meta={file.meta}
+              banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
+              footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+            >
+              {clients.map((client) => (
+                <File.Import key={client.name} name={[client.name]} root={file.path} path={client.file.path} />
+              ))}
 
-          <File.Source name={name} isExportable isIndexable>
-            <Function export name={name}>
-              {`return { ${clients.map((client) => client.name).join(', ')} }`}
-            </Function>
-          </File.Source>
-        </File>
-      )
-    })}</>
+              <File.Source name={name} isExportable isIndexable>
+                <Function export name={name}>
+                  {`return { ${clients.map((client) => client.name).join(', ')} }`}
+                </Function>
+              </File.Source>
+            </File>
+          )
+        })}
+      </>
+    )
   },
 })

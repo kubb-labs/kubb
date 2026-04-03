@@ -1,9 +1,9 @@
 import { camelCase } from '@internals/utils'
 import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
+import { version } from '../package.json'
 import { presets } from './presets.ts'
 import type { PluginCypress } from './types.ts'
-import { version } from '../package.json'
 
 /**
  * Canonical plugin name for `@kubb/plugin-cypress`, used to identify the plugin
