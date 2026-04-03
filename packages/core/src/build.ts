@@ -6,6 +6,7 @@ import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import { createFabric } from '@kubb/react-fabric'
 import { fsPlugin } from '@kubb/react-fabric/plugins'
 import { isInputPath } from './config.ts'
+import { applyPreset } from './defineConfigPreset.ts'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import { defineParser } from './defineParser.ts'
 import type * as KubbFile from './KubbFile.ts'
@@ -66,7 +67,10 @@ type SetupResult = {
  * via the `overrides` argument to reuse the same infrastructure across multiple runs.
  */
 export async function setup(options: BuildOptions): Promise<SetupResult> {
-  const { config: userConfig, events = new AsyncEventEmitter<KubbEvents>() } = options
+  const { config: rawUserConfig, events = new AsyncEventEmitter<KubbEvents>() } = options
+
+  // Expand preset defaults before any other config processing.
+  const userConfig = applyPreset(rawUserConfig)
 
   const sources: Map<KubbFile.Path, string> = new Map<KubbFile.Path, string>()
   const diagnosticInfo = getDiagnosticInfo()

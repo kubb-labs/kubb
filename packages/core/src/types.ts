@@ -57,6 +57,48 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
    */
   // inject needs to be omitted because else we have a clash with the PluginDriver instance
   plugins?: Array<Omit<UnknownUserPlugin, 'inject'>>
+  /**
+   * A built-in config preset that bundles an adapter, parsers, and plugins together.
+   * User-supplied `adapter`, `parsers`, and `plugins` are merged on top of the preset's defaults —
+   * a user entry with the same `name` always wins.
+   *
+   * @example
+   * ```ts
+   * import { defineConfig } from '@kubb/core'
+   * export default defineConfig({
+   *   input:  { path: './petStore.yaml' },
+   *   output: { path: './src/gen', clean: true },
+   *   configPreset: 'oas-typescript',
+   * })
+   * ```
+   */
+  configPreset?: BuiltInPreset
+}
+
+/**
+ * Identifier for a built-in config preset.
+ * Additional values are registered at runtime by the `kubb` meta-package via {@link registerConfigPreset}.
+ *
+ * @example 'oas-typescript'
+ */
+export type BuiltInPreset = string
+
+/**
+ * A config-level preset that bundles an adapter, parsers, and plugins into one reusable unit.
+ * Create one with {@link defineConfigPreset} and register it with {@link registerConfigPreset}.
+ */
+export type ConfigPresetDefinition = {
+  /**
+   * Unique string identifier, used in `UserConfig.configPreset`.
+   * @example 'oas-typescript'
+   */
+  name: BuiltInPreset
+  /** Default adapter provided by this preset. */
+  adapter?: Adapter
+  /** Default parsers provided by this preset. */
+  parsers?: Array<Parser>
+  /** Default plugins provided by this preset. */
+  plugins?: Array<Omit<UnknownUserPlugin, 'inject'>>
 }
 
 export type InputPath = {
@@ -483,7 +525,7 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
 
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
 
-type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<string, object, object, unknown, object>>
+export type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<string, object, object, unknown, object>>
 
 /**
  * Handler for a single schema node. Used by the `schema` hook on a plugin.
