@@ -1028,12 +1028,18 @@ importers:
 
   packages/core:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../adapter-oas
       '@kubb/ast':
         specifier: workspace:*
         version: link:../ast
       '@kubb/fabric-core':
         specifier: 'catalog:'
         version: 0.15.1
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.15.1
@@ -1145,6 +1151,19 @@ importers:
       '@types/swagger2openapi':
         specifier: ^7.0.4
         version: 7.0.4
+
+  packages/parser-ts:
+    dependencies:
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.2
+    devDependencies:
+      '@internals/utils':
+        specifier: workspace:*
+        version: link:../../internals/utils
 
   packages/plugin-client:
     dependencies:

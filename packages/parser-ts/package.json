@@ -1,0 +1,64 @@
+{
+  "name": "@kubb/parser-ts",
+  "version": "5.0.0-alpha.30",
+  "description": "TypeScript and TSX file parser for Kubb, converting generated files to strings using the TypeScript compiler.",
+  "keywords": [
+    "typescript",
+    "tsx",
+    "parser",
+    "code-generator",
+    "codegen",
+    "kubb"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/parser-ts"
+  },
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "src",
+    "dist",
+    "!/**/**.test.**",
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "clean": "npx rimraf ./dist",
+    "lint": "bun biome lint .",
+    "lint:fix": "bun biome lint --fix --unsafe .",
+    "release": "pnpm publish --no-git-check",
+    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check",
+    "start": "tsdown --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/core": "workspace:*",
+    "typescript": "catalog:"
+  },
+  "devDependencies": {
+    "@internals/utils": "workspace:*"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js"
+}

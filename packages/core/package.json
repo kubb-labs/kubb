@@ -75,8 +75,10 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/ast": "workspace:*",
     "@kubb/fabric-core": "catalog:",
+    "@kubb/parser-ts": "workspace:*",
     "@kubb/react-fabric": "catalog:",
     "empathic": "^2.0.0",
     "fflate": "^0.8.2",

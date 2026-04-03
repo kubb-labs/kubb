@@ -519,6 +519,37 @@ export default defineConfig({
 })
 ```
 
+
+### parsers
+
+|           |                    |
+|----------:|:-------------------|
+|     Type: | `Array<Parser>`    |
+| Required: | `false`            |
+| Default:  | `[typescriptParser]` from `@kubb/parser-ts` |
+
+An array of parsers that convert generated files to strings before they are written to disk. Each parser declares which file extensions it handles via `extNames`. A built-in catch-all fallback is always registered last for any unhandled extensions.
+
+When this option is omitted, Kubb defaults to `[typescriptParser]` which handles `.ts` and `.js` files. Import additional parsers from `@kubb/parser-ts` (e.g. `tsxParser` for `.tsx`/`.jsx`).
+
+See [`@kubb/parser-ts`](/helpers/parser-ts) for the available parsers and [`defineParser`](/helpers/parser-ts#defineparser) for creating custom ones.
+
+```typescript twoslash [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+import { typescriptParser, tsxParser } from '@kubb/parser-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  parsers: [typescriptParser, tsxParser],
+  plugins: [],
+})
+```
+
 ## Examples
 
 ### Basic

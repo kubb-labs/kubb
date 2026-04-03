@@ -1,13 +1,15 @@
 import { dirname, relative, resolve } from 'node:path'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
+import { adapterOas } from '@kubb/adapter-oas'
 import { transform, walk } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
+import { typescriptParser } from '@kubb/parser-ts'
 import { createFabric } from '@kubb/react-fabric'
-import { typescriptParser } from '@kubb/react-fabric/parsers'
 import { fsPlugin } from '@kubb/react-fabric/plugins'
 import { isInputPath } from './config.ts'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
+import { defineParser } from './defineParser.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.tsx'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -118,6 +120,8 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   const definedConfig: Config = {
     root: userConfig.root || process.cwd(),
     ...userConfig,
+    adapter: userConfig.adapter ?? adapterOas({}),
+    parsers: userConfig.parsers ?? [typescriptParser],
     output: {
       write: true,
       barrelType: 'named',
@@ -150,7 +154,23 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   const fabric = createFabric()
   fabric.use(fsPlugin)
-  fabric.use(typescriptParser)
+
+  for (const parser of definedConfig.parsers) {
+    fabric.use(parser)
+  }
+  // Catch-all fallback: joins all source values for any unhandled extension
+  fabric.use(
+    defineParser({
+      name: 'fallback',
+      extNames: undefined,
+      parse(file) {
+        return file.sources
+          .map((item) => item.value)
+          .filter((value): value is string => value != null)
+          .join('\n\n')
+      },
+    }),
+  )
 
   fabric.context.on('files:processing:start', (files) => {
     events.emit('files:processing:start', files)
@@ -199,22 +219,24 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     concurrency: DEFAULT_CONCURRENCY,
   })
 
-  // Run the adapter (if provided) to produce the universal RootNode
-  if (definedConfig.adapter) {
+  // Run the adapter to produce the universal RootNode; defaults to adapterOas().
+  // Array input is still under development — skip the adapter in that case.
+  if (!Array.isArray(definedConfig.input)) {
+    const adapter = definedConfig.adapter
     const source = inputToAdapterSource(definedConfig)
 
     await events.emit('debug', {
       date: new Date(),
-      logs: [`Running adapter: ${definedConfig.adapter.name}`],
+      logs: [`Running adapter: ${adapter.name}`],
     })
 
-    pluginDriver.adapter = definedConfig.adapter
-    pluginDriver.rootNode = await definedConfig.adapter.parse(source)
+    pluginDriver.adapter = adapter
+    pluginDriver.rootNode = await adapter.parse(source)
 
     await events.emit('debug', {
       date: new Date(),
       logs: [
-        `✓ Adapter '${definedConfig.adapter.name}' resolved RootNode`,
+        `✓ Adapter '${adapter.name}' resolved RootNode`,
         `  • Schemas: ${pluginDriver.rootNode.schemas.length}`,
         `  • Operations: ${pluginDriver.rootNode.operations.length}`,
       ],
