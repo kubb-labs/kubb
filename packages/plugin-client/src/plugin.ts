@@ -155,7 +155,7 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     async operations(nodes, options) {
       return mergedGenerator.operations?.call(this, nodes, options)
     },
-    async install() {
+    async buildStart() {
       const { config, plugin } = this
       const root = path.resolve(config.root, config.output.path)
 

@@ -102,7 +102,7 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     async operations(nodes, options) {
       return mergedGenerator.operations?.call(this, nodes, options)
     },
-    async install() {
+    async buildStart() {
       await this.openInStudio({ ast: true })
     },
   }

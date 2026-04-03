@@ -460,7 +460,7 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * inject() {
    *   return { getOas: () => parseSpec(this.config) }
    * }
-   * // Other plugins can then call `this.getOas()` inside install()
+   * // Other plugins can then call `this.getOas()` inside buildStart()
    * ```
    */
   inject?: (this: PluginContext<TOptions>) => TOptions['context']
@@ -544,7 +544,12 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    */
   version?: string
 
-  install: (this: PluginContext<TOptions>) => PossiblePromise<void>
+  buildStart: (this: PluginContext<TOptions>) => PossiblePromise<void>
+  /**
+   * Called once per plugin after all files have been written to disk.
+   * Use this for post-processing, copying assets, or generating summary reports.
+   */
+  buildEnd: (this: PluginContext<TOptions>) => PossiblePromise<void>
   /**
    * Called for each schema node during the AST walk.
    * Return a React element, an array of `FabricFile.File`, or `void` for manual handling.
@@ -577,10 +582,17 @@ export type PluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFa
 
 export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
-   * Start of the lifecycle of a plugin.
+   * Called once per plugin at the start of its processing phase, before schema/operation/operations hooks run.
+   * Use this to set up shared state, fetch remote data, or perform any async initialization.
    * @type hookParallel
    */
-  install?: (this: PluginContext<TOptions>) => PossiblePromise<void>
+  buildStart?: (this: PluginContext<TOptions>) => PossiblePromise<void>
+  /**
+   * Called once per plugin after all files have been written to disk.
+   * Use this for post-processing, copying assets, or generating summary reports.
+   * @type hookParallel
+   */
+  buildEnd?: (this: PluginContext<TOptions>) => PossiblePromise<void>
   /**
    * Called for each schema node during the AST walk.
    * Return a React element (`<File>...</File>`), an array of `FabricFile.File` objects,
@@ -668,7 +680,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   getPlugin(name: string): Plugin | undefined
   /**
    * Like `getPlugin` but throws a descriptive error when the plugin is not found.
-   * Useful for enforcing dependencies inside `install()`.
+   * Useful for enforcing dependencies inside `buildStart()`.
    */
   requirePlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]>
   requirePlugin(name: string): Plugin

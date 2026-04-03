@@ -7,11 +7,11 @@ import type { Config, KubbEvents, Plugin } from './types.ts'
 
 describe('PluginDriver', () => {
   const pluginAMocks = {
-    install: vi.fn(),
+    buildStart: vi.fn(),
     resolvePath: vi.fn(),
   } as const
   const pluginBMocks = {
-    install: vi.fn(),
+    buildStart: vi.fn(),
     resolvePath: vi.fn(),
   } as const
   const pluginA = createPlugin(() => {
@@ -20,8 +20,8 @@ describe('PluginDriver', () => {
       options: undefined as any,
       context: undefined as never,
 
-      install() {
-        pluginAMocks.install()
+      buildStart() {
+        pluginAMocks.buildStart()
       },
       resolvePath() {
         pluginAMocks.resolvePath()
@@ -36,8 +36,8 @@ describe('PluginDriver', () => {
       name: 'pluginB',
       options: undefined as any,
       context: undefined as never,
-      install() {
-        pluginBMocks.install()
+      buildStart() {
+        pluginBMocks.buildStart()
       },
       resolvePath() {
         pluginBMocks.resolvePath()
@@ -55,8 +55,8 @@ describe('PluginDriver', () => {
       name: 'pluginC',
       options: undefined as any,
       context: undefined as never,
-      install() {
-        pluginBMocks.install()
+      buildStart() {
+        pluginBMocks.buildStart()
       },
       resolvePath() {
         pluginBMocks.resolvePath()
@@ -218,7 +218,7 @@ describe('PluginDriver', () => {
         name: 'errorPlugin',
         options: undefined as any,
         context: undefined as never,
-        install() {
+        buildStart() {
           throw new Error('Install failed')
         },
       }
@@ -238,7 +238,7 @@ describe('PluginDriver', () => {
     errorPluginDriver.events.on('error', errorSpy)
 
     const result = await errorPluginDriver.hookFirst({
-      hookName: 'install',
+      hookName: 'buildStart',
       parameters: [] as any,
     })
 

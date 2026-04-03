@@ -11,7 +11,7 @@ import type { KubbEvents, Plugin, UserConfig } from './types.ts'
 
 describe('build', () => {
   const pluginMocks = {
-    install: vi.fn(),
+    buildStart: vi.fn(),
     resolvePath: vi.fn(),
   } as const
 
@@ -27,8 +27,8 @@ describe('build', () => {
       name: 'plugin',
       options: undefined as any,
       context: undefined as never,
-      async install(...params) {
-        pluginMocks.install(...params)
+      async buildStart(...params) {
+        pluginMocks.buildStart(...params)
 
         await this.addFile(file)
       },
@@ -182,7 +182,7 @@ describe('build', () => {
       ]
     `)
 
-    expect(pluginMocks.install).toHaveBeenCalledTimes(1)
+    expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
   })
 
   it('should handle plugin installation errors', async () => {
@@ -191,7 +191,7 @@ describe('build', () => {
         name: 'errorPlugin',
         options: undefined as any,
         context: undefined as never,
-        async install() {
+        async buildStart() {
           throw new Error('Installation failed')
         },
       }
@@ -254,7 +254,7 @@ describe('build', () => {
         name: 'throwingPlugin',
         options: undefined as any,
         context: undefined as never,
-        async install() {
+        async buildStart() {
           throw new Error('Critical error')
         },
       }
@@ -324,7 +324,7 @@ describe('build', () => {
           name: 'excludedPlugin',
           options: { output: { barrelType: false } } as any,
           context: undefined as never,
-          async install() {
+          async buildStart() {
             await this.addFile(indexableFile)
           },
         }

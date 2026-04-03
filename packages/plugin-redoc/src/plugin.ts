@@ -22,7 +22,7 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
       output,
       name: trimExtName(output.path),
     },
-    async install() {
+    async buildStart() {
       const adapter = this.adapter
 
       if (adapter?.name !== adapterOasName) {

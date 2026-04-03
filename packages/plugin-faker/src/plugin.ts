@@ -99,7 +99,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
 
       return resolvedName
     },
-    async install() {
+    async buildStart() {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = getMode(path.resolve(root, output.path))
       const oas = await this.getOas()

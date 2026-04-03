@@ -134,7 +134,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
 
       return path.resolve(root, output.path, baseName)
     },
-    async install() {
+    async buildStart() {
       const oas = await this.getOas({ validate })
 
       if (!output || generators.length === 0) {

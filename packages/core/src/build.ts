@@ -353,7 +353,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
         await events.emit('debug', {
           date: timestamp,
-          logs: ['Installing plugin...', `  • Plugin Name: ${plugin.name}`],
+          logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`],
         })
 
         // Dispatch schema/operation/operations hooks (direct hooks or composed via composeGenerators)
@@ -361,8 +361,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           await runPluginAstHooks(plugin, context)
         }
 
-        // Call install() for any custom plugin logic
-        await plugin.install.call(context)
+        // Call buildStart() for any custom plugin logic
+        await plugin.buildStart.call(context)
 
         const duration = getElapsedMs(hrStart)
         pluginTimings.set(plugin.name, duration)
@@ -371,7 +371,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
         await events.emit('debug', {
           date: new Date(),
-          logs: [`✓ Plugin installed successfully (${formatMs(duration)})`],
+          logs: [`✓ Plugin started successfully (${formatMs(duration)})`],
         })
       } catch (caughtError) {
         const error = caughtError as Error
@@ -387,7 +387,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         await events.emit('debug', {
           date: errorTimestamp,
           logs: [
-            '✗ Plugin installation failed',
+            '✗ Plugin start failed',
             `  • Plugin Name: ${plugin.name}`,
             `  • Error: ${error.constructor.name} - ${error.message}`,
             '  • Stack Trace:',
@@ -443,6 +443,14 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
     const files = [...fabric.files]
 
     await fabric.write({ extension: config.output.extension })
+
+    // Call buildEnd() on each plugin after all files are written
+    for (const plugin of driver.plugins.values()) {
+      if (plugin.buildEnd) {
+        const context = driver.getContext(plugin)
+        await plugin.buildEnd.call(context)
+      }
+    }
 
     return {
       failedPlugins,
