@@ -21,12 +21,10 @@
   },
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
-    "@kubb/cli": "workspace:*",
-    "@kubb/core": "workspace:*",
     "@kubb/oas": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
-    "axios": "^1.14.0"
+    "axios": "^1.14.0",
+    "kubb": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

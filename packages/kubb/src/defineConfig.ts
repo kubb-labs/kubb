@@ -29,6 +29,7 @@ export type CLIOptions = {
  */
 export type ConfigInput = PossiblePromise<UserConfig | UserConfig[]> | ((cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>)
 
+// TODO could we add the promise and function test here so we always return a definedConfig here?
 /**
  * Helper for defining a Kubb configuration.
  *

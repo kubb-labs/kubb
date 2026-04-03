@@ -22,10 +22,6 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
-    "@kubb/adapter-oas": "workspace:*",
-    "@kubb/cli": "workspace:*",
-    "@kubb/core": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-cypress": "workspace:*",
     "@kubb/plugin-faker": "workspace:*",
@@ -42,6 +38,7 @@
     "@tanstack/vue-query": "^5.96.2",
     "axios": "^1.14.0",
     "cypress": "~14.2.1",
+    "kubb": "workspace:*",
     "msw": "^2.12.14",
     "react": "^18.3.1",
     "solid-js": "^1.9.12",

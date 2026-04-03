@@ -3,7 +3,10 @@
  * Do not edit manually.
  */
 
-import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models.ts'
+import type {
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
+} from "../models.ts";
 
 export function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
@@ -11,10 +14,10 @@ export function createUsersWithListInput(
 ): Cypress.Chainable<CreateUsersWithListInputMutationResponse> {
   return cy
     .request<CreateUsersWithListInputMutationResponse>({
-      method: 'POST',
-      url: 'http://localhost:3000/user/createWithList',
+      method: "POST",
+      url: `http://localhost:3000/user/createWithList`,
       body: data,
       ...options,
     })
-    .then((res) => res.body)
+    .then((res) => res.body);
 }

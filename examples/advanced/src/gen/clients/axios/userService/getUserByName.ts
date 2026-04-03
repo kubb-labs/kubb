@@ -1,10 +1,10 @@
-import type { Client, RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
-  GetUserByName400,
-  GetUserByName404,
   GetUserByNamePathParams,
   GetUserByNameQueryResponse,
+  GetUserByName400,
+  GetUserByName404,
 } from '../../../models/ts/userController/GetUserByName.ts'
 import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema.ts'
 

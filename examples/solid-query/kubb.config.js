@@ -1,9 +1,8 @@
 import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from '@kubb/core'
-import { parserTs } from '@kubb/parser-ts'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSolidQuery } from '@kubb/plugin-solid-query'
 import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from 'kubb'
 
 export default defineConfig({
   root: '.',
@@ -17,7 +16,6 @@ export default defineConfig({
   hooks: {
     done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
   },
-  parsers: [parserTs],
   adapter: adapterOas({ collisionDetection: false }),
   plugins: [
     pluginOas({

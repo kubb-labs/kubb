@@ -3,24 +3,24 @@
  * Do not edit manually.
  */
 
-import * as z from 'zod/mini'
-import { apiResponseSchema } from './apiResponseSchema.ts'
+import * as z from "zod/mini";
+import { apiResponseSchema } from "./apiResponseSchema.ts";
 
 export const uploadFilePathParamsSchema = z.object({
   petId: z.int(),
-})
+});
 
 export const uploadFileQueryParamsSchema = z.optional(
   z.object({
     additionalMetadata: z.optional(z.string()),
   }),
-)
+);
 
-export const uploadFile200Schema = apiResponseSchema
+export const uploadFile200Schema = apiResponseSchema;
 
-export const uploadFileMutationRequestSchema = z.optional(z.instanceof(File))
+export const uploadFileMutationRequestSchema = z.optional(z.instanceof(File));
 
-export const uploadFileMutationResponseSchema = uploadFile200Schema
+export const uploadFileMutationResponseSchema = uploadFile200Schema;
 
 export const uploadFileMutationSchema = z.object({
   Response: uploadFile200Schema,
@@ -28,4 +28,4 @@ export const uploadFileMutationSchema = z.object({
   QueryParams: uploadFileQueryParamsSchema,
   PathParams: uploadFilePathParamsSchema,
   Errors: z.any(),
-})
+});

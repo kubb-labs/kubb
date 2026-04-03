@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { User } from './User.ts'
+import type { User } from "./User.ts";
 
 /**
  * @type object
@@ -13,34 +13,34 @@ export type GetUserByNamePathParams = {
    * @description The name that needs to be fetched. Use user1 for testing.
    * @type string
    */
-  username: string
-}
+  username: string;
+};
 
 /**
  * @description successful operation
  * @type object
  */
-export type GetUserByName200 = User
+export type GetUserByName200 = User;
 
 /**
  * @description Invalid username supplied
  * @type any
  */
-export type GetUserByName400 = any
+export type GetUserByName400 = any;
 
 /**
  * @description User not found
  * @type any
  */
-export type GetUserByName404 = any
+export type GetUserByName404 = any;
 
-export type GetUserByNameQueryResponse = GetUserByName200
+export type GetUserByNameQueryResponse = GetUserByName200;
 
 /**
  * @type object
  */
 export type GetUserByNameQuery = {
-  Response: GetUserByName200
-  PathParams: GetUserByNamePathParams
-  Errors: GetUserByName400 | GetUserByName404
-}
+  Response: GetUserByName200;
+  PathParams: GetUserByNamePathParams;
+  Errors: GetUserByName400 | GetUserByName404;
+};

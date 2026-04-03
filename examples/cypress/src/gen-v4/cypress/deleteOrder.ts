@@ -3,17 +3,20 @@
  * Do not edit manually.
  */
 
-import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from '../models.ts'
+import type {
+  DeleteOrderPathParams,
+  DeleteOrderMutationResponse,
+} from "../models.ts";
 
 export function deleteOrder(
-  orderId: DeleteOrderPathParams['orderId'],
+  orderId: DeleteOrderPathParams["orderId"],
   options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<DeleteOrderMutationResponse> {
   return cy
     .request<DeleteOrderMutationResponse>({
-      method: 'DELETE',
+      method: "DELETE",
       url: `http://localhost:3000/store/order/${orderId}`,
       ...options,
     })
-    .then((res) => res.body)
+    .then((res) => res.body);
 }

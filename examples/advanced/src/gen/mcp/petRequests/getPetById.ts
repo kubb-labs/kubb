@@ -1,7 +1,7 @@
-import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
 import fetch from '@kubb/plugin-client/clients/axios'
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById.ts'
+import type { ResponseErrorConfig } from '@kubb/plugin-client/clients/axios'
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types'
 
 /**
  * @description Returns a single pet

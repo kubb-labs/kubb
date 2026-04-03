@@ -3,6 +3,6 @@
  * Do not edit manually.
  */
 
-import * as z from 'zod/mini'
+import * as z from "zod/mini";
 
-export const userArraySchema = z.any()
+export const userArraySchema = z.any();

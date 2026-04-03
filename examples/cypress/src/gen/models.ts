@@ -4,20 +4,22 @@
  */
 
 export const orderStatusEnum = {
-  placed: 'placed',
-  approved: 'approved',
-  delivered: 'delivered',
-} as const
+  placed: "placed",
+  approved: "approved",
+  delivered: "delivered",
+} as const;
 
-export type OrderStatusEnumKey = (typeof orderStatusEnum)[keyof typeof orderStatusEnum]
+export type OrderStatusEnumKey =
+  (typeof orderStatusEnum)[keyof typeof orderStatusEnum];
 
 export const orderHttpStatusEnum = {
-  '200': 200,
-  '400': 400,
-  '500': 500,
-} as const
+  "200": 200,
+  "400": 400,
+  "500": 500,
+} as const;
 
-export type OrderHttpStatusEnumKey = (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum]
+export type OrderHttpStatusEnumKey =
+  (typeof orderHttpStatusEnum)[keyof typeof orderHttpStatusEnum];
 
 /**
  * @type object
@@ -27,38 +29,38 @@ export type Order = {
    * @example 10
    * @type integer | undefined
    */
-  id?: number
+  id?: number;
   /**
    * @example 198772
    * @type integer | undefined
    */
-  petId?: number
+  petId?: number;
   /**
    * @example 7
    * @type integer | undefined
    */
-  quantity?: number
+  quantity?: number;
   /**
    * @type string | undefined
    */
-  shipDate?: string
+  shipDate?: string;
   /**
    * @description Order Status
    * @example approved
    * @type string | undefined
    */
-  status?: OrderStatusEnumKey
+  status?: OrderStatusEnumKey;
   /**
    * @description HTTP Status
    * @example 200
    * @type number | undefined
    */
-  http_status?: OrderHttpStatusEnumKey
+  http_status?: OrderHttpStatusEnumKey;
   /**
    * @type boolean | undefined
    */
-  complete?: boolean
-}
+  complete?: boolean;
+};
 
 /**
  * @type object
@@ -68,23 +70,23 @@ export type Address = {
    * @example 437 Lytton
    * @type string | undefined
    */
-  street?: string
+  street?: string;
   /**
    * @example Palo Alto
    * @type string | undefined
    */
-  city?: string
+  city?: string;
   /**
    * @example CA
    * @type string | undefined
    */
-  state?: string
+  state?: string;
   /**
    * @example 94301
    * @type string | undefined
    */
-  zip?: string
-}
+  zip?: string;
+};
 
 /**
  * @type object
@@ -94,17 +96,17 @@ export type Customer = {
    * @example 100000
    * @type integer | undefined
    */
-  id?: number
+  id?: number;
   /**
    * @example fehguy
    * @type string | undefined
    */
-  username?: string
+  username?: string;
   /**
    * @type array | undefined
    */
-  address?: Address[]
-}
+  address?: Address[];
+};
 
 /**
  * @type object
@@ -114,13 +116,13 @@ export type Category = {
    * @example 1
    * @type integer | undefined
    */
-  id?: number
+  id?: number;
   /**
    * @example Dogs
    * @type string | undefined
    */
-  name?: string
-}
+  name?: string;
+};
 
 /**
  * @type object
@@ -130,44 +132,44 @@ export type User = {
    * @example 10
    * @type integer | undefined
    */
-  id?: number
+  id?: number;
   /**
    * @example theUser
    * @type string | undefined
    */
-  username?: string
+  username?: string;
   /**
    * @example John
    * @type string | undefined
    */
-  firstName?: string
+  firstName?: string;
   /**
    * @example James
    * @type string | undefined
    */
-  lastName?: string
+  lastName?: string;
   /**
    * @example john@email.com
    * @type string | undefined
    */
-  email?: string
+  email?: string;
   /**
    * @example 12345
    * @type string | undefined
    */
-  password?: string
+  password?: string;
   /**
    * @example 12345
    * @type string | undefined
    */
-  phone?: string
+  phone?: string;
   /**
    * @description User Status
    * @example 1
    * @type integer | undefined
    */
-  userStatus?: number
-}
+  userStatus?: number;
+};
 
 /**
  * @type object
@@ -176,20 +178,21 @@ export type Tag = {
   /**
    * @type integer | undefined
    */
-  id?: number
+  id?: number;
   /**
    * @type string | undefined
    */
-  name?: string
-}
+  name?: string;
+};
 
 export const petStatusEnum = {
-  available: 'available',
-  pending: 'pending',
-  sold: 'sold',
-} as const
+  available: "available",
+  pending: "pending",
+  sold: "sold",
+} as const;
 
-export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum]
+export type PetStatusEnumKey =
+  (typeof petStatusEnum)[keyof typeof petStatusEnum];
 
 /**
  * @type object
@@ -199,38 +202,39 @@ export type Pet = {
    * @example 10
    * @type integer | undefined
    */
-  id?: number
+  id?: number;
   /**
    * @example doggie
    * @type string
    */
-  name: string
+  name: string;
   /**
    * @type object | undefined
    */
-  category?: Category
+  category?: Category;
   /**
    * @type array
    */
-  photoUrls: string[]
+  photoUrls: string[];
   /**
    * @type array | undefined
    */
-  tags?: Tag[]
+  tags?: Tag[];
   /**
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: PetStatusEnumKey
-}
+  status?: PetStatusEnumKey;
+};
 
 export const addPetRequestStatusEnum = {
-  available: 'available',
-  pending: 'pending',
-  sold: 'sold',
-} as const
+  available: "available",
+  pending: "pending",
+  sold: "sold",
+} as const;
 
-export type AddPetRequestStatusEnumKey = (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum]
+export type AddPetRequestStatusEnumKey =
+  (typeof addPetRequestStatusEnum)[keyof typeof addPetRequestStatusEnum];
 
 /**
  * @type object
@@ -240,30 +244,30 @@ export type AddPetRequest = {
    * @example 10
    * @type integer | undefined
    */
-  id?: number
+  id?: number;
   /**
    * @example doggie
    * @type string
    */
-  name: string
+  name: string;
   /**
    * @type object | undefined
    */
-  category?: Category
+  category?: Category;
   /**
    * @type array
    */
-  photoUrls: string[]
+  photoUrls: string[];
   /**
    * @type array | undefined
    */
-  tags?: Tag[]
+  tags?: Tag[];
   /**
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: AddPetRequestStatusEnumKey
-}
+  status?: AddPetRequestStatusEnumKey;
+};
 
 /**
  * @type object
@@ -272,16 +276,16 @@ export type ApiResponse = {
   /**
    * @type integer | undefined
    */
-  code?: number
+  code?: number;
   /**
    * @type string | undefined
    */
-  type?: string
+  type?: string;
   /**
    * @type string | undefined
    */
-  message?: string
-}
+  message?: string;
+};
 
 /**
  * @type object
@@ -290,77 +294,81 @@ export type PetNotFound = {
   /**
    * @type integer | undefined
    */
-  code?: number
+  code?: number;
   /**
    * @type string | undefined
    */
-  message?: string
-}
+  message?: string;
+};
 
 /**
  * @type array
  */
-export type UserArray = User[]
+export type UserArray = User[];
 
 /**
  * @type object
  */
-export type UpdatePetStatus200 = Pet
+export type UpdatePetStatus200 = Pet;
 
 /**
  * @type any
  */
-export type UpdatePetStatus400 = any
+export type UpdatePetStatus400 = any;
 
 /**
  * @type any
  */
-export type UpdatePetStatus404 = any
+export type UpdatePetStatus404 = any;
 
 /**
  * @type any
  */
-export type UpdatePetStatus405 = any
+export type UpdatePetStatus405 = any;
 
 /**
  * @description Update an existent pet in the store
  * @type object
  */
-export type UpdatePetData = Pet
+export type UpdatePetData = Pet;
 
 /**
  * @type object
  */
 export type UpdatePetRequestConfig = {
-  data?: UpdatePetData
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
+  data?: UpdatePetData;
+  pathParams?: never;
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: '/pet'
-}
+  url: "/pet";
+};
 
 /**
  * @type object
  */
 export type UpdatePetResponses = {
-  '200': UpdatePetStatus200
-  '400': UpdatePetStatus400
-  '404': UpdatePetStatus404
-  '405': UpdatePetStatus405
-}
+  "200": UpdatePetStatus200;
+  "400": UpdatePetStatus400;
+  "404": UpdatePetStatus404;
+  "405": UpdatePetStatus405;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type UpdatePetResponse = UpdatePetStatus200 | UpdatePetStatus400 | UpdatePetStatus404 | UpdatePetStatus405
+export type UpdatePetResponse =
+  | UpdatePetStatus200
+  | UpdatePetStatus400
+  | UpdatePetStatus404
+  | UpdatePetStatus405;
 
 /**
  * @type object
  */
-export type AddPetStatus200 = Pet
+export type AddPetStatus200 = Pet;
 
 /**
  * @type object
@@ -369,942 +377,961 @@ export type AddPetStatus405 = {
   /**
    * @type integer | undefined
    */
-  code?: number
+  code?: number;
   /**
    * @type string | undefined
    */
-  message?: string
-}
+  message?: string;
+};
 
 /**
  * @description Create a new pet in the store
  * @type object
  */
-export type AddPetData = AddPetRequest
+export type AddPetData = AddPetRequest;
 
 /**
  * @type object
  */
 export type AddPetRequestConfig = {
-  data?: AddPetData
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
+  data?: AddPetData;
+  pathParams?: never;
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: '/pet'
-}
+  url: "/pet";
+};
 
 /**
  * @type object
  */
 export type AddPetResponses = {
-  '200': AddPetStatus200
-  '405': AddPetStatus405
-}
+  "200": AddPetStatus200;
+  "405": AddPetStatus405;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type AddPetResponse = AddPetStatus200 | AddPetStatus405
+export type AddPetResponse = AddPetStatus200 | AddPetStatus405;
 
 /**
  * @type array
  */
-export type OptionsFindPetsByStatusStatus200 = Pet[]
+export type OptionsFindPetsByStatusStatus200 = Pet[];
 
 /**
  * @type object
  */
 export type OptionsFindPetsByStatusRequestConfig = {
-  data?: never
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
+  data?: never;
+  pathParams?: never;
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: '/pet/findByStatus'
-}
+  url: "/pet/findByStatus";
+};
 
 /**
  * @type object
  */
 export type OptionsFindPetsByStatusResponses = {
-  '200': OptionsFindPetsByStatusStatus200
-}
+  "200": OptionsFindPetsByStatusStatus200;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type OptionsFindPetsByStatusResponse = OptionsFindPetsByStatusStatus200
+export type OptionsFindPetsByStatusResponse = OptionsFindPetsByStatusStatus200;
 
 /**
  * @description Status values that need to be considered for filter
  * @default "available"
  * @type string | undefined
  */
-export type FindPetsByStatusQueryStatus = ('available' | 'pending' | 'sold') | undefined
+export type FindPetsByStatusQueryStatus =
+  | ("available" | "pending" | "sold")
+  | undefined;
 
 /**
  * @type array
  */
-export type FindPetsByStatusStatus200 = Pet[]
+export type FindPetsByStatusStatus200 = Pet[];
 
 /**
  * @type any
  */
-export type FindPetsByStatusStatus400 = any
+export type FindPetsByStatusStatus400 = any;
 
 /**
  * @type object
  */
 export type FindPetsByStatusRequestConfig = {
-  data?: never
-  pathParams?: never
+  data?: never;
+  pathParams?: never;
   /**
    * @type object | undefined
    */
   queryParams?: {
-    status?: FindPetsByStatusQueryStatus
-  }
-  headerParams?: never
+    status?: FindPetsByStatusQueryStatus;
+  };
+  headerParams?: never;
   /**
    * @type string
    */
-  url: '/pet/findByStatus'
-}
+  url: "/pet/findByStatus";
+};
 
 /**
  * @type object
  */
 export type FindPetsByStatusResponses = {
-  '200': FindPetsByStatusStatus200
-  '400': FindPetsByStatusStatus400
-}
+  "200": FindPetsByStatusStatus200;
+  "400": FindPetsByStatusStatus400;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type FindPetsByStatusResponse = FindPetsByStatusStatus200 | FindPetsByStatusStatus400
+export type FindPetsByStatusResponse =
+  | FindPetsByStatusStatus200
+  | FindPetsByStatusStatus400;
 
 /**
  * @description Tags to filter by
  * @type array | undefined
  */
-export type FindPetsByTagsQueryTags = string[] | undefined
+export type FindPetsByTagsQueryTags = string[] | undefined;
 
 /**
  * @description to request with required page number or pagination
  * @type string | undefined
  */
-export type FindPetsByTagsQueryPage = string | undefined
+export type FindPetsByTagsQueryPage = string | undefined;
 
 /**
  * @description to request with required page size
  * @type string | undefined
  */
-export type FindPetsByTagsQueryPageSize = string | undefined
+export type FindPetsByTagsQueryPageSize = string | undefined;
 
 /**
  * @type array
  */
-export type FindPetsByTagsStatus200 = Pet[]
+export type FindPetsByTagsStatus200 = Pet[];
 
 /**
  * @type any
  */
-export type FindPetsByTagsStatus400 = any
+export type FindPetsByTagsStatus400 = any;
 
 /**
  * @type object
  */
 export type FindPetsByTagsRequestConfig = {
-  data?: never
-  pathParams?: never
+  data?: never;
+  pathParams?: never;
   /**
    * @type object | undefined
    */
   queryParams?: {
-    tags?: FindPetsByTagsQueryTags
-    page?: FindPetsByTagsQueryPage
-    pageSize?: FindPetsByTagsQueryPageSize
-  }
-  headerParams?: never
+    tags?: FindPetsByTagsQueryTags;
+    page?: FindPetsByTagsQueryPage;
+    pageSize?: FindPetsByTagsQueryPageSize;
+  };
+  headerParams?: never;
   /**
    * @type string
    */
-  url: '/pet/findByTags'
-}
+  url: "/pet/findByTags";
+};
 
 /**
  * @type object
  */
 export type FindPetsByTagsResponses = {
-  '200': FindPetsByTagsStatus200
-  '400': FindPetsByTagsStatus400
-}
+  "200": FindPetsByTagsStatus200;
+  "400": FindPetsByTagsStatus400;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type FindPetsByTagsResponse = FindPetsByTagsStatus200 | FindPetsByTagsStatus400
+export type FindPetsByTagsResponse =
+  | FindPetsByTagsStatus200
+  | FindPetsByTagsStatus400;
 
 /**
  * @description ID of pet to return
  * @type integer
  */
-export type GetPetByIdPathPetId = number
+export type GetPetByIdPathPetId = number;
 
 /**
  * @type object
  */
-export type GetPetByIdStatus200 = Pet
+export type GetPetByIdStatus200 = Pet;
 
 /**
  * @type any
  */
-export type GetPetByIdStatus400 = any
+export type GetPetByIdStatus400 = any;
 
 /**
  * @type any
  */
-export type GetPetByIdStatus404 = any
+export type GetPetByIdStatus404 = any;
 
 /**
  * @type object
  */
 export type GetPetByIdRequestConfig = {
-  data?: never
+  data?: never;
   /**
    * @type object
    */
   pathParams: {
-    petId: GetPetByIdPathPetId
-  }
-  queryParams?: never
-  headerParams?: never
+    petId: GetPetByIdPathPetId;
+  };
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: `/pet/${string}`
-}
+  url: `/pet/${string}`;
+};
 
 /**
  * @type object
  */
 export type GetPetByIdResponses = {
-  '200': GetPetByIdStatus200
-  '400': GetPetByIdStatus400
-  '404': GetPetByIdStatus404
-}
+  "200": GetPetByIdStatus200;
+  "400": GetPetByIdStatus400;
+  "404": GetPetByIdStatus404;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type GetPetByIdResponse = GetPetByIdStatus200 | GetPetByIdStatus400 | GetPetByIdStatus404
+export type GetPetByIdResponse =
+  | GetPetByIdStatus200
+  | GetPetByIdStatus400
+  | GetPetByIdStatus404;
 
 /**
  * @description ID of pet that needs to be updated
  * @type integer
  */
-export type UpdatePetWithFormPathPetId = number
+export type UpdatePetWithFormPathPetId = number;
 
 /**
  * @description Name of pet that needs to be updated
  * @type string | undefined
  */
-export type UpdatePetWithFormQueryName = string | undefined
+export type UpdatePetWithFormQueryName = string | undefined;
 
 /**
  * @description Status of pet that needs to be updated
  * @type string | undefined
  */
-export type UpdatePetWithFormQueryStatus = string | undefined
+export type UpdatePetWithFormQueryStatus = string | undefined;
 
 /**
  * @type any
  */
-export type UpdatePetWithFormStatus405 = any
+export type UpdatePetWithFormStatus405 = any;
 
 /**
  * @type object
  */
 export type UpdatePetWithFormRequestConfig = {
-  data?: never
+  data?: never;
   /**
    * @type object
    */
   pathParams: {
-    petId: UpdatePetWithFormPathPetId
-  }
+    petId: UpdatePetWithFormPathPetId;
+  };
   /**
    * @type object | undefined
    */
   queryParams?: {
-    name?: UpdatePetWithFormQueryName
-    status?: UpdatePetWithFormQueryStatus
-  }
-  headerParams?: never
+    name?: UpdatePetWithFormQueryName;
+    status?: UpdatePetWithFormQueryStatus;
+  };
+  headerParams?: never;
   /**
    * @type string
    */
-  url: `/pet/${string}`
-}
+  url: `/pet/${string}`;
+};
 
 /**
  * @type object
  */
 export type UpdatePetWithFormResponses = {
-  '405': UpdatePetWithFormStatus405
-}
+  "405": UpdatePetWithFormStatus405;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type UpdatePetWithFormResponse = UpdatePetWithFormStatus405
+export type UpdatePetWithFormResponse = UpdatePetWithFormStatus405;
 
 /**
  * @type string | undefined
  */
-export type DeletePetHeaderApiKey = string | undefined
+export type DeletePetHeaderApiKey = string | undefined;
 
 /**
  * @description Pet id to delete
  * @type integer
  */
-export type DeletePetPathPetId = number
+export type DeletePetPathPetId = number;
 
 /**
  * @type any
  */
-export type DeletePetStatus400 = any
+export type DeletePetStatus400 = any;
 
 /**
  * @type object
  */
 export type DeletePetRequestConfig = {
-  data?: never
+  data?: never;
   /**
    * @type object
    */
   pathParams: {
-    petId: DeletePetPathPetId
-  }
-  queryParams?: never
+    petId: DeletePetPathPetId;
+  };
+  queryParams?: never;
   /**
    * @type object | undefined
    */
   headerParams?: {
-    api_key?: DeletePetHeaderApiKey
-  }
+    api_key?: DeletePetHeaderApiKey;
+  };
   /**
    * @type string
    */
-  url: `/pet/${string}`
-}
+  url: `/pet/${string}`;
+};
 
 /**
  * @type object
  */
 export type DeletePetResponses = {
-  '400': DeletePetStatus400
-}
+  "400": DeletePetStatus400;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type DeletePetResponse = DeletePetStatus400
+export type DeletePetResponse = DeletePetStatus400;
 
 /**
  * @description ID of pet to update
  * @type integer
  */
-export type UploadFilePathPetId = number
+export type UploadFilePathPetId = number;
 
 /**
  * @description Additional Metadata
  * @type string | undefined
  */
-export type UploadFileQueryAdditionalMetadata = string | undefined
+export type UploadFileQueryAdditionalMetadata = string | undefined;
 
 /**
  * @type object
  */
-export type UploadFileStatus200 = ApiResponse
+export type UploadFileStatus200 = ApiResponse;
 
 /**
  * @type string | undefined
  */
-export type UploadFileData = Blob | undefined
+export type UploadFileData = Blob | undefined;
 
 /**
  * @type object
  */
 export type UploadFileRequestConfig = {
-  data?: UploadFileData
+  data?: UploadFileData;
   /**
    * @type object
    */
   pathParams: {
-    petId: UploadFilePathPetId
-  }
+    petId: UploadFilePathPetId;
+  };
   /**
    * @type object | undefined
    */
   queryParams?: {
-    additionalMetadata?: UploadFileQueryAdditionalMetadata
-  }
-  headerParams?: never
+    additionalMetadata?: UploadFileQueryAdditionalMetadata;
+  };
+  headerParams?: never;
   /**
    * @type string
    */
-  url: `/pet/${string}/uploadImage`
-}
+  url: `/pet/${string}/uploadImage`;
+};
 
 /**
  * @type object
  */
 export type UploadFileResponses = {
-  '200': UploadFileStatus200
-}
+  "200": UploadFileStatus200;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type UploadFileResponse = UploadFileStatus200
+export type UploadFileResponse = UploadFileStatus200;
 
 /**
  * @type object
  */
 export type GetInventoryStatus200 = {
-  [key: string]: number
-}
+  [key: string]: number;
+};
 
 /**
  * @type object
  */
 export type GetInventoryRequestConfig = {
-  data?: never
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
+  data?: never;
+  pathParams?: never;
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: '/store/inventory'
-}
+  url: "/store/inventory";
+};
 
 /**
  * @type object
  */
 export type GetInventoryResponses = {
-  '200': GetInventoryStatus200
-}
+  "200": GetInventoryStatus200;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type GetInventoryResponse = GetInventoryStatus200
+export type GetInventoryResponse = GetInventoryStatus200;
 
 /**
  * @type object
  */
-export type PlaceOrderStatus200 = Order
+export type PlaceOrderStatus200 = Order;
 
 /**
  * @type any
  */
-export type PlaceOrderStatus405 = any
+export type PlaceOrderStatus405 = any;
 
 /**
  * @type object | undefined
  */
-export type PlaceOrderData = Order | undefined
+export type PlaceOrderData = Order | undefined;
 
 /**
  * @type object
  */
 export type PlaceOrderRequestConfig = {
-  data?: PlaceOrderData
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
+  data?: PlaceOrderData;
+  pathParams?: never;
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: '/store/order'
-}
+  url: "/store/order";
+};
 
 /**
  * @type object
  */
 export type PlaceOrderResponses = {
-  '200': PlaceOrderStatus200
-  '405': PlaceOrderStatus405
-}
+  "200": PlaceOrderStatus200;
+  "405": PlaceOrderStatus405;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type PlaceOrderResponse = PlaceOrderStatus200 | PlaceOrderStatus405
+export type PlaceOrderResponse = PlaceOrderStatus200 | PlaceOrderStatus405;
 
 /**
  * @type object
  */
-export type PlaceOrderPatchStatus200 = Order
+export type PlaceOrderPatchStatus200 = Order;
 
 /**
  * @type any
  */
-export type PlaceOrderPatchStatus405 = any
+export type PlaceOrderPatchStatus405 = any;
 
 /**
  * @type object | undefined
  */
-export type PlaceOrderPatchData = Order | undefined
+export type PlaceOrderPatchData = Order | undefined;
 
 /**
  * @type object
  */
 export type PlaceOrderPatchRequestConfig = {
-  data?: PlaceOrderPatchData
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
+  data?: PlaceOrderPatchData;
+  pathParams?: never;
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: '/store/order'
-}
+  url: "/store/order";
+};
 
 /**
  * @type object
  */
 export type PlaceOrderPatchResponses = {
-  '200': PlaceOrderPatchStatus200
-  '405': PlaceOrderPatchStatus405
-}
+  "200": PlaceOrderPatchStatus200;
+  "405": PlaceOrderPatchStatus405;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type PlaceOrderPatchResponse = PlaceOrderPatchStatus200 | PlaceOrderPatchStatus405
+export type PlaceOrderPatchResponse =
+  | PlaceOrderPatchStatus200
+  | PlaceOrderPatchStatus405;
 
 /**
  * @description ID of order that needs to be fetched
  * @type integer
  */
-export type GetOrderByIdPathOrderId = number
+export type GetOrderByIdPathOrderId = number;
 
 /**
  * @type object
  */
-export type GetOrderByIdStatus200 = Order
+export type GetOrderByIdStatus200 = Order;
 
 /**
  * @type any
  */
-export type GetOrderByIdStatus400 = any
+export type GetOrderByIdStatus400 = any;
 
 /**
  * @type any
  */
-export type GetOrderByIdStatus404 = any
+export type GetOrderByIdStatus404 = any;
 
 /**
  * @type object
  */
 export type GetOrderByIdRequestConfig = {
-  data?: never
+  data?: never;
   /**
    * @type object
    */
   pathParams: {
-    orderId: GetOrderByIdPathOrderId
-  }
-  queryParams?: never
-  headerParams?: never
+    orderId: GetOrderByIdPathOrderId;
+  };
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: `/store/order/${string}`
-}
+  url: `/store/order/${string}`;
+};
 
 /**
  * @type object
  */
 export type GetOrderByIdResponses = {
-  '200': GetOrderByIdStatus200
-  '400': GetOrderByIdStatus400
-  '404': GetOrderByIdStatus404
-}
+  "200": GetOrderByIdStatus200;
+  "400": GetOrderByIdStatus400;
+  "404": GetOrderByIdStatus404;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type GetOrderByIdResponse = GetOrderByIdStatus200 | GetOrderByIdStatus400 | GetOrderByIdStatus404
+export type GetOrderByIdResponse =
+  | GetOrderByIdStatus200
+  | GetOrderByIdStatus400
+  | GetOrderByIdStatus404;
 
 /**
  * @description ID of the order that needs to be deleted
  * @type integer
  */
-export type DeleteOrderPathOrderId = number
+export type DeleteOrderPathOrderId = number;
 
 /**
  * @type any
  */
-export type DeleteOrderStatus400 = any
+export type DeleteOrderStatus400 = any;
 
 /**
  * @type any
  */
-export type DeleteOrderStatus404 = any
+export type DeleteOrderStatus404 = any;
 
 /**
  * @type object
  */
 export type DeleteOrderRequestConfig = {
-  data?: never
+  data?: never;
   /**
    * @type object
    */
   pathParams: {
-    orderId: DeleteOrderPathOrderId
-  }
-  queryParams?: never
-  headerParams?: never
+    orderId: DeleteOrderPathOrderId;
+  };
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: `/store/order/${string}`
-}
+  url: `/store/order/${string}`;
+};
 
 /**
  * @type object
  */
 export type DeleteOrderResponses = {
-  '400': DeleteOrderStatus400
-  '404': DeleteOrderStatus404
-}
+  "400": DeleteOrderStatus400;
+  "404": DeleteOrderStatus404;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type DeleteOrderResponse = DeleteOrderStatus400 | DeleteOrderStatus404
+export type DeleteOrderResponse = DeleteOrderStatus400 | DeleteOrderStatus404;
 
 /**
  * @type object
  */
-export type CreateUserStatusDefault = User
+export type CreateUserStatusDefault = User;
 
 /**
  * @description Created user object
  * @type object | undefined
  */
-export type CreateUserData = User | undefined
+export type CreateUserData = User | undefined;
 
 /**
  * @type object
  */
 export type CreateUserRequestConfig = {
-  data?: CreateUserData
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
+  data?: CreateUserData;
+  pathParams?: never;
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: '/user'
-}
+  url: "/user";
+};
 
 /**
  * @type object
  */
 export type CreateUserResponses = {
-  default: CreateUserStatusDefault
-}
+  default: CreateUserStatusDefault;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type CreateUserResponse = CreateUserStatusDefault
+export type CreateUserResponse = CreateUserStatusDefault;
 
 /**
  * @type object
  */
-export type CreateUsersWithListInputStatus200 = User
+export type CreateUsersWithListInputStatus200 = User;
 
 /**
  * @type any
  */
-export type CreateUsersWithListInputStatusDefault = any
+export type CreateUsersWithListInputStatusDefault = any;
 
 /**
  * @type array | undefined
  */
-export type CreateUsersWithListInputData = User[] | undefined
+export type CreateUsersWithListInputData = User[] | undefined;
 
 /**
  * @type object
  */
 export type CreateUsersWithListInputRequestConfig = {
-  data?: CreateUsersWithListInputData
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
+  data?: CreateUsersWithListInputData;
+  pathParams?: never;
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: '/user/createWithList'
-}
+  url: "/user/createWithList";
+};
 
 /**
  * @type object
  */
 export type CreateUsersWithListInputResponses = {
-  '200': CreateUsersWithListInputStatus200
-  default: CreateUsersWithListInputStatusDefault
-}
+  "200": CreateUsersWithListInputStatus200;
+  default: CreateUsersWithListInputStatusDefault;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type CreateUsersWithListInputResponse = CreateUsersWithListInputStatus200 | CreateUsersWithListInputStatusDefault
+export type CreateUsersWithListInputResponse =
+  | CreateUsersWithListInputStatus200
+  | CreateUsersWithListInputStatusDefault;
 
 /**
  * @description The user name for login
  * @type string | undefined
  */
-export type LoginUserQueryUsername = string | undefined
+export type LoginUserQueryUsername = string | undefined;
 
 /**
  * @description The password for login in clear text
  * @type string | undefined
  */
-export type LoginUserQueryPassword = string | undefined
+export type LoginUserQueryPassword = string | undefined;
 
 /**
  * @type string
  */
-export type LoginUserStatus200 = string
+export type LoginUserStatus200 = string;
 
 /**
  * @type any
  */
-export type LoginUserStatus400 = any
+export type LoginUserStatus400 = any;
 
 /**
  * @type object
  */
 export type LoginUserRequestConfig = {
-  data?: never
-  pathParams?: never
+  data?: never;
+  pathParams?: never;
   /**
    * @type object | undefined
    */
   queryParams?: {
-    username?: LoginUserQueryUsername
-    password?: LoginUserQueryPassword
-  }
-  headerParams?: never
+    username?: LoginUserQueryUsername;
+    password?: LoginUserQueryPassword;
+  };
+  headerParams?: never;
   /**
    * @type string
    */
-  url: '/user/login'
-}
+  url: "/user/login";
+};
 
 /**
  * @type object
  */
 export type LoginUserResponses = {
-  '200': LoginUserStatus200
-  '400': LoginUserStatus400
-}
+  "200": LoginUserStatus200;
+  "400": LoginUserStatus400;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type LoginUserResponse = LoginUserStatus200 | LoginUserStatus400
+export type LoginUserResponse = LoginUserStatus200 | LoginUserStatus400;
 
 /**
  * @type any
  */
-export type LogoutUserStatusDefault = any
+export type LogoutUserStatusDefault = any;
 
 /**
  * @type object
  */
 export type LogoutUserRequestConfig = {
-  data?: never
-  pathParams?: never
-  queryParams?: never
-  headerParams?: never
+  data?: never;
+  pathParams?: never;
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: '/user/logout'
-}
+  url: "/user/logout";
+};
 
 /**
  * @type object
  */
 export type LogoutUserResponses = {
-  default: LogoutUserStatusDefault
-}
+  default: LogoutUserStatusDefault;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type LogoutUserResponse = LogoutUserStatusDefault
+export type LogoutUserResponse = LogoutUserStatusDefault;
 
 /**
  * @description The name that needs to be fetched. Use user1 for testing.
  * @type string
  */
-export type GetUserByNamePathUsername = string
+export type GetUserByNamePathUsername = string;
 
 /**
  * @type object
  */
-export type GetUserByNameStatus200 = User
+export type GetUserByNameStatus200 = User;
 
 /**
  * @type any
  */
-export type GetUserByNameStatus400 = any
+export type GetUserByNameStatus400 = any;
 
 /**
  * @type any
  */
-export type GetUserByNameStatus404 = any
+export type GetUserByNameStatus404 = any;
 
 /**
  * @type object
  */
 export type GetUserByNameRequestConfig = {
-  data?: never
+  data?: never;
   /**
    * @type object
    */
   pathParams: {
-    username: GetUserByNamePathUsername
-  }
-  queryParams?: never
-  headerParams?: never
+    username: GetUserByNamePathUsername;
+  };
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: `/user/${string}`
-}
+  url: `/user/${string}`;
+};
 
 /**
  * @type object
  */
 export type GetUserByNameResponses = {
-  '200': GetUserByNameStatus200
-  '400': GetUserByNameStatus400
-  '404': GetUserByNameStatus404
-}
+  "200": GetUserByNameStatus200;
+  "400": GetUserByNameStatus400;
+  "404": GetUserByNameStatus404;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type GetUserByNameResponse = GetUserByNameStatus200 | GetUserByNameStatus400 | GetUserByNameStatus404
+export type GetUserByNameResponse =
+  | GetUserByNameStatus200
+  | GetUserByNameStatus400
+  | GetUserByNameStatus404;
 
 /**
  * @description name that need to be deleted
  * @type string
  */
-export type UpdateUserPathUsername = string
+export type UpdateUserPathUsername = string;
 
 /**
  * @type any
  */
-export type UpdateUserStatusDefault = any
+export type UpdateUserStatusDefault = any;
 
 /**
  * @description Update an existent user in the store
  * @type object | undefined
  */
-export type UpdateUserData = User | undefined
+export type UpdateUserData = User | undefined;
 
 /**
  * @type object
  */
 export type UpdateUserRequestConfig = {
-  data?: UpdateUserData
+  data?: UpdateUserData;
   /**
    * @type object
    */
   pathParams: {
-    username: UpdateUserPathUsername
-  }
-  queryParams?: never
-  headerParams?: never
+    username: UpdateUserPathUsername;
+  };
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: `/user/${string}`
-}
+  url: `/user/${string}`;
+};
 
 /**
  * @type object
  */
 export type UpdateUserResponses = {
-  default: UpdateUserStatusDefault
-}
+  default: UpdateUserStatusDefault;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type UpdateUserResponse = UpdateUserStatusDefault
+export type UpdateUserResponse = UpdateUserStatusDefault;
 
 /**
  * @description The name that needs to be deleted
  * @type string
  */
-export type DeleteUserPathUsername = string
+export type DeleteUserPathUsername = string;
 
 /**
  * @type any
  */
-export type DeleteUserStatus400 = any
+export type DeleteUserStatus400 = any;
 
 /**
  * @type any
  */
-export type DeleteUserStatus404 = any
+export type DeleteUserStatus404 = any;
 
 /**
  * @type object
  */
 export type DeleteUserRequestConfig = {
-  data?: never
+  data?: never;
   /**
    * @type object
    */
   pathParams: {
-    username: DeleteUserPathUsername
-  }
-  queryParams?: never
-  headerParams?: never
+    username: DeleteUserPathUsername;
+  };
+  queryParams?: never;
+  headerParams?: never;
   /**
    * @type string
    */
-  url: `/user/${string}`
-}
+  url: `/user/${string}`;
+};
 
 /**
  * @type object
  */
 export type DeleteUserResponses = {
-  '400': DeleteUserStatus400
-  '404': DeleteUserStatus404
-}
+  "400": DeleteUserStatus400;
+  "404": DeleteUserStatus404;
+};
 
 /**
  * @description Union of all possible responses
  */
-export type DeleteUserResponse = DeleteUserStatus400 | DeleteUserStatus404
+export type DeleteUserResponse = DeleteUserStatus400 | DeleteUserStatus404;

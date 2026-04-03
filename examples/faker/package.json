@@ -23,17 +23,14 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
-    "@kubb/adapter-oas": "workspace:*",
-    "@kubb/cli": "workspace:*",
-    "kubb": "workspace:*",
     "@kubb/fabric-core": "0.15.1",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-faker": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/react-fabric": "0.15.1",
     "dayjs": "^1.11.20",
+    "kubb": "workspace:*",
     "react": "^18.3.1"
   },
   "devDependencies": {

@@ -8,15 +8,15 @@
  * @type object
  */
 export type GetInventory200 = {
-  [key: string]: number
-}
+  [key: string]: number;
+};
 
-export type GetInventoryQueryResponse = GetInventory200
+export type GetInventoryQueryResponse = GetInventory200;
 
 /**
  * @type object
  */
 export type GetInventoryQuery = {
-  Response: GetInventory200
-  Errors: any
-}
+  Response: GetInventory200;
+  Errors: any;
+};

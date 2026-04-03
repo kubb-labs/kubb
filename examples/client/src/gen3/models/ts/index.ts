@@ -2,7 +2,6 @@ export type {
   AddPetRequest,
   AddPetRequestStatusEnumKey,
 } from './AddPetRequest.ts'
-export { addPetRequestStatusEnum } from './AddPetRequest.ts'
 export type { Address } from './Address.ts'
 export type { ApiResponse } from './ApiResponse.ts'
 export type { Category } from './Category.ts'
@@ -12,10 +11,11 @@ export type {
   OrderHttpStatusEnumKey,
   OrderStatusEnumKey,
 } from './Order.ts'
-export { orderHttpStatusEnum, orderStatusEnum } from './Order.ts'
 export type { Pet, PetStatusEnumKey } from './Pet.ts'
-export { petStatusEnum } from './Pet.ts'
 export type { PetNotFound } from './PetNotFound.ts'
+export type { Tag } from './Tag.ts'
+export type { User } from './User.ts'
+export type { UserArray } from './UserArray.ts'
 export type {
   AddPet200,
   AddPet405,
@@ -38,7 +38,6 @@ export type {
   FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
 } from './petController/FindPetsByStatus.ts'
-export { findPetsByStatusQueryParamsStatusEnum } from './petController/FindPetsByStatus.ts'
 export type {
   FindPetsByTags200,
   FindPetsByTags400,
@@ -112,9 +111,6 @@ export type {
   PlaceOrderPatchMutationRequest,
   PlaceOrderPatchMutationResponse,
 } from './storeController/PlaceOrderPatch.ts'
-export type { Tag } from './Tag.ts'
-export type { User } from './User.ts'
-export type { UserArray } from './UserArray.ts'
 export type {
   CreateUserError,
   CreateUserMutation,
@@ -162,3 +158,8 @@ export type {
   UpdateUserMutationResponse,
   UpdateUserPathParams,
 } from './userController/UpdateUser.ts'
+export { addPetRequestStatusEnum } from './AddPetRequest.ts'
+export { orderHttpStatusEnum } from './Order.ts'
+export { orderStatusEnum } from './Order.ts'
+export { petStatusEnum } from './Pet.ts'
+export { findPetsByStatusQueryParamsStatusEnum } from './petController/FindPetsByStatus.ts'

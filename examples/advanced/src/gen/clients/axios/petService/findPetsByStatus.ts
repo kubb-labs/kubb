@@ -1,6 +1,6 @@
-import type { Client, RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
-import type { FindPetsByStatus400, FindPetsByStatusPathParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
+import type { FindPetsByStatusPathParams, FindPetsByStatusQueryResponse, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus.ts'
 import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema.ts'
 
 export function getFindPetsByStatusUrl({ stepId }: { stepId: FindPetsByStatusPathParams['stepId'] }) {

@@ -1,10 +1,8 @@
-import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from '@kubb/core'
-import { parserTs } from '@kubb/parser-ts'
 import { pluginMcp } from '@kubb/plugin-mcp'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
+import { defineConfig } from 'kubb'
 // import { openDevtools } from '@kubb/react-fabric'
 
 export default defineConfig(() => {
@@ -25,8 +23,6 @@ export default defineConfig(() => {
         '.ts': '.js',
       },
     },
-    parsers: [parserTs],
-    adapter: adapterOas({}),
     plugins: [
       pluginOas({
         validate: false,

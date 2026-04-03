@@ -1084,7 +1084,7 @@ export type ResolveBannerContext = {
   config: Config
 }
 
-export type { CLIOptions, ConfigInput } from './config.ts'
+export type { CLIOptions, ConfigInput } from './defineConfig.ts'
 export type { Parser, UserParser } from './defineParser.ts'
 export type { FunctionParamsAST } from './utils/FunctionParams.ts'
 export type { FileMetaBase } from './utils/getBarrelFiles.ts'

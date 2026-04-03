@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from './models.ts'
+import type { FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse, FindPetsByTags400 } from './models.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getFindPetsByTagsUrl() {
   const res = {

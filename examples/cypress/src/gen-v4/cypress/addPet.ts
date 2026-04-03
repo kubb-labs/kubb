@@ -3,15 +3,21 @@
  * Do not edit manually.
  */
 
-import type { AddPetMutationRequest, AddPetMutationResponse } from '../models.ts'
+import type {
+  AddPetMutationRequest,
+  AddPetMutationResponse,
+} from "../models.ts";
 
-export function addPet(data: AddPetMutationRequest, options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<AddPetMutationResponse> {
+export function addPet(
+  data: AddPetMutationRequest,
+  options: Partial<Cypress.RequestOptions> = {},
+): Cypress.Chainable<AddPetMutationResponse> {
   return cy
     .request<AddPetMutationResponse>({
-      method: 'POST',
-      url: 'http://localhost:3000/pet',
+      method: "POST",
+      url: `http://localhost:3000/pet`,
       body: data,
       ...options,
     })
-    .then((res) => res.body)
+    .then((res) => res.body);
 }

@@ -19,9 +19,6 @@
   },
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
-    "@kubb/cli": "workspace:*",
-    "@kubb/core": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-svelte-query": "workspace:*",
@@ -29,6 +26,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/svelte-query": "5.62.7",
     "axios": "^1.14.0",
+    "kubb": "workspace:*",
     "svelte": "^5.55.1"
   },
   "devDependencies": {

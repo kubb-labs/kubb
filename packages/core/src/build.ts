@@ -151,7 +151,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   const definedConfig: Config = {
     root: userConfig.root || process.cwd(),
     ...userConfig,
-    parsers: resolvedParsers!,
+    parsers: resolvedParsers ?? [],
     adapter: resolvedAdapter!,
     output: {
       write: true,

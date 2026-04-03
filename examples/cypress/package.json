@@ -22,12 +22,9 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/adapter-oas": "workspace:*",
-    "@kubb/cli": "workspace:*",
-    "@kubb/core": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-cypress": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
+    "kubb": "workspace:*",
     "react": "^18.3.1"
   },
   "devDependencies": {

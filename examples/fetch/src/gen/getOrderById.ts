@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from './models.ts'
+import type { GetOrderByIdPathParams, GetOrderByIdQueryResponse, GetOrderById400, GetOrderById404 } from './models.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 
 function getGetOrderByIdUrl(orderId: GetOrderByIdPathParams['orderId']) {
   const res = {

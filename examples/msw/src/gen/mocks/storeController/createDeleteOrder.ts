@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import { faker } from '@faker-js/faker'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../models/DeleteOrder.ts'
+import { faker } from '@faker-js/faker'
 
 export function createDeleteOrderPathParams(data?: Partial<DeleteOrderPathParams>): DeleteOrderPathParams {
   faker.seed([220])

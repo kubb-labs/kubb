@@ -3,7 +3,11 @@
  * Do not edit manually.
  */
 
-import type { UpdateUserData, UpdateUserPathUsername, UpdateUserResponse } from '../../models.ts'
+import type {
+  UpdateUserPathUsername,
+  UpdateUserData,
+  UpdateUserResponse,
+} from "../../models.ts";
 
 export function updateUser(
   username: UpdateUserPathUsername,
@@ -12,10 +16,10 @@ export function updateUser(
 ): Cypress.Chainable<UpdateUserResponse> {
   return cy
     .request<UpdateUserResponse>({
-      method: 'PUT',
+      method: "PUT",
       url: `http://localhost:3000/user/${username}`,
       body: data,
       ...options,
     })
-    .then((res) => res.body)
+    .then((res) => res.body);
 }

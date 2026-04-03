@@ -11,8 +11,8 @@ export type DeletePetPathParams = {
    * @description Pet id to delete
    * @type integer
    */
-  petId: number
-}
+  petId: number;
+};
 
 /**
  * @type object
@@ -21,23 +21,23 @@ export type DeletePetHeaderParams = {
   /**
    * @type string | undefined
    */
-  api_key?: string
-}
+  api_key?: string;
+};
 
 /**
  * @description Invalid pet value
  * @type any
  */
-export type DeletePet400 = any
+export type DeletePet400 = any;
 
-export type DeletePetMutationResponse = any
+export type DeletePetMutationResponse = any;
 
 /**
  * @type object
  */
 export type DeletePetMutation = {
-  Response: any
-  PathParams: DeletePetPathParams
-  HeaderParams: DeletePetHeaderParams
-  Errors: DeletePet400
-}
+  Response: any;
+  PathParams: DeletePetPathParams;
+  HeaderParams: DeletePetHeaderParams;
+  Errors: DeletePet400;
+};

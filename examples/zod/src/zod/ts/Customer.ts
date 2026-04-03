@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { Address } from './Address.ts'
+import type { Address } from "./Address.ts";
 
 /**
  * @type object
@@ -13,14 +13,14 @@ export type Customer = {
    * @example 100000
    * @type integer | undefined
    */
-  id?: number
+  id?: number;
   /**
    * @example fehguy
    * @type string | undefined
    */
-  username?: string
+  username?: string;
   /**
    * @type array | undefined
    */
-  address?: Address[]
-}
+  address?: Address[];
+};

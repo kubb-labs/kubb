@@ -3,22 +3,22 @@
  * Do not edit manually.
  */
 
-import * as z from 'zod/mini'
-import { userSchema } from './userSchema.ts'
+import * as z from "zod/mini";
+import { userSchema } from "./userSchema.ts";
 
 export const updateUserPathParamsSchema = z.object({
   username: z.string(),
-})
+});
 
-export const updateUserErrorSchema = z.any()
+export const updateUserErrorSchema = z.any();
 
-export const updateUserMutationRequestSchema = z.optional(userSchema)
+export const updateUserMutationRequestSchema = z.optional(userSchema);
 
-export const updateUserMutationResponseSchema = z.any()
+export const updateUserMutationResponseSchema = z.any();
 
 export const updateUserMutationSchema = z.object({
   Response: z.any(),
   Request: updateUserMutationRequestSchema,
   PathParams: updateUserPathParamsSchema,
   Errors: updateUserErrorSchema,
-})
+});

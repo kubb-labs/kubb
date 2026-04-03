@@ -1,16 +1,13 @@
-import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from '@kubb/core'
-import { parserTs } from '@kubb/parser-ts'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginCypress } from '@kubb/plugin-cypress'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginMsw } from '@kubb/plugin-msw'
 import { pluginOas } from '@kubb/plugin-oas'
-
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
+import { defineConfig } from 'kubb'
 
 const schemas = [
   // { name: 'test', path: './schemas/test.json' },
@@ -52,8 +49,6 @@ const baseConfig = {
     lint: 'auto',
     format: 'auto',
   },
-  parsers: [parserTs],
-  adapter: adapterOas(),
   plugins: [
     pluginOas({
       generators: [],

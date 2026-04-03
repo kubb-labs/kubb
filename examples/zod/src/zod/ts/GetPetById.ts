@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { Pet } from './Pet.ts'
+import type { Pet } from "./Pet.ts";
 
 /**
  * @type object
@@ -13,34 +13,34 @@ export type GetPetByIdPathParams = {
    * @description ID of pet to return
    * @type integer
    */
-  petId: number
-}
+  petId: number;
+};
 
 /**
  * @description successful operation
  * @type object
  */
-export type GetPetById200 = Pet
+export type GetPetById200 = Pet;
 
 /**
  * @description Invalid ID supplied
  * @type any
  */
-export type GetPetById400 = any
+export type GetPetById400 = any;
 
 /**
  * @description Pet not found
  * @type any
  */
-export type GetPetById404 = any
+export type GetPetById404 = any;
 
-export type GetPetByIdQueryResponse = GetPetById200
+export type GetPetByIdQueryResponse = GetPetById200;
 
 /**
  * @type object
  */
 export type GetPetByIdQuery = {
-  Response: GetPetById200
-  PathParams: GetPetByIdPathParams
-  Errors: GetPetById400 | GetPetById404
-}
+  Response: GetPetById200;
+  PathParams: GetPetByIdPathParams;
+  Errors: GetPetById400 | GetPetById404;
+};

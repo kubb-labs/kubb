@@ -1,12 +1,8 @@
-import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from '@kubb/core'
-import { parserTs } from '@kubb/parser-ts'
 import { pluginCypress } from '@kubb/plugin-cypress'
 import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from 'kubb'
 
 const input = { path: './petStore.yaml' }
-const adapter = adapterOas({})
-
 export default defineConfig([
   {
     root: '.',
@@ -15,8 +11,6 @@ export default defineConfig([
       path: './src/gen',
       clean: true,
     },
-    parsers: [parserTs],
-    adapter,
     plugins: [
       pluginTs({
         output: {
@@ -41,8 +35,6 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen-v4', clean: true },
-    parsers: [parserTs],
-    adapter,
     plugins: [
       pluginTs({
         output: { path: 'models.ts' },

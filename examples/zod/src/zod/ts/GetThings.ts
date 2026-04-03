@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 
-import type { PetNotFound } from './PetNotFound.ts'
+import type { PetNotFound } from "./PetNotFound.ts";
 
 /**
  * @type object
@@ -16,35 +16,35 @@ export type GetThingsQueryParams = {
    * @default 100
    * @type integer | undefined
    */
-  limit?: number
+  limit?: number;
   /**
    * @description Number of things to skip
    * @minLength 0
    * @default 0
    * @type integer | undefined
    */
-  skip?: number
-}
+  skip?: number;
+};
 
 /**
  * @description Null response
  * @type any
  */
-export type GetThings201 = any
+export type GetThings201 = any;
 
 /**
  * @description unexpected error
  * @type any
  */
-export type GetThingsError = PetNotFound
+export type GetThingsError = PetNotFound;
 
-export type GetThingsQueryResponse = GetThings201
+export type GetThingsQueryResponse = GetThings201;
 
 /**
  * @type object
  */
 export type GetThingsQuery = {
-  Response: GetThings201
-  QueryParams: GetThingsQueryParams
-  Errors: GetThingsError
-}
+  Response: GetThings201;
+  QueryParams: GetThingsQueryParams;
+  Errors: GetThingsError;
+};

@@ -1,4 +1,3 @@
-import { adapterOas } from '@kubb/adapter-oas'
 import { parserTs } from '@kubb/parser-ts'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -23,7 +22,6 @@ export default defineConfig({
           format: 'biome',
           lint: 'biome',
         },
-        adapter: adapterOas({ collisionDetection: false }),
         parsers: [parserTs],
         plugins: [
           pluginOas({

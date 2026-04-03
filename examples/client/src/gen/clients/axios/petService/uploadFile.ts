@@ -1,14 +1,13 @@
 /* eslint-disable no-alert, no-console */
-
-import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
 import fetch from '@kubb/plugin-client/clients/fetch'
-import { buildFormData } from '../../../.kubb/config.js'
 import type {
-  UploadFileMutationRequest,
-  UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
+  UploadFileMutationRequest,
+  UploadFileMutationResponse,
 } from '../../../models/ts/petController/UploadFile.js'
+import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import { buildFormData } from '../../../.kubb/config.js'
 
 function getUploadFileUrl({ petId }: { petId: UploadFilePathParams['petId'] }) {
   const res = { method: 'POST', url: `/pet/${petId}/uploadImage` as const }

@@ -3,12 +3,12 @@
  * Do not edit manually.
  */
 
-import { z } from '../../zod.ts'
+import { z } from "../../zod.ts";
 
 export const apiResponseSchema = z.object({
   code: z.int().optional(),
   type: z.string().optional(),
   message: z.string().optional(),
-})
+});
 
-export type ApiResponseSchema = z.infer<typeof apiResponseSchema>
+export type ApiResponseSchema = z.infer<typeof apiResponseSchema>;

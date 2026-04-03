@@ -3,28 +3,28 @@
  * Do not edit manually.
  */
 
-import * as z from 'zod'
-import { itemTypeASchema } from './itemTypeASchema.ts'
-import { itemTypeBSchema } from './itemTypeBSchema.ts'
+import * as z from "zod";
+import { itemTypeASchema } from "./itemTypeASchema.ts";
+import { itemTypeBSchema } from "./itemTypeBSchema.ts";
 
 export const itemSchema = z
   .union([
     itemTypeASchema.and(
       z.object({
-        type: z.enum(['typeA']),
+        type: z.enum(["typeA"]),
       }),
     ),
     itemTypeBSchema.and(
       z.object({
-        type: z.enum(['typeB']),
+        type: z.enum(["typeB"]),
       }),
     ),
   ])
   .and(
     z.object({
       id: z.int().optional(),
-      type: z.enum(['typeA', 'typeB']),
+      type: z.enum(["typeA", "typeB"]),
       name: z.string(),
       createdAt: z.iso.datetime().optional(),
     }),
-  )
+  );

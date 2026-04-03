@@ -1,10 +1,8 @@
-import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from '@kubb/core'
-import { parserTs } from '@kubb/parser-ts'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { QueryKey } from '@kubb/plugin-react-query/components'
 import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from 'kubb'
 
 /** @type {import('@kubb/core').UserConfig} */
 export const config = {
@@ -20,8 +18,6 @@ export const config = {
   hooks: {
     done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
   },
-  parsers: [parserTs],
-  adapter: adapterOas({}),
   plugins: [
     pluginOas({ generators: [] }),
     pluginTs({

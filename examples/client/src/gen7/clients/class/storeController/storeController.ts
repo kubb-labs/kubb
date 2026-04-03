@@ -1,12 +1,12 @@
 /* eslint-disable no-alert, no-console */
-
-import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
-import fetch, { mergeConfig } from '@kubb/plugin-client/clients/fetch'
-import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../../models/ts/storeController/DeleteOrder.ts'
+import fetch from '@kubb/plugin-client/clients/fetch'
+import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../../../models/ts/storeController/DeleteOrder.ts'
 import type { GetInventoryQueryResponse } from '../../../models/ts/storeController/GetInventory.ts'
-import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../../models/ts/storeController/GetOrderById.ts'
-import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../../../models/ts/storeController/PlaceOrder.ts'
-import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../../../models/ts/storeController/PlaceOrderPatch.ts'
+import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../../../models/ts/storeController/GetOrderById.ts'
+import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../../../models/ts/storeController/PlaceOrder.ts'
+import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../../../models/ts/storeController/PlaceOrderPatch.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import { mergeConfig } from '@kubb/plugin-client/clients/fetch'
 
 export class storeController {
   #config: Partial<RequestConfig> & { client?: Client }

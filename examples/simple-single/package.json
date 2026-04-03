@@ -22,9 +22,6 @@
   },
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
-    "@kubb/cli": "workspace:*",
-    "@kubb/core": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-react-query": "workspace:*",
@@ -33,6 +30,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/react-query": "^5.96.2",
     "axios": "^1.14.0",
+    "kubb": "workspace:*",
     "react": "^18.3.1",
     "typescript": "^5.9.3",
     "zod": "^4.3.6"

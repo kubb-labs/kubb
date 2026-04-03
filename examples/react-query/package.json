@@ -21,11 +21,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/adapter-oas": "workspace:*",
-    "@kubb/cli": "workspace:*",
-    "@kubb/core": "workspace:*",
     "@kubb/fabric-core": "0.15.1",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-react-query": "workspace:*",
@@ -34,6 +30,7 @@
     "@tanstack/react-query": "^5.96.2",
     "@tanstack/react-query-devtools": "^5.96.2",
     "axios": "^1.14.0",
+    "kubb": "workspace:*",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "unplugin-kubb": "workspace:*"

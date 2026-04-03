@@ -21,11 +21,8 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/adapter-oas": "workspace:*",
-    "@kubb/cli": "workspace:*",
-    "@kubb/core": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
+    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-vue-query": "workspace:*",

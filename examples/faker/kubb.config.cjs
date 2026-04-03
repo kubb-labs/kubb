@@ -2,8 +2,6 @@
 
 const { defineConfig } = require('kubb')
 
-const { adapterOas } = require('@kubb/adapter-oas')
-const { parserTs } = require('@kubb/parser-ts')
 const { pluginOas, schemaKeywords } = require('@kubb/plugin-oas')
 const { pluginFaker } = require('@kubb/plugin-faker')
 const { pluginTs } = require('@kubb/plugin-ts')
@@ -22,8 +20,6 @@ module.exports = defineConfig(() => {
       hooks: {
         done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
       },
-      parsers: [parserTs],
-      adapter: adapterOas({ collisionDetection: false }),
       plugins: [
         pluginOas({ generators: [] }),
         pluginTs({
@@ -59,8 +55,6 @@ module.exports = defineConfig(() => {
       hooks: {
         done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
       },
-      parsers: [parserTs],
-      adapter: adapterOas({ collisionDetection: false }),
       plugins: [
         pluginOas({ generators: [] }),
         pluginTs({

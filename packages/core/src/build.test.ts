@@ -2,20 +2,14 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { AsyncEventEmitter, isPromise } from '@internals/utils'
-import { afterEach, beforeAll, describe, expect, it, test, vi } from 'vitest'
+import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { build, safeBuild } from './build.ts'
-import { defineConfig } from './config.ts'
 import { createPlugin } from './createPlugin.ts'
-import { setDefaultAdapter, setDefaultParsers } from './defaults.ts'
+import { defineConfig } from './defineConfig.ts'
 import type * as KubbFile from './KubbFile.ts'
 import type { KubbEvents, Plugin, UserConfig } from './types.ts'
 
 describe('build', () => {
-  beforeAll(async () => {
-    const [{ adapterOas }, { parserTs }] = await Promise.all([import('@kubb/adapter-oas'), import('@kubb/parser-ts')])
-    setDefaultAdapter(adapterOas())
-    setDefaultParsers([parserTs])
-  })
   const pluginMocks = {
     buildStart: vi.fn(),
     resolvePath: vi.fn(),

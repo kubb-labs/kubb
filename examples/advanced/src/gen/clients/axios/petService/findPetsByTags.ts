@@ -1,10 +1,10 @@
-import type { Client, RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import fetch from '../../../../axios-client.ts'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../../../../axios-client.ts'
 import type {
-  FindPetsByTags400,
-  FindPetsByTagsHeaderParams,
   FindPetsByTagsQueryParams,
+  FindPetsByTagsHeaderParams,
   FindPetsByTagsQueryResponse,
+  FindPetsByTags400,
 } from '../../../models/ts/petController/FindPetsByTags.ts'
 import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema.ts'
 

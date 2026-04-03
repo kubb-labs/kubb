@@ -3,8 +3,13 @@
  * Do not edit manually.
  */
 
-import type { z } from '../../zod.ts'
-import { addPet200Schema, addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './addPetSchema.ts'
+import type { z } from "../../zod.ts";
+import {
+  addPet200Schema,
+  addPet405Schema,
+  addPetMutationRequestSchema,
+  addPetMutationResponseSchema,
+} from "./addPetSchema.ts";
 import {
   createPets201Schema,
   createPetsHeaderParamsSchema,
@@ -12,55 +17,96 @@ import {
   createPetsMutationResponseSchema,
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
-} from './createPetsSchema.ts'
-import { createUserMutationRequestSchema, createUserMutationResponseSchema } from './createUserSchema.ts'
+} from "./createPetsSchema.ts";
+import {
+  createUserMutationRequestSchema,
+  createUserMutationResponseSchema,
+} from "./createUserSchema.ts";
 import {
   createUsersWithListInput200Schema,
   createUsersWithListInputMutationRequestSchema,
   createUsersWithListInputMutationResponseSchema,
-} from './createUsersWithListInputSchema.ts'
-import { deleteOrder400Schema, deleteOrder404Schema, deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema } from './deleteOrderSchema.ts'
-import { deletePet400Schema, deletePetHeaderParamsSchema, deletePetMutationResponseSchema, deletePetPathParamsSchema } from './deletePetSchema.ts'
-import { deleteUser400Schema, deleteUser404Schema, deleteUserMutationResponseSchema, deleteUserPathParamsSchema } from './deleteUserSchema.ts'
+} from "./createUsersWithListInputSchema.ts";
+import {
+  deleteOrder400Schema,
+  deleteOrder404Schema,
+  deleteOrderMutationResponseSchema,
+  deleteOrderPathParamsSchema,
+} from "./deleteOrderSchema.ts";
+import {
+  deletePet400Schema,
+  deletePetHeaderParamsSchema,
+  deletePetMutationResponseSchema,
+  deletePetPathParamsSchema,
+} from "./deletePetSchema.ts";
+import {
+  deleteUser400Schema,
+  deleteUser404Schema,
+  deleteUserMutationResponseSchema,
+  deleteUserPathParamsSchema,
+} from "./deleteUserSchema.ts";
 import {
   findPetsByStatus200Schema,
   findPetsByStatus400Schema,
   findPetsByStatusQueryParamsSchema,
   findPetsByStatusQueryResponseSchema,
-} from './findPetsByStatusSchema.ts'
+} from "./findPetsByStatusSchema.ts";
 import {
   findPetsByTags200Schema,
   findPetsByTags400Schema,
   findPetsByTagsHeaderParamsSchema,
   findPetsByTagsQueryParamsSchema,
   findPetsByTagsQueryResponseSchema,
-} from './findPetsByTagsSchema.ts'
-import { getInventory200Schema, getInventoryQueryResponseSchema } from './getInventorySchema.ts'
+} from "./findPetsByTagsSchema.ts";
+import {
+  getInventory200Schema,
+  getInventoryQueryResponseSchema,
+} from "./getInventorySchema.ts";
 import {
   getOrderById200Schema,
   getOrderById400Schema,
   getOrderById404Schema,
   getOrderByIdPathParamsSchema,
   getOrderByIdQueryResponseSchema,
-} from './getOrderByIdSchema.ts'
-import { getPetById200Schema, getPetById400Schema, getPetById404Schema, getPetByIdPathParamsSchema, getPetByIdQueryResponseSchema } from './getPetByIdSchema.ts'
-import { getThings201Schema, getThingsQueryParamsSchema, getThingsQueryResponseSchema } from './getThingsSchema.ts'
+} from "./getOrderByIdSchema.ts";
+import {
+  getPetById200Schema,
+  getPetById400Schema,
+  getPetById404Schema,
+  getPetByIdPathParamsSchema,
+  getPetByIdQueryResponseSchema,
+} from "./getPetByIdSchema.ts";
+import {
+  getThings201Schema,
+  getThingsQueryParamsSchema,
+  getThingsQueryResponseSchema,
+} from "./getThingsSchema.ts";
 import {
   getUserByName200Schema,
   getUserByName400Schema,
   getUserByName404Schema,
   getUserByNamePathParamsSchema,
   getUserByNameQueryResponseSchema,
-} from './getUserByNameSchema.ts'
-import { loginUser200Schema, loginUser400Schema, loginUserQueryParamsSchema, loginUserQueryResponseSchema } from './loginUserSchema.ts'
-import { logoutUserQueryResponseSchema } from './logoutUserSchema.ts'
+} from "./getUserByNameSchema.ts";
+import {
+  loginUser200Schema,
+  loginUser400Schema,
+  loginUserQueryParamsSchema,
+  loginUserQueryResponseSchema,
+} from "./loginUserSchema.ts";
+import { logoutUserQueryResponseSchema } from "./logoutUserSchema.ts";
 import {
   placeOrderPatch200Schema,
   placeOrderPatch405Schema,
   placeOrderPatchMutationRequestSchema,
   placeOrderPatchMutationResponseSchema,
-} from './placeOrderPatchSchema.ts'
-import { placeOrder200Schema, placeOrder405Schema, placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from './placeOrderSchema.ts'
+} from "./placeOrderPatchSchema.ts";
+import {
+  placeOrder200Schema,
+  placeOrder405Schema,
+  placeOrderMutationRequestSchema,
+  placeOrderMutationResponseSchema,
+} from "./placeOrderSchema.ts";
 import {
   updatePet200Schema,
   updatePet400Schema,
@@ -68,39 +114,43 @@ import {
   updatePet405Schema,
   updatePetMutationRequestSchema,
   updatePetMutationResponseSchema,
-} from './updatePetSchema.ts'
+} from "./updatePetSchema.ts";
 import {
   updatePetWithForm405Schema,
   updatePetWithFormMutationResponseSchema,
   updatePetWithFormPathParamsSchema,
   updatePetWithFormQueryParamsSchema,
-} from './updatePetWithFormSchema.ts'
-import { updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from './updateUserSchema.ts'
+} from "./updatePetWithFormSchema.ts";
+import {
+  updateUserMutationRequestSchema,
+  updateUserMutationResponseSchema,
+  updateUserPathParamsSchema,
+} from "./updateUserSchema.ts";
 import {
   uploadFile200Schema,
   uploadFileMutationRequestSchema,
   uploadFileMutationResponseSchema,
   uploadFilePathParamsSchema,
   uploadFileQueryParamsSchema,
-} from './uploadFileSchema.ts'
+} from "./uploadFileSchema.ts";
 
 export type OperationSchema = {
-  readonly request: z.ZodTypeAny | undefined
+  readonly request: z.ZodTypeAny | undefined;
   readonly parameters: {
-    readonly path: z.ZodTypeAny | undefined
-    readonly query: z.ZodTypeAny | undefined
-    readonly header: z.ZodTypeAny | undefined
-  }
+    readonly path: z.ZodTypeAny | undefined;
+    readonly query: z.ZodTypeAny | undefined;
+    readonly header: z.ZodTypeAny | undefined;
+  };
   readonly responses: {
-    readonly [status: number]: z.ZodTypeAny
-    readonly default: z.ZodTypeAny
-  }
+    readonly [status: number]: z.ZodTypeAny;
+    readonly default: z.ZodTypeAny;
+  };
   readonly errors: {
-    readonly [status: number]: z.ZodTypeAny
-  }
-}
+    readonly [status: number]: z.ZodTypeAny;
+  };
+};
 
-export type OperationsMap = Record<string, OperationSchema>
+export type OperationsMap = Record<string, OperationSchema>;
 
 export const operations = {
   getThings: {
@@ -438,57 +488,57 @@ export const operations = {
       404: deleteUser404Schema,
     },
   },
-} as const
+} as const;
 
 export const paths = {
-  '/pets/{uuid}': {
-    GET: operations['getThings'],
-    POST: operations['createPets'],
+  "/pets/{uuid}": {
+    GET: operations["getThings"],
+    POST: operations["createPets"],
   },
-  '/pet': {
-    PUT: operations['updatePet'],
-    POST: operations['addPet'],
+  "/pet": {
+    PUT: operations["updatePet"],
+    POST: operations["addPet"],
   },
-  '/pet/findByStatus': {
-    GET: operations['findPetsByStatus'],
+  "/pet/findByStatus": {
+    GET: operations["findPetsByStatus"],
   },
-  '/pet/findByTags': {
-    GET: operations['findPetsByTags'],
+  "/pet/findByTags": {
+    GET: operations["findPetsByTags"],
   },
-  '/pet/{petId}': {
-    GET: operations['getPetById'],
-    POST: operations['updatePetWithForm'],
-    DELETE: operations['deletePet'],
+  "/pet/{petId}": {
+    GET: operations["getPetById"],
+    POST: operations["updatePetWithForm"],
+    DELETE: operations["deletePet"],
   },
-  '/pet/{petId}/uploadImage': {
-    POST: operations['uploadFile'],
+  "/pet/{petId}/uploadImage": {
+    POST: operations["uploadFile"],
   },
-  '/store/inventory': {
-    GET: operations['getInventory'],
+  "/store/inventory": {
+    GET: operations["getInventory"],
   },
-  '/store/order': {
-    POST: operations['placeOrder'],
-    PATCH: operations['placeOrderPatch'],
+  "/store/order": {
+    POST: operations["placeOrder"],
+    PATCH: operations["placeOrderPatch"],
   },
-  '/store/order/{orderId}': {
-    GET: operations['getOrderById'],
-    DELETE: operations['deleteOrder'],
+  "/store/order/{orderId}": {
+    GET: operations["getOrderById"],
+    DELETE: operations["deleteOrder"],
   },
-  '/user': {
-    POST: operations['createUser'],
+  "/user": {
+    POST: operations["createUser"],
   },
-  '/user/createWithList': {
-    POST: operations['createUsersWithListInput'],
+  "/user/createWithList": {
+    POST: operations["createUsersWithListInput"],
   },
-  '/user/login': {
-    GET: operations['loginUser'],
+  "/user/login": {
+    GET: operations["loginUser"],
   },
-  '/user/logout': {
-    GET: operations['logoutUser'],
+  "/user/logout": {
+    GET: operations["logoutUser"],
   },
-  '/user/{username}': {
-    GET: operations['getUserByName'],
-    PUT: operations['updateUser'],
-    DELETE: operations['deleteUser'],
+  "/user/{username}": {
+    GET: operations["getUserByName"],
+    PUT: operations["updateUser"],
+    DELETE: operations["deleteUser"],
   },
-} as const
+} as const;
