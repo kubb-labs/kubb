@@ -1,6 +1,5 @@
-import type { FileMetaBase, ResolveNameParams } from '@kubb/core'
+import type { FileMetaBase, KubbFile, ResolveNameParams } from '@kubb/core'
 import { useDriver, usePlugin } from '@kubb/core/hooks'
-import type { FabricFile } from '@kubb/fabric-core/types'
 
 type FileMeta = FileMetaBase & {
   pluginName: string
@@ -17,14 +16,14 @@ type UseSchemaManagerResult = {
     name: string,
     params?: {
       pluginName?: string
-      mode?: FabricFile.Mode
-      extname?: FabricFile.Extname
+      mode?: KubbFile.Mode
+      extname?: KubbFile.Extname
       group?: {
         tag?: string
         path?: string
       }
     },
-  ) => FabricFile.File<FileMeta>
+  ) => KubbFile.File<FileMeta>
 }
 
 /**

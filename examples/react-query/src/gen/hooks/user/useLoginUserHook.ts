@@ -30,10 +30,7 @@ export function loginUserQueryOptionsHook(params?: LoginUserQueryParams, config:
   return queryOptions<LoginUserQueryResponse, ResponseErrorConfig<LoginUser400>, LoginUserQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      return loginUserHook(params, {
-        ...config,
-        signal: config.signal ?? signal,
-      })
+      return loginUserHook(params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -52,10 +49,7 @@ export function useLoginUserHook<TData = LoginUserQueryResponse, TQueryData = Lo
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...resolvedOptions } = queryConfig
   const queryKey = resolvedOptions?.queryKey ?? loginUserQueryKey(params)
-  const customOptions = useCustomHookOptions({
-    hookName: 'useLoginUserHook',
-    operationId: 'loginUser',
-  })
+  const customOptions = useCustomHookOptions({ hookName: 'useLoginUserHook', operationId: 'loginUser' })
 
   const query = useQuery(
     {
@@ -65,9 +59,7 @@ export function useLoginUserHook<TData = LoginUserQueryResponse, TQueryData = Lo
       queryKey,
     } as unknown as QueryObserverOptions,
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<LoginUser400>> & {
-    queryKey: TQueryKey
-  }
+  ) as UseQueryResult<TData, ResponseErrorConfig<LoginUser400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

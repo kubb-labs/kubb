@@ -1,10 +1,10 @@
 import path from 'node:path'
-import type { FabricFile } from '@kubb/fabric-core/types'
 import { describe, expect, test } from 'vitest'
+import type * as KubbFile from '../KubbFile.ts'
 import { TreeNode } from './TreeNode.ts'
 
 describe('TreeNode', () => {
-  const files: FabricFile.File[] = [
+  const files: KubbFile.File[] = [
     {
       path: 'src/test.ts',
       baseName: 'test.ts',
@@ -289,7 +289,7 @@ describe('TreeNode', () => {
   })
 
   test('if build filters out JSON files', () => {
-    const filesWithJson: FabricFile.File[] = [
+    const filesWithJson: KubbFile.File[] = [
       ...files,
       {
         path: 'src/data.json',

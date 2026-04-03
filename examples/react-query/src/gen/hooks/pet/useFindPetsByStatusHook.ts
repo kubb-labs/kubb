@@ -36,10 +36,7 @@ export function findPetsByStatusQueryOptionsHook(params?: FindPetsByStatusQueryP
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      return findPetsByStatusHook(params, {
-        ...config,
-        signal: config.signal ?? signal,
-      })
+      return findPetsByStatusHook(params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -65,10 +62,7 @@ export function useFindPetsByStatusHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...resolvedOptions } = queryConfig
   const queryKey = resolvedOptions?.queryKey ?? findPetsByStatusQueryKey(params)
-  const customOptions = useCustomHookOptions({
-    hookName: 'useFindPetsByStatusHook',
-    operationId: 'findPetsByStatus',
-  })
+  const customOptions = useCustomHookOptions({ hookName: 'useFindPetsByStatusHook', operationId: 'findPetsByStatus' })
 
   const query = useQuery(
     {
@@ -78,9 +72,7 @@ export function useFindPetsByStatusHook<
       queryKey,
     } as unknown as QueryObserverOptions,
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByStatus400>> & {
-    queryKey: TQueryKey
-  }
+  ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByStatus400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

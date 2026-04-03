@@ -4,6 +4,7 @@ import type { Plugin, PluginDriver } from '@kubb/core'
 import { parse, parseFromConfig } from '@kubb/oas'
 import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, test } from 'vitest'
+import { createMockedAdapter } from '#mocks'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { KUBB_REQUIRED_REQUEST_BODY_MARKER } from './utils/requestBody.ts'
 
@@ -16,6 +17,8 @@ describe('OperationGenerator core', async () => {
     output: { path: 'test', clean: true },
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
     plugins: [],
+    parsers: [],
+    adapter: createMockedAdapter(),
   })
   const fabric = createReactFabric()
 
@@ -118,6 +121,8 @@ describe('OperationGenerator exclude', async () => {
     output: { path: 'test', clean: true },
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
     plugins: [],
+    parsers: [],
+    adapter: createMockedAdapter(),
   })
   const fabric = createReactFabric()
   test('if exclude is filtered out for tag', async () => {
@@ -261,6 +266,8 @@ describe('OperationGenerator include', async () => {
     output: { path: 'test', clean: true },
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
     plugins: [],
+    parsers: [],
+    adapter: createMockedAdapter(),
   })
   const fabric = createReactFabric()
 
@@ -405,6 +412,8 @@ describe('OperationGenerator include and exclude', async () => {
     output: { path: 'test', clean: true },
     input: { path: path.join(__dirname, '../mocks/petStore.yaml') },
     plugins: [],
+    parsers: [],
+    adapter: createMockedAdapter(),
   })
   const fabric = createReactFabric()
 

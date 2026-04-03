@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { AsyncEventEmitter, getRelativePath } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
 import { type KubbEvents, safeBuild, type UserConfig } from '@kubb/core'
+import { parserTs } from '@kubb/parser-ts'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
@@ -28,6 +29,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         path: './gen',
         barrelType: false,
       },
+      parsers: [parserTs],
       plugins: [
         pluginTs({
           output: {
@@ -51,6 +53,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         barrelType: false,
       },
       adapter: adapterOas({ validate: false, discriminator: 'inherit' }),
+      parsers: [parserTs],
       plugins: [
         pluginTs({
           output: {
@@ -74,6 +77,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         barrelType: false,
       },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginTs({
           output: {
@@ -98,6 +102,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         barrelType: false,
       },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [pluginTs({ compatibilityPreset: 'kubbV4' })],
     },
   },
@@ -113,6 +118,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         barrelType: false,
       },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginTs({
           output: {
@@ -136,6 +142,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         barrelType: false,
       },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginTs({
           output: {
@@ -159,6 +166,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         barrelType: false,
       },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginTs({
           output: {
@@ -189,6 +197,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         barrelType: false,
       },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginOas({
           generators: [],
@@ -223,6 +232,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         barrelType: false,
       },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginTs({
           output: {
@@ -251,6 +261,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         barrelType: false,
       },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginTs({
           output: {
@@ -279,6 +290,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
         barrelType: false,
       },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginOas({
           generators: [],
@@ -307,6 +319,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       input: { path: '../../schemas/3.0.x/simple.yaml' },
       output: { path: './gen', barrelType: false },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginTs({
           output: { path: './types', barrelType: false },
@@ -334,6 +347,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       input: { path: '../../schemas/3.0.x/simple.yaml' },
       output: { path: './gen', barrelType: false },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginZod({
           output: { path: './zod', barrelType: false },
@@ -360,6 +374,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       input: { path: '../../schemas/3.0.x/simple.yaml' },
       output: { path: './gen', barrelType: false },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginTs({
           output: { path: './types', barrelType: false },

@@ -71,10 +71,7 @@ export function useDeleteUserHook<TContext>(
     { username: DeleteUserPathParams['username'] },
     TContext
   >
-  const customOptions = useCustomHookOptions({
-    hookName: 'useDeleteUserHook',
-    operationId: 'deleteUser',
-  }) as UseMutationOptions<
+  const customOptions = useCustomHookOptions({ hookName: 'useDeleteUserHook', operationId: 'deleteUser' }) as UseMutationOptions<
     DeleteUserMutationResponse,
     ResponseErrorConfig<DeleteUser400 | DeleteUser404>,
     { username: DeleteUserPathParams['username'] },

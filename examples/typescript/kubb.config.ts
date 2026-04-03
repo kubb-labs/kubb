@@ -1,6 +1,6 @@
 import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from '@kubb/core'
 import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from 'kubb'
 
 const input = { path: './petStore.yaml' } as const
 
@@ -23,16 +23,14 @@ export default defineConfig([
           path: 'models.ts',
           barrelType: false,
         },
-        transformers: [
-          {
-            // Make all properties of the "Pet" schema required
-            property(node, { parent }) {
-              if (parent?.name === 'Address') {
-                return { ...node, required: false }
-              }
-            },
+        transformer: {
+          // Make all properties of the "Pet" schema required
+          property(node, { parent }) {
+            if (parent?.name === 'Address') {
+              return { ...node, required: false }
+            }
           },
-        ],
+        },
         enumType: 'enum',
         syntaxType: 'interface',
         compatibilityPreset: 'kubbV4',

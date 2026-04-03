@@ -1,1 +1,1 @@
-export * from '@kubb/core'
+export { defineConfig } from './defineConfig.ts'

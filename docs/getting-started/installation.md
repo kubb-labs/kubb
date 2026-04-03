@@ -51,27 +51,30 @@ If you prefer manual control over package installation:
 
 ### Install Core Packages
 
-Install the Kubb CLI and core library as development dependencies:
+Install the Kubb CLI, core library, and default runtime packages as development dependencies:
 
 ::: code-group
 
 ```bash [bun]
-bun add -d @kubb/cli @kubb/core
+bun add -d @kubb/cli @kubb/core @kubb/adapter-oas @kubb/parser-ts
 ```
 
 ```bash [pnpm]
-pnpm add -D @kubb/cli @kubb/core
+pnpm add -D @kubb/cli @kubb/core @kubb/adapter-oas @kubb/parser-ts
 ```
 
 ```bash [npm]
-npm install --save-dev @kubb/cli @kubb/core
+npm install --save-dev @kubb/cli @kubb/core @kubb/adapter-oas @kubb/parser-ts
 ```
 
 ```bash [yarn]
-yarn add -D @kubb/cli @kubb/core
+yarn add -D @kubb/cli @kubb/core @kubb/adapter-oas @kubb/parser-ts
 ```
 
 :::
+
+> [!NOTE]
+> `@kubb/adapter-oas` and `@kubb/parser-ts` are used automatically by `defineConfig` as defaults. Install them alongside `@kubb/core` unless you plan to supply a custom adapter or parsers.
 
 ## Install Kubb Plugins
 

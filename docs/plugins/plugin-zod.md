@@ -348,7 +348,7 @@ z.array(z.string()).min(1).max(10)
 
 ### printer
 
-Override individual printer node handlers to customise how specific schema types are rendered. When `mini: true` the overrides apply to the Zod Mini printer.
+Override individual printer node handlers to customize how specific schema types are rendered. When `mini: true` the overrides apply to the Zod Mini printer.
 
 Each key is a `SchemaType` (e.g. `'integer'`, `'date'`). The function you provide replaces the built-in handler for that type. Use `this.transform` to recurse into nested schema nodes.
 

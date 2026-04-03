@@ -1,8 +1,8 @@
 import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
-import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
+
+import { defineConfig } from 'kubb'
 
 export default defineConfig(() => {
   return {
@@ -19,11 +19,6 @@ export default defineConfig(() => {
     },
     adapter: adapterOas({ serverIndex: 0 }),
     plugins: [
-      pluginOas({
-        validate: false,
-        generators: [],
-        serverIndex: 0,
-      }),
       pluginTs({
         output: { path: 'models.ts' },
         compatibilityPreset: 'kubbV4',
@@ -33,6 +28,7 @@ export default defineConfig(() => {
           path: '.',
         },
         client: 'fetch',
+        compatibilityPreset: 'kubbV4',
       }),
     ],
   }

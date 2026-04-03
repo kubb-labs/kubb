@@ -1,4 +1,6 @@
+import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
+import { parserTs } from '@kubb/parser-ts'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 
@@ -12,6 +14,8 @@ export default defineConfig({
     clean: true,
     write: false,
   },
+  adapter: adapterOas({}),
+  parsers: [parserTs],
   plugins: [
     pluginOas(),
     pluginTs({

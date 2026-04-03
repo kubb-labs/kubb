@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/suspicious/useIterableCallbackReturn: not needed */
 import { join } from 'node:path'
 import { getRelativePath } from '@internals/utils'
-import type { FabricFile } from '@kubb/fabric-core/types'
+import type * as KubbFile from '../KubbFile.ts'
 import type { BarrelType } from '../types.ts'
 import { TreeNode } from './TreeNode.ts'
 
@@ -29,16 +29,16 @@ type AddIndexesProps = {
   meta?: FileMetaBase
 }
 
-function getBarrelFilesByRoot(root: string | undefined, files: Array<FabricFile.ResolvedFile>): Array<FabricFile.File> {
-  const cachedFiles = new Map<FabricFile.Path, FabricFile.File>()
+function getBarrelFilesByRoot(root: string | undefined, files: Array<KubbFile.ResolvedFile>): Array<KubbFile.File> {
+  const cachedFiles = new Map<KubbFile.Path, KubbFile.File>()
 
   TreeNode.build(files, root)?.forEach((treeNode) => {
     if (!treeNode?.children || !treeNode.parent?.data.path) {
       return
     }
 
-    const barrelFilePath = join(treeNode.parent?.data.path, 'index.ts') as FabricFile.Path
-    const barrelFile: FabricFile.File = {
+    const barrelFilePath = join(treeNode.parent?.data.path, 'index.ts') as KubbFile.Path
+    const barrelFile: KubbFile.File = {
       path: barrelFilePath,
       baseName: 'index.ts',
       exports: [],
@@ -113,10 +113,7 @@ function trimExtName(text: string): string {
  * - When `type` is `'all'`, strips named exports so every re-export becomes a wildcard (`export * from`).
  * - Attaches `meta` to each barrel file for downstream plugin identification.
  */
-export async function getBarrelFiles(
-  files: Array<FabricFile.ResolvedFile>,
-  { type, meta = {}, root, output }: AddIndexesProps,
-): Promise<Array<FabricFile.File>> {
+export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type, meta = {}, root, output }: AddIndexesProps): Promise<Array<KubbFile.File>> {
   if (!type || type === 'propagate') {
     return []
   }

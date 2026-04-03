@@ -108,7 +108,9 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/core": "workspace:*",
+    "@kubb/parser-ts": "workspace:*",
     "unplugin": "^3.0.0"
   },
   "devDependencies": {

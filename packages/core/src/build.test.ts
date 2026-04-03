@@ -2,12 +2,13 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { AsyncEventEmitter, isPromise } from '@internals/utils'
-import type { FabricFile } from '@kubb/fabric-core/types'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
+import { createMockedAdapter } from '#mocks'
 import { build, safeBuild } from './build.ts'
-import { defineConfig } from './config.ts'
 import { createPlugin } from './createPlugin.ts'
-import type { KubbEvents, Plugin, UserConfig } from './types.ts'
+import { defineConfig } from './defineConfig.ts'
+import type * as KubbFile from './KubbFile.ts'
+import type { Config, KubbEvents, Plugin, UserConfig } from './types.ts'
 
 describe('build', () => {
   const pluginMocks = {
@@ -15,7 +16,7 @@ describe('build', () => {
     resolvePath: vi.fn(),
   } as const
 
-  const file: FabricFile.File = {
+  const file: KubbFile.File = {
     path: 'hello/world.json',
     baseName: 'world.json',
     sources: [{ value: `{ "hello": "world" }` }],
@@ -44,8 +45,10 @@ describe('build', () => {
       path: './src/gen',
       clean: true,
     },
+    parsers: [],
+    adapter: createMockedAdapter(),
     plugins: [plugin({})] as Array<Plugin>,
-  }
+  } satisfies Config
 
   const configs = [
     {
@@ -64,6 +67,8 @@ describe('build', () => {
             path: './src/gen',
             clean: true,
           },
+          parsers: [],
+          adapter: createMockedAdapter(),
           plugins: [plugin({})] as Array<Plugin>,
         },
       ]),
@@ -79,6 +84,8 @@ describe('build', () => {
           path: './src/gen',
           clean: true,
         },
+        parsers: [],
+        adapter: createMockedAdapter(),
         plugins: [plugin({})] as Array<Plugin>,
       })),
     },
@@ -94,6 +101,8 @@ describe('build', () => {
             path: './src/gen',
             clean: true,
           },
+          parsers: [],
+          adapter: createMockedAdapter(),
           plugins: [plugin({})] as Array<Plugin>,
         },
       ]),
@@ -304,7 +313,7 @@ describe('build', () => {
     const tmpDir = mkdtempSync(join(tmpdir(), 'kubb-test-excluded-'))
 
     try {
-      const indexableFile: FabricFile.File = {
+      const indexableFile: KubbFile.File = {
         path: join(tmpDir, 'mocks/excluded.ts'),
         baseName: 'excluded.ts',
         sources: [

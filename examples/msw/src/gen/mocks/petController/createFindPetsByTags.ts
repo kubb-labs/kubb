@@ -10,11 +10,7 @@ import { createPet } from '../createPet.ts'
 export function createFindPetsByTagsQueryParams(data?: Partial<FindPetsByTagsQueryParams>): FindPetsByTagsQueryParams {
   faker.seed([220])
   return {
-    ...{
-      tags: faker.helpers.multiple(() => faker.string.alpha()),
-      page: faker.string.alpha(),
-      pageSize: faker.string.alpha(),
-    },
+    ...{ tags: faker.helpers.multiple(() => faker.string.alpha()), page: faker.string.alpha(), pageSize: faker.string.alpha() },
     ...(data || {}),
   }
 }

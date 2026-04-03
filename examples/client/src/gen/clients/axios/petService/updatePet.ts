@@ -20,12 +20,7 @@ function getUpdatePetUrl() {
  * @summary Update an existing pet
  * {@link /pet}
  */
-export async function updatePet(
-  data: UpdatePetMutationRequest,
-  config: Partial<RequestConfig<UpdatePetMutationRequest>> & {
-    client?: Client
-  } = {},
-) {
+export async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data

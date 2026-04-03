@@ -8,10 +8,7 @@ import fetch from '@kubb/plugin-client/clients/fetch'
 import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from './models.ts'
 
 function getUpdatePetUrl() {
-  const res = {
-    method: 'PUT',
-    url: 'https://petstore3.swagger.io/api/v3/pet' as const,
-  }
+  const res = { method: 'PUT', url: 'https://petstore3.swagger.io/api/v3/pet' as const }
   return res
 }
 
@@ -20,12 +17,7 @@ function getUpdatePetUrl() {
  * @summary Update an existing pet
  * {@link /pet}
  */
-export async function updatePet(
-  data: UpdatePetMutationRequest,
-  config: Partial<RequestConfig<UpdatePetMutationRequest>> & {
-    client?: Client
-  } = {},
-) {
+export async function updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data

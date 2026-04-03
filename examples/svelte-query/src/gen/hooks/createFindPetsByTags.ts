@@ -51,10 +51,7 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTagsQueryParams, c
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      return findPetsByTags(params, {
-        ...config,
-        signal: config.signal ?? signal,
-      })
+      return findPetsByTags(params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -88,9 +85,7 @@ export function createFindPetsByTags<
       queryKey,
     } as unknown as CreateBaseQueryOptions,
     queryClient,
-  ) as CreateQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & {
-    queryKey: TQueryKey
-  }
+  ) as CreateQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

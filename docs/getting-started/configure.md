@@ -47,15 +47,39 @@ Kubb uses [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) to automat
 
 ## defineConfig
 
-The `defineConfig` helper provides TypeScript type checking and IntelliSense for your configuration:
+The `defineConfig` helper provides TypeScript type checking and IntelliSense for your configuration. It also **automatically applies sensible defaults** so you don't have to configure them yourself:
+
+| Option | Default | Package |
+|:-------|:--------|:--------|
+| `adapter` | `adapterOas()` | `@kubb/adapter-oas` |
+| `parsers` | `[parserTs]` | `@kubb/parser-ts` |
+
+> [!NOTE]
+> `@kubb/adapter-oas` and `@kubb/parser-ts` must be installed for the defaults to work. They are included when you run `npx kubb init` or install `@kubb/core`.
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
+// adapter and parsers are applied automatically — no need to set them
 export default defineConfig({
-  // Type-safe configuration
   input: { path: './petStore.yaml' },
   output: { path: './src/gen' },
+  plugins: [],
+})
+```
+
+You can always override the defaults explicitly:
+
+```typescript twoslash [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+import { adapterOas } from '@kubb/adapter-oas'
+import { parserTs, tsxParser } from '@kubb/parser-ts'
+
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: { path: './src/gen' },
+  adapter: adapterOas({ validate: true }),
+  parsers: [parserTs, tsxParser],
   plugins: [],
 })
 ```
@@ -516,6 +540,67 @@ export default defineConfig({
       validate: true,
     }),
   ],
+})
+```
+
+
+### adapter
+
+|           |                    |
+|----------:|:-------------------|
+|     Type: | `Adapter`          |
+| Required: | `false`            |
+| Default:  | `adapterOas()` from `@kubb/adapter-oas` |
+
+The adapter converts your input file into a `@kubb/ast` `RootNode` — the universal intermediate representation consumed by all Kubb plugins.
+
+When this option is omitted, Kubb automatically uses `adapterOas()` (OpenAPI / Swagger) as the default, provided `@kubb/adapter-oas` is installed. Supply a different adapter for non-OAS formats.
+
+See [`@kubb/adapter-oas`](/adapters/adapter-oas) for all available options.
+
+```typescript twoslash [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+import { adapterOas } from '@kubb/adapter-oas'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  adapter: adapterOas({ validate: true }),
+})
+```
+
+
+### parsers
+
+|           |                    |
+|----------:|:-------------------|
+|     Type: | `Array<Parser>`    |
+| Required: | `false`            |
+| Default:  | `[parserTs]` from `@kubb/parser-ts` |
+
+An array of parsers that convert generated files to strings before they are written to disk. Each parser declares which file extensions it handles via `extNames`. A built-in catch-all fallback is always registered last for any unhandled extensions.
+
+When this option is omitted, Kubb automatically uses `[parserTs]` from `@kubb/parser-ts`, which handles `.ts` and `.js` files. Import additional parsers (e.g. `tsxParser` for `.tsx`/`.jsx`) to extend the defaults.
+
+See [`@kubb/parser-ts`](/helpers/parser-ts) for the available parsers and [`defineParser`](/helpers/parser-ts#defineparser) for creating custom ones.
+
+```typescript twoslash [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+import { parserTs, tsxParser } from '@kubb/parser-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  parsers: [parserTs, tsxParser],
+  plugins: [],
 })
 ```
 

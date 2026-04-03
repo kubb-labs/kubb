@@ -1,5 +1,5 @@
-import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
+import { defineConfig } from 'kubb'
 import { example1 } from './src/generators/example1'
 import { example2 } from './src/generators/example2'
 import { example3 } from './src/generators/example3'
