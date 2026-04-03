@@ -2,6 +2,7 @@
 
 import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
+import { parserTs } from '@kubb/parser-ts'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginCypress } from '@kubb/plugin-cypress'
 import { pluginFaker } from '@kubb/plugin-faker'
@@ -31,6 +32,7 @@ export default defineConfig({
   hooks: {
     done: ['npm run typecheck'],
   },
+  parsers: [parserTs],
   adapter: adapterOas({ enumSuffix: 'enum', dateType: 'string' }),
   plugins: [
     pluginOas({

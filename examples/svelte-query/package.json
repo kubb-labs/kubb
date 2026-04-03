@@ -21,6 +21,7 @@
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
+    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-svelte-query": "workspace:*",

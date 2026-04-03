@@ -25,6 +25,7 @@
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
+    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-cypress": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "react": "^18.3.1"

@@ -1,5 +1,6 @@
 import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
+import { parserTs } from '@kubb/parser-ts'
 import { pluginCypress } from '@kubb/plugin-cypress'
 import { pluginTs } from '@kubb/plugin-ts'
 
@@ -14,6 +15,7 @@ export default defineConfig([
       path: './src/gen',
       clean: true,
     },
+    parsers: [parserTs],
     adapter,
     plugins: [
       pluginTs({
@@ -39,6 +41,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen-v4', clean: true },
+    parsers: [parserTs],
     adapter,
     plugins: [
       pluginTs({

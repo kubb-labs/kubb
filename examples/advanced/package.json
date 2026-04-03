@@ -28,6 +28,7 @@
     "@faker-js/faker": "^8.4.1",
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/fabric-core": "0.15.1",
+    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-cypress": "workspace:*",
     "@kubb/plugin-faker": "workspace:*",

@@ -1,5 +1,6 @@
 import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
+import { parserTs } from '@kubb/parser-ts'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 
@@ -17,6 +18,7 @@ export default defineConfig([
     hooks: {
       // done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
+    parsers: [parserTs],
     adapter: adapterOas({}),
     plugins: [
       pluginTs({
@@ -46,6 +48,7 @@ export default defineConfig([
       path: './src/mini',
       clean: true,
     },
+    parsers: [parserTs],
     adapter: adapterOas({}),
     plugins: [
       pluginZod({
@@ -67,6 +70,7 @@ export default defineConfig([
       path: './src/gen3',
       clean: true,
     },
+    parsers: [parserTs],
     adapter: adapterOas({}),
     plugins: [
       pluginZod({

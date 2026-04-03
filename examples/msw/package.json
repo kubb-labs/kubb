@@ -26,6 +26,7 @@
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
+    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-faker": "workspace:*",
     "@kubb/plugin-msw": "workspace:*",

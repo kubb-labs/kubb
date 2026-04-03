@@ -1,5 +1,6 @@
 import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
+import { parserTs } from '@kubb/parser-ts'
 import { pluginFaker } from '@kubb/plugin-faker'
 import { pluginMsw } from '@kubb/plugin-msw'
 import { pluginOas } from '@kubb/plugin-oas'
@@ -18,6 +19,7 @@ export default defineConfig(() => {
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
+    parsers: [parserTs],
     adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({ generators: [] }),

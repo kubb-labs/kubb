@@ -55,10 +55,13 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/agent": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/mcp": "workspace:*"
+    "@kubb/mcp": "workspace:*",
+    "@kubb/parser-ts": "workspace:*",
+    "@kubb/plugin-ts": "workspace:*"
   },
   "devDependencies": {},
   "engines": {

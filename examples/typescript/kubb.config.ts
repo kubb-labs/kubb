@@ -1,5 +1,6 @@
 import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
+import { parserTs } from '@kubb/parser-ts'
 import { pluginTs } from '@kubb/plugin-ts'
 
 const input = { path: './petStore.yaml' } as const
@@ -14,6 +15,7 @@ export default defineConfig([
       format: 'biome',
       lint: 'biome',
     },
+    parsers: [parserTs],
     adapter: adapterOas({
       validate: false,
     }),
@@ -48,6 +50,7 @@ export default defineConfig([
       format: 'biome',
       lint: 'biome',
     },
+    parsers: [parserTs],
     adapter: adapterOas({
       validate: false,
     }),
@@ -69,6 +72,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen2', clean: true, format: 'biome', lint: 'biome' },
+    parsers: [parserTs],
     adapter: adapterOas({
       validate: false,
     }),
@@ -87,6 +91,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen3', clean: true, format: 'biome', lint: 'biome' },
+    parsers: [parserTs],
     adapter: adapterOas({
       validate: false,
     }),
@@ -105,6 +110,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen4', clean: true, format: 'biome', lint: 'biome' },
+    parsers: [parserTs],
     adapter: adapterOas({
       validate: false,
     }),
@@ -123,6 +129,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen5', clean: true, format: 'biome', lint: 'biome' },
+    parsers: [parserTs],
     adapter: adapterOas({
       validate: false,
     }),
@@ -144,6 +151,7 @@ export default defineConfig([
     hooks: {
       done: ['npm run typecheck'],
     },
+    parsers: [parserTs],
     adapter: adapterOas({
       validate: false,
     }),
@@ -160,6 +168,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen7', clean: true, format: 'biome', lint: 'biome' },
+    parsers: [parserTs],
     adapter: adapterOas({ validate: false }),
     plugins: [
       pluginTs({
@@ -172,6 +181,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen8', clean: true, format: 'biome', lint: 'biome' },
+    parsers: [parserTs],
     adapter: adapterOas({ validate: false }),
     plugins: [
       pluginTs({
@@ -185,6 +195,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen9', clean: true, format: 'biome', lint: 'biome' },
+    parsers: [parserTs],
     adapter: adapterOas({ validate: false }),
     plugins: [
       pluginTs({
@@ -198,6 +209,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen10', clean: true, format: 'biome', lint: 'biome' },
+    parsers: [parserTs],
     adapter: adapterOas({ validate: false }),
     plugins: [
       pluginTs({
@@ -212,6 +224,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen11', clean: true, format: 'biome', lint: 'biome' },
+    parsers: [parserTs],
     adapter: adapterOas({ validate: false }),
     plugins: [
       pluginTs({
@@ -228,6 +241,7 @@ export default defineConfig([
     hooks: {
       done: ['npm run typecheck'],
     },
+    parsers: [parserTs],
     adapter: adapterOas({ validate: false }),
     plugins: [
       pluginTs({

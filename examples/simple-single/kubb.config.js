@@ -1,5 +1,6 @@
 import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
+import { parserTs } from '@kubb/parser-ts'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginRedoc } from '@kubb/plugin-redoc'
@@ -26,6 +27,7 @@ export default defineConfig([
     hooks: {
       done: ['npm run typecheck'],
     },
+    parsers: [parserTs],
     adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({

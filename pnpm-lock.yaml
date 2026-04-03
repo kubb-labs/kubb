@@ -231,6 +231,9 @@ importers:
       '@kubb/fabric-core':
         specifier: 0.15.1
         version: 0.15.1
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -268,6 +271,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-cypress':
         specifier: workspace:*
         version: link:../../packages/plugin-cypress
@@ -302,6 +308,9 @@ importers:
       '@kubb/fabric-core':
         specifier: 0.15.1
         version: 0.15.1
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -339,6 +348,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -370,6 +382,9 @@ importers:
       '@kubb/fabric-core':
         specifier: 0.15.1
         version: 0.15.1
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -407,6 +422,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-mcp':
         specifier: workspace:*
         version: link:../../packages/plugin-mcp
@@ -447,6 +465,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -493,6 +514,9 @@ importers:
       '@kubb/fabric-core':
         specifier: 0.15.1
         version: 0.15.1
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -557,6 +581,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -602,6 +629,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -642,6 +672,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -682,6 +715,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -725,6 +761,9 @@ importers:
       '@kubb/oas':
         specifier: workspace:*
         version: link:../../packages/oas
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts
@@ -747,6 +786,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -799,6 +841,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -1068,6 +1113,9 @@ importers:
 
   packages/kubb:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../adapter-oas
       '@kubb/agent':
         specifier: workspace:*
         version: link:../agent
@@ -1080,6 +1128,12 @@ importers:
       '@kubb/mcp':
         specifier: workspace:*
         version: link:../mcp
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
+      '@kubb/plugin-ts':
+        specifier: workspace:*
+        version: link:../plugin-ts
 
   packages/mcp:
     dependencies:

@@ -1,5 +1,6 @@
 import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
+import { parserTs } from '@kubb/parser-ts'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -27,6 +28,7 @@ export default defineConfig([
         '.ts': '.js',
       },
     },
+    parsers: [parserTs],
     adapter: adapterOas({ dateType: 'date' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -55,6 +57,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen2' },
+    parsers: [parserTs],
     adapter: adapterOas({ dateType: 'date', contentType: 'application/xml' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -75,6 +78,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen3', clean: true },
+    parsers: [parserTs],
     adapter: adapterOas({ dateType: 'date' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -99,6 +103,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen4', clean: true },
+    parsers: [parserTs],
     adapter: adapterOas({ dateType: 'date' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -116,6 +121,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen5', clean: true },
+    parsers: [parserTs],
     adapter: adapterOas({ dateType: 'date' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -133,6 +139,7 @@ export default defineConfig([
     root: '.',
     input,
     output: { path: './src/gen6', clean: true },
+    parsers: [parserTs],
     adapter: adapterOas({ dateType: 'date' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),
@@ -158,6 +165,7 @@ export default defineConfig([
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
+    parsers: [parserTs],
     adapter: adapterOas({ dateType: 'date' }),
     plugins: [
       pluginOas({ validate: false, generators: [] }),

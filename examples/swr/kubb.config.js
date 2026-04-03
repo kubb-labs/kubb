@@ -1,5 +1,6 @@
 import { adapterOas } from '@kubb/adapter-oas'
 import { defineConfig } from '@kubb/core'
+import { parserTs } from '@kubb/parser-ts'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -15,6 +16,7 @@ export default defineConfig([
       clean: true,
       barrelType: 'barrel',
     },
+    parsers: [parserTs],
     adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({ generators: [] }),
@@ -42,6 +44,7 @@ export default defineConfig([
     hooks: {
       done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
+    parsers: [parserTs],
     adapter: adapterOas({ collisionDetection: false }),
     plugins: [
       pluginOas({ generators: [] }),
