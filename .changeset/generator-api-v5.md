@@ -75,3 +75,29 @@ All plugins now expose their package version via the `version` field on the plug
 ### Renamed: `renderHookResult` → `applyHookResult`
 
 The internal helper for dispatching generator return values has been renamed to better reflect its purpose. If you were importing it directly, update your imports.
+
+### Renamed: `install` → `buildStart`
+
+The per-plugin lifecycle hook `install` has been renamed to `buildStart`, aligning with Rollup/Vite naming conventions. Update all plugins that define this hook:
+
+```ts
+// Before
+async install() {
+  await this.getOas()
+}
+
+// After
+async buildStart() {
+  await this.getOas()
+}
+```
+
+### New: `buildEnd` hook
+
+A new optional `buildEnd` hook is now available on every plugin. It is called once per plugin **after all files have been written to disk** — ideal for post-processing, copying assets, or generating summary reports:
+
+```ts
+async buildEnd() {
+  this.info('All files written, running post-processing...')
+}
+```

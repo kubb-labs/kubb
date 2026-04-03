@@ -92,7 +92,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     async operations(nodes, opts) {
       return mergedGenerator.operations?.call(this, nodes, opts)
     },
-    async install() {
+    async buildStart() {
       await this.openInStudio({ ast: true })
     },
   }
@@ -197,7 +197,36 @@ pluginTs({
 
 `getPreset` merges user generators into `preset.generators`, which is then consumed by `mergeGenerators` in the plugin closure.
 
-### `build.ts` dispatch — single path
+### `buildStart` and `buildEnd` — plugin lifecycle hooks
+
+Plugins now have two explicit lifecycle hooks aligned with Rollup/Vite conventions:
+
+- **`buildStart()`** — replaces the old `install()` hook. Called once per plugin at the start of its processing phase, before `schema`/`operation`/`operations` hooks run. Use it for async initialization, fetching remote data, or setting up shared state.
+
+- **`buildEnd()`** — new hook. Called once per plugin **after all files have been written to disk**. Use it for post-processing, copying assets, or generating summary reports.
+
+```ts
+export const myPlugin = createPlugin<MyPlugin>((options) => ({
+  name: 'my-plugin',
+
+  async buildStart() {
+    // runs before schema/operation hooks — good for initialization
+    const oas = await this.getOas()
+    await oas.dereference()
+  },
+
+  async schema(node, opts) {
+    return mergedGenerator.schema?.call(this, node, opts)
+  },
+
+  async buildEnd() {
+    // runs after fabric.write() — good for post-processing
+    this.info('Build complete!')
+  },
+}))
+```
+
+
 
 ```ts
 // Before — two paths
@@ -238,6 +267,8 @@ if (plugin.schema || plugin.operation || plugin.operations) {
 | `GeneratorContext<TOptions>` | `packages/core/src/types.ts` |
 | `Kubb.PluginRegistry` augmentations | every plugin's `types.ts` |
 | `version` field | every plugin's `plugin.ts` |
+| `buildStart` hook | replaces `install` on `Plugin` / `PluginLifecycle` |
+| `buildEnd` hook | new optional hook on `Plugin` / `PluginLifecycle` |
 | `exclude / include / override` in `get options()` | every v5 plugin's `plugin.ts` |
 
 ### Unchanged
