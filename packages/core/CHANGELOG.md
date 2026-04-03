@@ -1,5 +1,42 @@
 # @kubb/core
 
+## 5.0.0-alpha.31
+
+### Minor Changes
+
+- [#2971](https://github.com/kubb-labs/kubb/pull/2971) [`6c49d8d`](https://github.com/kubb-labs/kubb/commit/6c49d8d02d7c4bf5341fb6f0114f6aa2ee735e1e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `UserConfig` now correctly marks `adapter` and `parsers` as optional properties.
+
+  `defineConfig` automatically applies defaults when these options are omitted:
+  - `adapter` defaults to `adapterOas()` from `@kubb/adapter-oas`
+  - `parsers` defaults to `[parserTs]` from `@kubb/parser-ts`
+
+  This means most projects no longer need to set `adapter` or `parsers` explicitly in their `kubb.config.ts`:
+
+  ```ts
+  // before — had to set adapter and parsers explicitly
+  export default defineConfig({
+    input: { path: "./petStore.yaml" },
+    output: { path: "./src/gen" },
+    adapter: adapterOas(),
+    parsers: [parserTs],
+    plugins: [],
+  });
+
+  // after — adapter and parsers are applied automatically
+  export default defineConfig({
+    input: { path: "./petStore.yaml" },
+    output: { path: "./src/gen" },
+    plugins: [],
+  });
+  ```
+
+  `@kubb/adapter-oas` and `@kubb/parser-ts` must be installed for the defaults to work.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.31
+
 ## 5.0.0-alpha.30
 
 ### Minor Changes
