@@ -6,8 +6,8 @@ const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
 
 export const clientOperationReactGenerator = defineGenerator<PluginClient>({
   name: 'client-operation',
-  type: 'react',
-  Operation({ node, resolver, config }) {
+  operation(node) {
+    const { resolver, config } = this
     const file = resolver.resolveFile(
       { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
       { root: config.root, output: { path: config.output.path } },

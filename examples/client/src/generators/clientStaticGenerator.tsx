@@ -10,8 +10,8 @@ const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
 
 export const clientStaticGenerator = defineGenerator<PluginClient>({
   name: 'client',
-  type: 'react',
-  Operation({ config, plugin, node, options, driver, resolver, adapter }) {
+  operation(node, options) {
+    const { config, plugin, driver, resolver, adapter } = this
     const { output, importPath, dataReturnType, pathParamsType, paramsType, paramsCasing, parser } = options
     const baseURL = adapter.rootNode?.meta?.baseURL
 
