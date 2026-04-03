@@ -1,5 +1,19 @@
 # @kubb/core
 
+## 5.0.0-alpha.29
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.29
+
+## 5.0.0-alpha.28
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@5.0.0-alpha.28
+
 ## 5.0.0-alpha.27
 
 ### Minor Changes

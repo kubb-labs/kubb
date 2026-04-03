@@ -1,18 +1,79 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
+import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import { parse } from '@kubb/oas'
-import { OperationGenerator, renderOperations } from '@kubb/plugin-oas'
+import { renderOperations } from '@kubb/core'
+import type { PluginTs } from '@kubb/plugin-ts'
+import { resolverTs } from '@kubb/plugin-ts'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { resolverClient } from '../resolvers/resolverClient.ts'
 import type { PluginClient } from '../types.ts'
 import { staticClassClientGenerator } from './staticClassClientGenerator.tsx'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [] }
 
-describe('staticClassClientGenerator operations', async () => {
+const defaultOptions: PluginClient['resolvedOptions'] = {
+  dataReturnType: 'data',
+  paramsType: 'inline',
+  paramsCasing: undefined,
+  pathParamsType: 'inline',
+  client: 'axios',
+  clientType: 'staticClass',
+  importPath: undefined,
+  bundle: false,
+  parser: 'client',
+  output: {
+    path: '.',
+  },
+  group: undefined,
+  urlType: 'export',
+  wrapper: undefined,
+  baseURL: undefined,
+  resolver: resolverClient,
+}
+
+const mockedTsPlugin = createMockedPlugin<PluginTs>({
+  name: 'plugin-ts',
+  options: { output: { path: '.' }, group: undefined } as PluginTs['resolvedOptions'],
+  resolver: resolverTs,
+})
+
+const operationNodes: Array<OperationNode> = [
+  createOperation({
+    operationId: 'findPetsByTags',
+    method: 'GET',
+    path: '/pet/findByTags',
+    tags: ['pet'],
+    parameters: [
+      createParameter({ name: 'tags', in: 'query', schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }), required: true }),
+      createParameter({ name: 'status', in: 'query', schema: createSchema({ type: 'string' }) }),
+    ],
+    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+  }),
+  createOperation({
+    operationId: 'updatePetWithForm',
+    method: 'POST',
+    path: '/pet/{petId}',
+    tags: ['pet'],
+    parameters: [createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true })],
+    requestBody: { schema: createSchema({ type: 'object', properties: [] }) },
+    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'object', properties: [] }), description: 'successful operation' })],
+  }),
+  createOperation({
+    operationId: 'deletePet',
+    method: 'DELETE',
+    path: '/pet/{petId}',
+    tags: ['pet'],
+    parameters: [
+      createParameter({ name: 'petId', in: 'path', schema: createSchema({ type: 'string' }), required: true }),
+      createParameter({ name: 'api_key', in: 'header', schema: createSchema({ type: 'string' }) }),
+    ],
+    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'void' }), description: 'successful operation' })],
+  }),
+]
+
+describe('staticClassClientGenerator operations', () => {
   const fabric = createReactFabric()
 
   beforeEach(() => {
@@ -22,74 +83,33 @@ describe('staticClassClientGenerator operations', async () => {
   const testData = [
     {
       name: 'findByTags',
-      input: '../../mocks/petStore.yaml',
-      path: '/pet/findByTags',
-      method: 'get' as const,
       options: {
         group: {
           type: 'tag' as const,
+          name: ({ group }: { group: string }) => `${group}Service`,
         },
       } as Partial<PluginClient['resolvedOptions']>,
     },
-  ] as const satisfies Array<{
-    input: string
-    name: string
-    path: string
-    method: 'get' | 'post' | 'put' | 'delete' | 'patch'
-    options: Partial<PluginClient['resolvedOptions']>
-  }>
+  ] as const satisfies Array<{ name: string; options: Partial<PluginClient['resolvedOptions']> }>
 
   test.each(testData)('$name', async (props) => {
-    const oas = await parse(path.resolve(__dirname, props.input))
-
     const options: PluginClient['resolvedOptions'] = {
-      dataReturnType: 'data',
-      paramsType: 'inline',
-      paramsCasing: undefined,
-      pathParamsType: 'inline',
-      client: 'axios',
-      clientType: 'staticClass',
-      importPath: undefined,
-      bundle: false,
-      baseURL: '',
-      parser: 'client',
-      output: {
-        path: '.',
-      },
-      group: undefined,
-      urlType: 'export',
-      wrapper: undefined,
+      ...defaultOptions,
       ...props.options,
     }
-    const plugin = createMockedPlugin<PluginClient>({ name: 'plugin-client', options })
-    const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
-    const generator = new OperationGenerator(options, {
+    const plugin = createMockedPlugin<PluginClient>({ name: 'plugin-client', options, resolver: resolverClient })
+    const driver = createMockedPluginDriver({ name: props.name, plugin: mockedTsPlugin })
+
+    await renderOperations(operationNodes, {
+      config: testConfig,
       fabric,
-      oas,
-      include: undefined,
-      driver: mockedPluginDriver,
+      adapter: createMockedAdapter(),
+      driver,
+      Component: staticClassClientGenerator.Operations,
       plugin,
-      contentType: undefined,
-      override: undefined,
-      mode: 'split',
-      exclude: [],
+      options,
+      resolver: resolverClient,
     })
-
-    const operations = await generator.getOperations()
-
-    await renderOperations(
-      operations.map((item) => item.operation),
-      {
-        config: {
-          root: '.',
-          output: { path: 'test' },
-        } as Config,
-        fabric,
-        generator,
-        Component: staticClassClientGenerator.Operations,
-        plugin,
-      },
-    )
 
     await matchFiles(fabric.files, 'static')
   })

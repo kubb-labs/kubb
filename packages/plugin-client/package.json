@@ -1,6 +1,6 @@
 {
   "name": "@kubb/plugin-client",
-  "version": "5.0.0-alpha.27",
+  "version": "5.0.0-alpha.29",
   "description": "API client generator plugin for Kubb, creating type-safe HTTP clients (Axios, Fetch) from OpenAPI specifications for making API requests.",
   "keywords": [
     "api-client",
@@ -42,14 +42,6 @@
       "import": "./dist/clients/fetch.js",
       "require": "./dist/clients/fetch.cjs"
     },
-    "./components": {
-      "import": "./dist/components.js",
-      "require": "./dist/components.cjs"
-    },
-    "./generators": {
-      "import": "./dist/generators.js",
-      "require": "./dist/generators.cjs"
-    },
     "./templates/clients/axios.source": {
       "import": "./dist/templates/clients/axios.source.js",
       "require": "./dist/templates/clients/axios.source.cjs"
@@ -67,12 +59,6 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "components": [
-        "./dist/components.d.ts"
-      ],
-      "generators": [
-        "./dist/generators.d.ts"
-      ],
       "clients/axios": [
         "./dist/clients/axios.d.ts"
       ],
@@ -119,10 +105,9 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/fabric-core": "catalog:",
-    "@kubb/oas": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-zod": "workspace:*",
     "@kubb/react-fabric": "catalog:"

@@ -164,6 +164,7 @@ export default defineConfig({
       paramsType: 'object',
       pathParamsType: 'object',
       urlType: 'export',
+      compatibilityPreset: 'kubbV4',
       override: [
         {
           type: 'contentType',

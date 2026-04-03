@@ -9,7 +9,7 @@ export const addFiles405Schema = z.any().describe('Invalid input')
 
 export type AddFiles405Schema = z.infer<typeof addFiles405Schema>
 
-export const addFilesMutationRequestSchema = petSchema.omit({ id: true }).optional()
+export const addFilesMutationRequestSchema = petSchema.omit({ id: true })
 
 export type AddFilesMutationRequestSchema = z.infer<typeof addFilesMutationRequestSchema>
 

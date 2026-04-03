@@ -1,8 +1,30 @@
-import type { Output, PluginFactoryOptions, ResolveNameParams, UserGroup } from '@kubb/core'
+import type { Visitor } from '@kubb/ast/types'
+import type {
+  CompatibilityPreset,
+  Exclude,
+  Generator,
+  Group,
+  Include,
+  Output,
+  Override,
+  PluginFactoryOptions,
+  ResolvePathOptions,
+  Resolver,
+  UserGroup,
+} from '@kubb/core'
 
-import type { contentType, Oas } from '@kubb/oas'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/plugin-oas'
-import type { Generator } from '@kubb/plugin-oas/generators'
+/**
+ * The concrete resolver type for `@kubb/plugin-client`.
+ * Extends the base `Resolver` with a `resolveName` helper for client function names.
+ */
+export type ResolverClient = Resolver & {
+  /**
+   * Resolves the function name for a given raw operation name.
+   * @example
+   * resolver.resolveName('show pet by id') // -> 'showPetById'
+   */
+  resolveName(this: ResolverClient, name: string): string
+}
 
 /**
  * Use either a preset `client` type OR a custom `importPath`, not both.
@@ -36,17 +58,52 @@ export type ClientImportPath =
       bundle?: never
     }
 
+/**
+ * Discriminated union that ties `pathParamsType` to the `paramsType` values where it is meaningful.
+ *
+ * - `paramsType: 'object'` — all parameters (including path params) are merged into a single
+ *   destructured object. `pathParamsType` is never reached in this code path and has no effect.
+ * - `paramsType?: 'inline'` (or omitted) — each parameter group is a separate function argument.
+ *   `pathParamsType` controls whether the path-param group itself is destructured (`'object'`)
+ *   or spread as individual arguments (`'inline'`).
+ */
+type ParamsTypeOptions =
+  | {
+      /**
+       * All parameters — path, query, headers, and body — are merged into a single
+       * destructured object argument.
+       * - 'object' returns the params and pathParams as an object.
+       * @default 'inline'
+       */
+      paramsType: 'object'
+      /**
+       * `pathParamsType` has no effect when `paramsType` is `'object'`.
+       * Path params are already inside the single destructured object.
+       */
+      pathParamsType?: never
+    }
+  | {
+      /**
+       * Each parameter group is emitted as a separate function argument.
+       * - 'inline' returns the params as comma separated params.
+       * @default 'inline'
+       */
+      paramsType?: 'inline'
+      /**
+       * Controls how path parameters are arranged within the inline argument list.
+       * - 'object' groups path params into a destructured object: `{ petId }: PathParams`.
+       * - 'inline' emits each path param as its own argument: `petId: string`.
+       * @default 'inline'
+       */
+      pathParamsType?: 'object' | 'inline'
+    }
+
 export type Options = {
   /**
-   * Specify the export location for the files and define the behavior of the output
+   * Specify the export location for the files and define the behavior of the output.
    * @default { path: 'clients', barrelType: 'named' }
    */
-  output?: Output<Oas>
-  /**
-   * Define which contentType should be used.
-   * By default, the first JSON valid mediaType is used
-   */
-  contentType?: contentType
+  output?: Output
   /**
    * Group the clients based on the provided name.
    */
@@ -88,25 +145,11 @@ export type Options = {
    */
   dataReturnType?: 'data' | 'full'
   /**
-   * How to style your params, by default no casing is applied
+   * How to style your params, by default no casing is applied.
    * - 'camelcase' uses camelCase for pathParams, queryParams and headerParams names
    * @note response types (data/body) are not affected by this option
    */
   paramsCasing?: 'camelcase'
-  /**
-   * How to pass your params.
-   * - 'object' returns the params and pathParams as an object.
-   * - 'inline' returns the params as comma separated params.
-   * @default 'inline'
-   */
-  paramsType?: 'object' | 'inline'
-  /**
-   * How to pass your pathParams.
-   * - 'object' returns the pathParams as an object.
-   * - 'inline' returns the pathParams as comma separated params.
-   * @default 'inline'
-   */
-  pathParamsType?: 'object' | 'inline'
   /**
    * Which parser can be used before returning the data.
    * - 'client' returns the data as-is from the client.
@@ -138,33 +181,44 @@ export type Options = {
      */
     className: string
   }
-  transformers?: {
-    /**
-     * Customize the names based on the type that is provided by the plugin.
-     */
-    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
-  }
   /**
-   * Define some generators next to the client generators
+   * Apply a compatibility naming preset.
+   * @default 'default'
+   */
+  compatibilityPreset?: CompatibilityPreset
+  /**
+   * Override individual resolver methods. Any method you omit falls back to the
+   * preset resolver's implementation. Use `this.default(...)` to call it.
+   */
+  resolver?: Partial<ResolverClient> & ThisType<ResolverClient>
+  /**
+   * Single AST visitor applied to each node before printing.
+   * Return `null` or `undefined` from a method to leave the node unchanged.
+   */
+  transformer?: Visitor
+  /**
+   * Define some generators next to the client generators.
    */
   generators?: Array<Generator<PluginClient>>
-} & ClientImportPath
+} & ClientImportPath &
+  ParamsTypeOptions
 
 type ResolvedOptions = {
-  output: Output<Oas>
-  group?: Options['group']
-  baseURL: string | undefined
+  output: Output
+  group: Group | undefined
   client: Options['client']
   clientType: NonNullable<Options['clientType']>
   bundle: NonNullable<Options['bundle']>
   parser: NonNullable<Options['parser']>
   urlType: NonNullable<Options['urlType']>
   importPath: Options['importPath']
+  baseURL: Options['baseURL']
   dataReturnType: NonNullable<Options['dataReturnType']>
-  pathParamsType: NonNullable<Options['pathParamsType']>
+  pathParamsType: NonNullable<NonNullable<Options['pathParamsType']>>
   paramsType: NonNullable<Options['paramsType']>
   paramsCasing: Options['paramsCasing']
   wrapper: Options['wrapper']
+  resolver: ResolverClient
 }
 
-export type PluginClient = PluginFactoryOptions<'plugin-client', Options, ResolvedOptions, never, ResolvePathOptions>
+export type PluginClient = PluginFactoryOptions<'plugin-client', Options, ResolvedOptions, never, ResolvePathOptions, ResolverClient>

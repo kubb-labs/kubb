@@ -1,5 +1,5 @@
 import { getDefaultValue, isOptional } from '@kubb/oas'
-import { Client } from '@kubb/plugin-client/components'
+import { ClientLegacy as Client } from '@kubb/plugin-client'
 import type { OperationSchemas } from '@kubb/plugin-oas'
 import { getPathParams } from '@kubb/plugin-oas/utils'
 import { File, Function, FunctionParams } from '@kubb/react-fabric'

@@ -1,5 +1,29 @@
 # @kubb/plugin-vue-query
 
+## 5.0.0-alpha.29
+
+### Patch Changes
+
+- Updated dependencies [[`62551ae`](https://github.com/kubb-labs/kubb/commit/62551ae7de327e2a502e5365d5bf56ecb8f21b47)]:
+  - @kubb/plugin-client@5.0.0-alpha.29
+  - @kubb/core@5.0.0-alpha.29
+  - @kubb/oas@5.0.0-alpha.29
+  - @kubb/plugin-oas@5.0.0-alpha.29
+  - @kubb/plugin-ts@5.0.0-alpha.29
+  - @kubb/plugin-zod@5.0.0-alpha.29
+
+## 5.0.0-alpha.28
+
+### Patch Changes
+
+- Updated dependencies [[`d46e725`](https://github.com/kubb-labs/kubb/commit/d46e7255c2419e412ace2e090205d552a885c6ca)]:
+  - @kubb/plugin-ts@5.0.0-alpha.28
+  - @kubb/plugin-client@5.0.0-alpha.28
+  - @kubb/core@5.0.0-alpha.28
+  - @kubb/oas@5.0.0-alpha.28
+  - @kubb/plugin-oas@5.0.0-alpha.28
+  - @kubb/plugin-zod@5.0.0-alpha.28
+
 ## 5.0.0-alpha.27
 
 ### Patch Changes
