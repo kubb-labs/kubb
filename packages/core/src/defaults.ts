@@ -1,7 +1,12 @@
 import type { Adapter, Parser } from './types.ts'
 
-let _defaultAdapter: Adapter | undefined
-let _defaultParsers: Parser[] | undefined
+// Use globalThis as the backing store so that all instances of @kubb/core
+// (e.g. the one loaded by jiti inside config files AND the one used by the
+// CLI at runtime) share a single registry, even across module cache boundaries.
+const g = globalThis as typeof globalThis & {
+  __kubbDefaultAdapter?: Adapter
+  __kubbDefaultParsers?: Parser[]
+}
 
 /**
  * Register the default adapter used when no adapter is provided in the user
@@ -16,7 +21,7 @@ let _defaultParsers: Parser[] | undefined
  * ```
  */
 export function setDefaultAdapter(adapter: Adapter): void {
-  _defaultAdapter = adapter
+  g.__kubbDefaultAdapter = adapter
 }
 
 /**
@@ -32,15 +37,15 @@ export function setDefaultAdapter(adapter: Adapter): void {
  * ```
  */
 export function setDefaultParsers(parsers: Parser[]): void {
-  _defaultParsers = parsers
+  g.__kubbDefaultParsers = parsers
 }
 
 /** Returns the registered default adapter, or `undefined` if none registered. */
 export function getDefaultAdapter(): Adapter | undefined {
-  return _defaultAdapter
+  return g.__kubbDefaultAdapter
 }
 
 /** Returns the registered default parsers, or `undefined` if none registered. */
 export function getDefaultParsers(): Parser[] | undefined {
-  return _defaultParsers
+  return g.__kubbDefaultParsers
 }
