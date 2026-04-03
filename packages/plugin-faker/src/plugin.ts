@@ -3,9 +3,9 @@ import { camelCase } from '@internals/utils'
 import { createPlugin, getBarrelFiles, getMode, type UserGroup } from '@kubb/core'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
+import { version } from '../package.json'
 import { fakerGenerator } from './generators/fakerGenerator.tsx'
 import type { PluginFaker } from './types.ts'
-import { version } from '../package.json'
 
 export const pluginFakerName = 'plugin-faker' satisfies PluginFaker['name']
 

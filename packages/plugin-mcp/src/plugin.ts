@@ -7,9 +7,9 @@ import { source as fetchClientSource } from '@kubb/plugin-client/templates/clien
 import { source as configSource } from '@kubb/plugin-client/templates/config.source'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
+import { version } from '../package.json'
 import { presets } from './presets.ts'
 import type { PluginMcp } from './types.ts'
-import { version } from '../package.json'
 
 export const pluginMcpName = 'plugin-mcp' satisfies PluginMcp['name']
 

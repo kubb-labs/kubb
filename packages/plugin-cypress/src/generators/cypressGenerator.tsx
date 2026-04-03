@@ -78,4 +78,3 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
     )
   },
 })
-

@@ -8,6 +8,7 @@ import { source as configSource } from '@kubb/plugin-client/templates/config.sou
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
+import { version } from '../package.json'
 import { MutationKey } from './components'
 import { QueryKey } from './components/QueryKey.tsx'
 import {
@@ -20,7 +21,6 @@ import {
   suspenseQueryGenerator,
 } from './generators'
 import type { PluginReactQuery } from './types.ts'
-import { version } from '../package.json'
 
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
 

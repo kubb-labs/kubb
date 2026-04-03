@@ -3,6 +3,7 @@ import { camelCase } from '@internals/utils'
 import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
+import { version } from '../package.json'
 import { classClientGenerator } from './generators/classClientGenerator.tsx'
 import { clientGenerator } from './generators/clientGenerator.tsx'
 import { groupedClientGenerator } from './generators/groupedClientGenerator.tsx'
@@ -13,7 +14,6 @@ import { source as axiosClientSource } from './templates/clients/axios.source.ts
 import { source as fetchClientSource } from './templates/clients/fetch.source.ts'
 import { source as configSource } from './templates/config.source.ts'
 import type { PluginClient } from './types.ts'
-import { version } from '../package.json'
 
 /**
  * Canonical plugin name for `@kubb/plugin-client`, used to identify the plugin

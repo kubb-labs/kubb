@@ -157,71 +157,75 @@ export const staticClassClientGenerator = defineGenerator<PluginClient>({
       return { zodImportsByFile, zodFilesByPath }
     }
 
-    return <>{controllers.map(({ name, file, operations: ops }) => {
-      const { typeImportsByFile, typeFilesByPath } = collectTypeImports(ops)
-      const { zodImportsByFile, zodFilesByPath } =
-        parser === 'zod' ? collectZodImports(ops) : { zodImportsByFile: new Map<string, Set<string>>(), zodFilesByPath: new Map<string, FabricFile.File>() }
-      const hasFormData = ops.some((op) => op.node.requestBody?.contentType === 'multipart/form-data')
+    return (
+      <>
+        {controllers.map(({ name, file, operations: ops }) => {
+          const { typeImportsByFile, typeFilesByPath } = collectTypeImports(ops)
+          const { zodImportsByFile, zodFilesByPath } =
+            parser === 'zod' ? collectZodImports(ops) : { zodImportsByFile: new Map<string, Set<string>>(), zodFilesByPath: new Map<string, FabricFile.File>() }
+          const hasFormData = ops.some((op) => op.node.requestBody?.contentType === 'multipart/form-data')
 
-      return (
-        <File
-          key={file.path}
-          baseName={file.baseName}
-          path={file.path}
-          meta={file.meta}
-          banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
-          footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
-        >
-          {importPath ? (
-            <>
-              <File.Import name={'fetch'} path={importPath} />
-              <File.Import name={['mergeConfig']} path={importPath} />
-              <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={importPath} isTypeOnly />
-            </>
-          ) : (
-            <>
-              <File.Import name={['fetch']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
-              <File.Import name={['mergeConfig']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
-              <File.Import
-                name={['Client', 'RequestConfig', 'ResponseErrorConfig']}
-                root={file.path}
-                path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
-                isTypeOnly
+          return (
+            <File
+              key={file.path}
+              baseName={file.baseName}
+              path={file.path}
+              meta={file.meta}
+              banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
+              footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+            >
+              {importPath ? (
+                <>
+                  <File.Import name={'fetch'} path={importPath} />
+                  <File.Import name={['mergeConfig']} path={importPath} />
+                  <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} path={importPath} isTypeOnly />
+                </>
+              ) : (
+                <>
+                  <File.Import name={['fetch']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
+                  <File.Import name={['mergeConfig']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
+                  <File.Import
+                    name={['Client', 'RequestConfig', 'ResponseErrorConfig']}
+                    root={file.path}
+                    path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
+                    isTypeOnly
+                  />
+                </>
+              )}
+
+              {hasFormData && <File.Import name={['buildFormData']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />}
+
+              {Array.from(typeImportsByFile.entries()).map(([filePath, importSet]) => {
+                const typeFile = typeFilesByPath.get(filePath)
+                if (!typeFile) return null
+                const importNames = Array.from(importSet).filter(Boolean)
+                if (importNames.length === 0) return null
+                return <File.Import key={filePath} name={importNames} root={file.path} path={typeFile.path} isTypeOnly />
+              })}
+
+              {parser === 'zod' &&
+                Array.from(zodImportsByFile.entries()).map(([filePath, importSet]) => {
+                  const zodFile = zodFilesByPath.get(filePath)
+                  if (!zodFile) return null
+                  const importNames = Array.from(importSet).filter(Boolean)
+                  if (importNames.length === 0) return null
+                  return <File.Import key={filePath} name={importNames} root={file.path} path={zodFile.path} />
+                })}
+
+              <StaticClassClient
+                name={name}
+                operations={ops}
+                baseURL={baseURL}
+                dataReturnType={dataReturnType}
+                pathParamsType={pathParamsType}
+                paramsCasing={paramsCasing}
+                paramsType={paramsType}
+                parser={parser}
               />
-            </>
-          )}
-
-          {hasFormData && <File.Import name={['buildFormData']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />}
-
-          {Array.from(typeImportsByFile.entries()).map(([filePath, importSet]) => {
-            const typeFile = typeFilesByPath.get(filePath)
-            if (!typeFile) return null
-            const importNames = Array.from(importSet).filter(Boolean)
-            if (importNames.length === 0) return null
-            return <File.Import key={filePath} name={importNames} root={file.path} path={typeFile.path} isTypeOnly />
-          })}
-
-          {parser === 'zod' &&
-            Array.from(zodImportsByFile.entries()).map(([filePath, importSet]) => {
-              const zodFile = zodFilesByPath.get(filePath)
-              if (!zodFile) return null
-              const importNames = Array.from(importSet).filter(Boolean)
-              if (importNames.length === 0) return null
-              return <File.Import key={filePath} name={importNames} root={file.path} path={zodFile.path} />
-            })}
-
-          <StaticClassClient
-            name={name}
-            operations={ops}
-            baseURL={baseURL}
-            dataReturnType={dataReturnType}
-            pathParamsType={pathParamsType}
-            paramsCasing={paramsCasing}
-            paramsType={paramsType}
-            parser={parser}
-          />
-        </File>
-      )
-    })}</>
+            </File>
+          )
+        })}
+      </>
+    )
   },
 })

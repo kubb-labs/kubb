@@ -4,11 +4,11 @@ import { camelCase } from '@internals/utils'
 import { type Config, createPlugin, getMode, type KubbEvents, type UserGroup } from '@kubb/core'
 import type { Oas } from '@kubb/oas'
 import { parseFromConfig, resolveServerUrl } from '@kubb/oas'
+import { version } from '../package.json'
 import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 import type { PluginOas } from './types.ts'
-import { version } from '../package.json'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 

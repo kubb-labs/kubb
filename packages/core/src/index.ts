@@ -6,7 +6,7 @@ export { formatters, linters, logLevel } from './constants.ts'
 export { createAdapter } from './createAdapter.ts'
 export { createPlugin } from './createPlugin.ts'
 export { createStorage } from './createStorage.ts'
-export { defineGenerator, mergeGenerators, type GeneratorContext } from './defineGenerator.ts'
+export { defineGenerator, type GeneratorContext, mergeGenerators } from './defineGenerator.ts'
 export { defineLogger } from './defineLogger.ts'
 export { definePresets } from './definePresets.ts'
 export {
