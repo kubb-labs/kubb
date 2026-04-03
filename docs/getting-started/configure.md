@@ -47,15 +47,39 @@ Kubb uses [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) to automat
 
 ## defineConfig
 
-The `defineConfig` helper provides TypeScript type checking and IntelliSense for your configuration:
+The `defineConfig` helper provides TypeScript type checking and IntelliSense for your configuration. It also **automatically applies sensible defaults** so you don't have to configure them yourself:
+
+| Option | Default | Package |
+|:-------|:--------|:--------|
+| `adapter` | `adapterOas()` | `@kubb/adapter-oas` |
+| `parsers` | `[parserTs]` | `@kubb/parser-ts` |
+
+> [!NOTE]
+> `@kubb/adapter-oas` and `@kubb/parser-ts` must be installed for the defaults to work. They are included when you run `npx kubb init` or install `@kubb/core`.
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
+// adapter and parsers are applied automatically — no need to set them
 export default defineConfig({
-  // Type-safe configuration
   input: { path: './petStore.yaml' },
   output: { path: './src/gen' },
+  plugins: [],
+})
+```
+
+You can always override the defaults explicitly:
+
+```typescript twoslash [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+import { adapterOas } from '@kubb/adapter-oas'
+import { parserTs, tsxParser } from '@kubb/parser-ts'
+
+export default defineConfig({
+  input: { path: './petStore.yaml' },
+  output: { path: './src/gen' },
+  adapter: adapterOas({ validate: true }),
+  parsers: [parserTs, tsxParser],
   plugins: [],
 })
 ```
