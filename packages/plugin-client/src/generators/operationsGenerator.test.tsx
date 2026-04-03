@@ -25,6 +25,9 @@ const defaultOptions: PluginClient['resolvedOptions'] = {
   output: {
     path: '.',
   },
+  exclude: [],
+  include: undefined,
+  override: [],
   group: undefined,
   urlType: 'export',
   wrapper: undefined,

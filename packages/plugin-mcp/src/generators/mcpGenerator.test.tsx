@@ -15,6 +15,9 @@ const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'te
 
 const defaultOptions: PluginMcp['resolvedOptions'] = {
   output: { path: '.' },
+  exclude: [],
+  include: undefined,
+  override: [],
   client: {
     client: 'axios',
     baseURL: '',

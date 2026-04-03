@@ -22,6 +22,9 @@ const defaultOptions: PluginZod['resolvedOptions'] = {
   wrapOutput: undefined,
   paramsCasing: undefined,
   output: { path: '.' },
+  exclude: [],
+  include: undefined,
+  override: [],
   group: undefined,
   printer: undefined,
 }

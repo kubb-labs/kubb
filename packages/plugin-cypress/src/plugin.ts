@@ -31,6 +31,9 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
   const {
     output = { path: 'cypress', barrelType: 'named' },
     group,
+    exclude = [],
+    include,
+    override = [],
     dataReturnType = 'data',
     baseURL,
     paramsCasing,
@@ -65,6 +68,9 @@ export const pluginCypress = createPlugin<PluginCypress>((options) => {
     get options() {
       return {
         output,
+        exclude,
+        include,
+        override,
         dataReturnType,
         group: group
           ? ({

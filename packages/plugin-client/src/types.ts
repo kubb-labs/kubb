@@ -205,6 +205,9 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output
+  exclude: Array<Exclude>
+  include: Array<Include> | undefined
+  override: Array<Override<ResolvedOptions>>
   group: Group | undefined
   client: Options['client']
   clientType: NonNullable<Options['clientType']>

@@ -83,6 +83,9 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output
+  exclude: Array<Exclude>
+  include: Array<Include> | undefined
+  override: Array<Override<ResolvedOptions>>
   group: Group | undefined
   client: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle' | 'paramsCasing'>
   paramsCasing: Options['paramsCasing']

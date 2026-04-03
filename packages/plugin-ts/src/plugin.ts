@@ -30,6 +30,9 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
   const {
     output = { path: 'types', barrelType: 'named' },
     group,
+    exclude = [],
+    include,
+    override = [],
     enumType = 'asConst',
     enumTypeSuffix = 'Key',
     enumKeyCasing = 'none',
@@ -70,6 +73,9 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     get options() {
       return {
         output,
+        exclude,
+        include,
+        override,
         optionalType,
         group: group
           ? ({

@@ -19,6 +19,9 @@ const defaultOptions: PluginTs['resolvedOptions'] = {
   syntaxType: 'type',
   paramsCasing: undefined,
   output: { path: '.' },
+  exclude: [],
+  include: undefined,
+  override: [],
   group: undefined,
   printer: undefined,
 }

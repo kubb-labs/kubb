@@ -17,6 +17,9 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
   const {
     output = { path: 'mcp', barrelType: 'named' },
     group,
+    exclude = [],
+    include,
+    override = [],
     paramsCasing,
     client,
     compatibilityPreset = 'default',
@@ -51,6 +54,9 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
     get options() {
       return {
         output,
+        exclude,
+        include,
+        override,
         group: group
           ? ({
               ...group,

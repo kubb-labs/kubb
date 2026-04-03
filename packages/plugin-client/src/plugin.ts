@@ -41,6 +41,9 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
   const {
     output = { path: 'clients', barrelType: 'named' },
     group,
+    exclude = [],
+    include,
+    override = [],
     urlType = false,
     dataReturnType = 'data',
     paramsType = 'inline',
@@ -98,6 +101,9 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
         clientType,
         bundle,
         output,
+        exclude,
+        include,
+        override,
         group: group
           ? ({
               ...group,

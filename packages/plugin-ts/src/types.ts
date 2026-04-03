@@ -302,6 +302,9 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output
+  exclude: Array<Exclude>
+  include: Array<Include> | undefined
+  override: Array<Override<ResolvedOptions>>
   group: Group | undefined
   enumType: NonNullable<Options['enumType']>
   enumTypeSuffix: NonNullable<Options['enumTypeSuffix']>

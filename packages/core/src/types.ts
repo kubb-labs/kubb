@@ -413,7 +413,12 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
   /**
    * Options set for a specific plugin(see kubb.config.js), passthrough of options.
    */
-  options: TOptions['resolvedOptions']
+  options: TOptions['resolvedOptions'] & {
+    output: Output
+    include?: Array<Include>
+    exclude: Array<Exclude>
+    override: Array<Override<TOptions['resolvedOptions']>>
+  }
   /**
    * The resolver for this plugin.
    * Composed by `getPreset` from the preset resolver and the user's `resolver` partial override.
@@ -512,7 +517,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
    */
   options: TOptions['resolvedOptions'] & {
     output: Output
-    include: Array<Include>
+    include?: Array<Include>
     exclude: Array<Exclude>
     override: Array<Override<TOptions['resolvedOptions']>>
   }

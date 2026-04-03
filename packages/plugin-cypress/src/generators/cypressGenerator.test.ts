@@ -15,6 +15,9 @@ const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'te
 
 const defaultOptions: PluginCypress['resolvedOptions'] = {
   output: { path: '.' },
+  exclude: [],
+  include: undefined,
+  override: [],
   baseURL: undefined,
   group: undefined,
   dataReturnType: 'data',

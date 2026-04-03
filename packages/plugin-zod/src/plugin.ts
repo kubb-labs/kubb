@@ -30,6 +30,9 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
   const {
     output = { path: 'zod', barrelType: 'named' },
     group,
+    exclude = [],
+    include,
+    override = [],
     dateType = 'string',
     typed = false,
     operations = false,
@@ -73,6 +76,9 @@ export const pluginZod = createPlugin<PluginZod>((options) => {
     get options() {
       return {
         output,
+        exclude,
+        include,
+        override,
         group: group
           ? ({
               ...group,

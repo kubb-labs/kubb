@@ -22,8 +22,6 @@ The generator API accumulated friction over time:
 
 **Unsafe `this` type.** `PluginContext` uses a discriminated union that makes `adapter` and `rootNode` optional (`adapter?: Adapter`). Generator methods always run inside a fully-initialised context where both are present, so every method body required a cast or a null-check.
 
-**Repeated common fields.** Every plugin's `Options` type declared `output?`, `exclude?`, `include?`, and `override?` identically, copy-pasted from plugin to plugin.
-
 ## Decision
 
 ### `GeneratorContext<TOptions>` — safe `this` type
@@ -150,29 +148,6 @@ export const typeGenerator = defineGenerator<PluginTs>({
 | `this.upsertFile` | Write files manually |
 | `this.warn / .error / .info` | Diagnostics |
 
-### `PluginBaseOptions<TResolvedOptions>` — shared base for plugin options
-
-Every plugin should support `output`, `exclude`, `include`, and `override`. These four fields are now declared once in `PluginBaseOptions` and each plugin's `Options` type extends it:
-
-```ts
-// packages/core/src/types.ts
-export type PluginBaseOptions<TResolvedOptions extends object = object> = {
-  output?: Output
-  exclude?: Array<Exclude>
-  include?: Array<Include>
-  override?: Array<Override<TResolvedOptions>>
-}
-
-// packages/plugin-ts/src/types.ts
-export type Options = PluginBaseOptions<ResolvedOptions> & {
-  group?: UserGroup
-  enumType?: EnumType
-  // ... plugin-specific fields only
-}
-```
-
-`PluginFactoryOptions` constrains `TOptions extends PluginBaseOptions<TResolvedOptions>` so this is enforced at the type level. All fields are optional, so existing code passes unchanged.
-
 ### `PluginRegistry` — typed plugin lookup
 
 Each plugin augments `Kubb.PluginRegistry` in its `types.ts` so that `getPlugin`/`requirePlugin` return fully typed results without casts:
@@ -251,7 +226,6 @@ if (plugin.schema || plugin.operation || plugin.operations) {
 | `renderSchema / renderOperation` etc. | `renderNode.tsx` |
 | `renderHookResult` (renamed) | `renderNode.tsx` → `applyHookResult` |
 | `UserReactGeneratorV2 / UserCoreGeneratorV2` | `defineGenerator.ts` |
-| Repeated `output? / exclude? / include? / override?` | each plugin's `Options` type |
 
 ### Added / changed
 
@@ -262,9 +236,9 @@ if (plugin.schema || plugin.operation || plugin.operations) {
 | `mergeGenerators` | `packages/core/src/defineGenerator.ts` |
 | `applyHookResult` | `packages/core/src/renderNode.tsx` |
 | `GeneratorContext<TOptions>` | `packages/core/src/types.ts` |
-| `PluginBaseOptions<TResolvedOptions>` | `packages/core/src/types.ts` |
 | `Kubb.PluginRegistry` augmentations | every plugin's `types.ts` |
 | `version` field | every plugin's `plugin.ts` |
+| `exclude / include / override` in `get options()` | every v5 plugin's `plugin.ts` |
 
 ### Unchanged
 
@@ -273,5 +247,4 @@ if (plugin.schema || plugin.operation || plugin.operations) {
 - `runPluginAstHooks` — unchanged; already handles barrel files
 - Direct plugin hooks `schema`/`operation`/`operations` on `Plugin`/`PluginLifecycle`
 - The `pluginTs({ generators: [...] })` call API
-
 

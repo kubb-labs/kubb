@@ -223,6 +223,9 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output
+  exclude: Array<Exclude>
+  include: Array<Include> | undefined
+  override: Array<Override<ResolvedOptions>>
   group: Group | undefined
   dateType: NonNullable<Options['dateType']>
   typed: NonNullable<Options['typed']>
