@@ -1028,18 +1028,12 @@ importers:
 
   packages/core:
     dependencies:
-      '@kubb/adapter-oas':
-        specifier: workspace:*
-        version: link:../adapter-oas
       '@kubb/ast':
         specifier: workspace:*
         version: link:../ast
       '@kubb/fabric-core':
         specifier: 'catalog:'
         version: 0.15.1
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../parser-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.15.1

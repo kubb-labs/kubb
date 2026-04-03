@@ -19,6 +19,7 @@ export {
   defaultResolvePath,
   defineResolver,
 } from './defineResolver.ts'
+export * as KubbFile from './KubbFile.ts'
 export { getMode, PluginDriver } from './PluginDriver.ts'
 export { fsStorage } from './storages/fsStorage.ts'
 export { memoryStorage } from './storages/memoryStorage.ts'

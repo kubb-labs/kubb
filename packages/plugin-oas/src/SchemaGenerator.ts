@@ -1,7 +1,7 @@
 import type { AsyncEventEmitter } from '@internals/utils'
 import { getUniqueName, pascalCase, stringify } from '@internals/utils'
-import type { FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
+import type { FileMetaBase, KubbEvents, KubbFile, Plugin, PluginDriver, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
@@ -15,7 +15,7 @@ import { renderSchema } from './utils.tsx'
 
 export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> = T extends SchemaGenerator<infer Options, any, any> ? Options : never
 
-export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<FabricFile.File<TFileMeta> | Array<FabricFile.File<TFileMeta>> | null>
+export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   fabric: FabricType
@@ -26,7 +26,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
    * Current plugin
    */
   plugin: Plugin<TPluginOptions>
-  mode: FabricFile.Mode
+  mode: KubbFile.Mode
   include?: Array<'schemas' | 'responses' | 'requestBodies'>
   override: Array<Override<TOptions>> | undefined
   contentType?: contentType
@@ -1331,7 +1331,7 @@ export class SchemaGenerator<
     return [{ keyword: emptyType }, ...baseItems]
   }
 
-  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<FabricFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas, contentType, include } = this.context
 
     // Initialize the name mapping if not already done
@@ -1354,10 +1354,10 @@ export class SchemaGenerator<
     return this.#doBuild(schemas, generators)
   }
 
-  async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<FabricFile.File<TFileMeta>>> {
+  async #doBuild(schemas: Record<string, OasTypes.SchemaObject>, generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const schemaEntries = Object.entries(schemas)
 
-    const results: Array<FabricFile.File<TFileMeta>> = []
+    const results: Array<KubbFile.File<TFileMeta>> = []
 
     for (const generator of generators) {
       if (!('type' in generator)) {
@@ -1411,7 +1411,7 @@ export class SchemaGenerator<
             },
           })
 
-          results.push(...([result ?? []].flat() as Array<FabricFile.File<TFileMeta>>))
+          results.push(...([result ?? []].flat() as Array<KubbFile.File<TFileMeta>>))
         }
       }
     }

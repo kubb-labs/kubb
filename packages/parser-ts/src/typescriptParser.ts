@@ -1,5 +1,5 @@
 import { normalize, relative } from 'node:path'
-import type { FabricFile, Parser } from '@kubb/core'
+import type { KubbFile, Parser } from '@kubb/core'
 import { defineParser } from '@kubb/core'
 import ts from 'typescript'
 
@@ -177,7 +177,7 @@ export const typescriptParser: Parser = defineParser({
     const source = sourceParts.join('\n\n')
 
     const importNodes: Array<ts.ImportDeclaration> = []
-    for (const item of (file as FabricFile.ResolvedFile).imports) {
+    for (const item of (file as KubbFile.ResolvedFile).imports) {
       const importPath = item.root ? getRelativePath(item.root, item.path) : item.path
       const hasExtname = !!/\.[^/.]+$/.exec(importPath)
 
@@ -192,7 +192,7 @@ export const typescriptParser: Parser = defineParser({
     }
 
     const exportNodes: Array<ts.ExportDeclaration> = []
-    for (const item of (file as FabricFile.ResolvedFile).exports) {
+    for (const item of (file as KubbFile.ResolvedFile).exports) {
       const exportPath = item.path
       const hasExtname = !!/\.[^/.]+$/.exec(exportPath)
 

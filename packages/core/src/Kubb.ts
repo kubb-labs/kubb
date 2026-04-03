@@ -1,4 +1,4 @@
-import type { FabricFile } from '@kubb/fabric-core/types'
+import type * as KubbFile from './KubbFile.ts'
 import type { Strategy } from './PluginDriver.ts'
 import type { Config, Plugin, PluginLifecycleHooks } from './types'
 
@@ -76,7 +76,7 @@ export interface KubbEvents {
   /**
    * Emitted when code generation phase completes.
    */
-  'generation:end': [config: Config, files: Array<FabricFile.ResolvedFile>, sources: Map<FabricFile.Path, string>]
+  'generation:end': [config: Config, files: Array<KubbFile.ResolvedFile>, sources: Map<KubbFile.Path, string>]
   /**
    * Emitted with a summary of the generation results.
    * Contains summary lines, title, and success status.
@@ -160,7 +160,7 @@ export interface KubbEvents {
    * Emitted when file processing starts.
    * Contains the list of files to be processed.
    */
-  'files:processing:start': [files: Array<FabricFile.ResolvedFile>]
+  'files:processing:start': [files: Array<KubbFile.ResolvedFile>]
   /**
    * Emitted for each file being processed, providing progress updates.
    * Contains processed count, total count, percentage, and file details.
@@ -186,7 +186,7 @@ export interface KubbEvents {
       /**
        * The file being processed.
        */
-      file: FabricFile.ResolvedFile
+      file: KubbFile.ResolvedFile
       /**
        * Kubb configuration (not present in Fabric).
        * Provides access to the current config during file processing.
@@ -198,7 +198,7 @@ export interface KubbEvents {
    * Emitted when file processing completes.
    * Contains the list of processed files.
    */
-  'files:processing:end': [files: Array<FabricFile.ResolvedFile>]
+  'files:processing:end': [files: Array<KubbFile.ResolvedFile>]
 
   /**
    * Emitted when a plugin starts executing.

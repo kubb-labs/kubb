@@ -1,15 +1,14 @@
 import { dirname, relative, resolve } from 'node:path'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
-import { adapterOas } from '@kubb/adapter-oas'
 import { transform, walk } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
-import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
-import { typescriptParser } from '@kubb/parser-ts'
+import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import { createFabric } from '@kubb/react-fabric'
 import { fsPlugin } from '@kubb/react-fabric/plugins'
 import { isInputPath } from './config.ts'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import { defineParser } from './defineParser.ts'
+import type * as KubbFile from './KubbFile.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.tsx'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -32,7 +31,7 @@ type BuildOutput = {
    */
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
   fabric: FabricType
-  files: Array<FabricFile.ResolvedFile>
+  files: Array<KubbFile.ResolvedFile>
   driver: PluginDriver
   /**
    * Elapsed time in milliseconds for each plugin, keyed by plugin name.
@@ -42,7 +41,7 @@ type BuildOutput = {
   /**
    * Raw generated source, keyed by absolute file path.
    */
-  sources: Map<FabricFile.Path, string>
+  sources: Map<KubbFile.Path, string>
 }
 
 /**
@@ -52,7 +51,7 @@ type SetupResult = {
   events: AsyncEventEmitter<KubbEvents>
   fabric: FabricType
   driver: PluginDriver
-  sources: Map<FabricFile.Path, string>
+  sources: Map<KubbFile.Path, string>
 }
 
 /**
@@ -69,7 +68,7 @@ type SetupResult = {
 export async function setup(options: BuildOptions): Promise<SetupResult> {
   const { config: userConfig, events = new AsyncEventEmitter<KubbEvents>() } = options
 
-  const sources: Map<FabricFile.Path, string> = new Map<FabricFile.Path, string>()
+  const sources: Map<KubbFile.Path, string> = new Map<KubbFile.Path, string>()
   const diagnosticInfo = getDiagnosticInfo()
 
   if (Array.isArray(userConfig.input)) {
@@ -120,8 +119,6 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   const definedConfig: Config = {
     root: userConfig.root || process.cwd(),
     ...userConfig,
-    adapter: userConfig.adapter ?? adapterOas({}),
-    parsers: userConfig.parsers ?? [typescriptParser],
     output: {
       write: true,
       barrelType: 'named',
@@ -155,7 +152,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   const fabric = createFabric()
   fabric.use(fsPlugin)
 
-  for (const parser of definedConfig.parsers) {
+  for (const parser of definedConfig.parsers || []) {
     fabric.use(parser)
   }
   // Catch-all fallback: joins all source values for any unhandled extension
@@ -221,7 +218,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   // Run the adapter to produce the universal RootNode; defaults to adapterOas().
   // Array input is still under development — skip the adapter in that case.
-  if (!Array.isArray(definedConfig.input)) {
+  if (!Array.isArray(definedConfig.input) && definedConfig.adapter) {
     const adapter = definedConfig.adapter
     const source = inputToAdapterSource(definedConfig)
 
@@ -288,7 +285,7 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
  * - Each hook accepts a single handler **or an array** — all entries are called in sequence.
  * - Nodes that are excluded by `exclude`/`include` plugin options are skipped automatically.
  * - Return values are handled via `applyHookResult`: React elements are rendered,
- *   `FabricFile.File[]` are written via upsert, and `void` is a no-op (manual handling).
+ *   `KubbFile.File[]` are written via upsert, and `void` is a no-op (manual handling).
  * - Barrel files are generated automatically when `output.barrelType` is set.
  */
 async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promise<void> {
@@ -444,7 +441,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         existingBarrel?.exports?.flatMap((e) => (Array.isArray(e.name) ? e.name : [e.name])).filter((n): n is string => Boolean(n)) ?? [],
       )
 
-      const rootFile: FabricFile.File = {
+      const rootFile: KubbFile.File = {
         path: rootPath,
         baseName: BARREL_FILENAME,
         exports: buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }),
@@ -495,14 +492,14 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 }
 
 type BuildBarrelExportsParams = {
-  barrelFiles: FabricFile.ResolvedFile[]
+  barrelFiles: KubbFile.ResolvedFile[]
   rootDir: string
   existingExports: Set<string>
   config: Config
   driver: PluginDriver
 }
 
-function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }: BuildBarrelExportsParams): FabricFile.Export[] {
+function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }: BuildBarrelExportsParams): KubbFile.Export[] {
   const pluginNameMap = new Map<string, Plugin>()
   for (const plugin of driver.plugins.values()) {
     pluginNameMap.set(plugin.name, plugin)
@@ -534,7 +531,7 @@ function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, dri
           name: exportName,
           path: getRelativePath(rootDir, file.path),
           isTypeOnly: config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
-        } satisfies FabricFile.Export,
+        } satisfies KubbFile.Export,
       ]
     })
   })

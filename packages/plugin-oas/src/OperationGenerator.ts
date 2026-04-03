@@ -1,7 +1,7 @@
 import type { AsyncEventEmitter } from '@internals/utils'
 import { pascalCase } from '@internals/utils'
-import type { FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
-import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
+import type { FileMetaBase, KubbEvents, KubbFile, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
+import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
 import type { CoreGenerator } from './generators/createGenerator.ts'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
@@ -10,7 +10,7 @@ import type { Exclude, Include, OperationSchemas, Override } from './types.ts'
 import { withRequiredRequestBodySchema } from './utils/requestBody.ts'
 import { renderOperation, renderOperations } from './utils.tsx'
 
-export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<FabricFile.File<TFileMeta> | Array<FabricFile.File<TFileMeta>> | null>
+export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   fabric: FabricType
@@ -25,7 +25,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
    * Current plugin
    */
   plugin: Plugin<TPluginOptions>
-  mode: FabricFile.Mode
+  mode: KubbFile.Mode
   UNSTABLE_NAMING?: true
 }
 
@@ -205,7 +205,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
     )
   }
 
-  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<FabricFile.File<TFileMeta>>> {
+  async build(...generators: Array<Generator<TPluginOptions>>): Promise<Array<KubbFile.File<TFileMeta>>> {
     const operations = await this.getOperations()
 
     this.context.events?.emit('debug', {
@@ -213,7 +213,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
       logs: [`Building ${operations.length} operations`, `  • Generators: ${generators.length}`],
     })
 
-    const results: Array<FabricFile.File<TFileMeta>> = []
+    const results: Array<KubbFile.File<TFileMeta>> = []
 
     for (const generator of generators) {
       if (!('type' in generator)) {
@@ -223,7 +223,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
       // After the v2 guard above, all generators here are v1
       const v1Generator = generator as ReactGenerator<TPluginOptions> | CoreGenerator<TPluginOptions>
 
-      const opResultsFlat: Array<FabricFile.File<TFileMeta>> = []
+      const opResultsFlat: Array<KubbFile.File<TFileMeta>> = []
 
       for (const { operation, method } of operations) {
         const options = this.getOptions(operation, method)
@@ -256,7 +256,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
             },
           })
 
-          opResultsFlat.push(...([result ?? []].flat() as Array<FabricFile.File<TFileMeta>>))
+          opResultsFlat.push(...([result ?? []].flat() as Array<KubbFile.File<TFileMeta>>))
         }
       }
 
@@ -282,7 +282,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
         plugin: this.context.plugin,
       })
 
-      results.push(...opResultsFlat, ...((operationsResult ?? []) as unknown as Array<FabricFile.File<TFileMeta>>))
+      results.push(...opResultsFlat, ...((operationsResult ?? []) as unknown as Array<KubbFile.File<TFileMeta>>))
     }
 
     return results

@@ -1,4 +1,4 @@
-import type { FabricFile } from '@kubb/fabric-core/types'
+import type { KubbFile } from '@kubb/core'
 import type { SchemaObject } from '@kubb/oas'
 
 export type SchemaKeywordMapper = {
@@ -59,7 +59,7 @@ export type SchemaKeywordMapper = {
       /**
        * Full qualified path.
        */
-      path: FabricFile.Path
+      path: KubbFile.Path
       /**
        * When true `File.Import` is used.
        * When false a reference is used inside the current file.

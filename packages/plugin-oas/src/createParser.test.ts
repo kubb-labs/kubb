@@ -18,7 +18,7 @@ describe('createParser type narrowing', () => {
           // This means we can access current.args.name without type errors
 
           // TypeScript should know that current has this structure:
-          // { keyword: 'ref'; args: { name: string; $ref: string; path: FabricFile.Path; isImportable: boolean } }
+          // { keyword: 'ref'; args: { name: string; $ref: string; path: KubbFile.Path; isImportable: boolean } }
 
           const name = current.args.name
           expect(name).toBeDefined()

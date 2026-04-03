@@ -1,7 +1,7 @@
-import type { FabricFile } from '@kubb/fabric-core/types'
+import type * as KubbFile from './KubbFile.ts'
 
 type PrintOptions = {
-  extname?: FabricFile.Extname
+  extname?: KubbFile.Extname
 }
 
 export type Parser<TMeta extends object = any> = {
@@ -13,7 +13,7 @@ export type Parser<TMeta extends object = any> = {
    *
    * @example ['.ts', '.js']
    */
-  extNames: Array<FabricFile.Extname> | undefined
+  extNames: Array<KubbFile.Extname> | undefined
   /**
    * @deprecated Will be removed once Fabric no longer requires it.
    * @default () => {}
@@ -22,7 +22,7 @@ export type Parser<TMeta extends object = any> = {
   /**
    * Convert a resolved file to a string.
    */
-  parse(file: FabricFile.ResolvedFile<TMeta>, options?: PrintOptions): Promise<string> | string
+  parse(file: KubbFile.ResolvedFile<TMeta>, options?: PrintOptions): Promise<string> | string
 }
 
 export type UserParser<TMeta extends object = any> = Omit<Parser<TMeta>, 'type' | 'install'> & {

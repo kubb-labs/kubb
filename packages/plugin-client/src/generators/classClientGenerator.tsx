@@ -1,8 +1,8 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
 import type { OperationNode } from '@kubb/ast/types'
+import type { KubbFile } from '@kubb/core'
 import { defineGenerator } from '@kubb/core'
-import type { FabricFile } from '@kubb/fabric-core/types'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { pluginTsName } from '@kubb/plugin-ts'
 import type { PluginZod } from '@kubb/plugin-zod'
@@ -17,13 +17,13 @@ type OperationData = {
   name: string
   tsResolver: PluginTs['resolver']
   zodResolver: PluginZod['resolver'] | undefined
-  typeFile: FabricFile.File
-  zodFile: FabricFile.File | undefined
+  typeFile: KubbFile.File
+  zodFile: KubbFile.File | undefined
 }
 
 type Controller = {
   name: string
-  file: FabricFile.File
+  file: KubbFile.File
   operations: Array<OperationData>
 }
 
@@ -118,7 +118,7 @@ export const classClientGenerator = defineGenerator<PluginClient>({
 
     function collectTypeImports(ops: Array<OperationData>) {
       const typeImportsByFile = new Map<string, Set<string>>()
-      const typeFilesByPath = new Map<string, FabricFile.File>()
+      const typeFilesByPath = new Map<string, KubbFile.File>()
 
       ops.forEach((op) => {
         const names = resolveTypeImportNames(op.node, tsResolver)
@@ -137,7 +137,7 @@ export const classClientGenerator = defineGenerator<PluginClient>({
 
     function collectZodImports(ops: Array<OperationData>) {
       const zodImportsByFile = new Map<string, Set<string>>()
-      const zodFilesByPath = new Map<string, FabricFile.File>()
+      const zodFilesByPath = new Map<string, KubbFile.File>()
 
       ops.forEach((op) => {
         if (!op.zodFile || !zodResolver) return
@@ -158,7 +158,7 @@ export const classClientGenerator = defineGenerator<PluginClient>({
     const files = controllers.map(({ name, file, operations: ops }) => {
       const { typeImportsByFile, typeFilesByPath } = collectTypeImports(ops)
       const { zodImportsByFile, zodFilesByPath } =
-        parser === 'zod' ? collectZodImports(ops) : { zodImportsByFile: new Map<string, Set<string>>(), zodFilesByPath: new Map<string, FabricFile.File>() }
+        parser === 'zod' ? collectZodImports(ops) : { zodImportsByFile: new Map<string, Set<string>>(), zodFilesByPath: new Map<string, KubbFile.File>() }
       const hasFormData = ops.some((op) => op.node.requestBody?.contentType === 'multipart/form-data')
 
       return (
