@@ -1,8 +1,6 @@
-import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { walk } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
-import { createPlugin, type Group, getBarrelFiles, getPreset, runGeneratorOperation, runGeneratorOperations, runGeneratorSchema } from '@kubb/core'
+import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
+import { version } from '../package.json'
 import { presets } from './presets.ts'
 import type { PluginTs } from './types.ts'
 
@@ -56,11 +54,15 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     generators: userGenerators,
   })
 
+  const generators = preset.generators ?? []
+  const mergedGenerator = mergeGenerators(generators)
+
   let resolveNameWarning = false
   let resolvePathWarning = false
 
   return {
     name: pluginTsName,
+    version,
     get resolver() {
       return preset.resolver
     },
@@ -70,6 +72,9 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     get options() {
       return {
         output,
+        exclude,
+        include,
+        override,
         optionalType,
         group: group
           ? ({
@@ -93,65 +98,34 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     },
     resolvePath(baseName, pathMode, options) {
       if (!resolvePathWarning) {
-        this.events.emit('warn', 'Do not use resolvePath for pluginTs, use resolverTs.resolvePath instead')
+        this.warn('Do not use resolvePath for pluginTs, use resolverTs.resolvePath instead')
         resolvePathWarning = true
       }
 
       return this.plugin.resolver.resolvePath(
         { baseName, pathMode, tag: options?.group?.tag, path: options?.group?.path },
-        { root: path.resolve(this.config.root, this.config.output.path), output, group: this.plugin.options.group },
+        { root: this.root, output, group: this.plugin.options.group },
       )
     },
     resolveName(name, type) {
       if (!resolveNameWarning) {
-        this.events.emit('warn', 'Do not use resolveName for pluginTs, use resolverTs.default instead')
+        this.warn('Do not use resolveName for pluginTs, use resolverTs.default instead')
         resolveNameWarning = true
       }
 
       return this.plugin.resolver.default(name, type)
     },
-    async install() {
-      const { config, fabric, plugin, adapter, rootNode, driver, openInStudio, resolver } = this
-
-      const root = path.resolve(config.root, config.output.path)
-
-      if (!adapter) {
-        throw new Error(`[${pluginTsName}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`)
-      }
-
-      await openInStudio({ ast: true })
-
-      const collectedOperations: Array<OperationNode> = []
-      const generatorContext = { generators: preset.generators, plugin, resolver, exclude, include, override, fabric, adapter, config, driver }
-
-      await walk(rootNode, {
-        depth: 'shallow',
-        async schema(schemaNode) {
-          await runGeneratorSchema(schemaNode, generatorContext)
-        },
-        async operation(operationNode) {
-          const baseOptions = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
-
-          if (baseOptions !== null) {
-            collectedOperations.push(operationNode)
-          }
-
-          await runGeneratorOperation(operationNode, generatorContext)
-        },
-      })
-
-      await runGeneratorOperations(collectedOperations, generatorContext)
-
-      const barrelFiles = await getBarrelFiles(this.fabric.files, {
-        type: output.barrelType ?? 'named',
-        root,
-        output,
-        meta: {
-          pluginName: this.plugin.name,
-        },
-      })
-
-      await this.upsertFile(...barrelFiles)
+    async schema(node, options) {
+      return mergedGenerator.schema?.call(this, node, options)
+    },
+    async operation(node, options) {
+      return mergedGenerator.operation?.call(this, node, options)
+    },
+    async operations(nodes, options) {
+      return mergedGenerator.operations?.call(this, nodes, options)
+    },
+    async buildStart() {
+      await this.openInStudio({ ast: true })
     },
   }
 })

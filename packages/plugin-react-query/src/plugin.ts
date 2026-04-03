@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { createPlugin, getBarrelFiles, getMode, type UserGroup } from '@kubb/core'
+import { createPlugin, getBarrelFiles, type UserGroup } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
@@ -8,6 +8,7 @@ import { source as configSource } from '@kubb/plugin-client/templates/config.sou
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
+import { version } from '../package.json'
 import { MutationKey } from './components'
 import { QueryKey } from './components/QueryKey.tsx'
 import {
@@ -60,6 +61,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
 
   return {
     name: pluginReactQueryName,
+    version,
     options: {
       output,
       client: {
@@ -107,11 +109,14 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       parser,
       paramsCasing,
       group,
+      exclude,
+      include,
+      override,
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = pathMode ?? getMode(path.resolve(root, output.path))
+      const root = this.root
+      const mode = pathMode ?? this.getMode(output)
 
       if (mode === 'single') {
         /**
@@ -161,9 +166,9 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
 
       return resolvedName
     },
-    async install() {
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = getMode(path.resolve(root, output.path))
+    async buildStart() {
+      const root = this.root
+      const mode = this.getMode(output)
       const oas = await this.getOas()
       const baseURL = await this.getBaseURL()
 

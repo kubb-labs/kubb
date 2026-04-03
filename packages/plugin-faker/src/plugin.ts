@@ -1,8 +1,9 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createPlugin, getBarrelFiles, getMode, type UserGroup } from '@kubb/core'
+import { createPlugin, getBarrelFiles, type UserGroup } from '@kubb/core'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
+import { version } from '../package.json'
 import { fakerGenerator } from './generators/fakerGenerator.tsx'
 import type { PluginFaker } from './types.ts'
 
@@ -34,6 +35,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
 
   return {
     name: pluginFakerName,
+    version,
     options: {
       output,
       transformers,
@@ -45,6 +47,8 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
       dateParser,
       mapper,
       override,
+      exclude,
+      include,
       regexGenerator,
       paramsCasing,
       group,
@@ -52,8 +56,8 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
     },
     pre: [pluginOasName, pluginTsName],
     resolvePath(baseName, pathMode, options) {
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = pathMode ?? getMode(path.resolve(root, output.path))
+      const root = this.root
+      const mode = pathMode ?? this.getMode(output)
 
       if (mode === 'single') {
         /**
@@ -97,9 +101,9 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
 
       return resolvedName
     },
-    async install() {
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = getMode(path.resolve(root, output.path))
+    async buildStart() {
+      const root = this.root
+      const mode = this.getMode(output)
       const oas = await this.getOas()
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {

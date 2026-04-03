@@ -3,10 +3,9 @@ import { camelCase } from '@internals/utils'
 import { createOperation, createParameter, createProperty, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { Config, Group } from '@kubb/core'
-import { renderOperation, renderSchema } from '@kubb/core'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, expect, test } from 'vitest'
-import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation, renderGeneratorSchema } from '#mocks'
 import { resolverZod } from '../resolvers/resolverZod.ts'
 import type { PluginZod } from '../types.ts'
 import { zodGenerator } from './zodGenerator.tsx'
@@ -25,6 +24,9 @@ const defaultOptions: PluginZod['resolvedOptions'] = {
   wrapOutput: undefined,
   paramsCasing: undefined,
   output: { path: '.' },
+  exclude: [],
+  include: undefined,
+  override: [],
   group: undefined,
   printer: undefined,
 }
@@ -231,12 +233,11 @@ describe('zodGenerator — Schema', () => {
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
     const driver = createMockedPluginDriver({ name: props.name })
 
-    await renderSchema(props.node, {
+    await renderGeneratorSchema(zodGenerator, props.node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: zodGenerator.Schema,
       plugin,
       options,
       resolver: resolverZod,
@@ -459,12 +460,11 @@ describe('zodGenerator — Operation', () => {
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
     const driver = createMockedPluginDriver({ name: props.name })
 
-    await renderOperation(props.node, {
+    await renderGeneratorOperation(zodGenerator, props.node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: zodGenerator.Operation,
       plugin,
       options,
       resolver: resolverZod,
@@ -516,12 +516,11 @@ describe('zodGenerator — Operation — group', () => {
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
     const driver = createMockedPluginDriver({ name: 'listPets', config: testConfig })
 
-    await renderOperation(node, {
+    await renderGeneratorOperation(zodGenerator, node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: zodGenerator.Operation,
       plugin,
       options,
       resolver: resolverZod,
@@ -529,7 +528,7 @@ describe('zodGenerator — Operation — group', () => {
 
     const file = fabric.files.find((f) => f.baseName === expectedBaseName)
     expect(file).toBeDefined()
-    const root = path.resolve(testConfig.root, testConfig.output.path)
+    const root = path.resolve(testConfig.root, testConfig.output.path, options.output.path)
     const expectedPath = expectedDir ? path.resolve(root, expectedDir, expectedBaseName) : path.resolve(root, expectedBaseName)
     expect(file!.path).toBe(expectedPath)
   })
@@ -547,12 +546,11 @@ describe('zodGenerator — paramsCasing', () => {
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
     const driver = createMockedPluginDriver({ name: 'paramsCasing undefined' })
 
-    await renderOperation(operationWithSnakeCaseParams, {
+    await renderGeneratorOperation(zodGenerator, operationWithSnakeCaseParams, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: zodGenerator.Operation,
       plugin,
       options,
       resolver: resolverZod,
@@ -566,12 +564,11 @@ describe('zodGenerator — paramsCasing', () => {
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
     const driver = createMockedPluginDriver({ name: 'paramsCasing camelcase' })
 
-    await renderOperation(operationWithSnakeCaseParams, {
+    await renderGeneratorOperation(zodGenerator, operationWithSnakeCaseParams, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: zodGenerator.Operation,
       plugin,
       options,
       resolver: resolverZod,
@@ -600,12 +597,11 @@ describe('zodGenerator — transformers', () => {
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options: defaultOptions, resolver: resolverZod, transformer: removeOptionalProperties })
     const driver = createMockedPluginDriver({ name: 'transformers removeOptionalProperties' })
 
-    await renderSchema(objectSchema, {
+    await renderGeneratorSchema(zodGenerator, objectSchema, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: zodGenerator.Schema,
       plugin,
       options: defaultOptions,
       resolver: resolverZod,
@@ -635,12 +631,11 @@ describe('zodGenerator — transformers', () => {
       ],
     })
 
-    await renderSchema(schemaWithInteger, {
+    await renderGeneratorSchema(zodGenerator, schemaWithInteger, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: zodGenerator.Schema,
       plugin,
       options: defaultOptions,
       resolver: resolverZod,

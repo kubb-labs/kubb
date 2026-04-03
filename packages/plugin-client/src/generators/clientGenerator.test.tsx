@@ -2,12 +2,11 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import { renderOperation } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation } from '#mocks'
 import { resolverClient } from '../resolvers/resolverClient.ts'
 import type { PluginClient } from '../types.ts'
 import { clientGenerator } from './clientGenerator.tsx'
@@ -28,6 +27,9 @@ const defaultOptions: PluginClient['resolvedOptions'] = {
     path: '.',
     banner: '/* eslint-disable no-alert, no-console */',
   },
+  exclude: [],
+  include: undefined,
+  override: [],
   group: undefined,
   urlType: 'export',
   wrapper: undefined,
@@ -167,14 +169,13 @@ describe('clientGenerator operation', () => {
     const plugin = createMockedPlugin<PluginClient>({ name: 'plugin-client', options, resolver: resolverClient })
     const driver = createMockedPluginDriver({ name: props.name, plugin: mockedTsPlugin })
 
-    await renderOperation(props.node, {
+    await renderGeneratorOperation(clientGenerator, props.node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter({
         rootNode: { kind: 'Root', schemas: [], operations: [], meta: { baseURL: 'baseURL' in props ? props.baseURL : undefined } },
       }),
       driver,
-      Component: clientGenerator.Operation,
       plugin,
       options,
       resolver: resolverClient,

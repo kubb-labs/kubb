@@ -9,10 +9,11 @@ type PluginBuilder<T extends PluginFactoryOptions = PluginFactoryOptions> = (opt
  * Creates a plugin factory. Call the returned function with optional options to get the plugin instance.
  *
  * @example
+ * ```ts
  * export const myPlugin = createPlugin<MyPlugin>((options) => {
  *   return {
  *     name: 'my-plugin',
- *     options,
+ *     get options() { return options },
  *     resolvePath(baseName) { ... },
  *     resolveName(name, type) { ... },
  *   }
@@ -20,6 +21,7 @@ type PluginBuilder<T extends PluginFactoryOptions = PluginFactoryOptions> = (opt
  *
  * // instantiate
  * const plugin = myPlugin({ output: { path: 'src/gen' } })
+ * ```
  */
 export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptions>(
   build: PluginBuilder<T>,

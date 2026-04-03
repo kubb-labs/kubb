@@ -1,7 +1,6 @@
 import path from 'node:path'
-import { caseParams, transform } from '@kubb/ast'
+import { caseParams } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
-import type { PluginTs } from '@kubb/plugin-ts'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File } from '@kubb/react-fabric'
 import { McpHandler } from '../components/McpHandler.tsx'
@@ -9,44 +8,36 @@ import type { PluginMcp } from '../types.ts'
 
 export const mcpGenerator = defineGenerator<PluginMcp>({
   name: 'mcp',
-  type: 'react',
-  Operation({ node, options, config, driver, resolver, plugin }) {
+  operation(node, options) {
+    const { resolver, driver, root } = this
     const { output, client, paramsCasing, group } = options
-    const root = path.resolve(config.root, config.output.path)
 
-    const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
+    const pluginTs = driver.getPlugin(pluginTsName)
 
     if (!pluginTs?.resolver) {
       return null
     }
 
-    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-
-    const casedParams = caseParams(transformedNode.parameters, paramsCasing)
+    const casedParams = caseParams(node.parameters, paramsCasing)
 
     const pathParams = casedParams.filter((p) => p.in === 'path')
     const queryParams = casedParams.filter((p) => p.in === 'query')
     const headerParams = casedParams.filter((p) => p.in === 'header')
 
     const importedTypeNames = [
-      ...pathParams.map((p) => pluginTs.resolver.resolvePathParamsName(transformedNode, p)),
-      ...queryParams.map((p) => pluginTs.resolver.resolveQueryParamsName(transformedNode, p)),
-      ...headerParams.map((p) => pluginTs.resolver.resolveHeaderParamsName(transformedNode, p)),
-      transformedNode.requestBody?.schema ? pluginTs.resolver.resolveDataName(transformedNode) : undefined,
-      pluginTs.resolver.resolveResponseName(transformedNode),
-      ...transformedNode.responses
-        .filter((r) => Number(r.statusCode) >= 400)
-        .map((r) => pluginTs.resolver.resolveResponseStatusName(transformedNode, r.statusCode)),
+      ...pathParams.map((p) => pluginTs.resolver.resolvePathParamsName(node, p)),
+      ...queryParams.map((p) => pluginTs.resolver.resolveQueryParamsName(node, p)),
+      ...headerParams.map((p) => pluginTs.resolver.resolveHeaderParamsName(node, p)),
+      node.requestBody?.schema ? pluginTs.resolver.resolveDataName(node) : undefined,
+      pluginTs.resolver.resolveResponseName(node),
+      ...node.responses.filter((r) => Number(r.statusCode) >= 400).map((r) => pluginTs.resolver.resolveResponseStatusName(node, r.statusCode)),
     ].filter(Boolean)
 
     const meta = {
-      name: resolver.resolveName(transformedNode.operationId),
-      file: resolver.resolveFile(
-        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
-        { root, output, group },
-      ),
+      name: resolver.resolveName(node.operationId),
+      file: resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }),
       fileTs: pluginTs.resolver.resolveFile(
-        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+        { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
         {
           root,
           output: pluginTs.options?.output ?? output,
@@ -85,7 +76,7 @@ export const mcpGenerator = defineGenerator<PluginMcp>({
 
         <McpHandler
           name={meta.name}
-          node={transformedNode}
+          node={node}
           resolver={pluginTs.resolver}
           baseURL={client.baseURL}
           dataReturnType={client.dataReturnType || 'data'}

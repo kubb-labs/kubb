@@ -127,6 +127,9 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output
+  exclude: Array<Exclude>
+  include: Array<Include> | undefined
+  override: Array<Override<ResolvedOptions>>
   group: Group | undefined
   baseURL: Options['baseURL'] | undefined
   dataReturnType: NonNullable<Options['dataReturnType']>
@@ -137,3 +140,11 @@ type ResolvedOptions = {
 }
 
 export type PluginCypress = PluginFactoryOptions<'plugin-cypress', Options, ResolvedOptions, never, ResolvePathOptions, ResolverCypress>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-cypress': PluginCypress
+    }
+  }
+}

@@ -11,7 +11,7 @@ import type { KubbEvents, Plugin, UserConfig } from './types.ts'
 
 describe('build', () => {
   const pluginMocks = {
-    install: vi.fn(),
+    buildStart: vi.fn(),
     resolvePath: vi.fn(),
   } as const
 
@@ -27,8 +27,8 @@ describe('build', () => {
       name: 'plugin',
       options: undefined as any,
       context: undefined as never,
-      async install(...params) {
-        pluginMocks.install(...params)
+      async buildStart(...params) {
+        pluginMocks.buildStart(...params)
 
         await this.addFile(file)
       },
@@ -44,7 +44,7 @@ describe('build', () => {
       path: './src/gen',
       clean: true,
     },
-    plugins: [plugin({})] as Plugin[],
+    plugins: [plugin({})] as Array<Plugin>,
   }
 
   const configs = [
@@ -64,7 +64,7 @@ describe('build', () => {
             path: './src/gen',
             clean: true,
           },
-          plugins: [plugin({})] as Plugin[],
+          plugins: [plugin({})] as Array<Plugin>,
         },
       ]),
     },
@@ -79,7 +79,7 @@ describe('build', () => {
           path: './src/gen',
           clean: true,
         },
-        plugins: [plugin({})] as Plugin[],
+        plugins: [plugin({})] as Array<Plugin>,
       })),
     },
     {
@@ -94,7 +94,7 @@ describe('build', () => {
             path: './src/gen',
             clean: true,
           },
-          plugins: [plugin({})] as Plugin[],
+          plugins: [plugin({})] as Array<Plugin>,
         },
       ]),
     },
@@ -182,7 +182,7 @@ describe('build', () => {
       ]
     `)
 
-    expect(pluginMocks.install).toHaveBeenCalledTimes(1)
+    expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
   })
 
   it('should handle plugin installation errors', async () => {
@@ -191,7 +191,7 @@ describe('build', () => {
         name: 'errorPlugin',
         options: undefined as any,
         context: undefined as never,
-        async install() {
+        async buildStart() {
           throw new Error('Installation failed')
         },
       }
@@ -199,7 +199,7 @@ describe('build', () => {
 
     const errorConfig = {
       ...config,
-      plugins: [errorPlugin({})] as Plugin[],
+      plugins: [errorPlugin({})] as Array<Plugin>,
     }
 
     const { failedPlugins } = await safeBuild({
@@ -254,7 +254,7 @@ describe('build', () => {
         name: 'throwingPlugin',
         options: undefined as any,
         context: undefined as never,
-        async install() {
+        async buildStart() {
           throw new Error('Critical error')
         },
       }
@@ -262,7 +262,7 @@ describe('build', () => {
 
     const throwingConfig = {
       ...config,
-      plugins: [throwingPlugin({})] as Plugin[],
+      plugins: [throwingPlugin({})] as Array<Plugin>,
     }
 
     const result = await safeBuild({
@@ -324,7 +324,7 @@ describe('build', () => {
           name: 'excludedPlugin',
           options: { output: { barrelType: false } } as any,
           context: undefined as never,
-          async install() {
+          async buildStart() {
             await this.addFile(indexableFile)
           },
         }
@@ -338,7 +338,7 @@ describe('build', () => {
           barrelType: 'named' as const,
           write: false,
         },
-        plugins: [excludedPlugin({})] as Plugin[],
+        plugins: [excludedPlugin({})] as Array<Plugin>,
       }
 
       const { fabric } = await build({

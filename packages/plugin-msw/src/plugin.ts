@@ -1,9 +1,10 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createPlugin, getBarrelFiles, getMode, type UserGroup } from '@kubb/core'
+import { createPlugin, getBarrelFiles, type UserGroup } from '@kubb/core'
 import { pluginFakerName } from '@kubb/plugin-faker'
 import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
+import { version } from '../package.json'
 import { handlersGenerator, mswGenerator } from './generators'
 import type { PluginMsw } from './types.ts'
 
@@ -26,16 +27,20 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
 
   return {
     name: pluginMswName,
+    version,
     options: {
       output,
       parser,
       group,
       baseURL,
+      exclude,
+      include,
+      override,
     },
     pre: [pluginOasName, pluginTsName, parser === 'faker' ? pluginFakerName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = pathMode ?? getMode(path.resolve(root, output.path))
+      const mode = pathMode ?? this.getMode(output)
 
       if (mode === 'single') {
         /**
@@ -79,9 +84,9 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
 
       return resolvedName
     },
-    async install() {
+    async buildStart() {
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = getMode(path.resolve(root, output.path))
+      const mode = this.getMode(output)
       const oas = await this.getOas()
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {

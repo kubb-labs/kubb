@@ -111,6 +111,8 @@ export type Options = {
 type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
+  exclude: NonNullable<Options['exclude']>
+  include: Options['include']
   override: NonNullable<Options['override']>
   dateType: NonNullable<Options['dateType']>
   integerType: NonNullable<Options['integerType']>
@@ -124,3 +126,11 @@ type ResolvedOptions = {
   paramsCasing: Options['paramsCasing']
 }
 export type PluginFaker = PluginFactoryOptions<'plugin-faker', Options, ResolvedOptions, never, ResolvePathOptions>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-faker': PluginFaker
+    }
+  }
+}

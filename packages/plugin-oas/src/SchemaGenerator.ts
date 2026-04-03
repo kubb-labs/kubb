@@ -1360,7 +1360,7 @@ export class SchemaGenerator<
     const results: Array<FabricFile.File<TFileMeta>> = []
 
     for (const generator of generators) {
-      if (generator.version === '2') {
+      if (!('type' in generator)) {
         continue
       }
 
@@ -1389,7 +1389,7 @@ export class SchemaGenerator<
                 options: {
                   ...this.options,
                   ...options,
-                },
+                } as unknown as Plugin<TPluginOptions>['options'],
               },
             },
           )
@@ -1407,7 +1407,7 @@ export class SchemaGenerator<
               options: {
                 ...this.options,
                 ...options,
-              },
+              } as unknown as Plugin<TPluginOptions>['options'],
             },
           })
 

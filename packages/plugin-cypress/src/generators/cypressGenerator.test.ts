@@ -2,12 +2,11 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode, Visitor } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import { renderOperation } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation } from '#mocks'
 import { resolverCypress } from '../resolvers/resolverCypress.ts'
 import type { PluginCypress } from '../types.ts'
 import { cypressGenerator } from './cypressGenerator.tsx'
@@ -16,6 +15,9 @@ const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'te
 
 const defaultOptions: PluginCypress['resolvedOptions'] = {
   output: { path: '.' },
+  exclude: [],
+  include: undefined,
+  override: [],
   baseURL: undefined,
   group: undefined,
   dataReturnType: 'data',
@@ -101,12 +103,11 @@ describe('cypressGenerator — Operation', () => {
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options: defaultOptions, resolver: resolverCypress })
     const driver = createMockedPluginDriver({ name: props.name, plugin: mockedTsPlugin })
 
-    await renderOperation(props.node, {
+    await renderGeneratorOperation(cypressGenerator, props.node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: cypressGenerator.Operation,
       plugin,
       options: defaultOptions,
       resolver: resolverCypress,
@@ -137,12 +138,11 @@ describe('cypressGenerator — dataReturnType', () => {
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options, resolver: resolverCypress })
     const driver = createMockedPluginDriver({ name: 'dataReturnType data', plugin: mockedTsPlugin })
 
-    await renderOperation(node, {
+    await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: cypressGenerator.Operation,
       plugin,
       options,
       resolver: resolverCypress,
@@ -155,12 +155,11 @@ describe('cypressGenerator — dataReturnType', () => {
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options, resolver: resolverCypress })
     const driver = createMockedPluginDriver({ name: 'dataReturnType full', plugin: mockedTsPlugin })
 
-    await renderOperation(node, {
+    await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: cypressGenerator.Operation,
       plugin,
       options,
       resolver: resolverCypress,
@@ -194,12 +193,11 @@ describe('cypressGenerator — paramsType', () => {
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options, resolver: resolverCypress })
     const driver = createMockedPluginDriver({ name: 'paramsType inline', plugin: mockedTsPlugin })
 
-    await renderOperation(node, {
+    await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: cypressGenerator.Operation,
       plugin,
       options,
       resolver: resolverCypress,
@@ -212,12 +210,11 @@ describe('cypressGenerator — paramsType', () => {
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options, resolver: resolverCypress })
     const driver = createMockedPluginDriver({ name: 'paramsType object', plugin: mockedTsPlugin })
 
-    await renderOperation(node, {
+    await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: cypressGenerator.Operation,
       plugin,
       options,
       resolver: resolverCypress,
@@ -250,12 +247,11 @@ describe('cypressGenerator — pathParamsType', () => {
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options, resolver: resolverCypress })
     const driver = createMockedPluginDriver({ name: 'pathParamsType inline', plugin: mockedTsPlugin })
 
-    await renderOperation(node, {
+    await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: cypressGenerator.Operation,
       plugin,
       options,
       resolver: resolverCypress,
@@ -268,12 +264,11 @@ describe('cypressGenerator — pathParamsType', () => {
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options, resolver: resolverCypress })
     const driver = createMockedPluginDriver({ name: 'pathParamsType object', plugin: mockedTsPlugin })
 
-    await renderOperation(node, {
+    await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: cypressGenerator.Operation,
       plugin,
       options,
       resolver: resolverCypress,
@@ -303,12 +298,11 @@ describe('cypressGenerator — paramsCasing', () => {
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options, resolver: resolverCypress })
     const driver = createMockedPluginDriver({ name: 'paramsCasing camelcase', plugin: mockedTsPlugin })
 
-    await renderOperation(node, {
+    await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: cypressGenerator.Operation,
       plugin,
       options,
       resolver: resolverCypress,
@@ -321,12 +315,11 @@ describe('cypressGenerator — paramsCasing', () => {
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options, resolver: resolverCypress })
     const driver = createMockedPluginDriver({ name: 'paramsCasing undefined', plugin: mockedTsPlugin })
 
-    await renderOperation(node, {
+    await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: cypressGenerator.Operation,
       plugin,
       options,
       resolver: resolverCypress,
@@ -359,12 +352,11 @@ describe('cypressGenerator — paramsCasing headers', () => {
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options, resolver: resolverCypress })
     const driver = createMockedPluginDriver({ name: 'paramsCasing camelcase headers', plugin: mockedTsPlugin })
 
-    await renderOperation(nodeWithHeaders, {
+    await renderGeneratorOperation(cypressGenerator, nodeWithHeaders, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: cypressGenerator.Operation,
       plugin,
       options,
       resolver: resolverCypress,
@@ -394,12 +386,11 @@ describe('cypressGenerator — baseURL', () => {
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options, resolver: resolverCypress })
     const driver = createMockedPluginDriver({ name: 'baseURL static', plugin: mockedTsPlugin })
 
-    await renderOperation(node, {
+    await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: cypressGenerator.Operation,
       plugin,
       options,
       resolver: resolverCypress,
@@ -412,12 +403,11 @@ describe('cypressGenerator — baseURL', () => {
     const plugin = createMockedPlugin<PluginCypress>({ name: 'plugin-cypress', options, resolver: resolverCypress })
     const driver = createMockedPluginDriver({ name: 'baseURL template', plugin: mockedTsPlugin })
 
-    await renderOperation(node, {
+    await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: cypressGenerator.Operation,
       plugin,
       options,
       resolver: resolverCypress,
@@ -455,12 +445,11 @@ describe('cypressGenerator — transformers', () => {
       responses: [createResponse({ statusCode: '201', schema: createSchema({ type: 'object', properties: [] }), description: 'Null response' })],
     })
 
-    await renderOperation(node, {
+    await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: cypressGenerator.Operation,
       plugin,
       options: defaultOptions,
       resolver: resolverCypress,

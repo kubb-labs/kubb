@@ -148,6 +148,9 @@ describe('mutationGenerator operation', async () => {
       suspense: false,
       infinite: false,
       customOptions: undefined,
+      exclude: [],
+      include: undefined,
+      override: [],
       output: {
         path: '.',
       },
@@ -158,7 +161,7 @@ describe('mutationGenerator operation', async () => {
     const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
 
     if ('mockClientPlugin' in props && props.mockClientPlugin) {
-      mockedPluginDriver.getPlugin = (pluginName) => {
+      mockedPluginDriver.getPlugin = (pluginName: string) => {
         if (pluginName === 'plugin-client') {
           return { name: 'plugin-client' } as any
         }
@@ -215,6 +218,9 @@ describe('mutationGenerator operation', async () => {
       suspense: false,
       infinite: false,
       customOptions: undefined,
+      exclude: [],
+      include: undefined,
+      override: [],
       output: {
         path: '.',
       },

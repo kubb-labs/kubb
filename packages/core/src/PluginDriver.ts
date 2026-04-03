@@ -101,7 +101,13 @@ export class PluginDriver {
     this.config = config
     this.options = options
     config.plugins
-      .map((plugin) => Object.assign({ install() {} }, plugin) as unknown as Plugin)
+      .map((plugin) => Object.assign({ buildStart() {}, buildEnd() {} }, plugin) as unknown as Plugin)
+      .filter((plugin) => {
+        if (typeof plugin.apply === 'function') {
+          return plugin.apply(config)
+        }
+        return true
+      })
       .sort((a, b) => {
         if (b.pre?.includes(a.name)) return 1
         if (b.post?.includes(a.name)) return -1
@@ -122,9 +128,16 @@ export class PluginDriver {
     const baseContext = {
       fabric: driver.options.fabric,
       config: driver.config,
+      get root(): string {
+        return resolve(driver.config.root, driver.config.output.path)
+      },
+      getMode(output: { path: string }): FabricFile.Mode {
+        return getMode(resolve(driver.config.root, driver.config.output.path, output.path))
+      },
+      events: driver.options.events,
       plugin,
       getPlugin: driver.getPlugin.bind(driver),
-      events: driver.options.events,
+      requirePlugin: driver.requirePlugin.bind(driver),
       driver: driver,
       addFile: async (...files: Array<FabricFile.File>) => {
         await this.options.fabric.addFile(...files)
@@ -143,6 +156,15 @@ export class PluginDriver {
       },
       get transformer() {
         return plugin.transformer
+      },
+      warn(message: string) {
+        driver.events.emit('warn', message)
+      },
+      error(error: string | Error) {
+        driver.events.emit('error', typeof error === 'string' ? new Error(error) : error)
+      },
+      info(message: string) {
+        driver.events.emit('info', message)
       },
       openInStudio(options?: DevtoolsOptions) {
         if (!driver.config.devtools || driver.#studioIsOpen) {
@@ -167,12 +189,9 @@ export class PluginDriver {
 
     const mergedExtras: Record<string, unknown> = {}
 
-    for (const plugin of this.plugins.values()) {
-      if (typeof plugin.inject === 'function') {
-        const result = (plugin.inject as (this: PluginContext, context: PluginContext) => unknown).call(
-          baseContext as unknown as PluginContext,
-          baseContext as unknown as PluginContext,
-        )
+    for (const p of this.plugins.values()) {
+      if (typeof p.inject === 'function') {
+        const result = (p.inject as (this: PluginContext) => unknown).call(baseContext as unknown as PluginContext)
         if (result !== null && typeof result === 'object') {
           Object.assign(mergedExtras, result)
         }
@@ -482,8 +501,23 @@ export class PluginDriver {
     this.events.emit('plugins:hook:progress:end', { hookName })
   }
 
-  getPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): Plugin<TOptions> | undefined {
-    return this.plugins.get(pluginName) as Plugin<TOptions> | undefined
+  getPlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
+  getPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): Plugin<TOptions> | undefined
+  getPlugin(pluginName: string): Plugin | undefined {
+    return this.plugins.get(pluginName) as Plugin | undefined
+  }
+
+  /**
+   * Like `getPlugin` but throws a descriptive error when the plugin is not found.
+   */
+  requirePlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]>
+  requirePlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): Plugin<TOptions>
+  requirePlugin(pluginName: string): Plugin {
+    const plugin = this.plugins.get(pluginName)
+    if (!plugin) {
+      throw new Error(`[kubb] Plugin "${pluginName}" is required but not found. Make sure it is included in your Kubb config.`)
+    }
+    return plugin
   }
 
   /**

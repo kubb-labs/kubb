@@ -205,6 +205,9 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output
+  exclude: Array<Exclude>
+  include: Array<Include> | undefined
+  override: Array<Override<ResolvedOptions>>
   group: Group | undefined
   client: Options['client']
   clientType: NonNullable<Options['clientType']>
@@ -222,3 +225,11 @@ type ResolvedOptions = {
 }
 
 export type PluginClient = PluginFactoryOptions<'plugin-client', Options, ResolvedOptions, never, ResolvePathOptions, ResolverClient>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-client': PluginClient
+    }
+  }
+}

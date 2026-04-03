@@ -87,6 +87,9 @@ describe('suspenseQueryGenerator operation', async () => {
       },
       infinite: false,
       customOptions: undefined,
+      exclude: [],
+      include: undefined,
+      override: [],
       output: {
         path: '.',
       },

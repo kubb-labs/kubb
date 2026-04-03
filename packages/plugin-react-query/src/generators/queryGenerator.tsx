@@ -19,6 +19,7 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
       options: { output },
     } = plugin
     const driver = useDriver()
+    const root = path.resolve(config.root, config.output.path)
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)
@@ -101,25 +102,21 @@ export const queryGenerator = createReactGenerator<PluginReactQuery>({
           </>
         ) : (
           <>
-            {!shouldUseClientPlugin && (
-              <File.Import name={['fetch']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
-            )}
+            {!shouldUseClientPlugin && <File.Import name={['fetch']} root={query.file.path} path={path.resolve(root, '.kubb/fetch.ts')} />}
             <File.Import
               name={['Client', 'RequestConfig', 'ResponseErrorConfig']}
               root={query.file.path}
-              path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
+              path={path.resolve(root, '.kubb/fetch.ts')}
               isTypeOnly
             />
             {options.client.dataReturnType === 'full' && (
-              <File.Import name={['ResponseConfig']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} isTypeOnly />
+              <File.Import name={['ResponseConfig']} root={query.file.path} path={path.resolve(root, '.kubb/fetch.ts')} isTypeOnly />
             )}
           </>
         )}
 
         {shouldUseClientPlugin && <File.Import name={[client.name]} root={query.file.path} path={client.file.path} />}
-        {!shouldUseClientPlugin && (
-          <File.Import name={['buildFormData']} root={query.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
-        )}
+        {!shouldUseClientPlugin && <File.Import name={['buildFormData']} root={query.file.path} path={path.resolve(root, '.kubb/config.ts')} />}
         {options.customOptions && <File.Import name={[options.customOptions.name]} path={options.customOptions.importPath} />}
         <File.Import
           name={[

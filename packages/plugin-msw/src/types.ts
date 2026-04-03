@@ -58,8 +58,19 @@ export type Options = {
 type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
+  exclude: NonNullable<Options['exclude']>
+  include: Options['include']
+  override: NonNullable<Options['override']>
   parser: NonNullable<Options['parser']>
   baseURL: Options['baseURL'] | undefined
 }
 
 export type PluginMsw = PluginFactoryOptions<'plugin-msw', Options, ResolvedOptions, never, ResolvePathOptions>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-msw': PluginMsw
+    }
+  }
+}

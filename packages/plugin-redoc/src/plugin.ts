@@ -2,6 +2,7 @@ import path from 'node:path'
 import type { AdapterOas } from '@kubb/adapter-oas'
 import { adapterOasName } from '@kubb/adapter-oas'
 import { type Adapter, createPlugin } from '@kubb/core'
+import { version } from '../package.json'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
 
@@ -16,11 +17,14 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
 
   return {
     name: pluginRedocName,
+    version,
     options: {
       output,
       name: trimExtName(output.path),
+      exclude: [],
+      override: [],
     },
-    async install() {
+    async buildStart() {
       const adapter = this.adapter
 
       if (adapter?.name !== adapterOasName) {
@@ -37,7 +41,7 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
         )
       }
 
-      const root = path.resolve(this.config.root, this.config.output.path)
+      const root = this.root
       const pageHTML = await getPageHTML(document)
 
       await this.addFile({

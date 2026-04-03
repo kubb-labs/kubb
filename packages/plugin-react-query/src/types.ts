@@ -185,6 +185,9 @@ export type Options = {
 type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
+  exclude: NonNullable<Options['exclude']>
+  include: Options['include']
+  override: NonNullable<Options['override']>
   client: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle' | 'paramsCasing'>
   parser: Required<NonNullable<Options['parser']>>
   pathParamsType: NonNullable<Options['pathParamsType']>
@@ -203,3 +206,11 @@ type ResolvedOptions = {
 }
 
 export type PluginReactQuery = PluginFactoryOptions<'plugin-react-query', Options, ResolvedOptions, never, ResolvePathOptions>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-react-query': PluginReactQuery
+    }
+  }
+}

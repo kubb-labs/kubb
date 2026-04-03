@@ -16,6 +16,9 @@ type Context = {
 declare global {
   namespace Kubb {
     interface PluginContext extends Context {}
+    interface PluginRegistry {
+      'plugin-oas': PluginOas
+    }
   }
 }
 
@@ -230,6 +233,9 @@ export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | By
 
 type ResolvedOptions = Options & {
   output: Output<Oas>
+  exclude: Array<Exclude>
+  include?: Array<Include>
+  override: Array<Override<ResolvedOptions>>
 }
 
 export type PluginOas = PluginFactoryOptions<'plugin-oas', Options, ResolvedOptions, Context, ResolvePathOptions>

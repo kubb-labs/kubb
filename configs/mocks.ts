@@ -1,14 +1,28 @@
-import path from 'node:path'
+import path, { resolve } from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import { createFile, FileProcessor } from '@kubb/react-fabric'
+import { createFile, type createReactFabric, FileProcessor } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
+import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import type { Options } from 'prettier'
 import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
 import { expect } from 'vitest'
 import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
-import type { RootNode, SchemaNode, Visitor } from '../packages/ast/src/types.ts'
-import type { Adapter, AdapterFactoryOptions, Plugin, PluginDriver, PluginFactoryOptions, ResolveNameParams, ResolvePathParams } from '../packages/core/src'
+import { transform } from '../packages/ast/src/index.ts'
+import type { OperationNode, SchemaNode, Visitor } from '../packages/ast/src/types.ts'
+import type {
+  Adapter,
+  AdapterFactoryOptions,
+  Generator,
+  GeneratorContext,
+  Plugin,
+  PluginDriver,
+  PluginFactoryOptions,
+  ResolveNameParams,
+  ResolvePathParams,
+} from '../packages/core/src'
+import { getMode } from '../packages/core/src'
+import { applyHookResult } from '../packages/core/src/renderNode'
 
 const formatOptions: Options = {
   tabWidth: 2,
@@ -94,16 +108,15 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
   options: {
     name?: TOptions['name']
     resolvedOptions?: TOptions['resolvedOptions']
+    rootNode?: Adapter<TOptions>['rootNode']
     parse?: Adapter<TOptions>['parse']
     getImports?: Adapter<TOptions>['getImports']
-    rootNode?: RootNode
   } = {},
 ): Adapter<TOptions> {
   return {
     name: (options.name ?? 'oas') as TOptions['name'],
     options: (options.resolvedOptions ?? {}) as TOptions['resolvedOptions'],
     rootNode: options.rootNode ?? null,
-    document: null,
     parse: options.parse ?? (async () => ({ kind: 'Root' as const, schemas: [], operations: [] })),
     getImports: options.getImports ?? ((_node: SchemaNode, _resolve: (schemaName: string) => { name: string; path: string }) => []),
   } as Adapter<TOptions>
@@ -163,4 +176,99 @@ export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.F
   }
 
   return processed
+}
+
+type RenderGeneratorOptions<TOptions extends PluginFactoryOptions> = {
+  config: PluginDriver['config']
+  fabric: FabricType
+  adapter: Adapter
+  driver: PluginDriver
+  plugin: Plugin<TOptions>
+  options: TOptions['resolvedOptions']
+  resolver: TOptions['resolver']
+}
+
+function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: RenderGeneratorOptions<TOptions>): GeneratorContext<TOptions> {
+  const fabric = opts.fabric as ReturnType<typeof createReactFabric>
+  const root = resolve(opts.config.root, opts.config.output.path)
+
+  return {
+    config: opts.config,
+    root,
+    getMode: (output: { path: string }) => getMode(resolve(root, output.path)),
+    adapter: opts.adapter,
+    resolver: opts.resolver,
+    plugin: opts.plugin,
+    driver: opts.driver,
+    rootNode: { kind: 'Root', schemas: [], operations: [] },
+    fabric,
+    upsertFile: (...files: Parameters<FabricType['upsertFile']>) => fabric.upsertFile(...files),
+    warn: (msg: string) => console.warn(msg),
+    error: (msg: string) => console.error(msg),
+    info: (msg: string) => console.info(msg),
+    openInStudio: async () => {},
+  } as unknown as GeneratorContext<TOptions>
+}
+
+/**
+ * Renders a generator's `schema` method in a test context.
+ *
+ * Replaces the old `renderSchema(node, { ..., Component: generator.Schema })` API.
+ *
+ * @example
+ * await renderGeneratorSchema(typeGenerator, node, { config, fabric, adapter, driver, plugin, options, resolver })
+ * await matchFiles(fabric.files)
+ */
+export async function renderGeneratorSchema<TOptions extends PluginFactoryOptions>(
+  generator: Generator<TOptions>,
+  node: SchemaNode,
+  opts: RenderGeneratorOptions<TOptions>,
+): Promise<void> {
+  if (!generator.schema) return
+  const context = createMockedPluginContext(opts)
+  const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
+  const result = await generator.schema.call(context, transformedNode, opts.options)
+  await applyHookResult(result, opts.fabric)
+}
+
+/**
+ * Renders a generator's `operation` method in a test context.
+ *
+ * Replaces the old `renderOperation(node, { ..., Component: generator.Operation })` API.
+ *
+ * @example
+ * await renderGeneratorOperation(typeGenerator, node, { config, fabric, adapter, driver, plugin, options, resolver })
+ * await matchFiles(fabric.files)
+ */
+export async function renderGeneratorOperation<TOptions extends PluginFactoryOptions>(
+  generator: Generator<TOptions>,
+  node: OperationNode,
+  opts: RenderGeneratorOptions<TOptions>,
+): Promise<void> {
+  if (!generator.operation) return
+  const context = createMockedPluginContext(opts)
+  const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
+  const result = await generator.operation.call(context, transformedNode, opts.options)
+  await applyHookResult(result, opts.fabric)
+}
+
+/**
+ * Renders a generator's `operations` method in a test context.
+ *
+ * Replaces the old `renderOperations(nodes, { ..., Component: generator.Operations })` API.
+ *
+ * @example
+ * await renderGeneratorOperations(classClientGenerator, nodes, { config, fabric, adapter, driver, plugin, options, resolver })
+ * await matchFiles(fabric.files)
+ */
+export async function renderGeneratorOperations<TOptions extends PluginFactoryOptions>(
+  generator: Generator<TOptions>,
+  nodes: Array<OperationNode>,
+  opts: RenderGeneratorOptions<TOptions>,
+): Promise<void> {
+  if (!generator.operations) return
+  const context = createMockedPluginContext(opts)
+  const transformedNodes = opts.plugin.transformer ? nodes.map((n) => transform(n, opts.plugin.transformer!)) : nodes
+  const result = await generator.operations.call(context, transformedNodes, opts.options)
+  await applyHookResult(result, opts.fabric)
 }

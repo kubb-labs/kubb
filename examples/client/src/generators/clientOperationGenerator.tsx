@@ -5,8 +5,8 @@ const toURL = (path: string) => path.replaceAll('{', ':').replaceAll('}', '')
 
 export const clientOperationGenerator = defineGenerator<PluginClient>({
   name: 'client-operation',
-  type: 'core',
-  async operation({ node, resolver, config }) {
+  async operation(node) {
+    const { resolver, config } = this
     const file = resolver.resolveFile(
       { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
       { root: config.root, output: { path: config.output.path } },

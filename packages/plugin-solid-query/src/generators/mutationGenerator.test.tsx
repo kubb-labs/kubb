@@ -114,6 +114,9 @@ describe('mutationGenerator operation', async () => {
         path: '.',
       },
       group: undefined,
+      exclude: [],
+      include: undefined,
+      override: [],
       ...props.options,
     }
     const plugin = createMockedPlugin<PluginSolidQuery>({ name: 'plugin-solid-query', options })

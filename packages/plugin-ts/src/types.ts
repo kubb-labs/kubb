@@ -276,7 +276,7 @@ export type Options = {
    */
   transformer?: Visitor
   /**
-   * Override individual printer node handlers to customise rendering of specific schema types.
+   * Override individual printer node handlers to customize rendering of specific schema types.
    *
    * Each key is a `SchemaType` (e.g. `'date'`, `'string'`). The function replaces the
    * built-in handler for that type. Use `this.transform` to recurse into nested schema nodes.
@@ -302,6 +302,9 @@ export type Options = {
 
 type ResolvedOptions = {
   output: Output
+  exclude: Array<Exclude>
+  include: Array<Include> | undefined
+  override: Array<Override<ResolvedOptions>>
   group: Group | undefined
   enumType: NonNullable<Options['enumType']>
   enumTypeSuffix: NonNullable<Options['enumTypeSuffix']>
@@ -314,3 +317,11 @@ type ResolvedOptions = {
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-ts': PluginTs
+    }
+  }
+}

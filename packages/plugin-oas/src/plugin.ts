@@ -1,9 +1,10 @@
 import path from 'node:path'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { camelCase } from '@internals/utils'
-import { type Config, createPlugin, getMode, type KubbEvents, type UserGroup } from '@kubb/core'
+import { type Config, createPlugin, type KubbEvents, type UserGroup } from '@kubb/core'
 import type { Oas } from '@kubb/oas'
 import { parseFromConfig, resolveServerUrl } from '@kubb/oas'
+import { version } from '../package.json'
 import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
@@ -60,11 +61,14 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
 
   return {
     name: pluginOasName,
+    version,
     options: {
       output,
       validate,
       discriminator,
       ...options,
+      exclude: [],
+      override: [],
     },
     inject() {
       const config = this.config
@@ -99,8 +103,8 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       }
     },
     resolvePath(baseName, pathMode, options) {
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = pathMode ?? getMode(path.resolve(root, output.path))
+      const root = this.root
+      const mode = pathMode ?? this.getMode(output)
 
       if (mode === 'single') {
         /**
@@ -132,7 +136,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
 
       return path.resolve(root, output.path, baseName)
     },
-    async install() {
+    async buildStart() {
       const oas = await this.getOas({ validate })
 
       if (!output || generators.length === 0) {

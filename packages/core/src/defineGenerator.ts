@@ -1,159 +1,126 @@
+import type { PossiblePromise } from '@internals/utils'
 import type { OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { FabricFile } from '@kubb/fabric-core/types'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
-import type { PluginDriver } from './PluginDriver.ts'
-import type { Adapter, Config, Plugin, PluginFactoryOptions } from './types.ts'
+import { applyHookResult } from './renderNode.tsx'
+import type { GeneratorContext, PluginFactoryOptions } from './types.ts'
 
-export type Version = '1' | '2'
-
-/**
- * Props for the `operations` lifecycle — receives all operation nodes at once.
- */
-export type OperationsV2Props<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
-  config: Config
-  plugin: Plugin<TPlugin>
-  adapter: Adapter
-  driver: PluginDriver
-  options: Plugin<TPlugin>['options']
-  resolver: TPlugin['resolver']
-  nodes: Array<OperationNode>
-}
+export type { GeneratorContext } from './types.ts'
 
 /**
- * Props for the `operation` lifecycle — receives a single operation node.
- */
-export type OperationV2Props<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
-  config: Config
-  adapter: Adapter
-  driver: PluginDriver
-  plugin: Plugin<TPlugin>
-  options: Plugin<TPlugin>['options']
-  resolver: TPlugin['resolver']
-  node: OperationNode
-}
-
-/**
- * Props for the `schema` lifecycle — receives a single schema node.
- */
-export type SchemaV2Props<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
-  config: Config
-  adapter: Adapter
-  driver: PluginDriver
-  plugin: Plugin<TPlugin>
-  options: Plugin<TPlugin>['options']
-  resolver: TPlugin['resolver']
-  node: SchemaNode
-}
-
-/**
- * Input shape for a core v2 async generator — lifecycle methods are optional.
- */
-type UserCoreGeneratorV2<TPlugin extends PluginFactoryOptions> = {
-  name: string
-  type: 'core'
-  version?: '2'
-  operations?(props: OperationsV2Props<TPlugin>): Promise<Array<FabricFile.File>>
-  operation?(props: OperationV2Props<TPlugin>): Promise<Array<FabricFile.File>>
-  schema?(props: SchemaV2Props<TPlugin>): Promise<Array<FabricFile.File>>
-}
-
-/**
- * Input shape for a React v2 generator — component methods are optional.
- */
-type UserReactGeneratorV2<TPlugin extends PluginFactoryOptions> = {
-  name: string
-  type: 'react'
-  version?: '2'
-  Operations?(props: OperationsV2Props<TPlugin>): FabricReactNode
-  Operation?(props: OperationV2Props<TPlugin>): FabricReactNode
-  Schema?(props: SchemaV2Props<TPlugin>): FabricReactNode
-}
-
-/**
- * A fully resolved core v2 generator with `version: '2'` and guaranteed async lifecycle methods.
- */
-export type CoreGeneratorV2<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
-  name: string
-  type: 'core'
-  version: '2'
-  operations(props: OperationsV2Props<TPlugin>): Promise<Array<FabricFile.File>>
-  operation(props: OperationV2Props<TPlugin>): Promise<Array<FabricFile.File>>
-  schema(props: SchemaV2Props<TPlugin>): Promise<Array<FabricFile.File>>
-}
-
-/**
- * A fully resolved React v2 generator with `version: '2'` and guaranteed component methods.
- */
-export type ReactGeneratorV2<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = {
-  name: string
-  type: 'react'
-  version: '2'
-  Operations(props: OperationsV2Props<TPlugin>): FabricReactNode
-  Operation(props: OperationV2Props<TPlugin>): FabricReactNode
-  Schema(props: SchemaV2Props<TPlugin>): FabricReactNode
-}
-
-/**
- * Union of all v2 generator shapes accepted by the plugin system.
- */
-export type Generator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions> = UserCoreGeneratorV2<TPlugin> | UserReactGeneratorV2<TPlugin>
-
-/**
- * Defines a generator with no-op defaults for any omitted lifecycle methods.
- * Works for both `core` (async file output) and `react` (JSX component) generators.
+ * A generator is a named object with optional `schema`, `operation`, and `operations`
+ * methods. Each method is called with `this = PluginContext` of the parent plugin,
+ * giving full access to `this.config`, `this.resolver`, `this.adapter`, `this.fabric`,
+ * `this.driver`, etc.
+ *
+ * Return a React element, an array of `FabricFile.File`, or `void` to handle file
+ * writing manually via `this.upsertFile`. Both React and core (non-React) generators
+ * use the same method signatures — the return type determines how output is handled.
  *
  * @example
- * // react generator
+ * ```ts
  * export const typeGenerator = defineGenerator<PluginTs>({
  *   name: 'typescript',
- *   type: 'react',
- *   Operation({ node, options }) { return <File>...</File> },
- *   Schema({ node, options }) { return <File>...</File> },
+ *   schema(node, options) {
+ *     const { adapter, resolver, root } = this
+ *     return <File ...><Type node={node} resolver={resolver} /></File>
+ *   },
+ *   operation(node, options) {
+ *     return <File ...><OperationType node={node} /></File>
+ *   },
  * })
+ * ```
+ */
+export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+  /** Used in diagnostic messages and debug output. */
+  name: string
+  /**
+   * Called for each schema node in the AST walk.
+   * `this` is the parent plugin's context with `adapter` and `rootNode` guaranteed present.
+   * `options` contains the per-node resolved options (after exclude/include/override).
+   */
+  schema?: (
+    this: GeneratorContext<TOptions>,
+    node: SchemaNode,
+    options: TOptions['resolvedOptions'],
+  ) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
+  /**
+   * Called for each operation node in the AST walk.
+   * `this` is the parent plugin's context with `adapter` and `rootNode` guaranteed present.
+   */
+  operation?: (
+    this: GeneratorContext<TOptions>,
+    node: OperationNode,
+    options: TOptions['resolvedOptions'],
+  ) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
+  /**
+   * Called once after all operations have been walked.
+   * `this` is the parent plugin's context with `adapter` and `rootNode` guaranteed present.
+   */
+  operations?: (
+    this: GeneratorContext<TOptions>,
+    nodes: Array<OperationNode>,
+    options: TOptions['resolvedOptions'],
+  ) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
+}
+
+/**
+ * Defines a generator. Returns the object as-is with correct `this` typings.
+ * No type discrimination (`type: 'react' | 'core'`) needed — `applyHookResult`
+ * handles React elements and `File[]` uniformly.
+ */
+export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(generator: Generator<TOptions>): Generator<TOptions> {
+  return generator
+}
+
+/**
+ * Merges an array of generators into a single generator.
+ *
+ * The merged generator's `schema`, `operation`, and `operations` methods run
+ * the corresponding method from each input generator in sequence, applying each
+ * result via `applyHookResult`. This eliminates the need to write the loop
+ * manually in each plugin.
+ *
+ * @param generators - Array of generators to merge into a single generator.
  *
  * @example
- * // core generator
- * export const myGenerator = defineGenerator<MyPlugin>({
- *   name: 'my-generator',
- *   type: 'core',
- *   async operation({ node, options }) { return [{ path: '...', content: '...' }] },
- * })
+ * ```ts
+ * const merged = mergeGenerators(generators)
+ *
+ * return {
+ *   name: pluginName,
+ *   schema: merged.schema,
+ *   operation: merged.operation,
+ *   operations: merged.operations,
+ * }
+ * ```
  */
-export function defineGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
-  generator: UserReactGeneratorV2<TPlugin>,
-): ReactGeneratorV2<TPlugin>
-
-export function defineGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(generator: UserCoreGeneratorV2<TPlugin>): CoreGeneratorV2<TPlugin>
-export function defineGenerator<TPlugin extends PluginFactoryOptions = PluginFactoryOptions>(
-  generator: UserCoreGeneratorV2<TPlugin> | UserReactGeneratorV2<TPlugin>,
-): unknown {
-  if (generator.type === 'react') {
-    return {
-      version: '2',
-      Operations() {
-        return null
-      },
-      Operation() {
-        return null
-      },
-      Schema() {
-        return null
-      },
-      ...generator,
-    }
-  }
-
+export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(generators: Array<Generator<TOptions>>): Generator<TOptions> {
   return {
-    version: '2',
-    async operations() {
-      return []
+    name: generators.length > 0 ? generators.map((g) => g.name).join('+') : 'merged',
+    async schema(node, options) {
+      for (const gen of generators) {
+        if (!gen.schema) continue
+        const result = await gen.schema.call(this, node, options)
+
+        await applyHookResult(result, this.fabric)
+      }
     },
-    async operation() {
-      return []
+    async operation(node, options) {
+      for (const gen of generators) {
+        if (!gen.operation) continue
+        const result = await gen.operation.call(this, node, options)
+
+        await applyHookResult(result, this.fabric)
+      }
     },
-    async schema() {
-      return []
+    async operations(nodes, options) {
+      for (const gen of generators) {
+        if (!gen.operations) continue
+        const result = await gen.operations.call(this, nodes, options)
+
+        await applyHookResult(result, this.fabric)
+      }
     },
-    ...generator,
   }
 }

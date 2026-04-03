@@ -126,6 +126,9 @@ export type Options = {
 type ResolvedOptions = {
   output: Output<Oas>
   group: Options['group']
+  exclude: NonNullable<Options['exclude']>
+  include: Options['include']
+  override: NonNullable<Options['override']>
   client: Pick<PluginClient['options'], 'client' | 'clientType' | 'dataReturnType' | 'importPath' | 'baseURL' | 'bundle' | 'paramsCasing'>
   parser: Required<NonNullable<Options['parser']>>
   paramsCasing: Options['paramsCasing']
@@ -138,3 +141,11 @@ type ResolvedOptions = {
 }
 
 export type PluginSolidQuery = PluginFactoryOptions<'plugin-solid-query', Options, ResolvedOptions, never, ResolvePathOptions>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-solid-query': PluginSolidQuery
+    }
+  }
+}

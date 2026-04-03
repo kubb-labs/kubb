@@ -138,6 +138,9 @@ describe('infiniteQueryGenerator operation', async () => {
       },
       suspense: false,
       customOptions: undefined,
+      exclude: [],
+      include: undefined,
+      override: [],
       output: {
         path: '.',
       },

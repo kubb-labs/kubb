@@ -5,7 +5,7 @@ packages:
   - tests/**
 
 catalog:
-  "@types/node": ^22.19.15
+  "@types/node": ^22.19.16
   "@kubb/fabric-core": 0.15.1
   "@kubb/react-fabric": 0.15.1
   "@size-limit/file": ^11.2.0
