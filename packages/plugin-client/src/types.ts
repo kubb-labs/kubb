@@ -1,10 +1,12 @@
 import type { Visitor } from '@kubb/ast/types'
 import type {
   CompatibilityPreset,
+  Exclude,
   Generator,
   Group,
+  Include,
   Output,
-  PluginBaseOptions,
+  Override,
   PluginFactoryOptions,
   ResolvePathOptions,
   Resolver,
@@ -96,11 +98,28 @@ type ParamsTypeOptions =
       pathParamsType?: 'object' | 'inline'
     }
 
-export type Options = PluginBaseOptions<ResolvedOptions> & {
+export type Options = {
+  /**
+   * Specify the export location for the files and define the behavior of the output.
+   * @default { path: 'clients', barrelType: 'named' }
+   */
+  output?: Output
   /**
    * Group the clients based on the provided name.
    */
   group?: UserGroup
+  /**
+   * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
+   */
+  exclude?: Array<Exclude>
+  /**
+   * Array containing include parameters to include tags/operations/methods/paths.
+   */
+  include?: Array<Include>
+  /**
+   * Array containing override parameters to override `options` based on tags/operations/methods/paths.
+   */
+  override?: Array<Override<ResolvedOptions>>
   /**
    * Create `operations.ts` file with all operations grouped by methods.
    * @default false

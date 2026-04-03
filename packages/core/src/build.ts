@@ -11,7 +11,7 @@ import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.tsx'
 import { fsStorage } from './storages/fsStorage.ts'
-import type { AdapterSource, Config, GeneratorContext, KubbEvents, Plugin, PluginContext, Storage, UserConfig } from './types.ts'
+import type { AdapterSource, Config, KubbEvents, Plugin, PluginContext, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
@@ -278,7 +278,6 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
 
   // After the null-check above, adapter and rootNode are guaranteed present.
   // Cast once to GeneratorContext so all hook calls are typed without per-call casts.
-  const generatorContext = context as GeneratorContext
   const { output, exclude = [], include, override = [] } = plugin.options
   const root = resolve(config.root, config.output.path)
 
@@ -290,7 +289,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       if (!plugin.schema) return
       const options = resolver.resolveOptions(node, { options: plugin.options, exclude, include, override })
       if (options === null) return
-      const result = await plugin.schema.call(generatorContext, node, options)
+      const result = await plugin.schema.call(context, node, options)
 
       await applyHookResult(result, fabric)
     },
@@ -300,7 +299,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
         collectedOperations.push(node)
         if (plugin.operation) {
 
-          const result = await plugin.operation.call(generatorContext, node, options)
+          const result = await plugin.operation.call(context, node, options)
           await applyHookResult(result, fabric)
         }
       }
@@ -308,7 +307,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
   })
 
   if (plugin.operations && collectedOperations.length > 0) {
-    const result = await plugin.operations.call(generatorContext, collectedOperations, plugin.options)
+    const result = await plugin.operations.call(context, collectedOperations, plugin.options)
 
     await applyHookResult(result, fabric)
   }

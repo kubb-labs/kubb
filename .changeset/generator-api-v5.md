@@ -59,15 +59,6 @@ export const myPlugin = createPlugin<MyPlugin>((options) => {
 })
 ```
 
-### New: `PluginBaseOptions<TResolvedOptions>`
-
-All plugin `Options` types now extend `PluginBaseOptions` which provides the standard fields out of the box:
-
-- `output?: Output` — output path and barrel configuration
-- `exclude?: Array<Exclude>` — patterns to exclude from generation
-- `include?: Array<Include>` — patterns to restrict generation to
-- `override?: Array<Override<TResolvedOptions>>` — per-file option overrides
-
 ### New: `PluginRegistry` augmentation
 
 Every plugin now augments the global `Kubb.PluginRegistry` interface, enabling automatic typing for `getPlugin` and `requirePlugin`:

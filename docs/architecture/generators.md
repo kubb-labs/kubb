@@ -20,7 +20,25 @@ The generator API accumulated friction over time:
 
 **`runPluginGenerators.ts` duplicated `runPluginAstHooks`.** Both walked the AST, collected operations, and called `renderHookResult`. Two maintenance surfaces for the same logic.
 
+**Unsafe `this` type.** `PluginContext` uses a discriminated union that makes `adapter` and `rootNode` optional (`adapter?: Adapter`). Generator methods always run inside a fully-initialised context where both are present, so every method body required a cast or a null-check.
+
+**Repeated common fields.** Every plugin's `Options` type declared `output?`, `exclude?`, `include?`, and `override?` identically, copy-pasted from plugin to plugin.
+
 ## Decision
+
+### `GeneratorContext<TOptions>` — safe `this` type
+
+Generator methods and plugin `schema`/`operation`/`operations` hooks use `GeneratorContext<TOptions>` as their `this` type instead of `PluginContext<TOptions>`. `GeneratorContext` flattens the discriminated union so `adapter` and `rootNode` are always present:
+
+```ts
+export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
+  Omit<PluginContext<TOptions>, 'adapter' | 'rootNode'> & {
+    adapter: Adapter
+    rootNode: RootNode
+  }
+```
+
+No more `as Required<typeof this>` casts in generator bodies.
 
 ### Unified `Generator<TOptions>` type
 
@@ -30,17 +48,17 @@ A generator is a plain object with optional `schema`, `operation`, and `operatio
 export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   name: string
   schema?: (
-    this: PluginContext<TOptions>,
+    this: GeneratorContext<TOptions>,
     node: SchemaNode,
     options: TOptions['resolvedOptions'],
   ) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
   operation?: (
-    this: PluginContext<TOptions>,
+    this: GeneratorContext<TOptions>,
     node: OperationNode,
     options: TOptions['resolvedOptions'],
   ) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
   operations?: (
-    this: PluginContext<TOptions>,
+    this: GeneratorContext<TOptions>,
     nodes: Array<OperationNode>,
     options: TOptions['resolvedOptions'],
   ) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
@@ -53,27 +71,28 @@ export function defineGenerator<TOptions extends PluginFactoryOptions>(
 }
 ```
 
-`options` is the per-node resolved options from `resolver.resolveOptions` — already filtered by `exclude`/`include`/`override`. `this` is the parent plugin's `PluginContext`.
+`options` is the per-node resolved options from `resolver.resolveOptions` — already filtered by `exclude`/`include`/`override`. `this` is `GeneratorContext<TOptions>` with `adapter` and `rootNode` guaranteed present.
 
-### `generators` moves from the Plugin type into the plugin closure
+### `mergeGenerators` — loop-free plugin hooks
 
-`generators` is removed from `Plugin` and `PluginLifecycle`. The generators array becomes a closure variable inside `createPlugin`. The plugin's own `schema`/`operation`/`operations` hooks loop over it directly:
+`mergeGenerators` takes an array of generators and returns a single merged generator whose methods run each input generator's method in sequence. Plugins call `mergeGenerators` once in their closure, then delegate the three standard hooks to the merged result:
 
 ```ts
 export const pluginTs = createPlugin<PluginTs>((options) => {
   const preset = getPreset({ ... })
-  const generators = preset.generators
+  const mergedGenerator = mergeGenerators(preset.generators)
 
   return {
     name: 'plugin-ts',
-    schema(node, opts) {
-      return Promise.all(generators.map((gen) => gen.schema?.call(this, node, opts)))
+    version,
+    async schema(node, opts) {
+      return mergedGenerator.schema?.call(this, node, opts)
     },
-    operation(node, opts) {
-      return Promise.all(generators.map((gen) => gen.operation?.call(this, node, opts)))
+    async operation(node, opts) {
+      return mergedGenerator.operation?.call(this, node, opts)
     },
-    operations(nodes, opts) {
-      return Promise.all(generators.map((gen) => gen.operations?.call(this, nodes, opts)))
+    async operations(nodes, opts) {
+      return mergedGenerator.operations?.call(this, nodes, opts)
     },
     async install() {
       await this.openInStudio({ ast: true })
@@ -118,18 +137,70 @@ export const typeGenerator = defineGenerator<PluginTs>({
 })
 ```
 
-`this` provides the full `PluginContext`:
+`this` provides `GeneratorContext<TOptions>`:
 
 | Property | Description |
 |---|---|
 | `this.config` | Global Kubb config |
 | `this.plugin` | The parent plugin |
 | `this.resolver` | The plugin's resolver |
-| `this.adapter` | The AST adapter |
+| `this.adapter` | The AST adapter (always present) |
 | `this.fabric` | File manager |
-| `this.rootNode` | AST root |
+| `this.rootNode` | AST root (always present) |
 | `this.upsertFile` | Write files manually |
 | `this.warn / .error / .info` | Diagnostics |
+
+### `PluginBaseOptions<TResolvedOptions>` — shared base for plugin options
+
+Every plugin should support `output`, `exclude`, `include`, and `override`. These four fields are now declared once in `PluginBaseOptions` and each plugin's `Options` type extends it:
+
+```ts
+// packages/core/src/types.ts
+export type PluginBaseOptions<TResolvedOptions extends object = object> = {
+  output?: Output
+  exclude?: Array<Exclude>
+  include?: Array<Include>
+  override?: Array<Override<TResolvedOptions>>
+}
+
+// packages/plugin-ts/src/types.ts
+export type Options = PluginBaseOptions<ResolvedOptions> & {
+  group?: UserGroup
+  enumType?: EnumType
+  // ... plugin-specific fields only
+}
+```
+
+`PluginFactoryOptions` constrains `TOptions extends PluginBaseOptions<TResolvedOptions>` so this is enforced at the type level. All fields are optional, so existing code passes unchanged.
+
+### `PluginRegistry` — typed plugin lookup
+
+Each plugin augments `Kubb.PluginRegistry` in its `types.ts` so that `getPlugin`/`requirePlugin` return fully typed results without casts:
+
+```ts
+// packages/plugin-ts/src/types.ts
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-ts': PluginTs
+    }
+  }
+}
+```
+
+### `version` field — per-plugin semver
+
+Every plugin now exposes its semver string from `package.json` via the `version` field on the returned plugin object. The field is already declared as `version?: string` on the `Plugin` type:
+
+```ts
+import { version } from '../package.json'
+
+return {
+  name: pluginTsName,
+  version,
+  // ...
+}
+```
 
 ### User-extensible generators
 
@@ -149,7 +220,7 @@ pluginTs({
 })
 ```
 
-`getPreset` merges user generators into `preset.generators`, which is then used by the plugin closure.
+`getPreset` merges user generators into `preset.generators`, which is then consumed by `mergeGenerators` in the plugin closure.
 
 ### `build.ts` dispatch — single path
 
@@ -175,10 +246,12 @@ if (plugin.schema || plugin.operation || plugin.operations) {
 | `generators?` property | `Plugin` + `PluginLifecycle` in `types.ts` |
 | `runPluginGenerators` | `packages/core/src/runPluginGenerators.ts` (deleted) |
 | `type: 'react' \| 'core'` | `defineGenerator.ts` |
-| `version: '2'` | `defineGenerator.ts` |
+| `version: '2'` discriminant | `defineGenerator.ts` |
 | `Schema / Operation / Operations` (capital) | all generators |
 | `renderSchema / renderOperation` etc. | `renderNode.tsx` |
-| `UserReactGeneratorV2 / UserCoreGeneratorV2` etc. | `defineGenerator.ts` |
+| `renderHookResult` (renamed) | `renderNode.tsx` → `applyHookResult` |
+| `UserReactGeneratorV2 / UserCoreGeneratorV2` | `defineGenerator.ts` |
+| Repeated `output? / exclude? / include? / override?` | each plugin's `Options` type |
 
 ### Added / changed
 
@@ -186,7 +259,12 @@ if (plugin.schema || plugin.operation || plugin.operations) {
 |---|---|
 | `Generator<TOptions>` (unified) | `packages/core/src/defineGenerator.ts` |
 | `defineGenerator` (identity) | `packages/core/src/defineGenerator.ts` |
-| `renderHookResult` | `packages/core/src/renderNode.tsx` |
+| `mergeGenerators` | `packages/core/src/defineGenerator.ts` |
+| `applyHookResult` | `packages/core/src/renderNode.tsx` |
+| `GeneratorContext<TOptions>` | `packages/core/src/types.ts` |
+| `PluginBaseOptions<TResolvedOptions>` | `packages/core/src/types.ts` |
+| `Kubb.PluginRegistry` augmentations | every plugin's `types.ts` |
+| `version` field | every plugin's `plugin.ts` |
 
 ### Unchanged
 
@@ -195,4 +273,5 @@ if (plugin.schema || plugin.operation || plugin.operations) {
 - `runPluginAstHooks` — unchanged; already handles barrel files
 - Direct plugin hooks `schema`/`operation`/`operations` on `Plugin`/`PluginLifecycle`
 - The `pluginTs({ generators: [...] })` call API
+
 
