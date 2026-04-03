@@ -270,16 +270,12 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
  * - Barrel files are generated automatically when `output.barrelType` is set.
  */
 async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promise<void> {
-  const { adapter, rootNode, resolver, fabric, config } = context
+  const { adapter, rootNode, resolver, fabric } = context
+  const { exclude, include, override } = plugin.options
 
   if (!adapter || !rootNode) {
     throw new Error(`[${plugin.name}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`)
   }
-
-  // After the null-check above, adapter and rootNode are guaranteed present.
-  // Cast once to GeneratorContext so all hook calls are typed without per-call casts.
-  const { output, exclude = [], include, override = [] } = plugin.options
-  const root = resolve(config.root, config.output.path)
 
   const collectedOperations: Array<OperationNode> = []
 
@@ -310,16 +306,6 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
 
     await applyHookResult(result, fabric)
   }
-
-  if (output?.barrelType) {
-    const barrelFiles = await getBarrelFiles(fabric.files, {
-      type: output.barrelType,
-      root,
-      output,
-      meta: { pluginName: plugin.name },
-    })
-    await context.upsertFile(...barrelFiles)
-  }
 }
 
 /**
@@ -344,6 +330,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
     for (const plugin of driver.plugins.values()) {
       const context = driver.getContext(plugin)
       const hrStart = process.hrtime()
+      const { output } = plugin.options
+      const root = resolve(config.root, config.output.path)
 
       try {
         const timestamp = new Date()
@@ -355,13 +343,23 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           logs: ['Starting plugin...', `  • Plugin Name: ${plugin.name}`],
         })
 
+        // Call buildStart() for any custom plugin logic
+        await plugin.buildStart.call(context)
+
         // Dispatch schema/operation/operations hooks (direct hooks or composed via composeGenerators)
         if (plugin.schema || plugin.operation || plugin.operations) {
           await runPluginAstHooks(plugin, context)
         }
 
-        // Call buildStart() for any custom plugin logic
-        await plugin.buildStart.call(context)
+        if (output) {
+          const barrelFiles = await getBarrelFiles(fabric.files, {
+            type: output.barrelType ?? 'named',
+            root,
+            output,
+            meta: { pluginName: plugin.name },
+          })
+          await context.upsertFile(...barrelFiles)
+        }
 
         const duration = getElapsedMs(hrStart)
         pluginTimings.set(plugin.name, duration)
