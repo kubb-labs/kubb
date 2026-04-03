@@ -62,10 +62,7 @@ export function updatePetWithFormQueryOptions(
     enabled: !!petId,
     queryKey,
     queryFn: async ({ signal }) => {
-      return updatePetWithForm(petId, params, {
-        ...config,
-        signal: config.signal ?? signal,
-      })
+      return updatePetWithForm(petId, params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -99,9 +96,7 @@ export function createUpdatePetWithForm<
       queryKey,
     } as unknown as CreateBaseQueryOptions,
     queryClient,
-  ) as CreateQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & {
-    queryKey: TQueryKey
-  }
+  ) as CreateQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

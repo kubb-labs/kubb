@@ -40,12 +40,7 @@ export class petController {
    * @summary Update an existing pet
    * {@link /pet}
    */
-  async updatePet(
-    data: UpdatePetMutationRequest,
-    config: Partial<RequestConfig<UpdatePetMutationRequest>> & {
-      client?: Client
-    } = {},
-  ) {
+  async updatePet(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: Client } = {}) {
     const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data
     const res = await request<UpdatePetMutationResponse, ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>, UpdatePetMutationRequest>({
@@ -62,12 +57,7 @@ export class petController {
    * @summary Add a new pet to the store
    * {@link /pet}
    */
-  async addPet(
-    data: AddPetMutationRequest,
-    config: Partial<RequestConfig<AddPetMutationRequest>> & {
-      client?: Client
-    } = {},
-  ) {
+  async addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: Client } = {}) {
     const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data
     const res = await request<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, AddPetMutationRequest>({
@@ -173,9 +163,7 @@ export class petController {
     { petId }: { petId: UploadFilePathParams['petId'] },
     data: UploadFileMutationRequest,
     params?: UploadFileQueryParams,
-    config: Partial<RequestConfig<UploadFileMutationRequest>> & {
-      client?: Client
-    } = {},
+    config: Partial<RequestConfig<UploadFileMutationRequest>> & { client?: Client } = {},
   ) {
     const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data

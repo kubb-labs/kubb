@@ -18,12 +18,7 @@ export type AddPetMutationKey = ReturnType<typeof addPetMutationKey>
  * @summary Add a new pet to the store
  * {@link /pet}
  */
-export async function addPet(
-  data: AddPetMutationRequest,
-  config: Partial<RequestConfig<AddPetMutationRequest>> & {
-    client?: Client
-  } = {},
-) {
+export async function addPet(data: AddPetMutationRequest, config: Partial<RequestConfig<AddPetMutationRequest>> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
@@ -47,9 +42,7 @@ export function useAddPet<TContext>(
     mutation?: ReturnType<UseMutationOptions<AddPetMutationResponse, ResponseErrorConfig<AddPet405>, { data: AddPetMutationRequest }, TContext>> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<AddPetMutationRequest>> & {
-      client?: Client
-    }
+    client?: Partial<RequestConfig<AddPetMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

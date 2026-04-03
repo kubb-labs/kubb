@@ -18,6 +18,7 @@ import {
   logLevel as logLevelMap,
   safeBuild,
   setup,
+  type UserConfig,
 } from '@kubb/core'
 import { version } from '../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../constants.ts'
@@ -137,38 +138,31 @@ async function runToolPass({
   }
 }
 
-async function generate({ input, config: userConfig, events, logLevel }: GenerateProps): Promise<void> {
-  const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
-  const hrStart = process.hrtime()
+async function generate(options: GenerateProps): Promise<void> {
+  const { input, events, logLevel } = options
 
-  const config: Config = {
-    ...userConfig,
-    root: userConfig.root || process.cwd(),
+  const hrStart = process.hrtime()
+  const inputPath = input ?? ('path' in options.config.input ? options.config.input.path : undefined)
+
+  const userConfig: UserConfig = {
+    ...options.config,
     input: inputPath
       ? {
-          ...userConfig.input,
+          ...options.config.input,
           path: inputPath,
         }
-      : userConfig.input,
-    output: {
-      write: true,
-      barrelType: 'named',
-      extension: {
-        '.ts': '.ts',
-      },
-      format: 'prettier',
-      ...userConfig.output,
-    },
-  }
+      : options.config.input,
+    ...options.config.output,
+  } satisfies UserConfig
+
+  const { sources, fabric, driver, config } = await setup({
+    config: userConfig,
+    events,
+  })
 
   await events.emit('generation:start', config)
 
   await events.emit('info', config.name ? `Setup generation ${styleText('bold', config.name)}` : 'Setup generation', inputPath)
-
-  const { sources, fabric, driver } = await setup({
-    config,
-    events,
-  })
 
   await events.emit('info', config.name ? `Build generation ${styleText('bold', config.name)}` : 'Build generation', inputPath)
 
@@ -177,7 +171,7 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
       config,
       events,
     },
-    { driver, fabric, events, sources },
+    { driver, fabric, events, sources, config },
   )
 
   await events.emit('info', 'Load summary')

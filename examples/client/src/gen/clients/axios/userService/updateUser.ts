@@ -17,9 +17,7 @@ function getUpdateUserUrl({ username }: { username: UpdateUserPathParams['userna
 export async function updateUser(
   { username }: { username: UpdateUserPathParams['username'] },
   data?: UpdateUserMutationRequest,
-  config: Partial<RequestConfig<UpdateUserMutationRequest>> & {
-    client?: Client
-  } = {},
+  config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 

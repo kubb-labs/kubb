@@ -52,6 +52,7 @@ type SetupResult = {
   fabric: FabricType
   driver: PluginDriver
   sources: Map<KubbFile.Path, string>
+  config: Config
 }
 
 /**
@@ -121,7 +122,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     throw new Error('Adapter should be defined')
   }
 
-  const definedConfig: Config = {
+  const config: Config = {
     root: userConfig.root || process.cwd(),
     ...userConfig,
     parsers: userConfig.parsers ?? [],
@@ -146,20 +147,20 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   // storage or fall back to fsStorage (backwards-compatible default).
   // Keys are root-relative (e.g. `src/gen/api/getPets.ts`) so fsStorage()
   // needs no configuration — it resolves them against process.cwd().
-  const storage: Storage | null = definedConfig.output.write === false ? null : (definedConfig.output.storage ?? fsStorage())
+  const storage: Storage | null = config.output.write === false ? null : (config.output.storage ?? fsStorage())
 
-  if (definedConfig.output.clean) {
+  if (config.output.clean) {
     await events.emit('debug', {
       date: new Date(),
-      logs: ['Cleaning output directories', `  • Output: ${definedConfig.output.path}`],
+      logs: ['Cleaning output directories', `  • Output: ${config.output.path}`],
     })
-    await storage?.clear(resolve(definedConfig.root, definedConfig.output.path))
+    await storage?.clear(resolve(config.root, config.output.path))
   }
 
   const fabric = createFabric()
   fabric.use(fsPlugin)
 
-  for (const parser of definedConfig.parsers) {
+  for (const parser of config.parsers) {
     fabric.use(parser)
   }
   // Catch-all fallback: joins all source values for any unhandled extension
@@ -188,13 +189,13 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     const { file, source } = params
     await events.emit('file:processing:update', {
       ...params,
-      config: definedConfig,
+      config: config,
       source,
     })
 
     if (source) {
       // Key is root-relative so it's meaningful for any backend (fs, S3, Redis…)
-      const key = relative(resolve(definedConfig.root), file.path)
+      const key = relative(resolve(config.root), file.path)
       await storage?.setItem(key, source)
       sources.set(file.path, source)
     }
@@ -210,14 +211,10 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   await events.emit('debug', {
     date: new Date(),
-    logs: [
-      '✓ Fabric initialized',
-      `  • Storage: ${storage ? storage.name : 'disabled (dry-run)'}`,
-      `  • Barrel type: ${definedConfig.output.barrelType || 'none'}`,
-    ],
+    logs: ['✓ Fabric initialized', `  • Storage: ${storage ? storage.name : 'disabled (dry-run)'}`, `  • Barrel type: ${config.output.barrelType || 'none'}`],
   })
 
-  const driver = new PluginDriver(definedConfig, {
+  const driver = new PluginDriver(config, {
     fabric,
     events,
     concurrency: DEFAULT_CONCURRENCY,
@@ -225,11 +222,11 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   // Run the adapter to produce the universal RootNode.
 
-  const adapter = definedConfig.adapter
+  const adapter = config.adapter
   if (!adapter) {
     throw new Error('No adapter configured. Please provide an adapter in your kubb.config.ts.')
   }
-  const source = inputToAdapterSource(definedConfig)
+  const source = inputToAdapterSource(config)
 
   await events.emit('debug', {
     date: new Date(),
@@ -249,6 +246,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   })
 
   return {
+    config,
     events,
     fabric,
     driver,

@@ -30,12 +30,7 @@ export class userController {
    * @summary Create user
    * {@link /user}
    */
-  async createUser(
-    data?: CreateUserMutationRequest,
-    config: Partial<RequestConfig<CreateUserMutationRequest>> & {
-      client?: Client
-    } = {},
-  ) {
+  async createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: Client } = {}) {
     const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data
     const res = await request<CreateUserMutationResponse, ResponseErrorConfig<Error>, CreateUserMutationRequest>({
@@ -54,9 +49,7 @@ export class userController {
    */
   async createUsersWithListInput(
     data?: CreateUsersWithListInputMutationRequest,
-    config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
-      client?: Client
-    } = {},
+    config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: Client } = {},
   ) {
     const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data
@@ -116,9 +109,7 @@ export class userController {
   async updateUser(
     { username }: { username: UpdateUserPathParams['username'] },
     data?: UpdateUserMutationRequest,
-    config: Partial<RequestConfig<UpdateUserMutationRequest>> & {
-      client?: Client
-    } = {},
+    config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: Client } = {},
   ) {
     const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data

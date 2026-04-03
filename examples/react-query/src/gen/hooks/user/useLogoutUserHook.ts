@@ -48,10 +48,7 @@ export function useLogoutUserHook<TData = LogoutUserQueryResponse, TQueryData = 
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...resolvedOptions } = queryConfig
   const queryKey = resolvedOptions?.queryKey ?? logoutUserQueryKey()
-  const customOptions = useCustomHookOptions({
-    hookName: 'useLogoutUserHook',
-    operationId: 'logoutUser',
-  })
+  const customOptions = useCustomHookOptions({ hookName: 'useLogoutUserHook', operationId: 'logoutUser' })
 
   const query = useQuery(
     {
@@ -61,9 +58,7 @@ export function useLogoutUserHook<TData = LogoutUserQueryResponse, TQueryData = 
       queryKey,
     } as unknown as QueryObserverOptions,
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<Error>> & {
-    queryKey: TQueryKey
-  }
+  ) as UseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

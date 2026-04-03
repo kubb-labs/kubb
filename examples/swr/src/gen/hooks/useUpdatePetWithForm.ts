@@ -38,10 +38,7 @@ export async function updatePetWithForm(
   return res.data
 }
 
-export type UpdatePetWithFormMutationArg = {
-  petId: UpdatePetWithFormPathParams['petId']
-  params?: UpdatePetWithFormQueryParams
-}
+export type UpdatePetWithFormMutationArg = { petId: UpdatePetWithFormPathParams['petId']; params?: UpdatePetWithFormQueryParams }
 
 /**
  * @summary Updates a pet in the store with form data

@@ -66,10 +66,7 @@ export function useGetOrderByIdHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...resolvedOptions } = queryConfig
   const queryKey = resolvedOptions?.queryKey ?? getOrderByIdQueryKey({ orderId })
-  const customOptions = useCustomHookOptions({
-    hookName: 'useGetOrderByIdHook',
-    operationId: 'getOrderById',
-  })
+  const customOptions = useCustomHookOptions({ hookName: 'useGetOrderByIdHook', operationId: 'getOrderById' })
 
   const query = useQuery(
     {

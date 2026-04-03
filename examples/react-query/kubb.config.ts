@@ -24,7 +24,7 @@ export const config = {
       output: {
         path: 'models',
         banner(oas) {
-          return `// version: ${oas.meta?.version || 'unknown'}`
+          return `// version: ${oas?.meta?.version || 'unknown'}`
         },
       },
       compatibilityPreset: 'kubbV4',

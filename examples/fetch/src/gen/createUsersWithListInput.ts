@@ -8,10 +8,7 @@ import fetch from '@kubb/plugin-client/clients/fetch'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from './models.ts'
 
 function getCreateUsersWithListInputUrl() {
-  const res = {
-    method: 'POST',
-    url: 'https://petstore3.swagger.io/api/v3/user/createWithList' as const,
-  }
+  const res = { method: 'POST', url: 'https://petstore3.swagger.io/api/v3/user/createWithList' as const }
   return res
 }
 
@@ -22,9 +19,7 @@ function getCreateUsersWithListInputUrl() {
  */
 export async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
-    client?: Client
-  } = {},
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 

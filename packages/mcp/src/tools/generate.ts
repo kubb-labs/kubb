@@ -150,7 +150,7 @@ export async function generate(schema: z.infer<typeof generateSchema>, handler: 
         config,
         events,
       },
-      { driver, fabric, events, sources },
+      { driver, fabric, events, sources, config },
     )
     await notify(NotifyTypes.BUILD_END, `Build complete - Generated ${files.length} files`)
 

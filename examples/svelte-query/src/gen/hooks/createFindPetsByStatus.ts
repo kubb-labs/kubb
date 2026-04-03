@@ -46,10 +46,7 @@ export function findPetsByStatusQueryOptions(params?: FindPetsByStatusQueryParam
   return queryOptions<FindPetsByStatusQueryResponse, ResponseErrorConfig<FindPetsByStatus400>, FindPetsByStatusQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      return findPetsByStatus(params, {
-        ...config,
-        signal: config.signal ?? signal,
-      })
+      return findPetsByStatus(params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -83,9 +80,7 @@ export function createFindPetsByStatus<
       queryKey,
     } as unknown as CreateBaseQueryOptions,
     queryClient,
-  ) as CreateQueryResult<TData, ResponseErrorConfig<FindPetsByStatus400>> & {
-    queryKey: TQueryKey
-  }
+  ) as CreateQueryResult<TData, ResponseErrorConfig<FindPetsByStatus400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

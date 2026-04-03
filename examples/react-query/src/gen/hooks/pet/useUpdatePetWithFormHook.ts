@@ -50,10 +50,7 @@ export function updatePetWithFormQueryOptionsHook(
     enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {
-      return updatePetWithFormHook(pet_id, params, {
-        ...config,
-        signal: config.signal ?? signal,
-      })
+      return updatePetWithFormHook(pet_id, params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -79,10 +76,7 @@ export function useUpdatePetWithFormHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...resolvedOptions } = queryConfig
   const queryKey = resolvedOptions?.queryKey ?? updatePetWithFormQueryKey(pet_id, params)
-  const customOptions = useCustomHookOptions({
-    hookName: 'useUpdatePetWithFormHook',
-    operationId: 'updatePetWithForm',
-  })
+  const customOptions = useCustomHookOptions({ hookName: 'useUpdatePetWithFormHook', operationId: 'updatePetWithForm' })
 
   const query = useQuery(
     {
@@ -92,9 +86,7 @@ export function useUpdatePetWithFormHook<
       queryKey,
     } as unknown as QueryObserverOptions,
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & {
-    queryKey: TQueryKey
-  }
+  ) as UseQueryResult<TData, ResponseErrorConfig<UpdatePetWithForm405>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

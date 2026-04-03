@@ -45,10 +45,7 @@ export function useDeletePet<TContext>(
       UseMutationOptions<
         DeletePetMutationResponse,
         ResponseErrorConfig<DeletePet400>,
-        {
-          petId: DeletePetPathParams['petId']
-          headers?: DeletePetHeaderParams
-        },
+        { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams },
         TContext
       >
     > & { client?: QueryClient }

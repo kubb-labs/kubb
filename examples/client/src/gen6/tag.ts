@@ -42,12 +42,7 @@ function getPlaceOrderUrl() {
  * @summary Place an order for a pet
  * {@link /store/order}
  */
-export async function placeOrder(
-  data?: PlaceOrderMutationRequest,
-  config: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
-    client?: Client
-  } = {},
-) {
+export async function placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
@@ -73,9 +68,7 @@ function getPlaceOrderPatchUrl() {
  */
 export async function placeOrderPatch(
   data?: PlaceOrderPatchMutationRequest,
-  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
-    client?: Client
-  } = {},
+  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
@@ -133,11 +126,5 @@ export async function deleteOrder(orderId: DeleteOrderPathParams['orderId'], con
 }
 
 export function storeController() {
-  return {
-    getInventory,
-    placeOrder,
-    placeOrderPatch,
-    getOrderById,
-    deleteOrder,
-  }
+  return { getInventory, placeOrder, placeOrderPatch, getOrderById, deleteOrder }
 }

@@ -65,12 +65,7 @@ server.registerTool(
     title: 'Create a pet',
     description: 'Make a POST request to /pets/{uuid}',
     outputSchema: { data: createPetsMutationResponseSchema },
-    inputSchema: {
-      uuid: z.string(),
-      data: createPetsMutationRequestSchema,
-      headers: createPetsHeaderParamsSchema,
-      params: createPetsQueryParamsSchema,
-    },
+    inputSchema: { uuid: z.string(), data: createPetsMutationRequestSchema, headers: createPetsHeaderParamsSchema, params: createPetsQueryParamsSchema },
   },
   async ({ uuid, data, headers, params }) => {
     return createPetsHandler({ uuid, data, headers, params })
@@ -122,10 +117,7 @@ server.registerTool(
     title: 'Finds Pets by tags',
     description: 'Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.',
     outputSchema: { data: findPetsByTagsQueryResponseSchema },
-    inputSchema: {
-      headers: findPetsByTagsHeaderParamsSchema,
-      params: findPetsByTagsQueryParamsSchema,
-    },
+    inputSchema: { headers: findPetsByTagsHeaderParamsSchema, params: findPetsByTagsQueryParamsSchema },
   },
   async ({ headers, params }) => {
     return findPetsByTagsHandler({ headers, params })
@@ -151,10 +143,7 @@ server.registerTool(
     title: 'Updates a pet in the store with form data',
     description: 'Make a POST request to /pet/{petId}',
     outputSchema: { data: updatePetWithFormMutationResponseSchema },
-    inputSchema: {
-      petId: z.coerce.number(),
-      params: updatePetWithFormQueryParamsSchema,
-    },
+    inputSchema: { petId: z.coerce.number(), params: updatePetWithFormQueryParamsSchema },
   },
   async ({ petId, params }) => {
     return updatePetWithFormHandler({ petId, params })
@@ -167,10 +156,7 @@ server.registerTool(
     title: 'Deletes a pet',
     description: 'delete a pet',
     outputSchema: { data: deletePetMutationResponseSchema },
-    inputSchema: {
-      petId: z.coerce.number(),
-      headers: deletePetHeaderParamsSchema,
-    },
+    inputSchema: { petId: z.coerce.number(), headers: deletePetHeaderParamsSchema },
   },
   async ({ petId, headers }) => {
     return deletePetHandler({ petId, headers })
@@ -324,10 +310,7 @@ server.registerTool(
     title: 'Update user',
     description: 'This can only be done by the logged in user.',
     outputSchema: { data: updateUserMutationResponseSchema },
-    inputSchema: {
-      username: z.string(),
-      data: updateUserMutationRequestSchema,
-    },
+    inputSchema: { username: z.string(), data: updateUserMutationRequestSchema },
   },
   async ({ username, data }) => {
     return updateUserHandler({ username, data })

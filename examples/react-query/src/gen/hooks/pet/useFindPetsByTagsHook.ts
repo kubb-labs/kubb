@@ -41,10 +41,7 @@ export function findPetsByTagsQueryOptionsHook(params?: FindPetsByTagsQueryParam
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      return findPetsByTagsHook(params, {
-        ...config,
-        signal: config.signal ?? signal,
-      })
+      return findPetsByTagsHook(params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -70,10 +67,7 @@ export function useFindPetsByTagsHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...resolvedOptions } = queryConfig
   const queryKey = resolvedOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-  const customOptions = useCustomHookOptions({
-    hookName: 'useFindPetsByTagsHook',
-    operationId: 'findPetsByTags',
-  })
+  const customOptions = useCustomHookOptions({ hookName: 'useFindPetsByTagsHook', operationId: 'findPetsByTags' })
 
   const query = useQuery(
     {
@@ -83,9 +77,7 @@ export function useFindPetsByTagsHook<
       queryKey,
     } as unknown as QueryObserverOptions,
     queryClient,
-  ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & {
-    queryKey: TQueryKey
-  }
+  ) as UseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 
