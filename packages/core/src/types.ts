@@ -676,6 +676,12 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * Shorthand for `path.resolve(config.root, config.output.path)`.
    */
   root: string
+  /**
+   * Returns the output mode for the given output config.
+   * Returns `'single'` when `output.path` has a file extension, `'split'` otherwise.
+   * Shorthand for `getMode(path.resolve(this.root, output.path))`.
+   */
+  getMode: (output: { path: string }) => FabricFile.Mode
   driver: PluginDriver
   /**
    * Get a plugin by name. Returns the plugin typed via `Kubb.PluginRegistry` when

@@ -1,6 +1,5 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { transform } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
 import type { FabricFile } from '@kubb/fabric-core/types'
@@ -48,7 +47,7 @@ function resolveZodImportNames(node: OperationNode, zodResolver: PluginZod['reso
 export const classClientGenerator = defineGenerator<PluginClient>({
   name: 'classClient',
   operations(nodes, options) {
-    const { adapter, config, driver, resolver, plugin, root } = this
+    const { adapter, config, driver, resolver, root } = this
     const { output, group, dataReturnType, paramsCasing, paramsType, pathParamsType, parser, importPath, wrapper } = options
     const baseURL = options.baseURL ?? adapter.rootNode?.meta?.baseURL
 
@@ -61,22 +60,21 @@ export const classClientGenerator = defineGenerator<PluginClient>({
     const zodResolver = pluginZod?.resolver
 
     function buildOperationData(node: OperationNode): OperationData {
-      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
       const typeFile = tsResolver.resolveFile(
-        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+        { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
         { root, output: tsPluginOptions?.output ?? output, group: tsPluginOptions?.group },
       )
       const zodFile =
         zodResolver && pluginZod?.options
           ? zodResolver.resolveFile(
-              { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+              { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
               { root, output: pluginZod.options.output ?? output, group: pluginZod.options.group },
             )
           : undefined
 
       return {
-        node: transformedNode,
-        name: resolver.resolveName(transformedNode.operationId),
+        node: node,
+        name: resolver.resolveName(node.operationId),
         tsResolver,
         zodResolver,
         typeFile,

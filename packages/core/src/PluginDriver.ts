@@ -131,6 +131,9 @@ export class PluginDriver {
       get root(): string {
         return resolve(driver.config.root, driver.config.output.path)
       },
+      getMode(output: { path: string }): FabricFile.Mode {
+        return getMode(resolve(driver.config.root, driver.config.output.path, output.path))
+      },
       events: driver.options.events,
       plugin,
       getPlugin: driver.getPlugin.bind(driver),

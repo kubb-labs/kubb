@@ -20,7 +20,7 @@ The generator API accumulated friction over time:
 
 **`runPluginGenerators.ts` duplicated `runPluginAstHooks`.** Both walked the AST, collected operations, and called `renderHookResult`. Two maintenance surfaces for the same logic.
 
-**Unsafe `this` type.** `PluginContext` uses a discriminated union that makes `adapter` and `rootNode` optional (`adapter?: Adapter`). Generator methods always run inside a fully-initialised context where both are present, so every method body required a cast or a null-check.
+**Unsafe `this` type.** `PluginContext` uses a discriminated union that makes `adapter` and `rootNode` optional (`adapter?: Adapter`). Generator methods always run inside a fully-initialized context where both are present, so every method body required a cast or a null-check.
 
 ## Decision
 

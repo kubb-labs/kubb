@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { camelCase } from '@internals/utils'
-import { type Config, createPlugin, getMode, type KubbEvents, type UserGroup } from '@kubb/core'
+import { type Config, createPlugin, type KubbEvents, type UserGroup } from '@kubb/core'
 import type { Oas } from '@kubb/oas'
 import { parseFromConfig, resolveServerUrl } from '@kubb/oas'
 import { version } from '../package.json'
@@ -104,7 +104,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
     },
     resolvePath(baseName, pathMode, options) {
       const root = this.root
-      const mode = pathMode ?? getMode(path.resolve(root, output.path))
+      const mode = pathMode ?? this.getMode(output)
 
       if (mode === 'single') {
         /**

@@ -528,7 +528,7 @@ describe('zodGenerator — Operation — group', () => {
 
     const file = fabric.files.find((f) => f.baseName === expectedBaseName)
     expect(file).toBeDefined()
-    const root = path.resolve(testConfig.root, options.output.path)
+    const root = path.resolve(testConfig.root, testConfig.output.path, options.output.path)
     const expectedPath = expectedDir ? path.resolve(root, expectedDir, expectedBaseName) : path.resolve(root, expectedBaseName)
     expect(file!.path).toBe(expectedPath)
   })

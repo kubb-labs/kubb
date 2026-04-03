@@ -1,5 +1,4 @@
 import { camelCase } from '@internals/utils'
-import { transform } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
 import type { FabricFile } from '@kubb/fabric-core/types'
 import { File, Function } from '@kubb/react-fabric'
@@ -8,7 +7,7 @@ import type { PluginClient } from '../types'
 export const groupedClientGenerator = defineGenerator<PluginClient>({
   name: 'groupedClient',
   operations(nodes, options) {
-    const { config, resolver, adapter, plugin, root } = this
+    const { config, resolver, adapter, root } = this
     const { output, group } = options
 
     const controllers = nodes.reduce(
@@ -21,16 +20,14 @@ export const groupedClientGenerator = defineGenerator<PluginClient>({
             return acc
           }
 
-          const transformedNode = plugin.transformer ? transform(operationNode, plugin.transformer) : operationNode
-
           const file = resolver.resolveFile({ name, extname: '.ts', tag }, { root, output, group })
           const clientFile = resolver.resolveFile(
-            { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+            { name: operationNode.operationId, extname: '.ts', tag: operationNode.tags[0] ?? 'default', path: operationNode.path },
             { root, output, group },
           )
 
           const client = {
-            name: resolver.resolveName(transformedNode.operationId),
+            name: resolver.resolveName(operationNode.operationId),
             file: clientFile,
           }
 

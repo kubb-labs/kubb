@@ -1,8 +1,7 @@
-import path from 'node:path'
 import { pascalCase } from '@internals/utils'
 import { caseParams, createProperty, createSchema, narrowSchema, schemaTypes, transform } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
-import { defineGenerator, getMode } from '@kubb/core'
+import { defineGenerator } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
 import { Type } from '../components/Type.tsx'
 import { ENUM_TYPES_WITH_KEY_SUFFIX } from '../constants.ts'
@@ -160,29 +159,24 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
   name: 'typescript-legacy',
   schema(node, options) {
     const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group } = options
-    const { adapter, config, resolver, plugin, root } = this
+    const { adapter, config, resolver, root } = this
 
-    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-
-    if (!transformedNode.name) {
+    if (!node.name) {
       return
     }
 
-    const mode = getMode(path.resolve(root, output.path))
+    const mode = this.getMode(output)
 
-    const imports = adapter.getImports(transformedNode, (schemaName) => ({
+    const imports = adapter.getImports(node, (schemaName) => ({
       name: resolver.resolveTypeName(schemaName),
       path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
     }))
 
-    const isEnumSchema = !!narrowSchema(transformedNode, schemaTypes.enum)
+    const isEnumSchema = !!narrowSchema(node, schemaTypes.enum)
 
     const meta = {
-      name:
-        ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema
-          ? resolver.resolveEnumKeyName(transformedNode, enumTypeSuffix)
-          : resolver.resolveTypeName(transformedNode.name),
-      file: resolver.resolveFile({ name: transformedNode.name, extname: '.ts' }, { root, output, group }),
+      name: ENUM_TYPES_WITH_KEY_SUFFIX.has(enumType) && isEnumSchema ? resolver.resolveEnumKeyName(node, enumTypeSuffix) : resolver.resolveTypeName(node.name),
+      file: resolver.resolveFile({ name: node.name, extname: '.ts' }, { root, output, group }),
     } as const
 
     const schemaPrinter = printerTs({
@@ -192,7 +186,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
       enumTypeSuffix,
       name: meta.name,
       syntaxType,
-      description: transformedNode.description,
+      description: node.description,
       resolver,
     })
 
@@ -206,11 +200,11 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
       >
         {mode === 'split' &&
           imports.map((imp) => (
-            <File.Import key={[transformedNode.name, imp.path, imp.isTypeOnly].join('-')} root={meta.file.path} path={imp.path} name={imp.name} isTypeOnly />
+            <File.Import key={[node.name, imp.path, imp.isTypeOnly].join('-')} root={meta.file.path} path={imp.path} name={imp.name} isTypeOnly />
           ))}
         <Type
           name={meta.name}
-          node={transformedNode}
+          node={node}
           enumType={enumType}
           enumTypeSuffix={enumTypeSuffix}
           enumKeyCasing={enumKeyCasing}
@@ -222,18 +216,13 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
   },
   operation(node, options) {
     const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output } = options
-    const { adapter, config, resolver, plugin, root } = this
+    const { adapter, config, resolver, root } = this
 
-    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-
-    const mode = getMode(path.resolve(root, output.path))
+    const mode = this.getMode(output)
     const params = caseParams(node.parameters, paramsCasing)
 
     const meta = {
-      file: resolver.resolveFile(
-        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
-        { root, output, group },
-      ),
+      file: resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }),
     } as const
 
     function renderSchemaType({

@@ -1,7 +1,6 @@
-import path from 'node:path'
-import { caseParams, createProperty, createSchema, transform } from '@kubb/ast'
+import { caseParams, createProperty, createSchema } from '@kubb/ast'
 import type { OperationNode, ParameterNode, SchemaNode } from '@kubb/ast/types'
-import { defineGenerator, getMode } from '@kubb/core'
+import { defineGenerator } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
 import { Operations } from '../components/Operations.tsx'
 import { Zod } from '../components/Zod.tsx'
@@ -168,27 +167,26 @@ function buildLegacySchemaNames(node: OperationNode, params: Array<ParameterNode
 export const zodGeneratorLegacy = defineGenerator<PluginZod>({
   name: 'zod-legacy',
   schema(node, options) {
-    const { adapter, config, resolver, plugin, root } = this
+    const { adapter, config, resolver, root } = this
     const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, printer } = options
-    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
-    if (!transformedNode.name) {
+    if (!node.name) {
       return
     }
 
-    const mode = getMode(path.resolve(root, output.path))
+    const mode = this.getMode(output)
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
-    const imports = adapter.getImports(transformedNode, (schemaName) => ({
+    const imports = adapter.getImports(node, (schemaName) => ({
       name: resolver.resolveSchemaName(schemaName),
       path: resolver.resolveFile({ name: schemaName, extname: '.ts' }, { root, output, group }).path,
     }))
 
-    const inferTypeName = inferred ? resolver.resolveSchemaTypeName(transformedNode.name) : undefined
+    const inferTypeName = inferred ? resolver.resolveSchemaTypeName(node.name) : undefined
 
     const meta = {
-      name: resolver.resolveSchemaName(transformedNode.name),
-      file: resolver.resolveFile({ name: transformedNode.name, extname: '.ts' }, { root, output, group }),
+      name: resolver.resolveSchemaName(node.name),
+      file: resolver.resolveFile({ name: node.name, extname: '.ts' }, { root, output, group }),
     } as const
 
     const schemaPrinter = mini
@@ -204,29 +202,23 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
         footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
       >
         <File.Import name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
-        {mode === 'split' &&
-          imports.map((imp) => <File.Import key={[transformedNode.name, imp.path].join('-')} root={meta.file.path} path={imp.path} name={imp.name} />)}
+        {mode === 'split' && imports.map((imp) => <File.Import key={[node.name, imp.path].join('-')} root={meta.file.path} path={imp.path} name={imp.name} />)}
 
-        <Zod name={meta.name} node={transformedNode} printer={schemaPrinter} inferTypeName={inferTypeName} />
+        <Zod name={meta.name} node={node} printer={schemaPrinter} inferTypeName={inferTypeName} />
       </File>
     )
   },
   operation(node, options) {
-    const { adapter, config, resolver, plugin, root } = this
+    const { adapter, config, resolver, root } = this
     const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, printer } = options
 
-    const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-
-    const mode = getMode(path.resolve(root, output.path))
+    const mode = this.getMode(output)
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
-    const params = caseParams(transformedNode.parameters, paramsCasing)
+    const params = caseParams(node.parameters, paramsCasing)
 
     const meta = {
-      file: resolver.resolveFile(
-        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
-        { root, output, group },
-      ),
+      file: resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group }),
     } as const
 
     function renderSchemaEntry({ schema, name, keysToOmit }: { schema: SchemaNode | null; name: string; keysToOmit?: Array<string> }) {
@@ -256,8 +248,8 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     const queryParams = params.filter((p) => p.in === 'query')
     const headerParams = params.filter((p) => p.in === 'header')
 
-    const responseSchemas = transformedNode.responses.map((res) => {
-      const responseName = resolver.resolveResponseStatusName(transformedNode, res.statusCode)
+    const responseSchemas = node.responses.map((res) => {
+      const responseName = resolver.resolveResponseStatusName(node, res.statusCode)
       return renderSchemaEntry({
         schema: {
           ...res.schema,
@@ -268,14 +260,14 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
       })
     })
 
-    const requestSchema = transformedNode.requestBody?.schema
+    const requestSchema = node.requestBody?.schema
       ? renderSchemaEntry({
           schema: {
-            ...transformedNode.requestBody.schema,
-            description: transformedNode.requestBody.description ?? transformedNode.requestBody.schema.description,
+            ...node.requestBody.schema,
+            description: node.requestBody.description ?? node.requestBody.schema.description,
           },
-          name: resolver.resolveDataName(transformedNode),
-          keysToOmit: transformedNode.requestBody.keysToOmit,
+          name: resolver.resolveDataName(node),
+          keysToOmit: node.requestBody.keysToOmit,
         })
       : null
 
@@ -283,31 +275,31 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
       pathParams.length > 0
         ? renderSchemaEntry({
             schema: buildGroupedParamsSchema({ params: pathParams, optional: pathParams.every((p) => !p.required) }),
-            name: resolver.resolvePathParamsName(transformedNode, pathParams[0]!),
+            name: resolver.resolvePathParamsName(node, pathParams[0]!),
           })
         : null,
       queryParams.length > 0
         ? renderSchemaEntry({
             schema: buildGroupedParamsSchema({ params: queryParams, optional: queryParams.every((p) => !p.required) }),
-            name: resolver.resolveQueryParamsName(transformedNode, queryParams[0]!),
+            name: resolver.resolveQueryParamsName(node, queryParams[0]!),
           })
         : null,
       headerParams.length > 0
         ? renderSchemaEntry({
             schema: buildGroupedParamsSchema({ params: headerParams, optional: headerParams.every((p) => !p.required) }),
-            name: resolver.resolveHeaderParamsName(transformedNode, headerParams[0]!),
+            name: resolver.resolveHeaderParamsName(node, headerParams[0]!),
           })
         : null,
     ]
 
     const legacyResponsesSchema = renderSchemaEntry({
-      schema: buildLegacyResponsesSchemaNode(transformedNode, { resolver }),
-      name: resolver.resolveResponsesName(transformedNode),
+      schema: buildLegacyResponsesSchemaNode(node, { resolver }),
+      name: resolver.resolveResponsesName(node),
     })
 
     const legacyResponseSchema = renderSchemaEntry({
-      schema: buildLegacyResponseUnionSchemaNode(transformedNode, { resolver }),
-      name: resolver.resolveResponseName(transformedNode),
+      schema: buildLegacyResponseUnionSchemaNode(node, { resolver }),
+      name: resolver.resolveResponseName(node),
     })
 
     return (
@@ -328,7 +320,7 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     )
   },
   operations(nodes, options) {
-    const { adapter, config, resolver, plugin, root } = this
+    const { adapter, config, resolver, root } = this
     const { output, importPath, group, operations, paramsCasing } = options
 
     if (!operations) {
@@ -341,13 +333,11 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     } as const
 
     const transformedOperations = nodes.map((node) => {
-      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-
-      const params = caseParams(transformedNode.parameters, paramsCasing)
+      const params = caseParams(node.parameters, paramsCasing)
 
       return {
-        node: transformedNode,
-        data: buildLegacySchemaNames(transformedNode, params, resolver),
+        node,
+        data: buildLegacySchemaNames(node, params, resolver),
       }
     })
 

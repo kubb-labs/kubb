@@ -1,4 +1,4 @@
-import path from 'node:path'
+import path, { resolve } from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { createFile, type createReactFabric, FileProcessor } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
@@ -8,6 +8,7 @@ import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
 import { expect } from 'vitest'
 import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
+import { transform } from '../packages/ast/src/index.ts'
 import type { OperationNode, SchemaNode, Visitor } from '../packages/ast/src/types.ts'
 import type {
   Adapter,
@@ -20,6 +21,7 @@ import type {
   ResolveNameParams,
   ResolvePathParams,
 } from '../packages/core/src'
+import { getMode } from '../packages/core/src'
 import { applyHookResult } from '../packages/core/src/renderNode'
 
 const formatOptions: Options = {
@@ -188,9 +190,12 @@ type RenderGeneratorOptions<TOptions extends PluginFactoryOptions> = {
 
 function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: RenderGeneratorOptions<TOptions>): GeneratorContext<TOptions> {
   const fabric = opts.fabric as ReturnType<typeof createReactFabric>
+  const root = resolve(opts.config.root, opts.config.output.path)
+
   return {
     config: opts.config,
-    root: opts.config.root,
+    root,
+    getMode: (output: { path: string }) => getMode(resolve(root, output.path)),
     adapter: opts.adapter,
     resolver: opts.resolver,
     plugin: opts.plugin,
@@ -221,7 +226,8 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
 ): Promise<void> {
   if (!generator.schema) return
   const context = createMockedPluginContext(opts)
-  const result = await generator.schema.call(context, node, opts.options)
+  const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
+  const result = await generator.schema.call(context, transformedNode, opts.options)
   await applyHookResult(result, opts.fabric)
 }
 
@@ -241,7 +247,8 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
 ): Promise<void> {
   if (!generator.operation) return
   const context = createMockedPluginContext(opts)
-  const result = await generator.operation.call(context, node, opts.options)
+  const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
+  const result = await generator.operation.call(context, transformedNode, opts.options)
   await applyHookResult(result, opts.fabric)
 }
 
@@ -261,6 +268,7 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
 ): Promise<void> {
   if (!generator.operations) return
   const context = createMockedPluginContext(opts)
-  const result = await generator.operations.call(context, nodes, opts.options)
+  const transformedNodes = opts.plugin.transformer ? nodes.map((n) => transform(n, opts.plugin.transformer!)) : nodes
+  const result = await generator.operations.call(context, transformedNodes, opts.options)
   await applyHookResult(result, opts.fabric)
 }

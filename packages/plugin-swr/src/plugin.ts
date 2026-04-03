@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { createPlugin, getBarrelFiles, getMode, type UserGroup } from '@kubb/core'
+import { createPlugin, getBarrelFiles, type UserGroup } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
@@ -83,7 +83,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       const root = this.root
-      const mode = pathMode ?? getMode(path.resolve(root, output.path))
+      const mode = pathMode ?? this.getMode(output)
 
       if (mode === 'single') {
         /**
@@ -136,7 +136,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
     },
     async buildStart() {
       const root = this.root
-      const mode = getMode(path.resolve(root, output.path))
+      const mode = this.getMode(output)
       const oas = await this.getOas()
       const baseURL = await this.getBaseURL()
 

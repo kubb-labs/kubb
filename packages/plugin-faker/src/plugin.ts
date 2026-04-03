@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { createPlugin, getBarrelFiles, getMode, type UserGroup } from '@kubb/core'
+import { createPlugin, getBarrelFiles, type UserGroup } from '@kubb/core'
 import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { version } from '../package.json'
@@ -57,7 +57,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
     pre: [pluginOasName, pluginTsName],
     resolvePath(baseName, pathMode, options) {
       const root = this.root
-      const mode = pathMode ?? getMode(path.resolve(root, output.path))
+      const mode = pathMode ?? this.getMode(output)
 
       if (mode === 'single') {
         /**
@@ -103,7 +103,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
     },
     async buildStart() {
       const root = this.root
-      const mode = getMode(path.resolve(root, output.path))
+      const mode = this.getMode(output)
       const oas = await this.getOas()
 
       const schemaGenerator = new SchemaGenerator(this.plugin.options, {

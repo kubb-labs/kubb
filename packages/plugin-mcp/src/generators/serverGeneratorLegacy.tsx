@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { caseParams, transform } from '@kubb/ast'
+import { caseParams } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { File } from '@kubb/react-fabric'
@@ -41,18 +41,14 @@ export const serverGeneratorLegacy = defineGenerator<PluginMcp>({
     }
 
     const operationsMapped = nodes.map((node) => {
-      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
-      const casedParams = caseParams(transformedNode.parameters, paramsCasing)
+      const casedParams = caseParams(node.parameters, paramsCasing)
       const queryParams = casedParams.filter((p) => p.in === 'query')
       const headerParams = casedParams.filter((p) => p.in === 'header')
 
-      const mcpFile = resolver.resolveFile(
-        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
-        { root, output, group },
-      )
+      const mcpFile = resolver.resolveFile({ name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path }, { root, output, group })
 
       const zodFile = pluginZod?.resolver.resolveFile(
-        { name: transformedNode.operationId, extname: '.ts', tag: transformedNode.tags[0] ?? 'default', path: transformedNode.path },
+        { name: node.operationId, extname: '.ts', tag: node.tags[0] ?? 'default', path: node.path },
         {
           root,
           output: pluginZod?.options?.output ?? output,
@@ -60,21 +56,21 @@ export const serverGeneratorLegacy = defineGenerator<PluginMcp>({
         },
       )
 
-      const requestName = transformedNode.requestBody?.schema ? pluginZod?.resolver.resolveDataName(transformedNode) : undefined
-      const responseName = pluginZod?.resolver.resolveResponseName(transformedNode)
+      const requestName = node.requestBody?.schema ? pluginZod?.resolver.resolveDataName(node) : undefined
+      const responseName = pluginZod?.resolver.resolveResponseName(node)
 
-      const zodQueryParams = queryParams.length ? pluginZod?.resolver.resolveQueryParamsName(transformedNode, queryParams[0]!) : undefined
+      const zodQueryParams = queryParams.length ? pluginZod?.resolver.resolveQueryParamsName(node, queryParams[0]!) : undefined
 
-      const zodHeaderParams = headerParams.length ? pluginZod?.resolver.resolveHeaderParamsName(transformedNode, headerParams[0]!) : undefined
+      const zodHeaderParams = headerParams.length ? pluginZod?.resolver.resolveHeaderParamsName(node, headerParams[0]!) : undefined
 
       return {
         tool: {
-          name: transformedNode.operationId,
-          title: transformedNode.summary || undefined,
-          description: transformedNode.description || `Make a ${transformedNode.method.toUpperCase()} request to ${transformedNode.path}`,
+          name: node.operationId,
+          title: node.summary || undefined,
+          description: node.description || `Make a ${node.method.toUpperCase()} request to ${node.path}`,
         },
         mcp: {
-          name: resolver.resolveName(transformedNode.operationId),
+          name: resolver.resolveName(node.operationId),
           file: mcpFile,
         },
         zod: {
@@ -85,7 +81,7 @@ export const serverGeneratorLegacy = defineGenerator<PluginMcp>({
           responseName,
           file: zodFile,
         },
-        node: transformedNode,
+        node: node,
       }
     })
 

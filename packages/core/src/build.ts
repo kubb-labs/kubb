@@ -1,6 +1,6 @@
 import { dirname, relative, resolve } from 'node:path'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
-import { walk } from '@kubb/ast'
+import { transform, walk } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
 import { createFabric } from '@kubb/react-fabric'
@@ -266,7 +266,7 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
  * - Each hook accepts a single handler **or an array** — all entries are called in sequence.
  * - Nodes that are excluded by `exclude`/`include` plugin options are skipped automatically.
  * - Return values are handled via `applyHookResult`: React elements are rendered,
- *   `FabricFile.File[]` are upserted, and `void` is a no-op (manual handling).
+ *   `FabricFile.File[]` are written via upsert, and `void` is a no-op (manual handling).
  * - Barrel files are generated automatically when `output.barrelType` is set.
  */
 async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promise<void> {
@@ -283,18 +283,20 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
     depth: 'shallow',
     async schema(node) {
       if (!plugin.schema) return
-      const options = resolver.resolveOptions(node, { options: plugin.options, exclude, include, override })
+      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
+      const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
       if (options === null) return
-      const result = await plugin.schema.call(context, node, options)
+      const result = await plugin.schema.call(context, transformedNode, options)
 
       await applyHookResult(result, fabric)
     },
     async operation(node) {
-      const options = resolver.resolveOptions(node, { options: plugin.options, exclude, include, override })
+      const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
+      const options = resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
       if (options !== null) {
-        collectedOperations.push(node)
+        collectedOperations.push(transformedNode)
         if (plugin.operation) {
-          const result = await plugin.operation.call(context, node, options)
+          const result = await plugin.operation.call(context, transformedNode, options)
           await applyHookResult(result, fabric)
         }
       }
