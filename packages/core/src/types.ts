@@ -368,6 +368,37 @@ export type Resolver = {
  */
 export type UserResolver = Omit<Resolver, 'default' | 'resolveOptions' | 'resolvePath' | 'resolveFile' | 'resolveBanner' | 'resolveFooter'>
 
+/**
+ * Base options shared by every Kubb plugin.
+ * Extend this type in your plugin's `Options` to avoid repeating the common fields.
+ *
+ * @example
+ * ```ts
+ * type Options = PluginBaseOptions<ResolvedOptions> & {
+ *   importPath?: string
+ * }
+ * ```
+ */
+export type PluginBaseOptions<TResolvedOptions extends object = object> = {
+  /**
+   * Specify the export location for the files and define the behaviour of the output.
+   */
+  output?: Output
+  /**
+   * Array of patterns to exclude specific tags / operationIds / paths / methods / schemas from generation.
+   */
+  exclude?: Array<Exclude>
+  /**
+   * Array of patterns to include only specific tags / operationIds / paths / methods / schemas.
+   */
+  include?: Array<Include>
+  /**
+   * Array of override rules — each entry matches a pattern and merges the given `options`
+   * into the resolved plugin options for every file that matches.
+   */
+  override?: Array<Override<TResolvedOptions>>
+}
+
 export type PluginFactoryOptions<
   /**
    * Name to be used for the plugin.
@@ -375,12 +406,14 @@ export type PluginFactoryOptions<
   TName extends string = string,
   /**
    * Options of the plugin.
+   * Must extend {@link PluginBaseOptions} so that every plugin supports the common
+   * `output`, `exclude`, `include`, and `override` fields out of the box.
    */
-  TOptions extends object = object,
+  TOptions extends PluginBaseOptions<TResolvedOptions> = PluginBaseOptions,
   /**
    * Options of the plugin that can be used later on, see `options` inside your plugin config.
    */
-  TResolvedOptions extends object = TOptions,
+  TResolvedOptions extends object = object,
   /**
    * Context that you want to expose to other plugins.
    */

@@ -1,12 +1,10 @@
 import type { Visitor } from '@kubb/ast/types'
 import type {
   CompatibilityPreset,
-  Exclude,
   Generator,
   Group,
-  Include,
   Output,
-  Override,
+  PluginBaseOptions,
   PluginFactoryOptions,
   ResolvePathOptions,
   Resolver,
@@ -66,12 +64,7 @@ type ParamsTypeOptions =
       pathParamsType?: 'object' | 'inline'
     }
 
-export type Options = {
-  /**
-   * Specify the export location for the files and define the behavior of the output.
-   * @default { path: 'cypress', barrelType: 'named' }
-   */
-  output?: Output
+export type Options = PluginBaseOptions<ResolvedOptions> & {
   /**
    * Return type when calling cy.request.
    * - 'data' returns ResponseConfig[data].
@@ -92,18 +85,6 @@ export type Options = {
    * Group the Cypress requests based on the provided name.
    */
   group?: UserGroup
-  /**
-   * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
-   */
-  exclude?: Array<Exclude>
-  /**
-   * Array containing include parameters to include tags/operations/methods/paths.
-   */
-  include?: Array<Include>
-  /**
-   * Array containing override parameters to override `options` based on tags/operations/methods/paths.
-   */
-  override?: Array<Override<ResolvedOptions>>
   /**
    * Apply a compatibility naming preset.
    * @default 'default'
