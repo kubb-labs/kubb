@@ -11,7 +11,7 @@ import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.tsx'
 import { fsStorage } from './storages/fsStorage.ts'
-import type { AdapterSource, BarrelType, Config, KubbEvents, Output, Plugin, PluginContext, Storage, UserConfig } from './types.ts'
+import type { AdapterSource, Config, GeneratorContext, KubbEvents, Plugin, PluginContext, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
@@ -276,12 +276,11 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
     throw new Error(`[${plugin.name}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`)
   }
 
-  const pluginOptions = plugin.options as Record<string, unknown>
-  const output = pluginOptions['output'] as { path: string; barrelType?: string } | undefined
+  // After the null-check above, adapter and rootNode are guaranteed present.
+  // Cast once to GeneratorContext so all hook calls are typed without per-call casts.
+  const generatorContext = context as GeneratorContext
+  const { output, exclude = [], include, override = [] } = plugin.options
   const root = resolve(config.root, config.output.path)
-  const exclude = (pluginOptions['exclude'] as [] | undefined) ?? []
-  const include = pluginOptions['include'] as [] | undefined
-  const override = (pluginOptions['override'] as [] | undefined) ?? []
 
   const collectedOperations: Array<OperationNode> = []
 
@@ -291,7 +290,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       if (!plugin.schema) return
       const options = resolver.resolveOptions(node, { options: plugin.options, exclude, include, override })
       if (options === null) return
-      const result = await plugin.schema.call(context, node, options)
+      const result = await plugin.schema.call(generatorContext, node, options)
 
       await applyHookResult(result, fabric)
     },
@@ -301,7 +300,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
         collectedOperations.push(node)
         if (plugin.operation) {
 
-          const result = await plugin.operation.call(context, node, options)
+          const result = await plugin.operation.call(generatorContext, node, options)
           await applyHookResult(result, fabric)
         }
       }
@@ -309,16 +308,16 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
   })
 
   if (plugin.operations && collectedOperations.length > 0) {
-    const result = await plugin.operations.call(context, collectedOperations, plugin.options)
+    const result = await plugin.operations.call(generatorContext, collectedOperations, plugin.options)
 
     await applyHookResult(result, fabric)
   }
 
   if (output?.barrelType) {
     const barrelFiles = await getBarrelFiles(fabric.files, {
-      type: output.barrelType as BarrelType | false | undefined,
+      type: output.barrelType,
       root,
-      output: output as { path: string; barrelType?: string },
+      output,
       meta: { pluginName: plugin.name },
     })
     await context.upsertFile(...barrelFiles)
@@ -491,7 +490,7 @@ function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, dri
 
       const meta = file.meta as FileMetaBase | undefined
       const plugin = meta?.pluginName ? pluginNameMap.get(meta.pluginName) : undefined
-      const pluginOptions = plugin?.options as { output?: Output<unknown> } | undefined
+      const pluginOptions = plugin?.options
 
       if (!pluginOptions || pluginOptions.output?.barrelType === false) {
         return []
