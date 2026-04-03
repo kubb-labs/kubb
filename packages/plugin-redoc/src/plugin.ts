@@ -21,6 +21,8 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
     options: {
       output,
       name: trimExtName(output.path),
+      exclude: [],
+      override: [],
     },
     async buildStart() {
       const adapter = this.adapter

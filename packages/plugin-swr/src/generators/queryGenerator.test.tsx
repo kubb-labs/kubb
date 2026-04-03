@@ -141,6 +141,9 @@ describe('queryGenerator operation', async () => {
         path: '.',
       },
       group: undefined,
+      exclude: [],
+      include: undefined,
+      override: [],
       ...props.options,
     }
     const plugin = createMockedPlugin<PluginSwr>({ name: 'plugin-swr', options })

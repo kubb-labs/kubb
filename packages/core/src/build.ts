@@ -330,7 +330,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
     for (const plugin of driver.plugins.values()) {
       const context = driver.getContext(plugin)
       const hrStart = process.hrtime()
-      const { output } = plugin.options
+      const { output } = plugin.options ?? {}
       const root = resolve(config.root, config.output.path)
 
       try {

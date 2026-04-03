@@ -114,6 +114,9 @@ describe('suspenseInfiniteQueryGenerator operation', async () => {
         importPath: '@tanstack/react-query',
       },
       customOptions: undefined,
+      exclude: [],
+      include: undefined,
+      override: [],
       output: {
         path: '.',
       },

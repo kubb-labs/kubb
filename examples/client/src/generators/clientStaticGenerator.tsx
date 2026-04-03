@@ -2,7 +2,6 @@ import path from 'node:path'
 import { defineGenerator } from '@kubb/core'
 import type { PluginClient } from '@kubb/plugin-client'
 import { Client } from '@kubb/plugin-client'
-import type { PluginTs } from '@kubb/plugin-ts'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File } from '@kubb/react-fabric'
 
@@ -15,7 +14,7 @@ export const clientStaticGenerator = defineGenerator<PluginClient>({
     const { output, importPath, dataReturnType, pathParamsType, paramsType, paramsCasing, parser } = options
     const baseURL = adapter.rootNode?.meta?.baseURL
 
-    const pluginTs = driver.getPlugin<PluginTs>(pluginTsName)
+    const pluginTs = driver.getPlugin(pluginTsName)
     if (!pluginTs?.resolver) return null
 
     const tsResolver = pluginTs.resolver

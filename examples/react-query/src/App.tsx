@@ -41,7 +41,7 @@ function Pets() {
         queryKey: ['test'] as const,
         enabled: false,
         select: (data) => {
-          const res = data.at(0)
+          const res = data[0]
           //    ^?
           return res
         },

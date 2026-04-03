@@ -76,6 +76,9 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
       pathParamsType,
       paramsCasing,
       group,
+      exclude,
+      include,
+      override,
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {

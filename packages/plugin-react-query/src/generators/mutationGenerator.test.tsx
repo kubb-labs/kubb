@@ -148,6 +148,9 @@ describe('mutationGenerator operation', async () => {
       suspense: false,
       infinite: false,
       customOptions: undefined,
+      exclude: [],
+      include: undefined,
+      override: [],
       output: {
         path: '.',
       },
@@ -215,6 +218,9 @@ describe('mutationGenerator operation', async () => {
       suspense: false,
       infinite: false,
       customOptions: undefined,
+      exclude: [],
+      include: undefined,
+      override: [],
       output: {
         path: '.',
       },

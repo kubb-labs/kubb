@@ -207,6 +207,9 @@ describe('queryGenerator operation', async () => {
       suspense: false,
       infinite: false,
       customOptions: undefined,
+      exclude: [],
+      include: undefined,
+      override: [],
       output: {
         path: '.',
       },

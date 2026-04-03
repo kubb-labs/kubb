@@ -145,6 +145,8 @@ describe('fakerGenerator schema', async () => {
       unknownType: 'unknown',
       integerType: 'number',
       mapper: {},
+      exclude: [],
+      include: undefined,
       output: {
         path: '.',
       },
@@ -282,6 +284,8 @@ describe('fakerGenerator operation', async () => {
       transformers: {},
       unknownType: 'unknown',
       mapper: {},
+      exclude: [],
+      include: undefined,
       output: {
         path: '.',
       },

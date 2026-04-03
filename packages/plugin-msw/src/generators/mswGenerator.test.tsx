@@ -95,6 +95,9 @@ describe('mswGenerator operation', async () => {
       parser: 'data',
       baseURL: undefined,
       group: undefined,
+      exclude: [],
+      include: undefined,
+      override: [],
       ...props.options,
     }
     const plugin = createMockedPlugin<PluginMsw>({ name: 'plugin-msw', options })

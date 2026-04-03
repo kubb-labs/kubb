@@ -1,7 +1,6 @@
 import path from 'node:path'
 import { caseParams, transform } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
-import type { PluginTs } from '@kubb/plugin-ts'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { File } from '@kubb/react-fabric'
 import { McpHandler } from '../components/McpHandler.tsx'

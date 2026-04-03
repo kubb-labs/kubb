@@ -158,6 +158,9 @@ describe('queryGenerator operation', async () => {
         path: '.',
       },
       group: undefined,
+      exclude: [],
+      include: undefined,
+      override: [],
       ...props.options,
     }
     const plugin = createMockedPlugin<PluginVueQuery>({ name: 'plugin-vue-query', options })
