@@ -1,5 +1,7 @@
-import type { PossiblePromise } from '@internals/utils'
+import { isPromise, type PossiblePromise } from '@internals/utils'
+import { adapterOas } from '@kubb/adapter-oas'
 import type { UserConfig } from '@kubb/core'
+import { parserTs } from '@kubb/parser-ts'
 
 /**
  * CLI options derived from command-line flags.
@@ -29,9 +31,25 @@ export type CLIOptions = {
  */
 export type ConfigInput = PossiblePromise<UserConfig | UserConfig[]> | ((cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>)
 
-// TODO could we add the promise and function test here so we always return a definedConfig here?
 /**
- * Helper for defining a Kubb configuration.
+ * Applies default adapter and parsers to a single user config when not set.
+ *
+ * - `adapter` defaults to `adapterOas()`
+ * - `parsers` defaults to `[parserTs]`
+ */
+function applyDefaults(config: UserConfig): UserConfig {
+  return {
+    ...config,
+    adapter: config.adapter ?? adapterOas(),
+    parsers: config.parsers?.length ? config.parsers : [parserTs],
+  }
+}
+
+/**
+ * Helper for defining a Kubb configuration with built-in defaults.
+ *
+ * When no `adapter` is provided, `adapterOas()` is used automatically.
+ * When no `parsers` are provided, `[parserTs]` is used automatically.
  *
  * Accepts either:
  * - A config object or array of configs
@@ -44,8 +62,31 @@ export type ConfigInput = PossiblePromise<UserConfig | UserConfig[]> | ((cli: CL
  *   plugins: [myPlugin()],
  * }))
  */
-export function defineConfig(config: (cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>): typeof config
-export function defineConfig(config: PossiblePromise<UserConfig | UserConfig[]>): typeof config
+export function defineConfig(config: (cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>): (cli: CLIOptions) => Promise<UserConfig | UserConfig[]>
+export function defineConfig(config: Promise<UserConfig | UserConfig[]>): Promise<UserConfig | UserConfig[]>
+export function defineConfig(config: UserConfig | UserConfig[]): UserConfig | UserConfig[]
 export function defineConfig(config: ConfigInput): ConfigInput {
-  return config
+  if (typeof config === 'function') {
+    return async (cli: CLIOptions) => {
+      const resolved = await config(cli)
+      const configs = Array.isArray(resolved) ? resolved : [resolved]
+      const result = configs.map(applyDefaults)
+
+      return result.length === 1 ? result[0]! : result
+    }
+  }
+
+  if (isPromise(config)) {
+    return config.then((resolved) => {
+      const configs = Array.isArray(resolved) ? resolved : [resolved]
+      const result = configs.map(applyDefaults)
+
+      return result.length === 1 ? result[0]! : result
+    })
+  }
+
+  const configs = Array.isArray(config) ? config : [config]
+  const result = configs.map(applyDefaults)
+
+  return result.length === 1 ? result[0]! : result
 }

@@ -1,7 +1,7 @@
 import type {
+  UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdatePetWithFormMutationResponse,
 } from '../../models/ts/petController/UpdatePetWithForm.ts'
 
 export function updatePetWithForm(

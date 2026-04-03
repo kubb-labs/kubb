@@ -14,11 +14,11 @@
  * OpenAPI spec version: 1.0.11
  */
 
-import type { Client, RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
-import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
-import type { QueryKey, QueryClient, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
-import { fetch } from '../.kubb/fetch.ts'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryClient, QueryKey } from '@tanstack/svelte-query'
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { Client, RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.ts'
+import { fetch } from '../.kubb/fetch.ts'
+import type { LogoutUserQueryResponse } from '../models/LogoutUser.ts'
 
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 

@@ -3,14 +3,14 @@
  * Do not edit manually.
  */
 
-import { z } from "../../zod.ts";
+import { z } from '../../zod.ts'
 
 export const categorySchema = z.object({
   id: z.int().optional(),
   name: z.string().optional(),
   get parent() {
-    return categorySchema.optional();
+    return categorySchema.optional()
   },
-});
+})
 
-export type CategorySchema = z.infer<typeof categorySchema>;
+export type CategorySchema = z.infer<typeof categorySchema>

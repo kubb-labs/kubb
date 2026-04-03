@@ -10,7 +10,7 @@ import { resolverZod } from '../resolvers/resolverZod.ts'
 import type { PluginZod } from '../types.ts'
 import { zodGenerator } from './zodGenerator.tsx'
 
-const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [], parsers: [] }
+const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [], parsers: [], adapter: createMockedAdapter() }
 
 const defaultOptions: PluginZod['resolvedOptions'] = {
   dateType: 'string',

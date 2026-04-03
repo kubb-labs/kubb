@@ -1,6 +1,7 @@
 import { AsyncEventEmitter } from '@internals/utils'
 import { createFabric } from '@kubb/react-fabric'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
+import { createMockedAdapter } from '#mocks'
 import { createPlugin } from './createPlugin.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import type { Config, KubbEvents, Plugin } from './types.ts'
@@ -79,6 +80,7 @@ describe('PluginDriver', () => {
       clean: true,
     },
     parsers: [],
+    adapter: createMockedAdapter(),
     plugins: [pluginA({}), pluginB({}), pluginC({})] as Array<Plugin>,
   } satisfies Config
   const pluginDriver = new PluginDriver(config, {

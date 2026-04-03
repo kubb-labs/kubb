@@ -46,7 +46,7 @@ declare global {
  * ...
  * })
  */
-export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'parsers' | 'plugins'> & {
+export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins' | 'parsers' | 'adapter'> & {
   /**
    * The project root directory, which can be either an absolute path or a path relative to the location of your `kubb.config.ts` file.
    * @default process.cwd()
@@ -71,6 +71,19 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'parsers'
    */
   parsers?: Array<Parser>
   /**
+   * Adapter that converts the input file into a `@kubb/ast` `RootNode` — the universal
+   * intermediate representation consumed by all Kubb plugins.
+   *
+   * When omitted, `adapterOas()` from `@kubb/adapter-oas` is used automatically as the
+   * default (requires `@kubb/adapter-oas` to be installed as an optional dependency).
+   *
+   * - Use `@kubb/adapter-oas` for OpenAPI / Swagger (default).
+   * - Use `@kubb/adapter-drizzle` or `@kubb/adapter-asyncapi` for other formats.
+   *
+   * @default adapterOas() — from `@kubb/adapter-oas`
+   */
+  adapter?: Adapter
+  /**
    * An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Refer to “pre” for more details.
    */
   // inject needs to be omitted because else we have a clash with the PluginDriver instance
@@ -91,7 +104,7 @@ export type InputData = {
   data: string | unknown
 }
 
-type Input = InputPath | InputData | Array<InputPath>
+type Input = InputPath | InputData
 
 /**
  * The raw source passed to an adapter's `parse` function.
@@ -213,13 +226,9 @@ export type Config<TInput = Input> = {
    * Adapter that converts the input file into a `@kubb/ast` `RootNode` — the universal
    * intermediate representation consumed by all Kubb plugins.
    *
-   * When omitted, `adapterOas()` from `@kubb/adapter-oas` is used automatically as the
-   * default (requires `@kubb/adapter-oas` to be installed as an optional dependency).
-   *
-   * - Use `@kubb/adapter-oas` for OpenAPI / Swagger (default).
+   * - Use `@kubb/adapter-oas` for OpenAPI / Swagger.
    * - Use `@kubb/adapter-drizzle` or `@kubb/adapter-asyncapi` for other formats.
    *
-   * @default adapterOas() — from `@kubb/adapter-oas`
    * @example
    * ```ts
    * import { adapterOas } from '@kubb/adapter-oas'
@@ -229,7 +238,7 @@ export type Config<TInput = Input> = {
    * })
    * ```
    */
-  adapter?: Adapter
+  adapter: Adapter
   /**
    * You can use either `input.path` or `input.data`, depending on your specific needs.
    */

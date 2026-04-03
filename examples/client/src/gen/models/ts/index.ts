@@ -2,6 +2,7 @@ export type {
   AddPetRequest,
   AddPetRequestStatusEnumKey,
 } from './AddPetRequest.js'
+export { addPetRequestStatusEnum } from './AddPetRequest.js'
 export type { Address } from './Address.js'
 export type { ApiResponse } from './ApiResponse.js'
 export type { Category } from './Category.js'
@@ -11,11 +12,10 @@ export type {
   OrderHttpStatusEnumKey,
   OrderStatusEnumKey,
 } from './Order.js'
+export { orderHttpStatusEnum, orderStatusEnum } from './Order.js'
 export type { Pet, PetStatusEnumKey } from './Pet.js'
+export { petStatusEnum } from './Pet.js'
 export type { PetNotFound } from './PetNotFound.js'
-export type { Tag } from './Tag.js'
-export type { User } from './User.js'
-export type { UserArray } from './UserArray.js'
 export type {
   AddPet200,
   AddPet405,
@@ -38,6 +38,7 @@ export type {
   FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
 } from './petController/FindPetsByStatus.js'
+export { findPetsByStatusQueryParamsStatusEnum } from './petController/FindPetsByStatus.js'
 export type {
   FindPetsByTags200,
   FindPetsByTags400,
@@ -111,6 +112,9 @@ export type {
   PlaceOrderPatchMutationRequest,
   PlaceOrderPatchMutationResponse,
 } from './storeController/PlaceOrderPatch.js'
+export type { Tag } from './Tag.js'
+export type { User } from './User.js'
+export type { UserArray } from './UserArray.js'
 export type {
   CreateUserError,
   CreateUserMutation,
@@ -158,8 +162,3 @@ export type {
   UpdateUserMutationResponse,
   UpdateUserPathParams,
 } from './userController/UpdateUser.js'
-export { addPetRequestStatusEnum } from './AddPetRequest.js'
-export { orderHttpStatusEnum } from './Order.js'
-export { orderStatusEnum } from './Order.js'
-export { petStatusEnum } from './Pet.js'
-export { findPetsByStatusQueryParamsStatusEnum } from './petController/FindPetsByStatus.js'

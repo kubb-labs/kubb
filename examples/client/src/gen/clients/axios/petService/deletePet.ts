@@ -1,7 +1,8 @@
 /* eslint-disable no-alert, no-console */
-import fetch from '@kubb/plugin-client/clients/fetch'
-import type { DeletePetPathParams, DeletePetHeaderParams, DeletePetMutationResponse, DeletePet400 } from '../../../models/ts/petController/DeletePet.js'
+
 import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import fetch from '@kubb/plugin-client/clients/fetch'
+import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../../models/ts/petController/DeletePet.js'
 
 function getDeletePetUrl({ petId }: { petId: DeletePetPathParams['petId'] }) {
   const res = { method: 'DELETE', url: `/pet/${petId}` as const }

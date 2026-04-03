@@ -20,6 +20,7 @@ export type {
   FindPetsByStatusQueryParamsStatusEnumKey,
   FindPetsByStatusQueryResponse,
 } from './FindPetsByStatus.ts'
+export { findPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatus.ts'
 export type {
   FindPetsByTags200,
   FindPetsByTags400,
@@ -59,4 +60,3 @@ export type {
   UploadFilePathParams,
   UploadFileQueryParams,
 } from './UploadFile.ts'
-export { findPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatus.ts'

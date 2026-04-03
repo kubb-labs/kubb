@@ -3,11 +3,9 @@
  * Do not edit manually.
  */
 
-import { z } from "../../zod.ts";
-import { phoneNumberSchema } from "./phoneNumberSchema.ts";
+import type { z } from '../../zod.ts'
+import { phoneNumberSchema } from './phoneNumberSchema.ts'
 
-export const phoneWithMaxLengthExplicitSchema = phoneNumberSchema.max(15);
+export const phoneWithMaxLengthExplicitSchema = phoneNumberSchema.max(15)
 
-export type PhoneWithMaxLengthExplicitSchema = z.infer<
-  typeof phoneWithMaxLengthExplicitSchema
->;
+export type PhoneWithMaxLengthExplicitSchema = z.infer<typeof phoneWithMaxLengthExplicitSchema>

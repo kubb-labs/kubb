@@ -6,7 +6,6 @@ import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import { createFabric } from '@kubb/react-fabric'
 import { fsPlugin } from '@kubb/react-fabric/plugins'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
-import { getDefaultAdapter, getDefaultParsers } from './defaults.ts'
 import { defineParser } from './defineParser.ts'
 import type * as KubbFile from './KubbFile.ts'
 import { PluginDriver } from './PluginDriver.ts'
@@ -118,41 +117,15 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     }
   }
 
-  // When no adapter is provided, use the registered default (if any).
-  // Defaults are registered by higher-level packages (e.g. `kubb`) via
-  // setDefaultAdapter() to avoid a circular build dependency on @kubb/core.
-  let resolvedAdapter = userConfig.adapter
-  if (!resolvedAdapter && !Array.isArray(userConfig.input)) {
-    const defaultAdapter = getDefaultAdapter()
-    if (defaultAdapter) {
-      resolvedAdapter = defaultAdapter
-
-      await events.emit('debug', {
-        date: new Date(),
-        logs: ['No adapter configured — using registered default adapter'],
-      })
-    }
-  }
-
-  // When no parsers are configured, use the registered defaults (if any).
-  let resolvedParsers = userConfig.parsers
-  if (!resolvedParsers?.length) {
-    const defaultParsers = getDefaultParsers()
-    if (defaultParsers?.length) {
-      resolvedParsers = defaultParsers
-
-      await events.emit('debug', {
-        date: new Date(),
-        logs: ['No parsers configured — using registered default parsers'],
-      })
-    }
+  if (!userConfig.adapter) {
+    throw new Error('Adapter should be defined')
   }
 
   const definedConfig: Config = {
     root: userConfig.root || process.cwd(),
     ...userConfig,
-    parsers: resolvedParsers ?? [],
-    adapter: resolvedAdapter!,
+    parsers: userConfig.parsers ?? [],
+    adapter: userConfig.adapter,
     output: {
       write: true,
       barrelType: 'named',
@@ -251,28 +224,29 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   })
 
   // Run the adapter to produce the universal RootNode.
-  // Array input is still under development — skip the adapter in that case.
-  if (!Array.isArray(definedConfig.input) && definedConfig.adapter) {
-    const adapter = definedConfig.adapter
-    const source = inputToAdapterSource(definedConfig)
 
-    await events.emit('debug', {
-      date: new Date(),
-      logs: [`Running adapter: ${adapter.name}`],
-    })
-
-    driver.adapter = adapter
-    driver.rootNode = await adapter.parse(source)
-
-    await events.emit('debug', {
-      date: new Date(),
-      logs: [
-        `✓ Adapter '${adapter.name}' resolved RootNode`,
-        `  • Schemas: ${driver.rootNode.schemas.length}`,
-        `  • Operations: ${driver.rootNode.operations.length}`,
-      ],
-    })
+  const adapter = definedConfig.adapter
+  if (!adapter) {
+    throw new Error('No adapter configured. Please provide an adapter in your kubb.config.ts.')
   }
+  const source = inputToAdapterSource(definedConfig)
+
+  await events.emit('debug', {
+    date: new Date(),
+    logs: [`Running adapter: ${adapter.name}`],
+  })
+
+  driver.adapter = adapter
+  driver.rootNode = await adapter.parse(source)
+
+  await events.emit('debug', {
+    date: new Date(),
+    logs: [
+      `✓ Adapter '${adapter.name}' resolved RootNode`,
+      `  • Schemas: ${driver.rootNode.schemas.length}`,
+      `  • Operations: ${driver.rootNode.operations.length}`,
+    ],
+  })
 
   return {
     events,

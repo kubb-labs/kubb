@@ -1,6 +1,8 @@
 import process from 'node:process'
 import { AsyncEventEmitter } from '@internals/utils'
+import { adapterOas } from '@kubb/adapter-oas'
 import { type Config, type KubbEvents, safeBuild } from '@kubb/core'
+import { parserTs } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'
 import { version as unpluginVersion } from '../package.json'
 import type { Options } from './types.ts'
@@ -25,6 +27,12 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
         console.error(`[${name}] Config is not set`)
       }
       return
+    }
+
+    const config = {
+      ...options.config,
+      adapter: options.config.adapter ?? adapterOas(),
+      parsers: options.config.parsers?.length ? options.config.parsers : [parserTs],
     }
 
     events.on('lifecycle:start', (version) => {
@@ -76,9 +84,9 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     await events.emit('lifecycle:start', unpluginVersion)
 
-    const { root: _root, ...userConfig } = options.config as Config
+    const { root: _root, ...userConfig } = config as Config
 
-    await events.emit('generation:start', options.config as Config)
+    await events.emit('generation:start', config as Config)
 
     const { error, failedPlugins, pluginTimings, files, sources } = await safeBuild({
       config: {
@@ -107,8 +115,8 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       })
     }
 
-    await events.emit('generation:end', options.config as Config, files, sources)
-    await events.emit('generation:summary', options.config as Config, {
+    await events.emit('generation:end', config as Config, files, sources)
+    await events.emit('generation:summary', config as Config, {
       failedPlugins,
       filesCreated: files.length,
       status: failedPlugins.size > 0 || error ? 'failed' : 'success',

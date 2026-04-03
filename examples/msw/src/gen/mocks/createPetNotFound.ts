@@ -3,8 +3,8 @@
  * Do not edit manually.
  */
 
-import type { PetNotFound } from '../models/PetNotFound.ts'
 import { faker } from '@faker-js/faker'
+import type { PetNotFound } from '../models/PetNotFound.ts'
 
 export function createPetNotFound(data?: Partial<PetNotFound>): PetNotFound {
   faker.seed([220])

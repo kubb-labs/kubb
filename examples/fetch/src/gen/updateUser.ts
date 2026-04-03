@@ -3,9 +3,9 @@
  * Do not edit manually.
  */
 
-import fetch from '@kubb/plugin-client/clients/fetch'
-import type { UpdateUserPathParams, UpdateUserMutationRequest, UpdateUserMutationResponse } from './models.ts'
 import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import fetch from '@kubb/plugin-client/clients/fetch'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from './models.ts'
 
 function getUpdateUserUrl(username: UpdateUserPathParams['username']) {
   const res = {

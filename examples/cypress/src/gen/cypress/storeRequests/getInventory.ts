@@ -3,16 +3,14 @@
  * Do not edit manually.
  */
 
-import type { GetInventoryResponse } from "../../models.ts";
+import type { GetInventoryResponse } from '../../models.ts'
 
-export function getInventory(
-  options: Partial<Cypress.RequestOptions> = {},
-): Cypress.Chainable<GetInventoryResponse> {
+export function getInventory(options: Partial<Cypress.RequestOptions> = {}): Cypress.Chainable<GetInventoryResponse> {
   return cy
     .request<GetInventoryResponse>({
-      method: "GET",
-      url: `http://localhost:3000/store/inventory`,
+      method: 'GET',
+      url: 'http://localhost:3000/store/inventory',
       ...options,
     })
-    .then((res) => res.body);
+    .then((res) => res.body)
 }

@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "@kubb/plugin-client": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-ts": "workspace:*",
     "@kubb/plugin-vue-query": "workspace:*",

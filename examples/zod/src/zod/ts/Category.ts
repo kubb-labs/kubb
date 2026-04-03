@@ -11,14 +11,14 @@ export type Category = {
    * @example 1
    * @type integer | undefined
    */
-  id?: number;
+  id?: number
   /**
    * @example Dogs
    * @type string | undefined
    */
-  name?: string;
+  name?: string
   /**
    * @type object | undefined
    */
-  parent?: Category;
-};
+  parent?: Category
+}

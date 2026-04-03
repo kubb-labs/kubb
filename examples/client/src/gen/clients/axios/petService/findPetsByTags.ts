@@ -1,7 +1,8 @@
 /* eslint-disable no-alert, no-console */
-import fetch from '@kubb/plugin-client/clients/fetch'
-import type { FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse, FindPetsByTags400 } from '../../../models/ts/petController/FindPetsByTags.js'
+
 import type { Client, RequestConfig, ResponseErrorConfig } from '@kubb/plugin-client/clients/fetch'
+import fetch from '@kubb/plugin-client/clients/fetch'
+import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../../../models/ts/petController/FindPetsByTags.js'
 
 function getFindPetsByTagsUrl() {
   const res = { method: 'GET', url: '/pet/findByTags' as const }

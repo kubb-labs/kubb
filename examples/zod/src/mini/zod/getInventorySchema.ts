@@ -3,13 +3,13 @@
  * Do not edit manually.
  */
 
-import * as z from "zod/mini";
+import * as z from 'zod/mini'
 
-export const getInventory200Schema = z.object({});
+export const getInventory200Schema = z.object({})
 
-export const getInventoryQueryResponseSchema = getInventory200Schema;
+export const getInventoryQueryResponseSchema = getInventory200Schema
 
 export const getInventoryQuerySchema = z.object({
   Response: getInventory200Schema,
   Errors: z.any(),
-});
+})

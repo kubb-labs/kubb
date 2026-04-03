@@ -3,17 +3,17 @@
  * Do not edit manually.
  */
 
-import * as z from "zod/mini";
-import { userSchema } from "./userSchema.ts";
+import * as z from 'zod/mini'
+import { userSchema } from './userSchema.ts'
 
-export const createUserErrorSchema = userSchema;
+export const createUserErrorSchema = userSchema
 
-export const createUserMutationRequestSchema = z.optional(userSchema);
+export const createUserMutationRequestSchema = z.optional(userSchema)
 
-export const createUserMutationResponseSchema = z.any();
+export const createUserMutationResponseSchema = z.any()
 
 export const createUserMutationSchema = z.object({
   Response: z.any(),
   Request: createUserMutationRequestSchema,
   Errors: createUserErrorSchema,
-});
+})

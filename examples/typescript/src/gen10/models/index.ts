@@ -10,10 +10,6 @@ export type { HappyCustomer } from './HappyCustomer.ts'
 export type { Order } from './Order.ts'
 export type { Pet } from './Pet.ts'
 export type { PetNotFound } from './PetNotFound.ts'
-export type { Tag } from './Tag.ts'
-export type { UnhappyCustomer } from './UnhappyCustomer.ts'
-export type { User } from './User.ts'
-export type { UserArray } from './UserArray.ts'
 export type { AddPetData, AddPetRequestConfig, AddPetResponse, AddPetResponses, AddPetStatus200, AddPetStatus405 } from './petController/AddPet.ts'
 export type {
   DeletePetHeaderApiKey,
@@ -113,6 +109,10 @@ export type {
   PlaceOrderPatchStatus200,
   PlaceOrderPatchStatus405,
 } from './storeController/PlaceOrderPatch.ts'
+export type { Tag } from './Tag.ts'
+export type { UnhappyCustomer } from './UnhappyCustomer.ts'
+export type { User } from './User.ts'
+export type { UserArray } from './UserArray.ts'
 export type { CreateUserData, CreateUserRequestConfig, CreateUserResponse, CreateUserResponses, CreateUserStatusDefault } from './userController/CreateUser.ts'
 export type {
   CreateUsersWithListInputData,

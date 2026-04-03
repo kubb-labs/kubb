@@ -3,23 +3,23 @@
  * Do not edit manually.
  */
 
-import * as z from "zod/mini";
-import { orderSchema } from "./orderSchema.ts";
+import * as z from 'zod/mini'
+import { orderSchema } from './orderSchema.ts'
 
 export const getOrderByIdPathParamsSchema = z.object({
   orderId: z.int(),
-});
+})
 
-export const getOrderById200Schema = orderSchema;
+export const getOrderById200Schema = orderSchema
 
-export const getOrderById400Schema = z.any();
+export const getOrderById400Schema = z.any()
 
-export const getOrderById404Schema = z.any();
+export const getOrderById404Schema = z.any()
 
-export const getOrderByIdQueryResponseSchema = getOrderById200Schema;
+export const getOrderByIdQueryResponseSchema = getOrderById200Schema
 
 export const getOrderByIdQuerySchema = z.object({
   Response: getOrderById200Schema,
   PathParams: getOrderByIdPathParamsSchema,
   Errors: z.union([getOrderById400Schema, getOrderById404Schema]),
-});
+})

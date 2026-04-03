@@ -678,9 +678,6 @@ importers:
 
   examples/vue-query:
     dependencies:
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
@@ -825,9 +822,6 @@ importers:
 
   packages/agent:
     dependencies:
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../core
       '@kubb/fabric-core':
         specifier: 'catalog:'
         version: 0.15.1
@@ -882,6 +876,9 @@ importers:
       jiti:
         specifier: 2.5.1
         version: 2.5.1
+      kubb:
+        specifier: workspace:*
+        version: link:../kubb
       remeda:
         specifier: 'catalog:'
         version: 2.33.7
@@ -1496,9 +1493,15 @@ importers:
 
   packages/unplugin-kubb:
     dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../adapter-oas
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       unplugin:
         specifier: ^3.0.0
         version: 3.0.0

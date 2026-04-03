@@ -3,42 +3,33 @@
  * Do not edit manually.
  */
 
-import { z } from "../../zod.ts";
+import { z } from '../../zod.ts'
 
 export const loginUserQueryParamsSchema = z
   .object({
-    username: z.string().optional().describe("The user name for login"),
-    password: z
-      .string()
-      .optional()
-      .describe("The password for login in clear text"),
+    username: z.string().optional().describe('The user name for login'),
+    password: z.string().optional().describe('The password for login in clear text'),
   })
-  .optional();
+  .optional()
 
-export type LoginUserQueryParamsSchema = z.infer<
-  typeof loginUserQueryParamsSchema
->;
+export type LoginUserQueryParamsSchema = z.infer<typeof loginUserQueryParamsSchema>
 
-export const loginUser200Schema = z.string().describe("successful operation");
+export const loginUser200Schema = z.string().describe('successful operation')
 
-export type LoginUser200Schema = z.infer<typeof loginUser200Schema>;
+export type LoginUser200Schema = z.infer<typeof loginUser200Schema>
 
-export const loginUser400Schema = z
-  .any()
-  .describe("Invalid username/password supplied");
+export const loginUser400Schema = z.any().describe('Invalid username/password supplied')
 
-export type LoginUser400Schema = z.infer<typeof loginUser400Schema>;
+export type LoginUser400Schema = z.infer<typeof loginUser400Schema>
 
-export const loginUserQueryResponseSchema = loginUser200Schema;
+export const loginUserQueryResponseSchema = loginUser200Schema
 
-export type LoginUserQueryResponseSchema = z.infer<
-  typeof loginUserQueryResponseSchema
->;
+export type LoginUserQueryResponseSchema = z.infer<typeof loginUserQueryResponseSchema>
 
 export const loginUserQuerySchema = z.object({
   Response: loginUser200Schema,
   QueryParams: loginUserQueryParamsSchema,
   Errors: loginUser400Schema,
-});
+})
 
-export type LoginUserQuerySchema = z.infer<typeof loginUserQuerySchema>;
+export type LoginUserQuerySchema = z.infer<typeof loginUserQuerySchema>

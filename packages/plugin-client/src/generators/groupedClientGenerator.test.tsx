@@ -10,7 +10,7 @@ import { resolverClient } from '../resolvers/resolverClient.ts'
 import type { PluginClient } from '../types.ts'
 import { groupedClientGenerator } from './groupedClientGenerator.tsx'
 
-const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [], parsers: [] }
+const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [], parsers: [], adapter: createMockedAdapter() }
 
 const defaultOptions: PluginClient['resolvedOptions'] = {
   dataReturnType: 'data',

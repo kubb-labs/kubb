@@ -1,4 +1,3 @@
-import { parserTs } from '@kubb/parser-ts'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginVueQuery } from '@kubb/plugin-vue-query'
@@ -22,7 +21,6 @@ export default defineConfig({
           format: 'biome',
           lint: 'biome',
         },
-        parsers: [parserTs],
         plugins: [
           pluginOas({
             generators: [],

@@ -3,11 +3,7 @@
  * Do not edit manually.
  */
 
-import type {
-  DeletePetPathPetId,
-  DeletePetHeaderApiKey,
-  DeletePetResponse,
-} from "../../models.ts";
+import type { DeletePetHeaderApiKey, DeletePetPathPetId, DeletePetResponse } from '../../models.ts'
 
 export function deletePet(
   petId: DeletePetPathPetId,
@@ -16,10 +12,10 @@ export function deletePet(
 ): Cypress.Chainable<DeletePetResponse> {
   return cy
     .request<DeletePetResponse>({
-      method: "DELETE",
+      method: 'DELETE',
       url: `http://localhost:3000/pet/${petId}`,
       headers,
       ...options,
     })
-    .then((res) => res.body);
+    .then((res) => res.body)
 }

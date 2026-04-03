@@ -3,19 +3,19 @@
  * Do not edit manually.
  */
 
-import * as z from "zod/mini";
-import { orderSchema } from "./orderSchema.ts";
+import * as z from 'zod/mini'
+import { orderSchema } from './orderSchema.ts'
 
-export const placeOrder200Schema = orderSchema;
+export const placeOrder200Schema = orderSchema
 
-export const placeOrder405Schema = z.any();
+export const placeOrder405Schema = z.any()
 
-export const placeOrderMutationRequestSchema = z.optional(orderSchema);
+export const placeOrderMutationRequestSchema = z.optional(orderSchema)
 
-export const placeOrderMutationResponseSchema = placeOrder200Schema;
+export const placeOrderMutationResponseSchema = placeOrder200Schema
 
 export const placeOrderMutationSchema = z.object({
   Response: placeOrder200Schema,
   Request: placeOrderMutationRequestSchema,
   Errors: placeOrder405Schema,
-});
+})

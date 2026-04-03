@@ -11,7 +11,7 @@ import { resolverMcp } from '../resolvers/resolverMcp.ts'
 import type { PluginMcp } from '../types.ts'
 import { mcpGenerator } from './mcpGenerator.tsx'
 
-const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [], parsers: [] }
+const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [], parsers: [], adapter: createMockedAdapter() }
 
 const defaultOptions: PluginMcp['resolvedOptions'] = {
   output: { path: '.' },

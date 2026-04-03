@@ -3,19 +3,19 @@
  * Do not edit manually.
  */
 
-import * as z from "zod/mini";
-import { categorySchema } from "./categorySchema.ts";
-import { tagSchema } from "./tagSchema.ts";
+import * as z from 'zod/mini'
+import { categorySchema } from './categorySchema.ts'
+import { tagSchema } from './tagSchema.ts'
 
 export const petSchema = z.object({
   id: z.optional(z.int()),
   get parent() {
-    return z.optional(z.array(petSchema));
+    return z.optional(z.array(petSchema))
   },
   internalId: z.optional(z.string().check(z.regex(/^[0-9]{1,19}$/))),
   name: z.string(),
   category: z.optional(categorySchema),
   photoUrls: z.array(z.string()),
   tags: z.optional(z.array(tagSchema)),
-  status: z.optional(z.enum(["available", "pending", "sold"])),
-});
+  status: z.optional(z.enum(['available', 'pending', 'sold'])),
+})

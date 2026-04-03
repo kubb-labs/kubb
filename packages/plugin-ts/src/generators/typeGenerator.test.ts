@@ -10,7 +10,8 @@ import { resolverTs } from '../resolvers/resolverTs.ts'
 import type { PluginTs } from '../types.ts'
 import { typeGenerator } from './typeGenerator.tsx'
 
-const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [], parsers: [] }
+const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [], parsers: [], adapter: createMockedAdapter() }
+
 
 const defaultOptions: PluginTs['resolvedOptions'] = {
   enumType: 'asConst',

@@ -43,6 +43,13 @@
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
   ],
+  "size-limit": [
+    {
+      "path": "./dist/*.js",
+      "limit": "510 KiB",
+      "gzip": true
+    }
+  ],
   "scripts": {
     "build": "tsdown",
     "clean": "npx rimraf ./dist",

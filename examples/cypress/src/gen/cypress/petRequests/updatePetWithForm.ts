@@ -3,27 +3,22 @@
  * Do not edit manually.
  */
 
-import type {
-  UpdatePetWithFormPathPetId,
-  UpdatePetWithFormQueryName,
-  UpdatePetWithFormQueryStatus,
-  UpdatePetWithFormResponse,
-} from "../../models.ts";
+import type { UpdatePetWithFormPathPetId, UpdatePetWithFormQueryName, UpdatePetWithFormQueryStatus, UpdatePetWithFormResponse } from '../../models.ts'
 
 export function updatePetWithForm(
   petId: UpdatePetWithFormPathPetId,
   params?: {
-    name?: UpdatePetWithFormQueryName;
-    status?: UpdatePetWithFormQueryStatus;
+    name?: UpdatePetWithFormQueryName
+    status?: UpdatePetWithFormQueryStatus
   },
   options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<UpdatePetWithFormResponse> {
   return cy
     .request<UpdatePetWithFormResponse>({
-      method: "POST",
+      method: 'POST',
       url: `http://localhost:3000/pet/${petId}`,
       qs: params,
       ...options,
     })
-    .then((res) => res.body);
+    .then((res) => res.body)
 }

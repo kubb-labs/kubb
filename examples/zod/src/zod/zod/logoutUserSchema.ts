@@ -3,21 +3,19 @@
  * Do not edit manually.
  */
 
-import { z } from "../../zod.ts";
+import { z } from '../../zod.ts'
 
-export const logoutUserErrorSchema = z.any().describe("successful operation");
+export const logoutUserErrorSchema = z.any().describe('successful operation')
 
-export type LogoutUserErrorSchema = z.infer<typeof logoutUserErrorSchema>;
+export type LogoutUserErrorSchema = z.infer<typeof logoutUserErrorSchema>
 
-export const logoutUserQueryResponseSchema = z.any();
+export const logoutUserQueryResponseSchema = z.any()
 
-export type LogoutUserQueryResponseSchema = z.infer<
-  typeof logoutUserQueryResponseSchema
->;
+export type LogoutUserQueryResponseSchema = z.infer<typeof logoutUserQueryResponseSchema>
 
 export const logoutUserQuerySchema = z.object({
   Response: z.any(),
   Errors: logoutUserErrorSchema,
-});
+})
 
-export type LogoutUserQuerySchema = z.infer<typeof logoutUserQuerySchema>;
+export type LogoutUserQuerySchema = z.infer<typeof logoutUserQuerySchema>
