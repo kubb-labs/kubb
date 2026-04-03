@@ -1,6 +1,6 @@
 import type { Parser } from '@kubb/core'
 import { defineParser } from '@kubb/core'
-import { typescriptParser } from './typescriptParser.ts'
+import { parserTs } from './parserTs.ts'
 
 /**
  * Parser that converts `.tsx` and `.jsx` files to strings.
@@ -11,10 +11,10 @@ import { typescriptParser } from './typescriptParser.ts'
  *
  * @default extname '.tsx'
  */
-export const tsxParser: Parser = defineParser({
+export const parserTsx: Parser = defineParser({
   name: 'tsx',
   extNames: ['.tsx', '.jsx'],
   async parse(file, options = { extname: '.tsx' }) {
-    return typescriptParser.parse(file, options)
+    return parserTs.parse(file, options)
   },
 })

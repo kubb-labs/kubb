@@ -164,7 +164,7 @@ export function createExport({
  *
  * @default Used automatically when no `parsers` option is set in `defineConfig`.
  */
-export const typescriptParser: Parser = defineParser({
+export const parserTs: Parser = defineParser({
   name: 'typescript',
   extNames: ['.ts', '.js'],
   async parse(file, options = { extname: '.ts' }) {

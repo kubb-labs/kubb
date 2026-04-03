@@ -116,6 +116,9 @@ importers:
       '@kubb/fabric-core':
         specifier: 0.15.1
         version: 0.15.1
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client

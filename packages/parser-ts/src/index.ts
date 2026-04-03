@@ -1,2 +1,2 @@
-export { tsxParser } from './tsxParser.ts'
-export { createExport, createImport, print, safePrint, typescriptParser, validateNodes } from './typescriptParser.ts'
+export { createExport, createImport, parserTs, print, safePrint, validateNodes } from './parserTs.ts'
+export { parserTsx } from './parserTsx.ts'

@@ -119,6 +119,8 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   const definedConfig: Config = {
     root: userConfig.root || process.cwd(),
     ...userConfig,
+    parsers: userConfig.parsers,
+    adapter: userConfig.adapter,
     output: {
       write: true,
       barrelType: 'named',
@@ -216,7 +218,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     concurrency: DEFAULT_CONCURRENCY,
   })
 
-  // Run the adapter to produce the universal RootNode; defaults to adapterOas().
+  // Run the adapter to produce the universal RootNode.
   // Array input is still under development — skip the adapter in that case.
   if (!Array.isArray(definedConfig.input) && definedConfig.adapter) {
     const adapter = definedConfig.adapter

@@ -46,47 +46,12 @@ declare global {
  * ...
  * })
  */
-export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'parsers' | 'adapter' | 'plugins'> & {
+export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'> & {
   /**
    * The project root directory, which can be either an absolute path or a path relative to the location of your `kubb.config.ts` file.
    * @default process.cwd()
    */
   root?: string
-  /**
-   * An array of parsers used to convert generated files to strings.
-   * Each parser handles specific file extensions (e.g. `.ts`, `.tsx`).
-   *
-   * A catch-all fallback parser is always appended last for any unhandled extension.
-   *
-   * @default [typescriptParser] from `@kubb/parser-ts`
-   * @example
-   * ```ts
-   * import { typescriptParser, tsxParser } from '@kubb/parser-ts'
-   * export default defineConfig({
-   *   parsers: [typescriptParser, tsxParser],
-   * })
-   * ```
-   */
-  parsers?: Array<Parser>
-  /**
-   * Adapter that converts the input file into a `@kubb/ast` `RootNode` — the universal
-   * intermediate representation consumed by all Kubb plugins.
-   *
-   * - Omit (or pass `undefined`) to use the built-in OpenAPI/Swagger adapter.
-   * - Use `@kubb/adapter-oas` for explicit OpenAPI configuration (validate, contentType, …).
-   * - Use `@kubb/adapter-drizzle` or `@kubb/adapter-asyncapi` for other formats.
-   *
-   * @default adapterOas({})
-   * @example
-   * ```ts
-   * import { drizzleAdapter } from '@kubb/adapter-drizzle'
-   * export default defineConfig({
-   *   adapter: drizzleAdapter(),
-   *   input: { path: './src/schema.ts' },
-   * })
-   * ```
-   */
-  adapter?: Adapter
   /**
    * An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Refer to “pre” for more details.
    */
@@ -213,8 +178,6 @@ export type Config<TInput = Input> = {
    * Each parser handles specific file extensions (e.g. `.ts`, `.tsx`).
    *
    * A catch-all fallback parser is always appended last for any unhandled extension.
-   *
-   * @default [typescriptParser] from `@kubb/parser-ts`
    * @example
    * ```ts
    * import { typescriptParser, tsxParser } from '@kubb/parser-ts'
@@ -228,17 +191,15 @@ export type Config<TInput = Input> = {
    * Adapter that converts the input file into a `@kubb/ast` `RootNode` — the universal
    * intermediate representation consumed by all Kubb plugins.
    *
-   * - Omit (or pass `undefined`) to use the built-in OpenAPI/Swagger adapter.
-   * - Use `@kubb/adapter-oas` for explicit OpenAPI configuration (validate, contentType, …).
+   * - Use `@kubb/adapter-oas` for OpenAPI configuration (validate, contentType, …).
    * - Use `@kubb/adapter-drizzle` or `@kubb/adapter-asyncapi` for other formats.
    *
-   * @default adapterOas({})
    * @example
    * ```ts
-   * import { drizzleAdapter } from '@kubb/adapter-drizzle'
+   * import { adapterOas } from '@kubb/adapter-oas'
    * export default defineConfig({
-   *   adapter: drizzleAdapter(),
-   *   input: { path: './src/schema.ts' },
+   *   adapter: adapterOas(),
+   *   input: { path: './petStore.yaml' },
    * })
    * ```
    */
