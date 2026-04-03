@@ -8,6 +8,7 @@ import { jsonGenerator } from './generators'
 import { OperationGenerator } from './OperationGenerator.ts'
 import { SchemaGenerator } from './SchemaGenerator.ts'
 import type { PluginOas } from './types.ts'
+import { version } from '../package.json'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 
@@ -60,6 +61,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
 
   return {
     name: pluginOasName,
+    version,
     options: {
       output,
       validate,

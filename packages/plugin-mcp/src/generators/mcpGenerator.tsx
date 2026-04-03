@@ -9,8 +9,8 @@ import type { PluginMcp } from '../types.ts'
 
 export const mcpGenerator = defineGenerator<PluginMcp>({
   name: 'mcp',
-  type: 'react',
-  Operation({ node, options, config, driver, resolver, plugin }) {
+  operation(node, options) {
+    const { config, resolver, plugin, driver } = this
     const { output, client, paramsCasing, group } = options
     const root = path.resolve(config.root, config.output.path)
 

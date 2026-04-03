@@ -90,3 +90,11 @@ type ResolvedOptions = {
 }
 
 export type PluginMcp = PluginFactoryOptions<'plugin-mcp', Options, ResolvedOptions, never, ResolvePathOptions, ResolverMcp>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-mcp': PluginMcp
+    }
+  }
+}

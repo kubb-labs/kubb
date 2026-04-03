@@ -11,6 +11,7 @@ import { pluginZodName } from '@kubb/plugin-zod'
 import { MutationKey, QueryKey } from './components'
 import { mutationGenerator, queryGenerator } from './generators'
 import type { PluginSolidQuery } from './types.ts'
+import { version } from '../package.json'
 
 export const pluginSolidQueryName = 'plugin-solid-query' satisfies PluginSolidQuery['name']
 
@@ -40,6 +41,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
 
   return {
     name: pluginSolidQueryName,
+    version,
     options: {
       output,
       client: {

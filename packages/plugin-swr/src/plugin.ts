@@ -11,6 +11,7 @@ import { pluginZodName } from '@kubb/plugin-zod'
 import { MutationKey, QueryKey } from './components'
 import { mutationGenerator, queryGenerator } from './generators'
 import type { PluginSwr } from './types.ts'
+import { version } from '../package.json'
 
 export const pluginSwrName = 'plugin-swr' satisfies PluginSwr['name']
 
@@ -40,6 +41,7 @@ export const pluginSwr = createPlugin<PluginSwr>((options) => {
 
   return {
     name: pluginSwrName,
+    version,
     options: {
       output,
       client: {

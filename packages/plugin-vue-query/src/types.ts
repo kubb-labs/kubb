@@ -174,3 +174,11 @@ type ResolvedOptions = {
 }
 
 export type PluginVueQuery = PluginFactoryOptions<'plugin-vue-query', Options, ResolvedOptions, never, ResolvePathOptions>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-vue-query': PluginVueQuery
+    }
+  }
+}

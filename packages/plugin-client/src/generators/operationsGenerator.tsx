@@ -6,8 +6,8 @@ import type { PluginClient } from '../types'
 
 export const operationsGenerator = defineGenerator<PluginClient>({
   name: 'client',
-  type: 'react',
-  Operations({ nodes, options, config, resolver, adapter }) {
+  operations(nodes, options) {
+    const { config, resolver, adapter } = this
     const { output, group } = options
     const root = path.resolve(config.root, config.output.path)
 

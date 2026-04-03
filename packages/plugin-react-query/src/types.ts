@@ -203,3 +203,11 @@ type ResolvedOptions = {
 }
 
 export type PluginReactQuery = PluginFactoryOptions<'plugin-react-query', Options, ResolvedOptions, never, ResolvePathOptions>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-react-query': PluginReactQuery
+    }
+  }
+}

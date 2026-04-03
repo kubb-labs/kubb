@@ -138,3 +138,11 @@ type ResolvedOptions = {
 }
 
 export type PluginSolidQuery = PluginFactoryOptions<'plugin-solid-query', Options, ResolvedOptions, never, ResolvePathOptions>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-solid-query': PluginSolidQuery
+    }
+  }
+}

@@ -9,8 +9,9 @@ import type { PluginCypress } from '../types.ts'
 
 export const cypressGenerator = defineGenerator<PluginCypress>({
   name: 'cypress',
-  type: 'react',
-  Operation({ node, adapter, options, config, driver, resolver, plugin }) {
+  operation(node, options) {
+    const { adapter, config, resolver, plugin, driver } = this
+
     const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group } = options
     const root = path.resolve(config.root, config.output.path)
 
@@ -77,3 +78,4 @@ export const cypressGenerator = defineGenerator<PluginCypress>({
     )
   },
 })
+

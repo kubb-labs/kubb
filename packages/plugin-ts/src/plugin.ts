@@ -3,6 +3,7 @@ import { camelCase } from '@internals/utils'
 import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
 import { presets } from './presets.ts'
 import type { PluginTs } from './types.ts'
+import { version } from '../package.json'
 
 /**
  * Canonical plugin name for `@kubb/plugin-ts`, used to identify the plugin in driver lookups and warnings.
@@ -59,6 +60,7 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
 
   return {
     name: pluginTsName,
+    version,
     get resolver() {
       return preset.resolver
     },

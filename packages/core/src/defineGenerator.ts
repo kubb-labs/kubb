@@ -3,7 +3,9 @@ import type { OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { FabricFile } from '@kubb/fabric-core/types'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import { applyHookResult } from './renderNode.tsx'
-import type { PluginContext, PluginFactoryOptions } from './types.ts'
+import type { GeneratorContext, PluginFactoryOptions } from './types.ts'
+
+export type { GeneratorContext } from './types.ts'
 
 /**
  * A generator is a named object with optional `schema`, `operation`, and `operations`
@@ -34,29 +36,29 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
   name: string
   /**
    * Called for each schema node in the AST walk.
-   * `this` is the parent plugin's PluginContext.
+   * `this` is the parent plugin's context with `adapter` and `rootNode` guaranteed present.
    * `options` contains the per-node resolved options (after exclude/include/override).
    */
   schema?: (
-    this: PluginContext<TOptions>,
+    this: GeneratorContext<TOptions>,
     node: SchemaNode,
     options: TOptions['resolvedOptions'],
   ) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
   /**
    * Called for each operation node in the AST walk.
-   * `this` is the parent plugin's PluginContext.
+   * `this` is the parent plugin's context with `adapter` and `rootNode` guaranteed present.
    */
   operation?: (
-    this: PluginContext<TOptions>,
+    this: GeneratorContext<TOptions>,
     node: OperationNode,
     options: TOptions['resolvedOptions'],
   ) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
   /**
    * Called once after all operations have been walked.
-   * `this` is the parent plugin's PluginContext.
+   * `this` is the parent plugin's context with `adapter` and `rootNode` guaranteed present.
    */
   operations?: (
-    this: PluginContext<TOptions>,
+    this: GeneratorContext<TOptions>,
     nodes: Array<OperationNode>,
     options: TOptions['resolvedOptions'],
   ) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
@@ -100,6 +102,7 @@ export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFa
       for (const gen of generators) {
         if (!gen.schema) continue
         const result = await gen.schema.call(this, node, options)
+
         await applyHookResult(result, this.fabric)
       }
     },
@@ -107,6 +110,7 @@ export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFa
       for (const gen of generators) {
         if (!gen.operation) continue
         const result = await gen.operation.call(this, node, options)
+
         await applyHookResult(result, this.fabric)
       }
     },
@@ -114,6 +118,7 @@ export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFa
       for (const gen of generators) {
         if (!gen.operations) continue
         const result = await gen.operations.call(this, nodes, options)
+
         await applyHookResult(result, this.fabric)
       }
     },

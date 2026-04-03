@@ -222,3 +222,11 @@ type ResolvedOptions = {
 }
 
 export type PluginClient = PluginFactoryOptions<'plugin-client', Options, ResolvedOptions, never, ResolvePathOptions, ResolverClient>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-client': PluginClient
+    }
+  }
+}

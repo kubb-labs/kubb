@@ -124,3 +124,11 @@ type ResolvedOptions = {
   paramsCasing: Options['paramsCasing']
 }
 export type PluginFaker = PluginFactoryOptions<'plugin-faker', Options, ResolvedOptions, never, ResolvePathOptions>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-faker': PluginFaker
+    }
+  }
+}

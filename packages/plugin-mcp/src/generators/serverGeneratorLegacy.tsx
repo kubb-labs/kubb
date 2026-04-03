@@ -16,8 +16,8 @@ import type { PluginMcp } from '../types.ts'
  */
 export const serverGeneratorLegacy = defineGenerator<PluginMcp>({
   name: 'operations',
-  type: 'react',
-  Operations({ nodes, adapter, options, config, driver, resolver, plugin }) {
+  operations(nodes, options) {
+    const { adapter, config, resolver, plugin, driver } = this
     const { output, paramsCasing, group } = options
     const root = path.resolve(config.root, config.output.path)
 

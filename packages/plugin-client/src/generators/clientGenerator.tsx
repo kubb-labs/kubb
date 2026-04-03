@@ -12,8 +12,8 @@ import type { PluginClient } from '../types'
 
 export const clientGenerator = defineGenerator<PluginClient>({
   name: 'client',
-  type: 'react',
-  Operation({ node, adapter, options, config, driver, resolver, plugin }) {
+  operation(node, options) {
+    const { adapter, config, driver, resolver, plugin } = this
     const { output, urlType, dataReturnType, paramsCasing, paramsType, pathParamsType, parser, importPath, group } = options
     const baseURL = options.baseURL ?? adapter.rootNode?.meta?.baseURL
     const root = path.resolve(config.root, config.output.path)

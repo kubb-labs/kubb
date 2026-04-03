@@ -238,3 +238,11 @@ type ResolvedOptions = {
 }
 
 export type PluginZod = PluginFactoryOptions<'plugin-zod', Options, ResolvedOptions, never, ResolvePathOptions, ResolverZod>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-zod': PluginZod
+    }
+  }
+}

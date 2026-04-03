@@ -16,3 +16,11 @@ type ResolveOptions = {
 }
 
 export type PluginRedoc = PluginFactoryOptions<'plugin-redoc', Options, ResolveOptions, never>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-redoc': PluginRedoc
+    }
+  }
+}

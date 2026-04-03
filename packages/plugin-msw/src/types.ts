@@ -63,3 +63,11 @@ type ResolvedOptions = {
 }
 
 export type PluginMsw = PluginFactoryOptions<'plugin-msw', Options, ResolvedOptions, never, ResolvePathOptions>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-msw': PluginMsw
+    }
+  }
+}

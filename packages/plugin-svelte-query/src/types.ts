@@ -138,3 +138,11 @@ type ResolvedOptions = {
 }
 
 export type PluginSvelteQuery = PluginFactoryOptions<'plugin-svelte-query', Options, ResolvedOptions, never, ResolvePathOptions>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-svelte-query': PluginSvelteQuery
+    }
+  }
+}

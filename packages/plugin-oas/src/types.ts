@@ -16,6 +16,9 @@ type Context = {
 declare global {
   namespace Kubb {
     interface PluginContext extends Context {}
+    interface PluginRegistry {
+      'plugin-oas': PluginOas
+    }
   }
 }
 

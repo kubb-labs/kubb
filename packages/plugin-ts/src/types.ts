@@ -314,3 +314,11 @@ type ResolvedOptions = {
 }
 
 export type PluginTs = PluginFactoryOptions<'plugin-ts', Options, ResolvedOptions, never, ResolvePathOptions, ResolverTs>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-ts': PluginTs
+    }
+  }
+}

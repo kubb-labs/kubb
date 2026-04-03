@@ -1,8 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { walk } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
-import { createPlugin, type Group, getBarrelFiles, getPreset, runGeneratorOperation, runGeneratorOperations, runGeneratorSchema } from '@kubb/core'
+import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
 import { type PluginClient, pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
@@ -11,6 +9,7 @@ import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
 import { presets } from './presets.ts'
 import type { PluginMcp } from './types.ts'
+import { version } from '../package.json'
 
 export const pluginMcpName = 'plugin-mcp' satisfies PluginMcp['name']
 
@@ -18,9 +17,6 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
   const {
     output = { path: 'mcp', barrelType: 'named' },
     group,
-    exclude = [],
-    include,
-    override = [],
     paramsCasing,
     client,
     compatibilityPreset = 'default',
@@ -40,8 +36,12 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
     generators: userGenerators,
   })
 
+  const generators = preset.generators ?? []
+  const mergedGenerator = mergeGenerators(generators)
+
   return {
     name: pluginMcpName,
+    version,
     get resolver() {
       return preset.resolver
     },
@@ -78,16 +78,20 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
       }
     },
     pre: [pluginTsName, pluginZodName].filter(Boolean),
+    async schema(node, options) {
+      return mergedGenerator.schema?.call(this, node, options)
+    },
+    async operation(node, options) {
+      return mergedGenerator.operation?.call(this, node, options)
+    },
+    async operations(nodes, options) {
+      return mergedGenerator.operations?.call(this, nodes, options)
+    },
     async install() {
-      const { config, fabric, plugin, adapter, rootNode, driver } = this
+      const { config, adapter, driver } = this
       const root = path.resolve(config.root, config.output.path)
-      const resolver = preset.resolver
 
-      if (!adapter) {
-        throw new Error('Plugin cannot work without adapter being set')
-      }
-
-      const baseURL = adapter.rootNode?.meta?.baseURL
+      const baseURL = adapter?.rootNode?.meta?.baseURL
       if (baseURL) {
         this.plugin.options.client.baseURL = this.plugin.options.client.baseURL || baseURL
       }
@@ -128,37 +132,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
         })
       }
 
-      const collectedOperations: Array<OperationNode> = []
-      const generatorContext = { generators: preset.generators, plugin, resolver, exclude, include, override, fabric, adapter, config, driver }
-
-      await walk(rootNode, {
-        depth: 'shallow',
-        async schema(schemaNode) {
-          await runGeneratorSchema(schemaNode, generatorContext)
-        },
-        async operation(operationNode) {
-          const baseOptions = resolver.resolveOptions(operationNode, { options: plugin.options, exclude, include, override })
-
-          if (baseOptions !== null) {
-            collectedOperations.push(operationNode)
-          }
-
-          await runGeneratorOperation(operationNode, generatorContext)
-        },
-      })
-
-      await runGeneratorOperations(collectedOperations, generatorContext)
-
-      const barrelFiles = await getBarrelFiles(this.fabric.files, {
-        type: output.barrelType ?? 'named',
-        root,
-        output,
-        meta: {
-          pluginName: this.plugin.name,
-        },
-      })
-
-      await this.upsertFile(...barrelFiles)
+      await this.openInStudio({ ast: true })
     },
   }
 })

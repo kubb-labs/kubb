@@ -292,6 +292,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       const options = resolver.resolveOptions(node, { options: plugin.options, exclude, include, override })
       if (options === null) return
       const result = await plugin.schema.call(context, node, options)
+
       await applyHookResult(result, fabric)
     },
     async operation(node) {
@@ -299,6 +300,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       if (options !== null) {
         collectedOperations.push(node)
         if (plugin.operation) {
+
           const result = await plugin.operation.call(context, node, options)
           await applyHookResult(result, fabric)
         }
@@ -308,6 +310,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
 
   if (plugin.operations && collectedOperations.length > 0) {
     const result = await plugin.operations.call(context, collectedOperations, plugin.options)
+
     await applyHookResult(result, fabric)
   }
 

@@ -1,14 +1,13 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import { renderOperations } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
 import type { PluginZod } from '@kubb/plugin-zod'
 import { resolverZod } from '@kubb/plugin-zod'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperations } from '#mocks'
 import { resolverMcp } from '../resolvers/resolverMcp.ts'
 import type { PluginMcp } from '../types.ts'
 import { serverGenerator } from './serverGenerator.tsx'
@@ -67,12 +66,11 @@ describe('serverGenerator — Operations', () => {
       return originalGetPlugin(pluginName)
     }
 
-    await renderOperations(nodes, {
+    await renderGeneratorOperations(serverGenerator, nodes, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: serverGenerator.Operations,
       plugin,
       options: defaultOptions,
       resolver: resolverMcp,

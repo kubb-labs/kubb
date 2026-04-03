@@ -13,7 +13,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   schema(node, options) {
     const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, printer } = options
-    const { adapter, config, resolver, plugin } = this as Required<typeof this>
+    const { adapter, config, resolver, plugin } = this
 
     const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
@@ -88,7 +88,7 @@ export const typeGenerator = defineGenerator<PluginTs>({
   },
   operation(node, options) {
     const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, printer } = options
-    const { adapter, config, resolver, plugin } = this as Required<typeof this>
+    const { adapter, config, resolver, plugin } = this
 
     const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 

@@ -46,8 +46,8 @@ function resolveZodImportNames(node: OperationNode, zodResolver: PluginZod['reso
 
 export const staticClassClientGenerator = defineGenerator<PluginClient>({
   name: 'staticClassClient',
-  type: 'react',
-  Operations({ nodes, options, config, driver, resolver, adapter, plugin }) {
+  operations(nodes, options) {
+    const { adapter, config, driver, resolver, plugin } = this
     const { output, group, dataReturnType, paramsCasing, paramsType, pathParamsType, parser, importPath } = options
     const baseURL = options.baseURL ?? adapter.rootNode?.meta?.baseURL
     const root = path.resolve(config.root, config.output.path)

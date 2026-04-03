@@ -2,12 +2,11 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import { renderOperation } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation } from '#mocks'
 import { resolverMcp } from '../resolvers/resolverMcp.ts'
 import type { PluginMcp } from '../types.ts'
 import { mcpGenerator } from './mcpGenerator.tsx'
@@ -110,12 +109,11 @@ describe('mcpGenerator — Operation', () => {
     const plugin = createMockedPlugin<PluginMcp>({ name: 'plugin-mcp', options, resolver: resolverMcp })
     const driver = createMockedPluginDriver({ name: props.name, plugin: mockedTsPlugin })
 
-    await renderOperation(props.node, {
+    await renderGeneratorOperation(mcpGenerator, props.node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: mcpGenerator.Operation,
       plugin,
       options,
       resolver: resolverMcp,

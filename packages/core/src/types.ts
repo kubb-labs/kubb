@@ -469,7 +469,7 @@ type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<string, object, object,
  * Handler for a single schema node. Used by the `schema` hook on a plugin.
  */
 export type SchemaHook<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = (
-  this: PluginContext<TOptions>,
+  this: GeneratorContext<TOptions>,
   node: SchemaNode,
   options: TOptions['resolvedOptions'],
 ) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
@@ -478,7 +478,7 @@ export type SchemaHook<TOptions extends PluginFactoryOptions = PluginFactoryOpti
  * Handler for a single operation node. Used by the `operation` hook on a plugin.
  */
 export type OperationHook<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = (
-  this: PluginContext<TOptions>,
+  this: GeneratorContext<TOptions>,
   node: OperationNode,
   options: TOptions['resolvedOptions'],
 ) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
@@ -487,7 +487,7 @@ export type OperationHook<TOptions extends PluginFactoryOptions = PluginFactoryO
  * Handler for all collected operation nodes. Used by the `operations` hook on a plugin.
  */
 export type OperationsHook<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = (
-  this: PluginContext<TOptions>,
+  this: GeneratorContext<TOptions>,
   nodes: Array<OperationNode>,
   options: TOptions['resolvedOptions'],
 ) => PossiblePromise<FabricReactNode | Array<FabricFile.File> | void>
@@ -724,6 +724,19 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
     }
 ) &
   Kubb.PluginContext
+
+/**
+ * Narrowed `PluginContext` used as the `this` type inside generator and plugin AST hook methods.
+ *
+ * Generators and the `schema`/`operation`/`operations` plugin hooks are only invoked from
+ * `runPluginAstHooks`, which already guards against a missing adapter. This type reflects
+ * that guarantee — `this.adapter` and `this.rootNode` are always defined, so no runtime
+ * checks or casts are needed inside the method bodies.
+ */
+export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Omit<PluginContext<TOptions>, 'adapter' | 'rootNode'> & {
+  adapter: Adapter
+  rootNode: RootNode
+}
 /**
  * Specify the export location for the files and define the behavior of the output
  */

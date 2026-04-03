@@ -8,8 +8,8 @@ import type { PluginClient } from '../types'
 
 export const groupedClientGenerator = defineGenerator<PluginClient>({
   name: 'groupedClient',
-  type: 'react',
-  Operations({ nodes, options, config, resolver, adapter, plugin }) {
+  operations(nodes, options) {
+    const { config, resolver, adapter, plugin } = this
     const { output, group } = options
     const root = path.resolve(config.root, config.output.path)
 

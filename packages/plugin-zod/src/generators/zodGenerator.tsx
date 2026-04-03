@@ -13,8 +13,8 @@ import { buildSchemaNames } from '../utils.ts'
 
 export const zodGenerator = defineGenerator<PluginZod>({
   name: 'zod',
-  type: 'react',
-  Schema({ node, adapter, options, config, resolver, plugin }) {
+  schema(node, options) {
+    const { adapter, config, resolver, plugin } = this
     const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, printer } = options
 
     const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
@@ -59,7 +59,8 @@ export const zodGenerator = defineGenerator<PluginZod>({
       </File>
     )
   },
-  Operation({ node, adapter, options, config, resolver, plugin }) {
+  operation(node, options) {
+    const { adapter, config, resolver, plugin } = this
     const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, printer } = options
 
     const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
@@ -136,7 +137,8 @@ export const zodGenerator = defineGenerator<PluginZod>({
       </File>
     )
   },
-  Operations({ nodes, adapter, options, config, resolver, plugin }) {
+  operations(nodes, options) {
+    const { adapter, config, resolver, plugin } = this
     const { output, importPath, group, operations, paramsCasing } = options
 
     if (!operations) {

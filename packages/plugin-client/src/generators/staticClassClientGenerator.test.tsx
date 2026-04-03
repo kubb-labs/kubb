@@ -1,12 +1,11 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import { renderOperations } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperations } from '#mocks'
 import { resolverClient } from '../resolvers/resolverClient.ts'
 import type { PluginClient } from '../types.ts'
 import { staticClassClientGenerator } from './staticClassClientGenerator.tsx'
@@ -100,12 +99,11 @@ describe('staticClassClientGenerator operations', () => {
     const plugin = createMockedPlugin<PluginClient>({ name: 'plugin-client', options, resolver: resolverClient })
     const driver = createMockedPluginDriver({ name: props.name, plugin: mockedTsPlugin })
 
-    await renderOperations(operationNodes, {
+    await renderGeneratorOperations(staticClassClientGenerator, operationNodes, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: staticClassClientGenerator.Operations,
       plugin,
       options,
       resolver: resolverClient,

@@ -11,6 +11,7 @@ import { pluginZodName } from '@kubb/plugin-zod'
 import { MutationKey, QueryKey } from './components'
 import { mutationGenerator, queryGenerator } from './generators'
 import type { PluginSvelteQuery } from './types.ts'
+import { version } from '../package.json'
 
 export const pluginSvelteQueryName = 'plugin-svelte-query' satisfies PluginSvelteQuery['name']
 
@@ -40,6 +41,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
 
   return {
     name: pluginSvelteQueryName,
+    version,
     options: {
       output,
       client: {

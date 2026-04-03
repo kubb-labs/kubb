@@ -137,3 +137,11 @@ type ResolvedOptions = {
 }
 
 export type PluginCypress = PluginFactoryOptions<'plugin-cypress', Options, ResolvedOptions, never, ResolvePathOptions, ResolverCypress>
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-cypress': PluginCypress
+    }
+  }
+}

@@ -6,6 +6,7 @@ import { OperationGenerator, pluginOasName } from '@kubb/plugin-oas'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { handlersGenerator, mswGenerator } from './generators'
 import type { PluginMsw } from './types.ts'
+import { version } from '../package.json'
 
 export const pluginMswName = 'plugin-msw' satisfies PluginMsw['name']
 
@@ -26,6 +27,7 @@ export const pluginMsw = createPlugin<PluginMsw>((options) => {
 
   return {
     name: pluginMswName,
+    version,
     options: {
       output,
       parser,

@@ -13,8 +13,8 @@ import type {
   Adapter,
   AdapterFactoryOptions,
   Generator,
+  GeneratorContext,
   Plugin,
-  PluginContext,
   PluginDriver,
   PluginFactoryOptions,
   ResolveNameParams,
@@ -106,6 +106,7 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
   options: {
     name?: TOptions['name']
     resolvedOptions?: TOptions['resolvedOptions']
+    rootNode?: Adapter<TOptions>['rootNode']
     parse?: Adapter<TOptions>['parse']
     getImports?: Adapter<TOptions>['getImports']
   } = {},
@@ -113,6 +114,7 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
   return {
     name: (options.name ?? 'oas') as TOptions['name'],
     options: (options.resolvedOptions ?? {}) as TOptions['resolvedOptions'],
+    rootNode: options.rootNode ?? null,
     parse: options.parse ?? (async () => ({ kind: 'Root' as const, schemas: [], operations: [] })),
     getImports: options.getImports ?? ((_node: SchemaNode, _resolve: (schemaName: string) => { name: string; path: string }) => []),
   } as Adapter<TOptions>
@@ -184,7 +186,7 @@ type RenderGeneratorOptions<TOptions extends PluginFactoryOptions> = {
   resolver: TOptions['resolver']
 }
 
-function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: RenderGeneratorOptions<TOptions>): PluginContext<TOptions> {
+function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: RenderGeneratorOptions<TOptions>): GeneratorContext<TOptions> {
   const fabric = opts.fabric as ReturnType<typeof createReactFabric>
   return {
     config: opts.config,
@@ -199,7 +201,7 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     error: (msg: string) => console.error(msg),
     info: (msg: string) => console.info(msg),
     openInStudio: async () => {},
-  } as unknown as PluginContext<TOptions>
+  } as unknown as GeneratorContext<TOptions>
 }
 
 /**
@@ -239,5 +241,25 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
   if (!generator.operation) return
   const context = createMockedPluginContext(opts)
   const result = await generator.operation.call(context, node, opts.options)
+  await applyHookResult(result, opts.fabric)
+}
+
+/**
+ * Renders a generator's `operations` method in a test context.
+ *
+ * Replaces the old `renderOperations(nodes, { ..., Component: generator.Operations })` API.
+ *
+ * @example
+ * await renderGeneratorOperations(classClientGenerator, nodes, { config, fabric, adapter, driver, plugin, options, resolver })
+ * await matchFiles(fabric.files)
+ */
+export async function renderGeneratorOperations<TOptions extends PluginFactoryOptions>(
+  generator: Generator<TOptions>,
+  nodes: Array<OperationNode>,
+  opts: RenderGeneratorOptions<TOptions>,
+): Promise<void> {
+  if (!generator.operations) return
+  const context = createMockedPluginContext(opts)
+  const result = await generator.operations.call(context, nodes, opts.options)
   await applyHookResult(result, opts.fabric)
 }

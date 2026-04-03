@@ -1,10 +1,9 @@
 import { createOperation, createParameter, createProperty, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import { renderOperation, renderSchema } from '@kubb/core'
 import { createReactFabric } from '@kubb/react-fabric'
 import { beforeEach, describe, test } from 'vitest'
-import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation, renderGeneratorSchema } from '#mocks'
 import { resolverZodLegacy } from '../resolvers/resolverZodLegacy.ts'
 import type { PluginZod } from '../types.ts'
 import { zodGeneratorLegacy } from './zodGeneratorLegacy.tsx'
@@ -44,12 +43,11 @@ describe('zodGeneratorLegacy — Schema', () => {
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options: defaultOptions, resolver: resolverZodLegacy })
     const driver = createMockedPluginDriver({ name: 'legacy — enum schema' })
 
-    await renderSchema(enumSchema, {
+    await renderGeneratorSchema(zodGeneratorLegacy, enumSchema, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: zodGeneratorLegacy.Schema,
       plugin,
       options: defaultOptions,
       resolver: resolverZodLegacy,
@@ -72,12 +70,11 @@ describe('zodGeneratorLegacy — Schema', () => {
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options: defaultOptions, resolver: resolverZodLegacy })
     const driver = createMockedPluginDriver({ name: 'legacy — object schema' })
 
-    await renderSchema(objectSchema, {
+    await renderGeneratorSchema(zodGeneratorLegacy, objectSchema, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: zodGeneratorLegacy.Schema,
       plugin,
       options: defaultOptions,
       resolver: resolverZodLegacy,
@@ -176,12 +173,11 @@ describe('zodGeneratorLegacy — Operation', () => {
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options: defaultOptions, resolver: resolverZodLegacy })
     const driver = createMockedPluginDriver({ name: props.name })
 
-    await renderOperation(props.node, {
+    await renderGeneratorOperation(zodGeneratorLegacy, props.node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: zodGeneratorLegacy.Operation,
       plugin,
       options: defaultOptions,
       resolver: resolverZodLegacy,
@@ -216,12 +212,11 @@ describe('zodGeneratorLegacy — Operation', () => {
       ],
     })
 
-    await renderOperation(node, {
+    await renderGeneratorOperation(zodGeneratorLegacy, node, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: zodGeneratorLegacy.Operation,
       plugin,
       options: defaultOptions,
       resolver: wrappedResolver,
@@ -261,12 +256,11 @@ describe('zodGeneratorLegacy — paramsCasing', () => {
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZodLegacy })
     const driver = createMockedPluginDriver({ name: 'legacy — paramsCasing undefined' })
 
-    await renderOperation(operationWithMixedParams, {
+    await renderGeneratorOperation(zodGeneratorLegacy, operationWithMixedParams, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: zodGeneratorLegacy.Operation,
       plugin,
       options,
       resolver: resolverZodLegacy,
@@ -280,12 +274,11 @@ describe('zodGeneratorLegacy — paramsCasing', () => {
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZodLegacy })
     const driver = createMockedPluginDriver({ name: 'legacy — paramsCasing camelcase' })
 
-    await renderOperation(operationWithMixedParams, {
+    await renderGeneratorOperation(zodGeneratorLegacy, operationWithMixedParams, {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter(),
       driver,
-      Component: zodGeneratorLegacy.Operation,
       plugin,
       options,
       resolver: resolverZodLegacy,

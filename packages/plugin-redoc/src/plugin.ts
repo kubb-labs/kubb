@@ -4,6 +4,7 @@ import { adapterOasName } from '@kubb/adapter-oas'
 import { type Adapter, createPlugin } from '@kubb/core'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
+import { version } from '../package.json'
 
 function trimExtName(text: string): string {
   return text.replace(/\.[^/.]+$/, '')
@@ -16,6 +17,7 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
 
   return {
     name: pluginRedocName,
+    version,
     options: {
       output,
       name: trimExtName(output.path),

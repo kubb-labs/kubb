@@ -20,6 +20,7 @@ import {
   suspenseQueryGenerator,
 } from './generators'
 import type { PluginReactQuery } from './types.ts'
+import { version } from '../package.json'
 
 export const pluginReactQueryName = 'plugin-react-query' satisfies PluginReactQuery['name']
 
@@ -60,6 +61,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
 
   return {
     name: pluginReactQueryName,
+    version,
     options: {
       output,
       client: {

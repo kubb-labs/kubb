@@ -11,6 +11,7 @@ import { pluginZodName } from '@kubb/plugin-zod'
 import { MutationKey, QueryKey } from './components'
 import { infiniteQueryGenerator, mutationGenerator, queryGenerator } from './generators'
 import type { PluginVueQuery } from './types.ts'
+import { version } from '../package.json'
 
 export const pluginVueQueryName = 'plugin-vue-query' satisfies PluginVueQuery['name']
 
@@ -41,6 +42,7 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
 
   return {
     name: pluginVueQueryName,
+    version,
     options: {
       output,
       client: {

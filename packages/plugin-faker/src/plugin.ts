@@ -5,6 +5,7 @@ import { OperationGenerator, pluginOasName, SchemaGenerator } from '@kubb/plugin
 import { pluginTsName } from '@kubb/plugin-ts'
 import { fakerGenerator } from './generators/fakerGenerator.tsx'
 import type { PluginFaker } from './types.ts'
+import { version } from '../package.json'
 
 export const pluginFakerName = 'plugin-faker' satisfies PluginFaker['name']
 
@@ -34,6 +35,7 @@ export const pluginFaker = createPlugin<PluginFaker>((options) => {
 
   return {
     name: pluginFakerName,
+    version,
     options: {
       output,
       transformers,
