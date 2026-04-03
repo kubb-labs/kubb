@@ -1,5 +1,5 @@
 import type { PossiblePromise } from '@internals/utils'
-import type { InputPath, UserConfig } from './types.ts'
+import type { UserConfig } from './types.ts'
 
 /**
  * CLI options derived from command-line flags.
@@ -42,16 +42,10 @@ export type ConfigInput = PossiblePromise<UserConfig | UserConfig[]> | ((cli: CL
  *   root: 'src',
  *   plugins: [myPlugin()],
  * }))
+ * @deprecated as of Kubb v5, @kubb/core will not expose `defineConfig` anymore. use the `kubb` package instead
  */
 export function defineConfig(config: (cli: CLIOptions) => PossiblePromise<UserConfig | UserConfig[]>): typeof config
 export function defineConfig(config: PossiblePromise<UserConfig | UserConfig[]>): typeof config
 export function defineConfig(config: ConfigInput): ConfigInput {
   return config
-}
-
-/**
- * Type guard to check if a given config has an `input.path`.
- */
-export function isInputPath(config: UserConfig | undefined): config is UserConfig<InputPath> {
-  return typeof config?.input === 'object' && config.input !== null && 'path' in config.input
 }

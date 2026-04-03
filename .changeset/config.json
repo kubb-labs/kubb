@@ -7,7 +7,7 @@
     }
   ],
   "commit": false,
-  "fixed": [["@kubb/*"]],
+  "fixed": [["@kubb/*", "kubb"]],
   "linked": [],
   "access": "restricted",
   "baseBranch": "main",

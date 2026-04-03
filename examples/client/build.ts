@@ -1,5 +1,7 @@
 import path from 'node:path'
+import { adapterOas } from '@kubb/adapter-oas'
 import { build } from '@kubb/core'
+import { parserTs } from '@kubb/parser-ts'
 import { pluginOas } from '@kubb/plugin-oas'
 import { createFabric } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
@@ -16,6 +18,8 @@ async function run() {
       output: {
         path: './src/gen2',
       },
+      adapter: adapterOas(),
+      parsers: [parserTs],
       plugins: [pluginOas()],
     },
   })

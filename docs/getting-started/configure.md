@@ -520,23 +520,23 @@ export default defineConfig({
 ```
 
 
-### parsers
+### adapter
 
 |           |                    |
 |----------:|:-------------------|
-|     Type: | `Array<Parser>`    |
+|     Type: | `Adapter`          |
 | Required: | `false`            |
-| Default:  | `[typescriptParser]` from `@kubb/parser-ts` |
+| Default:  | `adapterOas()` from `@kubb/adapter-oas` |
 
-An array of parsers that convert generated files to strings before they are written to disk. Each parser declares which file extensions it handles via `extNames`. A built-in catch-all fallback is always registered last for any unhandled extensions.
+The adapter converts your input file into a `@kubb/ast` `RootNode` — the universal intermediate representation consumed by all Kubb plugins.
 
-When this option is omitted, Kubb defaults to `[typescriptParser]` which handles `.ts` and `.js` files. Import additional parsers from `@kubb/parser-ts` (e.g. `tsxParser` for `.tsx`/`.jsx`).
+When this option is omitted, Kubb automatically uses `adapterOas()` (OpenAPI / Swagger) as the default, provided `@kubb/adapter-oas` is installed. Supply a different adapter for non-OAS formats.
 
-See [`@kubb/parser-ts`](/helpers/parser-ts) for the available parsers and [`defineParser`](/helpers/parser-ts#defineparser) for creating custom ones.
+See [`@kubb/adapter-oas`](/adapters/adapter-oas) for all available options.
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
-import { typescriptParser, tsxParser } from '@kubb/parser-ts'
+import { adapterOas } from '@kubb/adapter-oas'
 
 export default defineConfig({
   input: {
@@ -545,7 +545,37 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
-  parsers: [typescriptParser, tsxParser],
+  adapter: adapterOas({ validate: true }),
+})
+```
+
+
+### parsers
+
+|           |                    |
+|----------:|:-------------------|
+|     Type: | `Array<Parser>`    |
+| Required: | `false`            |
+| Default:  | `[parserTs]` from `@kubb/parser-ts` |
+
+An array of parsers that convert generated files to strings before they are written to disk. Each parser declares which file extensions it handles via `extNames`. A built-in catch-all fallback is always registered last for any unhandled extensions.
+
+When this option is omitted, Kubb automatically uses `[parserTs]` from `@kubb/parser-ts`, which handles `.ts` and `.js` files. Import additional parsers (e.g. `tsxParser` for `.tsx`/`.jsx`) to extend the defaults.
+
+See [`@kubb/parser-ts`](/helpers/parser-ts) for the available parsers and [`defineParser`](/helpers/parser-ts#defineparser) for creating custom ones.
+
+```typescript twoslash [kubb.config.ts]
+import { defineConfig } from '@kubb/core'
+import { parserTs, tsxParser } from '@kubb/parser-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  parsers: [parserTs, tsxParser],
   plugins: [],
 })
 ```

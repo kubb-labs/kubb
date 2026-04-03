@@ -8,7 +8,7 @@ import { resolverTsLegacy } from '../resolvers/resolverTsLegacy.ts'
 import type { PluginTs } from '../types.ts'
 import { typeGeneratorLegacy } from './typeGeneratorLegacy.tsx'
 
-const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [] }
+const testConfig: Config = { root: '.', input: { path: '' }, output: { path: 'test' }, plugins: [], parsers: [] }
 
 const defaultOptions: PluginTs['resolvedOptions'] = {
   enumType: 'asConst',

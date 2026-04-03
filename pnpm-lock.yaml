@@ -342,24 +342,15 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../../packages/adapter-oas
-      '@kubb/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@kubb/parser-ts':
-        specifier: workspace:*
-        version: link:../../packages/parser-ts
       '@kubb/plugin-client':
         specifier: workspace:*
         version: link:../../packages/plugin-client
-      '@kubb/plugin-oas':
-        specifier: workspace:*
-        version: link:../../packages/plugin-oas
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../../packages/plugin-ts
+      kubb:
+        specifier: workspace:*
+        version: link:../../packages/kubb
     devDependencies:
       react:
         specifier: ^18.3.1
@@ -1131,9 +1122,10 @@ importers:
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
-      '@kubb/plugin-ts':
+    devDependencies:
+      '@internals/utils':
         specifier: workspace:*
-        version: link:../plugin-ts
+        version: link:../../internals/utils
 
   packages/mcp:
     dependencies:

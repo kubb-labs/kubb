@@ -46,12 +46,30 @@ declare global {
  * ...
  * })
  */
-export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'> & {
+export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'parsers' | 'plugins'> & {
   /**
    * The project root directory, which can be either an absolute path or a path relative to the location of your `kubb.config.ts` file.
    * @default process.cwd()
    */
   root?: string
+  /**
+   * An array of parsers used to convert generated files to strings.
+   * Each parser handles specific file extensions (e.g. `.ts`, `.tsx`).
+   *
+   * A catch-all fallback parser is always appended last for any unhandled extension.
+   *
+   * When omitted, `parserTs` from `@kubb/parser-ts` is used automatically as the
+   * default (requires `@kubb/parser-ts` to be installed as an optional dependency).
+   * @default [parserTs] — from `@kubb/parser-ts`
+   * @example
+   * ```ts
+   * import { parserTs, tsxParser } from '@kubb/parser-ts'
+   * export default defineConfig({
+   *   parsers: [parserTs, tsxParser],
+   * })
+   * ```
+   */
+  parsers?: Array<Parser>
   /**
    * An array of Kubb plugins used for generation. Each plugin may have additional configurable options (defined within the plugin itself). If a plugin relies on another plugin, an error will occur if the required dependency is missing. Refer to “pre” for more details.
    */
@@ -178,22 +196,30 @@ export type Config<TInput = Input> = {
    * Each parser handles specific file extensions (e.g. `.ts`, `.tsx`).
    *
    * A catch-all fallback parser is always appended last for any unhandled extension.
+   *
+   * When omitted, `parserTs` from `@kubb/parser-ts` is used automatically as the
+   * default (requires `@kubb/parser-ts` to be installed as an optional dependency).
+   * @default [parserTs] — from `@kubb/parser-ts`
    * @example
    * ```ts
-   * import { typescriptParser, tsxParser } from '@kubb/parser-ts'
+   * import { parserTs, tsxParser } from '@kubb/parser-ts'
    * export default defineConfig({
-   *   parsers: [typescriptParser, tsxParser],
+   *   parsers: [parserTs, tsxParser],
    * })
    * ```
    */
-  parsers?: Array<Parser>
+  parsers: Array<Parser>
   /**
    * Adapter that converts the input file into a `@kubb/ast` `RootNode` — the universal
    * intermediate representation consumed by all Kubb plugins.
    *
-   * - Use `@kubb/adapter-oas` for OpenAPI configuration (validate, contentType, …).
+   * When omitted, `adapterOas()` from `@kubb/adapter-oas` is used automatically as the
+   * default (requires `@kubb/adapter-oas` to be installed as an optional dependency).
+   *
+   * - Use `@kubb/adapter-oas` for OpenAPI / Swagger (default).
    * - Use `@kubb/adapter-drizzle` or `@kubb/adapter-asyncapi` for other formats.
    *
+   * @default adapterOas() — from `@kubb/adapter-oas`
    * @example
    * ```ts
    * import { adapterOas } from '@kubb/adapter-oas'

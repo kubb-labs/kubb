@@ -25,7 +25,7 @@
     "@kubb/ast": "4.36.1",
     "@kubb/cli": "4.36.1",
     "@kubb/core": "4.36.1",
-    "kubb": "3.0.249",
+    "kubb": "4.36.1",
     "@kubb/mcp": "4.36.1",
     "@kubb/oas": "4.36.1",
     "@kubb/plugin-client": "4.36.1",

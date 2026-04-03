@@ -135,7 +135,7 @@ export const randomColors = ['black', 'red', 'green', 'yellow', 'blue', 'white',
  *
  * @example
  * ```ts
- * randomCliColor('petstore') // '\x1b[33mpetstore\x1b[39m' (always the same color for 'petstore')
+ * randomCliColor('petstore') // '\x1b[33m' + 'petstore' + '\x1b[39m' (always the same color for 'petstore')
  * ```
  */
 export function randomCliColor(text?: string): string {

@@ -1,6 +1,6 @@
 // require('@kubb/react-fabric/devtools') // enable/disable devtools
 
-const { defineConfig } = require('@kubb/core')
+const { defineConfig } = require('kubb')
 
 const { adapterOas } = require('@kubb/adapter-oas')
 const { parserTs } = require('@kubb/parser-ts')

@@ -1,8 +1,4 @@
-// can devtools and ui work together, default port for devtools are 8097
-
 import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from '@kubb/core'
-import { parserTs } from '@kubb/parser-ts'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginCypress } from '@kubb/plugin-cypress'
 import { pluginFaker } from '@kubb/plugin-faker'
@@ -14,6 +10,8 @@ import { pluginRedoc } from '@kubb/plugin-redoc'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
+
+import { defineConfig } from 'kubb'
 
 export default defineConfig({
   name: 'gen',
@@ -32,7 +30,7 @@ export default defineConfig({
   hooks: {
     done: ['npm run typecheck'],
   },
-  parsers: [parserTs],
+  // parsers: [parserTs],
   adapter: adapterOas({ enumSuffix: 'enum', dateType: 'string' }),
   plugins: [
     pluginOas({
@@ -155,7 +153,7 @@ export default defineConfig({
           pattern: 'store',
         },
       ],
-      bundle: true,
+      // bundle: true,
       parser: 'zod',
       group: { type: 'tag', name: ({ group }) => `${group}Service` },
       importPath: '../../../../axios-client.ts',
@@ -164,7 +162,6 @@ export default defineConfig({
       dataReturnType: 'full',
       paramsCasing: 'camelcase',
       paramsType: 'object',
-      pathParamsType: 'object',
       urlType: 'export',
       compatibilityPreset: 'kubbV4',
       override: [

@@ -5,8 +5,8 @@ import type { OperationNode } from '@kubb/ast/types'
 import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import { createFabric } from '@kubb/react-fabric'
 import { fsPlugin } from '@kubb/react-fabric/plugins'
-import { isInputPath } from './config.ts'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
+import { getDefaultAdapter, getDefaultParsers } from './defaults.ts'
 import { defineParser } from './defineParser.ts'
 import type * as KubbFile from './KubbFile.ts'
 import { PluginDriver } from './PluginDriver.ts'
@@ -16,6 +16,7 @@ import type { AdapterSource, Config, KubbEvents, Plugin, PluginContext, Storage,
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
+import { isInputPath } from './utils/isInputPath.ts'
 
 type BuildOptions = {
   config: UserConfig
@@ -61,6 +62,7 @@ type SetupResult = {
  * - Applies config defaults (`root`, `output.*`, `devtools`).
  * - Creates the Fabric instance and wires storage, format, and lint hooks.
  * - Runs the adapter (if configured) to produce the universal `RootNode`.
+ *   When no adapter is supplied and `@kubb/adapter-oas` is installed as an
  *
  * Pass the returned {@link SetupResult} directly to {@link safeBuild} or {@link build}
  * via the `overrides` argument to reuse the same infrastructure across multiple runs.
@@ -116,11 +118,41 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     }
   }
 
+  // When no adapter is provided, use the registered default (if any).
+  // Defaults are registered by higher-level packages (e.g. `kubb`) via
+  // setDefaultAdapter() to avoid a circular build dependency on @kubb/core.
+  let resolvedAdapter = userConfig.adapter
+  if (!resolvedAdapter && !Array.isArray(userConfig.input)) {
+    const defaultAdapter = getDefaultAdapter()
+    if (defaultAdapter) {
+      resolvedAdapter = defaultAdapter
+
+      await events.emit('debug', {
+        date: new Date(),
+        logs: ['No adapter configured — using registered default adapter'],
+      })
+    }
+  }
+
+  // When no parsers are configured, use the registered defaults (if any).
+  let resolvedParsers = userConfig.parsers
+  if (!resolvedParsers?.length) {
+    const defaultParsers = getDefaultParsers()
+    if (defaultParsers?.length) {
+      resolvedParsers = defaultParsers
+
+      await events.emit('debug', {
+        date: new Date(),
+        logs: ['No parsers configured — using registered default parsers'],
+      })
+    }
+  }
+
   const definedConfig: Config = {
     root: userConfig.root || process.cwd(),
     ...userConfig,
-    parsers: userConfig.parsers,
-    adapter: userConfig.adapter,
+    parsers: resolvedParsers!,
+    adapter: resolvedAdapter!,
     output: {
       write: true,
       barrelType: 'named',
@@ -154,7 +186,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   const fabric = createFabric()
   fabric.use(fsPlugin)
 
-  for (const parser of definedConfig.parsers || []) {
+  for (const parser of definedConfig.parsers) {
     fabric.use(parser)
   }
   // Catch-all fallback: joins all source values for any unhandled extension
@@ -212,7 +244,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     ],
   })
 
-  const pluginDriver = new PluginDriver(definedConfig, {
+  const driver = new PluginDriver(definedConfig, {
     fabric,
     events,
     concurrency: DEFAULT_CONCURRENCY,
@@ -229,15 +261,15 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
       logs: [`Running adapter: ${adapter.name}`],
     })
 
-    pluginDriver.adapter = adapter
-    pluginDriver.rootNode = await adapter.parse(source)
+    driver.adapter = adapter
+    driver.rootNode = await adapter.parse(source)
 
     await events.emit('debug', {
       date: new Date(),
       logs: [
         `✓ Adapter '${adapter.name}' resolved RootNode`,
-        `  • Schemas: ${pluginDriver.rootNode.schemas.length}`,
-        `  • Operations: ${pluginDriver.rootNode.operations.length}`,
+        `  • Schemas: ${driver.rootNode.schemas.length}`,
+        `  • Operations: ${driver.rootNode.operations.length}`,
       ],
     })
   }
@@ -245,7 +277,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   return {
     events,
     fabric,
-    driver: pluginDriver,
+    driver,
     sources,
   }
 }

@@ -19,12 +19,9 @@
   },
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
-    "@kubb/cli": "workspace:*",
-    "@kubb/core": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
-    "@kubb/plugin-oas": "workspace:*",
-    "@kubb/plugin-ts": "workspace:*"
+    "@kubb/plugin-ts": "workspace:*",
+    "kubb": "workspace:*"
   },
   "devDependencies": {
     "react": "^18.3.1",

@@ -78,6 +78,7 @@ describe('PluginDriver', () => {
       path: './src/gen',
       clean: true,
     },
+    parsers: [],
     plugins: [pluginA({}), pluginB({}), pluginC({})] as Array<Plugin>,
   } satisfies Config
   const pluginDriver = new PluginDriver(config, {
