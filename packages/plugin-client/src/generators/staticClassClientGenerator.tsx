@@ -157,7 +157,7 @@ export const staticClassClientGenerator = defineGenerator<PluginClient>({
       return { zodImportsByFile, zodFilesByPath }
     }
 
-    return controllers.map(({ name, file, operations: ops }) => {
+    return <>{controllers.map(({ name, file, operations: ops }) => {
       const { typeImportsByFile, typeFilesByPath } = collectTypeImports(ops)
       const { zodImportsByFile, zodFilesByPath } =
         parser === 'zod' ? collectZodImports(ops) : { zodImportsByFile: new Map<string, Set<string>>(), zodFilesByPath: new Map<string, FabricFile.File>() }
@@ -222,6 +222,6 @@ export const staticClassClientGenerator = defineGenerator<PluginClient>({
           />
         </File>
       )
-    })
+    })}</>
   },
 })

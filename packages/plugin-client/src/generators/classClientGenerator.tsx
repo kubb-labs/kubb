@@ -257,6 +257,6 @@ export const classClientGenerator = defineGenerator<PluginClient>({
       )
     }
 
-    return files
+    return <>{files}</>
   },
 })

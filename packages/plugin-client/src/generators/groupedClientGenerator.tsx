@@ -50,7 +50,7 @@ export const groupedClientGenerator = defineGenerator<PluginClient>({
       [] as Array<{ name: string; file: FabricFile.File; clients: Array<{ name: string; file: FabricFile.File }> }>,
     )
 
-    return controllers.map(({ name, file, clients }) => {
+    return <>{controllers.map(({ name, file, clients }) => {
       return (
         <File
           key={file.path}
@@ -71,6 +71,6 @@ export const groupedClientGenerator = defineGenerator<PluginClient>({
           </File.Source>
         </File>
       )
-    })
+    })}</>
   },
 })
