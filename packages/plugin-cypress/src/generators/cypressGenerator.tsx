@@ -1,4 +1,3 @@
-import path from 'node:path'
 import { caseParams, transform } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
@@ -9,10 +8,8 @@ import type { PluginCypress } from '../types.ts'
 export const cypressGenerator = defineGenerator<PluginCypress>({
   name: 'cypress',
   operation(node, options) {
-    const { adapter, config, resolver, plugin, driver } = this
-
+    const { adapter, config, resolver, plugin, driver, root } = this
     const { output, baseURL, dataReturnType, paramsCasing, paramsType, pathParamsType, group } = options
-    const root = path.resolve(config.root, config.output.path)
 
     const pluginTs = driver.getPlugin(pluginTsName)
 

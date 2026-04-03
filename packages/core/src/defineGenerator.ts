@@ -22,8 +22,8 @@ export type { GeneratorContext } from './types.ts'
  * export const typeGenerator = defineGenerator<PluginTs>({
  *   name: 'typescript',
  *   schema(node, options) {
- *     const root = path.resolve(this.config.root, this.config.output.path)
- *     return <File ...><Type node={node} resolver={this.resolver} /></File>
+ *     const { adapter, resolver, root } = this
+ *     return <File ...><Type node={node} resolver={resolver} /></File>
  *   },
  *   operation(node, options) {
  *     return <File ...><OperationType node={node} /></File>

@@ -11,10 +11,9 @@ import type { PluginClient } from '../types'
 export const clientGenerator = defineGenerator<PluginClient>({
   name: 'client',
   operation(node, options) {
-    const { adapter, config, driver, resolver, plugin } = this
+    const { adapter, config, driver, resolver, plugin, root } = this
     const { output, urlType, dataReturnType, paramsCasing, paramsType, pathParamsType, parser, importPath, group } = options
     const baseURL = options.baseURL ?? adapter.rootNode?.meta?.baseURL
-    const root = path.resolve(config.root, config.output.path)
 
     const pluginTs = driver.getPlugin(pluginTsName)
 
@@ -96,18 +95,18 @@ export const clientGenerator = defineGenerator<PluginClient>({
           </>
         ) : (
           <>
-            <File.Import name={['fetch']} root={meta.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
+            <File.Import name={['fetch']} root={meta.file.path} path={path.resolve(root, '.kubb/fetch.ts')} />
             <File.Import
               name={['Client', 'RequestConfig', 'ResponseErrorConfig']}
               root={meta.file.path}
-              path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
+              path={path.resolve(root, '.kubb/fetch.ts')}
               isTypeOnly
             />
           </>
         )}
 
         {isFormData && transformedNode.requestBody?.schema && (
-          <File.Import name={['buildFormData']} root={meta.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
+          <File.Import name={['buildFormData']} root={meta.file.path} path={path.resolve(root, '.kubb/config.ts')} />
         )}
 
         {meta.fileZod && importedZodNames.length > 0 && <File.Import name={importedZodNames as string[]} root={meta.file.path} path={meta.fileZod.path} />}

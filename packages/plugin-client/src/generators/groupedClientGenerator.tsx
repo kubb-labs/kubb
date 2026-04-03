@@ -1,4 +1,3 @@
-import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { transform } from '@kubb/ast'
 import { defineGenerator } from '@kubb/core'
@@ -9,9 +8,8 @@ import type { PluginClient } from '../types'
 export const groupedClientGenerator = defineGenerator<PluginClient>({
   name: 'groupedClient',
   operations(nodes, options) {
-    const { config, resolver, adapter, plugin } = this
+    const { config, resolver, adapter, plugin, root } = this
     const { output, group } = options
-    const root = path.resolve(config.root, config.output.path)
 
     const controllers = nodes.reduce(
       (acc, operationNode) => {

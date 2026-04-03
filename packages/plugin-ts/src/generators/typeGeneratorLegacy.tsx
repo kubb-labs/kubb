@@ -160,7 +160,7 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
   name: 'typescript-legacy',
   schema(node, options) {
     const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group } = options
-    const { adapter, config, resolver, plugin } = this
+    const { adapter, config, resolver, plugin, root } = this
 
     const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
@@ -168,7 +168,6 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
       return
     }
 
-    const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
 
     const imports = adapter.getImports(transformedNode, (schemaName) => ({
@@ -223,11 +222,10 @@ export const typeGeneratorLegacy = defineGenerator<PluginTs>({
   },
   operation(node, options) {
     const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output } = options
-    const { adapter, config, resolver, plugin } = this
+    const { adapter, config, resolver, plugin, root } = this
 
     const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
-    const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
     const params = caseParams(node.parameters, paramsCasing)
 

@@ -168,7 +168,7 @@ function buildLegacySchemaNames(node: OperationNode, params: Array<ParameterNode
 export const zodGeneratorLegacy = defineGenerator<PluginZod>({
   name: 'zod-legacy',
   schema(node, options) {
-    const { adapter, config, resolver, plugin } = this
+    const { adapter, config, resolver, plugin, root } = this
     const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, printer } = options
     const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
@@ -176,7 +176,6 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
       return
     }
 
-    const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
@@ -213,12 +212,11 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     )
   },
   operation(node, options) {
-    const { adapter, config, resolver, plugin } = this
+    const { adapter, config, resolver, plugin, root } = this
     const { output, coercion, guidType, mini, wrapOutput, inferred, importPath, group, paramsCasing, printer } = options
 
     const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
-    const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
@@ -330,14 +328,12 @@ export const zodGeneratorLegacy = defineGenerator<PluginZod>({
     )
   },
   operations(nodes, options) {
-    const { adapter, config, resolver, plugin } = this
+    const { adapter, config, resolver, plugin, root } = this
     const { output, importPath, group, operations, paramsCasing } = options
 
     if (!operations) {
       return
     }
-
-    const root = path.resolve(config.root, config.output.path)
     const isZodImport = ZOD_NAMESPACE_IMPORTS.has(importPath as 'zod' | 'zod/mini')
 
     const meta = {

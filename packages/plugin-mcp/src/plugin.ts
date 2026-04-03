@@ -94,8 +94,8 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
       return mergedGenerator.operations?.call(this, nodes, options)
     },
     async buildStart() {
-      const { config, adapter, driver } = this
-      const root = path.resolve(config.root, config.output.path)
+      const { adapter, driver } = this
+      const root = this.root
 
       const baseURL = adapter?.rootNode?.meta?.baseURL
       if (baseURL) {

@@ -115,7 +115,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
     },
     pre: [pluginOasName, pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
-      const root = path.resolve(this.config.root, this.config.output.path)
+      const root = this.root
       const mode = pathMode ?? getMode(path.resolve(root, output.path))
 
       if (mode === 'single') {
@@ -167,7 +167,7 @@ export const pluginReactQuery = createPlugin<PluginReactQuery>((options) => {
       return resolvedName
     },
     async buildStart() {
-      const root = path.resolve(this.config.root, this.config.output.path)
+      const root = this.root
       const mode = getMode(path.resolve(root, output.path))
       const oas = await this.getOas()
       const baseURL = await this.getBaseURL()

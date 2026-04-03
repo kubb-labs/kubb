@@ -1,4 +1,3 @@
-import path from 'node:path'
 import { defineGenerator } from '@kubb/core'
 import { File } from '@kubb/react-fabric'
 import { Operations } from '../components/Operations'
@@ -7,9 +6,8 @@ import type { PluginClient } from '../types'
 export const operationsGenerator = defineGenerator<PluginClient>({
   name: 'client',
   operations(nodes, options) {
-    const { config, resolver, adapter } = this
+    const { config, resolver, adapter, root } = this
     const { output, group } = options
-    const root = path.resolve(config.root, config.output.path)
 
     const name = 'operations'
     const file = resolver.resolveFile({ name, extname: '.ts' }, { root, output, group })

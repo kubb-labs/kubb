@@ -128,10 +128,13 @@ export class PluginDriver {
     const baseContext = {
       fabric: driver.options.fabric,
       config: driver.config,
+      get root(): string {
+        return resolve(driver.config.root, driver.config.output.path)
+      },
+      events: driver.options.events,
       plugin,
       getPlugin: driver.getPlugin.bind(driver),
       requirePlugin: driver.requirePlugin.bind(driver),
-      events: driver.options.events,
       driver: driver,
       addFile: async (...files: Array<FabricFile.File>) => {
         await this.options.fabric.addFile(...files)

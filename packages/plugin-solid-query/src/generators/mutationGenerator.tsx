@@ -19,6 +19,7 @@ export const mutationGenerator = createReactGenerator<PluginSolidQuery>({
       options: { output },
     } = plugin
     const driver = useDriver()
+    const root = path.resolve(config.root, config.output.path)
 
     const oas = useOas()
     const { getSchemas, getName, getFile } = useOperationManager(generator)
@@ -91,29 +92,20 @@ export const mutationGenerator = createReactGenerator<PluginSolidQuery>({
           </>
         ) : (
           <>
-            {!shouldUseClientPlugin && (
-              <File.Import name={['fetch']} root={mutation.file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
-            )}
+            {!shouldUseClientPlugin && <File.Import name={['fetch']} root={mutation.file.path} path={path.resolve(root, '.kubb/fetch.ts')} />}
             <File.Import
               name={['Client', 'RequestConfig', 'ResponseErrorConfig']}
               root={mutation.file.path}
-              path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
+              path={path.resolve(root, '.kubb/fetch.ts')}
               isTypeOnly
             />
             {options.client.dataReturnType === 'full' && (
-              <File.Import
-                name={['ResponseConfig']}
-                root={mutation.file.path}
-                path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
-                isTypeOnly
-              />
+              <File.Import name={['ResponseConfig']} root={mutation.file.path} path={path.resolve(root, '.kubb/fetch.ts')} isTypeOnly />
             )}
           </>
         )}
         {shouldUseClientPlugin && <File.Import name={[client.name]} root={mutation.file.path} path={client.file.path} />}
-        {!shouldUseClientPlugin && (
-          <File.Import name={['buildFormData']} root={mutation.file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />
-        )}
+        {!shouldUseClientPlugin && <File.Import name={['buildFormData']} root={mutation.file.path} path={path.resolve(root, '.kubb/config.ts')} />}
         <File.Import
           name={[
             type.schemas.request?.name,

@@ -6,7 +6,7 @@ export { formatters, linters, logLevel } from './constants.ts'
 export { createAdapter } from './createAdapter.ts'
 export { createPlugin } from './createPlugin.ts'
 export { createStorage } from './createStorage.ts'
-export { defineGenerator, type GeneratorContext, mergeGenerators } from './defineGenerator.ts'
+export { defineGenerator, mergeGenerators } from './defineGenerator.ts'
 export { defineLogger } from './defineLogger.ts'
 export { definePresets } from './definePresets.ts'
 export {
@@ -19,7 +19,6 @@ export {
   defineResolver,
 } from './defineResolver.ts'
 export { getMode, PluginDriver } from './PluginDriver.ts'
-export { applyHookResult } from './renderNode.tsx'
 export { fsStorage } from './storages/fsStorage.ts'
 export { memoryStorage } from './storages/memoryStorage.ts'
 export * from './types.ts'

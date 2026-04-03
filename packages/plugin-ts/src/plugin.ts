@@ -1,4 +1,3 @@
-import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
 import { version } from '../package.json'
@@ -99,18 +98,18 @@ export const pluginTs = createPlugin<PluginTs>((options) => {
     },
     resolvePath(baseName, pathMode, options) {
       if (!resolvePathWarning) {
-        this.events.emit('warn', 'Do not use resolvePath for pluginTs, use resolverTs.resolvePath instead')
+        this.warn('Do not use resolvePath for pluginTs, use resolverTs.resolvePath instead')
         resolvePathWarning = true
       }
 
       return this.plugin.resolver.resolvePath(
         { baseName, pathMode, tag: options?.group?.tag, path: options?.group?.path },
-        { root: path.resolve(this.config.root, this.config.output.path), output, group: this.plugin.options.group },
+        { root: this.root, output, group: this.plugin.options.group },
       )
     },
     resolveName(name, type) {
       if (!resolveNameWarning) {
-        this.events.emit('warn', 'Do not use resolveName for pluginTs, use resolverTs.default instead')
+        this.warn('Do not use resolveName for pluginTs, use resolverTs.default instead')
         resolveNameWarning = true
       }
 

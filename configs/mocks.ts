@@ -20,7 +20,7 @@ import type {
   ResolveNameParams,
   ResolvePathParams,
 } from '../packages/core/src'
-import { applyHookResult } from '../packages/core/src'
+import { applyHookResult } from '../packages/core/src/renderNode'
 
 const formatOptions: Options = {
   tabWidth: 2,

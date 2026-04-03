@@ -13,15 +13,13 @@ export const typeGenerator = defineGenerator<PluginTs>({
   name: 'typescript',
   schema(node, options) {
     const { enumType, enumTypeSuffix, enumKeyCasing, syntaxType, optionalType, arrayType, output, group, printer } = options
-    const { adapter, config, resolver, plugin } = this
+    const { adapter, config, resolver, plugin, root } = this
 
     const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
     if (!transformedNode.name) {
       return
     }
-
-    const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
     // Build a set of schema names that are enums so the ref handler and getImports
     // callback can use the suffixed type name (e.g. `StatusKey`) for those refs.
@@ -88,11 +86,10 @@ export const typeGenerator = defineGenerator<PluginTs>({
   },
   operation(node, options) {
     const { enumType, enumTypeSuffix, enumKeyCasing, optionalType, arrayType, syntaxType, paramsCasing, group, output, printer } = options
-    const { adapter, config, resolver, plugin } = this
+    const { adapter, config, resolver, plugin, root } = this
 
     const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
 
-    const root = path.resolve(config.root, config.output.path)
     const mode = getMode(path.resolve(root, output.path))
 
     const params = caseParams(transformedNode.parameters, paramsCasing)

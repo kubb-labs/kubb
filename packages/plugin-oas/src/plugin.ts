@@ -103,7 +103,7 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       }
     },
     resolvePath(baseName, pathMode, options) {
-      const root = path.resolve(this.config.root, this.config.output.path)
+      const root = this.root
       const mode = pathMode ?? getMode(path.resolve(root, output.path))
 
       if (mode === 'single') {

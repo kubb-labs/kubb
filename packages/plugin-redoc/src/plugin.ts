@@ -41,7 +41,7 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
         )
       }
 
-      const root = path.resolve(this.config.root, this.config.output.path)
+      const root = this.root
       const pageHTML = await getPageHTML(document)
 
       await this.addFile({

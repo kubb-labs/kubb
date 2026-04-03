@@ -132,18 +132,18 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
     pre: [pluginTsName, parser === 'zod' ? pluginZodName : undefined].filter(Boolean),
     resolvePath(baseName, pathMode, options) {
       if (!resolvePathWarning) {
-        this.events.emit('warn', 'Do not use resolvePath for pluginClient, use resolverClient.resolvePath instead')
+        this.warn('Do not use resolvePath for pluginClient, use resolverClient.resolvePath instead')
         resolvePathWarning = true
       }
 
       return this.plugin.resolver.resolvePath(
         { baseName, pathMode, tag: options?.group?.tag, path: options?.group?.path },
-        { root: path.resolve(this.config.root, this.config.output.path), output, group: this.plugin.options.group },
+        { root: this.root, output, group: this.plugin.options.group },
       )
     },
     resolveName(name, type) {
       if (!resolveNameWarning) {
-        this.events.emit('warn', 'Do not use resolveName for pluginClient, use resolverClient.default instead')
+        this.warn('Do not use resolveName for pluginClient, use resolverClient.default instead')
         resolveNameWarning = true
       }
 
@@ -156,8 +156,8 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
       return mergedGenerator.operations?.call(this, nodes, options)
     },
     async buildStart() {
-      const { config, plugin } = this
-      const root = path.resolve(config.root, config.output.path)
+      const { plugin } = this
+      const root = this.root
 
       // pre add bundled fetch
       if (bundle && !plugin.options.importPath) {

@@ -671,6 +671,11 @@ export type ResolveNameParams = {
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   fabric: FabricType
   config: Config
+  /**
+   * Absolute path to the output directory for the current plugin.
+   * Shorthand for `path.resolve(config.root, config.output.path)`.
+   */
+  root: string
   driver: PluginDriver
   /**
    * Get a plugin by name. Returns the plugin typed via `Kubb.PluginRegistry` when
@@ -692,6 +697,9 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * merging multiple sources into the same output file
    */
   upsertFile: (...file: Array<FabricFile.File>) => Promise<void>
+  /**
+   * @deprecated use this.warn, this.error, this.info instead
+   */
   events: AsyncEventEmitter<KubbEvents>
   /**
    * Current plugin

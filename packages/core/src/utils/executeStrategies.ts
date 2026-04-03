@@ -12,6 +12,7 @@ type SeqOutput<TInput extends Array<PromiseFunc<TValue, null>>, TValue> = Promis
  * - Each function receives the accumulated state from the previous call.
  * - Skips functions that return a falsy value (acts as a no-op for that step).
  * - Returns an array of all individual results.
+ *  @deprecated
  */
 export function hookSeq<TInput extends Array<PromiseFunc<TValue, null>>, TValue, TOutput = SeqOutput<TInput, TValue>>(promises: TInput): TOutput {
   return promises.filter(Boolean).reduce(
@@ -41,6 +42,7 @@ type HookFirstOutput<TInput extends Array<PromiseFunc<TValue, null>>, TValue = u
  *
  * - Stops as soon as `nullCheck` passes for a result (default: `!== null`).
  * - Subsequent functions are skipped once a match is found.
+ *  @deprecated
  */
 export function hookFirst<TInput extends Array<PromiseFunc<TValue, null>>, TValue = unknown, TOutput = HookFirstOutput<TInput, TValue>>(
   promises: TInput,
@@ -68,6 +70,7 @@ type HookParallelOutput<TInput extends Array<PromiseFunc<TValue, null>>, TValue>
  *
  * - Limits simultaneous executions to `concurrency` (default: unlimited).
  * - Uses `Promise.allSettled` so individual failures do not cancel other tasks.
+ *  @deprecated
  */
 export function hookParallel<TInput extends Array<PromiseFunc<TValue, null>>, TValue = unknown, TOutput = HookParallelOutput<TInput, TValue>>(
   promises: TInput,
@@ -82,6 +85,7 @@ export function hookParallel<TInput extends Array<PromiseFunc<TValue, null>>, TV
 
 /**
  * Execution strategy used when dispatching plugin hook calls.
+ *  @deprecated
  */
 export type Strategy = 'seq' | 'first' | 'parallel'
 
@@ -90,5 +94,7 @@ type StrategyOutputMap<TInput extends Array<PromiseFunc<TValue, null>>, TValue> 
   seq: SeqOutput<TInput, TValue>
   parallel: HookParallelOutput<TInput, TValue>
 }
-
+/**
+ *  @deprecated
+ */
 export type StrategySwitch<TStrategy extends Strategy, TInput extends Array<PromiseFunc<TValue, null>>, TValue> = StrategyOutputMap<TInput, TValue>[TStrategy]

@@ -48,10 +48,9 @@ function resolveZodImportNames(node: OperationNode, zodResolver: PluginZod['reso
 export const classClientGenerator = defineGenerator<PluginClient>({
   name: 'classClient',
   operations(nodes, options) {
-    const { adapter, config, driver, resolver, plugin } = this
+    const { adapter, config, driver, resolver, plugin, root } = this
     const { output, group, dataReturnType, paramsCasing, paramsType, pathParamsType, parser, importPath, wrapper } = options
     const baseURL = options.baseURL ?? adapter.rootNode?.meta?.baseURL
-    const root = path.resolve(config.root, config.output.path)
 
     const pluginTs = driver.getPlugin(pluginTsName)
     if (!pluginTs?.resolver) return null
@@ -181,18 +180,13 @@ export const classClientGenerator = defineGenerator<PluginClient>({
             </>
           ) : (
             <>
-              <File.Import name={['fetch']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
-              <File.Import name={['mergeConfig']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')} />
-              <File.Import
-                name={['Client', 'RequestConfig', 'ResponseErrorConfig']}
-                root={file.path}
-                path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
-                isTypeOnly
-              />
+              <File.Import name={['fetch']} root={file.path} path={path.resolve(root, '.kubb/fetch.ts')} />
+              <File.Import name={['mergeConfig']} root={file.path} path={path.resolve(root, '.kubb/fetch.ts')} />
+              <File.Import name={['Client', 'RequestConfig', 'ResponseErrorConfig']} root={file.path} path={path.resolve(root, '.kubb/fetch.ts')} isTypeOnly />
             </>
           )}
 
-          {hasFormData && <File.Import name={['buildFormData']} root={file.path} path={path.resolve(config.root, config.output.path, '.kubb/config.ts')} />}
+          {hasFormData && <File.Import name={['buildFormData']} root={file.path} path={path.resolve(root, '.kubb/config.ts')} />}
 
           {Array.from(typeImportsByFile.entries()).map(([filePath, importSet]) => {
             const typeFile = typeFilesByPath.get(filePath)
@@ -240,12 +234,7 @@ export const classClientGenerator = defineGenerator<PluginClient>({
           {importPath ? (
             <File.Import name={['Client', 'RequestConfig']} path={importPath} isTypeOnly />
           ) : (
-            <File.Import
-              name={['Client', 'RequestConfig']}
-              root={wrapperFile.path}
-              path={path.resolve(config.root, config.output.path, '.kubb/fetch.ts')}
-              isTypeOnly
-            />
+            <File.Import name={['Client', 'RequestConfig']} root={wrapperFile.path} path={path.resolve(root, '.kubb/fetch.ts')} isTypeOnly />
           )}
 
           {controllers.map(({ name, file }) => (
