@@ -101,7 +101,7 @@ export class PluginDriver {
     this.config = config
     this.options = options
     config.plugins
-      .map((plugin) => Object.assign({ buildStart() {},  buildEnd() {} }, plugin) as unknown as Plugin)
+      .map((plugin) => Object.assign({ buildStart() {}, buildEnd() {} }, plugin) as unknown as Plugin)
       .filter((plugin) => {
         if (typeof plugin.apply === 'function') {
           return plugin.apply(config)
