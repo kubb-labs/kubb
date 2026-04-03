@@ -190,6 +190,7 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
   const fabric = opts.fabric as ReturnType<typeof createReactFabric>
   return {
     config: opts.config,
+    root: opts.config.root,
     adapter: opts.adapter,
     resolver: opts.resolver,
     plugin: opts.plugin,
