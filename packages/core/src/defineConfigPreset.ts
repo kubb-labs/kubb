@@ -70,7 +70,10 @@ export function applyPreset(userConfig: UserConfig): UserConfig {
 
   if (!definition) {
     const available = [...configPresetRegistry.keys()]
-    const hint = available.length > 0 ? `\n  Available presets: ${available.map((n) => `'${n}'`).join(', ')}` : '\n  No presets are currently registered. Make sure to import from \'kubb\' instead of \'@kubb/core\'.'
+    const hint =
+      available.length > 0
+        ? `\n  Available presets: ${available.map((n) => `'${n}'`).join(', ')}`
+        : "\n  No presets are currently registered. Make sure to import from 'kubb' instead of '@kubb/core'."
     throw new Error(`[kubb] Unknown configPreset '${configPreset}'.${hint}`)
   }
 
