@@ -2,7 +2,8 @@ import { basename, extname, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { isPromiseRejectedResult, transformReservedWord } from '@internals/utils'
-import type { RootNode } from '@kubb/ast/types'
+import { createFile } from '@kubb/ast'
+import type { FileNode, RootNode } from '@kubb/ast/types'
 import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
@@ -140,10 +141,10 @@ export class PluginDriver {
       getPlugin: driver.getPlugin.bind(driver),
       requirePlugin: driver.requirePlugin.bind(driver),
       driver: driver,
-      addFile: async (...files: Array<KubbFile.File>) => {
+      addFile: async (...files: Array<FileNode>) => {
         await this.options.fabric.addFile(...files)
       },
-      upsertFile: async (...files: Array<KubbFile.File>) => {
+      upsertFile: async (...files: Array<FileNode>) => {
         await this.options.fabric.upsertFile(...files)
       },
       get rootNode(): RootNode | undefined {
@@ -207,7 +208,7 @@ export class PluginDriver {
   /**
    * @deprecated use resolvers context instead
    */
-  getFile<TOptions = object>({ name, mode, extname, pluginName, options }: GetFileOptions<TOptions>): KubbFile.File<{ pluginName: string }> {
+  getFile<TOptions = object>({ name, mode, extname, pluginName, options }: GetFileOptions<TOptions>): FileNode<{ pluginName: string }> {
     const resolvedName = mode ? (mode === 'single' ? '' : this.resolveName({ name, pluginName, type: 'file' })) : name
 
     const path = this.resolvePath({
@@ -221,16 +222,16 @@ export class PluginDriver {
       throw new Error(`Filepath should be defined for resolvedName "${resolvedName}" and pluginName "${pluginName}"`)
     }
 
-    return {
+    return createFile<{ pluginName: string }>({
       path,
-      baseName: basename(path) as KubbFile.File['baseName'],
+      baseName: basename(path) as `${string}.${string}`,
       meta: {
         pluginName,
       },
       sources: [],
       imports: [],
       exports: [],
-    }
+    })
   }
 
   /**

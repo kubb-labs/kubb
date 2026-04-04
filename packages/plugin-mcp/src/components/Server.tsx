@@ -1,6 +1,5 @@
 import { caseParams, createFunctionParameter, createFunctionParameters, createParameterGroup } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
-import type { KubbFile } from '@kubb/core'
+import type { FileNode, OperationNode } from '@kubb/ast/types'
 import { functionPrinter } from '@kubb/plugin-ts'
 import { Const, File, Function } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
@@ -37,7 +36,7 @@ type Props = {
     }
     mcp: {
       name: string
-      file: KubbFile.File
+      file: FileNode
     }
     zod: {
       pathParams: Array<ZodParam>

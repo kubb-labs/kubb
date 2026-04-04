@@ -1,6 +1,8 @@
 /** biome-ignore-all lint/suspicious/useIterableCallbackReturn: not needed */
 import { join } from 'node:path'
 import { getRelativePath } from '@internals/utils'
+import { createExport, createFile, createSource } from '@kubb/ast'
+import type { FileNode } from '@kubb/ast/types'
 import type * as KubbFile from '../KubbFile.ts'
 import type { BarrelType } from '../types.ts'
 import { TreeNode } from './TreeNode.ts'
@@ -29,22 +31,22 @@ type AddIndexesProps = {
   meta?: FileMetaBase
 }
 
-function getBarrelFilesByRoot(root: string | undefined, files: Array<KubbFile.ResolvedFile>): Array<KubbFile.File> {
-  const cachedFiles = new Map<KubbFile.Path, KubbFile.File>()
+function getBarrelFilesByRoot(root: string | undefined, files: Array<KubbFile.ResolvedFile>): Array<FileNode> {
+  const cachedFiles = new Map<KubbFile.Path, FileNode>()
 
-  TreeNode.build(files, root)?.forEach((treeNode) => {
+  TreeNode.build(files as unknown as FileNode[], root)?.forEach((treeNode) => {
     if (!treeNode?.children || !treeNode.parent?.data.path) {
       return
     }
 
     const barrelFilePath = join(treeNode.parent?.data.path, 'index.ts') as KubbFile.Path
-    const barrelFile: KubbFile.File = {
+    const barrelFile = createFile({
       path: barrelFilePath,
       baseName: 'index.ts',
       exports: [],
       imports: [],
       sources: [],
-    }
+    })
     const previousBarrelFile = cachedFiles.get(barrelFile.path)
     const leaves = treeNode.leaves
 
@@ -67,26 +69,30 @@ function getBarrelFilesByRoot(root: string | undefined, files: Array<KubbFile.Re
           return
         }
 
-        barrelFile.exports!.push({
-          name: [source.name],
-          path: getRelativePath(treeNode.parent?.data.path, item.data.path),
-          isTypeOnly: source.isTypeOnly,
-        })
+        barrelFile.exports.push(
+          createExport({
+            name: [source.name],
+            path: getRelativePath(treeNode.parent?.data.path, item.data.path),
+            isTypeOnly: source.isTypeOnly,
+          }),
+        )
 
-        barrelFile.sources.push({
-          name: source.name,
-          isTypeOnly: source.isTypeOnly,
-          //TODO use parser to generate import
-          value: '',
-          isExportable: false,
-          isIndexable: false,
-        })
+        barrelFile.sources.push(
+          createSource({
+            name: source.name,
+            isTypeOnly: source.isTypeOnly,
+            //TODO use parser to generate import
+            value: '',
+            isExportable: false,
+            isIndexable: false,
+          }),
+        )
       })
     })
 
     if (previousBarrelFile) {
       previousBarrelFile.sources.push(...barrelFile.sources)
-      previousBarrelFile.exports?.push(...(barrelFile.exports || []))
+      previousBarrelFile.exports.push(...barrelFile.exports)
     } else {
       cachedFiles.set(barrelFile.path, barrelFile)
     }
@@ -113,7 +119,7 @@ function trimExtName(text: string): string {
  * - When `type` is `'all'`, strips named exports so every re-export becomes a wildcard (`export * from`).
  * - Attaches `meta` to each barrel file for downstream plugin identification.
  */
-export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type, meta = {}, root, output }: AddIndexesProps): Promise<Array<KubbFile.File>> {
+export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type, meta = {}, root, output }: AddIndexesProps): Promise<Array<FileNode>> {
   if (!type || type === 'propagate') {
     return []
   }
@@ -130,13 +136,13 @@ export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type
     return barrelFiles.map((file) => {
       return {
         ...file,
-        exports: file.exports?.map((exportItem) => {
+        exports: file.exports.map((exportItem) => {
           return {
             ...exportItem,
             name: undefined,
           }
         }),
-      }
+      } as FileNode
     })
   }
 
@@ -144,6 +150,6 @@ export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type
     return {
       ...indexFile,
       meta,
-    }
+    } as FileNode
   })
 }

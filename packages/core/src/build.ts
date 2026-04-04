@@ -1,6 +1,6 @@
 import { dirname, relative, resolve } from 'node:path'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
-import { transform, walk } from '@kubb/ast'
+import { createExport, createFile, transform, walk } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import { createFabric } from '@kubb/react-fabric'
@@ -447,14 +447,14 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         existingBarrel?.exports?.flatMap((e) => (Array.isArray(e.name) ? e.name : [e.name])).filter((n): n is string => Boolean(n)) ?? [],
       )
 
-      const rootFile: KubbFile.File = {
+      const rootFile = createFile<object>({
         path: rootPath,
         baseName: BARREL_FILENAME,
-        exports: buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }),
+        exports: buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }).map((e) => createExport(e)),
         sources: [],
         imports: [],
         meta: {},
-      }
+      })
 
       await fabric.upsertFile(rootFile)
 

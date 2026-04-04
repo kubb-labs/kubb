@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { Node, OperationNode, Printer, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
+import type { FileNode, Node, OperationNode, Printer, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import type { HttpMethod } from '@kubb/oas'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
@@ -397,7 +397,7 @@ export type Resolver = {
   default(name: ResolveNameParams['name'], type?: ResolveNameParams['type']): string
   resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
   resolvePath(params: ResolverPathParams, context: ResolverContext): KubbFile.Path
-  resolveFile(params: ResolverFileParams, context: ResolverContext): KubbFile.File
+  resolveFile(params: ResolverFileParams, context: ResolverContext): FileNode
   resolveBanner(node: RootNode | null, context: ResolveBannerContext): string | undefined
   resolveFooter(node: RootNode | null, context: ResolveBannerContext): string | undefined
 }
@@ -527,7 +527,7 @@ export type SchemaHook<TOptions extends PluginFactoryOptions = PluginFactoryOpti
   this: GeneratorContext<TOptions>,
   node: SchemaNode,
   options: TOptions['resolvedOptions'],
-) => PossiblePromise<FabricReactNode | Array<KubbFile.File> | void>
+) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
 
 /**
  * Handler for a single operation node. Used by the `operation` hook on a plugin.
@@ -536,7 +536,7 @@ export type OperationHook<TOptions extends PluginFactoryOptions = PluginFactoryO
   this: GeneratorContext<TOptions>,
   node: OperationNode,
   options: TOptions['resolvedOptions'],
-) => PossiblePromise<FabricReactNode | Array<KubbFile.File> | void>
+) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
 
 /**
  * Handler for all collected operation nodes. Used by the `operations` hook on a plugin.
@@ -545,7 +545,7 @@ export type OperationsHook<TOptions extends PluginFactoryOptions = PluginFactory
   this: GeneratorContext<TOptions>,
   nodes: Array<OperationNode>,
   options: TOptions['resolvedOptions'],
-) => PossiblePromise<FabricReactNode | Array<KubbFile.File> | void>
+) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
 
 export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
@@ -602,7 +602,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
   buildEnd: (this: PluginContext<TOptions>) => PossiblePromise<void>
   /**
    * Called for each schema node during the AST walk.
-   * Return a React element, an array of `KubbFile.File`, or `void` for manual handling.
+   * Return a React element, an array of `FileNode`, or `void` for manual handling.
    * Nodes matching `exclude`/`include` filters are skipped automatically.
    *
    * For multiple generators, use `composeGenerators` inside the plugin factory.
@@ -610,7 +610,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
   schema?: SchemaHook<TOptions>
   /**
    * Called for each operation node during the AST walk.
-   * Return a React element, an array of `KubbFile.File`, or `void` for manual handling.
+   * Return a React element, an array of `FileNode`, or `void` for manual handling.
    *
    * For multiple generators, use `composeGenerators` inside the plugin factory.
    */
@@ -645,7 +645,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
   buildEnd?: (this: PluginContext<TOptions>) => PossiblePromise<void>
   /**
    * Called for each schema node during the AST walk.
-   * Return a React element (`<File>...</File>`), an array of `KubbFile.File` objects,
+   * Return a React element (`<File>...</File>`), an array of `FileNode` objects,
    * or `void` to handle file writing manually via `this.upsertFile`.
    * Nodes matching `exclude` / `include` filters are skipped automatically.
    *
@@ -654,7 +654,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
   schema?: SchemaHook<TOptions>
   /**
    * Called for each operation node during the AST walk.
-   * Return a React element (`<File>...</File>`), an array of `KubbFile.File` objects,
+   * Return a React element (`<File>...</File>`), an array of `FileNode` objects,
    * or `void` to handle file writing manually via `this.upsertFile`.
    *
    * For multiple generators, use `composeGenerators` inside the plugin factory.
@@ -743,11 +743,11 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   /**
    * Only add when the file does not exist yet
    */
-  addFile: (...file: Array<KubbFile.File>) => Promise<void>
+  addFile: (...file: Array<FileNode>) => Promise<void>
   /**
    * merging multiple sources into the same output file
    */
-  upsertFile: (...file: Array<KubbFile.File>) => Promise<void>
+  upsertFile: (...file: Array<FileNode>) => Promise<void>
   /**
    * @deprecated use this.warn, this.error, this.info instead
    */

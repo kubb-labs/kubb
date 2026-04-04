@@ -1,5 +1,6 @@
 [
   {
+    "kind": "File",
     "path": "src/test.ts",
     "baseName": "test.ts",
     "sources": [
@@ -7,7 +8,8 @@
         "name": "test",
         "value": "export const test = 2;",
         "isExportable": true,
-        "isIndexable": true
+        "isIndexable": true,
+        "kind": "Source"
       }
     ],
     "imports": [],
@@ -18,17 +20,21 @@
     "meta": {}
   },
   {
+    "kind": "File",
     "path": "src/index.ts",
     "baseName": "index.ts",
     "exports": [
       {
-        "path": "./sub/hello.ts"
+        "path": "./sub/hello.ts",
+        "kind": "Export"
       },
       {
-        "path": "./sub/world.ts"
+        "path": "./sub/world.ts",
+        "kind": "Export"
       },
       {
-        "path": "./test.ts"
+        "path": "./test.ts",
+        "kind": "Export"
       }
     ],
     "imports": [],
@@ -37,19 +43,22 @@
         "name": "test",
         "value": "",
         "isExportable": false,
-        "isIndexable": false
+        "isIndexable": false,
+        "kind": "Source"
       },
       {
         "name": "hello",
         "value": "",
         "isExportable": false,
-        "isIndexable": false
+        "isIndexable": false,
+        "kind": "Source"
       },
       {
         "name": "world",
         "value": "",
         "isExportable": false,
-        "isIndexable": false
+        "isIndexable": false,
+        "kind": "Source"
       }
     ],
     "id": "a2a171449d862fe29692ce031981047d7ab755ae7f84c707aef80701b3ea0c80",
@@ -58,6 +67,7 @@
     "meta": {}
   },
   {
+    "kind": "File",
     "path": "src/sub/hello.ts",
     "baseName": "hello.ts",
     "sources": [
@@ -65,7 +75,8 @@
         "name": "hello",
         "value": "export const hello = 2;",
         "isExportable": true,
-        "isIndexable": true
+        "isIndexable": true,
+        "kind": "Source"
       }
     ],
     "imports": [],
@@ -76,6 +87,7 @@
     "meta": {}
   },
   {
+    "kind": "File",
     "path": "src/sub/world.ts",
     "baseName": "world.ts",
     "sources": [
@@ -83,7 +95,8 @@
         "name": "world",
         "value": "export const world = 2;",
         "isExportable": true,
-        "isIndexable": true
+        "isIndexable": true,
+        "kind": "Source"
       }
     ],
     "imports": [],
@@ -94,33 +107,40 @@
     "meta": {}
   },
   {
+    "kind": "File",
     "path": "src/sub/index.ts",
     "baseName": "index.ts",
     "sources": [
       {
         "name": "hello",
-        "value": ""
+        "value": "",
+        "kind": "Source"
       },
       {
         "name": "world",
-        "value": ""
+        "value": "",
+        "kind": "Source"
       }
     ],
     "imports": [],
     "exports": [
       {
-        "path": "./hello.ts"
+        "path": "./hello.ts",
+        "kind": "Export"
       },
       {
-        "path": "./world.ts"
+        "path": "./world.ts",
+        "kind": "Export"
       },
       {
+        "kind": "Export",
         "name": [
           "hello"
         ],
         "path": "./sub/hello.ts"
       },
       {
+        "kind": "Export",
         "name": [
           "world"
         ],

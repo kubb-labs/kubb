@@ -1,9 +1,10 @@
 import path from 'node:path'
+import type { FileNode } from '@kubb/ast/types'
 import type * as KubbFile from '../KubbFile.ts'
 import { getMode } from '../PluginDriver.ts'
 
 type BarrelData = {
-  file?: KubbFile.File
+  file?: FileNode
   /**
    * @deprecated use file instead
    */
@@ -14,7 +15,7 @@ type BarrelData = {
 
 /**
  * Tree structure used to build per-directory barrel (`index.ts`) files from a
- * flat list of generated {@link KubbFile.File} entries.
+ * flat list of generated {@link FileNode} entries.
  *
  * Each node represents either a directory or a file within the output tree.
  * Use {@link TreeNode.build} to construct a root node from a file list, then
@@ -143,7 +144,7 @@ export class TreeNode {
    * - Filters to files under `root` (when provided) and skips `.json` files.
    * - Returns `null` when no files match.
    */
-  public static build(files: KubbFile.File[], root?: string): TreeNode | null {
+  public static build(files: FileNode[], root?: string): TreeNode | null {
     try {
       const filteredTree = buildDirectoryTree(files, root)
 
@@ -187,13 +188,13 @@ export class TreeNode {
 type DirectoryTree = {
   name: string
   path: string
-  file?: KubbFile.File
+  file?: FileNode
   children: Array<DirectoryTree>
 }
 
 const normalizePath = (p: string): string => p.replaceAll('\\', '/')
 
-function buildDirectoryTree(files: Array<KubbFile.File>, rootFolder = ''): DirectoryTree | null {
+function buildDirectoryTree(files: Array<FileNode>, rootFolder = ''): DirectoryTree | null {
   const normalizedRootFolder = normalizePath(rootFolder)
   const rootPrefix = normalizedRootFolder.endsWith('/') ? normalizedRootFolder : `${normalizedRootFolder}/`
 
