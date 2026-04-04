@@ -55,6 +55,9 @@
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
+  "dependencies": {
+    "remeda": "catalog:"
+  },
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@types/node": "catalog:"
@@ -67,8 +70,5 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  },
-  "inlinedDependencies": {
-    "remeda": "2.33.6"
   }
 }

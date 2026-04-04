@@ -918,6 +918,10 @@ importers:
         version: 7.3.1(@types/node@24.10.1)(jiti@2.5.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.3)
 
   packages/ast:
+    dependencies:
+      remeda:
+        specifier: 'catalog:'
+        version: 2.33.7
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
