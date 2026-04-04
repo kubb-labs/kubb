@@ -1,6 +1,5 @@
 import path from 'node:path'
 import type { FileNode } from '@kubb/ast/types'
-import type * as KubbFile from '../KubbFile.ts'
 import { getMode } from '../PluginDriver.ts'
 
 type BarrelData = {
@@ -8,7 +7,7 @@ type BarrelData = {
   /**
    * @deprecated use file instead
    */
-  type: KubbFile.Mode
+  type: 'single' | 'split'
   path: string
   name: string
 }

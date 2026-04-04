@@ -179,11 +179,13 @@ describe('build', () => {
           "extname": ".json",
           "id": undefined,
           "imports": [],
+          "kind": "File",
           "meta": {},
           "name": "world",
           "path": undefined,
           "sources": [
             {
+              "kind": "Source",
               "value": "{ "hello": "world" }",
             },
           ],

@@ -3,7 +3,6 @@ import { join } from 'node:path'
 import { getRelativePath } from '@internals/utils'
 import { createExport, createFile, createSource } from '@kubb/ast'
 import type { FileNode } from '@kubb/ast/types'
-import type * as KubbFile from '../KubbFile.ts'
 import type { BarrelType } from '../types.ts'
 import { TreeNode } from './TreeNode.ts'
 
@@ -31,15 +30,15 @@ type AddIndexesProps = {
   meta?: FileMetaBase
 }
 
-function getBarrelFilesByRoot(root: string | undefined, files: Array<KubbFile.ResolvedFile>): Array<FileNode> {
-  const cachedFiles = new Map<KubbFile.Path, FileNode>()
+function getBarrelFilesByRoot(root: string | undefined, files: Array<FileNode>): Array<FileNode> {
+  const cachedFiles = new Map<string, FileNode>()
 
-  TreeNode.build(files as unknown as FileNode[], root)?.forEach((treeNode) => {
+  TreeNode.build(files, root)?.forEach((treeNode) => {
     if (!treeNode?.children || !treeNode.parent?.data.path) {
       return
     }
 
-    const barrelFilePath = join(treeNode.parent?.data.path, 'index.ts') as KubbFile.Path
+    const barrelFilePath = join(treeNode.parent?.data.path, 'index.ts')
     const barrelFile = createFile({
       path: barrelFilePath,
       baseName: 'index.ts',
@@ -119,7 +118,7 @@ function trimExtName(text: string): string {
  * - When `type` is `'all'`, strips named exports so every re-export becomes a wildcard (`export * from`).
  * - Attaches `meta` to each barrel file for downstream plugin identification.
  */
-export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type, meta = {}, root, output }: AddIndexesProps): Promise<Array<FileNode>> {
+export async function getBarrelFiles(files: Array<FileNode>, { type, meta = {}, root, output }: AddIndexesProps): Promise<Array<FileNode>> {
   if (!type || type === 'propagate') {
     return []
   }

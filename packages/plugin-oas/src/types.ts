@@ -1,4 +1,5 @@
-import type { KubbFile, Output, PluginFactoryOptions, ResolveNameParams, UserGroup } from '@kubb/core'
+import type { FileNode } from '@kubb/ast/types'
+import type { Output, PluginFactoryOptions, ResolveNameParams, UserGroup } from '@kubb/core'
 
 import type { contentType, HttpMethod, Oas, Operation, SchemaObject } from '@kubb/oas'
 import type { Generator } from './generators/types.ts'
@@ -144,7 +145,7 @@ export type Options = {
 export type Ref = {
   propertyName: string
   originalName: string
-  path: KubbFile.Path
+  path: string
   pluginName?: string
 }
 export type Refs = Record<string, Ref>
@@ -154,8 +155,8 @@ export type Resolver = {
    * Original name or name resolved by `resolveName({ name: operation?.getOperationId() as string, pluginName })`
    */
   name: string
-  baseName: KubbFile.BaseName
-  path: KubbFile.Path
+  baseName: FileNode['baseName']
+  path: string
 }
 
 export type OperationSchema = {

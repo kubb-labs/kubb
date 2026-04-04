@@ -1,4 +1,4 @@
-import type * as KubbFile from './KubbFile.ts'
+import type { FileNode } from '@kubb/ast/types'
 
 /**
  * Base URL for the Kubb Studio web app.
@@ -23,7 +23,7 @@ export const DEFAULT_BANNER = 'simple' as const
 /**
  * Default file-extension mapping used when no explicit mapping is configured.
  */
-export const DEFAULT_EXTENSION: Record<KubbFile.Extname, KubbFile.Extname | ''> = { '.ts': '.ts' }
+export const DEFAULT_EXTENSION: Record<FileNode['extname'], FileNode['extname'] | ''> = { '.ts': '.ts' }
 
 /**
  * Characters recognized as path separators on both POSIX and Windows.

@@ -7,7 +7,6 @@ import type { FileNode, RootNode } from '@kubb/ast/types'
 import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
-import type * as KubbFile from './KubbFile.ts'
 
 import type {
   Adapter,
@@ -61,8 +60,8 @@ type Options = {
  */
 export type GetFileOptions<TOptions = object> = {
   name: string
-  mode?: KubbFile.Mode
-  extname: KubbFile.Extname
+  mode?: 'single' | 'split'
+  extname: FileNode['extname']
   pluginName: string
   options?: TOptions
 }
@@ -76,7 +75,7 @@ export type GetFileOptions<TOptions = object> = {
  * getMode('src/gen/types')     // 'split'
  * ```
  */
-export function getMode(fileOrFolder: string | undefined | null): KubbFile.Mode {
+export function getMode(fileOrFolder: string | undefined | null): 'single' | 'split' {
   if (!fileOrFolder) {
     return 'split'
   }
@@ -133,7 +132,7 @@ export class PluginDriver {
       get root(): string {
         return resolve(driver.config.root, driver.config.output.path)
       },
-      getMode(output: { path: string }): KubbFile.Mode {
+      getMode(output: { path: string }): 'single' | 'split' {
         return getMode(resolve(driver.config.root, driver.config.output.path, output.path))
       },
       events: driver.options.events,
@@ -237,7 +236,7 @@ export class PluginDriver {
   /**
    * @deprecated use resolvers context instead
    */
-  resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): KubbFile.Path => {
+  resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): string => {
     const root = resolve(this.config.root, this.config.output.path)
     const defaultPath = resolve(root, params.baseName)
 

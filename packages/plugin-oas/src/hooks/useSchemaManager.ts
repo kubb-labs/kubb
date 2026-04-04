@@ -1,5 +1,5 @@
 import type { FileNode } from '@kubb/ast/types'
-import type { FileMetaBase, KubbFile, ResolveNameParams } from '@kubb/core'
+import type { FileMetaBase, ResolveNameParams } from '@kubb/core'
 import { useDriver, usePlugin } from '@kubb/core/hooks'
 
 type FileMeta = FileMetaBase & {
@@ -17,8 +17,8 @@ type UseSchemaManagerResult = {
     name: string,
     params?: {
       pluginName?: string
-      mode?: KubbFile.Mode
-      extname?: KubbFile.Extname
+      mode?: 'single' | 'split'
+      extname?: FileNode['extname']
       group?: {
         tag?: string
         path?: string

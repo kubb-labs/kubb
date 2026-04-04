@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { FileNode, Node, OperationNode, Printer, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
+import type { FileNode, ImportNode, Node, OperationNode, Printer, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import type { HttpMethod } from '@kubb/oas'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
@@ -8,7 +8,6 @@ import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbEvents } from './Kubb.ts'
-import type * as KubbFile from './KubbFile.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from '@kubb/ast/types'
@@ -171,13 +170,13 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    */
   parse: (source: AdapterSource) => PossiblePromise<RootNode>
   /**
-   * Extracts `KubbFile.Import` entries needed by a `SchemaNode` tree.
+   * Extracts `ImportNode` entries needed by a `SchemaNode` tree.
    * Populated after the first `parse()` call. Returns an empty array before that.
    *
    * The `resolve` callback receives the collision-corrected schema name and must
    * return the `{ name, path }` pair for the import, or `undefined` to skip it.
    */
-  getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<KubbFile.Import>
+  getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<ImportNode>
 }
 
 export type BarrelType = 'all' | 'named' | 'propagate'
@@ -296,7 +295,7 @@ export type Config<TInput = Input> = {
      * Overrides the extension for generated imports and exports. By default, each plugin adds an extension.
      * @default { '.ts': '.ts'}
      */
-    extension?: Record<KubbFile.Extname, KubbFile.Extname | ''>
+    extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
     /**
      * Configures how `index.ts` files are created, including disabling barrel file generation. Each plugin has its own `barrelType` option; this setting controls the root barrel file (e.g., `src/gen/index.ts`).
      * @default 'named'
@@ -396,7 +395,7 @@ export type Resolver = {
   pluginName: Plugin['name']
   default(name: ResolveNameParams['name'], type?: ResolveNameParams['type']): string
   resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
-  resolvePath(params: ResolverPathParams, context: ResolverContext): KubbFile.Path
+  resolvePath(params: ResolverPathParams, context: ResolverContext): string
   resolveFile(params: ResolverFileParams, context: ResolverContext): FileNode
   resolveBanner(node: RootNode | null, context: ResolveBannerContext): string | undefined
   resolveFooter(node: RootNode | null, context: ResolveBannerContext): string | undefined
@@ -674,7 +673,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * @example ('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'
    * @deprecated this will be replaced by resolvers
    */
-  resolvePath?: (this: PluginContext<TOptions>, baseName: KubbFile.BaseName, mode?: KubbFile.Mode, options?: TOptions['resolvePathOptions']) => KubbFile.Path
+  resolvePath?: (this: PluginContext<TOptions>, baseName: FileNode['baseName'], mode?: 'single' | 'split', options?: TOptions['resolvePathOptions']) => string
   /**
    * Resolve to a name based on a string.
    * Useful when converting to PascalCase or camelCase.
@@ -691,8 +690,8 @@ export type PluginParameter<H extends PluginLifecycleHooks> = Parameters<Require
 
 export type ResolvePathParams<TOptions = object> = {
   pluginName?: string
-  baseName: KubbFile.BaseName
-  mode?: KubbFile.Mode
+  baseName: FileNode['baseName']
+  mode?: 'single' | 'split'
   /**
    * Options to be passed to 'resolvePath' 3th parameter
    */
@@ -726,7 +725,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * Returns `'single'` when `output.path` has a file extension, `'split'` otherwise.
    * Shorthand for `getMode(path.resolve(this.root, output.path))`.
    */
-  getMode: (output: { path: string }) => KubbFile.Mode
+  getMode: (output: { path: string }) => 'single' | 'split'
   driver: PluginDriver
   /**
    * Get a plugin by name. Returns the plugin typed via `Kubb.PluginRegistry` when
@@ -1011,8 +1010,8 @@ export type ResolvePathOptions = {
  * ```
  */
 export type ResolverPathParams = {
-  baseName: KubbFile.BaseName
-  pathMode?: KubbFile.Mode
+  baseName: FileNode['baseName']
+  pathMode?: 'single' | 'split'
   /**
    * Tag value used when `group.type === 'tag'`.
    */
@@ -1065,7 +1064,7 @@ export type ResolverContext = {
  */
 export type ResolverFileParams = {
   name: string
-  extname: KubbFile.Extname
+  extname: FileNode['extname']
   /**
    * Tag value used when `group.type === 'tag'`.
    */
