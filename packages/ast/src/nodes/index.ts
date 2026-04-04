@@ -1,11 +1,11 @@
 import type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
 import type { FunctionNode } from './function.ts'
 import type { OperationNode } from './operation.ts'
+import type { OutputNode } from './output.ts'
 import type { ParameterNode } from './parameter.ts'
 import type { PropertyNode } from './property.ts'
 import type { ResponseNode } from './response.ts'
 import type { InputNode } from './root.ts'
-import type { OutputNode } from './output.ts'
 import type { SchemaNode } from './schema.ts'
 
 export type { BaseNode, NodeKind } from './base.ts'
@@ -13,11 +13,11 @@ export type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
 export type { FunctionNode, FunctionNodeType, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, TypeNode } from './function.ts'
 export type { HttpStatusCode, MediaType, StatusCode } from './http.ts'
 export type { HttpMethod, OperationNode } from './operation.ts'
+export type { OutputNode } from './output.ts'
 export type { ParameterLocation, ParameterNode } from './parameter.ts'
 export type { PropertyNode } from './property.ts'
 export type { ResponseNode } from './response.ts'
 export type { InputMeta, InputNode } from './root.ts'
-export type { OutputNode } from './output.ts'
 export type {
   ArraySchemaNode,
   ComplexSchemaType,
