@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { AsyncEventEmitter, isPromise } from '@internals/utils'
-import type { FabricFile } from '@kubb/fabric-core/types'
+import { createFile, createSource } from '@kubb/ast'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { build, safeBuild } from './build.ts'
 import { defineConfig } from './config.ts'
@@ -15,13 +15,13 @@ describe('build', () => {
     resolvePath: vi.fn(),
   } as const
 
-  const file: FabricFile.File = {
+  const file = createFile({
     path: 'hello/world.json',
     baseName: 'world.json',
-    sources: [{ value: `{ "hello": "world" }` }],
+    sources: [createSource({ value: `{ "hello": "world" }` })],
     imports: [],
     exports: [],
-  }
+  })
   const plugin = createPlugin(() => {
     return {
       name: 'plugin',
@@ -131,7 +131,7 @@ describe('build', () => {
         events: new AsyncEventEmitter<KubbEvents>(),
       })
 
-      await fabric.addFile(file)
+      await fabric.addFile(file as any)
 
       expect(fabric.files).toBeDefined()
       expect(driver).toBeDefined()
@@ -147,7 +147,7 @@ describe('build', () => {
       events: new AsyncEventEmitter<KubbEvents>(),
     })
 
-    await fabric.addFile(file)
+    await fabric.addFile(file as any)
 
     expect(fabric.files).toBeDefined()
     expect(driver).toBeDefined()
@@ -160,7 +160,7 @@ describe('build', () => {
       events: new AsyncEventEmitter<KubbEvents>(),
     })
 
-    await fabric.addFile(file)
+    await fabric.addFile(file as any)
 
     expect(fabric.files.map((file) => ({ ...file, id: undefined, path: undefined }))).toMatchInlineSnapshot(`
       [
@@ -304,20 +304,20 @@ describe('build', () => {
     const tmpDir = mkdtempSync(join(tmpdir(), 'kubb-test-excluded-'))
 
     try {
-      const indexableFile: FabricFile.File = {
+      const indexableFile = createFile({
         path: join(tmpDir, 'mocks/excluded.ts'),
         baseName: 'excluded.ts',
         sources: [
-          {
+          createSource({
             value: 'export const excluded = "excluded"',
             isIndexable: true,
             name: 'excluded',
-          },
+          }),
         ],
         imports: [],
         exports: [],
         meta: { pluginName: 'excludedPlugin' },
-      }
+      })
 
       const excludedPlugin = createPlugin(() => {
         return {

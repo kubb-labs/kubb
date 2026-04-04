@@ -1,8 +1,8 @@
 import { dirname, relative, resolve } from 'node:path'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
-import { transform, walk } from '@kubb/ast'
-import type { OperationNode } from '@kubb/ast/types'
-import type { FabricFile, Fabric as FabricType } from '@kubb/fabric-core/types'
+import { createExport, createFile, transform, walk } from '@kubb/ast'
+import type { ExportNode, FileNode, OperationNode } from '@kubb/ast/types'
+import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import { createFabric } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
 import { fsPlugin } from '@kubb/react-fabric/plugins'
@@ -30,7 +30,7 @@ type BuildOutput = {
    */
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
   fabric: FabricType
-  files: Array<FabricFile.ResolvedFile>
+  files: Array<FileNode>
   driver: PluginDriver
   /**
    * Elapsed time in milliseconds for each plugin, keyed by plugin name.
@@ -40,7 +40,7 @@ type BuildOutput = {
   /**
    * Raw generated source, keyed by absolute file path.
    */
-  sources: Map<FabricFile.Path, string>
+  sources: Map<string, string>
 }
 
 /**
@@ -50,7 +50,7 @@ type SetupResult = {
   events: AsyncEventEmitter<KubbEvents>
   fabric: FabricType
   driver: PluginDriver
-  sources: Map<FabricFile.Path, string>
+  sources: Map<string, string>
 }
 
 /**
@@ -67,7 +67,7 @@ type SetupResult = {
 export async function setup(options: BuildOptions): Promise<SetupResult> {
   const { config: userConfig, events = new AsyncEventEmitter<KubbEvents>() } = options
 
-  const sources: Map<FabricFile.Path, string> = new Map<FabricFile.Path, string>()
+  const sources: Map<string, string> = new Map<string, string>()
   const diagnosticInfo = getDiagnosticInfo()
 
   if (Array.isArray(userConfig.input)) {
@@ -153,7 +153,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   fabric.use(typescriptParser)
 
   fabric.context.on('files:processing:start', (files) => {
-    events.emit('files:processing:start', files)
+    events.emit('files:processing:start', files as unknown as FileNode[])
     events.emit('debug', {
       date: new Date(),
       logs: [`Writing ${files.length} files...`],
@@ -164,6 +164,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     const { file, source } = params
     await events.emit('file:processing:update', {
       ...params,
+      file: file as unknown as FileNode,
       config: definedConfig,
       source,
     })
@@ -177,7 +178,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   })
 
   fabric.context.on('files:processing:end', async (files) => {
-    await events.emit('files:processing:end', files)
+    await events.emit('files:processing:end', files as unknown as FileNode[])
     await events.emit('debug', {
       date: new Date(),
       logs: [`✓ File write process completed for ${files.length} files`],
@@ -266,7 +267,7 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
  * - Each hook accepts a single handler **or an array** — all entries are called in sequence.
  * - Nodes that are excluded by `exclude`/`include` plugin options are skipped automatically.
  * - Return values are handled via `applyHookResult`: React elements are rendered,
- *   `FabricFile.File[]` are written via upsert, and `void` is a no-op (manual handling).
+ *   `FileNode[]` are written via upsert, and `void` is a no-op (manual handling).
  * - Barrel files are generated automatically when `output.barrelType` is set.
  */
 async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promise<void> {
@@ -354,7 +355,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         }
 
         if (output) {
-          const barrelFiles = await getBarrelFiles(fabric.files, {
+          const barrelFiles = await getBarrelFiles(fabric.files as unknown as FileNode[], {
             type: output.barrelType ?? 'named',
             root,
             output,
@@ -408,8 +409,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         logs: ['Generating barrel file', `  • Type: ${config.output.barrelType}`, `  • Path: ${rootPath}`],
       })
 
-      const barrelFiles = fabric.files.filter((file) => {
-        return file.sources.some((source) => source.isIndexable)
+      const barrelFiles = (fabric.files as unknown as FileNode[]).filter((file) => {
+        return file.sources?.some((source) => source.isIndexable)
       })
 
       await events.emit('debug', {
@@ -417,21 +418,19 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         logs: [`Found ${barrelFiles.length} indexable files for barrel export`],
       })
 
-      const existingBarrel = fabric.files.find((f) => f.path === rootPath)
+      const existingBarrel = (fabric.files as unknown as FileNode[]).find((f) => f.path === rootPath)
       const existingExports = new Set(
         existingBarrel?.exports?.flatMap((e) => (Array.isArray(e.name) ? e.name : [e.name])).filter((n): n is string => Boolean(n)) ?? [],
       )
 
-      const rootFile: FabricFile.File = {
+      const rootFile = createFile({
         path: rootPath,
         baseName: BARREL_FILENAME,
         exports: buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }),
-        sources: [],
-        imports: [],
         meta: {},
-      }
+      })
 
-      await fabric.upsertFile(rootFile)
+      await fabric.upsertFile(rootFile as any)
 
       await events.emit('debug', {
         date: new Date(),
@@ -439,7 +438,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       })
     }
 
-    const files = [...fabric.files]
+    const files = [...fabric.files] as unknown as FileNode[]
 
     await fabric.write({ extension: config.output.extension })
 
@@ -473,14 +472,14 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 }
 
 type BuildBarrelExportsParams = {
-  barrelFiles: FabricFile.ResolvedFile[]
+  barrelFiles: FileNode[]
   rootDir: string
   existingExports: Set<string>
   config: Config
   driver: PluginDriver
 }
 
-function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }: BuildBarrelExportsParams): FabricFile.Export[] {
+function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }: BuildBarrelExportsParams): ExportNode[] {
   const pluginNameMap = new Map<string, Plugin>()
   for (const plugin of driver.plugins.values()) {
     pluginNameMap.set(plugin.name, plugin)
@@ -508,11 +507,11 @@ function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, dri
       }
 
       return [
-        {
+        createExport({
           name: exportName,
           path: getRelativePath(rootDir, file.path),
           isTypeOnly: config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
-        } satisfies FabricFile.Export,
+        }),
       ]
     })
   })

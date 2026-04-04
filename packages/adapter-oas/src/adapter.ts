@@ -1,4 +1,4 @@
-import { collectImports, createRoot } from '@kubb/ast'
+import { collectImports, createImport, createRoot } from '@kubb/ast'
 import type { RootNode } from '@kubb/ast/types'
 import { createAdapter } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
@@ -82,7 +82,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
           const result = resolve(schemaName)
           if (!result) return
 
-          return { name: [result.name], path: result.path }
+          return createImport({ name: [result.name], path: result.path })
         },
       })
     },

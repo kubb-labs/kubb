@@ -290,6 +290,8 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
     case 'FunctionParameters':
     case 'Type':
       return []
+    default:
+      return []
   }
 }
 
@@ -461,6 +463,8 @@ export function transform(node: Node, options: TransformOptions): Node {
     case 'ParameterGroup':
     case 'FunctionParameters':
     case 'Type':
+      return node
+    default:
       return node
   }
 }

@@ -2,13 +2,11 @@ import path from 'node:path'
 import type { AdapterOas } from '@kubb/adapter-oas'
 import { adapterOasName } from '@kubb/adapter-oas'
 import { type Adapter, createPlugin } from '@kubb/core'
+import { createSource } from '@kubb/ast'
+import { trimExtName } from '@internals/utils'
 import { version } from '../package.json'
 import { getPageHTML } from './redoc.tsx'
 import type { PluginRedoc } from './types.ts'
-
-function trimExtName(text: string): string {
-  return text.replace(/\.[^/.]+$/, '')
-}
 
 export const pluginRedocName = 'plugin-redoc' satisfies PluginRedoc['name']
 
@@ -48,10 +46,10 @@ export const pluginRedoc = createPlugin<PluginRedoc>((options) => {
         baseName: 'docs.html',
         path: path.resolve(root, output.path || './docs.html'),
         sources: [
-          {
+          createSource({
             name: 'docs.html',
             value: pageHTML,
-          },
+          }),
         ],
         imports: [],
         exports: [],

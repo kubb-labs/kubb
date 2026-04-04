@@ -1,7 +1,13 @@
+import { createHash } from 'node:crypto'
+import path from 'node:path'
+import { trimExtName } from '@internals/utils'
 import type { InferSchemaNode } from './infer.ts'
 import type {
+  ExportNode,
+  FileNode,
   FunctionParameterNode,
   FunctionParametersNode,
+  ImportNode,
   ObjectSchemaNode,
   OperationNode,
   ParameterGroupNode,
@@ -11,8 +17,10 @@ import type {
   ResponseNode,
   RootNode,
   SchemaNode,
+  SourceNode,
   TypeNode,
 } from './nodes/index.ts'
+import { combineExports, combineImports, combineSources } from './utils.ts'
 
 /**
  * Syncs property/parameter schema optionality flags from `required` and `schema.nullable`.
@@ -176,6 +184,8 @@ export function createSchema(props: CreateSchemaInput): SchemaNode {
   return { primitive: inferredPrimitive, ...props, kind: 'Schema' } as CreateSchemaOutput<typeof props>
 }
 
+type UserPropertyNode = Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<PropertyNode, 'kind' | 'name' | 'schema'>>
+
 /**
  * Creates a `PropertyNode`.
  *
@@ -201,7 +211,7 @@ export function createSchema(props: CreateSchemaInput): SchemaNode {
  * // required=true, no optional/nullish
  * ```
  */
-export function createProperty(props: Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<PropertyNode, 'kind' | 'name' | 'schema'>>): PropertyNode {
+export function createProperty(props: UserPropertyNode): PropertyNode {
   const required = props.required ?? false
 
   return {
@@ -394,5 +404,111 @@ export function createFunctionParameters(props: Partial<Omit<FunctionParametersN
     params: [],
     ...props,
     kind: 'FunctionParameters',
+  }
+}
+
+/**
+ * Creates an `ImportNode` representing a language-agnostic import/dependency declaration.
+ *
+ * @example Named import
+ * ```ts
+ * createImport({ name: ['useState'], path: 'react' })
+ * // import { useState } from 'react'
+ * ```
+ *
+ * @example Type-only import
+ * ```ts
+ * createImport({ name: ['FC'], path: 'react', isTypeOnly: true })
+ * // import type { FC } from 'react'
+ * ```
+ */
+export function createImport(props: Omit<ImportNode, 'kind'>): ImportNode {
+  return { ...props, kind: 'Import' }
+}
+
+/**
+ * Creates an `ExportNode` representing a language-agnostic export/public API declaration.
+ *
+ * @example Named export
+ * ```ts
+ * createExport({ name: ['Pet'], path: './Pet' })
+ * // export { Pet } from './Pet'
+ * ```
+ *
+ * @example Wildcard export
+ * ```ts
+ * createExport({ path: './utils' })
+ * // export * from './utils'
+ * ```
+ */
+export function createExport(props: Omit<ExportNode, 'kind'>): ExportNode {
+  return { ...props, kind: 'Export' }
+}
+
+/**
+ * Creates a `SourceNode` representing a fragment of source code within a file.
+ *
+ * @example
+ * ```ts
+ * createSource({ name: 'Pet', value: 'export type Pet = { id: number }', isExportable: true })
+ * ```
+ */
+export function createSource(props: Omit<SourceNode, 'kind'>): SourceNode {
+  return { ...props, kind: 'Source' }
+}
+
+type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 'kind' | 'id' | 'name' | 'extname' | 'imports' | 'exports' | 'sources'> &
+  Pick<Partial<FileNode<TMeta>>, 'imports' | 'exports' | 'sources'>
+
+/**
+ * Creates a fully resolved `FileNode` from a file input descriptor.
+ *
+ * Computes:
+ * - `id` — SHA256 hash of the file path
+ * - `name` — `baseName` without extension
+ * - `extname` — extension extracted from `baseName`
+ *
+ * Deduplicates:
+ * - `sources` via `combineSources`
+ * - `exports` via `combineExports`
+ * - `imports` via `combineImports` (also filters unused imports)
+ *
+ * @throws {Error} when `baseName` has no extension.
+ *
+ * @example
+ * ```ts
+ * const file = createFile({
+ *   baseName: 'petStore.ts',
+ *   path: 'src/models/petStore.ts',
+ *   sources: [createSource({ name: 'Pet', value: 'export type Pet = { id: number }' })],
+ *   imports: [createImport({ name: ['z'], path: 'zod' })],
+ *   exports: [createExport({ name: ['Pet'], path: './petStore' })],
+ * })
+ * // file.id      = SHA256 hash of 'src/models/petStore.ts'
+ * // file.name    = 'petStore'
+ * // file.extname = '.ts'
+ * ```
+ */
+export function createFile<TMeta extends object = object>(input: UserFileNode<TMeta>): FileNode<TMeta> {
+  const extname = path.extname(input.baseName) as `.${string}`
+  if (!extname) {
+    throw new Error(`No extname found for ${input.baseName}`)
+  }
+
+  const source = (input.sources ?? []).map((item) => item.value).join('\n\n')
+  const resolvedExports = input.exports?.length ? combineExports(input.exports) : []
+  const resolvedImports = input.imports?.length && source ? combineImports(input.imports, resolvedExports, source) : []
+  const resolvedSources = input.sources?.length ? combineSources(input.sources) : []
+
+  return {
+    kind: 'File',
+    ...input,
+    id: createHash('sha256').update(input.path).digest('hex'),
+    name: trimExtName(input.baseName),
+    extname,
+    imports: resolvedImports,
+    exports: resolvedExports,
+    sources: resolvedSources,
+    meta: input.meta ?? ({} as TMeta),
   }
 }

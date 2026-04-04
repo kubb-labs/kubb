@@ -1,6 +1,8 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
 import { createPlugin, getBarrelFiles, type UserGroup } from '@kubb/core'
+import { createSource } from '@kubb/ast'
+import type { FileNode } from '@kubb/ast/types'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
@@ -152,12 +154,12 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
           baseName: 'fetch.ts',
           path: path.resolve(root, '.kubb/fetch.ts'),
           sources: [
-            {
+            createSource({
               name: 'fetch',
               value: this.plugin.options.client.client === 'fetch' ? fetchClientSource : axiosClientSource,
               isExportable: true,
               isIndexable: true,
-            },
+            }),
           ],
           imports: [],
           exports: [],
@@ -169,12 +171,12 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
           baseName: 'config.ts',
           path: path.resolve(root, '.kubb/config.ts'),
           sources: [
-            {
+            createSource({
               name: 'config',
               value: configSource,
               isExportable: false,
               isIndexable: false,
-            },
+            }),
           ],
           imports: [],
           exports: [],
@@ -197,7 +199,7 @@ export const pluginSolidQuery = createPlugin<PluginSolidQuery>((options) => {
       const files = await operationGenerator.build(...generators)
       await this.upsertFile(...files)
 
-      const barrelFiles = await getBarrelFiles(this.fabric.files, {
+      const barrelFiles = await getBarrelFiles(this.fabric.files as unknown as FileNode[], {
         type: output.barrelType ?? 'named',
         root,
         output,

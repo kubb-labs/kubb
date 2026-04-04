@@ -1,7 +1,7 @@
-/** biome-ignore-all lint/suspicious/useIterableCallbackReturn: not needed */
 import { join } from 'node:path'
-import { getRelativePath } from '@internals/utils'
-import type { FabricFile } from '@kubb/fabric-core/types'
+import { getRelativePath, trimExtName } from '@internals/utils'
+import { createExport, createFile, createSource } from '@kubb/ast'
+import type { FileNode } from '@kubb/ast/types'
 import type { BarrelType } from '../types.ts'
 import { TreeNode } from './TreeNode.ts'
 
@@ -29,22 +29,19 @@ type AddIndexesProps = {
   meta?: FileMetaBase
 }
 
-function getBarrelFilesByRoot(root: string | undefined, files: Array<FabricFile.ResolvedFile>): Array<FabricFile.File> {
-  const cachedFiles = new Map<FabricFile.Path, FabricFile.File>()
+function getBarrelFilesByRoot(root: string | undefined, files: Array<FileNode>): Array<FileNode> {
+  const cachedFiles = new Map<string, FileNode>()
 
   TreeNode.build(files, root)?.forEach((treeNode) => {
     if (!treeNode?.children || !treeNode.parent?.data.path) {
       return
     }
 
-    const barrelFilePath = join(treeNode.parent?.data.path, 'index.ts') as FabricFile.Path
-    const barrelFile: FabricFile.File = {
+    const barrelFilePath = join(treeNode.parent?.data.path, 'index.ts')
+    const barrelFile: FileNode = createFile({
       path: barrelFilePath,
       baseName: 'index.ts',
-      exports: [],
-      imports: [],
-      sources: [],
-    }
+    })
     const previousBarrelFile = cachedFiles.get(barrelFile.path)
     const leaves = treeNode.leaves
 
@@ -59,7 +56,7 @@ function getBarrelFilesByRoot(root: string | undefined, files: Array<FabricFile.
         if (!item.data.file?.path || !source.isIndexable || !source.name) {
           return
         }
-        const alreadyContainInPreviousBarrelFile = previousBarrelFile?.sources.some(
+        const alreadyContainInPreviousBarrelFile = previousBarrelFile?.sources?.some(
           (item) => item.name === source.name && item.isTypeOnly === source.isTypeOnly,
         )
 
@@ -67,25 +64,29 @@ function getBarrelFilesByRoot(root: string | undefined, files: Array<FabricFile.
           return
         }
 
-        barrelFile.exports!.push({
-          name: [source.name],
-          path: getRelativePath(treeNode.parent?.data.path, item.data.path),
-          isTypeOnly: source.isTypeOnly,
-        })
+        barrelFile.exports!.push(
+          createExport({
+            name: [source.name],
+            path: getRelativePath(treeNode.parent?.data.path, item.data.path),
+            isTypeOnly: source.isTypeOnly,
+          }),
+        )
 
-        barrelFile.sources.push({
-          name: source.name,
-          isTypeOnly: source.isTypeOnly,
-          //TODO use parser to generate import
-          value: '',
-          isExportable: false,
-          isIndexable: false,
-        })
+        barrelFile.sources!.push(
+          createSource({
+            name: source.name,
+            isTypeOnly: source.isTypeOnly,
+            //TODO use parser to generate import
+            value: '',
+            isExportable: false,
+            isIndexable: false,
+          }),
+        )
       })
     })
 
     if (previousBarrelFile) {
-      previousBarrelFile.sources.push(...barrelFile.sources)
+      previousBarrelFile.sources?.push(...(barrelFile.sources ?? []))
       previousBarrelFile.exports?.push(...(barrelFile.exports || []))
     } else {
       cachedFiles.set(barrelFile.path, barrelFile)
@@ -93,16 +94,6 @@ function getBarrelFilesByRoot(root: string | undefined, files: Array<FabricFile.
   })
 
   return [...cachedFiles.values()]
-}
-
-function trimExtName(text: string): string {
-  const dotIndex = text.lastIndexOf('.')
-  // Only strip when the dot is found and no path separator follows it
-  // (guards against stripping dots that are part of a directory name like /project.v2/gen)
-  if (dotIndex > 0 && !text.includes('/', dotIndex)) {
-    return text.slice(0, dotIndex)
-  }
-  return text
 }
 
 /**
@@ -113,10 +104,7 @@ function trimExtName(text: string): string {
  * - When `type` is `'all'`, strips named exports so every re-export becomes a wildcard (`export * from`).
  * - Attaches `meta` to each barrel file for downstream plugin identification.
  */
-export async function getBarrelFiles(
-  files: Array<FabricFile.ResolvedFile>,
-  { type, meta = {}, root, output }: AddIndexesProps,
-): Promise<Array<FabricFile.File>> {
+export async function getBarrelFiles(files: Array<FileNode>, { type, meta = {}, root, output }: AddIndexesProps): Promise<Array<FileNode>> {
   if (!type || type === 'propagate') {
     return []
   }

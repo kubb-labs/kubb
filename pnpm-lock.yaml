@@ -1344,6 +1344,10 @@ importers:
       handlebars:
         specifier: ^4.7.9
         version: 4.7.9
+    devDependencies:
+      '@internals/utils':
+        specifier: workspace:*
+        version: link:../../internals/utils
 
   packages/plugin-solid-query:
     dependencies:
