@@ -4,7 +4,7 @@ import type { AsyncEventEmitter } from '@internals/utils'
 import { isPromiseRejectedResult, transformReservedWord } from '@internals/utils'
 import { createFile } from '@kubb/ast'
 import type { FileNode, RootNode } from '@kubb/ast/types'
-import type { Fabric as FabricType } from '@kubb/fabric-core/types'
+import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 

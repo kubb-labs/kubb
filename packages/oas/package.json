@@ -65,7 +65,6 @@
   "dependencies": {
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/fabric-core": "catalog:",
     "@redocly/openapi-core": "^2.25.4",
     "@stoplight/yaml": "^4.3.0",
     "jsonpointer": "^5.0.1",
@@ -79,9 +78,7 @@
     "@internals/utils": "workspace:*",
     "@types/swagger2openapi": "^7.0.4"
   },
-  "peerDependencies": {
-    "@kubb/fabric-core": "0.15.1"
-  },
+  "peerDependencies": {},
   "engines": {
     "node": ">=22"
   },

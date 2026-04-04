@@ -84,7 +84,6 @@
   "dependencies": {
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/fabric-core": "catalog:",
     "@kubb/oas": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
@@ -94,7 +93,6 @@
     "remeda": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/fabric-core": "0.15.1",
     "@kubb/react-fabric": "0.15.1"
   },
   "engines": {
