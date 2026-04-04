@@ -96,12 +96,12 @@ export function createRoot(overrides: Partial<Omit<InputNode, 'kind'>> = {}): In
 }
 
 /**
- * Creates an `OutputNode` with stable defaults.
+ * Creates an `OutputNode` with a stable default for `files`.
  *
  * @example
  * ```ts
  * const output = createOutput()
- * // { kind: 'Output', files: [], sources: [], imports: [], exports: [], functions: [] }
+ * // { kind: 'Output', files: [] }
  * ```
  *
  * @example
@@ -112,10 +112,6 @@ export function createRoot(overrides: Partial<Omit<InputNode, 'kind'>> = {}): In
 export function createOutput(overrides: Partial<Omit<OutputNode, 'kind'>> = {}): OutputNode {
   return {
     files: [],
-    sources: [],
-    imports: [],
-    exports: [],
-    functions: [],
     ...overrides,
     kind: 'Output',
   }
