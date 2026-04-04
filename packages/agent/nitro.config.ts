@@ -62,6 +62,12 @@ export default defineNitroConfig({
       cpSync(src, dest, { recursive: true, force: true, dereference: true })
     },
   },
+  externals: {
+    // TypeScript (~24 MB) is a direct runtime dependency of @kubb/parser-ts and
+    // @kubb/plugin-ts. Marking it as external causes Nitro to trace its files
+    // and copy them to .output/server/node_modules/ instead of bundling them.
+    external: ['typescript'],
+  },
   storage: {
     kubb: {
       driver: 'fs',
@@ -77,6 +83,11 @@ export default defineNitroConfig({
     '../../node_modules', // Root modules (in a monorepo)
   ],
   rollupConfig: {
+    // Prevent TypeScript from being bundled into the Nitro output. TypeScript is a
+    // large (~24 MB) CJS package required by @kubb/parser-ts and @kubb/plugin-ts.
+    // Bundling it inline exhausts the default Node.js heap. Declaring it as a
+    // rollup external ensures it is resolved from node_modules at runtime.
+    external: ['typescript'],
     output: {
       // Polyfill CJS globals for bundled dependencies that reference __filename/__dirname
       // in the ESM output (.mjs). These are not defined in ES module scope by default.
