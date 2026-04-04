@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { FileNode, ImportNode, Node, OperationNode, Printer, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
+import type { FileNode, ImportNode, InputNode, Node, OperationNode, Printer, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { HttpMethod } from '@kubb/oas'
 import type { FabricReactNode, Fabric as FabricType } from '@kubb/react-fabric/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
@@ -69,7 +69,7 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
    */
   parsers?: Array<Parser>
   /**
-   * Adapter that converts the input file into a `@kubb/ast` `RootNode` — the universal
+   * Adapter that converts the input file into a `@kubb/ast` `InputNode` — the universal
    * intermediate representation consumed by all Kubb plugins.
    *
    * When omitted, `adapterOas()` from `@kubb/adapter-oas` is used automatically as the
@@ -132,10 +132,10 @@ export type AdapterFactoryOptions<
 }
 
 /**
- * An adapter converts a source file or data into a `@kubb/ast` `RootNode`.
+ * An adapter converts a source file or data into a `@kubb/ast` `InputNode`.
  *
  * Adapters are the single entry-point for different schema formats
- * (OpenAPI, AsyncAPI, Drizzle, …) and produce the universal `RootNode`
+ * (OpenAPI, AsyncAPI, Drizzle, …) and produce the universal `InputNode`
  * that all Kubb plugins consume.
  *
  * @example
@@ -163,11 +163,11 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * `undefined` before parsing; typed by the adapter's `TDocument` generic.
    */
   document: TOptions['document'] | null
-  rootNode: RootNode | null
+  inputNode: InputNode | null
   /**
-   * Convert the raw source into a universal `RootNode`.
+   * Convert the raw source into a universal `InputNode`.
    */
-  parse: (source: AdapterSource) => PossiblePromise<RootNode>
+  parse: (source: AdapterSource) => PossiblePromise<InputNode>
   /**
    * Extracts `ImportNode` entries needed by a `SchemaNode` tree.
    * Populated after the first `parse()` call. Returns an empty array before that.
@@ -221,7 +221,7 @@ export type Config<TInput = Input> = {
    */
   parsers: Array<Parser>
   /**
-   * Adapter that converts the input file into a `@kubb/ast` `RootNode` — the universal
+   * Adapter that converts the input file into a `@kubb/ast` `InputNode` — the universal
    * intermediate representation consumed by all Kubb plugins.
    *
    * - Use `@kubb/adapter-oas` for OpenAPI / Swagger.
@@ -396,8 +396,8 @@ export type Resolver = {
   resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
   resolvePath(params: ResolverPathParams, context: ResolverContext): string
   resolveFile(params: ResolverFileParams, context: ResolverContext): FileNode
-  resolveBanner(node: RootNode | null, context: ResolveBannerContext): string | undefined
-  resolveFooter(node: RootNode | null, context: ResolveBannerContext): string | undefined
+  resolveBanner(node: InputNode | null, context: ResolveBannerContext): string | undefined
+  resolveFooter(node: InputNode | null, context: ResolveBannerContext): string | undefined
 }
 
 /**
@@ -780,25 +780,25 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    */
   info: (message: string) => void
   /**
-   * Opens the Kubb Studio URL for the current `rootNode` in the default browser.
+   * Opens the Kubb Studio URL for the current `inputNode` in the default browser.
    * Falls back to printing the URL if the browser cannot be launched.
-   * No-ops silently when no adapter has set a `rootNode`.
+   * No-ops silently when no adapter has set an `inputNode`.
    */
   openInStudio: (options?: DevtoolsOptions) => Promise<void>
 } & (
   | {
       /**
-       * Returns the universal `@kubb/ast` `RootNode` produced by the configured adapter.
+       * Returns the universal `@kubb/ast` `InputNode` produced by the configured adapter.
        * Returns `undefined` when no adapter was set (legacy OAS-only usage).
        */
-      rootNode: RootNode
+      inputNode: InputNode
       /**
        * Return the adapter from `@kubb/ast`
        */
       adapter: Adapter
     }
   | {
-      rootNode?: never
+      inputNode?: never
       adapter?: never
     }
 ) &
@@ -809,12 +809,12 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
  *
  * Generators and the `schema`/`operation`/`operations` plugin hooks are only invoked from
  * `runPluginAstHooks`, which already guards against a missing adapter. This type reflects
- * that guarantee — `this.adapter` and `this.rootNode` are always defined, so no runtime
+ * that guarantee — `this.adapter` and `this.inputNode` are always defined, so no runtime
  * checks or casts are needed inside the method bodies.
  */
-export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Omit<PluginContext<TOptions>, 'adapter' | 'rootNode'> & {
+export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Omit<PluginContext<TOptions>, 'adapter' | 'inputNode'> & {
   adapter: Adapter
-  rootNode: RootNode
+  inputNode: InputNode
 }
 /**
  * Specify the export location for the files and define the behavior of the output
@@ -832,11 +832,11 @@ export type Output<_TOptions = unknown> = {
   /**
    * Add a banner text in the beginning of every file
    */
-  banner?: string | ((node?: RootNode) => string)
+  banner?: string | ((node?: InputNode) => string)
   /**
    * Add a footer text in the beginning of every file
    */
-  footer?: string | ((node?: RootNode) => string)
+  footer?: string | ((node?: InputNode) => string)
   /**
    * Whether to override existing external files if they already exist.
    * @default false
@@ -1082,7 +1082,7 @@ export type ResolverFileParams = {
  *
  * @example
  * ```ts
- * resolver.resolveBanner(rootNode, { output: { banner: '// generated' }, config })
+ * resolver.resolveBanner(inputNode, { output: { banner: '// generated' }, config })
  * // → '// generated'
  * ```
  */

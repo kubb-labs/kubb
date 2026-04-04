@@ -100,8 +100,8 @@ export const serverGeneratorLegacy = defineGenerator<PluginMcp>({
           baseName={serverFile.baseName}
           path={serverFile.path}
           meta={serverFile.meta}
-          banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
-          footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+          banner={resolver.resolveBanner(adapter.inputNode, { output, config })}
+          footer={resolver.resolveFooter(adapter.inputNode, { output, config })}
         >
           <File.Import name={['McpServer']} path={'@modelcontextprotocol/sdk/server/mcp'} />
           <File.Import name={['z']} path={'zod'} />
@@ -110,8 +110,8 @@ export const serverGeneratorLegacy = defineGenerator<PluginMcp>({
           {imports}
           <Server
             name={name}
-            serverName={adapter.rootNode?.meta?.title ?? 'server'}
-            serverVersion={(adapter.document as { openapi?: string })?.openapi ?? adapter.rootNode?.meta?.version ?? '0.0.0'}
+            serverName={adapter.inputNode?.meta?.title ?? 'server'}
+            serverVersion={(adapter.document as { openapi?: string })?.openapi ?? adapter.inputNode?.meta?.version ?? '0.0.0'}
             paramsCasing={paramsCasing}
             operations={operationsMapped}
           />
@@ -122,7 +122,7 @@ export const serverGeneratorLegacy = defineGenerator<PluginMcp>({
             {`
           {
             "mcpServers": {
-              "${adapter.rootNode?.meta?.title || 'server'}": {
+              "${adapter.inputNode?.meta?.title || 'server'}": {
                 "type": "stdio",
                 "command": "npx",
                 "args": ["tsx", "${path.relative(path.dirname(jsonFile.path), serverFile.path)}"]

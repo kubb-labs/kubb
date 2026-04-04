@@ -5,7 +5,7 @@ import type { OperationNode } from './nodes/operation.ts'
 import type { ParameterNode } from './nodes/parameter.ts'
 import type { PropertyNode } from './nodes/property.ts'
 import type { ResponseNode } from './nodes/response.ts'
-import type { RootNode } from './nodes/root.ts'
+import type { InputNode } from './nodes/root.ts'
 import type { SchemaNode } from './nodes/schema.ts'
 import type { ParentOf, VisitorContext } from './visitor.ts'
 import { collect, composeTransformers, transform, walk } from './visitor.ts'
@@ -14,7 +14,7 @@ describe('walk', () => {
   it('visits all node kinds in a tree', async () => {
     const root = buildSampleTree()
     const visited = {
-      root: 0,
+      input: 0,
       operation: 0,
       schema: 0,
       property: 0,
@@ -23,8 +23,8 @@ describe('walk', () => {
     }
 
     await walk(root, {
-      root() {
-        visited.root++
+      input() {
+        visited.input++
       },
       operation() {
         visited.operation++
@@ -43,7 +43,7 @@ describe('walk', () => {
       },
     })
 
-    expect(visited.root).toBe(1)
+    expect(visited.input).toBe(1)
     expect(visited.operation).toBe(1)
     expect(visited.property).toBe(2) // id + name
     expect(visited.parameter).toBe(1) // petId
@@ -129,12 +129,12 @@ describe('transform', () => {
     const result = transform(root, {})
 
     expect(result).not.toBe(root)
-    expect(result.kind).toBe('Root')
+    expect(result.kind).toBe('Input')
   })
 
   it('return type matches input type via overloads', () => {
     const root = buildSampleTree()
-    expectTypeOf(transform(root, {})).toEqualTypeOf<RootNode>()
+    expectTypeOf(transform(root, {})).toEqualTypeOf<InputNode>()
   })
 
   it('replaces operations via visitor return value', () => {
@@ -517,7 +517,7 @@ describe('VisitorContext — parent', () => {
     expect(names).toContain('Pet.name')
   })
 
-  it('schema visitor receives parent root node', () => {
+  it('schema visitor receives parent input node', () => {
     const root = buildSampleTree()
 
     let parentKind: string | undefined
@@ -529,10 +529,10 @@ describe('VisitorContext — parent', () => {
       },
     })
 
-    expect(parentKind).toBe('Root')
+    expect(parentKind).toBe('Input')
   })
 
-  it('operation visitor receives parent root node', () => {
+  it('operation visitor receives parent input node', () => {
     const root = buildSampleTree()
 
     let parentKind: string | undefined
@@ -544,15 +544,15 @@ describe('VisitorContext — parent', () => {
       },
     })
 
-    expect(parentKind).toBe('Root')
+    expect(parentKind).toBe('Input')
   })
 
-  it('root visitor has no parent', () => {
+  it('input visitor has no parent', () => {
     const root = buildSampleTree()
 
     let hasParent = false
     transform(root, {
-      root(_node, { parent }) {
+      input(_node, { parent }) {
         hasParent = !!parent
       },
     })
@@ -577,12 +577,12 @@ describe('VisitorContext — parent', () => {
 })
 
 describe('ParentOf — type inference', () => {
-  it('RootNode parent is always undefined', () => {
-    expectTypeOf<ParentOf<RootNode>>().toEqualTypeOf<undefined>()
+  it('InputNode parent is always undefined', () => {
+    expectTypeOf<ParentOf<InputNode>>().toEqualTypeOf<undefined>()
   })
 
-  it('OperationNode parent is RootNode', () => {
-    expectTypeOf<ParentOf<OperationNode>>().toEqualTypeOf<RootNode>()
+  it('OperationNode parent is InputNode', () => {
+    expectTypeOf<ParentOf<OperationNode>>().toEqualTypeOf<InputNode>()
   })
 
   it('PropertyNode parent is SchemaNode', () => {
@@ -598,7 +598,7 @@ describe('ParentOf — type inference', () => {
   })
 
   it('SchemaNode parent is a union of possible parents', () => {
-    expectTypeOf<ParentOf<SchemaNode>>().toEqualTypeOf<RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode>()
+    expectTypeOf<ParentOf<SchemaNode>>().toEqualTypeOf<InputNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode>()
   })
 
   it('VisitorContext narrows parent for PropertyNode', () => {
@@ -606,11 +606,11 @@ describe('ParentOf — type inference', () => {
   })
 
   it('VisitorContext narrows parent for OperationNode', () => {
-    expectTypeOf<VisitorContext<OperationNode>['parent']>().toEqualTypeOf<RootNode | undefined>()
+    expectTypeOf<VisitorContext<OperationNode>['parent']>().toEqualTypeOf<InputNode | undefined>()
   })
 
-  it('VisitorContext narrows parent for RootNode to undefined', () => {
-    expectTypeOf<VisitorContext<RootNode>['parent']>().toEqualTypeOf<undefined>()
+  it('VisitorContext narrows parent for InputNode to undefined', () => {
+    expectTypeOf<VisitorContext<InputNode>['parent']>().toEqualTypeOf<undefined>()
   })
 
   it('visitor callbacks receive narrowed context', () => {
@@ -619,10 +619,10 @@ describe('ParentOf — type inference', () => {
         expectTypeOf(context.parent).toEqualTypeOf<SchemaNode | undefined>()
       },
       operation(_op, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<RootNode | undefined>()
+        expectTypeOf(context.parent).toEqualTypeOf<InputNode | undefined>()
       },
       schema(_schema, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode | undefined>()
+        expectTypeOf(context.parent).toEqualTypeOf<InputNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode | undefined>()
       },
       parameter(_param, context) {
         expectTypeOf(context.parent).toEqualTypeOf<OperationNode | undefined>()
@@ -630,7 +630,7 @@ describe('ParentOf — type inference', () => {
       response(_res, context) {
         expectTypeOf(context.parent).toEqualTypeOf<OperationNode | undefined>()
       },
-      root(_root, context) {
+      input(_input, context) {
         expectTypeOf(context.parent).toEqualTypeOf<undefined>()
       },
     })
@@ -642,7 +642,7 @@ describe('ParentOf — type inference', () => {
         expectTypeOf(context.parent).toEqualTypeOf<SchemaNode | undefined>()
       },
       operation(_op, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<RootNode | undefined>()
+        expectTypeOf(context.parent).toEqualTypeOf<InputNode | undefined>()
       },
       parameter(_param, context) {
         expectTypeOf(context.parent).toEqualTypeOf<OperationNode | undefined>()
@@ -657,7 +657,7 @@ describe('ParentOf — type inference', () => {
         return 'test'
       },
       schema(_schema, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode | undefined>()
+        expectTypeOf(context.parent).toEqualTypeOf<InputNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode | undefined>()
         return 'test'
       },
     })

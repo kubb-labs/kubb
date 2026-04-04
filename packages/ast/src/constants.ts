@@ -15,7 +15,8 @@ export const visitorDepths = {
 } as const satisfies Record<VisitorDepth, VisitorDepth>
 
 export const nodeKinds = {
-  root: 'Root',
+  input: 'Input',
+  output: 'Output',
   operation: 'Operation',
   schema: 'Schema',
   property: 'Property',

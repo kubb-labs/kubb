@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createRoot, createSchema } from './factory.ts'
+import { createInput, createSchema } from './factory.ts'
 import { buildFixture } from './mocks.ts'
 import { buildRefMap, extractRefName, refMapToObject, resolveRef } from './refs.ts'
 
@@ -28,10 +28,10 @@ describe('buildRefMap', () => {
   })
 
   it('skips unnamed (inline) schemas', () => {
-    const root = createRoot({
+    const input = createInput({
       schemas: [createSchema({ type: 'object' }), createSchema({ name: 'Named', type: 'string' })],
     })
-    const map = buildRefMap(root)
+    const map = buildRefMap(input)
 
     expect(map.size).toBe(1)
     expect(map.has('Named')).toBe(true)

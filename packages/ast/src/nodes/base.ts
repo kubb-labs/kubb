@@ -7,7 +7,8 @@
  * ```
  */
 export type NodeKind =
-  | 'Root'
+  | 'Input'
+  | 'Output'
   | 'Operation'
   | 'Schema'
   | 'Property'
@@ -27,7 +28,7 @@ export type NodeKind =
  *
  * @example
  * ```ts
- * const base: BaseNode = { kind: 'Root' }
+ * const base: BaseNode = { kind: 'Input' }
  * ```
  */
 export type BaseNode = {

@@ -1,9 +1,11 @@
 import type {
   FunctionParameterNode,
   FunctionParametersNode,
+  InputNode,
   Node,
   NodeKind,
   OperationNode,
+  OutputNode,
   ParameterGroupNode,
   ParameterNode,
   PropertyNode,
@@ -31,7 +33,21 @@ function isKind<T extends Node>(kind: NodeKind) {
 }
 
 /**
+ * Returns `true` when the input is an `InputNode`.
+ *
+ * @example
+ * ```ts
+ * if (isInputNode(node)) {
+ *   console.log(node.schemas.length)
+ * }
+ * ```
+ */
+export const isInputNode = isKind<InputNode>('Input')
+
+/**
  * Returns `true` when the input is a `RootNode`.
+ *
+ * @deprecated Use `isInputNode` instead.
  *
  * @example
  * ```ts
@@ -40,7 +56,19 @@ function isKind<T extends Node>(kind: NodeKind) {
  * }
  * ```
  */
-export const isRootNode = isKind<RootNode>('Root')
+export const isRootNode = isInputNode
+
+/**
+ * Returns `true` when the input is an `OutputNode`.
+ *
+ * @example
+ * ```ts
+ * if (isOutputNode(node)) {
+ *   console.log(node.files.length)
+ * }
+ * ```
+ */
+export const isOutputNode = isKind<OutputNode>('Output')
 
 /**
  * Returns `true` when the input is an `OperationNode`.

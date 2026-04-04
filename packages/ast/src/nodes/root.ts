@@ -8,10 +8,10 @@ import type { SchemaNode } from './schema.ts'
  *
  * @example
  * ```ts
- * const meta: RootMeta = { title: 'Pet API', version: '1.0.0' }
+ * const meta: InputMeta = { title: 'Pet API', version: '1.0.0' }
  * ```
  */
-export type RootMeta = {
+export type InputMeta = {
   /**
    * API title (from `info.title` in OAS/AsyncAPI).
    */
@@ -32,22 +32,28 @@ export type RootMeta = {
 }
 
 /**
- * Root AST node that contains all schemas and operations for one API document.
+ * @deprecated Use `InputMeta` instead.
+ */
+export type RootMeta = InputMeta
+
+/**
+ * Input AST node that contains all schemas and operations for one API document.
+ * Produced by the adapter and consumed by all Kubb plugins.
  *
  * @example
  * ```ts
- * const root: RootNode = {
- *   kind: 'Root',
+ * const input: InputNode = {
+ *   kind: 'Input',
  *   schemas: [],
  *   operations: [],
  * }
  * ```
  */
-export type RootNode = BaseNode & {
+export type InputNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'Root'
+  kind: 'Input'
   /**
    * All schema nodes in the document.
    */
@@ -59,5 +65,10 @@ export type RootNode = BaseNode & {
   /**
    * Optional document metadata populated by the adapter.
    */
-  meta?: RootMeta
+  meta?: InputMeta
 }
+
+/**
+ * @deprecated Use `InputNode` instead.
+ */
+export type RootNode = InputNode

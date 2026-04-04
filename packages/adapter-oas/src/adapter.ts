@@ -1,5 +1,5 @@
-import { collectImports, createImport, createRoot } from '@kubb/ast'
-import type { RootNode } from '@kubb/ast/types'
+import { collectImports, createImport, createInput } from '@kubb/ast'
+import type { InputNode } from '@kubb/ast/types'
 import { createAdapter } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { applyDiscriminatorInheritance } from './discriminator.ts'
@@ -17,7 +17,7 @@ export const adapterOasName = 'oas' satisfies AdapterOas['name']
  * Creates the default OpenAPI / Swagger adapter for Kubb.
  *
  * Parses the spec, optionally validates it, resolves the base URL, and converts
- * everything into a `RootNode` that downstream plugins consume.
+ * everything into an `InputNode` that downstream plugins consume.
  *
  * @example
  * ```ts
@@ -49,7 +49,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   // Let-binding so parse() can replace it with a simple reassignment (no clear+loop).
   let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null
-  let rootNode: RootNode | null
+  let inputNode: InputNode | null
 
   return {
     name: adapterOasName,
@@ -71,8 +71,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     get document() {
       return parsedDocument
     },
-    get rootNode() {
-      return rootNode
+    get inputNode() {
+      return inputNode
     },
     getImports(node, resolve) {
       return collectImports({
@@ -112,7 +112,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       // Expose the raw document so consumers (e.g. plugin-redoc) can access it.
       parsedDocument = document
 
-      rootNode = createRoot({
+      inputNode = createInput({
         ...node,
         meta: {
           title: document.info?.title,
@@ -122,7 +122,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         },
       })
 
-      return rootNode
+      return inputNode
     },
   }
 })

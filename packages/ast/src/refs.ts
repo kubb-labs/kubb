@@ -1,4 +1,4 @@
-import type { RootNode } from './nodes/root.ts'
+import type { InputNode } from './nodes/root.ts'
 import type { SchemaNode } from './nodes/schema.ts'
 
 /**
@@ -21,20 +21,20 @@ export function extractRefName(ref: string): string {
 }
 
 /**
- * Builds a `RefMap` from `root.schemas` using each schema's `name`.
+ * Builds a `RefMap` from `input.schemas` using each schema's `name`.
  *
  * Unnamed schemas are skipped.
  *
  * @example
  * ```ts
- * const refMap = buildRefMap(root)
+ * const refMap = buildRefMap(input)
  * const pet = refMap.get('Pet')
  * ```
  */
-export function buildRefMap(root: RootNode): RefMap {
+export function buildRefMap(input: InputNode): RefMap {
   const map: RefMap = new Map()
 
-  for (const schema of root.schemas) {
+  for (const schema of input.schemas) {
     if (schema.name) {
       map.set(schema.name, schema)
     }

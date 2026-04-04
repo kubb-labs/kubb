@@ -44,8 +44,8 @@ export const zodGenerator = defineGenerator<PluginZod>({
         baseName={meta.file.baseName}
         path={meta.file.path}
         meta={meta.file.meta}
-        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
-        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+        banner={resolver.resolveBanner(adapter.inputNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.inputNode, { output, config })}
       >
         <File.Import name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
         {mode === 'split' && imports.map((imp) => <File.Import key={[node.name, imp.path].join('-')} root={meta.file.path} path={imp.path} name={imp.name} />)}
@@ -116,8 +116,8 @@ export const zodGenerator = defineGenerator<PluginZod>({
         baseName={meta.file.baseName}
         path={meta.file.path}
         meta={meta.file.meta}
-        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
-        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+        banner={resolver.resolveBanner(adapter.inputNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.inputNode, { output, config })}
       >
         <File.Import name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
         {paramSchemas}
@@ -160,8 +160,8 @@ export const zodGenerator = defineGenerator<PluginZod>({
         baseName={meta.file.baseName}
         path={meta.file.path}
         meta={meta.file.meta}
-        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
-        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+        banner={resolver.resolveBanner(adapter.inputNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.inputNode, { output, config })}
       >
         <File.Import isTypeOnly name={isZodImport ? 'z' : ['z']} path={importPath} isNameSpace={isZodImport} />
         {imports}

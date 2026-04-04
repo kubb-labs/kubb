@@ -8,14 +8,15 @@ import type {
   FunctionParameterNode,
   FunctionParametersNode,
   ImportNode,
+  InputNode,
   ObjectSchemaNode,
   OperationNode,
+  OutputNode,
   ParameterGroupNode,
   ParameterNode,
   PrimitiveSchemaType,
   PropertyNode,
   ResponseNode,
-  RootNode,
   SchemaNode,
   SourceNode,
   TypeNode,
@@ -56,26 +57,67 @@ type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<Sche
 type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & { kind: 'Schema' }
 
 /**
- * Creates a `RootNode` with stable defaults for `schemas` and `operations`.
+ * Creates an `InputNode` with stable defaults for `schemas` and `operations`.
  *
  * @example
  * ```ts
- * const root = createRoot()
- * // { kind: 'Root', schemas: [], operations: [] }
+ * const input = createInput()
+ * // { kind: 'Input', schemas: [], operations: [] }
  * ```
  *
  * @example
  * ```ts
- * const root = createRoot({ schemas: [petSchema] })
+ * const input = createInput({ schemas: [petSchema] })
  * // keeps default operations: []
  * ```
  */
-export function createRoot(overrides: Partial<Omit<RootNode, 'kind'>> = {}): RootNode {
+export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): InputNode {
   return {
     schemas: [],
     operations: [],
     ...overrides,
-    kind: 'Root',
+    kind: 'Input',
+  }
+}
+
+/**
+ * Creates a `RootNode` with stable defaults for `schemas` and `operations`.
+ *
+ * @deprecated Use `createInput` instead.
+ *
+ * @example
+ * ```ts
+ * const root = createRoot()
+ * // { kind: 'Input', schemas: [], operations: [] }
+ * ```
+ */
+export function createRoot(overrides: Partial<Omit<InputNode, 'kind'>> = {}): InputNode {
+  return createInput(overrides)
+}
+
+/**
+ * Creates an `OutputNode` with stable defaults.
+ *
+ * @example
+ * ```ts
+ * const output = createOutput()
+ * // { kind: 'Output', files: [], sources: [], imports: [], exports: [], functions: [] }
+ * ```
+ *
+ * @example
+ * ```ts
+ * const output = createOutput({ files: [petFile] })
+ * ```
+ */
+export function createOutput(overrides: Partial<Omit<OutputNode, 'kind'>> = {}): OutputNode {
+  return {
+    files: [],
+    sources: [],
+    imports: [],
+    exports: [],
+    functions: [],
+    ...overrides,
+    kind: 'Output',
   }
 }
 

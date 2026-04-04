@@ -4,7 +4,7 @@ import type { OperationNode } from './operation.ts'
 import type { ParameterNode } from './parameter.ts'
 import type { PropertyNode } from './property.ts'
 import type { ResponseNode } from './response.ts'
-import type { RootNode } from './root.ts'
+import type { InputNode } from './root.ts'
 import type { SchemaNode } from './schema.ts'
 
 export type { BaseNode, NodeKind } from './base.ts'
@@ -15,7 +15,8 @@ export type { HttpMethod, OperationNode } from './operation.ts'
 export type { ParameterLocation, ParameterNode } from './parameter.ts'
 export type { PropertyNode } from './property.ts'
 export type { ResponseNode } from './response.ts'
-export type { RootMeta, RootNode } from './root.ts'
+export type { InputMeta, InputNode, RootMeta, RootNode } from './root.ts'
+export type { OutputNode } from './output.ts'
 export type {
   ArraySchemaNode,
   ComplexSchemaType,
@@ -52,8 +53,10 @@ export type {
  * ```ts
  * function getKind(node: Node): string {
  *   switch (node.kind) {
- *     case 'Root':
- *       return 'root'
+ *     case 'Input':
+ *       return 'input'
+ *     case 'Output':
+ *       return 'output'
  *     default:
  *       return 'other'
  *   }
@@ -61,7 +64,7 @@ export type {
  * ```
  */
 export type Node =
-  | RootNode
+  | InputNode
   | OperationNode
   | SchemaNode
   | PropertyNode
