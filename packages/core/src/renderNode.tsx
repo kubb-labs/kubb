@@ -1,6 +1,6 @@
+import type { FileNode } from '@kubb/ast/types'
 import { createReactFabric, Fabric } from '@kubb/react-fabric'
 import type { FabricReactNode, Fabric as FabricType } from '@kubb/react-fabric/types'
-import type { FileNode } from '@kubb/ast/types'
 
 /**
  * Handles the return value of a plugin AST hook or generator method.

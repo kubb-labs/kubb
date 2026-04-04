@@ -3,7 +3,18 @@ import { sortBy, uniqueBy } from 'remeda'
 
 import { createFunctionParameter, createFunctionParameters, createParameterGroup, createProperty, createSchema, createTypeNode } from './factory.ts'
 import { narrowSchema } from './guards.ts'
-import type { ExportNode, FunctionParameterNode, FunctionParametersNode, ImportNode, OperationNode, ParameterGroupNode, ParameterNode, SchemaNode, SourceNode, TypeNode } from './nodes/index.ts'
+import type {
+  ExportNode,
+  FunctionParameterNode,
+  FunctionParametersNode,
+  ImportNode,
+  OperationNode,
+  ParameterGroupNode,
+  ParameterNode,
+  SchemaNode,
+  SourceNode,
+  TypeNode,
+} from './nodes/index.ts'
 import type { SchemaType } from './nodes/schema.ts'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)

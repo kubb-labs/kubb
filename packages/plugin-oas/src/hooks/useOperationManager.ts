@@ -1,6 +1,6 @@
+import type { FileNode } from '@kubb/ast/types'
 import type { FileMetaBase, KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import { useDriver, usePlugin } from '@kubb/core/hooks'
-import type { FileNode } from '@kubb/ast/types'
 import type { Operation, Operation as OperationType } from '@kubb/oas'
 import type { OperationGenerator } from '../OperationGenerator.ts'
 import type { OperationSchemas } from '../types.ts'

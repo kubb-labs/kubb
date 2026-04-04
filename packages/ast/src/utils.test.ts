@@ -1386,8 +1386,8 @@ describe('pathParamsType: inlineSpread', () => {
   })
 })
 
-import { combineExports, combineImports, combineSources } from './utils.ts'
 import { createExport, createImport, createSource } from './factory.ts'
+import { combineExports, combineImports, combineSources } from './utils.ts'
 
 describe('combineSources', () => {
   it('deduplicates sources with the same name', () => {

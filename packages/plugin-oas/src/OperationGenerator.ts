@@ -1,7 +1,7 @@
 import type { AsyncEventEmitter } from '@internals/utils'
 import { pascalCase } from '@internals/utils'
-import type { FileMetaBase, KubbEvents, KubbFile, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
 import type { FileNode } from '@kubb/ast/types'
+import type { FileMetaBase, KubbEvents, KubbFile, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
 import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
 import type { CoreGenerator } from './generators/createGenerator.ts'
