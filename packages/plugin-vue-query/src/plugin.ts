@@ -1,8 +1,8 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { createPlugin, getBarrelFiles, type UserGroup } from '@kubb/core'
-import { createSource } from '@kubb/ast'
+import { createFile, createSource } from '@kubb/ast'
 import type { FileNode } from '@kubb/ast/types'
+import { createPlugin, getBarrelFiles, type UserGroup } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
@@ -161,37 +161,37 @@ export const pluginVueQuery = createPlugin<PluginVueQuery>((options) => {
 
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
         // pre add bundled
-        await this.upsertFile({
-          baseName: 'fetch.ts',
-          path: path.resolve(root, '.kubb/fetch.ts'),
-          sources: [
-            createSource({
-              name: 'fetch',
-              value: this.plugin.options.client.client === 'fetch' ? fetchClientSource : axiosClientSource,
-              isExportable: true,
-              isIndexable: true,
-            }),
-          ],
-          imports: [],
-          exports: [],
-        })
+        await this.upsertFile(
+          createFile({
+            baseName: 'fetch.ts',
+            path: path.resolve(root, '.kubb/fetch.ts'),
+            sources: [
+              createSource({
+                name: 'fetch',
+                value: this.plugin.options.client.client === 'fetch' ? fetchClientSource : axiosClientSource,
+                isExportable: true,
+                isIndexable: true,
+              }),
+            ],
+          }),
+        )
       }
 
       if (!hasClientPlugin) {
-        await this.addFile({
-          baseName: 'config.ts',
-          path: path.resolve(root, '.kubb/config.ts'),
-          sources: [
-            createSource({
-              name: 'config',
-              value: configSource,
-              isExportable: false,
-              isIndexable: false,
-            }),
-          ],
-          imports: [],
-          exports: [],
-        })
+        await this.addFile(
+          createFile({
+            baseName: 'config.ts',
+            path: path.resolve(root, '.kubb/config.ts'),
+            sources: [
+              createSource({
+                name: 'config',
+                value: configSource,
+                isExportable: false,
+                isIndexable: false,
+              }),
+            ],
+          }),
+        )
       }
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {

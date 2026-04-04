@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
-import { createSource } from '@kubb/ast'
+import { createFile, createSource } from '@kubb/ast'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
 import { source as fetchClientSource } from '@kubb/plugin-client/templates/clients/fetch.source'
@@ -106,7 +106,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
       const hasClientPlugin = !!driver.getPlugin(pluginClientName)
 
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
-        await this.addFile({
+        await this.addFile(createFile({
           baseName: 'fetch.ts',
           path: path.resolve(root, '.kubb/fetch.ts'),
           sources: [
@@ -119,11 +119,11 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
           ],
           imports: [],
           exports: [],
-        })
+        }))
       }
 
       if (!hasClientPlugin) {
-        await this.addFile({
+        await this.addFile(createFile({
           baseName: 'config.ts',
           path: path.resolve(root, '.kubb/config.ts'),
           sources: [
@@ -136,7 +136,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
           ],
           imports: [],
           exports: [],
-        })
+        }))
       }
 
       await this.openInStudio({ ast: true })

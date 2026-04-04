@@ -1,4 +1,5 @@
-import type { FabricFile } from '@kubb/fabric-core/types'
+import { createImport } from '@kubb/ast'
+import type { ImportNode } from '@kubb/ast/types'
 import { SchemaGenerator } from '../SchemaGenerator.ts'
 import type { Schema } from '../SchemaMapper'
 import { schemaKeywords } from '../SchemaMapper'
@@ -6,7 +7,7 @@ import { schemaKeywords } from '../SchemaMapper'
 /**
  * Get imports from a schema tree by extracting all ref schemas that are importable
  */
-export function getImports(tree: Array<Schema>): Array<FabricFile.Import> {
+export function getImports(tree: Array<Schema>): Array<ImportNode> {
   const refs = SchemaGenerator.deepSearch(tree, schemaKeywords.ref)
 
   if (!refs) return []
@@ -17,10 +18,10 @@ export function getImports(tree: Array<Schema>): Array<FabricFile.Import> {
         return undefined
       }
 
-      return {
+      return createImport({
         name: [item.args.name],
         path: item.args.path,
-      } satisfies FabricFile.Import
+      })
     })
     .filter((x): x is NonNullable<typeof x> => x !== undefined)
 }

@@ -1,4 +1,4 @@
-import type { FileNode } from '@kubb/ast'
+import type { FileNode } from '@kubb/ast/types'
 import { caseParams, createFunctionParameter, createFunctionParameters, createParameterGroup } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import { functionPrinter } from '@kubb/plugin-ts'

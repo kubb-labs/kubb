@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "@kubb/ast": "workspace:*",
     "@kubb/fabric-core": "catalog:",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-cypress": "workspace:*",

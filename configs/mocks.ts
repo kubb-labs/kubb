@@ -7,8 +7,8 @@ import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
 import { expect } from 'vitest'
 import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
-import { createFile, transform } from '../packages/ast/src/index.ts'
-import type { FileNode, OperationNode, SchemaNode, Visitor } from '../packages/ast/src/types.ts'
+import { transform } from '../packages/ast/src/index.ts'
+import type { OperationNode, SchemaNode, Visitor } from '../packages/ast/src/types.ts'
 import type {
   Adapter,
   AdapterFactoryOptions,
@@ -147,7 +147,7 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
   } as unknown as Plugin<TOptions>
 }
 
-export async function matchFiles(files: Array<FileNode> | undefined, pre?: string) {
+export async function matchFiles(files: FabricType['files'] | undefined, pre?: string) {
   if (!files?.length) return
 
   const fileProcessor = new FileProcessor()
@@ -165,7 +165,7 @@ export async function matchFiles(files: Array<FileNode> | undefined, pre?: strin
       continue
     }
 
-    const parsed = await fileProcessor.parse(createFile(file), { parsers })
+    const parsed = await fileProcessor.parse(file, { parsers })
     const code = file.baseName.endsWith('.json') ? parsed : await format(parsed)
 
     processed.set(file.path, code)

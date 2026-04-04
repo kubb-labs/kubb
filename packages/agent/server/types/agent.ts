@@ -8,8 +8,8 @@
  * - Bidirectional: ErrorMessage, StatusMessage
  */
 
+import type { FileNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import type { FabricFile } from '@kubb/fabric-core/types'
 
 export type JSONKubbConfig = {
   plugins?: Array<{
@@ -45,7 +45,7 @@ export type KubbEvents = {
   warn: [message: string, info?: string]
   error: [error: { message: string; stack?: string }]
   'generation:start': [config: { name?: string; plugins: number }]
-  'generation:end': [Config: Config, files: Array<FabricFile.ResolvedFile>, sources: Record<FabricFile.Path, string>]
+  'generation:end': [Config: Config, files: Array<FileNode>, sources: Record<string, string>]
   'lifecycle:end': []
 }
 
