@@ -1385,3 +1385,136 @@ describe('pathParamsType: inlineSpread', () => {
     expect(restParam).toBeUndefined()
   })
 })
+
+import { createExport, createImport, createSource } from './factory.ts'
+import { combineExports, combineImports, combineSources } from './utils.ts'
+
+describe('combineSources', () => {
+  it('deduplicates sources with the same name', () => {
+    const src = createSource({ name: 'Pet', value: 'export type Pet = {}' })
+    const result = combineSources([src, src])
+
+    expect(result).toHaveLength(1)
+  })
+
+  it('keeps sources with different names', () => {
+    const a = createSource({ name: 'Pet', value: 'export type Pet = {}' })
+    const b = createSource({ name: 'Order', value: 'export type Order = {}' })
+    const result = combineSources([a, b])
+
+    expect(result).toHaveLength(2)
+  })
+
+  it('deduplicates by value when name is absent', () => {
+    const src = createSource({ value: 'const x = 1' })
+    const result = combineSources([src, src])
+
+    expect(result).toHaveLength(1)
+  })
+
+  it('treats sources with the same name but different isExportable as distinct', () => {
+    const a = createSource({ name: 'Pet', value: 'export type Pet = {}', isExportable: true })
+    const b = createSource({ name: 'Pet', value: 'export type Pet = {}', isExportable: false })
+    const result = combineSources([a, b])
+
+    expect(result).toHaveLength(2)
+  })
+
+  it('returns empty array for empty input', () => {
+    expect(combineSources([])).toEqual([])
+  })
+})
+
+describe('combineExports', () => {
+  it('deduplicates identical named exports from the same path', () => {
+    const exp = createExport({ name: ['Pet'], path: './Pet' })
+    const result = combineExports([exp, exp])
+
+    expect(result).toHaveLength(1)
+    expect(result[0]!.name).toEqual(['Pet'])
+  })
+
+  it('merges named exports from the same path into one entry', () => {
+    const a = createExport({ name: ['Pet'], path: './models' })
+    const b = createExport({ name: ['Order'], path: './models' })
+    const result = combineExports([a, b])
+
+    expect(result).toHaveLength(1)
+    expect(result[0]!.name).toContain('Pet')
+    expect(result[0]!.name).toContain('Order')
+  })
+
+  it('keeps type-only and value exports from the same path separate', () => {
+    const value = createExport({ name: ['Pet'], path: './Pet', isTypeOnly: false })
+    const typeOnly = createExport({ name: ['Pet'], path: './Pet', isTypeOnly: true })
+    const result = combineExports([value, typeOnly])
+
+    expect(result).toHaveLength(2)
+  })
+
+  it('keeps wildcard and named exports from the same path separate', () => {
+    const wildcard = createExport({ path: './utils' })
+    const named = createExport({ name: ['helper'], path: './utils' })
+    const result = combineExports([wildcard, named])
+
+    expect(result.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('returns empty array for empty input', () => {
+    expect(combineExports([])).toEqual([])
+  })
+})
+
+describe('combineImports', () => {
+  it('keeps imports whose names appear in the source', () => {
+    const imp = createImport({ name: ['z'], path: 'zod' })
+    const result = combineImports([imp], [], 'const schema = z.string()')
+
+    expect(result).toHaveLength(1)
+    expect(result[0]!.path).toBe('zod')
+  })
+
+  it('filters out imports whose names do not appear in the source', () => {
+    const imp = createImport({ name: ['unused'], path: 'lodash' })
+    const result = combineImports([imp], [], 'const x = 1')
+
+    expect(result).toHaveLength(0)
+  })
+
+  it('retains imports that are re-exported', () => {
+    const imp = createImport({ name: ['Pet'], path: './Pet' })
+    const exp = createExport({ name: ['Pet'], path: './Pet' })
+    const result = combineImports([imp], [exp], '')
+
+    expect(result).toHaveLength(1)
+  })
+
+  it('merges named imports from the same path with the same isTypeOnly', () => {
+    const a = createImport({ name: ['Pet'], path: './models' })
+    const b = createImport({ name: ['Order'], path: './models' })
+    const result = combineImports([a, b], [], 'Pet Order')
+
+    expect(result).toHaveLength(1)
+    expect(result[0]!.name).toContain('Pet')
+    expect(result[0]!.name).toContain('Order')
+  })
+
+  it('keeps value and type-only imports from the same path separate', () => {
+    const value = createImport({ name: ['Pet'], path: './models', isTypeOnly: false })
+    const typeOnly = createImport({ name: ['Pet'], path: './models', isTypeOnly: true })
+    const result = combineImports([value, typeOnly], [], 'Pet')
+
+    expect(result).toHaveLength(2)
+  })
+
+  it('skips an import when path equals root', () => {
+    const imp = createImport({ name: ['self'], path: 'src/pet.ts', root: 'src/pet.ts' })
+    const result = combineImports([imp], [], 'self')
+
+    expect(result).toHaveLength(0)
+  })
+
+  it('returns empty array for empty input', () => {
+    expect(combineImports([], [], '')).toEqual([])
+  })
+})

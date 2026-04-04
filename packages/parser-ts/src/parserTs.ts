@@ -1,5 +1,6 @@
 import { normalize, relative } from 'node:path'
-import type { KubbFile, Parser } from '@kubb/core'
+import type { FileNode } from '@kubb/ast/types'
+import type { Parser } from '@kubb/core'
 import { defineParser } from '@kubb/core'
 import ts from 'typescript'
 
@@ -177,7 +178,7 @@ export const parserTs: Parser = defineParser({
     const source = sourceParts.join('\n\n')
 
     const importNodes: Array<ts.ImportDeclaration> = []
-    for (const item of (file as KubbFile.ResolvedFile).imports) {
+    for (const item of (file as FileNode).imports) {
       const importPath = item.root ? getRelativePath(item.root, item.path) : item.path
       const hasExtname = !!/\.[^/.]+$/.exec(importPath)
 
@@ -192,7 +193,7 @@ export const parserTs: Parser = defineParser({
     }
 
     const exportNodes: Array<ts.ExportDeclaration> = []
-    for (const item of (file as KubbFile.ResolvedFile).exports) {
+    for (const item of (file as FileNode).exports) {
       const exportPath = item.path
       const hasExtname = !!/\.[^/.]+$/.exec(exportPath)
 

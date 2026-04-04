@@ -61,15 +61,17 @@
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
+  "devDependencies": {
+    "@internals/utils": "workspace:*"
+  },
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
+    "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/fabric-core": "catalog:",
     "@kubb/react-fabric": "catalog:",
     "handlebars": "^4.7.9"
   },
   "peerDependencies": {
-    "@kubb/fabric-core": "0.15.1",
     "@kubb/react-fabric": "0.15.1"
   },
   "engines": {

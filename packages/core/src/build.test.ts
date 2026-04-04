@@ -2,12 +2,12 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { AsyncEventEmitter, isPromise } from '@internals/utils'
+import { createFile, createSource } from '@kubb/ast'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createMockedAdapter } from '#mocks'
 import { build, safeBuild } from './build.ts'
 import { createPlugin } from './createPlugin.ts'
 import { defineConfig } from './defineConfig.ts'
-import type * as KubbFile from './KubbFile.ts'
 import type { Config, KubbEvents, Plugin, UserConfig } from './types.ts'
 
 describe('build', () => {
@@ -16,13 +16,13 @@ describe('build', () => {
     resolvePath: vi.fn(),
   } as const
 
-  const file: KubbFile.File = {
+  const file = createFile({
     path: 'hello/world.json',
     baseName: 'world.json',
-    sources: [{ value: `{ "hello": "world" }` }],
+    sources: [createSource({ value: `{ "hello": "world" }` })],
     imports: [],
     exports: [],
-  }
+  })
   const plugin = createPlugin(() => {
     return {
       name: 'plugin',
@@ -179,11 +179,13 @@ describe('build', () => {
           "extname": ".json",
           "id": undefined,
           "imports": [],
+          "kind": "File",
           "meta": {},
           "name": "world",
           "path": undefined,
           "sources": [
             {
+              "kind": "Source",
               "value": "{ "hello": "world" }",
             },
           ],
@@ -313,20 +315,20 @@ describe('build', () => {
     const tmpDir = mkdtempSync(join(tmpdir(), 'kubb-test-excluded-'))
 
     try {
-      const indexableFile: KubbFile.File = {
+      const indexableFile = createFile({
         path: join(tmpDir, 'mocks/excluded.ts'),
         baseName: 'excluded.ts',
         sources: [
-          {
+          createSource({
             value: 'export const excluded = "excluded"',
             isIndexable: true,
             name: 'excluded',
-          },
+          }),
         ],
         imports: [],
         exports: [],
         meta: { pluginName: 'excludedPlugin' },
-      }
+      })
 
       const excludedPlugin = createPlugin(() => {
         return {

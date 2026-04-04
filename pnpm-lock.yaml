@@ -213,6 +213,9 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../../packages/adapter-oas
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../../packages/ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -334,6 +337,9 @@ importers:
 
   examples/generators:
     dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../../packages/ast
       '@kubb/fabric-core':
         specifier: 0.15.1
         version: 0.15.1
@@ -782,9 +788,6 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
       '@redocly/openapi-core':
         specifier: ^2.25.4
         version: 2.25.4
@@ -825,12 +828,12 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts
@@ -915,6 +918,10 @@ importers:
         version: 7.3.1(@types/node@24.10.1)(jiti@2.5.1)(less@4.4.2)(terser@5.44.1)(yaml@2.8.3)
 
   packages/ast:
+    dependencies:
+      remeda:
+        specifier: 'catalog:'
+        version: 2.33.7
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
@@ -965,9 +972,6 @@ importers:
       '@kubb/ast':
         specifier: workspace:*
         version: link:../ast
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.15.1
@@ -1027,9 +1031,6 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.15.1
@@ -1055,9 +1056,6 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
       '@redocly/openapi-core':
         specifier: ^2.25.4
         version: 2.25.4
@@ -1111,9 +1109,6 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
       '@kubb/plugin-ts':
         specifier: workspace:*
         version: link:../plugin-ts
@@ -1224,12 +1219,12 @@ importers:
 
   packages/plugin-oas:
     dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1249,12 +1244,12 @@ importers:
 
   packages/plugin-react-query:
     dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1289,27 +1284,31 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.15.1
       handlebars:
         specifier: ^4.7.9
         version: 4.7.9
+    devDependencies:
+      '@internals/utils':
+        specifier: workspace:*
+        version: link:../../internals/utils
 
   packages/plugin-solid-query:
     dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1341,12 +1340,12 @@ importers:
 
   packages/plugin-svelte-query:
     dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1378,12 +1377,12 @@ importers:
 
   packages/plugin-swr:
     dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1421,9 +1420,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.15.1
@@ -1440,12 +1439,12 @@ importers:
 
   packages/plugin-vue-query:
     dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
       '@kubb/oas':
         specifier: workspace:*
         version: link:../oas
@@ -1483,9 +1482,6 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.15.1

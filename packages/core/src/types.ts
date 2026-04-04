@@ -1,14 +1,12 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { Node, OperationNode, Printer, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
-import type { Fabric as FabricType } from '@kubb/fabric-core/types'
+import type { FileNode, ImportNode, Node, OperationNode, Printer, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { HttpMethod } from '@kubb/oas'
-import type { FabricReactNode } from '@kubb/react-fabric/types'
+import type { FabricReactNode, Fabric as FabricType } from '@kubb/react-fabric/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbEvents } from './Kubb.ts'
-import type * as KubbFile from './KubbFile.ts'
 import type { PluginDriver } from './PluginDriver.ts'
 
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from '@kubb/ast/types'
@@ -171,13 +169,13 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    */
   parse: (source: AdapterSource) => PossiblePromise<RootNode>
   /**
-   * Extracts `KubbFile.Import` entries needed by a `SchemaNode` tree.
+   * Extracts `ImportNode` entries needed by a `SchemaNode` tree.
    * Populated after the first `parse()` call. Returns an empty array before that.
    *
    * The `resolve` callback receives the collision-corrected schema name and must
    * return the `{ name, path }` pair for the import, or `undefined` to skip it.
    */
-  getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<KubbFile.Import>
+  getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<ImportNode>
 }
 
 export type BarrelType = 'all' | 'named' | 'propagate'
@@ -296,7 +294,7 @@ export type Config<TInput = Input> = {
      * Overrides the extension for generated imports and exports. By default, each plugin adds an extension.
      * @default { '.ts': '.ts'}
      */
-    extension?: Record<KubbFile.Extname, KubbFile.Extname | ''>
+    extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
     /**
      * Configures how `index.ts` files are created, including disabling barrel file generation. Each plugin has its own `barrelType` option; this setting controls the root barrel file (e.g., `src/gen/index.ts`).
      * @default 'named'
@@ -396,8 +394,8 @@ export type Resolver = {
   pluginName: Plugin['name']
   default(name: ResolveNameParams['name'], type?: ResolveNameParams['type']): string
   resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
-  resolvePath(params: ResolverPathParams, context: ResolverContext): KubbFile.Path
-  resolveFile(params: ResolverFileParams, context: ResolverContext): KubbFile.File
+  resolvePath(params: ResolverPathParams, context: ResolverContext): string
+  resolveFile(params: ResolverFileParams, context: ResolverContext): FileNode
   resolveBanner(node: RootNode | null, context: ResolveBannerContext): string | undefined
   resolveFooter(node: RootNode | null, context: ResolveBannerContext): string | undefined
 }
@@ -527,7 +525,7 @@ export type SchemaHook<TOptions extends PluginFactoryOptions = PluginFactoryOpti
   this: GeneratorContext<TOptions>,
   node: SchemaNode,
   options: TOptions['resolvedOptions'],
-) => PossiblePromise<FabricReactNode | Array<KubbFile.File> | void>
+) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
 
 /**
  * Handler for a single operation node. Used by the `operation` hook on a plugin.
@@ -536,7 +534,7 @@ export type OperationHook<TOptions extends PluginFactoryOptions = PluginFactoryO
   this: GeneratorContext<TOptions>,
   node: OperationNode,
   options: TOptions['resolvedOptions'],
-) => PossiblePromise<FabricReactNode | Array<KubbFile.File> | void>
+) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
 
 /**
  * Handler for all collected operation nodes. Used by the `operations` hook on a plugin.
@@ -545,7 +543,7 @@ export type OperationsHook<TOptions extends PluginFactoryOptions = PluginFactory
   this: GeneratorContext<TOptions>,
   nodes: Array<OperationNode>,
   options: TOptions['resolvedOptions'],
-) => PossiblePromise<FabricReactNode | Array<KubbFile.File> | void>
+) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
 
 export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
@@ -602,7 +600,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
   buildEnd: (this: PluginContext<TOptions>) => PossiblePromise<void>
   /**
    * Called for each schema node during the AST walk.
-   * Return a React element, an array of `KubbFile.File`, or `void` for manual handling.
+   * Return a React element, an array of `FileNode`, or `void` for manual handling.
    * Nodes matching `exclude`/`include` filters are skipped automatically.
    *
    * For multiple generators, use `composeGenerators` inside the plugin factory.
@@ -610,7 +608,7 @@ export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>
   schema?: SchemaHook<TOptions>
   /**
    * Called for each operation node during the AST walk.
-   * Return a React element, an array of `KubbFile.File`, or `void` for manual handling.
+   * Return a React element, an array of `FileNode`, or `void` for manual handling.
    *
    * For multiple generators, use `composeGenerators` inside the plugin factory.
    */
@@ -645,7 +643,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
   buildEnd?: (this: PluginContext<TOptions>) => PossiblePromise<void>
   /**
    * Called for each schema node during the AST walk.
-   * Return a React element (`<File>...</File>`), an array of `KubbFile.File` objects,
+   * Return a React element (`<File>...</File>`), an array of `FileNode` objects,
    * or `void` to handle file writing manually via `this.upsertFile`.
    * Nodes matching `exclude` / `include` filters are skipped automatically.
    *
@@ -654,7 +652,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
   schema?: SchemaHook<TOptions>
   /**
    * Called for each operation node during the AST walk.
-   * Return a React element (`<File>...</File>`), an array of `KubbFile.File` objects,
+   * Return a React element (`<File>...</File>`), an array of `FileNode` objects,
    * or `void` to handle file writing manually via `this.upsertFile`.
    *
    * For multiple generators, use `composeGenerators` inside the plugin factory.
@@ -674,7 +672,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * @example ('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'
    * @deprecated this will be replaced by resolvers
    */
-  resolvePath?: (this: PluginContext<TOptions>, baseName: KubbFile.BaseName, mode?: KubbFile.Mode, options?: TOptions['resolvePathOptions']) => KubbFile.Path
+  resolvePath?: (this: PluginContext<TOptions>, baseName: FileNode['baseName'], mode?: 'single' | 'split', options?: TOptions['resolvePathOptions']) => string
   /**
    * Resolve to a name based on a string.
    * Useful when converting to PascalCase or camelCase.
@@ -691,8 +689,8 @@ export type PluginParameter<H extends PluginLifecycleHooks> = Parameters<Require
 
 export type ResolvePathParams<TOptions = object> = {
   pluginName?: string
-  baseName: KubbFile.BaseName
-  mode?: KubbFile.Mode
+  baseName: FileNode['baseName']
+  mode?: 'single' | 'split'
   /**
    * Options to be passed to 'resolvePath' 3th parameter
    */
@@ -726,7 +724,7 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
    * Returns `'single'` when `output.path` has a file extension, `'split'` otherwise.
    * Shorthand for `getMode(path.resolve(this.root, output.path))`.
    */
-  getMode: (output: { path: string }) => KubbFile.Mode
+  getMode: (output: { path: string }) => 'single' | 'split'
   driver: PluginDriver
   /**
    * Get a plugin by name. Returns the plugin typed via `Kubb.PluginRegistry` when
@@ -743,11 +741,11 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   /**
    * Only add when the file does not exist yet
    */
-  addFile: (...file: Array<KubbFile.File>) => Promise<void>
+  addFile: (...file: Array<FileNode>) => Promise<void>
   /**
    * merging multiple sources into the same output file
    */
-  upsertFile: (...file: Array<KubbFile.File>) => Promise<void>
+  upsertFile: (...file: Array<FileNode>) => Promise<void>
   /**
    * @deprecated use this.warn, this.error, this.info instead
    */
@@ -1011,8 +1009,8 @@ export type ResolvePathOptions = {
  * ```
  */
 export type ResolverPathParams = {
-  baseName: KubbFile.BaseName
-  pathMode?: KubbFile.Mode
+  baseName: FileNode['baseName']
+  pathMode?: 'single' | 'split'
   /**
    * Tag value used when `group.type === 'tag'`.
    */
@@ -1065,7 +1063,7 @@ export type ResolverContext = {
  */
 export type ResolverFileParams = {
   name: string
-  extname: KubbFile.Extname
+  extname: FileNode['extname']
   /**
    * Tag value used when `group.type === 'tag'`.
    */

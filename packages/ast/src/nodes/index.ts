@@ -1,3 +1,4 @@
+import type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
 import type { FunctionNode } from './function.ts'
 import type { OperationNode } from './operation.ts'
 import type { ParameterNode } from './parameter.ts'
@@ -7,6 +8,7 @@ import type { RootNode } from './root.ts'
 import type { SchemaNode } from './schema.ts'
 
 export type { BaseNode, NodeKind } from './base.ts'
+export type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
 export type { FunctionNode, FunctionNodeType, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, TypeNode } from './function.ts'
 export type { HttpStatusCode, MediaType, StatusCode } from './http.ts'
 export type { HttpMethod, OperationNode } from './operation.ts'
@@ -58,4 +60,15 @@ export type {
  * }
  * ```
  */
-export type Node = RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode | FunctionNode
+export type Node =
+  | RootNode
+  | OperationNode
+  | SchemaNode
+  | PropertyNode
+  | ParameterNode
+  | ResponseNode
+  | FunctionNode
+  | FileNode
+  | ImportNode
+  | ExportNode
+  | SourceNode

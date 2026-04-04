@@ -1,8 +1,7 @@
 import path from 'node:path'
 import { camelCase, pascalCase } from '@internals/utils'
-import { isOperationNode, isSchemaNode } from '@kubb/ast'
-import type { Node, OperationNode, RootNode, SchemaNode } from '@kubb/ast/types'
-import type * as KubbFile from './KubbFile.ts'
+import { createFile, isOperationNode, isSchemaNode } from '@kubb/ast'
+import type { FileNode, Node, OperationNode, RootNode, SchemaNode } from '@kubb/ast/types'
 import { getMode } from './PluginDriver.ts'
 import type {
   Config,
@@ -195,24 +194,24 @@ export function defaultResolveOptions<TOptions>(
  * // → '/src/types'
  * ```
  */
-export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }: ResolverPathParams, { root, output, group }: ResolverContext): KubbFile.Path {
+export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }: ResolverPathParams, { root, output, group }: ResolverContext): string {
   const mode = pathMode ?? getMode(path.resolve(root, output.path))
 
   if (mode === 'single') {
-    return path.resolve(root, output.path) as KubbFile.Path
+    return path.resolve(root, output.path)
   }
 
   if (group && (groupPath || tag)) {
-    return path.resolve(root, output.path, group.name({ group: group.type === 'path' ? groupPath! : tag! }), baseName) as KubbFile.Path
+    return path.resolve(root, output.path, group.name({ group: group.type === 'path' ? groupPath! : tag! }), baseName)
   }
 
-  return path.resolve(root, output.path, baseName) as KubbFile.Path
+  return path.resolve(root, output.path, baseName)
 }
 
 /**
  * Default file resolver used by `defineResolver`.
  *
- * Resolves a `KubbFile.File` by combining name resolution (`resolver.default`) with
+ * Resolves a `FileNode` by combining name resolution (`resolver.default`) with
  * path resolution (`resolver.resolvePath`). The resolved file always has empty
  * `sources`, `imports`, and `exports` arrays — consumers populate those separately.
  *
@@ -236,22 +235,22 @@ export function defaultResolvePath({ baseName, pathMode, tag, path: groupPath }:
  * // → { baseName: 'listPets.ts', path: '/src/types/petsController/listPets.ts', ... }
  * ```
  */
-export function defaultResolveFile(this: Resolver, { name, extname, tag, path: groupPath }: ResolverFileParams, context: ResolverContext): KubbFile.File {
+export function defaultResolveFile(this: Resolver, { name, extname, tag, path: groupPath }: ResolverFileParams, context: ResolverContext): FileNode {
   const pathMode = getMode(path.resolve(context.root, context.output.path))
   const resolvedName = pathMode === 'single' ? '' : this.default(name, 'file')
-  const baseName = `${resolvedName}${extname}` as KubbFile.BaseName
+  const baseName = `${resolvedName}${extname}` as FileNode['baseName']
   const filePath = this.resolvePath({ baseName, pathMode, tag, path: groupPath }, context)
 
-  return {
+  return createFile({
     path: filePath,
-    baseName: path.basename(filePath) as KubbFile.BaseName,
+    baseName: path.basename(filePath) as `${string}.${string}`,
     meta: {
       pluginName: this.pluginName,
     },
     sources: [],
     imports: [],
     exports: [],
-  }
+  })
 }
 
 /**
@@ -403,7 +402,7 @@ export function defaultResolveFooter(node: RootNode | undefined, { output }: Res
  * - `default` — name casing strategy (camelCase / PascalCase)
  * - `resolveOptions` — include/exclude/override filtering
  * - `resolvePath` — output path computation
- * - `resolveFile` — full `KubbFile.File` construction
+ * - `resolveFile` — full `FileNode` construction
  *
  * Methods in the builder have access to `this` (the full resolver object), so they
  * can call other resolver methods without circular imports.

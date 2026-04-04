@@ -1,5 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
+import { createFile, createSource } from '@kubb/ast'
 import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
 import { pluginTsName } from '@kubb/plugin-ts'
 import { pluginZodName } from '@kubb/plugin-zod'
@@ -161,36 +162,36 @@ export const pluginClient = createPlugin<PluginClient>((options) => {
 
       // pre add bundled fetch
       if (bundle && !plugin.options.importPath) {
-        await this.addFile({
-          baseName: 'fetch.ts',
-          path: path.resolve(root, '.kubb/fetch.ts'),
-          sources: [
-            {
-              name: 'fetch',
-              value: plugin.options.client === 'fetch' ? fetchClientSource : axiosClientSource,
-              isExportable: true,
-              isIndexable: true,
-            },
-          ],
-          imports: [],
-          exports: [],
-        })
+        await this.addFile(
+          createFile({
+            baseName: 'fetch.ts',
+            path: path.resolve(root, '.kubb/fetch.ts'),
+            sources: [
+              createSource({
+                name: 'fetch',
+                value: plugin.options.client === 'fetch' ? fetchClientSource : axiosClientSource,
+                isExportable: true,
+                isIndexable: true,
+              }),
+            ],
+          }),
+        )
       }
 
-      await this.addFile({
-        baseName: 'config.ts',
-        path: path.resolve(root, '.kubb/config.ts'),
-        sources: [
-          {
-            name: 'config',
-            value: configSource,
-            isExportable: false,
-            isIndexable: false,
-          },
-        ],
-        imports: [],
-        exports: [],
-      })
+      await this.addFile(
+        createFile({
+          baseName: 'config.ts',
+          path: path.resolve(root, '.kubb/config.ts'),
+          sources: [
+            createSource({
+              name: 'config',
+              value: configSource,
+              isExportable: false,
+              isIndexable: false,
+            }),
+          ],
+        }),
+      )
     },
   }
 })

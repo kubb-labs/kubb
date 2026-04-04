@@ -76,7 +76,6 @@
   },
   "dependencies": {
     "@kubb/ast": "workspace:*",
-    "@kubb/fabric-core": "catalog:",
     "@kubb/react-fabric": "catalog:",
     "empathic": "^2.0.0",
     "fflate": "^0.8.2",
@@ -90,7 +89,6 @@
     "p-limit": "catalog:"
   },
   "peerDependencies": {
-    "@kubb/fabric-core": "0.14.0",
     "@kubb/react-fabric": "0.14.0"
   },
   "engines": {

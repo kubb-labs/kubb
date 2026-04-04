@@ -65,7 +65,6 @@
   "dependencies": {
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@kubb/fabric-core": "catalog:",
     "@kubb/react-fabric": "catalog:",
     "remeda": "catalog:"
   },

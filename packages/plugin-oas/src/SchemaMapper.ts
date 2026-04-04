@@ -1,4 +1,3 @@
-import type { KubbFile } from '@kubb/core'
 import type { SchemaObject } from '@kubb/oas'
 
 export type SchemaKeywordMapper = {
@@ -59,7 +58,7 @@ export type SchemaKeywordMapper = {
       /**
        * Full qualified path.
        */
-      path: KubbFile.Path
+      path: string
       /**
        * When true `File.Import` is used.
        * When false a reference is used inside the current file.

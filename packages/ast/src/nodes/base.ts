@@ -17,6 +17,10 @@ export type NodeKind =
   | 'ParameterGroup'
   | 'FunctionParameters'
   | 'Type'
+  | 'File'
+  | 'Import'
+  | 'Export'
+  | 'Source'
 
 /**
  * Base shape shared by all AST nodes.

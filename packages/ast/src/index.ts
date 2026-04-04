@@ -1,8 +1,11 @@
 export type { ScalarPrimitive } from './constants.ts'
 export { httpMethods, isScalarPrimitive, mediaTypes, schemaTypes } from './constants.ts'
 export {
+  createExport,
+  createFile,
   createFunctionParameter,
   createFunctionParameters,
+  createImport,
   createOperation,
   createParameter,
   createParameterGroup,
@@ -10,6 +13,7 @@ export {
   createResponse,
   createRoot,
   createSchema,
+  createSource,
   createTypeNode,
   syncOptionality,
 } from './factory.ts'
@@ -21,5 +25,14 @@ export { extractRefName } from './refs.ts'
 export { childName, collectImports, enumPropName, findDiscriminator } from './resolvers.ts'
 export { mergeAdjacentObjects, setDiscriminatorEnum, setEnumName, simplifyUnion } from './transformers.ts'
 export type { OperationParamsResolver } from './utils.ts'
-export { caseParams, createDiscriminantNode, createOperationParams, isStringType, syncSchemaRef } from './utils.ts'
+export {
+  caseParams,
+  combineExports,
+  combineImports,
+  combineSources,
+  createDiscriminantNode,
+  createOperationParams,
+  isStringType,
+  syncSchemaRef,
+} from './utils.ts'
 export { collect, composeTransformers, transform, walk } from './visitor.ts'

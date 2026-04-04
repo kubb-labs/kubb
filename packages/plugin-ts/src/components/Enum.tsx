@@ -1,6 +1,6 @@
 import { camelCase, trimQuotes } from '@internals/utils'
 import type { EnumSchemaNode } from '@kubb/ast/types'
-import { safePrint } from '@kubb/fabric-core/parsers/typescript'
+import { safePrint } from '@kubb/parser-ts'
 import { File } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import { ENUM_TYPES_WITH_KEY_SUFFIX, ENUM_TYPES_WITH_RUNTIME_VALUE, ENUM_TYPES_WITH_TYPE_ONLY } from '../constants.ts'

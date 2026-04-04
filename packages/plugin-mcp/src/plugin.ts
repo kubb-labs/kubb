@@ -1,5 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
+import { createFile, createSource } from '@kubb/ast'
 import { createPlugin, type Group, getPreset, mergeGenerators } from '@kubb/core'
 import { pluginClientName } from '@kubb/plugin-client'
 import { source as axiosClientSource } from '@kubb/plugin-client/templates/clients/axios.source'
@@ -105,37 +106,41 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
       const hasClientPlugin = !!driver.getPlugin(pluginClientName)
 
       if (this.plugin.options.client.bundle && !hasClientPlugin && !this.plugin.options.client.importPath) {
-        await this.addFile({
-          baseName: 'fetch.ts',
-          path: path.resolve(root, '.kubb/fetch.ts'),
-          sources: [
-            {
-              name: 'fetch',
-              value: this.plugin.options.client.client === 'fetch' ? fetchClientSource : axiosClientSource,
-              isExportable: true,
-              isIndexable: true,
-            },
-          ],
-          imports: [],
-          exports: [],
-        })
+        await this.addFile(
+          createFile({
+            baseName: 'fetch.ts',
+            path: path.resolve(root, '.kubb/fetch.ts'),
+            sources: [
+              createSource({
+                name: 'fetch',
+                value: this.plugin.options.client.client === 'fetch' ? fetchClientSource : axiosClientSource,
+                isExportable: true,
+                isIndexable: true,
+              }),
+            ],
+            imports: [],
+            exports: [],
+          }),
+        )
       }
 
       if (!hasClientPlugin) {
-        await this.addFile({
-          baseName: 'config.ts',
-          path: path.resolve(root, '.kubb/config.ts'),
-          sources: [
-            {
-              name: 'config',
-              value: configSource,
-              isExportable: false,
-              isIndexable: false,
-            },
-          ],
-          imports: [],
-          exports: [],
-        })
+        await this.addFile(
+          createFile({
+            baseName: 'config.ts',
+            path: path.resolve(root, '.kubb/config.ts'),
+            sources: [
+              createSource({
+                name: 'config',
+                value: configSource,
+                isExportable: false,
+                isIndexable: false,
+              }),
+            ],
+            imports: [],
+            exports: [],
+          }),
+        )
       }
 
       await this.openInStudio({ ast: true })

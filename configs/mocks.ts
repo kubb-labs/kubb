@@ -1,6 +1,5 @@
 import path, { resolve } from 'node:path'
-import type { KubbFile } from '@kubb/fabric-core/types'
-import { createFile, type createReactFabric, FileProcessor } from '@kubb/react-fabric'
+import { type createReactFabric, FileProcessor } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
 import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import type { Options } from 'prettier'
@@ -75,7 +74,7 @@ export const createMockedPluginDriver = (options: { name?: string; plugin?: Plug
       options,
     }: {
       name: string
-      extname: KubbFile.Extname
+      extname: `.${string}`
       pluginName: string
       options?: { group?: { tag?: string; path?: string } }
     }) => {
@@ -148,11 +147,11 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
   } as unknown as Plugin<TOptions>
 }
 
-export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.File> | undefined, pre?: string) {
+export async function matchFiles(files: FabricType['files'] | undefined, pre?: string) {
   if (!files?.length) return
 
   const fileProcessor = new FileProcessor()
-  const parsers = new Map<KubbFile.Extname, any>()
+  const parsers = new Map<`.${string}`, any>()
   parsers.set('.ts', typescriptParser)
 
   const processed = new Map<string, string>()
@@ -166,7 +165,7 @@ export async function matchFiles(files: Array<KubbFile.ResolvedFile | KubbFile.F
       continue
     }
 
-    const parsed = await fileProcessor.parse(createFile(file), { parsers })
+    const parsed = await fileProcessor.parse(file, { parsers })
     const code = file.baseName.endsWith('.json') ? parsed : await format(parsed)
 
     processed.set(file.path, code)

@@ -1,4 +1,5 @@
 import { camelCase } from '@internals/utils'
+import { createSource } from '@kubb/ast'
 import type { PluginOas } from '../types.ts'
 import { getBanner } from '../utils/getBanner.ts'
 import { getFooter } from '../utils/getFooter.ts'
@@ -19,12 +20,12 @@ export const jsonGenerator = createGenerator<PluginOas>({
       {
         ...file,
         sources: [
-          {
+          createSource({
             name: camelCase(schema.name),
             isExportable: false,
             isIndexable: false,
             value: JSON.stringify(schema.value),
-          },
+          }),
         ],
         banner: getBanner({
           oas: generator.context.oas,

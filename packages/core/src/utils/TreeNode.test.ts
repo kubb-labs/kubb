@@ -1,34 +1,35 @@
 import path from 'node:path'
+import { createFile } from '@kubb/ast'
+import type { FileNode } from '@kubb/ast/types'
 import { describe, expect, test } from 'vitest'
-import type * as KubbFile from '../KubbFile.ts'
 import { TreeNode } from './TreeNode.ts'
 
 describe('TreeNode', () => {
-  const files: KubbFile.File[] = [
-    {
+  const files: FileNode[] = [
+    createFile({
       path: 'src/test.ts',
       baseName: 'test.ts',
       sources: [],
       meta: {},
       imports: [],
       exports: [],
-    },
-    {
+    }),
+    createFile({
       path: 'src/sub/hello.ts',
       baseName: 'hello.ts',
       sources: [],
       meta: {},
       imports: [],
       exports: [],
-    },
-    {
+    }),
+    createFile({
       path: 'src/sub/world.ts',
       baseName: 'world.ts',
       sources: [],
       meta: {},
       imports: [],
       exports: [],
-    },
+    }),
   ]
   const tree = TreeNode.build(files, 'src/')
   const treeWindows = TreeNode.build(files, 'src\\')
@@ -46,8 +47,12 @@ describe('TreeNode', () => {
               "file": {
                 "baseName": "test.ts",
                 "exports": [],
+                "extname": ".ts",
+                "id": "81188fa6e8155e286766a6f3ca74e3eaf1e65e4aca7c0c2788e588b32c591288",
                 "imports": [],
+                "kind": "File",
                 "meta": {},
+                "name": "test",
                 "path": "src/test.ts",
                 "sources": [],
               },
@@ -65,8 +70,12 @@ describe('TreeNode', () => {
                   "file": {
                     "baseName": "hello.ts",
                     "exports": [],
+                    "extname": ".ts",
+                    "id": "9e2eb758d04ed285d5eb44154f8ce82fafc1a45f3454ec50e776a6ad2923bdbc",
                     "imports": [],
+                    "kind": "File",
                     "meta": {},
+                    "name": "hello",
                     "path": "src/sub/hello.ts",
                     "sources": [],
                   },
@@ -82,8 +91,12 @@ describe('TreeNode', () => {
                   "file": {
                     "baseName": "world.ts",
                     "exports": [],
+                    "extname": ".ts",
+                    "id": "8875e1f9f216417bf0cd05cf4a1a49f430094b0700574b1db6e4e2406feeb850",
                     "imports": [],
+                    "kind": "File",
                     "meta": {},
+                    "name": "world",
                     "path": "src/sub/world.ts",
                     "sources": [],
                   },
@@ -121,8 +134,12 @@ describe('TreeNode', () => {
               "file": {
                 "baseName": "test.ts",
                 "exports": [],
+                "extname": ".ts",
+                "id": "81188fa6e8155e286766a6f3ca74e3eaf1e65e4aca7c0c2788e588b32c591288",
                 "imports": [],
+                "kind": "File",
                 "meta": {},
+                "name": "test",
                 "path": "src/test.ts",
                 "sources": [],
               },
@@ -140,8 +157,12 @@ describe('TreeNode', () => {
                   "file": {
                     "baseName": "hello.ts",
                     "exports": [],
+                    "extname": ".ts",
+                    "id": "9e2eb758d04ed285d5eb44154f8ce82fafc1a45f3454ec50e776a6ad2923bdbc",
                     "imports": [],
+                    "kind": "File",
                     "meta": {},
+                    "name": "hello",
                     "path": "src/sub/hello.ts",
                     "sources": [],
                   },
@@ -157,8 +178,12 @@ describe('TreeNode', () => {
                   "file": {
                     "baseName": "world.ts",
                     "exports": [],
+                    "extname": ".ts",
+                    "id": "8875e1f9f216417bf0cd05cf4a1a49f430094b0700574b1db6e4e2406feeb850",
                     "imports": [],
+                    "kind": "File",
                     "meta": {},
+                    "name": "world",
                     "path": "src/sub/world.ts",
                     "sources": [],
                   },
@@ -289,16 +314,16 @@ describe('TreeNode', () => {
   })
 
   test('if build filters out JSON files', () => {
-    const filesWithJson: KubbFile.File[] = [
+    const filesWithJson: FileNode[] = [
       ...files,
-      {
+      createFile({
         path: 'src/data.json',
         baseName: 'data.json',
         sources: [],
         meta: {},
         imports: [],
         exports: [],
-      },
+      }),
     ]
     const treeWithJson = TreeNode.build(filesWithJson, 'src/')
     const leaves = treeWithJson?.leaves || []

@@ -1,5 +1,5 @@
 import { camelCase } from '@internals/utils'
-import type { KubbFile } from '@kubb/core'
+import type { FileNode } from '@kubb/ast/types'
 import { defineGenerator } from '@kubb/core'
 import { File, Function } from '@kubb/react-fabric'
 import type { PluginClient } from '../types'
@@ -42,7 +42,7 @@ export const groupedClientGenerator = defineGenerator<PluginClient>({
 
         return acc
       },
-      [] as Array<{ name: string; file: KubbFile.File; clients: Array<{ name: string; file: KubbFile.File }> }>,
+      [] as Array<{ name: string; file: FileNode; clients: Array<{ name: string; file: FileNode }> }>,
     )
 
     return (
