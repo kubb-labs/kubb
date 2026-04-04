@@ -19,7 +19,7 @@ export {
   createTypeNode,
   syncOptionality,
 } from './factory.ts'
-export { isInputNode, isOperationNode, isOutputNode, isRootNode, isSchemaNode, narrowSchema } from './guards.ts'
+export { isInputNode, isOperationNode, isOutputNode, isSchemaNode, narrowSchema } from './guards.ts'
 export type { ParserOptions } from './infer.ts'
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from './printer.ts'
 export { createPrinterFactory, definePrinter } from './printer.ts'

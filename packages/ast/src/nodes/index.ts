@@ -5,6 +5,7 @@ import type { ParameterNode } from './parameter.ts'
 import type { PropertyNode } from './property.ts'
 import type { ResponseNode } from './response.ts'
 import type { InputNode } from './root.ts'
+import type { OutputNode } from './output.ts'
 import type { SchemaNode } from './schema.ts'
 
 export type { BaseNode, NodeKind } from './base.ts'
@@ -65,6 +66,7 @@ export type {
  */
 export type Node =
   | InputNode
+  | OutputNode
   | OperationNode
   | SchemaNode
   | PropertyNode

@@ -10,7 +10,6 @@ import type {
   ParameterNode,
   PropertyNode,
   ResponseNode,
-  RootNode,
   SchemaNode,
   SchemaNodeByType,
 } from './nodes/index.ts'
@@ -43,20 +42,6 @@ function isKind<T extends Node>(kind: NodeKind) {
  * ```
  */
 export const isInputNode = isKind<InputNode>('Input')
-
-/**
- * Returns `true` when the input is a `RootNode`.
- *
- * @deprecated Use `isInputNode` instead.
- *
- * @example
- * ```ts
- * if (isRootNode(node)) {
- *   console.log(node.schemas.length)
- * }
- * ```
- */
-export const isRootNode = isInputNode
 
 /**
  * Returns `true` when the input is an `OutputNode`.

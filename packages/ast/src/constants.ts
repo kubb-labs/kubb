@@ -25,6 +25,11 @@ export const nodeKinds = {
   functionParameter: 'FunctionParameter',
   parameterGroup: 'ParameterGroup',
   functionParameters: 'FunctionParameters',
+  type: 'Type',
+  file: 'File',
+  import: 'Import',
+  export: 'Export',
+  source: 'Source',
 } as const satisfies Record<string, NodeKind>
 
 /**

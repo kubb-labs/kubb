@@ -19,7 +19,6 @@ import {
   isParameterNode,
   isPropertyNode,
   isResponseNode,
-  isRootNode,
   isSchemaNode,
   narrowSchema,
 } from './guards.ts'
@@ -44,16 +43,6 @@ describe('isInputNode', () => {
     if (isInputNode(node)) {
       expectTypeOf(node).toEqualTypeOf<InputNode>()
     }
-  })
-})
-
-describe('isRootNode (deprecated alias)', () => {
-  it('returns true for InputNode (via deprecated alias)', () => {
-    expect(isRootNode(createInput())).toBe(true)
-  })
-  it('returns false for other nodes', () => {
-    expect(isRootNode(createSchema({ type: 'string' }))).toBe(false)
-    expect(isRootNode(createOperation({ operationId: 'op', method: 'GET', path: '/' }))).toBe(false)
   })
 })
 

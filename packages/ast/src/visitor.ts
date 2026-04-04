@@ -1,7 +1,7 @@
 import type { VisitorDepth } from './constants.ts'
 import { visitorDepths, WALK_CONCURRENCY } from './constants.ts'
 import { createParameter, createProperty } from './factory.ts'
-import type { InputNode, Node, OperationNode, ParameterNode, PropertyNode, ResponseNode, RootNode, SchemaNode } from './nodes/index.ts'
+import type { InputNode, Node, OperationNode, OutputNode, ParameterNode, PropertyNode, ResponseNode, SchemaNode } from './nodes/index.ts'
 
 /**
  * Creates a small async concurrency limiter.
@@ -52,6 +52,7 @@ type LimitFn = ReturnType<typeof createLimit>
  */
 type ParentNodeMap = [
   [InputNode, undefined],
+  [OutputNode, undefined],
   [OperationNode, InputNode],
   [SchemaNode, InputNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode],
   [PropertyNode, SchemaNode],
@@ -127,6 +128,7 @@ export type VisitorContext<T extends Node = Node> = {
  */
 export type Visitor = {
   input?(node: InputNode, context: VisitorContext<InputNode>): void | InputNode
+  output?(node: OutputNode, context: VisitorContext<OutputNode>): void | OutputNode
   operation?(node: OperationNode, context: VisitorContext<OperationNode>): void | OperationNode
   schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): void | SchemaNode
   property?(node: PropertyNode, context: VisitorContext<PropertyNode>): void | PropertyNode
@@ -153,6 +155,7 @@ type MaybePromise<T> = T | Promise<T>
  */
 export type AsyncVisitor = {
   input?(node: InputNode, context: VisitorContext<InputNode>): MaybePromise<void | InputNode>
+  output?(node: OutputNode, context: VisitorContext<OutputNode>): MaybePromise<void | OutputNode>
   operation?(node: OperationNode, context: VisitorContext<OperationNode>): MaybePromise<void | OperationNode>
   schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): MaybePromise<void | SchemaNode>
   property?(node: PropertyNode, context: VisitorContext<PropertyNode>): MaybePromise<void | PropertyNode>
@@ -174,6 +177,7 @@ export type AsyncVisitor = {
  */
 export type CollectVisitor<T> = {
   input?(node: InputNode, context: VisitorContext<InputNode>): T | undefined
+  output?(node: OutputNode, context: VisitorContext<OutputNode>): T | undefined
   operation?(node: OperationNode, context: VisitorContext<OperationNode>): T | undefined
   schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): T | undefined
   property?(node: PropertyNode, context: VisitorContext<PropertyNode>): T | undefined
@@ -265,6 +269,8 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
   switch (node.kind) {
     case 'Input':
       return [...node.schemas, ...node.operations]
+    case 'Output':
+      return []
     case 'Operation':
       return [...node.parameters, ...(node.requestBody?.schema ? [node.requestBody.schema] : []), ...node.responses]
     case 'Schema': {
@@ -327,6 +333,9 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
     case 'Input':
       await limit(() => visitor.input?.(node, { parent: parent as ParentOf<InputNode> }))
       break
+    case 'Output':
+      await limit(() => visitor.output?.(node, { parent: parent as ParentOf<OutputNode> }))
+      break
     case 'Operation':
       await limit(() => visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> }))
       break
@@ -376,6 +385,7 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
  * ```
  */
 export function transform(node: InputNode, options: TransformOptions): InputNode
+export function transform(node: OutputNode, options: TransformOptions): OutputNode
 export function transform(node: OperationNode, options: TransformOptions): OperationNode
 export function transform(node: SchemaNode, options: TransformOptions): SchemaNode
 export function transform(node: PropertyNode, options: TransformOptions): PropertyNode
@@ -397,6 +407,13 @@ export function transform(node: Node, options: TransformOptions): Node {
         schemas: input.schemas.map((s) => transform(s, { ...options, parent: input })),
         operations: input.operations.map((op) => transform(op, { ...options, parent: input })),
       }
+    }
+    case 'Output': {
+      let output = node
+      const replaced = visitor.output?.(output, { parent: parent as ParentOf<OutputNode> })
+      if (replaced) output = replaced
+
+      return output
     }
     case 'Operation': {
       let op = node
@@ -488,6 +505,9 @@ export function composeTransformers(...visitors: Array<Visitor>): Visitor {
     input(node, context) {
       return visitors.reduce<InputNode>((acc, v) => v.input?.(acc, context) ?? acc, node)
     },
+    output(node, context) {
+      return visitors.reduce<OutputNode>((acc, v) => v.output?.(acc, context) ?? acc, node)
+    },
     operation(node, context) {
       return visitors.reduce<OperationNode>((acc, v) => v.operation?.(acc, context) ?? acc, node)
     },
@@ -535,6 +555,9 @@ export function collect<T>(node: Node, options: CollectOptions<T>): Array<T> {
   switch (node.kind) {
     case 'Input':
       v = visitor.input?.(node, { parent: parent as ParentOf<InputNode> })
+      break
+    case 'Output':
+      v = visitor.output?.(node, { parent: parent as ParentOf<OutputNode> })
       break
     case 'Operation':
       v = visitor.operation?.(node, { parent: parent as ParentOf<OperationNode> })
