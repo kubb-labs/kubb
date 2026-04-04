@@ -8,14 +8,15 @@ import type {
   FunctionParameterNode,
   FunctionParametersNode,
   ImportNode,
+  InputNode,
   ObjectSchemaNode,
   OperationNode,
+  OutputNode,
   ParameterGroupNode,
   ParameterNode,
   PrimitiveSchemaType,
   PropertyNode,
   ResponseNode,
-  RootNode,
   SchemaNode,
   SourceNode,
   TypeNode,
@@ -56,26 +57,48 @@ type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<Sche
 type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & { kind: 'Schema' }
 
 /**
- * Creates a `RootNode` with stable defaults for `schemas` and `operations`.
+ * Creates an `InputNode` with stable defaults for `schemas` and `operations`.
  *
  * @example
  * ```ts
- * const root = createRoot()
- * // { kind: 'Root', schemas: [], operations: [] }
+ * const input = createInput()
+ * // { kind: 'Input', schemas: [], operations: [] }
  * ```
  *
  * @example
  * ```ts
- * const root = createRoot({ schemas: [petSchema] })
+ * const input = createInput({ schemas: [petSchema] })
  * // keeps default operations: []
  * ```
  */
-export function createRoot(overrides: Partial<Omit<RootNode, 'kind'>> = {}): RootNode {
+export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): InputNode {
   return {
     schemas: [],
     operations: [],
     ...overrides,
-    kind: 'Root',
+    kind: 'Input',
+  }
+}
+
+/**
+ * Creates an `OutputNode` with a stable default for `files`.
+ *
+ * @example
+ * ```ts
+ * const output = createOutput()
+ * // { kind: 'Output', files: [] }
+ * ```
+ *
+ * @example
+ * ```ts
+ * const output = createOutput({ files: [petFile] })
+ * ```
+ */
+export function createOutput(overrides: Partial<Omit<OutputNode, 'kind'>> = {}): OutputNode {
+  return {
+    files: [],
+    ...overrides,
+    kind: 'Output',
   }
 }
 
@@ -491,7 +514,7 @@ type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 'kind' 
  */
 export function createFile<TMeta extends object = object>(input: UserFileNode<TMeta>): FileNode<TMeta> {
   const rawExtname = path.extname(input.baseName)
-  // Handle dotfile basenames like '.ts' where path.extname returns ''
+  // Handle dotfile basename like '.ts' where path.extname returns ''
   const extname = (rawExtname || (input.baseName.startsWith('.') ? input.baseName : '')) as `.${string}`
   if (!extname) {
     throw new Error(`No extname found for ${input.baseName}`)

@@ -1,14 +1,15 @@
 import type {
   FunctionParameterNode,
   FunctionParametersNode,
+  InputNode,
   Node,
   NodeKind,
   OperationNode,
+  OutputNode,
   ParameterGroupNode,
   ParameterNode,
   PropertyNode,
   ResponseNode,
-  RootNode,
   SchemaNode,
   SchemaNodeByType,
 } from './nodes/index.ts'
@@ -31,16 +32,28 @@ function isKind<T extends Node>(kind: NodeKind) {
 }
 
 /**
- * Returns `true` when the input is a `RootNode`.
+ * Returns `true` when the input is an `InputNode`.
  *
  * @example
  * ```ts
- * if (isRootNode(node)) {
+ * if (isInputNode(node)) {
  *   console.log(node.schemas.length)
  * }
  * ```
  */
-export const isRootNode = isKind<RootNode>('Root')
+export const isInputNode = isKind<InputNode>('Input')
+
+/**
+ * Returns `true` when the input is an `OutputNode`.
+ *
+ * @example
+ * ```ts
+ * if (isOutputNode(node)) {
+ *   console.log(node.files.length)
+ * }
+ * ```
+ */
+export const isOutputNode = isKind<OutputNode>('Output')
 
 /**
  * Returns `true` when the input is an `OperationNode`.

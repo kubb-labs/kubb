@@ -1,23 +1,24 @@
 export type { ScalarPrimitive } from './constants.ts'
-export { httpMethods, isScalarPrimitive, mediaTypes, schemaTypes } from './constants.ts'
+export { httpMethods, isScalarPrimitive, mediaTypes, nodeKinds, schemaTypes } from './constants.ts'
 export {
   createExport,
   createFile,
   createFunctionParameter,
   createFunctionParameters,
   createImport,
+  createInput,
   createOperation,
+  createOutput,
   createParameter,
   createParameterGroup,
   createProperty,
   createResponse,
-  createRoot,
   createSchema,
   createSource,
   createTypeNode,
   syncOptionality,
 } from './factory.ts'
-export { isOperationNode, isSchemaNode, narrowSchema } from './guards.ts'
+export { isInputNode, isOperationNode, isOutputNode, isSchemaNode, narrowSchema } from './guards.ts'
 export type { ParserOptions } from './infer.ts'
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from './printer.ts'
 export { createPrinterFactory, definePrinter } from './printer.ts'

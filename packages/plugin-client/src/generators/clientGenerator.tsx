@@ -13,7 +13,7 @@ export const clientGenerator = defineGenerator<PluginClient>({
   operation(node, options) {
     const { adapter, config, driver, resolver, root } = this
     const { output, urlType, dataReturnType, paramsCasing, paramsType, pathParamsType, parser, importPath, group } = options
-    const baseURL = options.baseURL ?? adapter.rootNode?.meta?.baseURL
+    const baseURL = options.baseURL ?? adapter.inputNode?.meta?.baseURL
 
     const pluginTs = driver.getPlugin(pluginTsName)
 
@@ -77,8 +77,8 @@ export const clientGenerator = defineGenerator<PluginClient>({
         baseName={meta.file.baseName}
         path={meta.file.path}
         meta={meta.file.meta}
-        banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
-        footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+        banner={resolver.resolveBanner(adapter.inputNode, { output, config })}
+        footer={resolver.resolveFooter(adapter.inputNode, { output, config })}
       >
         {importPath ? (
           <>

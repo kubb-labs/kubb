@@ -60,7 +60,7 @@ type SetupResult = {
  * - Validates the input path (when applicable).
  * - Applies config defaults (`root`, `output.*`, `devtools`).
  * - Creates the Fabric instance and wires storage, format, and lint hooks.
- * - Runs the adapter (if configured) to produce the universal `RootNode`.
+ * - Runs the adapter (if configured) to produce the universal `InputNode`.
  *   When no adapter is supplied and `@kubb/adapter-oas` is installed as an
  *
  * Pass the returned {@link SetupResult} directly to {@link safeBuild} or {@link build}
@@ -220,7 +220,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     concurrency: DEFAULT_CONCURRENCY,
   })
 
-  // Run the adapter to produce the universal RootNode.
+  // Run the adapter to produce the universal InputNode.
 
   const adapter = config.adapter
   if (!adapter) {
@@ -234,14 +234,14 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   })
 
   driver.adapter = adapter
-  driver.rootNode = await adapter.parse(source)
+  driver.inputNode = await adapter.parse(source)
 
   await events.emit('debug', {
     date: new Date(),
     logs: [
-      `✓ Adapter '${adapter.name}' resolved RootNode`,
-      `  • Schemas: ${driver.rootNode.schemas.length}`,
-      `  • Operations: ${driver.rootNode.operations.length}`,
+      `✓ Adapter '${adapter.name}' resolved InputNode`,
+      `  • Schemas: ${driver.inputNode.schemas.length}`,
+      `  • Operations: ${driver.inputNode.operations.length}`,
     ],
   })
 
@@ -295,16 +295,16 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
  * - Barrel files are generated automatically when `output.barrelType` is set.
  */
 async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promise<void> {
-  const { adapter, rootNode, resolver, fabric } = context
+  const { adapter, inputNode, resolver, fabric } = context
   const { exclude, include, override } = plugin.options
 
-  if (!adapter || !rootNode) {
+  if (!adapter || !inputNode) {
     throw new Error(`[${plugin.name}] No adapter found. Add an OAS adapter (e.g. pluginOas()) before this plugin in your Kubb config.`)
   }
 
   const collectedOperations: Array<OperationNode> = []
 
-  await walk(rootNode, {
+  await walk(inputNode, {
     depth: 'shallow',
     async schema(node) {
       if (!plugin.schema) return

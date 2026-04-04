@@ -1,16 +1,16 @@
 import { createProperty, createSchema, narrowSchema, transform } from '@kubb/ast'
-import type { RootNode } from '@kubb/ast/types'
+import type { InputNode } from '@kubb/ast/types'
 
 type DiscriminatorTarget = { propertyName: string; enumValues: Array<string | number | boolean> }
 
 /**
  * Injects discriminator enum values into child schemas so they know which value identifies them.
  *
- * Finds every union schema in `root.schemas` that has a `discriminatorPropertyName`, collects the
+ * Finds every union schema in `input.schemas` that has a `discriminatorPropertyName`, collects the
  * enum value each union member is mapped to, then adds (or replaces) that property on the matching
  * child object schema.
  *
- * Returns a new `RootNode` — the original is never mutated.
+ * Returns a new `InputNode` — the original is never mutated.
  *
  * @example
  * ```ts
@@ -18,7 +18,7 @@ type DiscriminatorTarget = { propertyName: string; enumValues: Array<string | nu
  * const next = applyDiscriminatorInheritance(root)
  * ```
  */
-export function applyDiscriminatorInheritance(root: RootNode): RootNode {
+export function applyDiscriminatorInheritance(root: InputNode): InputNode {
   const childMap = new Map<string, DiscriminatorTarget>()
 
   for (const schema of root.schemas) {
@@ -78,7 +78,7 @@ export function applyDiscriminatorInheritance(root: RootNode): RootNode {
 
   return transform(root, {
     schema(node, { parent }) {
-      if (parent?.kind !== 'Root' || !node.name) return
+      if (parent?.kind !== 'Input' || !node.name) return
 
       const entry = childMap.get(node.name)
       if (!entry) return

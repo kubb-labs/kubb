@@ -35,7 +35,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
   name: string
   /**
    * Called for each schema node in the AST walk.
-   * `this` is the parent plugin's context with `adapter` and `rootNode` guaranteed present.
+   * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
    * `options` contains the per-node resolved options (after exclude/include/override).
    */
   schema?: (
@@ -45,7 +45,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
   ) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
   /**
    * Called for each operation node in the AST walk.
-   * `this` is the parent plugin's context with `adapter` and `rootNode` guaranteed present.
+   * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
    */
   operation?: (
     this: GeneratorContext<TOptions>,
@@ -54,7 +54,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
   ) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
   /**
    * Called once after all operations have been walked.
-   * `this` is the parent plugin's context with `adapter` and `rootNode` guaranteed present.
+   * `this` is the parent plugin's context with `adapter` and `inputNode` guaranteed present.
    */
   operations?: (
     this: GeneratorContext<TOptions>,

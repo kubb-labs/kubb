@@ -98,7 +98,7 @@ export const pluginMcp = createPlugin<PluginMcp>((options) => {
       const { adapter, driver } = this
       const root = this.root
 
-      const baseURL = adapter?.rootNode?.meta?.baseURL
+      const baseURL = adapter?.inputNode?.meta?.baseURL
       if (baseURL) {
         this.plugin.options.client.baseURL = this.plugin.options.client.baseURL || baseURL
       }

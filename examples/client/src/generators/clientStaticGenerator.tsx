@@ -12,7 +12,7 @@ export const clientStaticGenerator = defineGenerator<PluginClient>({
   operation(node, options) {
     const { config, plugin, driver, resolver, adapter } = this
     const { output, importPath, dataReturnType, pathParamsType, paramsType, paramsCasing, parser } = options
-    const baseURL = adapter.rootNode?.meta?.baseURL
+    const baseURL = adapter.inputNode?.meta?.baseURL
 
     const pluginTs = driver.getPlugin(pluginTsName)
     if (!pluginTs?.resolver) return null

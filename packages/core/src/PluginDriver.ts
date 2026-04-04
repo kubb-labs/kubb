@@ -3,7 +3,7 @@ import { performance } from 'node:perf_hooks'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { isPromiseRejectedResult, transformReservedWord } from '@internals/utils'
 import { createFile } from '@kubb/ast'
-import type { FileNode, RootNode } from '@kubb/ast/types'
+import type { FileNode, InputNode } from '@kubb/ast/types'
 import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
@@ -89,10 +89,10 @@ export class PluginDriver {
   readonly options: Options
 
   /**
-   * The universal `@kubb/ast` `RootNode` produced by the adapter, set by
+   * The universal `@kubb/ast` `InputNode` produced by the adapter, set by
    * the build pipeline after the adapter's `parse()` resolves.
    */
-  rootNode: RootNode | undefined = undefined
+  inputNode: InputNode | undefined = undefined
   adapter: Adapter | undefined = undefined
   #studioIsOpen = false
 
@@ -146,8 +146,8 @@ export class PluginDriver {
       upsertFile: async (...files: Array<FileNode>) => {
         await this.options.fabric.upsertFile(...files)
       },
-      get rootNode(): RootNode | undefined {
-        return driver.rootNode
+      get inputNode(): InputNode | undefined {
+        return driver.inputNode
       },
       get adapter(): Adapter | undefined {
         return driver.adapter
@@ -176,7 +176,7 @@ export class PluginDriver {
           throw new Error('Devtools must be an object')
         }
 
-        if (!driver.rootNode || !driver.adapter) {
+        if (!driver.inputNode || !driver.adapter) {
           throw new Error('adapter is not defined, make sure you have set the parser in kubb.config.ts')
         }
 
@@ -184,7 +184,7 @@ export class PluginDriver {
 
         const studioUrl = driver.config.devtools?.studioUrl ?? DEFAULT_STUDIO_URL
 
-        return openInStudioFn(driver.rootNode, studioUrl, options)
+        return openInStudioFn(driver.inputNode, studioUrl, options)
       },
     } as unknown as PluginContext<TOptions>
 

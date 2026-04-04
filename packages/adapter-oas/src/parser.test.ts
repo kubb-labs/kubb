@@ -8,11 +8,11 @@ import type { Document, SchemaObject } from './types.ts'
 const emptyDocument: Document = { openapi: '3.0.0', info: { title: '', version: '' }, paths: {} } as Document
 
 describe('buildAst', () => {
-  it('returns a RootNode', async () => {
+  it('returns an InputNode', async () => {
     const oas = await buildMinimalOas()
     const root = parseOas(oas).root
 
-    expect(root.kind).toBe('Root')
+    expect(root.kind).toBe('Input')
   })
 
   describe('schemas', () => {
@@ -2920,8 +2920,8 @@ describe('buildAst', async () => {
   const oas = await buildMinimalOas()
   const root = parseOas(oas).root
 
-  it('produces a RootNode with expected schema and operation counts', () => {
-    expect(root.kind).toBe('Root')
+  it('produces an InputNode with expected schema and operation counts', () => {
+    expect(root.kind).toBe('Input')
     expect(root.schemas.length).toBeGreaterThan(0)
     expect(root.operations.length).toBeGreaterThan(0)
   })

@@ -5,40 +5,40 @@ import {
   createFunctionParameter,
   createFunctionParameters,
   createImport,
+  createInput,
   createOperation,
   createParameter,
   createParameterGroup,
   createProperty,
   createResponse,
-  createRoot,
   createSchema,
   createSource,
   createTypeNode,
 } from './factory.ts'
 import type { FileNode, ObjectSchemaNode, StringSchemaNode } from './nodes/index.ts'
 
-describe('createRoot', () => {
-  it('creates a RootNode with default empty arrays', () => {
-    const node = createRoot()
+describe('createInput', () => {
+  it('creates an InputNode with default empty arrays', () => {
+    const node = createInput()
 
-    expect(node.kind).toBe('Root')
+    expect(node.kind).toBe('Input')
     expect(node.schemas).toEqual([])
     expect(node.operations).toEqual([])
   })
 
   it('accepts overrides', () => {
     const schema = createSchema({ type: 'string' })
-    const node = createRoot({ schemas: [schema] })
+    const node = createInput({ schemas: [schema] })
 
     expect(node.schemas).toHaveLength(1)
     expect(node.operations).toEqual([])
   })
 
-  it('always sets kind to Root', () => {
-    // @ts-expect-error — kind should be overridden back to 'Root'
-    const node = createRoot({ kind: 'Operation' })
+  it('always sets kind to Input', () => {
+    // @ts-expect-error — kind should be overridden back to 'Input'
+    const node = createInput({ kind: 'Operation' })
 
-    expect(node.kind).toBe('Root')
+    expect(node.kind).toBe('Input')
   })
 })
 

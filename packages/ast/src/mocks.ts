@@ -1,10 +1,10 @@
-import { createOperation, createParameter, createProperty, createResponse, createRoot, createSchema } from './factory.ts'
-import type { RootNode } from './nodes/root.ts'
+import { createInput, createOperation, createParameter, createProperty, createResponse, createSchema } from './factory.ts'
+import type { InputNode } from './nodes/root.ts'
 
 /**
  * Builds a minimal sample AST with one `Pet` schema and one `getPetById` operation.
  */
-export function buildSampleTree(): RootNode {
+export function buildSampleTree(): InputNode {
   const petSchema = createSchema({
     type: 'object',
     name: 'Pet',
@@ -29,7 +29,7 @@ export function buildSampleTree(): RootNode {
     ],
   })
 
-  return createRoot({ schemas: [petSchema], operations: [operation] })
+  return createInput({ schemas: [petSchema], operations: [operation] })
 }
 
 /**
@@ -37,11 +37,11 @@ export function buildSampleTree(): RootNode {
  * - six named schemas (`Pet`, `NewPet`, `PetList`, `Error`, `PetOrError`, `FullPet`)
  * - two operations (`listPets`, `createPet`)
  */
-export function buildFixture(): RootNode {
+export function buildFixture(): InputNode {
   const refPet = createSchema({ type: 'ref', ref: 'Pet' })
   const refError = createSchema({ type: 'ref', ref: 'Error' })
 
-  return createRoot({
+  return createInput({
     schemas: [
       createSchema({
         name: 'Pet',

@@ -2,11 +2,11 @@ import { URLPath } from '@internals/utils'
 import {
   childName,
   createDiscriminantNode,
+  createInput,
   createOperation,
   createParameter,
   createProperty,
   createResponse,
-  createRoot,
   createSchema,
   enumPropName,
   extractRefName,
@@ -22,13 +22,13 @@ import {
 import type {
   DistributiveOmit,
   HttpMethod,
+  InputNode,
   OperationNode,
   ParameterLocation,
   ParameterNode,
   PrimitiveSchemaType,
   PropertyNode,
   ResponseNode,
-  RootNode,
   ScalarSchemaType,
   SchemaNode,
   StatusCode,
@@ -832,7 +832,7 @@ export function parseSchema(ctx: OasParserContext, { schema, name }: { schema: S
 }
 
 /**
- * Converts the entire OpenAPI spec into a `RootNode` (the top-level `@kubb/ast` tree).
+ * Converts the entire OpenAPI spec into an `InputNode` (the top-level `@kubb/ast` tree).
  *
  * This is the main entry point: `OpenAPI / Swagger → Kubb AST`.
  * No code is generated here — the resulting tree is spec-agnostic and consumed by
@@ -847,7 +847,7 @@ export function parseSchema(ctx: OasParserContext, { schema, name }: { schema: S
 export function parseOas(
   document: Document,
   options: Partial<ParserOptions> & { contentType?: ContentType } = {},
-): { root: RootNode; nameMapping: Map<string, string> } {
+): { root: InputNode; nameMapping: Map<string, string> } {
   const { contentType, ...parserOptions } = options
   const mergedOptions: ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...parserOptions }
 
@@ -865,7 +865,7 @@ export function parseOas(
       .filter((op): op is OperationNode => op !== null),
   )
 
-  const root = createRoot({ schemas, operations })
+  const root = createInput({ schemas, operations })
 
   return { root, nameMapping }
 }

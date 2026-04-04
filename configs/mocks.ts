@@ -100,14 +100,14 @@ export const mockedPluginDriver = createMockedPluginDriver()
 /**
  * Creates a minimal `Adapter` mock suitable for unit tests.
  *
- * - `parse` returns an empty `RootNode` by default; override via `options.parse`.
+ * - `parse` returns an empty `InputNode` by default; override via `options.parse`.
  * - `getImports` returns `[]` by default (single-file mode, no cross-file imports).
  */
 export function createMockedAdapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptions>(
   options: {
     name?: TOptions['name']
     resolvedOptions?: TOptions['resolvedOptions']
-    rootNode?: Adapter<TOptions>['rootNode']
+    inputNode?: Adapter<TOptions>['inputNode']
     parse?: Adapter<TOptions>['parse']
     getImports?: Adapter<TOptions>['getImports']
   } = {},
@@ -115,8 +115,8 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
   return {
     name: (options.name ?? 'oas') as TOptions['name'],
     options: (options.resolvedOptions ?? {}) as TOptions['resolvedOptions'],
-    rootNode: options.rootNode ?? null,
-    parse: options.parse ?? (async () => ({ kind: 'Root' as const, schemas: [], operations: [] })),
+    inputNode: options.inputNode ?? null,
+    parse: options.parse ?? (async () => ({ kind: 'Input' as const, schemas: [], operations: [] })),
     getImports: options.getImports ?? ((_node: SchemaNode, _resolve: (schemaName: string) => { name: string; path: string }) => []),
   } as Adapter<TOptions>
 }
@@ -199,7 +199,7 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     resolver: opts.resolver,
     plugin: opts.plugin,
     driver: opts.driver,
-    rootNode: { kind: 'Root', schemas: [], operations: [] },
+    inputNode: { kind: 'Input', schemas: [], operations: [] },
     fabric,
     upsertFile: (...files: Parameters<FabricType['upsertFile']>) => fabric.upsertFile(...files),
     warn: (msg: string) => console.warn(msg),

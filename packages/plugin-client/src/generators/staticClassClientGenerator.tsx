@@ -47,7 +47,7 @@ export const staticClassClientGenerator = defineGenerator<PluginClient>({
   operations(nodes, options) {
     const { adapter, config, driver, resolver, root } = this
     const { output, group, dataReturnType, paramsCasing, paramsType, pathParamsType, parser, importPath } = options
-    const baseURL = options.baseURL ?? adapter.rootNode?.meta?.baseURL
+    const baseURL = options.baseURL ?? adapter.inputNode?.meta?.baseURL
 
     const pluginTs = driver.getPlugin(pluginTsName)
     if (!pluginTs?.resolver) return null
@@ -167,8 +167,8 @@ export const staticClassClientGenerator = defineGenerator<PluginClient>({
               baseName={file.baseName}
               path={file.path}
               meta={file.meta}
-              banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
-              footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+              banner={resolver.resolveBanner(adapter.inputNode, { output, config })}
+              footer={resolver.resolveFooter(adapter.inputNode, { output, config })}
             >
               {importPath ? (
                 <>

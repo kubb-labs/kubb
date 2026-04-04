@@ -2,23 +2,23 @@ import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   createFunctionParameter,
   createFunctionParameters,
+  createInput,
   createOperation,
   createParameter,
   createParameterGroup,
   createProperty,
   createResponse,
-  createRoot,
   createSchema,
 } from './factory.ts'
 import {
   isFunctionParameterNode,
   isFunctionParametersNode,
+  isInputNode,
   isOperationNode,
   isParameterGroupNode,
   isParameterNode,
   isPropertyNode,
   isResponseNode,
-  isRootNode,
   isSchemaNode,
   narrowSchema,
 } from './guards.ts'
@@ -27,21 +27,21 @@ import type { OperationNode } from './nodes/operation.ts'
 import type { ParameterNode } from './nodes/parameter.ts'
 import type { PropertyNode } from './nodes/property.ts'
 import type { ResponseNode } from './nodes/response.ts'
-import type { RootNode } from './nodes/root.ts'
+import type { InputNode } from './nodes/root.ts'
 import type { ObjectSchemaNode, SchemaNode, StringSchemaNode, UnionSchemaNode } from './nodes/schema.ts'
 
-describe('isRootNode', () => {
-  it('returns true for RootNode', () => {
-    expect(isRootNode(createRoot())).toBe(true)
+describe('isInputNode', () => {
+  it('returns true for InputNode', () => {
+    expect(isInputNode(createInput())).toBe(true)
   })
   it('returns false for other nodes', () => {
-    expect(isRootNode(createSchema({ type: 'string' }))).toBe(false)
-    expect(isRootNode(createOperation({ operationId: 'op', method: 'GET', path: '/' }))).toBe(false)
+    expect(isInputNode(createSchema({ type: 'string' }))).toBe(false)
+    expect(isInputNode(createOperation({ operationId: 'op', method: 'GET', path: '/' }))).toBe(false)
   })
-  it('narrows to RootNode in a conditional', () => {
-    const node: Node = createRoot()
-    if (isRootNode(node)) {
-      expectTypeOf(node).toEqualTypeOf<RootNode>()
+  it('narrows to InputNode in a conditional', () => {
+    const node: Node = createInput()
+    if (isInputNode(node)) {
+      expectTypeOf(node).toEqualTypeOf<InputNode>()
     }
   })
 })
@@ -51,7 +51,7 @@ describe('isOperationNode', () => {
     expect(isOperationNode(createOperation({ operationId: 'op', method: 'GET', path: '/' }))).toBe(true)
   })
   it('returns false for other nodes', () => {
-    expect(isOperationNode(createRoot())).toBe(false)
+    expect(isOperationNode(createInput())).toBe(false)
   })
   it('narrows to OperationNode in a conditional', () => {
     const node: Node = createOperation({ operationId: 'op', method: 'GET', path: '/' })
@@ -66,7 +66,7 @@ describe('isSchemaNode', () => {
     expect(isSchemaNode(createSchema({ type: 'string' }))).toBe(true)
   })
   it('returns false for other nodes', () => {
-    expect(isSchemaNode(createRoot())).toBe(false)
+    expect(isSchemaNode(createInput())).toBe(false)
   })
   it('narrows to SchemaNode in a conditional', () => {
     const node: Node = createSchema({ type: 'string' })
@@ -120,7 +120,7 @@ describe('isResponseNode', () => {
     ).toBe(true)
   })
   it('returns false for other nodes', () => {
-    expect(isResponseNode(createRoot())).toBe(false)
+    expect(isResponseNode(createInput())).toBe(false)
   })
   it('narrows to ResponseNode in a conditional', () => {
     const node: Node = createResponse({

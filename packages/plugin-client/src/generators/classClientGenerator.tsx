@@ -48,7 +48,7 @@ export const classClientGenerator = defineGenerator<PluginClient>({
   operations(nodes, options) {
     const { adapter, config, driver, resolver, root } = this
     const { output, group, dataReturnType, paramsCasing, paramsType, pathParamsType, parser, importPath, wrapper } = options
-    const baseURL = options.baseURL ?? adapter.rootNode?.meta?.baseURL
+    const baseURL = options.baseURL ?? adapter.inputNode?.meta?.baseURL
 
     const pluginTs = driver.getPlugin(pluginTsName)
     if (!pluginTs?.resolver) return null
@@ -166,8 +166,8 @@ export const classClientGenerator = defineGenerator<PluginClient>({
           baseName={file.baseName}
           path={file.path}
           meta={file.meta}
-          banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
-          footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+          banner={resolver.resolveBanner(adapter.inputNode, { output, config })}
+          footer={resolver.resolveFooter(adapter.inputNode, { output, config })}
         >
           {importPath ? (
             <>
@@ -225,8 +225,8 @@ export const classClientGenerator = defineGenerator<PluginClient>({
           baseName={wrapperFile.baseName}
           path={wrapperFile.path}
           meta={wrapperFile.meta}
-          banner={resolver.resolveBanner(adapter.rootNode, { output, config })}
-          footer={resolver.resolveFooter(adapter.rootNode, { output, config })}
+          banner={resolver.resolveBanner(adapter.inputNode, { output, config })}
+          footer={resolver.resolveFooter(adapter.inputNode, { output, config })}
         >
           {importPath ? (
             <File.Import name={['Client', 'RequestConfig']} path={importPath} isTypeOnly />

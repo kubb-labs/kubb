@@ -173,7 +173,7 @@ describe('clientGenerator operation', () => {
       config: testConfig,
       fabric,
       adapter: createMockedAdapter({
-        rootNode: { kind: 'Root', schemas: [], operations: [], meta: { baseURL: 'baseURL' in props ? props.baseURL : undefined } },
+        inputNode: { kind: 'Input', schemas: [], operations: [], meta: { baseURL: 'baseURL' in props ? props.baseURL : undefined } },
       }),
       driver,
       plugin,
