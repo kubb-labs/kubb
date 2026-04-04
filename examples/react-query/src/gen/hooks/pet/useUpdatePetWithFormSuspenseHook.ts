@@ -50,10 +50,7 @@ export function updatePetWithFormSuspenseQueryOptionsHook(
     enabled: !!pet_id,
     queryKey,
     queryFn: async ({ signal }) => {
-      return updatePetWithFormSuspenseHook(pet_id, params, {
-        ...config,
-        signal: config.signal ?? signal,
-      })
+      return updatePetWithFormSuspenseHook(pet_id, params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -75,10 +72,7 @@ export function useUpdatePetWithFormSuspenseHook<TData = UpdatePetWithFormMutati
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...resolvedOptions } = queryConfig
   const queryKey = resolvedOptions?.queryKey ?? updatePetWithFormSuspenseQueryKey(pet_id, params)
-  const customOptions = useCustomHookOptions({
-    hookName: 'useUpdatePetWithFormSuspenseHook',
-    operationId: 'updatePetWithForm',
-  })
+  const customOptions = useCustomHookOptions({ hookName: 'useUpdatePetWithFormSuspenseHook', operationId: 'updatePetWithForm' })
 
   const query = useSuspenseQuery(
     {

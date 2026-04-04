@@ -1,6 +1,6 @@
 {
   "name": "@kubb/agent",
-  "version": "5.0.0-alpha.30",
+  "version": "5.0.0-alpha.31",
   "description": "Agent server for Kubb, enabling HTTP-based access to code generation capabilities.",
   "keywords": [
     "agent",
@@ -45,9 +45,11 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@kubb/adapter-oas": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/ast": "workspace:*",
     "@kubb/fabric-core": "catalog:",
+    "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-cypress": "workspace:*",
     "@kubb/plugin-faker": "workspace:*",

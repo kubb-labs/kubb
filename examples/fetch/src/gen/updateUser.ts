@@ -8,10 +8,7 @@ import fetch from '@kubb/plugin-client/clients/fetch'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from './models.ts'
 
 function getUpdateUserUrl(username: UpdateUserPathParams['username']) {
-  const res = {
-    method: 'PUT',
-    url: `https://petstore3.swagger.io/api/v3/user/${username}` as const,
-  }
+  const res = { method: 'PUT', url: `https://petstore3.swagger.io/api/v3/user/${username}` as const }
   return res
 }
 
@@ -23,9 +20,7 @@ function getUpdateUserUrl(username: UpdateUserPathParams['username']) {
 export async function updateUser(
   username: UpdateUserPathParams['username'],
   data?: UpdateUserMutationRequest,
-  config: Partial<RequestConfig<UpdateUserMutationRequest>> & {
-    client?: Client
-  } = {},
+  config: Partial<RequestConfig<UpdateUserMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 

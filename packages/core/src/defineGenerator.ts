@@ -1,6 +1,7 @@
 import type { PossiblePromise } from '@internals/utils'
-import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast/types'
+import type { OperationNode, SchemaNode } from '@kubb/ast/types'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
+import type * as KubbFile from './KubbFile.ts'
 import { applyHookResult } from './renderNode.tsx'
 import type { GeneratorContext, PluginFactoryOptions } from './types.ts'
 
@@ -12,7 +13,7 @@ export type { GeneratorContext } from './types.ts'
  * giving full access to `this.config`, `this.resolver`, `this.adapter`, `this.fabric`,
  * `this.driver`, etc.
  *
- * Return a React element, an array of `FileNode`, or `void` to handle file
+ * Return a React element, an array of `KubbFile.File`, or `void` to handle file
  * writing manually via `this.upsertFile`. Both React and core (non-React) generators
  * use the same method signatures — the return type determines how output is handled.
  *
@@ -42,7 +43,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
     this: GeneratorContext<TOptions>,
     node: SchemaNode,
     options: TOptions['resolvedOptions'],
-  ) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
+  ) => PossiblePromise<FabricReactNode | Array<KubbFile.File> | void>
   /**
    * Called for each operation node in the AST walk.
    * `this` is the parent plugin's context with `adapter` and `rootNode` guaranteed present.
@@ -51,7 +52,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
     this: GeneratorContext<TOptions>,
     node: OperationNode,
     options: TOptions['resolvedOptions'],
-  ) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
+  ) => PossiblePromise<FabricReactNode | Array<KubbFile.File> | void>
   /**
    * Called once after all operations have been walked.
    * `this` is the parent plugin's context with `adapter` and `rootNode` guaranteed present.
@@ -60,7 +61,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
     this: GeneratorContext<TOptions>,
     nodes: Array<OperationNode>,
     options: TOptions['resolvedOptions'],
-  ) => PossiblePromise<FabricReactNode | Array<FileNode> | void>
+  ) => PossiblePromise<FabricReactNode | Array<KubbFile.File> | void>
 }
 
 /**

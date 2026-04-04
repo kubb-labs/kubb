@@ -1,5 +1,3 @@
-import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from '@kubb/core'
 import { pluginClient } from '@kubb/plugin-client'
 import { pluginCypress } from '@kubb/plugin-cypress'
 import { pluginFaker } from '@kubb/plugin-faker'
@@ -9,6 +7,7 @@ import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginSwr } from '@kubb/plugin-swr'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
+import { defineConfig } from 'kubb'
 
 export default defineConfig(() => {
   return {
@@ -16,7 +15,6 @@ export default defineConfig(() => {
     input: {
       path: 'https://petstore3.swagger.io/api/v3/openapi.json',
     },
-    adapter: adapterOas({}),
     output: {
       path: './src/gen',
       clean: true,

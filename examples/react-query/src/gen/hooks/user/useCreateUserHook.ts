@@ -19,12 +19,7 @@ export type CreateUserMutationKey = ReturnType<typeof createUserMutationKey>
  * @summary Create user
  * {@link /user}
  */
-export async function createUserHook(
-  data?: CreateUserMutationRequest,
-  config: Partial<RequestConfig<CreateUserMutationRequest>> & {
-    client?: Client
-  } = {},
-) {
+export async function createUserHook(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
@@ -38,11 +33,7 @@ export async function createUserHook(
   return res.data
 }
 
-export function createUserMutationOptionsHook<TContext = unknown>(
-  config: Partial<RequestConfig<CreateUserMutationRequest>> & {
-    client?: Client
-  } = {},
-) {
+export function createUserMutationOptionsHook<TContext = unknown>(config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: Client } = {}) {
   const mutationKey = createUserMutationKey()
   return mutationOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>({
     mutationKey,
@@ -62,9 +53,7 @@ export function useCreateUserHook<TContext>(
     mutation?: UseMutationOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<CreateUserMutationRequest>> & {
-      client?: Client
-    }
+    client?: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
@@ -77,10 +66,12 @@ export function useCreateUserHook<TContext>(
     { data?: CreateUserMutationRequest },
     TContext
   >
-  const customOptions = useCustomHookOptions({
-    hookName: 'useCreateUserHook',
-    operationId: 'createUser',
-  }) as UseMutationOptions<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>
+  const customOptions = useCustomHookOptions({ hookName: 'useCreateUserHook', operationId: 'createUser' }) as UseMutationOptions<
+    CreateUserMutationResponse,
+    ResponseErrorConfig<Error>,
+    { data?: CreateUserMutationRequest },
+    TContext
+  >
 
   return useMutation<CreateUserMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUserMutationRequest }, TContext>(
     {

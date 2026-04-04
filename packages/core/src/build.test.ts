@@ -2,12 +2,13 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { AsyncEventEmitter, isPromise } from '@internals/utils'
-import { createFile, createSource } from '@kubb/ast'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
+import { createMockedAdapter } from '#mocks'
 import { build, safeBuild } from './build.ts'
-import { defineConfig } from './config.ts'
 import { createPlugin } from './createPlugin.ts'
-import type { KubbEvents, Plugin, UserConfig } from './types.ts'
+import { defineConfig } from './defineConfig.ts'
+import type * as KubbFile from './KubbFile.ts'
+import type { Config, KubbEvents, Plugin, UserConfig } from './types.ts'
 
 describe('build', () => {
   const pluginMocks = {
@@ -15,13 +16,13 @@ describe('build', () => {
     resolvePath: vi.fn(),
   } as const
 
-  const file = createFile({
+  const file: KubbFile.File = {
     path: 'hello/world.json',
     baseName: 'world.json',
-    sources: [createSource({ value: `{ "hello": "world" }` })],
+    sources: [{ value: `{ "hello": "world" }` }],
     imports: [],
     exports: [],
-  })
+  }
   const plugin = createPlugin(() => {
     return {
       name: 'plugin',
@@ -44,8 +45,10 @@ describe('build', () => {
       path: './src/gen',
       clean: true,
     },
+    parsers: [],
+    adapter: createMockedAdapter(),
     plugins: [plugin({})] as Array<Plugin>,
-  }
+  } satisfies Config
 
   const configs = [
     {
@@ -64,6 +67,8 @@ describe('build', () => {
             path: './src/gen',
             clean: true,
           },
+          parsers: [],
+          adapter: createMockedAdapter(),
           plugins: [plugin({})] as Array<Plugin>,
         },
       ]),
@@ -79,6 +84,8 @@ describe('build', () => {
           path: './src/gen',
           clean: true,
         },
+        parsers: [],
+        adapter: createMockedAdapter(),
         plugins: [plugin({})] as Array<Plugin>,
       })),
     },
@@ -94,6 +101,8 @@ describe('build', () => {
             path: './src/gen',
             clean: true,
           },
+          parsers: [],
+          adapter: createMockedAdapter(),
           plugins: [plugin({})] as Array<Plugin>,
         },
       ]),
@@ -131,7 +140,7 @@ describe('build', () => {
         events: new AsyncEventEmitter<KubbEvents>(),
       })
 
-      await fabric.addFile(file as any)
+      await fabric.addFile(file)
 
       expect(fabric.files).toBeDefined()
       expect(driver).toBeDefined()
@@ -147,7 +156,7 @@ describe('build', () => {
       events: new AsyncEventEmitter<KubbEvents>(),
     })
 
-    await fabric.addFile(file as any)
+    await fabric.addFile(file)
 
     expect(fabric.files).toBeDefined()
     expect(driver).toBeDefined()
@@ -160,7 +169,7 @@ describe('build', () => {
       events: new AsyncEventEmitter<KubbEvents>(),
     })
 
-    await fabric.addFile(file as any)
+    await fabric.addFile(file)
 
     expect(fabric.files.map((file) => ({ ...file, id: undefined, path: undefined }))).toMatchInlineSnapshot(`
       [
@@ -304,20 +313,20 @@ describe('build', () => {
     const tmpDir = mkdtempSync(join(tmpdir(), 'kubb-test-excluded-'))
 
     try {
-      const indexableFile = createFile({
+      const indexableFile: KubbFile.File = {
         path: join(tmpDir, 'mocks/excluded.ts'),
         baseName: 'excluded.ts',
         sources: [
-          createSource({
+          {
             value: 'export const excluded = "excluded"',
             isIndexable: true,
             name: 'excluded',
-          }),
+          },
         ],
         imports: [],
         exports: [],
         meta: { pluginName: 'excludedPlugin' },
-      })
+      }
 
       const excludedPlugin = createPlugin(() => {
         return {

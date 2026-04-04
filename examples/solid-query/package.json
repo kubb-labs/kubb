@@ -19,8 +19,6 @@
   },
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
-    "@kubb/cli": "workspace:*",
-    "@kubb/core": "workspace:*",
     "@kubb/plugin-client": "workspace:*",
     "@kubb/plugin-oas": "workspace:*",
     "@kubb/plugin-solid-query": "workspace:*",
@@ -28,6 +26,7 @@
     "@kubb/plugin-zod": "workspace:*",
     "@tanstack/solid-query": "^5.96.2",
     "axios": "^1.14.0",
+    "kubb": "workspace:*",
     "solid-js": "^1.9.12"
   },
   "devDependencies": {

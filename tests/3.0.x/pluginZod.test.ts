@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { AsyncEventEmitter, getRelativePath } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
 import { type KubbEvents, safeBuild, type UserConfig } from '@kubb/core'
+import { parserTs } from '@kubb/parser-ts'
 import { pluginZod } from '@kubb/plugin-zod'
 import { describe, expect, test } from 'vitest'
 
@@ -22,6 +23,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       input: { path: '../../schemas/3.0.x/petStore.yaml' },
       output: { path: './gen', barrelType: false },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginZod({
           output: { path: './zod', barrelType: false },
@@ -37,6 +39,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       input: { path: '../../schemas/3.0.x/petStore.yaml' },
       output: { path: './gen', barrelType: false },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginZod({
           output: { path: './zod', barrelType: false },
@@ -55,6 +58,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       input: { path: '../../schemas/3.0.x/petStore.yaml' },
       output: { path: './gen', barrelType: false },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginZod({
           output: { path: './zod', barrelType: false },
@@ -71,6 +75,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       input: { path: '../../schemas/3.0.x/petStore.yaml' },
       output: { path: './gen', barrelType: false },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginZod({
           output: { path: './zod', barrelType: false },
@@ -87,6 +92,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       input: { path: '../../schemas/3.0.x/petStore.yaml' },
       output: { path: './gen', barrelType: false },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginZod({
           output: { path: './zod', barrelType: false },
@@ -103,6 +109,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       input: { path: '../../schemas/3.0.x/petStore.yaml' },
       output: { path: './gen', barrelType: false },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginZod({
           output: { path: './zod', barrelType: false },
@@ -119,6 +126,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       input: { path: '../../schemas/3.0.x/petStore.yaml' },
       output: { path: './gen', barrelType: false },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginZod({
           output: { path: './zod', barrelType: false },
@@ -135,6 +143,7 @@ const configs: Array<{ name: string; config: UserConfig }> = [
       input: { path: '../../schemas/3.0.x/paramsCasing.yaml' },
       output: { path: './gen', barrelType: false },
       adapter: adapterOas({ validate: false }),
+      parsers: [parserTs],
       plugins: [
         pluginZod({
           output: { path: './zod', barrelType: false },

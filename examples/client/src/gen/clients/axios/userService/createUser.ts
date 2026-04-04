@@ -14,12 +14,7 @@ function getCreateUserUrl() {
  * @summary Create user
  * {@link /user}
  */
-export async function createUser(
-  data?: CreateUserMutationRequest,
-  config: Partial<RequestConfig<CreateUserMutationRequest>> & {
-    client?: Client
-  } = {},
-) {
+export async function createUser(data?: CreateUserMutationRequest, config: Partial<RequestConfig<CreateUserMutationRequest>> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data

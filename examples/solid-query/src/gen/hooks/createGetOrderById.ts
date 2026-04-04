@@ -34,10 +34,7 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
     enabled: !!orderId,
     queryKey,
     queryFn: async ({ signal }) => {
-      return getOrderById(orderId, {
-        ...config,
-        signal: config.signal ?? signal,
-      })
+      return getOrderById(orderId, { ...config, signal: config.signal ?? signal })
     },
   })
 }

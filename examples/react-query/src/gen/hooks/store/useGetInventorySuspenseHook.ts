@@ -31,10 +31,7 @@ export function getInventorySuspenseQueryOptionsHook(config: Partial<RequestConf
   return queryOptions<GetInventoryQueryResponse, ResponseErrorConfig<Error>, GetInventoryQueryResponse, typeof queryKey>({
     queryKey,
     queryFn: async ({ signal }) => {
-      return getInventorySuspenseHook({
-        ...config,
-        signal: config.signal ?? signal,
-      })
+      return getInventorySuspenseHook({ ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -53,10 +50,7 @@ export function useGetInventorySuspenseHook<TData = GetInventoryQueryResponse, T
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...resolvedOptions } = queryConfig
   const queryKey = resolvedOptions?.queryKey ?? getInventorySuspenseQueryKey()
-  const customOptions = useCustomHookOptions({
-    hookName: 'useGetInventorySuspenseHook',
-    operationId: 'getInventory',
-  })
+  const customOptions = useCustomHookOptions({ hookName: 'useGetInventorySuspenseHook', operationId: 'getInventory' })
 
   const query = useSuspenseQuery(
     {
@@ -66,9 +60,7 @@ export function useGetInventorySuspenseHook<TData = GetInventoryQueryResponse, T
       queryKey,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
-  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & {
-    queryKey: TQueryKey
-  }
+  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<Error>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

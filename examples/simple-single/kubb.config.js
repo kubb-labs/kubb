@@ -1,10 +1,10 @@
 import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginRedoc } from '@kubb/plugin-redoc'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
+import { defineConfig } from 'kubb'
 
 export default defineConfig([
   {

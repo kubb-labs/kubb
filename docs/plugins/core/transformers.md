@@ -32,4 +32,4 @@ pluginTs({
 ```
 
 > [!TIP]
-> Use `transformer` to rewrite node properties before printing. For output naming customisation, use `resolver` instead.
+> Use `transformer` to rewrite node properties before printing. For output naming customization, use `resolver` instead.

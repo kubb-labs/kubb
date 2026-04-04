@@ -35,7 +35,7 @@ export async function generate({ config, events }: GenerateProps): Promise<void>
       config,
       events,
     },
-    { driver, fabric, events, sources },
+    { driver, fabric, events, sources, config },
   )
 
   await events.emit('info', 'Load summary')

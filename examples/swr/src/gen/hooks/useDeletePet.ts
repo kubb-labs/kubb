@@ -34,10 +34,7 @@ export async function deletePet(
   return res.data
 }
 
-export type DeletePetMutationArg = {
-  petId: DeletePetPathParams['petId']
-  headers?: DeletePetHeaderParams
-}
+export type DeletePetMutationArg = { petId: DeletePetPathParams['petId']; headers?: DeletePetHeaderParams }
 
 /**
  * @description delete a pet

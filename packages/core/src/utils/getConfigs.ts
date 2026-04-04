@@ -1,4 +1,4 @@
-import type { CLIOptions, ConfigInput } from '../config.ts'
+import type { CLIOptions, ConfigInput } from '../defineConfig.ts'
 import type { Config, UserConfig } from '../types.ts'
 
 /**

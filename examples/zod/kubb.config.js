@@ -1,7 +1,6 @@
-import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from '@kubb/core'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
+import { defineConfig } from 'kubb'
 
 export default defineConfig([
   {
@@ -17,7 +16,6 @@ export default defineConfig([
     hooks: {
       // done: ['npm run typecheck', 'biome format --write ./', 'biome lint --fix --unsafe ./src'],
     },
-    adapter: adapterOas({}),
     plugins: [
       pluginTs({
         output: {
@@ -46,7 +44,6 @@ export default defineConfig([
       path: './src/mini',
       clean: true,
     },
-    adapter: adapterOas({}),
     plugins: [
       pluginZod({
         output: {
@@ -67,7 +64,6 @@ export default defineConfig([
       path: './src/gen3',
       clean: true,
     },
-    adapter: adapterOas({}),
     plugins: [
       pluginZod({
         output: {

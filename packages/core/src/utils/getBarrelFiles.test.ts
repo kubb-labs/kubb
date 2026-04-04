@@ -1,9 +1,8 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createExport, createFile, createSource } from '@kubb/ast'
-import type { FileNode } from '@kubb/ast/types'
 import { FileManager } from '@kubb/react-fabric'
 import { describe, expect, it, test } from 'vitest'
+import type * as KubbFile from '../KubbFile.ts'
 import { getBarrelFiles } from './getBarrelFiles.ts'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -12,73 +11,79 @@ const __dirname = path.dirname(__filename)
 describe('getBarrelFiles', () => {
   it('should generate barrel files correctly', async () => {
     const fileManager = new FileManager()
-    const files: FileNode[] = [
-      createFile({
+    const files: KubbFile.File[] = [
+      {
         path: 'src/test.ts',
         baseName: 'test.ts',
         sources: [
-          createSource({
+          {
             name: 'test',
             value: 'export const test = 2;',
             isExportable: true,
             isIndexable: true,
-          }),
+          },
         ],
-      }),
-      createFile({
+        imports: [],
+        exports: [],
+      },
+      {
         path: 'src/sub/index.ts',
         baseName: 'index.ts',
         sources: [
-          createSource({
+          {
             name: 'hello',
             value: '',
-          }),
-          createSource({
+          },
+          {
             name: 'world',
             value: '',
-          }),
+          },
         ],
         imports: [],
         exports: [
-          createExport({
+          {
             name: ['hello'],
             path: './sub/hello.ts',
-          }),
-          createExport({
+          },
+          {
             name: ['world'],
             path: './sub/world.ts',
-          }),
+          },
         ],
-      }),
-      createFile({
+      },
+      {
         path: 'src/sub/hello.ts',
         baseName: 'hello.ts',
         sources: [
-          createSource({
+          {
             name: 'hello',
             value: 'export const hello = 2;',
             isExportable: true,
             isIndexable: true,
-          }),
+          },
         ],
-      }),
-      createFile({
+        imports: [],
+        exports: [],
+      },
+      {
         path: 'src/sub/world.ts',
         baseName: 'world.ts',
         sources: [
-          createSource({
+          {
             name: 'world',
             value: 'export const world = 2;',
             isExportable: true,
             isIndexable: true,
-          }),
+          },
         ],
-      }),
+        imports: [],
+        exports: [],
+      },
     ]
 
-    await (fileManager as any).upsert(...files)
+    await fileManager.upsert(...files)
 
-    const barrelFiles = await getBarrelFiles(fileManager.files as unknown as FileNode[], {
+    const barrelFiles = await getBarrelFiles(fileManager.files, {
       type: 'all',
       root: 'src',
       output: {
@@ -86,7 +91,7 @@ describe('getBarrelFiles', () => {
       },
     })
 
-    await (fileManager as any).upsert(...barrelFiles)
+    await fileManager.upsert(...barrelFiles)
 
     const processedFiles = fileManager.files
 
@@ -94,43 +99,58 @@ describe('getBarrelFiles', () => {
   })
 
   it(`should return 'index.ts' barrel files`, async () => {
-    const files: FileNode[] = [
-      createFile({
+    const files: KubbFile.ResolvedFile[] = [
+      {
+        id: 'src/test.ts',
+        name: 'test',
+        extname: '.ts',
         path: 'src/test.ts',
         baseName: 'test.ts',
         sources: [
-          createSource({
+          {
             name: 'test',
             value: 'export const test = 2;',
             isExportable: true,
             isIndexable: true,
-          }),
+          },
         ],
-      }),
-      createFile({
+        imports: [],
+        exports: [],
+      },
+      {
+        id: 'src/sub/hello.ts',
+        name: 'hello',
+        extname: '.ts',
         path: 'src/sub/hello.ts',
         baseName: 'hello.ts',
         sources: [
-          createSource({
+          {
             name: 'hello',
             value: 'export const hello = 2;',
             isExportable: true,
             isIndexable: true,
-          }),
+          },
         ],
-      }),
-      createFile({
+        imports: [],
+        exports: [],
+      },
+      {
+        id: 'src/sub/world.ts',
+        name: 'world',
+        extname: '.ts',
         path: 'src/sub/world.ts',
         baseName: 'world.ts',
         sources: [
-          createSource({
+          {
             name: 'world',
             value: 'export const world = 2;',
             isExportable: true,
             isIndexable: true,
-          }),
+          },
         ],
-      }),
+        imports: [],
+        exports: [],
+      },
     ]
 
     const barrelFiles = await getBarrelFiles(files, { type: 'named', root: 'src', output: { path: '.' } })
@@ -142,61 +162,81 @@ describe('getBarrelFiles', () => {
   })
 
   test('should generate barrel files for subdirectories that contain existing index files', async () => {
-    const files: FileNode[] = [
-      createFile({
+    const files: KubbFile.ResolvedFile[] = [
+      {
+        id: 'src/test.ts',
+        name: 'test',
+        extname: '.ts',
         path: 'src/test.ts',
         baseName: 'test.ts',
         sources: [
-          createSource({
+          {
             name: 'test',
             value: 'export const test = 2;',
             isExportable: true,
             isIndexable: true,
-          }),
+          },
         ],
-      }),
-      createFile({
+        imports: [],
+        exports: [],
+      },
+      {
+        id: 'src/sub/hello.ts',
+        name: 'hello',
+        extname: '.ts',
         path: 'src/sub/hello.ts',
         baseName: 'hello.ts',
         sources: [
-          createSource({
+          {
             name: 'hello',
             value: 'export const hello = 2;',
             isExportable: true,
             isIndexable: true,
-          }),
+          },
         ],
-      }),
-      createFile({
+        imports: [],
+        exports: [],
+      },
+      {
+        id: 'src/sub/world.ts',
+        name: 'world',
+        extname: '.ts',
         path: 'src/sub/world.ts',
         baseName: 'world.ts',
         sources: [
-          createSource({
+          {
             name: 'world',
             value: 'export const world = 2;',
             isExportable: true,
             isIndexable: true,
-          }),
+          },
         ],
-      }),
-      createFile({
+        imports: [],
+        exports: [],
+      },
+      {
+        id: 'src/sub/index.ts',
+        name: 'index',
+        extname: '.ts',
         path: 'src/sub/index.ts',
         baseName: 'index.ts',
         sources: [
-          createSource({
+          {
             name: 'world',
             value: 'export const world = 2;',
             isExportable: true,
             isIndexable: true,
-          }),
-          createSource({
+          },
+          {
             name: 'hello',
             value: 'export const hello = 2;',
             isExportable: true,
             isIndexable: true,
-          }),
+          },
         ],
-      }),
+        imports: [],
+        exports: [],
+      },
     ]
 
     const barrelFiles = await getBarrelFiles(files, { type: 'named', root: 'src', output: { path: '.' } })

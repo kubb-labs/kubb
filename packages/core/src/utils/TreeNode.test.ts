@@ -1,35 +1,34 @@
 import path from 'node:path'
-import { createFile } from '@kubb/ast'
-import type { FileNode } from '@kubb/ast/types'
 import { describe, expect, test } from 'vitest'
+import type * as KubbFile from '../KubbFile.ts'
 import { TreeNode } from './TreeNode.ts'
 
 describe('TreeNode', () => {
-  const files: FileNode[] = [
-    createFile({
+  const files: KubbFile.File[] = [
+    {
       path: 'src/test.ts',
       baseName: 'test.ts',
       sources: [],
       meta: {},
       imports: [],
       exports: [],
-    }),
-    createFile({
+    },
+    {
       path: 'src/sub/hello.ts',
       baseName: 'hello.ts',
       sources: [],
       meta: {},
       imports: [],
       exports: [],
-    }),
-    createFile({
+    },
+    {
       path: 'src/sub/world.ts',
       baseName: 'world.ts',
       sources: [],
       meta: {},
       imports: [],
       exports: [],
-    }),
+    },
   ]
   const tree = TreeNode.build(files, 'src/')
   const treeWindows = TreeNode.build(files, 'src\\')
@@ -290,12 +289,16 @@ describe('TreeNode', () => {
   })
 
   test('if build filters out JSON files', () => {
-    const filesWithJson: FileNode[] = [
+    const filesWithJson: KubbFile.File[] = [
       ...files,
-      createFile({
+      {
         path: 'src/data.json',
         baseName: 'data.json',
-      }),
+        sources: [],
+        meta: {},
+        imports: [],
+        exports: [],
+      },
     ]
     const treeWithJson = TreeNode.build(filesWithJson, 'src/')
     const leaves = treeWithJson?.leaves || []

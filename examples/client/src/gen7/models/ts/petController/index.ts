@@ -1,17 +1,5 @@
-export type {
-  AddPet200,
-  AddPet405,
-  AddPetMutation,
-  AddPetMutationRequest,
-  AddPetMutationResponse,
-} from './AddPet.ts'
-export type {
-  DeletePet400,
-  DeletePetHeaderParams,
-  DeletePetMutation,
-  DeletePetMutationResponse,
-  DeletePetPathParams,
-} from './DeletePet.ts'
+export type { AddPet200, AddPet405, AddPetMutation, AddPetMutationRequest, AddPetMutationResponse } from './AddPet.ts'
+export type { DeletePet400, DeletePetHeaderParams, DeletePetMutation, DeletePetMutationResponse, DeletePetPathParams } from './DeletePet.ts'
 export type {
   FindPetsByStatus200,
   FindPetsByStatus400,
@@ -21,21 +9,8 @@ export type {
   FindPetsByStatusQueryResponse,
 } from './FindPetsByStatus.ts'
 export { findPetsByStatusQueryParamsStatusEnum } from './FindPetsByStatus.ts'
-export type {
-  FindPetsByTags200,
-  FindPetsByTags400,
-  FindPetsByTagsQuery,
-  FindPetsByTagsQueryParams,
-  FindPetsByTagsQueryResponse,
-} from './FindPetsByTags.ts'
-export type {
-  GetPetById200,
-  GetPetById400,
-  GetPetById404,
-  GetPetByIdPathParams,
-  GetPetByIdQuery,
-  GetPetByIdQueryResponse,
-} from './GetPetById.ts'
+export type { FindPetsByTags200, FindPetsByTags400, FindPetsByTagsQuery, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from './FindPetsByTags.ts'
+export type { GetPetById200, GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQuery, GetPetByIdQueryResponse } from './GetPetById.ts'
 export type {
   UpdatePet200,
   UpdatePet400,

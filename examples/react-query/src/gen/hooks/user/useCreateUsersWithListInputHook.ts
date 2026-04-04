@@ -21,9 +21,7 @@ export type CreateUsersWithListInputMutationKey = ReturnType<typeof createUsersW
  */
 export async function createUsersWithListInputHook(
   data?: CreateUsersWithListInputMutationRequest,
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
-    client?: Client
-  } = {},
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
@@ -39,9 +37,7 @@ export async function createUsersWithListInputHook(
 }
 
 export function createUsersWithListInputMutationOptionsHook<TContext = unknown>(
-  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
-    client?: Client
-  } = {},
+  config: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: Client } = {},
 ) {
   const mutationKey = createUsersWithListInputMutationKey()
   return mutationOptions<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }, TContext>({
@@ -65,9 +61,7 @@ export function useCreateUsersWithListInputHook<TContext>(
       { data?: CreateUsersWithListInputMutationRequest },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & {
-      client?: Client
-    }
+    client?: Partial<RequestConfig<CreateUsersWithListInputMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
@@ -80,10 +74,12 @@ export function useCreateUsersWithListInputHook<TContext>(
     { data?: CreateUsersWithListInputMutationRequest },
     TContext
   >
-  const customOptions = useCustomHookOptions({
-    hookName: 'useCreateUsersWithListInputHook',
-    operationId: 'createUsersWithListInput',
-  }) as UseMutationOptions<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }, TContext>
+  const customOptions = useCustomHookOptions({ hookName: 'useCreateUsersWithListInputHook', operationId: 'createUsersWithListInput' }) as UseMutationOptions<
+    CreateUsersWithListInputMutationResponse,
+    ResponseErrorConfig<Error>,
+    { data?: CreateUsersWithListInputMutationRequest },
+    TContext
+  >
 
   return useMutation<CreateUsersWithListInputMutationResponse, ResponseErrorConfig<Error>, { data?: CreateUsersWithListInputMutationRequest }, TContext>(
     {

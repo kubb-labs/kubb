@@ -31,12 +31,7 @@ export class storeController {
    * @summary Place an order for a pet
    * {@link /store/order}
    */
-  async placeOrder(
-    data?: PlaceOrderMutationRequest,
-    config: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
-      client?: Client
-    } = {},
-  ) {
+  async placeOrder(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: Client } = {}) {
     const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data
     const res = await request<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, PlaceOrderMutationRequest>({
@@ -53,12 +48,7 @@ export class storeController {
    * @summary Place an order for a pet with patch
    * {@link /store/order}
    */
-  async placeOrderPatch(
-    data?: PlaceOrderPatchMutationRequest,
-    config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
-      client?: Client
-    } = {},
-  ) {
+  async placeOrderPatch(data?: PlaceOrderPatchMutationRequest, config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: Client } = {}) {
     const { client: request = fetch, ...requestConfig } = mergeConfig(this.#config, config)
     const requestData = data
     const res = await request<PlaceOrderPatchMutationResponse, ResponseErrorConfig<PlaceOrderPatch405>, PlaceOrderPatchMutationRequest>({

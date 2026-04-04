@@ -6,10 +6,7 @@
 import type { LoginUserQueryPassword, LoginUserQueryUsername, LoginUserResponse } from '../../models.ts'
 
 export function loginUser(
-  params?: {
-    username?: LoginUserQueryUsername
-    password?: LoginUserQueryPassword
-  },
+  params?: { username?: LoginUserQueryUsername; password?: LoginUserQueryPassword },
   options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<LoginUserResponse> {
   return cy

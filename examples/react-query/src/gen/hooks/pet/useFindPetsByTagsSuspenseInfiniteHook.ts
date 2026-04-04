@@ -47,10 +47,7 @@ export function findPetsByTagsSuspenseInfiniteQueryOptionsHook(params?: FindPets
         ...(params ?? {}),
         ['pageSize']: pageParam as unknown as FindPetsByTagsQueryParams['pageSize'],
       } as FindPetsByTagsQueryParams
-      return findPetsByTagsSuspenseInfiniteHook(params, {
-        ...config,
-        signal: config.signal ?? signal,
-      })
+      return findPetsByTagsSuspenseInfiniteHook(params, { ...config, signal: config.signal ?? signal })
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => (Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1),
@@ -79,10 +76,7 @@ export function useFindPetsByTagsSuspenseInfiniteHook<
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...resolvedOptions } = queryConfig
   const queryKey = resolvedOptions?.queryKey ?? findPetsByTagsSuspenseInfiniteQueryKey(params)
-  const customOptions = useCustomHookOptions({
-    hookName: 'useFindPetsByTagsSuspenseInfiniteHook',
-    operationId: 'findPetsByTags',
-  })
+  const customOptions = useCustomHookOptions({ hookName: 'useFindPetsByTagsSuspenseInfiniteHook', operationId: 'findPetsByTags' })
 
   const query = useSuspenseInfiniteQuery(
     {

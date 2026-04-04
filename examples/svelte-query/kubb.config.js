@@ -1,8 +1,8 @@
 import { adapterOas } from '@kubb/adapter-oas'
-import { defineConfig } from '@kubb/core'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginSvelteQuery } from '@kubb/plugin-svelte-query'
 import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from 'kubb'
 
 export default defineConfig({
   root: '.',

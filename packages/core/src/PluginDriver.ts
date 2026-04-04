@@ -2,11 +2,12 @@ import { basename, extname, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { isPromiseRejectedResult, transformReservedWord } from '@internals/utils'
-import { createFile } from '@kubb/ast'
-import type { FileNode, RootNode } from '@kubb/ast/types'
+import type { RootNode } from '@kubb/ast/types'
 import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
+import type * as KubbFile from './KubbFile.ts'
+
 import type {
   Adapter,
   Config,
@@ -59,8 +60,8 @@ type Options = {
  */
 export type GetFileOptions<TOptions = object> = {
   name: string
-  mode?: 'single' | 'split'
-  extname: `.${string}`
+  mode?: KubbFile.Mode
+  extname: KubbFile.Extname
   pluginName: string
   options?: TOptions
 }
@@ -74,7 +75,7 @@ export type GetFileOptions<TOptions = object> = {
  * getMode('src/gen/types')     // 'split'
  * ```
  */
-export function getMode(fileOrFolder: string | undefined | null): 'single' | 'split' {
+export function getMode(fileOrFolder: string | undefined | null): KubbFile.Mode {
   if (!fileOrFolder) {
     return 'split'
   }
@@ -131,7 +132,7 @@ export class PluginDriver {
       get root(): string {
         return resolve(driver.config.root, driver.config.output.path)
       },
-      getMode(output: { path: string }) {
+      getMode(output: { path: string }): KubbFile.Mode {
         return getMode(resolve(driver.config.root, driver.config.output.path, output.path))
       },
       events: driver.options.events,
@@ -139,11 +140,11 @@ export class PluginDriver {
       getPlugin: driver.getPlugin.bind(driver),
       requirePlugin: driver.requirePlugin.bind(driver),
       driver: driver,
-      addFile: async (...files: Array<FileNode>) => {
-        await this.options.fabric.addFile(...(files as any))
+      addFile: async (...files: Array<KubbFile.File>) => {
+        await this.options.fabric.addFile(...files)
       },
-      upsertFile: async (...files: Array<FileNode>) => {
-        await this.options.fabric.upsertFile(...(files as any))
+      upsertFile: async (...files: Array<KubbFile.File>) => {
+        await this.options.fabric.upsertFile(...files)
       },
       get rootNode(): RootNode | undefined {
         return driver.rootNode
@@ -206,7 +207,7 @@ export class PluginDriver {
   /**
    * @deprecated use resolvers context instead
    */
-  getFile<TOptions = object>({ name, mode, extname, pluginName, options }: GetFileOptions<TOptions>): FileNode<{ pluginName: string }> {
+  getFile<TOptions = object>({ name, mode, extname, pluginName, options }: GetFileOptions<TOptions>): KubbFile.File<{ pluginName: string }> {
     const resolvedName = mode ? (mode === 'single' ? '' : this.resolveName({ name, pluginName, type: 'file' })) : name
 
     const path = this.resolvePath({
@@ -220,22 +221,22 @@ export class PluginDriver {
       throw new Error(`Filepath should be defined for resolvedName "${resolvedName}" and pluginName "${pluginName}"`)
     }
 
-    return createFile({
+    return {
       path,
-      baseName: basename(path) as FileNode['baseName'],
+      baseName: basename(path) as KubbFile.File['baseName'],
       meta: {
         pluginName,
       },
       sources: [],
       imports: [],
       exports: [],
-    })
+    }
   }
 
   /**
    * @deprecated use resolvers context instead
    */
-  resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): string => {
+  resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): KubbFile.Path => {
     const root = resolve(this.config.root, this.config.output.path)
     const defaultPath = resolve(root, params.baseName)
 

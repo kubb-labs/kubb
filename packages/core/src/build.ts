@@ -1,13 +1,13 @@
 import { dirname, relative, resolve } from 'node:path'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
-import { createExport, createFile, transform, walk } from '@kubb/ast'
-import type { ExportNode, FileNode, OperationNode } from '@kubb/ast/types'
+import { transform, walk } from '@kubb/ast'
+import type { OperationNode } from '@kubb/ast/types'
 import type { Fabric as FabricType } from '@kubb/fabric-core/types'
 import { createFabric } from '@kubb/react-fabric'
-import { typescriptParser } from '@kubb/react-fabric/parsers'
 import { fsPlugin } from '@kubb/react-fabric/plugins'
-import { isInputPath } from './config.ts'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
+import { defineParser } from './defineParser.ts'
+import type * as KubbFile from './KubbFile.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.tsx'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -15,6 +15,7 @@ import type { AdapterSource, Config, KubbEvents, Plugin, PluginContext, Storage,
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
 import { getBarrelFiles } from './utils/getBarrelFiles.ts'
+import { isInputPath } from './utils/isInputPath.ts'
 
 type BuildOptions = {
   config: UserConfig
@@ -30,7 +31,7 @@ type BuildOutput = {
    */
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
   fabric: FabricType
-  files: Array<FileNode>
+  files: Array<KubbFile.ResolvedFile>
   driver: PluginDriver
   /**
    * Elapsed time in milliseconds for each plugin, keyed by plugin name.
@@ -40,7 +41,7 @@ type BuildOutput = {
   /**
    * Raw generated source, keyed by absolute file path.
    */
-  sources: Map<string, string>
+  sources: Map<KubbFile.Path, string>
 }
 
 /**
@@ -50,7 +51,8 @@ type SetupResult = {
   events: AsyncEventEmitter<KubbEvents>
   fabric: FabricType
   driver: PluginDriver
-  sources: Map<string, string>
+  sources: Map<KubbFile.Path, string>
+  config: Config
 }
 
 /**
@@ -60,6 +62,7 @@ type SetupResult = {
  * - Applies config defaults (`root`, `output.*`, `devtools`).
  * - Creates the Fabric instance and wires storage, format, and lint hooks.
  * - Runs the adapter (if configured) to produce the universal `RootNode`.
+ *   When no adapter is supplied and `@kubb/adapter-oas` is installed as an
  *
  * Pass the returned {@link SetupResult} directly to {@link safeBuild} or {@link build}
  * via the `overrides` argument to reuse the same infrastructure across multiple runs.
@@ -67,7 +70,7 @@ type SetupResult = {
 export async function setup(options: BuildOptions): Promise<SetupResult> {
   const { config: userConfig, events = new AsyncEventEmitter<KubbEvents>() } = options
 
-  const sources: Map<string, string> = new Map<string, string>()
+  const sources: Map<KubbFile.Path, string> = new Map<KubbFile.Path, string>()
   const diagnosticInfo = getDiagnosticInfo()
 
   if (Array.isArray(userConfig.input)) {
@@ -115,9 +118,15 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     }
   }
 
-  const definedConfig: Config = {
+  if (!userConfig.adapter) {
+    throw new Error('Adapter should be defined')
+  }
+
+  const config: Config = {
     root: userConfig.root || process.cwd(),
     ...userConfig,
+    parsers: userConfig.parsers ?? [],
+    adapter: userConfig.adapter,
     output: {
       write: true,
       barrelType: 'named',
@@ -138,22 +147,38 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   // storage or fall back to fsStorage (backwards-compatible default).
   // Keys are root-relative (e.g. `src/gen/api/getPets.ts`) so fsStorage()
   // needs no configuration — it resolves them against process.cwd().
-  const storage: Storage | null = definedConfig.output.write === false ? null : (definedConfig.output.storage ?? fsStorage())
+  const storage: Storage | null = config.output.write === false ? null : (config.output.storage ?? fsStorage())
 
-  if (definedConfig.output.clean) {
+  if (config.output.clean) {
     await events.emit('debug', {
       date: new Date(),
-      logs: ['Cleaning output directories', `  • Output: ${definedConfig.output.path}`],
+      logs: ['Cleaning output directories', `  • Output: ${config.output.path}`],
     })
-    await storage?.clear(resolve(definedConfig.root, definedConfig.output.path))
+    await storage?.clear(resolve(config.root, config.output.path))
   }
 
   const fabric = createFabric()
   fabric.use(fsPlugin)
-  fabric.use(typescriptParser)
+
+  for (const parser of config.parsers) {
+    fabric.use(parser)
+  }
+  // Catch-all fallback: joins all source values for any unhandled extension
+  fabric.use(
+    defineParser({
+      name: 'fallback',
+      extNames: undefined,
+      parse(file) {
+        return file.sources
+          .map((item) => item.value)
+          .filter((value): value is string => value != null)
+          .join('\n\n')
+      },
+    }),
+  )
 
   fabric.context.on('files:processing:start', (files) => {
-    events.emit('files:processing:start', files as unknown as FileNode[])
+    events.emit('files:processing:start', files)
     events.emit('debug', {
       date: new Date(),
       logs: [`Writing ${files.length} files...`],
@@ -164,21 +189,20 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     const { file, source } = params
     await events.emit('file:processing:update', {
       ...params,
-      file: file as unknown as FileNode,
-      config: definedConfig,
+      config: config,
       source,
     })
 
     if (source) {
       // Key is root-relative so it's meaningful for any backend (fs, S3, Redis…)
-      const key = relative(resolve(definedConfig.root), file.path)
+      const key = relative(resolve(config.root), file.path)
       await storage?.setItem(key, source)
       sources.set(file.path, source)
     }
   })
 
   fabric.context.on('files:processing:end', async (files) => {
-    await events.emit('files:processing:end', files as unknown as FileNode[])
+    await events.emit('files:processing:end', files)
     await events.emit('debug', {
       date: new Date(),
       logs: [`✓ File write process completed for ${files.length} files`],
@@ -187,45 +211,45 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   await events.emit('debug', {
     date: new Date(),
-    logs: [
-      '✓ Fabric initialized',
-      `  • Storage: ${storage ? storage.name : 'disabled (dry-run)'}`,
-      `  • Barrel type: ${definedConfig.output.barrelType || 'none'}`,
-    ],
+    logs: ['✓ Fabric initialized', `  • Storage: ${storage ? storage.name : 'disabled (dry-run)'}`, `  • Barrel type: ${config.output.barrelType || 'none'}`],
   })
 
-  const pluginDriver = new PluginDriver(definedConfig, {
+  const driver = new PluginDriver(config, {
     fabric,
     events,
     concurrency: DEFAULT_CONCURRENCY,
   })
 
-  // Run the adapter (if provided) to produce the universal RootNode
-  if (definedConfig.adapter) {
-    const source = inputToAdapterSource(definedConfig)
+  // Run the adapter to produce the universal RootNode.
 
-    await events.emit('debug', {
-      date: new Date(),
-      logs: [`Running adapter: ${definedConfig.adapter.name}`],
-    })
-
-    pluginDriver.adapter = definedConfig.adapter
-    pluginDriver.rootNode = await definedConfig.adapter.parse(source)
-
-    await events.emit('debug', {
-      date: new Date(),
-      logs: [
-        `✓ Adapter '${definedConfig.adapter.name}' resolved RootNode`,
-        `  • Schemas: ${pluginDriver.rootNode.schemas.length}`,
-        `  • Operations: ${pluginDriver.rootNode.operations.length}`,
-      ],
-    })
+  const adapter = config.adapter
+  if (!adapter) {
+    throw new Error('No adapter configured. Please provide an adapter in your kubb.config.ts.')
   }
+  const source = inputToAdapterSource(config)
+
+  await events.emit('debug', {
+    date: new Date(),
+    logs: [`Running adapter: ${adapter.name}`],
+  })
+
+  driver.adapter = adapter
+  driver.rootNode = await adapter.parse(source)
+
+  await events.emit('debug', {
+    date: new Date(),
+    logs: [
+      `✓ Adapter '${adapter.name}' resolved RootNode`,
+      `  • Schemas: ${driver.rootNode.schemas.length}`,
+      `  • Operations: ${driver.rootNode.operations.length}`,
+    ],
+  })
 
   return {
+    config,
     events,
     fabric,
-    driver: pluginDriver,
+    driver,
     sources,
   }
 }
@@ -267,7 +291,7 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
  * - Each hook accepts a single handler **or an array** — all entries are called in sequence.
  * - Nodes that are excluded by `exclude`/`include` plugin options are skipped automatically.
  * - Return values are handled via `applyHookResult`: React elements are rendered,
- *   `FileNode[]` are written via upsert, and `void` is a no-op (manual handling).
+ *   `KubbFile.File[]` are written via upsert, and `void` is a no-op (manual handling).
  * - Barrel files are generated automatically when `output.barrelType` is set.
  */
 async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promise<void> {
@@ -355,7 +379,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         }
 
         if (output) {
-          const barrelFiles = await getBarrelFiles(fabric.files as unknown as FileNode[], {
+          const barrelFiles = await getBarrelFiles(fabric.files, {
             type: output.barrelType ?? 'named',
             root,
             output,
@@ -409,8 +433,8 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         logs: ['Generating barrel file', `  • Type: ${config.output.barrelType}`, `  • Path: ${rootPath}`],
       })
 
-      const barrelFiles = (fabric.files as unknown as FileNode[]).filter((file) => {
-        return file.sources?.some((source) => source.isIndexable)
+      const barrelFiles = fabric.files.filter((file) => {
+        return file.sources.some((source) => source.isIndexable)
       })
 
       await events.emit('debug', {
@@ -418,19 +442,21 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         logs: [`Found ${barrelFiles.length} indexable files for barrel export`],
       })
 
-      const existingBarrel = (fabric.files as unknown as FileNode[]).find((f) => f.path === rootPath)
+      const existingBarrel = fabric.files.find((f) => f.path === rootPath)
       const existingExports = new Set(
         existingBarrel?.exports?.flatMap((e) => (Array.isArray(e.name) ? e.name : [e.name])).filter((n): n is string => Boolean(n)) ?? [],
       )
 
-      const rootFile = createFile({
+      const rootFile: KubbFile.File = {
         path: rootPath,
         baseName: BARREL_FILENAME,
         exports: buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }),
+        sources: [],
+        imports: [],
         meta: {},
-      })
+      }
 
-      await fabric.upsertFile(rootFile as any)
+      await fabric.upsertFile(rootFile)
 
       await events.emit('debug', {
         date: new Date(),
@@ -438,7 +464,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       })
     }
 
-    const files = [...fabric.files] as unknown as FileNode[]
+    const files = [...fabric.files]
 
     await fabric.write({ extension: config.output.extension })
 
@@ -472,14 +498,14 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 }
 
 type BuildBarrelExportsParams = {
-  barrelFiles: FileNode[]
+  barrelFiles: KubbFile.ResolvedFile[]
   rootDir: string
   existingExports: Set<string>
   config: Config
   driver: PluginDriver
 }
 
-function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }: BuildBarrelExportsParams): ExportNode[] {
+function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, driver }: BuildBarrelExportsParams): KubbFile.Export[] {
   const pluginNameMap = new Map<string, Plugin>()
   for (const plugin of driver.plugins.values()) {
     pluginNameMap.set(plugin.name, plugin)
@@ -507,11 +533,11 @@ function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, dri
       }
 
       return [
-        createExport({
+        {
           name: exportName,
           path: getRelativePath(rootDir, file.path),
           isTypeOnly: config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
-        }),
+        } satisfies KubbFile.Export,
       ]
     })
   })

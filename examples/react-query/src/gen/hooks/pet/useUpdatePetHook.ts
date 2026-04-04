@@ -19,12 +19,7 @@ export type UpdatePetMutationKey = ReturnType<typeof updatePetMutationKey>
  * @summary Update an existing pet
  * {@link /pet}
  */
-export async function updatePetHook(
-  data: UpdatePetMutationRequest,
-  config: Partial<RequestConfig<UpdatePetMutationRequest>> & {
-    client?: Client
-  } = {},
-) {
+export async function updatePetHook(data: UpdatePetMutationRequest, config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
@@ -38,11 +33,7 @@ export async function updatePetHook(
   return res.data
 }
 
-export function updatePetMutationOptionsHook<TContext = unknown>(
-  config: Partial<RequestConfig<UpdatePetMutationRequest>> & {
-    client?: Client
-  } = {},
-) {
+export function updatePetMutationOptionsHook<TContext = unknown>(config: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: Client } = {}) {
   const mutationKey = updatePetMutationKey()
   return mutationOptions<
     UpdatePetMutationResponse,
@@ -70,9 +61,7 @@ export function useUpdatePetHook<TContext>(
       { data: UpdatePetMutationRequest },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<UpdatePetMutationRequest>> & {
-      client?: Client
-    }
+    client?: Partial<RequestConfig<UpdatePetMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
@@ -85,10 +74,7 @@ export function useUpdatePetHook<TContext>(
     { data: UpdatePetMutationRequest },
     TContext
   >
-  const customOptions = useCustomHookOptions({
-    hookName: 'useUpdatePetHook',
-    operationId: 'updatePet',
-  }) as UseMutationOptions<
+  const customOptions = useCustomHookOptions({ hookName: 'useUpdatePetHook', operationId: 'updatePet' }) as UseMutationOptions<
     UpdatePetMutationResponse,
     ResponseErrorConfig<UpdatePet400 | UpdatePet404 | UpdatePet405>,
     { data: UpdatePetMutationRequest },

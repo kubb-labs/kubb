@@ -19,12 +19,7 @@ export type PlaceOrderMutationKey = ReturnType<typeof placeOrderMutationKey>
  * @summary Place an order for a pet
  * {@link /store/order}
  */
-export async function placeOrderHook(
-  data?: PlaceOrderMutationRequest,
-  config: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
-    client?: Client
-  } = {},
-) {
+export async function placeOrderHook(data?: PlaceOrderMutationRequest, config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: Client } = {}) {
   const { client: request = fetch, ...requestConfig } = config
 
   const requestData = data
@@ -38,11 +33,7 @@ export async function placeOrderHook(
   return res.data
 }
 
-export function placeOrderMutationOptionsHook<TContext = unknown>(
-  config: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
-    client?: Client
-  } = {},
-) {
+export function placeOrderMutationOptionsHook<TContext = unknown>(config: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: Client } = {}) {
   const mutationKey = placeOrderMutationKey()
   return mutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext>({
     mutationKey,
@@ -62,9 +53,7 @@ export function usePlaceOrderHook<TContext>(
     mutation?: UseMutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext> & {
       client?: QueryClient
     }
-    client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & {
-      client?: Client
-    }
+    client?: Partial<RequestConfig<PlaceOrderMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}
@@ -77,10 +66,12 @@ export function usePlaceOrderHook<TContext>(
     { data?: PlaceOrderMutationRequest },
     TContext
   >
-  const customOptions = useCustomHookOptions({
-    hookName: 'usePlaceOrderHook',
-    operationId: 'placeOrder',
-  }) as UseMutationOptions<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext>
+  const customOptions = useCustomHookOptions({ hookName: 'usePlaceOrderHook', operationId: 'placeOrder' }) as UseMutationOptions<
+    PlaceOrderMutationResponse,
+    ResponseErrorConfig<PlaceOrder405>,
+    { data?: PlaceOrderMutationRequest },
+    TContext
+  >
 
   return useMutation<PlaceOrderMutationResponse, ResponseErrorConfig<PlaceOrder405>, { data?: PlaceOrderMutationRequest }, TContext>(
     {

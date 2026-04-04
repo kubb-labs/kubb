@@ -41,10 +41,7 @@ export function findPetsByTagsSuspenseQueryOptionsHook(params?: FindPetsByTagsQu
   >({
     queryKey,
     queryFn: async ({ signal }) => {
-      return findPetsByTagsSuspenseHook(params, {
-        ...config,
-        signal: config.signal ?? signal,
-      })
+      return findPetsByTagsSuspenseHook(params, { ...config, signal: config.signal ?? signal })
     },
   })
 }
@@ -66,10 +63,7 @@ export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByT
   const { query: queryConfig = {}, client: config = {} } = options ?? {}
   const { client: queryClient, ...resolvedOptions } = queryConfig
   const queryKey = resolvedOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
-  const customOptions = useCustomHookOptions({
-    hookName: 'useFindPetsByTagsSuspenseHook',
-    operationId: 'findPetsByTags',
-  })
+  const customOptions = useCustomHookOptions({ hookName: 'useFindPetsByTagsSuspenseHook', operationId: 'findPetsByTags' })
 
   const query = useSuspenseQuery(
     {
@@ -79,9 +73,7 @@ export function useFindPetsByTagsSuspenseHook<TData = ResponseConfig<FindPetsByT
       queryKey,
     } as unknown as UseSuspenseQueryOptions,
     queryClient,
-  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & {
-    queryKey: TQueryKey
-  }
+  ) as UseSuspenseQueryResult<TData, ResponseErrorConfig<FindPetsByTags400>> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

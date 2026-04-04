@@ -31,9 +31,7 @@ export type PlaceOrderPatchMutationKey = ReturnType<typeof placeOrderPatchMutati
  */
 export async function placeOrderPatch(
   data?: PlaceOrderPatchMutationRequest,
-  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
-    client?: Client
-  } = {},
+  config: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: Client } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
 
@@ -61,9 +59,7 @@ export function createPlaceOrderPatch<TContext>(
       { data?: PlaceOrderPatchMutationRequest },
       TContext
     > & { client?: QueryClient }
-    client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & {
-      client?: Client
-    }
+    client?: Partial<RequestConfig<PlaceOrderPatchMutationRequest>> & { client?: Client }
   } = {},
 ) {
   const { mutation = {}, client: config = {} } = options ?? {}

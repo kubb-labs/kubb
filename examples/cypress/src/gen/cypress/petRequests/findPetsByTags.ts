@@ -6,11 +6,7 @@
 import type { FindPetsByTagsQueryPage, FindPetsByTagsQueryPageSize, FindPetsByTagsQueryTags, FindPetsByTagsResponse } from '../../models.ts'
 
 export function findPetsByTags(
-  params?: {
-    tags?: FindPetsByTagsQueryTags
-    page?: FindPetsByTagsQueryPage
-    pageSize?: FindPetsByTagsQueryPageSize
-  },
+  params?: { tags?: FindPetsByTagsQueryTags; page?: FindPetsByTagsQueryPage; pageSize?: FindPetsByTagsQueryPageSize },
   options: Partial<Cypress.RequestOptions> = {},
 ): Cypress.Chainable<FindPetsByTagsResponse> {
   return cy
