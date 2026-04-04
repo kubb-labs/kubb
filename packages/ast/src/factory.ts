@@ -490,7 +490,9 @@ type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 'kind' 
  * ```
  */
 export function createFile<TMeta extends object = object>(input: UserFileNode<TMeta>): FileNode<TMeta> {
-  const extname = path.extname(input.baseName) as `.${string}`
+  const rawExtname = path.extname(input.baseName)
+  // Handle dotfile basenames like '.ts' where path.extname returns ''
+  const extname = (rawExtname || (input.baseName.startsWith('.') ? input.baseName : '')) as `.${string}`
   if (!extname) {
     throw new Error(`No extname found for ${input.baseName}`)
   }

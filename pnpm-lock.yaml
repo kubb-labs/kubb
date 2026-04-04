@@ -1452,9 +1452,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/fabric-core':
-        specifier: 'catalog:'
-        version: 0.15.1
+      '@kubb/parser-ts':
+        specifier: workspace:*
+        version: link:../parser-ts
       '@kubb/react-fabric':
         specifier: 'catalog:'
         version: 0.15.1

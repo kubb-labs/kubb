@@ -1,5 +1,5 @@
 import { createProperty, createSchema } from '@kubb/ast'
-import { print } from '@kubb/fabric-core/parsers/typescript'
+import { print } from '@kubb/parser-ts'
 import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 import { format } from '#mocks'

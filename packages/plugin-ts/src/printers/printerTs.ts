@@ -1,7 +1,7 @@
 import { extractRefName, isStringType, narrowSchema, schemaTypes, syncSchemaRef } from '@kubb/ast'
 import type { PrinterFactoryOptions, PrinterPartial } from '@kubb/core'
 import { definePrinter } from '@kubb/core'
-import { safePrint } from '@kubb/fabric-core/parsers/typescript'
+import { safePrint } from '@kubb/parser-ts'
 import type ts from 'typescript'
 import { ENUM_TYPES_WITH_KEY_SUFFIX, OPTIONAL_ADDS_QUESTION_TOKEN, OPTIONAL_ADDS_UNDEFINED } from '../constants.ts'
 import * as factory from '../factory.ts'
