@@ -68,7 +68,7 @@ type ParentNodeMap = [
  *
  * @example
  * ```ts
- * type RootParent = ParentOf<RootNode>
+ * type InputParent = ParentOf<InputNode>
  * // undefined
  * ```
  *
@@ -81,7 +81,7 @@ type ParentNodeMap = [
  * @example
  * ```ts
  * type SchemaParent = ParentOf<SchemaNode>
- * // RootNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode
+ * // InputNode | OperationNode | SchemaNode | PropertyNode | ParameterNode | ResponseNode
  * ```
  */
 export type ParentOf<T extends Node, TEntries extends ReadonlyArray<[Node, unknown]> = ParentNodeMap> = TEntries extends [

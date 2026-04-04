@@ -13,7 +13,6 @@ export {
   createParameterGroup,
   createProperty,
   createResponse,
-  createRoot,
   createSchema,
   createSource,
   createTypeNode,

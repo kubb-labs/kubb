@@ -1,5 +1,5 @@
 import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
-import type { FileNode, ImportNode, InputNode, Node, OperationNode, Printer, RootNode, SchemaNode, Visitor } from '@kubb/ast/types'
+import type { FileNode, ImportNode, InputNode, Node, OperationNode, Printer, SchemaNode, Visitor } from '@kubb/ast/types'
 import type { HttpMethod } from '@kubb/oas'
 import type { FabricReactNode, Fabric as FabricType } from '@kubb/react-fabric/types'
 import type { DEFAULT_STUDIO_URL, logLevel } from './constants.ts'

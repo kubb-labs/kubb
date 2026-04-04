@@ -11,7 +11,6 @@ import {
   createParameterGroup,
   createProperty,
   createResponse,
-  createRoot,
   createSchema,
   createSource,
   createTypeNode,
@@ -40,16 +39,6 @@ describe('createInput', () => {
     const node = createInput({ kind: 'Operation' })
 
     expect(node.kind).toBe('Input')
-  })
-})
-
-describe('createRoot (deprecated)', () => {
-  it('creates an InputNode (via deprecated alias)', () => {
-    const node = createRoot()
-
-    expect(node.kind).toBe('Input')
-    expect(node.schemas).toEqual([])
-    expect(node.operations).toEqual([])
   })
 })
 

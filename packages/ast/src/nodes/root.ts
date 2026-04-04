@@ -32,11 +32,6 @@ export type InputMeta = {
 }
 
 /**
- * @deprecated Use `InputMeta` instead.
- */
-export type RootMeta = InputMeta
-
-/**
  * Input AST node that contains all schemas and operations for one API document.
  * Produced by the adapter and consumed by all Kubb plugins.
  *
@@ -67,8 +62,3 @@ export type InputNode = BaseNode & {
    */
   meta?: InputMeta
 }
-
-/**
- * @deprecated Use `InputNode` instead.
- */
-export type RootNode = InputNode

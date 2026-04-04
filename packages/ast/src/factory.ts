@@ -81,21 +81,6 @@ export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): I
 }
 
 /**
- * Creates a `RootNode` with stable defaults for `schemas` and `operations`.
- *
- * @deprecated Use `createInput` instead.
- *
- * @example
- * ```ts
- * const root = createRoot()
- * // { kind: 'Input', schemas: [], operations: [] }
- * ```
- */
-export function createRoot(overrides: Partial<Omit<InputNode, 'kind'>> = {}): InputNode {
-  return createInput(overrides)
-}
-
-/**
  * Creates an `OutputNode` with a stable default for `files`.
  *
  * @example
