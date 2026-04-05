@@ -1,4 +1,5 @@
 import type { Config, Plugin, PluginFactoryOptions } from '@kubb/core'
+import type { FileNode } from '@kubb/ast/types'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import { createReactFabric, Fabric } from '@kubb/react-fabric'
 import type { Fabric as FabricType } from '@kubb/react-fabric/types'
@@ -37,7 +38,7 @@ export async function renderOperations<TOptions extends PluginFactoryOptions>(
     </Fabric>,
   )
 
-  fabric.context.fileManager.upsert(...fabricChild.files)
+  await fabric.upsertFile(...(fabricChild.files as unknown as Array<FileNode>))
   fabricChild.unmount()
 }
 
@@ -68,7 +69,7 @@ export async function renderOperation<TOptions extends PluginFactoryOptions>(ope
     </Fabric>,
   )
 
-  fabric.context.fileManager.upsert(...fabricChild.files)
+  await fabric.upsertFile(...(fabricChild.files as unknown as Array<FileNode>))
   fabricChild.unmount()
 }
 
@@ -102,6 +103,6 @@ export async function renderSchema<TOptions extends PluginFactoryOptions>(
     </Fabric>,
   )
 
-  fabric.context.fileManager.upsert(...fabricChild.files)
+  await fabric.upsertFile(...(fabricChild.files as unknown as Array<FileNode>))
   fabricChild.unmount()
 }
