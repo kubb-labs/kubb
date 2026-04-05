@@ -139,12 +139,12 @@ describe('build', () => {
     }
 
     for (const config of JSONConfig) {
-      const { fabric, driver } = await build({
+      const { driver } = await build({
         config,
         events: new AsyncEventEmitter<KubbEvents>(),
       })
 
-      expect(fabric.files).toBeDefined()
+      expect(driver.fileManager.files).toBeDefined()
       expect(driver).toBeDefined()
       // The plugin's buildStart already added the file during build
       expect(driver.fileManager.files.some((f) => f.baseName === file.baseName)).toBe(true)
@@ -154,12 +154,12 @@ describe('build', () => {
   })
 
   test('if build can run and return created files and the pluginDriver', async () => {
-    const { fabric, driver } = await build({
+    const { driver } = await build({
       config,
       events: new AsyncEventEmitter<KubbEvents>(),
     })
 
-    expect(fabric.files).toBeDefined()
+    expect(driver.fileManager.files).toBeDefined()
     expect(driver).toBeDefined()
     // The plugin's buildStart already added the file during build
     expect(driver.fileManager.files.some((f) => f.baseName === file.baseName)).toBe(true)

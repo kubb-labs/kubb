@@ -1,15 +1,7 @@
 import type { FileNode } from '@kubb/ast/types'
-import { createFabric, createReactFabric, Fabric } from '@kubb/react-fabric'
+import { createReactFabric, Fabric } from '@kubb/react-fabric'
 import type { FabricReactNode } from '@kubb/react-fabric/types'
 import type { PluginDriver } from './PluginDriver.ts'
-
-/**
- * Creates the main Fabric instance used by the build pipeline for React-component rendering.
- * Fabric is only used for rendering; file storage is managed by `PluginDriver.fileManager`.
- */
-export function createBuildFabric() {
-  return createFabric()
-}
 
 /**
  * Handles the return value of a plugin AST hook or generator method.

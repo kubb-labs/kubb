@@ -2,13 +2,11 @@ import { dirname, resolve } from 'node:path'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
 import { createExport, createFile, transform, walk } from '@kubb/ast'
 import type { ExportNode, FileNode, OperationNode } from '@kubb/ast/types'
-import { createBuildFabric } from './renderNode.tsx'
-import type { Fabric as FabricType } from '@kubb/react-fabric/types'
+import { applyHookResult } from './renderNode.tsx'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Parser } from './defineParser.ts'
 import { FileProcessor } from './FileProcessor.ts'
 import { PluginDriver } from './PluginDriver.ts'
-import { applyHookResult } from './renderNode.tsx'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { AdapterSource, Config, KubbEvents, Plugin, PluginContext, Storage, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
@@ -29,7 +27,6 @@ type BuildOutput = {
    * Plugins that threw during installation, paired with the caught error.
    */
   failedPlugins: Set<{ plugin: Plugin; error: Error }>
-  fabric: FabricType
   files: Array<FileNode>
   driver: PluginDriver
   /**
@@ -48,7 +45,6 @@ type BuildOutput = {
  */
 type SetupResult = {
   events: AsyncEventEmitter<KubbEvents>
-  fabric: FabricType
   driver: PluginDriver
   sources: Map<string, string>
   config: Config
@@ -157,15 +153,6 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     await storage?.clear(resolve(config.root, config.output.path))
   }
 
-  // Fabric is used only for React-component rendering (via applyHookResult / renderNode.tsx).
-  // File storage is managed exclusively by the driver's FileManager.
-  const fabric = createBuildFabric()
-
-  await events.emit('debug', {
-    date: new Date(),
-    logs: ['✓ Fabric initialized', `  • Storage: ${storage ? storage.name : 'disabled (dry-run)'}`, `  • Barrel type: ${config.output.barrelType || 'none'}`],
-  })
-
   const driver = new PluginDriver(config, {
     events,
     concurrency: DEFAULT_CONCURRENCY,
@@ -199,7 +186,6 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   return {
     config,
     events,
-    fabric,
     driver,
     sources,
     storage,
@@ -213,7 +199,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
  * Pass an existing {@link SetupResult} via `overrides` to skip the setup phase.
  */
 export async function build(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { fabric, files, driver, failedPlugins, pluginTimings, error, sources } = await safeBuild(options, overrides)
+  const { files, driver, failedPlugins, pluginTimings, error, sources } = await safeBuild(options, overrides)
 
   if (error) {
     throw error
@@ -227,7 +213,6 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
 
   return {
     failedPlugins,
-    fabric,
     files,
     driver,
     pluginTimings,
@@ -299,7 +284,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
  */
 export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
   const setupResult = overrides ? overrides : await setup(options)
-  const { driver, events, sources, storage, fabric } = setupResult
+  const { driver, events, sources, storage } = setupResult
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   // in ms
@@ -477,7 +462,6 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
     return {
       failedPlugins,
-      fabric,
       files,
       driver,
       pluginTimings,
@@ -486,7 +470,6 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
   } catch (error) {
     return {
       failedPlugins,
-      fabric,
       files: [],
       driver,
       pluginTimings,
