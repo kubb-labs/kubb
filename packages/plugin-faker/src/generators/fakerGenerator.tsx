@@ -25,7 +25,6 @@ export const fakerGenerator = createReactGenerator<PluginFaker>({
     const file = getFile(operation)
     const schemas = getSchemas(operation)
     const schemaGenerator = new SchemaGenerator(options, {
-      fabric: generator.context.fabric,
       oas,
       plugin,
       events: generator.context.events,

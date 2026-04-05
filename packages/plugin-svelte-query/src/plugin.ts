@@ -184,7 +184,6 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
       }
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
-        fabric: this.fabric,
         oas,
         driver: this.driver,
         events: this.events,
@@ -199,7 +198,7 @@ export const pluginSvelteQuery = createPlugin<PluginSvelteQuery>((options) => {
       const files = await operationGenerator.build(...generators)
       await this.upsertFile(...files)
 
-      const barrelFiles = await getBarrelFiles(this.fabric.files as unknown as FileNode[], {
+      const barrelFiles = await getBarrelFiles(this.driver.fileManager.files as unknown as FileNode[], {
         type: output.barrelType ?? 'named',
         root,
         output,

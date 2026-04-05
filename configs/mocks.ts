@@ -1,14 +1,13 @@
 import path, { resolve } from 'node:path'
-import { type createReactFabric, FileProcessor } from '@kubb/react-fabric'
+import { FileProcessor } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
-import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import type { Options } from 'prettier'
 import { format as prettierFormat } from 'prettier'
 import pluginTypescript from 'prettier/plugins/typescript'
 import { expect } from 'vitest'
 import { camelCase, pascalCase } from '../internals/utils/src/index.ts'
 import { transform } from '../packages/ast/src/index.ts'
-import type { OperationNode, SchemaNode, Visitor } from '../packages/ast/src/types.ts'
+import type { FileNode, OperationNode, SchemaNode, Visitor } from '../packages/ast/src/types.ts'
 import type {
   Adapter,
   AdapterFactoryOptions,
@@ -21,6 +20,7 @@ import type {
   ResolvePathParams,
 } from '../packages/core/src'
 import { getMode } from '../packages/core/src'
+import { FileManager } from '../packages/core/src/FileManager.ts'
 import { applyHookResult } from '../packages/core/src/renderNode'
 
 const formatOptions: Options = {
@@ -93,6 +93,7 @@ export const createMockedPluginDriver = (options: { name?: string; plugin?: Plug
     getPlugin(_pluginName: Plugin['name']): Plugin | undefined {
       return options?.plugin
     },
+    fileManager: new FileManager(),
   }) as unknown as PluginDriver
 
 export const mockedPluginDriver = createMockedPluginDriver()
@@ -147,7 +148,7 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
   } as unknown as Plugin<TOptions>
 }
 
-export async function matchFiles(files: FabricType['files'] | undefined, pre?: string) {
+export async function matchFiles(files: Array<FileNode> | undefined, pre?: string) {
   if (!files?.length) return
 
   const fileProcessor = new FileProcessor()
@@ -179,7 +180,6 @@ export async function matchFiles(files: FabricType['files'] | undefined, pre?: s
 
 type RenderGeneratorOptions<TOptions extends PluginFactoryOptions> = {
   config: PluginDriver['config']
-  fabric: FabricType
   adapter: Adapter
   driver: PluginDriver
   plugin: Plugin<TOptions>
@@ -188,7 +188,6 @@ type RenderGeneratorOptions<TOptions extends PluginFactoryOptions> = {
 }
 
 function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: RenderGeneratorOptions<TOptions>): GeneratorContext<TOptions> {
-  const fabric = opts.fabric as ReturnType<typeof createReactFabric>
   const root = resolve(opts.config.root, opts.config.output.path)
 
   return {
@@ -200,8 +199,7 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     plugin: opts.plugin,
     driver: opts.driver,
     inputNode: { kind: 'Input', schemas: [], operations: [] },
-    fabric,
-    upsertFile: (...files: Parameters<FabricType['upsertFile']>) => fabric.upsertFile(...files),
+    upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
     warn: (msg: string) => console.warn(msg),
     error: (msg: string) => console.error(msg),
     info: (msg: string) => console.info(msg),
@@ -215,8 +213,8 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
  * Replaces the old `renderSchema(node, { ..., Component: generator.Schema })` API.
  *
  * @example
- * await renderGeneratorSchema(typeGenerator, node, { config, fabric, adapter, driver, plugin, options, resolver })
- * await matchFiles(fabric.files)
+ * await renderGeneratorSchema(typeGenerator, node, { config, adapter, driver, plugin, options, resolver })
+ * await matchFiles(driver.fileManager.files)
  */
 export async function renderGeneratorSchema<TOptions extends PluginFactoryOptions>(
   generator: Generator<TOptions>,
@@ -227,7 +225,7 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
   const result = await generator.schema.call(context, transformedNode, opts.options)
-  await applyHookResult(result, opts.fabric)
+  await applyHookResult(result, opts.driver)
 }
 
 /**
@@ -236,8 +234,8 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
  * Replaces the old `renderOperation(node, { ..., Component: generator.Operation })` API.
  *
  * @example
- * await renderGeneratorOperation(typeGenerator, node, { config, fabric, adapter, driver, plugin, options, resolver })
- * await matchFiles(fabric.files)
+ * await renderGeneratorOperation(typeGenerator, node, { config, adapter, driver, plugin, options, resolver })
+ * await matchFiles(driver.fileManager.files)
  */
 export async function renderGeneratorOperation<TOptions extends PluginFactoryOptions>(
   generator: Generator<TOptions>,
@@ -248,7 +246,7 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.transformer ? transform(node, opts.plugin.transformer) : node
   const result = await generator.operation.call(context, transformedNode, opts.options)
-  await applyHookResult(result, opts.fabric)
+  await applyHookResult(result, opts.driver)
 }
 
 /**
@@ -257,8 +255,8 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
  * Replaces the old `renderOperations(nodes, { ..., Component: generator.Operations })` API.
  *
  * @example
- * await renderGeneratorOperations(classClientGenerator, nodes, { config, fabric, adapter, driver, plugin, options, resolver })
- * await matchFiles(fabric.files)
+ * await renderGeneratorOperations(classClientGenerator, nodes, { config, adapter, driver, plugin, options, resolver })
+ * await matchFiles(driver.fileManager.files)
  */
 export async function renderGeneratorOperations<TOptions extends PluginFactoryOptions>(
   generator: Generator<TOptions>,
@@ -269,5 +267,5 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
   const context = createMockedPluginContext(opts)
   const transformedNodes = opts.plugin.transformer ? nodes.map((n) => transform(n, opts.plugin.transformer!)) : nodes
   const result = await generator.operations.call(context, transformedNodes, opts.options)
-  await applyHookResult(result, opts.fabric)
+  await applyHookResult(result, opts.driver)
 }

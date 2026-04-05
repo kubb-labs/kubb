@@ -4,7 +4,6 @@ import type { FileNode } from '@kubb/ast/types'
 import type { FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { contentType, Oas, OasTypes, OpenAPIV3, SchemaObject } from '@kubb/oas'
 import { isDiscriminator, isNullable, isReference, KUBB_INLINE_REF_PREFIX } from '@kubb/oas'
-import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import { isDeepEqual, isNumber, uniqueWith } from 'remeda'
 import type { CoreGenerator } from './generators/createGenerator.ts'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
@@ -19,7 +18,6 @@ export type GetSchemaGeneratorOptions<T extends SchemaGenerator<any, any, any>> 
 export type SchemaMethodResult<TFileMeta extends FileMetaBase> = Promise<FileNode<TFileMeta> | Array<FileNode<TFileMeta>> | null>
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
-  fabric: FabricType
   oas: Oas
   driver: PluginDriver
   events?: AsyncEventEmitter<KubbEvents>
@@ -1382,7 +1380,7 @@ export class SchemaGenerator<
             },
             {
               config: this.context.driver.config,
-              fabric: this.context.fabric,
+              driver: this.context.driver,
               Component: v1Generator.Schema,
               generator: this,
               plugin: {

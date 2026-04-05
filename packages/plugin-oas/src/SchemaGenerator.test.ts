@@ -2,7 +2,6 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { parse, type SchemaObject } from '@kubb/oas'
-import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, test } from 'vitest'
 import { createMockedPlugin, mockedPluginDriver } from '#mocks'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from './SchemaGenerator.ts'
@@ -12,7 +11,6 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('SchemaGenerator core', async () => {
-  const fabric = createReactFabric()
   const testData = [
     {
       name: 'Pet',
@@ -144,7 +142,6 @@ describe('SchemaGenerator core', async () => {
     const plugin = createMockedPlugin<any>({ name: 'plugin-oas', options })
 
     const generator = new SchemaGenerator(options, {
-      fabric,
       oas,
       include: undefined,
       driver: mockedPluginDriver,
@@ -346,7 +343,6 @@ describe('SchemaGenerator core', async () => {
     const plugin = createMockedPlugin<any>({ name: 'plugin-oas', options })
 
     const generator = new SchemaGenerator(options, {
-      fabric,
       oas,
       include: undefined,
       driver: mockedPluginDriver,
@@ -426,7 +422,6 @@ describe('SchemaGenerator core', async () => {
     const plugin = createMockedPlugin<any>({ name: 'plugin-oas', options })
 
     const generator = new SchemaGenerator(options, {
-      fabric,
       oas,
       include: undefined,
       driver: mockedPluginDriver,

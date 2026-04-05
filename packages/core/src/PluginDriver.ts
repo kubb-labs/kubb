@@ -4,9 +4,9 @@ import type { AsyncEventEmitter } from '@internals/utils'
 import { isPromiseRejectedResult, transformReservedWord } from '@internals/utils'
 import { createFile } from '@kubb/ast'
 import type { FileNode, InputNode } from '@kubb/ast/types'
-import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
+import { FileManager } from './FileManager.ts'
 
 import type {
   Adapter,
@@ -47,7 +47,6 @@ type SafeParseResult<H extends PluginLifecycleHooks, Result = ReturnType<ParseRe
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
 type Options = {
-  fabric: FabricType
   events: AsyncEventEmitter<KubbEvents>
   /**
    * @default Number.POSITIVE_INFINITY
@@ -96,6 +95,13 @@ export class PluginDriver {
   adapter: Adapter | undefined = undefined
   #studioIsOpen = false
 
+  /**
+   * Central file store for all generated files.
+   * Plugins should use `this.addFile()` / `this.upsertFile()` (via their context) to
+   * add files; this property gives direct read/write access when needed.
+   */
+  readonly fileManager = new FileManager()
+
   readonly plugins = new Map<string, Plugin>()
 
   constructor(config: Config, options: Options) {
@@ -127,7 +133,6 @@ export class PluginDriver {
     const driver = this
 
     const baseContext = {
-      fabric: driver.options.fabric,
       config: driver.config,
       get root(): string {
         return resolve(driver.config.root, driver.config.output.path)
@@ -141,10 +146,10 @@ export class PluginDriver {
       requirePlugin: driver.requirePlugin.bind(driver),
       driver: driver,
       addFile: async (...files: Array<FileNode>) => {
-        await this.options.fabric.addFile(...files)
+        driver.fileManager.add(...files)
       },
       upsertFile: async (...files: Array<FileNode>) => {
-        await this.options.fabric.upsertFile(...files)
+        driver.fileManager.upsert(...files)
       },
       get inputNode(): InputNode | undefined {
         return driver.inputNode

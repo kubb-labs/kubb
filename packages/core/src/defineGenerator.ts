@@ -9,7 +9,7 @@ export type { GeneratorContext } from './types.ts'
 /**
  * A generator is a named object with optional `schema`, `operation`, and `operations`
  * methods. Each method is called with `this = PluginContext` of the parent plugin,
- * giving full access to `this.config`, `this.resolver`, `this.adapter`, `this.fabric`,
+ * giving full access to `this.config`, `this.resolver`, `this.adapter`,
  * `this.driver`, etc.
  *
  * Return a React element, an array of `FileNode`, or `void` to handle file
@@ -102,7 +102,7 @@ export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFa
         if (!gen.schema) continue
         const result = await gen.schema.call(this, node, options)
 
-        await applyHookResult(result, this.fabric)
+        await applyHookResult(result, this.driver)
       }
     },
     async operation(node, options) {
@@ -110,7 +110,7 @@ export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFa
         if (!gen.operation) continue
         const result = await gen.operation.call(this, node, options)
 
-        await applyHookResult(result, this.fabric)
+        await applyHookResult(result, this.driver)
       }
     },
     async operations(nodes, options) {
@@ -118,7 +118,7 @@ export function mergeGenerators<TOptions extends PluginFactoryOptions = PluginFa
         if (!gen.operations) continue
         const result = await gen.operations.call(this, nodes, options)
 
-        await applyHookResult(result, this.fabric)
+        await applyHookResult(result, this.driver)
       }
     },
   }

@@ -1,8 +1,7 @@
 import { createOperation, createParameter, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import { createReactFabric } from '@kubb/react-fabric'
-import { beforeEach, describe, test } from 'vitest'
+import { describe, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation, renderGeneratorSchema } from '#mocks'
 import { resolverTsLegacy } from '../resolvers/resolverTsLegacy.ts'
 import type { PluginTs } from '../types.ts'
@@ -27,12 +26,6 @@ const defaultOptions: PluginTs['resolvedOptions'] = {
 }
 
 describe('typeGeneratorLegacy — Operation', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
   const operations = [
     {
       name: 'legacy — listPets — GET with query param',
@@ -105,7 +98,6 @@ describe('typeGeneratorLegacy — Operation', () => {
 
     await renderGeneratorOperation(typeGeneratorLegacy, props.node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -113,7 +105,7 @@ describe('typeGeneratorLegacy — Operation', () => {
       resolver: resolverTsLegacy,
     })
 
-    await matchFiles(fabric.files, props.name)
+    await matchFiles(driver.fileManager.files, props.name)
   })
 
   test('legacy — custom resolver — name transformer adds Type suffix', async () => {
@@ -140,7 +132,6 @@ describe('typeGeneratorLegacy — Operation', () => {
 
     await renderGeneratorOperation(typeGeneratorLegacy, node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -148,17 +139,11 @@ describe('typeGeneratorLegacy — Operation', () => {
       resolver: wrappedResolver,
     })
 
-    await matchFiles(fabric.files, 'legacy — addPet — name transformer')
+    await matchFiles(driver.fileManager.files, 'legacy — addPet — name transformer')
   })
 })
 
 describe('typeGeneratorLegacy — enumTypeSuffix', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
   const enumSchema = createSchema({
     type: 'enum',
     name: 'petStatus',
@@ -173,7 +158,6 @@ describe('typeGeneratorLegacy — enumTypeSuffix', () => {
 
     await renderGeneratorSchema(typeGeneratorLegacy, enumSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -181,7 +165,7 @@ describe('typeGeneratorLegacy — enumTypeSuffix', () => {
       resolver: resolverTsLegacy,
     })
 
-    await matchFiles(fabric.files, 'legacy — enumTypeSuffix Key')
+    await matchFiles(driver.fileManager.files, 'legacy — enumTypeSuffix Key')
   })
 
   test('enumTypeSuffix Value', async () => {
@@ -191,7 +175,6 @@ describe('typeGeneratorLegacy — enumTypeSuffix', () => {
 
     await renderGeneratorSchema(typeGeneratorLegacy, enumSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -199,7 +182,7 @@ describe('typeGeneratorLegacy — enumTypeSuffix', () => {
       resolver: resolverTsLegacy,
     })
 
-    await matchFiles(fabric.files, 'legacy — enumTypeSuffix Value')
+    await matchFiles(driver.fileManager.files, 'legacy — enumTypeSuffix Value')
   })
 
   test('enumTypeSuffix empty string', async () => {
@@ -209,7 +192,6 @@ describe('typeGeneratorLegacy — enumTypeSuffix', () => {
 
     await renderGeneratorSchema(typeGeneratorLegacy, enumSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -217,6 +199,6 @@ describe('typeGeneratorLegacy — enumTypeSuffix', () => {
       resolver: resolverTsLegacy,
     })
 
-    await matchFiles(fabric.files, 'legacy — enumTypeSuffix empty')
+    await matchFiles(driver.fileManager.files, 'legacy — enumTypeSuffix empty')
   })
 })

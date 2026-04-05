@@ -1,5 +1,4 @@
 import { AsyncEventEmitter } from '@internals/utils'
-import { createFabric } from '@kubb/react-fabric'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createMockedAdapter } from '#mocks'
 import { createPlugin } from './createPlugin.ts'
@@ -84,7 +83,6 @@ describe('PluginDriver', () => {
     plugins: [pluginA({}), pluginB({}), pluginC({})] as Array<Plugin>,
   } satisfies Config
   const pluginDriver = new PluginDriver(config, {
-    fabric: createFabric(),
     events: new AsyncEventEmitter<KubbEvents>(),
   })
 
@@ -202,7 +200,6 @@ describe('PluginDriver', () => {
     } satisfies Config
 
     const staticPluginDriver = new PluginDriver(staticConfig, {
-      fabric: createFabric(),
       events: new AsyncEventEmitter<KubbEvents>(),
     })
 
@@ -233,7 +230,6 @@ describe('PluginDriver', () => {
     } satisfies Config
 
     const errorPluginDriver = new PluginDriver(errorConfig, {
-      fabric: createFabric(),
       events: new AsyncEventEmitter<KubbEvents>(),
     })
 
@@ -264,7 +260,6 @@ describe('PluginDriver', () => {
     } satisfies Config
 
     const noResolvePluginDriver = new PluginDriver(noResolveConfig, {
-      fabric: createFabric(),
       events: new AsyncEventEmitter<KubbEvents>(),
     })
 
@@ -284,10 +279,7 @@ describe('PluginDriver', () => {
         return `pluginA/gen/${baseName}`
       },
     }))
-    const localPluginDriver = new PluginDriver(
-      { ...config, plugins: [pluginWithPath({})] as Array<Plugin> },
-      { fabric: createFabric(), events: new AsyncEventEmitter<KubbEvents>() },
-    )
+    const localPluginDriver = new PluginDriver({ ...config, plugins: [pluginWithPath({})] as Array<Plugin> }, { events: new AsyncEventEmitter<KubbEvents>() })
 
     const file = localPluginDriver.getFile({
       name: 'testFile',
@@ -309,10 +301,7 @@ describe('PluginDriver', () => {
         return `pluginA/gen/${baseName || 'index.ts'}`
       },
     }))
-    const localPluginDriver = new PluginDriver(
-      { ...config, plugins: [pluginWithPath({})] as Array<Plugin> },
-      { fabric: createFabric(), events: new AsyncEventEmitter<KubbEvents>() },
-    )
+    const localPluginDriver = new PluginDriver({ ...config, plugins: [pluginWithPath({})] as Array<Plugin> }, { events: new AsyncEventEmitter<KubbEvents>() })
 
     const file = localPluginDriver.getFile({
       name: 'testFile',

@@ -5,8 +5,7 @@ import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
 import type { PluginZod } from '@kubb/plugin-zod'
 import { resolverZod } from '@kubb/plugin-zod'
-import { createReactFabric } from '@kubb/react-fabric'
-import { beforeEach, describe, test } from 'vitest'
+import { describe, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperations } from '#mocks'
 import { resolverMcp } from '../resolvers/resolverMcp.ts'
 import type { PluginMcp } from '../types.ts'
@@ -42,12 +41,6 @@ const mockedZodPlugin = createMockedPlugin<PluginZod>({
 })
 
 describe('serverGenerator — Operations', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
   const nodes: Array<OperationNode> = [
     createOperation({
       operationId: 'showPetById',
@@ -71,7 +64,6 @@ describe('serverGenerator — Operations', () => {
 
     await renderGeneratorOperations(serverGenerator, nodes, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -79,6 +71,6 @@ describe('serverGenerator — Operations', () => {
       resolver: resolverMcp,
     })
 
-    await matchFiles(fabric.files, 'showPetById')
+    await matchFiles(driver.fileManager.files, 'showPetById')
   })
 })

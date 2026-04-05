@@ -2,7 +2,6 @@ import { camelCase, pascalCase } from '@internals/utils'
 import type { PluginDriver } from '@kubb/core'
 import type { OasTypes, SchemaObject } from '@kubb/oas'
 import { parse } from '@kubb/oas'
-import { createReactFabric } from '@kubb/react-fabric'
 import { describe, expect, it } from 'vitest'
 import { createMockedPlugin } from '#mocks'
 import { type GetSchemaGeneratorOptions, SchemaGenerator } from '../SchemaGenerator.ts'
@@ -37,7 +36,6 @@ const createMockedPluginDriver = () =>
   }) as unknown as PluginDriver
 
 describe('Full Spec Circular Discriminator References', () => {
-  const fabric = createReactFabric()
   it('should handle full PaymentAccountDetailsResponse spec without circular refs', async () => {
     const spec: OasTypes.OASDocument = {
       openapi: '3.0.1',
@@ -152,7 +150,6 @@ describe('Full Spec Circular Discriminator References', () => {
     const mockedPluginDriver = createMockedPluginDriver()
 
     const generator = new SchemaGenerator(options, {
-      fabric,
       oas,
       include: undefined,
       driver: mockedPluginDriver,

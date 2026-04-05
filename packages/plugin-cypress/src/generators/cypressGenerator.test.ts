@@ -4,8 +4,7 @@ import type { OperationNode, Visitor } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
-import { createReactFabric } from '@kubb/react-fabric'
-import { beforeEach, describe, test } from 'vitest'
+import { describe, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation } from '#mocks'
 import { resolverCypress } from '../resolvers/resolverCypress.ts'
 import type { PluginCypress } from '../types.ts'
@@ -34,12 +33,6 @@ const mockedTsPlugin = createMockedPlugin<PluginTs>({
 })
 
 describe('cypressGenerator — Operation', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
   const operations = [
     {
       name: 'showPetById',
@@ -105,7 +98,6 @@ describe('cypressGenerator — Operation', () => {
 
     await renderGeneratorOperation(cypressGenerator, props.node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -113,17 +105,11 @@ describe('cypressGenerator — Operation', () => {
       resolver: resolverCypress,
     })
 
-    await matchFiles(fabric.files, props.name)
+    await matchFiles(driver.fileManager.files, props.name)
   })
 })
 
 describe('cypressGenerator — dataReturnType', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
   const node = createOperation({
     operationId: 'getPets',
     method: 'GET',
@@ -140,14 +126,13 @@ describe('cypressGenerator — dataReturnType', () => {
 
     await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
       options,
       resolver: resolverCypress,
     })
-    await matchFiles(fabric.files, 'dataReturnType data')
+    await matchFiles(driver.fileManager.files, 'dataReturnType data')
   })
 
   test('full — returns entire Chainable', async () => {
@@ -157,24 +142,17 @@ describe('cypressGenerator — dataReturnType', () => {
 
     await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
       options,
       resolver: resolverCypress,
     })
-    await matchFiles(fabric.files, 'dataReturnType full')
+    await matchFiles(driver.fileManager.files, 'dataReturnType full')
   })
 })
 
 describe('cypressGenerator — paramsType', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
   const node = createOperation({
     operationId: 'updatePet',
     method: 'PUT',
@@ -195,14 +173,13 @@ describe('cypressGenerator — paramsType', () => {
 
     await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
       options,
       resolver: resolverCypress,
     })
-    await matchFiles(fabric.files, 'paramsType inline')
+    await matchFiles(driver.fileManager.files, 'paramsType inline')
   })
 
   test('object — all params merged into single object', async () => {
@@ -212,24 +189,17 @@ describe('cypressGenerator — paramsType', () => {
 
     await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
       options,
       resolver: resolverCypress,
     })
-    await matchFiles(fabric.files, 'paramsType object')
+    await matchFiles(driver.fileManager.files, 'paramsType object')
   })
 })
 
 describe('cypressGenerator — pathParamsType', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
   const node = createOperation({
     operationId: 'showPetById',
     method: 'GET',
@@ -249,14 +219,13 @@ describe('cypressGenerator — pathParamsType', () => {
 
     await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
       options,
       resolver: resolverCypress,
     })
-    await matchFiles(fabric.files, 'pathParamsType inline')
+    await matchFiles(driver.fileManager.files, 'pathParamsType inline')
   })
 
   test('object — path params grouped into destructured object', async () => {
@@ -266,24 +235,17 @@ describe('cypressGenerator — pathParamsType', () => {
 
     await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
       options,
       resolver: resolverCypress,
     })
-    await matchFiles(fabric.files, 'pathParamsType object')
+    await matchFiles(driver.fileManager.files, 'pathParamsType object')
   })
 })
 
 describe('cypressGenerator — paramsCasing', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
   const node = createOperation({
     operationId: 'getPets',
     method: 'GET',
@@ -300,14 +262,13 @@ describe('cypressGenerator — paramsCasing', () => {
 
     await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
       options,
       resolver: resolverCypress,
     })
-    await matchFiles(fabric.files, 'paramsCasing camelcase')
+    await matchFiles(driver.fileManager.files, 'paramsCasing camelcase')
   })
 
   test('undefined — query param name is unchanged', async () => {
@@ -317,24 +278,17 @@ describe('cypressGenerator — paramsCasing', () => {
 
     await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
       options,
       resolver: resolverCypress,
     })
-    await matchFiles(fabric.files, 'paramsCasing undefined')
+    await matchFiles(driver.fileManager.files, 'paramsCasing undefined')
   })
 })
 
 describe('cypressGenerator — paramsCasing headers', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
   const nodeWithHeaders = createOperation({
     operationId: 'getPets',
     method: 'GET',
@@ -354,24 +308,17 @@ describe('cypressGenerator — paramsCasing headers', () => {
 
     await renderGeneratorOperation(cypressGenerator, nodeWithHeaders, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
       options,
       resolver: resolverCypress,
     })
-    await matchFiles(fabric.files, 'paramsCasing camelcase headers')
+    await matchFiles(driver.fileManager.files, 'paramsCasing camelcase headers')
   })
 })
 
 describe('cypressGenerator — baseURL', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
   const node = createOperation({
     operationId: 'getPets',
     method: 'GET',
@@ -388,14 +335,13 @@ describe('cypressGenerator — baseURL', () => {
 
     await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
       options,
       resolver: resolverCypress,
     })
-    await matchFiles(fabric.files, 'baseURL static')
+    await matchFiles(driver.fileManager.files, 'baseURL static')
   })
 
   test('template string — emitted as template literal', async () => {
@@ -405,24 +351,17 @@ describe('cypressGenerator — baseURL', () => {
 
     await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
       options,
       resolver: resolverCypress,
     })
-    await matchFiles(fabric.files, 'baseURL template')
+    await matchFiles(driver.fileManager.files, 'baseURL template')
   })
 })
 
 describe('cypressGenerator — transformers', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
   test('schema visitor — filters to required properties only', async () => {
     const transformer: Visitor = {
       schema(node) {
@@ -447,13 +386,12 @@ describe('cypressGenerator — transformers', () => {
 
     await renderGeneratorOperation(cypressGenerator, node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
       options: defaultOptions,
       resolver: resolverCypress,
     })
-    await matchFiles(fabric.files, 'transformers schema visitor')
+    await matchFiles(driver.fileManager.files, 'transformers schema visitor')
   })
 })

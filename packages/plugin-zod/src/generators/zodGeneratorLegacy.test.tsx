@@ -1,8 +1,7 @@
 import { createOperation, createParameter, createProperty, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
-import { createReactFabric } from '@kubb/react-fabric'
-import { beforeEach, describe, test } from 'vitest'
+import { describe, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation, renderGeneratorSchema } from '#mocks'
 import { resolverZodLegacy } from '../resolvers/resolverZodLegacy.ts'
 import type { PluginZod } from '../types.ts'
@@ -30,12 +29,6 @@ const defaultOptions: PluginZod['resolvedOptions'] = {
 }
 
 describe('zodGeneratorLegacy — Schema', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
   test('legacy — enum schema', async () => {
     const enumSchema = createSchema({
       type: 'enum',
@@ -48,7 +41,6 @@ describe('zodGeneratorLegacy — Schema', () => {
 
     await renderGeneratorSchema(zodGeneratorLegacy, enumSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -56,7 +48,7 @@ describe('zodGeneratorLegacy — Schema', () => {
       resolver: resolverZodLegacy,
     })
 
-    await matchFiles(fabric.files, 'legacy — enum schema')
+    await matchFiles(driver.fileManager.files, 'legacy — enum schema')
   })
 
   test('legacy — object schema', async () => {
@@ -75,7 +67,6 @@ describe('zodGeneratorLegacy — Schema', () => {
 
     await renderGeneratorSchema(zodGeneratorLegacy, objectSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -83,17 +74,11 @@ describe('zodGeneratorLegacy — Schema', () => {
       resolver: resolverZodLegacy,
     })
 
-    await matchFiles(fabric.files, 'legacy — object schema')
+    await matchFiles(driver.fileManager.files, 'legacy — object schema')
   })
 })
 
 describe('zodGeneratorLegacy — Operation', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
   const operations = [
     {
       name: 'legacy — listPets — GET with query param',
@@ -178,7 +163,6 @@ describe('zodGeneratorLegacy — Operation', () => {
 
     await renderGeneratorOperation(zodGeneratorLegacy, props.node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -186,7 +170,7 @@ describe('zodGeneratorLegacy — Operation', () => {
       resolver: resolverZodLegacy,
     })
 
-    await matchFiles(fabric.files, props.name)
+    await matchFiles(driver.fileManager.files, props.name)
   })
 
   test('legacy — custom resolver — name transformer adds Zod suffix', async () => {
@@ -217,7 +201,6 @@ describe('zodGeneratorLegacy — Operation', () => {
 
     await renderGeneratorOperation(zodGeneratorLegacy, node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -225,17 +208,11 @@ describe('zodGeneratorLegacy — Operation', () => {
       resolver: wrappedResolver,
     })
 
-    await matchFiles(fabric.files, 'legacy — addPet — name transformer')
+    await matchFiles(driver.fileManager.files, 'legacy — addPet — name transformer')
   })
 })
 
 describe('zodGeneratorLegacy — paramsCasing', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
-
   const operationWithMixedParams = createOperation({
     operationId: 'createPets',
     method: 'POST',
@@ -261,7 +238,6 @@ describe('zodGeneratorLegacy — paramsCasing', () => {
 
     await renderGeneratorOperation(zodGeneratorLegacy, operationWithMixedParams, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -269,7 +245,7 @@ describe('zodGeneratorLegacy — paramsCasing', () => {
       resolver: resolverZodLegacy,
     })
 
-    await matchFiles(fabric.files, 'legacy — paramsCasing undefined')
+    await matchFiles(driver.fileManager.files, 'legacy — paramsCasing undefined')
   })
 
   test('paramsCasing camelcase — param names converted to camelCase in property keys', async () => {
@@ -279,7 +255,6 @@ describe('zodGeneratorLegacy — paramsCasing', () => {
 
     await renderGeneratorOperation(zodGeneratorLegacy, operationWithMixedParams, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -287,6 +262,6 @@ describe('zodGeneratorLegacy — paramsCasing', () => {
       resolver: resolverZodLegacy,
     })
 
-    await matchFiles(fabric.files, 'legacy — paramsCasing camelcase')
+    await matchFiles(driver.fileManager.files, 'legacy — paramsCasing camelcase')
   })
 })
