@@ -155,10 +155,12 @@ async function generate(options: GenerateProps): Promise<void> {
     ...options.config.output,
   } satisfies UserConfig
 
-  const { sources, fabric, driver, config } = await setup({
+  const setupResult = await setup({
     config: userConfig,
     events,
   })
+
+  const { sources, config, driver } = setupResult
 
   await events.emit('generation:start', config)
 
@@ -171,7 +173,7 @@ async function generate(options: GenerateProps): Promise<void> {
       config,
       events,
     },
-    { driver, fabric, events, sources, config },
+    setupResult,
   )
 
   await events.emit('info', 'Load summary')

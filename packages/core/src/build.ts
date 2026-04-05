@@ -300,7 +300,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
  */
 export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
   const setupResult = overrides ? overrides : await setup(options)
-  const { fabric, driver, events, sources, storage } = setupResult
+  const { driver, events, sources, storage } = setupResult
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   // in ms
