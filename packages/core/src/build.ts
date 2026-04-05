@@ -1,4 +1,4 @@
-import { dirname, relative, resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
 import { createExport, createFile, transform, walk } from '@kubb/ast'
 import type { ExportNode, FileNode, OperationNode } from '@kubb/ast/types'
@@ -145,8 +145,8 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   // write: false is the explicit dry-run opt-out; otherwise use the provided
   // storage or fall back to fsStorage (backwards-compatible default).
-  // Keys are root-relative (e.g. `src/gen/api/getPets.ts`) so fsStorage()
-  // needs no configuration — it resolves them against process.cwd().
+  // Storage keys are the absolute file.path values so fsStorage() resolves
+  // them correctly regardless of the current working directory.
   const storage: Storage | null = config.output.write === false ? null : (config.output.storage ?? fsStorage())
 
   if (config.output.clean) {
@@ -453,9 +453,9 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
           config,
         })
         if (source) {
-          // Key is root-relative so it's meaningful for any backend (fs, S3, Redis…)
-          const key = relative(resolve(config.root), file.path)
-          await storage?.setItem(key, source)
+          // Use the absolute file.path as the storage key so fsStorage resolves
+          // it correctly regardless of the current working directory.
+          await storage?.setItem(file.path, source)
           sources.set(file.path, source)
         }
       },
