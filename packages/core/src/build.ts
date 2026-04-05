@@ -167,7 +167,6 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   })
 
   const driver = new PluginDriver(config, {
-    fabric,
     events,
     concurrency: DEFAULT_CONCURRENCY,
   })
@@ -300,7 +299,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
  */
 export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
   const setupResult = overrides ? overrides : await setup(options)
-  const { driver, events, sources, storage } = setupResult
+  const { driver, events, sources, storage, fabric } = setupResult
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   // in ms
@@ -478,7 +477,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
     return {
       failedPlugins,
-      fabric: driver.fabric,
+      fabric,
       files,
       driver,
       pluginTimings,
@@ -487,7 +486,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
   } catch (error) {
     return {
       failedPlugins,
-      fabric: driver.fabric,
+      fabric,
       files: [],
       driver,
       pluginTimings,

@@ -4,7 +4,6 @@ import type { AsyncEventEmitter } from '@internals/utils'
 import { isPromiseRejectedResult, transformReservedWord } from '@internals/utils'
 import { createFile } from '@kubb/ast'
 import type { FileNode, InputNode } from '@kubb/ast/types'
-import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
 import { FileManager } from './FileManager.ts'
@@ -48,7 +47,6 @@ type SafeParseResult<H extends PluginLifecycleHooks, Result = ReturnType<ParseRe
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
 type Options = {
-  fabric: FabricType
   events: AsyncEventEmitter<KubbEvents>
   /**
    * @default Number.POSITIVE_INFINITY
@@ -106,35 +104,9 @@ export class PluginDriver {
 
   readonly plugins = new Map<string, Plugin>()
 
-  /**
-   * A Proxy of the underlying Fabric instance that redirects `files`, `addFile`, and
-   * `upsertFile` to the driver-owned `FileManager`.
-   *
-   * Used by `driver.fabric` (returned in `BuildOutput`) to expose the file store
-   * through the Fabric interface for backwards compatibility.
-   */
-  readonly #fabricProxy: FabricType
-
   constructor(config: Config, options: Options) {
     this.config = config
     this.options = options
-    const fileManager = this.fileManager
-    this.#fabricProxy = new Proxy(options.fabric, {
-      get(target, key, receiver) {
-        if (key === 'files') return fileManager.files
-        if (key === 'addFile') {
-          return async (...files: Array<FileNode>) => {
-            fileManager.add(...files)
-          }
-        }
-        if (key === 'upsertFile') {
-          return async (...files: Array<FileNode>) => {
-            fileManager.upsert(...files)
-          }
-        }
-        return Reflect.get(target, key, receiver)
-      },
-    }) as FabricType
     config.plugins
       .map((plugin) => Object.assign({ buildStart() {}, buildEnd() {} }, plugin) as unknown as Plugin)
       .filter((plugin) => {
@@ -155,14 +127,6 @@ export class PluginDriver {
 
   get events() {
     return this.options.events
-  }
-
-  /**
-   * The Fabric instance used by this driver, proxied so that `files`, `addFile`, and
-   * `upsertFile` delegate to the driver-owned `FileManager`.
-   */
-  get fabric(): FabricType {
-    return this.#fabricProxy
   }
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
