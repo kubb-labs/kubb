@@ -3,7 +3,6 @@ import { pascalCase } from '@internals/utils'
 import type { FileNode } from '@kubb/ast/types'
 import type { FileMetaBase, KubbEvents, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
 import type { contentType, HttpMethod, Oas, OasTypes, Operation, SchemaObject } from '@kubb/oas'
-import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import type { CoreGenerator } from './generators/createGenerator.ts'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
 import type { Generator } from './generators/types.ts'
@@ -14,7 +13,6 @@ import { renderOperation, renderOperations } from './utils.tsx'
 export type OperationMethodResult<TFileMeta extends FileMetaBase> = Promise<FileNode<TFileMeta> | Array<FileNode<TFileMeta>> | null>
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
-  fabric: FabricType
   oas: Oas
   exclude: Array<Exclude> | undefined
   include: Array<Include> | undefined
@@ -232,7 +230,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
         if (v1Generator.type === 'react') {
           await renderOperation(operation, {
             config: this.context.driver.config,
-            fabric: this.context.fabric,
+            driver: this.context.driver,
             Component: v1Generator.Operation,
             generator: this,
             plugin: {
@@ -265,7 +263,7 @@ export class OperationGenerator<TPluginOptions extends PluginFactoryOptions = Pl
         await renderOperations(
           operations.map((op) => op.operation),
           {
-            fabric: this.context.fabric,
+            driver: this.context.driver,
             config: this.context.driver.config,
             Component: v1Generator.Operations,
             generator: this,

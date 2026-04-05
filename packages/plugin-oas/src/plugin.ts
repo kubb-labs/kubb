@@ -154,7 +154,6 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
           ...this.plugin.options,
         },
         {
-          fabric: this.fabric,
           oas,
           driver: this.driver,
           events: this.events,
@@ -171,7 +170,6 @@ export const pluginOas = createPlugin<PluginOas>((options) => {
       await this.upsertFile(...schemaFiles)
 
       const operationGenerator = new OperationGenerator(this.plugin.options, {
-        fabric: this.fabric,
         oas,
         driver: this.driver,
         events: this.events,

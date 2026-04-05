@@ -248,7 +248,7 @@ export async function build(options: BuildOptions, overrides?: SetupResult): Pro
  * - Barrel files are generated automatically when `output.barrelType` is set.
  */
 async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promise<void> {
-  const { adapter, inputNode, resolver, fabric } = context
+  const { adapter, inputNode, resolver, driver } = context
   const { exclude, include, override } = plugin.options
 
   if (!adapter || !inputNode) {
@@ -266,7 +266,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
       if (options === null) return
       const result = await plugin.schema.call(context, transformedNode, options)
 
-      await applyHookResult(result, fabric)
+      await applyHookResult(result, driver)
     },
     async operation(node) {
       const transformedNode = plugin.transformer ? transform(node, plugin.transformer) : node
@@ -275,7 +275,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
         collectedOperations.push(transformedNode)
         if (plugin.operation) {
           const result = await plugin.operation.call(context, transformedNode, options)
-          await applyHookResult(result, fabric)
+          await applyHookResult(result, driver)
         }
       }
     },
@@ -284,7 +284,7 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
   if (plugin.operations && collectedOperations.length > 0) {
     const result = await plugin.operations.call(context, collectedOperations, plugin.options)
 
-    await applyHookResult(result, fabric)
+    await applyHookResult(result, driver)
   }
 }
 

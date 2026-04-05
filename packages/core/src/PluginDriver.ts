@@ -110,8 +110,8 @@ export class PluginDriver {
    * A Proxy of the underlying Fabric instance that redirects `files`, `addFile`, and
    * `upsertFile` to the driver-owned `FileManager`.
    *
-   * This allows the `fabric` reference in plugin contexts to continue working as expected
-   * (e.g. `this.fabric.files`) while keeping a single authoritative file store.
+   * Used by `driver.fabric` (returned in `BuildOutput`) to expose the file store
+   * through the Fabric interface for backwards compatibility.
    */
   readonly #fabricProxy: FabricType
 
@@ -169,7 +169,6 @@ export class PluginDriver {
     const driver = this
 
     const baseContext = {
-      fabric: driver.#fabricProxy,
       config: driver.config,
       get root(): string {
         return resolve(driver.config.root, driver.config.output.path)
