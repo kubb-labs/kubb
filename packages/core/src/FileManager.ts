@@ -19,8 +19,7 @@ function trimExtName(text: string): string {
  * In-memory file store for generated files.
  *
  * Files with the same `path` are merged — sources, imports, and exports are concatenated.
- * The `files` getter returns all stored files sorted by path length (shortest first)
- * so barrel/index files appear last.
+ * The `files` getter returns all stored files sorted by path length (shortest first).
  *
  * @example
  * ```ts
