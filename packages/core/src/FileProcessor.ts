@@ -1,5 +1,5 @@
-import pLimit from 'p-limit'
 import type { FileNode } from '@kubb/ast/types'
+import pLimit from 'p-limit'
 import type { Parser } from './defineParser.ts'
 
 type ParseOptions = {

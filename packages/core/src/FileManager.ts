@@ -1,6 +1,6 @@
-import { sortBy } from 'remeda'
 import { createFile } from '@kubb/ast'
 import type { FileNode } from '@kubb/ast/types'
+import { sortBy } from 'remeda'
 
 function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNode<TMeta>): FileNode<TMeta> {
   return {
