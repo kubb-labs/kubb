@@ -19,7 +19,8 @@ import type {
   ResolveNameParams,
   ResolvePathParams,
 } from '../packages/core/src'
-import { FileManager, getMode } from '../packages/core/src'
+import { getMode } from '../packages/core/src'
+import { FileManager } from '../packages/core/src/FileManager.ts'
 import { applyHookResult } from '../packages/core/src/renderNode'
 
 const formatOptions: Options = {

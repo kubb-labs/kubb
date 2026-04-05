@@ -2,7 +2,7 @@ import { dirname, resolve } from 'node:path'
 import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelativePath, URLPath } from '@internals/utils'
 import { createExport, createFile, transform, walk } from '@kubb/ast'
 import type { ExportNode, FileNode, OperationNode } from '@kubb/ast/types'
-import { createFabric } from '@kubb/react-fabric'
+import { createBuildFabric } from './renderNode.tsx'
 import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
 import type { Parser } from './defineParser.ts'
@@ -159,7 +159,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
 
   // Fabric is used only for React-component rendering (via applyHookResult / renderNode.tsx).
   // File storage is managed exclusively by the driver's FileManager.
-  const fabric = createFabric()
+  const fabric = createBuildFabric()
 
   await events.emit('debug', {
     date: new Date(),
