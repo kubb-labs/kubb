@@ -75,7 +75,6 @@ const operationNodes: Array<OperationNode> = [
 ]
 
 describe('groupedClientsGenerators operations', () => {
-
   const testData = [
     {
       name: 'findByTags',

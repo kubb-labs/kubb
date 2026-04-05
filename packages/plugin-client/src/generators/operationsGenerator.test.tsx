@@ -75,7 +75,6 @@ const operationNodes: Array<OperationNode> = [
 ]
 
 describe('operationsGenerator operations', () => {
-
   const testData = [
     {
       name: 'findByTags',

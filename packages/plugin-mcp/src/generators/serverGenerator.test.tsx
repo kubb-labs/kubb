@@ -41,7 +41,6 @@ const mockedZodPlugin = createMockedPlugin<PluginZod>({
 })
 
 describe('serverGenerator — Operations', () => {
-
   const nodes: Array<OperationNode> = [
     createOperation({
       operationId: 'showPetById',

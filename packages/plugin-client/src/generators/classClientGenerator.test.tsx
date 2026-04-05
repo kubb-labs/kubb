@@ -75,7 +75,6 @@ const operationNodes: Array<OperationNode> = [
 ]
 
 describe('classClientGenerator operations', () => {
-
   const testData = [
     {
       name: 'findByTags',

@@ -14,7 +14,6 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('mutationGenerator operation', async () => {
-
   const testData = [
     {
       name: 'getAsMutation',

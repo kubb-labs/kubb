@@ -127,7 +127,6 @@ const underscoredPathParamsNode = createOperation({
 })
 
 describe('clientGenerator operation', () => {
-
   const testData = [
     { name: 'findByTags', node: findByTagsNode, options: {} },
     { name: 'findByTagsWithTemplateString', node: findByTagsNode, options: {}, baseURL: '${123456}' },

@@ -33,7 +33,6 @@ const mockedTsPlugin = createMockedPlugin<PluginTs>({
 })
 
 describe('cypressGenerator — Operation', () => {
-
   const operations = [
     {
       name: 'showPetById',
@@ -111,7 +110,6 @@ describe('cypressGenerator — Operation', () => {
 })
 
 describe('cypressGenerator — dataReturnType', () => {
-
   const node = createOperation({
     operationId: 'getPets',
     method: 'GET',
@@ -155,7 +153,6 @@ describe('cypressGenerator — dataReturnType', () => {
 })
 
 describe('cypressGenerator — paramsType', () => {
-
   const node = createOperation({
     operationId: 'updatePet',
     method: 'PUT',
@@ -203,7 +200,6 @@ describe('cypressGenerator — paramsType', () => {
 })
 
 describe('cypressGenerator — pathParamsType', () => {
-
   const node = createOperation({
     operationId: 'showPetById',
     method: 'GET',
@@ -250,7 +246,6 @@ describe('cypressGenerator — pathParamsType', () => {
 })
 
 describe('cypressGenerator — paramsCasing', () => {
-
   const node = createOperation({
     operationId: 'getPets',
     method: 'GET',
@@ -294,7 +289,6 @@ describe('cypressGenerator — paramsCasing', () => {
 })
 
 describe('cypressGenerator — paramsCasing headers', () => {
-
   const nodeWithHeaders = createOperation({
     operationId: 'getPets',
     method: 'GET',
@@ -325,7 +319,6 @@ describe('cypressGenerator — paramsCasing headers', () => {
 })
 
 describe('cypressGenerator — baseURL', () => {
-
   const node = createOperation({
     operationId: 'getPets',
     method: 'GET',
@@ -369,7 +362,6 @@ describe('cypressGenerator — baseURL', () => {
 })
 
 describe('cypressGenerator — transformers', () => {
-
   test('schema visitor — filters to required properties only', async () => {
     const transformer: Visitor = {
       schema(node) {

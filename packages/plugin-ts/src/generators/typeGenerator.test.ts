@@ -69,7 +69,6 @@ const operationWithSnakeCaseParams: OperationNode = createOperation({
 })
 
 describe('typeGenerator — Operation', () => {
-
   const operations = [
     {
       name: 'listPets — GET with query params',
@@ -220,7 +219,6 @@ describe('typeGenerator — Operation', () => {
 })
 
 describe('typeGenerator — Operation — group', () => {
-
   const node = createOperation({
     operationId: 'listPets',
     method: 'GET',
@@ -303,7 +301,6 @@ describe('typeGenerator — Operation — group', () => {
 })
 
 describe('typeGenerator — paramsCasing', () => {
-
   test('paramsCasing undefined — snake_case params kept as-is', async () => {
     const options: PluginTs['resolvedOptions'] = { ...defaultOptions, paramsCasing: undefined }
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
@@ -340,7 +337,6 @@ describe('typeGenerator — paramsCasing', () => {
 })
 
 describe('typeGenerator — enumType', () => {
-
   const enumTypes = ['asConst', 'asPascalConst', 'enum', 'constEnum', 'literal', 'inlineLiteral'] as const satisfies Array<
     NonNullable<PluginTs['resolvedOptions']['enumType']>
   >
@@ -364,7 +360,6 @@ describe('typeGenerator — enumType', () => {
 })
 
 describe('typeGenerator — enumType — dotted name', () => {
-
   const dottedEnumSchema = createSchema({
     type: 'enum',
     name: 'enumNames.Type',
@@ -395,7 +390,6 @@ describe('typeGenerator — enumType — dotted name', () => {
 })
 
 describe('typeGenerator — enumKeyCasing', () => {
-
   const casingVariants = ['screamingSnakeCase', 'snakeCase', 'pascalCase', 'camelCase', 'none'] as const satisfies Array<
     NonNullable<PluginTs['resolvedOptions']['enumKeyCasing']>
   >
@@ -419,7 +413,6 @@ describe('typeGenerator — enumKeyCasing', () => {
 })
 
 describe('typeGenerator — enumTypeSuffix', () => {
-
   test('enumTypeSuffix Key (default)', async () => {
     const options: PluginTs['resolvedOptions'] = { ...defaultOptions, enumType: 'asConst', enumTypeSuffix: 'Key' }
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
@@ -473,7 +466,6 @@ describe('typeGenerator — enumTypeSuffix', () => {
 })
 
 describe('typeGenerator — syntaxType', () => {
-
   test('syntaxType type (default)', async () => {
     const options: PluginTs['resolvedOptions'] = { ...defaultOptions, syntaxType: 'type' }
     const plugin = createMockedPlugin<PluginTs>({ name: 'plugin-ts', options, resolver: resolverTs })
@@ -510,7 +502,6 @@ describe('typeGenerator — syntaxType', () => {
 })
 
 describe('typeGenerator — optionalType', () => {
-
   const optionalTypes = ['questionToken', 'undefined', 'questionTokenAndUndefined'] as const satisfies Array<
     NonNullable<PluginTs['resolvedOptions']['optionalType']>
   >
@@ -534,7 +525,6 @@ describe('typeGenerator — optionalType', () => {
 })
 
 describe('typeGenerator — arrayType', () => {
-
   const arrayTypes = ['array', 'generic'] as const satisfies Array<NonNullable<PluginTs['resolvedOptions']['arrayType']>>
 
   test.each(arrayTypes.map((t) => ({ arrayType: t })))('arrayType $arrayType', async ({ arrayType }) => {
@@ -556,7 +546,6 @@ describe('typeGenerator — arrayType', () => {
 })
 
 describe('typeGenerator — transformers', () => {
-
   test('schema transformer — removes optional properties from object', async () => {
     const removeOptionalProperties: Visitor = {
       schema(node) {

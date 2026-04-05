@@ -1,5 +1,5 @@
-import type { Config, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
 import type { FileNode } from '@kubb/ast/types'
+import type { Config, Plugin, PluginDriver, PluginFactoryOptions } from '@kubb/core'
 import type { Operation, SchemaObject } from '@kubb/oas'
 import { createReactFabric, Fabric } from '@kubb/react-fabric'
 import type { ReactGenerator } from './generators/createReactGenerator.ts'
