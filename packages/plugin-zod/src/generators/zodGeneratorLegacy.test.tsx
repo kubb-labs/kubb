@@ -29,7 +29,6 @@ const defaultOptions: PluginZod['resolvedOptions'] = {
 }
 
 describe('zodGeneratorLegacy — Schema', () => {
-
   test('legacy — enum schema', async () => {
     const enumSchema = createSchema({
       type: 'enum',
@@ -80,7 +79,6 @@ describe('zodGeneratorLegacy — Schema', () => {
 })
 
 describe('zodGeneratorLegacy — Operation', () => {
-
   const operations = [
     {
       name: 'legacy — listPets — GET with query param',
@@ -215,7 +213,6 @@ describe('zodGeneratorLegacy — Operation', () => {
 })
 
 describe('zodGeneratorLegacy — paramsCasing', () => {
-
   const operationWithMixedParams = createOperation({
     operationId: 'createPets',
     method: 'POST',

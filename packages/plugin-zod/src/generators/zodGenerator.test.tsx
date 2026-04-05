@@ -148,7 +148,6 @@ const operationWithSnakeCaseParams: OperationNode = createOperation({
 })
 
 describe('zodGenerator — Schema', () => {
-
   const schemas: Array<{ name: string; node: SchemaNode; options?: Partial<PluginZod['resolvedOptions']> }> = [
     { name: 'string', node: stringSchema },
     { name: 'number', node: numberSchema },
@@ -241,7 +240,6 @@ describe('zodGenerator — Schema', () => {
 })
 
 describe('zodGenerator — Operation', () => {
-
   const operations: Array<{ name: string; node: OperationNode; options?: Partial<PluginZod['resolvedOptions']> }> = [
     {
       name: 'listPets — GET with query params',
@@ -462,7 +460,6 @@ describe('zodGenerator — Operation', () => {
 })
 
 describe('zodGenerator — Operation — group', () => {
-
   const node = createOperation({
     operationId: 'listPets',
     method: 'GET',
@@ -516,7 +513,6 @@ describe('zodGenerator — Operation — group', () => {
 })
 
 describe('zodGenerator — paramsCasing', () => {
-
   test('paramsCasing undefined — snake_case params kept as-is', async () => {
     const options: PluginZod['resolvedOptions'] = { ...defaultOptions, paramsCasing: undefined }
     const plugin = createMockedPlugin<PluginZod>({ name: 'plugin-zod', options, resolver: resolverZod })
@@ -553,7 +549,6 @@ describe('zodGenerator — paramsCasing', () => {
 })
 
 describe('zodGenerator — transformers', () => {
-
   test('schema transformer — removes optional properties from object', async () => {
     const removeOptionalProperties: Visitor = {
       schema(node) {
