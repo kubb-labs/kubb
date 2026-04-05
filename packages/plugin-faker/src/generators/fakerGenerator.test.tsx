@@ -14,7 +14,6 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('fakerGenerator schema', async () => {
-
   const testData = [
     {
       name: 'Pet',
@@ -189,7 +188,6 @@ describe('fakerGenerator schema', async () => {
 })
 
 describe('fakerGenerator operation', async () => {
-
   const testData = [
     {
       name: 'showPetById',

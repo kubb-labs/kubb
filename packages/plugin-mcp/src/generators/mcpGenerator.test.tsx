@@ -34,7 +34,6 @@ const mockedTsPlugin = createMockedPlugin<PluginTs>({
 })
 
 describe('mcpGenerator — Operation', () => {
-
   const operations = [
     {
       name: 'showPetById',

@@ -26,7 +26,6 @@ const defaultOptions: PluginTs['resolvedOptions'] = {
 }
 
 describe('typeGeneratorLegacy — Operation', () => {
-
   const operations = [
     {
       name: 'legacy — listPets — GET with query param',
@@ -145,7 +144,6 @@ describe('typeGeneratorLegacy — Operation', () => {
 })
 
 describe('typeGeneratorLegacy — enumTypeSuffix', () => {
-
   const enumSchema = createSchema({
     type: 'enum',
     name: 'petStatus',
