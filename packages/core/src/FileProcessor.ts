@@ -25,7 +25,7 @@ export class FileProcessor {
   readonly #limit = pLimit(100)
 
   async parse(file: FileNode, { parsers, extension }: ParseOptions = {}): Promise<string> {
-    const parseExtName = extension?.[file.extname] || undefined
+    const parseExtName = extension?.[file.extname] ?? undefined
 
     if (!parsers || !file.extname) {
       return file.sources
