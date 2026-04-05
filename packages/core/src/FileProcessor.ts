@@ -2,6 +2,8 @@ import type { FileNode } from '@kubb/ast/types'
 import pLimit from 'p-limit'
 import type { Parser } from './defineParser.ts'
 
+const PARALLEL_CONCURRENCY_LIMIT = 100
+
 type ParseOptions = {
   parsers?: Map<FileNode['extname'], Parser>
   extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
@@ -17,30 +19,31 @@ type RunOptions = ParseOptions & {
   onUpdate?: (params: { file: FileNode; source?: string; processed: number; total: number; percentage: number }) => Promise<void> | void
 }
 
+function joinSources(file: FileNode): string {
+  return file.sources
+    .map((item) => item.value)
+    .filter((value): value is string => value != null)
+    .join('\n\n')
+}
+
 /**
  * Converts a single file to a string using the registered parsers.
  * Falls back to joining source values when no matching parser is found.
  */
 export class FileProcessor {
-  readonly #limit = pLimit(100)
+  readonly #limit = pLimit(PARALLEL_CONCURRENCY_LIMIT)
 
   async parse(file: FileNode, { parsers, extension }: ParseOptions = {}): Promise<string> {
     const parseExtName = extension?.[file.extname] || undefined
 
     if (!parsers || !file.extname) {
-      return file.sources
-        .map((item) => item.value)
-        .filter((value): value is string => value != null)
-        .join('\n\n')
+      return joinSources(file)
     }
 
     const parser = parsers.get(file.extname)
 
     if (!parser) {
-      return file.sources
-        .map((item) => item.value)
-        .filter((value): value is string => value != null)
-        .join('\n\n')
+      return joinSources(file)
     }
 
     return parser.parse(file, { extname: parseExtName })
