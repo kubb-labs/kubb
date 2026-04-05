@@ -3,8 +3,7 @@ import { camelCase } from '@internals/utils'
 import { createOperation, createParameter, createProperty, createResponse, createSchema } from '@kubb/ast'
 import type { OperationNode, Visitor } from '@kubb/ast/types'
 import type { Config, Group } from '@kubb/core'
-import { createReactFabric } from '@kubb/react-fabric'
-import { beforeEach, describe, expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation, renderGeneratorSchema } from '#mocks'
 import { resolverTs } from '../resolvers/resolverTs.ts'
 import type { PluginTs } from '../types.ts'
@@ -70,11 +69,6 @@ const operationWithSnakeCaseParams: OperationNode = createOperation({
 })
 
 describe('typeGenerator — Operation', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   const operations = [
     {
@@ -214,7 +208,6 @@ describe('typeGenerator — Operation', () => {
 
     await renderGeneratorOperation(typeGenerator, props.node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -222,16 +215,11 @@ describe('typeGenerator — Operation', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, props.name)
+    await matchFiles(driver.fileManager.files, props.name)
   })
 })
 
 describe('typeGenerator — Operation — group', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   const node = createOperation({
     operationId: 'listPets',
@@ -266,7 +254,6 @@ describe('typeGenerator — Operation — group', () => {
 
     await renderGeneratorOperation(typeGenerator, node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -274,7 +261,7 @@ describe('typeGenerator — Operation — group', () => {
       resolver: resolverTs,
     })
 
-    const file = fabric.files.find((f) => f.baseName === expectedBaseName)
+    const file = driver.fileManager.files.find((f) => f.baseName === expectedBaseName)
     expect(file).toBeDefined()
     const root = path.resolve(testConfig.root, testConfig.output.path, options.output.path)
     const expectedPath = expectedDir ? path.resolve(root, expectedDir, expectedBaseName) : path.resolve(root, expectedBaseName)
@@ -301,7 +288,6 @@ describe('typeGenerator — Operation — group', () => {
 
     await renderGeneratorOperation(typeGenerator, noTagNode, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -309,7 +295,7 @@ describe('typeGenerator — Operation — group', () => {
       resolver: resolverTs,
     })
 
-    const file = fabric.files.find((f) => f.baseName === 'GetConfig.ts')
+    const file = driver.fileManager.files.find((f) => f.baseName === 'GetConfig.ts')
     expect(file).toBeDefined()
     const root = path.resolve(testConfig.root, testConfig.output.path, options.output.path)
     expect(file!.path).toBe(path.resolve(root, 'defaultController', 'GetConfig.ts'))
@@ -317,11 +303,6 @@ describe('typeGenerator — Operation — group', () => {
 })
 
 describe('typeGenerator — paramsCasing', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   test('paramsCasing undefined — snake_case params kept as-is', async () => {
     const options: PluginTs['resolvedOptions'] = { ...defaultOptions, paramsCasing: undefined }
@@ -330,7 +311,6 @@ describe('typeGenerator — paramsCasing', () => {
 
     await renderGeneratorOperation(typeGenerator, operationWithSnakeCaseParams, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -338,7 +318,7 @@ describe('typeGenerator — paramsCasing', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, 'paramsCasing undefined')
+    await matchFiles(driver.fileManager.files, 'paramsCasing undefined')
   })
 
   test('paramsCasing camelcase — snake_case params converted to camelCase', async () => {
@@ -348,7 +328,6 @@ describe('typeGenerator — paramsCasing', () => {
 
     await renderGeneratorOperation(typeGenerator, operationWithSnakeCaseParams, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -356,16 +335,11 @@ describe('typeGenerator — paramsCasing', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, 'paramsCasing camelcase')
+    await matchFiles(driver.fileManager.files, 'paramsCasing camelcase')
   })
 })
 
 describe('typeGenerator — enumType', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   const enumTypes = ['asConst', 'asPascalConst', 'enum', 'constEnum', 'literal', 'inlineLiteral'] as const satisfies Array<
     NonNullable<PluginTs['resolvedOptions']['enumType']>
@@ -378,7 +352,6 @@ describe('typeGenerator — enumType', () => {
 
     await renderGeneratorSchema(typeGenerator, enumSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -386,16 +359,11 @@ describe('typeGenerator — enumType', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, `enumType ${enumType}`)
+    await matchFiles(driver.fileManager.files, `enumType ${enumType}`)
   })
 })
 
 describe('typeGenerator — enumType — dotted name', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   const dottedEnumSchema = createSchema({
     type: 'enum',
@@ -415,7 +383,6 @@ describe('typeGenerator — enumType — dotted name', () => {
 
     await renderGeneratorSchema(typeGenerator, dottedEnumSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -423,16 +390,11 @@ describe('typeGenerator — enumType — dotted name', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, `enumNames.Type — ${enumType}`)
+    await matchFiles(driver.fileManager.files, `enumNames.Type — ${enumType}`)
   })
 })
 
 describe('typeGenerator — enumKeyCasing', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   const casingVariants = ['screamingSnakeCase', 'snakeCase', 'pascalCase', 'camelCase', 'none'] as const satisfies Array<
     NonNullable<PluginTs['resolvedOptions']['enumKeyCasing']>
@@ -445,7 +407,6 @@ describe('typeGenerator — enumKeyCasing', () => {
 
     await renderGeneratorSchema(typeGenerator, multiWordEnumSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -453,16 +414,11 @@ describe('typeGenerator — enumKeyCasing', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, `enumKeyCasing ${enumKeyCasing}`)
+    await matchFiles(driver.fileManager.files, `enumKeyCasing ${enumKeyCasing}`)
   })
 })
 
 describe('typeGenerator — enumTypeSuffix', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   test('enumTypeSuffix Key (default)', async () => {
     const options: PluginTs['resolvedOptions'] = { ...defaultOptions, enumType: 'asConst', enumTypeSuffix: 'Key' }
@@ -471,7 +427,6 @@ describe('typeGenerator — enumTypeSuffix', () => {
 
     await renderGeneratorSchema(typeGenerator, enumSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -479,7 +434,7 @@ describe('typeGenerator — enumTypeSuffix', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, 'enumTypeSuffix Key')
+    await matchFiles(driver.fileManager.files, 'enumTypeSuffix Key')
   })
 
   test('enumTypeSuffix Value', async () => {
@@ -489,7 +444,6 @@ describe('typeGenerator — enumTypeSuffix', () => {
 
     await renderGeneratorSchema(typeGenerator, enumSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -497,7 +451,7 @@ describe('typeGenerator — enumTypeSuffix', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, 'enumTypeSuffix Value')
+    await matchFiles(driver.fileManager.files, 'enumTypeSuffix Value')
   })
 
   test('enumTypeSuffix empty string', async () => {
@@ -507,7 +461,6 @@ describe('typeGenerator — enumTypeSuffix', () => {
 
     await renderGeneratorSchema(typeGenerator, enumSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -515,16 +468,11 @@ describe('typeGenerator — enumTypeSuffix', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, 'enumTypeSuffix empty')
+    await matchFiles(driver.fileManager.files, 'enumTypeSuffix empty')
   })
 })
 
 describe('typeGenerator — syntaxType', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   test('syntaxType type (default)', async () => {
     const options: PluginTs['resolvedOptions'] = { ...defaultOptions, syntaxType: 'type' }
@@ -533,7 +481,6 @@ describe('typeGenerator — syntaxType', () => {
 
     await renderGeneratorSchema(typeGenerator, objectSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -541,7 +488,7 @@ describe('typeGenerator — syntaxType', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, 'syntaxType type')
+    await matchFiles(driver.fileManager.files, 'syntaxType type')
   })
 
   test('syntaxType interface', async () => {
@@ -551,7 +498,6 @@ describe('typeGenerator — syntaxType', () => {
 
     await renderGeneratorSchema(typeGenerator, objectSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -559,16 +505,11 @@ describe('typeGenerator — syntaxType', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, 'syntaxType interface')
+    await matchFiles(driver.fileManager.files, 'syntaxType interface')
   })
 })
 
 describe('typeGenerator — optionalType', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   const optionalTypes = ['questionToken', 'undefined', 'questionTokenAndUndefined'] as const satisfies Array<
     NonNullable<PluginTs['resolvedOptions']['optionalType']>
@@ -581,7 +522,6 @@ describe('typeGenerator — optionalType', () => {
 
     await renderGeneratorSchema(typeGenerator, objectSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -589,16 +529,11 @@ describe('typeGenerator — optionalType', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, `optionalType ${optionalType}`)
+    await matchFiles(driver.fileManager.files, `optionalType ${optionalType}`)
   })
 })
 
 describe('typeGenerator — arrayType', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   const arrayTypes = ['array', 'generic'] as const satisfies Array<NonNullable<PluginTs['resolvedOptions']['arrayType']>>
 
@@ -609,7 +544,6 @@ describe('typeGenerator — arrayType', () => {
 
     await renderGeneratorSchema(typeGenerator, objectSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -617,16 +551,11 @@ describe('typeGenerator — arrayType', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, `arrayType ${arrayType}`)
+    await matchFiles(driver.fileManager.files, `arrayType ${arrayType}`)
   })
 })
 
 describe('typeGenerator — transformers', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   test('schema transformer — removes optional properties from object', async () => {
     const removeOptionalProperties: Visitor = {
@@ -642,7 +571,6 @@ describe('typeGenerator — transformers', () => {
 
     await renderGeneratorSchema(typeGenerator, objectSchema, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -650,7 +578,7 @@ describe('typeGenerator — transformers', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, 'transformers removeOptionalProperties')
+    await matchFiles(driver.fileManager.files, 'transformers removeOptionalProperties')
   })
 
   test('schema transformer — maps integer type to string', async () => {
@@ -675,7 +603,6 @@ describe('typeGenerator — transformers', () => {
 
     await renderGeneratorSchema(typeGenerator, schemaWithInteger, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -683,6 +610,6 @@ describe('typeGenerator — transformers', () => {
       resolver: resolverTs,
     })
 
-    await matchFiles(fabric.files, 'transformers integerToString')
+    await matchFiles(driver.fileManager.files, 'transformers integerToString')
   })
 })

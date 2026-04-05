@@ -4,8 +4,7 @@ import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
-import { createReactFabric } from '@kubb/react-fabric'
-import { beforeEach, describe, test } from 'vitest'
+import { describe, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperation } from '#mocks'
 import { resolverClient } from '../resolvers/resolverClient.ts'
 import type { PluginClient } from '../types.ts'
@@ -128,11 +127,6 @@ const underscoredPathParamsNode = createOperation({
 })
 
 describe('clientGenerator operation', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   const testData = [
     { name: 'findByTags', node: findByTagsNode, options: {} },
@@ -171,7 +165,6 @@ describe('clientGenerator operation', () => {
 
     await renderGeneratorOperation(clientGenerator, props.node, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter({
         inputNode: { kind: 'Input', schemas: [], operations: [], meta: { baseURL: 'baseURL' in props ? props.baseURL : undefined } },
       }),
@@ -181,6 +174,6 @@ describe('clientGenerator operation', () => {
       resolver: resolverClient,
     })
 
-    await matchFiles(fabric.files, props.name)
+    await matchFiles(driver.fileManager.files, props.name)
   })
 })

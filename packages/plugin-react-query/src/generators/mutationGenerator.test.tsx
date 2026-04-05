@@ -4,8 +4,7 @@ import type { Config } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { OperationGenerator, renderOperation } from '@kubb/plugin-oas'
-import { createReactFabric } from '@kubb/react-fabric'
-import { beforeEach, describe, expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginReactQuery } from '../types.ts'
@@ -15,11 +14,6 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('mutationGenerator operation', async () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   const testData = [
     {
@@ -171,7 +165,6 @@ describe('mutationGenerator operation', async () => {
     }
 
     const generator = new OperationGenerator(options, {
-      fabric,
       oas,
       include: undefined,
       driver: mockedPluginDriver,
@@ -186,13 +179,13 @@ describe('mutationGenerator operation', async () => {
     const operation = oas.operation(props.path, props.method)
     await renderOperation(operation, {
       config: { root: '.', output: { path: 'test' } } as Config,
-      fabric,
+      driver: mockedPluginDriver,
       generator,
       Component: mutationGenerator.Operation,
       plugin,
     })
 
-    await matchFiles(fabric.files, props.name)
+    await matchFiles(mockedPluginDriver.fileManager.files, props.name)
   })
 
   test('mutation disabled with mutation: false', async () => {
@@ -229,7 +222,6 @@ describe('mutationGenerator operation', async () => {
     const plugin = createMockedPlugin<PluginReactQuery>({ name: 'plugin-react-query', options })
     const mockedPluginDriver = createMockedPluginDriver({ name: 'mutationDisabled' })
     const generator = new OperationGenerator(options, {
-      fabric,
       oas,
       include: undefined,
       driver: mockedPluginDriver,
@@ -244,13 +236,13 @@ describe('mutationGenerator operation', async () => {
     const operation = oas.operation('/pet/{pet_id}', 'post')
     await renderOperation(operation, {
       config: { root: '.', output: { path: 'test' } } as Config,
-      fabric,
+      driver: mockedPluginDriver,
       generator,
       Component: mutationGenerator.Operation,
       plugin,
     })
 
     // When mutation: false, no files should be generated for POST operations
-    expect(fabric.files).toHaveLength(0)
+    expect(mockedPluginDriver.fileManager.files).toHaveLength(0)
   })
 })

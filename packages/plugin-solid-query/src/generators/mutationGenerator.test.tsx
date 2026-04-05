@@ -4,8 +4,7 @@ import type { Config } from '@kubb/core'
 import type { HttpMethod } from '@kubb/oas'
 import { parse } from '@kubb/oas'
 import { OperationGenerator, renderOperation } from '@kubb/plugin-oas'
-import { createReactFabric } from '@kubb/react-fabric'
-import { beforeEach, describe, test } from 'vitest'
+import { describe, test } from 'vitest'
 import { createMockedPlugin, createMockedPluginDriver, matchFiles } from '#mocks'
 import { MutationKey, QueryKey } from '../components'
 import type { PluginSolidQuery } from '../types.ts'
@@ -15,11 +14,6 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 describe('mutationGenerator operation', async () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   const testData = [
     {
@@ -122,7 +116,6 @@ describe('mutationGenerator operation', async () => {
     const plugin = createMockedPlugin<PluginSolidQuery>({ name: 'plugin-solid-query', options })
     const mockedPluginDriver = createMockedPluginDriver({ name: props.name })
     const generator = new OperationGenerator(options, {
-      fabric,
       oas,
       include: undefined,
       driver: mockedPluginDriver,
@@ -136,12 +129,12 @@ describe('mutationGenerator operation', async () => {
     const operation = oas.operation(props.path, props.method)
     await renderOperation(operation, {
       config: { root: '.', output: { path: 'test' } } as Config,
-      fabric,
+      driver: mockedPluginDriver,
       generator,
       Component: mutationGenerator.Operation,
       plugin,
     })
 
-    await matchFiles(fabric.files, props.name)
+    await matchFiles(mockedPluginDriver.fileManager.files, props.name)
   })
 })

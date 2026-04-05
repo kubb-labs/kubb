@@ -3,8 +3,7 @@ import type { OperationNode } from '@kubb/ast/types'
 import type { Config } from '@kubb/core'
 import type { PluginTs } from '@kubb/plugin-ts'
 import { resolverTs } from '@kubb/plugin-ts'
-import { createReactFabric } from '@kubb/react-fabric'
-import { beforeEach, describe, test } from 'vitest'
+import { describe, test } from 'vitest'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, matchFiles, renderGeneratorOperations } from '#mocks'
 import { resolverClient } from '../resolvers/resolverClient.ts'
 import type { PluginClient } from '../types.ts'
@@ -76,11 +75,6 @@ const operationNodes: Array<OperationNode> = [
 ]
 
 describe('classClientGenerator operations', () => {
-  const fabric = createReactFabric()
-
-  beforeEach(() => {
-    fabric.context.fileManager.clear()
-  })
 
   const testData = [
     {
@@ -107,7 +101,6 @@ describe('classClientGenerator operations', () => {
 
     await renderGeneratorOperations(classClientGenerator, operationNodes, {
       config: testConfig,
-      fabric,
       adapter: createMockedAdapter(),
       driver,
       plugin,
@@ -115,6 +108,6 @@ describe('classClientGenerator operations', () => {
       resolver: resolverClient,
     })
 
-    await matchFiles(fabric.files, props.name)
+    await matchFiles(driver.fileManager.files, props.name)
   })
 })
