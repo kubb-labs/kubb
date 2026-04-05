@@ -461,6 +461,22 @@ function toStructType({
   })
 }
 
+function sourceKey(source: SourceNode): string {
+  return `${source.name ?? source.value ?? ''}:${source.isExportable ?? false}:${source.isTypeOnly ?? false}`
+}
+
+function pathTypeKey(path: string, isTypeOnly: boolean | undefined): string {
+  return `${path}:${isTypeOnly ?? false}`
+}
+
+function exportKey(path: string, name: string | undefined, isTypeOnly: boolean | undefined, asAlias: boolean | undefined): string {
+  return `${path}:${name ?? ''}:${isTypeOnly ?? false}:${asAlias ?? ''}`
+}
+
+function importKey(path: string, name: string | undefined, isTypeOnly: boolean | undefined): string {
+  return `${path}:${name ?? ''}:${isTypeOnly ?? false}`
+}
+
 /**
  * Deduplicates an array of `SourceNode` objects.
  * Named sources are deduplicated by `name + isExportable + isTypeOnly`.
@@ -469,7 +485,7 @@ function toStructType({
 export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
   const seen = new Map<string, SourceNode>()
   for (const source of sources) {
-    const key = `${source.name ?? source.value ?? ''}:${source.isExportable ?? false}:${source.isTypeOnly ?? false}`
+    const key = sourceKey(source)
     if (!seen.has(key)) seen.set(key, source)
   }
   return [...seen.values()]
@@ -488,26 +504,25 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
 
   for (const curr of exports) {
     const { name, path, isTypeOnly, asAlias } = curr
-    const typeFlag = isTypeOnly ?? false
 
     if (Array.isArray(name)) {
       if (!name.length) continue
 
-      const mergeKey = `${path}:${typeFlag}`
-      const existing = namedByPath.get(mergeKey)
+      const key = pathTypeKey(path, isTypeOnly)
+      const existing = namedByPath.get(key)
 
       if (existing && Array.isArray(existing.name)) {
         existing.name = [...new Set([...existing.name, ...name])]
       } else {
         const newItem: ExportNode = { ...curr, name: [...new Set(name)] }
         result.push(newItem)
-        namedByPath.set(mergeKey, newItem)
+        namedByPath.set(key, newItem)
       }
     } else {
-      const uniqueKey = `${path}:${name ?? ''}:${typeFlag}:${asAlias ?? ''}`
-      if (!seen.has(uniqueKey)) {
+      const key = exportKey(path, name, isTypeOnly, asAlias)
+      if (!seen.has(key)) {
         result.push(curr)
-        seen.add(uniqueKey)
+        seen.add(key)
       }
     }
   }
@@ -544,30 +559,29 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
     if (curr.path === curr.root) continue
 
     const { path, isTypeOnly } = curr
-    const typeFlag = isTypeOnly ?? false
     let { name } = curr
 
     if (Array.isArray(name)) {
       name = [...new Set(name)].filter((item) => (typeof item === 'string' ? isUsed(item) : isUsed(item.propertyName)))
       if (!name.length) continue
 
-      const mergeKey = `${path}:${typeFlag}`
-      const existing = namedByPath.get(mergeKey)
+      const key = pathTypeKey(path, isTypeOnly)
+      const existing = namedByPath.get(key)
 
       if (existing && Array.isArray(existing.name)) {
         existing.name = [...new Set([...existing.name, ...name])]
       } else {
         const newItem: ImportNode = { ...curr, name }
         result.push(newItem)
-        namedByPath.set(mergeKey, newItem)
+        namedByPath.set(key, newItem)
       }
     } else {
       if (name && !isUsed(name)) continue
 
-      const uniqueKey = `${path}:${name ?? ''}:${typeFlag}`
-      if (!seen.has(uniqueKey)) {
+      const key = importKey(path, name, isTypeOnly)
+      if (!seen.has(key)) {
         result.push(curr)
-        seen.add(uniqueKey)
+        seen.add(key)
       }
     }
   }
