@@ -36,8 +36,8 @@ export class FileManager {
   #filesCache: Array<FileNode> | null = null
 
   /**
-   * Adds one or more files. Skips merge — the last writer wins for duplicate paths.
-   * If a file with the same path already exists, its sources/imports/exports are merged.
+   * Adds one or more files. Files with the same path are merged — sources, imports,
+   * and exports from all calls with the same path are concatenated together.
    */
   add(...files: Array<FileNode>): Array<FileNode> {
     const resolvedFiles: Array<FileNode> = []
