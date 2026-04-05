@@ -1,35 +1,23 @@
-import path from 'node:path'
 import { adapterOas } from '@kubb/adapter-oas'
 import { build } from '@kubb/core'
 import { parserTs } from '@kubb/parser-ts'
 import { pluginOas } from '@kubb/plugin-oas'
-import { createFabric } from '@kubb/react-fabric'
-import { typescriptParser } from '@kubb/react-fabric/parsers'
-import { fsPlugin } from '@kubb/react-fabric/plugins'
 
 async function run() {
-  const fabric = createFabric()
-
-  const { files } = await build({
+  await build({
     config: {
       input: {
         path: './petStore.yaml',
       },
       output: {
         path: './src/gen2',
+        clean: true,
       },
       adapter: adapterOas(),
       parsers: [parserTs],
       plugins: [pluginOas()],
     },
   })
-
-  fabric.upsertFile(...files)
-
-  fabric.use(fsPlugin, { clean: { path: path.join(process.cwd(), './src/gen2') } })
-  fabric.use(typescriptParser)
-
-  await fabric.write()
 }
 
 run()

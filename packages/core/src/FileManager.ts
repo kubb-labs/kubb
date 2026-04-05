@@ -1,0 +1,134 @@
+import { sortBy } from 'remeda'
+import { createFile } from '@kubb/ast'
+import type { FileNode } from '@kubb/ast/types'
+
+function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNode<TMeta>): FileNode<TMeta> {
+  return {
+    ...a,
+    sources: [...(a.sources || []), ...(b.sources || [])],
+    imports: [...(a.imports || []), ...(b.imports || [])],
+    exports: [...(a.exports || []), ...(b.exports || [])],
+  }
+}
+
+function trimExtName(text: string): string {
+  return text.replace(/\.[^/.]+$/, '')
+}
+
+/**
+ * In-memory file store for generated files.
+ *
+ * Files with the same `path` are merged — sources, imports, and exports are concatenated.
+ * The `files` getter returns all stored files sorted by path length (shortest first)
+ * so barrel/index files appear last.
+ *
+ * @example
+ * ```ts
+ * import { FileManager } from '@kubb/core'
+ *
+ * const manager = new FileManager()
+ * manager.upsert(myFile)
+ * console.log(manager.files) // all stored files
+ * ```
+ */
+export class FileManager {
+  readonly #cache = new Map<string, FileNode>()
+  #filesCache: Array<FileNode> | null = null
+
+  /**
+   * Adds one or more files. Skips merge — the last writer wins for duplicate paths.
+   * If a file with the same path already exists, its sources/imports/exports are merged.
+   */
+  add(...files: Array<FileNode>): Array<FileNode> {
+    const resolvedFiles: Array<FileNode> = []
+    const mergedFiles = new Map<string, FileNode>()
+
+    files.forEach((file) => {
+      const existing = mergedFiles.get(file.path)
+      if (existing) {
+        mergedFiles.set(file.path, mergeFile(existing, file))
+      } else {
+        mergedFiles.set(file.path, file)
+      }
+    })
+
+    for (const file of mergedFiles.values()) {
+      const resolvedFile = createFile(file)
+      this.#cache.set(resolvedFile.path, resolvedFile)
+      this.#filesCache = null
+      resolvedFiles.push(resolvedFile)
+    }
+
+    return resolvedFiles
+  }
+
+  /**
+   * Adds or merges one or more files.
+   * If a file with the same path already exists, its sources/imports/exports are merged together.
+   */
+  upsert(...files: Array<FileNode>): Array<FileNode> {
+    const resolvedFiles: Array<FileNode> = []
+    const mergedFiles = new Map<string, FileNode>()
+
+    files.forEach((file) => {
+      const existing = mergedFiles.get(file.path)
+      if (existing) {
+        mergedFiles.set(file.path, mergeFile(existing, file))
+      } else {
+        mergedFiles.set(file.path, file)
+      }
+    })
+
+    for (const file of mergedFiles.values()) {
+      const existing = this.#cache.get(file.path)
+      const merged = existing ? mergeFile(existing, file) : file
+      const resolvedFile = createFile(merged)
+      this.#cache.set(resolvedFile.path, resolvedFile)
+      this.#filesCache = null
+      resolvedFiles.push(resolvedFile)
+    }
+
+    return resolvedFiles
+  }
+
+  getByPath(path: string): FileNode | null {
+    return this.#cache.get(path) ?? null
+  }
+
+  deleteByPath(path: string): void {
+    this.#cache.delete(path)
+    this.#filesCache = null
+  }
+
+  clear(): void {
+    this.#cache.clear()
+    this.#filesCache = null
+  }
+
+  /**
+   * All stored files, sorted by path length (shorter paths first).
+   * Barrel/index files (e.g. index.ts) are sorted last within each length bucket.
+   */
+  get files(): Array<FileNode> {
+    if (this.#filesCache) {
+      return this.#filesCache
+    }
+
+    const keys = sortBy(
+      [...this.#cache.keys()],
+      (v) => v.length,
+      (v) => trimExtName(v).endsWith('index'),
+    )
+
+    const files: Array<FileNode> = []
+    for (const key of keys) {
+      const file = this.#cache.get(key)
+      if (file) {
+        files.push(file)
+      }
+    }
+
+    this.#filesCache = files
+    return files
+  }
+}

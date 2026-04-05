@@ -2,7 +2,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createFile, createSource } from '@kubb/ast'
 import type { FileNode } from '@kubb/ast/types'
-import { FileManager } from '@kubb/react-fabric'
+import { FileManager } from '@kubb/core'
 import { describe, expect, it, test } from 'vitest'
 import { getBarrelFiles } from './getBarrelFiles.ts'
 

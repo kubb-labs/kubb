@@ -19,6 +19,8 @@ export {
   defaultResolvePath,
   defineResolver,
 } from './defineResolver.ts'
+export { FileManager } from './FileManager.ts'
+export { FileProcessor } from './FileProcessor.ts'
 export { getMode, PluginDriver } from './PluginDriver.ts'
 export { fsStorage } from './storages/fsStorage.ts'
 export { memoryStorage } from './storages/memoryStorage.ts'

@@ -44,6 +44,7 @@ describe('build', () => {
     output: {
       path: './src/gen',
       clean: true,
+      barrelType: false as const,
     },
     parsers: [],
     adapter: createMockedAdapter(),
@@ -66,6 +67,7 @@ describe('build', () => {
           output: {
             path: './src/gen',
             clean: true,
+            barrelType: false as const,
           },
           parsers: [],
           adapter: createMockedAdapter(),
@@ -83,6 +85,7 @@ describe('build', () => {
         output: {
           path: './src/gen',
           clean: true,
+          barrelType: false as const,
         },
         parsers: [],
         adapter: createMockedAdapter(),
@@ -100,6 +103,7 @@ describe('build', () => {
           output: {
             path: './src/gen',
             clean: true,
+            barrelType: false as const,
           },
           parsers: [],
           adapter: createMockedAdapter(),
@@ -140,11 +144,10 @@ describe('build', () => {
         events: new AsyncEventEmitter<KubbEvents>(),
       })
 
-      await fabric.addFile(file)
-
       expect(fabric.files).toBeDefined()
       expect(driver).toBeDefined()
-      expect(fabric.files.length).toBe(1)
+      // The plugin's buildStart already added the file during build
+      expect(driver.fileManager.files.some((f) => f.baseName === file.baseName)).toBe(true)
 
       driver.events.removeAll()
     }
@@ -156,22 +159,19 @@ describe('build', () => {
       events: new AsyncEventEmitter<KubbEvents>(),
     })
 
-    await fabric.addFile(file)
-
     expect(fabric.files).toBeDefined()
     expect(driver).toBeDefined()
-    expect(fabric.files.length).toBe(1)
+    // The plugin's buildStart already added the file during build
+    expect(driver.fileManager.files.some((f) => f.baseName === file.baseName)).toBe(true)
   })
 
   test('if build with one plugin is running the different hooks in the correct order', async () => {
-    const { fabric } = await build({
+    const { driver } = await build({
       config,
       events: new AsyncEventEmitter<KubbEvents>(),
     })
 
-    await fabric.addFile(file)
-
-    expect(fabric.files.map((file) => ({ ...file, id: undefined, path: undefined }))).toMatchInlineSnapshot(`
+    expect(driver.fileManager.files.map((file) => ({ ...file, id: undefined, path: undefined }))).toMatchInlineSnapshot(`
       [
         {
           "baseName": "world.json",
@@ -352,12 +352,12 @@ describe('build', () => {
         plugins: [excludedPlugin({})] as Array<Plugin>,
       }
 
-      const { fabric } = await build({
+      const { driver } = await build({
         config: excludeConfig,
         events: new AsyncEventEmitter<KubbEvents>(),
       })
 
-      const barrelFile = fabric.files.find((f) => f.baseName === 'index.ts')
+      const barrelFile = driver.fileManager.files.find((f) => f.baseName === 'index.ts')
       if (barrelFile) {
         const hasExcludedExport = barrelFile.exports?.some((e) => e.name?.includes('excluded'))
         expect(hasExcludedExport).toBeFalsy()

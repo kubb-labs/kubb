@@ -7,6 +7,7 @@ import type { FileNode, InputNode } from '@kubb/ast/types'
 import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import { DEFAULT_STUDIO_URL } from './constants.ts'
 import { openInStudio as openInStudioFn } from './devtools.ts'
+import { FileManager } from './FileManager.ts'
 
 import type {
   Adapter,
@@ -96,11 +97,44 @@ export class PluginDriver {
   adapter: Adapter | undefined = undefined
   #studioIsOpen = false
 
+  /**
+   * Central file store for all generated files.
+   * Plugins should use `this.addFile()` / `this.upsertFile()` (via their context) to
+   * add files; this property gives direct read/write access when needed.
+   */
+  readonly fileManager = new FileManager()
+
   readonly plugins = new Map<string, Plugin>()
+
+  /**
+   * A Proxy of the underlying Fabric instance that redirects `files`, `addFile`, and
+   * `upsertFile` to the driver-owned `FileManager`.
+   *
+   * This allows the `fabric` reference in plugin contexts to continue working as expected
+   * (e.g. `this.fabric.files`) while keeping a single authoritative file store.
+   */
+  readonly #fabricProxy: FabricType
 
   constructor(config: Config, options: Options) {
     this.config = config
     this.options = options
+    const fileManager = this.fileManager
+    this.#fabricProxy = new Proxy(options.fabric, {
+      get(target, key, receiver) {
+        if (key === 'files') return fileManager.files
+        if (key === 'addFile') {
+          return async (...files: Array<FileNode>) => {
+            fileManager.add(...files)
+          }
+        }
+        if (key === 'upsertFile') {
+          return async (...files: Array<FileNode>) => {
+            fileManager.upsert(...files)
+          }
+        }
+        return Reflect.get(target, key, receiver)
+      },
+    }) as FabricType
     config.plugins
       .map((plugin) => Object.assign({ buildStart() {}, buildEnd() {} }, plugin) as unknown as Plugin)
       .filter((plugin) => {
@@ -123,11 +157,19 @@ export class PluginDriver {
     return this.options.events
   }
 
+  /**
+   * The Fabric instance used by this driver, proxied so that `files`, `addFile`, and
+   * `upsertFile` delegate to the driver-owned `FileManager`.
+   */
+  get fabric(): FabricType {
+    return this.#fabricProxy
+  }
+
   getContext<TOptions extends PluginFactoryOptions>(plugin: Plugin<TOptions>): PluginContext<TOptions> & Record<string, unknown> {
     const driver = this
 
     const baseContext = {
-      fabric: driver.options.fabric,
+      fabric: driver.#fabricProxy,
       config: driver.config,
       get root(): string {
         return resolve(driver.config.root, driver.config.output.path)
@@ -141,10 +183,10 @@ export class PluginDriver {
       requirePlugin: driver.requirePlugin.bind(driver),
       driver: driver,
       addFile: async (...files: Array<FileNode>) => {
-        await this.options.fabric.addFile(...files)
+        driver.fileManager.add(...files)
       },
       upsertFile: async (...files: Array<FileNode>) => {
-        await this.options.fabric.upsertFile(...files)
+        driver.fileManager.upsert(...files)
       },
       get inputNode(): InputNode | undefined {
         return driver.inputNode

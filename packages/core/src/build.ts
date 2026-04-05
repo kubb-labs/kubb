@@ -3,10 +3,10 @@ import { AsyncEventEmitter, BuildError, exists, formatMs, getElapsedMs, getRelat
 import { createExport, createFile, transform, walk } from '@kubb/ast'
 import type { ExportNode, FileNode, OperationNode } from '@kubb/ast/types'
 import { createFabric } from '@kubb/react-fabric'
-import { fsPlugin } from '@kubb/react-fabric/plugins'
 import type { Fabric as FabricType } from '@kubb/react-fabric/types'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
-import { defineParser } from './defineParser.ts'
+import type { Parser } from './defineParser.ts'
+import { FileProcessor } from './FileProcessor.ts'
 import { PluginDriver } from './PluginDriver.ts'
 import { applyHookResult } from './renderNode.tsx'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -52,6 +52,7 @@ type SetupResult = {
   driver: PluginDriver
   sources: Map<string, string>
   config: Config
+  storage: Storage | null
 }
 
 /**
@@ -156,58 +157,9 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     await storage?.clear(resolve(config.root, config.output.path))
   }
 
+  // Fabric is used only for React-component rendering (via applyHookResult / renderNode.tsx).
+  // File storage is managed exclusively by the driver's FileManager.
   const fabric = createFabric()
-  fabric.use(fsPlugin)
-
-  for (const parser of config.parsers) {
-    fabric.use(parser)
-  }
-  // Catch-all fallback: joins all source values for any unhandled extension
-  fabric.use(
-    defineParser({
-      name: 'fallback',
-      extNames: undefined,
-      parse(file) {
-        return file.sources
-          .map((item) => item.value)
-          .filter((value): value is string => value != null)
-          .join('\n\n')
-      },
-    }),
-  )
-
-  fabric.context.on('files:processing:start', (files) => {
-    events.emit('files:processing:start', files as unknown as FileNode[])
-    events.emit('debug', {
-      date: new Date(),
-      logs: [`Writing ${files.length} files...`],
-    })
-  })
-
-  fabric.context.on('file:processing:update', async (params) => {
-    const { file, source } = params
-    await events.emit('file:processing:update', {
-      ...params,
-      file: file as unknown as FileNode,
-      config: config,
-      source,
-    })
-
-    if (source) {
-      // Key is root-relative so it's meaningful for any backend (fs, S3, Redis…)
-      const key = relative(resolve(config.root), file.path)
-      await storage?.setItem(key, source)
-      sources.set(file.path, source)
-    }
-  })
-
-  fabric.context.on('files:processing:end', async (files) => {
-    await events.emit('files:processing:end', files as unknown as FileNode[])
-    await events.emit('debug', {
-      date: new Date(),
-      logs: [`✓ File write process completed for ${files.length} files`],
-    })
-  })
 
   await events.emit('debug', {
     date: new Date(),
@@ -251,6 +203,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     fabric,
     driver,
     sources,
+    storage,
   }
 }
 
@@ -340,13 +293,14 @@ async function runPluginAstHooks(plugin: Plugin, context: PluginContext): Promis
  *
  * - Installs each plugin in order, recording failures in `failedPlugins`.
  * - Generates the root barrel file when `output.barrelType` is set.
- * - Writes all files through Fabric.
+ * - Writes all files through the driver's FileManager and FileProcessor.
  *
  * Returns a {@link BuildOutput} even on failure — inspect `error` and
  * `failedPlugins` to determine whether the build succeeded.
  */
 export async function safeBuild(options: BuildOptions, overrides?: SetupResult): Promise<BuildOutput> {
-  const { fabric, driver, events, sources } = overrides ? overrides : await setup(options)
+  const setupResult = overrides ? overrides : await setup(options)
+  const { fabric, driver, events, sources, storage } = setupResult
 
   const failedPlugins = new Set<{ plugin: Plugin; error: Error }>()
   // in ms
@@ -379,7 +333,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         }
 
         if (output) {
-          const barrelFiles = await getBarrelFiles(fabric.files as unknown as FileNode[], {
+          const barrelFiles = await getBarrelFiles(driver.fileManager.files, {
             type: output.barrelType ?? 'named',
             root,
             output,
@@ -433,7 +387,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         logs: ['Generating barrel file', `  • Type: ${config.output.barrelType}`, `  • Path: ${rootPath}`],
       })
 
-      const barrelFiles = (fabric.files as unknown as FileNode[]).filter((file) => {
+      const barrelFiles = driver.fileManager.files.filter((file) => {
         return file.sources.some((source) => source.isIndexable)
       })
 
@@ -442,7 +396,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         logs: [`Found ${barrelFiles.length} indexable files for barrel export`],
       })
 
-      const existingBarrel = fabric.files.find((f) => f.path === rootPath)
+      const existingBarrel = driver.fileManager.files.find((f) => f.path === rootPath)
       const existingExports = new Set(
         existingBarrel?.exports?.flatMap((e) => (Array.isArray(e.name) ? e.name : [e.name])).filter((n): n is string => Boolean(n)) ?? [],
       )
@@ -456,7 +410,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
         meta: {},
       })
 
-      await fabric.upsertFile(rootFile)
+      driver.fileManager.upsert(rootFile)
 
       await events.emit('debug', {
         date: new Date(),
@@ -464,9 +418,55 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       })
     }
 
-    const files = [...fabric.files] as unknown as FileNode[]
+    const files = driver.fileManager.files
 
-    await fabric.write({ extension: config.output.extension })
+    // Build a parsers map from config.parsers
+    const parsersMap = new Map<FileNode['extname'], Parser>()
+    for (const parser of config.parsers) {
+      if (parser.extNames) {
+        for (const extname of parser.extNames) {
+          parsersMap.set(extname, parser)
+        }
+      }
+    }
+
+    const fileProcessor = new FileProcessor()
+
+    await events.emit('debug', {
+      date: new Date(),
+      logs: [`Writing ${files.length} files...`],
+    })
+
+    await fileProcessor.run(files, {
+      parsers: parsersMap,
+      extension: config.output.extension,
+      onStart: async (processingFiles) => {
+        await events.emit('files:processing:start', processingFiles)
+      },
+      onUpdate: async ({ file, source, processed, total, percentage }) => {
+        await events.emit('file:processing:update', {
+          file,
+          source,
+          processed,
+          total,
+          percentage,
+          config,
+        })
+        if (source) {
+          // Key is root-relative so it's meaningful for any backend (fs, S3, Redis…)
+          const key = relative(resolve(config.root), file.path)
+          await storage?.setItem(key, source)
+          sources.set(file.path, source)
+        }
+      },
+      onEnd: async (processedFiles) => {
+        await events.emit('files:processing:end', processedFiles)
+        await events.emit('debug', {
+          date: new Date(),
+          logs: [`✓ File write process completed for ${processedFiles.length} files`],
+        })
+      },
+    })
 
     // Call buildEnd() on each plugin after all files are written
     for (const plugin of driver.plugins.values()) {
@@ -478,7 +478,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
     return {
       failedPlugins,
-      fabric,
+      fabric: driver.fabric,
       files,
       driver,
       pluginTimings,
@@ -487,7 +487,7 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
   } catch (error) {
     return {
       failedPlugins,
-      fabric,
+      fabric: driver.fabric,
       files: [],
       driver,
       pluginTimings,

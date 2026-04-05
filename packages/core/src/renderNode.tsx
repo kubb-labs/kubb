@@ -20,6 +20,6 @@ export async function applyHookResult(result: FabricReactNode | Array<FileNode> 
   // Non-array truthy result is treated as a React element (FabricReactNode)
   const fabricChild = createReactFabric()
   await fabricChild.render(<Fabric>{result as FabricReactNode}</Fabric>)
-  fabric.context.fileManager.upsert(...fabricChild.files)
+  await fabric.upsertFile(...(fabricChild.files as unknown as Array<FileNode>))
   fabricChild.unmount()
 }
