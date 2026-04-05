@@ -11,6 +11,11 @@ export const DEFAULT_STUDIO_URL = 'https://studio.kubb.dev' as const
 export const DEFAULT_CONCURRENCY = 15
 
 /**
+ * Maximum number of files processed in parallel by FileProcessor.
+ */
+export const PARALLEL_CONCURRENCY_LIMIT = 100
+
+/**
  * File name used for generated barrel (index) files.
  */
 export const BARREL_FILENAME = 'index.ts' as const

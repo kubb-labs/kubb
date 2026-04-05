@@ -1,8 +1,7 @@
 import type { FileNode } from '@kubb/ast/types'
 import pLimit from 'p-limit'
+import { PARALLEL_CONCURRENCY_LIMIT } from './constants.ts'
 import type { Parser } from './defineParser.ts'
-
-const PARALLEL_CONCURRENCY_LIMIT = 100
 
 type ParseOptions = {
   parsers?: Map<FileNode['extname'], Parser>
