@@ -53,8 +53,9 @@ export type ConstNode = BaseNode & {
   asConst?: boolean
   /**
    * Child nodes representing the value of the constant (children of the `Const` component).
+   * Each entry is either a structured {@link CodeNode} or a raw string expression.
    */
-  nodes?: Array<CodeNode>
+  nodes?: Array<CodeNode | string>
 }
 
 /**
@@ -89,8 +90,9 @@ export type TypeNode = BaseNode & {
   JSDoc?: JSDocNode
   /**
    * Child nodes representing the type body (children of the `Type` component).
+   * Each entry is either a structured {@link CodeNode} or a raw string expression.
    */
-  nodes?: Array<CodeNode>
+  nodes?: Array<CodeNode | string>
 }
 
 /**
@@ -155,8 +157,9 @@ export type FunctionNode = BaseNode & {
   JSDoc?: JSDocNode
   /**
    * Child nodes representing the function body (children of the `Function` component).
+   * Each entry is either a structured {@link CodeNode} or a raw string statement.
    */
-  nodes?: Array<CodeNode>
+  nodes?: Array<CodeNode | string>
 }
 
 /**
@@ -220,8 +223,9 @@ export type ArrowFunctionNode = BaseNode & {
   singleLine?: boolean
   /**
    * Child nodes representing the function body (children of the `Function.Arrow` component).
+   * Each entry is either a structured {@link CodeNode} or a raw string statement.
    */
-  nodes?: Array<CodeNode>
+  nodes?: Array<CodeNode | string>
 }
 
 /**

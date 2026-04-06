@@ -1096,6 +1096,9 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
 
   packages/plugin-client:
     dependencies:

@@ -475,7 +475,8 @@ describe('createConst', () => {
     const node = createConst({ name: 'pet', nodes: [child] })
 
     expect(node.nodes).toHaveLength(1)
-    expect(node.nodes?.[0]?.kind).toBe('Type')
+    const first = node.nodes?.[0]
+    expect(typeof first === 'object' && first.kind).toBe('Type')
   })
 
   it('always sets kind to Const', () => {
@@ -517,7 +518,8 @@ describe('createType', () => {
     const node = createType({ name: 'PetStatus', nodes: [child] })
 
     expect(node.nodes).toHaveLength(1)
-    expect(node.nodes?.[0]?.kind).toBe('Const')
+    const first = node.nodes?.[0]
+    expect(typeof first === 'object' && first.kind).toBe('Const')
   })
 
   it('always sets kind to Type', () => {
