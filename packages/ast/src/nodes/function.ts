@@ -9,7 +9,7 @@ import type { BaseNode } from './base.ts'
  * - `member` — a single named field accessed from a named group type.
  *   TypeScript renders as `PathParams['petId']`, C# as `PathParams.PetId`.
  */
-export type TypeNode = BaseNode & {
+export type TypeExpressionNode = BaseNode & {
   /**
    * Node kind.
    */
@@ -35,7 +35,7 @@ export type TypeNode = BaseNode & {
         /**
          * Properties of the struct type.
          */
-        properties: Array<{ name: string; optional: boolean; type: TypeNode }>
+        properties: Array<{ name: string; optional: boolean; type: TypeExpressionNode }>
       }
     | {
         /**
@@ -79,7 +79,7 @@ export type FunctionParameterNode = BaseNode & {
    */
   name: string
   /**
-   * Type annotation as a structured {@link TypeNode}.
+   * Type annotation as a structured {@link TypeExpressionNode}.
    * Omit for untyped output.
    *
    * @example Reference type node
@@ -91,7 +91,7 @@ export type FunctionParameterNode = BaseNode & {
    * @example Member type node
    * `{ kind: 'Type', variant: 'member', base: 'PathParams', key: 'petId' }` → `PathParams['petId']`
    */
-  type?: TypeNode
+  type?: TypeExpressionNode
   /**
    * When `true` the parameter is emitted as a rest parameter.
    *
@@ -147,7 +147,7 @@ export type ParameterGroupNode = BaseNode & {
    * Optional explicit type annotation for the whole group.
    * When absent, printers auto-compute it from `properties`.
    */
-  type?: TypeNode
+  type?: TypeExpressionNode
   /**
    * When `true`, `properties` are emitted as individual top-level parameters instead of
    * being wrapped in a single grouped construct.
@@ -191,11 +191,11 @@ export type FunctionParametersNode = BaseNode & {
 }
 
 /**
- * The four function-signature AST node variants.
+ * Union of all function-parameter AST node variants used by the function-parameter printer.
  */
-export type FunctionNode = FunctionParameterNode | ParameterGroupNode | FunctionParametersNode | TypeNode
+export type FunctionParamNode = FunctionParameterNode | ParameterGroupNode | FunctionParametersNode | TypeExpressionNode
 
 /**
- * Handler map keys — one per `FunctionNode` kind.
+ * Handler map keys — one per `FunctionParamNode` kind.
  */
 export type FunctionNodeType = 'functionParameter' | 'parameterGroup' | 'functionParameters' | 'type'

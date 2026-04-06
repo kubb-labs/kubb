@@ -1,4 +1,4 @@
-import { createFunctionParameter, createFunctionParameters, createParameterGroup, createTypeNode } from '@kubb/ast'
+import { createFunctionParameter, createFunctionParameters, createParameterGroup, createTypeExpressionNode } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { defineFunctionPrinter, functionPrinter } from './functionPrinter.ts'
 
@@ -7,7 +7,7 @@ describe('functionPrinter in declaration mode', () => {
 
   it('prints required typed parameters as `name: type`', () => {
     const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false })],
+      params: [createFunctionParameter({ name: 'petId', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: false })],
     })
 
     expect(printer.print(sig)).toBe('petId: string')
@@ -15,7 +15,7 @@ describe('functionPrinter in declaration mode', () => {
 
   it('prints optional typed parameters as `name?: type`', () => {
     const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'params', type: createTypeNode({ variant: 'reference', name: 'QueryParams' }), optional: true })],
+      params: [createFunctionParameter({ name: 'params', type: createTypeExpressionNode({ variant: 'reference', name: 'QueryParams' }), optional: true })],
     })
 
     expect(printer.print(sig)).toBe('params?: QueryParams')
@@ -24,7 +24,7 @@ describe('functionPrinter in declaration mode', () => {
   it('prints defaulted typed parameters as `name: type = default`', () => {
     const sig = createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
+        createFunctionParameter({ name: 'config', type: createTypeExpressionNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
       ],
     })
 
@@ -33,7 +33,7 @@ describe('functionPrinter in declaration mode', () => {
 
   it('prints rest parameters with spread syntax', () => {
     const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'args', type: createTypeNode({ variant: 'reference', name: 'string[]' }), optional: false, rest: true })],
+      params: [createFunctionParameter({ name: 'args', type: createTypeExpressionNode({ variant: 'reference', name: 'string[]' }), optional: false, rest: true })],
     })
 
     expect(printer.print(sig)).toBe('...args: string[]')
@@ -42,9 +42,9 @@ describe('functionPrinter in declaration mode', () => {
   it('orders parameters as required, optional, then defaulted', () => {
     const sig = createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'Config' }), optional: false, default: '{}' }),
-        createFunctionParameter({ name: 'params', type: createTypeNode({ variant: 'reference', name: 'Params' }), optional: true }),
-        createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
+        createFunctionParameter({ name: 'config', type: createTypeExpressionNode({ variant: 'reference', name: 'Config' }), optional: false, default: '{}' }),
+        createFunctionParameter({ name: 'params', type: createTypeExpressionNode({ variant: 'reference', name: 'Params' }), optional: true }),
+        createFunctionParameter({ name: 'petId', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: false }),
       ],
     })
 
@@ -54,8 +54,8 @@ describe('functionPrinter in declaration mode', () => {
   it('always places rest parameters last', () => {
     const sig = createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'args', type: createTypeNode({ variant: 'reference', name: 'string[]' }), rest: true }),
-        createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
+        createFunctionParameter({ name: 'args', type: createTypeExpressionNode({ variant: 'reference', name: 'string[]' }), rest: true }),
+        createFunctionParameter({ name: 'petId', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: false }),
       ],
     })
 
@@ -67,8 +67,8 @@ describe('functionPrinter in declaration mode', () => {
       params: [
         createParameterGroup({
           properties: [
-            createFunctionParameter({ name: 'id', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
-            createFunctionParameter({ name: 'name', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: true }),
+            createFunctionParameter({ name: 'id', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: false }),
+            createFunctionParameter({ name: 'name', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: true }),
           ],
           default: '{}',
         }),
@@ -83,7 +83,7 @@ describe('functionPrinter in declaration mode', () => {
       params: [
         createParameterGroup({
           properties: [createFunctionParameter({ name: 'data', optional: false })],
-          type: createTypeNode({ variant: 'reference', name: 'PetData' }),
+          type: createTypeExpressionNode({ variant: 'reference', name: 'PetData' }),
           default: '{}',
         }),
       ],
@@ -97,8 +97,8 @@ describe('functionPrinter in declaration mode', () => {
       params: [
         createParameterGroup({
           properties: [
-            createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
-            createFunctionParameter({ name: 'ownerId', type: createTypeNode({ variant: 'reference', name: 'number' }), optional: false }),
+            createFunctionParameter({ name: 'petId', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: false }),
+            createFunctionParameter({ name: 'ownerId', type: createTypeExpressionNode({ variant: 'reference', name: 'number' }), optional: false }),
           ],
           inline: true,
         }),
@@ -113,12 +113,12 @@ describe('functionPrinter in declaration mode', () => {
       params: [
         createParameterGroup({
           properties: [
-            createFunctionParameter({ name: 'id', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
-            createFunctionParameter({ name: 'name', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: true }),
+            createFunctionParameter({ name: 'id', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: false }),
+            createFunctionParameter({ name: 'name', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: true }),
           ],
           default: '{}',
         }),
-        createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
+        createFunctionParameter({ name: 'config', type: createTypeExpressionNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
       ],
     })
 
@@ -148,8 +148,8 @@ describe('functionPrinter() in call mode', () => {
   it('prints simple parameter names only', () => {
     const sig = createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
-        createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
+        createFunctionParameter({ name: 'petId', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: false }),
+        createFunctionParameter({ name: 'config', type: createTypeExpressionNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
       ],
     })
 
@@ -196,8 +196,8 @@ describe('functionPrinter() in keys mode', () => {
   it('prints comma-separated parameter names', () => {
     const sig = createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
-        createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'Config' }), optional: false }),
+        createFunctionParameter({ name: 'petId', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: false }),
+        createFunctionParameter({ name: 'config', type: createTypeExpressionNode({ variant: 'reference', name: 'Config' }), optional: false }),
       ],
     })
 
@@ -222,7 +222,7 @@ describe('functionPrinter() in values mode', () => {
 
   it('prints names for simple parameters', () => {
     const sig = createFunctionParameters({
-      params: [createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false })],
+      params: [createFunctionParameter({ name: 'petId', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: false })],
     })
 
     expect(printer.print(sig)).toBe('petId')
@@ -246,13 +246,13 @@ describe('functionPrinter() transform options', () => {
     {
       label: 'transformName',
       options: { mode: 'declaration' as const, transformName: (n: string) => n.toUpperCase() },
-      param: createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
+      param: createFunctionParameter({ name: 'petId', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: false }),
       expected: 'PETID: string',
     },
     {
       label: 'transformType',
       options: { mode: 'declaration' as const, transformType: (t: string) => `Partial<${t}>` },
-      param: createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'Config' }), optional: false }),
+      param: createFunctionParameter({ name: 'config', type: createTypeExpressionNode({ variant: 'reference', name: 'Config' }), optional: false }),
       expected: 'config: Partial<Config>',
     },
   ])('applies $label in declaration mode', ({ options, param, expected }) => {
@@ -290,8 +290,8 @@ describe('defineFunctionPrinter()', () => {
 
     const sig = createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
-        createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'Config' }), optional: false }),
+        createFunctionParameter({ name: 'petId', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: false }),
+        createFunctionParameter({ name: 'config', type: createTypeExpressionNode({ variant: 'reference', name: 'Config' }), optional: false }),
       ],
     })
 

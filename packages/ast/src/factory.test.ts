@@ -1,10 +1,10 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
-  createArrowFunctionDeclaration,
+  createArrowFunctionNode,
   createConst,
   createExport,
   createFile,
-  createFunctionDeclaration,
+  createFunctionNode,
   createFunctionParameter,
   createFunctionParameters,
   createImport,
@@ -16,10 +16,10 @@ import {
   createResponse,
   createSchema,
   createSource,
-  createTypeDeclaration,
+  createTypeExpressionNode,
   createTypeNode,
 } from './factory.ts'
-import type { ArrowFunctionDeclarationNode, ConstNode, FileNode, FunctionDeclarationNode, ObjectSchemaNode, StringSchemaNode, TypeDeclarationNode } from './nodes/index.ts'
+import type { ArrowFunctionNode, ConstNode, FileNode, FunctionNode, ObjectSchemaNode, StringSchemaNode, TypeNode } from './nodes/index.ts'
 
 describe('createInput', () => {
   it('creates an InputNode with default empty arrays', () => {
@@ -187,7 +187,7 @@ describe('createResponse', () => {
 
 describe('createFunctionParameter', () => {
   it('defaults optional to false', () => {
-    const node = createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }) })
+    const node = createFunctionParameter({ name: 'petId', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }) })
 
     expect(node.kind).toBe('FunctionParameter')
     expect(node.name).toBe('petId')
@@ -196,14 +196,14 @@ describe('createFunctionParameter', () => {
   })
 
   it('supports optional true without default', () => {
-    const node = createFunctionParameter({ name: 'query', type: createTypeNode({ variant: 'reference', name: 'Query' }), optional: true })
+    const node = createFunctionParameter({ name: 'query', type: createTypeExpressionNode({ variant: 'reference', name: 'Query' }), optional: true })
 
     expect(node.optional).toBe(true)
     expect(node.default).toBeUndefined()
   })
 
   it('supports default value with optional false/omitted', () => {
-    const node = createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), default: '{}' })
+    const node = createFunctionParameter({ name: 'config', type: createTypeExpressionNode({ variant: 'reference', name: 'RequestConfig' }), default: '{}' })
 
     expect(node.optional).toBe(false)
     expect(node.default).toBe('{}')
@@ -212,7 +212,7 @@ describe('createFunctionParameter', () => {
 
 describe('createParameterGroup', () => {
   it('creates object binding parameter with properties', () => {
-    const props = [createFunctionParameter({ name: 'id', type: createTypeNode({ variant: 'reference', name: 'string' }) })]
+    const props = [createFunctionParameter({ name: 'id', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }) })]
     const node = createParameterGroup({ properties: props })
 
     expect(node.kind).toBe('ParameterGroup')
@@ -221,7 +221,7 @@ describe('createParameterGroup', () => {
 
   it('accepts inline and default options', () => {
     const node = createParameterGroup({
-      properties: [createFunctionParameter({ name: 'id', type: createTypeNode({ variant: 'reference', name: 'string' }) })],
+      properties: [createFunctionParameter({ name: 'id', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }) })],
       inline: true,
       default: '{}',
     })
@@ -240,7 +240,7 @@ describe('createFunctionParameters', () => {
   })
 
   it('accepts params override', () => {
-    const params = [createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }) })]
+    const params = [createFunctionParameter({ name: 'petId', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }) })]
     const node = createFunctionParameters({ params })
 
     expect(node.params).toEqual(params)
@@ -471,7 +471,7 @@ describe('createConst', () => {
   })
 
   it('accepts child nodes', () => {
-    const child = createTypeDeclaration({ name: 'Pet' })
+    const child = createTypeNode({ name: 'Pet' })
     const node = createConst({ name: 'pet', nodes: [child] })
 
     expect(node.nodes).toHaveLength(1)
@@ -490,9 +490,9 @@ describe('createConst', () => {
   })
 })
 
-describe('createTypeDeclaration', () => {
-  it('creates a TypeDeclarationNode with required name', () => {
-    const node = createTypeDeclaration({ name: 'Pet' })
+describe('createTypeNode', () => {
+  it('creates a TypeNode with required name', () => {
+    const node = createTypeNode({ name: 'Pet' })
 
     expect(node.kind).toBe('TypeDeclaration')
     expect(node.name).toBe('Pet')
@@ -502,7 +502,7 @@ describe('createTypeDeclaration', () => {
   })
 
   it('accepts export flag and JSDoc', () => {
-    const node = createTypeDeclaration({
+    const node = createTypeNode({
       name: 'PetStatus',
       export: true,
       JSDoc: { comments: ['@description Status of a pet'] },
@@ -514,7 +514,7 @@ describe('createTypeDeclaration', () => {
 
   it('accepts child nodes', () => {
     const child = createConst({ name: 'value' })
-    const node = createTypeDeclaration({ name: 'PetStatus', nodes: [child] })
+    const node = createTypeNode({ name: 'PetStatus', nodes: [child] })
 
     expect(node.nodes).toHaveLength(1)
     expect(node.nodes?.[0]?.kind).toBe('Const')
@@ -522,19 +522,19 @@ describe('createTypeDeclaration', () => {
 
   it('always sets kind to TypeDeclaration', () => {
     // @ts-expect-error — kind should be forced to 'TypeDeclaration'
-    const node = createTypeDeclaration({ name: 'X', kind: 'Import' })
+    const node = createTypeNode({ name: 'X', kind: 'Import' })
 
     expect(node.kind).toBe('TypeDeclaration')
   })
 
-  it('narrows the return type to TypeDeclarationNode', () => {
-    expectTypeOf(createTypeDeclaration({ name: 'Pet' })).toMatchTypeOf<TypeDeclarationNode>()
+  it('narrows the return type to TypeNode', () => {
+    expectTypeOf(createTypeNode({ name: 'Pet' })).toMatchTypeOf<TypeNode>()
   })
 })
 
-describe('createFunctionDeclaration', () => {
-  it('creates a FunctionDeclarationNode with required name', () => {
-    const node = createFunctionDeclaration({ name: 'getPet' })
+describe('createFunctionNode', () => {
+  it('creates a FunctionNode with required name', () => {
+    const node = createFunctionNode({ name: 'getPet' })
 
     expect(node.kind).toBe('FunctionDeclaration')
     expect(node.name).toBe('getPet')
@@ -548,7 +548,7 @@ describe('createFunctionDeclaration', () => {
   })
 
   it('accepts export, async, params, returnType and generics', () => {
-    const node = createFunctionDeclaration({
+    const node = createFunctionNode({
       name: 'fetchPet',
       export: true,
       async: true,
@@ -565,13 +565,13 @@ describe('createFunctionDeclaration', () => {
   })
 
   it('accepts default export flag', () => {
-    const node = createFunctionDeclaration({ name: 'handler', default: true, export: true })
+    const node = createFunctionNode({ name: 'handler', default: true, export: true })
 
     expect(node.default).toBe(true)
   })
 
   it('accepts JSDoc and child nodes', () => {
-    const node = createFunctionDeclaration({
+    const node = createFunctionNode({
       name: 'getPet',
       JSDoc: { comments: ['@description Fetch a pet'] },
       nodes: [createConst({ name: 'url' })],
@@ -583,19 +583,19 @@ describe('createFunctionDeclaration', () => {
 
   it('always sets kind to FunctionDeclaration', () => {
     // @ts-expect-error — kind should be forced to 'FunctionDeclaration'
-    const node = createFunctionDeclaration({ name: 'x', kind: 'Import' })
+    const node = createFunctionNode({ name: 'x', kind: 'Import' })
 
     expect(node.kind).toBe('FunctionDeclaration')
   })
 
-  it('narrows the return type to FunctionDeclarationNode', () => {
-    expectTypeOf(createFunctionDeclaration({ name: 'getPet' })).toMatchTypeOf<FunctionDeclarationNode>()
+  it('narrows the return type to FunctionNode', () => {
+    expectTypeOf(createFunctionNode({ name: 'getPet' })).toMatchTypeOf<FunctionNode>()
   })
 })
 
-describe('createArrowFunctionDeclaration', () => {
-  it('creates an ArrowFunctionDeclarationNode with required name', () => {
-    const node = createArrowFunctionDeclaration({ name: 'getPet' })
+describe('createArrowFunctionNode', () => {
+  it('creates an ArrowFunctionNode with required name', () => {
+    const node = createArrowFunctionNode({ name: 'getPet' })
 
     expect(node.kind).toBe('ArrowFunctionDeclaration')
     expect(node.name).toBe('getPet')
@@ -610,7 +610,7 @@ describe('createArrowFunctionDeclaration', () => {
   })
 
   it('accepts export, async, params, returnType, generics and singleLine', () => {
-    const node = createArrowFunctionDeclaration({
+    const node = createArrowFunctionNode({
       name: 'double',
       export: true,
       async: false,
@@ -629,7 +629,7 @@ describe('createArrowFunctionDeclaration', () => {
   })
 
   it('accepts JSDoc and child nodes', () => {
-    const node = createArrowFunctionDeclaration({
+    const node = createArrowFunctionNode({
       name: 'fetchPet',
       JSDoc: { comments: ['@description Fetch a pet'] },
       nodes: [createConst({ name: 'url' })],
@@ -640,19 +640,19 @@ describe('createArrowFunctionDeclaration', () => {
   })
 
   it('accepts default export flag', () => {
-    const node = createArrowFunctionDeclaration({ name: 'handler', default: true, export: true })
+    const node = createArrowFunctionNode({ name: 'handler', default: true, export: true })
 
     expect(node.default).toBe(true)
   })
 
   it('always sets kind to ArrowFunctionDeclaration', () => {
     // @ts-expect-error — kind should be forced to 'ArrowFunctionDeclaration'
-    const node = createArrowFunctionDeclaration({ name: 'x', kind: 'Import' })
+    const node = createArrowFunctionNode({ name: 'x', kind: 'Import' })
 
     expect(node.kind).toBe('ArrowFunctionDeclaration')
   })
 
-  it('narrows the return type to ArrowFunctionDeclarationNode', () => {
-    expectTypeOf(createArrowFunctionDeclaration({ name: 'getPet' })).toMatchTypeOf<ArrowFunctionDeclarationNode>()
+  it('narrows the return type to ArrowFunctionNode', () => {
+    expectTypeOf(createArrowFunctionNode({ name: 'getPet' })).toMatchTypeOf<ArrowFunctionNode>()
   })
 })

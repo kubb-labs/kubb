@@ -1,5 +1,5 @@
 import type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
-import type { FunctionNode } from './function.ts'
+import type { FunctionParamNode } from './function.ts'
 import type { OperationNode } from './operation.ts'
 import type { OutputNode } from './output.ts'
 import type { ParameterNode } from './parameter.ts'
@@ -7,12 +7,12 @@ import type { PropertyNode } from './property.ts'
 import type { ResponseNode } from './response.ts'
 import type { InputNode } from './root.ts'
 import type { SchemaNode } from './schema.ts'
-import type { ArrowFunctionDeclarationNode, ConstNode, FunctionDeclarationNode, TypeDeclarationNode } from './code.ts'
+import type { ArrowFunctionNode, ConstNode, FunctionNode, TypeNode } from './code.ts'
 
 export type { BaseNode, NodeKind } from './base.ts'
-export type { ArrowFunctionDeclarationNode, CodeNode, ConstNode, FunctionDeclarationNode, JSDocNode, TypeDeclarationNode } from './code.ts'
+export type { ArrowFunctionNode, CodeNode, ConstNode, FunctionNode, JSDocNode, TypeNode } from './code.ts'
 export type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
-export type { FunctionNode, FunctionNodeType, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, TypeNode } from './function.ts'
+export type { FunctionNodeType, FunctionParamNode, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, TypeExpressionNode } from './function.ts'
 export type { HttpStatusCode, MediaType, StatusCode } from './http.ts'
 export type { HttpMethod, OperationNode } from './operation.ts'
 export type { OutputNode } from './output.ts'
@@ -74,12 +74,12 @@ export type Node =
   | PropertyNode
   | ParameterNode
   | ResponseNode
-  | FunctionNode
+  | FunctionParamNode
   | FileNode
   | ImportNode
   | ExportNode
   | SourceNode
   | ConstNode
-  | TypeDeclarationNode
-  | FunctionDeclarationNode
-  | ArrowFunctionDeclarationNode
+  | TypeNode
+  | FunctionNode
+  | ArrowFunctionNode

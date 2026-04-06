@@ -2,9 +2,12 @@ export type { VisitorDepth } from './constants.ts'
 export type { DistributiveOmit } from './factory.ts'
 export type { InferSchema, InferSchemaNode, ParserOptions } from './infer.ts'
 export type {
+  ArrowFunctionNode,
   ArraySchemaNode,
   BaseNode,
+  CodeNode,
   ComplexSchemaType,
+  ConstNode,
   DateSchemaNode,
   DatetimeSchemaNode,
   EnumSchemaNode,
@@ -14,6 +17,7 @@ export type {
   FormatStringSchemaNode,
   FunctionNode,
   FunctionNodeType,
+  FunctionParamNode,
   FunctionParameterNode,
   FunctionParametersNode,
   HttpMethod,
@@ -24,6 +28,7 @@ export type {
   IntersectionSchemaNode,
   Ipv4SchemaNode,
   Ipv6SchemaNode,
+  JSDocNode,
   MediaType,
   Node,
   NodeKind,
@@ -48,6 +53,7 @@ export type {
   StatusCode,
   StringSchemaNode,
   TimeSchemaNode,
+  TypeExpressionNode,
   TypeNode,
   UnionSchemaNode,
   UrlSchemaNode,

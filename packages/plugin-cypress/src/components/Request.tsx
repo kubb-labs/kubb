@@ -1,5 +1,5 @@
 import { camelCase, URLPath } from '@internals/utils'
-import { caseParams, createFunctionParameter, createOperationParams, createTypeNode } from '@kubb/ast'
+import { caseParams, createFunctionParameter, createOperationParams, createTypeExpressionNode } from '@kubb/ast'
 import type { OperationNode } from '@kubb/ast/types'
 import type { ResolverTs } from '@kubb/plugin-ts'
 import { functionPrinter } from '@kubb/plugin-ts'
@@ -36,7 +36,7 @@ export function Request({ baseURL = '', name, dataReturnType, resolver, node, pa
     paramsCasing,
     resolver,
     extraParams: [
-      createFunctionParameter({ name: 'options', type: createTypeNode({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }), default: '{}' }),
+      createFunctionParameter({ name: 'options', type: createTypeExpressionNode({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }), default: '{}' }),
     ],
   })
   const paramsSignature = declarationPrinter.print(paramsNode) ?? ''

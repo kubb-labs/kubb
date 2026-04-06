@@ -1,6 +1,6 @@
 import type { PrinterFactoryOptions } from '@kubb/ast'
 import { createPrinterFactory } from '@kubb/ast'
-import type { FunctionNode, FunctionNodeType, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, TypeNode } from '@kubb/ast/types'
+import type { FunctionNodeType, FunctionParamNode, FunctionParameterNode, FunctionParametersNode, ParameterGroupNode, TypeExpressionNode } from '@kubb/ast/types'
 import { PARAM_RANK } from '../constants.ts'
 
 /**
@@ -10,7 +10,7 @@ export type FunctionNodeByType = {
   functionParameter: FunctionParameterNode
   parameterGroup: ParameterGroupNode
   functionParameters: FunctionParametersNode
-  type: TypeNode
+  type: TypeExpressionNode
 }
 
 const kindToHandlerKey = {
@@ -26,7 +26,7 @@ const kindToHandlerKey = {
  * Uses `createPrinterFactory` and dispatches handlers by `node.kind`
  * (for function nodes) rather than by `node.type` (for schema nodes).
  */
-export const defineFunctionPrinter = createPrinterFactory<FunctionNode, FunctionNodeType, FunctionNodeByType>((node) => kindToHandlerKey[node.kind])
+export const defineFunctionPrinter = createPrinterFactory<FunctionParamNode, FunctionNodeType, FunctionNodeByType>((node) => kindToHandlerKey[node.kind])
 
 export type FunctionPrinterOptions = {
   /**

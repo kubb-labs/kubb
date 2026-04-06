@@ -1,7 +1,7 @@
 import { camelCase, isValidVarName } from '@internals/utils'
 import { sortBy, uniqueBy } from 'remeda'
 
-import { createFunctionParameter, createFunctionParameters, createParameterGroup, createProperty, createSchema, createTypeNode } from './factory.ts'
+import { createFunctionParameter, createFunctionParameters, createParameterGroup, createProperty, createSchema, createTypeExpressionNode } from './factory.ts'
 import { narrowSchema } from './guards.ts'
 import type {
   ExportNode,
@@ -13,7 +13,7 @@ import type {
   ParameterNode,
   SchemaNode,
   SourceNode,
-  TypeNode,
+  TypeExpressionNode,
 } from './nodes/index.ts'
 import type { SchemaType } from './nodes/schema.ts'
 
@@ -128,9 +128,9 @@ export function createDiscriminantNode({ propertyName, value }: { propertyName: 
  */
 export type ParamGroupType = {
   /**
-   * TypeNode for the group type.
+   * TypeExpressionNode for the group type.
    */
-  type: TypeNode
+  type: TypeExpressionNode
   /**
    * Whether the parameter group is optional.
    */
@@ -263,9 +263,9 @@ export type CreateOperationParamsOptions = {
   typeWrapper?: (type: string) => string
 }
 
-function resolveType({ node, param, resolver }: { node: OperationNode; param: ParameterNode; resolver: OperationParamsResolver | undefined }): TypeNode {
+function resolveType({ node, param, resolver }: { node: OperationNode; param: ParameterNode; resolver: OperationParamsResolver | undefined }): TypeExpressionNode {
   if (!resolver) {
-    return createTypeNode({ variant: 'reference', name: param.schema.primitive ?? 'unknown' })
+    return createTypeExpressionNode({ variant: 'reference', name: param.schema.primitive ?? 'unknown' })
   }
 
   const individualName = resolver.resolveParamName(node, param)
@@ -281,10 +281,10 @@ function resolveType({ node, param, resolver }: { node: OperationNode; param: Pa
   const groupName = groupLocation ? groupResolvers[groupLocation].call(resolver, node, param) : undefined
 
   if (groupName && groupName !== individualName) {
-    return createTypeNode({ variant: 'member', base: groupName, key: param.name })
+    return createTypeExpressionNode({ variant: 'member', base: groupName, key: param.name })
   }
 
-  return createTypeNode({ variant: 'reference', name: individualName })
+  return createTypeExpressionNode({ variant: 'reference', name: individualName })
 }
 
 /**
@@ -299,7 +299,7 @@ function resolveType({ node, param, resolver }: { node: OperationNode; param: Pa
  *   paramsType: 'inline',
  *   pathParamsType: 'inline',
  *   resolver: tsResolver,
- *   extraParams: [createFunctionParameter({ name: 'options', type: createTypeNode({ variant: 'reference', name: 'Partial<RequestOptions>' }), default: '{}' })],
+ *   extraParams: [createFunctionParameter({ name: 'options', type: createTypeExpressionNode({ variant: 'reference', name: 'Partial<RequestOptions>' }), default: '{}' })],
  * })
  * ```
  */
@@ -311,10 +311,10 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   const headersName = paramNames?.headers ?? 'headers'
   const pathName = paramNames?.path ?? 'pathParams'
 
-  const wrapType = (type: string): TypeNode => createTypeNode({ variant: 'reference', name: typeWrapper ? typeWrapper(type) : type })
+  const wrapType = (type: string): TypeExpressionNode => createTypeExpressionNode({ variant: 'reference', name: typeWrapper ? typeWrapper(type) : type })
   // Only reference TypeNodes are wrapped (they hold a plain type name string).
   // Member and struct TypeNodes are pre-resolved structured expressions and are passed through unchanged.
-  const wrapTypeNode = (type: TypeNode): TypeNode => (type.variant === 'reference' ? wrapType(type.name) : type)
+  const wrapTypeExpressionNode = (type: TypeExpressionNode): TypeExpressionNode => (type.variant === 'reference' ? wrapType(type.name) : type)
 
   const casedParams = caseParams(node.parameters, paramsCasing)
   const pathParams = casedParams.filter((p) => p.in === 'path')
@@ -333,7 +333,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
     const children: Array<FunctionParameterNode> = [
       ...pathParams.map((p) => {
         const type = resolveType({ node, param: p, resolver })
-        return createFunctionParameter({ name: p.name, type: wrapTypeNode(type), optional: !p.required })
+        return createFunctionParameter({ name: p.name, type: wrapTypeExpressionNode(type), optional: !p.required })
       }),
       ...(bodyType ? [createFunctionParameter({ name: dataName, type: bodyType, optional: !bodyRequired })] : []),
       ...buildGroupParam({ name: paramsName, node, params: queryParams, groupType: queryGroupType, resolver, wrapType }),
@@ -351,7 +351,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
       } else {
         const pathChildren = pathParams.map((p) => {
           const type = resolveType({ node, param: p, resolver })
-          return createFunctionParameter({ name: p.name, type: wrapTypeNode(type), optional: !p.required })
+          return createFunctionParameter({ name: p.name, type: wrapTypeExpressionNode(type), optional: !p.required })
         })
         params.push(
           createParameterGroup({
@@ -396,7 +396,7 @@ function buildGroupParam({
   params: Array<ParameterNode>
   groupType: ParamGroupType | undefined
   resolver: OperationParamsResolver | undefined
-  wrapType: (type: string) => TypeNode
+  wrapType: (type: string) => TypeExpressionNode
 }): Array<FunctionParameterNode> {
   if (groupType) {
     const type = groupType.type.variant === 'reference' ? wrapType(groupType.type.name) : groupType.type
@@ -438,11 +438,11 @@ function resolveGroupType({
     return undefined
   }
   const allOptional = params.every((p) => !p.required)
-  return { type: createTypeNode({ variant: 'reference', name: groupName }), optional: allOptional }
+  return { type: createTypeExpressionNode({ variant: 'reference', name: groupName }), optional: allOptional }
 }
 
 /**
- * Builds a {@link TypeNode} with `variant: 'struct'` for an inline anonymous type grouping named fields.
+ * Builds a {@link TypeExpressionNode} with `variant: 'struct'` for an inline anonymous type grouping named fields.
  *
  * Used when query or header parameters have no dedicated group type name.
  * Each language printer renders this appropriately (TypeScript: `{ petId: string; name?: string }`).
@@ -455,8 +455,8 @@ function toStructType({
   node: OperationNode
   params: Array<ParameterNode>
   resolver: OperationParamsResolver | undefined
-}): TypeNode {
-  return createTypeNode({
+}): TypeExpressionNode {
+  return createTypeExpressionNode({
     variant: 'struct',
     properties: params.map((p) => ({ name: p.name, optional: !p.required, type: resolveType({ node, param: p, resolver }) })),
   })

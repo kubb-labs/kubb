@@ -3,11 +3,11 @@ import path from 'node:path'
 import { trimExtName } from '@internals/utils'
 import type { InferSchemaNode } from './infer.ts'
 import type {
-  ArrowFunctionDeclarationNode,
+  ArrowFunctionNode,
   ConstNode,
   ExportNode,
   FileNode,
-  FunctionDeclarationNode,
+  FunctionNode,
   FunctionParameterNode,
   FunctionParametersNode,
   ImportNode,
@@ -22,7 +22,7 @@ import type {
   ResponseNode,
   SchemaNode,
   SourceNode,
-  TypeDeclarationNode,
+  TypeExpressionNode,
   TypeNode,
 } from './nodes/index.ts'
 import { combineExports, combineImports, combineSources } from './utils.ts'
@@ -315,24 +315,24 @@ export function createResponse(
  *
  * @example Required typed param
  * ```ts
- * createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }) })
+ * createFunctionParameter({ name: 'petId', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }) })
  * // → petId: string
  * ```
  *
  * @example Optional param
  * ```ts
- * createFunctionParameter({ name: 'params', type: createTypeNode({ variant: 'reference', name: 'QueryParams' }), optional: true })
+ * createFunctionParameter({ name: 'params', type: createTypeExpressionNode({ variant: 'reference', name: 'QueryParams' }), optional: true })
  * // → params?: QueryParams
  * ```
  *
  * @example Param with default (implicitly optional; cannot combine with `optional: true`)
  * ```ts
- * createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), default: '{}' })
+ * createFunctionParameter({ name: 'config', type: createTypeExpressionNode({ variant: 'reference', name: 'RequestConfig' }), default: '{}' })
  * // → config: RequestConfig = {}
  * ```
  */
 export function createFunctionParameter(
-  props: { name: string; type?: TypeNode; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string }),
+  props: { name: string; type?: TypeExpressionNode; rest?: boolean } & ({ optional: true; default?: never } | { optional?: false; default?: string }),
 ): FunctionParameterNode {
   return {
     optional: false,
@@ -342,7 +342,7 @@ export function createFunctionParameter(
 }
 
 /**
- * Creates a {@link TypeNode} representing a language-agnostic structured type expression.
+ * Creates a {@link TypeExpressionNode} representing a language-agnostic structured type expression.
  *
  * Use `variant: 'struct'` for inline anonymous types and `variant: 'member'` for a single
  * named field accessed from a group type. Each language's printer renders the variant
@@ -350,26 +350,26 @@ export function createFunctionParameter(
  *
  * @example Reference type (TypeScript: `QueryParams`)
  * ```ts
- * createTypeNode({ variant: 'reference', name: 'QueryParams' })
+ * createTypeExpressionNode({ variant: 'reference', name: 'QueryParams' })
  * ```
  *
  * @example Struct type (TypeScript: `{ petId: string }`)
  * ```ts
- * createTypeNode({ variant: 'struct', properties: [{ name: 'petId', optional: false, type: createTypeNode({ variant: 'reference', name: 'string' }) }] })
+ * createTypeExpressionNode({ variant: 'struct', properties: [{ name: 'petId', optional: false, type: createTypeExpressionNode({ variant: 'reference', name: 'string' }) }] })
  * ```
  *
  * @example Member type (TypeScript: `DeletePetPathParams['petId']`)
  * ```ts
- * createTypeNode({ variant: 'member', base: 'DeletePetPathParams', key: 'petId' })
+ * createTypeExpressionNode({ variant: 'member', base: 'DeletePetPathParams', key: 'petId' })
  * ```
  */
-export function createTypeNode(
+export function createTypeExpressionNode(
   props:
     | { variant: 'reference'; name: string }
-    | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: TypeNode }> }
+    | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: TypeExpressionNode }> }
     | { variant: 'member'; base: string; key: string },
-): TypeNode {
-  return { ...props, kind: 'Type' } as TypeNode
+): TypeExpressionNode {
+  return { ...props, kind: 'Type' } as TypeExpressionNode
 }
 
 /**
@@ -379,8 +379,8 @@ export function createTypeNode(
  * ```ts
  * createParameterGroup({
  *   properties: [
- *     createFunctionParameter({ name: 'id', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
- *     createFunctionParameter({ name: 'name', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: true }),
+ *     createFunctionParameter({ name: 'id', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: false }),
+ *     createFunctionParameter({ name: 'name', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: true }),
  *   ],
  *   default: '{}',
  * })
@@ -391,7 +391,7 @@ export function createTypeNode(
  * @example Inline (spread) — children emitted as individual top-level parameters
  * ```ts
  * createParameterGroup({
- *   properties: [createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false })],
+ *   properties: [createFunctionParameter({ name: 'petId', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: false })],
  *   inline: true,
  * })
  * // declaration → petId: string
@@ -414,8 +414,8 @@ export function createParameterGroup(
  * ```ts
  * createFunctionParameters({
  *   params: [
- *     createFunctionParameter({ name: 'petId', type: createTypeNode({ variant: 'reference', name: 'string' }), optional: false }),
- *     createFunctionParameter({ name: 'config', type: createTypeNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
+ *     createFunctionParameter({ name: 'petId', type: createTypeExpressionNode({ variant: 'reference', name: 'string' }), optional: false }),
+ *     createFunctionParameter({ name: 'config', type: createTypeExpressionNode({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
  *   ],
  * })
  * ```
@@ -575,20 +575,20 @@ export function createConst(props: Omit<ConstNode, 'kind'>): ConstNode {
 }
 
 /**
- * Creates a `TypeDeclarationNode` representing a TypeScript `type` alias declaration.
+ * Creates a `TypeNode` representing a TypeScript `type` alias declaration.
  *
  * Mirrors the `Type` component from `@kubb/react-fabric`.
  * The component's `children` are represented as `nodes`.
  *
  * @example Simple type alias
  * ```ts
- * createTypeDeclaration({ name: 'Pet' })
+ * createTypeNode({ name: 'Pet' })
  * // type Pet = ...
  * ```
  *
  * @example Exported type with JSDoc
  * ```ts
- * createTypeDeclaration({
+ * createTypeNode({
  *   name: 'PetStatus',
  *   export: true,
  *   JSDoc: { comments: ['@description Status of a pet'] },
@@ -596,31 +596,31 @@ export function createConst(props: Omit<ConstNode, 'kind'>): ConstNode {
  * // export type PetStatus = ...
  * ```
  */
-export function createTypeDeclaration(props: Omit<TypeDeclarationNode, 'kind'>): TypeDeclarationNode {
+export function createTypeNode(props: Omit<TypeNode, 'kind'>): TypeNode {
   return { ...props, kind: 'TypeDeclaration' }
 }
 
 /**
- * Creates a `FunctionDeclarationNode` representing a TypeScript `function` declaration.
+ * Creates a `FunctionNode` representing a TypeScript `function` declaration.
  *
  * Mirrors the `Function` component from `@kubb/react-fabric`.
  * The component's `children` are represented as `nodes`.
  *
  * @example Simple function
  * ```ts
- * createFunctionDeclaration({ name: 'getPet' })
+ * createFunctionNode({ name: 'getPet' })
  * // function getPet() { ... }
  * ```
  *
  * @example Exported async function with return type
  * ```ts
- * createFunctionDeclaration({ name: 'fetchPet', export: true, async: true, returnType: 'Pet' })
+ * createFunctionNode({ name: 'fetchPet', export: true, async: true, returnType: 'Pet' })
  * // export async function fetchPet(): Promise<Pet> { ... }
  * ```
  *
  * @example Function with generics and params
  * ```ts
- * createFunctionDeclaration({
+ * createFunctionNode({
  *   name: 'identity',
  *   export: true,
  *   generics: ['T'],
@@ -630,31 +630,31 @@ export function createTypeDeclaration(props: Omit<TypeDeclarationNode, 'kind'>):
  * // export function identity<T>(value: T): T { ... }
  * ```
  */
-export function createFunctionDeclaration(props: Omit<FunctionDeclarationNode, 'kind'>): FunctionDeclarationNode {
+export function createFunctionNode(props: Omit<FunctionNode, 'kind'>): FunctionNode {
   return { ...props, kind: 'FunctionDeclaration' }
 }
 
 /**
- * Creates an `ArrowFunctionDeclarationNode` representing a TypeScript arrow function.
+ * Creates an `ArrowFunctionNode` representing a TypeScript arrow function.
  *
  * Mirrors the `Function.Arrow` component from `@kubb/react-fabric`.
  * The component's `children` are represented as `nodes`.
  *
  * @example Simple arrow function
  * ```ts
- * createArrowFunctionDeclaration({ name: 'getPet' })
+ * createArrowFunctionNode({ name: 'getPet' })
  * // const getPet = () => { ... }
  * ```
  *
  * @example Single-line exported arrow function
  * ```ts
- * createArrowFunctionDeclaration({ name: 'double', export: true, params: 'n: number', singleLine: true })
+ * createArrowFunctionNode({ name: 'double', export: true, params: 'n: number', singleLine: true })
  * // export const double = (n: number) => ...
  * ```
  *
  * @example Async arrow function with generics
  * ```ts
- * createArrowFunctionDeclaration({
+ * createArrowFunctionNode({
  *   name: 'fetchPet',
  *   export: true,
  *   async: true,
@@ -665,6 +665,6 @@ export function createFunctionDeclaration(props: Omit<FunctionDeclarationNode, '
  * // export const fetchPet = async <T>(id: string): Promise<T> => { ... }
  * ```
  */
-export function createArrowFunctionDeclaration(props: Omit<ArrowFunctionDeclarationNode, 'kind'>): ArrowFunctionDeclarationNode {
+export function createArrowFunctionNode(props: Omit<ArrowFunctionNode, 'kind'>): ArrowFunctionNode {
   return { ...props, kind: 'ArrowFunctionDeclaration' }
 }

@@ -69,7 +69,7 @@ export type ConstNode = BaseNode & {
  * // export type Pet = ...
  * ```
  */
-export type TypeDeclarationNode = BaseNode & {
+export type TypeNode = BaseNode & {
   /**
    * Node kind.
    */
@@ -105,7 +105,7 @@ export type TypeDeclarationNode = BaseNode & {
  * // export async function getPet(): Promise<Pet> { ... }
  * ```
  */
-export type FunctionDeclarationNode = BaseNode & {
+export type FunctionNode = BaseNode & {
   /**
    * Node kind.
    */
@@ -165,7 +165,7 @@ export type FunctionDeclarationNode = BaseNode & {
  * // export const getPet = () => ...
  * ```
  */
-export type ArrowFunctionDeclarationNode = BaseNode & {
+export type ArrowFunctionNode = BaseNode & {
   /**
    * Node kind.
    */
@@ -224,4 +224,4 @@ export type ArrowFunctionDeclarationNode = BaseNode & {
  * These nodes mirror the JSX components from `@kubb/react-fabric` and are used as
  * structured children in {@link SourceNode.nodes}.
  */
-export type CodeNode = ConstNode | TypeDeclarationNode | FunctionDeclarationNode | ArrowFunctionDeclarationNode
+export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode
