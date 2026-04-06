@@ -229,9 +229,7 @@ describe('parserTs', () => {
       path: '/test.ts',
       sources: [
         createSource({
-          nodes: [
-            createConst({ name: 'schema', export: true, nodes: ['z.string()'] }),
-          ],
+          nodes: [createConst({ name: 'schema', export: true, nodes: ['z.string()'] })],
         }),
       ],
       imports: [],
@@ -248,10 +246,7 @@ describe('parserTs', () => {
       path: '/test.ts',
       sources: [
         createSource({
-          nodes: [
-            createType({ name: 'Pet', export: true, nodes: ['{ id: number }'] }),
-            createConst({ name: 'pet', export: true, nodes: ['{}'] }),
-          ],
+          nodes: [createType({ name: 'Pet', export: true, nodes: ['{ id: number }'] }), createConst({ name: 'pet', export: true, nodes: ['{}'] })],
         }),
       ],
       imports: [],
