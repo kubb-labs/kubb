@@ -464,7 +464,10 @@ export function printArrowFunction(node: ArrowFunctionNode): string {
 
   const stmt = factory.createVariableStatement(
     constMods.length ? constMods : undefined,
-    factory.createVariableDeclarationList([factory.createVariableDeclaration(factory.createIdentifier(name), undefined, undefined, arrowFn)], ts.NodeFlags.Const),
+    factory.createVariableDeclarationList(
+      [factory.createVariableDeclaration(factory.createIdentifier(name), undefined, undefined, arrowFn)],
+      ts.NodeFlags.Const,
+    ),
   )
 
   return print(withJSDoc(stmt, JSDoc)).trimEnd()

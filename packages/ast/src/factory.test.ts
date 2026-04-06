@@ -12,11 +12,11 @@ import {
   createOperation,
   createParameter,
   createParameterGroup,
+  createParamsType,
   createProperty,
   createResponse,
   createSchema,
   createSource,
-  createParamsType,
   createType,
 } from './factory.ts'
 import type { ArrowFunctionNode, ConstNode, FileNode, FunctionNode, ObjectSchemaNode, StringSchemaNode, TypeNode } from './nodes/index.ts'
