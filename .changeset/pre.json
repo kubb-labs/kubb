@@ -54,6 +54,7 @@
     "adapter-oas-path-param-ref-schema",
     "adapter-oas-remove-collision-detection",
     "ast-additional-properties-visitor",
+    "ast-code-nodes",
     "ast-create-operation-params",
     "ast-function-params",
     "ast-requestbody-description",

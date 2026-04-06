@@ -1,5 +1,29 @@
 # @kubb/agent
 
+## 5.0.0-alpha.32
+
+### Patch Changes
+
+- Updated dependencies [[`6c6d2b6`](https://github.com/kubb-labs/kubb/commit/6c6d2b6b9f0dcfc7826cf9000ed835f274a6a7af)]:
+  - @kubb/ast@5.0.0-alpha.32
+  - @kubb/plugin-ts@5.0.0-alpha.32
+  - @kubb/plugin-client@5.0.0-alpha.32
+  - @kubb/plugin-cypress@5.0.0-alpha.32
+  - @kubb/adapter-oas@5.0.0-alpha.32
+  - @kubb/core@5.0.0-alpha.32
+  - @kubb/parser-ts@5.0.0-alpha.32
+  - @kubb/plugin-mcp@5.0.0-alpha.32
+  - @kubb/plugin-oas@5.0.0-alpha.32
+  - @kubb/plugin-react-query@5.0.0-alpha.32
+  - @kubb/plugin-redoc@5.0.0-alpha.32
+  - @kubb/plugin-solid-query@5.0.0-alpha.32
+  - @kubb/plugin-svelte-query@5.0.0-alpha.32
+  - @kubb/plugin-swr@5.0.0-alpha.32
+  - @kubb/plugin-vue-query@5.0.0-alpha.32
+  - @kubb/plugin-zod@5.0.0-alpha.32
+  - @kubb/plugin-faker@5.0.0-alpha.32
+  - @kubb/plugin-msw@5.0.0-alpha.32
+
 ## 5.0.0-alpha.31
 
 ### Patch Changes
