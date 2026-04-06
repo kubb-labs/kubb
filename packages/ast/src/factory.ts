@@ -315,19 +315,19 @@ export function createResponse(
  *
  * @example Required typed param
  * ```ts
- * createFunctionParameter({ name: 'petId', type: createTypeExpression({ variant: 'reference', name: 'string' }) })
+ * createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }) })
  * // → petId: string
  * ```
  *
  * @example Optional param
  * ```ts
- * createFunctionParameter({ name: 'params', type: createTypeExpression({ variant: 'reference', name: 'QueryParams' }), optional: true })
+ * createFunctionParameter({ name: 'params', type: createParamsType({ variant: 'reference', name: 'QueryParams' }), optional: true })
  * // → params?: QueryParams
  * ```
  *
  * @example Param with default (implicitly optional; cannot combine with `optional: true`)
  * ```ts
- * createFunctionParameter({ name: 'config', type: createTypeExpression({ variant: 'reference', name: 'RequestConfig' }), default: '{}' })
+ * createFunctionParameter({ name: 'config', type: createParamsType({ variant: 'reference', name: 'RequestConfig' }), default: '{}' })
  * // → config: RequestConfig = {}
  * ```
  */
@@ -350,20 +350,20 @@ export function createFunctionParameter(
  *
  * @example Reference type (TypeScript: `QueryParams`)
  * ```ts
- * createTypeExpression({ variant: 'reference', name: 'QueryParams' })
+ * createParamsType({ variant: 'reference', name: 'QueryParams' })
  * ```
  *
  * @example Struct type (TypeScript: `{ petId: string }`)
  * ```ts
- * createTypeExpression({ variant: 'struct', properties: [{ name: 'petId', optional: false, type: createTypeExpression({ variant: 'reference', name: 'string' }) }] })
+ * createParamsType({ variant: 'struct', properties: [{ name: 'petId', optional: false, type: createParamsType({ variant: 'reference', name: 'string' }) }] })
  * ```
  *
  * @example Member type (TypeScript: `DeletePetPathParams['petId']`)
  * ```ts
- * createTypeExpression({ variant: 'member', base: 'DeletePetPathParams', key: 'petId' })
+ * createParamsType({ variant: 'member', base: 'DeletePetPathParams', key: 'petId' })
  * ```
  */
-export function createTypeExpression(
+export function createParamsType(
   props:
     | { variant: 'reference'; name: string }
     | { variant: 'struct'; properties: Array<{ name: string; optional: boolean; type: ParamsTypeNode }> }
@@ -379,8 +379,8 @@ export function createTypeExpression(
  * ```ts
  * createParameterGroup({
  *   properties: [
- *     createFunctionParameter({ name: 'id', type: createTypeExpression({ variant: 'reference', name: 'string' }), optional: false }),
- *     createFunctionParameter({ name: 'name', type: createTypeExpression({ variant: 'reference', name: 'string' }), optional: true }),
+ *     createFunctionParameter({ name: 'id', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
+ *     createFunctionParameter({ name: 'name', type: createParamsType({ variant: 'reference', name: 'string' }), optional: true }),
  *   ],
  *   default: '{}',
  * })
@@ -391,7 +391,7 @@ export function createTypeExpression(
  * @example Inline (spread) — children emitted as individual top-level parameters
  * ```ts
  * createParameterGroup({
- *   properties: [createFunctionParameter({ name: 'petId', type: createTypeExpression({ variant: 'reference', name: 'string' }), optional: false })],
+ *   properties: [createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false })],
  *   inline: true,
  * })
  * // declaration → petId: string
@@ -414,8 +414,8 @@ export function createParameterGroup(
  * ```ts
  * createFunctionParameters({
  *   params: [
- *     createFunctionParameter({ name: 'petId', type: createTypeExpression({ variant: 'reference', name: 'string' }), optional: false }),
- *     createFunctionParameter({ name: 'config', type: createTypeExpression({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
+ *     createFunctionParameter({ name: 'petId', type: createParamsType({ variant: 'reference', name: 'string' }), optional: false }),
+ *     createFunctionParameter({ name: 'config', type: createParamsType({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
  *   ],
  * })
  * ```

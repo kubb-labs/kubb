@@ -1,7 +1,7 @@
 import { camelCase, isValidVarName } from '@internals/utils'
 import { sortBy, uniqueBy } from 'remeda'
 
-import { createFunctionParameter, createFunctionParameters, createParameterGroup, createProperty, createSchema, createTypeExpression } from './factory.ts'
+import { createFunctionParameter, createFunctionParameters, createParameterGroup, createProperty, createSchema, createParamsType } from './factory.ts'
 import { narrowSchema } from './guards.ts'
 import type {
   ExportNode,
@@ -265,7 +265,7 @@ export type CreateOperationParamsOptions = {
 
 function resolveType({ node, param, resolver }: { node: OperationNode; param: ParameterNode; resolver: OperationParamsResolver | undefined }): ParamsTypeNode {
   if (!resolver) {
-    return createTypeExpression({ variant: 'reference', name: param.schema.primitive ?? 'unknown' })
+    return createParamsType({ variant: 'reference', name: param.schema.primitive ?? 'unknown' })
   }
 
   const individualName = resolver.resolveParamName(node, param)
@@ -281,10 +281,10 @@ function resolveType({ node, param, resolver }: { node: OperationNode; param: Pa
   const groupName = groupLocation ? groupResolvers[groupLocation].call(resolver, node, param) : undefined
 
   if (groupName && groupName !== individualName) {
-    return createTypeExpression({ variant: 'member', base: groupName, key: param.name })
+    return createParamsType({ variant: 'member', base: groupName, key: param.name })
   }
 
-  return createTypeExpression({ variant: 'reference', name: individualName })
+  return createParamsType({ variant: 'reference', name: individualName })
 }
 
 /**
@@ -299,7 +299,7 @@ function resolveType({ node, param, resolver }: { node: OperationNode; param: Pa
  *   paramsType: 'inline',
  *   pathParamsType: 'inline',
  *   resolver: tsResolver,
- *   extraParams: [createFunctionParameter({ name: 'options', type: createTypeExpression({ variant: 'reference', name: 'Partial<RequestOptions>' }), default: '{}' })],
+ *   extraParams: [createFunctionParameter({ name: 'options', type: createParamsType({ variant: 'reference', name: 'Partial<RequestOptions>' }), default: '{}' })],
  * })
  * ```
  */
@@ -311,7 +311,7 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   const headersName = paramNames?.headers ?? 'headers'
   const pathName = paramNames?.path ?? 'pathParams'
 
-  const wrapType = (type: string): ParamsTypeNode => createTypeExpression({ variant: 'reference', name: typeWrapper ? typeWrapper(type) : type })
+  const wrapType = (type: string): ParamsTypeNode => createParamsType({ variant: 'reference', name: typeWrapper ? typeWrapper(type) : type })
   // Only reference-variant TypeNodes are wrapped — they hold a plain type name string that needs casing applied.
   // Member and struct TypeNodes are pre-resolved structured expressions and are passed through unchanged.
   const wrapTypeNode = (type: ParamsTypeNode): ParamsTypeNode => (type.kind === 'ParamsType' && type.variant === 'reference' ? wrapType(type.name) : type)
@@ -438,7 +438,7 @@ function resolveGroupType({
     return undefined
   }
   const allOptional = params.every((p) => !p.required)
-  return { type: createTypeExpression({ variant: 'reference', name: groupName }), optional: allOptional }
+  return { type: createParamsType({ variant: 'reference', name: groupName }), optional: allOptional }
 }
 
 /**
@@ -456,7 +456,7 @@ function toStructType({
   params: Array<ParameterNode>
   resolver: OperationParamsResolver | undefined
 }): ParamsTypeNode {
-  return createTypeExpression({
+  return createParamsType({
     variant: 'struct',
     properties: params.map((p) => ({ name: p.name, optional: !p.required, type: resolveType({ node, param: p, resolver }) })),
   })

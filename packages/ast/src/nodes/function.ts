@@ -11,19 +11,19 @@ import type { BaseNode } from './base.ts'
  *
  * @example Reference variant
  * ```ts
- * createTypeExpression({ variant: 'reference', name: 'QueryParams' })
+ * createParamsType({ variant: 'reference', name: 'QueryParams' })
  * // QueryParams
  * ```
  *
  * @example Struct variant
  * ```ts
- * createTypeExpression({ variant: 'struct', properties: [{ name: 'petId', optional: false, type: createTypeExpression({ variant: 'reference', name: 'string' }) }] })
+ * createParamsType({ variant: 'struct', properties: [{ name: 'petId', optional: false, type: createParamsType({ variant: 'reference', name: 'string' }) }] })
  * // { petId: string }
  * ```
  *
  * @example Member variant
  * ```ts
- * createTypeExpression({ variant: 'member', base: 'PathParams', key: 'petId' })
+ * createParamsType({ variant: 'member', base: 'PathParams', key: 'petId' })
  * // PathParams['petId']
  * ```
  */

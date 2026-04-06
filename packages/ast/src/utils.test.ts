@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createFunctionParameter, createOperation, createParameter, createSchema, createTypeExpression } from './factory.ts'
+import { createFunctionParameter, createOperation, createParameter, createSchema, createParamsType } from './factory.ts'
 import type { OperationNode, ParameterNode } from './types.ts'
 import type { OperationParamsResolver } from './utils.ts'
 import { caseParams, createDiscriminantNode, createOperationParams, isStringType, syncSchemaRef } from './utils.ts'
@@ -228,7 +228,7 @@ describe('createOperationParams', () => {
         pathParamsType: 'inline',
         resolver: makeResolver({ resolveParamName: (_node, param) => `Types["${param.name}"]`, resolveDataName: () => 'CreatePetRequest' }),
         extraParams: [
-          createFunctionParameter({ name: 'options', type: createTypeExpression({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }), default: '{}' }),
+          createFunctionParameter({ name: 'options', type: createParamsType({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }), default: '{}' }),
         ],
       })
 
@@ -417,7 +417,7 @@ describe('createOperationParams', () => {
         paramsType: 'object',
         pathParamsType: 'inline',
         resolver: makeResolver({ resolveParamName: (_node, param) => `Types["${param.name}"]`, resolveDataName: () => 'UpdatePetBody' }),
-        extraParams: [createFunctionParameter({ name: 'options', type: createTypeExpression({ variant: 'reference', name: 'Options' }), default: '{}' })],
+        extraParams: [createFunctionParameter({ name: 'options', type: createParamsType({ variant: 'reference', name: 'Options' }), default: '{}' })],
       })
 
       expect(params).toMatchInlineSnapshot(`
@@ -577,7 +577,7 @@ describe('createOperationParams', () => {
       const params = createOperationParams(node, {
         paramsType: 'inline',
         pathParamsType: 'inline',
-        extraParams: [createFunctionParameter({ name: 'options', type: createTypeExpression({ variant: 'reference', name: 'Options' }), default: '{}' })],
+        extraParams: [createFunctionParameter({ name: 'options', type: createParamsType({ variant: 'reference', name: 'Options' }), default: '{}' })],
       })
 
       expect(params).toMatchInlineSnapshot(`

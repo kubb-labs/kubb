@@ -19,7 +19,7 @@ export {
   createSchema,
   createSource,
   createType,
-  createTypeExpression,
+  createParamsType,
   syncOptionality,
 } from './factory.ts'
 export { isInputNode, isOperationNode, isOutputNode, isSchemaNode, narrowSchema } from './guards.ts'
