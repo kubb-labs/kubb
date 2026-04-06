@@ -312,9 +312,8 @@ export function createOperationParams(node: OperationNode, options: CreateOperat
   const pathName = paramNames?.path ?? 'pathParams'
 
   const wrapType = (type: string): TypeNode => createTypeExpression({ variant: 'reference', name: typeWrapper ? typeWrapper(type) : type })
-  // Only reference TypeNodes (expression kind) are wrapped — they hold a plain type name string.
+  // Only reference-variant TypeNodes are wrapped — they hold a plain type name string that needs casing applied.
   // Member and struct TypeNodes are pre-resolved structured expressions and are passed through unchanged.
-  // TypeDeclaration nodes are not used as function parameter type annotations and are passed through.
   const wrapTypeNode = (type: TypeNode): TypeNode => (type.kind === 'Type' && type.variant === 'reference' ? wrapType(type.name) : type)
 
   const casedParams = caseParams(node.parameters, paramsCasing)
