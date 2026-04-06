@@ -514,7 +514,11 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
   // Deduplicates non-array exports by their exact identity
   const seen = new Set<string>()
 
-  for (const curr of [...exports].sort((a, b) => { const ka = sortKey(a); const kb = sortKey(b); return ka < kb ? -1 : ka > kb ? 1 : 0 })) {
+  for (const curr of [...exports].sort((a, b) => {
+    const ka = sortKey(a)
+    const kb = sortKey(b)
+    return ka < kb ? -1 : ka > kb ? 1 : 0
+  })) {
     const { name, path, isTypeOnly, asAlias } = curr
 
     if (Array.isArray(name)) {
@@ -558,7 +562,11 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   // Deduplicates non-array imports by their exact identity
   const seen = new Set<string>()
 
-  for (const curr of [...imports].sort((a, b) => { const ka = sortKey(a); const kb = sortKey(b); return ka < kb ? -1 : ka > kb ? 1 : 0 })) {
+  for (const curr of [...imports].sort((a, b) => {
+    const ka = sortKey(a)
+    const kb = sortKey(b)
+    return ka < kb ? -1 : ka > kb ? 1 : 0
+  })) {
     if (curr.path === curr.root) continue
 
     const { path, isTypeOnly } = curr
