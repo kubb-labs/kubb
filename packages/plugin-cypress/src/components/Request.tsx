@@ -36,7 +36,11 @@ export function Request({ baseURL = '', name, dataReturnType, resolver, node, pa
     paramsCasing,
     resolver,
     extraParams: [
-      createFunctionParameter({ name: 'options', type: createTypeExpression({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }), default: '{}' }),
+      createFunctionParameter({
+        name: 'options',
+        type: createTypeExpression({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }),
+        default: '{}',
+      }),
     ],
   })
   const paramsSignature = declarationPrinter.print(paramsNode) ?? ''

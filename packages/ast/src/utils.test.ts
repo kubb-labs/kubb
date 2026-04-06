@@ -228,7 +228,11 @@ describe('createOperationParams', () => {
         pathParamsType: 'inline',
         resolver: makeResolver({ resolveParamName: (_node, param) => `Types["${param.name}"]`, resolveDataName: () => 'CreatePetRequest' }),
         extraParams: [
-          createFunctionParameter({ name: 'options', type: createTypeExpression({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }), default: '{}' }),
+          createFunctionParameter({
+            name: 'options',
+            type: createTypeExpression({ variant: 'reference', name: 'Partial<Cypress.RequestOptions>' }),
+            default: '{}',
+          }),
         ],
       })
 

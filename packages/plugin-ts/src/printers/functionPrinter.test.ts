@@ -24,7 +24,12 @@ describe('functionPrinter in declaration mode', () => {
   it('prints defaulted typed parameters as `name: type = default`', () => {
     const sig = createFunctionParameters({
       params: [
-        createFunctionParameter({ name: 'config', type: createTypeExpression({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
+        createFunctionParameter({
+          name: 'config',
+          type: createTypeExpression({ variant: 'reference', name: 'RequestConfig' }),
+          optional: false,
+          default: '{}',
+        }),
       ],
     })
 
@@ -118,7 +123,12 @@ describe('functionPrinter in declaration mode', () => {
           ],
           default: '{}',
         }),
-        createFunctionParameter({ name: 'config', type: createTypeExpression({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
+        createFunctionParameter({
+          name: 'config',
+          type: createTypeExpression({ variant: 'reference', name: 'RequestConfig' }),
+          optional: false,
+          default: '{}',
+        }),
       ],
     })
 
@@ -149,7 +159,12 @@ describe('functionPrinter() in call mode', () => {
     const sig = createFunctionParameters({
       params: [
         createFunctionParameter({ name: 'petId', type: createTypeExpression({ variant: 'reference', name: 'string' }), optional: false }),
-        createFunctionParameter({ name: 'config', type: createTypeExpression({ variant: 'reference', name: 'RequestConfig' }), optional: false, default: '{}' }),
+        createFunctionParameter({
+          name: 'config',
+          type: createTypeExpression({ variant: 'reference', name: 'RequestConfig' }),
+          optional: false,
+          default: '{}',
+        }),
       ],
     })
 

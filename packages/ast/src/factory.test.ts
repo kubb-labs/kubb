@@ -16,8 +16,8 @@ import {
   createResponse,
   createSchema,
   createSource,
-  createTypeExpression,
   createType,
+  createTypeExpression,
 } from './factory.ts'
 import type { ArrowFunctionNode, ConstNode, FileNode, FunctionNode, ObjectSchemaNode, StringSchemaNode, TypeDeclarationNode } from './nodes/index.ts'
 
