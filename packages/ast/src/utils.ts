@@ -1,7 +1,7 @@
 import { camelCase, isValidVarName } from '@internals/utils'
 import { sortBy, uniqueBy } from 'remeda'
 
-import { createFunctionParameter, createFunctionParameters, createParameterGroup, createProperty, createSchema, createParamsType } from './factory.ts'
+import { createFunctionParameter, createFunctionParameters, createParameterGroup, createParamsType, createProperty, createSchema } from './factory.ts'
 import { narrowSchema } from './guards.ts'
 import type {
   ExportNode,
@@ -263,7 +263,15 @@ export type CreateOperationParamsOptions = {
   typeWrapper?: (type: string) => string
 }
 
-function resolveParamsType({ node, param, resolver }: { node: OperationNode; param: ParameterNode; resolver: OperationParamsResolver | undefined }): ParamsTypeNode {
+function resolveParamsType({
+  node,
+  param,
+  resolver,
+}: {
+  node: OperationNode
+  param: ParameterNode
+  resolver: OperationParamsResolver | undefined
+}): ParamsTypeNode {
   if (!resolver) {
     return createParamsType({ variant: 'reference', name: param.schema.primitive ?? 'unknown' })
   }
@@ -490,9 +498,12 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
     (v) => (Array.isArray(v.name) ? [...v.name].sort().join('\0') : (v.name ?? '')),
   )
 
-  const prev: Array<ExportNode> = []
-  const pathMap = new Map<string, ExportNode>()
-  const uniqueMap = new Map<string, ExportNode>()
+  for (const curr of [...exports].sort((a, b) => {
+    const ka = sortKey(a)
+    const kb = sortKey(b)
+    return ka < kb ? -1 : ka > kb ? 1 : 0
+  })) {
+    const { name, path, isTypeOnly, asAlias } = curr
 
   for (const curr of sorted) {
     const name = curr.name
@@ -537,10 +548,26 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
  * Imports with the same path and `isTypeOnly` flag have their names merged.
  */
 export function combineImports(imports: Array<ImportNode>, exports: Array<ExportNode>, source?: string): Array<ImportNode> {
-  const exportedNameLookup = new Set<string>()
-  for (const item of exports) {
-    const { name } = item
-    if (!name) continue
+  // Build a lookup of all exported names to retain imports that are re-exported
+  const exportedNames = new Set(exports.flatMap((e) => (Array.isArray(e.name) ? e.name : e.name ? [e.name] : [])))
+  const isUsed = (importName: string): boolean => !source || source.includes(importName) || exportedNames.has(importName)
+
+  const result: Array<ImportNode> = []
+  // Accumulates array-named imports keyed by `path:isTypeOnly` for name-merging
+  const namedByPath = new Map<string, ImportNode>()
+  // Deduplicates non-array imports by their exact identity
+  const seen = new Set<string>()
+
+  for (const curr of [...imports].sort((a, b) => {
+    const ka = sortKey(a)
+    const kb = sortKey(b)
+    return ka < kb ? -1 : ka > kb ? 1 : 0
+  })) {
+    if (curr.path === curr.root) continue
+
+    const { path, isTypeOnly } = curr
+    let { name } = curr
+
     if (Array.isArray(name)) {
       for (const value of name) {
         if (value) exportedNameLookup.add(value)
