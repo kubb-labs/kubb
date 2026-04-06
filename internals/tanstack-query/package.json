@@ -52,8 +52,8 @@
     "@kubb/plugin-oas": "workspace:*"
   },
   "peerDependencies": {
-    "@kubb/fabric-core": "0.15.1",
-    "@kubb/react-fabric": "0.15.1"
+    "@kubb/fabric-core": "0.16.0",
+    "@kubb/react-fabric": "0.16.0"
   },
   "devDependencies": {
     "@kubb/fabric-core": "catalog:",

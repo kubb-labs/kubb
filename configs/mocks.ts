@@ -166,7 +166,7 @@ export async function matchFiles(files: Array<FileNode> | undefined, pre?: strin
       continue
     }
 
-    const parsed = await fileProcessor.parse(file, { parsers })
+    const parsed = await fileProcessor.parse(file as any, { parsers })
     const code = file.baseName.endsWith('.json') ? parsed : await format(parsed)
 
     processed.set(file.path, code)

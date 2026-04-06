@@ -72,7 +72,7 @@
     "handlebars": "^4.7.9"
   },
   "peerDependencies": {
-    "@kubb/react-fabric": "0.15.1"
+    "@kubb/react-fabric": "0.16.0"
   },
   "engines": {
     "node": ">=22"
