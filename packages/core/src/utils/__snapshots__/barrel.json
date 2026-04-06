@@ -25,15 +25,15 @@
     "baseName": "index.ts",
     "exports": [
       {
+        "path": "./test.ts",
+        "kind": "Export"
+      },
+      {
         "path": "./sub/hello.ts",
         "kind": "Export"
       },
       {
         "path": "./sub/world.ts",
-        "kind": "Export"
-      },
-      {
-        "path": "./test.ts",
         "kind": "Export"
       }
     ],
@@ -125,14 +125,6 @@
     "imports": [],
     "exports": [
       {
-        "path": "./hello.ts",
-        "kind": "Export"
-      },
-      {
-        "path": "./world.ts",
-        "kind": "Export"
-      },
-      {
         "kind": "Export",
         "name": [
           "hello"
@@ -145,6 +137,14 @@
           "world"
         ],
         "path": "./sub/world.ts"
+      },
+      {
+        "path": "./hello.ts",
+        "kind": "Export"
+      },
+      {
+        "path": "./world.ts",
+        "kind": "Export"
       }
     ],
     "id": "00d9bb747968e55db50fa82465b2f0678d957e9befeaff84a70e431486a8a132",
