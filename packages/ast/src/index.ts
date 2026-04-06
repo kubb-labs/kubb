@@ -1,8 +1,11 @@
 export type { ScalarPrimitive } from './constants.ts'
 export { httpMethods, isScalarPrimitive, mediaTypes, nodeKinds, schemaTypes } from './constants.ts'
 export {
+  createArrowFunction,
+  createConst,
   createExport,
   createFile,
+  createFunction,
   createFunctionParameter,
   createFunctionParameters,
   createImport,
@@ -15,7 +18,8 @@ export {
   createResponse,
   createSchema,
   createSource,
-  createTypeNode,
+  createType,
+  createParamsType,
   syncOptionality,
 } from './factory.ts'
 export { isInputNode, isOperationNode, isOutputNode, isSchemaNode, narrowSchema } from './guards.ts'

@@ -1,4 +1,5 @@
 import type { BaseNode } from './base.ts'
+import type { CodeNode } from './code.ts'
 
 /**
  * Supported file extensions.
@@ -153,6 +154,12 @@ export type SourceNode = BaseNode & {
    * @default false
    */
   isIndexable?: boolean
+  /**
+   * Structured child nodes representing the content of this source fragment.
+   * These correspond to the children of the `File.Source` component from `@kubb/react-fabric`
+   * (e.g. `ConstNode`, `TypeDeclarationNode`, `FunctionDeclarationNode`, `ArrowFunctionDeclarationNode`).
+   */
+  nodes?: Array<CodeNode>
 }
 
 /**

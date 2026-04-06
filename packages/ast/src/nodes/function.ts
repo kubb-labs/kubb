@@ -1,19 +1,37 @@
 import type { BaseNode } from './base.ts'
 
 /**
- * AST node representing a language-agnostic type expression produced during parameter resolution.
- * Each language printer renders the variant into its own syntax.
+ * AST node representing a language-agnostic type expression used as a function parameter
+ * type annotation. Each language printer renders the variant into its own syntax.
  *
  * - `struct` — an inline anonymous type grouping named fields.
- *   TypeScript renders as `{ petId: string; name?: string }`, Python as a `TypedDict` reference.
+ *   TypeScript renders as `{ petId: string; name?: string }`.
  * - `member` — a single named field accessed from a named group type.
- *   TypeScript renders as `PathParams['petId']`, C# as `PathParams.PetId`.
+ *   TypeScript renders as `PathParams['petId']`.
+ *
+ * @example Reference variant
+ * ```ts
+ * createParamsType({ variant: 'reference', name: 'QueryParams' })
+ * // QueryParams
+ * ```
+ *
+ * @example Struct variant
+ * ```ts
+ * createParamsType({ variant: 'struct', properties: [{ name: 'petId', optional: false, type: createParamsType({ variant: 'reference', name: 'string' }) }] })
+ * // { petId: string }
+ * ```
+ *
+ * @example Member variant
+ * ```ts
+ * createParamsType({ variant: 'member', base: 'PathParams', key: 'petId' })
+ * // PathParams['petId']
+ * ```
  */
-export type TypeNode = BaseNode & {
+export type ParamsTypeNode = BaseNode & {
   /**
    * Node kind.
    */
-  kind: 'Type'
+  kind: 'ParamsType'
 } & (
     | {
         /**
@@ -35,7 +53,7 @@ export type TypeNode = BaseNode & {
         /**
          * Properties of the struct type.
          */
-        properties: Array<{ name: string; optional: boolean; type: TypeNode }>
+        properties: Array<{ name: string; optional: boolean; type: ParamsTypeNode }>
       }
     | {
         /**
@@ -79,19 +97,19 @@ export type FunctionParameterNode = BaseNode & {
    */
   name: string
   /**
-   * Type annotation as a structured {@link TypeNode}.
+   * Type annotation as a structured {@link ParamsTypeNode}.
    * Omit for untyped output.
    *
    * @example Reference type node
-   * `{ kind: 'Type', variant: 'reference', name: 'string' }` → `petId: string`
+   * `{ kind: 'ParamsType', variant: 'reference', name: 'string' }` → `petId: string`
    *
    * @example Struct type node
-   * `{ kind: 'Type', variant: 'struct', properties: [...] }` → `{ key: Type; other?: OtherType }`
+   * `{ kind: 'ParamsType', variant: 'struct', properties: [...] }` → `{ key: Type; other?: OtherType }`
    *
    * @example Member type node
-   * `{ kind: 'Type', variant: 'member', base: 'PathParams', key: 'petId' }` → `PathParams['petId']`
+   * `{ kind: 'ParamsType', variant: 'member', base: 'PathParams', key: 'petId' }` → `PathParams['petId']`
    */
-  type?: TypeNode
+  type?: ParamsTypeNode
   /**
    * When `true` the parameter is emitted as a rest parameter.
    *
@@ -147,7 +165,7 @@ export type ParameterGroupNode = BaseNode & {
    * Optional explicit type annotation for the whole group.
    * When absent, printers auto-compute it from `properties`.
    */
-  type?: TypeNode
+  type?: ParamsTypeNode
   /**
    * When `true`, `properties` are emitted as individual top-level parameters instead of
    * being wrapped in a single grouped construct.
@@ -191,11 +209,11 @@ export type FunctionParametersNode = BaseNode & {
 }
 
 /**
- * The four function-signature AST node variants.
+ * Union of all function-parameter AST node variants used by the function-parameter printer.
  */
-export type FunctionNode = FunctionParameterNode | ParameterGroupNode | FunctionParametersNode | TypeNode
+export type FunctionParamNode = FunctionParameterNode | ParameterGroupNode | FunctionParametersNode | ParamsTypeNode
 
 /**
- * Handler map keys — one per `FunctionNode` kind.
+ * Handler map keys — one per `FunctionParamNode` kind.
  */
-export type FunctionNodeType = 'functionParameter' | 'parameterGroup' | 'functionParameters' | 'type'
+export type FunctionNodeType = 'functionParameter' | 'parameterGroup' | 'functionParameters' | 'paramsType'

@@ -18,10 +18,14 @@ export type NodeKind =
   | 'ParameterGroup'
   | 'FunctionParameters'
   | 'Type'
+  | 'ParamsType'
   | 'File'
   | 'Import'
   | 'Export'
   | 'Source'
+  | 'Const'
+  | 'Function'
+  | 'ArrowFunction'
 
 /**
  * Base shape shared by all AST nodes.
