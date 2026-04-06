@@ -24,7 +24,7 @@ describe('printJSDoc', () => {
 
   it('escapes */ in comment content', () => {
     const result = printJSDoc({ comments: ['see */ here'] })
-    expect(result).toBe('/**\n * see *\\/ here\n */')
+    expect(result).toBe('/**\n * see * / here\n */')
   })
 })
 

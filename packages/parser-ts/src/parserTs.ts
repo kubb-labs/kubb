@@ -172,12 +172,12 @@ export function createExport({
  * ```
  */
 export function printJSDoc(jsDoc: JSDocNode): string {
-  const comments = (jsDoc.comments ?? []).filter((c): c is string => c != null)
+  const comments = (jsDoc.comments ?? []).filter((c) => c != null)
   if (comments.length === 0) return ''
 
   const lines = comments
     .flatMap((c) => c.split(/\r?\n/))
-    .map((l) => l.replace(/\*\//g, '*\\/').replace(/\r/g, ''))
+    .map((l) => l.replace(/\*\//g, '* /').replace(/\r/g, ''))
     .filter((l) => l.trim().length > 0)
 
   if (lines.length === 0) return ''
@@ -237,11 +237,9 @@ export function printConst(node: ConstNode): string {
   parts.push('const ')
   parts.push(name)
   if (type) {
-    parts.push(`: ${type} `)
-  } else {
-    parts.push(' ')
+    parts.push(`: ${type}`)
   }
-  parts.push('= ')
+  parts.push(' = ')
   parts.push(body)
   if (asConst) parts.push(' as const')
 
