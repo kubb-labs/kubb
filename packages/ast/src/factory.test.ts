@@ -19,7 +19,7 @@ import {
   createTypeExpression,
   createType,
 } from './factory.ts'
-import type { ArrowFunctionNode, ConstNode, FileNode, FunctionNode, ObjectSchemaNode, ParamsTypeNode, StringSchemaNode, TypeNode } from './nodes/index.ts'
+import type { ArrowFunctionNode, ConstNode, FileNode, FunctionNode, ObjectSchemaNode, StringSchemaNode, TypeNode } from './nodes/index.ts'
 
 describe('createInput', () => {
   it('creates an InputNode with default empty arrays', () => {
